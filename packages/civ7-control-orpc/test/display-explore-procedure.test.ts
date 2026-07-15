@@ -11,6 +11,7 @@ import {
   Civ7ExploreFailedError,
   Civ7ExploreSuspensionUnverifiedError,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
 
 // Fast drain settings: the procedure sleeps for real (Effect.sleep), so the
 // tests pin pollMs to the schema minimum and settleMs to zero.
@@ -288,7 +289,7 @@ function fakeContext(
         port: 4318,
         timeoutMs: 1_000,
       },
-      directControl: {
+      directControl: directControlFacadeFixture({
         getCiv7VisibilitySummary: async () => {
           calls.push("summary");
           return summaries.shift() ?? visibilitySummary(6996);
@@ -330,7 +331,7 @@ function fakeContext(
           if (options.closeDisplays) return options.closeDisplays();
           return purges.shift() ?? closeDisplaysResult([]);
         },
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
     },
   };
 }

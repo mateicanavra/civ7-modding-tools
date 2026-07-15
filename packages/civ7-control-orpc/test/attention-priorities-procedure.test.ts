@@ -15,6 +15,7 @@ import {
   Civ7ControlOrpcRouter,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
 
 describe("attention.priorities control-oRPC procedure", () => {
   test("composes current attention and battlefield evidence into semantic priorities", async () => {
@@ -222,7 +223,7 @@ function fakeContext(options: FakeContextOptions): {
       port: 4318,
       timeoutMs: 1_000,
     },
-    directControl: {
+    directControl: directControlFacadeFixture({
       getCiv7PlayableStatus: async (endpointDefaults) => {
         calls.playableStatus.push(endpointDefaults);
         return options.playableStatus;
@@ -259,7 +260,7 @@ function fakeContext(options: FakeContextOptions): {
         }
         return options.battlefield;
       },
-    },
+    }),
   };
 
   return { context, calls };
@@ -481,13 +482,20 @@ function battlefieldScanResult(): Civ7ControlOrpcBattlefieldScanResult {
     origins: [{ x: 12, y: 18 }],
     radius: 6,
     hiddenInfoPolicy: "debug-visible-runtime",
+    relationshipLabelPolicy: {
+      relationshipSource: "not-classified",
+      relationshipProof: "none",
+      unprovenLabel: "relationship-unproven",
+      guidance: "Owner mismatch is contact evidence only.",
+    },
+    units: [],
+    cities: [],
     pointsOfInterest: [
       {
         kind: "city-front",
         severity: "high",
         location: { x: 14, y: 18 },
         summary: "relationship-unproven city near ready unit",
-        evidence: [],
       },
     ],
     owners: [],

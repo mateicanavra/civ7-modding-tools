@@ -1,11 +1,14 @@
 import { isProcedure } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
+import type { Civ7ControlOrpcDirectControlFacade } from "../src/dependencies/direct-control";
 import {
+  type Civ7ControllerContext,
   Civ7ControllerOrpcRouter,
-  type Civ7ControlOrpcContext,
   createCiv7IntelligenceBridge,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
+import { playableStatusResult } from "./support/playable-status";
 
 const controllerProcedureKeys = [
   "attention.current",
@@ -146,10 +149,16 @@ describe("native controller router", () => {
 
   test("dispatches admitted reads and proofed mutations into canonical handlers", async () => {
     const calls: unknown[] = [];
+    let playableStatusCalls = 0;
     const context = controllerContext({
       readProcedures: ["world.current"],
       mutationProcedures: ["notifications.dismiss.request"],
       proof: true,
+      getPlayableStatus: async () => {
+        playableStatusCalls += 1;
+        if (playableStatusCalls === 1) throw new Error("world status sentinel");
+        return playableStatusResult();
+      },
       calls,
     });
     const bridge = createCiv7IntelligenceBridge({ createContext: () => context });
@@ -187,42 +196,19 @@ function controllerContext(
     readProcedures?: readonly string[];
     mutationProcedures?: readonly string[];
     proof?: boolean;
+    getPlayableStatus?: Civ7ControlOrpcDirectControlFacade["getCiv7PlayableStatus"];
     calls?: unknown[];
   }> = {}
-): Civ7ControlOrpcContext {
+): Civ7ControllerContext {
   const calls = options.calls ?? [];
   return {
-    directControl: {
-      getCiv7PlayableStatus: async () => ({
-        host: "127.0.0.1",
-        port: 4318,
-        playable: true,
-        readiness: "tuner-ready",
-        appUi: {
-          host: "127.0.0.1",
-          port: 4318,
-          state: { id: "65535", name: "App UI" },
-          snapshot: {
-            ui: {
-              inGame: { ok: true, value: true },
-              inShell: { ok: true, value: false },
-              inLoading: { ok: true, value: false },
-              canBeginGame: { ok: true, value: false },
-            },
-            currentState: "App UI",
-          },
-        },
-        tuner: {
-          ready: true,
-          health: { ok: true, host: "127.0.0.1", port: 4318, latencyMs: 1 },
-        },
-        errors: [],
-      }),
+    directControl: directControlFacadeFixture({
+      getCiv7PlayableStatus: options.getPlayableStatus ?? (async () => playableStatusResult()),
       requestCiv7NotificationDismissal: async () => {
         calls.push("notifications.dismiss.request");
         throw new Error("notification sentinel");
       },
-    } as Civ7ControlOrpcContext["directControl"],
+    }),
     controller: {
       supportedReadProcedures: options.readProcedures ?? [],
       supportedMutationProcedures: options.mutationProcedures ?? [],

@@ -1,11 +1,11 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
+import type { Civ7ControlOrpcUnitTargetActionResult } from "../src/dependencies/direct-control";
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   Civ7ControlOrpcRouter,
-  type Civ7ControlOrpcUnitTargetActionResult,
   Civ7UnitTargetActionUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";

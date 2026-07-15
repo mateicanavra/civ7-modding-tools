@@ -1,6 +1,10 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
+import type {
+  Civ7ControlOrpcMapGridResult,
+  Civ7ControlOrpcPlotSnapshotResult,
+} from "../src/dependencies/direct-control";
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
@@ -8,6 +12,7 @@ import {
   Civ7WorldReadUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
 
 describe("world map read control-oRPC procedures", () => {
   test("projects one plot without raw direct-control runtime envelope", async () => {
@@ -173,13 +178,13 @@ describe("world map read control-oRPC procedures", () => {
 
   test("maps facade failures to tagged errors without raw cause details", async () => {
     const context: Civ7ControlOrpcContext = {
-      directControl: {
+      directControl: directControlFacadeFixture({
         getCiv7PlotSnapshot: async () => {
           throw new Error(
             "Timed out waiting for Civ7 tuner response to CMD:1:GameplayMap.getTerrainType(3,4)"
           );
         },
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
     };
 
     await expect(
@@ -269,7 +274,7 @@ function fakeContext(
         port: 4318,
         timeoutMs: 1_000,
       },
-      directControl: {
+      directControl: directControlFacadeFixture({
         getCiv7PlotSnapshot: async (input, options) => {
           plotCalls.push({ input, options });
           return overrides.plotResult ?? plotSnapshotResult();
@@ -278,12 +283,12 @@ function fakeContext(
           gridCalls.push({ input, options });
           return overrides.gridResult ?? mapGridResult();
         },
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
     },
   };
 }
 
-function plotSnapshotResult() {
+function plotSnapshotResult(): Civ7ControlOrpcPlotSnapshotResult {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -299,7 +304,7 @@ function plotSnapshotResult() {
   };
 }
 
-function mapGridResult() {
+function mapGridResult(): Civ7ControlOrpcMapGridResult {
   return {
     host: "127.0.0.1",
     port: 4318,

@@ -12,6 +12,7 @@ import {
   Civ7StrategyTacticalReadUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
 
 describe("strategy tactical read control-oRPC procedures", () => {
   test("projects battlefield scan into bounded owner and point summaries", async () => {
@@ -289,7 +290,7 @@ describe("strategy tactical read control-oRPC procedures", () => {
 
   test("maps raw-command-bearing read failures to bounded tagged errors", async () => {
     const context: Civ7ControlOrpcContext = {
-      directControl: {
+      directControl: directControlFacadeFixture({
         getCiv7BattlefieldScan: async () => {
           throw new Error("Timed out waiting for Civ7 tuner response to CMD:0:Game.turn");
         },
@@ -299,7 +300,7 @@ describe("strategy tactical read control-oRPC procedures", () => {
         getCiv7DestinationAnalysis: async () => {
           throw new Error("Timed out waiting for Civ7 tuner response to CMD:2:Game.turn");
         },
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
     };
 
     await expect(
@@ -598,6 +599,40 @@ function targetCandidatesResult(): Civ7ControlOrpcTargetCandidatesResult {
 }
 
 function destinationAnalysisResult(): Civ7ControlOrpcDestinationAnalysisResult {
+  const unit = {
+    id: { owner: 9, id: 196608, type: 26 },
+    owner: 9,
+    stance: "other" as const,
+    relationshipProof: "none" as const,
+    relationshipLabel: "relationship-unproven" as const,
+    type: 1,
+    typeName: "UNIT_WARRIOR",
+    role: "melee",
+    location: { x: 13, y: 17 },
+    distance: 7,
+    nearestOrigin: { x: 20, y: 14 },
+    damage: 0,
+    wounded: false,
+    strength: 20,
+    movementMovesRemaining: 2,
+    attacksRemaining: 1,
+    corridorDistance: 0,
+    destinationDistance: 0,
+  };
+  const city = {
+    id: { owner: 9, id: 1, type: 0 },
+    owner: 9,
+    stance: "other" as const,
+    relationshipProof: "none" as const,
+    relationshipLabel: "relationship-unproven" as const,
+    name: "Other City",
+    location: { x: 13, y: 17 },
+    distance: 7,
+    nearestOrigin: { x: 20, y: 14 },
+    population: 3,
+    isTown: false,
+    destinationDistance: 0,
+  };
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -620,13 +655,13 @@ function destinationAnalysisResult(): Civ7ControlOrpcDestinationAnalysisResult {
       directGridDistance: 7,
       sampleCount: 8,
       sampledPlots: [{ location: { x: 20, y: 14 } }],
-      units: [{ location: { x: 13, y: 17 } }],
+      units: [unit],
       unitCount: 1,
     },
     destinationPressure: {
-      units: [{ location: { x: 13, y: 17 } }],
+      units: [unit],
       unitCount: 1,
-      cities: [{ location: { x: 13, y: 17 } }],
+      cities: [city],
       cityCount: 1,
       apparentOtherStrength: 20,
     },

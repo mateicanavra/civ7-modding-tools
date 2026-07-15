@@ -13,7 +13,6 @@
     },
     "typecheck": {
       "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
-      "dependsOn": ["^build"],
       "cache": true,
       "outputs": [],
       "options": {

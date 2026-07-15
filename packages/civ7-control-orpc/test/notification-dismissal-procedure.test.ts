@@ -1,10 +1,10 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
+import type { Civ7ControlOrpcNotificationDismissalResult } from "../src/dependencies/direct-control";
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
-  type Civ7ControlOrpcNotificationDismissalResult,
   Civ7ControlOrpcRouter,
   Civ7NotificationDismissalUnavailableError,
   createCiv7ControlOrpcServerClient,
@@ -303,7 +303,8 @@ function notificationDismissalResult(
   } = {}
 ): Civ7ControlOrpcNotificationDismissalResult {
   const before = notificationSummary();
-  const after = "after" in options ? options.after : notificationSummary({ exists: false });
+  const after =
+    options.after === undefined ? notificationSummary({ exists: false }) : options.after;
   const sent = options.sent ?? classification !== "not-sent";
 
   return {

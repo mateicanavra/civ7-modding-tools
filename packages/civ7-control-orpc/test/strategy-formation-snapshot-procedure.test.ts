@@ -12,6 +12,7 @@ import {
   Civ7StrategyFormationSnapshotUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
 
 describe("strategy.formationSnapshot control-oRPC procedure", () => {
   test("composes ready-unit and battlefield evidence into a safe formation view", async () => {
@@ -132,11 +133,11 @@ describe("strategy.formationSnapshot control-oRPC procedure", () => {
 
   test("maps source failures to tagged errors without raw command details", async () => {
     const context: Civ7ControlOrpcContext = {
-      directControl: {
+      directControl: directControlFacadeFixture({
         getCiv7PlayNotificationView: async () => {
           throw new Error("Timed out waiting for Civ7 tuner response to CMD:1:Game.turn");
         },
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
     };
 
     await expect(
@@ -239,6 +240,9 @@ function fakeContext(
 function playNotificationView(): Civ7ControlOrpcPlayNotificationViewResult {
   const unitId = { owner: 0, id: 458752, type: 26 };
   return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
     localPlayerId: 0,
     turn: { ok: true, value: 75 },
     turnDate: { ok: true, value: "2150 BCE" },
@@ -262,6 +266,9 @@ function playNotificationView(): Civ7ControlOrpcPlayNotificationViewResult {
 function readyUnitView(): Civ7ControlOrpcReadyUnitViewResult {
   const unitId = { owner: 0, id: 458752, type: 26 };
   return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
     localPlayerId: 0,
     requestedUnitId: unitId,
     selectedUnitId: { ok: true, value: null },
@@ -293,7 +300,7 @@ function readyUnitView(): Civ7ControlOrpcReadyUnitViewResult {
     promotionReadiness: { ok: true, value: null },
     nearby: { ok: true, value: [] },
     notes: ["Read-only ready-unit fixture."],
-  } as Civ7ControlOrpcReadyUnitViewResult;
+  };
 }
 
 function battlefieldScan(): Civ7ControlOrpcBattlefieldScanResult {
@@ -323,6 +330,9 @@ function battlefieldScan(): Civ7ControlOrpcBattlefieldScanResult {
     distance: 4,
   });
   return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
     localPlayerId: 0,
     playerId: 0,
     origins: [{ x: 17, y: 20 }],
@@ -350,18 +360,26 @@ function battlefieldScan(): Civ7ControlOrpcBattlefieldScanResult {
   };
 }
 
-function formationUnit(overrides: Partial<Record<string, unknown>>) {
+type FormationUnit = Civ7ControlOrpcBattlefieldScanResult["units"][number];
+
+function formationUnit(overrides: Partial<FormationUnit>): FormationUnit {
   return {
     id: { owner: 0, id: 1, type: 26 },
     owner: 0,
     stance: "friendly",
     relationshipProof: "self",
     relationshipLabel: "friendly",
+    type: 111,
     role: "ranged",
     typeName: "UNIT_SLINGER",
     location: { x: 17, y: 20 },
     distance: 0,
+    nearestOrigin: { x: 17, y: 20 },
+    damage: 0,
+    wounded: false,
     strength: 10,
+    movementMovesRemaining: 2,
+    attacksRemaining: 1,
     ...overrides,
   };
 }

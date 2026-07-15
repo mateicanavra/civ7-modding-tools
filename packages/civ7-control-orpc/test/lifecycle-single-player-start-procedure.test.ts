@@ -21,6 +21,7 @@ import {
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
 import { liveCiv7ControlOrpcDirectControlFacade } from "../src/runtime";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
 
 const input = {
   mapScript: "{swooper-maps}/maps/studio-current.js",
@@ -442,35 +443,35 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
       "non-finite width",
       (summary: Civ7MapSummaryResult) => ({
         ...summary,
-        map: { ...summary.map, width: { ok: true, value: Number.POSITIVE_INFINITY } },
+        map: { ...summary.map, width: probe(Number.POSITIVE_INFINITY) },
       }),
     ],
     [
       "fractional width",
       (summary: Civ7MapSummaryResult) => ({
         ...summary,
-        map: { ...summary.map, width: { ok: true, value: 1.5 } },
+        map: { ...summary.map, width: probe(1.5) },
       }),
     ],
     [
       "negative height",
       (summary: Civ7MapSummaryResult) => ({
         ...summary,
-        map: { ...summary.map, height: { ok: true, value: -1 } },
+        map: { ...summary.map, height: probe(-1) },
       }),
     ],
     [
       "zero plot count",
       (summary: Civ7MapSummaryResult) => ({
         ...summary,
-        map: { ...summary.map, plotCount: { ok: true, value: 0 } },
+        map: { ...summary.map, plotCount: probe(0) },
       }),
     ],
     [
       "negative turn",
       (summary: Civ7MapSummaryResult) => ({
         ...summary,
-        game: { ...summary.game, turn: { ok: true, value: -1 } },
+        game: { ...summary.game, turn: probe(-1) },
       }),
     ],
   ] as const)("fails closed on malformed optional runtime evidence: %s", async (_label, alter) => {
@@ -567,7 +568,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
 
   test("fails before provider access when the lifecycle facade is absent", async () => {
     const context: Civ7ControlOrpcContext = {
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      directControl: directControlFacadeFixture(),
       correlation: { correlationId: "run-42" },
     };
 
@@ -1169,7 +1170,7 @@ function makeHarness(
   return {
     calls,
     context: {
-      directControl: liveCiv7ControlOrpcDirectControlFacade,
+      directControl: directControlFacadeFixture(),
       directLifecycle,
       endpointDefaults: { host: "127.0.0.1", port: 4318 },
       correlation: { correlationId: "run-42" },

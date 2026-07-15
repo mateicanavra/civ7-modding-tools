@@ -365,7 +365,7 @@ function townFocusResult(
   const valid = options.valid ?? true;
   const operationType =
     kind === "town-focus-change" ? "CHANGE_GROWTH_MODE" : "CONSIDER_TOWN_PROJECT";
-  const args =
+  const args: Readonly<Record<string, number>> =
     kind === "town-focus-change"
       ? {
           Type: -284_569_333,

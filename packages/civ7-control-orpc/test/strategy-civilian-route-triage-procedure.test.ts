@@ -14,6 +14,7 @@ import {
   Civ7StrategyCivilianRouteTriageUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
 
 describe("strategy.civilianRouteTriage control-oRPC procedure", () => {
   test("composes route evidence into semantic civilian triage", async () => {
@@ -142,11 +143,11 @@ describe("strategy.civilianRouteTriage control-oRPC procedure", () => {
 
   test("maps source failures to tagged errors without raw command details", async () => {
     const context: Civ7ControlOrpcContext = {
-      directControl: {
+      directControl: directControlFacadeFixture({
         getCiv7PlayNotificationView: async () => {
           throw new Error("Timed out waiting for Civ7 tuner response to CMD:1:Game.turn");
         },
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
     };
 
     await expect(
@@ -263,6 +264,9 @@ function fakeContext(
 function playNotificationView(): Civ7ControlOrpcPlayNotificationViewResult {
   const unitId = { owner: 0, id: 458752, type: 26 };
   return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
     localPlayerId: 0,
     turn: { ok: true, value: 75 },
     turnDate: { ok: true, value: "2150 BCE" },
@@ -283,6 +287,9 @@ function playNotificationView(): Civ7ControlOrpcPlayNotificationViewResult {
 function readyUnitView(): Civ7ControlOrpcReadyUnitViewResult {
   const unitId = { owner: 0, id: 458752, type: 26 };
   return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
     localPlayerId: 0,
     requestedUnitId: unitId,
     selectedUnitId: { ok: true, value: null },
@@ -314,9 +321,17 @@ function readyUnitView(): Civ7ControlOrpcReadyUnitViewResult {
     promotionReadiness: {
       ok: true,
       value: {
+        hasExperience: true,
+        canPromote: false,
         canPurchase: false,
         promotionClass: "PROMOTION_CLASS_LAND_COMMANDER",
-        promotions: [],
+        level: 1,
+        experiencePoints: 0,
+        experienceToNextLevel: 15,
+        totalPromotionsEarned: 0,
+        storedPromotionPoints: 0,
+        storedCommendations: 0,
+        availablePromotions: [],
         notes: [],
       },
     },
@@ -327,6 +342,9 @@ function readyUnitView(): Civ7ControlOrpcReadyUnitViewResult {
 
 function settlementRecommendations(): Civ7ControlOrpcSettlementRecommendationsResult {
   return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
     localPlayerId: 0,
     playerId: 0,
     count: 5,
