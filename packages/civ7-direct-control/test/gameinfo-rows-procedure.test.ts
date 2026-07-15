@@ -4,12 +4,15 @@ import { describe, expect, test } from "vitest";
 import {
   Civ7GameInfoRowsProcedureDescriptor,
   Civ7GameInfoRowsProcedureSchemaArtifacts,
+  type Civ7GameInfoRowsResult,
   callCiv7GameInfoRowsProcedure,
   type GameInfoReadDependencies,
   getCiv7GameInfoRows,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
+
+import { schemaPropertyKeys } from "./support/procedure-schema";
 
 describe("Civ7 GameInfo rows procedure descriptor", () => {
   test("records the debug/runtime GameInfo rows atom and resolves its schemas", () => {
@@ -33,10 +36,10 @@ describe("Civ7 GameInfo rows procedure descriptor", () => {
       Civ7GameInfoRowsProcedureDescriptor,
       Civ7GameInfoRowsProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7GameInfoRowsProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7GameInfoRowsProcedureDescriptor.outputFields)
     );
     expect(
@@ -221,7 +224,7 @@ describe("Civ7 GameInfo rows procedure descriptor", () => {
   });
 });
 
-function gameInfoRowsResult() {
+function gameInfoRowsResult(): Civ7GameInfoRowsResult {
   return {
     host: "127.0.0.1",
     port: 4318,

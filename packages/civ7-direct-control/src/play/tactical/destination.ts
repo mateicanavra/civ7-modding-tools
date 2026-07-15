@@ -1,12 +1,8 @@
-import { Type } from "typebox";
+import { type Static, Type } from "typebox";
 import { jsLiteral } from "../../runtime/command-serialization.js";
-import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { schemaPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-  Civ7TunerState,
-} from "../../session/types.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
 import { boundedInteger, validatePlayerId } from "../../validation.js";
 import type { Civ7MapLocation } from "../map/types.js";
 import { Civ7MapLocationSchema } from "../map/types.js";
@@ -182,23 +178,16 @@ export const Civ7DestinationAnalysisResultSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export type Civ7DestinationAnalysisResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  playerId: number;
-  origin: Readonly<{ x: number; y: number }> | null;
-  destination: Readonly<{ x: number; y: number }>;
-  corridorRadius: number;
-  destinationRadius: number;
-  hiddenInfoPolicy: string;
-  relationshipLabelPolicy: unknown;
-  corridor: unknown;
-  destinationPressure: unknown;
-  pointsOfInterest: unknown;
-  notes: ReadonlyArray<string>;
-}>;
+type Civ7DestinationAnalysisWireResult = Static<typeof Civ7DestinationAnalysisResultSchema>;
+
+export type Civ7DestinationAnalysisResult = Readonly<
+  Omit<Civ7DestinationAnalysisWireResult, "state" | "origin" | "destination" | "notes"> & {
+    state: Readonly<Civ7DestinationAnalysisWireResult["state"]>;
+    origin: Readonly<Exclude<Civ7DestinationAnalysisWireResult["origin"], null>> | null;
+    destination: Readonly<Civ7DestinationAnalysisWireResult["destination"]>;
+    notes: ReadonlyArray<Civ7DestinationAnalysisWireResult["notes"][number]>;
+  }
+>;
 
 export type DestinationAnalysisDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;
@@ -433,5 +422,5 @@ const defaultDestinationAnalysisDependencies: DestinationAnalysisDependencies = 
   boundedInteger,
   executeAppUiCommand: executeCiv7AppUiCommand,
   parseDestinationAnalysis: (result, label) =>
-    jsonPayloadFromCommandResult<Civ7DestinationAnalysisResult>(result, label),
+    schemaPayloadFromCommandResult(result, label, Civ7DestinationAnalysisResultSchema),
 };

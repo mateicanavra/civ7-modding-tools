@@ -4,12 +4,15 @@ import { describe, expect, test } from "vitest";
 import {
   Civ7PlayNotificationViewProcedureDescriptor,
   Civ7PlayNotificationViewProcedureSchemaArtifacts,
+  type Civ7PlayNotificationViewResult,
   callCiv7PlayNotificationViewProcedure,
   getCiv7PlayNotificationView,
   type PlayNotificationViewDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
+
+import { schemaPropertyKeys } from "./support/procedure-schema";
 
 describe("Civ7 play-notification view procedure descriptor", () => {
   test("records the notification read atom and resolves its schemas", () => {
@@ -34,10 +37,10 @@ describe("Civ7 play-notification view procedure descriptor", () => {
       Civ7PlayNotificationViewProcedureDescriptor,
       Civ7PlayNotificationViewProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7PlayNotificationViewProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7PlayNotificationViewProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, { maxNotifications: 12 })).toBe(true);
@@ -156,14 +159,14 @@ describe("Civ7 play-notification view procedure descriptor", () => {
   });
 });
 
-function playNotificationViewResult(maxNotifications = 25) {
+function playNotificationViewResult(maxNotifications = 25): Civ7PlayNotificationViewResult {
   const notificationId = { owner: 0, id: 42, type: 20 };
   const cityId = { owner: 0, id: 131073, type: 1 };
   const requiredInputs = [
     { name: "City", source: "notification target or selected city", required: true },
     { name: "Type", source: "live town focus option", required: true },
     { name: "ProjectType", source: "live town focus option", required: true },
-  ];
+  ] satisfies Civ7PlayNotificationViewResult["decisions"][number]["requiredInputs"];
   const commonActions = [
     {
       label: "Set town focus",
@@ -172,7 +175,7 @@ function playNotificationViewResult(maxNotifications = 25) {
       argsShape: "{ Type, ProjectType, City }",
       when: "after choosing a live town focus option",
     },
-  ];
+  ] satisfies Civ7PlayNotificationViewResult["decisions"][number]["commonActions"];
   const notes = [
     "Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface.",
   ];
@@ -184,7 +187,7 @@ function playNotificationViewResult(maxNotifications = 25) {
     commonActions,
     confidence: "live-proof" as const,
     notes,
-  };
+  } satisfies Civ7PlayNotificationViewResult["decisions"][number];
   const notification = {
     id: notificationId,
     type: -123,
@@ -200,7 +203,7 @@ function playNotificationViewResult(maxNotifications = 25) {
     dismissed: false,
     isEndTurnBlocking: true,
     decision,
-  };
+  } satisfies Civ7PlayNotificationViewResult["notifications"][number];
 
   return {
     host: "127.0.0.1",

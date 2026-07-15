@@ -257,13 +257,13 @@ function narrativeChoiceResult(
   const beforeValidation = validationResult();
   const afterValidation = validationResult();
   return {
+    playerId: 0,
     before: notificationView(),
     beforeValidation,
     command: {
       host: "127.0.0.1",
       port: 4318,
       state: { id: "65535", name: "App UI" },
-      command: "narrative choice closeout test command",
       output: ["{}"],
     },
     payload: {

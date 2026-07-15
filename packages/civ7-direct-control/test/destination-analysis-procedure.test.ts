@@ -11,6 +11,8 @@ import {
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 destination-analysis procedure descriptor", () => {
   test("records the neutral read-only destination analysis atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(
@@ -34,10 +36,10 @@ describe("Civ7 destination-analysis procedure descriptor", () => {
       Civ7DestinationAnalysisProcedureDescriptor,
       Civ7DestinationAnalysisProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7DestinationAnalysisProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7DestinationAnalysisProcedureDescriptor.outputFields)
     );
     expect(

@@ -11,6 +11,8 @@ import {
   type TargetCandidatesDependencies,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 target-candidates procedure descriptor", () => {
   test("records the neutral read-only target-candidates atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7TargetCandidatesProcedureDescriptor);
@@ -32,10 +34,10 @@ describe("Civ7 target-candidates procedure descriptor", () => {
       Civ7TargetCandidatesProcedureDescriptor,
       Civ7TargetCandidatesProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7TargetCandidatesProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7TargetCandidatesProcedureDescriptor.outputFields)
     );
     expect(

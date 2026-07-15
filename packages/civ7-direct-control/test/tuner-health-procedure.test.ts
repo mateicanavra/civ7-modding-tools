@@ -14,6 +14,8 @@ import {
   type TunerHealthDependencies,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 Tuner health procedure descriptor", () => {
   test("records the Tuner health runtime atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7TunerHealthProcedureDescriptor);
@@ -35,8 +37,8 @@ describe("Civ7 Tuner health procedure descriptor", () => {
       Civ7TunerHealthProcedureDescriptor,
       Civ7TunerHealthProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual([]);
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual([]);
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7TunerHealthProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, {})).toBe(true);

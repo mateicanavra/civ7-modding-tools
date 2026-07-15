@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  type Civ7DirectControlOptions,
   progressionPlayerChoiceProofPostcondition,
   requestCiv7ProgressionPlayerChoice,
 } from "../src/index";
@@ -210,7 +211,14 @@ function dependencies(
     validatePlayerId: (playerId: number) => {
       if (!Number.isInteger(playerId)) throw new Error("invalid player");
     },
-    requestPlayerOperation: async (input, options) => requestPlayerOperation(input, options),
+    requestPlayerOperation: async (
+      input: Readonly<{
+        playerId: number;
+        operationType: string;
+        args: Readonly<Record<string, number>>;
+      }>,
+      options: Civ7DirectControlOptions
+    ) => requestPlayerOperation(input, options),
     invalidIntegerError: (field: string) => {
       throw new Error(`${field} invalid`);
     },
@@ -252,7 +260,7 @@ function validationResult(
   return {
     host: "127.0.0.1",
     port: 4318,
-    state: { id: "1", name: "Tuner", role: "tuner" },
+    state: { id: "1", name: "Tuner" },
     family: "player-operation",
     operationType: options.operationType,
     enumValue: options.operationType,

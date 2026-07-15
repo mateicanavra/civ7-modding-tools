@@ -5,6 +5,7 @@ import {
   type Civ7MapBounds,
   Civ7MapGridProcedureDescriptor,
   Civ7MapGridProcedureSchemaArtifacts,
+  type Civ7MapGridResult,
   type Civ7MapLocation,
   callCiv7MapGridProcedure,
   getCiv7MapGrid,
@@ -12,6 +13,8 @@ import {
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
+
+import { schemaPropertyKeys } from "./support/procedure-schema";
 
 describe("Civ7 map-grid procedure descriptor", () => {
   test("records the read-only map-grid atom and resolves its schemas", () => {
@@ -34,10 +37,10 @@ describe("Civ7 map-grid procedure descriptor", () => {
       Civ7MapGridProcedureDescriptor,
       Civ7MapGridProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7MapGridProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7MapGridProcedureDescriptor.outputFields)
     );
     expect(
@@ -258,7 +261,7 @@ describe("Civ7 map-grid procedure descriptor", () => {
   });
 });
 
-function mapGridResult() {
+function mapGridResult(): Civ7MapGridResult {
   return {
     host: "127.0.0.1",
     port: 4318,

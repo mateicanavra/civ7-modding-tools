@@ -11,6 +11,8 @@ import {
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 player-summary procedure descriptor", () => {
   test("records the read-only player-summary atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7PlayerSummaryProcedureDescriptor);
@@ -32,10 +34,10 @@ describe("Civ7 player-summary procedure descriptor", () => {
       Civ7PlayerSummaryProcedureDescriptor,
       Civ7PlayerSummaryProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7PlayerSummaryProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7PlayerSummaryProcedureDescriptor.outputFields)
     );
     expect(

@@ -11,6 +11,8 @@ import {
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 city-summary procedure descriptor", () => {
   test("records the read-only city-summary atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7CitySummaryProcedureDescriptor);
@@ -32,10 +34,10 @@ describe("Civ7 city-summary procedure descriptor", () => {
       Civ7CitySummaryProcedureDescriptor,
       Civ7CitySummaryProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7CitySummaryProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7CitySummaryProcedureDescriptor.outputFields)
     );
     expect(

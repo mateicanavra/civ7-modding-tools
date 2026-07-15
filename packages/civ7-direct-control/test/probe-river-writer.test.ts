@@ -81,7 +81,7 @@ describe("river writer probe", () => {
           },
         },
       ],
-    } as Parameters<typeof summarizeRiverMetadataReadback>[0]);
+    });
 
     expect(summary).toMatchObject({
       plotCount: 3,

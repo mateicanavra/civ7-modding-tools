@@ -11,6 +11,8 @@ import {
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 battlefield-scan procedure descriptor", () => {
   test("records the neutral read-only battlefield scan atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7BattlefieldScanProcedureDescriptor);
@@ -32,10 +34,10 @@ describe("Civ7 battlefield-scan procedure descriptor", () => {
       Civ7BattlefieldScanProcedureDescriptor,
       Civ7BattlefieldScanProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7BattlefieldScanProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7BattlefieldScanProcedureDescriptor.outputFields)
     );
     expect(

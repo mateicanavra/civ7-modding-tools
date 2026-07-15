@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 import {
   advisorWarningProofPostcondition,
   type Civ7ComponentId,
+  type Civ7DirectControlOptions,
   requestCiv7AdvisorWarningViewed,
 } from "../src/index";
 import type { Civ7OperationRequestResult } from "../src/play/operations/validate-request";
@@ -115,7 +116,14 @@ function dependencies(
         throw new Error(`invalid ${label}`);
       }
     },
-    requestPlayerOperation: async (input, options) => requestPlayerOperation(input, options),
+    requestPlayerOperation: async (
+      input: Readonly<{
+        playerId: number;
+        operationType: "VIEWED_ADVISOR_WARNING";
+        args: Readonly<{ Target: Civ7ComponentId }>;
+      }>,
+      options: Civ7DirectControlOptions
+    ) => requestPlayerOperation(input, options),
   };
 }
 
@@ -152,7 +160,7 @@ function validationResult(
   return {
     host: "127.0.0.1",
     port: 4318,
-    state: { id: "1", name: "Tuner", role: "tuner" },
+    state: { id: "1", name: "Tuner" },
     family: "player-operation",
     operationType: "VIEWED_ADVISOR_WARNING",
     enumValue: "VIEWED_ADVISOR_WARNING",
