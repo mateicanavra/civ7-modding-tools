@@ -192,11 +192,18 @@ function runInGameRecoveryActions(
   failure?: StudioRuntimeFailure
 ): StudioRecoveryAction[] {
   const actions: StudioRecoveryAction[] = ["copy-diagnostics"];
-  if (operation.status === "running" || operation.status === "failed") {
+  if (
+    operation.status === "running" ||
+    operation.status === "failed" ||
+    operation.status === "uncertain"
+  ) {
     actions.push("retry-status");
   }
-  if (operation.status !== "running" && operation.phase !== "complete") actions.push("retry-run");
-  if (failure) actions.push(...failure.recoveryActions);
+  // Cancellation is admitted only before the mutation fence, so repeating it
+  // is safe. Failed operations inherit retry authority from the concrete
+  // failure instead of gaining it from their terminal status.
+  if (operation.status === "cancelled") actions.push("retry-run");
+  if (failure && operation.status !== "uncertain") actions.push(...failure.recoveryActions);
   return [...new Set(actions)];
 }
 

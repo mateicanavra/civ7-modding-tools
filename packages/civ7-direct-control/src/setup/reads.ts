@@ -95,25 +95,6 @@ export type Civ7SetupMapRowsResult = Readonly<{
   matchedFile?: string;
 }>;
 
-export type Civ7SetupMapRowVisibilityInput = Readonly<{
-  file: string;
-  limit?: number;
-  reloadIfMissing?: "none" | "exit-to-shell" | "reload-in-shell";
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-}>;
-
-export type Civ7SetupMapRowVisibilityResult = Readonly<{
-  initial: Civ7SetupMapRowsResult;
-  final: Civ7SetupMapRowsResult;
-  shellBefore?: Civ7SetupSnapshotResult;
-  shellAfter?: Civ7SetupSnapshotResult;
-  shellExit?: Civ7CommandResult;
-  reload?: Civ7CommandResult;
-  refreshed: boolean;
-  verified: boolean;
-}>;
-
 export type Civ7SetupUiReloadResult = Readonly<{
   command: Civ7CommandResult;
   snapshot: Civ7SetupSnapshot;
@@ -143,42 +124,6 @@ type Civ7SetupShellReloadPayload = Readonly<{
   reloaded: boolean;
 }>;
 
-export type Civ7ActiveTargetMod = Readonly<{
-  id?: string;
-  packageId?: string;
-  name?: string;
-  title?: string;
-  handle?: number | string;
-  enabled?: boolean;
-  source: string;
-}>;
-
-export type Civ7ActiveTargetModsInput = Readonly<{
-  limit?: number;
-}>;
-
-export type Civ7ActiveTargetModsResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  available: boolean;
-  identityAvailable: boolean;
-  mods: ReadonlyArray<Civ7ActiveTargetMod>;
-  limit: number;
-  truncated: boolean;
-  readbacks: ReadonlyArray<
-    Readonly<{
-      source: string;
-      available: boolean;
-      identityReadable: boolean;
-      count: number;
-      identityCount: number;
-      truncated: boolean;
-      error?: string;
-    }>
-  >;
-}>;
-
 export type SetupReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
@@ -186,7 +131,6 @@ export type SetupReadDependencies = Readonly<{
   ) => Promise<Civ7CommandResult>;
   exitToMainMenuCommand: string;
   jsLiteral: (value: unknown) => string;
-  parseActiveTargetMods: (result: Civ7CommandResult, label: string) => Civ7ActiveTargetModsResult;
   parseSetupMapRows: (result: Civ7CommandResult, label: string) => Civ7SetupMapRowsResult;
   parseSetupSnapshot: (result: Civ7CommandResult, label: string) => Civ7SetupSnapshotResult;
   probeHelperSource: () => string;
@@ -282,89 +226,6 @@ export async function getCiv7SetupMapRows(
   return dependencies.parseSetupMapRows(result, "Civ7 setup map rows");
 }
 
-export async function getCiv7ActiveTargetMods(
-  input: Civ7ActiveTargetModsInput = {},
-  options: Civ7DirectControlOptions = {},
-  dependencies: SetupReadDependencies = defaultSetupReadDependencies
-): Promise<Civ7ActiveTargetModsResult> {
-  const limit = dependencies.boundedInteger(input.limit ?? 100, 1, 1_000, "limit");
-  const result = await dependencies.executeAppUiCommand({
-    ...options,
-    command: buildActiveTargetModsCommand({ limit }, dependencies),
-  });
-  return dependencies.parseActiveTargetMods(result, "Civ7 active target mods");
-}
-
-/**
- * @deprecated Multi-step setup refresh belongs in `@civ7/control-orpc`; this is a compatibility
- * helper over the direct-control row-read and reload atoms.
- */
-export async function ensureCiv7SetupMapRowVisible(
-  input: Civ7SetupMapRowVisibilityInput,
-  options: Civ7DirectControlOptions = {},
-  dependencies: SetupReadDependencies = defaultSetupReadDependencies
-): Promise<Civ7SetupMapRowVisibilityResult> {
-  validateMapScript(input.file);
-  const limit = dependencies.boundedInteger(input.limit ?? 100, 1, 1_000, "limit");
-  const rowInput = { file: input.file, limit };
-  const initial = await getCiv7SetupMapRows(rowInput, options, dependencies);
-  if (
-    initial.rows.length > 0 ||
-    input.reloadIfMissing === undefined ||
-    input.reloadIfMissing === "none"
-  ) {
-    return {
-      initial,
-      final: initial,
-      refreshed: false,
-      verified: initial.rows.length > 0,
-    };
-  }
-
-  const waitTimeoutMs = input.waitTimeoutMs ?? options.timeoutMs ?? 30_000;
-  const pollIntervalMs = input.pollIntervalMs ?? 1_000;
-  const admission = await admitCiv7SetupShell(
-    input.reloadIfMissing === "exit-to-shell" ? "exit-active-game" : "reject",
-    options,
-    dependencies
-  );
-  const shellBefore = admission.initial;
-  const shellAfter =
-    admission.transition === "exit-sent"
-      ? await waitForCiv7SetupPhase(
-          "shell",
-          options,
-          { waitTimeoutMs, pollIntervalMs },
-          dependencies
-        )
-      : admission.initial;
-  const reloadResult = await reloadCiv7SetupUiInShell(options, dependencies);
-  if (!reloadResult.reloaded) {
-    throw new Civ7DirectControlError(
-      "setup-phase-refused",
-      `Civ7 setup reload refused phase ${reloadResult.snapshot.phase}`,
-      { details: commandResultWithSnapshot(reloadResult.command, reloadResult.snapshot) }
-    );
-  }
-  const reload = reloadResult.command;
-  const final = await waitForCiv7SetupMapRows(
-    rowInput,
-    options,
-    { waitTimeoutMs, pollIntervalMs },
-    dependencies
-  );
-  return {
-    initial,
-    final,
-    shellBefore,
-    shellAfter,
-    ...(admission.transition === "exit-sent" ? { shellExit: admission.shellExit } : {}),
-    reload,
-    refreshed: true,
-    verified: final.rows.length > 0,
-  };
-}
-
 export function buildSetupSnapshotCommand(dependencies: SetupReadDependencies): string {
   return `(() => {
     ${setupSnapshotScriptSource(dependencies)}
@@ -417,170 +278,6 @@ export function buildSetupMapRowsCommand(
       ...(input.file && rows.some((row) => row.file === input.file)
         ? { matchedFile: input.file }
         : {}),
-    });
-  })()`;
-}
-
-export function buildActiveTargetModsCommand(
-  input: Civ7ActiveTargetModsInput & { limit: number },
-  dependencies: SetupReadDependencies
-): string {
-  return `(() => {
-    const input = ${dependencies.jsLiteral(input)};
-    const limit = input.limit;
-    const hardLimit = Math.min(limit, 1000);
-    const safeError = (error) => String(error?.message ?? error ?? "unknown").slice(0, 160);
-    const asArray = (value) => {
-      if (value == null) return [];
-      if (Array.isArray(value)) return value;
-      if (typeof value[Symbol.iterator] === "function") return Array.from(value);
-      return [];
-    };
-    const unpackTitle = (value) => {
-      if (typeof value === "string") return value;
-      try {
-        if (typeof Locale !== "undefined" && Locale && typeof Locale.unpack === "function") {
-          const unpacked = Locale.unpack(value);
-          if (typeof unpacked === "string") return unpacked;
-        }
-      } catch {}
-      return undefined;
-    };
-    const normalize = (source, value, extra = {}) => {
-      if (value == null) return null;
-      const record = typeof value === "object" ? value : {};
-      const id = record.id ?? record.ID ?? record.Id ?? record.modID ?? record.modId ?? record.ModID ?? record.ModId;
-      const packageId = record.packageId ?? record.PackageId ?? record.PackageID;
-      const name = record.name ?? record.Name;
-      const title = unpackTitle(record.title ?? record.Title);
-      const enabled = record.enabled ?? record.Enabled ?? record.isEnabled ?? record.IsEnabled;
-      const handle = record.handle ?? record.Handle ?? extra.handle;
-      if (
-        typeof id !== "string" &&
-        typeof packageId !== "string" &&
-        typeof name !== "string" &&
-        typeof title !== "string" &&
-        typeof handle !== "number" &&
-        typeof handle !== "string"
-      ) return null;
-      return {
-        source,
-        ...(typeof id === "string" ? { id } : {}),
-        ...(typeof packageId === "string" ? { packageId } : {}),
-        ...(typeof name === "string" ? { name } : {}),
-        ...(typeof title === "string" ? { title } : {}),
-        ...(typeof handle === "number" || typeof handle === "string" ? { handle } : {}),
-        ...(typeof enabled === "boolean" ? { enabled } : {}),
-      };
-    };
-    const identityCount = (mods) => mods.filter((mod) => mod.id || mod.packageId).length;
-    const enabledValue = (record) => record?.enabled ?? record?.Enabled ?? record?.isEnabled ?? record?.IsEnabled;
-    const unavailable = (source, error) => ({
-      source,
-      available: false,
-      identityReadable: false,
-      values: [],
-      truncated: false,
-      ...(error ? { error: safeError(error) } : {}),
-    });
-    const callReader = (source, reader) => {
-      try {
-        const read = reader();
-        const values = (Array.isArray(read) ? read : read.values).filter(Boolean);
-        const identityReadable = Array.isArray(read) ? false : read.identityReadable === true;
-        return { source, available: true, identityReadable, values: values.slice(0, hardLimit), truncated: values.length > hardLimit };
-      } catch (error) {
-        return unavailable(source, error);
-      }
-    };
-    const readConfigurationGame = () => {
-      if (typeof globalThis.Configuration === "undefined" || !globalThis.Configuration || typeof globalThis.Configuration.getGame !== "function") {
-        return unavailable("Configuration.getGame");
-      }
-      return callReader("Configuration.getGame", () => {
-        const game = globalThis.Configuration.getGame();
-        const count = Number(game?.enabledModCount);
-        if (!Number.isInteger(count) || count < 0 || typeof game?.getEnabledModId !== "function") {
-          throw new Error("Configuration game mod identity API unavailable");
-        }
-        const values = [];
-        for (let index = 0; index < Math.min(count, hardLimit + 1); index += 1) {
-          const id = game.getEnabledModId(index);
-          const title = typeof game.getEnabledModTitle === "function" ? unpackTitle(game.getEnabledModTitle(index)) : undefined;
-          values.push(normalize("Configuration.getGame", { id, title, enabled: true }));
-        }
-        return { identityReadable: true, values };
-      });
-    };
-    const readModdingActiveMods = () => {
-      if (typeof globalThis.Modding === "undefined" || !globalThis.Modding || typeof globalThis.Modding.getActiveMods !== "function") {
-        return unavailable("Modding.getActiveMods");
-      }
-      return callReader("Modding.getActiveMods", () => {
-        const handles = asArray(globalThis.Modding.getActiveMods()).slice(0, hardLimit + 1);
-        const values = handles.map((handle) => {
-          const info = typeof globalThis.Modding.getModInfo === "function"
-            ? globalThis.Modding.getModInfo(handle)
-            : undefined;
-          return normalize("Modding.getActiveMods", info ?? {}, { handle });
-        });
-        return { identityReadable: typeof globalThis.Modding.getModInfo === "function", values };
-      });
-    };
-    const readModdingInstalledEnabled = () => {
-      if (typeof globalThis.Modding === "undefined" || !globalThis.Modding || typeof globalThis.Modding.getInstalledMods !== "function") {
-        return unavailable("Modding.getInstalledMods.enabled");
-      }
-      return callReader("Modding.getInstalledMods.enabled", () => ({
-        identityReadable: false,
-        values: asArray(globalThis.Modding.getInstalledMods())
-          .filter((mod) => mod && typeof mod === "object" && enabledValue(mod) === true)
-          .slice(0, hardLimit + 1)
-          .map((mod) => normalize("Modding.getInstalledMods.enabled", mod)),
-      }));
-    };
-    const readers = [
-      readConfigurationGame(),
-      readModdingActiveMods(),
-      readModdingInstalledEnabled(),
-    ];
-    const mods = [];
-    for (const readback of readers) {
-      if (!readback.available) continue;
-      mods.push(...readback.values);
-    }
-    const seen = new Set();
-    const unique = [];
-    const identityKey = (mod) => {
-      const identity = mod.id ?? mod.packageId;
-      return typeof identity === "string" ? "identity:" + identity.trim().toLowerCase() : undefined;
-    };
-    for (const mod of mods) {
-      const key = identityKey(mod) ?? [mod.name, mod.title, mod.handle, mod.source].filter(Boolean).join("|");
-      if (seen.has(key)) continue;
-      seen.add(key);
-      unique.push(mod);
-    }
-    const hasComparableIdentity = (entry) =>
-      entry.available &&
-      entry.identityReadable &&
-      !entry.truncated &&
-      identityCount(entry.values) === entry.values.length;
-    return JSON.stringify({
-      available: readers.some((entry) => entry.available),
-      identityAvailable: readers.some(hasComparableIdentity),
-      mods: unique.slice(0, limit),
-      limit,
-      truncated: unique.length > limit || readers.some((entry) => entry.truncated),
-      readbacks: readers.map((entry) => ({
-        source: entry.source,
-        available: entry.available,
-        identityReadable: entry.identityReadable,
-        count: entry.values.length,
-        identityCount: identityCount(entry.values),
-        truncated: entry.truncated,
-        ...(entry.error ? { error: entry.error } : {}),
-      })),
     });
   })()`;
 }
@@ -834,52 +531,6 @@ export function validateMapScript(value: string): string {
   return value;
 }
 
-export async function waitForCiv7SetupPhase(
-  phase: Civ7SetupPhase,
-  options: Civ7DirectControlOptions,
-  wait: { waitTimeoutMs: number; pollIntervalMs: number },
-  dependencies: SetupReadDependencies = defaultSetupReadDependencies
-): Promise<Civ7SetupSnapshotResult> {
-  const startedAt = Date.now();
-  let last: Civ7SetupSnapshotResult | undefined;
-  while (Date.now() - startedAt <= wait.waitTimeoutMs) {
-    try {
-      const snapshot = await getCiv7SetupSnapshot(options, dependencies);
-      last = snapshot;
-      if (snapshot.snapshot.phase === phase) return snapshot;
-    } catch {
-      // Keep polling during shell transitions; callers get timeout details below.
-    }
-    await sleep(wait.pollIntervalMs);
-  }
-  throw new Civ7DirectControlError(
-    "setup-phase-invalid",
-    `Timed out waiting for Civ7 setup phase ${phase}`,
-    { details: last }
-  );
-}
-
-async function waitForCiv7SetupMapRows(
-  input: Required<Pick<Civ7SetupMapRowsInput, "file" | "limit">>,
-  options: Civ7DirectControlOptions,
-  wait: { waitTimeoutMs: number; pollIntervalMs: number },
-  dependencies: SetupReadDependencies
-): Promise<Civ7SetupMapRowsResult> {
-  const startedAt = Date.now();
-  let last = await getCiv7SetupMapRows(input, options, dependencies);
-  if (last.rows.length > 0) return last;
-  while (Date.now() - startedAt <= wait.waitTimeoutMs) {
-    await sleep(wait.pollIntervalMs);
-    last = await getCiv7SetupMapRows(input, options, dependencies);
-    if (last.rows.length > 0) return last;
-  }
-  return last;
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function commandResultWithSnapshot(
   command: Civ7CommandResult,
   snapshot: Civ7SetupSnapshot
@@ -897,8 +548,6 @@ export const defaultSetupReadDependencies: SetupReadDependencies = {
   executeAppUiCommand: executeCiv7AppUiCommand,
   exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
   jsLiteral,
-  parseActiveTargetMods: (result, label) =>
-    jsonPayloadFromCommandResult<Civ7ActiveTargetModsResult>(result, label),
   parseSetupMapRows: (result, label) =>
     jsonPayloadFromCommandResult<Civ7SetupMapRowsResult>(result, label),
   parseSetupSnapshot: (result, label) =>

@@ -3,9 +3,7 @@ export type {
   Civ7ControllerContextFactory,
   Civ7IntelligenceBridge,
 } from "./bridge/intelligence-bridge";
-export {
-  createCiv7IntelligenceBridge,
-} from "./bridge/intelligence-bridge";
+export { createCiv7IntelligenceBridge } from "./bridge/intelligence-bridge";
 export { createCiv7ControlOrpcServerClient } from "./client";
 export type { Civ7ControlOrpcContext } from "./context";
 export { Civ7ControlOrpcContract } from "./contract";

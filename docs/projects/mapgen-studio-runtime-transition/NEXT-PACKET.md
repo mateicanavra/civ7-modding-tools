@@ -57,10 +57,10 @@ stack, or invent a return/integration protocol.
   deterministic repeat, and fresh artifact rendering. No all-water output was
   reproduced. Packet A removed the partial-config admission path and requires
   the recipe-produced complete config at every public boundary.
-- Studio still owns setup/start orchestration by importing direct-control
-  functions in `Civ7WorkflowControl.ts`. The control oRPC surface has no
-  setup/lifecycle family. That is the next larger ownership defect after config
-  completeness is closed.
+- Control oRPC now owns `lifecycle.singlePlayer.start`, and Studio invokes it
+  once in process through the runtime-owned Tuner session. The HTTP router
+  intentionally cannot invoke lifecycle mutation. Rendered and in-game proof
+  remain before product closure.
 - One read-only investigation accidentally sent request
   `studio-run-in-game-mrgo592d-a58-2`. It generated and deployed the Studio run
   mod, then failed during `preparing-civ7` under Tuner backoff. It did not start
@@ -352,16 +352,16 @@ observations, first/warm-run behavior, and unchanged generation output.
 
 ### B. Control oRPC Setup And Start Ownership
 
-Design and implement the missing typed setup/lifecycle capability under
-`packages/civ7-control-orpc`, using the daemon-owned Tuner session and in-process
-server client. Move Studio off caller-local direct-control orchestration. The
-operation must exit only an active game when necessary, load and reconcile the
-saved setup and generated map, start the game, and retain request correlation
-without restarting the Civilization VII application.
+The typed setup/start lifecycle now lives under `packages/civ7-control-orpc` and
+uses the daemon-owned Tuner session through one in-process Studio dependency.
+Studio no longer owns caller-local setup/start orchestration, and the HTTP router
+refuses lifecycle mutation by construction. The lifecycle exits only an active
+game when necessary, reconciles saved setup and the generated map, starts once,
+and retains request correlation without restarting Civilization VII.
 
-Close with contract/router/client behavior tests, dedicated TypeScript,
-structure, oRPC, Effect, and direct-control reviews, and one rendered Swooper
-Earthlike run with unchanged Civ7 application PID.
+Package and Studio behavior/static reviews are sealed. Close the remaining
+product evidence with one rendered Swooper Earthlike run and unchanged Civ7
+application PID.
 
 ### C. Certification, Matrices, Archive, And Merge
 
@@ -402,8 +402,9 @@ never authorizes product design during Graphite normalization or archive.
   server migration, deep merge, scrubbing, or property-level rescue.
 - One rendered request owns one source, manifest, generated mod, deployment,
   setup reconciliation, and launched game.
-- Ordinary Run in Game uses the canonical direct-control oRPC capability to
-  soft-restart the Civ7 game. It does not restart the whole application.
+- Ordinary Run in Game invokes the package-owned control-oRPC lifecycle once in
+  process. That lifecycle reconciles setup and starts one game without restarting
+  the Civilization VII application.
 - Public status stays redacted. Private diagnostics require explicit lookup.
 - Endpoint, unit, browser, setup, and in-game observations are separate gates;
   none substitutes for another.

@@ -50,7 +50,6 @@ export const STUDIO_FAILURE_REASON_CODES = [
   "rollback-failed",
   "runtime-disposed",
   "save-failed",
-  "setup-row-unavailable",
   "start-failed",
   "start-game-failed",
   "status-not-found",
@@ -126,6 +125,21 @@ function studioFailure(args: Omit<StudioRuntimeFailure, "_tag">): StudioRuntimeF
   return failure;
 }
 
+/**
+ * Locks a failure behind observation-only recovery after a mutation may have landed.
+ * The original classification and diagnostics remain private evidence; callers may
+ * refresh status or copy diagnostics, but they cannot infer replay authority.
+ */
+export function preventStudioRuntimeFailureReplay(
+  failure: StudioRuntimeFailure
+): StudioRuntimeFailure {
+  return studioFailure({
+    ...failure,
+    recoveryActions: ["retry-status", "copy-diagnostics"],
+    diagnostics: { ...failure.diagnostics, noRepeat: true },
+  });
+}
+
 function isFailureTag(value: unknown): value is StudioFailureTag {
   return typeof value === "string" && STUDIO_FAILURE_TAGS.includes(value as StudioFailureTag);
 }
@@ -173,7 +187,6 @@ function tagAllowsReason(tag: StudioFailureTag, reason: StudioFailureReasonCode)
       return (
         reason === "exact-authorship-mismatch" ||
         reason === "log-evidence-missing" ||
-        reason === "setup-row-unavailable" ||
         reason === "start-game-failed" ||
         reason === "timeout-uncertain"
       );
@@ -350,11 +363,7 @@ export function verificationFailed(args: {
   message: string;
   reason: Extract<
     StudioFailureReasonCode,
-    | "setup-row-unavailable"
-    | "start-game-failed"
-    | "log-evidence-missing"
-    | "exact-authorship-mismatch"
-    | "timeout-uncertain"
+    "start-game-failed" | "log-evidence-missing" | "exact-authorship-mismatch" | "timeout-uncertain"
   >;
   diagnostics?: StudioBoundedDiagnostics;
   recoveryActions?: ReadonlyArray<StudioRecoveryAction>;

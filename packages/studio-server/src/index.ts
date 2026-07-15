@@ -126,7 +126,11 @@ export {
   unsupportedOperationType,
   verificationFailed,
 } from "./errors/index.js";
-export { createStudioRpcHandler, type StudioRpcHandle } from "./handler.js";
+export {
+  createStudioRpcHandler,
+  type StudioLiveRuntimeReader,
+  type StudioRpcHandle,
+} from "./handler.js";
 export {
   LIVE_GAME_WATCH_INITIAL_DELAY_MS,
   LIVE_GAME_WATCH_INTERVAL_MS,
@@ -141,7 +145,7 @@ export type {
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
   RunInGameRuntimeObservation,
-  RunInGameSetupPrepared,
+  RunInGameStarted,
   StudioOperationRuntimePorts,
 } from "./operationRuntime/index.js";
 export type { RecipeDagService } from "./recipeDag/service.js";

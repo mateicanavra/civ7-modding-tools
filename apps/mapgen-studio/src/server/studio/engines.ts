@@ -20,6 +20,7 @@ import {
 import type {
   RunInGameRequestStatus,
   StudioBoundedDiagnostics,
+  StudioLiveRuntimeReader,
   StudioOperationRuntimePorts,
   StudioRuntimeFailure,
 } from "@civ7/studio-server";
@@ -49,7 +50,7 @@ import {
 import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
 import {
   liveRuntimeStatusFromObservation,
-  observeRunInGameRuntimeThroughStudioRpc,
+  observeRunInGameRuntimeThroughStudioLiveReader,
 } from "../runInGame/runtimeObservation";
 import { parseSwooperMapgenLogEvidence } from "../runInGame/swooperLogEvidence";
 
@@ -425,10 +426,9 @@ type RunInGameGeneratedMod = Awaited<
   ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
 >;
 type RunInGameDeployment = Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>;
-type RunInGameStarted = Readonly<{
-  setup?: { setupSnapshot?: unknown };
-  start?: { mapSummary?: unknown };
-}>;
+type RunInGameStarted = Parameters<
+  StudioOperationRuntimePorts["waitForRunInGameLogEvidence"]
+>[0]["started"];
 type SaveDeployPrepared = Awaited<
   ReturnType<StudioOperationRuntimePorts["prepareSaveDeployStart"]>
 >;
@@ -444,8 +444,6 @@ type RunInGameLeafContext = Readonly<{
   scriptingSnapshot?: Awaited<ReturnType<typeof snapshotFile>>;
   deployment?: RunInGameDeployment;
   launchMapScript?: string;
-  rowEvidence?: unknown;
-  rowVisibility?: unknown;
   started?: RunInGameStarted;
 };
 
@@ -457,7 +455,10 @@ type SaveDeployLeafContext = SaveDeployPrepared &
   }>;
 
 export function createStudioOperationRuntimePorts(
-  options: Readonly<{ repoRoot: string; selfRpcUrl?: () => string | undefined }>
+  options: Readonly<{
+    repoRoot: string;
+    liveRuntimeReader?: () => StudioLiveRuntimeReader | undefined;
+  }>
 ): StudioOperationRuntimePorts {
   const { repoRoot } = options;
   const runContexts = new Map<string, RunInGameLeafContext>();
@@ -647,7 +648,7 @@ export function createStudioOperationRuntimePorts(
       context.launchMapScript = materialization.mapScript;
       return context.deployment;
     },
-    waitForRunInGameLogEvidence: async ({ requestId, setup, started }) => {
+    waitForRunInGameLogEvidence: async ({ requestId, started }) => {
       const context = requireRunContext(runContexts, requestId);
       const materialization = requireMaterialization(context, requestId);
       const scriptingLogPath = requireContextValue(
@@ -726,8 +727,6 @@ export function createStudioOperationRuntimePorts(
           }),
         });
       }
-      context.rowEvidence = setup.rowEvidence;
-      context.rowVisibility = setup.rowVisibility;
       context.started = started;
       return {
         result: {
@@ -735,9 +734,7 @@ export function createStudioOperationRuntimePorts(
           requestId,
           materialization,
           deploy: context.deployment?.deploy,
-          rowEvidence: setup.rowEvidence,
-          rowVisibility: setup.rowVisibility,
-          start: started.start,
+          lifecycle: started,
           logMarkerEvidence,
           logEvidence,
         },
@@ -746,22 +743,19 @@ export function createStudioOperationRuntimePorts(
         logEvidence,
       };
     },
-    observeRunInGameRuntime: async ({ requestId, prepared, deployment, setup, log, signal }) => {
-      const context = requireRunContext(runContexts, requestId);
-      const observation = await observeRunInGameRuntimeThroughStudioRpc({
+    observeRunInGameRuntime: async ({ requestId, prepared, deployment, started, log, signal }) => {
+      const observation = await observeRunInGameRuntimeThroughStudioLiveReader({
         requestId,
         prepared,
         deployment,
-        setup,
+        started,
         log,
-        selfRpcUrl: options.selfRpcUrl?.(),
+        liveReader: options.liveRuntimeReader?.(),
         signal,
       });
-      context.rowEvidence = setup.rowEvidence;
-      context.rowVisibility = setup.rowVisibility;
       return observation;
     },
-    buildRunInGameEvidence: async ({ requestId, setup, started, log, observation }) => {
+    buildRunInGameEvidence: async ({ requestId, started, log, observation }) => {
       const context = requireRunContext(runContexts, requestId);
       const materialization = requireMaterialization(context, requestId);
       const liveRuntimeStatus = liveRuntimeStatusFromObservation(observation.loadedGame.liveStatus);
@@ -773,9 +767,8 @@ export function createStudioOperationRuntimePorts(
         generatedSourceScript: materialization.generatedSourceScript,
         localModScript: materialization.localModScript,
         deployedModScript: materialization.deployedModScript,
-        rowEvidence: setup.rowEvidence,
-        setupSnapshot: started.setup?.setupSnapshot ?? setup.setupSnapshot,
-        startMapSummary: started.start?.mapSummary,
+        lifecycleSetup: started.evidence.setup,
+        lifecycleRuntime: started.evidence.runtime,
         logEvidence: log.logEvidence as RunInGameDetailedEvidenceLog | undefined,
         ...(liveRuntimeStatus
           ? {
@@ -800,9 +793,7 @@ export function createStudioOperationRuntimePorts(
           requestId,
           materialization,
           deploy: context.deployment?.deploy,
-          rowEvidence: setup.rowEvidence,
-          rowVisibility: setup.rowVisibility,
-          start: started.start,
+          lifecycle: started,
           logMarkerEvidence: log.logMarkerEvidence,
           logEvidence: log.logEvidence,
           exactAuthorshipEvidence,

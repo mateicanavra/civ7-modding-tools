@@ -5,6 +5,7 @@ import {
   contract,
   createStudioRpcHandler,
   type StudioContract,
+  type StudioLiveRuntimeReader,
   type StudioOperationRuntimePorts,
   type StudioRpcHandle,
   type StudioServerContext,
@@ -38,8 +39,9 @@ afterEach(async () => {
 describe("one /rpc mount serves the whole unified contract", () => {
   test("studio, civ7-control, and recipeDag namespaces answer over one handler", async () => {
     const facadeCalls: Array<Civ7ControlOrpcContext["endpointDefaults"]> = [];
+    const lifecycleCalls: string[] = [];
     const recipeDagCalls: string[] = [];
-    const { client } = await listenWithStudioServer({
+    const { client, live } = await listenWithStudioServer({
       loadSetupCatalog: async () =>
         ({
           observedAt: "2026-06-12T00:00:00.000Z",
@@ -57,6 +59,12 @@ describe("one /rpc mount serves the whole unified contract", () => {
             return playableStatusResult();
           },
         } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        directLifecycle: {
+          getSetupSnapshot: async () => {
+            lifecycleCalls.push("getSetupSnapshot");
+            throw new Error("Studio HTTP must not acquire lifecycle mutation");
+          },
+        } as unknown as StudioServerContext["civ7Control"]["directLifecycle"],
         timeoutMs: 4321,
       },
       recipeDagService: {
@@ -94,6 +102,7 @@ describe("one /rpc mount serves the whole unified contract", () => {
     const readiness = await client.civ7.readiness.current({});
     await client.civ7.readiness.current({});
     expect(readiness).toMatchObject({ playable: true, readiness: "tuner-ready" });
+    await expect(live.status({})).resolves.toMatchObject({ playable: false });
 
     // Structural session sharing: the facade received the host timeout AND the
     // runtime's shared session — the SAME instance across calls.
@@ -102,6 +111,26 @@ describe("one /rpc mount serves the whole unified contract", () => {
     expect(first?.timeoutMs).toBe(4321);
     expect(first?.session).toBeInstanceOf(Civ7DirectControlSession);
     expect(second?.session).toBe(first?.session);
+
+    // The merged control contract remains discoverable, but Studio deliberately
+    // withholds the lifecycle facade so setup/start can only enter through the
+    // operation runtime's admission, lease, correlation, and mutation fence.
+    const lifecycle = await safe(
+      client.civ7.lifecycle.singlePlayer.start({
+        mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+        mapSize: "MAPSIZE_STANDARD",
+        seed: 43,
+        targetModId: "mod-swooper-studio-run",
+        gameOptions: {},
+        playerOptions: {},
+        activeGamePolicy: "exit-active-game",
+      })
+    );
+    expect(lifecycle.error).toMatchObject({
+      code: "LIFECYCLE_DEPENDENCY_UNAVAILABLE",
+      data: { detail: "direct-lifecycle-facade-unavailable" },
+    });
+    expect(lifecycleCalls).toEqual([]);
 
     // Sanitization parity (pins moved from the deleted satellite-client test):
     // raw runtime detail stays out of readiness.current.
@@ -149,6 +178,7 @@ describe("one /rpc mount serves the whole unified contract", () => {
 async function listenWithStudioServer(overrides: Partial<StudioServerContext>): Promise<{
   origin: string;
   client: ContractRouterClient<StudioContract>;
+  live: StudioLiveRuntimeReader;
 }> {
   const handler = createStudioRpcHandler(makeContext(overrides));
   openHandles.push(handler);
@@ -167,7 +197,7 @@ async function listenWithStudioServer(overrides: Partial<StudioServerContext>): 
   const client: ContractRouterClient<StudioContract> = createORPCClient(
     new RPCLink({ url: `${origin}/rpc` })
   );
-  return { origin, client };
+  return { origin, client, live: handler.live };
 }
 
 async function listen(handler: Parameters<typeof createServer>[0]): Promise<string> {
@@ -356,8 +386,7 @@ function runInGameRuntimeObservation(
       mapScript: materialization?.mapScript ?? "test-map-script",
       runArtifactId: correlation.runArtifactId,
       deployedModId: args.deployment.runDeployment.deployedModId,
-      rowEvidence: { ok: true },
-      rowVisibility: { visible: true },
+      mapRowFiles: args.started.evidence.setup.mapRowFiles,
     },
     loadedGame: {
       requestId: args.requestId,

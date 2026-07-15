@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-
+import { ORPCError } from "@orpc/client";
+import { serializeVerifierError } from "../../scripts/live/verifier-error";
 import {
   buildSwooperMapScriptDeploymentStage,
   type MapScriptFileIdentity,
@@ -15,6 +16,39 @@ const identity = (path: string, sha256: string): MapScriptFileIdentity => ({
 });
 
 describe("studio run-in-game live verifier deployment identity", () => {
+  test("preserves bounded defined-error uncertainty evidence", () => {
+    const error = new ORPCError("LIFECYCLE_MUTATION_UNCERTAIN", {
+      defined: true,
+      status: 502,
+      message: "Lifecycle mutation outcome is uncertain.",
+      data: {
+        procedureKey: "lifecycle.singlePlayer.start",
+        source: "direct-control-facade",
+        step: "host-game",
+        detail: "direct-control/response-timeout",
+        correlationId: "run-42",
+        noRepeat: true,
+      },
+      cause: new Error("raw provider payload"),
+    });
+
+    expect(serializeVerifierError(error)).toEqual({
+      name: "Error",
+      code: "LIFECYCLE_MUTATION_UNCERTAIN",
+      status: 502,
+      message: "Lifecycle mutation outcome is uncertain.",
+      data: {
+        procedureKey: "lifecycle.singlePlayer.start",
+        source: "direct-control-facade",
+        step: "host-game",
+        detail: "direct-control/response-timeout",
+        correlationId: "run-42",
+        noRepeat: true,
+      },
+    });
+    expect(JSON.stringify(serializeVerifierError(error))).not.toContain("raw provider payload");
+  });
+
   test("resolves Swooper map script paths into local and deployed bundles", () => {
     expect(
       resolveSwooperMapScriptPaths({

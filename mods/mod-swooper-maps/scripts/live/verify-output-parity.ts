@@ -14,7 +14,7 @@
 // Single command:
 //   nx run mod-swooper-maps:verify -- --mode output-parity \
 //     --map-script "{swooper-maps}/maps/swooper-earthlike.js" --map-size MAPSIZE_HUGE \
-//     --seed 1337 --game-seed 1337 --player-count 10 --from-running-game exit-to-shell
+//     --seed 1337 --player-count 10
 //
 // HEALTHY baseline is ~98-100% per-tile parity, NOT 100%: the engine natively carves
 // extra TERRAIN_NAVIGABLE_RIVER (also stripping floodplain features there) and re-runs
@@ -26,12 +26,17 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createMockAdapter } from "@civ7/adapter";
+import { createCiv7ControlOrpcServerClient } from "@civ7/control-orpc";
+import {
+  liveCiv7ControlOrpcDirectControlFacade,
+  liveCiv7ControlOrpcDirectLifecycleFacade,
+} from "@civ7/control-orpc/runtime";
 import {
   type Civ7DirectControlOptions,
   type Civ7SetupOptionValue,
   checkCiv7DirectControlHealth,
+  createCiv7ControlRequestId,
   getCiv7FullMapGrid,
-  runCiv7SinglePlayerFromSetup,
 } from "@civ7/direct-control";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
@@ -45,6 +50,7 @@ import {
   admitStandardMapConfig,
   type StandardMapConfigEnvelope,
 } from "../../src/maps/configs/canonical.js";
+import { serializeVerifierError } from "./verifier-error";
 
 const MAP_SCRIPT_PATTERN = /^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*)\.js$/;
 
@@ -54,15 +60,11 @@ type Args = {
   host?: string;
   port?: number;
   timeoutMs: number;
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
   mapScript?: string;
   config?: string;
   mapSize?: string;
   seed?: number;
-  gameSeed?: number;
   playerCount?: number;
-  fromRunningGame: "reject" | "exit-to-shell";
   load: boolean;
   options: Record<string, Civ7SetupOptionValue>;
   thresholds: FieldThresholds;
@@ -79,14 +81,13 @@ Required (load + compare):
 
 Optional:
   --config <basename>            Headless config to recompute (default: map-script basename)
-  --game-seed <seed>  --player-count <n>  --option Key=value
-  --from-running-game reject|exit-to-shell   (default: exit-to-shell)
+  --player-count <n>  --option Key=value
   --no-load                      Skip launch; read the CURRENTLY-loaded live game instead
   --max-terrain-pct <n>          Max terrain mismatch % (default 5)
   --max-biome-pct <n>            (default 3)
   --max-feature-pct <n>          (default 4)
   --max-resource-pct <n>         (default 7)
-  --host <host>  --port <port>  --timeout-ms <ms>  --wait-timeout-ms <ms>
+  --host <host>  --port <port>  --timeout-ms <ms>
   --output <path>                Write full JSON report
 
 Compares the live engine surface (terrain/biome/feature/resource) to the headless
@@ -114,7 +115,6 @@ function parseOptionValue(value: string): Civ7SetupOptionValue {
 function parseArgs(argv: string[]): Args {
   const args: Args = {
     timeoutMs: 60_000,
-    fromRunningGame: "exit-to-shell",
     load: true,
     options: {},
     thresholds: { terrain: 5, biome: 3, feature: 4, resource: 7 },
@@ -142,12 +142,6 @@ function parseArgs(argv: string[]): Args {
       case "--timeout-ms":
         args.timeoutMs = parseInteger(value(), arg);
         break;
-      case "--wait-timeout-ms":
-        args.waitTimeoutMs = parseInteger(value(), arg);
-        break;
-      case "--poll-interval-ms":
-        args.pollIntervalMs = parseInteger(value(), arg);
-        break;
       case "--map-script":
         args.mapScript = value();
         break;
@@ -160,19 +154,9 @@ function parseArgs(argv: string[]): Args {
       case "--seed":
         args.seed = parseInteger(value(), arg);
         break;
-      case "--game-seed":
-        args.gameSeed = parseInteger(value(), arg);
-        break;
       case "--player-count":
         args.playerCount = parseInteger(value(), arg);
         break;
-      case "--from-running-game": {
-        const mode = value();
-        if (mode !== "reject" && mode !== "exit-to-shell")
-          throw new Error(`Invalid --from-running-game value: ${mode}`);
-        args.fromRunningGame = mode;
-        break;
-      }
       case "--no-load":
         args.load = false;
         break;
@@ -312,28 +296,24 @@ async function main(): Promise<number> {
     if (args.load) {
       if (!args.mapScript || !args.mapSize || args.seed === undefined)
         throw new Error("Loading requires --map-script, --map-size, and --seed (or use --no-load)");
-      const run = await runCiv7SinglePlayerFromSetup(
-        {
-          mapScript: args.mapScript,
-          mapSize: args.mapSize,
-          seed: args.seed,
-          gameSeed: args.gameSeed,
-          playerCount: args.playerCount,
-          options: args.options,
-          fromRunningGame: args.fromRunningGame,
-          waitForTuner: true,
-          waitTimeoutMs: args.waitTimeoutMs,
-          pollIntervalMs: args.pollIntervalMs,
-        },
-        options
-      );
-      report.loaded = run.verified;
-      stages.push({ name: "load", ok: run.verified, startVerified: run.start.verified });
-      if (!run.verified) {
-        report.failureStage = "load";
-        console.log(JSON.stringify(report, null, 2));
-        return 2;
-      }
+      const correlationId = createCiv7ControlRequestId("output-parity");
+      const run = await createCiv7ControlOrpcServerClient({
+        directControl: liveCiv7ControlOrpcDirectControlFacade,
+        directLifecycle: liveCiv7ControlOrpcDirectLifecycleFacade,
+        endpointDefaults: options,
+        correlation: { correlationId },
+      }).lifecycle.singlePlayer.start({
+        mapScript: args.mapScript,
+        mapSize: args.mapSize,
+        seed: args.seed,
+        playerCount: args.playerCount,
+        targetModId: targetModIdFromMapScript(args.mapScript),
+        gameOptions: args.options,
+        playerOptions: {},
+        activeGamePolicy: "exit-active-game",
+      });
+      report.loaded = run.status === "started";
+      stages.push({ name: "load", ok: true, evidence: run.evidence });
     }
 
     const grid = await getCiv7FullMapGrid(
@@ -421,11 +401,19 @@ async function main(): Promise<number> {
     return report.ok ? 0 : 3;
   } catch (error) {
     report.failureStage ??= "exception";
-    report.error = error instanceof Error ? (error.stack ?? error.message) : String(error);
+    report.error = serializeVerifierError(error);
     report.finishedAt = new Date().toISOString();
     console.log(JSON.stringify(report, null, 2));
     return 1;
   }
+}
+
+function targetModIdFromMapScript(mapScript: string): string {
+  const end = mapScript.indexOf("}");
+  if (!mapScript.startsWith("{") || end <= 1) {
+    throw new Error(`Map script does not identify its owning mod: ${mapScript}`);
+  }
+  return mapScript.slice(1, end);
 }
 
 if (import.meta.main) {
@@ -434,7 +422,7 @@ if (import.meta.main) {
       process.exitCode = code;
     })
     .catch((error) => {
-      console.error(JSON.stringify({ ok: false, error: String(error) }, null, 2));
+      console.error(JSON.stringify({ ok: false, error: serializeVerifierError(error) }, null, 2));
       process.exitCode = 1;
     });
 }

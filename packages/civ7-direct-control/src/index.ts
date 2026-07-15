@@ -1,59 +1,9 @@
-import {
-  type Civ7CapabilityCatalog,
-  type Civ7CapabilityCatalogEntry,
-  Civ7CapabilityCatalogEntrySchema,
-  type Civ7CapabilityCatalogOptions,
-  Civ7CapabilityCatalogSchema,
-  DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS,
-  DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
-  generateCiv7CapabilityCatalog,
-  loadCiv7OfficialResourceCapabilities,
-} from "./catalog/capabilities.js";
-import {
-  assertCiv7ComponentId,
-  type Civ7ComponentId,
-  Civ7ComponentIdSchema,
-  isCiv7ComponentId,
-} from "./civ7-component-id.js";
-import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "./direct-control-error.js";
-import { errorMessage } from "./error-message.js";
-import {
-  DEFAULT_CIV7_SCRIPTING_LOG,
-  type FileSnapshot,
-  type FreshLogMarkerProof,
-  logTextFromSnapshot,
-  snapshotFile,
-  waitForFreshLogMarkers,
-} from "./proof/log-markers.js";
+import { Civ7DirectControlError } from "./direct-control-error.js";
 import { jsLiteral } from "./runtime/command-serialization.js";
 import { jsonPayloadFromCommandResult } from "./session/command-result.js";
-import {
-  CIV7_TUNER_APP_UI_STATE_NAME,
-  CIV7_TUNER_STATE_NAME,
-  DEFAULT_CIV7_TUNER_HOST,
-  DEFAULT_CIV7_TUNER_PORT,
-  DEFAULT_CIV7_TUNER_STATE_NAME,
-  DEFAULT_CIV7_TUNER_TIMEOUT_MS,
-} from "./session/constants.js";
-import { discoverCiv7DirectControlEndpoint } from "./session/discovery.js";
-import {
-  executeCiv7AppUiCommand,
-  executeCiv7Command,
-  executeCiv7TunerCommand,
-  queryCiv7TunerStates,
-} from "./session/execute.js";
-import { executeSessionCommandWithReconnect } from "./session/reconnect.js";
-import { Civ7DirectControlSession, withCiv7DirectControlSession } from "./session/session.js";
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlEndpoint,
-  Civ7DirectControlOptions,
-  Civ7TunerState,
-  Civ7TunerStateRole,
-  Civ7TunerStateSelection,
-} from "./session/types.js";
-import { sleep } from "./timing.js";
-import { boundedInteger, validateIdentifier, validatePlayerId } from "./validation.js";
+import { executeCiv7TunerCommand } from "./session/execute.js";
+import type { Civ7DirectControlOptions, Civ7TunerState } from "./session/types.js";
+import { boundedInteger } from "./validation.js";
 
 export type {
   Civ7ProcedureConsumerClass,
@@ -112,24 +62,8 @@ export {
   validateCiv7ProcedureCoreOutput,
 } from "./procedure-core.js";
 
-import type {
-  Civ7AutoplayActionResult,
-  Civ7AutoplayOptions,
-  Civ7AutoplayPollOptions,
-  Civ7AutoplayStatusResult,
-} from "./play/autoplay.js";
-import {
-  DEFAULT_CIV7_GAMEINFO_LIMIT,
-  DEFAULT_CIV7_GAMEINFO_TABLES,
-  DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
-  HARD_CIV7_GAMEINFO_LIMIT,
-  HARD_CIV7_MAP_GRID_MAX_PLOTS,
-} from "./play/map/constants.js";
-import {
-  type Civ7GameInfoRowsInput,
-  type Civ7GameInfoRowsResult,
-  getCiv7GameInfoRows,
-} from "./play/map/gameinfo.js";
+import { HARD_CIV7_MAP_GRID_MAX_PLOTS } from "./play/map/constants.js";
+import { getCiv7GameInfoRows } from "./play/map/gameinfo.js";
 import {
   getCiv7MapGrid,
   getCiv7MapSummary,
@@ -142,213 +76,22 @@ import type {
   Civ7FullMapGridResult,
   Civ7HiddenInfoPolicy,
   Civ7MapBounds,
-  Civ7MapGridInput,
   Civ7MapGridReadChunk,
   Civ7MapGridResult,
   Civ7MapLocation,
-  Civ7MapSummaryInput,
-  Civ7MapSummaryOptions,
   Civ7MapSummaryResult,
   Civ7PlotSnapshot,
   Civ7PlotSnapshotField,
-  Civ7PlotSnapshotInput,
-  Civ7PlotSnapshotResult,
 } from "./play/map/types.js";
 import { validateMapBounds, validateMapLocation } from "./play/map/validation.js";
-import type {
-  Civ7RevealMapResult,
-  Civ7VisibilitySummaryInput,
-  Civ7VisibilitySummaryResult,
-} from "./play/map/visibility.js";
-import type {
-  Civ7NotificationDismissalResult,
-  Civ7NotificationDismissalSummary,
-  Civ7NotificationDismissInput,
-} from "./play/notifications/dismissal-request.js";
-import type {
-  Civ7PlayDecisionAction,
-  Civ7PlayDecisionHint,
-  Civ7PlayDecisionInput,
-  Civ7PlayDecisionQueueItem,
-  Civ7PlayNotificationSummary,
-  Civ7PlayNotificationViewResult,
-} from "./play/notifications/view.js";
-import type {
-  Civ7DiplomacyResponseInput,
-  Civ7DiplomacyResponseResult,
-} from "./play/operations/diplomacy-request.js";
-import type {
-  Civ7NarrativeChoiceInput,
-  Civ7NarrativeChoiceResult,
-} from "./play/operations/narrative-request.js";
-import type {
-  Civ7ProductionChoiceInput,
-  Civ7ProductionChoiceResult,
-} from "./play/operations/production-choice.js";
-import type { Civ7ProductionPostconditionSnapshot } from "./play/operations/production-postconditions.js";
+import { getCiv7CitySummary, getCiv7PlayerSummary, getCiv7UnitSummary } from "./play/summaries.js";
+import { type Civ7RuntimeProbe, probeHelperSource } from "./runtime/probe.js";
 import {
-  type Civ7UnitTargetActionInput,
-  type Civ7UnitTargetActionResult,
-  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
-  DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
-} from "./play/operations/unit-target-action.js";
-import {
-  type Civ7CitySummary,
-  type Civ7CitySummaryInput,
-  type Civ7CitySummaryResult,
-  type Civ7PlayerSummary,
-  type Civ7PlayerSummaryInput,
-  type Civ7PlayerSummaryResult,
-  type Civ7UnitSummary,
-  type Civ7UnitSummaryInput,
-  type Civ7UnitSummaryResult,
-  getCiv7CitySummary,
-  getCiv7PlayerSummary,
-  getCiv7UnitSummary,
-} from "./play/summaries.js";
-import type {
-  Civ7TurnCompletionActionResult,
-  Civ7TurnCompletionStatusResult,
-} from "./play/turn-completion.js";
-import type { Civ7AppUiSnapshot, Civ7AppUiSnapshotResult } from "./runtime/app-ui-snapshot.js";
-import type {
-  Civ7RuntimeApiInspection,
-  Civ7RuntimeApiMethod,
-  Civ7RuntimeApiRoot,
-} from "./runtime/inspection.js";
-import {
-  DEFAULT_CIV7_APP_UI_API_ROOTS,
-  DEFAULT_CIV7_ROOT_MAX_KEYS,
-  DEFAULT_CIV7_ROOT_MAX_METHODS,
-  DEFAULT_CIV7_TUNER_API_ROOTS,
-} from "./runtime/inspection-constants.js";
-import type { Civ7PlayableStatusResult } from "./runtime/playable-status.js";
-import { type Civ7RuntimeProbe, probeHelperSource, probeValue } from "./runtime/probe.js";
-import type {
-  Civ7RootInspectionInput,
-  Civ7RootInspectionResult,
-} from "./runtime/root-inspection.js";
-import type { Civ7TunerHealthResult, Civ7TunerHealthSnapshot } from "./runtime/tuner-health.js";
-import {
-  CIV7_BEGIN_GAME_COMMAND,
-  CIV7_EXIT_TO_MAIN_MENU_COMMAND,
-  CIV7_RESTART_COMMAND,
-  CIV7_UI_LOADING_STATES,
-} from "./setup/constants.js";
-import {
-  applyCiv7SinglePlayerSetup,
-  assertPreparedSetupMatches,
-  type Civ7PreparedSetupResult,
   type Civ7SavedGameConfigurationListInput,
   type Civ7SavedGameConfigurationListResult,
-  type Civ7SavedGameConfigurationLoadRequestResult,
-  type Civ7SavedGameConfigurationLoadResult,
-  type Civ7SavedGameConfigurationRef,
-  type Civ7SetupApplicationResult,
-  type Civ7SetupOptionValue,
-  type Civ7SinglePlayerSetupInput,
-  type Civ7SinglePlayerSetupValues,
   listCiv7SavedGameConfigurations as listCiv7SavedGameConfigurationsFromModule,
-  normalizeSinglePlayerSetupInput as normalizeSinglePlayerSetupInputFromModule,
-  prepareCiv7SinglePlayerSetup as prepareCiv7SinglePlayerSetupFromModule,
-  reconcileCiv7RequiredTargetMod,
-  requestCiv7SavedGameConfigurationLoad,
 } from "./setup/prepare.js";
-import {
-  admitCiv7SetupShell,
-  type Civ7ActiveTargetMod,
-  type Civ7ActiveTargetModsInput,
-  type Civ7ActiveTargetModsResult,
-  type Civ7PlayerSetupParameterSnapshot,
-  type Civ7SetupMapRow,
-  type Civ7SetupMapRowsInput,
-  type Civ7SetupMapRowsResult,
-  type Civ7SetupMapRowVisibilityInput,
-  type Civ7SetupMapRowVisibilityResult,
-  type Civ7SetupParameterSnapshot,
-  type Civ7SetupParameterValue,
-  type Civ7SetupSnapshot,
-  type Civ7SetupSnapshotResult,
-  type Civ7SetupUiReloadResult,
-  defaultSetupReadDependencies,
-  getCiv7ActiveTargetMods,
-  getCiv7SetupMapRows,
-  getCiv7SetupSnapshot,
-  reloadCiv7SetupUiInShell,
-  waitForCiv7SetupPhase,
-} from "./setup/reads.js";
-import {
-  type Civ7PreparedStartInput,
-  type Civ7SinglePlayerHostResult,
-  type Civ7SinglePlayerStartResult,
-  hostPreparedCiv7SinglePlayerGame,
-  startPreparedCiv7SinglePlayerGame as startPreparedCiv7SinglePlayerGameFromModule,
-} from "./setup/start.js";
-
-export { Civ7MapLocationSchema } from "./play/map/types.js";
-
-import type {
-  Civ7CultureChoiceCloseoutInput,
-  Civ7CultureChoiceCloseoutResult,
-} from "./play/progression/culture.js";
-import {
-  type Civ7ProgressDashboardInput,
-  type Civ7ProgressDashboardResult,
-  type Civ7TraditionsViewInput,
-  type Civ7TraditionsViewResult,
-  getCiv7ProgressDashboard,
-  getCiv7TraditionsView,
-} from "./play/progression/reads.js";
-import type {
-  Civ7TechnologyChoiceCloseoutInput,
-  Civ7TechnologyChoiceCloseoutResult,
-} from "./play/progression/technology.js";
-import {
-  type Civ7ReadyCityOperationCandidate,
-  type Civ7ReadyCityPopulationPlacement,
-  type Civ7ReadyCityProductionCandidate,
-  type Civ7ReadyCityTownFocusOption,
-  type Civ7ReadyCityViewInput,
-  type Civ7ReadyCityViewResult,
-  getCiv7ReadyCityView,
-} from "./play/ready/city.js";
-import {
-  type Civ7UnitMovePreviewInput,
-  type Civ7UnitMovePreviewResult,
-  getCiv7UnitMovePreview,
-} from "./play/ready/move-preview.js";
-import {
-  type Civ7ReadyUnitNearbyPlot,
-  type Civ7ReadyUnitOperationCandidate,
-  type Civ7ReadyUnitPromotionReadiness,
-  type Civ7ReadyUnitViewInput,
-  type Civ7ReadyUnitViewResult,
-  getCiv7ReadyUnitView,
-} from "./play/ready/unit.js";
-import {
-  type Civ7BattlefieldScanInput,
-  type Civ7BattlefieldScanResult,
-  getCiv7BattlefieldScan,
-} from "./play/tactical/battlefield.js";
-import {
-  type Civ7DestinationAnalysisInput,
-  type Civ7DestinationAnalysisResult,
-  getCiv7DestinationAnalysis,
-} from "./play/tactical/destination.js";
-import {
-  type Civ7SettlementRecommendation,
-  type Civ7SettlementRecommendationFactor,
-  type Civ7SettlementRecommendationInput,
-  type Civ7SettlementRecommendationOrigin,
-  type Civ7SettlementRecommendationResult,
-  getCiv7SettlementRecommendations,
-} from "./play/tactical/settlement.js";
-import {
-  type Civ7TargetCandidate,
-  type Civ7TargetCandidatesInput,
-  type Civ7TargetCandidatesResult,
-  getCiv7TargetCandidates,
-} from "./play/tactical/target-candidates.js";
+import { getCiv7SetupMapRows, getCiv7SetupSnapshot } from "./setup/reads.js";
 
 export type {
   Civ7CapabilityCatalog,
@@ -494,6 +237,7 @@ export {
   Civ7MapBoundsSchema,
   Civ7MapGridInputSchema,
   Civ7MapGridResultSchema,
+  Civ7MapLocationSchema,
   Civ7MapSummaryInputSchema,
   Civ7MapSummaryResultSchema,
   Civ7NativeRiverObjectSampleSchema,
@@ -1276,12 +1020,6 @@ export type {
   Civ7TunerStateRole,
   Civ7TunerStateSelection,
 } from "./session/types.js";
-export {
-  activeTargetModSetContainsAuthoritativeTarget,
-  CIV7_AUTHORITATIVE_ACTIVE_TARGET_MOD_SOURCE,
-  type Civ7ActiveTargetModSetLike,
-  isAuthoritativeActiveTargetModSetReadback,
-} from "./setup/active-target-mods.js";
 export type { Civ7UiLoadingStateName } from "./setup/constants.js";
 export {
   CIV7_BEGIN_GAME_COMMAND,
@@ -1294,17 +1032,14 @@ export {
 } from "./setup/constants.js";
 export type {
   Civ7PlayerSetupOptions,
-  Civ7PreparedSetupResult,
   Civ7SavedGameConfiguration,
   Civ7SavedGameConfigurationListInput,
   Civ7SavedGameConfigurationListResult,
   Civ7SavedGameConfigurationLoadRequestResult,
-  Civ7SavedGameConfigurationLoadResult,
   Civ7SavedGameConfigurationRef,
   Civ7SavedGameConfigurationSummary,
   Civ7SetupApplicationResult,
   Civ7SetupOptionValue,
-  Civ7SinglePlayerSetupInput,
   Civ7SinglePlayerSetupValues,
   Civ7TargetModReconciliationResult,
 } from "./setup/prepare.js";
@@ -1316,15 +1051,10 @@ export {
   requestCiv7SavedGameConfigurationLoad,
 } from "./setup/prepare.js";
 export type {
-  Civ7ActiveTargetMod,
-  Civ7ActiveTargetModsInput,
-  Civ7ActiveTargetModsResult,
   Civ7PlayerSetupParameterSnapshot,
   Civ7SetupMapRow,
   Civ7SetupMapRowsInput,
   Civ7SetupMapRowsResult,
-  Civ7SetupMapRowVisibilityInput,
-  Civ7SetupMapRowVisibilityResult,
   Civ7SetupParameterSnapshot,
   Civ7SetupParameterValue,
   Civ7SetupPhase,
@@ -1336,7 +1066,6 @@ export type {
 } from "./setup/reads.js";
 export {
   admitCiv7SetupShell,
-  ensureCiv7SetupMapRowVisible,
   reloadCiv7SetupUiInShell,
 } from "./setup/reads.js";
 export type { Civ7BeginGameResult, Civ7RestartAndBeginResult } from "./setup/restart.js";
@@ -1345,17 +1074,9 @@ export {
   restartCiv7Game,
   restartCiv7GameAndBegin,
 } from "./setup/restart.js";
-export type {
-  Civ7PreparedStartInput,
-  Civ7SinglePlayerHostResult,
-  Civ7SinglePlayerStartResult,
-} from "./setup/start.js";
+export type { Civ7SinglePlayerHostResult } from "./setup/start.js";
+export { hostPreparedCiv7SinglePlayerGame } from "./setup/start.js";
 export {
-  hostPreparedCiv7SinglePlayerGame,
-  startPreparedCiv7SinglePlayerGame,
-} from "./setup/start.js";
-export {
-  getCiv7ActiveTargetMods,
   getCiv7CitySummary,
   getCiv7GameInfoRows,
   getCiv7MapGrid,
@@ -1366,7 +1087,6 @@ export {
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   getCiv7UnitSummary,
-  waitForCiv7SetupPhase,
 };
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
 export const HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 1_000;
@@ -1689,95 +1409,10 @@ export async function getCiv7FullMapGrid(
   };
 }
 
-function setupReadDependencies() {
-  return {
-    ...defaultSetupReadDependencies,
-    loadSavedGameConfiguration: loadCiv7SavedGameConfiguration,
-    parseSavedConfigLoadRequest: (result: Civ7CommandResult, label: string) =>
-      jsonPayloadFromCommandResult<
-        | {
-            status: "performed";
-            before: Civ7SetupSnapshot;
-            accepted: boolean;
-          }
-        | {
-            status: "refused";
-            before: Civ7SetupSnapshot;
-            reason: "phase" | "revision-unavailable";
-          }
-      >(result, label),
-    parseSetupPreparation: (result: Civ7CommandResult, label: string) =>
-      jsonPayloadFromCommandResult<
-        | {
-            status: "performed";
-            before: Civ7SetupSnapshot;
-            after: Civ7SetupSnapshot;
-            applied: Record<string, Civ7SetupOptionValue>;
-          }
-        | {
-            status: "refused";
-            before: Civ7SetupSnapshot;
-            reason: "phase" | "map-row";
-          }
-        | {
-            status: "unverified";
-            before: Civ7SetupSnapshot;
-            after: Civ7SetupSnapshot;
-            applied: Record<string, Civ7SetupOptionValue>;
-            mismatch: string;
-          }
-      >(result, label),
-    validateIdentifier,
-  } as const;
-}
-
-/** @deprecated Use `lifecycle.singlePlayer.start` from `@civ7/control-orpc`. */
-export async function prepareCiv7SinglePlayerSetup(
-  input: Civ7SinglePlayerSetupInput,
-  options: Civ7DirectControlOptions = {}
-): Promise<Civ7PreparedSetupResult> {
-  return await prepareCiv7SinglePlayerSetupFromModule(input, options, setupReadDependencies());
-}
-
 export async function listCiv7SavedGameConfigurations(
   input: Civ7SavedGameConfigurationListInput = {}
 ): Promise<Civ7SavedGameConfigurationListResult> {
   return await listCiv7SavedGameConfigurationsFromModule(input, { boundedInteger });
-}
-
-/**
- * @deprecated Multi-step saved-configuration observation belongs in `@civ7/control-orpc`; this is
- * a compatibility helper over the direct-control load-request and setup-snapshot atoms.
- */
-export async function loadCiv7SavedGameConfiguration(
-  input: Civ7SavedGameConfigurationRef,
-  options: Civ7DirectControlOptions = {},
-  wait: { waitTimeoutMs?: number; pollIntervalMs?: number } = {}
-): Promise<Civ7SavedGameConfigurationLoadResult> {
-  const request = await requestCiv7SavedGameConfigurationLoad(
-    input,
-    options,
-    setupReadDependencies()
-  );
-  const waitTimeoutMs = wait.waitTimeoutMs ?? options.timeoutMs ?? 30_000;
-  const pollIntervalMs = wait.pollIntervalMs ?? 1_000;
-  const after = await waitForCiv7SetupRevisionAfter(request.before, options, {
-    waitTimeoutMs,
-    pollIntervalMs,
-  }).catch(async () => {
-    await sleep(Math.min(1_000, pollIntervalMs));
-    return getCiv7SetupSnapshot(options);
-  });
-  return {
-    host: request.command.host,
-    port: request.command.port,
-    state: request.command.state,
-    savedConfig: request.savedConfig,
-    before: request.before,
-    after,
-    command: request.command,
-    loaded: request.accepted,
-  };
 }
 
 function buildResourcePlacementFeasibilityCommand(input: {
@@ -2183,51 +1818,4 @@ function probeNumberOr(probe: Civ7RuntimeProbe<unknown>, fallback: number): numb
   if (!probe.ok) return fallback;
   const value = Number(probe.value);
   return Number.isFinite(value) ? value : fallback;
-}
-
-async function waitForCiv7SetupRevisionAfter(
-  before: Civ7SetupSnapshotResult,
-  options: Civ7DirectControlOptions,
-  wait: { waitTimeoutMs: number; pollIntervalMs: number }
-): Promise<Civ7SetupSnapshotResult> {
-  const beforeRevision = probeValue(before.snapshot.setup.revision);
-  const startedAt = Date.now();
-  let last: Civ7SetupSnapshotResult | undefined;
-  let shellPolls = 0;
-  const stableShellMs = Math.min(2_000, wait.waitTimeoutMs);
-  while (Date.now() - startedAt <= wait.waitTimeoutMs) {
-    try {
-      const snapshot = await getCiv7SetupSnapshot(options);
-      last = snapshot;
-      const nextRevision = probeValue(snapshot.snapshot.setup.revision);
-      if (snapshot.snapshot.phase === "shell") {
-        shellPolls += 1;
-        if (
-          beforeRevision !== undefined &&
-          nextRevision !== undefined &&
-          nextRevision !== beforeRevision
-        ) {
-          return snapshot;
-        }
-        if (shellPolls >= 2 && Date.now() - startedAt >= stableShellMs) return snapshot;
-      }
-    } catch {
-      // Keep polling while Civ applies the saved configuration.
-    }
-    await sleep(wait.pollIntervalMs);
-  }
-  if (last) return last;
-  throw new Civ7DirectControlError(
-    "setup-apply-timeout",
-    "Timed out waiting for Civ7 saved configuration load to update setup state",
-    { details: before }
-  );
-}
-
-function toDirectControlError(
-  err: unknown,
-  fallbackCode: Civ7DirectControlErrorCode
-): Civ7DirectControlError {
-  if (err instanceof Civ7DirectControlError) return err;
-  return new Civ7DirectControlError(fallbackCode, errorMessage(err), { cause: err });
 }

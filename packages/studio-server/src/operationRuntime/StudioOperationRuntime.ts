@@ -16,6 +16,7 @@ import {
   type StudioRuntimeFailure,
 } from "../errors/index.js";
 import type { Civ7TunerSession } from "../services/Civ7TunerSession.js";
+import type { StudioConfig } from "../services/StudioConfig.js";
 import { StudioEventHub } from "../services/StudioEventHub.js";
 import {
   AutoplayWorkflow,
@@ -138,13 +139,13 @@ export function makeStudioOperationRuntimeLayer(
     Readonly<{
       civ7WorkflowControl?: undefined;
     }>
-): Layer.Layer<StudioOperationRuntime, never, Civ7TunerSession | StudioEventHub>;
+): Layer.Layer<StudioOperationRuntime, never, Civ7TunerSession | StudioConfig | StudioEventHub>;
 export function makeStudioOperationRuntimeLayer(
   args: StudioOperationRuntimeLayerBaseArgs &
     Readonly<{
       civ7WorkflowControl?: Layer.Layer<Civ7WorkflowControl>;
     }>
-): Layer.Layer<StudioOperationRuntime, never, Civ7TunerSession | StudioEventHub> {
+): Layer.Layer<StudioOperationRuntime, never, Civ7TunerSession | StudioConfig | StudioEventHub> {
   const workflowLayer = Layer.mergeAll(
     makeRunInGameWorkflowLayer({ ports: args.ports }),
     makeSaveDeployWorkflowLayer({ ports: args.ports }),
@@ -345,7 +346,7 @@ function makeStudioOperationRuntime(
       }).pipe(Effect.as(operation));
     };
 
-    const dispose = markDisposed(
+    const publishDisposed = markDisposed(
       registry,
       nowIso(),
       runtimeDisposed({
@@ -353,6 +354,7 @@ function makeStudioOperationRuntime(
         diagnostics: { code: "studio-operation-runtime-disposed" },
       })
     ).pipe(Effect.flatMap(publishMany));
+    const dispose = FiberSet.clear(fibers).pipe(Effect.zipRight(publishDisposed));
 
     yield* releaseStaleRuntimeOwnershipLease({
       workspaceRoot: runInGameWorkspaceRoot,
@@ -470,7 +472,7 @@ function makeStudioOperationRuntime(
         requestId,
         prepared,
         transitions: {
-          transition: (transition) => transitionRun(requestId, transition).pipe(Effect.asVoid),
+          transition: (transition) => transitionRun(requestId, transition),
           registerCleanup: (cleanup) =>
             Effect.sync(() => {
               runInGameCleanup.set(requestId, cleanup);
@@ -517,7 +519,8 @@ function makeStudioOperationRuntime(
 
     const transitionRun = (requestId: string, transition: RunInGameTransition) =>
       transitionRunInGameMutation({ registry, requestId, nowIso: nowIso(), transition }).pipe(
-        Effect.flatMap(publishRunMutation),
+        Effect.tap(publishRunMutation),
+        Effect.map((mutation) => mutation.kind === "changed"),
         Effect.uninterruptible
       );
 
@@ -748,12 +751,7 @@ function makeStudioOperationRuntime(
 }
 
 function isPostDeployRunPhase(phase: RunInGameInternalOperation["phase"]): boolean {
-  return (
-    phase === "checking-civ7" ||
-    phase === "preparing-setup" ||
-    phase === "starting-game" ||
-    phase === "collecting-evidence"
-  );
+  return phase === "starting-game" || phase === "collecting-evidence";
 }
 
 function missingRunDeploymentEvidence(operation: RunInGameInternalOperation): StudioRuntimeFailure {

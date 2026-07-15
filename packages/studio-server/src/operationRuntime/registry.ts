@@ -3,13 +3,11 @@ import type {
   RunInGameExactAuthorshipEvidence,
   RunInGameMaterializationStatus,
   RunInGameOperationStatus,
-  RunInGamePhase,
 } from "@civ7/studio-contract";
 import { snapshotRunInGameExactAuthorshipEvidence } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifestReference } from "@civ7/studio-run-workspace";
-import { Effect, SynchronizedRef } from "effect";
+import { Effect, Match, SynchronizedRef } from "effect";
 import {
-  dependencyUnavailable,
   deployFailed,
   invalidRequest,
   isStudioRuntimeFailure,
@@ -17,6 +15,7 @@ import {
   operationBlocked,
   operationExpired,
   operationNotFound,
+  preventStudioRuntimeFailureReplay,
   runtimeDisposed,
   type StudioBoundedDiagnostics,
   type StudioBoundedDiagnosticValue,
@@ -26,14 +25,17 @@ import {
 import { createRunDiagnosticsId } from "../runInGamePublic.js";
 import type {
   RegistryState,
+  RunInGameFailurePhase,
   RunInGameInternalOperation,
   RuntimeActiveSlot,
   SaveDeployInternalOperation,
 } from "./model.js";
 import {
   emptyRegistry,
+  failurePhaseForRunInGame,
   OPERATION_TTL_MS,
   publicRunInGamePhase,
+  runInGameLifecycleOwnsMutation,
   statusForRunInGamePhase,
   statusForSaveDeployPhase,
 } from "./model.js";
@@ -89,12 +91,6 @@ export type RunInGameTransition =
       materialization?: RunInGameMaterializationStatus;
       deploymentEvidence?: RunInGameDeploymentEvidence;
     }>
-  | Readonly<{
-      phase: "checking-civ7";
-      materialization?: RunInGameMaterializationStatus;
-      deploymentEvidence: RunInGameDeploymentEvidence;
-    }>
-  | Readonly<{ phase: "preparing-setup"; deploymentEvidence: RunInGameDeploymentEvidence }>
   | Readonly<{ phase: "starting-game"; deploymentEvidence: RunInGameDeploymentEvidence }>
   | Readonly<{ phase: "collecting-evidence"; deploymentEvidence: RunInGameDeploymentEvidence }>
   | Readonly<{
@@ -105,8 +101,6 @@ export type RunInGameTransition =
       runtimeObservation: RunInGameRuntimeObservation;
       exactAuthorshipEvidence?: RunInGameExactAuthorshipEvidence;
     }>;
-
-export type RunInGameFailurePhase = Exclude<RunInGameTransition["phase"], "complete">;
 
 export type SaveDeployTransition =
   | Readonly<{ phase: "saving"; path?: string }>
@@ -142,11 +136,16 @@ export function markDisposed(
   failure: StudioRuntimeFailure
 ): Effect.Effect<ReadonlyArray<RunInGameInternalOperation | SaveDeployInternalOperation>> {
   return SynchronizedRef.modify(registry, (state) => {
-    const runInGame = mapRecord(state.runInGame, (operation) =>
-      operation.status === "running"
-        ? failRunOperation(operation, nowIso, failure, failurePhaseForRunOperation(operation))
-        : operation
-    );
+    const runInGame = mapRecord(state.runInGame, (operation) => {
+      if (operation.status !== "running") return operation;
+      const phase = failurePhaseForRunInGame(operation.phase);
+      const disposedFailure = Match.value(runInGameLifecycleOwnsMutation(operation.phase)).pipe(
+        Match.when(true, () => preventStudioRuntimeFailureReplay(failure)),
+        Match.when(false, () => failure),
+        Match.exhaustive
+      );
+      return failRunOperation(operation, nowIso, disposedFailure, phase);
+    });
     const saveDeploy = mapRecord(state.saveDeploy, (operation) =>
       operation.status === "running"
         ? failSaveOperation(
@@ -351,10 +350,8 @@ export function failRunInGameMutation(
               updatedAt: args.nowIso,
               diagnosticsId: createRunDiagnosticsId(),
               completedPhases: [],
-              failure: toRuntimeFailure(args.err, "Run in Game failed", {
-                operation: "run-in-game",
-                phase: args.phase,
-              }),
+              failure: runInGameFailure(args.err, args.phase),
+              failedAtPhase: args.phase,
             } satisfies RunInGameInternalOperation)
         ),
         state,
@@ -363,10 +360,7 @@ export function failRunInGameMutation(
     if (current.status !== "running") {
       return [unchangedRunMutation(current), state] as const;
     }
-    const failure = toRuntimeFailure(args.err, "Run in Game failed", {
-      operation: "run-in-game",
-      phase: args.phase,
-    });
+    const failure = runInGameFailure(args.err, args.phase);
     const operation = failRunOperation(current, args.nowIso, failure, args.phase);
     return [
       changedRunMutation(operation),
@@ -441,6 +435,15 @@ export function cancelRunInGame(
           state,
         ];
         return Effect.succeed(existing);
+      }
+      // Once the aggregate lifecycle owns mutation, interruption cannot prove
+      // that the game did not accept it. Keep the operation running and let
+      // observation settle the terminal state instead of reporting a false cancel.
+      if (runInGameLifecycleOwnsMutation(current.phase)) {
+        return Effect.succeed([
+          { kind: "existing", operation: projectRunInGame(current) },
+          state,
+        ] as const);
       }
       const publicCurrentPhase = publicRunInGamePhase(current.phase);
       const operation: RunInGameInternalOperation = {
@@ -861,13 +864,18 @@ function failRunOperation(
   const failureClass =
     failure.tag === "OperationBlocked"
       ? "blocked"
-      : failure.reason === "timeout-uncertain" || failure.reason === "start-game-failed"
+      : failure.reason === "timeout-uncertain" || failure.diagnostics?.noRepeat === true
         ? "uncertain"
         : "failed";
   const publicPhase = publicRunInGamePhase(phase);
   return {
     ...operation,
-    phase: failure.tag === "RuntimeDisposed" ? "runtime-disposed" : failureClass,
+    phase:
+      failureClass === "uncertain"
+        ? "uncertain"
+        : failure.tag === "RuntimeDisposed"
+          ? "runtime-disposed"
+          : failureClass,
     status:
       failureClass === "blocked"
         ? "blocked"
@@ -877,25 +885,19 @@ function failRunOperation(
     operationRevision: operation.operationRevision + 1,
     updatedAt: nowIso,
     failure,
+    failedAtPhase: phase,
     completedPhases: operation.completedPhases.includes(publicPhase)
       ? operation.completedPhases
       : [...operation.completedPhases, publicPhase],
   };
 }
 
-function failurePhaseForRunOperation(operation: RunInGameInternalOperation): RunInGameFailurePhase {
-  switch (operation.phase) {
-    case "deploying":
-    case "checking-civ7":
-    case "preparing-setup":
-    case "starting-game":
-    case "collecting-evidence":
-      return operation.phase;
-    case "accepted":
-    case "materializing":
-    default:
-      return "materializing";
-  }
+function runInGameFailure(err: unknown, phase: RunInGameFailurePhase): StudioRuntimeFailure {
+  const failure = toRuntimeFailure(err, "Run in Game failed", {
+    operation: "run-in-game",
+    phase,
+  });
+  return phase === "collecting-evidence" ? preventStudioRuntimeFailureReplay(failure) : failure;
 }
 
 function failSaveOperation(
@@ -976,29 +978,6 @@ function runInGameFailureForPhase(
         }),
         recoveryActions: ["inspect-deploy-output", "retry-run", "copy-diagnostics"],
       });
-    case "checking-civ7":
-      return dependencyUnavailable({
-        message,
-        reason: "direct-control-unavailable",
-        dependency: "direct-control",
-        diagnostics: runInGameDiagnostics(err, phase, {
-          code: "run-in-game-civ7-check-failed",
-          failureTag: "DependencyUnavailable",
-          reason: "direct-control-unavailable",
-        }),
-        recoveryActions: ["check-dev-server", "retry-run", "copy-diagnostics"],
-      });
-    case "preparing-setup":
-      return verificationFailed({
-        message,
-        reason: "setup-row-unavailable",
-        diagnostics: runInGameDiagnostics(err, phase, {
-          code: "run-in-game-setup-row-unavailable",
-          failureTag: "VerificationFailed",
-          reason: "setup-row-unavailable",
-        }),
-        recoveryActions: ["retry-run", "copy-diagnostics"],
-      });
     case "starting-game":
       return verificationFailed({
         message,
@@ -1007,8 +986,9 @@ function runInGameFailureForPhase(
           code: "run-in-game-start-game-failed",
           failureTag: "VerificationFailed",
           reason: "start-game-failed",
+          noRepeat: true,
         }),
-        recoveryActions: ["dismiss-civ-notification-and-retry", "retry-run", "copy-diagnostics"],
+        recoveryActions: ["retry-status", "copy-diagnostics"],
       });
     case "collecting-evidence":
       return verificationFailed({
@@ -1018,7 +998,9 @@ function runInGameFailureForPhase(
           code: "run-in-game-log-evidence-missing",
           failureTag: "VerificationFailed",
           reason: "log-evidence-missing",
+          noRepeat: true,
         }),
+        recoveryActions: ["retry-status", "copy-diagnostics"],
       });
   }
 }

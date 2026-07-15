@@ -8,7 +8,6 @@ export type {
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
   RunInGameRuntimeObservation,
-  RunInGameSetupPrepared,
   RunInGameStarted,
   SaveDeployDeployed,
   SaveDeployPreparedRequest,

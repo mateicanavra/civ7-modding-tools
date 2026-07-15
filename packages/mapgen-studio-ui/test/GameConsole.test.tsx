@@ -185,6 +185,26 @@ describe("GameConsole Run in Game status", () => {
     expect(html).not.toContain("setup cannot see");
   });
 
+  it("disables replay when a post-mutation failure admits observation only", () => {
+    const onRunInGame = vi.fn();
+    renderConsole({
+      onRunInGame,
+      runInGameCurrentRelation: "current",
+      runInGameStatus: {
+        requestId: "studio-run-in-game-no-repeat",
+        phase: "failed",
+        status: "failed",
+        safeFailureCategory: "runtime-observation",
+        recoveryActions: ["retry-status", "copy-diagnostics"],
+      },
+    });
+
+    const play = screen.getByRole("button", { name: /Run Unavailable/i });
+    expect(play).toHaveProperty("disabled", true);
+    fireEvent.click(play);
+    expect(onRunInGame).not.toHaveBeenCalled();
+  });
+
   it.each([
     "failed",
     "cancelled",

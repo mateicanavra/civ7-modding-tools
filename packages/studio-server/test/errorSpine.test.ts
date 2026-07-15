@@ -79,7 +79,6 @@ describe("studio-server error spine", () => {
       deployFailed({ message: "deploy failed" }),
       deployFailed({ message: "save failed", reason: "save-failed" }),
       deployFailed({ message: "rollback failed", reason: "rollback-failed" }),
-      verificationFailed({ message: "setup row missing", reason: "setup-row-unavailable" }),
       verificationFailed({ message: "game start failed", reason: "start-game-failed" }),
       verificationFailed({ message: "log evidence missing", reason: "log-evidence-missing" }),
       verificationFailed({ message: "authorship mismatch", reason: "exact-authorship-mismatch" }),

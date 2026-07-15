@@ -271,19 +271,18 @@ describe("studio-server RPC handler", () => {
     }
   }, 10_000);
 
-  test("reports generated setup-row misses through safe public RPC status and private diagnostics", async () => {
+  test("reports lifecycle setup-row mismatches through safe public RPC status and private diagnostics", async () => {
     const runtime = makeTestStudioRuntime(makeContext(), {
-      prepareSetup: () =>
+      startSinglePlayer: () =>
         Effect.fail(
           verificationFailed({
-            message: "Civ7 setup cannot see the generated Studio Run map row.",
-            reason: "setup-row-unavailable",
+            message: "Civ7 setup selected a different map row than the generated Studio Run map.",
+            reason: "exact-authorship-mismatch",
             diagnostics: {
-              code: "setup-map-row-not-visible",
-              setupFailureReason: "setup-map-row-not-visible",
-              mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-              rowEvidence: JSON.stringify({ rows: [] }),
-              rowVisibility: JSON.stringify({ refreshed: true, final: { rows: [] } }),
+              code: "setup-map-row-mismatched",
+              setupFailureReason: "setup-map-row-mismatched",
+              expectedMapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+              observedMapScripts: ["{base-standard}/maps/continents.js"],
             },
           })
         ),
@@ -312,7 +311,7 @@ describe("studio-server RPC handler", () => {
         diagnosticsId: accepted.diagnosticsId,
       });
       expect(publicPayload).not.toMatch(
-        /setup-map-row-not-visible|rowEvidence|rowVisibility|mod-swooper-studio-run|\/tmp\//
+        /setup-map-row-mismatched|base-standard|mod-swooper-studio-run|\/tmp\//
       );
 
       const diagnostics = await client.runInGame.diagnostics({
@@ -321,9 +320,9 @@ describe("studio-server RPC handler", () => {
       expect(diagnostics.ok).toBe(true);
       if (!diagnostics.ok) throw new Error("Expected diagnostics lookup result");
       expect(diagnostics.diagnostics.sections.setupFailure).toMatchObject({
-        setupFailureReason: "setup-map-row-not-visible",
+        setupFailureReason: "setup-map-row-mismatched",
         expectedGeneratedMapFile: "{mod-swooper-studio-run}/maps/studio-run.js",
-        rowSample: { rows: [] },
+        observedMapScripts: ["{base-standard}/maps/continents.js"],
       });
     } finally {
       await runtime.dispose();
@@ -1068,6 +1067,7 @@ function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServer
     },
     civ7Control: {
       directControl: {} as StudioServerContext["civ7Control"]["directControl"],
+      directLifecycle: {} as StudioServerContext["civ7Control"]["directLifecycle"],
       timeoutMs: 1234,
     },
     operationRuntime: makeOperationRuntimePorts(),
@@ -1079,9 +1079,7 @@ function makeCiv7WorkflowControlLayer(
   overrides: Partial<Civ7WorkflowControlApi> = {}
 ): Layer.Layer<Civ7WorkflowControl> {
   const service: Civ7WorkflowControlApi = {
-    checkPlayable: () => Effect.void,
-    prepareSetup: () => Effect.succeed({}),
-    startGame: () => Effect.succeed({}),
+    startSinglePlayer: () => Effect.succeed(lifecycleStarted()),
     runAutoplay: (input) =>
       Effect.succeed({
         ok: true,
@@ -1094,6 +1092,24 @@ function makeCiv7WorkflowControlLayer(
     ...overrides,
   };
   return Layer.succeed(Civ7WorkflowControl, service);
+}
+
+function lifecycleStarted() {
+  return {
+    status: "started" as const,
+    evidence: {
+      setup: {
+        mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+        mapSize: "MAPSIZE_SMALL",
+        mapSeed: 42,
+        gameSeed: 42,
+        targetModId: "mod-swooper-studio-run",
+        mapRowFiles: ["{mod-swooper-studio-run}/maps/studio-run.js"],
+      },
+      runtime: { seed: 42, mapSize: "MAPSIZE_SMALL", width: 44, height: 26, plotCount: 1144 },
+    },
+    transition: { initialPhase: "shell" as const, activeGameExit: "not-needed" as const },
+  };
 }
 
 function namedError(name: string, message: string): Error {
@@ -1261,8 +1277,7 @@ function runInGameRuntimeObservation(
       mapScript: materialization?.mapScript ?? "test-map-script",
       runArtifactId: correlation.runArtifactId,
       deployedModId: args.deployment.runDeployment.deployedModId,
-      rowEvidence: { ok: true },
-      rowVisibility: { visible: true },
+      mapRowFiles: args.started.evidence.setup.mapRowFiles,
     },
     loadedGame: {
       requestId: args.requestId,

@@ -1,15 +1,14 @@
 import { describe, expect, test } from "vitest";
-
+import {
+  type Civ7IntelligenceBridgeGlobalTarget,
+  installCiv7IntelligenceBridge,
+} from "../src/bridge/intelligence-bridge";
 import {
   type Civ7ControlOrpcContext,
   type Civ7ControlOrpcPlayableStatusResult,
   type Civ7IntelligenceBridge,
   createCiv7IntelligenceBridge,
 } from "../src/index";
-import {
-  type Civ7IntelligenceBridgeGlobalTarget,
-  installCiv7IntelligenceBridge,
-} from "../src/bridge/intelligence-bridge";
 
 describe("Civ7IntelligenceBridge global adapter", () => {
   test("installs the native nested router client with fresh correlated context per call", async () => {
@@ -66,12 +65,18 @@ describe("Civ7IntelligenceBridge global adapter", () => {
   });
 
   test.each([
-    ["synchronous", () => {
-      throw new Error("secret synchronous context detail");
-    }],
-    ["rejected", async () => {
-      throw new Error("secret rejected context detail");
-    }],
+    [
+      "synchronous",
+      () => {
+        throw new Error("secret synchronous context detail");
+      },
+    ],
+    [
+      "rejected",
+      async () => {
+        throw new Error("secret rejected context detail");
+      },
+    ],
   ])("sanitizes %s controller context acquisition failures", async (_label, createContext) => {
     const bridge = createCiv7IntelligenceBridge({ createContext: createContext as never });
 

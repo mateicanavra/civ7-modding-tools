@@ -59,7 +59,7 @@ export function makeStudioRuntime(
   const eventHubLayer = StudioEventHubLive;
   const operationRuntimeLayer = makeStudioOperationRuntimeLayer({
     ports: context.operationRuntime,
-  });
+  }).pipe(Layer.provide(Layer.succeed(StudioConfig, context)));
   const liveGameWatcherLayer =
     options.liveGameWatch === undefined
       ? Layer.empty

@@ -1,3 +1,4 @@
+import type { Civ7LifecycleSinglePlayerStartResult } from "@civ7/control-orpc";
 import { snapshotRunInGameExactAuthorshipEvidence } from "@civ7/studio-contract";
 import type {
   RunInGameContentMarkerEvidence,
@@ -19,9 +20,8 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
   generatedSourceScript?: RunInGameFileIdentity;
   localModScript?: RunInGameFileIdentity;
   deployedModScript?: RunInGameFileIdentity;
-  rowEvidence?: unknown;
-  setupSnapshot?: unknown;
-  startMapSummary?: unknown;
+  lifecycleSetup: Civ7LifecycleSinglePlayerStartResult["evidence"]["setup"];
+  lifecycleRuntime: Civ7LifecycleSinglePlayerStartResult["evidence"]["runtime"];
   logEvidence?: RunInGameDetailedExactAuthorshipEvidence["log"];
   liveRuntimeSnapshot?: {
     snapshotId?: string;
@@ -31,8 +31,8 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
   };
   createdAt?: string;
 }): RunInGameDetailedExactAuthorshipEvidence {
-  const setupReadback = setupReadbackFromSnapshot(args.setupSnapshot);
-  const runtimeSummary = runtimeSummaryFromMapSummary(args.startMapSummary);
+  const setupReadback = args.lifecycleSetup;
+  const runtimeSummary = args.lifecycleRuntime;
   const runtimeTurn = runtimeSummary.turn ?? args.liveRuntimeSnapshot?.turn;
   const runtimeGameHash = runtimeSummary.gameHash ?? args.liveRuntimeSnapshot?.gameHash;
   const sourceConfig = args.sourceConfig ?? args.materialization.sourceConfig;
@@ -126,7 +126,7 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
   }
   addMissing(unresolvedLinks, Boolean(localModScript), "materialization.local-mod-script");
   addMissing(unresolvedLinks, Boolean(deployedModScript), "materialization.deployed-mod-script");
-  addMissing(unresolvedLinks, hasRows(args.rowEvidence), "civ-setup.map-row");
+  addMissing(unresolvedLinks, args.lifecycleSetup.mapRowFiles.length > 0, "civ-setup.map-row");
   addMissing(
     unresolvedLinks,
     setupReadback.mapScript !== undefined,
@@ -314,7 +314,7 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
       ...(setupReadback.playerCount === undefined
         ? {}
         : { playerCount: setupReadback.playerCount }),
-      ...(rowCount(args.rowEvidence) === undefined ? {} : { rowCount: rowCount(args.rowEvidence) }),
+      rowCount: args.lifecycleSetup.mapRowFiles.length,
     },
     runtime: {
       ...(runtimeSummary.seed === undefined ? {} : { seed: runtimeSummary.seed }),
@@ -446,90 +446,9 @@ function addNumberMismatch(links: string[], left: unknown, right: unknown, link:
   }
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function probeValue(value: unknown): unknown {
-  return isRecord(value) && value.ok === true ? value.value : undefined;
-}
-
 function numberValue(value: unknown): number | undefined {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value !== "string" || value.trim() === "") return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-function setupParameterValue(snapshot: unknown, id: string): unknown {
-  if (!isRecord(snapshot) || !isRecord(snapshot.setup) || !Array.isArray(snapshot.setup.parameters))
-    return undefined;
-  const parameter = snapshot.setup.parameters.find(
-    (item) => isRecord(item) && item.id === id && item.exists !== false
-  );
-  return isRecord(parameter) ? parameter.value : undefined;
-}
-
-function setupReadbackFromSnapshot(snapshot: unknown): {
-  mapScript?: string;
-  mapSize?: unknown;
-  mapSeed?: unknown;
-  gameSeed?: unknown;
-  playerCount?: unknown;
-} {
-  const mapScript = setupParameterValue(snapshot, "Map");
-  const mapSize = setupParameterValue(snapshot, "MapSize");
-  const mapSeed = setupParameterValue(snapshot, "MapRandomSeed");
-  const gameSeed = setupParameterValue(snapshot, "GameRandomSeed");
-  const config = isRecord(snapshot) && isRecord(snapshot.config) ? snapshot.config : {};
-  const playerCount =
-    setupParameterValue(snapshot, "PlayerCount") ?? probeValue(config.playerCount);
-  return {
-    ...(typeof mapScript === "string" ? { mapScript } : {}),
-    ...(mapSize === undefined ? {} : { mapSize }),
-    ...(mapSeed === undefined ? {} : { mapSeed }),
-    ...(gameSeed === undefined ? {} : { gameSeed }),
-    ...(playerCount === undefined ? {} : { playerCount }),
-  };
-}
-
-function runtimeSummaryFromMapSummary(summary: unknown): {
-  seed?: number;
-  width?: number;
-  height?: number;
-  plotCount?: number;
-  turn?: number;
-  gameHash?: number;
-} {
-  if (!isRecord(summary)) return {};
-  const map = isRecord(summary.map) ? summary.map : {};
-  const game = isRecord(summary.game) ? summary.game : {};
-  return {
-    ...(typeof probeValue(map.randomSeed) === "number"
-      ? { seed: probeValue(map.randomSeed) as number }
-      : {}),
-    ...(typeof probeValue(map.width) === "number"
-      ? { width: probeValue(map.width) as number }
-      : {}),
-    ...(typeof probeValue(map.height) === "number"
-      ? { height: probeValue(map.height) as number }
-      : {}),
-    ...(typeof probeValue(map.plotCount) === "number"
-      ? { plotCount: probeValue(map.plotCount) as number }
-      : {}),
-    ...(typeof probeValue(game.turn) === "number" ? { turn: probeValue(game.turn) as number } : {}),
-    ...(typeof probeValue(game.hash) === "number"
-      ? { gameHash: probeValue(game.hash) as number }
-      : {}),
-  };
-}
-
-function rowCount(rowEvidence: unknown): number | undefined {
-  if (!isRecord(rowEvidence) || !Array.isArray(rowEvidence.rows)) return undefined;
-  return rowEvidence.rows.length;
-}
-
-function hasRows(rowEvidence: unknown): boolean {
-  const count = rowCount(rowEvidence);
-  return count !== undefined && count > 0;
 }
