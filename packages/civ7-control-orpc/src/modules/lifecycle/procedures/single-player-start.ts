@@ -4,6 +4,7 @@ import {
   type Civ7DirectControlErrorCode,
   type Civ7MapSummaryResult,
   type Civ7RuntimeProbe,
+  type Civ7SavedGameConfigurationLoadRequestResult,
   type Civ7SetupApplicationResult,
   type Civ7SetupMapRowsResult,
   type Civ7SinglePlayerSetupValues,
@@ -40,6 +41,10 @@ type FailedRuntimeProbeObservation = Readonly<{ ok: false; error: string }>;
 type FiniteNumberProbeObservation = Readonly<{ ok: true; value: number }>;
 type StringProbeObservation = Readonly<{ ok: true; value: string }>;
 type BooleanProbeObservation = Readonly<{ ok: true; value: boolean }>;
+
+type SavedConfigLoadBaseline =
+  | Readonly<{ kind: "confirmed-response"; revision: number }>
+  | Readonly<{ kind: "response-unavailable"; revision: number; detail: string }>;
 
 class InvalidDependencyObservationError extends Error {
   override readonly name = "InvalidDependencyObservationError";
@@ -200,32 +205,39 @@ export const lifecycleSinglePlayerStartProcedure =
         onNone: () => Effect.succeed(shellSnapshot),
         onSome: (savedConfig) =>
           Effect.gen(function* () {
-            const request = yield* mutationResultCall(
-              "request-saved-config-load",
-              () => directLifecycle.requestSavedConfigLoad(savedConfig, context.endpointDefaults),
-              isSavedConfigLoadRequestResult,
-              true
+            const requestAttempt = yield* attemptSavedConfigLoad(() =>
+              directLifecycle.requestSavedConfigLoad(savedConfig, context.endpointDefaults)
             );
-            yield* Effect.filterOrFail(
-              Effect.succeed(request.accepted),
-              (accepted) => accepted === true,
-              () => verificationFailure("request-saved-config-load", "saved-config-load-rejected")
-            );
-            const beforeRevisionSource = Effect.fromNullable(
-              finiteNumberProbeValue(request.before.snapshot.setup.revision)
-            );
-            const beforeRevision = yield* Effect.mapError(beforeRevisionSource, () =>
-              verificationFailure("request-saved-config-load", "setup-revision-unavailable")
-            );
+            const baseline = yield* resolveSavedConfigLoadBaseline(requestAttempt, shellSnapshot, {
+              onUnexpectedFailure: (cause) =>
+                classifyMutationFailure("request-saved-config-load", true, cause),
+              onUnavailableRevision: () =>
+                verificationFailure(
+                  "request-saved-config-load",
+                  "setup-revision-unavailable"
+                ),
+              onRejected: () =>
+                verificationFailure("request-saved-config-load", "saved-config-load-rejected"),
+              onUnresolvedClose: (cause) =>
+                uncertainFailure(
+                  "request-saved-config-load",
+                  civ7ControlOrpcFailureDetail(cause)
+                ),
+            });
+            const readbackFailure = savedConfigReadbackFailure(baseline, {
+              onResponseUnavailable: (detail) =>
+                uncertainFailure("wait-for-saved-config", detail),
+              onMissingReadback: () =>
+                verificationFailure("wait-for-saved-config", "saved-config-readback-not-observed"),
+            });
             return yield* requireMatched(
               pollUntil({
                 read: () => directLifecycle.getSetupSnapshot(context.endpointDefaults),
-                matches: (result) => hasAdvancedSetupRevision(result, beforeRevision),
+                matches: (result) => hasAdvancedSetupRevision(result, baseline.revision),
                 timeoutMs: DEFAULT_LIFECYCLE_SETUP_WAIT_MS,
                 pollMs: DEFAULT_LIFECYCLE_POLL_MS,
               }),
-              () =>
-                verificationFailure("wait-for-saved-config", "saved-config-readback-not-observed")
+              () => readbackFailure
             );
           }),
       })
@@ -665,6 +677,97 @@ function hasAdvancedSetupRevision(result: unknown, beforeRevision: number): bool
   const setup = recordObservation(snapshot.setup, "Invalid setup revision observation");
   const revision = finiteNumberProbeValue(setup.revision);
   return phase === "shell" && revision !== undefined && revision !== beforeRevision;
+}
+
+function attemptSavedConfigLoad(
+  request: () => Promise<Civ7SavedGameConfigurationLoadRequestResult>
+) {
+  return Effect.tryPromise({
+    try: request,
+    catch: (cause) => cause,
+  }).pipe(
+    Effect.flatMap((result) =>
+      validateObservation(
+        isSavedConfigLoadRequestResult,
+        result,
+        () => new InvalidMutationResultError()
+      )
+    ),
+    Effect.uninterruptible,
+    Effect.either
+  );
+}
+
+const optionalSetupRevision = Option.liftThrowable(
+  (result: { snapshot: { setup: { revision: unknown } } }) =>
+    finiteNumberProbeValue(result.snapshot.setup.revision)
+);
+
+function setupRevisionOption(result: { snapshot: { setup: { revision: unknown } } }) {
+  return Option.flatMap(optionalSetupRevision(result), Option.fromNullable);
+}
+
+function resolveSavedConfigLoadBaseline<
+  UnexpectedFailure,
+  UnavailableRevision,
+  Rejected,
+  UnresolvedClose,
+>(
+  attempt: Either.Either<Civ7SavedGameConfigurationLoadRequestResult, unknown>,
+  shellSnapshot: { snapshot: { setup: { revision: unknown } } },
+  errors: Readonly<{
+    onUnexpectedFailure: (cause: unknown) => UnexpectedFailure;
+    onUnavailableRevision: () => UnavailableRevision;
+    onRejected: () => Rejected;
+    onUnresolvedClose: (cause: Civ7DirectControlError) => UnresolvedClose;
+  }>
+) {
+  return Either.match(attempt, {
+    onLeft: (cause) =>
+      Match.value(cause).pipe(
+        Match.when(
+          (value: unknown): value is Civ7DirectControlError =>
+            hasDirectControlCode(value, "socket-closed"),
+          (closed) =>
+            Option.match(setupRevisionOption(shellSnapshot), {
+              onNone: () => Effect.fail(errors.onUnresolvedClose(closed)),
+              onSome: (revision) =>
+                Effect.succeed({
+                  kind: "response-unavailable",
+                  revision,
+                  detail: civ7ControlOrpcFailureDetail(closed),
+                } as const),
+            })
+        ),
+        Match.orElse((unexpected) => Effect.fail(errors.onUnexpectedFailure(unexpected)))
+      ),
+    onRight: (request) =>
+      Match.value(request.accepted).pipe(
+        Match.when(false, () => Effect.fail(errors.onRejected())),
+        Match.orElse(() =>
+          Option.match(setupRevisionOption(request.before), {
+            onNone: () => Effect.fail(errors.onUnavailableRevision()),
+            onSome: (revision) =>
+              Effect.succeed({ kind: "confirmed-response", revision } as const),
+          })
+        )
+      ),
+  });
+}
+
+function savedConfigReadbackFailure<ResponseUnavailable, MissingReadback>(
+  baseline: SavedConfigLoadBaseline,
+  errors: Readonly<{
+    onResponseUnavailable: (detail: string) => ResponseUnavailable;
+    onMissingReadback: () => MissingReadback;
+  }>
+) {
+  return Match.value(baseline).pipe(
+    Match.when({ kind: "response-unavailable" }, ({ detail }) =>
+      errors.onResponseUnavailable(detail)
+    ),
+    Match.orElse(errors.onMissingReadback)
+  );
 }
 
 function setupPhaseObservation(value: unknown): string {

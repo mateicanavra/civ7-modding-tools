@@ -240,8 +240,15 @@ export function updateStudioSetupMapScript(
 export function studioSetupConfigFromSavedConfigFile(
   savedConfig: Civ7SavedSetupConfigFile
 ): Civ7StudioSetupConfig {
+  const savedConfigRef = {
+    id: savedConfig.id,
+    displayName: savedConfig.displayName,
+    fileName: savedConfig.fileName,
+    path: savedConfig.path,
+  } satisfies Civ7StudioSavedConfigRef;
+
   return normalizeStudioSetupConfig({
-    savedConfig,
+    savedConfig: savedConfigRef,
     gameOptions: savedConfig.setupOptions,
     playerOptions:
       savedConfig.playerOptions.length > 0

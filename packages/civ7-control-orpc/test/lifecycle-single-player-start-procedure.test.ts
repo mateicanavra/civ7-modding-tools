@@ -346,6 +346,60 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     }
   });
 
+  test("resolves a closed saved-load response from revision readback without replay", async () => {
+    const shell = setupSnapshot("shell", 4);
+    const harness = makeHarness({
+      getSetupSnapshot: sequence(shell, setupSnapshot("shell", 5)),
+      admitSetupShell: async () => ({ initial: shell, transition: "shell" }),
+      requestSavedConfigLoad: async () =>
+        Promise.reject(directControlFailure("socket-closed")),
+    });
+
+    await expect(
+      createCiv7ControlOrpcServerClient(harness.context).lifecycle.singlePlayer.start({
+        ...input,
+        savedConfig,
+      })
+    ).resolves.toMatchObject({ status: "started" });
+
+    expect(harness.count("requestSavedConfigLoad")).toBe(1);
+    expect(harness.count("getSetupSnapshot")).toBe(2);
+    expect(harness.count("reconcileRequiredTargetMod")).toBe(1);
+  });
+
+  test("keeps an unresolved closed saved-load response uncertain without replay", async () => {
+    vi.useFakeTimers();
+    const shell = setupSnapshot("shell", 4);
+    const harness = makeHarness({
+      getSetupSnapshot: async () => shell,
+      admitSetupShell: async () => ({ initial: shell, transition: "shell" }),
+      requestSavedConfigLoad: async () =>
+        Promise.reject(directControlFailure("socket-closed")),
+    });
+    try {
+      const pending = call(
+        Civ7ControlOrpcRouter.lifecycle.singlePlayer.start,
+        { ...input, savedConfig },
+        { context: harness.context }
+      );
+      const rejected = expect(pending).rejects.toMatchObject({
+        code: "LIFECYCLE_MUTATION_UNCERTAIN",
+        data: {
+          step: "wait-for-saved-config",
+          detail: "direct-control/socket-closed",
+          noRepeat: true,
+        },
+      });
+      await vi.advanceTimersByTimeAsync(31_000);
+
+      await rejected;
+      expect(harness.count("requestSavedConfigLoad")).toBe(1);
+      expect(harness.count("reconcileRequiredTargetMod")).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("fails before provider access when the lifecycle facade is absent", async () => {
     const context: Civ7ControlOrpcContext = {
       directControl: liveCiv7ControlOrpcDirectControlFacade,

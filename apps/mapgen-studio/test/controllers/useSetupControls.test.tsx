@@ -49,8 +49,8 @@ const exploreRpc = vi.mocked(liveControlPort.display.explore.request);
 const SAVED_CONFIG: Civ7SavedSetupConfigFile = {
   id: "saved-alpha",
   displayName: "Saved Alpha",
-  fileName: "saved-alpha.config.json",
-  path: "/configs/saved-alpha.config.json",
+  fileName: "saved-alpha.Civ7Cfg",
+  path: "/configs/saved-alpha.Civ7Cfg",
   sizeBytes: 10,
   modifiedAt: "2026-06-29T00:00:00.000Z",
   source: "local-disk",
