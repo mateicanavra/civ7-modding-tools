@@ -926,6 +926,30 @@ export class Civ7PopulationPlacementUnavailableError extends ORPCTaggedError(
   }
 ) {}
 
+export const Civ7ControlAdmissionUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.String({ minLength: 1 }),
+    source: Type.Literal("host-procedure-admission"),
+    reason: Type.Literal("temporarily-unavailable"),
+    retryAtMs: Type.Optional(Type.Number({ minimum: 0 })),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false }
+);
+export type Civ7ControlAdmissionUnavailableErrorData = Static<
+  typeof Civ7ControlAdmissionUnavailableErrorDataSchema
+>;
+
+export class Civ7ControlAdmissionUnavailableError extends ORPCTaggedError(
+  "Civ7ControlAdmissionUnavailableError",
+  {
+    code: "CONTROL_ADMISSION_UNAVAILABLE",
+    message: "Civ7 control procedure admission is temporarily unavailable.",
+    schema: toStandardSchema(Civ7ControlAdmissionUnavailableErrorDataSchema),
+    status: 503,
+  }
+) {}
+
 export const Civ7CorrelationIdInvalidErrorDataSchema = Type.Object(
   {
     source: Type.Literal("context.correlation"),
@@ -1043,6 +1067,7 @@ export class Civ7LifecycleVerificationFailedError extends ORPCTaggedError(
 
 export const civ7LifecycleSinglePlayerStartErrorMap = {
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
+  CONTROL_ADMISSION_UNAVAILABLE: Civ7ControlAdmissionUnavailableError,
   CONTROLLER_CAPABILITY_UNAVAILABLE: Civ7ControllerCapabilityUnavailableError,
   LIFECYCLE_DEPENDENCY_UNAVAILABLE: Civ7LifecycleDependencyUnavailableError,
   LIFECYCLE_MUTATION_UNCERTAIN: Civ7LifecycleMutationUncertainError,
@@ -1065,6 +1090,7 @@ export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   ATTENTION_PRIORITIES_UNAVAILABLE: Civ7AttentionPrioritiesUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
+  CONTROL_ADMISSION_UNAVAILABLE: Civ7ControlAdmissionUnavailableError,
   CONTROLLER_CAPABILITY_UNAVAILABLE: Civ7ControllerCapabilityUnavailableError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
   DISPLAY_QUEUE_UNAVAILABLE: Civ7DisplayQueueUnavailableError,

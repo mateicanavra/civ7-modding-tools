@@ -1,4 +1,8 @@
-import { type Civ7ControlOrpcContext, Civ7ControlOrpcRouter } from "@civ7/control-orpc";
+import {
+  Civ7ControlOrpcAdmissionRefusal,
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcRouter,
+} from "@civ7/control-orpc";
 import type { StudioEffectContract } from "@civ7/studio-contract";
 import {
   createRouterClient,
@@ -16,7 +20,12 @@ import { type LiveGameWatcherOptions, StudioLiveGameWatcher } from "./liveGame/w
 import { type StudioDaemonIdentity, StudioOperationRuntime } from "./operationRuntime/index.js";
 import { createStudioRouter, type StudioRouter } from "./router/index.js";
 import { makeStudioRuntime } from "./runtime.js";
-import { Civ7TunerSession, type Civ7TunerSessionHealth } from "./services/Civ7TunerSession.js";
+import {
+  type Civ7TunerAdmissionError,
+  Civ7TunerSession,
+  type Civ7TunerSessionApi,
+  type Civ7TunerSessionHealth,
+} from "./services/Civ7TunerSession.js";
 
 /**
  * `createStudioRpcHandler(context)` — the host entrypoint for the ONE oRPC
@@ -32,7 +41,9 @@ import { Civ7TunerSession, type Civ7TunerSessionHealth } from "./services/Civ7Tu
  *
  * Session sharing is STRUCTURAL: the control procedures' per-request context
  * is built here from `context.civ7Control` plus the runtime's shared
- * `Civ7TunerSession`, resolved once and memoized. The session object is
+ * `Civ7TunerSession`, resolved once and memoized. Its session and whole-
+ * procedure admission lease flow together, so the merged control router cannot
+ * bypass Studio reads, lifecycle ownership, or the backoff gate. The session is
  * acquired UNCONNECTED (`connect()` runs on first command and is
  * reuse-idempotent), so constructing the handler — including in tests — opens
  * no socket. There is no session-extraction port anymore; the former
@@ -111,14 +122,14 @@ export function createStudioRpcHandler(
     ],
   });
 
-  // The ONE shared tuner session, memoized for the handler's lifetime. The
-  // runtime layer builds on first resolution; lifecycle stays with the
+  // The ONE shared tuner service, memoized for the handler's lifetime. The
+  // runtime layer builds on first resolution; connection lifecycle stays with the
   // runtime scope (dispose() runs the release finalizer). A rejection clears
   // the memo so the next request retries instead of serving a cached failure
   // forever (today the only rejection path is deterministic env misconfig —
   // the session object itself is acquired without I/O — but the memo must
   // not be the thing that makes a failure sticky).
-  let sessionPromise: Promise<Civ7ControlOrpcContext["endpointDefaults"]> | undefined;
+  let tunerPromise: Promise<Civ7TunerSessionApi> | undefined;
   let liveGameWatcherReady: Promise<void> | undefined;
   const ensureLiveGameWatcher = () => {
     if (options.liveGameWatch === undefined) return Promise.resolve();
@@ -132,23 +143,31 @@ export function createStudioRpcHandler(
       }));
   };
 
-  const controlEndpointDefaults = () =>
-    (sessionPromise ??= runtime
-      .runPromise(Effect.map(Civ7TunerSession, (tuner) => tuner.session))
-      .then((session) => ({
-        timeoutMs: context.civ7Control.timeoutMs,
-        session,
-      }))
+  const controlTuner = () =>
+    (tunerPromise ??= runtime
+      .runPromise(Effect.map(Civ7TunerSession, (tuner) => tuner))
       .catch((error: unknown) => {
-        sessionPromise = undefined;
+        tunerPromise = undefined;
         throw error;
       }));
-  const controlContext = async (): Promise<Civ7ControlOrpcContext> => ({
-    directControl: context.civ7Control.directControl,
-    // Studio's operation runtime is the sole setup/start admission owner.
-    // The merged router intentionally cannot acquire lifecycle mutation.
-    endpointDefaults: await controlEndpointDefaults(),
-  });
+  const controlContext = async (): Promise<Civ7ControlOrpcContext> => {
+    const tuner = await controlTuner();
+    return {
+      directControl: context.civ7Control.directControl,
+      // Studio's operation runtime is the sole setup/start admission owner.
+      // The merged router intentionally cannot acquire lifecycle mutation.
+      endpointDefaults: {
+        timeoutMs: context.civ7Control.timeoutMs,
+        session: tuner.session,
+      },
+      procedureAdmission: (procedure) => {
+        const admittedLease = tuner.lease.pipe(Effect.mapError(tunerAdmissionRefusal));
+        return Effect.uninterruptibleMask((restoreLease) =>
+          Effect.scoped(restoreLease(admittedLease).pipe(Effect.flatMap(() => procedure)))
+        );
+      },
+    };
+  };
   const localClient = createRouterClient(router, { context: controlContext });
 
   return {
@@ -180,6 +199,17 @@ export function createStudioRpcHandler(
       await runtime.dispose();
     },
   };
+}
+
+function tunerAdmissionRefusal(error: Civ7TunerAdmissionError): Civ7ControlOrpcAdmissionRefusal {
+  return Match.value(error).pipe(
+    Match.tag(
+      "Civ7TunerBackoffError",
+      ({ retryAtMs }) => new Civ7ControlOrpcAdmissionRefusal(retryAtMs)
+    ),
+    Match.tag("Civ7TunerClosingError", () => new Civ7ControlOrpcAdmissionRefusal()),
+    Match.exhaustive
+  );
 }
 
 function unexpectedLazyStudioNamespace(): never {

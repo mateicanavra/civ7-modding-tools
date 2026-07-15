@@ -2,6 +2,7 @@ import { rm } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { Civ7PlayableStatusResult, Civ7RuntimeProbe } from "@civ7/direct-control";
 import { createORPCClient, isDefinedError, ORPCError, safe } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
@@ -629,24 +630,74 @@ describe("studio-server RPC handler", () => {
     });
   });
 
-  test("keeps civ7.live.status at 200 with per-field errors for partial tuner failures", async () => {
+  test("projects civ7.live.status from one coherent playable-status observation", async () => {
+    const playable = playableStatusFixture();
+    const read = vi.fn(() => Effect.succeed(playable));
     await withRouterCiv7Client(
       {
         ...unavailableTunerClient("unused"),
-        playableStatus: () => Effect.succeed({ playable: true, readiness: "ready" }),
-        appUiSnapshot: () => Effect.fail(new Error("app-ui down")),
-        liveMapSummary: () => Effect.succeed({ map: "visible" }),
-        autoplayStatus: () => Effect.fail("autoplay unavailable"),
+        playableStatus: read,
       },
       async ({ client }) => {
         await expect(client.civ7.live.status({})).resolves.toMatchObject({
           ok: true,
           playable: true,
-          status: { playable: true, readiness: "ready" },
-          appUi: { error: "Error: app-ui down" },
-          mapSummary: { map: "visible" },
-          autoplay: { error: "autoplay unavailable" },
+          status: { playable: true, readiness: "app-ui-game" },
+          appUi: playable.appUi,
+          mapSummary: {
+            map: {
+              randomSeed: { ok: true, value: 43 },
+              width: { ok: true, value: 84 },
+              height: { ok: true, value: 54 },
+            },
+            game: {
+              turn: { ok: true, value: 12 },
+              hash: { ok: true, value: 987654321 },
+            },
+          },
+          autoplay: {
+            autoplay: playable.appUi.snapshot.autoplay,
+            game: playable.appUi.snapshot.game,
+            gameContext: playable.appUi.snapshot.gameContext,
+          },
         });
+        expect(read).toHaveBeenCalledTimes(1);
+      }
+    );
+  });
+
+  test("keeps civ7.live.status at 200 with one coherent error when observation fails", async () => {
+    const read = vi.fn(() => Effect.fail(new Error("tuner down")));
+    await withRouterCiv7Client(
+      { ...unavailableTunerClient("unused"), playableStatus: read },
+      async ({ client }) => {
+        await expect(client.civ7.live.status({})).resolves.toMatchObject({
+          ok: false,
+          playable: false,
+          status: { error: "Error: tuner down" },
+          appUi: { error: "Error: tuner down" },
+          mapSummary: { error: "Error: tuner down" },
+          autoplay: { error: "Error: tuner down" },
+        });
+        expect(read).toHaveBeenCalledTimes(1);
+      }
+    );
+  });
+
+  test("does not project the App UI turn sentinel as successful runtime evidence", async () => {
+    const playable = playableStatusFixture(-1);
+    await withRouterCiv7Client(
+      { ...unavailableTunerClient("unused"), playableStatus: () => Effect.succeed(playable) },
+      async ({ client }) => {
+        const result = await client.civ7.live.status({});
+        expect(result).toMatchObject({
+          mapSummary: {
+            game: {
+              hash: playable.appUi.snapshot.game.hash,
+            },
+          },
+        });
+        expect(result.mapSummary).not.toMatchObject({ game: { turn: expect.anything() } });
       }
     );
   });
@@ -1137,9 +1188,6 @@ function unavailableTunerClient(message: string): Civ7TunerClient {
   return {
     playableStatus: fail,
     mapSummary: fail,
-    liveMapSummary: fail,
-    appUiSnapshot: fail,
-    autoplayStatus: fail,
     gameInfoRows: fail,
     setupSnapshot: fail,
     savedConfigurations: fail,
@@ -1148,6 +1196,81 @@ function unavailableTunerClient(message: string): Civ7TunerClient {
     unitSummary: fail,
     citySummary: fail,
   } as unknown as Civ7TunerClient;
+}
+
+function playableStatusFixture(turn = 12): Civ7PlayableStatusResult {
+  const endpoint = { host: "127.0.0.1", port: 4318 } as const;
+  const state = { id: "65535", name: "App UI" };
+  return {
+    ...endpoint,
+    playable: true,
+    readiness: "app-ui-game",
+    appUi: {
+      ...endpoint,
+      state,
+      snapshot: {
+        network: {
+          isInSession: probe(true),
+          numPlayers: probe(1),
+          hostPlayerId: probe(0),
+          isConnectedToNetwork: probe(false),
+          isAuthenticated: probe(false),
+          isLoggedIn: probe(false),
+        },
+        autoplay: {
+          isActive: false,
+          turns: 0,
+          isPaused: false,
+          isPausedOrPending: false,
+          observeAsPlayer: -1,
+          returnAsPlayer: -1,
+        },
+        game: {
+          turn,
+          age: 0,
+          maxTurns: 500,
+          turnDate: probe("4000 BCE"),
+          hash: probe(987654321),
+        },
+        ui: {
+          inGame: probe(true),
+          inShell: probe(false),
+          inLoading: probe(false),
+          loadingState: probe(8),
+          loadingStateName: "GameStarted",
+          canBeginGame: probe(false),
+          canNotifyUIReady: "function",
+          skipStartButton: probe(false),
+          automationActive: probe(false),
+          activeInputContext: probe(0),
+          activeInputContextName: null,
+        },
+        gameContext: {
+          localPlayerID: 0,
+          localObserverID: -1,
+          hasRequestedPause: probe(false),
+        },
+        players: {
+          maxPlayers: 8,
+          aliveIds: probe([0]),
+          aliveHumanIds: probe([0]),
+          numAliveHumans: probe(1),
+        },
+        map: {
+          width: probe(84),
+          height: probe(54),
+          plotCount: probe(4536),
+          mapSize: probe(3),
+          randomSeed: probe(43),
+        },
+      },
+    },
+    errors: [],
+  };
+}
+
+function probe<T>(value: T): Civ7RuntimeProbe<T> {
+  return { ok: true, value };
 }
 
 function makeOperationRuntimePorts(

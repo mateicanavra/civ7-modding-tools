@@ -1,13 +1,8 @@
 import type {
   Civ7AppUiSnapshotResult,
-  Civ7AutoplayStatusResult,
   Civ7MapGridResult,
-  Civ7MapSummaryResult,
   Civ7PlayableStatusResult,
-  getCiv7AppUiSnapshot,
-  getCiv7AutoplayStatus,
   getCiv7MapGrid,
-  getCiv7MapSummary,
   getCiv7PlayableStatus,
 } from "@civ7/direct-control";
 import type { RunCorrelation } from "@civ7/studio-run-workspace";
@@ -30,9 +25,6 @@ import { observeRunInGameRuntimeThroughStudioLiveReader } from "../../src/server
 
 const directControl = vi.hoisted(() => ({
   getCiv7PlayableStatus: vi.fn<typeof getCiv7PlayableStatus>(),
-  getCiv7MapSummary: vi.fn<typeof getCiv7MapSummary>(),
-  getCiv7AppUiSnapshot: vi.fn<typeof getCiv7AppUiSnapshot>(),
-  getCiv7AutoplayStatus: vi.fn<typeof getCiv7AutoplayStatus>(),
   getCiv7MapGrid: vi.fn<typeof getCiv7MapGrid>(),
 }));
 
@@ -41,9 +33,6 @@ vi.mock("@civ7/direct-control", async (importOriginal) => {
   return {
     ...actual,
     getCiv7PlayableStatus: directControl.getCiv7PlayableStatus,
-    getCiv7MapSummary: directControl.getCiv7MapSummary,
-    getCiv7AppUiSnapshot: directControl.getCiv7AppUiSnapshot,
-    getCiv7AutoplayStatus: directControl.getCiv7AutoplayStatus,
     getCiv7MapGrid: directControl.getCiv7MapGrid,
   };
 });
@@ -148,9 +137,6 @@ describe("Run in Game runtime observation", () => {
     });
     expect(observation.loadedGame.snapshotId).toMatch(/^status:12:/);
     expect(directControl.getCiv7PlayableStatus).toHaveBeenCalledTimes(1);
-    expect(directControl.getCiv7AppUiSnapshot).toHaveBeenCalledTimes(1);
-    expect(directControl.getCiv7MapSummary).toHaveBeenCalledTimes(1);
-    expect(directControl.getCiv7AutoplayStatus).toHaveBeenCalledTimes(1);
     expect(directControl.getCiv7MapGrid).toHaveBeenCalledWith(
       expect.objectContaining({
         bounds: { x: 0, y: 0, width: 84, height: 54 },
@@ -160,13 +146,16 @@ describe("Run in Game runtime observation", () => {
     );
   });
 
-  it("waits for live status to become playable before reading the loaded-game snapshot", async () => {
+  it("waits for App UI to become in-game before reading the loaded-game snapshot", async () => {
     directControl.getCiv7PlayableStatus
-      .mockResolvedValueOnce(playableStatusResult({ playable: false, readiness: "loading" }))
+      .mockResolvedValueOnce(
+        playableStatusResult({
+          playable: false,
+          readiness: "loading",
+          appUi: liveAppUiSnapshot({ inGame: false }),
+        })
+      )
       .mockResolvedValueOnce(playableStatusResult());
-    directControl.getCiv7AppUiSnapshot
-      .mockResolvedValueOnce(liveAppUiSnapshot({ inGame: false }))
-      .mockResolvedValueOnce(liveAppUiSnapshot());
     const { liveReader } = createStudioLiveReader();
     const fixture = makeObservationFixture();
 
@@ -181,13 +170,41 @@ describe("Run in Game runtime observation", () => {
     expect(directControl.getCiv7MapGrid).toHaveBeenCalledTimes(1);
   });
 
+  it("accepts exact in-game App UI truth when generic tuner readiness is unavailable", async () => {
+    setLiveReadbacks({
+      playableStatus: playableStatusResult({
+        playable: false,
+        readiness: "app-ui-game",
+        appUi: liveAppUiSnapshot({ inGame: true }),
+      }),
+    });
+    const { liveReader } = createStudioLiveReader();
+    const fixture = makeObservationFixture();
+
+    const observation = await observeRunInGameRuntimeThroughStudioLiveReader({
+      ...fixture,
+      liveReader,
+    });
+
+    expect(observation.loadedGame.liveStatus).toMatchObject({
+      ok: true,
+      playable: false,
+      status: { readiness: "app-ui-game" },
+    });
+    expect(directControl.getCiv7PlayableStatus).toHaveBeenCalledTimes(1);
+    expect(directControl.getCiv7MapGrid).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps waiting when playable status is true before App UI proves an in-game load", async () => {
     directControl.getCiv7PlayableStatus
-      .mockResolvedValueOnce(playableStatusResult({ playable: true, readiness: "app-ui-shell" }))
+      .mockResolvedValueOnce(
+        playableStatusResult({
+          playable: true,
+          readiness: "app-ui-shell",
+          appUi: liveAppUiSnapshot({ inGame: false }),
+        })
+      )
       .mockResolvedValueOnce(playableStatusResult());
-    directControl.getCiv7AppUiSnapshot
-      .mockResolvedValueOnce(liveAppUiSnapshot({ inGame: false }))
-      .mockResolvedValueOnce(liveAppUiSnapshot());
     const { liveReader } = createStudioLiveReader();
     const fixture = makeObservationFixture();
 
@@ -376,28 +393,7 @@ describe("Run in Game runtime observation", () => {
     expect(directControl.getCiv7MapGrid).not.toHaveBeenCalled();
   });
 
-  it("treats embedded live status field errors as private readback mismatch evidence", async () => {
-    setLiveReadbacks({
-      appUiSnapshotError: new Error("app-ui down"),
-    });
-    const { liveReader } = createStudioLiveReader();
-    const fixture = makeObservationFixture();
-
-    const failure = await expectRuntimeObservationFailure(
-      observeRunInGameRuntimeThroughStudioLiveReader({ ...fixture, liveReader })
-    );
-
-    expect(failure).toMatchObject({
-      tag: "VerificationFailed",
-      reason: "exact-authorship-mismatch",
-      diagnostics: {
-        code: "run-in-game-loaded-readback-mismatch",
-        problems: ["live-app-ui-field-error", "live-app-ui-not-in-game"],
-      },
-    });
-  });
-
-  it("treats embedded playable-status field errors as private readback mismatch evidence", async () => {
+  it("treats one coherent live-status observation error as private readback mismatch evidence", async () => {
     directControl.getCiv7PlayableStatus.mockRejectedValue(new Error("status down"));
     const { liveReader } = createStudioLiveReader();
     const fixture = makeObservationFixture();
@@ -411,33 +407,22 @@ describe("Run in Game runtime observation", () => {
       reason: "exact-authorship-mismatch",
       diagnostics: {
         code: "run-in-game-loaded-readback-mismatch",
-        problems: expect.arrayContaining(["live-status-not-loaded", "live-status-field-error"]),
-      },
-    });
-  });
-
-  it("treats embedded map-summary field errors as private readback mismatch evidence", async () => {
-    directControl.getCiv7MapSummary.mockRejectedValue(new Error("map-summary down"));
-    const { liveReader } = createStudioLiveReader();
-    const fixture = makeObservationFixture();
-
-    const failure = await expectRuntimeObservationFailure(
-      observeRunInGameRuntimeThroughStudioLiveReader({ ...fixture, liveReader })
-    );
-
-    expect(failure).toMatchObject({
-      tag: "VerificationFailed",
-      reason: "exact-authorship-mismatch",
-      diagnostics: {
-        code: "run-in-game-loaded-readback-mismatch",
-        problems: ["live-map-summary-field-error"],
+        problems: [
+          "live-status-not-loaded",
+          "live-status-field-error",
+          "live-app-ui-field-error",
+          "live-map-summary-field-error",
+          "live-app-ui-not-in-game",
+        ],
       },
     });
   });
 
   it("waits instead of snapshotting when App UI has not reached in-game", async () => {
     setLiveReadbacks({
-      appUiSnapshot: liveAppUiSnapshot({ inGame: false }),
+      playableStatus: playableStatusResult({
+        appUi: liveAppUiSnapshot({ inGame: false }),
+      }),
     });
     const { liveReader } = createStudioLiveReader();
     const fixture = makeObservationFixture();
@@ -795,44 +780,26 @@ function deployment(
 function setLiveReadbacks(
   overrides: Partial<{
     playableStatus: Civ7PlayableStatusResult;
-    appUiSnapshot: Civ7AppUiSnapshotResult;
-    appUiSnapshotError: unknown;
-    mapSummary: Civ7MapSummaryResult;
-    autoplayStatus: Civ7AutoplayStatusResult;
     mapGrid: Civ7MapGridResult;
   }> = {}
 ): void {
   directControl.getCiv7PlayableStatus.mockReset();
-  directControl.getCiv7MapSummary.mockReset();
-  directControl.getCiv7AppUiSnapshot.mockReset();
-  directControl.getCiv7AutoplayStatus.mockReset();
   directControl.getCiv7MapGrid.mockReset();
   directControl.getCiv7PlayableStatus.mockResolvedValue(
     overrides.playableStatus ?? playableStatusResult()
-  );
-  if (overrides.appUiSnapshotError !== undefined) {
-    directControl.getCiv7AppUiSnapshot.mockRejectedValue(overrides.appUiSnapshotError);
-  } else {
-    directControl.getCiv7AppUiSnapshot.mockResolvedValue(
-      overrides.appUiSnapshot ?? liveAppUiSnapshot()
-    );
-  }
-  directControl.getCiv7MapSummary.mockResolvedValue(overrides.mapSummary ?? liveMapSummary());
-  directControl.getCiv7AutoplayStatus.mockResolvedValue(
-    overrides.autoplayStatus ?? liveAutoplayStatus()
   );
   directControl.getCiv7MapGrid.mockResolvedValue(overrides.mapGrid ?? liveMapGrid());
 }
 
 function playableStatusResult(
-  args: Partial<Pick<Civ7PlayableStatusResult, "playable" | "readiness">> = {}
+  args: Partial<Pick<Civ7PlayableStatusResult, "playable" | "readiness" | "appUi">> = {}
 ): Civ7PlayableStatusResult {
   return {
     host: "127.0.0.1",
     port: 4318,
     playable: args.playable ?? true,
     readiness: args.readiness ?? "app-ui-game",
-    appUi: liveAppUiSnapshot(),
+    appUi: args.appUi ?? liveAppUiSnapshot(),
     tuner: {
       host: "127.0.0.1",
       port: 4318,
@@ -905,40 +872,6 @@ function liveAppUiSnapshot(args: { inGame?: boolean } = {}): Civ7AppUiSnapshotRe
         randomSeed: probe(43),
       },
     },
-  };
-}
-
-function liveMapSummary(): Civ7MapSummaryResult {
-  return {
-    host: "127.0.0.1",
-    port: 4318,
-    state: { id: "1", name: "Tuner" },
-    map: {
-      randomSeed: probe(43),
-      width: probe(84),
-      height: probe(54),
-      plotCount: probe(4536),
-      mapSize: probe("MAPSIZE_STANDARD"),
-    },
-    game: {
-      turn: probe(12),
-      hash: probe(987654321),
-      age: probe(0),
-      maxTurns: probe(500),
-      turnDate: probe("4000 BCE"),
-    },
-  };
-}
-
-function liveAutoplayStatus(): Civ7AutoplayStatusResult {
-  const appUi = liveAppUiSnapshot();
-  return {
-    host: appUi.host,
-    port: appUi.port,
-    state: appUi.state,
-    autoplay: appUi.snapshot.autoplay,
-    game: appUi.snapshot.game,
-    gameContext: appUi.snapshot.gameContext,
   };
 }
 

@@ -204,14 +204,41 @@ function makeRunInGameWorkflow(
             ...deploymentEvidence(deployment),
           });
           if (!lifecycleAdmitted) return;
+          let gameStartedReported = false;
+          const gameStarted = Effect.sync(() => {
+            phase = "collecting-evidence";
+          }).pipe(
+            Effect.flatMap(() =>
+              workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) })
+            ),
+            Effect.filterOrFail(
+              (transitioned) => transitioned,
+              () =>
+                verificationFailed({
+                  message: "Run in Game could not publish confirmed game-start truth",
+                  reason: "timeout-uncertain",
+                  diagnostics: {
+                    code: "run-in-game-game-start-report-unavailable",
+                    noRepeat: true,
+                  },
+                  recoveryActions: ["retry-status", "copy-diagnostics"],
+                })
+            ),
+            Effect.tap(() =>
+              Effect.sync(() => {
+                gameStartedReported = true;
+              })
+            ),
+            Effect.when(() => !gameStartedReported),
+            Effect.asVoid
+          );
           const started = yield* args.civ7.startSinglePlayer({
             requestId: workflow.requestId,
             prepared: workflow.prepared,
             deployment,
+            gameStarted,
           });
-
-          phase = "collecting-evidence";
-          yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
+          yield* gameStarted;
           const log = yield* tryPromise(() =>
             args.ports.waitForRunInGameLogEvidence({
               requestId: workflow.requestId,

@@ -34,6 +34,7 @@ export class Civ7DirectControlSession {
   private buffer = Buffer.alloc(0);
   private readonly pending = new Map<number, PendingCiv7TunerRequest>();
   private consecutiveResponseTimeouts = 0;
+  private totalResponseTimeouts = 0;
   private connecting: Promise<Civ7DirectControlEndpoint> | undefined;
 
   constructor(options: Civ7DirectControlOptions = {}) {
@@ -51,7 +52,10 @@ export class Civ7DirectControlSession {
    * the studio's backoff gate keys on.
    */
   get stats(): Civ7DirectControlSessionStats {
-    return { consecutiveResponseTimeouts: this.consecutiveResponseTimeouts };
+    return {
+      consecutiveResponseTimeouts: this.consecutiveResponseTimeouts,
+      totalResponseTimeouts: this.totalResponseTimeouts,
+    };
   }
 
   /**
@@ -204,6 +208,7 @@ export class Civ7DirectControlSession {
       const timer = setTimeout(() => {
         this.pending.delete(listenerId);
         this.consecutiveResponseTimeouts += 1;
+        this.totalResponseTimeouts += 1;
         reject(
           new Civ7DirectControlError(
             "response-timeout",
