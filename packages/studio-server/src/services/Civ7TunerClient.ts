@@ -1,7 +1,5 @@
 import {
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
-  getCiv7AppUiSnapshot,
-  getCiv7AutoplayStatus,
   getCiv7CitySummary,
   getCiv7GameInfoRows,
   getCiv7MapGrid,
@@ -23,15 +21,15 @@ import { Civ7TunerSession, Civ7TunerSessionLive } from "./Civ7TunerSession.js";
  * Every tuner read routes through the shared `Civ7TunerSession` (`use` +
  * `options.session` injection): one multiplexed connection for the whole
  * polling surface instead of connect-per-request — the churn that wedged the
- * game — plus the session's backoff gate when the tuner stops answering. The
- * direct-control *call shapes* (args, timeout, includeAreaRegionCounts,
- * clamps) are unchanged from the legacy handlers — no semantic change to the
- * read surface. `savedConfigurations` is a filesystem read (no socket) and
- * deliberately bypasses the session/gate.
+ * game — plus the session's backoff gate when the tuner stops answering. Each
+ * retained standalone method preserves its direct-control call shape. The
+ * `live.status` aggregate intentionally consumes only `playableStatus` and
+ * projects one coherent App UI observation instead of issuing three redundant
+ * reads. `savedConfigurations` is a filesystem read (no socket) and deliberately
+ * bypasses the session/gate.
  *
- * Parity note: the studio remains direct-control-backed for these live reads
- * this run. The control-oRPC seam (architecture/12) is designed-toward, not
- * yet bound. No FireTuner reads are added beyond the existing handler set.
+ * The Studio live reader remains direct-control-backed; merged control-oRPC
+ * procedures share the same host admission lease at the handler boundary.
  */
 export class Civ7TunerClient extends Effect.Service<Civ7TunerClient>()(
   "@civ7/studio-server/Civ7TunerClient",
@@ -48,14 +46,6 @@ export class Civ7TunerClient extends Effect.Service<Civ7TunerClient>()(
         // #2 mapSummary — includeAreaRegionCounts: true
         mapSummary: () =>
           tuner.use((o) => getCiv7MapSummary({ timeoutMs, includeAreaRegionCounts: true, ...o })),
-
-        // live.status field read — includeAreaRegionCounts: false
-        liveMapSummary: () =>
-          tuner.use((o) => getCiv7MapSummary({ timeoutMs, includeAreaRegionCounts: false, ...o })),
-
-        appUiSnapshot: () => tuner.use((o) => getCiv7AppUiSnapshot({ timeoutMs, ...o })),
-
-        autoplayStatus: () => tuner.use((o) => getCiv7AutoplayStatus({ timeoutMs, ...o })),
 
         // #3 / live.gameInfo — getCiv7GameInfoRows({ table, limit }, { timeoutMs })
         gameInfoRows: (table: string, limit: number) =>

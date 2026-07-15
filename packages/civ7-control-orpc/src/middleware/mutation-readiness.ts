@@ -1,4 +1,5 @@
-import type { MiddlewareOptions, MiddlewareResult, ORPCErrorConstructorMap } from "@orpc/server";
+import { Effect } from "effect";
+import type { EffectMiddlewareOptions } from "effect-orpc";
 
 import type { Civ7ControlOrpcContext } from "../context";
 import type { Civ7ControlOrpcErrorMap } from "../errors";
@@ -8,42 +9,42 @@ import { civ7ControlOrpcErrorCorrelationData } from "../model/correlation";
 
 import { civ7MutationProcedureKey } from "./mutation-procedure-key";
 
-type Civ7MutationReadinessErrorConstructors = ORPCErrorConstructorMap<
-  Pick<Civ7ControlOrpcErrorMap, "MUTATION_READINESS_REQUIRED" | "MUTATION_READINESS_UNAVAILABLE">
+type Civ7MutationReadinessErrorMap = Pick<
+  Civ7ControlOrpcErrorMap,
+  "MUTATION_READINESS_REQUIRED" | "MUTATION_READINESS_UNAVAILABLE"
 >;
 
-type Civ7MutationReadinessMiddleware = <TOutput>(
-  options: MiddlewareOptions<
-    Civ7ControlOrpcContext,
-    TOutput,
-    Civ7MutationReadinessErrorConstructors,
-    Civ7ControlOrpcProcedureMeta
-  >
-) => Promise<MiddlewareResult<Record<never, never>, TOutput>>;
+type Civ7MutationReadinessMiddlewareOptions<TOutput> = EffectMiddlewareOptions<
+  Civ7ControlOrpcContext,
+  TOutput,
+  Civ7MutationReadinessErrorMap,
+  never,
+  Civ7ControlOrpcProcedureMeta
+>;
 
-export const civ7MutationReadinessMiddleware: Civ7MutationReadinessMiddleware = async ({
+export function* civ7MutationReadinessMiddleware<TOutput>({
   context,
   errors,
   next,
   path,
   procedure,
-}) => {
+}: Civ7MutationReadinessMiddlewareOptions<TOutput>) {
   const procedureKey = civ7MutationProcedureKey(procedure["~orpc"].meta, path);
-  const status = await context.directControl
-    .getCiv7PlayableStatus(context.endpointDefaults)
-    .catch(() => {
-      throw errors.MUTATION_READINESS_UNAVAILABLE({
+  const status = yield* Effect.tryPromise({
+    try: () => context.directControl.getCiv7PlayableStatus(context.endpointDefaults),
+    catch: () =>
+      errors.MUTATION_READINESS_UNAVAILABLE({
         data: {
           procedureKey,
           source: "direct-control-facade",
           risk: "mutation",
           ...civ7ControlOrpcErrorCorrelationData(context),
         },
-      });
-    });
+      }),
+  });
 
-  if (status.playable !== true && !civ7ControllerMutationReadinessBypass(context, procedureKey)) {
-    throw errors.MUTATION_READINESS_REQUIRED({
+  const readinessRequired = Effect.fail(
+    errors.MUTATION_READINESS_REQUIRED({
       data: {
         procedureKey,
         source: "readiness.current",
@@ -52,11 +53,15 @@ export const civ7MutationReadinessMiddleware: Civ7MutationReadinessMiddleware = 
         readiness: status.readiness,
         ...civ7ControlOrpcErrorCorrelationData(context),
       },
-    });
-  }
+    })
+  );
+  yield* Effect.when(
+    readinessRequired,
+    () => status.playable !== true && !civ7ControllerMutationReadinessBypass(context, procedureKey)
+  );
 
-  return next();
-};
+  return yield* next();
+}
 
 function civ7ControllerMutationReadinessBypass(
   context: Civ7ControlOrpcContext,

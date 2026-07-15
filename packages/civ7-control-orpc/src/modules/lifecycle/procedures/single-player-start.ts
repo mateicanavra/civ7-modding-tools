@@ -135,6 +135,7 @@ export const lifecycleSinglePlayerStartProcedure =
       try: () => directLifecycle.getSetupSnapshot(context.endpointDefaults),
       catch: (cause) => cause,
     }).pipe(
+      Effect.uninterruptible,
       Effect.flatMap((result) =>
         validateObservation(
           isSetupSnapshotResult,
@@ -212,21 +213,14 @@ export const lifecycleSinglePlayerStartProcedure =
               onUnexpectedFailure: (cause) =>
                 classifyMutationFailure("request-saved-config-load", true, cause),
               onUnavailableRevision: () =>
-                verificationFailure(
-                  "request-saved-config-load",
-                  "setup-revision-unavailable"
-                ),
+                verificationFailure("request-saved-config-load", "setup-revision-unavailable"),
               onRejected: () =>
                 verificationFailure("request-saved-config-load", "saved-config-load-rejected"),
               onUnresolvedClose: (cause) =>
-                uncertainFailure(
-                  "request-saved-config-load",
-                  civ7ControlOrpcFailureDetail(cause)
-                ),
+                uncertainFailure("request-saved-config-load", civ7ControlOrpcFailureDetail(cause)),
             });
             const readbackFailure = savedConfigReadbackFailure(baseline, {
-              onResponseUnavailable: (detail) =>
-                uncertainFailure("wait-for-saved-config", detail),
+              onResponseUnavailable: (detail) => uncertainFailure("wait-for-saved-config", detail),
               onMissingReadback: () =>
                 verificationFailure("wait-for-saved-config", "saved-config-readback-not-observed"),
             });
@@ -368,6 +362,15 @@ export const lifecycleSinglePlayerStartProcedure =
         })
       )
     );
+    yield* Option.match(Option.fromNullable(context.lifecycleProgress), {
+      onNone: () => Effect.void,
+      onSome: ({ singlePlayerStarted }) =>
+        singlePlayerStarted.pipe(
+          Effect.mapError((cause) =>
+            uncertainFailure("report-game-started", civ7ControlOrpcFailureDetail(cause))
+          )
+        ),
+    });
     yield* requireMatched(
       pollUntil({
         read: () => directLifecycle.checkTunerHealth(context.endpointDefaults),
@@ -747,8 +750,7 @@ function resolveSavedConfigLoadBaseline<
         Match.orElse(() =>
           Option.match(setupRevisionOption(request.before), {
             onNone: () => Effect.fail(errors.onUnavailableRevision()),
-            onSome: (revision) =>
-              Effect.succeed({ kind: "confirmed-response", revision } as const),
+            onSome: (revision) => Effect.succeed({ kind: "confirmed-response", revision } as const),
           })
         )
       ),
@@ -998,7 +1000,7 @@ function pollStep<A>(
     const remainingMs = deadline - beforeRead;
     const continuation = Match.value(remainingMs <= 0).pipe(
       Match.when(true, () => Effect.succeed({ kind: "exhausted" } satisfies PollState<A>)),
-      Match.orElse(() => pollObservation<A>(options, deadline, remainingMs, current))
+      Match.orElse(() => pollObservation<A>(options, deadline, current))
     );
     return yield* continuation;
   });
@@ -1012,21 +1014,17 @@ function pollObservation<A>(
     pollMs: number;
   }>,
   deadline: number,
-  remainingMs: number,
   current: Readonly<{ kind: "polling"; attempts: number }>
 ) {
   return Effect.gen(function* () {
     const observed = yield* Effect.tryPromise({
       try: options.read,
       catch: (cause) => cause,
-    }).pipe(Effect.either, Effect.timeoutOption(remainingMs));
+    }).pipe(Effect.uninterruptible, Effect.either);
     const completedAt = yield* Clock.currentTimeMillis;
-    const value: Option.Option<A> = Option.flatMap(
-      Option.filter(observed, () => completedAt < deadline),
-      Either.getRight
-    );
+    const value = Option.filter(Either.getRight(observed), () => completedAt < deadline);
     return yield* Option.match(value, {
-      onNone: () => Effect.succeed(unmatchedPollState<A>(completedAt, deadline, observed, current)),
+      onNone: () => Effect.succeed(unmatchedPollState<A>(completedAt, deadline, current)),
       onSome: (result) => pollObservedValue<A>(options.matches, result, current),
     });
   });
@@ -1062,10 +1060,9 @@ function matchedPollState<A>(
 function unmatchedPollState<A>(
   completedAt: number,
   deadline: number,
-  observed: Option.Option<unknown>,
   current: Readonly<{ kind: "polling"; attempts: number }>
 ): PollState<A> {
-  return Match.value(completedAt >= deadline || Option.isNone(observed)).pipe(
+  return Match.value(completedAt >= deadline).pipe(
     Match.when(true, () => ({ kind: "exhausted" }) satisfies PollState<A>),
     Match.orElse(() => ({ kind: "polling", attempts: current.attempts + 1 }) satisfies PollState<A>)
   );

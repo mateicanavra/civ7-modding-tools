@@ -258,7 +258,7 @@ async function waitForLoadedLiveStatus(
     const remainingMs = deadline - Date.now();
     if (remainingMs <= 0) {
       throw verificationFailed({
-        message: "Run in Game live status did not become playable after map generation completed",
+        message: "Run in Game live status did not report an in-game App UI state",
         reason: "timeout-uncertain",
         diagnostics: boundedDiagnostics({
           code: "run-in-game-live-status-not-loaded",
@@ -277,7 +277,7 @@ function classifyLiveStatusReadiness(status: Civ7LiveStatusOutput): LiveStatusRe
   if (status.ok !== true || hasEmbeddedError(status.status) || hasEmbeddedError(status.appUi)) {
     return { kind: "terminal", status };
   }
-  if (status.playable === true && appUiReadbackInGame(status.appUi)) {
+  if (appUiReadbackInGame(status.appUi)) {
     return { kind: "loaded", status };
   }
   return { kind: "loading", status };
@@ -547,7 +547,7 @@ function loadedGameReadbackProblems(
 ): string[] {
   const problems: string[] = [];
   const status = args.liveStatus;
-  if (status.ok !== true || status.playable !== true) {
+  if (status.ok !== true) {
     problems.push("live-status-not-loaded");
   }
   if (hasEmbeddedError(recordValue(status, "status"))) problems.push("live-status-field-error");

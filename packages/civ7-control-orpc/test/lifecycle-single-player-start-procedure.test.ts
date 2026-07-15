@@ -10,6 +10,7 @@ import {
   type Civ7TunerHealthResult,
 } from "@civ7/direct-control";
 import { call } from "@orpc/server";
+import { Effect } from "effect";
 import { describe, expect, test, vi } from "vitest";
 
 import {
@@ -137,6 +138,56 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     }
   });
 
+  test("reports exact App UI game start before final tuner and map proof completes", async () => {
+    const finalProof = deferred<Civ7TunerHealthResult>();
+    const finalProofStarted = deferred<void>();
+    const gameStarted = deferred<void>();
+    const harness = makeHarness({
+      checkTunerHealth: () =>
+        Promise.resolve()
+          .then(() => finalProofStarted.resolve())
+          .then(() => finalProof.promise),
+    });
+    const context: Civ7ControlOrpcContext = {
+      ...harness.context,
+      lifecycleProgress: {
+        singlePlayerStarted: Effect.sync(() => gameStarted.resolve()),
+      },
+    };
+
+    const pending = createCiv7ControlOrpcServerClient(context).lifecycle.singlePlayer.start(input);
+    await gameStarted.promise;
+    await finalProofStarted.promise;
+
+    expect(harness.count("getAppUiSnapshot")).toBe(1);
+    expect(harness.count("checkTunerHealth")).toBe(1);
+    expect(harness.count("getMapSummary")).toBe(0);
+
+    finalProof.resolve(tunerHealth(true));
+    await expect(pending).resolves.toMatchObject({ status: "started" });
+    expect(harness.count("getMapSummary")).toBe(1);
+  });
+
+  test("does not report lifecycle success when the game-start progress sink refuses the proof", async () => {
+    const harness = makeHarness();
+    const context: Civ7ControlOrpcContext = {
+      ...harness.context,
+      lifecycleProgress: {
+        singlePlayerStarted: Effect.fail(new Error("operation phase unavailable")),
+      },
+    };
+
+    await expect(
+      call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, input, { context })
+    ).rejects.toMatchObject({
+      code: "LIFECYCLE_MUTATION_UNCERTAIN",
+      data: { step: "report-game-started", noRepeat: true },
+    });
+    expect(harness.count("getAppUiSnapshot")).toBe(1);
+    expect(harness.count("checkTunerHealth")).toBe(0);
+    expect(harness.count("getMapSummary")).toBe(0);
+  });
+
   test("drains setup admission before abort stops lifecycle sequencing", async () => {
     const entered = deferred<void>();
     const admission =
@@ -171,6 +222,122 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     admission.resolve({ initial: setupSnapshot("shell"), transition: "shell" });
     await expect(outcome).resolves.toBe("rejected");
     expect(harness.count("reconcileRequiredTargetMod")).toBe(0);
+  });
+
+  test("drains an initial provider read before abort releases procedure admission", async () => {
+    const readEntered = deferred<void>();
+    const read = deferred<Civ7SetupSnapshotResult>();
+    const harness = makeHarness({
+      getSetupSnapshot: () =>
+        Promise.resolve()
+          .then(readEntered.resolve)
+          .then(() => read.promise),
+    });
+
+    await expectAbortToDrainSetupRead(harness, readEntered.promise, () =>
+      read.resolve(setupSnapshot("shell"))
+    );
+
+    expect(harness.count("getSetupSnapshot")).toBe(1);
+    expect(harness.count("admitSetupShell")).toBe(0);
+  });
+
+  test("drains a polling provider read before abort releases procedure admission", async () => {
+    const running = setupSnapshot("running-game");
+    const readEntered = deferred<void>();
+    const read = deferred<Civ7SetupSnapshotResult>();
+    const getSetupSnapshot = vi
+      .fn<Civ7ControlOrpcDirectLifecycleFacade["getSetupSnapshot"]>()
+      .mockResolvedValueOnce(running)
+      .mockImplementation(() =>
+        Promise.resolve()
+          .then(readEntered.resolve)
+          .then(() => read.promise)
+      );
+    const harness = makeHarness({
+      getSetupSnapshot,
+      admitSetupShell: async () => ({
+        initial: running,
+        transition: "exit-sent",
+        shellExit: commandResult(),
+      }),
+    });
+
+    await expectAbortToDrainSetupRead(harness, readEntered.promise, () =>
+      read.resolve(setupSnapshot("shell"))
+    );
+
+    expect(harness.count("getSetupSnapshot")).toBe(2);
+    expect(harness.count("admitSetupShell")).toBe(1);
+  });
+
+  test("drains a deadline-exhausted poll read before releasing procedure admission", async () => {
+    vi.useFakeTimers();
+    const running = setupSnapshot("running-game");
+    const shellReadEntered = deferred<void>();
+    const shellRead = deferred<Civ7SetupSnapshotResult>();
+    const getSetupSnapshot = vi
+      .fn<Civ7ControlOrpcDirectLifecycleFacade["getSetupSnapshot"]>()
+      .mockResolvedValueOnce(running)
+      .mockImplementation(() =>
+        Promise.resolve()
+          .then(shellReadEntered.resolve)
+          .then(() => shellRead.promise)
+      );
+    const harness = makeHarness({
+      getSetupSnapshot,
+      admitSetupShell: async () => ({
+        initial: running,
+        transition: "exit-sent",
+        shellExit: commandResult(),
+      }),
+    });
+    const makeAdmission = Effect.makeSemaphore(1);
+    const admission = await Effect.runPromise(makeAdmission);
+    const context: Civ7ControlOrpcContext = {
+      ...harness.context,
+      procedureAdmission: (procedure) => admission.withPermits(1)(procedure),
+    };
+
+    try {
+      const lifecycle = call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, input, {
+        context,
+      });
+      let lifecycleSettled = false;
+      void lifecycle.then(
+        () => {
+          lifecycleSettled = true;
+        },
+        () => {
+          lifecycleSettled = true;
+        }
+      );
+
+      await shellReadEntered.promise;
+      let followerEntered = false;
+      const follower = Effect.runPromise(
+        admission.withPermits(1)(
+          Effect.sync(() => {
+            followerEntered = true;
+          })
+        )
+      );
+
+      await vi.advanceTimersByTimeAsync(30_000);
+      expect(lifecycleSettled).toBe(false);
+      expect(followerEntered).toBe(false);
+
+      shellRead.resolve(setupSnapshot("shell"));
+      await expect(lifecycle).rejects.toMatchObject({
+        code: "LIFECYCLE_VERIFICATION_FAILED",
+        data: { step: "wait-for-shell", noRepeat: true },
+      });
+      await follower;
+      expect(followerEntered).toBe(true);
+      expect(harness.count("reconcileRequiredTargetMod")).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("converts player records once in numeric order at the apply boundary", async () => {
@@ -351,8 +518,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     const harness = makeHarness({
       getSetupSnapshot: sequence(shell, setupSnapshot("shell", 5)),
       admitSetupShell: async () => ({ initial: shell, transition: "shell" }),
-      requestSavedConfigLoad: async () =>
-        Promise.reject(directControlFailure("socket-closed")),
+      requestSavedConfigLoad: async () => Promise.reject(directControlFailure("socket-closed")),
     });
 
     await expect(
@@ -373,8 +539,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     const harness = makeHarness({
       getSetupSnapshot: async () => shell,
       admitSetupShell: async () => ({ initial: shell, transition: "shell" }),
-      requestSavedConfigLoad: async () =>
-        Promise.reject(directControlFailure("socket-closed")),
+      requestSavedConfigLoad: async () => Promise.reject(directControlFailure("socket-closed")),
     });
     try {
       const pending = call(
@@ -756,29 +921,6 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     expect(harness.count("getAppUiSnapshot")).toBe(1);
   });
 
-  test("exhausts the hard observation deadline when a provider promise never settles", async () => {
-    vi.useFakeTimers();
-    const harness = makeHarness({
-      getAppUiSnapshot: async () => await new Promise<Civ7AppUiSnapshotResult>(() => {}),
-    });
-    try {
-      const pending = call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, input, {
-        context: harness.context,
-      });
-      const rejected = expect(pending).rejects.toMatchObject({
-        code: "LIFECYCLE_VERIFICATION_FAILED",
-        data: { step: "wait-for-begin-ready", noRepeat: true },
-      });
-      await vi.advanceTimersByTimeAsync(121_000);
-
-      await rejected;
-      expect(harness.count("hostPreparedSinglePlayerGame")).toBe(1);
-      expect(harness.count("getAppUiSnapshot")).toBe(1);
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
   test("rejects an observation that resolves with a match after the deadline", async () => {
     vi.useFakeTimers();
     const harness = makeHarness({
@@ -928,6 +1070,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     });
     expect(Object.keys(contract.errorMap).sort()).toEqual([
       "CONTROLLER_CAPABILITY_UNAVAILABLE",
+      "CONTROL_ADMISSION_UNAVAILABLE",
       "CORRELATION_ID_INVALID",
       "LIFECYCLE_DEPENDENCY_UNAVAILABLE",
       "LIFECYCLE_MUTATION_UNCERTAIN",
@@ -1034,6 +1177,52 @@ function makeHarness(
     count: (operation) => calls.filter((entry) => entry.operation === operation).length,
     operations: () => calls.map((entry) => entry.operation),
   };
+}
+
+async function expectAbortToDrainSetupRead(
+  harness: ReturnType<typeof makeHarness>,
+  readEntered: Promise<void>,
+  completeRead: () => void
+) {
+  const makeAdmission = Effect.makeSemaphore(1);
+  const admission = await Effect.runPromise(makeAdmission);
+  const context: Civ7ControlOrpcContext = {
+    ...harness.context,
+    procedureAdmission: (procedure) => admission.withPermits(1)(procedure),
+  };
+  const controller = new AbortController();
+  const lifecycle = createCiv7ControlOrpcServerClient(context).lifecycle.singlePlayer.start(input, {
+    signal: controller.signal,
+  });
+  const outcome = lifecycle.then(
+    () => true,
+    () => false
+  );
+  let lifecycleSettled = false;
+  void outcome.then(() => {
+    lifecycleSettled = true;
+  });
+
+  await readEntered;
+  let followerEntered = false;
+  const follower = Effect.runPromise(
+    admission.withPermits(1)(
+      Effect.sync(() => {
+        followerEntered = true;
+      })
+    )
+  );
+  controller.abort();
+  await Promise.resolve();
+
+  expect(lifecycleSettled).toBe(false);
+  expect(followerEntered).toBe(false);
+
+  completeRead();
+  await expect(outcome).resolves.toBe(false);
+  await follower;
+  expect(followerEntered).toBe(true);
+  expect(harness.count("reconcileRequiredTargetMod")).toBe(0);
 }
 
 function sequence<A>(first: A, ...rest: readonly A[]): () => Promise<A> {

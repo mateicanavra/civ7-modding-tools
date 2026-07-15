@@ -22,12 +22,10 @@ import {
 /**
  * A field that is either the live payload or an embedded `{ error }` marker.
  *
- * PARITY INVARIANT (audit/05 #4, line 29; target-arch section 1 invariants): `live.status`
- * returns **200** even on partial failure - each of the four aggregated reads runs
- * under `Promise.allSettled`, and a rejected read is surfaced in-band as
- * `{ error: String(reason) }` for that field. These are NOT transport-layer errors -
- * `live.status` therefore declares NO contract error codes (only an outer defect
- * yields a transport-level 500).
+ * `live.status` returns **200** even when its one coherent playable-status
+ * observation fails. That failure is projected in-band as the same `{ error }`
+ * evidence for every derived field, so this procedure declares no contract
+ * errors (only an outer defect yields a transport-level 500).
  */
 const fieldOrErrorSchema = Type.Union([
   unknownRecordSchema,
@@ -39,8 +37,8 @@ const fieldOrErrorSchema = Type.Union([
 // ---------------------------------------------------------------------------
 // Request: none. Success 200: { ok, playable, observedAt, status, appUi,
 // mapSummary, autoplay } where ok = playableStatus && readiness !== "unavailable",
-// and each of status/appUi/mapSummary/autoplay may be the payload OR { error }
-// (Promise.allSettled). Error 500 ONLY on outer throw.
+// and status/appUi/mapSummary/autoplay are all projected from the same App UI
+// snapshot or carry the same in-band error. Error 500 ONLY on outer throw.
 const statusOutputSchema = Type.Object(
   {
     ok: Type.Boolean(),

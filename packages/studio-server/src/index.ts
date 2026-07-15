@@ -155,7 +155,9 @@ export { Civ7TunerClient } from "./services/Civ7TunerClient.js";
 export {
   CIV7_TUNER_GATE_COOLDOWN_MS,
   CIV7_TUNER_GATE_THRESHOLD,
+  type Civ7TunerAdmissionError,
   Civ7TunerBackoffError,
+  Civ7TunerClosingError,
   Civ7TunerSession,
   type Civ7TunerSessionApi,
   type Civ7TunerSessionHealth,

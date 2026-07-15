@@ -10,7 +10,7 @@
 
 **Rule:** Every Studio game-wire call flows through one sanctioned door:
 
-- Long-lived daemon reads use the Effect-scoped `Civ7TunerSession` service in `packages/studio-server/src/services/Civ7TunerSession.ts`.
+- Long-lived daemon reads use `Civ7TunerSession.use(...)`; complete control-oRPC procedures and mutation lifecycles hold its scoped `lease` for their full duration.
 - Per-flow direct-control operations use `withCiv7DirectControlSession` in `packages/civ7-direct-control/src/session/session.ts`, which constructs, owns, and closes the bounded session.
 
 ## Forbids
@@ -38,7 +38,7 @@ Test-only constructors are allowed when they exercise the session package or ass
 
 ## Remediation
 
-If a new constructor appears outside the sanctioned paths, remove it rather than wrapping it in a second owner. Route daemon reads through `Civ7TunerSession.use(...)`; route bounded direct-control package workflows through `withCiv7DirectControlSession(...)`. If a workflow genuinely needs a new ownership mode, add a dedicated OpenSpec change and update this invariant, the guard test, and the direct-control docs in the same slice before implementation.
+If a new constructor appears outside the sanctioned paths, remove it rather than wrapping it in a second owner. Route atomic daemon reads through `Civ7TunerSession.use(...)`, admit complete daemon procedures through its scoped `lease`, and route bounded direct-control package workflows through `withCiv7DirectControlSession(...)`. If a workflow genuinely needs a new ownership mode, add a dedicated OpenSpec change and update this invariant, the guard test, and the direct-control docs in the same slice before implementation.
 
 ## Rationale
 

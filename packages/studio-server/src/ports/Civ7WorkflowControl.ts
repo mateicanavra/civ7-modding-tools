@@ -1,4 +1,5 @@
 import {
+  type Civ7ControlOrpcContext,
   type Civ7LifecycleSinglePlayerStartInput,
   createCiv7ControlOrpcServerClient,
 } from "@civ7/control-orpc";
@@ -32,6 +33,7 @@ import {
   verificationFailed,
 } from "../errors/index.js";
 import {
+  type Civ7TunerAdmissionError,
   Civ7TunerBackoffError,
   Civ7TunerSession,
   type Civ7TunerSessionApi,
@@ -45,6 +47,7 @@ type StartSinglePlayerArgs = Readonly<{
   requestId: string;
   prepared: RunInGamePreparedRequest;
   deployment: RunInGameDeployment;
+  gameStarted?: NonNullable<Civ7ControlOrpcContext["lifecycleProgress"]>["singlePlayerStarted"];
 }>;
 
 export type Civ7WorkflowControlApi = ReturnType<typeof makeCiv7WorkflowControlApi>;
@@ -76,20 +79,22 @@ function makeCiv7WorkflowControlApi(tuner: Civ7TunerSessionApi, config: StudioSe
             timeoutMs: config.civ7Control.timeoutMs,
             session: tuner.session,
           },
+          ...Option.match(Option.fromNullable(args.gameStarted), {
+            onNone: () => ({}),
+            onSome: (singlePlayerStarted) => ({ lifecycleProgress: { singlePlayerStarted } }),
+          }),
           correlation: { correlationId: args.requestId },
         });
-        const callResult = yield* Effect.acquireUseRelease(
-          Effect.sync(() => openLifecycleCall(client, demand)),
-          ({ pending }) => Effect.promise(() => pending),
-          ({ controller, pending }) => {
-            const drain = Effect.promise(() =>
-              pending.then(
-                () => undefined,
-                () => undefined
-              )
-            );
-            return Effect.sync(() => controller.abort()).pipe(Effect.zipRight(drain));
-          }
+        const call = openLifecycleCall(client, demand);
+        const lifecycle = Effect.acquireUseRelease(
+          Effect.succeed(call),
+          ({ start }) => Effect.promise(start),
+          ({ abortAndDrain }) => Effect.promise(abortAndDrain)
+        );
+        const callResult = yield* tuner.lease.pipe(
+          Effect.andThen(lifecycle),
+          Effect.scoped,
+          Effect.mapError(tunerAdmissionFailure)
         );
         const started = yield* settleLifecycleCall(callResult);
         return yield* verifyLifecycleCorrelation(started, args.requestId);
@@ -237,9 +242,21 @@ type LifecycleStartResult = LifecycleCallSuccess["data"];
 /** Opens one abortable lifecycle call whose current mutation atom can be drained. */
 function openLifecycleCall(client: LifecycleClient, demand: Civ7LifecycleSinglePlayerStartInput) {
   const controller = new AbortController();
+  let pending: Promise<LifecycleCallResult> | undefined;
+  const start = () => {
+    pending ??= callLifecycleStart(client, demand, controller.signal);
+    return pending;
+  };
+  const abortAndDrain = async () => {
+    controller.abort();
+    await pending?.then(
+      () => undefined,
+      () => undefined
+    );
+  };
   return {
-    controller,
-    pending: callLifecycleStart(client, demand, controller.signal),
+    start,
+    abortAndDrain,
   };
 }
 
@@ -296,8 +313,58 @@ function lifecycleFailure(err: LifecycleError): StudioRuntimeFailure {
   );
 }
 
+function tunerAdmissionFailure(error: Civ7TunerAdmissionError): StudioRuntimeFailure {
+  return Match.value(error).pipe(
+    Match.tag("Civ7TunerBackoffError", (backoff) =>
+      dependencyUnavailable({
+        message: "Civ7 lifecycle is waiting for the shared tuner to recover",
+        dependency: "direct-control",
+        causeSummary: backoff.message,
+        diagnostics: boundedDiagnostics({
+          code: backoff._tag,
+          consecutiveResponseTimeouts: backoff.consecutiveResponseTimeouts,
+          retryAtMs: backoff.retryAtMs,
+        }),
+        recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
+      })
+    ),
+    Match.tag("Civ7TunerClosingError", (closing) =>
+      dependencyUnavailable({
+        message: "Civ7 lifecycle admission closed while Studio is shutting down",
+        dependency: "direct-control",
+        causeSummary: closing.message,
+        diagnostics: boundedDiagnostics({ code: closing._tag }),
+        recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
+      })
+    ),
+    Match.exhaustive
+  );
+}
+
 function definedLifecycleFailure(err: DefinedLifecycleError): StudioRuntimeFailure {
   return Match.value(err).pipe(
+    Match.when(lifecycleErrorHasCode("CONTROL_ADMISSION_UNAVAILABLE"), (error) =>
+      dependencyUnavailable({
+        message: "Civ7 lifecycle admission is temporarily unavailable",
+        dependency: "direct-control",
+        directControlCode: error.code,
+        causeSummary: error.data.reason,
+        diagnostics: boundedDiagnostics({
+          code: error.code,
+          procedureKey: error.data.procedureKey,
+          reason: error.data.reason,
+          ...Option.match(Option.fromNullable(error.data.retryAtMs), {
+            onNone: () => ({}),
+            onSome: (retryAtMs) => ({ retryAtMs }),
+          }),
+          ...Option.match(Option.fromNullable(error.data.correlationId), {
+            onNone: () => ({}),
+            onSome: (correlationId) => ({ correlationId }),
+          }),
+        }),
+        recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
+      })
+    ),
     Match.when(lifecycleErrorHasCode("LIFECYCLE_DEPENDENCY_UNAVAILABLE"), (error) =>
       dependencyUnavailable({
         message: "Civ7 lifecycle dependency is unavailable",

@@ -5,7 +5,6 @@ import {
   contract,
   createStudioRpcHandler,
   type StudioContract,
-  type StudioLiveRuntimeReader,
   type StudioOperationRuntimePorts,
   type StudioRpcHandle,
   type StudioServerContext,
@@ -41,7 +40,7 @@ describe("one /rpc mount serves the whole unified contract", () => {
     const facadeCalls: Array<Civ7ControlOrpcContext["endpointDefaults"]> = [];
     const lifecycleCalls: string[] = [];
     const recipeDagCalls: string[] = [];
-    const { client, live } = await listenWithStudioServer({
+    const { client } = await listenWithStudioServer({
       loadSetupCatalog: async () =>
         ({
           observedAt: "2026-06-12T00:00:00.000Z",
@@ -102,11 +101,6 @@ describe("one /rpc mount serves the whole unified contract", () => {
     const readiness = await client.civ7.readiness.current({});
     await client.civ7.readiness.current({});
     expect(readiness).toMatchObject({ playable: true, readiness: "tuner-ready" });
-    await expect(live.status({})).resolves.toMatchObject({
-      playable: true,
-      status: { playable: true, readiness: "tuner-ready" },
-    });
-
     // Structural session sharing: the facade received the host timeout AND the
     // runtime's shared session — the SAME instance across calls.
     expect(facadeCalls).toHaveLength(2);
@@ -162,6 +156,145 @@ describe("one /rpc mount serves the whole unified contract", () => {
     }
   }, 20_000);
 
+  test("serializes complete public control procedures on the daemon Tuner lease", async () => {
+    const firstEntered = deferred<void>();
+    const releaseFirst = deferred<void>();
+    let calls = 0;
+    const { client } = createInProcessStudioClient({
+      civ7Control: {
+        directControl: {
+          getCiv7PlayableStatus: async () => {
+            calls += 1;
+            if (calls === 1) {
+              firstEntered.resolve();
+              await releaseFirst.promise;
+            }
+            return playableStatusResult();
+          },
+        } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        timeoutMs: 1234,
+      },
+    });
+
+    const first = client.civ7.readiness.current({});
+    await firstEntered.promise;
+    const second = client.civ7.readiness.current({});
+    await Promise.resolve();
+    expect(calls).toBe(1);
+
+    releaseFirst.resolve();
+    await expect(Promise.all([first, second])).resolves.toHaveLength(2);
+    expect(calls).toBe(2);
+  });
+
+  test("removes an aborted queued control procedure before it can enter", async () => {
+    const firstEntered = deferred<void>();
+    const releaseFirst = deferred<void>();
+    let calls = 0;
+    const { client } = createInProcessStudioClient({
+      civ7Control: {
+        directControl: {
+          getCiv7PlayableStatus: async () => {
+            calls += 1;
+            if (calls === 1) {
+              firstEntered.resolve();
+              await releaseFirst.promise;
+            }
+            return playableStatusResult();
+          },
+        } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        timeoutMs: 1234,
+      },
+    });
+
+    const first = client.civ7.readiness.current({});
+    await firstEntered.promise;
+    const controller = new AbortController();
+    const queued = client.civ7.readiness.current({}, { signal: controller.signal });
+    controller.abort();
+
+    await expect(queued).rejects.toBeDefined();
+    releaseFirst.resolve();
+    await first;
+    await client.civ7.readiness.current({});
+    expect(calls).toBe(2);
+  });
+
+  test("drains an admitted control procedure before cancellation releases its lease", async () => {
+    const firstEntered = deferred<void>();
+    const releaseFirst = deferred<void>();
+    const secondEntered = deferred<void>();
+    let calls = 0;
+    const { client } = createInProcessStudioClient({
+      civ7Control: {
+        directControl: {
+          getCiv7PlayableStatus: async () => {
+            calls += 1;
+            if (calls === 1) {
+              firstEntered.resolve();
+              await releaseFirst.promise;
+            } else {
+              secondEntered.resolve();
+            }
+            return playableStatusResult();
+          },
+        } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        timeoutMs: 1234,
+      },
+    });
+
+    const controller = new AbortController();
+    const first = client.civ7.readiness.current({}, { signal: controller.signal });
+    const firstOutcome = first.then(
+      () => "resolved" as const,
+      () => "rejected" as const
+    );
+    await firstEntered.promise;
+    controller.abort();
+    const second = client.civ7.readiness.current({});
+
+    const secondEntryState = await promiseStateAfter(secondEntered.promise, 20);
+    const callsBeforeRelease = calls;
+    releaseFirst.resolve();
+    await expect(firstOutcome).resolves.toBe("rejected");
+    await expect(second).resolves.toMatchObject({ readiness: "tuner-ready" });
+    expect(secondEntryState).toBe("pending");
+    expect(callsBeforeRelease).toBe(1);
+    expect(calls).toBe(2);
+  });
+
+  test("daemon disposal drains an admitted control procedure before closing the session", async () => {
+    const entered = deferred<void>();
+    const release = deferred<void>();
+    const { client, handler } = createInProcessStudioClient({
+      civ7Control: {
+        directControl: {
+          getCiv7PlayableStatus: async () => {
+            entered.resolve();
+            await release.promise;
+            return playableStatusResult();
+          },
+        } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        timeoutMs: 1234,
+      },
+    });
+
+    const requestOutcome = client.civ7.readiness.current({}).then(
+      () => "resolved" as const,
+      () => "rejected" as const
+    );
+    await entered.promise;
+    const disposal = handler.dispose();
+
+    const disposalState = await promiseStateAfter(disposal, 20);
+    release.resolve();
+    await disposal;
+    await expect(requestOutcome).resolves.toBe("resolved");
+    expect(disposalState).toBe("pending");
+    const openHandleIndex = openHandles.indexOf(handler);
+    if (openHandleIndex >= 0) openHandles.splice(openHandleIndex, 1);
+  });
+
   test("the civ7 namespace merge is collision-free", () => {
     // The unified `civ7.*` node is the studio read surface plus the control
     // namespaces. If a future control namespace collides with a studio key
@@ -181,7 +314,6 @@ describe("one /rpc mount serves the whole unified contract", () => {
 async function listenWithStudioServer(overrides: Partial<StudioServerContext>): Promise<{
   origin: string;
   client: ContractRouterClient<StudioContract>;
-  live: StudioLiveRuntimeReader;
 }> {
   const handler = createStudioRpcHandler(makeContext(overrides));
   openHandles.push(handler);
@@ -200,7 +332,25 @@ async function listenWithStudioServer(overrides: Partial<StudioServerContext>): 
   const client: ContractRouterClient<StudioContract> = createORPCClient(
     new RPCLink({ url: `${origin}/rpc` })
   );
-  return { origin, client, live: handler.live };
+  return { origin, client };
+}
+
+function createInProcessStudioClient(overrides: Partial<StudioServerContext>): {
+  handler: StudioRpcHandle;
+  client: ContractRouterClient<StudioContract>;
+} {
+  const handler = createStudioRpcHandler(makeContext(overrides));
+  openHandles.push(handler);
+  const client: ContractRouterClient<StudioContract> = createORPCClient(
+    new RPCLink({
+      url: "http://studio.test/rpc",
+      fetch: async (request) => {
+        const result = await handler.handle(request, { prefix: "/rpc" });
+        return result.response ?? new Response("not found", { status: 404 });
+      },
+    })
+  );
+  return { handler, client };
 }
 
 async function listen(handler: Parameters<typeof createServer>[0]): Promise<string> {
@@ -455,6 +605,29 @@ function playableStatusResult(): Civ7PlayableStatusResult {
 
 function probe<T>(value: T): { ok: true; value: T } {
   return { ok: true, value };
+}
+
+function deferred<T>() {
+  let resolve: (value: T | PromiseLike<T>) => void = () => undefined;
+  let reject: (reason?: unknown) => void = () => undefined;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+}
+
+async function promiseStateAfter(
+  promise: PromiseLike<unknown>,
+  delayMs: number
+): Promise<"pending" | "settled"> {
+  return Promise.race([
+    Promise.resolve(promise).then(
+      () => "settled" as const,
+      () => "settled" as const
+    ),
+    new Promise<"pending">((resolve) => setTimeout(() => resolve("pending"), delayMs)),
+  ]);
 }
 
 function minimalRecipeDagResult(recipeId: string) {

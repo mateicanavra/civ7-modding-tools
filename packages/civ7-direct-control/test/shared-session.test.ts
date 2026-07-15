@@ -177,6 +177,7 @@ describe("caller-owned shared tuner session", () => {
     const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
     try {
       expect(session.stats.consecutiveResponseTimeouts).toBe(0);
+      expect(session.stats.totalResponseTimeouts).toBe(0);
 
       await expect(
         executeCiv7Command({ port: server.port, session, command: "slow", timeoutMs: 50 })
@@ -188,6 +189,7 @@ describe("caller-owned shared tuner session", () => {
       // Each failed call performs LSQ (succeeds → reset) then CMD (times out),
       // so the counter reflects the trailing run of timeouts on this socket.
       expect(session.stats.consecutiveResponseTimeouts).toBe(1);
+      expect(session.stats.totalResponseTimeouts).toBe(2);
 
       const ok = await executeCiv7Command({
         port: server.port,
@@ -197,6 +199,7 @@ describe("caller-owned shared tuner session", () => {
       });
       expect(ok.output).toEqual(["null"]);
       expect(session.stats.consecutiveResponseTimeouts).toBe(0);
+      expect(session.stats.totalResponseTimeouts).toBe(2);
     } finally {
       await session.close();
     }
@@ -216,6 +219,7 @@ describe("caller-owned shared tuner session", () => {
         code: "response-timeout",
       });
       expect(session.stats.consecutiveResponseTimeouts).toBe(3);
+      expect(session.stats.totalResponseTimeouts).toBe(3);
     } finally {
       await session.close();
     }

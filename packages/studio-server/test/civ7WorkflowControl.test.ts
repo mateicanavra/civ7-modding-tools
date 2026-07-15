@@ -17,12 +17,16 @@ import type {
 } from "@civ7/direct-control";
 import { Civ7DirectControlError, Civ7DirectControlSession } from "@civ7/direct-control";
 import { Effect, Fiber, Layer, Match } from "effect";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import type { StudioServerContext } from "../src/context.js";
 import { Civ7WorkflowControl, Civ7WorkflowControlLive } from "../src/ports/Civ7WorkflowControl.js";
 import type { RunInGameDeployment, RunInGamePreparedRequest } from "../src/ports/workflowTypes.js";
-import { Civ7TunerSession, type Civ7TunerSessionApi } from "../src/services/Civ7TunerSession.js";
+import {
+  Civ7TunerBackoffError,
+  Civ7TunerSession,
+  type Civ7TunerSessionApi,
+} from "../src/services/Civ7TunerSession.js";
 import { StudioConfig } from "../src/services/StudioConfig.js";
 
 const fixture = {
@@ -40,6 +44,8 @@ describe("Civ7WorkflowControlLive", () => {
     const calls: Array<Readonly<{ operation: string; options: unknown }>> = [];
     let appliedInput: unknown;
     let appReads = 0;
+    let leaseActive = false;
+    let gameStartedReports = 0;
     const directLifecycle: Civ7ControlOrpcDirectLifecycleFacade = {
       ...liveCiv7ControlOrpcDirectLifecycleFacade,
       getSetupSnapshot: record("getSetupSnapshot", async () => setupSnapshot("shell")),
@@ -89,12 +95,26 @@ describe("Civ7WorkflowControlLive", () => {
       getMapSummary: record("getMapSummary", async () => mapSummary()),
     };
 
-    const service = await makeService({ session, directLifecycle });
+    const acquireLease = Effect.sync(() => {
+      leaseActive = true;
+    }).pipe(Effect.map(() => session));
+    const releaseLease = Effect.sync(() => {
+      leaseActive = false;
+    });
+    const lifecycleLease = Effect.acquireRelease(acquireLease, () => releaseLease);
+    const service = await makeService({
+      session,
+      directLifecycle,
+      lease: lifecycleLease,
+    });
     const result = await Effect.runPromise(
       service.startSinglePlayer({
         requestId,
         prepared: preparedRequest(),
         deployment: deployment(),
+        gameStarted: Effect.sync(() => {
+          gameStartedReports += 1;
+        }),
       })
     );
 
@@ -131,6 +151,8 @@ describe("Civ7WorkflowControlLive", () => {
       "getMapSummary",
     ]);
     expect(calls.every((call) => hasSession(call.options, session))).toBe(true);
+    expect(gameStartedReports).toBe(1);
+    expect(leaseActive).toBe(false);
     expect(result).toMatchObject({
       correlationId: requestId,
       status: "started",
@@ -145,6 +167,7 @@ describe("Civ7WorkflowControlLive", () => {
       run: (...args: Args) => Promise<Result>
     ): (...args: Args) => Promise<Result> {
       return async (...args) => {
+        expect(leaseActive).toBe(true);
         calls.push({ operation, options: args.at(-1) });
         return run(...args);
       };
@@ -181,6 +204,51 @@ describe("Civ7WorkflowControlLive", () => {
     expect(failure.diagnostics?.noRepeat).toBeUndefined();
   });
 
+  test("refuses a gated lifecycle before starting the oRPC call and keeps retry safe", async () => {
+    const session = Civ7DirectControlSession.prototype;
+    let readinessCalls = 0;
+    const getSetupSnapshot = vi.fn(async () => setupSnapshot("shell"));
+    const directLifecycle: Civ7ControlOrpcDirectLifecycleFacade = {
+      ...liveCiv7ControlOrpcDirectLifecycleFacade,
+      getSetupSnapshot,
+    };
+    const service = await makeService({
+      session,
+      directLifecycle,
+      onPlayableStatus: () => {
+        readinessCalls += 1;
+      },
+      lease: Effect.fail(
+        new Civ7TunerBackoffError({
+          consecutiveResponseTimeouts: 4,
+          retryAtMs: Date.now() + 15_000,
+        })
+      ),
+    });
+
+    const failedStart = Effect.flip(
+      service.startSinglePlayer({
+        requestId,
+        prepared: preparedRequest(),
+        deployment: deployment(),
+      })
+    );
+    const failure = await Effect.runPromise(failedStart);
+
+    expect(readinessCalls).toBe(0);
+    expect(getSetupSnapshot).not.toHaveBeenCalled();
+    expect(failure).toMatchObject({
+      tag: "DependencyUnavailable",
+      reason: "direct-control-unavailable",
+      recoveryActions: expect.arrayContaining(["retry-run"]),
+      diagnostics: {
+        code: "Civ7TunerBackoffError",
+        consecutiveResponseTimeouts: 4,
+      },
+    });
+    expect(failure.diagnostics?.noRepeat).toBeUndefined();
+  });
+
   test("drains an interrupted lifecycle mutation before releasing Effect ownership", async () => {
     const session = Civ7DirectControlSession.prototype;
     const entered = deferred<void>();
@@ -189,6 +257,7 @@ describe("Civ7WorkflowControlLive", () => {
         Awaited<ReturnType<Civ7ControlOrpcDirectLifecycleFacade["reconcileRequiredTargetMod"]>>
       >();
     let followingReads = 0;
+    let leaseReleased = false;
     const directLifecycle: Civ7ControlOrpcDirectLifecycleFacade = {
       ...liveCiv7ControlOrpcDirectLifecycleFacade,
       getSetupSnapshot: async () => setupSnapshot("shell"),
@@ -196,16 +265,22 @@ describe("Civ7WorkflowControlLive", () => {
         initial: setupSnapshot("shell"),
         transition: "shell" as const,
       }),
-      reconcileRequiredTargetMod: async () => {
-        entered.resolve();
-        return mutation.promise;
-      },
+      reconcileRequiredTargetMod: () => signalBefore(entered.resolve, mutation.promise),
       getSetupMapRows: async () => {
         followingReads += 1;
         return mapRows();
       },
     };
-    const service = await makeService({ session, directLifecycle });
+    const acquireLease = Effect.succeed(session);
+    const releaseLease = Effect.sync(() => {
+      leaseReleased = true;
+    });
+    const lifecycleLease = Effect.acquireRelease(acquireLease, () => releaseLease);
+    const service = await makeService({
+      session,
+      directLifecycle,
+      lease: lifecycleLease,
+    });
     const fiber = Effect.runFork(
       service.startSinglePlayer({
         requestId,
@@ -224,6 +299,7 @@ describe("Civ7WorkflowControlLive", () => {
 
     expect(interrupted).toBe(false);
     expect(followingReads).toBe(0);
+    expect(leaseReleased).toBe(false);
 
     mutation.resolve({
       targetModId,
@@ -233,22 +309,28 @@ describe("Civ7WorkflowControlLive", () => {
     });
     await interruption;
     expect(followingReads).toBe(0);
+    expect(leaseReleased).toBe(true);
   });
 });
 
 async function makeService(args: {
   session: Civ7DirectControlSession;
   directLifecycle: Civ7ControlOrpcDirectLifecycleFacade;
+  onPlayableStatus?: () => void;
+  lease?: Civ7TunerSessionApi["lease"];
 }) {
   const directControl: Civ7ControlOrpcDirectControlFacade = {
     ...liveCiv7ControlOrpcDirectControlFacade,
-    getCiv7PlayableStatus: async () =>
-      ({ playable: true, readiness: "playable" }) as Awaited<
+    getCiv7PlayableStatus: async () => {
+      args.onPlayableStatus?.();
+      return { playable: true, readiness: "playable" } as Awaited<
         ReturnType<Civ7ControlOrpcDirectControlFacade["getCiv7PlayableStatus"]>
-      >,
+      >;
+    },
   };
   const tuner: Civ7TunerSessionApi = {
     session: args.session,
+    lease: args.lease ?? Effect.succeed(args.session),
     use: (run) => Effect.promise(() => run({ session: args.session })),
     health: Effect.succeed({
       consecutiveResponseTimeouts: 0,
@@ -532,6 +614,11 @@ function deferred<T>() {
     reject = rejectPromise;
   });
   return { promise, resolve, reject };
+}
+
+function signalBefore<T>(signal: () => void, result: Promise<T>): Promise<T> {
+  signal();
+  return result;
 }
 
 function hasSession(options: unknown, session: Civ7DirectControlSession): boolean {

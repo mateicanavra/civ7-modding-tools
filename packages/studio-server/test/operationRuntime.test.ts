@@ -453,6 +453,39 @@ describe("StudioOperationRuntime", () => {
     expect(lifecycleCalls).toBe(1);
   });
 
+  test("publishes observing-runtime as soon as Civ7 proves the game started", async () => {
+    const finalLifecycleProof = deferred<void>();
+    const gameStarted = deferred<void>();
+    const awaitFinalLifecycleProof = Effect.promise(() => finalLifecycleProof.promise);
+    const { runtime } = makeRuntime({
+      civ7: {
+        startSinglePlayer: ({ gameStarted: reportGameStarted }) =>
+          (reportGameStarted ?? Effect.void).pipe(
+            Effect.tap(() => Effect.sync(() => gameStarted.resolve())),
+            Effect.zipRight(awaitFinalLifecycleProof),
+            Effect.as(lifecycleStarted())
+          ),
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+
+    await gameStarted.promise;
+    await expect(
+      runtime.runPromise(service.runInGameStatus({ requestId: accepted.requestId }))
+    ).resolves.toMatchObject({ phase: "observing-runtime", status: "running" });
+
+    finalLifecycleProof.resolve();
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.status;
+      })
+      .toBe("completed");
+  });
+
   test("records Run in Game cancellation cleanup failures only in private diagnostics", async () => {
     const events: StudioEvent[] = [];
     const deployBlocker = deferred<void>();

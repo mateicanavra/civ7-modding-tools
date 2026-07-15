@@ -12,7 +12,8 @@ describe("Studio workflow lifecycle graph", () => {
     expect(source).toContain("const config = yield* StudioConfig");
     expect(source).toContain("directLifecycle: config.civ7Control.directLifecycle");
     expect(source).toContain("session: tuner.session");
-    expect(source).not.toContain("tuner.use((options) => client.lifecycle");
+    expect(source).toContain("tuner.lease.pipe(");
+    expect(source).toContain("Effect.scoped");
   });
 
   test("delegates setup and start exactly once to the canonical lifecycle procedure", async () => {

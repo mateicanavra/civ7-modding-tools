@@ -5,7 +5,11 @@ export type {
 } from "./bridge/intelligence-bridge";
 export { createCiv7IntelligenceBridge } from "./bridge/intelligence-bridge";
 export { createCiv7ControlOrpcServerClient } from "./client";
-export type { Civ7ControlOrpcContext } from "./context";
+export {
+  Civ7ControlOrpcAdmissionRefusal,
+  type Civ7ControlOrpcContext,
+  type Civ7ControlOrpcProcedureAdmission,
+} from "./context";
 export { Civ7ControlOrpcContract } from "./contract";
 export { civ7ControlOrpcContractBase } from "./contract-base";
 export { Civ7ControllerOrpcRouter } from "./controller-router";
@@ -25,6 +29,9 @@ export {
   Civ7AttentionPrioritiesUnavailableErrorDataSchema,
   Civ7CameraFocusFailedError,
   Civ7CameraFocusUnverifiedError,
+  Civ7ControlAdmissionUnavailableError,
+  type Civ7ControlAdmissionUnavailableErrorData,
+  Civ7ControlAdmissionUnavailableErrorDataSchema,
   Civ7ControllerCapabilityUnavailableError,
   type Civ7ControllerCapabilityUnavailableErrorData,
   Civ7ControllerCapabilityUnavailableErrorDataSchema,

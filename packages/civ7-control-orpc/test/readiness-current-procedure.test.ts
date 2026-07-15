@@ -1,7 +1,9 @@
 import { call } from "@orpc/server";
+import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
 import {
+  Civ7ControlOrpcAdmissionRefusal,
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
   type Civ7ControlOrpcPlayableStatusResult,
@@ -375,6 +377,55 @@ describe("readiness.current control-oRPC procedure", () => {
     }
   });
 
+  test("refuses host admission before the direct-control facade runs", async () => {
+    let facadeCalls = 0;
+    const context: Civ7ControlOrpcContext = {
+      directControl: {
+        getCiv7PlayableStatus: async () => {
+          facadeCalls += 1;
+          return playableStatusResult();
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+      procedureAdmission: () => Effect.fail(new Civ7ControlOrpcAdmissionRefusal(1234)),
+    };
+
+    await expect(
+      call(Civ7ControlOrpcRouter.readiness.current, {}, { context })
+    ).rejects.toMatchObject({
+      code: "CONTROL_ADMISSION_UNAVAILABLE",
+      status: 503,
+      data: {
+        procedureKey: "readiness.current",
+        source: "host-procedure-admission",
+        reason: "temporarily-unavailable",
+        retryAtMs: 1234,
+      },
+    });
+    expect(facadeCalls).toBe(0);
+  });
+
+  test("preserves downstream defined errors through host admission", async () => {
+    const context: Civ7ControlOrpcContext = {
+      directControl: {
+        getCiv7PlayableStatus: async () => {
+          throw new Error("tuner unavailable");
+        },
+      } as Civ7ControlOrpcContext["directControl"],
+      procedureAdmission: (procedure) => procedure,
+    };
+
+    await expect(
+      call(Civ7ControlOrpcRouter.readiness.current, {}, { context })
+    ).rejects.toMatchObject({
+      code: "READINESS_CURRENT_UNAVAILABLE",
+      status: 503,
+      data: {
+        procedureKey: "readiness.current",
+        source: "direct-control-facade",
+      },
+    });
+  });
+
   test("publishes a contract-first readiness.current service leaf", () => {
     expect(Civ7ControlOrpcContract.readiness.current["~orpc"]).toMatchObject({
       meta: {
@@ -386,6 +437,9 @@ describe("readiness.current control-oRPC procedure", () => {
     });
     expect(Civ7ControlOrpcContract.readiness.current["~orpc"].errorMap).toHaveProperty(
       "READINESS_CURRENT_UNAVAILABLE"
+    );
+    expect(Civ7ControlOrpcContract.readiness.current["~orpc"].errorMap).toHaveProperty(
+      "CONTROL_ADMISSION_UNAVAILABLE"
     );
     expect(Civ7ReadinessCurrentUnavailableError.code).toBe("READINESS_CURRENT_UNAVAILABLE");
   });

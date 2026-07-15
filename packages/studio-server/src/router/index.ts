@@ -31,9 +31,9 @@ import { StudioEventHub, studioEventSubscriptionIterator } from "../services/Stu
  *     constructor param (packages/studio-contract/src/errors.ts). The codes pin the EXACT legacy
  *     status - they are NON-UNIFORM (gameInfo/live.* -> 400, setupConfig -> 503,
  *     most -> 500), the do-not-break registry (architecture/10 section 7).
- *   - `civ7.live.status` runs the four reads under `Effect.all({ mode: "either" })`
- *     (the `Promise.allSettled` analogue) and embeds `{ error }` per field at 200;
- *     only an outer defect yields a transport error. PARITY INVARIANT.
+ *   - `civ7.live.status` projects every field from one coherent playable-status
+ *     observation. A failed observation embeds the same `{ error }` evidence in
+ *     every field at 200; only an outer defect yields a transport error.
  *   - Stateful surfaces (autoplay #8, runInGame #13/#14 plus cancel,
  *     mapConfigs #15/#16, operations.current) route through the package
  *     operation runtime, which owns admission, lifecycle, diagnostics,
