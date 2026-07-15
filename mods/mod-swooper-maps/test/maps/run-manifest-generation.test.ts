@@ -60,15 +60,28 @@ describe("Swooper run manifest generator", () => {
         "utf8"
       );
       expect(modInfo).toContain(`<Mod id="swooper-maps" title="LOC_MODULE_SWOOPER_MAPS_NAME"/>`);
+      expect(modInfo.split(`id="always-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
+      expect(modInfo.split(`id="game-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
+      expect(modInfo.split(`id="shell-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
+      expect(modInfo).not.toContain('<Criteria id="always">');
+      expect(modInfo).not.toContain('id="game-swooper-maps"');
+      expect(modInfo).not.toContain('id="shell-swooper-maps"');
       expect(modInfo).not.toContain("data/biome-hazards.xml");
+      const configXml = await readFile(
+        resolve(generated.generatedModRoot, "config/config.xml"),
+        "utf8"
+      );
       expect(
-        await readFile(resolve(generated.generatedModRoot, "config/config.xml"), "utf8")
-      ).toContain(`File="{${STUDIO_RUN_MOD_ID}}/${STUDIO_RUN_MAP_SCRIPT_PATH}"`);
+        configXml.split(`File="{${STUDIO_RUN_MOD_ID}}/${STUDIO_RUN_MAP_SCRIPT_PATH}"`).length - 1
+      ).toBe(1);
+      expect(configXml.split(`Name="LOC_MAP_${mapRowId}_NAME"`).length - 1).toBe(1);
+      expect(configXml.split(`Description="LOC_MAP_${mapRowId}_DESCRIPTION"`).length - 1).toBe(1);
       const mapText = await readFile(
         resolve(generated.generatedModRoot, "text/en_us/MapText.xml"),
         "utf8"
       );
-      expect(mapText).toContain(`LOC_MAP_${mapRowId}_NAME`);
+      expect(mapText.split(`Tag="LOC_MAP_${mapRowId}_NAME"`).length - 1).toBe(1);
+      expect(mapText.split(`Tag="LOC_MAP_${mapRowId}_DESCRIPTION"`).length - 1).toBe(1);
       expect(mapText).not.toContain("LOC_PLOTEFFECT_DESERT_HEAT_NAME");
       await expect(
         readFile(resolve(generated.generatedModRoot, "data/biome-hazards.xml"), "utf8")

@@ -359,7 +359,7 @@ when late changes invalidated their evidence.
 | P16 terminal adoption | checked | late branch changed overlapping state; prior evidence historical |
 | P17 browser-originated contract | checked | late branch changed overlapping request/config state; rerun |
 | P18 setup failure taxonomy | checked | late branch changed overlapping setup/runtime state; rerun |
-| P19 generated map mod visibility | 0 of 14 checked | open; stable-row authority must be amended first |
+| P19 generated map mod visibility | closed on current authority | stable row, soft target-mod reconciliation, exact digest/correlation, same-process live row and loaded-game proof |
 | P20 saved-config reconciliation | 14 of 18 checked | open; all evidence rows say not run and current logs are insufficient |
 | P21 real-user matrix closure | 0 of 20 checked | open; exact-head matrix required |
 
@@ -457,7 +457,7 @@ database.
 | nine built-in configs | Packet A receipts, recipe-owned schemas/defaults, and config tests | complete-config admission locally closed-passed; final runtime evidence open | every config passes the shared boundary with no proxy, migration, or config-specific exception |
 | Effect diagnostics | `TOOL-EFFECT` source accounting and native Biome output | independent corpus open | every in-scope diagnostic dispositioned without hiding or elaborating disposable topology |
 | touched Habitat rules | authority manifests, cleanup rows, rule fixtures, and native Habitat output | per-unit; provider and A.2 rows open | every retained/retired rule has one authority owner and complete lifecycle evidence |
-| packet obligations | P01-P21 task/evidence records plus this ledger | P01-P18 historically checked with reopenings; P19-P21 open | every declared gate has current evidence at the required proof class |
+| packet obligations | P01-P21 task/evidence records plus this ledger | P01-P18 historically checked with reopenings; P19 closed; P20-P21 open | every declared gate has current evidence at the required proof class |
 | control inputs | current frame/workstream plus historical opening-stack, gate, cleanup, and wave records | current through the sealed split base | current semantic claims agree before the dependent slice closes |
 
 ## Runtime Matrix Register
