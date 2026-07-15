@@ -82,6 +82,8 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup",
+    "check:test": "tsc -p tsconfig.test.json --noEmit",
+    "check:tools": "tsc -p tsconfig.tsup.json --noEmit",
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
