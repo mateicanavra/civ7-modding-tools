@@ -28,8 +28,6 @@ function runningStatus(requestId = "run-request"): RunInGameOperationStatus {
     phase: "deploying",
     status: "running",
     recoveryActions: [],
-    createdAt: "2026-07-08T12:00:00.000Z",
-    updatedAt: "2026-07-08T12:00:01.000Z",
   };
 }
 

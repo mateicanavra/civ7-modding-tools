@@ -1,6 +1,6 @@
 # Next Packet: Close The Studio Product Outcome
 
-Status: A.2 split base sealed; sibling creation next; A.2 implementation not begun; no product closure claim
+Status: P21 authority ready; deterministic proof repair next; A.2 sibling untouched; no product closure claim
 
 Normative frame:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -19,12 +19,12 @@ checks and lightweight records. Do not build custom progress-tracking tools.
 
 ## Current Stack
 
-The coherent local Graphite stack is sealed through A.3a, RuleFixPreview, Nx
-output ownership, current R2/R4 authority, deterministic Grit failure selection,
-the native Nx workspace graph, toolchain bedrock, the lintEffect warning
-contract, and SA-14 authority-closure graph ownership. The sealed split-base
-layer restores and intentionally adapts the nine-document descent container. No
-A.2 Authority rule, live violation corpus, or domain migration is present.
+The coherent continuation stack is sealed through A.3a, A.4, RuleFixPreview,
+native Nx/toolchain authority, G.1/G.2, control-oRPC lifecycle and Studio
+adoption, Tuner session/admission repair, P19 generated-mod visibility, and P20
+saved-config reconciliation, and P21's corrected authority. The A.2 sibling
+still equals the split base; no A.2 Authority rule, live violation corpus, or
+domain migration is present.
 
 The historical source recovery remains reference evidence. No current-tree
 rendered browser/Civ7 matrix has closed, so none of these layers claims the
@@ -34,16 +34,15 @@ product result.
 
 Proceed in this order:
 
-1. preserve all coherent sealed layers;
-2. preserve the completed descent-container adaptation and native aggregate proof;
-3. preserve the reviewed and sealed split base;
-4. create ordinary sibling Graphite children from the reviewed tip: one for A.2
-   and one for the independent closeout continuation.
+1. repair the two bounded deterministic proof gaps named by P21: schema-valid
+   public adoption fixtures and sequential same-content request/workspace/
+   artifact/manifest/deployment freshness with balanced-resource preservation;
+2. continue source-independent A.3 static coverage while A.2 remains separate.
 
-Keep those siblings parallel while independent. If a real dependency later
-appears, move the continuation's first unique branch above the completed A.2 tip
-with native Graphite. Do not replay the repository, reconstruct a replacement
-stack, or invent a return/integration protocol.
+Keep the existing siblings parallel while independent. Move a continuation
+branch with native Graphite only when code proves a dependency. Do not replay
+the repository, reconstruct a replacement stack, or invent a return/integration
+protocol.
 
 ## Prepared Findings
 
@@ -359,19 +358,21 @@ refuses lifecycle mutation by construction. The lifecycle exits only an active
 game when necessary, reconciles saved setup and the generated map, starts once,
 and retains request correlation without restarting Civilization VII.
 
-Package and Studio behavior/static reviews are sealed. Close the remaining
-product evidence with one rendered Swooper Earthlike run and unchanged Civ7
-application PID.
+Package and Studio lifecycle behavior is sealed, with the rendered Swooper
+Earthlike saved-config run retained as P20 support and an unchanged Civ7
+application PID. P21's three final rows still own product closure.
 
 ### C. Certification, Matrices, Archive, And Merge
 
 C is the umbrella across Stages 5 through 8, not a standalone matrix packet.
 First certify every accepted branch and close P01-P20 against the current
-contracts while making P21 `runtime-ready`. Then run the complete
-preliminary P21 matrix, archive and reconcile records without changing the
-runtime tree, rerun the complete matrix on the exact submission candidate, and
-submit and merge bottom to top. Any semantic surprise returns to Stage 2; C
-never authorizes product design during Graphite normalization or archive.
+contracts while making P21 `authority-ready`. After A.2 and A.3 reconverge,
+integrated gates promote P21 to `runtime-ready`; then run its three-row matrix once
+on the frozen runtime-relevant candidate, reconcile active records without
+changing that tree, and submit and merge bottom to top. Any later
+runtime-relevant change invalidates all three rows so the accepted matrix remains
+bound to one exact tree. Record-only changes do not replay Civ7.
+Any semantic surprise returns to its owning product slice.
 
 ## Product Loop
 
@@ -390,8 +391,9 @@ never authorizes product design during Graphite normalization or archive.
 5. Close the first success row with Swooper Earthlike,
    `ToT_BasicModsEnabled.Civ7Cfg`, Huge, 10 players, balanced resources, and
    seed `1538316415`.
-6. Run Latest Juicy and Swooper Desert Mountains plus the declared freshness,
-   recovery, cancellation, conflict, validation, and redaction rows.
+6. Run Latest Juicy and Swooper Desert Mountains. Run freshness, recovery,
+   cancellation, conflict, validation, and redaction through their deterministic
+   behavior-test owners rather than as extra live mutations.
 7. Reconcile OpenSpec/task/evidence records, run full static gates, submit and
    merge the accepted Graphite stack, then return the parked follow-up work to
    Habitat.
@@ -400,7 +402,7 @@ never authorizes product design during Graphite normalization or archive.
 
 - Studio carries one complete admitted JSON config envelope without browser or
   server migration, deep merge, scrubbing, or property-level rescue.
-- One rendered request owns one source, manifest, generated mod, deployment,
+- One rendered request owns one canonical config, manifest, generated mod, deployment,
   setup reconciliation, and launched game.
 - Ordinary Run in Game invokes the package-owned control-oRPC lifecycle once in
   process. That lifecycle reconciles setup and starts one game without restarting

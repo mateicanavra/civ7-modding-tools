@@ -12,21 +12,18 @@ const runOp = (status: RunInGameOperationStatus["status"]): RunInGameOperationSt
   const base = {
     requestId: `run-${status}`,
     recoveryActions: [] as RunInGameOperationStatus["recoveryActions"],
-    createdAt: "2026-06-13T00:00:00.000Z",
-    updatedAt: "2026-06-13T00:00:01.000Z",
   };
   switch (status) {
     case "running":
       return { ...base, status, phase: "observing-runtime" };
     case "completed":
-      return { ...base, status, phase: "completed", terminalAt: base.updatedAt };
+      return { ...base, status, phase: "completed" };
     case "failed":
       return {
         ...base,
         status,
         phase: "failed",
         safeFailureCategory: "internal-defect",
-        terminalAt: base.updatedAt,
       };
     case "cancelled":
       return {
@@ -34,7 +31,6 @@ const runOp = (status: RunInGameOperationStatus["status"]): RunInGameOperationSt
         status,
         phase: "cancelled",
         safeFailureCategory: "operation-cancelled",
-        terminalAt: base.updatedAt,
       };
   }
 };

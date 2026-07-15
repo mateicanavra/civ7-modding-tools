@@ -187,7 +187,7 @@ claim that every historical task is still valid.
    introduction manifests, and then exposed a Grit execution capability defect.
 9. **Remaining closeout.** Finish A.2 and queued A-series units on ordinary
    sibling Graphite tracks, move setup/start ownership to control oRPC, certify
-   coherent existing layers, run preliminary and final rendered/Civ7 matrices,
+   coherent existing layers, run one final rendered/Civ7 matrix,
    archive, merge/drain, and return to Habitat.
 
 ```mermaid
@@ -200,9 +200,9 @@ flowchart LR
   F --> G["B control-oRPC + P19/P20: Stage 2 lock"]
   G --> H["Native Graphite normalization only if needed"]
   H --> J["Stage 5 branch certification"]
-  J --> K["Stage 6 preliminary P21 matrix"]
-  K --> L["Stage 7 archive"]
-  L --> M["Stage 8 final matrix + merge"]
+  J --> K["Stage 6 integrated runtime readiness"]
+  K --> L["Stage 7 completed-record archive"]
+  L --> M["Stage 8 final P21 matrix + merge"]
   M --> N["Stage 9 Habitat handoff"]
 ```
 
@@ -257,10 +257,10 @@ exact Habitat topology as the future realization.
 | A.4 preset ontology removal | Planned | Delete the second full-config concept and its state/lifecycle/UI/persistence paths. |
 | A.5 browser payload/worker readiness | Proposed; cohesion unproven | Lazy selected config loading and worker warmup may need separate units. |
 | B control-oRPC ownership | Planned | Daemon-owned typed setup/start/soft-restart capability; no caller-local direct-control choreography. |
-| C rendered acceptance | Planned umbrella | Expands across Stages 5-8: branch certification, preliminary matrix, archive, final exact-tree matrix, and merge. |
+| C rendered acceptance | Planned umbrella | Expands across Stages 5-8: branch certification, integrated deterministic readiness, one final exact-tree matrix, archive, and merge. |
 | Workstream Stage 1 control/corpus | Closed for the split boundary | Current control records agree; the absent historical `TRANSITION.md` filename is not a reason to invent another artifact. |
 | Workstream Stage 2 semantic lock | Active product closeout | The admitted scope includes A/A.1/A.1a/lifecycle and the ratcheted Habitat prerequisites; the split base opens the two remaining semantic tracks. |
-| Workstream Stages 3-9 | Not started | Targeted Graphite normalization only if concrete inspection requires it, then branch certification, two matrix passes, archive, submit/merge, and Habitat handoff. |
+| Workstream Stages 3-9 | Not started | Targeted Graphite normalization only if concrete inspection requires it, then branch certification, integrated readiness, one final matrix, archive, submit/merge, and Habitat handoff. |
 
 Historical `checked` means task state, not current product acceptance. The config
 and runtime changes after P01-P18 invalidate any evidence whose observed tree or
@@ -291,7 +291,7 @@ receive an explicit final disposition rather than disappear during closeout.
 
 | Packet surface | Required reconciliation |
 | --- | --- |
-| P05 | Resolve the `EditorLaunchSource` decision against the final union. |
+| P05 | A.4 retired the launch-source union; reopen only on concrete contract invalidation. |
 | P06 | Repair task/evidence contradiction; neither checkbox nor prose wins silently. |
 | P08 | Reconcile the stable-row amendment and its downstream consumers. |
 | P10 | Re-evaluate retained-log whitespace and any parser/evidence consequence. |
@@ -299,13 +299,13 @@ receive an explicit final disposition rather than disappear during closeout.
 | P16-P18 | Replace evidence invalidated by later overlapping changes. |
 | P08/P18/P19/P20/P21 | Settle one stable-row representation across all consumers. |
 | P19/P20 | Settle direct-control composition after Packet B owns setup/start. |
-| P21 | Execute and record the complete required row set; no representative subset closes it. |
+| P21 | Execute the three accepted rendered success rows on the frozen runtime tree. |
 
 The fixed success tuple is saved setup `ToT_BasicModsEnabled.Civ7Cfg`, Huge, 10
-players, balanced resources, seed `1538316415`. Its named config variants are Swooper
-Earthlike, Latest Juicy, and Swooper Desert Mountains. P21 also requires its
-declared editor, failure, recovery, and redaction families. These are acceptance
-inputs, not suggestions to encode current values as generic test mirrors.
+players, balanced resources, seed `1538316415`. Its named config variants are
+Swooper Earthlike, Latest Juicy, and Swooper Desert Mountains. Controlled
+failure, recovery, freshness, and redaction remain deterministic behavior gates;
+they are not extra live Civ7 mutation rows.
 
 ## Initial Takeover Boundary (Historical)
 
@@ -452,13 +452,14 @@ The initiative proceeds by dependency, not by numeric label alone.
 5. **Stage 5 branch certification.** Re-review and gate every accepted layer, close
    P01-P20 against current contracts, and make P21 genuinely ready. This is the
    first bounded portion of umbrella C.
-6. **Stage 6 preliminary P21 matrix.** Run the complete rendered/endpoint/Civ7
-   matrix on the certified candidate. Any semantic surprise returns to Stage 2;
-   an implementation defect returns to its owning slice and reopens reviews.
-7. **Stages 7-8 archive, final matrix, and merge.** Archive/reconcile the active
-   packet corpus through its owners, then run the final full matrix on the exact
+6. **Stage 6 integrated readiness.** Reconverge A.2/A.3, run deterministic
+   product gates, and make P21 runtime-ready. P19/P20 are the preliminary live
+   support; do not spend another Civ7 matrix here.
+7. **Stages 7-8 archive, final matrix, and merge.** Reconcile completed records,
+   then run the three accepted P21 rows once on the frozen runtime-relevant
    submission candidate and merge bottom-to-top with post-merge tree checks.
-   C closes only here.
+   Any runtime-relevant change invalidates all three rows so the final evidence
+   remains bound to one exact tree. Record-only changes do not replay Civ7.
 8. **Stage 9 handoff.** Drain worktrees/processes, write the zero-context
     continuation, and return to the parked Habitat authority initiative.
 

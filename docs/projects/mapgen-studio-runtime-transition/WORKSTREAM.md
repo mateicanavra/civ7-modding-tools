@@ -506,7 +506,7 @@ or semantic meaning and Graphite location, into one compound value.
 | Finding disposition | `accepted`, `rejected`, `invalidated`, `waived`, `deferred` |
 | Repair state | `not-required`, `open`, `repaired`, `rerun-pending`, `closed` |
 | Verification state | `not-run`, `running`, `failed`, `passed`, `not-applicable`, `stale`, `invalidated`, `environment-unavailable` |
-| Lifecycle state | `task-checked`, `branch-verified`, `integration-verified`, `runtime-ready`, `OpenSpec-archived`, `submitted`, `merged`, `workstream-closed` |
+| Lifecycle state | `task-checked`, `branch-verified`, `authority-ready`, `integration-verified`, `runtime-ready`, `OpenSpec-archived`, `submitted`, `merged`, `workstream-closed` |
 
 `integration tree` is the semantically complete Stage 2 product tree.
 `replacement-listed` identifies current topology explicitly slated for later
@@ -514,8 +514,11 @@ decomposition or replacement; it is not a provisional decision. Historical
 `sink branch` and `sink stack` values describe the superseded recut plan and do
 not authorize replacement branches. `Future target architecture` is reserved
 for the RAWR/Habitat destination. No lifecycle value implies the next.
-`runtime-ready` is P21's Stage 5 state: implementation, static gates, and
-pre-runtime reviews are closed while Stage 6 live rows remain open.
+`authority-ready` is P21's Stage 5 state: its executable acceptance contract and
+pre-integration reviews are closed while integrated gates and all live rows
+remain open. `runtime-ready` is its Stage 6 state: the reconverged product tree
+and deterministic gates are green while the three final Stage 8 rows remain
+open.
 
 ## Operating Model
 
@@ -643,7 +646,6 @@ The project home is `docs/projects/mapgen-studio-runtime-transition/`.
 | `verification-ledger.md` | Aggregate gate status, review findings/dispositions, evidence invalidation, merge state | Stage 0, maintained throughout |
 | `gate-register.jsonl` | Historical detailed gate attempts; not a required current control plane | planning history |
 | `cleanup-register.jsonl` | Historical resource accounting; not a required current control plane | planning history |
-| `evidence/runtime/<checkpoint>/<row-id>/<attempt-id>.md` | Immutable per-attempt runtime record; Stage 6 and Stage 8 never overwrite one another | Stage 6 and Stage 8 |
 | `waves/<wave-id>.md` | Historical wave evidence; new work uses bounded prompts and owning records | prior waves only |
 | `deferrals.md` | Parked future initiatives and any consciously retained transitional risk, each with trigger | Stage 1 onward |
 | `triage.md` | Unsequenced discoveries that require a later decision; an explicit empty state is allowed | Stage 0 onward |
@@ -861,9 +863,9 @@ flowchart LR
   D --> F["Dependency-earned Graphite movement, only if needed"]
   E --> F
   F --> G["S5: individually closed change units"]
-  G --> H["S6: preliminary P21 browser and Civ7 closure"]
-  H --> I["S7: reconciled and archived change records"]
-  I --> J["S8: final freeze, runtime matrix, merge, and drain"]
+  G --> H["S6: integrated product readiness"]
+  H --> I["S7: reconcile completed change records"]
+  I --> J["S8: final P21 matrix, merge, and drain"]
   J --> K["S9: closeout and Habitat continuation"]
 ```
 
@@ -1125,9 +1127,8 @@ baseline that hides live findings.
 
 Stage 1 must also close these known decisions before implementation continues:
 
-- whether `EditorLaunchSource` remains in the accepted public union; if it
-  remains, its live matrix row remains mandatory, and if it is removed the
-  contract/spec change is explicit and reviewed;
+- A.4 removed the launch-source union; P21 consumes one complete canonical
+  config and has no Editor live row;
 - whether the final merged local-environment handoff requires any Stage 2
   lifecycle composition change beyond its already accepted contract;
 - confirmation that the merged main-root Foundry sink is consumed as future
@@ -1248,7 +1249,7 @@ actual Graphite branch.
   runtime design;
 - aggregate tree comparison against the Stage 1 retain/delete/repair set.
 
-The expensive complete live matrix remains the exact-head gate in Stage 6.
+The expensive complete live matrix remains the exact-head gate in Stage 8.
 Stage 2 must nevertheless establish enough real runtime behavior to prevent a
 known broken candidate from entering certification.
 
@@ -1535,15 +1536,16 @@ risks require them. Required lanes are never replaced by DRA self-review.
 
 **Real-user-path remediation train**
 
-- Close P15 through P20 in index order and move P21 to `runtime-ready`.
+- Close P15 through P20 in index order and move P21 to `authority-ready`.
 - Treat `studio-run-generated-map-mod-visibility` as open until its renderer,
   deployment identity, Civ7 catalog refresh, setup-row readback, reviews, and
   declared gates close.
 - Treat `studio-run-saved-config-modset-reconciliation` as open until its current
   unchecked OpenSpec, Habitat, review, and ledger rows close.
-- Treat `studio-run-real-user-matrix-closure` as `runtime-ready` only when its
-  code, static gates, harness, and pre-runtime reviews are green; Stage 6 owns
-  its live rows, final review, commit, and packet closure.
+- Treat `studio-run-real-user-matrix-closure` as `authority-ready` only when its
+  executable matrix contract and pre-integration reviews are green. Stage 6
+  promotes it to `runtime-ready` after the reconverged static and behavior gates;
+  Stage 8 owns its three live rows, final review, commit, and packet closure.
 
 **Config single-source behavior**
 
@@ -1582,7 +1584,8 @@ risks require them. Required lanes are never replaced by DRA self-review.
 
 - every P01-P20 and tooling branch has all declared gates recorded and
   green at a valid tree;
-- P21 is `runtime-ready`, with every Stage 6 live row explicitly open;
+- P21 is `authority-ready`, with integrated gates and all three Stage 8 live rows
+  explicitly open;
 - every required reviewer lane is complete with no unrepaired accepted P1/P2;
 - downstream packet and authority records reflect legitimate deviations;
 - no branch is closed by a narrower test than its claim;
@@ -1591,48 +1594,33 @@ risks require them. Required lanes are never replaced by DRA self-review.
 **Narrowing result:** a reviewable stack becomes a set of independently closed
 behavioral and tooling units.
 
-## Stage 6: Preliminary Integrated Product And P21 Closure
+## Stage 6: Integrated Product Readiness
 
-**Purpose:** establish that the composed product works through the path the user
-actually uses before its OpenSpec changes are archived. Stage 8 repeats the
-complete matrix against the final post-archive runtime tree.
+**Purpose:** reconverge the accepted product tree, close deterministic gates,
+and make P21 runtime-ready before one final live matrix at Stage 8. P19 and P20
+already provide preliminary rendered/Civ7 support; Stage 6 does not duplicate
+those rows or manufacture live failures.
 
 **Entry gate**
 
-- every Stage 5 unit other than P21 is closed and P21 is `runtime-ready`;
+- every Stage 5 unit other than P21 is closed and P21 is `authority-ready`;
 - the exact-head candidate tree is clean and built from the intended worktree;
 - no open P1/P2 review finding remains.
 
-### Fresh Environment Preflight
+### Native Readiness Preflight
 
-1. Record the exact clean source tree, lockfile digest, generated-artifact
-   digests, and runtime-relevant path set.
-2. Shut down only the Studio tmux sessions, listeners, and restart watchers
-   explicitly owned by this verification checkpoint. Record ownership before
-   teardown. Leave unrelated worktree-owned/private sessions untouched; if they
-   occupy a default port, use an explicitly recorded replacement rather than a
-   listener-wide kill.
-3. Reinstall dependencies with the repository's frozen-lockfile Bun workflow
-   and verify the Effect source submodule. Immediately verify the lockfile and
-   source tree remain unchanged.
-4. Regenerate recipe/config/map artifacts through owner commands. After each
-   constructor, compare expected digests and confirm the source tree remains
-   clean.
-5. Run a clean Studio build and confirm generated outputs match the recorded
-   constructor results.
-6. Start the daemon and Vite frontend from this worktree on the standard ports,
-   or record intentional replacement ports if occupied by an explicitly owned
-   process.
-7. Verify frontend reachability, daemon `/healthz`, and `studio.serverInfo`.
-   Record the exact-head repo root, `serverInstanceId`, `startedAt`, and expected
-   API version as the pre-operation daemon identity.
-8. Put Civ7 in the required shell/setup state. Apply the single center-screen
-   intro click on a fresh restart when needed rather than misclassifying the
-   intro screen as tuner or setup failure.
-
-Any unexpected install, generator, or build delta is an implementation input,
-not live-test setup. Return it to Stage 2, then rerun affected Stages 3 through
-5 before re-entering Stage 6.
+1. Confirm the intended Graphite siblings have reconverged and the
+   runtime-relevant source tree is clean.
+2. Run output-materializing proof through one Nx graph so Nx owns ordering,
+   caching, deduplication, and parallelism.
+3. Run Habitat boundaries/policy, OpenSpec, generated-currentness, and
+   clean-diff gates through their normal owners.
+4. Treat any unexpected build or generated delta as product input and repair it
+   at its owner. Do not create a second worktree, reinstall dependencies, or
+   start another scheduler merely to prove the same tree.
+5. Confirm the existing Studio continuous target and operator-owned Civ7
+   environment are available for the later final matrix; do not mutate them in
+   Stage 6.
 
 ### Static And Behavior Gate Set
 
@@ -1652,21 +1640,21 @@ At minimum, run and record:
 Use Nx parallel execution for independent graph tasks. Do not serialize checks
 with ad hoc scripts when Nx already owns their dependency graph.
 
-### Required Live Matrix
+### Accepted Final Live Matrix
 
-Live mutation rows run serially because Studio deployment and Civ7 setup have
-one mutation owner.
+Stage 8 executes the accepted live rows serially because Studio deployment and
+Civ7 setup have one mutation owner.
 
-Until Stage 1 amends and validates P21 and `target-vocabulary.md`, the rows and
-acceptance fields below are the required amendment payload, not current
-executable product authority. After that amendment, exact accepted anchors in
-P21 and the target vocabulary own row behavior; this section owns ordering,
-checkpoint repetition, invalidation, and aggregate closure only.
+`@civ7/studio-contract` owns public operation states,
+`@civ7/studio-run-workspace` owns the parsed manifest and derived
+`RunCorrelation` contract, and
+`target-vocabulary.md` defines the accepted row shapes and evidence class. P21
+owns execution and retained results. This section owns final-tree ordering,
+invalidation, and aggregate closure only.
 
-All primary realistic rows use the rendered Studio UI, saved setup config
+All three rows use the rendered Studio UI, saved setup config
 `ToT_BasicModsEnabled.Civ7Cfg`, basic mods enabled, `MAPSIZE_HUGE`, 10 players,
-balanced resources, and seed `1538316415` unless the row explicitly records the
-different accepted input before admission.
+balanced resources, and seed `1538316415`.
 
 Primary success rows:
 
@@ -1674,66 +1662,47 @@ Primary success rows:
 2. Latest Juicy.
 3. Swooper Desert Mountains.
 
-The integrated matrix also retains every non-overlapping row still required by
-`target-vocabulary.md`:
-
-- repeat Latest Juicy with fresh request/workspace/artifact/deployment identity;
-- distinct-input Latest Juicy;
-- editor launch while `EditorLaunchSource` remains in the accepted contract;
-- validation failure;
-- concurrent ownership conflict;
-- explicit cancellation and lease release;
-- missed terminal event or browser reload adoption;
-- generated-row-missing failure;
-- stale saved-config/generated-mod mismatch;
-- `mapConfigs.saveDeploy`, `mapConfigs.status`, `civ7.live.status`, and
-  `civ7.live.snapshot` through the public `/rpc` surface.
-
-If the two packet trains disagree about a row, amend the controlling packet and
-target vocabulary through an accepted authority decision before running the
-matrix. Do not silently choose the smaller set.
+Validation, ownership conflict, cancellation, terminal adoption, row-missing
+and saved-config mismatch, repeat freshness, public-route projection, and
+redaction are required deterministic behavior gates. They are not additional
+live Civ7 mutation rows. `mapConfigs.saveDeploy` retains its own operation
+authority; P21 consumes the Run in Game operation's resulting evidence.
 
 ### Per-Success-Row Acceptance
 
 Each success row records one chain:
 
-- exact source id or editor fixture, config/setup selections, seed, map size,
-  player count, resources, rendered-button provenance, and admission timestamp;
+- exact canonical config and saved setup selections, seed, map size, player
+  count, rendered-button provenance, and admission timestamp;
 - admitted request id and public operation phases;
 - matching `runInGame.status`, `studio.operations.current`,
   `studio.events.watch`, and explicit `runInGame.diagnostics` lookup;
-- applicable `mapConfigs.saveDeploy`, `mapConfigs.status`,
-  `civ7.live.status`, and `civ7.live.snapshot` calls through the running public
-  `/rpc` surface;
-- generation manifest and config/source digests;
+- generation manifest and canonical-config digests;
 - request-local generated mod and run artifact id;
 - copied deployment snapshot and digest;
-- generated map setup row visible after saved-config/mod-set reconciliation;
-- seed, map size, player count, resources, and target mods read back before
-  Begin;
+- stable `maps/studio-run.js` setup row visible after saved-config/mod-set
+  reconciliation;
+- seed, map size, player count, and target mods read back before Begin;
+- balanced resources bound through the admitted launch envelope and generation
+  manifest rather than claimed as Civ7 setup readback;
 - no later setup reload invalidating the checked session;
-- pre/post Civ7 process identity plus a direct-control soft-restart/setup/start
-  receipt showing the application process was not replaced;
+- unchanged pre/post Civ7 application process identity;
 - fresh request-specific scripting marker and mapgen completion marker;
-- live `/rpc` status and non-empty snapshot with expected dimensions;
-- request-specific in-game marker matching request, artifact, deployment,
-  config, seed, map size, mod id, snapshot identifiers, and every
-  `RunCorrelation` field: `requestId`, `runArtifactId`,
-  `launchSourceDigest`, `launchEnvelopeDigest`, and
-  `generationManifestDigest`;
+- bounded loaded-game readback with expected dimensions and turn;
+- request-specific in-game marker matching every `RunCorrelation` field and the
+  expected loaded dimensions;
+- separately joined operation, setup, and deployment evidence matching the
+  artifact, deployment digest, mod id, canonical config, seed, and map size;
 - recipe-owned nondegenerate/playability validation so an all-water or otherwise
   unusable map cannot pass merely because a snapshot exists;
 - terminal public `completed` status and private attribution/diagnostics record;
-- post-terminal `studio.serverInfo` with the same repo root,
-  `serverInstanceId`, and `startedAt` recorded before admission, demonstrating
+- post-terminal `/healthz` with the same repo root, `serverInstanceId`, and
+  `startedAt` recorded before admission, demonstrating
   that generation/deployment writes did not replace the operation owner;
 - redaction scan showing no private data in public status/current/event output.
 
-Each attempt is immutable under
-`evidence/runtime/preliminary/<row-id>/<attempt-id>.md`, is linked by a
-checkpoint-specific matrix-register row, and appends its gate attempt to
-`gate-register.jsonl`. Failed attempts remain queryable and never overwrite the
-accepted attempt.
+Each row records one concise evidence entry plus links to its existing private
+operation and diagnostics artifacts. Do not build a second attempt database.
 
 No endpoint-only request, handler call, fake direct-control test, pre-Begin row,
 scripting log alone, screenshot, or shape-only live snapshot substitutes for the
@@ -1753,20 +1722,13 @@ full rendered-button-to-in-game chain.
 **Exit gate**
 
 - all static and behavior gates are green;
-- every required live row is green at the exact-head candidate tree and recorded
-  with its exact inputs and identities in the preliminary runtime evidence
-  checkpoint;
 - all reviewers have dispositioned findings and no accepted P1/P2 remains;
-- P21's live tasks, verification ledger, final review, and branch commit are
-  closed at the exact-head candidate tree;
-- failed attempts are retained as diagnostic history but are not counted as
-  successful rows;
-- the exact-head candidate tree and runtime environment fingerprints are
-  recorded.
+- P21 authority is `runtime-ready` with exactly three live rows explicitly open;
+- P19/P20 preliminary support remains valid for the integrated runtime model;
+- the intended runtime-relevant candidate tree is recorded for final freeze.
 
-**Narrowing result:** individually closed units become a P21-closed preliminary
-behavioral baseline that is eligible for archive simulation replay and final
-freeze.
+**Narrowing result:** independently closed units become one integrated,
+runtime-ready candidate without spending another set of Civ7 mutations.
 
 ## Stage 7: Record Reconciliation And OpenSpec Archival
 
@@ -1776,7 +1738,8 @@ and durable authority.
 **Entry gate**
 
 - Stage 6 integrated baseline is green;
-- all packet tasks and ledgers reflect current evidence.
+- completed packet tasks and ledgers reflect current evidence;
+- P21 remains active and runtime-ready with its three final live rows open.
 
 **Execution**
 
@@ -1791,9 +1754,8 @@ and durable authority.
   Topology-mixed deltas may not become canonical merely because the change is
   being archived. Any skip-promotion mode must be supported by the repo-local
   OpenSpec command and reviewed against change-management authority.
-- Archive the 14 original changes in packet order with the repo-local OpenSpec
-  archive command.
-- Archive the 7 remediation changes in packet order after their dependencies.
+- Archive completed changes in dependency order with the repo-local OpenSpec
+  command. Leave P21 active until its final live matrix closes.
 - Validate promoted specs after each archive operation and compare them with the
   Stage 3 simulation. Any semantic conflict or unexplained diff stops archival
   and follows the global backflow: Stage 1 first when authority changes, then a
@@ -1836,8 +1798,8 @@ and promoted-spec conflict resolution are sequential in packet order.
   operator docs agree and retain one routing path;
 - the aggregate ledger has no stale or contradictory status.
 
-**Narrowing result:** a preliminary accepted baseline becomes durable,
-non-contradictory change history ready for final runtime-tree freeze.
+**Narrowing result:** completed change history is reconciled while P21 remains
+the single active owner of the final runtime gate.
 
 ## Stage 8: Final Freeze, Runtime Verification, Submit, Merge, And Drain
 
@@ -1857,20 +1819,20 @@ losing reviewability or evidence validity.
 
 1. Synchronize refreshed trunk state without global restacking, then restack
    only affected descendants where required.
-2. Repeat the Stage 6 fresh-environment preflight and re-run branch/static gates
+2. Repeat the Stage 6 native readiness preflight and re-run branch/static gates
    affected by archive, promotion, or restack.
 3. Freeze and record the runtime-relevant tree, lockfile, generated artifact,
    OpenSpec, and environment fingerprints.
-4. Re-run the complete Stage 6 browser/endpoint/setup/in-game matrix. This is
-   the final product gate; no preliminary row substitutes for it. Append one
-   immutable record per attempt under
-   `evidence/runtime/final-freeze/<row-id>/<attempt-id>.md` and link it from the
-   matrix and gate registers.
+4. Run the three accepted P21 rendered/Civ7 rows once. This is the final product
+   gate; P19/P20 preliminary support does not substitute for it. Record each row
+   concisely in P21 and link its existing operation and diagnostics artifacts.
 5. Run fresh final integration reviewers and disposition every finding.
+6. Close and archive P21 without changing runtime-relevant source.
 
-Any runtime-relevant tree or dependency change after this freeze reopens the
-complete final matrix. A docs-only change still reruns affected static/link/
-OpenSpec checks and must preserve the recorded runtime-relevant tree hash.
+Any runtime-relevant change after this freeze reopens all three rows so the
+accepted matrix remains bound to one exact tree. A docs-only change still reruns
+affected static/link/OpenSpec checks and must preserve the recorded
+runtime-relevant tree hash.
 Any implementation, contract, authority, or code-design finding returns to its
 owning semantic branch and reruns affected checks, reviews, and runtime evidence.
 Only evidence wording, links, and formatting that cannot affect runtime or
@@ -2088,8 +2050,8 @@ Stop and reframe the affected stage if any of these becomes true:
       passes its declared health and teardown behavior.
 - [ ] Static, behavior, endpoint, browser, setup, and in-game gates are green at
       valid tree/environment bindings.
-- [ ] The complete matrix was rerun after archive/promotion and any required targeted restack at
-      the Stage 8 frozen runtime-relevant tree.
+- [ ] The three accepted P21 rows passed once at the Stage 8 frozen
+      runtime-relevant tree.
 - [ ] Required reviewer findings are fully dispositioned.
 - [ ] Every declared current gate has valid evidence.
 - [ ] Accepted Graphite branches are submitted, merged bottom to top, and drained.

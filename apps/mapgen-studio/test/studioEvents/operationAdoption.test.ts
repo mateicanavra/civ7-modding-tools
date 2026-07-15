@@ -1,14 +1,16 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import type {
-  MapConfigSaveDeployStatus,
-  RunInGameOperationStatus,
-  StudioLiveGameEvent,
-  StudioOperationEvent,
-  StudioOperationsCurrent,
+import {
+  type MapConfigSaveDeployStatus,
+  operationStatusTypeSchema,
+  type RunInGameOperationStatus,
+  type StudioLiveGameEvent,
+  type StudioOperationEvent,
+  type StudioOperationsCurrent,
 } from "@civ7/studio-contract";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
+import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
@@ -90,7 +92,6 @@ describe("Studio event operation adoption", () => {
       runInGame: runningRunStatus({
         requestId: "run-missed-terminal",
         phase: "starting-game",
-        updatedAt: "2026-06-13T00:00:02.000Z",
       }),
     });
 
@@ -104,8 +105,6 @@ describe("Studio event operation adoption", () => {
               requestId: "run-missed-terminal",
               diagnosticsId: "run-diagnostics-missed-terminal",
               safeFailureCategory: "runtime-control",
-              updatedAt: "2026-06-13T00:00:04.000Z",
-              terminalAt: "2026-06-13T00:00:04.000Z",
             }),
           ],
         },
@@ -183,7 +182,6 @@ describe("Studio event operation adoption", () => {
       runInGame: runningRunStatus({
         requestId: "run-reconnect",
         phase: "observing-runtime",
-        updatedAt: "2026-06-13T00:00:02.000Z",
       }),
     });
     let adopted = 0;
@@ -197,8 +195,6 @@ describe("Studio event operation adoption", () => {
             recent: [
               completedRunStatus({
                 requestId: "run-reconnect",
-                updatedAt: "2026-06-13T00:00:04.000Z",
-                terminalAt: "2026-06-13T00:00:04.000Z",
               }),
             ],
           },
@@ -222,8 +218,6 @@ describe("Studio event operation adoption", () => {
             recent: [
               completedRunStatus({
                 requestId: "run-reconnect",
-                updatedAt: "2026-06-13T00:00:04.000Z",
-                terminalAt: "2026-06-13T00:00:04.000Z",
               }),
             ],
           },
@@ -252,7 +246,6 @@ describe("Studio event operation adoption", () => {
       runInGame: runningRunStatus({
         requestId: "stale-run",
         phase: "generating-artifacts",
-        updatedAt: "2026-06-13T00:00:00.000Z",
       }),
       saveDeploy: {
         ok: true,
@@ -269,11 +262,10 @@ describe("Studio event operation adoption", () => {
     expect(state.saveDeploy).toBeNull();
   });
 
-  test("treats an empty registry snapshot as current truth regardless of local timestamps", () => {
+  test("treats an empty registry snapshot as current truth over displayed local state", () => {
     const state = adoptionState({
       runInGame: failedRunStatus({
         requestId: "run-local-failed",
-        updatedAt: "2026-06-13T00:00:03.000Z",
       }),
     });
 
@@ -284,11 +276,10 @@ describe("Studio event operation adoption", () => {
     expect(state.runInGame).toBeNull();
   });
 
-  test("adopts daemon recent terminal Run in Game status over newer local terminal state", () => {
+  test("adopts daemon recent terminal Run in Game status over displayed local terminal state", () => {
     const state = adoptionState({
       runInGame: failedRunStatus({
         requestId: "run-local-failed",
-        updatedAt: "2026-06-13T00:00:05.000Z",
       }),
     });
 
@@ -297,21 +288,20 @@ describe("Studio event operation adoption", () => {
         observedAt: "2026-06-13T00:00:06.000Z",
         runInGame: {
           active: null,
-          recent: [completedRunStatus({ requestId: "older-terminal" })],
+          recent: [completedRunStatus({ requestId: "daemon-terminal" })],
         },
       }),
       state.targets,
       { currentRunInGameOperation: state.runInGame }
     );
 
-    expect(state.runInGame?.requestId).toBe("older-terminal");
+    expect(state.runInGame?.requestId).toBe("daemon-terminal");
   });
 
-  test("adopts newer active current operations over local terminal state", () => {
+  test("adopts daemon active current operation over displayed local terminal state", () => {
     const state = adoptionState({
       runInGame: failedRunStatus({
         requestId: "run-local-failed",
-        updatedAt: "2026-06-13T00:00:05.000Z",
       }),
     });
 
@@ -320,10 +310,8 @@ describe("Studio event operation adoption", () => {
         observedAt: "2026-06-13T00:00:06.000Z",
         runInGame: {
           active: runningRunStatus({
-            requestId: "run-active-new",
+            requestId: "run-daemon-active",
             phase: "deploying",
-            createdAt: "2026-06-13T00:00:06.000Z",
-            updatedAt: "2026-06-13T00:00:07.000Z",
           }),
           recent: [],
         },
@@ -332,7 +320,7 @@ describe("Studio event operation adoption", () => {
       { currentRunInGameOperation: state.runInGame }
     );
 
-    expect(state.runInGame?.requestId).toBe("run-active-new");
+    expect(state.runInGame?.requestId).toBe("run-daemon-active");
   });
 
   test("shell boot adoption reads daemon current without status replay", async () => {
@@ -396,7 +384,6 @@ describe("Studio event operation adoption", () => {
 
     localOperation = failedRunStatus({
       requestId: "run-local-after-read-start",
-      updatedAt: "2026-06-13T00:00:03.000Z",
     });
     resolveCurrent?.(currentOperations());
     await read;
@@ -527,7 +514,6 @@ describe("Studio event operation adoption", () => {
       runInGame: runningRunStatus({
         requestId: "run-pushed-terminal",
         phase: "starting-game",
-        updatedAt: "2026-06-13T00:00:02.000Z",
       }),
     });
 
@@ -537,8 +523,6 @@ describe("Studio event operation adoption", () => {
         status: failedRunStatus({
           requestId: "run-pushed-terminal",
           diagnosticsId: "run-diagnostics-pushed-terminal",
-          updatedAt: "2026-06-13T00:00:03.000Z",
-          terminalAt: "2026-06-13T00:00:03.000Z",
         }),
       }),
       state.targets
@@ -727,43 +711,40 @@ type RunInGameFailedStatus = Extract<RunInGameOperationStatus, { status: "failed
 function runningRunStatus(
   overrides: Partial<RunInGameRunningStatus> & Pick<RunInGameRunningStatus, "requestId">
 ): RunInGameRunningStatus {
-  return {
+  return checkedRunStatus({
     status: "running",
     phase: "observing-runtime",
     recoveryActions: ["retry-status"],
-    createdAt: "2026-06-13T00:00:00.000Z",
-    updatedAt: "2026-06-13T00:00:01.000Z",
     ...overrides,
-  };
+  });
 }
 
 function completedRunStatus(
   overrides: Partial<RunInGameCompletedStatus> & Pick<RunInGameCompletedStatus, "requestId">
 ): RunInGameCompletedStatus {
-  return {
+  return checkedRunStatus({
     status: "completed",
     phase: "completed",
     recoveryActions: ["copy-diagnostics"],
-    createdAt: "2026-06-13T00:00:00.000Z",
-    updatedAt: "2026-06-13T00:00:01.000Z",
-    terminalAt: "2026-06-13T00:00:01.000Z",
     ...overrides,
-  };
+  });
 }
 
 function failedRunStatus(
   overrides: Partial<RunInGameFailedStatus> & Pick<RunInGameFailedStatus, "requestId">
 ): RunInGameFailedStatus {
-  return {
+  return checkedRunStatus({
     status: "failed",
     phase: "failed",
     safeFailureCategory: "runtime-control",
     recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
-    createdAt: "2026-06-13T00:00:02.000Z",
-    updatedAt: "2026-06-13T00:00:03.000Z",
-    terminalAt: "2026-06-13T00:00:03.000Z",
     ...overrides,
-  };
+  });
+}
+
+function checkedRunStatus<T extends RunInGameOperationStatus>(status: T): T {
+  expect(Value.Check(operationStatusTypeSchema, status)).toBe(true);
+  return status;
 }
 
 function liveGameEvent(state: StudioLiveGameEvent["state"]): StudioLiveGameEvent {
