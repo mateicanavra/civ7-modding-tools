@@ -5,12 +5,15 @@ import {
   Civ7DirectControlError,
   Civ7UnitMovePreviewProcedureDescriptor,
   Civ7UnitMovePreviewProcedureSchemaArtifacts,
+  type Civ7UnitMovePreviewResult,
   callCiv7UnitMovePreviewProcedure,
   getCiv7UnitMovePreview,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
   type UnitMovePreviewDependencies,
 } from "../src/index";
+
+import { schemaPropertyKeys } from "./support/procedure-schema";
 
 describe("Civ7 unit-move-preview procedure descriptor", () => {
   test("records the unit move-preview read atom and resolves its schemas", () => {
@@ -33,10 +36,10 @@ describe("Civ7 unit-move-preview procedure descriptor", () => {
       Civ7UnitMovePreviewProcedureDescriptor,
       Civ7UnitMovePreviewProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7UnitMovePreviewProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7UnitMovePreviewProcedureDescriptor.outputFields)
     );
     expect(Civ7UnitMovePreviewProcedureDescriptor.outputFields).toEqual(
@@ -188,7 +191,7 @@ describe("Civ7 unit-move-preview procedure descriptor", () => {
   });
 });
 
-function unitMovePreviewResult() {
+function unitMovePreviewResult(): Civ7UnitMovePreviewResult {
   const unitId = { owner: 0, id: 65536, type: 26 };
   return {
     host: "127.0.0.1",

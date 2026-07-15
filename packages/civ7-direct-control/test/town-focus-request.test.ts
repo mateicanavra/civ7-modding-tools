@@ -181,7 +181,7 @@ function validationResult(
   return {
     host: "127.0.0.1",
     port: 4318,
-    state: { id: "65535", name: "Tuner", role: "tuner" },
+    state: { id: "65535", name: "Tuner" },
     family: operationType === "CHANGE_GROWTH_MODE" ? "city-command" : "city-operation",
     operationType,
     enumValue: operationType,

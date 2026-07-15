@@ -379,7 +379,7 @@ describe("map and visibility reads", () => {
         }
       );
       const reveal = await revealCiv7MapForPlayer(
-        { playerId: 0, disposableSession: true },
+        { playerId: 0 },
         { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
       const resources = await getCiv7GameInfoRows(

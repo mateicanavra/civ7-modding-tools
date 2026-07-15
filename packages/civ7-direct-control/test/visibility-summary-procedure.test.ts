@@ -11,6 +11,8 @@ import {
   type VisibilityReadDependencies,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 visibility summary procedure descriptor", () => {
   test("records the visibility summary atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7VisibilitySummaryProcedureDescriptor);
@@ -33,10 +35,10 @@ describe("Civ7 visibility summary procedure descriptor", () => {
       Civ7VisibilitySummaryProcedureDescriptor,
       Civ7VisibilitySummaryProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7VisibilitySummaryProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7VisibilitySummaryProcedureDescriptor.outputFields)
     );
     expect(

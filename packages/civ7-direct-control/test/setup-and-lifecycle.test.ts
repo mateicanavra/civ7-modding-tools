@@ -1576,6 +1576,7 @@ function preparedSetupSnapshot(input: {
       canBeginGame: { ok: true, value: false },
     },
     setup: {
+      revision: { ok: true, value: 1 },
       parameters: [
         { id: "Map", exists: true, value: input.setupMapScript, possibleValues: [] },
         { id: "MapSize", exists: true, value: input.setupMapSize, possibleValues: [] },
@@ -1604,10 +1605,9 @@ function createReconcileConfiguration(input: {
 }) {
   let meta =
     input.editMeta === undefined ? undefined : JSON.stringify({ mods: [...input.editMeta.mods] });
+  const gameMetaMods = input.gameMeta?.mods;
   const gameMeta =
-    input.gameMeta === undefined
-      ? () => meta
-      : () => JSON.stringify({ mods: [...input.gameMeta.mods] });
+    gameMetaMods === undefined ? () => meta : () => JSON.stringify({ mods: [...gameMetaMods] });
   return {
     editGame: () => ({
       get enableModsMetaString() {

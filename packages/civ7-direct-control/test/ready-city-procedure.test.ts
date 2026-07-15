@@ -5,12 +5,15 @@ import {
   Civ7DirectControlError,
   Civ7ReadyCityViewProcedureDescriptor,
   Civ7ReadyCityViewProcedureSchemaArtifacts,
+  type Civ7ReadyCityViewResult,
   callCiv7ReadyCityViewProcedure,
   getCiv7ReadyCityView,
   type ReadyCityViewDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
+
+import { schemaPropertyKeys } from "./support/procedure-schema";
 
 describe("Civ7 ready-city procedure descriptor", () => {
   test("records the ready-city read atom and resolves its schemas", () => {
@@ -33,10 +36,10 @@ describe("Civ7 ready-city procedure descriptor", () => {
       Civ7ReadyCityViewProcedureDescriptor,
       Civ7ReadyCityViewProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7ReadyCityViewProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7ReadyCityViewProcedureDescriptor.outputFields)
     );
     expect(Civ7ReadyCityViewProcedureDescriptor.outputFields).toEqual(
@@ -161,7 +164,7 @@ describe("Civ7 ready-city procedure descriptor", () => {
   });
 });
 
-function readyCityViewResult() {
+function readyCityViewResult(): Civ7ReadyCityViewResult {
   const cityId = { owner: 0, id: 131073, type: 1 };
   return {
     host: "127.0.0.1",

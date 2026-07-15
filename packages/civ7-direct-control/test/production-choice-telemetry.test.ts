@@ -278,7 +278,6 @@ function productionChoiceResult(
       host: "127.0.0.1",
       port: 4318,
       state: { id: "65535", name: "App UI" },
-      command: "production choice test command",
       output: ["{}"],
     },
     after,

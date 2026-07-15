@@ -11,6 +11,8 @@ import {
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 unit-summary procedure descriptor", () => {
   test("records the read-only unit-summary atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7UnitSummaryProcedureDescriptor);
@@ -32,10 +34,10 @@ describe("Civ7 unit-summary procedure descriptor", () => {
       Civ7UnitSummaryProcedureDescriptor,
       Civ7UnitSummaryProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7UnitSummaryProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7UnitSummaryProcedureDescriptor.outputFields)
     );
     expect(

@@ -1,14 +1,10 @@
-import { Type } from "typebox";
+import { type Static, Type } from "typebox";
 
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { probeHelperSource } from "../../runtime/probe.js";
-import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { schemaPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
-import type {
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
-  Civ7TunerState,
-} from "../../session/types.js";
+import type { Civ7CommandResult, Civ7DirectControlOptions } from "../../session/types.js";
 import { boundedInteger, validatePlayerId } from "../../validation.js";
 import { Civ7MapLocationSchema } from "../map/types.js";
 
@@ -147,22 +143,15 @@ export const Civ7BattlefieldScanResultSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export type Civ7BattlefieldScanResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  playerId: number;
-  origins: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  radius: number;
-  hiddenInfoPolicy: string;
-  relationshipLabelPolicy: unknown;
-  units: unknown;
-  cities: unknown;
-  owners: unknown;
-  pointsOfInterest: unknown;
-  notes: ReadonlyArray<string>;
-}>;
+type Civ7BattlefieldScanWireResult = Static<typeof Civ7BattlefieldScanResultSchema>;
+
+export type Civ7BattlefieldScanResult = Readonly<
+  Omit<Civ7BattlefieldScanWireResult, "state" | "origins" | "notes"> & {
+    state: Readonly<Civ7BattlefieldScanWireResult["state"]>;
+    origins: ReadonlyArray<Readonly<Civ7BattlefieldScanWireResult["origins"][number]>>;
+    notes: ReadonlyArray<Civ7BattlefieldScanWireResult["notes"][number]>;
+  }
+>;
 
 export type BattlefieldScanDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;
@@ -517,5 +506,5 @@ const defaultBattlefieldScanDependencies: BattlefieldScanDependencies = {
   boundedInteger,
   executeAppUiCommand: executeCiv7AppUiCommand,
   parseBattlefieldScan: (result, label) =>
-    jsonPayloadFromCommandResult<Civ7BattlefieldScanResult>(result, label),
+    schemaPayloadFromCommandResult(result, label, Civ7BattlefieldScanResultSchema),
 };

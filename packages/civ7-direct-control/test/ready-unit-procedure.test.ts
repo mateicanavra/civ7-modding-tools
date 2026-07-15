@@ -5,12 +5,15 @@ import {
   Civ7DirectControlError,
   Civ7ReadyUnitViewProcedureDescriptor,
   Civ7ReadyUnitViewProcedureSchemaArtifacts,
+  type Civ7ReadyUnitViewResult,
   callCiv7ReadyUnitViewProcedure,
   getCiv7ReadyUnitView,
   type ReadyUnitViewDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
+
+import { schemaPropertyKeys } from "./support/procedure-schema";
 
 describe("Civ7 ready-unit procedure descriptor", () => {
   test("records the ready-unit read atom and resolves its schemas", () => {
@@ -33,10 +36,10 @@ describe("Civ7 ready-unit procedure descriptor", () => {
       Civ7ReadyUnitViewProcedureDescriptor,
       Civ7ReadyUnitViewProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7ReadyUnitViewProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7ReadyUnitViewProcedureDescriptor.outputFields)
     );
     expect(Civ7ReadyUnitViewProcedureDescriptor.outputFields).not.toContain("operationCandidates");
@@ -158,7 +161,7 @@ describe("Civ7 ready-unit procedure descriptor", () => {
   });
 });
 
-function readyUnitViewResult() {
+function readyUnitViewResult(): Civ7ReadyUnitViewResult {
   const unitId = { owner: 0, id: 458752, type: 26 };
   return {
     host: "127.0.0.1",

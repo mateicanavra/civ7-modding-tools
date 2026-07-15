@@ -11,6 +11,8 @@ import {
   type TraditionsViewDependencies,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 traditions-view procedure descriptor", () => {
   test("records the read-only traditions view atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7TraditionsViewProcedureDescriptor);
@@ -32,10 +34,10 @@ describe("Civ7 traditions-view procedure descriptor", () => {
       Civ7TraditionsViewProcedureDescriptor,
       Civ7TraditionsViewProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7TraditionsViewProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7TraditionsViewProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, { playerId: 0 })).toBe(true);

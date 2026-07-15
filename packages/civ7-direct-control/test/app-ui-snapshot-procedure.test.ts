@@ -11,6 +11,8 @@ import {
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 App UI snapshot procedure descriptor", () => {
   test("records the App UI snapshot runtime atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7AppUiSnapshotProcedureDescriptor);
@@ -32,8 +34,8 @@ describe("Civ7 App UI snapshot procedure descriptor", () => {
       Civ7AppUiSnapshotProcedureDescriptor,
       Civ7AppUiSnapshotProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual([]);
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual([]);
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7AppUiSnapshotProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, {})).toBe(true);

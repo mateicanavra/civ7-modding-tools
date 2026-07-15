@@ -5,6 +5,7 @@ import {
   CIV7_OPERATION_PROOF_TELEMETRY_RECORD_VERSION,
   CIV7_OPERATION_PROOF_TELEMETRY_SLOTS,
   type Civ7OperationProofTelemetryRecordInput,
+  type Civ7OperationTelemetryPostcondition,
   createCiv7OperationProofTelemetryRecord,
   projectCiv7OperationProofTelemetry,
   summarizeCiv7OperationProofTelemetry,
@@ -119,6 +120,9 @@ describe("Civ7 operation proof telemetry owner", () => {
       surface: "normal-summary",
       allowed: true,
     });
+    if (projection.consumer !== "normal-cli-player-agent") {
+      throw new Error("Expected the normal CLI telemetry projection");
+    }
     expect(projection.payload).toEqual({
       operationFamily: "unit-operation",
       actionId: "move-scout",
@@ -151,6 +155,12 @@ describe("Civ7 operation proof telemetry owner", () => {
       surface: "raw-telemetry-record",
       allowed: true,
     });
+    if (debugProjection.consumer !== "debug-internal-service") {
+      throw new Error("Expected the debug telemetry projection");
+    }
+    if (rawProjection.consumer !== "raw-operation-telemetry") {
+      throw new Error("Expected the raw telemetry projection");
+    }
     expect(debugProjection.payload).toBe(record);
     expect(rawProjection.payload).toBe(record);
     for (const slot of CIV7_OPERATION_PROOF_TELEMETRY_RAW_DEBUG_SLOTS) {
@@ -177,6 +187,12 @@ describe("Civ7 operation proof telemetry owner", () => {
       surface: "blocked-until-procedure-middleware",
       allowed: false,
     });
+    if (aiProjection.consumer !== "ai-ingestion-contract") {
+      throw new Error("Expected the blocked AI telemetry projection");
+    }
+    if (procedureProjection.consumer !== "procedure-core-middleware") {
+      throw new Error("Expected the blocked procedure telemetry projection");
+    }
     expect(aiProjection).not.toHaveProperty("payload");
     expect(procedureProjection).not.toHaveProperty("payload");
     expect(aiProjection.reason).toMatch(/accepted machine contract/);
@@ -184,16 +200,18 @@ describe("Civ7 operation proof telemetry owner", () => {
   });
 
   test("does not carry legacy verified booleans into the telemetry postcondition contract", () => {
+    const legacyPostcondition: Civ7OperationTelemetryPostcondition & Readonly<{ verified: true }> =
+      {
+        classification: "turn-unblocked",
+        reason: "The response and UI closeout left the turn unblocked.",
+        outcome: "cleared",
+        noRepeatAfterUnverified: false,
+        confidence: "confirmed",
+        verified: true,
+      };
     const record = createCiv7OperationProofTelemetryRecord(
       baseTelemetryInput({
-        postcondition: {
-          classification: "turn-unblocked",
-          reason: "The response and UI closeout left the turn unblocked.",
-          outcome: "cleared",
-          noRepeatAfterUnverified: false,
-          confidence: "confirmed",
-          verified: true,
-        } as any,
+        postcondition: legacyPostcondition,
       })
     );
 

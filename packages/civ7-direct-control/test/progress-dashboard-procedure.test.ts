@@ -11,6 +11,8 @@ import {
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 progress-dashboard procedure descriptor", () => {
   test("records the read-only progress dashboard atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(Civ7ProgressDashboardProcedureDescriptor);
@@ -32,10 +34,10 @@ describe("Civ7 progress-dashboard procedure descriptor", () => {
       Civ7ProgressDashboardProcedureDescriptor,
       Civ7ProgressDashboardProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7ProgressDashboardProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7ProgressDashboardProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, { playerId: 0 })).toBe(true);

@@ -322,28 +322,21 @@ describe("tactical read wrappers", () => {
         radius: 8,
       });
 
-      const view = result as unknown as {
-        units: Array<{ owner: number; relationshipProof: string; relationshipLabel: string }>;
-        cities: Array<{ owner: number; relationshipProof: string; relationshipLabel: string }>;
-        owners: Array<{ owner: number; relationshipProof: string; relationshipLabel: string }>;
-        pointsOfInterest: Array<{ kind: string; summary: string }>;
-        notes: string[];
-      };
-      expect(view.units.find((unit) => unit.owner === 0)).toMatchObject({
+      expect(result.units.find((unit) => unit.owner === 0)).toMatchObject({
         relationshipProof: "self",
         relationshipLabel: "friendly",
       });
       for (const row of [
-        ...view.units.filter((unit) => unit.owner !== 0),
-        ...view.cities.filter((city) => city.owner !== 0),
-        ...view.owners.filter((owner) => owner.owner !== 0),
+        ...result.units.filter((unit) => unit.owner !== 0),
+        ...result.cities.filter((city) => city.owner !== 0),
+        ...result.owners.filter((owner) => owner.owner !== 0),
       ]) {
         expect(row).toMatchObject({
           relationshipProof: "none",
           relationshipLabel: "relationship-unproven",
         });
       }
-      expect(view.pointsOfInterest).toEqual(
+      expect(result.pointsOfInterest).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             kind: "city-front",
@@ -353,8 +346,8 @@ describe("tactical read wrappers", () => {
       );
       expectNoUnsupportedRelationshipClaims([
         result.hiddenInfoPolicy,
-        ...view.notes,
-        ...view.pointsOfInterest.map((point) => `${point.kind}: ${point.summary}`),
+        ...result.notes,
+        ...result.pointsOfInterest.map((point) => `${point.kind}: ${point.summary}`),
       ]);
       expectReadOnlyAppUiRouting(server.received, "readBattlefieldScan", [
         '"origins":[{"x":17,"y":20}]',
@@ -395,35 +388,26 @@ describe("tactical read wrappers", () => {
         },
       });
 
-      const view = result as unknown as {
-        corridor: { routeHint: string; directGridDistance: number; sampleCount: number };
-        destinationPressure: {
-          unitCount: number;
-          cityCount: number;
-          apparentOtherStrength: number;
-          units: Array<{ owner: number; relationshipProof: string; relationshipLabel: string }>;
-          cities: Array<{ owner: number; relationshipProof: string; relationshipLabel: string }>;
-        };
-        pointsOfInterest: Array<{ kind: string; summary: string }>;
-        notes: string[];
-      };
-      expect(view.corridor).toMatchObject({
+      expect(result.corridor).toMatchObject({
         routeHint: "straight-line-grid-corridor",
         directGridDistance: 7,
         sampleCount: 8,
       });
-      expect(view.destinationPressure).toMatchObject({
+      expect(result.destinationPressure).toMatchObject({
         unitCount: 1,
         cityCount: 1,
         apparentOtherStrength: 20,
       });
-      for (const row of [...view.destinationPressure.units, ...view.destinationPressure.cities]) {
+      for (const row of [
+        ...result.destinationPressure.units,
+        ...result.destinationPressure.cities,
+      ]) {
         expect(row).toMatchObject({
           relationshipProof: "none",
           relationshipLabel: "relationship-unproven",
         });
       }
-      expect(view.pointsOfInterest).toEqual(
+      expect(result.pointsOfInterest).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             kind: "destination-city-pressure",
@@ -433,8 +417,8 @@ describe("tactical read wrappers", () => {
       );
       expectNoUnsupportedRelationshipClaims([
         result.hiddenInfoPolicy,
-        ...view.notes,
-        ...view.pointsOfInterest.map((point) => `${point.kind}: ${point.summary}`),
+        ...result.notes,
+        ...result.pointsOfInterest.map((point) => `${point.kind}: ${point.summary}`),
       ]);
       expectReadOnlyAppUiRouting(server.received, "readDestinationAnalysis", [
         '"origin":{"x":20,"y":14}',
@@ -449,9 +433,41 @@ describe("tactical read wrappers", () => {
       await server.close();
     }
   });
+
+  test("rejects malformed battlefield evidence at the default wire parser", async () => {
+    const server = await startTacticalReadTunerServer({ battlefield: { localPlayerId: 0 } });
+    try {
+      const { port } = server.address();
+      await expect(
+        getCiv7BattlefieldScan({}, { host: "127.0.0.1", port, timeoutMs: 1_000 })
+      ).rejects.toMatchObject({ code: "command-failed" });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("rejects malformed destination evidence at the default wire parser", async () => {
+    const server = await startTacticalReadTunerServer({ destination: { localPlayerId: 0 } });
+    try {
+      const { port } = server.address();
+      await expect(
+        getCiv7DestinationAnalysis(
+          { destination: { x: 13, y: 17 } },
+          { host: "127.0.0.1", port, timeoutMs: 1_000 }
+        )
+      ).rejects.toMatchObject({ code: "command-failed" });
+    } finally {
+      await server.close();
+    }
+  });
 });
 
-async function startTacticalReadTunerServer(): Promise<FakeTacticalReadTunerServer> {
+async function startTacticalReadTunerServer(
+  payloads: Partial<{
+    battlefield: unknown;
+    destination: unknown;
+  }> = {}
+): Promise<FakeTacticalReadTunerServer> {
   const received: string[] = [];
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
@@ -466,7 +482,9 @@ async function startTacticalReadTunerServer(): Promise<FakeTacticalReadTunerServ
           socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
         } else if (frame.message.includes("readDestinationAnalysis")) {
           socket.write(
-            encodeResponse(frame.listenerId, [JSON.stringify(destinationAnalysisReadView())])
+            encodeResponse(frame.listenerId, [
+              JSON.stringify(payloads.destination ?? destinationAnalysisReadView()),
+            ])
           );
         } else if (frame.message.includes("readTargetCandidates")) {
           socket.write(
@@ -474,7 +492,9 @@ async function startTacticalReadTunerServer(): Promise<FakeTacticalReadTunerServ
           );
         } else if (frame.message.includes("readBattlefieldScan")) {
           socket.write(
-            encodeResponse(frame.listenerId, [JSON.stringify(battlefieldScanReadView())])
+            encodeResponse(frame.listenerId, [
+              JSON.stringify(payloads.battlefield ?? battlefieldScanReadView()),
+            ])
           );
         } else {
           socket.write(encodeResponse(frame.listenerId, ["2"]));

@@ -4,12 +4,16 @@ import { describe, expect, test } from "vitest";
 import {
   Civ7PlayableStatusProcedureDescriptor,
   Civ7PlayableStatusProcedureSchemaArtifacts,
+  type Civ7PlayableStatusResult,
+  type Civ7TunerHealthResult,
   callCiv7PlayableStatusProcedure,
   getCiv7PlayableStatus,
   type PlayableStatusDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
+
+import { schemaPropertyKeys } from "./support/procedure-schema";
 
 describe("Civ7 playable-status procedure descriptor", () => {
   test("records the runtime read atom and resolves its schemas", () => {
@@ -32,8 +36,8 @@ describe("Civ7 playable-status procedure descriptor", () => {
       Civ7PlayableStatusProcedureDescriptor,
       Civ7PlayableStatusProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual([]);
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual([]);
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7PlayableStatusProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, {})).toBe(true);
@@ -177,7 +181,8 @@ describe("Civ7 playable-status procedure descriptor", () => {
   });
 });
 
-function playableStatusResult() {
+function playableStatusResult(): Civ7PlayableStatusResult &
+  Readonly<{ tuner: Civ7TunerHealthResult }> {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -272,7 +277,7 @@ function playableStatusResult() {
   };
 }
 
-function unavailablePlayableStatusResult() {
+function unavailablePlayableStatusResult(): Civ7PlayableStatusResult {
   const failed = (error: string) => ({ ok: false as const, error });
   const { tuner: _tuner, ...base } = playableStatusResult();
   return {

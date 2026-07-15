@@ -11,7 +11,6 @@ import {
 import {
   type Civ7CommandResult,
   type Civ7DirectControlOptions,
-  type Civ7FullMapGridResult,
   type Civ7RuntimeProbe,
   executeCiv7TunerCommand,
   getCiv7FullMapGrid,
@@ -68,6 +67,21 @@ type RiverWriterMutationResult = Readonly<{
   returnedType?: string;
   returnedValue?: unknown;
   error?: string;
+}>;
+
+type RiverMetadataReadbackGrid = Readonly<{
+  plotCount: number;
+  omitted: number;
+  plots: ReadonlyArray<
+    Readonly<{
+      facts: Readonly<{
+        terrain?: Civ7RuntimeProbe<unknown>;
+        riverType?: Civ7RuntimeProbe<unknown>;
+        river?: Civ7RuntimeProbe<unknown>;
+        navigableRiver?: Civ7RuntimeProbe<unknown>;
+      }>;
+    }>
+  >;
 }>;
 
 const usage = `Usage:
@@ -198,7 +212,7 @@ async function main(): Promise<number> {
 }
 
 export function summarizeRiverMetadataReadback(
-  grid: Civ7FullMapGridResult
+  grid: RiverMetadataReadbackGrid
 ): RiverMetadataReadbackSummary {
   const terrainNavigableRiverType =
     CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_NAVIGABLE_RIVER;
