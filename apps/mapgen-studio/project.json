@@ -39,12 +39,33 @@
     "typecheck": {
       "command": "tsc --noEmit",
       "dependsOn": [
+        "check:test",
+        "check:tools",
         "^build",
         {
           "projects": ["mod-swooper-maps"],
           "target": "build:studio-recipes"
         }
       ],
+      "options": {
+        "cwd": "apps/mapgen-studio"
+      }
+    },
+    "check:test": {
+      "command": "tsc -p tsconfig.test.json --noEmit",
+      "dependsOn": [
+        "^build",
+        {
+          "projects": ["mod-swooper-maps"],
+          "target": "build:studio-recipes"
+        }
+      ],
+      "options": {
+        "cwd": "apps/mapgen-studio"
+      }
+    },
+    "check:tools": {
+      "command": "tsc -p tsconfig.tools.json --noEmit",
       "options": {
         "cwd": "apps/mapgen-studio"
       }

@@ -5,7 +5,7 @@ import type {
   getCiv7MapGrid,
   getCiv7PlayableStatus,
 } from "@civ7/direct-control";
-import type { RunCorrelation } from "@civ7/studio-run-workspace";
+import { createRunArtifactId, type RunCorrelation } from "@civ7/studio-run-workspace";
 import {
   createStudioRpcHandler,
   isStudioRuntimeFailure,
@@ -28,6 +28,25 @@ const directControl = vi.hoisted(() => ({
   getCiv7MapGrid: vi.fn<typeof getCiv7MapGrid>(),
 }));
 
+async function rejectUnexpectedLifecycleCall(): Promise<never> {
+  throw new Error("Unexpected Civ7 lifecycle call");
+}
+
+const unavailableDirectLifecycle = {
+  getSetupSnapshot: rejectUnexpectedLifecycleCall,
+  admitSetupShell: rejectUnexpectedLifecycleCall,
+  requestSavedConfigLoad: rejectUnexpectedLifecycleCall,
+  reconcileRequiredTargetMod: rejectUnexpectedLifecycleCall,
+  getSetupMapRows: rejectUnexpectedLifecycleCall,
+  reloadSetupUiInShell: rejectUnexpectedLifecycleCall,
+  applySinglePlayerSetup: rejectUnexpectedLifecycleCall,
+  hostPreparedSinglePlayerGame: rejectUnexpectedLifecycleCall,
+  getAppUiSnapshot: rejectUnexpectedLifecycleCall,
+  beginGame: rejectUnexpectedLifecycleCall,
+  checkTunerHealth: rejectUnexpectedLifecycleCall,
+  getMapSummary: rejectUnexpectedLifecycleCall,
+} satisfies StudioServerContext["civ7Control"]["directLifecycle"];
+
 vi.mock("@civ7/direct-control", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@civ7/direct-control")>();
   return {
@@ -38,7 +57,7 @@ vi.mock("@civ7/direct-control", async (importOriginal) => {
 });
 
 const openHandles: StudioRpcHandle[] = [];
-const RUN_ARTIFACT_ID = "run-test" satisfies RunCorrelation["runArtifactId"];
+const RUN_ARTIFACT_ID = createRunArtifactId("runtime-observation-test");
 
 type RunCorrelationMismatchCase<Field extends keyof RunCorrelation = keyof RunCorrelation> =
   Field extends keyof RunCorrelation
@@ -64,7 +83,7 @@ const runCorrelationMismatchCases = {
   runArtifactId: {
     label: "runArtifactId",
     field: "runArtifactId",
-    value: "run-different",
+    value: createRunArtifactId("different-run"),
     mismatches: ["runArtifactId"],
   },
   launchEnvelopeDigest: {
@@ -200,7 +219,7 @@ describe("Run in Game runtime observation", () => {
       .mockResolvedValueOnce(
         playableStatusResult({
           playable: true,
-          readiness: "app-ui-shell",
+          readiness: "shell",
           appUi: liveAppUiSnapshot({ inGame: false }),
         })
       )
@@ -579,6 +598,7 @@ function makeContext(overrides: Partial<StudioServerContext>): StudioServerConte
     },
     civ7Control: {
       directControl: {} as StudioServerContext["civ7Control"]["directControl"],
+      directLifecycle: unavailableDirectLifecycle,
       timeoutMs: 1234,
     },
     operationRuntime: makeOperationRuntimePorts(),
@@ -627,7 +647,7 @@ function makeObservationFixture(
   const generated = materialization();
   const prepared = preparedRequest();
   const runDeployment = deployment({ requestId, materialization: generated });
-  const correlation = {
+  const correlation: RunCorrelation = {
     requestId,
     runArtifactId: generated.runArtifactId,
     canonicalConfigDigest: prepared.canonicalConfigDigest,
@@ -682,7 +702,7 @@ function lifecycleStarted(mapRowFiles: readonly string[]): RunInGameStarted {
         gameSeed: 43,
         playerCount: 8,
         targetModId: "mod-swooper-studio-run",
-        mapRowFiles,
+        mapRowFiles: [...mapRowFiles],
       },
       runtime: {
         seed: 43,
@@ -805,7 +825,24 @@ function playableStatusResult(
       port: 4318,
       state: { id: "1", name: "Tuner" },
       ready: true,
-      snapshot: { evalOk: 2, ready: true },
+      snapshot: {
+        evalOk: 2,
+        ready: true,
+        globals: {
+          Game: "object",
+          Autoplay: "object",
+          GameplayMap: "object",
+          Players: "object",
+          Network: "object",
+        },
+        turn: probe(12),
+        turnDate: probe("4000 BCE"),
+        width: probe(84),
+        height: probe(54),
+        aliveIds: probe([0]),
+        aliveHumanIds: probe([0]),
+        autoplayActive: probe(false),
+      },
     },
     errors: [],
   };
@@ -884,7 +921,7 @@ function liveMapGrid(args: { width?: number; height?: number } = {}): Civ7MapGri
     fields: ["terrain"],
     plotCount: (args.width ?? 84) * (args.height ?? 54),
     omitted: 0,
-    hiddenInfoPolicy: "visible",
+    hiddenInfoPolicy: "not-player-scoped",
     map: {
       width: probe(args.width ?? 84),
       height: probe(args.height ?? 54),
@@ -892,7 +929,7 @@ function liveMapGrid(args: { width?: number; height?: number } = {}): Civ7MapGri
     plots: [
       {
         location: { x: 0, y: 0, index: probe(0) },
-        hiddenInfoPolicy: "visible",
+        hiddenInfoPolicy: "not-player-scoped",
         facts: { terrain: probe("Grassland") },
       },
     ],

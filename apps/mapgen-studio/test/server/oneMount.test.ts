@@ -1,6 +1,15 @@
-import { createServer, type Server } from "node:http";
-import { type Civ7ControlOrpcContext, Civ7ControlOrpcContract } from "@civ7/control-orpc";
-import { Civ7DirectControlSession, type Civ7PlayableStatusResult } from "@civ7/direct-control";
+import { createServer, type RequestListener, type Server } from "node:http";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  type Civ7ControlOrpcDirectLifecycleFacade,
+} from "@civ7/control-orpc";
+import {
+  type Civ7AppUiSnapshotResult,
+  Civ7DirectControlSession,
+  type Civ7PlayableStatusResult,
+} from "@civ7/direct-control";
+import { createRunArtifactId, type RunCorrelation } from "@civ7/studio-run-workspace";
 import {
   contract,
   createStudioRpcHandler,
@@ -29,6 +38,26 @@ import { RecipeDagNotFound } from "../../src/server/recipeDag/service";
 
 const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
+const RUN_ARTIFACT_ID = createRunArtifactId("one-mount-test");
+
+async function rejectUnexpectedLifecycleCall(): Promise<never> {
+  throw new Error("Unexpected Civ7 lifecycle call");
+}
+
+const unavailableDirectLifecycle = {
+  getSetupSnapshot: rejectUnexpectedLifecycleCall,
+  admitSetupShell: rejectUnexpectedLifecycleCall,
+  requestSavedConfigLoad: rejectUnexpectedLifecycleCall,
+  reconcileRequiredTargetMod: rejectUnexpectedLifecycleCall,
+  getSetupMapRows: rejectUnexpectedLifecycleCall,
+  reloadSetupUiInShell: rejectUnexpectedLifecycleCall,
+  applySinglePlayerSetup: rejectUnexpectedLifecycleCall,
+  hostPreparedSinglePlayerGame: rejectUnexpectedLifecycleCall,
+  getAppUiSnapshot: rejectUnexpectedLifecycleCall,
+  beginGame: rejectUnexpectedLifecycleCall,
+  checkTunerHealth: rejectUnexpectedLifecycleCall,
+  getMapSummary: rejectUnexpectedLifecycleCall,
+} satisfies Civ7ControlOrpcDirectLifecycleFacade;
 
 afterEach(async () => {
   await Promise.all(openServers.splice(0).map((server) => closeServer(server)));
@@ -59,11 +88,12 @@ describe("one /rpc mount serves the whole unified contract", () => {
           },
         } as unknown as StudioServerContext["civ7Control"]["directControl"],
         directLifecycle: {
+          ...unavailableDirectLifecycle,
           getSetupSnapshot: async () => {
             lifecycleCalls.push("getSetupSnapshot");
             throw new Error("Studio HTTP must not acquire lifecycle mutation");
           },
-        } as unknown as StudioServerContext["civ7Control"]["directLifecycle"],
+        },
         timeoutMs: 4321,
       },
       recipeDagService: {
@@ -172,6 +202,7 @@ describe("one /rpc mount serves the whole unified contract", () => {
             return playableStatusResult();
           },
         } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        directLifecycle: unavailableDirectLifecycle,
         timeoutMs: 1234,
       },
     });
@@ -203,6 +234,7 @@ describe("one /rpc mount serves the whole unified contract", () => {
             return playableStatusResult();
           },
         } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        directLifecycle: unavailableDirectLifecycle,
         timeoutMs: 1234,
       },
     });
@@ -239,6 +271,7 @@ describe("one /rpc mount serves the whole unified contract", () => {
             return playableStatusResult();
           },
         } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        directLifecycle: unavailableDirectLifecycle,
         timeoutMs: 1234,
       },
     });
@@ -275,6 +308,7 @@ describe("one /rpc mount serves the whole unified contract", () => {
             return playableStatusResult();
           },
         } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        directLifecycle: unavailableDirectLifecycle,
         timeoutMs: 1234,
       },
     });
@@ -353,7 +387,7 @@ function createInProcessStudioClient(overrides: Partial<StudioServerContext>): {
   return { handler, client };
 }
 
-async function listen(handler: Parameters<typeof createServer>[0]): Promise<string> {
+async function listen(handler: RequestListener): Promise<string> {
   const server = createServer(handler);
   openServers.push(server);
   await new Promise<void>((resolve, reject) => {
@@ -418,6 +452,7 @@ function makeContext(overrides: Partial<StudioServerContext>): StudioServerConte
     },
     civ7Control: {
       directControl: {} as StudioServerContext["civ7Control"]["directControl"],
+      directLifecycle: unavailableDirectLifecycle,
       timeoutMs: 1234,
     },
     operationRuntime: makeOperationRuntimePorts(),
@@ -452,7 +487,7 @@ function generatedRunInGameMod(): Awaited<
       canonicalConfigDigest: "test-config-hash",
       launchEnvelopeDigest: "test-envelope-hash",
       generationManifestDigest: "test-generation-manifest-digest",
-      runArtifactId: "run-test",
+      runArtifactId: RUN_ARTIFACT_ID,
       generatedModRoot: "/tmp/studio-one-mount-generated-run-test",
       generatedModFileCount: 1,
       generatedModDigest: "test-generated-mod-digest",
@@ -511,9 +546,9 @@ function runInGameRuntimeObservation(
   args: Parameters<StudioOperationRuntimePorts["observeRunInGameRuntime"]>[0]
 ): Awaited<ReturnType<StudioOperationRuntimePorts["observeRunInGameRuntime"]>> {
   const materialization = args.deployment.materialization;
-  const correlation = {
+  const correlation: RunCorrelation = {
     requestId: args.requestId,
-    runArtifactId: materialization?.runArtifactId ?? "run-test",
+    runArtifactId: RUN_ARTIFACT_ID,
     canonicalConfigDigest: args.prepared.canonicalConfigDigest,
     launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
     generationManifestDigest:
@@ -576,19 +611,7 @@ function playableStatusResult(): Civ7PlayableStatusResult {
     port: 4318,
     playable: true,
     readiness: "tuner-ready",
-    appUi: {
-      host: "127.0.0.1",
-      port: 4318,
-      state: { id: "65535", name: "App UI" },
-      snapshot: {
-        ui: {
-          inGame: probe(true),
-          inShell: probe(false),
-          inLoading: probe(false),
-          canBeginGame: probe(false),
-        },
-      },
-    },
+    appUi: appUiSnapshotResult(),
     tuner: {
       host: "127.0.0.1",
       port: 4318,
@@ -597,10 +620,88 @@ function playableStatusResult(): Civ7PlayableStatusResult {
       snapshot: {
         evalOk: 2,
         ready: true,
+        globals: {
+          Game: "object",
+          Autoplay: "object",
+          GameplayMap: "object",
+          Players: "object",
+          Network: "object",
+        },
+        turn: probe(12),
+        turnDate: probe("4000 BCE"),
+        width: probe(84),
+        height: probe(54),
+        aliveIds: probe([0]),
+        aliveHumanIds: probe([0]),
+        autoplayActive: probe(false),
       },
     },
     errors: ["raw runtime detail stays out of readiness.current"],
-  } as Civ7PlayableStatusResult;
+  };
+}
+
+function appUiSnapshotResult(): Civ7AppUiSnapshotResult {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    snapshot: {
+      ui: {
+        inGame: probe(true),
+        inShell: probe(false),
+        inLoading: probe(false),
+        loadingState: probe(0),
+        loadingStateName: null,
+        canBeginGame: probe(false),
+        canNotifyUIReady: "false",
+        skipStartButton: probe(false),
+        automationActive: probe(false),
+        activeInputContext: probe(0),
+        activeInputContextName: null,
+      },
+      network: {
+        isInSession: probe(true),
+        numPlayers: probe(1),
+        hostPlayerId: probe(0),
+        isConnectedToNetwork: probe(false),
+        isAuthenticated: probe(false),
+        isLoggedIn: probe(false),
+      },
+      autoplay: {
+        isActive: false,
+        turns: 0,
+        isPaused: false,
+        isPausedOrPending: false,
+        observeAsPlayer: -1,
+        returnAsPlayer: -1,
+      },
+      game: {
+        turn: 12,
+        age: 0,
+        maxTurns: 500,
+        turnDate: probe("4000 BCE"),
+        hash: probe(987654321),
+      },
+      gameContext: {
+        localPlayerID: 0,
+        localObserverID: -1,
+        hasRequestedPause: probe(false),
+      },
+      players: {
+        maxPlayers: 8,
+        aliveIds: probe([0]),
+        aliveHumanIds: probe([0]),
+        numAliveHumans: probe(1),
+      },
+      map: {
+        width: probe(84),
+        height: probe(54),
+        plotCount: probe(4536),
+        mapSize: probe(3),
+        randomSeed: probe(43),
+      },
+    },
+  };
 }
 
 function probe<T>(value: T): { ok: true; value: T } {

@@ -5,9 +5,4 @@
 // ============================================================================
 
 export { applyConfigPatch } from "./config";
-export {
-  formatFieldName,
-  formatResourceMode,
-  formatStageName,
-  generateSeed,
-} from "./formatting";
+export { formatFieldName, formatResourceMode, generateSeed } from "./formatting";

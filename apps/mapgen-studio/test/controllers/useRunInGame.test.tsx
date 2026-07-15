@@ -40,7 +40,7 @@ function makeArgs(over: Partial<UseRunInGameArgs> = {}): UseRunInGameArgs {
     setupConfig,
     setSeed: vi.fn(),
     setSetupConfig: vi.fn(),
-    liveRuntime: { status: "unknown" },
+    liveRuntime: { status: "idle" },
     liveRuntimeSuggestions: [],
     runInGameOperation: null,
     setRunInGameOperation: vi.fn(),
@@ -57,11 +57,12 @@ function makeArgs(over: Partial<UseRunInGameArgs> = {}): UseRunInGameArgs {
 }
 
 function setup(over: Partial<UseRunInGameArgs> = {}) {
-  const props = makeArgs(over);
+  const setRunInGameSnapshot = vi.fn<UseRunInGameArgs["setRunInGameSnapshot"]>();
+  const props = makeArgs({ ...over, setRunInGameSnapshot });
   const view = renderHook((current: UseRunInGameArgs) => useRunInGame(current), {
     initialProps: props,
   });
-  return { ...view, props };
+  return { ...view, props, setRunInGameSnapshot };
 }
 
 afterEach(() => vi.clearAllMocks());
@@ -69,7 +70,7 @@ afterEach(() => vi.clearAllMocks());
 describe("useRunInGame config handoff", () => {
   it("sends the complete config and retains an immutable submitted snapshot", async () => {
     runRpc.mockResolvedValue(runningStatus("config-run"));
-    const { result, props } = setup();
+    const { result, setRunInGameSnapshot } = setup();
 
     await act(async () => result.current.handleRunInGame());
 
@@ -80,7 +81,11 @@ describe("useRunInGame config handoff", () => {
       })
     );
     expect(runRpc.mock.calls[0]?.[0].canonicalConfig).toBe(canonicalConfig);
-    const snapshot = vi.mocked(props.setRunInGameSnapshot).mock.calls[0]?.[0];
+    const snapshotUpdate = setRunInGameSnapshot.mock.calls[0]?.[0];
+    if (typeof snapshotUpdate === "function") {
+      throw new Error("Run in Game launch must store an exact submitted snapshot");
+    }
+    const snapshot = snapshotUpdate;
     expect(snapshot).toMatchObject({
       requestId: "config-run",
       authoringRevision: 3,
@@ -107,7 +112,7 @@ describe("useRunInGame config handoff", () => {
     runRpc.mockResolvedValue({
       ok: false,
       error: "admission failed",
-      safeFailureCategory: "invalid-request",
+      safeFailureCategory: "request-validation",
     });
     const { result, props } = setup();
 

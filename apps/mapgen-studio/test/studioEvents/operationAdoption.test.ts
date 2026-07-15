@@ -10,6 +10,7 @@ import {
   type StudioOperationsCurrent,
 } from "@civ7/studio-contract";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
+import { QueryClient } from "@tanstack/react-query";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
@@ -65,8 +66,8 @@ describe("Studio event operation adoption", () => {
       state.targets
     );
 
-    expect(state.runInGame?.requestId).toBe("run-1");
-    expect(state.saveDeploy?.requestId).toBe("save-1");
+    expect(state.readRunInGame()?.requestId).toBe("run-1");
+    expect(state.readSaveDeploy()?.requestId).toBe("save-1");
     expect(state.handledRunInGameToasts).toEqual([]);
   });
 
@@ -83,7 +84,7 @@ describe("Studio event operation adoption", () => {
       state.targets
     );
 
-    expect(state.runInGame?.requestId).toBe("run-terminal");
+    expect(state.readRunInGame()?.requestId).toBe("run-terminal");
     expect(state.handledRunInGameToasts).toEqual(["run-terminal"]);
   });
 
@@ -110,10 +111,10 @@ describe("Studio event operation adoption", () => {
         },
       }),
       state.targets,
-      { currentRunInGameOperation: state.runInGame }
+      { currentRunInGameOperation: state.readRunInGame() }
     );
 
-    expect(state.runInGame).toMatchObject({
+    expect(state.readRunInGame()).toMatchObject({
       requestId: "run-missed-terminal",
       status: "failed",
       phase: "failed",
@@ -153,7 +154,7 @@ describe("Studio event operation adoption", () => {
       },
     });
 
-    expect(state.runInGame).toMatchObject({
+    expect(state.readRunInGame()).toMatchObject({
       requestId: "run-reload-active",
       status: "running",
       phase: "deploying",
@@ -162,13 +163,13 @@ describe("Studio event operation adoption", () => {
     await readAndAdoptStudioOperationsCurrent({
       readCurrent: async () => currentReads[readIndex++] ?? currentOperations(),
       targets: state.targets,
-      getCurrentRunInGameOperation: () => state.runInGame,
+      getCurrentRunInGameOperation: state.readRunInGame,
       onError: () => {
         throw new Error("unexpected reload terminal current read failure");
       },
     });
 
-    expect(state.runInGame).toMatchObject({
+    expect(state.readRunInGame()).toMatchObject({
       requestId: "run-reload-terminal",
       status: "completed",
       phase: "completed",
@@ -200,7 +201,7 @@ describe("Studio event operation adoption", () => {
           },
         }),
       targets: state.targets,
-      getCurrentRunInGameOperation: () => state.runInGame,
+      getCurrentRunInGameOperation: state.readRunInGame,
       onAdopted: () => {
         adopted += 1;
       },
@@ -223,7 +224,7 @@ describe("Studio event operation adoption", () => {
           },
         }),
       targets: state.targets,
-      getCurrentRunInGameOperation: () => state.runInGame,
+      getCurrentRunInGameOperation: state.readRunInGame,
       onAdopted: () => {
         adopted += 1;
       },
@@ -232,7 +233,7 @@ describe("Studio event operation adoption", () => {
       },
     });
 
-    expect(state.runInGame).toMatchObject({
+    expect(state.readRunInGame()).toMatchObject({
       requestId: "run-reconnect",
       status: "completed",
       phase: "completed",
@@ -258,8 +259,8 @@ describe("Studio event operation adoption", () => {
 
     adoptStudioOperationsCurrent(currentOperations(), state.targets);
 
-    expect(state.runInGame).toBeNull();
-    expect(state.saveDeploy).toBeNull();
+    expect(state.readRunInGame()).toBeNull();
+    expect(state.readSaveDeploy()).toBeNull();
   });
 
   test("treats an empty registry snapshot as current truth over displayed local state", () => {
@@ -270,10 +271,10 @@ describe("Studio event operation adoption", () => {
     });
 
     adoptStudioOperationsCurrent(currentOperations(), state.targets, {
-      currentRunInGameOperation: state.runInGame,
+      currentRunInGameOperation: state.readRunInGame(),
     });
 
-    expect(state.runInGame).toBeNull();
+    expect(state.readRunInGame()).toBeNull();
   });
 
   test("adopts daemon recent terminal Run in Game status over displayed local terminal state", () => {
@@ -292,10 +293,10 @@ describe("Studio event operation adoption", () => {
         },
       }),
       state.targets,
-      { currentRunInGameOperation: state.runInGame }
+      { currentRunInGameOperation: state.readRunInGame() }
     );
 
-    expect(state.runInGame?.requestId).toBe("daemon-terminal");
+    expect(state.readRunInGame()?.requestId).toBe("daemon-terminal");
   });
 
   test("adopts daemon active current operation over displayed local terminal state", () => {
@@ -317,10 +318,10 @@ describe("Studio event operation adoption", () => {
         },
       }),
       state.targets,
-      { currentRunInGameOperation: state.runInGame }
+      { currentRunInGameOperation: state.readRunInGame() }
     );
 
-    expect(state.runInGame?.requestId).toBe("run-daemon-active");
+    expect(state.readRunInGame()?.requestId).toBe("run-daemon-active");
   });
 
   test("shell boot adoption reads daemon current without status replay", async () => {
@@ -344,7 +345,7 @@ describe("Studio event operation adoption", () => {
     });
 
     expect(currentReads).toBe(1);
-    expect(state.runInGame?.requestId).toBe("run-active");
+    expect(state.readRunInGame()?.requestId).toBe("run-active");
 
     const adoptionSource = readFileSync(
       join(repoRoot, "apps/mapgen-studio/src/app/operationAdoption.ts"),
@@ -368,13 +369,10 @@ describe("Studio event operation adoption", () => {
   test("current adoption does not let in-flight local status override registry sequencing", async () => {
     const state = adoptionState();
     let localOperation: RunInGameOperationStatus | null = null;
-    let resolveCurrent: ((current: StudioOperationsCurrent) => void) | null = null;
-    const currentPromise = new Promise<StudioOperationsCurrent>((resolve) => {
-      resolveCurrent = resolve;
-    });
+    const currentRead = deferred<StudioOperationsCurrent>();
 
     const read = readAndAdoptStudioOperationsCurrent({
-      readCurrent: () => currentPromise,
+      readCurrent: () => currentRead.promise,
       targets: state.targets,
       getCurrentRunInGameOperation: () => localOperation,
       onError: () => {
@@ -385,10 +383,10 @@ describe("Studio event operation adoption", () => {
     localOperation = failedRunStatus({
       requestId: "run-local-after-read-start",
     });
-    resolveCurrent?.(currentOperations());
+    currentRead.resolve(currentOperations());
     await read;
 
-    expect(state.runInGame).toBeNull();
+    expect(state.readRunInGame()).toBeNull();
   });
 
   test("classifies stream recovery, daemon identity mismatch, and busy gates", () => {
@@ -505,7 +503,7 @@ describe("Studio event operation adoption", () => {
       state.targets
     );
 
-    expect(state.runInGame?.requestId).toBe("run-pushed-1");
+    expect(state.readRunInGame()?.requestId).toBe("run-pushed-1");
     expect(state.handledRunInGameToasts).toEqual([]);
   });
 
@@ -528,7 +526,7 @@ describe("Studio event operation adoption", () => {
       state.targets
     );
 
-    expect(state.runInGame).toMatchObject({
+    expect(state.readRunInGame()).toMatchObject({
       requestId: "run-pushed-terminal",
       status: "failed",
       phase: "failed",
@@ -556,11 +554,11 @@ describe("Studio event operation adoption", () => {
       state.targets
     );
 
-    expect(state.saveDeploy?.requestId).toBe("save-pushed-1");
+    expect(state.readSaveDeploy()?.requestId).toBe("save-pushed-1");
   });
 
   test("applies pushed live-game events", () => {
-    let liveRuntime: LiveRuntimeStatusState | null = null;
+    const appliedStates: LiveRuntimeStatusState[] = [];
 
     applyStudioLiveGameEvent(
       liveGameEvent({
@@ -577,14 +575,14 @@ describe("Studio event operation adoption", () => {
       }),
       {
         applyLiveGameState(state) {
-          liveRuntime = state;
+          appliedStates.push(state);
         },
       }
     );
 
-    expect(liveRuntime?.status).toBe("ok");
-    expect(liveRuntime?.turn).toBe(12);
-    expect(liveRuntime?.snapshotId).toBe("status:12:abcdef01");
+    expect(appliedStates[0]?.status).toBe("ok");
+    expect(appliedStates[0]?.turn).toBe(12);
+    expect(appliedStates[0]?.snapshotId).toBe("status:12:abcdef01");
   });
 
   test("StudioShell live-game events trigger bounded follow-up reads without a cadence", () => {
@@ -656,12 +654,9 @@ describe("Studio event operation adoption", () => {
     await options.queryFn({
       signal: new AbortController().signal,
       queryKey: options.queryKey,
-      client: {
-        setQueryData() {
-          return undefined;
-        },
-      },
-    } as Parameters<typeof options.queryFn>[0]);
+      client: new QueryClient(),
+      meta: undefined,
+    });
 
     expect(calls).toHaveLength(1);
     expect(calls[0]?.input).toEqual({});
@@ -675,32 +670,45 @@ function adoptionState(initial?: {
   runInGame?: RunInGameOperationStatus | null;
   saveDeploy?: MapConfigSaveDeployStatus | null;
 }) {
-  const state = {
-    runInGame: initial?.runInGame ?? null,
-    saveDeploy: initial?.saveDeploy ?? null,
-    handledRunInGameToasts: [] as string[],
+  let runInGame = initial?.runInGame ?? null;
+  let saveDeploy = initial?.saveDeploy ?? null;
+  const handledRunInGameToasts: string[] = [];
+  return {
+    readRunInGame: () => runInGame,
+    readSaveDeploy: () => saveDeploy,
+    handledRunInGameToasts,
     targets: {
       setRunInGameOperation(operation: RunInGameOperationStatus | null) {
-        state.runInGame = operation;
+        runInGame = operation;
       },
       setSaveDeployOperation(operation: MapConfigSaveDeployStatus | null) {
-        state.saveDeploy = operation;
+        saveDeploy = operation;
       },
       markRunInGameToastHandled(requestId: string) {
-        state.handledRunInGameToasts.push(requestId);
+        handledRunInGameToasts.push(requestId);
       },
     },
   };
-  return state;
 }
 
-function operationEvent(
-  event: Omit<StudioOperationEvent, "type" | "observedAt">
-): StudioOperationEvent {
+type StudioOperationEventInput =
+  | { kind: "run-in-game"; status: RunInGameOperationStatus }
+  | { kind: "save-deploy"; status: MapConfigSaveDeployStatus };
+
+function operationEvent(event: StudioOperationEventInput): StudioOperationEvent {
+  if (event.kind === "run-in-game") {
+    return {
+      type: "operation",
+      kind: event.kind,
+      status: event.status,
+      observedAt: "2026-06-13T00:00:02.000Z",
+    };
+  }
   return {
     type: "operation",
+    kind: event.kind,
+    status: event.status,
     observedAt: "2026-06-13T00:00:02.000Z",
-    ...event,
   };
 }
 
@@ -762,6 +770,16 @@ type TestStudioEvent =
 
 async function* oneEventIterator(event: TestStudioEvent) {
   yield event;
+}
+
+function deferred<T>(): { promise: Promise<T>; resolve(value: T): void } {
+  let resolvePromise = (_value: T): void => {
+    throw new Error("Deferred promise resolver was not initialized");
+  };
+  const promise = new Promise<T>((resolve) => {
+    resolvePromise = resolve;
+  });
+  return { promise, resolve: resolvePromise };
 }
 
 function currentOperations(overrides?: Partial<StudioOperationsCurrent>): StudioOperationsCurrent {

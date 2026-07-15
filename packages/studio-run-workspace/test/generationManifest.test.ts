@@ -1,6 +1,7 @@
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import type { JsonWireObject } from "@civ7/studio-contract";
 import { describe, expect, test } from "vitest";
 import {
   buildStudioRunGenerationManifest,
@@ -235,7 +236,7 @@ describe("Studio Run generation manifest", () => {
 function manifestInput(
   overrides: Readonly<{
     requestId?: string;
-    config?: Record<string, unknown>;
+    config?: JsonWireObject;
   }> = {}
 ): StudioRunGenerationManifestInput {
   const config = overrides.config ?? {};

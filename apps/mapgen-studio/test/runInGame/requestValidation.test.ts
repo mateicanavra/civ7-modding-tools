@@ -1,4 +1,9 @@
-import { runInGame, typeboxInputSchemaFromContractProcedure } from "@civ7/studio-contract";
+import {
+  type JsonWireObject,
+  type MapConfigEnvelope,
+  runInGame,
+  typeboxInputSchemaFromContractProcedure,
+} from "@civ7/studio-contract";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { Value } from "typebox/value";
 import { describe, expect, it } from "vitest";
@@ -179,7 +184,7 @@ function validRunInGameRequest(extra?: Record<string, unknown>): Record<string, 
   };
 }
 
-function canonicalConfig(config: Record<string, unknown>) {
+function canonicalConfig(config: JsonWireObject): MapConfigEnvelope {
   return {
     id: "studio-current",
     name: "Studio Current",

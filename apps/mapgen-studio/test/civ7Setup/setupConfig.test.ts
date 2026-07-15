@@ -237,6 +237,7 @@ describe("Civ7 Studio setup config", () => {
 
     it("re-applying the saved config clears the drift (sync back)", () => {
       const drifted = updateStudioSetupGameOption(applied, "GameSpeeds", "GAMESPEED_QUICK");
+      expect(studioSetupDriftsFromSavedConfig(drifted, savedConfig)).toBe(true);
       const resynced = studioSetupConfigFromSavedConfigFile(savedConfig);
       expect(studioSetupDriftsFromSavedConfig(resynced, savedConfig)).toBe(false);
     });

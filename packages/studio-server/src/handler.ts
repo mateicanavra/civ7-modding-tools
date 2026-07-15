@@ -16,7 +16,7 @@ import { RPCHandler } from "@orpc/server/fetch";
 import { Effect, Match } from "effect";
 import type { StudioServerContext } from "./context.js";
 import type { StudioContract } from "./contract/index.js";
-import { type LiveGameWatcherOptions, StudioLiveGameWatcher } from "./liveGame/watcher.js";
+import type { LiveGameWatcherOptions } from "./liveGame/watcher.js";
 import { type StudioDaemonIdentity, StudioOperationRuntime } from "./operationRuntime/index.js";
 import { createStudioRouter, type StudioRouter } from "./router/index.js";
 import { makeStudioRuntime } from "./runtime.js";
@@ -113,12 +113,14 @@ export function createStudioRpcHandler(
   };
   const handler = new RPCHandler(router, {
     interceptors: [
-      onError((error) => {
-        // Surface unexpected (non-ORPCError) defects in the host console; expected
-        // status-mapped errors flow through quietly.
-        if (isDefinedError(error)) return;
-        console.error("[studio-server] rpc error", error);
-      }),
+      // Surface unexpected (non-ORPCError) defects in the host console; expected
+      // status-mapped errors flow through quietly.
+      onError((error) =>
+        Match.value(error).pipe(
+          Match.when(isDefinedError, () => undefined),
+          Match.orElse((defect) => console.error("[studio-server] rpc error", defect))
+        )
+      ),
     ],
   });
 
@@ -131,17 +133,21 @@ export function createStudioRpcHandler(
   // not be the thing that makes a failure sticky).
   let tunerPromise: Promise<Civ7TunerSessionApi> | undefined;
   let liveGameWatcherReady: Promise<void> | undefined;
-  const ensureLiveGameWatcher = () => {
-    if (options.liveGameWatch === undefined) return Promise.resolve();
-    return (liveGameWatcherReady ??= runtime
-      .runPromise(StudioLiveGameWatcher)
-      .then(() => undefined)
-      .catch((error: unknown) => {
-        liveGameWatcherReady = undefined;
-        console.error("[studio-server] failed to acquire live-game watcher", error);
-        throw error;
-      }));
-  };
+  const ensureLiveGameWatcher = () =>
+    Match.value(options.liveGameWatch).pipe(
+      Match.when(undefined, () => Promise.resolve()),
+      Match.orElse(
+        () =>
+          (liveGameWatcherReady ??= runtime
+            .runPromise(Effect.void)
+            .then(() => undefined)
+            .catch((error: unknown) => {
+              liveGameWatcherReady = undefined;
+              console.error("[studio-server] failed to initialize live-game watcher", error);
+              throw error;
+            }))
+      )
+    );
 
   const controlTuner = () =>
     (tunerPromise ??= runtime

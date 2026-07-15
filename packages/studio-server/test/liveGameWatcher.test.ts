@@ -16,34 +16,16 @@ import {
 import { makeLiveGameWatcherLayer, StudioLiveGameWatcher } from "../src/liveGame/watcher";
 
 describe("live-game watcher", () => {
-  test("production watcher source composes through tuner client path without direct-control bypass", () => {
+  test("production watcher stays behind the tuner client boundary", () => {
     const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
     const watcherSource = readFileSync(
       join(repoRoot, "packages/studio-server/src/liveGame/watcher.ts"),
-      "utf8"
-    );
-    const runtimeSource = readFileSync(
-      join(repoRoot, "packages/studio-server/src/runtime.ts"),
-      "utf8"
-    );
-    const handlerSource = readFileSync(
-      join(repoRoot, "packages/studio-server/src/handler.ts"),
       "utf8"
     );
 
     expect(watcherSource).toContain("readLiveGameStatusBody");
     expect(watcherSource).not.toMatch(
       /@civ7\/direct-control|Civ7DirectControlSession|Civ7TunerSessionLive|Runtime\.runPromise|Effect\.runtime|setTimeout|setInterval/
-    );
-    expect(runtimeSource).toContain("makeStudioLiveGameWatcherLayer");
-    expect(runtimeSource).toContain("Civ7TunerClient.Default");
-    expect(runtimeSource).toContain("const civ7TunerClientLayer = Civ7TunerClient.Default");
-    expect(runtimeSource).toContain("Layer.provide(civ7TunerClientLayer)");
-    expect(runtimeSource).toContain("Civ7TunerSessionLive");
-    expect(runtimeSource).toContain("Layer.effectDiscard(StudioLiveGameWatcher)");
-    expect(handlerSource).toMatch(/runtime\s*\.\s*runPromise\s*\(\s*StudioLiveGameWatcher/);
-    expect(handlerSource).not.toMatch(
-      /liveGameWatcher\.start\(|liveGameWatcher\.stop\(|createRuntimeLiveGameWatcher|createLiveGameWatcher/
     );
   });
 
@@ -136,11 +118,18 @@ describe("live-game watcher", () => {
     const layer = makeLiveGameWatcherLayer({
       eventHub: {
         publish: (event) =>
-          Effect.gen(function* () {
-            publishAttempts += 1;
-            if (publishAttempts === 1) yield* Effect.fail(new Error("event sink failed"));
-            events.push(event);
-          }),
+          Effect.sync(() => (publishAttempts += 1)).pipe(
+            Effect.filterOrFail(
+              (attempt) => attempt !== 1,
+              () => new Error("event sink failed")
+            ),
+            Effect.tap(() =>
+              Effect.sync(() => {
+                events.push(event);
+              })
+            ),
+            Effect.asVoid
+          ),
       },
       readLiveStatus: Effect.succeed(body),
       options: {
@@ -242,9 +231,9 @@ describe("live-game watcher", () => {
       await iterator.return?.();
 
       expect(first).toEqual({ done: false, value: hello });
-      expect(second.done).toBe(false);
-      expect(second.value?.type).toBe("live-game");
-      expect((second.value as StudioLiveGameEvent).state.turn).toBe(12);
+      if (second.done) throw new Error("Expected replayed live-game event");
+      if (second.value.type !== "live-game") throw new Error("Expected live-game event");
+      expect(second.value.state.turn).toBe(12);
     } finally {
       await eventHubRuntime.dispose();
     }

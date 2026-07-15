@@ -11,6 +11,7 @@
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "sharedGlobals": ["{workspaceRoot}/tsconfig*.json"],
+    "typescriptRuntime": ["{workspaceRoot}/package.json", "{workspaceRoot}/bun.lock"],
     "habitatRuntime": [
       "{workspaceRoot}/package.json",
       "{workspaceRoot}/bun.lock",
@@ -57,10 +58,22 @@
       "cache": false,
       "outputs": []
     },
-    "typecheck": {
+    "check:test": {
       "dependsOn": ["^build"],
       "cache": true,
-      "inputs": ["default", "^default"],
+      "inputs": ["default", "^default", "typescriptRuntime"],
+      "outputs": []
+    },
+    "check:tools": {
+      "dependsOn": ["^build"],
+      "cache": true,
+      "inputs": ["default", "^default", "typescriptRuntime"],
+      "outputs": []
+    },
+    "typecheck": {
+      "dependsOn": ["check:test", "check:tools", "^build"],
+      "cache": true,
+      "inputs": ["default", "^default", "typescriptRuntime"],
       "outputs": []
     },
     "lint": {

@@ -15,8 +15,13 @@ import type {
   Civ7SetupSnapshotResult,
   Civ7TunerHealthResult,
 } from "@civ7/direct-control";
-import { Civ7DirectControlError, Civ7DirectControlSession } from "@civ7/direct-control";
+import {
+  Civ7DirectControlError,
+  Civ7DirectControlSession,
+  Civ7PlayableStatusResultSchema,
+} from "@civ7/direct-control";
 import { Effect, Fiber, Layer, Match } from "effect";
+import { Value } from "typebox/value";
 import { describe, expect, test, vi } from "vitest";
 
 import type { StudioServerContext } from "../src/context.js";
@@ -323,9 +328,16 @@ async function makeService(args: {
     ...liveCiv7ControlOrpcDirectControlFacade,
     getCiv7PlayableStatus: async () => {
       args.onPlayableStatus?.();
-      return { playable: true, readiness: "playable" } as Awaited<
-        ReturnType<Civ7ControlOrpcDirectControlFacade["getCiv7PlayableStatus"]>
-      >;
+      const appUi = appUiSnapshot("started");
+      return Value.Parse(Civ7PlayableStatusResultSchema, {
+        host: appUi.host,
+        port: appUi.port,
+        playable: true,
+        readiness: "tuner-ready",
+        appUi,
+        tuner: tunerHealth(),
+        errors: [],
+      });
     },
   };
   const tuner: Civ7TunerSessionApi = {
@@ -366,7 +378,7 @@ function preparedRequest(): RunInGamePreparedRequest {
     latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
     config: {},
   };
-  const setupConfig = {
+  const setupConfig: RunInGamePreparedRequest["launchEnvelope"]["setupConfig"] = {
     mapScript,
     gameOptions: { GameDifficulty: "DIFFICULTY_PRINCE" },
     playerOptions: [

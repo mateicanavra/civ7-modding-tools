@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { shouldIgnoreGlobalShortcutsInEditableTarget } from "./shortcutPolicy";
+import { shouldIgnoreGlobalShortcutsInEditableTarget } from "../../src/shared/shortcuts/shortcutPolicy";
 
 describe("shouldIgnoreGlobalShortcutsInEditableTarget", () => {
   it("ignores bare keys inside editable targets", () => {

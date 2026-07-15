@@ -40,8 +40,8 @@ describe("useLatestRef (IMPROVE-2)", () => {
   });
 
   it("returns a stable ref object across rerenders (only `.current` changes)", () => {
-    const { result, rerender } = renderHook(({ value }: { value: number }) => useLatestRef(value), {
-      initialProps: { value: "a" as string },
+    const { result, rerender } = renderHook(({ value }: { value: string }) => useLatestRef(value), {
+      initialProps: { value: "a" },
     });
     const first = result.current;
     rerender({ value: "b" });

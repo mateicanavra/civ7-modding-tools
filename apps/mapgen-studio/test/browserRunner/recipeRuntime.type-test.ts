@@ -1,5 +1,5 @@
 import type { Env } from "@swooper/mapgen-core/engine";
-import { getRuntimeRecipe } from "../recipeRuntime";
+import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
 
 declare const env: Env;
 

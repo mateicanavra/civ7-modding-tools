@@ -71,10 +71,11 @@ describe("MapConfigEnvelope portable admission", () => {
 
 describe("portable JSON snapshots", () => {
   it("clones exact JSON into a deeply frozen independently owned snapshot", () => {
+    const mutableWeight = { value: 2 };
     const input = {
       stage: {
         enabled: true,
-        weights: [1, { value: 2 }, null],
+        weights: [1, mutableWeight, null],
       },
     };
     const snapshot = snapshotPortableJsonValue(input);
@@ -92,7 +93,7 @@ describe("portable JSON snapshots", () => {
     expect(Object.isFrozen(snapshot.stage.weights[1])).toBe(true);
 
     input.stage.enabled = false;
-    input.stage.weights[1]!.value = 99;
+    mutableWeight.value = 99;
     expect(snapshot.stage.enabled).toBe(true);
     expect(snapshot.stage.weights[1]).toStrictEqual({ value: 2 });
   });
