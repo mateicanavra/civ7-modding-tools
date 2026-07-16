@@ -2,6 +2,7 @@
   "name": "@civ7/docs",
   "private": true,
   "scripts": {
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
     "fix:duplicate-h1": "bun run scripts/remove-duplicate-h1.ts",
     "fix:mdx-links": "bun run scripts/fix-mdx-links.ts",
     "fix:title-prefixes": "bun run scripts/remove-title-prefixes.ts",
