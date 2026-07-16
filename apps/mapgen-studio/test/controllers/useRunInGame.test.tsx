@@ -14,6 +14,7 @@ vi.mock("../../src/lib/orpc", () => ({
 }));
 
 import { type UseRunInGameArgs, useRunInGame } from "../../src/app/hooks/useRunInGame";
+import { useRunInGameTerminalToast } from "../../src/app/hooks/useRunInGameTerminalToast";
 import { getRecipeDefaultCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
 import { runCurrentConfigInGame } from "../../src/features/runInGame/api";
 import { DEFAULT_WORLD_SETTINGS } from "../../src/ui/constants/defaults";
@@ -28,6 +29,15 @@ function runningStatus(requestId = "run-request"): RunInGameOperationStatus {
     phase: "deploying",
     status: "running",
     recoveryActions: [],
+  };
+}
+
+function completedStatus(requestId: string): RunInGameOperationStatus {
+  return {
+    requestId,
+    phase: "completed",
+    status: "completed",
+    recoveryActions: ["copy-diagnostics"],
   };
 }
 
@@ -121,4 +131,84 @@ describe("useRunInGame config handoff", () => {
     expect(props.setRunInGameOperation).not.toHaveBeenCalled();
     expect(props.setRunInGameSnapshot).not.toHaveBeenCalled();
   });
+
+  it("does not regress a terminal event when the accepted start response arrives later", async () => {
+    const requestId = "run-terminal-before-response";
+    const response = deferred<RunInGameOperationStatus>();
+    const toastStamp = { current: null as string | null };
+    let operation: RunInGameOperationStatus | null = null;
+    const setRunInGameOperation: UseRunInGameArgs["setRunInGameOperation"] = (update) => {
+      operation = typeof update === "function" ? update(operation) : update;
+    };
+    runRpc.mockReturnValue(response.promise);
+    const { result, props } = setup({ setRunInGameOperation, lastRunInGameToastRef: toastStamp });
+    let launch: Promise<void> | undefined;
+
+    await act(async () => {
+      launch = result.current.handleRunInGame();
+      await Promise.resolve();
+    });
+    operation = completedStatus(requestId);
+    toastStamp.current = requestId;
+    await act(async () => result.current.handleRunInGame());
+    expect(runRpc).toHaveBeenCalledTimes(1);
+    expect(props.toast).toHaveBeenCalledWith(
+      "Run in Game is still being admitted; wait for the request to settle.",
+      { variant: "info" }
+    );
+    await act(async () => {
+      response.resolve(runningStatus(requestId));
+      await launch;
+    });
+
+    expect(operation).toEqual(completedStatus(requestId));
+    expect(toastStamp.current).toBe(requestId);
+    expect(props.toast).not.toHaveBeenCalledWith(expect.stringContaining("started"), {
+      variant: "info",
+    });
+  });
+
+  it("toasts a newly pushed terminal once and suppresses retained historical terminals", () => {
+    const requestId = "run-terminal-toast";
+    const toast = vi.fn();
+    const toastStamp = { current: null as string | null };
+    const view = renderHook(
+      ({ operation }: { operation: RunInGameOperationStatus }) =>
+        useRunInGameTerminalToast({
+          runInGameOperation: operation,
+          lastRunInGameToastRef: toastStamp,
+          toast,
+        }),
+      { initialProps: { operation: runningStatus(requestId) } }
+    );
+
+    view.rerender({ operation: completedStatus(requestId) });
+    expect(toast).toHaveBeenCalledTimes(1);
+    expect(toast).toHaveBeenCalledWith(`Run in Game complete: ${requestId}`, {
+      variant: "success",
+    });
+    view.rerender({ operation: completedStatus(requestId) });
+    expect(toast).toHaveBeenCalledTimes(1);
+    view.unmount();
+
+    const historicalToast = vi.fn();
+    renderHook(() =>
+      useRunInGameTerminalToast({
+        runInGameOperation: completedStatus(requestId),
+        lastRunInGameToastRef: { current: requestId },
+        toast: historicalToast,
+      })
+    );
+    expect(historicalToast).not.toHaveBeenCalled();
+  });
 });
+
+function deferred<T>() {
+  let resolvePromise = (_value: T): void => {
+    throw new Error("Deferred promise resolver was not initialized");
+  };
+  const promise = new Promise<T>((resolve) => {
+    resolvePromise = resolve;
+  });
+  return { promise, resolve: resolvePromise };
+}

@@ -1,6 +1,6 @@
-import { type MapConfigEnvelope, type RunDiagnosticsLookupResult } from "@civ7/studio-contract";
+import type { MapConfigEnvelope, RunDiagnosticsLookupResult } from "@civ7/studio-contract";
 import type { WorldSettings } from "@swooper/mapgen-studio-ui/types";
-import { type MutableRefObject, useCallback, useEffect, useMemo } from "react";
+import { type MutableRefObject, useCallback, useMemo, useRef } from "react";
 import { getCiv7MapSizePreset } from "../../features/browserRunner/mapSizes";
 import {
   formatCiv7StudioSeedError,
@@ -23,6 +23,7 @@ import {
 import { orpcClient } from "../../lib/orpc";
 import type { AuthoringState } from "../../stores/authoringStore";
 import type { RunState } from "../../stores/runStore";
+import { mergeRunInGameOperation } from "../operationAdoption";
 import type { UseLiveRuntimeResult } from "./useLiveRuntime";
 import { useRunInGameTerminalToast } from "./useRunInGameTerminalToast";
 import type { StudioOperations } from "./useStudioOperations";
@@ -59,9 +60,8 @@ export type UseRunInGameArgs = {
   runInGameSnapshot: RunState["runInGameSnapshot"];
   setRunInGameSnapshot: RunState["setRunInGameSnapshot"];
   /**
-   * Host-owned toast-dedupe ref (shared with the operation-adoption + studio-event
-   * coordination that lives host). `handleRunInGame` resets it on a fresh launch;
-   * the terminal-toast effect reads it. Threaded IN (not owned here).
+   * Host-owned toast-dedupe ref shared with operation recovery. Request IDs are
+   * unique, so a new launch never resets a terminal notification already observed.
    */
   lastRunInGameToastRef: MutableRefObject<string | null>;
   /** Single-owner error-channel writer (from `useStudioOperations`). */
@@ -81,8 +81,6 @@ export type UseRunInGameResult = {
   /** Whether the current config prevents a Run in Game request. */
   isRunInGameBlocked: boolean;
 };
-
-const RUN_IN_GAME_CURRENT_RECONCILE_INTERVAL_MS = 1_500;
 
 type RunInGameLaunchDecision = Readonly<
   | { kind: "ready"; canonicalConfig: MapConfigEnvelope }
@@ -139,46 +137,18 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     toast,
   });
 
-  useEffect(() => {
-    if (runInGameOperation?.status !== "running") return;
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const requestId = runInGameOperation.requestId;
-
-    const reconcileFromDaemonCurrent = async () => {
-      try {
-        const current = await orpcClient.studio.operations.current({});
-        if (cancelled) return;
-        const operation =
-          current.runInGame.active ??
-          current.runInGame.recent.find((recent) => recent.requestId === requestId) ??
-          null;
-        setRunInGameOperation(operation);
-      } catch {
-        // The event stream remains primary. This fallback only prevents a missed
-        // event from leaving the UI stuck on the admitted operation forever.
-      } finally {
-        if (!cancelled) {
-          timer = setTimeout(reconcileFromDaemonCurrent, RUN_IN_GAME_CURRENT_RECONCILE_INTERVAL_MS);
-        }
-      }
-    };
-
-    timer = setTimeout(reconcileFromDaemonCurrent, RUN_IN_GAME_CURRENT_RECONCILE_INTERVAL_MS);
-    return () => {
-      cancelled = true;
-      if (timer !== undefined) clearTimeout(timer);
-    };
-  }, [runInGameOperation?.requestId, runInGameOperation?.status, setRunInGameOperation]);
+  const launchInFlightRef = useRef(false);
 
   const handleRunInGame = useCallback(async () => {
     // Busy gate must never be silent — a click that does nothing is
     // indistinguishable from a broken launch path.
-    if (runInGameRunning || saveDeployRunning) {
+    if (launchInFlightRef.current || runInGameRunning || saveDeployRunning) {
       toast(
-        runInGameRunning
-          ? "Run in Game is already running — check the status chip in the Game bar."
-          : "Save & Deploy is in progress; wait for it to finish before launching.",
+        launchInFlightRef.current
+          ? "Run in Game is still being admitted; wait for the request to settle."
+          : runInGameRunning
+            ? "Run in Game is already running — check the status chip in the Game bar."
+            : "Save & Deploy is in progress; wait for it to finish before launching.",
         { variant: "info" }
       );
       return;
@@ -198,23 +168,28 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       return;
     }
     const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
-    const result = await runCurrentConfigInGame({
-      canonicalConfig: runInGameLaunchDecision.canonicalConfig,
-      seed,
-      worldSettings: {
-        mapSize: mapSize.id,
-        playerCount: worldSettings.playerCount,
-        resources: worldSettings.resources,
-      },
-      setupConfig,
-    });
+    launchInFlightRef.current = true;
+    let result: Awaited<ReturnType<typeof runCurrentConfigInGame>>;
+    try {
+      result = await runCurrentConfigInGame({
+        canonicalConfig: runInGameLaunchDecision.canonicalConfig,
+        seed,
+        worldSettings: {
+          mapSize: mapSize.id,
+          playerCount: worldSettings.playerCount,
+          resources: worldSettings.resources,
+        },
+        setupConfig,
+      });
+    } finally {
+      launchInFlightRef.current = false;
+    }
     if (!("requestId" in result)) {
       toast(`Run in Game failed: ${result.error}`, { variant: "error" });
       setLocalError(`Run in Game failed: ${result.error}`);
       return;
     }
-    lastRunInGameToastRef.current = null;
-    setRunInGameOperation(result);
+    setRunInGameOperation((current) => mergeRunInGameOperation(current, result));
     const snapshot = buildRunInGameClientSnapshot({
       requestId: result.requestId,
       authoringRevision,
@@ -224,9 +199,6 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       canonicalConfig: runInGameLaunchDecision.canonicalConfig,
     });
     setRunInGameSnapshot(snapshot);
-    toast(`Run in Game started: ${result.requestId}`, {
-      variant: "info",
-    });
   }, [
     runInGameLaunchDecision,
     seed,
@@ -242,7 +214,6 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     worldSettings.mapSize,
     worldSettings.playerCount,
     worldSettings.resources,
-    lastRunInGameToastRef,
   ]);
 
   const syncStudioFromLiveGame = useCallback(() => {

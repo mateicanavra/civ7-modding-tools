@@ -142,8 +142,15 @@ export function updateMapConfigSaveDeployStatus(
   });
 }
 
-export function isSaveDeployTerminal(status: MapConfigSaveDeployStatus): boolean {
-  return status.status !== "running";
+type SaveDeployTerminalStatus = Extract<
+  MapConfigSaveDeployStatus,
+  { status: "complete" | "failed" }
+>;
+
+export function isSaveDeployTerminal(
+  status: MapConfigSaveDeployStatus
+): status is SaveDeployTerminalStatus {
+  return status.status === "complete" || status.status === "failed";
 }
 
 export function saveDeployResultFromTerminalStatus(

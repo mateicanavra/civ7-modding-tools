@@ -42,10 +42,8 @@ describe("useStudioOperations — synchronous busy gate (BG-1 / ADD-3)", () => {
     type Frame = {
       runOp: RunInGameOperationStatus | null;
       runRunning: boolean;
-      runRef: RunInGameOperationStatus | null;
       saveOp: MapConfigSaveDeployStatus | null;
       saveRunning: boolean;
-      saveRef: MapConfigSaveDeployStatus | null;
     };
     const frames: Frame[] = [];
     let latest!: StudioOperations;
@@ -53,15 +51,13 @@ describe("useStudioOperations — synchronous busy gate (BG-1 / ADD-3)", () => {
     function Probe() {
       const ops = useStudioOperations();
       latest = ops;
-      // Captured DURING render: a republish-via-effect would make `running` (or
-      // the latest-ref) lag the op for exactly the render that changed it.
+      // Captured DURING render: a republish-via-effect would make `running` lag
+      // the operation for exactly the render that changed it.
       frames.push({
         runOp: ops.runInGameOperation,
         runRunning: ops.runInGameRunning,
-        runRef: ops.runInGameOperationRef.current,
         saveOp: ops.saveDeployOperation,
         saveRunning: ops.saveDeployRunning,
-        saveRef: ops.saveDeployOperationCurrentRef.current,
       });
       return null;
     }
@@ -80,9 +76,6 @@ describe("useStudioOperations — synchronous busy gate (BG-1 / ADD-3)", () => {
       // Busy boolean is synchronous with the op it derives from.
       expect(f.runRunning).toBe(f.runOp?.status === "running");
       expect(f.saveRunning).toBe(f.saveOp?.status === "running");
-      // Latest-ref mirrors the op in the same render (useLatestRef render-write).
-      expect(f.runRef).toBe(f.runOp);
-      expect(f.saveRef).toBe(f.saveOp);
     }
 
     // End state sanity.
@@ -97,8 +90,6 @@ describe("useStudioOperations — synchronous busy gate (BG-1 / ADD-3)", () => {
     expect(result.current.localError).toBeNull();
     expect(result.current.runInGameOperation).toBeNull();
     expect(result.current.saveDeployOperation).toBeNull();
-    expect(result.current.runInGameOperationRef.current).toBeNull();
-    expect(result.current.saveDeployOperationCurrentRef.current).toBeNull();
   });
 });
 

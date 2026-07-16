@@ -30,6 +30,14 @@ function failedStatus(requestId: string) {
   });
 }
 
+function runningStatus(requestId: string) {
+  return createMapConfigSaveDeployStatus({ requestId, phase: "deploying" });
+}
+
+function idleStatus(requestId: string) {
+  return createMapConfigSaveDeployStatus({ requestId, phase: "idle" });
+}
+
 function makeArgs(over: Partial<UseSaveDeployArgs> = {}): UseSaveDeployArgs {
   return {
     saveDeployOperation: null,
@@ -99,6 +107,128 @@ describe("useSaveDeploy config ownership", () => {
     );
   });
 
+  it("presents an observed daemon completion over a later failed response", async () => {
+    const response = deferred<Awaited<ReturnType<typeof saveRepoBackedConfig>>>();
+    let operation = null as UseSaveDeployArgs["saveDeployOperation"];
+    const setSaveDeployOperation: UseSaveDeployArgs["setSaveDeployOperation"] = (update) => {
+      operation = typeof update === "function" ? update(operation) : update;
+    };
+    saveRpc.mockReturnValue(response.promise);
+    const { result, props } = setup({ setSaveDeployOperation });
+    let save: Promise<void> | undefined;
+
+    await act(async () => {
+      save = result.current.handleSaveToCurrent();
+      await Promise.resolve();
+    });
+    const requestId = saveRpc.mock.calls[0]?.[0].requestId;
+    if (!requestId) throw new Error("Expected Save/Deploy request identity");
+    act(() => {
+      result.current.adoptSaveDeployOperation(null);
+      result.current.adoptSaveDeployOperation(completeStatus(requestId));
+    });
+    await act(async () => {
+      response.resolve({ ok: false, status: failedStatus(requestId) });
+      await save;
+    });
+
+    expect(operation).toEqual(completeStatus(requestId));
+    expect(props.toast).toHaveBeenCalledWith("Config saved and deployed.", {
+      variant: "success",
+    });
+    expect(props.toast).not.toHaveBeenCalledWith(expect.stringContaining("failed"), {
+      variant: "error",
+    });
+  });
+
+  it("blocks a second admission while recovery temporarily clears display state", async () => {
+    const response = deferred<Awaited<ReturnType<typeof saveRepoBackedConfig>>>();
+    let operation = null as UseSaveDeployArgs["saveDeployOperation"];
+    const setSaveDeployOperation: UseSaveDeployArgs["setSaveDeployOperation"] = (update) => {
+      operation = typeof update === "function" ? update(operation) : update;
+    };
+    saveRpc.mockReturnValue(response.promise);
+    const { result, props } = setup({ setSaveDeployOperation });
+    let save: Promise<void> | undefined;
+
+    await act(async () => {
+      save = result.current.handleSaveToCurrent();
+      await Promise.resolve();
+    });
+    const requestId = saveRpc.mock.calls[0]?.[0].requestId;
+    if (!requestId) throw new Error("Expected Save/Deploy request identity");
+    await act(async () => {
+      result.current.adoptSaveDeployOperation(null);
+      await result.current.handleSaveToCurrent();
+    });
+    expect(saveRpc).toHaveBeenCalledTimes(1);
+    expect(props.toast).toHaveBeenCalledWith(
+      "Config save failed: Save/deploy admission is already in progress; finish that operation before saving.",
+      { variant: "error" }
+    );
+
+    await act(async () => {
+      result.current.adoptSaveDeployOperation(completeStatus(requestId));
+      response.resolve({ ok: true, status: runningStatus(requestId) });
+      await save;
+    });
+
+    expect(operation).toEqual(completeStatus(requestId));
+    expect(props.toast).toHaveBeenCalledWith("Config saved and deployed.", {
+      variant: "success",
+    });
+  });
+
+  it("does not treat an idle response as successful completion", async () => {
+    const response = deferred<Awaited<ReturnType<typeof saveRepoBackedConfig>>>();
+    saveRpc.mockReturnValue(response.promise);
+    const { result, props } = setup();
+    let save: Promise<void> | undefined;
+
+    await act(async () => {
+      save = result.current.handleSaveToCurrent();
+      await Promise.resolve();
+    });
+    const requestId = saveRpc.mock.calls[0]?.[0].requestId;
+    if (!requestId) throw new Error("Expected Save/Deploy request identity");
+    await act(async () => {
+      response.resolve({ ok: true, status: idleStatus(requestId) });
+      await Promise.resolve();
+    });
+    expect(props.toast).not.toHaveBeenCalledWith("Config saved and deployed.", {
+      variant: "success",
+    });
+
+    await act(async () => {
+      result.current.adoptSaveDeployOperation(completeStatus(requestId));
+      await save;
+    });
+    expect(props.toast).toHaveBeenCalledWith("Config saved and deployed.", {
+      variant: "success",
+    });
+  });
+
+  it("does not register a terminal waiter after unmount", async () => {
+    const response = deferred<Awaited<ReturnType<typeof saveRepoBackedConfig>>>();
+    saveRpc.mockReturnValue(response.promise);
+    const { result, props, unmount } = setup();
+    let save: Promise<void> | undefined;
+
+    await act(async () => {
+      save = result.current.handleSaveToCurrent();
+      await Promise.resolve();
+    });
+    const requestId = saveRpc.mock.calls[0]?.[0].requestId;
+    if (!requestId) throw new Error("Expected Save/Deploy request identity");
+    unmount();
+    await act(async () => {
+      response.resolve({ ok: true, status: runningStatus(requestId) });
+      await save;
+    });
+
+    expect(props.toast).not.toHaveBeenCalled();
+  });
+
   it("rejects invalid configs before save or deploy", async () => {
     const { result, props } = setup({
       canonicalConfig: { ...canonicalConfig, config: {} },
@@ -113,3 +243,13 @@ describe("useSaveDeploy config ownership", () => {
     );
   });
 });
+
+function deferred<T>() {
+  let resolvePromise = (_value: T): void => {
+    throw new Error("Deferred promise resolver was not initialized");
+  };
+  const promise = new Promise<T>((resolve) => {
+    resolvePromise = resolve;
+  });
+  return { promise, resolve: resolvePromise };
+}

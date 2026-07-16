@@ -71,7 +71,8 @@ describe("Map config save/deploy safe status projection", () => {
 });
 
 describe("isSaveDeployTerminal", () => {
-  it("treats only running status as non-terminal", () => {
+  it("treats only complete and failed status as terminal", () => {
+    const idle = createMapConfigSaveDeployStatus({ requestId: "r", phase: "idle" });
     const running = createMapConfigSaveDeployStatus({ requestId: "r", phase: "saving" });
     const complete = createMapConfigSaveDeployStatus({ requestId: "r", phase: "complete" });
     const failed = createMapConfigSaveDeployStatus({
@@ -80,6 +81,7 @@ describe("isSaveDeployTerminal", () => {
       safeFailureCategory: "save",
     });
 
+    expect(isSaveDeployTerminal(idle)).toBe(false);
     expect(isSaveDeployTerminal(running)).toBe(false);
     expect(isSaveDeployTerminal(complete)).toBe(true);
     expect(isSaveDeployTerminal(failed)).toBe(true);

@@ -12,7 +12,7 @@ import {
   StageViewTabs,
 } from "@swooper/mapgen-studio-ui";
 import type { GenerationStatus } from "@swooper/mapgen-studio-ui/types";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../features/civ7Setup/seedPolicy";
 import { getRecipeDefaultCanonicalConfig } from "../features/configAuthoring/canonicalConfig";
@@ -38,7 +38,6 @@ import { useStudioOperations } from "./hooks/useStudioOperations";
 import { useToast } from "./hooks/useToast";
 import { useViewportLayout } from "./hooks/useViewportLayout";
 import { useVizSelection } from "./hooks/useVizSelection";
-import { readAndAdoptStudioOperationsCurrent } from "./operationAdoption";
 import { studioBusyGateMessage } from "./studioEventRecovery";
 
 export type StudioShellProps = {
@@ -114,8 +113,6 @@ export function StudioShell(props: StudioShellProps) {
     clearLocalErrorIfCurrent,
     runInGameRunning,
     saveDeployRunning,
-    runInGameOperationRef,
-    saveDeployOperationCurrentRef,
   } = useStudioOperations();
 
   // Viewport/layout chrome: deck canvas handle, measured viewport, docked-panel
@@ -258,14 +255,10 @@ export function StudioShell(props: StudioShellProps) {
     setLocalError,
   });
 
-  // Repo-backed save/deploy cluster (slice 2.9): the save-dialog state, the
-  // save/deploy terminal-event waiter machinery (mirror + unmount-cleanup effects,
-  // SD-5 ordered pair / SD-10 first-line ref assign), and the three save handlers
-  // plus their shared `saveRepoBackedConfigWithState` core. The operation state
-  // itself stays in `useStudioOperations`; the busy booleans are threaded IN. Initialized
-  // BEFORE the operation-adoption effect (§5) so a daemon-adopted terminal
-  // save/deploy commit can resolve a pending waiter.
+  // Save/Deploy owns one synchronous operation adopter so pushed daemon evidence and
+  // request responses share the same terminal authority and waiter resolution.
   const {
+    adoptSaveDeployOperation,
     saveDialogState,
     closeSaveDialog,
     handleSaveDialogConfirm,
@@ -289,9 +282,7 @@ export function StudioShell(props: StudioShellProps) {
   // and run-in-game sync-back (2.11). The host still reads `liveRuntime.status/seed`,
   // `liveSetup.setup`, and `liveRuntimeSuggestions` from the returned outputs. The
   // `orpcClient` is threaded IN so the abort/staleness contracts are renderHook-testable.
-  // Initialized BEFORE `useRunInGame`'s territory / the operation-adoption effect (§5)
-  // because adoption needs the run-in-game + save-deploy setters and run-in-game inits
-  // after this hook.
+  // Initialized before `useRunInGame` because recovery consumes both operation adopters.
   const { liveRuntime, setLiveRuntime, liveRuntimeSuggestions, liveSetup, applyLiveGameState } =
     useLiveRuntime({ orpcClient });
 
@@ -370,49 +361,17 @@ export function StudioShell(props: StudioShellProps) {
     toast,
   });
 
-  // Seam #2: the shared run-in-game toast-dedupe stamp. Both the adoption effect below
-  // and `useStudioEvents` call this to mark a requestId as already-toasted, so whichever
-  // observes a terminal run-in-game status first suppresses the other's toast (see
-  // `useRunInGameTerminalToast`). Stable identity (`[]`) so it can be threaded into the
-  // adoption effect's deps without re-triggering it.
+  // The subscription hello marks historical terminal operations as handled so a cold
+  // reload does not replay their toast. Direct terminal events remain toast-producing.
   const markRunInGameToastHandled = useCallback((requestId: string) => {
     lastRunInGameToastRef.current = requestId;
   }, []);
 
-  // The SINGLE mount-time operation-adoption effect (§5). On load, reconcile the shell
-  // against `studio.operations.current` so a run-in-game / save-deploy that completed
-  // (or is still running) on the daemon while the tab was closed is re-attached: it
-  // restores both op states and stamps the toast guard so an already-finished operation
-  // is not re-toasted. Reads the live op state via the `*Ref` mirrors (not deps) so it
-  // runs ONCE; `markRunInGameToastHandled` is its only reactive dep (and is `[]`-stable).
-  // This is the live-stream's static counterpart; `useStudioEvents` keeps it current
-  // afterward. Initialized after save/live/run hooks so their setters exist here.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Mount-time adoption intentionally reads operation refs without subscribing; live updates are owned by useStudioEvents.
-  useEffect(() => {
-    let cancelled = false;
-    void readAndAdoptStudioOperationsCurrent({
-      readCurrent: () => orpcClient.studio.operations.current({}),
-      targets: {
-        setRunInGameOperation,
-        setSaveDeployOperation,
-        markRunInGameToastHandled,
-      },
-      isCancelled: () => cancelled,
-      getCurrentRunInGameOperation: () => runInGameOperationRef.current,
-      getCurrentSaveDeployOperation: () => saveDeployOperationCurrentRef.current,
-      onError: setLocalError,
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [markRunInGameToastHandled]);
-
   useStudioEvents({
     applyLiveGameState,
     currentRunInGameOperation: runInGameOperation,
-    currentSaveDeployOperation: saveDeployOperation,
     setRunInGameOperation,
-    setSaveDeployOperation,
+    setSaveDeployOperation: adoptSaveDeployOperation,
     markRunInGameToastHandled,
     setLocalError,
     clearLocalError: clearLocalErrorIfCurrent,
