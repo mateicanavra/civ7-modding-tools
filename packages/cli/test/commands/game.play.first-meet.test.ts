@@ -423,7 +423,6 @@ function firstMeetNotificationView(mode: "first-meet" | "ready-unit") {
         target: notification.target,
         location: notification.location,
         player: notification.player,
-        details: notification.details,
         ...decision,
       },
       decisionQueue: [
@@ -436,7 +435,6 @@ function firstMeetNotificationView(mode: "first-meet" | "ready-unit") {
           target: notification.target,
           location: notification.location,
           player: notification.player,
-          details: notification.details,
           ...decision,
         },
       ],

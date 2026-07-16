@@ -1,7 +1,10 @@
+import type { Civ7PlayNotificationViewResult } from "@civ7/direct-control";
 import { describe, expect, test, vi } from "vitest";
 import GamePlayRehydrate from "../../src/commands/game/play/rehydrate";
 import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
 import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
+
+type PlayNotificationPayload = Omit<Civ7PlayNotificationViewResult, "host" | "port" | "state">;
 
 describe("game play rehydrate command", () => {
   test("materializes restart rehydration continuity without sending operations", async () => {
@@ -121,7 +124,7 @@ describe("game play rehydrate command", () => {
 });
 
 async function startRehydrateTunerServer(
-  notifications = playNotificationView()
+  notifications: PlayNotificationPayload = playNotificationView()
 ): Promise<FakeTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
@@ -137,18 +140,29 @@ async function startRehydrateTunerServer(
 }
 
 function playNotificationViewWithDecision() {
+  const nextDecision: NonNullable<PlayNotificationPayload["hud"]["nextDecision"]> = {
+    notificationId: null,
+    isEndTurnBlocking: true,
+    typeName: "NOTIFICATION_CHOOSE_TECH",
+    summary: "Choose a Technology",
+    message: "Choose a new Technology to begin studying.",
+    target: { owner: 0, id: 11, type: 20 },
+    location: null,
+    player: 0,
+    category: "technology-choice",
+    operationFamily: "player-operation",
+    operationType: "CHOOSE_TECHNOLOGY",
+    requiredInputs: [],
+    commonActions: [],
+    notes: [],
+  };
   return {
     ...playNotificationView(),
     hud: {
-      nextDecision: {
-        category: "technology-choice",
-        operationFamily: "player-operation",
-        operationType: "CHOOSE_TECHNOLOGY",
-        target: { owner: 0, id: 11, type: 20 },
-      },
+      nextDecision,
       decisionQueue: [],
     },
-  };
+  } satisfies PlayNotificationPayload;
 }
 
 function playNotificationView() {
@@ -171,7 +185,7 @@ function playNotificationView() {
       decisionQueue: [],
     },
     limits: { maxNotifications: 25, truncated: false },
-  };
+  } satisfies PlayNotificationPayload;
 }
 
 function readyUnitView() {

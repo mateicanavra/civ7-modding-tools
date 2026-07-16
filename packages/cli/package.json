@@ -14,6 +14,8 @@
     "oclif.manifest.json"
   ],
   "scripts": {
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "check:tools": "tsc -p bin/tsconfig.json --noEmit",
     "clean:dist": "rimraf dist tsconfig.tsbuildinfo",
     "prepack": "node -e \"\"",
     "pack": "bun pm pack",

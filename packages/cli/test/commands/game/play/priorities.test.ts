@@ -1,3 +1,4 @@
+import type { Civ7BattlefieldScanResult } from "@civ7/direct-control";
 import { describe, expect, test, vi } from "vitest";
 import GamePlayPriorities from "../../../../src/commands/game/play/priorities";
 import {
@@ -6,6 +7,8 @@ import {
 } from "../../../../src/game-play/semantic-envelope";
 import { type FakeTunerServer, startFakeTunerServer } from "../../fixtures/tuner-socket-server";
 import { expectNormalPlayPayloadToOmitDebugInternals } from "./normal-output-boundary";
+
+type BattlefieldScanPayload = Omit<Civ7BattlefieldScanResult, "host" | "port" | "state">;
 
 type PriorityHudMode =
   | "ready-unit"
@@ -550,9 +553,9 @@ function priorityHudView(mode: PriorityHudMode) {
     mode === "stale-unit-command-disabled" ||
     mode === "stale-unit-command-pending"
   ) {
-    return decisionHudView(commandUnitsDecision(mode));
+    return commandUnitsDecision(mode);
   }
-  return decisionHudView(decisionForMode(mode));
+  return decisionForMode(mode);
 }
 
 function runtimeErrorHudView() {
@@ -863,10 +866,6 @@ function basePriorityHudView(input: {
   };
 }
 
-function decisionHudView(view: ReturnType<typeof basePriorityHudView>) {
-  return view;
-}
-
 function commandForCategory(category: string) {
   if (category === "first-meet-diplomacy") return "game play respond-first-meet";
   if (category === "technology-choice") return "game play choose-tech";
@@ -1075,17 +1074,25 @@ function turnCompletionStatus(mode: PriorityHudMode) {
 }
 
 function battlefieldScanView() {
-  const otherOwnerUnit = {
+  const otherOwnerUnit: BattlefieldScanPayload["units"][number] = {
     id: { owner: 9, id: 196608, type: 26 },
     owner: 9,
     stance: "other",
     relationshipProof: "none",
     relationshipLabel: "relationship-unproven",
+    type: 222,
     typeName: "UNIT_WARRIOR",
+    role: "melee",
     location: { x: 13, y: 17 },
     distance: 4,
+    nearestOrigin: { x: 22, y: 31 },
+    damage: 0,
+    wounded: false,
+    strength: 20,
+    movementMovesRemaining: 2,
+    attacksRemaining: 1,
   };
-  const city = {
+  const city: BattlefieldScanPayload["cities"][number] = {
     id: { owner: 9, id: 589824, type: 1 },
     owner: 9,
     stance: "other",
@@ -1094,6 +1101,9 @@ function battlefieldScanView() {
     name: "Independent City",
     location: { x: 13, y: 17 },
     distance: 4,
+    nearestOrigin: { x: 22, y: 31 },
+    population: 3,
+    isTown: false,
   };
   return {
     localPlayerId: 0,
@@ -1106,6 +1116,8 @@ function battlefieldScanView() {
       relationshipSource: "not-classified",
       relationshipProof: "none",
       unprovenLabel: "relationship-unproven",
+      guidance:
+        "Owner mismatch is contact evidence, not relationship proof; use relationship-unproven labels.",
     },
     units: [otherOwnerUnit],
     cities: [city],
@@ -1117,6 +1129,10 @@ function battlefieldScanView() {
         relationshipLabel: "relationship-unproven",
         unitCount: 1,
         cityCount: 1,
+        roles: { melee: 1 },
+        apparentStrength: 20,
+        nearestUnit: otherOwnerUnit,
+        nearestCity: city,
       },
     ],
     pointsOfInterest: [
@@ -1139,5 +1155,5 @@ function battlefieldScanView() {
       "Read-only battlefield lens for tactical orientation. It does not path, move, attack, or validate operations.",
       "Owner mismatch is contact evidence, not relationship proof. Use relationship-unproven language until official relationship APIs prove more.",
     ],
-  };
+  } satisfies BattlefieldScanPayload;
 }
