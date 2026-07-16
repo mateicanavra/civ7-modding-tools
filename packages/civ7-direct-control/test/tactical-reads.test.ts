@@ -7,6 +7,7 @@ import {
   Civ7BattlefieldScanInputSchema,
   Civ7BattlefieldScanResultSchema,
   Civ7DestinationAnalysisInputSchema,
+  type Civ7DestinationAnalysisResult,
   Civ7DestinationAnalysisResultSchema,
   Civ7TargetCandidatesInputSchema,
   Civ7TargetCandidatesResultSchema,
@@ -183,6 +184,10 @@ describe("tactical read wrappers", () => {
     ).toBe(false);
 
     const result = destinationAnalysisResult();
+    expect(result.corridor.units[0]?.corridorDistance).toBe(0);
+    expect(result.corridor.units[0]?.destinationDistance).toBe(0);
+    expect(result.destinationPressure.units[0]?.corridorDistance).toBe(0);
+    expect(result.destinationPressure.units[0]?.destinationDistance).toBe(0);
     expect(Value.Check(Civ7DestinationAnalysisResultSchema, result)).toBe(true);
     expect(
       Value.Check(Civ7DestinationAnalysisResultSchema, {
@@ -751,8 +756,11 @@ function battlefieldScanReadView() {
   };
 }
 
-function destinationAnalysisReadView() {
-  const otherOwnerUnit = {
+function destinationAnalysisReadView(): Omit<
+  Civ7DestinationAnalysisResult,
+  "host" | "port" | "state"
+> {
+  const otherOwnerUnit: Civ7DestinationAnalysisResult["corridor"]["units"][number] = {
     id: { owner: 9, id: 196608, type: 26 },
     owner: 9,
     stance: "other",
@@ -772,7 +780,12 @@ function destinationAnalysisReadView() {
     corridorDistance: 0,
     destinationDistance: 0,
   };
-  const otherOwnerCity = {
+  const otherOwnerDestinationUnit: Civ7DestinationAnalysisResult["destinationPressure"]["units"][number] =
+    {
+      ...otherOwnerUnit,
+      destinationDistance: 0,
+    };
+  const otherOwnerCity: Civ7DestinationAnalysisResult["destinationPressure"]["cities"][number] = {
     id: { owner: 9, id: 589824, type: 1 },
     owner: 9,
     stance: "other",
@@ -813,7 +826,7 @@ function destinationAnalysisReadView() {
       unitCount: 1,
     },
     destinationPressure: {
-      units: [otherOwnerUnit],
+      units: [otherOwnerDestinationUnit],
       unitCount: 1,
       cities: [otherOwnerCity],
       cityCount: 1,
@@ -823,9 +836,9 @@ function destinationAnalysisReadView() {
       {
         kind: "destination-pressure",
         severity: "medium",
-        location: otherOwnerUnit.location,
+        location: otherOwnerDestinationUnit.location,
         summary: "1 other-owner unit near destination",
-        units: [otherOwnerUnit],
+        units: [otherOwnerDestinationUnit],
       },
       {
         kind: "destination-city-pressure",
@@ -843,7 +856,7 @@ function destinationAnalysisReadView() {
   };
 }
 
-function destinationAnalysisResult() {
+function destinationAnalysisResult(): Civ7DestinationAnalysisResult {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -852,7 +865,9 @@ function destinationAnalysisResult() {
   };
 }
 
-function relationshipLabelPolicy(guidance: string) {
+function relationshipLabelPolicy(
+  guidance: string
+): Civ7DestinationAnalysisResult["relationshipLabelPolicy"] {
   return {
     relationshipSource: "not-classified",
     relationshipProof: "none",

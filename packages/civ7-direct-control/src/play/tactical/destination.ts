@@ -1,4 +1,4 @@
-import { type Static, Type } from "typebox";
+import { type Static, type TProperties, Type } from "typebox";
 import { jsLiteral } from "../../runtime/command-serialization.js";
 import { schemaPayloadFromCommandResult } from "../../session/command-result.js";
 import { executeCiv7AppUiCommand } from "../../session/execute.js";
@@ -61,8 +61,8 @@ const destinationRelationshipLabelSchema = Type.Union([
 
 const destinationStanceSchema = Type.Union([Type.Literal("friendly"), Type.Literal("other")]);
 
-const destinationAnalysisUnitSchema = (
-  distanceFields: Record<string, ReturnType<typeof Type.Number> | ReturnType<typeof Type.Optional>>
+const destinationAnalysisUnitSchema = <const DistanceFields extends TProperties>(
+  distanceFields: DistanceFields
 ) =>
   Type.Object(
     {
