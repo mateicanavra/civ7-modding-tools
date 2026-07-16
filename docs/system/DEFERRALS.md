@@ -107,6 +107,7 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 **Context:** The `.civ7/outputs/resources` snapshot dates to 2026-01-24; all S2 policy tables ground against it and say so in their generated headers. Refresh requires the game install, which the workstream environment lacks. Owner: placement-realignment (refactor-plan D4, user dependency).
 **Scope:** Refresh submodule; regenerate tables; disposition any new/changed rows (the generator fails loudly on new DLC resource types); rerun placement gates.
 **Impact:** Policy data may lag official patches; any balance changes since 2026-01-24 are invisible to planning.
+**Resolved (2026-07-15):** The resources gitlink is now `0093b43bdcd600f615adcb6b9b794e9e0c355a1b`; `civ7-map-policy:verify -- --write` adopted its four new Heian/Sengoku start-bias rows, and the subsequent verify, typecheck, test, and build graph passed. Generated provenance now records the exact submodule commit rather than a redundant snapshot date.
 
 ## DEF-012: DLC resource balancing
 
