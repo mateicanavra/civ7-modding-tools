@@ -18,10 +18,10 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | generate-script | 2 |
 | operation-note | 3 |
 | fix-script | 1 |
-| package-script | 139 |
-| nx-target | 91 |
+| package-script | 169 |
+| nx-target | 95 |
 | nx-plugin | 1 |
-| nx-target-default | 9 |
+| nx-target-default | 11 |
 | habitat-cli-source | 112 |
 
 ## Surfaces By Role
@@ -33,7 +33,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | policy_pattern | 80 |
 | structure_authority | 8 |
 | operation_surface | 6 |
-| workspace_entrypoint | 240 |
+| workspace_entrypoint | 276 |
 | toolkit_runner | 112 |
 
 ## Execution Anatomy Roles
@@ -43,8 +43,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | fixture-support | 9 |
 | adapter | 120 |
 | policy-predicate | 88 |
-| transient-dependency | 110 |
-| entrypoint | 242 |
+| transient-dependency | 112 |
+| entrypoint | 278 |
 | runner-runtime | 112 |
 
 ## Fixture/Support Files
@@ -60,8 +60,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | --- | --- |
 | unknown | 240 |
 | direct-script | 4 |
-| package | 140 |
-| nx | 101 |
+| package | 170 |
+| nx | 107 |
 | habitat | 112 |
 
 ## Buckets
@@ -70,10 +70,10 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | --- | --- |
 | package_boundary_tie | 93 |
 | unknown_invocation | 240 |
-| mutation_surface | 127 |
-| nx_ordering_tie | 117 |
+| mutation_surface | 123 |
+| nx_ordering_tie | 119 |
 | direct_script_invoked | 4 |
-| package_invoked | 241 |
+| package_invoked | 277 |
 | habitat_invoked | 112 |
 
 ## Top Cross-Boundary Ties By Fanout
@@ -85,26 +85,26 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | habitat-toolkit | @habitat/cli/resources/command/index | 20 | 20 | tools/habitat/src/providers/biome/index.ts<br>tools/habitat/src/providers/git/index.ts<br>tools/habitat/src/providers/graphite/index.ts |
 | habitat-toolkit | @habitat/cli/service/model/check/index | 20 | 20 | tools/habitat/src/cli/commands/check.ts<br>tools/habitat/src/cli/commands/verify.ts<br>tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts |
 | habitat-toolkit | @habitat/cli/service/model/rules/index | 18 | 18 | tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts |
-| workspace-tool | git | 17 | 17 | .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs<br>.habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts |
+| workspace-tool | git | 18 | 18 | .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs<br>.habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts |
+| workspace-tool | tsc -p test/tsconfig.json --noEmit | 15 | 15 | apps/docs/package.json#scripts.check:test<br>apps/playground/package.json#scripts.check:test<br>mods/mod-swooper-maps/project.json#targets.check:test |
 | relative | ./types.js | 14 | 25 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md<br>.habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md<br>tools/habitat/src/resources/command/fake.ts |
 | workspace-tool | node -e "" | 13 | 13 | apps/docs/project.json#targets.build<br>apps/mapgen-studio/project.json#targets.build<br>mods/mod-civ7-intelligence-bridge/project.json#targets.build |
 | mod | mods/ | 11 | 11 | .habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md<br>.habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md<br>.habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md |
 | relative | ./ | 10 | 10 | .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs<br>.habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md |
 | habitat-toolkit | @habitat/cli/service/model/diagnostics/index | 10 | 10 | tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/failure.ts |
 | workspace-tool | grit | 10 | 10 | .habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/check.mjs<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts |
+| workspace-tool | tsc -p tsconfig.json --noEmit --composite false --incremental false | 10 | 10 | apps/docs/package.json#scripts.typecheck<br>apps/playground/package.json#scripts.typecheck<br>packages/civ7-control-orpc/project.json#targets.typecheck |
 | relative | ./output.js | 9 | 18 | tools/habitat/src/resources/command/index.ts<br>tools/habitat/src/resources/command/runner.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts |
-| workspace-tool | tsc -p tsconfig.json --noEmit --composite false --incremental false | 9 | 9 | apps/docs/package.json#scripts.typecheck<br>apps/playground/package.json#scripts.typecheck<br>packages/civ7-control-orpc/project.json#targets.typecheck |
+| workspace-tool | tsc -p tsconfig.json --noEmit | 9 | 9 | mods/mod-swooper-civ-dacia/package.json#scripts.typecheck<br>packages/mapgen-studio-ui/package.json#scripts.typecheck<br>packages/mapgen-viz/package.json#scripts.typecheck |
 | relative | ./request.js | 8 | 16 | tools/habitat/src/resources/command/index.ts<br>tools/habitat/src/resources/command/observation.ts<br>tools/habitat/src/resources/command/result.ts |
-| habitat-toolkit | @habitat/cli/resources/config/index | 8 | 8 | tools/habitat/src/providers/biome/index.ts<br>tools/habitat/src/providers/git/index.ts<br>tools/habitat/src/providers/graphite/index.ts |
 | habitat-toolkit | @habitat/cli/service/model/workspace/index | 8 | 8 | tools/habitat/src/providers/nx/graph.ts<br>tools/habitat/src/providers/nx/index.ts<br>tools/habitat/src/providers/nx/inventory.ts |
 | mod | mods/mod-swooper-maps/src/ | 8 | 8 | .habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md<br>.habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/pattern.md<br>.habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/pattern.md |
 | mod | mods/mod-swooper-maps/src/domain/ | 8 | 8 | .habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_rng_callback_state_in_ops/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md |
 | mod | mods/mod-swooper-maps/src/recipes/standard/stages/ | 8 | 8 | .habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md<br>.habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/pattern.md<br>.habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md |
-| workspace-tool | tsc -p tsconfig.json --noEmit | 8 | 8 | mods/mod-swooper-civ-dacia/package.json#scripts.typecheck<br>packages/mapgen-viz/package.json#scripts.typecheck<br>packages/plugins/plugin-graph/package.json#scripts.typecheck |
 | relative | ./command.js | 7 | 14 | tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts |
 | workspace-tool | grit<br>language js(typescript) | 7 | 7 | .habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/pattern.md<br>.habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md<br>.habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md |
 | mod | mods/mod-swooper-maps/src/domain/. | 7 | 7 | .habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md<br>.habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md |
-| workspace-tool | tsc --noEmit | 7 | 7 | apps/mapgen-studio/project.json#targets.typecheck<br>mods/mod-civ7-intelligence-bridge/package.json#scripts.typecheck<br>mods/mod-swooper-maps/project.json#targets.typecheck |
+| workspace-tool | nx | 7 | 7 | tools/habitat/src/providers/nx/index.ts<br>tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts<br>tools/habitat/src/service/model/rules/dto/registry.schema.ts |
 
 ## Direct Package Or Root Scripts Calling `.habitat` Internals
 
@@ -287,7 +287,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/pattern.md | pattern | >; generate; apps/mapgen-studio/src/server/studio/engines |
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/pattern.md | pattern | >; apps/mapgen-studio/src/server/runInGame/runtimeObservation; apps/mapgen-studio/src/server/runInGame/runtimeObservation.ts |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/pattern.md | pattern | >; apps/mapgen-studio/src/server/daemon/daemon; apps/mapgen-studio/src/server/daemon/daemon.ts |
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-generator-port-boundary/pattern.md | pattern | >; generate; apps/mapgen-studio/src/server/. |
 | .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-generator-port-boundary/rule.json | rule-json |  |

@@ -166,6 +166,14 @@ already bundled the recipe without either resolver.
   `@swooper/mapgen-viz/node` and `packages/mapgen-viz/tools`.
 - Move Swooper-specific analysis, profiling, live, and placement commands to
   the mod's existing `scripts/{diagnostics,live,placement}` owners.
+- Consolidate reusable headless product metrics with the existing
+  world-balance statistics under
+  `mods/mod-swooper-maps/test/support/product-metrics`. These metrics depend on
+  Civ7 terrain identities, Standard recipe artifacts, map policy, and
+  MockAdapter behavior, so Core is not their owner. Tests own behavioral
+  thresholds; `scripts/diagnostics/report-product-metrics.ts` may only
+  orchestrate admitted size/seed sampling and parseable reporting over the
+  shared calculations.
 - Move reusable map-policy live checks to
   `packages/civ7-map-policy/scripts/live`.
 - Empty and delete `mods/mod-swooper-maps/src/dev` and its TypeScript config.
@@ -176,28 +184,37 @@ public Core build-support abstraction is earned.
 
 ### Categorical deletions
 
-Delete the seven one-off `scripts/diag/*.ts` investigations, the obsolete
-config-shape migration, the standard-authoring report, the ecology contract
-quality script, and the tautological manual-placement catalog verifier. Remove
-their targets and scripts. Do not replace them with wrappers or records.
+Delete the obsolete config-shape migration, standard-authoring report, and
+tautological manual-placement catalog verifier. Delete the superseded
+bathymetry, margin, shelf-spottiness, single deep-ocean census, and terrain
+renderer investigations. Retain the deep-ocean matrix and reef census only
+until the product-metrics slice replaces their useful sampling predicates;
+neither historical file shape is a compatibility surface.
 
 ## Semantic Slices
 
 Each slice is a complete Graphite layer with one primary implementation owner
 and fresh sessions filling the permanent review roles.
 
-1. **Dead development noise.** Delete the obsolete Swooper scripts and their
-   task surfaces.
-2. **Bundle compatibility authority.** Establish adapter-owned map-script build
+1. **Dead development noise.** Delete only the proven-obsolete Swooper scripts
+   and normalize the surviving operational task surface.
+2. **Documentation authority.** Replace the stale Ecology-only checker with
+   generic consumed-export JSDoc authority and semantic contract descriptions;
+   close the retained Swooper corpus and carry moved-domain repairs with their
+   destination slices.
+3. **Bundle compatibility authority.** Establish adapter-owned map-script build
    support, neutralize Core's build, remove duplicate shims, and prove both
    Swooper and Studio-run bundling.
-3. **Development-tool ownership.** Move observability, dump IO, live policy,
+4. **Product-metrics authority.** Consolidate reusable statistical calculations
+   and fixtures, move behavioral thresholds into Swooper tests, and retain only
+   thin exploration commands with real consumers.
+5. **Development-tool ownership.** Move observability, dump IO, live policy,
    and Swooper-specific commands to their real owners; delete `src/dev`.
-4. **Foundation.** Move the complete domain, neutral tests, exports, consumers,
+6. **Foundation.** Move the complete domain, neutral tests, exports, consumers,
    and active Habitat authority.
-5. **Morphology.** Apply the same complete move.
-6. **Hydrology.** Apply the same complete move.
-7. **Ecology.** Move after Hydrology, then delete the final fake domain aliases
+7. **Morphology.** Apply the same complete move.
+8. **Hydrology.** Apply the same complete move.
+9. **Ecology.** Move after Hydrology, then delete the final fake domain aliases
    and resolver paths. Assert exactly 90 moved and 11 retained operation roots.
 
 Foundation precedes Morphology because three Morphology tests consume the

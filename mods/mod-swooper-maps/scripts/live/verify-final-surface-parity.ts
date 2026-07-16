@@ -49,9 +49,9 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode final-surface-parity --request-id <id>
-  nx run mod-swooper-maps:verify -- --mode final-surface-parity --diagnostics-id <id>
-  nx run mod-swooper-maps:verify -- --mode final-surface-parity --evidence-file <diagnostics.json>
+  nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity --request-id <id>
+  nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity --diagnostics-id <id>
+  nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity --evidence-file <diagnostics.json>
 
 Options:
   --request-id <id>           Fresh-run lookup: public completion status, then its private diagnostics record

@@ -39,7 +39,7 @@ type FeatureFeasibilityProbe = Readonly<{
 }>;
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode feature-delta-feasibility --report-file <final-surface-parity-report.json>
+  nx run mod-swooper-maps:verify:operational -- --mode feature-delta-feasibility --report-file <final-surface-parity-report.json>
 
 Options:
   --context-file <path> Optional feature delta context artifact to join by plot index

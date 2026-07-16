@@ -52,7 +52,7 @@ This is the primary in-game gate. Ordered internals (from `scripts/live/verify-s
 Invocation (mutating):
 
 ```bash
-nx run mod-swooper-maps:verify -- --mode studio-run-in-game-live \
+nx run mod-swooper-maps:verify:operational -- --mode studio-run-in-game-live \
   --mutate \
   --map-script "{swooper-maps}/maps/swooper-earthlike.js" \
   --map-size MAPSIZE_HUGE \
@@ -88,7 +88,7 @@ nx run mod-swooper-maps:verify -- --mode studio-run-in-game-live \
 On success, step 9 mints `proofId = createCiv7ControlRequestId("studio-run-in-game-live-proof")` → `"studio-run-in-game-live-proof-<base36 time>-<base36 pid>"`, printed in the JSON report. Capture that `requestId`, then run the parity proof on the **same live session** (it compares seed/turn/gameHash):
 
 ```bash
-nx run mod-swooper-maps:verify -- --mode final-surface-parity \
+nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity \
   --request-id studio-run-in-game-live-proof-<id> \
   --studio-url http://127.0.0.1:5174 \
   --output /tmp/parity-proof.json
@@ -101,23 +101,23 @@ It POSTs `{ json: { requestId } }` to `${studioUrl}/rpc/runInGame/status` (oRPC 
 
 ---
 
-## 5. The 9 verify modes
+## 5. The 9 operational verify modes
 
-`nx run mod-swooper-maps:verify -- --mode <mode> [flags]` (or `bun ./scripts/verify.ts --mode <mode>`). From `scripts/verify.ts`:
+`nx run mod-swooper-maps:verify:operational -- --mode <mode> [flags]` (or `bun ./scripts/verify.ts --mode <mode>`). From `scripts/verify.ts`:
 
 | Mode | Live? | Use |
 |---|---|---|
-| `placement-catalogs` (default) | no | offline catalog validation |
 | `placement-metrics` | no | offline placement metrics |
 | `studio-run-in-game-live` | **yes** | the mutating gate (§2) |
 | `final-surface-parity` | **yes** | local-vs-live grid parity (§4) |
+| `output-parity` | **yes** | loaded-map engine output vs headless recipe parity |
 | `resource-delta-feasibility` | **yes** | live `ResourceBuilder.canHaveResource` on parity delta rows |
 | `feature-delta-feasibility` | **yes** | live `TerrainBuilder.canHaveFeature` on delta rows |
 | `terrain-edge-live-context` | **yes** | live terrain/hydrology/area readback for edge deltas |
 | `placement-live-legality-agreement` | **yes** | mock-vs-live legality; `AGREEMENT_GATE_THRESHOLD=0.95` |
 | `placement-live-required-for-age` | **yes** | live `isResourceRequiredForAge` vs static tables |
 
-Aliases: `catalogs`→`placement-catalogs`, `metrics`→`placement-metrics`, `studio-run-in-game:live`→`studio-run-in-game-live`.
+Aliases: `metrics`→`placement-metrics`, `studio-run-in-game:live`→`studio-run-in-game-live`.
 
 ---
 

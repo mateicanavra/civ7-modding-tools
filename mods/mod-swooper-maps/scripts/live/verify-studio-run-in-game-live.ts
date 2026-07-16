@@ -57,7 +57,7 @@ function resolveLocalModsDir(): string {
 }
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode studio-run-in-game-live [flags]
+  nx run mod-swooper-maps:verify:operational -- --mode studio-run-in-game-live [flags]
 
 Read-only default:
   --host <host> --port <port> --timeout-ms <ms>

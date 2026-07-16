@@ -77,16 +77,10 @@
         "cwd": "mods/mod-swooper-maps"
       }
     },
-    "gen:configs:shape-check": {
-      "command": "bun ./scripts/migrate-config-shapes.ts --dry",
-      "dependsOn": [
-        {
-          "projects": ["mapgen-core"],
-          "target": "build"
-        }
-      ],
-      "inputs": ["default", "^default"],
-      "cache": true,
+    "verify:operational": {
+      "command": "bun ./scripts/verify.ts",
+      "dependsOn": ["build"],
+      "cache": false,
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }

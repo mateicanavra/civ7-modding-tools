@@ -74,7 +74,7 @@ cd mods/mod-swooper-maps && bun run diag:dump   # prints {"runId","outputDir"}
 bun run diag:diff -- --prefix <layer> --dataTypeKey <key>   # diff-layers.ts — the gen-vs-viz separator
 
 # 4. (placement/resource changes) use the placement-metrics mode instead of raw earth metrics
-bun run verify -- --mode placement-metrics
+nx run mod-swooper-maps:verify:operational -- --mode placement-metrics
 ```
 
 Record for each measurement: `runId`, label, seed, map size, config, and the timestamp. Behavioral claims that cannot name their runId are not proof (see `civ7-operational-debugging` proof boundaries).

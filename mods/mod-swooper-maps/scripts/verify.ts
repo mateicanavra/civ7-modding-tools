@@ -8,14 +8,6 @@ type Mode = Readonly<{
 
 const modes = new Map<string, Mode>([
   [
-    "placement-catalogs",
-    {
-      script: "scripts/placement/verify-manual-catalogs.ts",
-      description: "Validate placement manual catalogs against map-policy tables.",
-      live: false,
-    },
-  ],
-  [
     "placement-metrics",
     {
       script: "scripts/placement/placement-metrics.ts",
@@ -91,12 +83,9 @@ const modes = new Map<string, Mode>([
 ]);
 
 const aliases = new Map<string, string>([
-  ["catalogs", "placement-catalogs"],
   ["metrics", "placement-metrics"],
   ["studio-run-in-game:live", "studio-run-in-game-live"],
 ]);
-
-const localDefaultModes = ["placement-catalogs"] as const;
 
 function usage(): string {
   const rows = [...modes.entries()]
@@ -106,12 +95,8 @@ function usage(): string {
     )
     .join("\n");
   return `Usage:
-  nx run mod-swooper-maps:verify
-  nx run mod-swooper-maps:verify -- --mode <mode> [flags]
-  nx run mod-swooper-maps:verify -- <mode> [flags]
-
-Default mode:
-  ${localDefaultModes.join(", ")}
+  nx run mod-swooper-maps:verify:operational -- --mode <mode> [flags]
+  nx run mod-swooper-maps:verify:operational -- <mode> [flags]
 
 Modes:
 ${rows}
@@ -169,14 +154,9 @@ async function main(): Promise<number> {
     return 0;
   }
 
-  if (!parsed.mode || parsed.mode === "local") {
-    for (const modeName of localDefaultModes) {
-      const mode = modes.get(modeName);
-      if (!mode) throw new Error(`Internal verifier mode missing: ${modeName}`);
-      const code = await runScript(mode.script, parsed.args);
-      if (code !== 0) return code;
-    }
-    return 0;
+  if (!parsed.mode) {
+    console.error(usage());
+    return 2;
   }
 
   const resolvedMode = aliases.get(parsed.mode) ?? parsed.mode;
