@@ -2,13 +2,28 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+import placement from "@mapgen/domain/placement/ops";
 
 import { initializeStandardRuntime } from "../../../../../../src/recipes/standard/runtime.js";
 import { buildPlacementInputs } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/inputs.js";
 import { buildNaturalWonderPlanInputRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-input-telemetry.js";
 import { buildNaturalWonderPlanRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-telemetry.js";
+import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";
 
 const { featureTypes, terrainTypeIndices, biomeGlobals } = CIV7_BROWSER_TABLES_V0;
+
+function placementConfig() {
+  return {
+    naturalWonders: normalizeOpSelectionOrThrow(
+      placement.ops.planNaturalWonders,
+      placement.ops.planNaturalWonders.defaultConfig
+    ),
+    wonders: normalizeOpSelectionOrThrow(
+      placement.ops.planWonders,
+      placement.ops.planWonders.defaultConfig
+    ),
+  };
+}
 
 describe("derive placement inputs", () => {
   it("passes explicit projected natural-wonder direction to materialization planning", () => {
@@ -89,17 +104,22 @@ describe("derive placement inputs", () => {
       }),
     } as never;
 
-    buildPlacementInputs(context, {}, ops, {
+    buildPlacementInputs(context, placementConfig(), ops, {
       topography: {
         landMask: new Uint8Array(size).fill(1),
         elevation: new Int16Array(size).fill(500),
       },
-      hydrography: { riverClass: new Uint8Array(size) },
+      hydrography: {
+        riverClass: new Uint8Array(size),
+        discharge: new Float32Array(size),
+        slopeClass: new Uint8Array(size),
+      },
       lakePlan: { lakeMask: new Uint8Array(size) },
       biomeClassification: {
         effectiveMoisture: new Float32Array(size).fill(0.5),
         surfaceTemperature: new Float32Array(size).fill(0.5),
         aridityIndex: new Float32Array(size).fill(0.5),
+        vegetationDensity: new Float32Array(size).fill(0.5),
       },
       biomeBindings: {
         engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
@@ -208,17 +228,22 @@ describe("derive placement inputs", () => {
       }),
     } as never;
 
-    buildPlacementInputs(context, {}, ops, {
+    buildPlacementInputs(context, placementConfig(), ops, {
       topography: {
         landMask: new Uint8Array(size).fill(1),
         elevation: new Int16Array(size).fill(500),
       },
-      hydrography: { riverClass: new Uint8Array(size) },
+      hydrography: {
+        riverClass: new Uint8Array(size),
+        discharge: new Float32Array(size),
+        slopeClass: new Uint8Array(size),
+      },
       lakePlan: { lakeMask: new Uint8Array(size) },
       biomeClassification: {
         effectiveMoisture: new Float32Array(size).fill(0.5),
         surfaceTemperature: new Float32Array(size).fill(0.5),
         aridityIndex: new Float32Array(size).fill(0.5),
+        vegetationDensity: new Float32Array(size).fill(0.5),
       },
       biomeBindings: {
         engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
@@ -310,7 +335,11 @@ describe("derive placement inputs", () => {
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
     });
-    adapter.setFeatureType(1, 1, featureTypes.FEATURE_ICE);
+    adapter.setFeatureType(1, 1, {
+      Feature: featureTypes.FEATURE_ICE,
+      Direction: 0,
+      Elevation: 0,
+    });
     const elevation = new Int16Array(size).fill(100);
     elevation[5] = 240;
     const context = {
@@ -375,7 +404,7 @@ describe("derive placement inputs", () => {
           featureTypes.FEATURE_KILIMANJARO,
           terrainTypeIndices.TERRAIN_MOUNTAIN,
           biomeGlobals.BIOME_PLAINS,
-          0,
+          featureTypes.FEATURE_ICE,
           240,
           250000,
           2,

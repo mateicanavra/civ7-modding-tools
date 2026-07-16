@@ -34,7 +34,7 @@ describe("placement product/effect contracts", () => {
     expect(placeNaturalWondersStep.contract.provides).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced
     );
-    expect(placeNaturalWondersStep.contract.artifacts.provides).toContain(
+    expect(placeNaturalWondersStep.contract.artifacts?.provides).toContain(
       placementArtifacts.naturalWonderPlacement
     );
     expect(preparePlacementSurfaceStep.contract.requires).toContain(
@@ -42,7 +42,7 @@ describe("placement product/effect contracts", () => {
     );
     // S6: ordering after the wonder stamp is tag-only; the step declares no
     // read-and-discard artifact requirement on the wonder evidence.
-    expect(preparePlacementSurfaceStep.contract.artifacts.requires).not.toContain(
+    expect(preparePlacementSurfaceStep.contract.artifacts?.requires).not.toContain(
       placementArtifacts.naturalWonderPlacement
     );
   });
@@ -97,13 +97,13 @@ describe("placement product/effect contracts", () => {
     expect(adjustResourcesStep.contract.provides).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesAdjusted
     );
-    expect(adjustResourcesStep.contract.artifacts.provides).toContain(
+    expect(adjustResourcesStep.contract.artifacts?.provides).toContain(
       placementArtifacts.resourcePlanAdjusted
     );
     expect(placeResourcesStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesAdjusted
     );
-    expect(placeResourcesStep.contract.artifacts.requires).toContain(
+    expect(placeResourcesStep.contract.artifacts?.requires).toContain(
       placementArtifacts.resourcePlanAdjusted
     );
     expect(placeResourcesStep.contract.provides).toContain(
@@ -124,7 +124,7 @@ describe("placement product/effect contracts", () => {
     expect(placementStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned
     );
-    expect(placementStep.contract.artifacts.requires).toEqual(
+    expect(placementStep.contract.artifacts?.requires).toEqual(
       expect.arrayContaining([
         placementArtifacts.resourcePlacementOutcomes,
         placementArtifacts.startAssignment,

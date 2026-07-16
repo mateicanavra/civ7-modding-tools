@@ -6,7 +6,7 @@ import { defineConfig } from "tsup";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const domainRoot = resolvePath(__dirname, "src/domain");
+const domainRoot = resolvePath(__dirname, "../src/domain");
 
 function resolveWithJsToTsFallback(absPath: string): string | null {
   if (existsSync(absPath)) return absPath;

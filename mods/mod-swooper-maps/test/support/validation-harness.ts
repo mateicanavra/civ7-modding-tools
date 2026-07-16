@@ -60,9 +60,7 @@ function hashView(view: ArrayBufferView): {
   const bytes = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
   const sha256 = sha256Hex(Buffer.from(bytes).toString("base64"));
   const length =
-    typeof (view as { length?: number }).length === "number"
-      ? (view as { length: number }).length
-      : view.byteLength;
+    "length" in view && typeof view.length === "number" ? view.length : view.byteLength;
   return {
     type: view.constructor?.name ?? "ArrayBufferView",
     length,

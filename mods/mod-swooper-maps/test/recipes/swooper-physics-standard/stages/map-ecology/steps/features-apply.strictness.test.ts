@@ -39,7 +39,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
       }
     );
 
-    stageArtifacts.featureIntentsVegetation.publish(ctx, [
+    ctx.artifacts.set(ecologyArtifacts.featureIntentsVegetation.id, [
       { x: 0, y: 0, feature: "FEATURE_DOES_NOT_EXIST" },
     ]);
     stageArtifacts.featureIntentsWetlands.publish(ctx, []);

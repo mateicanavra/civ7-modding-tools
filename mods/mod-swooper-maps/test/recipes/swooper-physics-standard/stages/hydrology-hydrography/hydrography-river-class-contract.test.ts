@@ -14,7 +14,9 @@ describe("hydrography river class contract", () => {
     };
 
     expect(
-      hydrologyHydrographyArtifactValidators.hydrography(payload, { width: 4, height: 1 })
+      hydrologyHydrographyArtifactValidators.hydrography(payload, {
+        dimensions: { width: 4, height: 1 },
+      })
     ).toEqual([]);
     expect(isMajorRiverClass(payload.riverClass[3])).toBe(true);
   });

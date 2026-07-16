@@ -252,7 +252,7 @@ exact Habitat topology as the future realization.
 | A.2 split-base reconciliation | Sealed | Current readiness semantics and the nine-document descent container are preserved above the sealed prerequisites. A.2 implementation has not begun. |
 | A.2 Authority | Not started | The sibling A.2 track begins only from the reviewed split base. |
 | A.2 domain slices | Not started | 34 Ecology, 18 Foundation, 19 Morphology, 19 Hydrology, 8 Resources, 3 Placement operations. |
-| A.3 static coverage | Planned | Close test/dev/tool TypeScript authority and move five source-local type-test families. |
+| A.3 static coverage | Closing candidate | Semantic test owners plus discoverable Swooper test/script/dev compiler projects close the static-authority gap. |
 | A.3a atomic reroll | Sealed at `93b1153ca` | One user command produces one worker start with Auto-run on or off. |
 | A.4 preset ontology removal | Planned | Delete the second full-config concept and its state/lifecycle/UI/persistence paths. |
 | A.5 browser payload/worker readiness | Proposed; cohesion unproven | Lazy selected config loading and worker warmup may need separate units. |

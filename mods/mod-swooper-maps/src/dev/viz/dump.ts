@@ -1,6 +1,6 @@
 import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import type { TraceEvent, TraceScope, TraceSink, VizDumper } from "@swooper/mapgen-core";
+import type { TraceEvent, TraceSink, VizDumper } from "@swooper/mapgen-core";
 import type {
   Bounds,
   VizBinaryRef,

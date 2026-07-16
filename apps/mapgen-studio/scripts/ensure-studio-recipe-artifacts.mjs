@@ -52,7 +52,7 @@ const artifactSources = [
   "mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts",
   "mods/mod-swooper-maps/package.json",
   "mods/mod-swooper-maps/project.json",
-  "mods/mod-swooper-maps/tsup.studio-recipes.config.ts",
+  "mods/mod-swooper-maps/scripts/tsup.studio-recipes.config.ts",
   "packages/mapgen-core/dist",
 ];
 

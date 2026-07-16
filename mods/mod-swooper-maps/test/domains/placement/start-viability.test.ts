@@ -1,34 +1,29 @@
 import { describe, expect, it } from "bun:test";
 import placementDomain from "@mapgen/domain/placement/ops";
+import type { Static } from "@swooper/mapgen-core/authoring";
 import { runOpValidated } from "../../support/compiler-helpers.js";
 
 const { planStarts } = placementDomain.ops;
 
-type StartInput = {
-  baseStarts: {
-    playersLandmass1: number;
-    playersLandmass2: number;
-  };
-  alivePlayerIds?: number[];
-  seatBiases?: Array<{ seatIndex: number; river: number; lake: number; adjacentToCoast: number }>;
-  width: number;
-  height: number;
-  landMask: Uint8Array;
-  slotByTile: Uint8Array;
-  landmassIdByTile: Int32Array;
-  landmassTileCounts: number[];
-  coastalLand: Uint8Array;
-  distanceToCoast: Uint16Array;
-  shelfMask: Uint8Array;
-  elevation: Int16Array;
-  fertility: Float32Array;
-  effectiveMoisture: Float32Array;
-  surfaceTemperature: Float32Array;
-  aridityIndex: Float32Array;
-  riverClass: Uint8Array;
-  lakeMask: Uint8Array;
-  plannedResourcePlotIndices?: number[];
-};
+type PlanStartsInput = Static<(typeof planStarts)["input"]>;
+type StartInputField =
+  | "width"
+  | "height"
+  | "landMask"
+  | "slotByTile"
+  | "landmassIdByTile"
+  | "landmassTileCounts"
+  | "coastalLand"
+  | "distanceToCoast"
+  | "shelfMask"
+  | "elevation"
+  | "fertility"
+  | "effectiveMoisture"
+  | "surfaceTemperature"
+  | "aridityIndex"
+  | "riverClass"
+  | "lakeMask";
+type StartInput = PlanStartsInput & Required<Pick<PlanStartsInput, StartInputField>>;
 
 function idx(width: number, x: number, y: number): number {
   return y * width + x;
@@ -86,7 +81,7 @@ function addLandmass(
 }
 
 function plan(
-  input: StartInput,
+  input: PlanStartsInput,
   configure?: (config: (typeof planStarts.defaultConfig)["config"]) => void
 ) {
   const selection = structuredClone(planStarts.defaultConfig);
@@ -220,10 +215,10 @@ describe("start viability planning", () => {
       "climate",
       "resource",
       "roughness",
-    ];
+    ] as const satisfies readonly (keyof (typeof result.candidates)[number]["components"])[];
     for (const candidate of result.candidates) {
       for (const key of componentKeys) {
-        const value = (candidate.components as Record<string, number>)[key];
+        const value = candidate.components[key];
         expect(value).toBeGreaterThanOrEqual(0);
         expect(value).toBeLessThanOrEqual(1);
       }
@@ -536,15 +531,16 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("surfaces imputed inputs in coverage rows and seat flags instead of silently defaulting", () => {
-    const input = makeInput(12, 8, 1, 0);
+    const completeInput = makeInput(12, 8, 1, 0);
     addLandmass(
-      input,
+      completeInput,
       0,
       1,
       Array.from({ length: 48 }, (_value, i) => [1 + (i % 8), 1 + Math.floor(i / 8)] as const)
     );
-    (input as Record<string, unknown>).fertility = undefined;
-    (input as Record<string, unknown>).aridityIndex = undefined;
+    const input: PlanStartsInput = completeInput;
+    input.fertility = undefined;
+    input.aridityIndex = undefined;
 
     const result = plan(input);
 

@@ -1,8 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
-  type EarthlikeResourceExpectation,
-} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
+import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 import resources from "@mapgen/domain/resources/ops";
 
 import { normalizeOpSelectionOrThrow, TestCompileError } from "../../support/compiler-helpers.js";
@@ -27,6 +24,9 @@ const CULTIVATED_RESOURCE_TYPES = [
   "RESOURCE_CLOVES",
   "RESOURCE_FLAX",
 ] as const;
+type CultivatedExpectation = Parameters<
+  typeof resources.ops.planCultivatedResources.run
+>[0]["expectations"][number];
 
 describe("cultivated resource operation contract", () => {
   it("plans all cultivated resource rows symbolically without runtime ids", () => {
@@ -206,10 +206,19 @@ describe("cultivated resource operation contract", () => {
   });
 });
 
-function cultivatedExpectations(): EarthlikeResourceExpectation[] {
+function cultivatedExpectations(): CultivatedExpectation[] {
   return EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
     (row) => row.groupId === "cultivated-plantation-medicinal"
-  );
+  ).map((row) => ({
+    resourceType: row.resourceType,
+    groupId: "cultivated-plantation-medicinal",
+    status: row.status,
+    earthlikePredicate: row.earthlikePredicate,
+    expectedCountRange: { ...row.expectedCountRange },
+    conditionMultipliers: [...row.conditionMultipliers],
+    signalRequirements: [...row.signalRequirements],
+    caveats: [...row.caveats],
+  }));
 }
 
 function every(size: number): Uint8Array {

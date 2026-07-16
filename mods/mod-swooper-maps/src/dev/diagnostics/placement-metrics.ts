@@ -14,7 +14,7 @@
  * explicit non-"computed" status instead of being silently omitted.
  */
 
-import type { GameMapAdapter } from "@civ7/adapter";
+import type { EngineAdapter } from "@civ7/adapter";
 import { createMockAdapter } from "@civ7/adapter";
 import { type OfficialResourceType, requireResourceRuntimeId } from "@civ7/map-policy";
 import { createExtendedMapContext, createLabelRng, VOLCANO_FEATURE } from "@swooper/mapgen-core";
@@ -407,7 +407,7 @@ export function runPlacementMetrics(options: PlacementMetricsRunOptions): Placem
 
 type ComputeArgs = {
   context: { artifacts: { get(id: string): unknown } };
-  adapter: GameMapAdapter;
+  adapter: EngineAdapter;
   width: number;
   height: number;
   intendedPlayerCount: number;

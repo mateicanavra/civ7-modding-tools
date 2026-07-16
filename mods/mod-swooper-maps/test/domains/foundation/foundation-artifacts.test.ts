@@ -61,7 +61,9 @@ function snapshotPayload(value: unknown): string {
     if (ArrayBuffer.isView(candidate)) {
       return {
         ctor: candidate.constructor.name,
-        values: Array.from(candidate as ArrayLike<number>),
+        bytes: Array.from(
+          new Uint8Array(candidate.buffer, candidate.byteOffset, candidate.byteLength)
+        ),
       };
     }
     return candidate;

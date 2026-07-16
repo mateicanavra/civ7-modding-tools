@@ -7,7 +7,7 @@ import { initializeStandardRuntime } from "../../../../../../src/recipes/standar
 import { standardConfig } from "../../../../../support/standard-config.js";
 
 describe("features apply Earthlike balance", () => {
-  it("applies non-zero vegetation without drowning coasts", { timeout: 15_000 }, () => {
+  it("applies non-zero vegetation without drowning coasts", () => {
     const width = 32;
     const height = 20;
     const seed = 1018;
@@ -93,5 +93,5 @@ describe("features apply Earthlike balance", () => {
     expect(wetlandCount).toBeLessThan(Math.max(1, Math.floor(landCount * 0.35)));
     expect(reefFamilyCount).toBeLessThan(Math.max(1, Math.floor(waterCount * 0.35)));
     expect(atollCount).toBeLessThan(Math.max(1, Math.floor(waterCount * 0.08)));
-  });
+  }, 15_000);
 });

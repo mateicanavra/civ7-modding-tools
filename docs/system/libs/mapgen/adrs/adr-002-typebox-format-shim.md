@@ -21,7 +21,7 @@ concern: typebox
 - Provide a local, minimal, regex-free shim for `typebox/format` that implements the public registry surface (`Set`, `Get`, `Has`, `Test`, `Clear`, `Entries`, `Reset`).
 - Alias all `typebox/format` imports (and the internal `../format/index.mjs` / `../../format/index.mjs` paths used by TypeBox schema engine) to this shim during bundling in both:
   - `packages/mapgen-core/tsup.config.ts`
-  - `mods/mod-swooper-maps/tsup.config.ts`
+  - `mods/mod-swooper-maps/scripts/tsup.config.ts`
 - Do not register any default formats in the shim; unregistered formats pass by default. Consequence: TypeBox built-in format validation is disabled unless callers explicitly register safe alternatives.
 
 ## Consequences
@@ -36,5 +36,5 @@ concern: typebox
   - Commented to note that format validation is disabled by default due to Civ7 V8 limitations.
 - tsup aliases:
   - `packages/mapgen-core/tsup.config.ts` aliases `typebox/format`, `../format/index.mjs`, `../../format/index.mjs` to the shim and bundles `typebox`.
-  - `mods/mod-swooper-maps/tsup.config.ts` applies the same aliases to ensure the game-facing bundle never pulls the original format registry.
+  - `mods/mod-swooper-maps/scripts/tsup.config.ts` applies the same aliases to ensure the game-facing bundle never pulls the original format registry.
 - No changes to the config schema surfaces or validation API were needed.

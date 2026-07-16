@@ -1,8 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
-  type EarthlikeResourceExpectation,
-} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
+import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 import resources from "@mapgen/domain/resources/ops";
 
 import { normalizeOpSelectionOrThrow, TestCompileError } from "../../support/compiler-helpers.js";
@@ -20,6 +17,9 @@ const TERRESTRIAL_RESOURCE_TYPES = [
   "RESOURCE_WILD_GAME",
   "RESOURCE_LLAMAS",
 ] as const;
+type TerrestrialExpectation = Parameters<
+  typeof resources.ops.planTerrestrialResources.run
+>[0]["expectations"][number];
 
 describe("terrestrial resource operation contract", () => {
   it("plans all terrestrial resource rows symbolically without runtime ids", () => {
@@ -253,10 +253,19 @@ describe("terrestrial resource operation contract", () => {
   });
 });
 
-function terrestrialExpectations(): EarthlikeResourceExpectation[] {
+function terrestrialExpectations(): TerrestrialExpectation[] {
   return EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
     (row) => row.groupId === "terrestrial-animal-forest-wild"
-  );
+  ).map((row) => ({
+    resourceType: row.resourceType,
+    groupId: "terrestrial-animal-forest-wild",
+    status: row.status,
+    earthlikePredicate: row.earthlikePredicate,
+    expectedCountRange: { ...row.expectedCountRange },
+    conditionMultipliers: [...row.conditionMultipliers],
+    signalRequirements: [...row.signalRequirements],
+    caveats: [...row.caveats],
+  }));
 }
 
 function every(size: number): Uint8Array {

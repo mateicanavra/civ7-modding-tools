@@ -373,10 +373,6 @@ describe("foundation mesh-first ops (slice 2)", () => {
       ).plateGraph;
 
       const plateMotion = derivePlateMotion(mesh, plateGraph, 4000 + seed);
-      const segments = computeTectonicSegments.run(
-        { mesh, crust, plateGraph, plateMotion },
-        computeTectonicSegments.defaultConfig
-      ).segments;
       const historyResult = runTectonicHistoryChain({
         mesh,
         crust,
@@ -543,10 +539,6 @@ describe("foundation mesh-first ops (slice 2)", () => {
       }
     ).plateGraph;
     const plateMotion = derivePlateMotion(mesh, plateGraph, 13);
-    const segments = computeTectonicSegments.run(
-      { mesh, crust, plateGraph, plateMotion },
-      computeTectonicSegments.defaultConfig
-    ).segments;
     const historyResult = runTectonicHistoryChain({
       mesh,
       crust,

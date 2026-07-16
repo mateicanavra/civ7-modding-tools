@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "incremental": false,
+    "types": ["node", "bun-types", "@civ7/types"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": []
+}

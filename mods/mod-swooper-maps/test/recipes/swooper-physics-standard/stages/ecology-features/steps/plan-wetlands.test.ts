@@ -57,6 +57,15 @@ describe("ecology-features plan-wetlands step", () => {
       width,
       height,
       biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
+      vegetationDensity: new Float32Array(size).fill(0.4),
+      effectiveMoisture: new Float32Array(size).fill(120),
+      surfaceTemperature: new Float32Array(size).fill(20),
+      aridityIndex: new Float32Array(size).fill(0.4),
+      freezeIndex: new Float32Array(size),
+      groundIce01: new Float32Array(size),
+      permafrost01: new Float32Array(size),
+      meltPotential01: new Float32Array(size),
+      treeLine01: new Float32Array(size),
     });
     stageArtifacts.scoreLayers.publish(ctx, { width, height, layers });
     stageArtifacts.occupancyReefs.publish(ctx, {
@@ -65,22 +74,39 @@ describe("ecology-features plan-wetlands step", () => {
       featureOccupancyMask: new Uint8Array(size),
       reserved: new Uint8Array(size),
     });
-    stageArtifacts.hydrography.publish(ctx, { width, height, riverClass: new Uint8Array(size) });
-    stageArtifacts.lakePlan.publish(ctx, { width, height, lakeMask: new Uint8Array(size) });
-    stageArtifacts.topography.publish(ctx, {
+    stageArtifacts.hydrography.publish(ctx, {
+      runoff: new Float32Array(size),
+      discharge: new Float32Array(size),
+      riverClass: new Uint8Array(size),
+      flowDir: new Int32Array(size).fill(-1),
+      sinkMask: new Uint8Array(size),
+      outletMask: new Uint8Array(size),
+    });
+    stageArtifacts.lakePlan.publish(ctx, {
       width,
       height,
+      lakeMask: new Uint8Array(size),
+      plannedLakeTileCount: 0,
+      sinkLakeCount: 0,
+    });
+    stageArtifacts.topography.publish(ctx, {
+      elevation: new Int16Array(size),
+      seaLevel: 0,
       landMask: new Uint8Array(size).fill(1),
+      bathymetry: new Int16Array(size),
     });
     stageArtifacts.mountains.publish(ctx, {
-      width,
-      height,
       mountainMask: new Uint8Array(size),
+      mountainRegionMask: new Uint8Array(size),
+      mountainRegionIdByTile: new Int32Array(size).fill(-1),
       hillMask: new Uint8Array(size),
+      foothillMask: new Uint8Array(size),
+      roughLandMask: new Uint8Array(size),
+      orogenyPotential: new Uint8Array(size),
+      fracturePotential: new Uint8Array(size),
+      roughnessPotential: new Uint8Array(size),
     });
     stageArtifacts.volcanoes.publish(ctx, {
-      width,
-      height,
       volcanoMask: new Uint8Array(size),
       volcanoes: [],
     });

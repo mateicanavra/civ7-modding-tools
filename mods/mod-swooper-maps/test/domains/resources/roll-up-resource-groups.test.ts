@@ -1,11 +1,21 @@
 import { describe, expect, it } from "bun:test";
-import {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
-  type EarthlikeResourceExpectation,
-} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
+import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 import resources from "@mapgen/domain/resources/ops";
 
 import { normalizeOpSelectionOrThrow, TestCompileError } from "../../support/compiler-helpers.js";
+
+type AquaticExpectation = Parameters<
+  typeof resources.ops.planAquaticResources.run
+>[0]["expectations"][number];
+type CultivatedExpectation = Parameters<
+  typeof resources.ops.planCultivatedResources.run
+>[0]["expectations"][number];
+type TerrestrialExpectation = Parameters<
+  typeof resources.ops.planTerrestrialResources.run
+>[0]["expectations"][number];
+type GeologicalExpectation = Parameters<
+  typeof resources.ops.planGeologicalResources.run
+>[0]["expectations"][number];
 
 describe("resource group rollup operation contract", () => {
   it("publishes one warning-only group plan artifact across all symbolic resource groups", () => {
@@ -165,7 +175,7 @@ function allGroupPlans(width: number, height: number) {
       {
         width,
         height,
-        expectations: expectationsFor("aquatic-coastal-navigable-river"),
+        expectations: aquaticExpectations(),
         coastalWaterMask: every(size),
         shelfMask: every(size),
         warmShallowWaterMask: every(size),
@@ -182,7 +192,7 @@ function allGroupPlans(width: number, height: number) {
       {
         width,
         height,
-        expectations: expectationsFor("cultivated-plantation-medicinal"),
+        expectations: cultivatedExpectations(),
         warmAlluvialMask: every(size),
         floodplainOrRiverMask: every(size),
         warmGrassPlainsMask: every(size),
@@ -207,7 +217,7 @@ function allGroupPlans(width: number, height: number) {
       {
         width,
         height,
-        expectations: expectationsFor("terrestrial-animal-forest-wild"),
+        expectations: terrestrialExpectations(),
         aridRangelandMask: every(size),
         openGrassPlainsMask: every(size),
         tundraColdEdgeMask: every(size),
@@ -260,14 +270,39 @@ function allGroupPlans(width: number, height: number) {
   };
 }
 
-function expectationsFor(
-  groupId: EarthlikeResourceExpectation["groupId"]
-): EarthlikeResourceExpectation[] {
-  return EARTHLIKE_RESOURCE_EXPECTATIONS.filter((row) => row.groupId === groupId);
+function aquaticExpectations(): AquaticExpectation[] {
+  return projectExpectations("aquatic-coastal-navigable-river");
 }
 
-function geologicalExpectations(): EarthlikeResourceExpectation[] {
-  return expectationsFor("geological-mineral-gemstone-industrial");
+function cultivatedExpectations(): CultivatedExpectation[] {
+  return projectExpectations("cultivated-plantation-medicinal");
+}
+
+function terrestrialExpectations(): TerrestrialExpectation[] {
+  return projectExpectations("terrestrial-animal-forest-wild");
+}
+
+function geologicalExpectations(): GeologicalExpectation[] {
+  return projectExpectations("geological-mineral-gemstone-industrial");
+}
+
+function projectExpectations<
+  const GroupId extends
+    | "aquatic-coastal-navigable-river"
+    | "cultivated-plantation-medicinal"
+    | "terrestrial-animal-forest-wild"
+    | "geological-mineral-gemstone-industrial",
+>(groupId: GroupId) {
+  return EARTHLIKE_RESOURCE_EXPECTATIONS.filter((row) => row.groupId === groupId).map((row) => ({
+    resourceType: row.resourceType,
+    groupId,
+    status: row.status,
+    earthlikePredicate: row.earthlikePredicate,
+    expectedCountRange: { ...row.expectedCountRange },
+    conditionMultipliers: [...row.conditionMultipliers],
+    signalRequirements: [...row.signalRequirements],
+    caveats: [...row.caveats],
+  }));
 }
 
 function every(size: number): Uint8Array {

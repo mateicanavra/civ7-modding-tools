@@ -1,8 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
-  type EarthlikeResourceExpectation,
-} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
+import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 import resources from "@mapgen/domain/resources/ops";
 
 import { normalizeOpSelectionOrThrow, TestCompileError } from "../../support/compiler-helpers.js";
@@ -15,6 +12,9 @@ const AQUATIC_RESOURCE_TYPES = [
   "RESOURCE_COWRIE",
   "RESOURCE_TURTLES",
 ] as const;
+type AquaticExpectation = Parameters<
+  typeof resources.ops.planAquaticResources.run
+>[0]["expectations"][number];
 
 describe("aquatic resource operation contract", () => {
   it("plans all aquatic resource rows symbolically without runtime ids", () => {
@@ -134,10 +134,19 @@ describe("aquatic resource operation contract", () => {
   });
 });
 
-function aquaticExpectations(): EarthlikeResourceExpectation[] {
+function aquaticExpectations(): AquaticExpectation[] {
   return EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
     (row) => row.groupId === "aquatic-coastal-navigable-river"
-  );
+  ).map((row) => ({
+    resourceType: row.resourceType,
+    groupId: "aquatic-coastal-navigable-river",
+    status: row.status,
+    earthlikePredicate: row.earthlikePredicate,
+    expectedCountRange: { ...row.expectedCountRange },
+    conditionMultipliers: [...row.conditionMultipliers],
+    signalRequirements: [...row.signalRequirements],
+    caveats: [...row.caveats],
+  }));
 }
 
 function every(size: number): Uint8Array {

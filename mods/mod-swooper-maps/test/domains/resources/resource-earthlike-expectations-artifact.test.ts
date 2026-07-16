@@ -70,8 +70,8 @@ describe("resource earthlike expectations artifact", () => {
       (entry) => entry.initialMapAuthoring.status === "deferred-future-age"
     ).map((entry) => entry.resourceType);
 
-    expect(eligible).toEqual(INITIAL_MAP_RESOURCE_TYPES);
-    expect(deferred).toEqual(DEFERRED_INITIAL_MAP_RESOURCE_TYPES);
+    expect(eligible).toEqual([...INITIAL_MAP_RESOURCE_TYPES]);
+    expect(deferred).toEqual([...DEFERRED_INITIAL_MAP_RESOURCE_TYPES]);
     expect(deferred).toEqual([
       "RESOURCE_COCOA",
       "RESOURCE_FURS",
