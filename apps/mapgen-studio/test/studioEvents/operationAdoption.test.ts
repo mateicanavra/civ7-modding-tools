@@ -5,9 +5,12 @@ import {
   type MapConfigSaveDeployStatus,
   operationStatusTypeSchema,
   type RunInGameOperationStatus,
+  studio,
+  type StudioEvent,
   type StudioLiveGameEvent,
   type StudioOperationEvent,
   type StudioOperationsCurrent,
+  typeboxOutputSchemaFromContractProcedure,
 } from "@civ7/studio-contract";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryClient } from "@tanstack/react-query";
@@ -37,6 +40,9 @@ import {
 import type { LiveRuntimeStatusState } from "../../src/features/liveRuntime/model";
 
 const repoRoot = fileURLToPath(new URL("../../../..", import.meta.url));
+const operationsCurrentOutputSchema = typeboxOutputSchemaFromContractProcedure(
+  studio.operationsCurrent
+);
 
 describe("Studio event operation adoption", () => {
   test("adopts active daemon current operations without marking terminal toasts", () => {
@@ -390,12 +396,12 @@ describe("Studio event operation adoption", () => {
   });
 
   test("classifies stream recovery, daemon identity mismatch, and busy gates", () => {
-    const hello: TestStudioEvent = {
+    const hello = checkedStudioEvent({
       type: "hello",
       serverInstanceId: "studio-a",
       serverStartedAt: "2026-06-13T00:00:00.000Z",
       observedAt: "2026-06-13T00:00:01.000Z",
-    };
+    });
     const current = currentOperations({
       serverInstanceId: "studio-a",
       serverStartedAt: "2026-06-13T00:00:00.000Z",
@@ -697,19 +703,19 @@ type StudioOperationEventInput =
 
 function operationEvent(event: StudioOperationEventInput): StudioOperationEvent {
   if (event.kind === "run-in-game") {
-    return {
+    return checkedStudioEvent({
       type: "operation",
       kind: event.kind,
       status: event.status,
       observedAt: "2026-06-13T00:00:02.000Z",
-    };
+    });
   }
-  return {
+  return checkedStudioEvent({
     type: "operation",
     kind: event.kind,
     status: event.status,
     observedAt: "2026-06-13T00:00:02.000Z",
-  };
+  });
 }
 
 type RunInGameRunningStatus = Extract<RunInGameOperationStatus, { status: "running" }>;
@@ -756,20 +762,20 @@ function checkedRunStatus<T extends RunInGameOperationStatus>(status: T): T {
 }
 
 function liveGameEvent(state: StudioLiveGameEvent["state"]): StudioLiveGameEvent {
-  return {
+  return checkedStudioEvent({
     type: "live-game",
     observedAt: "2026-06-13T00:00:02.000Z",
     state,
-  };
+  });
 }
 
-type TestStudioEvent =
-  | StudioLiveGameEvent
-  | StudioOperationEvent
-  | { type: "hello"; serverInstanceId: string; serverStartedAt: string; observedAt: string };
+function checkedStudioEvent<const Event extends StudioEvent>(event: Event): Event {
+  expect(Value.Check(studio.studioEventSchema, event)).toBe(true);
+  return event;
+}
 
-async function* oneEventIterator(event: TestStudioEvent) {
-  yield event;
+async function* oneEventIterator(event: StudioEvent) {
+  yield checkedStudioEvent(event);
 }
 
 function deferred<T>(): { promise: Promise<T>; resolve(value: T): void } {
@@ -783,7 +789,7 @@ function deferred<T>(): { promise: Promise<T>; resolve(value: T): void } {
 }
 
 function currentOperations(overrides?: Partial<StudioOperationsCurrent>): StudioOperationsCurrent {
-  return {
+  const current: StudioOperationsCurrent = {
     ok: true,
     serverInstanceId: "studio-test",
     serverStartedAt: "2026-06-13T00:00:00.000Z",
@@ -798,6 +804,8 @@ function currentOperations(overrides?: Partial<StudioOperationsCurrent>): Studio
     },
     ...overrides,
   };
+  expect(Value.Check(operationsCurrentOutputSchema, current)).toBe(true);
+  return current;
 }
 
 function sourceFiles(root: string): string[] {

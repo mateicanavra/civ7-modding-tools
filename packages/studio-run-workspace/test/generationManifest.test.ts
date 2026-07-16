@@ -203,6 +203,36 @@ describe("Studio Run generation manifest", () => {
     }
   });
 
+  test("gives sequential same-content requests fresh manifest identity", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-manifest-freshness-"));
+    try {
+      const firstWritten = await writeStudioRunGenerationManifest({
+        manifestInput: manifestInput({ requestId: "studio-run-first", resources: "balanced" }),
+        workspaceRoot,
+      });
+      const repeatWritten = await writeStudioRunGenerationManifest({
+        manifestInput: manifestInput({ requestId: "studio-run-repeat", resources: "balanced" }),
+        workspaceRoot,
+      });
+      const first = await readStudioRunGenerationManifest(firstWritten.path);
+      const repeat = await readStudioRunGenerationManifest(repeatWritten.path);
+
+      expect(parseStudioRunGenerationManifest(first)).toEqual(first);
+      expect(parseStudioRunGenerationManifest(repeat)).toEqual(repeat);
+      expect(firstWritten.path).not.toBe(repeatWritten.path);
+      expect(first.payload.requestId).not.toBe(repeat.payload.requestId);
+      expect(first.payload.workspace.requestRoot).not.toBe(repeat.payload.workspace.requestRoot);
+      expect(first.payload.runArtifactId).not.toBe(repeat.payload.runArtifactId);
+      expect(first.generationManifestDigest).not.toBe(repeat.generationManifestDigest);
+      expect(first.payload.canonicalConfigDigest).toBe(repeat.payload.canonicalConfigDigest);
+      expect(first.payload.launchEnvelopeDigest).toBe(repeat.payload.launchEnvelopeDigest);
+      expect(first.payload.launchEnvelope.worldSettings.resources).toBe("balanced");
+      expect(repeat.payload.launchEnvelope.worldSettings.resources).toBe("balanced");
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
   test("finalizes snapshot bytes and digest before filesystem awaits", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-manifest-snapshot-"));
     try {
@@ -237,6 +267,9 @@ function manifestInput(
   overrides: Readonly<{
     requestId?: string;
     config?: JsonWireObject;
+    resources?: NonNullable<
+      StudioRunGenerationManifestInput["launchEnvelope"]["worldSettings"]["resources"]
+    >;
   }> = {}
 ): StudioRunGenerationManifestInput {
   const config = overrides.config ?? {};
@@ -253,6 +286,7 @@ function manifestInput(
     seed: 43,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
+      ...(overrides.resources === undefined ? {} : { resources: overrides.resources }),
     },
     setupConfig: {
       gameOptions: {},
