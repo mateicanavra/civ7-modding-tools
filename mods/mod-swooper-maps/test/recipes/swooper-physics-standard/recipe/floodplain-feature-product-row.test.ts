@@ -142,14 +142,14 @@ describe("floodplain feature product row", () => {
       }),
     };
     const planOps = ecology.ops.bind(planFloodplainsStep.contract.ops!).runtime;
-    planFloodplainsStep.run(ctx, planConfig, planOps, buildTestDeps(planFloodplainsStep));
+    const planDeps = buildTestDeps(planFloodplainsStep);
+    planFloodplainsStep.run(ctx, planConfig, planOps, planDeps);
 
-    const floodplainIntents = ctx.artifacts.get(ecologyArtifacts.featureIntentsFloodplains.id);
-    expect(Array.isArray(floodplainIntents)).toBe(true);
-    expect((floodplainIntents as unknown[]).length).toBeGreaterThan(0);
+    const floodplainIntents = planDeps.artifacts.featureIntentsFloodplains.read(ctx);
+    expect(floodplainIntents.length).toBeGreaterThan(0);
     expect(
-      (floodplainIntents as Array<{ feature: string }>).every((intent) =>
-        FLOODPLAIN_INTENT_KEYS.includes(intent.feature as (typeof FLOODPLAIN_INTENT_KEYS)[number])
+      floodplainIntents.every((intent) =>
+        FLOODPLAIN_INTENT_KEYS.some((feature) => feature === intent.feature)
       )
     ).toBe(true);
 
@@ -191,12 +191,12 @@ describe("floodplain feature product row", () => {
         }
       | undefined;
 
-    expect(diagnostics).toBeDefined();
-    expect(diagnostics?.attempted).toBe((floodplainIntents as unknown[]).length);
-    expect(diagnostics?.applied).toBe(diagnostics?.attempted);
-    expect(diagnostics?.rejected).toBe(0);
-    expect(floodplainAttemptCount(diagnostics?.attemptedByFeature)).toBe(diagnostics?.attempted);
-    expect(floodplainAttemptCount(diagnostics?.appliedByFeature)).toBe(diagnostics?.applied);
+    if (!diagnostics) throw new Error("Missing feature application diagnostics");
+    expect(diagnostics.attempted).toBe(floodplainIntents.length);
+    expect(diagnostics.applied).toBe(diagnostics.attempted);
+    expect(diagnostics.rejected).toBe(0);
+    expect(floodplainAttemptCount(diagnostics.attemptedByFeature)).toBe(diagnostics.attempted);
+    expect(floodplainAttemptCount(diagnostics.appliedByFeature)).toBe(diagnostics.applied);
   });
 
   it("does not author floodplains when the same valley lacks meaningful discharge", () => {

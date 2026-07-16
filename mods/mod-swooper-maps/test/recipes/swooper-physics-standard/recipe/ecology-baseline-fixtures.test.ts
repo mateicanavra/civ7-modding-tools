@@ -39,18 +39,18 @@ function readVizKeysFixture(pathname: string): string[] {
 }
 
 describe("Ecology baseline fixtures (M3 no-fudging)", () => {
-  it("artifact fingerprints fixture matches computed baseline", { timeout: 20_000 }, () => {
+  it("artifact fingerprints fixture matches computed baseline", () => {
     const expected = JSON.parse(readFileSync(ARTIFACTS_FIXTURE_PATH, "utf8")) as ArtifactsFixtureV1;
     const baseline = getBaseline();
 
     expect(baseline.version).toBe(expected.version);
     expect(baseline.case).toEqual(expected.case);
     expect(baseline.artifacts).toEqual(expected.artifacts);
-  });
+  }, 20_000);
 
-  it("viz keys fixture matches computed baseline", { timeout: 20_000 }, () => {
+  it("viz keys fixture matches computed baseline", () => {
     const baseline = getBaseline();
     const expected = readVizKeysFixture(VIZ_KEYS_FIXTURE_PATH);
     expect(baseline.vizKeys).toEqual(expected);
-  });
+  }, 20_000);
 });

@@ -28,7 +28,7 @@ function makeTwoCellMesh(): any {
 
 function makePlateMotion(
   plateGraph: {
-    plates: { seedX: number; seedY: number }[];
+    plates: readonly { seedX: number; seedY: number }[];
   },
   cellCount: number,
   motionByPlate: Array<{ velocityX?: number; velocityY?: number; omega?: number }> = []

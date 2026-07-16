@@ -26,6 +26,7 @@ function oneWonderPlan(featureType: number, plotIndex: number, width = 4, height
   return {
     width,
     height,
+    wondersCount: 1,
     targetCount: 1,
     plannedCount: 1,
     placements: [
@@ -309,6 +310,7 @@ describe("natural wonder placement materialization", () => {
       wonders: {
         width: 5,
         height: 8,
+        wondersCount: 1,
         targetCount: 1,
         plannedCount: 1,
         placements: [
@@ -357,6 +359,7 @@ describe("natural wonder placement materialization", () => {
       wonders: {
         width: 5,
         height: 8,
+        wondersCount: 1,
         targetCount: 1,
         plannedCount: 1,
         placements: [
@@ -398,10 +401,17 @@ describe("natural wonder placement materialization", () => {
         wonders: {
           width: 2,
           height: 2,
+          wondersCount: 1,
           targetCount: 1,
           plannedCount: 2,
           placements: [
-            { plotIndex: 0, featureType: featureTypes.FEATURE_REDWOOD_FOREST, direction: 0 },
+            {
+              plotIndex: 0,
+              featureType: featureTypes.FEATURE_REDWOOD_FOREST,
+              direction: 0,
+              elevation: 120,
+              priority: 1,
+            },
           ],
         },
       })

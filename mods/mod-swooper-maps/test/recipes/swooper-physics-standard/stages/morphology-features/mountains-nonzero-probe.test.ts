@@ -130,9 +130,7 @@ function maxU8WhereEq(
 }
 
 describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
-  it("produces nonzero orogeny + mountains, and keeps volcano points nonzero", {
-    timeout: 20_000,
-  }, () => {
+  it("produces nonzero orogeny + mountains, and keeps volcano points nonzero", () => {
     const config = loadEarthlikeConfig();
     const { context } = runStandardContext({
       width: PROBE_WIDTH,
@@ -247,5 +245,5 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
     // Volcanoes are planned via a separate step, but the artifact should remain non-degenerate.
     const volcanoList = Array.isArray(volcanoes?.volcanoes) ? volcanoes.volcanoes : [];
     expect(volcanoList.length).toBeGreaterThan(0);
-  });
+  }, 20_000);
 });

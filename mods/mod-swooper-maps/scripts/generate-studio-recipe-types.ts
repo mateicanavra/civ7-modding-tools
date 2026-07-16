@@ -21,10 +21,6 @@ function assertPlainObject(value: unknown, label: string): asserts value is Json
   }
 }
 
-function isPlainObject(value: unknown): value is JsonObject {
-  return !!value && typeof value === "object" && !Array.isArray(value);
-}
-
 function stableJson(value: unknown): JsonObject {
   const text = JSON.stringify(value);
   if (!text) throw new Error("schema is not JSON-serializable");
@@ -68,7 +64,7 @@ function deriveStageStepConfigFocusMap(args: {
   namespace: string;
   recipeId: string;
   stage: StageLike;
-}): Readonly<Record<string, readonly string[]>> {
+}): Readonly<Partial<Record<string, readonly string[]>>> {
   const { stage } = args;
   return deriveStageAuthoringModel(stage).config.focusPathsByStepId;
 }
@@ -122,8 +118,8 @@ function deriveStudioRecipeUiMeta(args: {
       return {
         stageId,
         stageLabel,
-        steps: authoring.runtime.steps.map((s) => {
-          const stepId = s.stepId;
+        steps: authoring.runtime.steps.map((step: Readonly<{ stepId: string }>) => {
+          const stepId = step.stepId;
           const configFocusPathWithinStage = stepFocus[stepId] ?? [];
           const stepLabel = STEP_LABEL_OVERRIDES[stepId] ?? formatKebabIdLabel(stepId);
           return {

@@ -97,6 +97,8 @@ describe("ecology-features plan-vegetation step", () => {
     });
     stageArtifacts.mountains.publish(ctx, {
       mountainMask: new Uint8Array(size),
+      mountainRegionMask: new Uint8Array(size),
+      mountainRegionIdByTile: new Int32Array(size).fill(-1),
       hillMask: new Uint8Array(size),
       foothillMask: new Uint8Array(size),
       roughLandMask: new Uint8Array(size),

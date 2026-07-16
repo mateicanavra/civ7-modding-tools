@@ -3,11 +3,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createMockAdapter } from "@civ7/adapter";
-import { isMapConfigEnvelope } from "@civ7/studio-contract";
 import { createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 
-import { canonicalRecipeConfig } from "../../maps/configs/canonical.js";
+import { admitStandardMapConfig } from "../../maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
@@ -109,19 +108,18 @@ async function main(): Promise<void> {
     },
   } as const;
 
-  const loadedConfig = loadConfig(flags);
-  const baseConfig = isMapConfigEnvelope(loadedConfig)
-    ? canonicalRecipeConfig(loadedConfig)
-    : loadedConfig;
+  const envelope = admitStandardMapConfig(loadConfig(flags));
+  const baseConfig = envelope.config;
   const override = loadOverride(flags);
-  const merged =
+  const mergedConfig =
     override && isPlainObject(baseConfig) && isPlainObject(override)
       ? mergeDeep(baseConfig, override)
       : baseConfig;
+  const config = admitStandardMapConfig({ ...envelope, config: mergedConfig }).config;
 
-  const plan = standardRecipe.compile(envBase, merged);
+  const plan = standardRecipe.compile(envBase, config);
   const verboseSteps = Object.fromEntries(
-    plan.nodes.map((node: any) => [node.stepId, "verbose"] as const)
+    plan.nodes.map((node) => [node.stepId, "verbose"] as const)
   );
   const env = { ...envBase, trace: { enabled: true, steps: verboseSteps } } as const;
 
@@ -138,7 +136,7 @@ async function main(): Promise<void> {
   context.viz = viz;
 
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[diag]" });
-  standardRecipe.run(context, env, merged, { traceSink, log: () => {} });
+  standardRecipe.run(context, env, config, { traceSink, log: () => {} });
 
   const runId = deriveRunId(plan);
   console.log(JSON.stringify({ runId, outputDir: join(outputRoot, runId) }));

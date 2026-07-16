@@ -47,6 +47,9 @@ describe("hydrology/compute-precipitation (default)", () => {
         windU,
         windV,
         humidityF32,
+        rainfallIn: new Uint8Array(size),
+        humidityIn: new Uint8Array(size),
+        riverAdjacency: new Uint8Array(size),
       },
       {
         strategy: "default",

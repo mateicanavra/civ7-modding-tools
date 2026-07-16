@@ -1,4 +1,5 @@
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import { normalizeOpSelectionOrThrow } from "./compiler-helpers.js";
 
 const {
   computeEraPlateMembership,
@@ -12,34 +13,47 @@ const {
   computeTectonicsCurrent,
   computeTracerAdvection,
 } = foundationOpsPublic.ops;
+
 const OROGENY_ERA_GAIN_MIN = 0.85;
 const OROGENY_ERA_GAIN_MAX = 1.15;
 
-function mergeConfig(base, overrides) {
-  if (!overrides || Object.keys(overrides).length === 0) {
-    return base;
-  }
-  return {
-    ...base,
-    config: {
-      ...base.config,
-      ...overrides,
-    },
-  };
-}
+type EraPlateMembershipInput = Parameters<typeof computeEraPlateMembership.run>[0];
+type EraPlateMembershipConfig = (typeof computeEraPlateMembership.defaultConfig)["config"];
+type EraTectonicFieldsConfig = (typeof computeEraTectonicFields.defaultConfig)["config"];
+type TectonicHistoryRollupsConfig = (typeof computeTectonicHistoryRollups.defaultConfig)["config"];
 
-export function runTectonicHistoryChain(params) {
+type TectonicHistoryChainConfig = Readonly<
+  Partial<
+    Pick<EraPlateMembershipConfig, "eraWeights" | "driftStepsByEra"> &
+      Pick<EraTectonicFieldsConfig, "beltInfluenceDistance" | "beltDecay"> &
+      Pick<TectonicHistoryRollupsConfig, "activityThreshold">
+  >
+>;
+
+type TectonicHistoryChainInput = Readonly<
+  EraPlateMembershipInput &
+    Pick<Parameters<typeof computeTectonicSegments.run>[0], "crust"> &
+    Pick<Parameters<typeof computePlateMotion.run>[0], "mantleForcing"> & {
+      config?: TectonicHistoryChainConfig;
+    }
+>;
+
+export function runTectonicHistoryChain(params: TectonicHistoryChainInput) {
   const { mesh, crust, mantleForcing, plateGraph, plateMotion, config } = params;
 
   const eraPlateMembership = computeEraPlateMembership.run(
     { mesh, plateGraph, plateMotion },
-    mergeConfig(computeEraPlateMembership.defaultConfig, {
-      ...(config?.eraWeights ? { eraWeights: config.eraWeights } : {}),
-      ...(config?.driftStepsByEra ? { driftStepsByEra: config.driftStepsByEra } : {}),
+    normalizeOpSelectionOrThrow(computeEraPlateMembership, {
+      ...computeEraPlateMembership.defaultConfig,
+      config: {
+        ...computeEraPlateMembership.defaultConfig.config,
+        ...(config?.eraWeights ? { eraWeights: config.eraWeights } : {}),
+        ...(config?.driftStepsByEra ? { driftStepsByEra: config.driftStepsByEra } : {}),
+      },
     })
   );
 
-  const eraFieldsChain = [];
+  const eraFieldsChain: Array<ReturnType<typeof computeEraTectonicFields.run>["eraFields"]> = [];
   for (let era = 0; era < eraPlateMembership.eraCount; era++) {
     const eraPlateId =
       eraPlateMembership.plateIdByEra[era] ??
@@ -83,11 +97,15 @@ export function runTectonicHistoryChain(params) {
         weight: eraWeight,
         eraGain,
       },
-      mergeConfig(computeEraTectonicFields.defaultConfig, {
-        ...(config?.beltInfluenceDistance !== undefined
-          ? { beltInfluenceDistance: config.beltInfluenceDistance }
-          : {}),
-        ...(config?.beltDecay !== undefined ? { beltDecay: config.beltDecay } : {}),
+      normalizeOpSelectionOrThrow(computeEraTectonicFields, {
+        ...computeEraTectonicFields.defaultConfig,
+        config: {
+          ...computeEraTectonicFields.defaultConfig.config,
+          ...(config?.beltInfluenceDistance !== undefined
+            ? { beltInfluenceDistance: config.beltInfluenceDistance }
+            : {}),
+          ...(config?.beltDecay !== undefined ? { beltDecay: config.beltDecay } : {}),
+        },
       })
     );
 
@@ -99,10 +117,14 @@ export function runTectonicHistoryChain(params) {
       eras: eraFieldsChain,
       plateIdByEra: eraPlateMembership.plateIdByEra,
     },
-    mergeConfig(computeTectonicHistoryRollups.defaultConfig, {
-      ...(config?.activityThreshold !== undefined
-        ? { activityThreshold: config.activityThreshold }
-        : {}),
+    normalizeOpSelectionOrThrow(computeTectonicHistoryRollups, {
+      ...computeTectonicHistoryRollups.defaultConfig,
+      config: {
+        ...computeTectonicHistoryRollups.defaultConfig.config,
+        ...(config?.activityThreshold !== undefined
+          ? { activityThreshold: config.activityThreshold }
+          : {}),
+      },
     })
   );
 

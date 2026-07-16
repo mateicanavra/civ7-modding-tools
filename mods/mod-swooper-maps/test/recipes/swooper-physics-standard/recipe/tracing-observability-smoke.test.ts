@@ -43,6 +43,9 @@ describe("Morphology tracing (observability hardening smoke)", () => {
       full("morphology-features", "mountains"),
       full("morphology-features", "volcanoes"),
     ];
+    const traceSteps: Record<string, "verbose"> = Object.fromEntries(
+      verboseSteps.map((id) => [id, "verbose"] as const)
+    );
 
     const env = {
       seed,
@@ -52,7 +55,7 @@ describe("Morphology tracing (observability hardening smoke)", () => {
         bottomLatitude: mapInfo.MinLatitude,
       },
       trace: {
-        steps: Object.fromEntries(verboseSteps.map((id) => [id, "verbose"])),
+        steps: traceSteps,
       },
     };
 

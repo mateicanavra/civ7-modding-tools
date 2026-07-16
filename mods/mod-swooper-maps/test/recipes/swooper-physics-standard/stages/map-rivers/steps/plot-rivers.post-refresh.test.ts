@@ -205,8 +205,10 @@ describe("map-rivers/plot-rivers", () => {
           riverMask?: Uint8Array;
           engineRiverType?: Int32Array;
           engineNavigableRiverMask?: Uint8Array;
+          terrainNavigableRiverMask?: Uint8Array;
           engineRiverTileCount?: number;
           engineMinorRiverTileCount?: number;
+          engineNavigableRiverTileCount?: number;
           terrainNavigableRiverTileCount?: number;
           minorRiverStampingSupported?: boolean;
           minorRiverUnsupportedReason?: string;

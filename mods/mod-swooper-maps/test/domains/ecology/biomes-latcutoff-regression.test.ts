@@ -11,9 +11,7 @@ import { initializeStandardRuntime } from "../../../src/recipes/standard/runtime
 import { artifacts as ecologyArtifacts } from "../../../src/recipes/standard/stages/ecology/artifacts/index.js";
 
 describe("biomes latitude-cutoff regression (M3-013)", () => {
-  it("does not hard-cut rainforest into latitude stripes (and still produces cold biomes)", {
-    timeout: 20_000,
-  }, () => {
+  it("does not hard-cut rainforest into latitude stripes (and still produces cold biomes)", () => {
     const width = 106;
     const height = 66;
     const seed = 1337;
@@ -92,5 +90,5 @@ describe("biomes latitude-cutoff regression (M3-013)", () => {
       if (coldSet.has(biomeIndex[i] ?? 255)) coldCount += 1;
     }
     expect(coldCount).toBeGreaterThan(0);
-  });
+  }, 20_000);
 });

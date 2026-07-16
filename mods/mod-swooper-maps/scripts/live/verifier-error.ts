@@ -1,8 +1,8 @@
-import { isDefinedError } from "@orpc/client";
+import { ORPCError } from "@orpc/client";
 
 /** Preserve declared oRPC evidence while excluding stacks, causes, and provider payloads. */
 export function serializeVerifierError(error: unknown): Record<string, unknown> {
-  if (isDefinedError(error)) {
+  if (error instanceof ORPCError && error.defined) {
     return {
       name: error.name,
       code: error.code,

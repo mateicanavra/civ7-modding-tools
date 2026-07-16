@@ -16,7 +16,7 @@ function loadEarthlikeConfig(): StandardRecipeConfig {
 }
 
 describe("pipeline: earthlike mountain ranges", () => {
-  it("produces long orogenic regions with internal passes and valleys", { timeout: 30_000 }, () => {
+  it("produces long orogenic regions with internal passes and valleys", () => {
     const config = loadEarthlikeConfig();
     const seeds = [1018, 2024, 5050] as const;
 
@@ -73,5 +73,5 @@ describe("pipeline: earthlike mountain ranges", () => {
         `${sample.label} peak spine still has scale`
       ).toBeGreaterThanOrEqual(25);
     }
-  });
+  }, 30_000);
 });

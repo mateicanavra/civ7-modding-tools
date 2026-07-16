@@ -427,7 +427,8 @@ async function main(): Promise<number> {
       name: "setup-snapshot",
       ok: true,
       phase: setupSnapshot.snapshot.phase,
-      selected: setupSnapshot.snapshot.selected,
+      selectedMapRow: setupSnapshot.snapshot.selectedMapRow ?? null,
+      config: setupSnapshot.snapshot.config,
     });
 
     if (args.mapScript) {

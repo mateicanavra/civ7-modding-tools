@@ -890,6 +890,15 @@ export function collectWorldBalanceStats(
   ) {
     throw new Error("Missing ecology biome classification fields.");
   }
+  const biomeClassification: BiomeClassificationStatsInput = {
+    vegetationDensity: classification.vegetationDensity,
+    biomeIndex: classification.biomeIndex,
+    effectiveMoisture: classification.effectiveMoisture,
+    surfaceTemperature: classification.surfaceTemperature,
+    aridityIndex: classification.aridityIndex,
+    freezeIndex: classification.freezeIndex,
+    treeLine01: classification.treeLine01,
+  };
   const featureApplyDiagnostics = context.artifacts.get(
     ecologyArtifacts.featureApplyDiagnostics.id
   ) as
@@ -914,7 +923,10 @@ export function collectWorldBalanceStats(
     const planned = Math.max(0, Math.trunc(row.plannedCount ?? 0));
     const minCount = Math.max(0, Math.trunc(row.minCount ?? 0));
     const maxCount = Math.max(0, Math.trunc(row.maxCount ?? 0));
-    const shortfall = (row.shortfalls ?? []).reduce((sum, item) => sum + (item.count ?? 0), 0);
+    const shortfall = (row.shortfalls ?? []).reduce(
+      (sum: number, item: Readonly<{ count?: number }>) => sum + (item.count ?? 0),
+      0
+    );
     resourceShortfallRecordedCount += shortfall;
     if (planned < minCount) {
       resourceBelowMinTypeCount += 1;
@@ -1014,7 +1026,7 @@ export function collectWorldBalanceStats(
           biomeSymbolCounts[biomeSymbol] = (biomeSymbolCounts[biomeSymbol] ?? 0) + 1;
         }
 
-        const distance = coastlineMetrics.distanceToCoast[idx] ?? 0;
+        const distance: number = coastlineMetrics.distanceToCoast[idx] ?? 0;
         const binIndex =
           distance <= 1 ? 0 : distance <= 3 ? 1 : distance <= 5 ? 2 : distance <= 8 ? 3 : 4;
         elevationBins[binIndex]?.push(elevation);
@@ -1044,7 +1056,7 @@ export function collectWorldBalanceStats(
             invalidFeatureSurfaceCount += 1;
           }
         }
-        if (isFeatureHabitatMismatch(key, idx, classification)) {
+        if (isFeatureHabitatMismatch(key, idx, biomeClassification)) {
           featureHabitatMismatchCounts[key] += 1;
         }
       }
@@ -1178,7 +1190,8 @@ export function collectWorldBalanceStats(
     rift: 0,
     hotspot: 0,
   };
-  for (const entry of volcanoes.volcanoes) {
+  const volcanoEntries: VolcanoStatsInput["volcanoes"] = volcanoes.volcanoes;
+  for (const entry of volcanoEntries) {
     volcanoKindCounts[entry.kind] += 1;
   }
   const lakeTiles = countMask(lakePlan.lakeMask);

@@ -551,11 +551,7 @@ describe("surface delta context diagnostics", () => {
 
     const context = buildNaturalWonderLiveEvidenceBoundaryContext({
       local,
-      exactAuthorshipEvidence: {
-        log: {
-          requestId: "studio-run-in-game-test",
-        },
-      },
+      exactAuthorshipEvidence: undefined,
     });
 
     expect(context).toMatchObject({

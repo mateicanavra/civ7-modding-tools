@@ -89,12 +89,14 @@ describe("biomes step", () => {
       buildTestDeps(plotBiomesStep)
     );
 
+    const biomeId = ctx.fields.biomeId;
+    if (!biomeId) throw new Error("Missing biomeId field after plot-biomes.");
     const marineId = adapter.getBiomeGlobal("BIOME_MARINE");
-    expect(ctx.fields.biomeId[0]).toBe(marineId);
+    expect(biomeId[0]).toBe(marineId);
 
     const landIdx = 1;
-    expect(ctx.fields.biomeId[landIdx]).not.toBe(marineId);
-    expect(ctx.fields.biomeId[landIdx]).toBeGreaterThanOrEqual(0);
+    expect(biomeId[landIdx]).not.toBe(marineId);
+    expect(biomeId[landIdx]).toBeGreaterThanOrEqual(0);
   });
 
   it("uses hydrology climateIndices for temperature/aridity/freeze (no local re-derive)", () => {

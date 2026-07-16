@@ -4,7 +4,7 @@
   "tags": ["kind:mod"],
   "targets": {
     "build": {
-      "command": "tsup",
+      "command": "tsup --config scripts/tsup.config.ts",
       "dependsOn": ["^build", "gen:maps"],
       "inputs": ["default", "^default"],
       "outputs": ["{projectRoot}/mod/maps/**"],
@@ -22,7 +22,7 @@
       }
     },
     "build:studio-deploy": {
-      "command": "tsup",
+      "command": "tsup --config scripts/tsup.config.ts",
       "inputs": [
         "default",
         {
@@ -40,7 +40,19 @@
     },
     "typecheck": {
       "command": "tsc --noEmit",
-      "dependsOn": ["build"],
+      "dependsOn": ["check:test", "check:tools", "build"],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "check:test": {
+      "command": "tsc -p test/tsconfig.json --noEmit",
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "check:tools": {
+      "command": "tsc -p scripts/tsconfig.json --noEmit && tsc -p src/dev/tsconfig.json --noEmit",
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -155,7 +167,7 @@
       }
     },
     "build:studio-recipes:bundle": {
-      "command": "tsup --config tsup.studio-recipes.config.ts",
+      "command": "tsup --config scripts/tsup.studio-recipes.config.ts",
       "dependsOn": ["^build"],
       "cache": true,
       "outputs": ["{projectRoot}/dist/recipes/standard.js"],

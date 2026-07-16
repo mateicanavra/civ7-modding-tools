@@ -1,10 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import { OFFICIAL_RESOURCE_CORPUS } from "@civ7/map-policy";
-import {
-  type CanonicalMapConfigWithRecipe,
-  canonicalRecipeConfig,
-} from "../../../../src/maps/configs/canonical.js";
+import { canonicalRecipeConfig } from "../../../../src/maps/configs/canonical.js";
 import shatteredRingRaw from "../../../../src/maps/configs/shattered-ring.config.json";
 import sunderedArchipelagoRaw from "../../../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsRaw from "../../../../src/maps/configs/swooper-desert-mountains.config.json";
@@ -15,8 +12,8 @@ import {
   type WorldBalanceStats,
 } from "../../../support/world-balance-stats.js";
 
-function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
-  return canonicalRecipeConfig<StandardRecipeConfig>(config);
+function recipeConfig(config: unknown): StandardRecipeConfig {
+  return canonicalRecipeConfig(config);
 }
 
 const ANTIQUITY_RESOURCE_CANDIDATE_TYPES = new Set(
@@ -25,9 +22,23 @@ const ANTIQUITY_RESOURCE_CANDIDATE_TYPES = new Set(
       entry.validAges.includes("AGE_ANTIQUITY") && entry.placeability.status === "placeable"
   ).map((entry) => entry.staticResourceRowSlot)
 );
-const ANTIQUITY_RESOURCE_CANDIDATE_COUNT = ANTIQUITY_RESOURCE_CANDIDATE_TYPES.size;
+type WorldBalanceCase = Readonly<{
+  label: string;
+  config: StandardRecipeConfig;
+  wetlandMax: number;
+  reefMax: number;
+  requiredFeatures: readonly (keyof WorldBalanceStats["featureCounts"])[];
+  vegetationFamiliesMin: number;
+  resourceHabitatFidelityMin?: number;
+  deepOceanShareMin?: number;
+  largestLakeComponentSizeMin?: number;
+  requireColdReefs?: boolean;
+  requireAtolls?: boolean;
+  rainforestVegetationShareMax?: number;
+  rainforestMax?: number;
+}>;
 
-const CASES = [
+const CASES: readonly WorldBalanceCase[] = [
   {
     label: "swooper-earthlike",
     config: recipeConfig(swooperEarthlikeConfigRaw),
@@ -383,9 +394,7 @@ function expectNavigableRiverDiagnostics(stats: WorldBalanceStats): void {
 }
 
 describe("world balance stats", () => {
-  it("keeps shipped map identities within product-visible geography budgets", {
-    timeout: 30_000,
-  }, () => {
+  it("keeps shipped map identities within product-visible geography budgets", () => {
     for (const caseData of CASES) {
       const stats = collectWorldBalanceStats({
         label: caseData.label,
@@ -444,7 +453,7 @@ describe("world balance stats", () => {
 
       // Deep-ocean floor (per-class; see the CASE note). Only maps whose config asks for deep ocean
       // carry this — fragmented/coast-heavy classes are intentionally exempt (no deepOceanShareMin).
-      if ("deepOceanShareMin" in caseData) {
+      if (caseData.deepOceanShareMin !== undefined) {
         expect(
           stats.deepOceanShareOfWater,
           `${caseData.label} deep-ocean share of water (drowned-map guardrail)`
@@ -477,22 +486,22 @@ describe("world balance stats", () => {
         stats.vegetationFeatureFamiliesPresent,
         `${caseData.label} vegetation family count`
       ).toBeGreaterThanOrEqual(caseData.vegetationFamiliesMin);
-      if ("rainforestVegetationShareMax" in caseData) {
+      if (caseData.rainforestVegetationShareMax !== undefined) {
         expect(
           stats.featureCounts.FEATURE_RAINFOREST / Math.max(1, stats.vegetationFamilyTiles),
           `${caseData.label} rainforest share of vegetation`
         ).toBeLessThanOrEqual(caseData.rainforestVegetationShareMax);
       }
-      if ("rainforestMax" in caseData) {
+      if (caseData.rainforestMax !== undefined) {
         expect(
           stats.featureCounts.FEATURE_RAINFOREST,
           `${caseData.label} rainforest`
         ).toBeLessThanOrEqual(caseData.rainforestMax);
       }
     }
-  });
+  }, 30_000);
 
-  it("keeps earthlike vegetation families visible across seed rolls", { timeout: 45_000 }, () => {
+  it("keeps earthlike vegetation families visible across seed rolls", () => {
     const seeds = [1018, 1, 2, 3, 42, 99, 1234, 7777];
     const rolls: WorldBalanceStats[] = seeds.map((seed) =>
       collectWorldBalanceStats({
@@ -550,7 +559,7 @@ describe("world balance stats", () => {
     expect(presentIn("FEATURE_SAGEBRUSH_STEPPE"), "sagebrush seed presence").toBeGreaterThanOrEqual(
       6
     );
-  });
+  }, 45_000);
 
   // Cold-reef PRESENCE guarantee for earthlike — the multi-seed replacement for the old single-seed
   // requireColdReefs (which the gate seed 1018 now fails: cold-reef yield is seed-bimodal under the
@@ -559,9 +568,7 @@ describe("world balance stats", () => {
   // representative seeds they are present on 6/8 (0 only on 1018 and 3), 2..117 elsewhere. A floor of
   // >=4 present guards against a regression that ELIMINATES cold reefs (would read 0/8) while
   // tolerating the genuine bimodality. Carpeting is gated by coldReefShareOfCoastWater<=0.15 above.
-  it("keeps earthlike cold-reef ocean accents present across seed rolls", {
-    timeout: 30_000,
-  }, () => {
+  it("keeps earthlike cold-reef ocean accents present across seed rolls", () => {
     const seeds = [1018, 1, 2, 3, 42, 99, 1234, 7777];
     const present = seeds.filter((seed) => {
       const stats = collectWorldBalanceStats({
@@ -577,7 +584,7 @@ describe("world balance stats", () => {
       present,
       "earthlike cold-reef presence across seed rolls (>=4 of 8)"
     ).toBeGreaterThanOrEqual(4);
-  });
+  }, 30_000);
 
   // SKIPPED (live-integration 2026-06-11): this gate arrived RED on the rivers
   // source branch itself (verified at merge parent 886ea24d0 with identical
@@ -585,9 +592,7 @@ describe("world balance stats", () => {
   // The merge preserves rivers' projection behavior exactly — re-arming this
   // budget belongs to the rivers stack, not this integration branch. See
   // docs/projects/placement-realignment/evidence/live-integration-2026-06-11.md.
-  it.skip("keeps representative Earthlike seeds on a filled navigable-river trunk budget", {
-    timeout: 30_000,
-  }, () => {
+  it.skip("keeps representative Earthlike seeds on a filled navigable-river trunk budget", () => {
     const seeds = [1018, 24681357, 1, 42];
 
     for (const seed of seeds) {
@@ -621,7 +626,7 @@ describe("world balance stats", () => {
         `${stats.label} navigable projection should expose multi-tile trunks, not singleton outlets`
       ).toBeGreaterThanOrEqual(4);
     }
-  });
+  }, 30_000);
 
   // SKIPPED (live-integration 2026-06-11): arrived RED on the rivers source
   // branch itself (verified at merge parent 886ea24d0 with identical stats:
@@ -629,9 +634,7 @@ describe("world balance stats", () => {
   // fraction 1.0). Merge preserves rivers' behavior exactly; re-arming belongs
   // to the rivers stack. See
   // docs/projects/placement-realignment/evidence/live-integration-2026-06-11.md.
-  it.skip("classifies compact arid controls as low-signal rather than projection failures", {
-    timeout: 30_000,
-  }, () => {
+  it.skip("classifies compact arid controls as low-signal rather than projection failures", () => {
     const seeds = [42, 99];
 
     for (const seed of seeds) {
@@ -657,11 +660,9 @@ describe("world balance stats", () => {
         `${stats.label} compact desert controls should keep a sparse visible navigable subset`
       ).toBeLessThanOrEqual(0.3);
     }
-  });
+  }, 30_000);
 
-  it("keeps a floodplain-producing Earthlike acceptance seed available", {
-    timeout: 15_000,
-  }, () => {
+  it("keeps a floodplain-producing Earthlike acceptance seed available", () => {
     const stats = collectWorldBalanceStats({
       label: "swooper-earthlike:floodplain-acceptance",
       config: recipeConfig(swooperEarthlikeConfigRaw),
@@ -675,5 +676,5 @@ describe("world balance stats", () => {
       expect(stats.featureRejectCounts[feature] ?? 0, `${feature} soft rejections`).toBe(0);
     }
     expect(stats.invalidFeatureSurfaceCount, "invalid feature surface").toBe(0);
-  });
+  }, 15_000);
 });

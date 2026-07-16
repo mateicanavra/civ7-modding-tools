@@ -1,7 +1,7 @@
 # Next Packet: Close The Studio Product Outcome
 
-Status: independent continuation sealed; A.2 sibling pending; final P21 waits
-for a reconverged tree; no product closure claim
+Status: A.3 compiler ownership closing; package-ownership normalization precedes
+A.2; final P21 remains open
 
 Normative frame:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -34,19 +34,20 @@ product result.
 
 ## Immediate Execution Boundary
 
-No speculative independent slice remains. Proceed in this order:
+Proceed in this order:
 
-1. let the user's team complete the A.2 sibling without disturbing either
-   sibling's protected ancestry;
-2. reconnect the first unique continuation branch with native Graphite only when
-   the completed A.2 tree creates the dependency;
-3. move the four retained operation-sensitive type tests, run Stage 6, and
-   freeze the exact reconverged tree for the final P21 matrix.
+1. seal A.3 test and tool compiler ownership;
+2. normalize repository compiler ownership around one discoverable
+   `tsconfig.json` per real compiler environment;
+3. define and execute the package-ownership migration that leaves reusable
+   MapGen capabilities in Core, Civ7 policy in Civ7 packages, and authored maps,
+   recipes, packaging, and live proof in Swooper;
+4. certify and restack the resulting pre-A.2 foundation with native Graphite.
 
-Keep the existing siblings parallel while independent. Move a continuation
-branch with native Graphite only when code proves a dependency. Do not replay
-the repository, reconstruct a replacement stack, or invent a return/integration
-protocol.
+This package move does not execute A.2 Authority, normalize operation interiors,
+or begin the domain descent. A.2 starts later from the corrected package
+topology. Do not replay the repository, reconstruct a replacement stack, or
+invent a return/integration protocol.
 
 ## Prepared Findings
 
@@ -266,16 +267,10 @@ Hydrology, Resources, and Placement under the settled descent contract.
 
 ### A.3. Close Static Test And Tool Coverage
 
-The current production checks exclude Swooper tests, `src/dev`, most scripts,
-and Studio tests. Bun and Vitest transpile and execute tests without invoking
-the TypeScript checker, so passing behavior tests can coexist with editor
-diagnostics. Close that execution-versus-static-authority gap before changing
-the config ontology again:
-
-The completed inventory found five source-local compile-time tests. Retain them
-through A.2 because production `tsc` is currently their only oracle. During
-A.3, move them atomically with green owner-local `tsconfig.test.json` projects
-and independently runnable Nx `check:test` targets:
+Bun and Vitest execution is not TypeScript ownership. A.3 moves source-local
+compile-time assertions to semantic test owners and gives Swooper tests,
+scripts, and development diagnostics discoverable compiler projects plus native
+Nx `check:test` and `check:tools` targets:
 
 | Current source-local test | Destination |
 | --- | --- |
@@ -290,16 +285,10 @@ Static tests live under the semantic owner they constrain and use the
 Make each move only in the same change that proves the destination compiler
 project includes it and the production project no longer does.
 
-1. retain the closed Packet A base-versus-tip comparison as the boundary between
-   its repaired diagnostics and the independent historical corpus;
-2. after A.1 settles test paths and A.2 settles production module paths, repair
-   pre-existing shared `src/dev` and script contract bridges first, then
-   Swooper test fixtures/consumers, then Studio tests on separate semantic
-   Graphite children;
-3. add the smallest separate `tsconfig.test.json` and `tsconfig.tools.json`
-   projects and Nx targets only after each admitted scope is green;
-4. make normal project checks depend on those green static surfaces without
-   mixing browser, game-runtime, and tooling environments.
+The destination law is one discoverable `tsconfig.json` per distinct compiler
+environment. Named `tsconfig.*.json` files are reserved for explicit build or
+emit programs, not hidden editor ownership. Normal project typecheck composes
+the owner-local surfaces through Nx.
 
 Do not restore partial config types, add suppression baselines, or silence
 diagnostics with casts. Use recipe-produced complete configs, operation

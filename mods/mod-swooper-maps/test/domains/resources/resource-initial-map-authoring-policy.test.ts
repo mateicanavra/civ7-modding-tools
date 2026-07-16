@@ -1,6 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
-import { OFFICIAL_RESOURCE_CORPUS } from "@civ7/map-policy";
+import {
+  OFFICIAL_RESOURCE_CORPUS,
+  type OfficialAgeType,
+  type OfficialResourceType,
+} from "@civ7/map-policy";
 import {
   DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
   getInitialMapResourcePolicyForType,
@@ -9,9 +13,9 @@ import {
   INITIAL_MAP_RESOURCE_TYPES,
 } from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
 
-function expectedTypesForAge(age: string): string[] {
+function expectedTypesForAge(age: OfficialAgeType): OfficialResourceType[] {
   return OFFICIAL_RESOURCE_CORPUS.filter(
-    (entry) => entry.validAges.includes(age as never) && entry.placeability.status === "placeable"
+    (entry) => entry.validAges.includes(age) && entry.placeability.status === "placeable"
   ).map((entry) => entry.resourceType);
 }
 

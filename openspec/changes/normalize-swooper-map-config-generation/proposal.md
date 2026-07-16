@@ -122,7 +122,7 @@ that directory.
   - `mods/mod-swooper-maps/src/maps/**` generated-entry source location or
     generator-owned replacement
   - `mods/mod-swooper-maps/scripts/**`
-  - `mods/mod-swooper-maps/tsup.config.ts`
+  - `mods/mod-swooper-maps/scripts/tsup.config.ts`
   - `mods/mod-swooper-maps/test/**`
   - `apps/mapgen-studio/src/**`
   - adjacent MapGen/Swooper docs

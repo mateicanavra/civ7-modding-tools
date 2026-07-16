@@ -1,7 +1,6 @@
 # Verification Ledger
 
-Status: independent continuation sealed; A.2 sibling pending; final P21 waits
-for a reconverged tree; no product closure claim
+Status: pre-A.2 package foundation in progress; final P21 remains open
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -12,7 +11,7 @@ Current scope and DRA frame:
 ## Live Control State
 
 - Last updated: 2026-07-16 EDT
-- Current phase: `awaiting-a2-reconvergence`
+- Current phase: `pre-a2-package-foundation`
 - Ratcheted foundation: the split base, native Nx/toolchain layers, G.1/G.2,
   RuleFixPreview, A.3a, A.4, control-oRPC lifecycle and Studio adoption, Tuner
   session/admission repair, P19 generated-mod visibility, and P20 saved-config
@@ -24,18 +23,17 @@ Current scope and DRA frame:
   tasks; deterministic proof and operation-event adoption passed fresh review.
   A.5 remains unadmitted because neither lazy payload loading nor a worker
   readiness state earned complexity from valid product evidence.
-- Next action: the user's team advances the A.2 sibling. When A.2 completes,
-  reconnect the first unique continuation branch with native Graphite, move the
-  four retained operation-sensitive type tests, run Stage 6, and freeze the exact
-  tree for the final P21 matrix.
+- Next action: seal A.3 compiler ownership, normalize repository TypeScript
+  project ownership, then move reusable MapGen capabilities and tooling to their
+  correct package owners before A.2 begins.
 - Graphite law: preserve coherent layers. No returned-stack protocol,
   replacement stack, full replay, or wholesale recut. Native Graphite operations
   handle only concrete branch dependencies.
 - A.2 owner after the split: the user's A.2 orchestrator owns Authority, the
   advisory census and deterministic classification, and six domain migrations.
   This DRA owns the independent closeout track and final product closure.
-- Blocked by: A.2 completion for integrated closure. No independent product slice
-  remains admitted on this continuation track.
+- Blocked by: nothing. A.2 has not begun and remains outside this package
+  ownership work.
 - Product state: the complete rendered browser/endpoint/Civ7 matrix remains
   open, so no product closure is claimed.
 

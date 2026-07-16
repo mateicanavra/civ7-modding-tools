@@ -2,12 +2,17 @@ import { describe, expect, it } from "bun:test";
 
 import { type MapInfo, MockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext, FLAT_TERRAIN } from "@swooper/mapgen-core";
+import type { Static } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../../src/recipes/standard/runtime.js";
 import { artifacts as placementArtifacts } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { standardConfig } from "../../../../support/standard-config.js";
+
+type ResourcePlacementOutcomes = Static<
+  (typeof placementArtifacts.resourcePlacementOutcomes)["schema"]
+>;
 
 class RegionSensitiveResourceAdapter extends MockAdapter {
   readonly callOrder: string[] = [];
@@ -109,13 +114,14 @@ describe("placement resources landmass-region restamp", () => {
     const firstResourceIntent = adapter.callOrder.indexOf("placeResourceIntent");
     const resourceOutcomes = context.artifacts.get(
       placementArtifacts.resourcePlacementOutcomes.id
-    ) as { summary?: { plannedCount?: number; placedCount?: number } } | undefined;
+    ) as ResourcePlacementOutcomes | undefined;
+    if (!resourceOutcomes) throw new Error("Missing resource placement outcomes.");
 
     expect(firstRestamp).toBeGreaterThanOrEqual(0);
     expect(firstResourceIntent).toBeGreaterThan(firstRestamp);
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
-    expect(resourceOutcomes?.summary?.plannedCount ?? 0).toBeGreaterThan(0);
-    expect(adapter.calls.setResourceType.length).toBe(resourceOutcomes?.summary?.placedCount);
+    expect(resourceOutcomes.summary.plannedCount).toBeGreaterThan(0);
+    expect(adapter.calls.setResourceType.length).toBe(resourceOutcomes.summary.placedCount);
   });
 
   it("aborts placement before resource materialization when region restamp fails", () => {

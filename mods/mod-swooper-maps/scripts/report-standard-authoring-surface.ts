@@ -516,7 +516,7 @@ function buildStageRows(fieldRows: AuthorFieldRow[]): StageLedgerRow[] {
   });
 }
 
-function buildStepRows(): Array<Record<string, Json>> {
+function buildStepRows(): Array<Record<string, JsonValue>> {
   return asStages().flatMap((stage) =>
     stage.steps.map((step) => {
       const schemaRows: FlattenedSchemaRow[] = [];
@@ -535,18 +535,18 @@ function buildStepRows(): Array<Record<string, Json>> {
         schemaRawEnvelopeRows: schemaRows.filter(
           (row) => row.rawEnvelope || row.path.includes(".config.")
         ).length,
-        schemaRows: schemaRows as unknown as Json,
+        schemaRows: schemaRows as unknown as JsonValue,
         opEnvelopes: Object.entries(step.contract.ops ?? {}).map(([opId, op]) => ({
           opId,
           strategies: Object.keys(op.strategies ?? {}),
-          defaultConfig: op.defaultConfig as Json,
+          defaultConfig: op.defaultConfig as JsonValue,
         })),
       };
     })
   );
 }
 
-function buildFocusRows(): Array<Record<string, Json>> {
+function buildFocusRows(): Array<Record<string, JsonValue>> {
   return asStages().flatMap((stage) =>
     stage.steps.map((step) => ({
       kind: "studio-focus-path",
@@ -559,7 +559,7 @@ function buildFocusRows(): Array<Record<string, Json>> {
   );
 }
 
-function buildConsumerRows(): Array<Record<string, Json>> {
+function buildConsumerRows(): Array<Record<string, JsonValue>> {
   return [
     {
       kind: "generated-schema-default-artifacts",
