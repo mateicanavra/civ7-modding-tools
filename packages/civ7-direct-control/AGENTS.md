@@ -2,10 +2,12 @@
 
 Scope: `packages/civ7-direct-control/**`
 
-- Owns developer-process control of a running Civ7 instance through the tuner
-  socket protocol.
-- Keep CLI, Studio, and future callers above this package; they should not
-  implement raw socket framing, state discovery, or reconnect polling locally.
+- Currently contains the mixed low-level Tuner/socket access, state discovery
+  and reconnect behavior, and one-wire Civ7-side command nodes pending ADR-007
+  extraction.
+- The public control-service contract, router, admission, and multi-step Effect
+  orchestration belong in `@civ7/control-orpc`. Keep CLI, Studio, and future
+  callers above both packages.
 - Keep generated outputs, Civ7 logs, and deployed Mods folders as evidence
   only.
 - Do not add fallback transports or caller-local socket implementations.

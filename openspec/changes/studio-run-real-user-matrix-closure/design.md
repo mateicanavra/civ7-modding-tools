@@ -50,10 +50,10 @@ remain redacted.
 ## Deterministic Gates
 
 The concrete Nx/test owners below must be green at the runtime-ready boundary;
-they replace additional Civ7 mutations. Two proof repairs remain explicit:
-public operation-adoption fixtures must validate against the exported TypeBox
-schema, and same-content sequential operations must prove fresh workspace,
-artifact, manifest, and deployment identity.
+they replace additional Civ7 mutations. The two previously open proof repairs
+are closed in their mapped owners and must rerun on that frozen tree:
+schema-valid public operation-adoption fixtures and same-content sequential
+operations proving fresh workspace, artifact, manifest, and deployment identity.
 
 | Behavior | Nx target | Concrete owner |
 | --- | --- | --- |

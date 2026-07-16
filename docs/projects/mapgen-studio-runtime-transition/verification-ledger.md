@@ -1,7 +1,7 @@
 # Verification Ledger
 
-Status: P21 authority ready; deterministic proof repair next; A.2 sibling
-untouched; no product closure claim
+Status: independent continuation sealed; A.2 sibling pending; final P21 waits
+for a reconverged tree; no product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -11,29 +11,31 @@ Current scope and DRA frame:
 
 ## Live Control State
 
-- Last updated: 2026-07-15 EDT
-- Current phase: `p21-authority-ready`
+- Last updated: 2026-07-16 EDT
+- Current phase: `awaiting-a2-reconvergence`
 - Ratcheted foundation: the split base, native Nx/toolchain layers, G.1/G.2,
   RuleFixPreview, A.3a, A.4, control-oRPC lifecycle and Studio adoption, Tuner
   session/admission repair, P19 generated-mod visibility, and P20 saved-config
-  reconciliation are sealed Graphite layers.
-- Current gate: P21's corrected fixed three-row authority, deterministic owner
-  map, and single final-tree invalidation law passed fresh TypeScript,
-  architecture, and product review with zero P0-P3. Strict and full OpenSpec
-  validation pass all 370 items. Schema-valid adoption fixtures and sequential
-  same-content freshness/resources proof remain explicit deterministic work
-  before runtime readiness; no extra Civ7 row is admitted.
-- Next action: land that bounded deterministic proof repair before
-  source-independent A.3 static coverage. Keep the untouched A.2 sibling
-  parallel until code proves a dependency.
+  reconciliation, P21 deterministic proof, source-independent A.3 static
+  coverage, hook diagnostics, and lossless operation-event adoption are sealed
+  Graphite layers.
+- Current gate: the independent-track census found no further admitted product
+  slice. One native workspace typecheck graph passes all 25 projects and 82
+  tasks; deterministic proof and operation-event adoption passed fresh review.
+  A.5 remains unadmitted because neither lazy payload loading nor a worker
+  readiness state earned complexity from valid product evidence.
+- Next action: the user's team advances the A.2 sibling. When A.2 completes,
+  reconnect the first unique continuation branch with native Graphite, move the
+  four retained operation-sensitive type tests, run Stage 6, and freeze the exact
+  tree for the final P21 matrix.
 - Graphite law: preserve coherent layers. No returned-stack protocol,
   replacement stack, full replay, or wholesale recut. Native Graphite operations
   handle only concrete branch dependencies.
 - A.2 owner after the split: the user's A.2 orchestrator owns Authority, the
   advisory census and deterministic classification, and six domain migrations.
   This DRA owns the independent closeout track and final product closure.
-- Blocked by: nothing external for the current authority/proof work; final live
-  execution waits for A.2/A.3 reconvergence and the frozen runtime tree.
+- Blocked by: A.2 completion for integrated closure. No independent product slice
+  remains admitted on this continuation track.
 - Product state: the complete rendered browser/endpoint/Civ7 matrix remains
   open, so no product closure is claimed.
 

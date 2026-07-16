@@ -1,6 +1,7 @@
 # Next Packet: Close The Studio Product Outcome
 
-Status: P21 authority ready; deterministic proof repair next; A.2 sibling untouched; no product closure claim
+Status: independent continuation sealed; A.2 sibling pending; final P21 waits
+for a reconverged tree; no product closure claim
 
 Normative frame:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -21,10 +22,11 @@ checks and lightweight records. Do not build custom progress-tracking tools.
 
 The coherent continuation stack is sealed through A.3a, A.4, RuleFixPreview,
 native Nx/toolchain authority, G.1/G.2, control-oRPC lifecycle and Studio
-adoption, Tuner session/admission repair, P19 generated-mod visibility, and P20
-saved-config reconciliation, and P21's corrected authority. The A.2 sibling
-still equals the split base; no A.2 Authority rule, live violation corpus, or
-domain migration is present.
+adoption, Tuner session/admission repair, P19 generated-mod visibility, P20
+saved-config reconciliation, P21 deterministic proof, source-independent A.3
+static coverage, Habitat hook diagnostics, and lossless operation-event adoption.
+The A.2 sibling still equals the split base; no A.2 Authority rule, live
+violation corpus, or domain migration is present.
 
 The historical source recovery remains reference evidence. No current-tree
 rendered browser/Civ7 matrix has closed, so none of these layers claims the
@@ -32,12 +34,14 @@ product result.
 
 ## Immediate Execution Boundary
 
-Proceed in this order:
+No speculative independent slice remains. Proceed in this order:
 
-1. repair the two bounded deterministic proof gaps named by P21: schema-valid
-   public adoption fixtures and sequential same-content request/workspace/
-   artifact/manifest/deployment freshness with balanced-resource preservation;
-2. continue source-independent A.3 static coverage while A.2 remains separate.
+1. let the user's team complete the A.2 sibling without disturbing either
+   sibling's protected ancestry;
+2. reconnect the first unique continuation branch with native Graphite only when
+   the completed A.2 tree creates the dependency;
+3. move the four retained operation-sensitive type tests, run Stage 6, and
+   freeze the exact reconverged tree for the final P21 matrix.
 
 Keep the existing siblings parallel while independent. Move a continuation
 branch with native Graphite only when code proves a dependency. Do not replay
@@ -337,17 +341,17 @@ its own Graphite child before Packet B.
 
 ### A.5. Adjudicate Payload Loading And Worker Readiness
 
-Two observed performance concerns remain: the browser eagerly receives the
-complete all-config payload, and the first generation also pays worker startup.
-They are evidence, not yet one accepted packet. After A.4 leaves one
-config-selection path, decide whether they share a cohesive owner and change.
+The concerns are separate and neither is admitted. The complete catalog payload
+is small enough that lazy loading would add asynchronous selection and failure
+state without a measured product win. A worker readiness handshake would add a
+second lifecycle state without valid cold-versus-warm browser evidence; the
+bounded profiling attempt was invalidated by its own tooling and was stopped
+rather than converted into a harness.
 
-If admitted, selected-config payload loading must stay behind the recipe-owned
-complete-config boundary; it may not reintroduce sparse presets, browser
-merging, or delayed defaulting. Worker readiness must expose one small lifecycle
-handshake without adding a second run state machine. Split the concerns when
-their owners, gates, or failure modes differ. Close only with browser module
-observations, first/warm-run behavior, and unchanged generation output.
+Reopen either concern only when clean browser observations demonstrate a
+material bottleneck. Any selected-config loading must preserve the recipe-owned
+complete-config boundary, and worker readiness must not create a second run
+state machine.
 
 ### B. Control oRPC Setup And Start Ownership
 
