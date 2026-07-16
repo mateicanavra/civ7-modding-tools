@@ -27,7 +27,9 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup",
+    "build": "tsup --config tools/tsup.config.ts",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "check:tools": "tsc -p tools/tsconfig.json --noEmit",
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
