@@ -1,3 +1,7 @@
+import type {
+  Civ7BattlefieldScanResult,
+  Civ7DestinationAnalysisResult,
+} from "@civ7/direct-control";
 import { describe, expect, test, vi } from "vitest";
 import GamePlayBattlefieldScan from "../../src/commands/game/play/battlefield-scan";
 import GamePlayCivilianRouteTriage from "../../src/commands/game/play/civilian-route-triage";
@@ -7,6 +11,9 @@ import GamePlayFrontSummary from "../../src/commands/game/play/front-summary";
 import GamePlayTargetCandidates from "../../src/commands/game/play/target-candidates";
 import { type FakeTunerServer, startFakeTunerServer } from "./fixtures/tuner-socket-server";
 import { expectNormalPlayPayloadToOmitDebugInternals } from "./game/play/normal-output-boundary";
+
+type BattlefieldScanPayload = Omit<Civ7BattlefieldScanResult, "host" | "port" | "state">;
+type DestinationAnalysisPayload = Omit<Civ7DestinationAnalysisResult, "host" | "port" | "state">;
 
 describe("game play tactical read commands", () => {
   test("reads civilian route triage without sending operations", async () => {
@@ -256,6 +263,7 @@ describe("game play tactical read commands", () => {
             unprovenLabel: string;
           };
           pointsOfInterest: Array<{ summary?: string; kind?: string }>;
+          omitted: Array<{ path: string }>;
         };
       };
 
@@ -554,7 +562,7 @@ function targetCandidatesView() {
 }
 
 function battlefieldScanView() {
-  const friendlyUnit = {
+  const friendlyUnit: BattlefieldScanPayload["units"][number] = {
     id: { owner: 0, id: 458752, type: 26 },
     owner: 0,
     stance: "friendly",
@@ -572,7 +580,7 @@ function battlefieldScanView() {
     movementMovesRemaining: 2,
     attacksRemaining: 1,
   };
-  const civilianUnit = {
+  const civilianUnit: BattlefieldScanPayload["units"][number] = {
     id: { owner: 0, id: 1441800, type: 26 },
     owner: 0,
     stance: "friendly",
@@ -590,7 +598,7 @@ function battlefieldScanView() {
     movementMovesRemaining: 2,
     attacksRemaining: 0,
   };
-  const otherOwnerUnit = {
+  const otherOwnerUnit: BattlefieldScanPayload["units"][number] = {
     id: { owner: 9, id: 196608, type: 26 },
     owner: 9,
     stance: "other",
@@ -608,7 +616,7 @@ function battlefieldScanView() {
     movementMovesRemaining: 2,
     attacksRemaining: 1,
   };
-  const city = {
+  const city: BattlefieldScanPayload["cities"][number] = {
     id: { owner: 9, id: 589824, type: 1 },
     owner: 9,
     stance: "other",
@@ -643,8 +651,6 @@ function battlefieldScanView() {
         stance: "friendly",
         relationshipProof: "self",
         relationshipLabel: "friendly",
-        leaderName: { ok: true, value: "Player" },
-        civilizationName: { ok: true, value: "Assyria" },
         unitCount: 2,
         cityCount: 0,
         roles: { ranged: 1, civilian: 1 },
@@ -657,8 +663,6 @@ function battlefieldScanView() {
         stance: "other",
         relationshipProof: "none",
         relationshipLabel: "relationship-unproven",
-        leaderName: { ok: true, value: "Independent Power" },
-        civilizationName: { ok: true, value: "Independent" },
         unitCount: 1,
         cityCount: 1,
         roles: { melee: 1 },
@@ -694,7 +698,7 @@ function battlefieldScanView() {
       "Read-only battlefield lens for tactical orientation. It does not path, move, attack, declare war, or validate operations.",
       "Owner mismatch is contact evidence, not relationship proof. Use neutral relationship-unproven language unless official relationship APIs prove more.",
     ],
-  };
+  } satisfies BattlefieldScanPayload;
 }
 
 function destinationAnalysisView() {
@@ -702,6 +706,8 @@ function destinationAnalysisView() {
     id: { owner: 9, id: 196608, type: 26 },
     owner: 9,
     stance: "other",
+    relationshipProof: "none",
+    relationshipLabel: "relationship-unproven",
     type: 222,
     typeName: "UNIT_WARRIOR",
     role: "melee",
@@ -715,11 +721,13 @@ function destinationAnalysisView() {
     attacksRemaining: 1,
     corridorDistance: 0,
     destinationDistance: 0,
-  };
+  } satisfies DestinationAnalysisPayload["destinationPressure"]["units"][number];
   const city = {
     id: { owner: 9, id: 589824, type: 1 },
     owner: 9,
     stance: "other",
+    relationshipProof: "none",
+    relationshipLabel: "relationship-unproven",
     name: "Independent City",
     location: { x: 13, y: 17 },
     distance: 0,
@@ -727,7 +735,7 @@ function destinationAnalysisView() {
     population: 3,
     isTown: false,
     destinationDistance: 0,
-  };
+  } satisfies DestinationAnalysisPayload["destinationPressure"]["cities"][number];
   return {
     localPlayerId: 0,
     playerId: 0,
@@ -777,7 +785,7 @@ function destinationAnalysisView() {
     notes: [
       "Read-only destination lens for tactical planning. It does not move units, reserve paths, attack, or validate operations.",
     ],
-  };
+  } satisfies DestinationAnalysisPayload;
 }
 
 function expectPositiveRelationshipLabels(values: readonly string[]): void {
