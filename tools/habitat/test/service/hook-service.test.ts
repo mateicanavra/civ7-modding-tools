@@ -242,7 +242,6 @@ describe("Habitat hook service", () => {
   });
 
   test("runs pre-push source checks over changed hook source paths", async () => {
-    const fake = makePrePushFixture();
     const checkRequests: CheckOptions[] = [];
     const changedPaths = ["packages/sdk/src/index.ts"] as const;
 
@@ -809,7 +808,10 @@ function commandResult(
   stderr = "",
   executable = "git"
 ): HabitatCommandResult {
-  const kind = executable === "git" ? "git-state" : "workspace-tool";
+  const kind = Match.value(executable).pipe(
+    Match.when("git", () => "git-state" as const),
+    Match.orElse(() => "workspace-tool" as const)
+  );
   return makeHabitatCommandResult(
     {
       commandId: `${executable}-${argv.join("-")}`,
