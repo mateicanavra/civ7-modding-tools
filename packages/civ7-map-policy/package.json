@@ -13,9 +13,11 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup",
+    "build": "tsup --config scripts/tsup.config.ts",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "check:tools": "tsc -p scripts/tsconfig.json --noEmit",
     "test": "bun test",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
     "verify": "bun ./scripts/verify.ts"
   },
   "dependencies": {},
