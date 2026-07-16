@@ -20,6 +20,7 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
     "clean": "rimraf dist",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
     "test": "vitest run --project plugin-mods",

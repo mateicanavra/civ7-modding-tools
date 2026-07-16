@@ -8,7 +8,7 @@ import {
   resolveInstallDir,
   resolveUnzipDir,
   resolveZipPath,
-} from "../src/index";
+} from "../src/index.js";
 
 describe("@civ7/config path helpers", () => {
   it("expands ~ to home directory", () => {

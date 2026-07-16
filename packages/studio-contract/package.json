@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "check:test": "tsc -p tsconfig.test.json --noEmit",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
     "check:tools": "tsc -p tsconfig.tools.json --noEmit",
     "clean": "rimraf dist",
     "dev": "tsup --watch",
