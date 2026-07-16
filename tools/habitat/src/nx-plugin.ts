@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { CreateNodesV2 } from "@nx/devkit";
+import type { CreateNodes } from "@nx/devkit";
 import { Value } from "typebox/value";
 import {
   loadRuleRegistryDocumentForNxPlugin,
@@ -68,7 +68,7 @@ const harnessInternalBoundaryProjects = [
   },
 ] as const;
 
-export const createNodesV2 = [
+export const createNodes = [
   `${ruleRegistryRepoPath}/**/*.json`,
   (configFiles: readonly string[], options: unknown) => {
     const registry = loadRuleRegistryDocumentForNxPlugin(rulesPath);
@@ -80,7 +80,7 @@ export const createNodesV2 = [
       configFiles.find((configFile) => configFile.endsWith("index.json")) ?? configFiles[0];
     return anchorConfigFile ? [[anchorConfigFile, { projects }]] : [];
   },
-] satisfies CreateNodesV2;
+] satisfies CreateNodes;
 
 function buildInferredProjects(input: {
   registry: NxRuleRegistryDocument;

@@ -1,4 +1,4 @@
-import { createNodesV2 } from "@habitat/cli/nx-plugin";
+import { createNodes } from "@habitat/cli/nx-plugin";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import {
   type NxTargetDefinition,
@@ -197,8 +197,8 @@ describe("Habitat Nx plugin inputs", () => {
 });
 
 function inferredProjects() {
-  const handler = createNodesV2[1];
-  if (typeof handler !== "function") throw new Error("Expected a createNodesV2 handler.");
+  const handler = createNodes[1];
+  if (typeof handler !== "function") throw new Error("Expected a createNodes handler.");
   const [[, result]] = handler([".habitat/index.json"], {});
   return result.projects;
 }
