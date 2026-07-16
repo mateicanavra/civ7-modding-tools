@@ -12,10 +12,12 @@ import {
   saveDeployResultFromTerminalStatus,
 } from "../../features/mapConfigSave/status";
 import type { AuthoringState } from "../../stores/authoringStore";
+import { mergeSaveDeployFailureResponse, mergeSaveDeployOperation } from "../operationAdoption";
 import type { StudioOperations } from "./useStudioOperations";
 import type { ToastFn } from "./useToast";
 
 const SAVE_DEPLOY_TERMINAL_EVENT_TIMEOUT_MS = 5 * 60_000;
+const SAVE_DEPLOY_WAIT_CANCELLED_MESSAGE = "Save/Deploy wait was cancelled";
 
 type SaveDeployTerminalWaiter = Readonly<{
   resolve(status: MapConfigSaveDeployStatus): void;
@@ -35,6 +37,7 @@ export type UseSaveDeployArgs = {
 };
 
 export type UseSaveDeployResult = {
+  adoptSaveDeployOperation: StudioOperations["setSaveDeployOperation"];
   saveDialogState: { open: boolean; name: string; description?: string };
   openSaveDialog: (seed?: { name?: string; description?: string }) => void;
   closeSaveDialog: () => void;
@@ -60,31 +63,43 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
     name: "",
     description: "",
   });
-  const saveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(null);
+  const saveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(saveDeployOperation);
   const saveDeployWaitersRef = useRef<Map<string, SaveDeployTerminalWaiter>>(new Map());
+  const saveDeployInFlightRef = useRef(false);
+  const mountedRef = useRef(true);
 
-  useEffect(() => {
-    saveDeployOperationRef.current = saveDeployOperation;
-    if (!saveDeployOperation || !isSaveDeployTerminal(saveDeployOperation)) return;
-    const waiter = saveDeployWaitersRef.current.get(saveDeployOperation.requestId);
-    if (!waiter) return;
-    saveDeployWaitersRef.current.delete(saveDeployOperation.requestId);
-    clearTimeout(waiter.timeoutId);
-    waiter.resolve(saveDeployOperation);
-  }, [saveDeployOperation]);
-
-  useEffect(
-    () => () => {
-      for (const waiter of saveDeployWaitersRef.current.values()) {
-        clearTimeout(waiter.timeoutId);
-        waiter.reject(new Error("Save/Deploy wait cancelled"));
-      }
-      saveDeployWaitersRef.current.clear();
+  const adoptSaveDeployOperation = useCallback<StudioOperations["setSaveDeployOperation"]>(
+    (update) => {
+      const current = saveDeployOperationRef.current;
+      const next = typeof update === "function" ? update(current) : update;
+      saveDeployOperationRef.current = next;
+      setSaveDeployOperation(next);
+      if (!next || !isSaveDeployTerminal(next)) return;
+      const waiter = saveDeployWaitersRef.current.get(next.requestId);
+      if (!waiter) return;
+      saveDeployWaitersRef.current.delete(next.requestId);
+      clearTimeout(waiter.timeoutId);
+      waiter.resolve(next);
     },
-    []
+    [setSaveDeployOperation]
   );
 
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      for (const waiter of saveDeployWaitersRef.current.values()) {
+        clearTimeout(waiter.timeoutId);
+        waiter.reject(new Error(SAVE_DEPLOY_WAIT_CANCELLED_MESSAGE));
+      }
+      saveDeployWaitersRef.current.clear();
+    };
+  }, []);
+
   const waitForSaveDeployTerminalEvent = useCallback((requestId: string) => {
+    if (!mountedRef.current) {
+      return Promise.reject(new Error(SAVE_DEPLOY_WAIT_CANCELLED_MESSAGE));
+    }
     const current = saveDeployOperationRef.current;
     if (current?.requestId === requestId && isSaveDeployTerminal(current)) {
       return Promise.resolve(current);
@@ -100,57 +115,81 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
 
   const saveCanonicalConfig = useCallback(
     async (value: MapConfigEnvelope) => {
-      if (browserRunning || runInGameRunning || saveDeployRunning) {
-        const reason = browserRunning
-          ? "Map generation is running"
-          : runInGameRunning
-            ? "Run in Game is running"
-            : "Save/deploy is already running";
+      if (
+        saveDeployInFlightRef.current ||
+        browserRunning ||
+        runInGameRunning ||
+        saveDeployRunning
+      ) {
+        const reason = saveDeployInFlightRef.current
+          ? "Save/deploy admission is already in progress"
+          : browserRunning
+            ? "Map generation is running"
+            : runInGameRunning
+              ? "Run in Game is running"
+              : "Save/deploy is already running";
         return { ok: false as const, error: `${reason}; finish that operation before saving.` };
       }
       if (admitCanonicalConfig(value) === undefined) {
         return { ok: false as const, error: "Config is invalid for this recipe." };
       }
       const requestId = `studio-save-deploy-${Date.now().toString(36)}`;
-      setSaveDeployOperation(createMapConfigSaveDeployStatus({ requestId, phase: "queued" }));
-      const result = await saveRepoBackedConfig({
-        requestId,
-        canonicalConfig: value,
-        onStatus: (status) =>
-          setSaveDeployOperation((current) =>
-            current?.requestId === requestId ? status : current
-          ),
-      });
-      if (!result.ok) {
-        setSaveDeployOperation((current) => {
-          if (!current || current.requestId !== requestId) return current;
-          return result.status;
-        });
-        return saveDeployResultFromTerminalStatus(result.status);
-      }
+      saveDeployInFlightRef.current = true;
       try {
-        const terminal = isSaveDeployTerminal(result.status)
-          ? result.status
-          : await waitForSaveDeployTerminalEvent(requestId);
-        const terminalResult = saveDeployResultFromTerminalStatus(terminal);
-        return terminalResult;
-      } catch (error) {
-        return {
-          ok: false as const,
-          error:
-            error instanceof Error
-              ? error.message
-              : "Save/Deploy event stream did not report a terminal status",
-          saved: result.status.saved,
-          deployed: result.status.deployed,
-        };
+        adoptSaveDeployOperation(createMapConfigSaveDeployStatus({ requestId, phase: "queued" }));
+        const result = await saveRepoBackedConfig({
+          requestId,
+          canonicalConfig: value,
+          onStatus: (status) =>
+            adoptSaveDeployOperation((current) =>
+              current === null || current.requestId === requestId
+                ? mergeSaveDeployOperation(current, status)
+                : current
+            ),
+        });
+        if (!mountedRef.current) {
+          return {
+            ok: false as const,
+            error: SAVE_DEPLOY_WAIT_CANCELLED_MESSAGE,
+            saved: result.status.saved,
+            deployed: result.status.deployed,
+          };
+        }
+        if (!result.ok) {
+          const observed = saveDeployOperationRef.current;
+          if (observed?.requestId === requestId && isSaveDeployTerminal(observed)) {
+            return saveDeployResultFromTerminalStatus(observed);
+          }
+          adoptSaveDeployOperation((current) =>
+            mergeSaveDeployFailureResponse(current, result.status)
+          );
+          return saveDeployResultFromTerminalStatus(result.status);
+        }
+        try {
+          const terminal = isSaveDeployTerminal(result.status)
+            ? result.status
+            : await waitForSaveDeployTerminalEvent(requestId);
+          return saveDeployResultFromTerminalStatus(terminal);
+        } catch (error) {
+          return {
+            ok: false as const,
+            error:
+              error instanceof Error
+                ? error.message
+                : "Save/Deploy event stream did not report a terminal status",
+            saved: result.status.saved,
+            deployed: result.status.deployed,
+          };
+        }
+      } finally {
+        saveDeployInFlightRef.current = false;
       }
     },
     [
       browserRunning,
       runInGameRunning,
       saveDeployRunning,
-      setSaveDeployOperation,
+      adoptSaveDeployOperation,
       waitForSaveDeployTerminalEvent,
     ]
   );
@@ -196,6 +235,7 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
         return;
       }
       const result = await saveCanonicalConfig(next);
+      if (!mountedRef.current) return;
       if (result.ok) setCanonicalConfig(next);
       presentSaveResult(result);
       closeSaveDialog();
@@ -218,10 +258,12 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
   }, [canonicalConfig.description, canonicalConfig.name, openSaveDialog]);
 
   const handleSaveToCurrent = useCallback(async () => {
-    await presentSaveResult(await saveCanonicalConfig(canonicalConfig));
+    const result = await saveCanonicalConfig(canonicalConfig);
+    if (mountedRef.current) presentSaveResult(result);
   }, [canonicalConfig, presentSaveResult, saveCanonicalConfig]);
 
   return {
+    adoptSaveDeployOperation,
     saveDialogState,
     openSaveDialog,
     closeSaveDialog,

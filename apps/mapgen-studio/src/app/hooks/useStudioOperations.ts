@@ -1,7 +1,5 @@
 import type { MapConfigSaveDeployStatus, RunInGameOperationStatus } from "@civ7/studio-contract";
-import { type Dispatch, type RefObject, type SetStateAction, useCallback, useState } from "react";
-
-import { useLatestRef } from "./useLatestRef";
+import { type Dispatch, type SetStateAction, useCallback, useState } from "react";
 
 export type StudioOperations = Readonly<{
   // Operation state — the DECLARATIONS live here; domain hooks own the LOGIC
@@ -11,7 +9,7 @@ export type StudioOperations = Readonly<{
   saveDeployOperation: MapConfigSaveDeployStatus | null;
   setSaveDeployOperation: Dispatch<SetStateAction<MapConfigSaveDeployStatus | null>>;
   // Error channel — single owner. All writers (viz onError, browser run, run-in-
-  // game, the operations-adoption effect, the studio-events stream) surface
+  // game and the studio event/recovery loop) surface
   // through this one `setLocalError`; `clearLocalErrorIfCurrent` is the
   // identity-guarded clear used by the event stream.
   localError: string | null;
@@ -20,11 +18,6 @@ export type StudioOperations = Readonly<{
   // Busy booleans — derived SYNCHRONOUSLY from op status, stable-from-first-render.
   runInGameRunning: boolean;
   saveDeployRunning: boolean;
-  // Render-fresh mirrors of the op state for callbacks/effects that must read the
-  // latest value WITHOUT taking it as a dependency (the operations-adoption
-  // effect reads these so it does not re-run on every status change).
-  runInGameOperationRef: RefObject<RunInGameOperationStatus | null>;
-  saveDeployOperationCurrentRef: RefObject<MapConfigSaveDeployStatus | null>;
 }>;
 
 /**
@@ -56,10 +49,6 @@ export function useStudioOperations(): StudioOperations {
     setLocalError((current) => (current === message ? null : current));
   }, []);
 
-  // Render-phase mirrors (write-on-render via `useLatestRef`, never effect-synced).
-  const runInGameOperationRef = useLatestRef(runInGameOperation);
-  const saveDeployOperationCurrentRef = useLatestRef(saveDeployOperation);
-
   // Synchronous busy derivation — plain consts, default `false` on render 1.
   const saveDeployRunning = saveDeployOperation?.status === "running";
   const runInGameRunning = runInGameOperation?.status === "running";
@@ -74,7 +63,5 @@ export function useStudioOperations(): StudioOperations {
     clearLocalErrorIfCurrent,
     runInGameRunning,
     saveDeployRunning,
-    runInGameOperationRef,
-    saveDeployOperationCurrentRef,
   };
 }

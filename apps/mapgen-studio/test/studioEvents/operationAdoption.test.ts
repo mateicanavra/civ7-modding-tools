@@ -5,29 +5,34 @@ import {
   type MapConfigSaveDeployStatus,
   operationStatusTypeSchema,
   type RunInGameOperationStatus,
-  studio,
   type StudioEvent,
   type StudioLiveGameEvent,
   type StudioOperationEvent,
   type StudioOperationsCurrent,
+  studio,
   typeboxOutputSchemaFromContractProcedure,
 } from "@civ7/studio-contract";
-import { createTanstackQueryUtils } from "@orpc/tanstack-query";
-import { QueryClient } from "@tanstack/react-query";
+import { ClientRetryPlugin, type ClientRetryPluginContext } from "@orpc/client/plugins";
+import type { StandardLinkOptions } from "@orpc/client/standard";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
-  STUDIO_EVENT_STREAM_RETRY_ATTEMPTS,
-  studioEventsWatchClientContext,
-  studioEventsWatchLiveOptions,
-  studioEventsWatchLiveOptionsFor,
+  consumeStudioEventStream,
+  createStudioEventRecoveryErrors,
+  reconcileStudioOperationsCurrent,
+  STUDIO_RECOVERY_RETRY_ATTEMPTS,
+  studioRecoveryClientContext,
 } from "../../src/app/hooks/useStudioEvents";
 import {
   adoptStudioOperationsCurrent,
   applyStudioLiveGameEvent,
   applyStudioOperationEvent,
+  mergeRunInGameOperation,
+  mergeSaveDeployFailureResponse,
+  mergeSaveDeployOperation,
   readAndAdoptStudioOperationsCurrent,
+  type StudioOperationStateUpdate,
 } from "../../src/app/operationAdoption";
 import {
   formatStudioDaemonIdentityMismatch,
@@ -35,7 +40,6 @@ import {
   identityFromStudioOperationsCurrent,
   sameStudioDaemonIdentity,
   studioBusyGateMessage,
-  studioEventClearsStreamError,
 } from "../../src/app/studioEventRecovery";
 import type { LiveRuntimeStatusState } from "../../src/features/liveRuntime/model";
 
@@ -117,7 +121,9 @@ describe("Studio event operation adoption", () => {
         },
       }),
       state.targets,
-      { currentRunInGameOperation: state.readRunInGame() }
+      {
+        currentRunInGameOperation: state.readRunInGame(),
+      }
     );
 
     expect(state.readRunInGame()).toMatchObject({
@@ -127,7 +133,7 @@ describe("Studio event operation adoption", () => {
       diagnosticsId: "run-diagnostics-missed-terminal",
       safeFailureCategory: "runtime-control",
     });
-    expect(state.handledRunInGameToasts).toEqual(["run-missed-terminal"]);
+    expect(state.handledRunInGameToasts).toEqual([]);
   });
 
   test("browser reload adoption displays daemon active and terminal state without replaying start", async () => {
@@ -184,7 +190,7 @@ describe("Studio event operation adoption", () => {
     expect(state.handledRunInGameToasts).toEqual(["run-reload-terminal"]);
   });
 
-  test("event stream reconnect reconciliation handles a retained terminal once", async () => {
+  test("event stream reconciliation does not use terminal state as proof a toast fired", async () => {
     const state = adoptionState({
       runInGame: runningRunStatus({
         requestId: "run-reconnect",
@@ -245,7 +251,7 @@ describe("Studio event operation adoption", () => {
       phase: "completed",
     });
     expect(adopted).toBe(2);
-    expect(state.handledRunInGameToasts).toEqual(["run-reconnect"]);
+    expect(state.handledRunInGameToasts).toEqual([]);
   });
 
   test("clears stale displayed operations when daemon current truth is empty", () => {
@@ -299,7 +305,9 @@ describe("Studio event operation adoption", () => {
         },
       }),
       state.targets,
-      { currentRunInGameOperation: state.readRunInGame() }
+      {
+        currentRunInGameOperation: state.readRunInGame(),
+      }
     );
 
     expect(state.readRunInGame()?.requestId).toBe("daemon-terminal");
@@ -324,7 +332,9 @@ describe("Studio event operation adoption", () => {
         },
       }),
       state.targets,
-      { currentRunInGameOperation: state.readRunInGame() }
+      {
+        currentRunInGameOperation: state.readRunInGame(),
+      }
     );
 
     expect(state.readRunInGame()?.requestId).toBe("run-daemon-active");
@@ -361,15 +371,20 @@ describe("Studio event operation adoption", () => {
       /fetchRunInGameStatus|fetchSaveDeployStatus|runInGame\.status|mapConfigs\.status/
     );
 
+    const eventHookSource = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useStudioEvents.ts"),
+      "utf8"
+    );
+    expect(eventHookSource).toContain("onHello: async (event)");
+    expect(eventHookSource).toContain("orpcClient.studio.operations.current");
+    expect(eventHookSource).not.toMatch(
+      /fetchRunInGameStatus|fetchSaveDeployStatus|runInGame\.status|mapConfigs\.status/
+    );
     const shellSource = readFileSync(
       join(repoRoot, "apps/mapgen-studio/src/app/StudioShell.tsx"),
       "utf8"
     );
-    const bootEffect = sourceBlockAround(shellSource, "void readAndAdoptStudioOperationsCurrent");
-    expect(bootEffect).toContain("orpcClient.studio.operations.current({})");
-    expect(bootEffect).not.toMatch(
-      /fetchRunInGameStatus|fetchSaveDeployStatus|runInGame\.status|mapConfigs\.status/
-    );
+    expect(shellSource).not.toContain("readAndAdoptStudioOperationsCurrent");
   });
 
   test("current adoption does not let in-flight local status override registry sequencing", async () => {
@@ -412,16 +427,34 @@ describe("Studio event operation adoption", () => {
     });
 
     expect(formatStudioEventStreamError(new Error("stream down"))).toBe("stream down");
-    expect(studioEventClearsStreamError(hello)).toBe(true);
     expect(sameStudioDaemonIdentity(identityFromStudioOperationsCurrent(current), hello)).toBe(
       true
     );
     expect(
       formatStudioDaemonIdentityMismatch(hello, identityFromStudioOperationsCurrent(restarted))
-    ).toContain("Studio daemon restarted");
+    ).toContain("refused mismatched daemon state");
     expect(studioBusyGateMessage({ subject: "Explore", runInGameRunning: true })).toContain(
       "Run in Game"
     );
+  });
+
+  test("keeps current-recovery errors visible when pushed events recover the stream lane", () => {
+    const visible: string[] = [];
+    const cleared: string[] = [];
+    const errors = createStudioEventRecoveryErrors({
+      setLocalError: (message) => visible.push(message),
+      clearLocalError: (message) => cleared.push(message),
+    });
+
+    errors.set("stream", "stream retrying");
+    errors.set("current", "current daemon identity mismatched");
+    errors.clear("stream");
+
+    expect(visible).toEqual(["stream retrying", "current daemon identity mismatched"]);
+    expect(cleared).toEqual([]);
+
+    errors.clear("current");
+    expect(cleared).toEqual(["current daemon identity mismatched"]);
   });
 
   test("StudioShell operation freshness stays on current plus pushed events", () => {
@@ -437,6 +470,10 @@ describe("Studio event operation adoption", () => {
       join(repoRoot, "apps/mapgen-studio/src/features/runInGame/api.ts"),
       "utf8"
     );
+    const runHookSource = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useRunInGame.ts"),
+      "utf8"
+    );
     const saveApiSource = readFileSync(
       join(repoRoot, "apps/mapgen-studio/src/features/mapConfigSave/api.ts"),
       "utf8"
@@ -448,19 +485,23 @@ describe("Studio event operation adoption", () => {
       "utf8"
     );
 
-    expect(shellSource).toContain("void readAndAdoptStudioOperationsCurrent");
+    expect(shellSource).not.toContain("readAndAdoptStudioOperationsCurrent");
     expect(shellSource).toContain("useStudioEvents({");
-    const operationEffect = sourceBlockAround(eventHookSource, "applyStudioOperationEvent(event");
-    expect(operationEffect).toContain('event?.type !== "operation"');
-    expect(operationEffect).toContain("setRunInGameOperation");
-    expect(operationEffect).toContain("setSaveDeployOperation");
-    expect(operationEffect).not.toMatch(
-      /applyStudioLiveGameEvent|readAndAdoptStudioOperationsCurrent/
+    expect(eventHookSource).toContain("consumeStudioEventStream({");
+    expect(eventHookSource).toContain("orpcClient.studio.events.watch");
+    expect(eventHookSource).toContain("applyStudioOperationEvent");
+    expect(eventHookSource).toContain("applyStudioLiveGameEvent");
+    expect(eventHookSource).toContain("readAndAdoptStudioOperationsCurrent");
+    expect(eventHookSource).not.toMatch(
+      /experimental_liveOptions|useQuery\s*\(|currentOperationReconciler|setInterval/
     );
     expect(shellSource).not.toMatch(
       /fetchRunInGameStatus|fetchSaveDeployStatus|useOperationStatusPolls|useDaemonInstanceWatchdog|serverInfo\s*\(|runInGame\.status|mapConfigs\.status/
     );
     expect(runApiSource).not.toMatch(/fetchRunInGameStatus|runInGame\.status/);
+    expect(runHookSource).not.toMatch(
+      /RUN_IN_GAME_CURRENT_RECONCILE_INTERVAL_MS|studio\.operations\.current|setTimeout/
+    );
     expect(saveApiSource).not.toMatch(/fetchSaveDeployStatus|mapConfigs\.status/);
 
     const saveStartResponse = sourceSliceAround(saveApiSource, "args.onStatus?.(status)");
@@ -541,6 +582,79 @@ describe("Studio event operation adoption", () => {
     expect(state.handledRunInGameToasts).toEqual([]);
   });
 
+  test("same-request terminal operations cannot regress to older running observations", () => {
+    const runTerminal = completedRunStatus({ requestId: "run-monotonic" });
+    const saveTerminal: MapConfigSaveDeployStatus = {
+      ok: true,
+      requestId: "save-monotonic",
+      phase: "complete",
+      status: "complete",
+      saved: true,
+      deployed: true,
+      recoveryActions: [],
+    };
+
+    expect(
+      mergeRunInGameOperation(
+        runTerminal,
+        runningRunStatus({ requestId: "run-monotonic", phase: "starting-game" })
+      )
+    ).toBe(runTerminal);
+    expect(
+      mergeRunInGameOperation(runTerminal, failedRunStatus({ requestId: "run-monotonic" }))
+    ).toBe(runTerminal);
+    expect(
+      mergeSaveDeployOperation(saveTerminal, {
+        ok: true,
+        requestId: "save-monotonic",
+        phase: "deploying",
+        status: "running",
+        saved: true,
+        deployed: false,
+        recoveryActions: ["retry-status"],
+      })
+    ).toBe(saveTerminal);
+    expect(
+      mergeSaveDeployOperation(saveTerminal, {
+        ok: false,
+        requestId: "save-monotonic",
+        phase: "failed",
+        status: "failed",
+        saved: true,
+        deployed: false,
+        safeFailureCategory: "deployment",
+        recoveryActions: ["retry-save-deploy"],
+      })
+    ).toMatchObject({ status: "failed" });
+
+    const syntheticFailure: Extract<MapConfigSaveDeployStatus, { ok: false }> = {
+      ok: false,
+      requestId: "save-monotonic",
+      phase: "failed",
+      status: "failed",
+      saved: true,
+      deployed: false,
+      safeFailureCategory: "deployment",
+      recoveryActions: ["retry-save-deploy"],
+    };
+    const runningSave: MapConfigSaveDeployStatus = {
+      ok: true,
+      requestId: "save-monotonic",
+      phase: "deploying",
+      status: "running",
+      saved: true,
+      deployed: false,
+      recoveryActions: ["retry-status"],
+    };
+    expect(mergeSaveDeployFailureResponse(saveTerminal, syntheticFailure)).toBe(saveTerminal);
+    expect(
+      mergeSaveDeployOperation(
+        mergeSaveDeployFailureResponse(runningSave, syntheticFailure),
+        saveTerminal
+      )
+    ).toBe(saveTerminal);
+  });
+
   test("applies pushed Save&Deploy operation events", () => {
     const state = adoptionState();
 
@@ -616,59 +730,319 @@ describe("Studio event operation adoption", () => {
     );
   });
 
-  test("builds live event query options with scoped stream retry context", () => {
-    const options = studioEventsWatchLiveOptions();
+  test("assigns retry to oRPC while refusing callbacks after abort", async () => {
+    const retryErrors: unknown[] = [];
+    const context = studioRecoveryClientContext((error) => retryErrors.push(error));
+    const retryError = new Error("stream disconnected");
+    const active = new AbortController();
+    const aborted = new AbortController();
+    aborted.abort();
 
-    expect(studioEventsWatchClientContext()).toEqual({
-      retry: Number.POSITIVE_INFINITY,
-    });
-    expect(STUDIO_EVENT_STREAM_RETRY_ATTEMPTS).toBe(Number.POSITIVE_INFINITY);
-    expect(JSON.stringify(options.queryKey)).toContain('"live"');
-    expect(JSON.stringify(options.queryKey)).toContain('"studio"');
-    expect(JSON.stringify(options.queryKey)).toContain('"events"');
-    expect(JSON.stringify(options.queryKey)).toContain('"watch"');
-    expect(typeof options.queryFn).toBe("function");
+    expect(context.retry).toBe(Number.POSITIVE_INFINITY);
+    expect(STUDIO_RECOVERY_RETRY_ATTEMPTS).toBe(Number.POSITIVE_INFINITY);
+    if (typeof context.shouldRetry !== "function") {
+      throw new Error("Expected abort-aware stream retry decision");
+    }
+    if (!context.onRetry) throw new Error("Expected stream retry callback");
+    const attempt = (signal: AbortSignal) =>
+      ({ error: retryError, signal }) as Parameters<NonNullable<typeof context.onRetry>>[0];
+
+    expect(await context.shouldRetry(attempt(active.signal))).toBe(true);
+    expect(await context.shouldRetry(attempt(aborted.signal))).toBe(false);
+    context.onRetry(attempt(active.signal));
+    context.onRetry(attempt(aborted.signal));
+    expect(retryErrors).toEqual([retryError]);
   });
 
-  test("live event query function invokes watch with scoped stream retry context", async () => {
-    const calls: Array<{ input: unknown; options: { signal?: AbortSignal; context?: unknown } }> =
-      [];
-    const fakeClient = {
-      studio: {
-        events: {
-          watch: async (
-            input: unknown,
-            options: { signal?: AbortSignal; context?: unknown } = {}
-          ) => {
-            calls.push({ input, options });
-            return oneEventIterator({
-              type: "hello",
-              serverInstanceId: "studio-test",
-              serverStartedAt: "2026-06-13T00:00:00.000Z",
-              observedAt: "2026-06-13T00:00:01.000Z",
-            });
-          },
-        },
+  test("aborting during the native retry delay prevents another transport call", async () => {
+    const retryStarted = deferred<void>();
+    const abortController = new AbortController();
+    const options: StandardLinkOptions<ClientRetryPluginContext> = {};
+    new ClientRetryPlugin<ClientRetryPluginContext>().init(options);
+    const interceptor = options.interceptors?.[0];
+    if (!interceptor) throw new Error("Expected ClientRetryPlugin interceptor");
+    const disconnect = new Error("stream disconnected during retry");
+    let transportCalls = 0;
+
+    const output = await interceptor({
+      path: ["studio", "events", "watch"],
+      input: {},
+      signal: abortController.signal,
+      context: studioRecoveryClientContext(() => retryStarted.resolve()),
+      next: async () => {
+        transportCalls += 1;
+        return transportCalls === 1
+          ? rejectingEventIterator(disconnect)
+          : trackedEventIterator([], { onNext: () => undefined, onReturn: () => undefined });
       },
-    };
-    const fakeOrpc = createTanstackQueryUtils(fakeClient);
-    const options = studioEventsWatchLiveOptionsFor(fakeOrpc.studio.events.watch);
-    if (typeof options.queryFn !== "function") {
-      throw new Error("expected a live query function");
-    }
+    });
+    const iterator = output as AsyncIteratorObject<StudioEvent, unknown, void>;
+    const pull = iterator.next();
+    await retryStarted.promise;
+    abortController.abort();
 
-    await options.queryFn({
-      signal: new AbortController().signal,
-      queryKey: options.queryKey,
-      client: new QueryClient(),
-      meta: undefined,
+    await expect(pull).rejects.toBe(abortController.signal.reason);
+    expect(transportCalls).toBe(1);
+    await iterator.return?.();
+  });
+
+  test("discards a stale daemon stream before adopting the replacement", async () => {
+    const abortController = new AbortController();
+    const state = adoptionState();
+    const order: string[] = [];
+    const returns = [0, 0];
+    const sources = [
+      trackedEventIterator(
+        [
+          checkedStudioEvent({
+            type: "hello",
+            serverInstanceId: "studio-old",
+            serverStartedAt: "2026-06-13T00:00:00.000Z",
+            observedAt: "2026-06-13T00:00:01.000Z",
+          }),
+          operationEvent({
+            kind: "run-in-game",
+            status: completedRunStatus({ requestId: "run-old-buffered" }),
+          }),
+        ],
+        {
+          onNext: () => undefined,
+          onReturn: () => {
+            returns[0] = (returns[0] ?? 0) + 1;
+          },
+        }
+      ),
+      trackedEventIterator(
+        [
+          checkedStudioEvent({
+            type: "hello",
+            serverInstanceId: "studio-new",
+            serverStartedAt: "2026-06-13T00:00:02.000Z",
+            observedAt: "2026-06-13T00:00:03.000Z",
+          }),
+          operationEvent({
+            kind: "run-in-game",
+            status: completedRunStatus({ requestId: "run-new-buffered" }),
+          }),
+        ],
+        {
+          onNext: () => undefined,
+          onReturn: () => {
+            returns[1] = (returns[1] ?? 0) + 1;
+          },
+        }
+      ),
+    ];
+    const currentReads = [
+      currentOperations({
+        serverInstanceId: "studio-new",
+        serverStartedAt: "2026-06-13T00:00:02.000Z",
+      }),
+      currentOperations({
+        serverInstanceId: "studio-new",
+        serverStartedAt: "2026-06-13T00:00:02.000Z",
+        runInGame: {
+          active: runningRunStatus({ requestId: "run-matched", phase: "deploying" }),
+          recent: [],
+        },
+      }),
+    ];
+    let opens = 0;
+    let readIndex = 0;
+
+    await consumeStudioEventStream({
+      signal: abortController.signal,
+      open: async () => sources[opens++] ?? sources[1]!,
+      onHello: async (event) => {
+        const matched = await reconcileStudioOperationsCurrent({
+          signal: abortController.signal,
+          expectedIdentity: event,
+          readCurrent: async () => {
+            order.push(`current:${readIndex}`);
+            return currentReads[readIndex++] ?? currentOperations();
+          },
+          targets: state.targets,
+          getCurrentRunInGameOperation: state.readRunInGame,
+          onRecoveryError: () => order.push("mismatch"),
+          onRecovered: () => order.push("matched"),
+        });
+        return matched ? "continue" : "reopen";
+      },
+      onOperation: (event) => {
+        order.push("operation");
+        applyStudioOperationEvent(event, state.targets);
+        abortController.abort();
+      },
+      onLiveGame: () => undefined,
+      onUnexpectedEnd: () => {
+        throw new Error("neither daemon stream should end before its disposition");
+      },
+      waitBeforeReopen: async () => undefined,
     });
 
-    expect(calls).toHaveLength(1);
-    expect(calls[0]?.input).toEqual({});
-    expect(calls[0]?.options.context).toMatchObject({
-      retry: STUDIO_EVENT_STREAM_RETRY_ATTEMPTS,
+    expect(order).toEqual(["current:0", "mismatch", "current:1", "matched", "operation"]);
+    expect(opens).toBe(2);
+    expect(returns).toEqual([1, 1]);
+    expect(state.readRunInGame()?.requestId).toBe("run-new-buffered");
+  });
+
+  test("consumes adjacent operation and live-game events in order without losing either", async () => {
+    const abortController = new AbortController();
+    const helloStarted = deferred<void>();
+    const releaseHello = deferred<void>();
+    const order: string[] = [];
+    let nextCalls = 0;
+    let returnCalls = 0;
+    const events: StudioEvent[] = [
+      checkedStudioEvent({
+        type: "hello",
+        serverInstanceId: "studio-test",
+        serverStartedAt: "2026-06-13T00:00:00.000Z",
+        observedAt: "2026-06-13T00:00:01.000Z",
+      }),
+      operationEvent({
+        kind: "run-in-game",
+        status: completedRunStatus({ requestId: "run-adjacent-terminal" }),
+      }),
+      liveGameEvent({
+        status: "ok",
+        turn: 1,
+        gameHash: 123,
+        seed: 456,
+        readiness: "ready",
+        snapshotStatus: "idle",
+        snapshotId: "status:1:abcdef01",
+        snapshotHash: "abcdef01",
+        bindingStatus: "unbound-runtime",
+        failureCount: 0,
+      }),
+    ];
+    const iterator = trackedEventIterator(events, {
+      onNext: () => {
+        nextCalls += 1;
+      },
+      onReturn: () => {
+        returnCalls += 1;
+      },
     });
+
+    const consumption = consumeStudioEventStream({
+      signal: abortController.signal,
+      open: async () => iterator,
+      onHello: async () => {
+        order.push("hello:start");
+        helloStarted.resolve();
+        await releaseHello.promise;
+        order.push("hello:end");
+        return "continue";
+      },
+      onOperation: () => order.push("operation"),
+      onLiveGame: () => {
+        order.push("live-game");
+        abortController.abort();
+      },
+      onUnexpectedEnd: () => {
+        throw new Error("stream should be aborted after the adjacent events");
+      },
+    });
+    await helloStarted.promise;
+    expect(nextCalls).toBe(1);
+
+    releaseHello.resolve();
+    await consumption;
+
+    expect(order).toEqual(["hello:start", "hello:end", "operation", "live-game"]);
+    expect(returnCalls).toBe(1);
+  });
+
+  test("aborting while next is pending closes the iterator exactly once", async () => {
+    const abortController = new AbortController();
+    let nextCalls = 0;
+    let returnCalls = 0;
+    const nextStarted = deferred<void>();
+    const nextResult = deferred<IteratorResult<StudioEvent, unknown>>();
+    const iterator = {
+      next() {
+        nextCalls += 1;
+        nextStarted.resolve();
+        return nextResult.promise;
+      },
+      async return() {
+        returnCalls += 1;
+        nextResult.resolve({ done: true, value: undefined });
+        return { done: true, value: undefined };
+      },
+      [Symbol.asyncIterator]() {
+        return this;
+      },
+    } as AsyncIteratorObject<StudioEvent, unknown, void>;
+
+    const consumption = consumeStudioEventStream({
+      signal: abortController.signal,
+      open: async () => iterator,
+      onHello: async () => "continue",
+      onOperation: () => undefined,
+      onLiveGame: () => undefined,
+      onUnexpectedEnd: () => {
+        throw new Error("aborted pending reads are not clean stream endings");
+      },
+    });
+    await nextStarted.promise;
+    abortController.abort();
+    await consumption;
+
+    expect(nextCalls).toBe(1);
+    expect(returnCalls).toBe(1);
+  });
+
+  test("reopens after clean iterator completion and closes every source once", async () => {
+    const abortController = new AbortController();
+    const returns = [0, 0];
+    const sources = [
+      trackedEventIterator([], {
+        onNext: () => undefined,
+        onReturn: () => {
+          returns[0] = (returns[0] ?? 0) + 1;
+        },
+      }),
+      trackedEventIterator(
+        [
+          checkedStudioEvent({
+            type: "hello",
+            serverInstanceId: "studio-test",
+            serverStartedAt: "2026-06-13T00:00:00.000Z",
+            observedAt: "2026-06-13T00:00:01.000Z",
+          }),
+        ],
+        {
+          onNext: () => undefined,
+          onReturn: () => {
+            returns[1] = (returns[1] ?? 0) + 1;
+          },
+        }
+      ),
+    ];
+    let opens = 0;
+    let unexpectedEnds = 0;
+
+    await consumeStudioEventStream({
+      signal: abortController.signal,
+      open: async () => sources[opens++] ?? sources[1]!,
+      onHello: async () => {
+        abortController.abort();
+        return "continue";
+      },
+      onOperation: () => undefined,
+      onLiveGame: () => undefined,
+      onUnexpectedEnd: () => {
+        unexpectedEnds += 1;
+      },
+      waitBeforeReopen: async () => undefined,
+    });
+
+    expect(opens).toBe(2);
+    expect(unexpectedEnds).toBe(1);
+    expect(returns).toEqual([1, 1]);
   });
 });
 
@@ -684,17 +1058,26 @@ function adoptionState(initial?: {
     readSaveDeploy: () => saveDeploy,
     handledRunInGameToasts,
     targets: {
-      setRunInGameOperation(operation: RunInGameOperationStatus | null) {
-        runInGame = operation;
+      setRunInGameOperation(update: StudioOperationStateUpdate<RunInGameOperationStatus>) {
+        runInGame = applyOperationUpdate(runInGame, update);
       },
-      setSaveDeployOperation(operation: MapConfigSaveDeployStatus | null) {
-        saveDeploy = operation;
+      setSaveDeployOperation(update: StudioOperationStateUpdate<MapConfigSaveDeployStatus>) {
+        saveDeploy = applyOperationUpdate(saveDeploy, update);
       },
       markRunInGameToastHandled(requestId: string) {
         handledRunInGameToasts.push(requestId);
       },
     },
   };
+}
+
+function applyOperationUpdate<Operation>(
+  current: Operation | null,
+  update: StudioOperationStateUpdate<Operation>
+): Operation | null {
+  return typeof update === "function"
+    ? (update as (value: Operation | null) => Operation | null)(current)
+    : update;
 }
 
 type StudioOperationEventInput =
@@ -774,8 +1157,40 @@ function checkedStudioEvent<const Event extends StudioEvent>(event: Event): Even
   return event;
 }
 
-async function* oneEventIterator(event: StudioEvent) {
-  yield checkedStudioEvent(event);
+function trackedEventIterator(
+  events: readonly StudioEvent[],
+  callbacks: Readonly<{ onNext(): void; onReturn(): void }>
+): AsyncIteratorObject<StudioEvent, unknown, void> {
+  let index = 0;
+  return {
+    async next() {
+      callbacks.onNext();
+      const event = events[index];
+      index += 1;
+      return event === undefined ? { done: true, value: undefined } : { done: false, value: event };
+    },
+    async return() {
+      callbacks.onReturn();
+      return { done: true, value: undefined };
+    },
+    [Symbol.asyncIterator]() {
+      return this;
+    },
+  } as AsyncIteratorObject<StudioEvent, unknown, void>;
+}
+
+function rejectingEventIterator(error: Error): AsyncIteratorObject<StudioEvent, unknown, void> {
+  return {
+    async next() {
+      throw error;
+    },
+    async return() {
+      return { done: true, value: undefined };
+    },
+    [Symbol.asyncIterator]() {
+      return this;
+    },
+  };
 }
 
 function deferred<T>(): { promise: Promise<T>; resolve(value: T): void } {
@@ -815,15 +1230,6 @@ function sourceFiles(root: string): string[] {
     if (!entry.isFile() || (!path.endsWith(".ts") && !path.endsWith(".tsx"))) return [];
     return [path];
   });
-}
-
-function sourceBlockAround(source: string, marker: string): string {
-  const markerIndex = source.indexOf(marker);
-  if (markerIndex < 0) throw new Error(`Missing source marker: ${marker}`);
-  const effectStart = source.lastIndexOf("useEffect(() =>", markerIndex);
-  if (effectStart < 0) throw new Error(`Missing useEffect before marker: ${marker}`);
-  const nextEffect = source.indexOf("useEffect(() =>", markerIndex + marker.length);
-  return source.slice(effectStart, nextEffect < 0 ? undefined : nextEffect);
 }
 
 function sourceSliceAround(source: string, marker: string, radius = 900): string {
