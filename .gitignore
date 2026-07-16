@@ -92,3 +92,5 @@ apps/docs/public/civ7-official/resources/
 .grit/.gritmodules/
 .grit/cache/
 .habitat/cache/
+
+.nx/migrate-runs
