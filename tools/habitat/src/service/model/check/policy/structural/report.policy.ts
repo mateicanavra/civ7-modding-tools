@@ -1,4 +1,3 @@
-import type { FileSystem } from "@effect/platform";
 import {
   applyBaseline,
   type BaselineApplicationResult,
@@ -37,10 +36,10 @@ import {
   StructuralRuleOutcomeSchema,
 } from "./state.policy.js";
 
-export function createCheckReportEffect(
+export function createCheckReportEffect<R>(
   options: CheckOptions = {},
-  context: StructuralExecutionContext
-): Effect.Effect<CheckReport, never, any> {
+  context: StructuralExecutionContext<R>
+): Effect.Effect<CheckReport, never, R> {
   return Effect.gen(function* () {
     const request = structuralCheckRequest(options);
     const selection = selectRules(request.selectors, context.rules.selector);
@@ -62,7 +61,7 @@ export function createCheckReportEffect(
       baselineContractInputs(context.rules, selectedRuleIds)
     );
     const reports: RuleReport[] = [];
-    const ruleResults = yield* executeSelectedRulesEffect(selectedRules, options, context);
+    const ruleResults = yield* executeSelectedRulesEffect<R>(selectedRules, options, context);
     for (const rule of selectedRules) {
       const reportFacts = reportsByRuleId.get(rule.id);
       if (!reportFacts)
@@ -70,7 +69,7 @@ export function createCheckReportEffect(
       const baselineFacts = baselineInputsByRuleId.get(rule.id);
       if (!baselineFacts)
         throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-      const baseline = yield* loadBaselineStateEffect(baselineFacts, baselineContext(context));
+      const baseline = yield* loadBaselineStateEffect<R>(baselineFacts, baselineContext(context));
       const execution = ruleResults.get(rule.id);
       if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
       Value.Parse(RuleExecutionPlanSchema, {
@@ -108,7 +107,7 @@ export function createCheckReportEffect(
     }
 
     if (options.baselineIntegrity)
-      reports.push(yield* baselineIntegrityReportEffect(options.base ?? "main", context));
+      reports.push(yield* baselineIntegrityReportEffect<R>(options.base ?? "main", context));
     return yield* constructCheckReportEffect({ command: request.command.serialized, reports });
   });
 }
@@ -199,13 +198,13 @@ function ruleReportFromDiagnostics(input: {
   };
 }
 
-function baselineIntegrityReportEffect(
+function baselineIntegrityReportEffect<R>(
   base: string,
-  context: StructuralExecutionContext
-): Effect.Effect<RuleReport, never, any> {
+  context: StructuralExecutionContext<R>
+): Effect.Effect<RuleReport, never, R> {
   return Effect.gen(function* () {
     const integrityStarted = yield* Clock.currentTimeMillis;
-    const integrity = yield* checkBaselineIntegrityEffect(base, {
+    const integrity = yield* checkBaselineIntegrityEffect<R>(base, {
       ...baselineContext(context),
       registry: baselineContractInputs(context.rules),
     });
@@ -260,7 +259,7 @@ function ruleReportDisposition(disposition: RuleExecutionDisposition): RuleRepor
   );
 }
 
-function baselineContext(context: StructuralExecutionContext): BaselineAuthorityContext {
+function baselineContext<R>(context: StructuralExecutionContext<R>): BaselineAuthorityContext<R> {
   return {
     fileSystem: context.baselineFileSystem,
     git: context.git,

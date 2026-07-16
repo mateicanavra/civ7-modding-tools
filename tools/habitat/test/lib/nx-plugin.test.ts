@@ -1,6 +1,9 @@
 import { createNodesV2 } from "@habitat/cli/nx-plugin";
 import { repoRoot } from "@habitat/cli/resources/paths";
-import { NxTargetDefinitionSchema } from "@habitat/cli/service/model/graph/dto/target-definition.schema";
+import {
+  type NxTargetDefinition,
+  NxTargetDefinitionSchema,
+} from "@habitat/cli/service/model/graph/dto/target-definition.schema";
 import { Value } from "typebox/value";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -12,6 +15,11 @@ vi.mock("../../src/nx-rule-registry-loader.ts", () => ({
 
 const ruleIntroductionManifestPath =
   ".habitat/fixtures/rules/sample-rule/rule-introduction-manifest.json";
+
+function commandTarget(target: NxTargetDefinition | undefined) {
+  if (!target || !("command" in target)) throw new Error("Expected a command-backed Nx target.");
+  return target;
+}
 
 describe("Habitat Nx plugin inputs", () => {
   beforeEach(() => {
@@ -25,8 +33,12 @@ describe("Habitat Nx plugin inputs", () => {
     const graphOnlyTargets = projects["apps/graph-only"]?.targets ?? {};
     const manifestInput = `{workspaceRoot}/${ruleIntroductionManifestPath}`;
 
-    expect(habitatTargets["habitat:rule:sample-rule"]?.inputs).toContain(manifestInput);
-    expect(habitatTargets["habitat:rule:sample-rule"]?.inputs).toContain("habitatRuntime");
+    expect(commandTarget(habitatTargets["habitat:rule:sample-rule"]).inputs).toContain(
+      manifestInput
+    );
+    expect(commandTarget(habitatTargets["habitat:rule:sample-rule"]).inputs).toContain(
+      "habitatRuntime"
+    );
     expect(habitatTargets["habitat:rule:sample-rule"]).toMatchObject({
       command: "bun tools/habitat/bin/dev.ts check --rule sample-rule",
       options: {
@@ -65,7 +77,9 @@ describe("Habitat Nx plugin inputs", () => {
         },
       })
     );
-    expect(appTargets["habitat:rule:sample-app-local"]?.inputs).toContain("habitatRuntime");
+    expect(commandTarget(appTargets["habitat:rule:sample-app-local"]).inputs).toContain(
+      "habitatRuntime"
+    );
     expect(appTargets["check:policy"]).toEqual(
       expect.objectContaining({
         executor: "nx:noop",
@@ -83,7 +97,9 @@ describe("Habitat Nx plugin inputs", () => {
       })
     );
     expect(Object.keys(habitatTargets)).not.toContain("habitat:check:all");
-    expect(habitatTargets["habitat:rule:sample-rule"]?.command).not.toContain("check.mjs");
+    expect(commandTarget(habitatTargets["habitat:rule:sample-rule"]).command).not.toContain(
+      "check.mjs"
+    );
 
     const commands = Object.values(projects).flatMap((project) =>
       Object.values(project.targets).flatMap((target) =>

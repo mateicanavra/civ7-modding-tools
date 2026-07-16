@@ -203,10 +203,12 @@ index 3333333..4444444 100644
 
     expect(result.state).toBe("diff");
     if (result.state !== "diff") throw new Error("expected diff");
-    expect(result.paths.map((classification) => classification.path)).toEqual([
-      "apps/mapgen-studio/src/main.tsx",
-      "packages/plugins/plugin-graph/src/index.ts",
-    ]);
+    expect(
+      result.paths.map((classification) => {
+        if (!("path" in classification)) throw new Error("expected path classification");
+        return classification.path;
+      })
+    ).toEqual(["apps/mapgen-studio/src/main.tsx", "packages/plugins/plugin-graph/src/index.ts"]);
     expect(result.paths.map((classification) => classification.state)).toEqual([
       "project-path",
       "project-path",
@@ -307,7 +309,7 @@ index 3333333..4444444 100644
     if (result.state !== "graph-refusal") throw new Error("expected graph-refusal");
     expect(result.refusal.reason).toBe("unresolved-alias-dependency");
     expect(result.refusal.message).toContain("is not visible");
-    expect(result.runnableTargets).toBeUndefined();
+    expect("runnableTargets" in result).toBe(false);
   });
 
   test("renders missing-target graph aliases as graph-refusal states", async () => {
@@ -325,7 +327,7 @@ index 3333333..4444444 100644
     if (result.state !== "graph-refusal") throw new Error("expected graph-refusal");
     expect(result.refusal.reason).toBe("unresolved-alias-dependency");
     expect(result.refusal.message).toContain("does not expose target");
-    expect(result.runnableTargets).toBeUndefined();
+    expect("runnableTargets" in result).toBe(false);
   });
 });
 
@@ -380,5 +382,5 @@ function project(
 }
 
 function graphReady(projects: readonly WorkspaceProject[]): WorkspaceGraphReadState {
-  return { kind: "graph-ready", snapshot: { projects } };
+  return { kind: "graph-ready", snapshot: { projects: [...projects] } };
 }

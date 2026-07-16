@@ -12,7 +12,6 @@ import path from "node:path";
 import { FileSystem } from "@effect/platform";
 import * as PlatformError from "@effect/platform/Error";
 import { NodeContext } from "@effect/platform-node";
-import { makeFakeGitStateProviderLayer } from "@habitat/cli/providers/git/index";
 import {
   CommandInterrupted,
   CommandRunner,
@@ -22,7 +21,6 @@ import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@habitat/cli/resources/command/index";
-import { makeHabitatConfig, makeHabitatConfigLayer } from "@habitat/cli/resources/config/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import { runGritCheckAcquisitionEffect } from "@habitat/cli/resources/rule-diagnostics/providers/grit/check";
 import {
@@ -1473,7 +1471,6 @@ describe("Grit generic acquisition and public disposition", () => {
       const runner = {
         run: (request: HabitatProcessRequest) =>
           preflightScenarioEffect(fixture.kind, recordAndReturn(observed, request, request)),
-        runSync: (request: HabitatProcessRequest) => makeHabitatCommandResult(request),
       };
       const acquisition = await Effect.runPromise(
         makeGritCommandTestService(runner).pipe(
@@ -1504,7 +1501,6 @@ describe("Grit generic acquisition and public disposition", () => {
     const passingRunner = {
       run: (request: HabitatProcessRequest) =>
         preflightScenarioEffect("exact", recordAndReturn(observed, request, request)),
-      runSync: (request: HabitatProcessRequest) => makeHabitatCommandResult(request),
     };
     const completed = await Effect.runPromise(
       makeGritCommandTestService(passingRunner).pipe(
@@ -1533,7 +1529,6 @@ describe("Grit generic acquisition and public disposition", () => {
     const runner = {
       run: (request: HabitatProcessRequest) =>
         preflightScenarioEffect("exact", recordAndReturn(observed, request, request)),
-      runSync: (request: HabitatProcessRequest) => makeHabitatCommandResult(request),
     };
     const request = {
       scanRoots: [providerRoot] as const,
@@ -1574,7 +1569,6 @@ describe("Grit generic acquisition and public disposition", () => {
           retryPreflightScenario(observed, request),
           recordAndReturn(observed, request, request)
         ),
-      runSync: (request: HabitatProcessRequest) => makeHabitatCommandResult(request),
     };
     const [first, second, third] = await Effect.runPromise(
       Effect.gen(function* () {
@@ -2135,21 +2129,7 @@ function expectAcquisitionCwd(
 }
 
 function makeGritCommandTestService(runner: CommandRunnerService) {
-  const prerequisites = Layer.mergeAll(
-    NodeContext.layer,
-    Layer.succeed(CommandRunner, runner),
-    makeHabitatConfigLayer(makeHabitatConfig({ repoRoot })),
-    makeFakeGitStateProviderLayer(
-      () => ({
-        branch: null,
-        head: null,
-        dirty: false,
-        statusShort: "",
-        statusDigest: "test",
-      }),
-      { repoRoot }
-    )
-  );
+  const prerequisites = Layer.mergeAll(NodeContext.layer, Layer.succeed(CommandRunner, runner));
   return makeGritCommandService(repoRoot).pipe(Effect.provide(prerequisites));
 }
 
@@ -2369,23 +2349,30 @@ function compactMatch(sourceFile: string, rangeCount: number) {
 }
 
 function matchEvent(sourceFile: string, rangeCount: number) {
-  return { __typename: "Match", ...compactMatch(sourceFile, rangeCount) };
+  return { __typename: "Match" as const, ...compactMatch(sourceFile, rangeCount) };
 }
 
 function rewriteEvent(sourceFile: string, rangeCount: number) {
   return {
-    __typename: "Rewrite",
+    __typename: "Rewrite" as const,
     original: compactMatch(sourceFile, rangeCount),
     rewritten: { sourceFile },
   };
 }
 
 function createFileEvent(sourceFile: string) {
-  return { __typename: "CreateFile", rewritten: { sourceFile }, reason: compactMatchReason() };
+  return {
+    __typename: "CreateFile" as const,
+    rewritten: { sourceFile },
+    reason: compactMatchReason(),
+  };
 }
 
 function removeFileEvent(sourceFile: string, rangeCount = 1) {
-  return { __typename: "RemoveFile", original: compactMatch(sourceFile, rangeCount) };
+  return {
+    __typename: "RemoveFile" as const,
+    original: compactMatch(sourceFile, rangeCount),
+  };
 }
 
 function replaceMatchReason(

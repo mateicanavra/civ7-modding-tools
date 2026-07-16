@@ -59,35 +59,35 @@ function applyExecutionSelection(
   });
 }
 
-export function executeSelectedRulesEffect(
+export function executeSelectedRulesEffect<R>(
   selectedRules: readonly RuleSelectorFacts[],
   options: Pick<CheckOptions, "staged" | "stagedPaths">,
-  context: StructuralExecutionContext
-): Effect.Effect<Map<string, RuleExecutionRecord>, never, any> {
+  context: StructuralExecutionContext<R>
+): Effect.Effect<Map<string, RuleExecutionRecord>, never, R> {
   return Effect.gen(function* () {
     const results = new Map<string, RuleExecutionRecord>();
     const selectedRuleIds = selectedRules.map((rule) => rule.id);
     const diagnosticRules = factsForRuleIds(context.rules.diagnostic, selectedRuleIds);
-    yield* executeDiagnosticRulesEffect(diagnosticRules, results, options, context, () =>
-      currentStagedPathsEffect(context)
+    yield* executeDiagnosticRulesEffect<R>(diagnosticRules, results, options, context, () =>
+      currentStagedPathsEffect<R>(context)
     );
 
-    yield* executeStructureRulesEffect(
+    yield* executeStructureRulesEffect<R>(
       factsForRuleIds(context.rules.structure, selectedRuleIds),
       results,
       context
     );
 
     const commandRules = factsForRuleIds(context.rules.commandExecution, selectedRuleIds);
-    yield* executeGraphBackedCommandRulesEffect(
+    yield* executeGraphBackedCommandRulesEffect<R>(
       factsForRuleIds(context.rules.graph, selectedRuleIds).filter(
         (rule) => rule.alias.kind === "depends-on"
       ),
       results,
       context
     );
-    yield* executeCommandRulesEffect(commandRules, results, context);
-    yield* executeFileLayerRulesEffect(
+    yield* executeCommandRulesEffect<R>(commandRules, results, context);
+    yield* executeFileLayerRulesEffect<R>(
       factsForRuleIds(context.rules.fileLayer, selectedRuleIds),
       results,
       options,
@@ -98,15 +98,15 @@ export function executeSelectedRulesEffect(
   });
 }
 
-function executeStructureRulesEffect(
+function executeStructureRulesEffect<R>(
   structureRules: readonly StructureRuleFact[],
   results: Map<string, RuleExecutionRecord>,
-  context: StructuralExecutionContext
-): Effect.Effect<void, never, any> {
+  context: Pick<StructuralExecutionContext<R>, "repoRoot" | "structureFileSystem">
+): Effect.Effect<void, never, R> {
   if (structureRules.length === 0) return Effect.void;
   return Effect.gen(function* () {
     const started = yield* Clock.currentTimeMillis;
-    const structureResults = yield* runStructureRulesEffect(structureRules, {
+    const structureResults = yield* runStructureRulesEffect<R>(structureRules, {
       repoRoot: context.repoRoot,
       fileSystem: context.structureFileSystem,
     });

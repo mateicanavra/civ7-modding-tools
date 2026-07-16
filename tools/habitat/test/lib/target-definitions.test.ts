@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { repoRoot } from "@habitat/cli/resources/paths";
+import type { NxTargetDependency } from "@habitat/cli/service/model/graph/dto/target-definition.schema";
 import {
   directRuleTarget,
   habitatInputs,
@@ -73,7 +74,7 @@ describe("Habitat target definitions", () => {
   });
 
   test("schedules exact output prerequisites without bypassing Habitat execution", () => {
-    const dependency = { projects: ["mapgen-core"], target: "build" } as const;
+    const dependency: NxTargetDependency = { projects: ["mapgen-core"], target: "build" };
     expect(
       directRuleTarget("sample-rule", "sample-app", repoRoot, undefined, [dependency])
     ).toMatchObject({

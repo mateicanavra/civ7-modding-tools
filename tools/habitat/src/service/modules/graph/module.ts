@@ -21,9 +21,7 @@ export interface GraphModuleContext {
   readonly readWorkspaceGraphText: (
     graphPath: string
   ) => Effect.Effect<string, GraphServiceInternalError, any>;
-  readonly runNxWorkspaceGraph: (
-    input: GraphNxGraphRequest
-  ) => Effect.Effect<SpawnResult, never, any>;
+  readonly runNxWorkspaceGraph: (input: GraphNxGraphRequest) => Effect.Effect<SpawnResult>;
   readonly selectWorkspaceGraphPayload: (
     graphPath: string,
     payload: unknown,

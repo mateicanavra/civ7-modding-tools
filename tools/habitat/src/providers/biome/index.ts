@@ -1,11 +1,10 @@
-import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { GitStateProvider } from "@habitat/cli/providers/git/index";
-import { type CommandProviderError, CommandRunner } from "@habitat/cli/resources/command/index";
+import {
+  type CommandProviderError,
+  CommandRunner,
+  type CommandRunnerService,
+} from "@habitat/cli/resources/command/index";
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
-import type { HabitatConfig } from "@habitat/cli/resources/config/index";
 import { Context, Effect, Layer } from "effect";
-
-type BiomeProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner | GitStateProvider;
 
 export type BiomeCommandKind = "format" | "check" | "ci";
 
@@ -19,7 +18,7 @@ export interface BiomeCommandRequest {
 export interface BiomeProviderService {
   readonly run: (
     request: BiomeCommandRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, BiomeProviderRequirements>;
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError>;
   readonly argv: (request: BiomeCommandRequest) => string[];
 }
 
@@ -28,8 +27,11 @@ export class BiomeProvider extends Context.Tag("@habitat/cli/BiomeProvider")<
   BiomeProviderService
 >() {}
 
-export function makeBiomeProviderLayer(repoRoot: string): Layer.Layer<BiomeProvider> {
-  return Layer.succeed(BiomeProvider, makeLiveBiomeProvider(repoRoot));
+export function makeBiomeProviderLayer(repoRoot: string) {
+  return Layer.effect(
+    BiomeProvider,
+    Effect.map(CommandRunner, (runner) => makeLiveBiomeProvider(repoRoot, runner))
+  );
 }
 
 export function makeFakeBiomeProviderLayer(
@@ -41,21 +43,20 @@ export function makeFakeBiomeProviderLayer(
   });
 }
 
-function makeLiveBiomeProvider(repoRoot: string): BiomeProviderService {
+function makeLiveBiomeProvider(
+  repoRoot: string,
+  runner: CommandRunnerService
+): BiomeProviderService {
   return {
     run: (request) =>
-      CommandRunner.pipe(
-        Effect.flatMap((runner) =>
-          runner.run({
-            commandId: `biome-${request.kind}`,
-            kind: "biome-handoff",
-            executable: "biome",
-            argv: biomeArgv(request).slice(1),
-            cwd: repoRoot,
-            captureGitState: false,
-          })
-        )
-      ),
+      runner.run({
+        commandId: `biome-${request.kind}`,
+        kind: "biome-handoff",
+        executable: "biome",
+        argv: biomeArgv(request).slice(1),
+        cwd: repoRoot,
+        captureGitState: false,
+      }),
     argv: biomeArgv,
   };
 }

@@ -93,6 +93,8 @@
   ],
   "scripts": {
     "analyze:execution-surface": "bun run scripts/execution-surface-map.ts --repo-root ../.. --out-json ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json --out-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.md --out-anatomy-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-anatomy.md",
+    "check:test": "tsc -p tsconfig.test.json --noEmit",
+    "check:tools": "tsc -p tsconfig.tools.json --noEmit",
     "clean": "rimraf dist oclif.manifest.json",
     "clean:dist": "rimraf dist",
     "generate:schemas": "bun run ../../.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/generate.ts",

@@ -1,6 +1,7 @@
 import { readWorkspaceGraph } from "@habitat/cli/providers/nx/graph";
 import {
   CommandRunner,
+  type CommandRunnerService,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@habitat/cli/resources/command/index";
@@ -36,7 +37,10 @@ export class NxProvider extends Context.Tag("@habitat/cli/NxProvider")<
 >() {}
 
 export function makeNxProviderLayer(repoRoot: string) {
-  return Layer.succeed(NxProvider, makeLiveNxProvider(repoRoot));
+  return Layer.effect(
+    NxProvider,
+    Effect.map(CommandRunner, (runner) => makeLiveNxProvider(repoRoot, runner))
+  );
 }
 
 export interface FakeNxProviderHandlers {
@@ -70,63 +74,47 @@ export function makeFakeNxProviderLayer(handlers: FakeNxProviderHandlers = {}) {
   });
 }
 
-function makeLiveNxProvider(repoRoot: string) {
+function makeLiveNxProvider(repoRoot: string, runner: CommandRunnerService) {
   return {
     affected: (request: NxAffectedRequest) =>
-      CommandRunner.pipe(
-        Effect.flatMap((runner) =>
-          runner.run({
-            commandId: "nx-affected",
-            kind: "workspace-tool",
-            executable: "nx",
-            argv: affectedArgv(request).slice(1),
-            cwd: repoRoot,
-            captureGitState: false,
-          })
-        )
-      ),
+      runner.run({
+        commandId: "nx-affected",
+        kind: "workspace-tool",
+        executable: "nx",
+        argv: affectedArgv(request).slice(1),
+        cwd: repoRoot,
+        captureGitState: false,
+      }),
     affectedArgv,
     graph: (request: NxGraphRequest) =>
-      CommandRunner.pipe(
-        Effect.flatMap((runner) =>
-          runner.run({
-            commandId: "nx-project-graph",
-            kind: "workspace-tool",
-            executable: "nx",
-            argv: graphArgv(request).slice(1),
-            cwd: repoRoot,
-            captureGitState: false,
-          })
-        )
-      ),
+      runner.run({
+        commandId: "nx-project-graph",
+        kind: "workspace-tool",
+        executable: "nx",
+        argv: graphArgv(request).slice(1),
+        cwd: repoRoot,
+        captureGitState: false,
+      }),
     graphArgv,
     runMany: (request: NxRunManyRequest) =>
-      CommandRunner.pipe(
-        Effect.flatMap((runner) =>
-          runner.run({
-            commandId: "nx-run-many",
-            kind: "workspace-tool",
-            executable: "nx",
-            argv: runManyArgv(request).slice(1),
-            cwd: repoRoot,
-            captureGitState: false,
-          })
-        )
-      ),
+      runner.run({
+        commandId: "nx-run-many",
+        kind: "workspace-tool",
+        executable: "nx",
+        argv: runManyArgv(request).slice(1),
+        cwd: repoRoot,
+        captureGitState: false,
+      }),
     runManyArgv,
     runTarget: (request: NxRunTargetRequest) =>
-      CommandRunner.pipe(
-        Effect.flatMap((runner) =>
-          runner.run({
-            commandId: "nx-run-target",
-            kind: "workspace-tool",
-            executable: "nx",
-            argv: runTargetArgv(request).slice(1),
-            cwd: repoRoot,
-            captureGitState: false,
-          })
-        )
-      ),
+      runner.run({
+        commandId: "nx-run-target",
+        kind: "workspace-tool",
+        executable: "nx",
+        argv: runTargetArgv(request).slice(1),
+        cwd: repoRoot,
+        captureGitState: false,
+      }),
     runTargetArgv,
     workspaceGraph: () => Effect.promise(() => readWorkspaceGraph(repoRoot)),
   };

@@ -5,11 +5,7 @@ import {
   biomeArgv,
   makeFakeBiomeProviderLayer,
 } from "@habitat/cli/providers/biome/index";
-import {
-  GitProvider,
-  makeFakeGitProviderLayer,
-  makeGitStateProviderLayer,
-} from "@habitat/cli/providers/git/index";
+import { GitProvider, makeFakeGitProviderLayer } from "@habitat/cli/providers/git/index";
 import {
   GraphiteProvider,
   makeFakeGraphiteProviderLayer,
@@ -29,10 +25,10 @@ import {
   makeHabitatCommandResult,
   materializeDefaultHabitatCommand,
 } from "@habitat/cli/resources/command/index";
-import { makeHabitatConfig, makeHabitatConfigLayer } from "@habitat/cli/resources/config/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import { defaultGritCommandTimeoutMs } from "@habitat/cli/resources/rule-diagnostics/providers/grit/constants";
 import {
+  type GritCheckProviderRequest,
   makeFakeGritCommandService,
   makeGritCommandService,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/index";
@@ -299,7 +295,7 @@ describe("vendor providers", () => {
         commandResult(
           "pattern-check",
           "grit",
-          ["--json", "check", "--level", "error", ...request.scanRoots],
+          ["--json", "check", "--level", "error", ...(request.scanRoots ?? [])],
           repoRoot,
           ""
         ),
@@ -337,7 +333,7 @@ describe("vendor providers", () => {
   });
 
   test("Grit preflight rejects nonzero exit even with the exact native version", async () => {
-    const providerRequest = {
+    const providerRequest: GritCheckProviderRequest = {
       scanRoots: [repoRoot],
       cwd: repoRoot,
       gritDir: path.join(repoRoot, ".grit"),
@@ -356,15 +352,8 @@ describe("vendor providers", () => {
           })
         );
       },
-      runSync: (request: Parameters<typeof makeHabitatCommandResult>[0]) =>
-        makeHabitatCommandResult(request),
     };
-    const prerequisites = Layer.mergeAll(
-      NodeContext.layer,
-      Layer.succeed(CommandRunner, runner),
-      makeHabitatConfigLayer(makeHabitatConfig({ repoRoot })),
-      makeGitStateProviderLayer(repoRoot)
-    );
+    const prerequisites = Layer.merge(NodeContext.layer, Layer.succeed(CommandRunner, runner));
     const result = await Effect.runPromise(
       makeGritCommandService(repoRoot).pipe(
         Effect.flatMap((grit) => Effect.either(grit.check(providerRequest))),

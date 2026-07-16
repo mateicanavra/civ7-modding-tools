@@ -9,17 +9,17 @@ import { Effect, Match } from "effect";
 import type { RuleExecutionRecord, StructuralExecutionContext } from "./context.policy.js";
 import type { currentStagedPathsEffect } from "./file-layer-execution.policy.js";
 
-export function executeDiagnosticRulesEffect(
+export function executeDiagnosticRulesEffect<R>(
   diagnosticRules: readonly RuleDiagnosticFacts[],
   results: Map<string, RuleExecutionRecord>,
   options: Pick<CheckOptions, "staged" | "stagedPaths">,
-  context: StructuralExecutionContext,
-  currentStagedPaths: () => ReturnType<typeof currentStagedPathsEffect>
+  context: Pick<StructuralExecutionContext<R>, "ruleDiagnostics">,
+  currentStagedPaths: () => ReturnType<typeof currentStagedPathsEffect<R>>
 ) {
   const [firstRule, ...remainingRules] = diagnosticRules;
   if (!firstRule) return Effect.void;
   return Effect.gen(function* () {
-    let scope: Parameters<StructuralExecutionContext["ruleDiagnostics"]["runRules"]>[0]["scope"];
+    let scope: Parameters<StructuralExecutionContext<R>["ruleDiagnostics"]["runRules"]>[0]["scope"];
     if (options.staged) {
       scope = {
         kind: "paths",
