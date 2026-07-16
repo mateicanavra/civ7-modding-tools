@@ -6,7 +6,12 @@ import {
   OFFICIAL_RESOURCE_CORPUS,
   OFFICIAL_RESOURCE_CORPUS_ARTIFACT,
   OFFICIAL_RESOURCE_TYPE_ORDER,
+  type OfficialAgeType,
+  type OfficialResourceClassType,
   type OfficialResourceType,
+  type OfficialYieldType,
+  type ResourceClassOverride,
+  type ResourceYieldChange,
   requireResourceRuntimeId,
   resolveResourceRuntimeIds,
 } from "../src/index.js";
@@ -33,6 +38,8 @@ const ageResourceFiles = {
   ],
 } as const;
 
+type OfficialValuePrefix = "AGE_" | "RESOURCE_" | "RESOURCECLASS_" | "YIELD_";
+
 function readOfficial(relativePath: string): string {
   return readFileSync(join(officialRoot, relativePath), "utf8");
 }
@@ -42,23 +49,55 @@ function extractSection(xml: string, section: string): string {
   return match?.[0] ?? "";
 }
 
-function extractResourcesRows(relativePath: string): string[] {
-  const section = extractSection(readOfficial(relativePath), "Resources");
-  return Array.from(section.matchAll(/<Row\s+ResourceType="([^"]+)"/g), (match) => match[1]!);
+function requireAttribute(
+  attrs: Readonly<Record<string, string>>,
+  attribute: string,
+  context: string
+): string {
+  const value = attrs[attribute];
+  if (value === undefined) {
+    throw new Error(`${context} is missing ${attribute}`);
+  }
+  return value;
 }
 
-function extractResourceTypesRows(relativePath: string): string[] {
+function requireOfficialValue<const TPrefix extends OfficialValuePrefix>(
+  value: string | undefined,
+  prefix: TPrefix,
+  context: string
+): `${TPrefix}${string}` {
+  if (value === undefined || !value.startsWith(prefix) || value.length === prefix.length) {
+    throw new Error(`${context} must start with ${prefix}`);
+  }
+  return value as `${TPrefix}${string}`;
+}
+
+function extractResourcesRows(relativePath: string): OfficialResourceType[] {
+  const section = extractSection(readOfficial(relativePath), "Resources");
+  return Array.from(section.matchAll(/<Row\s+ResourceType="([^"]+)"/g), (match) =>
+    requireOfficialValue(match[1], "RESOURCE_", `${relativePath} Resources row`)
+  );
+}
+
+function extractResourceTypesRows(relativePath: string): OfficialResourceType[] {
   const section = extractSection(readOfficial(relativePath), "Types");
   return Array.from(
     section.matchAll(/<Row\s+Type="(RESOURCE_[^"]+)"\s+Kind="KIND_RESOURCE"/g),
-    (match) => match[1]!
+    (match) => requireOfficialValue(match[1], "RESOURCE_", `${relativePath} Types row`)
   );
 }
 
 function parseAttrs(row: string): Record<string, string> {
-  return Object.fromEntries(
-    Array.from(row.matchAll(/([A-Za-z_]+)="([^"]*)"/g), (match) => [match[1]!, match[2]!])
-  );
+  const attrs: Record<string, string> = {};
+  for (const match of row.matchAll(/([A-Za-z_]+)="([^"]*)"/g)) {
+    const name = match[1];
+    const value = match[2];
+    if (name === undefined || value === undefined) {
+      throw new Error(`Malformed XML attribute in ${row}`);
+    }
+    attrs[name] = value;
+  }
+  return attrs;
 }
 
 function normalizeDistribution(attrs: Record<string, string>) {
@@ -74,19 +113,41 @@ function normalizeDistribution(attrs: Record<string, string>) {
   ];
   const result: Record<string, boolean | number> = {};
   for (const key of keys) {
-    if (!(key in attrs)) continue;
-    const normalizedKey = `${key[0]!.toLowerCase()}${key.slice(1)}`;
-    const value = attrs[key]!;
-    result[normalizedKey] = /^\d+$/.test(value) ? Number(value) : value === "true";
+    const value = attrs[key];
+    if (value === undefined) continue;
+    const normalizedKey = `${key.charAt(0).toLowerCase()}${key.slice(1)}`;
+    switch (key) {
+      case "MinimumPerHemisphere":
+      case "BonusResourceSlots":
+        if (!/^\d+$/.test(value)) {
+          throw new Error(`Invalid official resource distribution ${key}=${JSON.stringify(value)}`);
+        }
+        result[normalizedKey] = Number(value);
+        break;
+      default:
+        if (value !== "true" && value !== "false") {
+          throw new Error(`Invalid official resource distribution ${key}=${JSON.stringify(value)}`);
+        }
+        result[normalizedKey] = value === "true";
+    }
   }
   return result;
 }
 
+describe("official resource distribution evidence", () => {
+  it("fails closed for malformed boolean and numeric values", () => {
+    expect(() => normalizeDistribution({ Staple: "TRUE" })).toThrow('Staple="TRUE"');
+    expect(() => normalizeDistribution({ MinimumPerHemisphere: "-1" })).toThrow(
+      'MinimumPerHemisphere="-1"'
+    );
+  });
+});
+
 function collectOfficialFacts() {
   const rows = new Map<OfficialResourceType, Record<string, string>>();
-  const ages = new Map<OfficialResourceType, string[]>();
+  const ages = new Map<OfficialResourceType, OfficialAgeType[]>();
   const biomeCounts = new Map<OfficialResourceType, number>();
-  const yields = new Map<OfficialResourceType, Array<Record<string, string>>>();
+  const yields = new Map<OfficialResourceType, ResourceYieldChange[]>();
   const tags = new Map<OfficialResourceType, string[]>();
 
   for (const file of resourceFiles) {
@@ -94,51 +155,102 @@ function collectOfficialFacts() {
     for (const match of extractSection(xml, "Resources").matchAll(
       /<Row\s+([^>]*ResourceType="RESOURCE_[^"]+"[^>]*)\/>/g
     )) {
-      const attrs = parseAttrs(match[0]!);
+      const attrs = parseAttrs(match[0]);
+      const resourceType: OfficialResourceType = requireOfficialValue(
+        attrs.ResourceType,
+        "RESOURCE_",
+        `${file} Resources row`
+      );
       attrs.sourceFile = file;
-      rows.set(attrs.ResourceType as OfficialResourceType, attrs);
+      rows.set(resourceType, attrs);
     }
     for (const match of extractSection(xml, "Resource_ValidAges").matchAll(/<Row\s+([^>]*)\/>/g)) {
-      const attrs = parseAttrs(match[0]!);
-      const resourceType = attrs.ResourceType as OfficialResourceType;
-      ages.set(resourceType, [...(ages.get(resourceType) ?? []), attrs.AgeType!]);
+      const attrs = parseAttrs(match[0]);
+      const resourceType: OfficialResourceType = requireOfficialValue(
+        attrs.ResourceType,
+        "RESOURCE_",
+        `${file} Resource_ValidAges row`
+      );
+      const age: OfficialAgeType = requireOfficialValue(
+        attrs.AgeType,
+        "AGE_",
+        `${file} Resource_ValidAges row`
+      );
+      ages.set(resourceType, [...(ages.get(resourceType) ?? []), age]);
     }
     for (const match of extractSection(xml, "Resource_ValidBiomes").matchAll(
       /<Row\s+([^>]*)\/>/g
     )) {
-      const attrs = parseAttrs(match[0]!);
-      const resourceType = attrs.ResourceType as OfficialResourceType;
+      const attrs = parseAttrs(match[0]);
+      const resourceType: OfficialResourceType = requireOfficialValue(
+        attrs.ResourceType,
+        "RESOURCE_",
+        `${file} Resource_ValidBiomes row`
+      );
       biomeCounts.set(resourceType, (biomeCounts.get(resourceType) ?? 0) + 1);
     }
     for (const match of extractSection(xml, "Resource_YieldChanges").matchAll(
       /<Row\s+([^>]*)\/>/g
     )) {
-      const attrs = parseAttrs(match[0]!);
-      const resourceType = attrs.ResourceType as OfficialResourceType;
+      const attrs = parseAttrs(match[0]);
+      const resourceType: OfficialResourceType = requireOfficialValue(
+        attrs.ResourceType,
+        "RESOURCE_",
+        `${file} Resource_YieldChanges row`
+      );
+      const yieldType: OfficialYieldType = requireOfficialValue(
+        attrs.YieldType,
+        "YIELD_",
+        `${file} Resource_YieldChanges row`
+      );
       yields.set(resourceType, [
         ...(yields.get(resourceType) ?? []),
-        { YieldType: attrs.YieldType!, YieldChange: attrs.YieldChange! },
+        {
+          YieldType: yieldType,
+          YieldChange: requireAttribute(attrs, "YieldChange", `${file} Resource_YieldChanges row`),
+        },
       ]);
     }
     for (const match of extractSection(xml, "TypeTags").matchAll(/<Row\s+([^>]*)\/>/g)) {
-      const attrs = parseAttrs(match[0]!);
+      const attrs = parseAttrs(match[0]);
       if (!attrs.Type?.startsWith("RESOURCE_")) continue;
-      const resourceType = attrs.Type as OfficialResourceType;
-      tags.set(resourceType, [...(tags.get(resourceType) ?? []), attrs.Tag!]);
+      const resourceType: OfficialResourceType = requireOfficialValue(
+        attrs.Type,
+        "RESOURCE_",
+        `${file} TypeTags row`
+      );
+      tags.set(resourceType, [
+        ...(tags.get(resourceType) ?? []),
+        requireAttribute(attrs, "Tag", `${file} TypeTags row`),
+      ]);
     }
   }
 
-  const classOverrides = new Map<OfficialResourceType, Array<Record<string, string>>>();
-  for (const [age, files] of Object.entries(ageResourceFiles)) {
+  const classOverrides = new Map<OfficialResourceType, ResourceClassOverride[]>();
+  for (const [ageValue, files] of Object.entries(ageResourceFiles)) {
+    const age: OfficialAgeType = requireOfficialValue(
+      ageValue,
+      "AGE_",
+      "Age resource file catalog"
+    );
     for (const file of files) {
       const resourcesSection = extractSection(readOfficial(file), "Resources");
       for (const match of resourcesSection.matchAll(
         /<Update>\s*<Where\s+ResourceType="(RESOURCE_[^"]+)"\/>\s*<Set\s+ResourceClassType="(RESOURCECLASS_[^"]+)"\/>\s*<\/Update>/g
       )) {
-        const resourceType = match[1] as OfficialResourceType;
+        const resourceType: OfficialResourceType = requireOfficialValue(
+          match[1],
+          "RESOURCE_",
+          `${file} Resources update`
+        );
+        const resourceClass: OfficialResourceClassType = requireOfficialValue(
+          match[2],
+          "RESOURCECLASS_",
+          `${file} Resources update`
+        );
         classOverrides.set(resourceType, [
           ...(classOverrides.get(resourceType) ?? []),
-          { age, resourceClass: match[2]!, sourceFile: file },
+          { age, resourceClass, sourceFile: file },
         ]);
       }
     }
@@ -202,11 +314,18 @@ describe("official resource corpus", () => {
     for (const entry of OFFICIAL_RESOURCE_CORPUS) {
       const row = facts.rows.get(entry.resourceType);
       expect(row).toBeDefined();
-      expect(entry.name).toBe(row?.Name);
-      expect(entry.tooltip).toBe(row?.Tooltip);
-      expect(entry.staticSource).toEqual({ file: row?.sourceFile, table: "Resources" });
-      expect(entry.baseClass).toBe(row?.ResourceClassType);
-      expect(entry.weight).toBe(Number(row?.Weight));
+      if (row === undefined) {
+        throw new Error(`Official resource evidence is missing ${entry.resourceType}`);
+      }
+      const rowContext = `${entry.resourceType} official resource evidence`;
+      const sourceFile = requireAttribute(row, "sourceFile", rowContext);
+      expect(entry.name).toBe(requireAttribute(row, "Name", rowContext));
+      expect(entry.tooltip).toBe(requireAttribute(row, "Tooltip", rowContext));
+      expect(entry.staticSource).toEqual({ file: sourceFile, table: "Resources" });
+      expect(entry.baseClass).toBe(
+        requireOfficialValue(row.ResourceClassType, "RESOURCECLASS_", rowContext)
+      );
+      expect(entry.weight).toBe(Number(requireAttribute(row, "Weight", rowContext)));
       expect(entry.validAges).toEqual(facts.ages.get(entry.resourceType) ?? []);
       expect(entry.ageClassOverrides).toEqual(facts.classOverrides.get(entry.resourceType) ?? []);
       expect(entry.officialPlacementConstraints.validBiomeConstraintCount).toBe(
@@ -217,14 +336,12 @@ describe("official resource corpus", () => {
       );
       expect(entry.officialPlacementConstraints.sourceTables).toEqual(
         (facts.biomeCounts.get(entry.resourceType) ?? 0) > 0
-          ? [{ file: row?.sourceFile, table: "Resource_ValidBiomes" }]
+          ? [{ file: sourceFile, table: "Resource_ValidBiomes" }]
           : []
       );
       expect(entry.yieldChanges).toEqual(facts.yields.get(entry.resourceType) ?? []);
       expect(entry.typeTags).toEqual(facts.tags.get(entry.resourceType) ?? []);
-      expect(entry.officialPlacementConstraints.placementFlags).toEqual(
-        normalizeDistribution(row ?? {})
-      );
+      expect(entry.officialPlacementConstraints.placementFlags).toEqual(normalizeDistribution(row));
     }
   });
 
