@@ -43,6 +43,11 @@ export type StructureCheckScope = Static<typeof StructureCheckScopeSchema>;
 export type StructureCheckSpec = Static<typeof StructureCheckSpecSchema>;
 export type StructureCheckFileSystem<R = never> = HabitatFileSystemReadPort<R>;
 
+interface StructureCheckOptions<R> {
+  readonly repoRoot: string;
+  readonly fileSystem: StructureCheckFileSystem<R>;
+}
+
 export type StructureCheckDiagnosticKind =
   | "structure-file-invalid"
   | "root-missing"
@@ -78,28 +83,22 @@ export function parseStructureCheckSpec(
   return { ok: true, spec: Value.Parse(StructureCheckSpecSchema, parsed) };
 }
 
-export function runStructureRulesEffect(
+export function runStructureRulesEffect<R>(
   rules: readonly RuleStructureFacts[],
-  options: {
-    readonly repoRoot: string;
-    readonly fileSystem: StructureCheckFileSystem<any>;
-  }
-): Effect.Effect<Map<string, RuleRunResult>, never, any> {
+  options: StructureCheckOptions<R>
+): Effect.Effect<Map<string, RuleRunResult>, never, R> {
   return Effect.gen(function* () {
     const entries = yield* Effect.forEach(rules, (rule) =>
-      Effect.map(runStructureRuleEffect(rule, options), (result) => [rule.id, result] as const)
+      Effect.map(runStructureRuleEffect<R>(rule, options), (result) => [rule.id, result] as const)
     );
     return new Map(entries);
   });
 }
 
-function runStructureRuleEffect(
+function runStructureRuleEffect<R>(
   rule: RuleStructureFacts,
-  options: {
-    readonly repoRoot: string;
-    readonly fileSystem: StructureCheckFileSystem<any>;
-  }
-): Effect.Effect<RuleRunResult, never, any> {
+  options: StructureCheckOptions<R>
+): Effect.Effect<RuleRunResult, never, R> {
   return Effect.gen(function* () {
     const structurePath = path.resolve(options.repoRoot, rule.runner.files.structure);
     const text = yield* options.fileSystem.readText(structurePath).pipe(Effect.either);
@@ -124,38 +123,32 @@ function runStructureRuleEffect(
       ];
       return { exitCode: 1, diagnostics };
     }
-    return yield* evaluateStructureCheckEffect(rule, parsed.spec, options);
+    return yield* evaluateStructureCheckEffect<R>(rule, parsed.spec, options);
   });
 }
 
-export function evaluateStructureCheckEffect(
+export function evaluateStructureCheckEffect<R>(
   rule: RuleStructureFacts,
   spec: StructureCheckSpec,
-  options: {
-    readonly repoRoot: string;
-    readonly fileSystem: StructureCheckFileSystem<any>;
-  }
-): Effect.Effect<RuleRunResult, never, any> {
+  options: StructureCheckOptions<R>
+): Effect.Effect<RuleRunResult, never, R> {
   return Effect.gen(function* () {
     const diagnostics: HabitatDiagnostic[] = [];
     for (const scope of spec.scopes) {
-      diagnostics.push(...(yield* evaluateScopeEffect(rule, scope, options)));
+      diagnostics.push(...(yield* evaluateScopeEffect<R>(rule, scope, options)));
     }
     return { exitCode: diagnostics.length > 0 ? 1 : 0, diagnostics };
   });
 }
 
-function evaluateScopeEffect(
+function evaluateScopeEffect<R>(
   rule: RuleStructureFacts,
   scope: StructureCheckScope,
-  options: {
-    readonly repoRoot: string;
-    readonly fileSystem: StructureCheckFileSystem<any>;
-  }
-): Effect.Effect<HabitatDiagnostic[], never, any> {
+  options: StructureCheckOptions<R>
+): Effect.Effect<HabitatDiagnostic[], never, R> {
   return Effect.gen(function* () {
     const diagnostics: HabitatDiagnostic[] = [];
-    const roots = yield* matchedRootsEffect(scope.root, options);
+    const roots = yield* matchedRootsEffect<R>(scope.root, options);
     const matchingKindRoots = roots.filter((root) => root.kind === scope.kind);
     const wrongKindRoots = roots.filter(
       (root) => root.kind !== "missing" && root.kind !== scope.kind
@@ -242,38 +235,32 @@ function evaluateDirectoryChildren(
   return diagnostics;
 }
 
-function matchedRootsEffect(
+function matchedRootsEffect<R>(
   rootGlob: string,
-  options: {
-    readonly repoRoot: string;
-    readonly fileSystem: StructureCheckFileSystem<any>;
-  }
-): Effect.Effect<MatchedRoot[], never, any> {
+  options: StructureCheckOptions<R>
+): Effect.Effect<MatchedRoot[], never, R> {
   return Effect.gen(function* () {
     const normalizedRoot = normalizeRepoPath(rootGlob);
     const isGlob = hasGlobSyntax(normalizedRoot);
     if (!isGlob) {
-      const kind = yield* pathKindEffect(normalizedRoot, options);
+      const kind = yield* pathKindEffect<R>(normalizedRoot, options);
       return kind === "missing" ? [] : [{ repoPath: normalizedRoot, kind }];
     }
     const base = literalWalkBase(normalizedRoot);
-    const baseKind = yield* pathKindEffect(base, options);
+    const baseKind = yield* pathKindEffect<R>(base, options);
     if (baseKind === "missing") return [];
-    const candidates = yield* walkRepoPathsEffect(base, options);
+    const candidates = yield* walkRepoPathsEffect<R>(base, options);
     const rootMatches = picomatch(normalizedRoot, { contains: false, dot: true });
     return candidates.filter((candidate) => rootMatches(candidate.repoPath));
   });
 }
 
-function walkRepoPathsEffect(
+function walkRepoPathsEffect<R>(
   repoPath: string,
-  options: {
-    readonly repoRoot: string;
-    readonly fileSystem: StructureCheckFileSystem<any>;
-  }
-): Effect.Effect<MatchedRoot[], never, any> {
+  options: StructureCheckOptions<R>
+): Effect.Effect<MatchedRoot[], never, R> {
   return Effect.gen(function* () {
-    const kind = yield* pathKindEffect(repoPath, options);
+    const kind = yield* pathKindEffect<R>(repoPath, options);
     if (kind === "missing") return [];
     const out: MatchedRoot[] = [{ repoPath, kind }];
     if (kind !== "directory") return out;
@@ -281,19 +268,16 @@ function walkRepoPathsEffect(
       .readDirectory(path.resolve(options.repoRoot, repoPath))
       .pipe(Effect.catchAll(() => Effect.succeed([])));
     for (const child of children) {
-      out.push(...(yield* walkRepoPathsEffect(`${repoPath}/${child.name}`, options)));
+      out.push(...(yield* walkRepoPathsEffect<R>(`${repoPath}/${child.name}`, options)));
     }
     return out;
   });
 }
 
-function pathKindEffect(
+function pathKindEffect<R>(
   repoPath: string,
-  options: {
-    readonly repoRoot: string;
-    readonly fileSystem: StructureCheckFileSystem<any>;
-  }
-): Effect.Effect<MatchedRoot["kind"], never, any> {
+  options: StructureCheckOptions<R>
+): Effect.Effect<MatchedRoot["kind"], never, R> {
   return Effect.gen(function* () {
     const absolute = path.resolve(options.repoRoot, repoPath);
     const isDirectory = yield* options.fileSystem

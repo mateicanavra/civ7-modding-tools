@@ -1,8 +1,12 @@
 import path from "node:path";
-import { makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
+import {
+  type HabitatProcessRequest,
+  makeHabitatCommandResult,
+} from "@habitat/cli/resources/command/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { RuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/index";
 import {
+  type CheckReport,
   CheckReportSchema,
   checkCommandContext,
   hookCheckSummary,
@@ -177,7 +181,7 @@ describe("rule selector boundary", () => {
   });
 
   test("rejects check reports whose ok flag contradicts failed rules", () => {
-    const invalid = {
+    const invalid: CheckReport = {
       schemaVersion: 2,
       command: "habitat check --json",
       startedAt: "2026-06-13T00:00:00.000Z",
@@ -211,7 +215,7 @@ describe("rule selector boundary", () => {
   });
 
   test("renders shared check work once instead of per-rule fake durations", () => {
-    const report = {
+    const report: CheckReport = {
       schemaVersion: 2,
       command: "habitat check --runner grit",
       startedAt: "2026-06-21T00:00:00.000Z",
@@ -391,13 +395,13 @@ describe("rule selector boundary", () => {
         {
           repoRoot,
           command: {
-            run: (request) =>
+            run: (request: HabitatProcessRequest) =>
               Effect.sync(() => {
                 requests.push({ executable: request.executable, argv: request.argv });
                 return makeHabitatCommandResult(request);
               }),
           },
-        } as any
+        }
       )
     );
 
@@ -880,6 +884,14 @@ function fakeRule(
 ): RuleRegistryRecord {
   return {
     id,
+    schemaVersion: 2,
+    title: `Test rule ${id}`,
+    placement: {
+      niche: "fixtures",
+      blueprint: "_self",
+      category: "quality",
+    },
+    operation: { kind: "check" },
     ownerProject,
     lane: "enforced",
     forbids: "test fixture",
@@ -893,7 +905,10 @@ function fakeRule(
   };
 }
 
-function passingRule(id: string, overrides: Record<string, unknown> = {}) {
+function passingRule(
+  id: string,
+  overrides: Partial<CheckReport["rules"][number]> = {}
+): CheckReport["rules"][number] {
   return {
     ruleId: id,
     runner: "grit",

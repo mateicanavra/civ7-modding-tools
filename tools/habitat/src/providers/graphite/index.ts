@@ -1,20 +1,13 @@
-import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { GitStateProvider } from "@habitat/cli/providers/git/index";
-import { type CommandProviderError, CommandRunner } from "@habitat/cli/resources/command/index";
-import type { HabitatConfig } from "@habitat/cli/resources/config/index";
+import {
+  type CommandProviderError,
+  CommandRunner,
+  type CommandRunnerService,
+} from "@habitat/cli/resources/command/index";
 import { Context, Effect, Layer } from "effect";
-
-export type GraphiteProviderRequirements =
-  | CommandExecutor
-  | HabitatConfig
-  | CommandRunner
-  | GitStateProvider;
 
 export interface GraphiteProviderService {
   readonly parentArgv: () => readonly string[];
-  readonly parent: (options?: {
-    cwd?: string;
-  }) => Effect.Effect<string | null, never, GraphiteProviderRequirements>;
+  readonly parent: (options?: { cwd?: string }) => Effect.Effect<string | null>;
 }
 
 export class GraphiteProvider extends Context.Tag("@habitat/cli/GraphiteProvider")<
@@ -22,29 +15,38 @@ export class GraphiteProvider extends Context.Tag("@habitat/cli/GraphiteProvider
   GraphiteProviderService
 >() {}
 
-export function makeGraphiteProviderLayer(repoRoot: string): Layer.Layer<GraphiteProvider> {
-  return Layer.succeed(GraphiteProvider, {
+export function makeGraphiteProviderLayer(repoRoot: string) {
+  return Layer.effect(
+    GraphiteProvider,
+    Effect.map(CommandRunner, (runner) => makeLiveGraphiteProvider(repoRoot, runner))
+  );
+}
+
+function makeLiveGraphiteProvider(
+  repoRoot: string,
+  runner: CommandRunnerService
+): GraphiteProviderService {
+  return {
     parentArgv,
     parent: (options = {}) =>
-      CommandRunner.pipe(
-        Effect.flatMap((runner) =>
-          runner.run({
-            commandId: "graphite-parent",
-            kind: "workspace-tool",
-            executable: "gt",
-            argv: parentArgv().slice(1),
-            cwd: options.cwd ?? repoRoot,
-            captureGitState: false,
-          })
+      runner
+        .run({
+          commandId: "graphite-parent",
+          kind: "workspace-tool",
+          executable: "gt",
+          argv: parentArgv().slice(1),
+          cwd: options.cwd ?? repoRoot,
+          captureGitState: false,
+        })
+        .pipe(
+          Effect.map((result) =>
+            result.exit.code === 0
+              ? (result.stdout.text.match(/Parent:\s*([^\s]+)/)?.[1] ?? null)
+              : null
+          ),
+          Effect.catchAll(() => Effect.succeed(null))
         ),
-        Effect.map((result) =>
-          result.exit.code === 0
-            ? (result.stdout.text.match(/Parent:\s*([^\s]+)/)?.[1] ?? null)
-            : null
-        ),
-        Effect.catchAll(() => Effect.succeed(null))
-      ),
-  });
+  };
 }
 
 export function makeFakeGraphiteProviderLayer(

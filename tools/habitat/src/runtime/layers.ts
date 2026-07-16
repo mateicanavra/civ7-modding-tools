@@ -23,7 +23,6 @@ import { Effect, Layer } from "effect";
 const HabitatRuntimeBaseLive = Layer.mergeAll(
   NodeContext.layer,
   HabitatConfigLive,
-  CommandRunnerLive,
   HabitatReporterLive
 );
 
@@ -41,14 +40,15 @@ const HabitatRepoScopedLive = Layer.unwrapEffect(
       }
     ).pipe(Effect.map(ruleFactsCatalog));
     const platform = Layer.succeed(HabitatPlatform, platformService);
-    const coreProviders = Layer.mergeAll(
-      makeGitStateProviderLayer(config.repoRoot),
+    const gitState = makeGitStateProviderLayer(config.repoRoot);
+    const commandRunner = CommandRunnerLive.pipe(Layer.provide(gitState));
+    const vendorProviders = Layer.mergeAll(
       makeGitProviderLayer(config.repoRoot),
       makeGraphiteProviderLayer(config.repoRoot),
       makeBiomeProviderLayer(config.repoRoot),
-      makeNxProviderLayer(config.repoRoot),
-      platform
-    );
+      makeNxProviderLayer(config.repoRoot)
+    ).pipe(Layer.provideMerge(commandRunner));
+    const coreProviders = Layer.mergeAll(gitState, vendorProviders, platform);
     const catalog = Layer.succeed(RuleFacts, facts);
     const diagnostics = makeGritRuleDiagnosticsLayer(config.repoRoot).pipe(
       Layer.provide(Layer.merge(coreProviders, catalog))

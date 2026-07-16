@@ -5,6 +5,7 @@ import {
   captureOutput,
   commandUnavailableFromCause,
   type HabitatCommandResult,
+  type HabitatProcessRequest,
   interruptCommandOnTimeout,
   makeFakeCommandRunnerLayer,
   makeHabitatCommandResult,
@@ -134,12 +135,13 @@ describe("CommandRunner", () => {
       },
     ];
 
-    const request = {
+    const request: HabitatProcessRequest = {
       commandId: "git-state-provider-capture",
       kind: "workspace-tool" as const,
       executable: "fixture-command",
       argv: ["--write-ok"],
       cwd: repoRoot,
+      captureGitState: true,
     };
 
     const result = await Effect.runPromise(

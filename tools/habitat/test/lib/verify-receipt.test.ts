@@ -240,6 +240,7 @@ describe("verify receipt", () => {
       message: "graph unavailable",
     });
     expect(receipt.nxAffected.kind).toBe("skipped");
+    if (receipt.nxAffected.kind !== "skipped") throw new Error("expected skipped receipt");
     expect(receipt.nxAffected.skipReason).toBe("workspace-graph-refused");
     expect(validateVerifyReceipt(receipt)).toEqual([]);
   });

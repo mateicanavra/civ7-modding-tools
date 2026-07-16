@@ -5,6 +5,7 @@ import {
   loadRuleRegistryDocumentEffect,
   type RuleRegistryDirectoryEntry,
   type RuleRegistryFileSystem,
+  type RuleRegistryRecord,
   type RuleRegistrySyncFileSystem,
 } from "@habitat/cli/service/model/rules/index";
 import { Effect, Schema } from "effect";
@@ -342,7 +343,7 @@ describe("location-independent rule manifests", () => {
       "moved-rule",
       "rule-introduction-manifest.json"
     );
-    const rule = ruleManifest({
+    const rule: RuleRegistryRecord = ruleManifest({
       id: "moved-rule",
       runner: {
         name: "habitat",
@@ -387,9 +388,9 @@ function rulePackIndex() {
   };
 }
 
-function ruleManifest(overrides: Record<string, unknown> = {}) {
-  const id = String(overrides.id ?? "sample-rule");
-  return {
+function ruleManifest<const Overrides extends Record<string, unknown>>(overrides?: Overrides) {
+  const id = String(overrides?.id ?? "sample-rule");
+  const base = {
     schemaVersion: 2,
     id,
     title: "Sample Rule",
@@ -413,8 +414,8 @@ function ruleManifest(overrides: Record<string, unknown> = {}) {
       files: { script: defaultScriptPath(id) },
       runtime: "node",
     },
-    ...overrides,
-  };
+  } satisfies RuleRegistryRecord;
+  return { ...base, ...overrides };
 }
 
 function defaultScriptPath(ruleId: string): string {

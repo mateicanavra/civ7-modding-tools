@@ -1,8 +1,11 @@
 import { repoRoot } from "@habitat/cli/resources/paths";
-import type { CheckOptions } from "@habitat/cli/service/model/check/index";
+import type { CheckOptions, CheckReport } from "@habitat/cli/service/model/check/index";
 import type { createCheckReportEffect } from "@habitat/cli/service/model/check/policy/structural/index";
 import type { RuleSelection } from "@habitat/cli/service/model/rules/policy/selection.policy";
-import type { expandBaselinesEffect } from "@habitat/cli/service/modules/check/model/policy/baseline-expansion.policy";
+import type {
+  BaselineExpansionResult,
+  expandBaselinesEffect,
+} from "@habitat/cli/service/modules/check/model/policy/baseline-expansion.policy";
 import { checkRouter } from "@habitat/cli/service/modules/check/router";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
@@ -37,13 +40,13 @@ vi.mock("@habitat/cli/service/model/check/policy/structural/index", async (impor
   };
 });
 
-const mockReport = {
+const mockReport: CheckReport = {
   schemaVersion: 2,
   command: "habitat check --json",
   startedAt: "2026-06-20T00:00:00.000Z",
   ok: true,
   rules: [],
-} as const;
+};
 
 describe("Habitat check service", () => {
   beforeEach(() => {
@@ -152,9 +155,12 @@ describe("Habitat check service", () => {
 
   test("projects baseline expansion into service output states", async () => {
     const observed: Array<{ selection: RuleSelection; options: { base?: string } }> = [];
-    let expansion = { ok: true as const, messages: ["baseline written: rule-a (1 entries)"] };
+    let expansion: BaselineExpansionResult = {
+      ok: true,
+      messages: ["baseline written: rule-a (1 entries)"],
+    };
     mockCreateCheckReportEffect.mockImplementation(() => Effect.succeed(mockReport));
-    mockExpandBaselinesEffect.mockImplementation((selection = {}, options = {}) =>
+    mockExpandBaselinesEffect.mockImplementation((selection = {}, options) =>
       Effect.sync(() => {
         observed.push({ selection, options });
         return expansion;

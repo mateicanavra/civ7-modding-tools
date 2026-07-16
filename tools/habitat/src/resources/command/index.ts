@@ -39,7 +39,6 @@ export {
   captureCommandGitStateAround,
   commandUnavailableFromCause,
   interruptCommandOnTimeout,
-  runSyncHabitatCommand,
 } from "./runner.js";
 export {
   type SpawnResult,

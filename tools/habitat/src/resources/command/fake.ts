@@ -7,6 +7,5 @@ export function makeFakeCommandRunnerLayer(
 ) {
   return Layer.succeed(CommandRunner, {
     run: (request: HabitatProcessRequest) => Effect.sync(() => handler(request)),
-    runSync: handler,
   });
 }

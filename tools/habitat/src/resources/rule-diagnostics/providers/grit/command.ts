@@ -1,7 +1,5 @@
 import path from "node:path";
 import { FileSystem } from "@effect/platform";
-import { CommandExecutor } from "@effect/platform/CommandExecutor";
-import { GitStateProvider } from "@habitat/cli/providers/git/index";
 import {
   CommandFailed,
   CommandInterrupted,
@@ -13,7 +11,6 @@ import type {
   HabitatCommandResult,
   HabitatProcessRequest,
 } from "@habitat/cli/resources/command/types";
-import { HabitatConfig } from "@habitat/cli/resources/config/index";
 import type { DiagnosticSelectedScanRoots } from "@habitat/cli/service/model/diagnostics/index";
 import { Duration, Effect, Match } from "effect";
 import { type Static, Type } from "typebox";
@@ -62,17 +59,7 @@ export const makeGritCommandService = Effect.fn("grit.commandService.make")(func
 ) {
   const runner = yield* CommandRunner;
   const fs = yield* FileSystem.FileSystem;
-  const commandExecutor = yield* CommandExecutor;
-  const config = yield* HabitatConfig;
-  const gitState = yield* GitStateProvider;
-  const runCommand = (request: HabitatProcessRequest) =>
-    runner
-      .run(request)
-      .pipe(
-        Effect.provideService(CommandExecutor, commandExecutor),
-        Effect.provideService(HabitatConfig, config),
-        Effect.provideService(GitStateProvider, gitState)
-      );
+  const runCommand = (request: HabitatProcessRequest) => runner.run(request);
   /** Successful preflight is lazy and shared only within this command-service realization. */
   const [cachedPreflight, invalidatePreflight] = yield* Effect.cachedInvalidateWithTTL(
     preflightPinnedGritEffect(repoRoot, runCommand, defaultGritCommandTimeoutMs, fs),

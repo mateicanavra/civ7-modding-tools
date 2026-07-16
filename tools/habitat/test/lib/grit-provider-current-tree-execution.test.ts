@@ -47,12 +47,13 @@ afterEach(() => {
   }
 });
 
-const LiveGritPrerequisites = Layer.mergeAll(
+const LiveCommandDependencies = Layer.mergeAll(
   NodeContext.layer,
-  CommandRunnerLive,
   makeHabitatConfigLayer(makeHabitatConfig({ repoRoot: workspaceRepoRoot })),
   makeGitStateProviderLayer(workspaceRepoRoot)
 );
+const LiveCommandRunner = CommandRunnerLive.pipe(Layer.provide(LiveCommandDependencies));
+const LiveGritPrerequisites = Layer.merge(LiveCommandDependencies, LiveCommandRunner);
 
 describe("generic Grit current-tree execution", () => {
   test("preflights and executes the installed pinned native without ambient config", async () => {

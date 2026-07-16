@@ -63,7 +63,7 @@ export function habitatScriptRunner(
   };
 }
 
-export function gritRunner(id: string): RuleRunner {
+export function gritRunner(id: string): Extract<RuleRunner, { name: "grit" }> {
   return {
     name: "grit",
     files: { pattern: `.habitat/fixtures/rules/${id}/pattern.md` },

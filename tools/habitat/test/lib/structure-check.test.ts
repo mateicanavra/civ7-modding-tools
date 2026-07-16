@@ -1,4 +1,5 @@
 import type { HabitatDirectoryEntry } from "@habitat/cli/resources/platform/index";
+import type { RuleStructureFacts } from "@habitat/cli/service/model/rules/index";
 import {
   evaluateStructureCheckEffect,
   parseStructureCheckSpec,
@@ -19,7 +20,7 @@ const rule = {
     mode: "structure" as const,
     files: { structure: ".habitat/sample/sample.structure.toml" },
   },
-};
+} satisfies RuleStructureFacts;
 
 describe("structure-check TOML contract", () => {
   test("parses valid v1 TOML and rejects malformed or unsupported fields", () => {

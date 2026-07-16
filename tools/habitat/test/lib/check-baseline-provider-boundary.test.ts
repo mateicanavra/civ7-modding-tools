@@ -172,7 +172,7 @@ describe("check and baseline provider boundaries", () => {
           rules: deps.rules,
           structureFileSystem: structureFileSystemPort(),
         }
-      )
+      ).pipe(Effect.provide(makeFakePlatformFileSystemLayer([])))
     );
     const record = results.get(fileLayerRule!.id);
 

@@ -809,10 +809,7 @@ function commandResult(
   stderr = "",
   executable = "git"
 ): HabitatCommandResult {
-  const kind = Match.value(executable).pipe(
-    Match.when("git", () => "git-state"),
-    Match.orElse(() => "workspace-tool")
-  );
+  const kind = executable === "git" ? "git-state" : "workspace-tool";
   return makeHabitatCommandResult(
     {
       commandId: `${executable}-${argv.join("-")}`,
@@ -1010,9 +1007,14 @@ function stdoutForCommand(
   return new Map([[expectedCommand, stdout]]).get(argv.join(" ")) ?? "";
 }
 
-function renderReported(events: HabitatReportEvent[], kind: HabitatReportEvent["kind"]): string {
+function renderReported(
+  events: HabitatReportEvent[],
+  kind: Exclude<HabitatReportEvent["kind"], "trace">
+): string {
   return events
-    .filter((event) => event.kind === kind)
+    .filter(
+      (event): event is Extract<HabitatReportEvent, { kind: typeof kind }> => event.kind === kind
+    )
     .map((event) => event.text)
     .join("");
 }

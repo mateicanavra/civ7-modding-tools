@@ -91,10 +91,12 @@ index 3333333..4444444 100644
     });
 
     assert(result.state === "diff");
-    expect(result.paths.map((classification) => classification.path)).toEqual([
-      "apps/mapgen-studio/src/main.tsx",
-      "packages/plugins/plugin-graph/src/index.ts",
-    ]);
+    expect(
+      result.paths.map((classification) => {
+        if (!("path" in classification)) throw new Error("expected path classification");
+        return classification.path;
+      })
+    ).toEqual(["apps/mapgen-studio/src/main.tsx", "packages/plugins/plugin-graph/src/index.ts"]);
   });
 
   test("preserves malformed diff refusal before graph reads", async () => {
@@ -175,5 +177,5 @@ function makeClassifyDeps(
 }
 
 function graphReady(projects: readonly WorkspaceProject[]): WorkspaceGraphReadState {
-  return { kind: "graph-ready", snapshot: { projects } };
+  return { kind: "graph-ready", snapshot: { projects: [...projects] } };
 }

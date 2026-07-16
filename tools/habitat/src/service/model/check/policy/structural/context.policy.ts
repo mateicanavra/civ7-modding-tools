@@ -1,4 +1,3 @@
-import type { FileSystem } from "@effect/platform";
 import type {
   CommandProviderError,
   HabitatCommandResult,
@@ -22,62 +21,62 @@ export interface RuleExecutionRecord {
   disposition: RuleExecutionDisposition;
 }
 
-export interface StructuralExecutionContext {
-  readonly baselineFileSystem: BaselineFileSystemPort;
+export interface StructuralExecutionContext<R = never> {
+  readonly baselineFileSystem: BaselineFileSystemPort<R>;
   readonly repoRoot: string;
-  readonly biome: StructuralBiomePort;
-  readonly command: StructuralCommandPort;
-  readonly git: StructuralGitPort;
+  readonly biome: StructuralBiomePort<R>;
+  readonly command: StructuralCommandPort<R>;
+  readonly git: StructuralGitPort<R>;
   readonly ruleDiagnostics: RuleDiagnosticsService;
-  readonly nx: StructuralNxPort;
+  readonly nx: StructuralNxPort<R>;
   readonly rules: RuleFactsCatalog;
-  readonly structureFileSystem: HabitatFileSystemReadPort<FileSystem.FileSystem>;
+  readonly structureFileSystem: HabitatFileSystemReadPort<R>;
 }
 
-export interface StructuralBiomePort {
+export interface StructuralBiomePort<R = never> {
   readonly run: (request: {
     readonly kind: "ci";
-  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
 }
 
-export interface StructuralCommandPort {
+export interface StructuralCommandPort<R = never> {
   readonly run: (
     request: HabitatProcessRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
 }
 
-export interface StructuralGitPort {
+export interface StructuralGitPort<R = never> {
   readonly diffNameOnly: (input?: {
     readonly cached?: boolean;
     readonly cwd?: string;
-  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
   readonly diffNameStatus: (input?: {
     readonly cached?: boolean;
     readonly cwd?: string;
-  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
   readonly lsTreeNameOnly: (
     ref: string,
     repoPath: string,
     options?: { readonly cwd?: string }
-  ) => Effect.Effect<readonly string[] | null, never, any>;
+  ) => Effect.Effect<readonly string[] | null, never, R>;
   readonly mergeBase: (
     ref: string,
     options?: { readonly cwd?: string }
-  ) => Effect.Effect<string | null, never, any>;
+  ) => Effect.Effect<string | null, never, R>;
   readonly show: (
     ref: string,
     repoPath: string,
     options?: { readonly cwd?: string }
-  ) => Effect.Effect<string | null, never, any>;
+  ) => Effect.Effect<string | null, never, R>;
 }
 
-export interface StructuralNxPort {
+export interface StructuralNxPort<R = never> {
   readonly runMany: (
     request: StructuralNxRunManyRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
   readonly runTarget: (
     request: StructuralNxRunTargetRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
 }
 
 export interface StructuralNxRunManyRequest {

@@ -24,15 +24,15 @@ type ExecutableRuleResultFacts = Pick<
   "id" | "lane" | "message"
 >;
 
-export function executeCommandRulesEffect(
+export function executeCommandRulesEffect<R>(
   commandRules: readonly RuleCommandExecutionFacts[],
   results: Map<string, RuleExecutionRecord>,
-  context: StructuralExecutionContext
-): Effect.Effect<void, never, any> {
+  context: Pick<StructuralExecutionContext<R>, "command" | "repoRoot">
+): Effect.Effect<void, never, R> {
   return Effect.gen(function* () {
     const groupResults = yield* Effect.all(
       commandRuleExecutionGroups(commandRules, context).map((group) =>
-        executeCommandRuleGroupEffect(group, context)
+        executeCommandRuleGroupEffect<R>(group, context)
       ),
       {
         concurrency: "unbounded",
@@ -44,14 +44,14 @@ export function executeCommandRulesEffect(
   });
 }
 
-export function executeGraphBackedCommandRulesEffect(
+export function executeGraphBackedCommandRulesEffect<R>(
   rules: readonly RuleGraphFacts[],
   results: Map<string, RuleExecutionRecord>,
-  context: StructuralExecutionContext
-): Effect.Effect<void, never, any> {
+  context: Pick<StructuralExecutionContext<R>, "nx">
+): Effect.Effect<void, never, R> {
   if (rules.length === 0) return Effect.void;
   return Effect.gen(function* () {
-    const groupResults = yield* Effect.all([runGraphBackedCommandRuleGroup(rules, context)], {
+    const groupResults = yield* Effect.all([runGraphBackedCommandRuleGroup<R>(rules, context)], {
       concurrency: "unbounded",
     });
     for (const groupResult of groupResults) {
@@ -60,14 +60,14 @@ export function executeGraphBackedCommandRulesEffect(
   });
 }
 
-function runGraphBackedCommandRuleGroup(
+function runGraphBackedCommandRuleGroup<R>(
   rules: readonly RuleGraphFacts[],
-  context: StructuralExecutionContext
-): Effect.Effect<Map<string, RuleExecutionRecord>, never, any> {
+  context: Pick<StructuralExecutionContext<R>, "nx">
+): Effect.Effect<Map<string, RuleExecutionRecord>, never, R> {
   return Effect.gen(function* () {
     const targets = graphTargetsForRules(rules);
     const started = yield* Clock.currentTimeMillis;
-    const execution = yield* runGraphTargetsEffect(context.nx, targets).pipe(
+    const execution = yield* runGraphTargetsEffect<R>(context.nx, targets).pipe(
       Effect.match({
         onFailure: (error) => ({ kind: "provider-failure" as const, error }),
         onSuccess: (commandResult) => ({
@@ -111,8 +111,8 @@ function sharedExecutionTiming(
   };
 }
 
-function runGraphTargetsEffect(
-  nx: StructuralNxPort,
+function runGraphTargetsEffect<R>(
+  nx: StructuralNxPort<R>,
   targets: readonly { project: string; target: string }[]
 ) {
   const uniqueTargets = uniqueGraphTargets(targets);
@@ -186,10 +186,10 @@ function commandInvocationFromRunner(runner: RuleCommandExecutionFacts["runner"]
   return { executable: "bash", argv: [runner.files.script] };
 }
 
-function executeCommandRuleGroupEffect(
+function executeCommandRuleGroupEffect<R>(
   group: CommandRuleExecutionGroup,
-  context: StructuralExecutionContext
-): Effect.Effect<Map<string, RuleExecutionRecord>, never, any> {
+  context: Pick<StructuralExecutionContext<R>, "command">
+): Effect.Effect<Map<string, RuleExecutionRecord>, never, R> {
   return Effect.gen(function* () {
     const started = yield* Clock.currentTimeMillis;
     const result = yield* context.command

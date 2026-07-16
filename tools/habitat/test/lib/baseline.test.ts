@@ -1,6 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import type { FileSystem } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import {
   type GitProviderService,
@@ -590,7 +591,7 @@ function guardExpansion(
 }
 
 function runBaselineEffect<A, E>(
-  effect: Effect.Effect<A, E, never>,
+  effect: Effect.Effect<A, E, FileSystem.FileSystem>,
   context: BaselineTestContext
 ): Promise<A> {
   return Effect.runPromise(effect.pipe(Effect.provide(NodeContext.layer)));
@@ -611,7 +612,7 @@ function diagnostic(
   };
 }
 
-interface BaselineTestContext extends BaselineAuthorityContext {
+interface BaselineTestContext extends BaselineAuthorityContext<FileSystem.FileSystem> {
   readonly git: GitProviderService;
   readonly repoRoot: string;
   readonly baselinesDir: string;

@@ -9,18 +9,18 @@ export interface BaselineDirectoryEntry {
   readonly kind: "directory" | "file" | "other";
 }
 
-export interface BaselineFileSystemPort {
-  readonly isDirectory: (targetPath: string) => Effect.Effect<boolean, unknown, any>;
-  readonly isFile: (targetPath: string) => Effect.Effect<boolean, unknown, any>;
-  readonly makeDirectory: (targetPath: string) => Effect.Effect<void, unknown, any>;
+export interface BaselineFileSystemPort<R = never> {
+  readonly isDirectory: (targetPath: string) => Effect.Effect<boolean, unknown, R>;
+  readonly isFile: (targetPath: string) => Effect.Effect<boolean, unknown, R>;
+  readonly makeDirectory: (targetPath: string) => Effect.Effect<void, unknown, R>;
   readonly readDirectory: (
     targetPath: string
-  ) => Effect.Effect<readonly BaselineDirectoryEntry[], unknown, any>;
-  readonly readText: (targetPath: string) => Effect.Effect<string, unknown, any>;
-  readonly writeText: (targetPath: string, contents: string) => Effect.Effect<void, unknown, any>;
+  ) => Effect.Effect<readonly BaselineDirectoryEntry[], unknown, R>;
+  readonly readText: (targetPath: string) => Effect.Effect<string, unknown, R>;
+  readonly writeText: (targetPath: string, contents: string) => Effect.Effect<void, unknown, R>;
 }
 
-export interface BaselineGitPort<R = any> {
+export interface BaselineGitPort<R = never> {
   readonly lsTreeNameOnly: (
     ref: string,
     repoPath: string,
@@ -37,9 +37,9 @@ export interface BaselineGitPort<R = any> {
   ) => Effect.Effect<string | null, never, R>;
 }
 
-export interface BaselineAuthorityContext {
-  fileSystem: BaselineFileSystemPort;
-  git: BaselineGitPort;
+export interface BaselineAuthorityContext<R = never> {
+  fileSystem: BaselineFileSystemPort<R>;
+  git: BaselineGitPort<R>;
   repoRoot: string;
   baselinesDir?: string;
   registry?: readonly BaselineRuleContractInput[];
