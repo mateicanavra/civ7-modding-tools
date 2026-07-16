@@ -1,6 +1,6 @@
 import { createRequire } from "node:module";
 import path from "node:path";
-import { Plugin, type Interfaces } from "@oclif/core";
+import { type Interfaces, Plugin } from "@oclif/core";
 
 const require = createRequire(import.meta.url);
 const helpPluginRoot = path.resolve(path.dirname(require.resolve("@oclif/plugin-help")), "..");

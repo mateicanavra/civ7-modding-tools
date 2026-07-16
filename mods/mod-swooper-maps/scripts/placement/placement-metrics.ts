@@ -7,7 +7,7 @@
  * metrics (E2.9). REPORTS only; never gates.
  *
  * Usage:
- *   nx run mod-swooper-maps:verify -- --mode placement-metrics [--seed 1337] [--seeds 5] \
+ *   nx run mod-swooper-maps:verify:operational -- --mode placement-metrics [--seed 1337] [--seeds 5] \
  *     [--size standard|tiny|small|large|huge|WxH] [--players N] \
  *     [--studio-mapinfo] [--json out.json]
  *

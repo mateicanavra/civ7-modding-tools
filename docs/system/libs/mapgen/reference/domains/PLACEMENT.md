@@ -134,7 +134,7 @@ The `placement` stage public surface has six groups: `knobs`, `naturalWonders`, 
 - `starts`: spacing floor/desired (official 6/12 buffers), scoring weights (fertility, freshwater, climate comfort + extreme penalty, resource support, roughness divisor), tier bias, ranking blend, fairness tolerance, coastal/river preference, StartBias weight, per-hemisphere player-count overrides.
 - `support`: enabled, supportFloor, supportRadiusTiles, equityTolerance, strength.
 
-Policy data comes from `@civ7/map-policy` generated tables (`CIV7_BROWSER_TABLES_V0` byte-stable + `CIV7_POLICY_TABLES_V1`: resource catalog rows, valid ages, required leaders, minimum-amount modifiers, StartBias tables, start globals), regenerated only via `nx run civ7-map-policy:verify -- --write` from the `.civ7/outputs/resources` submodule. Adapter manual catalogs are verified through `nx run mod-swooper-maps:verify -- --mode placement-catalogs`. There are no `globalThis.GameInfo` reads in the recipe layer; the resource catalog flows through `EngineAdapter.getResourceCatalog()`.
+Policy data comes from `@civ7/map-policy` generated tables (`CIV7_BROWSER_TABLES_V0` byte-stable + `CIV7_POLICY_TABLES_V1`: resource catalog rows, valid ages, required leaders, minimum-amount modifiers, StartBias tables, start globals), regenerated only via `nx run civ7-map-policy:verify -- --write` from the `.civ7/outputs/resources` submodule. Natural-wonder membership is derived directly from those tables and proved by owner-local map-policy tests. There are no `globalThis.GameInfo` reads in the recipe layer; the resource catalog flows through `EngineAdapter.getResourceCatalog()`.
 
 ## Studio visualization coverage
 
@@ -143,9 +143,8 @@ Policy data comes from `@civ7/map-policy` generated tables (`CIV7_BROWSER_TABLES
 ## Verification surfaces
 
 - Expectation ledger (predeclared Earth-like gates E1/E2/E3/E4): `docs/projects/placement-realignment/expectations.md`.
-- Stats harness: `nx run mod-swooper-maps:verify -- --mode placement-metrics --seed <s> --seeds <n> --size <size>` (headless standard recipe + mock adapter; computes every E1/E2/E3 metric from placement artifacts).
-- Catalog guard: `nx run mod-swooper-maps:verify`.
-- Live full-grid parity: `nx run mod-swooper-maps:verify -- --mode final-surface-parity` (milestone-boundary proof class; see `docs/projects/placement-realignment/MILESTONE-PROOFS.md`).
+- Stats harness: `nx run mod-swooper-maps:verify:operational -- --mode placement-metrics --seed <s> --seeds <n> --size <size>` (headless standard recipe + mock adapter; computes every E1/E2/E3 metric from placement artifacts).
+- Live full-grid parity: `nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity` (milestone-boundary proof class; see `docs/projects/placement-realignment/MILESTONE-PROOFS.md`).
 
 ## Ground truth anchors
 

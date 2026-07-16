@@ -37,7 +37,7 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode resource-delta-feasibility --report-file <final-surface-parity-report.json>
+  nx run mod-swooper-maps:verify:operational -- --mode resource-delta-feasibility --report-file <final-surface-parity-report.json>
 
 Options:
   --host <host>       Civ7 tuner host

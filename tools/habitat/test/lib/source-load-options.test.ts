@@ -9,7 +9,9 @@ const fixtureRoots: string[] = [];
 const habitatRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 afterEach(async () => {
-  await Promise.all(fixtureRoots.splice(0).map((root) => rm(root, { force: true, recursive: true })));
+  await Promise.all(
+    fixtureRoots.splice(0).map((root) => rm(root, { force: true, recursive: true }))
+  );
 });
 
 describe("Habitat source CLI loading", () => {

@@ -35,7 +35,7 @@
  * game is restarting. `--help` exits before any socket work.
  *
  * Usage:
- *   nx run mod-swooper-maps:verify -- --mode placement-live-legality-agreement [--host h] [--port p] \
+ *   nx run mod-swooper-maps:verify:operational -- --mode placement-live-legality-agreement [--host h] [--port p] \
  *     [--sample-size 400] [--timeout-ms 45000] [--output out.json]
  */
 
@@ -69,7 +69,7 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode placement-live-legality-agreement [options]
+  nx run mod-swooper-maps:verify:operational -- --mode placement-live-legality-agreement [options]
 
 Measures mock-vs-live ResourceBuilder.canHaveResource agreement over a
 deterministic stratified plot sample (Milestone A3 / E4.4) and counts

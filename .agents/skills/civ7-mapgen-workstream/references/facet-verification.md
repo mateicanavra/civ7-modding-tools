@@ -94,14 +94,14 @@ A MockAdapter-clean map can still **SIGSEGV** the live engine — so internal di
 
 ### The verify dispatcher — headless vs live (what this overlay turns on)
 
-`nx run mod-swooper-maps:verify -- --mode <mode>` (or `bun ./scripts/verify.ts --mode <mode>`; dispatcher: `mods/mod-swooper-maps/scripts/verify.ts`). For *this* overlay, the only distinction that matters is the closure boundary:
+`nx run mod-swooper-maps:verify:operational -- --mode <mode>` (or `bun ./scripts/verify.ts --mode <mode>`; dispatcher: `mods/mod-swooper-maps/scripts/verify.ts`). For *this* overlay, the only distinction that matters is the closure boundary:
 
 | Class | Example mode | Closure ceiling |
 |---|---|---|
-| **headless** (no tuner) | `placement-catalogs` (default), `placement-metrics` | `generated` at most — MockAdapter, never `in-game observed` |
+| **headless** (no tuner) | `placement-metrics` | `generated` at most — MockAdapter, never `in-game observed` |
 | **live** (running tuner required) | `studio-run-in-game-live` (the in-game gate) | the only path to `logged` / `in-game observed` |
 
-Full 9-mode table + aliases + invocations: `assets/live-verification-runbook.md` §5.
+Full operational mode table + aliases + invocations: `assets/live-verification-runbook.md` §5.
 
 Build before any live verify: `nx run mod-swooper-maps:build` → `mods/mod-swooper-maps/mod/`. Deploy with `nx run mod-swooper-maps:deploy`.
 

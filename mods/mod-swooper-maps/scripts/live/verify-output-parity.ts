@@ -12,7 +12,7 @@
 // (runLocalFinalSurfaceSnapshot / liveGridToFinalSurfaceSnapshot / diffFinalSurfaceSnapshots).
 //
 // Single command:
-//   nx run mod-swooper-maps:verify -- --mode output-parity \
+//   nx run mod-swooper-maps:verify:operational -- --mode output-parity \
 //     --map-script "{swooper-maps}/maps/swooper-earthlike.js" --map-size MAPSIZE_HUGE \
 //     --seed 1337 --player-count 10
 //
@@ -73,7 +73,7 @@ type Args = {
 };
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode output-parity --map-script <file> --map-size <size> --seed <seed> [flags]
+  nx run mod-swooper-maps:verify:operational -- --mode output-parity --map-script <file> --map-size <size> --seed <seed> [flags]
 
 Required (load + compare):
   --map-script "{swooper-maps}/maps/<name>.js"

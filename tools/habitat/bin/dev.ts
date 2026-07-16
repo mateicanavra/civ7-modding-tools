@@ -28,9 +28,7 @@ const sourceCommands = {
 const [commandName, ...commandArgs] = process.argv.slice(2);
 if (commandName && commandName in sourceCommands) {
   const command = await sourceCommands[commandName as keyof typeof sourceCommands]();
-  await command.default
-    .run(commandArgs, sourceLoadOptions)
-    .catch(handle);
+  await command.default.run(commandArgs, sourceLoadOptions).catch(handle);
 } else {
   await run(process.argv.slice(2), sourceLoadOptions).catch(handle);
 }

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 594,
+    "totalSurfaces": 630,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
@@ -14,10 +14,10 @@
       "generate-script": 2,
       "operation-note": 3,
       "fix-script": 1,
-      "package-script": 139,
-      "nx-target": 91,
+      "package-script": 169,
+      "nx-target": 95,
       "nx-plugin": 1,
-      "nx-target-default": 9,
+      "nx-target-default": 11,
       "habitat-cli-source": 112
     },
     "surfacesByRole": {
@@ -26,23 +26,23 @@
       "policy_pattern": 80,
       "structure_authority": 8,
       "operation_surface": 6,
-      "workspace_entrypoint": 240,
+      "workspace_entrypoint": 276,
       "toolkit_runner": 112
     },
     "entrypointsByInvoker": {
       "unknown": 240,
       "direct-script": 4,
-      "package": 140,
-      "nx": 101,
+      "package": 170,
+      "nx": 107,
       "habitat": 112
     },
     "surfacesByBucket": {
       "package_boundary_tie": 93,
       "unknown_invocation": 240,
-      "mutation_surface": 127,
-      "nx_ordering_tie": 117,
+      "mutation_surface": 123,
+      "nx_ordering_tie": 119,
       "direct_script_invoked": 4,
-      "package_invoked": 241,
+      "package_invoked": 277,
       "habitat_invoked": 112
     },
     "sanityAssertions": []
@@ -52,8 +52,8 @@
       "fixture-support": 9,
       "adapter": 120,
       "policy-predicate": 88,
-      "transient-dependency": 110,
-      "entrypoint": 242,
+      "transient-dependency": 112,
+      "entrypoint": 278,
       "runner-runtime": 112
     }
   },
@@ -151,8 +151,8 @@
     {
       "target": "git",
       "targetClass": "workspace-tool",
-      "references": 17,
-      "sourceCount": 17,
+      "references": 18,
+      "sourceCount": 18,
       "sampleSources": [
         ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs",
         ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs",
@@ -164,6 +164,24 @@
         ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/check.ts",
         ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts",
         ".habitat/civ7/platform/adapter/rules/prohibit_adapter_local_legacy_generator_logic/check.ts"
+      ]
+    },
+    {
+      "target": "tsc -p test/tsconfig.json --noEmit",
+      "targetClass": "workspace-tool",
+      "references": 15,
+      "sourceCount": 15,
+      "sampleSources": [
+        "apps/docs/package.json#scripts.check:test",
+        "apps/playground/package.json#scripts.check:test",
+        "mods/mod-swooper-maps/project.json#targets.check:test",
+        "packages/civ7-adapter/package.json#scripts.check:test",
+        "packages/civ7-map-policy/package.json#scripts.check:test",
+        "packages/cli/package.json#scripts.check:test",
+        "packages/config/package.json#scripts.check:test",
+        "packages/mapgen-core/package.json#scripts.check:test",
+        "packages/plugins/plugin-files/package.json#scripts.check:test",
+        "packages/plugins/plugin-git/package.json#scripts.check:test"
       ]
     },
     {
@@ -275,6 +293,24 @@
       ]
     },
     {
+      "target": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "targetClass": "workspace-tool",
+      "references": 10,
+      "sourceCount": 10,
+      "sampleSources": [
+        "apps/docs/package.json#scripts.typecheck",
+        "apps/playground/package.json#scripts.typecheck",
+        "packages/civ7-control-orpc/project.json#targets.typecheck",
+        "packages/civ7-direct-control/package.json#scripts.typecheck",
+        "packages/civ7-map-policy/package.json#scripts.typecheck",
+        "packages/cli/package.json#scripts.typecheck",
+        "packages/config/package.json#scripts.typecheck",
+        "packages/plugins/plugin-files/package.json#scripts.typecheck",
+        "packages/plugins/plugin-git/package.json#scripts.typecheck",
+        "packages/plugins/plugin-mods/package.json#scripts.typecheck"
+      ]
+    },
+    {
       "target": "./output.js",
       "targetClass": "relative",
       "references": 18,
@@ -292,20 +328,20 @@
       ]
     },
     {
-      "target": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
+      "target": "tsc -p tsconfig.json --noEmit",
       "targetClass": "workspace-tool",
       "references": 9,
       "sourceCount": 9,
       "sampleSources": [
-        "apps/docs/package.json#scripts.typecheck",
-        "apps/playground/package.json#scripts.typecheck",
-        "packages/civ7-control-orpc/project.json#targets.typecheck",
-        "packages/civ7-direct-control/package.json#scripts.typecheck",
-        "packages/cli/package.json#scripts.typecheck",
-        "packages/config/package.json#scripts.typecheck",
-        "packages/plugins/plugin-files/package.json#scripts.typecheck",
-        "packages/plugins/plugin-git/package.json#scripts.typecheck",
-        "packages/plugins/plugin-mods/package.json#scripts.typecheck"
+        "mods/mod-swooper-civ-dacia/package.json#scripts.typecheck",
+        "packages/mapgen-studio-ui/package.json#scripts.typecheck",
+        "packages/mapgen-viz/package.json#scripts.typecheck",
+        "packages/plugins/plugin-graph/package.json#scripts.typecheck",
+        "packages/sdk/package.json#scripts.typecheck",
+        "packages/studio-contract/package.json#scripts.typecheck",
+        "packages/studio-run-workspace/package.json#scripts.typecheck",
+        "packages/studio-server/package.json#scripts.typecheck",
+        "tools/habitat/package.json#scripts.typecheck"
       ]
     },
     {
@@ -321,22 +357,6 @@
         "tools/habitat/src/resources/command/types.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts"
-      ]
-    },
-    {
-      "target": "@habitat/cli/resources/config/index",
-      "targetClass": "habitat-toolkit",
-      "references": 8,
-      "sourceCount": 8,
-      "sampleSources": [
-        "tools/habitat/src/providers/biome/index.ts",
-        "tools/habitat/src/providers/git/index.ts",
-        "tools/habitat/src/providers/graphite/index.ts",
-        "tools/habitat/src/resources/command/materialize.ts",
-        "tools/habitat/src/resources/command/result.ts",
-        "tools/habitat/src/resources/command/runner.ts",
-        "tools/habitat/src/resources/command/service.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts"
       ]
     },
@@ -405,22 +425,6 @@
       ]
     },
     {
-      "target": "tsc -p tsconfig.json --noEmit",
-      "targetClass": "workspace-tool",
-      "references": 8,
-      "sourceCount": 8,
-      "sampleSources": [
-        "mods/mod-swooper-civ-dacia/package.json#scripts.typecheck",
-        "packages/mapgen-viz/package.json#scripts.typecheck",
-        "packages/plugins/plugin-graph/package.json#scripts.typecheck",
-        "packages/sdk/package.json#scripts.typecheck",
-        "packages/studio-contract/package.json#scripts.typecheck",
-        "packages/studio-run-workspace/package.json#scripts.typecheck",
-        "packages/studio-server/package.json#scripts.typecheck",
-        "tools/habitat/package.json#scripts.typecheck"
-      ]
-    },
-    {
       "target": "./command.js",
       "targetClass": "relative",
       "references": 14,
@@ -466,18 +470,33 @@
       ]
     },
     {
-      "target": "tsc --noEmit",
+      "target": "nx",
       "targetClass": "workspace-tool",
       "references": 7,
       "sourceCount": 7,
       "sampleSources": [
-        "apps/mapgen-studio/project.json#targets.typecheck",
-        "mods/mod-civ7-intelligence-bridge/package.json#scripts.typecheck",
-        "mods/mod-swooper-maps/project.json#targets.typecheck",
-        "packages/civ7-adapter/package.json#scripts.typecheck",
-        "packages/civ7-map-policy/package.json#scripts.typecheck",
-        "packages/civ7-types/package.json#scripts.typecheck",
-        "packages/mapgen-core/package.json#scripts.typecheck"
+        "tools/habitat/src/providers/nx/index.ts",
+        "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts",
+        "tools/habitat/src/service/model/rules/dto/registry.schema.ts",
+        "tools/habitat/src/service/model/rules/policy/graph.policy.ts",
+        "tools/habitat/src/service/model/rules/policy/selection.policy.ts",
+        "tools/habitat/src/service/model/rules/repositories/registry.repository.ts",
+        "tools/habitat/src/service/modules/verify/model/policy/nx-affected.policy.ts"
+      ]
+    },
+    {
+      "target": "tsc -p tsconfig.tools.json --noEmit",
+      "targetClass": "workspace-tool",
+      "references": 7,
+      "sourceCount": 7,
+      "sampleSources": [
+        "apps/mapgen-studio/project.json#targets.check:tools",
+        "packages/civ7-control-orpc/package.json#scripts.check:tools",
+        "packages/civ7-direct-control/package.json#scripts.check:tools",
+        "packages/mapgen-studio-ui/package.json#scripts.check:tools",
+        "packages/studio-contract/package.json#scripts.check:tools",
+        "packages/studio-run-workspace/package.json#scripts.check:tools",
+        "packages/studio-server/package.json#scripts.check:tools"
       ]
     },
     {
@@ -537,17 +556,31 @@
       ]
     },
     {
-      "target": "nx",
+      "target": "tsc --noEmit",
       "targetClass": "workspace-tool",
       "references": 6,
       "sourceCount": 6,
       "sampleSources": [
-        "tools/habitat/src/providers/nx/index.ts",
-        "tools/habitat/src/service/model/rules/dto/registry.schema.ts",
-        "tools/habitat/src/service/model/rules/policy/graph.policy.ts",
-        "tools/habitat/src/service/model/rules/policy/selection.policy.ts",
-        "tools/habitat/src/service/model/rules/repositories/registry.repository.ts",
-        "tools/habitat/src/service/modules/verify/model/policy/nx-affected.policy.ts"
+        "apps/mapgen-studio/project.json#targets.typecheck",
+        "mods/mod-civ7-intelligence-bridge/package.json#scripts.typecheck",
+        "mods/mod-swooper-maps/project.json#targets.typecheck",
+        "packages/civ7-adapter/package.json#scripts.typecheck",
+        "packages/civ7-types/package.json#scripts.typecheck",
+        "packages/mapgen-core/package.json#scripts.typecheck"
+      ]
+    },
+    {
+      "target": "tsc -p tsconfig.test.json --noEmit",
+      "targetClass": "workspace-tool",
+      "references": 6,
+      "sourceCount": 6,
+      "sampleSources": [
+        "apps/mapgen-studio/project.json#targets.check:test",
+        "packages/civ7-control-orpc/package.json#scripts.check:test",
+        "packages/civ7-direct-control/package.json#scripts.check:test",
+        "packages/mapgen-studio-ui/package.json#scripts.check:test",
+        "packages/studio-run-workspace/package.json#scripts.check:test",
+        "packages/studio-server/package.json#scripts.check:test"
       ]
     },
     {
@@ -827,30 +860,6 @@
       ]
     },
     {
-      "target": "@habitat/cli/providers/git/index",
-      "targetClass": "habitat-toolkit",
-      "references": 4,
-      "sourceCount": 4,
-      "sampleSources": [
-        "tools/habitat/src/providers/biome/index.ts",
-        "tools/habitat/src/providers/graphite/index.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts",
-        "tools/habitat/src/service/modules/hook/model/policy/procedure-context.policy.ts"
-      ]
-    },
-    {
-      "target": "@habitat/cli/providers/git/state",
-      "targetClass": "habitat-toolkit",
-      "references": 4,
-      "sourceCount": 4,
-      "sampleSources": [
-        "tools/habitat/src/resources/command/output.ts",
-        "tools/habitat/src/resources/command/result.ts",
-        "tools/habitat/src/resources/command/runner.ts",
-        "tools/habitat/src/resources/command/service.ts"
-      ]
-    },
-    {
       "target": "@habitat/cli/resources/rule-fix-preview/index",
       "targetClass": "habitat-toolkit",
       "references": 4,
@@ -1095,6 +1104,28 @@
       ]
     },
     {
+      "target": "@habitat/cli/providers/git/state",
+      "targetClass": "habitat-toolkit",
+      "references": 3,
+      "sourceCount": 3,
+      "sampleSources": [
+        "tools/habitat/src/resources/command/output.ts",
+        "tools/habitat/src/resources/command/result.ts",
+        "tools/habitat/src/resources/command/runner.ts"
+      ]
+    },
+    {
+      "target": "@habitat/cli/resources/config/index",
+      "targetClass": "habitat-toolkit",
+      "references": 3,
+      "sourceCount": 3,
+      "sampleSources": [
+        "tools/habitat/src/resources/command/materialize.ts",
+        "tools/habitat/src/resources/command/result.ts",
+        "tools/habitat/src/resources/command/runner.ts"
+      ]
+    },
+    {
       "target": "@habitat/cli/resources/platform/index",
       "targetClass": "habitat-toolkit",
       "references": 3,
@@ -1136,6 +1167,17 @@
         ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/check.mjs",
         ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts",
         ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/server/daemon/daemon.ts",
+      "targetClass": "app",
+      "references": 3,
+      "sourceCount": 3,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/pattern.md",
+        ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts",
+        ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
       ]
     },
     {
@@ -1494,7 +1536,7 @@
       "references": 2,
       "sourceCount": 2,
       "sampleSources": [
-        "mods/mod-swooper-maps/package.json#scripts.verify",
+        "mods/mod-swooper-maps/project.json#targets.verify:operational",
         "packages/civ7-map-policy/package.json#scripts.verify"
       ]
     },
@@ -1609,12 +1651,12 @@
       ]
     },
     {
-      "target": "apps/mapgen-studio/src/server/daemon/daemon.ts",
+      "target": "apps/mapgen-studio/src/server/daemon/daemon",
       "targetClass": "app",
       "references": 2,
       "sourceCount": 2,
       "sampleSources": [
-        ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts",
+        ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/pattern.md",
         ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
       ]
     },
@@ -1684,7 +1726,7 @@
       "references": 2,
       "sourceCount": 2,
       "sampleSources": [
-        "mods/mod-swooper-maps/package.json#scripts.verify",
+        "mods/mod-swooper-maps/project.json#targets.verify:operational",
         "packages/civ7-map-policy/package.json#scripts.verify"
       ]
     },
@@ -2719,15 +2761,6 @@
       ]
     },
     {
-      "target": "./sync.js",
-      "targetClass": "relative",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/resources/command/runner.ts"
-      ]
-    },
-    {
       "target": "bash\nbun run --cwd tools/habitat generate:schemas",
       "targetClass": "habitat-toolkit",
       "references": 2,
@@ -3745,15 +3778,6 @@
       ]
     },
     {
-      "target": "./scripts/migrate-config-shapes.ts",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "mods/mod-swooper-maps/project.json#targets.gen:configs:shape-check"
-      ]
-    },
-    {
       "target": "./scripts/validate-ecology-op-contract-quality.ts",
       "targetClass": "relative",
       "references": 1,
@@ -3880,6 +3904,15 @@
       ]
     },
     {
+      "target": "./test",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "packages/studio-contract/package.json#scripts.test"
+      ]
+    },
+    {
       "target": "./tools/habitat/src/nx-plugin.ts",
       "targetClass": "habitat-toolkit",
       "references": 1,
@@ -3962,6 +3995,15 @@
     },
     {
       "target": "@habitat/cli/providers/biome/index",
+      "targetClass": "habitat-toolkit",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/service/modules/hook/model/policy/procedure-context.policy.ts"
+      ]
+    },
+    {
+      "target": "@habitat/cli/providers/git/index",
       "targetClass": "habitat-toolkit",
       "references": 1,
       "sourceCount": 1,
@@ -4312,15 +4354,6 @@
       ]
     },
     {
-      "target": "apps/mapgen-studio/src/server/daemon/daemon",
-      "targetClass": "app",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
-      ]
-    },
-    {
       "target": "apps/mapgen-studio/src/server/nested/recipeDag.ts",
       "targetClass": "app",
       "references": 1,
@@ -4591,15 +4624,6 @@
       ]
     },
     {
-      "target": "bun ./scripts/migrate-config-shapes.ts --dry",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "mods/mod-swooper-maps/project.json#targets.gen:configs:shape-check"
-      ]
-    },
-    {
       "target": "bun ./scripts/validate-ecology-op-contract-quality.ts",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -4786,6 +4810,15 @@
       "sourceCount": 1,
       "sampleSources": [
         "apps/playground/package.json#scripts.build"
+      ]
+    },
+    {
+      "target": "bun test ./test",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "packages/studio-contract/package.json#scripts.test"
       ]
     },
     {
@@ -9649,6 +9682,51 @@
       ]
     },
     {
+      "target": "tsc -p bin/tsconfig.json --noEmit",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "packages/cli/package.json#scripts.check:tools"
+      ]
+    },
+    {
+      "target": "tsc -p bin/tsconfig.json --noEmit && tsc -p scripts/tsconfig.json --noEmit",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/package.json#scripts.check:tools"
+      ]
+    },
+    {
+      "target": "tsc -p scripts/tsconfig.json --noEmit",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "packages/civ7-map-policy/package.json#scripts.check:tools"
+      ]
+    },
+    {
+      "target": "tsc -p scripts/tsconfig.json --noEmit && tsc -p src/dev/tsconfig.json --noEmit",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "mods/mod-swooper-maps/project.json#targets.check:tools"
+      ]
+    },
+    {
+      "target": "tsc -p tools/tsconfig.json --noEmit",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "packages/civ7-adapter/package.json#scripts.check:tools"
+      ]
+    },
+    {
       "target": "tsc -p tsconfig.json",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -9658,12 +9736,12 @@
       ]
     },
     {
-      "target": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+      "target": "tsc -p tsconfig.tsup.json --noEmit",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        "packages/mapgen-studio-ui/package.json#scripts.typecheck"
+        "packages/mapgen-core/package.json#scripts.check:tools"
       ]
     },
     {
@@ -20695,6 +20773,8 @@
         "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
+          "apps/mapgen-studio/src/server/daemon/daemon",
+          "apps/mapgen-studio/src/server/daemon/daemon.ts",
           "apps/mapgen-studio/src/server/runInGame/runtimeObservation",
           "apps/mapgen-studio/src/server/runInGame/runtimeObservation.ts",
           "apps/mapgen-studio/src/server/studio/engines",
@@ -20717,6 +20797,16 @@
             "kind": "mutation-verb",
             "value": ">",
             "targetClass": "unknown"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/daemon/daemon",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/daemon/daemon.ts",
+            "targetClass": "app"
           },
           {
             "kind": "path-reference",
@@ -35797,6 +35887,8 @@
         "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
+          "apps/mapgen-studio/src/server/daemon/daemon",
+          "apps/mapgen-studio/src/server/daemon/daemon.ts",
           "apps/mapgen-studio/src/server/runInGame/runtimeObservation",
           "apps/mapgen-studio/src/server/runInGame/runtimeObservation.ts",
           "apps/mapgen-studio/src/server/studio/engines",
@@ -35819,6 +35911,16 @@
             "kind": "mutation-verb",
             "value": ">",
             "targetClass": "unknown"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/daemon/daemon",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/daemon/daemon.ts",
+            "targetClass": "app"
           },
           {
             "kind": "path-reference",
@@ -40540,6 +40642,52 @@
       ]
     },
     {
+      "id": "apps/docs/package.json#scripts.check:test",
+      "path": "apps/docs/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "apps/docs/package.json",
+        "packageName": "@civ7/docs",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
       "id": "apps/docs/package.json#scripts.fix:duplicate-h1",
       "path": "apps/docs/package.json",
       "surfaceKind": "package-script",
@@ -41385,6 +41533,117 @@
       ]
     },
     {
+      "id": "apps/mapgen-studio/project.json#targets.check:test",
+      "path": "apps/mapgen-studio/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/mapgen-studio/project.json",
+        "projectName": "mapgen-studio",
+        "name": "check:test",
+        "command": "tsc -p tsconfig.test.json --noEmit",
+        "dependsOn": [
+          "\"^build\"",
+          "{\"projects\":[\"mod-swooper-maps\"],\"target\":\"build:studio-recipes\"}"
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.test.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"^build\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "nx-depends-on",
+            "value": "{\"projects\":[\"mod-swooper-maps\"],\"target\":\"build:studio-recipes\"}",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.test.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/mapgen-studio/project.json#targets.check:tools",
+      "path": "apps/mapgen-studio/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "apps/mapgen-studio/project.json",
+        "projectName": "mapgen-studio",
+        "name": "check:tools",
+        "command": "tsc -p tsconfig.tools.json --noEmit",
+        "dependsOn": []
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.tools.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.tools.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
       "id": "apps/mapgen-studio/project.json#targets.dev",
       "path": "apps/mapgen-studio/project.json",
       "surfaceKind": "nx-target",
@@ -41582,6 +41841,8 @@
         "name": "typecheck",
         "command": "tsc --noEmit",
         "dependsOn": [
+          "\"check:test\"",
+          "\"check:tools\"",
           "\"^build\"",
           "{\"projects\":[\"mod-swooper-maps\"],\"target\":\"build:studio-recipes\"}"
         ]
@@ -41602,6 +41863,16 @@
           {
             "kind": "nx-depends-on",
             "value": "\"^build\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "nx-depends-on",
+            "value": "\"check:test\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "nx-depends-on",
+            "value": "\"check:tools\"",
             "targetClass": "unknown"
           },
           {
@@ -41687,6 +41958,52 @@
       "buckets": [
         "mutation_surface",
         "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "apps/playground/package.json#scripts.check:test",
+      "path": "apps/playground/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "apps/playground/package.json",
+        "packageName": "@civ7/playground",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
         "package_invoked"
       ]
     },
@@ -42857,57 +43174,6 @@
       ]
     },
     {
-      "id": "mods/mod-swooper-maps/package.json#scripts.verify",
-      "path": "mods/mod-swooper-maps/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "mods/mod-swooper-maps/package.json",
-        "packageName": "mod-swooper-maps",
-        "name": "verify",
-        "command": "bun ./scripts/verify.ts"
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun ./scripts/verify.ts"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": "./scripts/verify.ts",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "shell-command",
-            "value": "bun ./scripts/verify.ts",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
       "id": "mods/mod-swooper-maps/project.json#targets.build",
       "path": "mods/mod-swooper-maps/project.json",
       "surfaceKind": "nx-target",
@@ -42919,7 +43185,7 @@
         "projectPath": "mods/mod-swooper-maps/project.json",
         "projectName": "mod-swooper-maps",
         "name": "build",
-        "command": "tsup",
+        "command": "tsup --config scripts/tsup.config.ts",
         "dependsOn": [
           "\"^build\"",
           "\"gen:maps\""
@@ -42976,7 +43242,7 @@
         "projectPath": "mods/mod-swooper-maps/project.json",
         "projectName": "mod-swooper-maps",
         "name": "build:studio-deploy",
-        "command": "tsup",
+        "command": "tsup --config scripts/tsup.config.ts",
         "dependsOn": [
           "\"^build\"",
           "\"gen:studio-deploy-map-artifacts\""
@@ -43097,7 +43363,7 @@
         "projectPath": "mods/mod-swooper-maps/project.json",
         "projectName": "mod-swooper-maps",
         "name": "build:studio-recipes:bundle",
-        "command": "tsup --config tsup.studio-recipes.config.ts",
+        "command": "tsup --config scripts/tsup.studio-recipes.config.ts",
         "dependsOn": [
           "\"^build\""
         ]
@@ -43167,6 +43433,100 @@
           {
             "kind": "shell-command",
             "value": "nx:noop",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "mods/mod-swooper-maps/project.json#targets.check:test",
+      "path": "mods/mod-swooper-maps/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "mods/mod-swooper-maps/project.json",
+        "projectName": "mod-swooper-maps",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit",
+        "dependsOn": []
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "mods/mod-swooper-maps/project.json#targets.check:tools",
+      "path": "mods/mod-swooper-maps/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "mods/mod-swooper-maps/project.json",
+        "projectName": "mod-swooper-maps",
+        "name": "check:tools",
+        "command": "tsc -p scripts/tsconfig.json --noEmit && tsc -p src/dev/tsconfig.json --noEmit",
+        "dependsOn": []
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p scripts/tsconfig.json --noEmit && tsc -p src/dev/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p scripts/tsconfig.json --noEmit && tsc -p src/dev/tsconfig.json --noEmit",
             "targetClass": "workspace-tool"
           }
         ]
@@ -43295,69 +43655,6 @@
           {
             "kind": "shell-command",
             "value": "bun ./src/dev/diagnostics/run-standard-dump.ts",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "nx_ordering_tie",
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "mods/mod-swooper-maps/project.json#targets.gen:configs:shape-check",
-      "path": "mods/mod-swooper-maps/project.json",
-      "surfaceKind": "nx-target",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "nx"
-      ],
-      "nxTarget": {
-        "projectPath": "mods/mod-swooper-maps/project.json",
-        "projectName": "mod-swooper-maps",
-        "name": "gen:configs:shape-check",
-        "command": "bun ./scripts/migrate-config-shapes.ts --dry",
-        "dependsOn": [
-          "{\"projects\":[\"mapgen-core\"],\"target\":\"build\"}"
-        ]
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun ./scripts/migrate-config-shapes.ts --dry"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "nx-depends-on",
-            "value": "{\"projects\":[\"mapgen-core\"],\"target\":\"build\"}",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./scripts/migrate-config-shapes.ts",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "shell-command",
-            "value": "bun ./scripts/migrate-config-shapes.ts --dry",
             "targetClass": "workspace-tool"
           }
         ]
@@ -44017,6 +44314,8 @@
         "name": "typecheck",
         "command": "tsc --noEmit",
         "dependsOn": [
+          "\"check:test\"",
+          "\"check:tools\"",
           "\"build\""
         ]
       },
@@ -44039,8 +44338,81 @@
             "targetClass": "unknown"
           },
           {
+            "kind": "nx-depends-on",
+            "value": "\"check:test\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "nx-depends-on",
+            "value": "\"check:tools\"",
+            "targetClass": "unknown"
+          },
+          {
             "kind": "shell-command",
             "value": "tsc --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "mods/mod-swooper-maps/project.json#targets.verify:operational",
+      "path": "mods/mod-swooper-maps/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "mods/mod-swooper-maps/project.json",
+        "projectName": "mod-swooper-maps",
+        "name": "verify:operational",
+        "command": "bun ./scripts/verify.ts",
+        "dependsOn": [
+          "\"build\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun ./scripts/verify.ts"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"build\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./scripts/verify.ts",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun ./scripts/verify.ts",
             "targetClass": "workspace-tool"
           }
         ]
@@ -44345,6 +44717,106 @@
       ]
     },
     {
+      "id": "nx.json#targetDefaults.check:test",
+      "path": "nx.json",
+      "surfaceKind": "nx-target-default",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "nx.json",
+        "projectName": "workspace",
+        "name": "check:test",
+        "dependsOn": [
+          "\"^build\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"^build\"",
+            "targetClass": "unknown"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Classified execution surface.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "nx.json#targetDefaults.check:tools",
+      "path": "nx.json",
+      "surfaceKind": "nx-target-default",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "nx.json",
+        "projectName": "workspace",
+        "name": "check:tools",
+        "dependsOn": [
+          "\"^build\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"^build\"",
+            "targetClass": "unknown"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Classified execution surface.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
       "id": "nx.json#targetDefaults.clean",
       "path": "nx.json",
       "surfaceKind": "nx-target-default",
@@ -44577,6 +45049,8 @@
         "projectName": "workspace",
         "name": "typecheck",
         "dependsOn": [
+          "\"check:test\"",
+          "\"check:tools\"",
           "\"^build\""
         ]
       },
@@ -44594,6 +45068,16 @@
           {
             "kind": "nx-depends-on",
             "value": "\"^build\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "nx-depends-on",
+            "value": "\"check:test\"",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "nx-depends-on",
+            "value": "\"check:tools\"",
             "targetClass": "unknown"
           }
         ]
@@ -45879,7 +46363,7 @@
         "packagePath": "packages/civ7-adapter/package.json",
         "packageName": "@civ7/adapter",
         "name": "build",
-        "command": "tsup"
+        "command": "tsup --config tools/tsup.config.ts"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -45892,6 +46376,98 @@
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/civ7-adapter/package.json#scripts.check:test",
+      "path": "packages/civ7-adapter/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/civ7-adapter/package.json",
+        "packageName": "@civ7/adapter",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/civ7-adapter/package.json#scripts.check:tools",
+      "path": "packages/civ7-adapter/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/civ7-adapter/package.json",
+        "packageName": "@civ7/adapter",
+        "name": "check:tools",
+        "command": "tsc -p tools/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tools/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tools/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
       },
       "anatomy": {
         "roles": [
@@ -46028,6 +46604,98 @@
           {
             "kind": "shell-command",
             "value": "nx:noop",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/civ7-control-orpc/package.json#scripts.check:test",
+      "path": "packages/civ7-control-orpc/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/civ7-control-orpc/package.json",
+        "packageName": "@civ7/control-orpc",
+        "name": "check:test",
+        "command": "tsc -p tsconfig.test.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.test.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.test.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/civ7-control-orpc/package.json#scripts.check:tools",
+      "path": "packages/civ7-control-orpc/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/civ7-control-orpc/package.json",
+        "packageName": "@civ7/control-orpc",
+        "name": "check:tools",
+        "command": "tsc -p tsconfig.tools.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.tools.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.tools.json --noEmit",
             "targetClass": "workspace-tool"
           }
         ]
@@ -46272,9 +46940,7 @@
         "projectName": "control-orpc",
         "name": "typecheck",
         "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
-        "dependsOn": [
-          "\"^build\""
-        ]
+        "dependsOn": []
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -46290,11 +46956,6 @@
         "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "nx-depends-on",
-            "value": "\"^build\"",
-            "targetClass": "unknown"
-          },
-          {
             "kind": "shell-command",
             "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
@@ -46303,17 +46964,105 @@
       },
       "anatomy": {
         "roles": [
-          "entrypoint",
-          "transient-dependency"
+          "entrypoint"
         ],
         "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
         "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
+        "transientSignals": []
       },
       "buckets": [
-        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/civ7-direct-control/package.json#scripts.check:test",
+      "path": "packages/civ7-direct-control/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/civ7-direct-control/package.json",
+        "packageName": "@civ7/direct-control",
+        "name": "check:test",
+        "command": "tsc -p tsconfig.test.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.test.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.test.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/civ7-direct-control/package.json#scripts.check:tools",
+      "path": "packages/civ7-direct-control/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/civ7-direct-control/package.json",
+        "packageName": "@civ7/direct-control",
+        "name": "check:tools",
+        "command": "tsc -p tsconfig.tools.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.tools.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.tools.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
         "package_invoked"
       ]
     },
@@ -46691,7 +47440,7 @@
         "packagePath": "packages/civ7-map-policy/package.json",
         "packageName": "@civ7/map-policy",
         "name": "build",
-        "command": "tsup"
+        "command": "tsup --config scripts/tsup.config.ts"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -46704,6 +47453,98 @@
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/civ7-map-policy/package.json#scripts.check:test",
+      "path": "packages/civ7-map-policy/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/civ7-map-policy/package.json",
+        "packageName": "@civ7/map-policy",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/civ7-map-policy/package.json#scripts.check:tools",
+      "path": "packages/civ7-map-policy/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/civ7-map-policy/package.json",
+        "packageName": "@civ7/map-policy",
+        "name": "check:tools",
+        "command": "tsc -p scripts/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p scripts/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p scripts/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
       },
       "anatomy": {
         "roles": [
@@ -46775,7 +47616,7 @@
         "packagePath": "packages/civ7-map-policy/package.json",
         "packageName": "@civ7/map-policy",
         "name": "typecheck",
-        "command": "tsc --noEmit"
+        "command": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -46784,7 +47625,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc --noEmit"
+          "tsc -p tsconfig.json --noEmit --composite false --incremental false"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -46792,7 +47633,7 @@
         "all": [
           {
             "kind": "shell-command",
-            "value": "tsc --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
             "targetClass": "workspace-tool"
           }
         ]
@@ -46984,6 +47825,98 @@
           {
             "kind": "shell-command",
             "value": "nx:noop",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/cli/package.json#scripts.check:test",
+      "path": "packages/cli/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/cli/package.json",
+        "packageName": "@mateicanavra/civ7-cli",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/cli/package.json#scripts.check:tools",
+      "path": "packages/cli/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/cli/package.json",
+        "packageName": "@mateicanavra/civ7-cli",
+        "name": "check:tools",
+        "command": "tsc -p bin/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p bin/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p bin/tsconfig.json --noEmit",
             "targetClass": "workspace-tool"
           }
         ]
@@ -48383,6 +49316,52 @@
       ]
     },
     {
+      "id": "packages/config/package.json#scripts.check:test",
+      "path": "packages/config/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/config/package.json",
+        "packageName": "@civ7/config",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
       "id": "packages/config/package.json#scripts.clean",
       "path": "packages/config/package.json",
       "surfaceKind": "package-script",
@@ -48656,6 +49635,98 @@
       ]
     },
     {
+      "id": "packages/mapgen-core/package.json#scripts.check:test",
+      "path": "packages/mapgen-core/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/mapgen-core/package.json",
+        "packageName": "@swooper/mapgen-core",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/mapgen-core/package.json#scripts.check:tools",
+      "path": "packages/mapgen-core/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/mapgen-core/package.json",
+        "packageName": "@swooper/mapgen-core",
+        "name": "check:tools",
+        "command": "tsc -p tsconfig.tsup.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.tsup.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.tsup.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
       "id": "packages/mapgen-core/package.json#scripts.test",
       "path": "packages/mapgen-core/package.json",
       "surfaceKind": "package-script",
@@ -48890,6 +49961,98 @@
       "buckets": [
         "mutation_surface",
         "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/mapgen-studio-ui/package.json#scripts.check:test",
+      "path": "packages/mapgen-studio-ui/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/mapgen-studio-ui/package.json",
+        "packageName": "@swooper/mapgen-studio-ui",
+        "name": "check:test",
+        "command": "tsc -p tsconfig.test.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.test.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.test.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/mapgen-studio-ui/package.json#scripts.check:tools",
+      "path": "packages/mapgen-studio-ui/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/mapgen-studio-ui/package.json",
+        "packageName": "@swooper/mapgen-studio-ui",
+        "name": "check:tools",
+        "command": "tsc -p tsconfig.tools.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.tools.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.tools.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
         "package_invoked"
       ]
     },
@@ -49176,7 +50339,7 @@
         "packagePath": "packages/mapgen-studio-ui/package.json",
         "packageName": "@swooper/mapgen-studio-ui",
         "name": "typecheck",
-        "command": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit"
+        "command": "tsc -p tsconfig.json --noEmit"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -49185,7 +50348,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit"
+          "tsc -p tsconfig.json --noEmit"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -49193,7 +50356,7 @@
         "all": [
           {
             "kind": "shell-command",
-            "value": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+            "value": "tsc -p tsconfig.json --noEmit",
             "targetClass": "workspace-tool"
           }
         ]
@@ -49732,6 +50895,52 @@
       ]
     },
     {
+      "id": "packages/plugins/plugin-files/package.json#scripts.check:test",
+      "path": "packages/plugins/plugin-files/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/plugins/plugin-files/package.json",
+        "packageName": "@civ7/plugin-files",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
       "id": "packages/plugins/plugin-files/package.json#scripts.clean",
       "path": "packages/plugins/plugin-files/package.json",
       "surfaceKind": "package-script",
@@ -50005,6 +51214,52 @@
       },
       "buckets": [
         "mutation_surface",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/plugins/plugin-git/package.json#scripts.check:test",
+      "path": "packages/plugins/plugin-git/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/plugins/plugin-git/package.json",
+        "packageName": "@civ7/plugin-git",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
         "package_invoked"
       ]
     },
@@ -50286,6 +51541,52 @@
       ]
     },
     {
+      "id": "packages/plugins/plugin-graph/package.json#scripts.check:test",
+      "path": "packages/plugins/plugin-graph/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/plugins/plugin-graph/package.json",
+        "packageName": "@civ7/plugin-graph",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
       "id": "packages/plugins/plugin-graph/package.json#scripts.clean",
       "path": "packages/plugins/plugin-graph/package.json",
       "surfaceKind": "package-script",
@@ -50559,6 +51860,52 @@
       },
       "buckets": [
         "mutation_surface",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/plugins/plugin-mods/package.json#scripts.check:test",
+      "path": "packages/plugins/plugin-mods/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/plugins/plugin-mods/package.json",
+        "packageName": "@civ7/plugin-mods",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
         "package_invoked"
       ]
     },
@@ -50841,6 +52188,52 @@
       },
       "buckets": [
         "mutation_surface",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/sdk/package.json#scripts.check:test",
+      "path": "packages/sdk/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/sdk/package.json",
+        "packageName": "@mateicanavra/civ7-sdk",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
         "package_invoked"
       ]
     },
@@ -51235,6 +52628,98 @@
       ]
     },
     {
+      "id": "packages/studio-contract/package.json#scripts.check:test",
+      "path": "packages/studio-contract/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/studio-contract/package.json",
+        "packageName": "@civ7/studio-contract",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/studio-contract/package.json#scripts.check:tools",
+      "path": "packages/studio-contract/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/studio-contract/package.json",
+        "packageName": "@civ7/studio-contract",
+        "name": "check:tools",
+        "command": "tsc -p tsconfig.tools.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.tools.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.tools.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
       "id": "packages/studio-contract/package.json#scripts.clean",
       "path": "packages/studio-contract/package.json",
       "surfaceKind": "package-script",
@@ -51303,6 +52788,57 @@
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/studio-contract/package.json#scripts.test",
+      "path": "packages/studio-contract/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/studio-contract/package.json",
+        "packageName": "@civ7/studio-contract",
+        "name": "test",
+        "command": "bun test ./test"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun test ./test"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "path-reference",
+            "value": "./test",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun test ./test",
+            "targetClass": "workspace-tool"
+          }
+        ]
       },
       "anatomy": {
         "roles": [
@@ -51434,6 +52970,98 @@
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/studio-run-workspace/package.json#scripts.check:test",
+      "path": "packages/studio-run-workspace/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/studio-run-workspace/package.json",
+        "packageName": "@civ7/studio-run-workspace",
+        "name": "check:test",
+        "command": "tsc -p tsconfig.test.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.test.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.test.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/studio-run-workspace/package.json#scripts.check:tools",
+      "path": "packages/studio-run-workspace/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/studio-run-workspace/package.json",
+        "packageName": "@civ7/studio-run-workspace",
+        "name": "check:tools",
+        "command": "tsc -p tsconfig.tools.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.tools.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.tools.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
       },
       "anatomy": {
         "roles": [
@@ -51672,6 +53300,98 @@
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/studio-server/package.json#scripts.check:test",
+      "path": "packages/studio-server/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/studio-server/package.json",
+        "packageName": "@civ7/studio-server",
+        "name": "check:test",
+        "command": "tsc -p tsconfig.test.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.test.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.test.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/studio-server/package.json#scripts.check:tools",
+      "path": "packages/studio-server/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/studio-server/package.json",
+        "packageName": "@civ7/studio-server",
+        "name": "check:tools",
+        "command": "tsc -p tsconfig.tools.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.tools.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.tools.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
       },
       "anatomy": {
         "roles": [
@@ -51961,6 +53681,98 @@
           {
             "kind": "shell-command",
             "value": "bun run scripts/execution-surface-map.ts --repo-root ../.. --out-json ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json --out-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.md --out-anatomy-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-anatomy.md",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "tools/habitat/package.json#scripts.check:test",
+      "path": "tools/habitat/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "tools/habitat/package.json",
+        "packageName": "@habitat/cli",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "tools/habitat/package.json#scripts.check:tools",
+      "path": "tools/habitat/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "tools/habitat/package.json",
+        "packageName": "@habitat/cli",
+        "name": "check:tools",
+        "command": "tsc -p bin/tsconfig.json --noEmit && tsc -p scripts/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p bin/tsconfig.json --noEmit && tsc -p scripts/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p bin/tsconfig.json --noEmit && tsc -p scripts/tsconfig.json --noEmit",
             "targetClass": "workspace-tool"
           }
         ]
@@ -53269,11 +55081,8 @@
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [
-          "@effect/platform/CommandExecutor",
-          "@habitat/cli/providers/git/index",
           "@habitat/cli/resources/command/index",
           "@habitat/cli/resources/command/types",
-          "@habitat/cli/resources/config/index",
           "effect"
         ],
         "relativeHabitatImports": [],
@@ -53292,27 +55101,12 @@
         "all": [
           {
             "kind": "import",
-            "value": "@effect/platform/CommandExecutor",
-            "targetClass": "external"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/providers/git/index",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
             "value": "@habitat/cli/resources/command/index",
             "targetClass": "habitat-toolkit"
           },
           {
             "kind": "import",
             "value": "@habitat/cli/resources/command/types",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/resources/config/index",
             "targetClass": "habitat-toolkit"
           },
           {
@@ -53367,10 +55161,8 @@
       "staticTies": {
         "imports": [
           "./state.js",
-          "@effect/platform/CommandExecutor",
           "@habitat/cli/resources/command/index",
           "@habitat/cli/resources/command/types",
-          "@habitat/cli/resources/config/index",
           "effect"
         ],
         "relativeHabitatImports": [],
@@ -53382,19 +55174,12 @@
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "rm"
-        ],
+        "knownMutationVerbs": [],
         "all": [
           {
             "kind": "import",
             "value": "./state.js",
             "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "@effect/platform/CommandExecutor",
-            "targetClass": "external"
           },
           {
             "kind": "import",
@@ -53408,17 +55193,7 @@
           },
           {
             "kind": "import",
-            "value": "@habitat/cli/resources/config/index",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
             "value": "effect",
-            "targetClass": "external"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "rm",
             "targetClass": "external"
           },
           {
@@ -53447,8 +55222,7 @@
         "transientSignals": []
       },
       "buckets": [
-        "habitat_invoked",
-        "mutation_surface"
+        "habitat_invoked"
       ]
     },
     {
@@ -53527,10 +55301,7 @@
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [
-          "@effect/platform/CommandExecutor",
-          "@habitat/cli/providers/git/index",
           "@habitat/cli/resources/command/index",
-          "@habitat/cli/resources/config/index",
           "effect"
         ],
         "relativeHabitatImports": [],
@@ -53539,20 +55310,8 @@
         "shellCommandCalls": [],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "rm"
-        ],
+        "knownMutationVerbs": [],
         "all": [
-          {
-            "kind": "import",
-            "value": "@effect/platform/CommandExecutor",
-            "targetClass": "external"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/providers/git/index",
-            "targetClass": "habitat-toolkit"
-          },
           {
             "kind": "import",
             "value": "@habitat/cli/resources/command/index",
@@ -53560,17 +55319,7 @@
           },
           {
             "kind": "import",
-            "value": "@habitat/cli/resources/config/index",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
             "value": "effect",
-            "targetClass": "external"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "rm",
             "targetClass": "external"
           }
         ]
@@ -53584,8 +55333,7 @@
         "transientSignals": []
       },
       "buckets": [
-        "habitat_invoked",
-        "mutation_surface"
+        "habitat_invoked"
       ]
     },
     {
@@ -54476,7 +56224,6 @@
           "./materialize.js",
           "./output.js",
           "./service.js",
-          "./sync.js",
           "./types.js",
           "@effect/platform",
           "@effect/platform/CommandExecutor",
@@ -54517,11 +56264,6 @@
           {
             "kind": "import",
             "value": "./service.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./sync.js",
             "targetClass": "relative"
           },
           {
@@ -54596,11 +56338,6 @@
           },
           {
             "kind": "path-reference",
-            "value": "./sync.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
             "value": "./types.js",
             "targetClass": "relative"
           },
@@ -54638,9 +56375,6 @@
           "./errors.js",
           "./request.js",
           "./result.js",
-          "@effect/platform/CommandExecutor",
-          "@habitat/cli/providers/git/state",
-          "@habitat/cli/resources/config/index",
           "effect"
         ],
         "relativeHabitatImports": [],
@@ -54649,9 +56383,7 @@
         "shellCommandCalls": [],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "rm"
-        ],
+        "knownMutationVerbs": [],
         "all": [
           {
             "kind": "import",
@@ -54670,27 +56402,7 @@
           },
           {
             "kind": "import",
-            "value": "@effect/platform/CommandExecutor",
-            "targetClass": "external"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/providers/git/state",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/resources/config/index",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
             "value": "effect",
-            "targetClass": "external"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "rm",
             "targetClass": "external"
           },
           {
@@ -54719,8 +56431,7 @@
         "transientSignals": []
       },
       "buckets": [
-        "habitat_invoked",
-        "mutation_surface"
+        "habitat_invoked"
       ]
     },
     {
@@ -55656,11 +57367,8 @@
           "./request.js",
           "./types.js",
           "@effect/platform",
-          "@effect/platform/CommandExecutor",
-          "@habitat/cli/providers/git/index",
           "@habitat/cli/resources/command/index",
           "@habitat/cli/resources/command/types",
-          "@habitat/cli/resources/config/index",
           "@habitat/cli/service/model/diagnostics/index",
           "effect",
           "node:path",
@@ -55715,27 +57423,12 @@
           },
           {
             "kind": "import",
-            "value": "@effect/platform/CommandExecutor",
-            "targetClass": "external"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/providers/git/index",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
             "value": "@habitat/cli/resources/command/index",
             "targetClass": "habitat-toolkit"
           },
           {
             "kind": "import",
             "value": "@habitat/cli/resources/command/types",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/resources/config/index",
             "targetClass": "habitat-toolkit"
           },
           {
@@ -57979,6 +59672,7 @@
           "bash",
           "bun",
           "node",
+          "nx",
           "nx:graph-targets"
         ],
         "directHabitatPathCalls": [],
@@ -58042,6 +59736,11 @@
           },
           {
             "kind": "shell-command",
+            "value": "nx",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
             "value": "nx:graph-targets",
             "targetClass": "workspace-tool"
           }
@@ -58070,7 +59769,6 @@
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [
-          "@effect/platform",
           "@habitat/cli/resources/command/index",
           "@habitat/cli/resources/platform/index",
           "@habitat/cli/resources/rule-diagnostics/index",
@@ -58090,11 +59788,6 @@
           "rm"
         ],
         "all": [
-          {
-            "kind": "import",
-            "value": "@effect/platform",
-            "targetClass": "external"
-          },
           {
             "kind": "import",
             "value": "@habitat/cli/resources/command/index",
@@ -58385,6 +60078,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
+          "git",
           "node:path"
         ],
         "directHabitatPathCalls": [],
@@ -58430,6 +60124,11 @@
             "kind": "path-reference",
             "value": "./context.policy.js",
             "targetClass": "relative"
+          },
+          {
+            "kind": "shell-command",
+            "value": "git",
+            "targetClass": "workspace-tool"
           },
           {
             "kind": "shell-command",
@@ -58554,7 +60253,6 @@
           "./execution.policy.js",
           "./selection.policy.js",
           "./state.policy.js",
-          "@effect/platform",
           "@habitat/cli/service/model/baseline/index",
           "@habitat/cli/service/model/check/index",
           "@habitat/cli/service/model/rules/index",
@@ -58569,9 +60267,7 @@
         "shellCommandCalls": [],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "rm"
-        ],
+        "knownMutationVerbs": [],
         "all": [
           {
             "kind": "import",
@@ -58592,11 +60288,6 @@
             "kind": "import",
             "value": "./state.policy.js",
             "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "@effect/platform",
-            "targetClass": "external"
           },
           {
             "kind": "import",
@@ -58634,11 +60325,6 @@
             "targetClass": "external"
           },
           {
-            "kind": "mutation-verb",
-            "value": "rm",
-            "targetClass": "external"
-          },
-          {
             "kind": "path-reference",
             "value": "./context.policy.js",
             "targetClass": "relative"
@@ -58669,8 +60355,7 @@
         "transientSignals": []
       },
       "buckets": [
-        "habitat_invoked",
-        "mutation_surface"
+        "habitat_invoked"
       ]
     },
     {
@@ -60535,6 +62220,7 @@
           "../dto/hook.schema.js",
           "./check-command.policy.js",
           "./runtime.policy.js",
+          "@effect/platform",
           "@habitat/cli/providers/biome/index",
           "@habitat/cli/providers/git/index",
           "@habitat/cli/providers/graphite/index",
@@ -60569,6 +62255,11 @@
             "kind": "import",
             "value": "./runtime.policy.js",
             "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "@effect/platform",
+            "targetClass": "external"
           },
           {
             "kind": "import",
