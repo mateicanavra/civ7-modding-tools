@@ -2337,6 +2337,7 @@ describe("StudioOperationRuntime", () => {
       tag: "OperationBlocked",
       activeRequestId: first.requestId,
     });
+    expect(startSinglePlayer).not.toHaveBeenCalled();
 
     blocker.resolve();
     await expect
@@ -2453,12 +2454,20 @@ describe("StudioOperationRuntime", () => {
     expect(firstGeneration.manifest.generationManifestDigest).not.toBe(
       repeatGeneration.manifest.generationManifestDigest
     );
+    expect(firstDeployment.runDeployment.requestId).toBe(first.requestId);
+    expect(repeatDeployment.runDeployment.requestId).toBe(repeat.requestId);
+    expect(firstDeployment.deployedSnapshot.requestId).toBe(first.requestId);
+    expect(repeatDeployment.deployedSnapshot.requestId).toBe(repeat.requestId);
     expect(firstGeneration.manifest.payload.canonicalConfigDigest).toBe(
       repeatGeneration.manifest.payload.canonicalConfigDigest
     );
     expect(firstGeneration.manifest.payload.launchEnvelopeDigest).toBe(
       repeatGeneration.manifest.payload.launchEnvelopeDigest
     );
+    expect(firstDeployment.runDeployment.generatedModDigest).toBe(
+      repeatDeployment.runDeployment.generatedModDigest
+    );
+    expect(startSinglePlayer).toHaveBeenCalledTimes(2);
   });
 
   test("starts a fresh same-content request after a failed terminal record", async () => {
