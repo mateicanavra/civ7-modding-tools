@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { handle, run } from "@oclif/core";
+import { makeSourceLoadOptions } from "./source-load-options.js";
 
 const harnessRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pjson = JSON.parse(readFileSync(path.join(harnessRoot, "package.json"), "utf8"));
@@ -14,6 +15,7 @@ const sourcePjson = {
     commands: "./src/cli/commands",
   },
 };
+const sourceLoadOptions = await makeSourceLoadOptions(harnessRoot, sourcePjson);
 const sourceCommands = {
   check: () => import("@habitat/cli/cli/commands/check"),
   classify: () => import("@habitat/cli/cli/commands/classify"),
@@ -27,14 +29,8 @@ const [commandName, ...commandArgs] = process.argv.slice(2);
 if (commandName && commandName in sourceCommands) {
   const command = await sourceCommands[commandName as keyof typeof sourceCommands]();
   await command.default
-    .run(commandArgs, {
-      root: harnessRoot,
-      pjson: sourcePjson,
-    })
+    .run(commandArgs, sourceLoadOptions)
     .catch(handle);
 } else {
-  await run(process.argv.slice(2), {
-    root: harnessRoot,
-    pjson: sourcePjson,
-  }).catch(handle);
+  await run(process.argv.slice(2), sourceLoadOptions).catch(handle);
 }
