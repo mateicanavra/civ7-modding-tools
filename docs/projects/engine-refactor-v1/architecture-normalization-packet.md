@@ -33,6 +33,10 @@ The packet intentionally works at multiple levels:
 - **Verification:** acceptance criteria and guardrails that keep later work
   from re-opening settled questions.
 
+The accepted pre-A.2 package boundary correction is specified in
+[`package-ownership-migration.md`](package-ownership-migration.md). It refines
+the package-ownership consequences below without changing D1-D5.
+
 ## Decision Snapshot
 
 | Decision | Final call                                                                                                               | Why it matters                                                                                              | First implementation consequence                                                                       |
