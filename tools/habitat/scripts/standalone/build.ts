@@ -6,8 +6,12 @@ import { NodeContext, NodeRuntime } from "@effect/platform-node";
 import { Cause, Console, Data, Effect, Schema } from "effect";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
+import {
+  type StandaloneCompilerAsset,
+  standaloneCompilerAssetForHost,
+  standaloneCompilerManifest,
+} from "./compiler-manifest.js";
 
-const requiredBuildTool = { bunVersion: "1.3.14" };
 const repoRoot = path.resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
 const outDir = path.join(repoRoot, "tools", "habitat", "dist", "standalone");
 const entrypoint = path.join(repoRoot, "tools", "habitat", "bin", "check.ts");
@@ -29,7 +33,7 @@ const excludedBundleOwners: readonly ExcludedBundleOwner[] = [
 ];
 
 interface StandaloneBuildTarget {
-  readonly id: string;
+  readonly id: StandaloneCompilerAsset["id"];
   readonly bunTarget: string;
   readonly filename: string;
 }
@@ -52,6 +56,12 @@ const MetafileSchema = Type.Object(
   { additionalProperties: true }
 );
 type Metafile = Static<typeof MetafileSchema>;
+const CompilerFeatureDataSchema = Schema.Struct({
+  version: Schema.Literal(standaloneCompilerManifest.version),
+  revision: Schema.Literal(standaloneCompilerManifest.revision),
+  is_canary: Schema.Literal(true),
+});
+const CompilerFeatureDataJsonSchema = Schema.parseJson(CompilerFeatureDataSchema);
 
 const ProvenanceSchema = Type.Object(
   {
@@ -66,8 +76,37 @@ const ProvenanceSchema = Type.Object(
     ),
     bun: Type.Object(
       {
-        version: Type.Literal(requiredBuildTool.bunVersion),
-        revision: Type.String({ minLength: 1 }),
+        name: Type.Literal(standaloneCompilerManifest.name),
+        version: Type.Literal(standaloneCompilerManifest.version),
+        revision: Type.Literal(standaloneCompilerManifest.revision),
+        source: Type.Object(
+          {
+            repository: Type.Literal(standaloneCompilerManifest.source.repository),
+            releaseId: Type.Literal(standaloneCompilerManifest.source.releaseId),
+            tag: Type.Literal(standaloneCompilerManifest.source.tag),
+          },
+          { additionalProperties: false }
+        ),
+        hostAssetId: Type.Union([
+          Type.Literal("darwin-arm64"),
+          Type.Literal("linux-x64-baseline"),
+        ]),
+        assets: Type.Array(
+          Type.Object(
+            {
+              id: Type.Union([
+                Type.Literal("darwin-arm64"),
+                Type.Literal("linux-x64-baseline"),
+              ]),
+              githubAssetId: Type.Integer({ minimum: 1 }),
+              archiveFilename: Type.String({ minLength: 1 }),
+              archiveSha256: Type.String({ minLength: 64, maxLength: 64 }),
+              executableSha256: Type.String({ minLength: 64, maxLength: 64 }),
+            },
+            { additionalProperties: false }
+          ),
+          { minItems: 2, maxItems: 2 }
+        ),
       },
       { additionalProperties: false }
     ),
@@ -119,16 +158,7 @@ class StandaloneBuildFailure extends Data.TaggedError("StandaloneBuildFailure")<
 const build = Effect.fn("habitat.standalone.build")(function* () {
   const fileSystem = yield* FileSystem.FileSystem;
   const requireClean = process.argv.slice(2).includes("--require-clean");
-  const observedBunVersion = process.versions.bun ?? "unavailable";
-  yield* Effect.succeed(observedBunVersion).pipe(
-    Effect.filterOrFail(
-      (observed) => observed === requiredBuildTool.bunVersion,
-      (observed) =>
-        new StandaloneBuildFailure({
-          message: `Habitat standalone builds require Bun ${requiredBuildTool.bunVersion}; observed ${observed}.`,
-        })
-    )
-  );
+  const compiler = yield* compilerIdentity(fileSystem);
 
   const source = yield* sourceIdentity();
   yield* Effect.succeed(requireClean && source.workingTreeDirty).pipe(
@@ -141,16 +171,21 @@ const build = Effect.fn("habitat.standalone.build")(function* () {
     )
   );
   yield* fileSystem.makeDirectory(outDir, { recursive: true });
-  const artifacts = yield* Effect.forEach(targets, (target) => buildTarget(target, fileSystem), {
-    concurrency: 1,
-  });
+  const artifacts = yield* Effect.forEach(
+    targets,
+    (target) =>
+      buildTarget(
+        target,
+        fileSystem,
+        compiler.executablePath,
+        toolchainCompilerPath(compiler.toolchainRoot, compilerAssetById(target.id))
+      ),
+    { concurrency: 1 }
+  );
   const provenance = Value.Parse(ProvenanceSchema, {
     schemaVersion: 1,
     source,
-    bun: {
-      version: requiredBuildTool.bunVersion,
-      revision: yield* commandText(process.execPath, ["--revision"]),
-    },
+    bun: compiler.provenance,
     boundary: {
       command: "check",
       rejectUnresolved: true,
@@ -178,7 +213,9 @@ const build = Effect.fn("habitat.standalone.build")(function* () {
 
 const buildTarget = Effect.fn("habitat.standalone.build.target")(function* (
   target: StandaloneBuildTarget,
-  fileSystem: FileSystem.FileSystem
+  fileSystem: FileSystem.FileSystem,
+  compilerPath: string,
+  targetCompilerPath: string
 ) {
   const artifactPath = path.join(outDir, target.filename);
   const metafilePath = `${artifactPath}.meta.json`;
@@ -186,11 +223,12 @@ const buildTarget = Effect.fn("habitat.standalone.build.target")(function* (
     fileSystem.remove(outputPath, { force: true })
   );
   const command = Command.make(
-    process.execPath,
+    compilerPath,
     "build",
     entrypoint,
     "--compile",
     `--target=${target.bunTarget}`,
+    `--compile-executable-path=${targetCompilerPath}`,
     `--outfile=${artifactPath}`,
     `--metafile=${metafilePath}`,
     "--reject-unresolved",
@@ -238,6 +276,116 @@ const buildTarget = Effect.fn("habitat.standalone.build.target")(function* (
   };
 });
 
+const compilerIdentity = Effect.fn("habitat.standalone.build.compiler")(function* (
+  fileSystem: FileSystem.FileSystem
+) {
+  const asset = yield* Effect.try({
+    try: () => standaloneCompilerAssetForHost(process.platform, process.arch),
+    catch: (cause) => new StandaloneBuildFailure({ message: String(cause) }),
+  });
+  const toolchainRoot = yield* Effect.fromNullable(
+    process.env.HABITAT_STANDALONE_BUN_TOOLCHAIN
+  ).pipe(
+    Effect.mapError(
+      () =>
+        new StandaloneBuildFailure({
+          message:
+            "HABITAT_STANDALONE_BUN_TOOLCHAIN must locate the provisioned pinned compiler assets.",
+        })
+    ),
+    Effect.map((candidate) => path.resolve(candidate))
+  );
+  yield* Effect.forEach(standaloneCompilerManifest.assets, (pinnedAsset) =>
+    assertCompilerAsset(fileSystem, toolchainRoot, pinnedAsset)
+  );
+  const executablePath = toolchainCompilerPath(toolchainRoot, asset);
+  const executableBytes = yield* fileSystem.readFile(executablePath);
+  const executableSha256 = sha256(executableBytes);
+  yield* expectCompilerIdentity(
+    executableSha256,
+    asset.executableSha256,
+    "compiler executable SHA-256"
+  );
+  const featureSource = yield* commandText(
+    executablePath,
+    [
+      "--print",
+      'JSON.stringify(require("bun:internal-for-testing").crash_handler.getFeatureData())',
+    ],
+    {
+      BUN_DEBUG_QUIET_LOGS: "1",
+      BUN_FEATURE_FLAG_INTERNAL_FOR_TESTING: "1",
+      BUN_GARBAGE_COLLECTOR_LEVEL: "0",
+    }
+  );
+  const featureData = yield* Schema.decodeUnknown(CompilerFeatureDataJsonSchema)(featureSource).pipe(
+    Effect.mapError(
+      (cause) =>
+        new StandaloneBuildFailure({
+          message: `Invalid Bun compiler feature identity: ${String(cause)}`,
+        })
+    )
+  );
+  return {
+    executablePath,
+    toolchainRoot,
+    provenance: {
+      name: standaloneCompilerManifest.name,
+      version: featureData.version,
+      revision: featureData.revision,
+      source: standaloneCompilerManifest.source,
+      hostAssetId: asset.id,
+      assets: standaloneCompilerManifest.assets.map((pinnedAsset) => ({
+        id: pinnedAsset.id,
+        githubAssetId: pinnedAsset.githubAssetId,
+        archiveFilename: pinnedAsset.archiveFilename,
+        archiveSha256: pinnedAsset.archiveSha256,
+        executableSha256: pinnedAsset.executableSha256,
+      })),
+    },
+  };
+});
+
+const assertCompilerAsset = Effect.fn("habitat.standalone.build.compiler.asset")(function* (
+  fileSystem: FileSystem.FileSystem,
+  toolchainRoot: string,
+  asset: StandaloneCompilerAsset
+) {
+  const executablePath = toolchainCompilerPath(toolchainRoot, asset);
+  const executableSha256 = sha256(yield* fileSystem.readFile(executablePath));
+  yield* expectCompilerIdentity(
+    executableSha256,
+    asset.executableSha256,
+    `${asset.id} compiler executable SHA-256`
+  );
+});
+
+function compilerAssetById(id: StandaloneCompilerAsset["id"]): StandaloneCompilerAsset {
+  const asset = standaloneCompilerManifest.assets.find((candidate) => candidate.id === id);
+  if (!asset) throw new Error(`No pinned compiler asset for ${id}.`);
+  return asset;
+}
+
+function toolchainCompilerPath(toolchainRoot: string, asset: StandaloneCompilerAsset): string {
+  return path.join(toolchainRoot, "bin", asset.id, "bun");
+}
+
+const expectCompilerIdentity = Effect.fn("habitat.standalone.build.compiler.expect")(function* (
+  observed: string,
+  expected: string,
+  label: string
+) {
+  yield* Effect.succeed(observed).pipe(
+    Effect.filterOrFail(
+      (value) => value === expected,
+      (value) =>
+        new StandaloneBuildFailure({
+          message: `Unexpected ${label}: expected ${expected}, observed ${value}.`,
+        })
+    )
+  );
+});
+
 const sourceIdentity = Effect.fn("habitat.standalone.build.source")(function* () {
   const status = yield* commandText("git", ["status", "--porcelain"]);
   return {
@@ -249,10 +397,14 @@ const sourceIdentity = Effect.fn("habitat.standalone.build.source")(function* ()
 
 const commandText = Effect.fn("habitat.standalone.build.commandText")(function* (
   executable: string,
-  argv: readonly string[]
+  argv: readonly string[],
+  environment?: Record<string, string>
 ) {
   return (yield* Command.string(
-    Command.make(executable, ...argv).pipe(Command.workingDirectory(repoRoot))
+    Command.make(executable, ...argv).pipe(
+      Command.workingDirectory(repoRoot),
+      Command.env(environment ?? {})
+    )
   )).trim();
 });
 

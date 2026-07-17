@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "name": "1.4.0-canary.1+a21528506",
+  "version": "1.4.0",
+  "revision": "a215285063c9b7b0d4b3f87bd298d4fecfd93897",
+  "source": {
+    "repository": "oven-sh/bun",
+    "releaseId": 72594710,
+    "tag": "canary"
+  },
+  "assets": [
+    {
+      "id": "darwin-arm64",
+      "hostPlatform": "darwin",
+      "hostArch": "arm64",
+      "githubAssetId": 480697998,
+      "url": "https://api.github.com/repos/oven-sh/bun/releases/assets/480697998",
+      "archiveFilename": "bun-darwin-aarch64.zip",
+      "archiveSha256": "401e94fd3c0379571d1b4f67e9f80928c331d944be12120fd9f590df1c2aced2",
+      "executableRelativePath": "bun-darwin-aarch64/bun",
+      "executableSha256": "960e07dc776674752063f999914aa5befaf741fe1e931465501ff00e27b6eac9"
+    },
+    {
+      "id": "linux-x64-baseline",
+      "hostPlatform": "linux",
+      "hostArch": "x64",
+      "githubAssetId": 480698765,
+      "url": "https://api.github.com/repos/oven-sh/bun/releases/assets/480698765",
+      "archiveFilename": "bun-linux-x64-baseline.zip",
+      "archiveSha256": "04e01bd95aa66fc740368d3f39a097e1ad04350ce2553be219243759965eed4f",
+      "executableRelativePath": "bun-linux-x64-baseline/bun",
+      "executableSha256": "5db8183dd622d836364f437a24dbaad034cb15258981c80fbc5385f831e7a784"
+    }
+  ]
+}

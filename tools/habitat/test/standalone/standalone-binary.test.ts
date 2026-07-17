@@ -25,6 +25,10 @@ import { Match, Schema } from "effect";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { afterAll, beforeAll, describe, it } from "vitest";
+import {
+  standaloneCompilerAssetForHost,
+  standaloneCompilerManifest,
+} from "../../scripts/standalone/compiler-manifest.js";
 
 const repoRoot = path.resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
 const distDir = path.join(repoRoot, "tools", "habitat", "dist", "standalone");
@@ -57,8 +61,37 @@ const StandaloneProvenanceSchema = Type.Object(
     ),
     bun: Type.Object(
       {
-        version: Type.Literal("1.3.14"),
-        revision: Type.String({ minLength: 1 }),
+        name: Type.Literal(standaloneCompilerManifest.name),
+        version: Type.Literal(standaloneCompilerManifest.version),
+        revision: Type.Literal(standaloneCompilerManifest.revision),
+        source: Type.Object(
+          {
+            repository: Type.Literal(standaloneCompilerManifest.source.repository),
+            releaseId: Type.Literal(standaloneCompilerManifest.source.releaseId),
+            tag: Type.Literal(standaloneCompilerManifest.source.tag),
+          },
+          { additionalProperties: false }
+        ),
+        hostAssetId: Type.Union([
+          Type.Literal("darwin-arm64"),
+          Type.Literal("linux-x64-baseline"),
+        ]),
+        assets: Type.Array(
+          Type.Object(
+            {
+              id: Type.Union([
+                Type.Literal("darwin-arm64"),
+                Type.Literal("linux-x64-baseline"),
+              ]),
+              githubAssetId: Type.Integer({ minimum: 1 }),
+              archiveFilename: Type.String({ minLength: 1 }),
+              archiveSha256: Type.String({ pattern: "^[0-9a-f]{64}$" }),
+              executableSha256: Type.String({ pattern: "^[0-9a-f]{64}$" }),
+            },
+            { additionalProperties: false }
+          ),
+          { minItems: 2, maxItems: 2 }
+        ),
       },
       { additionalProperties: false }
     ),
@@ -192,12 +225,27 @@ describe.sequential("standalone Habitat binary", () => {
 
   it("binds every release asset to source and checksum provenance", () => {
     const provenance = readProvenance();
+    const compilerAsset = standaloneCompilerAssetForHost(process.platform, process.arch);
     assert.strictEqual(provenance.source.commit, gitText(["rev-parse", "HEAD"]));
     assert.strictEqual(provenance.source.habitatTree, gitText(["rev-parse", "HEAD:tools/habitat"]));
     assert.strictEqual(
       provenance.source.workingTreeDirty,
       gitText(["status", "--porcelain"]).length > 0
     );
+    assert.deepStrictEqual(provenance.bun, {
+      name: standaloneCompilerManifest.name,
+      version: standaloneCompilerManifest.version,
+      revision: standaloneCompilerManifest.revision,
+      source: standaloneCompilerManifest.source,
+      hostAssetId: compilerAsset.id,
+      assets: standaloneCompilerManifest.assets.map((asset) => ({
+        id: asset.id,
+        githubAssetId: asset.githubAssetId,
+        archiveFilename: asset.archiveFilename,
+        archiveSha256: asset.archiveSha256,
+        executableSha256: asset.executableSha256,
+      })),
+    });
     for (const artifact of provenance.artifacts) {
       const artifactPath = path.join(distDir, artifact.filename);
       assert.strictEqual(artifact.sha256, sha256(readFileSync(artifactPath)));
