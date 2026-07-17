@@ -84,7 +84,8 @@ provenance, and checksum byte to remain identical to the downloaded candidate.
 
 The owner workflow at `.github/workflows/habitat-standalone-release.yml`
 provisions and verifies the same pinned toolchain for the release build and for
-the moved-binary proof on Linux x64 and macOS arm64. Manual runs upload workflow
-artifacts only. A pushed
-`habitat-sdk-v*` tag publishes those four immutable assets as a GitHub release;
-creating or pushing that tag is a separate owner decision.
+the moved-binary proof on Linux x64 and macOS arm64. Manual runs and pushed
+`habitat-sdk-probe-*` tags execute the full matrix and upload workflow artifacts
+only. The publication job and release command are both positively gated to a
+pushed `habitat-sdk-v*` tag; creating or pushing that release tag is a separate
+owner decision.

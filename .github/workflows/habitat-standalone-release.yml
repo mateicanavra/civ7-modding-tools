@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "habitat-sdk-v*"
+      - "habitat-sdk-probe-*"
   workflow_dispatch:
 
 permissions:
@@ -92,6 +93,7 @@ jobs:
   publish-release-assets:
     name: Publish exact proven release assets
     needs: prove-host-binary
+    if: startsWith(github.ref, 'refs/tags/habitat-sdk-v')
     runs-on: ubuntu-latest
     steps:
       - name: Download proven candidate release assets
