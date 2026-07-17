@@ -128,5 +128,8 @@
     "smol-toml": "1.7.0",
     "typebox": "catalog:"
   },
+  "devDependencies": {
+    "@types/picomatch": "4.0.3"
+  },
   "generators": "./generators.json"
 }

@@ -1,4 +1,3 @@
-import { createRequire } from "node:module";
 import path from "node:path";
 import type {
   HabitatDirectoryEntry,
@@ -8,15 +7,10 @@ import type { HabitatDiagnostic } from "@habitat/cli/service/model/check/index";
 import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import type { RuleStructureFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect } from "effect";
+import picomatch from "picomatch";
 import { parse as parseToml } from "smol-toml";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-
-const require = createRequire(import.meta.url);
-const picomatch = require("picomatch") as (
-  glob: string,
-  options?: { readonly contains?: boolean; readonly dot?: boolean }
-) => (candidate: string) => boolean;
 
 const StructureCheckScopeSchema = Type.Object(
   {

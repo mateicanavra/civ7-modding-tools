@@ -1,13 +1,4 @@
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url);
-const picomatch = require("picomatch") as {
-  (
-    glob: string,
-    options?: { readonly contains?: boolean; readonly dot?: boolean }
-  ): (candidate: string) => boolean;
-  readonly scan: (glob: string) => { readonly isGlob: boolean };
-};
+import picomatch from "picomatch";
 
 export function pathCoveragePatternMatches(pattern: string, pathInRepo: string): boolean {
   const normalized = pattern.replaceAll("\\", "/");
