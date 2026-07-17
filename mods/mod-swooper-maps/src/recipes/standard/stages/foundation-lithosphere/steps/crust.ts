@@ -1,9 +1,6 @@
-import {
-  artifacts as foundationArtifacts,
-  validators as foundationArtifactValidators,
-} from "@mapgen/domain/foundation";
+import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY } from "../../foundation/viz.js";
 import CrustStepContract from "./crust.contract.js";
 
@@ -14,11 +11,7 @@ const GROUP_CRUST = "Foundation / Crust";
  * partitioning, keeping bootstrap crust distinct from later tectonic evolution.
  */
 export default createStep(CrustStepContract, {
-  artifacts: implementArtifacts([foundationArtifacts.crustInit], {
-    foundationCrustInit: {
-      validate: (value) => foundationArtifactValidators.crustInit(value),
-    },
-  }),
+  artifacts: [foundationArtifactModules.crustInit],
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);

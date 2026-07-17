@@ -2,8 +2,11 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as ecologyArtifacts } from "../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { implementArtifactModules } from "@swooper/mapgen-core/authoring";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import featuresApplyStep from "../../../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";
 import { buildTestDeps } from "../../../../../support/step-deps.js";
@@ -22,22 +25,13 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     adapter.fillWater(false);
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
-    const stageArtifacts = implementArtifacts(
-      [
-        ecologyArtifacts.featureIntentsVegetation,
-        ecologyArtifacts.featureIntentsWetlands,
-        ecologyArtifacts.featureIntentsFloodplains,
-        ecologyArtifacts.featureIntentsReefs,
-        ecologyArtifacts.featureIntentsIce,
-      ],
-      {
-        featureIntentsVegetation: {},
-        featureIntentsWetlands: {},
-        featureIntentsFloodplains: {},
-        featureIntentsReefs: {},
-        featureIntentsIce: {},
-      }
-    );
+    const stageArtifacts = implementArtifactModules([
+      ecologyArtifactModules.featureIntentsVegetation,
+      ecologyArtifactModules.featureIntentsWetlands,
+      ecologyArtifactModules.featureIntentsFloodplains,
+      ecologyArtifactModules.featureIntentsReefs,
+      ecologyArtifactModules.featureIntentsIce,
+    ]);
 
     ctx.artifacts.set(ecologyArtifacts.featureIntentsVegetation.id, [
       { x: 0, y: 0, feature: "FEATURE_DOES_NOT_EXIST" },
@@ -77,22 +71,13 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     adapter.fillWater(false);
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
-    const stageArtifacts = implementArtifacts(
-      [
-        ecologyArtifacts.featureIntentsVegetation,
-        ecologyArtifacts.featureIntentsWetlands,
-        ecologyArtifacts.featureIntentsFloodplains,
-        ecologyArtifacts.featureIntentsReefs,
-        ecologyArtifacts.featureIntentsIce,
-      ],
-      {
-        featureIntentsVegetation: {},
-        featureIntentsWetlands: {},
-        featureIntentsFloodplains: {},
-        featureIntentsReefs: {},
-        featureIntentsIce: {},
-      }
-    );
+    const stageArtifacts = implementArtifactModules([
+      ecologyArtifactModules.featureIntentsVegetation,
+      ecologyArtifactModules.featureIntentsWetlands,
+      ecologyArtifactModules.featureIntentsFloodplains,
+      ecologyArtifactModules.featureIntentsReefs,
+      ecologyArtifactModules.featureIntentsIce,
+    ]);
 
     stageArtifacts.featureIntentsVegetation.publish(ctx, [{ x: 0, y: 0, feature: "forest" }]);
     stageArtifacts.featureIntentsWetlands.publish(ctx, []);

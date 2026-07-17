@@ -302,8 +302,10 @@ export interface MockAdapterConfig {
   defaultTemperature?: number;
   /** Default biome type for all tiles */
   defaultBiomeType?: number;
-  /** Custom RNG function (default: deterministic label RNG) */
+  /** Custom engine-RNG implementation for tests that need exact call-level control. */
   rng?: MockRandomFn;
+  /** Base seed for the adapter-owned deterministic engine-RNG simulation. */
+  rngSeed?: number;
   /** Custom biome globals (default: DEFAULT_BIOME_GLOBALS) */
   biomeGlobals?: Record<string, number>;
   /** Custom feature type indices (default: DEFAULT_FEATURE_TYPES) */
@@ -455,7 +457,7 @@ export class MockAdapter implements EngineAdapter {
     this.riverMask = new Uint8Array(size);
     this.riverTypes = new Int8Array(size).fill(MOCK_NO_RIVER);
     this.landmassRegionIds = new Uint8Array(size);
-    this.rngFn = config.rng ?? createDeterministicMockRng();
+    this.rngFn = config.rng ?? createDeterministicMockRng(config.rngSeed);
     this.biomeGlobals = config.biomeGlobals ?? { ...DEFAULT_BIOME_GLOBALS };
     this.featureTypes = config.featureTypes ?? { ...DEFAULT_FEATURE_TYPES };
     this.terrainTypeIndices = config.terrainTypeIndices ?? { ...DEFAULT_TERRAIN_TYPE_INDICES };

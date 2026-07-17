@@ -1,5 +1,5 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { mapArtifacts } from "../../../../map-artifacts.js";
+import { artifacts as standardArtifacts } from "../../../../artifacts/index.js";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
@@ -28,12 +28,12 @@ const PreparePlacementSurfaceStepContract = defineStep({
   artifacts: {
     requires: [
       mapHydrologyArtifacts.engineProjectionLakes,
-      mapArtifacts.landmassRegionSlotByTile,
+      standardArtifacts.landmassRegionSlotByTile,
       mapMorphologyArtifacts.coastClassification,
     ],
     provides: [
       placementArtifacts.placementSurfacePreparation,
-      mapArtifacts.placementSurfaceValidationBoundary,
+      standardArtifacts.placementSurfaceValidationBoundary,
     ],
   },
   schema: Type.Object({}, { additionalProperties: false }),

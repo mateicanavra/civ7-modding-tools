@@ -1,9 +1,6 @@
-import {
-  artifacts as foundationArtifacts,
-  validators as foundationArtifactValidators,
-} from "@mapgen/domain/foundation";
+import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
 import { defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 import PlateMotionStepContract from "./plateMotion.contract.js";
 
@@ -96,11 +93,7 @@ function buildVectorSegments(params: {
  * all subsequent tectonic history uses this published motion vintage.
  */
 export default createStep(PlateMotionStepContract, {
-  artifacts: implementArtifacts([foundationArtifacts.plateMotion], {
-    foundationPlateMotion: {
-      validate: (value) => foundationArtifactValidators.plateMotion(value),
-    },
-  }),
+  artifacts: [foundationArtifactModules.plateMotion],
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const plateGraph = deps.artifacts.foundationPlateGraph.read(context);

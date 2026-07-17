@@ -10,9 +10,9 @@ import {
   defineVizMeta,
   renderAsciiGrid,
 } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
-import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "../../morphology/artifacts/index.js";
 import type { MorphologySeaLevelKnob } from "../index.js";
 import LandmassPlatesStepContract from "./landmassPlates.contract.js";
 
@@ -58,17 +58,11 @@ function applyBaseTerrainBuffers(
  * substrate, relief, sea level, and the initial Morphology landmask.
  */
 export default createStep(LandmassPlatesStepContract, {
-  artifacts: implementArtifacts(LandmassPlatesStepContract.artifacts!.provides!, {
-    topography: {
-      validate: morphologyArtifactValidators.topography,
-    },
-    substrate: {
-      validate: morphologyArtifactValidators.substrate,
-    },
-    beltDrivers: {
-      validate: morphologyArtifactValidators.beltDrivers,
-    },
-  }),
+  artifacts: [
+    morphologyArtifactModules.topography,
+    morphologyArtifactModules.substrate,
+    morphologyArtifactModules.beltDrivers,
+  ],
   normalize: (config, ctx) => {
     const { seaLevel } = ctx.knobs as Readonly<{ seaLevel?: MorphologySeaLevelKnob }>;
     const delta = MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA[seaLevel ?? "earthlike"] ?? 0;

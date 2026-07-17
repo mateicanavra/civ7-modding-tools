@@ -1,10 +1,7 @@
 import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
-import {
-  artifacts as ecologyArtifacts,
-  validators as ecologyArtifactValidators,
-} from "../../../ecology/artifacts/index.js";
+import { artifactModules as ecologyArtifactModules } from "../../../ecology/artifacts/index.js";
 import {
   assertBiomeIndexVizCategoriesCoverSymbols,
   BIOME_INDEX_VIZ_CATEGORIES,
@@ -19,11 +16,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * biome truth; Civ7 biome IDs remain owned by the later map-ecology projection.
  */
 export default createStep(BiomesStepContract, {
-  artifacts: implementArtifacts([ecologyArtifacts.biomeClassification], {
-    biomeClassification: {
-      validate: ecologyArtifactValidators.biomeClassification,
-    },
-  }),
+  artifacts: [ecologyArtifactModules.biomeClassification],
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
 

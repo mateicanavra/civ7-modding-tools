@@ -1,6 +1,6 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as morphologyArtifactModules } from "../../morphology/artifacts/index.js";
 import LandmassesStepContract from "./landmasses.contract.js";
 
 const GROUP_LANDMASSES = "Morphology / Landmasses";
@@ -11,11 +11,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * and bounds used later by region projection and placement fairness.
  */
 export default createStep(LandmassesStepContract, {
-  artifacts: implementArtifacts(LandmassesStepContract.artifacts!.provides!, {
-    landmasses: {
-      validate: morphologyArtifactValidators.landmasses,
-    },
-  }),
+  artifacts: [morphologyArtifactModules.landmasses],
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.dimensions;

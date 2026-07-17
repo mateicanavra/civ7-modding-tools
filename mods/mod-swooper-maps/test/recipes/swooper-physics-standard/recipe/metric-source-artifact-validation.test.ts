@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
 import { assertModeledLandBiomeCoverage } from "../../../../src/recipes/standard/metrics/capture.js";
-import { biomeClassification } from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import { hydrography } from "../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import { mountains } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { artifactModules as ecologyArtifactModules } from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 
 const dimensions = { width: 1, height: 1 } as const;
 
@@ -13,7 +13,7 @@ describe("metric source artifact validation", () => {
     payload.biomeIndex[0] = 8;
     payload.effectiveMoisture[0] = Number.NaN;
 
-    const messages = biomeClassification
+    const messages = ecologyArtifactModules.biomeClassification
       .validate(payload, { dimensions })
       .map((issue) => issue.message);
     expect(messages.some((message) => message.includes("closed biome vocabulary"))).toBe(true);
@@ -24,7 +24,7 @@ describe("metric source artifact validation", () => {
     const value = biomePayload();
     value.biomeIndex[0] = 255;
 
-    expect(biomeClassification.validate(value, { dimensions })).toEqual([]);
+    expect(ecologyArtifactModules.biomeClassification.validate(value, { dimensions })).toEqual([]);
     expect(() =>
       assertModeledLandBiomeCoverage(new Uint8Array([0]), value.biomeIndex)
     ).not.toThrow();
@@ -50,7 +50,7 @@ describe("metric source artifact validation", () => {
     };
 
     expect(
-      mountains
+      morphologyArtifactModules.mountains
         .validate(payload, { dimensions })
         .some((issue) => issue.message.includes("mountainRegionMask"))
     ).toBe(true);
@@ -61,7 +61,9 @@ describe("metric source artifact validation", () => {
     payload.orogenyPotential = [0];
     payload.roughnessPotential = new Uint8Array(2);
 
-    const messages = mountains.validate(payload, { dimensions }).map((issue) => issue.message);
+    const messages = morphologyArtifactModules.mountains
+      .validate(payload, { dimensions })
+      .map((issue) => issue.message);
     expect(messages.some((message) => message.includes("orogenyPotential to be Uint8Array"))).toBe(
       true
     );
@@ -73,7 +75,9 @@ describe("metric source artifact validation", () => {
     payload.outletMask[0] = 2;
     payload.terminalType[0] = 3;
 
-    const messages = hydrography.validate(payload, { dimensions }).map((issue) => issue.message);
+    const messages = hydrologyHydrographyArtifactModules.hydrography
+      .validate(payload, { dimensions })
+      .map((issue) => issue.message);
     expect(messages.some((message) => message.includes("outletMask"))).toBe(true);
     expect(messages.some((message) => message.includes("terminalType"))).toBe(true);
   });

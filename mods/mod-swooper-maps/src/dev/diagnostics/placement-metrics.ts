@@ -28,7 +28,7 @@ import resourcesDomainOps from "../../domain/resources/ops.js";
 
 import { canonicalRecipeConfig } from "../../maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
-import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
+import { artifacts as standardArtifacts } from "../../recipes/standard/artifacts/index.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
 import { artifacts as ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts/index.js";
@@ -762,7 +762,7 @@ export function computePlacementMetricsFromRun(
   // slices a before/after signal (docs/projects/start-distribution-homeland-rebalance).
   {
     const regionSlotByTile = (
-      context.artifacts.get(mapArtifacts.landmassRegionSlotByTile.id) as
+      context.artifacts.get(standardArtifacts.landmassRegionSlotByTile.id) as
         | { slotByTile?: Uint8Array }
         | undefined
     )?.slotByTile;

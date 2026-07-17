@@ -3,7 +3,7 @@ import morphology from "@mapgen/domain/morphology/ops";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
-import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
+import { artifacts as standardArtifacts } from "../../src/recipes/standard/artifacts/index.js";
 import standardRecipe, {
   type StandardRecipeCompiledConfig,
 } from "../../src/recipes/standard/recipe.js";
@@ -477,10 +477,13 @@ const eventProvenanceInvariant: ValidationInvariant = {
   name: "foundation-event-provenance-causality",
   description: "Event corridors must drive provenance resets and boundary stamps.",
   check: (ctx) => {
-    const historyTiles = requireArtifact<any>(ctx, mapArtifacts.foundationTectonicHistoryTiles.id);
+    const historyTiles = requireArtifact<any>(
+      ctx,
+      standardArtifacts.foundationTectonicHistoryTiles.id
+    );
     const provenanceTiles = requireArtifact<any>(
       ctx,
-      mapArtifacts.foundationTectonicProvenanceTiles.id
+      standardArtifacts.foundationTectonicProvenanceTiles.id
     );
     if (!historyTiles || !provenanceTiles) {
       return {
@@ -593,10 +596,13 @@ const beltContinuityInvariant: ValidationInvariant = {
   name: "morphology-belt-continuity",
   description: "Belts must be continuous and wider than single-tile walls when events are active.",
   check: (ctx) => {
-    const historyTiles = requireArtifact<any>(ctx, mapArtifacts.foundationTectonicHistoryTiles.id);
+    const historyTiles = requireArtifact<any>(
+      ctx,
+      standardArtifacts.foundationTectonicHistoryTiles.id
+    );
     const provenanceTiles = requireArtifact<any>(
       ctx,
-      mapArtifacts.foundationTectonicProvenanceTiles.id
+      standardArtifacts.foundationTectonicProvenanceTiles.id
     );
     if (!historyTiles || !provenanceTiles) {
       return {
@@ -686,10 +692,13 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
   name: "morphology-driver-correlation",
   description: "Mountains should align with driver corridors and avoid wall-like artifacts.",
   check: (ctx) => {
-    const historyTiles = requireArtifact<any>(ctx, mapArtifacts.foundationTectonicHistoryTiles.id);
+    const historyTiles = requireArtifact<any>(
+      ctx,
+      standardArtifacts.foundationTectonicHistoryTiles.id
+    );
     const provenanceTiles = requireArtifact<any>(
       ctx,
-      mapArtifacts.foundationTectonicProvenanceTiles.id
+      standardArtifacts.foundationTectonicProvenanceTiles.id
     );
     const topography = requireArtifact<any>(ctx, morphologyArtifacts.topography.id);
     if (!historyTiles || !provenanceTiles || !topography) {

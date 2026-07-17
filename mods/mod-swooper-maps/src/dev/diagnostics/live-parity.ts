@@ -26,7 +26,7 @@ import {
   canonicalRecipeConfig,
   type StandardMapConfigEnvelope,
 } from "../../maps/configs/canonical.js";
-import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
+import { artifacts as standardArtifacts } from "../../recipes/standard/artifacts/index.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
 import { artifacts as ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts/index.js";
@@ -727,10 +727,10 @@ function buildTerrainProjectionEvidence(
     placementArtifacts.placementSurfacePreparation.id
   );
   const placementTerrainSnapshot = context.artifacts.get(
-    mapArtifacts.placementEngineTerrainSnapshot.id
+    standardArtifacts.placementEngineTerrainSnapshot.id
   );
   const placementValidationBoundary = context.artifacts.get(
-    mapArtifacts.placementSurfaceValidationBoundary.id
+    standardArtifacts.placementSurfaceValidationBoundary.id
   );
   return stripUndefined({
     coastlineMetrics: pickSerializableFields(coastlineMetrics, [

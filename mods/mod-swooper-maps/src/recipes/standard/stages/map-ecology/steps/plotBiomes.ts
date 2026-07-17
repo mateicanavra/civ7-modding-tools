@@ -1,7 +1,7 @@
 import * as ecology from "@mapgen/domain/ecology";
 import { defineVizMeta, logBiomeSummary } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as ecologyArtifacts } from "../../ecology/artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as ecologyArtifactModules } from "../../ecology/artifacts/index.js";
 import { buildEngineBiomeIdVizCategories } from "../viz.js";
 import { resolveEngineBiomeIds } from "./plot-biomes/engine-biome-bindings.js";
 import { clampToByte } from "./plot-biomes/helpers/apply.js";
@@ -15,9 +15,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * and publishes the binding evidence consumed by placement.
  */
 export default createStep(PlotBiomesStepContract, {
-  artifacts: implementArtifacts([ecologyArtifacts.biomeBindings], {
-    biomeBindings: {},
-  }),
+  artifacts: [ecologyArtifactModules.biomeBindings],
   run: (context, config, _ops, deps) => {
     const { width, height } = context.dimensions;
     const classification = deps.artifacts.biomeClassification.read(context);

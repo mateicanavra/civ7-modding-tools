@@ -1,29 +1,16 @@
+import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
 import * as climateDiagnostics from "./climate-diagnostics.artifact.js";
 import * as climateIndices from "./climate-indices.artifact.js";
 import * as cryosphere from "./cryosphere.artifact.js";
 
-export { climateDiagnostics, climateIndices, cryosphere };
-
-/** Full refined-climate modules exposing schemas, artifact handles, and validators. */
-export const artifactContracts = {
+const catalog = defineArtifactCatalog({
   climateDiagnostics,
   climateIndices,
   cryosphere,
-} as const;
+});
 
-/**
- * Refined-climate artifact handles consumed by Ecology and diagnostics. The catalog keeps
- * climate indices, cryosphere, and diagnostics on one post-refinement vintage.
- */
-export const artifacts = {
-  climateDiagnostics: climateDiagnostics.artifact,
-  climateIndices: climateIndices.artifact,
-  cryosphere: cryosphere.artifact,
-} as const;
+/** hydrology-climate-refine artifact modules pairing every contract with its complete admission validator. */
+export const artifactModules = catalog.modules;
 
-/** Validators keyed exactly like the refined-climate artifacts they admit. */
-export const validators = {
-  climateDiagnostics: climateDiagnostics.validate,
-  climateIndices: climateIndices.validate,
-  cryosphere: cryosphere.validate,
-} as const;
+/** hydrology-climate-refine artifact handles derived from the module catalog for contracts and consumers. */
+export const artifacts = catalog.artifacts;

@@ -1,9 +1,6 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  artifacts as placementArtifacts,
-  validators as placementArtifactValidators,
-} from "../../artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import { warnLog } from "../../log.js";
 import {
   buildPlacementPointBuffers,
@@ -100,11 +97,7 @@ function emitResourceOutcomeViz(
  * authority remains in the upstream plan.
  */
 export default createStep(PlaceResourcesStepContract, {
-  artifacts: implementArtifacts([placementArtifacts.resourcePlacementOutcomes], {
-    resourcePlacementOutcomes: {
-      validate: (value) => placementArtifactValidators.resourcePlacementOutcomes(value),
-    },
-  }),
+  artifacts: [placementArtifactModules.resourcePlacementOutcomes],
   run: (context, _config, _ops, deps) => {
     const plan = deps.artifacts.resourcePlanAdjusted.read(context);
     const { width, height } = context.dimensions;

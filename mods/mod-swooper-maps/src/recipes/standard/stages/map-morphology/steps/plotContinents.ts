@@ -1,8 +1,8 @@
 import { defineVizMeta, logLandmassAscii, snapshotEngineHeightfield } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { restoreProjectedCoastTerrain } from "../../../projection-policies/coastProjectionParity.js";
 import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
-import { artifacts as mapMorphologyArtifacts } from "../artifacts/index.js";
+import { artifactModules as mapMorphologyArtifactModules } from "../artifacts/index.js";
 import PlotContinentsStepContract from "./plotContinents.contract.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
@@ -13,9 +13,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * ordering through effect tags and capturing the resulting engine surface.
  */
 export default createStep(PlotContinentsStepContract, {
-  artifacts: implementArtifacts([mapMorphologyArtifacts.continentValidationTerrainSnapshot], {
-    continentValidationTerrainSnapshot: {},
-  }),
+  artifacts: [mapMorphologyArtifactModules.continentValidationTerrainSnapshot],
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const coastClassification = deps.artifacts.coastClassification.read(context);

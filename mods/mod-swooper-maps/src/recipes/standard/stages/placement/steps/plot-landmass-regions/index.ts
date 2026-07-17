@@ -1,8 +1,7 @@
 import { balancedHemisphereMeridian, hemisphereSlotForColumn } from "@civ7/map-policy";
 import { defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { validators as standardArtifactValidators } from "../../../../artifacts/index.js";
-import { mapArtifacts } from "../../../../map-artifacts.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as standardArtifactModules } from "../../../../artifacts/index.js";
 import { PLACEMENT_VIZ_GROUP, transparentNoneCategory } from "../../viz.js";
 import PlotLandmassRegionsStepContract from "./contract.js";
 
@@ -117,17 +116,10 @@ function resolveSlotByTile(input: {
  * slots to Civ7, and publishes the exact per-tile projection metadata.
  */
 export default createStep(PlotLandmassRegionsStepContract, {
-  artifacts: implementArtifacts(
-    [mapArtifacts.projectionMeta, mapArtifacts.landmassRegionSlotByTile],
-    {
-      projectionMeta: {
-        validate: (value) => standardArtifactValidators.projectionMeta(value),
-      },
-      landmassRegionSlotByTile: {
-        validate: (value) => standardArtifactValidators.landmassRegionSlotByTile(value),
-      },
-    }
-  ),
+  artifacts: [
+    standardArtifactModules.projectionMeta,
+    standardArtifactModules.landmassRegionSlotByTile,
+  ],
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const landmasses = deps.artifacts.landmasses.read(context);

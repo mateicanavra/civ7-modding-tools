@@ -1,9 +1,6 @@
-import {
-  artifacts as foundationArtifacts,
-  validators as foundationArtifactValidators,
-} from "@mapgen/domain/foundation";
+import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
 import { defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import {
   pointsFromTileCentroids,
   segmentsFromTileTopologyNeighbors,
@@ -17,11 +14,7 @@ const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
  * topology reflects the same raster vintage consumed by downstream map stages.
  */
 export default createStep(PlateTopologyStepContract, {
-  artifacts: implementArtifacts([foundationArtifacts.plateTopology], {
-    foundationPlateTopology: {
-      validate: (value) => foundationArtifactValidators.plateTopology(value),
-    },
-  }),
+  artifacts: [foundationArtifactModules.plateTopology],
   run: (context, config, ops, deps) => {
     // Plate adjacency is derived from the projected tile plate-id field via the
     // compute-plate-topology op (tile-derived; see the op contract for the

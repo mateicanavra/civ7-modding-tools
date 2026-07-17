@@ -1,10 +1,7 @@
 import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { ctxStepSeed } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  artifacts as ecologyArtifacts,
-  validators as ecologyArtifactValidators,
-} from "../../../ecology/artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as ecologyArtifactModules } from "../../../ecology/artifacts/index.js";
 import PlanWetlandsStepContract from "./contract.js";
 
 const WETLANDS_FEATURE_INTENTS = new Set([
@@ -20,17 +17,10 @@ const WETLANDS_FEATURE_INTENTS = new Set([
  * carrying reservations forward so vegetation cannot reuse occupied tiles.
  */
 export default createStep(PlanWetlandsStepContract, {
-  artifacts: implementArtifacts(
-    [ecologyArtifacts.featureIntentsWetlands, ecologyArtifacts.occupancyWetlands],
-    {
-      featureIntentsWetlands: {
-        validate: ecologyArtifactValidators.featureIntentsWetlands,
-      },
-      occupancyWetlands: {
-        validate: ecologyArtifactValidators.occupancyWetlands,
-      },
-    }
-  ),
+  artifacts: [
+    ecologyArtifactModules.featureIntentsWetlands,
+    ecologyArtifactModules.occupancyWetlands,
+  ],
   run: (context, config, ops, deps) => {
     const prev = deps.artifacts.occupancyReefs.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);

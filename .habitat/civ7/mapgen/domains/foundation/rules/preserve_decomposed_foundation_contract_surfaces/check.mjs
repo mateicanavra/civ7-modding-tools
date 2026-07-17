@@ -55,102 +55,41 @@ for (const file of strategyFiles) {
 }
 
 const foundationStageArtifactSurfaces = [
-  ["mesh", "mesh.artifact.ts", "artifact:foundation.mesh", "mesh"],
-  [
-    "mantlePotential",
-    "mantle-potential.artifact.ts",
-    "artifact:foundation.mantlePotential",
-    "mantlePotential",
-  ],
-  [
-    "mantleForcing",
-    "mantle-forcing.artifact.ts",
-    "artifact:foundation.mantleForcing",
-    "mantleForcing",
-  ],
-  ["crustInit", "crust-init.artifact.ts", "artifact:foundation.crustInit", "crustInit"],
-  ["crust", "crust.artifact.ts", "artifact:foundation.crust", "crust"],
-  ["plateMotion", "plate-motion.artifact.ts", "artifact:foundation.plateMotion", "plateMotion"],
-  ["plateGraph", "plate-graph.artifact.ts", "artifact:foundation.plateGraph", "plateGraph"],
-  [
-    "tectonicSegments",
-    "tectonic-segments.artifact.ts",
-    "artifact:foundation.tectonicSegments",
-    "tectonicSegments",
-  ],
-  [
-    "tectonicHistory",
-    "tectonic-history.artifact.ts",
-    "artifact:foundation.tectonicHistory",
-    "tectonicHistory",
-  ],
-  [
-    "tectonicProvenance",
-    "tectonic-provenance.artifact.ts",
-    "artifact:foundation.tectonicProvenance",
-    "tectonicProvenance",
-  ],
-  [
-    "plateTopology",
-    "plate-topology.artifact.ts",
-    "artifact:foundation.plateTopology",
-    "plateTopology",
-  ],
-  [
-    "tectonics",
-    "current-tectonics.artifact.ts",
-    "artifact:foundation.tectonics",
-    "currentTectonics",
-  ],
+  ["mesh.artifact.ts", "artifact:foundation.mesh"],
+  ["mantle-potential.artifact.ts", "artifact:foundation.mantlePotential"],
+  ["mantle-forcing.artifact.ts", "artifact:foundation.mantleForcing"],
+  ["crust-init.artifact.ts", "artifact:foundation.crustInit"],
+  ["crust.artifact.ts", "artifact:foundation.crust"],
+  ["plate-motion.artifact.ts", "artifact:foundation.plateMotion"],
+  ["plate-graph.artifact.ts", "artifact:foundation.plateGraph"],
+  ["tectonic-segments.artifact.ts", "artifact:foundation.tectonicSegments"],
+  ["tectonic-history.artifact.ts", "artifact:foundation.tectonicHistory"],
+  ["tectonic-provenance.artifact.ts", "artifact:foundation.tectonicProvenance"],
+  ["plate-topology.artifact.ts", "artifact:foundation.plateTopology"],
+  ["current-tectonics.artifact.ts", "artifact:foundation.tectonics"],
 ];
 
 const foundationInternalArtifactSurfaces = [
-  ["plate-id-by-era.artifact.ts", "artifact:foundation.plateIdByEra", "plateIdByEra"],
-  ["tectonic-era-fields.artifact.ts", "artifact:foundation.tectonicEraFields", "tectonicEraFields"],
-  ["tectonic-events.artifact.ts", "artifact:foundation.tectonicEvents", "tectonicEvents"],
-  ["tracer-index-by-era.artifact.ts", "artifact:foundation.tracerIndexByEra", "tracerIndexByEra"],
+  ["plate-id-by-era.artifact.ts", "artifact:foundation.plateIdByEra"],
+  ["tectonic-era-fields.artifact.ts", "artifact:foundation.tectonicEraFields"],
+  ["tectonic-events.artifact.ts", "artifact:foundation.tectonicEvents"],
+  ["tracer-index-by-era.artifact.ts", "artifact:foundation.tracerIndexByEra"],
 ];
 
-for (const [, fileName, artifactTag, contractKey] of foundationStageArtifactSurfaces) {
+for (const [fileName, artifactTag] of foundationStageArtifactSurfaces) {
   const artifactFile = path.join(foundationDomain, `artifacts/${fileName}`);
-  findings.push(
-    ...assertContains(artifactFile, artifactTag, "foundation-artifact-tags"),
-    ...assertContains(artifactFile, "export function validate", "foundation-artifact-validators"),
-    ...assertContains(
-      path.join(foundationDomain, "artifacts/index.ts"),
-      `${contractKey}: ${contractKey}.artifact`,
-      "foundation-artifact-index"
-    ),
-    ...assertContains(
-      path.join(foundationDomain, "artifacts/index.ts"),
-      `${contractKey}: ${contractKey}.validate`,
-      "foundation-artifact-validator-index"
-    )
-  );
+  findings.push(...assertContains(artifactFile, artifactTag, "foundation-artifact-tags"));
 }
 
-for (const [fileName, artifactTag, contractKey] of foundationInternalArtifactSurfaces) {
+for (const [fileName, artifactTag] of foundationInternalArtifactSurfaces) {
   const artifactFile = path.join(foundationDomain, `artifacts/${fileName}`);
-  findings.push(
-    ...assertContains(artifactFile, artifactTag, "foundation-artifact-tags"),
-    ...assertContains(artifactFile, "export function validate", "foundation-artifact-validators"),
-    ...assertContains(
-      path.join(foundationDomain, "artifacts/index.ts"),
-      `${contractKey}: ${contractKey}.artifact`,
-      "foundation-artifact-index"
-    ),
-    ...assertContains(
-      path.join(foundationDomain, "artifacts/index.ts"),
-      `${contractKey}: ${contractKey}.validate`,
-      "foundation-artifact-validator-index"
-    )
-  );
+  findings.push(...assertContains(artifactFile, artifactTag, "foundation-artifact-tags"));
 }
 
 findings.push(
   ...assertContains(
     path.join(foundationDomain, "index.ts"),
-    'export { artifactContracts, artifacts, validators } from "./artifacts/index.js";',
+    'export { artifactModules, artifacts } from "./artifacts/index.js";',
     "foundation-domain-artifact-surface"
   )
 );

@@ -1,3 +1,4 @@
+import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
 import * as crust from "./crust.artifact.js";
 import * as crustInit from "./crust-init.artifact.js";
 import * as currentTectonics from "./current-tectonics.artifact.js";
@@ -15,7 +16,7 @@ import * as tectonicProvenance from "./tectonic-provenance.artifact.js";
 import * as tectonicSegments from "./tectonic-segments.artifact.js";
 import * as tracerIndexByEra from "./tracer-index-by-era.artifact.js";
 
-export {
+const catalog = defineArtifactCatalog({
   crust,
   crustInit,
   currentTectonics,
@@ -32,61 +33,10 @@ export {
   tectonicProvenance,
   tectonicSegments,
   tracerIndexByEra,
-};
+});
 
-export const artifactContracts = {
-  crust,
-  crustInit,
-  currentTectonics,
-  mantleForcing,
-  mantlePotential,
-  mesh,
-  plateGraph,
-  plateIdByEra,
-  plateMotion,
-  plateTopology,
-  tectonicEraFields,
-  tectonicEvents,
-  tectonicHistory,
-  tectonicProvenance,
-  tectonicSegments,
-  tracerIndexByEra,
-} as const;
+/** Foundation artifact modules pairing every contract with its complete admission validator. */
+export const artifactModules = catalog.modules;
 
-export const artifacts = {
-  crust: crust.artifact,
-  crustInit: crustInit.artifact,
-  currentTectonics: currentTectonics.artifact,
-  mantleForcing: mantleForcing.artifact,
-  mantlePotential: mantlePotential.artifact,
-  mesh: mesh.artifact,
-  plateGraph: plateGraph.artifact,
-  plateIdByEra: plateIdByEra.artifact,
-  plateMotion: plateMotion.artifact,
-  plateTopology: plateTopology.artifact,
-  tectonicEraFields: tectonicEraFields.artifact,
-  tectonicEvents: tectonicEvents.artifact,
-  tectonicHistory: tectonicHistory.artifact,
-  tectonicProvenance: tectonicProvenance.artifact,
-  tectonicSegments: tectonicSegments.artifact,
-  tracerIndexByEra: tracerIndexByEra.artifact,
-} as const;
-
-export const validators = {
-  crust: crust.validate,
-  crustInit: crustInit.validate,
-  currentTectonics: currentTectonics.validate,
-  mantleForcing: mantleForcing.validate,
-  mantlePotential: mantlePotential.validate,
-  mesh: mesh.validate,
-  plateGraph: plateGraph.validate,
-  plateIdByEra: plateIdByEra.validate,
-  plateMotion: plateMotion.validate,
-  plateTopology: plateTopology.validate,
-  tectonicEraFields: tectonicEraFields.validate,
-  tectonicEvents: tectonicEvents.validate,
-  tectonicHistory: tectonicHistory.validate,
-  tectonicProvenance: tectonicProvenance.validate,
-  tectonicSegments: tectonicSegments.validate,
-  tracerIndexByEra: tracerIndexByEra.validate,
-} as const;
+/** Foundation artifact handles derived from the module catalog for contracts and consumers. */
+export const artifacts = catalog.artifacts;

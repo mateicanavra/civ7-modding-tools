@@ -4,8 +4,11 @@ import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as ecologyArtifacts } from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { implementArtifactModules } from "@swooper/mapgen-core/authoring";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import planFloodplainsStep from "../../../../src/recipes/standard/stages/ecology-features/steps/plan-floodplains/index.js";
 import featuresApplyStep from "../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../support/compiler-helpers.js";
@@ -117,13 +120,10 @@ describe("floodplain feature product row", () => {
     );
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
-    const setupArtifacts = implementArtifacts(
-      [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase],
-      {
-        scoreLayers: {},
-        occupancyBase: {},
-      }
-    );
+    const setupArtifacts = implementArtifactModules([
+      ecologyArtifactModules.scoreLayers,
+      ecologyArtifactModules.occupancyBase,
+    ]);
     setupArtifacts.scoreLayers.publish(ctx, { width, height, layers });
     setupArtifacts.occupancyBase.publish(ctx, {
       width,
@@ -153,20 +153,12 @@ describe("floodplain feature product row", () => {
       )
     ).toBe(true);
 
-    const emptyIntentArtifacts = implementArtifacts(
-      [
-        ecologyArtifacts.featureIntentsVegetation,
-        ecologyArtifacts.featureIntentsWetlands,
-        ecologyArtifacts.featureIntentsReefs,
-        ecologyArtifacts.featureIntentsIce,
-      ],
-      {
-        featureIntentsVegetation: {},
-        featureIntentsWetlands: {},
-        featureIntentsReefs: {},
-        featureIntentsIce: {},
-      }
-    );
+    const emptyIntentArtifacts = implementArtifactModules([
+      ecologyArtifactModules.featureIntentsVegetation,
+      ecologyArtifactModules.featureIntentsWetlands,
+      ecologyArtifactModules.featureIntentsReefs,
+      ecologyArtifactModules.featureIntentsIce,
+    ]);
     emptyIntentArtifacts.featureIntentsVegetation.publish(ctx, []);
     emptyIntentArtifacts.featureIntentsWetlands.publish(ctx, []);
     emptyIntentArtifacts.featureIntentsReefs.publish(ctx, []);

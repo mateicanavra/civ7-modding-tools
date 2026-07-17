@@ -3,12 +3,15 @@ import { createMockAdapter } from "@civ7/adapter";
 import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as ecologyArtifacts } from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { implementArtifactModules } from "@swooper/mapgen-core/authoring";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import planVegetationStep from "../../../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/index.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 import featuresApplyStep from "../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
-import { artifacts as morphologyArtifacts } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../support/compiler-helpers.js";
 import { createEmptyFeatureScoreLayers } from "../../../support/feature-score-layers.js";
 import { buildTestDeps } from "../../../support/step-deps.js";
@@ -40,28 +43,16 @@ describe("plan-vegetation/apply pipeline", () => {
     const layers = createEmptyFeatureScoreLayers(size);
     layers.forest.fill(1);
 
-    const stageArtifacts = implementArtifacts(
-      [
-        ecologyArtifacts.scoreLayers,
-        ecologyArtifacts.occupancyWetlands,
-        ecologyArtifacts.biomeClassification,
-        hydrologyHydrographyArtifacts.hydrography,
-        hydrologyHydrographyArtifacts.lakePlan,
-        morphologyArtifacts.topography,
-        morphologyArtifacts.mountains,
-        morphologyArtifacts.volcanoes,
-      ],
-      {
-        scoreLayers: {},
-        occupancyWetlands: {},
-        biomeClassification: {},
-        hydrography: {},
-        lakePlan: {},
-        topography: {},
-        mountains: {},
-        volcanoes: {},
-      }
-    );
+    const stageArtifacts = implementArtifactModules([
+      ecologyArtifactModules.scoreLayers,
+      ecologyArtifactModules.occupancyWetlands,
+      ecologyArtifactModules.biomeClassification,
+      hydrologyHydrographyArtifactModules.hydrography,
+      hydrologyHydrographyArtifactModules.lakePlan,
+      morphologyArtifactModules.topography,
+      morphologyArtifactModules.mountains,
+      morphologyArtifactModules.volcanoes,
+    ]);
 
     stageArtifacts.scoreLayers.publish(ctx, { width, height, layers });
     stageArtifacts.occupancyWetlands.publish(ctx, {
@@ -131,18 +122,19 @@ describe("plan-vegetation/apply pipeline", () => {
     planVegetationStep.run(ctx, planConfig, planOps, buildTestDeps(planVegetationStep));
 
     // M3 stages: publish empty lists for non-vegetation families so the apply step has a complete surface.
-    implementArtifacts([ecologyArtifacts.featureIntentsIce], {
-      featureIntentsIce: {},
-    }).featureIntentsIce.publish(ctx, []);
-    implementArtifacts([ecologyArtifacts.featureIntentsReefs], {
-      featureIntentsReefs: {},
-    }).featureIntentsReefs.publish(ctx, []);
-    implementArtifacts([ecologyArtifacts.featureIntentsWetlands], {
-      featureIntentsWetlands: {},
-    }).featureIntentsWetlands.publish(ctx, []);
-    implementArtifacts([ecologyArtifacts.featureIntentsFloodplains], {
-      featureIntentsFloodplains: {},
-    }).featureIntentsFloodplains.publish(ctx, []);
+    implementArtifactModules([ecologyArtifactModules.featureIntentsIce]).featureIntentsIce.publish(
+      ctx,
+      []
+    );
+    implementArtifactModules([
+      ecologyArtifactModules.featureIntentsReefs,
+    ]).featureIntentsReefs.publish(ctx, []);
+    implementArtifactModules([
+      ecologyArtifactModules.featureIntentsWetlands,
+    ]).featureIntentsWetlands.publish(ctx, []);
+    implementArtifactModules([
+      ecologyArtifactModules.featureIntentsFloodplains,
+    ]).featureIntentsFloodplains.publish(ctx, []);
 
     const vegetationIntents = ctx.artifacts.get(ecologyArtifacts.featureIntentsVegetation.id);
     expect(vegetationIntents).toBeTruthy();

@@ -1,8 +1,8 @@
 import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 
-import { artifacts as hydrologyHydrographyArtifacts } from "../artifacts/index.js";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "../artifacts/index.js";
 import LakesStepContract from "./lakes.contract.js";
 
 type HydrologyLakeinessKnob = "few" | "normal" | "many";
@@ -15,13 +15,10 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * hydrography; engine water materialization remains owned by map-hydrology.
  */
 export default createStep(LakesStepContract, {
-  artifacts: implementArtifacts(
-    [hydrologyHydrographyArtifacts.lakePlan, hydrologyHydrographyArtifacts.riverNetworkMetrics],
-    {
-      lakePlan: {},
-      riverNetworkMetrics: {},
-    }
-  ),
+  artifacts: [
+    hydrologyHydrographyArtifactModules.lakePlan,
+    hydrologyHydrographyArtifactModules.riverNetworkMetrics,
+  ],
   normalize: (config, ctx) => {
     const { lakeiness = "normal" as HydrologyLakeinessKnob } = ctx.knobs as {
       lakeiness?: HydrologyLakeinessKnob;

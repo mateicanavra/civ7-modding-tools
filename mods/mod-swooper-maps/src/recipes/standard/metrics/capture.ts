@@ -14,40 +14,38 @@ import {
   type ArtifactReadValueOf,
   readValidatedArtifact,
 } from "@swooper/mapgen-core/authoring/contracts";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
 import standardRecipe from "../recipe.js";
 import { initializeStandardRuntime } from "../runtime.js";
-import { biomeClassification, featureApplyDiagnostics } from "../stages/ecology/artifacts/index.js";
-import {
-  hydrography,
-  lakePlan,
-  riverNetworkMetrics,
-} from "../stages/hydrology-hydrography/artifacts/index.js";
-import { engineProjectionLakes } from "../stages/map-hydrology/artifacts/index.js";
-import {
-  engineProjectionRivers,
-  projectedNavigableRivers,
-} from "../stages/map-rivers/artifacts/index.js";
-import { mountains, topography, volcanoes } from "../stages/morphology/artifacts/index.js";
-import {
-  placementSurfacePreparation,
-  resourcePlacementOutcomes,
-  resourcePlan,
-  resourcePlanAdjusted,
-  startAssignment,
-} from "../stages/placement/artifacts/index.js";
+import { artifactModules as ecologyArtifactModules } from "../stages/ecology/artifacts/index.js";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "../stages/hydrology-hydrography/artifacts/index.js";
+import { artifactModules as mapHydrologyArtifactModules } from "../stages/map-hydrology/artifacts/index.js";
+import { artifactModules as mapRiversArtifactModules } from "../stages/map-rivers/artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "../stages/morphology/artifacts/index.js";
+import { artifactModules as placementArtifactModules } from "../stages/placement/artifacts/index.js";
 import { defineStandardMapMetricScenario, type StandardMapMetricScenario } from "./scenario.js";
 
-type Volcanoes = ArtifactReadValueOf<typeof volcanoes.artifact>;
-type RiverNetworkMetrics = ArtifactReadValueOf<typeof riverNetworkMetrics.artifact>;
-type ProjectedNavigableRivers = ArtifactReadValueOf<typeof projectedNavigableRivers.artifact>;
-type EngineProjectionRivers = ArtifactReadValueOf<typeof engineProjectionRivers.artifact>;
-type ResourcePlan = ArtifactReadValueOf<typeof resourcePlan.artifact>;
-type ResourcePlanAdjusted = ArtifactReadValueOf<typeof resourcePlanAdjusted.artifact>;
-type ResourcePlacementOutcomes = ArtifactReadValueOf<typeof resourcePlacementOutcomes.artifact>;
-type StartAssignment = ArtifactReadValueOf<typeof startAssignment.artifact>;
+type Volcanoes = ArtifactReadValueOf<typeof morphologyArtifactModules.volcanoes.artifact>;
+type RiverNetworkMetrics = ArtifactReadValueOf<
+  typeof hydrologyHydrographyArtifactModules.riverNetworkMetrics.artifact
+>;
+type ProjectedNavigableRivers = ArtifactReadValueOf<
+  typeof mapRiversArtifactModules.projectedNavigableRivers.artifact
+>;
+type EngineProjectionRivers = ArtifactReadValueOf<
+  typeof mapRiversArtifactModules.engineProjectionRivers.artifact
+>;
+type ResourcePlan = ArtifactReadValueOf<typeof placementArtifactModules.resourcePlan.artifact>;
+type ResourcePlanAdjusted = ArtifactReadValueOf<
+  typeof placementArtifactModules.resourcePlanAdjusted.artifact
+>;
+type ResourcePlacementOutcomes = ArtifactReadValueOf<
+  typeof placementArtifactModules.resourcePlacementOutcomes.artifact
+>;
+type StartAssignment = ArtifactReadValueOf<
+  typeof placementArtifactModules.startAssignment.artifact
+>;
 
 /** One feature key and the Civ7 surface law used to validate its realized placement. */
 export type StandardFeatureRuntime = Readonly<{
@@ -189,7 +187,7 @@ export function captureStandardMapScenario(
     mapInfo: selection.mapInfo,
     mapSizeId: selection.mapSizeId,
     aliveMajorCount: selection.playerCount,
-    rng: createLabelRng(admittedScenario.seed),
+    rngSeed: admittedScenario.seed,
   });
 
   const context = createExtendedMapContext({ width, height }, adapter, env);
@@ -212,22 +210,52 @@ function copyCompletedRun(
   const selection = resolveMapSelection(scenario);
   const { width, height } = selection.dimensions;
   const gridSize = expectedGridSize(width, height);
-  const topographyValue = readValidatedArtifact(context, topography);
-  const mountainsValue = readValidatedArtifact(context, mountains);
-  const volcanoesValue = readValidatedArtifact(context, volcanoes);
-  const lakePlanValue = readValidatedArtifact(context, lakePlan);
-  const hydrographyValue = readValidatedArtifact(context, hydrography);
-  const riverNetworkValue = readValidatedArtifact(context, riverNetworkMetrics);
-  const lakeProjectionValue = readValidatedArtifact(context, engineProjectionLakes);
-  const navigableRiverValue = readValidatedArtifact(context, projectedNavigableRivers);
-  const riverReadbackValue = readValidatedArtifact(context, engineProjectionRivers);
-  const biomeValue = readValidatedArtifact(context, biomeClassification);
-  const featureDiagnosticsValue = readValidatedArtifact(context, featureApplyDiagnostics);
-  const placementSurfaceValue = readValidatedArtifact(context, placementSurfacePreparation);
-  const resourcePlanValue = readValidatedArtifact(context, resourcePlan);
-  const adjustedResourcePlanValue = readValidatedArtifact(context, resourcePlanAdjusted);
-  const resourceOutcomesValue = readValidatedArtifact(context, resourcePlacementOutcomes);
-  const startValue = readValidatedArtifact(context, startAssignment);
+  const topographyValue = readValidatedArtifact(context, morphologyArtifactModules.topography);
+  const mountainsValue = readValidatedArtifact(context, morphologyArtifactModules.mountains);
+  const volcanoesValue = readValidatedArtifact(context, morphologyArtifactModules.volcanoes);
+  const lakePlanValue = readValidatedArtifact(
+    context,
+    hydrologyHydrographyArtifactModules.lakePlan
+  );
+  const hydrographyValue = readValidatedArtifact(
+    context,
+    hydrologyHydrographyArtifactModules.hydrography
+  );
+  const riverNetworkValue = readValidatedArtifact(
+    context,
+    hydrologyHydrographyArtifactModules.riverNetworkMetrics
+  );
+  const lakeProjectionValue = readValidatedArtifact(
+    context,
+    mapHydrologyArtifactModules.engineProjectionLakes
+  );
+  const navigableRiverValue = readValidatedArtifact(
+    context,
+    mapRiversArtifactModules.projectedNavigableRivers
+  );
+  const riverReadbackValue = readValidatedArtifact(
+    context,
+    mapRiversArtifactModules.engineProjectionRivers
+  );
+  const biomeValue = readValidatedArtifact(context, ecologyArtifactModules.biomeClassification);
+  const featureDiagnosticsValue = readValidatedArtifact(
+    context,
+    ecologyArtifactModules.featureApplyDiagnostics
+  );
+  const placementSurfaceValue = readValidatedArtifact(
+    context,
+    placementArtifactModules.placementSurfacePreparation
+  );
+  const resourcePlanValue = readValidatedArtifact(context, placementArtifactModules.resourcePlan);
+  const adjustedResourcePlanValue = readValidatedArtifact(
+    context,
+    placementArtifactModules.resourcePlanAdjusted
+  );
+  const resourceOutcomesValue = readValidatedArtifact(
+    context,
+    placementArtifactModules.resourcePlacementOutcomes
+  );
+  const startValue = readValidatedArtifact(context, placementArtifactModules.startAssignment);
   const landMask = copyUint8Grid(
     "morphology.topography.landMask",
     topographyValue.landMask,

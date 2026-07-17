@@ -12,7 +12,7 @@ import {
 
 type PlanStartsOutput = Static<(typeof placement.ops.planStarts)["output"]>;
 type StartAssignmentArtifact = Static<
-  typeof import("../../artifacts/index.js").artifactContracts["startAssignment"]["Schema"]
+  typeof import("../../artifacts/index.js").artifacts["startAssignment"]["schema"]
 >;
 type StartSeatRecord = PlanStartsOutput["seats"][number];
 

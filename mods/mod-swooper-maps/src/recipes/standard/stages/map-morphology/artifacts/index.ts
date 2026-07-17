@@ -1,29 +1,16 @@
+import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
 import * as coastClassification from "./coast-classification.artifact.js";
 import * as coastEngineTerrainSnapshot from "./coast-engine-terrain-snapshot.artifact.js";
 import * as continentValidationTerrainSnapshot from "./continent-validation-terrain-snapshot.artifact.js";
 
-export { coastClassification, coastEngineTerrainSnapshot, continentValidationTerrainSnapshot };
-
-/** Contract modules retaining each map-morphology artifact's schema, handle, and validator. */
-export const artifactContracts = {
+const catalog = defineArtifactCatalog({
   coastClassification,
   coastEngineTerrainSnapshot,
   continentValidationTerrainSnapshot,
-} as const;
+});
 
-/**
- * Map-morphology publication handles spanning authored coast classification
- * and the two successive engine-terrain observation boundaries.
- */
-export const artifacts = {
-  coastClassification: coastClassification.artifact,
-  coastEngineTerrainSnapshot: coastEngineTerrainSnapshot.artifact,
-  continentValidationTerrainSnapshot: continentValidationTerrainSnapshot.artifact,
-} as const;
+/** map-morphology artifact modules pairing every contract with its complete admission validator. */
+export const artifactModules = catalog.modules;
 
-/** Payload validators keyed like the map-morphology artifact catalog. */
-export const validators = {
-  coastClassification: coastClassification.validate,
-  coastEngineTerrainSnapshot: coastEngineTerrainSnapshot.validate,
-  continentValidationTerrainSnapshot: continentValidationTerrainSnapshot.validate,
-} as const;
+/** map-morphology artifact handles derived from the module catalog for contracts and consumers. */
+export const artifacts = catalog.artifacts;

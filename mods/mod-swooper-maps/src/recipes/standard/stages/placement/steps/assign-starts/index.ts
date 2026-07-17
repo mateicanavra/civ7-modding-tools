@@ -1,8 +1,5 @@
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  artifacts as placementArtifacts,
-  validators as placementArtifactValidators,
-} from "../../artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import { runPlacementProductStep } from "../product-runtime.js";
 import AssignStartsStepContract from "./contract.js";
 import {
@@ -16,11 +13,7 @@ import {
  * before the support pass adjusts resources and stamping makes them immutable.
  */
 export default createStep(AssignStartsStepContract, {
-  artifacts: implementArtifacts([placementArtifacts.startAssignment], {
-    startAssignment: {
-      validate: (value) => placementArtifactValidators.startAssignment(value),
-    },
-  }),
+  artifacts: [placementArtifactModules.startAssignment],
   run: (context, config, _ops, deps) => {
     const placementInputs = deps.artifacts.placementInputs.read(context);
     const resourcePlan = deps.artifacts.resourcePlan.read(context);

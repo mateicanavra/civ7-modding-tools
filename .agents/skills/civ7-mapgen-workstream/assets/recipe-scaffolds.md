@@ -14,8 +14,8 @@ for the truth-vs-projection stage split and the vocabulary.
 
 | Import path | What it gives | Used in |
 |---|---|---|
-| `@swooper/mapgen-core/authoring/contracts` | `defineOp`, `defineStep`, `defineArtifact`, `defineDomain`, `Type`, `TypedArraySchemas`, `OpTypeBagOf` — pure schema/type declarations, NO implementation | every `contract.ts`, `artifacts.ts`, domain `index.ts` |
-| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomain`, `implementArtifacts`, `collectCompileOps` — attach implementations | every runtime `index.ts`, strategy file, stage/recipe file |
+| `@swooper/mapgen-core/authoring/contracts` | `defineOp`, `defineStep`, `defineArtifact`, `defineArtifactCatalog`, `defineDomain`, `Type`, `TypedArraySchemas`, `validateArtifactSchema`, `OpTypeBagOf` — contract-only schemas, types, validation, and catalog assembly | every `contract.ts`, `*.artifact.ts`, artifact catalog, domain contract `index.ts` |
+| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomain`, `collectCompileOps` — attach runtime implementations | every runtime `index.ts`, strategy file, stage/recipe file |
 
 `@mapgen/domain/*` → `src/domain/*` (tsconfig path alias). Step **contracts** import the
 domain contract via `@mapgen/domain/<domain>` (the `defineDomain` index). `recipe.ts`
@@ -204,8 +204,8 @@ is kebab-case (`/^[a-z0-9]+(?:-[a-z0-9]+)*$/`). The reference no-ops step is
 import someDomain from "@mapgen/domain/<domain>";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { myStageArtifacts } from "../../artifacts.js";
-import { otherArtifacts } from "../../../<other-stage>/artifacts.js";
+import { artifacts as myStageArtifacts } from "../../artifacts/index.js";
+import { artifacts as otherArtifacts } from "../../../<other-stage>/artifacts/index.js";
 
 const MyStepContract = defineStep({
   id: "my-step-name",
@@ -214,7 +214,7 @@ const MyStepContract = defineStep({
   provides: ["effect:some.provided.tag"],
   artifacts: {
     requires: [otherArtifacts.someInput],
-    provides: [myStageArtifacts.myArtifact],
+    provides: [myStageArtifacts.surfaceMask],
   },
   ops: {
     myOp: someDomain.ops.myOpName,
@@ -230,21 +230,19 @@ export default MyStepContract;
 auto-typed op envelope; artifacts are read/published via `deps.artifacts.<name>`.
 ```ts
 // steps/<step-name>/index.ts
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { myStageArtifacts } from "../../artifacts.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as myStageArtifactModules } from "../../artifacts/index.js";
 import MyStepContract from "./contract.js";
 
 export default createStep(MyStepContract, {
   // Required ONLY if this step provides artifacts:
-  artifacts: implementArtifacts(MyStepContract.artifacts!.provides!, {
-    myArtifact: { /* optional validate: (value, ctx) => [], satisfies: (ctx) => true */ },
-  }),
+  artifacts: [myStageArtifactModules.surfaceMask],
   // optional: normalize: (config, ctx) => config,
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const input = deps.artifacts.someInput.read(context);
     const output = ops.myOp({ width, height, myInput: input.myData }, config.myOp);
-    deps.artifacts.myArtifact.publish(context, { width, height, myData: output.myOutput });
+    deps.artifacts.surfaceMask.publish(context, { width, height, landMask: output.myOutput });
   },
 });
 ```
@@ -322,44 +320,125 @@ export const compileOpsById = collectCompileOps(foundationDomain, morphologyDoma
 
 ---
 
-## (5) New artifact (defineArtifact + publish/read)
+## (5) New artifact (module + catalog + publish/read)
 
-Artifacts are the typed data-flow contract between steps/stages. Declare them in a
-stage's `artifacts.ts`. Id MUST start with `artifact:` and MUST NOT carry a `@vN` suffix
-(`defineArtifact` throws on both). `name` is camelCase (`/^[a-z][a-zA-Z0-9]*$/`) and must
-match its key in the record. Reference: `map-morphology/artifacts.ts`.
+Artifacts are typed data-flow contracts between steps/stages. Each artifact is one mandatory
+module under the owning stage's `artifacts/` directory: it exports exactly one contract and the
+complete structural/semantic validator that admits values for that contract. The sibling
+`artifacts/index.ts` builds the single catalog authority and derives both `artifactModules`
+(runtime producers) and `artifacts` (step contracts/consumers) from it. Do not hand-maintain a
+second contract map or place a recipe-domain validator in MapGen Core.
 
+An id MUST start with `artifact:` and MUST NOT carry a `@vN` suffix (`defineArtifact` throws on
+both). The runtime `name` is camelCase (`/^[a-z][a-zA-Z0-9]*$/`). Catalog keys are
+consumer-facing lookup names and may differ from runtime artifact names. Reference:
+`map-morphology/artifacts/`.
+
+**`artifacts/surface-mask.artifact.ts` — contract and complete admission validator:**
 ```ts
-// src/recipes/standard/stages/<stage-id>/artifacts.ts
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import type {
+  ArtifactValidationContext,
+  ArtifactValidationIssue,
+} from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  TypedArraySchemas,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
-const MyArtifactSchema = Type.Object(
+export const Schema = Type.Object(
   {
-    width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
-    height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
-    myData: TypedArraySchemas.u8({ description: "..." }),
+    width: Type.Integer({ minimum: 1, description: "Map width represented by the mask." }),
+    height: Type.Integer({ minimum: 1, description: "Map height represented by the mask." }),
+    landMask: TypedArraySchemas.u8({
+      description: "One byte per tile in row-major order: 1 for land and 0 for water.",
+    }),
   },
-  { additionalProperties: false, description: "..." },
+  {
+    additionalProperties: false,
+    description: "Authoritative land/water classification for one complete map surface.",
+  },
 );
 
-export const myStageArtifacts = {
-  myArtifact: defineArtifact({
-    name: "myArtifact",                          // camelCase; must match the key
-    id: "artifact:<stage>.<scope>.myArtifact",   // no @vN suffix; map-level uses artifact:map.<name>
-    schema: MyArtifactSchema,
-  }),
-} as const;
+/** Registers the write-once surface classification consumed by downstream map stages. */
+export const artifact = defineArtifact({
+  name: "surfaceMask",
+  id: "artifact:<stage>.surfaceMask",
+  schema: Schema,
+});
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+/**
+ * Validates the closed schema, map-dimension agreement, one mask cell per tile, and the binary
+ * land/water value domain. These are the complete admission invariants for this artifact.
+ */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext,
+): readonly ArtifactValidationIssue[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (!isRecord(value)) return Object.freeze(issues);
+
+  const { width, height, landMask } = value;
+  if (
+    typeof width !== "number" ||
+    !Number.isInteger(width) ||
+    typeof height !== "number" ||
+    !Number.isInteger(height) ||
+    width < 1 ||
+    height < 1 ||
+    !(landMask instanceof Uint8Array)
+  ) {
+    return Object.freeze(issues);
+  }
+
+  const expectedSize = width * height;
+  if (landMask.length !== expectedSize) {
+    issues.push({ message: `surfaceMask.landMask must contain ${expectedSize} cells.` });
+  }
+  if (
+    context?.dimensions &&
+    (width !== context.dimensions.width || height !== context.dimensions.height)
+  ) {
+    issues.push({ message: "surfaceMask dimensions must match the active map." });
+  }
+  if (landMask.some((cell) => cell !== 0 && cell !== 1)) {
+    issues.push({ message: "surfaceMask.landMask accepts only 0 (water) or 1 (land)." });
+  }
+  return Object.freeze(issues);
+}
 ```
 
-**Wire it through a step (write-once publish, read by consumers):**
+**`artifacts/index.ts` — the only catalog/handle registry:**
 ```ts
-// producing step contract: artifacts: { provides: [myStageArtifacts.myArtifact] }
-//   + index.ts: implementArtifacts(MyStepContract.artifacts!.provides!, { myArtifact: {} })
-deps.artifacts.myArtifact.publish(context, { width, height, myData });
+import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
+import * as surfaceMask from "./surface-mask.artifact.js";
 
-// consuming step contract: artifacts: { requires: [myStageArtifacts.myArtifact] }
-const value = deps.artifacts.myArtifact.read(context);
+const catalog = defineArtifactCatalog({ surfaceMask });
+
+/** Stage artifact modules pairing every contract with its complete admission validator. */
+export const artifactModules = catalog.modules;
+
+/** Stage artifact handles derived from the same catalog for contracts and consumers. */
+export const artifacts = catalog.artifacts;
 ```
+
+**Wire the same module authority through a step (write-once publish, read by consumers):**
+```ts
+// producing step contract: artifacts: { provides: [myStageArtifacts.surfaceMask] }
+// producing step runtime: artifacts: [myStageArtifactModules.surfaceMask]
+deps.artifacts.surfaceMask.publish(context, { width, height, landMask });
+
+// consuming step contract: artifacts: { requires: [myStageArtifacts.surfaceMask] }
+const value = deps.artifacts.surfaceMask.read(context);
+```
+
+`createStep` admits the selected modules and derives the producer runtimes. The lower-level
+`implementArtifactModules` helper is Core runtime/test support, not normal recipe authoring.
 
 > Id namespaces seen in live source: `artifact:<domain>.<name>` (e.g.
 > `artifact:morphology.topography`, `artifact:ecology.biomeClassification`) for truth

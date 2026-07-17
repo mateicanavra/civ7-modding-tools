@@ -1,5 +1,13 @@
 import { describe, expect, it } from "bun:test";
+import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation/artifacts";
 import {
+  FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
+  FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG,
+  FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
+  FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
+} from "@swooper/mapgen-core";
+
+const {
   crust,
   crustInit,
   currentTectonics,
@@ -16,16 +24,9 @@ import {
   tectonicProvenance,
   tectonicSegments,
   tracerIndexByEra,
-} from "@mapgen/domain/foundation/artifacts";
-import {
-  FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
-  FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG,
-  FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
-  FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
-} from "@swooper/mapgen-core";
+} = foundationArtifactModules;
 
 type ArtifactModule = Readonly<{
-  Schema: unknown;
   artifact: Readonly<{ id: string; name: string; schema: unknown }>;
   validate: (value: unknown) => readonly { message: string }[];
 }>;

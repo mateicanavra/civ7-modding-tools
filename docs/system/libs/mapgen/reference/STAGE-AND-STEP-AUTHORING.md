@@ -27,21 +27,27 @@ A step contract defines:
 Representative example (dependency tags + artifact requirements; excerpt; see full file in anchors):
 
 ```ts
-import { defineStep, Type } from "@swooper/mapgen-core/authoring";
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
-import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
-import { mapRiversArtifacts } from "../artifacts.js";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tag-contracts.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts/index.js";
+import { artifacts as mapMorphologyArtifacts } from "../../map-morphology/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../artifacts/index.js";
 
 export default defineStep({
   id: "plot-rivers",
-  phase: "gameplay",
+  phase: "hydrology",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
   provides: [
     MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
     MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured,
   ],
   artifacts: {
-    requires: [hydrologyHydrographyArtifacts.hydrography],
+    requires: [
+      hydrologyHydrographyArtifacts.hydrography,
+      hydrologyHydrographyArtifacts.lakePlan,
+      hydrologyHydrographyArtifacts.riverNetworkMetrics,
+      mapMorphologyArtifacts.coastClassification,
+    ],
     provides: [
       mapRiversArtifacts.projectedNavigableRivers,
       mapRiversArtifacts.engineProjectionRivers,
@@ -58,15 +64,26 @@ A step module pairs a step contract with an implementation:
 
 - optional `normalize(config, ctx)` hook (must be shape-preserving)
 - `run(context, config, ops, deps)` implementation
-- optional artifact helpers surface (depending on artifacts contract)
+- an `artifacts` module tuple that exactly matches the contract's nonempty
+  `artifacts.provides` declaration
+
+`createStep` verifies provider identity and set equality, then derives the runtime map.
+Steps with no provided artifacts, an empty provides tuple, or requires-only artifact
+dependencies omit the implementation artifact surface.
 
 Representative example (createStep boundary; excerpt; see full file in anchors):
 
 ```ts
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as mapRiversArtifactModules } from "../artifacts/index.js";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 
 export default createStep(PlotRiversStepContract, {
+  artifacts: [
+    mapRiversArtifactModules.projectedNavigableRivers,
+    mapRiversArtifactModules.engineProjectionRivers,
+    mapRiversArtifactModules.riversEngineTerrainSnapshot,
+  ],
   normalize: (config, ctx) => {
     // Shape-preserving; may use ctx.knobs deterministically. For rivers, this
     // is where map-rivers navigableRiverDensity resolves the Hydrology-owned
@@ -135,6 +152,7 @@ topology by sorting or repairing the authored recipe.
 
 - Step contract definition and invariants: `packages/mapgen-core/src/authoring/step/contract.ts`
 - Step module creation: `packages/mapgen-core/src/authoring/step/create.ts`
+- Artifact module implementation: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
 - Config compilation uses StageContractAny/StepModuleAny: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Recipe DAG projection: `packages/mapgen-core/src/authoring/recipe-dag.ts`
 - Policy: schemas and validation: `docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { isMajorRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
-import { validators as hydrologyHydrographyArtifactValidators } from "../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 
 describe("hydrography river class contract", () => {
   it("validates river classes as u8 intent with >=2 major/projectable", () => {
@@ -14,7 +14,7 @@ describe("hydrography river class contract", () => {
     };
 
     expect(
-      hydrologyHydrographyArtifactValidators.hydrography(payload, {
+      hydrologyHydrographyArtifactModules.hydrography.validate(payload, {
         dimensions: { width: 4, height: 1 },
       })
     ).toEqual([]);

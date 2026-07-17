@@ -3,7 +3,7 @@
   <item id="stages" title="Stage shape (standard recipe)"/>
   <item id="ownership" title="Ownership (decision logic lives in domain ops)"/>
   <item id="contract" title="Contract (requires/provides)"/>
-  <item id="artifacts" title="Key artifacts + validators"/>
+  <item id="artifacts" title="Key artifact modules"/>
   <item id="ops" title="Ops surface"/>
   <item id="config" title="Config posture (knob groups)"/>
   <item id="viz" title="Studio visualization coverage"/>
@@ -86,11 +86,14 @@ Runtime semantics (ADR-009 regime):
 - Placement apply is fail-hard; natural wonders use deterministic full-stamp-or-fail semantics; resource readback mismatches are fail-hard.
 - Surface preparation (terrain validation, area recalculation, water cache storage, landmass-region restamping, fertility recalculation) remains transactional because no independent consumer exists.
 
-## Key artifacts + validators
+## Key artifact modules
 
-Artifact contracts are one-per-file under
-`mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/contract/*.contract.ts`
-(`artifacts.ts` is assembly-only). Every placement artifact registers a validate hook (cheap cross-field invariants: count reconciliation, digest↔row agreement, grid partitions, buffer lengths). Inventory:
+Artifact modules are one-per-file under
+`mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/*.artifact.ts`.
+The stage artifact index assembles one module catalog and derives its contract handles from
+that authority. Every module owns the complete structural and semantic validator used by
+publication and validated reads (including count reconciliation, digest-to-row agreement,
+grid partitions, and buffer lengths). Inventory:
 
 | Artifact | Published by | Substance |
 | --- | --- | --- |
@@ -108,7 +111,7 @@ Artifact contracts are one-per-file under
 | `placementSurfacePreparation` | prepare-placement-surface | maintenance/drift counters |
 | `placementOutputs`, `engineState` | placement (terminal) | verification/debug surface (only measured fields; no hardcoded-zero placeholders) |
 
-Placement also depends on gameplay-owned projection artifacts (`landmassRegionSlotByTile`, `placementSurfaceValidationBoundary`, `projectionMeta`, `placementEngineTerrainSnapshot`) authored in `mods/mod-swooper-maps/src/recipes/standard/map-artifacts.ts` — these also carry validate hooks.
+Placement also depends on gameplay-owned projection artifact modules (`landmassRegionSlotByTile`, `placementSurfaceValidationBoundary`, `projectionMeta`, `placementEngineTerrainSnapshot`) assembled in `mods/mod-swooper-maps/src/recipes/standard/artifacts/index.ts`; each carries the same complete module-owned validation authority.
 
 ## Ops surface
 

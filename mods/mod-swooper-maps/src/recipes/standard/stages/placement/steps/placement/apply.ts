@@ -11,31 +11,31 @@ import {
 import { logAsciiMap, logTerrainStats } from "../terrain-diagnostics.js";
 
 type LandmassRegionSlotByTile = Static<
-  typeof import("../../../../map-artifacts.js").mapArtifacts["landmassRegionSlotByTile"]["schema"]
+  typeof import("../../../../artifacts/index.js").artifacts["landmassRegionSlotByTile"]["schema"]
 >;
 type NaturalWonderPlacement = Static<
-  typeof import("../../artifacts/index.js").artifactContracts["naturalWonderPlacement"]["Schema"]
+  typeof import("../../artifacts/index.js").artifacts["naturalWonderPlacement"]["schema"]
 >;
 type EngineTerrainSnapshot = Static<
-  typeof import("../../../../map-artifacts.js").mapArtifacts["placementEngineTerrainSnapshot"]["schema"]
+  typeof import("../../../../artifacts/index.js").artifacts["placementEngineTerrainSnapshot"]["schema"]
 >;
 type PlacementEngineState = Static<
-  typeof import("../../artifacts/index.js").artifactContracts["engineState"]["Schema"]
+  typeof import("../../artifacts/index.js").artifacts["engineState"]["schema"]
 >;
 type PlacementSurfacePreparation = Static<
-  typeof import("../../artifacts/index.js").artifactContracts["placementSurfacePreparation"]["Schema"]
+  typeof import("../../artifacts/index.js").artifacts["placementSurfacePreparation"]["schema"]
 >;
 type ResourcePlacementOutcomes = Static<
-  typeof import("../../artifacts/index.js").artifactContracts["resourcePlacementOutcomes"]["Schema"]
+  typeof import("../../artifacts/index.js").artifacts["resourcePlacementOutcomes"]["schema"]
 >;
 type DiscoveryPlacementOutcomes = Static<
-  typeof import("../../artifacts/index.js").artifactContracts["discoveryPlacementOutcomes"]["Schema"]
+  typeof import("../../artifacts/index.js").artifacts["discoveryPlacementOutcomes"]["schema"]
 >;
 type AdvancedStartAssignment = Static<
-  typeof import("../../artifacts/index.js").artifactContracts["advancedStartAssignment"]["Schema"]
+  typeof import("../../artifacts/index.js").artifacts["advancedStartAssignment"]["schema"]
 >;
 type StartAssignment = Static<
-  typeof import("../../artifacts/index.js").artifactContracts["startAssignment"]["Schema"]
+  typeof import("../../artifacts/index.js").artifacts["startAssignment"]["schema"]
 >;
 
 type ApplyPlacementArgs = {

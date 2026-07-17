@@ -13,9 +13,9 @@ import {
   NAVIGABLE_RIVER_TERRAIN,
   snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { restoreProjectedCoastTerrain } from "../../../projection-policies/coastProjectionParity.js";
-import { artifacts as mapRiversArtifacts } from "../artifacts/index.js";
+import { artifactModules as mapRiversArtifactModules } from "../artifacts/index.js";
 import {
   NAVIGABLE_RIVER_PROJECTION_POLICY,
   type NavigableRiverDensityKnob,
@@ -113,18 +113,11 @@ function classifyProjectionSignal(input: {
  * and publishes planned-versus-engine readbacks for parity diagnostics.
  */
 export default createStep(PlotRiversStepContract, {
-  artifacts: implementArtifacts(
-    [
-      mapRiversArtifacts.projectedNavigableRivers,
-      mapRiversArtifacts.engineProjectionRivers,
-      mapRiversArtifacts.riversEngineTerrainSnapshot,
-    ],
-    {
-      projectedNavigableRivers: {},
-      engineProjectionRivers: {},
-      riversEngineTerrainSnapshot: {},
-    }
-  ),
+  artifacts: [
+    mapRiversArtifactModules.projectedNavigableRivers,
+    mapRiversArtifactModules.engineProjectionRivers,
+    mapRiversArtifactModules.riversEngineTerrainSnapshot,
+  ],
   normalize: (config, ctx) => {
     if (config.selectNavigableRiverTerrain.strategy !== "default") return config;
     const { navigableRiverDensity } = ctx.knobs as {

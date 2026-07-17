@@ -12,9 +12,9 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "missing canonical morphology belt-driver contract references",
-  "why": "Morphology belt-driver contracts are the structural handoff between foundation physics artifacts and morphology truth artifacts.",
-  "remediate": null,
+  "forbids": "missing canonical morphology belt-driver contract references or direct mountain dependencies on retired Foundation driver products",
+  "why": "Morphology coasts derive belt drivers from canonical Standard foundation tile artifacts; mountain planning consumes the Morphology-owned belt-driver artifact.",
+  "remediate": "Require the three Standard foundation tile products in landmassPlates, provide morphologyArtifacts.beltDrivers there, and consume that belt-driver artifact from mountains.",
   "message": "Keep morphology belt-driver contracts wired to canonical artifacts.",
   "pathCoverage": [
     {
@@ -28,12 +28,16 @@
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/baseline.json"
   },
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps"
+  ],
+  "hookCheck": true,
   "runner": {
-    "name": "habitat",
-    "mode": "script",
-    "runtime": "node",
+    "name": "grit",
     "files": {
-      "script": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/check.mjs"
-    }
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/pattern.md"
+    },
+    "patternName": "preserve_morphology_belt_driver_contracts"
   }
 }

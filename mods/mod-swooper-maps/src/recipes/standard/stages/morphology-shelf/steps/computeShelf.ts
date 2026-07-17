@@ -1,8 +1,8 @@
 import { MORPHOLOGY_SHELF_WIDTH_MULTIPLIER } from "@mapgen/domain/morphology/model/policy/shelf-knob-policy.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
-import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "../../morphology/artifacts/index.js";
 import type { MorphologyShelfWidthKnob } from "../index.js";
 import ComputeShelfStepContract from "./computeShelf.contract.js";
 
@@ -17,11 +17,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * carved pre-island metrics that mountains consumes.
  */
 export default createStep(ComputeShelfStepContract, {
-  artifacts: implementArtifacts(ComputeShelfStepContract.artifacts!.provides!, {
-    shelf: {
-      validate: morphologyArtifactValidators.shelf,
-    },
-  }),
+  artifacts: [morphologyArtifactModules.shelf],
   normalize: (config, ctx) => {
     const { shelfWidth } = ctx.knobs as Readonly<{ shelfWidth?: MorphologyShelfWidthKnob }>;
     const shelfMultiplier = MORPHOLOGY_SHELF_WIDTH_MULTIPLIER[shelfWidth ?? "normal"] ?? 1.0;

@@ -110,6 +110,26 @@ type StepArtifactsDeclInput = Readonly<{
   provides?: readonly ArtifactContract[];
 }>;
 
+function snapshotArtifactsDecl(
+  input: StepArtifactsDeclInput | undefined
+): StepArtifactsDeclInput | undefined {
+  if (input === undefined) return undefined;
+
+  const snapshot: {
+    requires?: readonly ArtifactContract[];
+    provides?: readonly ArtifactContract[];
+  } = {};
+  if (Object.prototype.hasOwnProperty.call(input, "requires")) {
+    snapshot.requires =
+      input.requires === undefined ? undefined : Object.freeze([...input.requires]);
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "provides")) {
+    snapshot.provides =
+      input.provides === undefined ? undefined : Object.freeze([...input.provides]);
+  }
+  return Object.freeze(snapshot);
+}
+
 type StepArtifactsRequires<T> = T extends { requires?: infer R } ? R : undefined;
 type StepArtifactsProvides<T> = T extends { provides?: infer P } ? P : undefined;
 
@@ -202,11 +222,12 @@ export function defineStep(def: any): any {
     throw new Error(`step id "${def.id}" must be kebab-case (e.g. "plot-vegetation")`);
   }
 
+  const artifacts = snapshotArtifactsDecl(def.artifacts);
   const artifactRequires: string[] =
-    def.artifacts?.requires?.map((artifact: ArtifactContract) => artifact.id) ?? [];
+    artifacts?.requires?.map((artifact: ArtifactContract) => artifact.id) ?? [];
   const artifactProvides: string[] =
-    def.artifacts?.provides?.map((artifact: ArtifactContract) => artifact.id) ?? [];
-  const hasArtifacts = Boolean(def.artifacts);
+    artifacts?.provides?.map((artifact: ArtifactContract) => artifact.id) ?? [];
+  const hasArtifacts = artifacts !== undefined;
 
   if (hasArtifacts) {
     const directArtifactTags = [...def.requires, ...def.provides].filter((tag: string) =>
@@ -237,19 +258,20 @@ export function defineStep(def: any): any {
     seenArtifacts.add(id);
   }
 
-  const requires = [...def.requires, ...artifactRequires];
-  const provides = [...def.provides, ...artifactProvides];
+  const requires = Object.freeze([...def.requires, ...artifactRequires]);
+  const provides = Object.freeze([...def.provides, ...artifactProvides]);
 
   const ops = def.ops ? normalizeOpsDecl({ stepId: def.id, ops: def.ops }) : undefined;
 
   const schema = ops ? buildSchemaWithOps({ stepId: def.id, schema: def.schema, ops }) : def.schema;
   applySchemaConventions(schema, `step:${def.id}.schema`);
 
-  return {
+  return Object.freeze({
     ...def,
+    ...(hasArtifacts ? { artifacts } : {}),
     requires,
     provides,
     ops,
     schema,
-  };
+  });
 }

@@ -93,7 +93,7 @@ At the **standard recipe wiring** level, Morphology requires the following upstr
 
 - `mods/mod-swooper-maps/src/domain/morphology/ops/*/contract.ts` (`defineOp({ input: ... })` for each op)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts` (`LandmassPlatesStepContract.artifacts.requires`)
-- `mods/mod-swooper-maps/src/recipes/standard/map-artifacts.ts` (`mapArtifacts.foundationPlates`, `mapArtifacts.foundationCrustTiles`)
+- `mods/mod-swooper-maps/src/recipes/standard/artifacts/index.ts` (`artifacts.foundationPlates`, `artifacts.foundationCrustTiles`)
 - `mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/contract.ts` (input `crustBaseElevation` described as “projected from mesh crust truth”)
 
 ### Provides (artifacts + tags)

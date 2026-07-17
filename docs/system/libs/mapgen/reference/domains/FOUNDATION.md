@@ -463,7 +463,7 @@ This page contains many inline “Ground truth anchors” callouts. This section
 
 - Domain entrypoint + op ids: `mods/mod-swooper-maps/src/domain/foundation/index.ts`
 - Standard recipe stage definitions (five sibling stages): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny/index.ts`, and `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/index.ts`; overall step ordering + wiring: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-- Foundation artifact registry (aggregate contracts, ids, and validators): `mods/mod-swooper-maps/src/domain/foundation/artifacts/index.ts` (`artifactContracts`, `artifacts`, `validators`)
+- Foundation artifact module catalog (contracts paired with complete admission validators, plus derived handles): `mods/mod-swooper-maps/src/domain/foundation/artifacts/index.ts` (`artifactModules`, `artifacts`)
 - Core artifact tag constants (shared ids/types): `packages/mapgen-core/src/core/types.ts`
 
 - Mesh construction (truth root):

@@ -1,7 +1,7 @@
 import morphology from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { mapArtifacts } from "../../../map-artifacts.js";
+import { artifacts as standardArtifacts } from "../../../artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
 
 /**
@@ -14,9 +14,9 @@ const LandmassPlatesStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      mapArtifacts.foundationCrustTiles,
-      mapArtifacts.foundationTectonicHistoryTiles,
-      mapArtifacts.foundationTectonicProvenanceTiles,
+      standardArtifacts.foundationCrustTiles,
+      standardArtifacts.foundationTectonicHistoryTiles,
+      standardArtifacts.foundationTectonicProvenanceTiles,
     ],
     provides: [
       morphologyArtifacts.topography,

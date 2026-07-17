@@ -1,9 +1,6 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  artifacts as placementArtifacts,
-  validators as placementArtifactValidators,
-} from "../../artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import {
   buildPlacementPointBuffers,
   PLACEMENT_TILE_SPACE_ID,
@@ -69,11 +66,7 @@ function emitNaturalWonderOutcomeViz(
  * shortfalls as reconciliation evidence rather than aborting optional misses.
  */
 export default createStep(PlaceNaturalWondersStepContract, {
-  artifacts: implementArtifacts([placementArtifacts.naturalWonderPlacement], {
-    naturalWonderPlacement: {
-      validate: (value) => placementArtifactValidators.naturalWonderPlacement(value),
-    },
-  }),
+  artifacts: [placementArtifactModules.naturalWonderPlacement],
   run: (context, _config, _ops, deps) => {
     const placementInputs = deps.artifacts.placementInputs.read(context);
     const naturalWonderPlan = deps.artifacts.naturalWonderPlan.read(context);

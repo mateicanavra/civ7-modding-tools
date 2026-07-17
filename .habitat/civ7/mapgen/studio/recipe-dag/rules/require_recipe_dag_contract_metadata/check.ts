@@ -138,7 +138,7 @@ for (const [file, source] of graph) {
   if (graphPath.startsWith("mods/mod-swooper-maps/src/recipes/")) {
     requireNotMatches(
       source,
-      /createRecipe|createStage|createStep\s*\(|collectCompileOps|compileOpsById|implementArtifacts/,
+      /createRecipe|createStage|createStep\s*\(|collectCompileOps|compileOpsById|implementArtifactModules/,
       graphPath
     );
   }

@@ -1,9 +1,6 @@
 import { defineVizMeta, deriveStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  artifacts as placementArtifacts,
-  validators as placementArtifactValidators,
-} from "../../artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import {
   buildPlacementPointBuffers,
   PLACEMENT_TILE_SPACE_ID,
@@ -28,24 +25,11 @@ import {
  * intent on the prepared engine surface before starts or resource stamping.
  */
 export default createStep(PlanResourcesStepContract, {
-  artifacts: implementArtifacts(
-    [
-      placementArtifacts.resourceDemandPlan,
-      placementArtifacts.resourcePlan,
-      placementArtifacts.resourceEligibility,
-    ],
-    {
-      resourceDemandPlan: {
-        validate: (value) => placementArtifactValidators.resourceDemandPlan(value),
-      },
-      resourcePlan: {
-        validate: (value) => placementArtifactValidators.resourcePlan(value),
-      },
-      resourceEligibility: {
-        validate: (value) => placementArtifactValidators.resourceEligibility(value),
-      },
-    }
-  ),
+  artifacts: [
+    placementArtifactModules.resourceDemandPlan,
+    placementArtifactModules.resourcePlan,
+    placementArtifactModules.resourceEligibility,
+  ],
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const topography = deps.artifacts.topography.read(context);

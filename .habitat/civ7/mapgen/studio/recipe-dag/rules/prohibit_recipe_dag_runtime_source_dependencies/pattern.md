@@ -45,7 +45,7 @@ or {
   `compileOpsById` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
   },
-  `implementArtifacts` where {
+  `implementArtifactModules` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/studio-contracts/.*\.ts$"
   }
 }
@@ -73,7 +73,7 @@ const browser = "browser-test";
 const helper = createStep;
 
 // @filename: mods/mod-swooper-maps/src/recipes/studio-contracts/index.ts
-const helper = implementArtifacts;
+const helper = implementArtifactModules;
 ```
 
 ## Ignores fixture

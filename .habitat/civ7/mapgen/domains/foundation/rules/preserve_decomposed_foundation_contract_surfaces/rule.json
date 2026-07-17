@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "missing decomposed foundation operation names, domain artifact contract tags/validators, required strategy rules imports, or projection plate-motion/provenance currentness",
-  "why": "Foundation contract currentness is a package-local validator for MapGen pipeline composition; artifact validation is owned by domain artifact files and exposed through the domain artifact aggregate.",
+  "forbids": "missing decomposed foundation operation names, domain artifact modules, required strategy rules imports, or projection plate-motion/provenance currentness",
+  "why": "Foundation contract currentness spans the fixed decomposed operation and artifact identity corpus. Generic artifact blueprint rules separately own artifact module and catalog shape.",
   "remediate": null,
-  "message": "Keep foundation positive/currentness surfaces aligned with decomposed foundation outputs and domain-owned artifact validators.",
+  "message": "Keep foundation positive/currentness surfaces aligned with decomposed operation outputs and the fixed Foundation artifact identities.",
   "pathCoverage": [
     {
       "kind": "exact-path",
@@ -24,7 +24,6 @@
         "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/**/*.ts",
         "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/**/*.ts",
         "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/**/*.ts",
-        "mods/mod-swooper-maps/src/recipes/standard/map-artifacts.ts",
         "mods/mod-swooper-maps/src/maps/**/*.ts",
         "mods/mod-swooper-maps/src/maps/**/*.json"
       ]

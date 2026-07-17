@@ -15,11 +15,8 @@ import {
   dumpScalarFieldVariants,
   writeClimateField,
 } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  artifacts as hydrologyClimateRefineArtifacts,
-  validators as hydrologyClimateRefineArtifactValidators,
-} from "../artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as hydrologyClimateRefineArtifactModules } from "../artifacts/index.js";
 import ClimateRefineStepContract from "./climateRefine.contract.js";
 
 type HydrologyCryosphereKnob = "off" | "on";
@@ -42,24 +39,11 @@ const EFFECTIVE_MOISTURE_MAJOR_RIVER_BONUS = 8;
  * cryosphere state, water-budget indices, and diagnostics as one bounded result.
  */
 export default createStep(ClimateRefineStepContract, {
-  artifacts: implementArtifacts(
-    [
-      hydrologyClimateRefineArtifacts.climateIndices,
-      hydrologyClimateRefineArtifacts.cryosphere,
-      hydrologyClimateRefineArtifacts.climateDiagnostics,
-    ],
-    {
-      climateIndices: {
-        validate: hydrologyClimateRefineArtifactValidators.climateIndices,
-      },
-      cryosphere: {
-        validate: hydrologyClimateRefineArtifactValidators.cryosphere,
-      },
-      climateDiagnostics: {
-        validate: hydrologyClimateRefineArtifactValidators.climateDiagnostics,
-      },
-    }
-  ),
+  artifacts: [
+    hydrologyClimateRefineArtifactModules.climateIndices,
+    hydrologyClimateRefineArtifactModules.cryosphere,
+    hydrologyClimateRefineArtifactModules.climateDiagnostics,
+  ],
   normalize: (config, ctx) => {
     const { dryness, temperature, cryosphere } = ctx.knobs as {
       dryness: HydrologyDrynessKnob;

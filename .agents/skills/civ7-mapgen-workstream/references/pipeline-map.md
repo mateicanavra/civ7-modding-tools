@@ -30,7 +30,7 @@
 - **step** — executable contract boundary. `defineStep({ id, phase, requires, provides, artifacts:{requires,provides}, ops, schema })` + `createStep(contract, { artifacts, normalize?, run })`. `run(context, config, ops, deps)`; publish/read artifacts via `deps.artifacts.<name>.publish/read`.
 - **stage** — recipe-level authoring + ownership surface. `createStage({ id, knobsSchema, steps, public?, compile? })`. Owns its authoring surface, knobs, and step composition — NOT global ordering, truth authority, or compute.
 - **recipe** — global stage/step order. `createRecipe({ id, namespace, tagDefinitions, stages, compileOpsById })`. Standard recipe id `mod-swooper-maps/standard`. Ordering is enforced by `contract-manifest.ts`, not by key order in `recipe.ts`.
-- **artifact** — named, typed, write-once cross-stage data. `defineArtifact({ name, id, schema })`; id `artifact:<domain>.<name>` or `artifact:map.<name>`. Also dependency-tag prefixes `field:<name>` and `effect:<name>`.
+- **artifact** — named, typed, write-once cross-stage data. One artifact module owns its `defineArtifact({ name, id, schema })` contract and complete structural/semantic `validate` function. `defineArtifactCatalog` derives runtime modules and consumer handles from that single registry; id `artifact:<domain>.<name>` or `artifact:map.<name>`. Also dependency-tag prefixes `field:<name>` and `effect:<name>`.
 - **knob** — stage-level semantic authoring shortcut, applied via `normalize()`/`compile()`.
 
 ---
@@ -66,7 +66,7 @@ Read the interleave carefully: ecology *truth* (pedology, biomes) is computed at
 
 **narrative is absent.** The `narrative` domain has **0 ops** (`domain/narrative/ops/contracts.ts` is `export const contracts = {} as const`) and no live recipe stage slot. Subtrees (corridors/orogeny/overlays/tagging) persist as utilities; any claim of active narrative ops is wrong.
 
-**Residual non-stage dirs:** `stages/ecology/` and `stages/morphology/` exist but are NOT registered stages — they are shared artifact-helper directories (`artifacts.ts`, validation), have no `index.ts` stage registration, and are not passed to `orderStandardStages`. The normalization packet directs dissolving the `ecology` hub; treat both as implementation-internal residue, not stages.
+**Residual non-stage dirs:** `stages/ecology/` and `stages/morphology/` exist but are NOT registered stages — they are shared artifact-module directories (`artifacts/*.artifact.ts` plus the catalog `artifacts/index.ts`), have no stage `index.ts` registration, and are not passed to `orderStandardStages`. The normalization packet directs dissolving the `ecology` hub; treat both as implementation-internal residue, not stages.
 
 ---
 
@@ -117,7 +117,7 @@ Two import faces of a domain (path alias `@mapgen/domain/*` → `src/domain/*`):
 - New **op** → create the `ops/<op-id>/` directory; add the contract to `ops/contracts.ts` and the impl to `ops/index.ts`.
 - New **step** → add the step contract to `standardStageContractManifest` (sets order) and the runtime step to the stage's `orderStandardStageSteps({...})`.
 - New **stage** → add to `standardStageContractManifest` (position = pipeline order), add to `orderStandardStages({...})` in `recipe.ts`; if it brings a new domain, add that domain to `collectCompileOps(...)`.
-- New **artifact** → `defineArtifact` in the stage's `artifacts.ts`; declare it in the producing step's `artifacts.provides` and any consumer's `artifacts.requires`.
+- New **artifact** → add one `artifacts/<name>.artifact.ts` module containing the contract and its complete validator; register that module once in `artifacts/index.ts` with `defineArtifactCatalog`; use the derived `artifacts` handles in step contracts and pass the selected `artifactModules` entries directly to `createStep`.
 
 ---
 
@@ -178,10 +178,21 @@ ecology    ──▶ artifact:ecology.{biomeClassification, soils, resourceBasin
    ▼
 map-*      ──▶ writes engine terrain via adapter; may publish diagnostic artifact:map.* keys, e.g.
                artifact:map.morphology.coastClassification {baseWaterClass, sourceCoastMask, waterClass, policyCoastMask}
-               artifact:map.projectionMeta   (cross-stage map-level artifacts in recipes/standard/map-artifacts.ts)
+               artifact:map.projectionMeta   (cross-stage map-level module in recipes/standard/artifacts/)
 ```
 
-Artifacts are **write-once**: a producer `publish`es once; consumers `read`. To find who produces/consumes a given key, grep its `artifact:` id across `src/recipes/standard/stages/`. The `map.morphology.coastClassification.waterClass` key is treated as the authoritative post-`plotCoasts` coast/ocean projection and is reapplied after adapter maintenance in map-morphology/map-rivers/placement (commit `621658f3c`); `sourceCoastMask` is exposed separately for diagnostics.
+Artifacts are **write-once**: a producer `publish`es once; consumers `read`. Every
+`*.artifact.ts` module pairs one contract with the complete structural/semantic validator used
+by publish and satisfaction checks. Its owning `artifacts/index.ts` calls
+`defineArtifactCatalog`, then exports `catalog.modules` as `artifactModules` and
+`catalog.artifacts` as `artifacts`; a producer passes the relevant module entries directly to
+`createStep`, which derives the validated runtimes. This keeps registration, handles, and
+admission under one authority.
+To find who produces/consumes a given key, grep its `artifact:` id across
+`src/recipes/standard/stages/`. The `map.morphology.coastClassification.waterClass` key is treated
+as the authoritative post-`plotCoasts` coast/ocean projection and is reapplied after adapter
+maintenance in map-morphology/map-rivers/placement (commit `621658f3c`); `sourceCoastMask` is
+exposed separately for diagnostics.
 
 ---
 
@@ -189,8 +200,8 @@ Artifacts are **write-once**: a producer `publish`es once; consumers `read`. To 
 
 | `@swooper/mapgen-core` (engine substrate) owns | The mod (`mods/mod-swooper-maps`) authors |
 |---|---|
-| The authoring API (`defineOp/defineStep/defineArtifact/defineDomain`, `createOp/createStep/createStage/createRecipe/createDomain/implementArtifacts/collectCompileOps`) | All domain algorithms (ops, strategies, rules) |
-| Execution infra: PipelineExecutor, StepRegistry, write-once artifact runtime, TypeBox schema validation, trace/viz | Artifact schemas + ids; stage orchestration; recipe ordering; config schemas |
+| The authoring API (`defineOp/defineStep/defineArtifact/defineArtifactCatalog/defineDomain`, `createOp/createStep/createStage/createRecipe/createDomain/collectCompileOps`) | All domain algorithms (ops, strategies, rules) |
+| Execution infra: PipelineExecutor, StepRegistry, write-once artifact runtime, reusable TypeBox schema validation, trace/viz | Artifact schemas + ids + complete domain validators; stage orchestration; recipe ordering; config schemas |
 | Strategy dispatch (`runtimeStrategies[cfg.strategy]`) | Game-facing entrypoints, map configs, presets |
 | Zero Civ7 knowledge | Civ7 enters only at map entrypoints + `map-*`/`placement` adapter calls |
 

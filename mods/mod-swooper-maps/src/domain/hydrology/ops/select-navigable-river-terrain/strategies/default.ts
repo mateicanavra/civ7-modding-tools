@@ -9,10 +9,10 @@ import {
 import SelectNavigableRiverTerrainContract from "../contract.js";
 
 function percentileFloor(valuesAscending: readonly number[], percentile: number): number {
-  if (valuesAscending.length === 0) return Infinity;
+  if (valuesAscending.length === 0) return 0;
   const p = clampPct(percentile, 0, 1, 0);
   const index = Math.floor((valuesAscending.length - 1) * p);
-  return valuesAscending[index] ?? Infinity;
+  return valuesAscending[index] ?? 0;
 }
 
 function assertLength(name: string, actual: number, expected: number): void {
@@ -148,7 +148,7 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
         meanSelectedChainLength: 0,
         targetTileCount,
         targetMajorTileFraction,
-        selectedEndpointDischargeFloor: Infinity,
+        selectedEndpointDischargeFloor: 0,
         nonProjectableMajorTileCount,
         unselectedEligibleMajorTileCount: eligibleTileCount,
       } as const;

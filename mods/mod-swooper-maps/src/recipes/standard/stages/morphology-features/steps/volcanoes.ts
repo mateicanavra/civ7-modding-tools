@@ -10,9 +10,9 @@ import {
   renderAsciiGrid,
   xyFromIndex,
 } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampFinite } from "@swooper/mapgen-core/lib/math";
-import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "../../morphology/artifacts/index.js";
 import type { MorphologyVolcanismKnob } from "../index.js";
 import VolcanoesStepContract from "./volcanoes.contract.js";
 
@@ -26,11 +26,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * final land truth; engine volcano placement remains downstream.
  */
 export default createStep(VolcanoesStepContract, {
-  artifacts: implementArtifacts(VolcanoesStepContract.artifacts!.provides!, {
-    volcanoes: {
-      validate: morphologyArtifactValidators.volcanoes,
-    },
-  }),
+  artifacts: [morphologyArtifactModules.volcanoes],
   normalize: (config, ctx) => {
     const { volcanism } = ctx.knobs as Readonly<{ volcanism?: MorphologyVolcanismKnob }>;
     const densityMultiplier =

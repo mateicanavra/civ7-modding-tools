@@ -4,9 +4,8 @@ import {
   dumpVectorFieldVariants,
   renderAsciiGrid,
 } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { validators as standardArtifactValidators } from "../../../artifacts/index.js";
-import { mapArtifacts } from "../../../map-artifacts.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as standardArtifactModules } from "../../../artifacts/index.js";
 import ProjectionStepContract from "./projection.contract.js";
 
 const GROUP_PLATES = "Foundation / Plates";
@@ -21,32 +20,13 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * tile artifacts while leaving terrain shaping to Morphology.
  */
 export default createStep(ProjectionStepContract, {
-  artifacts: implementArtifacts(
-    [
-      mapArtifacts.foundationPlates,
-      mapArtifacts.foundationTileToCellIndex,
-      mapArtifacts.foundationCrustTiles,
-      mapArtifacts.foundationTectonicHistoryTiles,
-      mapArtifacts.foundationTectonicProvenanceTiles,
-    ],
-    {
-      foundationPlates: {
-        validate: standardArtifactValidators.foundationPlates,
-      },
-      foundationTileToCellIndex: {
-        validate: standardArtifactValidators.foundationTileToCellIndex,
-      },
-      foundationCrustTiles: {
-        validate: standardArtifactValidators.foundationCrustTiles,
-      },
-      foundationTectonicHistoryTiles: {
-        validate: standardArtifactValidators.foundationTectonicHistoryTiles,
-      },
-      foundationTectonicProvenanceTiles: {
-        validate: standardArtifactValidators.foundationTectonicProvenanceTiles,
-      },
-    }
-  ),
+  artifacts: [
+    standardArtifactModules.foundationPlates,
+    standardArtifactModules.foundationTileToCellIndex,
+    standardArtifactModules.foundationCrustTiles,
+    standardArtifactModules.foundationTectonicHistoryTiles,
+    standardArtifactModules.foundationTectonicProvenanceTiles,
+  ],
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const mesh = deps.artifacts.foundationMesh.read(context);

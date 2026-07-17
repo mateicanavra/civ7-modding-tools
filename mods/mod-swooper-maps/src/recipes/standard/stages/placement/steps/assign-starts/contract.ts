@@ -1,6 +1,6 @@
 import placement from "@mapgen/domain/placement";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { mapArtifacts } from "../../../../map-artifacts.js";
+import { artifacts as standardArtifacts } from "../../../../artifacts/index.js";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
@@ -22,7 +22,7 @@ const AssignStartsStepContract = defineStep({
       placementArtifacts.placementInputs,
       placementArtifacts.resourcePlan,
       placementArtifacts.naturalWonderPlacement,
-      mapArtifacts.landmassRegionSlotByTile,
+      standardArtifacts.landmassRegionSlotByTile,
       morphologyArtifacts.topography,
       morphologyArtifacts.landmasses,
       morphologyArtifacts.mountains,

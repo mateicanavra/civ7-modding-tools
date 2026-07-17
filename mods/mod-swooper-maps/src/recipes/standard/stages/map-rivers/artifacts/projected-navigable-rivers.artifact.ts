@@ -83,7 +83,7 @@ const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
     selectedEndpointDischargeFloor: Type.Number({
       minimum: 0,
       description:
-        "Discharge floor imposed on candidate major-river endpoints for this selection run.",
+        "Finite discharge floor applied to candidate major-river endpoints; zero when no endpoint corpus is admitted.",
     }),
     nonProjectableMajorTileCount: Type.Integer({
       minimum: 0,

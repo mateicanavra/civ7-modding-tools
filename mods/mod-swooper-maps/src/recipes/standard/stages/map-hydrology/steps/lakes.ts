@@ -1,6 +1,6 @@
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as mapHydrologyArtifacts } from "../artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as mapHydrologyArtifactModules } from "../artifacts/index.js";
 import LakesStepContract from "./lakes.contract.js";
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
@@ -11,16 +11,10 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * accepted-water and terrain snapshots for downstream elevation and parity.
  */
 export default createStep(LakesStepContract, {
-  artifacts: implementArtifacts(
-    [
-      mapHydrologyArtifacts.engineProjectionLakes,
-      mapHydrologyArtifacts.hydrologyLakesEngineTerrainSnapshot,
-    ],
-    {
-      engineProjectionLakes: {},
-      hydrologyLakesEngineTerrainSnapshot: {},
-    }
-  ),
+  artifacts: [
+    mapHydrologyArtifactModules.engineProjectionLakes,
+    mapHydrologyArtifactModules.hydrologyLakesEngineTerrainSnapshot,
+  ],
   run: (context, config, _ops, deps) => {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const mountains = deps.artifacts.mountains.read(context);

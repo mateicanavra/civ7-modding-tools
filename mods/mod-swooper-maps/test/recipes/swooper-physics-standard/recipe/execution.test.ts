@@ -14,7 +14,7 @@ import {
   VOLCANO_FEATURE,
 } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { mapArtifacts } from "../../../../src/recipes/standard/map-artifacts.js";
+import { artifacts as standardArtifacts } from "../../../../src/recipes/standard/artifacts/index.js";
 import type { StandardRecipeConfig } from "../../../../src/recipes/standard/recipe.js";
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
@@ -297,7 +297,7 @@ describe("standard recipe execution", () => {
     expect(landTiles).toBeGreaterThan(0);
     expect(nonVolcanoMountainTiles + hillTiles).toBeGreaterThan(0);
 
-    expect(context.artifacts.get(mapArtifacts.foundationPlates.id)).toBeTruthy();
+    expect(context.artifacts.get(standardArtifacts.foundationPlates.id)).toBeTruthy();
     expect(context.artifacts.get(foundationArtifacts.plateTopology.id)).toBeTruthy();
     expect(context.artifacts.get(placementArtifacts.placementOutputs.id)).toBeTruthy();
 

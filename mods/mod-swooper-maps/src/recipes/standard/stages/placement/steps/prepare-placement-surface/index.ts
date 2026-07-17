@@ -1,12 +1,8 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { validators as standardArtifactValidators } from "../../../../artifacts/index.js";
-import { mapArtifacts } from "../../../../map-artifacts.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as standardArtifactModules } from "../../../../artifacts/index.js";
 import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
-import {
-  artifacts as placementArtifacts,
-  validators as placementArtifactValidators,
-} from "../../artifacts/index.js";
+import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import {
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
@@ -27,20 +23,10 @@ import {
  * storage, and region restamping required before placement products read Civ7.
  */
 export default createStep(PreparePlacementSurfaceStepContract, {
-  artifacts: implementArtifacts(
-    [
-      placementArtifacts.placementSurfacePreparation,
-      mapArtifacts.placementSurfaceValidationBoundary,
-    ],
-    {
-      placementSurfacePreparation: {
-        validate: (value) => placementArtifactValidators.placementSurfacePreparation(value),
-      },
-      placementSurfaceValidationBoundary: {
-        validate: (value) => standardArtifactValidators.placementSurfaceValidationBoundary(value),
-      },
-    }
-  ),
+  artifacts: [
+    placementArtifactModules.placementSurfacePreparation,
+    standardArtifactModules.placementSurfaceValidationBoundary,
+  ],
   run: (context, _config, _ops, deps) => {
     const engineProjectionLakes = deps.artifacts.engineProjectionLakes.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);

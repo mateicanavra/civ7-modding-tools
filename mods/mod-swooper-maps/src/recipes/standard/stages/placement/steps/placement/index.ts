@@ -1,10 +1,6 @@
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { validators as standardArtifactValidators } from "../../../../artifacts/index.js";
-import { mapArtifacts } from "../../../../map-artifacts.js";
-import {
-  artifacts as placementArtifacts,
-  validators as placementArtifactValidators,
-} from "../../artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as standardArtifactModules } from "../../../../artifacts/index.js";
+import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import { applyPlacementPlan } from "./apply.js";
 import PlacementStepContract from "./contract.js";
 /**
@@ -12,24 +8,11 @@ import PlacementStepContract from "./contract.js";
  * truth with engine readback into terminal state and parity evidence.
  */
 export default createStep(PlacementStepContract, {
-  artifacts: implementArtifacts(
-    [
-      placementArtifacts.placementOutputs,
-      placementArtifacts.engineState,
-      mapArtifacts.placementEngineTerrainSnapshot,
-    ],
-    {
-      placementOutputs: {
-        validate: (value) => placementArtifactValidators.placementOutputs(value),
-      },
-      engineState: {
-        validate: (value) => placementArtifactValidators.engineState(value),
-      },
-      placementEngineTerrainSnapshot: {
-        validate: (value) => standardArtifactValidators.placementEngineTerrainSnapshot(value),
-      },
-    }
-  ),
+  artifacts: [
+    placementArtifactModules.placementOutputs,
+    placementArtifactModules.engineState,
+    standardArtifactModules.placementEngineTerrainSnapshot,
+  ],
   run: (context, _config, _ops, deps) => {
     const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
     const surfacePreparation = deps.artifacts.placementSurfacePreparation.read(context);

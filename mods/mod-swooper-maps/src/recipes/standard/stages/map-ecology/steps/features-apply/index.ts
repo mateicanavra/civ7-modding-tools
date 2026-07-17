@@ -1,7 +1,7 @@
 import type { FeatureKey } from "@civ7/map-policy";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as ecologyArtifactModules } from "../../../ecology/artifacts/index.js";
 import { reifyFeatureField, resolveFeatureKeyForIntent } from "../features/apply.js";
 import { resolveFeatureKeyLookups } from "../features/feature-keys.js";
 import FeaturesApplyStepContract from "./contract.js";
@@ -24,9 +24,7 @@ function isFloodplainFeatureKey(feature: string): boolean {
  * boundary and records typed rejection diagnostics without rewriting truth.
  */
 export default createStep(FeaturesApplyStepContract, {
-  artifacts: implementArtifacts([ecologyArtifacts.featureApplyDiagnostics], {
-    featureApplyDiagnostics: {},
-  }),
+  artifacts: [ecologyArtifactModules.featureApplyDiagnostics],
   run: (context, config, ops, deps) => {
     const placements = {
       vegetation: Array.from(deps.artifacts.featureIntentsVegetation.read(context)),

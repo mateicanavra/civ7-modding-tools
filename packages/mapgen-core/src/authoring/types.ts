@@ -14,6 +14,7 @@ import type { TraceSession, TraceSink } from "@mapgen/trace/index.js";
 import type { Static, TObject, TSchema } from "typebox";
 import type { CompileOpsById } from "../compiler/recipe-compile.js";
 import type { ArtifactContract } from "./artifact/contract.js";
+import type { ArtifactModule } from "./artifact/module.js";
 import type { ProvidedArtifactRuntime, RequiredArtifactRuntime } from "./artifact/runtime.js";
 import type { DomainOpRuntimeAny, OpsById } from "./bindings.js";
 import type { StepArtifactsDecl, StepArtifactsDeclAny, StepContract } from "./step/contract.js";
@@ -46,6 +47,36 @@ export type StepProvidedArtifactsRuntime<
         }
       : {}
     : {};
+
+type StepArtifactProvides<TArtifacts extends StepArtifactsDeclAny | undefined> =
+  TArtifacts extends StepArtifactsDecl<any, infer Provides> ? Provides : undefined;
+
+/** Author input that names the modules owning every artifact publication declared by a step. */
+export type StepArtifactModulesInput<TArtifacts extends StepArtifactsDeclAny | undefined> = [
+  StepArtifactProvides<TArtifacts>,
+] extends [undefined]
+  ? Readonly<{ artifacts?: never }>
+  : StepArtifactProvides<TArtifacts> extends readonly []
+    ? Readonly<{ artifacts?: never }>
+    : StepArtifactProvides<TArtifacts> extends readonly ArtifactContract[]
+      ? Readonly<{
+          artifacts: readonly ArtifactModule<StepArtifactProvides<TArtifacts>[number]>[];
+        }>
+      : Readonly<{ artifacts?: never }>;
+
+/** Runtime publication surface derived by `createStep` from the author's artifact modules. */
+export type StepArtifactRuntimes<
+  TContext extends ExtendedMapContext,
+  TArtifacts extends StepArtifactsDeclAny | undefined,
+> = [StepArtifactProvides<TArtifacts>] extends [undefined]
+  ? Readonly<{ artifacts?: never }>
+  : StepArtifactProvides<TArtifacts> extends readonly []
+    ? Readonly<{ artifacts?: never }>
+    : StepArtifactProvides<TArtifacts> extends readonly ArtifactContract[]
+      ? Readonly<{
+          artifacts: StepProvidedArtifactsRuntime<TContext, TArtifacts>;
+        }>
+      : Readonly<{ artifacts?: never }>;
 
 type ArtifactListOrEmpty<T> = T extends readonly ArtifactContract[] ? T : readonly [];
 
@@ -93,7 +124,6 @@ export type StepModule<
   C extends StepContractAny = StepContractAny,
 > = Readonly<{
   contract: C;
-  artifacts?: StepProvidedArtifactsRuntime<TContext, StepArtifactsDeclOfContract<C>>;
   normalize?: (config: unknown, ctx: NormalizeContext) => unknown;
   run: (
     context: TContext,
@@ -101,7 +131,8 @@ export type StepModule<
     ops: unknown,
     deps: StepDeps<TContext, StepArtifactsDeclOfContract<C>>
   ) => void | Promise<void>;
-}>;
+}> &
+  StepArtifactRuntimes<TContext, StepArtifactsDeclOfContract<C>>;
 
 export type Step<
   TContext extends ExtendedMapContext = ExtendedMapContext,

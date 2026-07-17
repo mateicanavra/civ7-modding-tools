@@ -3,11 +3,8 @@ import {
   HYDROLOGY_RIVER_DENSITY_MINOR_PERCENTILE,
 } from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  artifacts as hydrologyHydrographyArtifacts,
-  validators as hydrologyHydrographyArtifactValidators,
-} from "../artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "../artifacts/index.js";
 import RiversStepContract from "./rivers.contract.js";
 
 type HydrologyRiverDensityKnob = "sparse" | "normal" | "dense";
@@ -20,11 +17,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * establishing hydrography truth before any engine river projection.
  */
 export default createStep(RiversStepContract, {
-  artifacts: implementArtifacts([hydrologyHydrographyArtifacts.hydrography], {
-    hydrography: {
-      validate: hydrologyHydrographyArtifactValidators.hydrography,
-    },
-  }),
+  artifacts: [hydrologyHydrographyArtifactModules.hydrography],
   normalize: (config, ctx) => {
     const { riverDensity } = ctx.knobs as { riverDensity: HydrologyRiverDensityKnob };
     if (config.projectRiverNetwork.strategy !== "default") return config;

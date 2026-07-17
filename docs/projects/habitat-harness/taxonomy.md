@@ -83,6 +83,7 @@ treatment without adding a concrete tag or constraint row.
 | mapgen-studio | `apps/mapgen-studio` | `kind:app` |
 | civ7-sdk | `packages/sdk` | `kind:sdk` |
 | mapgen-core | `packages/mapgen-core` | `kind:engine` |
+| mapgen-metrics | `packages/mapgen-metrics` | `kind:engine` |
 | civ7-adapter | `packages/civ7-adapter` | `kind:adapter` |
 | control-direct | `packages/civ7-direct-control` | `kind:control` |
 | control-orpc | `packages/civ7-control-orpc` | `kind:control` |

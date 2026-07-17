@@ -1,13 +1,10 @@
 import { WATER_CLASS_OCEAN } from "@civ7/map-policy";
 import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
 import { clamp01, ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
-import {
-  artifacts as ecologyArtifacts,
-  validators as ecologyArtifactValidators,
-} from "../../../ecology/artifacts/index.js";
+import { artifactModules as ecologyArtifactModules } from "../../../ecology/artifacts/index.js";
 import ScoreLayersStepContract from "./contract.js";
 
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -57,14 +54,7 @@ function localReliefM(
  * morphology, and hydrology truth, and seeds the ordered occupancy chain.
  */
 export default createStep(ScoreLayersStepContract, {
-  artifacts: implementArtifacts([ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase], {
-    scoreLayers: {
-      validate: ecologyArtifactValidators.scoreLayers,
-    },
-    occupancyBase: {
-      validate: ecologyArtifactValidators.occupancyBase,
-    },
-  }),
+  artifacts: [ecologyArtifactModules.scoreLayers, ecologyArtifactModules.occupancyBase],
   run: (context, config, ops, deps) => {
     const classification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);

@@ -1,9 +1,6 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  artifacts as placementArtifacts,
-  validators as placementArtifactValidators,
-} from "../../artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import { PLACEMENT_TILE_SPACE_ID, PLACEMENT_VIZ_GROUP, UNIT_SCORE_VALUE_SPEC } from "../../viz.js";
 import DerivePlacementInputsContract from "./contract.js";
 import { buildPlacementInputs } from "./inputs.js";
@@ -19,17 +16,7 @@ import { logNaturalWonderPlanRuntimeTelemetry } from "./natural-wonder-plan-tele
  * inputs, then derives natural-wonder intent without mutating the map.
  */
 export default createStep(DerivePlacementInputsContract, {
-  artifacts: implementArtifacts(
-    [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],
-    {
-      placementInputs: {
-        validate: (value) => placementArtifactValidators.placementInputs(value),
-      },
-      naturalWonderPlan: {
-        validate: (value) => placementArtifactValidators.naturalWonderPlan(value),
-      },
-    }
-  ),
+  artifacts: [placementArtifactModules.placementInputs, placementArtifactModules.naturalWonderPlan],
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);

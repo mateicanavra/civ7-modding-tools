@@ -1,9 +1,6 @@
-import {
-  artifacts as foundationArtifacts,
-  validators as foundationArtifactValidators,
-} from "@mapgen/domain/foundation";
+import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY, pointsFromPlateSeeds } from "../../foundation/viz.js";
 import PlateGraphStepContract from "./plateGraph.contract.js";
 
@@ -14,11 +11,7 @@ const GROUP_PLATE_GRAPH = "Foundation / Plate Graph";
  * identities are shared by motion and tectonic-history computation.
  */
 export default createStep(PlateGraphStepContract, {
-  artifacts: implementArtifacts([foundationArtifacts.plateGraph], {
-    foundationPlateGraph: {
-      validate: (value) => foundationArtifactValidators.plateGraph(value),
-    },
-  }),
+  artifacts: [foundationArtifactModules.plateGraph],
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const crust = deps.artifacts.foundationCrustInit.read(context);

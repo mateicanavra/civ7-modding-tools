@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
 import {
+  artifactModules as placementArtifactModules,
   artifacts as placementArtifacts,
-  validators as placementArtifactValidators,
 } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import adjustResourcesStep from "../../../../../src/recipes/standard/stages/placement/steps/adjust-resources/index.js";
 import assignAdvancedStartsStep from "../../../../../src/recipes/standard/stages/placement/steps/assign-advanced-starts/index.js";
@@ -179,15 +179,15 @@ describe("placement product/effect contracts", () => {
       inputCoverage: [],
     };
 
-    expect(placementArtifactValidators.startAssignment(assignment)).toEqual([]);
+    expect(placementArtifactModules.startAssignment.validate(assignment)).toEqual([]);
 
     const invalidRungCounts = {
       ...assignment,
       rungCounts: { ...assignment.rungCounts, regional: 1 },
     };
     expect(
-      placementArtifactValidators
-        .startAssignment(invalidRungCounts)
+      placementArtifactModules.startAssignment
+        .validate(invalidRungCounts)
         .some((issue) => issue.message.includes("rungCounts.regional"))
     ).toBe(true);
 
@@ -196,8 +196,8 @@ describe("placement product/effect contracts", () => {
       fairnessReport: { ...assignment.fairnessReport, parity: [1] },
     };
     expect(
-      placementArtifactValidators
-        .startAssignment(invalidFairnessReport)
+      placementArtifactModules.startAssignment
+        .validate(invalidFairnessReport)
         .some((issue) => issue.message.includes("fairnessReport.parity"))
     ).toBe(true);
   });

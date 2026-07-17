@@ -1,9 +1,6 @@
-import {
-  artifacts as foundationArtifacts,
-  validators as foundationArtifactValidators,
-} from "@mapgen/domain/foundation";
+import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
 import { defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY } from "../../foundation/viz.js";
 import MantleForcingStepContract from "./mantleForcing.contract.js";
 
@@ -49,11 +46,7 @@ function buildVectorSegments(params: {
  * vintage shared by lithosphere and tectonic consumers.
  */
 export default createStep(MantleForcingStepContract, {
-  artifacts: implementArtifacts([foundationArtifacts.mantleForcing], {
-    foundationMantleForcing: {
-      validate: (value) => foundationArtifactValidators.mantleForcing(value),
-    },
-  }),
+  artifacts: [foundationArtifactModules.mantleForcing],
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const mantlePotential = deps.artifacts.foundationMantlePotential.read(context);

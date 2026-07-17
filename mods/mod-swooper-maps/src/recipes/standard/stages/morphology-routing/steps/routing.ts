@@ -1,6 +1,6 @@
 import { defineVizMeta, dumpVectorFieldVariants } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { validators as morphologyArtifactValidators } from "../../morphology/artifacts/index.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as morphologyArtifactModules } from "../../morphology/artifacts/index.js";
 import RoutingStepContract from "./routing.contract.js";
 
 const GROUP_ROUTING = "Morphology / Routing";
@@ -16,11 +16,7 @@ function clampI8(value: number): number {
  * geomorphic erosion without substituting for Hydrology's river routing.
  */
 export default createStep(RoutingStepContract, {
-  artifacts: implementArtifacts(RoutingStepContract.artifacts!.provides!, {
-    routing: {
-      validate: morphologyArtifactValidators.routing,
-    },
-  }),
+  artifacts: [morphologyArtifactModules.routing],
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.dimensions;

@@ -1,6 +1,6 @@
 import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { mapArtifacts } from "../../../map-artifacts.js";
+import { artifacts as standardArtifacts } from "../../../artifacts/index.js";
 
 /**
  * Defines the projection-adjacent summary from tile-space plate IDs into whole-plate
@@ -13,7 +13,7 @@ const PlateTopologyStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [mapArtifacts.foundationPlates],
+    requires: [standardArtifacts.foundationPlates],
     provides: [foundationArtifacts.plateTopology],
   },
   ops: {

@@ -1,9 +1,6 @@
-import {
-  artifacts as foundationArtifacts,
-  validators as foundationArtifactValidators,
-} from "@mapgen/domain/foundation";
+import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY, segmentsFromMeshNeighbors } from "../../foundation/viz.js";
 import MeshStepContract from "./mesh.contract.js";
 
@@ -14,11 +11,7 @@ const GROUP_MESH = "Foundation / Mesh";
  * for every subsequent mantle, lithosphere, and tectonics operation.
  */
 export default createStep(MeshStepContract, {
-  artifacts: implementArtifacts([foundationArtifacts.mesh], {
-    foundationMesh: {
-      validate: (value) => foundationArtifactValidators.mesh(value),
-    },
-  }),
+  artifacts: [foundationArtifactModules.mesh],
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const stepId = `${MeshStepContract.phase}/${MeshStepContract.id}`;

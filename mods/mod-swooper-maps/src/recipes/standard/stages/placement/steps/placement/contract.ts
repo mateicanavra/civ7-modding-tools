@@ -1,5 +1,5 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { mapArtifacts } from "../../../../map-artifacts.js";
+import { artifacts as standardArtifacts } from "../../../../artifacts/index.js";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
@@ -30,12 +30,12 @@ const PlacementStepContract = defineStep({
       placementArtifacts.startAssignment,
       placementArtifacts.discoveryPlacementOutcomes,
       placementArtifacts.advancedStartAssignment,
-      mapArtifacts.landmassRegionSlotByTile,
+      standardArtifacts.landmassRegionSlotByTile,
     ],
     provides: [
       placementArtifacts.placementOutputs,
       placementArtifacts.engineState,
-      mapArtifacts.placementEngineTerrainSnapshot,
+      standardArtifacts.placementEngineTerrainSnapshot,
     ],
   },
   schema: Type.Object({}),

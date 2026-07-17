@@ -12,7 +12,7 @@ import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 type ResourcePlanOutput = Static<(typeof resources.ops.adjustResourceSupport)["output"]>;
 type ResourcePlacementOutcomes = Static<
-  typeof import("../../artifacts/index.js").artifactContracts["resourcePlacementOutcomes"]["Schema"]
+  typeof import("../../artifacts/index.js").artifacts["resourcePlacementOutcomes"]["schema"]
 >;
 type ResourcePlacementReason = ResourcePlacementRejectionReason | ResourcePlacementMismatchReason;
 type ResourcePlacementSummary = ResourcePlacementOutcomes["summary"];
