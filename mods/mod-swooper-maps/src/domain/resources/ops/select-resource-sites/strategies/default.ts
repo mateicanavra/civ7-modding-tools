@@ -40,7 +40,6 @@ type DemandState = {
   rotationCount: number;
   rangeFloorCount: number;
   regionMinimumCount: number;
-  shortfalls: Map<string, number>;
 };
 
 type Intent = {
@@ -186,7 +185,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         rotationCount: 0,
         rangeFloorCount: 0,
         regionMinimumCount: 0,
-        shortfalls: new Map(),
       } satisfies DemandState;
     });
     const eligibleByDemand: Uint8Array[] = demands.map((demand) => {
@@ -268,11 +266,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         }
       }
       return { excluded: false, affinityBonus };
-    };
-
-    const recordShortfall = (demand: DemandState, reason: string, count: number): void => {
-      if (count <= 0) return;
-      demand.shortfalls.set(reason, (demand.shortfalls.get(reason) ?? 0) + count);
     };
 
     const place = (demand: DemandState, plotIndex: number, phase: Intent["phase"]): void => {
@@ -439,11 +432,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
             }
           }
           if (best < 0) {
-            recordShortfall(
-              demand,
-              demand.legalTileCount === 0 ? "eligible-tiles-exhausted" : "spacing-floor-preserved",
-              floorTarget - demand.plannedPlots.length
-            );
             break;
           }
           sitePlots.push(best);
@@ -502,15 +490,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
           deficit -= 1;
         }
         const shortfall = Math.max(0, required - have - forced);
-        if (shortfall > 0) {
-          recordShortfall(
-            demand,
-            demand.plannedPlots.length >= demand.maxCount
-              ? "max-count-reached"
-              : "region-tiles-exhausted",
-            shortfall
-          );
-        }
         regionMinimums.push({
           resourceType: demand.resourceType,
           regionSlot,
@@ -521,6 +500,39 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         });
       }
     }
+
+    const terminalRangeShortfall = (
+      demand: DemandState
+    ): Array<{
+      resourceType: OfficialResourceType;
+      reason: "eligible-tiles-exhausted" | "spacing-floor-preserved";
+      count: number;
+    }> => {
+      const count = Math.max(0, demand.effectiveTargetCount - demand.plannedPlots.length);
+      if (count === 0) return [];
+
+      let hasFreeLegalTile = false;
+      let hasSpacingClearTile = false;
+      for (let plotIndex = 0; plotIndex < size; plotIndex++) {
+        if (demand.legalMask[plotIndex] === 0 || usedPlots.has(plotIndex)) continue;
+        hasFreeLegalTile = true;
+        if (!violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) {
+          hasSpacingClearTile = true;
+          break;
+        }
+      }
+
+      return [
+        {
+          resourceType: demand.resourceType,
+          reason:
+            hasFreeLegalTile && !hasSpacingClearTile
+              ? "spacing-floor-preserved"
+              : "eligible-tiles-exhausted",
+          count,
+        },
+      ];
+    };
 
     const perType = demands.map((demand) => ({
       resourceType: demand.resourceType,
@@ -541,15 +553,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
       rotationCount: demand.rotationCount,
       rangeFloorCount: demand.rangeFloorCount,
       regionMinimumCount: demand.regionMinimumCount,
-      shortfalls: Array.from(demand.shortfalls.entries()).map(([reason, count]) => ({
-        resourceType: demand.resourceType,
-        reason: reason as
-          | "eligible-tiles-exhausted"
-          | "spacing-floor-preserved"
-          | "max-count-reached"
-          | "region-tiles-exhausted",
-        count,
-      })),
+      shortfalls: terminalRangeShortfall(demand),
     }));
 
     return {

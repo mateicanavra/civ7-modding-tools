@@ -64,10 +64,12 @@ const ResourcePlanShortfallSchema = Type.Object(
     reason: Type.Union([
       Type.Literal("eligible-tiles-exhausted"),
       Type.Literal("spacing-floor-preserved"),
-      Type.Literal("max-count-reached"),
-      Type.Literal("region-tiles-exhausted"),
     ]),
-    count: Type.Integer({ minimum: 0 }),
+    count: Type.Integer({
+      minimum: 1,
+      description:
+        "Final effective-target deficit after every placement pass (effectiveTargetCount - plannedCount).",
+    }),
   },
   { additionalProperties: false }
 );
@@ -94,7 +96,11 @@ const ResourcePlanPerTypeSchema = Type.Object(
     rotationCount: Type.Integer({ minimum: 0 }),
     rangeFloorCount: Type.Integer({ minimum: 0 }),
     regionMinimumCount: Type.Integer({ minimum: 0 }),
-    shortfalls: Type.Array(ResourcePlanShortfallSchema),
+    shortfalls: Type.Array(ResourcePlanShortfallSchema, {
+      maxItems: 1,
+      description:
+        "Zero or one terminal range deficit; region-minimum obligations are reported separately.",
+    }),
   },
   { additionalProperties: false }
 );

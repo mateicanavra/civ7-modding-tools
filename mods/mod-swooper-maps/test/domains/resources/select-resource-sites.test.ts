@@ -3,6 +3,7 @@ import { describe, expect, it } from "bun:test";
 import resources from "@mapgen/domain/resources/ops";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
+import { artifactModules as placementArtifactModules } from "../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { runOpValidated } from "../../support/compiler-helpers.js";
 
 type SelectInput = Parameters<typeof resources.ops.selectResourceSites.run>[0];
@@ -140,8 +141,8 @@ describe("select-resource-sites operation contract", () => {
     }
   });
 
-  it("records typed shortfalls instead of breaking floors when minimums are unreachable", () => {
-    // 4x3 grid with min 8: spacing floors make 8 placements impossible.
+  it("records one terminal target deficit after satisfying the range floor", () => {
+    // The 4x3 periodic grid can satisfy the floor but not the target while preserving spacing.
     const result = run(
       buildInput({
         width: 4,
@@ -151,16 +152,98 @@ describe("select-resource-sites operation contract", () => {
             resourceType: "RESOURCE_A",
             weight: 10,
             targetCount: 8,
-            minCount: 8,
+            minCount: 1,
             maxCount: 10,
           },
         ],
       })
     );
     const row = result.perType[0]!;
-    expect(row.plannedCount).toBeLessThan(row.minCount);
-    const shortfall = row.shortfalls.reduce((sum, item) => sum + item.count, 0);
-    expect(shortfall).toBeGreaterThan(0);
+    expect(row.plannedCount).toBeGreaterThanOrEqual(row.minCount);
+    expect(row.plannedCount).toBeLessThan(row.effectiveTargetCount);
+    expect(row.shortfalls).toEqual([
+      {
+        resourceType: "RESOURCE_A",
+        reason: "spacing-floor-preserved",
+        count: row.effectiveTargetCount - row.plannedCount,
+      },
+    ]);
+  });
+
+  it("classifies a terminal deficit with no free legal site as eligibility exhaustion", () => {
+    const input = buildInput({
+      width: 4,
+      height: 3,
+      demands: [
+        {
+          resourceType: "RESOURCE_A",
+          weight: 10,
+          targetCount: 1,
+          minCount: 1,
+          maxCount: 1,
+        },
+      ],
+    });
+    input.demands[0]!.legalMask.fill(0);
+
+    expect(run(input).perType[0]!.shortfalls).toEqual([
+      {
+        resourceType: "RESOURCE_A",
+        reason: "eligible-tiles-exhausted",
+        count: 1,
+      },
+    ]);
+  });
+
+  it("rejects stale terminal deficit evidence at the resource-plan artifact boundary", () => {
+    const input = buildInput({
+      width: 4,
+      height: 3,
+      demands: [
+        {
+          resourceType: "RESOURCE_A",
+          weight: 10,
+          targetCount: 8,
+          minCount: 1,
+          maxCount: 10,
+        },
+      ],
+    });
+    const result = run(input);
+    const context = { dimensions: { width: input.width, height: input.height } };
+    expect(placementArtifactModules.resourcePlan.validate(result, context)).toEqual([]);
+
+    const missing = structuredClone(result);
+    missing.perType[0]!.shortfalls.splice(0);
+    expect(
+      placementArtifactModules.resourcePlan
+        .validate(missing, context)
+        .some((entry) => entry.message.includes("requires one terminal shortfall"))
+    ).toBe(true);
+
+    const wrongType = structuredClone(result);
+    wrongType.perType[0]!.shortfalls[0]!.resourceType = "RESOURCE_B";
+    expect(
+      placementArtifactModules.resourcePlan
+        .validate(wrongType, context)
+        .some((entry) => entry.message.includes("names another resource type"))
+    ).toBe(true);
+
+    const wrongCount = structuredClone(result);
+    wrongCount.perType[0]!.shortfalls[0]!.count += 1;
+    expect(
+      placementArtifactModules.resourcePlan
+        .validate(wrongCount, context)
+        .some((entry) => entry.message.includes("terminal deficit"))
+    ).toBe(true);
+
+    const stale = structuredClone(result);
+    stale.perType[0]!.effectiveTargetCount = stale.perType[0]!.plannedCount;
+    expect(
+      placementArtifactModules.resourcePlan
+        .validate(stale, context)
+        .some((entry) => entry.message.includes("requires no terminal shortfall"))
+    ).toBe(true);
   });
 
   it("forces region minimums for required-for-age types with typed provenance (E2.2)", () => {
@@ -247,6 +330,7 @@ describe("select-resource-sites operation contract", () => {
         shortfall: 1,
       },
     ]);
+    expect(result.perType.find((row) => row.resourceType === "RESOURCE_B")?.shortfalls).toEqual([]);
   });
 
   it("expresses sparsity at knob max and resource-resource exclusion (E3.4)", () => {
