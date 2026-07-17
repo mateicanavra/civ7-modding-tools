@@ -39,7 +39,11 @@ const provisionCompiler = Effect.fn("habitat.standalone.compiler.provision")(fun
     standaloneCompilerManifest.revision,
     "compiler full revision"
   );
-  yield* assertEqual(featureData.version, standaloneCompilerManifest.version, "compiler feature version");
+  yield* assertEqual(
+    featureData.version,
+    standaloneCompilerManifest.version,
+    "compiler feature version"
+  );
   yield* Effect.succeed(featureData.is_canary).pipe(
     Effect.filterOrFail(
       (isCanary) => isCanary,

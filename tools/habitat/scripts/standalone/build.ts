@@ -87,17 +87,11 @@ const ProvenanceSchema = Type.Object(
           },
           { additionalProperties: false }
         ),
-        hostAssetId: Type.Union([
-          Type.Literal("darwin-arm64"),
-          Type.Literal("linux-x64-baseline"),
-        ]),
+        hostAssetId: Type.Union([Type.Literal("darwin-arm64"), Type.Literal("linux-x64-baseline")]),
         assets: Type.Array(
           Type.Object(
             {
-              id: Type.Union([
-                Type.Literal("darwin-arm64"),
-                Type.Literal("linux-x64-baseline"),
-              ]),
+              id: Type.Union([Type.Literal("darwin-arm64"), Type.Literal("linux-x64-baseline")]),
               githubAssetId: Type.Integer({ minimum: 1 }),
               archiveFilename: Type.String({ minLength: 1 }),
               archiveSha256: Type.String({ minLength: 64, maxLength: 64 }),
@@ -318,7 +312,9 @@ const compilerIdentity = Effect.fn("habitat.standalone.build.compiler")(function
       BUN_GARBAGE_COLLECTOR_LEVEL: "0",
     }
   );
-  const featureData = yield* Schema.decodeUnknown(CompilerFeatureDataJsonSchema)(featureSource).pipe(
+  const featureData = yield* Schema.decodeUnknown(CompilerFeatureDataJsonSchema)(
+    featureSource
+  ).pipe(
     Effect.mapError(
       (cause) =>
         new StandaloneBuildFailure({
