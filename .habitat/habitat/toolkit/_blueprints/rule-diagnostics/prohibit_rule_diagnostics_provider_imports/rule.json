@@ -11,7 +11,7 @@
   "ownerProject": "habitat",
   "lane": "enforced",
   "forbids": "production modules importing a private rule diagnostics or fix preview provider",
-  "why": "Provider construction belongs below the stable RuleDiagnostics and RuleFixPreview capabilities and their explicit runtime composition root.",
+  "why": "Provider construction belongs below the stable RuleDiagnostics and RuleFixPreview capabilities and their two explicit full and standalone runtime composition roots.",
   "remediate": null,
   "message": "Consume RuleDiagnostics or RuleFixPreview instead of importing their concrete provider.",
   "pathCoverage": [

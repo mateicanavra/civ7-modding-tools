@@ -15,9 +15,8 @@ import {
 } from "@habitat/cli/resources/command/index";
 import { makeHabitatConfig, makeHabitatConfigLayer } from "@habitat/cli/resources/config/index";
 import { makeHabitatPlatformService } from "@habitat/cli/resources/platform/index";
-import { makeGritCommandService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/command";
-import { runGritRulesEffect } from "@habitat/cli/resources/rule-diagnostics/providers/grit/runner";
-import { makeRuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/service";
+import { RuleDiagnostics } from "@habitat/cli/resources/rule-diagnostics/index";
+import { makeStandaloneRuleDiagnosticsLayer } from "@habitat/cli/runtime/standalone-layers";
 import { type CheckOptions, type CheckReport } from "@habitat/cli/service/model/check/index";
 import {
   createCheckReportEffect,
@@ -29,7 +28,7 @@ import {
   ruleFactsCatalog,
 } from "@habitat/cli/service/model/rules/index";
 import { selectRules } from "@habitat/cli/service/model/rules/policy/selection.policy";
-import { Effect, Layer, Match } from "effect";
+import { Context, Effect, Layer, Match } from "effect";
 import { StandaloneCheckFailure, type StandaloneCheckRequest } from "./model.js";
 
 export const runStandaloneCheck = Effect.fn("habitat.standalone.check.run")(function* (
@@ -37,6 +36,7 @@ export const runStandaloneCheck = Effect.fn("habitat.standalone.check.run")(func
 ) {
   return yield* standaloneCheckProgram(request).pipe(
     Effect.provide(makeStandaloneCheckLayer(request.repoRoot)),
+    Effect.scoped,
     Effect.mapError(runtimeFailure)
   );
 });
@@ -59,17 +59,12 @@ const standaloneCheckProgram = Effect.fn("habitat.standalone.check.program")(fun
   );
   const rules = ruleFactsCatalog(document);
   const options = checkOptions(request);
-  yield* refuseNxSelection(options, rules.selector, request.staged);
+  yield* refuseUnsupportedSelection(options, rules.selector, request.staged);
 
-  const grit = yield* makeGritCommandService(request.repoRoot);
-  const ruleDiagnostics = makeRuleDiagnosticsService(
-    request.repoRoot,
-    rules,
-    (selectedRules, runOptions) =>
-      runGritRulesEffect(selectedRules, { ...runOptions, grit }).pipe(
-        Effect.provideService(FileSystem.FileSystem, fileSystem)
-      )
+  const diagnosticsContext = yield* Layer.build(
+    makeStandaloneRuleDiagnosticsLayer(request.repoRoot, rules)
   );
+  const ruleDiagnostics = Context.get(diagnosticsContext, RuleDiagnostics);
   const baselineFileSystem = {
     isDirectory: platform.isDirectory,
     isFile: platform.isFileEffect,
@@ -135,7 +130,7 @@ function checkOptions(request: StandaloneCheckRequest): CheckOptions {
   };
 }
 
-function refuseNxSelection(
+function refuseUnsupportedSelection(
   options: CheckOptions,
   registry: Parameters<typeof selectRules>[1],
   staged: boolean
@@ -143,12 +138,18 @@ function refuseNxSelection(
   const selection = selectRules(options, registry);
   if (!selection.ok) return Effect.void;
   const executable = rulesForExecution(selection.rules, { selection: options, staged });
-  const nxRules = executable.filter((rule) => rule.runner.name === "nx");
-  if (nxRules.length === 0) return Effect.void;
+  const unsupportedRules = executable.filter((rule) =>
+    Match.value(rule.runner).pipe(
+      Match.when({ name: "grit" }, () => false),
+      Match.when({ name: "habitat", mode: "structure" }, () => false),
+      Match.orElse(() => true)
+    )
+  );
+  if (unsupportedRules.length === 0) return Effect.void;
   return Effect.fail(
     new StandaloneCheckFailure({
       kind: "unsupported-selection",
-      message: `Nx-backed rules are outside the standalone edge: ${nxRules
+      message: `Only Grit and Habitat structure rules are available through the standalone edge; refused: ${unsupportedRules
         .map((rule) => rule.id)
         .sort()
         .join(", ")}.`,
@@ -186,7 +187,7 @@ function nxUnavailable(repoRoot: string, operation: string): CommandUnavailable 
     executable: "nx",
     argv: [],
     cwd: repoRoot,
-    cause: "Nx-backed rules are not available through the standalone Habitat check edge.",
+    cause: "Only Grit and Habitat structure rules are available through the standalone check edge.",
   });
 }
 

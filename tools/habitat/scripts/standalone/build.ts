@@ -11,8 +11,22 @@ const requiredBuildTool = { bunVersion: "1.3.14" };
 const repoRoot = path.resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
 const outDir = path.join(repoRoot, "tools", "habitat", "dist", "standalone");
 const entrypoint = path.join(repoRoot, "tools", "habitat", "bin", "check.ts");
-type ForbiddenBundleInput = "@oclif" | "@nx" | "effect-orpc";
-const forbiddenBundleInputs: readonly ForbiddenBundleInput[] = ["@oclif", "@nx", "effect-orpc"];
+type ExcludedBundleInput = "@getgrit/cli" | "@oclif/*" | "oclif" | "@nx/*" | "nx" | "effect-orpc";
+
+interface ExcludedBundleOwner {
+  readonly id: ExcludedBundleInput;
+  readonly bunStorePrefix: string;
+  readonly modulePathPrefix: string;
+}
+
+const excludedBundleOwners: readonly ExcludedBundleOwner[] = [
+  { id: "@getgrit/cli", bunStorePrefix: "@getgrit+cli@", modulePathPrefix: "@getgrit/cli/" },
+  { id: "@oclif/*", bunStorePrefix: "@oclif+", modulePathPrefix: "@oclif/" },
+  { id: "oclif", bunStorePrefix: "oclif@", modulePathPrefix: "oclif/" },
+  { id: "@nx/*", bunStorePrefix: "@nx+", modulePathPrefix: "@nx/" },
+  { id: "nx", bunStorePrefix: "nx@", modulePathPrefix: "nx/" },
+  { id: "effect-orpc", bunStorePrefix: "effect-orpc@", modulePathPrefix: "effect-orpc/" },
+];
 
 interface StandaloneBuildTarget {
   readonly id: string;
@@ -65,8 +79,15 @@ const ProvenanceSchema = Type.Object(
         compileAutoloadBunfig: Type.Literal(false),
         bundledGritProvider: Type.Literal(false),
         excludedInputs: Type.Array(
-          Type.Union([Type.Literal("@oclif"), Type.Literal("@nx"), Type.Literal("effect-orpc")]),
-          { minItems: 3, maxItems: 3 }
+          Type.Union([
+            Type.Literal("@getgrit/cli"),
+            Type.Literal("@oclif/*"),
+            Type.Literal("oclif"),
+            Type.Literal("@nx/*"),
+            Type.Literal("nx"),
+            Type.Literal("effect-orpc"),
+          ]),
+          { minItems: 6, maxItems: 6 }
         ),
       },
       { additionalProperties: false }
@@ -136,7 +157,7 @@ const build = Effect.fn("habitat.standalone.build")(function* () {
       compileAutoloadDotenv: false,
       compileAutoloadBunfig: false,
       bundledGritProvider: false,
-      excludedInputs: [...forbiddenBundleInputs],
+      excludedInputs: excludedBundleOwners.map(({ id }) => id),
     },
     artifacts,
   } satisfies Provenance);
@@ -191,15 +212,17 @@ const buildTarget = Effect.fn("habitat.standalone.build.target")(function* (
   );
   const metafile = yield* parseMetafile(metafilePath, fileSystem);
   const inputs = Object.keys(metafile.inputs).sort();
-  const forbidden = forbiddenBundleInputs.filter((token) =>
-    inputs.some((input) => input.includes(token))
+  const excluded = excludedBundleOwners.filter((owner) =>
+    inputs.some((input) => inputBelongsToOwner(input, owner))
   );
-  yield* Effect.succeed(forbidden).pipe(
+  yield* Effect.succeed(excluded).pipe(
     Effect.filterOrFail(
       (observed) => observed.length === 0,
       (observed) =>
         new StandaloneBuildFailure({
-          message: `Standalone bundle unexpectedly includes ${observed.join(", ")}.`,
+          message: `Standalone bundle unexpectedly includes ${observed
+            .map(({ id }) => id)
+            .join(", ")}.`,
         })
     )
   );
@@ -257,6 +280,14 @@ const parseMetafile = Effect.fn("habitat.standalone.build.metafile")(function* (
 
 function sha256(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
+}
+
+function inputBelongsToOwner(input: string, owner: ExcludedBundleOwner): boolean {
+  const normalized = input.replaceAll("\\", "/");
+  return (
+    normalized.includes(`node_modules/.bun/${owner.bunStorePrefix}`) ||
+    normalized.includes(`node_modules/${owner.modulePathPrefix}`)
+  );
 }
 
 NodeRuntime.runMain(

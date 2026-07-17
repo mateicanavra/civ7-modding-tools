@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import {
   chmodSync,
   copyFileSync,
+  existsSync,
   lstatSync,
   mkdirSync,
   mkdtempSync,
@@ -12,6 +13,7 @@ import {
   readlinkSync,
   realpathSync,
   rmSync,
+  statSync,
   symlinkSync,
   writeFileSync,
 } from "node:fs";
@@ -20,6 +22,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { type CheckReport, CheckReportSchema } from "@habitat/cli/service/model/check/index";
 import { Match, Schema } from "effect";
+import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { afterAll, beforeAll, describe, it } from "vitest";
 
@@ -28,6 +31,69 @@ const distDir = path.join(repoRoot, "tools", "habitat", "dist", "standalone");
 const tempRoot = mkdtempSync(path.join(realpathSync(tmpdir()), "habitat-sdk-blackbox-"));
 const movedBinary = path.join(tempRoot, "bin", "habitat-sdk");
 const JsonUnknownSchema = Schema.parseJson(Schema.Unknown);
+const executableFilenames = ["habitat-sdk-darwin-arm64", "habitat-sdk-linux-x64-baseline"] as const;
+const releaseFilenames = [...executableFilenames, "provenance.json", "SHA256SUMS"] as const;
+const ArtifactSchema = Type.Object(
+  {
+    target: Type.String({ minLength: 1 }),
+    bunTarget: Type.String({ minLength: 1 }),
+    filename: Type.String({ minLength: 1 }),
+    sha256: Type.String({ pattern: "^[0-9a-f]{64}$" }),
+    bytes: Type.Integer({ minimum: 1 }),
+    bundledInputCount: Type.Integer({ minimum: 1 }),
+  },
+  { additionalProperties: false }
+);
+const StandaloneProvenanceSchema = Type.Object(
+  {
+    schemaVersion: Type.Literal(1),
+    source: Type.Object(
+      {
+        commit: Type.String({ pattern: "^[0-9a-f]{40}$" }),
+        habitatTree: Type.String({ pattern: "^[0-9a-f]{40}$" }),
+        workingTreeDirty: Type.Boolean(),
+      },
+      { additionalProperties: false }
+    ),
+    bun: Type.Object(
+      {
+        version: Type.Literal("1.3.14"),
+        revision: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
+    boundary: Type.Object(
+      {
+        command: Type.Literal("check"),
+        rejectUnresolved: Type.Literal(true),
+        compileAutoloadDotenv: Type.Literal(false),
+        compileAutoloadBunfig: Type.Literal(false),
+        bundledGritProvider: Type.Literal(false),
+        excludedInputs: Type.Tuple([
+          Type.Literal("@getgrit/cli"),
+          Type.Literal("@oclif/*"),
+          Type.Literal("oclif"),
+          Type.Literal("@nx/*"),
+          Type.Literal("nx"),
+          Type.Literal("effect-orpc"),
+        ]),
+      },
+      { additionalProperties: false }
+    ),
+    artifacts: Type.Tuple([
+      Type.Intersect([
+        ArtifactSchema,
+        Type.Object({ filename: Type.Literal(executableFilenames[0]) }),
+      ]),
+      Type.Intersect([
+        ArtifactSchema,
+        Type.Object({ filename: Type.Literal(executableFilenames[1]) }),
+      ]),
+    ]),
+  },
+  { additionalProperties: false }
+);
+type StandaloneProvenance = Static<typeof StandaloneProvenanceSchema>;
 
 describe.sequential("standalone Habitat binary", () => {
   beforeAll(() => {
@@ -98,6 +164,24 @@ describe.sequential("standalone Habitat binary", () => {
     assert.strictEqual(fingerprintTree(fixture), before);
   });
 
+  it("refuses destination scripts without executing them", () => {
+    const fixture = path.join(tempRoot, "script-refusal");
+    const markerPath = path.join(fixture, "executed.marker");
+    createScriptFixture(fixture);
+    const before = fingerprintTree(fixture);
+    const result = spawnSync(
+      movedBinary,
+      ["check", "--rule", "refuse_fixture_script", "--json", "--repo-root", fixture],
+      { cwd: fixture, encoding: "utf8", env: process.env }
+    );
+    assert.strictEqual(result.signal, null, result.stderr);
+    assert.strictEqual(result.status, 2);
+    assert.strictEqual(result.stdout, "");
+    assert.match(result.stderr, /Only Grit and Habitat structure rules/u);
+    assert.strictEqual(existsSync(markerPath), false);
+    assert.strictEqual(fingerprintTree(fixture), before);
+  });
+
   it("stutters semantically across repeated converged checks", () => {
     const fixture = path.join(tempRoot, "repeat");
     createStructureFixture(fixture);
@@ -106,15 +190,38 @@ describe.sequential("standalone Habitat binary", () => {
     assert.deepStrictEqual(semanticReport(first.report), semanticReport(second.report));
   });
 
-  it("rebuilds both fixed targets byte-identically", () => {
-    const before = artifactHashes();
+  it("binds every release asset to source and checksum provenance", () => {
+    const provenance = readProvenance();
+    assert.strictEqual(provenance.source.commit, gitText(["rev-parse", "HEAD"]));
+    assert.strictEqual(provenance.source.habitatTree, gitText(["rev-parse", "HEAD:tools/habitat"]));
+    assert.strictEqual(
+      provenance.source.workingTreeDirty,
+      gitText(["status", "--porcelain"]).length > 0
+    );
+    for (const artifact of provenance.artifacts) {
+      const artifactPath = path.join(distDir, artifact.filename);
+      assert.strictEqual(artifact.sha256, sha256(readFileSync(artifactPath)));
+      assert.strictEqual(artifact.bytes, statSync(artifactPath).size);
+    }
+    const expectedChecksums = [
+      ...provenance.artifacts.map(({ filename, sha256: digest }) => `${digest}  ${filename}`),
+      `${sha256(readFileSync(path.join(distDir, "provenance.json")))}  provenance.json`,
+    ];
+    const checksumLines = readFileSync(path.join(distDir, "SHA256SUMS"), "utf8")
+      .trimEnd()
+      .split("\n");
+    assert.deepStrictEqual(checksumLines, expectedChecksums);
+  });
+
+  it("rebuilds every release asset byte-identically", () => {
+    const before = releaseHashes();
     const rebuild = spawnSync("bun", ["run", "--cwd", "tools/habitat", "build:standalone"], {
       cwd: repoRoot,
       encoding: "utf8",
       env: process.env,
     });
     assert.strictEqual(rebuild.status, 0, `${rebuild.stdout}\n${rebuild.stderr}`);
-    assert.deepStrictEqual(artifactHashes(), before);
+    assert.deepStrictEqual(releaseHashes(), before);
   });
 });
 
@@ -249,6 +356,42 @@ function createGritFixture(root: string, installProvider: boolean): void {
   setupProvider();
 }
 
+function createScriptFixture(root: string): void {
+  const fixturePacket = path.join(root, ".habitat", "fixtures", "script");
+  mkdirSync(fixturePacket, { recursive: true });
+  writeJson(path.join(root, ".habitat", "index.json"), {
+    schemaVersion: 2,
+    ownerRoots: { habitat: "." },
+  });
+  writeJson(path.join(fixturePacket, "rule.json"), {
+    schemaVersion: 2,
+    id: "refuse_fixture_script",
+    title: "Refuse Fixture Script",
+    placement: { niche: "fixture", blueprint: "script", category: "execution" },
+    operation: { kind: "check" },
+    ownerProject: "habitat",
+    lane: "enforced",
+    forbids: "standalone destination script execution",
+    why: "Destination authority is data, not executable identity.",
+    remediate: "Use Grit or a Habitat structure rule.",
+    message: "Standalone destination scripts are refused.",
+    pathCoverage: [{ kind: "exact-path", patterns: [".habitat/fixtures/script/check.mjs"] }],
+    supportFiles: { baseline: ".habitat/fixtures/script/baseline.json" },
+    runner: {
+      name: "habitat",
+      mode: "script",
+      runtime: "node",
+      files: { script: ".habitat/fixtures/script/check.mjs" },
+    },
+  });
+  writeJson(path.join(fixturePacket, "baseline.json"), []);
+  writeFileSync(
+    path.join(fixturePacket, "check.mjs"),
+    'import { writeFileSync } from "node:fs";\nwriteFileSync("executed.marker", "executed\\n");\n',
+    "utf8"
+  );
+}
+
 function installGritProvider(root: string): void {
   const providerParent = path.join(root, "node_modules", "@getgrit");
   mkdirSync(providerParent, { recursive: true });
@@ -278,13 +421,26 @@ function semanticReport(report: CheckReport) {
   };
 }
 
-function artifactHashes(): Record<string, string> {
+function releaseHashes(): Record<string, string> {
   return Object.fromEntries(
-    ["habitat-sdk-darwin-arm64", "habitat-sdk-linux-x64-baseline"].map((filename) => [
+    releaseFilenames.map((filename) => [
       filename,
       sha256(readFileSync(path.join(distDir, filename))),
     ])
   );
+}
+
+function readProvenance(): StandaloneProvenance {
+  const decoded = Schema.decodeUnknownSync(JsonUnknownSchema)(
+    readFileSync(path.join(distDir, "provenance.json"), "utf8")
+  );
+  return Value.Parse(StandaloneProvenanceSchema, decoded);
+}
+
+function gitText(argv: readonly string[]): string {
+  const result = spawnSync("git", [...argv], { cwd: repoRoot, encoding: "utf8", env: process.env });
+  assert.strictEqual(result.status, 0, result.stderr);
+  return result.stdout.trim();
 }
 
 function fingerprintTree(root: string): string {

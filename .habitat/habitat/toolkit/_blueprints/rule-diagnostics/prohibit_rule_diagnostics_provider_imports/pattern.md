@@ -5,7 +5,7 @@ level: error
 
 Production consumers use the stable RuleDiagnostics and RuleFixPreview
 capabilities. Concrete Grit construction stays inside the provider tree and
-the explicit runtime composition root.
+the two explicit full and standalone runtime composition roots.
 
 ```grit
 language js(typescript)
@@ -15,7 +15,7 @@ or {
     $filename <: r".*tools/habitat/src/.*\.ts$",
     not { $filename <: r".*tools/habitat/src/resources/rule-diagnostics/providers/grit/.*\.ts$" },
     not {
-      $filename <: r".*tools/habitat/src/runtime/layers\.ts$",
+      $filename <: r".*tools/habitat/src/runtime/(?:layers|standalone-layers)\.ts$",
       $source <: r"^[\"']@habitat/cli/resources/rule-diagnostics/providers/grit/provider[\"']$"
     },
     $source <: r"^[\"'](?:.*/)?providers/grit(?:/.*)?[\"']$"
@@ -70,6 +70,9 @@ export type ProviderModule = typeof import("../resources/rule-diagnostics/provid
 // @filename: tools/habitat/src/runtime/layers.ts
 import { makeRuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/service";
 
+// @filename: tools/habitat/src/runtime/standalone-layers.ts
+import { makeGritCommandService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/command";
+
 // @filename: tools/habitat/src/runtime/service-context.ts
 import { makeGritRuleFixPreviewLayer } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
 ```
@@ -82,6 +85,9 @@ import {
   makeGritRuleDiagnosticsLayer,
   makeGritRuleFixPreviewLayer,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
+
+// @filename: tools/habitat/src/runtime/standalone-layers.ts
+import { makeGritRuleDiagnosticsLayer } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
 
 // @filename: tools/habitat/src/runtime/service-context.ts
 import { RuleFixPreview } from "@habitat/cli/resources/rule-fix-preview/index";

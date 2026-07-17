@@ -101,13 +101,13 @@ Options:
   --json                   Emit the normalized CheckReport JSON
   --owner <project>        Select rules owned by one workspace project
   --rule <id>              Select one rule; repeat for a curated rule set
-  --runner <runner>        Select only grit or habitat rules
+  --runner <runner>        Select Grit or Habitat structure rules
   --staged                 Restrict supported rules to staged paths
   --baseline-integrity     Check shrink-only baseline integrity
   --base <ref>             Git base ref for baseline integrity (implies the check)
   -h, --help               Show this help
 
-The standalone edge refuses Nx-backed rules and exposes no mutation commands.`;
+The standalone edge refuses scripts, file-layer rules, and Nx-backed rules. It exposes no mutation commands.`;
 
 export function renderStandaloneCheckFailure(failure: StandaloneCheckFailure): string {
   return Match.value(failure.kind).pipe(
