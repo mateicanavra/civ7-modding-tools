@@ -94,6 +94,14 @@
       "options": {
         "cwd": "tools/habitat"
       }
+    },
+    "build:standalone": {
+      "command": "bun run build:standalone",
+      "cache": false,
+      "outputs": ["{projectRoot}/dist/standalone/**"],
+      "options": {
+        "cwd": "tools/habitat"
+      }
     }
   }
 }
