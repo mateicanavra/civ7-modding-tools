@@ -10,6 +10,7 @@ import {
   defineArtifact,
   defineStep,
   implementArtifacts,
+  readValidatedArtifact,
 } from "@mapgen/authoring/index.js";
 import { createExtendedMapContext } from "@mapgen/core/types.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
@@ -149,5 +150,31 @@ describe("artifact authoring", () => {
     expect(() => runtimes.artifactFoo.publish(ctx, { value: 2 })).toThrow(
       ArtifactDoublePublishError
     );
+  });
+
+  it("validates stored artifacts before exposing their typed observation", () => {
+    const artifact = defineArtifact({
+      name: "artifactFoo",
+      id: "artifact:test.observation",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const adapter = createMockAdapter({ width: 1, height: 1 });
+    const env = { ...baseSettings, dimensions: { width: 1, height: 1 } };
+    const context = createExtendedMapContext({ width: 1, height: 1 }, adapter, env);
+    const source = {
+      artifact,
+      validate: (value: unknown) =>
+        typeof value === "object" && value !== null && "value" in value
+          ? []
+          : [{ message: "value is required" }],
+    };
+
+    expect(() => readValidatedArtifact(context, source)).toThrow("Missing required artifact");
+    context.artifacts.set(artifact.id, {});
+    expect(() => readValidatedArtifact(context, source)).toThrow("Invalid artifact");
+    context.artifacts.set(artifact.id, { value: "not-a-number" });
+    expect(() => readValidatedArtifact(context, source)).toThrow("Invalid artifact");
+    context.artifacts.set(artifact.id, { value: 7 });
+    expect(readValidatedArtifact(context, source)).toEqual({ value: 7 });
   });
 });

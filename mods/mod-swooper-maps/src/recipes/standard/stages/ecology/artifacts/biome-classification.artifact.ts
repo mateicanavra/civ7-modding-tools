@@ -1,3 +1,4 @@
+import { BIOME_SYMBOL_ORDER } from "@mapgen/domain/ecology";
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
   defineArtifact,
@@ -8,13 +9,15 @@ import {
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Runtime contract for per-tile Ecology biome truth and its climate/vegetation classifier
+ * Runtime contract for per-tile Ecology biome classification and its climate/vegetation classifier
  * signals, keeping downstream feature scoring on one field vintage.
  */
 export const BiomeClassificationArtifactSchema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
-  biomeIndex: TypedArraySchemas.u8({ description: "Biome symbol index per tile." }),
+  biomeIndex: TypedArraySchemas.u8({
+    description: "Biome symbol index per land tile; 255 marks water or an unclassified tile.",
+  }),
   vegetationDensity: TypedArraySchemas.f32({ description: "Vegetation density per tile (0..1)." }),
   effectiveMoisture: TypedArraySchemas.f32({ description: "Effective moisture per tile." }),
   surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature per tile (C)." }),
@@ -28,11 +31,11 @@ export const BiomeClassificationArtifactSchema = Type.Object({
 
 export type BiomeClassificationArtifact = Static<typeof BiomeClassificationArtifactSchema>;
 
-/** Canonical schema entrypoint used to register and validate biome-classification truth. */
+/** Canonical schema entrypoint used to register and validate biome-classification evidence. */
 export const Schema = BiomeClassificationArtifactSchema;
 
 /**
- * Registers Ecology's per-tile biome truth after climate, pedology, and topography
+ * Registers Ecology's per-tile biome classification after climate, pedology, and topography
  * classification. Feature scoring and map projection consume this same field vintage so intent
  * and engine binding cannot drift.
  */
@@ -109,7 +112,53 @@ function validatePayload(
   validateTypedArray(errors, "permafrost01", value.permafrost01, Float32Array, size);
   validateTypedArray(errors, "meltPotential01", value.meltPotential01, Float32Array, size);
   validateTypedArray(errors, "treeLine01", value.treeLine01, Float32Array, size);
+  validateBiomeIndices(errors, value.biomeIndex);
+  validateFiniteValues(errors, "vegetationDensity", value.vegetationDensity, 0, 1);
+  validateFiniteValues(errors, "effectiveMoisture", value.effectiveMoisture);
+  validateFiniteValues(errors, "surfaceTemperature", value.surfaceTemperature);
+  validateFiniteValues(errors, "aridityIndex", value.aridityIndex, 0, 1);
+  validateFiniteValues(errors, "freezeIndex", value.freezeIndex, 0, 1);
+  validateFiniteValues(errors, "groundIce01", value.groundIce01, 0, 1);
+  validateFiniteValues(errors, "permafrost01", value.permafrost01, 0, 1);
+  validateFiniteValues(errors, "meltPotential01", value.meltPotential01, 0, 1);
+  validateFiniteValues(errors, "treeLine01", value.treeLine01, 0, 1);
   return errors;
+}
+
+function validateBiomeIndices(errors: ArtifactValidationIssue[], values: Uint8Array): void {
+  for (let index = 0; index < values.length; index += 1) {
+    const value = values[index]!;
+    if (value !== 255 && value >= BIOME_SYMBOL_ORDER.length) {
+      errors.push({
+        message: `Expected biomeIndex values to reference the closed biome vocabulary or sentinel 255 (first invalid index ${index}).`,
+      });
+      return;
+    }
+  }
+}
+
+function validateFiniteValues(
+  errors: ArtifactValidationIssue[],
+  label: string,
+  values: Float32Array,
+  minimum?: number,
+  maximum?: number
+): void {
+  for (let index = 0; index < values.length; index += 1) {
+    const value = values[index]!;
+    if (
+      !Number.isFinite(value) ||
+      (minimum !== undefined && value < minimum) ||
+      (maximum !== undefined && value > maximum)
+    ) {
+      const range =
+        minimum === undefined || maximum === undefined ? "finite" : `${minimum}..${maximum}`;
+      errors.push({
+        message: `Expected ${label} values to be ${range} (first invalid index ${index}).`,
+      });
+      return;
+    }
+  }
 }
 
 /**

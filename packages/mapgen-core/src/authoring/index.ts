@@ -2,6 +2,7 @@ export type { Static, TSchema } from "typebox";
 export { Type } from "typebox";
 export type {
   ArtifactContract,
+  ArtifactModule,
   ArtifactReadValueOf,
   ArtifactRuntimeImpl,
   ArtifactValidationContext,
@@ -18,6 +19,7 @@ export {
   artifactCellCount,
   defineArtifact,
   implementArtifacts,
+  readValidatedArtifact,
   validateArtifactSchema,
 } from "./artifact/index.js";
 export type {

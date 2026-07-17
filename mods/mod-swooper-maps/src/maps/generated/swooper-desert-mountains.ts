@@ -354,7 +354,7 @@ const mapConfig = {
         "convergenceStrength": 16
       },
       "knobs": {
-        "dryness": "mix",
+        "dryness": "dry",
         "temperature": "temperate",
         "seasonality": "normal",
         "oceanCoupling": "earthlike"
@@ -446,9 +446,9 @@ const mapConfig = {
       "landWaterBudget": {
         "tMinC": 0,
         "tMaxC": 35,
-        "petBase": 18,
-        "petTemperatureWeight": 75,
-        "humidityDampening": 0.55
+        "petBase": 40,
+        "petTemperatureWeight": 140,
+        "humidityDampening": 0.45
       },
       "diagnostics": {
         "barrierSteps": 4,
@@ -457,7 +457,7 @@ const mapConfig = {
         "convergenceNormalization": 64
       },
       "knobs": {
-        "dryness": "mix",
+        "dryness": "dry",
         "temperature": "temperate",
         "cryosphere": "on"
       }
@@ -497,10 +497,10 @@ const mapConfig = {
         },
         "moisture": {
           "thresholds": [
-            48,
-            78,
-            112,
-            160
+            180,
+            240,
+            300,
+            340
           ]
         },
         "aridity": {
@@ -533,7 +533,7 @@ const mapConfig = {
       "knobs": {},
       "substrateScoring": {
         "vegetationGrowth": {
-          "moistureNormalization": 230,
+          "moistureNormalization": 380,
           "temperatureMinC": -20,
           "temperatureMaxC": 40
         },
@@ -830,7 +830,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "c6d711782303230912ce05922e05479f1f3859b61a376b022c2f02cc025d73ca",
-  envelopeHash: "c6c7257042edc6500f466cd4f3539e68c33d652aa6c9b8eaad0d4f60d085a938",
+  configHash: "3bc83bb636c34fdb0457e9f67d37385fa87d179b06d03b8ac6408fe2e5905fc9",
+  envelopeHash: "c4f65e038d58377f1c9809a181cf202a34596ef19c8ef6ff3d4016c18508b689",
   config: mapConfig.config,
 });

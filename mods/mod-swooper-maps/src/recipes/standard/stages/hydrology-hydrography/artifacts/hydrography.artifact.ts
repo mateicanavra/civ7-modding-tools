@@ -11,7 +11,7 @@ import {
  * Snapshot of Hydrology hydrography derived from Morphology topography + Hydrology discharge projection.
  *
  * This is the canonical read path for “river-ness” and discharge-like signals inside the pipeline.
- * Engine rivers/lakes may differ (engine projection), and must not be treated as Hydrology internal truth.
+ * Engine rivers/lakes may differ because they are downstream projections of this model.
  */
 export const HydrologyHydrographyArtifactSchema = Type.Object(
   {
@@ -74,13 +74,13 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
   }
 );
 
-/** Canonical schema entrypoint for Hydrology routing, discharge, and river-class truth. */
+/** Canonical schema entrypoint for Hydrology routing, discharge, and river-class evidence. */
 export const Schema = HydrologyHydrographyArtifactSchema;
 
 /**
  * Registers canonical Hydrology routing, runoff, discharge, river class, and
- * drainage-depression truth before engine projection. Consumers must use this artifact rather
- * than modeled Civ7 rivers as source truth.
+ * drainage-depression model before engine projection. Consumers must use this artifact rather
+ * than treating observed Civ7 rivers as the Hydrology model.
  */
 export const artifact = defineArtifact({
   name: "hydrography",
@@ -104,7 +104,7 @@ function validateTypedArray(
   value: unknown,
   ctor: { new (...args: unknown[]): { length: number } },
   expectedLength?: number
-): value is { length: number } {
+): value is { readonly [index: number]: number; readonly length: number } {
   if (!(value instanceof ctor)) {
     errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
     return false;
@@ -152,8 +152,14 @@ function validatePayload(
     }
   }
   validateTypedArray(errors, "hydrography.flowDir", candidate.flowDir, Int32Array, size);
-  validateTypedArray(errors, "hydrography.sinkMask", candidate.sinkMask, Uint8Array, size);
-  validateTypedArray(errors, "hydrography.outletMask", candidate.outletMask, Uint8Array, size);
+  if (validateTypedArray(errors, "hydrography.sinkMask", candidate.sinkMask, Uint8Array, size)) {
+    validateCategoricalGrid(errors, "hydrography.sinkMask", candidate.sinkMask, 1);
+  }
+  if (
+    validateTypedArray(errors, "hydrography.outletMask", candidate.outletMask, Uint8Array, size)
+  ) {
+    validateCategoricalGrid(errors, "hydrography.outletMask", candidate.outletMask, 1);
+  }
   if (candidate.basinId != null) {
     validateTypedArray(errors, "hydrography.basinId", candidate.basinId, Int32Array, size);
   }
@@ -176,15 +182,35 @@ function validatePayload(
     );
   }
   if (candidate.terminalType != null) {
-    validateTypedArray(
-      errors,
-      "hydrography.terminalType",
-      candidate.terminalType,
-      Uint8Array,
-      size
-    );
+    if (
+      validateTypedArray(
+        errors,
+        "hydrography.terminalType",
+        candidate.terminalType,
+        Uint8Array,
+        size
+      )
+    ) {
+      validateCategoricalGrid(errors, "hydrography.terminalType", candidate.terminalType, 2);
+    }
   }
   return errors;
+}
+
+function validateCategoricalGrid(
+  errors: ArtifactValidationIssue[],
+  label: string,
+  value: { readonly [index: number]: number; readonly length: number },
+  maximum: number
+): void {
+  for (let index = 0; index < value.length; index += 1) {
+    if (value[index]! > maximum) {
+      errors.push({
+        message: `Expected ${label} values in 0..${maximum} (first invalid index ${index}).`,
+      });
+      return;
+    }
+  }
 }
 
 /**

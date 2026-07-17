@@ -12,9 +12,7 @@ import {
   validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical";
 import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
-import { collectWorldBalanceStats } from "../support/world-balance-stats";
 
-const GEOGRAPHY_GUARD_SEEDS = [123, 1337, 1538316415, 1538316523] as const;
 const repoRoot = resolve(import.meta.dirname, "../../../..");
 
 async function loadSwooperMapConfigRegistry() {
@@ -247,40 +245,6 @@ describe("Shipped map configs", () => {
       );
 
       expect(Object.keys(compiled).length, canonicalConfig.id).toBeGreaterThan(0);
-    }
-  });
-
-  it("runs every shipped config into non-empty land/water geography", {
-    timeout: 120_000,
-  }, async () => {
-    const configs = await loadSwooperMapConfigRegistry();
-
-    for (const config of configs) {
-      const canonicalConfig = config.canonicalConfig;
-      for (const seed of GEOGRAPHY_GUARD_SEEDS) {
-        const stats = collectWorldBalanceStats({
-          label: canonicalConfig.id,
-          config: canonicalConfig.config,
-          seed,
-          width: 106,
-          height: 66,
-          latitudeBounds: canonicalConfig.latitudeBounds,
-        });
-
-        expect(
-          stats.preLakeLandTiles,
-          `${canonicalConfig.id}@${seed} pre-lake land`
-        ).toBeGreaterThan(0);
-        expect(
-          stats.postProjectionLandTiles,
-          `${canonicalConfig.id}@${seed} post-projection land`
-        ).toBeGreaterThan(0);
-        expect(stats.waterTiles, `${canonicalConfig.id}@${seed} water`).toBeGreaterThan(0);
-        const tileCount = stats.width * stats.height;
-        const landShare = stats.postProjectionLandTiles / tileCount;
-        expect(landShare, `${canonicalConfig.id}@${seed} land share`).toBeGreaterThan(0.075);
-        expect(landShare, `${canonicalConfig.id}@${seed} land share`).toBeLessThan(0.95);
-      }
     }
   });
 });

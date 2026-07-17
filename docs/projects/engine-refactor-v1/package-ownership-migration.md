@@ -166,14 +166,17 @@ already bundled the recipe without either resolver.
   `@swooper/mapgen-viz/node` and `packages/mapgen-viz/tools`.
 - Move Swooper-specific analysis, profiling, live, and placement commands to
   the mod's existing `scripts/{diagnostics,live,placement}` owners.
-- Consolidate reusable headless product metrics with the existing
-  world-balance statistics under
-  `mods/mod-swooper-maps/test/support/product-metrics`. These metrics depend on
-  Civ7 terrain identities, Standard recipe artifacts, map policy, and
-  MockAdapter behavior, so Core is not their owner. Tests own behavioral
-  thresholds; `scripts/diagnostics/report-product-metrics.ts` may only
-  orchestrate admitted size/seed sampling and parseable reporting over the
-  shared calculations.
+- Extract pure count, numeric, and component measurement plus `MetricTarget`
+  evaluation into `@swooper/mapgen-metrics`. The Standard recipe owns product
+  provenance, sample and cohort membership, admitted preset scenarios, seed
+  cases, typed artifact capture, semantic metric families, and concrete product
+  targets under `src/recipes/standard/metrics`. Tests assert those shared
+  targets, and thin commands may report them; one captured generation can be
+  evaluated by multiple targets without rerunning it.
+- Keep the mixed placement-realignment harness in `src/dev/diagnostics` until
+  its offline E1/E2/E3 measurements can be separated from synthetic probes and
+  live/Studio evidence. Moving that file alone would not create a metrics
+  component.
 - Move reusable map-policy live checks to
   `packages/civ7-map-policy/scripts/live`.
 - Empty and delete `mods/mod-swooper-maps/src/dev` and its TypeScript config.
@@ -187,9 +190,9 @@ public Core build-support abstraction is earned.
 Delete the obsolete config-shape migration, standard-authoring report, and
 tautological manual-placement catalog verifier. Delete the superseded
 bathymetry, margin, shelf-spottiness, single deep-ocean census, and terrain
-renderer investigations. Retain the deep-ocean matrix and reef census only
-until the product-metrics slice replaces their useful sampling predicates;
-neither historical file shape is a compatibility surface.
+renderer, deep-ocean matrix, and reef census investigations once their useful
+sampling predicates live in map product behavior tests; none of their file
+shapes is a compatibility surface.
 
 ## Semantic Slices
 
@@ -205,9 +208,10 @@ and fresh sessions filling the permanent review roles.
 3. **Bundle compatibility authority.** Establish adapter-owned map-script build
    support, neutralize Core's build, remove duplicate shims, and prove both
    Swooper and Studio-run bundling.
-4. **Product-metrics authority.** Consolidate reusable statistical calculations
-   and fixtures, move behavioral thresholds into Swooper tests, and retain only
-   thin exploration commands with real consumers.
+4. **Map product metrics authority.** Extract the pure measurement and target
+   engine, run the Standard recipe once per admitted scenario, capture stable
+   evidence, centralize concrete product targets beside the recipe, and keep
+   tests and thin reports as consumers rather than owners of product authority.
 5. **Development-tool ownership.** Move observability, dump IO, live policy,
    and Swooper-specific commands to their real owners; delete `src/dev`.
 6. **Foundation.** Move the complete domain, neutral tests, exports, consumers,

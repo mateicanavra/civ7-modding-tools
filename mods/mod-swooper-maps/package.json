@@ -38,7 +38,8 @@
     "diag:analyze": "bun ./src/dev/diagnostics/analyze-dump.ts",
     "diag:diff": "bun ./src/dev/diagnostics/diff-layers.ts",
     "diag:list": "bun ./src/dev/diagnostics/list-layers.ts",
-    "diag:trace": "bun ./src/dev/diagnostics/extract-trace.ts"
+    "diag:trace": "bun ./src/dev/diagnostics/extract-trace.ts",
+    "metrics:report": "bun ./scripts/metrics/report.ts"
   },
   "dependencies": {
     "@civ7/adapter": "workspace:*",
@@ -47,6 +48,7 @@
     "@civ7/studio-run-workspace": "workspace:*",
     "@mateicanavra/civ7-sdk": "workspace:*",
     "@swooper/mapgen-core": "workspace:*",
+    "@swooper/mapgen-metrics": "workspace:*",
     "@swooper/mapgen-viz": "workspace:*",
     "typebox": "catalog:"
   },

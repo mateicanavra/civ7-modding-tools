@@ -329,7 +329,7 @@
         "convergenceStrength": 16
       },
       "knobs": {
-        "dryness": "mix",
+        "dryness": "dry",
         "temperature": "temperate",
         "seasonality": "normal",
         "oceanCoupling": "earthlike"
@@ -421,9 +421,9 @@
       "landWaterBudget": {
         "tMinC": 0,
         "tMaxC": 35,
-        "petBase": 18,
-        "petTemperatureWeight": 75,
-        "humidityDampening": 0.55
+        "petBase": 40,
+        "petTemperatureWeight": 140,
+        "humidityDampening": 0.45
       },
       "diagnostics": {
         "barrierSteps": 4,
@@ -432,7 +432,7 @@
         "convergenceNormalization": 64
       },
       "knobs": {
-        "dryness": "mix",
+        "dryness": "dry",
         "temperature": "temperate",
         "cryosphere": "on"
       }
@@ -471,7 +471,7 @@
           "tropicalThreshold": 25
         },
         "moisture": {
-          "thresholds": [48, 78, 112, 160]
+          "thresholds": [180, 240, 300, 340]
         },
         "aridity": {
           "temperatureMin": 2,
@@ -500,7 +500,7 @@
       "knobs": {},
       "substrateScoring": {
         "vegetationGrowth": {
-          "moistureNormalization": 230,
+          "moistureNormalization": 380,
           "temperatureMinC": -20,
           "temperatureMaxC": 40
         },
