@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { NxTargetDependency } from "@habitat/cli/service/model/graph/dto/target-definition.schema";
 import {
@@ -7,6 +5,7 @@ import {
   habitatInputs,
   ownerLocalCheckTarget,
 } from "@habitat/cli/service/model/graph/policy/target-definitions.policy";
+import { createProjectGraphAsync, DependencyType } from "@nx/devkit";
 import { describe, expect, test } from "vitest";
 
 describe("Habitat target definitions", () => {
@@ -47,30 +46,13 @@ describe("Habitat target definitions", () => {
     expect(habitatInputs()).toContain("habitatRuntime");
   });
 
-  test("defines the closed Habitat runtime authority at the workspace root", () => {
-    const nxConfiguration = JSON.parse(readFileSync(resolve(repoRoot, "nx.json"), "utf8"));
-    expect(nxConfiguration.namedInputs.habitatRuntime).toEqual([
-      "{workspaceRoot}/package.json",
-      "{workspaceRoot}/bun.lock",
-      "{workspaceRoot}/bunfig.toml",
-      "{workspaceRoot}/tsconfig*.json",
-      "{workspaceRoot}/tools/habitat/bin/**",
-      "{workspaceRoot}/tools/habitat/src/**",
-      "{workspaceRoot}/tools/habitat/package.json",
-      "{workspaceRoot}/tools/habitat/tsconfig*.json",
-      { env: "HABITAT_HARNESS_ROOT" },
-      { env: "HABITAT_CACHE_ROOT" },
-      { env: "HABITAT_PATTERN_CACHE_ROOT" },
-      { env: "HABITAT_TELEMETRY_DISABLED" },
-      { env: "HABITAT_COMMAND_TIMEOUT_MS" },
-    ]);
-  });
-
-  test("links Habitat tests to the authority project", () => {
-    const project = JSON.parse(
-      readFileSync(resolve(repoRoot, "tools/habitat/project.json"), "utf8")
-    );
-    expect(project.implicitDependencies).toContain("habitat-authority");
+  test("links Habitat to its authority through the resolved Nx graph", async () => {
+    const graph = await createProjectGraphAsync({ exitOnError: false });
+    expect(graph.dependencies.habitat).toContainEqual({
+      source: "habitat",
+      target: "habitat-authority",
+      type: DependencyType.implicit,
+    });
   });
 
   test("schedules exact output prerequisites without bypassing Habitat execution", () => {

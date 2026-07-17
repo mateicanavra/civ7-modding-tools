@@ -12,23 +12,32 @@
   },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
-  "forbids": "daemon-owned EventHub lifecycle, EventHub injection into RPC handler calls, or EventHub exposure from Studio server context",
-  "why": "The daemon mounts Studio RPC; EventHub lifecycle belongs inside the Studio runtime context.",
-  "remediate": "Keep EventHub creation and shutdown inside the Studio runtime context.",
+  "forbids": "daemon-owned EventHub lifecycle, EventHub exposure through host context or handler calls, and replacement of the package runtime's live EventHub layer with an injected instance",
+  "why": "The app daemon mounts Studio RPC, while the studio-server runtime owns one scoped EventHub service for procedures, workers, replay, and disposal.",
+  "remediate": "Keep EventHub construction and shutdown inside the studio-server runtime layer; hosts supply leaf ports, not an EventHub instance.",
   "message": "Studio RPC daemon leaked EventHub lifecycle ownership.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
         "apps/mapgen-studio/src/server/daemon/daemon.ts",
-        "apps/mapgen-studio/src/server/studio/context.ts"
+        "apps/mapgen-studio/src/server/studio/context.ts",
+        "packages/studio-server/src/context.ts",
+        "packages/studio-server/src/handler.ts",
+        "packages/studio-server/src/runtime.ts"
       ]
     },
     {
       "kind": "project-owner"
     }
   ],
-  "scanRoots": ["apps/mapgen-studio/src/server/daemon", "apps/mapgen-studio/src/server/studio"],
+  "scanRoots": [
+    "apps/mapgen-studio/src/server/daemon",
+    "apps/mapgen-studio/src/server/studio",
+    "packages/studio-server/src/context.ts",
+    "packages/studio-server/src/handler.ts",
+    "packages/studio-server/src/runtime.ts"
+  ],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/baseline.json"

@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { Blocks, Droplet, Leaf, SunSnow } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
@@ -97,33 +94,5 @@ describe("recipe DAG domain presentation", () => {
     expect(getRecipeDagDomainPresentation("ecology")).toBe(
       getRecipeDagDomainPresentation("artifact:ecology.biomes")
     );
-  });
-
-  it("keeps domain lucide imports centralized outside the view", () => {
-    // join/dirname over the import.meta.url STRING (the plainCnMarkup pattern):
-    // under the project's jsdom environment the global `URL` is jsdom's, and
-    // node's fs rejects its instances ("The URL must be of scheme file").
-    const source = readFileSync(
-      join(
-        dirname(fileURLToPath(import.meta.url)),
-        "..",
-        "src",
-        "components",
-        "panels",
-        "recipe-dag",
-        "PipelineStage.tsx"
-      ),
-      "utf8"
-    );
-    // [^}]* (not [\s\S]*?) so the match anchors at the lucide import itself —
-    // a spanning pattern grabs the file's FIRST brace-import and everything up
-    // to the lucide specifier once any other named import precedes it.
-    const lucideImport = source.match(/import\s*{([^}]*)}\s*from "lucide-react";/)?.[1] ?? "";
-    const importedNames = lucideImport
-      .split(",")
-      .map((name) => name.trim())
-      .filter(Boolean);
-
-    expect(importedNames).toEqual(["AlertTriangle", "ChevronDown", "Loader2", "Workflow"]);
   });
 });

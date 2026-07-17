@@ -7,8 +7,8 @@
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 120,
-    "currentRowCount": 120,
+    "liveManifestCount": 121,
+    "currentRowCount": 121,
     "retiredHistoricalRowCount": 37,
     "duplicateLiveRows": []
   },
@@ -17,7 +17,7 @@
       "boundary inversion": 7,
       "closed structure inversion": 2,
       "consolidation/dedup": 1,
-      "context admission": 26,
+      "context admission": 27,
       "no action": 55,
       "positive authority creation": 8,
       "retirement/garbage collection": 3,
@@ -25,14 +25,14 @@
       "split by owner": 15
     },
     "packetNeeded": {
-      "false": 120
+      "false": 121
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 3,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 82,
+      "none": 83,
       "packet-complete": 16,
       "transition-decision-accepted": 16
     }
@@ -407,6 +407,15 @@
       "expectedRemediation": "Implemented: derive active stage topology from the standard contract manifest/runtime recipe plus admitted support directories.",
       "evidenceNote": "The Habitat script parses `recipe.ts` and `contract-manifest.ts`, checks stage parity, requires each manifest stage directory and index.ts, and treats ecology/foundation/morphology as support hubs rather than active stages. Corrective local-proxy review left this settled: it is positive manifest/runtime stage topology currentness, not a local negative proxy.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/rule.json"
+    },
+    {
+      "ruleId": "preserve_studio_event_driven_runtime_boundaries",
+      "lane": "MapGen Studio",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Retain the event-driven Studio runtime relapse boundary while product tests own observable adoption, bounded reads, and cleanup.",
+      "evidenceNote": "Replaces source-text assertions with exact operation-read, browser-storage, watcher-runtime, and EventHub owner boundaries. Product tests retain exact-once lifecycle, stream adoption, replay, staleness, and disposal behavior.",
+      "currentPath": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/rule.json"
     },
     {
       "ruleId": "preserve_transport_pure_orpc_contracts",
