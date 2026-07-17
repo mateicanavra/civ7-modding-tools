@@ -22,6 +22,10 @@ pattern: command classes live under `src/cli/commands/**`, local repo scripts
 run `bin/dev.ts`, and `bin/run.js` is the built production runner. Build
 output (`dist/**`) and `oclif.manifest.json` are generated artifacts.
 
+The separate [standalone check binary](docs/STANDALONE-CHECK-BINARY.md) is the
+portable, check-only consumer edge. It does not carry the oclif command shell,
+Nx execution, or a Grit executable into destination repositories.
+
 ## Usage
 
 ```bash
