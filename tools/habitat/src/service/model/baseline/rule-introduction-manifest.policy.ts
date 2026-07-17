@@ -4,12 +4,13 @@ import { Effect, Either, Match, Option, Schema } from "effect";
 import { Value } from "typebox/value";
 import { errorMessage } from "./context.policy.js";
 import {
+  type BaselineOccurrence,
   type BaselineRefusal,
   type BaselineRuleContractInput,
   type RuleIntroductionBaselineManifest,
   RuleIntroductionBaselineManifestSchema,
 } from "./dto/baseline.schema.js";
-import { sortedUnique } from "./utils.policy.js";
+import { countOccurrences, sameOccurrenceList, sameStringList } from "./utils.policy.js";
 
 type RuleIntroductionManifestReadPort<R> = Pick<HabitatFileSystemReadPort<R>, "readText">;
 
@@ -76,11 +77,12 @@ const loadManifestFileEffect = Effect.fn("baseline.loadRuleIntroductionManifest"
   });
 });
 
+/** Admits introduced baseline debt only when its manifest matches every occurrence exactly. */
 export const admitRuleIntroductionManifestEffect = Effect.fn(
   "baseline.admitRuleIntroductionManifest"
 )(function* <R>(
   ruleId: string,
-  keys: readonly string[],
+  occurrences: readonly BaselineOccurrence[],
   comparisonBase: string,
   baselinePath: string,
   context: RuleIntroductionManifestContext<R>
@@ -92,7 +94,14 @@ export const admitRuleIntroductionManifestEffect = Effect.fn(
     Match.when({ status: "missing" }, () => Effect.succeed(manifestMissing())),
     Match.exhaustive
   );
-  return admissionFromLoadedManifest(ruleId, keys, comparisonBase, baselinePath, loaded, context);
+  return admissionFromLoadedManifest(
+    ruleId,
+    occurrences,
+    comparisonBase,
+    baselinePath,
+    loaded,
+    context
+  );
 });
 
 function ruleIntroductionManifestSource<R>(
@@ -113,19 +122,19 @@ function ruleIntroductionManifestSource<R>(
 
 function admissionFromLoadedManifest<R>(
   ruleId: string,
-  keys: readonly string[],
+  occurrences: readonly BaselineOccurrence[],
   comparisonBase: string,
   baselinePath: string,
   loaded: RuleIntroductionManifestLoadResult,
   context: RuleIntroductionManifestContext<R>
 ): RuleIntroductionManifestAdmission {
   return Match.value(loaded).pipe(
-    Match.when({ status: "missing" }, () => missingAdmission(ruleId, keys, baselinePath)),
+    Match.when({ status: "missing" }, () => missingAdmission(ruleId, occurrences, baselinePath)),
     Match.when({ status: "malformed" }, ({ path: manifestPath, message }) =>
-      malformedAdmission(ruleId, keys, manifestPath, message)
+      malformedAdmission(ruleId, occurrences, manifestPath, message)
     ),
     Match.when({ status: "loaded" }, ({ manifest }) =>
-      loadedManifestAdmission(ruleId, keys, comparisonBase, baselinePath, manifest, context)
+      loadedManifestAdmission(ruleId, occurrences, comparisonBase, baselinePath, manifest, context)
     ),
     Match.exhaustive
   );
@@ -133,14 +142,14 @@ function admissionFromLoadedManifest<R>(
 
 function loadedManifestAdmission<R>(
   ruleId: string,
-  keys: readonly string[],
+  occurrences: readonly BaselineOccurrence[],
   comparisonBase: string,
   baselinePath: string,
   manifest: RuleIntroductionBaselineManifest,
   context: RuleIntroductionManifestContext<R>
 ): RuleIntroductionManifestAdmission {
-  const sortedKeys = sortedUnique(keys);
-  const manifestKeys = sortedUnique(manifest.initialBaselineKeys);
+  const sortedManifestKeys = [...manifest.initialBaselineKeys].sort();
+  const manifestOccurrences = countOccurrences(manifest.initialBaselineKeys);
   const currentRule = context.registry.find((rule) => rule.id === ruleId);
   const matches =
     manifest.ruleId === ruleId &&
@@ -148,19 +157,18 @@ function loadedManifestAdmission<R>(
     manifest.baselinePath === baselinePath &&
     manifest.ownerProject === currentRule?.ownerProject &&
     manifest.runner === currentRule?.runner &&
-    manifestKeys.length === manifest.initialBaselineKeys.length &&
-    sameList(manifest.initialBaselineKeys, manifestKeys) &&
-    sameList(manifestKeys, sortedKeys);
+    sameStringList(manifest.initialBaselineKeys, sortedManifestKeys) &&
+    sameOccurrenceList(manifestOccurrences, occurrences);
   return Match.value(matches).pipe(
     Match.when(true, admissionAccepted),
-    Match.when(false, () => mismatchAdmission(ruleId, sortedKeys, baselinePath)),
+    Match.when(false, () => mismatchAdmission(ruleId, occurrences, baselinePath)),
     Match.exhaustive
   );
 }
 
 function missingAdmission(
   ruleId: string,
-  keys: readonly string[],
+  occurrences: readonly BaselineOccurrence[],
   baselinePath: string
 ): RuleIntroductionManifestAdmission {
   return {
@@ -170,7 +178,7 @@ function missingAdmission(
       ruleId,
       path: baselinePath,
       reason: "rule-introduction-manifest-missing",
-      addedKeys: sortedUnique(keys),
+      addedKeys: occurrences.map(({ key }) => key),
       message:
         `baseline for introduced rule '${ruleId}' has seeded keys but no accepted rule-introduction ` +
         "baseline manifest; refusing baseline growth",
@@ -180,7 +188,7 @@ function missingAdmission(
 
 function malformedAdmission(
   ruleId: string,
-  keys: readonly string[],
+  occurrences: readonly BaselineOccurrence[],
   manifestPath: string,
   message: string
 ): RuleIntroductionManifestAdmission {
@@ -191,7 +199,7 @@ function malformedAdmission(
       ruleId,
       path: manifestPath,
       reason: "rule-introduction-manifest-malformed",
-      addedKeys: sortedUnique(keys),
+      addedKeys: occurrences.map(({ key }) => key),
       message,
     },
   };
@@ -199,7 +207,7 @@ function malformedAdmission(
 
 function mismatchAdmission(
   ruleId: string,
-  sortedKeys: readonly string[],
+  occurrences: readonly BaselineOccurrence[],
   baselinePath: string
 ): RuleIntroductionManifestAdmission {
   return {
@@ -209,7 +217,7 @@ function mismatchAdmission(
       ruleId,
       path: baselinePath,
       reason: "rule-introduction-manifest-mismatch",
-      addedKeys: [...sortedKeys],
+      addedKeys: occurrences.map(({ key }) => key),
       message: `rule-introduction baseline manifest for '${ruleId}' does not match the requested write`,
     },
   };
@@ -245,8 +253,4 @@ function manifestMissing(): { readonly status: "missing" } {
 
 function manifestMalformed(path: string, message: string): RuleIntroductionManifestLoadResult {
   return { status: "malformed", path, message };
-}
-
-function sameList(a: readonly string[], b: readonly string[]): boolean {
-  return a.length === b.length && a.every((value, index) => value === b[index]);
 }
