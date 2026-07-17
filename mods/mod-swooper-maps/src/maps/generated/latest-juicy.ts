@@ -23,6 +23,7 @@ const mapConfig = {
   },
   "config": {
     "foundation-mantle": {
+      "knobs": {},
       "meshResolution": {
         "plateCount": 28,
         "cellsPerPlate": 13,
@@ -46,10 +47,10 @@ const mapConfig = {
         "curvatureWeight": 0.45,
         "upwellingThreshold": 0.25,
         "downwellingThreshold": 0.35
-      },
-      "knobs": {}
+      }
     },
     "foundation-lithosphere": {
+      "knobs": {},
       "lithosphere": {
         "basalticThickness01": 0.25,
         "yieldStrength01": 0.55,
@@ -65,8 +66,7 @@ const mapConfig = {
           "microplatesMinPlateCount": 14,
           "microplateMinAreaCells": 8
         }
-      },
-      "knobs": {}
+      }
     },
     "foundation-tectonics": {
       "knobs": {
@@ -109,6 +109,19 @@ const mapConfig = {
         "activityThreshold": 1
       }
     },
+    "foundation-orogeny": {
+      "knobs": {},
+      "crustCharacter": {
+        "continentalSurvivalMaturity": 0.6,
+        "continentalFreeboard": 0.35,
+        "hyperextensionBreakupBase": 0.1,
+        "thinningThicknessLoss": 0.55,
+        "oceanicAbyssalDepth": 0.75
+      }
+    },
+    "foundation-projection": {
+      "knobs": {}
+    },
     "morphology-coasts": {
       "knobs": {
         "seaLevel": "earthlike",
@@ -143,6 +156,18 @@ const mapConfig = {
           "boundaryArcNoiseWeight": 0.26,
           "fractalGrain": 3
         }
+      },
+      "continentalMargin": {
+        "breakCrustFraction": 0.45,
+        "apronTopCrustFraction": 0.62,
+        "apronBlendStrength": 0.8,
+        "baseApronLengthTiles": 3,
+        "activeApronFactor": 0.4,
+        "riftApronFactor": 0.6,
+        "passiveApronFactor": 1.5,
+        "ageApronGain": 0.6,
+        "buoyancyApronGain": 0.4,
+        "activeClosenessThreshold": 0.35
       },
       "waterCoverage": {
         "targetWaterPercent": 63,
@@ -184,18 +209,6 @@ const mapConfig = {
           "bayNoiseBonus": 0.45,
           "fjordWeight": 0.85
         }
-      },
-      "continentalMargin": {
-        "breakCrustFraction": 0.45,
-        "apronTopCrustFraction": 0.62,
-        "apronBlendStrength": 0.8,
-        "baseApronLengthTiles": 3,
-        "activeApronFactor": 0.4,
-        "riftApronFactor": 0.6,
-        "passiveApronFactor": 1.5,
-        "ageApronGain": 0.6,
-        "buoyancyApronGain": 0.4,
-        "activeClosenessThreshold": 0.35
       }
     },
     "morphology-routing": {
@@ -239,16 +252,16 @@ const mapConfig = {
         "microcontinentChance": 0.12
       },
       "mountainRanges": {
-        "tectonicActivity": 1.55,
-        "rangeSystemSpacingTiles": 19.7,
-        "rangeSystemLengthTiles": 30,
-        "provinceRadiusTiles": 5,
-        "ridgeWidthTiles": 3,
+        "tectonicActivity": 0.3,
+        "rangeSystemSpacingTiles": 13,
+        "rangeSystemLengthTiles": 21,
+        "provinceRadiusTiles": 4,
+        "ridgeWidthTiles": 2,
         "foothillExtentTiles": 2,
-        "interiorHighlandExpression": 0.85,
-        "terrainTextureFractalMix": 0.75,
-        "erosionMaturity": 0.33,
-        "tectonicSignalSensitivity": 1.22
+        "interiorHighlandExpression": 0.67,
+        "terrainTextureFractalMix": 0.81,
+        "erosionMaturity": 0.36,
+        "tectonicSignalSensitivity": 1
       },
       "volcanoes": {
         "enabled": true,
@@ -271,9 +284,9 @@ const mapConfig = {
         "shelfWidth": "wide"
       },
       "shelf": {
-        "activeClosenessThreshold": 0.35,
         "breakGradient": 8,
-        "breakGradientScale": 1
+        "breakGradientScale": 1,
+        "activeClosenessThreshold": 0.35
       }
     },
     "hydrology-climate-baseline": {
@@ -365,11 +378,6 @@ const mapConfig = {
         "riverDensity": "normal",
         "lakeiness": "many"
       },
-      "lakes": {
-        "maxUpstreamSteps": 2,
-        "sinkDischargePercentileMin": 0.94,
-        "maxLakeLandFraction": 0.07
-      },
       "drainageRouting": {
         "allowExternalEdgeOutlets": false
       },
@@ -384,6 +392,11 @@ const mapConfig = {
         "majorPercentile": 0.91,
         "minMinorDischarge": 0,
         "minMajorDischarge": 0
+      },
+      "lakes": {
+        "maxUpstreamSteps": 2,
+        "sinkDischargePercentileMin": 0.94,
+        "maxLakeLandFraction": 0.07
       }
     },
     "hydrology-climate-refine": {
@@ -723,8 +736,8 @@ const mapConfig = {
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 24,
-          "hazardEnabled": false
+          "hazardEnabled": false,
+          "coveragePct": 24
         },
         "burned": {
           "enabled": true,
@@ -821,19 +834,6 @@ const mapConfig = {
         "equityTolerance": 2,
         "strength": 1
       }
-    },
-    "foundation-orogeny": {
-      "knobs": {},
-      "crustCharacter": {
-        "continentalSurvivalMaturity": 0.6,
-        "continentalFreeboard": 0.35,
-        "hyperextensionBreakupBase": 0.1,
-        "thinningThicknessLoss": 0.55,
-        "oceanicAbyssalDepth": 0.75
-      }
-    },
-    "foundation-projection": {
-      "knobs": {}
     }
   }
 } as unknown as StandardMapConfigEnvelope;
@@ -842,7 +842,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "8e693ba99c49717aa292c7bc32da47166d828e906485b9d77da2096bf469523b",
-  envelopeHash: "41b58892f7194d4b78395bc79c70dfaa2505927cd04232360286e215fcc4cac2",
+  configHash: "00cc9af500b85cbeabe678eb6faae125c29c86e4ddce18de6b1ce31c488d1f48",
+  envelopeHash: "edf5222390fa99e1ba278b1837ba292760e67d930eaf1c4b20ea89fd3aa245a8",
   config: mapConfig.config,
 });
