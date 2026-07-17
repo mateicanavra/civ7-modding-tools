@@ -39,5 +39,4 @@ export {
 export {
   baselineAuthorityResult,
   isBaselineLocked,
-  parseBaselineArray,
 } from "./state.policy.js";

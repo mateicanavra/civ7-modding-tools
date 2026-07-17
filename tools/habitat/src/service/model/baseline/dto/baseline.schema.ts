@@ -32,7 +32,43 @@ export const BaselineRefusalSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Legacy baseline document whose unique keys provide key-wide diagnostic coverage. */
 export const BaselineKeyArraySchema = Type.Array(Type.String());
+
+/** One exact diagnostic-key multiplicity admitted by an occurrence-aware baseline. */
+export const BaselineOccurrenceSchema = Type.Object(
+  {
+    key: Type.String({
+      minLength: 1,
+      description: "Stable path-and-message identity shared by equivalent diagnostics.",
+    }),
+    count: Type.Integer({
+      minimum: 1,
+      description: "Exact number of diagnostics with this identity that the baseline admits.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description: "Exact admitted multiplicity for one stable Habitat diagnostic identity.",
+  }
+);
+
+/** Opt-in baseline document that preserves multiplicity without line-number identity. */
+export const OccurrenceBaselineDocumentSchema = Type.Object(
+  {
+    schemaVersion: Type.Literal(1),
+    occurrences: Type.Array(BaselineOccurrenceSchema, {
+      minItems: 1,
+      description:
+        "Lexicographically sorted, unique diagnostic identities and their admitted counts.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Occurrence-aware Habitat baseline for rules that can report several diagnostics with one path and message.",
+  }
+);
 
 export const ExplicitEmptyBaselineStateSchema = Type.Object(
   {
@@ -45,13 +81,15 @@ export const ExplicitEmptyBaselineStateSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Loaded nonempty baseline state with either key-wide or exact-occurrence coverage. */
 export const ExplicitDebtBaselineStateSchema = Type.Object(
   {
     kind: Type.Literal("explicit-debt"),
     ruleId: Type.String({ minLength: 1 }),
     path: Type.String({ minLength: 1 }),
     locked: Type.Literal(false),
-    keys: Type.Array(Type.String()),
+    coverage: Type.Union([Type.Literal("key"), Type.Literal("occurrence")]),
+    occurrences: Type.Array(BaselineOccurrenceSchema, { minItems: 1 }),
   },
   { additionalProperties: false }
 );
@@ -78,6 +116,7 @@ export const BaselineRuleContractInputSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Authority record that binds a newly introduced rule to its exact initial debt. */
 export const RuleIntroductionBaselineManifestSchema = Type.Object(
   {
     changeId: Type.String({ minLength: 1 }),
@@ -85,7 +124,10 @@ export const RuleIntroductionBaselineManifestSchema = Type.Object(
     ownerProject: Type.String({ minLength: 1 }),
     runner: Type.String({ minLength: 1 }),
     baselinePath: Type.String({ minLength: 1 }),
-    initialBaselineKeys: Type.Array(Type.String()),
+    initialBaselineKeys: Type.Array(Type.String(), {
+      description:
+        "Sorted diagnostic occurrences admitted at rule introduction; repeated keys preserve exact multiplicity.",
+    }),
     comparisonBase: Type.String({ minLength: 1 }),
   },
   { additionalProperties: false }
@@ -124,7 +166,7 @@ export const BaselineExpansionDecisionSchema = Type.Union([
       status: Type.Literal("accepted"),
       ruleId: Type.String({ minLength: 1 }),
       baselinePath: Type.String({ minLength: 1 }),
-      keys: Type.Array(Type.String()),
+      occurrences: Type.Array(BaselineOccurrenceSchema, { minItems: 1 }),
       comparisonBase: Type.String({ minLength: 1 }),
       message: Type.String({ minLength: 1 }),
     },
@@ -178,6 +220,8 @@ export const BaselineAuthorityResultSchema = Type.Union([
 
 export type BaselineRefusalReason = Static<typeof BaselineRefusalReasonSchema>;
 export type BaselineRefusal = Static<typeof BaselineRefusalSchema>;
+export type BaselineOccurrence = Static<typeof BaselineOccurrenceSchema>;
+export type OccurrenceBaselineDocument = Static<typeof OccurrenceBaselineDocumentSchema>;
 export type ExplicitEmptyBaselineState = Static<typeof ExplicitEmptyBaselineStateSchema>;
 export type ExplicitDebtBaselineState = Static<typeof ExplicitDebtBaselineStateSchema>;
 export type AcceptedBaselineAuthorityState = Static<typeof AcceptedBaselineAuthorityStateSchema>;
@@ -197,6 +241,12 @@ export interface BaselineContractValidation {
   refusals: BaselineRefusal[];
 }
 
+/** Decodes the legacy unique-key baseline representation. */
 export function parseBaselineKeys(value: unknown): string[] {
   return Value.Parse(BaselineKeyArraySchema, value);
+}
+
+/** Decodes the opt-in occurrence-aware baseline representation. */
+export function parseOccurrenceBaselineDocument(value: unknown): OccurrenceBaselineDocument {
+  return Value.Parse(OccurrenceBaselineDocumentSchema, value);
 }
