@@ -31,8 +31,13 @@ const MorphologyTopographyArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for canonical elevation, land-mask, bathymetry, and sea-level truth. */
 export const Schema = MorphologyTopographyArtifactSchema;
 
+/**
+ * Registers canonical Morphology topography. The artifact identity is
+ * publish-once, while sanctioned steps may mutate its shared buffers in place.
+ */
 export const artifact = defineArtifact({
   name: "topography",
   id: "artifact:morphology.topography",
@@ -93,6 +98,10 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates finite sea level plus map-sized elevation, land-mask, and
+ * bathymetry typed arrays; it does not recompute their semantic relationship.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

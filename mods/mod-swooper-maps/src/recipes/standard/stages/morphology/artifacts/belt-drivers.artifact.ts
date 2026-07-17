@@ -103,8 +103,13 @@ const MorphologyBeltDriversArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for canonical tectonic belt drivers and their component summaries. */
 export const Schema = MorphologyBeltDriversArtifactSchema;
 
+/**
+ * Registers map-tile-sized tectonic belt drivers projected from Foundation
+ * history and provenance for landmass, mountain, and shelf policy.
+ */
 export const artifact = defineArtifact({
   name: "beltDrivers",
   id: "artifact:morphology.beltDrivers",
@@ -225,6 +230,10 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates the closed belt vocabulary, component summaries, typed-array
+ * kinds, and, when dimensions are available, one value per map tile.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

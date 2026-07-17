@@ -38,6 +38,10 @@ export const Schema = Type.Object(
   }
 );
 
+/**
+ * Registers tile-space origin, drift, and most-recent-boundary provenance
+ * projected from Foundation's reconstructed tectonic history.
+ */
 export const artifact = defineArtifact({
   name: "foundationTectonicProvenanceTiles",
   id: "artifact:map.foundationTectonicProvenanceTiles",
@@ -124,6 +128,7 @@ function validatePayload(
   }
 }
 
+/** Validates the version and map-sized typed arrays, preserving `-1`/`255` sentinels. */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

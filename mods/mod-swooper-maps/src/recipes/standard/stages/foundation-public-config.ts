@@ -80,6 +80,11 @@ function stepOp(opKey: string, config: unknown): Record<string, unknown> | undef
   return op === undefined ? undefined : { [opKey]: op };
 }
 
+/**
+ * Public authoring schema for Foundation mesh resolution, mantle sources, and derived forcing.
+ * It exposes only stable strategy controls and keeps execution-derived mesh fields out of
+ * saved configuration.
+ */
 export const FoundationMantlePublicSchema = Type.Object(
   {
     meshResolution: MeshResolutionSchema,
@@ -93,6 +98,7 @@ export const FoundationMantlePublicSchema = Type.Object(
   }
 );
 
+/** Author-facing initial-crust and plate-partition controls for the Lithosphere stage. */
 export const FoundationLithospherePublicSchema = Type.Object(
   {
     lithosphere: LithosphereSchema,
@@ -105,6 +111,10 @@ export const FoundationLithospherePublicSchema = Type.Object(
   }
 );
 
+/**
+ * Author-facing plate-motion, boundary, era-history, field-spread, and rollup controls for the
+ * Tectonics stage.
+ */
 export const FoundationTectonicsPublicSchema = Type.Object(
   {
     plateMotion: PlateMotionSchema,
@@ -120,6 +130,7 @@ export const FoundationTectonicsPublicSchema = Type.Object(
   }
 );
 
+/** Author-facing final crust-character controls after initial crust and tectonic history merge. */
 export const FoundationOrogenyPublicSchema = Type.Object(
   {
     crustCharacter: CrustCharacterSchema,
@@ -133,6 +144,7 @@ export const FoundationOrogenyPublicSchema = Type.Object(
 
 export type FoundationOrogenyPublicConfig = Static<typeof FoundationOrogenyPublicSchema>;
 
+/** Compiles mantle controls into the fixed mesh, potential, and forcing step envelopes. */
 export function compileFoundationMantlePublicConfig(config: Record<string, unknown>) {
   const rawSteps: Record<string, unknown> = {};
   assignIfDefined(rawSteps, "mesh", stepOp("computeMesh", config.meshResolution));
@@ -145,6 +157,7 @@ export function compileFoundationMantlePublicConfig(config: Record<string, unkno
   return rawSteps;
 }
 
+/** Compiles lithosphere controls into initial-crust and plate-graph step envelopes. */
 export function compileFoundationLithospherePublicConfig(config: Record<string, unknown>) {
   const rawSteps: Record<string, unknown> = {};
   assignIfDefined(rawSteps, "crust", stepOp("computeCrust", config.lithosphere));
@@ -152,6 +165,10 @@ export function compileFoundationLithospherePublicConfig(config: Record<string, 
   return rawSteps;
 }
 
+/**
+ * Compiles tectonic controls into the fixed plate-motion and tectonic-history envelopes, omitting
+ * controls that the author did not supply.
+ */
 export function compileFoundationTectonicsPublicConfig(config: Record<string, unknown>) {
   const rawSteps: Record<string, unknown> = {};
   assignIfDefined(rawSteps, "plate-motion", stepOp("computePlateMotion", config.plateMotion));
@@ -186,6 +203,7 @@ export function compileFoundationTectonicsPublicConfig(config: Record<string, un
 // Foundation Orogeny is public as semantic crustCharacter config. The raw
 // compute-crust-evolution operation envelope is emitted only at this compile
 // boundary so Studio and presets never author it directly.
+/** Converts semantic crust-character config into the internal crust-evolution operation envelope. */
 export function compileFoundationOrogenyPublicConfig(config: FoundationOrogenyPublicConfig) {
   const rawSteps: Record<string, unknown> = {};
   assignIfDefined(

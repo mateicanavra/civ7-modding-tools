@@ -6,6 +6,10 @@ import {
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/**
+ * Runtime contract for advisory rain-shadow, continentality, and convergence rasters. These
+ * fields support diagnostics and narrative bias without becoming Hydrology source truth.
+ */
 export const HydrologyClimateDiagnosticsSchema = Type.Object(
   {
     /** Advisory rain shadow proxy (0..1); used for debugging and optional downstream narrative biasing. */
@@ -30,8 +34,13 @@ export const HydrologyClimateDiagnosticsSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for admitting refined-climate diagnostic rasters. */
 export const Schema = HydrologyClimateDiagnosticsSchema;
 
+/**
+ * Registers Hydrology's aggregate climate benchmark evidence after refinement. Diagnostics and
+ * Studio consumers observe these summaries without feeding them back into climate truth.
+ */
 export const artifact = defineArtifact({
   name: "climateDiagnostics",
   id: "artifact:hydrology.climateDiagnostics",
@@ -106,6 +115,12 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates climate diagnostics against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

@@ -58,6 +58,10 @@ const knobsSchema = Type.Object(
   }
 );
 
+/**
+ * Compiles bounded precipitation, thermal, albedo, and cryosphere refinement
+ * controls into the post-hydrography climate diagnostic pass.
+ */
 export default createStage({
   id: "hydrology-climate-refine",
   knobsSchema,

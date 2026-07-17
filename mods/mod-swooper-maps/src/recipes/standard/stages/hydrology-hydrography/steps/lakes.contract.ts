@@ -19,6 +19,11 @@ const LakesStepConfigSchema = Type.Object(
   }
 );
 
+/**
+ * Defines deterministic lake intent and river-network metrics from canonical hydrography and
+ * topography. It plans Hydrology truth only; map-hydrology owns later Civ7 water
+ * materialization.
+ */
 const LakesStepContract = defineStep({
   id: "lakes",
   phase: "hydrology",

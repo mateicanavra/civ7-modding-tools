@@ -12,6 +12,10 @@ import BuildElevationStepContract from "./buildElevation.contract.js";
 const GROUP_MAP_ELEVATION = "Map / Elevation (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Builds Civ7 elevation only after mountains, volcanoes, and accepted lakes,
+ * then captures terrain readback for physics-to-engine parity checks.
+ */
 export default createStep(BuildElevationStepContract, {
   artifacts: implementArtifacts([mapElevationArtifacts.elevationEngineTerrainSnapshot], {
     elevationEngineTerrainSnapshot: {},

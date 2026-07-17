@@ -16,6 +16,7 @@ export function interleaveXY(x: Float32Array, y: Float32Array): Float32Array {
   return out;
 }
 
+/** Projects plate seeds into ordered XY positions paired with their stable plate ids. */
 export function pointsFromPlateSeeds(
   plates: ReadonlyArray<{ id: number; seedX: number; seedY: number }>
 ): { positions: Float32Array; ids: Int16Array } {
@@ -30,6 +31,10 @@ export function pointsFromPlateSeeds(
   return { positions, ids };
 }
 
+/**
+ * Projects paired mesh-cell indices into flat XY line segments, truncating to the shorter pair
+ * list and using zero coordinates for missing sites.
+ */
 export function segmentsFromCellPairs(
   aCell: Int32Array,
   bCell: Int32Array,
@@ -49,6 +54,10 @@ export function segmentsFromCellPairs(
   return out;
 }
 
+/**
+ * Projects valid mesh-neighbor topology into one segment per undirected edge, skipping invalid
+ * neighbor indices and refusing malformed offset tables with an empty result.
+ */
 export function segmentsFromMeshNeighbors(
   neighborsOffsets: Int32Array,
   neighbors: Int32Array,
@@ -81,6 +90,7 @@ export function segmentsFromMeshNeighbors(
   return new Float32Array(segments);
 }
 
+/** Projects plate centroids into ordered XY positions with aligned plate ids and tile areas. */
 export function pointsFromTileCentroids(
   plates: ReadonlyArray<{ id: number; centroid: { x: number; y: number }; area: number }>
 ): { positions: Float32Array; ids: Int16Array; areas: Int32Array } {
@@ -97,6 +107,10 @@ export function pointsFromTileCentroids(
   return { positions, ids, areas };
 }
 
+/**
+ * Projects plate-neighbor topology into deduplicated undirected centroid segments, skipping
+ * references to plate ids without a centroid.
+ */
 export function segmentsFromTileTopologyNeighbors(
   plates: ReadonlyArray<{ id: number; centroid: { x: number; y: number }; neighbors: number[] }>
 ): Float32Array {

@@ -18,8 +18,13 @@ const MorphologySubstrateArtifactSchema = Type.Object(
   { description: "Morphology substrate buffer handle (publish once)." }
 );
 
+/** Runtime schema for publish-once erodibility and sediment-depth fields. */
 export const Schema = MorphologySubstrateArtifactSchema;
 
+/**
+ * Registers publish-once erodibility and sediment-depth fields consumed by
+ * geomorphology and drainage shaping.
+ */
 export const artifact = defineArtifact({
   name: "substrate",
   id: "artifact:morphology.substrate",
@@ -77,6 +82,7 @@ function validatePayload(
   return errors;
 }
 
+/** Validates Float32 substrate fields and their map-sized cardinality when known. */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

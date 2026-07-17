@@ -54,6 +54,10 @@ export const Schema = Type.Object(
   { description: "Foundation crust tiles artifact payload (tile-space crust driver tensors)." }
 );
 
+/**
+ * Registers Foundation crust properties sampled from mesh cells into tile
+ * space for Morphology and diagnostic consumers.
+ */
 export const artifact = defineArtifact({
   name: "foundationCrustTiles",
   id: "artifact:map.foundationCrustTiles",
@@ -134,6 +138,7 @@ function validatePayload(
   }
 }
 
+/** Validates every crust tensor's typed-array kind and one-value-per-tile cardinality. */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

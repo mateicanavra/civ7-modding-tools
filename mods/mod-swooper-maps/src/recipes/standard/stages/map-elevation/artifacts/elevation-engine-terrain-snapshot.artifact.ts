@@ -29,6 +29,7 @@ const MapElevationEngineTerrainSnapshotArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime contract for the engine terrain readback after elevation materialization. */
 export const Schema = MapElevationEngineTerrainSnapshotArtifactSchema;
 
 /**
@@ -43,6 +44,11 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
+/**
+ * Validates the map-elevation engine snapshot against its closed readback schema and returns
+ * all issues without throwing. Successful validation guarantees parity consumers receive stage
+ * identity, dimensions, and typed land, terrain, and elevation buffers.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return validateArtifactSchema(Schema, value);
 }

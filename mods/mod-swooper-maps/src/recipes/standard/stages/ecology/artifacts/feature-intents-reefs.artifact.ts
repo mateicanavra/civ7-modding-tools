@@ -6,14 +6,22 @@ import {
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/** Closed row contract for one reef placement intent selected by Ecology. */
 export const FeaturePlacementIntentSchema = FeaturePlacementSchema;
 
+/** Ordered reef intent list consumed later by map-ecology projection. */
 export const FeatureIntentsListArtifactSchema = Type.Array(FeaturePlacementIntentSchema);
 
 export type FeatureIntentsListArtifact = Static<typeof FeatureIntentsListArtifactSchema>;
 
+/** Canonical schema entrypoint for registering and validating reef intent. */
 export const Schema = FeatureIntentsListArtifactSchema;
 
+/**
+ * Registers deterministic reef-family intent selected from Ecology score and occupancy truth.
+ * Map projection consumes these rows later, keeping habitat choice separate from Civ7
+ * acceptance.
+ */
 export const artifact = defineArtifact({
   name: "featureIntentsReefs",
   id: "artifact:ecology.featureIntents.reefs",
@@ -35,6 +43,7 @@ function validatePayload(value: unknown): ArtifactValidationIssue[] {
   return errors;
 }
 
+/** Returns combined schema and feature-intent-list issues for reef intent without throwing. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

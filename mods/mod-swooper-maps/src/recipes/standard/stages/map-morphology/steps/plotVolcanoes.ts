@@ -13,6 +13,10 @@ import PlotVolcanoesStepContract from "./plotVolcanoes.contract.js";
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Stamps the upstream volcano plan after continent terrain is stable and marks
+ * projection completion without taking ownership of volcano selection.
+ */
 export default createStep(PlotVolcanoesStepContract, {
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);

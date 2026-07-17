@@ -25,6 +25,11 @@ const LakesStepConfigSchema = Type.Object(
   }
 );
 
+/**
+ * Defines the engine-facing lake projection boundary: it requires upstream lake and mountain
+ * truth and declares both stamping and terrain-readback evidence. The implementation owns the
+ * Civ7 mutation and observation.
+ */
 const LakesStepContract = defineStep({
   id: "lakes",
   phase: "hydrology",

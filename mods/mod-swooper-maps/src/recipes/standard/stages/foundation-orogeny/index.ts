@@ -7,6 +7,10 @@ import {
 } from "../foundation-public-config.js";
 import { crustEvolution } from "./steps/index.js";
 
+/**
+ * Compiles final crust-character controls into the crust-evolution boundary,
+ * merging initial crust and tectonic history before Morphology consumes them.
+ */
 export default createStage({
   id: "foundation-orogeny",
   knobsSchema: Type.Object(

@@ -11,6 +11,10 @@ import IslandsStepContract from "./islands.contract.js";
 const GROUP_ISLANDS = "Morphology / Islands";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Plans tectonically informed island peaks and applies them to Morphology's
+ * land, elevation, and bathymetry buffers before final shelf computation.
+ */
 export default createStep(IslandsStepContract, {
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;

@@ -31,6 +31,11 @@ const EXPECTED_INPUT_GROUPS = [
   ["geologicalPlan", "geological-mineral-gemstone-industrial"],
 ] as const satisfies readonly (readonly [string, ResourceGroupId])[];
 
+/**
+ * Deterministically folds aquatic, cultivated, terrestrial, and geological demand rows into
+ * one resource-group report. It does not repair or place resources; duplicate and missing
+ * authority stays explicit for downstream proof.
+ */
 export const defaultStrategy = createStrategy(PlanResourceGroupsContract, "default", {
   run: (input) => {
     const seenResources = new Map<string, ResourceGroupId>();

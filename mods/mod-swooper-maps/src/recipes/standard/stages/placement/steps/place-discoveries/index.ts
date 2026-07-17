@@ -8,6 +8,10 @@ import { runPlacementProductStep } from "../product-runtime.js";
 import PlaceDiscoveriesStepContract from "./contract.js";
 import { placeOfficialDiscoveries } from "./materialize.js";
 
+/**
+ * Runs Civ7 discovery generation only after resources and starts are stamped,
+ * feeding seated starts as exclusions and publishing observed outcomes.
+ */
 export default createStep(PlaceDiscoveriesStepContract, {
   artifacts: implementArtifacts([placementArtifacts.discoveryPlacementOutcomes], {
     discoveryPlacementOutcomes: {

@@ -16,6 +16,10 @@ const GROUP_TECTONIC_HISTORY_TILES = "Foundation / Tectonic History Tiles";
 const GROUP_TECTONIC_PROVENANCE_TILES = "Foundation / Tectonic Provenance Tiles";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Projects mesh-space crust, plate, history, and provenance truth into aligned
+ * tile artifacts while leaving terrain shaping to Morphology.
+ */
 export default createStep(ProjectionStepContract, {
   artifacts: implementArtifacts(
     [

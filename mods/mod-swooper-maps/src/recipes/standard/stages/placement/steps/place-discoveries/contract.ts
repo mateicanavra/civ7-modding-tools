@@ -3,6 +3,10 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
+/**
+ * Defines discovery placement after starts and resources are stamped, requiring the exclusion
+ * assignment and declaring observed outcomes rather than a precomputed discovery plan.
+ */
 const PlaceDiscoveriesStepContract = defineStep({
   id: "place-discoveries",
   phase: "placement",

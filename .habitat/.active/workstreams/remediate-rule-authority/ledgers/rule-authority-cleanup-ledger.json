@@ -2,14 +2,14 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-14",
+  "updatedOn": "2026-07-16",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 121,
-    "currentRowCount": 121,
-    "retiredHistoricalRowCount": 35,
+    "liveManifestCount": 120,
+    "currentRowCount": 120,
+    "retiredHistoricalRowCount": 37,
     "duplicateLiveRows": []
   },
   "counts": {
@@ -19,22 +19,22 @@
       "consolidation/dedup": 1,
       "context admission": 26,
       "no action": 55,
-      "positive authority creation": 7,
+      "positive authority creation": 8,
       "retirement/garbage collection": 3,
       "runtime/source validation": 3,
-      "split by owner": 17
+      "split by owner": 15
     },
     "packetNeeded": {
-      "false": 121
+      "false": 120
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 3,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 81,
+      "none": 82,
       "packet-complete": 16,
-      "transition-decision-accepted": 18
+      "transition-decision-accepted": 16
     }
   },
   "gateState": {
@@ -279,21 +279,6 @@
       "semanticDecision": "Request-specific generation data must cross one manifest boundary without side channels, but current port and host symbol placement is not permanent.",
       "residualFollowUp": "Bind manifest generation to the future runtime/materialization owner before retiring exact current symbols.",
       "implementationReadiness": "no mutation in Packet A.1; future split follows target runtime construction"
-    },
-    {
-      "ruleId": "grit-studio-run-launch-source-boundary",
-      "lane": "MapGen Studio",
-      "actionDecision": "split by owner",
-      "packetNeeded": false,
-      "expectedRemediation": "Keep the closed launch-source input and one source-resolution owner; later split public contract authority from current operation-runtime resolver and React hook topology.",
-      "evidenceNote": "The Grit manifest, pattern, empty baseline, contract/server/app scope, studio-run-launch-source-resolution OpenSpec packet, and transition decision were reviewed. Closed source identity is durable; current resolver and browser hook placement are replacement-listed.",
-      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/rule.json",
-      "layer2Status": "transition-decision-accepted",
-      "wholeRuleFit": "mixed durable launch contract and transitional resolver/UI topology",
-      "ruleIdPlan": "retain now; future authority separates closed launch input from source-resolution implementation and UI projection",
-      "semanticDecision": "Launch source remains a closed identity-bearing input realized by one runtime owner; current server and React files do not define that future owner.",
-      "residualFollowUp": "Move the invariant to future contract/source-resolution owners before removing exact current paths and symbols.",
-      "implementationReadiness": "no mutation in Packet A.1; future split is target-architecture work"
     },
     {
       "ruleId": "grit-studio-run-operation-identity-owner",
@@ -1078,6 +1063,15 @@
       "currentPath": ".habitat/docs/_blueprints/mapgen-canonical-docs/require_mapgen_doc_mini_toc_shape/rule.json"
     },
     {
+      "ruleId": "require_mapgen_exported_value_declarations_have_jsdoc",
+      "lane": "MapGen authored domain and recipe contracts",
+      "actionDecision": "positive authority creation",
+      "packetNeeded": false,
+      "expectedRemediation": "Delete unused exports or add concise behavior-oriented JSDoc at the defining declaration or direct anonymous default export; re-export barrels inherit owner documentation.",
+      "evidenceNote": "Grit owns the owner-site syntax rail over the current Swooper domain and recipe roots. The rule enforces a conservative authored-value superset; Knip and review own real consumption and semantic documentation quality.",
+      "currentPath": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/rule.json"
+    },
+    {
       "ruleId": "require_morphology_config_facade_exports",
       "lane": "domains/nonfoundation",
       "actionDecision": "context admission",
@@ -1330,22 +1324,6 @@
       "expectedRemediation": "Retain docs-site native config validation; it verifies the structured Mintlify navigation input shape at the docs-site authority surface.",
       "evidenceNote": "Focused Habitat proof passes. The rule is scoped to apps/docs/docs.json and remains a native docs config rail.",
       "currentPath": ".habitat/docs/_blueprints/docs-site/validate_docs_site_config_inputs/rule.json"
-    },
-    {
-      "ruleId": "validate_ecology_op_contract_quality",
-      "lane": "domains/nonfoundation",
-      "actionDecision": "split by owner",
-      "packetNeeded": false,
-      "expectedRemediation": "Route schema-description quality to package verification; retire blanket JSDoc and stale recipe-path clauses.",
-      "evidenceNote": "D3 makes contract metadata package-owned and exterior to A.2. The Ecology script mixes that concern with clauses that have no durable operation-topology authority.",
-      "currentPath": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/rule.json",
-      "layer2Status": "transition-decision-accepted",
-      "packetSliceId": "domain-operation-generic-surfaces",
-      "wholeRuleFit": "split by package and deletion owners",
-      "ruleIdPlan": "retire the mixed Ecology id after the package-owned concern has honest proof",
-      "semanticDecision": "D3 places schema-description quality at the package registry/verification surface. Blanket exported-function JSDoc and the stale recipe path retire categorically.",
-      "residualFollowUp": "Complete the six metadata gaps outside A.2 under package verification; do not add a compiler-API or Grit proxy.",
-      "implementationReadiness": "D3 settled; exterior package work remains independently owned"
     },
     {
       "ruleId": "validate_habitat_service_module_file_shape",
@@ -3681,6 +3659,35 @@
         "delegatedNxTargets": ["mapgen-core:test", "mapgen-studio:test"]
       },
       "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-mapgen-a2-validator-ownership-supersession.md"
+    },
+    {
+      "ruleId": "validate_ecology_op_contract_quality",
+      "lane": "domains/nonfoundation",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Retired; generic MapGen Grit authority owns declaration-site JSDoc, while semantic schema-description quality remains package/review-owned until an honest registered-value verifier exists.",
+      "evidenceNote": "The Ecology-only script mixed schema metadata, JSDoc adjacency, and a stale recipe path. Current metadata gaps were repaired, the generic JSDoc rule owns the durable syntax rail, and no hand-rolled source parser or product test survives.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/rule.json",
+      "retiredOn": "2026-07-16",
+      "retiredReason": "The source proxy could not honestly validate composed TypeBox values and duplicated generic documentation authority."
+    },
+    {
+      "ruleId": "grit-studio-run-launch-source-boundary",
+      "lane": "MapGen Studio",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Retired with launch-source compatibility state; one complete MapConfigEnvelope is now the Run in Game input.",
+      "evidenceNote": "A.4 removed preset/source compatibility state and deleted the exact-path Grit packet. The complete config envelope and current Run in Game request contract own the surviving behavior.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/rule.json",
+      "retiredOn": "2026-07-14",
+      "retiredBy": "A.4 preset ontology removal",
+      "retiredReason": "The rule froze retired launch-source compatibility topology rather than the current complete-config product contract.",
+      "authorityDestination": {
+        "package": "apps/mapgen-studio",
+        "contract": "one complete MapConfigEnvelope through Run in Game"
+      }
     }
   ],
   "staleRules": [

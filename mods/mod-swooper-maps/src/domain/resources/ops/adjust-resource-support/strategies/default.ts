@@ -18,11 +18,11 @@ import AdjustResourceSupportContract from "../contract.js";
  * removal/gain safety checks so no seat drops below the floor or the current
  * minimum and no destination recreates the old maximum.
  *
- * All destination tiles are policy-legal for their type, hold the per-type
- * same-type spacing floor, keep cross-type adjacency clearance (the official
- * force-pass convention used by the region-minimum pass), respect
- * affinity/exclusion rules echoed in the plan settings, and respect the
- * per-landmass equity ceiling. Unsatisfiable units become typed shortfalls.
+ * All adjusted destination tiles are policy-legal for their type, hold the
+ * per-type same-type spacing floor, keep cross-type adjacency clearance (the
+ * official force-pass convention used by the region-minimum pass), respect
+ * exclusion rules and the per-landmass density ceiling, and leave affinity as
+ * a best-effort score. Unsatisfiable units become typed shortfalls.
  *
  * Determinism: candidate scans run in ascending plot/intent order; score ties
  * break on a splitmix-style hash of (seed, plotIndex, salt) — no call-order
@@ -92,6 +92,11 @@ function resourceSalt(resourceType: string): number {
   return hash >>> 0;
 }
 
+/**
+ * Moves or adds a bounded number of resource intents toward per-start support and equity
+ * targets. It never mutates the engine; adjusted destinations pass the hard gates above while
+ * affinity only biases their score. Each correction records provenance or a typed shortfall.
+ */
 export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "default", {
   run: (input, config) => {
     const plan = input.plan;

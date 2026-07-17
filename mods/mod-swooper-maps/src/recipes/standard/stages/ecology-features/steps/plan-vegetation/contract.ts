@@ -5,6 +5,11 @@ import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 
+/**
+ * Defines the final ordered Ecology family planner. It combines habitat truth with
+ * post-wetland occupancy, publishes vegetation intent, and closes the deterministic occupancy
+ * chain before projection.
+ */
 const PlanVegetationStepContract = defineStep({
   id: "plan-vegetation",
   phase: "ecology",

@@ -23,6 +23,10 @@ import {
   readResourceLegalitySurface,
 } from "./planning.js";
 
+/**
+ * Derives habitat lanes, resource-family demand, eligibility, and typed site
+ * intent on the prepared engine surface before starts or resource stamping.
+ */
 export default createStep(PlanResourcesStepContract, {
   artifacts: implementArtifacts(
     [

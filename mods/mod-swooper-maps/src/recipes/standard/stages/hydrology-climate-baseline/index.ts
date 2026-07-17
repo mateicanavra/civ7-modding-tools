@@ -79,6 +79,10 @@ const knobsSchema = Type.Object(
   }
 );
 
+/**
+ * Compiles moisture, temperature, seasonality, and ocean controls into the
+ * single baseline pass that publishes a shared climate and wind vintage.
+ */
 export default createStage({
   id: "hydrology-climate-baseline",
   knobsSchema,

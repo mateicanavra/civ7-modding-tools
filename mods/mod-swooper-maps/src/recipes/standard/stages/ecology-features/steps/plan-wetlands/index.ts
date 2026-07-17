@@ -15,6 +15,10 @@ const WETLANDS_FEATURE_INTENTS = new Set([
   "watering-hole",
 ]);
 
+/**
+ * Plans wetland-family intent from hydrology and habitat truth after reefs,
+ * carrying reservations forward so vegetation cannot reuse occupied tiles.
+ */
 export default createStep(PlanWetlandsStepContract, {
   artifacts: implementArtifacts(
     [ecologyArtifacts.featureIntentsWetlands, ecologyArtifacts.occupancyWetlands],

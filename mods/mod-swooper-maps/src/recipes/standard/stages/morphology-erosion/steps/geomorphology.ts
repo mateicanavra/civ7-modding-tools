@@ -15,6 +15,10 @@ import GeomorphologyStepContract from "./geomorphology.contract.js";
 const GROUP_GEOMORPHOLOGY = "Morphology / Geomorphology";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Applies routing- and substrate-driven incision, diffusion, and deposition to
+ * shared terrain buffers while explicitly preserving the land/water mask.
+ */
 export default createStep(GeomorphologyStepContract, {
   normalize: (config, ctx) => {
     const { erosion } = ctx.knobs as Readonly<{ erosion?: MorphologyErosionKnob }>;

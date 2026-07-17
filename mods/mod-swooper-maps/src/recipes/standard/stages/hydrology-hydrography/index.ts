@@ -46,6 +46,10 @@ const knobsSchema = Type.Object(
   }
 );
 
+/**
+ * Orders canonical river computation before lake planning and compiles their
+ * density controls without crossing into downstream Civ7 projection.
+ */
 export default createStage({
   id: "hydrology-hydrography",
   knobsSchema,

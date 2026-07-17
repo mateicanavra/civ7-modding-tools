@@ -21,6 +21,10 @@ import PlotCoastsStepContract from "./plotCoasts.contract.js";
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Classifies and stamps coasts from topography and shelf truth, publishing the
+ * engine snapshot and classification required by continent validation.
+ */
 export default createStep(PlotCoastsStepContract, {
   artifacts: implementArtifacts(
     [mapMorphologyArtifacts.coastClassification, mapMorphologyArtifacts.coastEngineTerrainSnapshot],

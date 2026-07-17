@@ -19,7 +19,11 @@ const ComputeSegmentEventsContract = defineOp({
     {
       events: TectonicEventsSchema,
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Boundary events for one reconstructed era, translating classified plate segments and crust pairing into convergence, rift, transform, and fracture emissions.",
+    }
   ),
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),

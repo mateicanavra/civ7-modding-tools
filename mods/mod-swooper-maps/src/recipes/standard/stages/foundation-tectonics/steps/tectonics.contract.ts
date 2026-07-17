@@ -1,6 +1,11 @@
 import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
+/**
+ * Defines the ordered tectonic-history computation over stable plate motion and graph
+ * identity. It publishes segments, events, era fields, rollups, current state, and provenance
+ * as one coherent history vintage.
+ */
 const TectonicsStepContract = defineStep({
   id: "tectonics",
   phase: "foundation",

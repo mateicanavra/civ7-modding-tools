@@ -9,6 +9,11 @@ import { artifacts as ecologyArtifacts } from "../../ecology/artifacts/index.js"
 import { BiomeEngineBindingsSchema } from "../../map-projection-public-config.js";
 import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
 
+/**
+ * Defines the translation from Ecology biome symbols to configured Civ7 biome globals. It
+ * applies engine IDs and publishes binding evidence without moving engine identity into
+ * Ecology truth.
+ */
 const PlotBiomesStepContract = defineStep({
   id: "plot-biomes",
   phase: "ecology",

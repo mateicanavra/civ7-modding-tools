@@ -43,6 +43,10 @@ const SUPPORT_ADJUSTMENT_CATEGORIES = [
   },
 ];
 
+/**
+ * Performs the bounded post-start support pass, moving or adding planned sites
+ * before stamping while preserving typed provenance and explicit shortfalls.
+ */
 export default createStep(AdjustResourcesStepContract, {
   artifacts: implementArtifacts([placementArtifacts.resourcePlanAdjusted], {
     resourcePlanAdjusted: {

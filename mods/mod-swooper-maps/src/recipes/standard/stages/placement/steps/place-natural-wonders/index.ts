@@ -64,6 +64,10 @@ function emitNaturalWonderOutcomeViz(
   });
 }
 
+/**
+ * Stamps planned natural wonders and records relocations, rejections, and
+ * shortfalls as reconciliation evidence rather than aborting optional misses.
+ */
 export default createStep(PlaceNaturalWondersStepContract, {
   artifacts: implementArtifacts([placementArtifacts.naturalWonderPlacement], {
     naturalWonderPlacement: {

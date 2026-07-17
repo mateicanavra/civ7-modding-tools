@@ -35,8 +35,10 @@ const DiscoveryPlacementOutcomesArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema reconciling official-generator discovery attempts and outcomes. */
 export const Schema = DiscoveryPlacementOutcomesArtifactSchema;
 
+/** Registers observed attempt, acceptance, and rejection counts from Civ7's discovery generator. */
 export const artifact = defineArtifact({
   name: "discoveryPlacementOutcomes",
   id: "artifact:placement.discoveryPlacementOutcomes",
@@ -100,6 +102,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/** Ensures all counts are nonnegative and `placed + rejected === planned`. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

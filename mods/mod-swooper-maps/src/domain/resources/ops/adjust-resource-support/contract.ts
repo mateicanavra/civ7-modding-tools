@@ -12,15 +12,11 @@ import {
  * Resource↔start support pass (placement-realignment S5, E3.1–E3.3).
  *
  * Takes the typed resource site plan (select-resource-sites output) plus the
- * seated StartRecord seats and produces an ADJUSTED intent set that satisfies
- * a per-start support floor within a radius and a cross-player support equity
- * tolerance, as a bounded adjustment: move or add the minimum number of
- * sites, with typed provenance per adjusted site (which start it serves and
- * why). Every S3 plan invariant is respected — policy-table legality, per-type
- * spacing floors, per-type [min,max] ranges (moves preserve counts; adds stay
- * under max), affinity/exclusion rules, and the per-landmass equity ceiling.
- * Adjustments that cannot be made without violating an invariant are recorded
- * as typed shortfalls, never forced.
+ * seated StartRecord seats and attempts a per-start support floor and
+ * cross-player support tolerance within a bounded move/add budget. Adjusted
+ * destinations must pass policy legality, spacing, range, exclusion, region,
+ * and landmass-density gates. Affinity is a best-effort scoring bias rather
+ * than a feasibility constraint. Unresolved targets become typed shortfalls.
  *
  * Ordering (D3 contract change, refactor-plan S5): resource PLANNING stays
  * before starts; resource STAMPING moves after this pass. Post-stamp mutation
@@ -112,7 +108,7 @@ const SupportShortfallSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Typed record of a support adjustment that could not be made without violating an S3 plan invariant (or with adjustments disabled). Never silently forced.",
+      "Typed record of a support target unresolved within the bounded pass, its hard destination gates, or the configured adjustment budget.",
   }
 );
 
@@ -148,6 +144,11 @@ const StartSeatInputSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/**
+ * Admits the bounded pre-stamp support adjustment over a typed site plan and seated starts.
+ * Adjusted destinations must pass legality, spacing, range, exclusion, region, and landmass
+ * gates; affinity only biases candidate scoring, and unresolved targets become shortfalls.
+ */
 const AdjustResourceSupportContract = defineOp({
   kind: "plan",
   id: "resources/adjust-resource-support",
@@ -241,7 +242,7 @@ const AdjustResourceSupportContract = defineOp({
           maximum: 6,
           default: 2,
           description:
-            "Minimum planned resource sites within supportRadiusTiles of every seated start (E3.1 guarantee at the default 2).",
+            "Target planned resource sites within supportRadiusTiles of each seated start; unattainable deficits are recorded as typed shortfalls.",
         }),
         supportRadiusTiles: Type.Integer({
           minimum: 1,
@@ -255,14 +256,14 @@ const AdjustResourceSupportContract = defineOp({
           maximum: 8,
           default: 2,
           description:
-            "Maximum allowed max−min per-player support-count gap after the pass (E3.2 measures 2).",
+            "Target max−min per-player support-count gap; an unresolved gap is retained in typed evidence.",
         }),
         strength: Type.Number({
           minimum: 0,
           maximum: 1,
           default: 1,
           description:
-            "Scales the adjustment budget: per-start floor fills apply ceil(strength × deficit) units and the equity pass budget scales with strength. 1 = fully enforce the gates; 0 = record-only (like disabled, but the pass still measures).",
+            "Scales the adjustment budget: per-start floor fills apply ceil(strength × deficit) units and the equity pass budget scales with strength. 1 uses the full budget; 0 is record-only while still measuring.",
         }),
       },
       { additionalProperties: false }

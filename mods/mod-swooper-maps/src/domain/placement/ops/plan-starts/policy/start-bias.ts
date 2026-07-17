@@ -49,6 +49,11 @@ export function seatBiasTerm(bias: SeatBias | undefined, context: SeatBiasContex
   return term * BIAS_TERM_SCALE;
 }
 
+/**
+ * Indexes optional official start-bias rows by seat for constant-time candidate scoring.
+ * Missing input yields an empty map; duplicate seat rows resolve deterministically to the last
+ * supplied row.
+ */
 export function indexSeatBiases(
   rows: readonly SeatBias[] | undefined
 ): ReadonlyMap<number, SeatBias> {

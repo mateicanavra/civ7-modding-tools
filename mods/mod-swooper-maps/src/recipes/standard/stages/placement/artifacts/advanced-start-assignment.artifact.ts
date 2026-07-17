@@ -17,8 +17,10 @@ const AdvancedStartAssignmentArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime shape for the two Civ7 advanced-start completion flags. */
 export const Schema = AdvancedStartAssignmentArtifactSchema;
 
+/** Registers terminal evidence whose validator requires both advanced-start passes to complete. */
 export const artifact = defineArtifact({
   name: "advancedStartAssignment",
   id: "artifact:placement.advancedStartAssignment",
@@ -51,6 +53,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/** Rejects publication unless fertility recalculation and advanced-start assignment are true. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

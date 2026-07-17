@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { stableStringify } from "@swooper/mapgen-core";
 import { deriveStageAuthoringModel } from "@swooper/mapgen-core/authoring";
+import * as generatedRecipe from "mod-swooper-maps/recipes/standard";
 import {
   STANDARD_RECIPE_CONFIG as generatedDefaults,
   STANDARD_RECIPE_CONFIG_SCHEMA as generatedSchema,
@@ -9,6 +10,17 @@ import {
 
 import { deriveStandardRecipeArtifacts } from "../../../../src/recipes/standard/artifacts.js";
 import standardRecipe, { STANDARD_STAGES } from "../../../../src/recipes/standard/recipe.js";
+
+const EXPECTED_STANDARD_RECIPE_EXPORTS = [
+  "STANDARD_STAGES",
+  "default",
+] as const satisfies readonly (keyof typeof generatedRecipe)[];
+const declarationsHaveNoUnexpectedExports: Exclude<
+  keyof typeof generatedRecipe,
+  (typeof EXPECTED_STANDARD_RECIPE_EXPORTS)[number]
+> extends never
+  ? true
+  : false = true;
 
 function focusPathsForStep(
   focusPathsByStepId: Readonly<Partial<Record<string, readonly string[]>>>,
@@ -60,6 +72,13 @@ function deriveSourceUiStructure() {
 }
 
 describe("standard generated recipe artifacts", () => {
+  it("keeps runtime and declared recipe exports aligned", () => {
+    expect(declarationsHaveNoUnexpectedExports).toBe(true);
+    expect(Object.keys(generatedRecipe).sort()).toEqual(
+      [...EXPECTED_STANDARD_RECIPE_EXPORTS].sort()
+    );
+  });
+
   it("matches the source recipe artifacts and authoring structure", () => {
     const sourceArtifacts = deriveStandardRecipeArtifacts();
 

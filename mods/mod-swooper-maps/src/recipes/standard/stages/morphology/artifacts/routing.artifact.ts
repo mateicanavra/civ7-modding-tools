@@ -21,8 +21,13 @@ const MorphologyRoutingArtifactSchema = Type.Object(
   { description: "Morphology routing buffer handle (publish once)." }
 );
 
+/** Runtime schema for publish-once receivers, accumulation, and basin assignments. */
 export const Schema = MorphologyRoutingArtifactSchema;
 
+/**
+ * Registers publish-once drainage routing: each tile's receiver, accumulation,
+ * and optional basin assignment for erosion and Hydrology consumers.
+ */
 export const artifact = defineArtifact({
   name: "routing",
   id: "artifact:morphology.routing",
@@ -77,6 +82,10 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates routing array kinds and, when dimensions are supplied, exact
+ * map-sized cardinality; `-1` receiver/basin sentinels remain schema values.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

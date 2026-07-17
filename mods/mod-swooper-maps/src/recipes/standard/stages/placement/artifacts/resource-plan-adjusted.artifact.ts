@@ -5,6 +5,7 @@ import { defineArtifact, validateArtifactSchema } from "@swooper/mapgen-core/aut
 
 export const Schema = resources.ops.adjustResourceSupport.output;
 
+/** Registers the post-start support-adjusted resource intent set with move/add provenance. */
 export const artifact = defineArtifact({
   name: "resourcePlanAdjusted",
   id: "artifact:placement.resourcePlanAdjusted",
@@ -20,13 +21,6 @@ function issue(message: string): ValidationIssue {
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
-
-/**
- * Validate hook for the adjusted resource plan (placement-realignment S5).
- * Cross-field invariants the schema cannot express: count coherence, unique
- * plots, and provenance coherence (support-phase intents are additions; every
- * adjustment row maps onto an intent that carries matching provenance).
- */
 
 function validatePayload(value: unknown): ValidationIssue[] {
   if (!isRecord(value)) return [issue("resourcePlanAdjusted artifact must be an object.")];
@@ -123,6 +117,10 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/**
+ * Reconciles recorded move, add, and provenance totals and requires each
+ * adjustment destination to carry matching action provenance.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

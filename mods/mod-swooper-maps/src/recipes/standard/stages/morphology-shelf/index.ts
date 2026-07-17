@@ -75,6 +75,10 @@ function defaultEnvelope(config: unknown): { strategy: "default"; config: unknow
   return { strategy: "default", config };
 }
 
+/**
+ * Compiles shelf-width controls into the post-feature physical-break classifier,
+ * so shelves and coastline metrics reflect the final island-bearing landmask.
+ */
 export default createStage({
   id: "morphology-shelf",
   knobsSchema,

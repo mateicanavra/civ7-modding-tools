@@ -12,7 +12,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 /**
  * Post-features continental-shelf stage. Reads the FINAL post-island land mask +
  * bathymetry, recomputes the coastline (so island peaks count), then runs the
- * cap-free margin-aware shelf classifier and publishes the shelf truth + post-island
+ * cap-free local-gradient shelf classifier and publishes the shelf truth + post-island
  * coastline metrics + diagnostics. The carving step (morphology-coasts) owns only the
  * carved pre-island metrics that mountains consumes.
  */
@@ -90,7 +90,8 @@ export default createStep(ComputeShelfStepContract, {
       config.coastalAdjacency
     );
 
-    // 2) Post-island distance to coast (windows the shelf-break sample).
+    // 2) Post-island distance to coast for the published coastline diagnostic. Shelf
+    //    membership is determined only by local gradient and shoreline connectivity.
     const coastal = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       coastal[i] = coastalLand[i] === 1 || coastalWater[i] === 1 ? 1 : 0;
@@ -100,7 +101,8 @@ export default createStep(ComputeShelfStepContract, {
       config.distanceToCoast
     );
 
-    // 3) Cap-free margin-aware shelf over post-island geography.
+    // 3) Cap-free local-gradient shelf over post-island geography. Boundary posture is
+    //    supplied only for the active-margin diagnostic overlay.
     const shelfResult = ops.shelfMask(
       {
         width,
@@ -233,7 +235,7 @@ export default createStep(ComputeShelfStepContract, {
         label: "Active Margin Mask",
         group: GROUP_SHELF,
         description:
-          "Tiles treated as active margins (convergent/transform with high boundary closeness).",
+          "Diagnostic overlay for water near convergent or transform boundaries with high boundary closeness; it does not affect shelf membership.",
         role: "membership",
         palette: "categorical",
         categories: [
@@ -252,7 +254,7 @@ export default createStep(ComputeShelfStepContract, {
         label: "Shelf Break Depth",
         group: GROUP_SHELF,
         description:
-          "Per-tile, margin-modulated shelf-break depth (engine elevation units, <=0). Active margins shallower (narrower shelf); passive deeper (wider).",
+          "Diagnostic steepest-neighbor bathymetry where the local-gradient gate rejects water; 0 where no break is recorded.",
         role: "scalar",
         palette: "continuous",
       }),
@@ -264,16 +266,16 @@ export default createStep(ComputeShelfStepContract, {
       format: "u8",
       values: nearshoreCandidateMask,
       meta: defineVizMeta("morphology.shelf.nearshoreCandidateMask", {
-        label: "Nearshore Candidates",
+        label: "Shoreline Connectivity Seeds",
         group: GROUP_SHELF,
         visibility: "debug",
         description:
-          "Water tiles within breakDepthSampleRadius, used to sample bathymetry for the shelf-break cutoff.",
+          "Shoreline-adjacent water tiles that seed connectivity across the gentle pre-break apron.",
         role: "membership",
         palette: "categorical",
         categories: [
-          { value: 0, label: "Not Sampled", color: [0, 0, 0, 0] },
-          { value: 1, label: "Sampled", color: [14, 165, 233, 230] },
+          { value: 0, label: "Not A Seed", color: [0, 0, 0, 0] },
+          { value: 1, label: "Shoreline Seed", color: [14, 165, 233, 230] },
         ],
       }),
     });
@@ -284,15 +286,16 @@ export default createStep(ComputeShelfStepContract, {
       format: "u8",
       values: depthGateMask,
       meta: defineVizMeta("morphology.shelf.depthGateMask", {
-        label: "Depth Gate (Shallow Enough)",
+        label: "Gentle-Gradient Admission",
         group: GROUP_SHELF,
         visibility: "debug",
-        description: "Water tiles where bathymetry >= the per-tile shelf-break depth.",
+        description:
+          "Water admitted by the gentle local-gradient gate; shoreline seeds are admitted even when their immediate seaward gradient is steep.",
         role: "membership",
         palette: "categorical",
         categories: [
-          { value: 0, label: "Too Deep", color: [37, 99, 235, 220] },
-          { value: 1, label: "Shallow Enough", color: [56, 189, 248, 230] },
+          { value: 0, label: "Rejected At Break", color: [37, 99, 235, 220] },
+          { value: 1, label: "Admitted Pre-Break", color: [56, 189, 248, 230] },
         ],
       }),
     });

@@ -5,6 +5,7 @@ import {
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/** Runtime contract for the engine terrain snapshot immediately after lake projection. */
 export const Schema = Type.Object(
   {
     stage: Type.String({
@@ -39,6 +40,7 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
+/** Validates the post-lake engine snapshot's dimensions and typed tile surfaces. */
 export function validate(value: unknown): readonly { message: string }[] {
   return validateArtifactSchema(Schema, value);
 }

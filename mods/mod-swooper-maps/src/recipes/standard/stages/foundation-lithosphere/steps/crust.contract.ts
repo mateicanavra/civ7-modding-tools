@@ -1,6 +1,11 @@
 import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
+/**
+ * Defines initial lithosphere truth from the tectonic mesh and mantle forcing. The step
+ * publishes crustInit before plate partitioning, keeping initial crust generation distinct
+ * from later tectonic evolution.
+ */
 const CrustStepContract = defineStep({
   id: "crust",
   phase: "foundation",

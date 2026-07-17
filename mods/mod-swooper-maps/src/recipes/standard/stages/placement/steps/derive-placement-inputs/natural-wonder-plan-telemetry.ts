@@ -62,6 +62,11 @@ function naturalWonderPlanCoordinateHash(rows: readonly NaturalWonderPlanRuntime
   );
 }
 
+/**
+ * Projects a natural-wonder plan into bounded runtime evidence: at most 16
+ * placement rows and an order-independent coordinate hash. Invalid optional
+ * elevation/priority values remain explicit `null` sentinels.
+ */
 export function buildNaturalWonderPlanRuntimeTelemetry(
   plan: NaturalWonderPlan
 ): NaturalWonderPlanRuntimeTelemetry {
@@ -95,6 +100,7 @@ export function buildNaturalWonderPlanRuntimeTelemetry(
   };
 }
 
+/** Builds and writes bounded natural-wonder plan evidence under the stable runtime log prefix. */
 export function logNaturalWonderPlanRuntimeTelemetry(plan: NaturalWonderPlan): void {
   console.log(
     `[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify(

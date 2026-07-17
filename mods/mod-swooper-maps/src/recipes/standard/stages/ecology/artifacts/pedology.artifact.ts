@@ -7,6 +7,7 @@ import {
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/** Runtime contract for Ecology's per-tile soil class and normalized fertility truth. */
 export const PedologyArtifactSchema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
@@ -16,8 +17,14 @@ export const PedologyArtifactSchema = Type.Object({
 
 export type PedologyArtifact = Static<typeof PedologyArtifactSchema>;
 
+/** Canonical schema entrypoint used by pedology publication and payload admission. */
 export const Schema = PedologyArtifactSchema;
 
+/**
+ * Registers per-tile soil class and normalized fertility derived from morphology and baseline
+ * climate. Biome and resource-basin planning share this artifact rather than recomputing soil
+ * proxies.
+ */
 export const artifact = defineArtifact({
   name: "pedology",
   id: "artifact:ecology.soils",
@@ -78,6 +85,11 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates pedology against its closed schema and, when map dimensions are supplied, verifies
+ * every tile field matches that width × height. It returns accumulated issues so artifact
+ * admission can reject a structurally valid but spatially inconsistent payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

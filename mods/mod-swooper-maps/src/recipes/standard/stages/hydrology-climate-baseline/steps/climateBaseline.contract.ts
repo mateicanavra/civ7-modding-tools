@@ -50,6 +50,11 @@ const ClimateBaselineStepConfigSchema = Type.Object(
   }
 );
 
+/**
+ * Defines baseline circulation and moisture transport over final Morphology topography and
+ * shelf truth. It publishes wind, climate, and seasonality together so refinement starts from
+ * one deterministic climate vintage.
+ */
 const ClimateBaselineStepContract = defineStep({
   id: "climate-baseline",
   phase: "hydrology",

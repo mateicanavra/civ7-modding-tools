@@ -2,6 +2,10 @@ import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/fou
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { mapArtifacts } from "../../../map-artifacts.js";
 
+/**
+ * Defines Foundation's mesh-to-tile projection boundary. It projects crust, plate, tectonic,
+ * and provenance truth into map artifacts while leaving terrain shaping to Morphology.
+ */
 const ProjectionStepContract = defineStep({
   id: "projection",
   phase: "foundation",

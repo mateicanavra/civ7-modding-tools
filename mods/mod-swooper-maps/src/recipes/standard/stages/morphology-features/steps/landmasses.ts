@@ -6,6 +6,10 @@ import LandmassesStepContract from "./landmasses.contract.js";
 const GROUP_LANDMASSES = "Morphology / Landmasses";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Decomposes the final post-feature landmask into stable landmass identities
+ * and bounds used later by region projection and placement fairness.
+ */
 export default createStep(LandmassesStepContract, {
   artifacts: implementArtifacts(LandmassesStepContract.artifacts!.provides!, {
     landmasses: {

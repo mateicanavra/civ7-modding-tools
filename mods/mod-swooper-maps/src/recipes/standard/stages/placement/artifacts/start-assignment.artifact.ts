@@ -49,8 +49,13 @@ const StartAssignmentArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for stamped player starts and their fairness audit. */
 export const Schema = StartAssignmentArtifactSchema;
 
+/**
+ * Registers the stamped, fairness-audited player start assignment consumed by
+ * discovery exclusion and terminal placement evidence.
+ */
 export const artifact = defineArtifact({
   name: "startAssignment",
   id: "artifact:placement.startAssignment",
@@ -204,6 +209,10 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/**
+ * Validates seat/position order, unique in-bounds plots, fallback rung and
+ * degraded-state coherence, aggregate counts, and fairness report parity.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

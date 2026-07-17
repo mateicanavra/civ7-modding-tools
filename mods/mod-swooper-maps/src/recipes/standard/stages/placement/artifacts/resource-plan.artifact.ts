@@ -5,6 +5,7 @@ import { defineArtifact, validateArtifactSchema } from "@swooper/mapgen-core/aut
 
 export const Schema = resources.ops.selectResourceSites.output;
 
+/** Registers authoritative per-plot resource intents before start-support adjustment. */
 export const artifact = defineArtifact({
   name: "resourcePlan",
   id: "artifact:placement.resourcePlan",
@@ -90,6 +91,10 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/**
+ * Validates map bounds, unique intent plots, total count coherence, and each
+ * resource type's planned count against its declared maximum.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

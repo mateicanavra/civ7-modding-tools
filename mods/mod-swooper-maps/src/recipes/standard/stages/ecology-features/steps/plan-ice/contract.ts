@@ -4,6 +4,11 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 
+/**
+ * Defines ordered ice planning from Ecology scores, biome/topography truth, and
+ * post-floodplain occupancy. It publishes intent and the next occupancy snapshot without
+ * mutating Civ7 features.
+ */
 const PlanIceStepContract = defineStep({
   id: "plan-ice",
   phase: "ecology",

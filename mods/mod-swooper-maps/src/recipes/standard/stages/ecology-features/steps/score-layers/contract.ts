@@ -7,6 +7,11 @@ import { artifacts as mapMorphologyArtifacts } from "../../../map-morphology/art
 import { artifacts as mapRiversArtifacts } from "../../../map-rivers/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 
+/**
+ * Defines the shared Ecology scoring boundary over final morphology, hydrology, biome, and
+ * pedology truth. It computes every feature-family suitability layer once and seeds occupancy
+ * before ordered planning begins.
+ */
 const ScoreLayersStepContract = defineStep({
   id: "score-layers",
   phase: "ecology",

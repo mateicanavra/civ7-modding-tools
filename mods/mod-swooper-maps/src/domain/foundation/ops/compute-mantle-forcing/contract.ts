@@ -62,7 +62,11 @@ const ComputeMantleForcingContract = defineOp({
   ),
   output: Type.Object(
     { mantleForcing: FoundationMantleForcingSchema },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Mesh-wide velocity, stress, divergence, and upwelling signals derived from mantle potential and shared by plate-motion, hotspot, and tracer reconstruction.",
+    }
   ),
   strategies: {
     default: StrategySchema,

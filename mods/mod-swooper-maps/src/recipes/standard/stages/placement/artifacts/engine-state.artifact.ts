@@ -43,8 +43,10 @@ const PlacementEngineStateV1Schema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Runtime schema for terminal Civ7 placement readback and product totals. */
 export const Schema = PlacementEngineStateV1Schema;
 
+/** Registers the terminal Civ7 placement readback and aggregate product outcomes. */
 export const artifact = defineArtifact({
   name: "engineState",
   id: "artifact:placementEngineState",
@@ -66,9 +68,9 @@ function isCount(value: unknown): value is number {
 }
 
 /**
- * Validate hook for the terminal placement summary (placement-realignment
- * S6): every published count is measured, so anything non-finite or negative
- * is a publish-site bug, not gate noise.
+ * Shape-level validation for the terminal placement summary. It checks map-sized
+ * surfaces and non-negative totals without claiming that slot counts were derived
+ * from the corresponding slot buffer.
  */
 
 function validatePayload(value: unknown): ValidationIssue[] {
@@ -128,6 +130,11 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/**
+ * Validates map-sized slot and land surfaces, a slot-count total equal to map
+ * size, and bounded wonder/discovery outcomes before publication. It does not
+ * reconcile each slot count against the slot buffer.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

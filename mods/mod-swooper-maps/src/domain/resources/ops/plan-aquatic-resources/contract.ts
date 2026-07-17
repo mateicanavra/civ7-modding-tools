@@ -59,6 +59,11 @@ const AquaticPlanRowSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/**
+ * Admits warning-only aquatic demand planning from earthlike expectation rows and named
+ * water-habitat signals. It reports target counts, eligibility, missing evidence, and blockers
+ * but selects no concrete sites.
+ */
 const PlanAquaticResourcesContract = defineOp({
   kind: "plan",
   id: "resources/plan-aquatic-resources",

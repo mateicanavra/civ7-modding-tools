@@ -8,13 +8,13 @@ Who owns the requirement that operation contract schemas carry useful
 `description:` metadata?
 
 The ecology-only `validate_ecology_op_contract_quality` script mixed three
-unrelated clauses: schema descriptions, blanket exported-function JSDoc, and a
-stale recipe path. Only schema metadata represented durable product pressure.
+unrelated clauses: schema descriptions, exported-function JSDoc, and a stale
+recipe path. Schema metadata and meaningful exported-value documentation are
+both durable pressure, but neither is honestly owned by an Ecology-only mixed
+checker.
 
 ## Evidence
 
-- 95 of 101 operation contracts carry description metadata.
-- Six gaps remain: five Foundation contracts and Placement `plan-wonders`.
 - Contracts are TypeBox values registered and consumed by the package and
   Studio.
 - A text pattern cannot reliably understand composed, spread, or imported
@@ -36,10 +36,18 @@ Schema-description quality is package-owned and exterior to A.2 topology.
 Habitat may route the owning package gate; it does not duplicate the semantic
 check as domain-operation file authority.
 
-The six gaps are not A.2 migration rows. Blanket exported-function JSDoc and
-the stale recipe-path clause retire categorically rather than move to another
-rule. The mixed ecology rule retires when the surviving package-owned concern
-has an honest owner and proof.
+Schema-description gaps are not A.2 migration rows. Exported functions,
+variables, classes, and other runtime value declarations with consumers require
+concise definition-site JSDoc that preserves purpose, behavior, invariants, and
+material gotchas. Habitat/Grit owns that generic declaration-site syntax rail
+through `require_mapgen_exported_value_declarations_have_jsdoc`; review owns
+semantic quality, and Knip/review own whether the export should exist.
+
+The exported-function proxy, stale recipe-path inventory, and Ecology-only
+schema-description scanner retire rather than move. Current schema descriptions
+were repaired semantically. Any future enforcement must observe the registered
+contract value surface honestly; a source parser and a product test for that
+parser are not acceptable substitutes.
 
 ## Boundary And Falsifier
 

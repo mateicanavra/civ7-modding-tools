@@ -60,8 +60,13 @@ const MorphologyLandmassesArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for connected land components and the per-tile component lookup. */
 export const Schema = MorphologyLandmassesArtifactSchema;
 
+/**
+ * Registers connected land components and the per-tile component lookup used
+ * by region projection, placement, and landmass-aware policy.
+ */
 export const artifact = defineArtifact({
   name: "landmasses",
   id: "artifact:morphology.landmasses",
@@ -119,6 +124,10 @@ function validatePayload(value: unknown): ArtifactValidationIssue[] {
   return errors;
 }
 
+/**
+ * Validates component records, nonnegative metrics, bounding boxes, and the
+ * Int32 tile lookup; water remains represented by the schema's `-1` sentinel.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

@@ -122,6 +122,10 @@ const knobsSchema = Type.Object(
   }
 );
 
+/**
+ * Compiles erosion posture and world age into the single geomorphic pass that
+ * sculpts elevation and sediment without reclassifying land and water.
+ */
 export default createStage({
   id: "morphology-erosion",
   knobsSchema,

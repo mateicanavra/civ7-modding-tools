@@ -14,6 +14,10 @@ import {
 } from "./natural-wonder-plan-input-telemetry.js";
 import { logNaturalWonderPlanRuntimeTelemetry } from "./natural-wonder-plan-telemetry.js";
 
+/**
+ * Consolidates artifact truth and declared engine surfaces into placement
+ * inputs, then derives natural-wonder intent without mutating the map.
+ */
 export default createStep(DerivePlacementInputsContract, {
   artifacts: implementArtifacts(
     [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],

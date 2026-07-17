@@ -50,6 +50,10 @@ function getSeasonPhases(modeCount: 2 | 4): readonly number[] {
   return [0.25, 0.75];
 }
 
+/**
+ * Orchestrates deterministic atmosphere-ocean forcing and moisture transport
+ * over final topography, publishing climate, seasonality, and winds together.
+ */
 export default createStep(ClimateBaselineStepContract, {
   artifacts: implementArtifacts(
     [

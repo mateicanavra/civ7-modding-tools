@@ -1,5 +1,10 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
+/**
+ * Defines the pure planning boundary for selecting natural wonders and primary/fallback anchors
+ * from catalog constraints plus map truth. The default strategy emits intent; Civ7 remains the
+ * final stamping authority.
+ */
 const PlanNaturalWondersContract = defineOp({
   kind: "plan",
   id: "placement/plan-natural-wonders",

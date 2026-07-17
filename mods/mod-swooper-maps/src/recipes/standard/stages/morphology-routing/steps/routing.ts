@@ -11,6 +11,10 @@ function clampI8(value: number): number {
   return Math.max(-127, Math.min(127, Math.round(value)));
 }
 
+/**
+ * Computes and publishes flow direction, accumulation, and basin evidence for
+ * geomorphic erosion without substituting for Hydrology's river routing.
+ */
 export default createStep(RoutingStepContract, {
   artifacts: implementArtifacts(RoutingStepContract.artifacts!.provides!, {
     routing: {

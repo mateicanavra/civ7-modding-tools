@@ -37,6 +37,10 @@ const EFFECTIVE_MOISTURE_RIPARIAN_RADIUS = 1;
 const EFFECTIVE_MOISTURE_MINOR_RIVER_BONUS = 4;
 const EFFECTIVE_MOISTURE_MAJOR_RIVER_BONUS = 8;
 
+/**
+ * Refines baseline climate against topography and hydrography, publishing
+ * cryosphere state, water-budget indices, and diagnostics as one bounded result.
+ */
 export default createStep(ClimateRefineStepContract, {
   artifacts: implementArtifacts(
     [

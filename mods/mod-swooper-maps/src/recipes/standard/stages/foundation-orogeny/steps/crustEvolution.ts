@@ -9,6 +9,10 @@ import CrustEvolutionStepContract from "./crustEvolution.contract.js";
 
 const GROUP_CRUST = "Foundation / Crust";
 
+/**
+ * Evolves initial crust with current tectonics and accumulated history into the
+ * final crust vintage consumed by Morphology, without projecting history as relief.
+ */
 export default createStep(CrustEvolutionStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.crust], {
     foundationCrust: {

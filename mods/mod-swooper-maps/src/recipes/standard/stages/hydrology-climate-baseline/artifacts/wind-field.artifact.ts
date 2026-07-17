@@ -3,8 +3,16 @@ import { defineArtifact, validateArtifactSchema } from "@swooper/mapgen-core/aut
 
 import { HydrologyWindFieldSchema } from "./wind-field.schema.js";
 
+/**
+ * Canonical schema entrypoint for dimension-aligned atmospheric wind and ocean-current vectors.
+ */
 export const Schema = HydrologyWindFieldSchema;
 
+/**
+ * Registers the baseline atmosphere-wide wind and ocean-only surface-current vectors used
+ * inside Hydrology. The internal artifact keeps discrete forcing fields on the same map
+ * dimensions as climate transport.
+ */
 export const artifact = defineArtifact({
   name: "windField",
   id: "artifact:hydrology._internal.windField",
@@ -64,6 +72,12 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates internal wind and current field against its closed schema and, when map dimensions
+ * are supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

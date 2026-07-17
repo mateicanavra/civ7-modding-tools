@@ -57,6 +57,11 @@ function stableRootConfigString(value: unknown): string {
   return stableConfigString(value === undefined ? {} : value);
 }
 
+/**
+ * Enforces one strategy and structurally equivalent config across the ridge,
+ * foothill, and rough-land members of the mountain family. Object keys are
+ * compared in stable order so authoring order cannot create false drift.
+ */
 export function assertSameMountainFamilySelection(
   ridges: MountainFamilySelection,
   foothills: MountainFamilySelection
@@ -75,6 +80,10 @@ export function assertSameMountainFamilySelection(
   }
 }
 
+/**
+ * Plans ridges, foothills, and rough lands from shared terrain drivers under
+ * one family selection, leaving Civ7 terrain stamping to map-morphology.
+ */
 export default createStep(MountainsStepContract, {
   artifacts: implementArtifacts([morphologyArtifacts.mountains], {
     mountains: {},

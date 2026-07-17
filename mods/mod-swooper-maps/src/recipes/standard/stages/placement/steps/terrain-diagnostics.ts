@@ -53,6 +53,10 @@ export function logTerrainStats(
   }));
 }
 
+/**
+ * Emits a top-to-bottom odd-q ASCII rendering of the final adapter terrain
+ * only when verbose tracing is enabled; it does not mutate or classify tiles.
+ */
 export function logAsciiMap(
   trace: TraceScope | null | undefined,
   adapter: ExtendedMapContext["adapter"],

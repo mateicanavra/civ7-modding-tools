@@ -61,12 +61,16 @@ const stages = orderStandardStages({
   placement,
 } as const);
 
+/**
+ * Standard recipe stages resolved into canonical manifest order for config derivation, runtime
+ * compilation, and Studio generation.
+ */
 export const STANDARD_STAGES = stages;
 
 export type StandardRecipeConfig = RecipePublicConfigOf<typeof stages>;
 export type StandardRecipeCompiledConfig = CompiledRecipeConfigOf<typeof stages>;
 
-export const compileOpsById = collectCompileOps(
+const compileOpsById = collectCompileOps(
   foundationDomain,
   morphologyDomain,
   hydrologyDomain,
@@ -75,10 +79,16 @@ export const compileOpsById = collectCompileOps(
   resourcesDomain
 );
 
-export default createRecipe({
+/**
+ * Complete Standard map-generation recipe consumed by generated maps, Studio, and diagnostics.
+ * Its stage order and operation registry are closed over the canonical manifests above.
+ */
+const standardRecipe = createRecipe({
   id: "standard",
   namespace: NAMESPACE,
   tagDefinitions: STANDARD_TAG_DEFINITIONS,
   stages,
   compileOpsById,
 } as const);
+
+export default standardRecipe;

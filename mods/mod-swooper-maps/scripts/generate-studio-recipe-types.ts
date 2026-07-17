@@ -242,7 +242,6 @@ const standardDts = [
   ``,
   standardConfigTypes.trimEnd(),
   ``,
-  `export const compileOpsById: Readonly<Record<string, unknown>>;`,
   `export const STANDARD_STAGES: ReadonlyArray<unknown>;`,
   ``,
   `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<StandardRecipeConfig>, unknown>;`,

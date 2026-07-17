@@ -48,6 +48,10 @@ function withFamily<
   ]);
 }
 
+/**
+ * Canonical per-resource habitat signals shared by demand planning and site eligibility. Keeping
+ * one map prevents family counts and tile masks from applying different physical predicates.
+ */
 export const RESOURCE_HABITAT_SIGNALS: ReadonlyMap<OfficialResourceType, ResourceHabitatSignal> =
   new Map([
     ...withFamily("aquatic", AQUATIC_SIGNALS),

@@ -43,6 +43,10 @@ export const Schema = Type.Object(
   { description: "Foundation plates artifact payload (tile-space plate tensors)." }
 );
 
+/**
+ * Registers tile-space plate identity, motion, boundary, stress, and volcanism
+ * fields projected from Foundation mesh truth.
+ */
 export const artifact = defineArtifact({
   name: "foundationPlates",
   id: "artifact:map.foundationPlates",
@@ -66,6 +70,7 @@ function validateTensorLength(
   }
 }
 
+/** Validates the plate-field schema and exact map-sized cardinality of every tensor. */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

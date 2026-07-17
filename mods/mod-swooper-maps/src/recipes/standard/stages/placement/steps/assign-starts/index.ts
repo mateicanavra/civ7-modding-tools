@@ -11,6 +11,10 @@ import {
   materializeStartAssignment,
 } from "./materialize.js";
 
+/**
+ * Assigns player seats against the resource plan and final physical truth,
+ * before the support pass adjusts resources and stamping makes them immutable.
+ */
 export default createStep(AssignStartsStepContract, {
   artifacts: implementArtifacts([placementArtifacts.startAssignment], {
     startAssignment: {

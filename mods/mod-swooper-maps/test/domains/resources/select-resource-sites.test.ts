@@ -191,6 +191,64 @@ describe("select-resource-sites operation contract", () => {
     expect(result.intents.some((intent) => intent.phase === "region-minimum")).toBe(true);
   });
 
+  it("keeps exclusion hard during the region-minimum force pass", () => {
+    const result = run(
+      buildInput({
+        width: 8,
+        height: 6,
+        demands: [
+          {
+            resourceType: "RESOURCE_A",
+            weight: 10,
+            targetCount: 1,
+            minCount: 1,
+            maxCount: 1,
+          },
+          {
+            resourceType: "RESOURCE_B",
+            weight: 10,
+            targetCount: 0,
+            minCount: 0,
+            maxCount: 2,
+            minimumPerHemisphere: 1,
+            requiredForAge: true,
+          },
+        ],
+      }),
+      (config) => {
+        config.affinityRules = [
+          {
+            resourceA: "RESOURCE_A",
+            resourceB: "RESOURCE_B",
+            relation: "exclusion",
+            radiusTiles: 8,
+          },
+        ];
+      }
+    );
+
+    expect(result.intents.filter((row) => row.resourceType === "RESOURCE_A")).toHaveLength(1);
+    expect(result.intents.filter((row) => row.resourceType === "RESOURCE_B")).toEqual([]);
+    expect(result.regionMinimums).toEqual([
+      {
+        resourceType: "RESOURCE_B",
+        regionSlot: 1,
+        required: 1,
+        fromRotation: 0,
+        forced: 0,
+        shortfall: 1,
+      },
+      {
+        resourceType: "RESOURCE_B",
+        regionSlot: 2,
+        required: 1,
+        fromRotation: 0,
+        forced: 0,
+        shortfall: 1,
+      },
+    ]);
+  });
+
   it("expresses sparsity at knob max and resource-resource exclusion (E3.4)", () => {
     const demands: Demand[] = [
       {

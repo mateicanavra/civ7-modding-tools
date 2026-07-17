@@ -2,7 +2,7 @@ import type { FeatureKey } from "@civ7/map-policy";
 import type { FeatureIntentKey } from "@mapgen/domain/ecology/model/schemas/index.js";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 
-export const FEATURE_KEY_BY_INTENT: Readonly<Record<FeatureIntentKey, FeatureKey>> = {
+const FEATURE_KEY_BY_INTENT: Readonly<Record<FeatureIntentKey, FeatureKey>> = {
   forest: "FEATURE_FOREST",
   rainforest: "FEATURE_RAINFOREST",
   taiga: "FEATURE_TAIGA",
@@ -30,6 +30,7 @@ export const FEATURE_KEY_BY_INTENT: Readonly<Record<FeatureIntentKey, FeatureKey
   "tundra-floodplain-navigable": "FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE",
 };
 
+/** Resolves a closed Ecology intent to its official Civ7 feature key and rejects unknown intent. */
 export function resolveFeatureKeyForIntent(intent: string): FeatureKey {
   const feature = FEATURE_KEY_BY_INTENT[intent as FeatureIntentKey];
   if (!feature) {

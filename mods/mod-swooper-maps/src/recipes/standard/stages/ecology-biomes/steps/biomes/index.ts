@@ -14,6 +14,10 @@ import BiomesStepContract from "./contract.js";
 const GROUP_BIOMES = "Ecology / Biomes";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Classifies refined climate, soil, cryosphere, and topography into stable
+ * biome truth; Civ7 biome IDs remain owned by the later map-ecology projection.
+ */
 export default createStep(BiomesStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.biomeClassification], {
     biomeClassification: {

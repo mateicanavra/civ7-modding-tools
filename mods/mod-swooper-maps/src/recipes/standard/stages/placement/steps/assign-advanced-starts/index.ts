@@ -6,6 +6,10 @@ import {
 import { runPlacementProductStep } from "../product-runtime.js";
 import AssignAdvancedStartsStepContract from "./contract.js";
 
+/**
+ * Recalculates fertility and delegates advanced-start regions to Civ7 after
+ * discoveries, using effect ordering rather than read-and-discard artifacts.
+ */
 export default createStep(AssignAdvancedStartsStepContract, {
   artifacts: implementArtifacts([placementArtifacts.advancedStartAssignment], {
     advancedStartAssignment: {

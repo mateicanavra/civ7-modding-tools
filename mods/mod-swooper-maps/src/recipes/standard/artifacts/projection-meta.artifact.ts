@@ -18,8 +18,10 @@ const ProjectionMetaArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime contract locking map dimensions to Civ7's wrapping-X, bounded-Y topology. */
 export const Schema = ProjectionMetaArtifactSchema;
 
+/** Registers map dimensions and Civ7's cylindrical topology for tile-raster consumers. */
 export const artifact = defineArtifact({
   name: "projectionMeta",
   id: "artifact:map.projectionMeta",
@@ -55,6 +57,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/** Requires positive dimensions with the topology lock `wrapX=true`, `wrapY=false`. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

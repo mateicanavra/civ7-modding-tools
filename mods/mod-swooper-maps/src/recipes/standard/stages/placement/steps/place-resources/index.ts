@@ -94,6 +94,11 @@ function emitResourceOutcomeViz(
   });
 }
 
+/**
+ * Materializes the adjusted resource plan without relocation or type
+ * re-decision and publishes typed placed/rejected outcomes. Resource policy
+ * authority remains in the upstream plan.
+ */
 export default createStep(PlaceResourcesStepContract, {
   artifacts: implementArtifacts([placementArtifacts.resourcePlacementOutcomes], {
     resourcePlacementOutcomes: {

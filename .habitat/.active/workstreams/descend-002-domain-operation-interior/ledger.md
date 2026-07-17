@@ -43,7 +43,7 @@ ledger.
 | A2 | `prohibit_domain_artifacts_modules` | closed operation and nested-directory grammar absorbs the catchall sentry after its injected probe fails the survivor |
 | A3 | `prohibit_foundation_strategy_nonlocal_imports` | generic positive dependency authority replaces the Foundation-only negative allowlist after bad and clean samples pass |
 | A4 | `prohibit_foundation_rules_tectonics_shim_reexports` | export-only, local-source nested indices absorb the absent shim shape after survivor proof |
-| A5 | `validate_ecology_op_contract_quality` | schema-description pressure routes to package verification outside A.2; blanket JSDoc and stale recipe-path clauses retire rather than move into topology authority |
+| A5 | `validate_ecology_op_contract_quality` | retired: generic MapGen Grit authority owns declaration-site JSDoc; current schema descriptions were repaired semantically; the Ecology-only source proxy and stale recipe path have no survivor |
 | A6 | `preserve_decomposed_foundation_contract_surfaces` | split operation inventory and strategy-import clauses into generic owners; keep artifact and projection concerns exterior |
 | A7 | `prohibit_cross_op_runtime_calls` | replace the under-scoped runtime-call proxy after generic private cross-import authority proves fixture and injected parity |
 

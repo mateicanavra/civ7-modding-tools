@@ -24,8 +24,13 @@ const MorphologyCoastlineMetricsArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for the pre-island carved coastline snapshot. */
 export const Schema = MorphologyCoastlineMetricsArtifactSchema;
 
+/**
+ * Registers the pre-island carved coastline snapshot used by downstream
+ * terrain shaping; post-island coastline truth belongs to the shelf artifact.
+ */
 export const artifact = defineArtifact({
   name: "coastlineMetrics",
   id: "artifact:morphology.coastlineMetrics",
@@ -100,6 +105,7 @@ function validatePayload(
   return errors;
 }
 
+/** Validates mask/distance array kinds and their map-sized cardinality when known. */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

@@ -18,8 +18,10 @@ const LandmassRegionSlotByTileArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime contract for the gameplay region slot assigned to every map tile. */
 export const Schema = LandmassRegionSlotByTileArtifactSchema;
 
+/** Registers gameplay region slots derived from Morphology landmasses before placement. */
 export const artifact = defineArtifact({
   name: "landmassRegionSlotByTile",
   id: "artifact:map.landmassRegionSlotByTile",
@@ -53,6 +55,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return [];
 }
 
+/** Requires a nonempty Uint8 tile map whose values stay in `{0, 1, 2}`. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

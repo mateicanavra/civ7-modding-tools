@@ -1,27 +1,10 @@
-import type { PlotEffectIntentKey } from "@mapgen/domain/ecology";
+import { PlotEffectIntentKeySchema } from "@mapgen/domain/ecology";
 import {
   defineArtifact,
   type Static,
   Type,
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
-
-const PlotEffectIntentKeyArtifactSchema = Type.Unsafe<PlotEffectIntentKey>(
-  Type.String({
-    description:
-      "Abstract plot-effect intent planned by Ecology and later projected by map-ecology.",
-    enum: [
-      "snow-light",
-      "snow-medium",
-      "snow-heavy",
-      "sand",
-      "burned",
-      "frostbite",
-      "desert-heat",
-      "jungle-fever",
-    ],
-  })
-);
 
 /**
  * Plot effects are authored as ecology truth because snow/sand/burned placement is
@@ -33,23 +16,31 @@ export const PlotEffectPlacementIntentSchema = Type.Object(
   {
     x: Type.Integer({ minimum: 0 }),
     y: Type.Integer({ minimum: 0 }),
-    plotEffect: PlotEffectIntentKeyArtifactSchema,
+    plotEffect: PlotEffectIntentKeySchema,
   },
   { additionalProperties: false }
 );
 
+/** Ordered Ecology intent contract for plot effects projected later into Civ7 state. */
 export const PlotEffectPlanArtifactSchema = Type.Array(PlotEffectPlacementIntentSchema);
 
 export type PlotEffectPlanArtifact = Static<typeof PlotEffectPlanArtifactSchema>;
 
+/** Canonical schema entrypoint for registering and validating the plot-effect plan. */
 export const Schema = PlotEffectPlanArtifactSchema;
 
+/**
+ * Registers Ecology's deterministic snow, sand, burned, and hazard intent before Civ7
+ * projection. The plan keeps semantic effect choice separate from engine mutation and
+ * readback.
+ */
 export const artifact = defineArtifact({
   name: "plotEffectPlan",
   id: "artifact:ecology.plotEffectPlan",
   schema: Schema,
 });
 
+/** Returns every TypeBox schema issue for the plot-effect plan without throwing. */
 export function validate(value: unknown): readonly { message: string }[] {
   return validateArtifactSchema(Schema, value);
 }

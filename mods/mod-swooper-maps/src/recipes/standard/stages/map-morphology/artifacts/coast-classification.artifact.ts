@@ -37,14 +37,20 @@ const MapMorphologyCoastClassificationArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for the authored coast classes and masks captured before engine stamping. */
 export const Schema = MapMorphologyCoastClassificationArtifactSchema;
 
+/**
+ * Registers the pre-stamp coast policy result consumed by continent projection
+ * and coast parity diagnostics.
+ */
 export const artifact = defineArtifact({
   name: "coastClassification",
   id: "artifact:map.morphology.coastClassification",
   schema: Schema,
 });
 
+/** Validates the closed coast classes, masks, dimensions, and promotion count. */
 export function validate(value: unknown): readonly { message: string }[] {
   return validateArtifactSchema(Schema, value);
 }

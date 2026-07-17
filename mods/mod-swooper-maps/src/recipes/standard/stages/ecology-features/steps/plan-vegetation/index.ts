@@ -15,6 +15,10 @@ const VEGETATION_FEATURE_INTENTS = new Set([
   "sagebrush-steppe",
 ]);
 
+/**
+ * Closes feature planning by placing vegetation on habitat-valid flat land
+ * left by wetlands, preserving the final occupancy snapshot for projection.
+ */
 export default createStep(PlanVegetationStepContract, {
   artifacts: implementArtifacts(
     [ecologyArtifacts.featureIntentsVegetation, ecologyArtifacts.occupancyVegetation],

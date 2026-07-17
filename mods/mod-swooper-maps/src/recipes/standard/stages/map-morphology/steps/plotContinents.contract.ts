@@ -4,6 +4,10 @@ import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tag-contracts.js";
 import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
 import { artifacts as mapMorphologyArtifacts } from "../artifacts/index.js";
 
+/**
+ * Defines continent projection after `coastsPlotted`, preventing the implementation from
+ * classifying a pre-coast engine surface and declaring its validation snapshot.
+ */
 const PlotContinentsStepContract = defineStep({
   id: "plot-continents",
   phase: "morphology",

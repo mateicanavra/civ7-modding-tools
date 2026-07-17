@@ -8,6 +8,10 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import { assertNoWaterDrift } from "../../../projection-policies/noWaterDrift.js";
 import PlotMountainsStepContract from "./plotMountains.contract.js";
 
+/**
+ * Stamps the authored mountain and hill masks after continents stabilize;
+ * ridge and rough-land policy remain exclusively in Morphology truth.
+ */
 export default createStep(PlotMountainsStepContract, {
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);

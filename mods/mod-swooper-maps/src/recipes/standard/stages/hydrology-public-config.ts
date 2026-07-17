@@ -7,6 +7,10 @@ function publicStrategySchema<T extends TSchema>(schema: T, description: string)
 
 const baselineOps = hydrology.ops;
 
+/**
+ * Author-facing seasonal sampling and axial-tilt controls shared by baseline climate fields and
+ * their amplitude artifact.
+ */
 export const HydrologySeasonalCycleSchema = Type.Object(
   {
     modeCount: Type.Union([Type.Literal(2), Type.Literal(4)], {
@@ -28,6 +32,10 @@ export const HydrologySeasonalCycleSchema = Type.Object(
   }
 );
 
+/**
+ * Author-facing baseline-climate controls for solar forcing, thermal state, circulation, ocean
+ * coupling, evaporation, moisture transport, and precipitation.
+ */
 export const HydrologyClimateBaselinePublicSchema = Type.Object(
   {
     seasonalCycle: HydrologySeasonalCycleSchema,
@@ -75,6 +83,7 @@ export const HydrologyClimateBaselinePublicSchema = Type.Object(
   }
 );
 
+/** Author-facing runoff, river-network, and deterministic lake-intent controls. */
 export const HydrologyHydrographyPublicSchema = Type.Object(
   {
     drainageRouting: publicStrategySchema(
@@ -101,6 +110,10 @@ export const HydrologyHydrographyPublicSchema = Type.Object(
   }
 );
 
+/**
+ * Author-facing controls for the post-hydrography climate refinement that incorporates terrain,
+ * freshwater, and cryosphere feedback.
+ */
 export const HydrologyClimateRefinePublicSchema = Type.Object(
   {
     precipitationRefinement: publicStrategySchema(

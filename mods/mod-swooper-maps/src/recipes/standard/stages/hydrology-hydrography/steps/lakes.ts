@@ -10,6 +10,10 @@ type HydrologyLakeinessKnob = "few" | "normal" | "many";
 const GROUP_HYDROGRAPHY = "Hydrology / Hydrography";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Derives deterministic lake intent and river-network metrics from canonical
+ * hydrography; engine water materialization remains owned by map-hydrology.
+ */
 export default createStep(LakesStepContract, {
   artifacts: implementArtifacts(
     [hydrologyHydrographyArtifacts.lakePlan, hydrologyHydrographyArtifacts.riverNetworkMetrics],

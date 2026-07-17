@@ -2,10 +2,14 @@ import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { applyPlotEffectPlacements } from "./apply.js";
 import PlotEffectsStepContract from "./contract.js";
-import { PLOT_EFFECT_VIZ_CATEGORIES, plotEffectVizValueOrThrow } from "./viz.js";
+import { PLOT_EFFECT_VIZ_CATEGORIES, plotEffectVizValue } from "./viz.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 
+/**
+ * Applies the upstream plot-effect intent plan to Civ7 and emits projection
+ * evidence; scoring and placement policy remain in Ecology truth.
+ */
 export default createStep(PlotEffectsStepContract, {
   run: (context, _config, _ops, deps) => {
     const placements = deps.artifacts.plotEffectPlan.read(context);
@@ -18,7 +22,7 @@ export default createStep(PlotEffectsStepContract, {
         positions[i * 2] = placement.x;
         positions[i * 2 + 1] = placement.y;
 
-        values[i] = plotEffectVizValueOrThrow(placement.plotEffect);
+        values[i] = plotEffectVizValue(placement.plotEffect);
       }
 
       context.viz?.dumpPoints(context.trace, {

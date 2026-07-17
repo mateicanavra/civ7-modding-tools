@@ -8,6 +8,10 @@ import PlotContinentsStepContract from "./plotContinents.contract.js";
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Validates continent terrain only after coast projection, preserving that
+ * ordering through effect tags and capturing the resulting engine surface.
+ */
 export default createStep(PlotContinentsStepContract, {
   artifacts: implementArtifacts([mapMorphologyArtifacts.continentValidationTerrainSnapshot], {
     continentValidationTerrainSnapshot: {},

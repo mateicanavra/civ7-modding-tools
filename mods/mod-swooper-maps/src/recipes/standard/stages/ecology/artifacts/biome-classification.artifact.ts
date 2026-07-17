@@ -7,6 +7,10 @@ import {
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/**
+ * Runtime contract for per-tile Ecology biome truth and its climate/vegetation classifier
+ * signals, keeping downstream feature scoring on one field vintage.
+ */
 export const BiomeClassificationArtifactSchema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
@@ -24,8 +28,14 @@ export const BiomeClassificationArtifactSchema = Type.Object({
 
 export type BiomeClassificationArtifact = Static<typeof BiomeClassificationArtifactSchema>;
 
+/** Canonical schema entrypoint used to register and validate biome-classification truth. */
 export const Schema = BiomeClassificationArtifactSchema;
 
+/**
+ * Registers Ecology's per-tile biome truth after climate, pedology, and topography
+ * classification. Feature scoring and map projection consume this same field vintage so intent
+ * and engine binding cannot drift.
+ */
 export const artifact = defineArtifact({
   name: "biomeClassification",
   id: "artifact:ecology.biomeClassification",
@@ -102,6 +112,12 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates biome classification against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

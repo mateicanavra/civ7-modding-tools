@@ -6,6 +6,10 @@ import {
 } from "../map-projection-public-config.js";
 import { plotCoasts, plotContinents, plotMountains, plotVolcanoes } from "./steps/index.js";
 
+/**
+ * Projects Morphology truth in engine lifecycle order: coasts, continents,
+ * mountains, then volcanoes, with no landform planning in this stage.
+ */
 export default createStage({
   id: "map-morphology",
   knobsSchema: MapMorphologyKnobsSchema,

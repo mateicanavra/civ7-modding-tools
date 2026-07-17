@@ -44,6 +44,10 @@ function buildVectorSegments(params: {
   };
 }
 
+/**
+ * Converts mantle potential into the velocity, stress, and vertical forcing
+ * vintage shared by lithosphere and tectonic consumers.
+ */
 export default createStep(MantleForcingStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.mantleForcing], {
     foundationMantleForcing: {

@@ -29,8 +29,10 @@ const EngineTerrainSnapshotArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime contract for the terminal placement terrain readback used in parity checks. */
 export const Schema = EngineTerrainSnapshotArtifactSchema;
 
+/** Registers the final placement-boundary engine terrain readback for parity diagnostics. */
 export const artifact = defineArtifact({
   name: "placementEngineTerrainSnapshot",
   id: "artifact:map.placementEngineTerrainSnapshot",
@@ -81,6 +83,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/** Validates positive dimensions and map-sized land, terrain, and elevation surfaces. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

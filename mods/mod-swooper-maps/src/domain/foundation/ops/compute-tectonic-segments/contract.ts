@@ -40,7 +40,11 @@ const ComputeTectonicSegmentsContract = defineOp({
   ),
   output: Type.Object(
     { segments: FoundationTectonicSegmentsSchema },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Canonical plate-boundary table with aligned cell and plate endpoints, classified regime and polarity, event intensities, and drift for each segment.",
+    }
   ),
   strategies: {
     default: StrategySchema,

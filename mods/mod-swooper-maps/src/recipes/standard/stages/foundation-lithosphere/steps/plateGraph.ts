@@ -9,6 +9,10 @@ import PlateGraphStepContract from "./plateGraph.contract.js";
 
 const GROUP_PLATE_GRAPH = "Foundation / Plate Graph";
 
+/**
+ * Partitions the mesh and initial crust into the stable plate graph whose
+ * identities are shared by motion and tectonic-history computation.
+ */
 export default createStep(PlateGraphStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.plateGraph], {
     foundationPlateGraph: {

@@ -5,6 +5,10 @@ import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 
+/**
+ * Defines ordered wetland-family planning from habitat, hydrology, and post-reef occupancy. It
+ * publishes wetland intent and the occupancy snapshot consumed by vegetation planning.
+ */
 const PlanWetlandsStepContract = defineStep({
   id: "plan-wetlands",
   phase: "ecology",

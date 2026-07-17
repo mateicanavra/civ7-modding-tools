@@ -43,8 +43,14 @@ export const HydrologyClimateIndicesSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for refined climate indices shared with downstream domains. */
 export const Schema = HydrologyClimateIndicesSchema;
 
+/**
+ * Registers refined per-tile temperature, evapotranspiration, aridity, freeze, and related
+ * climate indices. Ecology consumes these normalized physical signals instead of deriving
+ * parallel climate policy.
+ */
 export const artifact = defineArtifact({
   name: "climateIndices",
   id: "artifact:hydrology.climateIndices",
@@ -128,6 +134,11 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates climate indices against its closed schema and, when map dimensions are supplied,
+ * verifies every tile field matches that width × height. It returns accumulated issues so
+ * artifact admission can reject a structurally valid but spatially inconsistent payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

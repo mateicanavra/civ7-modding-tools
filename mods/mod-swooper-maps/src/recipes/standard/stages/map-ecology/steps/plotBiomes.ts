@@ -10,6 +10,10 @@ import PlotBiomesStepContract from "./plotBiomes.contract.js";
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Binds Ecology biome symbols to configured Civ7 IDs, applies them to land,
+ * and publishes the binding evidence consumed by placement.
+ */
 export default createStep(PlotBiomesStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.biomeBindings], {
     biomeBindings: {},

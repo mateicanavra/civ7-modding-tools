@@ -43,6 +43,10 @@ function computeLocalReliefProxy(args: {
   return maxDropByTile;
 }
 
+/**
+ * Derives canonical soil type and fertility from substrate, topography, and
+ * baseline climate so biome and resource-basin consumers share one soil vintage.
+ */
 export default createStep(PedologyStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.pedology], {
     pedology: {

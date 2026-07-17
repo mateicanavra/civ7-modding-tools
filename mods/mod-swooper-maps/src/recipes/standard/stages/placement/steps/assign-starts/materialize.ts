@@ -356,6 +356,10 @@ function emitStartSeatRungViz(
   });
 }
 
+/**
+ * Emits grid and point views for finite nonnegative start indices using one-based player
+ * categories. Out-of-grid indices are omitted from the grid but retained in point evidence.
+ */
 export function emitStartPositionsViz(
   context: ExtendedMapContext,
   startPositions: readonly number[]

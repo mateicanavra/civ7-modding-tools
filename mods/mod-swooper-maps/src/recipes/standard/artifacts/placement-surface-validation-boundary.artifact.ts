@@ -44,8 +44,16 @@ const PlacementSurfaceValidationBoundaryArtifactSchema = Type.Object(
   }
 );
 
+/**
+ * Runtime contract for the three engine-fact snapshots bracketing terrain validation and final
+ * maintenance, allowing placement-surface drift to be localized to one boundary.
+ */
 export const Schema = PlacementSurfaceValidationBoundaryArtifactSchema;
 
+/**
+ * Registers engine facts before validation, after validation, and after final
+ * maintenance so terrain/water/lake/area drift can be localized.
+ */
 export const artifact = defineArtifact({
   name: "placementSurfaceValidationBoundary",
   id: "artifact:map.placementSurfaceValidationBoundary",
@@ -99,6 +107,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/** Requires all three boundary snapshots and map-sized typed surfaces in each. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

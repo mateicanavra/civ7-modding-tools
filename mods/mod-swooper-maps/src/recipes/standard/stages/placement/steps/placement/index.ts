@@ -7,6 +7,10 @@ import {
 } from "../../artifacts/index.js";
 import { applyPlacementPlan } from "./apply.js";
 import PlacementStepContract from "./contract.js";
+/**
+ * Closes placement by assembling all product outcomes and comparing physics
+ * truth with engine readback into terminal state and parity evidence.
+ */
 export default createStep(PlacementStepContract, {
   artifacts: implementArtifacts(
     [
