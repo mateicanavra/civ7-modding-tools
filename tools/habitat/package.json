@@ -99,7 +99,7 @@
     "clean": "rimraf dist oclif.manifest.json",
     "clean:dist": "rimraf dist",
     "generate:schemas": "bun run ../../.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/generate.ts",
-    "release:standalone": "bun --no-env-file --no-config scripts/standalone/build.ts --require-clean",
+    "release:standalone:artifacts": "bun --no-env-file --no-config scripts/standalone/build.ts --require-clean",
     "test": "vitest run --project habitat --testTimeout=30000",
     "test:standalone": "vitest run --project habitat test/standalone/standalone-binary.test.ts --testTimeout=120000",
     "typecheck": "tsc -p tsconfig.json --noEmit"

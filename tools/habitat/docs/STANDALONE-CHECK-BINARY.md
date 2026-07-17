@@ -22,10 +22,11 @@ The edge accepts `--owner`, repeated `--rule`, `--runner grit|habitat`,
 report contains failures, and exit `2` means the invocation or runtime was
 refused.
 
-The executable exposes no mutation command. It refuses selected Nx-backed rules
-instead of importing or invoking Nx. Its bundle excludes oclif, Nx, and
-effect-orpc. It also does not bundle Grit: a destination that selects a Grit rule
-must supply the pinned provider under
+The executable exposes no mutation command. `--runner habitat` admits only
+declarative structure rules; destination scripts, file-layer rules, and
+Nx-backed rules are refused before provider construction. Its bundle excludes
+Grit, oclif, Nx, and effect-orpc packages. A destination that selects a Grit
+rule must supply the pinned provider under
 `node_modules/@getgrit/cli/node_modules/.bin_real/grit`. Repository paths locate
 the destination authority; they do not become executable or release identity.
 
@@ -49,17 +50,20 @@ record.
 ```bash
 bunx nx run habitat:typecheck
 bunx nx run habitat:test:standalone
-bun run --cwd tools/habitat release:standalone
+bunx nx run habitat:release:standalone
 ```
 
-`release:standalone` requires Bun `1.3.14` and a clean Git worktree. It compiles
-only the fixed `darwin-arm64` and `linux-x64-baseline` targets with unresolved
-imports rejected. The black-box test moves the host binary outside the checkout,
-then proves structure and destination-provided Grit pass/fail behavior, missing
-provider refusal, semantic repeatability, destination non-mutation, and
-byte-identical rebuilds.
+The release target makes workspace hygiene, focused Effect lint, typecheck, and
+moved-binary acceptance mandatory before its clean-tree build. It requires Bun
+`1.3.14` and compiles only the fixed `darwin-arm64` and
+`linux-x64-baseline` targets with unresolved imports rejected. The black-box test
+moves the host binary outside the checkout, then proves structure and
+destination-provided Grit pass/fail behavior, missing-provider and script
+refusal, semantic repeatability, destination non-mutation, provenance and
+checksum identity, and byte-identical rebuilds.
 
 The owner workflow at `.github/workflows/habitat-standalone-release.yml` runs
-the same proof. Manual runs upload workflow artifacts only. A pushed
+the moved-binary proof on Linux x64 and macOS arm64 before the required release
+target. Manual runs upload workflow artifacts only. A pushed
 `habitat-sdk-v*` tag publishes those four immutable assets as a GitHub release;
 creating or pushing that tag is a separate owner decision.

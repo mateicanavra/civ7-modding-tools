@@ -103,11 +103,38 @@
         "cwd": "tools/habitat"
       }
     },
+    "lint:standalone": {
+      "command": "biome lint --config-path=biome.effect.json tools/habitat/bin/check.ts tools/habitat/scripts/standalone tools/habitat/src/runtime/standalone-layers.ts tools/habitat/src/standalone tools/habitat/test/standalone",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/bin/check.ts",
+        "{projectRoot}/scripts/standalone/**",
+        "{projectRoot}/src/runtime/standalone-layers.ts",
+        "{projectRoot}/src/standalone/**",
+        "{projectRoot}/test/standalone/**",
+        "{workspaceRoot}/biome.json",
+        "{workspaceRoot}/biome.effect.json",
+        "{workspaceRoot}/patches/@catenarycloud%2Flinteffect@0.0.6.patch"
+      ],
+      "outputs": [],
+      "options": {
+        "cwd": "{workspaceRoot}"
+      }
+    },
     "test:standalone": {
       "command": "bun run test:standalone",
       "dependsOn": ["build:standalone"],
       "cache": false,
       "outputs": [],
+      "options": {
+        "cwd": "tools/habitat"
+      }
+    },
+    "release:standalone": {
+      "command": "bun run release:standalone:artifacts",
+      "dependsOn": ["check:hygiene", "lint:standalone", "typecheck", "test:standalone"],
+      "cache": false,
+      "outputs": ["{projectRoot}/dist/standalone/**"],
       "options": {
         "cwd": "tools/habitat"
       }
