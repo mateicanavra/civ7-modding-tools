@@ -1,6 +1,10 @@
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  civ7MapScriptTextEncoderBanner,
+  civ7TypeBoxCompatibilityPlugin,
+} from "@civ7/adapter/map-script-build";
+import {
   readStudioRunGenerationManifest,
   runCorrelationForManifest,
   STUDIO_RUN_MAP_ROW_ID,
@@ -16,50 +20,7 @@ import {
 import { writeSwooperMapArtifactFilePlan } from "./map-artifacts/write-file-plan.js";
 
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const typeboxFormatShim = resolve(
-  pkgRoot,
-  "../../packages/mapgen-core/src/shims/typebox-format.ts"
-);
-const typeboxGuardEmitShim = resolve(
-  pkgRoot,
-  "../../packages/mapgen-core/src/shims/typebox-guard-emit.ts"
-);
 const SWOOPER_STANDARD_RECIPE_ID = "standard";
-
-const civ7TextEncoderBootstrap = `
-if (typeof globalThis.TextEncoder === "undefined") {
-  globalThis.TextEncoder = class TextEncoder {
-    constructor() {
-      this.encoding = "utf-8";
-    }
-    encode(input = "") {
-      const bytes = [];
-      const value = String(input);
-      for (let i = 0; i < value.length; i++) {
-        let codePoint = value.codePointAt(i);
-        if (codePoint === undefined) continue;
-        if (codePoint > 0xffff) i++;
-        if (codePoint <= 0x7f) {
-          bytes.push(codePoint);
-        } else if (codePoint <= 0x7ff) {
-          bytes.push(0xc0 | (codePoint >> 6), 0x80 | (codePoint & 0x3f));
-        } else if (codePoint <= 0xffff) {
-          bytes.push(0xe0 | (codePoint >> 12), 0x80 | ((codePoint >> 6) & 0x3f), 0x80 | (codePoint & 0x3f));
-        } else {
-          bytes.push(0xf0 | (codePoint >> 18), 0x80 | ((codePoint >> 12) & 0x3f), 0x80 | ((codePoint >> 6) & 0x3f), 0x80 | (codePoint & 0x3f));
-        }
-      }
-      return new Uint8Array(bytes);
-    }
-    encodeInto(source, destination) {
-      const encoded = this.encode(source);
-      const writeLength = Math.min(encoded.length, destination.length);
-      for (let i = 0; i < writeLength; i++) destination[i] = encoded[i];
-      return { read: String(source).length, written: writeLength };
-    }
-  };
-}
-`;
 
 export type SwooperRunGeneratedMod = Readonly<{
   requestId: string;
@@ -169,7 +130,7 @@ async function bundleRunMapScript(
     format: "esm",
     target: "esnext",
     platform: "neutral",
-    banner: { js: civ7TextEncoderBootstrap },
+    banner: { js: civ7MapScriptTextEncoderBanner },
     external: ["/base-standard/*"],
     absWorkingDir: pkgRoot,
     nodePaths: [resolve(pkgRoot, "node_modules")],
@@ -182,33 +143,7 @@ async function bundleRunMapScript(
           }));
         },
       },
-      {
-        name: "typebox-format-shim",
-        setup(buildApi) {
-          buildApi.onResolve({ filter: /^typebox\/format$/ }, () => ({
-            path: typeboxFormatShim,
-          }));
-          buildApi.onResolve({ filter: /format[/\\]index\.mjs$/ }, (resolveArgs) => {
-            if (
-              resolveArgs.importer.includes("/typebox/") ||
-              resolveArgs.importer.includes("\\typebox\\")
-            ) {
-              return { path: typeboxFormatShim };
-            }
-            return undefined;
-          });
-          buildApi.onResolve({ filter: /(^|[/\\])emit\.mjs$/ }, (resolveArgs) => {
-            if (
-              resolveArgs.path.endsWith("emit.mjs") &&
-              (resolveArgs.importer.includes("/typebox/build/guard/") ||
-                resolveArgs.importer.includes("\\typebox\\build\\guard\\"))
-            ) {
-              return { path: typeboxGuardEmitShim };
-            }
-            return undefined;
-          });
-        },
-      },
+      civ7TypeBoxCompatibilityPlugin,
     ],
   });
   const output = result.outputFiles[0];

@@ -18,23 +18,27 @@ concern: typebox
 
 ## Decision
 
-- Provide a local, minimal, regex-free shim for `typebox/format` that implements the public registry surface (`Set`, `Get`, `Has`, `Test`, `Clear`, `Entries`, `Reset`).
-- Alias all `typebox/format` imports (and the internal `../format/index.mjs` / `../../format/index.mjs` paths used by TypeBox schema engine) to this shim during bundling in both:
-  - `packages/mapgen-core/tsup.config.ts`
-  - `mods/mod-swooper-maps/scripts/tsup.config.ts`
+- `@civ7/adapter/map-script-build` owns final map-script compatibility.
+- Its esbuild plugin provides a minimal, regex-free `typebox/format` registry and
+  replaces only TypeBox's Unicode identifier-regex declaration in the guard
+  emitter. The edit fails closed if a TypeBox upgrade changes that declaration.
+- Both the shipped Swooper build and Studio run-manifest bundler consume this
+  adapter surface. MapGen Core remains environment-neutral and keeps TypeBox
+  external for the final map bundler to adapt.
 - Do not register any default formats in the shim; unregistered formats pass by default. Consequence: TypeBox built-in format validation is disabled unless callers explicitly register safe alternatives.
 
 ## Consequences
 
 - **Pros:** Civ7 no longer sees Unicode-property regex literals; avoids runtime syntax errors while retaining schema-based validation for types and ranges.
 - **Cons:** Built-in TypeBox format checks (e.g., `email`, `uri`, `uuid`, `idn-email`) are no-ops unless we provide safe replacements. If we add `format:` keywords in the future, we must register compatible validators manually.
-- **Maintenance:** Keep the tsup alias entries in sync with TypeBox import paths; if TypeBox changes internal paths, adjust the aliases. No node_modules patching is required.
+- **Maintenance:** A TypeBox internal-path or emitter change fails the adapter
+  plugin explicitly. Update the one adapter owner rather than copying an
+  upstream private module or adding aliases in consumers.
 
 ## Implementation Notes
 
-- Shim location: `packages/mapgen-core/src/shims/typebox-format.ts`
-  - Commented to note that format validation is disabled by default due to Civ7 V8 limitations.
-- tsup aliases:
-  - `packages/mapgen-core/tsup.config.ts` aliases `typebox/format`, `../format/index.mjs`, `../../format/index.mjs` to the shim and bundles `typebox`.
-  - `mods/mod-swooper-maps/scripts/tsup.config.ts` applies the same aliases to ensure the game-facing bundle never pulls the original format registry.
+- Build support: `@civ7/adapter/map-script-build`.
+- The same surface owns the pre-evaluation `TextEncoder` banner required before
+  TypeBox initializes in Civ7's embedded V8.
+- Final-bundle tests cover both shipped maps and the generated Studio-run map.
 - No changes to the config schema surfaces or validation API were needed.

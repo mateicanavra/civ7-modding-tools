@@ -1,82 +1,17 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Plugin } from "esbuild";
+import {
+  civ7MapScriptTextEncoderBanner,
+  civ7TypeBoxCompatibilityPlugin,
+} from "@civ7/adapter/map-script-build";
 import { defineConfig } from "tsup";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
-// Reuse mapgen-core’s TypeBox format shim to avoid Unicode regexes in Civ7’s V8 (built-in format validation is disabled).
-const typeboxFormatShim = join(
-  __dirname,
-  "../../../packages/mapgen-core/src/shims/typebox-format.ts"
-);
-const typeboxGuardEmitShim = join(
-  __dirname,
-  "../../../packages/mapgen-core/src/shims/typebox-guard-emit.ts"
-);
-const civ7TextEncoderBootstrap = `
-// Civ7's MapGeneration V8 does not expose Web TextEncoder. This bundle-level
-// bootstrap must run before bundled dependencies evaluate because TypeBox and
-// mapgen-core create TextEncoder instances during module initialization.
-if (typeof globalThis.TextEncoder === "undefined") {
-  globalThis.TextEncoder = class TextEncoder {
-    constructor() {
-      this.encoding = "utf-8";
-    }
-    encode(input = "") {
-      const bytes = [];
-      const value = String(input);
-      for (let i = 0; i < value.length; i++) {
-        let codePoint = value.codePointAt(i);
-        if (codePoint === undefined) continue;
-        if (codePoint > 0xffff) i++;
-        if (codePoint <= 0x7f) {
-          bytes.push(codePoint);
-        } else if (codePoint <= 0x7ff) {
-          bytes.push(0xc0 | (codePoint >> 6), 0x80 | (codePoint & 0x3f));
-        } else if (codePoint <= 0xffff) {
-          bytes.push(0xe0 | (codePoint >> 12), 0x80 | ((codePoint >> 6) & 0x3f), 0x80 | (codePoint & 0x3f));
-        } else {
-          bytes.push(0xf0 | (codePoint >> 18), 0x80 | ((codePoint >> 12) & 0x3f), 0x80 | ((codePoint >> 6) & 0x3f), 0x80 | (codePoint & 0x3f));
-        }
-      }
-      return new Uint8Array(bytes);
-    }
-    encodeInto(source, destination) {
-      const encoded = this.encode(source);
-      const writeLength = Math.min(encoded.length, destination.length);
-      for (let i = 0; i < writeLength; i++) destination[i] = encoded[i];
-      return { read: String(source).length, written: writeLength };
-    }
-  };
-}
-`;
-const typeboxFormatPlugin: Plugin = {
-  name: "typebox-format-shim",
-  setup(build) {
-    build.onResolve({ filter: /^typebox\/format$/ }, () => ({ path: typeboxFormatShim }));
-    build.onResolve({ filter: /format[/\\]index\.mjs$/ }, (args) => {
-      if (args.importer.includes("/typebox/") || args.importer.includes("\\typebox\\")) {
-        return { path: typeboxFormatShim };
-      }
-      return null;
-    });
-    build.onResolve({ filter: /(^|[/\\])emit\.mjs$/ }, (args) => {
-      if (
-        args.path.endsWith("emit.mjs") &&
-        (args.importer.includes("/typebox/build/guard/") ||
-          args.importer.includes("\\typebox\\build\\guard\\"))
-      ) {
-        return { path: typeboxGuardEmitShim };
-      }
-      return null;
-    });
-  },
-};
 
 export default defineConfig({
   banner: {
-    js: civ7TextEncoderBootstrap,
+    js: civ7MapScriptTextEncoderBanner,
   },
 
   // Generated from canonical src/maps/configs/*.config.json by `bun run gen:maps`.
@@ -120,16 +55,12 @@ export default defineConfig({
   ],
 
   esbuildOptions(options) {
-    // Shim TypeBox format registry so no Unicode-property regexes reach the game engine (built-in format validation disabled).
     options.splitting = false;
     options.target = "esnext";
     // If tsup auto-externalizes deps, ensure TypeBox is bundled (MapGeneration cannot resolve "typebox").
     options.external = (options.external ?? []).filter((id) => !id.startsWith("typebox"));
-    options.alias = {
-      "typebox/format": typeboxFormatShim,
-    };
   },
-  esbuildPlugins: [typeboxFormatPlugin],
+  esbuildPlugins: [civ7TypeBoxCompatibilityPlugin],
 
   // Civ7 doesn't use source maps
   sourcemap: false,

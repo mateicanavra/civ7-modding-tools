@@ -4,6 +4,9 @@ Scope: `packages/civ7-adapter/**`
 
 - Sole boundary for importing Civ7 engine globals / `base-standard` APIs.
 - Exposes stable `EngineAdapter` implementations consumed by MapGen and mods.
+- Owns final Civ7 map-script compatibility through
+  `@civ7/adapter/map-script-build`; neutral libraries must not carry embedded-V8
+  shims or global polyfills.
 - Keep this package thin: translate engine calls to adapter methods; no MapGen algorithms or mod logic.
 
 Tooling: use `nx run civ7-adapter:build` and `nx run civ7-adapter:check`.

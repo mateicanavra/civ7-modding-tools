@@ -22,6 +22,7 @@ import {
   admitStandardMapConfig,
   type StandardMapConfigEnvelope,
 } from "../../src/maps/configs/canonical";
+import { expectCiv7MapScriptCompatibility } from "../support/civ7-map-script-compatibility";
 
 describe("Swooper run manifest generator", () => {
   test("requires exactly one manifest path", () => {
@@ -98,6 +99,7 @@ describe("Swooper run manifest generator", () => {
       expect(mapScript).toContain(manifest.payload.canonicalConfigDigest);
       expect(mapScript).toContain(manifest.payload.launchEnvelopeDigest);
       expect(mapScript).not.toContain("configContentDigest");
+      await expectCiv7MapScriptCompatibility(mapScript, STUDIO_RUN_MAP_SCRIPT_PATH);
       await expect(
         readFile(resolve(generated.generatedModRoot, ".source/maps", `${runArtifactId}.ts`), "utf8")
       ).rejects.toThrow();

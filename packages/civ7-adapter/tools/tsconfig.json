@@ -5,7 +5,7 @@
     "incremental": false,
     "noEmit": true,
     "rootDir": "..",
-    "types": ["node"]
+    "types": ["@civ7/types", "node"]
   },
   "include": ["**/*.ts"],
   "exclude": []

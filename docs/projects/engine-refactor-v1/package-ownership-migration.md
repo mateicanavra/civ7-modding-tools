@@ -235,7 +235,7 @@ Nx graph. The final package boundary additionally proves:
 - exactly 90 operation roots moved and 11 product-owned roots remain;
 - Swooper and Studio-run bundles build with one adapter-owned compatibility
   surface;
-- `test/build/map-bundle-runtime-imports.test.ts` proves the embedded-V8
+- `test/build/map-bundle-runtime-compatibility.test.ts` proves the embedded-V8
   compatibility constraints for both bundle paths;
 - Knip finds no dead exports introduced by the completed moves.
 

@@ -70,7 +70,7 @@
       }
     },
     "test:studio-run-in-game": {
-      "command": "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-imports.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
+      "command": "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-compatibility.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
       "dependsOn": ["build", "build:studio-recipes"],
       "cache": true,
       "options": {
@@ -153,7 +153,7 @@
     },
     "gen:run-manifest": {
       "command": "bun ./scripts/generate-run-manifest.ts",
-      "dependsOn": ["build:studio-recipes:bundle", { "projects": ["civ7-sdk"], "target": "build" }],
+      "dependsOn": ["^build"],
       "inputs": ["default", "^default", "{workspaceRoot}/packages/studio-run-workspace/src/**"],
       "cache": false,
       "options": {

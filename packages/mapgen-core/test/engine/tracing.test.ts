@@ -8,12 +8,21 @@ import {
   PipelineExecutor,
   StepRegistry,
 } from "@mapgen/engine/index.js";
-import type { TraceEvent } from "@mapgen/trace/index.js";
+import { sha256Hex, type TraceEvent } from "@mapgen/trace/index.js";
 import { Type } from "typebox";
 
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
 describe("pipeline tracing", () => {
+  it("hashes astral and malformed Unicode deterministically", () => {
+    expect(sha256Hex("map 🗺")).toBe(
+      "a3399eedfbf0fcd3256726d919a5d40808b8a3fa6b4afeb01323e776720ad2bf"
+    );
+    expect(sha256Hex("\ud800")).toBe(
+      "83d544ccc223c057d2bf80d3f2a32982c32c3c0db8e2674820da5064783fb097"
+    );
+  });
+
   it("emits run/step timing events with runId and plan fingerprint", () => {
     const registry = new StepRegistry<unknown>();
     registry.register({

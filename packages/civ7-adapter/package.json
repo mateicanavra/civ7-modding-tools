@@ -19,6 +19,10 @@
       "types": "./dist/civ7-adapter.d.ts",
       "import": "./dist/civ7-adapter.js"
     },
+    "./map-script-build": {
+      "types": "./dist/map-script-build.d.ts",
+      "import": "./dist/map-script-build.js"
+    },
     "./mock": {
       "types": "./dist/mock-adapter.d.ts",
       "import": "./dist/mock-adapter.js"
@@ -36,5 +40,8 @@
   "dependencies": {
     "@civ7/map-policy": "workspace:*",
     "@civ7/types": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.2"
   }
 }

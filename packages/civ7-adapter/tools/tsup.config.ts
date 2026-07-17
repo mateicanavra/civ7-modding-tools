@@ -1,7 +1,13 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.ts", "src/civ7-adapter.ts", "src/mock-adapter.ts"],
+  tsconfig: "tools/tsconfig.json",
+  entry: {
+    index: "src/index.ts",
+    "civ7-adapter": "src/civ7-adapter.ts",
+    "mock-adapter": "src/mock-adapter.ts",
+    "map-script-build": "tools/map-script-build.ts",
+  },
   format: ["esm"],
   target: "esnext",
   dts: true,

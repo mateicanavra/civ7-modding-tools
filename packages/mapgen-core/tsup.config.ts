@@ -1,29 +1,8 @@
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
-import type { Plugin } from "esbuild";
 import { defineConfig } from "tsup";
-
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const typeboxFormatShim = join(__dirname, "src/shims/typebox-format.ts");
-
-const typeboxFormatPlugin: Plugin = {
-  name: "typebox-format-shim",
-  setup(build) {
-    build.onResolve({ filter: /^typebox\/format$/ }, () => ({ path: typeboxFormatShim }));
-    build.onResolve({ filter: /format[/\\]index\.mjs$/ }, (args) => {
-      if (args.importer.includes("/typebox/") || args.importer.includes("\\typebox\\")) {
-        return { path: typeboxFormatShim };
-      }
-      return null;
-    });
-  },
-};
 
 export default defineConfig({
   tsconfig: "tsconfig.json",
-  // Include polyfills first so downstream bundles pick them up before any imports that rely on them.
   entry: [
-    "src/polyfills/text-encoder.ts",
     "src/index.ts",
     "src/engine/index.ts",
     "src/authoring/index.ts",
@@ -43,15 +22,6 @@ export default defineConfig({
   target: "esnext",
   dts: true,
   clean: true,
-  // Keep /base-standard/... external (should only come through adapter anyway)
+  // Core stays runtime-neutral. Final Civ7 map bundlers own embedded-V8 compatibility.
   external: [/^\/base-standard\/.*/],
-  // Bundle workspace dependencies
-  noExternal: ["@civ7/types", "@civ7/adapter", "typebox"],
-  esbuildOptions(options) {
-    // Shim TypeBox format registry to avoid Unicode regexes (Civ7 V8 cannot parse them) — built-in format validation is disabled.
-    options.alias = {
-      "typebox/format": typeboxFormatShim,
-    };
-  },
-  esbuildPlugins: [typeboxFormatPlugin],
 });

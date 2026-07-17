@@ -143,6 +143,9 @@
         "@civ7/map-policy": "workspace:*",
         "@civ7/types": "workspace:*",
       },
+      "devDependencies": {
+        "esbuild": "^0.27.2",
+      },
     },
     "packages/civ7-control-orpc": {
       "name": "@civ7/control-orpc",

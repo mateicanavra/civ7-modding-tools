@@ -17,10 +17,6 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./polyfills/text-encoder": {
-      "types": "./dist/polyfills/text-encoder.d.ts",
-      "import": "./dist/polyfills/text-encoder.js"
-    },
     "./engine": {
       "types": "./dist/engine/index.d.ts",
       "import": "./dist/engine/index.js"
