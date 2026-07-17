@@ -1,6 +1,9 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DependencyTagDefinition, TagOwner } from "@swooper/mapgen-core/engine";
-import { artifacts as placementArtifacts } from "./stages/placement/artifacts/index.js";
+import {
+  artifactModules as placementArtifactModules,
+  artifacts as placementArtifacts,
+} from "./stages/placement/artifacts/index.js";
 import type { PlacementOutputsV1 } from "./stages/placement/artifacts/placement-outputs.artifact.js";
 import {
   FIELD_DEPENDENCY_TAGS,
@@ -243,11 +246,20 @@ function isPlacementOutputSatisfied(
   if (!isPlacementOutputsV1(outputs)) return false;
   const candidate = outputs;
 
-  const inputs = context.artifacts.get(placementArtifacts.placementInputs.id);
-  const expectedPlayers = getExpectedPlayers(inputs);
-  if (expectedPlayers > 0 && candidate.startsAssigned < expectedPlayers) return false;
-
-  return true;
+  const assignment = context.artifacts.get(placementArtifacts.startAssignment.id);
+  if (placementArtifactModules.startAssignment.validate(assignment).length > 0) return false;
+  if (
+    !isRecord(assignment) ||
+    !Array.isArray(assignment.seats) ||
+    !isNonNegativeInteger(assignment.assigned) ||
+    !isNonNegativeInteger(assignment.unseatedCount)
+  ) {
+    return false;
+  }
+  if (assignment.assigned !== assignment.seats.length || assignment.unseatedCount !== 0) {
+    return false;
+  }
+  return candidate.startsAssigned === assignment.assigned;
 }
 
 function effectTagDefinition(id: string): DependencyTagDefinition<ExtendedMapContext> {
@@ -275,17 +287,6 @@ function isPlacementOutputsV1(value: unknown): value is PlacementOutputsV1 {
     isNonNegativeInteger(value.startsAssigned) &&
     isNonNegativeInteger(value.discoveriesCount)
   );
-}
-
-function getExpectedPlayers(value: unknown): number {
-  if (!isRecord(value) || !isRecord(value.starts)) return 0;
-  return countOrZero(value.starts.playersLandmass1) + countOrZero(value.starts.playersLandmass2);
-}
-
-function countOrZero(value: unknown): number {
-  if (typeof value !== "number") return 0;
-  if (!Number.isFinite(value) || value < 0) return 0;
-  return value;
 }
 
 function isNonNegativeInteger(value: unknown): value is number {

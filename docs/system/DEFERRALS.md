@@ -99,6 +99,7 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 **Scope:** Capacity-aware split policy in `plan-starts` seat identity/region assignment; expectations note for the E1.7 measurement frame.
 **Impact:** Single-continent maps seat everyone on one region via recorded degradations rather than a planned split.
 **Trigger evidence (2026-06-11):** Milestone A5/A7 — live alive-major ids are contiguous-from-zero, human first; live HUGE advertises 6/6 landmass slots while a 10-player game has 10 alive, so the pipeline seats 12 with 2 inert flagged `slot-index` surplus seats. Capacity/alive-aware seat count (`min(slots, alive)`) is the recorded correction; see `milestone-a-2026-06-11-a7-seat-parity.md`.
+**Resolved (2026-07-17):** `plan-starts` now treats a nonempty alive-major observation as exact demand capped by map-size seat capacity; slot-index identities are a whole-demand fallback only when no alive majors are observed.
 
 ## DEF-011: Official resources submodule refresh (D4)
 

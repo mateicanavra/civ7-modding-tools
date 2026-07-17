@@ -23,7 +23,11 @@ import {
   isClimateExtreme,
 } from "../policy/climate-comfort.js";
 import { balanceFairness } from "../policy/fairness.js";
-import { buildSeatIdentities } from "../policy/seat-identity.js";
+import {
+  buildSeatIdentities,
+  resolveSeatDemand,
+  type SeatDemand,
+} from "../policy/seat-identity.js";
 import {
   compareSelectableTiles,
   type RelaxationEntry,
@@ -71,15 +75,17 @@ const ZERO_COMPONENTS: StartComponents = {
 };
 
 function emptyPlan(args: {
-  playersLandmass1: number;
-  playersLandmass2: number;
+  playersWest: number;
+  playersEast: number;
+  seatDemand: SeatDemand;
   spacingFloorTiles: number;
   desiredSpacingTiles: number;
   fairnessTolerance: number;
 }) {
   const seats = buildSeatIdentities({
-    playersWest: Math.max(0, args.playersLandmass1 | 0),
-    playersEast: Math.max(0, args.playersLandmass2 | 0),
+    playersWest: args.playersWest,
+    playersEast: args.playersEast,
+    demand: args.seatDemand,
   }).map((seat) => ({
     seatIndex: seat.seatIndex,
     playerId: seat.playerId,
@@ -95,8 +101,8 @@ function emptyPlan(args: {
     imputedFlags: ["unseated"],
   }));
   return {
-    playersLandmass1: args.playersLandmass1,
-    playersLandmass2: args.playersLandmass2,
+    playersLandmass1: args.playersWest,
+    playersLandmass2: args.playersEast,
     spacingFloorTiles: args.spacingFloorTiles,
     desiredSpacingTiles: args.desiredSpacingTiles,
     width: 0,
@@ -349,8 +355,11 @@ function percentileRanks(values: readonly number[]): number[] {
  */
 export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
   run: (input, config) => {
-    const playersLandmass1 = Math.max(0, input.baseStarts.playersLandmass1 | 0);
-    const playersLandmass2 = Math.max(0, input.baseStarts.playersLandmass2 | 0);
+    const westSlotCapacity = Math.max(0, input.baseStarts.playersLandmass1 | 0);
+    const eastSlotCapacity = Math.max(0, input.baseStarts.playersLandmass2 | 0);
+    const seatDemand = resolveSeatDemand(westSlotCapacity + eastSlotCapacity, input.alivePlayerIds);
+    const totalPlayers =
+      seatDemand.kind === "alive-majors" ? seatDemand.playerIds.length : seatDemand.count;
     const spacingFloorTiles = Math.max(0, config.spacingFloorTiles | 0);
     const desiredSpacingTiles = Math.max(spacingFloorTiles, config.desiredSpacingTiles | 0);
 
@@ -358,9 +367,16 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
     const height = Math.max(0, input.height ?? 0) | 0;
     const size = Math.max(0, width * height);
     if (width <= 0 || height <= 0 || size <= 0) {
+      const allocation = apportionStartsByCapacity({
+        capacities: [westSlotCapacity, eastSlotCapacity],
+        ceilings: [westSlotCapacity, eastSlotCapacity],
+        total: totalPlayers,
+        balanceBias: 0,
+      });
       return emptyPlan({
-        playersLandmass1,
-        playersLandmass2,
+        playersWest: allocation[0]!,
+        playersEast: allocation[1]!,
+        seatDemand,
         spacingFloorTiles,
         desiredSpacingTiles,
         fairnessTolerance: config.fairnessTolerance,
@@ -709,7 +725,6 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
       if (slot === 1) landBySlot1 += 1;
       else if (slot === 2) landBySlot2 += 1;
     }
-    const totalPlayers = playersLandmass1 + playersLandmass2;
     const allocation = apportionStartsByCapacity({
       capacities: [candidatesBySlot[1], candidatesBySlot[2]],
       ceilings: [
@@ -737,7 +752,7 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
     const seatIdentities = buildSeatIdentities({
       playersWest,
       playersEast,
-      alivePlayerIds: input.alivePlayerIds,
+      demand: seatDemand,
     });
 
     // Region reassignment (recorded, never silent): a residual guard for any

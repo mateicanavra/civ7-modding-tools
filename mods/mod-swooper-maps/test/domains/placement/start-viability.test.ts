@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import placementDomain from "@mapgen/domain/placement/ops";
 import type { Static } from "@swooper/mapgen-core/authoring";
-import { runOpValidated } from "../../support/compiler-helpers.js";
+import { runOpValidated, validateSchemaValueOrThrow } from "../../support/compiler-helpers.js";
 
 const { planStarts } = placementDomain.ops;
 
@@ -93,6 +93,18 @@ function plan(
   selection.config.desiredSpacingTiles = 4;
   configure?.(selection.config);
   return runOpValidated(planStarts, input, selection);
+}
+
+function makeSeatDemandInput(slotCapacity: number, alivePlayerIds?: readonly number[]): StartInput {
+  const input = makeInput(16, 10, slotCapacity, 0);
+  addLandmass(
+    input,
+    0,
+    1,
+    Array.from({ length: 80 }, (_value, i) => [1 + (i % 10), 1 + Math.floor(i / 10)] as const)
+  );
+  if (alivePlayerIds) input.alivePlayerIds = [...alivePlayerIds];
+  return input;
 }
 
 describe("start viability planning", () => {
@@ -549,25 +561,72 @@ describe("start selection ladder (op-owned, S4)", () => {
     expect(result.fairnessReport.balanced).toBe(true);
   });
 
-  it("maps seats through the alive-majors read surface and flags slot-index fallbacks", () => {
-    const input = makeInput(16, 10, 2, 0);
-    addLandmass(
-      input,
-      0,
-      1,
-      Array.from({ length: 80 }, (_value, i) => [1 + (i % 10), 1 + Math.floor(i / 10)] as const)
-    );
-    input.alivePlayerIds = [7];
+  it("uses a nonempty alive-major observation as exact demand below slot capacity", () => {
+    const alivePlayerIds = Array.from({ length: 10 }, (_value, playerId) => playerId);
+    const result = plan(makeSeatDemandInput(12, alivePlayerIds));
 
-    const result = plan(input, (config) => {
-      config.spacingFloorTiles = 2;
-      config.desiredSpacingTiles = 4;
+    expect(result.playersLandmass1 + result.playersLandmass2).toBe(10);
+    expect(result.seats.map((seat) => seat.playerId)).toEqual(alivePlayerIds);
+    expect(result.seats.every((seat) => seat.playerIdSource === "alive-majors")).toBe(true);
+  });
+
+  it("falls back to slot-capacity identities only when no alive majors are observed", () => {
+    const result = plan(makeSeatDemandInput(2, []));
+
+    expect(result.playersLandmass1 + result.playersLandmass2).toBe(2);
+    expect(
+      result.seats.map(({ playerId, playerIdSource }) => ({ playerId, playerIdSource }))
+    ).toEqual([
+      { playerId: 0, playerIdSource: "slot-index" },
+      { playerId: 1, playerIdSource: "slot-index" },
+    ]);
+  });
+
+  it("caps alive-major demand at map-size slot capacity without synthesizing overflow", () => {
+    const result = plan(makeSeatDemandInput(2, [7, 9, 11]));
+
+    expect(result.playersLandmass1 + result.playersLandmass2).toBe(2);
+    expect(result.seats.map((seat) => seat.playerId)).toEqual([7, 9]);
+    expect(result.seats.every((seat) => seat.playerIdSource === "alive-majors")).toBe(true);
+  });
+
+  it("caps valid alive-major demand at zero capacity without synthesizing fallback identities", () => {
+    const result = plan({
+      baseStarts: { playersLandmass1: 0, playersLandmass2: 0 },
+      alivePlayerIds: [7],
     });
 
-    expect(result.seats[0]!.playerId).toBe(7);
-    expect(result.seats[0]!.playerIdSource).toBe("alive-majors");
-    expect(result.seats[1]!.playerId).toBe(1);
-    expect(result.seats[1]!.playerIdSource).toBe("slot-index");
+    expect(result.playersLandmass1 + result.playersLandmass2).toBe(0);
+    expect(result.seats).toEqual([]);
+  });
+
+  it("rejects duplicate alive-major identities instead of silently normalizing demand", () => {
+    expect(() => plan(makeSeatDemandInput(2, [7, 7]))).toThrow();
+  });
+
+  it("rejects fractional regional slot contributions at contract admission", () => {
+    const input = makeSeatDemandInput(2, [7]);
+    input.baseStarts.playersLandmass1 = 1.5;
+
+    expect(() =>
+      validateSchemaValueOrThrow(planStarts.input, input, "/placement/plan-starts/input")
+    ).toThrow();
+  });
+
+  it("preserves authoritative alive-major demand on the empty-map degraded path", () => {
+    const result = plan({
+      baseStarts: { playersLandmass1: 2, playersLandmass2: 0 },
+      alivePlayerIds: [7],
+    });
+
+    expect(result.playersLandmass1 + result.playersLandmass2).toBe(1);
+    expect(result.seats).toHaveLength(1);
+    expect(result.seats[0]).toMatchObject({
+      playerId: 7,
+      playerIdSource: "alive-majors",
+      plotIndex: -1,
+      status: "degraded",
+    });
   });
 
   it("applies official per-seat start biases through the offline scoring hook", () => {

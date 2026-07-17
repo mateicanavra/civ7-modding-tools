@@ -6,8 +6,7 @@ import {
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Shared placement planning inputs (`artifact:placementInputs`). One artifact per file by repo convention. */
-
+/** Authored placement configuration retained with the shared runtime input snapshot. */
 export const PlacementInputsConfigSchema = Type.Object(
   {
     wonders: placement.ops.planWonders.config,
@@ -18,7 +17,10 @@ export const PlacementInputsConfigSchema = Type.Object(
 
 const PlacementRuntimeStartsSchema = placement.ops.planStarts["input"].properties.baseStarts;
 
-/** Shared planning-input schema for map facts, seat counts, wonder intent, and authored config. */
+/**
+ * Shared planning-input schema for map facts, regional slot contributions,
+ * wonder intent, and authored placement configuration.
+ */
 export const PlacementInputsV1Schema = Type.Object(
   {
     mapInfo: placement.ops.planWonders["input"].properties.mapInfo,
@@ -30,6 +32,7 @@ export const PlacementInputsV1Schema = Type.Object(
 );
 
 type MapInfo = Static<(typeof placement.ops.planWonders)["input"]["properties"]["mapInfo"]>;
+/** Admitted runtime placement inputs consumed by the Standard placement product steps. */
 export type PlacementInputsV1 = Static<typeof PlacementInputsV1Schema> & { mapInfo: MapInfo };
 
 /** Canonical artifact schema alias consumed by placement's artifact catalog. */
@@ -37,7 +40,9 @@ export const Schema = PlacementInputsV1Schema;
 
 /**
  * Registers the single planning input snapshot shared by wonders, starts, and
- * terminal placement: Civ7 map metadata, seat counts, and authored config.
+ * terminal placement. Its `starts` values sum to the map-size seat-capacity
+ * bound, not fixed regional demand; `plan-starts` admits alive-major identities
+ * and may reapportion them across generated regions.
  */
 export const artifact = defineArtifact({
   name: "placementInputs",
@@ -60,9 +65,9 @@ function isCount(value: unknown): value is number {
 }
 
 /**
- * Validate hook for the shared placement inputs artifact: the seat counts and
- * the wonder-count plan must be coherent non-negative integers because every
- * downstream product step plans against them.
+ * Validate hook for the shared placement inputs artifact: regional slot
+ * contributions and the wonder-count plan must be coherent non-negative
+ * integers because the combined slot count bounds admitted player demand.
  */
 
 function validatePayload(value: unknown): ValidationIssue[] {
@@ -93,7 +98,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
-/** Validates nonnegative seat/wonder counts and the presence of the shared config envelope. */
+/** Validates nonnegative slot-contribution/wonder counts and the shared config envelope. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }
