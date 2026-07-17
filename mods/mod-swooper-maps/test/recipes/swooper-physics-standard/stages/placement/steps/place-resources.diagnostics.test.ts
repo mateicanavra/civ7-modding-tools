@@ -65,7 +65,7 @@ function plan(width: number, height: number, intents: PlanIntent[]) {
     adjustments: [],
     shortfalls: [],
     perStart: [],
-    equity: { gapBefore: null, gapAfter: null, tolerance: 2 },
+    equity: { gapBefore: null, gapAfter: null },
     settings: {
       enabled: true,
       supportFloor: 2,

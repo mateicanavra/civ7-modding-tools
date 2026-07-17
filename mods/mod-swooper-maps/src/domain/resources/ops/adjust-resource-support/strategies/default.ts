@@ -42,30 +42,63 @@ type PlanIntent = {
   regionSlot: number;
   landmassId: number;
   inHabitat: boolean;
-  support?: {
-    action: "move" | "add";
-    reason: "support-floor" | "support-equity";
-    seatIndex: number;
-    fromPlotIndex?: number;
-  };
+  support?:
+    | {
+        action: "move";
+        reason: "support-floor" | "support-equity";
+        seatIndex: number;
+        fromPlotIndex: number;
+      }
+    | {
+        action: "add";
+        reason: "support-floor" | "support-equity";
+        seatIndex: number;
+      };
 };
 
-type Adjustment = {
-  action: "move" | "add";
+type AdjustmentEvidence = {
   reason: "support-floor" | "support-equity";
   resourceType: OfficialResourceType;
-  fromPlotIndex?: number;
   toPlotIndex: number;
   seatIndex: number;
 };
 
-type ShortfallReason =
+type Adjustment =
+  | (AdjustmentEvidence & {
+      action: "move";
+      fromPlotIndex: number;
+    })
+  | (AdjustmentEvidence & {
+      action: "add";
+    });
+
+type ApplyAdjustmentArgs =
+  | {
+      action: "move";
+      sourceIntent: PlanIntent;
+      reason: "support-floor" | "support-equity";
+      seatIndex: number;
+      resourceType: OfficialResourceType;
+      toPlotIndex: number;
+    }
+  | {
+      action: "add";
+      reason: "support-floor" | "support-equity";
+      seatIndex: number;
+      resourceType: OfficialResourceType;
+      toPlotIndex: number;
+    };
+
+type FloorShortfallReason =
   | "no-legal-tile-in-radius"
   | "spacing-floor-preserved"
   | "no-movable-site"
-  | "equity-unresolvable"
-  | "adjustment-budget-exhausted"
+  | "floor-budget-exhausted"
   | "adjustment-disabled";
+
+type EquityShortfallReason = "equity-unresolvable" | "equity-budget-exhausted";
+
+type ShortfallReason = FloorShortfallReason | EquityShortfallReason;
 
 const EQUITY_ITERATION_CAP = 64;
 const CROSS_TYPE_CLEARANCE = 2;
@@ -269,12 +302,8 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     const supportBefore = [...counts];
 
     const adjustments: Adjustment[] = [];
-    const shortfallCounts = new Map<string, number>();
-    const recordShortfall = (seatIndex: number, reason: ShortfallReason, missing: number): void => {
-      if (missing <= 0) return;
-      const key = `${seatIndex}:${reason}`;
-      shortfallCounts.set(key, (shortfallCounts.get(key) ?? 0) + missing);
-    };
+    const floorShortfallReasons = new Map<number, FloorShortfallReason>();
+    let equityShortfallReason: EquityShortfallReason | null = null;
 
     const gapOf = (): number | null => {
       if (counts.length < 2) return null;
@@ -435,14 +464,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     const movePairScore = (sourceIntent: PlanIntent, dest: Destination): number =>
       dest.score + (sourceIntent.inHabitat ? 0 : 5) - (breaksAggregationPair(sourceIntent) ? 4 : 0);
 
-    const applyAdjustment = (args: {
-      action: "move" | "add";
-      reason: "support-floor" | "support-equity";
-      seatIndex: number;
-      resourceType: OfficialResourceType;
-      toPlotIndex: number;
-      sourceIntent?: PlanIntent;
-    }): void => {
+    const applyAdjustment = (args: ApplyAdjustmentArgs): void => {
       const eligibility = eligibilityByType.get(args.resourceType)!;
       const toPlot = args.toPlotIndex;
       const y = (toPlot / width) | 0;
@@ -450,7 +472,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       const destRegionSlot = regionSlotByTile[toPlot] ?? 0;
       const destLandmassId = landmassIdByTile[toPlot] ?? -1;
 
-      if (args.sourceIntent) {
+      if (args.action === "move") {
         const intent = args.sourceIntent;
         const fromPlot = intent.plotIndex;
         usedPlots.delete(fromPlot);
@@ -533,7 +555,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     // Deterministic type order for destination probing: corpus order from the plan.
     const typeOrder = plan.perType.map((row) => row.resourceType);
 
-    const classifyFloorShortfall = (seatPos: number): ShortfallReason => {
+    const classifyFloorShortfall = (seatPos: number): FloorShortfallReason => {
       // Dominant-cause classification for an unfillable deficit unit.
       const zone = seatZones[seatPos]!;
       let anyLegalFree = false;
@@ -559,7 +581,9 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     if (!enabled || strength === 0) {
       for (let seatPos = 0; seatPos < seats.length; seatPos++) {
         const deficit = supportFloor - counts[seatPos]!;
-        if (deficit > 0) recordShortfall(seats[seatPos]!.seatIndex, "adjustment-disabled", deficit);
+        if (deficit > 0) {
+          floorShortfallReasons.set(seats[seatPos]!.seatIndex, "adjustment-disabled");
+        }
       }
     } else {
       // --- phase 1: per-start support floor (E3.1) --------------------------------------------
@@ -578,6 +602,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
           // Prefer MOVE of a site serving no start (count-preserving).
           let bestMove: { intent: PlanIntent; dest: Destination; score: number } | null = null;
           for (const intent of intents) {
+            if (intent.support) continue;
             if (seatsByPlot.has(intent.plotIndex)) continue;
             const dest = destinationFor(intent.resourceType, seatZones[seatPos]!, {
               ignorePlot: intent.plotIndex,
@@ -632,21 +657,13 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
           }
 
           if (!applied) {
-            recordShortfall(
-              seat.seatIndex,
-              classifyFloorShortfall(seatPos),
-              supportFloor - counts[seatPos]!
-            );
+            floorShortfallReasons.set(seat.seatIndex, classifyFloorShortfall(seatPos));
             break;
           }
           filled += 1;
         }
         if (counts[seatPos]! < supportFloor && filled >= budget && budget < deficit) {
-          recordShortfall(
-            seat.seatIndex,
-            "adjustment-budget-exhausted",
-            supportFloor - counts[seatPos]!
-          );
+          floorShortfallReasons.set(seat.seatIndex, "floor-budget-exhausted");
         }
       }
 
@@ -687,6 +704,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
 
           let bestMove: { intent: PlanIntent; dest: Destination; score: number } | null = null;
           for (const intent of intents) {
+            if (intent.support) continue;
             if (!seatZones[richestPos]!.has(intent.plotIndex)) continue;
             if (!removalSafe(intent.plotIndex)) continue;
             // Preferred destination: the poorest seat's zone.
@@ -759,7 +777,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
             continue;
           }
 
-          recordShortfall(poorest.seatIndex, "equity-unresolvable", max - min - equityTolerance);
+          equityShortfallReason = "equity-unresolvable";
           break;
         }
         const finalGap = gapOf();
@@ -767,14 +785,9 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
           finalGap !== null &&
           finalGap > equityTolerance &&
           equityApplied >= equityBudget &&
-          !Array.from(shortfallCounts.keys()).some((key) => key.endsWith(":equity-unresolvable"))
+          equityShortfallReason === null
         ) {
-          const poorestPos = counts.findIndex((count) => count === Math.min(...counts));
-          recordShortfall(
-            seats[poorestPos]!.seatIndex,
-            "adjustment-budget-exhausted",
-            finalGap - equityTolerance
-          );
+          equityShortfallReason = "equity-budget-exhausted";
         }
       }
     }
@@ -786,16 +799,44 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       }
     }
 
-    const shortfalls = Array.from(shortfallCounts.entries())
-      .map(([key, missing]) => {
-        const splitAt = key.indexOf(":");
-        return {
-          seatIndex: Number(key.slice(0, splitAt)),
-          reason: key.slice(splitAt + 1) as ShortfallReason,
-          missing,
-        };
-      })
-      .sort((a, b) => a.seatIndex - b.seatIndex || a.reason.localeCompare(b.reason));
+    const shortfalls: Array<{
+      seatIndex: number;
+      reason: ShortfallReason;
+      missing: number;
+    }> = [];
+    for (let seatPos = 0; seatPos < seats.length; seatPos++) {
+      const seatIndex = seats[seatPos]!.seatIndex;
+      const missing = Math.max(0, supportFloor - counts[seatPos]!);
+      if (missing === 0) continue;
+      const reason = floorShortfallReasons.get(seatIndex);
+      if (!reason) {
+        throw new Error(
+          `[resources] Missing terminal floor-shortfall reason for seat ${seatIndex} (${missing} support missing).`
+        );
+      }
+      shortfalls.push({ seatIndex, reason, missing });
+    }
+    const gapAfter = gapOf();
+    const equityMissing =
+      enabled && strength > 0 && gapAfter !== null ? Math.max(0, gapAfter - equityTolerance) : 0;
+    if (equityMissing > 0) {
+      if (!equityShortfallReason) {
+        throw new Error(
+          `[resources] Missing terminal equity-shortfall reason for support gap ${gapAfter}.`
+        );
+      }
+      const poorestPos = counts.findIndex((count) => count === Math.min(...counts));
+      const poorestSeat = seats[poorestPos];
+      if (!poorestSeat) {
+        throw new Error("[resources] Missing minimum-support seat for terminal equity shortfall.");
+      }
+      shortfalls.push({
+        seatIndex: poorestSeat.seatIndex,
+        reason: equityShortfallReason,
+        missing: equityMissing,
+      });
+    }
+    shortfalls.sort((a, b) => a.seatIndex - b.seatIndex || a.reason.localeCompare(b.reason));
 
     return {
       width,
@@ -816,8 +857,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       })),
       equity: {
         gapBefore,
-        gapAfter: gapOf(),
-        tolerance: equityTolerance,
+        gapAfter,
       },
       settings,
     };

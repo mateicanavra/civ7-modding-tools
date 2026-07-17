@@ -37,28 +37,49 @@ const AdjustedPhaseSchema = Type.Union(
   }
 );
 
-const SupportProvenanceSchema = Type.Object(
+const SupportReasonSchema = Type.Union(
+  [Type.Literal("support-floor"), Type.Literal("support-equity")],
   {
-    action: Type.Union([Type.Literal("move"), Type.Literal("add")], {
-      description: "Whether the site was relocated from elsewhere in the plan or newly added.",
-    }),
-    reason: Type.Union([Type.Literal("support-floor"), Type.Literal("support-equity")], {
-      description:
-        "Why the adjustment happened: filling a start below the support floor (E3.1) or shrinking the cross-player support gap (E3.2).",
-    }),
-    seatIndex: Type.Integer({
-      minimum: 0,
-      description:
-        "Seat the adjustment serves (deficit seat for floor; trimmed/filled seat for equity).",
-    }),
-    fromPlotIndex: Type.Optional(
-      Type.Integer({
-        minimum: 0,
-        description: "Original plot of a moved site (absent for additions).",
-      })
+    description:
+      "Why the adjustment happened: filling a start below the support floor (E3.1) or shrinking the cross-player support gap (E3.2).",
+  }
+);
+
+const SupportSeatIndexSchema = Type.Integer({
+  minimum: 0,
+  description:
+    "Seat the adjustment serves (deficit seat for floor; trimmed/filled seat for equity).",
+});
+
+const SupportFromPlotIndexSchema = Type.Integer({
+  minimum: 0,
+  description: "Original plot of a moved resource intent.",
+});
+
+const SupportProvenanceSchema = Type.Union(
+  [
+    Type.Object(
+      {
+        action: Type.Literal("move"),
+        reason: SupportReasonSchema,
+        seatIndex: SupportSeatIndexSchema,
+        fromPlotIndex: SupportFromPlotIndexSchema,
+      },
+      { additionalProperties: false }
     ),
-  },
-  { additionalProperties: false }
+    Type.Object(
+      {
+        action: Type.Literal("add"),
+        reason: SupportReasonSchema,
+        seatIndex: SupportSeatIndexSchema,
+      },
+      { additionalProperties: false }
+    ),
+  ],
+  {
+    description:
+      "One terminal support adjustment: moves require their source plot, while additions cannot claim one.",
+  }
 );
 
 const AdjustedIntentSchema = Type.Object(
@@ -80,30 +101,63 @@ const AdjustedIntentSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const AdjustmentSchema = Type.Object(
+const AdjustmentEvidenceProperties = {
+  reason: SupportReasonSchema,
+  resourceType: ResourceSymbolSchema,
+  toPlotIndex: Type.Integer({
+    minimum: 0,
+    description: "Final plot occupied by the adjusted resource intent.",
+  }),
+  seatIndex: SupportSeatIndexSchema,
+} as const;
+
+const AdjustmentSchema = Type.Union(
+  [
+    Type.Object(
+      {
+        action: Type.Literal("move"),
+        ...AdjustmentEvidenceProperties,
+        fromPlotIndex: SupportFromPlotIndexSchema,
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        action: Type.Literal("add"),
+        ...AdjustmentEvidenceProperties,
+      },
+      { additionalProperties: false }
+    ),
+  ],
   {
-    action: Type.Union([Type.Literal("move"), Type.Literal("add")]),
-    reason: Type.Union([Type.Literal("support-floor"), Type.Literal("support-equity")]),
-    resourceType: ResourceSymbolSchema,
-    fromPlotIndex: Type.Optional(Type.Integer({ minimum: 0 })),
-    toPlotIndex: Type.Integer({ minimum: 0 }),
-    seatIndex: Type.Integer({ minimum: 0 }),
-  },
-  { additionalProperties: false }
+    description:
+      "Closed adjustment row paired bijectively with the terminal intent provenance at its destination.",
+  }
 );
 
 const SupportShortfallSchema = Type.Object(
   {
     seatIndex: Type.Integer({ minimum: 0 }),
-    reason: Type.Union([
-      Type.Literal("no-legal-tile-in-radius"),
-      Type.Literal("spacing-floor-preserved"),
-      Type.Literal("no-movable-site"),
-      Type.Literal("equity-unresolvable"),
-      Type.Literal("adjustment-budget-exhausted"),
-      Type.Literal("adjustment-disabled"),
-    ]),
-    missing: Type.Integer({ minimum: 1 }),
+    reason: Type.Union(
+      [
+        Type.Literal("no-legal-tile-in-radius"),
+        Type.Literal("spacing-floor-preserved"),
+        Type.Literal("no-movable-site"),
+        Type.Literal("equity-unresolvable"),
+        Type.Literal("floor-budget-exhausted"),
+        Type.Literal("equity-budget-exhausted"),
+        Type.Literal("adjustment-disabled"),
+      ],
+      {
+        description:
+          "Terminal constraint that left this seat below its support floor or left the active cross-seat support gap above tolerance.",
+      }
+    ),
+    missing: Type.Integer({
+      minimum: 1,
+      description:
+        "Terminal support units missing from the seat floor, or terminal gap units above the configured equity tolerance.",
+    }),
   },
   {
     additionalProperties: false,
@@ -208,7 +262,6 @@ const AdjustResourceSupportContract = defineOp({
         {
           gapBefore: Type.Union([Type.Integer({ minimum: 0 }), Type.Null()]),
           gapAfter: Type.Union([Type.Integer({ minimum: 0 }), Type.Null()]),
-          tolerance: Type.Integer({ minimum: 0 }),
         },
         {
           additionalProperties: false,
@@ -219,10 +272,10 @@ const AdjustResourceSupportContract = defineOp({
       settings: Type.Object(
         {
           enabled: Type.Boolean(),
-          supportFloor: Type.Integer({ minimum: 0 }),
-          supportRadiusTiles: Type.Integer({ minimum: 0 }),
-          equityTolerance: Type.Integer({ minimum: 0 }),
-          strength: Type.Number(),
+          supportFloor: Type.Integer({ minimum: 0, maximum: 6 }),
+          supportRadiusTiles: Type.Integer({ minimum: 1, maximum: 8 }),
+          equityTolerance: Type.Integer({ minimum: 0, maximum: 8 }),
+          strength: Type.Number({ minimum: 0, maximum: 1 }),
         },
         { additionalProperties: false }
       ),

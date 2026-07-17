@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import resources from "@mapgen/domain/resources/ops";
 import { getHexRadiusIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
+import { artifactModules as placementArtifactModules } from "../../../src/recipes/standard/stages/placement/artifacts/index.js";
 
 import { runOpValidated } from "../../support/compiler-helpers.js";
 
@@ -131,7 +132,13 @@ function run(
 ): AdjustResult {
   const selection = structuredClone(resources.ops.adjustResourceSupport.defaultConfig);
   configure?.(selection.config);
-  return runOpValidated(resources.ops.adjustResourceSupport, input, selection);
+  const result = runOpValidated(resources.ops.adjustResourceSupport, input, selection);
+  expect(
+    placementArtifactModules.resourcePlanAdjusted.validate(result, {
+      dimensions: { width: WIDTH, height: HEIGHT },
+    })
+  ).toEqual([]);
+  return result;
 }
 
 function supportCount(intents: AdjustResult["intents"], seatPlot: number, radius: number): number {
@@ -188,7 +195,8 @@ describe("adjust-resource-support operation contract", () => {
       const moved = result.intents.find((row) => row.plotIndex === adjustment.toPlotIndex);
       expect(moved?.support?.action).toBe(adjustment.action);
       if (adjustment.action === "move") {
-        expect(moved?.support?.fromPlotIndex).toBe(adjustment.fromPlotIndex!);
+        if (moved?.support?.action !== "move") throw new Error("Missing move provenance.");
+        expect(moved.support.fromPlotIndex).toBe(adjustment.fromPlotIndex);
       }
     }
     expect(result.shortfalls).toEqual([]);
@@ -231,6 +239,42 @@ describe("adjust-resource-support operation contract", () => {
     expect(result.equity.gapAfter).toBeLessThanOrEqual(2);
     const counts = result.perStart.map((seat) => seat.supportAfter);
     expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(2);
+  });
+
+  it("moves each source at most once across repeated three-seat equity eligibility", () => {
+    const intents = [
+      intentAt({ x: 2, y: 2, resourceType: "RESOURCE_A", order: 0 }),
+      intentAt({ x: 6, y: 2, resourceType: "RESOURCE_A", order: 1 }),
+    ];
+    const input = buildInput({
+      intents,
+      perType: [
+        perTypeRow({
+          resourceType: "RESOURCE_A",
+          plannedCount: intents.length,
+          minCount: intents.length,
+          maxCount: intents.length,
+        }),
+      ],
+      starts: [
+        { seatIndex: 0, playerId: 0, plotIndex: plotAt(4, 2) },
+        { seatIndex: 1, playerId: 1, plotIndex: plotAt(12, 11) },
+        { seatIndex: 2, playerId: 2, plotIndex: plotAt(20, 2) },
+      ],
+    });
+    const result = run(input, (config) => {
+      config.supportFloor = 0;
+      config.equityTolerance = 0;
+    });
+
+    const movedSources = result.adjustments.flatMap((row) =>
+      row.action === "move" ? [row.fromPlotIndex] : []
+    );
+    expect(result.moveCount).toBeGreaterThan(0);
+    expect(new Set(movedSources).size).toBe(movedSources.length);
+    expect(result.adjustments.length).toBe(
+      result.intents.filter((intent) => intent.support !== undefined).length
+    );
   });
 
   it("records typed shortfalls instead of forcing when no movable source or headroom exists", () => {
@@ -282,7 +326,8 @@ describe("adjust-resource-support operation contract", () => {
           "no-legal-tile-in-radius",
           "spacing-floor-preserved",
           "equity-unresolvable",
-          "adjustment-budget-exhausted",
+          "floor-budget-exhausted",
+          "equity-budget-exhausted",
         ].includes(row.reason)
       )
     ).toBe(true);
@@ -393,20 +438,24 @@ describe("adjust-resource-support operation contract", () => {
     expect(JSON.parse(JSON.stringify(b))).toEqual(JSON.parse(JSON.stringify(a)));
   });
 
-  it("passes the plan through unchanged when disabled, recording deficits as typed shortfalls", () => {
+  it("passes the plan through unchanged when disabled or strength is zero", () => {
     const input = clusterScenario();
-    const result = run(input, (config) => {
-      config.enabled = false;
-    });
-
-    expect(result.moveCount).toBe(0);
-    expect(result.addCount).toBe(0);
-    expect(result.adjustments).toEqual([]);
-    expect(result.intents.map((row) => row.plotIndex)).toEqual(
-      input.plan.intents.map((row) => row.plotIndex)
-    );
-    const disabled = result.shortfalls.filter((row) => row.reason === "adjustment-disabled");
-    expect(disabled.length).toBeGreaterThan(0);
-    expect(disabled[0]!.seatIndex).toBe(1);
+    for (const configure of [
+      (config: (typeof resources.ops.adjustResourceSupport.defaultConfig)["config"]) => {
+        config.enabled = false;
+      },
+      (config: (typeof resources.ops.adjustResourceSupport.defaultConfig)["config"]) => {
+        config.strength = 0;
+      },
+    ]) {
+      const result = run(input, configure);
+      expect(result.moveCount).toBe(0);
+      expect(result.addCount).toBe(0);
+      expect(result.adjustments).toEqual([]);
+      expect(result.intents).toEqual(input.plan.intents);
+      const disabled = result.shortfalls.filter((row) => row.reason === "adjustment-disabled");
+      expect(disabled.length).toBeGreaterThan(0);
+      expect(disabled[0]?.seatIndex).toBe(1);
+    }
   });
 });
