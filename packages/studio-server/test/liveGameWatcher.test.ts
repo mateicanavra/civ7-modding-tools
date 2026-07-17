@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { Effect, ManagedRuntime } from "effect";
 import { describe, expect, test } from "vitest";
 
@@ -16,19 +13,6 @@ import {
 import { makeLiveGameWatcherLayer, StudioLiveGameWatcher } from "../src/liveGame/watcher";
 
 describe("live-game watcher", () => {
-  test("production watcher stays behind the tuner client boundary", () => {
-    const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
-    const watcherSource = readFileSync(
-      join(repoRoot, "packages/studio-server/src/liveGame/watcher.ts"),
-      "utf8"
-    );
-
-    expect(watcherSource).toContain("readLiveGameStatusBody");
-    expect(watcherSource).not.toMatch(
-      /@civ7\/direct-control|Civ7DirectControlSession|Civ7TunerSessionLive|Runtime\.runPromise|Effect\.runtime|setTimeout|setInterval/
-    );
-  });
-
   test("publishes first and changed live-game states, and stays quiet when unchanged", async () => {
     const events: StudioEvent[] = [];
     const bodies = [

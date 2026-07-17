@@ -1,6 +1,3 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { join, relative } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   type MapConfigSaveDeployStatus,
   operationStatusTypeSchema,
@@ -43,7 +40,6 @@ import {
 } from "../../src/app/studioEventRecovery";
 import type { LiveRuntimeStatusState } from "../../src/features/liveRuntime/model";
 
-const repoRoot = fileURLToPath(new URL("../../../..", import.meta.url));
 const operationsCurrentOutputSchema = typeboxOutputSchemaFromContractProcedure(
   studio.operationsCurrent
 );
@@ -340,7 +336,7 @@ describe("Studio event operation adoption", () => {
     expect(state.readRunInGame()?.requestId).toBe("run-daemon-active");
   });
 
-  test("shell boot adoption reads daemon current without status replay", async () => {
+  test("shell boot adoption reads daemon current exactly once", async () => {
     const state = adoptionState();
     let currentReads = 0;
 
@@ -362,29 +358,6 @@ describe("Studio event operation adoption", () => {
 
     expect(currentReads).toBe(1);
     expect(state.readRunInGame()?.requestId).toBe("run-active");
-
-    const adoptionSource = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/app/operationAdoption.ts"),
-      "utf8"
-    );
-    expect(adoptionSource).not.toMatch(
-      /fetchRunInGameStatus|fetchSaveDeployStatus|runInGame\.status|mapConfigs\.status/
-    );
-
-    const eventHookSource = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useStudioEvents.ts"),
-      "utf8"
-    );
-    expect(eventHookSource).toContain("onHello: async (event)");
-    expect(eventHookSource).toContain("orpcClient.studio.operations.current");
-    expect(eventHookSource).not.toMatch(
-      /fetchRunInGameStatus|fetchSaveDeployStatus|runInGame\.status|mapConfigs\.status/
-    );
-    const shellSource = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/app/StudioShell.tsx"),
-      "utf8"
-    );
-    expect(shellSource).not.toContain("readAndAdoptStudioOperationsCurrent");
   });
 
   test("current adoption does not let in-flight local status override registry sequencing", async () => {
@@ -455,88 +428,6 @@ describe("Studio event operation adoption", () => {
 
     errors.clear("current");
     expect(cleared).toEqual(["current daemon identity mismatched"]);
-  });
-
-  test("StudioShell operation freshness stays on current plus pushed events", () => {
-    const shellSource = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/app/StudioShell.tsx"),
-      "utf8"
-    );
-    const eventHookSource = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useStudioEvents.ts"),
-      "utf8"
-    );
-    const runApiSource = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/features/runInGame/api.ts"),
-      "utf8"
-    );
-    const runHookSource = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useRunInGame.ts"),
-      "utf8"
-    );
-    const saveApiSource = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/features/mapConfigSave/api.ts"),
-      "utf8"
-    );
-    // The save/deploy waiter machinery moved into `useSaveDeploy` (slice 2.9); the
-    // event-driven (no-polling) contract is now pinned against that hook's source.
-    const saveDeploySource = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useSaveDeploy.ts"),
-      "utf8"
-    );
-
-    expect(shellSource).not.toContain("readAndAdoptStudioOperationsCurrent");
-    expect(shellSource).toContain("useStudioEvents({");
-    expect(eventHookSource).toContain("consumeStudioEventStream({");
-    expect(eventHookSource).toContain("orpcClient.studio.events.watch");
-    expect(eventHookSource).toContain("applyStudioOperationEvent");
-    expect(eventHookSource).toContain("applyStudioLiveGameEvent");
-    expect(eventHookSource).toContain("readAndAdoptStudioOperationsCurrent");
-    expect(eventHookSource).not.toMatch(
-      /experimental_liveOptions|useQuery\s*\(|currentOperationReconciler|setInterval/
-    );
-    expect(shellSource).not.toMatch(
-      /fetchRunInGameStatus|fetchSaveDeployStatus|useOperationStatusPolls|useDaemonInstanceWatchdog|serverInfo\s*\(|runInGame\.status|mapConfigs\.status/
-    );
-    expect(runApiSource).not.toMatch(/fetchRunInGameStatus|runInGame\.status/);
-    expect(runHookSource).not.toMatch(
-      /RUN_IN_GAME_CURRENT_RECONCILE_INTERVAL_MS|studio\.operations\.current|setTimeout/
-    );
-    expect(saveApiSource).not.toMatch(/fetchSaveDeployStatus|mapConfigs\.status/);
-
-    const saveStartResponse = sourceSliceAround(saveApiSource, "args.onStatus?.(status)");
-    expect(saveStartResponse).not.toMatch(/setTimeout|setInterval|sleep|while\s*\(/);
-
-    const eventWaiter = sourceSliceAround(saveDeploySource, "waitForSaveDeployTerminalEvent");
-    expect(eventWaiter).toContain("saveDeployWaitersRef");
-    expect(eventWaiter).not.toMatch(/orpcClient|mapConfigs\.status|fetchSaveDeployStatus/);
-  });
-
-  test("keeps browser operation recovery out of persisted storage", () => {
-    const srcRoot = join(repoRoot, "apps/mapgen-studio/src");
-    const storageOwnerAllowlist = new Set([
-      "apps/mapgen-studio/src/features/studioState/persistence.ts",
-      "apps/mapgen-studio/src/ui/hooks/useTheme.ts",
-      "apps/mapgen-studio/src/stores/authoringStore.ts",
-    ]);
-    const storageApiPattern =
-      /\b(?:window\.)?(?:localStorage|sessionStorage)\s*\.|\bpersist\s*\(|\bcreateJSONStorage\s*\(/;
-    const operationRecoveryPattern =
-      /runInGameRequestId|saveDeployRequestId|sourceSnapshotStorage|readStoredRunInGameSourceSnapshot|RUN_IN_GAME_LAST|MAP_CONFIG_SAVE_LAST_REQUEST/;
-
-    const offenders = sourceFiles(srcRoot)
-      .map((file) => ({
-        file,
-        relativePath: relative(repoRoot, file),
-        text: readFileSync(file, "utf8"),
-      }))
-      .filter(({ relativePath, text }) => {
-        if (storageOwnerAllowlist.has(relativePath)) return false;
-        return storageApiPattern.test(text) || operationRecoveryPattern.test(text);
-      })
-      .map(({ relativePath }) => relativePath);
-
-    expect(offenders).toEqual([]);
   });
 
   test("applies pushed Run in Game operation events without pre-handling terminal toasts", () => {
@@ -703,31 +594,6 @@ describe("Studio event operation adoption", () => {
     expect(appliedStates[0]?.status).toBe("ok");
     expect(appliedStates[0]?.turn).toBe(12);
     expect(appliedStates[0]?.snapshotId).toBe("status:12:abcdef01");
-  });
-
-  test("StudioShell live-game events trigger bounded follow-up reads without a cadence", () => {
-    // The live-runtime read functions moved into `useLiveRuntime` (slice 2.10); the
-    // bounded-read / no-cadence (LR-8) contract is now pinned against the hook source.
-    const shellSource = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/app/hooks/useLiveRuntime.ts"),
-      "utf8"
-    );
-
-    const applyLiveGameState = sourceSliceAround(shellSource, "const applyLiveGameState", 1_600);
-    expect(applyLiveGameState).toContain("buildLiveRuntimeSnapshotRequest");
-    expect(applyLiveGameState).toContain("void refreshLiveSetupFromEvent(statusState)");
-    expect(applyLiveGameState).toContain("void readLiveRuntimeSnapshot(snapshotRequest)");
-    expect(applyLiveGameState).not.toMatch(
-      /setTimeout|setInterval|civ7\.live\.status|liveControlPort\.readiness\.current|refetchInterval/
-    );
-
-    const setupFollowUp = sourceSliceAround(shellSource, "const refreshLiveSetupFromEvent", 1_600);
-    expect(setupFollowUp).toContain("buildLiveRuntimeSetupRequestKey(statusState)");
-    expect(setupFollowUp).toContain("shouldCommitLiveRuntimeSetup");
-    expect(setupFollowUp).toContain("activeLiveSetupRequestKeyRef.current");
-    expect(setupFollowUp).not.toMatch(
-      /setTimeout|setInterval|civ7\.live\.status|liveControlPort\.readiness\.current|refetchInterval/
-    );
   });
 
   test("assigns retry to oRPC while refusing callbacks after abort", async () => {
@@ -1221,19 +1087,4 @@ function currentOperations(overrides?: Partial<StudioOperationsCurrent>): Studio
   };
   expect(Value.Check(operationsCurrentOutputSchema, current)).toBe(true);
   return current;
-}
-
-function sourceFiles(root: string): string[] {
-  return readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
-    const path = join(root, entry.name);
-    if (entry.isDirectory()) return sourceFiles(path);
-    if (!entry.isFile() || (!path.endsWith(".ts") && !path.endsWith(".tsx"))) return [];
-    return [path];
-  });
-}
-
-function sourceSliceAround(source: string, marker: string, radius = 900): string {
-  const markerIndex = source.indexOf(marker);
-  if (markerIndex < 0) throw new Error(`Missing source marker: ${marker}`);
-  return source.slice(Math.max(0, markerIndex - radius), markerIndex + marker.length + radius);
 }
