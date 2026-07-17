@@ -15,6 +15,7 @@ import {
   getCiv7ResourceBuilderDiagnostics,
   getCiv7ResourcePlacementFeasibility,
 } from "@civ7/direct-control";
+import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import {
   type FinalSurfaceParityReport,
   hashParityValue,
@@ -842,37 +843,6 @@ function nearestResourceDeltaMatch(
     }
   }
   return best;
-}
-
-function hexDistanceOddQPeriodicX(aIndex: number, bIndex: number, width: number): number {
-  const ay = Math.trunc(aIndex / width);
-  const ax = aIndex - ay * width;
-  const by = Math.trunc(bIndex / width);
-  const bx = bIndex - by * width;
-  const wrappedBx = ax + wrapDeltaPeriodic(bx - ax, width);
-  const aCube = oddqToCube(ax, ay);
-  const bCube = oddqToCube(wrappedBx, by);
-  return Math.max(
-    Math.abs(aCube.x - bCube.x),
-    Math.abs(aCube.y - bCube.y),
-    Math.abs(aCube.z - bCube.z)
-  );
-}
-
-function oddqToCube(x: number, y: number): Readonly<{ x: number; y: number; z: number }> {
-  const z = y - (x - (x & 1)) / 2;
-  const xCube = x;
-  const zCube = z;
-  const yCube = -xCube - zCube;
-  return { x: xCube, y: yCube, z: zCube };
-}
-
-function wrapDeltaPeriodic(delta: number, width: number): number {
-  if (width <= 0) return delta;
-  const half = width / 2;
-  let wrapped = ((delta % width) + width) % width;
-  if (wrapped > half) wrapped -= width;
-  return wrapped;
 }
 
 function summarizeDistances(distances: ReadonlyArray<number>) {
