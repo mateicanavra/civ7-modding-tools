@@ -26,6 +26,9 @@
         "cwd": "mods/mod-civ7-intelligence-bridge"
       }
     },
+    "test": {
+      "dependsOn": ["build"]
+    },
     "gen:modinfo": {
       "command": "bun ./scripts/generate-mod-artifacts.ts",
       "cache": true,

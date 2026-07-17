@@ -1,15 +1,45 @@
-import { attentionRouter } from "./modules/attention/router";
-import { cityRouter } from "./modules/city/router";
-import { diplomacyRouter } from "./modules/diplomacy/router";
-import { governmentRouter } from "./modules/government/router";
-import { narrativeRouter } from "./modules/narrative/router";
-import { notificationsRouter } from "./modules/notifications/router";
-import { progressionRouter } from "./modules/progression/router";
-import { readinessRouter } from "./modules/readiness/router";
-import { strategyRouter } from "./modules/strategy/router";
-import { turnRouter } from "./modules/turn/router";
-import { unitRouter } from "./modules/unit/router";
-import { worldRouter } from "./modules/world/router";
+import { attentionCurrentProcedure } from "./modules/attention/procedures/current";
+import { cityPopulationPlaceRequestProcedure } from "./modules/city/procedures/population-place-request";
+import { cityProductionChoiceRequestProcedure } from "./modules/city/procedures/production-choice-request";
+import {
+  cityTownFocusChangeRequestProcedure,
+  cityTownFocusReviewRequestProcedure,
+} from "./modules/city/procedures/town-focus-request";
+import { firstMeetResponseRequestProcedure } from "./modules/diplomacy/procedures/first-meet-response-request";
+import { diplomacyResponseRequestProcedure } from "./modules/diplomacy/procedures/response-request";
+import {
+  governmentCelebrationChoiceRequestProcedure,
+  governmentChoiceRequestProcedure,
+} from "./modules/government/procedures/choice-request";
+import { narrativeChoiceRequestProcedure } from "./modules/narrative/procedures/choice-request";
+import { notificationsDismissRequestProcedure } from "./modules/notifications/procedures/dismiss-request";
+import {
+  progressionCultureChoiceRequestProcedure,
+  progressionTechnologyChoiceRequestProcedure,
+} from "./modules/progression/procedures/choice-request";
+import {
+  progressionAttributePurchaseRequestProcedure,
+  progressionAttributeReviewRequestProcedure,
+  progressionTraditionChangeRequestProcedure,
+  progressionTraditionReviewRequestProcedure,
+} from "./modules/progression/procedures/player-choice-request";
+import {
+  progressionCultureTargetRequestProcedure,
+  progressionTechnologyTargetRequestProcedure,
+} from "./modules/progression/procedures/target-request";
+import { readinessCurrentProcedure } from "./modules/readiness/procedures/current";
+import { strategyFrontSummaryProcedure } from "./modules/strategy/procedures/front-summary";
+import { turnCompleteRequestProcedure } from "./modules/turn/procedures/complete-request";
+import {
+  unitResettleRequestProcedure,
+  unitUpgradeRequestProcedure,
+} from "./modules/unit/procedures/command-request";
+import { unitTargetActionRequestProcedure } from "./modules/unit/procedures/target-action-request";
+import { worldCurrentProcedure } from "./modules/world/procedures/current";
+import {
+  worldGridReadProcedure,
+  worldPlotReadProcedure,
+} from "./modules/world/procedures/map-reads";
 
 /**
  * The controller exposes the existing service procedures it can implement in
@@ -18,118 +48,118 @@ import { worldRouter } from "./modules/world/router";
  */
 export const Civ7ControllerOrpcRouter = {
   readiness: {
-    current: readinessRouter.current,
+    current: readinessCurrentProcedure,
   },
   attention: {
-    current: attentionRouter.current,
+    current: attentionCurrentProcedure,
   },
   strategy: {
-    frontSummary: strategyRouter.frontSummary,
+    frontSummary: strategyFrontSummaryProcedure,
   },
   world: {
-    current: worldRouter.current,
-    plot: worldRouter.plot,
-    grid: worldRouter.grid,
+    current: worldCurrentProcedure,
+    plot: worldPlotReadProcedure,
+    grid: worldGridReadProcedure,
   },
   notifications: {
     dismiss: {
-      request: notificationsRouter.dismiss.request,
+      request: notificationsDismissRequestProcedure,
     },
   },
   turn: {
     complete: {
-      request: turnRouter.complete.request,
+      request: turnCompleteRequestProcedure,
     },
   },
   city: {
     production: {
       choice: {
-        request: cityRouter.production.choice.request,
+        request: cityProductionChoiceRequestProcedure,
       },
     },
     population: {
       place: {
-        request: cityRouter.population.place.request,
+        request: cityPopulationPlaceRequestProcedure,
       },
     },
     townFocus: {
       change: {
-        request: cityRouter.townFocus.change.request,
+        request: cityTownFocusChangeRequestProcedure,
       },
       review: {
-        request: cityRouter.townFocus.review.request,
+        request: cityTownFocusReviewRequestProcedure,
       },
     },
   },
   narrative: {
     choice: {
-      request: narrativeRouter.choice.request,
+      request: narrativeChoiceRequestProcedure,
     },
   },
   diplomacy: {
     response: {
-      request: diplomacyRouter.response.request,
+      request: diplomacyResponseRequestProcedure,
     },
     firstMeet: {
       response: {
-        request: diplomacyRouter.firstMeet.response.request,
+        request: firstMeetResponseRequestProcedure,
       },
     },
   },
   government: {
     choice: {
-      request: governmentRouter.choice.request,
+      request: governmentChoiceRequestProcedure,
     },
     celebration: {
       choice: {
-        request: governmentRouter.celebration.choice.request,
+        request: governmentCelebrationChoiceRequestProcedure,
       },
     },
   },
   unit: {
     target: {
       action: {
-        request: unitRouter.target.action.request,
+        request: unitTargetActionRequestProcedure,
       },
     },
     upgrade: {
-      request: unitRouter.upgrade.request,
+      request: unitUpgradeRequestProcedure,
     },
     resettle: {
-      request: unitRouter.resettle.request,
+      request: unitResettleRequestProcedure,
     },
   },
   progression: {
     technology: {
       choice: {
-        request: progressionRouter.technology.choice.request,
+        request: progressionTechnologyChoiceRequestProcedure,
       },
       target: {
-        request: progressionRouter.technology.target.request,
+        request: progressionTechnologyTargetRequestProcedure,
       },
     },
     culture: {
       choice: {
-        request: progressionRouter.culture.choice.request,
+        request: progressionCultureChoiceRequestProcedure,
       },
       target: {
-        request: progressionRouter.culture.target.request,
+        request: progressionCultureTargetRequestProcedure,
       },
     },
     attribute: {
       purchase: {
-        request: progressionRouter.attribute.purchase.request,
+        request: progressionAttributePurchaseRequestProcedure,
       },
       review: {
-        request: progressionRouter.attribute.review.request,
+        request: progressionAttributeReviewRequestProcedure,
       },
     },
     tradition: {
       change: {
-        request: progressionRouter.tradition.change.request,
+        request: progressionTraditionChangeRequestProcedure,
       },
       review: {
-        request: progressionRouter.tradition.review.request,
+        request: progressionTraditionReviewRequestProcedure,
       },
     },
   },

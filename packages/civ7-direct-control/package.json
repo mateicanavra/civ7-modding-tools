@@ -11,6 +11,12 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./error": {
+      "types": "./dist/direct-control-error-boundary.d.ts",
+      "bun-source": "./src/direct-control-error-boundary.ts",
+      "import": "./dist/direct-control-error-boundary.js",
+      "require": "./dist/direct-control-error-boundary.cjs"
+    },
     "./game-ui/loading-states": {
       "types": "./dist/game-ui/loading-states.d.ts",
       "bun-source": "./src/game-ui/loading-states.ts",

@@ -1,4 +1,4 @@
-import { Civ7DirectControlError } from "@civ7/direct-control";
+import { isCiv7DirectControlError } from "@civ7/direct-control/error";
 import { type Static, Type } from "typebox";
 
 export const Civ7ControlOrpcCorrelationIdSchema = Type.String({
@@ -34,14 +34,9 @@ export function civ7ControlOrpcErrorCorrelationData(
  * constructor name.
  */
 export function civ7ControlOrpcFailureDetail(cause: unknown): string {
-  const directControlErrorCode = civ7DirectControlErrorCode(cause);
-  if (directControlErrorCode != null) {
-    return `direct-control/${directControlErrorCode}`;
+  if (isCiv7DirectControlError(cause)) {
+    return `direct-control/${cause.code}`;
   }
   if (cause instanceof Error) return cause.name;
   return typeof cause;
-}
-
-function civ7DirectControlErrorCode(cause: unknown): string | null {
-  return cause instanceof Civ7DirectControlError ? cause.code : null;
 }

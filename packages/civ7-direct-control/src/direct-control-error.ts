@@ -1,36 +1,14 @@
-export type Civ7DirectControlErrorCode =
-  | "invalid-port"
-  | "connection-timeout"
-  | "connection-failed"
-  | "response-timeout"
-  | "socket-closed"
-  | "state-not-found"
-  | "no-hosts"
-  | "all-hosts-unavailable"
-  | "command-failed"
-  | "log-timeout"
-  | "setup-api-unavailable"
-  | "setup-phase-invalid"
-  | "setup-phase-refused"
-  | "setup-map-row-missing"
-  | "setup-mod-reconciliation-failed"
-  | "setup-parameter-invalid"
-  | "setup-apply-timeout"
-  | "setup-readback-mismatch"
-  | "setup-start-timeout"
-  | "setup-host-rejected"
-  | "setup-seed-mismatch"
-  | "setup-map-size-mismatch"
-  | "setup-config-load-failed"
-  | "setup-config-evidence-missing"
-  | "procedure-descriptor-invalid"
-  | "procedure-call-failed"
-  | "clean-frame-unverified"
-  | "window-shot-helper-unavailable"
-  | "window-shot-permission-required"
-  | "window-shot-window-not-found"
-  | "window-shot-failed";
+import type { Civ7DirectControlErrorCode } from "./direct-control-error-boundary.js";
 
+export type { Civ7DirectControlErrorCode } from "./direct-control-error-boundary.js";
+
+/**
+ * Carries a bounded machine-readable failure code across the direct-control boundary.
+ *
+ * The public code is safe for higher layers to classify. `message`, `cause`, and
+ * `details` can contain endpoint or command evidence and must not cross a public
+ * service boundary without an explicit projection.
+ */
 export class Civ7DirectControlError extends Error {
   readonly code: Civ7DirectControlErrorCode;
   readonly details?: unknown;

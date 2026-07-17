@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
-var __export = (target, all5) => {
-  for (var name in all5)
-    __defProp(target, name, { get: all5[name], enumerable: true });
+var __export = (target, all6) => {
+  for (var name in all6)
+    __defProp(target, name, { get: all6[name], enumerable: true });
 };
 
 // ../../node_modules/.bun/effect-orpc@0.5.0+6355bfecbf1304d3/node_modules/effect-orpc/dist/chunk-IJP6L2XR.js
@@ -1187,14 +1187,14 @@ function fallbackConfig(key, value4) {
 }
 function decorateMiddleware(middleware) {
   const decorated = ((...args2) => middleware(...args2));
-  decorated.mapInput = (mapInput3) => {
+  decorated.mapInput = (mapInput4) => {
     const mapped = decorateMiddleware(
-      (options, input2, ...rest) => middleware(options, mapInput3(input2), ...rest)
+      (options, input2, ...rest) => middleware(options, mapInput4(input2), ...rest)
     );
     return mapped;
   };
-  decorated.concat = (concatMiddleware, mapInput3) => {
-    const mapped = mapInput3 ? decorateMiddleware(concatMiddleware).mapInput(mapInput3) : concatMiddleware;
+  decorated.concat = (concatMiddleware, mapInput4) => {
+    const mapped = mapInput4 ? decorateMiddleware(concatMiddleware).mapInput(mapInput4) : concatMiddleware;
     const concatted = decorateMiddleware((options, input2, output2, ...rest) => {
       const merged = middleware({
         ...options,
@@ -1265,8 +1265,8 @@ var DecoratedProcedure = class _DecoratedProcedure extends Procedure {
       route: mergeRoute(this["~orpc"].route, route)
     });
   }
-  use(middleware, mapInput3) {
-    const mapped = mapInput3 ? decorateMiddleware(middleware).mapInput(mapInput3) : middleware;
+  use(middleware, mapInput4) {
+    const mapped = mapInput4 ? decorateMiddleware(middleware).mapInput(mapInput4) : middleware;
     return new _DecoratedProcedure({
       ...this["~orpc"],
       middlewares: addMiddleware(this["~orpc"].middlewares, mapped)
@@ -1398,8 +1398,8 @@ var Builder = class _Builder {
       errorMap: mergeErrorMap(this["~orpc"].errorMap, errors)
     });
   }
-  use(middleware, mapInput3) {
-    const mapped = mapInput3 ? decorateMiddleware(middleware).mapInput(mapInput3) : middleware;
+  use(middleware, mapInput4) {
+    const mapped = mapInput4 ? decorateMiddleware(middleware).mapInput(mapInput4) : middleware;
     return new _Builder({
       ...this["~orpc"],
       middlewares: addMiddleware(this["~orpc"].middlewares, mapped)
@@ -1780,23 +1780,150 @@ var globalValue = (id, compute) => {
 };
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/Predicate.js
+var Predicate_exports = {};
+__export(Predicate_exports, {
+  all: () => all,
+  and: () => and,
+  compose: () => compose,
+  eqv: () => eqv,
+  every: () => every,
+  hasProperty: () => hasProperty,
+  implies: () => implies,
+  isBigInt: () => isBigInt,
+  isBoolean: () => isBoolean,
+  isDate: () => isDate,
+  isError: () => isError,
+  isFunction: () => isFunction2,
+  isIterable: () => isIterable,
+  isMap: () => isMap,
+  isNever: () => isNever,
+  isNotNull: () => isNotNull,
+  isNotNullable: () => isNotNullable,
+  isNotUndefined: () => isNotUndefined,
+  isNull: () => isNull,
+  isNullable: () => isNullable,
+  isNumber: () => isNumber,
+  isObject: () => isObject2,
+  isPromise: () => isPromise,
+  isPromiseLike: () => isPromiseLike,
+  isPropertyKey: () => isPropertyKey,
+  isReadonlyRecord: () => isReadonlyRecord,
+  isRecord: () => isRecord,
+  isRecordOrArray: () => isRecordOrArray,
+  isRegExp: () => isRegExp,
+  isSet: () => isSet,
+  isString: () => isString,
+  isSymbol: () => isSymbol,
+  isTagged: () => isTagged,
+  isTruthy: () => isTruthy,
+  isTupleOf: () => isTupleOf,
+  isTupleOfAtLeast: () => isTupleOfAtLeast,
+  isUint8Array: () => isUint8Array,
+  isUndefined: () => isUndefined,
+  isUnknown: () => isUnknown,
+  mapInput: () => mapInput2,
+  nand: () => nand,
+  nor: () => nor,
+  not: () => not,
+  or: () => or,
+  product: () => product,
+  productMany: () => productMany,
+  some: () => some,
+  struct: () => struct,
+  tuple: () => tuple,
+  xor: () => xor
+});
+var mapInput2 = /* @__PURE__ */ dual(2, (self, f) => (b) => self(f(b)));
+var isTupleOf = /* @__PURE__ */ dual(2, (self, n) => self.length === n);
+var isTupleOfAtLeast = /* @__PURE__ */ dual(2, (self, n) => self.length >= n);
+var isTruthy = (input2) => !!input2;
+var isSet = (input2) => input2 instanceof Set;
+var isMap = (input2) => input2 instanceof Map;
 var isString = (input2) => typeof input2 === "string";
 var isNumber = (input2) => typeof input2 === "number";
 var isBoolean = (input2) => typeof input2 === "boolean";
 var isBigInt = (input2) => typeof input2 === "bigint";
 var isSymbol = (input2) => typeof input2 === "symbol";
+var isPropertyKey = (u) => isString(u) || isNumber(u) || isSymbol(u);
 var isFunction2 = isFunction;
 var isUndefined = (input2) => input2 === void 0;
+var isNotUndefined = (input2) => input2 !== void 0;
 var isNull = (input2) => input2 === null;
+var isNotNull = (input2) => input2 !== null;
+var isNever = (_) => false;
+var isUnknown = (_) => true;
 var isRecordOrArray = (input2) => typeof input2 === "object" && input2 !== null;
 var isObject2 = (input2) => isRecordOrArray(input2) || isFunction2(input2);
 var hasProperty = /* @__PURE__ */ dual(2, (self, property) => isObject2(self) && property in self);
 var isTagged = /* @__PURE__ */ dual(2, (self, tag3) => hasProperty(self, "_tag") && self["_tag"] === tag3);
 var isNullable = (input2) => input2 === null || input2 === void 0;
+var isNotNullable = (input2) => input2 !== null && input2 !== void 0;
+var isError = (input2) => input2 instanceof Error;
+var isUint8Array = (input2) => input2 instanceof Uint8Array;
 var isDate = (input2) => input2 instanceof Date;
 var isIterable = (input2) => typeof input2 === "string" || hasProperty(input2, Symbol.iterator);
 var isRecord = (input2) => isRecordOrArray(input2) && !Array.isArray(input2);
+var isReadonlyRecord = isRecord;
+var isPromise = (input2) => hasProperty(input2, "then") && "catch" in input2 && isFunction2(input2.then) && isFunction2(input2.catch);
 var isPromiseLike = (input2) => hasProperty(input2, "then") && isFunction2(input2.then);
+var isRegExp = (input2) => input2 instanceof RegExp;
+var compose = /* @__PURE__ */ dual(2, (ab, bc) => (a) => ab(a) && bc(a));
+var product = (self, that) => ([a, b]) => self(a) && that(b);
+var all = (collection) => {
+  return (as8) => {
+    let collectionIndex = 0;
+    for (const p of collection) {
+      if (collectionIndex >= as8.length) {
+        break;
+      }
+      if (p(as8[collectionIndex]) === false) {
+        return false;
+      }
+      collectionIndex++;
+    }
+    return true;
+  };
+};
+var productMany = (self, collection) => {
+  const rest = all(collection);
+  return ([head5, ...tail]) => self(head5) === false ? false : rest(tail);
+};
+var tuple = (...elements) => all(elements);
+var struct = (fields) => {
+  const keys5 = Object.keys(fields);
+  return (a) => {
+    for (const key of keys5) {
+      if (!fields[key](a[key])) {
+        return false;
+      }
+    }
+    return true;
+  };
+};
+var not = (self) => (a) => !self(a);
+var or = /* @__PURE__ */ dual(2, (self, that) => (a) => self(a) || that(a));
+var and = /* @__PURE__ */ dual(2, (self, that) => (a) => self(a) && that(a));
+var xor = /* @__PURE__ */ dual(2, (self, that) => (a) => self(a) !== that(a));
+var eqv = /* @__PURE__ */ dual(2, (self, that) => (a) => self(a) === that(a));
+var implies = /* @__PURE__ */ dual(2, (antecedent, consequent) => (a) => antecedent(a) ? consequent(a) : true);
+var nor = /* @__PURE__ */ dual(2, (self, that) => (a) => !(self(a) || that(a)));
+var nand = /* @__PURE__ */ dual(2, (self, that) => (a) => !(self(a) && that(a)));
+var every = (collection) => (a) => {
+  for (const p of collection) {
+    if (!p(a)) {
+      return false;
+    }
+  }
+  return true;
+};
+var some = (collection) => (a) => {
+  for (const p of collection) {
+    if (p(a)) {
+      return true;
+    }
+  }
+  return false;
+};
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/internal/errors.js
 var getBugErrorMessage = (message) => `BUG: ${message} - please report an issue at https://github.com/Effect-TS/effect/issues`;
@@ -2496,7 +2623,7 @@ var isOption = (input2) => hasProperty(input2, TypeId);
 var isNone = (fa) => fa._tag === "None";
 var isSome = (fa) => fa._tag === "Some";
 var none = /* @__PURE__ */ Object.create(NoneProto);
-var some = (value4) => {
+var some2 = (value4) => {
   const a = Object.create(SomeProto);
   a.value = value4;
   return a;
@@ -2563,8 +2690,8 @@ var right = (right3) => {
   a.right = right3;
   return a;
 };
-var getLeft = (self) => isRight(self) ? none : some(self.left);
-var getRight = (self) => isLeft(self) ? none : some(self.right);
+var getLeft = (self) => isRight(self) ? none : some2(self.left);
+var getRight = (self) => isLeft(self) ? none : some2(self.right);
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/Either.js
 var right2 = right;
@@ -2589,7 +2716,7 @@ var Option_exports = {};
 __export(Option_exports, {
   Do: () => Do,
   TypeId: () => TypeId3,
-  all: () => all,
+  all: () => all2,
   andThen: () => andThen,
   ap: () => ap,
   as: () => as,
@@ -2634,10 +2761,10 @@ __export(Option_exports, {
   orElseEither: () => orElseEither,
   orElseSome: () => orElseSome,
   partitionMap: () => partitionMap,
-  product: () => product,
-  productMany: () => productMany,
+  product: () => product2,
+  productMany: () => productMany2,
   reduceCompact: () => reduceCompact,
-  some: () => some2,
+  some: () => some3,
   tap: () => tap,
   toArray: () => toArray2,
   toRefinement: () => toRefinement,
@@ -2650,13 +2777,13 @@ __export(Option_exports, {
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/Order.js
 var make2 = (compare) => (self, that) => self === that ? 0 : compare(self, that);
 var number2 = /* @__PURE__ */ make2((self, that) => self < that ? -1 : 1);
-var mapInput2 = /* @__PURE__ */ dual(2, (self, f) => make2((b1, b2) => self(f(b1), f(b2))));
+var mapInput3 = /* @__PURE__ */ dual(2, (self, f) => make2((b1, b2) => self(f(b1), f(b2))));
 var greaterThan = (O) => dual(2, (self, that) => O(self, that) === 1);
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/Option.js
 var TypeId3 = /* @__PURE__ */ Symbol.for("effect/Option");
 var none2 = () => none;
-var some2 = some;
+var some3 = some2;
 var isOption2 = isOption;
 var isNone2 = isNone;
 var isSome2 = isSome;
@@ -2667,7 +2794,7 @@ var match2 = /* @__PURE__ */ dual(2, (self, {
 var toRefinement = (f) => (a) => isSome2(f(a));
 var fromIterable = (collection) => {
   for (const a of collection) {
-    return some2(a);
+    return some3(a);
   }
   return none2();
 };
@@ -2675,7 +2802,7 @@ var getRight2 = getRight;
 var getLeft2 = getLeft;
 var getOrElse = /* @__PURE__ */ dual(2, (self, onNone) => isNone2(self) ? onNone() : self.value);
 var orElse = /* @__PURE__ */ dual(2, (self, that) => isNone2(self) ? that() : self);
-var orElseSome = /* @__PURE__ */ dual(2, (self, onNone) => isNone2(self) ? some2(onNone()) : self);
+var orElseSome = /* @__PURE__ */ dual(2, (self, onNone) => isNone2(self) ? some3(onNone()) : self);
 var orElseEither = /* @__PURE__ */ dual(2, (self, that) => isNone2(self) ? map(that(), right) : map(self, left));
 var firstSomeOf = (collection) => {
   let out = none2();
@@ -2686,13 +2813,13 @@ var firstSomeOf = (collection) => {
   }
   return out;
 };
-var fromNullable = (nullableValue) => nullableValue == null ? none2() : some2(nullableValue);
+var fromNullable = (nullableValue) => nullableValue == null ? none2() : some3(nullableValue);
 var liftNullable = (f) => (...a) => fromNullable(f(...a));
 var getOrNull = /* @__PURE__ */ getOrElse(constNull);
 var getOrUndefined = /* @__PURE__ */ getOrElse(constUndefined);
 var liftThrowable = (f) => (...a) => {
   try {
-    return some2(f(...a));
+    return some3(f(...a));
   } catch {
     return none2();
   }
@@ -2704,14 +2831,14 @@ var getOrThrowWith = /* @__PURE__ */ dual(2, (self, onNone) => {
   throw onNone();
 });
 var getOrThrow = /* @__PURE__ */ getOrThrowWith(() => new Error("getOrThrow called on a None"));
-var map = /* @__PURE__ */ dual(2, (self, f) => isNone2(self) ? none2() : some2(f(self.value)));
+var map = /* @__PURE__ */ dual(2, (self, f) => isNone2(self) ? none2() : some3(f(self.value)));
 var as = /* @__PURE__ */ dual(2, (self, b) => map(self, () => b));
 var asVoid = /* @__PURE__ */ as(void 0);
-var void_ = /* @__PURE__ */ some2(void 0);
+var void_ = /* @__PURE__ */ some3(void 0);
 var flatMap = /* @__PURE__ */ dual(2, (self, f) => isNone2(self) ? none2() : f(self.value));
 var andThen = /* @__PURE__ */ dual(2, (self, f) => flatMap(self, (a) => {
   const b = isFunction(f) ? f(a) : f;
-  return isOption2(b) ? b : some2(b);
+  return isOption2(b) ? b : some3(b);
 }));
 var flatMapNullable = /* @__PURE__ */ dual(2, (self, f) => isNone2(self) ? none2() : fromNullable(f(self.value)));
 var flatten = /* @__PURE__ */ flatMap(identity);
@@ -2719,8 +2846,8 @@ var zipRight = /* @__PURE__ */ dual(2, (self, that) => flatMap(self, () => that)
 var zipLeft = /* @__PURE__ */ dual(2, (self, that) => tap(self, () => that));
 var composeK = /* @__PURE__ */ dual(2, (afb, bfc) => (a) => flatMap(afb(a), bfc));
 var tap = /* @__PURE__ */ dual(2, (self, f) => flatMap(self, (a) => map(f(a), () => a)));
-var product = (self, that) => isSome2(self) && isSome2(that) ? some2([self.value, that.value]) : none2();
-var productMany = (self, collection) => {
+var product2 = (self, that) => isSome2(self) && isSome2(that) ? some3([self.value, that.value]) : none2();
+var productMany2 = (self, collection) => {
   if (isNone2(self)) {
     return none2();
   }
@@ -2731,9 +2858,9 @@ var productMany = (self, collection) => {
     }
     out.push(o.value);
   }
-  return some2(out);
+  return some3(out);
 };
-var all = (input2) => {
+var all2 = (input2) => {
   if (Symbol.iterator in input2) {
     const out2 = [];
     for (const o of input2) {
@@ -2742,7 +2869,7 @@ var all = (input2) => {
       }
       out2.push(o.value);
     }
-    return some2(out2);
+    return some3(out2);
   }
   const out = {};
   for (const key of Object.keys(input2)) {
@@ -2752,9 +2879,9 @@ var all = (input2) => {
     }
     out[key] = o.value;
   }
-  return some2(out);
+  return some3(out);
 };
-var zipWith = /* @__PURE__ */ dual(3, (self, that, f) => map(product(self, that), ([a, b]) => f(a, b)));
+var zipWith = /* @__PURE__ */ dual(3, (self, that, f) => map(product2(self, that), ([a, b]) => f(a, b)));
 var ap = /* @__PURE__ */ dual(2, (self, that) => zipWith(self, that, (f, a) => f(a)));
 var reduceCompact = /* @__PURE__ */ dual(3, (self, b, f) => {
   let out = b;
@@ -2771,14 +2898,14 @@ var partitionMap = /* @__PURE__ */ dual(2, (self, f) => {
     return [none2(), none2()];
   }
   const e = f(self.value);
-  return isLeft(e) ? [some2(e.left), none2()] : [none2(), some2(e.right)];
+  return isLeft(e) ? [some3(e.left), none2()] : [none2(), some3(e.right)];
 });
 var filterMap = flatMap;
-var filter = /* @__PURE__ */ dual(2, (self, predicate) => filterMap(self, (b) => predicate(b) ? some(b) : none));
+var filter = /* @__PURE__ */ dual(2, (self, predicate) => filterMap(self, (b) => predicate(b) ? some2(b) : none));
 var getEquivalence = (isEquivalent) => make((x, y) => isNone2(x) ? isNone2(y) : isNone2(y) ? false : isEquivalent(x.value, y.value));
 var getOrder = (O) => make2((self, that) => isSome2(self) ? isSome2(that) ? O(self.value, that.value) : 1 : -1);
 var lift2 = (f) => dual(2, (self, that) => zipWith(self, that, f));
-var liftPredicate = /* @__PURE__ */ dual(2, (b, predicate) => predicate(b) ? some2(b) : none2());
+var liftPredicate = /* @__PURE__ */ dual(2, (b, predicate) => predicate(b) ? some3(b) : none2());
 var containsWith = (isEquivalent) => dual(2, (self, a) => isNone2(self) ? false : isEquivalent(self.value, a));
 var _equivalence = /* @__PURE__ */ equivalence();
 var contains = /* @__PURE__ */ containsWith(_equivalence);
@@ -2786,7 +2913,7 @@ var exists = /* @__PURE__ */ dual(2, (self, refinement) => isNone2(self) ? false
 var bindTo2 = /* @__PURE__ */ bindTo(map);
 var let_2 = /* @__PURE__ */ let_(map);
 var bind2 = /* @__PURE__ */ bind(map, flatMap);
-var Do = /* @__PURE__ */ some2({});
+var Do = /* @__PURE__ */ some3({});
 var adapter2 = /* @__PURE__ */ adapter();
 var gen = (...args2) => {
   const f = args2.length === 1 ? args2[0] : args2[1].bind(args2[0]);
@@ -2799,7 +2926,7 @@ var gen = (...args2) => {
     }
     state2 = iterator.next(current.value);
   }
-  return some2(state2.value);
+  return some3(state2.value);
 };
 var mergeWith = (f) => (o1, o2) => {
   if (isNone2(o1)) {
@@ -2807,7 +2934,7 @@ var mergeWith = (f) => (o1, o2) => {
   } else if (isNone2(o2)) {
     return o1;
   }
-  return some2(f(o1.value, o2.value));
+  return some3(f(o1.value, o2.value));
 };
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/Tuple.js
@@ -2836,7 +2963,7 @@ var isOutOfBounds = (i, as8) => i < 0 || i >= as8.length;
 var clamp = (i, as8) => Math.floor(Math.min(Math.max(0, i), as8.length));
 var get = /* @__PURE__ */ dual(2, (self, index3) => {
   const i = Math.floor(index3);
-  return isOutOfBounds(i, self) ? none2() : some2(self[i]);
+  return isOutOfBounds(i, self) ? none2() : some3(self[i]);
 });
 var unsafeGet = /* @__PURE__ */ dual(2, (self, index3) => {
   const i = Math.floor(index3);
@@ -2847,7 +2974,7 @@ var unsafeGet = /* @__PURE__ */ dual(2, (self, index3) => {
 });
 var head = /* @__PURE__ */ get(0);
 var headNonEmpty = /* @__PURE__ */ unsafeGet(0);
-var last = (self) => isNonEmptyReadonlyArray(self) ? some2(lastNonEmpty(self)) : none2();
+var last = (self) => isNonEmptyReadonlyArray(self) ? some3(lastNonEmpty(self)) : none2();
 var lastNonEmpty = (self) => self[self.length - 1];
 var tailNonEmpty = (self) => self.slice(1);
 var spanIndex = (self, predicate) => {
@@ -2996,7 +3123,7 @@ var Order = number2;
 var escape = (string3) => string3.replace(/[/\\^$*+?.()|[\]{}]/g, "\\$&");
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/Boolean.js
-var not = (self) => !self;
+var not2 = (self) => !self;
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/internal/context.js
 var TagTypeId = /* @__PURE__ */ Symbol.for("effect/Context/Tag");
@@ -3159,9 +3286,9 @@ var unsafeGet2 = /* @__PURE__ */ dual(2, (self, tag3) => {
 var get2 = unsafeGet2;
 var getOption = /* @__PURE__ */ dual(2, (self, tag3) => {
   if (!self.unsafeMap.has(tag3.key)) {
-    return isReference(tag3) ? some(getDefaultValue(tag3)) : none;
+    return isReference(tag3) ? some2(getDefaultValue(tag3)) : none;
   }
-  return some(self.unsafeMap.get(tag3.key));
+  return some2(self.unsafeMap.get(tag3.key));
 });
 var merge2 = /* @__PURE__ */ dual(2, (self, that) => {
   const map16 = new Map(self.unsafeMap);
@@ -3370,7 +3497,7 @@ var reverseChunk = (self) => {
   }
 };
 var reverse2 = reverseChunk;
-var get4 = /* @__PURE__ */ dual(2, (self, index3) => index3 < 0 || index3 >= self.length ? none2() : some2(unsafeGet4(self, index3)));
+var get4 = /* @__PURE__ */ dual(2, (self, index3) => index3 < 0 || index3 >= self.length ? none2() : some3(unsafeGet4(self, index3)));
 var unsafeFromArray = (self) => self.length === 0 ? empty4() : self.length === 1 ? of2(self[0]) : makeChunk({
   _tag: "IArray",
   array: self
@@ -4209,7 +4336,7 @@ var visitLazy = (node, f, cont = void 0) => {
   switch (node._tag) {
     case "LeafNode": {
       if (isSome2(node.value)) {
-        return some2({
+        return some3({
           value: f(node.key, node.value.value),
           cont
         });
@@ -4292,7 +4419,7 @@ var getHash = /* @__PURE__ */ dual(3, (self, key, hash2) => {
   }
 });
 var has = /* @__PURE__ */ dual(2, (self, key) => isSome2(getHash(self, key, hash(key))));
-var set = /* @__PURE__ */ dual(3, (self, key, value4) => modifyAt(self, key, () => some2(value4)));
+var set = /* @__PURE__ */ dual(3, (self, key, value4) => modifyAt(self, key, () => some3(value4)));
 var setTree = /* @__PURE__ */ dual(3, (self, newRoot, newSize) => {
   if (self._editable) {
     ;
@@ -4825,7 +4952,7 @@ var Structural = /* @__PURE__ */ (function() {
   Structural2.prototype = StructuralPrototype;
   return Structural2;
 })();
-var struct = (as8) => Object.assign(Object.create(StructuralPrototype), as8);
+var struct2 = (as8) => Object.assign(Object.create(StructuralPrototype), as8);
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/internal/differ/contextPatch.js
 var ContextPatchTypeId = /* @__PURE__ */ Symbol.for("effect/DifferContextPatch");
@@ -5551,12 +5678,12 @@ var isEmpty5 = (self) => {
   return reduce7(self, true, (acc, cause3) => {
     switch (cause3._tag) {
       case OP_EMPTY: {
-        return some2(acc);
+        return some3(acc);
       }
       case OP_DIE:
       case OP_FAIL:
       case OP_INTERRUPT: {
-        return some2(false);
+        return some3(false);
       }
       default: {
         return none2();
@@ -5568,10 +5695,10 @@ var isFailure = (self) => isSome2(failureOption(self));
 var isDie = (self) => isSome2(dieOption(self));
 var isInterrupted = (self) => isSome2(interruptOption(self));
 var isInterruptedOnly = (self) => reduceWithContext(void 0, IsInterruptedOnlyCauseReducer)(self);
-var failures = (self) => reverse2(reduce7(self, empty4(), (list, cause3) => cause3._tag === OP_FAIL ? some2(pipe(list, prepend2(cause3.error))) : none2()));
-var defects = (self) => reverse2(reduce7(self, empty4(), (list, cause3) => cause3._tag === OP_DIE ? some2(pipe(list, prepend2(cause3.defect))) : none2()));
-var interruptors = (self) => reduce7(self, empty7(), (set6, cause3) => cause3._tag === OP_INTERRUPT ? some2(pipe(set6, add4(cause3.fiberId))) : none2());
-var failureOption = (self) => find(self, (cause3) => cause3._tag === OP_FAIL ? some2(cause3.error) : none2());
+var failures = (self) => reverse2(reduce7(self, empty4(), (list, cause3) => cause3._tag === OP_FAIL ? some3(pipe(list, prepend2(cause3.error))) : none2()));
+var defects = (self) => reverse2(reduce7(self, empty4(), (list, cause3) => cause3._tag === OP_DIE ? some3(pipe(list, prepend2(cause3.defect))) : none2()));
+var interruptors = (self) => reduce7(self, empty7(), (set6, cause3) => cause3._tag === OP_INTERRUPT ? some3(pipe(set6, add4(cause3.fiberId))) : none2());
+var failureOption = (self) => find(self, (cause3) => cause3._tag === OP_FAIL ? some3(cause3.error) : none2());
 var failureOrCause = (self) => {
   const option5 = failureOption(self);
   switch (option5._tag) {
@@ -5583,28 +5710,28 @@ var failureOrCause = (self) => {
     }
   }
 };
-var dieOption = (self) => find(self, (cause3) => cause3._tag === OP_DIE ? some2(cause3.defect) : none2());
+var dieOption = (self) => find(self, (cause3) => cause3._tag === OP_DIE ? some3(cause3.defect) : none2());
 var flipCauseOption = (self) => match4(self, {
-  onEmpty: some2(empty16),
+  onEmpty: some3(empty16),
   onFail: map(fail),
-  onDie: (defect) => some2(die(defect)),
-  onInterrupt: (fiberId3) => some2(interrupt(fiberId3)),
+  onDie: (defect) => some3(die(defect)),
+  onInterrupt: (fiberId3) => some3(interrupt(fiberId3)),
   onSequential: mergeWith(sequential2),
   onParallel: mergeWith(parallel)
 });
-var interruptOption = (self) => find(self, (cause3) => cause3._tag === OP_INTERRUPT ? some2(cause3.fiberId) : none2());
+var interruptOption = (self) => find(self, (cause3) => cause3._tag === OP_INTERRUPT ? some3(cause3.fiberId) : none2());
 var keepDefects = (self) => match4(self, {
   onEmpty: none2(),
   onFail: () => none2(),
-  onDie: (defect) => some2(die(defect)),
+  onDie: (defect) => some3(die(defect)),
   onInterrupt: () => none2(),
   onSequential: mergeWith(sequential2),
   onParallel: mergeWith(parallel)
 });
 var keepDefectsAndElectFailures = (self) => match4(self, {
   onEmpty: none2(),
-  onFail: (failure) => some2(die(failure)),
-  onDie: (defect) => some2(die(defect)),
+  onFail: (failure) => some3(die(failure)),
+  onDie: (defect) => some3(die(defect)),
   onInterrupt: () => none2(),
   onSequential: mergeWith(sequential2),
   onParallel: mergeWith(parallel)
@@ -5634,13 +5761,13 @@ var electFailures = (self) => match4(self, {
   onParallel: parallel
 });
 var stripSomeDefects = /* @__PURE__ */ dual(2, (self, pf) => match4(self, {
-  onEmpty: some2(empty16),
-  onFail: (error) => some2(fail(error)),
+  onEmpty: some3(empty16),
+  onFail: (error) => some3(fail(error)),
   onDie: (defect) => {
     const option5 = pf(defect);
-    return isSome2(option5) ? none2() : some2(die(defect));
+    return isSome2(option5) ? none2() : some3(die(defect));
   },
-  onInterrupt: (fiberId3) => some2(interrupt(fiberId3)),
+  onInterrupt: (fiberId3) => some3(interrupt(fiberId3)),
   onSequential: mergeWith(sequential2),
   onParallel: mergeWith(parallel)
 }));
@@ -5661,7 +5788,7 @@ var contains3 = /* @__PURE__ */ dual(2, (self, that) => {
     return true;
   }
   return reduce7(self, false, (accumulator, cause3) => {
-    return some2(accumulator || causeEquals(cause3, that));
+    return some3(accumulator || causeEquals(cause3, that));
   });
 });
 var causeEquals = (left3, right3) => {
@@ -5670,11 +5797,11 @@ var causeEquals = (left3, right3) => {
   while (isNonEmpty(leftStack) && isNonEmpty(rightStack)) {
     const [leftParallel, leftSequential] = pipe(headNonEmpty2(leftStack), reduce7([empty7(), empty4()], ([parallel5, sequential6], cause3) => {
       const [par2, seq2] = evaluateCause(cause3);
-      return some2([pipe(parallel5, union3(par2)), pipe(sequential6, appendAll2(seq2))]);
+      return some3([pipe(parallel5, union3(par2)), pipe(sequential6, appendAll2(seq2))]);
     }));
     const [rightParallel, rightSequential] = pipe(headNonEmpty2(rightStack), reduce7([empty7(), empty4()], ([parallel5, sequential6], cause3) => {
       const [par2, seq2] = evaluateCause(cause3);
-      return some2([pipe(parallel5, union3(par2)), pipe(sequential6, appendAll2(seq2))]);
+      return some3([pipe(parallel5, union3(par2)), pipe(sequential6, appendAll2(seq2))]);
     }));
     if (!equals(leftParallel, rightParallel)) {
       return false;
@@ -6637,7 +6764,7 @@ var tap2 = /* @__PURE__ */ dual((args2) => args2.length === 3 || args2.length ==
 var transplant = (f) => withFiberRuntime((state2) => {
   const scopeOverride = state2.getFiberRef(currentForkScopeOverride);
   const scope5 = pipe(scopeOverride, getOrElse(() => state2.scope()));
-  return f(fiberRefLocally(currentForkScopeOverride, some2(scope5)));
+  return f(fiberRefLocally(currentForkScopeOverride, some3(scope5)));
 });
 var attemptOrElse = /* @__PURE__ */ dual(3, (self, that, onSuccess) => matchCauseEffect(self, {
   onFailure: (cause3) => {
@@ -6670,7 +6797,7 @@ var updateRuntimeFlags = (patch9) => {
 };
 var whenEffect = /* @__PURE__ */ dual(2, (self, condition) => flatMap7(condition, (b) => {
   if (b) {
-    return pipe(self, map8(some2));
+    return pipe(self, map8(some3));
   }
   return succeed(none2());
 }));
@@ -6901,8 +7028,8 @@ var withSchedulingPriority = /* @__PURE__ */ dual(2, (self, scheduler) => fiberR
 var withMaxOpsBeforeYield = /* @__PURE__ */ dual(2, (self, scheduler) => fiberRefLocally(self, currentMaxOpsBeforeYield, scheduler));
 var currentConcurrency = /* @__PURE__ */ globalValue(/* @__PURE__ */ Symbol.for("effect/FiberRef/currentConcurrency"), () => fiberRefUnsafeMake("unbounded"));
 var currentRequestBatching = /* @__PURE__ */ globalValue(/* @__PURE__ */ Symbol.for("effect/FiberRef/currentRequestBatching"), () => fiberRefUnsafeMake(true));
-var currentUnhandledErrorLogLevel = /* @__PURE__ */ globalValue(/* @__PURE__ */ Symbol.for("effect/FiberRef/currentUnhandledErrorLogLevel"), () => fiberRefUnsafeMake(some2(logLevelDebug)));
-var currentVersionMismatchErrorLogLevel = /* @__PURE__ */ globalValue(/* @__PURE__ */ Symbol.for("effect/FiberRef/versionMismatchErrorLogLevel"), () => fiberRefUnsafeMake(some2(logLevelWarning)));
+var currentUnhandledErrorLogLevel = /* @__PURE__ */ globalValue(/* @__PURE__ */ Symbol.for("effect/FiberRef/currentUnhandledErrorLogLevel"), () => fiberRefUnsafeMake(some3(logLevelDebug)));
+var currentVersionMismatchErrorLogLevel = /* @__PURE__ */ globalValue(/* @__PURE__ */ Symbol.for("effect/FiberRef/versionMismatchErrorLogLevel"), () => fiberRefUnsafeMake(some3(logLevelWarning)));
 var withUnhandledErrorLogLevel = /* @__PURE__ */ dual(2, (self, level) => fiberRefLocally(self, currentUnhandledErrorLogLevel, level));
 var currentMetricLabels = /* @__PURE__ */ globalValue(/* @__PURE__ */ Symbol.for("effect/FiberRef/currentMetricLabels"), () => fiberRefUnsafeMakeReadonlyArray(empty()));
 var metricLabels = /* @__PURE__ */ fiberRefGet(currentMetricLabels);
@@ -7059,7 +7186,7 @@ var exitAsVoid = (self) => exitAs(self, void 0);
 var exitCauseOption = (self) => {
   switch (self._tag) {
     case OP_FAILURE:
-      return some2(self.effect_instruction_i0);
+      return some3(self.effect_instruction_i0);
     case OP_SUCCESS:
       return none2();
   }
@@ -7255,7 +7382,7 @@ var exitCollectAllInternal = (exits, combineCauses) => {
   return pipe(tailNonEmpty2(list), reduce(pipe(headNonEmpty2(list), exitMap(of2)), (accumulator, current) => pipe(accumulator, exitZipWith(current, {
     onSuccess: (list2, value4) => pipe(list2, prepend2(value4)),
     onFailure: combineCauses
-  }))), exitMap(reverse2), exitMap((chunk2) => toReadonlyArray(chunk2)), some2);
+  }))), exitMap(reverse2), exitMap((chunk2) => toReadonlyArray(chunk2)), some3);
 };
 var deferredUnsafeMake = (fiberId3) => {
   const _deferred = {
@@ -7334,7 +7461,7 @@ var filterEffectOrFail = /* @__PURE__ */ dual(2, (self, options) => filterEffect
 }));
 var currentSpanFromFiber = (fiber) => {
   const span4 = fiber.currentSpan;
-  return span4 !== void 0 && span4._tag === "Span" ? some2(span4) : none2();
+  return span4 !== void 0 && span4._tag === "Span" ? some3(span4) : none2();
 };
 var NoopSpanProto = {
   _tag: "Span",
@@ -7370,7 +7497,7 @@ var unsafeMake3 = deferredUnsafeMake;
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/Exit.js
 var Exit_exports = {};
 __export(Exit_exports, {
-  all: () => all2,
+  all: () => all3,
   as: () => as4,
   asVoid: () => asVoid3,
   causeOption: () => causeOption,
@@ -7413,7 +7540,7 @@ var isInterrupted2 = exitIsInterrupted;
 var as4 = exitAs;
 var asVoid3 = exitAsVoid;
 var causeOption = exitCauseOption;
-var all2 = exitCollectAll;
+var all3 = exitCollectAll;
 var die3 = exitDie;
 var exists2 = exitExists;
 var fail3 = exitFail;
@@ -7519,7 +7646,7 @@ var empty17 = () => {
 };
 var get8 = /* @__PURE__ */ dual(2, (self, key) => {
   if (isEqual(key) === false) {
-    return self.referential.has(key) ? some2(self.referential.get(key)) : none2();
+    return self.referential.has(key) ? some3(self.referential.get(key)) : none2();
   }
   const hash2 = key[symbol]();
   const bucket = self.buckets.get(hash2);
@@ -7536,7 +7663,7 @@ var getFromBucket = (self, bucket, key, remove8 = false) => {
         bucket.splice(i, 1);
         self.bucketsSize--;
       }
-      return some2(value4);
+      return some3(value4);
     }
   }
   return none2();
@@ -8050,7 +8177,7 @@ var fromEnv = (options) => {
   const load = (path, primitive, split = true) => {
     const pathString = makePathString(path);
     const current = getEnv();
-    const valueOpt = pathString in current ? some2(current[pathString]) : none2();
+    const valueOpt = pathString in current ? some3(current[pathString]) : none2();
     return pipe(valueOpt, mapError(() => MissingData(path, `Expected ${pathString} to exist in the process context`)), flatMap7((value4) => parsePrimitive(value4, path, primitive, seqDelim, split)));
   };
   const enumerateChildren = (path) => sync(() => {
@@ -8076,8 +8203,8 @@ var fromEnv = (options) => {
   }));
 };
 var extend = (leftDef, rightDef, left3, right3) => {
-  const leftPad = unfold(left3.length, (index3) => index3 >= right3.length ? none2() : some2([leftDef(index3), index3 + 1]));
-  const rightPad = unfold(right3.length, (index3) => index3 >= left3.length ? none2() : some2([rightDef(index3), index3 + 1]));
+  const leftPad = unfold(left3.length, (index3) => index3 >= right3.length ? none2() : some3([leftDef(index3), index3 + 1]));
+  const rightPad = unfold(right3.length, (index3) => index3 >= left3.length ? none2() : some3([rightDef(index3), index3 + 1]));
   const leftExtension = concat(left3, leftPad);
   const rightExtension = concat(right3, rightPad);
   return [leftExtension, rightExtension];
@@ -8204,13 +8331,13 @@ var parseQuotedIndex = (str) => {
   const match14 = str.match(QUOTED_INDEX_REGEX);
   if (match14 !== null) {
     const matchedIndex = match14[2];
-    return pipe(matchedIndex !== void 0 && matchedIndex.length > 0 ? some2(matchedIndex) : none2(), flatMap(parseInteger));
+    return pipe(matchedIndex !== void 0 && matchedIndex.length > 0 ? some3(matchedIndex) : none2(), flatMap(parseInteger));
   }
   return none2();
 };
 var parseInteger = (str) => {
   const parsedIndex = Number.parseInt(str);
-  return Number.isNaN(parsedIndex) ? none2() : some2(parsedIndex);
+  return Number.isNaN(parsedIndex) ? none2() : some3(parsedIndex);
 };
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/internal/defaultServices/console.js
@@ -8665,7 +8792,7 @@ var get9 = /* @__PURE__ */ dual(2, (self, fiberRef) => {
   if (!self.locals.has(fiberRef)) {
     return none2();
   }
-  return some2(headNonEmpty(self.locals.get(fiberRef))[1]);
+  return some3(headNonEmpty(self.locals.get(fiberRef))[1]);
 });
 var getOrDefault = /* @__PURE__ */ dual(2, (self, fiberRef) => pipe(get9(self, fiberRef), getOrElse(() => fiberRef.initial)));
 var updateAs = /* @__PURE__ */ dual(2, (self, {
@@ -8745,7 +8872,7 @@ var Info = logLevelInfo;
 var Debug = logLevelDebug;
 var Trace = logLevelTrace;
 var None3 = logLevelNone;
-var Order2 = /* @__PURE__ */ pipe(Order, /* @__PURE__ */ mapInput2((level) => level.ordinal));
+var Order2 = /* @__PURE__ */ pipe(Order, /* @__PURE__ */ mapInput3((level) => level.ordinal));
 var greaterThan2 = /* @__PURE__ */ greaterThan(Order2);
 var fromLiteral = (literal) => {
   switch (literal) {
@@ -8968,8 +9095,8 @@ var annotateLogs = /* @__PURE__ */ dual((args2) => isEffect(args2[0]), function(
   const args2 = arguments;
   return fiberRefLocallyWith(args2[0], currentLogAnnotations, typeof args2[1] === "string" ? set3(args2[1], args2[2]) : (annotations) => Object.entries(args2[1]).reduce((acc, [key, value4]) => set3(acc, key, value4), annotations));
 });
-var asSome = (self) => map8(self, some2);
-var asSomeError = (self) => mapError(self, some2);
+var asSome = (self) => map8(self, some3);
+var asSomeError = (self) => mapError(self, some3);
 var try_ = (arg) => {
   let evaluate2;
   let onFailure = void 0;
@@ -8994,7 +9121,7 @@ var _catch = /* @__PURE__ */ dual(3, (self, tag3, options) => catchAll(self, (e)
   return fail2(e);
 }));
 var catchAllDefect = /* @__PURE__ */ dual(2, (self, f) => catchAllCause(self, (cause3) => {
-  const option5 = find(cause3, (_) => isDieType(_) ? some2(_) : none2());
+  const option5 = find(cause3, (_) => isDieType(_) ? some3(_) : none2());
   switch (option5._tag) {
     case "None": {
       return failCause(cause3);
@@ -9019,7 +9146,7 @@ var catchSomeCause = /* @__PURE__ */ dual(2, (self, f) => matchCauseEffect(self,
   onSuccess: succeed
 }));
 var catchSomeDefect = /* @__PURE__ */ dual(2, (self, pf) => catchAllCause(self, (cause3) => {
-  const option5 = find(cause3, (_) => isDieType(_) ? some2(_) : none2());
+  const option5 = find(cause3, (_) => isDieType(_) ? some3(_) : none2());
   switch (option5._tag) {
     case "None": {
       return failCause(cause3);
@@ -9129,7 +9256,7 @@ var findFirst3 = /* @__PURE__ */ dual(2, (elements, predicate) => suspend(() => 
 }));
 var findLoop = (iterator, index3, f, value4) => flatMap7(f(value4, index3), (result) => {
   if (result) {
-    return succeed(some2(value4));
+    return succeed(some3(value4));
   }
   const next = iterator.next();
   if (!next.done) {
@@ -9149,7 +9276,7 @@ var match7 = /* @__PURE__ */ dual(2, (self, options) => matchEffect(self, {
   onFailure: (e) => succeed(options.onFailure(e)),
   onSuccess: (a) => succeed(options.onSuccess(a))
 }));
-var every4 = /* @__PURE__ */ dual(2, (elements, predicate) => suspend(() => forAllLoop(elements[Symbol.iterator](), 0, predicate)));
+var every5 = /* @__PURE__ */ dual(2, (elements, predicate) => suspend(() => forAllLoop(elements[Symbol.iterator](), 0, predicate)));
 var forAllLoop = (iterator, index3, f) => {
   const next = iterator.next();
   return next.done ? succeed(true) : flatMap7(f(next.value, index3), (b) => b ? forAllLoop(iterator, index3 + 1, f) : succeed(b));
@@ -9262,7 +9389,7 @@ var none6 = (self) => flatMap7(self, (option5) => {
 var once2 = (self) => map8(make27(true), (ref) => asVoid2(whenEffect(self, getAndSet2(ref, false))));
 var option = (self) => matchEffect(self, {
   onFailure: () => succeed(none2()),
-  onSuccess: (a) => succeed(some2(a))
+  onSuccess: (a) => succeed(some3(a))
 });
 var orElseFail = /* @__PURE__ */ dual(2, (self, evaluate2) => orElse2(self, () => failSync(evaluate2)));
 var orElseSucceed = /* @__PURE__ */ dual(2, (self, evaluate2) => orElse2(self, () => sync(evaluate2)));
@@ -9310,7 +9437,7 @@ var sandbox = (self) => matchCauseEffect(self, {
 var setFiberRefs = (fiberRefs4) => suspend(() => setAll2(fiberRefs4));
 var sleep3 = sleep2;
 var succeedNone = /* @__PURE__ */ succeed(/* @__PURE__ */ none2());
-var succeedSome = (value4) => succeed(some2(value4));
+var succeedSome = (value4) => succeed(some3(value4));
 var summarized = /* @__PURE__ */ dual(3, (self, summary5, f) => flatMap7(summary5, (start3) => flatMap7(self, (value4) => map8(summary5, (end3) => [f(start3, end3), value4]))));
 var tagMetrics = /* @__PURE__ */ dual((args2) => isEffect(args2[0]), function() {
   return labelMetrics(arguments[0], typeof arguments[1] === "string" ? [make28(arguments[1], arguments[2])] : Object.entries(arguments[1]).map(([k, v]) => make28(k, v)));
@@ -9443,9 +9570,9 @@ var updateFiberRefs = (f) => withFiberRuntime((state2) => {
   return void_2;
 });
 var updateService = /* @__PURE__ */ dual(3, (self, tag3, f) => mapInputContext(self, (context5) => add2(context5, tag3, f(unsafeGet3(context5, tag3)))));
-var when = /* @__PURE__ */ dual(2, (self, condition) => suspend(() => condition() ? map8(self, some2) : succeed(none2())));
-var whenFiberRef = /* @__PURE__ */ dual(3, (self, fiberRef, predicate) => flatMap7(fiberRefGet(fiberRef), (s) => predicate(s) ? map8(self, (a) => [s, some2(a)]) : succeed([s, none2()])));
-var whenRef = /* @__PURE__ */ dual(3, (self, ref, predicate) => flatMap7(get12(ref), (s) => predicate(s) ? map8(self, (a) => [s, some2(a)]) : succeed([s, none2()])));
+var when = /* @__PURE__ */ dual(2, (self, condition) => suspend(() => condition() ? map8(self, some3) : succeed(none2())));
+var whenFiberRef = /* @__PURE__ */ dual(3, (self, fiberRef, predicate) => flatMap7(fiberRefGet(fiberRef), (s) => predicate(s) ? map8(self, (a) => [s, some3(a)]) : succeed([s, none2()])));
+var whenRef = /* @__PURE__ */ dual(3, (self, ref, predicate) => flatMap7(get12(ref), (s) => predicate(s) ? map8(self, (a) => [s, some3(a)]) : succeed([s, none2()])));
 var withMetric = /* @__PURE__ */ dual(2, (self, metric) => metric(self));
 var serviceFunctionEffect = (getService, f) => (...args2) => flatMap7(getService, (a) => f(a)(...args2));
 var serviceFunction = (getService, f) => (...args2) => map8(getService, (a) => f(a)(...args2));
@@ -9505,11 +9632,11 @@ var linkSpans = /* @__PURE__ */ dual((args2) => isEffect(args2[0]), (self, span4
   attributes: attributes ?? {}
 })));
 var bigint02 = /* @__PURE__ */ BigInt(0);
-var filterDisablePropagation = /* @__PURE__ */ flatMap((span4) => get3(span4.context, DisablePropagation) ? span4._tag === "Span" ? filterDisablePropagation(span4.parent) : none2() : some2(span4));
+var filterDisablePropagation = /* @__PURE__ */ flatMap((span4) => get3(span4.context, DisablePropagation) ? span4._tag === "Span" ? filterDisablePropagation(span4.parent) : none2() : some3(span4));
 var unsafeMakeSpan = (fiber, name, options) => {
   const disablePropagation = !fiber.getFiberRef(currentTracerEnabled) || options.context && get3(options.context, DisablePropagation);
   const context5 = fiber.getFiberRef(currentContext);
-  const parent = options.parent ? some2(options.parent) : options.root ? none2() : filterDisablePropagation(getOption2(context5, spanTag));
+  const parent = options.parent ? some3(options.parent) : options.root ? none2() : filterDisablePropagation(getOption2(context5, spanTag));
   let span4;
   if (disablePropagation) {
     span4 = noopSpan({
@@ -9603,7 +9730,7 @@ var functionWithSpan = (options) => function() {
   });
 };
 var fromNullable2 = (value4) => value4 == null ? fail2(new NoSuchElementException()) : succeed(value4);
-var optionFromOptional = (self) => catchAll(map8(self, some2), (error) => isNoSuchElementException(error) ? succeedNone : fail2(error));
+var optionFromOptional = (self) => catchAll(map8(self, some3), (error) => isNoSuchElementException(error) ? succeedNone : fail2(error));
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/internal/executionStrategy.js
 var OP_SEQUENTIAL2 = "Sequential";
@@ -11322,7 +11449,7 @@ var resolveQuantile = (error, sampleCount, current, consumed, quantile, rest) =>
     if (quantile_1 === 1) {
       return {
         quantile: quantile_1,
-        value: some2(lastNonEmpty(rest_1)),
+        value: some3(lastNonEmpty(rest_1)),
         consumed: consumed_1 + rest_1.length,
         rest: []
       };
@@ -11349,7 +11476,7 @@ var resolveQuantile = (error, sampleCount, current, consumed, quantile, rest) =>
       continue;
     }
     if (candConsumed > desired + allowedError) {
-      const valueToReturn = isNone2(current_1) ? some2(headValue) : current_1;
+      const valueToReturn = isNone2(current_1) ? some3(headValue) : current_1;
       return {
         quantile: quantile_1,
         value: valueToReturn,
@@ -11392,7 +11519,7 @@ var resolveQuantile = (error, sampleCount, current, consumed, quantile, rest) =>
         }
         return {
           quantile: quantile_1,
-          value: some2(current_1.value),
+          value: some3(current_1.value),
           consumed: consumed_1,
           rest: rest_1
         };
@@ -11675,7 +11802,7 @@ var RedBlackTreeIterator = class _RedBlackTreeIterator {
    */
   get key() {
     if (this.stack.length > 0) {
-      return some2(this.stack[this.stack.length - 1].key);
+      return some3(this.stack[this.stack.length - 1].key);
     }
     return none2();
   }
@@ -11684,7 +11811,7 @@ var RedBlackTreeIterator = class _RedBlackTreeIterator {
    */
   get value() {
     if (this.stack.length > 0) {
-      return some2(this.stack[this.stack.length - 1].value);
+      return some3(this.stack[this.stack.length - 1].value);
     }
     return none2();
   }
@@ -11918,7 +12045,7 @@ var findFirst4 = /* @__PURE__ */ dual(2, (self, key) => {
   while (node !== void 0) {
     const d = cmp(key, node.key);
     if (equals(key, node.key)) {
-      return some2(node.value);
+      return some3(node.value);
     }
     if (d <= 0) {
       node = node.left;
@@ -13880,7 +14007,7 @@ var whenLogLevel = /* @__PURE__ */ dual(2, (effect2, level) => {
     if (greaterThan2(minimumLogLevel, requiredLogLevel)) {
       return succeed(none2());
     }
-    return map8(effect2, some2);
+    return map8(effect2, some3);
   });
 });
 var acquireRelease = /* @__PURE__ */ dual((args2) => isEffect(args2[0]), (acquire, release) => uninterruptible(tap2(acquire, (a) => addFinalizer((exit4) => release(a, exit4)))));
@@ -13901,7 +14028,7 @@ var addFinalizer = (finalizer) => withFiberRuntime((runtime4) => {
   })));
 });
 var daemonChildren = (self) => {
-  const forkScope = fiberRefLocally(currentForkScopeOverride, some2(globalScope));
+  const forkScope = fiberRefLocally(currentForkScopeOverride, some3(globalScope));
   return forkScope(self);
 };
 var _existsParFound = /* @__PURE__ */ Symbol.for("effect/Effect/existsPar/found");
@@ -13920,8 +14047,8 @@ var existsLoop = (iterator, index3, f) => {
   return flatMap7(f(next.value, index3), (b) => b ? succeed(b) : existsLoop(iterator, index3 + 1, f));
 };
 var filter6 = /* @__PURE__ */ dual((args2) => isIterable(args2[0]) && !isEffect(args2[0]), (elements, predicate, options) => {
-  const predicate_ = options?.negate ? (a, i) => map8(predicate(a, i), not) : predicate;
-  return matchSimple(options?.concurrency, () => suspend(() => fromIterable2(elements).reduceRight((effect2, a, i) => zipWith3(effect2, suspend(() => predicate_(a, i)), (list, b) => b ? [a, ...list] : list), sync(() => new Array()))), () => map8(forEach7(elements, (a, i) => map8(predicate_(a, i), (b) => b ? some2(a) : none2()), options), getSomes));
+  const predicate_ = options?.negate ? (a, i) => map8(predicate(a, i), not2) : predicate;
+  return matchSimple(options?.concurrency, () => suspend(() => fromIterable2(elements).reduceRight((effect2, a, i) => zipWith3(effect2, suspend(() => predicate_(a, i)), (list, b) => b ? [a, ...list] : list), sync(() => new Array()))), () => map8(forEach7(elements, (a, i) => map8(predicate_(a, i), (b) => b ? some3(a) : none2()), options), getSomes));
 });
 var allResolveInput = (input2) => {
   if (Array.isArray(input2) || isIterable(input2)) {
@@ -13929,7 +14056,7 @@ var allResolveInput = (input2) => {
   }
   const keys5 = Object.keys(input2);
   const size11 = keys5.length;
-  return [keys5.map((k) => input2[k]), some2((values3) => {
+  return [keys5.map((k) => input2[k]), some3((values3) => {
     const res = {};
     for (let i = 0; i < size11; i++) {
       ;
@@ -13956,7 +14083,7 @@ var allValidate = (effects, reconcile, options) => {
     for (let i = 0; i < size11; i++) {
       const either6 = eithers[i];
       if (either6._tag === "Left") {
-        errors[i] = some2(either6.left);
+        errors[i] = some3(either6.left);
         errored = true;
       } else {
         successes[i] = either6.right;
@@ -13990,7 +14117,7 @@ var allEither = (effects, reconcile, options) => {
     concurrentFinalizers: options?.concurrentFinalizers
   }), (eithers) => reconcile._tag === "Some" ? reconcile.value(eithers) : eithers);
 };
-var all3 = (arg, options) => {
+var all4 = (arg, options) => {
   const [effects, reconcile] = allResolveInput(arg);
   if (options?.mode === "validate") {
     return allValidate(effects, reconcile, options);
@@ -13999,12 +14126,12 @@ var all3 = (arg, options) => {
   }
   return options?.discard !== true && reconcile._tag === "Some" ? map8(forEach7(effects, identity, options), reconcile.value) : forEach7(effects, identity, options);
 };
-var allWith = (options) => (arg) => all3(arg, options);
-var allSuccesses = (elements, options) => map8(all3(fromIterable2(elements).map(exit), options), filterMap2((exit4) => exitIsSuccess(exit4) ? some2(exit4.effect_instruction_i0) : none2()));
+var allWith = (options) => (arg) => all4(arg, options);
+var allSuccesses = (elements, options) => map8(all4(fromIterable2(elements).map(exit), options), filterMap2((exit4) => exitIsSuccess(exit4) ? some3(exit4.effect_instruction_i0) : none2()));
 var replicate = /* @__PURE__ */ dual(2, (self, n) => Array.from({
   length: n
 }, () => self));
-var replicateEffect = /* @__PURE__ */ dual((args2) => isEffect(args2[0]), (self, n, options) => all3(replicate(self, n), options));
+var replicateEffect = /* @__PURE__ */ dual((args2) => isEffect(args2[0]), (self, n, options) => all4(replicate(self, n), options));
 var forEach7 = /* @__PURE__ */ dual((args2) => isIterable(args2[0]), (self, f, options) => withFiberRuntime((r) => {
   const isRequestBatchingEnabled = options?.batching === true || options?.batching === "inherit" && r.getFiberRef(currentRequestBatching);
   if (options?.discard) {
@@ -14206,7 +14333,7 @@ var unsafeMakeChildFiber = (effect2, parentFiber, parentRuntimeFlags, overrideSc
   const childFiber = new FiberRuntime(childId, childFiberRefs, parentRuntimeFlags);
   const childContext = getOrDefault(childFiberRefs, currentContext);
   const supervisor = childFiber.currentSupervisor;
-  supervisor.onStart(childContext, effect2, some2(parentFiber), childFiber);
+  supervisor.onStart(childContext, effect2, some3(parentFiber), childFiber);
   childFiber.addObserver((exit4) => supervisor.onEnd(exit4, childFiber));
   const parentScope = overrideScope !== null ? overrideScope : pipe(parentFiber.getFiberRef(currentForkScopeOverride), getOrElse(() => parentFiber.scope()));
   parentScope.add(parentRuntimeFlags, childFiber);
@@ -14220,7 +14347,7 @@ var validateAll = /* @__PURE__ */ dual((args2) => isIterable(args2[0]), (element
   batching: options?.batching,
   concurrentFinalizers: options?.concurrentFinalizers
 }), ([es, bs]) => isNonEmptyArray2(es) ? fail2(es) : options?.discard ? void_2 : succeed(bs)));
-var raceAll = (all5) => withFiberRuntime((state2, status) => async_((resume2) => {
+var raceAll = (all6) => withFiberRuntime((state2, status) => async_((resume2) => {
   const fibers = /* @__PURE__ */ new Set();
   let winner;
   let failures3 = empty16;
@@ -14231,7 +14358,7 @@ var raceAll = (all5) => withFiberRuntime((state2, status) => async_((resume2) =>
   };
   let latch = false;
   let empty32 = true;
-  for (const self of all5) {
+  for (const self of all6) {
     empty32 = false;
     const fiber = unsafeFork2(interruptible2(self), state2, status.runtimeFlags);
     fibers.add(fiber);
@@ -14262,10 +14389,10 @@ var raceAll = (all5) => withFiberRuntime((state2, status) => async_((resume2) =>
 var reduceEffect = /* @__PURE__ */ dual((args2) => isIterable(args2[0]) && !isEffect(args2[0]), (elements, zero2, f, options) => matchSimple(options?.concurrency, () => fromIterable2(elements).reduce((acc, a, i) => zipWith3(acc, a, (acc2, a2) => f(acc2, a2, i)), zero2), () => suspend(() => pipe(mergeAll3([zero2, ...elements], none2(), (acc, elem, i) => {
   switch (acc._tag) {
     case "None": {
-      return some2(elem);
+      return some3(elem);
     }
     case "Some": {
-      return some2(f(acc.value, elem, i));
+      return some3(f(acc.value, elem, i));
     }
   }
 }, options), map8((option5) => {
@@ -14359,7 +14486,7 @@ var zipRightOptions = /* @__PURE__ */ dual((args2) => isEffect(args2[1]), (self,
   }
   return zipWithOptions(self, that, (_, b) => b, options);
 });
-var zipWithOptions = /* @__PURE__ */ dual((args2) => isEffect(args2[1]), (self, that, f, options) => map8(all3([self, that], {
+var zipWithOptions = /* @__PURE__ */ dual((args2) => isEffect(args2[1]), (self, that, f, options) => map8(all4([self, that], {
   concurrency: options?.concurrent ? 2 : 1,
   batching: options?.batching,
   concurrentFinalizers: options?.concurrentFinalizers
@@ -14471,7 +14598,7 @@ var fiberAll = (fibers) => {
     await: exit(forEachParUnbounded(fibers, (fiber) => flatten5(fiber.await), false)),
     children: map8(forEachParUnbounded(fibers, (fiber) => fiber.children, false), flatten2),
     inheritAll: forEachSequentialDiscard(fibers, (fiber) => fiber.inheritAll),
-    poll: map8(forEachSequential(fibers, (fiber) => fiber.poll), reduceRight(some2(exitSucceed(new Array())), (optionB, optionA) => {
+    poll: map8(forEachSequential(fibers, (fiber) => fiber.poll), reduceRight(some3(exitSucceed(new Array())), (optionB, optionA) => {
       switch (optionA._tag) {
         case "None": {
           return none2();
@@ -14482,7 +14609,7 @@ var fiberAll = (fibers) => {
               return none2();
             }
             case "Some": {
-              return some2(exitZipWith(optionA.value, optionB.value, {
+              return some3(exitZipWith(optionA.value, optionB.value, {
                 onSuccess: (a, chunk2) => [a, ...chunk2],
                 onFailure: parallel
               }));
@@ -14619,19 +14746,19 @@ var withSpanScoped = function() {
 };
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/internal/cache.js
-var complete2 = (key, exit4, entryStats, timeToLiveMillis) => struct({
+var complete2 = (key, exit4, entryStats, timeToLiveMillis) => struct2({
   _tag: "Complete",
   key,
   exit: exit4,
   entryStats,
   timeToLiveMillis
 });
-var pending2 = (key, deferred) => struct({
+var pending2 = (key, deferred) => struct2({
   _tag: "Pending",
   key,
   deferred
 });
-var refreshing = (deferred, complete3) => struct({
+var refreshing = (deferred, complete3) => struct2({
   _tag: "Refreshing",
   deferred,
   complete: complete3
@@ -14793,14 +14920,14 @@ var CacheImpl = class {
         switch (option5.value._tag) {
           case "Complete": {
             const loaded = option5.value.entryStats.loadedMillis;
-            return some2(makeEntryStats(loaded));
+            return some3(makeEntryStats(loaded));
           }
           case "Pending": {
             return none2();
           }
           case "Refreshing": {
             const loaded = option5.value.complete.entryStats.loadedMillis;
-            return some2(makeEntryStats(loaded));
+            return some3(makeEntryStats(loaded));
           }
         }
       }
@@ -14957,7 +15084,7 @@ var CacheImpl = class {
             return succeed(none2());
           }
           this.trackHit();
-          return map8(value4.exit, some2);
+          return map8(value4.exit, some3);
         }
         case "Pending": {
           this.trackAccess(value4.key);
@@ -14965,7 +15092,7 @@ var CacheImpl = class {
           if (ignorePending) {
             return succeed(none2());
           }
-          return map8(_await(value4.deferred), some2);
+          return map8(_await(value4.deferred), some3);
         }
         case "Refreshing": {
           this.trackAccess(value4.complete.key);
@@ -14974,9 +15101,9 @@ var CacheImpl = class {
             if (ignorePending) {
               return succeed(none2());
             }
-            return map8(_await(value4.deferred), some2);
+            return map8(_await(value4.deferred), some3);
           }
-          return map8(value4.complete.exit, some2);
+          return map8(value4.complete.exit, some3);
         }
       }
     });
@@ -15194,7 +15321,7 @@ __export(Effect_exports, {
   acquireReleaseInterruptible: () => acquireReleaseInterruptible2,
   acquireUseRelease: () => acquireUseRelease2,
   addFinalizer: () => addFinalizer2,
-  all: () => all4,
+  all: () => all5,
   allSuccesses: () => allSuccesses2,
   allWith: () => allWith2,
   allowInterrupt: () => allowInterrupt2,
@@ -15263,7 +15390,7 @@ __export(Effect_exports, {
   ensuringChild: () => ensuringChild2,
   ensuringChildren: () => ensuringChildren2,
   eventually: () => eventually2,
-  every: () => every5,
+  every: () => every6,
   exists: () => exists4,
   exit: () => exit3,
   fail: () => fail7,
@@ -15787,23 +15914,23 @@ var Latch = class extends Class2 {
 var unsafeMakeLatch = (open) => new Latch(open ?? false);
 var makeLatch = (open) => sync(() => unsafeMakeLatch(open));
 var awaitAllChildren = (self) => ensuringChildren(self, fiberAwaitAll);
-var cached2 = /* @__PURE__ */ dual(2, (self, timeToLive) => map8(cachedInvalidateWithTTL(self, timeToLive), (tuple) => tuple[0]));
+var cached2 = /* @__PURE__ */ dual(2, (self, timeToLive) => map8(cachedInvalidateWithTTL(self, timeToLive), (tuple2) => tuple2[0]));
 var cachedInvalidateWithTTL = /* @__PURE__ */ dual(2, (self, timeToLive) => {
   const duration = decode(timeToLive);
   return flatMap7(context(), (env) => map8(makeSynchronized(none2()), (cache) => [provideContext(getCachedValue(self, duration, cache), env), invalidateCache(cache)]));
 });
 var computeCachedValue = (self, timeToLive, start3) => {
   const timeToLiveMillis = toMillis(decode(timeToLive));
-  return pipe(deferredMake(), tap2((deferred) => intoDeferred(self, deferred)), map8((deferred) => some2([start3 + timeToLiveMillis, deferred])));
+  return pipe(deferredMake(), tap2((deferred) => intoDeferred(self, deferred)), map8((deferred) => some3([start3 + timeToLiveMillis, deferred])));
 };
 var getCachedValue = (self, timeToLive, cache) => uninterruptibleMask((restore) => pipe(clockWith3((clock3) => clock3.currentTimeMillis), flatMap7((time) => updateSomeAndGetEffectSynchronized(cache, (option5) => {
   switch (option5._tag) {
     case "None": {
-      return some2(computeCachedValue(self, timeToLive, time));
+      return some3(computeCachedValue(self, timeToLive, time));
     }
     case "Some": {
       const [end3] = option5.value;
-      return end3 - time <= 0 ? some2(computeCachedValue(self, timeToLive, time)) : none2();
+      return end3 - time <= 0 ? some3(computeCachedValue(self, timeToLive, time)) : none2();
     }
   }
 })), flatMap7((option5) => isNone2(option5) ? dieMessage("BUG: Effect.cachedInvalidate - please report an issue at https://github.com/Effect-TS/effect/issues") : restore(deferredAwait(option5.value[1])))));
@@ -15889,7 +16016,7 @@ var timeoutFailCause = /* @__PURE__ */ dual(2, (self, {
 })));
 var timeoutOption = /* @__PURE__ */ dual(2, (self, duration) => timeoutTo(self, {
   duration,
-  onSuccess: some2,
+  onSuccess: some3,
   onTimeout: none2
 }));
 var timeoutTo = /* @__PURE__ */ dual(2, (self, {
@@ -15959,7 +16086,7 @@ var updateSomeAndGetEffectSynchronized = /* @__PURE__ */ dual(2, (self, pf) => s
     }
   }
 }));
-var bindAll = /* @__PURE__ */ dual((args2) => isEffect(args2[0]), (self, f, options) => flatMap7(self, (a) => all3(f(a), options).pipe(map8((record2) => Object.assign({}, a, record2)))));
+var bindAll = /* @__PURE__ */ dual((args2) => isEffect(args2[0]), (self, f, options) => flatMap7(self, (a) => all4(f(a), options).pipe(map8((record2) => Object.assign({}, a, record2)))));
 
 // ../../node_modules/.bun/effect@3.21.3/node_modules/effect/dist/esm/internal/managedRuntime/circular.js
 var TypeId16 = /* @__PURE__ */ Symbol.for("effect/ManagedRuntime");
@@ -16609,17 +16736,17 @@ var provideSomeRuntime = /* @__PURE__ */ dual(2, (self, rt) => {
     }));
   }));
 });
-var effect_provide = /* @__PURE__ */ dual(2, (self, source2) => {
-  if (Array.isArray(source2)) {
-    return provideSomeLayer(self, mergeAll4(...source2));
-  } else if (isLayer(source2)) {
-    return provideSomeLayer(self, source2);
-  } else if (isContext2(source2)) {
-    return provideSomeContext(self, source2);
-  } else if (TypeId16 in source2) {
-    return flatMap7(source2.runtimeEffect, (rt) => provideSomeRuntime(self, rt));
+var effect_provide = /* @__PURE__ */ dual(2, (self, source) => {
+  if (Array.isArray(source)) {
+    return provideSomeLayer(self, mergeAll4(...source));
+  } else if (isLayer(source)) {
+    return provideSomeLayer(self, source);
+  } else if (isContext2(source)) {
+    return provideSomeContext(self, source);
+  } else if (TypeId16 in source) {
+    return flatMap7(source.runtimeEffect, (rt) => provideSomeRuntime(self, rt));
   } else {
-    return provideSomeRuntime(self, source2);
+    return provideSomeRuntime(self, source);
   }
 });
 
@@ -16741,7 +16868,7 @@ var ScheduleDriverImpl = class {
     this.ref = ref;
   }
   get state() {
-    return map8(get11(this.ref), (tuple) => tuple[1]);
+    return map8(get11(this.ref), (tuple2) => tuple2[1]);
   }
   get last() {
     return flatMap7(get11(this.ref), ([element, _]) => {
@@ -16760,8 +16887,8 @@ var ScheduleDriverImpl = class {
     return set5(this.ref, [none2(), this.schedule.initial]).pipe(zipLeft2(set5(this.iterationMeta, defaultIterationMetadata)));
   }
   next(input2) {
-    return pipe(map8(get11(this.ref), (tuple) => tuple[1]), flatMap7((state2) => pipe(currentTimeMillis2, flatMap7((now) => pipe(suspend(() => this.schedule.step(now, input2, state2)), flatMap7(([state3, out, decision]) => {
-      const setState = set5(this.ref, [some2(out), state3]);
+    return pipe(map8(get11(this.ref), (tuple2) => tuple2[1]), flatMap7((state2) => pipe(currentTimeMillis2, flatMap7((now) => pipe(suspend(() => this.schedule.step(now, input2, state2)), flatMap7(([state3, out, decision]) => {
+      const setState = set5(this.ref, [some3(out), state3]);
       if (isDone4(decision)) {
         return setState.pipe(zipRight2(fail2(none2())));
       }
@@ -16830,7 +16957,7 @@ var ScheduleDefect = class {
 };
 var isScheduleDefect = (u) => hasProperty(u, ScheduleDefectTypeId);
 var scheduleDefectWrap = (self) => catchAll(self, (e) => die2(new ScheduleDefect(e)));
-var scheduleDefectRefailCause = (cause3) => match2(find(cause3, (_) => isDieType(_) && isScheduleDefect(_.defect) ? some2(_.defect) : none2()), {
+var scheduleDefectRefailCause = (cause3) => match2(find(cause3, (_) => isDieType(_) && isScheduleDefect(_.defect) ? some3(_.defect) : none2()), {
   onNone: () => cause3,
   onSome: (error) => fail(error.error)
 });
@@ -16865,7 +16992,7 @@ var repeatOrElse_Effect = /* @__PURE__ */ dual(3, (self, schedule2, orElse8) => 
 var repeatOrElseEffectLoop = (self, driver2, orElse8, value4) => matchEffect(driver2.next(value4), {
   onFailure: () => orDie(driver2.last),
   onSuccess: (b) => matchEffect(self, {
-    onFailure: (error) => orElse8(error, some2(b)),
+    onFailure: (error) => orElse8(error, some3(b)),
     onSuccess: (value5) => repeatOrElseEffectLoop(self, driver2, orElse8, value5)
   })
 });
@@ -17047,14 +17174,14 @@ var cachedInvalidateWithTTL2 = cachedInvalidateWithTTL;
 var cached3 = memoize;
 var cachedFunction2 = cachedFunction;
 var once4 = once2;
-var all4 = all3;
+var all5 = all4;
 var allWith2 = allWith;
 var allSuccesses2 = allSuccesses;
 var dropUntil2 = dropUntil;
 var dropWhile2 = dropWhile;
 var takeUntil2 = takeUntil;
 var takeWhile2 = takeWhile;
-var every5 = every4;
+var every6 = every5;
 var exists4 = exists3;
 var filter8 = filter6;
 var filterMap5 = filterMap4;
@@ -17362,9 +17489,9 @@ var withParentSpan3 = withParentSpan;
 var fromNullable3 = fromNullable2;
 var optionFromOptional2 = optionFromOptional;
 var transposeOption = (self) => {
-  return isNone(self) ? succeedNone2 : map14(self.value, some);
+  return isNone(self) ? succeedNone2 : map14(self.value, some2);
 };
-var transposeMapOption = /* @__PURE__ */ dual(2, (self, f) => isNone(self) ? succeedNone2 : map14(f(self.value), some));
+var transposeMapOption = /* @__PURE__ */ dual(2, (self, f) => isNone(self) ? succeedNone2 : map14(f(self.value), some2));
 var makeTagProxy = (TagClass) => {
   const cache = /* @__PURE__ */ new Map();
   return new Proxy(TagClass, {
@@ -17929,7 +18056,7 @@ __export(Match_exports, {
   instanceOfUnsafe: () => instanceOfUnsafe,
   is: () => is2,
   nonEmptyString: () => nonEmptyString2,
-  not: () => not3,
+  not: () => not4,
   null: () => _null,
   number: () => number3,
   option: () => option4,
@@ -18120,7 +18247,7 @@ var tag = /* @__PURE__ */ discriminator("_tag");
 var tagStartsWith = /* @__PURE__ */ discriminatorStartsWith("_tag");
 var tags = /* @__PURE__ */ discriminators("_tag");
 var tagsExhaustive = /* @__PURE__ */ discriminatorsExhaustive("_tag");
-var not2 = (pattern, f) => (self) => self.add(makeNot(makePredicate(pattern), f));
+var not3 = (pattern, f) => (self) => self.add(makeNot(makePredicate(pattern), f));
 var nonEmptyString = (u) => typeof u === "string" && u.length > 0;
 var is = (...literals) => {
   const len = literals.length;
@@ -18182,12 +18309,12 @@ var option3 = (self) => {
   if (isEither2(toEither)) {
     return match(toEither, {
       onLeft: () => none2(),
-      onRight: some2
+      onRight: some3
     });
   }
   return (input2) => match(toEither(input2), {
     onLeft: () => none2(),
-    onRight: some2
+    onRight: some3
   });
 };
 var getExhaustiveAbsurdErrorMessage = "effect/Match/exhaustive: absurd";
@@ -18226,7 +18353,7 @@ var tag2 = tag;
 var tagStartsWith2 = tagStartsWith;
 var tags2 = tags;
 var tagsExhaustive2 = tagsExhaustive;
-var not3 = not2;
+var not4 = not3;
 var nonEmptyString2 = nonEmptyString;
 var is2 = is;
 var string2 = isString;
@@ -19243,9 +19370,9 @@ function createEffectProcedureProxy(target, decorated) {
           });
         case "use":
           return getOrCreateVirtualMethod(context5, prop, () => {
-            return (middleware, mapInput3) => {
+            return (middleware, mapInput4) => {
               const def = getEffectProcedureDef(context5);
-              if (!mapInput3 && isEffectMiddleware(middleware)) {
+              if (!mapInput4 && isEffectMiddleware(middleware)) {
                 const step4 = {
                   _tag: "middleware",
                   middleware
@@ -19268,7 +19395,7 @@ function createEffectProcedureProxy(target, decorated) {
                 });
               }
               const flushedDef = flushEffectSteps(def);
-              const mapped = mapInput3 ? decorateMiddleware(middleware).mapInput(mapInput3) : isDecoratedMiddleware(middleware) ? middleware : createEffectOrORPCMiddleware({
+              const mapped = mapInput4 ? decorateMiddleware(middleware).mapInput(mapInput4) : isDecoratedMiddleware(middleware) ? middleware : createEffectOrORPCMiddleware({
                 effectErrorMap: state2.effectErrorMap,
                 middleware,
                 runner: state2.runner
@@ -19332,14 +19459,49 @@ var EffectDecoratedProcedure = class extends EffectProcedure {
     return createEffectProcedureProxy(this, true);
   }
 };
-function enhanceEffectRouter(router, options) {
+function sameEffectStep(left3, right3) {
+  if (left3._tag !== right3._tag) {
+    return false;
+  }
+  switch (left3._tag) {
+    case "middleware":
+      return right3._tag === "middleware" && left3.middleware === right3.middleware;
+    case "provide":
+      return right3._tag === "provide" && left3.tag === right3.tag && left3.provider === right3.provider;
+    case "provideOptional":
+      return right3._tag === "provideOptional" && left3.tag === right3.tag && left3.provider === right3.provider;
+    case "provideLayer":
+      return right3._tag === "provideLayer" && left3.layer === right3.layer;
+  }
+}
+function mergeEffectStepPrefix(prefix, steps) {
+  if (!prefix?.length) {
+    return steps;
+  }
+  if (!steps?.length) {
+    return prefix;
+  }
+  let sharedPrefixLength = 0;
+  const comparableLength = Math.min(prefix.length, steps.length);
+  while (sharedPrefixLength < comparableLength && sameEffectStep(prefix[sharedPrefixLength], steps[sharedPrefixLength])) {
+    sharedPrefixLength += 1;
+  }
+  return [...prefix, ...steps.slice(sharedPrefixLength)];
+}
+function enhanceEffectRouter(router, options, effectStateSource, effectStepPrefix) {
   if (isLazy(router)) {
     const laziedMeta = getLazyMeta(router);
     const enhancedPrefix = laziedMeta?.prefix ? mergePrefix(options.prefix, laziedMeta.prefix) : options.prefix;
     const enhanced2 = lazy(
       async () => {
         const { default: unlaziedRouter } = await unlazy(router);
-        const wrappedRouter = enhanceEffectRouter(unlaziedRouter, options);
+        const resolvedEffectStateSource = typeof effectStateSource === "function" ? effectStateSource() : effectStateSource;
+        const wrappedRouter = enhanceEffectRouter(
+          unlaziedRouter,
+          options,
+          resolvedEffectStateSource,
+          effectStepPrefix
+        );
         return unlazy(wrappedRouter);
       },
       {
@@ -19350,46 +19512,70 @@ function enhanceEffectRouter(router, options) {
     return createAccessibleLazyRouter(enhanced2);
   }
   if (isProcedure(router)) {
-    const source2 = unwrapEffectUpstream(router);
+    const staticEffectStateSource2 = typeof effectStateSource === "function" ? void 0 : effectStateSource;
+    const effectDef = staticEffectStateSource2?.["~effect"] ?? router["~effect"];
+    const source = unwrapEffectUpstream(router);
     const sourceEffectErrorMap = getEffectErrorMap(router);
     const middlewares = mergeMiddlewares(
       options.middlewares,
-      source2["~orpc"].middlewares,
+      source["~orpc"].middlewares,
       { dedupeLeading: options.dedupeLeadingMiddlewares }
     );
-    const newMiddlewareAdded = middlewares.length - source2["~orpc"].middlewares.length;
+    const newMiddlewareAdded = middlewares.length - source["~orpc"].middlewares.length;
     const effectErrorMap = {
       ...options.errorMap,
       ...sourceEffectErrorMap
     };
     const errorMap = effectErrorMapToErrorMap(effectErrorMap);
-    return new EffectProcedure({
-      ...source2["~orpc"],
-      route: enhanceRoute(source2["~orpc"].route, options),
+    const effectSteps = mergeEffectStepPrefix(
+      effectStepPrefix,
+      effectDef?.effectSteps
+    );
+    const effectHandler = effectDef?.effectHandler;
+    const handler = effectHandler ? createEffectProcedureHandler({
+      defaultCaptureStackTrace: effectHandler.defaultCaptureStackTrace,
       effectErrorMap,
+      effectFn: effectHandler.effectFn,
+      effectSteps,
+      runner: options.runner,
+      spanConfig: effectHandler.spanConfig
+    }) : source["~orpc"].handler;
+    return new EffectProcedure({
+      ...source["~orpc"],
+      route: enhanceRoute(source["~orpc"].route, options),
+      effectErrorMap,
+      effectSteps,
+      effectHandler,
       errorMap,
+      handler,
       middlewares,
-      inputValidationIndex: source2["~orpc"].inputValidationIndex + newMiddlewareAdded,
-      outputValidationIndex: source2["~orpc"].outputValidationIndex + newMiddlewareAdded,
+      inputValidationIndex: source["~orpc"].inputValidationIndex + newMiddlewareAdded,
+      outputValidationIndex: source["~orpc"].outputValidationIndex + newMiddlewareAdded,
       runner: options.runner
     });
   }
   const enhanced = {};
+  const staticEffectStateSource = typeof effectStateSource === "function" ? void 0 : effectStateSource;
   for (const key in router) {
-    enhanced[key] = enhanceEffectRouter(router[key], options);
+    enhanced[key] = enhanceEffectRouter(
+      router[key],
+      options,
+      staticEffectStateSource?.[key],
+      effectStepPrefix
+    );
   }
   return enhanced;
 }
-function makeEffectRuntimeRunner(source2) {
-  if (source2 === void 0) {
+function makeEffectRuntimeRunner(source) {
+  if (source === void 0) {
     return {
       runPromiseExit: (effect2, options) => Effect_exports.runPromiseExit(withParentFiberRefs(effect2), {
         signal: options?.signal
       })
     };
   }
-  if (ManagedRuntime_exports.isManagedRuntime(source2)) {
-    const runtime4 = source2;
+  if (ManagedRuntime_exports.isManagedRuntime(source)) {
+    const runtime4 = source;
     return {
       runtime: runtime4,
       runPromiseExit: (effect2, options) => runtime4.runPromiseExit(withParentFiberRefs(effect2), {
@@ -19397,7 +19583,7 @@ function makeEffectRuntimeRunner(source2) {
       })
     };
   }
-  const layer = source2;
+  const layer = source;
   return {
     runPromiseExit: (effect2, options) => Effect_exports.runPromiseExit(
       withParentFiberRefs(Effect_exports.provide(effect2, layer)),
@@ -19507,7 +19693,7 @@ function createEffectBuilderProxy(target) {
       if (prop === "~effect") {
         return getEffectBuilderDef(context5);
       }
-      const { upstream: source2, state: state2 } = context5;
+      const { upstream: source, state: state2 } = context5;
       switch (prop) {
         case "errors":
           return getOrCreateVirtualMethod2(context5, prop, () => {
@@ -19517,8 +19703,8 @@ function createEffectBuilderProxy(target) {
                 ...errors
               };
               const nextBuilder = Reflect.apply(
-                Reflect.get(source2, "errors", source2),
-                source2,
+                Reflect.get(source, "errors", source),
+                source,
                 [effectErrorMapToErrorMap(errors)]
               );
               return wrapBuilderLike(nextBuilder, {
@@ -19568,8 +19754,8 @@ function createEffectBuilderProxy(target) {
                 runner: state2.runner
               });
               return Reflect.apply(
-                Reflect.get(source2, "middleware", source2),
-                source2,
+                Reflect.get(source, "middleware", source),
+                source,
                 [effectMiddleware]
               );
             };
@@ -19578,7 +19764,7 @@ function createEffectBuilderProxy(target) {
           return getOrCreateVirtualMethod2(context5, prop, () => {
             return (tagOrLayer, provider) => {
               return wrapBuilderLike(
-                source2,
+                source,
                 appendEffectStep2(
                   state2,
                   Layer_exports.isLayer(tagOrLayer) ? { _tag: "provideLayer", layer: tagOrLayer } : { _tag: "provide", provider, tag: tagOrLayer }
@@ -19590,7 +19776,7 @@ function createEffectBuilderProxy(target) {
           return getOrCreateVirtualMethod2(context5, prop, () => {
             return (tag3, provider) => {
               return wrapBuilderLike(
-                source2,
+                source,
                 appendEffectStep2(state2, {
                   _tag: "provideOptional",
                   provider,
@@ -19604,14 +19790,14 @@ function createEffectBuilderProxy(target) {
             return (middleware, ...rest) => {
               if (rest.length === 0 && isEffectMiddleware(middleware)) {
                 return wrapBuilderLike(
-                  source2,
+                  source,
                   appendEffectStep2(state2, {
                     _tag: "middleware",
                     middleware
                   })
                 );
               }
-              const flushed = flushEffectSteps2(source2, state2);
+              const flushed = flushEffectSteps2(source, state2);
               const nextBuilder = Reflect.apply(
                 Reflect.get(flushed.builder, "use", flushed.builder),
                 flushed.builder,
@@ -19629,7 +19815,7 @@ function createEffectBuilderProxy(target) {
           });
         case "traced":
           return getOrCreateVirtualMethod2(context5, prop, () => {
-            return (spanName) => wrapBuilderLike(source2, {
+            return (spanName) => wrapBuilderLike(source, {
               ...state2,
               spanConfig: {
                 captureStackTrace: addSpanStackTrace2(),
@@ -19640,7 +19826,7 @@ function createEffectBuilderProxy(target) {
         case "handler":
           return getOrCreateVirtualMethod2(context5, prop, () => {
             return (handler) => {
-              const flushed = flushEffectSteps2(source2, state2);
+              const flushed = flushEffectSteps2(source, state2);
               return new EffectDecoratedProcedure({
                 ...flushed.builder["~orpc"],
                 effectErrorMap: flushed.state.effectErrorMap,
@@ -19705,11 +19891,11 @@ var EffectBuilder = class {
     return createEffectBuilderProxy(this);
   }
 };
-function makeEffectORPC(source2, builder) {
-  const sourceIsBuilder = source2 !== void 0 && isBuilderLike(source2);
-  const resolvedBuilder = sourceIsBuilder ? source2 : builder ?? emptyBuilder();
+function makeEffectORPC(source, builder) {
+  const sourceIsBuilder = source !== void 0 && isBuilderLike(source);
+  const resolvedBuilder = sourceIsBuilder ? source : builder ?? emptyBuilder();
   const effectErrorMap = getEffectErrorMap(resolvedBuilder);
-  const runner = sourceIsBuilder || source2 === void 0 ? makeEffectRuntimeRunner() : makeEffectRuntimeRunner(source2);
+  const runner = sourceIsBuilder || source === void 0 ? makeEffectRuntimeRunner() : makeEffectRuntimeRunner(source);
   return new EffectBuilder(
     {
       ...resolvedBuilder["~orpc"],
@@ -19767,9 +19953,9 @@ function getEffectContractErrorMap(value4) {
   }
   return value4[effectContractSymbol]?.errorMap;
 }
-function applyEffectContractErrorMapToRouter(router, source2, inheritedEffectErrorMap) {
+function applyEffectContractErrorMapToRouter(router, source, inheritedEffectErrorMap) {
   const routerRecord = router;
-  const sourceRecord = source2;
+  const sourceRecord = source;
   for (const key of Object.keys(routerRecord)) {
     const routerValue = routerRecord[key];
     const sourceValue = sourceRecord && typeof sourceRecord === "object" ? sourceRecord[key] : void 0;
@@ -19874,7 +20060,22 @@ function makeEnhanceOptions(runner) {
     runner
   };
 }
-function wrapContractNode(contract, target, runner) {
+function appendEffectMiddleware(state2, middleware) {
+  return {
+    effectSteps: [
+      ...state2.effectSteps ?? [],
+      { _tag: "middleware", middleware }
+    ]
+  };
+}
+function assertNativeMiddlewareCanFollow(state2) {
+  if (state2.effectSteps?.length) {
+    throw new Error(
+      "Native oRPC middleware cannot follow Effect middleware on an Effect implementer; register native middleware first."
+    );
+  }
+}
+function wrapContractNode(contract, target, runner, state2 = {}) {
   const cache = /* @__PURE__ */ new Map();
   return new Proxy(target, {
     get(currentTarget, prop, receiver) {
@@ -19885,16 +20086,24 @@ function wrapContractNode(contract, target, runner) {
         if (prop === "effect") {
           const effect2 = (effectFn) => {
             const effectErrorMap = getEffectContractErrorMap(contract) ?? currentTarget["~orpc"].errorMap;
+            const defaultCaptureStackTrace = addSpanStackTrace2();
+            const effectHandler = {
+              defaultCaptureStackTrace,
+              effectFn
+            };
             return new EffectDecoratedProcedure({
               ...currentTarget["~orpc"],
               errorMap: effectErrorMapToErrorMap(effectErrorMap),
               effectErrorMap,
+              effectSteps: state2.effectSteps,
+              effectHandler,
               runner,
               handler: createEffectProcedureHandler({
                 runner,
                 effectErrorMap,
                 effectFn,
-                defaultCaptureStackTrace: addSpanStackTrace2()
+                effectSteps: state2.effectSteps,
+                defaultCaptureStackTrace
               })
             });
           };
@@ -19902,15 +20111,28 @@ function wrapContractNode(contract, target, runner) {
           return effect2;
         }
         if (prop === "use") {
-          const use = (...args2) => wrapContractNode(
-            contract,
-            Reflect.apply(
-              Reflect.get(currentTarget, prop, currentTarget),
-              currentTarget,
-              args2
-            ),
-            runner
-          );
+          const use = (...args2) => {
+            const [middleware, mapInput4] = args2;
+            if (mapInput4 === void 0 && isEffectMiddleware(middleware)) {
+              return wrapContractNode(
+                contract,
+                currentTarget,
+                runner,
+                appendEffectMiddleware(state2, middleware)
+              );
+            }
+            assertNativeMiddlewareCanFollow(state2);
+            return wrapContractNode(
+              contract,
+              Reflect.apply(
+                Reflect.get(currentTarget, prop, currentTarget),
+                currentTarget,
+                args2
+              ),
+              runner,
+              state2
+            );
+          };
           cache.set(prop, use);
           return use;
         }
@@ -19918,7 +20140,7 @@ function wrapContractNode(contract, target, runner) {
           return void 0;
         }
       } else {
-        if (prop === "$context" || prop === "$config" || prop === "use") {
+        if (prop === "$context" || prop === "$config") {
           const wrappedMethod = (...args2) => wrapContractNode(
             contract,
             Reflect.apply(
@@ -19926,20 +20148,62 @@ function wrapContractNode(contract, target, runner) {
               currentTarget,
               args2
             ),
-            runner
+            runner,
+            state2
           );
           cache.set(prop, wrappedMethod);
           return wrappedMethod;
         }
+        if (prop === "use") {
+          const use = (...args2) => {
+            const [middleware, mapInput4] = args2;
+            if (mapInput4 === void 0 && isEffectMiddleware(middleware)) {
+              return wrapContractNode(
+                contract,
+                currentTarget,
+                runner,
+                appendEffectMiddleware(state2, middleware)
+              );
+            }
+            assertNativeMiddlewareCanFollow(state2);
+            return wrapContractNode(
+              contract,
+              Reflect.apply(
+                Reflect.get(currentTarget, prop, currentTarget),
+                currentTarget,
+                args2
+              ),
+              runner,
+              state2
+            );
+          };
+          cache.set(prop, use);
+          return use;
+        }
         if (prop === "router" || prop === "lazy") {
-          const wrappedMethod = (...args2) => enhanceEffectRouter(
-            Reflect.apply(
+          const wrappedMethod = (...args2) => {
+            let lazyEffectStateSource;
+            const appliedArgs = [...args2];
+            if (prop === "lazy") {
+              const loader = args2[0];
+              appliedArgs[0] = async () => {
+                const loaded = await loader();
+                lazyEffectStateSource = loaded.default;
+                return loaded;
+              };
+            }
+            const enhancedRouter = Reflect.apply(
               Reflect.get(currentTarget, prop, currentTarget),
               currentTarget,
-              args2
-            ),
-            makeEnhanceOptions(runner)
-          );
+              appliedArgs
+            );
+            return enhanceEffectRouter(
+              enhancedRouter,
+              makeEnhanceOptions(runner),
+              prop === "router" ? args2[0] : () => lazyEffectStateSource,
+              state2.effectSteps
+            );
+          };
           cache.set(prop, wrappedMethod);
           return wrappedMethod;
         }
@@ -19947,7 +20211,8 @@ function wrapContractNode(contract, target, runner) {
           const child = wrapContractNode(
             contract[prop],
             Reflect.get(currentTarget, prop, receiver),
-            runner
+            runner,
+            state2
           );
           cache.set(prop, child);
           return child;
@@ -19971,11 +20236,11 @@ function wrapContractNode(contract, target, runner) {
     }
   });
 }
-function implementEffect(contract, source2) {
+function implementEffect(contract, source) {
   return wrapContractNode(
     contract,
     implement(contract),
-    makeEffectRuntimeRunner(source2)
+    makeEffectRuntimeRunner(source)
   );
 }
 
@@ -24777,6 +25042,49 @@ __export(typebox_exports, {
   With: () => With2
 });
 
+// ../../packages/civ7-direct-control/dist/direct-control-error-boundary.js
+var CIV7_DIRECT_CONTROL_ERROR_CODES = [
+  "invalid-port",
+  "connection-timeout",
+  "connection-failed",
+  "response-timeout",
+  "socket-closed",
+  "state-not-found",
+  "no-hosts",
+  "all-hosts-unavailable",
+  "command-failed",
+  "log-timeout",
+  "setup-api-unavailable",
+  "setup-phase-invalid",
+  "setup-phase-refused",
+  "setup-map-row-missing",
+  "setup-mod-reconciliation-failed",
+  "setup-parameter-invalid",
+  "setup-apply-timeout",
+  "setup-readback-mismatch",
+  "setup-start-timeout",
+  "setup-host-rejected",
+  "setup-seed-mismatch",
+  "setup-map-size-mismatch",
+  "setup-config-load-failed",
+  "setup-config-evidence-missing",
+  "procedure-descriptor-invalid",
+  "procedure-call-failed",
+  "clean-frame-unverified",
+  "window-shot-helper-unavailable",
+  "window-shot-permission-required",
+  "window-shot-window-not-found",
+  "window-shot-failed"
+];
+var civ7DirectControlErrorCodes = new Set(CIV7_DIRECT_CONTROL_ERROR_CODES);
+function isCiv7DirectControlError(cause3) {
+  if (!(cause3 instanceof Error) || cause3.name !== "Civ7DirectControlError" || !("code" in cause3)) {
+    return false;
+  }
+  const code = cause3.code;
+  return typeof code === "string" && civ7DirectControlErrorCodes.has(code);
+}
+
 // ../../node_modules/.bun/typebox@1.3.6/node_modules/typebox/build/schema/types/_refine.mjs
 function IsRefine2(value4) {
   return guard_exports.HasPropertyKey(value4, "~refine") && guard_exports.IsArray(value4["~refine"]) && guard_exports.Every(value4["~refine"], 0, (value5) => guard_exports.IsObject(value5) && guard_exports.HasPropertyKey(value5, "check") && guard_exports.HasPropertyKey(value5, "error") && guard_exports.IsFunction(value5.check) && guard_exports.IsFunction(value5.error));
@@ -27701,10 +28009,10 @@ function Errors2(...args2) {
 
 // ../../node_modules/.bun/typebox@1.3.6/node_modules/typebox/build/value/assert/assert.mjs
 var AssertError = class extends Error {
-  constructor(source2, value4, errors) {
-    super(source2);
+  constructor(source, value4, errors) {
+    super(source);
     Object.defineProperty(this, "cause", {
-      value: { source: source2, errors, value: value4 },
+      value: { source, errors, value: value4 },
       writable: false,
       configurable: false,
       enumerable: false
@@ -29308,7 +29616,7 @@ function Compile(...args2) {
   return new Validator(context5, type3);
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-I4LVEGUC.js
+// ../../packages/civ7-control-orpc/dist/chunk-536DSADH.js
 var Civ7ControlOrpcCorrelationIdSchema = typebox_exports.String({
   pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
 });
@@ -29320,18 +29628,11 @@ function civ7ControlOrpcErrorCorrelationData(context5) {
   return isCiv7ControlOrpcCorrelationId(correlationId) ? { correlationId } : {};
 }
 function civ7ControlOrpcFailureDetail(cause3) {
-  const directControlErrorCode = civ7DirectControlErrorCode(cause3);
-  if (directControlErrorCode != null) {
-    return `direct-control/${directControlErrorCode}`;
+  if (isCiv7DirectControlError(cause3)) {
+    return `direct-control/${cause3.code}`;
   }
   if (cause3 instanceof Error) return cause3.name;
   return typeof cause3;
-}
-function civ7DirectControlErrorCode(cause3) {
-  if (cause3 == null || typeof cause3 !== "object") return null;
-  if (!("name" in cause3) || cause3.name !== "Civ7DirectControlError") return null;
-  const code = "code" in cause3 ? cause3.code : void 0;
-  return typeof code === "string" && code.length > 0 ? code : null;
 }
 function toStandardSchema(schema) {
   const validator = Compile(schema);
@@ -30141,6 +30442,26 @@ var Civ7PopulationPlacementUnavailableError = class extends ORPCTaggedError(
   }
 ) {
 };
+var Civ7ControlAdmissionUnavailableErrorDataSchema = typebox_exports.Object(
+  {
+    procedureKey: typebox_exports.String({ minLength: 1 }),
+    source: typebox_exports.Literal("host-procedure-admission"),
+    reason: typebox_exports.Literal("temporarily-unavailable"),
+    retryAtMs: typebox_exports.Optional(typebox_exports.Number({ minimum: 0 })),
+    ...Civ7ControlOrpcErrorCorrelationProperties
+  },
+  { additionalProperties: false }
+);
+var Civ7ControlAdmissionUnavailableError = class extends ORPCTaggedError(
+  "Civ7ControlAdmissionUnavailableError",
+  {
+    code: "CONTROL_ADMISSION_UNAVAILABLE",
+    message: "Civ7 control procedure admission is temporarily unavailable.",
+    schema: toStandardSchema(Civ7ControlAdmissionUnavailableErrorDataSchema),
+    status: 503
+  }
+) {
+};
 var Civ7CorrelationIdInvalidErrorDataSchema = typebox_exports.Object(
   {
     source: typebox_exports.Literal("context.correlation"),
@@ -30237,6 +30558,7 @@ var Civ7LifecycleVerificationFailedError = class extends ORPCTaggedError(
 };
 var civ7LifecycleSinglePlayerStartErrorMap = {
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
+  CONTROL_ADMISSION_UNAVAILABLE: Civ7ControlAdmissionUnavailableError,
   CONTROLLER_CAPABILITY_UNAVAILABLE: Civ7ControllerCapabilityUnavailableError,
   LIFECYCLE_DEPENDENCY_UNAVAILABLE: Civ7LifecycleDependencyUnavailableError,
   LIFECYCLE_MUTATION_UNCERTAIN: Civ7LifecycleMutationUncertainError,
@@ -30253,6 +30575,7 @@ var civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   ATTENTION_PRIORITIES_UNAVAILABLE: Civ7AttentionPrioritiesUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
+  CONTROL_ADMISSION_UNAVAILABLE: Civ7ControlAdmissionUnavailableError,
   CONTROLLER_CAPABILITY_UNAVAILABLE: Civ7ControllerCapabilityUnavailableError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
   DISPLAY_QUEUE_UNAVAILABLE: Civ7DisplayQueueUnavailableError,
@@ -34595,26 +34918,6 @@ function narrativeChoiceProofOutcome(classification) {
   }
 }
 
-// ../../packages/civ7-direct-control/dist/chunk-OA3KHPOF.js
-function advisorWarningProofPostcondition(result) {
-  if (result.postcondition.classification === "not-sent") {
-    return {
-      classification: "not-sent",
-      reason: result.postcondition.reason,
-      outcome: "not-sent",
-      confidence: "unverified",
-      noRepeatAfterUnverified: true
-    };
-  }
-  return {
-    classification: "pending-runtime-proof",
-    reason: result.postcondition.reason,
-    outcome: "unknown",
-    confidence: "pending-runtime-proof",
-    noRepeatAfterUnverified: true
-  };
-}
-
 // ../../packages/civ7-direct-control/dist/chunk-CQFJL2BD.js
 var Civ7ComponentIdSchema = typebox_exports.Object(
   {
@@ -35113,7 +35416,15 @@ function unitTargetProofNoRepeatAfterConfirmed(verification) {
   return verification.classification === "path-shortfall";
 }
 
-// ../../packages/civ7-control-orpc/dist/chunk-LIY2XAN5.js
+// ../../packages/civ7-control-orpc/dist/chunk-DSWJ5X4Y.js
+var Civ7ControlOrpcAdmissionRefusal = class extends Error {
+  constructor(retryAtMs) {
+    super("Civ7 control procedure admission is temporarily unavailable");
+    this.retryAtMs = retryAtMs;
+  }
+  retryAtMs;
+  name = "Civ7ControlOrpcAdmissionRefusal";
+};
 var Civ7ControllerMutationProofSchema = typebox_exports.Object(
   {
     lifecycle: typebox_exports.Object(
@@ -35206,7 +35517,33 @@ var civ7ControlOrpcCorrelationMiddleware = civ7ControlOrpcBaseImplementer.middle
     )
   })
 );
-var civ7ControlOrpcImplementer = civ7ControlOrpcBaseImplementer.use(civ7ControlOrpcCorrelationMiddleware).use(civ7ControllerAdmissionMiddleware).use(civ7ControlOrpcSafeErrorMiddleware);
+var civ7ControlOrpcCommonImplementer = civ7ControlOrpcBaseImplementer.use(civ7ControlOrpcCorrelationMiddleware).use(civ7ControllerAdmissionMiddleware).use(civ7ControlOrpcSafeErrorMiddleware);
+var civ7ControlOrpcProcedureAdmissionMiddleware = function* ({ context: context5, errors, next, path, procedure }) {
+  const procedureKey = procedure["~orpc"].meta.procedureKey ?? path.join(".");
+  return yield* Option_exports.match(Option_exports.fromNullable(context5.procedureAdmission), {
+    onNone: () => next(),
+    onSome: (admission) => admission(next()).pipe(
+      Effect_exports.catchIf(
+        (cause3) => cause3 instanceof Civ7ControlOrpcAdmissionRefusal,
+        (cause3) => Effect_exports.fail(
+          errors.CONTROL_ADMISSION_UNAVAILABLE({
+            data: {
+              procedureKey,
+              source: "host-procedure-admission",
+              reason: "temporarily-unavailable",
+              ...Option_exports.match(Option_exports.fromNullable(cause3.retryAtMs), {
+                onNone: () => ({}),
+                onSome: (retryAtMs) => ({ retryAtMs })
+              }),
+              ...civ7ControlOrpcErrorCorrelationData(context5)
+            }
+          })
+        )
+      )
+    )
+  });
+};
+var civ7ControlOrpcImplementer = civ7ControlOrpcCommonImplementer.use(civ7ControlOrpcProcedureAdmissionMiddleware);
 function civ7ControlOrpcPublicError(err) {
   if (err instanceof ORPCError) return err;
   return new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -35563,580 +35900,6 @@ function componentIdFromUnknown(value4) {
   }
   return out;
 }
-var attentionPrioritiesProcedure = civ7ControlOrpcImplementer.attention.priorities.effect(
-  function* ({ context: context5, errors, input: input2 }) {
-    return yield* Effect_exports.tryPromise({
-      try: async () => {
-        const endpointDefaults = context5.endpointDefaults;
-        const playableStatus = await context5.directControl.getCiv7PlayableStatus(endpointDefaults);
-        const canRead = canReadAttentionPriorities(playableStatus, context5);
-        if (!canRead) {
-          return buildPrioritiesResult({
-            input: input2,
-            playableStatus,
-            notifications: null,
-            turnCompletion: null,
-            readyUnit: null,
-            readyCity: null,
-            battlefield: null,
-            sourceStatus: skippedSourceStatus2(playableStatus)
-          });
-        }
-        const [notifications, turnCompletion] = await Promise.all([
-          context5.directControl.getCiv7PlayNotificationView({
-            ...endpointDefaults,
-            maxNotifications: input2.maxNotifications
-          }),
-          context5.directControl.getCiv7TurnCompletionStatus(endpointDefaults)
-        ]);
-        const [readyUnit, readyCity] = await Promise.all([
-          context5.directControl.getCiv7ReadyUnitView(
-            readyUnitInputFromSources2(input2, notifications, turnCompletion),
-            endpointDefaults
-          ),
-          context5.directControl.getCiv7ReadyCityView(
-            readyCityInputFromNotifications2(notifications),
-            endpointDefaults
-          )
-        ]);
-        const battlefieldOrigin = readyUnitLocation(readyUnit);
-        const shouldReadBattlefield = input2.includeBattlefield === true;
-        const battlefield = shouldReadBattlefield && battlefieldOrigin != null ? await context5.directControl.getCiv7BattlefieldScan(
-          {
-            origins: [battlefieldOrigin],
-            radius: input2.battlefieldRadius ?? 6,
-            maxUnits: input2.maxBattlefieldUnits ?? 80
-          },
-          endpointDefaults
-        ) : null;
-        return buildPrioritiesResult({
-          input: input2,
-          playableStatus,
-          notifications,
-          turnCompletion,
-          readyUnit,
-          readyCity,
-          battlefield,
-          sourceStatus: {
-            playableStatus: "read",
-            notifications: "read",
-            turnCompletion: "read",
-            readyUnit: sourceReadStatus2(true, readyUnit),
-            readyCity: sourceReadStatus2(true, readyCity),
-            battlefield: shouldReadBattlefield ? battlefield == null ? "skipped-no-origin" : "read" : "skipped-disabled"
-          }
-        });
-      },
-      catch: (cause3) => errors.ATTENTION_PRIORITIES_UNAVAILABLE({
-        data: {
-          detail: civ7ControlOrpcFailureDetail(cause3),
-          procedureKey: "attention.priorities",
-          source: "direct-control-facade",
-          ...civ7ControlOrpcErrorCorrelationData(context5)
-        }
-      })
-    });
-  }
-);
-function buildPrioritiesResult({
-  playableStatus,
-  notifications,
-  turnCompletion,
-  readyUnit,
-  readyCity,
-  battlefield,
-  sourceStatus
-}) {
-  const priorities = priorityItems({
-    playableStatus,
-    notifications,
-    turnCompletion,
-    readyUnit,
-    readyCity,
-    battlefield
-  }).sort((a, b) => b.priority - a.priority);
-  const nextSteps = priorities.map((item) => item.nextStep).filter((item) => item != null);
-  return {
-    playable: playableStatus.playable,
-    readiness: playableStatus.readiness,
-    localPlayerId: numericValue(notifications?.localPlayerId) ?? numericValue(readyUnit?.localPlayerId) ?? numericValue(readyCity?.localPlayerId) ?? numericValue(battlefield?.localPlayerId),
-    turn: probeValue22(turnCompletion?.turn) ?? probeValue22(notifications?.turn),
-    turnDate: probeValue22(turnCompletion?.turnDate) ?? probeValue22(notifications?.turnDate),
-    canEndTurn: turnCompletion == null ? probeValue22(notifications?.canEndTurn) : probeValue22(turnCompletion.canEndTurn),
-    sourceStatus,
-    turnCompletion: turnCompletionSummary2(turnCompletion),
-    readyUnit: readyUnitSummary(readyUnit),
-    readyCity: readyCitySummary(readyCity),
-    battlefield: battlefieldSummary(battlefield),
-    summary: {
-      priorityCount: priorities.length,
-      blockingPriorityCount: priorities.filter((item) => item.blocking).length,
-      decisionCount: notifications?.hud.decisionQueue.length ?? 0,
-      nextStepCount: nextSteps.length
-    },
-    priorities,
-    nextSteps,
-    notes: [
-      "Read-only attention priority dashboard. It does not send operations or choose strategy.",
-      "Next steps are semantic service descriptors; CLI command rendering is an adapter concern.",
-      "Battlefield evidence is planning context only and must not be treated as relationship status or action authority."
-    ]
-  };
-}
-function priorityItems(input2) {
-  const items = [];
-  if (!input2.playableStatus.playable && input2.notifications == null) {
-    items.push({
-      priority: 100,
-      kind: "readiness-unavailable",
-      summary: "playable Tuner/App UI readiness is not available",
-      reason: "Priority reads require current playable status before blockers can be trusted.",
-      blocking: true,
-      nextStep: {
-        kind: "restore-readiness",
-        source: "readiness",
-        label: "Restore playable readiness before reading priorities.",
-        parameters: {}
-      },
-      evidenceLabels: ["playable-status"]
-    });
-    return items;
-  }
-  const runtimeErrors = hudProbeErrors(input2.notifications);
-  if (runtimeErrors.length > 0) {
-    items.push({
-      priority: 95,
-      kind: "runtime-state-error",
-      summary: "core HUD probes failed; live blocker state is not proven clean",
-      reason: "A missing turn, blocker, or blocking-notification probe means the attention read is partial.",
-      blocking: true,
-      nextStep: {
-        kind: "observe",
-        source: "attention.priorities",
-        label: "Refresh runtime attention evidence before treating the turn as clean.",
-        parameters: {}
-      },
-      evidenceLabels: runtimeErrors.map((item) => `probe-error:${item.field}`)
-    });
-  }
-  const nextDecision = input2.notifications?.hud.nextDecision;
-  if (nextDecision != null) {
-    const stale = staleUnitCommandPriority(nextDecision);
-    items.push({
-      priority: nextDecision.isEndTurnBlocking === true ? 100 : 70,
-      kind: stale?.kind ?? `hud:${String(nextDecision.category)}`,
-      summary: stale?.summary ?? stringValue(
-        nextDecision.summary ?? nextDecision.message ?? nextDecision.typeName,
-        "current HUD decision"
-      ),
-      reason: stale?.reason ?? decisionReason(nextDecision),
-      blocking: nextDecision.isEndTurnBlocking === true,
-      nextStep: stale?.nextStep ?? decisionNextStep(nextDecision, input2.readyUnit),
-      evidenceLabels: ["hud-next-decision"]
-    });
-  }
-  if (input2.readyUnit?.unitId != null) {
-    const unit = probeValue22(
-      input2.readyUnit.unit
-    );
-    const location = unit?.location ? ` at (${unit.location.x},${unit.location.y})` : "";
-    items.push({
-      priority: 85,
-      kind: "ready-unit",
-      summary: `${unit?.typeName ?? "ready unit"}${location}`,
-      reason: "A ready unit blocks turn flow and any target action still needs validator-backed confirmation.",
-      blocking: true,
-      nextStep: {
-        kind: "inspect-ready-unit",
-        source: "ready-unit",
-        label: "Inspect ready unit orders.",
-        parameters: {
-          unitId: input2.readyUnit.unitId
-        }
-      },
-      evidenceLabels: readyUnitEvidence2(input2.readyUnit)
-    });
-  }
-  if (input2.readyCity?.cityId != null) {
-    const city = probeValue22(input2.readyCity.city);
-    items.push({
-      priority: 80,
-      kind: "ready-city",
-      summary: city?.name ?? "ready city",
-      reason: "City blockers branch between production, town focus, population placement, and expansion.",
-      blocking: true,
-      nextStep: {
-        kind: "inspect-ready-city",
-        source: "ready-city",
-        label: "Inspect ready city decision.",
-        parameters: {
-          componentId: input2.readyCity.cityId
-        }
-      },
-      evidenceLabels: readyCityEvidence2(input2.readyCity)
-    });
-  }
-  for (const point of input2.battlefield?.pointsOfInterest ?? []) {
-    items.push({
-      priority: severityPriority(point.severity),
-      kind: `battlefield:${point.kind}`,
-      summary: point.summary,
-      reason: "Battlefield points identify inspection needs around the ready-unit origin; they are not mutation authority.",
-      blocking: false,
-      nextStep: {
-        kind: "inspect-battlefield-point",
-        source: "battlefield",
-        label: `Inspect ${point.kind} battlefield point.`,
-        parameters: {
-          ...point.location == null ? {} : { location: point.location }
-        }
-      },
-      evidenceLabels: ["battlefield-point-of-interest"]
-    });
-  }
-  if (items.length === 0) {
-    items.push({
-      priority: 10,
-      kind: "clean-read",
-      summary: "no HUD, ready-unit, ready-city, or battlefield priority surfaced",
-      reason: "Fresh clean reads can use the guarded end-turn path; it rechecks blockers before mutation.",
-      blocking: false,
-      nextStep: {
-        kind: "end-turn",
-        source: "attention.priorities",
-        label: "No blockers found; guarded end-turn is available.",
-        parameters: {}
-      },
-      evidenceLabels: ["clean-attention-read"]
-    });
-  }
-  return items;
-}
-function decisionReason(nextDecision) {
-  const category = String(nextDecision.category ?? "decision");
-  if (category === "unit-command") {
-    return "A ready unit decision exists; inspect ready-unit and target surfaces before treating command-units as stale.";
-  }
-  if (category === "production-choice" || category === "population-placement") {
-    return "A ready city decision exists; inspect the city decision surface before broad strategy.";
-  }
-  if (category === "informational-notification") {
-    return "HUD details include a live ComponentID; inspect notification postcondition evidence before any closeout send.";
-  }
-  const family = stringValue(nextDecision.operationFamily, null);
-  const operation = stringValue(nextDecision.operationType, null);
-  if (family != null || operation != null) {
-    return `HUD decision exposes validator-backed ${family ?? "operation"}${operation == null ? "" : `/${operation}`} evidence.`;
-  }
-  return "HUD decisions are short-lived attention authority and should be resolved or consciously deferred before broad strategy.";
-}
-function decisionNextStep(nextDecision, readyUnit) {
-  const category = String(nextDecision.category ?? "decision");
-  const componentId = componentIdFromUnknown2(nextDecision.notificationId);
-  const operationFamily = stringValue(nextDecision.operationFamily, void 0);
-  const operationType = stringValue(nextDecision.operationType, void 0);
-  if (category === "production-choice" || category === "population-placement") {
-    return {
-      kind: "inspect-ready-city",
-      source: "ready-city",
-      label: "Inspect ready city decision before choosing a city action.",
-      parameters: {
-        category,
-        operationFamily,
-        operationType,
-        ...componentId == null ? {} : { componentId }
-      }
-    };
-  }
-  if (category === "technology-choice" || category === "culture-choice" || category === "tradition-review") {
-    return {
-      kind: "inspect-progression",
-      source: "notification",
-      label: "Inspect progression options before choosing a progression action.",
-      parameters: {
-        category,
-        operationFamily,
-        operationType,
-        ...componentId == null ? {} : { componentId }
-      }
-    };
-  }
-  if (category === "celebration-choice" || category === "government-choice" || category === "narrative-choice" || category === "first-meet-diplomacy") {
-    if (category === "narrative-choice" && narrativeChoiceOptionsEmpty(nextDecision)) {
-      return {
-        kind: "inspect-notification",
-        source: "notification",
-        label: "Inspect narrative notification closeout evidence.",
-        parameters: {
-          category,
-          operationFamily,
-          operationType,
-          ...componentId == null ? {} : { componentId }
-        }
-      };
-    }
-    return {
-      kind: "inspect-decision",
-      source: "notification",
-      label: "Inspect decision options before choosing an action.",
-      parameters: {
-        category,
-        operationFamily,
-        operationType,
-        ...componentId == null ? {} : { componentId }
-      }
-    };
-  }
-  if (category === "unit-command" && readyUnit != null) {
-    return {
-      kind: "validate-unit-target",
-      source: "ready-unit",
-      label: "Inspect ready unit and validate a unit action.",
-      parameters: {
-        category,
-        operationFamily,
-        operationType,
-        ...componentId == null ? {} : { componentId },
-        ...readyUnit.unitId == null ? {} : { unitId: readyUnit.unitId }
-      }
-    };
-  }
-  if (category === "informational-notification") {
-    return {
-      kind: "inspect-notification",
-      source: "notification",
-      label: "Inspect notification closeout evidence.",
-      parameters: {
-        category,
-        operationFamily,
-        operationType,
-        ...componentId == null ? {} : { componentId }
-      }
-    };
-  }
-  return {
-    kind: "inspect-decision",
-    source: "notification",
-    label: "Inspect current decision evidence.",
-    parameters: {
-      category,
-      operationFamily,
-      operationType,
-      ...componentId == null ? {} : { componentId }
-    }
-  };
-}
-function narrativeChoiceOptionsEmpty(nextDecision) {
-  const details = asRecord(nextDecision.details);
-  return details?.kind === "narrative-choice-options" && Array.isArray(details.enabledOptions) && details.enabledOptions.length === 0;
-}
-function staleUnitCommandPriority(nextDecision) {
-  const details = asRecord(nextDecision.details);
-  if (details?.kind !== "unit-command-reconciliation") return null;
-  if (details.staleExpiredWithoutEnabledCloseout !== true && details.classification !== "unit-command-stale-expired" && details.staleReadyPointerSuspected !== true) {
-    return null;
-  }
-  const enabledCandidate = asArray(details.enabledCloseoutCandidates).find(
-    (item) => typeof item.operationType === "string"
-  );
-  if (enabledCandidate != null) {
-    const unitId = componentIdFromUnknown2(enabledCandidate.unitId);
-    return {
-      kind: "hud:unit-command",
-      summary: "COMMAND_UNITS closeout candidate needs validator-backed review",
-      reason: "Official command-units evidence exposes an enabled unit command candidate; validate it before mutation.",
-      nextStep: {
-        kind: "validate-unit-command",
-        source: "notification",
-        label: "Validate the unit command candidate.",
-        parameters: {
-          operationType: String(enabledCandidate.operationType),
-          ...unitId == null ? {} : { unitId }
-        }
-      }
-    };
-  }
-  const hasSent = probeValue22(details.hasSentTurnComplete) === true;
-  return {
-    kind: "hud:unit-command-stale-expired",
-    summary: hasSent ? "expired COMMAND_UNITS has no ready unit or enabled closeout after turn-complete was sent" : "expired COMMAND_UNITS has no ready unit or enabled unit closeout",
-    reason: hasSent ? "Official command-units activation has no selected/first-ready unit and every scanned unit closeout is disabled; turn-complete is already sent, so wait/watch for turn advance or a new blocker instead of repeating unit operations." : "Official command-units activation has no selected/first-ready unit and every scanned unit closeout is disabled; use the normal end-turn path once, then verify the turn advances or a new blocker appears.",
-    nextStep: {
-      kind: hasSent ? "observe-turn-advance" : "send-turn-complete",
-      source: "attention.priorities",
-      label: hasSent ? "Watch for turn advance or a new blocker." : "Use guarded turn completion once.",
-      parameters: {
-        hasSentTurnComplete: hasSent
-      }
-    }
-  };
-}
-function turnCompletionSummary2(turnCompletion) {
-  return {
-    hasSentTurnComplete: probeValue22(turnCompletion?.hasSentTurnComplete),
-    canEndTurn: probeValue22(turnCompletion?.canEndTurn),
-    firstReadyUnitId: probeValue22(turnCompletion?.firstReadyUnitId),
-    blockerStatus: turnCompletionBlockerStatus2(turnCompletion)
-  };
-}
-function turnCompletionBlockerStatus2(turnCompletion) {
-  const blocker = turnCompletion?.blocker;
-  if (blocker == null || typeof blocker !== "object") return "unknown";
-  if (!("ok" in blocker) || blocker.ok !== true) return "unknown";
-  if (!("value" in blocker)) return "unknown";
-  const value4 = blocker.value;
-  if (value4 === 0 || value4 === null || value4 === "NONE") return "none";
-  return "blocked";
-}
-function readyUnitSummary(readyUnit) {
-  if (readyUnit == null) return null;
-  const unit = probeValue22(readyUnit.unit);
-  return {
-    unitId: readyUnit.unitId,
-    legalOperationCount: readyUnit.legalOperations.length,
-    promotionReadinessAvailable: probeValue22(readyUnit.promotionReadiness) != null,
-    summary: unit?.typeName ?? "ready unit"
-  };
-}
-function readyCitySummary(readyCity) {
-  if (readyCity == null) return null;
-  const city = probeValue22(readyCity.city);
-  return {
-    cityId: readyCity.cityId,
-    legalOperationCount: readyCity.legalOperations.length,
-    productionCandidateCount: probeArrayLength(readyCity.productionCandidates),
-    townFocusOptionCount: probeArrayLength(readyCity.townFocusOptions),
-    populationPlacementAvailable: probeValue22(readyCity.populationPlacement) != null,
-    summary: city?.name ?? "ready city"
-  };
-}
-function battlefieldSummary(battlefield) {
-  if (battlefield == null) return null;
-  return {
-    origins: battlefield.origins,
-    radius: battlefield.radius,
-    hiddenInfoPolicy: String(battlefield.hiddenInfoPolicy),
-    pointOfInterestCount: battlefield.pointsOfInterest.length,
-    observedOwnerCount: battlefield.owners.length,
-    pointsOfInterest: battlefield.pointsOfInterest.map((point) => ({
-      kind: point.kind,
-      severity: point.severity,
-      summary: point.summary,
-      location: point.location
-    }))
-  };
-}
-function readyUnitInputFromSources2(input2, notifications, turnCompletion) {
-  const unitId = probeValue22(notifications.selectedUnitId) ?? probeValue22(notifications.firstReadyUnitId) ?? probeValue22(turnCompletion.firstReadyUnitId);
-  return {
-    ...unitId == null ? {} : { unitId },
-    ...input2.readyUnitRadius == null ? {} : { radius: input2.readyUnitRadius },
-    ...input2.maxReadyUnitOperations == null ? {} : { maxOperations: input2.maxReadyUnitOperations }
-  };
-}
-function readyCityInputFromNotifications2(notifications) {
-  const cityId = probeValue22(notifications.selectedCityId) ?? componentIdFromUnknown2(notifications.hud.nextDecision?.target) ?? notifications.hud.decisionQueue.map((item) => componentIdFromUnknown2(item.target)).find((id) => id != null) ?? null;
-  return cityId == null ? {} : { cityId };
-}
-function readyUnitLocation(readyUnit) {
-  const unit = probeValue22(readyUnit.unit);
-  const x = unit?.location?.x;
-  const y = unit?.location?.y;
-  return typeof x === "number" && typeof y === "number" ? { x, y } : null;
-}
-function sourceReadStatus2(attempted, result) {
-  if (!attempted || result == null) return "skipped-unsupported";
-  if (result.host !== "game-ui") return "read";
-  if ("unitId" in result) {
-    return result.firstReadyUnitId.ok === true ? "read" : "skipped-unsupported";
-  }
-  const readyCityId = result.cityId ?? probeValue22(result.blockingCityId);
-  return readyCityId == null ? "skipped-unsupported" : "read";
-}
-function skippedSourceStatus2(playableStatus) {
-  const skipped = playableStatus.playable ? "skipped-unsupported" : "skipped-not-playable";
-  return {
-    playableStatus: "read",
-    notifications: skipped,
-    turnCompletion: skipped,
-    readyUnit: skipped,
-    readyCity: skipped,
-    battlefield: playableStatus.playable ? "skipped-unsupported" : "skipped-not-playable"
-  };
-}
-function canReadAttentionPriorities(playableStatus, context5) {
-  return playableStatus.playable || context5.controller?.supportedReadProcedures?.includes("attention.priorities") === true;
-}
-function hudProbeErrors(notifications) {
-  if (notifications == null) return [];
-  return [
-    ["turn", notifications.turn],
-    ["turnDate", notifications.turnDate],
-    ["blocker", notifications.blocker],
-    ["blockingNotificationId", notifications.blockingNotificationId]
-  ].flatMap(
-    ([field, probe14]) => isProbeError(probe14) ? [{ field: String(field), error: probe14.error }] : []
-  );
-}
-function readyUnitEvidence2(readyUnit) {
-  return readyUnit.host === "game-ui" ? ["game-ui-ready-unit-source"] : ["ready-unit-view"];
-}
-function readyCityEvidence2(readyCity) {
-  return readyCity.host === "game-ui" ? ["game-ui-ready-city-source"] : ["ready-city-view"];
-}
-function severityPriority(severity) {
-  if (severity === "high") return 75;
-  if (severity === "medium") return 55;
-  if (severity === "low") return 35;
-  return 45;
-}
-function isProbeError(probe14) {
-  return Boolean(
-    probe14 && typeof probe14 === "object" && "ok" in probe14 && probe14.ok === false
-  );
-}
-function probeValue22(probe14) {
-  if (probe14 == null || typeof probe14 !== "object") return null;
-  if (!("ok" in probe14) || probe14.ok !== true) return null;
-  if (!("value" in probe14)) return null;
-  return probe14.value;
-}
-function probeArrayLength(probe14) {
-  const value4 = probeValue22(probe14);
-  return Array.isArray(value4) ? value4.length : 0;
-}
-function numericValue(value4) {
-  return typeof value4 === "number" && Number.isFinite(value4) ? value4 : null;
-}
-function stringValue(value4, fallback) {
-  return typeof value4 === "string" && value4.length > 0 ? value4 : fallback;
-}
-function asRecord(value4) {
-  return value4 != null && typeof value4 === "object" ? value4 : null;
-}
-function asArray(value4) {
-  return Array.isArray(value4) ? value4.filter(
-    (item) => item != null && typeof item === "object"
-  ) : [];
-}
-function componentIdFromUnknown2(value4) {
-  if (value4 == null || typeof value4 !== "object") return null;
-  const candidate2 = "cityId" in value4 ? value4.cityId : value4;
-  if (candidate2 == null || typeof candidate2 !== "object") return null;
-  if (!("owner" in candidate2) || typeof candidate2.owner !== "number") {
-    return null;
-  }
-  if (!("id" in candidate2) || typeof candidate2.id !== "number") return null;
-  const out = { owner: candidate2.owner, id: candidate2.id };
-  if ("type" in candidate2 && typeof candidate2.type === "number") {
-    out.type = candidate2.type;
-  }
-  return out;
-}
-var attentionRouter = {
-  current: attentionCurrentProcedure,
-  priorities: attentionPrioritiesProcedure
-};
 function civ7MutationProcedureKey(meta, path) {
   if (typeof meta.procedureKey === "string" && meta.procedureKey.trim()) {
     return meta.procedureKey;
@@ -36144,46 +35907,72 @@ function civ7MutationProcedureKey(meta, path) {
   if (path.length > 0) return path.join(".");
   return "unknown-procedure";
 }
-var civ7MutationProofBoundaryMiddleware = async ({
+function* civ7MutationProofBoundaryMiddleware({
   context: context5,
   errors,
   next,
   path,
   procedure
-}) => {
-  const result = await next();
+}) {
+  const result = yield* next();
   const violation = civ7MutationProofBoundaryViolation(result.output);
-  if (violation == null) return result;
-  throw errors.MUTATION_PROOF_BOUNDARY_INVALID({
-    data: {
-      procedureKey: civ7MutationProcedureKey(procedure["~orpc"].meta, path),
-      source: "mutation-proof-boundary",
-      risk: "mutation",
-      reason: violation,
-      ...civ7ControlOrpcErrorCorrelationData(context5)
-    }
+  return yield* Option_exports.match(violation, {
+    onNone: () => Effect_exports.succeed(result),
+    onSome: (reason) => Effect_exports.fail(
+      errors.MUTATION_PROOF_BOUNDARY_INVALID({
+        data: {
+          procedureKey: civ7MutationProcedureKey(procedure["~orpc"].meta, path),
+          source: "mutation-proof-boundary",
+          risk: "mutation",
+          reason,
+          ...civ7ControlOrpcErrorCorrelationData(context5)
+        }
+      })
+    )
   });
-};
-function civ7MutationProofBoundaryViolation(output2) {
-  if (!isRecord3(output2)) return "missing-postcondition";
-  const postcondition = output2.postcondition;
-  if (!isRecord3(postcondition)) return "missing-postcondition";
-  const noRepeatAfterUnverified = postcondition.noRepeatAfterUnverified;
-  if (typeof noRepeatAfterUnverified !== "boolean") {
-    return "missing-no-repeat-boundary";
-  }
+}
+var missingPostcondition = () => Option_exports.some("missing-postcondition");
+var mutationProofBoundaryViolationForObservedPostcondition = (output2, postcondition) => Match_exports.value(postcondition.noRepeatAfterUnverified).pipe(
+  Match_exports.when(
+    Predicate_exports.isBoolean,
+    (noRepeat) => mutationProofBoundaryViolationForPostcondition(output2, postcondition, noRepeat)
+  ),
+  Match_exports.orElse(
+    () => Option_exports.some("missing-no-repeat-boundary")
+  )
+);
+var mutationProofBoundaryViolationForOutput = (output2) => Option_exports.liftPredicate(output2.postcondition, isRecord3).pipe(
+  Option_exports.match({
+    onNone: missingPostcondition,
+    onSome: (postcondition) => mutationProofBoundaryViolationForObservedPostcondition(output2, postcondition)
+  })
+);
+var civ7MutationProofBoundaryViolation = (output2) => Option_exports.liftPredicate(output2, isRecord3).pipe(
+  Option_exports.match({
+    onNone: missingPostcondition,
+    onSome: mutationProofBoundaryViolationForOutput
+  })
+);
+function mutationProofBoundaryViolationForPostcondition(output2, postcondition, noRepeatAfterUnverified) {
   const confidence = postcondition.confidence;
   const status = output2.status;
-  if ((confidence === "unverified" || confidence === "pending-runtime-proof") && !noRepeatAfterUnverified) {
-    return "unverified-repeat-safe";
-  }
-  if (status === "sent-unverified" && !hasDoNotRepeatNextStep(output2)) {
-    return "sent-unverified-without-do-not-repeat";
-  }
-  if (status === "sent-guarded" && !hasDoNotRepeatNextStep(output2)) {
-    return "sent-guarded-without-do-not-repeat";
-  }
-  return null;
+  const hasDoNotRepeat = hasDoNotRepeatNextStep(output2);
+  const unverifiedRepeatSafe = (confidence === "unverified" || confidence === "pending-runtime-proof") && !noRepeatAfterUnverified;
+  return Match_exports.value({ hasDoNotRepeat, status, unverifiedRepeatSafe }).pipe(
+    Match_exports.when(
+      { unverifiedRepeatSafe: true },
+      () => Option_exports.some("unverified-repeat-safe")
+    ),
+    Match_exports.when(
+      { status: "sent-unverified", hasDoNotRepeat: false },
+      () => Option_exports.some("sent-unverified-without-do-not-repeat")
+    ),
+    Match_exports.when(
+      { status: "sent-guarded", hasDoNotRepeat: false },
+      () => Option_exports.some("sent-guarded-without-do-not-repeat")
+    ),
+    Match_exports.orElse(() => Option_exports.none())
+  );
 }
 function hasDoNotRepeatNextStep(output2) {
   const nextSteps = output2.nextSteps;
@@ -36192,26 +35981,27 @@ function hasDoNotRepeatNextStep(output2) {
 function isRecord3(value4) {
   return typeof value4 === "object" && value4 !== null && !Array.isArray(value4);
 }
-var civ7MutationReadinessMiddleware = async ({
+function* civ7MutationReadinessMiddleware({
   context: context5,
   errors,
   next,
   path,
   procedure
-}) => {
+}) {
   const procedureKey = civ7MutationProcedureKey(procedure["~orpc"].meta, path);
-  const status = await context5.directControl.getCiv7PlayableStatus(context5.endpointDefaults).catch(() => {
-    throw errors.MUTATION_READINESS_UNAVAILABLE({
+  const status = yield* Effect_exports.tryPromise({
+    try: () => context5.directControl.getCiv7PlayableStatus(context5.endpointDefaults),
+    catch: () => errors.MUTATION_READINESS_UNAVAILABLE({
       data: {
         procedureKey,
         source: "direct-control-facade",
         risk: "mutation",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
-    });
+    })
   });
-  if (status.playable !== true && !civ7ControllerMutationReadinessBypass(context5, procedureKey)) {
-    throw errors.MUTATION_READINESS_REQUIRED({
+  const readinessRequired = Effect_exports.fail(
+    errors.MUTATION_READINESS_REQUIRED({
       data: {
         procedureKey,
         source: "readiness.current",
@@ -36220,10 +36010,14 @@ var civ7MutationReadinessMiddleware = async ({
         readiness: status.readiness,
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
-    });
-  }
-  return next();
-};
+    })
+  );
+  yield* Effect_exports.when(
+    readinessRequired,
+    () => status.playable !== true && !civ7ControllerMutationReadinessBypass(context5, procedureKey)
+  );
+  return yield* next();
+}
 function civ7ControllerMutationReadinessBypass(context5, procedureKey) {
   return context5.controller?.supportedMutationProcedures?.includes(procedureKey) === true && isCiv7ControllerMutationProof(context5.controllerProof);
 }
@@ -36494,19 +36288,19 @@ function productionPostconditionSummary(result) {
 var cityTownFocusChangeRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.city.townFocus.change.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
-  const source2 = "city.townFocus.change.request";
+  const source = "city.townFocus.change.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
       const result = await context5.directControl.requestCiv7TownFocusChange(
         input2,
         context5.endpointDefaults
       );
-      return townFocusResult(source2, input2, result);
+      return townFocusResult(source, input2, result);
     },
     catch: (cause3) => errors.TOWN_FOCUS_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
@@ -36516,26 +36310,26 @@ var cityTownFocusChangeRequestProcedure = civ7ControlOrpcMutationProcedure(
 var cityTownFocusReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.city.townFocus.review.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
-  const source2 = "city.townFocus.review.request";
+  const source = "city.townFocus.review.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
       const result = await context5.directControl.requestCiv7TownFocusReviewCloseout(
         input2,
         context5.endpointDefaults
       );
-      return townFocusResult(source2, input2, result);
+      return townFocusResult(source, input2, result);
     },
     catch: (cause3) => errors.TOWN_FOCUS_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
     })
   });
 });
-function townFocusResult(source2, input2, result) {
+function townFocusResult(source, input2, result) {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
     postcondition: townFocusProofPostcondition(result),
@@ -36544,7 +36338,7 @@ function townFocusResult(source2, input2, result) {
       reason: "The town focus result did not include explicit postcondition evidence.",
       outcome: result.sent ? "unknown" : "not-sent"
     },
-    source: source2,
+    source,
     inspectKind: "inspect-town-focus",
     inspectLabel: "Inspect current ready-city town focus evidence before attempting another town focus request.",
     doNotRepeatLabel: "Do not repeat this town focus request until fresh city readiness evidence is read."
@@ -36560,7 +36354,7 @@ function townFocusResult(source2, input2, result) {
     postcondition: projection.postcondition,
     nextSteps: projection.nextSteps
   };
-  if (source2 === "city.townFocus.change.request" && result.kind === "town-focus-change" && "growthType" in input2) {
+  if (source === "city.townFocus.change.request" && result.kind === "town-focus-change" && "growthType" in input2) {
     return {
       ...base,
       growthType: result.growthType,
@@ -36568,31 +36362,11 @@ function townFocusResult(source2, input2, result) {
       city: result.city
     };
   }
-  if (source2 === "city.townFocus.review.request") {
+  if (source === "city.townFocus.review.request") {
     return base;
   }
   throw new Error("invalid town focus projection");
 }
-var cityRouter = {
-  population: {
-    place: {
-      request: cityPopulationPlaceRequestProcedure
-    }
-  },
-  production: {
-    choice: {
-      request: cityProductionChoiceRequestProcedure
-    }
-  },
-  townFocus: {
-    change: {
-      request: cityTownFocusChangeRequestProcedure
-    },
-    review: {
-      request: cityTownFocusReviewRequestProcedure
-    }
-  }
-};
 var firstMeetResponseRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.diplomacy.firstMeet.response.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
@@ -36713,20 +36487,10 @@ function diplomacyResponseResult(input2, result) {
     nextSteps: projection.nextSteps
   };
 }
-var diplomacyRouter = {
-  firstMeet: {
-    response: {
-      request: firstMeetResponseRequestProcedure
-    }
-  },
-  response: {
-    request: diplomacyResponseRequestProcedure
-  }
-};
 var governmentChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.government.choice.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
-  const source2 = "government.choice.request";
+  const source = "government.choice.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
       const localPlayerId = await readLocalPlayerId4(context5);
@@ -36739,12 +36503,12 @@ var governmentChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
         requestInput,
         context5.endpointDefaults
       );
-      return governmentChoiceResult(source2, requestInput, result);
+      return governmentChoiceResult(source, requestInput, result);
     },
     catch: (cause3) => errors.GOVERNMENT_CHOICE_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
@@ -36754,7 +36518,7 @@ var governmentChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
 var governmentCelebrationChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.government.celebration.choice.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
-  const source2 = "government.celebration.choice.request";
+  const source = "government.celebration.choice.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
       const localPlayerId = await readLocalPlayerId4(context5);
@@ -36766,12 +36530,12 @@ var governmentCelebrationChoiceRequestProcedure = civ7ControlOrpcMutationProcedu
         requestInput,
         context5.endpointDefaults
       );
-      return governmentChoiceResult(source2, requestInput, result);
+      return governmentChoiceResult(source, requestInput, result);
     },
     catch: (cause3) => errors.GOVERNMENT_CHOICE_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
@@ -36782,7 +36546,7 @@ async function readLocalPlayerId4(context5) {
   const view = await context5.directControl.getCiv7PlayNotificationView(context5.endpointDefaults);
   return view.localPlayerId;
 }
-function governmentChoiceResult(source2, input2, result) {
+function governmentChoiceResult(source, input2, result) {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
     postcondition: governmentChoiceProofPostcondition(result),
@@ -36791,7 +36555,7 @@ function governmentChoiceResult(source2, input2, result) {
       reason: "The government-domain choice result did not include explicit postcondition evidence.",
       outcome: result.sent ? "unknown" : "not-sent"
     },
-    source: source2,
+    source,
     inspectKind: "inspect-government-choice",
     inspectLabel: "Inspect current government or celebration choice state before attempting another request.",
     doNotRepeatLabel: "Do not repeat this government-domain choice request until fresh attention evidence is read."
@@ -36807,7 +36571,7 @@ function governmentChoiceResult(source2, input2, result) {
     postcondition: projection.postcondition,
     nextSteps: projection.nextSteps
   };
-  if (source2 === "government.choice.request" && "governmentType" in input2 && result.kind === "government") {
+  if (source === "government.choice.request" && "governmentType" in input2 && result.kind === "government") {
     return {
       ...base,
       governmentType: result.governmentType,
@@ -36822,16 +36586,6 @@ function governmentChoiceResult(source2, input2, result) {
   }
   throw new Error("invalid government-domain choice projection");
 }
-var governmentRouter = {
-  choice: {
-    request: governmentChoiceRequestProcedure
-  },
-  celebration: {
-    choice: {
-      request: governmentCelebrationChoiceRequestProcedure
-    }
-  }
-};
 var narrativeChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.narrative.choice.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
@@ -36893,68 +36647,6 @@ function narrativeChoiceResult(input2, result) {
     nextSteps: projection.nextSteps
   };
 }
-var narrativeRouter = {
-  choice: {
-    request: narrativeChoiceRequestProcedure
-  }
-};
-var source = "notifications.advisorWarning.viewed.request";
-var notificationsAdvisorWarningViewedRequestProcedure = civ7ControlOrpcMutationProcedure(
-  civ7ControlOrpcImplementer.notifications.advisorWarning.viewed.request
-).effect(function* ({ context: context5, errors, input: input2 }) {
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const localPlayerId = await readLocalPlayerId6(context5);
-      const result = await context5.directControl.requestCiv7AdvisorWarningViewed(
-        {
-          playerId: localPlayerId,
-          target: input2.target
-        },
-        context5.endpointDefaults
-      );
-      return advisorWarningViewedResult(input2, result);
-    },
-    catch: (cause3) => errors.NOTIFICATION_ADVISOR_WARNING_UNAVAILABLE({
-      data: {
-        detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source,
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-async function readLocalPlayerId6(context5) {
-  const view = await context5.directControl.getCiv7PlayNotificationView(context5.endpointDefaults);
-  return view.localPlayerId;
-}
-function advisorWarningViewedResult(input2, result) {
-  const projection = civ7CloseoutMutationProjection({
-    sent: result.sent,
-    postcondition: advisorWarningProofPostcondition(result),
-    missing: {
-      classification: "missing-postcondition",
-      reason: "The advisor warning viewed result did not include explicit postcondition evidence.",
-      outcome: result.sent ? "unknown" : "not-sent"
-    },
-    source,
-    inspectKind: "inspect-notification",
-    inspectLabel: "Inspect advisor-warning notification state before attempting another request.",
-    doNotRepeatLabel: "Do not repeat this advisor-warning acknowledgement until fresh attention evidence is read."
-  });
-  return {
-    playerId: result.playerId,
-    target: input2.target,
-    sent: result.sent,
-    status: projection.status,
-    validation: {
-      beforeValid: result.beforeValidation.valid,
-      afterValid: result.afterValidation.valid
-    },
-    postcondition: projection.postcondition,
-    nextSteps: projection.nextSteps
-  };
-}
 var notificationsDismissRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.notifications.dismiss.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
@@ -37003,370 +36695,11 @@ function notificationDismissalResult(result) {
     nextSteps: projection.nextSteps
   };
 }
-var notificationsQueueCurrentProcedure = civ7ControlOrpcImplementer.notifications.queue.current.effect(function* ({
-  context: context5,
-  errors,
-  input: input2
-}) {
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const view = await context5.directControl.getCiv7PlayNotificationView({
-        ...context5.endpointDefaults,
-        maxNotifications: input2.maxNotifications ?? 50
-      });
-      return notificationQueueResult(view);
-    },
-    catch: (cause3) => errors.NOTIFICATION_QUEUE_UNAVAILABLE({
-      data: {
-        detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: "notifications.queue.current",
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-var notificationsQueueDismissRequestProcedure = civ7ControlOrpcMutationProcedure(
-  civ7ControlOrpcImplementer.notifications.queue.dismiss.request
-).effect(function* ({ context: context5, errors, input: input2 }) {
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const view = await context5.directControl.getCiv7PlayNotificationView({
-        ...context5.endpointDefaults,
-        maxNotifications: input2.maxNotifications ?? 50
-      });
-      const { candidates, excluded } = classifyQueue(view.hud.decisionQueue);
-      const maxDismissals = input2.maxDismissals ?? 10;
-      const selected = candidates.slice(0, maxDismissals);
-      const results = [];
-      const send = input2.send === true;
-      if (send) {
-        for (const candidate2 of selected) {
-          if (candidate2.notificationId == null) continue;
-          results.push(
-            await context5.directControl.requestCiv7NotificationDismissal(
-              { notificationId: candidate2.notificationId },
-              context5.endpointDefaults
-            )
-          );
-        }
-      }
-      return notificationQueueDismissResult({
-        view,
-        candidates,
-        excluded,
-        selected,
-        results,
-        send,
-        maxDismissals
-      });
-    },
-    catch: (cause3) => errors.NOTIFICATION_QUEUE_UNAVAILABLE({
-      data: {
-        detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: "notifications.queue.dismiss.request",
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-function notificationQueueResult(view) {
-  const schedule2 = buildNotificationSchedule(view.hud.decisionQueue);
-  return {
-    localPlayerId: view.localPlayerId,
-    turn: view.turn,
-    turnDate: view.turnDate,
-    blocker: view.blocker,
-    blockingNotificationId: probeValue32(view.blockingNotificationId),
-    canEndTurn: view.canEndTurn,
-    limits: view.limits,
-    queueLength: view.hud.decisionQueue.length,
-    schedule: schedule2,
-    nextSteps: schedule2.map((item) => item.nextStep).filter((item) => item != null),
-    notes: [
-      "Read-only notification queue scheduler; it does not dismiss notifications or send player/unit/city operations.",
-      "Informational dismissal candidates require summary and context review plus item-scoped validator-backed dismissal.",
-      "Operation steps are templates. Re-read live inputs and validate against the current surface before mutating."
-    ]
-  };
-}
-function notificationQueueDismissResult(input2) {
-  const projectedResults = input2.results.map(notificationDismissalResult);
-  const allConfirmed = input2.send && input2.selected.length > 0 && projectedResults.length === input2.selected.length && projectedResults.every((result) => result.status === "sent-confirmed");
-  const status = !input2.send ? "not-sent" : allConfirmed ? "sent-confirmed" : "sent-guarded";
-  const postcondition = !input2.send ? {
-    classification: "not-sent",
-    reason: "Dry run only; no notification dismissal was sent.",
-    outcome: "not-sent",
-    confidence: "unverified",
-    confirmed: false,
-    noRepeatAfterUnverified: true
-  } : allConfirmed ? {
-    classification: "all-selected-confirmed",
-    reason: "Every selected notification dismissal had confirmed postcondition evidence.",
-    outcome: "cleared",
-    confidence: "confirmed",
-    confirmed: true,
-    noRepeatAfterUnverified: false
-  } : {
-    classification: "selection-unverified",
-    reason: "At least one selected notification dismissal lacked confirmed postcondition evidence.",
-    outcome: "unknown",
-    confidence: "unverified",
-    confirmed: false,
-    noRepeatAfterUnverified: true
-  };
-  return {
-    localPlayerId: input2.view.localPlayerId,
-    turn: input2.view.turn,
-    turnDate: input2.view.turnDate,
-    blocker: input2.view.blocker,
-    blockingNotificationId: probeValue32(input2.view.blockingNotificationId),
-    canEndTurn: input2.view.canEndTurn,
-    queueLength: input2.view.hud.decisionQueue.length,
-    sent: input2.send,
-    status,
-    postcondition,
-    maxDismissals: input2.maxDismissals,
-    eligibleCount: input2.candidates.length,
-    selectedCount: input2.selected.length,
-    omittedEligibleCount: Math.max(0, input2.candidates.length - input2.selected.length),
-    candidates: input2.selected,
-    excluded: input2.excluded,
-    results: projectedResults,
-    noRepeatAfterUnverified: postcondition.noRepeatAfterUnverified,
-    nextSteps: status === "sent-confirmed" ? [
-      {
-        kind: "refresh-attention",
-        source: "notifications.queue.dismiss.request",
-        label: "Re-read notification queue and attention state before making further decisions."
-      }
-    ] : [
-      {
-        kind: "do-not-repeat",
-        source: "notifications.queue.dismiss.request",
-        label: input2.send ? "Do not repeat bulk dismissal until fresh notification evidence is read." : "Dry run only; no dismissal was sent."
-      },
-      {
-        kind: "inspect-notification",
-        source: "notifications.queue.dismiss.request",
-        label: "Inspect selected notification evidence before any repeat attempt."
-      }
-    ],
-    notes: [
-      input2.send ? "Bulk dismissal sent only for eligible informational closeout candidates selected from a fresh HUD queue read." : "Dry run only. Set send=true to dismiss eligible informational closeout candidates.",
-      "Operation-bearing, unit-command, production, diplomacy, narrative, progression, population, and unclassified notifications are excluded.",
-      "A completed App UI call is not aggregate confirmed unless every selected item has confirmed postcondition evidence.",
-      "Re-read the queue after this procedure before making further decisions."
-    ]
-  };
-}
-function buildNotificationSchedule(queue) {
-  return queue.map((item, index3) => buildQueueStep(item, index3 + 1)).sort((left3, right3) => right3.priority - left3.priority || left3.step - right3.step).map((item, index3) => ({ ...item, step: index3 + 1 }));
-}
-function classifyQueue(queue) {
-  const candidates = [];
-  const excluded = [];
-  for (const item of buildNotificationSchedule(queue)) {
-    if (item.disposition === "reviewed-dismissal-candidate" && item.safeToBatch) {
-      candidates.push(item);
-      continue;
-    }
-    excluded.push({
-      notificationId: item.notificationId,
-      category: item.category,
-      typeName: item.typeName,
-      summary: item.summary,
-      isEndTurnBlocking: item.isEndTurnBlocking,
-      reason: exclusionReason(item)
-    });
-  }
-  return { candidates, excluded };
-}
-function buildQueueStep(item, originalStep) {
-  const disposition = dispositionFor(item);
-  const requiredInputs = item.requiredInputs.filter((input2) => input2.required).map((input2) => input2.name);
-  const isDismissalCandidate = disposition === "reviewed-dismissal-candidate";
-  const safeToBatch = isDismissalCandidate && isBatchSafeDismissalCandidate(item);
-  const guardrails = guardrailsFor(item, disposition, requiredInputs);
-  const operationFamily = stringValueOrUndefined(item.operationFamily);
-  const operationType = stringValueOrUndefined(item.operationType);
-  return {
-    step: originalStep,
-    priority: priorityFor(item, disposition),
-    disposition,
-    notificationId: item.notificationId,
-    isEndTurnBlocking: item.isEndTurnBlocking,
-    category: item.category,
-    typeName: item.typeName,
-    summary: item.summary,
-    message: item.message,
-    ...operationFamily == null ? {} : { operationFamily },
-    ...operationType == null ? {} : { operationType },
-    requiredInputs,
-    nextStep: nextStepFor(item, disposition, operationFamily, operationType),
-    safeToBatch,
-    reason: reasonFor(item, disposition),
-    guardrails: isDismissalCandidate ? [
-      "Review the message and context first; this schedule only identifies an eligible dismissal candidate.",
-      ...guardrails
-    ] : guardrails
-  };
-}
-function dispositionFor(item) {
-  if (item.category === "informational-notification" && item.operationFamily === "app-ui-action") {
-    return "reviewed-dismissal-candidate";
-  }
-  if (item.category === "unit-command") return "inspect-ready-unit";
-  if (item.operationFamily) return "operate-with-live-inputs";
-  if (item.category === "notification" || item.category === "blocking-notification") {
-    return "inspect-handler";
-  }
-  return "review-only";
-}
-function isBatchSafeDismissalCandidate(item) {
-  if (item.notificationId == null) return false;
-  if (item.operationType !== "Game.Notifications.dismiss") return false;
-  if (!item.isEndTurnBlocking) return true;
-  return item.typeName !== "NOTIFICATION_UNIT_LOST";
-}
-function priorityFor(item, disposition) {
-  if (item.isEndTurnBlocking) return 100;
-  if (disposition === "operate-with-live-inputs") return 70;
-  if (disposition === "inspect-ready-unit") return 65;
-  if (disposition === "inspect-handler") return 50;
-  if (disposition === "reviewed-dismissal-candidate") return 35;
-  return 20;
-}
-function reasonFor(item, disposition) {
-  if (item.isEndTurnBlocking) {
-    return "End-turn blocker; resolve or consciously defer before broad tactical planning.";
-  }
-  if (disposition === "reviewed-dismissal-candidate") {
-    return "Default-handler informational notification; useful for context, but closeout must stay item-scoped and postcondition-checked.";
-  }
-  if (disposition === "inspect-ready-unit") {
-    return "Unit command notification needs the current ready unit and target-specific validators.";
-  }
-  if (disposition === "operate-with-live-inputs") {
-    return "Known operation family; required live inputs must be read from the current surface before send.";
-  }
-  if (disposition === "inspect-handler") {
-    return "Unclassified notification; inspect official handler or live UI before choosing any operation.";
-  }
-  return "Queue context item; keep for strategy or tactics but do not mutate from this schedule alone.";
-}
-function exclusionReason(item) {
-  if (item.notificationId == null) return "missing notification id";
-  if (item.isEndTurnBlocking && item.typeName === "NOTIFICATION_UNIT_LOST") {
-    return "front unit-loss reports require exact reviewed dismissal proof, not bulk dismissal";
-  }
-  if (item.category === "unit-command") return "unit command requires ready-unit inspection";
-  if (item.operationFamily != null && item.operationFamily !== "app-ui-action") {
-    return "gameplay operation requires live inputs and validator-backed command";
-  }
-  if (item.category === "notification" || item.category === "blocking-notification") {
-    return "unclassified notification needs handler evidence first";
-  }
-  if (item.category === "informational-notification") {
-    return "informational item is not exposed as App UI dismissal by the live HUD";
-  }
-  return "not an informational closeout candidate";
-}
-function guardrailsFor(item, disposition, requiredInputs) {
-  const guardrails = [];
-  if (requiredInputs.length > 0 && disposition !== "reviewed-dismissal-candidate") {
-    guardrails.push(`Read required live inputs first: ${requiredInputs.join(", ")}.`);
-  }
-  if (item.location && typeof item.location === "object") {
-    guardrails.push(
-      "Use the reported location as tactical context, not as proof of a valid operation target."
-    );
-  }
-  if (disposition === "operate-with-live-inputs") {
-    guardrails.push(
-      "Validate against the current domain surface; this schedule does not prove the args."
-    );
-  }
-  if (disposition === "inspect-handler") {
-    guardrails.push("Do not dismiss unclassified notifications in bulk.");
-  }
-  return guardrails;
-}
-function nextStepFor(item, disposition, operationFamily, operationType) {
-  const baseParameters = {
-    ...item.notificationId == null ? {} : { notificationId: item.notificationId },
-    category: item.category,
-    ...operationFamily == null ? {} : { operationFamily },
-    ...operationType == null ? {} : { operationType }
-  };
-  if (disposition === "reviewed-dismissal-candidate") {
-    return {
-      kind: "dismiss-notification",
-      source: "notifications.queue.current",
-      label: "Review and dismiss this informational notification with the item-scoped dismissal request.",
-      parameters: baseParameters
-    };
-  }
-  if (disposition === "inspect-ready-unit") {
-    return {
-      kind: "inspect-ready-unit",
-      source: "notifications.queue.current",
-      label: "Inspect current ready unit before choosing a unit operation.",
-      parameters: baseParameters
-    };
-  }
-  if (disposition === "operate-with-live-inputs") {
-    return {
-      kind: operationFamily === "city-command" ? "inspect-ready-city" : "validate-operation",
-      source: "notifications.queue.current",
-      label: "Read current domain evidence and validation before mutating.",
-      parameters: baseParameters
-    };
-  }
-  if (disposition === "inspect-handler") {
-    return {
-      kind: "inspect-notification",
-      source: "notifications.queue.current",
-      label: "Inspect handler evidence before acting on this notification.",
-      parameters: baseParameters
-    };
-  }
-  return {
-    kind: "observe",
-    source: "notifications.queue.current",
-    label: "Keep this queue item as read-only context.",
-    parameters: baseParameters
-  };
-}
-function stringValueOrUndefined(value4) {
-  return typeof value4 === "string" ? value4 : void 0;
-}
-function probeValue32(probe14) {
-  return probe14?.ok ? probe14.value : null;
-}
-var notificationsRouter = {
-  advisorWarning: {
-    viewed: {
-      request: notificationsAdvisorWarningViewedRequestProcedure
-    }
-  },
-  dismiss: {
-    request: notificationsDismissRequestProcedure
-  },
-  queue: {
-    current: notificationsQueueCurrentProcedure,
-    dismiss: {
-      request: notificationsQueueDismissRequestProcedure
-    }
-  }
-};
 var progressionTechnologyChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.progression.technology.choice.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
   const kind = "technology";
-  const source2 = "progression.technology.choice.request";
+  const source = "progression.technology.choice.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
       const before2 = await context5.directControl.getCiv7PlayNotificationView(
@@ -37377,12 +36710,12 @@ var progressionTechnologyChoiceRequestProcedure = civ7ControlOrpcMutationProcedu
         context: context5
       });
       const after3 = await readAfterProgressionChoice(context5, result);
-      return progressionChoiceResult(kind, source2, requestInput, result, before2, after3);
+      return progressionChoiceResult(kind, source, requestInput, result, before2, after3);
     },
     catch: (cause3) => errors.PROGRESSION_CHOICE_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
@@ -37393,7 +36726,7 @@ var progressionCultureChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.progression.culture.choice.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
   const kind = "culture";
-  const source2 = "progression.culture.choice.request";
+  const source = "progression.culture.choice.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
       const before2 = await context5.directControl.getCiv7PlayNotificationView(
@@ -37404,12 +36737,12 @@ var progressionCultureChoiceRequestProcedure = civ7ControlOrpcMutationProcedure(
         context: context5
       });
       const after3 = await readAfterProgressionChoice(context5, result);
-      return progressionChoiceResult(kind, source2, requestInput, result, before2, after3);
+      return progressionChoiceResult(kind, source, requestInput, result, before2, after3);
     },
     catch: (cause3) => errors.PROGRESSION_CHOICE_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
@@ -37440,7 +36773,7 @@ function progressionChoiceRuntimeInput(input2, before2) {
     ...input2.notificationId === void 0 ? {} : { notificationId: input2.notificationId }
   };
 }
-function progressionChoiceResult(kind, source2, input2, result, before2, after3) {
+function progressionChoiceResult(kind, source, input2, result, before2, after3) {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
     postcondition: progressionChoicePostcondition2(kind, result, before2, after3),
@@ -37449,7 +36782,7 @@ function progressionChoiceResult(kind, source2, input2, result, before2, after3)
       reason: "The progression choice result did not include explicit postcondition evidence.",
       outcome: "unknown"
     },
-    source: source2,
+    source,
     inspectKind: "inspect-progression-choice",
     inspectLabel: "Inspect current attention and progression choice state before attempting another progression request.",
     doNotRepeatLabel: "Do not repeat this progression choice request until fresh attention and progression evidence is read."
@@ -37535,190 +36868,23 @@ function progressionBlockerPresent(kind, view) {
   return kind === "technology" ? findTechnologyChoiceNotification(view) != null : findCultureChoiceNotification(view) != null;
 }
 function booleanProbeValue(value4) {
-  const unwrapped = probeValue42(value4);
+  const unwrapped = probeValue22(value4);
   return typeof unwrapped === "boolean" ? unwrapped : null;
 }
-function probeValue42(value4) {
+function probeValue22(value4) {
   if (value4 && typeof value4 === "object" && "ok" in value4) {
     const probe14 = value4;
     return probe14.ok === true ? probe14.value ?? null : null;
   }
   return value4 ?? null;
 }
-var progressionDashboardCurrentProcedure = civ7ControlOrpcImplementer.progression.dashboard.current.effect(function* ({
-  context: context5,
-  errors,
-  input: input2
-}) {
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const dashboard = await context5.directControl.getCiv7ProgressDashboard(
-        input2,
-        context5.endpointDefaults
-      );
-      return progressionDashboardResult(input2, dashboard);
-    },
-    catch: (cause3) => errors.PROGRESSION_DASHBOARD_UNAVAILABLE({
-      data: {
-        detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: "progression.dashboard.current",
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-function progressionDashboardResult(_input, dashboard) {
-  const legacyPaths = dashboard.legacyPaths.map(compactLegacyPath);
-  const victoryClasses = uniqueStrings(
-    dashboard.victories.rows.map((row) => stringField(row, "victoryClassType"))
-  );
-  const warnings = progressionDashboardWarnings(dashboard);
-  const nextSteps = progressionDashboardNextSteps(dashboard);
-  return {
-    playerId: dashboard.playerId,
-    localPlayerId: dashboard.localPlayerId,
-    sourceStatus: {
-      progressDashboard: "read"
-    },
-    hiddenInfoPolicy: dashboard.hiddenInfoPolicy,
-    summary: {
-      headline: progressionDashboardHeadline(dashboard, legacyPaths),
-      legacyPathCount: legacyPaths.length,
-      victoryClassCount: victoryClasses.length,
-      triumphCount: dashboard.triumphs.count,
-      nextStepCount: nextSteps.length
-    },
-    turn: dashboard.turn,
-    turnDate: dashboard.turnDate,
-    age: {
-      ageType: dashboard.age.ageType,
-      name: dashboard.age.name,
-      chronologyIndex: dashboard.age.chronologyIndex,
-      currentAgeProgressionPoints: dashboard.age.currentAgeProgressionPoints,
-      maxAgeProgressionPoints: dashboard.age.maxAgeProgressionPoints,
-      ageProgressPercent: ratioPercent(
-        probeValue5(dashboard.age.currentAgeProgressionPoints),
-        probeValue5(dashboard.age.maxAgeProgressionPoints)
-      ),
-      isFinalAge: dashboard.age.isFinalAge,
-      isAgeOver: dashboard.age.isAgeOver
-    },
-    player: {
-      team: dashboard.player.team,
-      historicalLegacyPointCountForTeam: dashboard.player.historicalLegacyPointCountForTeam
-    },
-    legacyPaths,
-    victories: {
-      rowCount: dashboard.victories.rows.length,
-      classes: victoryClasses
-    },
-    triumphs: {
-      count: dashboard.triumphs.count,
-      source: dashboard.triumphs.source,
-      rows: dashboard.triumphs.rows.slice(0, 8)
-    },
-    proof: {
-      victoryManagerGlobal: dashboard.proof.victoryManagerGlobal,
-      sources: [...dashboard.proof.sources]
-    },
-    warnings,
-    omitted: [
-      {
-        path: "dashboard.legacyPaths[].milestones",
-        reason: "Milestone probe details stay in the direct-control runtime evidence surface; this service result keeps a summary-first progression view."
-      },
-      {
-        path: "dashboard.victories.rows",
-        reason: "Victory rows are summarized by class for the caller-facing progression view."
-      },
-      {
-        path: "dashboard.triumphs.rows",
-        reason: "The service result includes only the first 8 runtime triumph rows."
-      }
-    ],
-    notes: [...dashboard.notes],
-    nextSteps
-  };
-}
-function compactLegacyPath(path) {
-  const score = probeValue5(path.score);
-  const nextMilestone = path.nextMilestone && typeof path.nextMilestone === "object" ? path.nextMilestone : null;
-  return {
-    legacyPathType: path.legacyPathType,
-    classType: shortClass(path.legacyPathClassType),
-    name: path.name,
-    score: typeof score === "number" ? score : null,
-    finalRequiredPathPoints: path.finalRequiredPathPoints,
-    progressPercent: ratioPercent(score, path.finalRequiredPathPoints),
-    nextMilestone: typeof nextMilestone?.ageProgressionMilestoneType === "string" ? `${nextMilestone.ageProgressionMilestoneType} at ${nextMilestone.requiredPathPoints ?? "?"}` : null,
-    enabledForPlayer: path.enabledForPlayer
-  };
-}
-function progressionDashboardHeadline(dashboard, legacyPaths) {
-  const pathSummary = legacyPaths.map(
-    (path) => `${path.classType ?? path.legacyPathType}: ${path.score ?? "?"}/${path.finalRequiredPathPoints ?? "?"}`
-  ).join(", ");
-  return `${dashboard.age.ageType ?? "unknown age"} progress: ${pathSummary || "no current-age legacy paths surfaced"}`;
-}
-function progressionDashboardWarnings(dashboard) {
-  return [
-    probeValue5(dashboard.proof.victoryManagerGlobal) === "undefined" ? "VictoryManager is module-local in the official UI; this service uses exposed lower-level legacy and age-progress APIs." : null,
-    dashboard.triumphs.count === 0 ? "Runtime GameInfo.Triumphs returned no rows; do not infer that all reward systems are absent." : null
-  ].filter((warning) => Boolean(warning));
-}
-function progressionDashboardNextSteps(dashboard) {
-  const steps = [
-    {
-      kind: "read-attention-priorities",
-      source: "progression.dashboard.current",
-      label: "Read current attention priorities before choosing the next progression action."
-    }
-  ];
-  if (dashboard.legacyPaths.length > 0) {
-    steps.push({
-      kind: "inspect-progression-choice",
-      source: "progression.dashboard.current",
-      label: "Inspect available technology, culture, attribute, or tradition choices before mutating progression."
-    });
-  }
-  if (dashboard.victories.rows.length > 0) {
-    steps.push({
-      kind: "inspect-victory-progress",
-      source: "progression.dashboard.current",
-      label: "Use victory classes as progress context, not as an automatic action plan."
-    });
-  }
-  return steps.length > 0 ? steps : [
-    {
-      kind: "observe",
-      source: "progression.dashboard.current",
-      label: "Observe current attention before selecting a progression follow-up."
-    }
-  ];
-}
-function probeValue5(probe14) {
-  return probe14?.ok ? probe14.value : null;
-}
-function ratioPercent(current, total) {
-  return typeof current === "number" && typeof total === "number" && total > 0 ? Math.round(current / total * 1e3) / 10 : null;
-}
-function shortClass(value4) {
-  return value4?.replace(/^LEGACY_PATH_CLASS_/, "").toLowerCase() ?? null;
-}
-function stringField(value4, key) {
-  return value4 && typeof value4 === "object" && typeof value4[key] === "string" ? value4[key] : null;
-}
-function uniqueStrings(values3) {
-  return [...new Set(values3.filter((value4) => Boolean(value4)))];
-}
 var progressionAttributePurchaseRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.progression.attribute.purchase.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
-  const source2 = "progression.attribute.purchase.request";
+  const source = "progression.attribute.purchase.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId7(context5);
+      const localPlayerId = await readLocalPlayerId6(context5);
       const requestInput = {
         playerId: localPlayerId,
         node: input2.node
@@ -37727,12 +36893,12 @@ var progressionAttributePurchaseRequestProcedure = civ7ControlOrpcMutationProced
         requestInput,
         context5.endpointDefaults
       );
-      return progressionPlayerChoiceResult(source2, requestInput, result);
+      return progressionPlayerChoiceResult(source, requestInput, result);
     },
     catch: (cause3) => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
@@ -37742,21 +36908,21 @@ var progressionAttributePurchaseRequestProcedure = civ7ControlOrpcMutationProced
 var progressionAttributeReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.progression.attribute.review.request
 ).effect(function* ({ context: context5, errors }) {
-  const source2 = "progression.attribute.review.request";
+  const source = "progression.attribute.review.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId7(context5);
+      const localPlayerId = await readLocalPlayerId6(context5);
       const requestInput = { playerId: localPlayerId };
       const result = await context5.directControl.requestCiv7AttributeReviewCloseout(
         requestInput,
         context5.endpointDefaults
       );
-      return progressionPlayerChoiceResult(source2, requestInput, result);
+      return progressionPlayerChoiceResult(source, requestInput, result);
     },
     catch: (cause3) => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
@@ -37766,10 +36932,10 @@ var progressionAttributeReviewRequestProcedure = civ7ControlOrpcMutationProcedur
 var progressionTraditionChangeRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.progression.tradition.change.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
-  const source2 = "progression.tradition.change.request";
+  const source = "progression.tradition.change.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId7(context5);
+      const localPlayerId = await readLocalPlayerId6(context5);
       const requestInput = {
         playerId: localPlayerId,
         traditionType: input2.traditionType,
@@ -37779,12 +36945,12 @@ var progressionTraditionChangeRequestProcedure = civ7ControlOrpcMutationProcedur
         requestInput,
         context5.endpointDefaults
       );
-      return progressionPlayerChoiceResult(source2, requestInput, result);
+      return progressionPlayerChoiceResult(source, requestInput, result);
     },
     catch: (cause3) => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
@@ -37794,32 +36960,32 @@ var progressionTraditionChangeRequestProcedure = civ7ControlOrpcMutationProcedur
 var progressionTraditionReviewRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.progression.tradition.review.request
 ).effect(function* ({ context: context5, errors }) {
-  const source2 = "progression.tradition.review.request";
+  const source = "progression.tradition.review.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId7(context5);
+      const localPlayerId = await readLocalPlayerId6(context5);
       const requestInput = { playerId: localPlayerId };
       const result = await context5.directControl.requestCiv7TraditionReviewCloseout(
         requestInput,
         context5.endpointDefaults
       );
-      return progressionPlayerChoiceResult(source2, requestInput, result);
+      return progressionPlayerChoiceResult(source, requestInput, result);
     },
     catch: (cause3) => errors.PROGRESSION_PLAYER_CHOICE_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
     })
   });
 });
-async function readLocalPlayerId7(context5) {
+async function readLocalPlayerId6(context5) {
   const view = await context5.directControl.getCiv7PlayNotificationView(context5.endpointDefaults);
   return view.localPlayerId;
 }
-function progressionPlayerChoiceResult(source2, input2, result) {
+function progressionPlayerChoiceResult(source, input2, result) {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
     postcondition: progressionPlayerChoiceProofPostcondition(result),
@@ -37828,9 +36994,9 @@ function progressionPlayerChoiceResult(source2, input2, result) {
       reason: "The progression player-choice result did not include explicit postcondition evidence.",
       outcome: result.sent ? "unknown" : "not-sent"
     },
-    source: source2,
-    inspectKind: source2.includes("attribute") ? "inspect-progression-attribute" : "inspect-progression-tradition",
-    inspectLabel: source2.includes("attribute") ? "Inspect current attribute review state before attempting another request." : "Inspect current tradition review state before attempting another request.",
+    source,
+    inspectKind: source.includes("attribute") ? "inspect-progression-attribute" : "inspect-progression-tradition",
+    inspectLabel: source.includes("attribute") ? "Inspect current attribute review state before attempting another request." : "Inspect current tradition review state before attempting another request.",
     doNotRepeatLabel: "Do not repeat this progression player-choice request until fresh attention evidence is read."
   });
   const base = {
@@ -37844,23 +37010,23 @@ function progressionPlayerChoiceResult(source2, input2, result) {
     postcondition: projection.postcondition,
     nextSteps: projection.nextSteps
   };
-  if (source2 === "progression.attribute.purchase.request" && "node" in input2 && result.kind === "attribute-purchase") {
+  if (source === "progression.attribute.purchase.request" && "node" in input2 && result.kind === "attribute-purchase") {
     return {
       ...base,
       node: result.node
     };
   }
-  if (source2 === "progression.attribute.review.request") {
+  if (source === "progression.attribute.review.request") {
     return base;
   }
-  if (source2 === "progression.tradition.change.request" && "traditionType" in input2 && result.kind === "tradition-change") {
+  if (source === "progression.tradition.change.request" && "traditionType" in input2 && result.kind === "tradition-change") {
     return {
       ...base,
       traditionType: result.traditionType,
       action: result.action
     };
   }
-  if (source2 === "progression.tradition.review.request") {
+  if (source === "progression.tradition.review.request") {
     return base;
   }
   throw new Error("invalid progression player-choice projection");
@@ -37869,18 +37035,18 @@ var progressionTechnologyTargetRequestProcedure = civ7ControlOrpcMutationProcedu
   civ7ControlOrpcImplementer.progression.technology.target.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
   const kind = "technology";
-  const source2 = "progression.technology.target.request";
+  const source = "progression.technology.target.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId8(context5);
+      const localPlayerId = await readLocalPlayerId7(context5);
       const requestInput = progressionTargetRuntimeInput(input2, localPlayerId);
       const result = await requestProgressionTarget(kind, requestInput, context5);
-      return progressionTargetResult(source2, requestInput, result);
+      return progressionTargetResult(source, requestInput, result);
     },
     catch: (cause3) => errors.PROGRESSION_TARGET_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
@@ -37891,25 +37057,25 @@ var progressionCultureTargetRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.progression.culture.target.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
   const kind = "culture";
-  const source2 = "progression.culture.target.request";
+  const source = "progression.culture.target.request";
   return yield* Effect_exports.tryPromise({
     try: async () => {
-      const localPlayerId = await readLocalPlayerId8(context5);
+      const localPlayerId = await readLocalPlayerId7(context5);
       const requestInput = progressionTargetRuntimeInput(input2, localPlayerId);
       const result = await requestProgressionTarget(kind, requestInput, context5);
-      return progressionTargetResult(source2, requestInput, result);
+      return progressionTargetResult(source, requestInput, result);
     },
     catch: (cause3) => errors.PROGRESSION_TARGET_UNAVAILABLE({
       data: {
         detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: source2,
+        procedureKey: source,
         source: "direct-control-facade",
         ...civ7ControlOrpcErrorCorrelationData(context5)
       }
     })
   });
 });
-async function readLocalPlayerId8(context5) {
+async function readLocalPlayerId7(context5) {
   const view = await context5.directControl.getCiv7PlayNotificationView(context5.endpointDefaults);
   return view.localPlayerId;
 }
@@ -37925,7 +37091,7 @@ async function requestProgressionTarget(kind, input2, context5) {
   }
   return context5.directControl.requestCiv7CultureTarget(input2, context5.endpointDefaults);
 }
-function progressionTargetResult(source2, input2, result) {
+function progressionTargetResult(source, input2, result) {
   const projection = civ7CloseoutMutationProjection({
     sent: result.sent,
     postcondition: progressionTargetProofPostcondition(result),
@@ -37934,7 +37100,7 @@ function progressionTargetResult(source2, input2, result) {
       reason: "The progression target request result did not include explicit postcondition evidence.",
       outcome: result.sent ? "unknown" : "not-sent"
     },
-    source: source2,
+    source,
     inspectKind: "inspect-progression-target",
     inspectLabel: "Inspect current progression target state before attempting another target request.",
     doNotRepeatLabel: "Do not repeat this progression target request until fresh progression target evidence is read."
@@ -37952,203 +37118,6 @@ function progressionTargetResult(source2, input2, result) {
     nextSteps: projection.nextSteps
   };
 }
-var progressionTraditionsCurrentProcedure = civ7ControlOrpcImplementer.progression.traditions.current.effect(function* ({
-  context: context5,
-  errors,
-  input: input2
-}) {
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const traditions = await context5.directControl.getCiv7TraditionsView(
-        input2,
-        context5.endpointDefaults
-      );
-      return progressionTraditionsResult(input2, traditions);
-    },
-    catch: (cause3) => errors.PROGRESSION_TRADITIONS_UNAVAILABLE({
-      data: {
-        detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: "progression.traditions.current",
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-function progressionTraditionsResult(_input, view) {
-  const active2 = view.active.map(traditionRow);
-  const available = view.available.map(traditionRow);
-  const recentUnlocks = view.recentUnlocks.map(traditionRow);
-  const traditions = view.traditions.map(traditionRow);
-  const nextSteps = traditionsNextSteps(view, available, active2);
-  return {
-    playerId: view.playerId,
-    sourceStatus: {
-      traditions: "read"
-    },
-    hiddenInfoPolicy: view.hiddenInfoPolicy,
-    summary: {
-      activeCount: active2.length,
-      availableCount: available.length,
-      recentUnlockCount: recentUnlocks.length,
-      openSlotCount: view.slots.open,
-      enabledAvailableCount: available.filter(
-        (tradition) => tradition.actions.some((action) => action.validationSuccess === true)
-      ).length,
-      disabledAvailableCount: available.filter(
-        (tradition) => !tradition.actions.some((action) => action.validationSuccess === true)
-      ).length,
-      nextStepCount: nextSteps.length
-    },
-    turn: view.turn,
-    turnDate: view.turnDate,
-    governmentType: view.governmentType,
-    government: view.government,
-    slots: view.slots,
-    actions: view.actions,
-    active: active2,
-    available,
-    recentUnlocks,
-    traditions,
-    omitted: [
-      {
-        path: "presentation.commandSuggestions",
-        reason: "Command-string suggestions are caller presentation, not progression service output."
-      },
-      {
-        path: "presentation.actionDirections",
-        reason: "Action directions are projected as semantic descriptors with parameters."
-      },
-      {
-        path: "runtime.validationProbe",
-        reason: "Validation probe details remain low-level runtime evidence; service rows expose validationSuccess."
-      }
-    ],
-    notes: [
-      ...view.notes,
-      "Read-only progression traditions view. It does not send CHANGE_TRADITION or review closeout mutations."
-    ],
-    nextSteps
-  };
-}
-function traditionRow(tradition) {
-  return {
-    id: tradition.id,
-    type: tradition.type,
-    name: tradition.name,
-    description: tradition.description,
-    ageType: tradition.ageType,
-    cultureSlotType: tradition.cultureSlotType,
-    traitType: tradition.traitType,
-    isCrisis: tradition.isCrisis,
-    active: tradition.active,
-    unlocked: tradition.unlocked,
-    recentUnlock: tradition.recentUnlock,
-    actions: tradition.actionHints.map((action) => ({
-      kind: action.kind,
-      action: action.action,
-      validationSuccess: validationSuccess(action.validation),
-      parameters: {
-        traditionType: tradition.id,
-        action: action.action
-      },
-      nextSteps: [
-        {
-          kind: "validate-tradition-change",
-          source: "progression.traditions.current",
-          label: `Validate ${action.kind} for ${tradition.name ?? tradition.type ?? tradition.id}.`,
-          parameters: {
-            traditionType: tradition.id,
-            action: action.action
-          }
-        },
-        {
-          kind: "request-tradition-change",
-          source: "progression.traditions.current",
-          label: `Request ${action.kind} for ${tradition.name ?? tradition.type ?? tradition.id} only after choosing this tradition.`,
-          parameters: {
-            traditionType: tradition.id,
-            action: action.action
-          }
-        }
-      ]
-    }))
-  };
-}
-function traditionsNextSteps(view, available, active2) {
-  if (available.some((tradition) => tradition.actions.length > 0)) {
-    return [
-      {
-        kind: "inspect-tradition-change",
-        source: "progression.traditions.current",
-        label: "Inspect available tradition action descriptors before requesting a tradition change."
-      }
-    ];
-  }
-  if (view.slots.open === 0 && active2.some((tradition) => tradition.actions.length > 0)) {
-    return [
-      {
-        kind: "free-policy-slot",
-        source: "progression.traditions.current",
-        label: "If a policy slot is full, inspect active traditions before deactivating one."
-      }
-    ];
-  }
-  return [
-    {
-      kind: "observe",
-      source: "progression.traditions.current",
-      label: "Observe current attention before selecting a progression follow-up."
-    }
-  ];
-}
-function validationSuccess(validation) {
-  if (!validation || typeof validation !== "object") return null;
-  const probe14 = validation;
-  if (probe14.ok !== true) return null;
-  const value4 = probe14.value;
-  return value4 && typeof value4 === "object" && "Success" in value4 ? value4.Success === true : null;
-}
-var progressionRouter = {
-  dashboard: {
-    current: progressionDashboardCurrentProcedure
-  },
-  traditions: {
-    current: progressionTraditionsCurrentProcedure
-  },
-  technology: {
-    choice: {
-      request: progressionTechnologyChoiceRequestProcedure
-    },
-    target: {
-      request: progressionTechnologyTargetRequestProcedure
-    }
-  },
-  culture: {
-    choice: {
-      request: progressionCultureChoiceRequestProcedure
-    },
-    target: {
-      request: progressionCultureTargetRequestProcedure
-    }
-  },
-  attribute: {
-    purchase: {
-      request: progressionAttributePurchaseRequestProcedure
-    },
-    review: {
-      request: progressionAttributeReviewRequestProcedure
-    }
-  },
-  tradition: {
-    change: {
-      request: progressionTraditionChangeRequestProcedure
-    },
-    review: {
-      request: progressionTraditionReviewRequestProcedure
-    }
-  }
-};
 var readinessCurrentProcedure = civ7ControlOrpcImplementer.readiness.current.effect(
   function* ({ context: context5, errors }) {
     return yield* Effect_exports.tryPromise({
@@ -38174,10 +37143,10 @@ function readinessCurrentResult(status, context5) {
     capability: readinessCapability(status, context5),
     sources: {
       gameUi: {
-        inGame: probeValue6(status.appUi.snapshot.ui.inGame),
-        inShell: probeValue6(status.appUi.snapshot.ui.inShell),
-        inLoading: probeValue6(status.appUi.snapshot.ui.inLoading),
-        canBeginGame: probeValue6(status.appUi.snapshot.ui.canBeginGame)
+        inGame: probeValue32(status.appUi.snapshot.ui.inGame),
+        inShell: probeValue32(status.appUi.snapshot.ui.inShell),
+        inLoading: probeValue32(status.appUi.snapshot.ui.inLoading),
+        canBeginGame: probeValue32(status.appUi.snapshot.ui.canBeginGame)
       },
       runtimeControl: {
         ready: status.tuner?.ready ?? null
@@ -38337,622 +37306,8 @@ function supportsWorldCurrent(context5) {
 function supportedReadProcedures(context5) {
   return context5.controller?.supportedReadProcedures ?? [];
 }
-function probeValue6(probe14) {
+function probeValue32(probe14) {
   return probe14.ok ? probe14.value : null;
-}
-var readinessRouter = {
-  current: readinessCurrentProcedure
-};
-var strategyCivilianRouteTriageProcedure = civ7ControlOrpcImplementer.strategy.civilianRouteTriage.effect(function* ({
-  context: context5,
-  errors,
-  input: input2
-}) {
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const endpointDefaults = context5.endpointDefaults;
-      const notifications = await context5.directControl.getCiv7PlayNotificationView({
-        ...endpointDefaults,
-        maxNotifications: 10
-      });
-      const requestedOrigin = input2.origin ?? null;
-      const readyUnitId = probeValue7(notifications.firstReadyUnitId);
-      const readyUnit = requestedOrigin != null || readyUnitId == null ? null : await context5.directControl.getCiv7ReadyUnitView(
-        {
-          unitId: readyUnitId,
-          radius: 2
-        },
-        endpointDefaults
-      );
-      const origin = requestedOrigin ?? readyUnitLocation2(readyUnit);
-      const origins = origin == null ? void 0 : [origin];
-      const settlement = await context5.directControl.getCiv7SettlementRecommendations(
-        {
-          playerId: input2.playerId,
-          locations: origins,
-          count: input2.settlementCount ?? 5,
-          includeSettlers: origin == null,
-          includeCities: false
-        },
-        endpointDefaults
-      );
-      const destination = input2.destination ?? firstSettlementSuggestion(settlement);
-      const battlefield = await context5.directControl.getCiv7BattlefieldScan(
-        {
-          playerId: input2.playerId,
-          origins,
-          radius: input2.scanRadius ?? 6,
-          maxUnits: input2.maxUnits ?? 96,
-          maxCities: input2.maxCities ?? 40
-        },
-        endpointDefaults
-      );
-      const destinationAnalysis = origin != null && destination != null ? await context5.directControl.getCiv7DestinationAnalysis(
-        {
-          playerId: input2.playerId,
-          origin,
-          destination,
-          corridorRadius: input2.corridorRadius ?? 2,
-          destinationRadius: input2.destinationRadius ?? 4,
-          maxUnits: input2.maxUnits ?? 96,
-          maxCities: input2.maxCities ?? 40
-        },
-        endpointDefaults
-      ) : null;
-      return civilianRouteTriageResult({
-        input: input2,
-        notifications,
-        readyUnit,
-        settlement,
-        battlefield,
-        destinationAnalysis,
-        origin,
-        destination
-      });
-    },
-    catch: (cause3) => errors.STRATEGY_CIVILIAN_ROUTE_TRIAGE_UNAVAILABLE({
-      data: {
-        detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: "strategy.civilianRouteTriage",
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-function civilianRouteTriageResult({
-  input: input2,
-  notifications,
-  readyUnit,
-  settlement,
-  battlefield,
-  destinationAnalysis,
-  origin,
-  destination
-}) {
-  const reasons = triageReasons({ battlefield, destinationAnalysis });
-  const status = triageStatus({ destination, reasons });
-  const nextSteps = triageNextSteps({ origin, destination, status });
-  const unit = readyUnit == null ? null : probeValue7(readyUnit.unit);
-  const firstSuggestion = firstSettlementSuggestion(settlement);
-  return {
-    playerId: settlement.playerId,
-    localPlayerId: settlement.localPlayerId,
-    origin,
-    destination,
-    sourceStatus: {
-      notifications: "read",
-      readyUnit: input2.origin != null ? "skipped-explicit-origin" : readyUnit == null ? "skipped-no-ready-unit" : "read",
-      settlementRecommendations: "read",
-      battlefieldScan: "read",
-      destinationAnalysis: destinationAnalysis == null ? "skipped-no-origin-or-destination" : "read"
-    },
-    relationshipLabelPolicy: {
-      relationshipSource: "not-classified",
-      relationshipProof: "none",
-      unprovenLabel: "relationship-unproven",
-      guidance: "Civilian route triage composes planning evidence only. Other-owner contact, proximity, ranking, and action legality do not prove official diplomatic status."
-    },
-    readyUnit: readyUnit == null ? null : {
-      unitId: readyUnit.unitId,
-      typeName: stringValue2(asRecord2(unit)?.typeName),
-      location: locationFromUnknown(asRecord2(unit)?.location),
-      legalOperationCount: readyUnit.legalOperations.length
-    },
-    settlement: {
-      originCount: settlement.origins.length,
-      recommendationCount: settlement.recommendations.length,
-      firstSuggestion
-    },
-    battlefield: {
-      pointOfInterestCount: battlefield.pointsOfInterest.length,
-      observedOwnerCount: battlefield.owners.length,
-      hiddenInfoPolicy: battlefield.hiddenInfoPolicy
-    },
-    destinationAnalysis: destinationAnalysis == null ? null : {
-      pointOfInterestCount: destinationAnalysis.pointsOfInterest.length,
-      destinationUnitCount: numericValue2(asRecord2(destinationAnalysis.destinationPressure)?.unitCount) ?? 0,
-      destinationCityCount: numericValue2(asRecord2(destinationAnalysis.destinationPressure)?.cityCount) ?? 0,
-      apparentOtherStrength: numericValue2(
-        asRecord2(destinationAnalysis.destinationPressure)?.apparentOtherStrength
-      ) ?? 0
-    },
-    triage: {
-      status,
-      summary: routeSummary(origin, destination),
-      reasons,
-      nextSteps
-    },
-    notes: [
-      "Read-only civilian route triage. It does not move, found, buy, or reserve routes.",
-      "Settlement recommendations are site hints, not movement orders.",
-      "Use validator-backed unit procedures before moving or targeting.",
-      "Relationship labels stay relationship-unproven unless official diplomatic evidence proves more."
-    ],
-    nextSteps
-  };
-}
-function triageReasons({
-  battlefield,
-  destinationAnalysis
-}) {
-  return uniqueStrings2([
-    ...battlefield.pointsOfInterest.map(
-      (point) => `${point.severity} local ${point.kind}: ${normalizeRelationshipSummary(point.summary)}`
-    ),
-    ...destinationAnalysis?.pointsOfInterest.map(
-      (point) => `${point.severity} route ${point.kind}: ${normalizeRelationshipSummary(point.summary)}`
-    ) ?? [],
-    ...destinationPressureReasons(destinationAnalysis)
-  ]).slice(0, 10);
-}
-function triageStatus({
-  destination,
-  reasons
-}) {
-  const hasCivilianRisk = reasons.some((reason) => reason.includes("civilian-risk"));
-  const hasHighRouteRisk = reasons.some(
-    (reason) => reason.includes("high route") || reason.includes("high local")
-  );
-  if (destination == null) return "inspect-candidate";
-  if (hasCivilianRisk) return "hold-or-screen";
-  if (hasHighRouteRisk) return "reroute-or-stage";
-  return "proceed-with-validation";
-}
-function triageNextSteps({
-  origin,
-  destination,
-  status
-}) {
-  const nextSteps = [
-    {
-      kind: "read-priorities",
-      source: "strategy.civilianRouteTriage",
-      label: "Refresh current attention priorities before choosing a civilian action.",
-      parameters: {}
-    }
-  ];
-  if (origin != null) {
-    nextSteps.push(
-      {
-        kind: "inspect-battlefield",
-        source: "strategy.civilianRouteTriage",
-        label: "Inspect battlefield evidence at the civilian origin.",
-        parameters: { origin }
-      },
-      {
-        kind: "inspect-settlement",
-        source: "strategy.civilianRouteTriage",
-        label: "Inspect settlement recommendation evidence at the civilian origin.",
-        parameters: { origin }
-      }
-    );
-  }
-  if (origin != null && destination != null) {
-    nextSteps.push({
-      kind: "inspect-destination",
-      source: "strategy.civilianRouteTriage",
-      label: "Inspect route and destination evidence before moving.",
-      parameters: { origin, destination }
-    });
-  }
-  if (status === "hold-or-screen" || status === "reroute-or-stage") {
-    nextSteps.push({
-      kind: "inspect-front",
-      source: "strategy.civilianRouteTriage",
-      label: "Inspect the surrounding front before committing the civilian.",
-      parameters: { origin: origin ?? void 0, destination: destination ?? void 0 }
-    });
-  }
-  nextSteps.push(
-    {
-      kind: "inspect-ready-unit",
-      source: "strategy.civilianRouteTriage",
-      label: "Re-read the ready unit before validating a route action.",
-      parameters: {}
-    },
-    {
-      kind: "validate-unit-action",
-      source: "strategy.civilianRouteTriage",
-      label: "Use unit action validation before moving or targeting.",
-      parameters: { destination: destination ?? void 0 }
-    }
-  );
-  return nextSteps;
-}
-function destinationPressureReasons(destinationAnalysis) {
-  const pressure = asRecord2(destinationAnalysis?.destinationPressure);
-  const reasons = [];
-  const unitCount = numericValue2(pressure?.unitCount) ?? 0;
-  const cityCount = numericValue2(pressure?.cityCount) ?? 0;
-  const apparentOtherStrength = numericValue2(pressure?.apparentOtherStrength) ?? 0;
-  if (unitCount > 0) {
-    reasons.push(`${unitCount} other-owner units near candidate destination`);
-  }
-  if (cityCount > 0) {
-    reasons.push(`${cityCount} relationship-unproven cities near candidate destination`);
-  }
-  if (apparentOtherStrength > 0) {
-    reasons.push(`apparent candidate contact ${apparentOtherStrength}`);
-  }
-  return reasons;
-}
-function firstSettlementSuggestion(settlement) {
-  for (const recommendation of settlement.recommendations) {
-    const suggestions = probeValue7(recommendation.suggestions);
-    if (!Array.isArray(suggestions)) continue;
-    for (const suggestion of suggestions) {
-      const location = locationFromUnknown(asRecord2(suggestion)?.location);
-      if (location != null) return location;
-    }
-  }
-  return null;
-}
-function readyUnitLocation2(readyUnit) {
-  const unit = readyUnit == null ? null : probeValue7(readyUnit.unit);
-  return locationFromUnknown(asRecord2(unit)?.location);
-}
-function routeSummary(origin, destination) {
-  const originLabel = origin == null ? "<unknown origin>" : `(${origin.x},${origin.y})`;
-  const destinationLabel = destination == null ? "<no candidate destination>" : `(${destination.x},${destination.y})`;
-  return `civilian route ${originLabel} -> ${destinationLabel}`;
-}
-function normalizeRelationshipSummary(summary5) {
-  return summary5.replace(/\bfriendly\b/gi, "own").replace(/\bpressure\b/gi, "contact").replace(/\bthreat\b/gi, "contact");
-}
-function locationFromUnknown(value4) {
-  const record2 = asRecord2(value4);
-  return typeof record2?.x === "number" && typeof record2.y === "number" ? { x: record2.x, y: record2.y } : null;
-}
-function probeValue7(probe14) {
-  return probe14?.ok === true ? probe14.value : null;
-}
-function asRecord2(value4) {
-  return value4 !== null && typeof value4 === "object" ? value4 : null;
-}
-function numericValue2(value4) {
-  return typeof value4 === "number" ? value4 : null;
-}
-function stringValue2(value4) {
-  return typeof value4 === "string" ? value4 : null;
-}
-function uniqueStrings2(values3) {
-  return [...new Set(values3.filter((value4) => value4.length > 0))];
-}
-var strategyFormationSnapshotProcedure = civ7ControlOrpcImplementer.strategy.formationSnapshot.effect(function* ({
-  context: context5,
-  errors,
-  input: input2
-}) {
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const endpointDefaults = context5.endpointDefaults;
-      const notifications = await context5.directControl.getCiv7PlayNotificationView({
-        ...endpointDefaults,
-        maxNotifications: 10
-      });
-      const readyUnitId = probeValue8(notifications.firstReadyUnitId);
-      const requestedOrigin = input2.origin ?? null;
-      const readyUnit = requestedOrigin != null || readyUnitId == null ? null : await context5.directControl.getCiv7ReadyUnitView(
-        {
-          unitId: readyUnitId,
-          radius: 2
-        },
-        endpointDefaults
-      );
-      const origin = requestedOrigin ?? readyUnitLocation3(readyUnit);
-      const battlefield = await context5.directControl.getCiv7BattlefieldScan(
-        {
-          playerId: input2.playerId,
-          origins: origin == null ? void 0 : [origin],
-          radius: input2.radius ?? 6,
-          maxUnits: input2.maxUnits ?? 96,
-          maxCities: input2.maxCities ?? 40
-        },
-        endpointDefaults
-      );
-      return formationSnapshotResult({
-        input: input2,
-        notifications,
-        readyUnit,
-        battlefield,
-        origin
-      });
-    },
-    catch: (cause3) => errors.STRATEGY_FORMATION_SNAPSHOT_UNAVAILABLE({
-      data: {
-        detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: "strategy.formationSnapshot",
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-function formationSnapshotResult({
-  input: input2,
-  notifications,
-  readyUnit,
-  battlefield,
-  origin
-}) {
-  const units = asRecords(battlefield.units).map(toFormationUnit);
-  const civilians = units.filter((unit) => unit.stance === "own" && unit.role === "civilian");
-  const ownUnits = units.filter((unit) => unit.stance === "own" && unit.role !== "civilian");
-  const otherOwnerContacts = units.filter((unit) => unit.stance !== "own");
-  const screens = ownUnits.filter(
-    (unit) => civilians.some(
-      (civilian) => civilian.location != null && unit.location != null && gridDistance(civilian.location, unit.location) <= (input2.screenRadius ?? 2)
-    )
-  );
-  const nearbyContacts = otherOwnerContacts.filter(
-    (unit) => civilians.some(
-      (civilian) => civilian.location != null && unit.location != null && gridDistance(civilian.location, unit.location) <= (input2.contactRadius ?? 4)
-    )
-  );
-  const poiReasons = pointReasons(battlefield.pointsOfInterest);
-  const posture = postureFor({
-    civilians,
-    screens,
-    nearbyContacts,
-    poiReasons,
-    readyUnit
-  });
-  const nextSteps = formationNextSteps({
-    origin,
-    civilians,
-    nearbyContacts,
-    posture
-  });
-  const readyUnitValue = readyUnit == null ? null : probeValue8(readyUnit.unit);
-  return {
-    playerId: battlefield.playerId,
-    localPlayerId: battlefield.localPlayerId,
-    turn: probeValue8(notifications.turn),
-    turnDate: probeValue8(notifications.turnDate),
-    blocker: numericValue3(probeValue8(notifications.blocker)),
-    nextDecision: stringValue3(asRecord3(notifications.hud)?.nextDecision),
-    origin,
-    sourceStatus: {
-      notifications: "read",
-      readyUnit: input2.origin != null ? "skipped-explicit-origin" : readyUnit == null ? "skipped-no-ready-unit" : "read",
-      battlefieldScan: "read"
-    },
-    readyUnit: readyUnit == null ? null : {
-      unitId: readyUnit.unitId,
-      typeName: stringValue3(asRecord3(readyUnitValue)?.typeName),
-      location: locationFromUnknown2(asRecord3(readyUnitValue)?.location),
-      legalNoTargetOperationCount: readyUnit.legalOperations.length
-    },
-    battlefield: {
-      originCount: battlefield.origins.length,
-      unitCount: units.length,
-      pointOfInterestCount: battlefield.pointsOfInterest.length,
-      hiddenInfoPolicy: battlefield.hiddenInfoPolicy
-    },
-    formation: {
-      posture,
-      relationshipLabelPolicy: {
-        relationshipSource: "not-classified",
-        relationshipProof: "none",
-        unprovenLabel: "relationship-unproven",
-        guidance: "Formation snapshot treats owner mismatch and proximity as contact evidence only. Official diplomatic or team evidence is required for stronger labels."
-      },
-      headline: formationHeadline({
-        origin,
-        readyUnit,
-        civilians,
-        screens,
-        nearbyContacts
-      }),
-      reasons: uniqueStrings3([
-        ...poiReasons,
-        ...civilianContactReasons(civilians, nearbyContacts),
-        ...screenReasons(civilians, screens)
-      ]).slice(0, 10),
-      civilians,
-      screens,
-      otherOwnerContacts,
-      nearbyContacts,
-      nextSteps
-    },
-    notes: [
-      "Read-only formation snapshot. It does not move, attack, found, or reserve routes.",
-      "Use this lens to decide what to inspect next, then validate concrete plot actions with unit procedures.",
-      "Battlefield scan distances are cheap grid heuristics and may include debug-visible entities unless paired with visibility reads.",
-      "Relationship labels stay relationship-unproven unless official diplomatic evidence proves more."
-    ],
-    nextSteps
-  };
-}
-function postureFor(input2) {
-  if (input2.readyUnit == null) return "inspect-ready-unit";
-  if (input2.civilians.length > 0 && input2.nearbyContacts.length > 0) {
-    return "screen-civilian";
-  }
-  if (input2.civilians.length > 0 && input2.screens.length === 0) {
-    return "hold-ready-unit";
-  }
-  if (input2.poiReasons.some(
-    (reason) => reason.includes("nearby-other-owners") || reason.includes("owner-contact")
-  )) {
-    return "stabilize-front";
-  }
-  return "advance-with-validation";
-}
-function formationNextSteps({
-  origin,
-  civilians,
-  nearbyContacts,
-  posture
-}) {
-  const nextSteps = [
-    {
-      kind: "read-priorities",
-      source: "strategy.formationSnapshot",
-      label: "Refresh current attention priorities before choosing a formation action.",
-      parameters: {}
-    },
-    {
-      kind: "inspect-ready-unit",
-      source: "strategy.formationSnapshot",
-      label: "Re-read the ready unit before validating a concrete action.",
-      parameters: {}
-    }
-  ];
-  if (origin != null) {
-    nextSteps.push({
-      kind: "inspect-battlefield",
-      source: "strategy.formationSnapshot",
-      label: "Inspect bounded battlefield evidence around the formation origin.",
-      parameters: { origin }
-    });
-  }
-  const civilian = civilians.find((unit) => unit.location != null);
-  if (civilian?.location != null) {
-    nextSteps.push({
-      kind: "inspect-civilian-route",
-      source: "strategy.formationSnapshot",
-      label: "Inspect route options for the civilian before moving.",
-      parameters: { civilian: civilian.location }
-    });
-  }
-  const contact = nearbyContacts.find((unit) => unit.location != null);
-  if (contact?.location != null) {
-    nextSteps.push({
-      kind: "inspect-battlefield",
-      source: "strategy.formationSnapshot",
-      label: "Inspect battlefield evidence around nearby other-owner contact.",
-      parameters: { contact: contact.location }
-    });
-  }
-  nextSteps.push({
-    kind: "validate-unit-action",
-    source: "strategy.formationSnapshot",
-    label: posture === "screen-civilian" || posture === "stabilize-front" ? "Validate a screen or contact unit action." : "Validate a concrete unit action.",
-    parameters: {}
-  });
-  return uniqueNextSteps(nextSteps);
-}
-function toFormationUnit(unit) {
-  return {
-    id: componentIdFromUnknown3(unit.id),
-    owner: numericValue3(unit.owner),
-    stance: formationStance(unit.stance),
-    role: typeof unit.role === "string" ? unit.role : "unknown",
-    typeName: stringValue3(unit.typeName),
-    location: locationFromUnknown2(unit.location),
-    distance: numericValue3(unit.distance)
-  };
-}
-function formationHeadline({
-  origin,
-  readyUnit,
-  civilians,
-  screens,
-  nearbyContacts
-}) {
-  const originLabel = origin == null ? "<unknown origin>" : `(${origin.x},${origin.y})`;
-  return `${readyUnitSummary2(readyUnit)} formation at ${originLabel}: ${civilians.length} civilians, ${screens.length} local screens, ${nearbyContacts.length} nearby other-owner contacts`;
-}
-function readyUnitSummary2(readyUnit) {
-  const unit = readyUnit == null ? null : probeValue8(readyUnit.unit);
-  return stringValue3(asRecord3(unit)?.typeName) ?? "ready unit";
-}
-function pointReasons(value4) {
-  return asRecords(value4).map((point) => {
-    const severity = String(point.severity ?? "medium");
-    const kind = String(point.kind ?? "point-of-interest");
-    const summary5 = String(point.summary ?? kind);
-    return normalizeRelationshipSummary2(`${severity} ${kind}: ${summary5}`);
-  });
-}
-function civilianContactReasons(civilians, nearbyContacts) {
-  if (civilians.length === 0 || nearbyContacts.length === 0) return [];
-  return civilians.map((civilian) => {
-    const location = civilian.location == null ? "<unknown>" : `(${civilian.location.x},${civilian.location.y})`;
-    return `${civilian.typeName ?? "civilian"} at ${location} has ${nearbyContacts.length} other-owner units within contact radius`;
-  });
-}
-function screenReasons(civilians, screens) {
-  if (civilians.length === 0) return [];
-  if (screens.length === 0) {
-    return ["no own screen units are within local screen radius of the civilian"];
-  }
-  return [`${screens.length} own screen units are within local screen radius of the civilian`];
-}
-function readyUnitLocation3(readyUnit) {
-  const unit = readyUnit == null ? null : probeValue8(readyUnit.unit);
-  return locationFromUnknown2(asRecord3(unit)?.location);
-}
-function componentIdFromUnknown3(value4) {
-  const record2 = asRecord3(value4);
-  return typeof record2?.owner === "number" && typeof record2.id === "number" && typeof record2.type === "number" ? { owner: record2.owner, id: record2.id, type: record2.type } : null;
-}
-function locationFromUnknown2(value4) {
-  const record2 = asRecord3(value4);
-  return typeof record2?.x === "number" && typeof record2.y === "number" ? { x: record2.x, y: record2.y } : null;
-}
-function gridDistance(left3, right3) {
-  return Math.max(Math.abs(left3.x - right3.x), Math.abs(left3.y - right3.y));
-}
-function probeValue8(probe14) {
-  return probe14?.ok === true ? probe14.value : null;
-}
-function asRecords(value4) {
-  return Array.isArray(value4) ? value4.filter(
-    (item) => item !== null && typeof item === "object"
-  ) : [];
-}
-function asRecord3(value4) {
-  return value4 !== null && typeof value4 === "object" ? value4 : null;
-}
-function numericValue3(value4) {
-  return typeof value4 === "number" ? value4 : null;
-}
-function stringValue3(value4) {
-  return typeof value4 === "string" ? value4 : null;
-}
-function normalizeRelationshipSummary2(summary5) {
-  return summary5.replace(/\bfriendly\b/gi, "own").replace(/\bpressure\b/gi, "contact").replace(/\bthreat\b/gi, "contact");
-}
-function formationStance(value4) {
-  if (value4 === "friendly") return "own";
-  return typeof value4 === "string" ? value4 : "unknown";
-}
-function uniqueStrings3(values3) {
-  return [...new Set(values3.filter((value4) => value4.length > 0))];
-}
-function uniqueNextSteps(values3) {
-  const seen = /* @__PURE__ */ new Set();
-  const nextSteps = [];
-  for (const value4 of values3) {
-    const key = JSON.stringify([value4.kind, value4.parameters]);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    nextSteps.push(value4);
-  }
-  return nextSteps;
 }
 var strategyFrontSummaryProcedure = civ7ControlOrpcImplementer.strategy.frontSummary.effect(function* ({ context: context5, errors, input: input2 }) {
   return yield* Effect_exports.tryPromise({
@@ -39049,14 +37404,14 @@ function strategyFrontSummaryResult({
       kind: point.kind,
       severity: point.severity,
       location: point.location,
-      summary: normalizeRelationshipSummary3(point.summary),
+      summary: normalizeRelationshipSummary(point.summary),
       source: "battlefield"
     })),
     ...destinationAnalysis?.pointsOfInterest.map((point) => ({
       kind: point.kind,
       severity: point.severity,
       location: point.location,
-      summary: normalizeRelationshipSummary3(point.summary),
+      summary: normalizeRelationshipSummary(point.summary),
       source: "destination"
     })) ?? []
   ];
@@ -39188,7 +37543,7 @@ function strategyFrontView({
     source: point.source
   })).sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
   const highPressure = pressure.filter((item) => item.severity === "high");
-  const risks = uniqueStrings4([
+  const risks = uniqueStrings([
     ...highPressure.map((item) => item.summary),
     ...destinationRisks(destinationAnalysis)
   ]).slice(0, 8);
@@ -39206,7 +37561,7 @@ function strategyFrontView({
   };
 }
 function destinationRisks(destinationAnalysis) {
-  const pressure = asRecord4(destinationAnalysis?.destinationPressure);
+  const pressure = asRecord(destinationAnalysis?.destinationPressure);
   const risks = [];
   const unitCount = Number(pressure?.unitCount ?? 0);
   const cityCount = Number(pressure?.cityCount ?? 0);
@@ -39227,7 +37582,7 @@ function postureFromPressure(pressure, destinationAnalysis) {
     return "screen-civilians-before-advance";
   if (pressure.some((item) => item.kind === "nearby-other-owners" && item.severity === "high"))
     return "stabilize-front-before-committing-siege";
-  const destinationPressure = asRecord4(destinationAnalysis?.destinationPressure);
+  const destinationPressure = asRecord(destinationAnalysis?.destinationPressure);
   if (Number(destinationPressure?.unitCount ?? 0) > 0 || Number(destinationPressure?.cityCount ?? 0) > 0) {
     return "stage-before-entering-target-contact";
   }
@@ -39239,7 +37594,7 @@ function severityRank(severity) {
   if (severity === "low") return 1;
   return 0;
 }
-function normalizeRelationshipSummary3(summary5) {
+function normalizeRelationshipSummary(summary5) {
   return summary5.replace(/\bfriendly\b/gi, "own").replace(/\bpressure\b/gi, "contact").replace(/\bthreat\b/gi, "contact");
 }
 function firstCandidateCityLocation(candidates) {
@@ -39247,507 +37602,22 @@ function firstCandidateCityLocation(candidates) {
     if (candidate2.approach.targetLocation != null) {
       return candidate2.approach.targetLocation;
     }
-    const cityLocation2 = locationFromUnknown3(candidate2.nearestCity);
+    const cityLocation2 = locationFromUnknown(candidate2.nearestCity);
     if (cityLocation2 != null) return cityLocation2;
   }
   return null;
 }
-function locationFromUnknown3(value4) {
-  const record2 = asRecord4(value4);
-  const location = asRecord4(record2?.location);
+function locationFromUnknown(value4) {
+  const record2 = asRecord(value4);
+  const location = asRecord(record2?.location);
   return typeof location?.x === "number" && typeof location.y === "number" ? { x: location.x, y: location.y } : null;
 }
-function asRecord4(value4) {
+function asRecord(value4) {
   return value4 !== null && typeof value4 === "object" ? value4 : null;
 }
-function uniqueStrings4(values3) {
+function uniqueStrings(values3) {
   return [...new Set(values3.filter((value4) => value4.length > 0))];
 }
-var strategyBattlefieldScanProcedure = civ7ControlOrpcImplementer.strategy.battlefieldScan.effect(function* ({
-  context: context5,
-  errors,
-  input: input2
-}) {
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const result = await context5.directControl.getCiv7BattlefieldScan(
-        input2,
-        context5.endpointDefaults
-      );
-      return battlefieldScanResult(result);
-    },
-    catch: (cause3) => errors.STRATEGY_TACTICAL_READ_UNAVAILABLE({
-      data: {
-        detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: "strategy.battlefieldScan",
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-var strategyTargetCandidatesProcedure = civ7ControlOrpcImplementer.strategy.targetCandidates.effect(function* ({
-  context: context5,
-  errors,
-  input: input2
-}) {
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const result = await context5.directControl.getCiv7TargetCandidates(
-        input2,
-        context5.endpointDefaults
-      );
-      return targetCandidatesResult(result);
-    },
-    catch: (cause3) => errors.STRATEGY_TACTICAL_READ_UNAVAILABLE({
-      data: {
-        detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: "strategy.targetCandidates",
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-var strategyDestinationAnalysisProcedure = civ7ControlOrpcImplementer.strategy.destinationAnalysis.effect(function* ({
-  context: context5,
-  errors,
-  input: input2
-}) {
-  return yield* Effect_exports.tryPromise({
-    try: async () => {
-      const result = await context5.directControl.getCiv7DestinationAnalysis(
-        input2,
-        context5.endpointDefaults
-      );
-      return destinationAnalysisResult(result);
-    },
-    catch: (cause3) => errors.STRATEGY_TACTICAL_READ_UNAVAILABLE({
-      data: {
-        detail: civ7ControlOrpcFailureDetail(cause3),
-        procedureKey: "strategy.destinationAnalysis",
-        source: "direct-control-facade",
-        ...civ7ControlOrpcErrorCorrelationData(context5)
-      }
-    })
-  });
-});
-function battlefieldScanResult(result) {
-  const owners = asArray2(result.owners).map((owner) => {
-    const record2 = asRecord5(owner);
-    const relationshipProof = record2?.relationshipProof === "self" ? "self" : "none";
-    return {
-      owner: numberFromUnknown(record2?.owner),
-      relationship: relationshipProof === "self" ? "self" : "relationship-unproven",
-      relationshipProof,
-      unitCount: numberFromUnknown(record2?.unitCount),
-      cityCount: numberFromUnknown(record2?.cityCount),
-      apparentStrength: numberFromUnknown(record2?.apparentStrength),
-      nearestDistance: nearestOwnerDistance2(record2),
-      roles: integerRecord(record2?.roles)
-    };
-  });
-  const pointsOfInterest2 = asArray2(result.pointsOfInterest).map((point) => {
-    const record2 = asRecord5(point);
-    return {
-      kind: String(record2?.kind ?? "unknown"),
-      severity: String(record2?.severity ?? "unknown"),
-      location: locationFromUnknown4(record2?.location),
-      summary: normalizeRelationshipSummary4(String(record2?.summary ?? ""))
-    };
-  });
-  const nextSteps = battlefieldNextSteps({
-    origins: result.origins,
-    pointsOfInterest: pointsOfInterest2
-  });
-  return {
-    playerId: result.playerId,
-    localPlayerId: result.localPlayerId,
-    origins: result.origins,
-    radius: result.radius,
-    hiddenInfoPolicy: result.hiddenInfoPolicy,
-    relationshipLabelPolicy: {
-      relationshipSource: "not-classified",
-      relationshipProof: "none",
-      unprovenLabel: "relationship-unproven",
-      guidance: "Battlefield scan is planning evidence only. Owner contact, proximity, role heuristics, and apparent strength do not prove official diplomatic status."
-    },
-    summary: {
-      unitCount: asArray2(result.units).length,
-      cityCount: asArray2(result.cities).length,
-      observedOwnerCount: owners.length,
-      pointOfInterestCount: pointsOfInterest2.length,
-      apparentStrengthTotal: owners.reduce((total, owner) => total + owner.apparentStrength, 0),
-      nextStepCount: nextSteps.length
-    },
-    owners,
-    pointsOfInterest: pointsOfInterest2,
-    omitted: [
-      {
-        path: "directControl.host",
-        reason: "endpoint context is not normal service output"
-      },
-      {
-        path: "directControl.state",
-        reason: "runtime state selection is context/debug owned"
-      },
-      {
-        path: "units",
-        reason: "raw unit samples stay behind bounded owner and point summaries"
-      },
-      {
-        path: "cities",
-        reason: "raw city samples stay behind bounded owner and point summaries"
-      },
-      {
-        path: "point.units",
-        reason: "raw point unit samples stay behind bounded point summaries"
-      },
-      {
-        path: "point.cities",
-        reason: "raw point city samples stay behind bounded point summaries"
-      }
-    ],
-    notes: [
-      ...result.notes.map(normalizeRelationshipSummary4),
-      "Use visibility reads and validator-backed unit action procedures before any mutation."
-    ],
-    nextSteps
-  };
-}
-function targetCandidatesResult(result) {
-  const candidates = result.candidates.map((candidate2) => {
-    const targetLocation = locationFromUnknown4(candidate2.approach.targetLocation);
-    return {
-      owner: candidate2.owner,
-      relationship: "relationship-unproven",
-      relationshipProof: "none",
-      leaderName: probeValue9(candidate2.leaderName, "string"),
-      civilizationName: probeValue9(candidate2.civilizationName, "string"),
-      isHuman: probeValue9(candidate2.isHuman, "boolean"),
-      cityCount: candidate2.cityCount,
-      unitCount: candidate2.unitCount,
-      nearestDistance: candidate2.nearestDistance,
-      nearbyUnitCount: candidate2.nearbyUnitCount,
-      apparentStrength: candidate2.apparentStrength,
-      nearestCityLocation: locationFromUnknown4(candidate2.nearestCity),
-      approach: {
-        nearestOrigin: locationFromUnknown4(candidate2.approach.nearestOrigin),
-        targetLocation,
-        directGridDistance: candidate2.approach.directGridDistance,
-        routeHint: candidate2.approach.routeHint,
-        routeKind: candidate2.approach.routeKind,
-        waterSampleCount: Math.max(0, Math.trunc(candidate2.approach.waterSampleCount)),
-        landSampleCount: Math.max(0, Math.trunc(candidate2.approach.landSampleCount)),
-        notes: [...candidate2.approach.notes]
-      },
-      reasons: [...candidate2.reasons]
-    };
-  });
-  const nextSteps = targetCandidateNextSteps(candidates);
-  return {
-    playerId: result.playerId,
-    localPlayerId: result.localPlayerId,
-    origins: result.origins,
-    unitRadius: result.unitRadius,
-    hiddenInfoPolicy: result.hiddenInfoPolicy,
-    relationshipLabelPolicy: {
-      relationshipSource: "not-classified",
-      relationshipProof: "none",
-      unprovenLabel: "relationship-unproven",
-      guidance: "Target candidates are planning evidence only. Other-owner contact, route ranking, proximity, and apparent strength do not prove official diplomatic status."
-    },
-    summary: {
-      candidateCount: candidates.length,
-      nearestDistance: nearestDistance(candidates),
-      observedOwnerCount: new Set(candidates.map((candidate2) => candidate2.owner)).size,
-      apparentStrengthTotal: candidates.reduce(
-        (total, candidate2) => total + candidate2.apparentStrength,
-        0
-      ),
-      nextStepCount: nextSteps.length
-    },
-    candidates,
-    omitted: [
-      {
-        path: "directControl.host",
-        reason: "endpoint context is not normal service output"
-      },
-      {
-        path: "directControl.state",
-        reason: "runtime state selection is context/debug owned"
-      },
-      {
-        path: "candidate.cities",
-        reason: "raw city samples stay behind bounded candidate summaries"
-      },
-      {
-        path: "candidate.nearbyUnits",
-        reason: "raw unit samples stay behind bounded candidate summaries"
-      }
-    ],
-    notes: [
-      ...result.notes.map(normalizeRelationshipSummary4),
-      "Use visibility reads and validator-backed unit action procedures before any mutation."
-    ],
-    nextSteps
-  };
-}
-function destinationAnalysisResult(result) {
-  const corridor = asRecord5(result.corridor);
-  const destinationPressure = asRecord5(result.destinationPressure);
-  const pointsOfInterest2 = asArray2(result.pointsOfInterest).map((point) => {
-    const record2 = asRecord5(point);
-    return {
-      kind: String(record2?.kind ?? "unknown"),
-      severity: String(record2?.severity ?? "unknown"),
-      location: locationFromUnknown4(record2?.location),
-      summary: normalizeRelationshipSummary4(String(record2?.summary ?? ""))
-    };
-  });
-  const nextSteps = destinationNextSteps({
-    origin: result.origin,
-    destination: result.destination,
-    pointsOfInterest: pointsOfInterest2
-  });
-  const corridorUnitCount = numberFromUnknown(corridor?.unitCount);
-  const destinationUnitCount = numberFromUnknown(destinationPressure?.unitCount);
-  const destinationCityCount = numberFromUnknown(destinationPressure?.cityCount);
-  const apparentOtherStrength = numberFromUnknown(destinationPressure?.apparentOtherStrength);
-  return {
-    playerId: result.playerId,
-    localPlayerId: result.localPlayerId,
-    origin: result.origin,
-    destination: result.destination,
-    corridorRadius: result.corridorRadius,
-    destinationRadius: result.destinationRadius,
-    hiddenInfoPolicy: result.hiddenInfoPolicy,
-    relationshipLabelPolicy: {
-      relationshipSource: "not-classified",
-      relationshipProof: "none",
-      unprovenLabel: "relationship-unproven",
-      guidance: "Destination analysis is planning evidence only. Other-owner contact, destination proximity, and apparent strength do not prove official diplomatic status."
-    },
-    summary: {
-      pointOfInterestCount: pointsOfInterest2.length,
-      corridorUnitCount,
-      destinationUnitCount,
-      destinationCityCount,
-      apparentOtherStrength,
-      nextStepCount: nextSteps.length
-    },
-    corridor: {
-      routeHint: String(corridor?.routeHint ?? "unknown"),
-      directGridDistance: nullableNumber(corridor?.directGridDistance),
-      sampleCount: numberFromUnknown(corridor?.sampleCount),
-      unitCount: corridorUnitCount
-    },
-    destinationPressure: {
-      unitCount: destinationUnitCount,
-      cityCount: destinationCityCount,
-      apparentOtherStrength
-    },
-    pointsOfInterest: pointsOfInterest2,
-    omitted: [
-      {
-        path: "directControl.host",
-        reason: "endpoint context is not normal service output"
-      },
-      {
-        path: "directControl.state",
-        reason: "runtime state selection is context/debug owned"
-      },
-      {
-        path: "corridor.sampledPlots",
-        reason: "raw plot samples stay behind bounded corridor summaries"
-      },
-      {
-        path: "destinationPressure.units",
-        reason: "raw unit samples stay behind bounded pressure summaries"
-      },
-      {
-        path: "destinationPressure.cities",
-        reason: "raw city samples stay behind bounded pressure summaries"
-      }
-    ],
-    notes: [
-      ...result.notes.map(normalizeRelationshipSummary4),
-      "Use visibility reads and validator-backed unit action procedures before any mutation."
-    ],
-    nextSteps
-  };
-}
-function battlefieldNextSteps(input2) {
-  const point = input2.pointsOfInterest[0];
-  const origin = input2.origins[0];
-  if (point == null) {
-    return [
-      {
-        kind: "observe",
-        source: "strategy.battlefieldScan",
-        label: "No battlefield points found; refresh attention or narrow scan origins.",
-        parameters: origin ? { origin } : {}
-      }
-    ];
-  }
-  return [
-    {
-      kind: "inspect-battlefield-point",
-      source: "strategy.battlefieldScan",
-      label: `Inspect ${point.kind} battlefield point before choosing a unit action.`,
-      parameters: {
-        ...origin ? { origin } : {},
-        ...point.location ? { location: point.location } : {}
-      }
-    },
-    {
-      kind: "read-visibility",
-      source: "strategy.battlefieldScan",
-      label: "Read visibility/map evidence before promoting battlefield contact into an action.",
-      parameters: point.location ? { location: point.location } : {}
-    },
-    {
-      kind: "validate-unit-action",
-      source: "strategy.battlefieldScan",
-      label: "Use unit action validation before moving or targeting.",
-      parameters: point.location ? { location: point.location } : {}
-    }
-  ];
-}
-function targetCandidateNextSteps(candidates) {
-  const candidate2 = candidates[0];
-  if (candidate2 == null) {
-    return [
-      {
-        kind: "observe",
-        source: "strategy.targetCandidates",
-        label: "No target candidates found; refresh strategy evidence or narrow origins.",
-        parameters: {}
-      }
-    ];
-  }
-  return [
-    {
-      kind: "inspect-candidate",
-      source: "strategy.targetCandidates",
-      label: `Inspect owner ${candidate2.owner} candidate with visibility reads before treating it as actionable.`,
-      parameters: {
-        owner: candidate2.owner,
-        ...candidate2.approach.targetLocation ? { target: candidate2.approach.targetLocation } : {}
-      }
-    },
-    {
-      kind: "read-visibility",
-      source: "strategy.targetCandidates",
-      label: "Read visibility/map evidence before promoting candidate ranking into an action.",
-      parameters: candidate2.approach.targetLocation ? { target: candidate2.approach.targetLocation } : {}
-    },
-    {
-      kind: "validate-unit-action",
-      source: "strategy.targetCandidates",
-      label: "Use unit action validation before moving or targeting.",
-      parameters: candidate2.approach.targetLocation ? { target: candidate2.approach.targetLocation } : {}
-    }
-  ];
-}
-function destinationNextSteps(input2) {
-  if (input2.pointsOfInterest.length === 0) {
-    return [
-      {
-        kind: "observe",
-        source: "strategy.destinationAnalysis",
-        label: "No destination pressure found; refresh map/visibility evidence before acting.",
-        parameters: { origin: input2.origin ?? void 0, destination: input2.destination }
-      }
-    ];
-  }
-  return [
-    {
-      kind: "inspect-destination",
-      source: "strategy.destinationAnalysis",
-      label: "Inspect destination contact and visibility before choosing a unit action.",
-      parameters: { origin: input2.origin ?? void 0, destination: input2.destination }
-    },
-    {
-      kind: "read-visibility",
-      source: "strategy.destinationAnalysis",
-      label: "Read visibility/map evidence before promoting destination pressure into an action.",
-      parameters: { destination: input2.destination }
-    },
-    {
-      kind: "validate-unit-action",
-      source: "strategy.destinationAnalysis",
-      label: "Use unit action validation before moving or targeting.",
-      parameters: { origin: input2.origin ?? void 0, destination: input2.destination }
-    }
-  ];
-}
-function nearestDistance(candidates) {
-  const distances = candidates.map((candidate2) => candidate2.nearestDistance).filter((value4) => value4 != null);
-  if (distances.length === 0) return null;
-  return Math.min(...distances);
-}
-function probeValue9(probe14, type3) {
-  const record2 = asRecord5(probe14);
-  if (record2?.ok !== true || typeof record2.value !== type3) return null;
-  return record2.value;
-}
-function nearestOwnerDistance2(owner) {
-  const distances = [
-    distanceFromUnknown2(owner?.nearestUnit),
-    distanceFromUnknown2(owner?.nearestCity)
-  ].filter((distance2) => distance2 != null);
-  if (distances.length === 0) return null;
-  return Math.min(...distances);
-}
-function distanceFromUnknown2(value4) {
-  const record2 = asRecord5(value4);
-  return nullableNumber(record2?.distance);
-}
-function integerRecord(value4) {
-  const record2 = asRecord5(value4);
-  if (record2 == null) return {};
-  const out = {};
-  for (const [key, candidate2] of Object.entries(record2)) {
-    const value22 = numberFromUnknown(candidate2);
-    if (value22 > 0) out[key] = Math.trunc(value22);
-  }
-  return out;
-}
-function locationFromUnknown4(value4) {
-  const direct = asRecord5(value4);
-  if (typeof direct?.x === "number" && typeof direct.y === "number") {
-    return { x: direct.x, y: direct.y };
-  }
-  const nested2 = asRecord5(direct?.location);
-  if (typeof nested2?.x === "number" && typeof nested2.y === "number") {
-    return { x: nested2.x, y: nested2.y };
-  }
-  return null;
-}
-function asArray2(value4) {
-  return Array.isArray(value4) ? value4 : [];
-}
-function asRecord5(value4) {
-  return value4 !== null && typeof value4 === "object" ? value4 : null;
-}
-function numberFromUnknown(value4) {
-  return typeof value4 === "number" && Number.isFinite(value4) ? value4 : 0;
-}
-function nullableNumber(value4) {
-  return typeof value4 === "number" && Number.isFinite(value4) ? value4 : null;
-}
-function normalizeRelationshipSummary4(summary5) {
-  return summary5.replace(/\bfriendly\b/gi, "own").replace(/\bpressure\b/gi, "contact").replace(/\bthreat\b/gi, "contact").replace(/\benemy\b/gi, "other-owner").replace(/\bhostile\b/gi, "other-owner").replace(/\bopponent\b/gi, "other-owner");
-}
-var strategyRouter = {
-  battlefieldScan: strategyBattlefieldScanProcedure,
-  civilianRouteTriage: strategyCivilianRouteTriageProcedure,
-  destinationAnalysis: strategyDestinationAnalysisProcedure,
-  formationSnapshot: strategyFormationSnapshotProcedure,
-  frontSummary: strategyFrontSummaryProcedure,
-  targetCandidates: strategyTargetCandidatesProcedure
-};
 var turnCompleteRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.turn.complete.request
 ).effect(function* ({ context: context5, errors }) {
@@ -39843,27 +37713,22 @@ function turnCompletionPostconditionSummary(result) {
 }
 function turnCompletionProbeSummary(status) {
   return {
-    turn: probeValue10(status.turn),
-    turnDate: probeValue10(status.turnDate),
-    hasSentTurnComplete: probeValue10(status.hasSentTurnComplete),
-    canEndTurn: probeValue10(status.canEndTurn),
+    turn: probeValue42(status.turn),
+    turnDate: probeValue42(status.turnDate),
+    hasSentTurnComplete: probeValue42(status.hasSentTurnComplete),
+    canEndTurn: probeValue42(status.canEndTurn),
     blocker: blockerValue(status.blocker),
-    firstReadyUnitId: probeValue10(status.firstReadyUnitId)
+    firstReadyUnitId: probeValue42(status.firstReadyUnitId)
   };
 }
 function blockerValue(probe14) {
-  const value4 = probeValue10(probe14);
+  const value4 = probeValue42(probe14);
   if (typeof value4 === "number" || typeof value4 === "string") return value4;
   return null;
 }
-function probeValue10(probe14) {
+function probeValue42(probe14) {
   return probe14.ok ? probe14.value : null;
 }
-var turnRouter = {
-  complete: {
-    request: turnCompleteRequestProcedure
-  }
-};
 var unitUpgradeRequestProcedure = civ7ControlOrpcMutationProcedure(
   civ7ControlOrpcImplementer.unit.upgrade.request
 ).effect(function* ({ context: context5, errors, input: input2 }) {
@@ -39973,8 +37838,8 @@ function unitCommandSummary(input2) {
   };
 }
 function unitCommandPostconditionSummary(result) {
-  const source2 = result.postcondition;
-  if (source2 == null) {
+  const source = result.postcondition;
+  if (source == null) {
     return {
       classification: "missing-postcondition",
       reason: "The unit command request did not include source-owned unit postcondition evidence.",
@@ -39984,12 +37849,12 @@ function unitCommandPostconditionSummary(result) {
       noRepeatAfterUnverified: true
     };
   }
-  const guarded = source2.classification === "not-sent" || source2.classification === "no-state-change" || source2.classification === "validation-changed";
+  const guarded = source.classification === "not-sent" || source.classification === "no-state-change" || source.classification === "validation-changed";
   const confidence = guarded ? "unverified" : "confirmed";
   return {
-    classification: source2.classification,
-    reason: source2.reason,
-    outcome: unitCommandProofOutcome(source2.classification),
+    classification: source.classification,
+    reason: source.reason,
+    outcome: unitCommandProofOutcome(source.classification),
     confidence,
     confirmed: confidence === "confirmed",
     noRepeatAfterUnverified: guarded
@@ -40106,19 +37971,6 @@ function unitTargetActionPostconditionSummary(result) {
     source: verification?.source ?? null
   };
 }
-var unitRouter = {
-  resettle: {
-    request: unitResettleRequestProcedure
-  },
-  target: {
-    action: {
-      request: unitTargetActionRequestProcedure
-    }
-  },
-  upgrade: {
-    request: unitUpgradeRequestProcedure
-  }
-};
 var worldCurrentProcedure = civ7ControlOrpcImplementer.world.current.effect(function* ({
   context: context5,
   errors
@@ -40154,10 +38006,10 @@ function worldCurrentResult(status) {
     },
     turn: inGame ? {
       current: status.appUi.snapshot.game.turn,
-      date: probeValue11(status.appUi.snapshot.game.turnDate),
+      date: probeValue5(status.appUi.snapshot.game.turnDate),
       age: status.appUi.snapshot.game.age,
       maxTurns: status.appUi.snapshot.game.maxTurns,
-      hash: probeValue11(status.appUi.snapshot.game.hash)
+      hash: probeValue5(status.appUi.snapshot.game.hash)
     } : {
       current: null,
       date: null,
@@ -40185,11 +38037,11 @@ function worldCurrentResult(status) {
 function worldMapFacts(status) {
   const map16 = status.appUi.snapshot.map;
   return {
-    width: probeValue11(map16.width),
-    height: probeValue11(map16.height),
-    plotCount: probeValue11(map16.plotCount),
-    mapSize: probeValue11(map16.mapSize),
-    randomSeed: probeValue11(map16.randomSeed)
+    width: probeValue5(map16.width),
+    height: probeValue5(map16.height),
+    plotCount: probeValue5(map16.plotCount),
+    mapSize: probeValue5(map16.mapSize),
+    randomSeed: probeValue5(map16.randomSeed)
   };
 }
 function emptyMapFacts() {
@@ -40205,9 +38057,9 @@ function worldPlayerFacts(status) {
   const players = status.appUi.snapshot.players;
   return {
     maxPlayers: status.appUi.snapshot.players.maxPlayers,
-    alivePlayerIds: integerArrayOrEmpty(probeValue11(players.aliveIds)),
-    aliveHumanIds: integerArrayOrEmpty(probeValue11(players.aliveHumanIds)),
-    aliveHumanCount: probeValue11(players.numAliveHumans)
+    alivePlayerIds: integerArrayOrEmpty(probeValue5(players.aliveIds)),
+    aliveHumanIds: integerArrayOrEmpty(probeValue5(players.aliveHumanIds)),
+    aliveHumanCount: probeValue5(players.numAliveHumans)
   };
 }
 function emptyPlayerFacts() {
@@ -40260,7 +38112,7 @@ function mapSourceStatus(map16) {
 function playersSourceStatus(players) {
   return players.aliveIds.ok || players.aliveHumanIds.ok || players.numAliveHumans.ok ? "read" : "skipped-unavailable";
 }
-function probeValue11(probe14) {
+function probeValue5(probe14) {
   return probe14.ok ? probe14.value : null;
 }
 function integerArrayOrEmpty(value4) {
@@ -40342,7 +38194,7 @@ function worldGridReadResult(result) {
   return {
     sourceStatus: {
       grid: result.omitted > 0 ? "read-with-omissions" : probeErrorCount > 0 ? "read-with-probe-errors" : "read",
-      map: probeValue12(result.map?.width) != null || probeValue12(result.map?.height) != null ? "read" : "skipped-unavailable"
+      map: probeValue6(result.map?.width) != null || probeValue6(result.map?.height) != null ? "read" : "skipped-unavailable"
     },
     bounds: result.bounds ?? boundsFromPlots(plots),
     fields: Array.from(result.fields),
@@ -40350,8 +38202,8 @@ function worldGridReadResult(result) {
     omitted: result.omitted,
     hiddenInfoPolicy: result.hiddenInfoPolicy,
     map: {
-      width: probeValue12(result.map?.width),
-      height: probeValue12(result.map?.height)
+      width: probeValue6(result.map?.width),
+      height: probeValue6(result.map?.height)
     },
     plots,
     summary: {
@@ -40370,7 +38222,7 @@ function worldPlotSnapshot(plot) {
     location: {
       x: plot.location.x,
       y: plot.location.y,
-      index: probeValue12(plot.location.index)
+      index: probeValue6(plot.location.index)
     },
     visibility,
     hiddenInfoPolicy: plot.hiddenInfoPolicy,
@@ -40390,7 +38242,7 @@ function publicProbe(probe14) {
 function probeRecord(facts) {
   return Object.fromEntries(Object.entries(facts).map(([key, value4]) => [key, publicProbe(value4)]));
 }
-function probeValue12(probe14) {
+function probeValue6(probe14) {
   return probe14?.ok ? probe14.value : null;
 }
 function probeErrorCountForRecord(record2) {
@@ -40411,125 +38263,120 @@ function boundsFromPlots(plots) {
     height: Math.max(...ys) - minY + 1
   };
 }
-var worldRouter = {
-  current: worldCurrentProcedure,
-  plot: worldPlotReadProcedure,
-  grid: worldGridReadProcedure
-};
 var Civ7ControllerOrpcRouter = {
   readiness: {
-    current: readinessRouter.current
+    current: readinessCurrentProcedure
   },
   attention: {
-    current: attentionRouter.current
+    current: attentionCurrentProcedure
   },
   strategy: {
-    frontSummary: strategyRouter.frontSummary
+    frontSummary: strategyFrontSummaryProcedure
   },
   world: {
-    current: worldRouter.current,
-    plot: worldRouter.plot,
-    grid: worldRouter.grid
+    current: worldCurrentProcedure,
+    plot: worldPlotReadProcedure,
+    grid: worldGridReadProcedure
   },
   notifications: {
     dismiss: {
-      request: notificationsRouter.dismiss.request
+      request: notificationsDismissRequestProcedure
     }
   },
   turn: {
     complete: {
-      request: turnRouter.complete.request
+      request: turnCompleteRequestProcedure
     }
   },
   city: {
     production: {
       choice: {
-        request: cityRouter.production.choice.request
+        request: cityProductionChoiceRequestProcedure
       }
     },
     population: {
       place: {
-        request: cityRouter.population.place.request
+        request: cityPopulationPlaceRequestProcedure
       }
     },
     townFocus: {
       change: {
-        request: cityRouter.townFocus.change.request
+        request: cityTownFocusChangeRequestProcedure
       },
       review: {
-        request: cityRouter.townFocus.review.request
+        request: cityTownFocusReviewRequestProcedure
       }
     }
   },
   narrative: {
     choice: {
-      request: narrativeRouter.choice.request
+      request: narrativeChoiceRequestProcedure
     }
   },
   diplomacy: {
     response: {
-      request: diplomacyRouter.response.request
+      request: diplomacyResponseRequestProcedure
     },
     firstMeet: {
       response: {
-        request: diplomacyRouter.firstMeet.response.request
+        request: firstMeetResponseRequestProcedure
       }
     }
   },
   government: {
     choice: {
-      request: governmentRouter.choice.request
+      request: governmentChoiceRequestProcedure
     },
     celebration: {
       choice: {
-        request: governmentRouter.celebration.choice.request
+        request: governmentCelebrationChoiceRequestProcedure
       }
     }
   },
   unit: {
     target: {
       action: {
-        request: unitRouter.target.action.request
+        request: unitTargetActionRequestProcedure
       }
     },
     upgrade: {
-      request: unitRouter.upgrade.request
+      request: unitUpgradeRequestProcedure
     },
     resettle: {
-      request: unitRouter.resettle.request
+      request: unitResettleRequestProcedure
     }
   },
   progression: {
     technology: {
       choice: {
-        request: progressionRouter.technology.choice.request
+        request: progressionTechnologyChoiceRequestProcedure
       },
       target: {
-        request: progressionRouter.technology.target.request
+        request: progressionTechnologyTargetRequestProcedure
       }
     },
     culture: {
       choice: {
-        request: progressionRouter.culture.choice.request
+        request: progressionCultureChoiceRequestProcedure
       },
       target: {
-        request: progressionRouter.culture.target.request
+        request: progressionCultureTargetRequestProcedure
       }
     },
     attribute: {
       purchase: {
-        request: progressionRouter.attribute.purchase.request
+        request: progressionAttributePurchaseRequestProcedure
       },
       review: {
-        request: progressionRouter.attribute.review.request
+        request: progressionAttributeReviewRequestProcedure
       }
     },
     tradition: {
       change: {
-        request: progressionRouter.tradition.change.request
+        request: progressionTraditionChangeRequestProcedure
       },
       review: {
-        request: progressionRouter.tradition.review.request
+        request: progressionTraditionReviewRequestProcedure
       }
     }
   }
@@ -40715,7 +38562,7 @@ async function requestCiv7GameUiTurnComplete(target = globalThis) {
       state: { id: "game-ui", name: "Game UI" },
       output: ["game-ui-turn-completion-requested"]
     },
-    verified: probeValue13(after3.hasSentTurnComplete) === true || probeValue13(after3.turn) !== probeValue13(before2.turn)
+    verified: probeValue7(after3.hasSentTurnComplete) === true || probeValue7(after3.turn) !== probeValue7(before2.turn)
   };
 }
 function gameUiNotificationSummaries(target, playerId, maxNotifications) {
@@ -40890,9 +38737,9 @@ function ok(value4) {
   return { ok: true, value: value4 };
 }
 function gameUiTurnCompletionAllowed(status) {
-  return probeValue13(status.canEndTurn) === true && probeValue13(status.hasSentTurnComplete) !== true;
+  return probeValue7(status.canEndTurn) === true && probeValue7(status.hasSentTurnComplete) !== true;
 }
-function probeValue13(probe14) {
+function probeValue7(probe14) {
   return probe14.ok ? probe14.value : void 0;
 }
 function isPresent(value4) {
@@ -44535,8 +42382,8 @@ function readUnitPostconditionSnapshot(unitId, target) {
   const localPlayerId = target.GameContext?.localPlayerID;
   return {
     unit: probe11(() => summarizeUnit(target.Units?.get?.(unitId))),
-    selectedUnitId: probe11(() => componentIdFromUnknown4(target.UI?.Player?.getHeadSelectedUnit?.())),
-    firstReadyUnitId: probe11(() => componentIdFromUnknown4(target.UI?.Player?.getFirstReadyUnit?.())),
+    selectedUnitId: probe11(() => componentIdFromUnknown2(target.UI?.Player?.getHeadSelectedUnit?.())),
+    firstReadyUnitId: probe11(() => componentIdFromUnknown2(target.UI?.Player?.getFirstReadyUnit?.())),
     blocker: probe11(
       () => typeof localPlayerId === "number" ? target.Game?.Notifications?.getEndTurnBlockingType?.(localPlayerId) ?? null : null
     )
@@ -44546,7 +42393,7 @@ function summarizeUnit(unit) {
   if (unit == null || typeof unit !== "object") return null;
   const record2 = unit;
   return {
-    id: componentIdFromUnknown4(record2.id ?? record2.ID ?? record2.UnitId ?? record2.unitId),
+    id: componentIdFromUnknown2(record2.id ?? record2.ID ?? record2.UnitId ?? record2.unitId),
     location: record2.location ?? record2.Location ?? null,
     movement: record2.Movement ?? record2.movement ?? record2.movementMovesRemaining ?? null,
     activity: record2.Activity ?? record2.activity ?? record2.currentActivity ?? null,
@@ -44554,7 +42401,7 @@ function summarizeUnit(unit) {
     attacks: record2.Attacks ?? record2.attacks ?? record2.attackCharges ?? null
   };
 }
-function componentIdFromUnknown4(value4) {
+function componentIdFromUnknown2(value4) {
   if (value4 == null || typeof value4 !== "object") return null;
   const record2 = value4;
   const owner = numberField(record2, "owner", "Owner");
