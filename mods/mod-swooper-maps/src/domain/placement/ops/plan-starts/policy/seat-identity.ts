@@ -17,6 +17,11 @@ export type SeatIdentity = {
   regionSlot: 1 | 2;
 };
 
+/**
+ * Builds west-then-east seat identity from requested player counts. Valid alive-major IDs are
+ * preserved verbatim; missing or invalid entries fall back to the seat index and carry an
+ * explicit `slot-index` source instead of hiding the substitution.
+ */
 export function buildSeatIdentities(args: {
   playersWest: number;
   playersEast: number;

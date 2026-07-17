@@ -53,6 +53,10 @@ const HydrologyRiverNetworkBenchmarkSummarySchema = Type.Object(
   }
 );
 
+/**
+ * Runtime contract for per-tile river hierarchy, mouth, slope, and permanence classifications
+ * plus aggregate benchmark evidence derived before engine projection.
+ */
 export const HydrologyRiverNetworkMetricsArtifactSchema = Type.Object(
   {
     upstreamArea: TypedArraySchemas.i32({
@@ -83,14 +87,21 @@ export const HydrologyRiverNetworkMetricsArtifactSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for publishing and validating river-network evidence. */
 export const Schema = HydrologyRiverNetworkMetricsArtifactSchema;
 
+/**
+ * Registers Hydrology-owned network hierarchy, mouth, slope, permanence, and aggregate
+ * benchmark evidence. It supports diagnostics and product proof without becoming
+ * river-placement authority.
+ */
 export const artifact = defineArtifact({
   name: "riverNetworkMetrics",
   id: "artifact:hydrology.riverNetworkMetrics",
   schema: Schema,
 });
 
+/** Returns every TypeBox schema issue for classified river-network metrics without throwing. */
 export function validate(value: unknown): readonly { message: string }[] {
   return validateArtifactSchema(Schema, value);
 }

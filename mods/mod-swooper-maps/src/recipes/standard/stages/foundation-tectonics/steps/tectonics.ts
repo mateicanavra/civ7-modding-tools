@@ -25,6 +25,10 @@ const BOUNDARY_TYPE_CATEGORIES = [
   { value: 3, label: "Transform", color: [245, 158, 11, 240] as [number, number, number, number] },
 ];
 
+/**
+ * Runs the ordered multi-era tectonic chain and publishes segments, history,
+ * current fields, and provenance as one coherent vintage.
+ */
 export default createStep(TectonicsStepContract, {
   artifacts: implementArtifacts(
     [

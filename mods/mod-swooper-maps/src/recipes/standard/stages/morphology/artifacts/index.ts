@@ -20,6 +20,7 @@ export {
   volcanoes,
 };
 
+/** Contract modules retaining each Morphology artifact's schema, handle, and validator. */
 export const artifactContracts = {
   beltDrivers,
   coastlineMetrics,
@@ -32,6 +33,10 @@ export const artifactContracts = {
   volcanoes,
 } as const;
 
+/**
+ * Curated Morphology artifact handles spanning tectonic drivers, topography,
+ * landforms, routing, coastlines, shelf truth, and projection intent.
+ */
 export const artifacts = {
   beltDrivers: beltDrivers.artifact,
   coastlineMetrics: coastlineMetrics.artifact,
@@ -44,6 +49,7 @@ export const artifacts = {
   volcanoes: volcanoes.artifact,
 } as const;
 
+/** Validators keyed exactly like the Morphology artifact catalog for runtime payload admission. */
 export const validators = {
   beltDrivers: beltDrivers.validate,
   coastlineMetrics: coastlineMetrics.validate,

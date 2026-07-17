@@ -9,6 +9,7 @@ import planResourceGroups from "./plan-resource-groups/index.js";
 import planTerrestrialResources from "./plan-terrestrial-resources/index.js";
 import selectResourceSites from "./select-resource-sites/index.js";
 
+/** Resources operation implementations keyed exactly like the domain's contract registry. */
 const implementations = {
   adjustResourceSupport,
   deriveHabitatFields,

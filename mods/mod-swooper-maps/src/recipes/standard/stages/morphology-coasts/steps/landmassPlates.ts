@@ -53,6 +53,10 @@ function applyBaseTerrainBuffers(
   return { landCount, waterCount, minElevation, maxElevation };
 }
 
+/**
+ * Converts projected Foundation crust and tectonic history into belt drivers,
+ * substrate, relief, sea level, and the initial Morphology landmask.
+ */
 export default createStep(LandmassPlatesStepContract, {
   artifacts: implementArtifacts(LandmassPlatesStepContract.artifacts!.provides!, {
     topography: {

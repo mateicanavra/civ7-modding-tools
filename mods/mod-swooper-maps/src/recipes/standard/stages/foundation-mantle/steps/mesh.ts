@@ -9,6 +9,10 @@ import MeshStepContract from "./mesh.contract.js";
 
 const GROUP_MESH = "Foundation / Mesh";
 
+/**
+ * Bootstraps Foundation's mesh exactly once, fixing cell identity and resolution
+ * for every subsequent mantle, lithosphere, and tectonics operation.
+ */
 export default createStep(MeshStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.mesh], {
     foundationMesh: {

@@ -22,6 +22,11 @@ const ClimateRefineStepConfigSchema = Type.Object(
   }
 );
 
+/**
+ * Defines cryosphere/albedo refinement and derived climate indices over baseline climate and
+ * topography. It publishes refined physical fields and diagnostics together before Ecology
+ * consumes climate truth.
+ */
 const ClimateRefineStepContract = defineStep({
   id: "climate-refine",
   phase: "hydrology",

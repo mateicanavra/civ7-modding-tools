@@ -59,6 +59,12 @@ const DemandRowSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/**
+ * Admits deterministic concrete site selection from typed per-resource demands, habitat/policy
+ * masks, landmass regions, and one seed. Its output carries intent provenance, range/region
+ * shortfalls, spacing floors, and pair settings: exclusion gates destinations while affinity is
+ * a best-effort scoring bias.
+ */
 const SelectResourceSitesContract = defineOp({
   kind: "plan",
   id: "resources/select-resource-sites",

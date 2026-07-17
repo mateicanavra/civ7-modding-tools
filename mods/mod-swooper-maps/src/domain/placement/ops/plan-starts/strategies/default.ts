@@ -341,6 +341,12 @@ function percentileRanks(values: readonly number[]): number[] {
   return ranks;
 }
 
+/**
+ * Runs deterministic start planning over typed map evidence: scores settleable candidates,
+ * applies the four-rung regional selection ladder, and balances cross-seat fairness. Missing
+ * optional evidence is recorded as imputation, while every region, quality, and spacing
+ * relaxation remains explicit in the result.
+ */
 export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
   run: (input, config) => {
     const playersLandmass1 = Math.max(0, input.baseStarts.playersLandmass1 | 0);

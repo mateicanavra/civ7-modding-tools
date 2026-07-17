@@ -38,6 +38,10 @@ export {
   scoreLayers,
 };
 
+/**
+ * Full Ecology artifact modules for consumers that need schemas, registered handles, and
+ * validators rather than only publication identities.
+ */
 export const artifactContracts = {
   biomeBindings,
   biomeClassification,
@@ -59,6 +63,11 @@ export const artifactContracts = {
   scoreLayers,
 } as const;
 
+/**
+ * Ecology artifact handles consumed by recipe steps, diagnostics, and map projection. This
+ * curated catalog keeps every consumer on the same registered contract while the sibling
+ * validator catalog owns admission.
+ */
 export const artifacts = {
   biomeBindings: biomeBindings.artifact,
   biomeClassification: biomeClassification.artifact,
@@ -80,6 +89,7 @@ export const artifacts = {
   scoreLayers: scoreLayers.artifact,
 } as const;
 
+/** Validators keyed exactly like the Ecology artifact catalog for runtime payload admission. */
 export const validators = {
   biomeBindings: biomeBindings.validate,
   biomeClassification: biomeClassification.validate,

@@ -79,9 +79,11 @@ The clauses are positive and exact:
    invariant through the migration.
 
 Contract schema-description quality is package-owned and exterior to A.2.
-The six current metadata gaps do not widen this topology descent. Blanket
-exported-function JSDoc and stale recipe-path clauses are retired rather than
-re-homed.
+Current metadata gaps do not widen this topology descent. Meaningful JSDoc for
+consumed exported value declarations remains required under generic MapGen Grit
+authority. The Ecology-specific source proxy and stale recipe-path inventory
+have retired; semantic schema descriptions remain package/review-owned unless
+an honest registered-value verifier is admitted later.
 
 ## Coordinates
 

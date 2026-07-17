@@ -19,6 +19,10 @@ function isFloodplainFeatureKey(feature: string): boolean {
   return FLOODPLAIN_FEATURE_KEY_PATTERN.test(feature);
 }
 
+/**
+ * Merges all ordered feature-family intents at Ecology's sole Civ7 mutation
+ * boundary and records typed rejection diagnostics without rewriting truth.
+ */
 export default createStep(FeaturesApplyStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.featureApplyDiagnostics], {
     featureApplyDiagnostics: {},

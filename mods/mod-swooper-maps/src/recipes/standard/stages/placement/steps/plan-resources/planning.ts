@@ -80,6 +80,10 @@ export type ResourceDemandBuildResult = {
   minimumAmountModifier: number;
 };
 
+/**
+ * Asserts exact typed-array classes and map cardinality for every habitat mask and intensity,
+ * then narrows the derived payload to the planning-owned HabitatFields contract.
+ */
 export function assertHabitatFieldsOutput(
   habitat: DerivedHabitatFields,
   expectedSize: number
@@ -144,6 +148,10 @@ export function resolveMinimumAmountModifier(width: number, height: number): num
   return 0;
 }
 
+/**
+ * Returns expectation rows owned by one resource group with fresh mutable copies of nested range
+ * and evidence arrays, leaving the frozen earthlike authority untouched.
+ */
 export function expectationsForGroup<const G extends ResourceExpectationGroupId>(
   groupId: G
 ): Array<ResourceExpectationInput<G>> {

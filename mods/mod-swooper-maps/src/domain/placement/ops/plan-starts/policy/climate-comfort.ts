@@ -32,6 +32,11 @@ function quantileSorted(sorted: readonly number[], q: number): number {
   return loValue + (hiValue - loValue) * (pos - lo);
 }
 
+/**
+ * Derives land-relative aridity and temperature deciles for start comfort scoring. Returns
+ * null when either climate field or land samples are unavailable; otherwise thresholds are
+ * deterministic quantiles over land tiles only.
+ */
 export function computeClimateComfortThresholds(args: {
   landMask: Uint8Array;
   aridityIndex?: Float32Array;

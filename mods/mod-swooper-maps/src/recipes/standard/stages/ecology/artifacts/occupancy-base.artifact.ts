@@ -7,6 +7,10 @@ import {
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/**
+ * Runtime contract for initial feature occupancy and permanent reservations before any family
+ * planner claims tiles.
+ */
 export const OccupancyArtifactSchema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
@@ -20,8 +24,14 @@ export const OccupancyArtifactSchema = Type.Object({
 
 export type OccupancyArtifact = Static<typeof OccupancyArtifactSchema>;
 
+/** Canonical schema entrypoint for registering and validating initial occupancy. */
 export const Schema = OccupancyArtifactSchema;
 
+/**
+ * Registers the initial Ecology occupancy snapshot produced with score layers. Zero means
+ * claimable, nonzero means claimed, and the blocked mask prevents every later family planner
+ * from independently redefining eligibility.
+ */
 export const artifact = defineArtifact({
   name: "occupancyBase",
   id: "artifact:ecology.occupancy.base",
@@ -82,6 +92,12 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates base Ecology occupancy against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

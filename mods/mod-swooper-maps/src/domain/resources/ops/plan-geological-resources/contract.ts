@@ -79,6 +79,11 @@ const GeologicalPlanRowSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/**
+ * Admits warning-only geological demand planning from earthlike expectations and named
+ * substrate/tectonic signals. It assigns family-owned geologic lanes and reports evidence gaps
+ * without selecting concrete sites.
+ */
 const PlanGeologicalResourcesContract = defineOp({
   kind: "plan",
   id: "resources/plan-geological-resources",

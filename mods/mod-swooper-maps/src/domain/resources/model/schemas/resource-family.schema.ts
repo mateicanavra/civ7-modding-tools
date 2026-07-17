@@ -1,17 +1,31 @@
-import { Type } from "@swooper/mapgen-core/authoring/contracts";
+import { type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-export const RESOURCE_FAMILIES = ["aquatic", "cultivated", "terrestrial", "geological"] as const;
-
-export type ResourceFamily = (typeof RESOURCE_FAMILIES)[number];
 export type ResourceSymbol = `RESOURCE_${string}`;
 
-export const ResourceFamilySchema = Type.Union([
-  Type.Literal("aquatic"),
-  Type.Literal("cultivated"),
-  Type.Literal("terrestrial"),
-  Type.Literal("geological"),
-]);
+/**
+ * Closed runtime vocabulary for the four resource planning families. Plans and intents use
+ * this schema so unknown family labels cannot cross operation boundaries.
+ */
+export const ResourceFamilySchema = Type.Union(
+  [
+    Type.Literal("aquatic"),
+    Type.Literal("cultivated"),
+    Type.Literal("terrestrial"),
+    Type.Literal("geological"),
+  ],
+  {
+    description:
+      "Resource planning family used to route aquatic, cultivated, terrestrial, and geological demand through their owning habitat lane.",
+  }
+);
 
+export type ResourceFamily = Static<typeof ResourceFamilySchema>;
+
+/**
+ * Runtime schema for canonical Civ7 resource keys in `RESOURCE_*` form. It preserves symbolic
+ * identity across pure planning and defers numeric engine ID resolution to the projection
+ * boundary.
+ */
 export const ResourceSymbolSchema = Type.Unsafe<ResourceSymbol>(
   Type.String({
     pattern: "^RESOURCE_[A-Z0-9_]+$",

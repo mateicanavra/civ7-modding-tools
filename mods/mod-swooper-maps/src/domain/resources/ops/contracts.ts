@@ -7,6 +7,11 @@ import PlanResourceGroupsContract from "./plan-resource-groups/contract.js";
 import PlanTerrestrialResourcesContract from "./plan-terrestrial-resources/contract.js";
 import SelectResourceSitesContract from "./select-resource-sites/contract.js";
 
+/**
+ * Curated Resources operation contracts used to define the domain's public operation surface.
+ * Registration stays separate from concrete strategies so recipe consumers depend on stable
+ * demand and result shapes.
+ */
 export const contracts = {
   adjustResourceSupport: AdjustResourceSupportContract,
   deriveHabitatFields: DeriveHabitatFieldsContract,

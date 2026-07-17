@@ -7,6 +7,11 @@ import {
 } from "../../../../tag-contracts.js";
 import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 
+/**
+ * Defines the sole map-ecology boundary that applies all planned feature-family intents to
+ * Civ7. It publishes field/effect tags and rejection diagnostics while preserving upstream
+ * intent as truth.
+ */
 const FeaturesApplyStepContract = defineStep({
   id: "features-apply",
   phase: "ecology",

@@ -30,6 +30,7 @@ export {
   startAssignment,
 };
 
+/** Curated placement artifact contract catalog used for registration and lookup. */
 export const artifactContracts = {
   advancedStartAssignment,
   discoveryPlacementOutcomes,
@@ -47,6 +48,11 @@ export const artifactContracts = {
   startAssignment,
 } as const;
 
+/**
+ * Named placement publication handles spanning planning inputs, product plans,
+ * projection outcomes, and terminal evidence. Key order catalogs the handles;
+ * it does not define step execution order.
+ */
 export const artifacts = {
   advancedStartAssignment: advancedStartAssignment.artifact,
   discoveryPlacementOutcomes: discoveryPlacementOutcomes.artifact,
@@ -64,6 +70,7 @@ export const artifacts = {
   startAssignment: startAssignment.artifact,
 } as const;
 
+/** Runtime validators paired one-for-one with every registered placement artifact. */
 export const validators = {
   advancedStartAssignment: advancedStartAssignment.validate,
   discoveryPlacementOutcomes: discoveryPlacementOutcomes.validate,

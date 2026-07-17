@@ -57,6 +57,11 @@ const ResourceGroupSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
+/**
+ * Admits reconciliation of the four family demand plans into one warning-only coverage report.
+ * It preserves family rows while surfacing duplicate ownership, missing resources, blockers,
+ * and aggregate target/eligibility counts.
+ */
 const PlanResourceGroupsContract = defineOp({
   kind: "plan",
   id: "resources/plan-resource-groups",
@@ -86,7 +91,11 @@ const PlanResourceGroupsContract = defineOp({
       blockers: Type.Array(Type.String()),
       groups: Type.Array(ResourceGroupSummarySchema),
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Warning-only reconciliation of the four resource-family plans, preserving each symbolic row while reporting aggregate counts, missing evidence, duplicate ownership, and group-id blockers.",
+    }
   ),
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),

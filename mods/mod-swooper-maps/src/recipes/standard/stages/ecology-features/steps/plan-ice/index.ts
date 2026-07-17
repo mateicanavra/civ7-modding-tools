@@ -6,6 +6,10 @@ import {
 } from "../../../ecology/artifacts/index.js";
 import PlanIceStepContract from "./contract.js";
 
+/**
+ * Plans ice from its shared suitability layer after floodplains reserve tiles,
+ * publishing truth-only intent and the occupancy snapshot consumed by reefs.
+ */
 export default createStep(PlanIceStepContract, {
   artifacts: implementArtifacts(
     [ecologyArtifacts.featureIntentsIce, ecologyArtifacts.occupancyIce],

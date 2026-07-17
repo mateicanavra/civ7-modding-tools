@@ -21,6 +21,10 @@ const FLOODPLAIN_FEATURE_INTENTS = new Set([
 const GROUP_ECOLOGY_FEATURES = "Ecology / Features";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Plans floodplain-family intent first in the feature occupancy chain, then
+ * publishes the reserved-tile snapshot that gates ice planning.
+ */
 export default createStep(PlanFloodplainsStepContract, {
   artifacts: implementArtifacts(
     [ecologyArtifacts.featureIntentsFloodplains, ecologyArtifacts.occupancyFloodplains],

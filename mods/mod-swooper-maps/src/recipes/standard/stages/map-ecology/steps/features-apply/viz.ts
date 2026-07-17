@@ -7,9 +7,17 @@ export type VizCategory = Readonly<{
   color: readonly [number, number, number, number];
 }>;
 
+/**
+ * Sentinel used when no Civ7 feature ID is present in a visualization tile. It stays outside
+ * the non-negative engine ID range so ‘none’ cannot collide with a real feature type.
+ */
 export const FEATURE_TYPE_NONE_VALUE = -1;
 const UNKNOWN_FEATURE_COLOR: VizCategory["color"] = [148, 163, 184, 180];
 
+/**
+ * Stable RGBA category colors for every authored Civ7 feature key. Module initialization checks
+ * catalog completeness so a new placeable feature cannot silently receive an arbitrary palette.
+ */
 export const FEATURE_TYPE_VIZ_COLORS_BY_KEY: Readonly<
   Partial<Record<FeatureKey, VizCategory["color"]>>
 > = {

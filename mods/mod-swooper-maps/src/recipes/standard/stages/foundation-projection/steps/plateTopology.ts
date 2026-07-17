@@ -12,6 +12,10 @@ import PlateTopologyStepContract from "./plateTopology.contract.js";
 
 const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
 
+/**
+ * Summarizes projected tile-space plate IDs into whole-plate adjacency, ensuring
+ * topology reflects the same raster vintage consumed by downstream map stages.
+ */
 export default createStep(PlateTopologyStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.plateTopology], {
     foundationPlateTopology: {

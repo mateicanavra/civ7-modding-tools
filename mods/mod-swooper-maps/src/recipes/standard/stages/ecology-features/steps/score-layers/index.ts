@@ -52,6 +52,10 @@ function localReliefM(
   return relief;
 }
 
+/**
+ * Computes every feature family's suitability layer once over shared ecology,
+ * morphology, and hydrology truth, and seeds the ordered occupancy chain.
+ */
 export default createStep(ScoreLayersStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase], {
     scoreLayers: {

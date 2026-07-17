@@ -22,6 +22,11 @@ export type AquaticResourceSignals = {
   readonly suppress: readonly AquaticSuppressionField[];
 };
 
+/**
+ * Canonical ordered aquatic resource set owned by this planning family. The family planner
+ * iterates this list so missing expectations and signal coverage are reported for every
+ * admitted type.
+ */
 export const AQUATIC_RESOURCE_TYPES: readonly AquaticResourceType[] = [
   "RESOURCE_FISH",
   "RESOURCE_PEARLS",
@@ -31,6 +36,11 @@ export const AQUATIC_RESOURCE_TYPES: readonly AquaticResourceType[] = [
   "RESOURCE_TURTLES",
 ];
 
+/**
+ * Physical eligibility policy for each aquatic resource, mapping it to primary water-habitat
+ * masks and lake/ice suppressors. Empty primary lists intentionally keep officially visible
+ * but currently unplaceable types blocked instead of assigning generic habitat.
+ */
 export const AQUATIC_SIGNALS: Record<AquaticResourceType, AquaticResourceSignals> = {
   RESOURCE_FISH: {
     primary: ["coastalWaterMask", "shelfMask"],

@@ -45,14 +45,20 @@ const MorphologyMountainsArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for Morphology-owned mountain, foothill, and rough-land intent. */
 export const Schema = MorphologyMountainsArtifactSchema;
 
+/**
+ * Registers Morphology-owned mountain, foothill, and rough-land intent for
+ * later engine projection and placement suitability.
+ */
 export const artifact = defineArtifact({
   name: "mountains",
   id: "artifact:morphology.mountains",
   schema: Schema,
 });
 
+/** Validates the closed typed-array vocabulary for mountain-family intent. */
 export function validate(value: unknown): readonly { message: string }[] {
   return validateArtifactSchema(Schema, value);
 }

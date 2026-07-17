@@ -71,6 +71,11 @@ type NaturalWonderFeatureCandidate = {
   footprintOffsetsByParity: FootprintOffsetsByParity;
 };
 
+/**
+ * Runs the pure natural-wonder planner: validates dimensioned inputs, ranks legal anchors by
+ * physical suitability, then applies deterministic cross-group diversity and spacing. It uses
+ * no RNG or engine access and preserves fallback anchors for materialization refusals.
+ */
 export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "default", {
   run: (input, config) => {
     const width = input.width | 0;

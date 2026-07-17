@@ -91,6 +91,10 @@ function buildVectorSegments(params: {
   };
 }
 
+/**
+ * Derives the stable plate-motion field from mantle forcing and plate identity;
+ * all subsequent tectonic history uses this published motion vintage.
+ */
 export default createStep(PlateMotionStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.plateMotion], {
     foundationPlateMotion: {

@@ -49,6 +49,12 @@ function worstPairGapOf(selections: readonly SeatSelection[]): number | null {
   return Math.max(...scores) - Math.min(...scores);
 }
 
+/**
+ * Balances the mutable seat selections toward the configured score-gap tolerance with at most
+ * eight deterministic swaps. Regional upgrades are preferred, the hard spacing floor is
+ * preserved, and every cross-region or quality concession is returned as typed relaxation
+ * evidence.
+ */
 export function balanceFairness(args: {
   selections: SeatSelection[];
   /**

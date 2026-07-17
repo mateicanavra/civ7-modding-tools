@@ -1,21 +1,13 @@
-import resources from "@mapgen/domain/resources";
+import resources, { ResourceFamilySchema, ResourceSymbolSchema } from "@mapgen/domain/resources";
 import {
   defineArtifact,
   Type,
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Resource demand plan (`artifact:placement.resourceDemandPlan`). One artifact per file by repo convention. */
-const ResourceFamilySchema = Type.Union([
-  Type.Literal("aquatic"),
-  Type.Literal("cultivated"),
-  Type.Literal("terrestrial"),
-  Type.Literal("geological"),
-]);
-
 const ResourceDemandSummaryRowSchema = Type.Object(
   {
-    resourceType: Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" }),
+    resourceType: ResourceSymbolSchema,
     family: ResourceFamilySchema,
     laneId: Type.String(),
     laneKind: Type.Union([Type.Literal("land"), Type.Literal("water")]),
@@ -55,8 +47,10 @@ const ResourceDemandPlanArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for symbolic per-resource demand and policy-legal capacity. */
 export const Schema = ResourceDemandPlanArtifactSchema;
 
+/** Registers symbolic per-resource demand and eligibility before site selection. */
 export const artifact = defineArtifact({
   name: "resourceDemandPlan",
   id: "artifact:placement.resourceDemandPlan",
@@ -122,6 +116,10 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/**
+ * Rejects duplicate resource rows, inverted min/max bounds, targets above max,
+ * and planned demands with no policy-legal tiles.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

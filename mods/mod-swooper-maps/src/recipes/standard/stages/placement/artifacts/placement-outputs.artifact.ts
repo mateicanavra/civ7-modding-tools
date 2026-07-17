@@ -19,8 +19,10 @@ export const PlacementOutputsV1Schema = Type.Object(
 
 export type PlacementOutputsV1 = Static<typeof PlacementOutputsV1Schema>;
 
+/** Canonical artifact schema alias for the terminal placement-count summary. */
 export const Schema = PlacementOutputsV1Schema;
 
+/** Registers the compact terminal count summary used to verify placement completion. */
 export const artifact = defineArtifact({
   name: "placementOutputs",
   id: "artifact:placementOutputs",
@@ -63,6 +65,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/** Requires every published product total to be a nonnegative integer count. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

@@ -5,6 +5,10 @@ import PlanPlotEffectsStepContract from "./contract.js";
 import { logSnowEligibilitySummary } from "./diagnostics.js";
 import { buildPlotEffectsInput } from "./inputs.js";
 
+/**
+ * Scores climate- and biome-driven snow, sand, burned, and jungle effects into
+ * a deterministic intent plan; map-ecology alone applies that plan to Civ7.
+ */
 export default createStep(PlanPlotEffectsStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.plotEffectPlan], {
     plotEffectPlan: {},

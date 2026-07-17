@@ -15,6 +15,11 @@ const PlotRiversStepConfigSchema = Type.Object(
   }
 );
 
+/**
+ * Defines river projection after elevation exists, requiring Hydrology truth and declaring the
+ * planned plus engine-readback artifacts used for parity. The implementation owns navigable-river
+ * selection and Civ7 mutation.
+ */
 const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "hydrology",

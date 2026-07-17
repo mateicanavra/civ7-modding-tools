@@ -92,6 +92,7 @@ const MapRiversEngineProjectionArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for Civ7 river readback, mismatch evidence, and capability disposition. */
 export const Schema = MapRiversEngineProjectionArtifactSchema;
 
 /**
@@ -104,6 +105,10 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
+/**
+ * Validates the closed river readback report, including typed masks, counts,
+ * mismatch evidence, and the explicit minor-river capability disposition.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return validateArtifactSchema(Schema, value);
 }

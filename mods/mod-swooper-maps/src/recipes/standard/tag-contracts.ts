@@ -1,3 +1,4 @@
+/** Map-tile-sized runtime fields whose presence gates consumers in the recipe DAG. */
 export const FIELD_DEPENDENCY_TAGS = {
   field: {
     terrainType: "field:terrainType",
@@ -8,6 +9,7 @@ export const FIELD_DEPENDENCY_TAGS = {
   },
 } as const;
 
+/** Civ7 engine mutations whose completion may require adapter-backed verification. */
 export const STANDARD_ENGINE_EFFECT_TAGS = {
   engine: {
     riversModeled: "effect:engine.riversModeled",
@@ -18,6 +20,7 @@ export const STANDARD_ENGINE_EFFECT_TAGS = {
   },
 } as const;
 
+/** Projection and parity milestones published by map-facing materialization steps. */
 export const MAP_PROJECTION_EFFECT_TAGS = {
   map: {
     coastsPlotted: "effect:map.coastsPlotted",
@@ -37,6 +40,7 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
   },
 } as const;
 
+/** Ordered placement-product milestones used to prevent consumers observing partial state. */
 export const PLACEMENT_PRODUCT_EFFECT_TAGS = {
   placement: {
     naturalWondersPlaced: "effect:placement.naturalWondersPlaced",

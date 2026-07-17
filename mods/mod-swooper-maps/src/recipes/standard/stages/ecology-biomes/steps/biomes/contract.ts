@@ -5,6 +5,11 @@ import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.
 import { artifacts as hydrologyClimateRefineArtifacts } from "../../../hydrology-climate-refine/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 
+/**
+ * Defines the Ecology truth step that classifies biome and vegetation fields from refined
+ * climate, pedology, and Morphology. It publishes biomeClassification once; engine biome IDs
+ * remain a later map-ecology responsibility.
+ */
 const BiomesStepContract = defineStep({
   id: "biomes",
   phase: "ecology",

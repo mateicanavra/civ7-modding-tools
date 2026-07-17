@@ -96,6 +96,10 @@ const ResourceBasinPlanningPublicSchema = Type.Union(
   }
 );
 
+/**
+ * Author-facing pedology controls for soil classification and resource-basin planning/scoring.
+ * Runtime-derived Ecology truth remains outside this authored boundary.
+ */
 export const EcologyPedologyPublicSchema = Type.Object(
   {
     soilClassification: SoilClassificationPublicSchema,
@@ -118,6 +122,7 @@ const BiomeClassificationPublicSchema = Type.With(biomeStrategy, {
     "Controls temperature, moisture, aridity, vegetation density, and deterministic biome edge smoothing.",
 });
 
+/** Author-facing biome-classification controls over stable Ecology strategy schemas. */
 export const EcologyBiomesPublicSchema = Type.Object(
   { biomeClassification: BiomeClassificationPublicSchema },
   {
@@ -289,6 +294,10 @@ const PlotEffectCoveragePublicSchema = requiredPublicSchema(
   "Controls snow, sand, burned, and jungle plot-effect coverage and thresholds."
 );
 
+/**
+ * Author-facing Ecology feature controls spanning substrate scores, feature intent, and plot
+ * effects while leaving engine projection to the later map stage.
+ */
 export const EcologyFeaturesPublicSchema = Type.Object(
   {
     substrateScoring: SubstrateScoringPublicSchema,
@@ -341,6 +350,7 @@ const REEF_PROFILE_TO_STRATEGY = {
   shippingLanes: "shipping-lanes",
 } as const;
 
+/** Compiles pedology controls into the fixed soil and resource-basin step envelopes. */
 export function compileEcologyPedologyPublicConfig(config: Record<string, unknown>) {
   return {
     pedology: {
@@ -353,6 +363,7 @@ export function compileEcologyPedologyPublicConfig(config: Record<string, unknow
   };
 }
 
+/** Compiles biome controls into the Standard recipe's biome-classification envelope. */
 export function compileEcologyBiomesPublicConfig(config: Record<string, unknown>) {
   return {
     biomes: {
@@ -361,6 +372,10 @@ export function compileEcologyBiomesPublicConfig(config: Record<string, unknown>
   };
 }
 
+/**
+ * Compiles feature controls into the fixed scoring, intent-planning, and plot-effect envelopes
+ * without executing Ecology operations.
+ */
 export function compileEcologyFeaturesPublicConfig(config: Record<string, unknown>) {
   const substrateScoring = config.substrateScoring as Record<string, unknown>;
   const wetlandScoring = config.wetlandScoring as Record<string, unknown>;

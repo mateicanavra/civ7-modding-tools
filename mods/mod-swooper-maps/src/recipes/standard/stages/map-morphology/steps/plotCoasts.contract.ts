@@ -4,6 +4,10 @@ import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tag-contracts.js";
 import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
 import { artifacts as mapMorphologyArtifacts } from "../artifacts/index.js";
 
+/**
+ * Defines the coast projection boundary from Morphology topography and shelf truth, declaring
+ * the coast classification and engine snapshot consumed by later continent validation.
+ */
 const PlotCoastsStepContract = defineStep({
   id: "plot-coasts",
   phase: "morphology",

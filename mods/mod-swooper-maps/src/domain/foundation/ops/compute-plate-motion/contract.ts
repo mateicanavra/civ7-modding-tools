@@ -63,7 +63,11 @@ const ComputePlateMotionContract = defineOp({
   ),
   output: Type.Object(
     { plateMotion: FoundationPlateMotionSchema },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Rigid per-plate translation and rotation fitted to mantle forcing, plus fit-quality evidence; motion drives boundary classification and era membership reconstruction.",
+    }
   ),
   strategies: {
     default: StrategySchema,

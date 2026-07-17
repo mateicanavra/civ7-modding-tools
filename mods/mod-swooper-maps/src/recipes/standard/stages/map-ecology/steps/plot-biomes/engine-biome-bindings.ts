@@ -11,6 +11,14 @@ export interface ResolvedEngineBiomeIds {
   marine: number;
 }
 
+/**
+ * Resolves the complete authored biome-symbol binding into Civ7 runtime IDs at the map-ecology
+ * boundary. Missing or non-numeric globals fail closed so projection never silently
+ * substitutes a biome.
+ *
+ * The returned land map follows the canonical biome symbol order and includes the separately
+ * configured marine ID.
+ */
 export function resolveEngineBiomeIds(
   adapter: BiomeGlobalResolver,
   bindings: BiomeEngineBindings

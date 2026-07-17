@@ -50,7 +50,11 @@ const ComputeEraTectonicFieldsContract = defineOp({
     {
       eraFields: FoundationTectonicEraFieldsInternalSchema,
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Mesh-wide boundary, deformation, volcanism, and drift fields for one weighted tectonic era; history rollups and current-state projection consume this record.",
+    }
   ),
   strategies: {
     default: StrategySchema,

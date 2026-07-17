@@ -690,6 +690,10 @@ function defaultEnvelope(config: unknown): { strategy: "default"; config: unknow
   return { strategy: "default", config };
 }
 
+/**
+ * Compiles substrate, relief, sea-level, landmask, and coastline controls into
+ * ordered landmass construction followed by rugged-coast reconciliation.
+ */
 export default createStage({
   id: "morphology-coasts",
   knobsSchema,

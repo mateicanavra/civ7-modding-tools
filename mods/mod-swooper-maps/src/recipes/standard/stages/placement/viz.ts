@@ -9,6 +9,7 @@ import type { VizLayerCategory, VizValueSpec } from "@swooper/mapgen-core";
  */
 export const PLACEMENT_VIZ_GROUP = "Gameplay / Placement";
 
+/** Legacy space id for Civ7's odd-row-offset tile geometry. */
 export const PLACEMENT_TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**

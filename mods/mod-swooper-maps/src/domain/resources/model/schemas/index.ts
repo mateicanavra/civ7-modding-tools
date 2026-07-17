@@ -1,6 +1,5 @@
 export {
   type ResourceExpectationRangeEvidence,
-  ResourceExpectationRangeEvidenceSchema,
   type ResourceExpectedCountRange,
   ResourceExpectedCountRangeSchema,
 } from "./expected-count-range.schema.js";
@@ -14,7 +13,6 @@ export {
 } from "./habitat-fields.schema.js";
 
 export {
-  RESOURCE_FAMILIES,
   type ResourceFamily,
   ResourceFamilySchema,
   type ResourceSymbol,
@@ -24,9 +22,5 @@ export {
 export {
   ResourceAffinityRuleSchema,
   ResourceLaneKindSchema,
-  ResourcePlanIntentSchema,
-  ResourcePlanPerTypeSchema,
-  ResourcePlanPhaseSchema,
-  ResourcePlanRegionMinimumSchema,
   ResourceSitePlanSchema,
 } from "./resource-site-plan.schema.js";

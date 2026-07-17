@@ -108,6 +108,10 @@ function classifyProjectionSignal(input: {
   };
 }
 
+/**
+ * Projects Hydrology river truth after elevation, selects navigable terrain,
+ * and publishes planned-versus-engine readbacks for parity diagnostics.
+ */
 export default createStep(PlotRiversStepContract, {
   artifacts: implementArtifacts(
     [

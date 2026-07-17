@@ -20,6 +20,7 @@ export {
   projectionMeta,
 };
 
+/** Curated recipe-wide artifact contract catalog for registration and stable lookup. */
 export const artifactContracts = {
   foundationCrustTiles,
   foundationPlates,
@@ -32,6 +33,7 @@ export const artifactContracts = {
   projectionMeta,
 } as const;
 
+/** Runtime artifact handles keyed exactly like the recipe-wide contract catalog. */
 export const artifacts = {
   foundationCrustTiles: foundationCrustTiles.artifact,
   foundationPlates: foundationPlates.artifact,
@@ -44,6 +46,7 @@ export const artifacts = {
   projectionMeta: projectionMeta.artifact,
 } as const;
 
+/** Runtime validators paired one-for-one with the recipe-wide artifact catalog. */
 export const validators = {
   foundationCrustTiles: foundationCrustTiles.validate,
   foundationPlates: foundationPlates.validate,

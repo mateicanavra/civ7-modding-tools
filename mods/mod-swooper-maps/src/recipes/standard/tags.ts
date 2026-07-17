@@ -16,6 +16,7 @@ export {
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "./tag-contracts.js";
 
+/** Canonical field and engine tag identities exposed for dependency-policy comparisons. */
 export const CANONICAL_FIELD_AND_ENGINE_TAGS: ReadonlySet<string> = new Set([
   ...Object.values(FIELD_DEPENDENCY_TAGS.field),
   ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine),
@@ -179,6 +180,11 @@ type SatisfactionState = {
   satisfied: ReadonlySet<string>;
 };
 
+/**
+ * Runtime definitions for every Standard field and effect tag. Field tags
+ * verify map-tile-sized typed arrays; effect tags carry declared owners and use
+ * adapter/artifact verification where completion cannot be trusted by name.
+ */
 export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition<ExtendedMapContext>[] = [
   {
     id: FIELD_DEPENDENCY_TAGS.field.terrainType,
@@ -220,6 +226,7 @@ export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition<Extended
   ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine).map(standardEngineEffectTagDefinition),
 ];
 
+/** Registers the complete Standard dependency-tag vocabulary with the supplied recipe registry. */
 export function registerStandardTags(registry: {
   registerTags: (definitions: readonly DependencyTagDefinition<ExtendedMapContext>[]) => void;
 }): void {

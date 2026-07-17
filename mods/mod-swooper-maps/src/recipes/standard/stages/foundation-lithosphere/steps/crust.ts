@@ -9,6 +9,10 @@ import CrustStepContract from "./crust.contract.js";
 
 const GROUP_CRUST = "Foundation / Crust";
 
+/**
+ * Computes initial crust from the shared mesh and mantle forcing before plate
+ * partitioning, keeping bootstrap crust distinct from later tectonic evolution.
+ */
 export default createStep(CrustStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.crustInit], {
     foundationCrustInit: {

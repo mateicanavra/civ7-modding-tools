@@ -11,6 +11,10 @@ export const Schema = TypedArraySchemas.i32({
   description: "Nearest mesh cellIndex per tileIndex (canonical mesh to tile projection mapping).",
 });
 
+/**
+ * Registers the canonical row-major tile-to-nearest-mesh-cell mapping used by
+ * all Foundation tile-space projections.
+ */
 export const artifact = defineArtifact({
   name: "foundationTileToCellIndex",
   id: "artifact:map.foundationTileToCellIndex",
@@ -54,6 +58,7 @@ function validatePayload(
   }
 }
 
+/** Requires a nonnegative Int32 mesh-cell index for every map tile. */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

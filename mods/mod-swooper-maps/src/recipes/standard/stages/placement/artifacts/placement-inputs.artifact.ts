@@ -18,6 +18,7 @@ export const PlacementInputsConfigSchema = Type.Object(
 
 const PlacementRuntimeStartsSchema = placement.ops.planStarts["input"].properties.baseStarts;
 
+/** Shared planning-input schema for map facts, seat counts, wonder intent, and authored config. */
 export const PlacementInputsV1Schema = Type.Object(
   {
     mapInfo: placement.ops.planWonders["input"].properties.mapInfo,
@@ -31,8 +32,13 @@ export const PlacementInputsV1Schema = Type.Object(
 type MapInfo = Static<(typeof placement.ops.planWonders)["input"]["properties"]["mapInfo"]>;
 export type PlacementInputsV1 = Static<typeof PlacementInputsV1Schema> & { mapInfo: MapInfo };
 
+/** Canonical artifact schema alias consumed by placement's artifact catalog. */
 export const Schema = PlacementInputsV1Schema;
 
+/**
+ * Registers the single planning input snapshot shared by wonders, starts, and
+ * terminal placement: Civ7 map metadata, seat counts, and authored config.
+ */
 export const artifact = defineArtifact({
   name: "placementInputs",
   id: "artifact:placementInputs",
@@ -87,6 +93,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/** Validates nonnegative seat/wonder counts and the presence of the shared config envelope. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

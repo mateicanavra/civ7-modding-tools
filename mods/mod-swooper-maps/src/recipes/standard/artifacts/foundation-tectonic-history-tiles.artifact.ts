@@ -126,6 +126,10 @@ export const Schema = Type.Object(
   }
 );
 
+/**
+ * Registers Foundation's ordered 5-8 era history and cumulative/recent
+ * rollups after projection from mesh cells into tile space.
+ */
 export const artifact = defineArtifact({
   name: "foundationTectonicHistoryTiles",
   id: "artifact:map.foundationTectonicHistoryTiles",
@@ -246,6 +250,10 @@ function validatePayload(
   }
 }
 
+/**
+ * Validates the era count/list invariant plus map-sized typed arrays for every
+ * era field, rollup, and movement component.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

@@ -22,6 +22,10 @@ import {
   type TerrainValidationBoundarySnapshot,
 } from "./terrain-validation-readback.js";
 
+/**
+ * Executes the transactional terrain validation, coast restoration, water
+ * storage, and region restamping required before placement products read Civ7.
+ */
 export default createStep(PreparePlacementSurfaceStepContract, {
   artifacts: implementArtifacts(
     [

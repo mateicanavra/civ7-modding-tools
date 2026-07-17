@@ -52,6 +52,11 @@ export type CultivatedResourceSignals = {
   readonly suppress: readonly CultivatedSuppressionField[];
 };
 
+/**
+ * Canonical ordered cultivated resource set owned by this planning family. The family planner
+ * iterates this list so missing expectations and signal coverage are reported for every
+ * admitted type.
+ */
 export const CULTIVATED_RESOURCE_TYPES: readonly CultivatedResourceType[] = [
   "RESOURCE_COTTON",
   "RESOURCE_DATES",
@@ -73,6 +78,12 @@ export const CULTIVATED_RESOURCE_TYPES: readonly CultivatedResourceType[] = [
   "RESOURCE_FLAX",
 ];
 
+/**
+ * Physical eligibility policy for each cultivated resource, mapping it to an admitted
+ * cultivation lane plus primary and suppressing habitat masks. Empty primary lists
+ * intentionally keep officially visible but currently unplaceable types blocked instead of
+ * assigning generic habitat.
+ */
 export const CULTIVATED_SIGNALS: Record<CultivatedResourceType, CultivatedResourceSignals> = {
   RESOURCE_COTTON: {
     laneId: "alluvial-irrigated",

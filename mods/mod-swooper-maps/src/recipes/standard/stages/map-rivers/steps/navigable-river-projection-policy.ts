@@ -1,5 +1,9 @@
 export type NavigableRiverDensityKnob = "sparse" | "normal" | "dense";
 
+/**
+ * Sparse, normal, and dense navigable-river projection thresholds for endpoint-discharge
+ * percentile and major-river tile coverage.
+ */
 export const NAVIGABLE_RIVER_PROJECTION_POLICY = {
   sparse: {
     endpointDischargePercentileMin: 0.97,

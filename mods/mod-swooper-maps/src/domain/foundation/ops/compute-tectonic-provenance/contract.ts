@@ -22,7 +22,11 @@ const ComputeTectonicProvenanceContract = defineOp({
     {
       tectonicProvenance: FoundationTectonicProvenanceSchema,
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Per-cell tectonic provenance linking present locations to advected origin eras and plates, crust age, and the most recent boundary encounter.",
+    }
   ),
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),

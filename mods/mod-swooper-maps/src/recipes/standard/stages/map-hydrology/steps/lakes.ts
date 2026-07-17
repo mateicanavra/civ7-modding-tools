@@ -6,6 +6,10 @@ import LakesStepContract from "./lakes.contract.js";
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Materializes planned lakes while respecting mountain truth, then publishes
+ * accepted-water and terrain snapshots for downstream elevation and parity.
+ */
 export default createStep(LakesStepContract, {
   artifacts: implementArtifacts(
     [

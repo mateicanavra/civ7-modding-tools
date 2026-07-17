@@ -2,14 +2,23 @@ import { Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { ResourceFamilySchema, ResourceSymbolSchema } from "./resource-family.schema.js";
 
+/**
+ * Closed lane medium for resource intent: `land` or `water`. Site selection and support
+ * adjustment use it to preserve the habitat surface on which an intent may legally move.
+ */
 export const ResourceLaneKindSchema = Type.Union([Type.Literal("land"), Type.Literal("water")]);
 
-export const ResourcePlanPhaseSchema = Type.Union([
+const ResourcePlanPhaseSchema = Type.Union([
   Type.Literal("rotation"),
   Type.Literal("range-floor"),
   Type.Literal("region-minimum"),
 ]);
 
+/**
+ * Closed pairwise resource relation used during site selection and support adjustment. A
+ * positive hex radius either biases an affinity or enforces an exclusion, and the symmetric
+ * rule is echoed in plan settings for downstream consistency.
+ */
 export const ResourceAffinityRuleSchema = Type.Object(
   {
     resourceA: ResourceSymbolSchema,
@@ -31,7 +40,7 @@ export const ResourceAffinityRuleSchema = Type.Object(
   }
 );
 
-export const ResourcePlanIntentSchema = Type.Object(
+const ResourcePlanIntentSchema = Type.Object(
   {
     plotIndex: Type.Integer({ minimum: 0 }),
     x: Type.Integer({ minimum: 0 }),
@@ -63,7 +72,7 @@ const ResourcePlanShortfallSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const ResourcePlanPerTypeSchema = Type.Object(
+const ResourcePlanPerTypeSchema = Type.Object(
   {
     resourceType: ResourceSymbolSchema,
     family: ResourceFamilySchema,
@@ -90,7 +99,7 @@ export const ResourcePlanPerTypeSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const ResourcePlanRegionMinimumSchema = Type.Object(
+const ResourcePlanRegionMinimumSchema = Type.Object(
   {
     resourceType: ResourceSymbolSchema,
     regionSlot: Type.Integer({ minimum: 1, maximum: 2 }),
@@ -102,6 +111,11 @@ export const ResourcePlanRegionMinimumSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/**
+ * Complete deterministic resource-site plan: dimensioned typed intents, per-type counts and
+ * shortfalls, region-minimum evidence, and the settings that produced them. Downstream
+ * adjustment may move or add intents only while preserving these recorded authority constraints.
+ */
 export const ResourceSitePlanSchema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),

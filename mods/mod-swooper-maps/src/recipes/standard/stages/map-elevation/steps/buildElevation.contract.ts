@@ -5,6 +5,11 @@ import { artifacts as mapHydrologyArtifacts } from "../../map-hydrology/artifact
 import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
 import { artifacts as mapElevationArtifacts } from "../artifacts/index.js";
 
+/**
+ * Defines elevation materialization after mountains, volcanoes, and lakes are projected. It
+ * consumes Morphology height truth plus accepted lake evidence, then publishes engine readback
+ * for parity diagnostics.
+ */
 const BuildElevationStepContract = defineStep({
   id: "build-elevation",
   phase: "morphology",

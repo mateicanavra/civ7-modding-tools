@@ -2,37 +2,37 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 630,
+    "totalSurfaces": 629,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
-      "check-script": 28,
+      "check-script": 27,
       "rule-json": 120,
-      "pattern": 79,
+      "pattern": 80,
       "structure-spec": 8,
       "apply-pattern": 1,
       "generate-script": 2,
       "operation-note": 3,
       "fix-script": 1,
-      "package-script": 169,
+      "package-script": 168,
       "nx-target": 95,
       "nx-plugin": 1,
       "nx-target-default": 11,
       "habitat-cli-source": 112
     },
     "surfacesByRole": {
-      "command_check_executor": 28,
+      "command_check_executor": 27,
       "runner_metadata": 120,
-      "policy_pattern": 80,
+      "policy_pattern": 81,
       "structure_authority": 8,
       "operation_surface": 6,
-      "workspace_entrypoint": 276,
+      "workspace_entrypoint": 275,
       "toolkit_runner": 112
     },
     "entrypointsByInvoker": {
       "unknown": 240,
       "direct-script": 4,
-      "package": 170,
+      "package": 169,
       "nx": 107,
       "habitat": 112
     },
@@ -40,9 +40,9 @@
       "package_boundary_tie": 93,
       "unknown_invocation": 240,
       "mutation_surface": 123,
-      "nx_ordering_tie": 119,
+      "nx_ordering_tie": 120,
       "direct_script_invoked": 4,
-      "package_invoked": 277,
+      "package_invoked": 276,
       "habitat_invoked": 112
     },
     "sanityAssertions": []
@@ -51,9 +51,9 @@
     "roleCounts": {
       "fixture-support": 9,
       "adapter": 120,
-      "policy-predicate": 88,
+      "policy-predicate": 89,
       "transient-dependency": 112,
-      "entrypoint": 278,
+      "entrypoint": 277,
       "runner-runtime": 112
     }
   },
@@ -328,6 +328,23 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/",
+      "targetClass": "mod",
+      "references": 9,
+      "sourceCount": 9,
+      "sampleSources": [
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
+        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/pattern.md",
+        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/pattern.md",
+        ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/pattern.md",
+        ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_narrative_domain_imports/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/support.pattern.md",
+        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
+      ]
+    },
+    {
       "target": "tsc -p tsconfig.json --noEmit",
       "targetClass": "workspace-tool",
       "references": 9,
@@ -374,22 +391,6 @@
         "tools/habitat/src/service/modules/verify/contract.ts",
         "tools/habitat/src/service/modules/verify/model/policy/nx-affected.policy.ts",
         "tools/habitat/src/service/modules/verify/model/policy/receipt.policy.ts"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/",
-      "targetClass": "mod",
-      "references": 8,
-      "sourceCount": 8,
-      "sampleSources": [
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
-        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/pattern.md",
-        ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/pattern.md",
-        ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/pattern.md",
-        ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_narrative_domain_imports/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/support.pattern.md",
-        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
       ]
     },
     {
@@ -932,18 +933,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps",
-      "targetClass": "mod",
-      "references": 4,
-      "sourceCount": 4,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/check.mjs",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts",
-        ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts",
       "targetClass": "mod",
       "references": 4,
@@ -1203,6 +1192,17 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps",
+      "targetClass": "mod",
+      "references": 3,
+      "sourceCount": 3,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/check.mjs",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts",
+        ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-",
       "targetClass": "mod",
       "references": 3,
@@ -1233,6 +1233,17 @@
         ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md",
         ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_validation_and_compiler_imports/pattern.md",
         ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/tags.ts",
+      "targetClass": "mod",
+      "references": 3,
+      "sourceCount": 3,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_tag_catalog_owner_tokens/check.mjs"
       ]
     },
     {
@@ -1881,6 +1892,16 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/runtime.ts",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md",
+        ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/check.ts"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/.",
       "targetClass": "mod",
       "references": 2,
@@ -1898,6 +1919,16 @@
       "sampleSources": [
         ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
         ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/pattern.md"
       ]
     },
     {
@@ -1988,16 +2019,6 @@
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/pattern.md",
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/tags.ts",
-      "targetClass": "mod",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_tag_catalog_owner_tokens/check.mjs"
       ]
     },
     {
@@ -2770,15 +2791,6 @@
       ]
     },
     {
-      "target": "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality",
-      "targetClass": "workspace-tool",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh"
-      ]
-    },
-    {
       "target": "../..",
       "targetClass": "relative",
       "references": 1,
@@ -3508,12 +3520,30 @@
       ]
     },
     {
+      "target": "./model/policy/climate.js",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+      ]
+    },
+    {
       "target": "./model/policy/helper.js",
       "targetClass": "relative",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/domain/require_domain_ops_binding_surface/pattern.md"
+      ]
+    },
+    {
+      "target": "./model/types.js",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
       ]
     },
     {
@@ -3775,15 +3805,6 @@
       "sourceCount": 1,
       "sampleSources": [
         "package.json#scripts.gt:import-worktree"
-      ]
-    },
-    {
-      "target": "./scripts/validate-ecology-op-contract-quality.ts",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "mods/mod-swooper-maps/package.json#scripts.validate:ecology-op-contract-quality"
       ]
     },
     {
@@ -4624,15 +4645,6 @@
       ]
     },
     {
-      "target": "bun ./scripts/validate-ecology-op-contract-quality.ts",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "mods/mod-swooper-maps/package.json#scripts.validate:ecology-op-contract-quality"
-      ]
-    },
-    {
       "target": "bun ./src/dev/diagnostics/analyze-dump.ts",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -5269,6 +5281,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/pattern.md"
+      ]
+    },
+    {
+      "target": "grit\nlanguage js(typescript)\n\npredicate lacks_declaration_jsdoc($declaration) {\n  $previous = before $declaration,\n  or {\n    ! $previous <: r\"(?s)^/\\*\\*.*\\*/$\",\n    $previous <: r\"(?s)^/\\*\\*[ *\\n\\r\\t]*\\*/$\",\n    $previous <: r\"(?is)^/\\*\\*[ *\\n\\r\\t]*(?:TODO|TBD|FIXME|PLACEHOLDER|DOCUMENTATION[ \\t]+PENDING).*\\*/$\"\n  }\n}\n\nor {\n  export_statement(declaration=$declaration) as $export where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain|recipes)/.*\\.ts$\",\n    $declaration <: or {\n      lexical_declaration(),\n      variable_declaration(),\n      function_declaration(),\n      class_declaration(),\n      enum_declaration()\n    },\n    lacks_declaration_jsdoc($export)\n  },",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
       ]
     },
     {
@@ -6154,6 +6175,69 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/domain/ecology/model/policy/climate-band.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/domain/ecology/model/policy/climate.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/domain/ecology/model/policy/documented-climate-band.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/domain/ecology/model/policy/options.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/domain/ecology/model/types.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/index.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts",
       "targetClass": "mod",
       "references": 1,
@@ -6883,6 +6967,15 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/artifacts.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts",
       "targetClass": "mod",
       "references": 1,
@@ -6925,15 +7018,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/runtime.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/check.ts"
       ]
     },
     {
@@ -7087,15 +7171,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/pattern.md"
       ]
     },
     {
@@ -8944,6 +9019,15 @@
       ]
     },
     {
+      "target": "packages/mapgen-core/src/domain/ecology/model/policy/climate.ts",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+      ]
+    },
+    {
       "target": "packages/mapgen-core/src/engine/area-builder.ts",
       "targetClass": "package",
       "references": 1,
@@ -9989,59 +10073,6 @@
     }
   ],
   "checksInvokingOrRecommendingPackageCurrentnessCommands": [
-    {
-      "id": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh",
-      "path": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [
-          "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality"
-        ],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "cwd-assumption",
-            "value": "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
     {
       "id": ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts",
       "path": ".habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts",
@@ -14250,93 +14281,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh",
-      "path": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [
-          "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality"
-        ],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "cwd-assumption",
-            "value": "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/rule.json",
-      "path": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/rule.json",
       "path": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/rule.json",
       "surfaceKind": "rule-json",
@@ -15983,6 +15927,171 @@
     {
       "id": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/rule.json",
       "path": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md",
+      "path": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "mods/mod-swooper-maps/src/",
+          "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/model/policy/climate-band.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/model/policy/climate.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/model/policy/documented-climate-band.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/model/policy/options.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/model/types.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/index.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/artifacts.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/runtime.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/tags.ts",
+          "packages/mapgen-core/src/domain/ecology/model/policy/climate.ts"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit\nlanguage js(typescript)\n\npredicate lacks_declaration_jsdoc($declaration) {\n  $previous = before $declaration,\n  or {\n    ! $previous <: r\"(?s)^/\\*\\*.*\\*/$\",\n    $previous <: r\"(?s)^/\\*\\*[ *\\n\\r\\t]*\\*/$\",\n    $previous <: r\"(?is)^/\\*\\*[ *\\n\\r\\t]*(?:TODO|TBD|FIXME|PLACEHOLDER|DOCUMENTATION[ \\t]+PENDING).*\\*/$\"\n  }\n}\n\nor {\n  export_statement(declaration=$declaration) as $export where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain|recipes)/.*\\.ts$\",\n    $declaration <: or {\n      lexical_declaration(),\n      variable_declaration(),\n      function_declaration(),\n      class_declaration(),\n      enum_declaration()\n    },\n    lacks_declaration_jsdoc($export)\n  },"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "path-reference",
+            "value": "./model/policy/climate.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./model/types.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/model/policy/climate-band.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/model/policy/climate.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/model/policy/documented-climate-band.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/model/policy/options.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/model/types.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/index.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/artifacts.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/runtime.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/tags.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/mapgen-core/src/domain/ecology/model/policy/climate.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit\nlanguage js(typescript)\n\npredicate lacks_declaration_jsdoc($declaration) {\n  $previous = before $declaration,\n  or {\n    ! $previous <: r\"(?s)^/\\*\\*.*\\*/$\",\n    $previous <: r\"(?s)^/\\*\\*[ *\\n\\r\\t]*\\*/$\",\n    $previous <: r\"(?is)^/\\*\\*[ *\\n\\r\\t]*(?:TODO|TBD|FIXME|PLACEHOLDER|DOCUMENTATION[ \\t]+PENDING).*\\*/$\"\n  }\n}\n\nor {\n  export_statement(declaration=$declaration) as $export where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain|recipes)/.*\\.ts$\",\n    $declaration <: or {\n      lexical_declaration(),\n      variable_declaration(),\n      function_declaration(),\n      class_declaration(),\n      enum_declaration()\n    },\n    lacks_declaration_jsdoc($export)\n  },",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_boundary_tie",
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/rule.json",
+      "path": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -29364,93 +29473,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh",
-      "path": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [
-          "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality"
-        ],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "cwd-assumption",
-            "value": "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/rule.json",
-      "path": ".habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "invokedBy": [
-        "unknown"
-      ],
-      "detectCommand": [],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": []
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/rule.json",
       "path": ".habitat/civ7/mapgen/domains/ecology/rules/require_ecology_canonical_op_module_topology/rule.json",
       "surfaceKind": "rule-json",
@@ -31097,6 +31119,171 @@
     {
       "id": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/rule.json",
       "path": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md",
+      "path": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "mods/mod-swooper-maps/src/",
+          "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/model/policy/climate-band.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/model/policy/climate.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/model/policy/documented-climate-band.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/model/policy/options.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/model/types.ts",
+          "mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/index.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/artifacts.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/runtime.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/tags.ts",
+          "packages/mapgen-core/src/domain/ecology/model/policy/climate.ts"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit\nlanguage js(typescript)\n\npredicate lacks_declaration_jsdoc($declaration) {\n  $previous = before $declaration,\n  or {\n    ! $previous <: r\"(?s)^/\\*\\*.*\\*/$\",\n    $previous <: r\"(?s)^/\\*\\*[ *\\n\\r\\t]*\\*/$\",\n    $previous <: r\"(?is)^/\\*\\*[ *\\n\\r\\t]*(?:TODO|TBD|FIXME|PLACEHOLDER|DOCUMENTATION[ \\t]+PENDING).*\\*/$\"\n  }\n}\n\nor {\n  export_statement(declaration=$declaration) as $export where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain|recipes)/.*\\.ts$\",\n    $declaration <: or {\n      lexical_declaration(),\n      variable_declaration(),\n      function_declaration(),\n      class_declaration(),\n      enum_declaration()\n    },\n    lacks_declaration_jsdoc($export)\n  },"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "path-reference",
+            "value": "./model/policy/climate.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./model/types.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/model/policy/climate-band.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/model/policy/climate.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/model/policy/documented-climate-band.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/model/policy/options.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/model/types.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/index.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/artifacts.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/runtime.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/tags.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/mapgen-core/src/domain/ecology/model/policy/climate.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit\nlanguage js(typescript)\n\npredicate lacks_declaration_jsdoc($declaration) {\n  $previous = before $declaration,\n  or {\n    ! $previous <: r\"(?s)^/\\*\\*.*\\*/$\",\n    $previous <: r\"(?s)^/\\*\\*[ *\\n\\r\\t]*\\*/$\",\n    $previous <: r\"(?is)^/\\*\\*[ *\\n\\r\\t]*(?:TODO|TBD|FIXME|PLACEHOLDER|DOCUMENTATION[ \\t]+PENDING).*\\*/$\"\n  }\n}\n\nor {\n  export_statement(declaration=$declaration) as $export where {\n    $filename <: r\".*mods/mod-swooper-maps/src/(?:domain|recipes)/.*\\.ts$\",\n    $declaration <: or {\n      lexical_declaration(),\n      variable_declaration(),\n      function_declaration(),\n      class_declaration(),\n      enum_declaration()\n    },\n    lacks_declaration_jsdoc($export)\n  },",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_boundary_tie",
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/rule.json",
+      "path": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
       "invokedBy": [
@@ -43106,57 +43293,6 @@
           {
             "kind": "shell-command",
             "value": "bun ./src/dev/diagnostics/extract-trace.ts",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_invoked"
-      ]
-    },
-    {
-      "id": "mods/mod-swooper-maps/package.json#scripts.validate:ecology-op-contract-quality",
-      "path": "mods/mod-swooper-maps/package.json",
-      "surfaceKind": "package-script",
-      "surfaceRole": "workspace_entrypoint",
-      "invokedBy": [
-        "package"
-      ],
-      "packageScript": {
-        "packagePath": "mods/mod-swooper-maps/package.json",
-        "packageName": "mod-swooper-maps",
-        "name": "validate:ecology-op-contract-quality",
-        "command": "bun ./scripts/validate-ecology-op-contract-quality.ts"
-      },
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "bun ./scripts/validate-ecology-op-contract-quality.ts"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": "./scripts/validate-ecology-op-contract-quality.ts",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "shell-command",
-            "value": "bun ./scripts/validate-ecology-op-contract-quality.ts",
             "targetClass": "workspace-tool"
           }
         ]

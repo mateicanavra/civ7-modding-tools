@@ -19,6 +19,11 @@ const RiversStepConfigSchema = Type.Object(
   }
 );
 
+/**
+ * Defines canonical drainage, discharge, and river classification from baseline climate and
+ * final topography. It publishes Hydrology truth before map-rivers performs any engine
+ * projection.
+ */
 const RiversStepContract = defineStep({
   id: "rivers",
   phase: "hydrology",

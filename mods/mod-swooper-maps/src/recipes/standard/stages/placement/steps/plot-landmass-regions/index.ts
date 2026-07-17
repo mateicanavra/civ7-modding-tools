@@ -112,6 +112,10 @@ function resolveSlotByTile(input: {
   return out;
 }
 
+/**
+ * Maps final landmasses into seam-safe west/east region slots, applies those
+ * slots to Civ7, and publishes the exact per-tile projection metadata.
+ */
 export default createStep(PlotLandmassRegionsStepContract, {
   artifacts: implementArtifacts(
     [mapArtifacts.projectionMeta, mapArtifacts.landmassRegionSlotByTile],

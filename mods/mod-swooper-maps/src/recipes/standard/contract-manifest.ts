@@ -67,6 +67,11 @@ function stage(id: string, contracts: readonly RecipeDagStepContractInput[]): Re
   };
 }
 
+/**
+ * Canonical Standard recipe stage and step contract order shared by runtime
+ * composition and Studio DAG projection. Each contract appears in its admitted
+ * stage exactly once and array order is execution order.
+ */
 export const standardStageContractManifest = [
   stage("foundation-mantle", [
     MeshStepContract,
@@ -132,6 +137,10 @@ export const standardStageContractManifest = [
 
 export type StandardStageId = (typeof standardStageContractManifest)[number]["id"];
 
+/**
+ * Returns a fresh step list in canonical manifest order, rejecting any required step absent from
+ * the supplied registry. Registry entries not named by the manifest are intentionally ignored.
+ */
 export function orderStandardStageSteps<const TStep extends { contract: { id: string } }>(
   stageId: StandardStageId,
   stepsById: Readonly<Record<string, TStep>>
@@ -146,6 +155,11 @@ export function orderStandardStageSteps<const TStep extends { contract: { id: st
   });
 }
 
+/**
+ * Resolves runtime stages into manifest order without mutating the supplied
+ * registry. Missing registered stages fail immediately instead of producing a
+ * partial recipe.
+ */
 export function orderStandardStages<const TStage extends { id: string }>(
   stagesById: Readonly<Record<StandardStageId, TStage>>
 ): TStage[] {

@@ -41,8 +41,14 @@ export const ClimateSeasonalityArtifactSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for seasonal forcing metadata and amplitude fields. */
 export const Schema = ClimateSeasonalityArtifactSchema;
 
+/**
+ * Registers seasonal temperature, rainfall, and humidity amplitudes together with the sampled
+ * seasonal mode count. Consumers can reason about variability without rerunning the baseline
+ * circulation pass.
+ */
 export const artifact = defineArtifact({
   name: "climateSeasonality",
   id: "artifact:hydrology.climateSeasonality",
@@ -123,6 +129,12 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates climate seasonality against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

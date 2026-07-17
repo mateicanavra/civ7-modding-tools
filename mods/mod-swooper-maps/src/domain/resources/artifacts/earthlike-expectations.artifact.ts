@@ -181,6 +181,11 @@ const EarthlikeExpectationEntrySchema = Type.Union([
   ActiveExpectationEntrySchema,
 ]);
 
+/**
+ * Closed runtime row contract for earthlike resource expectations. Its active and blocked
+ * unions reject contradictory dispositions; corpus completeness and unique membership remain
+ * properties of the authored data, not this schema.
+ */
 export const Schema = Type.Unsafe<EarthlikeResourceExpectationsArtifact>(
   Type.Object(
     {
@@ -205,12 +210,22 @@ export const Schema = Type.Unsafe<EarthlikeResourceExpectationsArtifact>(
 
 export type Artifact = Static<typeof Schema>;
 
+/**
+ * Registers the Resources-owned expectation rows with legality, habitat, range, and initial-map
+ * disposition evidence. Family planners consume this warning-only authority before site
+ * selection; it neither proves corpus membership nor stamps resources.
+ */
 export const artifact = defineArtifact({
   name: "resourceEarthlikeExpectations",
   id: "artifact:resources.earthlikeExpectations",
   schema: Schema,
 });
 
+/**
+ * Validates expectation row shapes and active/blocked disposition combinations without
+ * throwing. It does not prove that official resources appear exactly once or that the corpus is
+ * complete.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return validateArtifactSchema(Schema, value);
 }

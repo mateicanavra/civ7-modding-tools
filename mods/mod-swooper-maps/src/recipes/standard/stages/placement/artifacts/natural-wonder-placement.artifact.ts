@@ -81,8 +81,10 @@ const NaturalWonderPlacementArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema reconciling the natural-wonder plan with measured stamping outcomes. */
 export const Schema = NaturalWonderPlacementArtifactSchema;
 
+/** Registers measured natural-wonder stamping outcomes and exact-run coordinate evidence. */
 export const artifact = defineArtifact({
   name: "naturalWonderPlacement",
   id: "artifact:placement.naturalWonderPlacement",
@@ -183,6 +185,10 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/**
+ * Reconciles planned, placed, rejected, and skipped counts with typed rows and
+ * coordinate digest counts; legality shortfalls remain outcomes, not failures.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

@@ -490,6 +490,10 @@ function defaultEnvelope(config: unknown): { strategy: "default"; config: unknow
   return { strategy: "default", config };
 }
 
+/**
+ * Orders post-erosion island, mountain, and volcano intent before decomposing
+ * the final landmask, keeping landform planning ahead of shelf and projection.
+ */
 export default createStage({
   id: "morphology-features",
   knobsSchema,

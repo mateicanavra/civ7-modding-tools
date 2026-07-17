@@ -255,6 +255,10 @@ export function buildResourcePlacementRuntimeTelemetry(
   };
 }
 
+/**
+ * Writes resource placement and reconciliation evidence under the stable runtime prefix. An empty
+ * runtime catalog is intentionally silent because no official resource identity can be reported.
+ */
 export function logResourcePlacementRuntimeTelemetry(
   runtimeCatalog: readonly ResourceCatalogEntry[],
   summary: ResourcePlacementSummary,

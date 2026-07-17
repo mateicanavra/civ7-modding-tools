@@ -25,8 +25,14 @@ export const ClimateFieldArtifactSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for baseline rainfall and humidity buffer admission. */
 export const Schema = ClimateFieldArtifactSchema;
 
+/**
+ * Registers baseline per-tile temperature, rainfall, and humidity derived before climate
+ * refinement. Ecology pedology and later Hydrology stages consume one dimension-checked
+ * climate vintage.
+ */
 export const artifact = defineArtifact({
   name: "climateField",
   id: "artifact:climateField",
@@ -80,6 +86,12 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates baseline climate field against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

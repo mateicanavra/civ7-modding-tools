@@ -39,8 +39,10 @@ const MorphologyVolcanoesArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for immutable volcano vents and their map-tile-sized intent mask. */
 export const Schema = MorphologyVolcanoesArtifactSchema;
 
+/** Registers immutable volcano intent and its tile mask for later Civ7 projection. */
 export const artifact = defineArtifact({
   name: "volcanoes",
   id: "artifact:morphology.volcanoes",
@@ -82,6 +84,10 @@ function validatePayload(value: unknown): ArtifactValidationIssue[] {
   return [];
 }
 
+/**
+ * Validates the volcano mask and each vent's nonnegative tile index, admitted
+ * tectonic kind, and normalized strength in `[0, 1]`.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

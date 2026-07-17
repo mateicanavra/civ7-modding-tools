@@ -25,6 +25,7 @@ export const BIOME_INDEX_VIZ_CATEGORIES: ReadonlyArray<{
   { value: 7, label: "desert", color: [245, 158, 11, 235] },
 ] as const;
 
+/** Ensures visualization categories cover every biome symbol plus the water/unknown sentinel. */
 export function assertBiomeIndexVizCategoriesCoverSymbols(): void {
   const maxSymbolValue = BIOME_SYMBOL_ORDER.length - 1;
   const values = new Set(BIOME_INDEX_VIZ_CATEGORIES.map((c) => c.value));

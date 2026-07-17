@@ -38,8 +38,13 @@ export const HydrologyCryosphereSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for snow, sea-ice, albedo, and frozen-ground state. */
 export const Schema = HydrologyCryosphereSchema;
 
+/**
+ * Registers refined snow, sea-ice, albedo, ground-ice, permafrost, and melt-potential fields.
+ * Downstream biome and ice planning consume one dimension-aligned cryosphere vintage.
+ */
 export const artifact = defineArtifact({
   name: "cryosphere",
   id: "artifact:hydrology.cryosphere",
@@ -91,6 +96,11 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates cryosphere state against its closed schema and, when map dimensions are supplied,
+ * verifies every tile field matches that width × height. It returns accumulated issues so
+ * artifact admission can reject a structurally valid but spatially inconsistent payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

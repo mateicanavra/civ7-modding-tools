@@ -15,6 +15,10 @@ type HydrologyRiverDensityKnob = "sparse" | "normal" | "dense";
 const GROUP_HYDROGRAPHY = "Hydrology / Hydrography";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Computes drainage, discharge, and river classes from climate and topography,
+ * establishing hydrography truth before any engine river projection.
+ */
 export default createStep(RiversStepContract, {
   artifacts: implementArtifacts([hydrologyHydrographyArtifacts.hydrography], {
     hydrography: {

@@ -3,6 +3,11 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 
+/**
+ * Defines the first ordered feature-family planner. It consumes shared scores and base
+ * occupancy, then publishes floodplain intent plus the occupancy snapshot that gates ice
+ * planning.
+ */
 const PlanFloodplainsStepContract = defineStep({
   id: "plan-floodplains",
   phase: "ecology",

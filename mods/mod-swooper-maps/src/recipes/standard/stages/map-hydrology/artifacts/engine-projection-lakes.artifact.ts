@@ -5,6 +5,10 @@ import {
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/**
+ * Runtime contract reconciling Hydrology lake intent with Civ7 water, lake, terrain, area, and
+ * elevation readback plus explicit rejection and morphology-protection evidence.
+ */
 export const MapHydrologyEngineProjectionArtifactSchema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
@@ -68,6 +72,7 @@ export const MapHydrologyEngineProjectionArtifactSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for admitting lake-projection readback evidence. */
 export const Schema = MapHydrologyEngineProjectionArtifactSchema;
 
 /**
@@ -82,6 +87,10 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
+/**
+ * Validates the closed projection report, including dimensions, typed readback
+ * masks, mismatch counts, and morphology-protection evidence.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return validateArtifactSchema(Schema, value);
 }

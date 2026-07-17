@@ -89,6 +89,12 @@ function hash32Values(values: Iterable<number>): string {
   return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
+/**
+ * Captures deterministic digests for the selected planning surfaces plus at
+ * most the first 16 planned-site rows. Aridity is quantized to parts per
+ * million so log evidence is stable across JSON serialization without
+ * mutating source fields.
+ */
 export function buildNaturalWonderPlanInputRuntimeTelemetry({
   context,
   plan,
@@ -154,12 +160,14 @@ export function buildNaturalWonderPlanInputRuntimeTelemetry({
   };
 }
 
+/** Writes selected surface digests and a bounded planned-site sample under the runtime prefix. */
 export function logNaturalWonderPlanInputRuntimeTelemetry(
   telemetry: NaturalWonderPlanInputRuntimeTelemetry
 ): void {
   console.log(`[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 ${JSON.stringify(telemetry)}`);
 }
 
+/** Emits the same bounded planning telemetry only when verbose tracing is enabled. */
 export function traceNaturalWonderPlanInputRuntimeTelemetry(
   context: ExtendedMapContext,
   telemetry: NaturalWonderPlanInputRuntimeTelemetry

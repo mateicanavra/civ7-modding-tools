@@ -9,6 +9,10 @@ import MantlePotentialStepContract from "./mantlePotential.contract.js";
 
 const GROUP_MANTLE = "Foundation / Mantle";
 
+/**
+ * Establishes deterministic mantle source potential on the Foundation mesh,
+ * separating authored source structure from its derived physical forcing.
+ */
 export default createStep(MantlePotentialStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.mantlePotential], {
     foundationMantlePotential: {

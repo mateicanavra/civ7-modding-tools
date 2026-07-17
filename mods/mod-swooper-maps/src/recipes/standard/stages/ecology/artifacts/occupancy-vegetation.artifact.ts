@@ -7,6 +7,7 @@ import {
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/** Runtime contract for final occupancy after vegetation intents have claimed their tiles. */
 export const OccupancyArtifactSchema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
@@ -20,8 +21,13 @@ export const OccupancyArtifactSchema = Type.Object({
 
 export type OccupancyArtifact = Static<typeof OccupancyArtifactSchema>;
 
+/** Canonical schema entrypoint for registering and validating post-vegetation occupancy. */
 export const Schema = OccupancyArtifactSchema;
 
+/**
+ * Registers occupancy after vegetation planning. It closes the ordered Ecology planning chain
+ * and preserves which tiles were claimed or permanently blocked for downstream evidence.
+ */
 export const artifact = defineArtifact({
   name: "occupancyVegetation",
   id: "artifact:ecology.occupancy.vegetation",
@@ -82,6 +88,12 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates final Ecology occupancy against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

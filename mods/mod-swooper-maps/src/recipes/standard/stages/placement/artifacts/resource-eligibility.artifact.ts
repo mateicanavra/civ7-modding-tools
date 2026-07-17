@@ -36,8 +36,13 @@ const ResourceEligibilityArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for the exact habitat, legality, and intensity fields used during planning. */
 export const Schema = ResourceEligibilityArtifactSchema;
 
+/**
+ * Registers the exact habitat, legality, and intensity surfaces under which
+ * each symbolic resource demand was planned and later support-adjusted.
+ */
 export const artifact = defineArtifact({
   name: "resourceEligibility",
   id: "artifact:placement.resourceEligibility",
@@ -95,6 +100,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/** Requires unique resource rows and map-sized habitat, legality, and intensity fields. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

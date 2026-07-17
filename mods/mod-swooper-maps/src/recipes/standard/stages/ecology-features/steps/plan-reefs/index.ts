@@ -8,6 +8,10 @@ import PlanReefsStepContract from "./contract.js";
 
 const REEF_FEATURE_INTENTS = new Set(["reef", "cold-reef", "atoll", "lotus"]);
 
+/**
+ * Plans reef-family intent against lake truth and post-ice occupancy, then
+ * advances the deterministic reservation chain to wetland planning.
+ */
 export default createStep(PlanReefsStepContract, {
   artifacts: implementArtifacts(
     [ecologyArtifacts.featureIntentsReefs, ecologyArtifacts.occupancyReefs],

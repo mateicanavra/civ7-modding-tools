@@ -16,6 +16,11 @@ const DEFAULT_RANGE = {
   evidence: "blocked" as const,
 };
 
+/**
+ * Builds deterministic aquatic demand rows across every canonical aquatic resource. Missing
+ * expectations or required masks fail into typed warning rows, while lake and ice suppressors
+ * constrain eligible-water counts.
+ */
 export const defaultStrategy = createStrategy(PlanAquaticResourcesContract, "default", {
   run: (input) => {
     const size = validateGrid(input.width, input.height);

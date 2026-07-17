@@ -21,6 +21,10 @@ type VolcanoKind = "subductionArc" | "rift" | "hotspot";
 const GROUP_VOLCANOES = "Morphology / Volcanoes";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Selects and classifies volcano intent from projected tectonic activity and
+ * final land truth; engine volcano placement remains downstream.
+ */
 export default createStep(VolcanoesStepContract, {
   artifacts: implementArtifacts(VolcanoesStepContract.artifacts!.provides!, {
     volcanoes: {

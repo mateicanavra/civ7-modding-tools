@@ -4,6 +4,11 @@ import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.
 import { artifacts as hydrologyClimateBaselineArtifacts } from "../../../hydrology-climate-baseline/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 
+/**
+ * Defines soil and fertility classification from topography, substrate, and baseline climate.
+ * The published pedology truth is shared by biome and resource-basin work rather than
+ * recomputed in either consumer.
+ */
 const PedologyStepContract = defineStep({
   id: "pedology",
   phase: "ecology",

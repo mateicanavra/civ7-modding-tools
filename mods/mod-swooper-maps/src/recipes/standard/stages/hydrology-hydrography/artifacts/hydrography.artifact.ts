@@ -74,8 +74,14 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for Hydrology routing, discharge, and river-class truth. */
 export const Schema = HydrologyHydrographyArtifactSchema;
 
+/**
+ * Registers canonical Hydrology routing, runoff, discharge, river class, and
+ * drainage-depression truth before engine projection. Consumers must use this artifact rather
+ * than modeled Civ7 rivers as source truth.
+ */
 export const artifact = defineArtifact({
   name: "hydrography",
   id: "artifact:hydrology.hydrography",
@@ -181,6 +187,11 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates hydrography against its closed schema and, when map dimensions are supplied,
+ * verifies every tile field matches that width × height. It returns accumulated issues so
+ * artifact admission can reject a structurally valid but spatially inconsistent payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

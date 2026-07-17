@@ -61,9 +61,10 @@ The initial admission slice moves no live rule packets.
 - `prohibit_foundation_duplicate_math_helper_redefinitions` remains foundation
   `_remainder` debt. It governs helper-surface consolidation across strategy
   and non-strategy files, not strategy-kind authority.
-- `validate_ecology_op_contract_quality` remains ecology `_remainder` debt.
-  It points at missing operation contract-quality governance, not strategy
-  implementation authority.
+- `validate_ecology_op_contract_quality` is retired. Generic MapGen Grit
+  authority owns declaration-site JSDoc; schema-description semantics remain
+  outside strategy topology and are not approximated by an Ecology source
+  parser.
 
 Future strategy-locality or strategy-contract rules should be designed as
 positive `domain-operation-strategy` authority before moving or deleting the

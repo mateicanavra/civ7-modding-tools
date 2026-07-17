@@ -29,14 +29,17 @@ const MapMorphologyEngineTerrainSnapshotArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for the engine terrain observed immediately after coast stamping. */
 export const Schema = MapMorphologyEngineTerrainSnapshotArtifactSchema;
 
+/** Registers engine terrain observed immediately after coast stamping. */
 export const artifact = defineArtifact({
   name: "coastEngineTerrainSnapshot",
   id: "artifact:map.morphology.coastEngineTerrainSnapshot",
   schema: Schema,
 });
 
+/** Validates the coast-boundary snapshot's dimensions and typed tile surfaces. */
 export function validate(value: unknown): readonly { message: string }[] {
   return validateArtifactSchema(Schema, value);
 }

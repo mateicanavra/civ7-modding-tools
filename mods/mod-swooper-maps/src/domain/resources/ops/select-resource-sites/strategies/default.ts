@@ -87,6 +87,12 @@ function countMask(mask: Uint8Array): number {
   return count;
 }
 
+/**
+ * Selects typed resource intents with a hash-ordered blue-noise stream, official-weight
+ * deficit rotation, range-floor repair, and region minimums. Identical inputs are call-order
+ * independent; hard placement failures become shortfall evidence while affinity remains a
+ * best-effort score.
+ */
 export const defaultStrategy = createStrategy(SelectResourceSitesContract, "default", {
   // TODO: if you need to normalize, do it in the normalize method, not in run.
   normalize: (config) => {
@@ -479,6 +485,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
             // dominates; unreachable minimums become recorded shortfalls).
             if (violatesSpacing(plotIndex, sitePlots, 2)) continue;
             if (violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) continue;
+            if (ruleStateAt(demand, plotIndex).excluded) continue;
             const score =
               (demand.habitatMask[plotIndex] !== 0 ? 1 : 0) +
               (demand.intensity[plotIndex] ?? 0) +

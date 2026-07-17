@@ -9,6 +9,10 @@ import ResourceBasinsStepContract from "./contract.js";
 const GROUP_RESOURCE_BASINS = "Ecology / Resource Basins";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
+/**
+ * Plans and balances resource-basin evidence from soil, climate, and topography
+ * without selecting resource sites or mutating the engine.
+ */
 export default createStep(ResourceBasinsStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.resourceBasins], {
     resourceBasins: {

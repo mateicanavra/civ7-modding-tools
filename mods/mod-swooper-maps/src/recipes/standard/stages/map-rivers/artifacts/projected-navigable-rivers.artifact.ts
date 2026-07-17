@@ -134,14 +134,23 @@ const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for MapGen-authored navigable-river intent and its selection proof. */
 export const Schema = MapRiversProjectedNavigableRiversArtifactSchema;
 
+/**
+ * Registers MapGen's selected navigable-river subset and its selection proof;
+ * downstream ecology consumes this intent rather than engine readback.
+ */
 export const artifact = defineArtifact({
   name: "projectedNavigableRivers",
   id: "artifact:map.rivers.projectedNavigableRivers",
   schema: Schema,
 });
 
+/**
+ * Validates projection dimensions, typed intent masks, chain metrics, bounded
+ * fractions, and the low-signal classification.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return validateArtifactSchema(Schema, value);
 }
