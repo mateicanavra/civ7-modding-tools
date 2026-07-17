@@ -199,6 +199,28 @@ describe("start viability planning", () => {
     expect(result.scoreByTile[supportedPlot]).toBeGreaterThan(result.scoreByTile[unsupportedPlot]);
   });
 
+  it("excludes every final natural-wonder footprint plot from start candidacy", () => {
+    const input = makeInput(12, 8);
+    addLandmass(
+      input,
+      0,
+      1,
+      Array.from({ length: 48 }, (_value, i) => [1 + (i % 8), 1 + Math.floor(i / 8)] as const)
+    );
+    const baseline = plan(input);
+    const occupiedPlot = baseline.candidates[0]?.plotIndex;
+    if (occupiedPlot === undefined)
+      throw new Error("Expected at least one admitted start candidate.");
+
+    input.naturalWonderPlotIndices = [occupiedPlot];
+    const result = plan(input);
+
+    expect(result.candidates.some((candidate) => candidate.plotIndex === occupiedPlot)).toBe(false);
+    expect(result.rejectionCounts.find((entry) => entry.reason === "natural-wonder")?.count).toBe(
+      1
+    );
+  });
+
   it("retains the full component vector on every candidate and seat", () => {
     const input = makeInput(12, 8);
     addLandmass(

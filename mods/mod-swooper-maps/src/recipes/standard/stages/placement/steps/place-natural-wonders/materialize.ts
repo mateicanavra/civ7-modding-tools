@@ -18,18 +18,18 @@ type StampNaturalWondersFromPlanArgs = {
   requestedCount?: number;
 };
 
-export type NaturalWonderPlacementCoordinateDigest = {
+type NaturalWonderPlacementCoordinateDigest = {
   count: number;
   hash32: string;
 };
 
-export type NaturalWonderPlacementCoordinateEvidence = {
+type NaturalWonderPlacementCoordinateEvidence = {
   version: 1;
   placed: NaturalWonderPlacementCoordinateDigest;
   rejected: NaturalWonderPlacementCoordinateDigest;
 };
 
-export type NaturalWonderPlacementCoordinateRow = {
+type NaturalWonderPlacementCoordinateRow = {
   status: "placed" | "rejected";
   plotIndex: number;
   x: number;
@@ -44,6 +44,12 @@ export type NaturalWonderPlacementCoordinateRow = {
   expectedFootprintReadbackStatus?: NaturalWonderFootprintReadbackStatus;
 };
 
+/**
+ * Complete batch outcome published after natural-wonder commands and final feature observation.
+ * Command rows explain one terminal outcome per planned placement;
+ * `observedNaturalWonderPlotIndices` is the authoritative downstream exclusion surface,
+ * including engine-oriented footprints and rejected residue from any attempted anchor.
+ */
 export type NaturalWonderStampingStats = {
   plannedCount: number;
   targetCount: number;
@@ -55,9 +61,10 @@ export type NaturalWonderStampingStats = {
   rejectionExamples: string[];
   coordinateEvidence: NaturalWonderPlacementCoordinateEvidence;
   coordinateRows: NaturalWonderPlacementCoordinateRow[];
+  observedNaturalWonderPlotIndices: number[];
 };
 
-export type NaturalWonderPlacementRuntimeTelemetry = {
+type NaturalWonderPlacementRuntimeTelemetry = {
   version: 1;
   plannedCount: number;
   targetCount: number;
@@ -78,7 +85,7 @@ export type NaturalWonderPlacementRuntimeTelemetry = {
   };
 };
 
-export type NaturalWonderPlacementRuntimeRejectedRow = readonly [
+type NaturalWonderPlacementRuntimeRejectedRow = readonly [
   status: "r",
   plotIndex: number,
   x: number,
@@ -220,6 +227,30 @@ function naturalWonderCoordinateEvidence(
 function getValidTerrainTypesForFeature(featureType: number): readonly number[] {
   const terrainTypes = FEATURE_VALID_TERRAIN_TYPE_INDICES[String(featureType | 0)];
   return Array.isArray(terrainTypes) ? terrainTypes : [];
+}
+
+/**
+ * Reads the final feature surface once and returns every plot occupied by a
+ * natural-wonder feature that this materialization attempted. Final surface
+ * evidence, rather than command-local footprint inference, preserves engine
+ * relocations, self-oriented footprints, and residue from rejected mutations.
+ */
+function observeNaturalWonderPlotIndices(
+  adapter: ExtendedMapContext["adapter"],
+  width: number,
+  height: number,
+  attemptedFeatureTypes: ReadonlySet<number>
+): number[] {
+  if (attemptedFeatureTypes.size === 0) return [];
+  const observedPlotIndices: number[] = [];
+  for (let plotIndex = 0; plotIndex < width * height; plotIndex += 1) {
+    const y = Math.trunc(plotIndex / width);
+    const x = plotIndex - y * width;
+    if (attemptedFeatureTypes.has(adapter.getFeatureType(x, y) | 0)) {
+      observedPlotIndices.push(plotIndex);
+    }
+  }
+  return observedPlotIndices;
 }
 
 function ensureFeatureValidTerrain(
@@ -507,6 +538,7 @@ export function stampNaturalWondersFromPlan({
   let rejectedCount = 0;
   const rejectionDetails: string[] = [];
   const coordinateRows: NaturalWonderPlacementCoordinateRow[] = [];
+  const attemptedFeatureTypes = new Set<number>();
 
   for (const placementPlan of wonders.placements) {
     if (!Number.isFinite(placementPlan.plotIndex)) {
@@ -552,6 +584,7 @@ export function stampNaturalWondersFromPlan({
 
     const featureType = Math.trunc(placementPlan.featureType);
     const direction = Math.trunc(placementPlan.direction);
+    attemptedFeatureTypes.add(featureType);
     const plannedElevation = Number.isFinite(placementPlan.elevation)
       ? Math.trunc(placementPlan.elevation)
       : undefined;
@@ -621,180 +654,17 @@ export function stampNaturalWondersFromPlan({
     rejectionExamples: rejectionDetails.slice(0, 8),
     coordinateEvidence: naturalWonderCoordinateEvidence(coordinateRows),
     coordinateRows,
+    observedNaturalWonderPlotIndices: observeNaturalWonderPlotIndices(
+      adapter,
+      width,
+      height,
+      attemptedFeatureTypes
+    ),
   };
-}
-
-/**
- * Coerces a (possibly partial or cross-boundary) stats object back into a sound
- * `NaturalWonderStampingStats`: clamps every count to a non-negative integer,
- * enforces `targetCount >= plannedCount` and derives a `shortfallCount` when
- * absent, caps `rejectionExamples`, and re-validates the coordinate evidence/rows.
- * Used when reading stats published across a step boundary (where the typed
- * shape is not guaranteed) before telemetry or reconciliation consume them.
- */
-export function normalizeNaturalWonderStampingStats(
-  stats: DeepReadonly<NaturalWonderStampingStats>
-): NaturalWonderStampingStats {
-  const plannedCount = Math.max(0, stats.plannedCount | 0);
-  const targetCount = Math.max(
-    plannedCount,
-    "targetCount" in stats
-      ? ((stats as { targetCount?: number }).targetCount ?? 0) | 0
-      : plannedCount
-  );
-  const placedCount = Math.max(0, stats.placedCount | 0);
-  const terrainAdjustedCount = Math.max(
-    0,
-    "terrainAdjustedCount" in stats
-      ? ((stats as { terrainAdjustedCount?: number }).terrainAdjustedCount ?? 0) | 0
-      : 0
-  );
-  const skippedOutOfBoundsCount = Math.max(0, stats.skippedOutOfBoundsCount | 0);
-  const rejectedCount = Math.max(0, stats.rejectedCount | 0);
-  const shortfallCount = Math.max(
-    0,
-    "shortfallCount" in stats
-      ? ((stats as { shortfallCount?: number }).shortfallCount ?? 0) | 0
-      : targetCount - plannedCount
-  );
-  const rawRejectionExamples = (stats as { rejectionExamples?: unknown }).rejectionExamples;
-  const rejectionExamples = Array.isArray(rawRejectionExamples)
-    ? rawRejectionExamples.map(String).slice(0, 8)
-    : [];
-  const coordinateEvidence = normalizeNaturalWonderCoordinateEvidence(
-    (stats as { coordinateEvidence?: unknown }).coordinateEvidence
-  );
-  const coordinateRows = normalizeNaturalWonderCoordinateRows(
-    (stats as { coordinateRows?: unknown }).coordinateRows
-  );
-  return {
-    plannedCount,
-    targetCount,
-    placedCount,
-    terrainAdjustedCount,
-    skippedOutOfBoundsCount,
-    rejectedCount,
-    shortfallCount,
-    rejectionExamples,
-    coordinateEvidence,
-    coordinateRows,
-  };
-}
-
-function normalizeNaturalWonderCoordinateEvidence(
-  value: unknown
-): NaturalWonderPlacementCoordinateEvidence {
-  if (!value || typeof value !== "object") {
-    return {
-      version: 1,
-      placed: { count: 0, hash32: hash32Hex("") },
-      rejected: { count: 0, hash32: hash32Hex("") },
-    };
-  }
-  const record = value as {
-    placed?: Partial<NaturalWonderPlacementCoordinateDigest>;
-    rejected?: Partial<NaturalWonderPlacementCoordinateDigest>;
-  };
-  return {
-    version: 1,
-    placed: normalizeNaturalWonderCoordinateDigest(record.placed),
-    rejected: normalizeNaturalWonderCoordinateDigest(record.rejected),
-  };
-}
-
-function normalizeNaturalWonderCoordinateDigest(
-  digest: Partial<NaturalWonderPlacementCoordinateDigest> | undefined
-): NaturalWonderPlacementCoordinateDigest {
-  const rawCount = digest?.count;
-  const count = Math.max(0, Number.isFinite(rawCount) ? Math.trunc(rawCount as number) : 0);
-  const hash32 =
-    typeof digest?.hash32 === "string" && /^[0-9a-f]{8}$/i.test(digest.hash32)
-      ? digest.hash32.toLowerCase()
-      : hash32Hex("");
-  return { count, hash32 };
-}
-
-function normalizeNaturalWonderCoordinateRows(
-  value: unknown
-): NaturalWonderPlacementCoordinateRow[] {
-  if (!Array.isArray(value)) return [];
-  const rows: NaturalWonderPlacementCoordinateRow[] = [];
-  for (const entry of value) {
-    if (!entry || typeof entry !== "object") continue;
-    const record = entry as Partial<NaturalWonderPlacementCoordinateRow>;
-    if (record.status !== "placed" && record.status !== "rejected") continue;
-    const plotIndex = normalizeInteger(record.plotIndex);
-    const x = normalizeInteger(record.x);
-    const y = normalizeInteger(record.y);
-    const featureType = normalizeInteger(record.featureType);
-    const direction = normalizeInteger(record.direction);
-    if (
-      plotIndex === undefined ||
-      x === undefined ||
-      y === undefined ||
-      featureType === undefined ||
-      direction === undefined ||
-      typeof record.reason !== "string" ||
-      record.reason.length === 0
-    ) {
-      continue;
-    }
-    const elevation = normalizeInteger(record.elevation);
-    const observedFeatureType = normalizeInteger(record.observedFeatureType);
-    const observedPlotIndex = normalizeInteger(record.observedPlotIndex);
-    const expectedFootprintReadback = normalizeNaturalWonderFootprintReadback(
-      record.expectedFootprintReadback
-    );
-    const expectedFootprintReadbackStatus = normalizeNaturalWonderFootprintReadbackStatus(
-      record.expectedFootprintReadbackStatus
-    );
-    rows.push({
-      status: record.status,
-      plotIndex,
-      x,
-      y,
-      featureType,
-      direction,
-      ...(elevation === undefined ? {} : { elevation }),
-      reason: record.reason,
-      ...(observedFeatureType === undefined ? {} : { observedFeatureType }),
-      ...(observedPlotIndex === undefined ? {} : { observedPlotIndex }),
-      ...(expectedFootprintReadback === undefined ? {} : { expectedFootprintReadback }),
-      ...(expectedFootprintReadbackStatus === undefined ? {} : { expectedFootprintReadbackStatus }),
-    });
-  }
-  return rows;
-}
-
-function normalizeNaturalWonderFootprintReadback(
-  value: unknown
-): NaturalWonderFootprintReadback[] | undefined {
-  if (!Array.isArray(value)) return undefined;
-  const rows = value.flatMap((entry) => {
-    if (!entry || typeof entry !== "object") return [];
-    const record = entry as Partial<NaturalWonderFootprintReadback>;
-    const plotIndex = normalizeInteger(record.plotIndex);
-    const observedFeatureType = normalizeInteger(record.observedFeatureType);
-    if (plotIndex === undefined || observedFeatureType === undefined) return [];
-    return [{ plotIndex, observedFeatureType }];
-  });
-  return rows.length > 0 ? rows : undefined;
-}
-
-function normalizeNaturalWonderFootprintReadbackStatus(
-  value: unknown
-): NaturalWonderFootprintReadbackStatus | undefined {
-  return value === "empty-expected-footprint" || value === "partial-expected-footprint"
-    ? value
-    : undefined;
-}
-
-function normalizeInteger(value: unknown): number | undefined {
-  return Number.isFinite(value) ? Math.trunc(value as number) : undefined;
 }
 
 function buildNaturalWonderRuntimeRejectedRows(
-  rows: readonly NaturalWonderPlacementCoordinateRow[]
+  rows: DeepReadonly<NaturalWonderPlacementCoordinateRow[]>
 ): NaturalWonderPlacementRuntimeRejectedRow[] {
   return rows
     .filter((row) => row.status === "rejected")
@@ -828,27 +698,26 @@ function buildNaturalWonderRuntimeRejectedRows(
 export function buildNaturalWonderPlacementRuntimeTelemetry(
   stats: DeepReadonly<NaturalWonderStampingStats>
 ): NaturalWonderPlacementRuntimeTelemetry {
-  const normalized = normalizeNaturalWonderStampingStats(stats);
   return {
     version: 1,
-    plannedCount: normalized.plannedCount,
-    targetCount: normalized.targetCount,
-    placedCount: normalized.placedCount,
-    terrainAdjustedCount: normalized.terrainAdjustedCount,
-    skippedOutOfBoundsCount: normalized.skippedOutOfBoundsCount,
-    rejectedCount: normalized.rejectedCount,
-    shortfallCount: normalized.shortfallCount,
-    rejectionExampleCount: normalized.rejectionExamples.length,
-    rejectionExamples: normalized.rejectionExamples,
-    rejectedRows: buildNaturalWonderRuntimeRejectedRows(normalized.coordinateRows),
+    plannedCount: stats.plannedCount,
+    targetCount: stats.targetCount,
+    placedCount: stats.placedCount,
+    terrainAdjustedCount: stats.terrainAdjustedCount,
+    skippedOutOfBoundsCount: stats.skippedOutOfBoundsCount,
+    rejectedCount: stats.rejectedCount,
+    shortfallCount: stats.shortfallCount,
+    rejectionExampleCount: stats.rejectionExamples.length,
+    rejectionExamples: [...stats.rejectionExamples],
+    rejectedRows: buildNaturalWonderRuntimeRejectedRows(stats.coordinateRows),
     coordinateEvidence: {
-      version: normalized.coordinateEvidence.version,
-      placedCount: normalized.coordinateEvidence.placed.count,
-      placedHash32: normalized.coordinateEvidence.placed.hash32,
-      ...(normalized.coordinateEvidence.rejected.count > 0
+      version: stats.coordinateEvidence.version,
+      placedCount: stats.coordinateEvidence.placed.count,
+      placedHash32: stats.coordinateEvidence.placed.hash32,
+      ...(stats.coordinateEvidence.rejected.count > 0
         ? {
-            rejectedCount: normalized.coordinateEvidence.rejected.count,
-            rejectedHash32: normalized.coordinateEvidence.rejected.hash32,
+            rejectedCount: stats.coordinateEvidence.rejected.count,
+            rejectedHash32: stats.coordinateEvidence.rejected.hash32,
           }
         : {}),
     },

@@ -1,4 +1,6 @@
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  artifactCellCount,
   defineArtifact,
   Type,
   validateArtifactSchema,
@@ -73,6 +75,10 @@ const NaturalWonderPlacementArtifactSchema = Type.Object(
     rejectionExamples: Type.Array(Type.String()),
     coordinateEvidence: NaturalWonderPlacementCoordinateEvidenceSchema,
     coordinateRows: Type.Array(NaturalWonderPlacementCoordinateRowSchema),
+    observedNaturalWonderPlotIndices: Type.Array(Type.Integer({ minimum: 0 }), {
+      description:
+        "Sorted unique plots whose final feature readback matches a natural-wonder type attempted by this materialization, including complete footprints and rejected-mutation residue.",
+    }),
   },
   {
     additionalProperties: false,
@@ -108,13 +114,15 @@ function isCount(value: unknown): value is number {
 /**
  * Validate hook for the natural-wonder placement outcome artifact
  * (placement-realignment S6). Cross-field invariants the schema cannot
- * express: outcome counts reconcile against the plan, coordinate-evidence digests
- * agree with the row corpus, and every row carries the matching status. The
- * publish-time guarantee replaces the old read-side re-normalization helper
- * that downstream steps imported across step boundaries.
+ * express: outcome counts reconcile against the plan, coordinate-evidence
+ * digests agree with the row corpus, and final occupied plots are sorted,
+ * unique, and include every placed anchor.
  */
 
-function validatePayload(value: unknown): ValidationIssue[] {
+function validatePayload(
+  value: unknown,
+  context: ArtifactValidationContext | undefined
+): ValidationIssue[] {
   if (!isRecord(value)) return [issue("naturalWonderPlacement artifact must be an object.")];
   const issues: ValidationIssue[] = [];
   for (const key of [
@@ -182,13 +190,74 @@ function validatePayload(value: unknown): ValidationIssue[] {
       )
     );
   }
+
+  const observedPlotIndices = Array.isArray(value.observedNaturalWonderPlotIndices)
+    ? value.observedNaturalWonderPlotIndices
+    : null;
+  if (!observedPlotIndices) {
+    return [
+      ...issues,
+      issue("naturalWonderPlacement.observedNaturalWonderPlotIndices must be an array."),
+    ];
+  }
+  const observedPlots = new Set<number>();
+  const cellCount = artifactCellCount(context);
+  let previousPlotIndex: number | undefined;
+  for (const rawPlotIndex of observedPlotIndices) {
+    if (!isCount(rawPlotIndex)) {
+      issues.push(
+        issue(
+          `naturalWonderPlacement observed plot ${String(rawPlotIndex)} must be a non-negative integer.`
+        )
+      );
+      continue;
+    }
+    if (cellCount !== undefined && rawPlotIndex >= cellCount) {
+      issues.push(
+        issue(
+          `naturalWonderPlacement observed plot ${rawPlotIndex} exceeds map cell count ${cellCount}.`
+        )
+      );
+    }
+    if (previousPlotIndex !== undefined && rawPlotIndex <= previousPlotIndex) {
+      issues.push(
+        issue(
+          rawPlotIndex === previousPlotIndex
+            ? `naturalWonderPlacement observed plot ${rawPlotIndex} must be unique.`
+            : "naturalWonderPlacement observed plots must be sorted in ascending order."
+        )
+      );
+    }
+    previousPlotIndex = rawPlotIndex;
+    observedPlots.add(rawPlotIndex);
+  }
+  for (const row of rows) {
+    if (
+      isRecord(row) &&
+      row.status === "placed" &&
+      isCount(row.plotIndex) &&
+      !observedPlots.has(row.plotIndex)
+    ) {
+      issues.push(
+        issue(
+          `naturalWonderPlacement placed anchor ${row.plotIndex} is absent from final observed wonder plots.`
+        )
+      );
+    }
+  }
   return issues;
 }
 
 /**
- * Reconciles planned, placed, rejected, and skipped counts with typed rows and
- * coordinate digest counts; legality shortfalls remain outcomes, not failures.
+ * Reconciles outcome counts, typed rows, coordinate digests, and final observed
+ * wonder occupancy; legality shortfalls remain outcomes, not failures.
  */
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  return Object.freeze([
+    ...validateArtifactSchema(Schema, value),
+    ...validatePayload(value, context),
+  ]);
 }
