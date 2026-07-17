@@ -8,20 +8,17 @@ import type { RelaxationEntry, SeatSelection, SelectableTile } from "./selection
  *
  * Builds the cross-start parity frame on the published 0..1 scores and, while
  * the worst-pair gap exceeds the tolerance, deterministically applies the
- * cheapest recorded move:
+ * strongest available improvement to the weakest seat:
  *
  *   1. upgrade the weakest seat within its own regional pool;
- *   2. level the strongest seat DOWN within its regional pool to the best
- *      unused plot inside the tolerance band (parity by leveling — the rung
- *      stays regional, the quality sacrifice is recorded as a quality
- *      relaxation);
- *   3. only as a last resort, upgrade the weakest seat across regions — the
+ *   2. only as a last resort, upgrade the weakest seat across regions — the
  *      seat degrades to the open-pool rung and a region relaxation is
  *      recorded, never silently.
  *
- * Every move respects the hard spacing floor. Swap iteration follows the
- * existing (score, plotIndex) tie-break order, so identical inputs reproduce
- * identical swaps and an identical report.
+ * A balancing pass never reduces a seat's quality to manufacture score parity.
+ * Every move respects the hard spacing floor. Swap iteration follows the existing
+ * (score, plotIndex) tie-break order, so identical inputs reproduce identical
+ * swaps and an identical report.
  */
 
 export type FairnessSwap = {
@@ -50,10 +47,10 @@ function worstPairGapOf(selections: readonly SeatSelection[]): number | null {
 }
 
 /**
- * Balances the mutable seat selections toward the configured score-gap tolerance with at most
- * eight deterministic swaps. Regional upgrades are preferred, the hard spacing floor is
- * preserved, and every cross-region or quality concession is returned as typed relaxation
- * evidence.
+ * Balances mutable seat selections toward the configured score-gap tolerance with at most eight
+ * deterministic quality improvements. Regional upgrades are preferred, the hard spacing floor
+ * is preserved, and every cross-region move is returned as typed relaxation evidence. When no
+ * lawful improvement exists, the outcome remains explicitly unbalanced.
  */
 export function balanceFairness(args: {
   selections: SeatSelection[];
@@ -136,7 +133,6 @@ export function balanceFairness(args: {
 
   while (gap !== null && gap > args.tolerance && swaps.length < MAX_FAIRNESS_SWAPS) {
     let weakest: SeatSelection | null = null;
-    let strongest: SeatSelection | null = null;
     for (const entry of args.selections) {
       if (!entry.tile) continue;
       if (
@@ -146,16 +142,8 @@ export function balanceFairness(args: {
       ) {
         weakest = entry;
       }
-      if (
-        !strongest ||
-        entry.tile.score > strongest.tile!.score ||
-        (entry.tile.score === strongest.tile!.score &&
-          entry.seat.seatIndex < strongest.seat.seatIndex)
-      ) {
-        strongest = entry;
-      }
     }
-    if (!weakest?.tile || !strongest?.tile) break;
+    if (!weakest?.tile) break;
 
     const weakestPools = args.swapPoolsOf(weakest);
 
@@ -169,25 +157,7 @@ export function balanceFairness(args: {
       continue;
     }
 
-    // 2. Level the strongest seat down into the tolerance band, staying regional.
-    const band = weakest.tile.score + args.tolerance;
-    const strongestPools = args.swapPoolsOf(strongest);
-    const leveled = strongestPools.length
-      ? bestInBand(strongest, strongestPools[0]!, weakest.tile.score, band)
-      : null;
-    if (leveled && leveled.score < strongest.tile.score) {
-      relaxations.push({
-        seatIndex: strongest.seat.seatIndex,
-        kind: "quality",
-        from: strongest.tile.score,
-        to: leveled.score,
-      });
-      applySwap(strongest, leveled);
-      gap = worstPairGapOf(args.selections);
-      continue;
-    }
-
-    // 3. Last resort: upgrade the weakest seat across regions (open-pool rung).
+    // 2. Last resort: upgrade the weakest seat across regions (open-pool rung).
     let crossRegion: SelectableTile | null = null;
     for (const pool of weakestPools.slice(1)) {
       crossRegion = bestInBand(weakest, pool, weakest.tile.score, Number.POSITIVE_INFINITY);

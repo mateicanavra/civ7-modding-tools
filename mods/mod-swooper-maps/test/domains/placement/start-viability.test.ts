@@ -483,6 +483,50 @@ describe("start selection ladder (op-owned, S4)", () => {
     expect(Math.max(...seatedScores) - Math.min(...seatedScores)).toBeCloseTo(gap as number, 10);
   });
 
+  it("improves weak seats without lowering strong seats to manufacture parity", () => {
+    const input = makeInput(24, 10, 1, 1);
+    const west = Array.from(
+      { length: 48 },
+      (_value, i) => [1 + (i % 6), 1 + Math.floor(i / 6)] as const
+    );
+    const east = Array.from(
+      { length: 48 },
+      (_value, i) => [15 + (i % 6), 1 + Math.floor(i / 6)] as const
+    );
+    addLandmass(input, 0, 1, west);
+    addLandmass(input, 1, 2, east);
+    for (const [x, y] of west) input.fertility[idx(input.width, x, y)] = 0.1;
+    for (const [x, y] of east) {
+      input.fertility[idx(input.width, x, y)] = x < 18 ? 1 : 0.2;
+    }
+
+    const result = plan(input, (config) => {
+      config.spacingFloorTiles = 1;
+      config.desiredSpacingTiles = 1;
+      config.largeLandmassWeight = 0;
+      config.fertilityWeight = 4;
+      config.resourceSupportWeight = 0;
+      config.freshwaterWeight = 0;
+      config.climateWeight = 0;
+      config.coastalPreferenceWeight = 0;
+      config.riverPreferenceWeight = 0;
+      config.roughnessPenaltyWeight = 0;
+      config.climateExtremePenaltyWeight = 0;
+      config.rankingBlend = 1;
+      config.fairnessTolerance = 0.35;
+    });
+
+    expect(result.fairnessReport.swaps.length).toBeGreaterThan(0);
+    expect(result.fairnessReport.swaps.every((swap) => swap.toScore > swap.fromScore)).toBe(true);
+    expect(result.fairnessReport.relaxations).toContainEqual({
+      seatIndex: 0,
+      kind: "region",
+      from: 1,
+      to: 2,
+    });
+    expect(result.fairnessReport.balanced).toBe(true);
+  });
+
   it("maps seats through the alive-majors read surface and flags slot-index fallbacks", () => {
     const input = makeInput(16, 10, 2, 0);
     addLandmass(
