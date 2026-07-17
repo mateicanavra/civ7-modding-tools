@@ -118,4 +118,5 @@ jobs:
             release/provenance.json \
             release/SHA256SUMS \
             --verify-tag \
-            --generate-notes
+            --title "Habitat SDK standalone check ${GITHUB_REF_NAME}" \
+            --notes "Pinned check-only Habitat SDK assets. Exact source, compiler, and artifact identities are recorded in provenance.json and SHA256SUMS."
