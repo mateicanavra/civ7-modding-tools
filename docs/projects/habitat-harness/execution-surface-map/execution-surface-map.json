@@ -2,62 +2,80 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 629,
+    "totalSurfaces": 641,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
-      "check-script": 27,
-      "rule-json": 120,
-      "pattern": 80,
-      "structure-spec": 8,
+      "check-script": 26,
+      "rule-json": 122,
+      "pattern": 82,
+      "structure-spec": 9,
       "apply-pattern": 1,
       "generate-script": 2,
       "operation-note": 3,
       "fix-script": 1,
-      "package-script": 168,
-      "nx-target": 95,
+      "package-script": 174,
+      "nx-target": 97,
       "nx-plugin": 1,
       "nx-target-default": 11,
       "habitat-cli-source": 112
     },
     "surfacesByRole": {
-      "command_check_executor": 27,
-      "runner_metadata": 120,
-      "policy_pattern": 81,
-      "structure_authority": 8,
+      "command_check_executor": 26,
+      "runner_metadata": 122,
+      "policy_pattern": 83,
+      "structure_authority": 9,
       "operation_surface": 6,
-      "workspace_entrypoint": 275,
+      "workspace_entrypoint": 283,
       "toolkit_runner": 112
     },
     "entrypointsByInvoker": {
-      "unknown": 240,
+      "unknown": 244,
       "direct-script": 4,
-      "package": 169,
-      "nx": 107,
+      "package": 175,
+      "nx": 109,
       "habitat": 112
     },
     "surfacesByBucket": {
-      "package_boundary_tie": 93,
-      "unknown_invocation": 240,
-      "mutation_surface": 123,
-      "nx_ordering_tie": 120,
+      "package_boundary_tie": 95,
+      "unknown_invocation": 244,
+      "mutation_surface": 125,
+      "nx_ordering_tie": 122,
       "direct_script_invoked": 4,
-      "package_invoked": 276,
+      "package_invoked": 284,
       "habitat_invoked": 112
     },
     "sanityAssertions": []
   },
   "executionAnatomy": {
     "roleCounts": {
-      "fixture-support": 9,
-      "adapter": 120,
-      "policy-predicate": 89,
-      "transient-dependency": 112,
-      "entrypoint": 277,
+      "fixture-support": 8,
+      "adapter": 122,
+      "policy-predicate": 92,
+      "transient-dependency": 114,
+      "entrypoint": 285,
       "runner-runtime": 112
     }
   },
   "topCrossBoundaryTiesByFanout": [
+    {
+      "target": "nx:noop",
+      "targetClass": "workspace-tool",
+      "references": 28,
+      "sourceCount": 28,
+      "sampleSources": [
+        "apps/docs/project.json#targets.check",
+        "apps/mapgen-studio/project.json#targets.check",
+        "apps/playground/project.json#targets.check",
+        "mods/mod-civ7-intelligence-bridge/project.json#targets.check",
+        "mods/mod-swooper-civ-dacia/project.json#targets.check",
+        "mods/mod-swooper-maps/project.json#targets.check",
+        "mods/mod-swooper-maps/project.json#targets.viz:runtime-deps",
+        "packages/civ7-adapter/project.json#targets.check",
+        "packages/civ7-control-orpc/project.json#targets.check",
+        "packages/civ7-direct-control/project.json#targets.build"
+      ]
+    },
     {
       "target": "grit\nlanguage js(typescript)\n\nor {",
       "targetClass": "workspace-tool",
@@ -74,24 +92,6 @@
         ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_duplicate_math_helper_redefinitions/pattern.md",
         ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_rules_tectonics_shim_reexports/pattern.md",
         ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md"
-      ]
-    },
-    {
-      "target": "nx:noop",
-      "targetClass": "workspace-tool",
-      "references": 27,
-      "sourceCount": 27,
-      "sampleSources": [
-        "apps/docs/project.json#targets.check",
-        "apps/mapgen-studio/project.json#targets.check",
-        "apps/playground/project.json#targets.check",
-        "mods/mod-civ7-intelligence-bridge/project.json#targets.check",
-        "mods/mod-swooper-civ-dacia/project.json#targets.check",
-        "mods/mod-swooper-maps/project.json#targets.check",
-        "mods/mod-swooper-maps/project.json#targets.viz:runtime-deps",
-        "packages/civ7-adapter/project.json#targets.check",
-        "packages/civ7-control-orpc/project.json#targets.check",
-        "packages/civ7-direct-control/project.json#targets.build"
       ]
     },
     {
@@ -169,8 +169,8 @@
     {
       "target": "tsc -p test/tsconfig.json --noEmit",
       "targetClass": "workspace-tool",
-      "references": 15,
-      "sourceCount": 15,
+      "references": 16,
+      "sourceCount": 16,
       "sampleSources": [
         "apps/docs/package.json#scripts.check:test",
         "apps/playground/package.json#scripts.check:test",
@@ -180,8 +180,8 @@
         "packages/cli/package.json#scripts.check:test",
         "packages/config/package.json#scripts.check:test",
         "packages/mapgen-core/package.json#scripts.check:test",
-        "packages/plugins/plugin-files/package.json#scripts.check:test",
-        "packages/plugins/plugin-git/package.json#scripts.check:test"
+        "packages/mapgen-metrics/package.json#scripts.check:test",
+        "packages/plugins/plugin-files/package.json#scripts.check:test"
       ]
     },
     {
@@ -293,6 +293,24 @@
       ]
     },
     {
+      "target": "tsc -p tsconfig.json --noEmit",
+      "targetClass": "workspace-tool",
+      "references": 10,
+      "sourceCount": 10,
+      "sampleSources": [
+        "mods/mod-swooper-civ-dacia/package.json#scripts.typecheck",
+        "packages/mapgen-metrics/package.json#scripts.typecheck",
+        "packages/mapgen-studio-ui/package.json#scripts.typecheck",
+        "packages/mapgen-viz/package.json#scripts.typecheck",
+        "packages/plugins/plugin-graph/package.json#scripts.typecheck",
+        "packages/sdk/package.json#scripts.typecheck",
+        "packages/studio-contract/package.json#scripts.typecheck",
+        "packages/studio-run-workspace/package.json#scripts.typecheck",
+        "packages/studio-server/package.json#scripts.typecheck",
+        "tools/habitat/package.json#scripts.typecheck"
+      ]
+    },
+    {
       "target": "tsc -p tsconfig.json --noEmit --composite false --incremental false",
       "targetClass": "workspace-tool",
       "references": 10,
@@ -342,23 +360,6 @@
         ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/support.pattern.md",
         ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/pattern.md",
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md"
-      ]
-    },
-    {
-      "target": "tsc -p tsconfig.json --noEmit",
-      "targetClass": "workspace-tool",
-      "references": 9,
-      "sourceCount": 9,
-      "sampleSources": [
-        "mods/mod-swooper-civ-dacia/package.json#scripts.typecheck",
-        "packages/mapgen-studio-ui/package.json#scripts.typecheck",
-        "packages/mapgen-viz/package.json#scripts.typecheck",
-        "packages/plugins/plugin-graph/package.json#scripts.typecheck",
-        "packages/sdk/package.json#scripts.typecheck",
-        "packages/studio-contract/package.json#scripts.typecheck",
-        "packages/studio-run-workspace/package.json#scripts.typecheck",
-        "packages/studio-server/package.json#scripts.typecheck",
-        "tools/habitat/package.json#scripts.typecheck"
       ]
     },
     {
@@ -1302,16 +1303,6 @@
       ]
     },
     {
-      "target": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-      "targetClass": "relative",
-      "references": 4,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/require_projection_calls_in_projection_steps/check.mjs",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/check.mjs"
-      ]
-    },
-    {
       "target": "../../resource.js",
       "targetClass": "relative",
       "references": 4,
@@ -1552,6 +1543,16 @@
       ]
     },
     {
+      "target": "./test",
+      "targetClass": "relative",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        "packages/mapgen-metrics/package.json#scripts.test",
+        "packages/studio-contract/package.json#scripts.test"
+      ]
+    },
+    {
       "target": "./vitest.config.ts",
       "targetClass": "relative",
       "references": 2,
@@ -1749,6 +1750,16 @@
       "sampleSources": [
         "packages/cli/project.json#targets.publish:npm",
         "packages/sdk/project.json#targets.publish:npm"
+      ]
+    },
+    {
+      "target": "bun test ./test",
+      "targetClass": "workspace-tool",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        "packages/mapgen-metrics/package.json#scripts.test",
+        "packages/studio-contract/package.json#scripts.test"
       ]
     },
     {
@@ -2012,6 +2023,16 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts",
       "targetClass": "mod",
       "references": 2,
@@ -2248,6 +2269,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs"
+      ]
+    },
+    {
+      "target": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
+      "targetClass": "relative",
+      "references": 2,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/require_projection_calls_in_projection_steps/check.mjs"
       ]
     },
     {
@@ -3808,6 +3838,15 @@
       ]
     },
     {
+      "target": "./scripts/metrics/report.ts",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "mods/mod-swooper-maps/package.json#scripts.metrics:report"
+      ]
+    },
+    {
       "target": "./shared-types.js",
       "targetClass": "relative",
       "references": 1,
@@ -3922,15 +3961,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md"
-      ]
-    },
-    {
-      "target": "./test",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "packages/studio-contract/package.json#scripts.test"
       ]
     },
     {
@@ -4159,6 +4189,15 @@
       ]
     },
     {
+      "target": "apps/mapgen-studio/src/",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
+      ]
+    },
+    {
       "target": "apps/mapgen-studio/src/.",
       "targetClass": "app",
       "references": 1,
@@ -4192,6 +4231,60 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_studio_ui_recipe_artifact_imports/pattern.md"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/app/hooks/useLiveRuntime",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/app/hooks/useLiveRuntime.ts",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/app/hooks/useRunInGame.ts",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/app/hooks/useSaveDeploy.ts",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/app/hooks/useStudioEvents",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/app/hooks/useStudioEvents.ts",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
       ]
     },
     {
@@ -4273,6 +4366,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_studio_ui_recipe_artifact_imports/pattern.md"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/features/runInGame/recovery.ts",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
       ]
     },
     {
@@ -4453,6 +4555,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_studio_ui_recipe_artifact_imports/pattern.md"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/ui/hooks/useTheme.ts",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
       ]
     },
     {
@@ -4645,6 +4756,15 @@
       ]
     },
     {
+      "target": "bun ./scripts/metrics/report.ts",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "mods/mod-swooper-maps/package.json#scripts.metrics:report"
+      ]
+    },
+    {
       "target": "bun ./src/dev/diagnostics/analyze-dump.ts",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -4825,16 +4945,7 @@
       ]
     },
     {
-      "target": "bun test ./test",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "packages/studio-contract/package.json#scripts.test"
-      ]
-    },
-    {
-      "target": "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-imports.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
+      "target": "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-compatibility.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
@@ -5158,6 +5269,15 @@
       ]
     },
     {
+      "target": "grit\nlanguage js(typescript)\n\nor {\n  or {",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
+      ]
+    },
+    {
       "target": "grit\nlanguage js(typescript)\n\nor {\n  program($statements) where {\n    $filename <: r\".*mods/[^/]+/src/(?:recipes/.*/stages/.*/steps/.*|domain/.*/ops/.*/strategies)/.*\\.ts$\",\n    $statements <: some $helper where {\n      $helper <:",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -5245,6 +5365,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md"
+      ]
+    },
+    {
+      "target": "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\\.contract\\.ts$\",\n    ! $body <: contains",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/pattern.md"
       ]
     },
     {
@@ -7957,6 +8086,24 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/index.ts",
       "targetClass": "mod",
       "references": 1,
@@ -7993,12 +8140,12 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts",
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_map_projection_dependencies_in_physics_contracts/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/pattern.md"
       ]
     },
     {
@@ -9307,6 +9454,60 @@
       ]
     },
     {
+      "target": "packages/studio-server/src/context",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
+      ]
+    },
+    {
+      "target": "packages/studio-server/src/context.ts",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
+      ]
+    },
+    {
+      "target": "packages/studio-server/src/handler",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
+      ]
+    },
+    {
+      "target": "packages/studio-server/src/handler.ts",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
+      ]
+    },
+    {
+      "target": "packages/studio-server/src/liveGame/watcher",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
+      ]
+    },
+    {
+      "target": "packages/studio-server/src/liveGame/watcher.ts",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
+      ]
+    },
+    {
       "target": "packages/studio-server/src/operationRuntime/",
       "targetClass": "package",
       "references": 1,
@@ -9430,6 +9631,24 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/platform/direct-control/session/rules/require_sanctioned_direct_control_session_owners/pattern.md"
+      ]
+    },
+    {
+      "target": "packages/studio-server/src/runtime",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
+      ]
+    },
+    {
+      "target": "packages/studio-server/src/runtime.ts",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md"
       ]
     },
     {
@@ -14086,6 +14305,72 @@
       ]
     },
     {
+      "id": ".habitat/blueprints/recipe/require_recipe_metrics_study_structure/rule.json",
+      "path": ".habitat/blueprints/recipe/require_recipe_metrics_study_structure/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/blueprints/recipe/require_recipe_metrics_study_structure/structure.toml",
+      "path": ".habitat/blueprints/recipe/require_recipe_metrics_study_structure/structure.toml",
+      "surfaceKind": "structure-spec",
+      "surfaceRole": "structure_authority",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
       "id": ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md",
       "path": ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md",
       "surfaceKind": "pattern",
@@ -18393,62 +18678,68 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/check.mjs",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
+      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/pattern.md",
+      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
       "invokedBy": [
         "unknown"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
-        "imports": [
-          "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-          "node:path"
-        ],
+        "imports": [],
         "relativeHabitatImports": [],
-        "packageAppModImports": [],
+        "packageAppModImports": [
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts"
+        ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "node:path"
+          "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\\.contract\\.ts$\",\n    ! $body <: contains"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "import",
-            "value": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates",
+            "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts",
+            "targetClass": "mod"
           },
           {
             "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\\.contract\\.ts$\",\n    ! $body <: contains",
+            "targetClass": "workspace-tool"
           }
         ]
       },
       "anatomy": {
         "roles": [
-          "fixture-support"
+          "policy-predicate"
         ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
         "transientSignals": []
       },
       "buckets": [
+        "package_boundary_tie",
         "unknown_invocation"
       ]
     },
@@ -22103,6 +22394,166 @@
       ]
     },
     {
+      "id": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md",
+      "path": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "apps/mapgen-studio/src/",
+          "apps/mapgen-studio/src/app/hooks/useLiveRuntime",
+          "apps/mapgen-studio/src/app/hooks/useLiveRuntime.ts",
+          "apps/mapgen-studio/src/app/hooks/useRunInGame.ts",
+          "apps/mapgen-studio/src/app/hooks/useSaveDeploy.ts",
+          "apps/mapgen-studio/src/app/hooks/useStudioEvents",
+          "apps/mapgen-studio/src/app/hooks/useStudioEvents.ts",
+          "apps/mapgen-studio/src/features/runInGame/recovery.ts",
+          "apps/mapgen-studio/src/ui/hooks/useTheme.ts",
+          "packages/studio-server/src/liveGame/watcher",
+          "packages/studio-server/src/liveGame/watcher.ts"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit\nlanguage js(typescript)\n\nor {\n  or {"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          ">",
+          "build"
+        ],
+        "all": [
+          {
+            "kind": "mutation-verb",
+            "value": ">",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "build",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useLiveRuntime",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useLiveRuntime.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useRunInGame.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useSaveDeploy.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useStudioEvents",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useStudioEvents.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/features/runInGame/recovery.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/ui/hooks/useTheme.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/liveGame/watcher",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/liveGame/watcher.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  or {",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate",
+          "transient-dependency"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "mutation_surface",
+        "nx_ordering_tie",
+        "package_boundary_tie",
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/rule.json",
+      "path": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
       "id": ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts",
       "path": ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts",
       "surfaceKind": "check-script",
@@ -22243,7 +22694,13 @@
           "apps/mapgen-studio/src/server/daemon/daemon.ts",
           "apps/mapgen-studio/src/server/studio/context",
           "apps/mapgen-studio/src/server/studio/context.ts",
-          "apps/mapgen-studio/src/server/studio/engines.ts"
+          "apps/mapgen-studio/src/server/studio/engines.ts",
+          "packages/studio-server/src/context",
+          "packages/studio-server/src/context.ts",
+          "packages/studio-server/src/handler",
+          "packages/studio-server/src/handler.ts",
+          "packages/studio-server/src/runtime",
+          "packages/studio-server/src/runtime.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
@@ -22277,6 +22734,36 @@
             "kind": "path-reference",
             "value": "apps/mapgen-studio/src/server/studio/engines.ts",
             "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/context",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/context.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/handler",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/handler.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/runtime",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/runtime.ts",
+            "targetClass": "package"
           },
           {
             "kind": "shell-command",
@@ -29278,6 +29765,72 @@
       ]
     },
     {
+      "id": ".habitat/blueprints/recipe/require_recipe_metrics_study_structure/rule.json",
+      "path": ".habitat/blueprints/recipe/require_recipe_metrics_study_structure/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/blueprints/recipe/require_recipe_metrics_study_structure/structure.toml",
+      "path": ".habitat/blueprints/recipe/require_recipe_metrics_study_structure/structure.toml",
+      "surfaceKind": "structure-spec",
+      "surfaceRole": "structure_authority",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
       "id": ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md",
       "path": ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md",
       "surfaceKind": "pattern",
@@ -33585,62 +34138,68 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/check.mjs",
-      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
+      "id": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/pattern.md",
+      "path": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
       "invokedBy": [
         "unknown"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
-        "imports": [
-          "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-          "node:path"
-        ],
+        "imports": [],
         "relativeHabitatImports": [],
-        "packageAppModImports": [],
+        "packageAppModImports": [
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains",
+          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts"
+        ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "node:path"
+          "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\\.contract\\.ts$\",\n    ! $body <: contains"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "import",
-            "value": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates",
+            "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts",
+            "targetClass": "mod"
           },
           {
             "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\\.contract\\.ts$\",\n    ! $body <: contains",
+            "targetClass": "workspace-tool"
           }
         ]
       },
       "anatomy": {
         "roles": [
-          "fixture-support"
+          "policy-predicate"
         ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
         "transientSignals": []
       },
       "buckets": [
+        "package_boundary_tie",
         "unknown_invocation"
       ]
     },
@@ -37295,6 +37854,166 @@
       ]
     },
     {
+      "id": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md",
+      "path": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "apps/mapgen-studio/src/",
+          "apps/mapgen-studio/src/app/hooks/useLiveRuntime",
+          "apps/mapgen-studio/src/app/hooks/useLiveRuntime.ts",
+          "apps/mapgen-studio/src/app/hooks/useRunInGame.ts",
+          "apps/mapgen-studio/src/app/hooks/useSaveDeploy.ts",
+          "apps/mapgen-studio/src/app/hooks/useStudioEvents",
+          "apps/mapgen-studio/src/app/hooks/useStudioEvents.ts",
+          "apps/mapgen-studio/src/features/runInGame/recovery.ts",
+          "apps/mapgen-studio/src/ui/hooks/useTheme.ts",
+          "packages/studio-server/src/liveGame/watcher",
+          "packages/studio-server/src/liveGame/watcher.ts"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit\nlanguage js(typescript)\n\nor {\n  or {"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          ">",
+          "build"
+        ],
+        "all": [
+          {
+            "kind": "mutation-verb",
+            "value": ">",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "build",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useLiveRuntime",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useLiveRuntime.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useRunInGame.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useSaveDeploy.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useStudioEvents",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/app/hooks/useStudioEvents.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/features/runInGame/recovery.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/ui/hooks/useTheme.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/liveGame/watcher",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/liveGame/watcher.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit\nlanguage js(typescript)\n\nor {\n  or {",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate",
+          "transient-dependency"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "mutation_surface",
+        "nx_ordering_tie",
+        "package_boundary_tie",
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/rule.json",
+      "path": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "invokedBy": [
+        "unknown"
+      ],
+      "detectCommand": [],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
       "id": ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts",
       "path": ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts",
       "surfaceKind": "check-script",
@@ -37435,7 +38154,13 @@
           "apps/mapgen-studio/src/server/daemon/daemon.ts",
           "apps/mapgen-studio/src/server/studio/context",
           "apps/mapgen-studio/src/server/studio/context.ts",
-          "apps/mapgen-studio/src/server/studio/engines.ts"
+          "apps/mapgen-studio/src/server/studio/engines.ts",
+          "packages/studio-server/src/context",
+          "packages/studio-server/src/context.ts",
+          "packages/studio-server/src/handler",
+          "packages/studio-server/src/handler.ts",
+          "packages/studio-server/src/runtime",
+          "packages/studio-server/src/runtime.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
@@ -37469,6 +38194,36 @@
             "kind": "path-reference",
             "value": "apps/mapgen-studio/src/server/studio/engines.ts",
             "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/context",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/context.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/handler",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/handler.ts",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/runtime",
+            "targetClass": "package"
+          },
+          {
+            "kind": "path-reference",
+            "value": "packages/studio-server/src/runtime.ts",
+            "targetClass": "package"
           },
           {
             "kind": "shell-command",
@@ -42759,6 +43514,56 @@
       ]
     },
     {
+      "id": "mods/mod-civ7-intelligence-bridge/project.json#targets.test",
+      "path": "mods/mod-civ7-intelligence-bridge/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "mods/mod-civ7-intelligence-bridge/project.json",
+        "projectName": "mod-intelligence-bridge",
+        "name": "test",
+        "dependsOn": [
+          "\"build\""
+        ]
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "nx-depends-on",
+            "value": "\"build\"",
+            "targetClass": "unknown"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "transient-dependency"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
+      },
+      "buckets": [
+        "nx_ordering_tie",
+        "package_invoked"
+      ]
+    },
+    {
       "id": "mods/mod-swooper-civ-dacia/package.json#scripts.build",
       "path": "mods/mod-swooper-civ-dacia/package.json",
       "surfaceKind": "package-script",
@@ -43293,6 +44098,57 @@
           {
             "kind": "shell-command",
             "value": "bun ./src/dev/diagnostics/extract-trace.ts",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "mods/mod-swooper-maps/package.json#scripts.metrics:report",
+      "path": "mods/mod-swooper-maps/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "mods/mod-swooper-maps/package.json",
+        "packageName": "mod-swooper-maps",
+        "name": "metrics:report",
+        "command": "bun ./scripts/metrics/report.ts"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun ./scripts/metrics/report.ts"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "path-reference",
+            "value": "./scripts/metrics/report.ts",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun ./scripts/metrics/report.ts",
             "targetClass": "workspace-tool"
           }
         ]
@@ -43954,8 +44810,7 @@
         "name": "gen:run-manifest",
         "command": "bun ./scripts/generate-run-manifest.ts",
         "dependsOn": [
-          "\"build:studio-recipes:bundle\"",
-          "{\"projects\":[\"civ7-sdk\"],\"target\":\"build\"}"
+          "\"^build\""
         ]
       },
       "isDirectEntrypoint": false,
@@ -43980,12 +44835,7 @@
           },
           {
             "kind": "nx-depends-on",
-            "value": "\"build:studio-recipes:bundle\"",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "nx-depends-on",
-            "value": "{\"projects\":[\"civ7-sdk\"],\"target\":\"build\"}",
+            "value": "\"^build\"",
             "targetClass": "unknown"
           },
           {
@@ -44376,7 +45226,7 @@
         "projectPath": "mods/mod-swooper-maps/project.json",
         "projectName": "mod-swooper-maps",
         "name": "test:studio-run-in-game",
-        "command": "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-imports.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
+        "command": "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-compatibility.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
         "dependsOn": [
           "\"build\"",
           "\"build:studio-recipes\""
@@ -44389,7 +45239,7 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-imports.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts"
+          "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-compatibility.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -44414,7 +45264,7 @@
           },
           {
             "kind": "shell-command",
-            "value": "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-imports.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
+            "value": "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-compatibility.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
             "targetClass": "workspace-tool"
           }
         ]
@@ -49965,6 +50815,287 @@
       "nxTarget": {
         "projectPath": "packages/mapgen-core/project.json",
         "projectName": "mapgen-core",
+        "name": "check",
+        "executor": "nx:noop",
+        "dependsOn": []
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "nx:noop"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "nx:noop",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/mapgen-metrics/package.json#scripts.build",
+      "path": "packages/mapgen-metrics/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/mapgen-metrics/package.json",
+        "packageName": "@swooper/mapgen-metrics",
+        "name": "build",
+        "command": "tsup src/index.ts --format esm --dts"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "rm"
+        ],
+        "all": [
+          {
+            "kind": "mutation-verb",
+            "value": "rm",
+            "targetClass": "external"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "mutation_surface",
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/mapgen-metrics/package.json#scripts.check:test",
+      "path": "packages/mapgen-metrics/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/mapgen-metrics/package.json",
+        "packageName": "@swooper/mapgen-metrics",
+        "name": "check:test",
+        "command": "tsc -p test/tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p test/tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p test/tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/mapgen-metrics/package.json#scripts.clean",
+      "path": "packages/mapgen-metrics/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/mapgen-metrics/package.json",
+        "packageName": "@swooper/mapgen-metrics",
+        "name": "clean",
+        "command": "rimraf dist"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "path-reference",
+            "value": "dist",
+            "targetClass": "external"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/mapgen-metrics/package.json#scripts.test",
+      "path": "packages/mapgen-metrics/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/mapgen-metrics/package.json",
+        "packageName": "@swooper/mapgen-metrics",
+        "name": "test",
+        "command": "bun test ./test"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun test ./test"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "path-reference",
+            "value": "./test",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun test ./test",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/mapgen-metrics/package.json#scripts.typecheck",
+      "path": "packages/mapgen-metrics/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "packages/mapgen-metrics/package.json",
+        "packageName": "@swooper/mapgen-metrics",
+        "name": "typecheck",
+        "command": "tsc -p tsconfig.json --noEmit"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "tsc -p tsconfig.json --noEmit"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "tsc -p tsconfig.json --noEmit",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
+      "id": "packages/mapgen-metrics/project.json#targets.check",
+      "path": "packages/mapgen-metrics/project.json",
+      "surfaceKind": "nx-target",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "nx"
+      ],
+      "nxTarget": {
+        "projectPath": "packages/mapgen-metrics/project.json",
+        "projectName": "mapgen-metrics",
         "name": "check",
         "executor": "nx:noop",
         "dependsOn": []

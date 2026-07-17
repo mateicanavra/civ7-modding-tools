@@ -56,22 +56,6 @@ const modes = new Map<string, Mode>([
       live: true,
     },
   ],
-  [
-    "placement-live-legality-agreement",
-    {
-      script: "scripts/placement/verify-live-legality-agreement.ts",
-      description: "Compare placement legality masks to live ResourceBuilder.",
-      live: true,
-    },
-  ],
-  [
-    "placement-live-required-for-age",
-    {
-      script: "scripts/placement/verify-live-required-for-age.ts",
-      description: "Compare required-for-age policy tables to live game state.",
-      live: true,
-    },
-  ],
 ]);
 
 const aliases = new Map<string, string>([["studio-run-in-game:live", "studio-run-in-game-live"]]);

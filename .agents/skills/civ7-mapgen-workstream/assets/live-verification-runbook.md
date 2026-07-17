@@ -101,7 +101,7 @@ It POSTs `{ json: { requestId } }` to `${studioUrl}/rpc/runInGame/status` (oRPC 
 
 ---
 
-## 5. The 8 operational verify modes
+## 5. The 6 Swooper operational verify modes
 
 `nx run mod-swooper-maps:verify:operational -- --mode <mode> [flags]` (or `bun ./scripts/verify.ts --mode <mode>`). From `scripts/verify.ts`:
 
@@ -113,10 +113,13 @@ It POSTs `{ json: { requestId } }` to `${studioUrl}/rpc/runInGame/status` (oRPC 
 | `resource-delta-feasibility` | **yes** | live `ResourceBuilder.canHaveResource` on parity delta rows |
 | `feature-delta-feasibility` | **yes** | live `TerrainBuilder.canHaveFeature` on delta rows |
 | `terrain-edge-live-context` | **yes** | live terrain/hydrology/area readback for edge deltas |
-| `placement-live-legality-agreement` | **yes** | mock-vs-live legality; `AGREEMENT_GATE_THRESHOLD=0.95` |
-| `placement-live-required-for-age` | **yes** | live `isResourceRequiredForAge` vs static tables |
 
 Alias: `studio-run-in-game:live`→`studio-run-in-game-live`.
+
+The former placement legality and required-for-age probes were milestone-scoped
+characterization scripts, not durable operational gates. Their recorded evidence
+remains historical; current policy must be proved by its owning Map Policy tests
+and by product-level live verification when a placement behavior changes.
 
 ---
 
@@ -149,7 +152,7 @@ Hand the labeled proof to finalization (loop step 10 → `civ7-open-spec-workstr
 
 ## Evidence anchors (live source — re-derive, don't trust this snapshot)
 
-- `mods/mod-swooper-maps/scripts/verify.ts` — mode dispatcher (the 9 modes).
+- `mods/mod-swooper-maps/scripts/verify.ts` — dispatcher for the six current modes.
 - `mods/mod-swooper-maps/scripts/live/verify-studio-run-in-game-live.ts` — the gate; `waitForFreshLogMarkers` call + `REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS`.
 - `mods/mod-swooper-maps/scripts/live/verify-final-surface-parity.ts` — parity proof / `exactAuthorshipProof`.
 - `packages/civ7-direct-control/src/proof/log-markers.ts` — `waitForFreshLogMarkers` + `snapshotFile`.

@@ -196,10 +196,10 @@ already bundled the recipe without either resolver.
   provisional resource ranges remain measurements. The mixed E1/E2/E3 harness is deleted rather than moved:
   synthetic operation probes remain behavior tests, and live policy proofs remain explicit
   operational scripts until their control-owned slice.
-- Move the reusable live legality-agreement proof to `@civ7/direct-control`.
-  Delete the one-time required-for-age falsification unless later product
-  evidence explicitly re-admits a durable operational check. Tuner clients and
-  live acquisition never move into dependency-free `@civ7/map-policy`.
+- Delete both milestone-scoped placement live probes rather than promoting
+  their incomplete comparison models into a reusable package API. Preserve
+  their historical evidence, while current static policy remains owned and
+  corrected in dependency-free `@civ7/map-policy`.
 - Empty and delete `mods/mod-swooper-maps/src/dev` and its TypeScript config.
 
 Keep `scripts/map-artifacts/file-plan.ts` and `write-file-plan.ts` together in

@@ -133,7 +133,7 @@ This is the facet's load-bearing seam, and where it couples to **Facet 1 (physic
 
 The bridge is encoded in `mods/mod-swooper-maps/src/domain/resources/lib/earthlike-expectations/official-earthlike.ts`: per-resource `range: [min, target, max]` count expectations **grounded in physical geography**, carrying `habitatEvidence`, `proxyRequirements`, and `caveats`. This is **the file where game-design intent meets physics reasoning** — the "habitat lane" = physics fields (Facet 1) ∩ official legality mask (`domain/resources/policy/resource-legality.ts`, this facet).
 
-**Working rule for any placement/resource change:** before declaring an Earth-like expectation (the pre-declared ledger gate, loop step 5 — `assets/earthlike-expectation-ledger.md`), confirm the target is **legal** for the candidate tiles. The physics plan proposes; the legality mask disposes. Pre-declare expectations *inside* the legal envelope, then verify in-game that the engine agreed (the live-legality-agreement and resource/feature-delta-feasibility verify modes, `assets/live-verification-runbook.md`, prove this — agreement was measured at 0.9863 on the Huge/earthlike reference run).
+**Working rule for any placement/resource change:** before declaring an Earth-like expectation (the pre-declared ledger gate, loop step 5 — `assets/earthlike-expectation-ledger.md`), confirm the target is **legal** for the candidate tiles. The physics plan proposes; the legality mask disposes. Pre-declare expectations *inside* the legal envelope, then use the resource/feature-delta-feasibility Swooper modes for run-specific live deltas (`assets/live-verification-runbook.md`). The retired milestone probes remain historical characterization, not a reusable current-tree gate.
 
 ---
 

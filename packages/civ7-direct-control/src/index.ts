@@ -1568,7 +1568,7 @@ function buildResourceBuilderDiagnosticsCommand(input: {
         count: readCount(resourceType),
         landmass: probe(() => rb.getResourceLandmass(resourceType)),
         validForAge: probe(() => rb.isResourceValidForAge(resourceType)),
-        requiredForAge: probe(() => rb.isResourceRequiredForAge(resourceType)),
+        requiredForAge: probe(() => rb.isResourceRequiredForAge(resourceType, Game.age)),
         ignoringWeightForRiverPlacement: probe(() => rb.isResourceIgnoringWeightForRiverPlacement(resourceType)),
       };
     };

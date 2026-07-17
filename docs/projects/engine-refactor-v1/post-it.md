@@ -2,19 +2,15 @@
 
 ## Behind
 
-- Package destination frame, structural-test authority, bundle compatibility, exported-symbol documentation, metrics engine, Standard product metrics, ArtifactModule authority, and completed-map placement/resource metrics are sealed semantic layers.
+- Package destination frame, structural-test authority, bundle compatibility, exported-symbol documentation, metrics engine, Standard product metrics, ArtifactModule authority, completed-map placement/resource metrics, and placement live-probe retirement are sealed semantic layers.
 - These layers are foundations, not open refactor surfaces.
 
 ## Now
 
-- Move the reusable live legality-agreement proof to `@civ7/direct-control`, delete the one-time
-  required-for-age falsification, and remove `mods/mod-swooper-maps/scripts/placement`.
+- Make optional `metrics` and `viz` facets part of step authorship without moving trace into those facets.
 
 ## Next
 
-- Make optional `metrics` and `viz` facets part of step authorship, beside `run`; they observe
-  published artifacts while trace remains available to the algorithm. Settle their Core/SDK ownership
-  with diagnostics without preserving mixed-purpose mod tooling.
 - Complete the pre-A.2 package relocation from the sealed destination design, then certify the resulting stack.
 
 ## Around

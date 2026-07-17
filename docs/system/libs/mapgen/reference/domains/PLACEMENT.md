@@ -153,12 +153,11 @@ Policy data comes from `@civ7/map-policy` generated tables (`CIV7_BROWSER_TABLES
   Run it through `nx run mod-swooper-maps:metrics:report`; the ordinary mod test
   target is the behavioral gate. This is completed headless evidence, not a
   live-engine claim.
-- Live placement policy remains a separate operational proof surface. The
-  legality-agreement and required-for-age probes currently remain under
-  `mods/mod-swooper-maps/scripts/placement/` and are registered by
-  `mods/mod-swooper-maps/scripts/verify.ts`. A future extraction into the
-  control-owned `@civ7/direct-control` surface has not landed. These probes do
-  not belong in dependency-free `@civ7/map-policy` or completed-map metrics.
+- The old live legality and required-for-age scripts were milestone-scoped
+  characterization, not reusable policy gates, and are retired. Their recorded
+  evidence remains historical. Current static policy belongs to
+  `@civ7/map-policy`; live placement behavior is proved through the bounded
+  product verification appropriate to the change.
 - Live full-grid parity: `nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity` (milestone-boundary proof class; see `docs/projects/placement-realignment/MILESTONE-PROOFS.md`).
 
 ## Ground truth anchors
@@ -175,4 +174,3 @@ Policy data comes from `@civ7/map-policy` generated tables (`CIV7_BROWSER_TABLES
 ## Open questions
 
 - Which placement outputs should be considered part of a stable contract surface vs ad-hoc debugging counters?
-- Live-engine semantics pending Milestone A/B probes (alive-major id ordering, per-civ StartBias resolution, live legality agreement): `docs/projects/placement-realignment/MILESTONE-PROOFS.md`.
