@@ -102,6 +102,15 @@
       "options": {
         "cwd": "tools/habitat"
       }
+    },
+    "test:standalone": {
+      "command": "bun run test:standalone",
+      "dependsOn": ["build:standalone"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "tools/habitat"
+      }
     }
   }
 }
