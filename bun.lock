@@ -225,6 +225,13 @@
         "@types/d3-delaunay": "^6.0.4",
       },
     },
+    "packages/mapgen-metrics": {
+      "name": "@swooper/mapgen-metrics",
+      "version": "0.1.0",
+      "dependencies": {
+        "type-fest": "^5.7.0",
+      },
+    },
     "packages/mapgen-studio-ui": {
       "name": "@swooper/mapgen-studio-ui",
       "version": "0.1.0",
@@ -1413,6 +1420,8 @@
     "@swc/helpers": ["@swc/helpers@0.5.23", "", { "dependencies": { "tslib": "^2.8.0" } }, "sha512-5lSsMOTXURePglDfvuAQUqkGek9Hg2kksOYay2m0+XR++b2NWYL/4sWyuvVBIs8oKnJaxkdi9whaL/sqN13afw=="],
 
     "@swooper/mapgen-core": ["@swooper/mapgen-core@workspace:packages/mapgen-core"],
+
+    "@swooper/mapgen-metrics": ["@swooper/mapgen-metrics@workspace:packages/mapgen-metrics"],
 
     "@swooper/mapgen-studio-ui": ["@swooper/mapgen-studio-ui@workspace:packages/mapgen-studio-ui"],
 

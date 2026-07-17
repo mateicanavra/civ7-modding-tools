@@ -1,0 +1,33 @@
+{
+  "name": "@swooper/mapgen-metrics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pure map product measurements and target evaluation",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "bun-source": "./src/index.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "clean": "rimraf dist",
+    "test": "bun test ./test",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "type-fest": "^5.7.0"
+  },
+  "engines": {
+    "node": "22.22.0"
+  }
+}
