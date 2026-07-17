@@ -41,10 +41,11 @@ Every build produces exactly these release assets under
 - `SHA256SUMS`
 
 `provenance.json` records the source commit, `tools/habitat` tree, exact Bun
-release name and full revision, the host compiler asset, both pinned compiler
-asset IDs and archive/executable SHA-256 digests, bundle boundary, target, byte
-size, artifact digest, and bundled-input count. `SHA256SUMS` covers both
-executables and the provenance record.
+release name and full revision, both pinned compiler asset IDs and
+archive/executable SHA-256 digests, bundle boundary, target, byte size, artifact
+digest, and bundled-input count. Build-host observations are deliberately
+excluded so the published record identifies the same candidate on every proof
+host. `SHA256SUMS` covers both executables and the provenance record.
 
 ## Owner Proof And Release
 
@@ -74,10 +75,12 @@ mismatch fails the build and requires an explicit manifest update. Bun's
 `linux-x64-baseline` output to its pinned target executable; unresolved imports
 remain rejected.
 
-The black-box test moves the host binary outside the checkout, then proves
-structure and destination-provided Grit pass/fail behavior, missing-provider
-and script refusal, semantic repeatability, destination non-mutation,
-provenance and checksum identity, and byte-identical rebuilds.
+The black-box test moves the downloaded host binary outside the checkout before
+any rebuild, then proves structure and destination-provided Grit pass/fail
+behavior, missing-provider and script refusal, semantic repeatability,
+destination non-mutation, and host-independent provenance and checksum
+identity. It then rebuilds on the proof host and requires every executable,
+provenance, and checksum byte to remain identical to the downloaded candidate.
 
 The owner workflow at `.github/workflows/habitat-standalone-release.yml`
 provisions and verifies the same pinned toolchain for the release build and for

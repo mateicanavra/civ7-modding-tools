@@ -25,10 +25,7 @@ import { Match, Schema } from "effect";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { afterAll, beforeAll, describe, it } from "vitest";
-import {
-  standaloneCompilerAssetForHost,
-  standaloneCompilerManifest,
-} from "../../scripts/standalone/compiler-manifest.js";
+import { standaloneCompilerManifest } from "../../scripts/standalone/compiler-manifest.js";
 
 const repoRoot = path.resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
 const distDir = path.join(repoRoot, "tools", "habitat", "dist", "standalone");
@@ -72,7 +69,6 @@ const StandaloneProvenanceSchema = Type.Object(
           },
           { additionalProperties: false }
         ),
-        hostAssetId: Type.Union([Type.Literal("darwin-arm64"), Type.Literal("linux-x64-baseline")]),
         assets: Type.Array(
           Type.Object(
             {
@@ -219,7 +215,6 @@ describe.sequential("standalone Habitat binary", () => {
 
   it("binds every release asset to source and checksum provenance", () => {
     const provenance = readProvenance();
-    const compilerAsset = standaloneCompilerAssetForHost(process.platform, process.arch);
     assert.strictEqual(provenance.source.commit, gitText(["rev-parse", "HEAD"]));
     assert.strictEqual(provenance.source.habitatTree, gitText(["rev-parse", "HEAD:tools/habitat"]));
     assert.strictEqual(
@@ -231,7 +226,6 @@ describe.sequential("standalone Habitat binary", () => {
       version: standaloneCompilerManifest.version,
       revision: standaloneCompilerManifest.revision,
       source: standaloneCompilerManifest.source,
-      hostAssetId: compilerAsset.id,
       assets: standaloneCompilerManifest.assets.map((asset) => ({
         id: asset.id,
         githubAssetId: asset.githubAssetId,
@@ -255,7 +249,7 @@ describe.sequential("standalone Habitat binary", () => {
     assert.deepStrictEqual(checksumLines, expectedChecksums);
   });
 
-  it("rebuilds every release asset byte-identically", () => {
+  it("rebuilds downloaded release assets byte-identically on the proof host", () => {
     const before = releaseHashes();
     const rebuild = spawnSync("bun", ["run", "--cwd", "tools/habitat", "build:standalone"], {
       cwd: repoRoot,

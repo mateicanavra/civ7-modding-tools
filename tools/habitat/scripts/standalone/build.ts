@@ -87,7 +87,6 @@ const ProvenanceSchema = Type.Object(
           },
           { additionalProperties: false }
         ),
-        hostAssetId: Type.Union([Type.Literal("darwin-arm64"), Type.Literal("linux-x64-baseline")]),
         assets: Type.Array(
           Type.Object(
             {
@@ -330,7 +329,6 @@ const compilerIdentity = Effect.fn("habitat.standalone.build.compiler")(function
       version: featureData.version,
       revision: featureData.revision,
       source: standaloneCompilerManifest.source,
-      hostAssetId: asset.id,
       assets: standaloneCompilerManifest.assets.map((pinnedAsset) => ({
         id: pinnedAsset.id,
         githubAssetId: pinnedAsset.githubAssetId,
