@@ -61,10 +61,10 @@ const ResourcePlanIntentSchema = Type.Object(
 const ResourcePlanShortfallSchema = Type.Object(
   {
     resourceType: ResourceSymbolSchema,
-    reason: Type.Union([
-      Type.Literal("eligible-tiles-exhausted"),
-      Type.Literal("spacing-floor-preserved"),
-    ]),
+    reason: Type.Literal("no-admitted-site", {
+      description:
+        "No remaining site passed the complete habitat, policy, occupancy, spacing, and exclusion admission path.",
+    }),
     count: Type.Integer({
       minimum: 1,
       description:

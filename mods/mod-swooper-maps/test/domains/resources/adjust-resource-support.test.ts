@@ -80,6 +80,7 @@ function buildInput(args: {
   starts: AdjustInput["starts"];
   regionMinimums?: AdjustInput["plan"]["regionMinimums"];
   affinityRules?: AdjustInput["plan"]["settings"]["affinityRules"];
+  habitatMaskByType?: Partial<Record<PlanIntent["resourceType"], Uint8Array>>;
   legalMaskByType?: Partial<Record<PlanIntent["resourceType"], Uint8Array>>;
 }): AdjustInput {
   const allOnes = new Uint8Array(SIZE).fill(1);
@@ -115,7 +116,7 @@ function buildInput(args: {
     },
     eligibility: args.perType.map((row) => ({
       resourceType: row.resourceType,
-      habitatMask: allOnes,
+      habitatMask: args.habitatMaskByType?.[row.resourceType] ?? allOnes,
       legalMask: args.legalMaskByType?.[row.resourceType] ?? allOnes,
       intensity,
     })),
@@ -199,7 +200,53 @@ describe("adjust-resource-support operation contract", () => {
         expect(moved.support.fromPlotIndex).toBe(adjustment.fromPlotIndex);
       }
     }
+    expect(
+      result.intents.filter((intent) => intent.support).every((intent) => intent.inHabitat)
+    ).toBe(true);
     expect(result.shortfalls).toEqual([]);
+  });
+
+  it("records a shortfall instead of moving or adding outside habitat admission", () => {
+    const input = clusterScenario();
+    input.eligibility[0]!.habitatMask.fill(0);
+
+    const result = run(input);
+    expect(result.adjustments).toEqual([]);
+    expect(result.intents).toEqual(input.plan.intents);
+    expect(result.shortfalls.some((row) => row.reason === "no-admitted-adjustment")).toBe(true);
+  });
+
+  it("serves the equal-support seat with less admitted capacity before seat-index order", () => {
+    const source = intentAt({ x: 12, y: 7, resourceType: "RESOURCE_A", order: 0 });
+    const legalA = new Uint8Array(SIZE);
+    for (const plotIndex of [plotAt(1, 1), plotAt(5, 1), plotAt(1, 5), plotAt(18, 9)]) {
+      legalA[plotIndex] = 1;
+    }
+    const input = buildInput({
+      intents: [source],
+      perType: [
+        perTypeRow({ resourceType: "RESOURCE_A", plannedCount: 1, minCount: 1, maxCount: 1 }),
+      ],
+      starts: [
+        { seatIndex: 0, playerId: 0, plotIndex: plotAt(3, 3) },
+        { seatIndex: 1, playerId: 1, plotIndex: plotAt(20, 11) },
+      ],
+      legalMaskByType: { RESOURCE_A: legalA },
+    });
+
+    const result = run(input, (config) => {
+      config.supportFloor = 1;
+      config.equityTolerance = 1;
+    });
+
+    expect(result.adjustments).toHaveLength(1);
+    expect(result.adjustments[0]).toMatchObject({
+      action: "move",
+      reason: "support-floor",
+      seatIndex: 1,
+      fromPlotIndex: source.plotIndex,
+    });
+    expect(result.perStart.map((seat) => seat.supportAfter)).toEqual([0, 1]);
   });
 
   it("preserves S3 invariants: unique plots, per-type spacing floors, cross-type clearance", () => {
@@ -239,6 +286,219 @@ describe("adjust-resource-support operation contract", () => {
     expect(result.equity.gapAfter).toBeLessThanOrEqual(2);
     const counts = result.perStart.map((seat) => seat.supportAfter);
     expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(2);
+  });
+
+  it("crosses a tied-extrema gap plateau by reducing the complete disparity vector", () => {
+    const intents = [
+      intentAt({ x: 1, y: 0, resourceType: "RESOURCE_A", order: 0 }),
+      intentAt({ x: 7, y: 0, resourceType: "RESOURCE_A", order: 1 }),
+      intentAt({ x: 13, y: 8, resourceType: "RESOURCE_A", order: 2 }),
+      intentAt({ x: 15, y: 8, resourceType: "RESOURCE_A", order: 3 }),
+      intentAt({ x: 12, y: 10, resourceType: "RESOURCE_A", order: 4 }),
+      intentAt({ x: 19, y: 8, resourceType: "RESOURCE_A", order: 5 }),
+      intentAt({ x: 21, y: 8, resourceType: "RESOURCE_A", order: 6 }),
+      intentAt({ x: 18, y: 10, resourceType: "RESOURCE_A", order: 7 }),
+    ];
+    const input = buildInput({
+      intents,
+      perType: [
+        perTypeRow({
+          resourceType: "RESOURCE_A",
+          plannedCount: intents.length,
+          minCount: intents.length,
+          maxCount: intents.length,
+          spacingFloorTiles: 2,
+        }),
+      ],
+      starts: [
+        { seatIndex: 0, playerId: 0, plotIndex: plotAt(2, 2) },
+        { seatIndex: 1, playerId: 1, plotIndex: plotAt(8, 2) },
+        { seatIndex: 2, playerId: 2, plotIndex: plotAt(14, 10) },
+        { seatIndex: 3, playerId: 3, plotIndex: plotAt(20, 10) },
+      ],
+    });
+
+    expect(input.starts.map((seat) => supportCount(input.plan.intents, seat.plotIndex, 2))).toEqual(
+      [1, 1, 3, 3]
+    );
+    const result = run(input, (config) => {
+      config.supportFloor = 1;
+      config.supportRadiusTiles = 2;
+      config.equityTolerance = 0;
+    });
+
+    expect(result.perStart.map((seat) => seat.supportAfter)).toEqual([2, 2, 2, 2]);
+    expect(result.moveCount).toBe(2);
+    expect(result.addCount).toBe(0);
+    expect(result.shortfalls).toEqual([]);
+  });
+
+  it("scans every tied-minimum seat instead of binding equity to the first seat", () => {
+    const intents = [
+      intentAt({ x: 1, y: 0, resourceType: "RESOURCE_A", order: 0 }),
+      intentAt({ x: 9, y: 0, resourceType: "RESOURCE_A", order: 1 }),
+      intentAt({ x: 19, y: 8, resourceType: "RESOURCE_A", order: 2 }),
+      intentAt({ x: 21, y: 8, resourceType: "RESOURCE_A", order: 3 }),
+      intentAt({ x: 18, y: 10, resourceType: "RESOURCE_A", order: 4 }),
+    ];
+    const legal = new Uint8Array(SIZE);
+    for (const intent of intents) legal[intent.plotIndex] = 1;
+    legal[plotAt(11, 0)] = 1;
+    const input = buildInput({
+      intents,
+      perType: [
+        perTypeRow({
+          resourceType: "RESOURCE_A",
+          plannedCount: intents.length,
+          minCount: intents.length,
+          maxCount: intents.length,
+          spacingFloorTiles: 2,
+        }),
+      ],
+      starts: [
+        { seatIndex: 0, playerId: 0, plotIndex: plotAt(2, 2) },
+        { seatIndex: 1, playerId: 1, plotIndex: plotAt(10, 2) },
+        { seatIndex: 2, playerId: 2, plotIndex: plotAt(20, 10) },
+      ],
+      legalMaskByType: { RESOURCE_A: legal },
+    });
+
+    expect(input.starts.map((seat) => supportCount(input.plan.intents, seat.plotIndex, 2))).toEqual(
+      [1, 1, 3]
+    );
+    const result = run(input, (config) => {
+      config.supportFloor = 1;
+      config.supportRadiusTiles = 2;
+      config.equityTolerance = 0;
+    });
+
+    expect(result.perStart.map((seat) => seat.supportAfter)).toEqual([1, 2, 2]);
+    expect(result.adjustments[0]).toMatchObject({
+      action: "move",
+      reason: "support-equity",
+      seatIndex: 1,
+      toPlotIndex: plotAt(11, 0),
+    });
+  });
+
+  it("refuses equal-objective swaps that could cycle without improving equity", () => {
+    const intents = [
+      intentAt({ x: 1, y: 0, resourceType: "RESOURCE_A", order: 0 }),
+      intentAt({ x: 19, y: 8, resourceType: "RESOURCE_A", order: 1 }),
+      intentAt({ x: 21, y: 8, resourceType: "RESOURCE_A", order: 2 }),
+    ];
+    const legal = new Uint8Array(SIZE);
+    for (const intent of intents) legal[intent.plotIndex] = 1;
+    legal[plotAt(3, 0)] = 1;
+    const input = buildInput({
+      intents,
+      perType: [
+        perTypeRow({
+          resourceType: "RESOURCE_A",
+          plannedCount: intents.length,
+          minCount: intents.length,
+          maxCount: intents.length,
+          spacingFloorTiles: 2,
+        }),
+      ],
+      starts: [
+        { seatIndex: 0, playerId: 0, plotIndex: plotAt(2, 2) },
+        { seatIndex: 1, playerId: 1, plotIndex: plotAt(20, 10) },
+      ],
+      legalMaskByType: { RESOURCE_A: legal },
+    });
+
+    expect(input.starts.map((seat) => supportCount(input.plan.intents, seat.plotIndex, 2))).toEqual(
+      [1, 2]
+    );
+    const result = run(input, (config) => {
+      config.supportFloor = 1;
+      config.supportRadiusTiles = 2;
+      config.equityTolerance = 0;
+    });
+
+    expect(result.adjustments).toEqual([]);
+    expect(result.perStart.map((seat) => seat.supportAfter)).toEqual([1, 2]);
+    expect(result.shortfalls).toContainEqual({
+      seatIndex: 0,
+      reason: "equity-unresolvable",
+      missing: 1,
+    });
+  });
+
+  it("moves from a secondary donor when the first richest seat has no admissible source", () => {
+    const aIntents = [
+      intentAt({ x: 1, y: 1, resourceType: "RESOURCE_A", order: 0 }),
+      intentAt({ x: 5, y: 1, resourceType: "RESOURCE_A", order: 1 }),
+      intentAt({ x: 1, y: 5, resourceType: "RESOURCE_A", order: 2 }),
+    ];
+    const bIntents = [
+      intentAt({ x: 10, y: 1, resourceType: "RESOURCE_B", order: 3 }),
+      intentAt({ x: 14, y: 1, resourceType: "RESOURCE_B", order: 4 }),
+      intentAt({ x: 10, y: 5, resourceType: "RESOURCE_B", order: 5 }),
+    ];
+    const cIntent = intentAt({ x: 20, y: 8, resourceType: "RESOURCE_C", order: 6 });
+    const legalA = new Uint8Array(SIZE);
+    for (const intent of aIntents) legalA[intent.plotIndex] = 1;
+    const input = buildInput({
+      intents: [...aIntents, ...bIntents, cIntent],
+      perType: [
+        perTypeRow({ resourceType: "RESOURCE_A", plannedCount: 3, minCount: 3, maxCount: 3 }),
+        perTypeRow({ resourceType: "RESOURCE_B", plannedCount: 3, minCount: 3, maxCount: 3 }),
+        perTypeRow({ resourceType: "RESOURCE_C", plannedCount: 1, minCount: 1, maxCount: 1 }),
+      ],
+      starts: [
+        { seatIndex: 0, playerId: 0, plotIndex: plotAt(3, 3) },
+        { seatIndex: 1, playerId: 1, plotIndex: plotAt(12, 3) },
+        { seatIndex: 2, playerId: 2, plotIndex: plotAt(20, 11) },
+      ],
+      legalMaskByType: { RESOURCE_A: legalA },
+    });
+
+    expect(input.starts.map((seat) => supportCount(input.plan.intents, seat.plotIndex, 4))).toEqual(
+      [3, 3, 1]
+    );
+    const result = run(input, (config) => {
+      config.supportFloor = 1;
+      config.equityTolerance = 1;
+    });
+
+    expect(result.equity).toEqual({ gapBefore: 2, gapAfter: 1 });
+    expect(result.shortfalls).toEqual([]);
+    expect(result.adjustments).toHaveLength(1);
+    expect(result.adjustments[0]).toMatchObject({
+      action: "move",
+      reason: "support-equity",
+      resourceType: "RESOURCE_B",
+      seatIndex: 2,
+    });
+    expect(
+      result.intents
+        .filter((intent) => intent.resourceType === "RESOURCE_A")
+        .map((intent) => intent.plotIndex)
+    ).toEqual(aIntents.map((intent) => intent.plotIndex));
+
+    for (const resourceType of ["RESOURCE_A", "RESOURCE_B", "RESOURCE_C"] as const) {
+      const before = input.plan.intents.filter(
+        (intent) => intent.resourceType === resourceType
+      ).length;
+      const after = result.intents.filter((intent) => intent.resourceType === resourceType).length;
+      expect(after).toBe(before);
+    }
+    const plots = result.intents.map((intent) => intent.plotIndex);
+    expect(new Set(plots).size).toBe(plots.length);
+    for (let left = 0; left < plots.length; left += 1) {
+      for (let right = left + 1; right < plots.length; right += 1) {
+        expect(hexDistanceOddQPeriodicX(plots[left]!, plots[right]!, WIDTH)).toBeGreaterThanOrEqual(
+          2
+        );
+      }
+    }
+    for (const intent of result.intents.filter((candidate) => candidate.support)) {
+      const eligibility = input.eligibility.find((row) => row.resourceType === intent.resourceType);
+      expect(eligibility?.habitatMask[intent.plotIndex]).toBe(1);
+      expect(eligibility?.legalMask[intent.plotIndex]).toBe(1);
+    }
   });
 
   it("moves each source at most once across repeated three-seat equity eligibility", () => {
@@ -322,9 +582,7 @@ describe("adjust-resource-support operation contract", () => {
     expect(
       seatOne.every((row) =>
         [
-          "no-movable-site",
-          "no-legal-tile-in-radius",
-          "spacing-floor-preserved",
+          "no-admitted-adjustment",
           "equity-unresolvable",
           "floor-budget-exhausted",
           "equity-budget-exhausted",

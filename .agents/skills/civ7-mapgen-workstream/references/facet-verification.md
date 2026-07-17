@@ -63,21 +63,27 @@ Studio launch / daemon contract (port 5174, oRPC `/rpc`, `runtimeMode: "studio-d
 
 ---
 
-## Overlay (ii) — Earth-like benchmark: a composed gate, not a turnkey script
+## Overlay (ii) — Earth-like benchmark: declared metrics and targets
 
-**There is no single "run the benchmark" command.** A future agent that goes looking for one will not find it. The benchmark is a *composed* call chain plus a *pre-declared expectation ledger* — and it is a **gate at loop step 5**, declared **before** any tuning, then amended with evidence.
+The benchmark is a reusable completed-map subsystem plus a *pre-declared
+expectation ledger*. It is a **gate at loop step 5**, declared **before** any
+tuning, then amended with evidence.
 
-### The composed chain
+### The owned chain
 
-1. `nx run mod-swooper-maps:diag:dump -- <args>` (`src/dev/diagnostics/run-standard-dump.ts`) — run the full standard recipe through MockAdapter; writes the trace + viz dump; prints `{"runId","outputDir"}`. (Prereq: `viz:runtime-deps`.)
-2. `computeEarthMetrics(landMask, lakeMask?, riverClass?, riverNetworkBenchmarkSummary?, biomeIndex?)` (`src/dev/diagnostics/extract-earth-metrics.ts`) → `{ landShare, lakeShare, riverClassShare, biomeDiversity, dominantBiome, hydrology.riverNetworkSummary }`. This is the metric primitive. Also `diag:analyze` (`analyze-dump.ts`) for land-coherence (landmass summary, mountain/hill counts, landmask Hamming evolution); `placement-metrics.ts` for E1–E4 placement expectations (`verify --mode placement-metrics`).
-3. **Compare to Earth targets** in `docs/projects/pipeline-realism/`. Targets are **regime-family based** (wet / arid / mountain / closed / archipelago), **not** single scalars — never collapse a regime distribution to one number. Earth anchors the docs cite: HydroLAKES ~1.8% of land, non-perennial river share 51–60%, endorheic ~1/5 of land, passive-vs-active margin shelf-width contrast. `riverClass` is `0/1/≥2`; only `≥2` projects to `TERRAIN_NAVIGABLE_RIVER`.
+1. `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md` owns the generic subsystem, authoring contract, and proof boundary.
+2. Metric families under `src/recipes/standard/metrics/families` measure one completed Standard run without embedding pass/fail policy.
+3. `MetricTarget`s under `src/recipes/standard/metrics/targets` own product expectations. Logical `*.study.ts` modules under `src/recipes/standard/metrics/studies/benchmarks` bind them to named Civ7 map-size presets and stable seed cohorts. `STANDARD_METRIC_STUDIES` assembles the bank and deduplicates identical scenario captures.
+4. `src/recipes/standard/metrics/studies/STUDIES.md` is the Standard recipe research index. Each executable study is colocated with a sheet describing its hypothesis, dimensions, seeds, measurements, and expected outcomes.
+5. `nx run mod-swooper-maps:metrics:report` emits the complete machine-readable evaluation; `nx run mod-swooper-maps:test` is the behavioral gate. Use `diag:dump` / `diag:analyze` only for trace and visualization investigation, not as a second metrics authority.
+6. Targets are **regime-family based** (wet / arid / mountain / closed / archipelago), **not** single scalars — never collapse a regime distribution to one number. Earth anchors include HydroLAKES ~1.8% of land, non-perennial river share 51–60%, endorheic ~1/5 of land, and passive-vs-active margin shelf-width contrast. `riverClass` is `0/1/≥2`; only `≥2` projects to `TERRAIN_NAVIGABLE_RIVER`.
 
-`docs/projects/pipeline-realism/` holds the **program and philosophy** (M1 foundation cutover, M2 ecology alignment, resource packets, runbooks). The **executed** pre-declared-expectation pattern lives in `docs/projects/placement-realignment/expectations.md` — the reference implementation of the ledger, not pipeline-realism.
+Historical workstream docs retain the evidence and amendments for the studies they
+ran. They are not the current subsystem or Standard recipe authority.
 
 ### The pre-declared expectation ledger (the discipline)
 
-Declare expectations as a ledger **before** tuning (loop step 5 gate), then amend each row with the measured value and a pass/fail/amended verdict. Copy-paste template and worked rows: `assets/earthlike-expectation-ledger.md`. The placement-realignment ledger (E1 starts / E2 resources / E3 resource-start / E4 studio-live parity) is the canonical example; E4.4 passed at 0.9863 mock-vs-live legality there.
+Declare expectations as a ledger **before** tuning (loop step 5 gate), then amend each row with the measured value and a pass/fail/amended verdict. Copy-paste template: `assets/earthlike-expectation-ledger.md`. Recipe targets and studies are current authority; a project ledger records the workstream-specific hypothesis and evidence without replacing them.
 
 Physics targets behind the metrics — what is modeled vs approximated vs absent per domain — are owned by `references/facet-physics.md`. This overlay measures; the physics facet decides what the measurement *should* be.
 
@@ -98,7 +104,7 @@ A MockAdapter-clean map can still **SIGSEGV** the live engine — so internal di
 
 | Class | Example mode | Closure ceiling |
 |---|---|---|
-| **headless** (no tuner) | `placement-metrics` | `generated` at most — MockAdapter, never `in-game observed` |
+| **headless** (no tuner) | Standard product-metrics test | `generated` at most — MockAdapter, never `in-game observed` |
 | **live** (running tuner required) | `studio-run-in-game-live` (the in-game gate) | the only path to `logged` / `in-game observed` |
 
 Full operational mode table + aliases + invocations: `assets/live-verification-runbook.md` §5.

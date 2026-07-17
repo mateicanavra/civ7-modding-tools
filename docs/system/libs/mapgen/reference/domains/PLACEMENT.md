@@ -145,8 +145,20 @@ Policy data comes from `@civ7/map-policy` generated tables (`CIV7_BROWSER_TABLES
 
 ## Verification surfaces
 
-- Expectation ledger (predeclared Earth-like gates E1/E2/E3/E4): `docs/projects/placement-realignment/expectations.md`.
-- Stats harness: `nx run mod-swooper-maps:verify:operational -- --mode placement-metrics --seed <s> --seeds <n> --size <size>` (headless standard recipe + mock adapter; computes every E1/E2/E3 metric from placement artifacts).
+- The generic benchmark subsystem and proof boundary are defined in
+  [`docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`](/system/libs/mapgen/benchmarks/BENCHMARKS.md).
+  The Standard recipe's executable twenty-seed placement/resource study, exact
+  targets, dimensions, expectations, and measurement-family links live in its
+  [Earthlike placement study sheet](../../../../../../mods/mod-swooper-maps/src/recipes/standard/metrics/studies/benchmarks/earthlike-placement.md).
+  Run it through `nx run mod-swooper-maps:metrics:report`; the ordinary mod test
+  target is the behavioral gate. This is completed headless evidence, not a
+  live-engine claim.
+- Live placement policy remains a separate operational proof surface. The
+  legality-agreement and required-for-age probes currently remain under
+  `mods/mod-swooper-maps/scripts/placement/` and are registered by
+  `mods/mod-swooper-maps/scripts/verify.ts`. A future extraction into the
+  control-owned `@civ7/direct-control` surface has not landed. These probes do
+  not belong in dependency-free `@civ7/map-policy` or completed-map metrics.
 - Live full-grid parity: `nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity` (milestone-boundary proof class; see `docs/projects/placement-realignment/MILESTONE-PROOFS.md`).
 
 ## Ground truth anchors
@@ -155,7 +167,7 @@ Policy data comes from `@civ7/map-policy` generated tables (`CIV7_BROWSER_TABLES
 - ADR-008 (domain/resources owns resource planning; landmass-region divergence), ADR-009 (deterministic typed reconciliation; readbacks evidence-only), ADR-010 (knob taxonomy): `docs/system/ADR.md`
 - Stage definition: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
 - Stage public config surface: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
-- Artifact contracts: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/contract/`
+- Placement artifact catalog: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/index.ts`; each contract and validator lives in its adjacent one-module-per-file `*.artifact.ts` module.
 - Domain ops: `mods/mod-swooper-maps/src/domain/placement/ops/`, `mods/mod-swooper-maps/src/domain/resources/ops/`
 - Policy tables: `packages/civ7-map-policy/src/civ7-tables.gen.ts` (generator-only writes)
 - Tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`

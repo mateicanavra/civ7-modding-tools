@@ -164,11 +164,14 @@ export function balanceFairness(args: {
       if (crossRegion) break;
     }
     if (!crossRegion) break;
-    if (crossRegion.regionSlot !== weakest.seat.regionSlot && weakest.rung === "regional") {
+    if (
+      crossRegion.regionSlot !== weakest.seat.selectionRegionSlot &&
+      weakest.rung === "regional"
+    ) {
       relaxations.push({
         seatIndex: weakest.seat.seatIndex,
         kind: "region",
-        from: weakest.seat.regionSlot,
+        from: weakest.seat.selectionRegionSlot,
         to: crossRegion.regionSlot,
       });
       weakest.rung = "open-pool";

@@ -141,7 +141,7 @@ describe("select-resource-sites operation contract", () => {
     }
   });
 
-  it("records one terminal target deficit after satisfying the range floor", () => {
+  it("records one truthful terminal deficit when complete site admission ends", () => {
     // The 4x3 periodic grid can satisfy the floor but not the target while preserving spacing.
     const result = run(
       buildInput({
@@ -164,13 +164,13 @@ describe("select-resource-sites operation contract", () => {
     expect(row.shortfalls).toEqual([
       {
         resourceType: "RESOURCE_A",
-        reason: "spacing-floor-preserved",
+        reason: "no-admitted-site",
         count: row.effectiveTargetCount - row.plannedCount,
       },
     ]);
   });
 
-  it("classifies a terminal deficit with no free legal site as eligibility exhaustion", () => {
+  it("collapses a terminal deficit with no legal site to complete admission failure", () => {
     const input = buildInput({
       width: 4,
       height: 3,
@@ -189,8 +189,35 @@ describe("select-resource-sites operation contract", () => {
     expect(run(input).perType[0]!.shortfalls).toEqual([
       {
         resourceType: "RESOURCE_A",
-        reason: "eligible-tiles-exhausted",
+        reason: "no-admitted-site",
         count: 1,
+      },
+    ]);
+  });
+
+  it("records a shortfall instead of widening range repair beyond habitat admission", () => {
+    const input = buildInput({
+      width: 8,
+      height: 6,
+      demands: [
+        {
+          resourceType: "RESOURCE_A",
+          weight: 10,
+          targetCount: 4,
+          minCount: 2,
+          maxCount: 4,
+        },
+      ],
+    });
+    input.demands[0]!.habitatMask.fill(0);
+
+    const result = run(input);
+    expect(result.intents).toEqual([]);
+    expect(result.perType[0]?.shortfalls).toEqual([
+      {
+        resourceType: "RESOURCE_A",
+        reason: "no-admitted-site",
+        count: 4,
       },
     ]);
   });

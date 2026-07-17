@@ -13,3 +13,11 @@ export {
   type ResourceSymbol,
   ResourceSymbolSchema,
 } from "./model/schemas/resource-family.schema.js";
+
+export {
+  DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
+  getInitialMapResourcePolicyForType,
+  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+  INITIAL_MAP_RESOURCE_AUTHORING_POLICY,
+  type InitialMapResourceAuthoringStatus,
+} from "./model/policy/initial-map-authoring.js";

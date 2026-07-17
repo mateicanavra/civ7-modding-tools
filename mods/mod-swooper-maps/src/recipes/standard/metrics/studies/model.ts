@@ -4,8 +4,8 @@ import type { NonEmptyTuple } from "type-fest";
 import type { StandardMapMetricCohort, StandardMapProductSample } from "../sample.js";
 import type { StandardPresetMetricScenario } from "../scenario.js";
 
-/** One product target evaluated against a single real-preset Standard map. */
-export type StandardMetricSampleCase = Readonly<{
+/** One product benchmark evaluated against a single real-preset Standard map. */
+export type StandardMetricSampleStudy = Readonly<{
   kind: "sample";
   id: string;
   scenario: StandardPresetMetricScenario;
@@ -16,7 +16,7 @@ export type StandardMetricSampleCase = Readonly<{
  * One cohort benchmark over real-preset Standard maps.
  * Sample targets close each constituent map before cohort targets compare the population.
  */
-export type StandardMetricCohortCase = Readonly<{
+export type StandardMetricCohortStudy = Readonly<{
   kind: "cohort";
   id: string;
   scenarios: NonEmptyTuple<StandardPresetMetricScenario>;
@@ -24,8 +24,8 @@ export type StandardMetricCohortCase = Readonly<{
   cohortTargets: NonEmptyTuple<MetricTarget<StandardMapMetricCohort>>;
 }>;
 
-/** Closed product-case shapes admitted by the Standard metrics runner. */
-export type StandardMetricCase = StandardMetricSampleCase | StandardMetricCohortCase;
+/** Closed recipe-study shapes admitted by the Standard metrics runner. */
+export type StandardMetricStudy = StandardMetricSampleStudy | StandardMetricCohortStudy;
 
 /** Evaluation of one target set against a captured scenario. */
 export type StandardMetricScenarioEvaluation = Readonly<{
@@ -35,31 +35,31 @@ export type StandardMetricScenarioEvaluation = Readonly<{
   targets: readonly MetricTargetEvaluation[];
 }>;
 
-/** Closed evaluation of one single-map product case. */
-export type StandardMetricSampleCaseEvaluation = Readonly<{
+/** Closed evaluation of one single-map product study. */
+export type StandardMetricSampleStudyEvaluation = Readonly<{
   kind: "sample";
-  caseId: string;
+  studyId: string;
   status: "pass" | "fail";
   scenario: StandardMetricScenarioEvaluation;
 }>;
 
 /** Closed evaluation of a cohort and every sample-level target it owns. */
-export type StandardMetricCohortCaseEvaluation = Readonly<{
+export type StandardMetricCohortStudyEvaluation = Readonly<{
   kind: "cohort";
-  caseId: string;
+  studyId: string;
   status: "pass" | "fail";
   scenarios: readonly StandardMetricScenarioEvaluation[];
   cohortTargets: readonly MetricTargetEvaluation[];
 }>;
 
-/** Complete result of evaluating one declared Standard metrics case. */
-export type StandardMetricCaseEvaluation =
-  | StandardMetricSampleCaseEvaluation
-  | StandardMetricCohortCaseEvaluation;
+/** Complete result of evaluating one declared Standard metric study. */
+export type StandardMetricStudyEvaluation =
+  | StandardMetricSampleStudyEvaluation
+  | StandardMetricCohortStudyEvaluation;
 
-/** Atomic result of one Standard product-metrics run over a closed case catalog. */
+/** Atomic result of one Standard product-metrics run over the closed study bank. */
 export type StandardMetricRunEvaluation = Readonly<{
   status: "pass" | "fail";
   scenarioCount: number;
-  cases: readonly StandardMetricCaseEvaluation[];
+  studies: readonly StandardMetricStudyEvaluation[];
 }>;

@@ -7,56 +7,73 @@ import type { NonEmptyTuple } from "type-fest";
 
 import { captureStandardMapScenario } from "../capture.js";
 import { measureStandardMapCapture, type StandardMapProductSample } from "../sample.js";
-import type { StandardPresetMetricScenario } from "../scenario.js";
+import {
+  defineStandardMapMetricScenario,
+  type StandardPresetMetricScenario,
+} from "../scenario.js";
 import type {
-  StandardMetricCase,
-  StandardMetricCaseEvaluation,
-  StandardMetricCohortCase,
-  StandardMetricCohortCaseEvaluation,
+  StandardMetricCohortStudy,
+  StandardMetricCohortStudyEvaluation,
   StandardMetricRunEvaluation,
-  StandardMetricSampleCase,
-  StandardMetricSampleCaseEvaluation,
+  StandardMetricSampleStudy,
+  StandardMetricSampleStudyEvaluation,
   StandardMetricScenarioEvaluation,
+  StandardMetricStudy,
+  StandardMetricStudyEvaluation,
 } from "./model.js";
 import { standardMetricScenarioSignature } from "./scenarios.js";
 
 /**
- * Captures each unique scenario exactly once and evaluates the declared cases atomically.
+ * Captures each unique scenario exactly once and evaluates the declared studies atomically.
  * All scenario identities are reconciled before generation, and any capture failure aborts the run.
  */
-export function evaluateStandardMetricCases(
-  cases: NonEmptyTuple<StandardMetricCase>
+export function evaluateStandardMetricStudies(
+  studies: NonEmptyTuple<StandardMetricStudy>
 ): StandardMetricRunEvaluation {
-  assertUniqueCaseIds(cases);
-  const scenarios = reconcileScenarios(cases);
+  assertUniqueStudyIds(studies);
+  const scenarios = reconcileScenarios(studies);
   const samples = captureScenarios(scenarios);
-  const evaluations = Object.freeze(cases.map((metricCase) => evaluateCase(metricCase, samples)));
+  const evaluations = Object.freeze(
+    studies.map((metricStudy) => evaluateStudy(metricStudy, samples))
+  );
   return Object.freeze({
     status: evaluations.every((evaluation) => evaluation.status === "pass") ? "pass" : "fail",
     scenarioCount: samples.size,
-    cases: evaluations,
+    studies: evaluations,
   });
 }
 
 function reconcileScenarios(
-  cases: readonly StandardMetricCase[]
+  studies: readonly StandardMetricStudy[]
 ): readonly StandardPresetMetricScenario[] {
   const byId = new Map<
     string,
     Readonly<{ signature: string; scenario: StandardPresetMetricScenario }>
   >();
-  for (const metricCase of cases) {
-    const scenarios = metricCase.kind === "sample" ? [metricCase.scenario] : metricCase.scenarios;
+  for (const metricStudy of studies) {
+    const scenarios =
+      metricStudy.kind === "sample" ? [metricStudy.scenario] : metricStudy.scenarios;
     for (const scenario of scenarios) {
       if (scenario.kind !== "civ7-preset") {
-        throw new Error(`Product metric case ${metricCase.id} cannot use custom map dimensions.`);
+        throw new Error(`Product metric study ${metricStudy.id} cannot use custom map dimensions.`);
       }
-      const signature = standardMetricScenarioSignature(scenario);
-      const existing = byId.get(scenario.id);
+      const admittedScenario = defineStandardMapMetricScenario(scenario);
+      if (admittedScenario.kind !== "civ7-preset") {
+        throw new Error(`Product metric study ${metricStudy.id} requires a Civ7 preset.`);
+      }
+      const signature = standardMetricScenarioSignature(admittedScenario);
+      const existing = byId.get(admittedScenario.id);
       if (existing && existing.signature !== signature) {
-        throw new Error(`Standard metric scenario ID ${scenario.id} has conflicting definitions.`);
+        throw new Error(
+          `Standard metric scenario ID ${admittedScenario.id} has conflicting definitions.`
+        );
       }
-      if (!existing) byId.set(scenario.id, Object.freeze({ signature, scenario }));
+      if (!existing) {
+        byId.set(
+          admittedScenario.id,
+          Object.freeze({ signature, scenario: admittedScenario })
+        );
+      }
     }
   }
   return Object.freeze(Array.from(byId.values(), ({ scenario }) => scenario));
@@ -72,42 +89,42 @@ function captureScenarios(
   return samples;
 }
 
-function evaluateCase(
-  metricCase: StandardMetricCase,
+function evaluateStudy(
+  metricStudy: StandardMetricStudy,
   samples: ReadonlyMap<string, StandardMapProductSample>
-): StandardMetricCaseEvaluation {
-  return metricCase.kind === "sample"
-    ? evaluateSampleCase(metricCase, samples)
-    : evaluateCohortCase(metricCase, samples);
+): StandardMetricStudyEvaluation {
+  return metricStudy.kind === "sample"
+    ? evaluateSampleStudy(metricStudy, samples)
+    : evaluateCohortStudy(metricStudy, samples);
 }
 
-function evaluateSampleCase(
-  metricCase: StandardMetricSampleCase,
+function evaluateSampleStudy(
+  metricStudy: StandardMetricSampleStudy,
   samples: ReadonlyMap<string, StandardMapProductSample>
-): StandardMetricSampleCaseEvaluation {
-  const scenario = evaluateScenario(metricCase.scenario, metricCase.targets, samples);
+): StandardMetricSampleStudyEvaluation {
+  const scenario = evaluateScenario(metricStudy.scenario, metricStudy.targets, samples);
   return Object.freeze({
     kind: "sample",
-    caseId: metricCase.id,
+    studyId: metricStudy.id,
     status: scenario.status,
     scenario,
   });
 }
 
-function evaluateCohortCase(
-  metricCase: StandardMetricCohortCase,
+function evaluateCohortStudy(
+  metricStudy: StandardMetricCohortStudy,
   samples: ReadonlyMap<string, StandardMapProductSample>
-): StandardMetricCohortCaseEvaluation {
-  const cohort = metricCase.scenarios.map((scenario) => requireSample(samples, scenario.id)) as [
+): StandardMetricCohortStudyEvaluation {
+  const cohort = metricStudy.scenarios.map((scenario) => requireSample(samples, scenario.id)) as [
     StandardMapProductSample,
     ...StandardMapProductSample[],
   ];
   const scenarioEvaluations = Object.freeze(
-    metricCase.scenarios.map((scenario) =>
-      evaluateScenario(scenario, metricCase.sampleTargets, samples)
+    metricStudy.scenarios.map((scenario) =>
+      evaluateScenario(scenario, metricStudy.sampleTargets, samples)
     )
   );
-  const cohortTargets = evaluateMetricTargets(cohort, metricCase.cohortTargets);
+  const cohortTargets = evaluateMetricTargets(cohort, metricStudy.cohortTargets);
   const status =
     scenarioEvaluations.every((evaluation) => evaluation.status === "pass") &&
     cohortTargets.every((evaluation) => evaluation.status === "pass")
@@ -115,7 +132,7 @@ function evaluateCohortCase(
       : "fail";
   return Object.freeze({
     kind: "cohort",
-    caseId: metricCase.id,
+    studyId: metricStudy.id,
     status,
     scenarios: scenarioEvaluations,
     cohortTargets,
@@ -152,15 +169,15 @@ function requireSample(
   return sample;
 }
 
-function assertUniqueCaseIds(cases: readonly StandardMetricCase[]): void {
+function assertUniqueStudyIds(studies: readonly StandardMetricStudy[]): void {
   const seen = new Set<string>();
-  for (const metricCase of cases) {
-    if (metricCase.id.trim().length === 0 || metricCase.id !== metricCase.id.trim()) {
-      throw new Error("Standard metric cases require trimmed, nonempty IDs.");
+  for (const metricStudy of studies) {
+    if (metricStudy.id.trim().length === 0 || metricStudy.id !== metricStudy.id.trim()) {
+      throw new Error("Standard metric studies require trimmed, nonempty IDs.");
     }
-    if (seen.has(metricCase.id)) {
-      throw new Error(`Duplicate Standard metric case ID ${metricCase.id}.`);
+    if (seen.has(metricStudy.id)) {
+      throw new Error(`Duplicate Standard metric study ID ${metricStudy.id}.`);
     }
-    seen.add(metricCase.id);
+    seen.add(metricStudy.id);
   }
 }

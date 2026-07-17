@@ -21,14 +21,18 @@ domain-interior redesign, or a generated-output certification exercise.
 ## Ownership Laws
 
 1. `@swooper/mapgen-core` owns reusable domain contracts, operations,
-   strategies, rules, algorithms, and neutral runtime observability.
+   strategies, rules, algorithms, authoring/execution lifecycle, artifacts,
+   trace, and optional step-facet dispatch.
 2. Swooper Maps owns recipes plus Civ7 product policy that is meaningful only
    for that mod. Its runtime source tree does not own reusable SDK mechanics,
    bundler shims, diagnostics, or live tooling.
 3. `@civ7/adapter` owns Civ7 runtime adaptation and Civ7-specific map-script
    bundle compatibility. MapGen Core's build remains environment-neutral.
-4. `@swooper/mapgen-viz` owns reusable dump/trace IO and visualization tooling.
-   `@civ7/map-policy` owns reusable Civ7 map-policy live proofs.
+4. `@swooper/mapgen-viz` owns environment-neutral spatial projection contracts,
+   builders, statistics, and materialization. `@swooper/mapgen-metrics` owns
+   neutral measurement and target-evaluation primitives. `@civ7/map-policy`
+   owns dependency-free static Civ7 map policy; live policy agreement is
+   operational control work owned by `@civ7/direct-control`.
 5. Package exports are the public dependency graph. Temporary aliases, deep
    source imports, and resolver plugins are deleted rather than preserved as a
    second graph.
@@ -158,14 +162,26 @@ already bundled the recipe without either resolver.
 
 ### Development and observation surfaces
 
-- Move reusable Core runtime visualization helpers to the explicit
-  `@swooper/mapgen-core/observability` subpath; do not root-export them.
+- Keep trace as Core-owned causal execution evidence. Diagnostics are commands
+  and workflows that consume trace, metrics, or visualization; they are not a
+  fourth payload subsystem or an `observability` package.
 - Move adapter-backed engine heightfield observation to
   `@civ7/adapter/mapgen`.
-- Move generic dump IO, read/diff/list, and trace tooling to
-  `@swooper/mapgen-viz/node` and `packages/mapgen-viz/tools`.
+- Move pure layer contracts, builders, bounds/statistics, and materialization
+  from Core and duplicated consumers into environment-neutral
+  `@swooper/mapgen-viz`. Studio owns browser transport/state/rendering. Keep the
+  sole filesystem dump adapter as a thin Swooper diagnostic consumer until a
+  second independent Node owner earns a separate package.
+- Add optional `viz` and `metrics` declarations to `createStep` only through an
+  executor-owned post-provides facet hook. Facets receive the typed step result
+  plus immutable config/dimensions, never mutable context or operations; trace
+  remains inside `run`. Completed Standard product metrics remain run-level.
+- Let step `provides` name `ArtifactModule` values directly and derive provider
+  contracts/runtimes once, deleting the duplicate implementation-level artifact
+  tuple without introducing a registry or hidden lookup.
 - Move Swooper-specific analysis, profiling, live, and placement commands to
-  the mod's existing `scripts/{diagnostics,live,placement}` owners.
+  the mod's existing `scripts/{diagnostics,live}` owners until each durable
+  command reaches its package owner.
 - Extract pure count, numeric, and component measurement plus `MetricTarget`
   evaluation into `@swooper/mapgen-metrics`. The Standard recipe owns product
   provenance, sample and cohort membership, admitted preset scenarios, seed
@@ -173,12 +189,17 @@ already bundled the recipe without either resolver.
   targets under `src/recipes/standard/metrics`. Tests assert those shared
   targets, and thin commands may report them; one captured generation can be
   evaluated by multiple targets without rerunning it.
-- Keep the mixed placement-realignment harness in `src/dev/diagnostics` until
-  its offline E1/E2/E3 measurements can be separated from synthetic probes and
-  live/Studio evidence. Moving that file alone would not create a metrics
-  component.
-- Move reusable map-policy live checks to
-  `packages/civ7-map-policy/scripts/live`.
+- Standard placement and resource metric families now own completed-map seating, legality,
+  freshwater opportunity, fertility, fairness, realized support, complete resource admission,
+  authored resource-range evidence, geological clustering, latitude/sector distribution, and
+  qualifying-landmass density. Standard and Earthlike targets own only the accepted budgets;
+  provisional resource ranges remain measurements. The mixed E1/E2/E3 harness is deleted rather than moved:
+  synthetic operation probes remain behavior tests, and live policy proofs remain explicit
+  operational scripts until their control-owned slice.
+- Move the reusable live legality-agreement proof to `@civ7/direct-control`.
+  Delete the one-time required-for-age falsification unless later product
+  evidence explicitly re-admits a durable operational check. Tuner clients and
+  live acquisition never move into dependency-free `@civ7/map-policy`.
 - Empty and delete `mods/mod-swooper-maps/src/dev` and its TypeScript config.
 
 Keep `scripts/map-artifacts/file-plan.ts` and `write-file-plan.ts` together in
@@ -212,8 +233,10 @@ and fresh sessions filling the permanent review roles.
    engine, run the Standard recipe once per admitted scenario, capture stable
    evidence, centralize concrete product targets beside the recipe, and keep
    tests and thin reports as consumers rather than owners of product authority.
-5. **Development-tool ownership.** Move observability, dump IO, live policy,
-   and Swooper-specific commands to their real owners; delete `src/dev`.
+5. **Development-tool ownership.** Collapse artifact-provider authorship,
+   consolidate the pure visualization model, migrate stable step projections
+   through the post-provides facet, move live policy and Swooper-specific
+   commands to their real owners, and delete `src/dev`.
 6. **Foundation.** Move the complete domain, neutral tests, exports, consumers,
    and active Habitat authority.
 7. **Morphology.** Apply the same complete move.

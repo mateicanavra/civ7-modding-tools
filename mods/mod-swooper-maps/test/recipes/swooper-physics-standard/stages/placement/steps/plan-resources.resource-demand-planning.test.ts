@@ -10,7 +10,7 @@ import { RESOURCE_HABITAT_SIGNALS } from "@mapgen/domain/resources/model/policy/
 import {
   getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
-} from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
+} from "@mapgen/domain/resources";
 import {
   buildResourceDemands,
   buildRiverResourceExclusionMask,
@@ -155,7 +155,9 @@ describe("resource demand planning river exclusion", () => {
       riverResourceExclusionMask: new Uint8Array(size).fill(1),
     });
     expect(result.demands.length).toBe(0);
-    expect(result.excluded).toEqual([expect.objectContaining({ reason: "no-policy-legal-tiles" })]);
+    expect(result.excluded).toEqual([
+      expect.objectContaining({ reason: { kind: "no-admitted-legal-tiles" } }),
+    ]);
   });
 
   it("rejects an exclusion mask whose length does not match the grid", () => {

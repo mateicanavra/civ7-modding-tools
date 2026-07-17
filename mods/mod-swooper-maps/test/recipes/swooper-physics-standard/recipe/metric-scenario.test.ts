@@ -5,7 +5,11 @@ import { FEATURE_PLACEMENT_KEYS } from "@civ7/map-policy";
 import { admitStandardMapConfig } from "../../../../src/maps/configs/canonical.js";
 import swooperEarthlikeRaw from "../../../../src/maps/configs/swooper-earthlike.config.json";
 import { captureStandardMapScenario } from "../../../../src/recipes/standard/metrics/capture.js";
-import { standardProductMetricScenario } from "../../../../src/recipes/standard/metrics/cases/scenarios.js";
+import { STANDARD_INTEGRITY_TARGET } from "../../../../src/recipes/standard/metrics/targets/integrity.js";
+import {
+  evaluateStandardMetricStudies,
+  standardProductMetricScenario,
+} from "../../../../src/recipes/standard/metrics/studies/index.js";
 import { defineStandardMapMetricScenario } from "../../../../src/recipes/standard/metrics/scenario.js";
 
 const standardPreset = requireStandardPreset();
@@ -49,6 +53,25 @@ describe("Standard metric scenario admission", () => {
     expect(() =>
       defineStandardMapMetricScenario({ ...validCustomScenario(), mapSizeId: Number.NaN })
     ).toThrow("stable map-size ID");
+  });
+
+  it("refuses a forged Civ7 preset before a product study can capture it", () => {
+    const forgedScenario = {
+      ...standardProductMetricScenario(earthlikeConfig, standardPreset, 1018),
+      preset: {
+        ...standardPreset,
+        dimensions: { width: 48, height: 28 },
+        mapInfo: { ...standardPreset.mapInfo, GridWidth: 48, GridHeight: 28 },
+      },
+    };
+    const study = {
+      kind: "sample" as const,
+      id: "forged-preset",
+      scenario: forgedScenario,
+      targets: [STANDARD_INTEGRITY_TARGET] as const,
+    };
+
+    expect(() => evaluateStandardMetricStudies([study])).toThrow("canonical Civ7 preset");
   });
 
   it("constructs scenarios without process-global identity state", () => {

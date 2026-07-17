@@ -29,6 +29,7 @@ const VEGETATION_FEATURES = new Set([
 export type StandardEcologyMetrics = Readonly<{
   biomeDiversity: number;
   dominantBiome: string | null;
+  unclassifiedModeledLand: CountMetric;
   featureCounts: Readonly<Record<string, number>>;
   wetlandTiles: CountMetric;
   reefFamilyTiles: CountMetric;
@@ -58,11 +59,17 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
   );
   const biomeCounts = new Map<string, number>();
   let invalidFeatureSurfaceCount = 0;
+  let unclassifiedModeledLandCount = 0;
 
   for (let index = 0; index < tileCount; index += 1) {
     if (capture.model.landMask[index] === 1) {
-      const biome = biomeSymbolFromIndex(capture.model.biomeIndex[index]!);
-      biomeCounts.set(biome, (biomeCounts.get(biome) ?? 0) + 1);
+      const biomeIndex = capture.model.biomeIndex[index]!;
+      if (biomeIndex === 255) {
+        unclassifiedModeledLandCount += 1;
+      } else {
+        const biome = biomeSymbolFromIndex(biomeIndex);
+        biomeCounts.set(biome, (biomeCounts.get(biome) ?? 0) + 1);
+      }
     }
     const feature = featureByType.get(capture.observation.feature[index]!);
     if (!feature) continue;
@@ -92,6 +99,7 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
   return Object.freeze({
     biomeDiversity: biomeCounts.size,
     dominantBiome,
+    unclassifiedModeledLand: measureMetricCount(unclassifiedModeledLandCount, plannedLandCount),
     featureCounts: Object.freeze(featureCounts),
     wetlandTiles: measureMetricCount(wetlandCount, plannedLandCount),
     reefFamilyTiles: measureMetricCount(reefCount, realizedWaterCount),

@@ -13,9 +13,7 @@ type Shortfall = ResourcePlanAdjusted["shortfalls"][number];
 type ValidationIssue = { message: string };
 
 const FLOOR_SHORTFALL_REASONS = new Set<Shortfall["reason"]>([
-  "no-legal-tile-in-radius",
-  "spacing-floor-preserved",
-  "no-movable-site",
+  "no-admitted-adjustment",
   "floor-budget-exhausted",
   "adjustment-disabled",
 ]);

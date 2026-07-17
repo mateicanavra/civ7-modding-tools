@@ -1,10 +1,15 @@
 /** Slot→player identity mapping owned by placement start planning. */
 
+/**
+ * Planner seat identity with an immutable requested homeland and a separate working selection
+ * homeland. Fallback may move only `selectionRegionSlot`; terminal evidence retains the request.
+ */
 export type SeatIdentity = {
-  seatIndex: number;
-  playerId: number;
-  playerIdSource: "alive-majors" | "slot-index";
-  regionSlot: 1 | 2;
+  readonly seatIndex: number;
+  readonly playerId: number;
+  readonly playerIdSource: "alive-majors" | "slot-index";
+  readonly regionSlot: 1 | 2;
+  selectionRegionSlot: 1 | 2;
 };
 
 /** Closed authority state for the player population admitted to start planning. */
@@ -67,6 +72,7 @@ export function buildSeatIdentities(args: {
       playerId: args.demand.kind === "alive-majors" ? args.demand.playerIds[seatIndex]! : seatIndex,
       playerIdSource: args.demand.kind === "alive-majors" ? "alive-majors" : "slot-index",
       regionSlot: seatIndex < args.playersWest ? 1 : 2,
+      selectionRegionSlot: seatIndex < args.playersWest ? 1 : 2,
     });
   }
   return seats;

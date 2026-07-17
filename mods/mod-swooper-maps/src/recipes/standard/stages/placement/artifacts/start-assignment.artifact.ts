@@ -112,6 +112,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
       continue;
     }
     const plotIndex = Number(seat.plotIndex);
+    const realizedRegionSlot = Number(seat.realizedRegionSlot);
     if (positions[i] !== seat.plotIndex) {
       issues.push(issue(`startAssignment.positions[${i}] does not match seats[${i}].plotIndex.`));
     }
@@ -122,6 +123,13 @@ function validatePayload(value: unknown): ValidationIssue[] {
     }
     if (plotIndex >= 0) {
       seated += 1;
+      if (realizedRegionSlot !== 1 && realizedRegionSlot !== 2) {
+        issues.push(
+          issue(
+            `startAssignment seated seat ${i} must declare realizedRegionSlot 1 or 2; received ${String(seat.realizedRegionSlot)}.`
+          )
+        );
+      }
       if (plotIndex >= size) {
         issues.push(issue(`startAssignment seat ${i} plotIndex ${plotIndex} out of bounds.`));
       }
@@ -139,6 +147,13 @@ function validatePayload(value: unknown): ValidationIssue[] {
         );
       }
     } else {
+      if (realizedRegionSlot !== 0) {
+        issues.push(
+          issue(
+            `startAssignment unseated seat ${i} must declare realizedRegionSlot 0; received ${String(seat.realizedRegionSlot)}.`
+          )
+        );
+      }
       if (seat.status !== "degraded") {
         issues.push(issue(`startAssignment unseated seat ${i} must have status degraded.`));
       }
@@ -210,8 +225,8 @@ function validatePayload(value: unknown): ValidationIssue[] {
 }
 
 /**
- * Validates seat/position order, unique in-bounds plots, fallback rung and
- * degraded-state coherence, aggregate counts, and fairness report parity.
+ * Validates seat/position order, unique in-bounds plots, terminal realized-region state,
+ * fallback/degraded coherence, aggregate counts, and fairness report parity.
  */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);

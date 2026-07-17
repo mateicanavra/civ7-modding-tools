@@ -2,7 +2,7 @@
 
 > Open when you are at **loop step 5** (alternative selection) and about to tune or implement a *behavioral* change. Fill this BEFORE touching generation logic. Pre-declaring the expected Earth-like outcome is what makes step-7 verification falsifiable instead of post-hoc rationalization. This is the **step-5 gate artifact** referenced by `references/orchestration.md` and `references/facet-verification.md`.
 
-Copy this file into the workstream's project dir (e.g. `docs/projects/<workstream>/expectations.md`) and fill it. Modeled on `docs/projects/placement-realignment/expectations.md` (the most complete executed-benchmark example in the repo). The benchmark *philosophy/program* lives in `docs/projects/pipeline-realism/`; this is the *executed* pattern.
+Copy this file into the workstream's project dir (e.g. `docs/projects/<workstream>/expectations.md`) and fill it. The generic benchmark subsystem is canonical at `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`; the Standard recipe's executable studies and product sheets live at `mods/mod-swooper-maps/src/recipes/standard/metrics/studies/STUDIES.md`. Historical project ledgers remain evidence of their own workstreams, not current benchmark authority.
 
 The rule this enforces: **observed stats may calibrate the declared numbers only by a recorded amendment in this file, never silently.** A change that "looks better" but was never predicted is not verified — it is lucky.
 
@@ -15,7 +15,7 @@ The rule this enforces: **observed stats may calibrate the declared numbers only
 - **Domain(s) touched:** `<foundation | morphology | hydrology | ecology | placement | resources>`
 - **Structural alternative chosen (step 5):** `<the one of ≥1 alternatives you picked, in one line>`
 - **Hypothesis (physical, falsifiable):** `<what Earth-science mechanism you expect to show up in the metrics — see references/facet-physics.md for the mechanism owner>`
-- **Baseline run:** label `<...>` · seed `<1337>` · map size `<48×30 | Huge 106×66>` · config `<swooper-earthlike>` · runId `<from diag:dump>`
+- **Baseline study:** study id `<...>` · seed `<1337>` · Civ7 preset `<MAPSIZE_STANDARD | MAPSIZE_HUGE>` · config `<swooper-earthlike>` · scenario id `<from metrics report>`
 
 A change with no falsifiable hypothesis is not ready for step 6. Go back to step 4/5.
 
@@ -23,22 +23,26 @@ A change with no falsifiable hypothesis is not ready for step 6. Go back to step
 
 ## 1. Metric vocabulary (the primitive you measure against)
 
-`computeEarthMetrics(input)` from `mods/mod-swooper-maps/src/dev/diagnostics/extract-earth-metrics.ts` is the metric primitive. It takes ONE object and returns the fields below. Wire it after a `diag:dump` (no turnkey "run the benchmark" script exists — you compose the call chain).
+Standard product metrics live under
+`mods/mod-swooper-maps/src/recipes/standard/metrics`. A metric family measures one
+completed Standard run without embedding pass/fail policy. A `MetricTarget` owns
+the pre-declared product expectation, and `STANDARD_METRIC_STUDIES` binds targets
+to named Civ7 map-size presets and stable seed cohorts. Each logical binding lives
+beside its study sheet under `metrics/studies/benchmarks`. Add or amend that
+authority before changing generation behavior; do not recreate a workstream-local
+metrics harness.
 
-Input: `{ width, height, landMask, lakeMask?, riverClass?, riverNetworkBenchmarkSummary?, biomeIndex? }`
+The reusable families currently cover geography, relief, hydrology, ecology,
+placement, and resources. Metrics are **regime-family** (wet / arid / mountain /
+closed / archipelago), not single global scalars. Declare which family this
+change targets; do not assert one global "Earth-like" number.
 
-| Metric | Type | Meaning | Earth-anchored intuition (verify against `references/facet-physics.md`) |
-| --- | --- | --- | --- |
-| `landShare` | 0..1 | land tiles / total tiles | Earth ≈ 0.29; Civ-playable maps usually run higher. Declare the family, not "realistic". |
-| `lakeShare` | 0..1 | lake tiles / total tiles | small but non-zero; 0 is a regression for most regimes |
-| `riverClassShare` | 0..1 | tiles with any river class / total | rivers concentrate in wet/temperate bands; arid families lower |
-| `biomeDiversity` | integer | count of distinct biome symbols on land | more = more varied; collapse to 1–2 is a regression |
-| `dominantBiome` | string \| null | most-common land biome symbol | which biome wins; a *shift* here is often the real signal |
-| `hydrology.riverNetworkSummary` | object \| null | river-network benchmark summary (`version:1`) when supplied | structural river stats; cross-check `riverTileCount`/`landTileCount` |
-
-Metrics are **regime-family** (wet / arid / mountain / closed / archipelago), not single global scalars. Declare which family this change targets; do not assert one global "Earth-like" number.
-
-For placement/resource changes, the metric primitive is instead E1–E4 placement-metrics (`verify --mode placement-metrics`, `placement-metrics.ts`) — same ledger shape, different measures (see the placement-realignment expectations.md).
+For placement/resource changes, use the placement and resource families in this
+same completed-map subsystem. They preserve the completed-map E1–E3 observations
+they actually measure without a separate `placement-metrics` mode. Synthetic
+operation laws remain behavior tests, and E4 remains Studio/live operational
+proof; see the placement-realignment expectation ledger for the historical
+vocabulary.
 
 ---
 
@@ -61,23 +65,23 @@ Guard rows (HOLD) are not optional. The most common failure is a behavioral chan
 
 ## 3. Diagnostic command (how you measure)
 
-Compose the chain; record the exact invocation so the run is reproducible.
+Run the declared catalog; record the exact target, study, presets, and seeds so the
+measurement is reproducible.
 
 ```bash
-# 1. Dump the full standard recipe through MockAdapter (writes dist/visualization/<label>/<runId>/)
-cd mods/mod-swooper-maps && bun run diag:dump   # prints {"runId","outputDir"}
+# Emit the complete machine-readable Standard product-metrics report.
+bun run --cwd mods/mod-swooper-maps metrics:report
 
-# 2. Compute Earth metrics from the dump's landMask/lakeMask/riverClass/biomeIndex layers
-#    (compose computeEarthMetrics over the dumped layers; see extract-earth-metrics.ts)
+# Run the behavior owner through the native Nx graph.
+nx run mod-swooper-maps:test
 
-# 3. (generation-vs-display question) compare two runs layer-by-layer
-bun run diag:diff -- --prefix <layer> --dataTypeKey <key>   # diff-layers.ts — the gen-vs-viz separator
-
-# 4. (placement/resource changes) use the placement-metrics mode instead of raw earth metrics
-nx run mod-swooper-maps:verify:operational -- --mode placement-metrics
+# For a generation-vs-display question, compare already-captured viz layers.
+bun run --cwd mods/mod-swooper-maps diag:diff -- --prefix <layer> --dataTypeKey <key>
 ```
 
-Record for each measurement: `runId`, label, seed, map size, config, and the timestamp. Behavioral claims that cannot name their runId are not proof (see `civ7-operational-debugging` proof boundaries).
+Record for each measurement: study id, scenario id, seed, named Civ7 map-size
+preset, config, and timestamp. Live closure still records its correlated request
+and run identifiers under the `civ7-operational-debugging` proof boundary.
 
 Stability: measure over **multiple stable seeds** (the repo norm is ~20 seeds for placement; pick a defensible N) and report `mean [min..max]`, not a single seed. A single-seed delta is an anecdote.
 
@@ -121,8 +125,8 @@ Mock metrics are necessary but **not sufficient**: a behavioral change is not cl
 
 Mirror the placement-realignment ladder — match each expectation to the cheapest sufficient proof surface:
 
-- **Per-change (cheap, every iteration):** unit/contract tests + `diag:dump` → `computeEarthMetrics` over stable seeds → the §2 rows.
+- **Per-change (cheap, every iteration):** focused unit/contract tests plus the relevant named Standard metric study over its stable Civ7-preset seed cohort → the §2 rows.
 - **Per-milestone (Studio):** browser-runner dump inspected in Mapjet Studio → display/parity expectations; use `diff-layers.ts` to separate a generation bug from a viz bug.
-- **Milestone boundaries (live game, expensive — not per-change):** deployed mod run + `verify --mode final-surface-parity` → engine-truth expectations. Record branch / commit / runId / config / timestamp / payloads.
+- **Milestone boundaries (live game, expensive — not per-change):** deployed mod run + `verify --mode final-surface-parity` → live-engine expectations. Record branch / commit / runId / config / timestamp / payloads.
 
 Do not promote a change past a tier until its tier passes. Expect attempt-1 live failures and hotfix slices — they are normal here, not exceptional (MockAdapter-valid maps can still SIGSEGV the live engine).

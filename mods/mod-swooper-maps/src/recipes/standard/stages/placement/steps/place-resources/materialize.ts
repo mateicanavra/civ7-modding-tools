@@ -365,10 +365,23 @@ export function placeResourcesWithTypedOutcomes({
     assertResourceOutcomeMatchesIntent(outcome, intent, width);
     outcomes.push(outcome);
     if (outcome.status === "placed") {
-      if (planned.phase === "rotation") byPhase.rotation += 1;
-      else if (planned.phase === "range-floor") byPhase.rangeFloor += 1;
-      else if (planned.phase === "region-minimum") byPhase.regionMinimum += 1;
-      else byPhase.support += 1;
+      const phase = planned.phase;
+      switch (phase) {
+        case "rotation":
+          byPhase.rotation += 1;
+          break;
+        case "range-floor":
+          byPhase.rangeFloor += 1;
+          break;
+        case "region-minimum":
+          byPhase.regionMinimum += 1;
+          break;
+        case "support":
+          byPhase.support += 1;
+          break;
+        default:
+          assertNever(phase);
+      }
       if (planned.support) supportAdjustedPlacedCount += 1;
     } else if (outcome.status === "rejected") {
       const key = `${resourceTypeId}:${outcome.reason}`;
@@ -414,4 +427,8 @@ export function placeResourcesWithTypedOutcomes({
     },
     outcomes,
   };
+}
+
+function assertNever(value: never): never {
+  throw new Error(`[Placement] Unknown resource plan phase ${String(value)}.`);
 }

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 2,
+  "id": "require_recipe_metrics_study_structure",
+  "title": "Require Recipe Metrics Study Structure",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "recipe",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "recipe metrics capability roots without the required measurement, target, and study-bank topology",
+  "why": "Metrics are an optional recipe capability, but every recipe that carries a metrics root must colocate neutral families, benchmark targets, executable studies, family sheets, and benchmark one-pagers in one predictable structure.",
+  "remediate": "Add the required families, targets, and structured studies surfaces beneath the recipe metrics root.",
+  "message": "Recipe metrics capability roots must match the positive metrics study topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/recipes/*/metrics",
+        "mods/*/src/recipes/*/metrics/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/recipe/require_recipe_metrics_study_structure/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/recipe/require_recipe_metrics_study_structure/structure.toml"
+    }
+  }
+}

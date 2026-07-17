@@ -14,7 +14,7 @@ import {
  * Takes the typed resource site plan (select-resource-sites output) plus the
  * seated StartRecord seats and attempts a per-start support floor and
  * cross-player support tolerance within a bounded move/add budget. Adjusted
- * destinations must pass policy legality, spacing, range, exclusion, region,
+ * destinations must pass habitat admission, policy legality, spacing, range, exclusion, region,
  * and landmass-density gates. Affinity is a best-effort scoring bias rather
  * than a feasibility constraint. Unresolved targets become typed shortfalls.
  *
@@ -140,9 +140,7 @@ const SupportShortfallSchema = Type.Object(
     seatIndex: Type.Integer({ minimum: 0 }),
     reason: Type.Union(
       [
-        Type.Literal("no-legal-tile-in-radius"),
-        Type.Literal("spacing-floor-preserved"),
-        Type.Literal("no-movable-site"),
+        Type.Literal("no-admitted-adjustment"),
         Type.Literal("equity-unresolvable"),
         Type.Literal("floor-budget-exhausted"),
         Type.Literal("equity-budget-exhausted"),
@@ -150,7 +148,7 @@ const SupportShortfallSchema = Type.Object(
       ],
       {
         description:
-          "Terminal constraint that left this seat below its support floor or left the active cross-seat support gap above tolerance.",
+          "Truthful terminal disposition: no complete adjustment was admitted, the configured budget ended, adjustment was disabled, or equity remained unresolvable.",
       }
     ),
     missing: Type.Integer({
@@ -171,12 +169,12 @@ const EligibilityRowSchema = Type.Object(
     resourceType: ResourceSymbolSchema,
     habitatMask: TypedArraySchemas.u8({
       shape: null,
-      description: "Habitat lane eligibility (1=in-lane); preferred for adjusted destinations.",
+      description: "Habitat lane eligibility (1=in-lane); required for adjusted destinations.",
     }),
     legalMask: TypedArraySchemas.u8({
       shape: null,
       description:
-        "Per-resource policy legality from Resource_ValidPlacements rows (1=legal); hard gate for adjusted destinations.",
+        "Per-resource policy legality from Resource_ValidPlacements rows (1=legal); combined with habitat as a hard gate for adjusted destinations.",
     }),
     intensity: TypedArraySchemas.f32({
       shape: null,
@@ -200,7 +198,7 @@ const StartSeatInputSchema = Type.Object(
 
 /**
  * Admits the bounded pre-stamp support adjustment over a typed site plan and seated starts.
- * Adjusted destinations must pass legality, spacing, range, exclusion, region, and landmass
+ * Adjusted destinations must pass habitat, legality, spacing, range, exclusion, region, and landmass
  * gates; affinity only biases candidate scoring, and unresolved targets become shortfalls.
  */
 const AdjustResourceSupportContract = defineOp({

@@ -5,7 +5,6 @@ import type { StandardMapProductSample } from "../sample.js";
 import { atLeast, atMost, equalTo, requiredShare } from "./support.js";
 
 type WorldIdentityTargetSpec = Readonly<{
-  resourceHabitatMinimum: number;
   wetlandShareMaximum: number;
   reefShareMaximum: number;
   deepOceanShareMinimum: number | null;
@@ -19,7 +18,6 @@ type WorldIdentityTargetSpec = Readonly<{
 
 const IDENTITY_SPECS = {
   "swooper-earthlike": {
-    resourceHabitatMinimum: 0.9,
     wetlandShareMaximum: 0.08,
     reefShareMaximum: 0.13,
     deepOceanShareMinimum: 0.4,
@@ -37,7 +35,6 @@ const IDENTITY_SPECS = {
     rainforestTileMaximum: null,
   },
   "shattered-ring": {
-    resourceHabitatMinimum: 0.83,
     wetlandShareMaximum: 0.12,
     reefShareMaximum: 0.04,
     deepOceanShareMinimum: null,
@@ -49,7 +46,6 @@ const IDENTITY_SPECS = {
     rainforestTileMaximum: null,
   },
   "sundered-archipelago": {
-    resourceHabitatMinimum: 0.8,
     wetlandShareMaximum: 0.22,
     reefShareMaximum: 0.02,
     deepOceanShareMinimum: null,
@@ -61,7 +57,6 @@ const IDENTITY_SPECS = {
     rainforestTileMaximum: null,
   },
   "swooper-desert-mountains": {
-    resourceHabitatMinimum: 0.85,
     wetlandShareMaximum: 0.08,
     reefShareMaximum: 0.047,
     deepOceanShareMinimum: null,
@@ -162,13 +157,6 @@ function createIdentityTarget(
         sample.metrics.geography.projectedLakeComponents.largestComponentSize,
       spec.largestLakeComponentMinimum
     ),
-    atLeast(
-      "resource-habitat-fidelity",
-      "Placed resources retain the habitat fidelity declared by this map identity.",
-      (sample: StandardMapProductSample) =>
-        requiredShare(sample.metrics.resources.placedInHabitat, "Resource habitat fidelity"),
-      spec.resourceHabitatMinimum
-    ),
     atMost(
       "wetland-share",
       "Wetlands remain a bounded accent on playable land.",
@@ -188,14 +176,6 @@ function createIdentityTarget(
       "The map retains the vegetation-family variety declared by its product identity.",
       (sample: StandardMapProductSample) => sample.metrics.ecology.vegetationFamiliesPresent,
       spec.vegetationFamilyMinimum
-    ),
-    equalTo(
-      "resource-variety",
-      "The representative full-size map plans every resource type its capacity can admit.",
-      (sample: StandardMapProductSample) =>
-        sample.metrics.resources.uniquePlannedTypes >=
-        Math.min(sample.metrics.resources.demandTypeCount, sample.metrics.resources.plannedCount),
-      true
     )
   );
 

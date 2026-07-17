@@ -319,6 +319,35 @@ describe("start selection ladder (op-owned, S4)", () => {
     expect(result.playersLandmass2).toBe(0);
   });
 
+  it("preserves the requested homeland when zero-capacity overflow selects from the other region", () => {
+    const input = makeInput(10, 8, 13, 0);
+    addLandmass(
+      input,
+      0,
+      2,
+      Array.from({ length: 12 }, (_value, i) => [4 + (i % 3), 2 + Math.floor(i / 3)] as const)
+    );
+
+    const result = plan(input, (config) => {
+      config.spacingFloorTiles = 0;
+      config.desiredSpacingTiles = 0;
+    });
+    const reassigned = result.seats.find((seat) => seat.imputedFlags.includes("region-reassigned"));
+    if (!reassigned) throw new Error("Expected one region-reassigned seat.");
+
+    expect(reassigned).toMatchObject({
+      regionSlot: 1,
+      realizedRegionSlot: 2,
+      status: "degraded",
+    });
+    expect(result.fairnessReport.relaxations).toContainEqual({
+      seatIndex: reassigned.seatIndex,
+      kind: "region",
+      from: 1,
+      to: 2,
+    });
+  });
+
   it("apportions each homeland a spaceable share by feasibility instead of overloading one (D2)", () => {
     const input = makeInput(20, 10, 0, 2);
     // East homeland: a compact 3x4 block (12 tiles). West homeland: a larger
@@ -454,6 +483,7 @@ describe("start selection ladder (op-owned, S4)", () => {
     const unseated = result.seats.filter((seat) => seat.plotIndex < 0);
     expect(unseated.length).toBe(1);
     expect(unseated[0]!.status).toBe("degraded");
+    expect(unseated[0]!.realizedRegionSlot).toBe(0);
     expect(unseated[0]!.imputedFlags).toContain("unseated");
     expect(result.status).toBe("degraded");
   });
@@ -557,6 +587,12 @@ describe("start selection ladder (op-owned, S4)", () => {
       kind: "region",
       from: 1,
       to: 2,
+    });
+    expect(result.seats.find(({ seatIndex }) => seatIndex === 0)).toMatchObject({
+      regionSlot: 1,
+      realizedRegionSlot: 2,
+      rung: "open-pool",
+      status: "degraded",
     });
     expect(result.fairnessReport.balanced).toBe(true);
   });

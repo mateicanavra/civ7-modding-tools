@@ -13,12 +13,12 @@ import AdjustResourceSupportContract from "../contract.js";
  * a site for a type with maxCount headroom.
  *
  * Phase 2 (equity, E3.2): while max−min support exceeds equityTolerance,
- * move one site out of the richest start's radius — preferably into the
- * poorest start's radius, otherwise to a neutral in-habitat plot — with
- * removal/gain safety checks so no seat drops below the floor or the current
- * minimum and no destination recreates the old maximum.
+ * choose the legal move that lexicographically reduces the complete vector of
+ * pairwise seat disparities. A neutral destination may trim support only when
+ * removing the source already improves that vector; additions are considered
+ * only when no improving move exists.
  *
- * All adjusted destination tiles are policy-legal for their type, hold the
+ * All adjusted destination tiles are inside their authored habitat and policy-legal for their type, hold the
  * per-type same-type spacing floor, keep cross-type adjacency clearance (the
  * official force-pass convention used by the region-minimum pass), respect
  * exclusion rules and the per-landmass density ceiling, and leave affinity as
@@ -90,9 +90,7 @@ type ApplyAdjustmentArgs =
     };
 
 type FloorShortfallReason =
-  | "no-legal-tile-in-radius"
-  | "spacing-floor-preserved"
-  | "no-movable-site"
+  | "no-admitted-adjustment"
   | "floor-budget-exhausted"
   | "adjustment-disabled";
 
@@ -293,6 +291,23 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
         seatsByPlot.set(plot, list);
       }
     });
+    const supportChangingPlots = [...seatsByPlot.keys()].sort((left, right) => left - right);
+
+    // Immutable destination capacity breaks equal-support ties by the amount
+    // of admitted room available to each seat, rather than by incidental
+    // iteration position. Counting type/plot pairs preserves type-specific
+    // habitat and policy admission.
+    const admittedCapacityBySeat = seatZones.map((zone) => {
+      let capacity = 0;
+      for (const eligibility of eligibilityByType.values()) {
+        for (const plotIndex of zone) {
+          if (eligibility.habitatMask[plotIndex] !== 0 && eligibility.legalMask[plotIndex] !== 0) {
+            capacity += 1;
+          }
+        }
+      }
+      return capacity;
+    });
 
     const counts = seats.map((_seat, seatPos) => {
       let count = 0;
@@ -300,6 +315,10 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       return count;
     });
     const supportBefore = [...counts];
+    const compareSeatPriority = (left: number, right: number): number =>
+      counts[left]! - counts[right]! ||
+      admittedCapacityBySeat[left]! - admittedCapacityBySeat[right]! ||
+      seats[left]!.seatIndex - seats[right]!.seatIndex;
 
     const adjustments: Adjustment[] = [];
     const floorShortfallReasons = new Map<number, FloorShortfallReason>();
@@ -405,24 +424,21 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
 
     type Destination = { plotIndex: number; score: number };
 
-    const destinationFor = (
+    const admittedDestinationsFor = function* (
       resourceType: OfficialResourceType,
       candidatePlots: Iterable<number>,
       args: {
         ignorePlot: number | null;
         removedLandmassId: number | null;
-        gainSafe?: (plotIndex: number) => boolean;
-        /** Hard habitat gate (used for free-map destinations so adjustments do not erode E2.3). */
-        requireHabitat?: boolean;
+        sourceIntent?: PlanIntent;
       }
-    ): Destination | null => {
+    ): Iterable<Destination> {
       const eligibility = eligibilityByType.get(resourceType);
-      if (!eligibility) return null;
-      let best: Destination | null = null;
+      if (!eligibility) return;
       for (const plotIndex of candidatePlots) {
         if (plotIndex < 0 || plotIndex >= size) continue;
         if (eligibility.legalMask[plotIndex] === 0) continue;
-        if (args.requireHabitat && eligibility.habitatMask[plotIndex] === 0) continue;
+        if (eligibility.habitatMask[plotIndex] === 0) continue;
         if (usedPlots.has(plotIndex) && plotIndex !== args.ignorePlot) continue;
         if (seatPlots.has(plotIndex)) continue;
         if (violatesTypeSpacing(plotIndex, resourceType, args.ignorePlot)) continue;
@@ -430,22 +446,40 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
         const ruleState = excludedAt(resourceType, plotIndex, args.ignorePlot);
         if (ruleState.excluded) continue;
         if (exceedsLandmassCeiling(plotIndex, args.removedLandmassId)) continue;
-        if (args.gainSafe && !args.gainSafe(plotIndex)) continue;
-        // Habitat dominates (E2.3): in-lane destinations always outrank
-        // out-of-lane ones; intensity + affinity order within the lane.
+        if (
+          args.sourceIntent &&
+          !moveAllowedFrom(args.sourceIntent, regionSlotByTile[plotIndex] ?? 0)
+        ) {
+          continue;
+        }
+        // Habitat and policy have already admitted the destination; intensity
+        // and affinity only order candidates within that closed set.
         const score =
-          (eligibility.habitatMask[plotIndex] !== 0 ? 10 : 0) +
           (eligibility.intensity[plotIndex] ?? 0) +
           ruleState.affinityBonus +
           hash01(seed, plotIndex, (0x5e5 ^ resourceSalt(eligibility.resourceType)) >>> 0) * 1e-3;
-        if (best === null || score > best.score) best = { plotIndex, score };
+        yield { plotIndex, score };
+      }
+    };
+
+    const destinationFor = (
+      resourceType: OfficialResourceType,
+      candidatePlots: Iterable<number>,
+      args: {
+        ignorePlot: number | null;
+        removedLandmassId: number | null;
+        sourceIntent?: PlanIntent;
+      }
+    ): Destination | null => {
+      let best: Destination | null = null;
+      for (const candidate of admittedDestinationsFor(resourceType, candidatePlots, args)) {
+        if (best === null || candidate.score > best.score) best = candidate;
       }
       return best;
     };
 
-    // Fidelity-aware pair ranking (E2.3): relocating an out-of-lane site is
-    // fidelity-neutral-or-positive, so out-of-lane sources get a bonus that
-    // sits between the habitat-destination bonus (10) and the intensity term.
+    // Prefer repairing the sole legal-only exception (region-minimum intents)
+    // when several sources can serve the same admitted destination.
     // Aggregation-aware (E2.5): moving a site that participates in a
     // same-family proximity pair erodes the blue-noise-above-floor clustering
     // the geological gate measures, so paired sources are penalized —
@@ -465,7 +499,6 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       dest.score + (sourceIntent.inHabitat ? 0 : 5) - (breaksAggregationPair(sourceIntent) ? 4 : 0);
 
     const applyAdjustment = (args: ApplyAdjustmentArgs): void => {
-      const eligibility = eligibilityByType.get(args.resourceType)!;
       const toPlot = args.toPlotIndex;
       const y = (toPlot / width) | 0;
       const x = toPlot - y * width;
@@ -496,7 +529,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
         intent.y = y;
         intent.regionSlot = destRegionSlot;
         intent.landmassId = destLandmassId;
-        intent.inHabitat = eligibility.habitatMask[toPlot] !== 0;
+        intent.inHabitat = true;
         intent.support = {
           action: "move",
           reason: args.reason,
@@ -525,7 +558,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
           order: nextOrder++,
           regionSlot: destRegionSlot,
           landmassId: destLandmassId,
-          inHabitat: eligibility.habitatMask[toPlot] !== 0,
+          inHabitat: true,
           support: { action: "add", reason: args.reason, seatIndex: args.seatIndex },
         };
         intents.push(intent);
@@ -555,29 +588,6 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     // Deterministic type order for destination probing: corpus order from the plan.
     const typeOrder = plan.perType.map((row) => row.resourceType);
 
-    const classifyFloorShortfall = (seatPos: number): FloorShortfallReason => {
-      // Dominant-cause classification for an unfillable deficit unit.
-      const zone = seatZones[seatPos]!;
-      let anyLegalFree = false;
-      for (const resourceType of typeOrder) {
-        const eligibility = eligibilityByType.get(resourceType);
-        if (!eligibility) continue;
-        for (const plotIndex of zone) {
-          if (eligibility.legalMask[plotIndex] === 0) continue;
-          if (usedPlots.has(plotIndex) || seatPlots.has(plotIndex)) continue;
-          anyLegalFree = true;
-          if (
-            !violatesTypeSpacing(plotIndex, resourceType, null) &&
-            !violatesCrossClearance(plotIndex, null)
-          ) {
-            // A destination existed; the limit was source/headroom availability.
-            return "no-movable-site";
-          }
-        }
-      }
-      return anyLegalFree ? "spacing-floor-preserved" : "no-legal-tile-in-radius";
-    };
-
     if (!enabled || strength === 0) {
       for (let seatPos = 0; seatPos < seats.length; seatPos++) {
         const deficit = supportFloor - counts[seatPos]!;
@@ -587,9 +597,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
       }
     } else {
       // --- phase 1: per-start support floor (E3.1) --------------------------------------------
-      const seatOrder = seats
-        .map((_seat, seatPos) => seatPos)
-        .sort((a, b) => counts[a]! - counts[b]! || a - b);
+      const seatOrder = seats.map((_seat, seatPos) => seatPos).sort(compareSeatPriority);
       for (const seatPos of seatOrder) {
         const seat = seats[seatPos]!;
         const deficit = supportFloor - counts[seatPos]!;
@@ -607,10 +615,9 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
             const dest = destinationFor(intent.resourceType, seatZones[seatPos]!, {
               ignorePlot: intent.plotIndex,
               removedLandmassId: intent.landmassId,
+              sourceIntent: intent,
             });
             if (!dest) continue;
-            const destRegion = regionSlotByTile[dest.plotIndex] ?? 0;
-            if (!moveAllowedFrom(intent, destRegion)) continue;
             const score = movePairScore(intent, dest);
             if (bestMove === null || score > bestMove.score) {
               bestMove = { intent, dest, score };
@@ -657,7 +664,7 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
           }
 
           if (!applied) {
-            floorShortfallReasons.set(seat.seatIndex, classifyFloorShortfall(seatPos));
+            floorShortfallReasons.set(seat.seatIndex, "no-admitted-adjustment");
             break;
           }
           filled += 1;
@@ -669,6 +676,101 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
 
       // --- phase 2: cross-player support equity (E3.2) ----------------------------------------
       if (counts.length >= 2) {
+        type EquityVector = readonly number[];
+        type EquityMove = {
+          intent: PlanIntent;
+          dest: Destination;
+          vector: EquityVector;
+          score: number;
+          evidenceSeatPos: number;
+        };
+        type EquityAdd = {
+          resourceType: OfficialResourceType;
+          dest: Destination;
+          vector: EquityVector;
+          evidenceSeatPos: number;
+        };
+
+        const equityVector = (values: readonly number[]): EquityVector => {
+          const disparities: number[] = [];
+          for (let left = 0; left < values.length; left += 1) {
+            for (let right = left + 1; right < values.length; right += 1) {
+              disparities.push(Math.abs(values[left]! - values[right]!));
+            }
+          }
+          return disparities.sort((left, right) => right - left);
+        };
+        const compareEquityVectors = (left: EquityVector, right: EquityVector): number => {
+          for (let index = 0; index < left.length; index += 1) {
+            const difference = left[index]! - right[index]!;
+            if (difference !== 0) return difference;
+          }
+          return 0;
+        };
+        const simulatedMoveCounts = (
+          sourcePlotIndex: number,
+          destinationPlotIndex: number
+        ): readonly number[] => {
+          const sourceSeats = new Set(seatsByPlot.get(sourcePlotIndex) ?? []);
+          const destinationSeats = new Set(seatsByPlot.get(destinationPlotIndex) ?? []);
+          return counts.map(
+            (count, seatPos) =>
+              count - (sourceSeats.has(seatPos) ? 1 : 0) + (destinationSeats.has(seatPos) ? 1 : 0)
+          );
+        };
+        const simulatedAddCounts = (destinationPlotIndex: number): readonly number[] => {
+          const destinationSeats = new Set(seatsByPlot.get(destinationPlotIndex) ?? []);
+          return counts.map((count, seatPos) => count + (destinationSeats.has(seatPos) ? 1 : 0));
+        };
+        const admittedEquityVector = (
+          simulated: readonly number[],
+          currentVector: EquityVector,
+          currentMin: number,
+          currentMax: number
+        ): EquityVector | null => {
+          if (simulated.some((count) => count < supportFloor || count < currentMin)) return null;
+          if (Math.max(...simulated) > currentMax) return null;
+          const vector = equityVector(simulated);
+          return compareEquityVectors(vector, currentVector) < 0 ? vector : null;
+        };
+        const evidenceSeatForMove = (
+          sourcePlotIndex: number,
+          destinationPlotIndex: number
+        ): number | null => {
+          const sourceSeats = new Set(seatsByPlot.get(sourcePlotIndex) ?? []);
+          const destinationSeats = new Set(seatsByPlot.get(destinationPlotIndex) ?? []);
+          const recipients = [...destinationSeats].filter((seatPos) => !sourceSeats.has(seatPos));
+          if (recipients.length > 0) {
+            recipients.sort(
+              (left, right) =>
+                counts[left]! - counts[right]! || seats[left]!.seatIndex - seats[right]!.seatIndex
+            );
+            return recipients[0]!;
+          }
+          const donors = [...sourceSeats].filter((seatPos) => !destinationSeats.has(seatPos));
+          donors.sort(
+            (left, right) =>
+              counts[right]! - counts[left]! || seats[left]!.seatIndex - seats[right]!.seatIndex
+          );
+          return donors[0] ?? null;
+        };
+        const evidenceSeatForAdd = (destinationPlotIndex: number): number | null => {
+          const recipients = [...(seatsByPlot.get(destinationPlotIndex) ?? [])];
+          recipients.sort(
+            (left, right) =>
+              counts[left]! - counts[right]! || seats[left]!.seatIndex - seats[right]!.seatIndex
+          );
+          return recipients[0] ?? null;
+        };
+        const moveRanksBefore = (candidate: EquityMove, incumbent: EquityMove): boolean => {
+          const objective = compareEquityVectors(candidate.vector, incumbent.vector);
+          return objective < 0 || (objective === 0 && candidate.score > incumbent.score);
+        };
+        const addRanksBefore = (candidate: EquityAdd, incumbent: EquityAdd): boolean => {
+          const objective = compareEquityVectors(candidate.vector, incumbent.vector);
+          return objective < 0 || (objective === 0 && candidate.dest.score > incumbent.dest.score);
+        };
+
         const equityBudget = Math.min(
           EQUITY_ITERATION_CAP,
           Math.ceil(strength * seats.length * Math.max(1, supportFloor) * 2)
@@ -678,69 +780,73 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
           const max = Math.max(...counts);
           const min = Math.min(...counts);
           if (max - min <= equityTolerance) break;
-          const richestPos = counts.findIndex((count) => count === max);
-          const poorestPos = counts.findIndex((count) => count === min);
-          const richest = seats[richestPos]!;
-          const poorest = seats[poorestPos]!;
-
-          // Removal safety: every seat covering the source plot stays at or
-          // above both the floor and the current minimum. (Sources are
-          // restricted to the richest seat's zone, so removal always lowers
-          // the maximum.)
-          const removalSafe = (plotIndex: number): boolean => {
-            for (const seatPos of seatsByPlot.get(plotIndex) ?? []) {
-              const after = counts[seatPos]! - 1;
-              if (after < supportFloor || after < min) return false;
-            }
-            return true;
-          };
-          // Gain safety: no seat covering the destination reaches the old max.
-          const gainSafe = (plotIndex: number): boolean => {
-            for (const seatPos of seatsByPlot.get(plotIndex) ?? []) {
-              if (counts[seatPos]! + 1 >= max) return false;
-            }
-            return true;
-          };
-
-          let bestMove: { intent: PlanIntent; dest: Destination; score: number } | null = null;
+          const currentVector = equityVector(counts);
+          let bestMove: EquityMove | null = null;
           for (const intent of intents) {
             if (intent.support) continue;
-            if (!seatZones[richestPos]!.has(intent.plotIndex)) continue;
-            if (!removalSafe(intent.plotIndex)) continue;
-            // Preferred destination: the poorest seat's zone.
-            let dest = destinationFor(intent.resourceType, seatZones[poorestPos]!, {
+            const destinationArgs = {
               ignorePlot: intent.plotIndex,
               removedLandmassId: intent.landmassId,
-              gainSafe,
+              sourceIntent: intent,
+            };
+
+            for (const dest of admittedDestinationsFor(
+              intent.resourceType,
+              supportChangingPlots,
+              destinationArgs
+            )) {
+              const vector = admittedEquityVector(
+                simulatedMoveCounts(intent.plotIndex, dest.plotIndex),
+                currentVector,
+                min,
+                max
+              );
+              if (!vector) continue;
+              const evidenceSeatPos = evidenceSeatForMove(intent.plotIndex, dest.plotIndex);
+              if (evidenceSeatPos === null) continue;
+              const candidate = {
+                intent,
+                dest,
+                vector,
+                score: movePairScore(intent, dest),
+                evidenceSeatPos,
+              };
+              if (bestMove === null || moveRanksBefore(candidate, bestMove)) bestMove = candidate;
+            }
+
+            // Every neutral destination has the same support signature. Scan
+            // that larger surface only when removing this source already
+            // improves the complete disparity vector.
+            const removalVector = admittedEquityVector(
+              simulatedMoveCounts(intent.plotIndex, -1),
+              currentVector,
+              min,
+              max
+            );
+            if (!removalVector) continue;
+            const neutralDest = destinationFor(intent.resourceType, neutralPlotStream(), {
+              ignorePlot: intent.plotIndex,
+              removedLandmassId: intent.landmassId,
+              sourceIntent: intent,
             });
-            // Fallback: a neutral plot covered by no seat zone. The whole map
-            // is available, so in-lane is required (E2.3 must not erode).
-            if (!dest) {
-              dest = destinationFor(intent.resourceType, neutralPlotStream(), {
-                ignorePlot: intent.plotIndex,
-                removedLandmassId: intent.landmassId,
-                gainSafe: (plotIndex) => !seatsByPlot.has(plotIndex),
-                requireHabitat: true,
-              });
-            }
-            if (!dest) continue;
-            const destRegion = regionSlotByTile[dest.plotIndex] ?? 0;
-            if (!moveAllowedFrom(intent, destRegion)) continue;
-            const score = movePairScore(intent, dest);
-            if (bestMove === null || score > bestMove.score) {
-              bestMove = { intent, dest, score };
-            }
+            if (!neutralDest) continue;
+            const evidenceSeatPos = evidenceSeatForMove(intent.plotIndex, neutralDest.plotIndex);
+            if (evidenceSeatPos === null) continue;
+            const candidate = {
+              intent,
+              dest: neutralDest,
+              vector: removalVector,
+              score: movePairScore(intent, neutralDest),
+              evidenceSeatPos,
+            };
+            if (bestMove === null || moveRanksBefore(candidate, bestMove)) bestMove = candidate;
           }
 
           if (bestMove) {
             applyAdjustment({
               action: "move",
               reason: "support-equity",
-              // Served seat: the poorest when the site lands in its radius,
-              // otherwise the richest whose excess the move trims.
-              seatIndex: seatZones[poorestPos]!.has(bestMove.dest.plotIndex)
-                ? poorest.seatIndex
-                : richest.seatIndex,
+              seatIndex: seats[bestMove.evidenceSeatPos]!.seatIndex,
               resourceType: bestMove.intent.resourceType,
               toPlotIndex: bestMove.dest.plotIndex,
               sourceIntent: bestMove.intent,
@@ -749,27 +855,35 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
             continue;
           }
 
-          // No safe move: try ADD near the poorest seat (raises the minimum).
-          let bestAdd: { resourceType: OfficialResourceType; dest: Destination } | null = null;
+          // No improving move: try an admitted addition that improves the same
+          // complete objective without exceeding the current maximum.
+          let bestAdd: EquityAdd | null = null;
           for (const resourceType of typeOrder) {
             const meta = metaByType.get(resourceType);
             if (!meta) continue;
             if ((countByType.get(resourceType) ?? 0) >= meta.maxCount) continue;
-            const dest = destinationFor(resourceType, seatZones[poorestPos]!, {
+            for (const dest of admittedDestinationsFor(resourceType, supportChangingPlots, {
               ignorePlot: null,
               removedLandmassId: null,
-              gainSafe,
-            });
-            if (!dest) continue;
-            if (bestAdd === null || dest.score > bestAdd.dest.score) {
-              bestAdd = { resourceType, dest };
+            })) {
+              const vector = admittedEquityVector(
+                simulatedAddCounts(dest.plotIndex),
+                currentVector,
+                min,
+                max
+              );
+              if (!vector) continue;
+              const evidenceSeatPos = evidenceSeatForAdd(dest.plotIndex);
+              if (evidenceSeatPos === null) continue;
+              const candidate = { resourceType, dest, vector, evidenceSeatPos };
+              if (bestAdd === null || addRanksBefore(candidate, bestAdd)) bestAdd = candidate;
             }
           }
           if (bestAdd) {
             applyAdjustment({
               action: "add",
               reason: "support-equity",
-              seatIndex: poorest.seatIndex,
+              seatIndex: seats[bestAdd.evidenceSeatPos]!.seatIndex,
               resourceType: bestAdd.resourceType,
               toPlotIndex: bestAdd.dest.plotIndex,
             });

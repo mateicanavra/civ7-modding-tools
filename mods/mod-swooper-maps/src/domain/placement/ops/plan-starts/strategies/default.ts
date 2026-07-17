@@ -91,6 +91,7 @@ function emptyPlan(args: {
     playerId: seat.playerId,
     playerIdSource: seat.playerIdSource,
     regionSlot: seat.regionSlot as number,
+    realizedRegionSlot: 0,
     plotIndex: -1,
     rung: "spacing-relaxed" as const,
     status: "degraded" as const,
@@ -763,16 +764,16 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
     const preLadderRelaxations: RelaxationEntry[] = [];
     const reassignedSeats = new Set<number>();
     for (const seat of seatIdentities) {
-      const own = candidatesBySlot[seat.regionSlot];
-      const other = (seat.regionSlot === 1 ? 2 : 1) as 1 | 2;
+      const own = candidatesBySlot[seat.selectionRegionSlot];
+      const other = (seat.selectionRegionSlot === 1 ? 2 : 1) as 1 | 2;
       if (own === 0 && candidatesBySlot[other] > 0) {
         preLadderRelaxations.push({
           seatIndex: seat.seatIndex,
           kind: "region",
-          from: seat.regionSlot,
+          from: seat.selectionRegionSlot,
           to: other,
         });
-        seat.regionSlot = other;
+        seat.selectionRegionSlot = other;
         reassignedSeats.add(seat.seatIndex);
       }
     }
@@ -803,7 +804,10 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
       selections: ladder.selections,
       swapPoolsOf: (selection: SeatSelection) =>
         selection.rung === "regional"
-          ? [candidates.filter((tile) => tile.regionSlot === selection.seat.regionSlot), candidates]
+          ? [
+              candidates.filter((tile) => tile.regionSlot === selection.seat.selectionRegionSlot),
+              candidates,
+            ]
           : [candidates],
       width,
       spacingFloorTiles,
@@ -848,6 +852,7 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
         playerId: entry.seat.playerId,
         playerIdSource: entry.seat.playerIdSource,
         regionSlot: entry.seat.regionSlot as number,
+        realizedRegionSlot: seated ? entry.tile!.regionSlot : 0,
         rung: entry.rung,
         plotIndex: seated ? entry.tile!.plotIndex : -1,
         status:

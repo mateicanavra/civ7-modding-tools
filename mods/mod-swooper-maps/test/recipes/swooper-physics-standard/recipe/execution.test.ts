@@ -4,7 +4,7 @@ import { requireResourceRuntimeId } from "@civ7/map-policy";
 import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { computeRiverAdjacencyMaskFromRiverClass } from "@mapgen/domain/hydrology/model/policy/river-adjacency.js";
 import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
-import { DEFERRED_INITIAL_MAP_RESOURCE_TYPES } from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
+import { DEFERRED_INITIAL_MAP_RESOURCE_TYPES } from "@mapgen/domain/resources";
 import {
   createExtendedMapContext,
   HILL_TERRAIN,

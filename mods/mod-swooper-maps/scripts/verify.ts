@@ -8,14 +8,6 @@ type Mode = Readonly<{
 
 const modes = new Map<string, Mode>([
   [
-    "placement-metrics",
-    {
-      script: "scripts/placement/placement-metrics.ts",
-      description: "Run headless placement metrics over stable seeds.",
-      live: false,
-    },
-  ],
-  [
     "studio-run-in-game-live",
     {
       script: "scripts/live/verify-studio-run-in-game-live.ts",
@@ -82,10 +74,7 @@ const modes = new Map<string, Mode>([
   ],
 ]);
 
-const aliases = new Map<string, string>([
-  ["metrics", "placement-metrics"],
-  ["studio-run-in-game:live", "studio-run-in-game-live"],
-]);
+const aliases = new Map<string, string>([["studio-run-in-game:live", "studio-run-in-game-live"]]);
 
 function usage(): string {
   const rows = [...modes.entries()]

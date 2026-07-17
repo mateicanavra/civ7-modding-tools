@@ -214,6 +214,7 @@ function cloneSeat(seat: DeepReadonly<StartSeatRecord>): StartSeatRecord {
     playerId: seat.playerId,
     playerIdSource: seat.playerIdSource,
     regionSlot: seat.regionSlot,
+    realizedRegionSlot: seat.realizedRegionSlot,
     plotIndex: seat.plotIndex,
     rung: seat.rung,
     status: seat.status,

@@ -390,13 +390,12 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
     }
 
     // --- range-floor pass ------------------------------------------------------------------------
-    // Top types up to expectedCountRange.min with typed provenance. Candidates
-    // are POLICY-LEGAL tiles with a strong in-lane preference (habitat bonus
-    // dominates intensity), so out-of-lane placements happen only when the
-    // lane is exhausted and stay within the E2.3 fidelity budget; per-type
-    // spacing floors are preserved. Cross-type site spacing relaxes to
-    // same-plot avoidance here (the official minimum force pass behaves the
-    // same way).
+    // Top types up to expectedCountRange.min with typed provenance. Range
+    // repair is admitted only on the type's habitat-and-policy intersection;
+    // exhausting that set records a terminal shortfall instead of widening
+    // placement authority. Cross-type site spacing relaxes to same-plot
+    // avoidance here (the official region-minimum force pass is the sole
+    // legal-only exception).
     // Stage A tops every type up to expectedCountRange.min; stage B then
     // fills toward the effective target. Counts are corpus-range authority
     // (E2.7); the weight rotation governs allocation among co-eligible sites
@@ -410,9 +409,10 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         while (demand.plannedPlots.length < floorTarget) {
           let best = -1;
           let bestScore = Number.NEGATIVE_INFINITY;
-          const legal = demand.legalMask;
           for (let plotIndex = 0; plotIndex < size; plotIndex++) {
-            if (legal[plotIndex] === 0 || usedPlots.has(plotIndex)) continue;
+            if (eligibleByDemand[demand.index]![plotIndex] === 0 || usedPlots.has(plotIndex)) {
+              continue;
+            }
             if (violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) continue;
             if (violatesSpacing(plotIndex, sitePlots, 1)) continue;
             if (ruleStateAt(demand, plotIndex).excluded) continue;
@@ -422,7 +422,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
               if (eligibleByDemand[other.index]![plotIndex] !== 0) contested += 1;
             }
             const score =
-              (demand.habitatMask[plotIndex] !== 0 ? 10 : 0) +
               (demand.intensity[plotIndex] ?? 0) -
               contested * 0.05 +
               hash01(seed, plotIndex, (0xf100 ^ demand.resourceSalt) >>> 0) * 1e-3;
@@ -505,30 +504,16 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
       demand: DemandState
     ): Array<{
       resourceType: OfficialResourceType;
-      reason: "eligible-tiles-exhausted" | "spacing-floor-preserved";
+      reason: "no-admitted-site";
       count: number;
     }> => {
       const count = Math.max(0, demand.effectiveTargetCount - demand.plannedPlots.length);
       if (count === 0) return [];
 
-      let hasFreeLegalTile = false;
-      let hasSpacingClearTile = false;
-      for (let plotIndex = 0; plotIndex < size; plotIndex++) {
-        if (demand.legalMask[plotIndex] === 0 || usedPlots.has(plotIndex)) continue;
-        hasFreeLegalTile = true;
-        if (!violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) {
-          hasSpacingClearTile = true;
-          break;
-        }
-      }
-
       return [
         {
           resourceType: demand.resourceType,
-          reason:
-            hasFreeLegalTile && !hasSpacingClearTile
-              ? "spacing-floor-preserved"
-              : "eligible-tiles-exhausted",
+          reason: "no-admitted-site",
           count,
         },
       ];

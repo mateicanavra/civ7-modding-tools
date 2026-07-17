@@ -3,10 +3,12 @@ import {
   FEATURE_PLACEMENT_KEYS,
   type FeatureKey,
   getEngineFeatureLegality,
+  resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
 import { createExtendedMapContext, type ExtendedMapContext } from "@swooper/mapgen-core";
 import {
   assertFloat32Array,
+  assertInt32Array,
   assertUint8Array,
   expectedGridSize,
 } from "@swooper/mapgen-core/authoring";
@@ -16,6 +18,7 @@ import {
 } from "@swooper/mapgen-core/authoring/contracts";
 
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
+import { artifactModules as standardArtifactModules } from "../artifacts/index.js";
 import standardRecipe from "../recipe.js";
 import { initializeStandardRuntime } from "../runtime.js";
 import { artifactModules as ecologyArtifactModules } from "../stages/ecology/artifacts/index.js";
@@ -27,6 +30,8 @@ import { artifactModules as placementArtifactModules } from "../stages/placement
 import { defineStandardMapMetricScenario, type StandardMapMetricScenario } from "./scenario.js";
 
 type Volcanoes = ArtifactReadValueOf<typeof morphologyArtifactModules.volcanoes.artifact>;
+type Landmasses = ArtifactReadValueOf<typeof morphologyArtifactModules.landmasses.artifact>;
+type Pedology = ArtifactReadValueOf<typeof ecologyArtifactModules.pedology.artifact>;
 type RiverNetworkMetrics = ArtifactReadValueOf<
   typeof hydrologyHydrographyArtifactModules.riverNetworkMetrics.artifact
 >;
@@ -35,6 +40,12 @@ type ProjectedNavigableRivers = ArtifactReadValueOf<
 >;
 type EngineProjectionRivers = ArtifactReadValueOf<
   typeof mapRiversArtifactModules.engineProjectionRivers.artifact
+>;
+type ResourceDemandPlan = ArtifactReadValueOf<
+  typeof placementArtifactModules.resourceDemandPlan.artifact
+>;
+type ResourceEligibility = ArtifactReadValueOf<
+  typeof placementArtifactModules.resourceEligibility.artifact
 >;
 type ResourcePlan = ArtifactReadValueOf<typeof placementArtifactModules.resourcePlan.artifact>;
 type ResourcePlanAdjusted = ArtifactReadValueOf<
@@ -46,6 +57,37 @@ type ResourcePlacementOutcomes = ArtifactReadValueOf<
 type StartAssignment = ArtifactReadValueOf<
   typeof placementArtifactModules.startAssignment.artifact
 >;
+
+type ResourceDemandExclusionReason = ResourceDemandPlan["excluded"][number]["reason"];
+type StandardScenarioIneligibleReason = Extract<
+  ResourceDemandExclusionReason,
+  { kind: "no-admitted-legal-tiles" }
+>;
+
+/** Artifact-owned planner or age-policy exclusion distinct from scenario-specific map capacity. */
+export type StandardResourceExclusionReason = Exclude<
+  ResourceDemandExclusionReason,
+  StandardScenarioIneligibleReason
+>;
+
+/** One family-planner candidate paired with its terminal demand-admission evidence. */
+type StandardResourceCandidate = Readonly<{
+  resourceType: string;
+  runtimeResourceTypeId: number | null;
+  groupId: ResourceDemandPlan["groups"]["groups"][number]["groupId"];
+  plannerStatus: ResourceDemandPlan["groups"]["groups"][number]["plans"][number]["status"];
+  targetIntentCount: number;
+  plannerEligibleTileCount: number;
+  admission:
+    | Readonly<{
+        kind: "admitted";
+        habitatTileCount: number;
+        legalTileCount: number;
+        eligibleTileCount: number;
+      }>
+    | Readonly<{ kind: "scenario-ineligible"; reason: StandardScenarioIneligibleReason }>
+    | Readonly<{ kind: "excluded"; reason: StandardResourceExclusionReason }>;
+}>;
 
 /** One feature key and the Civ7 surface law used to validate its realized placement. */
 export type StandardFeatureRuntime = Readonly<{
@@ -71,9 +113,14 @@ export type StandardMapCapture = Readonly<{
     width: number;
     height: number;
     playerCount: number;
+    topLatitude: number;
+    bottomLatitude: number;
   }>;
   model: Readonly<{
     landMask: Uint8Array;
+    regionSlotByTile: Uint8Array;
+    landmassIdByTile: Int32Array;
+    landmasses: readonly Pick<Landmasses["landmasses"][number], "id" | "tileCount">[];
     mountainMask: Uint8Array;
     mountainRegionMask: Uint8Array;
     hillMask: Uint8Array;
@@ -88,6 +135,7 @@ export type StandardMapCapture = Readonly<{
     riverNetworkSummary: RiverNetworkMetrics["benchmarkSummary"];
     biomeIndex: Uint8Array;
     vegetationDensity: Float32Array;
+    fertility: Pedology["fertility"];
     effectiveMoisture: Float32Array;
     surfaceTemperature: Float32Array;
     aridityIndex: Float32Array;
@@ -121,34 +169,68 @@ export type StandardMapCapture = Readonly<{
     featureRejections: Readonly<Record<string, number>>;
   }>;
   resources: Readonly<{
+    candidates: readonly StandardResourceCandidate[];
+    eligibility: readonly Readonly<
+      Pick<ResourceEligibility["rows"][number], "resourceType" | "habitatMask">
+    >[];
     intents: readonly Pick<
       ResourcePlanAdjusted["intents"][number],
-      "plotIndex" | "resourceType" | "inHabitat"
+      "plotIndex" | "resourceType" | "family" | "laneKind" | "phase" | "regionSlot"
     >[];
     perType: readonly Pick<
       ResourcePlan["perType"][number],
-      "resourceType" | "plannedCount" | "minCount" | "maxCount" | "spacingFloorTiles" | "shortfalls"
+      | "resourceType"
+      | "family"
+      | "authoredTargetCount"
+      | "plannedCount"
+      | "minCount"
+      | "maxCount"
+      | "spacingFloorTiles"
+      | "shortfalls"
     >[];
+    regionMinimums: readonly ResourcePlan["regionMinimums"][number][];
     summary: ResourcePlacementOutcomes["summary"];
-    outcomes: readonly Pick<
-      ResourcePlacementOutcomes["outcomes"][number],
-      "status" | "plotIndex" | "resourceType"
+    outcomes: readonly Readonly<
+      Pick<
+        ResourcePlacementOutcomes["outcomes"][number],
+        "status" | "plotIndex" | "x" | "y" | "resourceType" | "observedResourceType" | "reason"
+      > & {
+        headlessPolicyLegal: boolean;
+      }
     >[];
+    support: Readonly<{
+      settings: ResourcePlanAdjusted["settings"];
+      shortfalls: readonly ResourcePlanAdjusted["shortfalls"][number][];
+    }>;
   }>;
-  placement: Pick<
-    StartAssignment,
-    | "status"
-    | "assigned"
-    | "unseatedCount"
-    | "rungCounts"
-    | "primaryAssigned"
-    | "islandClusterAssigned"
-    | "marginalAssigned"
-    | "noneAssigned"
-    | "candidateCount"
+  placement: Readonly<
+    Pick<StartAssignment, "assigned" | "unseatedCount"> & {
+      aliveMajorIds: readonly number[];
+      seats: readonly Readonly<
+        Pick<
+          StartAssignment["seats"][number],
+          | "seatIndex"
+          | "playerId"
+          | "playerIdSource"
+          | "regionSlot"
+          | "realizedRegionSlot"
+          | "plotIndex"
+          | "rung"
+          | "status"
+        > & {
+          imputedFlags: readonly string[];
+        }
+      >[];
+      fairnessReport: Readonly<{
+        worstPairGap: StartAssignment["fairnessReport"]["worstPairGap"];
+        relaxations: readonly StartAssignment["fairnessReport"]["relaxations"][number][];
+      }>;
+      naturalWonderPlotIndices: readonly number[];
+    }
   >;
   observation: Readonly<{
     isWater: Uint8Array;
+    isLake: Uint8Array;
     terrain: Int32Array;
     biome: Int32Array;
     feature: Int32Array;
@@ -211,6 +293,7 @@ function copyCompletedRun(
   const { width, height } = selection.dimensions;
   const gridSize = expectedGridSize(width, height);
   const topographyValue = readValidatedArtifact(context, morphologyArtifactModules.topography);
+  const landmassesValue = readValidatedArtifact(context, morphologyArtifactModules.landmasses);
   const mountainsValue = readValidatedArtifact(context, morphologyArtifactModules.mountains);
   const volcanoesValue = readValidatedArtifact(context, morphologyArtifactModules.volcanoes);
   const lakePlanValue = readValidatedArtifact(
@@ -238,6 +321,7 @@ function copyCompletedRun(
     mapRiversArtifactModules.engineProjectionRivers
   );
   const biomeValue = readValidatedArtifact(context, ecologyArtifactModules.biomeClassification);
+  const pedologyValue = readValidatedArtifact(context, ecologyArtifactModules.pedology);
   const featureDiagnosticsValue = readValidatedArtifact(
     context,
     ecologyArtifactModules.featureApplyDiagnostics
@@ -245,6 +329,18 @@ function copyCompletedRun(
   const placementSurfaceValue = readValidatedArtifact(
     context,
     placementArtifactModules.placementSurfacePreparation
+  );
+  const regionSlotsValue = readValidatedArtifact(
+    context,
+    standardArtifactModules.landmassRegionSlotByTile
+  );
+  const resourceDemandPlanValue = readValidatedArtifact(
+    context,
+    placementArtifactModules.resourceDemandPlan
+  );
+  const resourceEligibilityValue = readValidatedArtifact(
+    context,
+    placementArtifactModules.resourceEligibility
   );
   const resourcePlanValue = readValidatedArtifact(context, placementArtifactModules.resourcePlan);
   const adjustedResourcePlanValue = readValidatedArtifact(
@@ -254,6 +350,10 @@ function copyCompletedRun(
   const resourceOutcomesValue = readValidatedArtifact(
     context,
     placementArtifactModules.resourcePlacementOutcomes
+  );
+  const naturalWonderPlacementValue = readValidatedArtifact(
+    context,
+    placementArtifactModules.naturalWonderPlacement
   );
   const startValue = readValidatedArtifact(context, placementArtifactModules.startAssignment);
   const landMask = copyUint8Grid(
@@ -266,8 +366,6 @@ function copyCompletedRun(
     biomeValue.biomeIndex,
     gridSize
   );
-  assertModeledLandBiomeCoverage(landMask, biomeIndex);
-
   const realized = copyRealizedMap(adapter, width, height);
   const features = FEATURE_PLACEMENT_KEYS.map((key): StandardFeatureRuntime => {
     const legality = getEngineFeatureLegality(key);
@@ -299,9 +397,24 @@ function copyCompletedRun(
       width,
       height,
       playerCount: selection.playerCount,
+      topLatitude: scenario.config.latitudeBounds.topLatitude,
+      bottomLatitude: scenario.config.latitudeBounds.bottomLatitude,
     }),
     model: Object.freeze({
       landMask,
+      regionSlotByTile: copyUint8Grid(
+        "map.landmassRegionSlotByTile.slotByTile",
+        regionSlotsValue.slotByTile,
+        gridSize
+      ),
+      landmassIdByTile: copyInt32Grid(
+        "morphology.landmasses.landmassIdByTile",
+        landmassesValue.landmassIdByTile,
+        gridSize
+      ),
+      landmasses: Object.freeze(
+        landmassesValue.landmasses.map(({ id, tileCount }) => Object.freeze({ id, tileCount }))
+      ),
       mountainMask: copyUint8Grid(
         "morphology.mountains.mountainMask",
         mountainsValue.mountainMask,
@@ -361,6 +474,7 @@ function copyCompletedRun(
         biomeValue.vegetationDensity,
         gridSize
       ),
+      fertility: copyFloat32Grid("ecology.soils.fertility", pedologyValue.fertility, gridSize),
       effectiveMoisture: copyFloat32Grid(
         "ecology.biomeClassification.effectiveMoisture",
         biomeValue.effectiveMoisture,
@@ -410,12 +524,28 @@ function copyCompletedRun(
       }),
     }),
     resources: Object.freeze({
+      candidates: copyResourceCandidates(resourceDemandPlanValue),
+      eligibility: Object.freeze(
+        resourceEligibilityValue.rows.map((row) =>
+          Object.freeze({
+            resourceType: row.resourceType,
+            habitatMask: copyUint8Grid(
+              `placement.resourceEligibility.${row.resourceType}.habitatMask`,
+              row.habitatMask,
+              gridSize
+            ),
+          })
+        )
+      ),
       intents: Object.freeze(
         adjustedResourcePlanValue.intents.map((intent) =>
           Object.freeze({
             plotIndex: intent.plotIndex,
             resourceType: intent.resourceType,
-            inHabitat: intent.inHabitat,
+            family: intent.family,
+            laneKind: intent.laneKind,
+            phase: intent.phase,
+            regionSlot: intent.regionSlot,
           })
         )
       ),
@@ -423,6 +553,8 @@ function copyCompletedRun(
         resourcePlanValue.perType.map((row) =>
           Object.freeze({
             resourceType: row.resourceType,
+            family: row.family,
+            authoredTargetCount: row.authoredTargetCount,
             plannedCount: row.plannedCount,
             minCount: row.minCount,
             maxCount: row.maxCount,
@@ -430,6 +562,9 @@ function copyCompletedRun(
             shortfalls: Object.freeze(row.shortfalls.map((item) => Object.freeze({ ...item }))),
           })
         )
+      ),
+      regionMinimums: Object.freeze(
+        resourcePlanValue.regionMinimums.map((row) => Object.freeze({ ...row }))
       ),
       summary: Object.freeze({
         ...resourceOutcomesValue.summary,
@@ -460,21 +595,55 @@ function copyCompletedRun(
           Object.freeze({
             status: outcome.status,
             plotIndex: outcome.plotIndex,
+            x: outcome.x,
+            y: outcome.y,
             resourceType: outcome.resourceType,
+            observedResourceType: outcome.observedResourceType,
+            reason: outcome.reason,
+            headlessPolicyLegal:
+              outcome.x >= 0 &&
+              outcome.y >= 0 &&
+              outcome.x < width &&
+              outcome.y < height &&
+              adapter.canHaveResource(outcome.x, outcome.y, outcome.resourceType),
           })
         )
       ),
+      support: Object.freeze({
+        settings: Object.freeze({ ...adjustedResourcePlanValue.settings }),
+        shortfalls: Object.freeze(
+          adjustedResourcePlanValue.shortfalls.map((row) => Object.freeze({ ...row }))
+        ),
+      }),
     }),
     placement: Object.freeze({
-      status: startValue.status,
+      aliveMajorIds: copyAliveMajorIds(adapter),
+      seats: Object.freeze(
+        startValue.seats.map((seat) =>
+          Object.freeze({
+            seatIndex: seat.seatIndex,
+            playerId: seat.playerId,
+            playerIdSource: seat.playerIdSource,
+            regionSlot: seat.regionSlot,
+            realizedRegionSlot: seat.realizedRegionSlot,
+            plotIndex: seat.plotIndex,
+            rung: seat.rung,
+            status: seat.status,
+            imputedFlags: Object.freeze([...seat.imputedFlags]),
+          })
+        )
+      ),
+      fairnessReport: Object.freeze({
+        worstPairGap: startValue.fairnessReport.worstPairGap,
+        relaxations: Object.freeze(
+          startValue.fairnessReport.relaxations.map((row) => Object.freeze({ ...row }))
+        ),
+      }),
+      naturalWonderPlotIndices: Object.freeze([
+        ...naturalWonderPlacementValue.observedNaturalWonderPlotIndices,
+      ]),
       assigned: startValue.assigned,
       unseatedCount: startValue.unseatedCount,
-      rungCounts: Object.freeze({ ...startValue.rungCounts }),
-      primaryAssigned: startValue.primaryAssigned,
-      islandClusterAssigned: startValue.islandClusterAssigned,
-      marginalAssigned: startValue.marginalAssigned,
-      noneAssigned: startValue.noneAssigned,
-      candidateCount: startValue.candidateCount,
     }),
     observation: Object.freeze({
       ...realized,
@@ -508,34 +677,17 @@ function copyCompletedRun(
   });
 }
 
-/**
- * Refuses an unclassified biome sentinel on modeled land while preserving it off land.
- * Artifact-local validation admits the wire sentinel; this cross-artifact boundary owns the
- * stronger product invariant that every modeled-land tile has an ecology classification.
- */
-export function assertModeledLandBiomeCoverage(landMask: Uint8Array, biomeIndex: Uint8Array): void {
-  if (landMask.length !== biomeIndex.length) {
-    throw new Error("Standard metric capture requires land and biome grids of equal length.");
-  }
-  for (let index = 0; index < landMask.length; index += 1) {
-    if (landMask[index] === 1 && biomeIndex[index] === 255) {
-      throw new Error(
-        `Standard metric capture found an unclassified biome on modeled-land tile ${index}.`
-      );
-    }
-  }
-}
-
 function copyRealizedMap(
   adapter: ReturnType<typeof createMockAdapter>,
   width: number,
   height: number
 ): Pick<
   StandardMapCapture["observation"],
-  "isWater" | "terrain" | "biome" | "feature" | "resource"
+  "isWater" | "isLake" | "terrain" | "biome" | "feature" | "resource"
 > {
   const size = width * height;
   const isWater = new Uint8Array(size);
+  const isLake = new Uint8Array(size);
   const terrain = new Int32Array(size);
   const biome = new Int32Array(size);
   const feature = new Int32Array(size);
@@ -544,21 +696,143 @@ function copyRealizedMap(
     for (let x = 0; x < width; x += 1) {
       const index = y * width + x;
       isWater[index] = adapter.isWater(x, y) ? 1 : 0;
+      isLake[index] = adapter.isLake(x, y) ? 1 : 0;
       terrain[index] = requireInt32(`terrain at (${x}, ${y})`, adapter.getTerrainType(x, y));
       biome[index] = requireInt32(`biome at (${x}, ${y})`, adapter.getBiomeType(x, y));
       feature[index] = requireInt32(`feature at (${x}, ${y})`, adapter.getFeatureType(x, y));
       resource[index] = requireInt32(`resource at (${x}, ${y})`, adapter.getResourceType(x, y));
     }
   }
-  return { isWater, terrain, biome, feature, resource };
+  return { isWater, isLake, terrain, biome, feature, resource };
 }
 
 function copyUint8Grid(name: string, value: unknown, size: number): Uint8Array {
   return assertUint8Array(name, value, size).slice();
 }
 
+function copyInt32Grid(name: string, value: unknown, size: number): Int32Array {
+  return assertInt32Array(name, value, size).slice();
+}
+
 function copyFloat32Grid(name: string, value: unknown, size: number): Float32Array {
   return assertFloat32Array(name, value, size).slice();
+}
+
+function copyAliveMajorIds(adapter: ReturnType<typeof createMockAdapter>): readonly number[] {
+  const ids = adapter
+    .getAliveMajorIds()
+    .map((id) => requireRuntimeTypeId("alive major player", id));
+  if (new Set(ids).size !== ids.length) {
+    throw new Error("Standard metric capture requires unique alive major player ids.");
+  }
+  return Object.freeze(ids);
+}
+
+function copyResourceCandidates(value: ResourceDemandPlan): readonly StandardResourceCandidate[] {
+  const runtimeIds = new Map<string, number>(
+    [...resolveResourceRuntimeIds().byType].map(([resourceType, resolved]) => [
+      resourceType,
+      resolved.resourceTypeId,
+    ])
+  );
+  const demands = uniqueByResourceType(value.demands, "resource demand");
+  const exclusions = uniqueByResourceType(value.excluded, "resource exclusion");
+  const seen = new Set<string>();
+  const candidates: StandardResourceCandidate[] = [];
+
+  for (const group of value.groups.groups) {
+    for (const plan of group.plans) {
+      if (seen.has(plan.resourceType)) {
+        throw new Error(`Standard metric capture found duplicate candidate ${plan.resourceType}.`);
+      }
+      seen.add(plan.resourceType);
+      const demand = demands.get(plan.resourceType);
+      const exclusion = exclusions.get(plan.resourceType);
+      candidates.push(
+        Object.freeze({
+          resourceType: plan.resourceType,
+          runtimeResourceTypeId: runtimeIds.get(plan.resourceType) ?? null,
+          groupId: group.groupId,
+          plannerStatus: plan.status,
+          targetIntentCount: plan.targetIntentCount,
+          plannerEligibleTileCount: plan.eligibleTileCount,
+          admission: copyResourceAdmission(plan.resourceType, demand, exclusion),
+        })
+      );
+    }
+  }
+
+  if (seen.size !== demands.size + exclusions.size) {
+    throw new Error("Standard metric resource candidates do not close demand and exclusion rows.");
+  }
+  return Object.freeze(candidates);
+}
+
+function copyResourceAdmission(
+  resourceType: string,
+  demand: ResourceDemandPlan["demands"][number] | undefined,
+  exclusion: ResourceDemandPlan["excluded"][number] | undefined
+): StandardResourceCandidate["admission"] {
+  if (demand && exclusion) {
+    throw new Error(`Standard metric candidate ${resourceType} is both admitted and excluded.`);
+  }
+  if (demand) {
+    return Object.freeze({
+      kind: "admitted",
+      habitatTileCount: demand.habitatTileCount,
+      legalTileCount: demand.legalTileCount,
+      eligibleTileCount: demand.eligibleTileCount,
+    });
+  }
+  if (exclusion?.reason.kind === "no-admitted-legal-tiles") {
+    return Object.freeze({
+      kind: "scenario-ineligible",
+      reason: copyResourceExclusionReason(exclusion.reason),
+    });
+  }
+  if (exclusion) {
+    return Object.freeze({
+      kind: "excluded",
+      reason: copyResourceExclusionReason(exclusion.reason),
+    });
+  }
+  throw new Error(`Standard metric candidate ${resourceType} has no terminal admission row.`);
+}
+
+function copyResourceExclusionReason(
+  reason: StandardScenarioIneligibleReason
+): StandardScenarioIneligibleReason;
+function copyResourceExclusionReason(
+  reason: StandardResourceExclusionReason
+): StandardResourceExclusionReason;
+function copyResourceExclusionReason(
+  reason: ResourceDemandExclusionReason
+): ResourceDemandExclusionReason {
+  switch (reason.kind) {
+    case "outside-official-resource-corpus":
+    case "no-admitted-legal-tiles":
+      return Object.freeze({ kind: reason.kind });
+    case "planner-status":
+      return Object.freeze({ kind: reason.kind, status: reason.status });
+    case "age-policy":
+      return Object.freeze({ kind: reason.kind, status: reason.status, age: reason.age });
+    default:
+      return assertNever(reason);
+  }
+}
+
+function uniqueByResourceType<T extends Readonly<{ resourceType: string }>>(
+  rows: readonly T[],
+  label: string
+): ReadonlyMap<string, T> {
+  const byType = new Map<string, T>();
+  for (const row of rows) {
+    if (byType.has(row.resourceType)) {
+      throw new Error(`Standard metric capture found duplicate ${label} ${row.resourceType}.`);
+    }
+    byType.set(row.resourceType, row);
+  }
+  return byType;
 }
 
 function requireInt32(name: string, value: number): number {
@@ -572,6 +846,10 @@ function requireRuntimeTypeId(name: string, value: number): number {
   const id = requireInt32(name, value);
   if (id < 0) throw new Error(`Standard metric capture could not resolve runtime type ${name}.`);
   return id;
+}
+
+function assertNever(value: never): never {
+  throw new Error(`Unknown Standard metric state ${String(value)}.`);
 }
 
 function isWaterTerrain(terrain: string): boolean {

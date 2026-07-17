@@ -12,7 +12,7 @@ Three disciplines define the facet:
 
 1. **Read the model as physics.** Every domain op encodes a genuine Earth-science abstraction. Read `mods/mod-swooper-maps/src/domain/<domain>/ops/<op>/{contract.ts,rules,strategies}` as the *physical model*, not as code. Live source is the read-truth — never the `mapgen:*` cache skills (philosophy-only / outdated arch; they cite a stale `packages/mapgen-core/src/foundation/plates.ts` that does not exist).
 2. **Hold the three buckets.** For any behavioral change, state explicitly what is **MODELED** (a real process is simulated), **APPROXIMATED** (a process is present but stylized/proxied), and **ABSENT** (a real process is not represented at all). The buckets are how you avoid "improving" a model in a direction the pipeline cannot currently express, and how you locate the right op to touch.
-3. **Translate constants to regime families, not scalars.** Earth anchors (below) become tile-scale *regime families* (wet / arid / mountain / closed-basin / archipelago), never single global numbers — benchmarks in this repo are regime-family based (`docs/projects/pipeline-realism/`).
+3. **Translate constants to regime families, not scalars.** Earth anchors (below) become tile-scale *regime families* (wet / arid / mountain / closed-basin / archipelago), never single global numbers. The subsystem contract is `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`; actual Standard regimes belong to the recipe's `metrics/studies/STUDIES.md` bank.
 
 Background-only physics reading (philosophy, NOT canonical architecture): `docs/system/libs/mapgen/research/SPIKE-earth-physics-systems-modeling.md` and `SPIKE-synthesis-earth-physics-systems-swooper-engine.md`. Domain *philosophy* (not arch): `mapgen:{foundation,morphology,hydrology,ecology}` — label them "philosophy-only / outdated arch" whenever cited.
 
@@ -113,7 +113,7 @@ The physical chain (op by op):
 
 ## Earth anchors & the eight flagged realism gaps
 
-**Earth anchors** (from the river/lake/coast project docs — translate to *regime families*, never single global scalars): HydroRIVERS (8.5M reaches / 35.9M km), GRWL (2.1M km of wide rivers), HydroLAKES (~1.8% of land is lake), non-perennial river share **51–60%**, endorheic (closed) basins ~**1/5** of land; **passive vs active continental-margin** shelf-width contrast (passive margins → broad shallow shelves; active/subducting margins → narrow steep ones). The repo's executed expectation-ledger pattern is in `docs/projects/placement-realignment/expectations.md`; the benchmark *program* is `docs/projects/pipeline-realism/`. There is **no turnkey "run the benchmark" script** — compose `diag:dump` → `computeEarthMetrics` and compare to the docs' regime targets (see `references/facet-verification.md`).
+**Earth anchors** (translate to *regime families*, never single global scalars): HydroRIVERS (8.5M reaches / 35.9M km), GRWL (2.1M km of wide rivers), HydroLAKES (~1.8% of land is lake), non-perennial river share **51–60%**, endorheic (closed) basins ~**1/5** of land; **passive vs active continental-margin** shelf-width contrast (passive margins → broad shallow shelves; active/subducting margins → narrow steep ones). Encode admitted expectations as `MetricTarget`s, bind them in named Standard `*.study.ts` modules, document the protocol beside the module, and run `nx run mod-swooper-maps:metrics:report` (see `references/facet-verification.md`).
 
 **The eight realism gaps Facet 1 must know** (evidence-backed; each is a candidate behavioral workstream and a known ABSENT/APPROXIMATED bucket):
 

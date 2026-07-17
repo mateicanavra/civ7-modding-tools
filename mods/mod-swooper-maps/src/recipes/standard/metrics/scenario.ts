@@ -1,4 +1,9 @@
-import type { Civ7StandardMapSizePreset, MapInfo } from "@civ7/adapter";
+import {
+  type Civ7StandardMapSizePreset,
+  getCiv7StandardMapSizePreset,
+  type MapInfo,
+} from "@civ7/adapter";
+import { stableStringify } from "@swooper/mapgen-core";
 
 import type { StandardMapConfigEnvelope } from "../../../maps/configs/canonical.js";
 
@@ -61,12 +66,22 @@ export function defineStandardMapMetricScenario(
       mapInfo: Object.freeze({ ...scenario.mapInfo }),
     });
   }
+  const canonicalPreset = getCiv7StandardMapSizePreset(scenario.preset.id);
+  if (
+    !canonicalPreset ||
+    stableStringify(canonicalPreset) !== stableStringify(scenario.preset)
+  ) {
+    throw new Error(
+      `Standard metric scenario ${scenario.id} requires the canonical Civ7 preset for ${scenario.preset.id}.`
+    );
+  }
   return Object.freeze({
     ...scenario,
     preset: Object.freeze({
-      ...scenario.preset,
-      dimensions: Object.freeze({ ...scenario.preset.dimensions }),
-      mapInfo: Object.freeze({ ...scenario.preset.mapInfo }),
+      ...canonicalPreset,
+      dimensions: Object.freeze({ ...canonicalPreset.dimensions }),
+      latitudeBounds: Object.freeze({ ...canonicalPreset.latitudeBounds }),
+      mapInfo: Object.freeze({ ...canonicalPreset.mapInfo }),
     }),
   });
 }

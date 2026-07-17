@@ -1,15 +1,18 @@
 #!/usr/bin/env bun
 
 import {
-  evaluateStandardMetricCases,
-  STANDARD_METRIC_CASES,
+  evaluateStandardMetricStudies,
+  STANDARD_METRIC_STUDIES,
 } from "../../src/recipes/standard/metrics/index.js";
 
 const evaluation = evaluateWithoutStdoutTelemetry();
-const targetEvaluations = evaluation.cases.flatMap((metricCase) =>
-  metricCase.kind === "sample"
-    ? metricCase.scenario.targets
-    : [...metricCase.cohortTargets, ...metricCase.scenarios.flatMap((scenario) => scenario.targets)]
+const targetEvaluations = evaluation.studies.flatMap((metricStudy) =>
+  metricStudy.kind === "sample"
+    ? metricStudy.scenario.targets
+    : [
+        ...metricStudy.cohortTargets,
+        ...metricStudy.scenarios.flatMap((scenario) => scenario.targets),
+      ]
 );
 const failedTargets = targetEvaluations.filter((target) => target.status === "fail").length;
 
@@ -24,7 +27,7 @@ function evaluateWithoutStdoutTelemetry() {
   const originalLog = console.log;
   console.log = (...args: unknown[]) => console.error(...args);
   try {
-    return evaluateStandardMetricCases(STANDARD_METRIC_CASES);
+    return evaluateStandardMetricStudies(STANDARD_METRIC_STUDIES);
   } finally {
     console.log = originalLog;
   }

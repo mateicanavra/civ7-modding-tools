@@ -29,6 +29,7 @@ function makeValidStartAssignment(seatCount: number, assigned = seatCount) {
       playerId: seatIndex,
       playerIdSource: "alive-majors" as const,
       regionSlot: seatIndex % 2 === 0 ? 1 : 2,
+      realizedRegionSlot: seated ? (seatIndex % 2 === 0 ? 1 : 2) : 0,
       plotIndex: seated ? seatIndex : -1,
       rung: seated ? ("regional" as const) : ("spacing-relaxed" as const),
       status: seated ? ("full" as const) : ("degraded" as const),
@@ -288,6 +289,17 @@ describe("placement product/effect contracts", () => {
       placementArtifactModules.startAssignment
         .validate(invalidFairnessReport)
         .some((issue) => issue.message.includes("fairnessReport.parity"))
+    ).toBe(true);
+
+    const complete = makeValidStartAssignment(1);
+    const invalidRealizedRegion = {
+      ...complete,
+      seats: [{ ...complete.seats[0]!, realizedRegionSlot: 0 }],
+    };
+    expect(
+      placementArtifactModules.startAssignment
+        .validate(invalidRealizedRegion)
+        .some((issue) => issue.message.includes("realizedRegionSlot 1 or 2"))
     ).toBe(true);
   });
 });

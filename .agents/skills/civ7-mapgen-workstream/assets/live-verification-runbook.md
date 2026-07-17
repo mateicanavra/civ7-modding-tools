@@ -2,7 +2,7 @@
 
 > Open at loop step 7 (in-game verification) to run the mutating live gate end-to-end: build → deploy → cold-boot → run-in-game → log-marker proof → parity → proof labels. This is the **closure test** of the workstream — Studio is where you *see*, the live engine is where you *know*. A map-gen change is **not done** on Studio/diagnostic evidence alone (FRAMING hard core 2).
 
-This is a runnable checklist, not a concept doc. The display-vs-generation branch and the benchmark overlay live in `references/facet-verification.md`; tuner discipline lives in `civ7-operational-debugging` → `references/firetuner-runtime.md`; closure labels live in its `references/proof-boundaries.md`. This file does **not** restate those — it sequences the commands that exercise them. Re-derive any exact flag or path from live source (`mods/mod-swooper-maps/scripts/verify.ts` and `scripts/live/*`) if a detail here looks stale.
+This is a runnable checklist, not a concept doc. The display-vs-generation branch and benchmark overlay live in `references/facet-verification.md`; the generic benchmark contract lives in `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`; tuner discipline lives in `civ7-operational-debugging` → `references/firetuner-runtime.md`; closure labels live in its `references/proof-boundaries.md`. This file does **not** restate those — it sequences the commands that exercise them. Re-derive any exact flag or path from live source (`mods/mod-swooper-maps/scripts/verify.ts` and `scripts/live/*`) if a detail here looks stale.
 
 ---
 
@@ -101,13 +101,12 @@ It POSTs `{ json: { requestId } }` to `${studioUrl}/rpc/runInGame/status` (oRPC 
 
 ---
 
-## 5. The 9 operational verify modes
+## 5. The 8 operational verify modes
 
 `nx run mod-swooper-maps:verify:operational -- --mode <mode> [flags]` (or `bun ./scripts/verify.ts --mode <mode>`). From `scripts/verify.ts`:
 
 | Mode | Live? | Use |
 |---|---|---|
-| `placement-metrics` | no | offline placement metrics |
 | `studio-run-in-game-live` | **yes** | the mutating gate (§2) |
 | `final-surface-parity` | **yes** | local-vs-live grid parity (§4) |
 | `output-parity` | **yes** | loaded-map engine output vs headless recipe parity |
@@ -117,7 +116,7 @@ It POSTs `{ json: { requestId } }` to `${studioUrl}/rpc/runInGame/status` (oRPC 
 | `placement-live-legality-agreement` | **yes** | mock-vs-live legality; `AGREEMENT_GATE_THRESHOLD=0.95` |
 | `placement-live-required-for-age` | **yes** | live `isResourceRequiredForAge` vs static tables |
 
-Aliases: `metrics`→`placement-metrics`, `studio-run-in-game:live`→`studio-run-in-game-live`.
+Alias: `studio-run-in-game:live`→`studio-run-in-game-live`.
 
 ---
 

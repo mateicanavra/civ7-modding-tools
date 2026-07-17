@@ -84,7 +84,7 @@ Lane heuristic (mapgen-specific; team-shape HOW stays in `cognition:team-design`
 - **Input:** the design from step 4.
 - **Output (two parts):**
   1. **≥1 structurally different alternative**, recorded with the rationale for the rejection. "Structurally different" means a different stage/op/artifact shape, not a parameter tweak. A design with no recorded rejected alternative has not cleared this step.
-  2. For behavioral work, a **pre-declared Earth-like expectation ledger** — the measurable deltas you expect to move, declared **before** you tune anything. Template and metric primitives: `assets/earthlike-expectation-ledger.md` (the ledger is keyed to `computeEarthMetrics(...)` → `{landShare, lakeShare, riverClassShare, biomeDiversity, dominantBiome, hydrology.riverNetworkSummary}` and the Earth anchors in `references/facet-physics.md`).
+  2. For behavioral work, a **pre-declared Earth-like expectation ledger** — the measurable deltas you expect to move, declared **before** you tune anything. Template: `assets/earthlike-expectation-ledger.md`; generic authority: `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`; reusable measurements live in Standard metric families, admitted expectations in `MetricTarget`s, and stable Civ7-preset cohorts in `STANDARD_METRIC_STUDIES` under the recipe's `metrics/studies/` bank.
 - **GATE:** you may not start tuning until the expectation ledger is declared. Tuning-to-a-screenshot is how behavioral work closes on confirmation bias. The ledger is the falsifiable target; step 7 checks against it. (Technical-only changes with no terrain output still owe the rejected-alternative, but not the metric ledger.)
 
 ---

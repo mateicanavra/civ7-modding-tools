@@ -16,13 +16,14 @@ import swooperDesertMountainsRaw from "../../../../maps/configs/swooper-desert-m
 import swooperEarthlikeRaw from "../../../../maps/configs/swooper-earthlike.config.json";
 import { defineStandardMapMetricScenario, type StandardPresetMetricScenario } from "../scenario.js";
 
-type ShippedStandardConfigurationId =
+/** Stable identities admitted by the shipped Standard recipe study bank. */
+export type ShippedStandardConfigurationId =
   | "swooper-earthlike"
   | "shattered-ring"
   | "sundered-archipelago"
   | "swooper-desert-mountains";
 
-/** Shipped Standard configurations admitted once for every product-metrics case. */
+/** Shipped Standard configurations admitted once for every product-metrics study. */
 export const SHIPPED_STANDARD_CONFIGURATIONS = Object.freeze([
   shippedConfiguration("swooper-earthlike", swooperEarthlikeRaw),
   shippedConfiguration("shattered-ring", shatteredRingRaw),
@@ -30,7 +31,7 @@ export const SHIPPED_STANDARD_CONFIGURATIONS = Object.freeze([
   shippedConfiguration("swooper-desert-mountains", swooperDesertMountainsRaw),
 ]);
 
-/** Civ7 presets used by Standard product cases, admitted explicitly from canonical metadata. */
+/** Civ7 presets used by Standard product studies, admitted explicitly from canonical metadata. */
 export const STANDARD_METRIC_PRESETS = Object.freeze({
   tiny: requirePreset("MAPSIZE_TINY"),
   small: requirePreset("MAPSIZE_SMALL"),

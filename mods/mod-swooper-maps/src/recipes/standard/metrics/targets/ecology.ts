@@ -23,21 +23,11 @@ const FLOODPLAIN_FEATURE_KEYS = [
   "FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE",
 ] as const;
 
-/** Earthlike cohort benchmark for vegetation variety, habitat fidelity, and biome balance. */
+/** Earthlike cohort benchmark for vegetation variety and biome balance. */
 export const EARTHLIKE_ECOLOGY_TARGET = {
   id: "swooper-earthlike/ecology-cohort",
-  description:
-    "Earthlike retains varied vegetation and resource habitat fidelity across representative seeds.",
+  description: "Earthlike retains varied vegetation and biome balance across representative seeds.",
   expectations: [
-    atLeast<StandardMapMetricCohort>(
-      "resource-habitat-floor",
-      "Every Earthlike roll keeps placed resources inside the admitted habitat envelope.",
-      (samples) =>
-        summarizeCohort(samples, (sample) =>
-          requiredShare(sample.metrics.resources.placedInHabitat, "Resource habitat fidelity")
-        ).minimum,
-      0.65
-    ),
     atLeast<StandardMapMetricCohort>(
       "vegetation-presence",
       "Every Earthlike roll materializes vegetation-family features.",

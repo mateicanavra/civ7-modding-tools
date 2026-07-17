@@ -7,7 +7,11 @@ import {
   type ResourceLegalitySurface,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
-import { default as resources } from "@mapgen/domain/resources";
+import {
+  getInitialMapResourcePolicyForType,
+  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+  default as resources,
+} from "@mapgen/domain/resources";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
@@ -19,10 +23,6 @@ import {
   type ResourceFamilyId,
 } from "@mapgen/domain/resources/model/policy/habitat-eligibility.js";
 import {
-  getInitialMapResourcePolicyForType,
-  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
-} from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
-import {
   HABITAT_INTENSITY_FIELD_NAMES,
   HABITAT_MASK_FIELD_NAMES,
   type HabitatFieldsOutput,
@@ -31,6 +31,7 @@ import {
 } from "@mapgen/domain/resources/model/schemas";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
+import type { ResourceDemandExclusionReason } from "../../artifacts/resource-demand-plan.artifact.js";
 
 type DerivedHabitatFields = Static<(typeof resources.ops.deriveHabitatFields)["output"]>;
 export type HabitatFields = HabitatFieldsOutput;
@@ -75,8 +76,8 @@ export type ResourceDemandBuildResult = {
   demands: DemandRow[];
   summaries: ResourceDemandSummaryRow[];
   /** Age-eligible planned types that produced no demand row, with the reason. */
-  excluded: Array<{ resourceType: string; reason: string }>;
-  age: string;
+  excluded: Array<{ resourceType: string; reason: ResourceDemandExclusionReason }>;
+  age: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE;
   minimumAmountModifier: number;
 };
 
@@ -280,23 +281,23 @@ export function buildResourceDemands(args: {
 
   const demands: DemandRow[] = [];
   const summaries: ResourceDemandSummaryRow[] = [];
-  const excluded: Array<{ resourceType: string; reason: string }> = [];
+  const excluded: Array<{ resourceType: string; reason: ResourceDemandExclusionReason }> = [];
 
   for (const row of plannedRows) {
     const resourceType = row.resourceType as OfficialResourceType;
     if (!Object.hasOwn(OFFICIAL_RESOURCE_BY_TYPE, resourceType)) {
-      excluded.push({ resourceType, reason: "outside-official-resource-corpus" });
+      excluded.push({ resourceType, reason: { kind: "outside-official-resource-corpus" } });
       continue;
     }
     if (row.status !== "planned") {
-      excluded.push({ resourceType, reason: `planner-status:${row.status}` });
+      excluded.push({ resourceType, reason: { kind: "planner-status", status: row.status } });
       continue;
     }
     const agePolicy = getInitialMapResourcePolicyForType(resourceType, age);
     if (agePolicy?.status !== "eligible") {
       excluded.push({
         resourceType,
-        reason: `age-policy:${agePolicy?.status ?? "unknown"}:${age}`,
+        reason: { kind: "age-policy", status: agePolicy?.status ?? "unknown", age },
       });
       continue;
     }
@@ -333,7 +334,7 @@ export function buildResourceDemands(args: {
       }
     }
     if (legalTileCount === 0) {
-      excluded.push({ resourceType, reason: "no-policy-legal-tiles" });
+      excluded.push({ resourceType, reason: { kind: "no-admitted-legal-tiles" } });
       continue;
     }
 

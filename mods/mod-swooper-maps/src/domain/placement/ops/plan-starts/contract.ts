@@ -83,9 +83,16 @@ const StartRecordSchema = Type.Object(
         "Identity authority for this seat: an exact adapter-reported alive-major ID, or a slot-index fallback used only when the alive-major observation is empty.",
     }),
     regionSlot: Type.Integer({
+      minimum: 1,
+      maximum: 2,
+      description:
+        "Immutable requested homeland region for the seat (1=west, 2=east); fallback never rewrites it.",
+    }),
+    realizedRegionSlot: Type.Integer({
       minimum: 0,
       maximum: 2,
-      description: "Requested landmass region for the seat (1=west, 2=east).",
+      description:
+        "Terminal homeland region of the selected plot after fallback and fairness (1=west, 2=east); 0 only when unseated.",
     }),
     plotIndex: Type.Integer({
       minimum: -1,

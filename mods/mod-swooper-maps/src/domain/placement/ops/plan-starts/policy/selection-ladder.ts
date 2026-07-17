@@ -99,7 +99,7 @@ type LadderArgs = {
   seatBiasOf: (seatIndex: number) => SeatBias | undefined;
   biasContextOf: (plotIndex: number) => SeatBiasContext;
   /**
-   * Settleable-land tiles per homeland region (D3). When a region has room to
+   * Settleable-land tiles per working selection region (D3). When a region has room to
    * spread (more land per seat than the fixed desired buffer covers), the
    * dispersion reward saturates at the even-dispersion distance rather than the
    * fixed buffer — recovering global spread without lowering the spacing floor.
@@ -126,7 +126,7 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
   // 1.5x it into worse land. A single-seat region keeps the fixed desired buffer.
   const seatsPerRegion: Record<1 | 2, number> = { 1: 0, 2: 0 };
   for (const seat of args.seats) {
-    if (seat.regionSlot === 1 || seat.regionSlot === 2) seatsPerRegion[seat.regionSlot] += 1;
+    seatsPerRegion[seat.selectionRegionSlot] += 1;
   }
   const dispersionTargetFor = (slot: 1 | 2): number => {
     const land = args.landByRegion?.[slot] ?? 0;
@@ -226,8 +226,8 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
   };
 
   for (const seat of args.seats) {
-    activeDispersionTarget = dispersionTargetFor(seat.regionSlot);
-    const regionPool = candidates.filter((tile) => tile.regionSlot === seat.regionSlot);
+    activeDispersionTarget = dispersionTargetFor(seat.selectionRegionSlot);
+    const regionPool = candidates.filter((tile) => tile.regionSlot === seat.selectionRegionSlot);
     let rung: SeatRung = "regional";
     let tile = pickTierMajor(seat, regionPool, floor);
 
@@ -238,7 +238,7 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
         relaxations.push({
           seatIndex: seat.seatIndex,
           kind: "region",
-          from: seat.regionSlot,
+          from: seat.selectionRegionSlot,
           to: tile.regionSlot,
         });
       }
