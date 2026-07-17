@@ -14,8 +14,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build-release-assets:
+    name: Build candidate release assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run required release ratchet
+        run: bunx nx run habitat:release:standalone
+
+      - name: Upload candidate release assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: habitat-standalone-candidate-${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            tools/habitat/dist/standalone/habitat-sdk-darwin-arm64
+            tools/habitat/dist/standalone/habitat-sdk-linux-x64-baseline
+            tools/habitat/dist/standalone/provenance.json
+            tools/habitat/dist/standalone/SHA256SUMS
+
   prove-host-binary:
-    name: Execute moved binary on ${{ matrix.os }}
+    name: Execute candidate bytes on ${{ matrix.os }}
+    needs: build-release-assets
     strategy:
       fail-fast: false
       matrix:
@@ -35,50 +67,43 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Prove moved standalone binaries
-        run: bunx nx run habitat:test:standalone
+      - name: Download candidate release assets
+        uses: actions/download-artifact@v4
+        with:
+          name: habitat-standalone-candidate-${{ github.sha }}
+          path: tools/habitat/dist/standalone
 
-  release-assets:
-    name: Build proven release assets
+      - name: Restore executable mode
+        run: chmod +x tools/habitat/dist/standalone/habitat-sdk-*
+
+      - name: Prove the downloaded candidate bytes
+        run: bun run --cwd tools/habitat test:standalone
+
+  publish-release-assets:
+    name: Publish exact proven release assets
     needs: prove-host-binary
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Download proven candidate release assets
+        uses: actions/download-artifact@v4
         with:
-          fetch-depth: 0
+          name: habitat-standalone-candidate-${{ github.sha }}
+          path: release
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.14
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run required release ratchet
-        run: bunx nx run habitat:release:standalone
-
-      - name: Upload proven workflow artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: habitat-standalone-${{ github.sha }}
-          if-no-files-found: error
-          path: |
-            tools/habitat/dist/standalone/habitat-sdk-darwin-arm64
-            tools/habitat/dist/standalone/habitat-sdk-linux-x64-baseline
-            tools/habitat/dist/standalone/provenance.json
-            tools/habitat/dist/standalone/SHA256SUMS
+      - name: Verify proven candidate checksums
+        run: sha256sum --check SHA256SUMS
+        working-directory: release
 
       - name: Publish immutable tag release
         if: startsWith(github.ref, 'refs/tags/habitat-sdk-v')
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
-            tools/habitat/dist/standalone/habitat-sdk-darwin-arm64 \
-            tools/habitat/dist/standalone/habitat-sdk-linux-x64-baseline \
-            tools/habitat/dist/standalone/provenance.json \
-            tools/habitat/dist/standalone/SHA256SUMS \
+            release/habitat-sdk-darwin-arm64 \
+            release/habitat-sdk-linux-x64-baseline \
+            release/provenance.json \
+            release/SHA256SUMS \
             --verify-tag \
             --generate-notes
