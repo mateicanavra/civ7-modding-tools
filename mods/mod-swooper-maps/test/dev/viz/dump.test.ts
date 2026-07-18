@@ -1,9 +1,11 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, spyOn } from "bun:test";
 import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createTraceSession } from "@swooper/mapgen-core";
+import { createMockAdapter } from "@civ7/adapter";
+import { createExtendedMapContext, createTraceSession } from "@swooper/mapgen-core";
+import { createRecipe, createStage, createStep, defineStep } from "@swooper/mapgen-core/authoring";
 import {
   createVizLayerKey,
   type VizGridLayerEmissionV1,
@@ -11,7 +13,12 @@ import {
   type VizManifestV1,
   type VizPathRef,
 } from "@swooper/mapgen-viz";
-import { createTraceDumpSink, createVizDumper } from "../../../src/dev/viz/dump.js";
+import { Type } from "typebox";
+import {
+  createTraceDumpSink,
+  createVizDumpAdapters,
+  createVizDumper,
+} from "../../../src/dev/viz/dump.js";
 
 function readManifest(outputRoot: string, runId: string): VizManifestV1<VizPathRef> {
   return JSON.parse(
@@ -20,6 +27,205 @@ function readManifest(outputRoot: string, runId: string): VizManifestV1<VizPathR
 }
 
 describe("filesystem visualization adapters", () => {
+  it("materializes execution-owned projections into the shared trace manifest", () => {
+    const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-facet-"));
+    try {
+      const outputs = createVizDumpAdapters({ outputRoot });
+      const session = createTraceSession({
+        runId: "facet-run",
+        planFingerprint: "facet-plan",
+        config: { enabled: true, steps: { "test.facet-step": "verbose" } },
+        sink: outputs.traceSink,
+      });
+      session.emitStepStart({ stepId: "test.facet-step", phase: "foundation" });
+      const backing = new Uint8Array([90, 4, 7, 91]);
+      outputs.facetSinks.viz?.(
+        [
+          {
+            kind: "grid",
+            dataTypeKey: "test.facet-grid",
+            spaceId: "tile.hexOddQ",
+            dims: { width: 2, height: 1 },
+            field: {
+              format: "u8",
+              values: new Uint8Array(backing.buffer, 1, 2),
+            },
+          },
+        ],
+        {
+          runId: "facet-run",
+          planFingerprint: "facet-plan",
+          stepId: "test.facet-step",
+          phase: "foundation",
+          stepIndex: 0,
+        }
+      );
+
+      const manifest = readManifest(outputRoot, "facet-run");
+      expect(manifest.steps).toEqual([
+        { stepId: "test.facet-step", phase: "foundation", stepIndex: 0 },
+      ]);
+      expect(manifest.layers).toHaveLength(1);
+      const layer = manifest.layers[0];
+      if (layer?.kind !== "grid") throw new Error("Expected grid facet evidence.");
+      expect(layer).toMatchObject({
+        dataTypeKey: "test.facet-grid",
+        stepId: "test.facet-step",
+        phase: "foundation",
+        stepIndex: 0,
+      });
+      expect(
+        Array.from(readFileSync(join(outputRoot, "facet-run", layer.field.data.path)))
+      ).toEqual([4, 7]);
+      expect(Array.from(backing)).toEqual([90, 4, 7, 91]);
+    } finally {
+      rmSync(outputRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("reconciles partial trace order to the Core-assigned facet index", () => {
+    const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-index-"));
+    try {
+      const runId = "partial-trace-run";
+      const stepId = "test.late-faceted-step";
+      const outputs = createVizDumpAdapters({ outputRoot });
+      const session = createTraceSession({
+        runId,
+        planFingerprint: "partial-trace-plan",
+        config: { enabled: true, steps: { [stepId]: "verbose" } },
+        sink: outputs.traceSink,
+      });
+      session.emitStepStart({ stepId, phase: "foundation" });
+      outputs.legacyVizDumper.dumpGrid(session.createStepScope({ stepId, phase: "foundation" }), {
+        dataTypeKey: "test.legacy-before-facet",
+        spaceId: "tile.hexOddQ",
+        dims: { width: 1, height: 1 },
+        format: "u8",
+        values: new Uint8Array([1]),
+      });
+
+      outputs.facetSinks.viz?.(
+        [
+          {
+            kind: "grid",
+            dataTypeKey: "test.core-facet",
+            spaceId: "tile.hexOddQ",
+            dims: { width: 1, height: 1 },
+            field: { format: "u8", values: new Uint8Array([2]) },
+          },
+        ],
+        {
+          runId,
+          planFingerprint: "partial-trace-plan",
+          stepId,
+          phase: "foundation",
+          stepIndex: 7,
+        }
+      );
+
+      const manifest = readManifest(outputRoot, runId);
+      expect(manifest.steps).toEqual([{ stepId, phase: "foundation", stepIndex: 7 }]);
+      expect(manifest.layers).toHaveLength(2);
+      expect(manifest.layers.every((layer) => layer.stepIndex === 7)).toBe(true);
+    } finally {
+      rmSync(outputRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("contains projector and sink failures while reporting each once at the filesystem edge", () => {
+    const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-failure-"));
+    const diagnostics = spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const EmptySchema = Type.Object({}, { additionalProperties: false });
+      const projectorContract = defineStep({
+        id: "projector-failure",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        schema: EmptySchema,
+      });
+      const sinkContract = defineStep({
+        id: "sink-failure",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        schema: EmptySchema,
+      });
+      const projectorStep = createStep(projectorContract, {
+        run: (context) => {
+          context.metrics.warnings.push("projector-step-completed");
+          return undefined;
+        },
+        viz: () => {
+          throw new Error("private projector detail");
+        },
+      });
+      const sinkStep = createStep(sinkContract, {
+        run: (context) => {
+          context.metrics.warnings.push("sink-step-completed");
+          return undefined;
+        },
+        viz: () => [
+          {
+            kind: "grid",
+            dataTypeKey: "test.invalid-cardinality",
+            spaceId: "tile.hexOddQ",
+            dims: { width: 2, height: 2 },
+            field: { format: "u8", values: new Uint8Array([1]) },
+          },
+        ],
+      });
+      const stage = createStage({
+        id: "foundation",
+        knobsSchema: EmptySchema,
+        steps: [projectorStep, sinkStep],
+      });
+      const recipe = createRecipe({
+        id: "facet-failures",
+        namespace: "test",
+        tagDefinitions: [],
+        stages: [stage],
+        compileOpsById: {},
+      });
+      const setup = {
+        seed: 1,
+        dimensions: { width: 2, height: 2 },
+        latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
+      };
+      const context = createExtendedMapContext(
+        setup.dimensions,
+        createMockAdapter({ width: 2, height: 2, mapSizeId: 1 }),
+        setup
+      );
+      const outputs = createVizDumpAdapters({ outputRoot });
+
+      recipe.run(
+        context,
+        setup,
+        {
+          foundation: {
+            knobs: {},
+            "projector-failure": {},
+            "sink-failure": {},
+          },
+        },
+        { facets: outputs.facetSinks }
+      );
+
+      expect(context.metrics.warnings).toEqual(["projector-step-completed", "sink-step-completed"]);
+      expect(diagnostics).toHaveBeenCalledTimes(2);
+      const messages = diagnostics.mock.calls.map(([message]) => String(message));
+      expect(messages).toEqual([
+        expect.stringContaining("viz.project failed"),
+        expect.stringContaining("viz.emit failed"),
+      ]);
+      expect(messages.join("\n")).not.toContain("private projector detail");
+    } finally {
+      diagnostics.mockRestore();
+      rmSync(outputRoot, { recursive: true, force: true });
+    }
+  });
+
   it("isolates run step indexes, upserts layer identity, and writes exact subview bytes", () => {
     const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-"));
     try {
@@ -62,8 +268,7 @@ describe("filesystem visualization adapters", () => {
       expect(secondManifest.layers).toHaveLength(1);
 
       const firstLayer = firstManifest.layers[0];
-      if (!firstLayer || firstLayer.kind !== "grid")
-        throw new Error("Expected grid manifest layer.");
+      if (firstLayer?.kind !== "grid") throw new Error("Expected grid manifest layer.");
       expect(
         Array.from(readFileSync(join(outputRoot, "run-one", firstLayer.field.data.path)))
       ).toEqual([7, 8]);
@@ -105,7 +310,7 @@ describe("filesystem visualization adapters", () => {
       const lastGoodManifest = readFileSync(manifestPath, "utf8");
       const lastGood = readManifest(outputRoot, runId);
       const oldLayer = lastGood.layers[0];
-      if (!oldLayer || oldLayer.kind !== "gridFields") {
+      if (oldLayer?.kind !== "gridFields") {
         throw new Error("Expected the last-good grid-fields layer.");
       }
       const oldAPath = oldLayer.fields.a?.data.path;

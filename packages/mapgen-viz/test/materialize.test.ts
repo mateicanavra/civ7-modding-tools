@@ -196,6 +196,31 @@ describe("materializeVizProjection", () => {
       {
         projection: {
           kind: "gridFields" as const,
+          dataTypeKey: "invalid.vector-role-alias",
+          spaceId: "tile.hexOddQ" as const,
+          dims: { width: 1, height: 1 },
+          fields: { axis: { format: "i8" as const, values: new Int8Array(1) } },
+          vector: { u: "axis", v: "axis" },
+        },
+        message: "distinct grid fields",
+      },
+      {
+        projection: {
+          kind: "gridFields" as const,
+          dataTypeKey: "invalid.vector-magnitude-alias",
+          spaceId: "tile.hexOddQ" as const,
+          dims: { width: 1, height: 1 },
+          fields: {
+            u: { format: "i8" as const, values: new Int8Array(1) },
+            v: { format: "i8" as const, values: new Int8Array(1) },
+          },
+          vector: { u: "u", v: "v", magnitude: "u" },
+        },
+        message: "distinct grid fields",
+      },
+      {
+        projection: {
+          kind: "gridFields" as const,
           dataTypeKey: "invalid.magnitude",
           spaceId: "tile.hexOddQ" as const,
           dims: { width: 1, height: 1 },

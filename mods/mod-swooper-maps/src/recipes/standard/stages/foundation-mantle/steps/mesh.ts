@@ -1,6 +1,6 @@
-import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { interleaveXY, segmentsFromMeshNeighbors } from "../../foundation/viz.js";
+import { buildNeighborSegments, defineVizMeta, interleaveXY } from "@swooper/mapgen-viz";
 import MeshStepContract from "./mesh.contract.js";
 
 const GROUP_MESH = "Foundation / Mesh";
@@ -29,34 +29,36 @@ export default createStep(MeshStepContract, {
     );
 
     deps.artifacts.foundationMesh.publish(context, meshResult.mesh);
-
-    context.viz?.dumpPoints(context.trace, {
+    return meshResult.mesh;
+  },
+  viz: ({ result: mesh }) => [
+    {
+      kind: "points",
       dataTypeKey: "foundation.mesh.sites",
       spaceId: "world.xy",
-      positions: interleaveXY(meshResult.mesh.siteX, meshResult.mesh.siteY),
-      values: meshResult.mesh.areas,
-      valueFormat: "f32",
+      positions: interleaveXY(mesh.siteX, mesh.siteY),
+      values: { format: "f32", values: mesh.areas },
       meta: defineVizMeta("foundation.mesh.sites", {
         label: "Mesh Sites (Area)",
         group: GROUP_MESH,
       }),
-    });
-
-    context.viz?.dumpSegments(context.trace, {
+    },
+    {
+      kind: "segments",
       dataTypeKey: "foundation.mesh.edges",
       spaceId: "world.xy",
-      segments: segmentsFromMeshNeighbors(
-        meshResult.mesh.neighborsOffsets,
-        meshResult.mesh.neighbors,
-        meshResult.mesh.siteX,
-        meshResult.mesh.siteY
-      ),
+      segments: buildNeighborSegments({
+        offsets: mesh.neighborsOffsets,
+        neighbors: mesh.neighbors,
+        x: mesh.siteX,
+        y: mesh.siteY,
+      }),
       meta: defineVizMeta("foundation.mesh.edges", {
         label: "Mesh Neighbor Edges",
         group: GROUP_MESH,
         visibility: "debug",
         role: "edgeOverlay",
       }),
-    });
-  },
+    },
+  ],
 });

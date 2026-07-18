@@ -7,7 +7,7 @@ import {
 import type { MapGenStep } from "@mapgen/engine/types.js";
 
 export class StepRegistry<TContext> {
-  private readonly steps = new Map<string, MapGenStep<TContext, unknown>>();
+  private readonly steps = new Map<string, MapGenStep<TContext, unknown, unknown>>();
   private readonly tags: TagRegistry<TContext>;
 
   constructor(options: { tags?: TagRegistry<TContext> } = {}) {
@@ -26,19 +26,21 @@ export class StepRegistry<TContext> {
     return this.tags;
   }
 
-  register<TConfig>(step: MapGenStep<TContext, TConfig>): void {
+  register<TConfig, TResult>(step: MapGenStep<TContext, TConfig, TResult>): void {
     if (this.steps.has(step.id)) {
       throw new DuplicateStepError(step.id);
     }
     validateDependencyTags(step.requires, this.tags);
     validateDependencyTags(step.provides, this.tags);
-    this.steps.set(step.id, step as MapGenStep<TContext, unknown>);
+    this.steps.set(step.id, step as MapGenStep<TContext, unknown, unknown>);
   }
 
-  get<TConfig = unknown>(stepId: string): MapGenStep<TContext, TConfig> {
+  get<TConfig = unknown, TResult = unknown>(
+    stepId: string
+  ): MapGenStep<TContext, TConfig, TResult> {
     const step = this.steps.get(stepId);
     if (!step) throw new UnknownStepError(stepId);
-    return step as MapGenStep<TContext, TConfig>;
+    return step as MapGenStep<TContext, TConfig, TResult>;
   }
 
   has(stepId: string): boolean {

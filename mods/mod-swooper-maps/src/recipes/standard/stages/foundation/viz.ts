@@ -2,20 +2,10 @@
  * Stage-owned visualization geometry helpers for Foundation.
  *
  * Foundation emits debug layers from several steps that all describe the same
- * plate/mesh coordinate systems. Keeping these converters on the stage surface
- * makes that shared visualization contract explicit while avoiding a
- * `steps/viz.ts` bucket that looks like private step implementation.
+ * plate/mesh coordinate systems. Keeping the Foundation-specific converters
+ * on the stage surface makes that shared visualization contract explicit while
+ * avoiding a `steps/viz.ts` bucket that looks like private step implementation.
  */
-export function interleaveXY(x: Float32Array, y: Float32Array): Float32Array {
-  const n = Math.min(x.length, y.length);
-  const out = new Float32Array(n * 2);
-  for (let i = 0; i < n; i++) {
-    out[i * 2] = x[i];
-    out[i * 2 + 1] = y[i];
-  }
-  return out;
-}
-
 /** Projects plate seeds into ordered XY positions paired with their stable plate ids. */
 export function pointsFromPlateSeeds(
   plates: ReadonlyArray<{ id: number; seedX: number; seedY: number }>
@@ -52,42 +42,6 @@ export function segmentsFromCellPairs(
     out[i * 4 + 3] = siteY[b] ?? 0;
   }
   return out;
-}
-
-/**
- * Projects valid mesh-neighbor topology into one segment per undirected edge, skipping invalid
- * neighbor indices and refusing malformed offset tables with an empty result.
- */
-export function segmentsFromMeshNeighbors(
-  neighborsOffsets: Int32Array,
-  neighbors: Int32Array,
-  siteX: Float32Array,
-  siteY: Float32Array
-): Float32Array {
-  const cellCount = Math.max(0, Math.min(siteX.length, siteY.length));
-  if (cellCount <= 0) return new Float32Array();
-  if (neighborsOffsets.length < cellCount + 1) return new Float32Array();
-
-  const segments: number[] = [];
-
-  for (let cell = 0; cell < cellCount; cell++) {
-    const start = neighborsOffsets[cell] ?? 0;
-    const end = neighborsOffsets[cell + 1] ?? start;
-    const x0 = siteX[cell] ?? 0;
-    const y0 = siteY[cell] ?? 0;
-
-    for (let j = start; j < end; j++) {
-      const other = neighbors[j] ?? -1;
-      // Deduplicate undirected edges.
-      if (other <= cell) continue;
-      if (other < 0 || other >= cellCount) continue;
-      const x1 = siteX[other] ?? 0;
-      const y1 = siteY[other] ?? 0;
-      segments.push(x0, y0, x1, y1);
-    }
-  }
-
-  return new Float32Array(segments);
 }
 
 /** Projects plate centroids into ordered XY positions with aligned plate ids and tile areas. */

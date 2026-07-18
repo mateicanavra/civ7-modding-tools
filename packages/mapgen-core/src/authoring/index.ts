@@ -1,3 +1,10 @@
+export type {
+  StepFacetFailure,
+  StepFacetInput,
+  StepFacetSinkContext,
+  StepFacetSinks,
+  StepFacets,
+} from "@mapgen/engine/step-facets.js";
 export type { Static, TSchema } from "typebox";
 export { Type } from "typebox";
 export type {

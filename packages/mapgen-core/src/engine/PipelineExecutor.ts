@@ -5,13 +5,24 @@ import {
   UnsatisfiedProvidesError,
 } from "@mapgen/engine/errors.js";
 import type { ExecutionPlan } from "@mapgen/engine/execution-plan.js";
+import { computePlanFingerprint } from "@mapgen/engine/observability.js";
 import type { StepRegistry } from "@mapgen/engine/StepRegistry.js";
+import {
+  dispatchStepFacets,
+  type StepFacetSinkContext,
+  type StepFacetSinks,
+} from "@mapgen/engine/step-facets.js";
 import {
   computeInitialSatisfiedTags,
   isDependencyTagSatisfied,
   validateDependencyTags,
 } from "@mapgen/engine/tags.js";
-import type { EngineContext, MapGenStep, PipelineStepResult } from "@mapgen/engine/types.js";
+import type {
+  EngineContext,
+  GenerationPhase,
+  MapGenStep,
+  PipelineStepResult,
+} from "@mapgen/engine/types.js";
 import type { TraceSession } from "@mapgen/trace/index.js";
 import { createNoopTraceSession } from "@mapgen/trace/index.js";
 
@@ -22,6 +33,8 @@ export interface PipelineExecutorOptions {
 
 export interface PipelineExecutionOptions {
   trace?: TraceSession | null;
+  /** Optional execution-owned consumers for post-provides step evidence. */
+  facets?: StepFacetSinks;
   /**
    * Optional cancellation signal for async execution. If aborted, the executor
    * will throw a PipelineAbortError between steps.
@@ -37,6 +50,52 @@ export interface PipelineExecutionOptions {
    * Override the yield behavior when `yieldToEventLoop` is enabled.
    */
   yieldFn?: (() => Promise<void>) | null;
+}
+
+type PipelineFacetIdentity = Readonly<{
+  runId: string;
+  planFingerprint: string;
+  dimensions: Readonly<{ width: number; height: number }>;
+}>;
+
+function facetIdentityFromPlan<TContext, TConfig, TResult>(
+  plan: ExecutionPlan,
+  nodes: readonly Readonly<{ step: MapGenStep<TContext, TConfig, TResult> }>[],
+  trace: TraceSession | null | undefined,
+  sinks: StepFacetSinks | undefined
+): PipelineFacetIdentity | undefined {
+  const hasApplicableFacet = nodes.some(
+    ({ step }) =>
+      (sinks?.metrics !== undefined && step.facets?.metrics !== undefined) ||
+      (sinks?.viz !== undefined && step.facets?.viz !== undefined)
+  );
+  if (!hasApplicableFacet) return undefined;
+
+  let identity: Readonly<{ runId: string; planFingerprint: string }>;
+  if (trace?.runId && trace.planFingerprint) {
+    identity = { runId: trace.runId, planFingerprint: trace.planFingerprint };
+  } else {
+    const planFingerprint = computePlanFingerprint(plan);
+    identity = { runId: planFingerprint, planFingerprint };
+  }
+  return Object.freeze({
+    ...identity,
+    dimensions: Object.freeze({ ...plan.env.dimensions }),
+  });
+}
+
+function stepFacetContext(
+  identity: PipelineFacetIdentity,
+  step: Readonly<{ id: string; phase: GenerationPhase }>,
+  stepIndex: number
+): StepFacetSinkContext {
+  return Object.freeze({
+    runId: identity.runId,
+    planFingerprint: identity.planFingerprint,
+    stepId: step.id,
+    phase: step.phase,
+    stepIndex,
+  });
 }
 
 function nowMs(): number {
@@ -70,7 +129,13 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
       step: this.registry.get<TConfig>(node.stepId),
       config: node.config as TConfig,
     }));
-    return this.executeNodes(context, nodes, options, "throw");
+    return this.executeNodes(
+      context,
+      nodes,
+      options,
+      "throw",
+      facetIdentityFromPlan(plan, nodes, options.trace, options.facets)
+    );
   }
 
   executePlanReport(
@@ -82,14 +147,21 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
       step: this.registry.get<TConfig>(node.stepId),
       config: node.config as TConfig,
     }));
-    return this.executeNodes(context, nodes, options, "report");
+    return this.executeNodes(
+      context,
+      nodes,
+      options,
+      "report",
+      facetIdentityFromPlan(plan, nodes, options.trace, options.facets)
+    );
   }
 
   private executeNodes(
     context: TContext,
     nodes: Array<{ step: MapGenStep<TContext, TConfig>; config: TConfig }>,
     options: PipelineExecutionOptions = {},
-    mode: "throw" | "report"
+    mode: "throw" | "report",
+    facetIdentity: PipelineFacetIdentity | undefined
   ): { stepResults: PipelineStepResult[]; satisfied: ReadonlySet<string> } {
     const stepResults: PipelineStepResult[] = [];
     const tagRegistry = this.registry.getTagRegistry();
@@ -128,8 +200,8 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
         trace.emitStepStart(stepMeta);
         const t0 = nowMs();
         try {
-          const res = step.run(context, node.config);
-          if (res && typeof (res as Promise<void>).then === "function") {
+          const result = step.run(context, node.config);
+          if (result && typeof (result as PromiseLike<unknown>).then === "function") {
             throw new Error(
               `Step "${step.id}" returned a Promise in a sync executor call. Use executePlanAsync().`
             );
@@ -141,6 +213,17 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
           );
           if (missingProvides.length > 0) {
             throw new UnsatisfiedProvidesError(step.id, missingProvides);
+          }
+
+          if (facetIdentity) {
+            dispatchStepFacets({
+              facets: step.facets,
+              sinks: options.facets,
+              result,
+              config: node.config,
+              dimensions: facetIdentity.dimensions,
+              context: stepFacetContext(facetIdentity, step, index),
+            });
           }
 
           const durationMs = nowMs() - t0;
@@ -170,7 +253,9 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
             error: errorMessage,
           });
           if (mode === "throw") {
-            throw err instanceof StepExecutionError ? err : new StepExecutionError(step.id, err);
+            throw err instanceof StepExecutionError || err instanceof PipelineAbortError
+              ? err
+              : new StepExecutionError(step.id, err);
           }
           break;
         } finally {
@@ -200,7 +285,13 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
       step: this.registry.get<TConfig>(node.stepId),
       config: node.config as TConfig,
     }));
-    return this.executeNodesAsync(context, nodes, options, "throw");
+    return this.executeNodesAsync(
+      context,
+      nodes,
+      options,
+      "throw",
+      facetIdentityFromPlan(plan, nodes, options.trace, options.facets)
+    );
   }
 
   async executePlanReportAsync(
@@ -212,14 +303,21 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
       step: this.registry.get<TConfig>(node.stepId),
       config: node.config as TConfig,
     }));
-    return this.executeNodesAsync(context, nodes, options, "report");
+    return this.executeNodesAsync(
+      context,
+      nodes,
+      options,
+      "report",
+      facetIdentityFromPlan(plan, nodes, options.trace, options.facets)
+    );
   }
 
   private async executeNodesAsync(
     context: TContext,
     nodes: Array<{ step: MapGenStep<TContext, TConfig>; config: TConfig }>,
     options: PipelineExecutionOptions = {},
-    mode: "throw" | "report"
+    mode: "throw" | "report",
+    facetIdentity: PipelineFacetIdentity | undefined
   ): Promise<{ stepResults: PipelineStepResult[]; satisfied: ReadonlySet<string> }> {
     const stepResults: PipelineStepResult[] = [];
     const tagRegistry = this.registry.getTagRegistry();
@@ -265,7 +363,7 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
         trace.emitStepStart(stepMeta);
         const t0 = nowMs();
         try {
-          await step.run(context, node.config);
+          const result = await step.run(context, node.config);
           for (const tag of step.provides) satisfied.add(tag);
 
           const missingProvides = step.provides.filter(
@@ -273,6 +371,17 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
           );
           if (missingProvides.length > 0) {
             throw new UnsatisfiedProvidesError(step.id, missingProvides);
+          }
+          if (abortSignal?.aborted) throw new PipelineAbortError();
+          if (facetIdentity) {
+            dispatchStepFacets({
+              facets: step.facets,
+              sinks: options.facets,
+              result,
+              config: node.config,
+              dimensions: facetIdentity.dimensions,
+              context: stepFacetContext(facetIdentity, step, index),
+            });
           }
 
           const durationMs = nowMs() - t0;
@@ -301,8 +410,11 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
             durationMs,
             error: errorMessage,
           });
+          if (err instanceof PipelineAbortError) throw err;
           if (mode === "throw") {
-            throw err instanceof StepExecutionError ? err : new StepExecutionError(step.id, err);
+            throw err instanceof StepExecutionError || err instanceof PipelineAbortError
+              ? err
+              : new StepExecutionError(step.id, err);
           }
           break;
         } finally {

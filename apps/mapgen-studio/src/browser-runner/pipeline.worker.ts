@@ -2,13 +2,17 @@
 
 import { createMockAdapter } from "@civ7/adapter/mock";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import { createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
+import {
+  createExtendedMapContext,
+  createLabelRng,
+  type StepFacetFailure,
+} from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 import { admitPipelineConfig } from "../features/configAuthoring/canonicalConfig";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
 import { getRuntimeRecipe } from "./recipeRuntime";
 import { createWorkerTraceSink } from "./worker-trace-sink";
-import { createWorkerVizDumper } from "./worker-viz-dumper";
+import { createWorkerVizDumper, createWorkerVizFacetSink } from "./worker-viz-dumper";
 
 function post(event: BrowserRunEvent, transfer?: Transferable[]): void {
   (self as DedicatedWorkerGlobalScope).postMessage(event, transfer ?? []);
@@ -86,6 +90,19 @@ function describeThrown(e: unknown): {
 function isAbortError(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
   return (error as { name?: unknown }).name === "AbortError";
+}
+
+function createWorkerFacetFailureReporter(execution: {
+  runToken: string;
+  generation: number;
+}): (failure: StepFacetFailure) => undefined {
+  return (failure) => {
+    const { context, facet, operation } = failure;
+    console.error(
+      `[mapgen-studio:facet] request=${execution.runToken}@${execution.generation} run=${context.runId} plan=${context.planFingerprint} step=${context.stepId}#${context.stepIndex} ${facet}.${operation} failed`
+    );
+    return undefined;
+  };
 }
 
 async function runRecipe(
@@ -174,6 +191,15 @@ async function runRecipe(
 
   await recipeEntry.recipe.runAsync(context, env, configResult.value, {
     traceSink,
+    facets: {
+      viz: createWorkerVizFacetSink({
+        runToken,
+        generation,
+        post: postFromTrace,
+        abortSignal,
+      }),
+      onError: createWorkerFacetFailureReporter({ runToken, generation }),
+    },
     abortSignal,
     // Yield between steps so cooperative cancellation (via postMessage) can be observed.
     yieldToEventLoop: true,

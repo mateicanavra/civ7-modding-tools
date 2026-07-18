@@ -3,7 +3,11 @@ import type { VizInlineRef, VizLayerEntryV1 } from "@swooper/mapgen-viz";
 import type { BrowserRunEvent } from "./protocol";
 import { isWorkerVizLayerEvent } from "./worker-viz-event";
 
-type Post = (event: BrowserRunEvent, transfer?: Transferable[]) => void;
+/**
+ * Worker-owned transport boundary for one browser-run event and its optional transferable buffers.
+ * Callers must post the event and transfer list together and must not reuse transferred storage.
+ */
+export type WorkerEventPost = (event: BrowserRunEvent, transfer?: Transferable[]) => void;
 
 function collectTransferablesFromBinaryRef(ref: VizInlineRef, into: Transferable[]): void {
   into.push(ref.buffer);
@@ -27,13 +31,27 @@ function collectTransferables(layer: VizLayerEntryV1<VizInlineRef>): Transferabl
 }
 
 /**
+ * Posts one admitted inline visualization layer with its run and step identity.
+ * Both legacy trace events and execution-owned step facets use this single transport boundary.
+ */
+export function postWorkerVizLayer(options: {
+  post: WorkerEventPost;
+  runToken: string;
+  generation: number;
+  layer: VizLayerEntryV1<VizInlineRef>;
+}): void {
+  const { post, runToken, generation, layer } = options;
+  post({ type: "viz.layer.upsert", runToken, generation, layer }, collectTransferables(layer));
+}
+
+/**
  * Creates the run-correlated worker sink for browser progress and visualization events.
  * Aborted runs emit nothing; visualization upserts admit only locally branded inline evidence,
  * while step indexes remain stable for the lifetime of one sink.
  */
 export function createWorkerTraceSink(options: {
   runToken: string;
-  post: Post;
+  post: WorkerEventPost;
   generation: number;
   abortSignal?: { readonly aborted: boolean } | null;
 }): TraceSink {
@@ -90,7 +108,7 @@ export function createWorkerTraceSink(options: {
     if (!isWorkerVizLayerEvent(data)) return;
     const stepIndex = stepIndexById.get(event.stepId) ?? -1;
     const layer: VizLayerEntryV1<VizInlineRef> = { ...data.layer, stepIndex };
-    post({ type: "viz.layer.upsert", runToken, generation, layer }, collectTransferables(layer));
+    postWorkerVizLayer({ post, runToken, generation, layer });
   };
 
   return { emit };

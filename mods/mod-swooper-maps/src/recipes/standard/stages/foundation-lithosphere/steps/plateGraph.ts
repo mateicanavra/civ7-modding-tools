@@ -1,6 +1,7 @@
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { interleaveXY, pointsFromPlateSeeds } from "../../foundation/viz.js";
+import { interleaveXY } from "@swooper/mapgen-viz";
+import { pointsFromPlateSeeds } from "../../foundation/viz.js";
 import PlateGraphStepContract from "./plateGraph.contract.js";
 
 const GROUP_PLATE_GRAPH = "Foundation / Plate Graph";

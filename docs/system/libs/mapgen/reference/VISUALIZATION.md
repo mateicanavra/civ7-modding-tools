@@ -48,26 +48,36 @@ typed VizProjection
 - Binary materialization is the only environment boundary. The Studio worker copies each exact
   typed-array view into an inline transferable buffer; Swooper diagnostic tooling persists that
   view and returns a relative path.
-- The kernel does not render, persist, emit trace events, or synthesize vector magnitude. Current
+- Materialization does not render, persist, emit trace events, or synthesize evidence; it serializes
+  the projection it receives. Explicitly selected projection helpers may derive visualization-only
+  evidence such as vector magnitude from borrowed semantic sources before materialization. Current
   `VizDumper` implementations remain compatibility adapters around this kernel until step-authored
   projections replace direct runtime emission.
+- Steps author optional `viz` and `metrics` projectors inline on the same
+  `createStep(contract, { run, viz, metrics })` implementation that owns their result. After `run`
+  completes and declared artifact providers are admitted, the executor invokes each matching
+  projector/sink pair at most once. Without both halves, no projection or execution identity is
+  computed. These facets observe completed evidence; they never change generation behavior.
 
 ## Stage and step ownership
 
-Visualization code has two different ownership shapes:
+Visualization helpers have two reusable ownership shapes:
 
 ```text
 stages/<stage>/viz.ts
-  Stage/phase visualization contracts that are stable, shared by multiple
-  steps, or consumed outside the owner stage.
+  Projection geometry or metadata helpers shared by multiple owner-stage steps
+  or consumed outside the owner stage.
 
 stages/<stage>/steps/<step>/viz.ts
-  Step-private visualization helpers used only by that step.
+  Projection helpers private to one step.
 ```
 
-This keeps debug surfaces predictable without turning `steps/` into a public
-namespace. If a second step or another stage needs a helper, promote it to the
-owner stage's `viz.ts` and delete any wrapper at the old private path.
+The `createStep({ viz })` facet remains the authoring surface in both cases; a
+`viz.ts` module is only reusable implementation placement. This keeps debug
+surfaces predictable without turning `steps/` into a public namespace. If a
+second step or another stage needs a helper, promote it to the owner stage's
+`viz.ts` and delete any wrapper at the old private path. Portable projection
+geometry belongs in `@swooper/mapgen-viz`, not in a recipe stage helper.
 
 Forbidden shapes:
 

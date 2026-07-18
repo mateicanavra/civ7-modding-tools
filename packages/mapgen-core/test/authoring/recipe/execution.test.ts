@@ -11,6 +11,7 @@ import {
   deriveRecipeConfigSchema,
 } from "@mapgen/authoring/index.js";
 import { createExtendedMapContext } from "@mapgen/core/types.js";
+import type { StepFacetSinks } from "@mapgen/engine/index.js";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 
@@ -137,5 +138,51 @@ describe("authoring: hello recipe compile/execute", () => {
 
     recipe.run(ctx, baseSettings, config);
     expect(ctx.metrics.warnings).toContain("trees:false");
+  });
+
+  it("threads step facet sinks through synchronous and asynchronous recipe runs", async () => {
+    const facetContract = defineStep({
+      id: "facet-output",
+      phase: "foundation",
+      requires: [],
+      provides: [],
+      schema: Type.Object({ score: Type.Number() }, { additionalProperties: false }),
+    });
+    const facetStep = createStep(facetContract, {
+      run: (_context, config) => ({ score: config.score }),
+      metrics: ({ result }) => ({ score: result.score }),
+      viz: () => [],
+    });
+    const stage = createStage({
+      id: "foundation",
+      knobsSchema: EmptyKnobsSchema,
+      steps: [facetStep],
+    });
+    const recipe = createRecipe({
+      id: "facets",
+      namespace: "test",
+      tagDefinitions: [],
+      stages: [stage],
+      compileOpsById: {},
+    });
+    const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
+    const ctx = createExtendedMapContext({ width: 8, height: 6 }, adapter, baseSettings);
+    const config = { foundation: { knobs: {}, "facet-output": { score: 4 } } };
+    const emitted: string[] = [];
+    const facets = {
+      metrics: (projection: Readonly<Record<string, unknown>>) => {
+        emitted.push(`metrics:${String(projection.score)}`);
+        return undefined;
+      },
+      viz: (projections: readonly unknown[]) => {
+        emitted.push(`viz:${projections.length}`);
+        return undefined;
+      },
+    } satisfies StepFacetSinks;
+
+    recipe.run(ctx, baseSettings, config, { trace: null, facets });
+    await recipe.runAsync(ctx, baseSettings, config, { trace: null, facets });
+
+    expect(emitted).toEqual(["metrics:4", "viz:0", "metrics:4", "viz:0"]);
   });
 });

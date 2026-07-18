@@ -9,6 +9,7 @@ import {
   PipelineExecutor,
   type RecipeV2,
   type RunRequest,
+  type StepFacetSinks,
   StepRegistry,
   TagRegistry,
 } from "@mapgen/engine/index.js";
@@ -225,6 +226,10 @@ function finalizeOccurrences<TContext extends ExtendedMapContext>(input: {
         stepId,
       });
       const deps = buildStepDeps(authored, fullId, input.recipeId);
+      const facets = (authored.metrics || authored.viz) && {
+        metrics: authored.metrics,
+        viz: authored.viz,
+      };
 
       const ops = authored.contract.ops
         ? bindRuntimeOps(authored.contract.ops as any, input.runtimeOpsById as any)
@@ -240,9 +245,12 @@ function finalizeOccurrences<TContext extends ExtendedMapContext>(input: {
           provides: authored.contract.provides,
           configSchema: authored.contract.schema,
           normalize: authored.normalize as MapGenStep<TContext, unknown>["normalize"] | undefined,
-          run: ((context: TContext, config: unknown) => {
-            return (authored.run as any)(context, config, ops, deps);
-          }) as unknown as MapGenStep<TContext, unknown>["run"],
+          run: ((context: TContext, config: unknown) =>
+            (authored.run as any)(context, config, ops, deps)) as unknown as MapGenStep<
+            TContext,
+            unknown
+          >["run"],
+          facets,
         },
       });
     }
@@ -402,6 +410,7 @@ export function createRecipe<
     options: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;
+      facets?: StepFacetSinks;
       log?: (message: string) => void;
     } = {}
   ): void {
@@ -418,7 +427,10 @@ export function createRecipe<
       log: options.log,
       logPrefix: `[recipe:${input.id}]`,
     });
-    executor.executePlan(context, plan, { trace: traceSession ?? null });
+    executor.executePlan(context, plan, {
+      trace: traceSession ?? null,
+      facets: options.facets,
+    });
   }
 
   async function runAsync(
@@ -428,6 +440,7 @@ export function createRecipe<
     options: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;
+      facets?: StepFacetSinks;
       log?: (message: string) => void;
       abortSignal?: { readonly aborted: boolean } | null;
       yieldToEventLoop?: boolean;
@@ -449,6 +462,7 @@ export function createRecipe<
     });
     await executor.executePlanAsync(context, plan, {
       trace: traceSession ?? null,
+      facets: options.facets,
       abortSignal: options.abortSignal ?? null,
       yieldToEventLoop: options.yieldToEventLoop,
       yieldFn: options.yieldFn ?? null,

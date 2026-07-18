@@ -217,6 +217,7 @@
       "dependencies": {
         "@civ7/adapter": "workspace:*",
         "@civ7/types": "workspace:*",
+        "@swooper/mapgen-metrics": "workspace:*",
         "@swooper/mapgen-viz": "workspace:*",
         "d3-delaunay": "^6.0.4",
         "typebox": "catalog:",
@@ -224,6 +225,7 @@
       "devDependencies": {
         "@civ7/map-policy": "workspace:*",
         "@types/d3-delaunay": "^6.0.4",
+        "type-fest": "^5.7.0",
       },
     },
     "packages/mapgen-metrics": {

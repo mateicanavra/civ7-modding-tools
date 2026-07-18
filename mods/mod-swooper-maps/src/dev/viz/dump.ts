@@ -1,7 +1,14 @@
 import { createHash } from "node:crypto";
 import { appendFileSync, mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import type { TraceEvent, TraceSink, VizDumper } from "@swooper/mapgen-core";
+import type {
+  StepFacetFailure,
+  StepFacetSinkContext,
+  StepFacetSinks,
+  TraceEvent,
+  TraceSink,
+  VizDumper,
+} from "@swooper/mapgen-core";
 import {
   admitVizScalarSource,
   materializeVizProjection,
@@ -114,51 +121,116 @@ function publishManifest(runDir: string, manifest: VizManifestV1<VizPathRef>): v
   writeFileAtomic(join(runDir, "manifest.json"), JSON.stringify(manifest, null, 2));
 }
 
-/**
- * Creates the replay trace sink that owns per-run step order and path-backed manifest updates.
- * Diagnostics remain refusal-only: filesystem failures are contained and never alter generation.
- */
-export function createTraceDumpSink(options: { outputRoot: string }): TraceSink {
-  const { outputRoot } = options;
-  const stateByRun = new Map<string, DumpRunState>();
+function resolveDumpRunState(
+  stateByRun: Map<string, DumpRunState>,
+  outputRoot: string,
+  runId: string,
+  planFingerprint: string
+): DumpRunState {
+  const existing = stateByRun.get(runId);
+  if (existing) return existing;
 
+  const runDir = resolveRunDir(outputRoot, runId);
+  ensureDir(resolveDataDir(outputRoot, runId));
+  const state: DumpRunState = {
+    manifest: {
+      version: 1,
+      runId,
+      planFingerprint,
+      steps: [],
+      layers: [],
+    },
+    stepIndexById: new Map(),
+    nextStepIndex: 0,
+  };
+  stateByRun.set(runId, state);
+  publishManifest(runDir, state.manifest);
+  return state;
+}
+
+type StepAdmission = Readonly<{
+  manifest: VizManifestV1<VizPathRef>;
+  stepIndex: number;
+  didChange: boolean;
+}>;
+
+function planStepAdmission(
+  state: DumpRunState,
+  step: Readonly<{ stepId: string; phase?: string; stepIndex?: number }>
+): StepAdmission {
+  const existingIndex = state.stepIndexById.get(step.stepId);
+  if (existingIndex !== undefined) {
+    if (step.stepIndex === undefined || step.stepIndex === existingIndex) {
+      return { manifest: state.manifest, stepIndex: existingIndex, didChange: false };
+    }
+
+    const stepIndex = step.stepIndex;
+    return {
+      manifest: {
+        ...state.manifest,
+        steps: state.manifest.steps.map((entry) =>
+          entry.stepId === step.stepId ? { ...entry, stepIndex } : entry
+        ),
+        layers: state.manifest.layers.map((layer) =>
+          layer.stepId === step.stepId ? { ...layer, stepIndex } : layer
+        ),
+      },
+      stepIndex,
+      didChange: true,
+    };
+  }
+
+  const stepIndex = step.stepIndex ?? state.nextStepIndex;
+  return {
+    manifest: {
+      ...state.manifest,
+      steps: [...state.manifest.steps, { stepId: step.stepId, phase: step.phase, stepIndex }],
+    },
+    stepIndex,
+    didChange: true,
+  };
+}
+
+function commitStepAdmission(state: DumpRunState, stepId: string, admission: StepAdmission): void {
+  if (!admission.didChange) return;
+  state.stepIndexById.set(stepId, admission.stepIndex);
+  state.nextStepIndex = Math.max(state.nextStepIndex, admission.stepIndex + 1);
+}
+
+function upsertLayers(
+  manifest: VizManifestV1<VizPathRef>,
+  layers: readonly VizLayerEntryV1<VizPathRef>[]
+): VizManifestV1<VizPathRef> {
+  const next = [...manifest.layers];
+  for (const layer of layers) {
+    const existing = next.findIndex((candidate) => candidate.layerKey === layer.layerKey);
+    if (existing >= 0) next[existing] = layer;
+    else next.push(layer);
+  }
+  return { ...manifest, layers: next };
+}
+
+function createTraceDumpSinkWithState(
+  outputRoot: string,
+  stateByRun: Map<string, DumpRunState>
+): TraceSink {
   const emit = (event: TraceEvent): void => {
     try {
       const runDir = resolveRunDir(outputRoot, event.runId);
       ensureDir(resolveDataDir(outputRoot, event.runId));
       appendFileSync(join(runDir, "trace.jsonl"), `${JSON.stringify(event)}\n`);
 
-      let state = stateByRun.get(event.runId);
-      if (!state) {
-        state = {
-          manifest: {
-            version: 1,
-            runId: event.runId,
-            planFingerprint: event.planFingerprint,
-            steps: [],
-            layers: [],
-          },
-          stepIndexById: new Map(),
-          nextStepIndex: 0,
-        };
-        stateByRun.set(event.runId, state);
-      }
+      const state = resolveDumpRunState(stateByRun, outputRoot, event.runId, event.planFingerprint);
 
       if (event.kind === "step.start" && event.stepId) {
-        if (!state.stepIndexById.has(event.stepId)) {
-          const stepIndex = state.nextStepIndex;
-          const manifest = {
-            ...state.manifest,
-            steps: [
-              ...state.manifest.steps,
-              { stepId: event.stepId, phase: event.phase, stepIndex },
-            ],
-          };
-          publishManifest(runDir, manifest);
-          state.manifest = manifest;
-          state.nextStepIndex += 1;
-          state.stepIndexById.set(event.stepId, stepIndex);
-        }
+        const admission = planStepAdmission(state, {
+          stepId: event.stepId,
+          phase: event.phase,
+        });
+        if (!admission.didChange) return;
+        publishManifest(runDir, admission.manifest);
+        state.manifest = admission.manifest;
+        commitStepAdmission(state, event.stepId, admission);
         return;
       }
 
@@ -171,11 +243,7 @@ export function createTraceDumpSink(options: { outputRoot: string }): TraceSink 
         phase: event.phase,
         stepIndex: state.stepIndexById.get(event.stepId) ?? -1,
       };
-      const layers = [...state.manifest.layers];
-      const existing = layers.findIndex((candidate) => candidate.layerKey === layer.layerKey);
-      if (existing >= 0) layers[existing] = layer;
-      else layers.push(layer);
-      const manifest = { ...state.manifest, layers };
+      const manifest = upsertLayers(state.manifest, [layer]);
       publishManifest(runDir, manifest);
       state.manifest = manifest;
     } catch {
@@ -184,6 +252,16 @@ export function createTraceDumpSink(options: { outputRoot: string }): TraceSink 
   };
 
   return { emit };
+}
+
+/**
+ * Creates the replay trace sink that owns per-run step order and path-backed manifest updates.
+ * Diagnostics remain refusal-only: filesystem failures are contained and never alter generation.
+ */
+export function createTraceDumpSink(options: { outputRoot: string }): TraceSink {
+  const { outputRoot } = options;
+  const stateByRun = new Map<string, DumpRunState>();
+  return createTraceDumpSinkWithState(outputRoot, stateByRun);
 }
 
 function binaryPath(slot: VizBinarySlot): string {
@@ -201,6 +279,48 @@ function createPathMaterializer(runDir: string): VizBinaryMaterializer<VizPathRe
     writeBinaryAtomic(join(runDir, path), slot.source);
     return { kind: "path", path };
   };
+}
+
+function materializePathProjection(
+  outputRoot: string,
+  runId: string,
+  projection: VizProjection,
+  context: Readonly<{ stepId: string; phase?: string }>
+): VizLayerEmissionV1<VizPathRef> {
+  const runDir = resolveRunDir(outputRoot, runId);
+  ensureDir(resolveDataDir(outputRoot, runId));
+  return materializeVizProjection(projection, context, createPathMaterializer(runDir));
+}
+
+function createFilesystemVizFacetSink(
+  outputRoot: string,
+  stateByRun: Map<string, DumpRunState>
+): NonNullable<StepFacetSinks["viz"]> {
+  return (projections, context: StepFacetSinkContext) => {
+    const state = resolveDumpRunState(
+      stateByRun,
+      outputRoot,
+      context.runId,
+      context.planFingerprint
+    );
+    const admission = planStepAdmission(state, context);
+    const layers = projections.map((projection) => {
+      const emitted = materializePathProjection(outputRoot, context.runId, projection, context);
+      return { ...emitted, stepIndex: context.stepIndex };
+    });
+    const manifest = upsertLayers(admission.manifest, layers);
+    publishManifest(resolveRunDir(outputRoot, context.runId), manifest);
+    state.manifest = manifest;
+    commitStepAdmission(state, context.stepId, admission);
+  };
+}
+
+function reportFilesystemFacetFailure(failure: StepFacetFailure): undefined {
+  const { context, facet, operation } = failure;
+  console.error(
+    `[mapgen:facet] run=${context.runId} step=${context.stepId}#${context.stepIndex} ${facet}.${operation} failed`
+  );
+  return undefined;
 }
 
 function optionalScalarSource(
@@ -235,13 +355,10 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
   ): void => {
     if (!trace.isVerbose || !trace.runId) return;
     try {
-      const runDir = resolveRunDir(outputRoot, trace.runId);
-      ensureDir(resolveDataDir(outputRoot, trace.runId));
-      const layer = materializeVizProjection(
-        buildProjection(),
-        { stepId: trace.stepId, phase: trace.phase },
-        createPathMaterializer(runDir)
-      );
+      const layer = materializePathProjection(outputRoot, trace.runId, buildProjection(), {
+        stepId: trace.stepId,
+        phase: trace.phase,
+      });
       trace.event(() => createPathVizLayerEvent(layer));
     } catch {
       // Visualization persistence is diagnostic evidence and must never alter generation flow.
@@ -320,4 +437,26 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
   };
 
   return { outputRoot, dumpGrid, dumpPoints, dumpSegments, dumpGridFields };
+}
+
+/**
+ * Creates the coupled filesystem outputs for one diagnostic execution surface.
+ * The trace sink and execution-owned viz facet share run state so legacy and pure projections
+ * update one path-backed manifest without duplicate materialization or competing authorities.
+ */
+export function createVizDumpAdapters(options: { outputRoot: string }): Readonly<{
+  traceSink: TraceSink;
+  facetSinks: StepFacetSinks;
+  legacyVizDumper: VizDumper;
+}> {
+  const { outputRoot } = options;
+  const stateByRun = new Map<string, DumpRunState>();
+  return {
+    traceSink: createTraceDumpSinkWithState(outputRoot, stateByRun),
+    facetSinks: {
+      viz: createFilesystemVizFacetSink(outputRoot, stateByRun),
+      onError: reportFilesystemFacetFailure,
+    },
+    legacyVizDumper: createVizDumper({ outputRoot }),
+  };
 }

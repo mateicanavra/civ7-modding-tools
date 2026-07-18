@@ -7,6 +7,7 @@ import type {
   RecipeV2,
   RunRequest,
 } from "@mapgen/engine/index.js";
+import type { StepFacetSinks, StepFacets } from "@mapgen/engine/step-facets.js";
 import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 import type { TraceSession, TraceSink } from "@mapgen/trace/index.js";
 import type { Static, TObject, TSchema } from "typebox";
@@ -117,12 +118,15 @@ export type StepDeps<
 
 type StepContractAny = StepContract<any, any, any, any>;
 
+type StepConfigOfContract<C extends StepContractAny> = Static<C["schema"]>;
+
 type StepArtifactsDeclOfContract<C extends StepContractAny> =
   C extends StepContract<any, any, any, infer A> ? A : undefined;
 
 export type StepModule<
   TContext extends ExtendedMapContext = ExtendedMapContext,
   C extends StepContractAny = StepContractAny,
+  TResult = unknown,
 > = Readonly<{
   contract: C;
   normalize?: (config: unknown, ctx: NormalizeContext) => unknown;
@@ -131,14 +135,16 @@ export type StepModule<
     config: unknown,
     ops: unknown,
     deps: StepDeps<TContext, StepArtifactsDeclOfContract<C>>
-  ) => void | Promise<void>;
+  ) => TResult | Promise<TResult>;
 }> &
+  StepFacets<StepConfigOfContract<C>, TResult> &
   StepArtifactRuntimes<TContext, StepArtifactsDeclOfContract<C>>;
 
 export type Step<
   TContext extends ExtendedMapContext = ExtendedMapContext,
   C extends StepContractAny = StepContractAny,
-> = StepModule<TContext, C>;
+  TResult = unknown,
+> = StepModule<TContext, C, TResult>;
 
 export const RESERVED_STAGE_KEY = "knobs" as const;
 export type ReservedStageKey = typeof RESERVED_STAGE_KEY;
@@ -364,6 +370,8 @@ export type RecipeModule<
     options?: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;
+      /** Execution-owned consumers for optional post-provides step projections. */
+      facets?: StepFacetSinks;
       log?: (message: string) => void;
     }
   ) => void;
@@ -374,6 +382,8 @@ export type RecipeModule<
     options?: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;
+      /** Execution-owned consumers for optional post-provides step projections. */
+      facets?: StepFacetSinks;
       log?: (message: string) => void;
       abortSignal?: { readonly aborted: boolean } | null;
       yieldToEventLoop?: boolean;

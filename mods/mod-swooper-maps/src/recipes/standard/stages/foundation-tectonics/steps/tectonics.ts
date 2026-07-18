@@ -1,7 +1,8 @@
 import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/model/policy/plate-activity.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { interleaveXY, segmentsFromCellPairs } from "../../foundation/viz.js";
+import { interleaveXY } from "@swooper/mapgen-viz";
+import { segmentsFromCellPairs } from "../../foundation/viz.js";
 import TectonicsStepContract from "./tectonics.contract.js";
 
 const GROUP_TECTONICS = "Foundation / Tectonics";

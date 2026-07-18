@@ -1,6 +1,6 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { interleaveXY } from "../../foundation/viz.js";
+import { interleaveXY } from "@swooper/mapgen-viz";
 import CrustEvolutionStepContract from "./crustEvolution.contract.js";
 
 const GROUP_CRUST = "Foundation / Crust";

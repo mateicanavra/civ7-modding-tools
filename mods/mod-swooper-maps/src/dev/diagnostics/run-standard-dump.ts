@@ -10,7 +10,7 @@ import { admitStandardMapConfig } from "../../maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import { createTraceDumpSink, createVizDumper } from "../viz/dump.js";
+import { createVizDumpAdapters } from "../viz/dump.js";
 import { isPlainObject, mergeDeep, parseArgs } from "./shared.js";
 
 function parseIntOr(value: unknown, fallback: number): number {
@@ -63,8 +63,7 @@ async function main(): Promise<void> {
 
   const label = parseLabel(flags.label);
   const outputRoot = join(process.cwd(), "dist", "visualization", label);
-  const traceSink = createTraceDumpSink({ outputRoot });
-  const viz = createVizDumper({ outputRoot });
+  const vizOutputs = createVizDumpAdapters({ outputRoot });
 
   // Player/sector geometry defaults reproduce the historical 8-player frame;
   // override to match a live engine Maps row (e.g. HUGE live row is
@@ -133,10 +132,14 @@ async function main(): Promise<void> {
   });
 
   const context = createExtendedMapContext({ width, height }, adapter, env);
-  context.viz = viz;
+  context.viz = vizOutputs.legacyVizDumper;
 
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[diag]" });
-  standardRecipe.run(context, env, config, { traceSink, log: () => {} });
+  standardRecipe.run(context, env, config, {
+    traceSink: vizOutputs.traceSink,
+    facets: vizOutputs.facetSinks,
+    log: () => {},
+  });
 
   const runId = deriveRunId(plan);
   console.log(JSON.stringify({ runId, outputDir: join(outputRoot, runId) }));

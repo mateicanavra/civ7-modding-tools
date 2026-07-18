@@ -10,8 +10,9 @@ Scope: `packages/mapgen-viz/**`
 - `materializeVizProjection` validates a complete projection before delegating each binary slot
   exactly once to an injected synchronous materializer.
 - MapGen Studio owns inline-buffer transport. Swooper diagnostic tooling owns path persistence.
-- Public exports are composed through `packages/mapgen-viz/src/index.ts`; keep implementation
-  ownership split across `model.ts`, `projection.ts`, `stats.ts`, and `materialize.ts`.
+- Public exports are composed through `packages/mapgen-viz/src/index.ts`; keep projection contracts,
+  metadata defaults, geometry helpers, statistics, and materialization in their focused source
+  modules.
 - `dist/` is generated build output; treat it as read-only.
 
 ## Tooling Rules

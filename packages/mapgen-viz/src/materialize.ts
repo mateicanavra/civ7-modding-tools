@@ -248,11 +248,15 @@ export function materializeVizProjection<Ref extends VizBinaryRef>(
     assertScalarCardinality(field, size, `Grid field ${fieldKey}`);
   }
   if (projection.vector) {
+    const { u: uKey, v: vKey, magnitude: magnitudeKey } = projection.vector;
+    if (uKey === vKey || magnitudeKey === uKey || magnitudeKey === vKey) {
+      throw new RangeError(`Vector u, v, and magnitude references must name distinct grid fields.`);
+    }
     const fieldByKey = new Map(entries);
-    const u = fieldByKey.get(projection.vector.u);
-    const v = fieldByKey.get(projection.vector.v);
+    const u = fieldByKey.get(uKey);
+    const v = fieldByKey.get(vKey);
     if (!u || !v) throw new RangeError(`Vector u and v references must name existing grid fields.`);
-    if (projection.vector.magnitude && !fieldByKey.has(projection.vector.magnitude)) {
+    if (magnitudeKey && !fieldByKey.has(magnitudeKey)) {
       throw new RangeError(`Vector magnitude reference must name an existing grid field.`);
     }
   }

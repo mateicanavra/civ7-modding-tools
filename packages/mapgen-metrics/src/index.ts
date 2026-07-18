@@ -10,6 +10,7 @@ export {
   metricShare,
   summarizeNumericMetrics,
 } from "./numeric.js";
+export type { MetricProjection } from "./projection.js";
 export type {
   MetricComparator,
   MetricExpectation,

@@ -1,4 +1,4 @@
-import type { VizDumper } from "@swooper/mapgen-core";
+import type { StepFacetSinks, VizDumper } from "@swooper/mapgen-core";
 import {
   admitVizScalarSource,
   materializeVizProjection,
@@ -8,6 +8,7 @@ import {
   type VizProjection,
   type VizScalarSource,
 } from "@swooper/mapgen-viz";
+import { postWorkerVizLayer, type WorkerEventPost } from "./worker-trace-sink";
 import { createWorkerVizLayerEvent } from "./worker-viz-event";
 
 function cloneArrayBuffer(view: ArrayBufferView): ArrayBuffer {
@@ -20,6 +21,13 @@ const materializeInline: VizBinaryMaterializer<VizInlineRef> = ({ source }) => (
   kind: "inline",
   buffer: cloneArrayBuffer(source),
 });
+
+function materializeWorkerProjection(
+  projection: VizProjection,
+  identity: Readonly<{ stepId: string; phase?: string }>
+): VizLayerEmissionV1<VizInlineRef> {
+  return materializeVizProjection(projection, identity, materializeInline);
+}
 
 function optionalScalarSource(
   args: Readonly<{
@@ -52,11 +60,10 @@ export function createWorkerVizDumper(): VizDumper {
     buildProjection: () => VizProjection
   ): void => {
     try {
-      const layer: VizLayerEmissionV1<VizInlineRef> = materializeVizProjection(
-        buildProjection(),
-        { stepId: trace.stepId, phase: trace.phase },
-        materializeInline
-      );
+      const layer = materializeWorkerProjection(buildProjection(), {
+        stepId: trace.stepId,
+        phase: trace.phase,
+      });
       trace.event(() => createWorkerVizLayerEvent(layer));
     } catch {
       // Visualization is optional diagnostic evidence and must never abort generation.
@@ -139,4 +146,33 @@ export function createWorkerVizDumper(): VizDumper {
   };
 
   return { outputRoot, dumpGrid, dumpPoints, dumpSegments, dumpGridFields };
+}
+
+/**
+ * Creates the execution-owned browser sink for pure step visualization projections.
+ * Every projection is materialized once into detached inline evidence and posted with the
+ * Core-assigned run and step identity; aborted runs emit nothing.
+ */
+export function createWorkerVizFacetSink(options: {
+  runToken: string;
+  generation: number;
+  post: WorkerEventPost;
+  abortSignal?: { readonly aborted: boolean } | null;
+}): NonNullable<StepFacetSinks["viz"]> {
+  const { runToken, generation, post, abortSignal } = options;
+  return (projections, context) => {
+    if (abortSignal?.aborted) return;
+    for (const projection of projections) {
+      const emitted = materializeWorkerProjection(projection, {
+        stepId: context.stepId,
+        phase: context.phase,
+      });
+      postWorkerVizLayer({
+        post,
+        runToken,
+        generation,
+        layer: { ...emitted, stepIndex: context.stepIndex },
+      });
+    }
+  };
 }

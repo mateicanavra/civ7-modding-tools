@@ -12,7 +12,10 @@ import type {
   BrowserVizLayerUpsertEvent,
 } from "../../src/browser-runner/protocol";
 import { createWorkerTraceSink } from "../../src/browser-runner/worker-trace-sink";
-import { createWorkerVizDumper } from "../../src/browser-runner/worker-viz-dumper";
+import {
+  createWorkerVizDumper,
+  createWorkerVizFacetSink,
+} from "../../src/browser-runner/worker-viz-dumper";
 
 function assertBrowserRejectsPathRef(pathBackedReplayLayer: VizGridLayerEntryV1<VizPathRef>): void {
   // @ts-expect-error Browser live events categorically reject path-backed replay evidence.
@@ -68,6 +71,54 @@ describe("createWorkerVizDumper", () => {
     structuredClone(emitted, { transfer: [emitted] });
     expect(emitted.byteLength).toBe(0);
     expect(Array.from(source)).toEqual([90, 4, 7, 91]);
+  });
+
+  it("posts execution-owned projections with Core run identity and exact transferables", () => {
+    const posted: Array<{ event: BrowserRunEvent; transfer: Transferable[] }> = [];
+    const values = new Uint8Array(new Uint8Array([90, 4, 7, 91]).buffer, 1, 2);
+    const sink = createWorkerVizFacetSink({
+      runToken: "facet-run",
+      generation: 3,
+      post: (event, transfer = []) => posted.push({ event, transfer }),
+    });
+
+    sink(
+      [
+        {
+          kind: "grid",
+          dataTypeKey: "test.facet-grid",
+          spaceId: "tile.hexOddQ",
+          dims: { width: 2, height: 1 },
+          field: { format: "u8", values },
+        },
+      ],
+      {
+        runId: "core-run",
+        planFingerprint: "core-plan",
+        stepId: "test.facet-step",
+        phase: "foundation",
+        stepIndex: 7,
+      }
+    );
+
+    expect(posted).toHaveLength(1);
+    expect(posted[0]?.event).toMatchObject({
+      type: "viz.layer.upsert",
+      runToken: "facet-run",
+      generation: 3,
+      layer: {
+        dataTypeKey: "test.facet-grid",
+        stepId: "test.facet-step",
+        phase: "foundation",
+        stepIndex: 7,
+      },
+    });
+    const event = posted[0]?.event;
+    if (event?.type !== "viz.layer.upsert" || event.layer.kind !== "grid") {
+      throw new Error("Expected one grid facet upsert.");
+    }
+    expect(Array.from(new Uint8Array(event.layer.field.data.buffer))).toEqual([4, 7]);
+    expect(posted[0]?.transfer).toEqual([event.layer.field.data.buffer]);
   });
 
   it("contains invalid optional evidence and continues with the next valid layer", () => {
