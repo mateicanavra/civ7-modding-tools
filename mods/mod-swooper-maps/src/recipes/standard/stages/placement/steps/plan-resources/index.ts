@@ -1,3 +1,5 @@
+import { type OfficialResourceType, resolveResourceRuntimeIds } from "@civ7/map-policy";
+import { INITIAL_MAP_RESOURCE_AUTHORING_AGE } from "@mapgen/domain/resources";
 import { defineVizMeta, deriveStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
@@ -183,6 +185,22 @@ export default createStep(PlanResourcesStepContract, {
     // --- id evidence + policy legality + demand rows --------------------------------------------
     const legalitySurface = readResourceLegalitySurface(context);
     const plannedRows = groups.groups.flatMap((group) => group.plans);
+    const requiredForAgeByResourceType = new Map<OfficialResourceType, boolean | null>();
+    const runtimeIds = resolveResourceRuntimeIds();
+    for (const row of plannedRows) {
+      if (row.status !== "planned") continue;
+      const resourceType = row.resourceType as OfficialResourceType;
+      const resolved = runtimeIds.byType.get(resourceType);
+      if (!resolved || resolved.minimumPerHemisphere <= 0) continue;
+      if (requiredForAgeByResourceType.has(resourceType)) continue;
+      requiredForAgeByResourceType.set(
+        resourceType,
+        context.adapter.isResourceRequiredForAge(
+          resolved.resourceTypeId,
+          INITIAL_MAP_RESOURCE_AUTHORING_AGE
+        )
+      );
+    }
     // Rivers product requirement: no resources on river tiles (planned or
     // engine-projected, navigable water included). Excluded at the legality
     // seam so it flows through site selection, support, and stamping.
@@ -198,6 +216,7 @@ export default createStep(PlanResourcesStepContract, {
       plannedRows,
       habitat: plannerHabitat,
       legalitySurface,
+      requiredForAgeByResourceType,
       riverResourceExclusionMask,
     });
 

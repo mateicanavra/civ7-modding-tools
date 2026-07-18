@@ -330,8 +330,10 @@ function resourceDemandPlanPayload(): ResourceDemandPlanPayload {
         laneId: "coastal-water",
         laneKind: "water",
         weight: 1,
-        minimumPerHemisphere: 0,
-        requiredForAge: false,
+        regionMinimumRequirement: {
+          kind: "not-applicable",
+          reason: "no-official-minimum",
+        },
         targetCount: 1,
         minCount: 0,
         maxCount: 2,

@@ -11,7 +11,12 @@ export {
   type HabitatIntensityFieldName,
   type HabitatMaskFieldName,
 } from "./habitat-fields.schema.js";
-
+export {
+  admitPositiveResourceRegionMinimum,
+  type PositiveResourceRegionMinimum,
+  type ResourceRegionMinimumRequirement,
+  ResourceRegionMinimumRequirementSchema,
+} from "./region-minimum-requirement.schema.js";
 export {
   type ResourceFamily,
   ResourceFamilySchema,

@@ -25,12 +25,12 @@ describe("CIV7_POLICY_TABLES_V1", () => {
     expect(hides?.minimumPerHemisphere).toBe(0);
   });
 
-  it("derives isResourceRequiredForAge only for leader-required, age-valid resources", () => {
-    for (const [index, ages] of Object.entries(CIV7_POLICY_TABLES_V1.isResourceRequiredForAge)) {
-      expect(CIV7_POLICY_TABLES_V1.resourceRequiredLeaders[index]?.length).toBeGreaterThan(0);
-      const validAges = CIV7_POLICY_TABLES_V1.resourceValidAges[index] ?? [];
-      expect([...ages]).toEqual([...validAges]);
-    }
+  it("keeps raw leader requirement rows separate from live roster-dependent decisions", () => {
+    const fishIndex = String(resourceIndexByType.RESOURCE_FISH);
+    expect(CIV7_POLICY_TABLES_V1.resourceRequiredLeaders[fishIndex]).toContain(
+      "LEADER_HARRIET_TUBMAN"
+    );
+    expect(CIV7_POLICY_TABLES_V1.resourceValidAges[fishIndex]).toContain("AGE_ANTIQUITY");
   });
 
   it("includes the DEFAULT MapResourceMinimumAmountModifier rows for every official size step", () => {

@@ -23,7 +23,7 @@ Placement is the standard recipe's gameplay-product vertical: the pipeline bound
 - guarantee the resource↔start support relationship,
 - and publish placement outputs for verification and debugging.
 
-Placement is **plan-authoritative and engine-facing**: deterministic plans are computed from pipeline artifacts and official policy tables, then materialized through typed adapter intent APIs with typed reconciliation of engine feasibility. Engine readbacks are evidence-only (see [`docs/system/ADR.md`](/system/ADR.md) ADR-009).
+Placement is **plan-authoritative and engine-facing**: deterministic plans are computed from pipeline artifacts, dependency-free static policy, and declared adapter policy queries, then materialized through typed adapter intent APIs with typed reconciliation of engine feasibility. Engine state readbacks are evidence-only (see [`docs/system/ADR.md`](/system/ADR.md) ADR-009).
 
 Naming note: a future Gameplay domain consolidation may absorb starts/discoveries/wonders orchestration, but `domain/resources` owns resource planning and is not re-owned by that absorption (ADR-008). See [`docs/system/libs/mapgen/reference/domains/GAMEPLAY.md`](/system/libs/mapgen/reference/domains/GAMEPLAY.md).
 
@@ -53,6 +53,7 @@ All placement *decision* logic lives in domain ops (plan → select → reconcil
 
 - `domain/resources` owns resource planning end-to-end (ADR-008): demand/eligibility planning, habitat-lane derivation, site selection, and the support-adjustment pass.
 - `domain/placement` owns start selection (four-rung fallback ladder, fairness balancing, seat identity, StartBias scoring inside `plan-starts`), wonder/discovery planning.
+- `@civ7/map-policy` owns static resource facts (`Weight`, `MinimumPerHemisphere`, age validity, and roster-independent `Staple`/`UnlocksCiv` basis). `EngineAdapter` owns the exact active-roster `isResourceRequiredForAge` query used by planning.
 - Selection strategies never throw on degraded inputs: every degradation is recorded as typed data (seat `status`/`rung`/`imputedFlags`, per-type shortfalls) instead of being silently rescued. The only hard-fail is zero settleable land with seats requested.
 - Player identity: the adapter exposes an alive-majors READ surface (`getAliveMajorIds()`); the `plan-starts` op's `seat-identity.ts` policy is the single point mapping seats→playerIds, recorded per seat as `playerIdSource`.
 
@@ -82,7 +83,8 @@ Runtime semantics (ADR-009 regime):
 
 - The deterministic plan is the authority for typed intent; materializers stamp intents through the adapter and reconcile engine feasibility with per-tile typed rejection reasons — never re-deciding types, never falling back to official generators as truth.
 - Shortfalls are recorded (typed, per-type, per-reason), never forced: no whole-map fallback, no least-used-type rebalance, no spacing decay below authored floors.
-- Engine readbacks are evidence-only. Exactly three declared engine-surface reads exist, each documented in its step contract: the wonder-planning post-maintenance terrain surface (`derive-placement-inputs`), the resource legality surface (`plan-resources`), and the terminal physics-buffer landMask parity read (`placement`).
+- Engine state readbacks are evidence-only. Exactly three declared engine-surface reads exist, each documented in its step contract: the wonder-planning post-maintenance terrain surface (`derive-placement-inputs`), the resource legality surface (`plan-resources`), and the terminal physics-buffer landMask parity read (`placement`). The roster-dependent resource requirement query is a separate, declared `EngineAdapter` policy input.
+- If the live requirement policy is unavailable, planning admits a regional minimum only for an age-valid resource with roster-independent `Staple`/`UnlocksCiv` basis. Every other unavailable decision is typed `unresolved`, never collapsed to `false`.
 - Placement apply is fail-hard; natural wonders use deterministic full-stamp-or-fail semantics; resource readback mismatches are fail-hard.
 - Surface preparation (terrain validation, area recalculation, water cache storage, landmass-region restamping, fertility recalculation) remains transactional because no independent consumer exists.
 
@@ -100,7 +102,7 @@ grid partitions, and buffer lengths). Inventory:
 | `placementInputs` | derive-placement-inputs | mapInfo/starts/wonders/config (single-publish; no embedded plans) |
 | `naturalWonderPlan`, `discoveryPlan` | derive-placement-inputs | deterministic plans |
 | `naturalWonderPlacement` | place-natural-wonders | placed/relocated/rejected coordinateRows |
-| `resourceDemandPlan` | plan-resources | per-type target counts with official Weight/minimums/required-for-age provenance |
+| `resourceDemandPlan` | plan-resources | per-type target counts with static policy facts and typed region-minimum authority/provenance |
 | `resourcePlan` | plan-resources | typed per-plot site intents (type, family, lane, phase, inHabitat) + per-type shortfalls + region minimums |
 | `resourceEligibility` | plan-resources | per-type habitat/legal/intensity fields (the constraint surface the adjuster works inside) |
 | `startAssignment` | assign-starts | per-player `StartRecord[]` (components, tier, score, rung, status, imputedFlags, playerIdSource) + `fairnessReport` (worstPairGap, swaps, relaxations) + `inputCoverage` |
@@ -122,7 +124,7 @@ Placement also depends on gameplay-owned projection artifact modules (`landmassR
 
 `domain/resources` ops (layout: `lib/` corpus + runtime-ids, `policy/` shared predicates, per-op `policy/` modules):
 
-- `planTerrestrialResources`, `planAquaticResources`, `planCultivatedResources`, `planGeologicalResources`, `planResourceGroups` — demand/eligibility planning against the earthlike corpus + official policy tables (Weight deficit rotation, MinimumPerHemisphere, `isResourceRequiredForAge`, `expectedCountRange`).
+- `planTerrestrialResources`, `planAquaticResources`, `planCultivatedResources`, `planGeologicalResources`, `planResourceGroups` — demand/eligibility planning against the earthlike corpus + official static policy (`Weight`, age validity, `expectedCountRange`).
 - `deriveHabitatFields` — habitat-lane masks + per-family intensity fields from pipeline artifacts only (including marine/aquatic lanes).
 - `selectResourceSites` — blue-noise site selection with per-type spacing floors, habitat-intensity thinning, per-landmass equity, affinity/exclusion rules, region-minimum force pass; policy legality gates selection before the engine oracle ever runs.
 - `adjustResourceSupport` — bounded resource↔start floor/equity adjustment with all selection invariants enforced at destinations.
@@ -137,7 +139,7 @@ The `placement` stage public surface has six groups: `knobs`, `naturalWonders`, 
 - `starts`: spacing floor/desired (official 6/12 buffers), scoring weights (fertility, freshwater, climate comfort + extreme penalty, resource support, roughness divisor), tier bias, ranking blend, fairness tolerance, coastal/river preference, StartBias weight, per-hemisphere player-count overrides.
 - `support`: enabled, supportFloor, supportRadiusTiles, equityTolerance, strength.
 
-Policy data comes from `@civ7/map-policy` generated tables (`CIV7_BROWSER_TABLES_V0` byte-stable + `CIV7_POLICY_TABLES_V1`: resource catalog rows, valid ages, required leaders, minimum-amount modifiers, StartBias tables, start globals), regenerated only via `nx run civ7-map-policy:verify -- --write` from the `.civ7/outputs/resources` submodule. Natural-wonder membership is derived directly from those tables and proved by owner-local map-policy tests. There are no `globalThis.GameInfo` reads in the recipe layer; the resource catalog flows through `EngineAdapter.getResourceCatalog()`.
+Policy data comes from `@civ7/map-policy` generated tables and corpus (`CIV7_BROWSER_TABLES_V0` byte-stable + `CIV7_POLICY_TABLES_V1`: resource catalog rows, valid ages, required leaders, minimum-amount modifiers, StartBias tables, start globals), regenerated only via `nx run civ7-map-policy:verify -- --write` from the `.civ7/outputs/resources` submodule. That package owns `Weight`, `MinimumPerHemisphere`, age validity, and the static `Staple`/`UnlocksCiv` fallback basis; it does not approximate the roster-dependent live requirement decision. Natural-wonder membership is derived directly from those tables and proved by owner-local map-policy tests. There are no `globalThis.GameInfo` reads in the recipe layer; the resource catalog and exact live requirement query flow through `EngineAdapter`.
 
 ## Studio visualization coverage
 
@@ -155,9 +157,9 @@ Policy data comes from `@civ7/map-policy` generated tables (`CIV7_BROWSER_TABLES
   live-engine claim.
 - The old live legality and required-for-age scripts were milestone-scoped
   characterization, not reusable policy gates, and are retired. Their recorded
-  evidence remains historical. Current static policy belongs to
-  `@civ7/map-policy`; live placement behavior is proved through the bounded
-  product verification appropriate to the change.
+  evidence remains historical. Static facts and fallback admission belong to
+  `@civ7/map-policy`; roster-dependent policy flows through `EngineAdapter`, and
+  resulting placement behavior is proved through bounded product verification.
 - Live full-grid parity: `nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity` (milestone-boundary proof class; see `docs/projects/placement-realignment/MILESTONE-PROOFS.md`).
 
 ## Ground truth anchors

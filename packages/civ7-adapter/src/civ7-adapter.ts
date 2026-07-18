@@ -13,10 +13,15 @@ import {
   NATURAL_WONDER_CATALOG,
   NO_RESOURCE,
   NO_RIVER_TYPE,
+  type OfficialAgeType,
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
+import {
+  type Civ7ResourceAgePolicyRuntime,
+  queryCiv7ResourceRequirementForAge,
+} from "./resource-age-policy.js";
 import type {
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
@@ -399,6 +404,15 @@ export class Civ7Adapter implements EngineAdapter {
       throw new Error("[Adapter] ResourceBuilder.canHaveResource is unavailable.");
     }
     return rb.canHaveResource(x, y, resourceType, false);
+  }
+
+  /** Query Civ7's live, leader-aware resource requirement policy for a symbolic age. */
+  isResourceRequiredForAge(resourceTypeId: number, ageType: OfficialAgeType): boolean | null {
+    return queryCiv7ResourceRequirementForAge(
+      globalThis as unknown as Civ7ResourceAgePolicyRuntime,
+      resourceTypeId,
+      ageType
+    );
   }
 
   getResourceCatalog(): ResourceCatalogEntry[] {

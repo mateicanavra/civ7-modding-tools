@@ -118,8 +118,12 @@ Alias: `studio-run-in-game:live`→`studio-run-in-game-live`.
 
 The former placement legality and required-for-age probes were milestone-scoped
 characterization scripts, not durable operational gates. Their recorded evidence
-remains historical; current policy must be proved by its owning Map Policy tests
-and by product-level live verification when a placement behavior changes.
+remains historical. Map Policy tests own static resource facts and the age-valid
+`Staple`/`UnlocksCiv` fallback; exact roster-dependent
+`isResourceRequiredForAge` flows through `EngineAdapter`. When that live policy
+is unavailable, planning records unresolved unless the static basis admits the
+minimum; it never substitutes `false`. Prove changed placement behavior with the
+product-level live gate above.
 
 ---
 

@@ -31,8 +31,11 @@ domain-interior redesign, or a generated-output certification exercise.
 4. `@swooper/mapgen-viz` owns environment-neutral spatial projection contracts,
    builders, statistics, and materialization. `@swooper/mapgen-metrics` owns
    neutral measurement and target-evaluation primitives. `@civ7/map-policy`
-   owns dependency-free static Civ7 map policy; live policy agreement is
-   operational control work owned by `@civ7/direct-control`.
+   owns dependency-free static Civ7 map policy, including resource `Weight`,
+   `MinimumPerHemisphere`, age validity, and the roster-independent
+   `Staple`/`UnlocksCiv` fallback basis. `@civ7/adapter` exposes exact
+   roster-dependent resource policy to planning through `EngineAdapter`;
+   external live control and verification remain `@civ7/direct-control` work.
 5. Package exports are the public dependency graph. Temporary aliases, deep
    source imports, and resolver plugins are deleted rather than preserved as a
    second graph.
@@ -194,12 +197,15 @@ already bundled the recipe without either resolver.
   authored resource-range evidence, geological clustering, latitude/sector distribution, and
   qualifying-landmass density. Standard and Earthlike targets own only the accepted budgets;
   provisional resource ranges remain measurements. The mixed E1/E2/E3 harness is deleted rather than moved:
-  synthetic operation probes remain behavior tests, and live policy proofs remain explicit
-  operational scripts until their control-owned slice.
+  synthetic operation probes remain behavior tests, while roster-dependent policy is a declared
+  adapter input and its product behavior is covered by bounded live verification.
 - Delete both milestone-scoped placement live probes rather than promoting
   their incomplete comparison models into a reusable package API. Preserve
-  their historical evidence, while current static policy remains owned and
-  corrected in dependency-free `@civ7/map-policy`.
+  their historical evidence. Static resource facts and fallback admission stay
+  in dependency-free `@civ7/map-policy`; exact `isResourceRequiredForAge`
+  stays roster-dependent and flows through `EngineAdapter`. An unavailable
+  engine answer admits only age-valid `Staple`/`UnlocksCiv` basis; all other
+  cases remain unresolved rather than becoming false.
 - Empty and delete `mods/mod-swooper-maps/src/dev` and its TypeScript config.
 
 Keep `scripts/map-artifacts/file-plan.ts` and `write-file-plan.ts` together in

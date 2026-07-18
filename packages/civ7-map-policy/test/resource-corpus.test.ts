@@ -366,17 +366,13 @@ describe("resource runtime id proof", () => {
     expect(resolution.byId.size).toBe(OFFICIAL_RESOURCE_CORPUS.length);
   });
 
-  it("carries official Weight / MinimumPerHemisphere / required-age facts", () => {
+  it("carries official Weight and MinimumPerHemisphere facts", () => {
     const gold = requireResourceRuntimeId("RESOURCE_GOLD");
     expect(gold.weight).toBe(20);
     expect(gold.minimumPerHemisphere).toBe(8);
-    expect(gold.requiredForAges).toContain("AGE_ANTIQUITY");
 
     const hides = requireResourceRuntimeId("RESOURCE_HIDES");
     expect(hides.weight).toBe(40);
-
-    const fish = requireResourceRuntimeId("RESOURCE_FISH");
-    expect(fish.requiredForAges).toContain("AGE_ANTIQUITY");
   });
 
   it("hard-fails on unresolvable symbolic ids instead of degrading", () => {

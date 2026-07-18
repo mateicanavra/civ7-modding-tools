@@ -13,6 +13,7 @@ import {
   isResourceAdjacentToLandRuntimeOptional,
   NATURAL_WONDER_CATALOG,
   NO_RIVER_TYPE,
+  type OfficialAgeType,
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
@@ -320,6 +321,11 @@ export interface MockAdapterConfig {
   canHaveFeature?: (x: number, y: number, featureType: number) => boolean;
   /** Optional resource validation hook for tests (return false to reject placement). */
   canHaveResource?: (x: number, y: number, resourceType: number) => boolean;
+  /**
+   * Optional live-resource-policy hook. Omit it when the mock should report
+   * that `isResourceRequiredForAge` is unavailable.
+   */
+  isResourceRequiredForAge?: (resourceTypeId: number, ageType: OfficialAgeType) => boolean | null;
   /** Sentinel used to represent "no resource". */
   noResourceSentinel?: number;
   /** Natural wonder feature catalog used by deterministic planners. */
@@ -371,6 +377,10 @@ export class MockAdapter implements EngineAdapter {
   private landmassIds: Record<LandmassIdName, number>;
   private canHaveFeatureFn?: (x: number, y: number, featureType: number) => boolean;
   private canHaveResourceFn?: (x: number, y: number, resourceType: number) => boolean;
+  private isResourceRequiredForAgeFn?: (
+    resourceTypeId: number,
+    ageType: OfficialAgeType
+  ) => boolean | null;
   private noResourceSentinel: number;
   private naturalWonderCatalog: NaturalWonderCatalogEntry[];
   private plotEffectTypes: Array<{ id: number; name: string; tags: Set<string> }>;
@@ -465,6 +475,7 @@ export class MockAdapter implements EngineAdapter {
     this.landmassIds = { ...DEFAULT_LANDMASS_IDS, ...(config.landmassIds ?? {}) };
     this.canHaveFeatureFn = config.canHaveFeature;
     this.canHaveResourceFn = config.canHaveResource;
+    this.isResourceRequiredForAgeFn = config.isResourceRequiredForAge;
     this.naturalWonderCatalog = (config.naturalWonderCatalog ?? DEFAULT_NATURAL_WONDER_CATALOG).map(
       (entry) => ({
         featureType: entry.featureType,
@@ -770,6 +781,11 @@ export class MockAdapter implements EngineAdapter {
       return this.canHaveResourceFn(x, y, resourceType);
     }
     return this.canHaveResourceByStaticPolicy(x, y, resourceType);
+  }
+
+  /** Return the configured live-policy answer, or `null` when no hook is installed. */
+  isResourceRequiredForAge(resourceTypeId: number, ageType: OfficialAgeType): boolean | null {
+    return this.isResourceRequiredForAgeFn?.(resourceTypeId, ageType) ?? null;
   }
 
   private canHaveResourceByStaticPolicy(x: number, y: number, resourceType: number): boolean {
@@ -1705,6 +1721,8 @@ export class MockAdapter implements EngineAdapter {
     this.landmassIds = { ...DEFAULT_LANDMASS_IDS, ...(config.landmassIds ?? {}) };
     this.canHaveFeatureFn = config.canHaveFeature ?? this.canHaveFeatureFn;
     this.canHaveResourceFn = config.canHaveResource ?? this.canHaveResourceFn;
+    this.isResourceRequiredForAgeFn =
+      config.isResourceRequiredForAge ?? this.isResourceRequiredForAgeFn;
     this.naturalWonderCatalog = (
       config.naturalWonderCatalog ??
       this.naturalWonderCatalog ??

@@ -2,14 +2,17 @@ import { getCiv7StandardMapSizePresetForDimensions } from "@civ7/adapter";
 import {
   buildResourceLegalityMask,
   CIV7_POLICY_TABLES_V1,
+  getUnconditionalResourceRequirementBasisForAge,
   OFFICIAL_RESOURCE_BY_TYPE,
   type OfficialResourceType,
   type ResourceLegalitySurface,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
 import {
+  admitPositiveResourceRegionMinimum,
   getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+  type ResourceRegionMinimumRequirement,
   default as resources,
 } from "@mapgen/domain/resources";
 import {
@@ -62,8 +65,7 @@ export type ResourceDemandSummaryRow = {
   laneId: string;
   laneKind: "land" | "water";
   weight: number;
-  minimumPerHemisphere: number;
-  requiredForAge: boolean;
+  regionMinimumRequirement: ResourceRegionMinimumRequirement;
   targetCount: number;
   minCount: number;
   maxCount: number;
@@ -240,8 +242,8 @@ type GroupPlanRow = {
  * Builds the per-type demand rows for site selection from the family
  * planners' symbolic rows: proves symbolic→runtime ids against the policy
  * tables (hard-fail), derives per-type habitat eligibility and policy
- * legality masks, and attaches official Weight / MinimumPerHemisphere /
- * required-for-age facts (E2.1, E2.2).
+ * legality masks, and attaches official Weight plus the typed regional-minimum
+ * admission decision and its engine, static, or unresolved provenance (E2.1, E2.2).
  */
 export function buildResourceDemands(args: {
   width: number;
@@ -249,6 +251,11 @@ export function buildResourceDemands(args: {
   plannedRows: ReadonlyArray<GroupPlanRow>;
   habitat: HabitatFields;
   legalitySurface: ResourceLegalitySurface;
+  /**
+   * Exact live required-for-age observations for planned resources with an official regional
+   * minimum. `null` records that the adapter surface is unavailable; omitted entries are refused.
+   */
+  requiredForAgeByResourceType: ReadonlyMap<OfficialResourceType, boolean | null>;
   /**
    * Optional per-tile river exclusion (1 = river tile). Tiles flagged here
    * are removed from every demand's legalMask BEFORE legal/eligible counts,
@@ -259,7 +266,15 @@ export function buildResourceDemands(args: {
    */
   riverResourceExclusionMask?: Uint8Array;
 }): ResourceDemandBuildResult {
-  const { width, height, plannedRows, habitat, legalitySurface, riverResourceExclusionMask } = args;
+  const {
+    width,
+    height,
+    plannedRows,
+    habitat,
+    legalitySurface,
+    requiredForAgeByResourceType,
+    riverResourceExclusionMask,
+  } = args;
   const size = width * height;
   if (riverResourceExclusionMask !== undefined && riverResourceExclusionMask.length !== size) {
     throw new Error(
@@ -339,6 +354,18 @@ export function buildResourceDemands(args: {
     }
 
     const laneKind: "land" | "water" = signal.family === "aquatic" ? "water" : "land";
+    const minimumPerHemisphere = resolved.minimumPerHemisphere;
+    if (minimumPerHemisphere > 0 && !requiredForAgeByResourceType.has(resourceType)) {
+      throw new Error(
+        `[resources] Missing required-for-age observation for ${resourceType} with official regional minimum ${minimumPerHemisphere}.`
+      );
+    }
+    const regionMinimumRequirement = resolveResourceRegionMinimumRequirement({
+      resourceType,
+      age,
+      minimumPerHemisphere,
+      observedRequiredForAge: requiredForAgeByResourceType.get(resourceType) ?? null,
+    });
     const demand: DemandRow = {
       resourceType,
       family: signal.family,
@@ -348,8 +375,7 @@ export function buildResourceDemands(args: {
       targetCount: row.targetIntentCount,
       minCount: Math.min(expectation.expectedCountRange.min, expectation.expectedCountRange.max),
       maxCount: expectation.expectedCountRange.max,
-      minimumPerHemisphere: resolved.minimumPerHemisphere,
-      requiredForAge: resolved.requiredForAges.includes(age),
+      regionMinimumRequirement,
       habitatMask: habitatEligibility.mask,
       legalMask,
       intensity: intensityByFamily[signal.family],
@@ -361,8 +387,7 @@ export function buildResourceDemands(args: {
       laneId: signal.laneId,
       laneKind,
       weight: demand.weight,
-      minimumPerHemisphere: demand.minimumPerHemisphere,
-      requiredForAge: demand.requiredForAge,
+      regionMinimumRequirement: demand.regionMinimumRequirement,
       targetCount: demand.targetCount,
       minCount: demand.minCount,
       maxCount: demand.maxCount,
@@ -378,5 +403,43 @@ export function buildResourceDemands(args: {
     excluded,
     age,
     minimumAmountModifier: resolveMinimumAmountModifier(width, height),
+  };
+}
+
+/**
+ * Resolves one official regional-minimum decision without flattening unavailable engine policy to
+ * false. Live answers are exact; only age-valid Staple/UnlocksCiv facts may admit headless forcing.
+ */
+export function resolveResourceRegionMinimumRequirement(args: {
+  resourceType: OfficialResourceType;
+  age: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE;
+  minimumPerHemisphere: number;
+  observedRequiredForAge: boolean | null;
+}): ResourceRegionMinimumRequirement {
+  const { resourceType, age, minimumPerHemisphere, observedRequiredForAge } = args;
+  if (minimumPerHemisphere === 0) {
+    return { kind: "not-applicable", reason: "no-official-minimum" };
+  }
+  const admittedMinimum = admitPositiveResourceRegionMinimum(minimumPerHemisphere);
+  if (observedRequiredForAge === true) {
+    return { kind: "required", minimumPerHemisphere: admittedMinimum, source: "engine" };
+  }
+  if (observedRequiredForAge === false) {
+    return { kind: "not-required", minimumPerHemisphere: admittedMinimum, source: "engine" };
+  }
+
+  const basis = getUnconditionalResourceRequirementBasisForAge(resourceType, age);
+  if (basis.length === 0) {
+    return {
+      kind: "unresolved",
+      minimumPerHemisphere: admittedMinimum,
+      source: "engine-unavailable",
+    };
+  }
+  return {
+    kind: "required",
+    minimumPerHemisphere: admittedMinimum,
+    source: "static-unconditional",
+    basis,
   };
 }

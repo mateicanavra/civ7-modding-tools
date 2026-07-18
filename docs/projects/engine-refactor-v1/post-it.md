@@ -2,7 +2,7 @@
 
 ## Behind
 
-- Package destination frame, structural-test authority, bundle compatibility, exported-symbol documentation, metrics engine, Standard product metrics, ArtifactModule authority, completed-map placement/resource metrics, and placement live-probe retirement are sealed semantic layers.
+- Package destination frame, structural-test authority, bundle compatibility, exported-symbol documentation, metrics engine, Standard product metrics, ArtifactModule authority, completed-map placement/resource metrics, placement live-probe retirement, the Nx-owned generated recipe-types dependency, and roster-aware resource-minimum authority are sealed semantic layers.
 - These layers are foundations, not open refactor surfaces.
 
 ## Now

@@ -7,9 +7,10 @@ import {
   getInitialMapResourcePolicyForType,
   INITIAL_MAP_RESOURCE_AUTHORING_AGE,
   type InitialMapResourceAuthoringStatus,
-  default as resources,
   ResourceFamilySchema,
+  ResourceRegionMinimumRequirementSchema,
   ResourceSymbolSchema,
+  default as resources,
 } from "@mapgen/domain/resources";
 import {
   defineArtifact,
@@ -25,8 +26,7 @@ const ResourceDemandSummaryRowSchema = Type.Object(
     laneId: Type.String(),
     laneKind: Type.Union([Type.Literal("land"), Type.Literal("water")]),
     weight: Type.Number({ minimum: 1 }),
-    minimumPerHemisphere: Type.Integer({ minimum: 0 }),
-    requiredForAge: Type.Boolean(),
+    regionMinimumRequirement: ResourceRegionMinimumRequirementSchema,
     targetCount: Type.Integer({ minimum: 0 }),
     minCount: Type.Integer({ minimum: 0 }),
     maxCount: Type.Integer({ minimum: 0 }),

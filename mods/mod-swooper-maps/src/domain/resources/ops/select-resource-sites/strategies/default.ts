@@ -1,5 +1,5 @@
 import type { OfficialResourceType } from "@civ7/map-policy";
-import { createStrategy } from "@swooper/mapgen-core/authoring";
+import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import SelectResourceSitesContract from "../contract.js";
 import { spacingFloorFor } from "../policy/spacing-floors.js";
@@ -26,8 +26,7 @@ type DemandState = {
   readonly effectiveTargetCount: number;
   readonly minCount: number;
   readonly maxCount: number;
-  readonly minimumPerHemisphere: number;
-  readonly requiredForAge: boolean;
+  readonly regionMinimumRequirement: StaticRegionMinimumRequirement;
   readonly habitatMask: Uint8Array;
   readonly legalMask: Uint8Array;
   readonly intensity: Float32Array;
@@ -41,6 +40,10 @@ type DemandState = {
   rangeFloorCount: number;
   regionMinimumCount: number;
 };
+
+type StaticRegionMinimumRequirement = Static<
+  (typeof SelectResourceSitesContract)["input"]
+>["demands"][number]["regionMinimumRequirement"];
 
 type Intent = {
   plotIndex: number;
@@ -171,8 +174,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         effectiveTargetCount,
         minCount: row.minCount,
         maxCount: row.maxCount,
-        minimumPerHemisphere: row.minimumPerHemisphere,
-        requiredForAge: row.requiredForAge,
+        regionMinimumRequirement: row.regionMinimumRequirement,
         habitatMask: row.habitatMask as Uint8Array,
         legalMask: row.legalMask as Uint8Array,
         intensity: row.intensity as Float32Array,
@@ -440,9 +442,8 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
     }
 
     // --- region-minimum pass ---------------------------------------------------------------------
-    // Official semantics: per landmass-region, MinimumPerHemisphere +
-    // MapResourceMinimumAmountModifier, gated by isResourceRequiredForAge,
-    // forced onto legal plots with no adjacent resource.
+    // Official semantics: per landmass-region, the admitted minimum plus the active
+    // MapResourceMinimumAmountModifier, forced onto legal plots with no adjacent resource.
     const regionMinimums: Array<{
       resourceType: OfficialResourceType;
       regionSlot: number;
@@ -452,8 +453,9 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
       shortfall: number;
     }> = [];
     for (const demand of demands) {
-      if (!demand.requiredForAge || demand.minimumPerHemisphere <= 0) continue;
-      const required = Math.max(0, demand.minimumPerHemisphere + input.minimumAmountModifier);
+      if (demand.regionMinimumRequirement.kind !== "required") continue;
+      const { minimumPerHemisphere } = demand.regionMinimumRequirement;
+      const required = Math.max(0, minimumPerHemisphere + input.minimumAmountModifier);
       if (required === 0) continue;
       for (const regionSlot of [1, 2] as const) {
         const have = demand.plannedPlots.filter(

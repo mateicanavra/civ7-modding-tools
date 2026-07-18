@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { admitPositiveResourceRegionMinimum } from "@mapgen/domain/resources";
 
 import resources from "@mapgen/domain/resources/ops";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
@@ -11,7 +12,7 @@ type Demand = Pick<
   SelectInput["demands"][number],
   "resourceType" | "weight" | "targetCount" | "minCount" | "maxCount"
 > &
-  Partial<Pick<SelectInput["demands"][number], "minimumPerHemisphere" | "requiredForAge">>;
+  Partial<Pick<SelectInput["demands"][number], "regionMinimumRequirement">>;
 
 function buildInput(args: {
   width: number;
@@ -46,8 +47,10 @@ function buildInput(args: {
       targetCount: demand.targetCount,
       minCount: demand.minCount,
       maxCount: demand.maxCount,
-      minimumPerHemisphere: demand.minimumPerHemisphere ?? 0,
-      requiredForAge: demand.requiredForAge ?? false,
+      regionMinimumRequirement: demand.regionMinimumRequirement ?? {
+        kind: "not-applicable",
+        reason: "no-official-minimum",
+      },
       habitatMask: allLand,
       legalMask: allLand,
       intensity,
@@ -273,32 +276,61 @@ describe("select-resource-sites operation contract", () => {
     ).toBe(true);
   });
 
-  it("forces region minimums for required-for-age types with typed provenance (E2.2)", () => {
-    const result = run(
+  it("runs the region-minimum force pass only for an admitted required state (E2.2)", () => {
+    const demand = {
+      resourceType: "RESOURCE_REQ",
+      weight: 10,
+      targetCount: 0,
+      minCount: 0,
+      maxCount: 12,
+    } as const;
+    const required = run(
       buildInput({
         width: 24,
         height: 16,
         demands: [
           {
-            resourceType: "RESOURCE_REQ",
-            weight: 10,
-            targetCount: 2,
-            minCount: 0,
-            maxCount: 12,
-            minimumPerHemisphere: 3,
-            requiredForAge: true,
+            ...demand,
+            regionMinimumRequirement: {
+              kind: "required",
+              minimumPerHemisphere: admitPositiveResourceRegionMinimum(3),
+              source: "engine",
+            },
           },
         ],
       })
     );
-    expect(result.regionMinimums).toHaveLength(2);
-    for (const row of result.regionMinimums) {
+    expect(required.regionMinimums).toHaveLength(2);
+    for (const row of required.regionMinimums) {
       expect(row.required).toBe(3);
       expect(row.fromRotation + row.forced + row.shortfall).toBeGreaterThanOrEqual(row.required);
     }
-    const perType = result.perType[0]!;
+    const perType = required.perType[0]!;
     expect(perType.plannedCount).toBeGreaterThanOrEqual(4);
-    expect(result.intents.some((intent) => intent.phase === "region-minimum")).toBe(true);
+    expect(required.intents.some((intent) => intent.phase === "region-minimum")).toBe(true);
+
+    for (const regionMinimumRequirement of [
+      {
+        kind: "not-required",
+        minimumPerHemisphere: admitPositiveResourceRegionMinimum(3),
+        source: "engine",
+      },
+      {
+        kind: "unresolved",
+        minimumPerHemisphere: admitPositiveResourceRegionMinimum(3),
+        source: "engine-unavailable",
+      },
+    ] as const) {
+      const skipped = run(
+        buildInput({
+          width: 24,
+          height: 16,
+          demands: [{ ...demand, regionMinimumRequirement }],
+        })
+      );
+      expect(skipped.regionMinimums).toEqual([]);
+      expect(skipped.intents).toEqual([]);
+    }
   });
 
   it("keeps exclusion hard during the region-minimum force pass", () => {
@@ -320,8 +352,11 @@ describe("select-resource-sites operation contract", () => {
             targetCount: 0,
             minCount: 0,
             maxCount: 2,
-            minimumPerHemisphere: 1,
-            requiredForAge: true,
+            regionMinimumRequirement: {
+              kind: "required",
+              minimumPerHemisphere: admitPositiveResourceRegionMinimum(1),
+              source: "engine",
+            },
           },
         ],
       }),
