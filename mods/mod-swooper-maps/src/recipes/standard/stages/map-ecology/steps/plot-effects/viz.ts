@@ -68,7 +68,7 @@ export const PLOT_EFFECT_VIZ_CATEGORIES = [
     color: [148, 163, 184, 0] as [number, number, number, number],
   },
   ...Object.values(PLOT_EFFECT_VIZ_SPEC_BY_KEY),
-];
+] as const satisfies readonly [PlotEffectVizSpec, ...PlotEffectVizSpec[]];
 
 /** Returns the stable visualization value for a canonically typed plot-effect intent. */
 export function plotEffectVizValue(key: PlotEffectIntentKey): number {

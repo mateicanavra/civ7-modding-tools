@@ -49,7 +49,7 @@ The script prints the final dump directory.
 ### 2) Inspect the outputs on disk
 
 Inside the run directory:
-- `trace.jsonl`: step start/finish + step events (verbose) including viz emission payloads
+- `trace.jsonl`: step start/finish plus any verbose structured step events
 - `manifest.json`: indexed list of steps and layers emitted, with stable `layerKey`s
 - `data/`: binary payload files referenced by the manifest
 
@@ -76,30 +76,39 @@ Then jump to the step code and confirm:
 - the data being emitted matches your expectations,
 - the emitted meta (label/group) is consistent with the domain model.
 
-### 6) Concrete example: a step emitting projection layers
+### 6) Concrete example: a step projecting visualization evidence
 
-The Foundation projection step emits multiple tile-space layers via `context.viz?.dumpGrid(...)` (and variants like
-`dumpGridFields`).
+The Foundation projection step returns its completed domain result from `run`, then its optional
+`viz` facet maps that result into multiple portable tile-space projections.
 
-Example (one emitted layer):
+Example (one projection):
 
 ```ts
-context.viz?.dumpGrid(context.trace, {
-  dataTypeKey: "foundation.plates.tilePlateId",
-  spaceId: "tile.hexOddR",
-  dims: { width, height },
-  format: "i16",
-  values: platesResult.plates.id,
-  meta: defineVizMeta("foundation.plates.tilePlateId", {
-    label: "Plate Id",
-    group: "Foundation / Plates",
-    palette: "categorical",
-  }),
+export const ProjectionStep = createStep(ProjectionStepContract, {
+  run: (context, config, ops, deps) => {
+    const result = ops.computePlates(/* admitted inputs */, config.computePlates);
+    deps.artifacts.foundationPlates.publish(context, result.plates);
+    return result;
+  },
+  viz: ({ result, dimensions }) => [
+    {
+      kind: "grid",
+      dataTypeKey: "foundation.plates.tilePlateId",
+      spaceId: "tile.hexOddQ",
+      dims: dimensions,
+      field: { format: "i16", values: result.plates.id },
+      meta: defineStandardVizMeta(
+        "foundation.plates.tilePlateId",
+        "category.distinct",
+        { label: "Plate Id", group: "Foundation / Plates" }
+      ),
+    },
+  ],
 });
 ```
 
-Important: the canonical Studio worker dumper (and the Node dump harness) only persists viz events for **verbose**
-trace contexts; if the current step isn’t verbose, the viewer will show no layers for it.
+The projector receives only `{ result, config, dimensions }`. Studio and the Node dump harness each
+supply their own facet sink; trace verbosity is unrelated to whether the projection is materialized.
 
 ## Verification
 

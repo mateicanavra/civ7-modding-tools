@@ -1,7 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, type VizDumper, type VizLayerMeta } from "@swooper/mapgen-core";
+import { createExtendedMapContext, type StepFacetSinks } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
+import type { VizLayerMeta } from "@swooper/mapgen-viz";
 
 import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../../src/recipes/standard/runtime.js";
@@ -113,16 +114,14 @@ describe("placement per-step viz coverage (E4.2/E4.3)", () => {
       metaByKey.set(layer.dataTypeKey, layer.meta);
     }
   };
-  const viz: VizDumper = {
-    outputRoot: "<test>",
-    dumpGrid: (_trace, layer) => record(layer),
-    dumpPoints: (_trace, layer) => record(layer),
-    dumpSegments: (_trace, layer) => record(layer),
-    dumpGridFields: (_trace, layer) => record(layer),
+  const captureViz: NonNullable<StepFacetSinks["viz"]> = (projections) => {
+    for (const projection of projections) record(projection);
   };
-  context.viz = viz;
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-  standardRecipe.run(context, env, standardConfig, { log: () => {} });
+  standardRecipe.run(context, env, standardConfig, {
+    facets: { viz: captureViz },
+    log: () => {},
+  });
 
   it("every placement step emits its expected decision-substance layers", () => {
     const missingByStep: Record<string, string[]> = {};

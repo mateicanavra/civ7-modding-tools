@@ -1,6 +1,7 @@
-import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
+import { buildScalarFieldProjections } from "@swooper/mapgen-viz";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { PedologyStepContract } from "./config.js";
 
 const GROUP_PEDOLOGY = "Ecology / Pedology";
@@ -70,32 +71,36 @@ export const PedologyStep = createStep(PedologyStepContract, {
       config.classify
     );
 
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "ecology.pedology.soilType",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: result.soilType,
-      meta: defineVizMeta("ecology.pedology.soilType", {
-        label: "Soil Type",
-        group: GROUP_PEDOLOGY,
-        palette: "categorical",
-      }),
-    });
-    dumpScalarFieldVariants(context.trace, context.viz, {
-      dataTypeKey: "ecology.pedology.fertility",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      field: { format: "f32", values: result.fertility },
-      label: "Fertility",
-      group: GROUP_PEDOLOGY,
-      points: {},
-    });
-
-    deps.artifacts.pedology.publish(context, {
+    const pedology = {
       width,
       height,
       ...result,
-    });
+    };
+    deps.artifacts.pedology.publish(context, pedology);
+    return pedology;
   },
+  viz: ({ result: pedology, dimensions }) => [
+    {
+      kind: "grid",
+      dataTypeKey: "ecology.pedology.soilType",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: pedology.soilType },
+      meta: defineStandardVizMeta("ecology.pedology.soilType", "category.distinct", {
+        label: "Soil Type",
+        group: GROUP_PEDOLOGY,
+      }),
+    },
+    ...buildScalarFieldProjections({
+      dataTypeKey: "ecology.pedology.fertility",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32", values: pedology.fertility },
+      meta: defineStandardVizMeta("ecology.pedology.fertility", "field.intensity", {
+        label: "Fertility",
+        group: GROUP_PEDOLOGY,
+      }),
+      points: {},
+    }),
+  ],
 });

@@ -1,25 +1,16 @@
 import { type OfficialResourceType, resolveResourceRuntimeIds } from "@civ7/map-policy";
 import { INITIAL_MAP_RESOURCE_AUTHORING_AGE } from "@mapgen/domain/resources";
-import { defineVizMeta, deriveStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
+import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import {
-  buildPlacementPointBuffers,
-  PLACEMENT_TILE_SPACE_ID,
-  PLACEMENT_VIZ_GROUP,
-  placementCategoryColor,
-  resourceTypeLabel,
-  UNIT_SCORE_VALUE_SPEC,
-} from "../../viz.js";
 import { PlanResourcesStepContract } from "./config.js";
 import {
   assertHabitatFieldsOutput,
   buildResourceDemands,
   buildRiverResourceExclusionMask,
   expectationsForGroup,
-  type HabitatIntensityFields,
-  type ResourceDemandBuildResult,
   readResourceLegalitySurface,
 } from "./planning.js";
+import { projectResourcePlanViz } from "./viz.js";
 
 /**
  * Derives habitat lanes, resource-family demand, eligibility, and typed site
@@ -267,152 +258,12 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
       minimumAmountModifier: demandResult.minimumAmountModifier,
     }));
 
-    // S7 (E4.2/E4.3): the selected plan, the habitat fields it was thinned
-    // by, and the policy eligibility surface it was constrained by.
-    emitResourcePlanViz(context, { width, height }, plan.intents, demandResult);
-    emitHabitatIntensityViz(context, { width, height }, habitat);
+    return {
+      intents: plan.intents,
+      demands: demandResult.demands,
+      summaries: demandResult.summaries,
+      habitat,
+    };
   },
+  viz: ({ result, dimensions }) => projectResourcePlanViz({ ...result, dimensions }),
 });
-
-type ResourcePlanIntentRow = Readonly<{
-  plotIndex: number;
-  resourceType: string;
-  phase: "rotation" | "range-floor" | "region-minimum";
-}>;
-
-/**
- * Per-type resource intent points (category = resource type, labels from the
- * policy-table RESOURCE_* identity) plus the aggregate eligibility/legality
- * grids the selection ran under.
- */
-function emitResourcePlanViz(
-  context: ExtendedMapContext,
-  dims: { width: number; height: number },
-  intents: ReadonlyArray<ResourcePlanIntentRow>,
-  demandResult: ResourceDemandBuildResult
-): void {
-  if (!context.viz) return;
-  const { width, height } = dims;
-  const size = Math.max(0, width * height);
-
-  const typeOrder = demandResult.summaries.map((row) => row.resourceType);
-  const valueByType = new Map<string, number>();
-  for (let i = 0; i < typeOrder.length; i++) valueByType.set(typeOrder[i]!, i + 1);
-  const categories = typeOrder.map((resourceType, index) => ({
-    value: index + 1,
-    label: resourceTypeLabel(resourceType),
-    color: placementCategoryColor(index),
-  }));
-
-  const rows = intents.map((intent) => ({
-    plotIndex: intent.plotIndex,
-    value: valueByType.get(intent.resourceType) ?? 0,
-  }));
-  const { positions, values } = buildPlacementPointBuffers(rows, width);
-  context.viz.dumpPoints(context.trace, {
-    dataTypeKey: "placement.resources.intents",
-    spaceId: PLACEMENT_TILE_SPACE_ID,
-    positions,
-    values,
-    valueFormat: "u16",
-    meta: defineVizMeta("placement.resources.intents", {
-      label: "Planned Resource Sites",
-      group: PLACEMENT_VIZ_GROUP,
-      description:
-        "Typed per-plot resource intents from site selection, colored by resource type (policy-table identity). Phase provenance (rotation / range-floor / region-minimum) lives in the resourcePlan artifact.",
-      palette: "categorical",
-      categories,
-    }),
-  });
-
-  // Aggregate eligibility surfaces: how many planned types could legally use
-  // each tile (policy legality), and how many remain after the habitat gate.
-  const legalTypeCount = new Uint16Array(size);
-  const eligibleTypeCount = new Uint16Array(size);
-  for (const demand of demandResult.demands) {
-    const legalMask = demand.legalMask;
-    const habitatMask = demand.habitatMask;
-    for (let i = 0; i < size; i++) {
-      if (legalMask[i] !== 0) {
-        legalTypeCount[i] += 1;
-        if (habitatMask[i] !== 0) eligibleTypeCount[i] += 1;
-      }
-    }
-  }
-  context.viz.dumpGrid(context.trace, {
-    dataTypeKey: "placement.resources.eligibleTypeCount",
-    spaceId: PLACEMENT_TILE_SPACE_ID,
-    dims: { width, height },
-    format: "u16",
-    values: eligibleTypeCount,
-    valueSpec: {
-      scale: "linear",
-      domain: { kind: "explicit", min: 0, max: Math.max(1, demandResult.demands.length) },
-      units: "resource types",
-    },
-    meta: defineVizMeta("placement.resources.eligibleTypeCount", {
-      label: "Resource Eligibility (Types per Tile)",
-      group: PLACEMENT_VIZ_GROUP,
-      description:
-        "How many planned resource types pass BOTH the policy legality tables and their habitat lane on each tile — the surface site selection actually chose from.",
-      palette: "continuous",
-    }),
-  });
-  context.viz.dumpGrid(context.trace, {
-    dataTypeKey: "placement.resources.legalTypeCount",
-    spaceId: PLACEMENT_TILE_SPACE_ID,
-    dims: { width, height },
-    format: "u16",
-    values: legalTypeCount,
-    valueSpec: {
-      scale: "linear",
-      domain: { kind: "explicit", min: 0, max: Math.max(1, demandResult.demands.length) },
-      units: "resource types",
-    },
-    meta: defineVizMeta("placement.resources.legalTypeCount", {
-      label: "Resource Policy Legality (Types per Tile)",
-      group: PLACEMENT_VIZ_GROUP,
-      description:
-        "How many planned resource types the official Resource_ValidPlacements policy tables allow on each tile, before the habitat gate.",
-      palette: "continuous",
-      visibility: "debug",
-    }),
-  });
-}
-
-const HABITAT_FAMILY_FIELDS = [
-  ["aquatic", "aquaticIntensity"],
-  ["cultivated", "cultivatedIntensity"],
-  ["terrestrial", "terrestrialIntensity"],
-  ["geological", "geologicalIntensity"],
-] as const;
-
-/** Habitat intensity per resource family (0..1), the in-lane thinning field. */
-function emitHabitatIntensityViz(
-  context: ExtendedMapContext,
-  dims: { width: number; height: number },
-  habitat: HabitatIntensityFields
-): void {
-  if (!context.viz) return;
-  const { width, height } = dims;
-  const size = Math.max(0, width * height);
-  for (const [family, fieldKey] of HABITAT_FAMILY_FIELDS) {
-    const values = habitat[fieldKey];
-    if (!(values instanceof Float32Array) || values.length !== size) continue;
-    const dataTypeKey = `placement.resources.habitat.${family}`;
-    context.viz.dumpGrid(context.trace, {
-      dataTypeKey,
-      spaceId: PLACEMENT_TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values,
-      valueSpec: UNIT_SCORE_VALUE_SPEC,
-      meta: defineVizMeta(dataTypeKey, {
-        label: `Habitat Intensity: ${family[0]!.toUpperCase()}${family.slice(1)}`,
-        group: PLACEMENT_VIZ_GROUP,
-        description: `Habitat lane intensity (0..1) for the ${family} resource family; site selection thins acceptance by this field inside the lane.`,
-        palette: "continuous",
-      }),
-    });
-  }
-}

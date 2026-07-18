@@ -4,3 +4,4 @@ export * from "./meta.js";
 export * from "./model.js";
 export * from "./projection.js";
 export * from "./stats.js";
+export * from "./variants.js";

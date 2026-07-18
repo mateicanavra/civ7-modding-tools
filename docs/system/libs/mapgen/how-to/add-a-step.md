@@ -100,14 +100,17 @@ export const PlotRiversStepContract = defineStep({
 ### 3) Implement the step (`createStep`)
 
 - Create `steps/<step-id>/step.ts` and call `createStep(YourStepContract, { normalize?, run })`.
-- Keep step code “boring”: read inputs from `deps`/artifacts, mutate only permitted buffers, publish only allowed artifacts, emit trace/viz only via `context.trace` / `context.viz`.
+- Keep step code “boring”: read inputs from `deps`/artifacts, mutate only permitted state, publish
+  only allowed artifacts, and emit structured debug events only through `context.trace`.
+- Return any completed evidence needed by optional `metrics` or `viz` projectors. Recipe algorithms
+  never receive a visualization sink.
 - Prefer `context.trace.event(() => ({ ... }))` for verbose-only structured dumps.
 
 Representative example (excerpt; see full file in anchors):
 
 ```ts
-import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { GeomorphologyStepContract } from "./config.js";
 
 /** Applies the domain geomorphology operation to the stage's admitted evidence. */
@@ -133,17 +136,23 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
       config.geomorphology
     );
 
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.geomorphology.elevationDelta",
-      spaceId: "tile.hexOddR",
-      dims: context.dimensions,
-      format: "f32",
-      values: deltas.elevationDelta,
-      meta: defineVizMeta("morphology.geomorphology.elevationDelta", { label: "Elevation Delta" }),
-    });
-
     context.trace.event(() => ({ kind: "morphology.geomorphology.summary" }));
+    return { elevationDelta: deltas.elevationDelta };
   },
+  viz: ({ result, dimensions }) => [
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.geomorphology.elevationDelta",
+      spaceId: "tile.hexOddQ",
+      dims: dimensions,
+      field: { format: "f32", values: result.elevationDelta },
+      meta: defineStandardVizMeta(
+        "morphology.geomorphology.elevationDelta",
+        "field.signed",
+        { label: "Elevation Delta" }
+      ),
+    },
+  ],
 });
 ```
 
@@ -199,7 +208,8 @@ If your step introduces a new required/provided dependency tag:
 - Enable verbose tracing for your step id and confirm the trace shows:
   - `step.start` and `step.finish` for your step id
   - expected `step.event` payloads (if you emit them)
-- If your step emits viz layers via `context.viz?.dumpGrid(...)`, confirm a run produces a layer entry in the viz manifest:
+- If your step owns a `viz` projector, confirm a run with a visualization facet sink produces the
+  expected layer entry in the viz manifest:
   - Use the local dump harness patterns referenced in the anchors below.
 
 ## Footguns

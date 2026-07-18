@@ -1,7 +1,11 @@
 import { MORPHOLOGY_SHELF_WIDTH_MULTIPLIER } from "@mapgen/domain/morphology/model/policy/shelf-knob-policy.js";
-import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
+import {
+  defineStandardVizCategoryMeta,
+  defineStandardVizMeta,
+  STANDARD_VIZ_COLORS,
+} from "../../../../viz.js";
 import type { MorphologyShelfWidthKnob } from "../../index.js";
 import { ComputeShelfStepContract } from "./config.js";
 
@@ -49,34 +53,6 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
     // morphology-features mutated in place (islands inject land + set bathymetry 0).
     const landMask = topography.landMask;
     const bathymetry = topography.bathymetry;
-
-    // Diagnostic: the exact bathymetry/landMask the shelf classifier reads (post-erosion AND
-    // post-island). Paired with the pre-erosion snapshot (morphology-coasts) it isolates how
-    // much erosion vs island injection drives shelf width.
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.shelf.bathymetryInput",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i16",
-      values: bathymetry,
-      meta: defineVizMeta("morphology.shelf.bathymetryInput", {
-        label: "Bathymetry (Shelf Input, Post-island)",
-        group: GROUP_SHELF,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.shelf.landMaskInput",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: landMask,
-      meta: defineVizMeta("morphology.shelf.landMaskInput", {
-        label: "Land Mask (Shelf Input, Post-island)",
-        group: GROUP_SHELF,
-        visibility: "debug",
-      }),
-    });
 
     // 1) Post-island shoreline adjacency (island peaks now count).
     const { coastalLand, coastalWater } = ops.coastalAdjacency(
@@ -176,125 +152,7 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
       };
     });
 
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.shelf.shelfMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: shelfMask,
-      meta: defineVizMeta("morphology.shelf.shelfMask", {
-        label: "Shelf Mask",
-        group: GROUP_SHELF,
-        description:
-          "Post-island continental-shelf water mask used to project TERRAIN_COAST beyond the shoreline ring.",
-        role: "membership",
-        palette: "categorical",
-        categories: [
-          { value: 0, label: "Deep Water", color: [37, 99, 235, 220] },
-          { value: 1, label: "Shelf Water", color: [56, 189, 248, 230] },
-        ],
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.shelf.coastalWater",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: coastalWater,
-      meta: defineVizMeta("morphology.shelf.coastalWater", {
-        label: "Coastal Water (Post-island)",
-        group: GROUP_SHELF,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.shelf.distanceToCoast",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u16",
-      values: distanceToCoast,
-      meta: defineVizMeta("morphology.shelf.distanceToCoast", {
-        label: "Distance To Coast (Post-island)",
-        group: GROUP_SHELF,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.shelf.activeMarginMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: activeMarginMask,
-      meta: defineVizMeta("morphology.shelf.activeMarginMask", {
-        label: "Active Margin Mask",
-        group: GROUP_SHELF,
-        description:
-          "Diagnostic overlay for water near convergent or transform boundaries with high boundary closeness; it does not affect shelf membership.",
-        role: "membership",
-        palette: "categorical",
-        categories: [
-          { value: 0, label: "Passive/Other", color: [37, 99, 235, 80] },
-          { value: 1, label: "Active Margin", color: [220, 38, 38, 230] },
-        ],
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.shelf.breakDepth",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i16",
-      values: shelfBreakDepthByTile,
-      meta: defineVizMeta("morphology.shelf.breakDepth", {
-        label: "Shelf Break Depth",
-        group: GROUP_SHELF,
-        description:
-          "Diagnostic steepest-neighbor bathymetry where the local-gradient gate rejects water; 0 where no break is recorded.",
-        role: "scalar",
-        palette: "continuous",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.shelf.nearshoreCandidateMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: nearshoreCandidateMask,
-      meta: defineVizMeta("morphology.shelf.nearshoreCandidateMask", {
-        label: "Shoreline Connectivity Seeds",
-        group: GROUP_SHELF,
-        visibility: "debug",
-        description:
-          "Shoreline-adjacent water tiles that seed connectivity across the gentle pre-break apron.",
-        role: "membership",
-        palette: "categorical",
-        categories: [
-          { value: 0, label: "Not A Seed", color: [0, 0, 0, 0] },
-          { value: 1, label: "Shoreline Seed", color: [14, 165, 233, 230] },
-        ],
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.shelf.depthGateMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: depthGateMask,
-      meta: defineVizMeta("morphology.shelf.depthGateMask", {
-        label: "Gentle-Gradient Admission",
-        group: GROUP_SHELF,
-        visibility: "debug",
-        description:
-          "Water admitted by the gentle local-gradient gate; shoreline seeds are admitted even when their immediate seaward gradient is steep.",
-        role: "membership",
-        palette: "categorical",
-        categories: [
-          { value: 0, label: "Rejected At Break", color: [37, 99, 235, 220] },
-          { value: 1, label: "Admitted Pre-Break", color: [56, 189, 248, 230] },
-        ],
-      }),
-    });
-
-    deps.artifacts.shelf.publish(context, {
+    const shelf = {
       shelfMask,
       coastalLand,
       coastalWater,
@@ -304,6 +162,158 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
       nearshoreCandidateMask,
       shelfBreakDepthByTile,
       shallowCutoff,
-    });
+    };
+    deps.artifacts.shelf.publish(context, shelf);
+    return { bathymetry, landMask, shelf };
   },
+  viz: ({ result: { bathymetry, landMask, shelf }, dimensions }) => [
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.shelf.bathymetryInput",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "i16", values: bathymetry },
+      meta: defineStandardVizMeta("morphology.shelf.bathymetryInput", "water.depth", {
+        label: "Bathymetry (Shelf Input, Post-island)",
+        group: GROUP_SHELF,
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.shelf.landMaskInput",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: landMask },
+      meta: defineStandardVizMeta("morphology.shelf.landMaskInput", "category.distinct", {
+        label: "Land Mask (Shelf Input, Post-island)",
+        group: GROUP_SHELF,
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.shelf.shelfMask",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: shelf.shelfMask },
+      meta: defineStandardVizCategoryMeta(
+        "morphology.shelf.shelfMask",
+        [
+          { value: 0, label: "Deep Water", color: STANDARD_VIZ_COLORS.water.ocean },
+          { value: 1, label: "Shelf Water", color: STANDARD_VIZ_COLORS.water.coast },
+        ],
+        {
+          label: "Shelf Mask",
+          group: GROUP_SHELF,
+          description:
+            "Post-island continental-shelf water mask used to project TERRAIN_COAST beyond the shoreline ring.",
+          role: "membership",
+        }
+      ),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.shelf.coastalWater",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: shelf.coastalWater },
+      meta: defineStandardVizMeta("morphology.shelf.coastalWater", "category.distinct", {
+        label: "Coastal Water (Post-island)",
+        group: GROUP_SHELF,
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.shelf.distanceToCoast",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u16", values: shelf.distanceToCoast },
+      meta: defineStandardVizMeta("morphology.shelf.distanceToCoast", "field.intensity", {
+        label: "Distance To Coast (Post-island)",
+        group: GROUP_SHELF,
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.shelf.activeMarginMask",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: shelf.activeMarginMask },
+      meta: defineStandardVizCategoryMeta(
+        "morphology.shelf.activeMarginMask",
+        [
+          { value: 0, label: "Passive/Other", color: [37, 99, 235, 80] },
+          { value: 1, label: "Active Margin", color: [220, 38, 38, 230] },
+        ],
+        {
+          label: "Active Margin Mask",
+          group: GROUP_SHELF,
+          description:
+            "Diagnostic overlay for water near convergent or transform boundaries with high boundary closeness; it does not affect shelf membership.",
+          role: "membership",
+        }
+      ),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.shelf.breakDepth",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "i16", values: shelf.shelfBreakDepthByTile },
+      meta: defineStandardVizMeta("morphology.shelf.breakDepth", "water.depth", {
+        label: "Shelf Break Depth",
+        group: GROUP_SHELF,
+        description:
+          "Diagnostic steepest-neighbor bathymetry where the local-gradient gate rejects water; 0 where no break is recorded.",
+        role: "scalar",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.shelf.nearshoreCandidateMask",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: shelf.nearshoreCandidateMask },
+      meta: defineStandardVizCategoryMeta(
+        "morphology.shelf.nearshoreCandidateMask",
+        [
+          { value: 0, label: "Not A Seed", color: STANDARD_VIZ_COLORS.absent },
+          { value: 1, label: "Shoreline Seed", color: STANDARD_VIZ_COLORS.water.coast },
+        ],
+        {
+          label: "Shoreline Connectivity Seeds",
+          group: GROUP_SHELF,
+          visibility: "debug",
+          description:
+            "Shoreline-adjacent water tiles that seed connectivity across the gentle pre-break apron.",
+          role: "membership",
+        }
+      ),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.shelf.depthGateMask",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: shelf.depthGateMask },
+      meta: defineStandardVizCategoryMeta(
+        "morphology.shelf.depthGateMask",
+        [
+          { value: 0, label: "Rejected At Break", color: STANDARD_VIZ_COLORS.water.ocean },
+          { value: 1, label: "Admitted Pre-Break", color: STANDARD_VIZ_COLORS.water.coast },
+        ],
+        {
+          label: "Gentle-Gradient Admission",
+          group: GROUP_SHELF,
+          visibility: "debug",
+          description:
+            "Water admitted by the gentle local-gradient gate; shoreline seeds are admitted even when their immediate seaward gradient is steep.",
+          role: "membership",
+        }
+      ),
+    },
+  ],
 });

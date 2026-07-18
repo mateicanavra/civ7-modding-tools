@@ -1,6 +1,11 @@
 import * as ecology from "@mapgen/domain/ecology";
-import { defineVizMeta, logBiomeSummary } from "@swooper/mapgen-core";
+import { logBiomeSummary } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import {
+  defineStandardVizCategoryMeta,
+  defineStandardVizMeta,
+  STANDARD_VIZ_COLORS,
+} from "../../../../viz.js";
 import { buildEngineBiomeIdVizCategories } from "../../viz.js";
 import { PlotBiomesStepContract } from "./config.js";
 import { resolveEngineBiomeIds } from "./engine-biome-bindings.js";
@@ -18,14 +23,8 @@ export const PlotBiomesStep = createStep(PlotBiomesStepContract, {
     const { width, height } = context.dimensions;
     const classification = deps.artifacts.biomeClassification.read(context);
     const topography = deps.artifacts.topography.read(context);
-    const { land: engineBindings, marine: marineBiome } = resolveEngineBiomeIds(
-      context.adapter,
-      config.bindings
-    );
-    const biomeIdCategories = buildEngineBiomeIdVizCategories({
-      land: engineBindings,
-      marine: marineBiome,
-    });
+    const engineBiomeIds = resolveEngineBiomeIds(context.adapter, config.bindings);
+    const { land: engineBindings, marine: marineBiome } = engineBiomeIds;
 
     const size = width * height;
     const engineBiomeId = new Uint16Array(size);
@@ -99,53 +98,54 @@ export const PlotBiomesStep = createStep(PlotBiomesStepContract, {
     }));
 
     // Map-stage visualization: engine biomes are best-effort bindings of ecology truth (not 1:1).
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.ecology.biomeId",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: projectedBiomeId,
-      meta: defineVizMeta("map.ecology.biomeId", {
-        label: "Biome Id (Engine)",
-        group: GROUP_MAP_ECOLOGY,
-        palette: "categorical",
-        categories: biomeIdCategories.map((category) => ({
-          value: category.value,
-          label: category.label,
-          color: [...category.color] as [number, number, number, number],
-        })),
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.ecology.temperature",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: projectedTemperature,
-      meta: defineVizMeta("map.ecology.temperature", {
-        label: "Temperature (Engine)",
-        group: GROUP_MAP_ECOLOGY,
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.ecology.biome.bindingClass",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: bindingClass,
-      meta: defineVizMeta("map.ecology.biome.bindingClass", {
-        label: "Biome Binding Drift Class",
-        group: GROUP_MAP_ECOLOGY,
-        palette: "categorical",
-        visibility: "debug",
-        categories: [
-          { value: 0, label: "Water", color: [59, 130, 246, 200] as const },
-          { value: 1, label: "Unique Binding", color: [34, 197, 94, 220] as const },
-          { value: 2, label: "Colliding Binding", color: [239, 68, 68, 235] as const },
-        ],
-      }),
-    });
-
     logBiomeSummary(context.trace, context.adapter, width, height);
+    return { projectedBiomeId, projectedTemperature, bindingClass, engineBiomeIds };
+  },
+  viz: ({ result, dimensions }) => {
+    const biomeIdCategories = buildEngineBiomeIdVizCategories(result.engineBiomeIds);
+    return [
+      {
+        kind: "grid",
+        dataTypeKey: "map.ecology.biomeId",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "u8", values: result.projectedBiomeId },
+        meta: defineStandardVizCategoryMeta("map.ecology.biomeId", biomeIdCategories, {
+          label: "Biome Id (Engine)",
+          group: GROUP_MAP_ECOLOGY,
+        }),
+      },
+      {
+        kind: "grid",
+        dataTypeKey: "map.ecology.temperature",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "u8", values: result.projectedTemperature },
+        meta: defineStandardVizMeta("map.ecology.temperature", "climate.temperature", {
+          label: "Temperature (Engine)",
+          group: GROUP_MAP_ECOLOGY,
+        }),
+      },
+      {
+        kind: "grid",
+        dataTypeKey: "map.ecology.biome.bindingClass",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "u8", values: result.bindingClass },
+        meta: defineStandardVizCategoryMeta(
+          "map.ecology.biome.bindingClass",
+          [
+            { value: 0, label: "Water", color: STANDARD_VIZ_COLORS.water.ocean },
+            { value: 1, label: "Unique Binding", color: STANDARD_VIZ_COLORS.field.elevated },
+            { value: 2, label: "Colliding Binding", color: STANDARD_VIZ_COLORS.field.positive },
+          ],
+          {
+            label: "Biome Binding Drift Class",
+            group: GROUP_MAP_ECOLOGY,
+            visibility: "debug",
+          }
+        ),
+      },
+    ];
   },
 });

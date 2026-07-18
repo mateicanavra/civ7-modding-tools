@@ -1,6 +1,6 @@
-import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { PlateMotionStepContract } from "./config.js";
 
 const GROUP_PLATE_MOTION = "Foundation / Plate Motion";
@@ -107,28 +107,30 @@ export const PlateMotionStep = createStep(PlateMotionStepContract, {
     );
 
     deps.artifacts.foundationPlateMotion.publish(context, plateMotionResult.plateMotion);
-
+    return { mesh, plateGraph, plateMotion: plateMotionResult.plateMotion };
+  },
+  viz: ({ result: { mesh, plateGraph, plateMotion } }) => {
     const { segments, values } = buildVectorSegments({
       siteX: mesh.siteX,
       siteY: mesh.siteY,
       plateIdByCell: plateGraph.cellToPlate,
-      plateMotion: plateMotionResult.plateMotion,
+      plateMotion,
       wrapWidth: mesh.wrapWidth,
     });
-
-    context.viz?.dumpSegments(context.trace, {
-      dataTypeKey: "foundation.plateMotion.motion",
-      spaceId: WORLD_SPACE_ID,
-      segments,
-      values,
-      valueFormat: "f32",
-      meta: defineVizMeta("foundation.plateMotion.motion", {
-        label: "Plate Motion (Vectors)",
-        group: GROUP_PLATE_MOTION,
-        role: "vector",
-        visibility: "debug",
-        palette: "continuous",
-      }),
-    });
+    return [
+      {
+        kind: "segments",
+        dataTypeKey: "foundation.plateMotion.motion",
+        spaceId: WORLD_SPACE_ID,
+        segments,
+        values: { format: "f32", values },
+        meta: defineStandardVizMeta("foundation.plateMotion.motion", "field.intensity", {
+          label: "Plate Motion (Vectors)",
+          group: GROUP_PLATE_MOTION,
+          role: "vector",
+          visibility: "debug",
+        }),
+      },
+    ];
   },
 });

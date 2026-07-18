@@ -2,8 +2,8 @@ import {
   HYDROLOGY_RIVER_DENSITY_MAJOR_PERCENTILE,
   HYDROLOGY_RIVER_DENSITY_MINOR_PERCENTILE,
 } from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
-import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { RiversStepContract } from "./config.js";
 
 type HydrologyRiverDensityKnob = "sparse" | "normal" | "dense";
@@ -84,7 +84,7 @@ export const RiversStep = createStep(RiversStepContract, {
       config.projectRiverNetwork
     );
 
-    deps.artifacts.hydrography.publish(context, {
+    const hydrography = {
       runoff: discharge.runoff,
       discharge: discharge.discharge,
       riverClass: projected.riverClass,
@@ -95,106 +95,104 @@ export const RiversStep = createStep(RiversStepContract, {
       routingElevation: routing.routingElevation,
       depressionDepth: routing.depressionDepth,
       terminalType: routing.terminalType,
-    });
-
-    context.viz?.dumpGrid(context.trace, {
+    };
+    deps.artifacts.hydrography.publish(context, hydrography);
+    return hydrography;
+  },
+  viz: ({ result: hydrography, dimensions }) => [
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.runoff",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: discharge.runoff,
-      meta: defineVizMeta("hydrology.hydrography.runoff", {
+      dims: dimensions,
+      field: { format: "f32", values: hydrography.runoff },
+      meta: defineStandardVizMeta("hydrology.hydrography.runoff", "field.intensity", {
         label: "Runoff",
         group: GROUP_HYDROGRAPHY,
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.discharge",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: discharge.discharge,
-      meta: defineVizMeta("hydrology.hydrography.discharge", {
+      dims: dimensions,
+      field: { format: "f32", values: hydrography.discharge },
+      meta: defineStandardVizMeta("hydrology.hydrography.discharge", "field.intensity", {
         label: "Discharge",
         group: GROUP_HYDROGRAPHY,
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.riverClass",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: projected.riverClass,
-      meta: defineVizMeta("hydrology.hydrography.riverClass", {
+      dims: dimensions,
+      field: { format: "u8", values: hydrography.riverClass },
+      meta: defineStandardVizMeta("hydrology.hydrography.riverClass", "category.distinct", {
         label: "River Class",
         group: GROUP_HYDROGRAPHY,
-        palette: "categorical",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.sinkMask",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: routing.sinkMask,
-      meta: defineVizMeta("hydrology.hydrography.sinkMask", {
+      dims: dimensions,
+      field: { format: "u8", values: hydrography.sinkMask },
+      meta: defineStandardVizMeta("hydrology.hydrography.sinkMask", "category.distinct", {
         label: "Sink Mask",
         group: GROUP_HYDROGRAPHY,
-        palette: "categorical",
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.outletMask",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: routing.outletMask,
-      meta: defineVizMeta("hydrology.hydrography.outletMask", {
+      dims: dimensions,
+      field: { format: "u8", values: hydrography.outletMask },
+      meta: defineStandardVizMeta("hydrology.hydrography.outletMask", "category.distinct", {
         label: "Outlet Mask",
         group: GROUP_HYDROGRAPHY,
-        palette: "categorical",
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.basinId",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i32",
-      values: routing.basinId,
-      meta: defineVizMeta("hydrology.hydrography.basinId", {
+      dims: dimensions,
+      field: { format: "i32", values: hydrography.basinId },
+      meta: defineStandardVizMeta("hydrology.hydrography.basinId", "category.distinct", {
         label: "Drainage Basin Id",
         group: GROUP_HYDROGRAPHY,
-        palette: "categorical",
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.depressionDepth",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: routing.depressionDepth,
-      meta: defineVizMeta("hydrology.hydrography.depressionDepth", {
+      dims: dimensions,
+      field: { format: "f32", values: hydrography.depressionDepth },
+      meta: defineStandardVizMeta("hydrology.hydrography.depressionDepth", "field.intensity", {
         label: "Drainage Conditioning Depth",
         group: GROUP_HYDROGRAPHY,
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.terminalType",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: routing.terminalType,
-      meta: defineVizMeta("hydrology.hydrography.terminalType", {
+      dims: dimensions,
+      field: { format: "u8", values: hydrography.terminalType },
+      meta: defineStandardVizMeta("hydrology.hydrography.terminalType", "category.distinct", {
         label: "Drainage Terminal Type",
         group: GROUP_HYDROGRAPHY,
-        palette: "categorical",
         visibility: "debug",
       }),
-    });
-  },
+    },
+  ],
 });

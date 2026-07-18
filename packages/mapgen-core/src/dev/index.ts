@@ -80,18 +80,5 @@ export {
   timeStart,
 } from "@mapgen/dev/timing.js";
 
-// Visualization metadata helpers
-export { defineVizMeta } from "@mapgen/dev/viz-meta.js";
-// Scalar visualization helpers
-export {
-  dumpScalarFieldVariants,
-  type ScalarFieldVariantsOptions,
-} from "@mapgen/dev/viz-scalar.js";
-// Vector visualization helpers
-export {
-  dumpVectorFieldVariants,
-  type VectorFieldVariantsOptions,
-} from "@mapgen/dev/viz-vector.js";
-
 /** Module version */
 export const DEV_MODULE_VERSION = "1.0.0";

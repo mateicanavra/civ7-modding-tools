@@ -18,40 +18,6 @@ import { initializeTerrainConstants } from "@mapgen/core/terrain-constants.js";
 import { createLabelRng, type LabelRng } from "@mapgen/lib/rng/label.js";
 import type { TraceScope } from "@mapgen/trace/index.js";
 import { createNoopTraceScope } from "@mapgen/trace/index.js";
-import type {
-  VizDataTypeKey,
-  VizDims,
-  VizLayerMeta,
-  VizScalarFormat,
-  VizSpaceId,
-  VizValueSpec,
-  VizVariantKey,
-} from "@swooper/mapgen-viz";
-
-export type {
-  Bounds,
-  VizBinaryRef,
-  VizDataTypeKey,
-  VizDims,
-  VizLayerCategory,
-  VizLayerEmissionV1,
-  VizLayerEntryV1,
-  VizLayerKey,
-  VizLayerKind,
-  VizLayerMeta,
-  VizLayerVisibility,
-  VizManifestV1,
-  VizNoDataSpec,
-  VizPaletteMode,
-  VizScalarFormat,
-  VizScalarStats,
-  VizScaleType,
-  VizSpaceId,
-  VizValueDomain,
-  VizValueSpec,
-  VizValueTransform,
-  VizVariantKey,
-} from "@swooper/mapgen-viz";
 
 /**
  * Primary morphology staging buffer.
@@ -98,79 +64,6 @@ export interface RNGState {
   nextInt: LabelRng;
 }
 
-export interface VizDumper {
-  /**
-   * Base directory for run dumps. The concrete run directory is typically
-   * resolved as `${outputRoot}/${runId}`.
-   *
-   * NOTE: this is expected to be injected by local tooling; runtime/game code
-   * should not assume it exists.
-   */
-  outputRoot: string;
-
-  dumpGrid: (
-    trace: TraceScope,
-    layer: {
-      dataTypeKey: VizDataTypeKey;
-      variantKey?: VizVariantKey;
-      spaceId: VizSpaceId;
-      dims: VizDims;
-      format: VizScalarFormat;
-      values: ArrayBufferView;
-      valueSpec?: VizValueSpec;
-      meta?: VizLayerMeta;
-    }
-  ) => void;
-
-  dumpPoints: (
-    trace: TraceScope,
-    layer: {
-      dataTypeKey: VizDataTypeKey;
-      variantKey?: VizVariantKey;
-      spaceId: VizSpaceId;
-      positions: Float32Array; // [x0,y0,x1,y1,...]
-      values?: ArrayBufferView;
-      valueFormat?: VizScalarFormat;
-      valueSpec?: VizValueSpec;
-      meta?: VizLayerMeta;
-    }
-  ) => void;
-
-  dumpSegments: (
-    trace: TraceScope,
-    layer: {
-      dataTypeKey: VizDataTypeKey;
-      variantKey?: VizVariantKey;
-      spaceId: VizSpaceId;
-      segments: Float32Array; // [x0,y0,x1,y1,...] pairs per segment
-      values?: ArrayBufferView;
-      valueFormat?: VizScalarFormat;
-      valueSpec?: VizValueSpec;
-      meta?: VizLayerMeta;
-    }
-  ) => void;
-
-  dumpGridFields: (
-    trace: TraceScope,
-    layer: {
-      dataTypeKey: VizDataTypeKey;
-      variantKey?: VizVariantKey;
-      spaceId: VizSpaceId;
-      dims: VizDims;
-      fields: Record<
-        string,
-        {
-          format: VizScalarFormat;
-          values: ArrayBufferView;
-          valueSpec?: VizValueSpec;
-        }
-      >;
-      vector?: { u: string; v: string; magnitude?: string };
-      meta?: VizLayerMeta;
-    }
-  ) => void;
-}
-
 // ============================================================================
 // Extended MapContext
 // ============================================================================
@@ -183,7 +76,6 @@ export interface ExtendedMapContext {
   rng: RNGState;
   env: Env;
   trace: TraceScope;
-  viz?: VizDumper;
   adapter: EngineAdapter;
   /**
    * Published data products keyed by dependency tag.

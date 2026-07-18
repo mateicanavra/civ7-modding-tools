@@ -7,7 +7,6 @@ import {
   HYDROLOGY_MOUTH_SPILL_PATH,
 } from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
 import {
-  defineVizMeta,
   HILL_TERRAIN,
   MOUNTAIN_TERRAIN,
   NAVIGABLE_RIVER_TERRAIN,
@@ -20,9 +19,7 @@ import {
   NAVIGABLE_RIVER_PROJECTION_POLICY,
   type NavigableRiverDensityKnob,
 } from "./navigable-river-projection-policy.js";
-
-const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
-const TILE_SPACE_ID = "tile.hexOddQ" as const;
+import { buildPlotRiversVizProjections, type PlotRiversVizEvidence } from "./viz.js";
 
 type ProjectionSignalStatus =
   | "normal-signal"
@@ -135,32 +132,6 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     const riverNetworkMetrics = deps.artifacts.riverNetworkMetrics.read(context);
     const coastClassification = deps.artifacts.coastClassification.read(context);
     const { width, height } = context.dimensions;
-
-    // Map-stage visualization: hydrology river fields are inputs to engine river modeling (not 1:1 with engine results).
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.rivers.riverClass",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: hydrography.riverClass,
-      meta: defineVizMeta("map.rivers.riverClass", {
-        label: "River Class (Hydrology)",
-        group: GROUP_MAP_RIVERS,
-        palette: "categorical",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.rivers.discharge",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: hydrography.discharge,
-      meta: defineVizMeta("map.rivers.discharge", {
-        label: "River Discharge (Hydrology)",
-        group: GROUP_MAP_RIVERS,
-        visibility: "debug",
-      }),
-    });
 
     const logStats = (label: string) => {
       if (!context.trace.isVerbose) return;
@@ -353,6 +324,7 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
 
     const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
+    let engineEvidence: PlotRiversVizEvidence["engineEvidence"];
     if (engine) {
       const riverReadback = context.adapter.readRiverProjection(
         width,
@@ -415,129 +387,15 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
           (riverReadback.navigableRiverMismatchTileCount / Math.max(1, width * height)).toFixed(4)
         ),
       }));
-
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.rivers.projectedRiverMask",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: materialized.riverMask,
-        meta: defineVizMeta("map.rivers.projectedRiverMask", {
-          label: "Navigable River Mask (Projected)",
-          group: GROUP_MAP_RIVERS,
-          palette: "categorical",
-          role: "projection",
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.rivers.plannedMinorRiverMask",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: materialized.plannedMinorRiverMask,
-        meta: defineVizMeta("map.rivers.plannedMinorRiverMask", {
-          label: "Minor River Mask (Hydrology Intent)",
-          group: GROUP_MAP_RIVERS,
-          palette: "categorical",
-          role: "physics",
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.rivers.plannedMajorRiverMask",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: materialized.plannedMajorRiverMask,
-        meta: defineVizMeta("map.rivers.plannedMajorRiverMask", {
-          label: "Major River Mask (Hydrology Intent)",
-          group: GROUP_MAP_RIVERS,
-          palette: "categorical",
-          role: "physics",
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.rivers.engineRiverMask",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: riverReadback.terrainNavigableRiverMask,
-        meta: defineVizMeta("map.rivers.engineRiverMask", {
-          label: "Navigable River Terrain (Engine)",
-          group: GROUP_MAP_RIVERS,
-          palette: "categorical",
-          role: "engine",
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.rivers.engineNavigableRiverMetadataMask",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: riverReadback.engineNavigableRiverMask,
-        meta: defineVizMeta("map.rivers.engineNavigableRiverMetadataMask", {
-          label: "Navigable River Metadata (Engine)",
-          group: GROUP_MAP_RIVERS,
-          palette: "categorical",
-          visibility: "debug",
-          role: "engine",
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.rivers.riverMismatchMask",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: riverReadback.navigableRiverMismatchMask,
-        meta: defineVizMeta("map.rivers.riverMismatchMask", {
-          label: "River Mismatch Mask",
-          group: GROUP_MAP_RIVERS,
-          palette: "categorical",
-          visibility: "debug",
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.rivers.engineMinorRiverMask",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: riverReadback.engineMinorRiverMask,
-        meta: defineVizMeta("map.rivers.engineMinorRiverMask", {
-          label: "Minor River Mask (Engine Readback)",
-          group: GROUP_MAP_RIVERS,
-          palette: "categorical",
-          visibility: "debug",
-          role: "engine",
-        }),
-      });
-
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "debug.heightfield.landMask",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: physics.landMask,
-        meta: defineVizMeta("debug.heightfield.landMask", {
-          label: "Land Mask (Physics Truth)",
-          group: GROUP_MAP_RIVERS,
-          palette: "categorical",
-          role: "physics",
-          visibility: "debug",
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "debug.heightfield.landMask",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: engine.landMask,
-        meta: defineVizMeta("debug.heightfield.landMask", {
-          label: "Land Mask (Engine After Rivers)",
-          group: GROUP_MAP_RIVERS,
-          palette: "categorical",
-          role: "engine",
-          visibility: "debug",
-        }),
-      });
+      engineEvidence = { engineLandMask: engine.landMask, riverReadback };
     }
+    return {
+      riverClass: hydrography.riverClass,
+      discharge: hydrography.discharge,
+      materialized,
+      physicsLandMask: physics.landMask,
+      engineEvidence,
+    } satisfies PlotRiversVizEvidence;
   },
+  viz: ({ result, dimensions }) => buildPlotRiversVizProjections(result, dimensions),
 });

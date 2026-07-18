@@ -7,11 +7,15 @@ import {
   computeSampleStep,
   ctxRandom,
   ctxRandomLabel,
-  defineVizMeta,
   renderAsciiGrid,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
+import {
+  defineStandardVizCategoryMeta,
+  defineStandardVizMeta,
+  STANDARD_VIZ_COLORS,
+} from "../../../../viz.js";
 import type { MorphologySeaLevelKnob } from "../../index.js";
 import { LandmassPlatesStepContract } from "./config.js";
 
@@ -273,141 +277,125 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
       };
     });
 
-    context.viz?.dumpGrid(context.trace, {
+    deps.artifacts.topography.publish(context, topography);
+    deps.artifacts.substrate.publish(context, substrate);
+    deps.artifacts.beltDrivers.publish(context, beltDrivers);
+    return { topography, substrate, beltDrivers };
+  },
+  viz: ({ result: { topography, substrate, beltDrivers }, dimensions }) => [
+    {
+      kind: "grid",
       dataTypeKey: "morphology.topography.elevation",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i16",
-      values: topography.elevation,
-      meta: defineVizMeta("morphology.topography.elevation", {
+      dims: dimensions,
+      field: { format: "i16", values: topography.elevation },
+      meta: defineStandardVizMeta("morphology.topography.elevation", "terrain.elevation", {
         label: "Elevation (m)",
         group: GROUP_TOPOGRAPHY,
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "morphology.topography.landMask",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: topography.landMask,
-      meta: defineVizMeta("morphology.topography.landMask", {
-        label: "Land Mask",
-        group: GROUP_TOPOGRAPHY,
-        categories: [
-          { value: 0, label: "Water", color: [37, 99, 235, 230] },
-          { value: 1, label: "Land", color: [34, 197, 94, 230] },
+      dims: dimensions,
+      field: { format: "u8", values: topography.landMask },
+      meta: defineStandardVizCategoryMeta(
+        "morphology.topography.landMask",
+        [
+          { value: 0, label: "Water", color: STANDARD_VIZ_COLORS.water.ocean },
+          { value: 1, label: "Land", color: STANDARD_VIZ_COLORS.land },
         ],
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+        {
+          label: "Land Mask",
+          group: GROUP_TOPOGRAPHY,
+        }
+      ),
+    },
+    {
+      kind: "grid",
       dataTypeKey: "morphology.topography.bathymetry",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i16",
-      values: topography.bathymetry,
-      meta: defineVizMeta("morphology.topography.bathymetry", {
+      dims: dimensions,
+      field: { format: "i16", values: topography.bathymetry },
+      meta: defineStandardVizMeta("morphology.topography.bathymetry", "water.depth", {
         label: "Bathymetry (m)",
         group: GROUP_TOPOGRAPHY,
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.substrate.erodibilityK",
+    },
+    ...(
+      [
+        ["morphology.substrate.erodibilityK", "Erodibility K", substrate.erodibilityK, "debug"],
+        [
+          "morphology.substrate.sedimentDepth",
+          "Sediment Depth",
+          substrate.sedimentDepth,
+          "default",
+        ],
+      ] as const
+    ).map(([dataTypeKey, label, values, visibility]) => ({
+      kind: "grid" as const,
+      dataTypeKey,
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: substrate.erodibilityK,
-      meta: defineVizMeta("morphology.substrate.erodibilityK", {
-        label: "Erodibility K",
+      dims: dimensions,
+      field: { format: "f32" as const, values },
+      meta: defineStandardVizMeta(dataTypeKey, "field.intensity", {
+        label,
         group: GROUP_SUBSTRATE,
-        visibility: "debug",
+        visibility,
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.substrate.sedimentDepth",
+    })),
+    ...(
+      [
+        [
+          "morphology.belts.boundaryCloseness",
+          "Belt Boundary Closeness",
+          beltDrivers.boundaryCloseness,
+          "default",
+          "field.intensity",
+        ],
+        [
+          "morphology.belts.boundaryType",
+          "Belt Boundary Type",
+          beltDrivers.boundaryType,
+          "default",
+          "category.distinct",
+        ],
+        [
+          "morphology.belts.upliftPotential",
+          "Belt Uplift Potential",
+          beltDrivers.upliftPotential,
+          "debug",
+          "field.intensity",
+        ],
+        [
+          "morphology.belts.riftPotential",
+          "Belt Rift Potential",
+          beltDrivers.riftPotential,
+          "debug",
+          "field.intensity",
+        ],
+        [
+          "morphology.belts.tectonicStress",
+          "Belt Tectonic Stress",
+          beltDrivers.tectonicStress,
+          "debug",
+          "field.intensity",
+        ],
+        ["morphology.belts.mask", "Belt Mask", beltDrivers.beltMask, "debug", "category.distinct"],
+      ] as const
+    ).map(([dataTypeKey, label, values, visibility, style]) => ({
+      kind: "grid" as const,
+      dataTypeKey,
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: substrate.sedimentDepth,
-      meta: defineVizMeta("morphology.substrate.sedimentDepth", {
-        label: "Sediment Depth",
-        group: GROUP_SUBSTRATE,
-      }),
-    });
-
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.belts.boundaryCloseness",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: beltDrivers.boundaryCloseness,
-      meta: defineVizMeta("morphology.belts.boundaryCloseness", {
-        label: "Belt Boundary Closeness",
+      dims: dimensions,
+      field: { format: "u8" as const, values },
+      meta: defineStandardVizMeta(dataTypeKey, style, {
+        label,
         group: GROUP_BELT_DRIVERS,
+        visibility,
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.belts.boundaryType",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: beltDrivers.boundaryType,
-      meta: defineVizMeta("morphology.belts.boundaryType", {
-        label: "Belt Boundary Type",
-        group: GROUP_BELT_DRIVERS,
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.belts.upliftPotential",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: beltDrivers.upliftPotential,
-      meta: defineVizMeta("morphology.belts.upliftPotential", {
-        label: "Belt Uplift Potential",
-        group: GROUP_BELT_DRIVERS,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.belts.riftPotential",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: beltDrivers.riftPotential,
-      meta: defineVizMeta("morphology.belts.riftPotential", {
-        label: "Belt Rift Potential",
-        group: GROUP_BELT_DRIVERS,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.belts.tectonicStress",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: beltDrivers.tectonicStress,
-      meta: defineVizMeta("morphology.belts.tectonicStress", {
-        label: "Belt Tectonic Stress",
-        group: GROUP_BELT_DRIVERS,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.belts.mask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: beltDrivers.beltMask,
-      meta: defineVizMeta("morphology.belts.mask", {
-        label: "Belt Mask",
-        group: GROUP_BELT_DRIVERS,
-        visibility: "debug",
-      }),
-    });
-
-    deps.artifacts.topography.publish(context, topography);
-    deps.artifacts.substrate.publish(context, substrate);
-    deps.artifacts.beltDrivers.publish(context, beltDrivers);
-  },
+    })),
+  ],
 });

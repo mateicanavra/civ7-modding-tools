@@ -1,26 +1,21 @@
-import type { EngineAdapter } from "@civ7/adapter";
 import { FEATURE_PLACEMENT_KEYS, type FeatureKey } from "@civ7/map-policy";
-
-/** Describes one stable engine-feature visualization value, label, and RGBA color. */
-export type VizCategory = Readonly<{
-  value: number;
-  label: string;
-  color: readonly [number, number, number, number];
-}>;
+import type { VizDims, VizLayerCategory, VizProjection } from "@swooper/mapgen-viz";
+import { defineStandardVizCategoryMeta, defineStandardVizMeta } from "../../../../viz.js";
 
 /**
  * Sentinel used when no Civ7 feature ID is present in a visualization tile. It stays outside
  * the non-negative engine ID range so ‘none’ cannot collide with a real feature type.
  */
 export const FEATURE_TYPE_NONE_VALUE = -1;
-const UNKNOWN_FEATURE_COLOR: VizCategory["color"] = [148, 163, 184, 180];
+type NumericVizLayerCategory = VizLayerCategory & Readonly<{ value: number }>;
+const UNKNOWN_FEATURE_COLOR: VizLayerCategory["color"] = [148, 163, 184, 180];
 
 /**
  * Stable RGBA category colors for every authored Civ7 feature key. Module initialization checks
  * catalog completeness so a new placeable feature cannot silently receive an arbitrary palette.
  */
 export const FEATURE_TYPE_VIZ_COLORS_BY_KEY: Readonly<
-  Partial<Record<FeatureKey, VizCategory["color"]>>
+  Partial<Record<FeatureKey, VizLayerCategory["color"]>>
 > = {
   FEATURE_FOREST: [34, 197, 94, 235],
   FEATURE_RAINFOREST: [21, 128, 61, 235],
@@ -55,13 +50,13 @@ for (const key of FEATURE_PLACEMENT_KEYS) {
   }
 }
 
-const NONE_CATEGORY: VizCategory = Object.freeze({
+const NONE_CATEGORY: NumericVizLayerCategory = Object.freeze({
   value: FEATURE_TYPE_NONE_VALUE,
   label: "None",
   color: [148, 163, 184, 0] as const,
 });
 
-function colorForKey(key: FeatureKey): VizCategory["color"] {
+function colorForKey(key: FeatureKey): VizLayerCategory["color"] {
   const color = FEATURE_TYPE_VIZ_COLORS_BY_KEY[key];
   if (!color) throw new Error(`Missing FEATURE_TYPE_VIZ_COLORS_BY_KEY entry for "${key}".`);
   return color;
@@ -76,29 +71,31 @@ function colorForKey(key: FeatureKey): VizCategory["color"] {
  * - Colors are explicit per feature key (no auto palette).
  */
 export function buildFeatureTypeVizCategories(
-  adapter: EngineAdapter,
+  featureEngineIdsByKey: Readonly<Record<FeatureKey, number>>,
   observedFeatureTypes?: Int16Array | ReadonlyArray<number>
-): ReadonlyArray<VizCategory> {
+): readonly [NumericVizLayerCategory, ...NumericVizLayerCategory[]] {
   const byEngineId = new Map<number, FeatureKey[]>();
 
   for (const key of FEATURE_PLACEMENT_KEYS) {
-    const engineId = adapter.getFeatureTypeIndex(key);
+    const engineId = featureEngineIdsByKey[key];
     if (typeof engineId !== "number" || Number.isNaN(engineId) || engineId < 0) continue;
     const bucket = byEngineId.get(engineId) ?? [];
     bucket.push(key);
     byEngineId.set(engineId, bucket);
   }
 
-  const out: VizCategory[] = [NONE_CATEGORY];
+  const out: NumericVizLayerCategory[] = [NONE_CATEGORY];
 
   for (const [engineId, keys] of byEngineId.entries()) {
     const orderedKeys = keys
       .slice()
       .sort((a, b) => FEATURE_PLACEMENT_KEYS.indexOf(a) - FEATURE_PLACEMENT_KEYS.indexOf(b));
+    const firstKey = orderedKeys[0];
+    if (!firstKey) continue;
     out.push({
       value: engineId,
       label: orderedKeys.join("|"),
-      color: colorForKey(orderedKeys[0]!),
+      color: colorForKey(firstKey),
     });
   }
 
@@ -119,5 +116,159 @@ export function buildFeatureTypeVizCategories(
   }
 
   out.sort((a, b) => a.value - b.value);
-  return out;
+  const first = out[0];
+  if (!first) throw new Error("Feature visualization categories require the no-feature sentinel.");
+  return [first, ...out.slice(1)];
+}
+
+/** Completed Ecology feature-application evidence observed by the step visualization facet. */
+export type FeaturesApplyVizEvidence = Readonly<{
+  floodplainIntentMask: Uint8Array;
+  rejectionMask: Uint8Array;
+  floodplainAppliedMask: Uint8Array;
+  floodplainRejectedMask: Uint8Array;
+  applied: number;
+  featureType: Int16Array;
+  featureEngineIdsByKey: Readonly<Record<FeatureKey, number>>;
+  physicsTerrain?: Uint8Array;
+  physicsLandMask?: Uint8Array;
+  engine?: Readonly<{ terrain: Uint8Array; landMask: Uint8Array }>;
+}>;
+
+/**
+ * Projects completed feature mutation/readback evidence. Optional engine parity layers appear only
+ * after the run has validated terrain and captured the corresponding immutable readback snapshot.
+ */
+export function buildFeaturesApplyVizProjections(
+  result: FeaturesApplyVizEvidence,
+  dimensions: VizDims
+): readonly VizProjection[] {
+  const projections: VizProjection[] = [
+    {
+      kind: "grid",
+      dataTypeKey: "map.ecology.features.floodplainIntentMask",
+      spaceId: "tile.hexOddQ",
+      dims: dimensions,
+      field: { format: "u8", values: result.floodplainIntentMask },
+      meta: defineStandardVizMeta(
+        "map.ecology.features.floodplainIntentMask",
+        "category.distinct",
+        { label: "Floodplain Intent Mask", group: "Map / Ecology (Engine)", role: "intent" }
+      ),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "map.ecology.features.rejectionMask",
+      spaceId: "tile.hexOddQ",
+      dims: dimensions,
+      field: { format: "u8", values: result.rejectionMask },
+      meta: defineStandardVizMeta("map.ecology.features.rejectionMask", "category.distinct", {
+        label: "Feature Rejection Mask",
+        group: "Map / Ecology (Engine)",
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "map.ecology.features.floodplainAppliedMask",
+      spaceId: "tile.hexOddQ",
+      dims: dimensions,
+      field: { format: "u8", values: result.floodplainAppliedMask },
+      meta: defineStandardVizMeta(
+        "map.ecology.features.floodplainAppliedMask",
+        "category.distinct",
+        { label: "Floodplain Applied Mask", group: "Map / Ecology (Engine)", role: "engine" }
+      ),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "map.ecology.features.floodplainRejectedMask",
+      spaceId: "tile.hexOddQ",
+      dims: dimensions,
+      field: { format: "u8", values: result.floodplainRejectedMask },
+      meta: defineStandardVizMeta(
+        "map.ecology.features.floodplainRejectedMask",
+        "category.distinct",
+        {
+          label: "Floodplain Rejected Mask",
+          group: "Map / Ecology (Engine)",
+          visibility: "debug",
+        }
+      ),
+    },
+  ];
+
+  if (result.applied <= 0) return projections;
+  const featureTypeCategories = buildFeatureTypeVizCategories(
+    result.featureEngineIdsByKey,
+    result.featureType
+  );
+  projections.push({
+    kind: "grid",
+    dataTypeKey: "map.ecology.featureType",
+    spaceId: "tile.hexOddQ",
+    dims: dimensions,
+    field: { format: "i16", values: result.featureType },
+    meta: defineStandardVizCategoryMeta("map.ecology.featureType", featureTypeCategories, {
+      label: "Feature Type (Engine)",
+      group: "Map / Ecology (Engine)",
+    }),
+  });
+
+  if (!result.engine || !result.physicsTerrain || !result.physicsLandMask) return projections;
+  projections.push(
+    {
+      kind: "grid",
+      dataTypeKey: "debug.heightfield.terrain",
+      spaceId: "tile.hexOddQ",
+      dims: dimensions,
+      field: { format: "u8", values: result.physicsTerrain },
+      meta: defineStandardVizMeta("debug.heightfield.terrain", "category.distinct", {
+        label: "Terrain (Physics Source Evidence)",
+        group: "Map / Ecology (Engine)",
+        role: "physics",
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "debug.heightfield.terrain",
+      spaceId: "tile.hexOddQ",
+      dims: dimensions,
+      field: { format: "u8", values: result.engine.terrain },
+      meta: defineStandardVizMeta("debug.heightfield.terrain", "category.distinct", {
+        label: "Terrain (Engine After Features)",
+        group: "Map / Ecology (Engine)",
+        role: "engine",
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "debug.heightfield.landMask",
+      spaceId: "tile.hexOddQ",
+      dims: dimensions,
+      field: { format: "u8", values: result.physicsLandMask },
+      meta: defineStandardVizMeta("debug.heightfield.landMask", "category.distinct", {
+        label: "Land Mask (Physics Source Evidence)",
+        group: "Map / Ecology (Engine)",
+        role: "physics",
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "debug.heightfield.landMask",
+      spaceId: "tile.hexOddQ",
+      dims: dimensions,
+      field: { format: "u8", values: result.engine.landMask },
+      meta: defineStandardVizMeta("debug.heightfield.landMask", "category.distinct", {
+        label: "Land Mask (Engine After Features)",
+        group: "Map / Ecology (Engine)",
+        role: "engine",
+        visibility: "debug",
+      }),
+    }
+  );
+  return projections;
 }

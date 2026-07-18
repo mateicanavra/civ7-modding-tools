@@ -132,7 +132,6 @@ async function main(): Promise<void> {
   });
 
   const context = createExtendedMapContext({ width, height }, adapter, env);
-  context.viz = vizOutputs.legacyVizDumper;
 
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[diag]" });
   standardRecipe.run(context, env, config, {

@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import type { VizDumper } from "@swooper/mapgen-core";
-import { createExtendedMapContext, sha256Hex } from "@swooper/mapgen-core";
+import { createExtendedMapContext, type StepFacetSinks, sha256Hex } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import type { StandardRecipeConfig } from "../../../../../../src/recipes/standard/recipe.js";
 import standardRecipe from "../../../../../../src/recipes/standard/recipe.js";
@@ -59,23 +58,18 @@ function runAndCaptureSst(options: {
   const context = createExtendedMapContext({ width, height }, adapter, env);
 
   let capturedSst: Float32Array | null = null;
-  const viz: VizDumper = {
-    outputRoot: "<test>",
-    dumpGrid: (_trace, layer) => {
-      if (layer.dataTypeKey !== "hydrology.ocean.sstC") return;
-      if (!(layer.values instanceof Float32Array)) {
-        throw new Error("Expected hydrology.ocean.sstC to be dumped as f32 grid.");
+  const captureViz: NonNullable<StepFacetSinks["viz"]> = (projections) => {
+    for (const projection of projections) {
+      if (projection.dataTypeKey !== "hydrology.ocean.sstC") continue;
+      if (projection.kind !== "grid" || !(projection.field.values instanceof Float32Array)) {
+        throw new Error("Expected hydrology.ocean.sstC to be projected as an f32 grid.");
       }
-      capturedSst = new Float32Array(layer.values);
-    },
-    dumpPoints: () => {},
-    dumpSegments: () => {},
-    dumpGridFields: () => {},
+      capturedSst = new Float32Array(projection.field.values);
+    }
   };
-  context.viz = viz;
 
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-  standardRecipe.run(context, env, config, { log: () => {} });
+  standardRecipe.run(context, env, config, { facets: { viz: captureViz }, log: () => {} });
 
   if (!capturedSst)
     throw new Error("Expected hydrology.ocean.sstC to be emitted when circulation v2 is enabled.");

@@ -1,5 +1,5 @@
-import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { defineStandardVizCategoryMeta } from "../../../../viz.js";
 import { applyPlotEffectPlacements } from "./apply.js";
 import { PlotEffectsStepContract } from "./config.js";
 import { PLOT_EFFECT_VIZ_CATEGORIES, plotEffectVizValue } from "./viz.js";
@@ -15,32 +15,38 @@ export const PlotEffectsStep = createStep(PlotEffectsStepContract, {
     const placements = deps.artifacts.plotEffectPlan.read(context);
 
     if (placements.length > 0) {
-      const positions = new Float32Array(placements.length * 2);
-      const values = new Uint16Array(placements.length);
-      for (let i = 0; i < placements.length; i++) {
-        const placement = placements[i]!;
-        positions[i * 2] = placement.x;
-        positions[i * 2 + 1] = placement.y;
+      applyPlotEffectPlacements(context, placements);
+    }
+    return placements;
+  },
+  viz: ({ result: placements }) => {
+    if (placements.length === 0) return [];
 
-        values[i] = plotEffectVizValue(placement.plotEffect);
-      }
+    const positions = new Float32Array(placements.length * 2);
+    const values = new Uint16Array(placements.length);
+    for (let i = 0; i < placements.length; i++) {
+      const placement = placements[i]!;
+      positions[i * 2] = placement.x;
+      positions[i * 2 + 1] = placement.y;
+      values[i] = plotEffectVizValue(placement.plotEffect);
+    }
 
-      context.viz?.dumpPoints(context.trace, {
+    return [
+      {
+        kind: "points",
         dataTypeKey: "map.ecology.plotEffects.plotEffect",
         spaceId: "tile.hexOddQ",
         positions,
-        values,
-        valueFormat: "u16",
-        meta: defineVizMeta("map.ecology.plotEffects.plotEffect", {
-          label: "Plot Effects (Engine)",
-          group: GROUP_MAP_ECOLOGY,
-          categories: PLOT_EFFECT_VIZ_CATEGORIES,
-        }),
-      });
-    }
-
-    if (placements.length > 0) {
-      applyPlotEffectPlacements(context, placements);
-    }
+        values: { format: "u16", values },
+        meta: defineStandardVizCategoryMeta(
+          "map.ecology.plotEffects.plotEffect",
+          PLOT_EFFECT_VIZ_CATEGORIES,
+          {
+            label: "Plot Effects (Engine)",
+            group: GROUP_MAP_ECOLOGY,
+          }
+        ),
+      },
+    ];
   },
 });

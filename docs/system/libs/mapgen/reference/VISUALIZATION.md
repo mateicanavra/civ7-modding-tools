@@ -50,14 +50,14 @@ typed VizProjection
   view and returns a relative path.
 - Materialization does not render, persist, emit trace events, or synthesize evidence; it serializes
   the projection it receives. Explicitly selected projection helpers may derive visualization-only
-  evidence such as vector magnitude from borrowed semantic sources before materialization. Current
-  `VizDumper` implementations remain compatibility adapters around this kernel until step-authored
-  projections replace direct runtime emission.
+  evidence such as vector magnitude from borrowed semantic sources before materialization.
 - Steps author optional `viz` and `metrics` projectors inline on the same
   `createStep(contract, { run, viz, metrics })` implementation that owns their result. After `run`
   completes and declared artifact providers are admitted, the executor invokes each matching
   projector/sink pair at most once. Without both halves, no projection or execution identity is
   computed. These facets observe completed evidence; they never change generation behavior.
+- Recipe algorithms cannot access a visualization sink. Imperative `context.viz` calls and trace
+  event envelopes are not visualization authoring surfaces.
 
 ## Stage and step ownership
 
@@ -66,7 +66,7 @@ Visualization helpers have three reusable ownership shapes:
 ```text
 recipes/<recipe>/viz.ts
   Recipe-wide semantic style and palette vocabulary. Style identities resolve to portable
-  metadata before projection; exact category identities remain with their stage or step owner.
+  colors before projection; exact category identities remain with their stage or step owner.
 
 stages/<stage>/viz.ts
   Projection geometry or metadata helpers shared by multiple owner-stage steps
@@ -90,6 +90,8 @@ Forbidden shapes:
 - importing `stages/<stage>/steps/<step>/viz.ts` outside that step directory.
 - broad shared visualization buckets without a named invariant and concrete
   consumers.
+- renderer-owned recipe palette registries. Studio receives resolved portable colors and does not
+  interpret recipe style names.
 
 ## Canonical implementation doc
 
@@ -99,7 +101,13 @@ Forbidden shapes:
 
 - Canonical deck.gl viz doc: `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
 - Viz manifest contract types: `packages/mapgen-viz/src/index.ts`
+- Step facet contract and dispatch: `packages/mapgen-core/src/engine/step-projectors.ts` and
+  `packages/mapgen-core/src/engine/step-facets.ts`
 - Viz dump sink (mod-owned): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+- Studio worker facet sink: `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`
+- Standard recipe style vocabulary: `mods/mod-swooper-maps/src/recipes/standard/viz.ts`
 - Standard-recipe stage/step ownership guard:
-  Habitat `grit-viz-contract-ownership` in
+  Habitat `require_shared_visualization_contracts_at_stage_surfaces` in
   `.habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/rule.json`
+- Recipe-step runtime sink prohibition:
+  `.habitat/blueprints/recipe-step/prohibit_recipe_step_runtime_viz_sink_access/rule.json`

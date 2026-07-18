@@ -6,7 +6,7 @@ import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-config
 import { describe, expect, it } from "vitest";
 import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
 import { createWorkerTraceSink } from "../../src/browser-runner/worker-trace-sink";
-import { createWorkerVizDumper } from "../../src/browser-runner/worker-viz-dumper";
+import { createWorkerVizFacetSink } from "../../src/browser-runner/worker-viz-facet-sink";
 import { buildStepDataTypeModel } from "../../src/features/viz/dataTypeModel";
 import type { VizLayerEntryV1 } from "../../src/features/viz/model";
 import { studioStandardRecipeConfig } from "./standardRecipeConfig";
@@ -220,14 +220,23 @@ describe("buildStepDataTypeModel", () => {
     });
     const context = createExtendedMapContext({ width, height }, adapter, env);
     const events: BrowserRunEvent[] = [];
-    context.viz = createWorkerVizDumper();
+    const post = (event: BrowserRunEvent): void => {
+      events.push(event);
+    };
 
     standardRecipe.run(context, env, standardConfig, {
       traceSink: createWorkerTraceSink({
         runToken: "studio-river-model-test",
         generation: 1,
-        post: (event) => events.push(event),
+        post,
       }),
+      facets: {
+        viz: createWorkerVizFacetSink({
+          runToken: "studio-river-model-test",
+          generation: 1,
+          post,
+        }),
+      },
       log: () => {},
     });
 

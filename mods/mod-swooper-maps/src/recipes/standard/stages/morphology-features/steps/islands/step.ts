@@ -1,11 +1,7 @@
-import {
-  computeSampleStep,
-  defineVizMeta,
-  deriveStepSeed,
-  renderAsciiGrid,
-} from "@swooper/mapgen-core";
+import { computeSampleStep, deriveStepSeed, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampInt16 } from "@swooper/mapgen-core/lib/math";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { IslandsStepContract } from "./config.js";
 
 const GROUP_ISLANDS = "Morphology / Islands";
@@ -67,19 +63,6 @@ export const IslandsStep = createStep(IslandsStepContract, {
       editMask[index] = 1;
     }
 
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.islands.editMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: editMask,
-      meta: defineVizMeta("morphology.islands.editMask", {
-        label: "Island Edits",
-        group: GROUP_ISLANDS,
-        palette: "categorical",
-      }),
-    });
-
     context.trace.event(() => {
       let peaks = 0;
       let inBoundsPeaks = 0;
@@ -119,5 +102,19 @@ export const IslandsStep = createStep(IslandsStepContract, {
         rows,
       };
     });
+    return editMask;
   },
+  viz: ({ result: editMask, dimensions }) => [
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.islands.editMask",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: editMask },
+      meta: defineStandardVizMeta("morphology.islands.editMask", "category.distinct", {
+        label: "Island Edits",
+        group: GROUP_ISLANDS,
+      }),
+    },
+  ],
 });

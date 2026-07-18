@@ -2,7 +2,7 @@
   <item id="definitions" title="Definitions"/>
   <item id="spaces" title="Coordinate spaces"/>
   <item id="purpose" title="Purpose"/>
-  <item id="trace" title="Trace posture (current)"/>
+  <item id="projection" title="Projection posture"/>
   <item id="architecture" title="System architecture"/>
   <item id="primitives" title="Viz primitives (implemented)"/>
   <item id="taxonomy" title="Data type taxonomy"/>
@@ -16,14 +16,14 @@
 # Pipeline Visualization (deck.gl)
 
 > **System:** Mapgen diagnostics and external visualization.
-> **Scope:** Capture per-step artifacts/buffers as streaming upserts and/or replayable dumps and render them in a deck.gl viewer.
+> **Scope:** Project completed step evidence into streaming upserts and/or replayable dumps, then render it in a deck.gl viewer.
 > **Status:** Canonical (current; implementation + conventions)
 
 ## Definitions
 
 - **Dump folder**: replayable output containing `manifest.json` plus payloads under `data/`.
 - `outputsRoot`: where dump folders are written (implementation chooses the root; the contract only assumes a per-run folder containing `manifest.json`).
-- `runId`: run identity used by trace/dumps. Current implementation: `runId === planFingerprint` (see [`docs/system/libs/mapgen/reference/GLOSSARY.md`](/system/libs/mapgen/reference/GLOSSARY.md)).
+- `runId`: execution identity assigned by Core and used by trace and facet sinks. Current implementation: `runId === planFingerprint` (see [`docs/system/libs/mapgen/reference/GLOSSARY.md`](/system/libs/mapgen/reference/GLOSSARY.md)).
 - `planFingerprint`: plan identity (hash of plan inputs); see [`docs/system/libs/mapgen/reference/GLOSSARY.md`](/system/libs/mapgen/reference/GLOSSARY.md) and `packages/mapgen-core/src/engine/observability.ts`.
 - `dataTypeKey`: stable semantic identity for a data product (e.g. `"hydrology.wind.wind"`).
 - `layerKey`: canonical, opaque identity for a layer within a run (used for streaming upserts and dump replay identity).
@@ -46,7 +46,7 @@ Mapgen produces data in multiple coordinate systems. The viewer must not “gues
 - A set of irregular sites (points) plus adjacency relationships; this is built via a **Delaunay/Voronoi-style construction**:
   - Delaunay edges define neighbor connectivity.
   - Voronoi cells are the dual partition of space around sites.
-- In this codebase, the “mesh” artifact currently dumps:
+- In this codebase, the mesh visualization projects:
   - site coordinates (`siteX/siteY`)
   - neighbor connectivity (`neighborsOffsets` + `neighbors` CSR)
   - derived per-cell fields (crust/tectonics/etc)
@@ -74,69 +74,68 @@ Key goals:
 
 ---
 
-## Trace posture (current)
+## Projection posture
 
-Trace is the **event spine** for both streaming and dumps:
+Visualization is optional evidence projected after a step succeeds:
 
-- Steps emit visualization data via `context.viz?.dump*` methods (preferred) which call `trace.event(...)` under the hood.
-- `TraceScope.event(...)` is gated behind `verbose` (`packages/mapgen-core/src/trace/index.ts`), so visualization emission is also gated.
-- Runners choose a `VizDumper` implementation that matches their transport:
-  - **Studio worker** uses inline binary refs and forwards events to the UI (`viz.layer.upsert`).
-  - **Node/dev dump** writes binary payloads to disk and indexes them in a manifest.
+- A step authors `viz: ({ result, config, dimensions }) => VizProjection[]` beside its `run`.
+- Core invokes the projector only after declared providers are admitted and only when the execution
+  environment supplies a visualization sink.
+- Projectors are synchronous and pure. They may borrow completed typed arrays but cannot observe a
+  runtime context, trace scope, adapter, store, sink, or execution identity.
+- The environment sink attaches Core-owned run and step identity, materializes binary references,
+  and streams or persists the result.
+- Visualization projection and sink failures are diagnostic; they cannot change generation success.
 
-Hard rule:
-- Step implementations should not invent new visualization event envelopes; use the `VizDumper` surface.
+Trace remains a separate progress and structured-debug channel. Trace verbosity does not enable or
+disable visualization.
 
 ---
 
 ## System Architecture (Data Flow)
 
 ```
-Pipeline run (steps call context.viz?.dump*)
-  → trace session (runId + planFingerprint; currently the same value)
-  → step.event payloads (viz layer emissions)
-  → sink(s):
-       - browser/Studio: forward as `viz.layer.upsert` (Transferables)
-       - node/dev: write trace.jsonl + manifest.json + data/
+step.run succeeds and declared providers are admitted
+  → optional createStep({ viz }) projector returns portable VizProjection[]
+  → execution-owned sink attaches run/step identity and materializes binary refs
+       - browser/Studio: inline refs → `viz.layer.upsert` (Transferables)
+       - node/dev: path refs → manifest.json + data/
   → deck.gl viewer:
        - live: render streamed upserts
        - replay: load manifest + data
 ```
 
-**Key property:** the viewer never runs pipeline code; it consumes serialized outputs (streamed or replayed).
+**Key properties:** recipe algorithms never observe a visualization sink, and the viewer never runs
+pipeline code. Studio consumes serialized outputs, not recipe palette names or domain policy.
 
 ---
 
 ## Viz primitives (implemented)
 
-### 1) `VizDumper` (step-facing surface)
+### 1) Portable projections (step-facing surface)
 
-Steps emit visualization data through `VizDumper` methods (e.g. `dumpGrid`, `dumpPoints`, `dumpGridFields`).
+`VizProjection` is the closed environment-neutral union for grids, field groups, points, and
+segments. `@swooper/mapgen-viz` owns projection contracts, validation, materialization, shared
+geometry, and reusable pure scalar/vector projection helpers.
 
-Implemented dumpers:
+The Standard recipe owns semantic style selection in `recipes/standard/viz.ts`. Its style names
+resolve to portable colors before projection crosses the recipe boundary. Category identities that
+are meaningful only to one stage or step remain local to that owner.
 
-- **Studio worker dumper** (streaming; inline payloads): `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
-- **Node/dev dump dumper** (replay; path payloads): `mods/mod-swooper-maps/src/dev/viz/dump.ts` (`createVizDumper`)
-
-Both implementations:
-- are gated by `trace.isVerbose`,
-- emit `VizLayerEmissionV1`,
-- and derive `layerKey` via `createVizLayerKey(...)`.
-
-### 2) Trace sinks (transport)
+### 2) Facet sinks (environment boundary)
 
 Implemented sinks:
 
-- **Studio worker sink** (streaming upserts): `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
-  - Forwards `step.start`/`step.finish` to `run.progress`.
-  - Forwards `viz.layer.emit.v1` step events to `viz.layer.upsert` (Transferables).
-- **Node/dev dump sink** (writes dumps): `mods/mod-swooper-maps/src/dev/viz/dump.ts` (`createTraceDumpSink`)
-  - Writes `trace.jsonl` and `manifest.json`, and indexes layers whose binary refs are `path`-based.
+- **Studio worker sink**: `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`
+  - copies each exact typed-array view into an inline buffer,
+  - materializes `VizLayerEmissionV1`,
+  - posts `viz.layer.upsert` with Transferables.
+- **Node/dev dump sink**: `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+  - writes exact binary views under `data/`,
+  - materializes path-backed layers and updates `manifest.json`.
 
-Note (current reality):
-- Studio’s `VizDumper` emits `viz.layer.emit.v1`.
-- The node/dev dump path uses `viz.layer.dump.v1`.
-- Step code should not care: it calls `context.viz?.dump*`; the runner chooses the matching dumper + sink pair.
+Trace sinks independently record progress and structured events. They do not transport
+visualization layers.
 
 ### 3) Manifest contract: `VizManifestV1`
 
@@ -166,11 +165,9 @@ Each emitted entry in `manifest.layers[]` is still a **layer** (concrete emissio
 - **Point layers** (samples): craton seeds, hotspots, volcanoes.
 - **Polygon layers** (regions): landmasses, plates.
 
-**Sources:**
-
-- **Buffers:** mutable but snapshot-able (elevation, climate fields).
-- **Artifacts:** immutable products (crust, plate graph, tectonic history).
-- **Fields:** engine-facing outputs (biome IDs, terrain IDs).
+**Sources:** completed step results and the admitted artifact/effect evidence used to produce those
+results. A projector may derive presentation-only geometry or scalar variants, but it cannot mutate
+generation state or synthesize missing product evidence.
 
 ---
 
@@ -203,8 +200,8 @@ MapGen Studio’s v1 loader + renderer:
 
 ## Future enhancements
 
-- **Step-level opt-in registry** (e.g., `diagnostics.layers` for a step) instead of “force everything verbose”.
-- **Palette registry** in docs (shared legend definitions for IDs/fields).
+- **Additional recipe-owned semantic styles** where repeated visual meaning justifies one portable
+  color law.
 - **Layer diff events** (for deltas vs full snapshots).
 
 ---
@@ -243,12 +240,14 @@ Placement
 
 ## How to extend (add layers)
 
-1) In the step you care about, emit via `context.viz?.dump*` (do not hand-roll trace envelopes).
-2) Ensure the step is `verbose` (otherwise `TraceScope.event` suppresses viz emissions).
-3) Pick stable ids:
+1) Return the evidence needed for visualization from `run`; do not expose a sink to the algorithm.
+2) Add a synchronous `viz` projector to the same `createStep(...)` call and return portable
+   `VizProjection[]` values.
+3) Pick stable ids and presentation semantics:
    - `dataTypeKey` for the semantic data product
    - `spaceId` for the coordinate space
    - optional `role`/`variantKey` for disambiguation
+   - a recipe-owned semantic style or an owner-local exact category table
 4) Verify both transports:
    - live streaming in Studio (upserts),
    - and replay via dumps (when produced).
@@ -258,7 +257,8 @@ Placement
 Live (Studio):
 - Start Studio and run a recipe.
 - Confirm `run.progress` events fire (step start/finish).
-- Confirm `viz.layer.upsert` events appear when a verbose step calls `context.viz?.dump*`.
+- Confirm `viz.layer.upsert` events appear for steps with a `viz` facet and that the rendered colors
+  match the projection's resolved metadata.
 
 Replay (dump viewer):
 - Produce a dump folder using the node/dev dump harness (mod-owned).
@@ -269,16 +269,17 @@ Replay (dump viewer):
 
 ## Open Questions
 
-- **Event envelope convergence:** unify `viz.layer.emit.v1` and `viz.layer.dump.v1` naming (or make sinks accept both).
 - **Binary format:** raw typed arrays + sidecar JSON vs Arrow/Parquet.
 - **File size controls:** snapshot every step vs key steps only.
 
 ## Ground truth anchors
 
 - Run identity (runId == planFingerprint): `packages/mapgen-core/src/engine/observability.ts`
-- Trace verbosity gate: `packages/mapgen-core/src/trace/index.ts`
-- Studio viz dumper: `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
-- Studio viz forwarding sink: `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
+- Step facet contracts and dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
+- Portable projections and materialization: `packages/mapgen-viz/src/index.ts`
+- Standard recipe semantic styles: `mods/mod-swooper-maps/src/recipes/standard/viz.ts`
+- Studio visualization facet sink: `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`
+- Studio progress trace sink: `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
 - Studio worker protocol: `apps/mapgen-studio/src/browser-runner/protocol.ts`
 - Viz manifest contract: `packages/mapgen-viz/src/index.ts`
 - Studio viz manifest state: `apps/mapgen-studio/src/features/viz/vizStore.ts`

@@ -8,24 +8,14 @@ import {
   isMinorRiverClass,
   RIVER_CLASS_NONE,
 } from "@mapgen/domain/hydrology/model/policy/river-class.js";
-import {
-  ctxRandom,
-  ctxRandomLabel,
-  defineVizMeta,
-  dumpScalarFieldVariants,
-} from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { ClimateRefineStepContract } from "./config.js";
+import { buildClimateRefineVizProjections, type ClimateRefineVizEvidence } from "./viz.js";
 
 type HydrologyCryosphereKnob = "off" | "on";
 type HydrologyDrynessKnob = "wet" | "mix" | "dry";
 type HydrologyTemperatureKnob = "cold" | "temperate" | "hot";
-
-const GROUP_CLIMATE = "Hydrology / Climate";
-const GROUP_INDICES = "Hydrology / Climate Indices";
-const GROUP_CRYOSPHERE = "Hydrology / Cryosphere";
-const GROUP_DIAGNOSTICS = "Hydrology / Diagnostics";
-const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 const EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT = 0.35;
 const EFFECTIVE_MOISTURE_RIPARIAN_RADIUS = 1;
@@ -291,216 +281,41 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
       config.computeClimateDiagnostics
     );
 
-    dumpScalarFieldVariants(context.trace, context.viz, {
-      dataTypeKey: "hydrology.climate.rainfall",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      field: { format: "u8", values: refined.rainfall },
-      label: "Rainfall",
-      group: GROUP_CLIMATE,
-      palette: "continuous",
-      points: {},
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.climate.humidity",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: refined.humidity,
-      meta: defineVizMeta("hydrology.climate.humidity", {
-        label: "Humidity",
-        group: GROUP_CLIMATE,
-        visibility: "debug",
-      }),
-    });
-    dumpScalarFieldVariants(context.trace, context.viz, {
-      dataTypeKey: "hydrology.climate.indices.surfaceTemperatureC",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      field: { format: "f32", values: albedoFeedback.surfaceTemperatureC },
-      label: "Surface Temperature (C)",
-      group: GROUP_INDICES,
-      palette: "continuous",
-      points: {},
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.climate.indices.pet",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: waterBudget.pet,
-      meta: defineVizMeta("hydrology.climate.indices.pet", {
-        label: "Potential Evapotranspiration",
-        group: GROUP_INDICES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.climate.indices.effectiveMoisture",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: effectiveMoisture,
-      meta: defineVizMeta("hydrology.climate.indices.effectiveMoisture", {
-        label: "Effective Moisture",
-        group: GROUP_INDICES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.climate.indices.aridityIndex",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: waterBudget.aridityIndex,
-      meta: defineVizMeta("hydrology.climate.indices.aridityIndex", {
-        label: "Aridity Index",
-        group: GROUP_INDICES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.climate.indices.freezeIndex",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: cryosphere.freezeIndex,
-      meta: defineVizMeta("hydrology.climate.indices.freezeIndex", {
-        label: "Freeze Index",
-        group: GROUP_INDICES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.cryosphere.snowCover",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: cryosphere.snowCover,
-      meta: defineVizMeta("hydrology.cryosphere.snowCover", {
-        label: "Snow Cover",
-        group: GROUP_CRYOSPHERE,
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.cryosphere.seaIceCover",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: cryosphere.seaIceCover,
-      meta: defineVizMeta("hydrology.cryosphere.seaIceCover", {
-        label: "Sea Ice Cover",
-        group: GROUP_CRYOSPHERE,
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.cryosphere.albedo",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: cryosphere.albedo,
-      meta: defineVizMeta("hydrology.cryosphere.albedo", {
-        label: "Albedo",
-        group: GROUP_CRYOSPHERE,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.cryosphere.groundIce01",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: cryosphere.groundIce01,
-      meta: defineVizMeta("hydrology.cryosphere.groundIce01", {
-        label: "Ground Ice (0-1)",
-        group: GROUP_CRYOSPHERE,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.cryosphere.permafrost01",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: cryosphere.permafrost01,
-      meta: defineVizMeta("hydrology.cryosphere.permafrost01", {
-        label: "Permafrost (0-1)",
-        group: GROUP_CRYOSPHERE,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.cryosphere.meltPotential01",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: cryosphere.meltPotential01,
-      meta: defineVizMeta("hydrology.cryosphere.meltPotential01", {
-        label: "Melt Potential (0-1)",
-        group: GROUP_CRYOSPHERE,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.climate.diagnostics.rainShadowIndex",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: diagnostics.rainShadowIndex,
-      meta: defineVizMeta("hydrology.climate.diagnostics.rainShadowIndex", {
-        label: "Rain Shadow Index",
-        group: GROUP_DIAGNOSTICS,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.climate.diagnostics.continentalityIndex",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: diagnostics.continentalityIndex,
-      meta: defineVizMeta("hydrology.climate.diagnostics.continentalityIndex", {
-        label: "Continentality Index",
-        group: GROUP_DIAGNOSTICS,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.climate.diagnostics.convergenceIndex",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: diagnostics.convergenceIndex,
-      meta: defineVizMeta("hydrology.climate.diagnostics.convergenceIndex", {
-        label: "Convergence Index",
-        group: GROUP_DIAGNOSTICS,
-        visibility: "debug",
-      }),
-    });
-
-    deps.artifacts.climateField.publish(context, {
+    const climateField = {
       rainfall: new Uint8Array(refined.rainfall),
       humidity: new Uint8Array(refined.humidity),
-    });
-    deps.artifacts.climateIndices.publish(context, {
+    };
+    const climateIndices = {
       surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
       effectiveMoisture,
       pet: waterBudget.pet,
       aridityIndex: waterBudget.aridityIndex,
       freezeIndex: cryosphere.freezeIndex,
-    });
-    deps.artifacts.cryosphere.publish(context, {
+    };
+    const publishedCryosphere = {
       snowCover: cryosphere.snowCover,
       seaIceCover: cryosphere.seaIceCover,
       albedo: cryosphere.albedo,
       groundIce01: cryosphere.groundIce01,
       permafrost01: cryosphere.permafrost01,
       meltPotential01: cryosphere.meltPotential01,
-    });
-    deps.artifacts.climateDiagnostics.publish(context, {
+    };
+    const publishedDiagnostics = {
       rainShadowIndex: diagnostics.rainShadowIndex,
       continentalityIndex: diagnostics.continentalityIndex,
       convergenceIndex: diagnostics.convergenceIndex,
-    });
+    };
+    deps.artifacts.climateField.publish(context, climateField);
+    deps.artifacts.climateIndices.publish(context, climateIndices);
+    deps.artifacts.cryosphere.publish(context, publishedCryosphere);
+    deps.artifacts.climateDiagnostics.publish(context, publishedDiagnostics);
+
+    return {
+      climateField,
+      climateIndices,
+      cryosphere: publishedCryosphere,
+      diagnostics: publishedDiagnostics,
+    } satisfies ClimateRefineVizEvidence;
   },
+  viz: ({ result, dimensions }) => buildClimateRefineVizProjections(result, dimensions),
 });

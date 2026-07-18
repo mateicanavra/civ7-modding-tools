@@ -5,13 +5,13 @@ import {
 } from "@mapgen/domain/morphology/model/policy/landform-knob-policy.js";
 import {
   computeSampleStep,
-  defineVizMeta,
   deriveStepSeed,
   renderAsciiGrid,
   xyFromIndex,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampFinite } from "@swooper/mapgen-core/lib/math";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import type { MorphologyVolcanismKnob } from "../../index.js";
 import { VolcanoesStepContract } from "./config.js";
 
@@ -117,42 +117,46 @@ export const VolcanoesStep = createStep(VolcanoesStepContract, {
       };
     });
 
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.volcanoes.volcanoMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: volcanoMask,
-      meta: defineVizMeta("morphology.volcanoes.volcanoMask", {
-        label: "Volcano Mask",
-        group: GROUP_VOLCANOES,
-      }),
-    });
-
+    const volcanoEvidence = {
+      volcanoMask,
+      volcanoes,
+    };
+    deps.artifacts.volcanoes.publish(context, volcanoEvidence);
+    return volcanoEvidence;
+  },
+  viz: ({ result: { volcanoMask, volcanoes }, dimensions }) => {
     const positions = new Float32Array(volcanoes.length * 2);
     const strengths = new Float32Array(volcanoes.length);
     for (let i = 0; i < volcanoes.length; i++) {
       const entry = volcanoes[i]!;
-      const { x, y } = xyFromIndex(entry.tileIndex, width);
+      const { x, y } = xyFromIndex(entry.tileIndex, dimensions.width);
       positions[i * 2] = x;
       positions[i * 2 + 1] = y;
       strengths[i] = entry.strength01;
     }
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "morphology.volcanoes.points",
-      spaceId: TILE_SPACE_ID,
-      positions,
-      values: strengths,
-      valueFormat: "f32",
-      meta: defineVizMeta("morphology.volcanoes.points", {
-        label: "Volcano Points",
-        group: GROUP_VOLCANOES,
-      }),
-    });
-
-    deps.artifacts.volcanoes.publish(context, {
-      volcanoMask,
-      volcanoes,
-    });
+    return [
+      {
+        kind: "grid",
+        dataTypeKey: "morphology.volcanoes.volcanoMask",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "u8", values: volcanoMask },
+        meta: defineStandardVizMeta("morphology.volcanoes.volcanoMask", "category.distinct", {
+          label: "Volcano Mask",
+          group: GROUP_VOLCANOES,
+        }),
+      },
+      {
+        kind: "points",
+        dataTypeKey: "morphology.volcanoes.points",
+        spaceId: TILE_SPACE_ID,
+        positions,
+        values: { format: "f32", values: strengths },
+        meta: defineStandardVizMeta("morphology.volcanoes.points", "field.intensity", {
+          label: "Volcano Points",
+          group: GROUP_VOLCANOES,
+        }),
+      },
+    ];
   },
 });

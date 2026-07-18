@@ -1,6 +1,9 @@
-import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { PLACEMENT_TILE_SPACE_ID, PLACEMENT_VIZ_GROUP, UNIT_SCORE_VALUE_SPEC } from "../../viz.js";
+import {
+  definePlacementVizMeta,
+  PLACEMENT_TILE_SPACE_ID,
+  UNIT_SCORE_VALUE_SPEC,
+} from "../../viz.js";
 import { DerivePlacementInputsStepContract } from "./config.js";
 import { buildPlacementInputs } from "./inputs.js";
 import {
@@ -84,54 +87,32 @@ export const DerivePlacementInputsStep = createStep(DerivePlacementInputsStepCon
     logNaturalWonderPlanInputRuntimeTelemetry(naturalWonderPlanInputTelemetry);
     traceNaturalWonderPlanInputRuntimeTelemetry(context, naturalWonderPlanInputTelemetry);
 
-    // S7 (E4.2): this step's decision product is the natural-wonder PLAN; emit
-    // its anchor sites with planning priority so the step is inspectable in
-    // studio before any stamping happens. (Discoveries are placed by Civ7's
-    // official generator in the live engine, so they have no headless plan to
-    // visualize here — they are verified in-game, not in Studio.)
-    emitPlannedSitesViz(context, {
-      dataTypeKey: "placement.wonders.plannedSites",
-      label: "Planned Natural Wonder Sites",
-      description:
-        "Anchor plots the natural-wonder plan selected, colored by planning priority (0..1). Stamping outcomes appear on the place-natural-wonders step.",
-      placements: naturalWonderPlan.placements,
-    });
+    return naturalWonderPlan.placements;
+  },
+  viz: ({ result: placements, dimensions }) => {
+    const positions = new Float32Array(placements.length * 2);
+    const values = new Float32Array(placements.length);
+    for (let i = 0; i < placements.length; i++) {
+      const { plotIndex, priority } = placements[i]!;
+      const y = (plotIndex / dimensions.width) | 0;
+      const x = plotIndex - y * dimensions.width;
+      positions[i * 2] = x;
+      positions[i * 2 + 1] = y;
+      values[i] = priority;
+    }
+    return [
+      {
+        kind: "points",
+        dataTypeKey: "placement.wonders.plannedSites",
+        spaceId: PLACEMENT_TILE_SPACE_ID,
+        positions,
+        values: { format: "f32", values, valueSpec: UNIT_SCORE_VALUE_SPEC },
+        meta: definePlacementVizMeta("placement.wonders.plannedSites", "field.intensity", {
+          label: "Planned Natural Wonder Sites",
+          description:
+            "Anchor plots the natural-wonder plan selected, colored by planning priority (0..1). Stamping outcomes appear on the place-natural-wonders step.",
+        }),
+      },
+    ];
   },
 });
-
-function emitPlannedSitesViz(
-  context: ExtendedMapContext,
-  args: {
-    dataTypeKey: string;
-    label: string;
-    description: string;
-    placements: ReadonlyArray<{ readonly plotIndex: number; readonly priority: number }>;
-  }
-): void {
-  if (!context.viz) return;
-  const { width } = context.dimensions;
-  const positions = new Float32Array(args.placements.length * 2);
-  const values = new Float32Array(args.placements.length);
-  for (let i = 0; i < args.placements.length; i++) {
-    const { plotIndex, priority } = args.placements[i]!;
-    const y = (plotIndex / width) | 0;
-    const x = plotIndex - y * width;
-    positions[i * 2] = x;
-    positions[i * 2 + 1] = y;
-    values[i] = priority;
-  }
-  context.viz.dumpPoints(context.trace, {
-    dataTypeKey: args.dataTypeKey,
-    spaceId: PLACEMENT_TILE_SPACE_ID,
-    positions,
-    values,
-    valueFormat: "f32",
-    valueSpec: UNIT_SCORE_VALUE_SPEC,
-    meta: defineVizMeta(args.dataTypeKey, {
-      label: args.label,
-      group: PLACEMENT_VIZ_GROUP,
-      description: args.description,
-      palette: "continuous",
-    }),
-  });
-}

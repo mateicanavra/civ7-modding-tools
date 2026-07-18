@@ -1,6 +1,5 @@
 import type { FeatureData } from "@civ7/adapter";
 import {
-  defineVizMeta,
   logVolcanoSummary,
   MOUNTAIN_TERRAIN,
   VOLCANO_FEATURE,
@@ -8,6 +7,7 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { assertNoWaterDrift } from "../../../../projection-policies/noWaterDrift.js";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { PlotVolcanoesStepContract } from "./config.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
@@ -23,27 +23,6 @@ export const PlotVolcanoesStep = createStep(PlotVolcanoesStepContract, {
     const plan = deps.artifacts.volcanoes.read(context);
     const { width, height } = context.dimensions;
 
-    const positions = new Float32Array(plan.volcanoes.length * 2);
-    const strengths = new Float32Array(plan.volcanoes.length);
-    for (let i = 0; i < plan.volcanoes.length; i++) {
-      const entry = plan.volcanoes[i]!;
-      const { x, y } = xyFromIndex(entry.tileIndex, width);
-      positions[i * 2] = x;
-      positions[i * 2 + 1] = y;
-      strengths[i] = entry.strength01;
-    }
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "map.morphology.volcanoes.points",
-      spaceId: TILE_SPACE_ID,
-      positions,
-      values: strengths,
-      valueFormat: "f32",
-      meta: defineVizMeta("map.morphology.volcanoes.points", {
-        label: "Volcano Points (Planned)",
-        group: GROUP_MAP_MORPHOLOGY,
-      }),
-    });
-
     for (const entry of plan.volcanoes) {
       const index = entry.tileIndex | 0;
       const y = (index / width) | 0;
@@ -57,5 +36,30 @@ export const PlotVolcanoesStep = createStep(PlotVolcanoesStepContract, {
     const volcanoId = context.adapter.getFeatureTypeIndex?.("FEATURE_VOLCANO") ?? -1;
     logVolcanoSummary(context.trace, context.adapter, width, height, volcanoId);
     assertNoWaterDrift(context, topography.landMask, "map-morphology/plot-volcanoes");
+    return plan;
+  },
+  viz: ({ result: plan, dimensions }) => {
+    const positions = new Float32Array(plan.volcanoes.length * 2);
+    const strengths = new Float32Array(plan.volcanoes.length);
+    for (let i = 0; i < plan.volcanoes.length; i++) {
+      const entry = plan.volcanoes[i]!;
+      const { x, y } = xyFromIndex(entry.tileIndex, dimensions.width);
+      positions[i * 2] = x;
+      positions[i * 2 + 1] = y;
+      strengths[i] = entry.strength01;
+    }
+    return [
+      {
+        kind: "points",
+        dataTypeKey: "map.morphology.volcanoes.points",
+        spaceId: TILE_SPACE_ID,
+        positions,
+        values: { format: "f32", values: strengths },
+        meta: defineStandardVizMeta("map.morphology.volcanoes.points", "field.intensity", {
+          label: "Volcano Points (Planned)",
+          group: GROUP_MAP_MORPHOLOGY,
+        }),
+      },
+    ];
   },
 });

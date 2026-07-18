@@ -1,7 +1,5 @@
 import type { TraceEvent, TraceSink } from "@swooper/mapgen-core";
-import type { VizInlineRef, VizLayerEntryV1 } from "@swooper/mapgen-viz";
 import type { BrowserRunEvent } from "./protocol";
-import { isWorkerVizLayerEvent } from "./worker-viz-event";
 
 /**
  * Worker-owned transport boundary for one browser-run event and its optional transferable buffers.
@@ -9,45 +7,9 @@ import { isWorkerVizLayerEvent } from "./worker-viz-event";
  */
 export type WorkerEventPost = (event: BrowserRunEvent, transfer?: Transferable[]) => void;
 
-function collectTransferablesFromBinaryRef(ref: VizInlineRef, into: Transferable[]): void {
-  into.push(ref.buffer);
-}
-
-function collectTransferables(layer: VizLayerEntryV1<VizInlineRef>): Transferable[] {
-  const transfer: Transferable[] = [];
-  if (layer.kind === "grid") {
-    collectTransferablesFromBinaryRef(layer.field.data, transfer);
-  } else if (layer.kind === "points") {
-    collectTransferablesFromBinaryRef(layer.positions, transfer);
-    if (layer.values) collectTransferablesFromBinaryRef(layer.values.data, transfer);
-  } else if (layer.kind === "segments") {
-    collectTransferablesFromBinaryRef(layer.segments, transfer);
-    if (layer.values) collectTransferablesFromBinaryRef(layer.values.data, transfer);
-  } else if (layer.kind === "gridFields") {
-    for (const field of Object.values(layer.fields))
-      collectTransferablesFromBinaryRef(field.data, transfer);
-  }
-  return transfer;
-}
-
 /**
- * Posts one admitted inline visualization layer with its run and step identity.
- * Both legacy trace events and execution-owned step facets use this single transport boundary.
- */
-export function postWorkerVizLayer(options: {
-  post: WorkerEventPost;
-  runToken: string;
-  generation: number;
-  layer: VizLayerEntryV1<VizInlineRef>;
-}): void {
-  const { post, runToken, generation, layer } = options;
-  post({ type: "viz.layer.upsert", runToken, generation, layer }, collectTransferables(layer));
-}
-
-/**
- * Creates the run-correlated worker sink for browser progress and visualization events.
- * Aborted runs emit nothing; visualization upserts admit only locally branded inline evidence,
- * while step indexes remain stable for the lifetime of one sink.
+ * Creates the run-correlated worker sink for browser progress events.
+ * Aborted runs emit nothing and step indexes remain stable for the lifetime of one sink.
  */
 export function createWorkerTraceSink(options: {
   runToken: string;
@@ -102,13 +64,6 @@ export function createWorkerTraceSink(options: {
       post({ type: "run.finished", runToken, generation });
       return;
     }
-
-    if (event.kind !== "step.event" || !event.stepId) return;
-    const data = event.data;
-    if (!isWorkerVizLayerEvent(data)) return;
-    const stepIndex = stepIndexById.get(event.stepId) ?? -1;
-    const layer: VizLayerEntryV1<VizInlineRef> = { ...data.layer, stepIndex };
-    postWorkerVizLayer({ post, runToken, generation, layer });
   };
 
   return { emit };

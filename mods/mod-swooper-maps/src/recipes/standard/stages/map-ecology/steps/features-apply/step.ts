@@ -1,14 +1,12 @@
 import type { EngineAdapter } from "@civ7/adapter";
 import type { FeatureKey } from "@civ7/map-policy";
-import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
+import { snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { resolveFeatureKeyForIntent } from "./apply.js";
 import { FeaturesApplyStepContract } from "./config.js";
 import { resolveFeatureKeyLookups } from "./feature-keys.js";
-import { buildFeatureTypeVizCategories } from "./viz.js";
+import { buildFeaturesApplyVizProjections, type FeaturesApplyVizEvidence } from "./viz.js";
 
-const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
-const TILE_SPACE_ID = "tile.hexOddQ" as const;
 const FLOODPLAIN_FEATURE_KEY_PATTERN = /^FEATURE_[A-Z]+_FLOODPLAIN_(?:MINOR|NAVIGABLE)$/;
 
 function incrementCount(counts: Record<string, number>, key: string): void {
@@ -139,7 +137,7 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
       }
     }
 
-    deps.artifacts.featureApplyDiagnostics.publish(context, {
+    const featureApplyDiagnostics = {
       width,
       height,
       attempted: resolvedPlacements.length,
@@ -152,7 +150,8 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
       appliedByFeature,
       rejectedCanHaveFeatureByFeature,
       rejectionMask,
-    });
+    };
+    deps.artifacts.featureApplyDiagnostics.publish(context, featureApplyDiagnostics);
 
     console.log(
       `[SWOOPER_MOD] FEATURE_APPLY_V1 ${JSON.stringify({
@@ -178,59 +177,6 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
       appliedByFeature,
       rejectedCanHaveFeatureByFeature,
     }));
-
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.ecology.features.floodplainIntentMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: floodplainIntentMask,
-      meta: defineVizMeta("map.ecology.features.floodplainIntentMask", {
-        label: "Floodplain Intent Mask",
-        group: GROUP_MAP_ECOLOGY,
-        palette: "categorical",
-        role: "intent",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.ecology.features.rejectionMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: rejectionMask,
-      meta: defineVizMeta("map.ecology.features.rejectionMask", {
-        label: "Feature Rejection Mask",
-        group: GROUP_MAP_ECOLOGY,
-        palette: "categorical",
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.ecology.features.floodplainAppliedMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: floodplainAppliedMask,
-      meta: defineVizMeta("map.ecology.features.floodplainAppliedMask", {
-        label: "Floodplain Applied Mask",
-        group: GROUP_MAP_ECOLOGY,
-        palette: "categorical",
-        role: "engine",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.ecology.features.floodplainRejectedMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: floodplainRejectedMask,
-      meta: defineVizMeta("map.ecology.features.floodplainRejectedMask", {
-        label: "Floodplain Rejected Mask",
-        group: GROUP_MAP_ECOLOGY,
-        palette: "categorical",
-        visibility: "debug",
-      }),
-    });
 
     const hardRejections = rejections.filter(
       (rejection) => rejection.reason !== "canHaveFeature=false"
@@ -269,86 +215,22 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
       featureType,
     });
 
-    if (applied > 0) {
-      const featureTypeCategories = buildFeatureTypeVizCategories(context.adapter, featureType);
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.ecology.featureType",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "i16",
-        values: featureType,
-        meta: defineVizMeta("map.ecology.featureType", {
-          label: "Feature Type (Engine)",
-          group: GROUP_MAP_ECOLOGY,
-          palette: "categorical",
-          categories: featureTypeCategories.map((category) => ({
-            value: category.value,
-            label: category.label,
-            color: [...category.color] as [number, number, number, number],
-          })),
-        }),
-      });
-      const physics = context.buffers.heightfield;
-      const engine = snapshotEngineHeightfield(context);
-      if (engine) {
-        context.viz?.dumpGrid(context.trace, {
-          dataTypeKey: "debug.heightfield.terrain",
-          spaceId: TILE_SPACE_ID,
-          dims: { width: context.dimensions.width, height: context.dimensions.height },
-          format: "u8",
-          values: physics.terrain,
-          meta: defineVizMeta("debug.heightfield.terrain", {
-            label: "Terrain (Physics Source Evidence)",
-            group: GROUP_MAP_ECOLOGY,
-            palette: "categorical",
-            role: "physics",
-            visibility: "debug",
-          }),
-        });
-        context.viz?.dumpGrid(context.trace, {
-          dataTypeKey: "debug.heightfield.terrain",
-          spaceId: TILE_SPACE_ID,
-          dims: { width: context.dimensions.width, height: context.dimensions.height },
-          format: "u8",
-          values: engine.terrain,
-          meta: defineVizMeta("debug.heightfield.terrain", {
-            label: "Terrain (Engine After Features)",
-            group: GROUP_MAP_ECOLOGY,
-            palette: "categorical",
-            role: "engine",
-            visibility: "debug",
-          }),
-        });
-        context.viz?.dumpGrid(context.trace, {
-          dataTypeKey: "debug.heightfield.landMask",
-          spaceId: TILE_SPACE_ID,
-          dims: { width: context.dimensions.width, height: context.dimensions.height },
-          format: "u8",
-          values: physics.landMask,
-          meta: defineVizMeta("debug.heightfield.landMask", {
-            label: "Land Mask (Physics Source Evidence)",
-            group: GROUP_MAP_ECOLOGY,
-            palette: "categorical",
-            role: "physics",
-            visibility: "debug",
-          }),
-        });
-        context.viz?.dumpGrid(context.trace, {
-          dataTypeKey: "debug.heightfield.landMask",
-          spaceId: TILE_SPACE_ID,
-          dims: { width: context.dimensions.width, height: context.dimensions.height },
-          format: "u8",
-          values: engine.landMask,
-          meta: defineVizMeta("debug.heightfield.landMask", {
-            label: "Land Mask (Engine After Features)",
-            group: GROUP_MAP_ECOLOGY,
-            palette: "categorical",
-            role: "engine",
-            visibility: "debug",
-          }),
-        });
-      }
-      context.adapter.recalculateAreas();
-    }
+    const physics = applied > 0 ? context.buffers.heightfield : undefined;
+    const engine = applied > 0 ? (snapshotEngineHeightfield(context) ?? undefined) : undefined;
+    if (applied > 0) context.adapter.recalculateAreas();
+
+    return {
+      floodplainIntentMask,
+      rejectionMask,
+      floodplainAppliedMask,
+      floodplainRejectedMask,
+      applied,
+      featureType,
+      featureEngineIdsByKey: lookups.byKey,
+      physicsTerrain: physics?.terrain,
+      physicsLandMask: physics?.landMask,
+      engine,
+    } satisfies FeaturesApplyVizEvidence;
   },
+  viz: ({ result, dimensions }) => buildFeaturesApplyVizProjections(result, dimensions),
 });

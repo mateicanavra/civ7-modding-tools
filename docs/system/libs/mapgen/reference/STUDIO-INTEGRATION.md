@@ -92,11 +92,12 @@ The worker composes an `envBase` from run inputs (seed/dimensions/latitudes) and
 - derives stable run identity from the plan:
   - `runId` via `deriveRunId(plan)`
   - `planFingerprint` via `computePlanFingerprint(plan)` (current code uses the same value as `runId`)
-- forces all steps to trace `verbose` for Studio’s execution posture,
+- enables step tracing for Studio's progress posture,
 - constructs an adapter (mock civ7 adapter in browser),
 - constructs an extended map context,
-- installs `context.viz` to enable visualization emission,
-- and calls `recipe.runAsync(context, env, config, { traceSink, abortSignal, yieldToEventLoop: true })`.
+- creates a browser visualization facet sink,
+- and calls `recipe.runAsync(context, env, config, { traceSink, facets, abortSignal,
+  yieldToEventLoop: true })`.
 
 Concrete execution posture (excerpt):
 
@@ -108,10 +109,17 @@ const verboseSteps: Record<string, "verbose"> = Object.fromEntries(plan.nodes.ma
 
 const env = { ...envBase, trace: { enabled: true, steps: verboseSteps } };
 const context = createExtendedMapContext(dimensions, adapter, env);
-context.viz = createWorkerVizDumper();
+const traceSink = createWorkerTraceSink({ runToken, generation, post, abortSignal });
 
 post({ type: "run.started", runToken, generation, runId, planFingerprint: runId });
-await recipeEntry.recipe.runAsync(context, env, config, { traceSink, abortSignal, yieldToEventLoop: true });
+await recipeEntry.recipe.runAsync(context, env, config, {
+  traceSink,
+  facets: {
+    viz: createWorkerVizFacetSink({ runToken, generation, post, abortSignal }),
+  },
+  abortSignal,
+  yieldToEventLoop: true,
+});
 ```
 
 ## Trace + visualization in Studio
@@ -122,15 +130,27 @@ Studio surfaces two observability channels from the worker:
 - **Visualization events**: `viz.layer.upsert` events that carry `VizLayerEntryV1` payloads to be rendered by Studio’s deck.gl visualization pipeline.
 
 Key posture:
-- Visualization emission is gated by **trace verbosity** in the worker’s `VizDumper` implementation.
-- The worker uses Transferables to avoid copying large buffers across the worker boundary.
+- A step's optional `viz` projector runs after successful execution and provider admission, and only
+  when the worker supplies a visualization facet sink.
+- The projector sees only `{ result, config, dimensions }`; it cannot observe browser state, trace,
+  or the sink.
+- Visualization is independent of trace verbosity. Trace owns progress; the visualization facet
+  owns portable layer projections.
+- The worker copies each exact typed-array view, then transfers the copy across the worker boundary.
+- Standard recipe style choices have already resolved to portable colors before Studio receives a
+  layer. Studio does not maintain a recipe palette registry.
 
 Concrete Transferables posture (excerpt):
 
 ```ts
-// apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts
-const transfer = collectTransferables(layer); // collects ArrayBuffers from inline refs
-post({ type: "viz.layer.upsert", runToken, generation, layer }, transfer);
+// apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts
+const emitted = materializeVizProjection(projection, identity, materializeInline);
+postWorkerVizLayer({
+  post,
+  runToken,
+  generation,
+  layer: { ...emitted, stepIndex: context.stepIndex },
+});
 ```
 
 Routing:
@@ -161,8 +181,9 @@ This does not mean “bitwise identical” across engines/platforms; it is a **d
 Worker seam + protocol:
 - Worker entrypoint: `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
 - Message protocol types: `apps/mapgen-studio/src/browser-runner/protocol.ts`
-- Worker trace sink (progress + viz event forwarding): `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
-- Worker viz dumper (viz emission + Transferables posture): `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
+- Worker trace sink (progress): `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
+- Worker visualization facet sink (materialization + Transferables):
+  `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`
 
 Recipe selection + artifacts boundary:
 - Runtime recipes (worker-side): `apps/mapgen-studio/src/browser-runner/recipeRuntime.ts`
@@ -175,6 +196,7 @@ Recipe selection + artifacts boundary:
 - Worker creation boundary: `apps/mapgen-studio/src/features/browserRunner/workerClient.ts`
 
 Core SDK contracts this seam depends on:
-- `VizDumper` interface: `packages/mapgen-core/src/core/types.ts`
+- Step facet contracts: `packages/mapgen-core/src/engine/step-facets.ts`
+- Portable visualization projection and materialization contracts: `packages/mapgen-viz/src/index.ts`
 - Derive stable run id: `packages/mapgen-core/src/engine/index.ts`
 - Trace session + sinks: `packages/mapgen-core/src/trace/index.ts`

@@ -8,11 +8,11 @@
   <item id="notes" title="Notes + footguns"/>
 </toc>
 
-# How-to: diagnose pipeline behavior with VizDumper dumps
+# How-to: diagnose pipeline behavior with visualization dumps
 
 ## Purpose
 
-Use **VizDumper dumps** (manifest + trace + binary layers) as the canonical, deterministic observability surface to answer questions like:
+Use **visualization dumps** (manifest + trace + binary layers) as the canonical, deterministic observability surface to answer questions like:
 
 - “Did my config change reach the compiled plan and step configs?”
 - “Did an upstream change move the landmask (or is this lever dead)?”
@@ -109,8 +109,10 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
   - `mods/mod-swooper-maps/src/dev/diagnostics/extract-trace.ts`
 - Shared dump readers and helpers:
   - `mods/mod-swooper-maps/src/dev/diagnostics/shared.ts`
-- Trace + viz observer wiring:
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/viz.ts`
+- Trace + visualization sink wiring:
+  - `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+- Standard recipe styles:
+  - `mods/mod-swooper-maps/src/recipes/standard/viz.ts`
 
 ## Notes + footguns
 

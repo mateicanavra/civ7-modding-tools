@@ -1,12 +1,8 @@
 import { MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER } from "@mapgen/domain/morphology/model/policy/coast-knob-policy.js";
-import {
-  computeSampleStep,
-  defineVizMeta,
-  deriveStepSeed,
-  renderAsciiGrid,
-} from "@swooper/mapgen-core";
+import { computeSampleStep, deriveStepSeed, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import type { MorphologyCoastRuggednessKnob } from "../../index.js";
 import { RuggedCoastsStepContract } from "./config.js";
 
@@ -100,23 +96,6 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
     heightfield.elevation.set(reconciled.elevation);
     bathymetry.set(reconciled.bathymetry);
 
-    // Diagnostic: the post-carve, PRE-erosion seafloor. This is the bathymetry the shelf
-    // would have read before R3 relocated it downstream; comparing it to the post-erosion
-    // (geomorphology) and post-island (compute-shelf) snapshots isolates how much erosion
-    // vs island injection shallows the nearshore that drives shelf width.
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.coastlineMetrics.bathymetryPreErosion",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i16",
-      values: bathymetry,
-      meta: defineVizMeta("morphology.coastlineMetrics.bathymetryPreErosion", {
-        label: "Bathymetry (Post-carve, Pre-erosion)",
-        group: GROUP_COASTLINES,
-        visibility: "debug",
-      }),
-    });
-
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));
       let coastTiles = 0;
@@ -164,45 +143,73 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
       config.distanceToCoast
     );
 
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.coastlineMetrics.coastalLand",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: result.coastalLand,
-      meta: defineVizMeta("morphology.coastlineMetrics.coastalLand", {
-        label: "Coastal Land",
-        group: GROUP_COASTLINES,
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.coastlineMetrics.coastalWater",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: result.coastalWater,
-      meta: defineVizMeta("morphology.coastlineMetrics.coastalWater", {
-        label: "Coastal Water",
-        group: GROUP_COASTLINES,
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.coastlineMetrics.distanceToCoast",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u16",
-      values: distanceToCoast,
-      meta: defineVizMeta("morphology.coastlineMetrics.distanceToCoast", {
-        label: "Distance To Coast (Tiles)",
-        group: GROUP_COASTLINES,
-        visibility: "debug",
-      }),
-    });
-
-    deps.artifacts.coastlineMetrics.publish(context, {
+    const coastlineMetrics = {
       coastalLand: result.coastalLand,
       coastalWater: result.coastalWater,
       distanceToCoast,
-    });
+    };
+    deps.artifacts.coastlineMetrics.publish(context, coastlineMetrics);
+    return { bathymetry, coastlineMetrics };
   },
+  viz: ({ result: { bathymetry, coastlineMetrics }, dimensions }) => [
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.coastlineMetrics.bathymetryPreErosion",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "i16", values: bathymetry },
+      meta: defineStandardVizMeta(
+        "morphology.coastlineMetrics.bathymetryPreErosion",
+        "water.depth",
+        {
+          label: "Bathymetry (Post-carve, Pre-erosion)",
+          group: GROUP_COASTLINES,
+          visibility: "debug",
+        }
+      ),
+    },
+    ...(
+      [
+        [
+          "morphology.coastlineMetrics.coastalLand",
+          "Coastal Land",
+          coastlineMetrics.coastalLand,
+          "default",
+        ],
+        [
+          "morphology.coastlineMetrics.coastalWater",
+          "Coastal Water",
+          coastlineMetrics.coastalWater,
+          "default",
+        ],
+      ] as const
+    ).map(([dataTypeKey, label, values, visibility]) => ({
+      kind: "grid" as const,
+      dataTypeKey,
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8" as const, values },
+      meta: defineStandardVizMeta(dataTypeKey, "category.distinct", {
+        label,
+        group: GROUP_COASTLINES,
+        visibility,
+      }),
+    })),
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.coastlineMetrics.distanceToCoast",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u16", values: coastlineMetrics.distanceToCoast },
+      meta: defineStandardVizMeta(
+        "morphology.coastlineMetrics.distanceToCoast",
+        "field.intensity",
+        {
+          label: "Distance To Coast (Tiles)",
+          group: GROUP_COASTLINES,
+          visibility: "debug",
+        }
+      ),
+    },
+  ],
 });

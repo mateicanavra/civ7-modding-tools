@@ -1,9 +1,10 @@
 import { WATER_CLASS_OCEAN } from "@civ7/map-policy";
 import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
-import { clamp01, ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
+import { clamp01, ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { ScoreLayersStepContract } from "./config.js";
 
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -389,18 +390,6 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
       ice: iceScore,
     } as const;
 
-    // Score layers are a primary debugging surface in M3; dump them for deterministic diffs.
-    for (const [featureKey, values] of Object.entries(layers)) {
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: `ecology.scoreLayers.${featureKey}`,
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "f32",
-        values: values as Float32Array,
-        meta: defineVizMeta(`ecology.scoreLayers.${featureKey}`),
-      });
-    }
-
     deps.artifacts.scoreLayers.publish(context, {
       width,
       height,
@@ -412,20 +401,32 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
 
     reserved.fill(0);
 
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "ecology.occupancy.base.reserved",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: reserved,
-      meta: defineVizMeta("ecology.occupancy.base.reserved", { visibility: "debug" }),
-    });
-
     deps.artifacts.occupancyBase.publish(context, {
       width,
       height,
       featureOccupancyMask,
       reserved,
     });
+    return { layers, reserved };
   },
+  viz: ({ result: { layers, reserved }, dimensions }) => [
+    ...Object.entries(layers).map(([featureKey, values]) => ({
+      kind: "grid" as const,
+      dataTypeKey: `ecology.scoreLayers.${featureKey}`,
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32" as const, values },
+      meta: defineStandardVizMeta(`ecology.scoreLayers.${featureKey}`, "field.intensity"),
+    })),
+    {
+      kind: "grid",
+      dataTypeKey: "ecology.occupancy.base.reserved",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: reserved },
+      meta: defineStandardVizMeta("ecology.occupancy.base.reserved", "category.distinct", {
+        visibility: "debug",
+      }),
+    },
+  ],
 });

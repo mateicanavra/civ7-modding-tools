@@ -1,5 +1,6 @@
-import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { defineVizMeta } from "@swooper/mapgen-viz";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import {
   pointsFromTileCentroids,
   segmentsFromTileTopologyNeighbors,
@@ -27,44 +28,50 @@ export const PlateTopologyStep = createStep(PlateTopologyStepContract, {
     const topologyPlates = plateTopology.plates;
 
     deps.artifacts.foundationPlateTopology.publish(context, plateTopology);
-
+    return topologyPlates;
+  },
+  viz: ({ result: topologyPlates }) => {
     const centroidPoints = pointsFromTileCentroids(topologyPlates);
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.plateTopology.centroidArea",
-      spaceId: "tile.hexOddQ",
-      positions: centroidPoints.positions,
-      values: centroidPoints.areas,
-      valueFormat: "i32",
-      meta: defineVizMeta("foundation.plateTopology.centroidArea", {
-        label: "Plate Centroid Area",
-        group: GROUP_PLATE_TOPOLOGY,
-        showGrid: false,
-      }),
-    });
-
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.plateTopology.centroidPlateId",
-      spaceId: "tile.hexOddQ",
-      positions: centroidPoints.positions,
-      values: centroidPoints.ids,
-      valueFormat: "i16",
-      meta: defineVizMeta("foundation.plateTopology.centroidPlateId", {
-        label: "Plate Centroid PlateId",
-        group: GROUP_PLATE_TOPOLOGY,
-        palette: "categorical",
-        showGrid: false,
-      }),
-    });
-
-    context.viz?.dumpSegments(context.trace, {
-      dataTypeKey: "foundation.plateTopology.neighbors",
-      spaceId: "tile.hexOddQ",
-      segments: segmentsFromTileTopologyNeighbors(topologyPlates),
-      meta: defineVizMeta("foundation.plateTopology.neighbors", {
-        label: "Plate Neighbor Edges",
-        group: GROUP_PLATE_TOPOLOGY,
-        showGrid: false,
-      }),
-    });
+    return [
+      {
+        kind: "points",
+        dataTypeKey: "foundation.plateTopology.centroidArea",
+        spaceId: "tile.hexOddQ",
+        positions: centroidPoints.positions,
+        values: { format: "i32", values: centroidPoints.areas },
+        meta: defineStandardVizMeta("foundation.plateTopology.centroidArea", "field.intensity", {
+          label: "Plate Centroid Area",
+          group: GROUP_PLATE_TOPOLOGY,
+          showGrid: false,
+        }),
+      },
+      {
+        kind: "points",
+        dataTypeKey: "foundation.plateTopology.centroidPlateId",
+        spaceId: "tile.hexOddQ",
+        positions: centroidPoints.positions,
+        values: { format: "i16", values: centroidPoints.ids },
+        meta: defineStandardVizMeta(
+          "foundation.plateTopology.centroidPlateId",
+          "category.distinct",
+          {
+            label: "Plate Centroid PlateId",
+            group: GROUP_PLATE_TOPOLOGY,
+            showGrid: false,
+          }
+        ),
+      },
+      {
+        kind: "segments",
+        dataTypeKey: "foundation.plateTopology.neighbors",
+        spaceId: "tile.hexOddQ",
+        segments: segmentsFromTileTopologyNeighbors(topologyPlates),
+        meta: defineVizMeta("foundation.plateTopology.neighbors", {
+          label: "Plate Neighbor Edges",
+          group: GROUP_PLATE_TOPOLOGY,
+          showGrid: false,
+        }),
+      },
+    ];
   },
 });

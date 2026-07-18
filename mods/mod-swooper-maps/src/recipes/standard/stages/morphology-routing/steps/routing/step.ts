@@ -1,5 +1,6 @@
-import { defineVizMeta, dumpVectorFieldVariants } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { buildVectorFieldProjections } from "@swooper/mapgen-viz";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { RoutingStepContract } from "./config.js";
 
 const GROUP_ROUTING = "Morphology / Routing";
@@ -27,80 +28,6 @@ export const RoutingStep = createStep(RoutingStepContract, {
       },
       config.routing
     );
-
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.routing.flowDir",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i32",
-      values: routing.flowDir,
-      meta: defineVizMeta("morphology.routing.flowDir", {
-        label: "Flow Direction",
-        group: GROUP_ROUTING,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.routing.flowAccum",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: routing.flowAccum,
-      meta: defineVizMeta("morphology.routing.flowAccum", {
-        label: "Flow Accumulation",
-        group: GROUP_ROUTING,
-      }),
-    });
-    {
-      const size = Math.max(0, width * height);
-      const u = new Int8Array(size);
-      const v = new Int8Array(size);
-      const magnitude = new Float32Array(size);
-      for (let i = 0; i < size; i++) {
-        const receiver = routing.flowDir[i] ?? -1;
-        const x = i % width;
-        const y = (i / width) | 0;
-        if (receiver >= 0) {
-          const rx = receiver % width;
-          const ry = (receiver / width) | 0;
-          u[i] = clampI8(rx - x);
-          v[i] = clampI8(ry - y);
-        } else {
-          u[i] = 0;
-          v[i] = 0;
-        }
-        magnitude[i] = routing.flowAccum[i] ?? 0;
-      }
-
-      dumpVectorFieldVariants(context.trace, context.viz, {
-        dataTypeKey: "morphology.routing.flow",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        u: { format: "i8", values: u },
-        v: { format: "i8", values: v },
-        magnitude: { values: magnitude, format: "f32", debugOnly: true },
-        label: "Flow",
-        group: GROUP_ROUTING,
-        palette: "continuous",
-        arrows: { maxArrowLenTiles: 1.25 },
-        points: { debugOnly: true },
-      });
-    }
-    if (routing.basinId instanceof Int32Array) {
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "morphology.routing.basinId",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "i32",
-        values: routing.basinId,
-        meta: defineVizMeta("morphology.routing.basinId", {
-          label: "Basin Id",
-          group: GROUP_ROUTING,
-          visibility: "debug",
-          palette: "categorical",
-        }),
-      });
-    }
 
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));
@@ -137,5 +64,82 @@ export const RoutingStep = createStep(RoutingStepContract, {
       };
     });
     deps.artifacts.routing.publish(context, routing);
+    return routing;
+  },
+  viz: ({ result: routing, dimensions }) => {
+    const size = Math.max(0, dimensions.width * dimensions.height);
+    const u = new Int8Array(size);
+    const v = new Int8Array(size);
+    const magnitude = new Float32Array(size);
+    for (let i = 0; i < size; i++) {
+      const receiver = routing.flowDir[i] ?? -1;
+      const x = i % dimensions.width;
+      const y = (i / dimensions.width) | 0;
+      if (receiver >= 0) {
+        const rx = receiver % dimensions.width;
+        const ry = (receiver / dimensions.width) | 0;
+        u[i] = clampI8(rx - x);
+        v[i] = clampI8(ry - y);
+      }
+      magnitude[i] = routing.flowAccum[i] ?? 0;
+    }
+    return [
+      {
+        kind: "grid",
+        dataTypeKey: "morphology.routing.flowDir",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "i32", values: routing.flowDir },
+        meta: defineStandardVizMeta("morphology.routing.flowDir", "category.distinct", {
+          label: "Flow Direction",
+          group: GROUP_ROUTING,
+          visibility: "debug",
+        }),
+      },
+      {
+        kind: "grid",
+        dataTypeKey: "morphology.routing.flowAccum",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "f32", values: routing.flowAccum },
+        meta: defineStandardVizMeta("morphology.routing.flowAccum", "field.intensity", {
+          label: "Flow Accumulation",
+          group: GROUP_ROUTING,
+        }),
+      },
+      ...buildVectorFieldProjections({
+        dataTypeKey: "morphology.routing.flow",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        u: { format: "i8", values: u },
+        v: { format: "i8", values: v },
+        magnitude: {
+          source: { format: "f32", values: magnitude },
+          debugOnly: true,
+        },
+        meta: defineStandardVizMeta("morphology.routing.flow", "field.intensity", {
+          label: "Flow",
+          group: GROUP_ROUTING,
+        }),
+        arrows: { maxArrowLengthTiles: 1.25 },
+        points: { debugOnly: true },
+      }),
+      ...(routing.basinId instanceof Int32Array
+        ? [
+            {
+              kind: "grid" as const,
+              dataTypeKey: "morphology.routing.basinId",
+              spaceId: TILE_SPACE_ID,
+              dims: dimensions,
+              field: { format: "i32" as const, values: routing.basinId },
+              meta: defineStandardVizMeta("morphology.routing.basinId", "category.distinct", {
+                label: "Basin Id",
+                group: GROUP_ROUTING,
+                visibility: "debug",
+              }),
+            },
+          ]
+        : []),
+    ];
   },
 });

@@ -12,7 +12,7 @@ import { admitPipelineConfig } from "../features/configAuthoring/canonicalConfig
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
 import { getRuntimeRecipe } from "./recipeRuntime";
 import { createWorkerTraceSink } from "./worker-trace-sink";
-import { createWorkerVizDumper, createWorkerVizFacetSink } from "./worker-viz-dumper";
+import { createWorkerVizFacetSink } from "./worker-viz-facet-sink";
 
 function post(event: BrowserRunEvent, transfer?: Transferable[]): void {
   (self as DedicatedWorkerGlobalScope).postMessage(event, transfer ?? []);
@@ -172,7 +172,6 @@ async function runRecipe(
   });
 
   const context = createExtendedMapContext(dimensions, adapter, env);
-  context.viz = createWorkerVizDumper();
 
   let didEmitFinished = false;
   const postFromTrace = (event: BrowserRunEvent, transfer?: Transferable[]): void => {

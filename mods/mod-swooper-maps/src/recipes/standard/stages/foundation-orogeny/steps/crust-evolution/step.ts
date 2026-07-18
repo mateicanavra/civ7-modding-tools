@@ -1,6 +1,6 @@
-import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY } from "@swooper/mapgen-viz";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { CrustEvolutionStepContract } from "./config.js";
 
 const GROUP_CRUST = "Foundation / Crust";
@@ -27,75 +27,62 @@ export const CrustEvolutionStep = createStep(CrustEvolutionStepContract, {
     );
 
     deps.artifacts.foundationCrust.publish(context, crustResult.crust);
-
+    return { mesh, crust: crustResult.crust };
+  },
+  viz: ({ result: { mesh, crust } }) => {
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.crust.cellType",
-      spaceId: "world.xy",
-      positions,
-      values: crustResult.crust.type,
-      valueFormat: "u8",
-      meta: defineVizMeta("foundation.crust.cellType", {
-        label: "Crust Cell Type",
-        group: GROUP_CRUST,
-      }),
-    });
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.crust.cellAge",
-      spaceId: "world.xy",
-      positions,
-      values: crustResult.crust.age,
-      valueFormat: "u8",
-      meta: defineVizMeta("foundation.crust.cellAge", {
-        label: "Crust Thermal Age",
-        group: GROUP_CRUST,
-      }),
-    });
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.crust.maturity",
-      spaceId: "world.xy",
-      positions,
-      values: crustResult.crust.maturity,
-      valueFormat: "f32",
-      meta: defineVizMeta("foundation.crust.maturity", {
-        label: "Crust Maturity",
-        group: GROUP_CRUST,
-      }),
-    });
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.crust.thickness",
-      spaceId: "world.xy",
-      positions,
-      values: crustResult.crust.thickness,
-      valueFormat: "f32",
-      meta: defineVizMeta("foundation.crust.thickness", {
-        label: "Crust Thickness",
-        group: GROUP_CRUST,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.crust.strength",
-      spaceId: "world.xy",
-      positions,
-      values: crustResult.crust.strength,
-      valueFormat: "f32",
-      meta: defineVizMeta("foundation.crust.strength", {
-        label: "Crust Strength",
-        group: GROUP_CRUST,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.crust.cellBaseElevation",
-      spaceId: "world.xy",
-      positions,
-      values: crustResult.crust.baseElevation,
-      valueFormat: "f32",
-      meta: defineVizMeta("foundation.crust.cellBaseElevation", {
-        label: "Crust Cell Base Elevation",
-        group: GROUP_CRUST,
-      }),
-    });
+    return [
+      {
+        kind: "points",
+        dataTypeKey: "foundation.crust.cellType",
+        spaceId: "world.xy",
+        positions,
+        values: { format: "u8", values: crust.type },
+        meta: defineStandardVizMeta("foundation.crust.cellType", "category.distinct", {
+          label: "Crust Cell Type",
+          group: GROUP_CRUST,
+        }),
+      },
+      {
+        kind: "points",
+        dataTypeKey: "foundation.crust.cellAge",
+        spaceId: "world.xy",
+        positions,
+        values: { format: "u8", values: crust.age },
+        meta: defineStandardVizMeta("foundation.crust.cellAge", "field.intensity", {
+          label: "Crust Thermal Age",
+          group: GROUP_CRUST,
+        }),
+      },
+      ...(
+        [
+          ["foundation.crust.maturity", "Crust Maturity", crust.maturity, undefined],
+          ["foundation.crust.thickness", "Crust Thickness", crust.thickness, "debug"],
+          ["foundation.crust.strength", "Crust Strength", crust.strength, "debug"],
+        ] as const
+      ).map(([dataTypeKey, label, values, visibility]) => ({
+        kind: "points" as const,
+        dataTypeKey,
+        spaceId: "world.xy" as const,
+        positions,
+        values: { format: "f32" as const, values },
+        meta: defineStandardVizMeta(dataTypeKey, "field.intensity", {
+          label,
+          group: GROUP_CRUST,
+          visibility,
+        }),
+      })),
+      {
+        kind: "points",
+        dataTypeKey: "foundation.crust.cellBaseElevation",
+        spaceId: "world.xy",
+        positions,
+        values: { format: "f32", values: crust.baseElevation },
+        meta: defineStandardVizMeta("foundation.crust.cellBaseElevation", "terrain.elevation", {
+          label: "Crust Cell Base Elevation",
+          group: GROUP_CRUST,
+        }),
+      },
+    ];
   },
 });

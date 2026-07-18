@@ -39,7 +39,9 @@ A pipeline run is:
    - executor iterates nodes in order
    - requires/provides validated via tag registry
    - step executes and publishes artifacts / mutates buffers
-   - trace scope is created per step; viz emissions ride on trace events
+   - trace scope is created per step
+   - after successful execution and provider admission, optional metrics and visualization facets
+     project completed evidence into matching environment-owned sinks
 
 ## Data model (tags, artifacts, fields)
 
@@ -57,12 +59,17 @@ Trace provides:
 - step-level start/finish,
 - optional verbose step events (structured debug).
 
-Visualization is emitted by steps to `context.viz` as typed layer dumps; those are written (by a sink/dumper) and rendered via the canonical deck.gl viewer.
+Visualization is an optional `createStep({ viz })` facet. It projects pure portable evidence from
+`{ result, config, dimensions }` only after the step succeeds. The execution environment supplies
+the sink that materializes those projections for Studio streaming or filesystem replay; recipe
+algorithms never observe that sink. Visualization failures are diagnostic and cannot change
+generation success.
 
 ## Ground truth anchors
 
 - Trace sessions + scopes: `packages/mapgen-core/src/trace/index.ts`
 - Executor tag gating + trace scoping: `packages/mapgen-core/src/engine/PipelineExecutor.ts`
+- Optional facet dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
 - Tag validation/satisfaction: `packages/mapgen-core/src/engine/tags.ts`
 - Artifact store type: `packages/mapgen-core/src/core/types.ts`
 - Canonical viz doc (deck.gl): `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`

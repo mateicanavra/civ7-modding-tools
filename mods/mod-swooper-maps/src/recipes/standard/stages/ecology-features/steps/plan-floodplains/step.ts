@@ -1,5 +1,6 @@
-import { ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
+import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { PlanFloodplainsStepContract } from "./config.js";
 
 const FLOODPLAIN_FEATURE_INTENTS = new Set([
@@ -89,19 +90,20 @@ export const PlanFloodplainsStep = createStep(PlanFloodplainsStepContract, {
       featureOccupancyMask,
       reserved,
     });
-
-    context.viz?.dumpGrid(context.trace, {
+    return floodplainIntentMask;
+  },
+  viz: ({ result: floodplainIntentMask, dimensions }) => [
+    {
+      kind: "grid",
       dataTypeKey: "ecology.features.floodplainIntentMask",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: floodplainIntentMask,
-      meta: defineVizMeta("ecology.features.floodplainIntentMask", {
+      dims: dimensions,
+      field: { format: "u8", values: floodplainIntentMask },
+      meta: defineStandardVizMeta("ecology.features.floodplainIntentMask", "category.distinct", {
         label: "Floodplain Intent Mask",
         group: GROUP_ECOLOGY_FEATURES,
-        palette: "categorical",
         role: "intent",
       }),
-    });
-  },
+    },
+  ],
 });

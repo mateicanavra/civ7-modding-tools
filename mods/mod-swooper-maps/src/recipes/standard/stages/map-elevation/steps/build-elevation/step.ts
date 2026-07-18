@@ -1,11 +1,12 @@
 import {
-  defineVizMeta,
   logElevationSummary,
   logLandmassAscii,
   snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import type { VizProjection } from "@swooper/mapgen-viz";
 import { assertWaterDriftWithinPolicy } from "../../../../projection-policies/noWaterDrift.js";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { BuildElevationStepContract } from "./config.js";
 
 const GROUP_MAP_ELEVATION = "Map / Elevation (Engine)";
@@ -42,37 +43,10 @@ export const BuildElevationStep = createStep(BuildElevationStepContract, {
     context.adapter.recalculateAreas();
     assertWaterDriftWithinPolicy(context, expectedLandMask, "map-elevation/build-elevation");
 
-    const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.elevation.elevation",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i16",
-      values: physics.elevation,
-      meta: defineVizMeta("map.elevation.elevation", {
-        label: "Elevation (Physics Truth)",
-        group: GROUP_MAP_ELEVATION,
-        role: "physics",
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.elevation.landMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: expectedLandMask,
-      meta: defineVizMeta("map.elevation.landMask", {
-        label: "Land Mask (Projected Surface)",
-        group: GROUP_MAP_ELEVATION,
-        palette: "categorical",
-        role: "physics",
-        visibility: "debug",
-      }),
-    });
+    let driftMask: Uint8Array | undefined;
     if (engine) {
-      const driftMask = new Uint8Array(width * height);
+      driftMask = new Uint8Array(width * height);
       let mismatchCount = 0;
       for (let i = 0; i < driftMask.length; i++) {
         const mismatched = (expectedLandMask[i] ?? 0) !== (engine.landMask[i] ?? 0);
@@ -97,47 +71,6 @@ export const BuildElevationStep = createStep(BuildElevationStepContract, {
         landMaskMismatchCount: mismatchCount,
         landMaskMismatchShare: Number((mismatchCount / Math.max(1, width * height)).toFixed(4)),
       }));
-
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.elevation.elevation",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "i16",
-        values: engine.elevation,
-        meta: defineVizMeta("map.elevation.elevation", {
-          label: "Elevation (Engine)",
-          group: GROUP_MAP_ELEVATION,
-          role: "engine",
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.elevation.landMask",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: engine.landMask,
-        meta: defineVizMeta("map.elevation.landMask", {
-          label: "Land Mask (Engine)",
-          group: GROUP_MAP_ELEVATION,
-          palette: "categorical",
-          role: "engine",
-          visibility: "debug",
-        }),
-      });
-
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.elevation.driftMask",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: driftMask,
-        meta: defineVizMeta("map.elevation.driftMask", {
-          label: "Land/Water Drift Mask",
-          group: GROUP_MAP_ELEVATION,
-          palette: "categorical",
-          visibility: "debug",
-        }),
-      });
     }
 
     logElevationSummary(
@@ -148,5 +81,83 @@ export const BuildElevationStep = createStep(BuildElevationStepContract, {
       "map-elevation/build-elevation"
     );
     logLandmassAscii(context.trace, context.adapter, width, height);
+    return {
+      physicsElevation: topography.elevation,
+      expectedLandMask,
+      engine,
+      driftMask,
+    };
+  },
+  viz: ({ result, dimensions }) => {
+    const projections: VizProjection[] = [
+      {
+        kind: "grid",
+        dataTypeKey: "map.elevation.elevation",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "i16", values: result.physicsElevation },
+        meta: defineStandardVizMeta("map.elevation.elevation", "terrain.elevation", {
+          label: "Elevation (Physics Truth)",
+          group: GROUP_MAP_ELEVATION,
+          role: "physics",
+          visibility: "debug",
+        }),
+      },
+      {
+        kind: "grid",
+        dataTypeKey: "map.elevation.landMask",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "u8", values: result.expectedLandMask },
+        meta: defineStandardVizMeta("map.elevation.landMask", "category.distinct", {
+          label: "Land Mask (Projected Surface)",
+          group: GROUP_MAP_ELEVATION,
+          role: "physics",
+          visibility: "debug",
+        }),
+      },
+    ];
+    if (result.engine && result.driftMask) {
+      projections.push(
+        {
+          kind: "grid",
+          dataTypeKey: "map.elevation.elevation",
+          spaceId: TILE_SPACE_ID,
+          dims: dimensions,
+          field: { format: "i16", values: result.engine.elevation },
+          meta: defineStandardVizMeta("map.elevation.elevation", "terrain.elevation", {
+            label: "Elevation (Engine)",
+            group: GROUP_MAP_ELEVATION,
+            role: "engine",
+          }),
+        },
+        {
+          kind: "grid",
+          dataTypeKey: "map.elevation.landMask",
+          spaceId: TILE_SPACE_ID,
+          dims: dimensions,
+          field: { format: "u8", values: result.engine.landMask },
+          meta: defineStandardVizMeta("map.elevation.landMask", "category.distinct", {
+            label: "Land Mask (Engine)",
+            group: GROUP_MAP_ELEVATION,
+            role: "engine",
+            visibility: "debug",
+          }),
+        },
+        {
+          kind: "grid",
+          dataTypeKey: "map.elevation.driftMask",
+          spaceId: TILE_SPACE_ID,
+          dims: dimensions,
+          field: { format: "u8", values: result.driftMask },
+          meta: defineStandardVizMeta("map.elevation.driftMask", "category.distinct", {
+            label: "Land/Water Drift Mask",
+            group: GROUP_MAP_ELEVATION,
+            visibility: "debug",
+          }),
+        }
+      );
+    }
+    return projections;
   },
 });

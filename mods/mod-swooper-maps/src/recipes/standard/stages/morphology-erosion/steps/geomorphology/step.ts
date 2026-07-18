@@ -2,13 +2,13 @@ import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/mo
 import {
   BYTE_SHADE_RAMP,
   computeSampleStep,
-  defineVizMeta,
-  dumpScalarFieldVariants,
   renderAsciiGrid,
   shadeByte,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
+import { buildScalarFieldProjections } from "@swooper/mapgen-viz";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import type { MorphologyErosionKnob } from "../../index.js";
 import { GeomorphologyStepContract } from "./config.js";
 
@@ -118,65 +118,6 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
       }
     }
 
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.geomorphology.elevationDelta",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: deltas.elevationDelta,
-      meta: defineVizMeta("morphology.geomorphology.elevationDelta", {
-        label: "Elevation Delta",
-        group: GROUP_GEOMORPHOLOGY,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.geomorphology.sedimentDelta",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: deltas.sedimentDelta,
-      meta: defineVizMeta("morphology.geomorphology.sedimentDelta", {
-        label: "Sediment Delta",
-        group: GROUP_GEOMORPHOLOGY,
-        visibility: "debug",
-      }),
-    });
-
-    dumpScalarFieldVariants(context.trace, context.viz, {
-      dataTypeKey: "morphology.topography.elevation",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      field: { format: "i16", values: heightfield.elevation },
-      label: "Elevation (After Geomorphology)",
-      group: GROUP_GEOMORPHOLOGY,
-      palette: "continuous",
-      points: {},
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.topography.landMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: heightfield.landMask,
-      meta: defineVizMeta("morphology.topography.landMask", {
-        label: "Land Mask (After Geomorphology)",
-        group: GROUP_GEOMORPHOLOGY,
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.topography.bathymetry",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i16",
-      values: bathymetry,
-      meta: defineVizMeta("morphology.topography.bathymetry", {
-        label: "Bathymetry (After Geomorphology)",
-        group: GROUP_GEOMORPHOLOGY,
-        visibility: "debug",
-      }),
-    });
-
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));
       const landMask = heightfield.landMask;
@@ -260,5 +201,71 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
         };
       });
     }
+    return {
+      deltas,
+      elevation: heightfield.elevation,
+      landMask: heightfield.landMask,
+      bathymetry,
+    };
   },
+  viz: ({ result, dimensions }) => [
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.geomorphology.elevationDelta",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32", values: result.deltas.elevationDelta },
+      meta: defineStandardVizMeta("morphology.geomorphology.elevationDelta", "field.signed", {
+        label: "Elevation Delta",
+        group: GROUP_GEOMORPHOLOGY,
+        visibility: "debug",
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.geomorphology.sedimentDelta",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "f32", values: result.deltas.sedimentDelta },
+      meta: defineStandardVizMeta("morphology.geomorphology.sedimentDelta", "field.signed", {
+        label: "Sediment Delta",
+        group: GROUP_GEOMORPHOLOGY,
+        visibility: "debug",
+      }),
+    },
+    ...buildScalarFieldProjections({
+      dataTypeKey: "morphology.topography.elevation",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "i16", values: result.elevation },
+      meta: defineStandardVizMeta("morphology.topography.elevation", "terrain.elevation", {
+        label: "Elevation (After Geomorphology)",
+        group: GROUP_GEOMORPHOLOGY,
+      }),
+      points: {},
+    }),
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.topography.landMask",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: result.landMask },
+      meta: defineStandardVizMeta("morphology.topography.landMask", "category.distinct", {
+        label: "Land Mask (After Geomorphology)",
+        group: GROUP_GEOMORPHOLOGY,
+      }),
+    },
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.topography.bathymetry",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "i16", values: result.bathymetry },
+      meta: defineStandardVizMeta("morphology.topography.bathymetry", "water.depth", {
+        label: "Bathymetry (After Geomorphology)",
+        group: GROUP_GEOMORPHOLOGY,
+        visibility: "debug",
+      }),
+    },
+  ],
 });

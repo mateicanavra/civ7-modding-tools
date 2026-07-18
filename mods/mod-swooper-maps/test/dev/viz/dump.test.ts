@@ -6,19 +6,9 @@ import { join } from "node:path";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext, createTraceSession } from "@swooper/mapgen-core";
 import { createRecipe, createStage, createStep, defineStep } from "@swooper/mapgen-core/authoring";
-import {
-  createVizLayerKey,
-  type VizGridLayerEmissionV1,
-  type VizInlineRef,
-  type VizManifestV1,
-  type VizPathRef,
-} from "@swooper/mapgen-viz";
+import { createVizLayerKey, type VizManifestV1, type VizPathRef } from "@swooper/mapgen-viz";
 import { Type } from "typebox";
-import {
-  createTraceDumpSink,
-  createVizDumpAdapters,
-  createVizDumper,
-} from "../../../src/dev/viz/dump.js";
+import { createVizDumpAdapters } from "../../../src/dev/viz/dump.js";
 
 function readManifest(outputRoot: string, runId: string): VizManifestV1<VizPathRef> {
   return JSON.parse(
@@ -96,14 +86,6 @@ describe("filesystem visualization adapters", () => {
         sink: outputs.traceSink,
       });
       session.emitStepStart({ stepId, phase: "foundation" });
-      outputs.legacyVizDumper.dumpGrid(session.createStepScope({ stepId, phase: "foundation" }), {
-        dataTypeKey: "test.legacy-before-facet",
-        spaceId: "tile.hexOddQ",
-        dims: { width: 1, height: 1 },
-        format: "u8",
-        values: new Uint8Array([1]),
-      });
-
       outputs.facetSinks.viz?.(
         [
           {
@@ -125,7 +107,7 @@ describe("filesystem visualization adapters", () => {
 
       const manifest = readManifest(outputRoot, runId);
       expect(manifest.steps).toEqual([{ stepId, phase: "foundation", stepIndex: 7 }]);
-      expect(manifest.layers).toHaveLength(2);
+      expect(manifest.layers).toHaveLength(1);
       expect(manifest.layers.every((layer) => layer.stepIndex === 7)).toBe(true);
     } finally {
       rmSync(outputRoot, { recursive: true, force: true });
@@ -230,25 +212,34 @@ describe("filesystem visualization adapters", () => {
   it("isolates run step indexes, upserts layer identity, and writes exact subview bytes", () => {
     const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-"));
     try {
-      const sink = createTraceDumpSink({ outputRoot });
-      const dumper = createVizDumper({ outputRoot });
+      const outputs = createVizDumpAdapters({ outputRoot });
       const run = (runId: string, first: Uint8Array, second: Uint8Array): void => {
         const session = createTraceSession({
           runId,
           planFingerprint: `${runId}-plan`,
           config: { enabled: true, steps: { "test.step": "verbose" } },
-          sink,
+          sink: outputs.traceSink,
         });
         session.emitStepStart({ stepId: "test.step" });
-        const trace = session.createStepScope({ stepId: "test.step" });
         for (const values of [first, second]) {
-          dumper.dumpGrid(trace, {
-            dataTypeKey: "test.grid",
-            spaceId: "tile.hexOddQ",
-            dims: { width: 2, height: 1 },
-            format: "u8",
-            values,
-          });
+          outputs.facetSinks.viz?.(
+            [
+              {
+                kind: "grid",
+                dataTypeKey: "test.grid",
+                spaceId: "tile.hexOddQ",
+                dims: { width: 2, height: 1 },
+                field: { format: "u8", values },
+              },
+            ],
+            {
+              runId,
+              planFingerprint: `${runId}-plan`,
+              stepId: "test.step",
+              phase: "foundation",
+              stepIndex: 0,
+            }
+          );
         }
       };
 
@@ -284,26 +275,36 @@ describe("filesystem visualization adapters", () => {
     try {
       const runId = "atomic-run";
       const runDir = join(outputRoot, runId);
-      const sink = createTraceDumpSink({ outputRoot });
-      const dumper = createVizDumper({ outputRoot });
+      const outputs = createVizDumpAdapters({ outputRoot });
       const session = createTraceSession({
         runId,
         planFingerprint: "atomic-plan",
         config: { enabled: true, steps: { "test.step": "verbose" } },
-        sink,
+        sink: outputs.traceSink,
       });
       session.emitStepStart({ stepId: "test.step" });
-      const trace = session.createStepScope({ stepId: "test.step" });
       const dump = (a: number, b: number): void => {
-        dumper.dumpGridFields(trace, {
-          dataTypeKey: "test.atomic",
-          spaceId: "tile.hexOddQ",
-          dims: { width: 1, height: 1 },
-          fields: {
-            a: { format: "u8", values: new Uint8Array([a]) },
-            b: { format: "u8", values: new Uint8Array([b]) },
-          },
-        });
+        outputs.facetSinks.viz?.(
+          [
+            {
+              kind: "gridFields",
+              dataTypeKey: "test.atomic",
+              spaceId: "tile.hexOddQ",
+              dims: { width: 1, height: 1 },
+              fields: {
+                a: { format: "u8", values: new Uint8Array([a]) },
+                b: { format: "u8", values: new Uint8Array([b]) },
+              },
+            },
+          ],
+          {
+            runId,
+            planFingerprint: "atomic-plan",
+            stepId: "test.step",
+            phase: "foundation",
+            stepIndex: 0,
+          }
+        );
       };
 
       dump(1, 2);
@@ -333,7 +334,7 @@ describe("filesystem visualization adapters", () => {
       );
       mkdirSync(blockedPath);
 
-      dump(9, 10);
+      expect(() => dump(9, 10)).toThrow();
 
       expect(readFileSync(manifestPath, "utf8")).toBe(lastGoodManifest);
       expect(Array.from(readFileSync(join(runDir, oldAPath)))).toEqual([1]);
@@ -344,30 +345,6 @@ describe("filesystem visualization adapters", () => {
       expect(readdirSync(join(runDir, "data"))).toContain(
         `${encodeURIComponent(layerKey)}__field-a__sha256-${newADigest}.bin`
       );
-
-      const inlineLayer: VizGridLayerEmissionV1<VizInlineRef> = {
-        kind: "grid",
-        layerKey: "inline",
-        dataTypeKey: "test.inline",
-        stepId: "test.step",
-        spaceId: "tile.hexOddQ",
-        bounds: [0, 0, 1, 1],
-        dims: { width: 1, height: 1 },
-        field: { format: "u8", data: { kind: "inline", buffer: new Uint8Array([1]).buffer } },
-      };
-      const injectedEvent = {
-        tsMs: 0,
-        runId,
-        planFingerprint: "atomic-plan",
-        kind: "step.event" as const,
-        stepId: "test.step",
-      };
-      sink.emit({
-        ...injectedEvent,
-        data: { type: "viz.layer.dump.v1", layer: inlineLayer },
-      });
-      sink.emit({ ...injectedEvent, data: { type: "viz.layer.dump.v1", layer: {} } });
-      expect(readFileSync(manifestPath, "utf8")).toBe(lastGoodManifest);
     } finally {
       rmSync(outputRoot, { recursive: true, force: true });
     }

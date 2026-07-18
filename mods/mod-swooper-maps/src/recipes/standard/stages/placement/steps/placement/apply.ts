@@ -1,14 +1,9 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
+import { snapshotEngineHeightfield } from "@swooper/mapgen-core";
 
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import type { PlacementOutputsV1 } from "../../artifacts/placement-outputs.artifact.js";
 import { logAsciiMap, logTerrainStats } from "../../log.js";
-import {
-  PLACEMENT_TILE_SPACE_ID,
-  PLACEMENT_VIZ_GROUP,
-  transparentNoneCategory,
-} from "../../viz.js";
 
 type LandmassRegionSlotByTile = Static<
   typeof import("../../../../artifacts/index.js").artifacts["landmassRegionSlotByTile"]["schema"]
@@ -54,7 +49,13 @@ type ApplyPlacementArgs = {
   ) => DeepReadonly<EngineTerrainSnapshot>;
 };
 
-const GROUP_GAMEPLAY = PLACEMENT_VIZ_GROUP;
+type EngineHeightfieldSnapshot = NonNullable<ReturnType<typeof snapshotEngineHeightfield>>;
+
+/** Completed placement evidence needed by the terminal step's optional visualization facet. */
+export type ApplyPlacementResult = Readonly<{
+  engineSnapshot: EngineHeightfieldSnapshot | null;
+  waterDrift: Uint8Array;
+}>;
 
 /**
  * Collates final placement evidence after product-owned steps have already
@@ -77,7 +78,7 @@ export function applyPlacementPlan({
   publishOutputs,
   publishEngineState = (engineState) => engineState,
   publishEngineTerrainSnapshot = (snapshot) => snapshot,
-}: ApplyPlacementArgs): DeepReadonly<PlacementOutputsV1> {
+}: ApplyPlacementArgs): ApplyPlacementResult {
   const { adapter, trace } = context;
   const { width, height } = context.dimensions;
   const emit = (payload: Record<string, unknown>): void => {
@@ -136,31 +137,6 @@ export function applyPlacementPlan({
       waterDrift[i] = (engineLandMask[i] ?? 0) === 1 ? 1 : 2;
     }
   }
-  // S7 (debug evidence): the per-tile surface behind waterDriftCount — where
-  // the final engine land mask diverged from the Morphology physics mask.
-  if (engineSnapshot && waterDrift.length === width * height) {
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.placement.engine.waterDrift",
-      spaceId: PLACEMENT_TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: waterDrift,
-      meta: defineVizMeta("map.placement.engine.waterDrift", {
-        label: "Engine vs Physics Water Drift",
-        group: GROUP_GAMEPLAY,
-        visibility: "debug",
-        description:
-          "Tiles where the post-placement engine land mask disagrees with the Morphology physics land mask (the waterDriftCount parity evidence).",
-        palette: "categorical",
-        categories: [
-          transparentNoneCategory("In Agreement"),
-          { value: 1, label: "Engine Land / Physics Water", color: [34, 197, 94, 235] },
-          { value: 2, label: "Engine Water / Physics Land", color: [239, 68, 68, 235] },
-        ],
-      }),
-    });
-  }
-
   if (engineSnapshot) {
     publishEngineTerrainSnapshot({
       stage: "placement/placement",
@@ -169,19 +145,6 @@ export function applyPlacementPlan({
       landMask: engineSnapshot.landMask,
       terrain: engineSnapshot.terrain,
       elevation: engineSnapshot.elevation,
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.placement.engine.landMask",
-      spaceId: "tile.hexOddQ",
-      dims: { width, height },
-      format: "u8",
-      values: engineSnapshot.landMask,
-      meta: defineVizMeta("map.placement.engine.landMask", {
-        label: "Land Mask (Engine After Placement)",
-        group: GROUP_GAMEPLAY,
-        palette: "categorical",
-        role: "engine",
-      }),
     });
   }
 
@@ -214,10 +177,11 @@ export function applyPlacementPlan({
     starts: startTierSummary,
   });
 
-  return publishOutputs({
+  publishOutputs({
     naturalWondersCount: naturalWonderPlacement.placedCount,
     resourcesCount: resourcesPlaced,
     startsAssigned,
     discoveriesCount: discoveriesPlaced,
   });
+  return { engineSnapshot, waterDrift };
 }

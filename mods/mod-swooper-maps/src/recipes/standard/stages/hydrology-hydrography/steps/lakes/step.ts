@@ -1,6 +1,6 @@
 import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/model/policy/hydrography-knob-policy.js";
-import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { LakesStepContract } from "./config.js";
 
 type HydrologyLakeinessKnob = "few" | "normal" | "many";
@@ -66,13 +66,14 @@ export const LakesStep = createStep(LakesStepContract, {
       config.planLakes
     );
 
-    deps.artifacts.lakePlan.publish(context, {
+    const publishedLakePlan = {
       width,
       height,
       lakeMask: lakePlan.lakeMask,
       plannedLakeTileCount: lakePlan.plannedLakeTileCount,
       sinkLakeCount: lakePlan.sinkLakeCount,
-    });
+    };
+    deps.artifacts.lakePlan.publish(context, publishedLakePlan);
 
     const riverNetworkMetrics = ops.computeRiverNetworkMetrics(
       {
@@ -94,82 +95,83 @@ export const LakesStep = createStep(LakesStepContract, {
     );
 
     deps.artifacts.riverNetworkMetrics.publish(context, riverNetworkMetrics);
-
-    context.viz?.dumpGrid(context.trace, {
+    return { lakePlan: publishedLakePlan, riverNetworkMetrics };
+  },
+  viz: ({ result: { lakePlan, riverNetworkMetrics }, dimensions }) => [
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.lakes.lakePlan",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: lakePlan.lakeMask,
-      meta: defineVizMeta("hydrology.lakes.lakePlan", {
+      dims: dimensions,
+      field: { format: "u8", values: lakePlan.lakeMask },
+      meta: defineStandardVizMeta("hydrology.lakes.lakePlan", "category.distinct", {
         label: "Lake Plan",
         group: GROUP_HYDROGRAPHY,
-        palette: "categorical",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.upstreamArea",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i32",
-      values: riverNetworkMetrics.upstreamArea,
-      meta: defineVizMeta("hydrology.hydrography.upstreamArea", {
+      dims: dimensions,
+      field: { format: "i32", values: riverNetworkMetrics.upstreamArea },
+      meta: defineStandardVizMeta("hydrology.hydrography.upstreamArea", "field.intensity", {
         label: "Upstream Area",
         group: GROUP_HYDROGRAPHY,
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.streamOrderProxy",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: riverNetworkMetrics.streamOrderProxy,
-      meta: defineVizMeta("hydrology.hydrography.streamOrderProxy", {
+      dims: dimensions,
+      field: { format: "u8", values: riverNetworkMetrics.streamOrderProxy },
+      meta: defineStandardVizMeta("hydrology.hydrography.streamOrderProxy", "category.distinct", {
         label: "Stream Order Proxy",
         group: GROUP_HYDROGRAPHY,
-        palette: "categorical",
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.mouthType",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: riverNetworkMetrics.mouthType,
-      meta: defineVizMeta("hydrology.hydrography.mouthType", {
+      dims: dimensions,
+      field: { format: "u8", values: riverNetworkMetrics.mouthType },
+      meta: defineStandardVizMeta("hydrology.hydrography.mouthType", "category.distinct", {
         label: "River Mouth Type",
         group: GROUP_HYDROGRAPHY,
-        palette: "categorical",
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.slopeClass",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: riverNetworkMetrics.slopeClass,
-      meta: defineVizMeta("hydrology.hydrography.slopeClass", {
+      dims: dimensions,
+      field: { format: "u8", values: riverNetworkMetrics.slopeClass },
+      meta: defineStandardVizMeta("hydrology.hydrography.slopeClass", "category.distinct", {
         label: "River Slope Class",
         group: GROUP_HYDROGRAPHY,
-        palette: "categorical",
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "hydrology.hydrography.flowPermanenceProxy",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: riverNetworkMetrics.flowPermanenceProxy,
-      meta: defineVizMeta("hydrology.hydrography.flowPermanenceProxy", {
-        label: "Flow Permanence Proxy",
-        group: GROUP_HYDROGRAPHY,
-        palette: "categorical",
-        visibility: "debug",
-      }),
-    });
-  },
+      dims: dimensions,
+      field: { format: "u8", values: riverNetworkMetrics.flowPermanenceProxy },
+      meta: defineStandardVizMeta(
+        "hydrology.hydrography.flowPermanenceProxy",
+        "category.distinct",
+        {
+          label: "Flow Permanence Proxy",
+          group: GROUP_HYDROGRAPHY,
+          visibility: "debug",
+        }
+      ),
+    },
+  ],
 });

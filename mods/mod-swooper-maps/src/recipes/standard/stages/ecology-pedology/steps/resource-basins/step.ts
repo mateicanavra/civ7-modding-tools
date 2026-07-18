@@ -1,5 +1,5 @@
-import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { ResourceBasinsStepContract } from "./config.js";
 
 const GROUP_RESOURCE_BASINS = "Ecology / Resource Basins";
@@ -42,19 +42,20 @@ export const ResourceBasinsStep = createStep(ResourceBasinsStepContract, {
         basinIdByTile[plotIndex] = id;
       }
     }
-    context.viz?.dumpGrid(context.trace, {
+    deps.artifacts.resourceBasins.publish(context, balanced);
+    return basinIdByTile;
+  },
+  viz: ({ result: basinIdByTile, dimensions }) => [
+    {
+      kind: "grid",
       dataTypeKey: "ecology.resourceBasins.resourceBasinId",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u16",
-      values: basinIdByTile,
-      meta: defineVizMeta("ecology.resourceBasins.resourceBasinId", {
+      dims: dimensions,
+      field: { format: "u16", values: basinIdByTile },
+      meta: defineStandardVizMeta("ecology.resourceBasins.resourceBasinId", "category.distinct", {
         label: "Resource Basin Id",
         group: GROUP_RESOURCE_BASINS,
-        palette: "categorical",
       }),
-    });
-
-    deps.artifacts.resourceBasins.publish(context, balanced);
-  },
+    },
+  ],
 });

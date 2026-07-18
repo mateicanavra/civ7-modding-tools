@@ -59,7 +59,8 @@ Think of MapGen as these layers:
    - executor runs step nodes with:
      - tag gating (requires/provides),
      - artifact store + buffer mutation rules,
-     - trace/viz hooks.
+     - trace scopes,
+     - optional post-step metrics/visualization facet sinks.
 7) **Consumers**
    - Studio and other runtimes run the pipeline via a run boundary (often a worker).
    - Consumers are “reference implementations” of posture, not architecture authorities.
@@ -68,7 +69,8 @@ Think of MapGen as these layers:
 
 - Domains own ops and shared semantics; steps own orchestration, not algorithms.
 - Stages own author surface shape; recipes own pipeline composition and ordering.
-- The executor owns dependency validation and trace scope; steps must not reimplement gating.
+- The executor owns dependency validation, trace scope, and optional facet dispatch; steps must not
+  reimplement gating or observe an environment sink.
 - Studio owns UX and run boundary; it must not require SDK internals beyond stable surfaces.
 
 ## Anti-goals

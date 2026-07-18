@@ -1,5 +1,7 @@
-import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
+import { snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import type { VizProjection } from "@swooper/mapgen-viz";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { LakesStepContract } from "./config.js";
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
@@ -10,26 +12,11 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * accepted-water and terrain snapshots for downstream elevation and parity.
  */
 export const LakesStep = createStep(LakesStepContract, {
-  run: (context, config, _ops, deps) => {
+  run: (context, _config, _ops, deps) => {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const mountains = deps.artifacts.mountains.read(context);
     const { width, height } = context.dimensions;
     const size = Math.max(0, width * height);
-
-    // Map-stage visualization: planned lakes are Hydrology truth. This step only materializes and reads back.
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.hydrology.lakes.plannedLakeMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: lakePlan.lakeMask,
-      meta: defineVizMeta("map.hydrology.lakes.plannedLakeMask", {
-        label: "Lake Mask (Planned)",
-        group: GROUP_MAP_HYDROLOGY,
-        palette: "categorical",
-        role: "physics",
-      }),
-    });
 
     const projectionLakeMask = new Uint8Array(size);
     let morphologyProtectedLakeTileCount = 0;
@@ -44,8 +31,8 @@ export const LakesStep = createStep(LakesStepContract, {
 
     // The adapter is the only engine boundary. Stamping plus readback stays there
     // so this stage records projection evidence without owning Civ7 terrain APIs.
+    const physicsLandMask = context.buffers.heightfield.landMask;
     const projection = context.adapter.stampLakes(width, height, projectionLakeMask);
-    const physics = context.buffers.heightfield;
     const engineAfter = snapshotEngineHeightfield(context);
     if (engineAfter) {
       deps.artifacts.engineProjectionLakes.publish(context, {
@@ -91,64 +78,87 @@ export const LakesStep = createStep(LakesStepContract, {
           )
         ),
       }));
+    }
+    return {
+      plannedLakeMask: lakePlan.lakeMask,
+      physicsLandMask,
+      projection,
+      engineLandMask: engineAfter?.landMask,
+    };
+  },
+  viz: ({ result, config, dimensions }) => {
+    const projections: VizProjection[] = [
+      {
+        kind: "grid",
+        dataTypeKey: "map.hydrology.lakes.plannedLakeMask",
+        spaceId: TILE_SPACE_ID,
+        dims: dimensions,
+        field: { format: "u8", values: result.plannedLakeMask },
+        meta: defineStandardVizMeta("map.hydrology.lakes.plannedLakeMask", "category.distinct", {
+          label: "Lake Mask (Planned)",
+          group: GROUP_MAP_HYDROLOGY,
+          role: "physics",
+        }),
+      },
+    ];
+    if (!result.engineLandMask) return projections;
 
-      if (config.projectionReadback) {
-        context.viz?.dumpGrid(context.trace, {
+    if (config.projectionReadback) {
+      projections.push(
+        {
+          kind: "grid",
           dataTypeKey: "map.hydrology.lakes.engineLakeMask",
           spaceId: TILE_SPACE_ID,
-          dims: { width, height },
-          format: "u8",
-          values: projection.stampedLakeMask,
-          meta: defineVizMeta("map.hydrology.lakes.engineLakeMask", {
+          dims: dimensions,
+          field: { format: "u8", values: result.projection.stampedLakeMask },
+          meta: defineStandardVizMeta("map.hydrology.lakes.engineLakeMask", "category.distinct", {
             label: "Lake Mask (Engine)",
             group: GROUP_MAP_HYDROLOGY,
-            palette: "categorical",
             role: "engine",
           }),
-        });
-        context.viz?.dumpGrid(context.trace, {
+        },
+        {
+          kind: "grid",
           dataTypeKey: "map.hydrology.lakes.rejectedLakeMask",
           spaceId: TILE_SPACE_ID,
-          dims: { width, height },
-          format: "u8",
-          values: projection.rejectedLakeMask,
-          meta: defineVizMeta("map.hydrology.lakes.rejectedLakeMask", {
+          dims: dimensions,
+          field: { format: "u8", values: result.projection.rejectedLakeMask },
+          meta: defineStandardVizMeta("map.hydrology.lakes.rejectedLakeMask", "category.distinct", {
             label: "Rejected Lake Mask",
             group: GROUP_MAP_HYDROLOGY,
-            palette: "categorical",
             visibility: "debug",
           }),
-        });
-      }
-
-      context.viz?.dumpGrid(context.trace, {
+        }
+      );
+    }
+    projections.push(
+      {
+        kind: "grid",
         dataTypeKey: "debug.heightfield.landMask",
         spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: physics.landMask,
-        meta: defineVizMeta("debug.heightfield.landMask", {
+        dims: dimensions,
+        field: { format: "u8", values: result.physicsLandMask },
+        meta: defineStandardVizMeta("debug.heightfield.landMask", "category.distinct", {
           label: "Land Mask (Physics Truth)",
           group: GROUP_MAP_HYDROLOGY,
-          palette: "categorical",
           role: "physics",
           visibility: "debug",
         }),
-      });
-      context.viz?.dumpGrid(context.trace, {
+      },
+      {
+        kind: "grid",
         dataTypeKey: "debug.heightfield.landMask",
         spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: engineAfter.landMask,
-        meta: defineVizMeta("debug.heightfield.landMask", {
+        dims: dimensions,
+        field: { format: "u8", values: result.engineLandMask },
+        meta: defineStandardVizMeta("debug.heightfield.landMask", "category.distinct", {
           label: "Land Mask (Engine After Lakes)",
           group: GROUP_MAP_HYDROLOGY,
-          palette: "categorical",
           role: "engine",
           visibility: "debug",
         }),
-      });
-    }
+      }
+    );
+    return projections;
   },
 });

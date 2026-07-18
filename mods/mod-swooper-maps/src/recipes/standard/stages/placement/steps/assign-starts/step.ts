@@ -1,11 +1,8 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { runPlacementProductStep } from "../../log.js";
 import { AssignStartsStepContract } from "./config.js";
-import {
-  emitStartPositionsViz,
-  emitStartViabilityViz,
-  materializeStartAssignment,
-} from "./materialize.js";
+import { materializeStartAssignment } from "./materialize.js";
+import { projectStartAssignmentViz } from "./viz.js";
 
 /**
  * Assigns player seats against the resource plan and final physical truth,
@@ -70,15 +67,11 @@ export const AssignStartsStep = createStep(AssignStartsStepContract, {
       context.trace.event(() => payload);
     };
 
-    // PLAN-phase viz (S7, E4.2): score/tier/component/seat-rung layers come
-    // from the op output BEFORE materialization, so the scoring surface is
-    // inspectable even when selection degrades or stamping fails.
-    emitStartViabilityViz(context, plan);
-
     const assignment = runPlacementProductStep("placement.starts", emit, () =>
       materializeStartAssignment({ context, plan })
     );
-    emitStartPositionsViz(context, assignment.positions);
     deps.artifacts.startAssignment.publish(context, assignment);
+    return { plan, assignment };
   },
+  viz: ({ result, dimensions }) => projectStartAssignmentViz({ ...result, dimensions }),
 });

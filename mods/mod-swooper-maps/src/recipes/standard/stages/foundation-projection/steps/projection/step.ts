@@ -1,10 +1,18 @@
-import {
-  computeSampleStep,
-  defineVizMeta,
-  dumpVectorFieldVariants,
-  renderAsciiGrid,
-} from "@swooper/mapgen-core";
+import { computeSampleStep, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import {
+  buildVectorFieldProjections,
+  type VizDims,
+  type VizGridProjection,
+  type VizLayerMeta,
+  type VizScalarSource,
+  type VizVariantKey,
+} from "@swooper/mapgen-viz";
+import {
+  defineStandardVizCategoryMeta,
+  defineStandardVizMeta,
+  STANDARD_VIZ_COLORS,
+} from "../../../../viz.js";
 import { ProjectionStepContract } from "./config.js";
 
 const GROUP_PLATES = "Foundation / Plates";
@@ -13,6 +21,33 @@ const GROUP_TILE_MAP = "Foundation / Tile Mapping";
 const GROUP_TECTONIC_HISTORY_TILES = "Foundation / Tectonic History Tiles";
 const GROUP_TECTONIC_PROVENANCE_TILES = "Foundation / Tectonic Provenance Tiles";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
+
+const BOUNDARY_TYPE_CATEGORIES = [
+  { value: 0, label: "None/Unknown", color: STANDARD_VIZ_COLORS.unknown },
+  { value: 1, label: "Convergent", color: STANDARD_VIZ_COLORS.field.positive },
+  { value: 2, label: "Divergent", color: STANDARD_VIZ_COLORS.field.negative },
+  { value: 3, label: "Transform", color: STANDARD_VIZ_COLORS.field.high },
+] as const;
+
+function gridProjection(
+  input: Readonly<{
+    dataTypeKey: string;
+    dims: VizDims;
+    field: VizScalarSource;
+    meta: VizLayerMeta;
+    variantKey?: VizVariantKey;
+  }>
+): VizGridProjection {
+  return {
+    kind: "grid",
+    dataTypeKey: input.dataTypeKey,
+    variantKey: input.variantKey,
+    spaceId: TILE_SPACE_ID,
+    dims: input.dims,
+    field: input.field,
+    meta: input.meta,
+  };
+}
 
 /**
  * Projects mesh-space crust, plate, history, and provenance truth into aligned
@@ -56,370 +91,6 @@ export const ProjectionStep = createStep(ProjectionStepContract, {
       platesResult.tectonicProvenanceTiles
     );
 
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.plates.tilePlateId",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i16",
-      values: platesResult.plates.id,
-      meta: defineVizMeta("foundation.plates.tilePlateId", {
-        label: "Plate Id",
-        group: GROUP_PLATES,
-        palette: "categorical",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.plates.tileBoundaryType",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.plates.boundaryType,
-      meta: defineVizMeta("foundation.plates.tileBoundaryType", {
-        label: "Plate Boundary Type",
-        group: GROUP_PLATES,
-        categories: [
-          { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] },
-          { value: 1, label: "Convergent", color: [239, 68, 68, 240] },
-          { value: 2, label: "Divergent", color: [59, 130, 246, 240] },
-          { value: 3, label: "Transform", color: [245, 158, 11, 240] },
-        ],
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.plates.tileBoundaryCloseness",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.plates.boundaryCloseness,
-      meta: defineVizMeta("foundation.plates.tileBoundaryCloseness", {
-        label: "Plate Boundary Closeness",
-        group: GROUP_PLATES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.plates.tileTectonicStress",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.plates.tectonicStress,
-      meta: defineVizMeta("foundation.plates.tileTectonicStress", {
-        label: "Plate Tectonic Stress",
-        group: GROUP_PLATES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.plates.tileUpliftPotential",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.plates.upliftPotential,
-      meta: defineVizMeta("foundation.plates.tileUpliftPotential", {
-        label: "Plate Uplift Potential",
-        group: GROUP_PLATES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.plates.tileRiftPotential",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.plates.riftPotential,
-      meta: defineVizMeta("foundation.plates.tileRiftPotential", {
-        label: "Plate Rift Potential",
-        group: GROUP_PLATES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.plates.tileShieldStability",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.plates.shieldStability,
-      meta: defineVizMeta("foundation.plates.tileShieldStability", {
-        label: "Plate Shield Stability",
-        group: GROUP_PLATES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.plates.tileVolcanism",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.plates.volcanism,
-      meta: defineVizMeta("foundation.plates.tileVolcanism", {
-        label: "Plate Volcanism",
-        group: GROUP_PLATES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.plates.tileMovementU",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i8",
-      values: platesResult.plates.movementU,
-      meta: defineVizMeta("foundation.plates.tileMovementU", {
-        label: "Plate Movement U",
-        group: GROUP_PLATES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.plates.tileMovementV",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i8",
-      values: platesResult.plates.movementV,
-      meta: defineVizMeta("foundation.plates.tileMovementV", {
-        label: "Plate Movement V",
-        group: GROUP_PLATES,
-        visibility: "debug",
-      }),
-    });
-    dumpVectorFieldVariants(context.trace, context.viz, {
-      dataTypeKey: "foundation.plates.tileMovement",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      u: { format: "i8", values: platesResult.plates.movementU },
-      v: { format: "i8", values: platesResult.plates.movementV },
-      label: "Plate Motion",
-      group: GROUP_PLATES,
-      palette: "continuous",
-      magnitude: { debugOnly: true },
-      arrows: { maxArrowLenTiles: 1.25 },
-      points: { debugOnly: true },
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.plates.tileRotation",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i8",
-      values: platesResult.plates.rotation,
-      meta: defineVizMeta("foundation.plates.tileRotation", {
-        label: "Plate Rotation",
-        group: GROUP_PLATES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.crustTiles.type",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.crustTiles.type,
-      meta: defineVizMeta("foundation.crustTiles.type", {
-        label: "Crust Type",
-        group: GROUP_CRUST_TILES,
-        categories: [
-          { value: 0, label: "Oceanic", color: [37, 99, 235, 230] },
-          { value: 1, label: "Continental", color: [34, 197, 94, 230] },
-        ],
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.crustTiles.age",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.crustTiles.age,
-      meta: defineVizMeta("foundation.crustTiles.age", {
-        label: "Crust Age",
-        group: GROUP_CRUST_TILES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.crustTiles.buoyancy",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: platesResult.crustTiles.buoyancy,
-      meta: defineVizMeta("foundation.crustTiles.buoyancy", {
-        label: "Crust Buoyancy",
-        group: GROUP_CRUST_TILES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.crustTiles.baseElevation",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: platesResult.crustTiles.baseElevation,
-      meta: defineVizMeta("foundation.crustTiles.baseElevation", {
-        label: "Crust Base Elevation",
-        group: GROUP_CRUST_TILES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.crustTiles.strength",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "f32",
-      values: platesResult.crustTiles.strength,
-      meta: defineVizMeta("foundation.crustTiles.strength", {
-        label: "Crust Strength",
-        group: GROUP_CRUST_TILES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.history.upliftTotal",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.tectonicHistoryTiles.rollups.upliftTotal,
-      meta: defineVizMeta("foundation.history.upliftTotal", {
-        label: "History Uplift Total",
-        group: GROUP_TECTONIC_HISTORY_TILES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.history.lastActiveEra",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.tectonicHistoryTiles.rollups.lastActiveEra,
-      meta: defineVizMeta("foundation.history.lastActiveEra", {
-        label: "History Last Active Era",
-        group: GROUP_TECTONIC_HISTORY_TILES,
-        visibility: "debug",
-      }),
-    });
-
-    const historyPerEra = platesResult.tectonicHistoryTiles.perEra ?? [];
-    for (let eraIndex = 0; eraIndex < historyPerEra.length; eraIndex++) {
-      const era = historyPerEra[eraIndex];
-      if (!era) continue;
-      const variantKey = `era:${eraIndex + 1}`;
-
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "foundation.history.boundaryType",
-        variantKey,
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: era.boundaryType,
-        meta: defineVizMeta("foundation.history.boundaryType", {
-          label: "History Boundary Type",
-          group: GROUP_TECTONIC_HISTORY_TILES,
-          categories: [
-            { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] },
-            { value: 1, label: "Convergent", color: [239, 68, 68, 240] },
-            { value: 2, label: "Divergent", color: [59, 130, 246, 240] },
-            { value: 3, label: "Transform", color: [245, 158, 11, 240] },
-          ],
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "foundation.history.upliftPotential",
-        variantKey,
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: era.upliftPotential,
-        meta: defineVizMeta("foundation.history.upliftPotential", {
-          label: "History Uplift Potential",
-          group: GROUP_TECTONIC_HISTORY_TILES,
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "foundation.history.riftPotential",
-        variantKey,
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: era.riftPotential,
-        meta: defineVizMeta("foundation.history.riftPotential", {
-          label: "History Rift Potential",
-          group: GROUP_TECTONIC_HISTORY_TILES,
-          visibility: "debug",
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "foundation.history.shearStress",
-        variantKey,
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: era.shearStress,
-        meta: defineVizMeta("foundation.history.shearStress", {
-          label: "History Shear Stress",
-          group: GROUP_TECTONIC_HISTORY_TILES,
-          visibility: "debug",
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "foundation.history.volcanism",
-        variantKey,
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: era.volcanism,
-        meta: defineVizMeta("foundation.history.volcanism", {
-          label: "History Volcanism",
-          group: GROUP_TECTONIC_HISTORY_TILES,
-          visibility: "debug",
-        }),
-      });
-      context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "foundation.history.fracture",
-        variantKey,
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        format: "u8",
-        values: era.fracture,
-        meta: defineVizMeta("foundation.history.fracture", {
-          label: "History Fracture",
-          group: GROUP_TECTONIC_HISTORY_TILES,
-          visibility: "debug",
-        }),
-      });
-    }
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.provenance.originEra",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.tectonicProvenanceTiles.originEra,
-      meta: defineVizMeta("foundation.provenance.originEra", {
-        label: "Provenance Origin Era",
-        group: GROUP_TECTONIC_PROVENANCE_TILES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.provenance.lastBoundaryType",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: platesResult.tectonicProvenanceTiles.lastBoundaryType,
-      meta: defineVizMeta("foundation.provenance.lastBoundaryType", {
-        label: "Provenance Last Boundary Type",
-        group: GROUP_TECTONIC_PROVENANCE_TILES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.tileToCellIndex",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i32",
-      values: platesResult.tileToCellIndex,
-      meta: defineVizMeta("foundation.tileToCellIndex", {
-        label: "Tile To Cell Index",
-        group: GROUP_TILE_MAP,
-        visibility: "debug",
-      }),
-    });
-
     context.trace.event(() => {
       const sampleStep = computeSampleStep(width, height);
       const boundaryType = platesResult.plates.boundaryType;
@@ -441,5 +112,241 @@ export const ProjectionStep = createStep(ProjectionStepContract, {
         rows,
       };
     });
+    return platesResult;
+  },
+  viz: ({ result, dimensions }) => {
+    const projections: VizGridProjection[] = [];
+    const addGrid = (
+      dataTypeKey: string,
+      field: VizScalarSource,
+      meta: VizLayerMeta,
+      variantKey?: VizVariantKey
+    ) =>
+      projections.push(gridProjection({ dataTypeKey, dims: dimensions, field, meta, variantKey }));
+
+    addGrid(
+      "foundation.plates.tilePlateId",
+      { format: "i16", values: result.plates.id },
+      defineStandardVizMeta("foundation.plates.tilePlateId", "category.distinct", {
+        label: "Plate Id",
+        group: GROUP_PLATES,
+      })
+    );
+    addGrid(
+      "foundation.plates.tileBoundaryType",
+      { format: "u8", values: result.plates.boundaryType },
+      defineStandardVizCategoryMeta(
+        "foundation.plates.tileBoundaryType",
+        BOUNDARY_TYPE_CATEGORIES,
+        { label: "Plate Boundary Type", group: GROUP_PLATES }
+      )
+    );
+    for (const [dataTypeKey, label, values] of [
+      [
+        "foundation.plates.tileBoundaryCloseness",
+        "Plate Boundary Closeness",
+        result.plates.boundaryCloseness,
+      ],
+      [
+        "foundation.plates.tileTectonicStress",
+        "Plate Tectonic Stress",
+        result.plates.tectonicStress,
+      ],
+      [
+        "foundation.plates.tileUpliftPotential",
+        "Plate Uplift Potential",
+        result.plates.upliftPotential,
+      ],
+      ["foundation.plates.tileRiftPotential", "Plate Rift Potential", result.plates.riftPotential],
+      [
+        "foundation.plates.tileShieldStability",
+        "Plate Shield Stability",
+        result.plates.shieldStability,
+      ],
+      ["foundation.plates.tileVolcanism", "Plate Volcanism", result.plates.volcanism],
+    ] as const) {
+      addGrid(
+        dataTypeKey,
+        { format: "u8", values },
+        defineStandardVizMeta(dataTypeKey, "field.intensity", {
+          label,
+          group: GROUP_PLATES,
+          visibility: "debug",
+        })
+      );
+    }
+    for (const [dataTypeKey, label, values] of [
+      ["foundation.plates.tileMovementU", "Plate Movement U", result.plates.movementU],
+      ["foundation.plates.tileMovementV", "Plate Movement V", result.plates.movementV],
+      ["foundation.plates.tileRotation", "Plate Rotation", result.plates.rotation],
+    ] as const) {
+      addGrid(
+        dataTypeKey,
+        { format: "i8", values },
+        defineStandardVizMeta(dataTypeKey, "field.signed", {
+          label,
+          group: GROUP_PLATES,
+          visibility: "debug",
+        })
+      );
+    }
+
+    const movement = buildVectorFieldProjections({
+      dataTypeKey: "foundation.plates.tileMovement",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      u: { format: "i8", values: result.plates.movementU },
+      v: { format: "i8", values: result.plates.movementV },
+      magnitude: { debugOnly: true },
+      arrows: { maxArrowLengthTiles: 1.25 },
+      points: { debugOnly: true },
+      meta: defineStandardVizMeta("foundation.plates.tileMovement", "field.intensity", {
+        label: "Plate Motion",
+        group: GROUP_PLATES,
+      }),
+    });
+
+    addGrid(
+      "foundation.crustTiles.type",
+      { format: "u8", values: result.crustTiles.type },
+      defineStandardVizCategoryMeta(
+        "foundation.crustTiles.type",
+        [
+          { value: 0, label: "Oceanic", color: STANDARD_VIZ_COLORS.water.ocean },
+          { value: 1, label: "Continental", color: STANDARD_VIZ_COLORS.land },
+        ],
+        {
+          label: "Crust Type",
+          group: GROUP_CRUST_TILES,
+        }
+      )
+    );
+    addGrid(
+      "foundation.crustTiles.age",
+      { format: "u8", values: result.crustTiles.age },
+      defineStandardVizMeta("foundation.crustTiles.age", "field.intensity", {
+        label: "Crust Age",
+        group: GROUP_CRUST_TILES,
+        visibility: "debug",
+      })
+    );
+    for (const [dataTypeKey, label, values, style] of [
+      [
+        "foundation.crustTiles.buoyancy",
+        "Crust Buoyancy",
+        result.crustTiles.buoyancy,
+        "field.signed",
+      ],
+      [
+        "foundation.crustTiles.baseElevation",
+        "Crust Base Elevation",
+        result.crustTiles.baseElevation,
+        "terrain.elevation",
+      ],
+      [
+        "foundation.crustTiles.strength",
+        "Crust Strength",
+        result.crustTiles.strength,
+        "field.intensity",
+      ],
+    ] as const) {
+      addGrid(
+        dataTypeKey,
+        { format: "f32", values },
+        defineStandardVizMeta(dataTypeKey, style, {
+          label,
+          group: GROUP_CRUST_TILES,
+          visibility: "debug",
+        })
+      );
+    }
+    addGrid(
+      "foundation.history.upliftTotal",
+      { format: "u8", values: result.tectonicHistoryTiles.rollups.upliftTotal },
+      defineStandardVizMeta("foundation.history.upliftTotal", "field.intensity", {
+        label: "History Uplift Total",
+        group: GROUP_TECTONIC_HISTORY_TILES,
+        visibility: "debug",
+      })
+    );
+    addGrid(
+      "foundation.history.lastActiveEra",
+      { format: "u8", values: result.tectonicHistoryTiles.rollups.lastActiveEra },
+      defineStandardVizMeta("foundation.history.lastActiveEra", "category.distinct", {
+        label: "History Last Active Era",
+        group: GROUP_TECTONIC_HISTORY_TILES,
+        visibility: "debug",
+      })
+    );
+
+    for (let eraIndex = 0; eraIndex < result.tectonicHistoryTiles.perEra.length; eraIndex++) {
+      const era = result.tectonicHistoryTiles.perEra[eraIndex];
+      if (!era) continue;
+      const variantKey = `era:${eraIndex + 1}`;
+      addGrid(
+        "foundation.history.boundaryType",
+        { format: "u8", values: era.boundaryType },
+        defineStandardVizCategoryMeta("foundation.history.boundaryType", BOUNDARY_TYPE_CATEGORIES, {
+          label: "History Boundary Type",
+          group: GROUP_TECTONIC_HISTORY_TILES,
+        }),
+        variantKey
+      );
+      for (const [dataTypeKey, label, values, visibility] of [
+        [
+          "foundation.history.upliftPotential",
+          "History Uplift Potential",
+          era.upliftPotential,
+          "default",
+        ],
+        ["foundation.history.riftPotential", "History Rift Potential", era.riftPotential, "debug"],
+        ["foundation.history.shearStress", "History Shear Stress", era.shearStress, "debug"],
+        ["foundation.history.volcanism", "History Volcanism", era.volcanism, "debug"],
+        ["foundation.history.fracture", "History Fracture", era.fracture, "debug"],
+      ] as const) {
+        addGrid(
+          dataTypeKey,
+          { format: "u8", values },
+          defineStandardVizMeta(dataTypeKey, "field.intensity", {
+            label,
+            group: GROUP_TECTONIC_HISTORY_TILES,
+            visibility,
+          }),
+          variantKey
+        );
+      }
+    }
+    addGrid(
+      "foundation.provenance.originEra",
+      { format: "u8", values: result.tectonicProvenanceTiles.originEra },
+      defineStandardVizMeta("foundation.provenance.originEra", "category.distinct", {
+        label: "Provenance Origin Era",
+        group: GROUP_TECTONIC_PROVENANCE_TILES,
+        visibility: "debug",
+      })
+    );
+    addGrid(
+      "foundation.provenance.lastBoundaryType",
+      { format: "u8", values: result.tectonicProvenanceTiles.lastBoundaryType },
+      defineStandardVizCategoryMeta(
+        "foundation.provenance.lastBoundaryType",
+        BOUNDARY_TYPE_CATEGORIES,
+        {
+          label: "Provenance Last Boundary Type",
+          group: GROUP_TECTONIC_PROVENANCE_TILES,
+          visibility: "debug",
+        }
+      )
+    );
+    addGrid(
+      "foundation.tileToCellIndex",
+      { format: "i32", values: result.tileToCellIndex },
+      defineStandardVizMeta("foundation.tileToCellIndex", "category.distinct", {
+        label: "Tile To Cell Index",
+        group: GROUP_TILE_MAP,
+        visibility: "debug",
+      })
+    );
+    return [...projections, ...movement];
   },
 });

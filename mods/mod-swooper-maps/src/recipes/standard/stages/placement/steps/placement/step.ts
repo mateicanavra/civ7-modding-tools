@@ -1,6 +1,7 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { applyPlacementPlan } from "./apply.js";
 import { PlacementStepContract } from "./config.js";
+import { projectPlacementCompletionViz } from "./viz.js";
 
 /**
  * Closes placement by assembling all product outcomes and comparing physics
@@ -16,7 +17,7 @@ export const PlacementStep = createStep(PlacementStepContract, {
     const advancedStartAssignment = deps.artifacts.advancedStartAssignment.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
 
-    applyPlacementPlan({
+    return applyPlacementPlan({
       context,
       naturalWonderPlacement,
       surfacePreparation,
@@ -31,4 +32,5 @@ export const PlacementStep = createStep(PlacementStepContract, {
         deps.artifacts.placementEngineTerrainSnapshot.publish(context, snapshot),
     });
   },
+  viz: ({ result, dimensions }) => projectPlacementCompletionViz(result, dimensions),
 });

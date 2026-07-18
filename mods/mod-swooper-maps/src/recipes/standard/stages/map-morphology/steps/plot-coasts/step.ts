@@ -7,7 +7,6 @@ import {
 } from "@civ7/map-policy";
 import {
   COAST_TERRAIN,
-  defineVizMeta,
   FLAT_TERRAIN,
   logLandmassAscii,
   OCEAN_TERRAIN,
@@ -15,6 +14,11 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { assertWaterDriftWithinPolicy } from "../../../../projection-policies/noWaterDrift.js";
+import {
+  defineStandardVizCategoryMeta,
+  defineStandardVizMeta,
+  STANDARD_VIZ_COLORS,
+} from "../../../../viz.js";
 import { PlotCoastsStepContract } from "./config.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
@@ -65,7 +69,7 @@ export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
     const coastRingMask = coastRing.coastRingMask;
     const promotedOceanToCoast = coastRing.promotedOceanToCoast;
 
-    deps.artifacts.coastClassification.publish(context, {
+    const coastClassification = {
       width,
       height,
       baseWaterClass,
@@ -73,7 +77,8 @@ export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
       waterClass,
       coastRingMask,
       promotedOceanToCoast,
-    });
+    };
+    deps.artifacts.coastClassification.publish(context, coastClassification);
 
     context.trace.event(() => ({
       type: "map.morphology.coasts.policy",
@@ -108,106 +113,117 @@ export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
       });
     }
 
-    // Map-stage layers: coastline metrics are computed from Morphology truth (tile-space) and should match
-    // the engine terrain projection (land=flat, coastal water=coast, deep water=ocean).
-    context.viz?.dumpGrid(context.trace, {
+    logLandmassAscii(context.trace, context.adapter, width, height);
+    assertWaterDriftWithinPolicy(context, topography.landMask, "map-morphology/plot-coasts");
+    return {
+      coastClassification,
+      coastalLand: shelf.coastalLand,
+      coastalWater: shelf.coastalWater,
+      shelfMask: shelf.shelfMask,
+    };
+  },
+  viz: ({ result, dimensions }) => [
+    {
+      kind: "grid",
       dataTypeKey: "map.morphology.coasts.waterClass",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: waterClass,
-      meta: defineVizMeta("map.morphology.coasts.waterClass", {
-        label: "Water Class (Engine)",
-        group: GROUP_MAP_MORPHOLOGY,
-        description:
-          "Water class stamped into engine terrain (0=land, 1=coast, 2=ocean): the continental shelf plus the guaranteed land-adjacent coast ring.",
-        role: "membership",
-        palette: "categorical",
-        categories: [
-          { value: 0, label: "Land", color: [156, 163, 175, 200] },
-          { value: 1, label: "Coast", color: [56, 189, 248, 235] },
-          { value: 2, label: "Ocean", color: [37, 99, 235, 235] },
+      dims: dimensions,
+      field: { format: "u8", values: result.coastClassification.waterClass },
+      meta: defineStandardVizCategoryMeta(
+        "map.morphology.coasts.waterClass",
+        [
+          { value: 0, label: "Land", color: STANDARD_VIZ_COLORS.land },
+          { value: 1, label: "Coast", color: STANDARD_VIZ_COLORS.water.coast },
+          { value: 2, label: "Ocean", color: STANDARD_VIZ_COLORS.water.ocean },
         ],
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+        {
+          label: "Water Class (Engine)",
+          group: GROUP_MAP_MORPHOLOGY,
+          description:
+            "Water class stamped into engine terrain (0=land, 1=coast, 2=ocean): the continental shelf plus the guaranteed land-adjacent coast ring.",
+          role: "membership",
+        }
+      ),
+    },
+    {
+      kind: "grid",
       dataTypeKey: "map.morphology.coasts.sourceCoastMask",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: sourceCoastMask,
-      meta: defineVizMeta("map.morphology.coasts.sourceCoastMask", {
-        label: "Source Coast Mask",
-        group: GROUP_MAP_MORPHOLOGY,
-        description:
-          "Pre-policy water tiles selected for coast terrain from the post-island shelf artifact (coastalWater or shelfMask).",
-        visibility: "default",
-        role: "membership",
-        palette: "categorical",
-        categories: [
-          { value: 0, label: "Not source coast", color: [15, 23, 42, 40] },
-          { value: 1, label: "Source coast", color: [14, 165, 233, 235] },
+      dims: dimensions,
+      field: { format: "u8", values: result.coastClassification.sourceCoastMask },
+      meta: defineStandardVizCategoryMeta(
+        "map.morphology.coasts.sourceCoastMask",
+        [
+          { value: 0, label: "Not source coast", color: STANDARD_VIZ_COLORS.absent },
+          { value: 1, label: "Source coast", color: STANDARD_VIZ_COLORS.water.coast },
         ],
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+        {
+          label: "Source Coast Mask",
+          group: GROUP_MAP_MORPHOLOGY,
+          description:
+            "Pre-policy water tiles selected for coast terrain from the post-island shelf artifact (coastalWater or shelfMask).",
+          visibility: "default",
+          role: "membership",
+        }
+      ),
+    },
+    {
+      kind: "grid",
       dataTypeKey: "map.morphology.coasts.coastRingMask",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: coastRingMask,
-      meta: defineVizMeta("map.morphology.coasts.coastRingMask", {
-        label: "Coast Ring Additions",
-        group: GROUP_MAP_MORPHOLOGY,
-        description:
-          "Ocean tiles promoted to coast by the land-adjacent coast-ring guarantee (the residue not already covered by the shelf).",
-        visibility: "debug",
-        role: "membership",
-        palette: "categorical",
-        categories: [
-          { value: 0, label: "Not ring-added", color: [15, 23, 42, 40] },
-          { value: 1, label: "Ring-added coast", color: [125, 211, 252, 235] },
+      dims: dimensions,
+      field: { format: "u8", values: result.coastClassification.coastRingMask },
+      meta: defineStandardVizCategoryMeta(
+        "map.morphology.coasts.coastRingMask",
+        [
+          { value: 0, label: "Not ring-added", color: STANDARD_VIZ_COLORS.absent },
+          { value: 1, label: "Ring-added coast", color: STANDARD_VIZ_COLORS.water.coast },
         ],
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+        {
+          label: "Coast Ring Additions",
+          group: GROUP_MAP_MORPHOLOGY,
+          description:
+            "Ocean tiles promoted to coast by the land-adjacent coast-ring guarantee (the residue not already covered by the shelf).",
+          visibility: "debug",
+          role: "membership",
+        }
+      ),
+    },
+    {
+      kind: "grid",
       dataTypeKey: "map.morphology.coasts.coastalLand",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: shelf.coastalLand,
-      meta: defineVizMeta("map.morphology.coasts.coastalLand", {
+      dims: dimensions,
+      field: { format: "u8", values: result.coastalLand },
+      meta: defineStandardVizMeta("map.morphology.coasts.coastalLand", "category.distinct", {
         label: "Coastal Land (Post-island Shelf)",
         group: GROUP_MAP_MORPHOLOGY,
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "map.morphology.coasts.coastalWater",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: shelf.coastalWater,
-      meta: defineVizMeta("map.morphology.coasts.coastalWater", {
+      dims: dimensions,
+      field: { format: "u8", values: result.coastalWater },
+      meta: defineStandardVizMeta("map.morphology.coasts.coastalWater", "category.distinct", {
         label: "Coastal Water (Post-island Shelf)",
         group: GROUP_MAP_MORPHOLOGY,
         visibility: "debug",
       }),
-    });
-    context.viz?.dumpGrid(context.trace, {
+    },
+    {
+      kind: "grid",
       dataTypeKey: "map.morphology.coasts.shelfMask",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: shelf.shelfMask,
-      meta: defineVizMeta("map.morphology.coasts.shelfMask", {
+      dims: dimensions,
+      field: { format: "u8", values: result.shelfMask },
+      meta: defineStandardVizMeta("map.morphology.coasts.shelfMask", "category.distinct", {
         label: "Shelf Mask (Post-island Shelf)",
         group: GROUP_MAP_MORPHOLOGY,
         visibility: "debug",
       }),
-    });
-
-    logLandmassAscii(context.trace, context.adapter, width, height);
-    assertWaterDriftWithinPolicy(context, topography.landMask, "map-morphology/plot-coasts");
-  },
+    },
+  ],
 });

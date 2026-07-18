@@ -1,4 +1,5 @@
 import { BIOME_SYMBOL_ORDER } from "@mapgen/domain/ecology";
+import type { VizLayerCategory } from "@swooper/mapgen-viz";
 
 /**
  * Stage-owned biome visualization categories shared by the biome truth stage
@@ -9,11 +10,7 @@ import { BIOME_SYMBOL_ORDER } from "@mapgen/domain/ecology";
  * projection stage may consume this stage-level surface, but it must not reach
  * into `ecology-biomes/steps/*` internals where step-local wiring can change.
  */
-export const BIOME_INDEX_VIZ_CATEGORIES: ReadonlyArray<{
-  value: number;
-  label: string;
-  color: readonly [number, number, number, number];
-}> = [
+export const BIOME_INDEX_VIZ_CATEGORIES = [
   { value: 255, label: "Water/Unknown", color: [148, 163, 184, 0] },
   { value: 0, label: "snow", color: [255, 255, 255, 240] },
   { value: 1, label: "tundra", color: [147, 197, 253, 235] },
@@ -23,12 +20,12 @@ export const BIOME_INDEX_VIZ_CATEGORIES: ReadonlyArray<{
   { value: 5, label: "tropicalSeasonal", color: [250, 204, 21, 235] },
   { value: 6, label: "tropicalRainforest", color: [21, 128, 61, 235] },
   { value: 7, label: "desert", color: [245, 158, 11, 235] },
-] as const;
+] as const satisfies readonly [VizLayerCategory, ...VizLayerCategory[]];
 
 /** Ensures visualization categories cover every biome symbol plus the water/unknown sentinel. */
 export function assertBiomeIndexVizCategoriesCoverSymbols(): void {
   const maxSymbolValue = BIOME_SYMBOL_ORDER.length - 1;
-  const values = new Set(BIOME_INDEX_VIZ_CATEGORIES.map((c) => c.value));
+  const values = new Set<number>(BIOME_INDEX_VIZ_CATEGORIES.map((category) => category.value));
   for (let i = 0; i <= maxSymbolValue; i++) {
     if (!values.has(i)) {
       throw new Error(

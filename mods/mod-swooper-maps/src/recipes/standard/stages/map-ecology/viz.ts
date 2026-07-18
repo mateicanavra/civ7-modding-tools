@@ -1,18 +1,14 @@
 import { BIOME_SYMBOL_ORDER, type BiomeSymbol } from "@mapgen/domain/ecology";
+import type { VizLayerCategory } from "@swooper/mapgen-viz";
 
 import { BIOME_INDEX_VIZ_CATEGORIES } from "../ecology-biomes/viz.js";
-
-/** Describes one stable engine-biome visualization value, label, and RGBA color. */
-export type VizCategory = Readonly<{
-  value: number;
-  label: string;
-  color: readonly [number, number, number, number];
-}>;
+import type { ResolvedEngineBiomeIds } from "./steps/plot-biomes/engine-biome-bindings.js";
 
 const MARINE_LABEL = "marine";
-const MARINE_COLOR: VizCategory["color"] = [59, 130, 246, 210];
+type NumericVizLayerCategory = VizLayerCategory & Readonly<{ value: number }>;
+const MARINE_COLOR: VizLayerCategory["color"] = [59, 130, 246, 210];
 
-function colorForBiomeSymbol(symbol: BiomeSymbol): VizCategory["color"] {
+function colorForBiomeSymbol(symbol: BiomeSymbol): VizLayerCategory["color"] {
   const category = BIOME_INDEX_VIZ_CATEGORIES.find((c) => c.label === symbol);
   if (!category) {
     throw new Error(`Missing BIOME_INDEX_VIZ_CATEGORIES color for symbol "${symbol}".`);
@@ -28,10 +24,9 @@ function colorForBiomeSymbol(symbol: BiomeSymbol): VizCategory["color"] {
  * - If multiple biome symbols map to the same engine id, labels are combined deterministically.
  * - Colors reuse the truth biome palette where possible.
  */
-export function buildEngineBiomeIdVizCategories(args: {
-  land: Record<BiomeSymbol, number>;
-  marine: number;
-}): ReadonlyArray<VizCategory> {
+export function buildEngineBiomeIdVizCategories(
+  args: ResolvedEngineBiomeIds
+): readonly [NumericVizLayerCategory, ...NumericVizLayerCategory[]] {
   const byEngineId = new Map<number, { symbols: BiomeSymbol[]; marine: boolean }>();
 
   for (const symbol of BIOME_SYMBOL_ORDER) {
@@ -45,7 +40,7 @@ export function buildEngineBiomeIdVizCategories(args: {
   marineBucket.marine = true;
   byEngineId.set(args.marine, marineBucket);
 
-  const out: VizCategory[] = [];
+  const out: NumericVizLayerCategory[] = [];
   for (const [engineId, bucket] of byEngineId.entries()) {
     const symbols = bucket.symbols
       .slice()
@@ -53,8 +48,9 @@ export function buildEngineBiomeIdVizCategories(args: {
     const labelParts: string[] = [...symbols];
     if (bucket.marine) labelParts.push(MARINE_LABEL);
 
-    let color: VizCategory["color"] = MARINE_COLOR;
-    if (symbols.length > 0) color = colorForBiomeSymbol(symbols[0]!);
+    const firstSymbol = symbols[0];
+    let color: VizLayerCategory["color"] = MARINE_COLOR;
+    if (firstSymbol) color = colorForBiomeSymbol(firstSymbol);
 
     out.push({
       value: engineId,
@@ -65,5 +61,7 @@ export function buildEngineBiomeIdVizCategories(args: {
 
   // Deterministic ordering (engine ids are the values being visualized).
   out.sort((a, b) => a.value - b.value);
-  return out;
+  const first = out[0];
+  if (!first) throw new Error("Engine biome visualization categories require a marine binding.");
+  return [first, ...out.slice(1)];
 }

@@ -1,5 +1,5 @@
-import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { LandmassesStepContract } from "./config.js";
 
 const GROUP_LANDMASSES = "Morphology / Landmasses";
@@ -22,19 +22,20 @@ export const LandmassesStep = createStep(LandmassesStepContract, {
       config.landmasses
     );
 
-    context.viz?.dumpGrid(context.trace, {
+    deps.artifacts.landmasses.publish(context, snapshot);
+    return snapshot.landmassIdByTile;
+  },
+  viz: ({ result: landmassIdByTile, dimensions }) => [
+    {
+      kind: "grid",
       dataTypeKey: "morphology.landmasses.landmassIdByTile",
       spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i32",
-      values: snapshot.landmassIdByTile,
-      meta: defineVizMeta("morphology.landmasses.landmassIdByTile", {
+      dims: dimensions,
+      field: { format: "i32", values: landmassIdByTile },
+      meta: defineStandardVizMeta("morphology.landmasses.landmassIdByTile", "category.distinct", {
         label: "Landmass Id",
         group: GROUP_LANDMASSES,
-        palette: "categorical",
       }),
-    });
-
-    deps.artifacts.landmasses.publish(context, snapshot);
-  },
+    },
+  ],
 });

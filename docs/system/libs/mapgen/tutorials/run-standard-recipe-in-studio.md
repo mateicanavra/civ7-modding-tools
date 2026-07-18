@@ -78,10 +78,11 @@ Optional:
 
 - Use Studio’s trace/viz views to confirm:
   - step start/finish ordering aligns with the canonical standard recipe doc
-  - viz layers appear for steps that emit `context.viz?.dumpGrid(...)`
+  - viz layers appear for steps that own optional `viz` projectors
 
 Today’s posture (implementation detail, but important for expectations):
-- Studio’s worker currently enables trace for **all steps** at **verbose** level (so steps that emit viz layers can be viewed).
+- Studio’s worker supplies separate trace and visualization facet sinks. Trace verbosity does not
+  gate visualization.
 
 When you need deeper grounding:
 - Standard recipe reference: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapgen/reference/STANDARD-RECIPE.md)
@@ -93,7 +94,7 @@ When you need deeper grounding:
 
 - Studio can compile and run `mod-swooper-maps/standard` without crashing.
 - The run shows step-level progress (at minimum: started/finished).
-- When trace/viz is enabled, you can see:
+- With both worker sinks installed, you can see:
   - step start/finish events
   - at least one viz layer for stages that emit layers
 

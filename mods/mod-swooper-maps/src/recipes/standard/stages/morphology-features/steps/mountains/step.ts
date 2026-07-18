@@ -6,7 +6,6 @@ import {
 import {
   BYTE_SHADE_RAMP,
   computeSampleStep,
-  defineVizMeta,
   deriveStepSeed,
   renderAsciiGrid,
   shadeByte,
@@ -14,6 +13,11 @@ import {
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
+import {
+  defineStandardVizCategoryMeta,
+  defineStandardVizMeta,
+  STANDARD_VIZ_COLORS,
+} from "../../../../viz.js";
 import type { MorphologyOrogenyKnob } from "../../index.js";
 import { MountainsStepContract } from "./config.js";
 
@@ -260,111 +264,6 @@ export const MountainsStep = createStep(MountainsStepContract, {
       roughnessPotential: roughLands.roughnessPotential,
     } as const;
 
-    // Belt-driver diagnostics stay with the producing landmass-plates step.
-    // This consumer only publishes mountain intent diagnostics derived from
-    // those drivers, which keeps viz ownership aligned with artifact ownership.
-
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.mountains.mountainMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: plan.mountainMask,
-      meta: defineVizMeta("morphology.mountains.mountainMask", {
-        label: "Mountain Mask (Planned)",
-        group: GROUP_MORPHOLOGY_FEATURES,
-        categories: [
-          { value: 0, label: "Not mountain", color: [148, 163, 184, 0] },
-          { value: 1, label: "Mountain", color: [250, 204, 21, 240] },
-        ],
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.mountains.hillMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: plan.hillMask,
-      meta: defineVizMeta("morphology.mountains.hillMask", {
-        label: "Hill Mask (Planned)",
-        group: GROUP_MORPHOLOGY_FEATURES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.mountains.mountainRegionMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: plan.mountainRegionMask,
-      meta: defineVizMeta("morphology.mountains.mountainRegionMask", {
-        label: "Mountain Region Footprint (Planned)",
-        group: GROUP_MORPHOLOGY_FEATURES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.mountains.foothillMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: plan.foothillMask,
-      meta: defineVizMeta("morphology.mountains.foothillMask", {
-        label: "Foothill Mask (Planned)",
-        group: GROUP_MORPHOLOGY_FEATURES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.mountains.roughLandMask",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: plan.roughLandMask,
-      meta: defineVizMeta("morphology.mountains.roughLandMask", {
-        label: "Rough-Land Hill Mask (Planned)",
-        group: GROUP_MORPHOLOGY_FEATURES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.mountains.orogenyPotential",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: plan.orogenyPotential,
-      meta: defineVizMeta("morphology.mountains.orogenyPotential", {
-        label: "Orogeny Potential (Planned)",
-        group: GROUP_MORPHOLOGY_FEATURES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.mountains.fracturePotential",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: plan.fracturePotential,
-      meta: defineVizMeta("morphology.mountains.fracturePotential", {
-        label: "Fracture (Planned)",
-        group: GROUP_MORPHOLOGY_FEATURES,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.mountains.roughnessPotential",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: plan.roughnessPotential,
-      meta: defineVizMeta("morphology.mountains.roughnessPotential", {
-        label: "Rough-Land Potential (Planned)",
-        group: GROUP_MORPHOLOGY_FEATURES,
-        palette: "continuous",
-        visibility: "debug",
-      }),
-    });
-
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));
       let landTiles = 0;
@@ -454,5 +353,79 @@ export const MountainsStep = createStep(MountainsStepContract, {
     });
 
     deps.artifacts.mountains.publish(context, plan);
+    return plan;
   },
+  viz: ({ result: plan, dimensions }) => [
+    {
+      kind: "grid",
+      dataTypeKey: "morphology.mountains.mountainMask",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: plan.mountainMask },
+      meta: defineStandardVizCategoryMeta(
+        "morphology.mountains.mountainMask",
+        [
+          { value: 0, label: "Not mountain", color: STANDARD_VIZ_COLORS.absent },
+          { value: 1, label: "Mountain", color: STANDARD_VIZ_COLORS.field.high },
+        ],
+        {
+          label: "Mountain Mask (Planned)",
+          group: GROUP_MORPHOLOGY_FEATURES,
+        }
+      ),
+    },
+    ...(
+      [
+        ["morphology.mountains.hillMask", "Hill Mask (Planned)", plan.hillMask],
+        [
+          "morphology.mountains.mountainRegionMask",
+          "Mountain Region Footprint (Planned)",
+          plan.mountainRegionMask,
+        ],
+        ["morphology.mountains.foothillMask", "Foothill Mask (Planned)", plan.foothillMask],
+        [
+          "morphology.mountains.roughLandMask",
+          "Rough-Land Hill Mask (Planned)",
+          plan.roughLandMask,
+        ],
+      ] as const
+    ).map(([dataTypeKey, label, values]) => ({
+      kind: "grid" as const,
+      dataTypeKey,
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8" as const, values },
+      meta: defineStandardVizMeta(dataTypeKey, "category.distinct", {
+        label,
+        group: GROUP_MORPHOLOGY_FEATURES,
+        visibility: "debug",
+      }),
+    })),
+    ...(
+      [
+        [
+          "morphology.mountains.orogenyPotential",
+          "Orogeny Potential (Planned)",
+          plan.orogenyPotential,
+        ],
+        ["morphology.mountains.fracturePotential", "Fracture (Planned)", plan.fracturePotential],
+        [
+          "morphology.mountains.roughnessPotential",
+          "Rough-Land Potential (Planned)",
+          plan.roughnessPotential,
+        ],
+      ] as const
+    ).map(([dataTypeKey, label, values]) => ({
+      kind: "grid" as const,
+      dataTypeKey,
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8" as const, values },
+      meta: defineStandardVizMeta(dataTypeKey, "field.intensity", {
+        label,
+        group: GROUP_MORPHOLOGY_FEATURES,
+        visibility: "debug",
+      }),
+    })),
+  ],
 });

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_recipe_step_runtime_viz_sink_access",
+  "title": "Prohibit Recipe Step Runtime Viz Sink Access",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "recipe-step",
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "recipe step source reading or invoking a runtime .viz sink",
+  "why": "A step owns a pure optional createStep({ viz }) evidence projector. Runtime sink access mixes generation with transport, makes visualization depend on trace state, and creates a second emission authority.",
+  "remediate": "Return the evidence needed by visualization from run, then project portable layers through the step's createStep({ viz }) facet.",
+  "message": "Recipe steps must author visualization through createStep({ viz }); runtime .viz sink access is forbidden.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/recipes/*/stages/*/steps/*/**/!(*.test|*.spec|config).ts"]
+    }
+  ],
+  "scanRoots": ["mods"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/recipe-step/prohibit_recipe_step_runtime_viz_sink_access/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/recipe-step/prohibit_recipe_step_runtime_viz_sink_access/pattern.md"
+    },
+    "patternName": "prohibit_recipe_step_runtime_viz_sink_access"
+  }
+}

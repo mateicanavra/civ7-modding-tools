@@ -1,10 +1,9 @@
-import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { runPlacementProductStep, warnLog } from "../../log.js";
 import {
   buildPlacementPointBuffers,
+  definePlacementVizCategoryMeta,
   PLACEMENT_TILE_SPACE_ID,
-  PLACEMENT_VIZ_GROUP,
 } from "../../viz.js";
 import { PlaceResourcesStepContract } from "./config.js";
 import {
@@ -34,7 +33,7 @@ const RESOURCE_OUTCOME_CATEGORIES = [
     label: "Rejected: Wrong Type Readback",
     color: [234, 179, 8, 235] as [number, number, number, number],
   },
-];
+] as const;
 
 type ResourceOutcomeRow = Readonly<{
   status: "placed" | "rejected" | "mismatch";
@@ -58,35 +57,6 @@ function resourceOutcomeCategoryValue(outcome: ResourceOutcomeRow): number {
     default:
       return 5;
   }
-}
-
-/** Placed vs rejected-with-reason points from the typed reconcile (D4 / E4.3). */
-function emitResourceOutcomeViz(
-  context: ExtendedMapContext,
-  outcomes: ReadonlyArray<ResourceOutcomeRow>
-): void {
-  if (!context.viz) return;
-  const { width } = context.dimensions;
-  const rows = outcomes.map((outcome) => ({
-    plotIndex: outcome.plotIndex,
-    value: resourceOutcomeCategoryValue(outcome),
-  }));
-  const { positions, values } = buildPlacementPointBuffers(rows, width);
-  context.viz.dumpPoints(context.trace, {
-    dataTypeKey: "placement.resources.outcome",
-    spaceId: PLACEMENT_TILE_SPACE_ID,
-    positions,
-    values,
-    valueFormat: "u16",
-    meta: defineVizMeta("placement.resources.outcome", {
-      label: "Resource Stamping Outcomes",
-      group: PLACEMENT_VIZ_GROUP,
-      description:
-        "Typed reconcile outcomes per planned resource intent: placed, or rejected with the recorded reason (no relocation, no type re-decision). Per-type identity lives on the plan-resources intent layer.",
-      palette: "categorical",
-      categories: RESOURCE_OUTCOME_CATEGORIES,
-    }),
-  });
 }
 
 /**
@@ -127,7 +97,32 @@ export const PlaceResourcesStep = createStep(PlaceResourcesStepContract, {
       outcomes.reconciliation,
       outcomes.outcomes
     );
-    emitResourceOutcomeViz(context, outcomes.outcomes);
     deps.artifacts.resourcePlacementOutcomes.publish(context, outcomes);
+    return outcomes.outcomes;
+  },
+  viz: ({ result: outcomes, dimensions }) => {
+    const rows = outcomes.map((outcome) => ({
+      plotIndex: outcome.plotIndex,
+      value: resourceOutcomeCategoryValue(outcome),
+    }));
+    const { positions, values } = buildPlacementPointBuffers(rows, dimensions.width);
+    return [
+      {
+        kind: "points",
+        dataTypeKey: "placement.resources.outcome",
+        spaceId: PLACEMENT_TILE_SPACE_ID,
+        positions,
+        values: { format: "u16", values },
+        meta: definePlacementVizCategoryMeta(
+          "placement.resources.outcome",
+          RESOURCE_OUTCOME_CATEGORIES,
+          {
+            label: "Resource Stamping Outcomes",
+            description:
+              "Typed reconcile outcomes per planned resource intent: placed, or rejected with the recorded reason (no relocation, no type re-decision). Per-type identity lives on the plan-resources intent layer.",
+          }
+        ),
+      },
+    ];
   },
 });

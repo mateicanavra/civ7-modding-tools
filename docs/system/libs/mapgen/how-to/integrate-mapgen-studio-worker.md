@@ -44,7 +44,7 @@ Studio’s working shape (today) is:
    - validates that clone unchanged against the selected recipe schema,
    - compiles plan,
    - derives `runId` (and `planFingerprint`; current implementation uses the same value),
-   - runs the recipe with trace + viz enabled,
+   - runs the recipe with a progress trace sink and visualization facet sink,
    - posts progress and viz upsert events.
 4) UI renders:
    - step progress from `run.progress` events,
@@ -72,12 +72,17 @@ const env = {
 };
 
 const context = createExtendedMapContext(dimensions, adapter, env);
-context.viz = createWorkerVizDumper();
-
 const traceSink = createWorkerTraceSink({ runToken, generation, post, abortSignal });
 post({ type: "run.started", runToken, generation, runId, planFingerprint: runId });
 
-await recipeEntry.recipe.runAsync(context, env, config, { traceSink, abortSignal, yieldToEventLoop: true });
+await recipeEntry.recipe.runAsync(context, env, config, {
+  traceSink,
+  facets: {
+    viz: createWorkerVizFacetSink({ runToken, generation, post, abortSignal }),
+  },
+  abortSignal,
+  yieldToEventLoop: true,
+});
 ```
 
 ## Use the protocol boundary
@@ -115,14 +120,19 @@ not when a browser run starts.
 ## Wire trace + viz correctly
 
 Key posture:
-- Visualization in Studio is emitted via `context.viz` and forwarded as a trace “step event”.
-- The worker should set trace **enabled** and choose a verbosity strategy (Studio currently forces all steps verbose).
+- Trace and visualization are separate execution outputs.
+- The worker should enable trace and choose a verbosity strategy for progress and structured debug
+  events.
+- The worker should supply a visualization facet sink when it wants portable step projections.
 
 To align with current canon:
-- Worker installs `context.viz = createWorkerVizDumper()`.
-- Worker installs a `TraceSink` that forwards:
-  - `step.start` / `step.finish` → `run.progress`
-  - `viz.layer.emit.v1` → `viz.layer.upsert` (with Transferables).
+- Worker installs a `TraceSink` that forwards `step.start` / `step.finish` to `run.progress`.
+- Worker installs `createWorkerVizFacetSink(...)` under `facets.viz`.
+- A step's pure `viz` projector runs only after `run` succeeds and its providers are admitted.
+- The facet sink attaches Core-owned identity, copies each exact typed-array view, materializes an
+  inline layer, and posts `viz.layer.upsert` with Transferables.
+- Recipe-owned style choices arrive as resolved portable colors. The worker and Studio renderer do
+  not maintain a recipe palette registry.
 
 Concrete forwarding logic (excerpt):
 
@@ -131,29 +141,14 @@ Concrete forwarding logic (excerpt):
 if (event.kind === "step.start" && event.stepId) post({ type: "run.progress", runToken, generation, kind: "step.start", stepId: event.stepId, phase: event.phase, stepIndex });
 if (event.kind === "step.finish" && event.stepId) post({ type: "run.progress", runToken, generation, kind: "step.finish", stepId: event.stepId, phase: event.phase, stepIndex, durationMs: event.durationMs });
 
-// Viz layers: trace step.event payload → UI upsert (Transferables)
-if (event.kind === "step.event" && isPlainObject(event.data) && event.data.type === "viz.layer.emit.v1") {
-  const layer: VizLayerEntryV1 = { ...(event.data as any).layer, stepIndex };
-  post({ type: "viz.layer.upsert", runToken, generation, layer }, collectTransferables(layer));
-}
-```
-
-Concrete emission logic (excerpt):
-
-```ts
-// apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts
-const dumpGrid: VizDumper["dumpGrid"] = (trace, layer) => {
-  if (!trace.isVerbose) return;
-  trace.event(() => ({
-    type: "viz.layer.emit.v1",
-    layer: {
-      kind: "grid",
-      layerKey: createVizLayerKey({ stepId: trace.stepId, dataTypeKey: layer.dataTypeKey, spaceId: layer.spaceId, kind: "grid", role: layer.meta?.role, variantKey: layer.variantKey }),
-      field: { /* inline buffer */ },
-      /* ... */
-    },
-  }));
-};
+// apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts
+const emitted = materializeVizProjection(projection, identity, materializeInline);
+postWorkerVizLayer({
+  post,
+  runToken,
+  generation,
+  layer: { ...emitted, stepIndex: context.stepIndex },
+});
 ```
 
 Routing:
@@ -175,7 +170,7 @@ Current canon:
 You’re wired correctly if:
 - you can run `mod-swooper-maps/standard` in Studio (`nx run mapgen-studio:dev`),
 - step progress updates show start/finish ordering,
-- viz layers appear when steps emit `context.viz?.dumpGrid(...)` (or other viz methods),
+- viz layers appear for steps with a `viz` projector,
 - canceling a run does not “spam” progress events after cancel.
 
 ## Ground truth anchors
@@ -186,6 +181,6 @@ Use these as the “copy from / verify against” sources:
 - Protocol types: `apps/mapgen-studio/src/browser-runner/protocol.ts`
 - Worker client creation: `apps/mapgen-studio/src/features/browserRunner/workerClient.ts`
 - Worker trace sink: `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
-- Worker viz dumper: `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
+- Worker visualization facet sink: `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`
 - Worker recipe runtime registry: `apps/mapgen-studio/src/browser-runner/recipeRuntime.ts`
 - UI bundled recipe artifacts: `apps/mapgen-studio/src/recipes/catalog.ts`

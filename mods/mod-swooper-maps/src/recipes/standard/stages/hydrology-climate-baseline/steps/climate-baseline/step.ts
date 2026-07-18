@@ -11,28 +11,16 @@ import {
   HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
   HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE,
 } from "@mapgen/domain/hydrology/model/policy/climate-knob-policy.js";
-import {
-  ctxRandom,
-  ctxRandomLabel,
-  defineVizMeta,
-  dumpScalarFieldVariants,
-  dumpVectorFieldVariants,
-} from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
 import { ClimateBaselineStepContract } from "./config.js";
+import { buildClimateBaselineVizProjections, type ClimateBaselineVizEvidence } from "./viz.js";
 
 type HydrologyDrynessKnob = "wet" | "mix" | "dry";
 type HydrologyOceanCouplingKnob = "off" | "simple" | "earthlike";
 type HydrologySeasonalityKnob = "low" | "normal" | "high";
 type HydrologyTemperatureKnob = "cold" | "temperate" | "hot";
 
-const GROUP_SEASONALITY = "Hydrology / Seasonality";
-const GROUP_CLIMATE = "Hydrology / Climate";
-const GROUP_WIND = "Hydrology / Wind";
-const GROUP_CURRENT = "Hydrology / Currents";
-const GROUP_OCEAN = "Hydrology / Ocean";
-const TILE_SPACE_ID = "tile.hexOddQ" as const;
 const QUARTER_YEAR_MODE_COUNT_THRESHOLD = 3;
 
 function clampLatitudeDeg(latitudeDeg: number): number {
@@ -529,128 +517,6 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
         },
         config.computeOceanThermalState
       );
-
-      if (oceanGeometry) {
-        dumpScalarFieldVariants(context.trace, context.viz, {
-          dataTypeKey: "hydrology.ocean.basinId",
-          spaceId: TILE_SPACE_ID,
-          dims: { width, height },
-          field: { format: "i32", values: oceanGeometry.basinId },
-          label: "Ocean Basin Id",
-          group: GROUP_OCEAN,
-          palette: "categorical",
-          visibility: "debug",
-          points: {},
-        });
-        dumpScalarFieldVariants(context.trace, context.viz, {
-          dataTypeKey: "hydrology.ocean.coastDistance",
-          spaceId: TILE_SPACE_ID,
-          dims: { width, height },
-          field: { format: "u16", values: oceanGeometry.coastDistance },
-          label: "Ocean Coast Distance (Water)",
-          group: GROUP_OCEAN,
-          palette: "continuous",
-          visibility: "debug",
-          points: {},
-        });
-        dumpVectorFieldVariants(context.trace, context.viz, {
-          dataTypeKey: "hydrology.ocean.coastFrame",
-          spaceId: TILE_SPACE_ID,
-          dims: { width, height },
-          u: { format: "i8", values: oceanGeometry.coastTangentU },
-          v: { format: "i8", values: oceanGeometry.coastTangentV },
-          label: "Coast Tangent (Advisory)",
-          group: GROUP_OCEAN,
-          palette: "continuous",
-          visibility: "debug",
-          arrows: { maxArrowLenTiles: 1.25 },
-          points: {},
-        });
-      }
-
-      if (oceanThermal) {
-        dumpScalarFieldVariants(context.trace, context.viz, {
-          dataTypeKey: "hydrology.ocean.sstC",
-          spaceId: TILE_SPACE_ID,
-          dims: { width, height },
-          field: { format: "f32", values: oceanThermal.sstC },
-          label: "Ocean SST (C)",
-          group: GROUP_OCEAN,
-          palette: "continuous",
-          visibility: "debug",
-          points: {},
-        });
-        dumpScalarFieldVariants(context.trace, context.viz, {
-          dataTypeKey: "hydrology.ocean.seaIceMask",
-          spaceId: TILE_SPACE_ID,
-          dims: { width, height },
-          field: { format: "u8", values: oceanThermal.seaIceMask },
-          label: "Ocean Sea Ice Mask",
-          group: GROUP_OCEAN,
-          palette: "categorical",
-          visibility: "debug",
-          points: {},
-        });
-      }
-
-      const toF32 = (arr: Int8Array): Float32Array => {
-        const out = new Float32Array(arr.length);
-        for (let i = 0; i < out.length; i++) out[i] = arr[i] ?? 0;
-        return out;
-      };
-
-      const windFx = toF32(meanWindU);
-      const windFy = toF32(meanWindV);
-      const currentFx = toF32(meanCurrentU);
-      const currentFy = toF32(meanCurrentV);
-
-      dumpScalarFieldVariants(context.trace, context.viz, {
-        dataTypeKey: "hydrology.wind.divergence",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        field: { format: "f32", values: estimateDivergenceOddQ(width, height, windFx, windFy) },
-        label: "Wind Divergence (Proxy)",
-        group: GROUP_WIND,
-        palette: "continuous",
-        visibility: "debug",
-        points: {},
-      });
-      dumpScalarFieldVariants(context.trace, context.viz, {
-        dataTypeKey: "hydrology.wind.curlZ",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        field: { format: "f32", values: estimateCurlZOddQ(width, height, windFx, windFy) },
-        label: "Wind Curl Z (Proxy)",
-        group: GROUP_WIND,
-        palette: "continuous",
-        visibility: "debug",
-        points: {},
-      });
-      dumpScalarFieldVariants(context.trace, context.viz, {
-        dataTypeKey: "hydrology.current.divergence",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        field: {
-          format: "f32",
-          values: estimateDivergenceOddQ(width, height, currentFx, currentFy),
-        },
-        label: "Current Divergence (Proxy)",
-        group: GROUP_CURRENT,
-        palette: "continuous",
-        visibility: "debug",
-        points: {},
-      });
-      dumpScalarFieldVariants(context.trace, context.viz, {
-        dataTypeKey: "hydrology.current.curlZ",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        field: { format: "f32", values: estimateCurlZOddQ(width, height, currentFx, currentFy) },
-        label: "Current Curl Z (Proxy)",
-        group: GROUP_CURRENT,
-        palette: "continuous",
-        visibility: "debug",
-        points: {},
-      });
     }
 
     if (useCirculationV2) {
@@ -832,204 +698,39 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
       humidityAmplitude[i] = Math.max(0, Math.min(255, Math.round((humidMax - humidMin) / 2)));
     }
 
-    dumpScalarFieldVariants(context.trace, context.viz, {
-      dataTypeKey: "hydrology.climate.rainfall",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      field: { format: "u8", values: meanRainfall },
-      label: "Rainfall (Baseline)",
-      group: GROUP_CLIMATE,
-      palette: "continuous",
-      points: {},
-    });
-    dumpScalarFieldVariants(context.trace, context.viz, {
-      dataTypeKey: "hydrology.climate.humidity",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      field: { format: "u8", values: meanHumidity },
-      label: "Humidity (Baseline)",
-      group: GROUP_CLIMATE,
-      palette: "continuous",
-      visibility: "debug",
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.climate.seasonality.rainfallAmplitude",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: rainfallAmplitude,
-      meta: defineVizMeta("hydrology.climate.seasonality.rainfallAmplitude", {
-        label: "Rainfall Amplitude",
-        group: GROUP_SEASONALITY,
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.climate.seasonality.humidityAmplitude",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "u8",
-      values: humidityAmplitude,
-      meta: defineVizMeta("hydrology.climate.seasonality.humidityAmplitude", {
-        label: "Humidity Amplitude",
-        group: GROUP_SEASONALITY,
-      }),
-    });
-    for (let s = 0; s < seasonCount; s++) {
-      const rain = seasonalRainfall[s];
-      const humid = seasonalHumidity[s];
-      if (!rain || !humid) continue;
-      dumpScalarFieldVariants(context.trace, context.viz, {
-        dataTypeKey: "hydrology.climate.rainfall",
-        variantKey: `season:${s}`,
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        field: { format: "u8", values: rain },
-        label: `Rainfall (Season ${s + 1})`,
-        group: GROUP_SEASONALITY,
-        palette: "continuous",
-        visibility: "debug",
-      });
-      dumpScalarFieldVariants(context.trace, context.viz, {
-        dataTypeKey: "hydrology.climate.humidity",
-        variantKey: `season:${s}`,
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        field: { format: "u8", values: humid },
-        label: `Humidity (Season ${s + 1})`,
-        group: GROUP_SEASONALITY,
-        palette: "continuous",
-        visibility: "debug",
-      });
-    }
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.wind.windU",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i8",
-      values: meanWindU,
-      meta: defineVizMeta("hydrology.wind.windU", {
-        label: "Wind U",
-        group: GROUP_WIND,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.wind.windV",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i8",
-      values: meanWindV,
-      meta: defineVizMeta("hydrology.wind.windV", {
-        label: "Wind V",
-        group: GROUP_WIND,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.current.currentU",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i8",
-      values: meanCurrentU,
-      meta: defineVizMeta("hydrology.current.currentU", {
-        label: "Current U",
-        group: GROUP_CURRENT,
-        visibility: "debug",
-      }),
-    });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "hydrology.current.currentV",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      format: "i8",
-      values: meanCurrentV,
-      meta: defineVizMeta("hydrology.current.currentV", {
-        label: "Current V",
-        group: GROUP_CURRENT,
-        visibility: "debug",
-      }),
-    });
-    dumpVectorFieldVariants(context.trace, context.viz, {
-      dataTypeKey: "hydrology.wind.wind",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      u: { format: "i8", values: meanWindU },
-      v: { format: "i8", values: meanWindV },
-      label: "Wind",
-      group: GROUP_WIND,
-      palette: "continuous",
-      magnitude: { debugOnly: true },
-      arrows: { maxArrowLenTiles: 1.25 },
-      points: { debugOnly: true },
-    });
-
-    dumpVectorFieldVariants(context.trace, context.viz, {
-      dataTypeKey: "hydrology.current.current",
-      spaceId: TILE_SPACE_ID,
-      dims: { width, height },
-      u: { format: "i8", values: meanCurrentU },
-      v: { format: "i8", values: meanCurrentV },
-      label: "Current",
-      group: GROUP_CURRENT,
-      palette: "continuous",
-      magnitude: { debugOnly: true },
-      arrows: { maxArrowLenTiles: 1.25 },
-      points: { debugOnly: true },
-    });
-
-    for (let s = 0; s < seasonCount; s++) {
-      const su = seasonalWindU[s];
-      const sv = seasonalWindV[s];
-      const cu = seasonalCurrentU[s];
-      const cv = seasonalCurrentV[s];
-      if (!su || !sv || !cu || !cv) continue;
-
-      dumpVectorFieldVariants(context.trace, context.viz, {
-        dataTypeKey: "hydrology.wind.wind",
-        variantKey: `season:${s}`,
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        u: { format: "i8", values: su },
-        v: { format: "i8", values: sv },
-        label: "Wind",
-        group: GROUP_WIND,
-        palette: "continuous",
-        visibility: "debug",
-        arrows: { maxArrowLenTiles: 1.25 },
-        points: {},
-      });
-
-      dumpVectorFieldVariants(context.trace, context.viz, {
-        dataTypeKey: "hydrology.current.current",
-        variantKey: `season:${s}`,
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        u: { format: "i8", values: cu },
-        v: { format: "i8", values: cv },
-        label: "Current",
-        group: GROUP_CURRENT,
-        palette: "continuous",
-        visibility: "debug",
-        arrows: { maxArrowLenTiles: 1.25 },
-        points: {},
-      });
-    }
-
-    deps.artifacts.baselineClimateField.publish(context, {
+    const baselineClimateField = {
       rainfall: meanRainfall,
       humidity: meanHumidity,
-    });
-    deps.artifacts.climateSeasonality.publish(context, {
+    };
+    const climateSeasonality = {
       modeCount,
       axialTiltDeg,
       rainfallAmplitude,
       humidityAmplitude,
-    });
-    deps.artifacts.windField.publish(context, {
+    };
+    const windField = {
       windU: meanWindU,
       windV: meanWindV,
       currentU: meanCurrentU,
       currentV: meanCurrentV,
-    });
+    };
+    deps.artifacts.baselineClimateField.publish(context, baselineClimateField);
+    deps.artifacts.climateSeasonality.publish(context, climateSeasonality);
+    deps.artifacts.windField.publish(context, windField);
+
+    return {
+      baselineClimateField,
+      climateSeasonality,
+      windField,
+      seasonalRainfall,
+      seasonalHumidity,
+      seasonalWindU,
+      seasonalWindV,
+      seasonalCurrentU,
+      seasonalCurrentV,
+      oceanGeometry,
+      oceanThermal,
+    } satisfies ClimateBaselineVizEvidence;
   },
+  viz: ({ result, dimensions }) => buildClimateBaselineVizProjections(result, dimensions),
 });

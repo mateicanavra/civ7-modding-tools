@@ -1,6 +1,7 @@
-import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY } from "@swooper/mapgen-viz";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { pointsFromPlateSeeds } from "../../../foundation/viz.js";
 import { PlateGraphStepContract } from "./config.js";
 
@@ -31,33 +32,33 @@ export const PlateGraphStep = createStep(PlateGraphStepContract, {
     );
 
     deps.artifacts.foundationPlateGraph.publish(context, plateGraphResult.plateGraph);
-
-    const positions = interleaveXY(mesh.siteX, mesh.siteY);
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.plateGraph.cellToPlate",
-      spaceId: "world.xy",
-      positions,
-      values: plateGraphResult.plateGraph.cellToPlate,
-      valueFormat: "i16",
-      meta: defineVizMeta("foundation.plateGraph.cellToPlate", {
-        label: "Cell Plate Id",
-        group: GROUP_PLATE_GRAPH,
-        palette: "categorical",
-      }),
-    });
-
-    const seeds = pointsFromPlateSeeds(plateGraphResult.plateGraph.plates);
-    context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.plateGraph.plateSeeds",
-      spaceId: "world.xy",
-      positions: seeds.positions,
-      values: seeds.ids,
-      valueFormat: "i16",
-      meta: defineVizMeta("foundation.plateGraph.plateSeeds", {
-        label: "Plate Seeds",
-        group: GROUP_PLATE_GRAPH,
-        palette: "categorical",
-      }),
-    });
+    return { mesh, plateGraph: plateGraphResult.plateGraph };
+  },
+  viz: ({ result: { mesh, plateGraph } }) => {
+    const seeds = pointsFromPlateSeeds(plateGraph.plates);
+    return [
+      {
+        kind: "points",
+        dataTypeKey: "foundation.plateGraph.cellToPlate",
+        spaceId: "world.xy",
+        positions: interleaveXY(mesh.siteX, mesh.siteY),
+        values: { format: "i16", values: plateGraph.cellToPlate },
+        meta: defineStandardVizMeta("foundation.plateGraph.cellToPlate", "category.distinct", {
+          label: "Cell Plate Id",
+          group: GROUP_PLATE_GRAPH,
+        }),
+      },
+      {
+        kind: "points",
+        dataTypeKey: "foundation.plateGraph.plateSeeds",
+        spaceId: "world.xy",
+        positions: seeds.positions,
+        values: { format: "i16", values: seeds.ids },
+        meta: defineStandardVizMeta("foundation.plateGraph.plateSeeds", "category.distinct", {
+          label: "Plate Seeds",
+          group: GROUP_PLATE_GRAPH,
+        }),
+      },
+    ];
   },
 });

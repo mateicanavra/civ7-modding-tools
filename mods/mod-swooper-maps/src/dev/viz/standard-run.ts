@@ -65,7 +65,6 @@ const adapter = createMockAdapter({
 });
 
 const context = createExtendedMapContext({ width, height }, adapter, env);
-context.viz = vizOutputs.legacyVizDumper;
 
 initializeStandardRuntime(context, { mapInfo, logPrefix: "[viz]" });
 standardRecipe.run(context, env, config, {

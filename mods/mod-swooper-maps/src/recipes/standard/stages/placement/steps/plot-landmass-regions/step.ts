@@ -1,12 +1,13 @@
 import { balancedHemisphereMeridian, hemisphereSlotForColumn } from "@civ7/map-policy";
-import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { PLACEMENT_VIZ_GROUP, transparentNoneCategory } from "../../viz.js";
+import {
+  definePlacementVizCategoryMeta,
+  PLACEMENT_TILE_SPACE_ID,
+  transparentNoneCategory,
+} from "../../viz.js";
 import { PlotLandmassRegionsStepContract } from "./config.js";
 
 type RegionSlot = 0 | 1 | 2;
-
-const GROUP_GAMEPLAY = PLACEMENT_VIZ_GROUP;
 
 function computeWrappedIntervalCenter(west: number, east: number, width: number): number {
   if (width <= 0) return 0;
@@ -127,26 +128,6 @@ export const PlotLandmassRegionsStep = createStep(PlotLandmassRegionsStepContrac
       landmasses: landmasses.landmasses,
     });
 
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "placement.landmassRegions.regionSlot",
-      spaceId: "tile.hexOddQ",
-      dims: { width, height },
-      format: "u8",
-      values: slotByTile,
-      meta: defineVizMeta("placement.landmassRegions.regionSlot", {
-        label: "Landmass Region Slot",
-        group: GROUP_GAMEPLAY,
-        palette: "categorical",
-        categories: [
-          // Transparent None (audit presentation defect a): the previous
-          // alpha-210 slate wash painted all water/unassigned tiles opaque.
-          transparentNoneCategory(),
-          { value: 1, label: "West", color: [59, 130, 246, 230] },
-          { value: 2, label: "East", color: [239, 68, 68, 230] },
-        ],
-      }),
-    });
-
     const westRegionId = context.adapter.getLandmassId("WEST");
     const eastRegionId = context.adapter.getLandmassId("EAST");
     const noneRegionId = context.adapter.getLandmassId("NONE");
@@ -167,5 +148,27 @@ export const PlotLandmassRegionsStep = createStep(PlotLandmassRegionsStepContrac
       wrapY: false,
     });
     deps.artifacts.landmassRegionSlotByTile.publish(context, { slotByTile });
+    return slotByTile;
   },
+  viz: ({ result: slotByTile, dimensions }) => [
+    {
+      kind: "grid",
+      dataTypeKey: "placement.landmassRegions.regionSlot",
+      spaceId: PLACEMENT_TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: slotByTile },
+      meta: definePlacementVizCategoryMeta(
+        "placement.landmassRegions.regionSlot",
+        [
+          // Transparent None: water and unassigned tiles must not wash out the map.
+          transparentNoneCategory(),
+          { value: 1, label: "West", color: [59, 130, 246, 230] },
+          { value: 2, label: "East", color: [239, 68, 68, 230] },
+        ],
+        {
+          label: "Landmass Region Slot",
+        }
+      ),
+    },
+  ],
 });
