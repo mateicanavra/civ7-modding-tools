@@ -4,7 +4,7 @@ level: error
 # Require Standard Recipe Map Effect Name Suffixes
 
 Standard recipe `effect:map.*` tag-contract names must stay in the current
-projected map outcome suffix families: `Plotted`, `Built`, or
+projected map outcome suffix families: `Projected`, `Plotted`, `Built`, or
 `ParityCaptured`.
 
 ```grit
@@ -12,7 +12,7 @@ language js(typescript)
 
 `"effect:map.$suffix"` where {
   $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/tag-contracts\.ts$",
-  not { $suffix <: r"[a-z][a-zA-Z0-9]*(?:Plotted|Built|ParityCaptured)$" }
+  not { $suffix <: r"[a-z][a-zA-Z0-9]*(?:Projected|Plotted|Built|ParityCaptured)$" }
 }
 ```
 
@@ -31,6 +31,7 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
 // @filename: mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts
 export const MAP_PROJECTION_EFFECT_TAGS = {
   map: "effect:map.landmassRegionsPlotted",
+  rainfall: "effect:map.rainfallProjected",
   elevation: "effect:map.elevationBuilt",
   parity: "effect:map.sourceParityCaptured",
 };
