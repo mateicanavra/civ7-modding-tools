@@ -25,7 +25,7 @@ or {
   },
   program(statements=$body) where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\.contract\.ts$",
-    ! $body <: contains `morphologyArtifacts.beltDrivers`
+    ! $body <: contains `morphologyArtifactModules.beltDrivers`
   },
   program(statements=$body) where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains\.contract\.ts$",
@@ -69,7 +69,7 @@ const artifacts = {
     standardArtifacts.foundationTectonicHistoryTiles,
     standardArtifacts.foundationTectonicProvenanceTiles,
   ],
-  provides: [morphologyArtifacts.beltDrivers],
+  provides: [morphologyArtifactModules.beltDrivers],
 };
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts

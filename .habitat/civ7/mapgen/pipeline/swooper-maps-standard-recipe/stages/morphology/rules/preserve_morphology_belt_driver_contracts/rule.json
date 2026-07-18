@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "missing canonical morphology belt-driver contract references or direct mountain dependencies on retired Foundation driver products",
   "why": "Morphology coasts derive belt drivers from canonical Standard foundation tile artifacts; mountain planning consumes the Morphology-owned belt-driver artifact.",
-  "remediate": "Require the three Standard foundation tile products in landmassPlates, provide morphologyArtifacts.beltDrivers there, and consume that belt-driver artifact from mountains.",
+  "remediate": "Require the three Standard foundation tile products in landmassPlates, provide morphologyArtifactModules.beltDrivers there, and consume morphologyArtifacts.beltDrivers from mountains.",
   "message": "Keep morphology belt-driver contracts wired to canonical artifacts.",
   "pathCoverage": [
     {
