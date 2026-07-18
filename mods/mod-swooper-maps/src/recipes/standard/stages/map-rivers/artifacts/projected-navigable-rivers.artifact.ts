@@ -1,4 +1,7 @@
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -59,6 +62,7 @@ const MapRiversProjectedNavigableRiversArtifactSchema = Type.Object(
       description: "Count of selected navigable-river chains.",
     }),
     selectedChainLengths: TypedArraySchemas.u16({
+      shape: null,
       description:
         "Length in tiles of each selected navigable-river chain, ordered by endpoint selection priority.",
     }),
@@ -151,6 +155,35 @@ export const artifact = defineArtifact({
  * Validates projection dimensions, typed intent masks, chain metrics, bounded
  * fractions, and the low-signal classification.
  */
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") return Object.freeze(issues);
+  const candidate = value as Record<string, unknown>;
+  const cellCount = artifactCellCount(context);
+  appendArtifactTypedArrayIssues(issues, "riverMask", candidate.riverMask, Uint8Array, cellCount);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "plannedMinorRiverMask",
+    candidate.plannedMinorRiverMask,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "plannedMajorRiverMask",
+    candidate.plannedMajorRiverMask,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "selectedChainLengths",
+    candidate.selectedChainLengths,
+    Uint16Array,
+    typeof candidate.selectedChainCount === "number" ? candidate.selectedChainCount : undefined
+  );
+  return Object.freeze(issues);
 }

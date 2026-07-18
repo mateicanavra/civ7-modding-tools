@@ -1,5 +1,7 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -53,66 +55,50 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-function validateTensorLength(
-  issues: { message: string }[],
-  name: string,
-  tensor: { length: number } | null | undefined,
-  size: number
-): void {
-  if (!tensor || typeof tensor.length !== "number") {
-    issues.push({ message: `[FoundationArtifact] Missing ${name} tensor.` });
-    return;
-  }
-  if (tensor.length !== size) {
-    issues.push({
-      message: `[FoundationArtifact] ${name} tensor length mismatch (expected ${size}, received ${tensor.length}).`,
-    });
-  }
-}
-
 /** Validates the plate-field schema and exact map-sized cardinality of every tensor. */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext
 ): readonly { message: string }[] {
-  const schemaIssues = validateArtifactSchema(Schema, value);
-  if (!context?.dimensions) return schemaIssues;
-  if (!value || typeof value !== "object") {
-    return Object.freeze([
-      ...schemaIssues,
-      { message: "[FoundationArtifact] Missing foundation plates artifact payload." },
-    ]);
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") {
+    if (context?.dimensions) {
+      issues.push({ message: "[FoundationArtifact] Missing foundation plates artifact payload." });
+    }
+    return Object.freeze(issues);
   }
 
-  const plates = value as {
-    id?: { length: number };
-    boundaryCloseness?: { length: number };
-    boundaryType?: { length: number };
-    tectonicStress?: { length: number };
-    upliftPotential?: { length: number };
-    riftPotential?: { length: number };
-    shieldStability?: { length: number };
-    volcanism?: { length: number };
-    movementU?: { length: number };
-    movementV?: { length: number };
-    rotation?: { length: number };
-  };
-  const width = context.dimensions.width | 0;
-  const height = context.dimensions.height | 0;
-  const size = Math.max(0, width * height) | 0;
-  const issues = [...schemaIssues];
-
-  validateTensorLength(issues, "plateId", plates.id, size);
-  validateTensorLength(issues, "boundaryCloseness", plates.boundaryCloseness, size);
-  validateTensorLength(issues, "boundaryType", plates.boundaryType, size);
-  validateTensorLength(issues, "tectonicStress", plates.tectonicStress, size);
-  validateTensorLength(issues, "upliftPotential", plates.upliftPotential, size);
-  validateTensorLength(issues, "riftPotential", plates.riftPotential, size);
-  validateTensorLength(issues, "shieldStability", plates.shieldStability, size);
-  validateTensorLength(issues, "volcanism", plates.volcanism, size);
-  validateTensorLength(issues, "plateMovementU", plates.movementU, size);
-  validateTensorLength(issues, "plateMovementV", plates.movementV, size);
-  validateTensorLength(issues, "plateRotation", plates.rotation, size);
+  const plates = value as Record<string, unknown>;
+  const size = artifactCellCount(context);
+  appendArtifactTypedArrayIssues(issues, "plateId", plates.id, Int16Array, size);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "boundaryCloseness",
+    plates.boundaryCloseness,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(issues, "boundaryType", plates.boundaryType, Uint8Array, size);
+  appendArtifactTypedArrayIssues(issues, "tectonicStress", plates.tectonicStress, Uint8Array, size);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "upliftPotential",
+    plates.upliftPotential,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(issues, "riftPotential", plates.riftPotential, Uint8Array, size);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "shieldStability",
+    plates.shieldStability,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(issues, "volcanism", plates.volcanism, Uint8Array, size);
+  appendArtifactTypedArrayIssues(issues, "plateMovementU", plates.movementU, Int8Array, size);
+  appendArtifactTypedArrayIssues(issues, "plateMovementV", plates.movementV, Int8Array, size);
+  appendArtifactTypedArrayIssues(issues, "plateRotation", plates.rotation, Int8Array, size);
 
   return Object.freeze(issues);
 }

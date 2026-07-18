@@ -1,4 +1,7 @@
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -51,6 +54,35 @@ export const artifact = defineArtifact({
 });
 
 /** Validates the closed coast classes, masks, dimensions, and promotion count. */
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") return Object.freeze(issues);
+  const candidate = value as Record<string, unknown>;
+  const cellCount = artifactCellCount(context);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "baseWaterClass",
+    candidate.baseWaterClass,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "sourceCoastMask",
+    candidate.sourceCoastMask,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(issues, "waterClass", candidate.waterClass, Uint8Array, cellCount);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "coastRingMask",
+    candidate.coastRingMask,
+    Uint8Array,
+    cellCount
+  );
+  return Object.freeze(issues);
 }

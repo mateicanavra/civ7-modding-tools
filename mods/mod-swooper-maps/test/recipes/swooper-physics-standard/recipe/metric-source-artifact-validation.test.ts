@@ -68,6 +68,37 @@ describe("metric source artifact validation", () => {
     expect(messages.some((message) => message.includes("roughnessPotential length 1"))).toBe(true);
   });
 
+  it("admits typed-array constructors independently from optional map cardinality", () => {
+    const routing = {
+      flowDir: new Int32Array(2),
+      flowAccum: new Float32Array(2),
+    };
+
+    expect(morphologyArtifactModules.routing.validate(routing)).toEqual([]);
+    expect(
+      morphologyArtifactModules.routing
+        .validate(routing, { dimensions })
+        .some((issue) => issue.message.includes("routing.flowDir length 1"))
+    ).toBe(true);
+
+    const wrongConstructor = {
+      ...routing,
+      flowAccum: new Uint8Array(2),
+    };
+    expect(
+      morphologyArtifactModules.routing
+        .validate(wrongConstructor)
+        .some((issue) => issue.message.includes("routing.flowAccum to be Float32Array"))
+    ).toBe(true);
+
+    const explicitNull = { ...routing, basinId: null };
+    expect(
+      morphologyArtifactModules.routing
+        .validate(explicitNull)
+        .some((issue) => issue.message.includes("routing.basinId to be Int32Array"))
+    ).toBe(true);
+  });
+
   it("refuses nonbinary outlets and unknown terminal classes", () => {
     const payload = hydrographyPayload();
     payload.outletMask[0] = 2;

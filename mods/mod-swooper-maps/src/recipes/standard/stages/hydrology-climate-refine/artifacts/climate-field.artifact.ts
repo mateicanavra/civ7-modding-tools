@@ -1,5 +1,7 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -50,20 +52,13 @@ export function validate(
   const issues = [...validateArtifactSchema(artifact.schema, value)];
   if (!isRecord(value)) return Object.freeze(issues);
 
-  const expectedSize = context?.dimensions
-    ? context.dimensions.width * context.dimensions.height
-    : undefined;
+  const expectedSize = artifactCellCount(context);
   const rainfall = value.rainfall;
   const humidity = value.humidity;
 
-  if (!(rainfall instanceof Uint8Array)) {
-    issues.push({ message: "Expected climate.rainfall to be a Uint8Array." });
-  } else {
-    if (expectedSize !== undefined && rainfall.length !== expectedSize) {
-      issues.push({
-        message: `Expected climate.rainfall length ${expectedSize} (received ${rainfall.length}).`,
-      });
-    }
+  if (
+    appendArtifactTypedArrayIssues(issues, "climate.rainfall", rainfall, Uint8Array, expectedSize)
+  ) {
     const invalidIndex = rainfall.findIndex((sample) => sample > 200);
     if (invalidIndex >= 0) {
       issues.push({
@@ -72,13 +67,7 @@ export function validate(
     }
   }
 
-  if (!(humidity instanceof Uint8Array)) {
-    issues.push({ message: "Expected climate.humidity to be a Uint8Array." });
-  } else if (expectedSize !== undefined && humidity.length !== expectedSize) {
-    issues.push({
-      message: `Expected climate.humidity length ${expectedSize} (received ${humidity.length}).`,
-    });
-  }
+  appendArtifactTypedArrayIssues(issues, "climate.humidity", humidity, Uint8Array, expectedSize);
 
   return Object.freeze(issues);
 }

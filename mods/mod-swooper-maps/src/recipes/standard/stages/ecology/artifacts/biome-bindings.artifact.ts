@@ -1,4 +1,7 @@
 import {
+  type ArtifactValidationContext,
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   type Static,
   Type,
@@ -50,7 +53,30 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-/** Returns every TypeBox schema issue for biome-symbol engine bindings without throwing. */
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+/**
+ * Validates biome-binding structure, exact typed-array kinds, and map-sized cardinality when known.
+ */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") return Object.freeze(issues);
+  const candidate = value as Record<string, unknown>;
+  const cellCount = artifactCellCount(context);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "engineBiomeId",
+    candidate.engineBiomeId,
+    Uint16Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "bindingClass",
+    candidate.bindingClass,
+    Uint8Array,
+    cellCount
+  );
+  return Object.freeze(issues);
 }

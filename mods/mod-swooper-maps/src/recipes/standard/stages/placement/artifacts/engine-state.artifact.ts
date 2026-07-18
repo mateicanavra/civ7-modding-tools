@@ -1,4 +1,5 @@
 import {
+  appendArtifactTypedArrayIssues,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -78,20 +79,27 @@ function validatePayload(value: unknown): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const width = Number(value.width);
   const height = Number(value.height);
-  const size = width * height;
-  if (!Number.isSafeInteger(size) || size <= 0) {
-    return [
-      issue(`engineState has invalid dimensions ${String(value.width)}x${String(value.height)}.`),
-    ];
+  const product = width * height;
+  const size = Number.isSafeInteger(product) && product > 0 ? product : undefined;
+  if (size === undefined) {
+    issues.push(
+      issue(`engineState has invalid dimensions ${String(value.width)}x${String(value.height)}.`)
+    );
   }
-  for (const key of ["slotByTile", "engineLandMask"] as const) {
-    const buffer = value[key] as { length?: number } | undefined;
-    if (typeof buffer?.length !== "number" || buffer.length !== size) {
-      issues.push(
-        issue(`engineState.${key} length ${String(buffer?.length)} != map size ${size}.`)
-      );
-    }
-  }
+  appendArtifactTypedArrayIssues(
+    issues,
+    "engineState.slotByTile",
+    value.slotByTile,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "engineState.engineLandMask",
+    value.engineLandMask,
+    Uint8Array,
+    size
+  );
   const slotCounts = isRecord(value.slotCounts) ? value.slotCounts : null;
   if (
     !slotCounts ||
@@ -100,7 +108,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
     !isCount(slotCounts.east)
   ) {
     issues.push(issue("engineState.slotCounts must carry none/west/east counts."));
-  } else if (slotCounts.none + slotCounts.west + slotCounts.east !== size) {
+  } else if (size !== undefined && slotCounts.none + slotCounts.west + slotCounts.east !== size) {
     issues.push(
       issue(
         `slotCounts ${slotCounts.none}+${slotCounts.west}+${slotCounts.east} != map size ${size}.`

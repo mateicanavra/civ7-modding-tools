@@ -1,5 +1,7 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -48,90 +50,59 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-function wrapValidation(
-  value: unknown,
-  context: ArtifactValidationContext | undefined
-): readonly { message: string }[] {
-  const schemaIssues = validateArtifactSchema(Schema, value);
-  if (!context?.dimensions) return schemaIssues;
-  try {
-    validatePayload(value, context.dimensions);
-    return schemaIssues;
-  } catch (error) {
-    return Object.freeze([
-      ...schemaIssues,
-      { message: error instanceof Error ? error.message : String(error) },
-    ]);
-  }
-}
-
-function validatePayload(
-  value: unknown,
-  dims: NonNullable<ArtifactValidationContext["dimensions"]>
-): void {
-  if (!value || typeof value !== "object") {
-    throw new Error(
-      "[FoundationArtifact] Missing foundation tectonicProvenanceTiles artifact payload."
-    );
-  }
-  const provenance = value as {
-    version?: unknown;
-    originEra?: unknown;
-    originPlateId?: unknown;
-    driftDistance?: unknown;
-    lastBoundaryEra?: unknown;
-    lastBoundaryType?: unknown;
-  };
-  const version = typeof provenance.version === "number" ? provenance.version | 0 : 0;
-  if (version <= 0) {
-    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.version.");
-  }
-
-  const expectedLen = Math.max(0, (dims.width | 0) * (dims.height | 0));
-  if (
-    !(provenance.originEra instanceof Uint8Array) ||
-    provenance.originEra.length !== expectedLen
-  ) {
-    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.originEra.");
-  }
-  if (
-    !(provenance.originPlateId instanceof Int16Array) ||
-    provenance.originPlateId.length !== expectedLen
-  ) {
-    throw new Error(
-      "[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.originPlateId."
-    );
-  }
-  if (
-    !(provenance.driftDistance instanceof Uint8Array) ||
-    provenance.driftDistance.length !== expectedLen
-  ) {
-    throw new Error(
-      "[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.driftDistance."
-    );
-  }
-  if (
-    !(provenance.lastBoundaryEra instanceof Uint8Array) ||
-    provenance.lastBoundaryEra.length !== expectedLen
-  ) {
-    throw new Error(
-      "[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.lastBoundaryEra."
-    );
-  }
-  if (
-    !(provenance.lastBoundaryType instanceof Uint8Array) ||
-    provenance.lastBoundaryType.length !== expectedLen
-  ) {
-    throw new Error(
-      "[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.lastBoundaryType."
-    );
-  }
-}
-
 /** Validates the version and map-sized typed arrays, preserving `-1`/`255` sentinels. */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext
 ): readonly { message: string }[] {
-  return wrapValidation(value, context);
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") {
+    if (context?.dimensions) {
+      issues.push({
+        message:
+          "[FoundationArtifact] Missing foundation tectonicProvenanceTiles artifact payload.",
+      });
+    }
+    return Object.freeze(issues);
+  }
+
+  const provenance = value as Record<string, unknown>;
+  const size = artifactCellCount(context);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "tectonicProvenanceTiles.originEra",
+    provenance.originEra,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "tectonicProvenanceTiles.originPlateId",
+    provenance.originPlateId,
+    Int16Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "tectonicProvenanceTiles.driftDistance",
+    provenance.driftDistance,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "tectonicProvenanceTiles.lastBoundaryEra",
+    provenance.lastBoundaryEra,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "tectonicProvenanceTiles.lastBoundaryType",
+    provenance.lastBoundaryType,
+    Uint8Array,
+    size
+  );
+
+  return Object.freeze(issues);
 }

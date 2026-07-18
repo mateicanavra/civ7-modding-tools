@@ -32,8 +32,8 @@ describe("Standard climate artifact vintages", () => {
           .map((issue) => issue.message)
       ).toEqual(
         expect.arrayContaining([
-          "Expected climate.rainfall to be a Uint8Array.",
-          "Expected climate.humidity to be a Uint8Array.",
+          "Expected climate.rainfall to be Uint8Array.",
+          "Expected climate.humidity to be Uint8Array.",
         ])
       );
 

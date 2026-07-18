@@ -1,5 +1,7 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -53,37 +55,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function expectedSize(context: ArtifactValidationContext | undefined): number | undefined {
-  const width = context?.dimensions?.width;
-  const height = context?.dimensions?.height;
-  if (!Number.isFinite(width) || !Number.isFinite(height)) return undefined;
-  return Math.max(0, (width! | 0) * (height! | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): void {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-}
-
-function validatePayload(
-  value: unknown,
-  context?: ArtifactValidationContext
-): ArtifactValidationIssue[] {
+function validatePayload(value: unknown, expectedLength?: number): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
-  const size = expectedSize(context);
   if (!isRecord(value))
     return [{ message: "Missing hydrology climate diagnostics artifact payload." }];
   const candidate = value as {
@@ -91,26 +64,26 @@ function validatePayload(
     continentalityIndex?: unknown;
     convergenceIndex?: unknown;
   };
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
     errors,
     "climateDiagnostics.rainShadowIndex",
     candidate.rainShadowIndex,
     Float32Array,
-    size
+    expectedLength
   );
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
     errors,
     "climateDiagnostics.continentalityIndex",
     candidate.continentalityIndex,
     Float32Array,
-    size
+    expectedLength
   );
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
     errors,
     "climateDiagnostics.convergenceIndex",
     candidate.convergenceIndex,
     Float32Array,
-    size
+    expectedLength
   );
   return errors;
 }
@@ -127,6 +100,6 @@ export function validate(
 ): readonly { message: string }[] {
   return Object.freeze([
     ...validateArtifactSchema(Schema, value),
-    ...validatePayload(value, context),
+    ...validatePayload(value, artifactCellCount(context)),
   ]);
 }

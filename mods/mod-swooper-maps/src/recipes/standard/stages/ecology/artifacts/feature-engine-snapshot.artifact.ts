@@ -1,5 +1,7 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   type Static,
   Type,
@@ -56,23 +58,17 @@ function validateSpatialCardinality(
   if (!value || typeof value !== "object") return [];
   const candidate = value as Partial<FeatureEngineSnapshot>;
   const issues: ValidationIssue[] = [];
-
-  if (!(candidate.featureType instanceof Int16Array)) {
-    issues.push({ message: "Expected featureEngineSnapshot.featureType to be an Int16Array." });
-  }
-
-  if (
-    Number.isInteger(candidate.width) &&
-    Number.isInteger(candidate.height) &&
-    candidate.featureType instanceof Int16Array
-  ) {
-    const admittedCellCount = (candidate.width as number) * (candidate.height as number);
-    if (candidate.featureType.length !== admittedCellCount) {
-      issues.push({
-        message: `featureType length ${candidate.featureType.length} does not match admitted dimensions ${String(candidate.width)}x${String(candidate.height)} (${admittedCellCount} tiles).`,
-      });
-    }
-  }
+  const admittedCellCount =
+    Number.isInteger(candidate.width) && Number.isInteger(candidate.height)
+      ? (candidate.width as number) * (candidate.height as number)
+      : undefined;
+  const featureTypeAdmitted = appendArtifactTypedArrayIssues(
+    issues,
+    "featureEngineSnapshot.featureType",
+    candidate.featureType,
+    Int16Array,
+    admittedCellCount
+  );
 
   const dimensions = context?.dimensions;
   if (dimensions) {
@@ -81,13 +77,15 @@ function validateSpatialCardinality(
         message: `Feature engine snapshot dimensions ${String(candidate.width)}x${String(candidate.height)} do not match map dimensions ${dimensions.width}x${dimensions.height}.`,
       });
     }
-    if (
-      candidate.featureType instanceof Int16Array &&
-      candidate.featureType.length !== dimensions.width * dimensions.height
-    ) {
-      issues.push({
-        message: `featureType length ${candidate.featureType.length} does not match map cardinality ${dimensions.width * dimensions.height}.`,
-      });
+    const runCellCount = artifactCellCount(context);
+    if (featureTypeAdmitted && runCellCount !== admittedCellCount) {
+      appendArtifactTypedArrayIssues(
+        issues,
+        "featureEngineSnapshot.featureType",
+        candidate.featureType,
+        Int16Array,
+        runCellCount
+      );
     }
   }
 

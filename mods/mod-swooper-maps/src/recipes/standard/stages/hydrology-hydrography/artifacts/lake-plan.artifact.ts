@@ -1,4 +1,7 @@
 import {
+  type ArtifactValidationContext,
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -45,7 +48,20 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-/** Returns every TypeBox schema issue for deterministic lake intent without throwing. */
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+/** Validates lake-plan structure, mask kind, and map-sized cardinality when known. */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") return Object.freeze(issues);
+  const candidate = value as Record<string, unknown>;
+  appendArtifactTypedArrayIssues(
+    issues,
+    "lakeMask",
+    candidate.lakeMask,
+    Uint8Array,
+    artifactCellCount(context)
+  );
+  return Object.freeze(issues);
 }

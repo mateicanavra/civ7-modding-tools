@@ -1,4 +1,7 @@
 import {
+  type ArtifactValidationContext,
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   type Static,
   Type,
@@ -46,7 +49,22 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-/** Returns every TypeBox schema issue for feature-application diagnostics without throwing. */
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+/**
+ * Validates feature-application diagnostics, including the rejection-mask kind and cardinality.
+ */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") return Object.freeze(issues);
+  const candidate = value as Record<string, unknown>;
+  appendArtifactTypedArrayIssues(
+    issues,
+    "rejectionMask",
+    candidate.rejectionMask,
+    Uint8Array,
+    artifactCellCount(context)
+  );
+  return Object.freeze(issues);
 }

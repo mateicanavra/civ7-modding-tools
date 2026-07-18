@@ -1,5 +1,6 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
   Type,
@@ -78,11 +79,13 @@ export function validate(
       "foothillMask",
       "roughLandMask",
     ] as const) {
-      if (validateTypedArray(issues, `mountains.${key}`, value[key], Uint8Array, size)) {
+      if (
+        appendArtifactTypedArrayIssues(issues, `mountains.${key}`, value[key], Uint8Array, size)
+      ) {
         validateBinaryMask(issues, `mountains.${key}`, value[key]);
       }
     }
-    validateTypedArray(
+    appendArtifactTypedArrayIssues(
       issues,
       "mountains.mountainRegionIdByTile",
       value.mountainRegionIdByTile,
@@ -90,7 +93,7 @@ export function validate(
       size
     );
     for (const key of ["orogenyPotential", "fracturePotential", "roughnessPotential"] as const) {
-      validateTypedArray(issues, `mountains.${key}`, value[key], Uint8Array, size);
+      appendArtifactTypedArrayIssues(issues, `mountains.${key}`, value[key], Uint8Array, size);
     }
   }
   return Object.freeze(issues);
@@ -98,25 +101,6 @@ export function validate(
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function validateTypedArray(
-  issues: { message: string }[],
-  label: string,
-  value: unknown,
-  constructor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof constructor)) {
-    issues.push({ message: `Expected ${label} to be ${constructor.name}.` });
-    return false;
-  }
-  if (expectedLength !== undefined && value.length !== expectedLength) {
-    issues.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
 }
 
 function validateBinaryMask(issues: { message: string }[], label: string, value: unknown): void {

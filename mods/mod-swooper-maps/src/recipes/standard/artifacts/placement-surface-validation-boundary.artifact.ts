@@ -1,4 +1,5 @@
 import {
+  appendArtifactTypedArrayIssues,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -70,12 +71,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-/**
- * Validate hook for the surface preparation evidence artifact
- * (placement-realignment S6): slot counts must partition the grid and the
- * lake drift counters must stay within the accepted lake corpus.
- */
-
 function validatePayload(value: unknown): ValidationIssue[] {
   if (!isRecord(value)) {
     return [issue("placementSurfaceValidationBoundary artifact must be an object.")];
@@ -83,26 +78,33 @@ function validatePayload(value: unknown): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const width = Number(value.width);
   const height = Number(value.height);
-  const size = width * height;
-  if (!Number.isSafeInteger(size) || size <= 0) {
-    return [
+  const product = width * height;
+  const size = Number.isSafeInteger(product) && product > 0 ? product : undefined;
+  if (size === undefined) {
+    issues.push(
       issue(
         `placementSurfaceValidationBoundary has invalid dimensions ${String(value.width)}x${String(value.height)}.`
-      ),
-    ];
+      )
+    );
   }
   for (const key of ["beforeValidate", "afterValidate", "afterMaintenance"] as const) {
-    const snapshot = isRecord(value[key]) ? (value[key] as Record<string, unknown>) : null;
+    const snapshot: Record<string, unknown> | null = isRecord(value[key])
+      ? (value[key] as Record<string, unknown>)
+      : null;
     if (!snapshot) {
       issues.push(issue(`placementSurfaceValidationBoundary.${key} must be an object.`));
       continue;
     }
-    for (const field of ["terrain", "waterMask", "lakeMask", "areaId"] as const) {
-      const buffer = snapshot[field] as { length?: number } | undefined;
-      if (typeof buffer?.length !== "number" || buffer.length !== size) {
-        issues.push(issue(`${key}.${field} length ${String(buffer?.length)} != map size ${size}.`));
-      }
-    }
+    appendArtifactTypedArrayIssues(issues, `${key}.terrain`, snapshot.terrain, Int32Array, size);
+    appendArtifactTypedArrayIssues(
+      issues,
+      `${key}.waterMask`,
+      snapshot.waterMask,
+      Uint8Array,
+      size
+    );
+    appendArtifactTypedArrayIssues(issues, `${key}.lakeMask`, snapshot.lakeMask, Uint8Array, size);
+    appendArtifactTypedArrayIssues(issues, `${key}.areaId`, snapshot.areaId, Int32Array, size);
   }
   return issues;
 }

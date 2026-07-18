@@ -1,5 +1,7 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -68,54 +70,45 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
-
 function validatePayload(
   value: unknown,
-  dimensions: NonNullable<ArtifactValidationContext["dimensions"]>
+  context?: ArtifactValidationContext
 ): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isRecord(value)) {
-    errors.push({ message: "Missing shelf artifact." });
+    if (context?.dimensions) {
+      errors.push({ message: "Missing shelf artifact." });
+    }
     return errors;
   }
-  const size = expectedSize(dimensions);
+  const size = artifactCellCount(context);
   const c = value as Record<string, unknown>;
-  validateTypedArray(errors, "shelf.shelfMask", c.shelfMask, Uint8Array, size);
-  validateTypedArray(errors, "shelf.coastalLand", c.coastalLand, Uint8Array, size);
-  validateTypedArray(errors, "shelf.coastalWater", c.coastalWater, Uint8Array, size);
-  validateTypedArray(errors, "shelf.distanceToCoast", c.distanceToCoast, Uint16Array, size);
-  validateTypedArray(errors, "shelf.activeMarginMask", c.activeMarginMask, Uint8Array, size);
-  validateTypedArray(errors, "shelf.depthGateMask", c.depthGateMask, Uint8Array, size);
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(errors, "shelf.shelfMask", c.shelfMask, Uint8Array, size);
+  appendArtifactTypedArrayIssues(errors, "shelf.coastalLand", c.coastalLand, Uint8Array, size);
+  appendArtifactTypedArrayIssues(errors, "shelf.coastalWater", c.coastalWater, Uint8Array, size);
+  appendArtifactTypedArrayIssues(
+    errors,
+    "shelf.distanceToCoast",
+    c.distanceToCoast,
+    Uint16Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    errors,
+    "shelf.activeMarginMask",
+    c.activeMarginMask,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(errors, "shelf.depthGateMask", c.depthGateMask, Uint8Array, size);
+  appendArtifactTypedArrayIssues(
     errors,
     "shelf.nearshoreCandidateMask",
     c.nearshoreCandidateMask,
     Uint8Array,
     size
   );
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
     errors,
     "shelf.shelfBreakDepthByTile",
     c.shelfBreakDepthByTile,
@@ -137,6 +130,5 @@ export function validate(
   context?: ArtifactValidationContext
 ): readonly { message: string }[] {
   const schemaIssues = validateArtifactSchema(Schema, value);
-  if (!context?.dimensions) return schemaIssues;
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context.dimensions)]);
+  return Object.freeze([...schemaIssues, ...validatePayload(value, context)]);
 }

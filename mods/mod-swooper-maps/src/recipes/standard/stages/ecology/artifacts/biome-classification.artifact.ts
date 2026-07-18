@@ -1,6 +1,8 @@
 import { BIOME_SYMBOL_ORDER } from "@mapgen/domain/ecology";
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   type Static,
   Type,
@@ -47,81 +49,136 @@ export const artifact = defineArtifact({
 
 export type ArtifactValidationIssue = Readonly<{ message: string }>;
 
-function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
-
-function isBiomeClassificationArtifact(value: unknown): value is BiomeClassificationArtifact {
-  if (!value || typeof value !== "object") return false;
-  const candidate = value as BiomeClassificationArtifact;
-  return (
-    typeof candidate.width === "number" &&
-    typeof candidate.height === "number" &&
-    candidate.biomeIndex instanceof Uint8Array &&
-    candidate.vegetationDensity instanceof Float32Array &&
-    candidate.effectiveMoisture instanceof Float32Array &&
-    candidate.surfaceTemperature instanceof Float32Array &&
-    candidate.aridityIndex instanceof Float32Array &&
-    candidate.freezeIndex instanceof Float32Array &&
-    candidate.groundIce01 instanceof Float32Array &&
-    candidate.permafrost01 instanceof Float32Array &&
-    candidate.meltPotential01 instanceof Float32Array &&
-    candidate.treeLine01 instanceof Float32Array
-  );
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function validatePayload(
   value: unknown,
-  dimensions: NonNullable<ArtifactValidationContext["dimensions"]>
+  context?: ArtifactValidationContext
 ): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
-  if (!isBiomeClassificationArtifact(value)) {
-    errors.push({ message: "Invalid biome classification artifact payload." });
+  if (!isRecord(value)) {
+    if (context?.dimensions) {
+      errors.push({ message: "Invalid biome classification artifact payload." });
+    }
     return errors;
   }
-  const size = expectedSize(dimensions);
-  if (value.width !== dimensions.width || value.height !== dimensions.height) {
+  const dimensions = context?.dimensions;
+  const size = artifactCellCount(context);
+  if (dimensions && (value.width !== dimensions.width || value.height !== dimensions.height)) {
     errors.push({ message: "Biome classification dimensions mismatch." });
   }
-  validateTypedArray(errors, "biomeIndex", value.biomeIndex, Uint8Array, size);
-  validateTypedArray(errors, "vegetationDensity", value.vegetationDensity, Float32Array, size);
-  validateTypedArray(errors, "effectiveMoisture", value.effectiveMoisture, Float32Array, size);
-  validateTypedArray(errors, "surfaceTemperature", value.surfaceTemperature, Float32Array, size);
-  validateTypedArray(errors, "aridityIndex", value.aridityIndex, Float32Array, size);
-  validateTypedArray(errors, "freezeIndex", value.freezeIndex, Float32Array, size);
-  validateTypedArray(errors, "groundIce01", value.groundIce01, Float32Array, size);
-  validateTypedArray(errors, "permafrost01", value.permafrost01, Float32Array, size);
-  validateTypedArray(errors, "meltPotential01", value.meltPotential01, Float32Array, size);
-  validateTypedArray(errors, "treeLine01", value.treeLine01, Float32Array, size);
-  validateBiomeIndices(errors, value.biomeIndex);
-  validateFiniteValues(errors, "vegetationDensity", value.vegetationDensity, 0, 1);
-  validateFiniteValues(errors, "effectiveMoisture", value.effectiveMoisture);
-  validateFiniteValues(errors, "surfaceTemperature", value.surfaceTemperature);
-  validateFiniteValues(errors, "aridityIndex", value.aridityIndex, 0, 1);
-  validateFiniteValues(errors, "freezeIndex", value.freezeIndex, 0, 1);
-  validateFiniteValues(errors, "groundIce01", value.groundIce01, 0, 1);
-  validateFiniteValues(errors, "permafrost01", value.permafrost01, 0, 1);
-  validateFiniteValues(errors, "meltPotential01", value.meltPotential01, 0, 1);
-  validateFiniteValues(errors, "treeLine01", value.treeLine01, 0, 1);
+  if (
+    appendArtifactTypedArrayIssues<Uint8Array>(
+      errors,
+      "biomeIndex",
+      value.biomeIndex,
+      Uint8Array,
+      size
+    )
+  ) {
+    validateBiomeIndices(errors, value.biomeIndex);
+  }
+  if (
+    appendArtifactTypedArrayIssues<Float32Array>(
+      errors,
+      "vegetationDensity",
+      value.vegetationDensity,
+      Float32Array,
+      size
+    )
+  ) {
+    validateFiniteValues(errors, "vegetationDensity", value.vegetationDensity, 0, 1);
+  }
+  if (
+    appendArtifactTypedArrayIssues<Float32Array>(
+      errors,
+      "effectiveMoisture",
+      value.effectiveMoisture,
+      Float32Array,
+      size
+    )
+  ) {
+    validateFiniteValues(errors, "effectiveMoisture", value.effectiveMoisture);
+  }
+  if (
+    appendArtifactTypedArrayIssues<Float32Array>(
+      errors,
+      "surfaceTemperature",
+      value.surfaceTemperature,
+      Float32Array,
+      size
+    )
+  ) {
+    validateFiniteValues(errors, "surfaceTemperature", value.surfaceTemperature);
+  }
+  if (
+    appendArtifactTypedArrayIssues<Float32Array>(
+      errors,
+      "aridityIndex",
+      value.aridityIndex,
+      Float32Array,
+      size
+    )
+  ) {
+    validateFiniteValues(errors, "aridityIndex", value.aridityIndex, 0, 1);
+  }
+  if (
+    appendArtifactTypedArrayIssues<Float32Array>(
+      errors,
+      "freezeIndex",
+      value.freezeIndex,
+      Float32Array,
+      size
+    )
+  ) {
+    validateFiniteValues(errors, "freezeIndex", value.freezeIndex, 0, 1);
+  }
+  if (
+    appendArtifactTypedArrayIssues<Float32Array>(
+      errors,
+      "groundIce01",
+      value.groundIce01,
+      Float32Array,
+      size
+    )
+  ) {
+    validateFiniteValues(errors, "groundIce01", value.groundIce01, 0, 1);
+  }
+  if (
+    appendArtifactTypedArrayIssues<Float32Array>(
+      errors,
+      "permafrost01",
+      value.permafrost01,
+      Float32Array,
+      size
+    )
+  ) {
+    validateFiniteValues(errors, "permafrost01", value.permafrost01, 0, 1);
+  }
+  if (
+    appendArtifactTypedArrayIssues<Float32Array>(
+      errors,
+      "meltPotential01",
+      value.meltPotential01,
+      Float32Array,
+      size
+    )
+  ) {
+    validateFiniteValues(errors, "meltPotential01", value.meltPotential01, 0, 1);
+  }
+  if (
+    appendArtifactTypedArrayIssues<Float32Array>(
+      errors,
+      "treeLine01",
+      value.treeLine01,
+      Float32Array,
+      size
+    )
+  ) {
+    validateFiniteValues(errors, "treeLine01", value.treeLine01, 0, 1);
+  }
   return errors;
 }
 
@@ -172,6 +229,5 @@ export function validate(
   context?: ArtifactValidationContext
 ): readonly { message: string }[] {
   const schemaIssues = validateArtifactSchema(Schema, value);
-  if (!context?.dimensions) return schemaIssues;
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context.dimensions)]);
+  return Object.freeze([...schemaIssues, ...validatePayload(value, context)]);
 }

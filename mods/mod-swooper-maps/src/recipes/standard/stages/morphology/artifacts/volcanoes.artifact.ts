@@ -1,4 +1,7 @@
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -55,39 +58,61 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function validatePayload(value: unknown): ArtifactValidationIssue[] {
+function validatePayload(
+  value: unknown,
+  context?: ArtifactValidationContext
+): ArtifactValidationIssue[] {
   if (!isRecord(value)) {
     return [{ message: "Missing volcanoes artifact." }];
   }
+  const issues: ArtifactValidationIssue[] = [];
   const candidate = value as { volcanoMask?: unknown; volcanoes?: unknown };
-  if (!(candidate.volcanoMask instanceof Uint8Array)) {
-    return [{ message: "Expected volcanoes.volcanoMask to be a Uint8Array." }];
+  if (
+    !appendArtifactTypedArrayIssues(
+      issues,
+      "volcanoes.volcanoMask",
+      candidate.volcanoMask,
+      Uint8Array,
+      artifactCellCount(context)
+    )
+  ) {
+    return issues;
   }
   if (!Array.isArray(candidate.volcanoes)) {
-    return [{ message: "Expected volcanoes.volcanoes to be an array." }];
+    issues.push({ message: "Expected volcanoes.volcanoes to be an array." });
+    return issues;
   }
   for (const entry of candidate.volcanoes) {
     if (!isRecord(entry) || typeof entry.tileIndex !== "number" || entry.tileIndex < 0) {
-      return [
-        { message: "Expected volcanoes.volcanoes entries to include a non-negative tileIndex." },
-      ];
+      issues.push({
+        message: "Expected volcanoes.volcanoes entries to include a non-negative tileIndex.",
+      });
+      return issues;
     }
     if (entry.kind !== "subductionArc" && entry.kind !== "rift" && entry.kind !== "hotspot") {
-      return [{ message: "Expected volcanoes.volcanoes entries to include a Phase 2 kind." }];
+      issues.push({ message: "Expected volcanoes.volcanoes entries to include a Phase 2 kind." });
+      return issues;
     }
     if (typeof entry.strength01 !== "number" || entry.strength01 < 0 || entry.strength01 > 1) {
-      return [
-        { message: "Expected volcanoes.volcanoes entries to include strength01 within [0,1]." },
-      ];
+      issues.push({
+        message: "Expected volcanoes.volcanoes entries to include strength01 within [0,1].",
+      });
+      return issues;
     }
   }
-  return [];
+  return issues;
 }
 
 /**
  * Validates the volcano mask and each vent's nonnegative tile index, admitted
  * tectonic kind, and normalized strength in `[0, 1]`.
  */
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  return Object.freeze([
+    ...validateArtifactSchema(Schema, value),
+    ...validatePayload(value, context),
+  ]);
 }

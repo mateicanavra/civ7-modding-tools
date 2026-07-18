@@ -1,4 +1,7 @@
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -49,6 +52,16 @@ export const artifact = defineArtifact({
  * all issues without throwing. Successful validation guarantees parity consumers receive stage
  * identity, dimensions, and typed land, terrain, and elevation buffers.
  */
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") return Object.freeze(issues);
+  const candidate = value as Record<string, unknown>;
+  const cellCount = artifactCellCount(context);
+  appendArtifactTypedArrayIssues(issues, "landMask", candidate.landMask, Uint8Array, cellCount);
+  appendArtifactTypedArrayIssues(issues, "terrain", candidate.terrain, Uint8Array, cellCount);
+  appendArtifactTypedArrayIssues(issues, "elevation", candidate.elevation, Int16Array, cellCount);
+  return Object.freeze(issues);
 }
