@@ -7,29 +7,32 @@ import {
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Registers the final rainfall and humidity surface after river-corridor and
- * cryosphere refinement. Downstream product logic consumes this stable artifact identity.
+ * Closed contract for the final rainfall and humidity surface after climate refinement.
+ * Each typed array contains exactly one immutable sample per map tile.
  */
+export const Schema = Type.Object(
+  {
+    rainfall: TypedArraySchemas.u8({
+      description:
+        "Final per-tile precipitation intensity consumed by projection and Ecology, encoded in Civ7's inclusive 0-200 rainfall domain.",
+    }),
+    humidity: TypedArraySchemas.u8({
+      description:
+        "Final per-tile atmospheric moisture after river-corridor and cryosphere refinement, encoded on an inclusive 0-255 scale.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Hydrology's immutable final climate surface with one refined rainfall and humidity sample for every map tile.",
+  }
+);
+
+/** Registers the final climate artifact consumed by map projection and Ecology. */
 export const artifact = defineArtifact({
   name: "climateField",
   id: "artifact:climateField",
-  schema: Type.Object(
-    {
-      rainfall: TypedArraySchemas.u8({
-        description:
-          "Final per-tile precipitation intensity consumed by projection and Ecology, encoded in Civ7's inclusive 0-200 rainfall domain.",
-      }),
-      humidity: TypedArraySchemas.u8({
-        description:
-          "Final per-tile atmospheric moisture after river-corridor and cryosphere refinement, encoded on an inclusive 0-255 scale.",
-      }),
-    },
-    {
-      additionalProperties: false,
-      description:
-        "Hydrology's immutable final climate surface with one refined rainfall and humidity sample for every map tile.",
-    }
-  ),
+  schema: Schema,
 });
 
 function isRecord(value: unknown): value is Record<string, unknown> {

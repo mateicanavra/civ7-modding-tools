@@ -7,29 +7,32 @@ import {
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Registers Hydrology's annual-mean rainfall and humidity before river routing
- * and cryosphere refinement. The baseline arrays remain immutable after publication.
+ * Closed contract for Hydrology's annual-mean rainfall and humidity before refinement.
+ * Each typed array contains exactly one immutable sample per map tile.
  */
+export const Schema = Type.Object(
+  {
+    rainfall: TypedArraySchemas.u8({
+      description:
+        "Annual-mean precipitation intensity before river-corridor and cryosphere refinement, encoded in Civ7's inclusive 0-200 rainfall domain.",
+    }),
+    humidity: TypedArraySchemas.u8({
+      description:
+        "Annual-mean atmospheric moisture available to river routing and climate refinement, encoded on an inclusive 0-255 scale.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Hydrology's immutable pre-hydrography climate surface with one baseline rainfall and humidity sample for every map tile.",
+  }
+);
+
+/** Registers the baseline climate artifact consumed by routing and climate refinement. */
 export const artifact = defineArtifact({
   name: "baselineClimateField",
   id: "artifact:hydrology.baselineClimateField",
-  schema: Type.Object(
-    {
-      rainfall: TypedArraySchemas.u8({
-        description:
-          "Annual-mean precipitation intensity before river-corridor and cryosphere refinement, encoded in Civ7's inclusive 0-200 rainfall domain.",
-      }),
-      humidity: TypedArraySchemas.u8({
-        description:
-          "Annual-mean atmospheric moisture available to river routing and climate refinement, encoded on an inclusive 0-255 scale.",
-      }),
-    },
-    {
-      additionalProperties: false,
-      description:
-        "Hydrology's immutable pre-hydrography climate surface with one baseline rainfall and humidity sample for every map tile.",
-    }
-  ),
+  schema: Schema,
 });
 
 function isRecord(value: unknown): value is Record<string, unknown> {
