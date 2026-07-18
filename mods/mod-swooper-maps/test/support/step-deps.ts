@@ -76,7 +76,5 @@ export function buildTestDeps<TStep>(step: TStep & TestableStep): StepDependenci
   return {
     // Runtime keys come from the same literal contracts that define the static dependency surface.
     artifacts: depsArtifacts as StepArtifactDependencies<TStep>,
-    fields: {},
-    effects: {},
   };
 }

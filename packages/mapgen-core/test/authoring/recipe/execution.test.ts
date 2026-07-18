@@ -24,6 +24,7 @@ const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
 describe("authoring: hello recipe compile/execute", () => {
   it("compiles and executes a minimal recipe module", () => {
+    const executions: string[] = [];
     const helloContract = defineStep({
       id: "hello",
       phase: "foundation",
@@ -32,8 +33,8 @@ describe("authoring: hello recipe compile/execute", () => {
       schema: Type.Object({}, { additionalProperties: false }),
     });
     const helloStep = createStep(helloContract, {
-      run: (context) => {
-        context.metrics.warnings.push("hello");
+      run: () => {
+        executions.push("hello");
       },
     });
 
@@ -59,10 +60,11 @@ describe("authoring: hello recipe compile/execute", () => {
     expect(plan.nodes[0]?.stepId).toContain("hello");
 
     recipe.run(ctx, baseSettings, { foundation: { knobs: {}, hello: {} } });
-    expect(ctx.metrics.warnings).toContain("hello");
+    expect(executions).toContain("hello");
   });
 
   it("binds step-declared ops and compiles op defaults/normalization", () => {
+    const executions: string[] = [];
     const contract = defineOp({
       kind: "plan",
       id: "test/ops/tree-plan",
@@ -97,9 +99,9 @@ describe("authoring: hello recipe compile/execute", () => {
     });
 
     const step = createStep(stepContract, {
-      run: (context, config, ops) => {
+      run: (_context, config, ops) => {
         const result = ops.trees({}, config.trees);
-        context.metrics.warnings.push(`trees:${result.ok}`);
+        executions.push(`trees:${result.ok}`);
       },
     });
 
@@ -137,7 +139,7 @@ describe("authoring: hello recipe compile/execute", () => {
     });
 
     recipe.run(ctx, baseSettings, config);
-    expect(ctx.metrics.warnings).toContain("trees:false");
+    expect(executions).toContain("trees:false");
   });
 
   it("threads step facet sinks through synchronous and asynchronous recipe runs", async () => {

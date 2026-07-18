@@ -3,15 +3,17 @@
 ## Behind
 
 - Package destination frame, structural-test authority, bundle compatibility, exported-symbol documentation, metrics engine, Standard product metrics, ArtifactModule authority, completed-map placement/resource metrics, placement live-probe retirement, the Nx-owned generated recipe-types dependency, and roster-aware resource-minimum authority are sealed semantic layers.
+- Workspace leaf libraries no longer collide with the Foundation domain, and optional metrics/viz projections are sealed as `createStep` facets with execution-owned sinks.
+- Dead context state, fake dependency bags, and duplicate adapter/Foundation authorities are removed.
 - These layers are foundations, not open refactor surfaces.
 
 ## Now
 
-- Make optional `metrics` and `viz` facets part of step authorship without moving trace into those facets.
+- Collapse legacy mutable `fields`/`buffers` into explicit artifact successor states and settle the complete step working-context contract.
 
 ## Next
 
-- Complete the pre-A.2 package relocation from the sealed destination design, then certify the resulting stack.
+- Land the `MapContext` cutover and core type-module split, then complete the pre-A.2 package relocation from the sealed destination design.
 
 ## Around
 

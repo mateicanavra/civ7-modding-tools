@@ -135,6 +135,7 @@ describe("filesystem visualization adapters", () => {
   it("contains projector and sink failures while reporting each once at the filesystem edge", () => {
     const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-failure-"));
     const diagnostics = spyOn(console, "error").mockImplementation(() => {});
+    const executions: string[] = [];
     try {
       const EmptySchema = Type.Object({}, { additionalProperties: false });
       const projectorContract = defineStep({
@@ -152,8 +153,8 @@ describe("filesystem visualization adapters", () => {
         schema: EmptySchema,
       });
       const projectorStep = createStep(projectorContract, {
-        run: (context) => {
-          context.metrics.warnings.push("projector-step-completed");
+        run: () => {
+          executions.push("projector-step-completed");
           return undefined;
         },
         viz: () => {
@@ -161,8 +162,8 @@ describe("filesystem visualization adapters", () => {
         },
       });
       const sinkStep = createStep(sinkContract, {
-        run: (context) => {
-          context.metrics.warnings.push("sink-step-completed");
+        run: () => {
+          executions.push("sink-step-completed");
           return undefined;
         },
         viz: () => [
@@ -212,7 +213,7 @@ describe("filesystem visualization adapters", () => {
         { facets: outputs.facetSinks }
       );
 
-      expect(context.metrics.warnings).toEqual(["projector-step-completed", "sink-step-completed"]);
+      expect(executions).toEqual(["projector-step-completed", "sink-step-completed"]);
       expect(diagnostics).toHaveBeenCalledTimes(2);
       const messages = diagnostics.mock.calls.map(([message]) => String(message));
       expect(messages).toEqual([

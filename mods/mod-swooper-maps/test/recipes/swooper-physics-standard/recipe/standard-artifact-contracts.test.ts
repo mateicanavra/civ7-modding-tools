@@ -1,14 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
-import {
-  FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG,
-  FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
-} from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  artifactModules as standardArtifactModules,
-  artifacts as standardArtifacts,
-} from "../../../../src/recipes/standard/artifacts/index.js";
+import { artifactModules as standardArtifactModules } from "../../../../src/recipes/standard/artifacts/index.js";
 import { artifactModules as placementArtifactModules } from "../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 
 type ResourcePlanAdjusted = Static<
@@ -179,15 +172,6 @@ describe("standard recipe artifact contracts", () => {
         .validate(withoutVolcanism, validationContext)
         .some((issue) => issue.message.includes("volcanism"))
     ).toBe(true);
-  });
-
-  it("publishes canonical map-facing foundation artifact ids", () => {
-    expect(standardArtifacts.foundationTectonicHistoryTiles.id).toBe(
-      FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG
-    );
-    expect(standardArtifacts.foundationTectonicProvenanceTiles.id).toBe(
-      FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG
-    );
   });
 
   it("reconciles coherent resource moves, additions, provenance, and support evidence", () => {

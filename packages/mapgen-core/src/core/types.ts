@@ -1,15 +1,15 @@
 /**
- * Core Types — MapContext and data contracts
+ * Core Types — ExtendedMapContext and transitional data contracts
  *
  * Purpose:
  * - Define the seam between pure logic and engine coupling
- * - MapContext holds all data dependencies for passes (buffers/fields, rng)
+ * - ExtendedMapContext holds the generation state used by authored passes
  * - EngineAdapter abstracts read/write operations (enables testing, replay, diffing)
  *
  * Invariants:
  * - Passes should ONLY access engine APIs via the adapter
  * - RNG calls should go through ctxRandom/ctxStepSeed for deterministic replay
- * - Context is immutable reference (but buffers/fields are mutable for performance)
+ * - Context is a stable reference (but buffers/fields are mutable for performance)
  * - Buffers are currently treated as artifacts for pipeline gating and DX
  *   (see ArtifactStore + MapBuffers notes for the temporary exception).
  */
@@ -101,41 +101,7 @@ export interface ClimateFieldBuffer {
 export interface MapBuffers {
   heightfield: HeightfieldBuffer;
   climate: ClimateFieldBuffer;
-  scratchMasks: Map<string, Uint8Array>;
 }
-
-/**
- * Plate-centric tensors emitted by the foundation stage.
- */
-export interface FoundationPlateFields {
-  id: Int16Array;
-  boundaryCloseness: Uint8Array;
-  boundaryType: Uint8Array;
-  tectonicStress: Uint8Array;
-  upliftPotential: Uint8Array;
-  riftPotential: Uint8Array;
-  shieldStability: Uint8Array;
-  volcanism: Uint8Array;
-  movementU: Int8Array;
-  movementV: Int8Array;
-  rotation: Int8Array;
-}
-
-export const FOUNDATION_PLATES_ARTIFACT_TAG = "artifact:map.foundationPlates";
-export const FOUNDATION_MESH_ARTIFACT_TAG = "artifact:foundation.mesh";
-export const FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG = "artifact:foundation.mantlePotential";
-export const FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG = "artifact:foundation.mantleForcing";
-export const FOUNDATION_CRUST_ARTIFACT_TAG = "artifact:foundation.crust";
-export const FOUNDATION_PLATE_MOTION_ARTIFACT_TAG = "artifact:foundation.plateMotion";
-export const FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG = "artifact:foundation.plateGraph";
-export const FOUNDATION_TECTONICS_ARTIFACT_TAG = "artifact:foundation.tectonics";
-export const FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG = "artifact:foundation.tectonicProvenance";
-export const FOUNDATION_TILE_TO_CELL_INDEX_ARTIFACT_TAG = "artifact:map.foundationTileToCellIndex";
-export const FOUNDATION_CRUST_TILES_ARTIFACT_TAG = "artifact:map.foundationCrustTiles";
-export const FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG =
-  "artifact:map.foundationTectonicHistoryTiles";
-export const FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG =
-  "artifact:map.foundationTectonicProvenanceTiles";
 
 /**
  * Store of published artifacts keyed by dependency tag id.
@@ -147,7 +113,7 @@ export const FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG =
 export class ArtifactStore extends Map<string, unknown> {}
 
 // ============================================================================
-// RNG and Metrics Types
+// RNG Types
 // ============================================================================
 
 /**
@@ -160,15 +126,6 @@ export interface RNGState {
   callCounts: Map<string, number>;
   seed: number;
   nextInt: LabelRng;
-}
-
-/**
- * Performance and validation metrics
- */
-export interface GenerationMetrics {
-  timings: Map<string, number>;
-  histograms: Map<string, unknown>;
-  warnings: string[];
 }
 
 export interface VizDumper {
@@ -250,14 +207,12 @@ export interface VizDumper {
 
 /**
  * Extended MapContext with all generation state.
- * This extends the minimal MapContext from @civ7/adapter.
  */
 export interface ExtendedMapContext {
   dimensions: MapDimensions;
   fields: MapFields;
   rng: RNGState;
   env: Env;
-  metrics: GenerationMetrics;
   trace: TraceScope;
   viz?: VizDumper;
   adapter: EngineAdapter;
@@ -267,7 +222,7 @@ export interface ExtendedMapContext {
    */
   artifacts: ArtifactStore;
   /**
-   * Mutable generation buffers (heightfield, climate, scratch masks).
+   * Mutable generation buffers for heightfield and climate staging.
    *
    * Some buffers are currently mirrored as artifacts for gating, but they remain
    * mutable after the initial publish. Do not republish buffer artifacts.
@@ -321,18 +276,12 @@ export function createExtendedMapContext(
       nextInt: createLabelRng(env.seed),
     },
     env,
-    metrics: {
-      timings: new Map(),
-      histograms: new Map(),
-      warnings: [],
-    },
     trace: createNoopTraceScope(),
     adapter,
     artifacts: new ArtifactStore(),
     buffers: {
       heightfield,
       climate,
-      scratchMasks: new Map(),
     },
   };
 }
@@ -375,45 +324,8 @@ export function ctxStepSeed(
 }
 
 // ============================================================================
-// Heightfield and Climate Writers
+// Climate Writer
 // ============================================================================
-
-export interface HeightfieldWriteOptions {
-  terrain?: number;
-  elevation?: number;
-  isLand?: boolean;
-}
-
-/**
- * Write staged heightfield values and mirror to engine adapter.
- */
-export function writeHeightfield(
-  ctx: ExtendedMapContext,
-  x: number,
-  y: number,
-  options: HeightfieldWriteOptions
-): void {
-  if (!ctx || !options) return;
-  const { width } = ctx.dimensions;
-  const idxValue = y * width + x;
-  const hf = ctx.buffers?.heightfield;
-
-  if (hf) {
-    if (typeof options.terrain === "number") {
-      hf.terrain[idxValue] = options.terrain & 0xff;
-    }
-    if (typeof options.elevation === "number") {
-      hf.elevation[idxValue] = options.elevation | 0;
-    }
-    if (typeof options.isLand === "boolean") {
-      hf.landMask[idxValue] = options.isLand ? 1 : 0;
-    }
-  }
-
-  if (typeof options.terrain === "number") {
-    ctx.adapter.setTerrainType(x, y, options.terrain);
-  }
-}
 
 export interface ClimateWriteOptions {
   rainfall?: number;
@@ -451,13 +363,4 @@ export function writeClimateField(
   if (typeof options.rainfall === "number") {
     ctx.adapter.setRainfall(x, y, Math.max(0, Math.min(200, options.rainfall)) | 0);
   }
-}
-
-/**
- * Synchronize staged climate buffers from the current engine surface.
- */
-export function syncClimateField(_ctx: ExtendedMapContext): never {
-  throw new Error(
-    "[MapContext] syncClimateField has been removed. Climate buffers are now canonical; seed rainfall via climate stages/artifacts instead of reading from the engine adapter."
-  );
 }

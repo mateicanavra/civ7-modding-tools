@@ -58,7 +58,6 @@ export type {
   FeatureData,
   LakeProjectionResult,
   LandmassIdName,
-  MapContext,
   MapDimensions,
   MapInfo,
   MapInitParams,

@@ -1,11 +1,5 @@
 import { describe, expect, it } from "bun:test";
 import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation/artifacts";
-import {
-  FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
-  FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG,
-  FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
-  FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
-} from "@swooper/mapgen-core";
 
 const {
   crust,
@@ -310,13 +304,6 @@ function validEvent() {
 }
 
 describe("foundation artifact contract files", () => {
-  it("publishes the canonical domain artifact ids", () => {
-    expect(mantlePotential.artifact.id).toBe(FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG);
-    expect(mantleForcing.artifact.id).toBe(FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG);
-    expect(plateMotion.artifact.id).toBe(FOUNDATION_PLATE_MOTION_ARTIFACT_TAG);
-    expect(tectonicProvenance.artifact.id).toBe(FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG);
-  });
-
   it("validates direct foundation artifact payloads without mutating or throwing", () => {
     const validPayloads: readonly (readonly [ArtifactModule, unknown])[] = [
       [mesh, validMesh()],

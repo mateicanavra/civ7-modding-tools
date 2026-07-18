@@ -107,13 +107,10 @@ export type StepDeps<
   /**
    * Canonical dependency surface for artifacts.
    *
-   * Buffer artifacts are a temporary exception: they are published once and then
-   * mutated in-place via ctx.buffers without re-publishing.
-   * TODO(architecture): redesign buffers as a distinct dependency kind (not artifacts).
+   * Legacy mutable buffer aliases retire into explicit artifact vintages rather
+   * than becoming a second dependency authority.
    */
   artifacts: StepArtifactsSurface<TContext, TArtifacts>;
-  fields: unknown;
-  effects: unknown;
 }>;
 
 type StepContractAny = StepContract<any, any, any, any>;

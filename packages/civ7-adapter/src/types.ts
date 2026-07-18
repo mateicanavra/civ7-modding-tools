@@ -886,12 +886,3 @@ export interface ContinentBounds {
   north: number;
   continent?: number;
 }
-
-/**
- * Map context for passing state between generation stages
- */
-export interface MapContext {
-  dimensions: MapDimensions;
-  adapter: EngineAdapter;
-  config: Record<string, unknown>;
-}

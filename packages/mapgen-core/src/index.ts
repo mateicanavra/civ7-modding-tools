@@ -12,7 +12,7 @@
  */
 
 // Re-export core types from adapter
-export type { EngineAdapter, MapContext } from "@civ7/adapter";
+export type { EngineAdapter } from "@civ7/adapter";
 
 // Re-export core utilities and types
 export * from "@mapgen/core/index.js";

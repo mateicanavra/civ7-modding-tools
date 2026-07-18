@@ -78,8 +78,8 @@ FOUNDATION provides the following artifact dependency tags (all `artifact:*`).
 - `artifact:foundation.plateTopology`
 
 **Ground truth anchors**
-- `packages/mapgen-core/src/core/types.ts` (`FOUNDATION_MESH_ARTIFACT_TAG`, `FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG`, `FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG`, `FOUNDATION_CRUST_ARTIFACT_TAG`, `FOUNDATION_PLATE_MOTION_ARTIFACT_TAG`, `FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG`, `FOUNDATION_TECTONICS_ARTIFACT_TAG`, `FOUNDATION_TILE_TO_CELL_INDEX_ARTIFACT_TAG`, `FOUNDATION_CRUST_TILES_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG`, `FOUNDATION_PLATES_ARTIFACT_TAG`)
-- `mods/mod-swooper-maps/src/domain/foundation/artifacts/index.ts` (`artifacts.tectonicSegments`, `artifacts.tectonicHistory`, `artifacts.plateTopology`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/index.ts` (the Foundation domain artifact catalog)
+- `mods/mod-swooper-maps/src/recipes/standard/artifacts/index.ts` (the Standard recipe projection artifact catalog)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/steps/mesh.contract.ts` (`MeshStepContract.artifacts.provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/steps/crust.contract.ts` (`CrustStepContract.artifacts.requires/provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/steps/plateGraph.contract.ts` (`PlateGraphStepContract.artifacts.requires/provides`)
@@ -310,7 +310,7 @@ Key fields (per tile):
 - `movementU`, `movementV`, `rotation` (i8; `-127..127`) scaled from plate kinematics
 
 **Ground truth anchors**
-- `packages/mapgen-core/src/core/types.ts` (`FoundationPlateFields`)
+- `mods/mod-swooper-maps/src/recipes/standard/artifacts/foundation-plates.artifact.ts` (`Schema`, artifact identity, and cardinality validator)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (`PlatesTilesSchema`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts` (`projectPlatesFromModel`, `boundaryCloseness`, `tectonicStress`, motion scaling)
 

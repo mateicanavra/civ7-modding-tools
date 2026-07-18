@@ -145,8 +145,6 @@ function buildStepDeps<TContext extends ExtendedMapContext>(
 ): StepDeps<TContext, typeof authored.contract.artifacts> {
   return {
     artifacts: buildArtifactDeps(authored, fullStepId, recipeId),
-    fields: {},
-    effects: {},
   } as StepDeps<TContext, typeof authored.contract.artifacts>;
 }
 
