@@ -3,7 +3,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { artifacts as hydrologyClimateBaselineArtifacts } from "../../hydrology-climate-baseline/artifacts/index.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
-import { artifacts as hydrologyClimateRefineArtifacts } from "../artifacts/index.js";
+import { artifactModules as hydrologyClimateRefineArtifactModules } from "../artifacts/index.js";
 
 /**
  * Hydrology refinement + diagnostics step (bounded, deterministic).
@@ -40,9 +40,9 @@ const ClimateRefineStepContract = defineStep({
       hydrologyHydrographyArtifacts.hydrography,
     ],
     provides: [
-      hydrologyClimateRefineArtifacts.climateIndices,
-      hydrologyClimateRefineArtifacts.cryosphere,
-      hydrologyClimateRefineArtifacts.climateDiagnostics,
+      hydrologyClimateRefineArtifactModules.climateIndices,
+      hydrologyClimateRefineArtifactModules.cryosphere,
+      hydrologyClimateRefineArtifactModules.climateDiagnostics,
     ],
   },
   ops: {

@@ -1,4 +1,6 @@
-import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import foundation, {
+  artifactModules as foundationArtifactModules,
+} from "@mapgen/domain/foundation";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { artifacts as standardArtifacts } from "../../../artifacts/index.js";
 
@@ -14,7 +16,7 @@ const PlateTopologyStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [standardArtifacts.foundationPlates],
-    provides: [foundationArtifacts.plateTopology],
+    provides: [foundationArtifactModules.plateTopology],
   },
   ops: {
     computePlateTopology: foundation.ops.computePlateTopology,

@@ -1,12 +1,16 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import { type ArtifactContract, ArtifactMissingError } from "@swooper/mapgen-core/authoring";
+import {
+  type ArtifactContract,
+  ArtifactMissingError,
+  type ArtifactModule,
+} from "@swooper/mapgen-core/authoring";
 
 type TestableStep = Readonly<{
   contract: Readonly<{
     id: string;
     artifacts?: Readonly<{
       requires?: readonly ArtifactContract[];
-      provides?: readonly ArtifactContract[];
+      provides?: readonly ArtifactModule[];
     }>;
   }>;
   artifacts?: Readonly<Record<string, unknown>>;
@@ -59,7 +63,7 @@ export function buildTestDeps<TStep>(step: TStep & TestableStep): StepDependenci
     depsArtifacts[contract.name] = createRequiredRuntime<StepContext<TStep>>(contract, stepId);
   }
 
-  for (const contract of artifacts?.provides ?? []) {
+  for (const { artifact: contract } of artifacts?.provides ?? []) {
     const runtime = step.artifacts?.[contract.name as keyof typeof step.artifacts];
     if (!runtime) {
       throw new Error(

@@ -1,7 +1,9 @@
 import morphology from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
+import {
+  artifactModules as morphologyArtifactModules,
+  artifacts as morphologyArtifacts,
+} from "../../morphology/artifacts/index.js";
 
 /**
  * Produces coastline metrics and applies ruggedization adjustments.
@@ -13,7 +15,7 @@ const RuggedCoastsStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [morphologyArtifacts.beltDrivers, morphologyArtifacts.topography],
-    provides: [morphologyArtifacts.coastlineMetrics],
+    provides: [morphologyArtifactModules.coastlineMetrics],
   },
   ops: {
     coastlines: morphology.ops.computeCoastlineMetrics,

@@ -1,7 +1,10 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
+import {
+  artifactModules as placementArtifactModules,
+  artifacts as placementArtifacts,
+} from "../../artifacts/index.js";
 
 /**
  * Natural wonders are a placement product boundary, not a maintenance helper.
@@ -17,7 +20,7 @@ const PlaceNaturalWondersStepContract = defineStep({
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced],
   artifacts: {
     requires: [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],
-    provides: [placementArtifacts.naturalWonderPlacement],
+    provides: [placementArtifactModules.naturalWonderPlacement],
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

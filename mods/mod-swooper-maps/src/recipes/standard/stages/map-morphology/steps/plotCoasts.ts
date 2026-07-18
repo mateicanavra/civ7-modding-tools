@@ -15,7 +15,6 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
-import { artifactModules as mapMorphologyArtifactModules } from "../artifacts/index.js";
 import PlotCoastsStepContract from "./plotCoasts.contract.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
@@ -26,10 +25,6 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * engine snapshot and classification required by continent validation.
  */
 export default createStep(PlotCoastsStepContract, {
-  artifacts: [
-    mapMorphologyArtifactModules.coastClassification,
-    mapMorphologyArtifactModules.coastEngineTerrainSnapshot,
-  ],
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const shelf = deps.artifacts.shelf.read(context);

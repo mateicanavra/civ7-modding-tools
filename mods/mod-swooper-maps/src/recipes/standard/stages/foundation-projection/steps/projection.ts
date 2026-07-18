@@ -5,7 +5,6 @@ import {
   renderAsciiGrid,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as standardArtifactModules } from "../../../artifacts/index.js";
 import ProjectionStepContract from "./projection.contract.js";
 
 const GROUP_PLATES = "Foundation / Plates";
@@ -20,13 +19,6 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * tile artifacts while leaving terrain shaping to Morphology.
  */
 export default createStep(ProjectionStepContract, {
-  artifacts: [
-    standardArtifactModules.foundationPlates,
-    standardArtifactModules.foundationTileToCellIndex,
-    standardArtifactModules.foundationCrustTiles,
-    standardArtifactModules.foundationTectonicHistoryTiles,
-    standardArtifactModules.foundationTectonicProvenanceTiles,
-  ],
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const mesh = deps.artifacts.foundationMesh.read(context);

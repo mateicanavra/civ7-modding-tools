@@ -1,7 +1,6 @@
 import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
-import { artifactModules as ecologyArtifactModules } from "../../../ecology/artifacts/index.js";
 import PedologyStepContract from "./contract.js";
 
 const GROUP_PEDOLOGY = "Ecology / Pedology";
@@ -45,7 +44,6 @@ function computeLocalReliefProxy(args: {
  * baseline climate so biome and resource-basin consumers share one soil vintage.
  */
 export default createStep(PedologyStepContract, {
-  artifacts: [ecologyArtifactModules.pedology],
   run: (context, config, ops, deps) => {
     const climateField = deps.artifacts.climateField.read(context);
     const topography = deps.artifacts.topography.read(context);

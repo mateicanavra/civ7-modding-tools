@@ -1,6 +1,5 @@
 import { ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as ecologyArtifactModules } from "../../../ecology/artifacts/index.js";
 import PlanFloodplainsStepContract from "./contract.js";
 
 const FLOODPLAIN_FEATURE_INTENTS = new Set([
@@ -23,10 +22,6 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * publishes the reserved-tile snapshot that gates ice planning.
  */
 export default createStep(PlanFloodplainsStepContract, {
-  artifacts: [
-    ecologyArtifactModules.featureIntentsFloodplains,
-    ecologyArtifactModules.occupancyFloodplains,
-  ],
   run: (context, config, ops, deps) => {
     const base = deps.artifacts.occupancyBase.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);

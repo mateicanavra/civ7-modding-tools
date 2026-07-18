@@ -1,6 +1,4 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
-
-import { artifactModules as ecologyArtifactModules } from "../../../ecology/artifacts/index.js";
 import PlanPlotEffectsStepContract from "./contract.js";
 import { logSnowEligibilitySummary } from "./diagnostics.js";
 import { buildPlotEffectsInput } from "./inputs.js";
@@ -10,7 +8,6 @@ import { buildPlotEffectsInput } from "./inputs.js";
  * a deterministic intent plan; map-ecology alone applies that plan to Civ7.
  */
 export default createStep(PlanPlotEffectsStepContract, {
-  artifacts: [ecologyArtifactModules.plotEffectPlan],
   run: (context, config, ops, deps) => {
     const artifacts = {
       classification: deps.artifacts.biomeClassification.read(context),

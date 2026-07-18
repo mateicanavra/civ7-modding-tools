@@ -31,7 +31,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tag-contracts.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts/index.js";
 import { artifacts as mapMorphologyArtifacts } from "../../map-morphology/artifacts/index.js";
-import { artifacts as mapRiversArtifacts } from "../artifacts/index.js";
+import { artifactModules as mapRiversArtifactModules } from "../artifacts/index.js";
 
 export default defineStep({
   id: "plot-rivers",
@@ -49,9 +49,9 @@ export default defineStep({
       mapMorphologyArtifacts.coastClassification,
     ],
     provides: [
-      mapRiversArtifacts.projectedNavigableRivers,
-      mapRiversArtifacts.engineProjectionRivers,
-      mapRiversArtifacts.riversEngineTerrainSnapshot,
+      mapRiversArtifactModules.projectedNavigableRivers,
+      mapRiversArtifactModules.engineProjectionRivers,
+      mapRiversArtifactModules.riversEngineTerrainSnapshot,
     ],
   },
   schema: Type.Object({}),
@@ -64,26 +64,19 @@ A step module pairs a step contract with an implementation:
 
 - optional `normalize(config, ctx)` hook (must be shape-preserving)
 - `run(context, config, ops, deps)` implementation
-- an `artifacts` module tuple that exactly matches the contract's nonempty
-  `artifacts.provides` declaration
 
-`createStep` verifies provider identity and set equality, then derives the runtime map.
-Steps with no provided artifacts, an empty provides tuple, or requires-only artifact
-dependencies omit the implementation artifact surface.
+`createStep` derives the provider runtime map from the modules already admitted by the
+step contract. Implementations cannot declare a second artifact-provider surface. Steps
+with no provided artifacts, an empty provides tuple, or requires-only artifact dependencies
+have no provider runtime map.
 
 Representative example (createStep boundary; excerpt; see full file in anchors):
 
 ```ts
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as mapRiversArtifactModules } from "../artifacts/index.js";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 
 export default createStep(PlotRiversStepContract, {
-  artifacts: [
-    mapRiversArtifactModules.projectedNavigableRivers,
-    mapRiversArtifactModules.engineProjectionRivers,
-    mapRiversArtifactModules.riversEngineTerrainSnapshot,
-  ],
   normalize: (config, ctx) => {
     // Shape-preserving; may use ctx.knobs deterministically. For rivers, this
     // is where map-rivers navigableRiverDensity resolves the Hydrology-owned

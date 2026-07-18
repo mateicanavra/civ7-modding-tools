@@ -7,7 +7,7 @@ import { artifacts as hydrologyClimateRefineArtifacts } from "../../../hydrology
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
 import { artifacts as mapRiversArtifacts } from "../../../map-rivers/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
+import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 
 /**
  * Resource planning (placement-realignment S3): habitat-lane derivation +
@@ -45,9 +45,9 @@ const PlanResourcesStepContract = defineStep({
       standardArtifacts.landmassRegionSlotByTile,
     ],
     provides: [
-      placementArtifacts.resourceDemandPlan,
-      placementArtifacts.resourcePlan,
-      placementArtifacts.resourceEligibility,
+      placementArtifactModules.resourceDemandPlan,
+      placementArtifactModules.resourcePlan,
+      placementArtifactModules.resourceEligibility,
     ],
   },
   ops: {

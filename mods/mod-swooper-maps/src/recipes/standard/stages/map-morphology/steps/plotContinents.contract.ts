@@ -2,7 +2,10 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tag-contracts.js";
 import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
-import { artifacts as mapMorphologyArtifacts } from "../artifacts/index.js";
+import {
+  artifactModules as mapMorphologyArtifactModules,
+  artifacts as mapMorphologyArtifacts,
+} from "../artifacts/index.js";
 
 /**
  * Defines continent projection after `coastsPlotted`, preventing the implementation from
@@ -15,7 +18,7 @@ const PlotContinentsStepContract = defineStep({
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   artifacts: {
     requires: [morphologyArtifacts.topography, mapMorphologyArtifacts.coastClassification],
-    provides: [mapMorphologyArtifacts.continentValidationTerrainSnapshot],
+    provides: [mapMorphologyArtifactModules.continentValidationTerrainSnapshot],
   },
   schema: Type.Object({}),
 });

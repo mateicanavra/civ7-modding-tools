@@ -1,4 +1,3 @@
-import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
@@ -93,7 +92,6 @@ function buildVectorSegments(params: {
  * all subsequent tectonic history uses this published motion vintage.
  */
 export default createStep(PlateMotionStepContract, {
-  artifacts: [foundationArtifactModules.plateMotion],
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const plateGraph = deps.artifacts.foundationPlateGraph.read(context);

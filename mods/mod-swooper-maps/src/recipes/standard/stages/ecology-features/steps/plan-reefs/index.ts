@@ -1,6 +1,5 @@
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as ecologyArtifactModules } from "../../../ecology/artifacts/index.js";
 import PlanReefsStepContract from "./contract.js";
 
 const REEF_FEATURE_INTENTS = new Set(["reef", "cold-reef", "atoll", "lotus"]);
@@ -10,7 +9,6 @@ const REEF_FEATURE_INTENTS = new Set(["reef", "cold-reef", "atoll", "lotus"]);
  * advances the deterministic reservation chain to wetland planning.
  */
 export default createStep(PlanReefsStepContract, {
-  artifacts: [ecologyArtifactModules.featureIntentsReefs, ecologyArtifactModules.occupancyReefs],
   run: (context, config, ops, deps) => {
     const prev = deps.artifacts.occupancyIce.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);

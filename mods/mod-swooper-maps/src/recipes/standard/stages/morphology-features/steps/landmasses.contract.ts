@@ -1,7 +1,9 @@
 import morphology from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
+import {
+  artifactModules as morphologyArtifactModules,
+  artifacts as morphologyArtifacts,
+} from "../../morphology/artifacts/index.js";
 
 /**
  * Publishes the landmass decomposition artifact from the final land mask.
@@ -13,7 +15,7 @@ const LandmassesStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [morphologyArtifacts.topography],
-    provides: [morphologyArtifacts.landmasses],
+    provides: [morphologyArtifactModules.landmasses],
   },
   ops: {
     landmasses: morphology.ops.computeLandmasses,

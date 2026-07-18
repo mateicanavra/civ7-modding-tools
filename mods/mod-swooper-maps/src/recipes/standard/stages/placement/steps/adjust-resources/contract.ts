@@ -3,7 +3,10 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { artifacts as standardArtifacts } from "../../../../artifacts/index.js";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
+import {
+  artifactModules as placementArtifactModules,
+  artifacts as placementArtifacts,
+} from "../../artifacts/index.js";
 
 /**
  * Resource↔start support pass (placement-realignment S5, D3 contract change).
@@ -28,7 +31,7 @@ const AdjustResourcesStepContract = defineStep({
       standardArtifacts.landmassRegionSlotByTile,
       morphologyArtifacts.landmasses,
     ],
-    provides: [placementArtifacts.resourcePlanAdjusted],
+    provides: [placementArtifactModules.resourcePlanAdjusted],
   },
   ops: {
     support: resources.ops.adjustResourceSupport,

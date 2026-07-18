@@ -1,4 +1,3 @@
-import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
 import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/model/policy/plate-activity.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
@@ -27,12 +26,6 @@ const BOUNDARY_TYPE_CATEGORIES = [
  * current fields, and provenance as one coherent vintage.
  */
 export default createStep(TectonicsStepContract, {
-  artifacts: [
-    foundationArtifactModules.tectonicSegments,
-    foundationArtifactModules.tectonicHistory,
-    foundationArtifactModules.tectonicProvenance,
-    foundationArtifactModules.currentTectonics,
-  ],
   normalize: (config, ctx) => {
     // plateActivity (foundation-tectonics knob) scales orogeny emission intensity
     // in the per-era field op — AFTER regime classification — so the lever is smooth

@@ -2,7 +2,6 @@ import { OFFICIAL_RESOURCE_BY_TYPE, type OfficialResourceType } from "@civ7/map-
 import { defineVizMeta, deriveStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
-import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import { warnLog } from "../../log.js";
 import {
   buildPlacementPointBuffers,
@@ -45,7 +44,6 @@ const SUPPORT_ADJUSTMENT_CATEGORIES = [
  * before stamping while preserving typed provenance and explicit shortfalls.
  */
 export default createStep(AdjustResourcesStepContract, {
-  artifacts: [placementArtifactModules.resourcePlanAdjusted],
   run: (context, config, ops, deps) => {
     const plan = deps.artifacts.resourcePlan.read(context);
     const eligibility = deps.artifacts.resourceEligibility.read(context);

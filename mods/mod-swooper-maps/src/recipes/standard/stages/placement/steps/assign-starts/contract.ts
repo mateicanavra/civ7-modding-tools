@@ -5,7 +5,10 @@ import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
+import {
+  artifactModules as placementArtifactModules,
+  artifacts as placementArtifacts,
+} from "../../artifacts/index.js";
 
 /**
  * S5 (D3 contract change): starts assign against the resource PLAN, not the
@@ -33,7 +36,7 @@ const AssignStartsStepContract = defineStep({
       ecologyArtifacts.biomeClassification,
       ecologyArtifacts.pedology,
     ],
-    provides: [placementArtifacts.startAssignment],
+    provides: [placementArtifactModules.startAssignment],
   },
   ops: {
     starts: placement.ops.planStarts,

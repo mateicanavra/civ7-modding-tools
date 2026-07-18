@@ -1,4 +1,3 @@
-import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY } from "../../foundation/viz.js";
@@ -11,7 +10,6 @@ const GROUP_CRUST = "Foundation / Crust";
  * final crust vintage consumed by Morphology, without projecting history as relief.
  */
 export default createStep(CrustEvolutionStepContract, {
-  artifacts: [foundationArtifactModules.crust],
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const crustInit = deps.artifacts.foundationCrustInit.read(context);

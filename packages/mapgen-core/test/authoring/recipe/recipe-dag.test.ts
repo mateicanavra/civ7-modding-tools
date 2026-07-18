@@ -61,6 +61,10 @@ function step(input: {
     ReturnType<typeof defineArtifact>,
     ...ReturnType<typeof defineArtifact>[],
   ];
+  const artifactModules = providedArtifacts.map((artifact) => ({
+    artifact,
+    validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
+  }));
   const contract = defineStep({
     id: input.id,
     phase: input.phase,
@@ -68,15 +72,11 @@ function step(input: {
     provides: [],
     artifacts: {
       requires,
-      provides: providedArtifacts,
+      provides: artifactModules,
     },
     schema: EmptyStepConfigSchema,
   });
-  const artifacts = providedArtifacts.map((artifact) => ({
-    artifact,
-    validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
-  }));
-  return createStep(contract, { artifacts, run: () => {} });
+  return createStep(contract, { run: () => {} });
 }
 
 function stage(id: string, steps: readonly ReturnType<typeof step>[]) {

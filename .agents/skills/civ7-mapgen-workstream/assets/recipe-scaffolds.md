@@ -204,7 +204,9 @@ is kebab-case (`/^[a-z0-9]+(?:-[a-z0-9]+)*$/`). The reference no-ops step is
 import someDomain from "@mapgen/domain/<domain>";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { artifacts as myStageArtifacts } from "../../artifacts/index.js";
+import {
+  artifactModules as myStageArtifactModules,
+} from "../../artifacts/index.js";
 import { artifacts as otherArtifacts } from "../../../<other-stage>/artifacts/index.js";
 
 const MyStepContract = defineStep({
@@ -214,7 +216,7 @@ const MyStepContract = defineStep({
   provides: ["effect:some.provided.tag"],
   artifacts: {
     requires: [otherArtifacts.someInput],
-    provides: [myStageArtifacts.surfaceMask],
+    provides: [myStageArtifactModules.surfaceMask],
   },
   ops: {
     myOp: someDomain.ops.myOpName,
@@ -231,12 +233,9 @@ auto-typed op envelope; artifacts are read/published via `deps.artifacts.<name>`
 ```ts
 // steps/<step-name>/index.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as myStageArtifactModules } from "../../artifacts/index.js";
 import MyStepContract from "./contract.js";
 
 export default createStep(MyStepContract, {
-  // Required ONLY if this step provides artifacts:
-  artifacts: [myStageArtifactModules.surfaceMask],
   // optional: normalize: (config, ctx) => config,
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
@@ -252,11 +251,13 @@ export default createStep(MyStepContract, {
    `standardStageContractManifest` (position = within-stage execution order).
 2. The stage's `index.ts` — add the runtime step to `orderStandardStageSteps(...)`.
 
-> Gotchas: do NOT add `artifact:` ids to the top-level `requires`/`provides` arrays when
-> you also use `artifacts: { requires, provides }` — `defineStep` merges artifact ids
-> automatically and throws if you double-list. Op keys in `ops:` must NOT collide with
-> any key in `schema:` — `defineStep` throws on collision. `orderStandardStageSteps`
-> throws if a runtime step id is absent from the manifest for that stage.
+> Gotchas: `artifacts.requires` selects artifact contracts, while `artifacts.provides`
+> selects artifact modules so the contract and semantic validator have one authoring owner.
+> `createStep` binds behavior only and derives publication runtimes from the contract. Do
+> NOT add `artifact:` ids to the top-level `requires`/`provides` arrays — `defineStep`
+> merges them automatically and throws if you double-list. Op keys in `ops:` must NOT
+> collide with any key in `schema:` — `defineStep` throws on collision.
+> `orderStandardStageSteps` throws if a runtime step id is absent from the manifest.
 
 ---
 
@@ -429,19 +430,19 @@ export const artifacts = catalog.artifacts;
 
 **Wire the same module authority through a step (write-once publish, read by consumers):**
 ```ts
-// producing step contract: artifacts: { provides: [myStageArtifacts.surfaceMask] }
-// producing step runtime: artifacts: [myStageArtifactModules.surfaceMask]
+// producing step contract: artifacts: { provides: [myStageArtifactModules.surfaceMask] }
 deps.artifacts.surfaceMask.publish(context, { width, height, landMask });
 
 // consuming step contract: artifacts: { requires: [myStageArtifacts.surfaceMask] }
 const value = deps.artifacts.surfaceMask.read(context);
 ```
 
-`createStep` admits the selected modules and derives the producer runtimes. The lower-level
+`defineStep` admits and snapshots the selected modules; `createStep` derives producer runtimes
+from that contract while binding behavior only. The lower-level
 `implementArtifactModules` helper is Core runtime/test support, not normal recipe authoring.
 
 > Id namespaces seen in live source: `artifact:<domain>.<name>` (e.g.
-> `artifact:morphology.topography`, `artifact:ecology.biomeClassification`) for truth
+> `artifact:morphology.topography`, `artifact:ecology.biomeClassification`) for domain
 > artifacts, and `artifact:map.<name>` (e.g. `artifact:map.morphology.coastClassification`)
 > for map-level/projection artifacts. There are also `field:<name>` and `effect:<name>`
 > tags — `effect:*` tags express ordering dependencies in `requires`/`provides`, distinct

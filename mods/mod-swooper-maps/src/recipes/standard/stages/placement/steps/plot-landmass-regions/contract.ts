@@ -1,5 +1,5 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { artifacts as standardArtifacts } from "../../../../artifacts/index.js";
+import { artifactModules as standardArtifactModules } from "../../../../artifacts/index.js";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tag-contracts.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 
@@ -14,7 +14,10 @@ const PlotLandmassRegionsStepContract = defineStep({
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.landmassRegionsPlotted],
   artifacts: {
     requires: [morphologyArtifacts.topography, morphologyArtifacts.landmasses],
-    provides: [standardArtifacts.projectionMeta, standardArtifacts.landmassRegionSlotByTile],
+    provides: [
+      standardArtifactModules.projectionMeta,
+      standardArtifactModules.landmassRegionSlotByTile,
+    ],
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

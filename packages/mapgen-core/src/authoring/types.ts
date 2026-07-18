@@ -1,10 +1,8 @@
 import type { ExtendedMapContext } from "@mapgen/core/types.js";
 
 import type {
-  DependencyTag,
   Env,
   ExecutionPlan,
-  GenerationPhase,
   NormalizeContext,
   RecipeV2,
   RunRequest,
@@ -33,50 +31,46 @@ type ArtifactByName<T extends readonly ArtifactContract[], K extends string> = E
   { name: K }
 >;
 
+type ArtifactContractsOfModules<T extends readonly ArtifactModule[]> = {
+  readonly [K in keyof T]: T[K] extends ArtifactModule<infer C> ? C : never;
+};
+
+/** Provider runtimes keyed by the artifact names carried by a step's admitted modules. */
 export type StepProvidedArtifactsRuntime<
   TContext extends ExtendedMapContext,
   TArtifacts extends StepArtifactsDeclAny | undefined,
 > =
   TArtifacts extends StepArtifactsDecl<any, infer Provides>
-    ? Provides extends readonly ArtifactContract[]
+    ? Provides extends readonly ArtifactModule[]
       ? {
-          [K in ArtifactNameOf<Provides>]: ProvidedArtifactRuntime<
-            ArtifactByName<Provides, K>,
+          [K in ArtifactNameOf<ArtifactContractsOfModules<Provides>>]: ProvidedArtifactRuntime<
+            ArtifactByName<ArtifactContractsOfModules<Provides>, K>,
             TContext
           >;
         }
       : {}
     : {};
 
-type StepArtifactProvides<TArtifacts extends StepArtifactsDeclAny | undefined> =
-  TArtifacts extends StepArtifactsDecl<any, infer Provides> ? Provides : undefined;
-
-/** Author input that names the modules owning every artifact publication declared by a step. */
-export type StepArtifactModulesInput<TArtifacts extends StepArtifactsDeclAny | undefined> = [
-  StepArtifactProvides<TArtifacts>,
-] extends [undefined]
-  ? Readonly<{ artifacts?: never }>
-  : StepArtifactProvides<TArtifacts> extends readonly []
-    ? Readonly<{ artifacts?: never }>
-    : StepArtifactProvides<TArtifacts> extends readonly ArtifactContract[]
-      ? Readonly<{
-          artifacts: readonly ArtifactModule<StepArtifactProvides<TArtifacts>[number]>[];
-        }>
-      : Readonly<{ artifacts?: never }>;
-
 /** Runtime publication surface derived by `createStep` from the author's artifact modules. */
 export type StepArtifactRuntimes<
   TContext extends ExtendedMapContext,
   TArtifacts extends StepArtifactsDeclAny | undefined,
-> = [StepArtifactProvides<TArtifacts>] extends [undefined]
-  ? Readonly<{ artifacts?: never }>
-  : StepArtifactProvides<TArtifacts> extends readonly []
-    ? Readonly<{ artifacts?: never }>
-    : StepArtifactProvides<TArtifacts> extends readonly ArtifactContract[]
-      ? Readonly<{
-          artifacts: StepProvidedArtifactsRuntime<TContext, TArtifacts>;
-        }>
-      : Readonly<{ artifacts?: never }>;
+> =
+  TArtifacts extends StepArtifactsDecl<any, infer Provides>
+    ? [Provides] extends [undefined]
+      ? Readonly<{ artifacts?: never }>
+      : Provides extends readonly []
+        ? Readonly<{ artifacts?: never }>
+        : Provides extends readonly ArtifactModule[]
+          ? number extends Provides["length"]
+            ? Readonly<{
+                artifacts?: StepProvidedArtifactsRuntime<TContext, TArtifacts>;
+              }>
+            : Readonly<{
+                artifacts: StepProvidedArtifactsRuntime<TContext, TArtifacts>;
+              }>
+          : Readonly<{ artifacts?: never }>
+    : Readonly<{ artifacts?: never }>;
 
 type ArtifactListOrEmpty<T> = T extends readonly ArtifactContract[] ? T : readonly [];
 
@@ -91,8 +85,15 @@ type StepArtifactsSurface<
           TContext
         >;
       } & {
-        [K in ArtifactNameOf<ArtifactListOrEmpty<Provides>>]: ProvidedArtifactRuntime<
-          ArtifactByName<ArtifactListOrEmpty<Provides>, K>,
+        [K in Provides extends readonly ArtifactModule[]
+          ? ArtifactNameOf<ArtifactContractsOfModules<Provides>>
+          : never]: ProvidedArtifactRuntime<
+          ArtifactByName<
+            Provides extends readonly ArtifactModule[]
+              ? ArtifactContractsOfModules<Provides>
+              : readonly [],
+            K
+          >,
           TContext
         >;
       }

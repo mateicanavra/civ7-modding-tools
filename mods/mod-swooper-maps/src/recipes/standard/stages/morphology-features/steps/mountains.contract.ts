@@ -1,7 +1,9 @@
 import morphology from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
+import {
+  artifactModules as morphologyArtifactModules,
+  artifacts as morphologyArtifacts,
+} from "../../morphology/artifacts/index.js";
 
 /**
  * Mountain planning is Morphology truth, not map projection.
@@ -23,7 +25,7 @@ const MountainsStepContract = defineStep({
       morphologyArtifacts.routing,
       morphologyArtifacts.coastlineMetrics,
     ],
-    provides: [morphologyArtifacts.mountains],
+    provides: [morphologyArtifactModules.mountains],
   },
   ops: {
     ridges: morphology.ops.planRidges,

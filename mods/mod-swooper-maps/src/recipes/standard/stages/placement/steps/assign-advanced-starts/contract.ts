@@ -1,7 +1,7 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
+import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 
 /**
  * Engine-owned advanced-start pass. Ordering after discoveries is carried by
@@ -14,7 +14,7 @@ const AssignAdvancedStartsStepContract = defineStep({
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.discoveriesPlaced],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned],
   artifacts: {
-    provides: [placementArtifacts.advancedStartAssignment],
+    provides: [placementArtifactModules.advancedStartAssignment],
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

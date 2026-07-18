@@ -6,7 +6,6 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
-import { artifactModules as mapElevationArtifactModules } from "../artifacts/index.js";
 import BuildElevationStepContract from "./buildElevation.contract.js";
 
 const GROUP_MAP_ELEVATION = "Map / Elevation (Engine)";
@@ -17,7 +16,6 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * then captures terrain readback for physics-to-engine parity checks.
  */
 export default createStep(BuildElevationStepContract, {
-  artifacts: [mapElevationArtifactModules.elevationEngineTerrainSnapshot],
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const projectedLakes = deps.artifacts.engineProjectionLakes.read(context);

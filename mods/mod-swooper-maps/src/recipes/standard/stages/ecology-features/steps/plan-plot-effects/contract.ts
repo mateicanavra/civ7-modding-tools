@@ -1,7 +1,9 @@
 import ecology from "@mapgen/domain/ecology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../../ecology/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 
 /**
@@ -18,7 +20,7 @@ const PlanPlotEffectsStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [morphologyArtifacts.topography, ecologyArtifacts.biomeClassification],
-    provides: [ecologyArtifacts.plotEffectPlan],
+    provides: [ecologyArtifactModules.plotEffectPlan],
   },
   ops: {
     scoreSnow: ecology.ops.scorePlotEffectsSnow,

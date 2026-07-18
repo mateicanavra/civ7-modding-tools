@@ -21,7 +21,6 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
-import { artifactModules as hydrologyClimateBaselineArtifactModules } from "../artifacts/index.js";
 import ClimateBaselineStepContract from "./climateBaseline.contract.js";
 
 type HydrologyDrynessKnob = "wet" | "mix" | "dry";
@@ -52,11 +51,6 @@ function getSeasonPhases(modeCount: 2 | 4): readonly number[] {
  * over final topography, publishing climate, seasonality, and winds together.
  */
 export default createStep(ClimateBaselineStepContract, {
-  artifacts: [
-    hydrologyClimateBaselineArtifactModules.climateField,
-    hydrologyClimateBaselineArtifactModules.climateSeasonality,
-    hydrologyClimateBaselineArtifactModules.windField,
-  ],
   normalize: (config, ctx) => {
     const { dryness, temperature, seasonality, oceanCoupling } = ctx.knobs as Readonly<{
       dryness: HydrologyDrynessKnob;

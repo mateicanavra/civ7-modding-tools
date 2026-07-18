@@ -1,8 +1,6 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as standardArtifactModules } from "../../../../artifacts/index.js";
 import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
-import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import {
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
@@ -23,10 +21,6 @@ import {
  * storage, and region restamping required before placement products read Civ7.
  */
 export default createStep(PreparePlacementSurfaceStepContract, {
-  artifacts: [
-    placementArtifactModules.placementSurfacePreparation,
-    standardArtifactModules.placementSurfaceValidationBoundary,
-  ],
   run: (context, _config, _ops, deps) => {
     const engineProjectionLakes = deps.artifacts.engineProjectionLakes.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);

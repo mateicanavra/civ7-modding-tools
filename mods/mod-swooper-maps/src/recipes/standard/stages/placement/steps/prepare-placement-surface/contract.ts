@@ -1,12 +1,15 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { artifacts as standardArtifacts } from "../../../../artifacts/index.js";
+import {
+  artifactModules as standardArtifactModules,
+  artifacts as standardArtifacts,
+} from "../../../../artifacts/index.js";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
 import { artifacts as mapHydrologyArtifacts } from "../../../map-hydrology/artifacts/index.js";
 import { artifacts as mapMorphologyArtifacts } from "../../../map-morphology/artifacts/index.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
+import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 
 /**
  * Surface preparation is the transactional boundary that makes the engine safe
@@ -32,8 +35,8 @@ const PreparePlacementSurfaceStepContract = defineStep({
       mapMorphologyArtifacts.coastClassification,
     ],
     provides: [
-      placementArtifacts.placementSurfacePreparation,
-      standardArtifacts.placementSurfaceValidationBoundary,
+      placementArtifactModules.placementSurfacePreparation,
+      standardArtifactModules.placementSurfaceValidationBoundary,
     ],
   },
   schema: Type.Object({}, { additionalProperties: false }),

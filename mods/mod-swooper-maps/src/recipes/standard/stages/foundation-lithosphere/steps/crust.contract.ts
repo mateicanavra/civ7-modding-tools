@@ -1,4 +1,7 @@
-import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import foundation, {
+  artifactModules as foundationArtifactModules,
+  artifacts as foundationArtifacts,
+} from "@mapgen/domain/foundation";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -13,7 +16,7 @@ const CrustStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [foundationArtifacts.mesh, foundationArtifacts.mantleForcing],
-    provides: [foundationArtifacts.crustInit],
+    provides: [foundationArtifactModules.crustInit],
   },
   ops: {
     computeCrust: foundation.ops.computeCrust,

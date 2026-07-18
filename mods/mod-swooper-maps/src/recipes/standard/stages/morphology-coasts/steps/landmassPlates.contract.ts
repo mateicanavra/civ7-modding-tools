@@ -2,7 +2,7 @@ import morphology from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { artifacts as standardArtifacts } from "../../../artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "../../morphology/artifacts/index.js";
 
 /**
  * Seeds morphology buffers from foundation crust + tectonic history (belt drivers + substrate + base topography).
@@ -19,9 +19,9 @@ const LandmassPlatesStepContract = defineStep({
       standardArtifacts.foundationTectonicProvenanceTiles,
     ],
     provides: [
-      morphologyArtifacts.topography,
-      morphologyArtifacts.substrate,
-      morphologyArtifacts.beltDrivers,
+      morphologyArtifactModules.topography,
+      morphologyArtifactModules.substrate,
+      morphologyArtifactModules.beltDrivers,
     ],
   },
   ops: {

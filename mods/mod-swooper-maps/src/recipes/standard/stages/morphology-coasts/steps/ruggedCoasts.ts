@@ -7,7 +7,6 @@ import {
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
-import { artifactModules as morphologyArtifactModules } from "../../morphology/artifacts/index.js";
 import type { MorphologyCoastRuggednessKnob } from "../index.js";
 import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
 
@@ -22,7 +21,6 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  * mountains (stage morphology-features) consumes.
  */
 export default createStep(RuggedCoastsStepContract, {
-  artifacts: [morphologyArtifactModules.coastlineMetrics],
   normalize: (config, ctx) => {
     const { coastRuggedness } = ctx.knobs as Readonly<{
       coastRuggedness?: MorphologyCoastRuggednessKnob;

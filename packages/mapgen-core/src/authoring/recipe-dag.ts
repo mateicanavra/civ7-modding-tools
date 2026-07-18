@@ -1,4 +1,5 @@
 import type { ArtifactContract } from "./artifact/contract.js";
+import type { ArtifactModule } from "./artifact/module.js";
 
 export type RecipeDagArtifactRef = Readonly<{
   id: string;
@@ -91,7 +92,7 @@ export type RecipeDagStepContractInput = Readonly<{
   provides: readonly string[];
   artifacts?: Readonly<{
     requires?: readonly ArtifactContract[];
-    provides?: readonly ArtifactContract[];
+    provides?: readonly ArtifactModule[];
   }>;
 }>;
 
@@ -144,7 +145,7 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
         stepId: step.contract.id,
       });
       const artifactRequires = artifactRefs(step.contract.artifacts?.requires);
-      const artifactProvides = artifactRefs(step.contract.artifacts?.provides);
+      const artifactProvides = artifactModuleRefs(step.contract.artifacts?.provides);
       const dagStep: RecipeDagStep = {
         id: fullStepId,
         stageId: stage.id,
@@ -302,6 +303,12 @@ function computeFullStepId(input: {
 
 function artifactRefs(artifacts: readonly ArtifactContract[] | undefined): RecipeDagArtifactRef[] {
   return (artifacts ?? []).map((artifact) => ({ id: artifact.id, name: artifact.name }));
+}
+
+function artifactModuleRefs(
+  modules: readonly ArtifactModule[] | undefined
+): RecipeDagArtifactRef[] {
+  return artifactRefs(modules?.map((module) => module.artifact));
 }
 
 function collectPhase(

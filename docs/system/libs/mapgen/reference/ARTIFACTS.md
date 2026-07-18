@@ -61,7 +61,8 @@ export function validate(value: unknown): readonly { message: string }[] {
 }
 ```
 
-The adjacent catalog is a separate contract-only selection surface:
+The adjacent catalog is the single selection surface for provider modules and
+consumer handles:
 
 ```ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
@@ -69,19 +70,25 @@ import * as topography from "./topography.artifact.js";
 
 const catalog = defineArtifactCatalog({ topography });
 
-/** Complete topography artifact modules consumed by producer implementations. */
+/** Complete topography artifact modules selected by producer contracts. */
 export const artifactModules = catalog.modules;
 
 /** Read-only topography contract handles derived from the module catalog. */
 export const artifacts = catalog.artifacts;
 ```
 
-Step contracts declare consumer handles from `artifacts`. A producing step passes
-the matching modules directly to `createStep`:
+Step contracts declare consumer requirements from `artifacts` and provider authority
+from `artifactModules`. `createStep` receives behavior only:
 
 ```ts
+const TopographyStepContract = defineStep({
+  // ...id, phase, tags, ops, and schema...
+  artifacts: {
+    provides: [artifactModules.topography],
+  },
+});
+
 createStep(TopographyStepContract, {
-  artifacts: [artifactModules.topography],
   run: (context, config, ops, deps) => {
     const topography = computeTopography(context, config, ops);
     deps.artifacts.topography.publish(context, topography);
@@ -89,9 +96,9 @@ createStep(TopographyStepContract, {
 });
 ```
 
-`createStep` verifies an exact identity match with the contract's declared providers,
-then derives the frozen artifact-name-keyed runtime internally. The module validator is
-the sole admission authority for publication, satisfaction checks, and validated reads.
+`defineStep` snapshots the selected provider modules, and `createStep` derives the frozen
+artifact-name-keyed runtime from that contract authority. The module validator is the sole
+admission authority for publication, satisfaction checks, and validated reads.
 `implementArtifactModules(...)` remains lower-level runtime support; it is not the step
 authoring surface.
 

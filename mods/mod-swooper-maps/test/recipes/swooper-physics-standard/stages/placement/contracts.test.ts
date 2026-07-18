@@ -96,9 +96,9 @@ describe("placement product/effect contracts", () => {
     expect(placeNaturalWondersStep.contract.provides).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced
     );
-    expect(placeNaturalWondersStep.contract.artifacts?.provides).toContain(
-      placementArtifacts.naturalWonderPlacement
-    );
+    expect(
+      placeNaturalWondersStep.contract.artifacts?.provides?.map(({ artifact }) => artifact)
+    ).toContain(placementArtifacts.naturalWonderPlacement);
     expect(preparePlacementSurfaceStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced
     );
@@ -159,9 +159,9 @@ describe("placement product/effect contracts", () => {
     expect(adjustResourcesStep.contract.provides).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesAdjusted
     );
-    expect(adjustResourcesStep.contract.artifacts?.provides).toContain(
-      placementArtifacts.resourcePlanAdjusted
-    );
+    expect(
+      adjustResourcesStep.contract.artifacts?.provides?.map(({ artifact }) => artifact)
+    ).toContain(placementArtifacts.resourcePlanAdjusted);
     expect(placeResourcesStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesAdjusted
     );

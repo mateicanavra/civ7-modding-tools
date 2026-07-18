@@ -1,18 +1,12 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as standardArtifactModules } from "../../../../artifacts/index.js";
-import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import { applyPlacementPlan } from "./apply.js";
 import PlacementStepContract from "./contract.js";
+
 /**
  * Closes placement by assembling all product outcomes and comparing physics
  * truth with engine readback into terminal state and parity evidence.
  */
 export default createStep(PlacementStepContract, {
-  artifacts: [
-    placementArtifactModules.placementOutputs,
-    placementArtifactModules.engineState,
-    standardArtifactModules.placementEngineTerrainSnapshot,
-  ],
   run: (context, _config, _ops, deps) => {
     const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
     const surfacePreparation = deps.artifacts.placementSurfacePreparation.read(context);

@@ -1,7 +1,6 @@
 import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as ecologyArtifactModules } from "../../../ecology/artifacts/index.js";
 import PlanVegetationStepContract from "./contract.js";
 
 const VEGETATION_FEATURE_INTENTS = new Set([
@@ -17,10 +16,6 @@ const VEGETATION_FEATURE_INTENTS = new Set([
  * left by wetlands, preserving the final occupancy snapshot for projection.
  */
 export default createStep(PlanVegetationStepContract, {
-  artifacts: [
-    ecologyArtifactModules.featureIntentsVegetation,
-    ecologyArtifactModules.occupancyVegetation,
-  ],
   run: (context, config, ops, deps) => {
     const prev = deps.artifacts.occupancyWetlands.read(context);
     const classification = deps.artifacts.biomeClassification.read(context);

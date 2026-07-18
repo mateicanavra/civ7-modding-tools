@@ -5,7 +5,10 @@ import {
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../tag-contracts.js";
-import { artifacts as ecologyArtifacts } from "../../ecology/artifacts/index.js";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../ecology/artifacts/index.js";
 import { BiomeEngineBindingsSchema } from "../../map-projection-public-config.js";
 import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
 
@@ -25,7 +28,7 @@ const PlotBiomesStepContract = defineStep({
   ],
   artifacts: {
     requires: [ecologyArtifacts.biomeClassification, morphologyArtifacts.topography],
-    provides: [ecologyArtifacts.biomeBindings],
+    provides: [ecologyArtifactModules.biomeBindings],
   },
   schema: Type.Object(
     {

@@ -14,8 +14,6 @@ import {
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
-
-import { artifactModules as morphologyArtifactModules } from "../../morphology/artifacts/index.js";
 import type { MorphologyOrogenyKnob } from "../index.js";
 import MountainsStepContract from "./mountains.contract.js";
 
@@ -85,7 +83,6 @@ export function assertSameMountainFamilySelection(
  * one family selection, leaving Civ7 terrain stamping to map-morphology.
  */
 export default createStep(MountainsStepContract, {
-  artifacts: [morphologyArtifactModules.mountains],
   normalize: (config, ctx) => {
     assertSameMountainFamilySelection(config.ridges, config.foothills);
     assertSameMountainFamilySelection(config.ridges, config.roughLands);

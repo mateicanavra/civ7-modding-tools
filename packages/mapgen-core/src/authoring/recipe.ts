@@ -16,6 +16,7 @@ import type { TraceSession, TraceSink } from "@mapgen/trace/index.js";
 import { createConsoleTraceSink } from "@mapgen/trace/index.js";
 import { compileRecipeConfig } from "../compiler/recipe-compile.js";
 import type { ArtifactContract, ArtifactReadValueOf } from "./artifact/contract.js";
+import type { ArtifactModule } from "./artifact/module.js";
 import {
   ArtifactMissingError,
   type ProvidedArtifactRuntime,
@@ -123,7 +124,7 @@ function buildArtifactDeps<TContext extends ExtendedMapContext>(
   > = {};
 
   const requires = (artifacts.requires ?? []) as readonly ArtifactContract[];
-  const provides = (artifacts.provides ?? []) as readonly ArtifactContract[];
+  const provides = (artifacts.provides ?? []).map((module: ArtifactModule) => module.artifact);
 
   for (const contract of requires) {
     out[contract.name] = createRequiredArtifactRuntime(contract, fullStepId);
@@ -182,7 +183,9 @@ function collectArtifactTagDefinitions<TContext extends ExtendedMapContext>(inpu
         providers.set(tag, fullId);
       }
 
-      const provides = (authored.contract.artifacts?.provides ?? []) as readonly ArtifactContract[];
+      const provides = (authored.contract.artifacts?.provides ?? []).map(
+        (module: ArtifactModule) => module.artifact
+      );
       for (const contract of provides) {
         const existing = providers.get(contract.id);
         if (existing) {

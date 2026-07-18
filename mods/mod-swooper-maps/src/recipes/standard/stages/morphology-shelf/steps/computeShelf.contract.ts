@@ -1,7 +1,9 @@
 import morphology from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
+import {
+  artifactModules as morphologyArtifactModules,
+  artifacts as morphologyArtifacts,
+} from "../../morphology/artifacts/index.js";
 
 /**
  * Computes the continental shelf from POST-island morphology truth.
@@ -17,7 +19,7 @@ const ComputeShelfStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [morphologyArtifacts.topography, morphologyArtifacts.beltDrivers],
-    provides: [morphologyArtifacts.shelf],
+    provides: [morphologyArtifactModules.shelf],
   },
   ops: {
     coastalAdjacency: {

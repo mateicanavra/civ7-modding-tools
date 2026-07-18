@@ -18,6 +18,7 @@ import {
 } from "@mapgen/authoring/index.js";
 import { createExtendedMapContext } from "@mapgen/core/types.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
+import type { IsEqual } from "type-fest";
 import { Type } from "typebox";
 
 const baseSettings = {
@@ -26,6 +27,7 @@ const baseSettings = {
   latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
 };
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
+type Expect<T extends true> = T;
 
 function schemaModule<C extends ReturnType<typeof defineArtifact>>(artifact: C) {
   return {
@@ -86,7 +88,7 @@ describe("artifact authoring", () => {
         phase: "foundation",
         requires: [],
         provides: [],
-        artifacts: { requires: [artifact], provides: [artifact] },
+        artifacts: { requires: [artifact], provides: [schemaModule(artifact)] },
         schema: EmptyStepConfigSchema,
       })
     ).toThrow(/artifacts\.requires/);
@@ -109,7 +111,9 @@ describe("artifact authoring", () => {
       schema: Type.Object({}, { additionalProperties: false }),
     });
     const requires: Array<ReturnType<typeof defineArtifact>> = [required];
-    const provides: Array<ReturnType<typeof defineArtifact>> = [provided];
+    const providedModule = schemaModule(provided);
+    const replacementModule = schemaModule(replacement);
+    const provides: Array<typeof providedModule> = [providedModule];
     const contract = defineStep({
       id: "artifact-snapshot",
       phase: "foundation",
@@ -123,7 +127,7 @@ describe("artifact authoring", () => {
     provides.length = 0;
 
     expect(contract.artifacts?.requires).toEqual([required]);
-    expect(contract.artifacts?.provides).toEqual([provided]);
+    expect(contract.artifacts?.provides).toEqual([providedModule]);
     expect(contract.requires).toEqual([required.id]);
     expect(contract.provides).toEqual([provided.id]);
     expect(Object.isFrozen(contract)).toBe(true);
@@ -133,19 +137,102 @@ describe("artifact authoring", () => {
     expect(Object.isFrozen(contract.artifacts?.requires)).toBe(true);
     expect(Object.isFrozen(contract.artifacts?.provides)).toBe(true);
     expect(() =>
-      (contract.artifacts!.provides! as Array<ReturnType<typeof defineArtifact>>).push(replacement)
+      (contract.artifacts!.provides! as Array<typeof providedModule>).push(providedModule)
     ).toThrow();
     expect(() =>
       Object.defineProperty(contract, "artifacts", {
-        value: Object.freeze({ provides: Object.freeze([replacement]) }),
+        value: Object.freeze({ provides: Object.freeze([replacementModule]) }),
       })
     ).toThrow();
-    expect(contract.artifacts).toEqual({ requires: [required], provides: [provided] });
+    expect(contract.artifacts).toEqual({ requires: [required], provides: [providedModule] });
     expect(contract.requires).toEqual([required.id]);
     expect(contract.provides).toEqual([provided.id]);
   });
 
-  it("rejects authored modules when the contract declares an empty provider set", () => {
+  it("retains only canonical frozen artifact contract identities", () => {
+    const schema = Type.Object({}, { additionalProperties: false });
+    const mutableArtifact = {
+      name: "mutableArtifact",
+      id: "artifact:test.mutable",
+      schema,
+    };
+    let accessorReads = 0;
+    const accessorArtifact = Object.freeze({
+      get name() {
+        accessorReads += 1;
+        return "accessorArtifact";
+      },
+      id: "artifact:test.accessor",
+      schema,
+    });
+    const malformedArtifact = Object.freeze({
+      name: "constructor",
+      id: "not-artifact",
+      schema,
+    });
+
+    expect(() =>
+      defineStep({
+        id: "mutable-artifact-contract",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        artifacts: { requires: [mutableArtifact] },
+        schema: EmptyStepConfigSchema,
+      })
+    ).toThrow(/artifact contract must be a frozen object/);
+    expect(() =>
+      defineStep({
+        id: "accessor-artifact-contract",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        artifacts: { provides: [schemaModule(accessorArtifact)] },
+        schema: EmptyStepConfigSchema,
+      })
+    ).toThrow(/own enumerable data properties/);
+    expect(() =>
+      defineStep({
+        id: "malformed-artifact-contract",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        artifacts: { provides: [schemaModule(malformedArtifact)] },
+        schema: EmptyStepConfigSchema,
+      })
+    ).toThrow(/artifact name "constructor" is reserved/);
+    expect(accessorReads).toBe(0);
+  });
+
+  it("materializes canonical artifact contracts from structurally wider definitions", () => {
+    const schema = Type.Object({}, { additionalProperties: false });
+    const definition: Readonly<{
+      name: "exactArtifact";
+      id: "artifact:test.exact";
+      schema: typeof schema;
+      accidentalState: string;
+    }> = {
+      name: "exactArtifact",
+      id: "artifact:test.exact",
+      schema,
+      accidentalState: "must not escape",
+    };
+
+    const artifact = defineArtifact(definition);
+    const contract = defineStep({
+      id: "exact-artifact-contract",
+      phase: "foundation",
+      requires: [],
+      provides: [],
+      artifacts: { provides: [schemaModule(artifact)] },
+      schema: EmptyStepConfigSchema,
+    });
+
+    expect(Reflect.ownKeys(artifact)).toEqual(["name", "id", "schema"]);
+    expect(contract.artifacts?.provides?.[0]?.artifact).toBe(artifact);
+  });
+
+  it("omits artifact runtimes when the contract declares an empty provider set", () => {
     const contract = defineStep({
       id: "empty-artifact-provider",
       phase: "foundation",
@@ -154,13 +241,6 @@ describe("artifact authoring", () => {
       artifacts: { provides: [] },
       schema: EmptyStepConfigSchema,
     });
-
-    expect(() =>
-      createStep(contract, {
-        artifacts: [] as never,
-        run: () => {},
-      })
-    ).toThrow(/declares no artifact providers but received modules/);
 
     const step = createStep(contract, { run: () => {} });
     expect(Object.prototype.hasOwnProperty.call(step, "artifacts")).toBe(false);
@@ -178,13 +258,10 @@ describe("artifact authoring", () => {
         phase: "foundation",
         requires: [],
         provides: [],
-        artifacts: { provides: [contract] as const },
+        artifacts: { provides: [schemaModule(contract)] as const },
         schema: EmptyStepConfigSchema,
       }),
-      {
-        artifacts: [schemaModule(contract)],
-        run: () => {},
-      }
+      { run: () => {} }
     );
     const stepB = createStep(
       defineStep({
@@ -366,7 +443,7 @@ describe("artifact authoring", () => {
     }
   });
 
-  it("requires producer runtimes to exactly own the contracts declared by the step", () => {
+  it("derives producer runtimes from the modules admitted by the step contract", () => {
     const declared = defineArtifact({
       name: "artifactFoo",
       id: "artifact:test.exact-runtime.declared",
@@ -382,35 +459,27 @@ describe("artifact authoring", () => {
       id: "artifact:test.exact-runtime.replacement",
       schema: Type.Object({}, { additionalProperties: false }),
     });
+    const declaredModule = schemaModule(declared);
     const contract = defineStep({
       id: "exact-runtime-provider",
       phase: "foundation",
       requires: [],
       provides: [],
-      artifacts: { provides: [declared] },
+      artifacts: { provides: [declaredModule] },
       schema: EmptyStepConfigSchema,
     });
 
-    expect(() =>
-      createStep(contract, {
-        // Untyped JavaScript callers cannot smuggle an additional module past the runtime guard.
-        artifacts: [schemaModule(declared), schemaModule(extra)] as never,
-        run: () => {},
-      })
-    ).toThrow(/do not match declared providers/);
-    expect(() =>
-      createStep(contract, {
-        // Untyped JavaScript callers still receive the runtime contract-identity guard.
-        artifacts: [schemaModule(replacement)] as never,
-        run: () => {},
-      })
-    ).toThrow(/do not match declared providers/);
-
-    const step = createStep(contract, {
-      artifacts: [schemaModule(declared)],
-      run: () => {},
-    });
+    const step = createStep(contract, { run: () => {} });
     expect(step.artifacts.artifactFoo.contract).toBe(declared);
+    expect(contract.artifacts?.provides?.[0]).not.toBe(declaredModule);
+    expect(contract.artifacts?.provides?.[0]).toEqual(declaredModule);
+
+    expect(() =>
+      createStep(contract, { artifacts: [schemaModule(extra)], run: () => {} } as never)
+    ).toThrow(/implementation cannot declare artifact modules/);
+    expect(() =>
+      createStep(contract, { artifacts: [schemaModule(replacement)], run: () => {} } as never)
+    ).toThrow(/implementation cannot declare artifact modules/);
   });
 
   it("admits only own module-array data without depending on prototypes or realms", () => {
@@ -418,14 +487,6 @@ describe("artifact authoring", () => {
       name: "artifactFoo",
       id: "artifact:test.module-array-shape",
       schema: Type.Object({}, { additionalProperties: false }),
-    });
-    const contract = defineStep({
-      id: "module-array-provider",
-      phase: "foundation",
-      requires: [],
-      provides: [],
-      artifacts: { provides: [artifact] },
-      schema: EmptyStepConfigSchema,
     });
     const module = schemaModule(artifact);
     const crossRealm = runInNewContext("[]") as Array<typeof module>;
@@ -445,15 +506,70 @@ describe("artifact authoring", () => {
         return schemaModule(artifact);
       },
     });
+    const sparse = new Array<typeof module>(1);
+    const extraKey = [module];
+    Object.defineProperty(extraKey, "metadata", { enumerable: true, value: "unexpected" });
 
-    expect(() => createStep(contract, { artifacts: crossRealm, run: () => {} })).not.toThrow();
-    expect(() => createStep(contract, { artifacts: inheritedEntry, run: () => {} })).not.toThrow();
-    expect(() => createStep(contract, { artifacts: [inheritedOnlyModule], run: () => {} })).toThrow(
-      /must own artifact data properties/
-    );
-    expect(() => createStep(contract, { artifacts: accessorEntry, run: () => {} })).toThrow(
-      /data property/
-    );
+    expect(() =>
+      defineStep({
+        id: "cross-realm-modules",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        artifacts: { provides: crossRealm },
+        schema: EmptyStepConfigSchema,
+      })
+    ).not.toThrow();
+    expect(() =>
+      defineStep({
+        id: "inherited-array-entry",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        artifacts: { provides: inheritedEntry },
+        schema: EmptyStepConfigSchema,
+      })
+    ).not.toThrow();
+    expect(() =>
+      defineStep({
+        id: "inherited-module",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        artifacts: { provides: [inheritedOnlyModule] },
+        schema: EmptyStepConfigSchema,
+      })
+    ).toThrow(/must own artifact data properties/);
+    expect(() =>
+      defineStep({
+        id: "accessor-array-entry",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        artifacts: { provides: accessorEntry },
+        schema: EmptyStepConfigSchema,
+      })
+    ).toThrow(/data property/);
+    expect(() =>
+      defineStep({
+        id: "sparse-module-array",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        artifacts: { provides: sparse },
+        schema: EmptyStepConfigSchema,
+      })
+    ).toThrow(/dense array without extra keys/);
+    expect(() =>
+      defineStep({
+        id: "extra-key-module-array",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        artifacts: { provides: extraKey },
+        schema: EmptyStepConfigSchema,
+      })
+    ).toThrow(/dense array without extra keys/);
     expect(reads).toBe(0);
   });
 
@@ -486,6 +602,26 @@ describe("artifact authoring", () => {
     expect(() =>
       implementArtifactModules([schemaModule(first), schemaModule(duplicateName)])
     ).toThrow(/duplicate artifact name/);
+    expect(() =>
+      defineStep({
+        id: "duplicate-module-name",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        artifacts: { provides: [schemaModule(first), schemaModule(duplicateName)] },
+        schema: EmptyStepConfigSchema,
+      })
+    ).toThrow(/duplicate artifact name/);
+    expect(() =>
+      defineStep({
+        id: "duplicate-module-id",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        artifacts: { provides: [schemaModule(first), schemaModule(duplicateId)] },
+        schema: EmptyStepConfigSchema,
+      })
+    ).toThrow(/duplicate artifact id/);
   });
 
   it("uses the complete module validator for publish, satisfaction, and validated reads", () => {
@@ -494,25 +630,51 @@ describe("artifact authoring", () => {
       id: "artifact:test.single-admission",
       schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
     });
-    let admissions = 0;
+    const admissions: Array<
+      Readonly<{
+        value: unknown;
+        dimensions: Readonly<{ width: number; height: number }> | undefined;
+      }>
+    > = [];
     const module = {
       artifact,
-      validate: (value: unknown) => {
-        admissions += 1;
+      validate: (
+        value: unknown,
+        context?: Readonly<{
+          dimensions?: Readonly<{ width: number; height: number }>;
+        }>
+      ) => {
+        admissions.push({ value, dimensions: context?.dimensions });
         return validateArtifactSchema(artifact.schema, value);
       },
     };
-    const runtime = implementArtifactModules([module]).artifactFoo;
+    const contract = defineStep({
+      id: "single-artifact-admission",
+      phase: "foundation",
+      requires: [],
+      provides: [],
+      artifacts: { provides: [module] },
+      schema: EmptyStepConfigSchema,
+    });
+    const step = createStep(contract, { run: () => {} });
+    const runtime = step.artifacts.artifactFoo;
+    const admittedModule = contract.artifacts?.provides?.[0];
+    if (!admittedModule)
+      throw new Error("Expected the step contract to retain its provider module.");
     const adapter = createMockAdapter({ width: 1, height: 1 });
     const env = { ...baseSettings, dimensions: { width: 1, height: 1 } };
     const context = createExtendedMapContext({ width: 1, height: 1 }, adapter, env);
+    const expectedAdmission = {
+      value: { value: 1 },
+      dimensions: { width: 1, height: 1 },
+    };
 
     expect(() => runtime.publish(context, { value: 1 })).not.toThrow();
-    expect(admissions).toBe(1);
+    expect(admissions).toEqual([expectedAdmission]);
     expect(runtime.satisfies?.(context, { satisfied: new Set([artifact.id]) })).toBe(true);
-    expect(admissions).toBe(2);
-    expect(readValidatedArtifact(context, module)).toEqual({ value: 1 });
-    expect(admissions).toBe(3);
+    expect(admissions).toEqual([expectedAdmission, expectedAdmission]);
+    expect(readValidatedArtifact(context, admittedModule)).toEqual({ value: 1 });
+    expect(admissions).toEqual([expectedAdmission, expectedAdmission, expectedAdmission]);
   });
 });
 
@@ -523,12 +685,21 @@ if (false) {
     schema: Type.Object({}, { additionalProperties: false }),
   });
   const module = schemaModule(artifact);
+  const moduleWithExtraState = { ...module, Schema: artifact.schema };
   const providesArtifact = defineStep({
     id: "type-provider",
     phase: "foundation",
     requires: [],
     provides: [],
-    artifacts: { provides: [artifact] },
+    artifacts: { provides: [module] },
+    schema: EmptyStepConfigSchema,
+  });
+  const normalizedProviderContract = defineStep({
+    id: "type-provider-normalized",
+    phase: "foundation",
+    requires: [],
+    provides: [],
+    artifacts: { provides: [moduleWithExtraState] },
     schema: EmptyStepConfigSchema,
   });
   const requiresArtifact = defineStep({
@@ -547,7 +718,7 @@ if (false) {
     artifacts: { provides: [] },
     schema: EmptyStepConfigSchema,
   });
-  const widenedProvides: readonly (typeof artifact)[] = [artifact];
+  const widenedProvides: readonly (typeof module)[] = [module];
   const widenedArtifacts = defineStep({
     id: "type-widened-provider",
     phase: "foundation",
@@ -557,20 +728,32 @@ if (false) {
     schema: EmptyStepConfigSchema,
   });
 
-  // @ts-expect-error A known nonempty provides tuple requires artifact runtimes.
-  createStep(providesArtifact, { run: () => {} });
-  createStep(providesArtifact, {
-    artifacts: [module],
-    run: () => {},
-  });
+  const tupleProviderStep = createStep(providesArtifact, { run: () => {} });
   // @ts-expect-error Requires-only steps cannot declare publication modules.
   createStep(requiresArtifact, { artifacts: [module], run: () => {} });
   // @ts-expect-error Empty provides cannot declare publication modules.
   createStep(emptyArtifacts, { artifacts: [module], run: () => {} });
-  // @ts-expect-error Widened provider arrays remain runtime-bearing even when cardinality is unknown.
-  createStep(widenedArtifacts, { run: () => {} });
+  const widenedProviderStep = createStep(widenedArtifacts, { run: () => {} });
+
+  type NormalizedProvider = NonNullable<
+    NonNullable<(typeof normalizedProviderContract)["artifacts"]>["provides"]
+  >[0];
+  type ProviderExtraStateIsStripped = Expect<
+    IsEqual<"Schema" extends keyof NormalizedProvider ? true : false, false>
+  >;
+  type TupleProviderRuntimeIsRequired = Expect<
+    IsEqual<undefined extends typeof tupleProviderStep.artifacts ? true : false, false>
+  >;
+  type WidenedProviderRuntimeIsOptional = Expect<
+    IsEqual<undefined extends typeof widenedProviderStep.artifacts ? true : false, true>
+  >;
+  const typeAssertions: readonly [
+    ProviderExtraStateIsStripped,
+    TupleProviderRuntimeIsRequired,
+    WidenedProviderRuntimeIsOptional,
+  ] = [true, true, true];
+  void typeAssertions;
 
   const createTestStep = createStepFor<ReturnType<typeof createExtendedMapContext>>();
-  // @ts-expect-error createStepFor enforces the same nonempty publication requirement.
   createTestStep(providesArtifact, { run: () => {} });
 }

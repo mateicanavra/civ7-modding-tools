@@ -9,7 +9,7 @@ import {
 import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
+import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 
 /**
  * Builds the placement input artifact from runtime config and placement ops.
@@ -45,7 +45,10 @@ const DerivePlacementInputsContract = defineStep({
       ecologyArtifacts.biomeBindings,
       ecologyArtifacts.pedology,
     ],
-    provides: [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],
+    provides: [
+      placementArtifactModules.placementInputs,
+      placementArtifactModules.naturalWonderPlan,
+    ],
   },
   ops: {
     wonders: placement.ops.planWonders,

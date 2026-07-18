@@ -1,6 +1,6 @@
 import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { artifacts as standardArtifacts } from "../../../artifacts/index.js";
+import { artifactModules as standardArtifactModules } from "../../../artifacts/index.js";
 
 /**
  * Defines Foundation's mesh-to-tile projection boundary. It projects crust, plate, tectonic,
@@ -22,11 +22,11 @@ const ProjectionStepContract = defineStep({
       foundationArtifacts.tectonicProvenance,
     ],
     provides: [
-      standardArtifacts.foundationPlates,
-      standardArtifacts.foundationTileToCellIndex,
-      standardArtifacts.foundationCrustTiles,
-      standardArtifacts.foundationTectonicHistoryTiles,
-      standardArtifacts.foundationTectonicProvenanceTiles,
+      standardArtifactModules.foundationPlates,
+      standardArtifactModules.foundationTileToCellIndex,
+      standardArtifactModules.foundationCrustTiles,
+      standardArtifactModules.foundationTectonicHistoryTiles,
+      standardArtifactModules.foundationTectonicProvenanceTiles,
     ],
   },
   ops: {

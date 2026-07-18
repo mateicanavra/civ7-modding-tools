@@ -181,18 +181,17 @@ describe("tag registry", () => {
         phase: "foundation",
         requires: [],
         provides: [],
-        artifacts: { provides: [artifact] },
+        artifacts: {
+          provides: [
+            {
+              artifact,
+              validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
+            },
+          ],
+        },
         schema: Type.Object({}, { additionalProperties: false }),
       }),
-      {
-        artifacts: [
-          {
-            artifact,
-            validate: (value) => validateArtifactSchema(artifact.schema, value),
-          },
-        ],
-        run: () => {},
-      }
+      { run: () => {} }
     );
 
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });

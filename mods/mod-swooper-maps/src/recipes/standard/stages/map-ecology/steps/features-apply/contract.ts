@@ -5,7 +5,10 @@ import {
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../../ecology/artifacts/index.js";
 
 /**
  * Defines the sole map-ecology boundary that applies all planned feature-family intents to
@@ -29,7 +32,7 @@ const FeaturesApplyStepContract = defineStep({
       ecologyArtifacts.featureIntentsReefs,
       ecologyArtifacts.featureIntentsIce,
     ],
-    provides: [ecologyArtifacts.featureApplyDiagnostics],
+    provides: [ecologyArtifactModules.featureApplyDiagnostics],
   },
   ops: {
     apply: ecology.ops.applyFeatures,

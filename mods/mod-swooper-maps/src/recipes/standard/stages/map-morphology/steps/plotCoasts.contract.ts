@@ -2,7 +2,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tag-contracts.js";
 import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
-import { artifacts as mapMorphologyArtifacts } from "../artifacts/index.js";
+import { artifactModules as mapMorphologyArtifactModules } from "../artifacts/index.js";
 
 /**
  * Defines the coast projection boundary from Morphology topography and shelf truth, declaring
@@ -16,8 +16,8 @@ const PlotCoastsStepContract = defineStep({
   artifacts: {
     requires: [morphologyArtifacts.topography, morphologyArtifacts.shelf],
     provides: [
-      mapMorphologyArtifacts.coastClassification,
-      mapMorphologyArtifacts.coastEngineTerrainSnapshot,
+      mapMorphologyArtifactModules.coastClassification,
+      mapMorphologyArtifactModules.coastEngineTerrainSnapshot,
     ],
   },
   schema: Type.Object({}),

@@ -1,4 +1,3 @@
-import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { interleaveXY } from "../../foundation/viz.js";
@@ -11,7 +10,6 @@ const GROUP_MANTLE = "Foundation / Mantle";
  * separating authored source structure from its derived physical forcing.
  */
 export default createStep(MantlePotentialStepContract, {
-  artifacts: [foundationArtifactModules.mantlePotential],
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const stepId = `${MantlePotentialStepContract.phase}/${MantlePotentialStepContract.id}`;

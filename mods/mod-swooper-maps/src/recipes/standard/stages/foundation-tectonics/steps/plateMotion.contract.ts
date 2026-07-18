@@ -1,4 +1,7 @@
-import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import foundation, {
+  artifactModules as foundationArtifactModules,
+  artifacts as foundationArtifacts,
+} from "@mapgen/domain/foundation";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -17,7 +20,7 @@ const PlateMotionStepContract = defineStep({
       foundationArtifacts.plateGraph,
       foundationArtifacts.mantleForcing,
     ],
-    provides: [foundationArtifacts.plateMotion],
+    provides: [foundationArtifactModules.plateMotion],
   },
   ops: {
     computePlateMotion: foundation.ops.computePlateMotion,

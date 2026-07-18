@@ -1,5 +1,4 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import { runPlacementProductStep } from "../product-runtime.js";
 import AssignAdvancedStartsStepContract from "./contract.js";
 
@@ -8,7 +7,6 @@ import AssignAdvancedStartsStepContract from "./contract.js";
  * discoveries, using effect ordering rather than read-and-discard artifacts.
  */
 export default createStep(AssignAdvancedStartsStepContract, {
-  artifacts: [placementArtifactModules.advancedStartAssignment],
   run: (context, _config, _ops, deps) => {
     const emit = (payload: Record<string, unknown>): void => {
       if (!context.trace?.isVerbose) return;

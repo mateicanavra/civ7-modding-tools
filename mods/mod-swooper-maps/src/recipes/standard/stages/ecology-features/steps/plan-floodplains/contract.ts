@@ -1,7 +1,9 @@
 import ecology from "@mapgen/domain/ecology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../../ecology/artifacts/index.js";
 
 /**
  * Defines the first ordered feature-family planner. It consumes shared scores and base
@@ -15,7 +17,10 @@ const PlanFloodplainsStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase],
-    provides: [ecologyArtifacts.featureIntentsFloodplains, ecologyArtifacts.occupancyFloodplains],
+    provides: [
+      ecologyArtifactModules.featureIntentsFloodplains,
+      ecologyArtifactModules.occupancyFloodplains,
+    ],
   },
   ops: {
     planFloodplains: ecology.ops.planFloodplains,

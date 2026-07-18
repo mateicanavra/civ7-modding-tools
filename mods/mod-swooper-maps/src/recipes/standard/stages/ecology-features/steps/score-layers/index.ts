@@ -4,7 +4,6 @@ import { clamp01, ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ, getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
-import { artifactModules as ecologyArtifactModules } from "../../../ecology/artifacts/index.js";
 import ScoreLayersStepContract from "./contract.js";
 
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
@@ -54,7 +53,6 @@ function localReliefM(
  * morphology, and hydrology truth, and seeds the ordered occupancy chain.
  */
 export default createStep(ScoreLayersStepContract, {
-  artifacts: [ecologyArtifactModules.scoreLayers, ecologyArtifactModules.occupancyBase],
   run: (context, config, ops, deps) => {
     const classification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);

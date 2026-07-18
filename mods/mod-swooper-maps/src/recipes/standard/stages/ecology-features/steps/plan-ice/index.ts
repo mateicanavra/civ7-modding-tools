@@ -1,6 +1,5 @@
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as ecologyArtifactModules } from "../../../ecology/artifacts/index.js";
 import PlanIceStepContract from "./contract.js";
 
 /**
@@ -8,7 +7,6 @@ import PlanIceStepContract from "./contract.js";
  * publishing truth-only intent and the occupancy snapshot consumed by reefs.
  */
 export default createStep(PlanIceStepContract, {
-  artifacts: [ecologyArtifactModules.featureIntentsIce, ecologyArtifactModules.occupancyIce],
   run: (context, config, ops, deps) => {
     const base = deps.artifacts.occupancyFloodplains.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);

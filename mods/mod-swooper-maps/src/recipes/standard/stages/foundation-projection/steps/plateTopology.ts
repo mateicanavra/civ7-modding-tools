@@ -1,4 +1,3 @@
-import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import {
@@ -14,7 +13,6 @@ const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
  * topology reflects the same raster vintage consumed by downstream map stages.
  */
 export default createStep(PlateTopologyStepContract, {
-  artifacts: [foundationArtifactModules.plateTopology],
   run: (context, config, ops, deps) => {
     // Plate adjacency is derived from the projected tile plate-id field via the
     // compute-plate-topology op (tile-derived; see the op contract for the

@@ -1,6 +1,5 @@
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 import { runPlacementProductStep } from "../product-runtime.js";
 import PlaceDiscoveriesStepContract from "./contract.js";
 import { placeOfficialDiscoveries } from "./materialize.js";
@@ -10,7 +9,6 @@ import { placeOfficialDiscoveries } from "./materialize.js";
  * feeding seated starts as exclusions and publishing observed outcomes.
  */
 export default createStep(PlaceDiscoveriesStepContract, {
-  artifacts: [placementArtifactModules.discoveryPlacementOutcomes],
   run: (context, _config, _ops, deps) => {
     const { width, height } = context.dimensions;
     // Civ7's official generator gates discoveries away from major starts; feed it

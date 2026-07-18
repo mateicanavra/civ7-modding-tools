@@ -1,7 +1,9 @@
 import morphology from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-import { artifacts as morphologyArtifacts } from "../../morphology/artifacts/index.js";
+import {
+  artifactModules as morphologyArtifactModules,
+  artifacts as morphologyArtifacts,
+} from "../../morphology/artifacts/index.js";
 
 /**
  * Computes Morphology's geomorphic routing proxy from current topography.
@@ -16,7 +18,7 @@ const RoutingStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [morphologyArtifacts.topography],
-    provides: [morphologyArtifacts.routing],
+    provides: [morphologyArtifactModules.routing],
   },
   ops: {
     routing: morphology.ops.computeFlowRouting,

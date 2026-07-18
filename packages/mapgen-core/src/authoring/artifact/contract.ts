@@ -57,13 +57,57 @@ function assertValidArtifactId(id: string): void {
   }
 }
 
+/**
+ * Asserts the canonical runtime shape and semantic identity of an artifact contract.
+ * Admission inspects only own data descriptors, so hostile accessors cannot execute while a
+ * consumer decides whether to retain the identity.
+ */
+export function assertCanonicalArtifactContract(value: unknown): asserts value is ArtifactContract {
+  if (value === null || typeof value !== "object" || !Object.isFrozen(value)) {
+    throw new Error("artifact contract must be a frozen object");
+  }
+
+  const ownKeys = Reflect.ownKeys(value);
+  if (
+    ownKeys.length !== 3 ||
+    !ownKeys.includes("name") ||
+    !ownKeys.includes("id") ||
+    !ownKeys.includes("schema")
+  ) {
+    throw new Error("artifact contract must own exactly name, id, and schema");
+  }
+
+  const name = Object.getOwnPropertyDescriptor(value, "name");
+  const id = Object.getOwnPropertyDescriptor(value, "id");
+  const schema = Object.getOwnPropertyDescriptor(value, "schema");
+  if (
+    !name?.enumerable ||
+    !("value" in name) ||
+    typeof name.value !== "string" ||
+    !id?.enumerable ||
+    !("value" in id) ||
+    typeof id.value !== "string" ||
+    !schema?.enumerable ||
+    !("value" in schema) ||
+    schema.value === null ||
+    typeof schema.value !== "object"
+  ) {
+    throw new Error(
+      "artifact contract name, id, and schema must be own enumerable data properties"
+    );
+  }
+
+  assertValidArtifactName(name.value);
+  assertValidArtifactId(id.value);
+}
+
 export function defineArtifact<
   const Name extends string,
   const Id extends string,
   const Schema extends TSchema,
 >(def: { name: Name; id: Id; schema: Schema }): ArtifactContract<Name, Id, Schema> {
-  assertValidArtifactName(def.name);
-  assertValidArtifactId(def.id);
-  applySchemaConventions(def.schema, `artifact:${def.id}`);
-  return Object.freeze({ ...def });
+  const artifact = Object.freeze({ name: def.name, id: def.id, schema: def.schema });
+  assertCanonicalArtifactContract(artifact);
+  applySchemaConventions(artifact.schema, `artifact:${artifact.id}`);
+  return artifact;
 }

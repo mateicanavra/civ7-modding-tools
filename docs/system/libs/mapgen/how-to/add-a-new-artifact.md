@@ -83,7 +83,7 @@ const catalog = defineArtifactCatalog({
   routing,
 });
 
-/** Complete routing artifact modules consumed by producer implementations. */
+/** Complete routing artifact modules selected by producer contracts. */
 export const artifactModules = catalog.modules;
 
 /** Read-only routing contract handles derived from the module catalog. */
@@ -95,36 +95,34 @@ single registration authority.
 
 ### 3) Declare the artifact in step contracts
 
-Contracts consume the derived `artifacts` handles.
+Consumer contracts select derived `artifacts` handles. Producer contracts select the
+complete module so the contract and validator cannot drift into separate declarations.
 
 ```ts
-import { artifacts as morphologyArtifacts } from "../artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "../artifacts/index.js";
 
 const RoutingStepContract = defineStep({
   // ...id, phase, tags, ops, and schema...
   artifacts: {
-    provides: [morphologyArtifacts.routing],
+    provides: [morphologyArtifactModules.routing],
   },
 });
 ```
 
-Add the same handle to downstream `artifacts.requires` declarations. Artifact
+Add the derived handle from `artifacts` to downstream `artifacts.requires` declarations. Artifact
 dependencies already participate in dependency satisfaction; do not duplicate
 artifact ids as hand-authored tags.
 
-### 4) Attach the producer module
+### 4) Publish through the derived producer runtime
 
-The producing step passes the matching module tuple directly to `createStep`.
-The SDK verifies that it exactly matches the contract's declared providers and
-derives the validated runtime internally.
+The producing step supplies behavior only. The SDK derives its validated publication
+runtime from the modules already admitted by the step contract.
 
 ```ts
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { artifactModules as morphologyArtifactModules } from "../artifacts/index.js";
 import RoutingStepContract from "./routing.contract.js";
 
 export default createStep(RoutingStepContract, {
-  artifacts: [morphologyArtifactModules.routing],
   run: (context, config, ops, deps) => {
     const routing = ops.computeRouting({ /* operation inputs */ }, config.computeRouting);
     deps.artifacts.routing.publish(context, routing);
@@ -132,7 +130,6 @@ export default createStep(RoutingStepContract, {
 });
 ```
 
-Steps with no declared providers omit the implementation `artifacts` property.
 Consumers read through `deps.artifacts.<name>.read(context)` rather than reaching
 into `context.artifacts` directly.
 
@@ -153,8 +150,8 @@ into `context.artifacts` directly.
 - **Incomplete validation**: a schema-only validator is insufficient when admission
   also requires domain invariants such as grid lengths, index ranges, or relational checks.
 - **Parallel registries**: do not recreate contract and validator maps beside the catalog.
-- **Mismatched producer list**: `createStep` rejects missing, extra, or identity-mismatched
-  modules relative to the contract's `artifacts.provides` declaration.
+- **Duplicate provider authority**: never pass modules to `createStep`; provider modules
+  belong only in the contract's `artifacts.provides` declaration.
 - **Publishing twice**: buffer artifacts are published exactly once; later steps mutate
   only through the documented buffer exception.
 - **Artifact vs field confusion**: fields are adapter-level engine outputs; artifacts are

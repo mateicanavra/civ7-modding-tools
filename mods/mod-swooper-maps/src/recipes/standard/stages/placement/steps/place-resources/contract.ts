@@ -1,7 +1,10 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { artifacts as placementArtifacts } from "../../artifacts/index.js";
+import {
+  artifactModules as placementArtifactModules,
+  artifacts as placementArtifacts,
+} from "../../artifacts/index.js";
 
 /**
  * Thin resource stamp (S3, reordered by S5/D3): stamps the ADJUSTED intent
@@ -19,7 +22,7 @@ const PlaceResourcesStepContract = defineStep({
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced],
   artifacts: {
     requires: [placementArtifacts.resourcePlanAdjusted],
-    provides: [placementArtifacts.resourcePlacementOutcomes],
+    provides: [placementArtifactModules.resourcePlacementOutcomes],
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });
