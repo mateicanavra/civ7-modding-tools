@@ -30,7 +30,6 @@ Canonical explanation pages:
 - Determinism + reproducibility: [`docs/system/libs/mapgen/explanation/DETERMINISM.md`](/system/libs/mapgen/explanation/DETERMINISM.md)
 
 Potential future explanation pages (only if they add clarity beyond policy/reference):
-- Mutation model (artifacts vs fields/buffers) — if needed beyond policy/reference
 - Narrative status (target contract + current wiring status) — if this warrants its own page
 - Studio as a reference consumer (not architecture authority) — may be folded into Studio docs
 

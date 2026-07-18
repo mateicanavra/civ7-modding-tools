@@ -55,11 +55,6 @@ describe("derive placement inputs", () => {
     const context = {
       dimensions: { width, height },
       adapter,
-      buffers: {
-        heightfield: {
-          elevation: new Int16Array(size).fill(500),
-        },
-      },
     } as never;
     initializeStandardRuntime(context, { mapInfo });
 
@@ -177,11 +172,6 @@ describe("derive placement inputs", () => {
     const context = {
       dimensions: { width, height },
       adapter,
-      buffers: {
-        heightfield: {
-          elevation: new Int16Array(size).fill(500),
-        },
-      },
     } as never;
     initializeStandardRuntime(context, { mapInfo });
 
@@ -351,11 +341,6 @@ describe("derive placement inputs", () => {
     const context = {
       dimensions: { width, height },
       adapter,
-      buffers: {
-        heightfield: {
-          elevation,
-        },
-      },
     } as never;
     const telemetry = buildNaturalWonderPlanInputRuntimeTelemetry({
       context,

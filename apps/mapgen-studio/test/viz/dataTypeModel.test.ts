@@ -263,7 +263,8 @@ describe("buildStepDataTypeModel", () => {
       "map.rivers.engineNavigableRiverMetadataMask",
       "map.rivers.riverMismatchMask",
       "map.rivers.engineMinorRiverMask",
-      "debug.heightfield.landMask",
+      "morphology.topography.landMask",
+      "map.rivers.engineLandMask",
     ]);
 
     const byId = new Map(debugModel.dataTypes.map((dt) => [dt.dataTypeId, dt]));
@@ -282,5 +283,11 @@ describe("buildStepDataTypeModel", () => {
     expect(byId.get("map.rivers.engineNavigableRiverMetadataMask")?.visibility).toBe("debug");
     expect(byId.get("map.rivers.riverMismatchMask")?.visibility).toBe("debug");
     expect(byId.get("map.rivers.engineMinorRiverMask")?.visibility).toBe("debug");
+    expect(
+      byId.get("morphology.topography.landMask")?.spaces[0]?.renderModes[0]?.renderModeId
+    ).toBe("grid:physics");
+    expect(byId.get("map.rivers.engineLandMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe(
+      "grid:engine"
+    );
   });
 });

@@ -36,8 +36,8 @@ Use clear prefixes and keep them stable across docs and code:
 - `artifact:*` (published artifacts; write-once, read-only)
 - `effect:*` (declared execution or materialization guarantees)
 
-Mutable working buffers are context-local implementation state, not dependency IDs. Reify any
-cross-step data as a validated artifact rather than adding another dependency kind.
+Cross-step data is always a validated artifact vintage. Producer-local scratch state is neither
+context state nor a dependency ID; do not add another dependency kind for it.
 
 ## Disallowed
 

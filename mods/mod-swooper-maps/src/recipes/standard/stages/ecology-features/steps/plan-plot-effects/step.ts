@@ -11,7 +11,7 @@ export const PlanPlotEffectsStep = createStep(PlanPlotEffectsStepContract, {
   run: (context, config, ops, deps) => {
     const artifacts = {
       classification: deps.artifacts.biomeClassification.read(context),
-      heightfield: context.buffers.heightfield,
+      topography: deps.artifacts.topography.read(context),
     };
     const input = buildPlotEffectsInput(context, artifacts, PlanPlotEffectsStepContract.id);
     const scoreSnow = ops.scoreSnow(
@@ -91,8 +91,7 @@ export const PlanPlotEffectsStep = createStep(PlanPlotEffectsStepContract, {
         input,
         config.scoreSnow.config,
         config.plotEffects.config.snow,
-        result.placements,
-        artifacts.heightfield.terrain
+        result.placements
       );
     }
 

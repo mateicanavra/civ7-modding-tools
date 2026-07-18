@@ -130,8 +130,7 @@ export type FeaturesApplyVizEvidence = Readonly<{
   applied: number;
   featureType: Int16Array;
   featureEngineIdsByKey: Readonly<Record<FeatureKey, number>>;
-  physicsTerrain?: Uint8Array;
-  physicsLandMask?: Uint8Array;
+  topographyLandMask?: Uint8Array;
   engine?: Readonly<{ terrain: Uint8Array; landMask: Uint8Array }>;
 }>;
 
@@ -215,28 +214,15 @@ export function buildFeaturesApplyVizProjections(
     }),
   });
 
-  if (!result.engine || !result.physicsTerrain || !result.physicsLandMask) return projections;
+  if (!result.engine || !result.topographyLandMask) return projections;
   projections.push(
     {
       kind: "grid",
-      dataTypeKey: "debug.heightfield.terrain",
-      spaceId: "tile.hexOddQ",
-      dims: dimensions,
-      field: { format: "u8", values: result.physicsTerrain },
-      meta: defineStandardVizMeta("debug.heightfield.terrain", "category.distinct", {
-        label: "Terrain (Physics Source Evidence)",
-        group: "Map / Ecology (Engine)",
-        role: "physics",
-        visibility: "debug",
-      }),
-    },
-    {
-      kind: "grid",
-      dataTypeKey: "debug.heightfield.terrain",
+      dataTypeKey: "map.ecology.engineTerrain",
       spaceId: "tile.hexOddQ",
       dims: dimensions,
       field: { format: "u8", values: result.engine.terrain },
-      meta: defineStandardVizMeta("debug.heightfield.terrain", "category.distinct", {
+      meta: defineStandardVizMeta("map.ecology.engineTerrain", "category.distinct", {
         label: "Terrain (Engine After Features)",
         group: "Map / Ecology (Engine)",
         role: "engine",
@@ -245,12 +231,12 @@ export function buildFeaturesApplyVizProjections(
     },
     {
       kind: "grid",
-      dataTypeKey: "debug.heightfield.landMask",
+      dataTypeKey: "morphology.topography.landMask",
       spaceId: "tile.hexOddQ",
       dims: dimensions,
-      field: { format: "u8", values: result.physicsLandMask },
-      meta: defineStandardVizMeta("debug.heightfield.landMask", "category.distinct", {
-        label: "Land Mask (Physics Source Evidence)",
+      field: { format: "u8", values: result.topographyLandMask },
+      meta: defineStandardVizMeta("morphology.topography.landMask", "category.distinct", {
+        label: "Land Mask (Final Morphology)",
         group: "Map / Ecology (Engine)",
         role: "physics",
         visibility: "debug",
@@ -258,11 +244,11 @@ export function buildFeaturesApplyVizProjections(
     },
     {
       kind: "grid",
-      dataTypeKey: "debug.heightfield.landMask",
+      dataTypeKey: "map.ecology.engineLandMask",
       spaceId: "tile.hexOddQ",
       dims: dimensions,
       field: { format: "u8", values: result.engine.landMask },
-      meta: defineStandardVizMeta("debug.heightfield.landMask", "category.distinct", {
+      meta: defineStandardVizMeta("map.ecology.engineLandMask", "category.distinct", {
         label: "Land Mask (Engine After Features)",
         group: "Map / Ecology (Engine)",
         role: "engine",

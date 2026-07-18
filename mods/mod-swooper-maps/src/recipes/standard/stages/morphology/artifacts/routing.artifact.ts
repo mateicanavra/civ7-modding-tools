@@ -18,7 +18,10 @@ const MorphologyRoutingArtifactSchema = Type.Object(
       })
     ),
   },
-  { description: "Morphology routing buffer handle (publish once)." }
+  {
+    description:
+      "Immutable Morphology drainage routing snapshot with one receiver and accumulation value per tile.",
+  }
 );
 
 /** Runtime schema for publish-once receivers, accumulation, and basin assignments. */
@@ -69,7 +72,7 @@ function validatePayload(
 ): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isRecord(value)) {
-    errors.push({ message: "Missing routing buffer." });
+    errors.push({ message: "Missing routing artifact value." });
     return errors;
   }
   const size = expectedSize(dimensions);

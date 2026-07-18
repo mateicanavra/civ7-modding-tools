@@ -1,8 +1,8 @@
-import { ctxStepSeed, type ExtendedMapContext, type HeightfieldBuffer } from "@swooper/mapgen-core";
+import { ctxStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
 import type { BiomeClassificationArtifact } from "../../../ecology/artifacts/biome-classification.artifact.js";
 
 /**
- * Carries the canonical biome and heightfield inputs consumed by plot-effect
+ * Carries the canonical biome and final-topography inputs consumed by plot-effect
  * scoring so every scorer observes the same map vintage and deterministic seed.
  */
 export type PlotEffectsStepInput = {
@@ -26,12 +26,12 @@ export function buildPlotEffectsInput(
   context: ExtendedMapContext,
   artifacts: {
     classification: BiomeClassificationArtifact;
-    heightfield: HeightfieldBuffer;
+    topography: Readonly<{ elevation: Int16Array; landMask: Uint8Array }>;
   },
   stepId: string
 ): PlotEffectsStepInput {
   const { width, height } = context.dimensions;
-  const { classification, heightfield } = artifacts;
+  const { classification, topography } = artifacts;
 
   return {
     width,
@@ -43,7 +43,7 @@ export function buildPlotEffectsInput(
     surfaceTemperature: classification.surfaceTemperature,
     aridityIndex: classification.aridityIndex,
     freezeIndex: classification.freezeIndex,
-    elevation: heightfield.elevation,
-    landMask: heightfield.landMask,
+    elevation: topography.elevation,
+    landMask: topography.landMask,
   };
 }

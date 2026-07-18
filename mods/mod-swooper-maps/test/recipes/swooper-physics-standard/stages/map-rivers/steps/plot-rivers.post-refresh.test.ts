@@ -12,10 +12,12 @@ import {
   FLAT_TERRAIN,
   NAVIGABLE_RIVER_TERRAIN,
 } from "@swooper/mapgen-core";
+import { implementArtifactModules } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { artifacts as mapMorphologyArtifacts } from "../../../../../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
 import { artifacts as mapRiversArtifacts } from "../../../../../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
 import { PlotRiversStep } from "../../../../../../src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.js";
+import { artifactModules as morphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { buildTestDeps } from "../../../../../support/step-deps.js";
 
 const { selectNavigableRiverTerrain } = hydrologyOpsPublic.ops;
@@ -156,6 +158,13 @@ describe("map-rivers/plot-rivers", () => {
       waterClass: new Uint8Array(size),
       coastRingMask: new Uint8Array(size),
       promotedOceanToCoast: 0,
+    });
+    const morphologyArtifacts = implementArtifactModules([morphologyArtifactModules.topography]);
+    morphologyArtifacts.topography.publish(context, {
+      elevation: new Int16Array(size),
+      seaLevel: 0,
+      landMask: new Uint8Array(size).fill(1),
+      bathymetry: new Int16Array(size),
     });
 
     expect(adapter.getTerrainType(0, 0)).toBe(FLAT_TERRAIN);

@@ -14,8 +14,11 @@ export const RuggedCoastsStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyArtifacts.beltDrivers, morphologyArtifacts.topography],
-    provides: [morphologyArtifactModules.coastlineMetrics],
+    requires: [morphologyArtifacts.beltDrivers, morphologyArtifacts.baseTopography],
+    provides: [
+      morphologyArtifactModules.carvedTopography,
+      morphologyArtifactModules.coastlineMetrics,
+    ],
   },
   ops: {
     coastlines: morphology.ops.computeCoastlineMetrics,

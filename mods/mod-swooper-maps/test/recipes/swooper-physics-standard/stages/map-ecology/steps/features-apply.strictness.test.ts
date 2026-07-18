@@ -8,6 +8,7 @@ import {
   artifacts as ecologyArtifacts,
 } from "../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import { FeaturesApplyStep as featuresApplyStep } from "../../../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/step.js";
+import { artifactModules as morphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";
 import { buildTestDeps } from "../../../../../support/step-deps.js";
 
@@ -26,12 +27,20 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
     const stageArtifacts = implementArtifactModules([
+      morphologyArtifactModules.topography,
       ecologyArtifactModules.featureIntentsVegetation,
       ecologyArtifactModules.featureIntentsWetlands,
       ecologyArtifactModules.featureIntentsFloodplains,
       ecologyArtifactModules.featureIntentsReefs,
       ecologyArtifactModules.featureIntentsIce,
     ]);
+
+    stageArtifacts.topography.publish(ctx, {
+      elevation: new Int16Array(width * height),
+      seaLevel: 0,
+      landMask: new Uint8Array(width * height).fill(1),
+      bathymetry: new Int16Array(width * height),
+    });
 
     ctx.artifacts.set(ecologyArtifacts.featureIntentsVegetation.id, [
       { x: 0, y: 0, feature: "FEATURE_DOES_NOT_EXIST" },
@@ -75,12 +84,20 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
     const stageArtifacts = implementArtifactModules([
+      morphologyArtifactModules.topography,
       ecologyArtifactModules.featureIntentsVegetation,
       ecologyArtifactModules.featureIntentsWetlands,
       ecologyArtifactModules.featureIntentsFloodplains,
       ecologyArtifactModules.featureIntentsReefs,
       ecologyArtifactModules.featureIntentsIce,
     ]);
+
+    stageArtifacts.topography.publish(ctx, {
+      elevation: new Int16Array(width * height),
+      seaLevel: 0,
+      landMask: new Uint8Array(width * height).fill(1),
+      bathymetry: new Int16Array(width * height),
+    });
 
     stageArtifacts.featureIntentsVegetation.publish(ctx, [{ x: 0, y: 0, feature: "forest" }]);
     stageArtifacts.featureIntentsWetlands.publish(ctx, []);
@@ -157,12 +174,19 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
     const stageArtifacts = implementArtifactModules([
+      morphologyArtifactModules.topography,
       ecologyArtifactModules.featureIntentsVegetation,
       ecologyArtifactModules.featureIntentsWetlands,
       ecologyArtifactModules.featureIntentsFloodplains,
       ecologyArtifactModules.featureIntentsReefs,
       ecologyArtifactModules.featureIntentsIce,
     ]);
+    stageArtifacts.topography.publish(ctx, {
+      elevation: new Int16Array(width * height),
+      seaLevel: 0,
+      landMask: new Uint8Array(width * height).fill(1),
+      bathymetry: new Int16Array(width * height),
+    });
     stageArtifacts.featureIntentsVegetation.publish(ctx, [{ x: 0, y: 0, feature: "forest" }]);
     stageArtifacts.featureIntentsWetlands.publish(ctx, []);
     stageArtifacts.featureIntentsFloodplains.publish(ctx, []);

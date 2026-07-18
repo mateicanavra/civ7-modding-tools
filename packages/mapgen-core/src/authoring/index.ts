@@ -23,6 +23,7 @@ export {
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
+  appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
   defineArtifactCatalog,
@@ -105,6 +106,7 @@ export {
   assertTypedArrayOf,
   assertUint8Array,
   assertUint16Array,
+  assertUint32Array,
   expectedGridSize,
   isFloat32Array,
   isInt8Array,
@@ -113,6 +115,7 @@ export {
   isTypedArrayOf,
   isUint8Array,
   isUint16Array,
+  isUint32Array,
 } from "./typed-arrays.js";
 export type {
   CompiledRecipeConfigOf,

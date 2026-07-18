@@ -42,6 +42,7 @@ function readPostEcologyFeatureSurface(
  */
 export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
   run: (context, config, ops, deps) => {
+    const topography = deps.artifacts.topography.read(context);
     const placements = {
       vegetation: Array.from(deps.artifacts.featureIntentsVegetation.read(context)),
       wetlands: Array.from(deps.artifacts.featureIntentsWetlands.read(context)),
@@ -215,7 +216,6 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
       featureType,
     });
 
-    const physics = applied > 0 ? context.buffers.heightfield : undefined;
     const engine = applied > 0 ? (snapshotEngineHeightfield(context) ?? undefined) : undefined;
     if (applied > 0) context.adapter.recalculateAreas();
 
@@ -227,8 +227,7 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
       applied,
       featureType,
       featureEngineIdsByKey: lookups.byKey,
-      physicsTerrain: physics?.terrain,
-      physicsLandMask: physics?.landMask,
+      topographyLandMask: applied > 0 ? topography.landMask : undefined,
       engine,
     } satisfies FeaturesApplyVizEvidence;
   },

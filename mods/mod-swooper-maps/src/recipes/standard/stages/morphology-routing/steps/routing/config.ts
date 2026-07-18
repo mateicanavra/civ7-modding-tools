@@ -17,7 +17,7 @@ export const RoutingStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyArtifacts.topography],
+    requires: [morphologyArtifacts.carvedTopography],
     provides: [morphologyArtifactModules.routing],
   },
   ops: {

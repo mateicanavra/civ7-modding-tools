@@ -17,7 +17,7 @@ function clampI8(value: number): number {
  */
 export const RoutingStep = createStep(RoutingStepContract, {
   run: (context, config, ops, deps) => {
-    const topography = deps.artifacts.topography.read(context);
+    const topography = deps.artifacts.carvedTopography.read(context);
     const { width, height } = context.dimensions;
     const routing = ops.routing(
       {

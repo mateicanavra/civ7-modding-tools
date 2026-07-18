@@ -4,6 +4,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tag-contracts.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
 import { artifacts as mapMorphologyArtifacts } from "../../../map-morphology/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 import { artifactModules as mapRiversArtifactModules } from "../../artifacts/index.js";
 
 const PlotRiversStepConfigSchema = Type.Object(
@@ -34,6 +35,7 @@ export const PlotRiversStepContract = defineStep({
       hydrologyHydrographyArtifacts.lakePlan,
       hydrologyHydrographyArtifacts.riverNetworkMetrics,
       mapMorphologyArtifacts.coastClassification,
+      morphologyArtifacts.topography,
     ],
     provides: [
       mapRiversArtifactModules.projectedNavigableRivers,

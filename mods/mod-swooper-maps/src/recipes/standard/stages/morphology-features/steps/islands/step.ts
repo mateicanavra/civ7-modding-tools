@@ -8,31 +8,26 @@ const GROUP_ISLANDS = "Morphology / Islands";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
- * Plans tectonically informed island peaks and applies them to Morphology's
- * land, elevation, and bathymetry buffers before final shelf computation.
+ * Plans tectonically informed island peaks, applies them to a producer-owned
+ * topography copy, and publishes the canonical final Morphology topography.
  */
 export const IslandsStep = createStep(IslandsStepContract, {
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const plates = deps.artifacts.foundationPlates.read(context);
-    const topography = deps.artifacts.topography.read(context) as {
-      seaLevel?: number;
-      bathymetry?: Int16Array;
-    };
-    const heightfield = context.buffers.heightfield;
-    const seaLevelValue = typeof topography.seaLevel === "number" ? topography.seaLevel : 0;
+    const topography = deps.artifacts.erodedTopography.read(context);
+    const elevation = new Int16Array(topography.elevation);
+    const landMask = new Uint8Array(topography.landMask);
+    const bathymetry = new Int16Array(topography.bathymetry);
+    const seaLevelValue = topography.seaLevel;
     const landElevation = clampInt16(Math.floor(seaLevelValue) + 1);
-    const bathymetry = topography.bathymetry;
-    if (!(bathymetry instanceof Int16Array) || bathymetry.length !== heightfield.elevation.length) {
-      throw new Error("Morphology topography bathymetry buffer missing or shape-mismatched.");
-    }
     const rngSeed = deriveStepSeed(context.env.seed, "morphology:planIslandChains");
 
     const plan = ops.islands(
       {
         width,
         height,
-        landMask: heightfield.landMask,
+        landMask,
         boundaryCloseness: plates.boundaryCloseness,
         boundaryType: plates.boundaryType,
         volcanism: plates.volcanism,
@@ -47,9 +42,9 @@ export const IslandsStep = createStep(IslandsStepContract, {
       const x = index - y * width;
       if (x < 0 || x >= width || y < 0 || y >= height) continue;
       if (edit.kind === "peak") {
-        heightfield.landMask[index] = 1;
-        if (heightfield.elevation[index] <= seaLevelValue) {
-          heightfield.elevation[index] = landElevation;
+        landMask[index] = 1;
+        if (elevation[index] <= seaLevelValue) {
+          elevation[index] = landElevation;
         }
         bathymetry[index] = 0;
       }
@@ -90,7 +85,7 @@ export const IslandsStep = createStep(IslandsStepContract, {
         sampleStep,
         cellFn: (x, y) => {
           const idx = y * width + x;
-          const base = heightfield.landMask[idx] === 1 ? "." : "~";
+          const base = landMask[idx] === 1 ? "." : "~";
           const overlay = editMask[idx] === 1 ? "I" : undefined;
           return { base, overlay };
         },
@@ -101,6 +96,12 @@ export const IslandsStep = createStep(IslandsStepContract, {
         legend: ".=land ~=water I=edit",
         rows,
       };
+    });
+    deps.artifacts.topography.publish(context, {
+      elevation,
+      seaLevel: seaLevelValue,
+      landMask,
+      bathymetry,
     });
     return editMask;
   },

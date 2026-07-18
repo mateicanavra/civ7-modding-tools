@@ -10,7 +10,7 @@ const GROUP_COASTLINES = "Morphology / Coastlines";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
- * Carves the coastline into the heightfield and publishes the CARVED (pre-island)
+ * Carves a producer-owned copy of base topography and publishes the CARVED (pre-island)
  * coastline metrics. The continental shelf used to be computed here too, but it is
  * now a separate post-features stage (morphology-shelf) so it sees final post-island
  * geography; this step only owns carving + reconciliation + the carved metrics that
@@ -56,15 +56,14 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
-    const topography = deps.artifacts.topography.read(context);
-    const heightfield = context.buffers.heightfield;
+    const baseTopography = deps.artifacts.baseTopography.read(context);
     const rngSeed = deriveStepSeed(context.env.seed, "morphology:computeCoastlineMetrics");
 
     const result = ops.coastlines(
       {
         width,
         height,
-        landMask: heightfield.landMask,
+        landMask: baseTopography.landMask,
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
         rngSeed,
@@ -75,26 +74,27 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
     const updatedLandMask = result.landMask;
     const coastMask = result.coastMask;
 
-    const seaLevelValue = topography.seaLevel;
-    const bathymetry = topography.bathymetry;
+    const seaLevelValue = baseTopography.seaLevel;
 
     // Reconcile land/water + elevation + bathymetry with the carved coastline. The op is
-    // pure (returns fresh arrays); the step owns the only legitimate side effect: copying the
-    // result back into the shared heightfield + topography bathymetry buffers in place.
+    // pure (returns fresh arrays); the step publishes those arrays as the next immutable vintage.
     const reconciled = ops.reconcileHeightfield(
       {
         width,
         height,
         landMask: updatedLandMask,
         coastMask,
-        elevation: heightfield.elevation,
+        elevation: baseTopography.elevation,
         seaLevel: seaLevelValue,
       },
       config.reconcileHeightfield
     );
-    heightfield.landMask.set(reconciled.landMask);
-    heightfield.elevation.set(reconciled.elevation);
-    bathymetry.set(reconciled.bathymetry);
+    const carvedTopography = {
+      elevation: reconciled.elevation,
+      seaLevel: seaLevelValue,
+      landMask: reconciled.landMask,
+      bathymetry: reconciled.bathymetry,
+    };
 
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));
@@ -102,7 +102,7 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
       let landTiles = 0;
       for (let i = 0; i < size; i++) {
         if (coastMask[i] === 1) coastTiles += 1;
-        if (heightfield.landMask[i] === 1) landTiles += 1;
+        if (carvedTopography.landMask[i] === 1) landTiles += 1;
       }
       return {
         kind: "morphology.coastlines.summary",
@@ -119,7 +119,7 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
         sampleStep,
         cellFn: (x, y) => {
           const idx = y * width + x;
-          const base = heightfield.landMask[idx] === 1 ? "." : "~";
+          const base = carvedTopography.landMask[idx] === 1 ? "." : "~";
           const overlay = coastMask[idx] === 1 ? "," : undefined;
           return { base, overlay };
         },
@@ -148,8 +148,9 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
       coastalWater: result.coastalWater,
       distanceToCoast,
     };
+    deps.artifacts.carvedTopography.publish(context, carvedTopography);
     deps.artifacts.coastlineMetrics.publish(context, coastlineMetrics);
-    return { bathymetry, coastlineMetrics };
+    return { bathymetry: carvedTopography.bathymetry, coastlineMetrics };
   },
   viz: ({ result: { bathymetry, coastlineMetrics }, dimensions }) => [
     {

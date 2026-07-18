@@ -30,7 +30,6 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 - **StepRegistry**: Registry of step implementations and their dependency tags.
 - **Dependency tag**: A string id describing a required/provided dependency. The closed kinds are `artifact:*` data and `effect:*` execution guarantees.
 - **Artifact**: Write-once published values; consumers treat them as immutable.
-- **Working buffer**: Context-local mutable state used within the active generation model. A buffer is not a dependency; cross-step evidence must be published as an artifact.
 - **Overlay**: A visualization/UI layer (e.g. a deck.gl layer entry), not an engine primitive.
 - **Truth vs projection**: Canonical domain primitives vs derived engine-facing/debug surfaces.
 

@@ -58,7 +58,7 @@ Think of MapGen as these layers:
 6) **Execution**
    - executor runs step nodes with:
      - tag gating (requires/provides),
-     - artifact store + buffer mutation rules,
+     - artifact admission and write-once publication,
      - trace scopes,
      - optional post-step metrics/visualization facet sinks.
 7) **Consumers**

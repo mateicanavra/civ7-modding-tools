@@ -8,6 +8,7 @@ import {
   PLACEMENT_PRODUCT_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
+import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 import {
   artifactModules as placementArtifactModules,
   artifacts as placementArtifacts,
@@ -15,8 +16,8 @@ import {
 
 /**
  * Terminal placement evidence step. DECLARED parity read (ADR-009): this step
- * intentionally reads the Morphology physics heightfield buffer and compares
- * it against an engine readback snapshot - that physics-vs-engine comparison
+ * intentionally reads final Morphology topography and compares its land mask
+ * against an engine readback snapshot - that product-vs-engine comparison
  * (waterDriftCount, placementEngineTerrainSnapshot) is the step's product,
  * so both sides of the comparison are evidence inputs, not planning truth.
  */
@@ -37,6 +38,7 @@ export const PlacementStepContract = defineStep({
       placementArtifacts.discoveryPlacementOutcomes,
       placementArtifacts.advancedStartAssignment,
       standardArtifacts.landmassRegionSlotByTile,
+      morphologyArtifacts.topography,
     ],
     provides: [
       placementArtifactModules.placementOutputs,

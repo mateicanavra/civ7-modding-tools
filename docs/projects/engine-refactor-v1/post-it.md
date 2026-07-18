@@ -7,15 +7,16 @@
 - Dead context state, fake dependency bags, and duplicate adapter/Foundation authorities are removed.
 - Mutable `field:*` dependency tags are retired; Ecology publishes its post-projection engine feature surface as validated artifact evidence for Placement.
 - The mutable climate buffer is retired: Hydrology now publishes immutable baseline and final climate artifacts, and `map-hydrology/project-rainfall` is the sole rainfall projection boundary.
+- The shared heightfield buffer is retired: Morphology advances explicit base, carved, eroded, and final topography vintages plus base and final substrate artifacts without mutating published evidence.
 - These layers are foundations, not open refactor surfaces.
 
 ## Now
 
-- Replace the remaining shared heightfield with explicit topography and substrate artifact vintages.
+- Land one complete author-facing `MapContext` and the responsibility-based Core type-module split.
 
 ## Next
 
-- Land one complete author-facing `MapContext` and the responsibility-based Core type-module split, then complete the pre-A.2 package relocation from the sealed destination design.
+- Complete the pre-A.2 package relocation from the sealed destination design.
 
 ## Around
 

@@ -131,6 +131,7 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const riverNetworkMetrics = deps.artifacts.riverNetworkMetrics.read(context);
     const coastClassification = deps.artifacts.coastClassification.read(context);
+    const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.dimensions;
 
     const logStats = (label: string) => {
@@ -322,7 +323,6 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     context.adapter.recalculateAreas();
     context.adapter.storeWaterData();
 
-    const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
     let engineEvidence: PlotRiversVizEvidence["engineEvidence"];
     if (engine) {
@@ -393,7 +393,7 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
       riverClass: hydrography.riverClass,
       discharge: hydrography.discharge,
       materialized,
-      physicsLandMask: physics.landMask,
+      topographyLandMask: topography.landMask,
       engineEvidence,
     } satisfies PlotRiversVizEvidence;
   },

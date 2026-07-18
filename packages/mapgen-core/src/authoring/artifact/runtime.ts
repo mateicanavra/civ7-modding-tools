@@ -99,10 +99,7 @@ export type ProvidedArtifactRuntime<
      *
      * IMPORTANT:
      * - Publishing stores the provided value reference (no deep freeze, no snapshotting in prod).
-     * - Producers should treat published values as immutable once stored.
-     * - Buffer artifacts are a temporary exception: publish once, then mutate
-     *   the underlying buffer via ctx.buffers without re-publishing.
-     * TODO(architecture): redesign buffers as a distinct dependency kind (not artifacts).
+     * - Producers must treat published values as immutable once stored.
      */
     publish: (context: TContext, value: ArtifactValueOf<C>) => ArtifactReadValueOf<C>;
     satisfies: DependencyTagDefinition<TContext>["satisfies"];

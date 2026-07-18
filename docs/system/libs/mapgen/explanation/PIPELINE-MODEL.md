@@ -38,7 +38,7 @@ A pipeline run is:
 4. **Run**:
    - executor iterates nodes in order
    - requires/provides validated via tag registry
-   - step executes and publishes artifacts / mutates buffers
+   - step executes and publishes its write-once artifact evidence
    - trace scope is created per step
    - after successful execution and provider admission, optional metrics and visualization facets
      project completed evidence into matching environment-owned sinks

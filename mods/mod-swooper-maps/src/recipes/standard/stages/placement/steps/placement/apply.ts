@@ -42,6 +42,7 @@ type ApplyPlacementArgs = {
   discoveryPlacement: DeepReadonly<DiscoveryPlacementOutcomes>;
   advancedStartAssignment: DeepReadonly<AdvancedStartAssignment>;
   landmassRegionSlotByTile: DeepReadonly<LandmassRegionSlotByTile>;
+  topographyLandMask: DeepReadonly<Uint8Array>;
   publishOutputs: (outputs: PlacementOutputsV1) => DeepReadonly<PlacementOutputsV1>;
   publishEngineState?: (engineState: PlacementEngineState) => DeepReadonly<PlacementEngineState>;
   publishEngineTerrainSnapshot?: (
@@ -75,6 +76,7 @@ export function applyPlacementPlan({
   discoveryPlacement,
   advancedStartAssignment,
   landmassRegionSlotByTile,
+  topographyLandMask,
   publishOutputs,
   publishEngineState = (engineState) => engineState,
   publishEngineTerrainSnapshot = (snapshot) => snapshot,
@@ -119,19 +121,16 @@ export function applyPlacementPlan({
   logTerrainStats(trace, adapter, width, height, "Final");
   logAsciiMap(trace, adapter, width, height);
 
-  // DECLARED physics-buffer parity read: comparing the Morphology physics
-  // land mask against the engine surface is the purpose of this snapshot
-  // (waterDriftCount evidence), so the heightfield buffer — not the engine —
-  // is the intended comparison source here.
-  const physics = context.buffers.heightfield;
+  // Compare the final Morphology land classification with the engine surface
+  // after all placement product work has completed.
   const engineSnapshot = snapshotEngineHeightfield(context);
   const engineLandMask = engineSnapshot
     ? engineSnapshot.landMask
-    : new Uint8Array(physics.landMask);
+    : new Uint8Array(topographyLandMask);
   let waterDriftCount = 0;
   const waterDrift = new Uint8Array(engineLandMask.length);
   for (let i = 0; i < engineLandMask.length; i++) {
-    if ((engineLandMask[i] ?? 0) !== (physics.landMask[i] ?? 0)) {
+    if ((engineLandMask[i] ?? 0) !== (topographyLandMask[i] ?? 0)) {
       waterDriftCount += 1;
       // 1 = engine land where physics says water; 2 = engine water where physics says land.
       waterDrift[i] = (engineLandMask[i] ?? 0) === 1 ? 1 : 2;

@@ -26,12 +26,11 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 const TARGET_WATER_PERCENT_CLAMP_MIN = 0;
 const TARGET_WATER_PERCENT_CLAMP_MAX = 100;
 
-function applyBaseTerrainBuffers(
+function collectBaseTerrainStats(
   width: number,
   height: number,
   elevation: Int16Array,
-  landMask: Uint8Array,
-  heightfield: { elevation: Int16Array; landMask: Uint8Array }
+  landMask: Uint8Array
 ): { landCount: number; waterCount: number; minElevation: number; maxElevation: number } {
   const size = Math.max(0, (width | 0) * (height | 0));
   let landCount = 0;
@@ -42,9 +41,6 @@ function applyBaseTerrainBuffers(
   for (let i = 0; i < size; i++) {
     const nextElevation = elevation[i] ?? 0;
     const isLand = landMask[i] === 1;
-
-    heightfield.elevation[i] = nextElevation | 0;
-    heightfield.landMask[i] = isLand ? 1 : 0;
 
     if (isLand) landCount += 1;
     else waterCount += 1;
@@ -133,7 +129,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
     // Sculpt continental-margin morphology (apron -> break -> slope -> abyss) directly into
     // ABSOLUTE elevation, datum-free, BEFORE sea level is solved. This GENERATES the real
     // margin the shelf classifier later reads. Because it rewrites baseTopography.elevation in
-    // place — the same buffer compute-sea-level consumes — the datum is solved on the sculpted
+    // place — the same producer-owned elevation copy compute-sea-level consumes — the datum is solved on the sculpted
     // histogram (the one real coupling), held in check by the targetWaterPercent intent (see
     // normalize). marginHopDistance/apronLengthScale are exposed for diagnostics only.
     const margin = ops.sculptContinentalMargin(
@@ -206,13 +202,9 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
       config.landmask
     );
 
-    const stats = applyBaseTerrainBuffers(
-      width,
-      height,
-      baseTopography.elevation,
-      landmask.landMask,
-      context.buffers.heightfield
-    );
+    const elevation = new Int16Array(baseTopography.elevation);
+    const landMask = new Uint8Array(landmask.landMask);
+    const stats = collectBaseTerrainStats(width, height, elevation, landMask);
     // (Removed `relaxUndrivenInteriorDomes`: it artificially lowered undriven interior land to fake
     // relief on the old flat unimodal hump. With bimodal crust relief, undriven interiors are real
     // cratons that should ride high — the heuristic now double-counted and carved them back down.)
@@ -220,20 +212,20 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
     const seaLevelValue = seaLevel.seaLevel;
     const waterElevation = clampInt16(Math.floor(seaLevelValue));
     const landElevation = clampInt16(Math.floor(seaLevelValue) + 1);
-    for (let i = 0; i < context.buffers.heightfield.elevation.length; i++) {
-      const isLand = context.buffers.heightfield.landMask[i] === 1;
-      const current = context.buffers.heightfield.elevation[i] ?? 0;
+    for (let i = 0; i < elevation.length; i++) {
+      const isLand = landMask[i] === 1;
+      const current = elevation[i] ?? 0;
       if (isLand) {
-        if (current <= seaLevelValue) context.buffers.heightfield.elevation[i] = landElevation;
+        if (current <= seaLevelValue) elevation[i] = landElevation;
       } else {
-        if (current > seaLevelValue) context.buffers.heightfield.elevation[i] = waterElevation;
+        if (current > seaLevelValue) elevation[i] = waterElevation;
       }
     }
 
     const bathymetry = new Int16Array(Math.max(0, (width | 0) * (height | 0)));
     for (let i = 0; i < bathymetry.length; i++) {
-      const elevationMeters = context.buffers.heightfield.elevation[i] ?? 0;
-      const isLand = context.buffers.heightfield.landMask[i] === 1;
+      const elevationMeters = elevation[i] ?? 0;
+      const isLand = landMask[i] === 1;
       if (isLand) {
         bathymetry[i] = 0;
         continue;
@@ -243,9 +235,9 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
     }
 
     const topography = {
-      elevation: context.buffers.heightfield.elevation,
+      elevation,
       seaLevel: seaLevelValue,
-      landMask: context.buffers.heightfield.landMask,
+      landMask,
       bathymetry,
     };
 
@@ -265,7 +257,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
         sampleStep,
         cellFn: (x, y) => {
           const idx = y * width + x;
-          const isLand = context.buffers.heightfield.landMask[idx] === 1;
+          const isLand = landMask[idx] === 1;
           return { base: isLand ? "." : "~" };
         },
       });
@@ -277,8 +269,8 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
       };
     });
 
-    deps.artifacts.topography.publish(context, topography);
-    deps.artifacts.substrate.publish(context, substrate);
+    deps.artifacts.baseTopography.publish(context, topography);
+    deps.artifacts.baseSubstrate.publish(context, substrate);
     deps.artifacts.beltDrivers.publish(context, beltDrivers);
     return { topography, substrate, beltDrivers };
   },

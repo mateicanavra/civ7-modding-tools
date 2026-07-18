@@ -15,6 +15,7 @@ export const LakesStep = createStep(LakesStepContract, {
   run: (context, _config, _ops, deps) => {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const mountains = deps.artifacts.mountains.read(context);
+    const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.dimensions;
     const size = Math.max(0, width * height);
 
@@ -31,7 +32,7 @@ export const LakesStep = createStep(LakesStepContract, {
 
     // The adapter is the only engine boundary. Stamping plus readback stays there
     // so this stage records projection evidence without owning Civ7 terrain APIs.
-    const physicsLandMask = context.buffers.heightfield.landMask;
+    const topographyLandMask = topography.landMask;
     const projection = context.adapter.stampLakes(width, height, projectionLakeMask);
     const engineAfter = snapshotEngineHeightfield(context);
     if (engineAfter) {
@@ -81,7 +82,7 @@ export const LakesStep = createStep(LakesStepContract, {
     }
     return {
       plannedLakeMask: lakePlan.lakeMask,
-      physicsLandMask,
+      topographyLandMask,
       projection,
       engineLandMask: engineAfter?.landMask,
     };
@@ -134,12 +135,12 @@ export const LakesStep = createStep(LakesStepContract, {
     projections.push(
       {
         kind: "grid",
-        dataTypeKey: "debug.heightfield.landMask",
+        dataTypeKey: "morphology.topography.landMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
-        field: { format: "u8", values: result.physicsLandMask },
-        meta: defineStandardVizMeta("debug.heightfield.landMask", "category.distinct", {
-          label: "Land Mask (Physics Truth)",
+        field: { format: "u8", values: result.topographyLandMask },
+        meta: defineStandardVizMeta("morphology.topography.landMask", "category.distinct", {
+          label: "Land Mask (Final Morphology)",
           group: GROUP_MAP_HYDROLOGY,
           role: "physics",
           visibility: "debug",
@@ -147,11 +148,11 @@ export const LakesStep = createStep(LakesStepContract, {
       },
       {
         kind: "grid",
-        dataTypeKey: "debug.heightfield.landMask",
+        dataTypeKey: "map.hydrology.lakes.engineLandMask",
         spaceId: TILE_SPACE_ID,
         dims: dimensions,
         field: { format: "u8", values: result.engineLandMask },
-        meta: defineStandardVizMeta("debug.heightfield.landMask", "category.distinct", {
+        meta: defineStandardVizMeta("map.hydrology.lakes.engineLandMask", "category.distinct", {
           label: "Land Mask (Engine After Lakes)",
           group: GROUP_MAP_HYDROLOGY,
           role: "engine",

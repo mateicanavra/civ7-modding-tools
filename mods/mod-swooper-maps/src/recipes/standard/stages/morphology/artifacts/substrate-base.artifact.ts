@@ -5,19 +5,19 @@ import {
   validateMorphologySubstrate,
 } from "./substrate.schema.js";
 
-/** Closed schema for the final substrate consumed by landform and Ecology stages. */
+/** Closed schema for tectonically derived substrate before geomorphic erosion. */
 export const Schema = createMorphologySubstrateSchema(
-  "Final Morphology erodibility and sediment fields after geomorphic erosion and deposition."
+  "Initial Morphology erodibility and sediment fields before geomorphic erosion."
 );
 
-/** Registers the canonical final substrate consumed by downstream stages. */
+/** Registers the base substrate consumed only by geomorphology. */
 export const artifact = defineArtifact({
-  name: "substrate",
-  id: "artifact:morphology.substrate",
+  name: "baseSubstrate",
+  id: "artifact:morphology.substrate.base",
   schema: Schema,
 });
 
-/** Admits final substrate with exact per-tile cardinality. */
+/** Admits base substrate with exact per-tile cardinality. */
 export function validate(value: unknown, context?: ArtifactValidationContext) {
   return validateMorphologySubstrate(Schema, value, context);
 }

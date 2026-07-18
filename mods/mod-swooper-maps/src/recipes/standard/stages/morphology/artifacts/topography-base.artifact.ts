@@ -5,19 +5,19 @@ import {
   validateMorphologyTopography,
 } from "./topography.schema.js";
 
-/** Closed schema for the final topography consumed throughout the remaining recipe. */
+/** Closed schema for the initial landmass topography before coastline carving. */
 export const Schema = createMorphologyTopographySchema(
-  "Final Morphology topography after erosion and island-chain edits."
+  "Initial Morphology topography after tectonic relief, sea-level solving, and land classification."
 );
 
-/** Registers the canonical final topography consumed by downstream stages. */
+/** Registers the base topography consumed only by coastline carving. */
 export const artifact = defineArtifact({
-  name: "topography",
-  id: "artifact:morphology.topography",
+  name: "baseTopography",
+  id: "artifact:morphology.topography.base",
   schema: Schema,
 });
 
-/** Admits final topography with exact per-tile cardinality. */
+/** Admits base topography with exact per-tile cardinality. */
 export function validate(value: unknown, context?: ArtifactValidationContext) {
   return validateMorphologyTopography(Schema, value, context);
 }

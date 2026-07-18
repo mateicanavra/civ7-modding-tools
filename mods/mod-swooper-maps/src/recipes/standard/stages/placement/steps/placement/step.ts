@@ -16,6 +16,7 @@ export const PlacementStep = createStep(PlacementStepContract, {
     const discoveryPlacement = deps.artifacts.discoveryPlacementOutcomes.read(context);
     const advancedStartAssignment = deps.artifacts.advancedStartAssignment.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
+    const topography = deps.artifacts.topography.read(context);
 
     return applyPlacementPlan({
       context,
@@ -26,6 +27,7 @@ export const PlacementStep = createStep(PlacementStepContract, {
       discoveryPlacement,
       advancedStartAssignment,
       landmassRegionSlotByTile,
+      topographyLandMask: topography.landMask,
       publishOutputs: (outputs) => deps.artifacts.placementOutputs.publish(context, outputs),
       publishEngineState: (engineState) => deps.artifacts.engineState.publish(context, engineState),
       publishEngineTerrainSnapshot: (snapshot) =>

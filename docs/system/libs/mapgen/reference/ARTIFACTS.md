@@ -2,7 +2,6 @@
   <item id="purpose" title="Purpose"/>
   <item id="module" title="Artifact module"/>
   <item id="contract" title="Contract (write-once, read-only)"/>
-  <item id="buffers" title="Buffers exception"/>
   <item id="anchors" title="Ground truth anchors"/>
 </toc>
 
@@ -10,8 +9,7 @@
 
 ## Purpose
 
-Define artifact contracts, their complete admission validators, publish/read behavior,
-mutability, and the buffer exception.
+Define artifact contracts, their complete admission validators, and publish/read behavior.
 
 ## Artifact module
 
@@ -102,22 +100,12 @@ admission authority for publication, satisfaction checks, and validated reads.
 `implementArtifactModules(...)` remains lower-level runtime support; it is not the step
 authoring surface.
 
-## Buffers exception
-
-Buffers are a current performance exception:
-
-- published once,
-- then mutated in-place across steps,
-- and must not be republished.
-
-Docs must keep this exception narrow and explicitly labeled as such.
-
 ## Ground truth anchors
 
 - Artifact runtime (write-once enforcement, read-only reads): `packages/mapgen-core/src/authoring/artifact/runtime.ts`
 - Artifact module and catalog derivation: `packages/mapgen-core/src/authoring/artifact/module.ts`
 - Artifact types and DeepReadonly: `packages/mapgen-core/src/authoring/artifact/contract.ts`
-- Buffer exception and ArtifactStore notes: `packages/mapgen-core/src/core/types.ts`
+- ArtifactStore ownership: `packages/mapgen-core/src/core/types.ts`
 - Policy: artifact mutation: `docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`
 - Example artifact owner: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts/topography.artifact.ts`
 - Example artifact catalog: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts/index.ts`

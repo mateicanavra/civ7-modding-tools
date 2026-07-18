@@ -5,7 +5,7 @@ import { artifacts as standardArtifacts } from "../../../../artifacts/index.js";
 import { artifactModules as morphologyArtifactModules } from "../../../morphology/artifacts/index.js";
 
 /**
- * Seeds morphology buffers from foundation crust + tectonic history (belt drivers + substrate + base topography).
+ * Publishes initial Morphology evidence from Foundation crust and tectonic history.
  */
 export const LandmassPlatesStepContract = defineStep({
   id: "landmass-plates",
@@ -19,8 +19,8 @@ export const LandmassPlatesStepContract = defineStep({
       standardArtifacts.foundationTectonicProvenanceTiles,
     ],
     provides: [
-      morphologyArtifactModules.topography,
-      morphologyArtifactModules.substrate,
+      morphologyArtifactModules.baseTopography,
+      morphologyArtifactModules.baseSubstrate,
       morphologyArtifactModules.beltDrivers,
     ],
   },

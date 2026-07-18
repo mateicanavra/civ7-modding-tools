@@ -106,7 +106,7 @@ MapGen is a deterministic pipeline with explicit ownership boundaries.
 | Stage                | Authoring/config surface, knobs scope, stage id prefix, and local step composition.                                                                               | Global ordering, truth authority, runtime topology, or compute.          |
 | Recipe               | Global stage/step order and enablement.                                                                                                                           | Hidden manifests, prose ordering, or `shouldRun`-style skips.            |
 | Compilation          | Validate and normalize authoring config into executable step/op config.                                                                                           | Side effects or engine state.                                            |
-| Execution            | Run the compiled plan with dependency gates, write-once artifacts, traces, and buffers.                                                                           | Architecture design or compatibility shims.                              |
+| Execution            | Run the compiled plan with dependency gates, write-once artifact vintages, and traces.                                                                             | Architecture design, shared mutable buffers, or compatibility shims.     |
 | Projection / Runtime | Materialize truth artifacts into Civ7 engine state and verify effects.                                                                                            | Domain truth unless explicitly accepted as a projection limitation.      |
 
 Recipe steps use one source topology: `steps/<step-id>/config.ts` owns the

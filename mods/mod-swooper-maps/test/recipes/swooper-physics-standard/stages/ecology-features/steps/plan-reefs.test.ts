@@ -28,7 +28,6 @@ describe("ecology-features plan-reefs step", () => {
     adapter.fillWater(true);
 
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
-    ctx.buffers.heightfield.landMask.fill(0);
 
     const layers = createEmptyFeatureScoreLayers(size);
     layers.reef.fill(1);

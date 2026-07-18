@@ -381,7 +381,7 @@ Computes elevation and sediment deltas for a geomorphic relaxation pass.
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/ops/compute-geomorphic-cycle/contract.ts` (`ComputeGeomorphicCycleContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology/step.ts` (applying deltas to `heightfield.elevation` and `substrate.sedimentDepth`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology/step.ts` (copying carved topography and base substrate, then publishing eroded topography and final substrate)
 
 #### `morphology/compute-landmasses` → `{ landmasses, landmassIdByTile }`
 

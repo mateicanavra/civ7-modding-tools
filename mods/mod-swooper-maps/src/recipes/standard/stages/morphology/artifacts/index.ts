@@ -6,7 +6,11 @@ import * as mountains from "./mountains.artifact.js";
 import * as routing from "./routing.artifact.js";
 import * as shelf from "./shelf.artifact.js";
 import * as substrate from "./substrate.artifact.js";
+import * as baseSubstrate from "./substrate-base.artifact.js";
 import * as topography from "./topography.artifact.js";
+import * as baseTopography from "./topography-base.artifact.js";
+import * as carvedTopography from "./topography-carved.artifact.js";
+import * as erodedTopography from "./topography-eroded.artifact.js";
 import * as volcanoes from "./volcanoes.artifact.js";
 
 const catalog = defineArtifactCatalog({
@@ -16,7 +20,11 @@ const catalog = defineArtifactCatalog({
   mountains,
   routing,
   shelf,
+  baseSubstrate,
   substrate,
+  baseTopography,
+  carvedTopography,
+  erodedTopography,
   topography,
   volcanoes,
 });

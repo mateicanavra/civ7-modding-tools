@@ -16,8 +16,8 @@ const GROUP_GEOMORPHOLOGY = "Morphology / Geomorphology";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
- * Applies routing- and substrate-driven incision, diffusion, and deposition to
- * shared terrain buffers while explicitly preserving the land/water mask.
+ * Applies routing- and substrate-driven incision, diffusion, and deposition,
+ * then publishes the eroded topography and final substrate vintages.
  */
 export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
   normalize: (config, ctx) => {
@@ -61,35 +61,29 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
     return { ...config, geomorphology: geomorphologySelection };
   },
   run: (context, config, ops, deps) => {
-    const topography = deps.artifacts.topography.read(context) as {
-      seaLevel?: number;
-      bathymetry?: Int16Array;
-    };
+    const topography = deps.artifacts.carvedTopography.read(context);
     const routing = deps.artifacts.routing.read(context);
-    const substrate = deps.artifacts.substrate.read(context) as {
-      erodibilityK: Float32Array;
-      sedimentDepth: Float32Array;
-    };
+    const substrate = deps.artifacts.baseSubstrate.read(context);
     const { width, height } = context.dimensions;
-    const heightfield = context.buffers.heightfield;
-    const landMaskStable = new Uint8Array(heightfield.landMask);
+    const elevation = new Int16Array(topography.elevation);
+    const landMask = new Uint8Array(topography.landMask);
+    const bathymetry = new Int16Array(topography.bathymetry);
+    const erodibilityK = new Float32Array(substrate.erodibilityK);
+    const sedimentDepth = new Float32Array(substrate.sedimentDepth);
 
     const deltas = ops.geomorphology(
       {
         width,
         height,
-        elevation: heightfield.elevation,
-        landMask: heightfield.landMask,
+        elevation,
+        landMask,
         flowDir: routing.flowDir,
         flowAccum: routing.flowAccum,
-        erodibilityK: substrate.erodibilityK,
-        sedimentDepth: substrate.sedimentDepth,
+        erodibilityK,
+        sedimentDepth,
       },
       config.geomorphology
     );
-
-    const elevation = heightfield.elevation;
-    const sedimentDepth = substrate.sedimentDepth;
 
     for (let i = 0; i < elevation.length; i++) {
       const nextElevation = clampInt16(Math.round(elevation[i] + deltas.elevationDelta[i]));
@@ -97,16 +91,12 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
       sedimentDepth[i] = Math.max(0, sedimentDepth[i] + deltas.sedimentDelta[i]);
     }
 
-    const seaLevel = typeof topography.seaLevel === "number" ? topography.seaLevel : 0;
-    const bathymetry = topography.bathymetry;
-    if (!(bathymetry instanceof Int16Array) || bathymetry.length !== elevation.length) {
-      throw new Error("Morphology topography bathymetry buffer missing or shape-mismatched.");
-    }
+    const seaLevel = topography.seaLevel;
     const waterElevation = clampInt16(Math.floor(seaLevel));
     const landElevation = clampInt16(Math.floor(seaLevel) + 1);
     for (let i = 0; i < elevation.length; i++) {
-      const isLand = landMaskStable[i] === 1;
-      heightfield.landMask[i] = isLand ? 1 : 0;
+      const isLand = landMask[i] === 1;
+      landMask[i] = isLand ? 1 : 0;
       if (isLand) {
         // Erosion should sculpt; it must not silently reclassify land/water by pushing tiles across sea level.
         if ((elevation[i] ?? 0) <= seaLevel) elevation[i] = landElevation;
@@ -120,8 +110,6 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
 
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));
-      const landMask = heightfield.landMask;
-
       let landTiles = 0;
       let deltaMin = 0;
       let deltaMax = 0;
@@ -172,7 +160,7 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
           sampleStep,
           cellFn: (x, y) => {
             const idx = y * width + x;
-            if (heightfield.landMask[idx] !== 1) return { base: "~" };
+            if (landMask[idx] !== 1) return { base: "~" };
             const delta = deltas.elevationDelta[idx] ?? 0;
             const erosion = delta < 0 ? (-delta / Math.max(1e-9, maxErosion)) * 255 : 0;
             return { base: shadeByte(Math.round(erosion)) };
@@ -185,7 +173,7 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
           sampleStep,
           cellFn: (x, y) => {
             const idx = y * width + x;
-            if (heightfield.landMask[idx] !== 1) return { base: "~" };
+            if (landMask[idx] !== 1) return { base: "~" };
             const delta = deltas.elevationDelta[idx] ?? 0;
             const deposit = delta > 0 ? (delta / Math.max(1e-9, maxDeposit)) * 255 : 0;
             return { base: shadeByte(Math.round(deposit)) };
@@ -201,10 +189,19 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
         };
       });
     }
+    const erodedTopography = {
+      elevation,
+      seaLevel,
+      landMask,
+      bathymetry,
+    };
+    const finalSubstrate = { erodibilityK, sedimentDepth };
+    deps.artifacts.erodedTopography.publish(context, erodedTopography);
+    deps.artifacts.substrate.publish(context, finalSubstrate);
     return {
       deltas,
-      elevation: heightfield.elevation,
-      landMask: heightfield.landMask,
+      elevation,
+      landMask,
       bathymetry,
     };
   },

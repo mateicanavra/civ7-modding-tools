@@ -32,7 +32,7 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
 - Pick a stable step id (string) and phase (`"foundation" | "morphology" | "hydrology" | "ecology" | "gameplay" | ...`).
 - Identify required dependency tags (what must exist before your step can run).
 - Identify provided dependency tags (what your step guarantees after it runs).
-- Identify artifacts read/write needs (buffer vs snapshot; publish-once rule).
+- Identify the exact artifact vintages the step reads and the new vintages it publishes once.
 
 ### 2) Define the step contract (`defineStep`)
 
@@ -53,10 +53,11 @@ export const GeomorphologyStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      morphologyArtifacts.topography,
+      morphologyArtifacts.carvedTopography,
       morphologyArtifacts.routing,
-      morphologyArtifacts.substrate,
+      morphologyArtifacts.baseSubstrate,
     ],
+    provides: [morphologyArtifactModules.erodedTopography, morphologyArtifactModules.substrate],
   },
   ops: {
     geomorphology: morphology.ops.computeGeomorphicCycle,
@@ -119,23 +120,32 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
     return config;
   },
   run: (context, config, ops, deps) => {
+    const topography = deps.artifacts.carvedTopography.read(context);
     const routing = deps.artifacts.routing.read(context);
-    const heightfield = context.buffers.heightfield;
+    const substrate = deps.artifacts.baseSubstrate.read(context);
+    const elevation = new Int16Array(topography.elevation);
+    const landMask = new Uint8Array(topography.landMask);
+    const sedimentDepth = new Float32Array(substrate.sedimentDepth);
 
     const deltas = ops.geomorphology(
       {
         width: context.dimensions.width,
         height: context.dimensions.height,
-        elevation: heightfield.elevation,
-        landMask: heightfield.landMask,
+        elevation,
+        landMask,
         flowDir: routing.flowDir,
         flowAccum: routing.flowAccum,
-        erodibilityK: deps.artifacts.substrate.read(context).erodibilityK,
-        sedimentDepth: deps.artifacts.substrate.read(context).sedimentDepth,
+        erodibilityK: substrate.erodibilityK,
+        sedimentDepth,
       },
       config.geomorphology
     );
 
+    deps.artifacts.erodedTopography.publish(context, {
+      ...topography,
+      elevation,
+      landMask,
+    });
     context.trace.event(() => ({ kind: "morphology.geomorphology.summary" }));
     return { elevationDelta: deltas.elevationDelta };
   },
@@ -216,7 +226,7 @@ If your step introduces a new required/provided dependency tag:
 
 - **Forgetting to register the step**: writing a contract and implementation does nothing unless the stage/recipe composes it.
 - **Missing dependency tags**: the executor will fail early with `MissingDependencyError`; fix by adding tags/provides or adjusting ordering.
-- **Republishing buffer artifacts**: buffer artifacts are “publish once, mutate via `ctx.buffers`”; don’t republish in later steps.
+- **Mutating consumed artifacts**: consumers must copy before mutation and publish a new, explicitly named vintage.
 - **Import drift**: prefer published entrypoints (see import policy); avoid workspace-only MapGen aliases in docs/examples unless explicitly internal.
 
 ## Ground truth anchors

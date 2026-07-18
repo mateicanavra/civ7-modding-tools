@@ -11,6 +11,7 @@ import {
 } from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import { PlanFloodplainsStep } from "../../../../src/recipes/standard/stages/ecology-features/steps/plan-floodplains/step.js";
 import { FeaturesApplyStep } from "../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/step.js";
+import { artifactModules as morphologyArtifactModules } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../support/compiler-helpers.js";
 import { createEmptyFeatureScoreLayers } from "../../../support/feature-score-layers.js";
 import { buildTestDeps } from "../../../support/step-deps.js";
@@ -121,9 +122,16 @@ describe("floodplain feature product row", () => {
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
     const setupArtifacts = implementArtifactModules([
+      morphologyArtifactModules.topography,
       ecologyArtifactModules.scoreLayers,
       ecologyArtifactModules.occupancyBase,
     ]);
+    setupArtifacts.topography.publish(ctx, {
+      elevation: new Int16Array(size).fill(24),
+      seaLevel: 0,
+      landMask,
+      bathymetry: new Int16Array(size),
+    });
     setupArtifacts.scoreLayers.publish(ctx, { width, height, layers });
     setupArtifacts.occupancyBase.publish(ctx, {
       width,

@@ -151,7 +151,7 @@ function validatePayload(
 ): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isRecord(value)) {
-    errors.push({ message: "Missing beltDrivers buffer." });
+    errors.push({ message: "Missing beltDrivers artifact value." });
     return errors;
   }
   const size = expectedSize(dimensions);

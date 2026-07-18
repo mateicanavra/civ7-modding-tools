@@ -5,19 +5,19 @@ import {
   validateMorphologyTopography,
 } from "./topography.schema.js";
 
-/** Closed schema for the final topography consumed throughout the remaining recipe. */
+/** Closed schema for eroded topography before island-chain edits. */
 export const Schema = createMorphologyTopographySchema(
-  "Final Morphology topography after erosion and island-chain edits."
+  "Morphology topography after geomorphic erosion and before island-chain edits."
 );
 
-/** Registers the canonical final topography consumed by downstream stages. */
+/** Registers the eroded topography consumed only by island planning. */
 export const artifact = defineArtifact({
-  name: "topography",
-  id: "artifact:morphology.topography",
+  name: "erodedTopography",
+  id: "artifact:morphology.topography.eroded",
   schema: Schema,
 });
 
-/** Admits final topography with exact per-tile cardinality. */
+/** Admits eroded topography with exact per-tile cardinality. */
 export function validate(value: unknown, context?: ArtifactValidationContext) {
   return validateMorphologyTopography(Schema, value, context);
 }

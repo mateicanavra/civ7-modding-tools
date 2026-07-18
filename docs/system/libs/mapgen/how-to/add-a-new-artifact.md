@@ -21,9 +21,8 @@ Routes to:
 
 ## Prereqs
 
-- Decide whether the artifact is:
-  - a **snapshot** (immutable; publish once; safe to share), or
-  - a **buffer handle** (publish once; mutate later through the narrow buffer exception).
+- Define the artifact as an immutable snapshot. If a later step changes the value,
+  it consumes this snapshot, copies it, and publishes a separately named vintage.
 - Choose a stable artifact id such as `"artifact:morphology.routing"`.
 - Identify the artifact owner directory and the single step that publishes it.
 
@@ -154,8 +153,8 @@ into `context.artifacts` directly.
 - **Parallel registries**: do not recreate contract and validator maps beside the catalog.
 - **Duplicate provider authority**: never pass modules to `createStep`; provider modules
   belong only in the contract's `artifacts.provides` declaration.
-- **Publishing twice**: buffer artifacts are published exactly once; later steps mutate
-  only through the documented buffer exception.
+- **Publishing twice or mutating after publication**: each artifact vintage has one producer;
+  later changes require a copied value and a new vintage contract.
 - **Artifact vs field confusion**: fields are adapter-level engine outputs; artifacts are
   pipeline data products.
 

@@ -49,8 +49,7 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
     const topography = deps.artifacts.topography.read(context);
 
-    // POST-island truth: topography.landMask/bathymetry are publish-once handles that
-    // morphology-features mutated in place (islands inject land + set bathymetry 0).
+    // Final topography includes island injection and is immutable after publication.
     const landMask = topography.landMask;
     const bathymetry = topography.bathymetry;
 

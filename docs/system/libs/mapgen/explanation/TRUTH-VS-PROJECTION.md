@@ -49,7 +49,7 @@ The standard recipe often introduces explicit projection steps whose job is to:
 
 - Use trace/viz to compare:
   - truth-driven projection outputs across steps,
-  - “before/after” snapshots when a later step mutates buffers.
+  - named artifact vintages or truth artifacts against engine projection evidence.
 - Avoid “fixing drift” by copying projected fields; fix the projection source instead.
 
 ## Ground truth anchors

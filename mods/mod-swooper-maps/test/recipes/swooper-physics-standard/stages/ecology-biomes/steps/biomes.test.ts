@@ -34,10 +34,10 @@ describe("biomes step", () => {
 
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
-    ctx.buffers.heightfield.landMask.fill(1);
-    ctx.buffers.heightfield.landMask[0] = 0;
-    ctx.buffers.heightfield.elevation.fill(1);
-    ctx.buffers.heightfield.elevation[0] = 0;
+    const landMask = new Uint8Array(size).fill(1);
+    landMask[0] = 0;
+    const elevation = new Int16Array(size).fill(1);
+    elevation[0] = 0;
 
     const requiredArtifacts = implementArtifactModules([
       morphologyArtifactModules.topography,
@@ -47,9 +47,9 @@ describe("biomes step", () => {
     ]);
 
     requiredArtifacts.topography.publish(ctx, {
-      elevation: ctx.buffers.heightfield.elevation,
+      elevation,
       seaLevel: 0,
-      landMask: ctx.buffers.heightfield.landMask,
+      landMask,
       bathymetry: new Int16Array(size),
     });
     requiredArtifacts.cryosphere.publish(ctx, {
@@ -120,8 +120,8 @@ describe("biomes step", () => {
     adapter.fillWater(false);
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
-    ctx.buffers.heightfield.landMask.fill(1);
-    ctx.buffers.heightfield.elevation.fill(1);
+    const landMask = new Uint8Array(size).fill(1);
+    const elevation = new Int16Array(size).fill(1);
 
     const requiredArtifacts = implementArtifactModules([
       morphologyArtifactModules.topography,
@@ -131,9 +131,9 @@ describe("biomes step", () => {
     ]);
 
     requiredArtifacts.topography.publish(ctx, {
-      elevation: ctx.buffers.heightfield.elevation,
+      elevation,
       seaLevel: 0,
-      landMask: ctx.buffers.heightfield.landMask,
+      landMask,
       bathymetry: new Int16Array(size),
     });
     requiredArtifacts.cryosphere.publish(ctx, {
@@ -215,8 +215,8 @@ describe("biomes step", () => {
 
       const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
-      ctx.buffers.heightfield.landMask.fill(1);
-      ctx.buffers.heightfield.elevation.fill(1);
+      const landMask = new Uint8Array(size).fill(1);
+      const elevation = new Int16Array(size).fill(1);
 
       const requiredArtifacts = implementArtifactModules([
         morphologyArtifactModules.topography,
@@ -226,9 +226,9 @@ describe("biomes step", () => {
       ]);
 
       requiredArtifacts.topography.publish(ctx, {
-        elevation: ctx.buffers.heightfield.elevation,
+        elevation,
         seaLevel: 0,
-        landMask: ctx.buffers.heightfield.landMask,
+        landMask,
         bathymetry: new Int16Array(size),
       });
       requiredArtifacts.cryosphere.publish(ctx, {

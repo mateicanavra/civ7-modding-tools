@@ -9,7 +9,7 @@
  * Invariants:
  * - Passes should ONLY access engine APIs via the adapter
  * - RNG calls should go through ctxRandom/ctxStepSeed for deterministic replay
- * - Context is a stable reference (but the remaining morphology buffer is mutable for performance)
+ * - Context is a stable reference; pipeline evidence flows through write-once artifacts
  */
 
 import type { EngineAdapter, MapDimensions } from "@civ7/adapter";
@@ -20,31 +20,7 @@ import type { TraceScope } from "@mapgen/trace/index.js";
 import { createNoopTraceScope } from "@mapgen/trace/index.js";
 
 /**
- * Primary morphology staging buffer.
- * Captures the heightfield before flushing to engine.
- */
-export interface HeightfieldBuffer {
-  elevation: Int16Array;
-  terrain: Uint8Array;
-  landMask: Uint8Array;
-}
-
-/**
- * Mutable morphology staging memory retained until topography moves to explicit artifact vintages.
- *
- * NOTE:
- * - The heightfield is mutable and updated in-place across Morphology steps.
- * - Climate no longer uses this surface; Hydrology communicates through write-once artifacts.
- */
-export interface MapBuffers {
-  heightfield: HeightfieldBuffer;
-}
-
-/**
  * Store of published artifacts keyed by dependency tag id.
- *
- * Morphology's remaining heightfield buffer is not a dependency identity; steps
- * publish their durable outputs as admitted artifacts.
  */
 export class ArtifactStore extends Map<string, unknown> {}
 
@@ -82,10 +58,6 @@ export interface ExtendedMapContext {
    * Used by PipelineExecutor for runtime requires/provides gating.
    */
   artifacts: ArtifactStore;
-  /**
-   * Mutable generation buffer retained only for Morphology heightfield staging.
-   */
-  buffers: MapBuffers;
 }
 
 // ============================================================================
@@ -95,7 +67,7 @@ export interface ExtendedMapContext {
 const EMPTY_FROZEN_OBJECT = Object.freeze({});
 
 /**
- * Create a new ExtendedMapContext with its remaining morphology buffer and empty artifact store.
+ * Creates a new ExtendedMapContext with deterministic RNG state and an empty artifact store.
  */
 export function createExtendedMapContext(
   dimensions: MapDimensions,
@@ -103,15 +75,6 @@ export function createExtendedMapContext(
   env: Env
 ): ExtendedMapContext {
   initializeTerrainConstants(adapter);
-  const { width, height } = dimensions;
-  const size = width * height;
-
-  const heightfield: HeightfieldBuffer = {
-    elevation: new Int16Array(size),
-    terrain: new Uint8Array(size),
-    landMask: new Uint8Array(size),
-  };
-
   return {
     dimensions,
     rng: {
@@ -123,7 +86,6 @@ export function createExtendedMapContext(
     trace: createNoopTraceScope(),
     adapter,
     artifacts: new ArtifactStore(),
-    buffers: { heightfield },
   };
 }
 

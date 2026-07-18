@@ -31,7 +31,8 @@ Routes to:
 
 - Use **artifact** tags to gate pipeline-internal products.
 - Use **effect** tags for adapter-visible “effects applied” signals.
-- Mutable context buffers are not dependencies. Snapshot any cross-step evidence into an artifact.
+- Cross-step data is always a validated artifact vintage; local scratch arrays are not context state
+  or dependency tags.
 
 ### 2) Add the tag id constant
 

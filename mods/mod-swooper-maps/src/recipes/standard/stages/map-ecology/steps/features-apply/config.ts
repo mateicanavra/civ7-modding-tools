@@ -8,6 +8,7 @@ import {
   artifactModules as ecologyArtifactModules,
   artifacts as ecologyArtifacts,
 } from "../../../ecology/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 
 /**
  * Defines the sole map-ecology boundary that applies all planned feature-family intents to
@@ -29,6 +30,7 @@ export const FeaturesApplyStepContract = defineStep({
       ecologyArtifacts.featureIntentsFloodplains,
       ecologyArtifacts.featureIntentsReefs,
       ecologyArtifacts.featureIntentsIce,
+      morphologyArtifacts.topography,
     ],
     provides: [
       ecologyArtifactModules.featureApplyDiagnostics,

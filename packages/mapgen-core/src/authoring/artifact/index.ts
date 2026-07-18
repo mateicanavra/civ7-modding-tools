@@ -19,4 +19,8 @@ export {
 } from "./runtime.js";
 export { readValidatedArtifact } from "./validated-read.js";
 export type { ArtifactValidationContext, ArtifactValidationIssue } from "./validation.js";
-export { artifactCellCount, validateArtifactSchema } from "./validation.js";
+export {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
+  validateArtifactSchema,
+} from "./validation.js";

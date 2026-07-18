@@ -39,7 +39,11 @@ export const LakesStepContract = defineStep({
     MAP_PROJECTION_EFFECT_TAGS.map.hydrologyLakesParityCaptured,
   ],
   artifacts: {
-    requires: [hydrologyHydrographyArtifacts.lakePlan, morphologyArtifacts.mountains],
+    requires: [
+      hydrologyHydrographyArtifacts.lakePlan,
+      morphologyArtifacts.mountains,
+      morphologyArtifacts.topography,
+    ],
     provides: [
       mapHydrologyArtifactModules.engineProjectionLakes,
       mapHydrologyArtifactModules.hydrologyLakesEngineTerrainSnapshot,

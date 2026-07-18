@@ -37,8 +37,8 @@ describe("plan-vegetation/apply pipeline", () => {
     adapter.fillWater(false);
 
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
-    ctx.buffers.heightfield.landMask.fill(1);
-    ctx.buffers.heightfield.elevation.fill(100);
+    const landMask = new Uint8Array(size).fill(1);
+    const elevation = new Int16Array(size).fill(100);
 
     const layers = createEmptyFeatureScoreLayers(size);
     layers.forest.fill(1);
@@ -91,9 +91,9 @@ describe("plan-vegetation/apply pipeline", () => {
       sinkLakeCount: 0,
     });
     stageArtifacts.topography.publish(ctx, {
-      elevation: ctx.buffers.heightfield.elevation,
+      elevation,
       seaLevel: 0,
-      landMask: ctx.buffers.heightfield.landMask,
+      landMask,
       bathymetry: new Int16Array(size),
     });
     stageArtifacts.mountains.publish(ctx, {

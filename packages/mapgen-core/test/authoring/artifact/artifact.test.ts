@@ -5,6 +5,7 @@ import {
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
+  appendArtifactTypedArrayIssues,
   createRecipe,
   createStage,
   createStep,
@@ -37,6 +38,27 @@ function schemaModule<C extends ReturnType<typeof defineArtifact>>(artifact: C) 
 }
 
 describe("artifact authoring", () => {
+  it("reports exact typed-array constructors and cardinality through one admission primitive", () => {
+    const issues: Array<{ message: string }> = [];
+
+    expect(appendArtifactTypedArrayIssues(issues, "field", new Int16Array(4), Int16Array, 4)).toBe(
+      true
+    );
+    expect(
+      appendArtifactTypedArrayIssues(issues, "wrongConstructor", new Uint16Array(4), Int16Array, 4)
+    ).toBe(false);
+    expect(
+      appendArtifactTypedArrayIssues(issues, "wrongLength", new Int16Array(3), Int16Array, 4)
+    ).toBe(true);
+    expect(
+      appendArtifactTypedArrayIssues(issues, "unsignedField", new Uint32Array(2), Uint32Array)
+    ).toBe(true);
+    expect(issues).toEqual([
+      { message: "Expected wrongConstructor to be Int16Array." },
+      { message: "Expected wrongLength length 4 (received 3)." },
+    ]);
+  });
+
   it("defineStep merges artifact contracts into requires/provides", () => {
     const artifact = defineArtifact({
       name: "artifactFoo",

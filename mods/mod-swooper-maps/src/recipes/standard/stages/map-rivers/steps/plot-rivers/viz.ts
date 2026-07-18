@@ -13,7 +13,7 @@ export type PlotRiversVizEvidence = Readonly<{
     plannedMinorRiverMask: Uint8Array;
     plannedMajorRiverMask: Uint8Array;
   }>;
-  physicsLandMask: Uint8Array;
+  topographyLandMask: Uint8Array;
   engineEvidence?: Readonly<{
     engineLandMask: Uint8Array;
     riverReadback: Readonly<{
@@ -154,12 +154,12 @@ export function buildPlotRiversVizProjections(
     },
     {
       kind: "grid",
-      dataTypeKey: "debug.heightfield.landMask",
+      dataTypeKey: "morphology.topography.landMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
-      field: { format: "u8", values: result.physicsLandMask },
-      meta: defineStandardVizMeta("debug.heightfield.landMask", "category.distinct", {
-        label: "Land Mask (Physics Truth)",
+      field: { format: "u8", values: result.topographyLandMask },
+      meta: defineStandardVizMeta("morphology.topography.landMask", "category.distinct", {
+        label: "Land Mask (Final Morphology)",
         group: GROUP_MAP_RIVERS,
         role: "physics",
         visibility: "debug",
@@ -167,11 +167,11 @@ export function buildPlotRiversVizProjections(
     },
     {
       kind: "grid",
-      dataTypeKey: "debug.heightfield.landMask",
+      dataTypeKey: "map.rivers.engineLandMask",
       spaceId: TILE_SPACE_ID,
       dims: dimensions,
       field: { format: "u8", values: result.engineEvidence.engineLandMask },
-      meta: defineStandardVizMeta("debug.heightfield.landMask", "category.distinct", {
+      meta: defineStandardVizMeta("map.rivers.engineLandMask", "category.distinct", {
         label: "Land Mask (Engine After Rivers)",
         group: GROUP_MAP_RIVERS,
         role: "engine",

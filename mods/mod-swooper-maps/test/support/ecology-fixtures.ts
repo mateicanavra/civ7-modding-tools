@@ -31,7 +31,7 @@ export const ECOLOGY_TIER1_ARTIFACT_IDS = [
   ecologyArtifacts.featureIntentsIce.id,
 ] as const;
 
-const VIZ_KEY_PREFIXES = ["ecology.", "map.ecology.", "debug.heightfield."] as const;
+const VIZ_KEY_PREFIXES = ["ecology.", "map.ecology."] as const;
 
 type VizKeyEntry = Readonly<{ dataTypeKey: string; spaceId: string; kind: string }>;
 
