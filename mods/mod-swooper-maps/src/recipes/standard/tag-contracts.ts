@@ -1,14 +1,3 @@
-/** Map-tile-sized runtime fields whose presence gates consumers in the recipe DAG. */
-export const FIELD_DEPENDENCY_TAGS = {
-  field: {
-    terrainType: "field:terrainType",
-    elevation: "field:elevation",
-    rainfall: "field:rainfall",
-    biomeId: "field:biomeId",
-    featureType: "field:featureType",
-  },
-} as const;
-
 /** Civ7 engine mutations whose completion may require adapter-backed verification. */
 export const STANDARD_ENGINE_EFFECT_TAGS = {
   engine: {

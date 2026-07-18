@@ -89,14 +89,21 @@ describe("biomes step", () => {
       buildTestDeps(plotBiomesStep)
     );
 
-    const biomeId = ctx.fields.biomeId;
-    if (!biomeId) throw new Error("Missing biomeId field after plot-biomes.");
+    const bindings = ctx.artifacts.get(ecologyArtifacts.biomeBindings.id) as
+      | { engineBiomeId: Uint16Array }
+      | undefined;
+    const biomeId = bindings?.engineBiomeId;
+    if (!(biomeId instanceof Uint16Array)) {
+      throw new Error("Missing biomeBindings evidence after plot-biomes.");
+    }
     const marineId = adapter.getBiomeGlobal("BIOME_MARINE");
     expect(biomeId[0]).toBe(marineId);
+    expect(adapter.getBiomeType(0, 0)).toBe(marineId);
 
     const landIdx = 1;
     expect(biomeId[landIdx]).not.toBe(marineId);
     expect(biomeId[landIdx]).toBeGreaterThanOrEqual(0);
+    expect(adapter.getBiomeType(landIdx, 0)).toBe(biomeId[landIdx]);
   });
 
   it("uses hydrology climateIndices for temperature/aridity/freeze (no local re-derive)", () => {

@@ -444,9 +444,9 @@ from that contract while binding behavior only. The lower-level
 > Id namespaces seen in live source: `artifact:<domain>.<name>` (e.g.
 > `artifact:morphology.topography`, `artifact:ecology.biomeClassification`) for domain
 > artifacts, and `artifact:map.<name>` (e.g. `artifact:map.morphology.coastClassification`)
-> for map-level/projection artifacts. There are also `field:<name>` and `effect:<name>`
-> tags — `effect:*` tags express ordering dependencies in `requires`/`provides`, distinct
-> from `artifact:*` data. Publish is write-once: a second publish of the same artifact in
+> for map-level/projection artifacts. `effect:<name>` tags express execution guarantees in
+> `requires`/`provides`, distinct from `artifact:*` data. Those are the only two dependency
+> kinds. Publish is write-once: a second publish of the same artifact in
 > one run is an error.
 
 ---

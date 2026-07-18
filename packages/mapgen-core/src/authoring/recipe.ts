@@ -58,9 +58,8 @@ function assertTagDefinitions(value: unknown): void {
 
 function inferTagKind(id: string): DependencyTagDefinition<unknown>["kind"] {
   if (id.startsWith("artifact:")) return "artifact";
-  if (id.startsWith("field:")) return "field";
   if (id.startsWith("effect:")) return "effect";
-  throw new Error(`Invalid dependency tag "${id}" (expected artifact:/field:/effect:)`);
+  throw new Error(`Invalid dependency tag "${id}" (expected artifact:/effect:)`);
 }
 
 function computeFullStepId(input: {

@@ -50,12 +50,11 @@ describe("derive placement inputs", () => {
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_KILIMANJARO, direction: -1 }],
     });
+    const featureTypeSnapshot = new Int16Array(size).fill(adapter.NO_FEATURE);
+    featureTypeSnapshot[0] = featureTypes.FEATURE_ICE;
     const context = {
       dimensions: { width, height },
       adapter,
-      fields: {
-        featureType: new Int16Array(size).fill(adapter.NO_FEATURE),
-      },
       buffers: {
         heightfield: {
           elevation: new Int16Array(size).fill(500),
@@ -67,6 +66,7 @@ describe("derive placement inputs", () => {
     let capturedNaturalWonderInput:
       | {
           featureCatalog?: ReadonlyArray<{ direction: number; footprintOffsetsByParity?: unknown }>;
+          featureType?: Int16Array;
         }
       | undefined;
     const ops = {
@@ -124,6 +124,7 @@ describe("derive placement inputs", () => {
       biomeBindings: {
         engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
       },
+      featureEngineSnapshot: { width, height, featureType: featureTypeSnapshot },
       pedology: { fertility: new Float32Array(size).fill(0.5) },
     });
 
@@ -145,6 +146,8 @@ describe("derive placement inputs", () => {
         ],
       },
     });
+    expect(capturedNaturalWonderInput?.featureType).toBe(featureTypeSnapshot);
+    expect(capturedNaturalWonderInput?.featureType?.[0]).toBe(featureTypes.FEATURE_ICE);
   });
 
   it("includes the recovered 4-tile natural wonders (Barrier Reef) in the plan catalog", () => {
@@ -174,9 +177,6 @@ describe("derive placement inputs", () => {
     const context = {
       dimensions: { width, height },
       adapter,
-      fields: {
-        featureType: new Int16Array(size).fill(adapter.NO_FEATURE),
-      },
       buffers: {
         heightfield: {
           elevation: new Int16Array(size).fill(500),
@@ -247,6 +247,11 @@ describe("derive placement inputs", () => {
       },
       biomeBindings: {
         engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
+      },
+      featureEngineSnapshot: {
+        width,
+        height,
+        featureType: new Int16Array(size).fill(adapter.NO_FEATURE),
       },
       pedology: { fertility: new Float32Array(size).fill(0.5) },
     });
@@ -332,16 +337,17 @@ describe("derive placement inputs", () => {
       height,
       mapInfo,
       mapSizeId: 1,
-      defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
-      defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-    });
-    adapter.setFeatureType(1, 1, {
-      Feature: featureTypes.FEATURE_ICE,
-      Direction: 0,
-      Elevation: 0,
+      defaultTerrainType: terrainTypeIndices.TERRAIN_COAST,
+      defaultBiomeType: biomeGlobals.BIOME_MARINE,
     });
     const elevation = new Int16Array(size).fill(100);
     elevation[5] = 240;
+    const terrainType = new Uint8Array(size).fill(terrainTypeIndices.TERRAIN_MOUNTAIN);
+    const biomeType = new Uint8Array(size).fill(biomeGlobals.BIOME_PLAINS);
+    const featureType = new Int16Array(size).fill(adapter.NO_FEATURE);
+    featureType[5] = featureTypes.FEATURE_ICE;
+    const blockedMask = new Uint8Array(size);
+    blockedMask[5] = 1;
     const context = {
       dimensions: { width, height },
       adapter,
@@ -375,6 +381,12 @@ describe("derive placement inputs", () => {
         lakePlan: { lakeMask: new Uint8Array(size) },
         biomeClassification: {
           aridityIndex: new Float32Array(size).fill(0.25),
+        },
+        naturalWonderPlanSurfaces: {
+          terrainType,
+          biomeType,
+          featureType,
+          blockedMask,
         },
       },
     });

@@ -6,24 +6,16 @@ import {
 } from "./stages/placement/artifacts/index.js";
 import type { PlacementOutputsV1 } from "./stages/placement/artifacts/placement-outputs.artifact.js";
 import {
-  FIELD_DEPENDENCY_TAGS,
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "./tag-contracts.js";
 
 export {
-  FIELD_DEPENDENCY_TAGS,
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "./tag-contracts.js";
-
-/** Canonical field and engine tag identities exposed for dependency-policy comparisons. */
-export const CANONICAL_FIELD_AND_ENGINE_TAGS: ReadonlySet<string> = new Set([
-  ...Object.values(FIELD_DEPENDENCY_TAGS.field),
-  ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine),
-]);
 
 type EffectTagOwnerProperties = Pick<DependencyTagDefinition<ExtendedMapContext>, "owner">;
 type EffectTagSatisfiesProperties = Pick<DependencyTagDefinition<ExtendedMapContext>, "satisfies">;
@@ -184,46 +176,11 @@ type SatisfactionState = {
 };
 
 /**
- * Runtime definitions for every Standard field and effect tag. Field tags
- * verify map-tile-sized typed arrays; effect tags carry declared owners and use
- * adapter/artifact verification where completion cannot be trusted by name.
+ * Runtime definitions for every Standard effect tag. Effects carry declared owners and use
+ * adapter/artifact verification where completion cannot be trusted by name; data dependencies
+ * are registered by their step-owned artifact modules instead of this catalog.
  */
 export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition<ExtendedMapContext>[] = [
-  {
-    id: FIELD_DEPENDENCY_TAGS.field.terrainType,
-    kind: "field",
-    satisfies: (context) => isUint8Array(context.fields?.terrainType, getExpectedSize(context)),
-    demo: new Uint8Array(0),
-    validateDemo: (demo) => isUint8Array(demo),
-  },
-  {
-    id: FIELD_DEPENDENCY_TAGS.field.elevation,
-    kind: "field",
-    satisfies: (context) => isInt16Array(context.fields?.elevation, getExpectedSize(context)),
-    demo: new Int16Array(0),
-    validateDemo: (demo) => isInt16Array(demo),
-  },
-  {
-    id: FIELD_DEPENDENCY_TAGS.field.rainfall,
-    kind: "field",
-    satisfies: (context) => isUint8Array(context.fields?.rainfall, getExpectedSize(context)),
-    demo: new Uint8Array(0),
-    validateDemo: (demo) => isUint8Array(demo),
-  },
-  {
-    id: FIELD_DEPENDENCY_TAGS.field.biomeId,
-    kind: "field",
-    satisfies: (context) => isUint8Array(context.fields?.biomeId, getExpectedSize(context)),
-    demo: new Uint8Array(0),
-    validateDemo: (demo) => isUint8Array(demo),
-  },
-  {
-    id: FIELD_DEPENDENCY_TAGS.field.featureType,
-    kind: "field",
-    satisfies: (context) => isInt16Array(context.fields?.featureType, getExpectedSize(context)),
-    demo: new Int16Array(0),
-    validateDemo: (demo) => isInt16Array(demo),
-  },
   ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map(effectTagDefinition),
   ...Object.values(PLACEMENT_PRODUCT_EFFECT_TAGS.placement).map(effectTagDefinition),
   ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine).map(standardEngineEffectTagDefinition),
@@ -297,20 +254,4 @@ function isNonNegativeInteger(value: unknown): value is number {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
-}
-
-function getExpectedSize(context: ExtendedMapContext): number {
-  return context.dimensions.width * context.dimensions.height;
-}
-
-function isUint8Array(value: unknown, expectedSize?: number): value is Uint8Array {
-  if (!(value instanceof Uint8Array)) return false;
-  if (expectedSize == null) return true;
-  return value.length === expectedSize;
-}
-
-function isInt16Array(value: unknown, expectedSize?: number): value is Int16Array {
-  if (!(value instanceof Int16Array)) return false;
-  if (expectedSize == null) return true;
-  return value.length === expectedSize;
 }

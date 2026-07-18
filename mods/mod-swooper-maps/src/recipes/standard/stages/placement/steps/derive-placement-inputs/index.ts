@@ -11,7 +11,7 @@ import {
 import { logNaturalWonderPlanRuntimeTelemetry } from "./natural-wonder-plan-telemetry.js";
 
 /**
- * Consolidates artifact truth and declared engine surfaces into placement
+ * Consolidates artifact evidence and declared engine surfaces into placement
  * inputs, then derives natural-wonder intent without mutating the map.
  */
 export default createStep(DerivePlacementInputsContract, {
@@ -28,28 +28,40 @@ export default createStep(DerivePlacementInputsContract, {
     const biomeClassification = deps.artifacts.biomeClassification.read(context);
     // Engine biome surface: the plot-biomes projection artifact, not a readback.
     const biomeBindings = deps.artifacts.biomeBindings.read(context);
+    // Engine feature surface: the validated snapshot published after feature projection.
+    const featureEngineSnapshot = deps.artifacts.featureEngineSnapshot.read(context);
     const pedology = deps.artifacts.pedology.read(context);
 
-    const { inputs, naturalWonderPlan } = buildPlacementInputs(context, config, ops, {
-      topography: {
-        landMask: topography.landMask as Uint8Array,
-        elevation: topography.elevation as Int16Array,
-      },
-      hydrography: {
-        riverClass: hydrography.riverClass as Uint8Array,
-        discharge: hydrography.discharge as Float32Array,
-        slopeClass: riverNetworkMetrics.slopeClass as Uint8Array,
-      },
-      lakePlan: { lakeMask: lakePlan.lakeMask as Uint8Array },
-      biomeClassification: {
-        effectiveMoisture: biomeClassification.effectiveMoisture as Float32Array,
-        surfaceTemperature: biomeClassification.surfaceTemperature as Float32Array,
-        aridityIndex: biomeClassification.aridityIndex as Float32Array,
-        vegetationDensity: biomeClassification.vegetationDensity as Float32Array,
-      },
-      biomeBindings: { engineBiomeId: biomeBindings.engineBiomeId as Uint16Array },
-      pedology: { fertility: pedology.fertility as Float32Array },
-    });
+    const { inputs, naturalWonderPlan, naturalWonderPlanSurfaces } = buildPlacementInputs(
+      context,
+      config,
+      ops,
+      {
+        topography: {
+          landMask: topography.landMask as Uint8Array,
+          elevation: topography.elevation as Int16Array,
+        },
+        hydrography: {
+          riverClass: hydrography.riverClass as Uint8Array,
+          discharge: hydrography.discharge as Float32Array,
+          slopeClass: riverNetworkMetrics.slopeClass as Uint8Array,
+        },
+        lakePlan: { lakeMask: lakePlan.lakeMask as Uint8Array },
+        biomeClassification: {
+          effectiveMoisture: biomeClassification.effectiveMoisture as Float32Array,
+          surfaceTemperature: biomeClassification.surfaceTemperature as Float32Array,
+          aridityIndex: biomeClassification.aridityIndex as Float32Array,
+          vegetationDensity: biomeClassification.vegetationDensity as Float32Array,
+        },
+        biomeBindings: { engineBiomeId: biomeBindings.engineBiomeId as Uint16Array },
+        featureEngineSnapshot: {
+          width: featureEngineSnapshot.width,
+          height: featureEngineSnapshot.height,
+          featureType: featureEngineSnapshot.featureType as Int16Array,
+        },
+        pedology: { fertility: pedology.fertility as Float32Array },
+      }
+    );
     const naturalWonderPlanInputTelemetry = buildNaturalWonderPlanInputRuntimeTelemetry({
       context,
       plan: naturalWonderPlan,
@@ -63,6 +75,7 @@ export default createStep(DerivePlacementInputsContract, {
         biomeClassification: {
           aridityIndex: biomeClassification.aridityIndex as Float32Array,
         },
+        naturalWonderPlanSurfaces,
       },
     });
     deps.artifacts.placementInputs.publish(context, inputs);

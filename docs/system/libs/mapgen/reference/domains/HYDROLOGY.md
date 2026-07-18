@@ -200,7 +200,7 @@ different writer surface is discovered and proven.
 - Step contracts (projection stage):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.contract.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts`
-- Tag registry (effect tags, current `field:*` deps): `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
+- Effect tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 
 ## Open questions

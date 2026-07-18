@@ -391,8 +391,8 @@ missing/invalid artifact errors.
 
 Boundary:
 
-Do not merge artifact authority with `field:*` mutable buffers or `effect:*`
-materialization tags. Buffer/field mutability is a narrow exception, not a
+Do not merge artifact authority with `effect:*` materialization tags. Mutable
+working buffers stay context-local and do not become dependency IDs or a
 general artifact model.
 
 ### Step Contract Authority
@@ -584,7 +584,7 @@ test relocation.
    concrete.
 7. Prefer closed structures, source-native schemas, positive boundary graphs,
    and registry validation over lists of forbidden strings.
-8. Keep artifact, field, effect tag, and dependency tag semantics distinct.
+8. Keep artifact values, effect tags, and dependency-tag semantics distinct.
 9. Preserve open semantic gates instead of forcing a local owner.
 10. Do not create new frame variants or operational ledgers when the existing
     JSON and this reference are sufficient.

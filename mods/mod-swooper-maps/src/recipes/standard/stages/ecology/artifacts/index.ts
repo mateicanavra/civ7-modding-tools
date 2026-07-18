@@ -2,6 +2,7 @@ import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts"
 import * as biomeBindings from "./biome-bindings.artifact.js";
 import * as biomeClassification from "./biome-classification.artifact.js";
 import * as featureApplyDiagnostics from "./feature-apply-diagnostics.artifact.js";
+import * as featureEngineSnapshot from "./feature-engine-snapshot.artifact.js";
 import * as featureIntentsFloodplains from "./feature-intents-floodplains.artifact.js";
 import * as featureIntentsIce from "./feature-intents-ice.artifact.js";
 import * as featureIntentsReefs from "./feature-intents-reefs.artifact.js";
@@ -22,6 +23,7 @@ const catalog = defineArtifactCatalog({
   biomeBindings,
   biomeClassification,
   featureApplyDiagnostics,
+  featureEngineSnapshot,
   featureIntentsFloodplains,
   featureIntentsIce,
   featureIntentsReefs,

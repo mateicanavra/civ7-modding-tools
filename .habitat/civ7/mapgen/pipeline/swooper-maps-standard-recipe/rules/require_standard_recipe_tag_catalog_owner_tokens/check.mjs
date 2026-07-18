@@ -11,9 +11,9 @@ const tagsText = read(tagsPath);
 const findings = [];
 
 for (const token of [
-  "FIELD_DEPENDENCY_TAGS",
   "STANDARD_ENGINE_EFFECT_TAGS",
   "MAP_PROJECTION_EFFECT_TAGS",
+  "PLACEMENT_PRODUCT_EFFECT_TAGS",
 ]) {
   if (!tagsText.includes(token)) {
     findings.push({

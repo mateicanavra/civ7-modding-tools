@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "require_standard_recipe_tag_catalog_owner_tokens",
-  "title": "Require Standard Recipe Tag Catalog Owner Tokens",
+  "title": "Require Standard Recipe Effect Catalog Owner Tokens",
   "placement": {
     "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
     "blueprint": "_self",
@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "missing required standard recipe dependency-tag catalog owner tokens",
-  "why": "The standard recipe tag catalog must retain the current owner-specific field, engine-effect, and map-projection tag families.",
+  "forbids": "missing required standard recipe effect-tag catalog owner tokens",
+  "why": "The standard recipe tag catalog must retain the current owner-specific engine, map-projection, and placement-product effect families; artifact identities come from step-owned modules.",
   "remediate": null,
-  "message": "Keep standard recipe tag catalog owner tokens present.",
+  "message": "Keep standard recipe effect catalog owner tokens present.",
   "pathCoverage": [
     {
       "kind": "exact-path",

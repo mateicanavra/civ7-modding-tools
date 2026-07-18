@@ -9,7 +9,7 @@
  * Invariants:
  * - Passes should ONLY access engine APIs via the adapter
  * - RNG calls should go through ctxRandom/ctxStepSeed for deterministic replay
- * - Context is a stable reference (but buffers/fields are mutable for performance)
+ * - Context is a stable reference (but buffers are mutable for performance)
  * - Buffers are currently treated as artifacts for pipeline gating and DX
  *   (see ArtifactStore + MapBuffers notes for the temporary exception).
  */
@@ -54,22 +54,6 @@ export type {
   VizValueTransform,
   VizVariantKey,
 } from "@swooper/mapgen-viz";
-
-// ============================================================================
-// Field Buffer Types
-// ============================================================================
-
-/**
- * Typed arrays for terrain data
- */
-export interface MapFields {
-  rainfall: Uint8Array | null;
-  elevation: Int16Array | null;
-  temperature: Uint8Array | null;
-  biomeId: Uint8Array | null;
-  featureType: Int16Array | null;
-  terrainType: Uint8Array | null;
-}
 
 /**
  * Primary morphology staging buffer.
@@ -210,7 +194,6 @@ export interface VizDumper {
  */
 export interface ExtendedMapContext {
   dimensions: MapDimensions;
-  fields: MapFields;
   rng: RNGState;
   env: Env;
   trace: TraceScope;
@@ -237,7 +220,7 @@ export interface ExtendedMapContext {
 const EMPTY_FROZEN_OBJECT = Object.freeze({});
 
 /**
- * Create a new ExtendedMapContext with default/empty fields.
+ * Create a new ExtendedMapContext with its mutable working buffers and empty artifact store.
  */
 export function createExtendedMapContext(
   dimensions: MapDimensions,
@@ -254,22 +237,13 @@ export function createExtendedMapContext(
     landMask: new Uint8Array(size),
   };
 
-  const rainfall = new Uint8Array(size);
   const climate: ClimateFieldBuffer = {
-    rainfall,
+    rainfall: new Uint8Array(size),
     humidity: new Uint8Array(size),
   };
 
   return {
     dimensions,
-    fields: {
-      rainfall,
-      elevation: new Int16Array(size),
-      temperature: new Uint8Array(size),
-      biomeId: new Uint8Array(size),
-      featureType: new Int16Array(size),
-      terrainType: new Uint8Array(size),
-    },
     rng: {
       callCounts: new Map(),
       seed: env.seed,
@@ -350,9 +324,6 @@ export function writeClimateField(
     if (typeof options.rainfall === "number") {
       const rf = Math.max(0, Math.min(200, options.rainfall)) | 0;
       climate.rainfall[idxValue] = rf & 0xff;
-      if (ctx.fields?.rainfall) {
-        ctx.fields.rainfall[idxValue] = rf & 0xff;
-      }
     }
     if (typeof options.humidity === "number") {
       const hum = Math.max(0, Math.min(255, options.humidity)) | 0;

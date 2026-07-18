@@ -12,6 +12,7 @@ import { createExtendedMapContext } from "@mapgen/core/types.js";
 import {
   compileExecutionPlan,
   InvalidDependencyTagDemoError,
+  InvalidDependencyTagError,
   isDependencyTagSatisfied,
   PipelineExecutor,
   StepRegistry,
@@ -53,6 +54,41 @@ function compilePlan<TContext>(
 }
 
 describe("tag registry", () => {
+  it("admits only artifact and effect dependency kinds", () => {
+    const registry = new TagRegistry();
+
+    expect(() =>
+      registry.registerTag({ id: "artifact:test.snapshot", kind: "artifact" })
+    ).not.toThrow();
+    expect(() => registry.registerTag({ id: "effect:test.applied", kind: "effect" })).not.toThrow();
+    expect(() => registry.registerTag({ id: "field:test.legacy", kind: "field" } as never)).toThrow(
+      InvalidDependencyTagError
+    );
+  });
+
+  it("rejects legacy field ids during recipe tag inference", () => {
+    const step = createStep(
+      defineStep({
+        id: "legacy-field-consumer",
+        phase: "foundation",
+        requires: ["field:test.legacy"],
+        provides: [],
+        schema: Type.Object({}, { additionalProperties: false }),
+      }),
+      { run: () => {} }
+    );
+    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
+
+    expect(() =>
+      createRecipe({
+        id: "core.closed-dependency-kinds",
+        tagDefinitions: [],
+        stages: [stage],
+        compileOpsById: {},
+      })
+    ).toThrow(/expected artifact:\/effect:/);
+  });
+
   it("requires explicit provision and a passing artifact predicate for satisfaction", () => {
     const artifact = defineArtifact({
       name: "genericArtifact",

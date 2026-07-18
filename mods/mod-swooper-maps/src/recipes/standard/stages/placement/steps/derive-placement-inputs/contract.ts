@@ -2,7 +2,6 @@ import placement from "@mapgen/domain/placement";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import {
-  FIELD_DEPENDENCY_TAGS,
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
@@ -14,11 +13,11 @@ import { artifactModules as placementArtifactModules } from "../../artifacts/ind
 /**
  * Builds the placement input artifact from runtime config and placement ops.
  *
- * Planning surfaces come from pipeline artifacts and declared fields:
- * lake truth from Hydrology `lakePlan`, the engine biome surface from the
+ * Planning surfaces come from pipeline artifacts:
+ * lake intent from Hydrology `lakePlan`, the engine biome surface from the
  * ecology `biomeBindings` projection artifact, and the engine feature surface
- * from the declared `field:featureType` dependency reified by the features
- * projection step.
+ * from the ecology `featureEngineSnapshot` projection artifact published after
+ * feature stamping and terrain validation.
  *
  * DECLARED engine-surface read (ADR-009): per-tile TERRAIN is read from the
  * engine because `validateAndFixTerrain` applies engine-only terrain
@@ -32,7 +31,6 @@ const DerivePlacementInputsContract = defineStep({
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
     STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied,
-    FIELD_DEPENDENCY_TAGS.field.featureType,
   ],
   provides: [],
   artifacts: {
@@ -43,6 +41,7 @@ const DerivePlacementInputsContract = defineStep({
       hydrologyHydrographyArtifacts.lakePlan,
       ecologyArtifacts.biomeClassification,
       ecologyArtifacts.biomeBindings,
+      ecologyArtifacts.featureEngineSnapshot,
       ecologyArtifacts.pedology,
     ],
     provides: [

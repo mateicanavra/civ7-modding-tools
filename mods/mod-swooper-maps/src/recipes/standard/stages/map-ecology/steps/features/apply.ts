@@ -1,6 +1,5 @@
 import type { FeatureKey } from "@civ7/map-policy";
 import type { FeatureIntentKey } from "@mapgen/domain/ecology/model/schemas/index.js";
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
 
 const FEATURE_KEY_BY_INTENT: Readonly<Record<FeatureIntentKey, FeatureKey>> = {
   forest: "FEATURE_FOREST",
@@ -37,24 +36,4 @@ export function resolveFeatureKeyForIntent(intent: string): FeatureKey {
     throw new Error(`FeaturesStep: Unknown feature intent "${intent}".`);
   }
   return feature;
-}
-
-/**
- * Copies engine feature types into the field buffer after application.
- */
-export function reifyFeatureField(context: ExtendedMapContext): void {
-  const featureTypeField = context.fields?.featureType;
-  if (!featureTypeField) {
-    throw new Error("FeaturesStep: Missing field:featureType buffer for reification.");
-  }
-
-  const { width, height } = context.dimensions;
-  const { adapter } = context;
-
-  for (let y = 0; y < height; y++) {
-    const rowOffset = y * width;
-    for (let x = 0; x < width; x++) {
-      featureTypeField[rowOffset + x] = adapter.getFeatureType(x, y) | 0;
-    }
-  }
 }

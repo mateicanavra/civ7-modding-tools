@@ -1,4 +1,3 @@
-import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
@@ -60,6 +59,12 @@ type NaturalWonderPlanInputTelemetryArgs = {
     biomeClassification: {
       aridityIndex: Float32Array;
     };
+    naturalWonderPlanSurfaces: {
+      terrainType: Uint8Array;
+      biomeType: Uint8Array;
+      featureType: Int16Array;
+      blockedMask: Uint8Array;
+    };
   };
 };
 
@@ -67,11 +72,6 @@ function normalizePpm(value: unknown): number {
   return Number.isFinite(value)
     ? Math.max(0, Math.min(1_000_000, Math.round((value as number) * 1_000_000)))
     : 0;
-}
-
-function blockedMaskValue(y: number, height: number): number {
-  const polarWaterRows = Math.max(0, CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows | 0);
-  return polarWaterRows > 0 && (y < polarWaterRows || y >= height - polarWaterRows) ? 1 : 0;
 }
 
 function hash32Values(values: Iterable<number>): string {
@@ -100,22 +100,12 @@ export function buildNaturalWonderPlanInputRuntimeTelemetry({
   plan,
   physical,
 }: NaturalWonderPlanInputTelemetryArgs): NaturalWonderPlanInputRuntimeTelemetry {
-  const { adapter } = context;
   const { width, height } = context.dimensions;
   const size = width * height;
   const inputRows: NaturalWonderPlanInputRuntimeRow[] = [];
-  const blockedMask = new Uint8Array(size);
-  const terrainType = new Uint32Array(size);
-  const biomeType = new Uint32Array(size);
-  const featureType = new Int32Array(size);
+  const { terrainType, biomeType, featureType, blockedMask } = physical.naturalWonderPlanSurfaces;
   const aridityPpm = new Uint32Array(size);
   for (let plotIndex = 0; plotIndex < size; plotIndex += 1) {
-    const y = (plotIndex / width) | 0;
-    const x = plotIndex - y * width;
-    blockedMask[plotIndex] = blockedMaskValue(y, height);
-    terrainType[plotIndex] = adapter.getTerrainType(x, y) | 0;
-    biomeType[plotIndex] = adapter.getBiomeType(x, y) | 0;
-    featureType[plotIndex] = adapter.getFeatureType(x, y) | 0;
     aridityPpm[plotIndex] = normalizePpm(physical.biomeClassification.aridityIndex[plotIndex]);
   }
   for (const placementPlan of plan.placements.slice(0, 16)) {

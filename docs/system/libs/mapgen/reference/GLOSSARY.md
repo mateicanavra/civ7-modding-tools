@@ -28,18 +28,17 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 - **Op**: A strategy envelope used *within* a step (declared via `contract.ops`) to make algorithms configurable without turning the step schema into an untyped bag of options.
 - **TagRegistry**: Registry that validates dependency tags and their kinds; used to enforce wiring correctness.
 - **StepRegistry**: Registry of step implementations and their dependency tags.
-- **Dependency tag**: A string id describing a required/provided dependency (e.g., `artifact:*`, `field:*`, `effect:*`).
+- **Dependency tag**: A string id describing a required/provided dependency. The closed kinds are `artifact:*` data and `effect:*` execution guarantees.
 - **Artifact**: Write-once published values; consumers treat them as immutable.
-- **Field / buffer**: A performance exception; published once and mutated in-place (do not republish). (Docs may say “buffer”; current dependency tags often say `field:*`.)
+- **Working buffer**: Context-local mutable state used within the active generation model. A buffer is not a dependency; cross-step evidence must be published as an artifact.
 - **Overlay**: A visualization/UI layer (e.g. a deck.gl layer entry), not an engine primitive.
 - **Truth vs projection**: Canonical domain primitives vs derived engine-facing/debug surfaces.
 
 ## Drift vocabulary (target vs current)
 
-There are two high-impact drift pairs; docs must not invent a third term:
+The remaining high-impact naming drift is:
 
 - Legacy specs **RunSettings** → canonical **Env**.
-- Spec `buffer:*` naming vs current runtime `field:*` naming (mutable engine-facing surfaces).
 
 ## Ground truth anchors
 

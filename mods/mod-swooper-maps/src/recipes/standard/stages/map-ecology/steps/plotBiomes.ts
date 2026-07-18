@@ -27,14 +27,10 @@ export default createStep(PlotBiomesStepContract, {
       marine: marineBiome,
     });
 
-    const biomeField = context.fields.biomeId;
-    const temperatureField = context.fields.temperature;
-    if (!biomeField || !temperatureField) {
-      throw new Error("PlotBiomesStep: Missing biomeId or temperature field buffers.");
-    }
-
     const size = width * height;
     const engineBiomeId = new Uint16Array(size);
+    const projectedBiomeId = new Uint8Array(size);
+    const projectedTemperature = new Uint8Array(size);
     const bindingClass = new Uint8Array(size);
     const idToSymbols = new Map<number, Set<string>>();
     for (const [symbol, engineId] of Object.entries(engineBindings)) {
@@ -54,9 +50,9 @@ export default createStep(PlotBiomesStepContract, {
         const idx = rowOffset + x;
         if (topography.landMask[idx] === 0) {
           context.adapter.setBiomeType(x, y, marineBiome);
-          biomeField[idx] = marineBiome;
-          temperatureField[idx] = clampToByte(classification.surfaceTemperature[idx]! + 50);
           engineBiomeId[idx] = marineBiome;
+          projectedBiomeId[idx] = marineBiome;
+          projectedTemperature[idx] = clampToByte(classification.surfaceTemperature[idx]! + 50);
           bindingClass[idx] = 0;
           continue;
         }
@@ -65,9 +61,9 @@ export default createStep(PlotBiomesStepContract, {
         const symbol = ecology.biomeSymbolFromIndex(biomeIdx);
         const engineId = engineBindings[symbol];
         context.adapter.setBiomeType(x, y, engineId);
-        biomeField[idx] = engineId;
-        temperatureField[idx] = clampToByte(classification.surfaceTemperature[idx]! + 50);
         engineBiomeId[idx] = engineId;
+        projectedBiomeId[idx] = engineId;
+        projectedTemperature[idx] = clampToByte(classification.surfaceTemperature[idx]! + 50);
         if (collidingEngineBiomeIds.has(engineId)) {
           bindingClass[idx] = 2;
           collapsedBindingCount += 1;
@@ -108,7 +104,7 @@ export default createStep(PlotBiomesStepContract, {
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
-      values: biomeField,
+      values: projectedBiomeId,
       meta: defineVizMeta("map.ecology.biomeId", {
         label: "Biome Id (Engine)",
         group: GROUP_MAP_ECOLOGY,
@@ -125,7 +121,7 @@ export default createStep(PlotBiomesStepContract, {
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
-      values: temperatureField,
+      values: projectedTemperature,
       meta: defineVizMeta("map.ecology.temperature", {
         label: "Temperature (Engine)",
         group: GROUP_MAP_ECOLOGY,

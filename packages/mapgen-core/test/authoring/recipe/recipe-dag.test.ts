@@ -49,7 +49,7 @@ function step(input: {
     const contract = defineStep({
       id: input.id,
       phase: input.phase,
-      requires: requires.length ? ["field:test.external"] : [],
+      requires: requires.length ? ["effect:test.externalReady"] : [],
       provides: [],
       artifacts: { requires },
       schema: EmptyStepConfigSchema,
@@ -68,7 +68,7 @@ function step(input: {
   const contract = defineStep({
     id: input.id,
     phase: input.phase,
-    requires: requires.length ? ["field:test.external"] : [],
+    requires: requires.length ? ["effect:test.externalReady"] : [],
     provides: [],
     artifacts: {
       requires,

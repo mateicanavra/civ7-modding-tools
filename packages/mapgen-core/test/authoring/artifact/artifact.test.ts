@@ -46,13 +46,13 @@ describe("artifact authoring", () => {
     const contract = defineStep({
       id: "alpha",
       phase: "foundation",
-      requires: ["field:test.bar"],
+      requires: ["effect:test.engineReady"],
       provides: [],
       artifacts: { requires: [artifact], provides: [] },
       schema: EmptyStepConfigSchema,
     });
 
-    expect(contract.requires).toContain("field:test.bar");
+    expect(contract.requires).toContain("effect:test.engineReady");
     expect(contract.requires).toContain("artifact:test.foo");
   });
 

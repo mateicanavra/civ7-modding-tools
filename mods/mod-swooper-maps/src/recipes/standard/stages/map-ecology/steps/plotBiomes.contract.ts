@@ -1,10 +1,6 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import {
-  FIELD_DEPENDENCY_TAGS,
-  MAP_PROJECTION_EFFECT_TAGS,
-  STANDARD_ENGINE_EFFECT_TAGS,
-} from "../../../tag-contracts.js";
+import { MAP_PROJECTION_EFFECT_TAGS, STANDARD_ENGINE_EFFECT_TAGS } from "../../../tag-contracts.js";
 import {
   artifactModules as ecologyArtifactModules,
   artifacts as ecologyArtifacts,
@@ -22,7 +18,6 @@ const PlotBiomesStepContract = defineStep({
   phase: "ecology",
   requires: [],
   provides: [
-    FIELD_DEPENDENCY_TAGS.field.biomeId,
     STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied,
     MAP_PROJECTION_EFFECT_TAGS.map.ecologyBiomesParityCaptured,
   ],

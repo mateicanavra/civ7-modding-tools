@@ -63,7 +63,7 @@ Placement requires (dependency tags):
 
 - `effect:map.riversPlotted` (from `map-rivers`)
 - `effect:engine.featuresApplied` (from `map-ecology`)
-- ecology/topography/morphology/hydrology artifacts for planning surfaces (biome via `ecology.biomeBindings`, feature via declared `field:featureType`, elevation via `topography.elevation`, plus mountains/volcanoes/hydrography/pedology/climate inputs)
+- ecology/topography/morphology/hydrology artifacts for planning surfaces (biome via `ecology.biomeBindings`, feature via `ecology.featureEngineSnapshot`, elevation via `topography.elevation`, plus mountains/volcanoes/hydrography/pedology/climate inputs)
 
 Placement provides (product/effect chain, in pipeline order):
 
@@ -84,6 +84,7 @@ Runtime semantics (ADR-009 regime):
 - The deterministic plan is the authority for typed intent; materializers stamp intents through the adapter and reconcile engine feasibility with per-tile typed rejection reasons — never re-deciding types, never falling back to official generators as truth.
 - Shortfalls are recorded (typed, per-type, per-reason), never forced: no whole-map fallback, no least-used-type rebalance, no spacing decay below authored floors.
 - Engine state readbacks are evidence-only. Exactly three declared engine-surface reads exist, each documented in its step contract: the wonder-planning post-maintenance terrain surface (`derive-placement-inputs`), the resource legality surface (`plan-resources`), and the terminal physics-buffer landMask parity read (`placement`). The roster-dependent resource requirement query is a separate, declared `EngineAdapter` policy input.
+- `derive-placement-inputs` consumes admitted biome and feature projection artifacts; it does not reread those earlier engine surface vintages or depend on mutable context fields.
 - If the live requirement policy is unavailable, planning admits a regional minimum only for an age-valid resource with roster-independent `Staple`/`UnlocksCiv` basis. Every other unavailable decision is typed `unresolved`, never collapsed to `false`.
 - Placement apply is fail-hard; natural wonders use deterministic full-stamp-or-fail semantics; resource readback mismatches are fail-hard.
 - Surface preparation (terrain validation, area recalculation, water cache storage, landmass-region restamping, fertility recalculation) remains transactional because no independent consumer exists.

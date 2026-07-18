@@ -150,12 +150,19 @@ describe("plan-vegetation/apply pipeline", () => {
     const applyOps = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
     featuresApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(featuresApplyStep));
 
-    const featureField = ctx.fields.featureType;
-    expect(featureField).toBeDefined();
-    if (!(featureField instanceof Int16Array)) throw new Error("Missing featureType field.");
+    const snapshot = ctx.artifacts.get(ecologyArtifacts.featureEngineSnapshot.id) as
+      | { width: number; height: number; featureType: Int16Array }
+      | undefined;
+    expect(snapshot).toBeDefined();
+    expect(snapshot).toMatchObject({ width, height });
+    const featureField = snapshot?.featureType;
+    if (!(featureField instanceof Int16Array)) throw new Error("Missing feature engine snapshot.");
     let applied = 0;
     for (let i = 0; i < featureField.length; i++) {
-      if (featureField[i] !== -1) applied++;
+      const y = (i / width) | 0;
+      const x = i - y * width;
+      expect(featureField[i]).toBe(adapter.getFeatureType(x, y));
+      if (featureField[i] !== adapter.NO_FEATURE) applied++;
     }
     expect(applied).toBeGreaterThan(0);
   });

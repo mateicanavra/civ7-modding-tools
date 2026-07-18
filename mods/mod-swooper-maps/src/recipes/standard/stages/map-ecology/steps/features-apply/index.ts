@@ -1,7 +1,8 @@
+import type { EngineAdapter } from "@civ7/adapter";
 import type { FeatureKey } from "@civ7/map-policy";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { reifyFeatureField, resolveFeatureKeyForIntent } from "../features/apply.js";
+import { resolveFeatureKeyForIntent } from "../features/apply.js";
 import { resolveFeatureKeyLookups } from "../features/feature-keys.js";
 import FeaturesApplyStepContract from "./contract.js";
 import { buildFeatureTypeVizCategories } from "./viz.js";
@@ -19,8 +20,27 @@ function isFloodplainFeatureKey(feature: string): boolean {
 }
 
 /**
+ * Copies the complete post-Ecology engine feature surface into producer-owned artifact storage.
+ * Reading every tile after validation preserves the engine's exact IDs and no-feature sentinel.
+ */
+function readPostEcologyFeatureSurface(
+  adapter: EngineAdapter,
+  width: number,
+  height: number
+): Int16Array {
+  const featureType = new Int16Array(width * height);
+  for (let y = 0; y < height; y++) {
+    const rowOffset = y * width;
+    for (let x = 0; x < width; x++) {
+      featureType[rowOffset + x] = adapter.getFeatureType(x, y) | 0;
+    }
+  }
+  return featureType;
+}
+
+/**
  * Merges all ordered feature-family intents at Ecology's sole Civ7 mutation
- * boundary and records typed rejection diagnostics without rewriting truth.
+ * boundary and records typed rejection diagnostics without rewriting intent evidence.
  */
 export default createStep(FeaturesApplyStepContract, {
   run: (context, config, ops, deps) => {
@@ -238,29 +258,25 @@ export default createStep(FeaturesApplyStepContract, {
       }));
     }
 
-    const size = context.dimensions.width * context.dimensions.height;
-    if (!context.fields.featureType || context.fields.featureType.length !== size) {
-      context.fields.featureType = new Int16Array(size);
-    }
     if (applied > 0) {
       context.adapter.validateAndFixTerrain();
     }
-    // The field:featureType this step provides must always be the reified
-    // engine surface — even when zero features applied — because downstream
-    // planning (placement) consumes the field as a declared engine-feature
-    // projection instead of re-reading the adapter per tile.
-    reifyFeatureField(context);
+
+    const featureType = readPostEcologyFeatureSurface(context.adapter, width, height);
+    deps.artifacts.featureEngineSnapshot.publish(context, {
+      width,
+      height,
+      featureType,
+    });
+
     if (applied > 0) {
-      const featureTypeCategories = buildFeatureTypeVizCategories(
-        context.adapter,
-        context.fields.featureType
-      );
+      const featureTypeCategories = buildFeatureTypeVizCategories(context.adapter, featureType);
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.ecology.featureType",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "i16",
-        values: context.fields.featureType,
+        values: featureType,
         meta: defineVizMeta("map.ecology.featureType", {
           label: "Feature Type (Engine)",
           group: GROUP_MAP_ECOLOGY,
@@ -282,7 +298,7 @@ export default createStep(FeaturesApplyStepContract, {
           format: "u8",
           values: physics.terrain,
           meta: defineVizMeta("debug.heightfield.terrain", {
-            label: "Terrain (Physics Truth)",
+            label: "Terrain (Physics Source Evidence)",
             group: GROUP_MAP_ECOLOGY,
             palette: "categorical",
             role: "physics",
@@ -310,7 +326,7 @@ export default createStep(FeaturesApplyStepContract, {
           format: "u8",
           values: physics.landMask,
           meta: defineVizMeta("debug.heightfield.landMask", {
-            label: "Land Mask (Physics Truth)",
+            label: "Land Mask (Physics Source Evidence)",
             group: GROUP_MAP_ECOLOGY,
             palette: "categorical",
             role: "physics",

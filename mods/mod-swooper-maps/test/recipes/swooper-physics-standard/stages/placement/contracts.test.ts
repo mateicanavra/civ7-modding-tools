@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
+import { artifacts as ecologyArtifacts } from "../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import {
   artifactModules as placementArtifactModules,
   artifacts as placementArtifacts,
@@ -9,6 +10,7 @@ import {
 import adjustResourcesStep from "../../../../../src/recipes/standard/stages/placement/steps/adjust-resources/index.js";
 import assignAdvancedStartsStep from "../../../../../src/recipes/standard/stages/placement/steps/assign-advanced-starts/index.js";
 import assignStartsStep from "../../../../../src/recipes/standard/stages/placement/steps/assign-starts/index.js";
+import derivePlacementInputsStep from "../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/index.js";
 import placeDiscoveriesStep from "../../../../../src/recipes/standard/stages/placement/steps/place-discoveries/index.js";
 import placeNaturalWondersStep from "../../../../../src/recipes/standard/stages/placement/steps/place-natural-wonders/index.js";
 import placeResourcesStep from "../../../../../src/recipes/standard/stages/placement/steps/place-resources/index.js";
@@ -81,6 +83,18 @@ function makeValidStartAssignment(seatCount: number, assigned = seatCount) {
 }
 
 describe("placement product/effect contracts", () => {
+  it("consumes feature projection through admitted artifact evidence", () => {
+    expect(derivePlacementInputsStep.contract.requires).toContain(
+      STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied
+    );
+    expect(derivePlacementInputsStep.contract.artifacts?.requires).toContain(
+      ecologyArtifacts.featureEngineSnapshot
+    );
+    expect(derivePlacementInputsStep.contract.requires.some((id) => id.startsWith("field:"))).toBe(
+      false
+    );
+  });
+
   it("promotes natural wonder stamping as a product/effect boundary before final placement", () => {
     const placementStepIds = standardRecipe.recipe.steps
       .map((step) => step.id)

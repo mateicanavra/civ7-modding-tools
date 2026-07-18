@@ -145,8 +145,8 @@ Hard core:
 1. `artifact` is a real blueprint kind, and its artifact contract belongs
    inside artifact authority rather than a sibling `artifact-contract`
    blueprint.
-2. `dependency-tag` is a real blueprint kind; `artifact:*`, `field:*`, and
-   `effect:*` are tag kinds under it, not separate blueprint destinations.
+2. `dependency-tag` is a real blueprint kind; `artifact:*` and `effect:*` are
+   tag kinds under it, not separate blueprint destinations.
 3. `config-surface`, `adapter-boundary`, and generic `projection` are not
    blueprints now.
 4. Dependency-tag gathering was the correct first move because it clarified
