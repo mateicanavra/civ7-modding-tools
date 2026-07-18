@@ -2,17 +2,19 @@
 
 import type { MapInfo, MapInitParams, MapSizeId } from "@civ7/adapter";
 import { createCiv7Adapter } from "@civ7/adapter/civ7";
-import { createExtendedMapContext, type Env, type ExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
 import type { RecipeModule } from "@swooper/mapgen-core/authoring";
 
-type RecipePublicConfigOfRecipe<TRecipe extends RecipeModule<any, any, any>> =
-  TRecipe extends RecipeModule<any, infer TPublicConfig, any> ? TPublicConfig : never;
+type RecipePublicConfigOfRecipe<TRecipe extends RecipeModule<any, any>> =
+  TRecipe extends RecipeModule<infer TPublicConfig, any> ? TPublicConfig : never;
 
+/** Geographic bounds a map declaration may use to override Civ7's initialization bounds. */
 export type MapLatitudeBounds = Readonly<{
   topLatitude: number;
   bottomLatitude: number;
 }>;
 
+/** Exact request and artifact identities required to correlate a Studio-generated map run. */
 export type MapRunCorrelation = Readonly<{
   requestId: string;
   runArtifactId: string;
@@ -21,7 +23,7 @@ export type MapRunCorrelation = Readonly<{
   generationManifestDigest: string;
 }>;
 
-type MapDefinitionCore<TRecipe extends RecipeModule<ExtendedMapContext, any, any>> = Readonly<{
+type MapDefinitionCore<TRecipe extends RecipeModule<any, any>> = Readonly<{
   id: string;
   name: string;
   recipe: TRecipe;
@@ -55,11 +57,16 @@ type MapDefinitionRunSource = Readonly<{
   envelopeHash?: never;
 }>;
 
-export type MapDefinition<TRecipe extends RecipeModule<ExtendedMapContext, any, any>> =
-  MapDefinitionCore<TRecipe> & (MapDefinitionCatalogEvidence | MapDefinitionRunSource);
+/**
+ * Complete Civ7 map-loader declaration for one recipe and its public authoring configuration.
+ *
+ * Catalog maps carry static evidence, while request-generated maps require the full run
+ * correlation tuple so deployment and in-game diagnostics cannot silently cross runs.
+ */
+export type MapDefinition<TRecipe extends RecipeModule<any, any>> = MapDefinitionCore<TRecipe> &
+  (MapDefinitionCatalogEvidence | MapDefinitionRunSource);
 
-type MapDefinitionInput<TRecipe extends RecipeModule<ExtendedMapContext, any, any>> =
-  MapDefinition<TRecipe>;
+type MapDefinitionInput<TRecipe extends RecipeModule<any, any>> = MapDefinition<TRecipe>;
 
 type CivEngine = {
   on: (event: string, handler: (...args: any[]) => void) => void;
@@ -227,13 +234,13 @@ function resolveInitCapture(
 }
 
 /**
- * Registers a Civ7 map entrypoint against the game engine events while keeping
- * map authors on the recipe public config contract. The tradeoff is explicit:
- * this helper is reusable SDK authoring API, but it is runtime-bound and must
- * only be imported from the SDK mapgen subpath by code that will execute inside
- * the Civ7 map loader.
+ * Registers a Civ7 map entrypoint while keeping map authors on the recipe public config contract.
+ *
+ * Generation captures Civ7's initialization values, admits one physical setup, creates one context
+ * from that setup, and compiles and runs the recipe against the same identity. This SDK authoring
+ * API is runtime-bound and must only be imported by code that executes inside the Civ7 map loader.
  */
-export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext, any, any>>(
+export function createMap<const TRecipe extends RecipeModule<any, any>>(
   def: MapDefinitionInput<TRecipe>
 ): MapDefinition<TRecipe> {
   assertCompleteRunCorrelation(def);
@@ -256,19 +263,13 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
     const seed = resolveSeed(def);
 
     const adapter = createCiv7Adapter();
-    if (adapter.width !== width || adapter.height !== height) {
-      throw new Error(
-        `${def.logPrefix ?? "[SWOOPER_MOD]"} Adapter dimensions ${adapter.width}x${adapter.height} do not match init ${width}x${height}.`
-      );
-    }
-
-    const env: Env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: { topLatitude, bottomLatitude },
-    };
+    });
 
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
 
     const prefix = def.logPrefix ?? "[SWOOPER_MOD]";
     const evidenceIdentity = mapEvidencePayloadIdentityFor(def);
@@ -282,7 +283,7 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
     };
     console.log(`${prefix} [mapgen-evidence] ${JSON.stringify(evidencePayload)}`);
     try {
-      def.recipe.run(context, env, def.config, {
+      def.recipe.run(context, def.config, {
         log: (message) => console.log(prefix, message),
       });
       console.log(`${prefix} [mapgen-complete] ${JSON.stringify(evidencePayload)}`);

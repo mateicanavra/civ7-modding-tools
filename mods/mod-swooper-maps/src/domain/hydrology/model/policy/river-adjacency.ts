@@ -6,10 +6,10 @@ export function computeRiverAdjacencyMaskFromRiverClass(options: {
   riverClass: Uint8Array;
   radius?: number;
 }): Uint8Array {
-  const width = options.width | 0;
-  const height = options.height | 0;
+  const width = options.width;
+  const height = options.height;
   const radius = Math.max(0, options.radius ?? 1) | 0;
-  const size = Math.max(0, width * height);
+  const size = width * height;
 
   if (!(options.riverClass instanceof Uint8Array) || options.riverClass.length !== size) {
     throw new Error("[Hydrology] Invalid riverClass for riverAdjacency projection.");

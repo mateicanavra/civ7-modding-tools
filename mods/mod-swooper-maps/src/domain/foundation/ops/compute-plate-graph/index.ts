@@ -2,10 +2,6 @@ import { createLabelRng } from "@swooper/mapgen-core";
 import { createOp, type Static } from "@swooper/mapgen-core/authoring";
 import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
-import {
-  deriveFoundationReferenceArea,
-  requireEnvDimensions,
-} from "../../model/policy/reference-area.js";
 import type { FoundationPlate } from "./contract.js";
 import ComputePlateGraphContract from "./contract.js";
 
@@ -326,10 +322,7 @@ function filterByMinComponentSize(params: {
 const computePlateGraph = createOp(ComputePlateGraphContract, {
   strategies: {
     default: {
-      normalize: (config: PlateGraphConfig, ctx) => {
-        deriveFoundationReferenceArea(
-          requireEnvDimensions(ctx, "foundation/compute-plate-graph.normalize")
-        );
+      normalize: (config: PlateGraphConfig) => {
         const scaledPlateCount = Math.max(PLATE_COUNT_CLAMP_MIN, config.plateCount | 0);
 
         return {

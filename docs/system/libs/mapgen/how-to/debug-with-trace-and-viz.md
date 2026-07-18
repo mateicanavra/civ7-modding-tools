@@ -59,7 +59,7 @@ The harness prints the run folder:
 ```
 
 Notes:
-- Current implementation: `runId === planFingerprint` (see `packages/mapgen-core/src/engine/observability.ts`).
+- Each attempt receives a unique `runId`; the stable `planFingerprint` groups attempts of the same compiled plan.
 - The folder you select in Studio must be the directory that contains `manifest.json` (not its parent).
 
 ### 3) Why layers may not appear
@@ -114,7 +114,8 @@ Routing:
 
 ## Footguns
 
-- **Tracing “enabled” but no sink**: tracing becomes a noop (you won’t see events).
+- **Disabled trace**: omit the trace capability entirely. An enabled session always requires both
+  its config and sink, so partial trace wiring is not representable.
 - **Verbose events are gated**: `TraceScope.event()` emits only when the step is configured as `verbose`.
 - **Missing facet half**: a `viz` projector without an environment sink, or a sink without a step
   projector, intentionally produces no layer.
@@ -125,7 +126,7 @@ Routing:
 
 - Trace session + sinks (console): `packages/mapgen-core/src/trace/index.ts`
 - Pipeline executor wiring (trace scoping per step): `packages/mapgen-core/src/engine/PipelineExecutor.ts`
-- Run identity + fingerprint (`runId === planFingerprint` current): `packages/mapgen-core/src/engine/observability.ts`
+- Execution identity + stable plan fingerprint: `packages/mapgen-core/src/engine/observability.ts`
 - Step facet dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
 - Portable visualization contracts: `packages/mapgen-viz/src/index.ts`
 - Local trace+viz dump harness (writes `trace.jsonl` + `manifest.json`): `mods/mod-swooper-maps/src/dev/viz/dump.ts`

@@ -1,7 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import { createOp, createStrategy, defineOp } from "@mapgen/authoring/index.js";
 import { normalizeOpsTopLevel, validateStrict } from "@mapgen/compiler/normalize.js";
+import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import { Type } from "typebox";
+
+const TEST_SETUP = admitMapSetup({
+  mapSeed: 1,
+  dimensions: { width: 2, height: 2 },
+  latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
+});
 
 describe("compiler normalize helpers", () => {
   it("reports unknown keys with stable paths", () => {
@@ -187,7 +194,7 @@ describe("compiler normalize helpers", () => {
       },
     };
 
-    const result = normalizeOpsTopLevel(step, {}, { env: {}, knobs: {} }, {}, "/config/ops");
+    const result = normalizeOpsTopLevel(step, {}, {}, "/config/ops");
     expect(result.errors).toEqual([
       {
         code: "op.missing",
@@ -231,7 +238,6 @@ describe("compiler normalize helpers", () => {
     const result = normalizeOpsTopLevel(
       step,
       { trees: { strategy: "default", config: {} } },
-      { env: {}, knobs: {} },
       {
         [op.id]: op,
       },

@@ -36,7 +36,7 @@ type StageLike = Readonly<{
   public?: TObject;
   surfaceSchema: TObject;
   authoring: StageAuthoringModel;
-  toInternal: (args: { env: unknown; stageConfig: unknown }) => {
+  toInternal: (args: { setup: unknown; stageConfig: unknown }) => {
     rawSteps: Record<string, unknown>;
   };
 }>;
@@ -237,14 +237,13 @@ const standardConfigTypes = await compile(standardSchemaJson, "StandardRecipeCon
 });
 
 const standardDts = [
-  `import type { ExtendedMapContext } from "@swooper/mapgen-core";`,
   `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
   ``,
   standardConfigTypes.trimEnd(),
   ``,
   `export const STANDARD_STAGES: ReadonlyArray<unknown>;`,
   ``,
-  `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<StandardRecipeConfig>, unknown>;`,
+  `declare const recipe: RecipeModule<Readonly<StandardRecipeConfig>, unknown>;`,
   `export default recipe;`,
   ``,
 ].join("\n");

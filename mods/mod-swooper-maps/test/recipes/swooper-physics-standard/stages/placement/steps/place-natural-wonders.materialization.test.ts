@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
-import { createMockAdapter } from "@civ7/adapter";
+import { createMockAdapter as createBaseMockAdapter, type MockAdapterConfig } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import { FLAT_TERRAIN, HILL_TERRAIN, MOUNTAIN_TERRAIN } from "@swooper/mapgen-core";
 
 import { artifactModules as placementArtifactModules } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import {
@@ -11,6 +10,22 @@ import {
 } from "../../../../../../src/recipes/standard/stages/placement/steps/place-natural-wonders/materialize.js";
 
 const { biomeGlobals, featureTypes } = CIV7_BROWSER_TABLES_V0;
+
+type TerrainBackedMockAdapterConfig = Omit<MockAdapterConfig, "defaultTerrainType"> &
+  Readonly<{ defaultTerrainName: "TERRAIN_FLAT" | "TERRAIN_HILL" }>;
+
+function createMockAdapter(config: TerrainBackedMockAdapterConfig) {
+  const { defaultTerrainName, ...adapterConfig } = config;
+  const adapter = createBaseMockAdapter(adapterConfig);
+  const terrainType = adapter.getTerrainTypeIndex(defaultTerrainName);
+  for (let y = 0; y < adapter.height; y++) {
+    for (let x = 0; x < adapter.width; x++) {
+      adapter.setTerrainType(x, y, terrainType);
+    }
+  }
+  return adapter;
+}
+
 const redwoodRow = {
   status: "placed",
   plotIndex: 9,
@@ -47,8 +62,9 @@ describe("natural wonder placement materialization", () => {
       width: 4,
       height: 6,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
-      defaultTerrainType: HILL_TERRAIN,
+      defaultTerrainName: "TERRAIN_HILL",
     });
+    const flatTerrain = adapter.getTerrainTypeIndex("TERRAIN_FLAT");
 
     const stats = stampNaturalWondersFromPlan({
       adapter,
@@ -61,9 +77,9 @@ describe("natural wonder placement materialization", () => {
     // Anchor (1,2) is an EVEN row: the parity-correct THREETRIANGLE footprint is
     // anchor + even.d0(0,1) + even.d1(1,0) = (1,2),(1,3),(2,2). (Pre-parity-fix this
     // stamped the odd-row cells (1,2),(2,3),(2,2) on the even anchor.)
-    expect(adapter.getTerrainType(1, 2)).toBe(FLAT_TERRAIN);
-    expect(adapter.getTerrainType(2, 2)).toBe(FLAT_TERRAIN);
-    expect(adapter.getTerrainType(1, 3)).toBe(FLAT_TERRAIN);
+    expect(adapter.getTerrainType(1, 2)).toBe(flatTerrain);
+    expect(adapter.getTerrainType(2, 2)).toBe(flatTerrain);
+    expect(adapter.getTerrainType(1, 3)).toBe(flatTerrain);
     expect(adapter.getFeatureType(1, 2)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(adapter.getFeatureType(2, 2)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(adapter.getFeatureType(1, 3)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
@@ -91,7 +107,7 @@ describe("natural wonder placement materialization", () => {
       width: 4,
       height: 6,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
-      defaultTerrainType: HILL_TERRAIN,
+      defaultTerrainName: "TERRAIN_HILL",
     });
     const placeNaturalWonder = adapter.placeNaturalWonder.bind(adapter);
     adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => {
@@ -122,7 +138,7 @@ describe("natural wonder placement materialization", () => {
       width: 4,
       height: 6,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
-      defaultTerrainType: HILL_TERRAIN,
+      defaultTerrainName: "TERRAIN_HILL",
     });
     const stats = stampNaturalWondersFromPlan({
       adapter,
@@ -153,8 +169,9 @@ describe("natural wonder placement materialization", () => {
       width: 5,
       height: 8,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      defaultTerrainType: FLAT_TERRAIN,
+      defaultTerrainName: "TERRAIN_FLAT",
     });
+    const mountainTerrain = adapter.getTerrainTypeIndex("TERRAIN_MOUNTAIN");
 
     const mountainStats = stampNaturalWondersFromPlan({
       adapter,
@@ -164,9 +181,9 @@ describe("natural wonder placement materialization", () => {
       requestedCount: 1,
     });
 
-    expect(adapter.getTerrainType(2, 3)).toBe(MOUNTAIN_TERRAIN);
-    expect(adapter.getTerrainType(3, 3)).toBe(MOUNTAIN_TERRAIN);
-    expect(adapter.getTerrainType(3, 4)).toBe(MOUNTAIN_TERRAIN);
+    expect(adapter.getTerrainType(2, 3)).toBe(mountainTerrain);
+    expect(adapter.getTerrainType(3, 3)).toBe(mountainTerrain);
+    expect(adapter.getTerrainType(3, 4)).toBe(mountainTerrain);
     expect(adapter.getFeatureType(2, 3)).toBe(featureTypes.FEATURE_KILIMANJARO);
     expect(adapter.getFeatureType(3, 3)).toBe(featureTypes.FEATURE_KILIMANJARO);
     expect(adapter.getFeatureType(3, 4)).toBe(featureTypes.FEATURE_KILIMANJARO);
@@ -178,7 +195,7 @@ describe("natural wonder placement materialization", () => {
       width: 4,
       height: 6,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
-      defaultTerrainType: HILL_TERRAIN,
+      defaultTerrainName: "TERRAIN_HILL",
     });
     const plan = {
       ...oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
@@ -228,7 +245,7 @@ describe("natural wonder placement materialization", () => {
       width: 5,
       height: 8,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      defaultTerrainType: FLAT_TERRAIN,
+      defaultTerrainName: "TERRAIN_FLAT",
     });
     adapter.placeNaturalWonder = (x, y, featureType, direction) => ({
       status: "rejected",
@@ -269,7 +286,7 @@ describe("natural wonder placement materialization", () => {
       width: 5,
       height: 8,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      defaultTerrainType: FLAT_TERRAIN,
+      defaultTerrainName: "TERRAIN_FLAT",
     });
     adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => {
       for (const plotIndex of [17, 18]) {
@@ -357,7 +374,7 @@ describe("natural wonder placement materialization", () => {
       width: 5,
       height: 8,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      defaultTerrainType: FLAT_TERRAIN,
+      defaultTerrainName: "TERRAIN_FLAT",
     });
     // The engine accepts every anchor EXCEPT the planner's primary (2,3): this
     // models canHaveFeatureParam-true-but-setFeatureType-false at the chosen tile.
@@ -414,7 +431,7 @@ describe("natural wonder placement materialization", () => {
       width: 5,
       height: 8,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
-      defaultTerrainType: FLAT_TERRAIN,
+      defaultTerrainName: "TERRAIN_FLAT",
     });
     adapter.placeNaturalWonder = (x, y, featureType, direction) => ({
       status: "rejected",
@@ -464,7 +481,7 @@ describe("natural wonder placement materialization", () => {
       width: 2,
       height: 2,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
-      defaultTerrainType: FLAT_TERRAIN,
+      defaultTerrainName: "TERRAIN_FLAT",
     });
 
     expect(() =>

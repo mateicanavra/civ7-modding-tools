@@ -31,7 +31,7 @@ type RoughLandInputs = Readonly<{
 
 function validateRoughLandInputs(input: PlanRoughLandsTypes["input"]): RoughLandInputs {
   const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
 
   const landMask = input.landMask as Uint8Array;
   const mountainMask = input.mountainMask as Uint8Array;
@@ -259,8 +259,8 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
       distanceToCoast,
       fractalRoughLand,
     } = validateRoughLandInputs(input);
-    const width = input.width | 0;
-    const height = input.height | 0;
+    const width = input.width;
+    const height = input.height;
     const hillMask = new Uint8Array(size);
     const roughnessPotential = new Uint8Array(size);
     const roughScoreByTile = new Float32Array(size);

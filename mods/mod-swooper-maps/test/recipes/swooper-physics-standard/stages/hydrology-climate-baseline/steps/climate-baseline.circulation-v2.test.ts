@@ -1,6 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, type StepFacetSinks, sha256Hex } from "@swooper/mapgen-core";
+import {
+  admitMapSetup,
+  createMapContext,
+  type StepFacetSinks,
+  sha256Hex,
+} from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import type { StandardRecipeConfig } from "../../../../../../src/recipes/standard/recipe.js";
 import standardRecipe from "../../../../../../src/recipes/standard/recipe.js";
@@ -39,14 +44,14 @@ function runAndCaptureSst(options: {
     StartSectorCols: 4,
   };
 
-  const env = {
-    seed,
+  const setup = admitMapSetup({
+    mapSeed: seed,
     dimensions: { width, height },
     latitudeBounds: {
       topLatitude: mapInfo.MaxLatitude,
       bottomLatitude: mapInfo.MinLatitude,
     },
-  };
+  });
 
   const adapter = createMockAdapter({
     width,
@@ -55,7 +60,7 @@ function runAndCaptureSst(options: {
     mapSizeId: 1,
     rng: createLabelRng(seed),
   });
-  const context = createExtendedMapContext({ width, height }, adapter, env);
+  const context = createMapContext({ setup, adapter });
 
   let capturedSst: Float32Array | null = null;
   const captureViz: NonNullable<StepFacetSinks["viz"]> = (projections) => {
@@ -69,7 +74,7 @@ function runAndCaptureSst(options: {
   };
 
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-  standardRecipe.run(context, env, config, { facets: { viz: captureViz }, log: () => {} });
+  standardRecipe.run(context, config, { facets: { viz: captureViz }, log: () => {} });
 
   if (!capturedSst)
     throw new Error("Expected hydrology.ocean.sstC to be emitted when circulation v2 is enabled.");

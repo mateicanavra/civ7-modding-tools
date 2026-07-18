@@ -29,7 +29,7 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
   fractalHill: Int16Array;
 } {
   const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
 
   const landMask = input.landMask as Uint8Array;
   const mountainMask = input.mountainMask as Uint8Array;
@@ -105,8 +105,8 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
     } = validateFoothillsInputs(input);
 
     const { width, height } = input;
-    const w = width | 0;
-    const h = height | 0;
+    const w = width;
+    const h = height;
 
     const hillMask = new Uint8Array(size);
     const hillScoreByTile = new Float32Array(size);

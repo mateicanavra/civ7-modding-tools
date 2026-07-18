@@ -176,8 +176,8 @@ export const MountainsStep = createStep(MountainsStepContract, {
     const substrate = deps.artifacts.substrate.read(context);
     const routing = deps.artifacts.routing.read(context);
     const coastlineMetrics = deps.artifacts.coastlineMetrics.read(context);
-    const { width, height } = context.dimensions;
-    const baseSeed = deriveStepSeed(context.env.seed, "morphology:planMountains");
+    const { width, height } = context.setup.dimensions;
+    const baseSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planMountains");
 
     const fractalMountain = buildFractalArray(width, height, baseSeed ^ 0x3d, 5);
     const fractalHill = buildFractalArray(width, height, baseSeed ^ 0x5f, 5);
@@ -246,7 +246,7 @@ export const MountainsStep = createStep(MountainsStepContract, {
       config.roughLands
     );
 
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const size = width * height;
     const hillMask = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       hillMask[i] = foothills.hillMask[i] === 1 || roughLands.hillMask[i] === 1 ? 1 : 0;
@@ -265,7 +265,7 @@ export const MountainsStep = createStep(MountainsStepContract, {
     } as const;
 
     context.trace.event(() => {
-      const size = Math.max(0, (width | 0) * (height | 0));
+      const size = width * height;
       let landTiles = 0;
       let mountainTiles = 0;
       let hillTiles = 0;

@@ -1,6 +1,4 @@
-/**
- * Validates rainforest scoring inputs and returns the expected grid size.
- */
+/** Checks rainforest-scoring field cardinality and returns the shared tile count. */
 export function validateVegetationScoreInputs(args: {
   width: number;
   height: number;
@@ -12,11 +10,7 @@ export function validateVegetationScoreInputs(args: {
   biomass01: Float32Array;
   fertility01: Float32Array;
 }): number {
-  const width = args.width | 0;
-  const height = args.height | 0;
-  if (!Number.isFinite(width) || width <= 0) throw new Error("invalid width");
-  if (!Number.isFinite(height) || height <= 0) throw new Error("invalid height");
-  const size = width * height;
+  const size = args.width * args.height;
 
   const check = (label: string, arr: { length: number }) => {
     if (arr.length !== size) throw new Error(`${label} length ${arr.length} != ${size}`);

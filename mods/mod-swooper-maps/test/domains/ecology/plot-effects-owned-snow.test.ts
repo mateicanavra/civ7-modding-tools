@@ -23,16 +23,10 @@ const createInput = () => {
 describe("plot effects (owned)", () => {
   it("places permanent snow plot effects when thresholds pass", () => {
     const input = createInput();
-    const env = {
-      seed: 0,
-      dimensions: { width: input.width, height: input.height },
-      latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
-    };
-
     const scoreSnowSelection = normalizeOpSelectionOrThrow(
       ecology.ops.scorePlotEffectsSnow,
       ecology.ops.scorePlotEffectsSnow.defaultConfig,
-      { ctx: { env, knobs: {} }, path: "/ops/scorePlotEffectsSnow" }
+      { path: "/ops/scorePlotEffectsSnow" }
     );
 
     const scoreSnowResult = ecology.ops.scorePlotEffectsSnow.run(
@@ -65,7 +59,7 @@ describe("plot effects (owned)", () => {
           },
         },
       },
-      { ctx: { env, knobs: {} }, path: "/ops/planPlotEffects" }
+      { path: "/ops/planPlotEffects" }
     );
 
     const result = ecology.ops.planPlotEffects.run(

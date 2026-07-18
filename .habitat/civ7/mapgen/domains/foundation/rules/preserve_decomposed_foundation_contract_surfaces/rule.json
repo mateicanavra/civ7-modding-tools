@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "missing decomposed foundation operation names, domain artifact modules, required strategy rules imports, or projection plate-motion/provenance currentness",
-  "why": "Foundation contract currentness spans the fixed decomposed operation and artifact identity corpus. Generic artifact blueprint rules separately own artifact module and catalog shape.",
+  "forbids": "missing decomposed foundation operation names, domain artifact identities or public surface, required strategy rules imports, or declared projection artifact dependencies",
+  "why": "Foundation contract currentness spans the fixed decomposed operation names, artifact identity and public surfaces, and declared projection dependencies. Generic artifact blueprint rules separately own artifact module and catalog shape; package tests and types own projection behavior.",
   "remediate": null,
-  "message": "Keep foundation positive/currentness surfaces aligned with decomposed operation outputs and the fixed Foundation artifact identities.",
+  "message": "Keep Foundation operation names, artifact identities and public surfaces, strategy rule imports, and projection artifact dependencies aligned.",
   "pathCoverage": [
     {
       "kind": "exact-path",

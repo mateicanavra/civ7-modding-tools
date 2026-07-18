@@ -50,7 +50,7 @@ export function projectResourceSupportViz(input: {
   }
   const { positions, values } = buildPlacementPointBuffers(rows, width);
 
-  const size = Math.max(0, width * height);
+  const size = width * height;
   const radius = Math.max(0, input.supportRadiusTiles | 0);
   const zone = new Uint8Array(size);
   const seated = input.seats.filter((seat) => seat.plotIndex >= 0 && seat.plotIndex < size);

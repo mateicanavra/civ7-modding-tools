@@ -1,17 +1,14 @@
 import { clamp01, normalizeRange } from "@swooper/mapgen-core";
 
-export function validateGridSize(
+/** Checks that every supplied score field covers the requested grid and returns its tile count. */
+export function validateGridFields(
   args: Readonly<{
     width: number;
     height: number;
     fields: ReadonlyArray<Readonly<{ label: string; arr: { length: number } }>>;
   }>
 ): number {
-  const width = args.width | 0;
-  const height = args.height | 0;
-  if (!Number.isFinite(width) || width <= 0) throw new Error("invalid width");
-  if (!Number.isFinite(height) || height <= 0) throw new Error("invalid height");
-  const size = width * height;
+  const size = args.width * args.height;
 
   for (const field of args.fields) {
     if (field.arr.length !== size) {

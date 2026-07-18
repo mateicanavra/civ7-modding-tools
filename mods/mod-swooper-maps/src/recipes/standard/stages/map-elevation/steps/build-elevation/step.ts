@@ -6,6 +6,7 @@ import {
 import { createStep } from "@swooper/mapgen-core/authoring";
 import type { VizProjection } from "@swooper/mapgen-viz";
 import { assertWaterDriftWithinPolicy } from "../../../../projection-policies/noWaterDrift.js";
+import { resolveStandardProjectionTerrainTypes } from "../../../../projection-policies/standardProjectionEngineTypes.js";
 import { defineStandardVizMeta } from "../../../../viz.js";
 import { BuildElevationStepContract } from "./config.js";
 
@@ -20,9 +21,9 @@ export const BuildElevationStep = createStep(BuildElevationStepContract, {
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const projectedLakes = deps.artifacts.engineProjectionLakes.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
 
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const size = width * height;
     const expectedLandMask = new Uint8Array(topography.landMask);
     for (let idx = 0; idx < size; idx++) {
       if (projectedLakes.lakeMask[idx] === 1) expectedLandMask[idx] = 0;
@@ -69,7 +70,7 @@ export const BuildElevationStep = createStep(BuildElevationStepContract, {
         type: "map.elevation.parity",
         step: "build-elevation",
         landMaskMismatchCount: mismatchCount,
-        landMaskMismatchShare: Number((mismatchCount / Math.max(1, width * height)).toFixed(4)),
+        landMaskMismatchShare: Number((mismatchCount / (width * height)).toFixed(4)),
       }));
     }
 
@@ -78,6 +79,7 @@ export const BuildElevationStep = createStep(BuildElevationStepContract, {
       context.adapter,
       width,
       height,
+      resolveStandardProjectionTerrainTypes(context.adapter),
       "map-elevation/build-elevation"
     );
     logLandmassAscii(context.trace, context.adapter, width, height);

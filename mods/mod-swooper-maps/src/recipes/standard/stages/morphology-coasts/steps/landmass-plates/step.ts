@@ -32,7 +32,7 @@ function collectBaseTerrainStats(
   elevation: Int16Array,
   landMask: Uint8Array
 ): { landCount: number; waterCount: number; minElevation: number; maxElevation: number } {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   let landCount = 0;
   let waterCount = 0;
   let minElevation = 0;
@@ -82,7 +82,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
     const crustTiles = deps.artifacts.foundationCrustTiles.read(context);
     const historyTiles = deps.artifacts.foundationTectonicHistoryTiles.read(context);
     const provenanceTiles = deps.artifacts.foundationTectonicProvenanceTiles.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const stepId = `${LandmassPlatesStepContract.phase}/${LandmassPlatesStepContract.id}`;
 
     const beltDrivers = ops.beltDrivers(
@@ -222,7 +222,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
       }
     }
 
-    const bathymetry = new Int16Array(Math.max(0, (width | 0) * (height | 0)));
+    const bathymetry = new Int16Array(width * height);
     for (let i = 0; i < bathymetry.length; i++) {
       const elevationMeters = elevation[i] ?? 0;
       const isLand = landMask[i] === 1;

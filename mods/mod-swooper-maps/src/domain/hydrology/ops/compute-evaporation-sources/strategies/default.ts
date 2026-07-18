@@ -9,9 +9,9 @@ function clampNumber(value: number, min: number, max: number): number {
 
 export const defaultStrategy = createStrategy(ComputeEvaporationSourcesContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
       throw new Error("[Hydrology] Invalid landMask for hydrology/compute-evaporation-sources.");

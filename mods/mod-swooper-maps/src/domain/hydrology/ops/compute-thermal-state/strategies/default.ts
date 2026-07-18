@@ -4,9 +4,9 @@ import { clampNumber } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeThermalStateContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     if (!(input.insolation instanceof Float32Array) || input.insolation.length !== size) {
       throw new Error("[Hydrology] Invalid insolation for hydrology/compute-thermal-state.");

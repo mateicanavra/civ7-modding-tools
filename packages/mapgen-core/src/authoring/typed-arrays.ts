@@ -15,18 +15,6 @@ export type TypedArrayConstructor<T extends SupportedTypedArray> = Readonly<{
   readonly BYTES_PER_ELEMENT: number;
 }>;
 
-/** Returns the positive integer cell count for a rectangular grid. */
-export function expectedGridSize(width: number, height: number): number {
-  const w = width | 0;
-  const h = height | 0;
-  if (!Number.isFinite(width) || !Number.isFinite(height) || w <= 0 || h <= 0) {
-    throw new Error(
-      `expectedGridSize() requires positive finite width/height (got ${width}x${height})`
-    );
-  }
-  return w * h;
-}
-
 /** Narrows a value to an exact typed-array constructor and, when supplied, cardinality. */
 export function isTypedArrayOf<T extends SupportedTypedArray>(
   value: unknown,

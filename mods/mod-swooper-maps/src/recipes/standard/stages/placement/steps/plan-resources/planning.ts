@@ -32,7 +32,7 @@ import {
   type HabitatIntensityFieldName,
   type HabitatMaskFieldName,
 } from "@mapgen/domain/resources/model/schemas";
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import type { ResourceDemandExclusionReason } from "../../artifacts/resource-demand-plan.artifact.js";
 
@@ -123,8 +123,8 @@ export function assertHabitatFieldsOutput(
  * engine surface after placement maintenance. Reconstructing this surface
  * from artifacts is S6 scope.
  */
-export function readResourceLegalitySurface(context: ExtendedMapContext): ResourceLegalitySurface {
-  const { width, height } = context.dimensions;
+export function readResourceLegalitySurface(context: MapContext): ResourceLegalitySurface {
+  const { width, height } = context.setup.dimensions;
   const size = width * height;
   const biomeType = new Uint8Array(size);
   const terrainType = new Uint8Array(size);
@@ -198,7 +198,7 @@ export function buildRiverResourceExclusionMask(args: {
     riverMask?: Uint8Array;
   };
 }): Uint8Array {
-  const size = Math.max(0, args.width * args.height);
+  const size = args.width * args.height;
   const mask = new Uint8Array(size);
   const add = (label: string, candidate: Uint8Array | undefined): void => {
     if (candidate === undefined) return;

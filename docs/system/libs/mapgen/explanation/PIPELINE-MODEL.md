@@ -36,6 +36,7 @@ A pipeline run is:
 3. **Compile plan**:
    - recipe ordering becomes a list of execution nodes (step id + config)
 4. **Run**:
+   - the recipe executes the exact compiled plan; convenience run methods compile once and delegate
    - executor iterates nodes in order
    - requires/provides validated via tag registry
    - step executes and publishes its write-once artifact evidence
@@ -71,5 +72,5 @@ generation success.
 - Executor tag gating + trace scoping: `packages/mapgen-core/src/engine/PipelineExecutor.ts`
 - Optional facet dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
 - Tag validation/satisfaction: `packages/mapgen-core/src/engine/tags.ts`
-- Artifact store type: `packages/mapgen-core/src/core/types.ts`
+- Map context and artifact store: `packages/mapgen-core/src/core/map-context.ts`
 - Canonical viz doc (deck.gl): `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`

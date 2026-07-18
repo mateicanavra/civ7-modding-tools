@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { ArtifactValidationError, implementArtifactModules } from "@swooper/mapgen-core/authoring";
 import { artifactModules as baselineModules } from "../../../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
 import { artifactModules as refineModules } from "../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
@@ -59,10 +59,13 @@ describe("Standard climate artifact vintages", () => {
   it("fails publication rather than coercing an out-of-domain producer result", () => {
     const runtime = implementArtifactModules([refineModules.climateField]);
     const dimensions = { width: 2, height: 2 } as const;
-    const mapContext = createExtendedMapContext(dimensions, createMockAdapter(dimensions), {
-      seed: 1,
-      dimensions,
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    const mapContext = createMapContext({
+      setup: admitMapSetup({
+        mapSeed: 1,
+        dimensions,
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      }),
+      adapter: createMockAdapter(dimensions),
     });
 
     expect(() =>

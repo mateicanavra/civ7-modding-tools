@@ -35,7 +35,7 @@ function validateRidgesInputs(input: PlanRidgesTypes["input"]): {
   fractalMountain: Int16Array;
 } {
   const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
 
   const landMask = input.landMask as Uint8Array;
   const boundaryCloseness = input.boundaryCloseness as Uint8Array;
@@ -171,7 +171,7 @@ const OPPOSITE_DIRECTION = [1, 0, 3, 2, 5, 4] as const;
 
 function resolveMapScaledRangeLength(width: number, height: number, lengthTiles: number): number {
   if (!Number.isFinite(lengthTiles) || lengthTiles <= 1) return 0;
-  const scale = Math.sqrt(Math.max(1, width * height) / LARGE_MAP_AREA);
+  const scale = Math.sqrt((width * height) / LARGE_MAP_AREA);
   return Math.max(2, Math.round(lengthTiles * scale)) | 0;
 }
 
@@ -192,8 +192,8 @@ function axisDirectionScore(axisDirection: number, nextDirection: number): numbe
 export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
   run: (input, config) => {
     const { width, height } = input;
-    const w = width | 0;
-    const h = height | 0;
+    const w = width;
+    const h = height;
     const {
       size,
       landMask,

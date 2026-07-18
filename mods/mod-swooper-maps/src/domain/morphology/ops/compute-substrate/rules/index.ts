@@ -5,7 +5,7 @@ import type { ComputeSubstrateTypes } from "../types.js";
  */
 export function validateSubstrateInputs(input: ComputeSubstrateTypes["input"]): number {
   const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const uplift = input.upliftPotential as Uint8Array;
   const rift = input.riftPotential as Uint8Array;
   const boundaryCloseness = input.boundaryCloseness as Uint8Array;

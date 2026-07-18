@@ -15,7 +15,7 @@ export function validateIslandInputs(input: PlanIslandChainsTypes["input"]): {
   volcanism: Uint8Array;
 } {
   const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const landMask = input.landMask as Uint8Array;
   const boundaryCloseness = input.boundaryCloseness as Uint8Array;
   const boundaryType = input.boundaryType as Uint8Array;

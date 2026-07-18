@@ -1,4 +1,4 @@
-import type { ExtendedMapContext } from "@mapgen/core/types.js";
+import { type MapContext, publishMapContextArtifactInternal } from "@mapgen/core/map-context.js";
 import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 
 import type { ArtifactContract, ArtifactReadValueOf, ArtifactValueOf } from "./contract.js";
@@ -62,20 +62,13 @@ export class ArtifactValidationError extends Error {
   }
 }
 
-type ArtifactModuleRuntimes<
-  Modules extends readonly ArtifactModule[],
-  TContext extends ExtendedMapContext,
-> = Readonly<{
+type ArtifactModuleRuntimes<Modules extends readonly ArtifactModule[]> = Readonly<{
   [Module in Modules[number] as Module["artifact"]["name"]]: ProvidedArtifactRuntime<
-    Module["artifact"],
-    TContext
+    Module["artifact"]
   >;
 }>;
 
-export type RequiredArtifactRuntime<
-  C extends ArtifactContract,
-  TContext extends ExtendedMapContext,
-> = Readonly<{
+export type RequiredArtifactRuntime<C extends ArtifactContract> = Readonly<{
   contract: C;
   /**
    * Read an artifact as a readonly view.
@@ -85,14 +78,10 @@ export type RequiredArtifactRuntime<
    * - Consumers must treat the returned value as immutable and must not mutate it.
    * - If mutation is needed, callers must copy first (caller-owned copy).
    */
-  read: (context: TContext) => ArtifactReadValueOf<C>;
-  tryRead: (context: TContext) => ArtifactReadValueOf<C> | null;
+  read: (context: MapContext) => ArtifactReadValueOf<C>;
 }>;
 
-export type ProvidedArtifactRuntime<
-  C extends ArtifactContract,
-  TContext extends ExtendedMapContext,
-> = RequiredArtifactRuntime<C, TContext> &
+export type ProvidedArtifactRuntime<C extends ArtifactContract> = RequiredArtifactRuntime<C> &
   Readonly<{
     /**
      * Publish an artifact (write-once).
@@ -101,11 +90,11 @@ export type ProvidedArtifactRuntime<
      * - Publishing stores the provided value reference (no deep freeze, no snapshotting in prod).
      * - Producers must treat published values as immutable once stored.
      */
-    publish: (context: TContext, value: ArtifactValueOf<C>) => ArtifactReadValueOf<C>;
-    satisfies: DependencyTagDefinition<TContext>["satisfies"];
+    publish: (context: MapContext, value: ArtifactValueOf<C>) => ArtifactReadValueOf<C>;
+    satisfies: DependencyTagDefinition["satisfies"];
   }>;
 
-function resolveStepId(context: ExtendedMapContext): string {
+function resolveStepId(context: MapContext): string {
   const trace = context.trace as { stepId?: string } | null | undefined;
   return trace?.stepId ?? "unknown";
 }
@@ -126,7 +115,7 @@ function assertUniqueModules(modules: readonly ArtifactModule[]): void {
 }
 
 function readStored<C extends ArtifactContract>(
-  context: ExtendedMapContext,
+  context: MapContext,
   contract: C
 ): {
   hasValue: boolean;
@@ -137,14 +126,14 @@ function readStored<C extends ArtifactContract>(
   return { hasValue, value };
 }
 
-function buildSatisfies<C extends ArtifactContract, TContext extends ExtendedMapContext>(
+function buildSatisfies<C extends ArtifactContract>(
   module: ArtifactModule<C>
-): DependencyTagDefinition<TContext>["satisfies"] {
-  return (context: TContext) => {
+): DependencyTagDefinition["satisfies"] {
+  return (context: MapContext) => {
     const { hasValue, value } = readStored(context, module.artifact);
     if (!hasValue) return false;
     try {
-      const issues = module.validate(value, { dimensions: context.dimensions });
+      const issues = module.validate(value, { dimensions: context.setup.dimensions });
       return issues.length === 0;
     } catch {
       return false;
@@ -164,18 +153,17 @@ function normalizeIssues(error: unknown): readonly { message: string }[] {
  * validation. Each validator runs once per publish or satisfaction observation; callers cannot
  * omit validation or install a second admission path.
  */
-export function implementArtifactModules<
-  const Modules extends readonly ArtifactModule[],
-  TContext extends ExtendedMapContext = ExtendedMapContext,
->(modules: Modules): ArtifactModuleRuntimes<Modules, TContext> {
+export function implementArtifactModules<const Modules extends readonly ArtifactModule[]>(
+  modules: Modules
+): ArtifactModuleRuntimes<Modules> {
   assertUniqueModules(modules);
-  const entries: Array<readonly [string, ProvidedArtifactRuntime<ArtifactContract, TContext>]> = [];
+  const entries: Array<readonly [string, ProvidedArtifactRuntime<ArtifactContract>]> = [];
 
   for (const module of modules) {
     const contract = module.artifact;
-    const satisfies = buildSatisfies<typeof contract, TContext>(module);
+    const satisfies = buildSatisfies(module);
 
-    const runtime: ProvidedArtifactRuntime<typeof contract, TContext> = {
+    const runtime: ProvidedArtifactRuntime<typeof contract> = {
       contract,
       read: (context) => {
         const { hasValue, value } = readStored(context, contract);
@@ -187,10 +175,6 @@ export function implementArtifactModules<
           });
         }
         return value as ArtifactReadValueOf<typeof contract>;
-      },
-      tryRead: (context) => {
-        const { hasValue, value } = readStored(context, contract);
-        return hasValue ? (value as ArtifactReadValueOf<typeof contract>) : null;
       },
       publish: (context, value) => {
         if (context.artifacts.has(contract.id)) {
@@ -204,7 +188,7 @@ export function implementArtifactModules<
         let issues: readonly { message: string }[];
         let cause: unknown;
         try {
-          issues = module.validate(value, { dimensions: context.dimensions });
+          issues = module.validate(value, { dimensions: context.setup.dimensions });
         } catch (error) {
           cause = error;
           issues = normalizeIssues(error);
@@ -220,7 +204,7 @@ export function implementArtifactModules<
           });
         }
 
-        context.artifacts.set(contract.id, value);
+        publishMapContextArtifactInternal(context, contract.id, value);
         return value as ArtifactReadValueOf<typeof contract>;
       },
       satisfies,
@@ -228,5 +212,5 @@ export function implementArtifactModules<
     entries.push([contract.name, runtime]);
   }
 
-  return Object.freeze(Object.fromEntries(entries)) as ArtifactModuleRuntimes<Modules, TContext>;
+  return Object.freeze(Object.fromEntries(entries)) as ArtifactModuleRuntimes<Modules>;
 }

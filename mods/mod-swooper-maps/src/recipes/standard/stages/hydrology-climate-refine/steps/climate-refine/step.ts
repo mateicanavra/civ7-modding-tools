@@ -111,7 +111,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
     return next;
   },
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const windField = deps.artifacts.windField.read(context);
     const hydrography = deps.artifacts.hydrography.read(context) as { riverClass: Uint8Array };
     const topography = deps.artifacts.topography.read(context) as {
@@ -121,7 +121,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
 
     const baselineClimateField = deps.artifacts.baselineClimateField.read(context);
 
-    const { topLatitude, bottomLatitude } = context.env.latitudeBounds;
+    const { topLatitude, bottomLatitude } = context.setup.latitudeBounds;
     const latitudeByRow = new Float32Array(height);
     if (height <= 1) {
       const mid = (topLatitude + bottomLatitude) / 2;

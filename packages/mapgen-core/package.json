@@ -37,13 +37,13 @@
       "types": "./dist/compiler/normalize.d.ts",
       "import": "./dist/compiler/normalize.js"
     },
-    "./compiler/recipe-compile": {
-      "types": "./dist/compiler/recipe-compile.d.ts",
-      "import": "./dist/compiler/recipe-compile.js"
-    },
     "./trace": {
       "types": "./dist/trace/index.d.ts",
       "import": "./dist/trace/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js"
     },
     "./lib/math": {
       "types": "./dist/lib/math/index.d.ts",
@@ -89,11 +89,11 @@
     "@swooper/mapgen-metrics": "workspace:*",
     "@swooper/mapgen-viz": "workspace:*",
     "d3-delaunay": "^6.0.4",
+    "type-fest": "^5.7.0",
     "typebox": "catalog:"
   },
   "devDependencies": {
     "@civ7/map-policy": "workspace:*",
-    "@types/d3-delaunay": "^6.0.4",
-    "type-fest": "^5.7.0"
+    "@types/d3-delaunay": "^6.0.4"
   }
 }

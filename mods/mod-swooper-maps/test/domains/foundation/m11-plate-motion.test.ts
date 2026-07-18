@@ -34,14 +34,10 @@ describe("foundation plate motion (D03r)", () => {
   it("is deterministic for identical inputs", () => {
     const width = 44;
     const height = 28;
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 11 }, meshConfig).mesh;
     const mantlePotential = computeMantlePotential.run(
@@ -79,14 +75,10 @@ describe("foundation plate motion (D03r)", () => {
   it("does not cap plateFitP90 at residualNorm (P90 can exceed normalization scale)", () => {
     const width = 44;
     const height = 28;
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 111 }, meshConfig).mesh;
     const mantlePotential = computeMantlePotential.run(
@@ -128,18 +120,15 @@ describe("foundation plate motion (D03r)", () => {
     };
 
     const residualNormScale = 0.1;
-    const motionConfig = computePlateMotion.normalize(
-      {
-        strategy: "default",
-        config: {
-          ...computePlateMotion.defaultConfig.config,
-          residualNormScale,
-          p90NormScale: 1,
-          histogramBins: 32,
-        },
+    const motionConfig = computePlateMotion.normalize({
+      strategy: "default",
+      config: {
+        ...computePlateMotion.defaultConfig.config,
+        residualNormScale,
+        p90NormScale: 1,
+        histogramBins: 32,
       },
-      ctx as any
-    );
+    });
     const motion = computePlateMotion.run(
       { mesh, plateGraph, mantleForcing },
       motionConfig
@@ -157,14 +146,10 @@ describe("foundation plate motion (D03r)", () => {
   it("responds to mantle forcing changes", () => {
     const width = 44;
     const height = 28;
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 21 }, meshConfig).mesh;
     const mantlePotentialA = computeMantlePotential.run(
@@ -217,14 +202,10 @@ describe("foundation plate motion (D03r)", () => {
   it("rejects plate graph and mantle forcing dimensions from a different mesh", () => {
     const width = 36;
     const height = 24;
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 41 }, meshConfig).mesh;
     const mantlePotential = computeMantlePotential.run(
@@ -273,14 +254,10 @@ describe("foundation plate motion (D03r)", () => {
   it("emits finite motion + diagnostics", () => {
     const width = 32;
     const height = 20;
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 31 }, meshConfig).mesh;
     const mantlePotential = computeMantlePotential.run(

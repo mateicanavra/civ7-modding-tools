@@ -54,10 +54,10 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
     return { ...config, coastlines: coastlinesSelection };
   },
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
     const baseTopography = deps.artifacts.baseTopography.read(context);
-    const rngSeed = deriveStepSeed(context.env.seed, "morphology:computeCoastlineMetrics");
+    const rngSeed = deriveStepSeed(context.setup.mapSeed, "morphology:computeCoastlineMetrics");
 
     const result = ops.coastlines(
       {
@@ -97,7 +97,7 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
     };
 
     context.trace.event(() => {
-      const size = Math.max(0, (width | 0) * (height | 0));
+      const size = width * height;
       let coastTiles = 0;
       let landTiles = 0;
       for (let i = 0; i < size; i++) {
@@ -134,7 +134,7 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
 
     // Carved distance-to-coast (pre-island): windows the shelf-break sample is now the
     // shelf stage's concern; here it is the snapshot mountains(morphology-features) consume.
-    const coastal = new Uint8Array(Math.max(0, (width | 0) * (height | 0)));
+    const coastal = new Uint8Array(width * height);
     for (let i = 0; i < coastal.length; i++) {
       coastal[i] = result.coastalLand[i] === 1 || result.coastalWater[i] === 1 ? 1 : 0;
     }

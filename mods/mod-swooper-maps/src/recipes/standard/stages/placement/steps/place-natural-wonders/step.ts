@@ -29,7 +29,7 @@ export const PlaceNaturalWondersStep = createStep(PlaceNaturalWondersStepContrac
   run: (context, _config, _ops, deps) => {
     const placementInputs = deps.artifacts.placementInputs.read(context);
     const naturalWonderPlan = deps.artifacts.naturalWonderPlan.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
 
     const stamping: NaturalWonderStampingStats = stampNaturalWondersFromPlan({
       adapter: context.adapter,

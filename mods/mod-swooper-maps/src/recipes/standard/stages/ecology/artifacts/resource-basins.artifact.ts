@@ -1,4 +1,3 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
   defineArtifact,
   type Static,
@@ -53,10 +52,7 @@ function isResourceBasinsArtifact(value: unknown): value is ResourceBasinsArtifa
   );
 }
 
-function validatePayload(
-  value: unknown,
-  _dimensions: NonNullable<ArtifactValidationContext["dimensions"]>
-): ArtifactValidationIssue[] {
+function validatePayload(value: unknown): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isResourceBasinsArtifact(value)) {
     errors.push({ message: "Invalid resource basins artifact payload." });
@@ -66,16 +62,13 @@ function validatePayload(
 }
 
 /**
- * Validates resource-basin plan against its closed schema and, when map dimensions are
- * supplied, verifies every tile field matches that width × height. It returns accumulated
- * issues so artifact admission can reject a structurally valid but spatially inconsistent
- * payload.
+ * Reports every structural violation in resource-basin evidence.
+ *
+ * Spatial grid invariants are deliberately absent: this artifact contains sparse basin members,
+ * not map-sized fields. Artifact admission uses the returned issues to refuse malformed basin
+ * records without creating a second owner for map-setup dimensions.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
+export function validate(value: unknown): readonly { message: string }[] {
   const schemaIssues = validateArtifactSchema(Schema, value);
-  if (!context?.dimensions) return schemaIssues;
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context.dimensions)]);
+  return Object.freeze([...schemaIssues, ...validatePayload(value)]);
 }

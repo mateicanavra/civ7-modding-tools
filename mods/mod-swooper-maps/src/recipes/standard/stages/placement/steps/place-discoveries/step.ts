@@ -10,7 +10,7 @@ import { placeOfficialDiscoveries } from "./materialize.js";
  */
 export const PlaceDiscoveriesStep = createStep(PlaceDiscoveriesStepContract, {
   run: (context, _config, _ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     // Civ7's official generator gates discoveries away from major starts; feed it
     // the seated start plots (drop unseated -1 sentinels) exactly as the base
     // maps pass `startPositions` from assignStartPositions.

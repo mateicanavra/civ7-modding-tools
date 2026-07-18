@@ -64,7 +64,7 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
     const topography = deps.artifacts.carvedTopography.read(context);
     const routing = deps.artifacts.routing.read(context);
     const substrate = deps.artifacts.baseSubstrate.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const elevation = new Int16Array(topography.elevation);
     const landMask = new Uint8Array(topography.landMask);
     const bathymetry = new Int16Array(topography.bathymetry);
@@ -109,7 +109,7 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
     }
 
     context.trace.event(() => {
-      const size = Math.max(0, (width | 0) * (height | 0));
+      const size = width * height;
       let landTiles = 0;
       let deltaMin = 0;
       let deltaMax = 0;

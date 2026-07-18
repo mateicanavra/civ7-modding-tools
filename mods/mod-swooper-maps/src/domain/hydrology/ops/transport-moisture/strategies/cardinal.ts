@@ -4,9 +4,9 @@ import { clamp01, upwindIndex, upwindOffset } from "../rules/index.js";
 
 export const cardinalStrategy = createStrategy(TransportMoistureContract, "cardinal", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     const latitudeByRow = input.latitudeByRow;
     if (!(latitudeByRow instanceof Float32Array) || latitudeByRow.length !== height) {

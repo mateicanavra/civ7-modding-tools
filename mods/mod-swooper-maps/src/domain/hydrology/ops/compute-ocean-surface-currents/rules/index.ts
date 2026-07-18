@@ -12,7 +12,7 @@ export function computeCurrents(
   isWaterMask: Uint8Array,
   strength: number
 ): { currentU: Int8Array; currentV: Int8Array } {
-  const size = Math.max(0, width * height);
+  const size = width * height;
   const currentU = new Int8Array(size);
   const currentV = new Int8Array(size);
   const scaledStrength = Math.max(0, strength);
@@ -93,8 +93,8 @@ function smoothFieldWaterOddQ(
   fy: Float32Array,
   iters: number
 ): void {
-  const size = Math.max(0, width * height);
-  if (iters <= 0 || size === 0) return;
+  const size = width * height;
+  if (iters <= 0) return;
   const tmpX = new Float32Array(size);
   const tmpY = new Float32Array(size);
 
@@ -143,8 +143,8 @@ function projectDivergenceFreeOddQ(
   fy: Float32Array,
   iters: number
 ): void {
-  const size = Math.max(0, width * height);
-  if (iters <= 0 || size === 0) return;
+  const size = width * height;
+  if (iters <= 0) return;
 
   const div = estimateDivergenceOddQ(width, height, fx, fy);
   const phi = new Float32Array(size);
@@ -215,7 +215,7 @@ function computeBasinCenters(
   isWaterMask: Uint8Array,
   basinId: Int32Array
 ): BasinCenters {
-  const size = Math.max(0, width * height);
+  const size = width * height;
   let maxId = 0;
   for (let i = 0; i < size; i++) maxId = Math.max(maxId, basinId[i] ?? 0);
   const sinSum = new Float64Array(maxId + 1);
@@ -230,7 +230,7 @@ function computeBasinCenters(
       if (isWaterMask[i] !== 1) continue;
       const id = basinId[i] ?? 0;
       if (id <= 0) continue;
-      const a = (x / Math.max(1, width)) * Math.PI * 2;
+      const a = (x / width) * Math.PI * 2;
       sinSum[id] += Math.sin(a);
       cosSum[id] += Math.cos(a);
       ySum[id] += y;
@@ -272,7 +272,7 @@ export function computeCurrentsEarthlike(
     projectionIters: number;
   }>
 ): { currentU: Int8Array; currentV: Int8Array } {
-  const size = Math.max(0, width * height);
+  const size = width * height;
   const currentU = new Int8Array(size);
   const currentV = new Int8Array(size);
 

@@ -206,7 +206,7 @@ const AdjustResourceSupportContract = defineOp({
   id: "resources/adjust-resource-support",
   input: Type.Object(
     {
-      seed: Type.Integer({ description: "Deterministic seed (from env.seed)." }),
+      seed: Type.Integer({ description: "Deterministic seed (from setup.mapSeed)." }),
       plan: ResourceSitePlanSchema,
       eligibility: Type.Array(EligibilityRowSchema, {
         description:

@@ -1,11 +1,7 @@
-import {
-  HILL_TERRAIN,
-  logMountainSummary,
-  logReliefAscii,
-  MOUNTAIN_TERRAIN,
-} from "@swooper/mapgen-core";
+import { logMountainSummary, logReliefAscii } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { assertNoWaterDrift } from "../../../../projection-policies/noWaterDrift.js";
+import { resolveStandardProjectionTerrainTypes } from "../../../../projection-policies/standardProjectionEngineTypes.js";
 import { PlotMountainsStepContract } from "./config.js";
 
 /**
@@ -16,7 +12,8 @@ export const PlotMountainsStep = createStep(PlotMountainsStepContract, {
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const mountains = deps.artifacts.mountains.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
+    const terrain = resolveStandardProjectionTerrainTypes(context.adapter);
 
     // Projection-only: Morphology has already decided mountain/hill intent.
     // This map step only materializes that intent into Civ7 terrain and then
@@ -26,17 +23,17 @@ export const PlotMountainsStep = createStep(PlotMountainsStepContract, {
         const idx = y * width + x;
         if (topography.landMask[idx] !== 1) continue;
         if (mountains.mountainMask[idx] === 1) {
-          context.adapter.setTerrainType(x, y, MOUNTAIN_TERRAIN);
+          context.adapter.setTerrainType(x, y, terrain.mountain);
           continue;
         }
         if (mountains.hillMask[idx] === 1) {
-          context.adapter.setTerrainType(x, y, HILL_TERRAIN);
+          context.adapter.setTerrainType(x, y, terrain.hill);
         }
       }
     }
 
     logMountainSummary(context.trace, context.adapter, width, height);
-    logReliefAscii(context.trace, context.adapter, width, height);
+    logReliefAscii(context.trace, context.adapter, width, height, terrain.hill);
     assertNoWaterDrift(context, topography.landMask, "map-morphology/plot-mountains");
   },
 });

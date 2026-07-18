@@ -1,18 +1,23 @@
-import type { ExtendedMapContext } from "@mapgen/core/types.js";
+import type { MapContext } from "@mapgen/core/map-context.js";
 
+/** Detached terrain, elevation, and land-mask evidence observed from the Civ7 adapter. */
 export type EngineHeightfieldSnapshot = {
   terrain: Uint8Array;
   elevation: Int16Array;
   landMask: Uint8Array;
 };
 
-export function snapshotEngineHeightfield(
-  ctx: ExtendedMapContext
-): EngineHeightfieldSnapshot | null {
+/**
+ * Captures the engine-projected terrain surface for diagnostics and projection readback.
+ *
+ * The snapshot is detached from the adapter so later engine mutations cannot change the evidence
+ * already recorded for a pipeline step.
+ */
+export function snapshotEngineHeightfield(ctx: MapContext): EngineHeightfieldSnapshot | null {
   if (!ctx?.adapter) return null;
 
-  const { width, height } = ctx.dimensions;
-  const size = Math.max(0, (width | 0) * (height | 0)) | 0;
+  const { width, height } = ctx.setup.dimensions;
+  const size = width * height;
 
   const terrain = new Uint8Array(size);
   const elevation = new Int16Array(size);

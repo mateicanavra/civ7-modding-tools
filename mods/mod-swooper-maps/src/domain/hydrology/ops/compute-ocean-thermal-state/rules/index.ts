@@ -95,7 +95,7 @@ export function computeOceanThermalState(
     seaIceThresholdC: number;
   }>
 ): { sstC: Float32Array; seaIceMask: Uint8Array } {
-  const size = Math.max(0, width * height);
+  const size = width * height;
   const sst = new Float32Array(size);
   const next = new Float32Array(size);
   const seaIceMask = new Uint8Array(size);

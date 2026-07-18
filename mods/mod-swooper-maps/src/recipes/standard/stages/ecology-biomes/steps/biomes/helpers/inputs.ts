@@ -22,7 +22,7 @@ export function maskFromCoordSet(
 }
 
 /**
- * Builds a latitude field by interpolating between env bounds.
+ * Builds a latitude field by interpolating between setup bounds.
  */
 export function buildLatitudeField(
   latitudeBounds: { topLatitude: number; bottomLatitude: number },

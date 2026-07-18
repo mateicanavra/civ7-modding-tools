@@ -1,10 +1,7 @@
-import type { TraceScope } from "@mapgen/trace/index.js";
+import type { MapContext } from "@mapgen/core/map-context.js";
+import type { MapSetup } from "@mapgen/core/map-setup.js";
 import type { TSchema } from "typebox";
 import type { StepFacets } from "./step-projectors.js";
-
-export interface EngineContext {
-  trace: TraceScope;
-}
 
 export type GenerationPhase =
   | "setup"
@@ -16,21 +13,23 @@ export type GenerationPhase =
   | "placement";
 
 export type DependencyTag = string;
-export type NormalizeContext<TEnv = unknown, TKnobs = unknown> = Readonly<{
-  env: TEnv;
+/** Setup and stage knobs available while compiling one step's internal configuration. */
+export type NormalizeContext<TKnobs = unknown> = Readonly<{
+  setup: MapSetup;
   knobs: TKnobs;
 }>;
 
-export interface MapGenStep<TContext = EngineContext, TConfig = unknown, TResult = unknown> {
-  id: string;
-  phase: GenerationPhase;
-  requires: readonly DependencyTag[];
-  provides: readonly DependencyTag[];
-  configSchema?: TSchema;
-  normalize?: (config: TConfig, ctx: NormalizeContext) => TConfig;
-  run: (context: TContext, config: TConfig) => TResult | Promise<TResult>;
+/** One registered execution node over the single authentic MapGen context for a run. */
+export interface MapGenStep<TConfig = unknown, TResult = unknown> {
+  readonly id: string;
+  readonly phase: GenerationPhase;
+  readonly requires: readonly DependencyTag[];
+  readonly provides: readonly DependencyTag[];
+  readonly configSchema?: TSchema;
+  readonly normalize?: (config: TConfig, ctx: NormalizeContext) => TConfig;
+  readonly run: (context: MapContext, config: TConfig) => TResult | Promise<TResult>;
   /** Optional synchronous projectors dispatched by the executor after provides validation. */
-  facets?: StepFacets<TConfig, TResult>;
+  readonly facets?: StepFacets<TConfig, TResult>;
 }
 
 export interface PipelineStepResult {

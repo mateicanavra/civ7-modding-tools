@@ -6,8 +6,8 @@ const computePlatesTensors = createOp(ComputePlatesTensorsContract, {
   strategies: {
     default: {
       run: (input, config) => {
-        const width = input.width | 0;
-        const height = input.height | 0;
+        const width = input.width;
+        const height = input.height;
         const mesh = input.mesh;
         const crust = input.crust;
         const plateGraph = input.plateGraph;

@@ -1,3 +1,6 @@
+import type { MapContext } from "@swooper/mapgen-core";
+import { resolveStandardProjectionTerrainTypes } from "../../projection-policies/standardProjectionEngineTypes.js";
+
 /**
  * Engine-safe warn logging for placement steps.
  *
@@ -44,14 +47,11 @@ export function runPlacementProductStep<T>(
  * Emits placement terrain statistics at sanctioned observation points when verbose tracing is on.
  * The measurement reads the projected adapter surface without mutating or reclassifying tiles.
  */
-export function logTerrainStats(
-  trace: TraceScope | null | undefined,
-  adapter: ExtendedMapContext["adapter"],
-  width: number,
-  height: number,
-  stage: string
-): void {
+export function logTerrainStats(context: MapContext, stage: string): void {
+  const { adapter, trace } = context;
   if (!trace?.isVerbose) return;
+  const { width, height } = context.setup.dimensions;
+  const terrain = resolveStandardProjectionTerrainTypes(adapter);
   let flat = 0;
   let hill = 0;
   let mountain = 0;
@@ -65,8 +65,8 @@ export function logTerrainStats(
         continue;
       }
       const terrainType = adapter.getTerrainType(x, y);
-      if (terrainType === MOUNTAIN_TERRAIN) mountain++;
-      else if (terrainType === HILL_TERRAIN) hill++;
+      if (terrainType === terrain.mountain) mountain++;
+      else if (terrainType === terrain.hill) hill++;
       else flat++;
     }
   }
@@ -92,29 +92,39 @@ export function logTerrainStats(
  * Emits a top-to-bottom odd-q ASCII rendering of final terrain when verbose tracing is on.
  * This is an observation-only projection for live debugging, not a map classification step.
  */
-export function logAsciiMap(
-  trace: TraceScope | null | undefined,
-  adapter: ExtendedMapContext["adapter"],
-  width: number,
-  height: number
-): void {
+export function logAsciiMap(context: MapContext): void {
+  const { adapter, trace } = context;
   if (!trace?.isVerbose) return;
+  const { width, height } = context.setup.dimensions;
+  const terrain = resolveStandardProjectionTerrainTypes(adapter);
   const lines: string[] = ["[Placement] Final Map ASCII:"];
 
   for (let y = height - 1; y >= 0; y--) {
     let row = "";
     if (y % 2 !== 0) row += " ";
     for (let x = 0; x < width; x++) {
-      row += `${getTerrainSymbol(adapter.getTerrainType(x, y))} `;
+      const value = adapter.getTerrainType(x, y);
+      const symbol =
+        value === terrain.mountain
+          ? "M"
+          : value === terrain.hill
+            ? "^"
+            : value === terrain.flat
+              ? "."
+              : value === terrain.coast
+                ? "~"
+                : value === terrain.ocean
+                  ? "O"
+                  : value === terrain.navigableRiver
+                    ? "R"
+                    : "?";
+      row += `${symbol} `;
     }
     lines.push(row);
   }
 
   trace.event(() => ({ type: "placement.ascii", lines }));
 }
-
-import type { ExtendedMapContext, TraceScope } from "@swooper/mapgen-core";
-import { getTerrainSymbol, HILL_TERRAIN, MOUNTAIN_TERRAIN } from "@swooper/mapgen-core";
 
 function toErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);

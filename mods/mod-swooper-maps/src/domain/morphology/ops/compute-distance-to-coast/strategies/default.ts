@@ -8,7 +8,7 @@ const UNREACHED = 65535;
 export const defaultStrategy = createStrategy(ComputeDistanceToCoastContract, "default", {
   run: (input) => {
     const { width, height } = input;
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const size = width * height;
     const coastal = input.coastal as Uint8Array;
 
     const distance = new Uint16Array(size);

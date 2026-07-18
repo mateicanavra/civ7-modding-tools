@@ -8,12 +8,6 @@ const WIDTH = 2;
 const HEIGHT = 2;
 const SIZE = WIDTH * HEIGHT;
 
-const env = {
-  seed: 0,
-  dimensions: { width: WIDTH, height: HEIGHT },
-  latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
-};
-
 const runSandPlan = (sandConfig: Record<string, unknown>) => {
   const planSelection = normalizeOpSelectionOrThrow(
     ecology.ops.planPlotEffects,
@@ -27,7 +21,7 @@ const runSandPlan = (sandConfig: Record<string, unknown>) => {
         },
       },
     },
-    { ctx: { env, knobs: {} }, path: "/ops/planPlotEffects" }
+    { path: "/ops/planPlotEffects" }
   );
 
   // All four tiles sand-eligible with descending scores.

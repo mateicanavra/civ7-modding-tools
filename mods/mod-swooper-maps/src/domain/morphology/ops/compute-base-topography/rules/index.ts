@@ -14,7 +14,7 @@ export function validateBaseTopographyInputs(input: ComputeBaseTopographyTypes["
   closeness: Uint8Array;
 } {
   const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const crustBaseElevation = input.crustBaseElevation as Float32Array;
   const uplift = input.upliftPotential as Uint8Array;
   const rift = input.riftPotential as Uint8Array;

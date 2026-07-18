@@ -140,9 +140,9 @@ function isMountainBlockedClosedBasin(
 
 export const defaultStrategy = createStrategy(ComputeRiverNetworkMetricsContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     const highOrderConfluenceUpstreamAreaMin =
       Number.isFinite(config.highOrderConfluenceUpstreamAreaMin) &&

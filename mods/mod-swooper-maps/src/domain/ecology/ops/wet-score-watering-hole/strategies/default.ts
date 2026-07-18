@@ -1,12 +1,12 @@
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import { rampUp01, validateGridSize } from "../../../model/policy/feature-score-selection.js";
+import { rampUp01, validateGridFields } from "../../../model/policy/feature-score-selection.js";
 import ScoreWetWateringHoleContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(ScoreWetWateringHoleContract, "default", {
   run: (input, config) => {
-    const size = validateGridSize({
+    const size = validateGridFields({
       width: input.width,
       height: input.height,
       fields: [

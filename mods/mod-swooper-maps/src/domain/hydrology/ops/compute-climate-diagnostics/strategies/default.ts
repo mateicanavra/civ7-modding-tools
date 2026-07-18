@@ -6,9 +6,9 @@ import { clamp01, computeDistanceToWater, upwindBarrierDistance } from "../rules
 
 export const defaultStrategy = createStrategy(ComputeClimateDiagnosticsContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     if (!(input.latitudeByRow instanceof Float32Array) || input.latitudeByRow.length !== height) {
       throw new Error(

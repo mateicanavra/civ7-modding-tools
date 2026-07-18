@@ -23,7 +23,7 @@ const DEFAULT_RANGE = {
  */
 export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "default", {
   run: (input) => {
-    const size = validateGrid(input.width, input.height);
+    const size = input.width * input.height;
     const expectations = new Map(input.expectations.map((row) => [row.resourceType, row]));
     const plans = [];
     const missingResourceTypes: GeologicalResourceType[] = [];
@@ -123,16 +123,6 @@ export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "
     };
   },
 });
-
-function validateGrid(width: number, height: number): number {
-  const size = width * height;
-  if (!Number.isSafeInteger(size) || size <= 0) {
-    throw new Error(
-      `Invalid grid dimensions for geological resource planning: ${width}x${height}.`
-    );
-  }
-  return size;
-}
 
 function presentFields(
   input: Record<string, unknown>,

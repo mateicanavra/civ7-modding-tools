@@ -67,7 +67,7 @@ export function projectStartAssignmentViz(input: {
   dimensions: Readonly<{ width: number; height: number }>;
 }): readonly VizProjection[] {
   const { width, height } = input.dimensions;
-  const size = Math.max(0, width * height);
+  const size = width * height;
   const projections: VizProjection[] = [];
 
   if (input.plan.scoreByTile.length === size) {

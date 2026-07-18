@@ -22,7 +22,7 @@ export function validateGeomorphicInputs(input: ComputeGeomorphicCycleTypes["inp
   landMask: Uint8Array;
 } {
   const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const elevation = input.elevation as Int16Array;
   const flowDir = input.flowDir as Int32Array;
   const flowAccum = input.flowAccum as Float32Array;

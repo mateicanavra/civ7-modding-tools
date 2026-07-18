@@ -16,7 +16,7 @@ export const PlotContinentsStep = createStep(PlotContinentsStepContract, {
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const coastClassification = deps.artifacts.coastClassification.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
 
     context.adapter.validateAndFixTerrain();
     context.adapter.recalculateAreas();

@@ -3,7 +3,7 @@ import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
-  validateGridSize,
+  validateGridFields,
 } from "../../../model/policy/feature-score-selection.js";
 import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import PlanFloodplainsContract from "../contract.js";
@@ -16,9 +16,9 @@ type FloodplainCandidate = Readonly<{
 
 export const defaultStrategy = createStrategy(PlanFloodplainsContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = validateGridSize({
+    const width = input.width;
+    const height = input.height;
+    const size = validateGridFields({
       width,
       height,
       fields: [

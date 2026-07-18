@@ -80,7 +80,7 @@ const EFFECT_OWNERS: Record<string, TagOwner> = {
 
 export const STANDARD_TAG_DEFINITIONS = [
   ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map((id) => {
-    const definition: DependencyTagDefinition<ExtendedMapContext> = { id, kind: "effect" };
+    const definition: DependencyTagDefinition<MapContext> = { id, kind: "effect" };
     const owner = EFFECT_OWNERS[id];
     if (owner) definition.owner = owner;
     return definition;

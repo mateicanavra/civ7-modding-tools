@@ -18,7 +18,7 @@ export const defaultStrategy = createStrategy(ScoreVegetationRainforestContract,
     });
 
     const score01 = scoreRainforestSuitability({
-      size: (input.width | 0) * (input.height | 0),
+      size: input.width * input.height,
       landMask: input.landMask as Uint8Array,
       energy01: input.energy01 as Float32Array,
       water01: input.water01 as Float32Array,

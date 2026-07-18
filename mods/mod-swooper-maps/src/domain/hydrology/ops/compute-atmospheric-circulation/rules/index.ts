@@ -11,7 +11,7 @@ export function computeWinds(
   latitudeByRow: Float32Array,
   options: { seed: number; jetStreaks: number; jetStrength: number; variance: number }
 ): { windU: Int8Array; windV: Int8Array } {
-  const size = Math.max(0, width * height);
+  const size = width * height;
   const windU = new Int8Array(size);
   const windV = new Int8Array(size);
 
@@ -141,8 +141,8 @@ function smoothFieldOddQ(
   fy: Float32Array,
   iters: number
 ): void {
-  const size = Math.max(0, width * height);
-  if (iters <= 0 || size === 0) return;
+  const size = width * height;
+  if (iters <= 0) return;
 
   const tmpX = new Float32Array(size);
   const tmpY = new Float32Array(size);
@@ -195,7 +195,7 @@ export function computeWindsEarthlike(
     smoothIters: number;
   }>
 ): { windU: Int8Array; windV: Int8Array } {
-  const size = Math.max(0, width * height);
+  const size = width * height;
   const windU = new Int8Array(size);
   const windV = new Int8Array(size);
 
@@ -230,7 +230,7 @@ export function computeWindsEarthlike(
 
     for (let x = 0; x < width; x++) {
       const i = idx(x, y, width);
-      const nx = (x / Math.max(1, width)) * Math.PI * 2;
+      const nx = (x / width) * Math.PI * 2;
 
       // Planetary waves: longitude-dependent meanders stronger away from equator.
       const wave = Math.sin(nx * waveNumber + wavePhase) * latWave;

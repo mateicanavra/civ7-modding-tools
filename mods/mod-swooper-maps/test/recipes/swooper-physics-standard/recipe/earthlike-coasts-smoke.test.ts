@@ -1,7 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { COAST_TERRAIN, createExtendedMapContext, OCEAN_TERRAIN } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
+import { resolveStandardProjectionTerrainTypes } from "../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
 import { artifacts as morphologyArtifacts } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
@@ -24,14 +25,14 @@ describe("Earthlike coasts (smoke)", () => {
       StartSectorCols: 4,
     };
 
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: {
         topLatitude: mapInfo.MaxLatitude,
         bottomLatitude: mapInfo.MinLatitude,
       },
-    };
+    });
 
     const adapter = createMockAdapter({
       width,
@@ -40,9 +41,12 @@ describe("Earthlike coasts (smoke)", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
+    const { coast: coastTerrain, ocean: oceanTerrain } = resolveStandardProjectionTerrainTypes(
+      context.adapter
+    );
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-    standardRecipe.run(context, env, standardConfig, { log: () => {} });
+    standardRecipe.run(context, standardConfig, { log: () => {} });
 
     // The shelf + post-island coastline live in the morphology-shelf artifact now.
     const shelf = context.artifacts.get(morphologyArtifacts.shelf.id) as
@@ -63,8 +67,8 @@ describe("Earthlike coasts (smoke)", () => {
         if (!adapter.isWater(x, y)) continue;
         waterTiles += 1;
         const terrain = adapter.getTerrainType(x, y);
-        if (terrain === COAST_TERRAIN) coastTiles += 1;
-        else if (terrain === OCEAN_TERRAIN) oceanTiles += 1;
+        if (terrain === coastTerrain) coastTiles += 1;
+        else if (terrain === oceanTerrain) oceanTiles += 1;
       }
     }
     expect(waterTiles).toBeGreaterThan(0);

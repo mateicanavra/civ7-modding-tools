@@ -4,7 +4,7 @@ import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { STANDARD_TAG_DEFINITIONS } from "../../../../src/recipes/standard/tags.js";
 
 const baseSettings = {
-  seed: 42,
+  mapSeed: 42,
   dimensions: { width: 2, height: 2 },
   latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
 };

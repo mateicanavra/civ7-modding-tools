@@ -1,4 +1,3 @@
-import type { NormalizeContext } from "@mapgen/engine/index.js";
 import type { Static, TSchema } from "typebox";
 import type { OpContract } from "./contract.js";
 import type { OpStrategy, StrategyImplMapFor, StrategySelection } from "./strategy.js";
@@ -72,7 +71,7 @@ export function createOp(contract: any, impl: any): any {
 
   const config = configSchema as unknown as OpConfigSchema<typeof runtimeStrategies>;
 
-  const normalize = (cfg: StrategySelection<typeof runtimeStrategies>, ctx: NormalizeContext) => {
+  const normalize = (cfg: StrategySelection<typeof runtimeStrategies>) => {
     if (!cfg || typeof cfg.strategy !== "string") {
       throw new Error(`createOp(${contract?.id}) normalize requires a strategy`);
     }
@@ -85,7 +84,7 @@ export function createOp(contract: any, impl: any): any {
     }
     return {
       strategy: cfg.strategy,
-      config: selected.normalize(cfg.config, ctx),
+      config: selected.normalize(cfg.config),
     };
   };
 

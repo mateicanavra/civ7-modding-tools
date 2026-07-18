@@ -101,13 +101,10 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
     return config;
   },
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
+    const width = input.width;
+    const height = input.height;
     const size = width * height;
     const seed = input.seed | 0;
-    if (!Number.isSafeInteger(size) || size <= 0) {
-      throw new Error(`[resources] Invalid grid for select-resource-sites: ${width}x${height}.`);
-    }
     const landMask = input.landMask;
     const lakeMask = input.lakeMask;
     const landmassIdByTile = input.landmassIdByTile;

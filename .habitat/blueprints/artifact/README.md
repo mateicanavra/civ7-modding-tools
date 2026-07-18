@@ -25,7 +25,7 @@ Current source-backed anchors:
 - `docs/system/libs/mapgen/reference/ARTIFACTS.md`
 - `docs/system/libs/mapgen/how-to/add-a-new-artifact.md`
 - `packages/mapgen-core/src/authoring/artifact/**`
-- `packages/mapgen-core/src/core/types.ts`
+- `packages/mapgen-core/src/core/map-context.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/**/artifacts.ts`
 - `mods/mod-swooper-maps/src/**/artifacts/*.artifact.ts`
 

@@ -1,4 +1,4 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 
 type DiscoveryPlacementOutcomes = Static<
@@ -6,7 +6,7 @@ type DiscoveryPlacementOutcomes = Static<
 >;
 
 type PlaceOfficialDiscoveriesArgs = {
-  adapter: ExtendedMapContext["adapter"];
+  adapter: MapContext["adapter"];
   width: number;
   height: number;
   startPositions: readonly number[];

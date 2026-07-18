@@ -11,7 +11,7 @@ export function validateFlowRoutingInputs(input: ComputeFlowRoutingTypes["input"
   landMask: Uint8Array;
 } {
   const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const elevation = input.elevation as Int16Array;
   const landMask = input.landMask as Uint8Array;
   if (elevation.length !== size || landMask.length !== size) {

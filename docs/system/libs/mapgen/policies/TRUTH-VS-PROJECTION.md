@@ -47,8 +47,8 @@ This policy prevents derived outputs from becoming accidental “sources of trut
 
 ### Adapter Surface Taxonomy
 
-- **Authored entropy:** owned by MapGen core via `ctxRandom(...)`,
-  `deriveStepSeed(...)`, and `createLabelRng(...)` from `env.seed`.
+- **Authored entropy:** owned by MapGen Core via `ctxRandom(...)`,
+  `deriveStepSeed(...)`, and `createLabelRng(...)` from `context.setup.mapSeed`.
 - **Policy/legality/readback:** adapter calls such as `canHaveFeature`,
   `canHaveResource`, `getTerrainType`, `getFeatureType`, and `getResourceType`.
 - **Projection/materialization:** adapter calls such as `setTerrainType`,
@@ -60,6 +60,6 @@ This policy prevents derived outputs from becoming accidental “sources of trut
 
 ## Ground truth anchors
 
-- Narrative overlay snapshots are explicitly derived/non-canonical: `packages/mapgen-core/src/core/types.ts`
+- Map setup and deterministic random ownership: `packages/mapgen-core/src/core/{map-setup,map-context,random}.ts`
 - Target architecture posture for pipeline compilation and artifacts: `docs/projects/engine-refactor-v1/resources/spec/recipe-compile/architecture/00-fundamentals.md`
 - Standard content package posture: `docs/projects/engine-refactor-v1/resources/spec/SPEC-standard-content-package.md`

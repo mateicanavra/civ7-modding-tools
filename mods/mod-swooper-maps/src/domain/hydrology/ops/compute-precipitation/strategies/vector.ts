@@ -47,9 +47,9 @@ function elevationGradientOddQ(
 
 export const defaultStrategy = createStrategy(ComputePrecipitationContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
     const perlinSeed = input.perlinSeed | 0;
 
     if (!(input.latitudeByRow instanceof Float32Array) || input.latitudeByRow.length !== height) {

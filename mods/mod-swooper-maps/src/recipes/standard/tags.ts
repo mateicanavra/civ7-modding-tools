@@ -1,4 +1,4 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import type { DependencyTagDefinition, TagOwner } from "@swooper/mapgen-core/engine";
 import {
   artifactModules as placementArtifactModules,
@@ -17,8 +17,8 @@ export {
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "./tag-contracts.js";
 
-type EffectTagOwnerProperties = Pick<DependencyTagDefinition<ExtendedMapContext>, "owner">;
-type EffectTagSatisfiesProperties = Pick<DependencyTagDefinition<ExtendedMapContext>, "satisfies">;
+type EffectTagOwnerProperties = Pick<DependencyTagDefinition, "owner">;
+type EffectTagSatisfiesProperties = Pick<DependencyTagDefinition, "satisfies">;
 
 const VERIFIED_EFFECT_SATISFIES: Partial<Record<string, EffectTagSatisfiesProperties>> = {
   [STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied]: {
@@ -180,12 +180,23 @@ type SatisfactionState = {
   satisfied: ReadonlySet<string>;
 };
 
+function isCompleteStartAssignment(
+  value: unknown
+): value is Readonly<{ seats: readonly unknown[]; assigned: number; unseatedCount: number }> {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.seats) &&
+    isNonNegativeInteger(value.assigned) &&
+    isNonNegativeInteger(value.unseatedCount)
+  );
+}
+
 /**
  * Runtime definitions for every Standard effect tag. Effects carry declared owners and use
  * adapter/artifact verification where completion cannot be trusted by name; data dependencies
  * are registered by their step-owned artifact modules instead of this catalog.
  */
-export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition<ExtendedMapContext>[] = [
+export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition[] = [
   ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map(effectTagDefinition),
   ...Object.values(PLACEMENT_PRODUCT_EFFECT_TAGS.placement).map(effectTagDefinition),
   ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine).map(standardEngineEffectTagDefinition),
@@ -193,15 +204,12 @@ export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition<Extended
 
 /** Registers the complete Standard dependency-tag vocabulary with the supplied recipe registry. */
 export function registerStandardTags(registry: {
-  registerTags: (definitions: readonly DependencyTagDefinition<ExtendedMapContext>[]) => void;
+  registerTags: (definitions: readonly DependencyTagDefinition[]) => void;
 }): void {
   registry.registerTags(STANDARD_TAG_DEFINITIONS);
 }
 
-function isPlacementOutputSatisfied(
-  context: ExtendedMapContext,
-  state: SatisfactionState
-): boolean {
+function isPlacementOutputSatisfied(context: MapContext, state: SatisfactionState): boolean {
   if (!state.satisfied.has(STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied)) return false;
 
   const outputs = context.artifacts.get(placementArtifacts.placementOutputs.id);
@@ -210,21 +218,15 @@ function isPlacementOutputSatisfied(
 
   const assignment = context.artifacts.get(placementArtifacts.startAssignment.id);
   if (placementArtifactModules.startAssignment.validate(assignment).length > 0) return false;
-  if (
-    !isRecord(assignment) ||
-    !Array.isArray(assignment.seats) ||
-    !isNonNegativeInteger(assignment.assigned) ||
-    !isNonNegativeInteger(assignment.unseatedCount)
-  ) {
-    return false;
-  }
-  if (assignment.assigned !== assignment.seats.length || assignment.unseatedCount !== 0) {
-    return false;
-  }
-  return candidate.startsAssigned === assignment.assigned;
+  if (!isCompleteStartAssignment(assignment)) return false;
+  return (
+    assignment.assigned === assignment.seats.length &&
+    assignment.unseatedCount === 0 &&
+    candidate.startsAssigned === assignment.assigned
+  );
 }
 
-function effectTagDefinition(id: string): DependencyTagDefinition<ExtendedMapContext> {
+function effectTagDefinition(id: string): DependencyTagDefinition {
   return {
     id,
     kind: "effect",
@@ -232,9 +234,7 @@ function effectTagDefinition(id: string): DependencyTagDefinition<ExtendedMapCon
   };
 }
 
-function standardEngineEffectTagDefinition(
-  id: string
-): DependencyTagDefinition<ExtendedMapContext> {
+function standardEngineEffectTagDefinition(id: string): DependencyTagDefinition {
   return {
     ...effectTagDefinition(id),
     ...VERIFIED_EFFECT_SATISFIES[id],

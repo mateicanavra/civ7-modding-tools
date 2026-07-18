@@ -72,7 +72,7 @@ function naturalWonderPlanCoordinateHash(rows: readonly NaturalWonderPlanRuntime
 export function buildNaturalWonderPlanRuntimeTelemetry(
   plan: NaturalWonderPlan
 ): NaturalWonderPlanRuntimeTelemetry {
-  const width = Math.max(1, plan.width | 0);
+  const width = plan.width;
   const planRows: NaturalWonderPlanRuntimeRow[] = plan.placements.slice(0, 16).map((placement) => {
     const plotIndex = placement.plotIndex | 0;
     const y = (plotIndex / width) | 0;

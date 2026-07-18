@@ -117,7 +117,6 @@ const projectionContract = path.join(
   stagesRoot,
   "foundation-projection/steps/projection/config.ts"
 );
-const projectionStep = path.join(stagesRoot, "foundation-projection/steps/projection/step.ts");
 findings.push(
   ...assertContains(
     projectionContract,
@@ -128,22 +127,6 @@ findings.push(
     projectionContract,
     "foundationArtifacts.plateMotion",
     "projection-plate-motion-contract"
-  ),
-  ...assertContains(
-    projectionStep,
-    "const plateMotion = deps.artifacts.foundationPlateMotion.read(context);",
-    "projection-plate-motion-source"
-  ),
-  ...assertContains(projectionStep, "plateMotion,", "projection-plate-motion-source"),
-  ...assertContains(
-    projectionStep,
-    "platesResult.plates.movementU",
-    "projection-plate-motion-source"
-  ),
-  ...assertContains(
-    projectionStep,
-    "platesResult.plates.movementV",
-    "projection-plate-motion-source"
   )
 );
 

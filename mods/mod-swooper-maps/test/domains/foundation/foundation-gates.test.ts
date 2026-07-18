@@ -13,7 +13,11 @@ function makeInvariantContext(artifacts: Map<string, unknown>, width = 2, height
   return {
     context: {
       artifacts,
-      dimensions: { width, height },
+      setup: {
+        mapSeed: 1,
+        dimensions: { width, height },
+        latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
+      },
     } as any,
     fingerprints: { artifacts: {}, missing: [] },
   };

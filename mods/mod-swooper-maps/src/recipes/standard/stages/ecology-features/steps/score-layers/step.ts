@@ -66,8 +66,8 @@ export const ScoreLayersStep = createStep(ScoreLayersStepContract, {
     const mountains = deps.artifacts.mountains.read(context);
     const volcanoes = deps.artifacts.volcanoes.read(context);
 
-    const { width, height } = context.dimensions;
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const { width, height } = context.setup.dimensions;
+    const size = width * height;
     const ecologyLandMask = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       ecologyLandMask[i] = topography.landMask[i] === 1 && lakePlan.lakeMask[i] !== 1 ? 1 : 0;

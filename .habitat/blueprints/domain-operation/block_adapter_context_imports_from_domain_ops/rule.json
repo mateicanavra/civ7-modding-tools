@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "block_adapter_context_imports_from_domain_ops",
-  "title": "Block Adapter Context Imports From Domain Ops",
+  "title": "Block Setup And Context Authority From Domain Ops",
   "placement": {
     "niche": "civ7/mapgen/domains",
     "blueprint": "domain-operation",
@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "ops using adapter/context crossing constructs",
-  "why": "Domain ops stay pure and composable; adapter/context belongs outside domain implementation.",
+  "forbids": "ops importing adapters or receiving MapSetup/MapContext authority",
+  "why": "Domain ops stay pure and composable by consuming explicit projected values; setup and runtime context remain outside domain implementation.",
   "remediate": null,
-  "message": "Remove adapter/context crossing from domain ops.",
+  "message": "Remove setup, adapter, or runtime-context authority from domain ops; project only the explicit values the operation requires.",
   "pathCoverage": [
     {
       "kind": "exact-path",

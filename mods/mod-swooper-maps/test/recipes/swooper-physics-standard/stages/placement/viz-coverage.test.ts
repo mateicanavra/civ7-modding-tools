@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, type StepFacetSinks } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext, type StepFacetSinks } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import type { VizLayerMeta } from "@swooper/mapgen-viz";
 
@@ -90,14 +90,14 @@ describe("placement per-step viz coverage (E4.2/E4.3)", () => {
     StartSectorRows: 4,
     StartSectorCols: 4,
   };
-  const env = {
-    seed,
+  const setup = admitMapSetup({
+    mapSeed: seed,
     dimensions: { width, height },
     latitudeBounds: {
       topLatitude: mapInfo.MaxLatitude,
       bottomLatitude: mapInfo.MinLatitude,
     },
-  };
+  });
 
   const adapter = createMockAdapter({
     width,
@@ -106,7 +106,7 @@ describe("placement per-step viz coverage (E4.2/E4.3)", () => {
     mapSizeId: 1,
     rng: createLabelRng(seed),
   });
-  const context = createExtendedMapContext({ width, height }, adapter, env);
+  const context = createMapContext({ setup, adapter });
 
   const metaByKey = new Map<string, VizLayerMeta | undefined>();
   const record = (layer: { dataTypeKey: string; meta?: VizLayerMeta }): void => {
@@ -118,7 +118,7 @@ describe("placement per-step viz coverage (E4.2/E4.3)", () => {
     for (const projection of projections) record(projection);
   };
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-  standardRecipe.run(context, env, standardConfig, {
+  standardRecipe.run(context, standardConfig, {
     facets: { viz: captureViz },
     log: () => {},
   });

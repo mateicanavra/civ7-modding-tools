@@ -1,16 +1,67 @@
 import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
-import {
-  createExtendedMapContext,
-  FLAT_TERRAIN,
-  HILL_TERRAIN,
-  OCEAN_TERRAIN,
-} from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
+import { resolveStandardProjectionTerrainTypes } from "../../../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import { BuildElevationStep } from "../../../../../../src/recipes/standard/stages/map-elevation/steps/build-elevation/step.js";
-import { buildTestDeps } from "../../../../../support/step-deps.js";
+import { artifactModules as mapHydrologyArtifactModules } from "../../../../../../src/recipes/standard/stages/map-hydrology/artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import {
+  buildTestDeps,
+  publishTestArtifact,
+  withMapContextExecutionForTest,
+} from "../../../../../support/step-deps.js";
+
+function publishBuildElevationInputs(
+  context: ReturnType<typeof createMapContext>,
+  width: number,
+  height: number,
+  landMask: Uint8Array,
+  lakeMask: Uint8Array,
+  sinkMismatchCount: number
+): void {
+  const size = width * height;
+  publishTestArtifact(context, morphologyArtifactModules.topography, {
+    elevation: new Int16Array(size),
+    seaLevel: 0,
+    landMask,
+    bathymetry: new Int16Array(size),
+  });
+  publishTestArtifact(context, mapHydrologyArtifactModules.engineProjectionLakes, {
+    width,
+    height,
+    lakeMask,
+    plannedLakeMask: lakeMask.slice(),
+    engineWaterMask: lakeMask.slice(),
+    engineLakeMask: lakeMask.slice(),
+    engineTerrain: new Int32Array(size),
+    engineAreaId: new Int32Array(size),
+    engineElevation: new Int16Array(size),
+    nonWaterMask: new Uint8Array(size),
+    nonLakeMask: new Uint8Array(size),
+    terrainMismatchMask: new Uint8Array(size),
+    sinkMismatchCount,
+    nonLakeTileCount: 0,
+    terrainMismatchTileCount: 0,
+    morphologyProtectedLakeTileCount: 0,
+  });
+}
+
+function executeBuildElevation(
+  context: ReturnType<typeof createMapContext>,
+  width: number,
+  height: number,
+  landMask: Uint8Array,
+  lakeMask: Uint8Array,
+  sinkMismatchCount: number
+): void {
+  withMapContextExecutionForTest(context, () => {
+    publishBuildElevationInputs(context, width, height, landMask, lakeMask, sinkMismatchCount);
+    BuildElevationStep.run(context as any, {}, {} as any, buildTestDeps(BuildElevationStep));
+  });
+}
 
 class DriftAfterBuildElevationAdapter extends MockAdapter {
   buildElevationCalls = 0;
@@ -43,7 +94,7 @@ class ReliefAfterBuildElevationAdapter extends MockAdapter {
   override buildElevation(): void {
     this.buildElevationCalls += 1;
     // Simulate engine terrain differentiation without any water drift.
-    this.setTerrainType(1, 1, HILL_TERRAIN);
+    this.setTerrainType(1, 1, this.getTerrainTypeIndex("TERRAIN_HILL"));
   }
 
   override stampContinents(): void {
@@ -61,11 +112,11 @@ describe("map-elevation/build-elevation", () => {
     const height = 10;
     const seed = 1234;
     const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
+    });
 
     const adapter = new DriftAfterBuildElevationAdapter({
       width,
@@ -74,7 +125,10 @@ describe("map-elevation/build-elevation", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
+    const { flat: flatTerrain, ocean: oceanTerrain } = resolveStandardProjectionTerrainTypes(
+      context.adapter
+    );
 
     const size = width * height;
     const landMask = new Uint8Array(size).fill(0);
@@ -84,18 +138,10 @@ describe("map-elevation/build-elevation", () => {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
-        adapter.setTerrainType(x, y, landMask[idx] === 1 ? FLAT_TERRAIN : OCEAN_TERRAIN);
+        adapter.setTerrainType(x, y, landMask[idx] === 1 ? flatTerrain : oceanTerrain);
         adapter.setWater(x, y, landMask[idx] !== 1);
       }
     }
-
-    context.artifacts.set("artifact:morphology.topography", { landMask });
-    context.artifacts.set("artifact:map.hydrology.engineProjectionLakes", {
-      width,
-      height,
-      lakeMask: new Uint8Array(size),
-      sinkMismatchCount: 0,
-    });
 
     const originalLog = console.log;
     const logs: string[] = [];
@@ -104,7 +150,7 @@ describe("map-elevation/build-elevation", () => {
     };
 
     try {
-      BuildElevationStep.run(context as any, {}, {} as any, buildTestDeps(BuildElevationStep));
+      executeBuildElevation(context, width, height, landMask, new Uint8Array(size), 0);
     } finally {
       console.log = originalLog;
     }
@@ -120,11 +166,11 @@ describe("map-elevation/build-elevation", () => {
     const height = 3;
     const seed = 1234;
     const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
+    });
 
     const adapter = new ExcessiveDriftAfterBuildElevationAdapter({
       width,
@@ -133,30 +179,28 @@ describe("map-elevation/build-elevation", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
+    const { flat: flatTerrain } = resolveStandardProjectionTerrainTypes(context.adapter);
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        adapter.setTerrainType(x, y, FLAT_TERRAIN);
+        adapter.setTerrainType(x, y, flatTerrain);
         adapter.setWater(x, y, false);
       }
     }
-
-    context.artifacts.set("artifact:morphology.topography", {
-      landMask: new Uint8Array(width * height).fill(1),
-    });
-    context.artifacts.set("artifact:map.hydrology.engineProjectionLakes", {
-      width,
-      height,
-      lakeMask: new Uint8Array(width * height),
-      sinkMismatchCount: 0,
-    });
 
     const originalLog = console.log;
     console.log = () => {};
     try {
       expect(() =>
-        BuildElevationStep.run(context as any, {}, {} as any, buildTestDeps(BuildElevationStep))
+        executeBuildElevation(
+          context,
+          width,
+          height,
+          new Uint8Array(width * height).fill(1),
+          new Uint8Array(width * height),
+          0
+        )
       ).toThrow(/map-elevation\/build-elevation.*land\/water drift .*exceeds policy max/);
     } finally {
       console.log = originalLog;
@@ -170,11 +214,11 @@ describe("map-elevation/build-elevation", () => {
     const height = 3;
     const seed = 4321;
     const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
+    });
 
     const adapter = new ReliefAfterBuildElevationAdapter({
       width,
@@ -183,27 +227,27 @@ describe("map-elevation/build-elevation", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
+    const { flat: flatTerrain, hill: hillTerrain } = resolveStandardProjectionTerrainTypes(
+      context.adapter
+    );
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        adapter.setTerrainType(x, y, FLAT_TERRAIN);
+        adapter.setTerrainType(x, y, flatTerrain);
       }
     }
-    context.artifacts.set("artifact:morphology.topography", {
-      landMask: new Uint8Array(width * height).fill(1),
-    });
-    context.artifacts.set("artifact:map.hydrology.engineProjectionLakes", {
+    executeBuildElevation(
+      context,
       width,
       height,
-      lakeMask: new Uint8Array(width * height),
-      sinkMismatchCount: 0,
-    });
-
-    BuildElevationStep.run(context as any, {}, {} as any, buildTestDeps(BuildElevationStep));
+      new Uint8Array(width * height).fill(1),
+      new Uint8Array(width * height),
+      0
+    );
 
     expect(adapter.buildElevationCalls).toBe(1);
-    expect(adapter.getTerrainType(1, 1)).toBe(HILL_TERRAIN);
+    expect(adapter.getTerrainType(1, 1)).toBe(hillTerrain);
     expect(adapter.stampContinentsCalls).toBe(0);
     expect(adapter.storeWaterDataCalls).toBe(0);
   });
@@ -213,11 +257,11 @@ describe("map-elevation/build-elevation", () => {
     const height = 3;
     const seed = 5678;
     const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
+    });
 
     const adapter = new ReliefAfterBuildElevationAdapter({
       width,
@@ -226,32 +270,28 @@ describe("map-elevation/build-elevation", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
+    const { coast: coastTerrain, flat: flatTerrain } = resolveStandardProjectionTerrainTypes(
+      context.adapter
+    );
     const lakeMask = new Uint8Array(width * height);
     lakeMask[0] = 1;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
-        adapter.setTerrainType(
-          x,
-          y,
-          lakeMask[idx] === 1 ? adapter.getTerrainTypeIndex("TERRAIN_COAST") : FLAT_TERRAIN
-        );
+        adapter.setTerrainType(x, y, lakeMask[idx] === 1 ? coastTerrain : flatTerrain);
         adapter.setWater(x, y, lakeMask[idx] === 1);
       }
     }
-    context.artifacts.set("artifact:morphology.topography", {
-      landMask: new Uint8Array(width * height).fill(1),
-    });
-    context.artifacts.set("artifact:map.hydrology.engineProjectionLakes", {
+    executeBuildElevation(
+      context,
       width,
       height,
+      new Uint8Array(width * height).fill(1),
       lakeMask,
-      sinkMismatchCount: 0,
-    });
-
-    BuildElevationStep.run(context as any, {}, {} as any, buildTestDeps(BuildElevationStep));
+      0
+    );
 
     expect(adapter.buildElevationCalls).toBe(1);
     expect(adapter.isWater(0, 0)).toBe(true);
@@ -262,11 +302,11 @@ describe("map-elevation/build-elevation", () => {
     const height = 3;
     const seed = 6789;
     const mapInfo = { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 };
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
+    });
 
     const adapter = new ReliefAfterBuildElevationAdapter({
       width,
@@ -275,25 +315,23 @@ describe("map-elevation/build-elevation", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
+    const { flat: flatTerrain } = resolveStandardProjectionTerrainTypes(context.adapter);
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        adapter.setTerrainType(x, y, FLAT_TERRAIN);
+        adapter.setTerrainType(x, y, flatTerrain);
         adapter.setWater(x, y, false);
       }
     }
-    context.artifacts.set("artifact:morphology.topography", {
-      landMask: new Uint8Array(width * height).fill(1),
-    });
-    context.artifacts.set("artifact:map.hydrology.engineProjectionLakes", {
+    executeBuildElevation(
+      context,
       width,
       height,
-      lakeMask: new Uint8Array(width * height),
-      sinkMismatchCount: 1,
-    });
-
-    BuildElevationStep.run(context as any, {}, {} as any, buildTestDeps(BuildElevationStep));
+      new Uint8Array(width * height).fill(1),
+      new Uint8Array(width * height),
+      1
+    );
 
     expect(adapter.buildElevationCalls).toBe(1);
     expect(adapter.isWater(0, 0)).toBe(false);

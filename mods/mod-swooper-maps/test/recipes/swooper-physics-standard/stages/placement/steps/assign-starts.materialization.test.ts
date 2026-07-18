@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import placementDomain from "@mapgen/domain/placement/ops";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { artifactModules as placementArtifactModules } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
@@ -74,10 +74,13 @@ function plan(
 
 function contextFor(width: number, height: number) {
   const adapter = createMockAdapter({ width, height });
-  const context = createExtendedMapContext({ width, height }, adapter, {
-    seed: 1,
-    dimensions: { width, height },
-    latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+  const context = createMapContext({
+    setup: admitMapSetup({
+      mapSeed: 1,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    }),
+    adapter,
   });
   return { adapter, context };
 }

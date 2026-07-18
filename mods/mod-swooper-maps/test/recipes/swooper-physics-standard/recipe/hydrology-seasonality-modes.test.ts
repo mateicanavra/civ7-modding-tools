@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, sha256Hex } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext, sha256Hex } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { buildStandardRecipeDefaultConfig } from "../../../../src/recipes/standard/artifacts.js";
@@ -9,17 +9,17 @@ import { initializeStandardRuntime } from "../../../../src/recipes/standard/runt
 import { artifacts as hydrologyClimateBaselineArtifacts } from "../../../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 
-const env = {
-  seed: 123,
+const setup = admitMapSetup({
+  mapSeed: 123,
   dimensions: { width: 16, height: 12 },
   latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-};
+});
 
 const mapInfo = {
-  GridWidth: env.dimensions.width,
-  GridHeight: env.dimensions.height,
-  MinLatitude: env.latitudeBounds.bottomLatitude,
-  MaxLatitude: env.latitudeBounds.topLatitude,
+  GridWidth: setup.dimensions.width,
+  GridHeight: setup.dimensions.height,
+  MinLatitude: setup.latitudeBounds.bottomLatitude,
+  MaxLatitude: setup.latitudeBounds.topLatitude,
   PlayersLandmass1: 4,
   PlayersLandmass2: 4,
   StartSectorRows: 4,
@@ -38,20 +38,20 @@ function runWithTilt(axialTiltDeg: number): {
   rainfallAmplitudeMean: number;
   humidityAmplitudeMean: number;
 } {
-  const { width, height } = env.dimensions;
+  const { width, height } = setup.dimensions;
   const adapter = createMockAdapter({
     width,
     height,
     mapInfo,
     mapSizeId: 1,
-    rng: createLabelRng(env.seed),
+    rng: createLabelRng(setup.mapSeed),
   });
-  const context = createExtendedMapContext({ width, height }, adapter, env);
+  const context = createMapContext({ setup, adapter });
   const config = structuredClone(buildStandardRecipeDefaultConfig());
   config["hydrology-climate-baseline"].seasonalCycle.axialTiltDeg = axialTiltDeg;
 
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-  standardRecipe.run(context, env, config, { log: () => {} });
+  standardRecipe.run(context, config, { log: () => {} });
 
   const topography = context.artifacts.get(morphologyArtifacts.topography.id) as
     | { elevation?: Int16Array }

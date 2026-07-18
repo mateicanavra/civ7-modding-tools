@@ -131,13 +131,10 @@ function resourceSalt(resourceType: string): number {
 export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "default", {
   run: (input, config) => {
     const plan = input.plan;
-    const width = plan.width | 0;
-    const height = plan.height | 0;
+    const width = plan.width;
+    const height = plan.height;
     const size = width * height;
     const seed = input.seed | 0;
-    if (!Number.isSafeInteger(size) || size <= 0) {
-      throw new Error(`[resources] Invalid grid for adjust-resource-support: ${width}x${height}.`);
-    }
     if (input.landmassIdByTile.length !== size || input.regionSlotByTile.length !== size) {
       throw new Error(
         "[resources] adjust-resource-support landmass/region fields must match grid size."

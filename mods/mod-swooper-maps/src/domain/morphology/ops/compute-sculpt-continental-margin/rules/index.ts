@@ -53,7 +53,7 @@ export function validateSculptInputs(input: ComputeSculptContinentalMarginTypes[
   boundaryType: Uint8Array;
 } {
   const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const oceanicHeight = input.oceanicHeight;
   const continentalHeight = input.continentalHeight;
   const elevationScale = input.elevationScale;

@@ -146,15 +146,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
   it("compute-mesh is deterministic and shape-correct", () => {
     const width = 40;
     const height = 20;
-
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
+    });
 
     const first = computeMesh.run(
       {
@@ -217,15 +212,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
   it("compute-crust/compute-plate-graph/compute-tectonics are deterministic and internally consistent", () => {
     const width = 40;
     const height = 20;
-
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run(
       {
@@ -346,15 +336,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
   it("plate partition yields non-uniform areas and plausible adjacency degrees (topology metrics)", () => {
     const width = 60;
     const height = 40;
-
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
+    });
 
     const runCase = (seed: number) => {
       const mesh = computeMesh.run({ width, height, rngSeed: 1000 + seed }, meshConfig).mesh;
@@ -432,15 +417,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
   it("compute-crust initializes a basaltic lid with bounded truth fields", () => {
     const width = 60;
     const height = 30;
-
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 4, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 16, cellsPerPlate: 4, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run(
       {
@@ -490,15 +470,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
   it("compute-crust rejects mantle forcing from a different mesh cell count", () => {
     const width = 32;
     const height = 20;
-
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 50 }, meshConfig).mesh;
     const mantleForcing = deriveMantleForcing(mesh, 51);
@@ -515,15 +490,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
   it("crust publishes an isostatic baseline and projects it to tiles (basaltic lid)", () => {
     const width = 60;
     const height = 40;
-
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 10 }, meshConfig).mesh;
     const mantleForcing = deriveMantleForcing(mesh, 11);
@@ -574,15 +544,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
   it("compute-plates-tensors rejects truthy provenance and plate motion incompatible with projection inputs", () => {
     const width = 36;
     const height = 24;
-
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 10, cellsPerPlate: 3, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 10, cellsPerPlate: 3, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 60 }, meshConfig).mesh;
     const mantleForcing = deriveMantleForcing(mesh, 61);

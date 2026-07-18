@@ -17,14 +17,14 @@ export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceSte
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const coastClassification = deps.artifacts.coastClassification.read(context);
     const { adapter, trace } = context;
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const emit = (payload: Record<string, unknown>): void => {
       if (!trace?.isVerbose) return;
       trace.event(() => payload);
     };
 
-    logTerrainStats(trace, adapter, width, height, "Initial");
+    logTerrainStats(context, "Initial");
 
     const beforeValidate = readTerrainValidationBoundarySnapshot(
       adapter,
@@ -47,7 +47,7 @@ export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceSte
         "placement/prepare-surface/after-validate"
       );
       emit({ type: "placement.terrain.validated" });
-      logTerrainStats(trace, adapter, width, height, "After validateAndFixTerrain");
+      logTerrainStats(context, "After validateAndFixTerrain");
     });
     runPlacementProductStep("placement.areas.recalculate", emit, () => {
       adapter.recalculateAreas();

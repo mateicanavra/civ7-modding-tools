@@ -97,19 +97,14 @@ describe("m11 plates projection (boundary band)", () => {
   it("projects boundary regime + signals beyond the exact boundary line", () => {
     const width = 44;
     const height = 26;
-
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: {
-          plateCount: 10,
-          cellsPerPlate: 4,
-          relaxationSteps: 2,
-        },
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: {
+        plateCount: 10,
+        cellsPerPlate: 4,
+        relaxationSteps: 2,
       },
-      ctx as any
-    );
+    });
     const mesh = computeMesh.run({ width, height, rngSeed: 7 }, meshConfig).mesh;
     const cellCount = mesh.cellCount | 0;
 
@@ -125,13 +120,10 @@ describe("m11 plates projection (boundary band)", () => {
       strength: new Float32Array(cellCount),
     } as const;
 
-    const plateGraphConfig = computePlateGraph.normalize(
-      {
-        ...computePlateGraph.defaultConfig,
-        config: { ...computePlateGraph.defaultConfig.config, plateCount: 10 },
-      },
-      ctx as any
-    );
+    const plateGraphConfig = computePlateGraph.normalize({
+      ...computePlateGraph.defaultConfig,
+      config: { ...computePlateGraph.defaultConfig.config, plateCount: 10 },
+    });
     const plateGraph = computePlateGraph.run(
       { mesh, crust: crust as any, rngSeed: 11 },
       plateGraphConfig

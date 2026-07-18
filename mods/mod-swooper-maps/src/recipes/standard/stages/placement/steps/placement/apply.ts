@@ -1,4 +1,4 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import { snapshotEngineHeightfield } from "@swooper/mapgen-core";
 
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
@@ -34,7 +34,7 @@ type StartAssignment = Static<
 >;
 
 type ApplyPlacementArgs = {
-  context: ExtendedMapContext;
+  context: MapContext;
   naturalWonderPlacement: DeepReadonly<NaturalWonderPlacement>;
   surfacePreparation: DeepReadonly<PlacementSurfacePreparation>;
   resourcePlacement: DeepReadonly<ResourcePlacementOutcomes>;
@@ -81,8 +81,8 @@ export function applyPlacementPlan({
   publishEngineState = (engineState) => engineState,
   publishEngineTerrainSnapshot = (snapshot) => snapshot,
 }: ApplyPlacementArgs): ApplyPlacementResult {
-  const { adapter, trace } = context;
-  const { width, height } = context.dimensions;
+  const { trace } = context;
+  const { width, height } = context.setup.dimensions;
   const emit = (payload: Record<string, unknown>): void => {
     if (!trace?.isVerbose) return;
     trace.event(() => payload);
@@ -118,8 +118,8 @@ export function applyPlacementPlan({
     throw new Error("[Placement] Advanced start evidence is incomplete.");
   }
 
-  logTerrainStats(trace, adapter, width, height, "Final");
-  logAsciiMap(trace, adapter, width, height);
+  logTerrainStats(context, "Final");
+  logAsciiMap(context);
 
   // Compare the final Morphology land classification with the engine surface
   // after all placement product work has completed.

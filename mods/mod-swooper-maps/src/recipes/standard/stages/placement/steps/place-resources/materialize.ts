@@ -7,7 +7,7 @@ import type {
 } from "@civ7/adapter";
 import { type OfficialResourceType, requireResourceRuntimeId } from "@civ7/map-policy";
 import resources from "@mapgen/domain/resources";
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 type ResourcePlanOutput = Static<(typeof resources.ops.adjustResourceSupport)["output"]>;
@@ -21,7 +21,7 @@ type ResourcePlacementRuntimeTelemetryOutcome = ResourcePlacementOutcomes["outco
 type ResourcePlacementCoordinateDigest = ResourcePlacementSummary["coordinateEvidence"]["placed"];
 
 type PlaceResourcesWithTypedOutcomesArgs = {
-  adapter: ExtendedMapContext["adapter"];
+  adapter: MapContext["adapter"];
   width: number;
   height: number;
   plan: DeepReadonly<ResourcePlanOutput>;
@@ -41,8 +41,8 @@ function expectedTileForIntent(
   plotIndex: number
 ): { plotIndex: number; x: number; y: number } {
   const resolvedPlotIndex = Number.isFinite(plotIndex) ? Math.trunc(plotIndex) : -1;
-  const y = width > 0 ? Math.trunc(resolvedPlotIndex / width) : -1;
-  const x = width > 0 ? resolvedPlotIndex - y * width : -1;
+  const y = Math.trunc(resolvedPlotIndex / width);
+  const x = resolvedPlotIndex - y * width;
   return { plotIndex: resolvedPlotIndex, x, y };
 }
 
@@ -337,7 +337,7 @@ export function placeResourcesWithTypedOutcomes({
   height,
   plan,
 }: PlaceResourcesWithTypedOutcomesArgs): ResourcePlacementOutcomes {
-  if ((plan.width | 0) !== (width | 0) || (plan.height | 0) !== (height | 0)) {
+  if (plan.width !== width || plan.height !== height) {
     throw new Error(
       `[Placement] Resource plan dimensions ${plan.width}x${plan.height} do not match map ${width}x${height}.`
     );

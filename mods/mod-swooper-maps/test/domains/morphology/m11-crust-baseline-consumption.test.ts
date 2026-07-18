@@ -40,15 +40,10 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
     const width = 60;
     const height = 40;
     const size = width * height;
-
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 10 }, meshConfig).mesh;
     const mantlePotential = computeMantlePotential.run(

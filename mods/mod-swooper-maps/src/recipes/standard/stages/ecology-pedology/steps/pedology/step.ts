@@ -49,7 +49,7 @@ export const PedologyStep = createStep(PedologyStepContract, {
     const climateField = deps.artifacts.climateField.read(context);
     const topography = deps.artifacts.topography.read(context);
     const substrate = deps.artifacts.substrate.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const slope = computeLocalReliefProxy({
       width,
       height,

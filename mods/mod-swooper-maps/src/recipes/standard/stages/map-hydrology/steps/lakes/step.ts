@@ -16,8 +16,8 @@ export const LakesStep = createStep(LakesStepContract, {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const mountains = deps.artifacts.mountains.read(context);
     const topography = deps.artifacts.topography.read(context);
-    const { width, height } = context.dimensions;
-    const size = Math.max(0, width * height);
+    const { width, height } = context.setup.dimensions;
+    const size = width * height;
 
     const projectionLakeMask = new Uint8Array(size);
     let morphologyProtectedLakeTileCount = 0;

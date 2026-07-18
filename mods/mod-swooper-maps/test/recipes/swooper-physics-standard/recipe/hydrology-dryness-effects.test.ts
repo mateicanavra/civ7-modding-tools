@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { buildStandardRecipeDefaultConfig } from "../../../../src/recipes/standard/artifacts.js";
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
@@ -23,14 +23,14 @@ describe("hydrology dryness knob effects (integration)", () => {
       StartSectorRows: 4,
       StartSectorCols: 4,
     };
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: {
         topLatitude: mapInfo.MaxLatitude,
         bottomLatitude: mapInfo.MinLatitude,
       },
-    };
+    });
 
     const runAndMeans = (dryness: "dry" | "wet") => {
       const config = structuredClone(buildStandardRecipeDefaultConfig());
@@ -43,10 +43,10 @@ describe("hydrology dryness knob effects (integration)", () => {
         mapSizeId: 1,
         rng: createLabelRng(seed),
       });
-      const context = createExtendedMapContext({ width, height }, adapter, env);
+      const context = createMapContext({ setup, adapter });
       initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
 
-      standardRecipe.run(context, env, config, { log: () => {} });
+      standardRecipe.run(context, config, { log: () => {} });
 
       const climateField = context.artifacts.get(hydrologyClimateRefineArtifacts.climateField.id) as
         | { rainfall?: Uint8Array; humidity?: Uint8Array }

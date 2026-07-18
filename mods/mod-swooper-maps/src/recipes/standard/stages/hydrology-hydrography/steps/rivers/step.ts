@@ -45,7 +45,7 @@ export const RiversStep = createStep(RiversStepContract, {
     };
   },
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const topography = deps.artifacts.topography.read(context) as {
       elevation: Int16Array;
       landMask: Uint8Array;

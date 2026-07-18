@@ -4,8 +4,9 @@ import { Value } from "typebox/value";
 import type { DomainOpCompileAny } from "../authoring/bindings.js";
 import type { StepOpsDecl } from "../authoring/step/ops.js";
 import type { CompiledRecipeConfigOf, RecipePublicConfigOf } from "../authoring/types.js";
+import { admitMapSetup, type MapSetup, type MapSetupInput } from "../core/map-setup.js";
+import type { NormalizeContext } from "../engine/types.js";
 import { type CompileErrorItem, RecipeCompileError } from "./errors.js";
-import type { NormalizeCtx } from "./normalize.js";
 import {
   createPortableJsonSnapshot,
   normalizeOpsTopLevel,
@@ -26,7 +27,7 @@ export type StepContractAny = Readonly<{
 
 export type StepModuleAny = Readonly<{
   contract: StepContractAny;
-  normalize?: (config: unknown, ctx: NormalizeCtx) => unknown;
+  normalize?: (config: unknown, ctx: NormalizeContext) => unknown;
 }>;
 
 export type StageToInternalResult<StepId extends string = string, Knobs = unknown> = Readonly<{
@@ -44,7 +45,7 @@ export type StageContractAny = Readonly<{
       schema: TSchema;
     }>;
   }>;
-  toInternal: (args: { env: unknown; stageConfig: unknown }) => StageToInternalResult;
+  toInternal: (args: { setup: MapSetup; stageConfig: unknown }) => StageToInternalResult;
   steps: readonly StepModuleAny[];
 }>;
 
@@ -66,8 +67,16 @@ function materializeStageStepConfig<T>(
   return validateStrict<T>(schema, materialized, path);
 }
 
+/**
+ * Compiles public recipe configuration under one admitted physical setup.
+ *
+ * Raw setup input is admitted once before setup-dependent stage and step normalization. Domain
+ * operations normalize configuration only. The returned config carries normalized values rather
+ * than setup identity; execution-plan admission binds those values to the exact setup later
+ * enforced against the runtime context.
+ */
 export function compileRecipeConfig<const TStages extends readonly StageContractAny[]>(args: {
-  env: unknown;
+  setup: MapSetup | MapSetupInput;
   recipe: Readonly<{ stages: TStages }>;
   config: RecipePublicConfigOf<TStages>;
   compileOpsById: CompileOpsById;
@@ -75,7 +84,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
   const errors: CompileErrorItem[] = [];
   const out: Record<string, Record<string, unknown>> = {};
 
-  const env = args.env;
+  const setup = admitMapSetup(args.setup);
   const recipe = args.recipe as Readonly<{ stages: readonly StageContractAny[] }>;
   const configSnapshot = createPortableJsonSnapshot(args.config, "/config");
   if (!configSnapshot.ok) {
@@ -127,7 +136,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
 
     let internal: StageToInternalResult;
     try {
-      internal = stage.toInternal({ env, stageConfig });
+      internal = stage.toInternal({ setup, stageConfig });
     } catch (err) {
       errors.push({
         code: "stage.compile.failed",
@@ -189,7 +198,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
       if (typeof step.normalize === "function") {
         let next: unknown;
         try {
-          next = step.normalize(normalized, { env, knobs });
+          next = step.normalize(normalized, { setup, knobs });
         } catch (err) {
           errors.push({
             code: "step.normalize.failed",
@@ -224,7 +233,6 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
       const { value: opNormalized, errors: opNormErrors } = normalizeOpsTopLevel(
         step,
         normalized as Record<string, unknown>,
-        { env, knobs },
         compileOpsById,
         stepPath
       );

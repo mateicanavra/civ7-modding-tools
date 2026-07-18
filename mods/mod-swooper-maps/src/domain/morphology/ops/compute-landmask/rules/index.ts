@@ -30,7 +30,7 @@ export function validateLandmaskInputs(input: ComputeLandmaskTypes["input"]): {
   movementV: Int8Array;
 } {
   const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const elevation = input.elevation as Int16Array;
   const boundaryCloseness = input.boundaryCloseness as Uint8Array;
   const boundaryType = input.boundaryType as Uint8Array;

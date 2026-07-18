@@ -10,9 +10,9 @@ import {
 
 export const refineStrategy = createStrategy(ComputePrecipitationContract, "refine", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     if (!(input.elevation instanceof Int16Array) || input.elevation.length !== size) {
       throw new Error("[Hydrology] Invalid elevation for hydrology/compute-precipitation.");

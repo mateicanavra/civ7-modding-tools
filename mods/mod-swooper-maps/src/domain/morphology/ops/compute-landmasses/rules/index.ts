@@ -8,7 +8,7 @@ export function validateLandmassInputs(input: ComputeLandmassesTypes["input"]): 
   landMask: Uint8Array;
 } {
   const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const landMask = input.landMask as Uint8Array;
   if (landMask.length !== size) {
     throw new Error(`Expected landMask length ${size} (received ${landMask.length}).`);
@@ -21,7 +21,6 @@ export function validateLandmassInputs(input: ComputeLandmassesTypes["input"]): 
  */
 export function computeCircularBounds(columnsUsed: Uint8Array): { west: number; east: number } {
   const width = columnsUsed.length;
-  if (width === 0) return { west: 0, east: 0 };
 
   let usedCount = 0;
   for (let x = 0; x < width; x++) usedCount += (columnsUsed[x] | 0) === 1 ? 1 : 0;

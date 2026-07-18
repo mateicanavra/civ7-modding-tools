@@ -70,7 +70,7 @@ function buildCoarseAverageHexOddQ(
   values: Float32Array,
   grain: number
 ): Float32Array {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const g = Math.max(1, Math.round(grain)) | 0;
 
   // Bin in axial coordinates derived from the engine's odd-R (row-offset) coordinates so the low-pass
@@ -110,7 +110,7 @@ function buildCoarseAverageHexOddQ(
 }
 
 function blurHex(width: number, height: number, values: Float32Array, steps: number): Float32Array {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const n = Math.max(0, Math.round(steps)) | 0;
   if (n <= 0) return values;
 
@@ -190,7 +190,7 @@ function computeComponents(
   height: number,
   landMask: Uint8Array
 ): { id: Int32Array; sizes: number[] } {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const id = new Int32Array(size);
   id.fill(-1);
 
@@ -316,7 +316,7 @@ function fillToTarget(params: {
 }
 
 function computeDistanceToCoast(width: number, height: number, landMask: Uint8Array): Uint16Array {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const distanceToCoast = new Uint16Array(size);
   distanceToCoast.fill(65535);
   const queue = new Int32Array(size);

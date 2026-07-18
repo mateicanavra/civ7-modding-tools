@@ -69,7 +69,7 @@ const SelectResourceSitesContract = defineOp({
     {
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
-      seed: Type.Integer({ description: "Deterministic seed (from env.seed)." }),
+      seed: Type.Integer({ description: "Deterministic seed (from setup.mapSeed)." }),
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land)." }),
       lakeMask: TypedArraySchemas.u8({ description: "Lake mask per tile (1=lake)." }),
       landmassIdByTile: TypedArraySchemas.i32({

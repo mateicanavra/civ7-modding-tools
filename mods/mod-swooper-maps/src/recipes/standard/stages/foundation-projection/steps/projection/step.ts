@@ -55,7 +55,7 @@ function gridProjection(
  */
 export const ProjectionStep = createStep(ProjectionStepContract, {
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const mesh = deps.artifacts.foundationMesh.read(context);
     const crust = deps.artifacts.foundationCrust.read(context);
     const plateGraph = deps.artifacts.foundationPlateGraph.read(context);

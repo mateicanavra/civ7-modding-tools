@@ -89,14 +89,8 @@ export type {
 export { buildRecipeDag } from "./recipe-dag.js";
 export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
 export { createStage, deriveStageAuthoringModel } from "./stage.js";
-export type {
-  CreateStepFor,
-  OpContractAny,
-  StepContract,
-  StepOpsDecl,
-  StepRuntimeOps,
-} from "./step/index.js";
-export { createStep, createStepFor, defineStep } from "./step/index.js";
+export type { OpContractAny, StepContract, StepOpsDecl, StepRuntimeOps } from "./step/index.js";
+export { createStep, defineStep } from "./step/index.js";
 export { TypedArraySchemas } from "./typed-array-schemas.js";
 export {
   assertFloat32Array,
@@ -107,7 +101,6 @@ export {
   assertUint8Array,
   assertUint16Array,
   assertUint32Array,
-  expectedGridSize,
   isFloat32Array,
   isInt8Array,
   isInt16Array,

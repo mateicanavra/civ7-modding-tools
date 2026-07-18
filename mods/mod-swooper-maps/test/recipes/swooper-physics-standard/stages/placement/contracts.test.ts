@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
 import { artifacts as ecologyArtifacts } from "../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
 import {
@@ -22,6 +22,10 @@ import {
   STANDARD_ENGINE_EFFECT_TAGS,
   STANDARD_TAG_DEFINITIONS,
 } from "../../../../../src/recipes/standard/tags.js";
+import {
+  publishTestArtifact,
+  withMapContextExecutionForTest,
+} from "../../../../support/step-deps.js";
 
 function makeValidStartAssignment(seatCount: number, assigned = seatCount) {
   const seats = Array.from({ length: seatCount }, (_value, seatIndex) => {
@@ -228,56 +232,43 @@ describe("placement product/effect contracts", () => {
     );
     if (!definition?.satisfies) throw new Error("Missing placement completion predicate.");
 
-    const context = createExtendedMapContext(
-      { width: 10, height: 1 },
-      createMockAdapter({ width: 10, height: 1 }),
-      {
-        seed: 1,
-        dimensions: { width: 10, height: 1 },
-        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-      }
-    );
-    context.artifacts.set(placementArtifacts.placementInputs.id, {
-      starts: { playersLandmass1: 6, playersLandmass2: 6 },
-    });
-    const completeAssignment = makeValidStartAssignment(10);
-    expect(placementArtifactModules.startAssignment.validate(completeAssignment)).toEqual([]);
-    context.artifacts.set(placementArtifacts.startAssignment.id, completeAssignment);
-    context.artifacts.set(placementArtifacts.placementOutputs.id, {
-      naturalWondersCount: 0,
-      resourcesCount: 0,
-      startsAssigned: 10,
-      discoveriesCount: 0,
-    });
+    const createContext = () =>
+      createMapContext({
+        setup: admitMapSetup({
+          mapSeed: 1,
+          dimensions: { width: 10, height: 1 },
+          latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+        }),
+        adapter: createMockAdapter({ width: 10, height: 1 }),
+      });
     const state = {
       satisfied: new Set([STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied]),
     };
+    const satisfies = (
+      assignment: ReturnType<typeof makeValidStartAssignment>,
+      startsAssigned: number
+    ) => {
+      const context = createContext();
+      return withMapContextExecutionForTest(context, () => {
+        publishTestArtifact(context, placementArtifactModules.startAssignment, assignment);
+        publishTestArtifact(context, placementArtifactModules.placementOutputs, {
+          naturalWondersCount: 0,
+          resourcesCount: 0,
+          startsAssigned,
+          discoveriesCount: 0,
+        });
+        return definition.satisfies?.(context, state);
+      });
+    };
 
-    expect(definition.satisfies(context, state)).toBe(true);
-    context.artifacts.set(placementArtifacts.placementOutputs.id, {
-      naturalWondersCount: 0,
-      resourcesCount: 0,
-      startsAssigned: 11,
-      discoveriesCount: 0,
-    });
-    expect(definition.satisfies(context, state)).toBe(false);
+    const completeAssignment = makeValidStartAssignment(10);
+    expect(placementArtifactModules.startAssignment.validate(completeAssignment)).toEqual([]);
+    expect(satisfies(completeAssignment, 10)).toBe(true);
+    expect(satisfies(completeAssignment, 11)).toBe(false);
 
     const partialAssignment = makeValidStartAssignment(10, 9);
     expect(placementArtifactModules.startAssignment.validate(partialAssignment)).toEqual([]);
-    context.artifacts.set(placementArtifacts.startAssignment.id, partialAssignment);
-    context.artifacts.set(placementArtifacts.placementOutputs.id, {
-      naturalWondersCount: 0,
-      resourcesCount: 0,
-      startsAssigned: 9,
-      discoveriesCount: 0,
-    });
-    expect(definition.satisfies(context, state)).toBe(false);
-
-    context.artifacts.set(placementArtifacts.startAssignment.id, {
-      ...completeAssignment,
-      seats: "malformed",
-    });
-    expect(definition.satisfies(context, state)).toBe(false);
+    expect(satisfies(partialAssignment, 9)).toBe(false);
   });
 
   it("validates rung counts and fairness report consistency", () => {

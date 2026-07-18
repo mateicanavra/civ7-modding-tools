@@ -20,7 +20,7 @@ export function readTerrainValidationBoundarySnapshot(
   height: number,
   stage: string
 ): TerrainValidationBoundarySnapshot {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const terrain = new Int32Array(size);
   const waterMask = new Uint8Array(size);
   const lakeMask = new Uint8Array(size);

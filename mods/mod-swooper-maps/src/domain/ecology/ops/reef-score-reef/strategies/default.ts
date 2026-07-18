@@ -4,13 +4,13 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import {
   rampDown01,
   rampUp01,
-  validateGridSize,
+  validateGridFields,
 } from "../../../model/policy/feature-score-selection.js";
 import ScoreReefContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(ScoreReefContract, "default", {
   run: (input, config) => {
-    const size = validateGridSize({
+    const size = validateGridFields({
       width: input.width,
       height: input.height,
       fields: [

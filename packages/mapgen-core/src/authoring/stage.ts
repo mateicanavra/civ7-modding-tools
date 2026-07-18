@@ -1,4 +1,4 @@
-import type { ExtendedMapContext } from "@mapgen/core/types.js";
+import type { MapSetup } from "@mapgen/core/map-setup.js";
 import {
   ObjectOptions,
   type Static,
@@ -134,7 +134,7 @@ function buildStageAuthoringModel(args: {
   };
 }
 
-type StepsArray<TContext extends ExtendedMapContext> = readonly Readonly<{
+type StepsArray = readonly Readonly<{
   contract: Readonly<{
     id: string;
     schema: TSchema;
@@ -143,7 +143,7 @@ type StepsArray<TContext extends ExtendedMapContext> = readonly Readonly<{
 
 type RuntimeStageDefinition = Readonly<{
   id: string;
-  steps: StepsArray<ExtendedMapContext>;
+  steps: StepsArray;
   knobsSchema: TObject;
   public?: TObject;
   compile?: unknown;
@@ -155,7 +155,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function compilePublicStage(
   compile: unknown,
-  args: Readonly<{ env: unknown; knobs: unknown; config: Record<string, unknown> }>
+  args: Readonly<{ setup: MapSetup; knobs: unknown; config: Record<string, unknown> }>
 ): Record<string, unknown> {
   if (typeof compile !== "function") {
     throw new Error("Public stage requires a compile function");
@@ -165,46 +165,54 @@ function compilePublicStage(
   return result;
 }
 
+/**
+ * Defines a recipe stage and its declared step surface.
+ *
+ * Public stages translate authored config into step config using the admitted setup supplied by
+ * recipe compilation. Internal stages pass their declared step config through without inventing a
+ * second setup or configuration authority.
+ */
 export function createStage<
   const Id extends string,
-  TContext extends ExtendedMapContext,
   const KnobsSchema extends TObject,
-  const TSteps extends StepsArray<TContext> = StepsArray<TContext>,
+  const TSteps extends StepsArray = StepsArray,
   Knobs = Static<KnobsSchema>,
 >(
-  def: StageDef<Id, TContext, KnobsSchema, Knobs, TSteps, undefined> & {
+  def: StageDef<Id, KnobsSchema, Knobs, TSteps, undefined> & {
     public?: undefined;
     compile?: undefined;
   }
-): StageContract<Id, TContext, KnobsSchema, Knobs, TSteps, undefined>;
+): StageContract<Id, KnobsSchema, Knobs, TSteps, undefined>;
 
 export function createStage<
   const Id extends string,
-  TContext extends ExtendedMapContext,
   const KnobsSchema extends TObject,
   const PublicSchema extends TObject,
-  const TSteps extends StepsArray<TContext> = StepsArray<TContext>,
+  const TSteps extends StepsArray = StepsArray,
   Knobs = Static<KnobsSchema>,
 >(
-  def: StageDef<Id, TContext, KnobsSchema, Knobs, TSteps, PublicSchema> & {
+  def: StageDef<Id, KnobsSchema, Knobs, TSteps, PublicSchema> & {
     public: PublicSchema;
   }
-): StageContract<Id, TContext, KnobsSchema, Knobs, TSteps, PublicSchema>;
+): StageContract<Id, KnobsSchema, Knobs, TSteps, PublicSchema>;
 
 export function createStage(def: RuntimeStageDefinition): StageContractAny {
+  const stageId = def.id;
+  const isPublic = def.public !== undefined;
+  const compile = def.compile;
   const stepIds = def.steps.map((step) => step.contract.id);
-  assertNoReservedStageKeys({ stageId: def.id, stepIds, publicSchema: def.public });
-  assertKebabCaseStepIds({ stageId: def.id, stepIds });
+  assertNoReservedStageKeys({ stageId, stepIds, publicSchema: def.public });
+  assertKebabCaseStepIds({ stageId, stepIds });
 
-  if (def.public && typeof def.compile !== "function") {
-    throw new Error(`stage("${def.id}") defines "public" but does not define "compile"`);
+  if (isPublic && typeof compile !== "function") {
+    throw new Error(`stage("${stageId}") defines "public" but does not define "compile"`);
   }
 
   applySchemaConventions(def.knobsSchema, `stage:${def.id}.knobs`);
   if (def.public) applySchemaConventions(def.public, `stage:${def.id}.public`);
 
   for (const step of def.steps) {
-    assertSchema(step.contract.schema, step.contract.id, def.id);
+    assertSchema(step.contract.schema, step.contract.id, stageId);
   }
 
   const surfaceSchema = def.public
@@ -212,26 +220,26 @@ export function createStage(def: RuntimeStageDefinition): StageContractAny {
     : buildInternalAsPublicSurfaceSchema(def.steps, def.knobsSchema);
   assertCompleteRecipeConfigSchema(surfaceSchema, `stage/${def.id}`);
   const authoring = buildStageAuthoringModel({
-    stageId: def.id,
+    stageId,
     steps: def.steps,
     surfaceSchema,
     publicSchema: def.public,
   });
 
   const toInternal = ({
-    env,
+    setup,
     stageConfig,
   }: {
-    env: unknown;
+    setup: MapSetup;
     stageConfig: unknown;
   }): StageToInternalResult<string, unknown> => {
-    if (!isRecord(stageConfig)) throw new Error(`stage("${def.id}") config must be an object`);
+    if (!isRecord(stageConfig)) throw new Error(`stage("${stageId}") config must be an object`);
     const { knobs, ...configPart } = stageConfig;
-    const rawSteps = def.public
-      ? compilePublicStage(def.compile, { env, knobs, config: configPart })
+    const rawSteps = isPublic
+      ? compilePublicStage(compile, { setup, knobs, config: configPart })
       : configPart;
     if (Object.prototype.hasOwnProperty.call(rawSteps, RESERVED_STAGE_KEY)) {
-      throw new Error(`stage("${def.id}") compile returned reserved key "${RESERVED_STAGE_KEY}"`);
+      throw new Error(`stage("${stageId}") compile returned reserved key "${RESERVED_STAGE_KEY}"`);
     }
     return { knobs, rawSteps };
   };

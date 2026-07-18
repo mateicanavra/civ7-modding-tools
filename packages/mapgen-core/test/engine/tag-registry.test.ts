@@ -6,9 +6,11 @@ import {
   createStep,
   defineArtifact,
   defineStep,
+  implementArtifactModules,
   validateArtifactSchema,
 } from "@mapgen/authoring/index.js";
-import { createExtendedMapContext } from "@mapgen/core/types.js";
+import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
+import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import {
   compileExecutionPlan,
   InvalidDependencyTagDemoError,
@@ -28,32 +30,63 @@ const TEST_TAGS = {
   },
 } as const;
 
-const baseEnv = {
-  seed: 0,
+const baseSetup = admitMapSetup({
+  mapSeed: 0,
   dimensions: { width: 2, height: 2 },
-  latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
-};
+  latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
+});
 
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
-function compilePlan<TContext>(
-  registry: StepRegistry<TContext>,
-  env: typeof baseEnv,
-  steps: readonly string[]
-) {
+function compilePlan(registry: StepRegistry, setup: typeof baseSetup, steps: readonly string[]) {
   return compileExecutionPlan(
     {
       recipe: {
         schemaVersion: 2,
         steps: steps.map((id) => ({ id, config: {} })),
       },
-      env,
+      setup,
     },
     registry
   );
 }
 
+function executeContextStep(context: MapContext, run: (context: MapContext) => void): void {
+  const registry = new StepRegistry();
+  registry.register({
+    id: "tag-test-step",
+    phase: "foundation",
+    requires: [],
+    provides: [],
+    run,
+  });
+  const plan = compilePlan(registry, context.setup, ["tag-test-step"]);
+  new PipelineExecutor(registry).executePlan(context, plan);
+}
+
 describe("tag registry", () => {
+  it("validates and retains one owned snapshot of each step dependency list", () => {
+    let reads = 0;
+    const varyingRequires = ["artifact:test.snapshot"];
+    varyingRequires[Symbol.iterator] = () => {
+      reads += 1;
+      return [reads === 1 ? "artifact:test.snapshot" : "artifact:test.forged"][Symbol.iterator]();
+    };
+    const registry = new StepRegistry();
+    registry.registerTag({ id: "artifact:test.snapshot", kind: "artifact" });
+
+    registry.register({
+      id: "snapshot-consumer",
+      phase: "foundation",
+      requires: varyingRequires,
+      provides: [],
+      run: () => {},
+    });
+
+    expect(reads).toBe(1);
+    expect(registry.get("snapshot-consumer").requires).toEqual(["artifact:test.snapshot"]);
+  });
+
   it("admits only artifact and effect dependency kinds", () => {
     const registry = new TagRegistry();
 
@@ -95,13 +128,22 @@ describe("tag registry", () => {
       id: "artifact:test.generic",
       schema: Type.Unknown(),
     });
-    const context = { artifacts: new Map<string, unknown>() };
-    const registry = new TagRegistry<typeof context>();
+    const context = createMapContext({
+      setup: baseSetup,
+      adapter: createMockAdapter({ width: 2, height: 2, rng: () => 0 }),
+    });
+    const registry = new TagRegistry();
     registry.registerTag({
       id: artifact.id,
       kind: "artifact",
       satisfies: (current) => current.artifacts.has(artifact.id),
     });
+    const runtimes = implementArtifactModules([
+      {
+        artifact,
+        validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
+      },
+    ]);
 
     expect(
       isDependencyTagSatisfied(
@@ -112,7 +154,9 @@ describe("tag registry", () => {
       )
     ).toBe(false);
 
-    context.artifacts.set(artifact.id, {});
+    executeContextStep(context, (activeContext) => {
+      runtimes.genericArtifact.publish(activeContext, {});
+    });
     expect(isDependencyTagSatisfied(artifact.id, context, { satisfied: new Set() }, registry)).toBe(
       false
     );
@@ -126,8 +170,71 @@ describe("tag registry", () => {
     ).toBe(true);
   });
 
+  it("snapshots tag predicates at registration", () => {
+    const context = createMapContext({
+      setup: baseSetup,
+      adapter: createMockAdapter({ width: 2, height: 2, rng: () => 0 }),
+    });
+    const definition = {
+      id: "effect:test.snapshot",
+      kind: "effect" as const,
+      satisfies: () => false,
+    };
+    const registry = new TagRegistry();
+    registry.registerTag(definition);
+    definition.satisfies = () => true;
+
+    expect(
+      isDependencyTagSatisfied(
+        definition.id,
+        context,
+        { satisfied: new Set([definition.id]) },
+        registry
+      )
+    ).toBe(false);
+    expect(Object.isFrozen(registry.get(definition.id))).toBe(true);
+  });
+
+  it("snapshots selected authority without rerunning tag admission", () => {
+    let validations = 0;
+    const registry = new TagRegistry();
+    registry.registerTag({
+      id: "effect:test.selected-snapshot",
+      kind: "effect",
+      demo: { applied: true },
+      validateDemo: () => {
+        validations += 1;
+        return true;
+      },
+    });
+
+    const snapshot = registry.snapshot(["effect:test.selected-snapshot"]);
+
+    expect(validations).toBe(1);
+    expect(snapshot.get("effect:test.selected-snapshot")).toBe(
+      registry.get("effect:test.selected-snapshot")
+    );
+  });
+
+  it("keys registered tags by the same owned identity retained for satisfaction", () => {
+    let reads = 0;
+    const registry = new TagRegistry();
+    registry.registerTag({
+      get id() {
+        reads += 1;
+        return reads === 1 ? "effect:test.alpha" : "effect:test.beta";
+      },
+      kind: "effect",
+    });
+
+    expect(registry.has("effect:test.alpha")).toBe(true);
+    expect(registry.get("effect:test.alpha").id).toBe("effect:test.alpha");
+    expect(registry.has("effect:test.beta")).toBe(false);
+    expect(reads).toBe(1);
+  });
+
   it("fails fast on unknown dependency tags at registration", () => {
-    const registry = new StepRegistry<unknown>();
+    const registry = new StepRegistry();
 
     expect(() =>
       registry.register({
@@ -155,9 +262,8 @@ describe("tag registry", () => {
 
   it("surfaces effect postcondition failures with the effect tag id", () => {
     const adapter = createMockAdapter({ width: 2, height: 2 });
-    const ctx = createExtendedMapContext({ width: 2, height: 2 }, adapter, baseEnv);
 
-    const registry = new StepRegistry<typeof ctx>();
+    const registry = new StepRegistry();
     registry.registerTag({
       id: TEST_TAGS.effect.failedPostcondition,
       kind: "effect",
@@ -172,7 +278,8 @@ describe("tag registry", () => {
     });
 
     const executor = new PipelineExecutor(registry, { log: () => {} });
-    const plan = compilePlan(registry, baseEnv, ["failing-provider"]);
+    const plan = compilePlan(registry, baseSetup, ["failing-provider"]);
+    const ctx = createMapContext({ setup: plan.setup, adapter });
     const { stepResults } = executor.executePlanReport(ctx, plan);
 
     expect(stepResults[0]?.success).toBe(false);
@@ -181,9 +288,8 @@ describe("tag registry", () => {
 
   it("accepts provides when effect postconditions pass", () => {
     const adapter = createMockAdapter({ width: 2, height: 2 });
-    const ctx = createExtendedMapContext({ width: 2, height: 2 }, adapter, baseEnv);
 
-    const registry = new StepRegistry<typeof ctx>();
+    const registry = new StepRegistry();
     registry.registerTag({
       id: TEST_TAGS.effect.passedPostcondition,
       kind: "effect",
@@ -198,7 +304,8 @@ describe("tag registry", () => {
     });
 
     const executor = new PipelineExecutor(registry, { log: () => {} });
-    const plan = compilePlan(registry, baseEnv, ["passing-provider"]);
+    const plan = compilePlan(registry, baseSetup, ["passing-provider"]);
+    const ctx = createMapContext({ setup: plan.setup, adapter });
     const { stepResults } = executor.executePlanReport(ctx, plan);
 
     expect(stepResults[0]?.success).toBe(true);
@@ -239,9 +346,9 @@ describe("tag registry", () => {
     });
 
     const adapter = createMockAdapter({ width: 2, height: 2 });
-    const ctx = createExtendedMapContext({ width: 2, height: 2 }, adapter, baseEnv);
+    const ctx = createMapContext({ setup: baseSetup, adapter });
 
-    expect(() => recipe.run(ctx, baseEnv, { foundation: { knobs: {}, alpha: {} } })).toThrow(
+    expect(() => recipe.run(ctx, { foundation: { knobs: {}, alpha: {} } })).toThrow(
       /did not satisfy declared provides/
     );
   });

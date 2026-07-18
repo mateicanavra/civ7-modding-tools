@@ -1,5 +1,5 @@
-export type { Env } from "@mapgen/core/env.js";
-export { EnvSchema, TraceConfigSchema, TraceLevelSchema } from "@mapgen/core/env.js";
+export type { MapSetup, MapSetupInput } from "@mapgen/core/map-setup.js";
+export { MapSetupSchema } from "@mapgen/core/map-setup.js";
 export {
   DuplicateDependencyTagError,
   DuplicateStepError,
@@ -27,11 +27,8 @@ export {
   RecipeV2Schema,
   RunRequestSchema,
 } from "@mapgen/engine/execution-plan.js";
-export {
-  computePlanFingerprint,
-  createTraceSessionFromPlan,
-  deriveRunId,
-} from "@mapgen/engine/observability.js";
+export type { PlanTraceOptions } from "@mapgen/engine/observability.js";
+export { computePlanFingerprint } from "@mapgen/engine/observability.js";
 export { PipelineExecutor } from "@mapgen/engine/PipelineExecutor.js";
 export { StepRegistry } from "@mapgen/engine/StepRegistry.js";
 export type {
@@ -51,7 +48,6 @@ export {
 } from "@mapgen/engine/tags.js";
 export type {
   DependencyTag,
-  EngineContext,
   GenerationPhase,
   MapGenStep,
   NormalizeContext,

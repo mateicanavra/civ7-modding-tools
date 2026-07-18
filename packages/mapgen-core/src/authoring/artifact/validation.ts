@@ -29,14 +29,12 @@ export function validateArtifactSchema(
   );
 }
 
-/** Returns the map-tile cardinality available to an artifact validator, when dimensions exist. */
+/** Multiplies the already-admitted map dimensions available to an artifact validator. */
 export function artifactCellCount(
   context: ArtifactValidationContext | undefined
 ): number | undefined {
-  const width = context?.dimensions?.width;
-  const height = context?.dimensions?.height;
-  if (!Number.isFinite(width) || !Number.isFinite(height)) return undefined;
-  return Math.max(0, (width! | 0) * (height! | 0));
+  const dimensions = context?.dimensions;
+  return dimensions ? dimensions.width * dimensions.height : undefined;
 }
 
 /**

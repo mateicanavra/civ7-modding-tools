@@ -48,8 +48,8 @@ FOUNDATION does not require upstream domain artifacts. It requires only:
 - **a deterministic seed source** (steps derive per-op `rngSeed` and pass it as pure data to ops)
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/steps/mesh/step.ts` (`ctxRandom`, `ctxRandomLabel`, `context.dimensions`)
-- `mods/mod-swooper-maps/src/domain/foundation/model/policy/reference-area.ts` (`requireEnvDimensions`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/steps/mesh/step.ts` (`ctxRandom`, `ctxRandomLabel`, `context.setup.dimensions`)
+- `packages/mapgen-core/src/core/map-setup.ts` (`admitMapSetup`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/contract.ts` (`ComputeMeshContract.input`)
 
 ### Provides (artifacts + tags)
@@ -378,25 +378,21 @@ operation config surfaces owned by `foundation-mantle` and
 - `mods/mod-swooper-maps/src/domain/foundation/model/policy/plate-activity.ts` (`resolvePlateActivityOrogenyMultiplier`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/index.ts` (empty knob schema; projection-only ownership)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-public-config.ts` (`meshResolution` and `platePartition` public config ownership)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`normalize` deriving `cellCount`)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (`normalize` validating selected-map-size plate count)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`normalize` clamping authored `plateCount`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (`normalize` clamping authored `plateCount`)
 
-### Op normalization (map-size validation)
+### Setup-owned dimensions
 
-Some op strategies normalize authored config using runtime dimensions:
-- `foundation/compute-mesh` validates map dimensions and derives `cellCount`
-- `foundation/compute-plate-graph` validates map dimensions before graph partitioning
-
-Reference Area is not an authored config field. Foundation derives it exactly
-from validated runtime map dimensions:
-- `referenceArea = width * height`
-- invalid, non-integer, zero, or unsafe dimensions fail at the Foundation boundary
-- no synthetic fallback area is used
+Map dimensions are admitted once as part of `MapSetup`. Foundation operations
+receive setup-derived dimensions only through their explicit operation inputs. Invalid,
+non-integer, zero, or unsafe dimensions fail during setup admission; the `compute-mesh` and `compute-plate-graph`
+normalizers do not validate dimensions or derive map-size policy. They only
+clamp authored `plateCount` to the operation minimum.
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`normalize` in default strategy)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (`normalize` in default strategy)
-- `mods/mod-swooper-maps/src/domain/foundation/model/policy/reference-area.ts` (`requireEnvDimensions`, `deriveFoundationReferenceArea`)
+- `packages/mapgen-core/src/core/map-setup.ts` (`admitMapSetup`)
 
 ## Current Mapping (Standard Recipe)
 

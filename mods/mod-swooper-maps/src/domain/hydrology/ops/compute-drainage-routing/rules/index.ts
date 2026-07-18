@@ -29,9 +29,9 @@ export function computeDrainageRouting(params: {
   landMask: Uint8Array;
   allowExternalEdgeOutlets: boolean;
 }): DrainageRoutingResult {
-  const width = params.width | 0;
-  const height = params.height | 0;
-  const size = Math.max(0, width * height);
+  const width = params.width;
+  const height = params.height;
+  const size = width * height;
   const { elevation, landMask } = params;
   if (elevation.length !== size || landMask.length !== size) {
     throw new Error("[Hydrology] Invalid inputs for hydrology/compute-drainage-routing.");

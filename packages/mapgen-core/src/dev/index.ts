@@ -42,13 +42,10 @@ export {
 export {
   buildHistogram,
   formatHistogramPercent,
-  logBoundaryMetrics,
   logFoundationHistograms,
   logRainfallHistogram,
   logRainfallStats,
 } from "@mapgen/dev/histograms.js";
-// Engine surface introspection
-export { logEngineSurfaceApisOnce } from "@mapgen/dev/introspection.js";
 // Logging
 export {
   devError,
@@ -63,6 +60,7 @@ export {
 export { BYTE_SHADE_RAMP, shadeByte } from "@mapgen/dev/shading.js";
 // Summaries
 export {
+  type ElevationTerrainTypes,
   type FoundationPlates,
   logBiomeSummary,
   logElevationSummary,

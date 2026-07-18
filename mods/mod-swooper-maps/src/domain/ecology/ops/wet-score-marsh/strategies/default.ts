@@ -4,14 +4,14 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import {
   rampDown01,
   rampUp01,
-  validateGridSize,
+  validateGridFields,
   window01,
 } from "../../../model/policy/feature-score-selection.js";
 import ScoreWetMarshContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(ScoreWetMarshContract, "default", {
   run: (input, config) => {
-    const size = validateGridSize({
+    const size = validateGridFields({
       width: input.width,
       height: input.height,
       fields: [

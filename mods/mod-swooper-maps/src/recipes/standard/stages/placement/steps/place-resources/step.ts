@@ -67,7 +67,7 @@ function resourceOutcomeCategoryValue(outcome: ResourceOutcomeRow): number {
 export const PlaceResourcesStep = createStep(PlaceResourcesStepContract, {
   run: (context, _config, _ops, deps) => {
     const plan = deps.artifacts.resourcePlanAdjusted.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const emit = (payload: Record<string, unknown>): void => {
       if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);

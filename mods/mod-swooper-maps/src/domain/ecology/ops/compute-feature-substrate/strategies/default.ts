@@ -21,8 +21,8 @@ export const defaultStrategy = createStrategy(ComputeFeatureSubstrateContract, "
       sinkMask: input.sinkMask as Uint8Array,
     });
 
-    const width = input.width | 0;
-    const height = input.height | 0;
+    const width = input.width;
+    const height = input.height;
     const riverClass = input.riverClass as Uint8Array;
     const navigableRiverMask = input.navigableRiverMask as Uint8Array;
     const landMask = input.landMask as Uint8Array;

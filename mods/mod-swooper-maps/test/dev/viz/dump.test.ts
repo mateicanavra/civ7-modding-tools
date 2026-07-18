@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, createTraceSession } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext, createTraceSession } from "@swooper/mapgen-core";
 import { createRecipe, createStage, createStep, defineStep } from "@swooper/mapgen-core/authoring";
 import { createVizLayerKey, type VizManifestV1, type VizPathRef } from "@swooper/mapgen-viz";
 import { Type } from "typebox";
@@ -24,7 +24,7 @@ describe("filesystem visualization adapters", () => {
       const session = createTraceSession({
         runId: "facet-run",
         planFingerprint: "facet-plan",
-        config: { enabled: true, steps: { "test.facet-step": "verbose" } },
+        config: { steps: { "test.facet-step": "verbose" } },
         sink: outputs.traceSink,
       });
       session.emitStepStart({ stepId: "test.facet-step", phase: "foundation" });
@@ -82,7 +82,7 @@ describe("filesystem visualization adapters", () => {
       const session = createTraceSession({
         runId,
         planFingerprint: "partial-trace-plan",
-        config: { enabled: true, steps: { [stepId]: "verbose" } },
+        config: { steps: { [stepId]: "verbose" } },
         sink: outputs.traceSink,
       });
       session.emitStepStart({ stepId, phase: "foundation" });
@@ -170,21 +170,19 @@ describe("filesystem visualization adapters", () => {
         stages: [stage],
         compileOpsById: {},
       });
-      const setup = {
-        seed: 1,
+      const setup = admitMapSetup({
+        mapSeed: 1,
         dimensions: { width: 2, height: 2 },
         latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
-      };
-      const context = createExtendedMapContext(
-        setup.dimensions,
-        createMockAdapter({ width: 2, height: 2, mapSizeId: 1 }),
-        setup
-      );
+      });
+      const context = createMapContext({
+        setup,
+        adapter: createMockAdapter({ width: 2, height: 2, mapSizeId: 1 }),
+      });
       const outputs = createVizDumpAdapters({ outputRoot });
 
       recipe.run(
         context,
-        setup,
         {
           foundation: {
             knobs: {},
@@ -217,7 +215,7 @@ describe("filesystem visualization adapters", () => {
         const session = createTraceSession({
           runId,
           planFingerprint: `${runId}-plan`,
-          config: { enabled: true, steps: { "test.step": "verbose" } },
+          config: { steps: { "test.step": "verbose" } },
           sink: outputs.traceSink,
         });
         session.emitStepStart({ stepId: "test.step" });
@@ -279,7 +277,7 @@ describe("filesystem visualization adapters", () => {
       const session = createTraceSession({
         runId,
         planFingerprint: "atomic-plan",
-        config: { enabled: true, steps: { "test.step": "verbose" } },
+        config: { steps: { "test.step": "verbose" } },
         sink: outputs.traceSink,
       });
       session.emitStepStart({ stepId: "test.step" });

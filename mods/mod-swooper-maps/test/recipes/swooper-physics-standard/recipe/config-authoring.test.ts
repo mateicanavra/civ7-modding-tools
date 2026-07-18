@@ -4,8 +4,8 @@ import { stableStringify } from "@swooper/mapgen-core";
 import { buildStandardRecipeDefaultConfig } from "../../../../src/recipes/standard/artifacts.js";
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 
-const env = {
-  seed: 123,
+const setup = {
+  mapSeed: 123,
   dimensions: { width: 80, height: 60 },
   latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
 };
@@ -69,7 +69,7 @@ describe("M11 config layering: authored config and semantic knobs", () => {
     config["morphology-features"].volcanoes.baseDensity = 0.01;
     config["morphology-features"].volcanoes.hotspotWeight = 0.12;
     config["morphology-features"].volcanoes.convergentMultiplier = 2.4;
-    const compiled = standardRecipe.compileConfig(env, config);
+    const compiled = standardRecipe.compileConfig(setup, config);
 
     // Foundation:
     // plateCount is authored independently at each owning operation boundary.
@@ -177,8 +177,8 @@ describe("M11 config layering: authored config and semantic knobs", () => {
     const config = structuredClone(buildStandardRecipeDefaultConfig());
     config["morphology-coasts"].knobs.seaLevel = "earthlike";
     config["morphology-coasts"].knobs.coastRuggedness = "normal";
-    const first = standardRecipe.compileConfig(env, config);
-    const second = standardRecipe.compileConfig(env, config);
+    const first = standardRecipe.compileConfig(setup, config);
+    const second = standardRecipe.compileConfig(setup, config);
     for (const stageId of FOUNDATION_STAGE_IDS) {
       expect(stableStringify(first[stageId]), stageId).toBe(stableStringify(second[stageId]));
     }
@@ -195,7 +195,7 @@ describe("M11 config layering: authored config and semantic knobs", () => {
 
     const config = structuredClone(buildStandardRecipeDefaultConfig());
     config["foundation-orogeny"].crustCharacter = crustCharacter;
-    const compiled = standardRecipe.compileConfig(env, config);
+    const compiled = standardRecipe.compileConfig(setup, config);
 
     const op = compiled["foundation-orogeny"]["crust-evolution"].computeCrustEvolution;
     expect(op.strategy).toBe("default");

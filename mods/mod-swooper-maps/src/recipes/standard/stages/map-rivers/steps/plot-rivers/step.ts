@@ -6,14 +6,10 @@ import {
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
 } from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
-import {
-  HILL_TERRAIN,
-  MOUNTAIN_TERRAIN,
-  NAVIGABLE_RIVER_TERRAIN,
-  snapshotEngineHeightfield,
-} from "@swooper/mapgen-core";
+import { snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
+import { resolveStandardProjectionTerrainTypes } from "../../../../projection-policies/standardProjectionEngineTypes.js";
 import { PlotRiversStepContract } from "./config.js";
 import {
   NAVIGABLE_RIVER_PROJECTION_POLICY,
@@ -132,7 +128,8 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     const riverNetworkMetrics = deps.artifacts.riverNetworkMetrics.read(context);
     const coastClassification = deps.artifacts.coastClassification.read(context);
     const topography = deps.artifacts.topography.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
+    const terrain = resolveStandardProjectionTerrainTypes(context.adapter);
 
     const logStats = (label: string) => {
       if (!context.trace.isVerbose) return;
@@ -147,8 +144,8 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
             continue;
           }
           const t = context.adapter.getTerrainType(x, y);
-          if (t === MOUNTAIN_TERRAIN) mtn++;
-          else if (t === HILL_TERRAIN) hill++;
+          if (t === terrain.mountain) mtn++;
+          else if (t === terrain.hill) hill++;
           else flat++;
         }
       }
@@ -176,7 +173,7 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
         if (context.adapter.isWater(x, y)) continue;
-        if (context.adapter.getTerrainType(x, y) === MOUNTAIN_TERRAIN) continue;
+        if (context.adapter.getTerrainType(x, y) === terrain.mountain) continue;
         projectableLandMask[idx] = 1;
       }
     }
@@ -286,7 +283,7 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     logStats("PRE-RIVERS");
     for (let i = 0; i < size; i++) {
       if (materialized.riverMask[i] !== 1) continue;
-      context.adapter.setTerrainType(i % width, Math.floor(i / width), NAVIGABLE_RIVER_TERRAIN);
+      context.adapter.setTerrainType(i % width, Math.floor(i / width), terrain.navigableRiver);
     }
     context.trace.event(() => ({
       type: "map.rivers.authoredTerrainMaterialization",
@@ -303,7 +300,7 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     context.adapter.modelRivers(
       CIV7_DEFAULT_RIVER_MODELING_ARGS.minLength,
       CIV7_DEFAULT_RIVER_MODELING_ARGS.maxLength,
-      NAVIGABLE_RIVER_TERRAIN
+      terrain.navigableRiver
     );
     context.trace.event(() => ({
       type: "map.rivers.officialCivRiverModeling",
@@ -384,7 +381,7 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
         engineMinorRiverTileCount: riverReadback.engineMinorRiverTileCount,
         minorRiverStampingSupported: riverReadback.minorRiverStampingSupported,
         riverMismatchShare: Number(
-          (riverReadback.navigableRiverMismatchTileCount / Math.max(1, width * height)).toFixed(4)
+          (riverReadback.navigableRiverMismatchTileCount / (width * height)).toFixed(4)
         ),
       }));
       engineEvidence = { engineLandMask: engine.landMask, riverReadback };

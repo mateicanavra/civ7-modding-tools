@@ -9,13 +9,9 @@ type ComputeInputs = Readonly<{
   sinkMask: Uint8Array;
 }>;
 
-/**
- * Validates feature-substrate inputs and returns the expected grid size.
- */
+/** Checks feature-substrate field types and cardinality and returns the shared tile count. */
 export function validateFeatureSubstrateInputs(input: ComputeInputs): number {
-  const width = input.width | 0;
-  const height = input.height | 0;
-  const size = Math.max(0, width * height);
+  const size = input.width * input.height;
 
   if (!(input.riverClass instanceof Uint8Array) || input.riverClass.length !== size) {
     throw new Error("[Ecology] Invalid riverClass for compute-feature-substrate.");

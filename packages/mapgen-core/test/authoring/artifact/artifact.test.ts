@@ -9,7 +9,6 @@ import {
   createRecipe,
   createStage,
   createStep,
-  createStepFor,
   defineArtifact,
   defineArtifactCatalog,
   defineStep,
@@ -17,13 +16,15 @@ import {
   readValidatedArtifact,
   validateArtifactSchema,
 } from "@mapgen/authoring/index.js";
-import { createExtendedMapContext } from "@mapgen/core/types.js";
+import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
+import { admitMapSetup } from "@mapgen/core/map-setup.js";
+import { compileExecutionPlan, PipelineExecutor, StepRegistry } from "@mapgen/engine/index.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import type { IsEqual } from "type-fest";
 import { Type } from "typebox";
 
-const baseSettings = {
-  seed: 42,
+const baseSetup = {
+  mapSeed: 42,
   dimensions: { width: 2, height: 2 },
   latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
 };
@@ -35,6 +36,25 @@ function schemaModule<C extends ReturnType<typeof defineArtifact>>(artifact: C) 
     artifact,
     validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
   };
+}
+
+function executeContextStep(context: MapContext, run: (context: MapContext) => void): void {
+  const registry = new StepRegistry();
+  registry.register({
+    id: "artifact-test-step",
+    phase: "foundation",
+    requires: [],
+    provides: [],
+    run,
+  });
+  const plan = compileExecutionPlan(
+    {
+      recipe: { schemaVersion: 2, steps: [{ id: "artifact-test-step" }] },
+      setup: context.setup,
+    },
+    registry
+  );
+  new PipelineExecutor(registry).executePlan(context, plan);
 }
 
 describe("artifact authoring", () => {
@@ -329,39 +349,71 @@ describe("artifact authoring", () => {
     };
     const runtimes = implementArtifactModules([module]);
     const adapter = createMockAdapter({ width: 1, height: 1 });
-    const env = { ...baseSettings, dimensions: { width: 1, height: 1 } };
-    const ctx = createExtendedMapContext({ width: 1, height: 1 }, adapter, env);
+    const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
+    const ctx = createMapContext({ setup: setup, adapter });
 
     expect(() => runtimes.artifactFoo.read(ctx)).toThrow(ArtifactMissingError);
-    expect(runtimes.artifactFoo.tryRead(ctx)).toBeNull();
-    expect(() => runtimes.artifactFoo.publish(ctx, { value: 0 })).toThrow(ArtifactValidationError);
+    executeContextStep(ctx, (activeContext) => {
+      expect(() => runtimes.artifactFoo.publish(activeContext, { value: 0 })).toThrow(
+        ArtifactValidationError
+      );
+      runtimes.artifactFoo.publish(activeContext, { value: 1 });
+      expect(() => runtimes.artifactFoo.publish(activeContext, { value: 2 })).toThrow(
+        ArtifactDoublePublishError
+      );
+    });
+  });
 
-    runtimes.artifactFoo.publish(ctx, { value: 1 });
-    expect(() => runtimes.artifactFoo.publish(ctx, { value: 2 })).toThrow(
-      ArtifactDoublePublishError
+  it("admits artifact publication only during active execution", () => {
+    const artifact = defineArtifact({
+      name: "artifactFoo",
+      id: "artifact:test.execution-only",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const runtimes = implementArtifactModules([schemaModule(artifact)]);
+    const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
+    const createContext = () =>
+      createMapContext({ setup, adapter: createMockAdapter({ width: 1, height: 1 }) });
+    const freshContext = createContext();
+    const terminalContext = createContext();
+
+    expect(() => runtimes.artifactFoo.publish(freshContext, { value: 1 })).toThrow(
+      "active execution"
+    );
+    executeContextStep(terminalContext, () => undefined);
+    expect(() => runtimes.artifactFoo.publish(terminalContext, { value: 1 })).toThrow(
+      "active execution"
     );
   });
 
-  it("validates stored artifacts before exposing their typed observation", () => {
+  it("revalidates stored artifacts before exposing their typed observation", () => {
     const artifact = defineArtifact({
       name: "artifactFoo",
       id: "artifact:test.observation",
       schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
     });
     const adapter = createMockAdapter({ width: 1, height: 1 });
-    const env = { ...baseSettings, dimensions: { width: 1, height: 1 } };
-    const context = createExtendedMapContext({ width: 1, height: 1 }, adapter, env);
+    const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
+    const context = createMapContext({ setup: setup, adapter });
+    let observationIsValid = true;
     const source = {
       artifact,
-      validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
+      validate: (value: unknown) => {
+        const issues = validateArtifactSchema(artifact.schema, value);
+        return issues.length > 0 || observationIsValid
+          ? issues
+          : [{ message: "observation is no longer valid" }];
+      },
     };
+    const runtimes = implementArtifactModules([source]);
 
     expect(() => readValidatedArtifact(context, source)).toThrow("Missing required artifact");
-    context.artifacts.set(artifact.id, {});
+    executeContextStep(context, (activeContext) => {
+      runtimes.artifactFoo.publish(activeContext, { value: 7 });
+    });
+    observationIsValid = false;
     expect(() => readValidatedArtifact(context, source)).toThrow("Invalid artifact");
-    context.artifacts.set(artifact.id, { value: "not-a-number" });
-    expect(() => readValidatedArtifact(context, source)).toThrow("Invalid artifact");
-    context.artifacts.set(artifact.id, { value: 7 });
+    observationIsValid = true;
     expect(readValidatedArtifact(context, source)).toEqual({ value: 7 });
   });
 
@@ -684,14 +736,16 @@ describe("artifact authoring", () => {
     if (!admittedModule)
       throw new Error("Expected the step contract to retain its provider module.");
     const adapter = createMockAdapter({ width: 1, height: 1 });
-    const env = { ...baseSettings, dimensions: { width: 1, height: 1 } };
-    const context = createExtendedMapContext({ width: 1, height: 1 }, adapter, env);
+    const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
+    const context = createMapContext({ setup: setup, adapter });
     const expectedAdmission = {
       value: { value: 1 },
       dimensions: { width: 1, height: 1 },
     };
 
-    expect(() => runtime.publish(context, { value: 1 })).not.toThrow();
+    executeContextStep(context, (activeContext) => {
+      expect(() => runtime.publish(activeContext, { value: 1 })).not.toThrow();
+    });
     expect(admissions).toEqual([expectedAdmission]);
     expect(runtime.satisfies?.(context, { satisfied: new Set([artifact.id]) })).toBe(true);
     expect(admissions).toEqual([expectedAdmission, expectedAdmission]);
@@ -776,6 +830,6 @@ if (false) {
   ] = [true, true, true];
   void typeAssertions;
 
-  const createTestStep = createStepFor<ReturnType<typeof createExtendedMapContext>>();
+  const createTestStep = createStep;
   createTestStep(providesArtifact, { run: () => {} });
 }

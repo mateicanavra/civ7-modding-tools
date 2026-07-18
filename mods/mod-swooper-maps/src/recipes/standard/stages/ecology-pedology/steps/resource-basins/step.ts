@@ -11,7 +11,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const ResourceBasinsStep = createStep(ResourceBasinsStepContract, {
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const pedology = deps.artifacts.pedology.read(context);
     const topography = deps.artifacts.topography.read(context);
     const climate = deps.artifacts.climateField.read(context);

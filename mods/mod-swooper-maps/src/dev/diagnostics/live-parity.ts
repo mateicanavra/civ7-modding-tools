@@ -13,8 +13,8 @@ import {
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import {
-  createExtendedMapContext,
   createLabelRng,
+  createMapContext,
   sha256Hex,
   stableStringify,
   type TraceEvent,
@@ -559,17 +559,16 @@ export function runLocalFinalSurfaceSnapshot(
     height,
     input.mapEnvelopeBounds
   );
-  const envBase = {
-    seed,
+  const setupBase = {
+    mapSeed: seed,
     dimensions: { width, height },
     latitudeBounds,
   } as const;
   const config = resolveRecipeConfig(input.config);
-  const plan = standardRecipe.compile(envBase, config);
+  const plan = standardRecipe.compile(setupBase, config);
   const verboseSteps = Object.fromEntries(
     plan.nodes.map((node: any) => [node.stepId, "verbose"] as const)
   );
-  const env = { ...envBase, trace: { enabled: true, steps: verboseSteps } } as const;
   const adapter = createMockAdapter({
     width,
     height,
@@ -577,12 +576,15 @@ export function runLocalFinalSurfaceSnapshot(
     mapSizeId,
     rng: createLabelRng(seed),
   });
-  const context = createExtendedMapContext({ width, height }, adapter, env);
+  const context = createMapContext({ setup: plan.setup, adapter });
   const traceEvents: TraceEvent[] = [];
 
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[parity]" });
-  standardRecipe.run(context, env, config, {
-    traceSink: createMemoryTraceSink(traceEvents),
+  standardRecipe.execute(context, plan, {
+    trace: {
+      config: { steps: verboseSteps },
+      sink: createMemoryTraceSink(traceEvents),
+    },
     log: () => {},
   });
 
@@ -665,7 +667,7 @@ export function runLocalFinalSurfaceSnapshot(
 }
 
 function buildLocalRiverMetadataSnapshot(
-  context: ReturnType<typeof createExtendedMapContext>,
+  context: ReturnType<typeof createMapContext>,
   width: number,
   height: number
 ): RiverMetadataSnapshot | undefined {
@@ -696,9 +698,7 @@ function buildLocalRiverMetadataSnapshot(
   }) as RiverMetadataSnapshot | undefined;
 }
 
-function buildTerrainProjectionEvidence(
-  context: ReturnType<typeof createExtendedMapContext>
-): unknown {
+function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapContext>): unknown {
   const coastlineMetrics = context.artifacts.get(morphologyArtifacts.coastlineMetrics.id);
   const shelf = context.artifacts.get(morphologyArtifacts.shelf.id);
   const mapMorphologyCoastPolicy = context.artifacts.get(

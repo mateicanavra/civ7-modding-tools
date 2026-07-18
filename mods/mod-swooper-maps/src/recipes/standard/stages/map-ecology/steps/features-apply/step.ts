@@ -81,10 +81,11 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
     }));
 
     resolvedPlacements.sort(
-      (a, b) => a.y * context.dimensions.width + a.x - (b.y * context.dimensions.width + b.x)
+      (a, b) =>
+        a.y * context.setup.dimensions.width + a.x - (b.y * context.setup.dimensions.width + b.x)
     );
 
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const floodplainIntentMask = new Uint8Array(width * height);
     for (const placement of placements.floodplains) {
       const x = placement.x | 0;

@@ -7,14 +7,14 @@
 
 ## Purpose
 
-`RunSettings` / `settings` is legacy naming for the run boundary.
+`RunSettings`, `settings`, and `Env` are legacy names for the physical run setup.
 
 Canonical doc:
 
-[`docs/system/libs/mapgen/reference/ENV.md`](/system/libs/mapgen/reference/ENV.md)
+[`docs/system/libs/mapgen/reference/MAP-SETUP.md`](/system/libs/mapgen/reference/MAP-SETUP.md)
 
 ## Legacy naming
 
 When mapping older specs/discussions, treat:
-- `settings` → `env`
-- `RunSettings` → `Env`
+- `settings` / `env` → `setup`
+- `RunSettings` / `Env` → `MapSetup`

@@ -17,7 +17,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const BiomesStep = createStep(BiomesStepContract, {
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
 
     const climateIndices = deps.artifacts.climateIndices.read(context);
     const topography = deps.artifacts.topography.read(context);
@@ -40,7 +40,7 @@ export const BiomesStep = createStep(BiomesStepContract, {
       config.classify
     );
 
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const size = width * height;
     const treeLine01 = new Float32Array(size);
     for (let i = 0; i < size; i++) {
       treeLine01[i] = clamp01(1 - (cryosphere.permafrost01?.[i] ?? 0));

@@ -1,9 +1,9 @@
 ---
 level: error
 ---
-# Block Adapter Context Imports From Domain Ops
+# Block Setup And Context Authority From Domain Ops
 
-Domain ops do not cross into adapter/context ownership.
+Domain ops accept explicit projected values, not adapter, MapSetup, or MapContext authority.
 
 ```grit
 language js(typescript)
@@ -29,7 +29,13 @@ or {
     $source <: r".*@civ7/adapter.*",
     ! $source <: r".*@civ7/adapter[a-zA-Z0-9_-].*"
   },
+  `MapContext` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
+  },
   `ExtendedMapContext` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
+  },
+  `MapSetup` where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
   },
   `$context.adapter` where {
@@ -57,7 +63,13 @@ export { getRules } from "@civ7/adapter/civ7";
 export * from "@civ7/adapter/civ7";
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
-const ctx: ExtendedMapContext = input.context;
+const ctx: MapContext = input.context;
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+const legacyCtx: ExtendedMapContext = input.context;
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+const setup: MapSetup = input.setup;
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
 context.adapter.run();
@@ -89,6 +101,9 @@ import { notAdapter } from "@civ7/adapterish/civ7";
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
 const source = "@civ7/adapter/civ7";
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+const input = { width: 80, height: 50 };
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
 context["adapter"].run();

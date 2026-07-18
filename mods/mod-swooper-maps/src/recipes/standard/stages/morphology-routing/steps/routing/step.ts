@@ -18,7 +18,7 @@ function clampI8(value: number): number {
 export const RoutingStep = createStep(RoutingStepContract, {
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.carvedTopography.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const routing = ops.routing(
       {
         width,
@@ -30,7 +30,7 @@ export const RoutingStep = createStep(RoutingStepContract, {
     );
 
     context.trace.event(() => {
-      const size = Math.max(0, (width | 0) * (height | 0));
+      const size = width * height;
       const flowDir = routing.flowDir;
       const flowAccum = routing.flowAccum;
       const landMask = topography.landMask;
@@ -67,7 +67,7 @@ export const RoutingStep = createStep(RoutingStepContract, {
     return routing;
   },
   viz: ({ result: routing, dimensions }) => {
-    const size = Math.max(0, dimensions.width * dimensions.height);
+    const size = dimensions.width * dimensions.height;
     const u = new Int8Array(size);
     const v = new Int8Array(size);
     const magnitude = new Float32Array(size);

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { canonicalRecipeConfig } from "../../../src/maps/configs/canonical.js";
@@ -35,11 +35,11 @@ describe("biomes stripes regression (M3-012)", () => {
       StartSectorCols: 4,
     };
 
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
-    } as const;
+    } as const);
 
     const adapter = createMockAdapter({
       width,
@@ -49,11 +49,11 @@ describe("biomes stripes regression (M3-012)", () => {
       rng: createLabelRng(seed),
     });
 
-    const ctx = createExtendedMapContext({ width, height }, adapter, env);
+    const ctx = createMapContext({ setup, adapter });
     initializeStandardRuntime(ctx, { mapInfo, logPrefix: "[test]" });
 
     const config = canonicalRecipeConfig(swooperEarthlikeConfigRaw);
-    standardRecipe.run(ctx, env, config, { log: () => {} });
+    standardRecipe.run(ctx, config, { log: () => {} });
 
     const classification = ctx.artifacts.get(ecologyArtifacts.biomeClassification.id) as
       | { biomeIndex?: Uint8Array }

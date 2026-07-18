@@ -43,7 +43,7 @@ Studio’s working shape (today) is:
    - clones the config through the portable JSON boundary,
    - validates that clone unchanged against the selected recipe schema,
    - compiles plan,
-   - derives `runId` (and `planFingerprint`; current implementation uses the same value),
+   - translates the executor's `run.start` evidence into the worker protocol identity,
    - runs the recipe with a progress trace sink and visualization facet sink,
    - posts progress and viz upsert events.
 4) UI renders:
@@ -62,21 +62,32 @@ const configResult = admitPipelineConfig({
 if (!configResult.ok) throw new Error(formatConfigErrors(configResult.errors));
 
 const config = configResult.value;
-const plan = recipeEntry.recipe.compile(envBase, config);
-const runId = deriveRunId(plan);
+const setup = admitMapSetup({ mapSeed: seed, dimensions, latitudeBounds });
+const plan = recipeEntry.recipe.compile(setup, config);
 const verboseSteps = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
 
-const env = {
-  ...envBase,
-  trace: { enabled: true, steps: verboseSteps },
+const context = createMapContext({ setup, adapter });
+const workerTraceSink = createWorkerTraceSink({ runToken, generation, post, abortSignal });
+const traceSink = {
+  emit(event: TraceEvent) {
+    if (event.kind === "run.start") {
+      post({
+        type: "run.started",
+        runToken,
+        generation,
+        runId: event.runId,
+        planFingerprint: event.planFingerprint,
+      });
+    }
+    workerTraceSink.emit(event);
+  },
 };
 
-const context = createExtendedMapContext(dimensions, adapter, env);
-const traceSink = createWorkerTraceSink({ runToken, generation, post, abortSignal });
-post({ type: "run.started", runToken, generation, runId, planFingerprint: runId });
-
-await recipeEntry.recipe.runAsync(context, env, config, {
-  traceSink,
+await recipeEntry.recipe.executeAsync(context, plan, {
+  trace: {
+    config: { steps: verboseSteps },
+    sink: traceSink,
+  },
   facets: {
     viz: createWorkerVizFacetSink({ runToken, generation, post, abortSignal }),
   },
@@ -84,6 +95,10 @@ await recipeEntry.recipe.runAsync(context, env, config, {
   yieldToEventLoop: true,
 });
 ```
+
+`runId` is an execution-attempt identity owned by the active `MapContext`. The
+worker must not allocate or predict it from the plan; it learns both identities
+from the executor's first trace event.
 
 ## Use the protocol boundary
 

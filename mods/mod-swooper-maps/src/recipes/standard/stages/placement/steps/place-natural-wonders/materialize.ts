@@ -5,13 +5,13 @@ import type {
 } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0, getNaturalWonderFootprintIndices } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 
 type StampNaturalWondersFromPlanArgs = {
-  adapter: ExtendedMapContext["adapter"];
+  adapter: MapContext["adapter"];
   width: number;
   height: number;
   wonders: DeepReadonly<NaturalWonderPlan>;
@@ -236,7 +236,7 @@ function getValidTerrainTypesForFeature(featureType: number): readonly number[] 
  * relocations, self-oriented footprints, and residue from rejected mutations.
  */
 function observeNaturalWonderPlotIndices(
-  adapter: ExtendedMapContext["adapter"],
+  adapter: MapContext["adapter"],
   width: number,
   height: number,
   attemptedFeatureTypes: ReadonlySet<number>
@@ -254,7 +254,7 @@ function observeNaturalWonderPlotIndices(
 }
 
 function ensureFeatureValidTerrain(
-  adapter: ExtendedMapContext["adapter"],
+  adapter: MapContext["adapter"],
   x: number,
   y: number,
   height: number,
@@ -326,7 +326,7 @@ function buildNaturalWonderAnchorCandidates(
  * per-anchor unit the retry loop iterates over.
  */
 function attemptStampNaturalWonderAtAnchor(args: {
-  adapter: ExtendedMapContext["adapter"];
+  adapter: MapContext["adapter"];
   anchorPlotIndex: number;
   width: number;
   height: number;
@@ -512,7 +512,7 @@ export function stampNaturalWondersFromPlan({
   wonders,
   requestedCount,
 }: StampNaturalWondersFromPlanArgs): NaturalWonderStampingStats {
-  if ((wonders.width | 0) !== (width | 0) || (wonders.height | 0) !== (height | 0)) {
+  if (wonders.width !== width || wonders.height !== height) {
     throw new Error(
       `[Placement] Natural wonder plan dimensions ${wonders.width}x${wonders.height} do not match map ${width}x${height}.`
     );

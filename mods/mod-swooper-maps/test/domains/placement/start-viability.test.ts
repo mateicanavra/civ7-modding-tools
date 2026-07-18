@@ -1,11 +1,26 @@
 import { describe, expect, it } from "bun:test";
 import placementDomain from "@mapgen/domain/placement/ops";
 import type { Static } from "@swooper/mapgen-core/authoring";
+import type { IsEqual, RequiredKeysOf } from "type-fest";
 import { runOpValidated, validateSchemaValueOrThrow } from "../../support/compiler-helpers.js";
 
 const { planStarts } = placementDomain.ops;
 
 type PlanStartsInput = Static<(typeof planStarts)["input"]>;
+type Expect<T extends true> = T;
+type RequiredPlanStartsSpatialField = Extract<
+  RequiredKeysOf<PlanStartsInput>,
+  "width" | "height" | "landMask" | "slotByTile" | "landmassIdByTile"
+>;
+
+/** Compile-time proof that every non-imputable spatial input is required by plan-starts. */
+export type PlanStartsRequiresSpatialAuthority = Expect<
+  IsEqual<
+    RequiredPlanStartsSpatialField,
+    "width" | "height" | "landMask" | "slotByTile" | "landmassIdByTile"
+  >
+>;
+
 type StartInputField =
   | "width"
   | "height"
@@ -108,6 +123,33 @@ function makeSeatDemandInput(slotCapacity: number, alivePlayerIds?: readonly num
 }
 
 describe("start viability planning", () => {
+  it("rejects omission of every required spatial input at contract admission", () => {
+    const requiredFields = [
+      "width",
+      "height",
+      "landMask",
+      "slotByTile",
+      "landmassIdByTile",
+    ] as const;
+
+    for (const field of requiredFields) {
+      const incomplete: Record<string, unknown> = { ...makeInput(8, 6) };
+      delete incomplete[field];
+
+      expect(() =>
+        validateSchemaValueOrThrow(planStarts.input, incomplete, "/placement/plan-starts/input")
+      ).toThrow(field);
+    }
+  });
+
+  it("executes when every required spatial input is present", () => {
+    const result = plan(makeInput(8, 6, 0, 0));
+
+    expect(result.width).toBe(8);
+    expect(result.height).toBe(6);
+    expect(result.scoreByTile).toHaveLength(48);
+  });
+
   it("rejects single-tile islands when larger expansion land exists", () => {
     const input = makeInput(10, 8);
     addLandmass(
@@ -627,10 +669,7 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("caps valid alive-major demand at zero capacity without synthesizing fallback identities", () => {
-    const result = plan({
-      baseStarts: { playersLandmass1: 0, playersLandmass2: 0 },
-      alivePlayerIds: [7],
-    });
+    const result = plan(makeSeatDemandInput(0, [7]));
 
     expect(result.playersLandmass1 + result.playersLandmass2).toBe(0);
     expect(result.seats).toEqual([]);
@@ -649,11 +688,10 @@ describe("start selection ladder (op-owned, S4)", () => {
     ).toThrow();
   });
 
-  it("preserves authoritative alive-major demand on the empty-map degraded path", () => {
-    const result = plan({
-      baseStarts: { playersLandmass1: 2, playersLandmass2: 0 },
-      alivePlayerIds: [7],
-    });
+  it("preserves authoritative alive-major demand on a valid map with no settleable land", () => {
+    const input = makeInput(8, 6, 2, 0);
+    input.alivePlayerIds = [7];
+    const result = plan(input);
 
     expect(result.playersLandmass1 + result.playersLandmass2).toBe(1);
     expect(result.seats).toHaveLength(1);

@@ -8,12 +8,6 @@ const WIDTH = 2;
 const HEIGHT = 2;
 const SIZE = WIDTH * HEIGHT;
 
-const env = {
-  seed: 0,
-  dimensions: { width: WIDTH, height: HEIGHT },
-  latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
-};
-
 describe("plot effects (jungle / jungle fever hazard)", () => {
   it("places jungle-fever intent on eligible jungle tiles by top-coverage", () => {
     const planSelection = normalizeOpSelectionOrThrow(
@@ -29,7 +23,7 @@ describe("plot effects (jungle / jungle fever hazard)", () => {
           },
         },
       },
-      { ctx: { env, knobs: {} }, path: "/ops/planPlotEffects" }
+      { path: "/ops/planPlotEffects" }
     );
 
     const jungleScore01 = new Float32Array([0.9, 0.8, 0.7, 0.6]);

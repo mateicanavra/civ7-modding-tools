@@ -44,8 +44,8 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
     return { ...config, shelfMask: shelfMaskSelection };
   },
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const { width, height } = context.setup.dimensions;
+    const size = width * height;
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
     const topography = deps.artifacts.topography.read(context);
 

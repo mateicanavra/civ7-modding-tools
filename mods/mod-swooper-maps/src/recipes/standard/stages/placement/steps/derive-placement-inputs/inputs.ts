@@ -4,7 +4,7 @@ import {
   resolveNaturalWonderMaterializationDirection,
 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import { getStandardRuntime } from "../../../../runtime.js";
 import type { PlacementInputsV1 } from "../../artifacts/placement-inputs.artifact.js";
@@ -67,8 +67,8 @@ export type PlacementInputsBuildResult = {
  * Biome and feature surfaces are artifact-reconstructed (see
  * buildPlacementInputs); terrain stays a declared readback, not a silent one.
  */
-function readDeclaredEngineTerrainSurface(context: ExtendedMapContext): Uint8Array {
-  const { width, height } = context.dimensions;
+function readDeclaredEngineTerrainSurface(context: MapContext): Uint8Array {
+  const { width, height } = context.setup.dimensions;
   const size = width * height;
   const terrainType = new Uint8Array(size);
   for (let i = 0; i < size; i++) {
@@ -132,7 +132,7 @@ function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Arra
  * `naturalWonderPlan` (the intent that `place-natural-wonders` later stamps).
  */
 export function buildPlacementInputs(
-  context: ExtendedMapContext,
+  context: MapContext,
   config: DerivePlacementInputsConfig,
   ops: DerivePlacementInputsOps,
   physical: {
@@ -168,7 +168,7 @@ export function buildPlacementInputs(
   }
 ): PlacementInputsBuildResult {
   const runtime = getStandardRuntime(context);
-  const { width, height } = context.dimensions;
+  const { width, height } = context.setup.dimensions;
   const size = width * height;
   const baseStarts = {
     playersLandmass1: runtime.playersLandmass1,

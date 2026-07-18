@@ -347,8 +347,8 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
     };
   },
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
-    const { topLatitude, bottomLatitude } = context.env.latitudeBounds;
+    const { width, height } = context.setup.dimensions;
+    const { topLatitude, bottomLatitude } = context.setup.latitudeBounds;
     const latitudeByRow = new Float32Array(height);
     if (height <= 1) {
       const mid = (topLatitude + bottomLatitude) / 2;
@@ -381,7 +381,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
       2_147_483_647
     );
 
-    const size = Math.max(0, width * height);
+    const size = width * height;
     const zeros = new Uint8Array(size);
 
     const modeCount = config.seasonality.modeCount;

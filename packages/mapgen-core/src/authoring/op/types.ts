@@ -1,4 +1,3 @@
-import type { NormalizeContext } from "@mapgen/engine/index.js";
 import type { Static, TSchema, TUnsafe } from "typebox";
 
 // Allow ops with specific input/config types to flow through generic registries.
@@ -94,11 +93,10 @@ export type DomainOp<
     Static<OutputSchema>
   >;
   /**
-   * Compile-time config normalization hook (called by the compiler).
-   * This is never invoked at runtime; default behavior returns the input envelope unchanged.
+   * Normalizes one selected operation configuration during compilation.
+   *
+   * Physical map setup is already admitted by the pipeline boundary and is intentionally absent;
+   * operation normalization owns only the operation's authored configuration values.
    */
-  normalize: BivariantCallback<
-    [StrategySelection<Strategies>, NormalizeContext],
-    StrategySelection<Strategies>
-  >;
+  normalize: BivariantCallback<[StrategySelection<Strategies>], StrategySelection<Strategies>>;
 }>;

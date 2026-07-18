@@ -39,12 +39,9 @@ function percentileOf(sortedValues: readonly number[], q: number): number {
  */
 export const defaultStrategy = createStrategy(DeriveHabitatFieldsContract, "default", {
   run: (input) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
+    const width = input.width;
+    const height = input.height;
     const size = width * height;
-    if (!Number.isSafeInteger(size) || size <= 0) {
-      throw new Error(`[resources] Invalid grid for derive-habitat-fields: ${width}x${height}.`);
-    }
     const requireField = <T extends { length: number }>(name: string, value: T | undefined): T => {
       if (!value || value.length !== size) {
         throw new Error(
