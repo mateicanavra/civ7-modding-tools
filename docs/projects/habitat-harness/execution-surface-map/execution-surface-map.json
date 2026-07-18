@@ -40,7 +40,7 @@
       "package_boundary_tie": 95,
       "unknown_invocation": 244,
       "mutation_surface": 125,
-      "nx_ordering_tie": 122,
+      "nx_ordering_tie": 123,
       "direct_script_invoked": 4,
       "package_invoked": 284,
       "habitat_invoked": 112
@@ -52,7 +52,7 @@
       "fixture-support": 8,
       "adapter": 122,
       "policy-predicate": 92,
-      "transient-dependency": 114,
+      "transient-dependency": 115,
       "entrypoint": 285,
       "runner-runtime": 112
     }
@@ -44454,7 +44454,9 @@
         "projectName": "mod-swooper-maps",
         "name": "check:test",
         "command": "tsc -p test/tsconfig.json --noEmit",
-        "dependsOn": []
+        "dependsOn": [
+          "\"build:studio-recipes\""
+        ]
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -44470,6 +44472,11 @@
         "knownMutationVerbs": [],
         "all": [
           {
+            "kind": "nx-depends-on",
+            "value": "\"build:studio-recipes\"",
+            "targetClass": "unknown"
+          },
+          {
             "kind": "shell-command",
             "value": "tsc -p test/tsconfig.json --noEmit",
             "targetClass": "workspace-tool"
@@ -44478,13 +44485,17 @@
       },
       "anatomy": {
         "roles": [
-          "entrypoint"
+          "entrypoint",
+          "transient-dependency"
         ],
         "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
         "supportSignals": [],
-        "transientSignals": []
+        "transientSignals": [
+          "build/currentness or ordering tie"
+        ]
       },
       "buckets": [
+        "nx_ordering_tie",
         "package_invoked"
       ]
     },

@@ -43,7 +43,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | fixture-support | 8 |
 | adapter | 122 |
 | policy-predicate | 92 |
-| transient-dependency | 114 |
+| transient-dependency | 115 |
 | entrypoint | 285 |
 | runner-runtime | 112 |
 
@@ -71,7 +71,7 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | package_boundary_tie | 95 |
 | unknown_invocation | 244 |
 | mutation_surface | 125 |
-| nx_ordering_tie | 122 |
+| nx_ordering_tie | 123 |
 | direct_script_invoked | 4 |
 | package_invoked | 284 |
 | habitat_invoked | 112 |

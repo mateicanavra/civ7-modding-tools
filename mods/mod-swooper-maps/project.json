@@ -47,6 +47,7 @@
     },
     "check:test": {
       "command": "tsc -p test/tsconfig.json --noEmit",
+      "dependsOn": ["build:studio-recipes"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }

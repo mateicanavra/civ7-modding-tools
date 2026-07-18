@@ -14,7 +14,7 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | fixture-support | 8 |
 | adapter | 122 |
 | policy-predicate | 92 |
-| transient-dependency | 114 |
+| transient-dependency | 115 |
 | entrypoint | 285 |
 | runner-runtime | 112 |
 
