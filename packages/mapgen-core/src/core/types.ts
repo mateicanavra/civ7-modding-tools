@@ -25,7 +25,6 @@ import type {
   VizDims,
   VizLayerMeta,
   VizScalarFormat,
-  VizScalarStats,
   VizSpaceId,
   VizValueSpec,
   VizVariantKey,
@@ -191,7 +190,6 @@ export interface VizDumper {
       dims: VizDims;
       format: VizScalarFormat;
       values: ArrayBufferView;
-      stats?: VizScalarStats;
       valueSpec?: VizValueSpec;
       meta?: VizLayerMeta;
     }
@@ -206,7 +204,6 @@ export interface VizDumper {
       positions: Float32Array; // [x0,y0,x1,y1,...]
       values?: ArrayBufferView;
       valueFormat?: VizScalarFormat;
-      valueStats?: VizScalarStats;
       valueSpec?: VizValueSpec;
       meta?: VizLayerMeta;
     }
@@ -221,7 +218,6 @@ export interface VizDumper {
       segments: Float32Array; // [x0,y0,x1,y1,...] pairs per segment
       values?: ArrayBufferView;
       valueFormat?: VizScalarFormat;
-      valueStats?: VizScalarStats;
       valueSpec?: VizValueSpec;
       meta?: VizLayerMeta;
     }
@@ -239,7 +235,6 @@ export interface VizDumper {
         {
           format: VizScalarFormat;
           values: ArrayBufferView;
-          stats?: VizScalarStats;
           valueSpec?: VizValueSpec;
         }
       >;

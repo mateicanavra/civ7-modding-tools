@@ -1,21 +1,15 @@
 import type { TraceEvent, TraceSink } from "@swooper/mapgen-core";
-import type { VizBinaryRef, VizLayerEmissionV1, VizLayerEntryV1 } from "@swooper/mapgen-viz";
+import type { VizInlineRef, VizLayerEntryV1 } from "@swooper/mapgen-viz";
 import type { BrowserRunEvent } from "./protocol";
+import { isWorkerVizLayerEvent } from "./worker-viz-event";
 
 type Post = (event: BrowserRunEvent, transfer?: Transferable[]) => void;
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
-  const proto = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
-}
-
-function collectTransferablesFromBinaryRef(ref: VizBinaryRef, into: Transferable[]): void {
-  if (ref.kind !== "inline") return;
+function collectTransferablesFromBinaryRef(ref: VizInlineRef, into: Transferable[]): void {
   into.push(ref.buffer);
 }
 
-function collectTransferables(layer: VizLayerEntryV1): Transferable[] {
+function collectTransferables(layer: VizLayerEntryV1<VizInlineRef>): Transferable[] {
   const transfer: Transferable[] = [];
   if (layer.kind === "grid") {
     collectTransferablesFromBinaryRef(layer.field.data, transfer);
@@ -32,6 +26,11 @@ function collectTransferables(layer: VizLayerEntryV1): Transferable[] {
   return transfer;
 }
 
+/**
+ * Creates the run-correlated worker sink for browser progress and visualization events.
+ * Aborted runs emit nothing; visualization upserts admit only locally branded inline evidence,
+ * while step indexes remain stable for the lifetime of one sink.
+ */
 export function createWorkerTraceSink(options: {
   runToken: string;
   post: Post;
@@ -88,12 +87,9 @@ export function createWorkerTraceSink(options: {
 
     if (event.kind !== "step.event" || !event.stepId) return;
     const data = event.data;
-    if (!isPlainObject(data)) return;
-    if (data.type !== "viz.layer.emit.v1") return;
-
-    const payload = data as unknown as { type: "viz.layer.emit.v1"; layer: VizLayerEmissionV1 };
+    if (!isWorkerVizLayerEvent(data)) return;
     const stepIndex = stepIndexById.get(event.stepId) ?? -1;
-    const layer: VizLayerEntryV1 = { ...payload.layer, stepIndex };
+    const layer: VizLayerEntryV1<VizInlineRef> = { ...data.layer, stepIndex };
     post({ type: "viz.layer.upsert", runToken, generation, layer }, collectTransferables(layer));
   };
 

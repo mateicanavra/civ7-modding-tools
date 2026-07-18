@@ -1,4 +1,4 @@
-import type { VizLayerEntryV1 } from "@swooper/mapgen-viz";
+import type { VizInlineRef, VizLayerEntryV1 } from "@swooper/mapgen-viz";
 
 export type BrowserRunStartRequest = {
   type: "run.start";
@@ -57,7 +57,7 @@ export type BrowserVizLayerUpsertEvent = {
   type: "viz.layer.upsert";
   runToken: string;
   generation: number;
-  layer: VizLayerEntryV1;
+  layer: VizLayerEntryV1<VizInlineRef>;
 };
 
 export type BrowserRunFinishedEvent = {

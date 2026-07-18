@@ -1,70 +1,41 @@
-import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { appendFileSync, mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { TraceEvent, TraceSink, VizDumper } from "@swooper/mapgen-core";
-import type {
-  Bounds,
-  VizBinaryRef,
-  VizGridFieldsLayerEmissionV1,
-  VizLayerEmissionV1,
-  VizLayerEntryV1,
-  VizManifestV1,
-  VizScalarField,
+import {
+  admitVizScalarSource,
+  materializeVizProjection,
+  type VizBinaryMaterializer,
+  type VizBinarySlot,
+  type VizLayerEmissionV1,
+  type VizLayerEntryV1,
+  type VizManifestV1,
+  type VizPathRef,
+  type VizProjection,
+  type VizScalarSource,
 } from "@swooper/mapgen-viz";
-import { computeVizScalarStats, createVizLayerKey } from "@swooper/mapgen-viz";
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
+function isPlainObject(value: unknown): value is Record<PropertyKey, unknown> {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
   const proto = Object.getPrototypeOf(value);
   return proto === Object.prototype || proto === null;
-}
-
-function slugify(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-+)|(-+$)/g, "");
 }
 
 function ensureDir(path: string): void {
   mkdirSync(path, { recursive: true });
 }
 
-function boundsFromPositions(positions: Float32Array): Bounds {
-  let minX = Number.POSITIVE_INFINITY;
-  let minY = Number.POSITIVE_INFINITY;
-  let maxX = Number.NEGATIVE_INFINITY;
-  let maxY = Number.NEGATIVE_INFINITY;
+let atomicWriteSequence = 0;
 
-  for (let i = 0; i + 1 < positions.length; i += 2) {
-    const x = positions[i]!;
-    const y = positions[i + 1]!;
-    if (x < minX) minX = x;
-    if (y < minY) minY = y;
-    if (x > maxX) maxX = x;
-    if (y > maxY) maxY = y;
-  }
-
-  if (
-    !Number.isFinite(minX) ||
-    !Number.isFinite(minY) ||
-    !Number.isFinite(maxX) ||
-    !Number.isFinite(maxY)
-  ) {
-    return [0, 0, 1, 1];
-  }
-
-  return [minX, minY, maxX, maxY];
+function writeFileAtomic(path: string, data: string | Uint8Array): void {
+  atomicWriteSequence += 1;
+  const temporaryPath = `${path}.tmp-${process.pid}-${atomicWriteSequence}`;
+  writeFileSync(temporaryPath, data);
+  renameSync(temporaryPath, path);
 }
 
-function boundsFromSegments(segments: Float32Array): Bounds {
-  // segments is [x0,y0,x1,y1,...] pairs; treat as positions list
-  return boundsFromPositions(segments);
-}
-
-function writeBinary(path: string, view: ArrayBufferView): void {
-  const buffer = Buffer.from(view.buffer, view.byteOffset, view.byteLength);
-  writeFileSync(path, buffer);
+function writeBinaryAtomic(path: string, view: ArrayBufferView): void {
+  writeFileAtomic(path, Buffer.from(view.buffer, view.byteOffset, view.byteLength));
 }
 
 function resolveRunDir(outputRoot: string, runId: string): string {
@@ -75,317 +46,277 @@ function resolveDataDir(outputRoot: string, runId: string): string {
   return join(resolveRunDir(outputRoot, runId), "data");
 }
 
+type DumpRunState = {
+  manifest: VizManifestV1<VizPathRef>;
+  stepIndexById: Map<string, number>;
+  nextStepIndex: number;
+};
+
+const PATH_VIZ_EVENT = Symbol("mod-swooper-maps.path-viz-event");
+
+type PathVizLayerEvent = Readonly<{
+  type: "viz.layer.dump.v1";
+  layer: VizLayerEmissionV1<VizPathRef>;
+  [PATH_VIZ_EVENT]: true;
+}>;
+
+function isPathRef(value: unknown): value is VizPathRef {
+  return isPlainObject(value) && value.kind === "path" && typeof value.path === "string";
+}
+
+function isPathScalarField(value: unknown): boolean {
+  return isPlainObject(value) && isPathRef(value.data);
+}
+
+function isPathLayer(value: unknown): value is VizLayerEmissionV1<VizPathRef> {
+  if (!isPlainObject(value)) return false;
+  if (
+    typeof value.layerKey !== "string" ||
+    typeof value.dataTypeKey !== "string" ||
+    typeof value.stepId !== "string" ||
+    typeof value.spaceId !== "string" ||
+    !Array.isArray(value.bounds) ||
+    value.bounds.length !== 4 ||
+    !value.bounds.every(Number.isFinite)
+  ) {
+    return false;
+  }
+  if (value.kind === "grid") return isPathScalarField(value.field);
+  if (value.kind === "points") {
+    return (
+      isPathRef(value.positions) && (value.values === undefined || isPathScalarField(value.values))
+    );
+  }
+  if (value.kind === "segments") {
+    return (
+      isPathRef(value.segments) && (value.values === undefined || isPathScalarField(value.values))
+    );
+  }
+  if (value.kind !== "gridFields" || !isPlainObject(value.fields)) return false;
+  const fields = Object.values(value.fields);
+  return fields.length > 0 && fields.every(isPathScalarField);
+}
+
+function createPathVizLayerEvent(layer: VizLayerEmissionV1<VizPathRef>): unknown {
+  return Object.freeze({ type: "viz.layer.dump.v1", layer, [PATH_VIZ_EVENT]: true });
+}
+
+function isPathVizLayerEvent(value: unknown): value is PathVizLayerEvent {
+  return (
+    isPlainObject(value) &&
+    value[PATH_VIZ_EVENT] === true &&
+    value.type === "viz.layer.dump.v1" &&
+    isPathLayer(value.layer)
+  );
+}
+
+function publishManifest(runDir: string, manifest: VizManifestV1<VizPathRef>): void {
+  writeFileAtomic(join(runDir, "manifest.json"), JSON.stringify(manifest, null, 2));
+}
+
+/**
+ * Creates the replay trace sink that owns per-run step order and path-backed manifest updates.
+ * Diagnostics remain refusal-only: filesystem failures are contained and never alter generation.
+ */
 export function createTraceDumpSink(options: { outputRoot: string }): TraceSink {
   const { outputRoot } = options;
-
-  const stepIndexById = new Map<string, number>();
-  let nextStepIndex = 0;
-
-  const manifestByRun = new Map<string, VizManifestV1>();
+  const stateByRun = new Map<string, DumpRunState>();
 
   const emit = (event: TraceEvent): void => {
     try {
       const runDir = resolveRunDir(outputRoot, event.runId);
-      const dataDir = resolveDataDir(outputRoot, event.runId);
-      ensureDir(dataDir);
-
+      ensureDir(resolveDataDir(outputRoot, event.runId));
       appendFileSync(join(runDir, "trace.jsonl"), `${JSON.stringify(event)}\n`);
 
-      let manifest = manifestByRun.get(event.runId);
-      if (!manifest) {
-        manifest = {
-          version: 1,
-          runId: event.runId,
-          planFingerprint: event.planFingerprint,
-          steps: [],
-          layers: [],
+      let state = stateByRun.get(event.runId);
+      if (!state) {
+        state = {
+          manifest: {
+            version: 1,
+            runId: event.runId,
+            planFingerprint: event.planFingerprint,
+            steps: [],
+            layers: [],
+          },
+          stepIndexById: new Map(),
+          nextStepIndex: 0,
         };
-        manifestByRun.set(event.runId, manifest);
+        stateByRun.set(event.runId, state);
       }
 
       if (event.kind === "step.start" && event.stepId) {
-        if (!stepIndexById.has(event.stepId)) {
-          const stepIndex = nextStepIndex++;
-          stepIndexById.set(event.stepId, stepIndex);
-          manifest.steps.push({ stepId: event.stepId, phase: event.phase, stepIndex });
-          writeFileSync(join(runDir, "manifest.json"), JSON.stringify(manifest, null, 2));
+        if (!state.stepIndexById.has(event.stepId)) {
+          const stepIndex = state.nextStepIndex;
+          const manifest = {
+            ...state.manifest,
+            steps: [
+              ...state.manifest.steps,
+              { stepId: event.stepId, phase: event.phase, stepIndex },
+            ],
+          };
+          publishManifest(runDir, manifest);
+          state.manifest = manifest;
+          state.nextStepIndex += 1;
+          state.stepIndexById.set(event.stepId, stepIndex);
         }
         return;
       }
 
       if (event.kind !== "step.event" || !event.stepId) return;
       const data = event.data;
-      if (!isPlainObject(data)) return;
-      if (data.type !== "viz.layer.dump.v1") return;
-      const payload = data as unknown as { type: "viz.layer.dump.v1"; layer: VizLayerEmissionV1 };
-      const stepIndex = stepIndexById.get(event.stepId) ?? -1;
-      const layer: VizLayerEntryV1 = {
-        ...payload.layer,
+      if (!isPathVizLayerEvent(data)) return;
+      const layer: VizLayerEntryV1<VizPathRef> = {
+        ...data.layer,
         stepId: event.stepId,
         phase: event.phase,
-        stepIndex,
+        stepIndex: state.stepIndexById.get(event.stepId) ?? -1,
       };
-      manifest.layers.push(layer);
-      writeFileSync(join(runDir, "manifest.json"), JSON.stringify(manifest, null, 2));
+      const layers = [...state.manifest.layers];
+      const existing = layers.findIndex((candidate) => candidate.layerKey === layer.layerKey);
+      if (existing >= 0) layers[existing] = layer;
+      else layers.push(layer);
+      const manifest = { ...state.manifest, layers };
+      publishManifest(runDir, manifest);
+      state.manifest = manifest;
     } catch {
-      // tracing/diagnostics must never alter execution flow
+      // Trace persistence is diagnostic evidence and must never alter generation flow.
     }
   };
 
   return { emit };
 }
 
-function pathRef(path: string): VizBinaryRef {
-  return { kind: "path", path };
+function binaryPath(slot: VizBinarySlot): string {
+  const layer = encodeURIComponent(slot.layerKey);
+  const bytes = new Uint8Array(slot.source.buffer, slot.source.byteOffset, slot.source.byteLength);
+  const digest = createHash("sha256").update(bytes).digest("hex");
+  const role =
+    slot.kind === "grid-field-values" ? `field-${encodeURIComponent(slot.fieldKey)}` : slot.kind;
+  return `data/${layer}__${role}__sha256-${digest}.bin`;
 }
 
-function scalarField(args: {
-  format: VizScalarField["format"];
-  values: ArrayBufferView;
-  path: string;
-  stats?: VizScalarField["stats"];
-  valueSpec?: VizScalarField["valueSpec"];
-}): VizScalarField {
-  return {
-    format: args.format,
-    stats:
-      args.stats ??
-      computeVizScalarStats({
-        format: args.format,
-        values: args.values,
-        noData: args.valueSpec?.noData,
-      }) ??
-      undefined,
-    valueSpec: args.valueSpec,
-    data: pathRef(args.path),
+function createPathMaterializer(runDir: string): VizBinaryMaterializer<VizPathRef> {
+  return (slot) => {
+    const path = binaryPath(slot);
+    writeBinaryAtomic(join(runDir, path), slot.source);
+    return { kind: "path", path };
   };
 }
 
+function optionalScalarSource(
+  args: Readonly<{
+    values?: ArrayBufferView;
+    format?: Parameters<typeof admitVizScalarSource>[0]["format"];
+    valueSpec?: Parameters<typeof admitVizScalarSource>[0]["valueSpec"];
+  }>
+): VizScalarSource | undefined {
+  if (args.values === undefined && args.format === undefined) return undefined;
+  if (args.values === undefined || args.format === undefined) {
+    throw new TypeError(`Visualization values and scalar format must be provided together.`);
+  }
+  return admitVizScalarSource({
+    format: args.format,
+    values: args.values,
+    valueSpec: args.valueSpec,
+  });
+}
+
+/**
+ * Creates the filesystem compatibility adapter for legacy `VizDumper` calls.
+ * The portable kernel validates and materializes evidence; this adapter only persists each slot,
+ * returns a relative path, and emits the existing trace envelope.
+ */
 export function createVizDumper(options: { outputRoot: string }): VizDumper {
   const { outputRoot } = options;
 
-  const dumpGrid: VizDumper["dumpGrid"] = (trace, layer) => {
-    if (!trace.isVerbose) return;
-    if (!trace.runId) return;
-
+  const emit = (
+    trace: Parameters<VizDumper["dumpGrid"]>[0],
+    buildProjection: () => VizProjection
+  ): void => {
+    if (!trace.isVerbose || !trace.runId) return;
     try {
       const runDir = resolveRunDir(outputRoot, trace.runId);
-      const dataDir = resolveDataDir(outputRoot, trace.runId);
-      ensureDir(dataDir);
-
-      const layerKey = createVizLayerKey({
-        stepId: trace.stepId,
-        dataTypeKey: layer.dataTypeKey,
-        spaceId: layer.spaceId,
-        kind: "grid",
-        role: layer.meta?.role,
-        variantKey: layer.variantKey,
-      });
-
-      const fileBase = slugify(layerKey);
-      const relPath = `data/${fileBase}.bin`;
-      writeBinary(join(runDir, relPath), layer.values);
-
-      trace.event((): { type: "viz.layer.dump.v1"; layer: VizLayerEmissionV1 } => ({
-        type: "viz.layer.dump.v1",
-        layer: {
-          kind: "grid",
-          layerKey,
-          dataTypeKey: layer.dataTypeKey,
-          variantKey: layer.variantKey,
-          stepId: trace.stepId,
-          phase: trace.phase,
-          spaceId: layer.spaceId,
-          bounds: [0, 0, layer.dims.width, layer.dims.height],
-          meta: layer.meta,
-          dims: layer.dims,
-          field: scalarField({
-            format: layer.format,
-            values: layer.values,
-            path: relPath,
-            stats: layer.stats,
-            valueSpec: layer.valueSpec,
-          }),
-        },
-      }));
+      ensureDir(resolveDataDir(outputRoot, trace.runId));
+      const layer = materializeVizProjection(
+        buildProjection(),
+        { stepId: trace.stepId, phase: trace.phase },
+        createPathMaterializer(runDir)
+      );
+      trace.event(() => createPathVizLayerEvent(layer));
     } catch {
-      // diagnostics must not break generation
+      // Visualization persistence is diagnostic evidence and must never alter generation flow.
     }
+  };
+
+  const dumpGrid: VizDumper["dumpGrid"] = (trace, layer) => {
+    emit(trace, () => ({
+      kind: "grid",
+      dataTypeKey: layer.dataTypeKey,
+      variantKey: layer.variantKey,
+      spaceId: layer.spaceId,
+      meta: layer.meta,
+      dims: layer.dims,
+      field: admitVizScalarSource({
+        format: layer.format,
+        values: layer.values,
+        valueSpec: layer.valueSpec,
+      }),
+    }));
   };
 
   const dumpPoints: VizDumper["dumpPoints"] = (trace, layer) => {
-    if (!trace.isVerbose) return;
-    if (!trace.runId) return;
-
-    try {
-      const runDir = resolveRunDir(outputRoot, trace.runId);
-      const dataDir = resolveDataDir(outputRoot, trace.runId);
-      ensureDir(dataDir);
-
-      const layerKey = createVizLayerKey({
-        stepId: trace.stepId,
-        dataTypeKey: layer.dataTypeKey,
-        spaceId: layer.spaceId,
-        kind: "points",
-        role: layer.meta?.role,
-        variantKey: layer.variantKey,
-      });
-
-      const fileBase = slugify(layerKey);
-      const posRel = `data/${fileBase}__pos.bin`;
-      const valRel = layer.values && layer.valueFormat ? `data/${fileBase}__val.bin` : undefined;
-
-      writeBinary(join(runDir, posRel), layer.positions);
-      if (layer.values && valRel) {
-        writeBinary(join(runDir, valRel), layer.values);
-      }
-
-      const bounds = boundsFromPositions(layer.positions);
-      trace.event((): { type: "viz.layer.dump.v1"; layer: VizLayerEmissionV1 } => ({
-        type: "viz.layer.dump.v1",
-        layer: {
-          kind: "points",
-          layerKey,
-          dataTypeKey: layer.dataTypeKey,
-          variantKey: layer.variantKey,
-          stepId: trace.stepId,
-          phase: trace.phase,
-          spaceId: layer.spaceId,
-          bounds,
-          meta: layer.meta,
-          count: (layer.positions.length / 2) | 0,
-          positions: pathRef(posRel),
-          values:
-            layer.values && layer.valueFormat && valRel
-              ? scalarField({
-                  format: layer.valueFormat,
-                  values: layer.values,
-                  path: valRel,
-                  stats: layer.valueStats,
-                  valueSpec: layer.valueSpec,
-                })
-              : undefined,
-        },
-      }));
-    } catch {
-      // diagnostics must not break generation
-    }
+    emit(trace, () => ({
+      kind: "points",
+      dataTypeKey: layer.dataTypeKey,
+      variantKey: layer.variantKey,
+      spaceId: layer.spaceId,
+      meta: layer.meta,
+      positions: layer.positions,
+      values: optionalScalarSource({
+        values: layer.values,
+        format: layer.valueFormat,
+        valueSpec: layer.valueSpec,
+      }),
+    }));
   };
 
   const dumpSegments: VizDumper["dumpSegments"] = (trace, layer) => {
-    if (!trace.isVerbose) return;
-    if (!trace.runId) return;
-
-    try {
-      const runDir = resolveRunDir(outputRoot, trace.runId);
-      const dataDir = resolveDataDir(outputRoot, trace.runId);
-      ensureDir(dataDir);
-
-      const layerKey = createVizLayerKey({
-        stepId: trace.stepId,
-        dataTypeKey: layer.dataTypeKey,
-        spaceId: layer.spaceId,
-        kind: "segments",
-        role: layer.meta?.role,
-        variantKey: layer.variantKey,
-      });
-
-      const fileBase = slugify(layerKey);
-      const segRel = `data/${fileBase}__seg.bin`;
-      const valRel = layer.values && layer.valueFormat ? `data/${fileBase}__val.bin` : undefined;
-
-      writeBinary(join(runDir, segRel), layer.segments);
-      if (layer.values && valRel) {
-        writeBinary(join(runDir, valRel), layer.values);
-      }
-
-      const bounds = boundsFromSegments(layer.segments);
-      trace.event((): { type: "viz.layer.dump.v1"; layer: VizLayerEmissionV1 } => ({
-        type: "viz.layer.dump.v1",
-        layer: {
-          kind: "segments",
-          layerKey,
-          dataTypeKey: layer.dataTypeKey,
-          variantKey: layer.variantKey,
-          stepId: trace.stepId,
-          phase: trace.phase,
-          spaceId: layer.spaceId,
-          bounds,
-          meta: layer.meta,
-          count: (layer.segments.length / 4) | 0,
-          segments: pathRef(segRel),
-          values:
-            layer.values && layer.valueFormat && valRel
-              ? scalarField({
-                  format: layer.valueFormat,
-                  values: layer.values,
-                  path: valRel,
-                  stats: layer.valueStats,
-                  valueSpec: layer.valueSpec,
-                })
-              : undefined,
-        },
-      }));
-    } catch {
-      // diagnostics must not break generation
-    }
+    emit(trace, () => ({
+      kind: "segments",
+      dataTypeKey: layer.dataTypeKey,
+      variantKey: layer.variantKey,
+      spaceId: layer.spaceId,
+      meta: layer.meta,
+      segments: layer.segments,
+      values: optionalScalarSource({
+        values: layer.values,
+        format: layer.valueFormat,
+        valueSpec: layer.valueSpec,
+      }),
+    }));
   };
 
   const dumpGridFields: VizDumper["dumpGridFields"] = (trace, layer) => {
-    if (!trace.isVerbose) return;
-    if (!trace.runId) return;
-
-    try {
-      const runDir = resolveRunDir(outputRoot, trace.runId);
-      const dataDir = resolveDataDir(outputRoot, trace.runId);
-      ensureDir(dataDir);
-
-      const layerKey = createVizLayerKey({
-        stepId: trace.stepId,
-        dataTypeKey: layer.dataTypeKey,
-        spaceId: layer.spaceId,
-        kind: "gridFields",
-        role: layer.meta?.role,
-        variantKey: layer.variantKey,
-      });
-
-      const fileBase = slugify(layerKey);
-
-      const fields: Record<string, VizScalarField> = {};
+    emit(trace, () => {
+      const fields: Record<string, VizScalarSource> = {};
       for (const [fieldKey, field] of Object.entries(layer.fields)) {
-        const relPath = `data/${fileBase}__${slugify(fieldKey)}.bin`;
-        writeBinary(join(runDir, relPath), field.values);
-        fields[fieldKey] = scalarField({
+        fields[fieldKey] = admitVizScalarSource({
           format: field.format,
           values: field.values,
-          path: relPath,
-          stats: field.stats,
           valueSpec: field.valueSpec,
         });
       }
-
-      const emitted: VizGridFieldsLayerEmissionV1 = {
+      return {
         kind: "gridFields",
-        layerKey,
         dataTypeKey: layer.dataTypeKey,
         variantKey: layer.variantKey,
-        stepId: trace.stepId,
-        phase: trace.phase,
         spaceId: layer.spaceId,
-        bounds: [0, 0, layer.dims.width, layer.dims.height],
         meta: layer.meta,
         dims: layer.dims,
         fields,
         vector: layer.vector,
       };
-
-      trace.event((): { type: "viz.layer.dump.v1"; layer: VizLayerEmissionV1 } => ({
-        type: "viz.layer.dump.v1",
-        layer: emitted,
-      }));
-    } catch {
-      // diagnostics must not break generation
-    }
+    });
   };
 
   return { outputRoot, dumpGrid, dumpPoints, dumpSegments, dumpGridFields };

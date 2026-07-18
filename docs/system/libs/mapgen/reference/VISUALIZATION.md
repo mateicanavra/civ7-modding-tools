@@ -1,6 +1,7 @@
 <toc>
   <item id="purpose" title="Purpose"/>
   <item id="contract" title="Contract (what must stay stable)"/>
+  <item id="kernel" title="Projection and materialization kernel"/>
   <item id="ownership" title="Stage and step ownership"/>
   <item id="canon" title="Canonical implementation doc"/>
   <item id="anchors" title="Ground truth anchors"/>
@@ -28,6 +29,28 @@ Define the canonical visualization contract and route readers to the single cano
 
 Hard rule:
 - There must be **exactly one** canonical deck.gl visualization doc. Do not fork competing viz architecture pages.
+
+## Projection and materialization kernel
+
+`@swooper/mapgen-viz` owns the environment-neutral path from spatial evidence to a v1 layer:
+
+```text
+typed VizProjection
+  -> materializeVizProjection(projection, execution identity, binary materializer)
+  -> VizLayerEmissionV1<inline ref | path ref>
+```
+
+- A projection carries semantic data identity, coordinate space, metadata, and typed array sources.
+  It does not carry run/trace identity, output paths, browser state, Node state, recipes, or domain
+  policy.
+- Scalar format and typed-array representation are one closed union. Dimensions, cardinality,
+  geometry, vector references, bounds, counts, and scalar statistics are validated centrally.
+- Binary materialization is the only environment boundary. The Studio worker copies each exact
+  typed-array view into an inline transferable buffer; Swooper diagnostic tooling persists that
+  view and returns a relative path.
+- The kernel does not render, persist, emit trace events, or synthesize vector magnitude. Current
+  `VizDumper` implementations remain compatibility adapters around this kernel until step-authored
+  projections replace direct runtime emission.
 
 ## Stage and step ownership
 
