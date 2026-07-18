@@ -13,7 +13,6 @@ import {
   ctxRandomLabel,
   defineVizMeta,
   dumpScalarFieldVariants,
-  writeClimateField,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import ClimateRefineStepContract from "./climateRefine.contract.js";
@@ -130,10 +129,7 @@ export default createStep(ClimateRefineStepContract, {
       landMask: Uint8Array;
     };
 
-    const climateField = deps.artifacts.climateField.read(context) as {
-      rainfall: Uint8Array;
-      humidity: Uint8Array;
-    };
+    const baselineClimateField = deps.artifacts.baselineClimateField.read(context);
 
     const { topLatitude, bottomLatitude } = context.env.latitudeBounds;
     const latitudeByRow = new Float32Array(height);
@@ -149,7 +145,13 @@ export default createStep(ClimateRefineStepContract, {
 
     const size = width * height;
     const humidityF32 = new Float32Array(size);
-    for (let i = 0; i < size; i++) humidityF32[i] = (climateField.humidity[i] ?? 0) / 255;
+    for (let i = 0; i < size; i++) {
+      const humidity = baselineClimateField.humidity[i];
+      if (humidity === undefined) {
+        throw new Error(`Baseline climate humidity is missing tile index ${i}.`);
+      }
+      humidityF32[i] = humidity / 255;
+    }
 
     const stepId = `${ClimateRefineStepContract.phase}/${ClimateRefineStepContract.id}`;
     const perlinSeed = ctxRandom(
@@ -175,8 +177,8 @@ export default createStep(ClimateRefineStepContract, {
         windU: windField.windU,
         windV: windField.windV,
         humidityF32,
-        rainfallIn: climateField.rainfall,
-        humidityIn: climateField.humidity,
+        rainfallIn: baselineClimateField.rainfall,
+        humidityIn: baselineClimateField.humidity,
         riverAdjacency,
         perlinSeed,
       },
@@ -476,17 +478,10 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
 
-    for (let y = 0; y < height; y++) {
-      const rowOffset = y * width;
-      for (let x = 0; x < width; x++) {
-        const i = rowOffset + x;
-        writeClimateField(context, x, y, {
-          rainfall: refined.rainfall[i],
-          humidity: refined.humidity[i],
-        });
-      }
-    }
-
+    deps.artifacts.climateField.publish(context, {
+      rainfall: new Uint8Array(refined.rainfall),
+      humidity: new Uint8Array(refined.humidity),
+    });
     deps.artifacts.climateIndices.publish(context, {
       surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
       effectiveMoisture,

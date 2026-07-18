@@ -15,23 +15,23 @@
 
 ## Purpose
 
-Hydrology produces climate + water-cycle truth products for downstream consumption:
+Hydrology produces climate and water-cycle products for downstream consumption:
 
-- baseline climate field (rainfall/humidity),
+- baseline and final-refined climate fields (rainfall/humidity),
 - winds + moisture transport state,
 - depression-conditioned drainage routing over Morphology topography,
-- discharge/hydrography truth snapshots,
+- discharge and hydrography evidence,
 - refined indices (aridity/freeze/etc) and optional cryosphere products,
   and related diagnostics.
 
 Hydrology also feeds engine-facing projection steps, which are explicitly
-**projection-only**: `map-hydrology` stamps accepted lake water before engine
-elevation, and `map-rivers` materializes selected navigable river terrain after
-elevation.
+**projection-only**: `map-hydrology` materializes final-refined rainfall and
+accepted lake water before engine elevation, and `map-rivers` materializes
+selected navigable river terrain after elevation.
 
 ## Stages (standard recipe)
 
-Truth stages:
+Physics stages:
 
 - `hydrology-climate-baseline`
 - `hydrology-hydrography`
@@ -48,26 +48,27 @@ See: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapge
 
 Hydrology requires:
 
-- Morphology topography truth.
+- Morphology topography evidence.
 
-Hydrology provides (truth artifacts):
+Hydrology provides:
 
-- `artifact:climateField` (baseline rainfall/humidity)
+- `artifact:hydrology.baselineClimateField` (annual-mean rainfall/humidity used by routing and refinement)
+- `artifact:climateField` (final-refined rainfall/humidity used by Ecology and engine projection)
 - `artifact:hydrology.climateSeasonality` (amplitude surface)
 - `artifact:hydrology.hydrography` (canonical drainage routing + discharge + river class snapshot)
 - `artifact:hydrology.riverNetworkMetrics` (upstream area, hierarchy, mouth,
-  slope, and permanence diagnostics derived from Hydrology truth)
+  slope, and permanence diagnostics derived from Hydrology evidence)
 - `artifact:hydrology.climateIndices` (advisory indices for downstream consumption)
 - `artifact:hydrology.cryosphere` (cryosphere products; neutralized when knob disables it)
-- `artifact:hydrology.climateDiagnostics` (diagnostic projections; not internal truth)
+- `artifact:hydrology.climateDiagnostics` (diagnostic projections; not a source artifact)
 
 ## Key artifacts
 
 Hydrology artifacts are authored by the standard recipe (content-owned):
 
-- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/artifacts.ts`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/artifacts.ts`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/artifacts.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/artifacts/`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/artifacts/`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/artifacts/`
 
 ## Ops surface
 
@@ -115,9 +116,10 @@ not duplicate recipe benchmark policy.
 
 The `map-hydrology` stage:
 
-- is `phase: "gameplay"` (projection-only),
-- consumes Hydrology lake truth and projects static lake water before engine elevation,
-- and must not be treated as Hydrology truth.
+- is projection-only,
+- writes every sample from final `artifact:climateField` to the adapter exactly once,
+- then projects static lake intent before engine elevation,
+- and does not compute a second rainfall or lake model.
 
 The `map-rivers` stage consumes Hydrology hydrography after `map-elevation` has
 built engine elevation, then publishes projected navigable river terrain and

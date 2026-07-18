@@ -9,9 +9,7 @@
  * Invariants:
  * - Passes should ONLY access engine APIs via the adapter
  * - RNG calls should go through ctxRandom/ctxStepSeed for deterministic replay
- * - Context is a stable reference (but buffers are mutable for performance)
- * - Buffers are currently treated as artifacts for pipeline gating and DX
- *   (see ArtifactStore + MapBuffers notes for the temporary exception).
+ * - Context is a stable reference (but the remaining morphology buffer is mutable for performance)
  */
 
 import type { EngineAdapter, MapDimensions } from "@civ7/adapter";
@@ -66,33 +64,21 @@ export interface HeightfieldBuffer {
 }
 
 /**
- * Staged climate buffer for rainfall and humidity fields.
- */
-export interface ClimateFieldBuffer {
-  rainfall: Uint8Array;
-  humidity: Uint8Array;
-}
-
-/**
- * Collection of reusable buffers shared across generation stages.
+ * Mutable morphology staging memory retained until topography moves to explicit artifact vintages.
  *
  * NOTE:
- * - Buffers are mutable and are updated in-place across steps.
- * - Some buffers are also published as artifacts for gating/typing.
- * - Buffer artifacts are mutable after a single publish; do not republish them.
- * TODO(architecture): redesign buffers as a distinct dependency kind (not artifacts).
+ * - The heightfield is mutable and updated in-place across Morphology steps.
+ * - Climate no longer uses this surface; Hydrology communicates through write-once artifacts.
  */
 export interface MapBuffers {
   heightfield: HeightfieldBuffer;
-  climate: ClimateFieldBuffer;
 }
 
 /**
  * Store of published artifacts keyed by dependency tag id.
  *
- * Buffer artifacts are a temporary exception: they are published once and then
- * mutated in-place via ctx.buffers for performance. Do not republish buffers.
- * TODO(architecture): split buffers into their own dependency type (not artifacts).
+ * Morphology's remaining heightfield buffer is not a dependency identity; steps
+ * publish their durable outputs as admitted artifacts.
  */
 export class ArtifactStore extends Map<string, unknown> {}
 
@@ -200,15 +186,12 @@ export interface ExtendedMapContext {
   viz?: VizDumper;
   adapter: EngineAdapter;
   /**
-   * Published data products keyed by dependency tag (e.g. "artifact:climateField").
+   * Published data products keyed by dependency tag.
    * Used by PipelineExecutor for runtime requires/provides gating.
    */
   artifacts: ArtifactStore;
   /**
-   * Mutable generation buffers for heightfield and climate staging.
-   *
-   * Some buffers are currently mirrored as artifacts for gating, but they remain
-   * mutable after the initial publish. Do not republish buffer artifacts.
+   * Mutable generation buffer retained only for Morphology heightfield staging.
    */
   buffers: MapBuffers;
 }
@@ -220,7 +203,7 @@ export interface ExtendedMapContext {
 const EMPTY_FROZEN_OBJECT = Object.freeze({});
 
 /**
- * Create a new ExtendedMapContext with its mutable working buffers and empty artifact store.
+ * Create a new ExtendedMapContext with its remaining morphology buffer and empty artifact store.
  */
 export function createExtendedMapContext(
   dimensions: MapDimensions,
@@ -237,11 +220,6 @@ export function createExtendedMapContext(
     landMask: new Uint8Array(size),
   };
 
-  const climate: ClimateFieldBuffer = {
-    rainfall: new Uint8Array(size),
-    humidity: new Uint8Array(size),
-  };
-
   return {
     dimensions,
     rng: {
@@ -253,10 +231,7 @@ export function createExtendedMapContext(
     trace: createNoopTraceScope(),
     adapter,
     artifacts: new ArtifactStore(),
-    buffers: {
-      heightfield,
-      climate,
-    },
+    buffers: { heightfield },
   };
 }
 
@@ -295,43 +270,4 @@ export function ctxStepSeed(
   suffix = "rngSeed"
 ): number {
   return ctxRandom(ctx, ctxRandomLabel(stepId, opName, suffix), 2_147_483_647);
-}
-
-// ============================================================================
-// Climate Writer
-// ============================================================================
-
-export interface ClimateWriteOptions {
-  rainfall?: number;
-  humidity?: number;
-}
-
-/**
- * Write staged climate values and mirror to engine adapter.
- */
-export function writeClimateField(
-  ctx: ExtendedMapContext,
-  x: number,
-  y: number,
-  options: ClimateWriteOptions
-): void {
-  if (!ctx || !options) return;
-  const { width } = ctx.dimensions;
-  const idxValue = y * width + x;
-  const climate = ctx.buffers?.climate;
-
-  if (climate) {
-    if (typeof options.rainfall === "number") {
-      const rf = Math.max(0, Math.min(200, options.rainfall)) | 0;
-      climate.rainfall[idxValue] = rf & 0xff;
-    }
-    if (typeof options.humidity === "number") {
-      const hum = Math.max(0, Math.min(255, options.humidity)) | 0;
-      climate.humidity[idxValue] = hum & 0xff;
-    }
-  }
-
-  if (typeof options.rainfall === "number") {
-    ctx.adapter.setRainfall(x, y, Math.max(0, Math.min(200, options.rainfall)) | 0);
-  }
 }

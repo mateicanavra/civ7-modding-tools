@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { createMockAdapter } from "@civ7/adapter";
+import { createMockAdapter, MockAdapter } from "@civ7/adapter";
 import { requireResourceRuntimeId } from "@civ7/map-policy";
 import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { computeRiverAdjacencyMaskFromRiverClass } from "@mapgen/domain/hydrology/model/policy/river-adjacency.js";
@@ -23,6 +23,15 @@ import { artifacts as hydrologyClimateRefineArtifacts } from "../../../../src/re
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 import { artifacts as placementArtifacts } from "../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { standardConfig } from "../../../support/standard-config.js";
+
+class RainfallCountingAdapter extends MockAdapter {
+  rainfallWrites = 0;
+
+  override setRainfall(x: number, y: number, rainfall: number): void {
+    this.rainfallWrites++;
+    super.setRainfall(x, y, rainfall);
+  }
+}
 
 describe("standard recipe execution", () => {
   function runAndGetClimateSignature(options: {
@@ -86,13 +95,13 @@ describe("standard recipe execution", () => {
       radius: 1,
     });
 
-    const climateField = context.artifacts.get(hydrologyClimateBaselineArtifacts.climateField.id) as
+    const climateField = context.artifacts.get(hydrologyClimateRefineArtifacts.climateField.id) as
       | { rainfall?: Uint8Array; humidity?: Uint8Array }
       | undefined;
     const rainfall = climateField?.rainfall;
     const humidity = climateField?.humidity;
     if (!(rainfall instanceof Uint8Array) || !(humidity instanceof Uint8Array)) {
-      throw new Error("Missing artifact:climateField rainfall/humidity buffers.");
+      throw new Error("Missing final artifact:climateField rainfall/humidity surfaces.");
     }
 
     const climateIndices = context.artifacts.get(
@@ -241,7 +250,7 @@ describe("standard recipe execution", () => {
       },
     };
 
-    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1 });
+    const adapter = new RainfallCountingAdapter({ width, height, mapInfo, mapSizeId: 1 });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
@@ -252,13 +261,38 @@ describe("standard recipe execution", () => {
 
     expect(() => standardRecipe.run(context, env, config, { log: () => {} })).not.toThrow();
 
-    const climateField = context.artifacts.get(hydrologyClimateBaselineArtifacts.climateField.id) as
-      | { humidity?: Uint8Array }
+    const baselineClimateField = context.artifacts.get(
+      hydrologyClimateBaselineArtifacts.baselineClimateField.id
+    ) as { rainfall?: Uint8Array; humidity?: Uint8Array } | undefined;
+    const climateField = context.artifacts.get(hydrologyClimateRefineArtifacts.climateField.id) as
+      | { rainfall?: Uint8Array; humidity?: Uint8Array }
       | undefined;
+    expect(baselineClimateField?.rainfall instanceof Uint8Array).toBe(true);
+    expect(baselineClimateField?.humidity instanceof Uint8Array).toBe(true);
     const humidity = climateField?.humidity;
     expect(humidity instanceof Uint8Array).toBe(true);
     expect(humidity?.length).toBe(width * height);
     expect(humidity?.some((value) => value > 0)).toBe(true);
+    expect(climateField).not.toBe(baselineClimateField);
+    expect(climateField?.rainfall).not.toBe(baselineClimateField?.rainfall);
+    expect(climateField?.humidity).not.toBe(baselineClimateField?.humidity);
+
+    const finalRainfall = climateField?.rainfall;
+    expect(finalRainfall instanceof Uint8Array).toBe(true);
+    if (!(finalRainfall instanceof Uint8Array)) {
+      throw new Error("Missing final climate rainfall after Standard recipe execution.");
+    }
+    expect(finalRainfall).toHaveLength(width * height);
+    expect(adapter.rainfallWrites).toBe(width * height);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const expectedRainfall = finalRainfall[y * width + x];
+        if (expectedRainfall === undefined) {
+          throw new Error(`Missing final climate rainfall at (${x}, ${y}).`);
+        }
+        expect(adapter.getRainfall(x, y)).toBe(expectedRainfall);
+      }
+    }
 
     const indices = context.artifacts.get(hydrologyClimateRefineArtifacts.climateIndices.id) as
       | {

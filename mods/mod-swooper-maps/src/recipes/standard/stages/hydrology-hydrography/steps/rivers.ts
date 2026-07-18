@@ -13,7 +13,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
  * Computes drainage, discharge, and river classes from climate and topography,
- * establishing hydrography truth before any engine river projection.
+ * establishing hydrography evidence before any engine river projection.
  */
 export default createStep(RiversStepContract, {
   normalize: (config, ctx) => {
@@ -50,10 +50,7 @@ export default createStep(RiversStepContract, {
       elevation: Int16Array;
       landMask: Uint8Array;
     };
-    const climateField = deps.artifacts.climateField.read(context) as {
-      rainfall: Uint8Array;
-      humidity: Uint8Array;
-    };
+    const baselineClimateField = deps.artifacts.baselineClimateField.read(context);
     const routing = ops.drainageRouting(
       {
         width,
@@ -70,8 +67,8 @@ export default createStep(RiversStepContract, {
         height,
         landMask: topography.landMask,
         flowDir: routing.flowDir,
-        rainfall: climateField.rainfall,
-        humidity: climateField.humidity,
+        rainfall: baselineClimateField.rainfall,
+        humidity: baselineClimateField.humidity,
       },
       config.accumulateDischarge
     );

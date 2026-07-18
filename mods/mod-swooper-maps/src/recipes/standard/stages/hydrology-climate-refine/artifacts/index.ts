@@ -1,10 +1,12 @@
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
 import * as climateDiagnostics from "./climate-diagnostics.artifact.js";
+import * as climateField from "./climate-field.artifact.js";
 import * as climateIndices from "./climate-indices.artifact.js";
 import * as cryosphere from "./cryosphere.artifact.js";
 
 const catalog = defineArtifactCatalog({
   climateDiagnostics,
+  climateField,
   climateIndices,
   cryosphere,
 });

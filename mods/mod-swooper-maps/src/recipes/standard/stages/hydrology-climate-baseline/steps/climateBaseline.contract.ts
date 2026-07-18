@@ -52,8 +52,8 @@ const ClimateBaselineStepConfigSchema = Type.Object(
 
 /**
  * Defines baseline circulation and moisture transport over final Morphology topography and
- * shelf truth. It publishes wind, climate, and seasonality together so refinement starts from
- * one deterministic climate vintage.
+ * shelf evidence. It publishes wind, climate, and seasonality together so river routing and
+ * refinement start from one deterministic climate vintage.
  */
 const ClimateBaselineStepContract = defineStep({
   id: "climate-baseline",
@@ -63,7 +63,7 @@ const ClimateBaselineStepContract = defineStep({
   artifacts: {
     requires: [morphologyArtifacts.topography, morphologyArtifacts.shelf],
     provides: [
-      hydrologyClimateBaselineArtifactModules.climateField,
+      hydrologyClimateBaselineArtifactModules.baselineClimateField,
       hydrologyClimateBaselineArtifactModules.climateSeasonality,
       hydrologyClimateBaselineArtifactModules.windField,
     ],

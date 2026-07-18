@@ -5,7 +5,6 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { buildStandardRecipeDefaultConfig } from "../../../../src/recipes/standard/artifacts.js";
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
-import { artifacts as hydrologyClimateBaselineArtifacts } from "../../../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
 import { artifacts as hydrologyClimateRefineArtifacts } from "../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
 
 describe("hydrology dryness knob effects (integration)", () => {
@@ -49,9 +48,9 @@ describe("hydrology dryness knob effects (integration)", () => {
 
       standardRecipe.run(context, env, config, { log: () => {} });
 
-      const climateField = context.artifacts.get(
-        hydrologyClimateBaselineArtifacts.climateField.id
-      ) as { rainfall?: Uint8Array; humidity?: Uint8Array } | undefined;
+      const climateField = context.artifacts.get(hydrologyClimateRefineArtifacts.climateField.id) as
+        | { rainfall?: Uint8Array; humidity?: Uint8Array }
+        | undefined;
       const rainfall = climateField?.rainfall;
       const humidity = climateField?.humidity;
       if (!(rainfall instanceof Uint8Array) || !(humidity instanceof Uint8Array)) {

@@ -41,7 +41,7 @@ function computeLocalReliefProxy(args: {
 
 /**
  * Derives canonical soil type and fertility from substrate, topography, and
- * baseline climate so biome and resource-basin consumers share one soil vintage.
+ * final-refined climate so biome and resource-basin consumers share one soil vintage.
  */
 export default createStep(PedologyStepContract, {
   run: (context, config, ops, deps) => {

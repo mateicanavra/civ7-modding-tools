@@ -61,6 +61,11 @@ const EFFECT_OWNERS: Partial<Record<string, TagOwner>> = {
     phase: "placement",
     stepId: "plot-landmass-regions",
   },
+  [MAP_PROJECTION_EFFECT_TAGS.map.rainfallProjected]: {
+    pkg: "mod-swooper-maps",
+    phase: "hydrology",
+    stepId: "project-rainfall",
+  },
   [MAP_PROJECTION_EFFECT_TAGS.map.lakesPlotted]: {
     pkg: "mod-swooper-maps",
     phase: "hydrology",

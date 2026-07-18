@@ -24,8 +24,8 @@ const ClimateRefineStepConfigSchema = Type.Object(
 
 /**
  * Defines cryosphere/albedo refinement and derived climate indices over baseline climate and
- * topography. It publishes refined physical fields and diagnostics together before Ecology
- * consumes climate truth.
+ * topography. It publishes the final-refined climate surface, derived physical indices, and
+ * diagnostics together before Ecology and engine projection consume the result.
  */
 const ClimateRefineStepContract = defineStep({
   id: "climate-refine",
@@ -35,11 +35,12 @@ const ClimateRefineStepContract = defineStep({
   artifacts: {
     requires: [
       morphologyArtifacts.topography,
-      hydrologyClimateBaselineArtifacts.climateField,
+      hydrologyClimateBaselineArtifacts.baselineClimateField,
       hydrologyClimateBaselineArtifacts.windField,
       hydrologyHydrographyArtifacts.hydrography,
     ],
     provides: [
+      hydrologyClimateRefineArtifactModules.climateField,
       hydrologyClimateRefineArtifactModules.climateIndices,
       hydrologyClimateRefineArtifactModules.cryosphere,
       hydrologyClimateRefineArtifactModules.climateDiagnostics,

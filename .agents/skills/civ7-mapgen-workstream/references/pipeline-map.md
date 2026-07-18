@@ -54,7 +54,7 @@ TRUTH STAGES (compute + publish artifacts; MUST NOT touch the adapter)
 
 PROJECTION + PLANNER STAGES (consume truth, write engine terrain via adapter)
   11 map-morphology                plot coasts/continents/mountains/volcanoes
-  12 map-hydrology                 project lakes
+  12 map-hydrology                 project final rainfall, then lakes
   13 map-elevation                 build elevation
   14 map-rivers                    plot rivers (authored terrain materialization)
   15 ecology-features              score + plan floodplains/ice/reefs/wetlands/vegetation/plot-effects
@@ -166,7 +166,8 @@ morphology ──▶ artifact:morphology.topography   (elevation + seaLevel + la
                                     mountains, volcanoes, beltDrivers, landmasses}
    │
    ▼
-hydrology  ──▶ artifact:climateField
+hydrology  ──▶ artifact:hydrology.baselineClimateField  (routing + refinement vintage)
+               artifact:climateField                    (final-refined consumer vintage)
                artifact:hydrology.{climateSeasonality, climateIndices, cryosphere, hydrography,
                                    lakePlan, riverNetworkMetrics, climateDiagnostics}
    │

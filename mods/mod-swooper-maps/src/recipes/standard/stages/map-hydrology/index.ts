@@ -4,18 +4,22 @@ import {
   MapHydrologyKnobsSchema,
   MapHydrologyPublicSchema,
 } from "../map-projection-public-config.js";
-import { lakes } from "./steps/index.js";
+import { lakes, projectRainfall } from "./steps/index.js";
 
 /**
- * Owns lake projection and readback only, compiling upstream Hydrology intent
- * into the engine-facing step without introducing a second lake policy.
+ * Owns Hydrology-to-engine materialization: final rainfall first, then lake
+ * projection and readback, without introducing a second climate or lake policy.
  */
 export default createStage({
   id: "map-hydrology",
   knobsSchema: MapHydrologyKnobsSchema,
   public: MapHydrologyPublicSchema,
   compile: () => ({
+    "project-rainfall": {},
     lakes: { projectionReadback: true },
   }),
-  steps: orderStandardStageSteps("map-hydrology", { lakes }),
+  steps: orderStandardStageSteps("map-hydrology", {
+    "project-rainfall": projectRainfall,
+    lakes,
+  }),
 } as const);

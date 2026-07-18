@@ -32,6 +32,7 @@ import PlotEffectsStepContract from "./stages/map-ecology/steps/plot-effects/con
 import PlotBiomesStepContract from "./stages/map-ecology/steps/plotBiomes.contract.js";
 import BuildElevationStepContract from "./stages/map-elevation/steps/buildElevation.contract.js";
 import MapHydrologyLakesStepContract from "./stages/map-hydrology/steps/lakes.contract.js";
+import ProjectRainfallStepContract from "./stages/map-hydrology/steps/project-rainfall.contract.js";
 import PlotCoastsStepContract from "./stages/map-morphology/steps/plotCoasts.contract.js";
 import PlotContinentsStepContract from "./stages/map-morphology/steps/plotContinents.contract.js";
 import PlotMountainsStepContract from "./stages/map-morphology/steps/plotMountains.contract.js";
@@ -103,7 +104,7 @@ export const standardStageContractManifest = [
     PlotMountainsStepContract,
     PlotVolcanoesStepContract,
   ]),
-  stage("map-hydrology", [MapHydrologyLakesStepContract]),
+  stage("map-hydrology", [ProjectRainfallStepContract, MapHydrologyLakesStepContract]),
   stage("map-elevation", [BuildElevationStepContract]),
   stage("map-rivers", [PlotRiversStepContract]),
   stage("ecology-features", [

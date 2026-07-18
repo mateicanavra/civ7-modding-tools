@@ -4,12 +4,12 @@ import {
   artifactModules as ecologyArtifactModules,
   artifacts as ecologyArtifacts,
 } from "../../../ecology/artifacts/index.js";
-import { artifacts as hydrologyClimateBaselineArtifacts } from "../../../hydrology-climate-baseline/artifacts/index.js";
+import { artifacts as hydrologyClimateRefineArtifacts } from "../../../hydrology-climate-refine/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 
 /**
  * Defines Ecology's resource-basin scoring and planning boundary over pedology, climate, and
- * topography truth. It publishes basin evidence for placement without selecting or stamping
+ * topography evidence. It publishes basin evidence for placement without selecting or stamping
  * Civ7 resources.
  */
 const ResourceBasinsStepContract = defineStep({
@@ -21,7 +21,7 @@ const ResourceBasinsStepContract = defineStep({
     requires: [
       ecologyArtifacts.pedology,
       morphologyArtifacts.topography,
-      hydrologyClimateBaselineArtifacts.climateField,
+      hydrologyClimateRefineArtifacts.climateField,
     ],
     provides: [ecologyArtifactModules.resourceBasins],
   },

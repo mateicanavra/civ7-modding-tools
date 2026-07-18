@@ -8,7 +8,7 @@ import { artifactModules as hydrologyHydrographyArtifactModules } from "../artif
  * River projection + hydrography publication step.
  *
  * This step is where Hydrology’s discharge-derived hydrography becomes the canonical pipeline read-path.
- * Engine “modeled rivers” are projection-only and must not be treated as truth.
+ * Engine “modeled rivers” are projection-only and must not replace the authored source evidence.
  */
 const RiversStepConfigSchema = Type.Object(
   {},
@@ -21,7 +21,7 @@ const RiversStepConfigSchema = Type.Object(
 
 /**
  * Defines canonical drainage, discharge, and river classification from baseline climate and
- * final topography. It publishes Hydrology truth before map-rivers performs any engine
+ * final topography. It publishes Hydrology evidence before map-rivers performs any engine
  * projection.
  */
 const RiversStepContract = defineStep({
@@ -30,7 +30,10 @@ const RiversStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [hydrologyClimateBaselineArtifacts.climateField, morphologyArtifacts.topography],
+    requires: [
+      hydrologyClimateBaselineArtifacts.baselineClimateField,
+      morphologyArtifacts.topography,
+    ],
     provides: [hydrologyHydrographyArtifactModules.hydrography],
   },
   ops: {

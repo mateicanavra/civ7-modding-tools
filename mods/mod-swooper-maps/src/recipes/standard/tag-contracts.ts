@@ -18,6 +18,7 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
     mountainsPlotted: "effect:map.mountainsPlotted",
     volcanoesPlotted: "effect:map.volcanoesPlotted",
     landmassRegionsPlotted: "effect:map.landmassRegionsPlotted",
+    rainfallProjected: "effect:map.rainfallProjected",
     lakesPlotted: "effect:map.lakesPlotted",
     riversPlotted: "effect:map.riversPlotted",
     elevationParityCaptured: "effect:map.elevationParityCaptured",

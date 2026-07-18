@@ -6,11 +6,12 @@
 - Workspace leaf libraries no longer collide with the Foundation domain, and optional metrics/viz projections are sealed as `createStep` facets with execution-owned sinks.
 - Dead context state, fake dependency bags, and duplicate adapter/Foundation authorities are removed.
 - Mutable `field:*` dependency tags are retired; Ecology publishes its post-projection engine feature surface as validated artifact evidence for Placement.
+- The mutable climate buffer is retired: Hydrology now publishes immutable baseline and final climate artifacts, and `map-hydrology/project-rainfall` is the sole rainfall projection boundary.
 - These layers are foundations, not open refactor surfaces.
 
 ## Now
 
-- Replace the remaining shared climate and topography buffers with explicit artifact vintages.
+- Replace the remaining shared heightfield with explicit topography and substrate artifact vintages.
 
 ## Next
 

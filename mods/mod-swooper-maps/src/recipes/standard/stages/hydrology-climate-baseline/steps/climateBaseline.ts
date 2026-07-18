@@ -17,7 +17,6 @@ import {
   defineVizMeta,
   dumpScalarFieldVariants,
   dumpVectorFieldVariants,
-  writeClimateField,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
@@ -827,7 +826,7 @@ export default createStep(ClimateBaselineStepContract, {
         if (humid > humidMax) humidMax = humid;
       }
 
-      meanRainfall[i] = Math.max(0, Math.min(255, Math.round(rainSum / seasonCount)));
+      meanRainfall[i] = Math.max(0, Math.min(200, Math.round(rainSum / seasonCount)));
       meanHumidity[i] = Math.max(0, Math.min(255, Math.round(humidSum / seasonCount)));
       rainfallAmplitude[i] = Math.max(0, Math.min(255, Math.round((rainMax - rainMin) / 2)));
       humidityAmplitude[i] = Math.max(0, Math.min(255, Math.round((humidMax - humidMin) / 2)));
@@ -1016,18 +1015,10 @@ export default createStep(ClimateBaselineStepContract, {
       });
     }
 
-    for (let y = 0; y < height; y++) {
-      const rowOffset = y * width;
-      for (let x = 0; x < width; x++) {
-        const i = rowOffset + x;
-        writeClimateField(context, x, y, {
-          rainfall: meanRainfall[i],
-          humidity: meanHumidity[i],
-        });
-      }
-    }
-
-    deps.artifacts.climateField.publish(context, context.buffers.climate);
+    deps.artifacts.baselineClimateField.publish(context, {
+      rainfall: meanRainfall,
+      humidity: meanHumidity,
+    });
     deps.artifacts.climateSeasonality.publish(context, {
       modeCount,
       axialTiltDeg,

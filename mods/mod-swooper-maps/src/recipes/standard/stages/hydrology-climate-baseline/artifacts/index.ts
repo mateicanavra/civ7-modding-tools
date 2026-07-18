@@ -1,10 +1,10 @@
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
-import * as climateField from "./climate-field.artifact.js";
+import * as baselineClimateField from "./baseline-climate-field.artifact.js";
 import * as climateSeasonality from "./climate-seasonality.artifact.js";
 import * as windField from "./wind-field.artifact.js";
 
 const catalog = defineArtifactCatalog({
-  climateField,
+  baselineClimateField,
   climateSeasonality,
   windField,
 });

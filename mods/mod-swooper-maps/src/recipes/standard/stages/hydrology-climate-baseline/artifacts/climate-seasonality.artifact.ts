@@ -10,7 +10,7 @@ import {
  * Seasonal amplitude for Hydrology’s climate field outputs.
  *
  * This is the *public* seasonality output surface: Hydrology may internally simulate 2–4 seasonal modes, but it only
- * publishes the annual mean (via `artifact:climateField`) and the corresponding amplitude fields here.
+ * publishes the annual mean (via `artifact:hydrology.baselineClimateField`) and the corresponding amplitude fields here.
  */
 export const ClimateSeasonalityArtifactSchema = Type.Object(
   {
@@ -37,7 +37,7 @@ export const ClimateSeasonalityArtifactSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Hydrology climate seasonality outputs: annual amplitude fields corresponding to `artifact:climateField` mean signals.",
+      "Hydrology climate seasonality outputs: annual amplitude fields corresponding to the baseline climate mean.",
   }
 );
 
