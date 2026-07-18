@@ -5,12 +5,12 @@ import { FEATURE_PLACEMENT_KEYS } from "@civ7/map-policy";
 import { admitStandardMapConfig } from "../../../../src/maps/configs/canonical.js";
 import swooperEarthlikeRaw from "../../../../src/maps/configs/swooper-earthlike.config.json";
 import { captureStandardMapScenario } from "../../../../src/recipes/standard/metrics/capture.js";
-import { STANDARD_INTEGRITY_TARGET } from "../../../../src/recipes/standard/metrics/targets/integrity.js";
+import { defineStandardMapMetricScenario } from "../../../../src/recipes/standard/metrics/scenario.js";
 import {
   evaluateStandardMetricStudies,
   standardProductMetricScenario,
 } from "../../../../src/recipes/standard/metrics/studies/index.js";
-import { defineStandardMapMetricScenario } from "../../../../src/recipes/standard/metrics/scenario.js";
+import { STANDARD_INTEGRITY_TARGET } from "../../../../src/recipes/standard/metrics/targets/integrity.js";
 
 const standardPreset = requireStandardPreset();
 const earthlikeConfig = admitStandardMapConfig(swooperEarthlikeRaw);

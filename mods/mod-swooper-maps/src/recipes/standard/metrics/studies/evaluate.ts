@@ -7,10 +7,7 @@ import type { NonEmptyTuple } from "type-fest";
 
 import { captureStandardMapScenario } from "../capture.js";
 import { measureStandardMapCapture, type StandardMapProductSample } from "../sample.js";
-import {
-  defineStandardMapMetricScenario,
-  type StandardPresetMetricScenario,
-} from "../scenario.js";
+import { defineStandardMapMetricScenario, type StandardPresetMetricScenario } from "../scenario.js";
 import type {
   StandardMetricCohortStudy,
   StandardMetricCohortStudyEvaluation,
@@ -69,10 +66,7 @@ function reconcileScenarios(
         );
       }
       if (!existing) {
-        byId.set(
-          admittedScenario.id,
-          Object.freeze({ signature, scenario: admittedScenario })
-        );
+        byId.set(admittedScenario.id, Object.freeze({ signature, scenario: admittedScenario }));
       }
     }
   }

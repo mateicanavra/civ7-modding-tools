@@ -19,10 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/recipes/*/metrics",
-        "mods/*/src/recipes/*/metrics/**"
-      ]
+      "patterns": ["mods/*/src/recipes/*/metrics", "mods/*/src/recipes/*/metrics/**"]
     }
   ],
   "supportFiles": {

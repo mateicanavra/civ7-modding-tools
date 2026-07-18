@@ -1,9 +1,6 @@
 import { SHIPPED_GEOGRAPHY_TARGET } from "../../targets/geography.js";
 import { STANDARD_INTEGRITY_TARGET } from "../../targets/integrity.js";
-import {
-  defineStandardMetricCohortStudy,
-  requireNonEmptyMetricStudyValues,
-} from "../define.js";
+import { defineStandardMetricCohortStudy, requireNonEmptyMetricStudyValues } from "../define.js";
 import {
   SHIPPED_STANDARD_CONFIGURATIONS,
   STANDARD_METRIC_PRESETS,

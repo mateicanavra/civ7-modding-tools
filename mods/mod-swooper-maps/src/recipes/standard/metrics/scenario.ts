@@ -67,10 +67,7 @@ export function defineStandardMapMetricScenario(
     });
   }
   const canonicalPreset = getCiv7StandardMapSizePreset(scenario.preset.id);
-  if (
-    !canonicalPreset ||
-    stableStringify(canonicalPreset) !== stableStringify(scenario.preset)
-  ) {
+  if (!canonicalPreset || stableStringify(canonicalPreset) !== stableStringify(scenario.preset)) {
     throw new Error(
       `Standard metric scenario ${scenario.id} requires the canonical Civ7 preset for ${scenario.preset.id}.`
     );

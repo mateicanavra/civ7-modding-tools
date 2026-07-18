@@ -1,9 +1,6 @@
 import { SHIPPED_IDENTITY_TARGETS } from "../../targets/identities.js";
 import { STANDARD_INTEGRITY_TARGET } from "../../targets/integrity.js";
-import {
-  defineStandardMetricSampleStudy,
-  requireNonEmptyMetricStudyValues,
-} from "../define.js";
+import { defineStandardMetricSampleStudy, requireNonEmptyMetricStudyValues } from "../define.js";
 import {
   SHIPPED_STANDARD_CONFIGURATIONS,
   STANDARD_METRIC_PRESETS,
