@@ -13,9 +13,9 @@
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "shared steps/viz.ts hubs",
-  "why": "Stable visualization contracts belong to stage surfaces rather than an ambiguous collection-wide steps hub.",
+  "why": "Domain identities and projection helpers belong to stage surfaces rather than an ambiguous collection-wide steps hub. Recipe-wide semantic style and palette vocabulary may live at the recipe root.",
   "remediate": null,
-  "message": "Use stages/<stage>/viz.ts for shared visualization contracts.",
+  "message": "Use stages/<stage>/viz.ts for shared domain identities and projection helpers; reserve recipe-root viz.ts for recipe-wide semantic styles and palettes.",
   "pathCoverage": [
     {
       "kind": "exact-path",

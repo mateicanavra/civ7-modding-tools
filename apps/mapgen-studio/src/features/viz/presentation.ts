@@ -4,7 +4,9 @@ import type {
   VizLayerMeta,
   VizLayerVisibility,
   VizNoDataSpec,
+  VizResolvedCategoricalPalette,
   VizScalarField,
+  VizScalarSource,
   VizScalarStats,
   VizScaleType,
   VizValueDomain,
@@ -12,10 +14,34 @@ import type {
   VizValueTransform,
 } from "@swooper/mapgen-viz";
 
+/** Mutable renderer color tuple with byte-valued red, green, blue, and alpha channels. */
 export type RgbaColor = [number, number, number, number];
 
+/** Renderer-ready palette authority resolved from portable layer metadata and observed values. */
+export type VizPalettePresentation =
+  | Readonly<{
+      kind: "continuous";
+      colors: readonly RgbaColor[];
+      exactColorsByValue?: ReadonlyMap<number, RgbaColor>;
+    }>
+  | Readonly<{
+      kind: "categorical";
+      valueIdentity: "exact" | "legacy-int32";
+      colorsByValue: ReadonlyMap<number, RgbaColor>;
+      exactColorsByValue?: ReadonlyMap<number, RgbaColor>;
+      hasUnmappedValues: boolean;
+    }>;
+
+/** Palette mapping and truthful bounds for the scalar field selected by the renderer. */
+export type VizRenderedScalarPresentation = Readonly<{
+  stats: VizScalarStats | null;
+  palette: VizPalettePresentation;
+}>;
+
+/** One human-readable legend entry paired with the exact color used by the renderer. */
 export type VizLegendItem = { label: string; color: RgbaColor };
 
+/** Legend presentation for one selected layer and its optional pipeline address context. */
 export type VizLegendModel = {
   title: string;
   items: VizLegendItem[];
@@ -32,10 +58,12 @@ export type VizLegendModel = {
   };
 };
 
+/** Derives a compact display label from a stable dotted recipe step identity. */
 export function formatStepLabel(stepId: string): string {
   return stepId.split(".").slice(-1)[0] ?? stepId;
 }
 
+/** Normalizes omitted layer visibility to the default Studio presentation lane. */
 export function resolveLayerVisibility(layer: VizLayerEntryV1): VizLayerVisibility {
   const visibility = layer.meta?.visibility;
   if (visibility === "debug") return "debug";
@@ -290,14 +318,25 @@ const TAILWIND_COLOR_POOL: RgbaColor[] = [
   "#be123c",
 ].map((hex) => hexToRgba(hex));
 
-function collectCategoryIds(values: ArrayBufferView): number[] {
-  const view = values as unknown as ArrayLike<number>;
+function collectLegacyCategoryIds(values: VizScalarSource["values"]): number[] {
   const ids = new Set<number>();
-  for (let i = 0; i < view.length; i++) {
-    const v = view[i] ?? 0;
-    ids.add((v as number) | 0);
+  for (let i = 0; i < values.length; i++) {
+    ids.add(Number(values[i] ?? 0) | 0);
   }
   return [...ids].filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
+}
+
+function collectResolvedCategoryIds(
+  values: VizScalarSource["values"],
+  noData: VizNoDataSpec | undefined
+): number[] {
+  const ids = new Set<number>();
+  for (let index = 0; index < values.length; index++) {
+    const value = Number(values[index]);
+    if (!Number.isFinite(value) || isNoData(value, noData)) continue;
+    ids.add(value);
+  }
+  return [...ids].sort((a, b) => a - b);
 }
 
 function generateOpposedPalette(count: number, seedKey: string): RgbaColor[] {
@@ -346,29 +385,18 @@ function generateOpposedPalette(count: number, seedKey: string): RgbaColor[] {
   return selected;
 }
 
+/** Preserves the seeded legacy categorical palette used by v1 string-palette manifests. */
 export function buildCategoricalColorMap(options: {
-  values: ArrayBufferView;
+  values: VizScalarSource["values"];
   seedKey: string;
 }): Map<number, RgbaColor> {
-  const ids = collectCategoryIds(options.values);
+  const ids = collectLegacyCategoryIds(options.values);
   const palette = generateOpposedPalette(ids.length, options.seedKey);
   const colorById = new Map<number, RgbaColor>();
   for (let i = 0; i < ids.length; i++) {
     colorById.set(ids[i]!, palette[i] ?? [148, 163, 184, 220]);
   }
   return colorById;
-}
-
-function resolveCategoryColor(meta: VizLayerMeta | undefined, value: number): RgbaColor | null {
-  if (!meta?.categories?.length) return null;
-  for (const entry of meta.categories) {
-    if (typeof entry.value === "number") {
-      if (Number(entry.value) === value) return entry.color;
-      continue;
-    }
-    if (String(entry.value) === String(value)) return entry.color;
-  }
-  return null;
 }
 
 const VALUE_RAMP: ReadonlyArray<RgbaColor> = [
@@ -379,11 +407,87 @@ const VALUE_RAMP: ReadonlyArray<RgbaColor> = [
   [253, 231, 37, 230],
 ];
 
-// Tile-mesh contract (Pass-5 tile-orientation spec): tiles "not filled by
-// anything" — noData sentinels and non-finite values — render NOTHING, so no
-// phantom mesh floats over the canvas background. Renderers key per-tile
-// stroke alpha off the fill alpha, so transparent fills drop their borders.
-const UNKNOWN_COLOR: RgbaColor = [0, 0, 0, 0];
+// Nonfinite/no-data evidence remains transparent under the existing tile contract. A finite
+// categorical value without an authored/resolved color is different: it stays visibly unknown.
+const ABSENT_COLOR: RgbaColor = [0, 0, 0, 0];
+const UNKNOWN_COLOR: RgbaColor = [107, 114, 128, 230];
+
+function copyColor(color: readonly [number, number, number, number]): RgbaColor {
+  return [color[0], color[1], color[2], color[3]];
+}
+
+function hasResolvedCategoryColors(palette: object): palette is VizResolvedCategoricalPalette {
+  return "colors" in palette && Array.isArray(palette.colors);
+}
+
+/**
+ * Normalizes legacy and resolved palette metadata through one renderer-facing path.
+ * Resolved category pools bind to sorted observed ids without run-specific randomness, while
+ * legacy categorical strings retain their seeded color selection exactly.
+ */
+export function resolveVizPalettePresentation(
+  options: Readonly<{
+    meta?: VizLayerMeta;
+    field?: VizScalarField | null;
+    values: VizScalarSource["values"];
+    seedKey: string;
+  }>
+): VizPalettePresentation {
+  const categories = options.meta?.categories;
+  const exactColorsByValue = new Map<number, RgbaColor>();
+  if (categories) {
+    for (const category of categories) {
+      const value = typeof category.value === "number" ? category.value : Number(category.value);
+      if (Number.isFinite(value)) exactColorsByValue.set(value, copyColor(category.color));
+    }
+  }
+
+  const palette = options.meta?.palette ?? "auto";
+  if (typeof palette === "object" && palette.kind === "categorical") {
+    if (!hasResolvedCategoryColors(palette)) {
+      const observedIds = collectResolvedCategoryIds(
+        options.values,
+        options.field?.valueSpec?.noData
+      );
+      return {
+        kind: "categorical",
+        valueIdentity: "exact",
+        colorsByValue: exactColorsByValue,
+        hasUnmappedValues: observedIds.some((value) => !exactColorsByValue.has(value)),
+      };
+    }
+    const ids = collectResolvedCategoryIds(options.values, options.field?.valueSpec?.noData);
+    const colors = palette.colors;
+    const colorsByValue = new Map<number, RgbaColor>();
+    for (let index = 0; index < ids.length; index++) {
+      const color = colors[index % colors.length];
+      if (color) colorsByValue.set(ids[index]!, copyColor(color));
+    }
+    return {
+      kind: "categorical",
+      valueIdentity: "exact",
+      colorsByValue,
+      hasUnmappedValues: false,
+    };
+  }
+  if (palette === "categorical") {
+    return {
+      kind: "categorical",
+      valueIdentity: "legacy-int32",
+      colorsByValue: buildCategoricalColorMap({ values: options.values, seedKey: options.seedKey }),
+      ...(exactColorsByValue.size > 0 ? { exactColorsByValue } : {}),
+      hasUnmappedValues: false,
+    };
+  }
+  if (typeof palette === "object") {
+    return { kind: "continuous", colors: palette.stops.map(copyColor) };
+  }
+  return {
+    kind: "continuous",
+    colors: VALUE_RAMP.map(copyColor),
+    ...(exactColorsByValue.size > 0 ? { exactColorsByValue } : {}),
+  };
+}
 
 /**
  * The one tile-border RULE (Pass-5 tile-orientation spec, retuned twice on
@@ -401,6 +505,7 @@ const UNKNOWN_COLOR: RgbaColor = [0, 0, 0, 0];
  */
 export const TILE_BORDER_FILL_RATIO = 0.55;
 
+/** Produces self-grout that remains legible against the tile's own fill color. */
 export function tileBorderColorForFill(r: number, g: number, b: number): RgbaColor {
   return [
     Math.round(r * TILE_BORDER_FILL_RATIO),
@@ -509,19 +614,13 @@ function mapToUnitWithScale(value: number, domain: Domain, scale: VizScaleType):
 
 function resolveUnitValue(args: {
   raw: number;
-  meta?: VizLayerMeta;
   field?: VizScalarField | null;
   stats?: VizScalarStats | null;
 }): number {
   const raw = args.raw;
   if (!Number.isFinite(raw)) return Number.NaN;
 
-  const meta = args.meta;
   const field = args.field ?? null;
-  const paletteMode = meta?.palette ?? "auto";
-  if (paletteMode === "categorical") return raw;
-  if (meta?.categories?.length) return raw;
-
   const valueSpec: VizValueSpec | undefined = field?.valueSpec;
   const stats = args.stats ?? field?.stats ?? null;
   const noData = valueSpec?.noData;
@@ -546,59 +645,52 @@ function resolveUnitValue(args: {
 }
 
 function resolveColorForValue(args: {
-  seedKey: string;
   rawValue: number;
-  categoricalColorMap: Map<number, RgbaColor> | undefined;
-  meta: VizLayerMeta | undefined;
+  palette: VizPalettePresentation;
   field: VizScalarField | null;
   stats: VizScalarStats | null;
   out: ColorOut;
   offset: number;
 }): void {
   const rawValue = args.rawValue;
-  const meta = args.meta;
 
   if (!Number.isFinite(rawValue)) {
-    writeRgba(args.out, args.offset, UNKNOWN_COLOR);
+    writeRgba(args.out, args.offset, ABSENT_COLOR);
     return;
   }
 
-  const categoryColor = resolveCategoryColor(meta, rawValue);
-  if (categoryColor) {
-    writeRgba(args.out, args.offset, categoryColor);
+  if (isNoData(rawValue, args.field?.valueSpec?.noData)) {
+    writeRgba(args.out, args.offset, ABSENT_COLOR);
     return;
   }
 
-  const paletteMode = meta?.palette ?? "auto";
-  if (args.categoricalColorMap) {
-    writeRgba(
-      args.out,
-      args.offset,
-      args.categoricalColorMap.get(rawValue | 0) ?? [148, 163, 184, 220]
-    );
+  const exactColor = args.palette.exactColorsByValue?.get(rawValue);
+  if (exactColor) {
+    writeRgba(args.out, args.offset, exactColor);
     return;
   }
 
-  if (paletteMode === "categorical") {
-    const localSeed = `${args.seedKey}:${rawValue}`;
-    const rng = createRng(hashStringToSeed(localSeed));
-    writeRgba(args.out, args.offset, randomColor(rng));
+  if (args.palette.kind === "categorical") {
+    const identity = args.palette.valueIdentity === "legacy-int32" ? rawValue | 0 : rawValue;
+    const color = args.palette.colorsByValue.get(identity) ?? UNKNOWN_COLOR;
+    writeRgba(args.out, args.offset, color);
     return;
   }
 
-  const unit = resolveUnitValue({ raw: rawValue, meta, field: args.field, stats: args.stats });
+  const unit = resolveUnitValue({ raw: rawValue, field: args.field, stats: args.stats });
   if (!Number.isFinite(unit)) {
-    writeRgba(args.out, args.offset, UNKNOWN_COLOR);
+    writeRgba(args.out, args.offset, ABSENT_COLOR);
     return;
   }
 
   const t = Math.max(0, Math.min(1, unit));
-  const idx = t * (VALUE_RAMP.length - 1);
-  const i0 = Math.max(0, Math.min(VALUE_RAMP.length - 1, Math.floor(idx)));
-  const i1 = Math.max(0, Math.min(VALUE_RAMP.length - 1, Math.ceil(idx)));
+  const colors = args.palette.colors;
+  const idx = t * (colors.length - 1);
+  const i0 = Math.max(0, Math.min(colors.length - 1, Math.floor(idx)));
+  const i1 = Math.max(0, Math.min(colors.length - 1, Math.ceil(idx)));
   const tt = idx - i0;
-  const a = VALUE_RAMP[i0] ?? UNKNOWN_COLOR;
-  const b = VALUE_RAMP[i1] ?? UNKNOWN_COLOR;
+  const a = colors[i0] ?? UNKNOWN_COLOR;
+  const b = colors[i1] ?? UNKNOWN_COLOR;
   const lerp = (x: number, y: number) => Math.round(x + (y - x) * tt);
   args.out[args.offset] = lerp(a[0], b[0]);
   args.out[args.offset + 1] = lerp(a[1], b[1]);
@@ -606,6 +698,7 @@ function resolveColorForValue(args: {
   args.out[args.offset + 3] = lerp(a[3], b[3]);
 }
 
+/** Formats one layer's semantic identity, variant, role, space, and visibility for inspection. */
 export function formatLayerLabel(layer: VizLayerEntryV1): string {
   const base = layer.meta?.label ?? layer.dataTypeKey;
   const visibility = layer.meta?.visibility === "debug" ? ", debug" : "";
@@ -614,23 +707,20 @@ export function formatLayerLabel(layer: VizLayerEntryV1): string {
   return `${base}${variant} (${layer.kind}${role}@${layer.spaceId}${visibility})`;
 }
 
+/** Writes one scalar color from the renderer-normalized palette without re-resolving recipe policy. */
 export function writeColorForScalarValue(
   out: Uint8ClampedArray,
   offset: number,
   args: {
-    seedKey: string;
     rawValue: number;
-    categoricalColorMap?: Map<number, RgbaColor>;
-    meta?: VizLayerMeta;
+    palette: VizPalettePresentation;
     field?: VizScalarField | null;
     stats?: VizScalarStats | null;
   }
 ): void {
   resolveColorForValue({
-    seedKey: args.seedKey,
     rawValue: args.rawValue,
-    categoricalColorMap: args.categoricalColorMap,
-    meta: args.meta,
+    palette: args.palette,
     field: args.field ?? null,
     stats: args.stats ?? null,
     out,
@@ -638,9 +728,18 @@ export function writeColorForScalarValue(
   });
 }
 
+/** Selects the scalar field rendered for a layer, including the canonical `gridFields` priority. */
+export function selectVizScalarField(layer: VizLayerEntryV1): VizScalarField | null {
+  if (layer.kind === "grid") return layer.field;
+  if (layer.kind === "points" || layer.kind === "segments") return layer.values ?? null;
+  const fieldKey = layer.vector?.magnitude ?? layer.vector?.u ?? Object.keys(layer.fields)[0];
+  return fieldKey === undefined ? null : (layer.fields[fieldKey] ?? null);
+}
+
+/** Builds the legend for the exact scalar field selected by the renderer. */
 export function legendForLayer(
   layer: VizLayerEntryV1 | null,
-  stats: VizScalarStats | null,
+  scalar: VizRenderedScalarPresentation | null,
   context?: VizLegendModel["context"]
 ): VizLegendModel | null {
   if (!layer) return null;
@@ -649,38 +748,79 @@ export function legendForLayer(
   const palette = layer.meta?.palette ?? "auto";
 
   if (layer.meta?.categories?.length) {
+    const items = layer.meta.categories.map((entry) => ({
+      label: entry.label,
+      color: copyColor(entry.color),
+    }));
+    if (scalar?.palette.kind === "categorical" && scalar.palette.hasUnmappedValues) {
+      items.push({ label: "Unknown / undeclared", color: copyColor(UNKNOWN_COLOR) });
+    }
     return {
       title,
-      items: layer.meta.categories.map((entry) => ({ label: entry.label, color: entry.color })),
+      items,
       context,
     };
   }
 
-  if (palette === "categorical") {
+  if (scalar?.palette.kind === "categorical" && scalar.palette.colorsByValue.size > 0) {
     return {
       title,
-      items: [{ label: "categorical palette (auto)", color: [148, 163, 184, 220] }],
+      items: [...scalar.palette.colorsByValue].map(([value, color]) => ({
+        label: String(value),
+        color: copyColor(color),
+      })),
       context,
     };
   }
 
-  if (stats && Number.isFinite(stats.min) && Number.isFinite(stats.max)) {
-    const min = stats.min ?? 0;
-    const max = stats.max ?? 1;
-    const unitSpec =
-      (layer.kind === "grid"
-        ? layer.field.valueSpec
-        : layer.kind === "gridFields"
-          ? null
-          : layer.values?.valueSpec) ?? undefined;
+  if (
+    palette === "categorical" ||
+    (typeof palette === "object" && palette.kind === "categorical")
+  ) {
+    const colors =
+      typeof palette === "object" && hasResolvedCategoryColors(palette)
+        ? palette.colors
+        : undefined;
+    return {
+      title,
+      items: colors?.length
+        ? colors.map((color, index) => ({
+            label: `category color ${index + 1}`,
+            color: copyColor(color),
+          }))
+        : [{ label: "categorical palette (auto)", color: [148, 163, 184, 220] }],
+      context,
+    };
+  }
+
+  const unitSpec = selectVizScalarField(layer)?.valueSpec;
+  const declaredDomain =
+    unitSpec?.domain.kind === "unit" || unitSpec?.domain.kind === "explicit"
+      ? unitSpec.domain
+      : undefined;
+  const min = declaredDomain?.min ?? scalar?.stats?.min;
+  const max = declaredDomain?.max ?? scalar?.stats?.max;
+
+  if (
+    typeof min === "number" &&
+    Number.isFinite(min) &&
+    typeof max === "number" &&
+    Number.isFinite(max)
+  ) {
     const units = unitSpec?.units ? ` ${unitSpec.units}` : "";
+    const ramp =
+      scalar?.palette.kind === "continuous"
+        ? scalar.palette.colors
+        : typeof palette === "object" && palette.kind === "continuous"
+          ? palette.stops.map(copyColor)
+          : VALUE_RAMP;
     return {
       title,
       items: [
-        { label: `min = ${min.toFixed(3)}${units}`, color: VALUE_RAMP[0] ?? UNKNOWN_COLOR },
+        { label: `min = ${min.toFixed(3)}${units}`, color: ramp[0] ?? UNKNOWN_COLOR },
         {
           label: `max = ${max.toFixed(3)}${units}`,
-          color: VALUE_RAMP[VALUE_RAMP.length - 1] ?? UNKNOWN_COLOR,
+          color: ramp[ramp.length - 1] ?? UNKNOWN_COLOR,
         },
       ],
       context,

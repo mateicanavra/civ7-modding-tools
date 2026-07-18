@@ -1,6 +1,7 @@
 import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { buildNeighborSegments, defineVizMeta, interleaveXY } from "@swooper/mapgen-viz";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { MeshStepContract } from "./config.js";
 
 const GROUP_MESH = "Foundation / Mesh";
@@ -38,7 +39,7 @@ export const MeshStep = createStep(MeshStepContract, {
       spaceId: "world.xy",
       positions: interleaveXY(mesh.siteX, mesh.siteY),
       values: { format: "f32", values: mesh.areas },
-      meta: defineVizMeta("foundation.mesh.sites", {
+      meta: defineStandardVizMeta("foundation.mesh.sites", "field.intensity", {
         label: "Mesh Sites (Area)",
         group: GROUP_MESH,
       }),

@@ -6,6 +6,7 @@ import {
   type VizBinaryMaterializer,
   type VizBinarySlot,
   type VizInlineRef,
+  type VizLayerMeta,
   type VizPathRef,
   type VizProjection,
 } from "../src/index.js";
@@ -266,6 +267,201 @@ describe("materializeVizProjection", () => {
       )
     ).toThrow("adapter refused");
     expect(calls).toEqual(["points-positions", "points-values"]);
+  });
+
+  it("validates resolved palette authority before materializing binary evidence", () => {
+    const invalid: ReadonlyArray<{ meta: VizLayerMeta; message: string }> = [
+      {
+        meta: {
+          palette: { kind: "continuous", stops: [[1, 2, 3, 4]] },
+        } as unknown as VizLayerMeta,
+        message: "at least two color stops",
+      },
+      {
+        meta: {
+          palette: {
+            kind: "continuous",
+            stops: [
+              [1, 2, 3, 4],
+              [5, 6, 7, 999],
+            ],
+          },
+        } as unknown as VizLayerMeta,
+        message: "integer channels",
+      },
+      {
+        meta: {
+          palette: {
+            kind: "continuous",
+            stops: [
+              [1, 2, 3, 0],
+              [5, 6, 7, 8],
+            ],
+          },
+        },
+        message: "only explicit categories may be transparent",
+      },
+      {
+        meta: {
+          palette: {
+            kind: "continuous",
+            stops: [
+              [1, 2, 3, 4],
+              [5, 6, 7, 8],
+            ],
+          },
+          categories: [{ value: 1, label: "One", color: [1, 2, 3, 4] }],
+        } as unknown as VizLayerMeta,
+        message: "cannot also define categories",
+      },
+      {
+        meta: { palette: { kind: "categorical" } } as unknown as VizLayerMeta,
+        message: "exactly one color authority",
+      },
+      {
+        meta: {
+          palette: { kind: "categorical", colors: [] },
+        } as unknown as VizLayerMeta,
+        message: "color pool must be nonempty",
+      },
+      {
+        meta: {
+          palette: { kind: "categorical", colors: [[1, 2, 3, 4]] },
+          categories: [{ value: 1, label: "One", color: [5, 6, 7, 8] }],
+        } as unknown as VizLayerMeta,
+        message: "exactly one color authority",
+      },
+      {
+        meta: {
+          palette: { kind: "categorical" },
+          categories: [
+            { value: 1, label: "One", color: [1, 2, 3, 4] },
+            { value: "1", label: "Duplicate", color: [5, 6, 7, 8] },
+          ],
+        },
+        message: "category values must be unique",
+      },
+      {
+        meta: {
+          palette: { kind: "categorical" },
+          categories: [{ value: Number.NaN, label: "Invalid", color: [1, 2, 3, 4] }],
+        },
+        message: "category values must be finite numbers",
+      },
+      {
+        meta: {
+          palette: { kind: "categorical" },
+          categories: [{ value: 0.1, label: "Fractional", color: [1, 2, 3, 4] }],
+        },
+        message: "category values must be safe integers",
+      },
+    ];
+
+    for (const { meta, message } of invalid) {
+      let calls = 0;
+      expect(() =>
+        materializeVizProjection(
+          {
+            kind: "grid",
+            dataTypeKey: "palette.invalid",
+            spaceId: "tile.hexOddQ",
+            meta,
+            dims: { width: 1, height: 1 },
+            field: { format: "u8", values: new Uint8Array([1]) },
+          },
+          context,
+          () => {
+            calls += 1;
+            return { kind: "path", path: "unexpected.bin" };
+          }
+        )
+      ).toThrow(message);
+      expect(calls).toBe(0);
+    }
+
+    expect(() =>
+      materializeVizProjection(
+        {
+          kind: "grid",
+          dataTypeKey: "palette.legacy",
+          spaceId: "tile.hexOddQ",
+          meta: {
+            palette: "continuous",
+            categories: [{ value: 1.5, label: "One and a half", color: [1, 2, 3, 4] }],
+          },
+          dims: { width: 1, height: 1 },
+          field: { format: "f32", values: new Float32Array([1.5]) },
+        },
+        context,
+        () => ({ kind: "path", path: "legacy.bin" })
+      )
+    ).not.toThrow();
+
+    expect(() =>
+      materializeVizProjection(
+        {
+          kind: "grid",
+          dataTypeKey: "palette.numeric-string-category",
+          spaceId: "tile.hexOddQ",
+          meta: {
+            palette: { kind: "categorical" },
+            categories: [{ value: "1", label: "Legacy one", color: [1, 2, 3, 4] }],
+          },
+          dims: { width: 1, height: 1 },
+          field: { format: "u8", values: new Uint8Array([1]) },
+        },
+        context,
+        () => ({ kind: "path", path: "numeric-string-category.bin" })
+      )
+    ).not.toThrow();
+
+    expect(() =>
+      materializeVizProjection(
+        {
+          kind: "grid",
+          dataTypeKey: "palette.explicit-absence",
+          spaceId: "tile.hexOddQ",
+          meta: {
+            palette: { kind: "categorical" },
+            categories: [{ value: 255, label: "Outside domain", color: [1, 2, 3, 0] }],
+          },
+          dims: { width: 1, height: 1 },
+          field: { format: "u8", values: new Uint8Array([255]) },
+        },
+        context,
+        () => ({ kind: "path", path: "explicit-absence.bin" })
+      )
+    ).not.toThrow();
+  });
+
+  it("snapshots resolved palette and category colors before adapter ownership", () => {
+    const first = [1, 2, 3, 4] as [number, number, number, number];
+    const second = [5, 6, 7, 8] as [number, number, number, number];
+    const meta: VizLayerMeta = {
+      palette: { kind: "continuous", stops: [first, second] },
+    };
+    const layer = materializeVizProjection(
+      {
+        kind: "grid",
+        dataTypeKey: "palette.snapshot",
+        spaceId: "tile.hexOddQ",
+        meta,
+        dims: { width: 1, height: 1 },
+        field: { format: "u8", values: new Uint8Array([1]) },
+      },
+      context,
+      () => ({ kind: "path", path: "snapshot.bin" })
+    );
+
+    first[0] = 99;
+    second[3] = 99;
+    expect(layer.meta?.palette).toEqual({
+      kind: "continuous",
+      stops: [
+        [1, 2, 3, 4],
+        [5, 6, 7, 8],
+      ],
+    });
   });
 
   it("allows an inline adapter to copy an exact subview without mutating its source", () => {

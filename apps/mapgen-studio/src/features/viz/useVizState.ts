@@ -1,10 +1,14 @@
 import type { Layer } from "@deck.gl/core";
-import type { VizScalarStats } from "@swooper/mapgen-viz";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { type PipelineAddress, parsePipelineAddress } from "../../shared/pipelineAddress";
 import type { VizEvent } from "../../shared/vizEvents";
 import { buildStepDataTypeModel, type StepDataTypeModel } from "./dataTypeModel";
-import { boundsForLayerInRenderSpace, renderDeckLayers } from "./deckgl/render";
+import {
+  boundsForLayerInRenderSpace,
+  type RenderDeckLayersResult,
+  renderDeckLayers,
+  renderDeckLayersForSelection,
+} from "./deckgl/render";
 import {
   type Bounds,
   type VizAssetResolver,
@@ -24,6 +28,7 @@ function isAbortError(error: unknown): boolean {
   return (error as any).name === "AbortError";
 }
 
+/** Runtime inputs that connect worker visualization evidence to one Studio selection surface. */
 export type UseVizStateArgs = {
   enabled: boolean;
   assetResolver?: VizAssetResolver | null;
@@ -35,6 +40,7 @@ export type UseVizStateArgs = {
   onError?(error: unknown): void;
 };
 
+/** Selected visualization evidence, controls, Deck layers, and truthful legend presentation. */
 export type UseVizStateResult = {
   ingest(event: VizEvent): void;
   clearStream(): void;
@@ -68,6 +74,11 @@ export type UseVizStateResult = {
   manifest: VizManifestV1 | null;
 };
 
+/**
+ * Adopts worker evidence into Studio visualization state and renders the selected layer.
+ * Async Deck work is cancelled on selection changes, and its scalar presentation is used only
+ * while the originating manifest and layer remain the active object identities.
+ */
 export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   const {
     enabled,
@@ -91,8 +102,11 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   const setSelectedLayerKey = store.setSelectedLayerKey;
   const setShowDebugLayers = store.setShowDebugLayers;
 
-  const [layerStats, setLayerStats] = useState<VizScalarStats | null>(null);
-  const [resolvedLayers, setResolvedLayers] = useState<Layer[]>([]);
+  const [rendered, setRendered] = useState<RenderDeckLayersResult>({
+    layers: [],
+    scalar: null,
+    source: null,
+  });
   const renderAbortRef = useRef<AbortController | null>(null);
   const onErrorRef = useRef<UseVizStateArgs["onError"]>(onError);
 
@@ -110,8 +124,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
 
   const clearStream = useCallback(() => {
     store.clearStream();
-    setLayerStats(null);
-    setResolvedLayers([]);
+    setRendered({ layers: [], scalar: null, source: null });
   }, [store]);
 
   const steps = useMemo(() => {
@@ -285,8 +298,11 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
 
     if (!manifest || !effectiveLayer) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- This effect orchestrates async render work (AbortController + renderDeckLayers). The synchronous setState here clears stale layers when there is no manifest/layer to render; clearing as part of an external-render-sync effect is legitimate and cannot be derived during render (the work is async).
-      setResolvedLayers((prev) => (prev.length ? [] : prev));
-      setLayerStats((prev) => (prev ? null : prev));
+      setRendered((previous) =>
+        previous.layers.length || previous.source
+          ? { layers: [], scalar: null, source: null }
+          : previous
+      );
       return;
     }
     renderDeckLayers({
@@ -300,8 +316,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     })
       .then((result) => {
         if (controller.signal.aborted) return;
-        setResolvedLayers(result.layers);
-        setLayerStats(result.stats);
+        setRendered(result);
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
@@ -314,9 +329,11 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     };
   }, [assetResolver, effectiveLayer, manifest, overlayLayer, overlayOpacity, showEdgeOverlay]);
 
+  const selectedRender = renderDeckLayersForSelection(rendered, manifest, effectiveLayer);
+
   const legend = useMemo(() => {
     if (!effectiveLayer) return null;
-    return legendForLayer(effectiveLayer, layerStats, {
+    return legendForLayer(effectiveLayer, selectedRender.scalar, {
       stepId: effectiveLayer.stepId,
       stepLabel: formatStepLabel(effectiveLayer.stepId),
       layerKey: effectiveLayer.layerKey,
@@ -325,7 +342,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       spaceId: effectiveLayer.spaceId,
       variantKey: effectiveLayer.variantKey,
     });
-  }, [effectiveLayer, layerStats]);
+  }, [effectiveLayer, selectedRender.scalar]);
 
   return {
     ingest,
@@ -343,7 +360,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     selectableLayers,
     legend,
     deck: {
-      layers: resolvedLayers,
+      layers: selectedRender.layers,
     },
     effectiveLayer,
     activeBounds,

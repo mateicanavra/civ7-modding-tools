@@ -61,9 +61,13 @@ typed VizProjection
 
 ## Stage and step ownership
 
-Visualization helpers have two reusable ownership shapes:
+Visualization helpers have three reusable ownership shapes:
 
 ```text
+recipes/<recipe>/viz.ts
+  Recipe-wide semantic style and palette vocabulary. Style identities resolve to portable
+  metadata before projection; exact category identities remain with their stage or step owner.
+
 stages/<stage>/viz.ts
   Projection geometry or metadata helpers shared by multiple owner-stage steps
   or consumed outside the owner stage.
@@ -72,7 +76,8 @@ stages/<stage>/steps/<step>/viz.ts
   Projection helpers private to one step.
 ```
 
-The `createStep({ viz })` facet remains the authoring surface in both cases; a
+The `createStep({ viz })` facet remains the projection authoring surface for the
+stage and step shapes; a
 `viz.ts` module is only reusable implementation placement. This keeps debug
 surfaces predictable without turning `steps/` into a public namespace. If a
 second step or another stage needs a helper, promote it to the owner stage's

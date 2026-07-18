@@ -1,6 +1,7 @@
 import type {
   VizGridProjection,
   VizInlineRef,
+  VizLayerMeta,
   VizManifestV1,
   VizScalarSource,
 } from "../src/index.js";
@@ -52,7 +53,22 @@ const invalidInlineManifest: VizManifestV1<VizInlineRef> = {
   ],
 };
 
+// @ts-expect-error A resolved categorical palette cannot carry a second category authority.
+const pooledPaletteWithCategories: VizLayerMeta = {
+  palette: { kind: "categorical", colors: [[1, 2, 3, 255]] },
+  categories: [{ value: 1, label: "one", color: [1, 2, 3, 255] }],
+};
+
+// @ts-expect-error A resolved categorical palette requires at least one visible color.
+const emptyResolvedCategoryPool: VizLayerMeta = { palette: { kind: "categorical", colors: [] } };
+
+// @ts-expect-error An explicit-category marker requires a nonempty category table.
+const categoryMarkerWithoutCategories: VizLayerMeta = { palette: { kind: "categorical" } };
+
 void validProjection;
 void mismatchedSource;
 void invalidProjection;
 void invalidInlineManifest;
+void pooledPaletteWithCategories;
+void emptyResolvedCategoryPool;
+void categoryMarkerWithoutCategories;

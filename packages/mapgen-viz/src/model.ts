@@ -16,7 +16,32 @@ export type VizScalarFormat = "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
 
 export type VizLayerVisibility = "default" | "debug" | "hidden";
 
-export type VizPaletteMode = "auto" | "categorical" | "continuous";
+/** Legacy v1 palette selector retained so existing manifests and producers remain readable. */
+export type VizLegacyPaletteMode = "auto" | "categorical" | "continuous";
+
+/** Portable red, green, blue, and alpha channels encoded as integer bytes. */
+export type VizRgbaColor = readonly [red: number, green: number, blue: number, alpha: number];
+
+/** A renderer-ready continuous palette whose ordered colors span the admitted value domain. */
+export type VizResolvedContinuousPalette = Readonly<{
+  kind: "continuous";
+  stops: readonly [VizRgbaColor, VizRgbaColor, ...VizRgbaColor[]];
+}>;
+
+/** A renderer-ready categorical palette assigned deterministically to observed scalar ids. */
+export type VizResolvedCategoricalPalette = Readonly<{
+  kind: "categorical";
+  colors: readonly [VizRgbaColor, ...VizRgbaColor[]];
+}>;
+
+/** Fully resolved palette evidence that renderers can consume without recipe knowledge. */
+export type VizResolvedPalette = VizResolvedContinuousPalette | VizResolvedCategoricalPalette;
+
+/** Selects explicit `VizLayerMeta.categories` as the sole categorical color authority. */
+export type VizExplicitCategoryPalette = Readonly<{ kind: "categorical"; colors?: never }>;
+
+/** @deprecated Use `VizLegacyPaletteMode` when reading legacy palette selectors. */
+export type VizPaletteMode = VizLegacyPaletteMode;
 
 export type VizLayerKind = "grid" | "points" | "segments" | "gridFields";
 
@@ -56,23 +81,52 @@ export type VizScalarStats = {
   stddev?: number;
 };
 
-export type VizLayerCategory = {
+/**
+ * Explicit presentation for one integer scalar identity.
+ * Integer strings remain readable for existing v1 manifests, but materialization and rendering
+ * normalize them to the same safe-integer identity as their number-valued equivalent.
+ */
+export type VizLayerCategory = Readonly<{
   value: number | string;
   label: string;
-  color: [number, number, number, number];
-};
+  color: VizRgbaColor;
+}>;
 
-export type VizLayerMeta = {
+/**
+ * Portable, renderer-independent presentation metadata for one visualization layer.
+ * Resolved categorical palettes have exactly one color authority: a reusable pool or explicit
+ * value categories. Recipe-local style identifiers never cross this boundary.
+ */
+type VizLayerMetaBase = Readonly<{
   label?: string;
   group?: string;
   description?: string;
   visibility?: VizLayerVisibility;
   /** Stable semantic role used to distinguish render modes for one data product. */
   role?: string;
-  categories?: VizLayerCategory[];
-  palette?: VizPaletteMode;
   showGrid?: boolean;
-};
+}>;
+
+/**
+ * Closed palette/category authority for portable layer metadata.
+ * Legacy v1 selectors retain their existing optional category table, while resolved palettes
+ * either own a color pool or require one nonempty explicit category table, never both.
+ */
+export type VizLayerMeta = VizLayerMetaBase &
+  (
+    | Readonly<{
+        palette?: VizLegacyPaletteMode;
+        categories?: readonly VizLayerCategory[];
+      }>
+    | Readonly<{
+        palette: VizResolvedPalette;
+        categories?: never;
+      }>
+    | Readonly<{
+        palette: VizExplicitCategoryPalette;
+        categories: readonly [VizLayerCategory, ...VizLayerCategory[]];
+      }>
+  );
 
 /** Browser-owned binary evidence copied into a transferable buffer. */
 export type VizInlineRef = { kind: "inline"; buffer: ArrayBuffer };

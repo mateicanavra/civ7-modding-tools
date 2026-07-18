@@ -2,14 +2,19 @@ import type { Layer } from "@deck.gl/core";
 import { LineLayer, PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import type {
   VizBinaryRef,
+  VizScalarField,
   VizScalarFormat,
+  VizScalarSource,
   VizScalarStats,
   VizSpaceId,
 } from "@swooper/mapgen-viz";
+import { admitVizScalarSource, computeVizScalarStats } from "@swooper/mapgen-viz";
 import type { Bounds, VizAssetResolver, VizLayerEntryV1, VizManifestV1 } from "../model";
 import {
-  buildCategoricalColorMap,
+  resolveVizPalettePresentation,
+  selectVizScalarField,
   tileBorderColorForFill,
+  type VizRenderedScalarPresentation,
   writeColorForScalarValue,
 } from "../presentation";
 
@@ -23,6 +28,7 @@ type HexGridGeometry = {
 const hexGridGeometryCache = new Map<string, HexGridGeometry>();
 const MAX_HEX_GRID_GEOMETRY_CACHE_ENTRIES = 4;
 
+/** Inputs for rendering one selected visualization layer and its optional overlay. */
 export type RenderDeckLayersArgs = {
   manifest: VizManifestV1 | null;
   layer: VizLayerEntryV1 | null;
@@ -42,10 +48,34 @@ type RenderSingleLayerArgs = {
   opacity?: number;
 };
 
+/** Deck layers plus the exact scalar presentation selected for the primary layer. */
 export type RenderDeckLayersResult = {
   layers: Layer[];
-  stats: VizScalarStats | null;
+  scalar: VizRenderedScalarPresentation | null;
+  source: Readonly<{ manifest: VizManifestV1; layer: VizLayerEntryV1 }> | null;
 };
+
+type RenderSingleLayerResult = Omit<RenderDeckLayersResult, "source">;
+
+const EMPTY_RENDER_RESULT: RenderDeckLayersResult = {
+  layers: [],
+  scalar: null,
+  source: null,
+};
+
+/**
+ * Admits rendered layers and scalar presentation only while the exact manifest and layer objects
+ * that produced them remain selected, preventing asynchronous work from relabeling stale evidence.
+ */
+export function renderDeckLayersForSelection(
+  result: RenderDeckLayersResult,
+  manifest: VizManifestV1 | null,
+  layer: VizLayerEntryV1 | null
+): RenderDeckLayersResult {
+  return result.source?.manifest === manifest && result.source.layer === layer
+    ? result
+    : EMPTY_RENDER_RESULT;
+}
 
 type DomExceptionCtor = new (message?: string, name?: string) => Error;
 
@@ -183,6 +213,7 @@ async function getOrBuildHexGridGeometry(args: {
   return geom;
 }
 
+/** Computes north-up render bounds for a Civ7 odd-row tile grid. */
 export function boundsForTileGrid(
   _spaceId: VizSpaceId,
   dims: { width: number; height: number },
@@ -202,6 +233,7 @@ export function boundsForTileGrid(
   return [-s, -maxCenterY - s, maxCenterX + s, s];
 }
 
+/** Projects a portable layer's authored bounds into the coordinate space used by Deck.gl. */
 export function boundsForLayerInRenderSpace(layer: VizLayerEntryV1, tileSize = 1): Bounds {
   if (layer.kind === "grid" || layer.kind === "gridFields") {
     if (isTileSpace(layer.spaceId)) return boundsForTileGrid(layer.spaceId, layer.dims, tileSize);
@@ -253,7 +285,10 @@ async function readBinaryRef(
   return buf;
 }
 
-function decodeScalarArray(buffer: ArrayBuffer, format: VizScalarFormat): ArrayBufferView {
+function decodeScalarArray(
+  buffer: ArrayBuffer,
+  format: VizScalarFormat
+): VizScalarSource["values"] {
   switch (format) {
     case "u8":
       return new Uint8Array(buffer);
@@ -267,30 +302,30 @@ function decodeScalarArray(buffer: ArrayBuffer, format: VizScalarFormat): ArrayB
       return new Int32Array(buffer);
     case "f32":
       return new Float32Array(buffer);
-    default:
-      return new Uint8Array(buffer);
   }
 }
 
-function computeMinMax(values: ArrayBufferView): VizScalarStats | null {
-  const view = values as unknown as ArrayLike<number>;
-  let min = Number.POSITIVE_INFINITY;
-  let max = Number.NEGATIVE_INFINITY;
-  for (let i = 0; i < view.length; i++) {
-    const v = Number(view[i] ?? 0);
-    if (!Number.isFinite(v)) continue;
-    if (v < min) min = v;
-    if (v > max) max = v;
-  }
-  if (!Number.isFinite(min) || !Number.isFinite(max)) return null;
-  return { min, max };
+function scalarStats(
+  values: VizScalarSource["values"],
+  field: VizScalarField
+): VizScalarStats | null {
+  return (
+    field.stats ??
+    computeVizScalarStats(
+      admitVizScalarSource({
+        format: field.format,
+        values,
+        valueSpec: field.valueSpec,
+      })
+    )
+  );
 }
 
 function defaultLineColor(): [number, number, number, number] {
   return [148, 163, 184, 180];
 }
 
-async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<RenderDeckLayersResult> {
+async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<RenderSingleLayerResult> {
   const { manifest, layer, showEdgeOverlay, assetResolver, signal, opacity = 1 } = options;
   if (signal?.aborted) throw createAbortError();
   const tick = createYieldTicker(signal);
@@ -353,37 +388,24 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
     const buf = await readBinaryRef(field.data, assetResolver ?? null, signal);
     const values = decodeScalarArray(buf, field.format);
     const { width, height } = layer.dims;
-    const len = Math.min((width * height) | 0, (values as any).length ?? 0);
+    const len = Math.min((width * height) | 0, values.length);
 
-    const paletteMode = layer.meta?.palette ?? "auto";
-    const categoricalColorMap =
-      paletteMode === "categorical" && !layer.meta?.categories?.length
-        ? buildCategoricalColorMap({ values, seedKey })
-        : undefined;
-    const statsForMapping = field.stats ?? computeMinMax(values);
+    const palette = resolveVizPalettePresentation({ meta: layer.meta, field, values, seedKey });
+    const statsForMapping = scalarStats(values, field);
 
     const colors = new Uint8ClampedArray(len * 4);
-    let min = Number.POSITIVE_INFINITY;
-    let max = Number.NEGATIVE_INFINITY;
 
     for (let i = 0; i < len; i++) {
       await tick(i);
-      const v = Number((values as any)[i] ?? 0);
-      if (Number.isFinite(v)) {
-        if (v < min) min = v;
-        if (v > max) max = v;
-      }
+      const v = Number(values[i] ?? 0);
       writeColorForScalarValue(colors, i * 4, {
-        seedKey,
         rawValue: v,
-        categoricalColorMap,
-        meta: layer.meta,
+        palette,
         field,
         stats: statsForMapping,
       });
     }
 
-    const stats = Number.isFinite(min) && Number.isFinite(max) ? { min, max } : statsForMapping;
     if (!isTileSpace(layer.spaceId)) {
       throw new Error(`Grid layers currently require a tile spaceId (got ${layer.spaceId}).`);
     }
@@ -434,7 +456,7 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
           pickable: false,
         }),
       ],
-      stats,
+      scalar: { stats: statsForMapping, palette },
     };
   }
 
@@ -451,19 +473,13 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
         )
       : null;
 
-    const paletteMode = layer.meta?.palette ?? "auto";
-    const categoricalColorMap =
-      values && paletteMode === "categorical" && !layer.meta?.categories?.length
-        ? buildCategoricalColorMap({ values, seedKey })
-        : undefined;
-    const statsForMapping =
-      values && valueField ? (valueField.stats ?? computeMinMax(values)) : null;
+    const palette = values
+      ? resolveVizPalettePresentation({ meta: layer.meta, field: valueField, values, seedKey })
+      : undefined;
+    const statsForMapping = values && valueField ? scalarStats(values, valueField) : null;
 
     const positionsOut = new Float32Array(count * 2);
     const colors = new Uint8ClampedArray(count * 4);
-
-    let min = Number.POSITIVE_INFINITY;
-    let max = Number.NEGATIVE_INFINITY;
 
     for (let i = 0; i < count; i++) {
       await tick(i);
@@ -474,18 +490,11 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
       positionsOut[base] = x;
       positionsOut[base + 1] = y;
 
-      const v = values ? Number((values as any)[i] ?? 0) : Number.NaN;
-      if (Number.isFinite(v)) {
-        if (v < min) min = v;
-        if (v > max) max = v;
-      }
-
-      if (values && valueField) {
+      const v = values ? Number(values[i] ?? 0) : Number.NaN;
+      if (values && valueField && palette) {
         writeColorForScalarValue(colors, i * 4, {
-          seedKey,
           rawValue: v,
-          categoricalColorMap,
-          meta: layer.meta,
+          palette,
           field: valueField,
           stats: statsForMapping,
         });
@@ -497,9 +506,6 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
         colors[i * 4 + 3] = c[3];
       }
     }
-
-    const stats =
-      values && Number.isFinite(min) && Number.isFinite(max) ? { min, max } : statsForMapping;
 
     return {
       layers: [
@@ -519,7 +525,7 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
           pickable: false,
         }),
       ],
-      stats,
+      scalar: values && valueField && palette ? { stats: statsForMapping, palette } : null,
     };
   }
 
@@ -536,20 +542,14 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
         )
       : null;
 
-    const paletteMode = layer.meta?.palette ?? "auto";
-    const categoricalColorMap =
-      values && paletteMode === "categorical" && !layer.meta?.categories?.length
-        ? buildCategoricalColorMap({ values, seedKey })
-        : undefined;
-    const statsForMapping =
-      values && valueField ? (valueField.stats ?? computeMinMax(values)) : null;
+    const palette = values
+      ? resolveVizPalettePresentation({ meta: layer.meta, field: valueField, values, seedKey })
+      : undefined;
+    const statsForMapping = values && valueField ? scalarStats(values, valueField) : null;
 
     const sourcePositions = new Float32Array(count * 2);
     const targetPositions = new Float32Array(count * 2);
     const colors = new Uint8ClampedArray(count * 4);
-
-    let min = Number.POSITIVE_INFINITY;
-    let max = Number.NEGATIVE_INFINITY;
 
     for (let i = 0; i < count; i++) {
       await tick(i);
@@ -565,18 +565,11 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
       targetPositions[base] = x1;
       targetPositions[base + 1] = y1;
 
-      const v = values ? Number((values as any)[i] ?? 0) : Number.NaN;
-      if (Number.isFinite(v)) {
-        if (v < min) min = v;
-        if (v > max) max = v;
-      }
-
-      if (values && valueField) {
+      const v = values ? Number(values[i] ?? 0) : Number.NaN;
+      if (values && valueField && palette) {
         writeColorForScalarValue(colors, i * 4, {
-          seedKey,
           rawValue: v,
-          categoricalColorMap,
-          meta: layer.meta,
+          palette,
           field: valueField,
           stats: statsForMapping,
         });
@@ -588,9 +581,6 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
         colors[i * 4 + 3] = c[3];
       }
     }
-
-    const stats =
-      values && Number.isFinite(min) && Number.isFinite(max) ? { min, max } : statsForMapping;
 
     return {
       layers: [
@@ -611,7 +601,7 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
           pickable: false,
         }),
       ],
-      stats,
+      scalar: values && valueField && palette ? { stats: statsForMapping, palette } : null,
     };
   }
 
@@ -628,8 +618,7 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
     const vFieldKey = vector?.v ?? null;
     const magFieldKey = vector?.magnitude ?? null;
 
-    const chosenScalarKey = magFieldKey ?? uFieldKey ?? Object.keys(layer.fields)[0] ?? null;
-    const chosenScalarField = chosenScalarKey ? (layer.fields[chosenScalarKey] ?? null) : null;
+    const chosenScalarField = selectVizScalarField(layer);
     const chosenScalarValues = chosenScalarField
       ? decodeScalarArray(
           await readBinaryRef(chosenScalarField.data, assetResolver ?? null, signal),
@@ -637,33 +626,28 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
         )
       : null;
 
-    const paletteMode = layer.meta?.palette ?? "auto";
-    const categoricalColorMap =
-      chosenScalarValues && paletteMode === "categorical" && !layer.meta?.categories?.length
-        ? buildCategoricalColorMap({ values: chosenScalarValues, seedKey })
-        : undefined;
+    const palette = chosenScalarValues
+      ? resolveVizPalettePresentation({
+          meta: layer.meta,
+          field: chosenScalarField,
+          values: chosenScalarValues,
+          seedKey,
+        })
+      : undefined;
     const statsForMapping =
       chosenScalarValues && chosenScalarField
-        ? (chosenScalarField.stats ?? computeMinMax(chosenScalarValues))
+        ? scalarStats(chosenScalarValues, chosenScalarField)
         : null;
 
     const colors = new Uint8ClampedArray(len * 4);
-    let min = Number.POSITIVE_INFINITY;
-    let max = Number.NEGATIVE_INFINITY;
 
-    if (chosenScalarValues && chosenScalarField) {
+    if (chosenScalarValues && chosenScalarField && palette) {
       for (let i = 0; i < len; i++) {
         await tick(i);
-        const v = Number((chosenScalarValues as any)[i] ?? 0);
-        if (Number.isFinite(v)) {
-          if (v < min) min = v;
-          if (v > max) max = v;
-        }
+        const v = Number(chosenScalarValues[i] ?? 0);
         writeColorForScalarValue(colors, i * 4, {
-          seedKey,
           rawValue: v,
-          categoricalColorMap,
-          meta: layer.meta,
+          palette,
           field: chosenScalarField,
           stats: statsForMapping,
         });
@@ -677,11 +661,6 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
         colors[i * 4 + 3] = c[3];
       }
     }
-
-    const stats =
-      chosenScalarValues && Number.isFinite(min) && Number.isFinite(max)
-        ? { min, max }
-        : statsForMapping;
 
     const geometry = await getOrBuildHexGridGeometry({
       spaceId: layer.spaceId,
@@ -748,7 +727,7 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
               magField.format
             )
           : null;
-        const magStats = magValues ? (magField?.stats ?? computeMinMax(magValues) ?? null) : null;
+        const magStats = magValues && magField ? scalarStats(magValues, magField) : null;
 
         // Subsample vectors aggressively to keep the arrow count reasonable.
         const approxMaxArrows = 4200;
@@ -761,13 +740,13 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
         for (let y = 0; y < height; y += stride) {
           for (let x = 0; x < width; x += stride) {
             const i = (y * width + x) | 0;
-            const ux = Number((uValues as any)[i] ?? 0);
-            const vy = Number((vValues as any)[i] ?? 0);
+            const ux = Number(uValues[i] ?? 0);
+            const vy = Number(vValues[i] ?? 0);
             if (!Number.isFinite(ux) || !Number.isFinite(vy)) continue;
             const [cx, cy] = tileCenter(layer.spaceId, x, y, tileSize);
 
             // Interpret u/v as a direction vector; scale to tile space for legible arrows.
-            const mag = magValues ? Number((magValues as any)[i] ?? 0) : Math.hypot(ux, vy);
+            const mag = magValues ? Number(magValues[i] ?? 0) : Math.hypot(ux, vy);
             if (!Number.isFinite(mag) || mag < 1e-6) continue;
             const uxN = ux / mag;
             const vyN = vy / mag;
@@ -817,18 +796,25 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
       }
     }
 
-    return { layers: layersOut, stats };
+    return {
+      layers: layersOut,
+      scalar:
+        chosenScalarValues && chosenScalarField && palette
+          ? { stats: statsForMapping, palette }
+          : null,
+    };
   }
 
-  return { layers: baseLayers, stats: null };
+  return { layers: baseLayers, scalar: null };
 }
 
+/** Materializes the selected portable visualization evidence into Deck.gl layers. */
 export async function renderDeckLayers(
   options: RenderDeckLayersArgs
 ): Promise<RenderDeckLayersResult> {
   const { manifest, layer, overlayLayer, overlayOpacity, showEdgeOverlay, assetResolver, signal } =
     options;
-  if (!manifest || !layer) return { layers: [], stats: null };
+  if (!manifest || !layer) return { layers: [], scalar: null, source: null };
 
   const base = await renderSingleLayer({
     manifest,
@@ -838,7 +824,8 @@ export async function renderDeckLayers(
     signal,
     opacity: 1,
   });
-  if (!overlayLayer) return base;
+  const result = { ...base, source: { manifest, layer } };
+  if (!overlayLayer) return result;
 
   const normalizedOpacity = Math.max(0, Math.min(1, overlayOpacity ?? 0.45));
   const overlay = await renderSingleLayer({
@@ -850,5 +837,9 @@ export async function renderDeckLayers(
     opacity: normalizedOpacity,
   });
 
-  return { layers: [...base.layers, ...overlay.layers], stats: base.stats };
+  return {
+    layers: [...base.layers, ...overlay.layers],
+    scalar: base.scalar,
+    source: result.source,
+  };
 }

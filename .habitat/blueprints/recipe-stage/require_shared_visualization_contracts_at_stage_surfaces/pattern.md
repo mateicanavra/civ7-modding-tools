@@ -3,8 +3,10 @@ level: error
 ---
 # Require Shared Visualization Contracts At Stage Surfaces
 
-Shared visualization contracts are stage surfaces, not `steps/` hubs. Import
-boundaries are owned separately; this rule asserts only the shared owner.
+Recipe-root `viz.ts` owns semantic styles and palettes; stage and step `viz.ts`
+own projection contracts at their narrowest reusable surface. A collection-wide
+`steps/viz.ts` hub owns neither concern. Import boundaries are enforced separately;
+this rule rejects only that ambiguous hub.
 
 ```grit
 language js(typescript)

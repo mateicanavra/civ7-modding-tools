@@ -1,5 +1,10 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { buildSampledVectorSegments, defineVizMeta, interleaveXY } from "@swooper/mapgen-viz";
+import { buildSampledVectorSegments, interleaveXY } from "@swooper/mapgen-viz";
+import {
+  defineStandardVizCategoryMeta,
+  defineStandardVizMeta,
+  STANDARD_VIZ_COLORS,
+} from "../../../../viz.js";
 import { MantleForcingStepContract } from "./config.js";
 
 const GROUP_MANTLE = "Foundation / Mantle";
@@ -41,11 +46,10 @@ export const MantleForcingStep = createStep(MantleForcingStepContract, {
         spaceId: "world.xy",
         positions,
         values: { format: "f32", values: mantleForcing.forcingMag },
-        meta: defineVizMeta("foundation.mantle.forcing", {
+        meta: defineStandardVizMeta("foundation.mantle.forcing", "field.intensity", {
           label: "Mantle Forcing (Magnitude)",
           group: GROUP_MANTLE,
           role: "magnitude",
-          palette: "continuous",
         }),
       },
       {
@@ -54,12 +58,11 @@ export const MantleForcingStep = createStep(MantleForcingStepContract, {
         spaceId: "world.xy",
         segments,
         values: { format: "f32", values },
-        meta: defineVizMeta("foundation.mantle.forcing", {
+        meta: defineStandardVizMeta("foundation.mantle.forcing", "field.intensity", {
           label: "Mantle Forcing (Vectors)",
           group: GROUP_MANTLE,
           role: "vector",
           visibility: "debug",
-          palette: "continuous",
         }),
       },
       {
@@ -68,11 +71,10 @@ export const MantleForcingStep = createStep(MantleForcingStepContract, {
         spaceId: "world.xy",
         positions,
         values: { format: "f32", values: mantleForcing.stress },
-        meta: defineVizMeta("foundation.mantle.stress", {
+        meta: defineStandardVizMeta("foundation.mantle.stress", "field.intensity", {
           label: "Mantle Stress",
           group: GROUP_MANTLE,
           visibility: "debug",
-          palette: "continuous",
         }),
       },
       {
@@ -81,17 +83,31 @@ export const MantleForcingStep = createStep(MantleForcingStepContract, {
         spaceId: "world.xy",
         positions,
         values: { format: "i8", values: mantleForcing.upwellingClass },
-        meta: defineVizMeta("foundation.mantle.upwellingClass", {
-          label: "Mantle Upwelling Class",
-          group: GROUP_MANTLE,
-          visibility: "debug",
-          palette: "categorical",
-          categories: [
-            { value: -1, label: "Downwelling", color: [59, 130, 246, 230] },
-            { value: 0, label: "Neutral", color: [107, 114, 128, 230] },
-            { value: 1, label: "Upwelling", color: [239, 68, 68, 230] },
+        meta: defineStandardVizCategoryMeta(
+          "foundation.mantle.upwellingClass",
+          [
+            {
+              value: -1,
+              label: "Downwelling",
+              color: STANDARD_VIZ_COLORS.field.negative,
+            },
+            {
+              value: 0,
+              label: "Neutral",
+              color: STANDARD_VIZ_COLORS.field.neutral,
+            },
+            {
+              value: 1,
+              label: "Upwelling",
+              color: STANDARD_VIZ_COLORS.field.positive,
+            },
           ],
-        }),
+          {
+            label: "Mantle Upwelling Class",
+            group: GROUP_MANTLE,
+            visibility: "debug",
+          }
+        ),
       },
     ];
   },

@@ -34,7 +34,7 @@ G1-G9 enforcement scope:
 | G7 superseded current-stage ids | `normalize-ecology-topology`, `normalize-projection-lakes` | No direct current doc-content rule. `require_public_ecology_surfaces_and_retired_topology_removal` and `require_morphology_config_facade_exports` protect source topology only. | No current registered rule decides whether evergreen prose presents a retired stage id as current source shape. |
 | G8 hidden placement sub-concerns | `normalize-placement-contracts`, `normalize-placement-reconciliation` | Habitat `require_typed_placement_outcomes_before_apply` | Placement apply does not directly call official resource/discovery generators and typed outcomes exist before apply. |
 | G9 wrapper-only `advanced` stage config | `normalize-config-surface` | Habitat `prohibit_wrapper_only_advanced_config` | Standard recipe source and map configs do not reintroduce persisted SDK-native `advanced` wrappers. |
-| G10 visualization contract owner surfaces | `normalize-viz-contract-owners` | Habitat `require_shared_visualization_contracts_at_stage_surfaces` | Shared standard-recipe visualization contracts live on owner stage surfaces; private step `viz.ts` helpers remain step-private. |
+| G10 visualization contract owner surfaces | `normalize-viz-contract-owners` | Habitat `require_shared_visualization_contracts_at_stage_surfaces` | No collection-wide `steps/viz.ts` hub exists. Recipe-root styles and stage/step projection ownership remain normative review and import-boundary concerns. |
 | G11 SDK map runtime entrypoint boundary | `normalize-sdk-mapgen-runtime-entrypoint` | Habitat `require_explicit_mapgen_sdk_opt_in` | The SDK root remains runtime-neutral; Civ7 map runtime helpers are exposed only from the MapGen subpath. |
 
 ## Proof boundary

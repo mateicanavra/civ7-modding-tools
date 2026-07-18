@@ -24,18 +24,11 @@ function defaultGroup(dataTypeKey: VizDataTypeKey): string | undefined {
  * Builds semantic layer metadata, deriving a human-readable label and two-segment group when the
  * caller does not provide them. Explicit metadata always wins over the derived defaults.
  */
-export function defineVizMeta(
-  dataTypeKey: VizDataTypeKey,
-  meta: Partial<VizLayerMeta> = {}
-): VizLayerMeta {
+export function defineVizMeta(dataTypeKey: VizDataTypeKey, meta: VizLayerMeta = {}): VizLayerMeta {
   return {
+    ...meta,
     label: meta.label ?? defaultLabel(dataTypeKey),
     group: meta.group ?? defaultGroup(dataTypeKey),
     visibility: meta.visibility ?? "default",
-    description: meta.description,
-    role: meta.role,
-    categories: meta.categories,
-    palette: meta.palette,
-    showGrid: meta.showGrid,
   };
 }

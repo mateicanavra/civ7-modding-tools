@@ -1,6 +1,7 @@
 import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { defineVizMeta, interleaveXY } from "@swooper/mapgen-viz";
+import { interleaveXY } from "@swooper/mapgen-viz";
+import { defineStandardVizMeta } from "../../../../viz.js";
 import { MantlePotentialStepContract } from "./config.js";
 
 const GROUP_MANTLE = "Foundation / Mantle";
@@ -36,11 +37,17 @@ export const MantlePotentialStep = createStep(MantlePotentialStepContract, {
       dataTypeKey: "foundation.mantle.potential",
       spaceId: "world.xy",
       positions: interleaveXY(mesh.siteX, mesh.siteY),
-      values: { format: "f32", values: mantlePotential.potential },
-      meta: defineVizMeta("foundation.mantle.potential", {
+      values: {
+        format: "f32",
+        values: mantlePotential.potential,
+        valueSpec: {
+          scale: "linear",
+          domain: { kind: "explicit", min: -1, max: 1 },
+        },
+      },
+      meta: defineStandardVizMeta("foundation.mantle.potential", "field.signed", {
         label: "Mantle Potential",
         group: GROUP_MANTLE,
-        palette: "continuous",
       }),
     },
   ],
