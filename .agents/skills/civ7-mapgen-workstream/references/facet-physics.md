@@ -28,7 +28,7 @@ Behavioral realism is tuned or swapped at the **op / strategy** layer. An op (`d
 
 **Where a strategy is selected** (the three control points — verified in `packages/mapgen-core/src/authoring/op/create.ts` runtime dispatch `runtimeStrategies[cfg.strategy].run(...)`):
 - **(a)** a public stage's `compile()` hard-codes the literal, e.g. hydrology-climate-refine sets `computePrecipitation: { strategy: "refine", config: ... }`;
-- **(b)** a step contract's `StepOpUse.defaultStrategy` changes the schema default (what you get when the envelope is omitted), e.g. `climateRefine.contract.ts` declares `defaultStrategy: "refine"`;
+- **(b)** a step contract's `StepOpUse.defaultStrategy` changes the schema default (what you get when the envelope is omitted), e.g. `climate-refine/config.ts` declares `defaultStrategy: "refine"`;
 - **(c)** the op envelope authored directly in an internal (non-public) stage's step config in the map `.config.json`.
 
 For a public stage with `compile()`, the config JSON never carries a `strategy` field — `compile()` injects it. Only internal stages let an author set `strategy` directly. **Always confirm which control point governs the op you intend to change before editing** — editing config that `compile()` overwrites is a classic dead-edit.

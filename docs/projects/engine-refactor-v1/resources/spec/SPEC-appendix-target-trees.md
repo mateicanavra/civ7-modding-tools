@@ -172,127 +172,15 @@ STANDARD_CONTENT_ROOT/
 │        ├─ recipe.ts
 │        ├─ runtime.ts
 │        └─ stages/
-│           ├─ ecology/
-│           │  ├─ index.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     ├─ biomes/
-│           │     │  ├─ contract.ts
-│           │     │  └─ index.ts
-│           │     └─ features/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           ├─ foundation/
-│           │  ├─ index.ts
-│           │  ├─ producer.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     └─ foundation/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           ├─ hydrology-core/
-│           │  ├─ index.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     └─ rivers/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           ├─ hydrology-post/
-│           │  ├─ index.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     └─ climateRefine/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           ├─ hydrology-pre/
-│           │  ├─ index.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     ├─ climateBaseline/
-│           │     │  ├─ contract.ts
-│           │     │  └─ index.ts
-│           │     └─ lakes/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           ├─ morphology-mid/
-│           │  ├─ index.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     └─ ruggedCoasts/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           ├─ morphology-post/
-│           │  ├─ index.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     ├─ islands/
-│           │     │  ├─ contract.ts
-│           │     │  └─ index.ts
-│           │     ├─ mountains/
-│           │     │  ├─ contract.ts
-│           │     │  └─ index.ts
-│           │     └─ volcanoes/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           ├─ morphology-pre/
-│           │  ├─ index.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     ├─ coastlines/
-│           │     │  ├─ contract.ts
-│           │     │  └─ index.ts
-│           │     └─ landmassPlates/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           ├─ narrative-mid/
-│           │  ├─ index.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     ├─ storyCorridorsPre/
-│           │     │  ├─ contract.ts
-│           │     │  └─ index.ts
-│           │     └─ storyOrogeny/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           ├─ narrative-post/
-│           │  ├─ index.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     └─ storyCorridorsPost/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           ├─ narrative-pre/
-│           │  ├─ index.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     ├─ storyHotspots/
-│           │     │  ├─ contract.ts
-│           │     │  └─ index.ts
-│           │     ├─ storyRifts/
-│           │     │  ├─ contract.ts
-│           │     │  └─ index.ts
-│           │     └─ storySeed/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           ├─ narrative-swatches/
-│           │  ├─ index.ts
-│           │  └─ steps/
-│           │     ├─ index.ts
-│           │     └─ storySwatches/
-│           │        ├─ contract.ts
-│           │        └─ index.ts
-│           └─ placement/
-│              ├─ index.ts
-│              ├─ placement-inputs.ts
-│              ├─ placement-outputs.ts
+│           └─ <stage-id>/             # exact kebab-case stage id
+│              ├─ index.ts             # createStage + direct named step imports
+│              ├─ viz.ts               # optional stage-shared visualization authoring
+│              ├─ log.ts               # optional stage-shared diagnostics
 │              └─ steps/
-│                 ├─ index.ts
-│                 ├─ derivePlacementInputs/
-│                 │  ├─ contract.ts
-│                 │  └─ index.ts
-│                 └─ placement/
-│                    ├─ contract.ts
-│                    └─ index.ts
+│                 └─ <step-id>/         # exact kebab-case step id
+│                    ├─ config.ts       # named documented *StepContract via defineStep
+│                    ├─ step.ts         # named documented *Step via createStep
+│                    └─ <helper>.ts     # optional step-private support
 └─ test/
    ├─ dev/
    │  └─ crust-map.test.ts

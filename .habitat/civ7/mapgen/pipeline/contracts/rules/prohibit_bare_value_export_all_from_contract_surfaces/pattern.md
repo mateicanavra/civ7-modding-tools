@@ -3,8 +3,9 @@ level: error
 ---
 # Prohibit Bare Value Export-All From Contract Surfaces
 
-Contract and public-surface files must not re-export value surfaces with bare
-`export *`; type-only aggregation remains allowed.
+Domain contract files and recipe `StepContract` config modules must not
+re-export value surfaces with bare `export *`; type-only aggregation remains
+allowed.
 
 ```grit
 language js(typescript)
@@ -13,7 +14,7 @@ language js(typescript)
   $export_text = text($export),
   ! $export_text <: includes "export type *",
   or {
-    $filename <: r".*mods/[^/]+/src/recipes/.*/stages/.*/steps/.*(?:contract|\.contract)\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/.*/stages/[^/]+/steps/[^/]+/config\.ts$",
     $filename <: r".*mods/[^/]+/src/domain/.*/ops/.*/(?:contract|types|index)\.ts$",
     $filename <: r".*mods/[^/]+/src/domain/.*/ops/.*/(?:rules|strategies)/.*\.ts$"
   }
@@ -41,10 +42,10 @@ export * from "../contract.js";
 // @filename: mods/mod-swooper-maps/src/domain/demo/ops/plan-demo/strategies/default.ts
 export * from "../contract.js";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/config.ts
 export * from "@mapgen/domain/demo";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/build.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/assemble/config.ts
 export * from "@mapgen/domain/demo";
 ```
 
@@ -67,10 +68,10 @@ export * from "../contract.js";
 // @filename: mods/mod-swooper-maps/src/domain/demo/ops/plan-demo/strategies/default.ts
 export * from "../contract.js";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/config.ts
 export * from "@mapgen/domain/demo";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/build/build.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo/steps/assemble/config.ts
 export * from "@mapgen/domain/demo";
 ```
 

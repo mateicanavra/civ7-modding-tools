@@ -1,0 +1,179 @@
+import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { clamp01 } from "@swooper/mapgen-core/lib/math";
+import {
+  assertBiomeIndexVizCategoriesCoverSymbols,
+  BIOME_INDEX_VIZ_CATEGORIES,
+} from "../../viz.js";
+import { BiomesStepContract } from "./config.js";
+
+const GROUP_BIOMES = "Ecology / Biomes";
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
+
+/**
+ * Classifies refined climate, soil, cryosphere, and topography into stable
+ * biome truth; Civ7 biome IDs remain owned by the later map-ecology projection.
+ */
+export const BiomesStep = createStep(BiomesStepContract, {
+  run: (context, config, ops, deps) => {
+    const { width, height } = context.dimensions;
+
+    const climateIndices = deps.artifacts.climateIndices.read(context);
+    const topography = deps.artifacts.topography.read(context);
+    const { landMask } = topography;
+    const pedology = deps.artifacts.pedology.read(context);
+    const cryosphere = deps.artifacts.cryosphere.read(context);
+
+    const result = ops.classify(
+      {
+        width,
+        height,
+        effectiveMoisture: climateIndices.effectiveMoisture,
+        surfaceTemperatureC: climateIndices.surfaceTemperatureC,
+        aridityIndex: climateIndices.aridityIndex,
+        freezeIndex: climateIndices.freezeIndex,
+        landMask,
+        soilType: pedology.soilType,
+        fertility: pedology.fertility,
+      },
+      config.classify
+    );
+
+    const size = Math.max(0, (width | 0) * (height | 0));
+    const treeLine01 = new Float32Array(size);
+    for (let i = 0; i < size; i++) {
+      treeLine01[i] = clamp01(1 - (cryosphere.permafrost01?.[i] ?? 0));
+    }
+
+    dumpScalarFieldVariants(context.trace, context.viz, {
+      dataTypeKey: "ecology.biome.vegetationDensity",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      field: { format: "f32", values: result.vegetationDensity },
+      label: "Vegetation Density",
+      group: GROUP_BIOMES,
+      points: {},
+    });
+    dumpScalarFieldVariants(context.trace, context.viz, {
+      dataTypeKey: "ecology.biome.effectiveMoisture",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      field: { format: "f32", values: result.effectiveMoisture },
+      label: "Effective Moisture",
+      group: GROUP_BIOMES,
+      points: {},
+    });
+    assertBiomeIndexVizCategoriesCoverSymbols();
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "ecology.biome.biomeIndex",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: result.biomeIndex,
+      meta: defineVizMeta("ecology.biome.biomeIndex", {
+        label: "Biome Index",
+        group: GROUP_BIOMES,
+        palette: "categorical",
+        categories: BIOME_INDEX_VIZ_CATEGORIES.map((category) => ({
+          value: category.value,
+          label: category.label,
+          color: [...category.color] as [number, number, number, number],
+        })),
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "ecology.biome.surfaceTemperature",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "f32",
+      values: result.surfaceTemperature,
+      meta: defineVizMeta("ecology.biome.surfaceTemperature", {
+        label: "Surface Temperature",
+        group: GROUP_BIOMES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "ecology.biome.aridityIndex",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "f32",
+      values: result.aridityIndex,
+      meta: defineVizMeta("ecology.biome.aridityIndex", {
+        label: "Aridity Index",
+        group: GROUP_BIOMES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "ecology.biome.freezeIndex",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "f32",
+      values: result.freezeIndex,
+      meta: defineVizMeta("ecology.biome.freezeIndex", {
+        label: "Freeze Index",
+        group: GROUP_BIOMES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "ecology.biome.groundIce01",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "f32",
+      values: cryosphere.groundIce01,
+      meta: defineVizMeta("ecology.biome.groundIce01", {
+        label: "Ground Ice 01",
+        group: GROUP_BIOMES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "ecology.biome.permafrost01",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "f32",
+      values: cryosphere.permafrost01,
+      meta: defineVizMeta("ecology.biome.permafrost01", {
+        label: "Permafrost 01",
+        group: GROUP_BIOMES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "ecology.biome.meltPotential01",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "f32",
+      values: cryosphere.meltPotential01,
+      meta: defineVizMeta("ecology.biome.meltPotential01", {
+        label: "Melt Potential 01",
+        group: GROUP_BIOMES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "ecology.biome.treeLine01",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "f32",
+      values: treeLine01,
+      meta: defineVizMeta("ecology.biome.treeLine01", {
+        label: "Tree Line 01",
+        group: GROUP_BIOMES,
+        visibility: "debug",
+      }),
+    });
+
+    deps.artifacts.biomeClassification.publish(context, {
+      width,
+      height,
+      ...result,
+      groundIce01: cryosphere.groundIce01,
+      permafrost01: cryosphere.permafrost01,
+      meltPotential01: cryosphere.meltPotential01,
+      treeLine01,
+    });
+  },
+});

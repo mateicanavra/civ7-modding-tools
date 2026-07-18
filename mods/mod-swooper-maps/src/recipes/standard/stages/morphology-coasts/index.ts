@@ -1,6 +1,7 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { landmassPlates, ruggedCoasts } from "./steps/index.js";
+import { LandmassPlatesStep } from "./steps/landmass-plates/step.js";
+import { RuggedCoastsStep } from "./steps/rugged-coasts/step.js";
 
 export type MorphologySeaLevelKnob = "land-heavy" | "earthlike" | "water-heavy";
 
@@ -699,8 +700,8 @@ export default createStage({
   knobsSchema,
   public: publicSchema,
   steps: orderStandardStageSteps("morphology-coasts", {
-    "landmass-plates": landmassPlates,
-    "rugged-coasts": ruggedCoasts,
+    "landmass-plates": LandmassPlatesStep,
+    "rugged-coasts": RuggedCoastsStep,
   }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "landmass-plates": {

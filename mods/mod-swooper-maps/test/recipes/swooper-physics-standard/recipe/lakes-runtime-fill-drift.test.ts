@@ -4,9 +4,9 @@ import { MockAdapter } from "@civ7/adapter";
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { COAST_TERRAIN, createExtendedMapContext, FLAT_TERRAIN } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import lakes from "../../../../src/recipes/standard/stages/map-hydrology/steps/lakes.js";
+import { LakesStep } from "../../../../src/recipes/standard/stages/map-hydrology/steps/lakes/step.js";
 import { artifacts as mapMorphologyArtifacts } from "../../../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
-import plotRivers from "../../../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
+import { PlotRiversStep } from "../../../../src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.js";
 import { buildTestDeps } from "../../../support/step-deps.js";
 
 const { selectNavigableRiverTerrain } = hydrologyOpsPublic.ops;
@@ -104,8 +104,13 @@ describe("map-hydrology/lakes runtime fill drift", () => {
       promotedOceanToCoast: 0,
     });
 
-    lakes.run(context as any, { projectionReadback: true }, {} as any, buildTestDeps(lakes));
-    plotRivers.run(
+    LakesStep.run(
+      context as any,
+      { projectionReadback: true },
+      {} as any,
+      buildTestDeps(LakesStep)
+    );
+    PlotRiversStep.run(
       context as any,
       {
         selectNavigableRiverTerrain: {
@@ -114,7 +119,7 @@ describe("map-hydrology/lakes runtime fill drift", () => {
         },
       },
       { selectNavigableRiverTerrain: selectNavigableRiverTerrain.run } as any,
-      buildTestDeps(plotRivers)
+      buildTestDeps(PlotRiversStep)
     );
 
     const projection = context.artifacts.get("artifact:map.rivers.engineProjectionRivers") as

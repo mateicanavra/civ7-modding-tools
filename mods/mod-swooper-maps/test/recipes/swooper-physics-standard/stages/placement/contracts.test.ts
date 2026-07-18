@@ -7,16 +7,16 @@ import {
   artifactModules as placementArtifactModules,
   artifacts as placementArtifacts,
 } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
-import adjustResourcesStep from "../../../../../src/recipes/standard/stages/placement/steps/adjust-resources/index.js";
-import assignAdvancedStartsStep from "../../../../../src/recipes/standard/stages/placement/steps/assign-advanced-starts/index.js";
-import assignStartsStep from "../../../../../src/recipes/standard/stages/placement/steps/assign-starts/index.js";
-import derivePlacementInputsStep from "../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/index.js";
-import placeDiscoveriesStep from "../../../../../src/recipes/standard/stages/placement/steps/place-discoveries/index.js";
-import placeNaturalWondersStep from "../../../../../src/recipes/standard/stages/placement/steps/place-natural-wonders/index.js";
-import placeResourcesStep from "../../../../../src/recipes/standard/stages/placement/steps/place-resources/index.js";
-import placementStep from "../../../../../src/recipes/standard/stages/placement/steps/placement/index.js";
-import planResourcesStep from "../../../../../src/recipes/standard/stages/placement/steps/plan-resources/index.js";
-import preparePlacementSurfaceStep from "../../../../../src/recipes/standard/stages/placement/steps/prepare-placement-surface/index.js";
+import { AdjustResourcesStep } from "../../../../../src/recipes/standard/stages/placement/steps/adjust-resources/step.js";
+import { AssignAdvancedStartsStep } from "../../../../../src/recipes/standard/stages/placement/steps/assign-advanced-starts/step.js";
+import { AssignStartsStep } from "../../../../../src/recipes/standard/stages/placement/steps/assign-starts/step.js";
+import { DerivePlacementInputsStep } from "../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/step.js";
+import { PlaceDiscoveriesStep } from "../../../../../src/recipes/standard/stages/placement/steps/place-discoveries/step.js";
+import { PlaceNaturalWondersStep } from "../../../../../src/recipes/standard/stages/placement/steps/place-natural-wonders/step.js";
+import { PlaceResourcesStep } from "../../../../../src/recipes/standard/stages/placement/steps/place-resources/step.js";
+import { PlacementStep } from "../../../../../src/recipes/standard/stages/placement/steps/placement/step.js";
+import { PlanResourcesStep } from "../../../../../src/recipes/standard/stages/placement/steps/plan-resources/step.js";
+import { PreparePlacementSurfaceStep } from "../../../../../src/recipes/standard/stages/placement/steps/prepare-placement-surface/step.js";
 import {
   PLACEMENT_PRODUCT_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
@@ -84,13 +84,13 @@ function makeValidStartAssignment(seatCount: number, assigned = seatCount) {
 
 describe("placement product/effect contracts", () => {
   it("consumes feature projection through admitted artifact evidence", () => {
-    expect(derivePlacementInputsStep.contract.requires).toContain(
+    expect(DerivePlacementInputsStep.contract.requires).toContain(
       STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied
     );
-    expect(derivePlacementInputsStep.contract.artifacts?.requires).toContain(
+    expect(DerivePlacementInputsStep.contract.artifacts?.requires).toContain(
       ecologyArtifacts.featureEngineSnapshot
     );
-    expect(derivePlacementInputsStep.contract.requires.some((id) => id.startsWith("field:"))).toBe(
+    expect(DerivePlacementInputsStep.contract.requires.some((id) => id.startsWith("field:"))).toBe(
       false
     );
   });
@@ -107,18 +107,18 @@ describe("placement product/effect contracts", () => {
       placementStepIds.indexOf("mod-swooper-maps.standard.placement.prepare-placement-surface")
     );
 
-    expect(placeNaturalWondersStep.contract.provides).toContain(
+    expect(PlaceNaturalWondersStep.contract.provides).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced
     );
     expect(
-      placeNaturalWondersStep.contract.artifacts?.provides?.map(({ artifact }) => artifact)
+      PlaceNaturalWondersStep.contract.artifacts?.provides?.map(({ artifact }) => artifact)
     ).toContain(placementArtifacts.naturalWonderPlacement);
-    expect(preparePlacementSurfaceStep.contract.requires).toContain(
+    expect(PreparePlacementSurfaceStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced
     );
     // S6: ordering after the wonder stamp is tag-only; the step declares no
     // read-and-discard artifact requirement on the wonder evidence.
-    expect(preparePlacementSurfaceStep.contract.artifacts?.requires).not.toContain(
+    expect(PreparePlacementSurfaceStep.contract.artifacts?.requires).not.toContain(
       placementArtifacts.naturalWonderPlacement
     );
   });
@@ -161,46 +161,46 @@ describe("placement product/effect contracts", () => {
       placementStepIds.indexOf("mod-swooper-maps.standard.placement.place-discoveries")
     );
 
-    expect(planResourcesStep.contract.provides).toContain(
+    expect(PlanResourcesStep.contract.provides).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned
     );
-    expect(assignStartsStep.contract.requires).toContain(
+    expect(AssignStartsStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned
     );
-    expect(adjustResourcesStep.contract.requires).toContain(
+    expect(AdjustResourcesStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned
     );
-    expect(adjustResourcesStep.contract.provides).toContain(
+    expect(AdjustResourcesStep.contract.provides).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesAdjusted
     );
     expect(
-      adjustResourcesStep.contract.artifacts?.provides?.map(({ artifact }) => artifact)
+      AdjustResourcesStep.contract.artifacts?.provides?.map(({ artifact }) => artifact)
     ).toContain(placementArtifacts.resourcePlanAdjusted);
-    expect(placeResourcesStep.contract.requires).toContain(
+    expect(PlaceResourcesStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesAdjusted
     );
-    expect(placeResourcesStep.contract.artifacts?.requires).toContain(
+    expect(PlaceResourcesStep.contract.artifacts?.requires).toContain(
       placementArtifacts.resourcePlanAdjusted
     );
-    expect(placeResourcesStep.contract.provides).toContain(
+    expect(PlaceResourcesStep.contract.provides).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced
     );
-    expect(placeDiscoveriesStep.contract.requires).toContain(
+    expect(PlaceDiscoveriesStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced
     );
-    expect(assignStartsStep.contract.provides).toContain(
+    expect(AssignStartsStep.contract.provides).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned
     );
-    expect(placeDiscoveriesStep.contract.provides).toContain(
+    expect(PlaceDiscoveriesStep.contract.provides).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.discoveriesPlaced
     );
-    expect(assignAdvancedStartsStep.contract.provides).toContain(
+    expect(AssignAdvancedStartsStep.contract.provides).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned
     );
-    expect(placementStep.contract.requires).toContain(
+    expect(PlacementStep.contract.requires).toContain(
       PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned
     );
-    expect(placementStep.contract.artifacts?.requires).toEqual(
+    expect(PlacementStep.contract.artifacts?.requires).toEqual(
       expect.arrayContaining([
         placementArtifacts.resourcePlacementOutcomes,
         placementArtifacts.startAssignment,
@@ -213,7 +213,7 @@ describe("placement product/effect contracts", () => {
   it("keeps maintenance operations transactional until they own an independent product contract", () => {
     const placementStepIds = standardRecipe.recipe.steps.map((step) => step.id);
 
-    expect(placementStep.contract.provides).toContain(
+    expect(PlacementStep.contract.provides).toContain(
       STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied
     );
     expect(placementStepIds.some((id) => id.includes(".terrain.validate"))).toBe(false);

@@ -109,6 +109,13 @@ MapGen is a deterministic pipeline with explicit ownership boundaries.
 | Execution            | Run the compiled plan with dependency gates, write-once artifacts, traces, and buffers.                                                                           | Architecture design or compatibility shims.                              |
 | Projection / Runtime | Materialize truth artifacts into Civ7 engine state and verify effects.                                                                                            | Domain truth unless explicitly accepted as a projection limitation.      |
 
+Recipe steps use one source topology: `steps/<step-id>/config.ts` owns the
+runtime-free `defineStep` contract, while `steps/<step-id>/step.ts` owns the
+`createStep` implementation. The step directory name is the contract's exact
+kebab-case id. Stage roots import step implementations directly; forwarding
+step barrels and flat `*.contract.ts`/implementation pairs are not additional
+authorities.
+
 Two invariants dominate the refactor:
 
 - **Recipe owns ordering.** Stage order is the recipe array. `requires` and

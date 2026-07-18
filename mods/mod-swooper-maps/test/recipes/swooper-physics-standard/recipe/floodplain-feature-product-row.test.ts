@@ -9,8 +9,8 @@ import {
   artifactModules as ecologyArtifactModules,
   artifacts as ecologyArtifacts,
 } from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import planFloodplainsStep from "../../../../src/recipes/standard/stages/ecology-features/steps/plan-floodplains/index.js";
-import featuresApplyStep from "../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
+import { PlanFloodplainsStep } from "../../../../src/recipes/standard/stages/ecology-features/steps/plan-floodplains/step.js";
+import { FeaturesApplyStep } from "../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/step.js";
 import { normalizeOpSelectionOrThrow } from "../../../support/compiler-helpers.js";
 import { createEmptyFeatureScoreLayers } from "../../../support/feature-score-layers.js";
 import { buildTestDeps } from "../../../support/step-deps.js";
@@ -141,9 +141,9 @@ describe("floodplain feature product row", () => {
         },
       }),
     };
-    const planOps = ecology.ops.bind(planFloodplainsStep.contract.ops!).runtime;
-    const planDeps = buildTestDeps(planFloodplainsStep);
-    planFloodplainsStep.run(ctx, planConfig, planOps, planDeps);
+    const planOps = ecology.ops.bind(PlanFloodplainsStep.contract.ops!).runtime;
+    const planDeps = buildTestDeps(PlanFloodplainsStep);
+    PlanFloodplainsStep.run(ctx, planConfig, planOps, planDeps);
 
     const floodplainIntents = planDeps.artifacts.featureIntentsFloodplains.read(ctx);
     expect(floodplainIntents.length).toBeGreaterThan(0);
@@ -170,8 +170,8 @@ describe("floodplain feature product row", () => {
         ecology.ops.applyFeatures.defaultConfig
       ),
     };
-    const applyOps = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
-    featuresApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(featuresApplyStep));
+    const applyOps = ecology.ops.bind(FeaturesApplyStep.contract.ops!).runtime;
+    FeaturesApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(FeaturesApplyStep));
 
     const diagnostics = ctx.artifacts.get(ecologyArtifacts.featureApplyDiagnostics.id) as
       | {

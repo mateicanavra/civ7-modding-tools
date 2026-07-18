@@ -9,7 +9,7 @@ Contract schema definitions should not use empty object defaults.
 language js(typescript)
 
 `default: {}` where {
-  $filename <: r".*mods/[^/]+/src/(?:domain/.*/ops/(?:.*/contract|.*\.contract)|recipes/.*/steps/(?:.*/contract|.*\.contract))\.ts$"
+  $filename <: r".*mods/[^/]+/src/(?:domain/.*/ops/(?:.*/contract|.*\.contract)|recipes/.*/stages/[^/]+/steps/[^/]+/config)\.ts$"
 }
 ```
 
@@ -39,7 +39,7 @@ export const Schema = Type.Object({
   ),
 });
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/config.ts
 export const StepContract = {
   input: Type.Object(
     {},
@@ -54,7 +54,7 @@ export const OrdinaryContract = {
   default: {},
 };
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/render/config.ts
 export const StepOrdinaryContract = {
   default: {},
 };

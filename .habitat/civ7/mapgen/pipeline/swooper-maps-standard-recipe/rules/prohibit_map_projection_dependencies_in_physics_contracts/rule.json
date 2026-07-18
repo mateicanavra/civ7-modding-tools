@@ -12,14 +12,14 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "standard-recipe physics stage contracts requiring map artifacts or map effects",
-  "why": "The current standard recipe keeps upstream physics contracts independent from map projection artifacts and effects.",
+  "forbids": "standard-recipe physics step config modules requiring map artifacts or map effects",
+  "why": "The current standard recipe keeps upstream physics StepContract definitions independent from map projection artifacts and effects.",
   "remediate": null,
   "message": "Keep map projection dependencies out of standard recipe physics contracts.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.contract.ts"]
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/*/steps/*/config.ts"]
     }
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],

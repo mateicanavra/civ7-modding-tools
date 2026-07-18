@@ -1,6 +1,6 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { geomorphology } from "./steps/index.js";
+import { GeomorphologyStep } from "./steps/geomorphology/step.js";
 
 export type MorphologyErosionKnob = "low" | "normal" | "high";
 
@@ -139,7 +139,7 @@ export default createStage({
         "Morphology geomorphic-cycle controls for fluvial incision, diffusion, deposition, and world-age erosion posture.",
     }
   ),
-  steps: orderStandardStageSteps("morphology-erosion", { geomorphology }),
+  steps: orderStandardStageSteps("morphology-erosion", { geomorphology: GeomorphologyStep }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     geomorphology: {
       geomorphology: { strategy: "default", config: config.geomorphicCycle },

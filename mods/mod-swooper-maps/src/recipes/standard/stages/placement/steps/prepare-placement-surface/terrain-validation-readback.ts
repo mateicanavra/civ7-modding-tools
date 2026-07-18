@@ -1,5 +1,6 @@
 import type { EngineAdapter } from "@civ7/adapter";
 
+/** Exact engine terrain and classification snapshot at one maintenance boundary. */
 export type TerrainValidationBoundarySnapshot = Readonly<{
   stage: string;
   terrain: Int32Array;

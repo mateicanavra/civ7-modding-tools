@@ -17,28 +17,28 @@ language js(typescript)
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/steps/climateRefine.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/steps/climate-refine/step.ts
 context.adapter.setRainfall(x, y, rainfall);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/features.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-vegetation/step.ts
 const adapter = context.adapter;
 ```
 
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/project-rainfall.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/project-rainfall/step.ts
 context.adapter.setRainfall(x, y, rainfall);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.ts
 context.adapter.modelRivers(1, 5, terrain);
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/assign-starts/index.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/assign-starts/step.ts
 context.adapter.getAliveMajorIds();
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.tsx
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.tsx
 context.adapter.modelRivers(1, 5, terrain);
 
-// @filename: mods/other-mod/src/recipes/standard/stages/map-rivers/steps/demo.ts
+// @filename: mods/other-mod/src/recipes/standard/stages/map-rivers/steps/demo/step.ts
 context.adapter.modelRivers(1, 5, terrain);
 ```

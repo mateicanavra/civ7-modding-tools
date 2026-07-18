@@ -3,6 +3,7 @@ import type { Static } from "@swooper/mapgen-core/authoring";
 
 type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 
+/** Stable tuple emitted for each bounded natural-wonder plan sample. */
 export type NaturalWonderPlanRuntimeRow = readonly [
   status: "p",
   plotIndex: number,
@@ -14,6 +15,7 @@ export type NaturalWonderPlanRuntimeRow = readonly [
   priorityPpm: number | null,
 ];
 
+/** Versioned, bounded natural-wonder plan evidence and its order-independent coordinate hash. */
 export type NaturalWonderPlanRuntimeTelemetry = {
   version: 1;
   wondersCount: number;

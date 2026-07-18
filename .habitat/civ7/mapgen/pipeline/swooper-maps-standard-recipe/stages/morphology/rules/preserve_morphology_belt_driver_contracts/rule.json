@@ -14,14 +14,14 @@
   "lane": "enforced",
   "forbids": "missing canonical morphology belt-driver contract references or direct mountain dependencies on retired Foundation driver products",
   "why": "Morphology coasts derive belt drivers from canonical Standard foundation tile artifacts; mountain planning consumes the Morphology-owned belt-driver artifact.",
-  "remediate": "Require the three Standard foundation tile products in landmassPlates, provide morphologyArtifactModules.beltDrivers there, and consume morphologyArtifacts.beltDrivers from mountains.",
+  "remediate": "Require the three Standard foundation tile products in landmass-plates, provide morphologyArtifactModules.beltDrivers there, and consume morphologyArtifacts.beltDrivers from mountains.",
   "message": "Keep morphology belt-driver contracts wired to canonical artifacts.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
-        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts"
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains/config.ts"
       ]
     }
   ],

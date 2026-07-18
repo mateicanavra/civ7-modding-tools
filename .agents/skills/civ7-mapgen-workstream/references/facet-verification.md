@@ -57,7 +57,18 @@ When the branch resolves to **display**, the fix is one of a small set of files 
 | wrong default / overlay layer selected | `useVizState.ts` | `effectiveLayer` / `overlayLayer` memos |
 | layers never appear after a run | `ingest.ts` / `vizStore.ts` | `ingestVizEvent` maps the `VizEvent` union onto `VizManifestV1`; streaming-commit state |
 
-**Caveat — wrong layer *metadata* is not a Studio fix.** `meta.categories` / `meta.palette` / `meta.label` / `dataTypeKey` / `variantKey` come from the recipe step that calls `viz.dumpGrid/dumpPoints/dumpSegments/dumpGridFields` (schema in `@swooper/mapgen-viz`). If metadata is wrong, fix the **generation** step, not `presentation.ts`. The browser dumper (`browser-runner/worker-viz-dumper.ts`, emits `viz.layer.emit.v1` with inline ArrayBuffers) and the CLI dumper (`src/dev/viz/dump.ts`, emits `viz.layer.dump.v1` with `.bin` path refs) must emit identical `VizLayerEntryV1` shapes — divergence makes Studio disagree with `diag:diff`.
+**Caveat — wrong layer *metadata* is not a Studio fix.**
+`meta.categories` / `meta.palette` / `meta.label` / `dataTypeKey` /
+`variantKey` are recipe-owned. The current authoring surface is the owning
+step's optional `createStep(contract, { viz })` facet; legacy steps may still
+emit through `context.viz.dumpGrid/dumpPoints/dumpSegments/dumpGridFields` while
+they migrate. Private helpers belong in `steps/<step>/viz.ts`; shared owner-stage
+helpers belong in `stages/<stage>/viz.ts`. See the canonical model in
+`docs/system/libs/mapgen/reference/VISUALIZATION.md`. If metadata is wrong, fix
+the owning recipe step/helper, not `presentation.ts`. The browser dumper
+(`browser-runner/worker-viz-dumper.ts`, inline ArrayBuffers) and CLI facet sink
+(`src/dev/viz/dump.ts`, `.bin` path refs) must materialize identical
+`VizLayerEntryV1` shapes — divergence makes Studio disagree with `diag:diff`.
 
 Studio launch / daemon contract (port 5174, oRPC `/rpc`, `runtimeMode: "studio-daemon-effect-orpc"`) and the control-surface design owner (`civ7-orpc-control-architecture`) live in `references/pipeline-map.md` — not repeated here.
 
@@ -148,5 +159,8 @@ The arms stay coupled: the coast fix (behavioral) required locating the adapter-
 ## Currency notes
 
 - The `mapgen:*` cache plugin skills are **philosophy-only / outdated arch** — never cite their paths, schemas, or stage structure as a verification surface.
-- `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md` was reconciled as **current** (17 stages, zero drift) at last check — but verify any stage list against `recipes/standard/recipe.ts` + `contract-manifest.ts` before trusting it.
+- `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md` currently lists the
+  same 22 stages, including the five `foundation-*` stages and
+  `morphology-shelf`, but the live order authority remains
+  `recipes/standard/contract-manifest.ts` (`standardStageContractManifest`).
 - The `@civ7/map-policy` snapshot is dated 2026-01-24; static legality tables may lag a game patch. Cross-check resource-legality claims against `game:gameinfo` when a live game is available.

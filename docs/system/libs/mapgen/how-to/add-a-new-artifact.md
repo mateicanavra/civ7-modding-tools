@@ -101,7 +101,8 @@ complete module so the contract and validator cannot drift into separate declara
 ```ts
 import { artifactModules as morphologyArtifactModules } from "../artifacts/index.js";
 
-const RoutingStepContract = defineStep({
+/** Admits the routing artifact as the canonical output of the routing step. */
+export const RoutingStepContract = defineStep({
   // ...id, phase, tags, ops, and schema...
   artifacts: {
     provides: [morphologyArtifactModules.routing],
@@ -120,9 +121,10 @@ runtime from the modules already admitted by the step contract.
 
 ```ts
 import { createStep } from "@swooper/mapgen-core/authoring";
-import RoutingStepContract from "./routing.contract.js";
+import { RoutingStepContract } from "./config.js";
 
-export default createStep(RoutingStepContract, {
+/** Computes and publishes the routing artifact through the admitted step dependency. */
+export const RoutingStep = createStep(RoutingStepContract, {
   run: (context, config, ops, deps) => {
     const routing = ops.computeRouting({ /* operation inputs */ }, config.computeRouting);
     deps.artifacts.routing.publish(context, routing);
@@ -164,4 +166,4 @@ into `context.artifacts` directly.
 - Step producer binding: `packages/mapgen-core/src/authoring/step/create.ts`
 - Example artifact owner: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts/routing.artifact.ts`
 - Example catalog: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts/index.ts`
-- Example producer: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing/steps/routing.ts`
+- Example producer: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing/steps/routing/step.ts`

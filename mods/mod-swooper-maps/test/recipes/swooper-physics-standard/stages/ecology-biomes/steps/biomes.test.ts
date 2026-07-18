@@ -9,9 +9,9 @@ import {
   artifactModules as ecologyArtifactModules,
   artifacts as ecologyArtifacts,
 } from "../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import biomesStep from "../../../../../../src/recipes/standard/stages/ecology-biomes/steps/biomes/index.js";
+import { BiomesStep as biomesStep } from "../../../../../../src/recipes/standard/stages/ecology-biomes/steps/biomes/step.js";
 import { artifactModules as hydrologyClimateRefineArtifactModules } from "../../../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
-import plotBiomesStep from "../../../../../../src/recipes/standard/stages/map-ecology/steps/plotBiomes.js";
+import { PlotBiomesStep as plotBiomesStep } from "../../../../../../src/recipes/standard/stages/map-ecology/steps/plot-biomes/step.js";
 import { BiomeEngineBindingsSchema } from "../../../../../../src/recipes/standard/stages/map-projection-public-config.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";

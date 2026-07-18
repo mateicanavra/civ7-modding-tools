@@ -37,10 +37,13 @@ import type { Static } from "@swooper/mapgen-core/authoring";
 import type { ResourceDemandExclusionReason } from "../../artifacts/resource-demand-plan.artifact.js";
 
 type DerivedHabitatFields = Static<(typeof resources.ops.deriveHabitatFields)["output"]>;
+/** Habitat output admitted only after every typed-array class and map cardinality is checked. */
 export type HabitatFields = HabitatFieldsOutput;
+/** Continuous habitat channels consumed by resource-plan visualization. */
 export type HabitatIntensityFields = Pick<HabitatFieldsOutput, HabitatIntensityFieldName>;
 type SelectSitesInput = Static<(typeof resources.ops.selectResourceSites)["input"]>;
 type DemandRow = SelectSitesInput["demands"][number];
+/** One immutable row from the canonical Earthlike resource expectation corpus. */
 export type EarthlikeExpectationRow = (typeof EARTHLIKE_RESOURCE_EXPECTATIONS)[number];
 type ResourceExpectationInput<G extends ResourceExpectationGroupId> = {
   resourceType: OfficialResourceType;
@@ -59,6 +62,7 @@ type ResourceExpectationInput<G extends ResourceExpectationGroupId> = {
   caveats: string[];
 };
 
+/** Diagnostic summary of the demand and eligible surface built for one resource type. */
 export type ResourceDemandSummaryRow = {
   resourceType: OfficialResourceType;
   family: ResourceFamilyId;
@@ -74,6 +78,7 @@ export type ResourceDemandSummaryRow = {
   eligibleTileCount: number;
 };
 
+/** Resource demands plus explicit exclusions and the policy inputs used to derive them. */
 export type ResourceDemandBuildResult = {
   demands: DemandRow[];
   summaries: ResourceDemandSummaryRow[];

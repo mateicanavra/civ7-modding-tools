@@ -80,12 +80,14 @@ export type MapGenStepContract<TSchema extends TSchema> = Readonly<{
 
 Notes:
 - `schema` is the single step-owned config schema.
-- `resolveConfig` and `run` are implementation-only and attached via `createStep(...)`.
+- `normalize` and `run` are implementation-only and attached via `createStep(...)`.
 - Steps can reuse `op.config` and `op.defaultConfig` values directly in their schema definitions.
 
 Step authoring surface:
-- `defineStep({ ... })` in `steps/<step>/contract.ts` defines the contract metadata.
-- `createStep(contract, { resolveConfig?, run })` attaches implementation to the contract and returns the runtime step (defaults to `ExtendedMapContext`).
+- A step has one exact kebab-case `steps/<step-id>/` source container; no per-step or `steps/index.ts` barrel participates in composition.
+- `defineStep({ ... })` in `steps/<step-id>/config.ts` defines and exports the named, documented `*StepContract`.
+- `createStep(contract, { normalize?, run })` in `steps/<step-id>/step.ts` exports the named, documented `*Step` runtime value (defaults to `ExtendedMapContext`).
+- Stage roots import the named `*Step` values directly. `config.ts` and `step.ts` do not use default exports.
 - `createStepFor<TContext>()` is reserved for non-standard contexts that need a different `TContext`.
 
 ---
@@ -231,7 +233,7 @@ Canonical authoring surface (Core SDK):
 - `packages/mapgen-core/src/authoring/step/contract.ts`
   - `defineStep(...)`
 - `packages/mapgen-core/src/authoring/step/create.ts`
-  - `createStep(contract, { resolveConfig?, run })`
+  - `createStep(contract, { normalize?, run })`
   - `createStepFor<TContext>()`
 
 Inference rules:
@@ -272,10 +274,10 @@ src/domain/ecology/ops/plan-shrub-vegetation/
   index.ts
 
 src/recipes/standard/stages/ecology/steps/plot-vegetation/
-  contract.ts
+  config.ts
+  step.ts
   lib/
     vegetation.ts
-  index.ts
 ```
 
 ### Tree operation contract
@@ -482,114 +484,58 @@ export type * from "./types.js";
 ### Step orchestration
 
 ```ts
-// src/recipes/standard/stages/ecology/steps/plot-vegetation/contract.ts
-import { Type, defineStep, type Static } from "@swooper/mapgen-core/authoring";
-import * as ecology from "@mapgen/domain/ecology";
+// src/recipes/standard/stages/ecology-features/steps/plan-vegetation/config.ts
+import ecology from "@mapgen/domain/ecology";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../../ecology/artifacts/index.js";
 
-const VEGETATION_DEPENDENCIES = [
-  "field:biomeId@v1",
-  "field:rainfall@v1",
-  "field:elevation@v1",
-  "artifact:climateField",
-];
-
-const VEGETATION_PROVIDES = ["artifact:ecology.vegetation"];
-
-export const PlotVegetationStepContract = defineStep({
-  id: "plot-vegetation",
+/** Declares the typed evidence and operation used by final vegetation planning. */
+export const PlanVegetationStepContract = defineStep({
+  id: "plan-vegetation",
   phase: "ecology",
-  requires: VEGETATION_DEPENDENCIES,
-  provides: VEGETATION_PROVIDES,
-  schema: Type.Object(
-    {
-      trees: ecology.ops.planTreeVegetation.config,
-      shrubs: ecology.ops.planShrubVegetation.config,
-      densityBias: Type.Number({ minimum: -1, maximum: 1, default: 0 }),
-    },
-    {
-      additionalProperties: false,
-      default: {
-        trees: ecology.ops.planTreeVegetation.defaultConfig,
-        shrubs: ecology.ops.planShrubVegetation.defaultConfig,
-        densityBias: 0,
-      },
-    }
-  ),
-} as const);
-
-export type PlotVegetationStepConfig = Static<typeof PlotVegetationStepContract.schema>;
-```
-
-```ts
-// src/recipes/standard/stages/ecology/steps/plot-vegetation/lib/vegetation.ts
-import { clamp01, type ExtendedMapContext } from "@swooper/mapgen-core";
-
-export function applyDensityBias<
-  T extends { strategy: string; config: { density: number } },
->(envelope: T, bias: number): T {
-  return {
-    ...envelope,
-    config: {
-      ...envelope.config,
-      density: clamp01(envelope.config.density + bias),
-    },
-  };
-}
-
-export function buildVegetationInput(context: ExtendedMapContext) {
-  const { width, height } = context.dimensions;
-  return {
-    width,
-    height,
-    biomeId: context.fields.biomeId!,
-    moisture: context.buffers.climate.humidity,
-    elevation: context.fields.elevation!,
-    landMask: context.buffers.heightfield.landMask,
-  };
-}
-```
-
-```ts
-// src/recipes/standard/stages/ecology/steps/plot-vegetation/index.ts
-import { clamp01 } from "@swooper/mapgen-core";
-import { createStep } from "@swooper/mapgen-core/authoring";
-import * as ecology from "@mapgen/domain/ecology";
-
-import { PlotVegetationStepContract } from "./contract.js";
-import { applyDensityBias, buildVegetationInput } from "./lib/vegetation.js";
-
-export default createStep(PlotVegetationStepContract, {
-  resolveConfig: (config, settings) => {
-    const bias = clamp01(config.densityBias);
-    const trees = applyDensityBias(config.trees, bias);
-    const shrubs = applyDensityBias(config.shrubs, bias);
-    return {
-      densityBias: bias,
-      trees: ecology.ops.planTreeVegetation.resolveConfig(trees, settings),
-      shrubs: ecology.ops.planShrubVegetation.resolveConfig(shrubs, settings),
-    };
+  requires: [],
+  provides: [],
+  artifacts: {
+    requires: [ecologyArtifacts.biomeClassification, ecologyArtifacts.occupancyWetlands],
+    provides: [ecologyArtifactModules.featureIntentsVegetation],
   },
-  run: (context, config) => {
-    const input = buildVegetationInput(context);
-    const treePlan = ecology.ops.planTreeVegetation.runValidated(input, config.trees);
-    const shrubPlan = ecology.ops.planShrubVegetation.runValidated(input, config.shrubs);
+  ops: { planVegetation: ecology.ops.planVegetation },
+  schema: Type.Object({}, {
+    description: "Final vegetation planning over admitted habitat and occupancy evidence.",
+  }),
+});
+```
 
-    context.artifacts.set("artifact:ecology.vegetation", {
-      trees: treePlan.placements,
-      shrubs: shrubPlan.placements,
-    });
+```ts
+// src/recipes/standard/stages/ecology-features/steps/plan-vegetation/step.ts
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { PlanVegetationStepContract } from "./config.js";
+import { buildVegetationInput } from "./inputs.js";
+
+/** Plans vegetation from declared evidence and publishes the admitted result once. */
+export const PlanVegetationStep = createStep(PlanVegetationStepContract, {
+  run: (context, config, ops, deps) => {
+    const plan = ops.planVegetation(
+      buildVegetationInput(context, deps.artifacts),
+      config.planVegetation,
+    );
+    deps.artifacts.featureIntentsVegetation.publish(context, plan.placements);
+    return plan;
   },
 });
 ```
 
 ---
 
-## 8) Config Resolution and Defaults
+## 8) Config Normalization and Defaults
 
 - Schema defaults are applied via the existing plan compilation pipeline.
-- `resolveConfig` is optional on the **step implementation** (attached via `createStep`), not the contract.
-- `resolveConfig` may compose op-level resolution via `op.resolveConfig`.
-- `op.resolveConfig` is a per-strategy hook and must return a value that validates against the op config schema.
+- `normalize` is optional on the **step implementation** (attached via `createStep`), not the contract.
+- Operation strategy normalization is compiled through the declared `ops` map; step runtime code calls the admitted `ops` functions directly.
+- A normalizer must return a value that validates against the same step config schema.
 - No secondary config schema exists; the step schema remains the single source of truth.
 
 ---

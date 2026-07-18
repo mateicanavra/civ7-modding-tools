@@ -4,7 +4,7 @@ import {
   compileEcologyBiomesPublicConfig,
   EcologyBiomesPublicSchema,
 } from "../ecology-public-config.js";
-import biomes from "./steps/biomes/index.js";
+import { BiomesStep } from "./steps/biomes/step.js";
 
 /**
  * Biome classification is its own truth stage because downstream feature and
@@ -21,7 +21,7 @@ export default createStage({
     }
   ),
   public: EcologyBiomesPublicSchema,
-  steps: orderStandardStageSteps("ecology-biomes", { biomes }),
+  steps: orderStandardStageSteps("ecology-biomes", { biomes: BiomesStep }),
   compile: ({ config }: { config: Record<string, unknown> }) =>
     compileEcologyBiomesPublicConfig(config),
 } as const);

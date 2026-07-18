@@ -5,7 +5,7 @@ import {
   type FoundationOrogenyPublicConfig,
   FoundationOrogenyPublicSchema,
 } from "../foundation-public-config.js";
-import { crustEvolution } from "./steps/index.js";
+import { CrustEvolutionStep } from "./steps/crust-evolution/step.js";
 
 /**
  * Compiles final crust-character controls into the crust-evolution boundary,
@@ -24,6 +24,6 @@ export default createStage({
   compile: ({ config }: { config: FoundationOrogenyPublicConfig }) =>
     compileFoundationOrogenyPublicConfig(config),
   steps: orderStandardStageSteps("foundation-orogeny", {
-    "crust-evolution": crustEvolution,
+    "crust-evolution": CrustEvolutionStep,
   }),
 } as const);

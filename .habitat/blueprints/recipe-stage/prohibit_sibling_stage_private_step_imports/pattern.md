@@ -3,7 +3,7 @@ level: error
 ---
 # Prohibit Sibling Stage Private Step Imports
 
-Stage code must not import another stage's private `steps/` implementation.
+Stage code must not import another stage's private `steps/` modules.
 
 ```grit
 language js(typescript)
@@ -18,36 +18,36 @@ import_statement(source=$source) where {
 
 ```typescript
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-import step from "../b/steps/foo/index.js";
+import { FooStep } from "../b/steps/foo/step.js";
 
-export const value = step;
+export const value = FooStep;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/index.ts
-export default {};
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/step.ts
+export const FooStep = {};
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/steps/local/index.ts
-import siblingStageStep from "../../b/steps/foo/index.js";
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/steps/local/step.ts
+import { FooStep } from "../../../b/steps/foo/step.js";
 
-export const nestedValue = siblingStageStep;
+export const nestedValue = FooStep;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/config.ts
-import { contract } from "../b/steps/foo/contract.js";
+import { FooStepContract } from "../b/steps/foo/config.js";
 
-export const importedContract = contract;
+export const importedContract = FooStepContract;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/steps/local/index.ts
-import type { StepOutput } from "../../b/steps/foo/types.js";
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/steps/local/step.ts
+import type { StepOutput } from "../../../b/steps/foo/types.js";
 
 export type ImportedOutput = StepOutput;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-import "../b/steps/foo/register.js";
+import "../b/steps/foo/step.js";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/index.ts
-export default {};
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/step.ts
+export const FooStep = {};
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/contract.ts
-export const contract = {};
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/config.ts
+export const FooStepContract = {};
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/types.ts
 export interface StepOutput {
@@ -59,12 +59,12 @@ export interface StepOutput {
 
 ```typescript
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-import step from "./steps/foo/index.js";
+import { FooStep } from "./steps/foo/step.js";
 
-export const value = step;
+export const value = FooStep;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/steps/foo/index.ts
-export default {};
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/steps/foo/step.ts
+export const FooStep = {};
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
 import { contract } from "./contract.js";
@@ -87,33 +87,33 @@ import helper from "../b/stepsish/foo.js";
 export const stepsish = helper;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-export { default as step } from "../b/steps/foo/index.js";
+export { FooStep } from "../b/steps/foo/step.js";
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-const dynamicStep = import("../b/steps/foo/index.js");
+const dynamicStep = import("../b/steps/foo/step.js");
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.tsx
-import stepTsx from "../b/steps/foo/index.js";
+import { FooStep } from "../b/steps/foo/step.js";
 
-export const tsxStep = stepTsx;
+export const tsxStep = FooStep;
 
 // @filename: mods/mod-swooper-maps/src/recipes/browser-test/stages/a/index.ts
-import browserStep from "../b/steps/foo/index.js";
+import { FooStep } from "../b/steps/foo/step.js";
 
-export const browserTestStep = browserStep;
+export const browserTestStep = FooStep;
 
 // @filename: mods/mod-swooper-maps/test/stages/a/index.ts
-import testStep from "../b/steps/foo/index.js";
+import { FooStep } from "../b/steps/foo/step.js";
 
-export const testStageStep = testStep;
+export const testStageStep = FooStep;
 
 // @filename: mods/mod-swooper-maps/src/maps/standard/stages/a/index.ts
-import mapStep from "../b/steps/foo/index.js";
+import { FooStep } from "../b/steps/foo/step.js";
 
-export const mapStageStep = mapStep;
+export const mapStageStep = FooStep;
 
 // @filename: packages/mapgen-core/src/recipes/standard/stages/a/index.ts
-import packageStep from "../b/steps/foo/index.js";
+import { FooStep } from "../b/steps/foo/step.js";
 
-export const packageStageStep = packageStep;
+export const packageStageStep = FooStep;
 ```

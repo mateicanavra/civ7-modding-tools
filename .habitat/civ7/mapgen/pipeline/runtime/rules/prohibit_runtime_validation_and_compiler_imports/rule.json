@@ -20,7 +20,7 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/**/stages/**/steps/**/*.ts",
+        "mods/*/src/recipes/**/stages/*/steps/*/**/!(*.test|*.spec|config).ts",
         "mods/*/src/domain/**/ops/**/strategies/**/*.ts"
       ]
     }

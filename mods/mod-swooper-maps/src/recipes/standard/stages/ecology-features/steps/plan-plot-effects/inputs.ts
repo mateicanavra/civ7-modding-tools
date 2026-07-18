@@ -1,6 +1,10 @@
 import { ctxStepSeed, type ExtendedMapContext, type HeightfieldBuffer } from "@swooper/mapgen-core";
 import type { BiomeClassificationArtifact } from "../../../ecology/artifacts/biome-classification.artifact.js";
 
+/**
+ * Carries the canonical biome and heightfield inputs consumed by plot-effect
+ * scoring so every scorer observes the same map vintage and deterministic seed.
+ */
 export type PlotEffectsStepInput = {
   width: number;
   height: number;

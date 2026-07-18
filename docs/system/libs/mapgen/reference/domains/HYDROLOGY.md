@@ -196,12 +196,12 @@ different writer surface is discovered and proven.
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/index.ts`
 - Step contracts (truth stages):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/steps/climateBaseline.contract.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/steps/rivers.contract.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/steps/climateRefine.contract.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/steps/climate-baseline/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/steps/rivers/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/steps/climate-refine/config.ts`
 - Step contracts (projection stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.contract.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts`
 - Effect tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 

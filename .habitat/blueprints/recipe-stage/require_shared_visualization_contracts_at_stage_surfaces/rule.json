@@ -12,8 +12,8 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "shared steps/viz.ts hubs or cross-step private viz imports",
-  "why": "Stable/shared visualization contracts are stage surfaces; step-private viz stays private.",
+  "forbids": "shared steps/viz.ts hubs",
+  "why": "Stable visualization contracts belong to stage surfaces rather than an ambiguous collection-wide steps hub.",
   "remediate": null,
   "message": "Use stages/<stage>/viz.ts for shared visualization contracts.",
   "pathCoverage": [

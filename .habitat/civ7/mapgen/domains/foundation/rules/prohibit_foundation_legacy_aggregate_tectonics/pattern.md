@@ -10,6 +10,6 @@ Foundation tectonics surfaces must not expose the retired aggregate
 language js(typescript)
 
 `computeTectonicHistory` where {
-  $filename <: r".*mods/mod-swooper-maps/src/(?:domain/foundation/index|recipes/standard/stages/foundation-tectonics/steps/tectonics\.contract)\.ts$"
+  $filename <: r".*mods/mod-swooper-maps/src/(?:domain/foundation/index|recipes/standard/stages/foundation-tectonics/steps/tectonics/config)\.ts$"
 }
 ```

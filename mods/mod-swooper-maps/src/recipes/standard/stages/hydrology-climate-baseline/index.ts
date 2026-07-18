@@ -1,7 +1,7 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { HydrologyClimateBaselinePublicSchema } from "../hydrology-public-config.js";
-import { climateBaseline } from "./steps/index.js";
+import { ClimateBaselineStep } from "./steps/climate-baseline/step.js";
 
 const HydrologyDrynessKnobSchema = Type.Union(
   [Type.Literal("wet"), Type.Literal("mix"), Type.Literal("dry")],
@@ -88,7 +88,7 @@ export default createStage({
   knobsSchema,
   public: HydrologyClimateBaselinePublicSchema,
   steps: orderStandardStageSteps("hydrology-climate-baseline", {
-    "climate-baseline": climateBaseline,
+    "climate-baseline": ClimateBaselineStep,
   }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "climate-baseline": {

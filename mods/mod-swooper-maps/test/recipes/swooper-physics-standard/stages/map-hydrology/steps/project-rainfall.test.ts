@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { MockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { artifacts as hydrologyClimateRefineArtifacts } from "../../../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
-import projectRainfall from "../../../../../../src/recipes/standard/stages/map-hydrology/steps/project-rainfall.js";
+import { ProjectRainfallStep } from "../../../../../../src/recipes/standard/stages/map-hydrology/steps/project-rainfall/step.js";
 import { buildTestDeps } from "../../../../../support/step-deps.js";
 
 class RainfallRecordingAdapter extends MockAdapter {
@@ -30,7 +30,7 @@ describe("map-hydrology/project-rainfall", () => {
       humidity: new Uint8Array(width * height),
     });
 
-    projectRainfall.run(context, {}, {}, buildTestDeps(projectRainfall));
+    ProjectRainfallStep.run(context, {}, {}, buildTestDeps(ProjectRainfallStep));
 
     expect(adapter.projected).toEqual([
       { x: 0, y: 0, rainfall: 0 },

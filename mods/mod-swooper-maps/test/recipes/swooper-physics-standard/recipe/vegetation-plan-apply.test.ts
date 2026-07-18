@@ -8,9 +8,9 @@ import {
   artifactModules as ecologyArtifactModules,
   artifacts as ecologyArtifacts,
 } from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import planVegetationStep from "../../../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/index.js";
+import { PlanVegetationStep } from "../../../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/step.js";
 import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import featuresApplyStep from "../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
+import { FeaturesApplyStep } from "../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/step.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../support/compiler-helpers.js";
 import { createEmptyFeatureScoreLayers } from "../../../support/feature-score-layers.js";
@@ -118,8 +118,8 @@ describe("plan-vegetation/apply pipeline", () => {
         ecology.ops.planVegetation.defaultConfig
       ),
     };
-    const planOps = ecology.ops.bind(planVegetationStep.contract.ops!).runtime;
-    planVegetationStep.run(ctx, planConfig, planOps, buildTestDeps(planVegetationStep));
+    const planOps = ecology.ops.bind(PlanVegetationStep.contract.ops!).runtime;
+    PlanVegetationStep.run(ctx, planConfig, planOps, buildTestDeps(PlanVegetationStep));
 
     // M3 stages: publish empty lists for non-vegetation families so the apply step has a complete surface.
     implementArtifactModules([ecologyArtifactModules.featureIntentsIce]).featureIntentsIce.publish(
@@ -147,8 +147,8 @@ describe("plan-vegetation/apply pipeline", () => {
         ecology.ops.applyFeatures.defaultConfig
       ),
     };
-    const applyOps = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
-    featuresApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(featuresApplyStep));
+    const applyOps = ecology.ops.bind(FeaturesApplyStep.contract.ops!).runtime;
+    FeaturesApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(FeaturesApplyStep));
 
     const snapshot = ctx.artifacts.get(ecologyArtifacts.featureEngineSnapshot.id) as
       | { width: number; height: number; featureType: Int16Array }

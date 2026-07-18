@@ -7,7 +7,7 @@ import {
   artifactModules as ecologyArtifactModules,
   artifacts as ecologyArtifacts,
 } from "../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import featuresApplyStep from "../../../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
+import { FeaturesApplyStep as featuresApplyStep } from "../../../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/step.js";
 import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";
 import { buildTestDeps } from "../../../../../support/step-deps.js";
 

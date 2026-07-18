@@ -1,6 +1,9 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { islands, landmasses, mountains, volcanoes } from "./steps/index.js";
+import { IslandsStep } from "./steps/islands/step.js";
+import { LandmassesStep } from "./steps/landmasses/step.js";
+import { MountainsStep } from "./steps/mountains/step.js";
+import { VolcanoesStep } from "./steps/volcanoes/step.js";
 
 function clamp(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min;
@@ -499,10 +502,10 @@ export default createStage({
   knobsSchema,
   public: publicSchema,
   steps: orderStandardStageSteps("morphology-features", {
-    islands,
-    mountains,
-    volcanoes,
-    landmasses,
+    islands: IslandsStep,
+    mountains: MountainsStep,
+    volcanoes: VolcanoesStep,
+    landmasses: LandmassesStep,
   }),
   compile: ({ config }: { config: Record<string, unknown> }) => {
     const mountainRanges = resolveMountainRangesPublicConfig(config.mountainRanges);

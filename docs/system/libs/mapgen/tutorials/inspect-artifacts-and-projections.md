@@ -111,7 +111,7 @@ trace contexts; if the current step isn’t verbose, the viewer will show no lay
 ## Ground truth anchors
 
 - Standard recipe wiring: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-- Foundation projection step (source of many viz layer dumps): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.ts`
+- Foundation projection step (source of many viz layer dumps): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts`
 - Trace+viz dump harness (writes `trace.jsonl`, `manifest.json`, and `data/*`): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
 - Example runner that produces dumps: `mods/mod-swooper-maps/src/dev/viz/standard-run.ts`
 - Trace core contract: `packages/mapgen-core/src/trace/index.ts`

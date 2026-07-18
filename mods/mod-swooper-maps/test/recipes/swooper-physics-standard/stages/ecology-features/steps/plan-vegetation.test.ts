@@ -8,7 +8,7 @@ import {
   artifactModules as ecologyArtifactModules,
   artifacts as ecologyArtifacts,
 } from "../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import planVegetationStep from "../../../../../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/index.js";
+import { PlanVegetationStep as planVegetationStep } from "../../../../../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/step.js";
 import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";

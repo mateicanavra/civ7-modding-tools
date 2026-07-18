@@ -4,7 +4,8 @@ import {
   compileFoundationTectonicsPublicConfig,
   FoundationTectonicsPublicSchema,
 } from "../foundation-public-config.js";
-import { plateMotion, tectonics } from "./steps/index.js";
+import { PlateMotionStep } from "./steps/plate-motion/step.js";
+import { TectonicsStep } from "./steps/tectonics/step.js";
 
 const FoundationPlateActivityKnobSchema = Type.Number({
   default: 0.5,
@@ -29,7 +30,7 @@ export default createStage({
   compile: ({ config }: { config: Record<string, unknown> }) =>
     compileFoundationTectonicsPublicConfig(config),
   steps: orderStandardStageSteps("foundation-tectonics", {
-    "plate-motion": plateMotion,
-    tectonics,
+    "plate-motion": PlateMotionStep,
+    tectonics: TectonicsStep,
   }),
 } as const);

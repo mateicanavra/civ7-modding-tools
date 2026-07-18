@@ -15,7 +15,7 @@ import {
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { artifacts as mapMorphologyArtifacts } from "../../../../../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
 import { artifacts as mapRiversArtifacts } from "../../../../../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
-import plotRivers from "../../../../../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
+import { PlotRiversStep } from "../../../../../../src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.js";
 import { buildTestDeps } from "../../../../../support/step-deps.js";
 
 const { selectNavigableRiverTerrain } = hydrologyOpsPublic.ops;
@@ -160,7 +160,7 @@ describe("map-rivers/plot-rivers", () => {
 
     expect(adapter.getTerrainType(0, 0)).toBe(FLAT_TERRAIN);
 
-    plotRivers.run(
+    PlotRiversStep.run(
       context as any,
       {
         selectNavigableRiverTerrain: {
@@ -169,7 +169,7 @@ describe("map-rivers/plot-rivers", () => {
         },
       },
       { selectNavigableRiverTerrain: selectNavigableRiverTerrain.run } as any,
-      buildTestDeps(plotRivers)
+      buildTestDeps(PlotRiversStep)
     );
 
     expect(adapter.callOrder).toEqual([

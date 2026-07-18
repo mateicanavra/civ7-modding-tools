@@ -4,6 +4,7 @@ import type { Static } from "@swooper/mapgen-core/authoring";
 
 type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 
+/** Stable tuple emitted for each bounded natural-wonder planning input sample. */
 export type NaturalWonderPlanInputRuntimeRow = readonly [
   status: "p",
   plotIndex: number,
@@ -21,6 +22,7 @@ export type NaturalWonderPlanInputRuntimeRow = readonly [
   landMask: number,
 ];
 
+/** Versioned runtime evidence for the exact surfaces consumed by wonder planning. */
 export type NaturalWonderPlanInputRuntimeTelemetry = {
   version: 1;
   plannedCount: number;
@@ -28,6 +30,7 @@ export type NaturalWonderPlanInputRuntimeTelemetry = {
   inputRows: NaturalWonderPlanInputRuntimeRow[];
 };
 
+/** Deterministic hashes of each planning surface; field identity is part of the log contract. */
 export type NaturalWonderPlanInputSurfaceDigests = {
   version: 1;
   plotCount: number;

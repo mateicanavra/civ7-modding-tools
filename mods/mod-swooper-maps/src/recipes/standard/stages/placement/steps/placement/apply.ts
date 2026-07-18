@@ -3,12 +3,12 @@ import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import type { PlacementOutputsV1 } from "../../artifacts/placement-outputs.artifact.js";
+import { logAsciiMap, logTerrainStats } from "../../log.js";
 import {
   PLACEMENT_TILE_SPACE_ID,
   PLACEMENT_VIZ_GROUP,
   transparentNoneCategory,
 } from "../../viz.js";
-import { logAsciiMap, logTerrainStats } from "../terrain-diagnostics.js";
 
 type LandmassRegionSlotByTile = Static<
   typeof import("../../../../artifacts/index.js").artifacts["landmassRegionSlotByTile"]["schema"]

@@ -124,12 +124,12 @@ The `map-ecology` stage:
   - `mods/mod-swooper-maps/src/domain/ecology/ops/contracts.ts`
   - `mods/mod-swooper-maps/src/domain/ecology/ops/index.ts`
 - Example step contracts (truth stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-pedology/steps/pedology/contract.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes/steps/biomes/contract.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-vegetation/contract.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-pedology/steps/pedology/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes/steps/biomes/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-vegetation/config.ts`
 - Example step contracts (projection stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plotBiomes.contract.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply/contract.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plot-biomes/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply/config.ts`
 - Effect tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Architecture guardrails (import bans and parity gates):

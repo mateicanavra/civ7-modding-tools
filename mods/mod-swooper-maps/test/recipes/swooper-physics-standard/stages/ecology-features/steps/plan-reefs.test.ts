@@ -7,7 +7,7 @@ import {
   artifactModules as ecologyArtifactModules,
   artifacts as ecologyArtifacts,
 } from "../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import planReefsStep from "../../../../../../src/recipes/standard/stages/ecology-features/steps/plan-reefs/index.js";
+import { PlanReefsStep as planReefsStep } from "../../../../../../src/recipes/standard/stages/ecology-features/steps/plan-reefs/step.js";
 import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";
 import { createEmptyFeatureScoreLayers } from "../../../../../support/feature-score-layers.js";

@@ -27,13 +27,16 @@ A step contract defines:
 Representative example (dependency tags + artifact requirements; excerpt; see full file in anchors):
 
 ```ts
+import hydrology from "@mapgen/domain/hydrology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tag-contracts.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts/index.js";
-import { artifacts as mapMorphologyArtifacts } from "../../map-morphology/artifacts/index.js";
-import { artifactModules as mapRiversArtifactModules } from "../artifacts/index.js";
 
-export default defineStep({
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tag-contracts.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
+import { artifacts as mapMorphologyArtifacts } from "../../../map-morphology/artifacts/index.js";
+import { artifactModules as mapRiversArtifactModules } from "../../artifacts/index.js";
+
+/** Contract and compiled configuration boundary for Civ7 river projection. */
+export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "hydrology",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
@@ -53,6 +56,9 @@ export default defineStep({
       mapRiversArtifactModules.engineProjectionRivers,
       mapRiversArtifactModules.riversEngineTerrainSnapshot,
     ],
+  },
+  ops: {
+    selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,
   },
   schema: Type.Object({}),
 });
@@ -74,9 +80,10 @@ Representative example (createStep boundary; excerpt; see full file in anchors):
 
 ```ts
 import { createStep } from "@swooper/mapgen-core/authoring";
-import PlotRiversStepContract from "./plotRivers.contract.js";
+import { PlotRiversStepContract } from "./config.js";
 
-export default createStep(PlotRiversStepContract, {
+/** Projects admitted river evidence into Civ7 and captures engine readback. */
+export const PlotRiversStep = createStep(PlotRiversStepContract, {
   normalize: (config, ctx) => {
     // Shape-preserving; may use ctx.knobs deterministically. For rivers, this
     // is where map-rivers navigableRiverDensity resolves the Hydrology-owned
@@ -149,5 +156,5 @@ topology by sorting or repairing the authored recipe.
 - Config compilation uses StageContractAny/StepModuleAny: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Recipe DAG projection: `packages/mapgen-core/src/authoring/recipe-dag.ts`
 - Policy: schemas and validation: `docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`
-- Example step contract (tags + artifacts): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts`
-- Example step module (createStep boundary): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts`
+- Example step config (contract + artifacts): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts`
+- Example step module (createStep boundary): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.ts`

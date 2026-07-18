@@ -9,8 +9,8 @@ import {
 } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { artifacts as mapMorphologyArtifacts } from "../../../../../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
-import plotCoasts from "../../../../../../src/recipes/standard/stages/map-morphology/steps/plotCoasts.js";
-import plotContinents from "../../../../../../src/recipes/standard/stages/map-morphology/steps/plotContinents.js";
+import { PlotCoastsStep } from "../../../../../../src/recipes/standard/stages/map-morphology/steps/plot-coasts/step.js";
+import { PlotContinentsStep } from "../../../../../../src/recipes/standard/stages/map-morphology/steps/plot-continents/step.js";
 import { buildTestDeps } from "../../../../../support/step-deps.js";
 
 describe("map-morphology/plot-coasts", () => {
@@ -52,7 +52,7 @@ describe("map-morphology/plot-coasts", () => {
       distanceToCoast: new Uint16Array(size),
     });
 
-    plotCoasts.run(context as any, {}, {} as any, buildTestDeps(plotCoasts));
+    PlotCoastsStep.run(context as any, {}, {} as any, buildTestDeps(PlotCoastsStep));
 
     // Land stays land; source coast (shoreline ring + shelf) becomes COAST.
     expect(adapter.getTerrainType(0, 0)).toBe(FLAT_TERRAIN);
@@ -127,7 +127,7 @@ describe("map-morphology/plot-coasts", () => {
       distanceToCoast: new Uint16Array(size),
     });
 
-    plotCoasts.run(context as any, {}, {} as any, buildTestDeps(plotCoasts));
+    PlotCoastsStep.run(context as any, {}, {} as any, buildTestDeps(PlotCoastsStep));
     expect(adapter.getTerrainType(2, 1)).toBe(COAST_TERRAIN);
 
     const originalValidate = adapter.validateAndFixTerrain.bind(adapter);
@@ -136,7 +136,7 @@ describe("map-morphology/plot-coasts", () => {
       adapter.setTerrainType(2, 1, OCEAN_TERRAIN);
     };
 
-    plotContinents.run(context as any, {}, {} as any, buildTestDeps(plotContinents));
+    PlotContinentsStep.run(context as any, {}, {} as any, buildTestDeps(PlotContinentsStep));
 
     expect(adapter.getTerrainType(2, 1)).toBe(COAST_TERRAIN);
     const snapshot = context.artifacts.get(

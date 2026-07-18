@@ -12,34 +12,34 @@ language js(typescript)
 
 or {
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\.contract\.ts$",
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config\.ts$",
     ! $body <: contains `standardArtifacts.foundationCrustTiles`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\.contract\.ts$",
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config\.ts$",
     ! $body <: contains `standardArtifacts.foundationTectonicHistoryTiles`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\.contract\.ts$",
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config\.ts$",
     ! $body <: contains `standardArtifacts.foundationTectonicProvenanceTiles`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\.contract\.ts$",
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config\.ts$",
     ! $body <: contains `morphologyArtifactModules.beltDrivers`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains\.contract\.ts$",
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains/config\.ts$",
     ! $body <: contains `morphologyArtifacts.beltDrivers`
   },
   `standardArtifacts.foundationPlates` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates\.contract\.ts$"
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config\.ts$"
   },
   or {
     `standardArtifacts.foundationTectonicHistoryTiles`,
     `standardArtifacts.foundationTectonicProvenanceTiles`,
     `standardArtifacts.foundationPlates`
   } where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains\.contract\.ts$"
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains/config\.ts$"
   }
 }
 ```
@@ -47,13 +47,13 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config.ts
 const artifacts = {
   requires: [standardArtifacts.foundationPlates],
   provides: [morphologyArtifacts.topography],
 };
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains/config.ts
 const artifacts = {
   requires: [standardArtifacts.foundationTectonicHistoryTiles],
 };
@@ -62,7 +62,7 @@ const artifacts = {
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmass-plates/config.ts
 const artifacts = {
   requires: [
     standardArtifacts.foundationCrustTiles,
@@ -72,7 +72,7 @@ const artifacts = {
   provides: [morphologyArtifactModules.beltDrivers],
 };
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains/config.ts
 const artifacts = {
   requires: [morphologyArtifacts.beltDrivers],
 };

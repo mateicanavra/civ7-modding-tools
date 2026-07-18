@@ -73,7 +73,7 @@ export const otherModKey = "artifact:map.foo";
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.tsx
 export const tsxKey = "artifact:map.foo";
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/demo/step.ts
 export const recipeKey = "artifact:map.foo";
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts

@@ -14,8 +14,8 @@ for the truth-vs-projection stage split and the vocabulary.
 
 | Import path | What it gives | Used in |
 |---|---|---|
-| `@swooper/mapgen-core/authoring/contracts` | `defineOp`, `defineStep`, `defineArtifact`, `defineArtifactCatalog`, `defineDomain`, `Type`, `TypedArraySchemas`, `validateArtifactSchema`, `OpTypeBagOf` — contract-only schemas, types, validation, and catalog assembly | every `contract.ts`, `*.artifact.ts`, artifact catalog, domain contract `index.ts` |
-| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomain`, `collectCompileOps` — attach runtime implementations | every runtime `index.ts`, strategy file, stage/recipe file |
+| `@swooper/mapgen-core/authoring/contracts` | `defineOp`, `defineStep`, `defineArtifact`, `defineArtifactCatalog`, `defineDomain`, `Type`, `TypedArraySchemas`, `validateArtifactSchema`, `OpTypeBagOf` — contract-only schemas, types, validation, and catalog assembly | op `contract.ts`, recipe-step `config.ts`, `*.artifact.ts`, artifact catalogs, domain contract `index.ts` |
+| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomain`, `collectCompileOps` — attach runtime implementations | op runtime `index.ts`, recipe-step `step.ts`, strategy files, stage/recipe files |
 
 `@mapgen/domain/*` → `src/domain/*` (tsconfig path alias). Step **contracts** import the
 domain contract via `@mapgen/domain/<domain>` (the `defineDomain` index). `recipe.ts`
@@ -195,12 +195,12 @@ Runtime dispatch (`createOp.run`) reads `cfg.strategy`, looks up
 
 A step lives under `src/recipes/standard/stages/<stage-id>/steps/<step-name>/`. Step id
 is kebab-case (`/^[a-z0-9]+(?:-[a-z0-9]+)*$/`). The reference no-ops step is
-`map-morphology/steps/plotContinents`; the reference with-ops step is
+`map-morphology/steps/plot-continents`; the reference with-ops step is
 `morphology-features/steps/landmasses`.
 
-**`contract.ts`** — `defineStep`. Import the domain *contract* via `@mapgen/domain/<domain>`.
+**`config.ts`** — `defineStep`. Import the domain *contract* via `@mapgen/domain/<domain>`.
 ```ts
-// steps/<step-name>/contract.ts
+// steps/<step-name>/config.ts
 import someDomain from "@mapgen/domain/<domain>";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -209,11 +209,12 @@ import {
 } from "../../artifacts/index.js";
 import { artifacts as otherArtifacts } from "../../../<other-stage>/artifacts/index.js";
 
-const MyStepContract = defineStep({
+/** Contract and compiled configuration boundary for the example recipe step. */
+export const MyStepContract = defineStep({
   id: "my-step-name",
   phase: "morphology",          // GenerationPhase: morphology | hydrology | ecology | placement | ...
-  requires: ["effect:some.required.tag"],
-  provides: ["effect:some.provided.tag"],
+  requires: [] as const,
+  provides: [] as const,
   artifacts: {
     requires: [otherArtifacts.someInput],
     provides: [myStageArtifactModules.surfaceMask],
@@ -224,18 +225,24 @@ const MyStepContract = defineStep({
   },
   schema: Type.Object({ /* step-level knobs not covered by ops; omit/empty if none */ }),
 });
-
-export default MyStepContract;
 ```
 
-**`index.ts`** — `createStep`. `run(context, config, ops, deps)`; `config.<opKey>` is the
+Keep those effect arrays empty unless the step truly needs execution ordering.
+When it does, import an existing typed member of
+`MAP_PROJECTION_EFFECT_TAGS`, `PLACEMENT_PRODUCT_EFFECT_TAGS`, or
+`STANDARD_ENGINE_EFFECT_TAGS` from `../../../../tag-contracts.js`; never author
+a raw `effect:*` string. Add a new effect to that registry first when no current
+constant expresses the contract.
+
+**`step.ts`** — `createStep`. `run(context, config, ops, deps)`; `config.<opKey>` is the
 auto-typed op envelope; artifacts are read/published via `deps.artifacts.<name>`.
 ```ts
-// steps/<step-name>/index.ts
+// steps/<step-name>/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
-import MyStepContract from "./contract.js";
+import { MyStepContract } from "./config.js";
 
-export default createStep(MyStepContract, {
+/** Executes the example step against its declared operations and artifacts. */
+export const MyStep = createStep(MyStepContract, {
   // optional: normalize: (config, ctx) => config,
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
@@ -245,6 +252,15 @@ export default createStep(MyStepContract, {
   },
 });
 ```
+
+Optional `viz` and `metrics` projectors are siblings of `run` in this same
+`createStep` call. They observe the completed return value after artifact
+admission; they do not run inside domain logic. Keep one-step projection helpers
+in `steps/<step>/viz.ts`; promote helpers shared by multiple owner-stage steps
+or external consumers to `stages/<stage>/viz.ts`. Do not create a shared
+`steps/viz.ts` hub. The canonical ownership model and migration posture for
+legacy direct `context.viz` calls live in
+`docs/system/libs/mapgen/reference/VISUALIZATION.md`.
 
 **Registration (two files, same step-id string):**
 1. `contract-manifest.ts` — add `MyStepContract` to the stage's contract list in
@@ -272,7 +288,7 @@ MUST also be present (`createStage` throws otherwise). Reference stages:
 // src/recipes/standard/stages/<stage-id>/index.ts
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import myStep from "./steps/<step-name>/index.js";
+import { MyStep } from "./steps/<step-name>/step.js";
 
 const knobsSchema = Type.Object({}, { additionalProperties: false, description: "Knobs for <stage-id>." });
 
@@ -287,7 +303,7 @@ export default createStage({
   id: "my-stage-id",                 // must be registered in contract-manifest.ts
   knobsSchema,
   public: publicSchema,
-  steps: orderStandardStageSteps("my-stage-id", { "my-step-name": myStep }),
+  steps: orderStandardStageSteps("my-stage-id", { "my-step-name": MyStep }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     // one key per step id; synthesize each step's op envelopes here
     "my-step-name": { myOp: { strategy: "default", config: config.myControl ?? {} } },
@@ -299,7 +315,7 @@ export default createStage({
 ```ts
 // 1. contract-manifest.ts — import step contracts; add the stage entry at the
 //    pipeline position you want (array order = stage execution order):
-import MyStepContract from "./stages/my-stage-id/steps/my-step-name/contract.js";
+import { MyStepContract } from "./stages/my-stage-id/steps/my-step-name/config.js";
 stage("my-stage-id", [MyStepContract /* , ...in execution order */ ]),
 
 // 2. recipe.ts — import the stage and add it to orderStandardStages({...}).
@@ -313,11 +329,14 @@ import myDomain from "@mapgen/domain/<my-domain>/ops";
 export const compileOpsById = collectCompileOps(foundationDomain, morphologyDomain, myDomain);
 ```
 
-> Decide truth vs projection before authoring: TRUTH stages (foundation..ecology-biomes)
-> compute and publish `artifact:<domain>.*`; PROJECTION stages (`map-*` + placement) only
-> project truth artifacts onto engine terrain via the adapter. The canonical 17-stage
-> order is owned by `standardStageContractManifest` in `contract-manifest.ts` — read it,
-> do not trust a snapshot. See `references/pipeline-map.md`.
+> Decide the lane before authoring. Manifest stages 1–15 are adapter-free
+> physics/truth (`foundation-*` through `ecology-biomes`, including
+> `morphology-shelf`; `foundation-projection` is still physics). `map-*` stages
+> are engine-facing projection, `ecology-features` is an adapter-free planner,
+> and `placement` mixes product planning with Civ7 materialization. The exact
+> 22-stage order is owned by `standardStageContractManifest` in
+> `contract-manifest.ts` — read it, do not trust a snapshot. See
+> `references/pipeline-map.md`.
 
 ---
 

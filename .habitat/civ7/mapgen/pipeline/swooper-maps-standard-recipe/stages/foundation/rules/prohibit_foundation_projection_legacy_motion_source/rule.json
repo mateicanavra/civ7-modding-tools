@@ -20,12 +20,12 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.ts"
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts"
       ]
     }
   ],
   "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.ts"
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts"
   ],
   "hookCheck": true,
   "supportFiles": {

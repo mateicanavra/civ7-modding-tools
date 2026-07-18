@@ -3,21 +3,24 @@ level: error
 ---
 # Prohibit Morphology Overlay Implementation Reads
 
-Morphology non-contract step implementation files must not read overlay
-implementation modules.
+Morphology step runtime modules must not read overlay implementation modules.
 
 ```grit
 language js(typescript)
 
 or {
   import_statement(source=$source) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology[^/]*/steps/.*\.ts$",
-    not { $filename <: r".*contract\.ts$" },
-    $source <: r"^[\"']?\./overlays\.js[\"']?$"
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology[^/]*/steps/[^/]+/.*\.ts$",
+    not { $filename <: r".*/config\.ts$" },
+    not { $filename <: r".*\.(?:test|spec)\.ts$" },
+    not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" },
+    $source <: r"^[\"']?(?:\.\.?/)+overlays\.js[\"']?$"
   },
   `readOverlay($arg)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology[^/]*/steps/.*\.ts$",
-    not { $filename <: r".*contract\.ts$" }
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/morphology[^/]*/steps/[^/]+/.*\.ts$",
+    not { $filename <: r".*/config\.ts$" },
+    not { $filename <: r".*\.(?:test|spec)\.ts$" },
+    not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" }
   }
 }
 ```
@@ -25,13 +28,16 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/demo.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/demo/step.ts
 import { readOverlay } from "./overlays.js";
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/demo/helpers/runtime.ts
+import { readOverlay as readNestedOverlay } from "../overlays.js";
 ```
 
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/demo.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/demo/config.ts
 import { readOverlay } from "./overlays.js";
 ```

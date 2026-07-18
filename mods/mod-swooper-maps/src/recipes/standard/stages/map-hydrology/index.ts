@@ -4,7 +4,8 @@ import {
   MapHydrologyKnobsSchema,
   MapHydrologyPublicSchema,
 } from "../map-projection-public-config.js";
-import { lakes, projectRainfall } from "./steps/index.js";
+import { LakesStep } from "./steps/lakes/step.js";
+import { ProjectRainfallStep } from "./steps/project-rainfall/step.js";
 
 /**
  * Owns Hydrology-to-engine materialization: final rainfall first, then lake
@@ -19,7 +20,7 @@ export default createStage({
     lakes: { projectionReadback: true },
   }),
   steps: orderStandardStageSteps("map-hydrology", {
-    "project-rainfall": projectRainfall,
-    lakes,
+    "project-rainfall": ProjectRainfallStep,
+    lakes: LakesStep,
   }),
 } as const);

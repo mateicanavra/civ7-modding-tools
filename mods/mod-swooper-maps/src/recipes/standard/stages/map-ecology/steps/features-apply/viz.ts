@@ -1,6 +1,7 @@
 import type { EngineAdapter } from "@civ7/adapter";
 import { FEATURE_PLACEMENT_KEYS, type FeatureKey } from "@civ7/map-policy";
 
+/** Describes one stable engine-feature visualization value, label, and RGBA color. */
 export type VizCategory = Readonly<{
   value: number;
   label: string;

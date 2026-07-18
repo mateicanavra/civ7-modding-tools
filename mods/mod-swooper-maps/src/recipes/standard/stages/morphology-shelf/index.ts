@@ -1,6 +1,6 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { computeShelf } from "./steps/index.js";
+import { ComputeShelfStep } from "./steps/compute-shelf/step.js";
 
 export type MorphologyShelfWidthKnob = "narrow" | "normal" | "wide";
 
@@ -84,7 +84,7 @@ export default createStage({
   knobsSchema,
   public: publicSchema,
   steps: orderStandardStageSteps("morphology-shelf", {
-    "compute-shelf": computeShelf,
+    "compute-shelf": ComputeShelfStep,
   }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "compute-shelf": {

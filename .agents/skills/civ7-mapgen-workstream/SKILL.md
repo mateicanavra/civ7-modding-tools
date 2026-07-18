@@ -126,9 +126,13 @@ map, and the benchmark overlay are in `references/facet-verification.md`.
 
 The structure vocabulary nests **domain → op → strategy → step → stage → recipe →
 artifact** (re-derive from live source, not `mapgen:*`; authoring factories live in
-`@swooper/mapgen-core/authoring`). The load-bearing split is **truth-stage**
-(stages 1–10, compute domain artifacts; never touch the adapter) vs
-**projection-stage** (`map-*` + `placement`, project truth to engine terrain).
+`@swooper/mapgen-core/authoring`). The 22-stage manifest braids four lanes:
+**physics/truth** (`foundation-*`, `morphology-*`, `hydrology-*`,
+`ecology-pedology`, `ecology-biomes`; adapter-free), the adapter-free
+**`ecology-features` planner**, **map projection** (`map-*`), and the mixed
+Civ7-facing **`placement` planner/materializer**. `foundation-projection` remains
+physics/truth despite its name; `morphology-shelf` is the final Morphology truth
+stage before Hydrology.
 
 Full glossary + current call shapes: `references/pipeline-map.md`. Strategy
 selection (the three control points) is owned there and in
@@ -138,7 +142,7 @@ selection (the three control points) is owned there and in
 
 | File | Open when |
 |---|---|
-| `references/pipeline-map.md` | You need the technical-arm grounding: the 17 stages, their ops/recipes/artifacts, truth↔projection boundary, and data flow. |
+| `references/pipeline-map.md` | You need the technical-arm grounding: the 22 manifest-ordered stages, their ops/recipes/artifacts, physics/planner/map-projection boundaries, and data flow. |
 | `references/facet-physics.md` | **Behavioral arm, deepest/net-new.** Earth-science/physics per domain (tectonics, climate, ocean, hydrology, landforms) and how realism maps onto ops/strategies. |
 | `references/facet-verification.md` | You are verifying: base proof discipline (defer to `civ7-operational-debugging`) plus the 3 net-new overlays (Studio-viz discrimination, Earth-like benchmark iteration, pipeline-internal diagnostics). |
 | `references/facet-civ7-domain.md` | Civ7-as-engine: game-data modalities (defer to `civ7-product-authority`) plus the research/design-intent dimension (forums/web, Civ-appropriateness). |

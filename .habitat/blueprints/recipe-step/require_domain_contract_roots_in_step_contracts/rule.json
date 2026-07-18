@@ -12,17 +12,14 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "step contracts deep-importing domain internals or runtime ops",
-  "why": "Step contracts bind to domain contracts, not runtime implementation surfaces.",
+  "forbids": "recipe step config modules deep-importing domain internals or runtime ops",
+  "why": "StepContract definitions bind to domain contracts, not runtime implementation surfaces.",
   "remediate": null,
-  "message": "Step contracts must import only from @mapgen/domain/<domain>.",
+  "message": "Recipe StepContract config modules must import only from @mapgen/domain/<domain>.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/recipes/**/stages/**/steps/**/contract.ts",
-        "mods/*/src/recipes/**/stages/**/steps/**/*.contract.ts"
-      ]
+      "patterns": ["mods/*/src/recipes/**/stages/*/steps/*/config.ts"]
     }
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes"],

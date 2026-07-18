@@ -20,7 +20,7 @@ findings.push(
   )
 );
 
-const tectonicsContract = path.join(stagesRoot, "foundation-tectonics/steps/tectonics.contract.ts");
+const tectonicsContract = path.join(stagesRoot, "foundation-tectonics/steps/tectonics/config.ts");
 for (const op of [
   "computeEraPlateMembership",
   "computeEraTectonicFields",
@@ -115,9 +115,9 @@ findings.push(
 
 const projectionContract = path.join(
   stagesRoot,
-  "foundation-projection/steps/projection.contract.ts"
+  "foundation-projection/steps/projection/config.ts"
 );
-const projectionStep = path.join(stagesRoot, "foundation-projection/steps/projection.ts");
+const projectionStep = path.join(stagesRoot, "foundation-projection/steps/projection/step.ts");
 findings.push(
   ...assertContains(
     projectionContract,

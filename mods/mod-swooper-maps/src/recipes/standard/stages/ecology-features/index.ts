@@ -4,7 +4,13 @@ import {
   compileEcologyFeaturesPublicConfig,
   EcologyFeaturesPublicSchema,
 } from "../ecology-public-config.js";
-import { steps } from "./steps/index.js";
+import { PlanFloodplainsStep } from "./steps/plan-floodplains/step.js";
+import { PlanIceStep } from "./steps/plan-ice/step.js";
+import { PlanPlotEffectsStep } from "./steps/plan-plot-effects/step.js";
+import { PlanReefsStep } from "./steps/plan-reefs/step.js";
+import { PlanVegetationStep } from "./steps/plan-vegetation/step.js";
+import { PlanWetlandsStep } from "./steps/plan-wetlands/step.js";
+import { ScoreLayersStep } from "./steps/score-layers/step.js";
 
 /**
  * Ecology feature planning stage.
@@ -26,13 +32,13 @@ export default createStage({
   ),
   public: EcologyFeaturesPublicSchema,
   steps: orderStandardStageSteps("ecology-features", {
-    "score-layers": steps.scoreLayers,
-    "plan-floodplains": steps.planFloodplains,
-    "plan-ice": steps.planIce,
-    "plan-reefs": steps.planReefs,
-    "plan-wetlands": steps.planWetlands,
-    "plan-vegetation": steps.planVegetation,
-    "plan-plot-effects": steps.planPlotEffects,
+    "score-layers": ScoreLayersStep,
+    "plan-floodplains": PlanFloodplainsStep,
+    "plan-ice": PlanIceStep,
+    "plan-reefs": PlanReefsStep,
+    "plan-wetlands": PlanWetlandsStep,
+    "plan-vegetation": PlanVegetationStep,
+    "plan-plot-effects": PlanPlotEffectsStep,
   }),
   compile: ({ config }: { config: Record<string, unknown> }) =>
     compileEcologyFeaturesPublicConfig(config),

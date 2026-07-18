@@ -36,7 +36,7 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
 
 ### 2) Define the step contract (`defineStep`)
 
-- Create a `*.contract.ts` adjacent to the implementation.
+- Create `steps/<step-id>/config.ts`; the directory name must equal the contract id.
 - Use `defineStep({ id, phase, requires, provides, artifacts, ops, schema })`.
 - Wire **artifact requirements** (and any required ops) explicitly into the contract.
 
@@ -45,7 +45,8 @@ Representative example (artifact + ops wiring; excerpt; see full file in anchors
 ```ts
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
-const GeomorphologyStepContract = defineStep({
+/** Contract and compiled configuration boundary for geomorphic evolution. */
+export const GeomorphologyStepContract = defineStep({
   id: "geomorphology",
   phase: "morphology",
   requires: [],
@@ -72,18 +73,25 @@ Notes:
 Representative example (dependency tags; excerpt; see full file in anchors):
 
 ```ts
+import hydrology from "@mapgen/domain/hydrology";
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
-import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 
-const PlotRiversStepContract = defineStep({
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tag-contracts.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
+import { artifactModules as mapRiversArtifactModules } from "../../artifacts/index.js";
+
+/** Contract and compiled configuration boundary for Civ7 river projection. */
+export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "gameplay",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   artifacts: {
     requires: [hydrologyHydrographyArtifacts.hydrography],
-    provides: [],
+    provides: [mapRiversArtifactModules.projectedNavigableRivers],
+  },
+  ops: {
+    selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,
   },
   schema: Type.Object({}),
 });
@@ -91,7 +99,7 @@ const PlotRiversStepContract = defineStep({
 
 ### 3) Implement the step (`createStep`)
 
-- Create the step `*.ts` file and call `createStep(YourStepContract, { normalize?, run })`.
+- Create `steps/<step-id>/step.ts` and call `createStep(YourStepContract, { normalize?, run })`.
 - Keep step code “boring”: read inputs from `deps`/artifacts, mutate only permitted buffers, publish only allowed artifacts, emit trace/viz only via `context.trace` / `context.viz`.
 - Prefer `context.trace.event(() => ({ ... }))` for verbose-only structured dumps.
 
@@ -100,9 +108,10 @@ Representative example (excerpt; see full file in anchors):
 ```ts
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import GeomorphologyStepContract from "./geomorphology.contract.js";
+import { GeomorphologyStepContract } from "./config.js";
 
-export default createStep(GeomorphologyStepContract, {
+/** Applies the domain geomorphology operation to the stage's admitted evidence. */
+export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
   normalize: (config, ctx) => {
     return config;
   },
@@ -140,19 +149,39 @@ export default createStep(GeomorphologyStepContract, {
 
 ### 4) Register the step in its stage
 
-- Add your step into the stage’s `steps/index.ts` (or equivalent stage wiring).
-- Ensure the stage ordering places your step after its requirements are satisfied and before any steps that require its provides.
+- Import the named step contract into `recipes/standard/contract-manifest.ts` and add it to its
+  owning stage's ordered contract list.
+- Import the named step directly into the stage root; do not add a `steps/index.ts` barrel.
+- Pass the stage's named step registry through `orderStandardStageSteps(...)`; do not maintain a
+  second unmanaged runtime order.
+- Place the contract in manifest order after its requirements are satisfied and before any steps
+  that require its provides.
+
+Representative example (contract-manifest registration):
+
+```ts
+import { GeomorphologyStepContract } from "./stages/morphology-erosion/steps/geomorphology/config.js";
+
+export const standardStageContractManifest = [
+  // ...
+  stage("morphology-erosion", [GeomorphologyStepContract]),
+  // ...
+] as const;
+```
 
 Representative example (stage wiring; excerpt; see full file in anchors):
 
 ```ts
-import { geomorphology } from "./steps/index.js";
 import { createStage } from "@swooper/mapgen-core/authoring";
+import { orderStandardStageSteps } from "../../contract-manifest.js";
+import { GeomorphologyStep } from "./steps/geomorphology/step.js";
 
 export default createStage({
   id: "morphology-erosion",
   // ...
-  steps: [geomorphology],
+  steps: orderStandardStageSteps("morphology-erosion", {
+    geomorphology: GeomorphologyStep,
+  }),
 } as const);
 ```
 
@@ -184,8 +213,8 @@ If your step introduces a new required/provided dependency tag:
 
 - Step contract API: `packages/mapgen-core/src/authoring/step/contract.ts`
 - Step implementation wrapper: `packages/mapgen-core/src/authoring/step/create.ts`
-- Example step contract: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.contract.ts`
-- Example step implementation (createStep + trace + viz): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.ts`
-- Example step contract (dependency tags): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts`
+- Example step config: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology/config.ts`
+- Example step implementation: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology/step.ts`
+- Example step config (dependency tags): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts`
 - Example stage wiring: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/index.ts`
 - Pipeline executor dependency gating: `packages/mapgen-core/src/engine/PipelineExecutor.ts`

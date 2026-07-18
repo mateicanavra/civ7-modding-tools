@@ -3,8 +3,8 @@ level: error
 ---
 # Prohibit Foundation Step Contract Config Bags
 
-Foundation recipe step contracts must not depend on root or foundation domain
-config facades, or on root config-bag schemas.
+Foundation recipe `StepContract` definitions in `config.ts` must not depend on
+root or foundation domain config facades, or on root config-bag schemas.
 
 ```grit
 language js(typescript)
@@ -22,6 +22,6 @@ or {
   `import "@mapgen/domain/foundation/config.js"`,
   `FoundationConfigSchema`
 } where {
-  $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/foundation(?:-[^/]+)?/.*contract\.ts$"
+  $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/foundation(?:-[^/]+)?/steps/[^/]+/config\.ts$"
 }
 ```

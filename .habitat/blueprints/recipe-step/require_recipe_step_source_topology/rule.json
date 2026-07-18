@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_recipe_step_source_topology",
+  "title": "Require Recipe Step Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "recipe-step",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "recipe step source files outside one kebab-case directory containing config.ts and step.ts, including flat files and contract/index barrel variants",
+  "why": "A recipe step has one filesystem container. Requiring one kebab-case directory with config.ts and step.ts removes flat and barrel-based alternate source topologies.",
+  "remediate": "Move each step beneath a kebab-case directory, rename its contract module to config.ts, rename its executable module to step.ts, and remove step barrels.",
+  "message": "Recipe step source must use one kebab-case <step-directory>/{config.ts,step.ts} container.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/recipes/*/stages/*/steps", "mods/*/src/recipes/*/stages/*/steps/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/recipe-step/require_recipe_step_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/recipe-step/require_recipe_step_source_topology/structure.toml"
+    }
+  }
+}

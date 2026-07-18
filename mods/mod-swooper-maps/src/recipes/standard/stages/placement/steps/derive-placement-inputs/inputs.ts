@@ -9,11 +9,11 @@ import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import { getStandardRuntime } from "../../../../runtime.js";
 import type { PlacementInputsV1 } from "../../artifacts/placement-inputs.artifact.js";
 
-import DerivePlacementInputsContract from "./contract.js";
+import { DerivePlacementInputsStepContract } from "./config.js";
 
-type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsContract.schema>;
+type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsStepContract.schema>;
 type DerivePlacementInputsOps = StepRuntimeOps<
-  NonNullable<typeof DerivePlacementInputsContract.ops>
+  NonNullable<typeof DerivePlacementInputsStepContract.ops>
 >;
 type PlanNaturalWondersOutput = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 

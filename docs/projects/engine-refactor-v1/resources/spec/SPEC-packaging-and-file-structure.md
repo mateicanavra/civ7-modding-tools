@@ -74,13 +74,12 @@ STANDARD_CONTENT_ROOT/
 │  │     ├─ recipe.ts
 │  │     ├─ runtime.ts
 │  │     └─ stages/
-│  │        └─ <stageId>/
+│  │        └─ <stage-id>/
 │  │           ├─ index.ts
 │  │           ├─ steps/             # step modules (standardized contract + implementation pairing)
-│  │           │  ├─ index.ts
-│  │           │  └─ <stepId>/
-│  │           │     ├─ contract.ts
-│  │           │     ├─ index.ts
+│  │           │  └─ <step-id>/       # exact kebab-case step id
+│  │           │     ├─ config.ts     # named *StepContract via defineStep
+│  │           │     ├─ step.ts       # named *Step via createStep
 │  │           │     └─ lib/
 │  │           │        └─ <helper>.ts
 │  │           └─ *.ts               # stage-scoped helpers/contracts (optional)
@@ -119,16 +118,18 @@ STANDARD_CONTENT_ROOT/
 
 ### 2.4 Colocation and export rules (avoid centralized aggregators)
 
-**Step modules (`stages/<stageId>/steps/<stepId>/`)**
+**Step modules (`stages/<stage-id>/steps/<step-id>/`)**
 - Steps are standardized as a directory with a contract + implementation entry:
-  - `contract.ts` — step-owned contract metadata (schema + derived config type, step-local tag IDs/arrays, and step-owned artifact helpers/validators).
-  - `index.ts` — step implementation via `createStep(contract, { resolveConfig?, run })`, importing the contract and domain logic.
+  - `config.ts` — step-owned contract and compiled-config metadata.
+  - `step.ts` — named step implementation via `createStep(contract, { normalize?, run })`.
   - `lib/**` — step-local helpers (pure or orchestration helpers), no registry awareness.
-- `contract.ts` is the ownership surface for step contracts. `index.ts` is orchestration only.
+- The directory name equals the exact step id. `config.ts` owns the contract; `step.ts` owns execution.
+- Stage roots import named steps directly; per-step and `steps/index.ts` barrels are forbidden.
+- `config.ts` exports one documented `*StepContract = defineStep(...)`; `step.ts` exports one documented `*Step = createStep(...)`. Neither module uses a default export.
 - If a step’s contract is large, split into additional colocated files under the step directory (e.g., `schema.ts`, `tags.ts`, `artifacts.ts`) while keeping ownership local.
   - `createStep` is imported from `@swooper/mapgen-core/authoring` and defaults to `ExtendedMapContext`; use `createStepFor<TContext>()` only for non-standard contexts.
 
-**Stage scope (`stages/<stageId>/**`)**
+**Stage scope (`stages/<stage-id>/**`)**
 - Stage-scoped helpers and contracts shared across multiple steps live at the stage root as explicit modules (e.g., `producer.ts`, `placement-inputs.ts`, `shared.model.ts`).
 - Stage files must remain stage-scoped and must not accumulate cross-stage contracts.
 
@@ -150,9 +151,9 @@ STANDARD_CONTENT_ROOT/
 - Recipe-level assembly (`recipe.ts` + `runtime.ts`) composes stages; it does not define cross-domain catalogs.
 
 **Schemas**
-- Step config schemas are step-owned (`stages/<stageId>/steps/<stepId>/contract.ts`).
+- Step config schemas are step-owned (`stages/<stage-id>/steps/<step-id>/config.ts`).
 - Shared config schema fragments live with the *closest* real owner:
-  - stage scope when shared within a stage (`stages/<stageId>/shared/**`)
+  - stage scope when shared within a stage (`stages/<stage-id>/shared/**`)
   - domain model scope when shared across stages/recipes (prefer `src/domain/<domain>/model/config/<part>.config.ts` for config-oriented fragments)
 - Step schemas must not depend on a centralized “global runtime config blob” module.
 - Target config imports point at named domain model config surfaces, not a mod-wide config barrel.

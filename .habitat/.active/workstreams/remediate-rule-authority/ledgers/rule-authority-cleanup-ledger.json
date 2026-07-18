@@ -2,14 +2,14 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-16",
+  "updatedOn": "2026-07-18",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 121,
-    "currentRowCount": 121,
-    "retiredHistoricalRowCount": 37,
+    "liveManifestCount": 123,
+    "currentRowCount": 123,
+    "retiredHistoricalRowCount": 38,
     "duplicateLiveRows": []
   },
   "counts": {
@@ -18,21 +18,21 @@
       "closed structure inversion": 2,
       "consolidation/dedup": 1,
       "context admission": 27,
-      "no action": 55,
-      "positive authority creation": 8,
+      "no action": 54,
+      "positive authority creation": 11,
       "retirement/garbage collection": 3,
       "runtime/source validation": 3,
       "split by owner": 15
     },
     "packetNeeded": {
-      "false": 121
+      "false": 123
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 3,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 83,
+      "none": 85,
       "packet-complete": 16,
       "transition-decision-accepted": 16
     }
@@ -1117,15 +1117,6 @@
       "currentPath": ".habitat/global/workspace/rules/require_owner_workflow_for_host_protected_surfaces/rule.json"
     },
     {
-      "ruleId": "require_projection_calls_in_projection_steps",
-      "lane": "standard recipe stage foundation/hydrology/map/placement",
-      "actionDecision": "no action",
-      "packetNeeded": false,
-      "expectedRemediation": "Retain map projection owner-callsite validator; it checks required positive callsites/materialization tokens plus a retired contract token absence across exact files.",
-      "evidenceNote": "Focused Habitat proof passes and source evidence shows the required projection calls/materialization tokens are present. This mixed required-presence/currentness shape is better kept as a packet-local Habitat script than forced into Grit.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/require_projection_calls_in_projection_steps/rule.json"
-    },
-    {
       "ruleId": "require_public_domain_surfaces_in_recipes_and_maps",
       "lane": "blueprints/domain",
       "actionDecision": "no action",
@@ -1169,6 +1160,15 @@
       "currentPath": ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/rule.json"
     },
     {
+      "ruleId": "require_recipe_metrics_study_structure",
+      "lane": "blueprints/recipe",
+      "actionDecision": "positive authority creation",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as the positive recipe-owned metrics study-bank topology law.",
+      "evidenceNote": "The metrics subsystem gives each recipe one self-contained study bank while system documentation remains recipe-neutral.",
+      "currentPath": ".habitat/blueprints/recipe/require_recipe_metrics_study_structure/rule.json"
+    },
+    {
       "ruleId": "require_recipe_stage_authoring_file_shape",
       "lane": "blueprints/recipe-stage",
       "actionDecision": "context admission",
@@ -1177,6 +1177,24 @@
       "evidenceNote": "Seeded from the completed domain-root topology descent and current live rule.json manifest; previous Layer 1 ledger was stale and missed this positive-law row.",
       "currentPath": ".habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/rule.json",
       "layer2Status": "none"
+    },
+    {
+      "ruleId": "require_recipe_step_authoring_shape",
+      "lane": "blueprints/recipe-step",
+      "actionDecision": "positive authority creation",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as the named defineStep/createStep authoring boundary for recipe step modules.",
+      "evidenceNote": "The rule closes default-export and unnamed-authoring alternatives while leaving helper implementation placement open inside the owning step container.",
+      "currentPath": ".habitat/blueprints/recipe-step/require_recipe_step_authoring_shape/rule.json"
+    },
+    {
+      "ruleId": "require_recipe_step_source_topology",
+      "lane": "blueprints/recipe-step",
+      "actionDecision": "positive authority creation",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep as the positive kebab-case step container topology law.",
+      "evidenceNote": "Every recipe step now has one directory with required config.ts and step.ts owners and no step barrel or legacy contract filename.",
+      "currentPath": ".habitat/blueprints/recipe-step/require_recipe_step_source_topology/rule.json"
     },
     {
       "ruleId": "require_runtime_domain_op_bundle_imports",
@@ -3229,6 +3247,18 @@
     }
   ],
   "retiredRules": [
+    {
+      "ruleId": "require_projection_calls_in_projection_steps",
+      "lane": "Standard recipe map projection",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Retired without replacement; the generic adapter boundary owns legal call placement and product behavior tests own required materialization outcomes.",
+      "evidenceNote": "The rule froze selected projection callsites rather than a product invariant, duplicated the generic adapter boundary, and could not prove successful materialization.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map/rules/require_projection_calls_in_projection_steps/rule.json",
+      "retiredOn": "2026-07-18",
+      "retiredReason": "Brittle source callsite authority was superseded by the generic placement boundary and behavioral projection proof."
+    },
     {
       "ruleId": "verify_visualization_runtime_build_artifacts",
       "lane": "MapGen SDK / mod-sdk",

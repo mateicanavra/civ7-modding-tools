@@ -4,8 +4,8 @@ import {
   compileEcologyPedologyPublicConfig,
   EcologyPedologyPublicSchema,
 } from "../ecology-public-config.js";
-import pedology from "./steps/pedology/index.js";
-import resourceBasins from "./steps/resource-basins/index.js";
+import { PedologyStep } from "./steps/pedology/step.js";
+import { ResourceBasinsStep } from "./steps/resource-basins/step.js";
 
 /**
  * Pedology owns soil and resource-basin truth before biome classification.
@@ -24,8 +24,8 @@ export default createStage({
   ),
   public: EcologyPedologyPublicSchema,
   steps: orderStandardStageSteps("ecology-pedology", {
-    pedology,
-    "resource-basins": resourceBasins,
+    pedology: PedologyStep,
+    "resource-basins": ResourceBasinsStep,
   }),
   compile: ({ config }: { config: Record<string, unknown> }) =>
     compileEcologyPedologyPublicConfig(config),

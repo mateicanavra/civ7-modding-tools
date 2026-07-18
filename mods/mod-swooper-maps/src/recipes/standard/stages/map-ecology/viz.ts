@@ -2,6 +2,7 @@ import { BIOME_SYMBOL_ORDER, type BiomeSymbol } from "@mapgen/domain/ecology";
 
 import { BIOME_INDEX_VIZ_CATEGORIES } from "../ecology-biomes/viz.js";
 
+/** Describes one stable engine-biome visualization value, label, and RGBA color. */
 export type VizCategory = Readonly<{
   value: number;
   label: string;

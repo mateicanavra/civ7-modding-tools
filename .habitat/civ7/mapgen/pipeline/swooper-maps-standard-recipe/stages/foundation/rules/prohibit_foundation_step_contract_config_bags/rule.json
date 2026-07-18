@@ -12,14 +12,16 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "foundation recipe step contracts importing root or foundation domain config facades, or using FoundationConfigSchema",
-  "why": "Foundation recipe step contracts must expose local decomposed typed inputs rather than pulling config facade shapes into contract surfaces.",
+  "forbids": "foundation recipe step config modules importing root or foundation domain config facades, or using FoundationConfigSchema",
+  "why": "Foundation recipe StepContract definitions must expose local decomposed typed inputs rather than pulling config facade shapes into contract surfaces.",
   "remediate": null,
   "message": "Remove foundation config-bag references from recipe step contract surfaces.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/foundation*/**/*contract.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation*/steps/*/config.ts"
+      ]
     }
   ],
   "scanRoots": [
