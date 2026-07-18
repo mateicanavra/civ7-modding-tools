@@ -217,7 +217,7 @@ Current vocabulary:
 - `kind:engine`
 - `kind:adapter`
 - `kind:control`
-- `kind:foundation`
+- `kind:library`
 - `kind:plugin`
 - `kind:mod`
 - `kind:tooling`

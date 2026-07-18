@@ -30,7 +30,7 @@ const ANCHOR: NaturalWonderFootprintOffset = { dx: 0, dy: 0 };
  * (the placement-class switch keys `primary = dir`, `clockwise = dir + 1`).
  *
  * These are defined in-package by value (NOT imported from `@swooper/mapgen-core`,
- * which `kind:foundation` may not depend on); an in-package consistency test pins
+ * which `kind:library` may not depend on); an in-package consistency test pins
  * the neighbor *set* against `policy-grid.ts` per parity so the odd-R copies
  * cannot silently drift.
  */

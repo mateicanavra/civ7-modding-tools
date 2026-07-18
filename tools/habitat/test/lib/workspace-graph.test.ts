@@ -25,14 +25,14 @@ const projects: WorkspaceProject[] = [
     name: "library-a",
     root: "packages/library-a",
     sourceRoot: null,
-    tags: ["kind:foundation"],
+    tags: ["kind:library"],
     targets: [{ name: "build" }, { name: "test" }],
   },
   {
     name: "policy-b",
     root: "packages/policy-b",
     sourceRoot: null,
-    tags: ["kind:foundation"],
+    tags: ["kind:library"],
     targets: [{ name: "verify" }],
   },
 ];

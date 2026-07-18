@@ -26,10 +26,10 @@ const fixtureProjects = [
     "test",
   ]),
   project("civ7-adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
-  project("civ7-config", "packages/config", "kind:foundation", ["build", "check", "test"]),
+  project("civ7-config", "packages/config", "kind:library", ["build", "check", "test"]),
   project("plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", ["check", "test"]),
-  project("civ7-types", "packages/civ7-types", "kind:foundation", ["check", "test"]),
-  project("mapgen-core", "packages/mapgen-core", "kind:foundation", ["check", "test"]),
+  project("civ7-types", "packages/civ7-types", "kind:library", ["check", "test"]),
+  project("mapgen-core", "packages/mapgen-core", "kind:library", ["check", "test"]),
   project("mapgen-studio", "apps/mapgen-studio", "kind:app", ["check", "test"]),
   project("mod-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
     "build",
@@ -319,7 +319,7 @@ index 3333333..4444444 100644
       fileSystem: testClassifyFileSystem,
       graph: graphReady([
         project("habitat", "tools/habitat", "kind:tooling", ["check", "lint"]),
-        project("mapgen-core", "packages/mapgen-core", "kind:foundation", []),
+        project("mapgen-core", "packages/mapgen-core", "kind:library", []),
       ]),
     });
 

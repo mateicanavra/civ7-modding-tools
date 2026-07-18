@@ -1,7 +1,7 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "mapgen-metrics",
-  "tags": ["kind:engine"],
+  "tags": ["kind:library"],
   "targets": {
     "check": {
       "executor": "nx:noop",

@@ -16,14 +16,14 @@ import * as studio from "./studio.js";
  * (`implementEffect(studioEffectContract, runtime)`) and owns the merged
  * client-facing mount (`contract` / `StudioContract` on its `./contract`
  * subpath — the `civ7.*` spread with `@civ7/control-orpc`'s contract, a
- * server composition that must not enter this foundation package); clients
+ * server composition that must not enter this leaf library); clients
  * (the studio app, the studio UI package) type against THIS artifact and
  * never reach into server code.
  *
  * Runtime discipline: plain `oc` + TypeBox + `@standard-schema/spec` only —
  * no Effect, no `@orpc/server`, no effect-orpc. The dependency list is the
  * enforcement for external packages (bun's isolated installs: an undeclared
- * import doesn't resolve); the `kind:foundation` boundary row fences
+ * import doesn't resolve); the `kind:library` boundary row fences
  * workspace-package imports (it does not govern external npm imports).
  */
 export const studioCiv7Contract = {

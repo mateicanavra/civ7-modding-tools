@@ -245,7 +245,7 @@ const STANDARD_OCEAN_WATER_COLUMNS = 4;
 // orthogonal-ish neighbors are common. Mirrors the live engine's
 // getAdjacentPlotLocation adjacency so the mock adapter predicts the engine
 // (this adapter cannot import the mapgen-core grid primitive across the
-// kind:adapter -> kind:foundation boundary, so the table is kept in sync here).
+// kind:adapter -> kind:library boundary, so the table is kept in sync here).
 const ODD_R_NEIGHBORS_EVEN_ROW: readonly (readonly [number, number])[] = [
   [-1, 0],
   [1, 0],
