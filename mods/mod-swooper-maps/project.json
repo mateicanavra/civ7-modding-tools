@@ -226,6 +226,38 @@
         "cwd": "mods/mod-swooper-maps"
       }
     },
+    "diag:analyze": {
+      "dependsOn": [
+        {
+          "projects": ["mapgen-diagnostics"],
+          "target": "build"
+        }
+      ]
+    },
+    "diag:diff": {
+      "dependsOn": [
+        {
+          "projects": ["mapgen-diagnostics"],
+          "target": "build"
+        }
+      ]
+    },
+    "diag:list": {
+      "dependsOn": [
+        {
+          "projects": ["mapgen-diagnostics"],
+          "target": "build"
+        }
+      ]
+    },
+    "diag:trace": {
+      "dependsOn": [
+        {
+          "projects": ["mapgen-diagnostics"],
+          "target": "build"
+        }
+      ]
+    },
     "viz:runtime-deps": {
       "executor": "nx:noop",
       "dependsOn": [
@@ -239,6 +271,10 @@
         },
         {
           "projects": ["mapgen-viz"],
+          "target": "build"
+        },
+        {
+          "projects": ["mapgen-diagnostics"],
           "target": "build"
         }
       ],

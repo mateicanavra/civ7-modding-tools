@@ -1,0 +1,36 @@
+{
+  "name": "@swooper/mapgen-diagnostics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Path-backed MapGen diagnostic capture, evidence reading, and diffing",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "bun-source": "./src/index.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "clean": "rimraf dist",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "test": "bun test ./test",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "engines": {
+    "node": "22.22.0"
+  },
+  "dependencies": {
+    "@swooper/mapgen-core": "workspace:*",
+    "@swooper/mapgen-viz": "workspace:*",
+    "typebox": "catalog:"
+  }
+}

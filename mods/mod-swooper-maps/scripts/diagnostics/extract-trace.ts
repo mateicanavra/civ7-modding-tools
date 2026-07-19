@@ -1,5 +1,5 @@
+import { isTraceDataRecordEvent, readTraceEvents } from "@swooper/mapgen-diagnostics";
 import { parseDiagnosticArgs } from "./command-input.js";
-import { isTraceDataRecordEvent, loadTraceEvents } from "./serialized-evidence.js";
 
 function asString(value: unknown): string | null {
   return typeof value === "string" ? value : null;
@@ -19,7 +19,7 @@ function main(): void {
       "Usage: bun ./scripts/diagnostics/extract-trace.ts -- <runDir> [--eventKind ...]"
     );
 
-  const trace = loadTraceEvents(runDir);
+  const trace = readTraceEvents(runDir);
   const kindFlag = asString(flags.eventKind);
   const prefixFlag = asString(flags.eventPrefix);
 

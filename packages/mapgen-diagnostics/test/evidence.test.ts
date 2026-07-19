@@ -2,16 +2,19 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
-import { readI16Grid, readU8Grid } from "../../scripts/diagnostics/grid-analysis.js";
+import { createVizLayerKey } from "@swooper/mapgen-viz";
 import {
-  loadPathVizManifest,
-  loadTraceEvents,
-} from "../../scripts/diagnostics/serialized-evidence.js";
+  hammingU8,
+  inventoryPathVizLayers,
+  MissingGridLayerError,
+  pickLatestGridLayer,
+  readI16Grid,
+  readPathVizManifest,
+  readTraceEvents,
+  readU8Grid,
+} from "../src/index.js";
 
-const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
-if (!tinyPreset) throw new Error("Civ7 Tiny map-size metadata is required by diagnostics tests.");
-const tinyDimensions = tinyPreset.dimensions;
+const fixtureDimensions = { width: 4, height: 4 } as const;
 
 function withRunDirectory(run: (runDirectory: string) => void): void {
   const runDirectory = mkdtempSync(join(tmpdir(), "swooper-diagnostic-reader-"));
@@ -38,8 +41,8 @@ function manifest(overrides: Record<string, unknown> = {}): Record<string, unkno
         stageId: step.stageId,
         stepIndex: step.stepIndex,
         spaceId: "tile.hexOddQ",
-        bounds: [0, 0, tinyDimensions.width, tinyDimensions.height],
-        dims: tinyDimensions,
+        bounds: [0, 0, fixtureDimensions.width, fixtureDimensions.height],
+        dims: fixtureDimensions,
         field: { format: "u8", data: { kind: "path", path: "data/test-grid.bin" } },
         meta: { label: "Test grid" },
       },
@@ -53,8 +56,95 @@ describe("serialized diagnostic evidence", () => {
     withRunDirectory((runDirectory) => {
       const input = manifest();
       writeFileSync(join(runDirectory, "manifest.json"), JSON.stringify(input));
-      expect(JSON.stringify(loadPathVizManifest(runDirectory))).toBe(JSON.stringify(input));
+      expect(JSON.stringify(readPathVizManifest(runDirectory))).toBe(JSON.stringify(input));
     });
+  });
+
+  it("inventories layers deterministically and selects the latest semantic grid", () => {
+    withRunDirectory((runDirectory) => {
+      const input = manifest();
+      const firstLayer = (input.layers as Array<Record<string, unknown>>)[0];
+      if (!firstLayer) throw new Error("Fixture layer is required.");
+      const laterStep = { stepId: "test.later", stageId: "morphology", stepIndex: 3 };
+      const laterLayer = {
+        ...firstLayer,
+        ...laterStep,
+        layerKey: "test.later::test.grid::tile.hexOddQ::grid",
+        field: {
+          format: "u8",
+          data: { kind: "path", path: "data/test-grid-later.bin" },
+        },
+      };
+      input.steps = [laterStep, { stepId: "test.step", stageId: "foundation", stepIndex: 0 }];
+      input.layers = [laterLayer, firstLayer];
+      writeFileSync(join(runDirectory, "manifest.json"), JSON.stringify(input));
+
+      const admitted = readPathVizManifest(runDirectory);
+      expect(inventoryPathVizLayers(admitted).map((row) => row.stepIndex)).toEqual([0, 3]);
+      expect(
+        inventoryPathVizLayers(admitted, { dataTypeKey: "test.grid" }).map((row) => row.dataTypeKey)
+      ).toEqual(["test.grid", "test.grid"]);
+      expect(pickLatestGridLayer(admitted, { dataTypeKey: "test.grid" }).stepId).toBe("test.later");
+    });
+  });
+
+  it("refuses same-step semantic ambiguity until variant identity is explicit", () => {
+    withRunDirectory((runDirectory) => {
+      const input = manifest();
+      const baseLayer = (input.layers as Array<Record<string, unknown>>)[0];
+      if (!baseLayer) throw new Error("Fixture layer is required.");
+      const step = { stepId: "test.latest", stageId: "morphology", stepIndex: 4 };
+      const variantLayer = (variantKey: string, path: string) => ({
+        ...baseLayer,
+        ...step,
+        variantKey,
+        layerKey: createVizLayerKey({
+          stepId: step.stepId,
+          dataTypeKey: "test.grid",
+          variantKey,
+          spaceId: "tile.hexOddQ",
+          kind: "grid",
+        }),
+        field: { format: "u8", data: { kind: "path", path } },
+      });
+      input.steps = [step];
+      input.layers = [
+        variantLayer("raw", "data/test-grid-raw.bin"),
+        variantLayer("smoothed", "data/test-grid-smoothed.bin"),
+      ];
+      writeFileSync(join(runDirectory, "manifest.json"), JSON.stringify(input));
+
+      const admitted = readPathVizManifest(runDirectory);
+      expect(() => pickLatestGridLayer(admitted, { dataTypeKey: "test.grid" })).toThrow(
+        "Ambiguous latest grid layer"
+      );
+      expect(
+        pickLatestGridLayer(admitted, {
+          dataTypeKey: "test.grid",
+          variantKey: "smoothed",
+          spaceId: "tile.hexOddQ",
+        }).variantKey
+      ).toBe("smoothed");
+    });
+  });
+
+  it("distinguishes an absent grid from an ambiguous selector", () => {
+    withRunDirectory((runDirectory) => {
+      writeFileSync(join(runDirectory, "manifest.json"), JSON.stringify(manifest()));
+      const admitted = readPathVizManifest(runDirectory);
+
+      expect(() => pickLatestGridLayer(admitted, { dataTypeKey: "test.missing" })).toThrow(
+        MissingGridLayerError
+      );
+      expect(() => pickLatestGridLayer(admitted, { dataTypeKey: "test.grid" })).not.toThrow();
+    });
+  });
+
+  it("counts exact unsigned-byte differences and refuses mismatched cardinality", () => {
+    expect(hammingU8(new Uint8Array([1, 2, 3]), new Uint8Array([1, 9, 8]))).toBe(2);
+    expect(() => hammingU8(new Uint8Array(1), new Uint8Array(2))).toThrow(
+      "Hamming length mismatch"
+    );
   });
 
   it("returns the complete trace union and drops malformed rows", () => {
@@ -118,7 +208,7 @@ describe("serialized diagnostic evidence", () => {
         ].join("\n")
       );
 
-      expect(loadTraceEvents(runDirectory)).toEqual([...events]);
+      expect(readTraceEvents(runDirectory)).toEqual([...events]);
     });
   });
 
@@ -132,7 +222,7 @@ describe("serialized diagnostic evidence", () => {
         symlinkSync(outsidePath, join(runDirectory, "data", "test-grid.bin"));
         writeFileSync(join(runDirectory, "manifest.json"), JSON.stringify(manifest()));
 
-        const admitted = loadPathVizManifest(runDirectory);
+        const admitted = readPathVizManifest(runDirectory);
         const [layer] = admitted.layers;
         if (!layer) throw new Error("Fixture layer is required.");
         expect(() => readU8Grid(runDirectory, layer)).toThrow("escapes its admitted run directory");
@@ -162,7 +252,7 @@ describe("serialized diagnostic evidence", () => {
         writeFileSync(join(runDirectory, "manifest.json"), JSON.stringify(input));
         writeFileSync(join(runDirectory, "data", "test-grid.bin"), fixture.bytes);
 
-        const admitted = loadPathVizManifest(runDirectory);
+        const admitted = readPathVizManifest(runDirectory);
         const admittedLayer = admitted.layers[0];
         if (!admittedLayer) throw new Error("Admitted fixture layer is required.");
         expect(() => fixture.read(runDirectory, admittedLayer)).toThrow(

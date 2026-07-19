@@ -1,6 +1,5 @@
+import { inventoryPathVizLayers, readPathVizManifest } from "@swooper/mapgen-diagnostics";
 import { parseDiagnosticArgs } from "./command-input.js";
-import { listLayers } from "./grid-analysis.js";
-import { loadPathVizManifest } from "./serialized-evidence.js";
 
 /**
  * List layers in a viz dump manifest.
@@ -14,11 +13,11 @@ function main(): void {
   if (!runDir)
     throw new Error("Usage: bun ./scripts/diagnostics/list-layers.ts -- <runDir> [--prefix ...]");
 
-  const manifest = loadPathVizManifest(runDir);
+  const manifest = readPathVizManifest(runDir);
   const prefix = typeof flags.prefix === "string" ? flags.prefix : undefined;
   const dataTypeKey = typeof flags.dataTypeKey === "string" ? flags.dataTypeKey : undefined;
 
-  const rows = listLayers(manifest, { prefix, dataTypeKey });
+  const rows = inventoryPathVizLayers(manifest, { prefix, dataTypeKey });
   console.log(JSON.stringify({ runId: manifest.runId, runDir, layers: rows }, null, 2));
 }
 

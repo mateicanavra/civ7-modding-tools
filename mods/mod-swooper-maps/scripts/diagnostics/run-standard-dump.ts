@@ -9,13 +9,13 @@ import {
   type TraceEvent,
   type TraceSink,
 } from "@swooper/mapgen-core";
+import { createDiagnosticDumpAdapters } from "@swooper/mapgen-diagnostics";
 
 import { admitStandardMapConfig } from "../../src/maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { isJsonDataObject, mergeDiagnosticConfig, parseDiagnosticArgs } from "./command-input.js";
-import { createVizDumpAdapters } from "./dump.js";
 
 function parseIntOr(value: unknown, fallback: number): number {
   const n = typeof value === "string" ? Number.parseInt(value, 10) : Number.NaN;
@@ -67,7 +67,7 @@ async function main(): Promise<void> {
 
   const label = parseLabel(flags.label);
   const outputRoot = join(process.cwd(), "dist", "visualization", label);
-  const vizOutputs = createVizDumpAdapters({ outputRoot });
+  const vizOutputs = createDiagnosticDumpAdapters({ outputRoot });
 
   // Player/sector geometry defaults reproduce the historical 8-player frame;
   // override to match a live engine Maps row (e.g. HUGE live row is

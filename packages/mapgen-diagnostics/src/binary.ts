@@ -1,8 +1,7 @@
 import { readFileSync, realpathSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
-import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { assertVizBinaryByteLength, type VizScalarFormat } from "@swooper/mapgen-viz";
-import type { PathVizGridLayer, PathVizManifest } from "./serialized-evidence.js";
+import type { PathVizGridLayer, PathVizManifest } from "./evidence.js";
 
 /** Stable manifest inventory row printed by layer-listing and cross-run diagnostic commands. */
 export type LayerInventoryRow = Readonly<{
@@ -24,6 +23,28 @@ export type LoadedGrid<Values extends Uint8Array | Int16Array | Float32Array> = 
   width: number;
   height: number;
 }>;
+
+/** Explicit semantic identity used to select one current scalar grid. */
+export type GridLayerSelector = Readonly<{
+  dataTypeKey: string;
+  variantKey?: string | null;
+  spaceId?: PathVizGridLayer["spaceId"];
+}>;
+
+/** Signals that an otherwise valid grid selector matched no serialized layer. */
+export class MissingGridLayerError extends Error {
+  constructor(selector: GridLayerSelector) {
+    const qualifiers = [
+      `dataTypeKey="${selector.dataTypeKey}"`,
+      ...(selector.variantKey === undefined
+        ? []
+        : [`variantKey=${JSON.stringify(selector.variantKey)}`]),
+      ...(selector.spaceId === undefined ? [] : [`spaceId="${selector.spaceId}"`]),
+    ];
+    super(`Missing grid layer for ${qualifiers.join(", ")}.`);
+    this.name = "MissingGridLayerError";
+  }
+}
 
 function readBinaryView(runDirectory: string, relativePath: string): Buffer {
   const admittedRunDirectory = realpathSync(runDirectory);
@@ -81,26 +102,40 @@ function readGridBinary(
 }
 
 /**
- * Selects the last emitted scalar grid for one semantic data type.
- * The manifest step index, not filesystem ordering, determines which projection is current.
+ * Selects the last emitted scalar grid matching one explicit semantic identity.
+ * The latest step index wins; multiple matches at that step are refused as ambiguous.
  */
 export function pickLatestGridLayer(
   manifest: PathVizManifest,
-  dataTypeKey: string
+  selector: GridLayerSelector
 ): PathVizGridLayer {
   const matches = manifest.layers.filter(
-    (layer): layer is PathVizGridLayer => layer.kind === "grid" && layer.dataTypeKey === dataTypeKey
+    (layer): layer is PathVizGridLayer =>
+      layer.kind === "grid" &&
+      layer.dataTypeKey === selector.dataTypeKey &&
+      (selector.variantKey === undefined || (layer.variantKey ?? null) === selector.variantKey) &&
+      (selector.spaceId === undefined || layer.spaceId === selector.spaceId)
   );
-  const latest = matches.slice().sort((left, right) => right.stepIndex - left.stepIndex)[0];
-  if (!latest) throw new Error(`Missing grid layer for dataTypeKey="${dataTypeKey}".`);
-  return latest;
+  if (matches.length === 0) {
+    throw new MissingGridLayerError(selector);
+  }
+
+  const latestStepIndex = Math.max(...matches.map((layer) => layer.stepIndex));
+  const latestMatches = matches.filter((layer) => layer.stepIndex === latestStepIndex);
+  const [latestMatch] = latestMatches;
+  if (latestMatches.length !== 1 || latestMatch === undefined) {
+    throw new Error(
+      `Ambiguous latest grid layer for dataTypeKey="${selector.dataTypeKey}" at stepIndex=${latestStepIndex}; specify variantKey and/or spaceId.`
+    );
+  }
+  return latestMatch;
 }
 
 /**
  * Projects manifest layers into deterministic inventory rows without reading binary payloads.
  * Filters narrow by an exact semantic data type or by a monotonic data-type prefix.
  */
-export function listLayers(
+export function inventoryPathVizLayers(
   manifest: PathVizManifest,
   filter?: Readonly<{ prefix?: string; dataTypeKey?: string }>
 ): LayerInventoryRow[] {
@@ -192,86 +227,4 @@ export function hammingU8(left: Uint8Array, right: Uint8Array): number {
     if (left[index] !== right[index]) differenceCount++;
   }
   return differenceCount;
-}
-
-/**
- * Summarizes the binary land mask used by dump reports and map-balance diagnostics.
- * Only the canonical value `1` counts as land; every other cell remains water evidence.
- */
-export function landmaskStats(values: Uint8Array): Readonly<{
-  land: number;
-  water: number;
-  pctLand: number;
-}> {
-  let land = 0;
-  for (let index = 0; index < values.length; index++) {
-    if (values[index] === 1) land++;
-  }
-  const water = values.length - land;
-  return { land, water, pctLand: values.length > 0 ? land / values.length : 0 };
-}
-
-/**
- * Measures connected landmasses with the engine's odd-Q hex adjacency.
- * The binary mask must cover the declared grid exactly; wrapping is intentionally not inferred.
- */
-export function connectedComponentsLandOddQ(
-  values: Uint8Array,
-  width: number,
-  height: number
-): Readonly<{
-  landComponents: number;
-  largestLandComponent: number;
-  largestLandFrac: number;
-  totalLand: number;
-}> {
-  const size = width * height;
-  if (values.length !== size) {
-    throw new Error(`Connected-component size mismatch: values=${values.length} dims=${size}`);
-  }
-
-  const visited = new Uint8Array(size);
-  const componentSizes: number[] = [];
-  const queue: number[] = [];
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const index = y * width + x;
-      if (visited[index]) continue;
-      if (values[index] !== 1) {
-        visited[index] = 1;
-        continue;
-      }
-
-      visited[index] = 1;
-      queue.length = 0;
-      queue.push(index);
-
-      let count = 0;
-      while (queue.length > 0) {
-        const current = queue.pop();
-        if (current === undefined) break;
-        count++;
-        const currentY = Math.floor(current / width);
-        const currentX = current - currentY * width;
-        forEachHexNeighborOddQ(currentX, currentY, width, height, (neighborX, neighborY) => {
-          const neighborIndex = neighborY * width + neighborX;
-          if (visited[neighborIndex]) return;
-          visited[neighborIndex] = 1;
-          if (values[neighborIndex] === 1) queue.push(neighborIndex);
-        });
-      }
-      componentSizes.push(count);
-    }
-  }
-
-  componentSizes.sort((left, right) => right - left);
-  const totalLand = componentSizes.reduce((total, count) => total + count, 0);
-  const largestLandComponent = componentSizes[0] ?? 0;
-  return {
-    landComponents: componentSizes.length,
-    largestLandComponent,
-    largestLandFrac: totalLand > 0 ? largestLandComponent / totalLand : 0,
-    totalLand,
-  };
 }

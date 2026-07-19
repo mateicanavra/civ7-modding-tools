@@ -106,14 +106,14 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
   - `mods/mod-swooper-maps/scripts/diagnostics/diff-layers.ts`
   - `mods/mod-swooper-maps/scripts/diagnostics/list-layers.ts`
   - `mods/mod-swooper-maps/scripts/diagnostics/extract-trace.ts`
-- Serialized evidence admission:
-  - `mods/mod-swooper-maps/scripts/diagnostics/serialized-evidence.ts`
-- Grid loading and analysis:
-  - `mods/mod-swooper-maps/scripts/diagnostics/grid-analysis.ts`
+- Reusable evidence admission, exact binary reads, inventory, and neutral diffing:
+  - `packages/mapgen-diagnostics/src/index.ts`
 - Diagnostic command input:
   - `mods/mod-swooper-maps/scripts/diagnostics/command-input.ts`
+- Swooper product analysis:
+  - `mods/mod-swooper-maps/scripts/diagnostics/map-analysis.ts`
 - Trace + visualization sink wiring:
-  - `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
+  - `packages/mapgen-diagnostics/src/dump.ts`
 - Standard recipe styles:
   - `mods/mod-swooper-maps/src/recipes/standard/viz.ts`
 

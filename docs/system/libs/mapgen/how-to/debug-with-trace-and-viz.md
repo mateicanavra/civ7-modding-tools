@@ -80,7 +80,7 @@ both the trace sink and visualization facet sink and reports facet failures on s
 
 ## Workflow: inspect a dump
 
-Use the mod-owned readers against the run directory:
+Use the Swooper commands, backed by `@swooper/mapgen-diagnostics`, against the run directory:
 
 ```bash
 nx run mod-swooper-maps:diag:list -- <runDir> --prefix hydrology.
@@ -118,6 +118,6 @@ Routing:
 - Execution identity + stable plan fingerprint: `packages/mapgen-core/src/engine/observability.ts`
 - Step facet dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
 - Portable visualization contracts: `packages/mapgen-viz/src/index.ts`
-- Local trace+viz dump harness (writes `trace.jsonl` + `manifest.json`): `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
+- Local trace+viz dump capability (writes `trace.jsonl` + `manifest.json`): `packages/mapgen-diagnostics/src/dump.ts`
 - Standard run harness producing dumps: `mods/mod-swooper-maps/scripts/diagnostics/standard-run.ts`
 - Studio live visualization entrypoint: `apps/mapgen-studio/src/App.tsx`

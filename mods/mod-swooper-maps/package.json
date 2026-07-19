@@ -48,6 +48,7 @@
     "@civ7/studio-run-workspace": "workspace:*",
     "@mateicanavra/civ7-sdk": "workspace:*",
     "@swooper/mapgen-core": "workspace:*",
+    "@swooper/mapgen-diagnostics": "workspace:*",
     "@swooper/mapgen-metrics": "workspace:*",
     "@swooper/mapgen-viz": "workspace:*",
     "typebox": "catalog:"

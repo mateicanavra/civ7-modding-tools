@@ -21,7 +21,7 @@ This tutorial uses the Standard recipe visualization harness, which emits the cu
 ## What you’ll learn
 
 - How to produce a deterministic run dump (`trace.jsonl` + `manifest.json` + binary layer payloads).
-- How to inspect a dump through the mod-owned diagnostic readers.
+- How to inspect a dump through Swooper commands backed by reusable diagnostic readers.
 - How to reason about truth vs projection in practice (without guessing).
 
 ## Prereqs
@@ -122,6 +122,6 @@ supply their own facet sink; trace verbosity is unrelated to whether the project
 
 - Standard recipe wiring: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
 - Foundation projection step (source of many viz layer dumps): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts`
-- Trace+viz dump harness (writes `trace.jsonl`, `manifest.json`, and `data/*`): `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
+- Trace+viz dump capability (writes `trace.jsonl`, `manifest.json`, and `data/*`): `packages/mapgen-diagnostics/src/dump.ts`
 - Example runner that produces dumps: `mods/mod-swooper-maps/scripts/diagnostics/standard-run.ts`
 - Trace core contract: `packages/mapgen-core/src/trace/index.ts`

@@ -1,14 +1,20 @@
 import { describe, expect, it, spyOn } from "bun:test";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createMockAdapter } from "@civ7/adapter";
-import { admitMapSetup, createMapContext, createTraceSession } from "@swooper/mapgen-core";
-import { createRecipe, createStage, createStep, defineStep } from "@swooper/mapgen-core/authoring";
+import { createTraceSession } from "@swooper/mapgen-core";
 import { admitPathVizManifest, createVizLayerKey, type PathVizManifest } from "@swooper/mapgen-viz";
-import { Type } from "typebox";
-import { createVizDumpAdapters } from "../../scripts/diagnostics/dump.js";
+import { createDiagnosticDumpAdapters } from "../src/index.js";
 
 function readManifest(outputRoot: string, runId: string): PathVizManifest {
   return admitPathVizManifest(
@@ -16,11 +22,152 @@ function readManifest(outputRoot: string, runId: string): PathVizManifest {
   );
 }
 
-describe("filesystem visualization adapters", () => {
+describe("diagnostic dump adapters", () => {
+  it("silently refuses trace run identities outside the admitted output root", () => {
+    const workspaceRoot = mkdtempSync(join(tmpdir(), "swooper-viz-trace-containment-"));
+    const outputRoot = join(workspaceRoot, "output");
+    try {
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
+      const escapedTargets = [
+        { runId: "../trace-parent", path: join(workspaceRoot, "trace-parent") },
+        {
+          runId: join(workspaceRoot, "trace-absolute"),
+          path: join(workspaceRoot, "trace-absolute"),
+        },
+      ];
+
+      for (const escaped of escapedTargets) {
+        const session = createTraceSession({
+          runId: escaped.runId,
+          planFingerprint: "trace-containment-plan",
+          config: {},
+          sink: outputs.traceSink,
+        });
+        expect(() => session.emitRunStart()).not.toThrow();
+        expect(existsSync(escaped.path)).toBeFalse();
+      }
+      expect(existsSync(outputRoot)).toBeFalse();
+    } finally {
+      rmSync(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses facet run identities outside the admitted output root before writes", () => {
+    const workspaceRoot = mkdtempSync(join(tmpdir(), "swooper-viz-facet-containment-"));
+    const outputRoot = join(workspaceRoot, "output");
+    try {
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
+      const projection = {
+        kind: "grid" as const,
+        dataTypeKey: "test.containment",
+        spaceId: "tile.hexOddQ" as const,
+        dims: { width: 1, height: 1 },
+        field: { format: "u8" as const, values: new Uint8Array([1]) },
+      };
+      const escapedTargets = [
+        { runId: "../facet-parent", path: join(workspaceRoot, "facet-parent") },
+        {
+          runId: join(workspaceRoot, "facet-absolute"),
+          path: join(workspaceRoot, "facet-absolute"),
+        },
+      ];
+
+      for (const escaped of escapedTargets) {
+        expect(() =>
+          outputs.facetSinks.viz?.([projection], {
+            runId: escaped.runId,
+            planFingerprint: "facet-containment-plan",
+            stepId: "test.containment",
+            stageId: "foundation",
+            stepIndex: 0,
+          })
+        ).toThrow("must identify one direct child");
+        expect(existsSync(escaped.path)).toBeFalse();
+      }
+      expect(existsSync(outputRoot)).toBeFalse();
+    } finally {
+      rmSync(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("silently refuses a trace symlink without mutating its outside target", () => {
+    const workspaceRoot = mkdtempSync(join(tmpdir(), "swooper-viz-trace-symlink-"));
+    const outputRoot = join(workspaceRoot, "output");
+    const runId = "trace-symlink-run";
+    const runDirectory = join(outputRoot, runId);
+    const outsideTrace = join(workspaceRoot, "outside-trace.jsonl");
+    try {
+      mkdirSync(join(runDirectory, "data"), { recursive: true });
+      writeFileSync(outsideTrace, "outside evidence\n");
+      symlinkSync(outsideTrace, join(runDirectory, "trace.jsonl"));
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
+
+      expect(() =>
+        outputs.traceSink.emit({
+          tsMs: 1,
+          runId,
+          planFingerprint: "trace-symlink-plan",
+          kind: "run.start",
+        })
+      ).not.toThrow();
+
+      expect(readFileSync(outsideTrace, "utf8")).toBe("outside evidence\n");
+      expect(existsSync(join(runDirectory, "manifest.json"))).toBeFalse();
+    } finally {
+      rmSync(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses pre-existing run and data symlinks before facet evidence can escape", () => {
+    const projection = {
+      kind: "grid" as const,
+      dataTypeKey: "test.symlink-containment",
+      spaceId: "tile.hexOddQ" as const,
+      dims: { width: 1, height: 1 },
+      field: { format: "u8" as const, values: new Uint8Array([1]) },
+    };
+
+    for (const destination of ["run", "data"] as const) {
+      const workspaceRoot = mkdtempSync(join(tmpdir(), `swooper-viz-${destination}-symlink-`));
+      const outputRoot = join(workspaceRoot, "output");
+      const outsideDirectory = join(workspaceRoot, "outside");
+      const runId = `${destination}-symlink-run`;
+      try {
+        mkdirSync(outputRoot);
+        mkdirSync(outsideDirectory);
+        writeFileSync(join(outsideDirectory, "sentinel.txt"), "outside evidence\n");
+        if (destination === "run") {
+          symlinkSync(outsideDirectory, join(outputRoot, runId));
+        } else {
+          mkdirSync(join(outputRoot, runId));
+          symlinkSync(outsideDirectory, join(outputRoot, runId, "data"));
+        }
+        const outputs = createDiagnosticDumpAdapters({ outputRoot });
+
+        expect(() =>
+          outputs.facetSinks.viz?.([projection], {
+            runId,
+            planFingerprint: `${destination}-symlink-plan`,
+            stepId: "test.symlink-containment",
+            stageId: "foundation",
+            stepIndex: 0,
+          })
+        ).toThrow(`Diagnostic ${destination} directory must not be a symbolic link`);
+
+        expect(readdirSync(outsideDirectory)).toEqual(["sentinel.txt"]);
+        expect(readFileSync(join(outsideDirectory, "sentinel.txt"), "utf8")).toBe(
+          "outside evidence\n"
+        );
+      } finally {
+        rmSync(workspaceRoot, { recursive: true, force: true });
+      }
+    }
+  });
+
   it("materializes execution-owned projections into the shared trace manifest", () => {
     const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-facet-"));
     try {
-      const outputs = createVizDumpAdapters({ outputRoot });
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
       const session = createTraceSession({
         runId: "facet-run",
         planFingerprint: "facet-plan",
@@ -74,12 +221,67 @@ describe("filesystem visualization adapters", () => {
     }
   });
 
-  it("rejects facet identity that contradicts an admitted trace tuple", () => {
+  it("lets the executor admit the exact index after earlier trace-off steps", () => {
+    const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-executor-index-"));
+    try {
+      const runId = "executor-index-run";
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
+      const session = createTraceSession({
+        runId,
+        planFingerprint: "executor-index-plan",
+        config: {
+          steps: {
+            "test.untraced-step": "off",
+            "test.traced-step": "verbose",
+          },
+        },
+        sink: outputs.traceSink,
+      });
+
+      session.emitStepStart({ stepId: "test.untraced-step", stageId: "foundation" });
+      session.emitStepStart({ stepId: "test.traced-step", stageId: "morphology" });
+      expect(readManifest(outputRoot, runId).steps).toEqual([]);
+
+      outputs.facetSinks.viz?.(
+        [
+          {
+            kind: "grid",
+            dataTypeKey: "test.executor-index",
+            spaceId: "tile.hexOddQ",
+            dims: { width: 1, height: 1 },
+            field: { format: "u8", values: new Uint8Array([1]) },
+          },
+        ],
+        {
+          runId,
+          planFingerprint: "executor-index-plan",
+          stepId: "test.traced-step",
+          stageId: "morphology",
+          stepIndex: 1,
+        }
+      );
+
+      const manifest = readManifest(outputRoot, runId);
+      expect(manifest.steps).toEqual([
+        { stepId: "test.traced-step", stageId: "morphology", stepIndex: 1 },
+      ]);
+      expect(manifest.layers).toHaveLength(1);
+      expect(manifest.layers[0]).toMatchObject({
+        stepId: "test.traced-step",
+        stageId: "morphology",
+        stepIndex: 1,
+      });
+    } finally {
+      rmSync(outputRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects facet stage and plan identities that contradict trace evidence", () => {
     const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-index-"));
     try {
       const runId = "partial-trace-run";
       const stepId = "test.late-faceted-step";
-      const outputs = createVizDumpAdapters({ outputRoot });
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
       const session = createTraceSession({
         runId,
         planFingerprint: "partial-trace-plan",
@@ -101,19 +303,10 @@ describe("filesystem visualization adapters", () => {
           runId,
           planFingerprint: "partial-trace-plan",
           stepId,
-          stageId: "foundation",
-          stepIndex: 7,
-        })
-      ).toThrow("Contradictory visualization step identity");
-      expect(() =>
-        outputs.facetSinks.viz?.(projections, {
-          runId,
-          planFingerprint: "partial-trace-plan",
-          stepId,
           stageId: "other-stage",
           stepIndex: 0,
         })
-      ).toThrow("Contradictory visualization step identity");
+      ).toThrow("Contradictory visualization step stage");
       expect(() =>
         outputs.facetSinks.viz?.(projections, {
           runId,
@@ -125,7 +318,7 @@ describe("filesystem visualization adapters", () => {
       ).toThrow("Contradictory visualization run identity");
 
       const manifest = readManifest(outputRoot, runId);
-      expect(manifest.steps).toEqual([{ stepId, stageId: "foundation", stepIndex: 0 }]);
+      expect(manifest.steps).toEqual([]);
       expect(manifest.layers).toHaveLength(0);
     } finally {
       rmSync(outputRoot, { recursive: true, force: true });
@@ -138,7 +331,7 @@ describe("filesystem visualization adapters", () => {
       const runId = "identity-run";
       const planFingerprint = "identity-plan";
       const runDir = join(outputRoot, runId);
-      const outputs = createVizDumpAdapters({ outputRoot });
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
       outputs.traceSink.emit({
         tsMs: 1,
         runId,
@@ -171,92 +364,38 @@ describe("filesystem visualization adapters", () => {
 
       expect(readFileSync(tracePath, "utf8")).toBe(admittedTrace);
       expect(readFileSync(manifestPath, "utf8")).toBe(admittedManifest);
-      expect(readManifest(outputRoot, runId).steps).toEqual([
-        { stepId: "test.step", stageId: "foundation", stepIndex: 0 },
-      ]);
+      expect(readManifest(outputRoot, runId).steps).toEqual([]);
     } finally {
       rmSync(outputRoot, { recursive: true, force: true });
     }
   });
 
-  it("contains projector and sink failures while reporting each once at the filesystem edge", () => {
+  it("reports facet failures once without exposing private error details", () => {
     const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-failure-"));
     const diagnostics = spyOn(console, "error").mockImplementation(() => {});
-    const executions: string[] = [];
     try {
-      const EmptySchema = Type.Object({}, { additionalProperties: false });
-      const projectorContract = defineStep({
-        id: "projector-failure",
-        requires: [],
-        provides: [],
-        schema: EmptySchema,
-      });
-      const sinkContract = defineStep({
-        id: "sink-failure",
-        requires: [],
-        provides: [],
-        schema: EmptySchema,
-      });
-      const projectorStep = createStep(projectorContract, {
-        run: () => {
-          executions.push("projector-step-completed");
-          return undefined;
-        },
-        viz: () => {
-          throw new Error("private projector detail");
-        },
-      });
-      const sinkStep = createStep(sinkContract, {
-        run: () => {
-          executions.push("sink-step-completed");
-          return undefined;
-        },
-        viz: () => [
-          {
-            kind: "grid",
-            dataTypeKey: "test.invalid-cardinality",
-            spaceId: "tile.hexOddQ",
-            dims: { width: 2, height: 2 },
-            field: { format: "u8", values: new Uint8Array([1]) },
-          },
-        ],
-      });
-      const stage = createStage({
-        id: "foundation",
-        knobsSchema: EmptySchema,
-        steps: [projectorStep, sinkStep],
-      });
-      const recipe = createRecipe({
-        id: "facet-failures",
-        namespace: "test",
-        tagDefinitions: [],
-        stages: [stage],
-        compileOpsById: {},
-      });
-      const setup = admitMapSetup({
-        mapSeed: 1,
-        dimensions: { width: 2, height: 2 },
-        latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
-      });
-      const context = createMapContext({
-        setup,
-        adapter: createMockAdapter({ width: 2, height: 2, mapSizeId: 1 }),
-      });
-      const outputs = createVizDumpAdapters({ outputRoot });
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
+      const context = {
+        runId: "failure-run",
+        planFingerprint: "failure-plan",
+        stepId: "test.failure",
+        stageId: "foundation",
+        stepIndex: 0,
+      } as const;
 
-      recipe.run(
+      outputs.facetSinks.onError?.({
+        facet: "viz",
+        operation: "project",
         context,
-        {
-          foundation: {
-            knobs: {},
-            "projector-failure": {},
-            "sink-failure": {},
-          },
-        },
-        { facets: outputs.facetSinks }
-      );
+        error: new Error("private projector detail"),
+      });
+      outputs.facetSinks.onError?.({
+        facet: "viz",
+        operation: "emit",
+        context,
+        error: new Error("private sink detail"),
+      });
 
-      expect(executions).toEqual(["projector-step-completed", "sink-step-completed"]);
       expect(diagnostics).toHaveBeenCalledTimes(2);
       const messages = diagnostics.mock.calls.map(([message]) => String(message));
       expect(messages).toEqual([
@@ -273,7 +412,7 @@ describe("filesystem visualization adapters", () => {
   it("isolates run step indexes, rejects repeated layer identity, and writes exact subview bytes", () => {
     const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-"));
     try {
-      const outputs = createVizDumpAdapters({ outputRoot });
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
       const run = (runId: string, first: Uint8Array, second: Uint8Array): void => {
         const session = createTraceSession({
           runId,
@@ -343,7 +482,7 @@ describe("filesystem visualization adapters", () => {
     const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-duplicate-batch-"));
     try {
       const runId = "duplicate-batch-run";
-      const outputs = createVizDumpAdapters({ outputRoot });
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
       const session = createTraceSession({
         runId,
         planFingerprint: "duplicate-batch-plan",
@@ -383,7 +522,7 @@ describe("filesystem visualization adapters", () => {
     try {
       const runId = "atomic-run";
       const runDir = join(outputRoot, runId);
-      const outputs = createVizDumpAdapters({ outputRoot });
+      const outputs = createDiagnosticDumpAdapters({ outputRoot });
       const session = createTraceSession({
         runId,
         planFingerprint: "atomic-plan",

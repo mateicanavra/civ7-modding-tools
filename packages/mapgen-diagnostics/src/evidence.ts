@@ -27,7 +27,7 @@ function parseTraceEvent(value: unknown): TraceEvent | null {
  * The boundary refuses legacy versions, malformed path references, and layers whose stage/step
  * execution identity is absent from the manifest's admitted step inventory.
  */
-export function loadPathVizManifest(runDirectory: string): PathVizManifest {
+export function readPathVizManifest(runDirectory: string): PathVizManifest {
   return admitPathVizManifest(loadJsonFile(join(runDirectory, "manifest.json")));
 }
 
@@ -35,7 +35,7 @@ export function loadPathVizManifest(runDirectory: string): PathVizManifest {
  * Reads a diagnostic JSONL trace as best-effort closed execution evidence.
  * Blank, malformed, legacy, or incomplete rows are dropped without weakening the returned union.
  */
-export function loadTraceEvents(runDirectory: string): TraceEvent[] {
+export function readTraceEvents(runDirectory: string): TraceEvent[] {
   const text = readFileSync(join(runDirectory, "trace.jsonl"), "utf8");
   return text
     .split("\n")

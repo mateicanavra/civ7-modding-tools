@@ -114,9 +114,10 @@ already bundled the recipe without either resolver.
   `@civ7/adapter/mapgen`.
 - Move pure layer contracts, builders, bounds/statistics, and materialization
   from Core and duplicated consumers into environment-neutral
-  `@swooper/mapgen-viz`. Studio owns browser transport/state/rendering. Keep the
-  sole filesystem dump adapter as a thin Swooper diagnostic consumer until a
-  second independent Node owner earns a separate package.
+  `@swooper/mapgen-viz`. Studio owns browser transport/state/rendering.
+  `@swooper/mapgen-diagnostics` owns reusable Node/Bun path-backed capture,
+  evidence reads, exact binary admission, inventory, and neutral diffing;
+  Swooper owns Standard replay, product reports, thresholds, and command UX.
 - Add optional `viz` and `metrics` declarations to `createStep` only through an
   executor-owned post-provides facet hook. Facets receive the typed step result
   plus immutable config/dimensions, never mutable context or operations; trace
@@ -124,9 +125,9 @@ already bundled the recipe without either resolver.
 - Let step `provides` name `ArtifactModule` values directly and derive provider
   contracts/runtimes once, deleting the duplicate implementation-level artifact
   tuple without introducing a registry or hidden lookup.
-- Move Swooper-specific analysis, profiling, live, and placement commands to
-  the mod's existing `scripts/{diagnostics,live}` owners until each durable
-  command reaches its package owner.
+- Keep Swooper-specific analysis, profiling, placement policy, and diagnostic
+  command entrypoints in the mod. Reusable live verification moves only in its
+  later package slice; no diagnostic package may acquire Civ7 control.
 - Extract pure count, numeric, and component measurement plus `MetricTarget`
   evaluation into `@swooper/mapgen-metrics`. The Standard recipe owns product
   provenance, sample and cohort membership, admitted preset scenarios, seed
@@ -150,9 +151,10 @@ already bundled the recipe without either resolver.
   cases remain unresolved rather than becoming false.
 - Empty and delete `mods/mod-swooper-maps/src/dev` and its TypeScript config.
 
-Keep `scripts/map-artifacts/file-plan.ts` and `write-file-plan.ts` together in
-Swooper. Their three consumers and their data model are product-specific; no
-public Core build-support abstraction is earned.
+The tooling package train is deliberately narrow: `mapgen-diagnostics` now,
+then reusable file-plan mechanics, then reusable live verification. Until their
+own slices land, live commands and `scripts/map-artifacts/{file-plan,write-file-plan}.ts`
+remain together under Swooper ownership; none belongs in Core.
 
 ### Categorical deletions
 

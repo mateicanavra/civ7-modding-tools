@@ -1,18 +1,16 @@
-import { parseDiagnosticArgs } from "./command-input.js";
 import {
-  connectedComponentsLandOddQ,
   hammingU8,
-  landmaskStats,
-  pickLatestGridLayer,
-  readU8Grid,
-} from "./grid-analysis.js";
-import {
   isTraceDataRecordEvent,
-  loadPathVizManifest,
-  loadTraceEvents,
-} from "./serialized-evidence.js";
+  MissingGridLayerError,
+  pickLatestGridLayer,
+  readPathVizManifest,
+  readTraceEvents,
+  readU8Grid,
+} from "@swooper/mapgen-diagnostics";
+import { parseDiagnosticArgs } from "./command-input.js";
+import { connectedComponentsLandOddQ, landmaskStats } from "./map-analysis.js";
 
-function lastSummary(trace: ReturnType<typeof loadTraceEvents>, kind: string): unknown {
+function lastSummary(trace: ReturnType<typeof readTraceEvents>, kind: string): unknown {
   const matches = trace
     .filter(isTraceDataRecordEvent)
     .filter((event) => event.data.kind === kind)
@@ -20,17 +18,18 @@ function lastSummary(trace: ReturnType<typeof loadTraceEvents>, kind: string): u
   return matches.at(-1) ?? null;
 }
 function tryPickLatestGridLayer(
-  manifest: ReturnType<typeof loadPathVizManifest>,
+  manifest: ReturnType<typeof readPathVizManifest>,
   dataTypeKey: string
 ) {
   try {
-    return pickLatestGridLayer(manifest, dataTypeKey);
-  } catch {
-    return null;
+    return pickLatestGridLayer(manifest, { dataTypeKey });
+  } catch (error) {
+    if (error instanceof MissingGridLayerError) return null;
+    throw error;
   }
 }
 
-function landmaskLayers(manifest: ReturnType<typeof loadPathVizManifest>) {
+function landmaskLayers(manifest: ReturnType<typeof readPathVizManifest>) {
   return manifest.layers
     .filter(
       (layer): layer is ReturnType<typeof pickLatestGridLayer> =>
@@ -42,7 +41,7 @@ function landmaskLayers(manifest: ReturnType<typeof loadPathVizManifest>) {
     .sort((a, b) => (a.stepIndex ?? 0) - (b.stepIndex ?? 0));
 }
 
-function summarizeLandmasks(runDir: string, manifest: ReturnType<typeof loadPathVizManifest>) {
+function summarizeLandmasks(runDir: string, manifest: ReturnType<typeof readPathVizManifest>) {
   return landmaskLayers(manifest).map((layer) => {
     const grid = readU8Grid(runDir, layer);
     const basic = landmaskStats(grid.values);
@@ -77,7 +76,7 @@ function maxU8(values: Uint8Array): number {
   return m;
 }
 
-function summarizeMountains(runDir: string, manifest: ReturnType<typeof loadPathVizManifest>) {
+function summarizeMountains(runDir: string, manifest: ReturnType<typeof readPathVizManifest>) {
   // These keys are the stable, user-facing visualization outputs used in Mapgen Studio.
   const mountainMaskLayer = tryPickLatestGridLayer(
     manifest,
@@ -105,8 +104,8 @@ function summarizeMountains(runDir: string, manifest: ReturnType<typeof loadPath
 function diffLandmasks(
   runDirA: string,
   runDirB: string,
-  manifestA: ReturnType<typeof loadPathVizManifest>,
-  manifestB: ReturnType<typeof loadPathVizManifest>
+  manifestA: ReturnType<typeof readPathVizManifest>,
+  manifestB: ReturnType<typeof readPathVizManifest>
 ) {
   const layersA = landmaskLayers(manifestA);
   const layersB = landmaskLayers(manifestB);
@@ -155,8 +154,8 @@ function main(): void {
   if (!runDirA)
     throw new Error("Usage: bun ./scripts/diagnostics/analyze-dump.ts -- <runDirA> [runDirB]");
 
-  const manifestA = loadPathVizManifest(runDirA);
-  const traceA = loadTraceEvents(runDirA);
+  const manifestA = readPathVizManifest(runDirA);
+  const traceA = readTraceEvents(runDirA);
 
   const out: Record<string, unknown> = {
     runA: {
@@ -170,8 +169,8 @@ function main(): void {
   };
 
   if (runDirB) {
-    const manifestB = loadPathVizManifest(runDirB);
-    const traceB = loadTraceEvents(runDirB);
+    const manifestB = readPathVizManifest(runDirB);
+    const traceB = readTraceEvents(runDirB);
     out.runB = {
       runId: manifestB.runId,
       dir: runDirB,

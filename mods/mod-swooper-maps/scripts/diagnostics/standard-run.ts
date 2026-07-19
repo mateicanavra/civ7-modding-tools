@@ -6,11 +6,11 @@ import {
   type TraceEvent,
   type TraceSink,
 } from "@swooper/mapgen-core";
+import { createDiagnosticDumpAdapters } from "@swooper/mapgen-diagnostics";
 import { canonicalRecipeConfig } from "../../src/maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { createVizDumpAdapters } from "./dump.js";
 
 function parseIntArg(value: string | undefined, fallback: number): number {
   if (!value) return fallback;
@@ -24,7 +24,7 @@ const height = parseIntArg(process.argv[3], 30);
 const seed = parseIntArg(process.argv[4], 1337);
 
 const outputRoot = join(process.cwd(), "dist", "visualization");
-const vizOutputs = createVizDumpAdapters({ outputRoot });
+const vizOutputs = createDiagnosticDumpAdapters({ outputRoot });
 
 const mapInfo = {
   GridWidth: width,

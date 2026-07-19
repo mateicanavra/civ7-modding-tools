@@ -102,7 +102,7 @@ step.run succeeds and declared providers are admitted
        - node/dev: path refs → manifest.json + data/
   → consumers:
        - Studio: render streamed upserts
-       - mod diagnostics: read manifest + data for replay and comparison
+       - diagnostic tooling: read manifest + data for replay and comparison
 ```
 
 **Key properties:** recipe algorithms never observe a visualization sink, and the viewer never runs
@@ -130,7 +130,7 @@ Implemented sinks:
   - copies each exact typed-array view into an inline buffer,
   - materializes `VizLayerEmissionV2`,
   - posts `viz.layer.upsert` with Transferables.
-- **Node diagnostic dump sink**: `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
+- **Node diagnostic dump sink**: `packages/mapgen-diagnostics/src/dump.ts`
   - writes exact binary views under `data/`,
   - materializes path-backed layers and updates `manifest.json`.
 
@@ -140,8 +140,8 @@ visualization layers.
 ### 3) Manifest contract: `VizManifestV2`
 
 The replay manifest schema is `VizManifestV2` from `@swooper/mapgen-viz` (`packages/mapgen-viz/src/index.ts`).
-Mod-owned diagnostic readers admit only `manifest.json` with `version: 2`; Studio builds the same
-manifest shape from live worker events rather than loading path-backed dumps.
+`@swooper/mapgen-diagnostics` readers admit only `manifest.json` with `version: 2`; Studio builds
+the same manifest shape from live worker events rather than loading path-backed dumps.
 
 ---
 
@@ -175,8 +175,8 @@ generation state or synthesize missing product evidence.
 ## Viewer design (implemented)
 
 MapGen Studio renders `viz.layer.upsert` events as they stream from the worker. Path-backed dump
-replay and comparison are owned by the mod's diagnostic commands under
-`mods/mod-swooper-maps/scripts/diagnostics/`.
+capture, admission, binary reads, inventory, and neutral comparison belong to
+`@swooper/mapgen-diagnostics`; Swooper's commands own Standard replay and product reporting.
 
 ### Deck.gl Layer Mapping
 
@@ -260,10 +260,11 @@ Live (Studio):
 - Confirm `viz.layer.upsert` events appear for steps with a `viz` facet and that the rendered colors
   match the projection's resolved metadata.
 
-Replay and comparison (mod diagnostics):
-- Produce a dump folder using the node/dev dump harness (mod-owned).
+Replay and comparison:
+- Produce a dump folder using the package-owned node/dev dump harness from a Swooper runner.
 - Confirm `<outputsRoot>/<runId>/manifest.json` exists and contains `layers[]`.
-- Run the mod-owned list, analyze, trace, or diff command and confirm it admits the v2 manifest.
+- Run a Swooper list, analyze, trace, or diff command and confirm it admits the v2 manifest through
+  `@swooper/mapgen-diagnostics`.
 
 ---
 
@@ -284,5 +285,5 @@ Replay and comparison (mod diagnostics):
 - Viz manifest contract: `packages/mapgen-viz/src/index.ts`
 - Studio viz manifest state: `apps/mapgen-studio/src/features/viz/vizStore.ts`
 - Deck.gl renderer: `apps/mapgen-studio/src/features/viz/deckgl/render.ts`
-- Node diagnostic dump harness: `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
+- Node diagnostic capability: `packages/mapgen-diagnostics/src/index.ts`
 - Viz contract routing: `docs/system/libs/mapgen/reference/VISUALIZATION.md`

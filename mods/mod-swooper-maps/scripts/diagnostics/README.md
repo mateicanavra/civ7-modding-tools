@@ -1,7 +1,9 @@
 # Diagnostics toolkit (dump‑first)
 
-This folder contains **data-first** scripts for diagnosing pipeline behavior from execution-owned
-step visualization projections (manifest + trace + binary layers).
+This folder contains Swooper's **data-first** commands, Standard runner, and product reports for
+diagnosing pipeline behavior from execution-owned step visualization projections. Reusable
+path-backed capture, evidence reads, inventory, and neutral diffing live in
+`@swooper/mapgen-diagnostics`.
 
 The goal is to make it easy to answer questions like:
 
@@ -14,7 +16,7 @@ The goal is to make it easy to answer questions like:
 - `run-standard-dump.ts` — run the full standard pipeline deterministically and write dumps under `dist/visualization/<label>/<runId>/...`.
 - `analyze-dump.ts` — compute land coherence metrics (components + largest component fraction) for all emitted `morphology.topography.landMask` layers, plus optional A/B diffs.
 - `list-layers.ts` — enumerate layers + paths from a run’s `manifest.json`.
-- `diff-layers.ts` — compute binary diffs for `u8`/`i16` grid layers between two runs.
+- `diff-layers.ts` — compute binary diffs for `u8`/`i16`/`f32` grid layers between two runs.
 - `extract-trace.ts` — extract trace “summary” events from `trace.jsonl`.
 
 ## Recommended deterministic probe
