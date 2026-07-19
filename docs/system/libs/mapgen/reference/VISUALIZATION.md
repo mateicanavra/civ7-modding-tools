@@ -19,7 +19,7 @@ Define the canonical visualization contract and route readers to the single cano
 - Runs may emit streaming layer events and/or replayable dumps (manifest + binary payloads), keyed by a unique execution `runId`, a stable `planFingerprint`, and layer keys.
 - MapGen Studio renders visualization via deck.gl:
   - live runs consume streamed layer upserts (`viz.layer.upsert`),
-  - dump viewer workflows consume dump folders (when produced).
+  - mod-owned diagnostic commands consume path-backed dump folders when produced.
 - Studio’s primary UI terminology is:
   - **Data type**: `dataTypeKey` (semantic identity; what a visualization *means*),
   - **Space**: `spaceId` (coordinate space),
@@ -32,12 +32,12 @@ Hard rule:
 
 ## Projection and materialization kernel
 
-`@swooper/mapgen-viz` owns the environment-neutral path from spatial evidence to a v1 layer:
+`@swooper/mapgen-viz` owns the environment-neutral path from spatial evidence to a v2 layer:
 
 ```text
 typed VizProjection
   -> materializeVizProjection(projection, execution identity, binary materializer)
-  -> VizLayerEmissionV1<inline ref | path ref>
+  -> VizLayerEmissionV2<inline ref | path ref>
 ```
 
 - A projection carries semantic data identity, coordinate space, metadata, and typed array sources.
@@ -48,6 +48,9 @@ typed VizProjection
 - Binary materialization is the only environment boundary. The Studio worker copies each exact
   typed-array view into an inline transferable buffer; Swooper diagnostic tooling persists that
   view and returns a relative path.
+- `admitPathVizManifest` is the single runtime admission boundary for untrusted path-backed v2
+  manifests. Viz owns the closed TypeBox schema and exact stage/step execution relation; the
+  diagnostic host owns filesystem reads and supplies the parsed JSON value.
 - Materialization does not render, persist, emit trace events, or synthesize evidence; it serializes
   the projection it receives. Explicitly selected projection helpers may derive visualization-only
   evidence such as vector magnitude from borrowed semantic sources before materialization.
@@ -100,7 +103,8 @@ Forbidden shapes:
 ## Ground truth anchors
 
 - Canonical deck.gl viz doc: `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
-- Viz manifest contract types: `packages/mapgen-viz/src/index.ts`
+- Viz manifest contract types: `packages/mapgen-viz/src/model.ts`
+- Path-backed manifest admission: `packages/mapgen-viz/src/path-manifest.ts`
 - Step facet contract and dispatch: `packages/mapgen-core/src/engine/step-projectors.ts` and
   `packages/mapgen-core/src/engine/step-facets.ts`
 - Viz dump sink (mod-owned): `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`

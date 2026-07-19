@@ -1,4 +1,5 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
+import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { runPlacementProductStep, warnLog } from "../../log.js";
 import {
   buildPlacementPointBuffers,
@@ -68,7 +69,7 @@ export const PlaceResourcesStep = createStep(PlaceResourcesStepContract, {
   run: (context, _config, _ops, deps) => {
     const plan = deps.artifacts.resourcePlanAdjusted.read(context);
     const { width, height } = context.setup.dimensions;
-    const emit = (payload: Record<string, unknown>): void => {
+    const emit = (payload: TraceJsonObject): void => {
       if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);
     };

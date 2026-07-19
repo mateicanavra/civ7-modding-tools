@@ -1,10 +1,10 @@
 import type { Layer } from "@deck.gl/core";
 import { describe, expect, it } from "vitest";
 import { boundsForTileGrid, renderDeckLayers } from "../../src/features/viz/deckgl/render";
-import type { VizLayerEntryV1, VizManifestV1 } from "../../src/features/viz/model";
+import type { VizLayerEntryV2, VizManifestV2 } from "../../src/features/viz/model";
 import { TILE_BORDER_FILL_RATIO } from "../../src/features/viz/presentation";
 
-type GridLayerEntry = Extract<VizLayerEntryV1, { kind: "grid" }>;
+type GridLayerEntry = Extract<VizLayerEntryV2, { kind: "grid" }>;
 type HexLayerAccessors = {
   getPolygon(index: number): ReadonlyArray<readonly [number, number]>;
   getFillColor(index: number): readonly number[];
@@ -44,6 +44,7 @@ function gridLayer(spaceId: "tile.hexOddR" | "tile.hexOddQ"): GridLayerEntry {
     layerKey: `test::terrain::${spaceId}::grid`,
     dataTypeKey: "terrain",
     stepId: "test.step",
+    stageId: "test-stage",
     stepIndex: 0,
     spaceId,
     bounds: [0, 0, 2, 2],
@@ -61,11 +62,11 @@ describe("tile-space rendering orientation", () => {
     "tile.hexOddQ",
   ] as const)("draws Civ row 0 north/up for %s", async (spaceId) => {
     const layer = gridLayer(spaceId);
-    const manifest: VizManifestV1 = {
-      version: 1,
+    const manifest: VizManifestV2 = {
+      version: 2,
       runId: "test-run",
       planFingerprint: "test-plan",
-      steps: [{ stepId: "test.step", stepIndex: 0 }],
+      steps: [{ stepId: "test.step", stageId: "test-stage", stepIndex: 0 }],
       layers: [layer],
     };
 
@@ -95,11 +96,11 @@ describe("tile-space rendering orientation", () => {
     "tile.hexOddQ",
   ] as const)("renders %s as regular pointy-top hexes (game geometry)", async (spaceId) => {
     const layer = gridLayer(spaceId);
-    const manifest: VizManifestV1 = {
-      version: 1,
+    const manifest: VizManifestV2 = {
+      version: 2,
       runId: "test-run",
       planFingerprint: "test-plan",
-      steps: [{ stepId: "test.step", stepIndex: 0 }],
+      steps: [{ stepId: "test.step", stageId: "test-stage", stepIndex: 0 }],
       layers: [layer],
     };
     const result = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });
@@ -126,11 +127,11 @@ describe("tile-space rendering orientation", () => {
     "tile.hexOddQ",
   ] as const)("places %s tiles on the game's row-offset lattice", async (spaceId) => {
     const layer = gridLayer(spaceId);
-    const manifest: VizManifestV1 = {
-      version: 1,
+    const manifest: VizManifestV2 = {
+      version: 2,
       runId: "test-run",
       planFingerprint: "test-plan",
-      steps: [{ stepId: "test.step", stepIndex: 0 }],
+      steps: [{ stepId: "test.step", stageId: "test-stage", stepIndex: 0 }],
       layers: [layer],
     };
     const result = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });
@@ -165,11 +166,11 @@ describe("tile-space rendering orientation", () => {
         },
       },
     };
-    const manifest: VizManifestV1 = {
-      version: 1,
+    const manifest: VizManifestV2 = {
+      version: 2,
       runId: "test-run",
       planFingerprint: "test-plan",
-      steps: [{ stepId: "test.step", stepIndex: 0 }],
+      steps: [{ stepId: "test.step", stageId: "test-stage", stepIndex: 0 }],
       layers: [layer],
     };
     const result = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });
@@ -187,11 +188,11 @@ describe("tile-space rendering orientation", () => {
 
   it("grouts each filled tile with its OWN fill darkened (the one border rule)", async () => {
     const layer = gridLayer("tile.hexOddR");
-    const manifest: VizManifestV1 = {
-      version: 1,
+    const manifest: VizManifestV2 = {
+      version: 2,
       runId: "test-run",
       planFingerprint: "test-plan",
-      steps: [{ stepId: "test.step", stepIndex: 0 }],
+      steps: [{ stepId: "test.step", stageId: "test-stage", stepIndex: 0 }],
       layers: [layer],
     };
     const result = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });

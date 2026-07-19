@@ -1,21 +1,28 @@
+import { parseDiagnosticArgs } from "./command-input.js";
 import {
   connectedComponentsLandOddQ,
   hammingU8,
   landmaskStats,
-  loadManifest,
-  loadTraceLines,
-  parseArgs,
   pickLatestGridLayer,
   readU8Grid,
-} from "./shared.js";
+} from "./grid-analysis.js";
+import {
+  isTraceDataRecordEvent,
+  loadPathVizManifest,
+  loadTraceEvents,
+} from "./serialized-evidence.js";
 
-function lastSummary(trace: any[], kind: string): unknown {
+function lastSummary(trace: ReturnType<typeof loadTraceEvents>, kind: string): unknown {
   const matches = trace
-    .filter((e) => e?.kind === "step.event" && e?.data?.kind === kind)
-    .map((e) => e.data);
+    .filter(isTraceDataRecordEvent)
+    .filter((event) => event.data.kind === kind)
+    .map((event) => event.data);
   return matches.at(-1) ?? null;
 }
-function tryPickLatestGridLayer(manifest: ReturnType<typeof loadManifest>, dataTypeKey: string) {
+function tryPickLatestGridLayer(
+  manifest: ReturnType<typeof loadPathVizManifest>,
+  dataTypeKey: string
+) {
   try {
     return pickLatestGridLayer(manifest, dataTypeKey);
   } catch {
@@ -23,7 +30,7 @@ function tryPickLatestGridLayer(manifest: ReturnType<typeof loadManifest>, dataT
   }
 }
 
-function landmaskLayers(manifest: ReturnType<typeof loadManifest>) {
+function landmaskLayers(manifest: ReturnType<typeof loadPathVizManifest>) {
   return manifest.layers
     .filter(
       (layer): layer is ReturnType<typeof pickLatestGridLayer> =>
@@ -35,7 +42,7 @@ function landmaskLayers(manifest: ReturnType<typeof loadManifest>) {
     .sort((a, b) => (a.stepIndex ?? 0) - (b.stepIndex ?? 0));
 }
 
-function summarizeLandmasks(runDir: string, manifest: ReturnType<typeof loadManifest>) {
+function summarizeLandmasks(runDir: string, manifest: ReturnType<typeof loadPathVizManifest>) {
   return landmaskLayers(manifest).map((layer) => {
     const grid = readU8Grid(runDir, layer);
     const basic = landmaskStats(grid.values);
@@ -70,7 +77,7 @@ function maxU8(values: Uint8Array): number {
   return m;
 }
 
-function summarizeMountains(runDir: string, manifest: ReturnType<typeof loadManifest>) {
+function summarizeMountains(runDir: string, manifest: ReturnType<typeof loadPathVizManifest>) {
   // These keys are the stable, user-facing visualization outputs used in Mapgen Studio.
   const mountainMaskLayer = tryPickLatestGridLayer(
     manifest,
@@ -98,15 +105,23 @@ function summarizeMountains(runDir: string, manifest: ReturnType<typeof loadMani
 function diffLandmasks(
   runDirA: string,
   runDirB: string,
-  manifestA: ReturnType<typeof loadManifest>,
-  manifestB: ReturnType<typeof loadManifest>
+  manifestA: ReturnType<typeof loadPathVizManifest>,
+  manifestB: ReturnType<typeof loadPathVizManifest>
 ) {
   const layersA = landmaskLayers(manifestA);
   const layersB = landmaskLayers(manifestB);
   const byStepA = new Map(layersA.map((l) => [l.stepId, l] as const));
   const byStepB = new Map(layersB.map((l) => [l.stepId, l] as const));
 
-  const diffs: any[] = [];
+  const diffs: Array<
+    Readonly<{
+      stepId: string;
+      stepIndexA: number;
+      stepIndexB: number;
+      hamming: number;
+      hammingPct: number;
+    }>
+  > = [];
   for (const [stepId, layerA] of byStepA.entries()) {
     const layerB = byStepB.get(stepId);
     if (!layerB) continue;
@@ -134,16 +149,16 @@ function diffLandmasks(
  *   JSON summary with land coherence metrics + optional hamming diffs.
  */
 function main(): void {
-  const { positionals } = parseArgs(process.argv.slice(2));
+  const { positionals } = parseDiagnosticArgs(process.argv.slice(2));
   const runDirA = positionals[0];
   const runDirB = positionals[1];
   if (!runDirA)
     throw new Error("Usage: bun ./scripts/diagnostics/analyze-dump.ts -- <runDirA> [runDirB]");
 
-  const manifestA = loadManifest(runDirA);
-  const traceA = loadTraceLines(runDirA);
+  const manifestA = loadPathVizManifest(runDirA);
+  const traceA = loadTraceEvents(runDirA);
 
-  const out: any = {
+  const out: Record<string, unknown> = {
     runA: {
       runId: manifestA.runId,
       dir: runDirA,
@@ -155,8 +170,8 @@ function main(): void {
   };
 
   if (runDirB) {
-    const manifestB = loadManifest(runDirB);
-    const traceB = loadTraceLines(runDirB);
+    const manifestB = loadPathVizManifest(runDirB);
+    const traceB = loadTraceEvents(runDirB);
     out.runB = {
       runId: manifestB.runId,
       dir: runDirB,

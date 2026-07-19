@@ -15,7 +15,6 @@ import { artifactModules as placementArtifactModules } from "../../artifacts/ind
  */
 export const PlanResourcesStepContract = defineStep({
   id: "plan-resources",
-  phase: "placement",
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned],
   artifacts: {

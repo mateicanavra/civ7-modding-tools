@@ -9,6 +9,7 @@ import {
 } from "typebox";
 import { assertCompleteRecipeConfigSchema } from "./recipe-config-schema.js";
 import { applySchemaConventions } from "./schema.js";
+import { assertStageId } from "./stage-id.js";
 import {
   RESERVED_STAGE_KEY,
   type StageAuthoringModel,
@@ -27,6 +28,24 @@ function assertSchema(value: unknown, stepId?: string, stageId?: string): void {
 }
 
 const STEP_ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/**
+ * Admits the stage identities used by recipe composition.
+ *
+ * Stage IDs share the authoring identifier grammar with step IDs so they remain safe inside
+ * dotted execution identities and path-like presentation keys. A recipe may contain each stage
+ * identity exactly once because later compilation indexes stages by that identity.
+ */
+export function assertStageIds(stageIds: readonly string[]): void {
+  const admitted = new Set<string>();
+  for (const stageId of stageIds) {
+    assertStageId(stageId);
+    if (admitted.has(stageId)) {
+      throw new Error(`duplicate stage id "${stageId}"`);
+    }
+    admitted.add(stageId);
+  }
+}
 
 function assertKebabCaseStepIds(input: { stageId: string; stepIds: readonly string[] }): void {
   for (const id of input.stepIds) {
@@ -201,6 +220,7 @@ export function createStage(def: RuntimeStageDefinition): StageContractAny {
   const isPublic = def.public !== undefined;
   const compile = def.compile;
   const stepIds = def.steps.map((step) => step.contract.id);
+  assertStageIds([stageId]);
   assertNoReservedStageKeys({ stageId, stepIds, publicSchema: def.public });
   assertKebabCaseStepIds({ stageId, stepIds });
 

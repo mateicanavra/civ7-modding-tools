@@ -11,7 +11,6 @@ import { artifacts as standardArtifacts } from "../../../../artifacts/index.js";
  */
 export const PlateTopologyStepContract = defineStep({
   id: "plate-topology",
-  phase: "foundation",
   requires: [],
   provides: [],
   artifacts: {

@@ -14,7 +14,7 @@ export const CrustStep = createStep(CrustStepContract, {
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);
-    const stepId = `${CrustStepContract.phase}/${CrustStepContract.id}`;
+    const stepId = `foundation/${CrustStepContract.id}`;
     const rngSeed = ctxRandom(
       context,
       ctxRandomLabel(stepId, "foundation/compute-crust"),

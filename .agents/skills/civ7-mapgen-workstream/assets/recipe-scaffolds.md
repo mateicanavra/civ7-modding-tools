@@ -218,7 +218,6 @@ import { artifacts as otherArtifacts } from "../../../<other-stage>/artifacts/in
 /** Contract and compiled configuration boundary for the example recipe step. */
 export const MyStepContract = defineStep({
   id: "my-step-name",
-  phase: "morphology",          // GenerationPhase: morphology | hydrology | ecology | placement | ...
   requires: [] as const,
   provides: [] as const,
   artifacts: {

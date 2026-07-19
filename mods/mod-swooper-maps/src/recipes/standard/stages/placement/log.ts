@@ -1,4 +1,4 @@
-import type { MapContext } from "@swooper/mapgen-core";
+import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
 import { resolveStandardProjectionTerrainTypes } from "../../projection-policies/standardProjectionEngineTypes.js";
 
 /**
@@ -31,7 +31,7 @@ export function warnLog(message: string): void {
  */
 export function runPlacementProductStep<T>(
   stepId: string,
-  emit: (payload: Record<string, unknown>) => void,
+  emit: (payload: TraceJsonObject) => void,
   fn: () => T
 ): T {
   try {

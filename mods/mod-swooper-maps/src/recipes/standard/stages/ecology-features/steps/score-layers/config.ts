@@ -16,7 +16,6 @@ import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/
  */
 export const ScoreLayersStepContract = defineStep({
   id: "score-layers",
-  phase: "ecology",
   requires: [],
   provides: [],
   artifacts: {

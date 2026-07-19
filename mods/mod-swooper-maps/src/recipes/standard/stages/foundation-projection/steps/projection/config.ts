@@ -8,7 +8,6 @@ import { artifactModules as standardArtifactModules } from "../../../../artifact
  */
 export const ProjectionStepContract = defineStep({
   id: "projection",
-  phase: "foundation",
   requires: [],
   provides: [],
   artifacts: {

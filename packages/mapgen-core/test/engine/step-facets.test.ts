@@ -90,7 +90,7 @@ describe("step facets", () => {
     let borrowedResult: TestResult | undefined;
     const step: MapGenStep<TestConfig, TestResult> = {
       id: "faceted-step",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [PROVIDED_TAG],
       run: (context, config) => {
@@ -155,7 +155,7 @@ describe("step facets", () => {
     expect(contexts[0]?.runId.length).toBeGreaterThan(0);
     expect(contexts[0]?.planFingerprint.length).toBeGreaterThan(0);
     expect(contexts[0]?.stepId).toBe(step.id);
-    expect(contexts[0]?.phase).toBe(step.phase);
+    expect(contexts[0]?.stageId).toBe(step.stageId);
     expect(contexts[0]?.stepIndex).toBe(0);
     expect(contexts[0]).toEqual(contexts[1]);
     expect(contexts[0]?.runId).not.toBe(contexts[0]?.planFingerprint);
@@ -164,7 +164,7 @@ describe("step facets", () => {
   it("shares each execution-owned identity between trace and facet evidence", async () => {
     const step: MapGenStep<TestConfig, TestResult> = {
       id: "trace-identity",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => ({ score: 1 }),
@@ -210,7 +210,7 @@ describe("step facets", () => {
   it("allocates a fresh identity for each untraced facet execution", () => {
     const step: MapGenStep<TestConfig, TestResult> = {
       id: "untraced-identity",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => ({ score: 1 }),
@@ -242,7 +242,7 @@ describe("step facets", () => {
     let vizProjects = 0;
     const step: MapGenStep<TestConfig, TestResult> = {
       id: "optional-facets",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => ({ score: 1 }),
@@ -277,7 +277,7 @@ describe("step facets", () => {
     const failures: StepFacetFailure[] = [];
     const step: MapGenStep<TestConfig, TestResult> = {
       id: "failing-facets",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => ({ score: 1 }),
@@ -357,7 +357,7 @@ describe("step facets", () => {
     } as unknown as StepFacetSinks;
     const step: MapGenStep<TestConfig, TestResult> = {
       id: "rejected-facet-thenables",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => ({ score: 1 }),
@@ -396,7 +396,7 @@ describe("step facets", () => {
     const abortSignal = { aborted: false };
     const step: MapGenStep<TestConfig, TestResult> = {
       id: "post-run-abort",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [PROVIDED_TAG],
       run: async (context) => {

@@ -1,4 +1,5 @@
 import type { MapContext } from "@mapgen/core/map-context.js";
+import { assertStageId } from "@mapgen/authoring/stage-id.js";
 import { DuplicateStepError, UnknownStepError } from "@mapgen/engine/errors.js";
 import {
   type DependencyTagDefinition,
@@ -33,7 +34,8 @@ export class StepRegistry {
 
   /** Snapshots and registers one uniquely identified step after validating its tag edges. */
   register<TConfig, TResult>(step: MapGenStep<TConfig, TResult>): void {
-    const { id, phase, requires, provides, configSchema, normalize, run, facets } = step;
+    const { id, stageId, requires, provides, configSchema, normalize, run, facets } = step;
+    assertStageId(stageId);
     if (this.steps.has(id)) {
       throw new DuplicateStepError(id);
     }
@@ -43,7 +45,7 @@ export class StepRegistry {
     validateDependencyTags(registeredProvides, this.tags);
     const registeredStep = Object.freeze({
       id,
-      phase,
+      stageId,
       requires: registeredRequires,
       provides: registeredProvides,
       configSchema,

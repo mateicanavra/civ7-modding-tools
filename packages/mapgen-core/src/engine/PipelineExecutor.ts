@@ -31,7 +31,7 @@ import {
   type TagRegistry,
   validateDependencyTags,
 } from "@mapgen/engine/tags.js";
-import type { GenerationPhase, MapGenStep, PipelineStepResult } from "@mapgen/engine/types.js";
+import type { MapGenStep, PipelineStepResult } from "@mapgen/engine/types.js";
 import type { TraceSession } from "@mapgen/trace/index.js";
 import { createNoopTraceSession } from "@mapgen/trace/index.js";
 
@@ -100,14 +100,14 @@ function traceSessionForExecution(
 
 function stepFacetContext(
   identity: PipelineFacetIdentity,
-  step: Readonly<{ id: string; phase: GenerationPhase }>,
+  step: Readonly<{ id: string; stageId: string }>,
   stepIndex: number
 ): StepFacetSinkContext {
   return Object.freeze({
     runId: identity.runId,
     planFingerprint: identity.planFingerprint,
     stepId: step.id,
-    phase: step.phase,
+    stageId: step.stageId,
     stepIndex,
   });
 }
@@ -252,7 +252,7 @@ export class PipelineExecutor {
           });
         }
 
-        const stepMeta = { stepId: step.id, phase: step.phase };
+        const stepMeta = { stepId: step.id, stageId: step.stageId };
         const previousTrace = context.trace;
         setMapContextTraceInternal(context, trace.createStepScope(stepMeta));
 
@@ -448,7 +448,7 @@ export class PipelineExecutor {
           });
         }
 
-        const stepMeta = { stepId: step.id, phase: step.phase };
+        const stepMeta = { stepId: step.id, stageId: step.stageId };
         const previousTrace = context.trace;
         setMapContextTraceInternal(context, trace.createStepScope(stepMeta));
 

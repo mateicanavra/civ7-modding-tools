@@ -2,7 +2,7 @@
   <item id="purpose" title="Purpose"/>
   <item id="when" title="When to use"/>
   <item id="workflow-dump" title="Workflow: produce a dump (node/dev)"/>
-  <item id="workflow-replay" title="Workflow: replay a dump in Studio"/>
+  <item id="workflow-replay" title="Workflow: inspect a dump"/>
   <item id="workflow-live" title="Workflow: live streaming in Studio (optional)"/>
   <item id="verification" title="Verification"/>
   <item id="footguns" title="Footguns"/>
@@ -17,7 +17,7 @@ Enable trace + viz emissions for a run so you can debug:
 - step ordering and gating,
 - invariants and validation failures,
 - artifact/projection drift (map projection, not UI render mode),
-- scalar field correctness (via dumped layers + deck.gl viewer).
+- scalar field correctness through live deck.gl rendering or persisted diagnostic layers.
 
 Routes to:
 - Observability reference: [`docs/system/libs/mapgen/reference/OBSERVABILITY.md`](/system/libs/mapgen/reference/OBSERVABILITY.md)
@@ -60,7 +60,7 @@ The harness prints the run folder:
 
 Notes:
 - Each attempt receives a unique `runId`; the stable `planFingerprint` groups attempts of the same compiled plan.
-- The folder you select in Studio must be the directory that contains `manifest.json` (not its parent).
+- Pass the directory containing `manifest.json` to the diagnostic commands (not its parent).
 
 ### 3) Why layers may not appear
 
@@ -78,29 +78,18 @@ both the trace sink and visualization facet sink and reports facet failures on s
 - Confirm `trace.jsonl` exists under the run folder and contains `run.start`, `step.start`, `step.finish`, `run.finish`.
 - Confirm `manifest.json` exists and contains at least one `layers[]` entry when viz is enabled and a step emits layers.
 
-## Workflow: replay a dump in Studio
+## Workflow: inspect a dump
 
-### 1) Start Studio
-
-From the repo root:
+Use the mod-owned readers against the run directory:
 
 ```bash
-nx run mapgen-studio:dev
+nx run mod-swooper-maps:diag:list -- <runDir> --prefix hydrology.
+nx run mod-swooper-maps:diag:analyze -- <runDir>
+nx run mod-swooper-maps:diag:trace -- <runDir> --eventPrefix hydrology.
 ```
 
-### 2) Switch to Dump mode and open the folder
-
-In the header (“World” panel), set:
-- `Mode: Dump`
-
-Then click **Run** and pick the dump folder (the folder containing `manifest.json`), or drag-and-drop the folder into the page.
-
-### 3) Inspect layers
-
-Use the Explore panel to:
-- choose a stage + step (from the manifest),
-- choose a `spaceId` (coordinate space),
-- choose a data type (`dataTypeKey`), render mode (`kind[:role]`), and variant (`variantKey`) as needed.
+Studio's Explore panel is the live deck.gl viewer. It consumes worker emissions and does not load
+path-backed dump folders.
 
 For the full system explanation (streaming vs replay, schema, layer taxonomy), see:
 - [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
@@ -131,5 +120,4 @@ Routing:
 - Portable visualization contracts: `packages/mapgen-viz/src/index.ts`
 - Local trace+viz dump harness (writes `trace.jsonl` + `manifest.json`): `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
 - Standard run harness producing dumps: `mods/mod-swooper-maps/scripts/diagnostics/standard-run.ts`
-- Studio “Dump mode” UI + folder picker entrypoint: `apps/mapgen-studio/src/App.tsx`
-- Studio mode selector (“World” → “Mode: Dump”): `packages/mapgen-studio-ui/src/components/composites/AppHeader.tsx`
+- Studio live visualization entrypoint: `apps/mapgen-studio/src/App.tsx`

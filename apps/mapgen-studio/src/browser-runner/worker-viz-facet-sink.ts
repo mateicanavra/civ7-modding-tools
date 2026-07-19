@@ -1,10 +1,11 @@
 import type { StepFacetSinks } from "@swooper/mapgen-core";
 import {
+  assertUniqueVizLayerKeys,
   materializeVizProjection,
   type VizBinaryMaterializer,
   type VizInlineRef,
-  type VizLayerEmissionV1,
-  type VizLayerEntryV1,
+  type VizLayerEmissionV2,
+  type VizLayerEntryV2,
   type VizProjection,
 } from "@swooper/mapgen-viz";
 import type { WorkerEventPost } from "./worker-trace-sink";
@@ -13,7 +14,7 @@ function collectTransferablesFromBinaryRef(ref: VizInlineRef, into: Transferable
   into.push(ref.buffer);
 }
 
-function collectTransferables(layer: VizLayerEntryV1<VizInlineRef>): Transferable[] {
+function collectTransferables(layer: VizLayerEntryV2<VizInlineRef>): Transferable[] {
   const transfer: Transferable[] = [];
   if (layer.kind === "grid") {
     collectTransferablesFromBinaryRef(layer.field.data, transfer);
@@ -35,7 +36,7 @@ function postWorkerVizLayer(options: {
   post: WorkerEventPost;
   runToken: string;
   generation: number;
-  layer: VizLayerEntryV1<VizInlineRef>;
+  layer: VizLayerEntryV2<VizInlineRef>;
 }): void {
   const { post, runToken, generation, layer } = options;
   post({ type: "viz.layer.upsert", runToken, generation, layer }, collectTransferables(layer));
@@ -54,8 +55,8 @@ const materializeInline: VizBinaryMaterializer<VizInlineRef> = ({ source }) => (
 
 function materializeWorkerProjection(
   projection: VizProjection,
-  identity: Readonly<{ stepId: string; phase?: string }>
-): VizLayerEmissionV1<VizInlineRef> {
+  identity: Readonly<{ stepId: string; stageId: string }>
+): VizLayerEmissionV2<VizInlineRef> {
   return materializeVizProjection(projection, identity, materializeInline);
 }
 
@@ -77,10 +78,11 @@ export function createWorkerVizFacetSink(options: {
     const layers = projections.map((projection) => {
       const emitted = materializeWorkerProjection(projection, {
         stepId: context.stepId,
-        phase: context.phase,
+        stageId: context.stageId,
       });
       return { ...emitted, stepIndex: context.stepIndex };
     });
+    assertUniqueVizLayerKeys(layers, "Worker visualization batch");
     for (const layer of layers) {
       postWorkerVizLayer({
         post,

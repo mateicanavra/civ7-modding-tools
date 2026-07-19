@@ -1,4 +1,5 @@
-import { loadTraceLines, parseArgs } from "./shared.js";
+import { parseDiagnosticArgs } from "./command-input.js";
+import { isTraceDataRecordEvent, loadTraceEvents } from "./serialized-evidence.js";
 
 function asString(value: unknown): string | null {
   return typeof value === "string" ? value : null;
@@ -11,25 +12,25 @@ function asString(value: unknown): string | null {
  *   bun ./scripts/diagnostics/extract-trace.ts -- <runDir> [--eventKind morphology.landmassPlates.summary]
  */
 function main(): void {
-  const { positionals, flags } = parseArgs(process.argv.slice(2));
+  const { positionals, flags } = parseDiagnosticArgs(process.argv.slice(2));
   const runDir = positionals[0];
   if (!runDir)
     throw new Error(
       "Usage: bun ./scripts/diagnostics/extract-trace.ts -- <runDir> [--eventKind ...]"
     );
 
-  const trace = loadTraceLines(runDir);
+  const trace = loadTraceEvents(runDir);
   const kindFlag = asString(flags.eventKind);
   const prefixFlag = asString(flags.eventPrefix);
 
   const events = trace
-    .filter((e) => e?.kind === "step.event" && e?.data)
-    .map((e) => ({
-      tsMs: e.tsMs ?? null,
-      stepId: e.stepId ?? null,
-      phase: e.phase ?? null,
-      kind: e.data.kind ?? null,
-      data: e.data,
+    .filter(isTraceDataRecordEvent)
+    .map((event) => ({
+      tsMs: event.tsMs,
+      stepId: event.stepId,
+      stageId: event.stageId,
+      kind: typeof event.data.kind === "string" ? event.data.kind : null,
+      data: event.data,
     }))
     .filter((e) => {
       if (kindFlag && e.kind !== kindFlag) return false;

@@ -1,10 +1,11 @@
-import type {
-  VizLayerEntryV1,
-  VizLayerKind,
-  VizLayerVisibility,
-  VizManifestV1,
-  VizScalarFormat,
-  VizSpaceId,
+import {
+  assertVizBinaryByteLength,
+  type VizLayerEntryV2,
+  type VizLayerKind,
+  type VizLayerVisibility,
+  type VizManifestV2,
+  type VizScalarFormat,
+  type VizSpaceId,
 } from "@swooper/mapgen-viz";
 
 export type RiverLakeInspectorLane =
@@ -18,7 +19,7 @@ export type RiverLakeInspectorLane =
   | "acceptance";
 
 export type RiverLakeInspectorEvidenceClass =
-  | "hydrology-truth"
+  | "hydrology-model"
   | "projection-plan"
   | "terrain-readback"
   | "metadata-readback"
@@ -36,7 +37,7 @@ export type RiverLakeInspectorClaimStatus =
   | "out-of-scope";
 
 export type RiverLakeInspectorMaskCategory =
-  | "physical-river-truth"
+  | "physical-river-model"
   | "navigable-projection"
   | "engine-terrain-readback"
   | "engine-metadata-readback"
@@ -61,7 +62,7 @@ export type RiverLakeInspectorMaskPresentation = Readonly<{
 }>;
 
 export type RiverLakeInspectorDisplayStatus =
-  | "hydrology-truth-present"
+  | "hydrology-model-present"
   | "projection-plan-present"
   | "terrain-readback-present"
   | "metadata-readback-present"
@@ -86,6 +87,7 @@ export type RiverLakeInspectorDisplayStatus =
 export type RiverLakeInspectorLayerRef = Readonly<{
   dataTypeKey: string;
   layerKey: string;
+  stageId: string;
   stepId: string;
   stepIndex: number;
   spaceId: VizSpaceId;
@@ -136,11 +138,11 @@ type LaneSpec = Readonly<{
 
 const LANE_SPECS: readonly LaneSpec[] = [
   {
-    rowKey: "hydrology-truth",
+    rowKey: "hydrology-model",
     lane: "hydrology",
     laneLabel: "Hydrology",
-    label: "Drainage truth",
-    evidenceClass: "hydrology-truth",
+    label: "Drainage model",
+    evidenceClass: "hydrology-model",
     dataTypeKeys: [
       "hydrology.hydrography.discharge",
       "hydrology.hydrography.riverClass",
@@ -151,10 +153,10 @@ const LANE_SPECS: readonly LaneSpec[] = [
       "hydrology.lakes.lakePlan",
     ],
     requiredDataTypeKeys: ["hydrology.hydrography.riverClass"],
-    presentStatus: "hydrology-truth-present",
+    presentStatus: "hydrology-model-present",
     missingStatus: "no-physical-rivers",
     missingEvidence:
-      "No Hydrology river-class layer is present in this run manifest; Studio cannot prove physical river truth for this run.",
+      "No Hydrology river-class layer is present in this run manifest; Studio cannot inspect the physical river model for this run.",
     presentEvidence:
       "Same-run Hydrology layers are present. Non-zero river counts require the Hydrology summary artifact, not manifest inference.",
   },
@@ -176,7 +178,7 @@ const LANE_SPECS: readonly LaneSpec[] = [
     missingEvidence:
       "No projected navigable-river mask is present; this run has no Studio-visible projection plan layer.",
     presentEvidence:
-      "The projected navigable-river mask is present and labeled as projection-plan evidence, not engine terrain truth.",
+      "The projected navigable-river mask is present and labeled as projection-plan evidence, not engine terrain readback.",
   },
   {
     rowKey: "terrain-readback",
@@ -361,12 +363,12 @@ const COUNT_LABEL_BY_DATA_TYPE_KEY: Readonly<Record<string, string>> = {
 const MASK_PRESENTATIONS: Readonly<
   Record<RiverLakeInspectorMaskCategory, RiverLakeInspectorMaskPresentation>
 > = {
-  "physical-river-truth": {
-    category: "physical-river-truth",
-    categoryLabel: "Hydrology truth",
+  "physical-river-model": {
+    category: "physical-river-model",
+    categoryLabel: "Hydrology model",
     palette: {
-      paletteId: "river-truth-blue",
-      label: "Hydrology truth",
+      paletteId: "river-model-blue",
+      label: "Hydrology model",
       activeColor: "#2563eb",
       inactiveColor: "#dbeafe",
       debugColor: "#1e40af",
@@ -462,7 +464,7 @@ const MASK_PRESENTATIONS: Readonly<
   },
 };
 
-function maskCategoryForLayer(layer: VizLayerEntryV1): RiverLakeInspectorMaskCategory {
+function maskCategoryForLayer(layer: VizLayerEntryV2): RiverLakeInspectorMaskCategory {
   const key = layer.dataTypeKey;
   if (
     key.includes("MismatchMask") ||
@@ -479,7 +481,7 @@ function maskCategoryForLayer(layer: VizLayerEntryV1): RiverLakeInspectorMaskCat
   }
   if (key === "map.rivers.engineRiverMask") return "engine-terrain-readback";
   if (key.startsWith("map.rivers.")) return "navigable-projection";
-  if (key.startsWith("hydrology.hydrography.")) return "physical-river-truth";
+  if (key.startsWith("hydrology.hydrography.")) return "physical-river-model";
   if (key.includes(".lakes.") || key === "hydrology.lakes.lakePlan") return "lake-plan-readback";
   if (key.includes("floodplainIntentMask")) return "floodplain-intent";
   if (key.includes("floodplainAppliedMask") || key === "map.ecology.featureType")
@@ -487,39 +489,54 @@ function maskCategoryForLayer(layer: VizLayerEntryV1): RiverLakeInspectorMaskCat
   return "evidence-only";
 }
 
-function maskPresentationForLayer(layer: VizLayerEntryV1): RiverLakeInspectorMaskPresentation {
+function maskPresentationForLayer(layer: VizLayerEntryV2): RiverLakeInspectorMaskPresentation {
   return MASK_PRESENTATIONS[maskCategoryForLayer(layer)];
 }
 
-function resolveLayerVisibility(layer: VizLayerEntryV1): VizLayerVisibility {
+function resolveLayerVisibility(layer: VizLayerEntryV2): VizLayerVisibility {
   const visibility = layer.meta?.visibility;
   if (visibility === "debug") return "debug";
   if (visibility === "hidden") return "hidden";
   return "default";
 }
 
-function renderModeIdFor(layer: VizLayerEntryV1): string {
+function renderModeIdFor(layer: VizLayerEntryV2): string {
   const role = layer.meta?.role;
   return role ? `${layer.kind}:${role}` : layer.kind;
 }
 
-function asNumberArray(buffer: ArrayBuffer, format: VizScalarFormat): ArrayLike<number> | null {
+function asNumberArray(
+  buffer: ArrayBuffer,
+  format: VizScalarFormat,
+  width: number,
+  height: number,
+  label: string
+): ArrayLike<number> {
+  assertVizBinaryByteLength(
+    buffer.byteLength,
+    { kind: "grid-values", format, width, height },
+    label
+  );
   if (format === "u8") return new Uint8Array(buffer);
   if (format === "i8") return new Int8Array(buffer);
   if (format === "u16") return new Uint16Array(buffer);
   if (format === "i16") return new Int16Array(buffer);
   if (format === "i32") return new Int32Array(buffer);
-  if (format === "f32") return new Float32Array(buffer);
-  return null;
+  return new Float32Array(buffer);
 }
 
 function countNonZeroSamples(
-  layer: VizLayerEntryV1
+  layer: VizLayerEntryV2
 ): { nonZeroCount: number; sampleCount: number } | null {
   if (layer.kind !== "grid") return null;
   if (layer.field.data.kind !== "inline") return null;
-  const values = asNumberArray(layer.field.data.buffer, layer.field.format);
-  if (!values) return null;
+  const values = asNumberArray(
+    layer.field.data.buffer,
+    layer.field.format,
+    layer.dims.width,
+    layer.dims.height,
+    `River/lake inspector layer "${layer.layerKey}" values`
+  );
 
   let nonZeroCount = 0;
   let sampleCount = 0;
@@ -533,11 +550,12 @@ function countNonZeroSamples(
   return { nonZeroCount, sampleCount };
 }
 
-function toLayerRef(layer: VizLayerEntryV1): RiverLakeInspectorLayerRef {
+function toLayerRef(layer: VizLayerEntryV2): RiverLakeInspectorLayerRef {
   const samples = countNonZeroSamples(layer);
   return {
     dataTypeKey: layer.dataTypeKey,
     layerKey: layer.layerKey,
+    stageId: layer.stageId,
     stepId: layer.stepId,
     stepIndex: layer.stepIndex,
     spaceId: layer.spaceId,
@@ -554,7 +572,7 @@ function toLayerRef(layer: VizLayerEntryV1): RiverLakeInspectorLayerRef {
 }
 
 function collectRefs(
-  layersByDataTypeKey: ReadonlyMap<string, readonly VizLayerEntryV1[]>,
+  layersByDataTypeKey: ReadonlyMap<string, readonly VizLayerEntryV2[]>,
   dataTypeKeys: readonly string[]
 ): RiverLakeInspectorLayerRef[] {
   const refs: RiverLakeInspectorLayerRef[] = [];
@@ -569,7 +587,7 @@ function collectRefs(
 }
 
 function hasRequiredRefs(
-  layersByDataTypeKey: ReadonlyMap<string, readonly VizLayerEntryV1[]>,
+  layersByDataTypeKey: ReadonlyMap<string, readonly VizLayerEntryV2[]>,
   requiredDataTypeKeys: readonly string[]
 ): boolean {
   if (requiredDataTypeKeys.length === 0) return false;
@@ -594,18 +612,18 @@ function countByVisibility(refs: readonly RiverLakeInspectorLayerRef[]): Record<
 }
 
 export function buildRiverLakeFloodplainInspectorSummary(
-  manifest: Pick<VizManifestV1, "layers"> | null
+  manifest: Pick<VizManifestV2, "layers"> | null
 ): RiverLakeFloodplainInspectorSummary | null {
   if (!manifest) return null;
 
-  const mutableByDataTypeKey = new Map<string, VizLayerEntryV1[]>();
+  const mutableByDataTypeKey = new Map<string, VizLayerEntryV2[]>();
   for (const layer of manifest.layers) {
     const current = mutableByDataTypeKey.get(layer.dataTypeKey);
     if (current) current.push(layer);
     else mutableByDataTypeKey.set(layer.dataTypeKey, [layer]);
   }
 
-  const layersByDataTypeKey = new Map<string, readonly VizLayerEntryV1[]>();
+  const layersByDataTypeKey = new Map<string, readonly VizLayerEntryV2[]>();
   for (const [dataTypeKey, layers] of mutableByDataTypeKey) {
     layersByDataTypeKey.set(
       dataTypeKey,

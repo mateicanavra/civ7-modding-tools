@@ -17,7 +17,6 @@ const ProjectRainfallStepConfigSchema = Type.Object(
  */
 export const ProjectRainfallStepContract = defineStep({
   id: "project-rainfall",
-  phase: "hydrology",
   requires: [],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.rainfallProjected],
   artifacts: {

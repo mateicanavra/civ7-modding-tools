@@ -57,7 +57,6 @@ const ClimateBaselineStepConfigSchema = Type.Object(
  */
 export const ClimateBaselineStepContract = defineStep({
   id: "climate-baseline",
-  phase: "hydrology",
   requires: [],
   provides: [],
   artifacts: {

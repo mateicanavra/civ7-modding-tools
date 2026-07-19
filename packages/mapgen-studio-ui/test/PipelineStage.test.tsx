@@ -13,7 +13,7 @@ import {
 // token-driven equivalents).
 
 describe("PipelineStage", () => {
-  it("renders phase bands, stage nodes, artifact edge labels, and expanded sequential steps", () => {
+  it("renders derived domain bands, stage nodes, artifact labels, and sequential steps", () => {
     const html = renderToStaticMarkup(
       <PipelineStage
         recipeId="mod-swooper-maps/standard"
@@ -109,35 +109,17 @@ function recipeDag(): RecipeDagResult {
     recipeKey: "mod-swooper-maps/standard",
     namespace: "mod-swooper-maps",
     title: "Swooper Maps / Standard",
-    phases: [
-      {
-        id: "shape",
-        order: 0,
-        stageIds: ["shape", "isolated"],
-        stepCount: 2,
-      },
-      {
-        id: "climate",
-        order: 1,
-        stageIds: ["climate"],
-        stepCount: 1,
-      },
-    ],
     stages: [
       {
-        id: "shape",
         stageId: "shape",
         order: 0,
-        phases: ["shape"],
         steps: [
           {
-            id: "mod-swooper-maps.standard.shape.seed",
             stageId: "shape",
             stepId: "seed",
             fullStepId: "mod-swooper-maps.standard.shape.seed",
             order: 0,
             orderInStage: 0,
-            phase: "shape",
             artifactRequires: [],
             artifactProvides: [
               { id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" },
@@ -154,19 +136,15 @@ function recipeDag(): RecipeDagResult {
         diagnosticCount: 0,
       },
       {
-        id: "climate",
         stageId: "climate",
         order: 1,
-        phases: ["climate"],
         steps: [
           {
-            id: "mod-swooper-maps.standard.climate.temperature",
             stageId: "climate",
             stepId: "temperature",
             fullStepId: "mod-swooper-maps.standard.climate.temperature",
             order: 1,
             orderInStage: 0,
-            phase: "climate",
             artifactRequires: [
               { id: "artifact:hydrology.hydrography", name: "Hydrology hydrography" },
             ],
@@ -183,19 +161,15 @@ function recipeDag(): RecipeDagResult {
         diagnosticCount: 0,
       },
       {
-        id: "isolated",
         stageId: "isolated",
         order: 2,
-        phases: ["shape"],
         steps: [
           {
-            id: "mod-swooper-maps.standard.isolated.note",
             stageId: "isolated",
             stepId: "note",
             fullStepId: "mod-swooper-maps.standard.isolated.note",
             order: 2,
             orderInStage: 0,
-            phase: "shape",
             artifactRequires: [],
             artifactProvides: [],
             tagRequires: [],

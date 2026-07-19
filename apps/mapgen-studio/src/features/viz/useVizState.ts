@@ -1,6 +1,5 @@
 import type { Layer } from "@deck.gl/core";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { type PipelineAddress, parsePipelineAddress } from "../../shared/pipelineAddress";
 import type { VizEvent } from "../../shared/vizEvents";
 import { buildStepDataTypeModel, type StepDataTypeModel } from "./dataTypeModel";
 import {
@@ -12,8 +11,8 @@ import {
 import {
   type Bounds,
   type VizAssetResolver,
-  type VizLayerEntryV1,
-  type VizManifestV1,
+  type VizLayerEntryV2,
+  type VizManifestV2,
 } from "./model";
 import {
   formatLayerLabel,
@@ -53,11 +52,6 @@ export type UseVizStateResult = {
   setShowDebugLayers(next: boolean): void;
 
   steps: Array<{ stepId: string; stepIndex: number }>;
-  pipelineSteps: Array<{ stepId: string; stepIndex: number; address: PipelineAddress | null }>;
-  pipelineStages: Array<{
-    stageId: string;
-    steps: Array<{ stepId: string; stepIndex: number; address: PipelineAddress | null }>;
-  }>;
   dataTypeModel: StepDataTypeModel | null;
   selectableLayers: Array<{
     key: string;
@@ -69,9 +63,9 @@ export type UseVizStateResult = {
 
   deck: { layers: Layer[] };
 
-  effectiveLayer: VizLayerEntryV1 | null;
+  effectiveLayer: VizLayerEntryV2 | null;
   activeBounds: Bounds | null;
-  manifest: VizManifestV1 | null;
+  manifest: VizManifestV2 | null;
 };
 
 /**
@@ -131,25 +125,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     if (!manifest) return [];
     return [...manifest.steps].sort((a, b) => a.stepIndex - b.stepIndex);
   }, [manifest]);
-
-  const pipelineSteps = useMemo(
-    () => steps.map((s) => ({ ...s, address: parsePipelineAddress(s.stepId) })),
-    [steps]
-  );
-
-  const pipelineStages = useMemo(() => {
-    const order: string[] = [];
-    const byStage = new Map<string, UseVizStateResult["pipelineSteps"]>();
-    for (const step of pipelineSteps) {
-      const stageId = step.address?.stageId ?? "unknown";
-      if (!byStage.has(stageId)) {
-        byStage.set(stageId, []);
-        order.push(stageId);
-      }
-      byStage.get(stageId)!.push(step);
-    }
-    return order.map((stageId) => ({ stageId, steps: byStage.get(stageId) ?? [] }));
-  }, [pipelineSteps]);
 
   const activeSelectedStepId = useMemo(() => {
     if (!manifest) return null;
@@ -354,8 +329,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     showDebugLayers,
     setShowDebugLayers,
     steps,
-    pipelineSteps,
-    pipelineStages,
     dataTypeModel,
     selectableLayers,
     legend,

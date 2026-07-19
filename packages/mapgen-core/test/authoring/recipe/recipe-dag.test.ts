@@ -39,7 +39,6 @@ const missingArtifact = defineArtifact({
 
 function step(input: {
   id: string;
-  phase: "foundation" | "morphology" | "hydrology";
   requires?: readonly ReturnType<typeof defineArtifact>[];
   provides?: readonly ReturnType<typeof defineArtifact>[];
 }) {
@@ -48,7 +47,6 @@ function step(input: {
   if (provides.length === 0) {
     const contract = defineStep({
       id: input.id,
-      phase: input.phase,
       requires: requires.length ? ["effect:test.externalReady"] : [],
       provides: [],
       artifacts: { requires },
@@ -67,7 +65,6 @@ function step(input: {
   }));
   const contract = defineStep({
     id: input.id,
-    phase: input.phase,
     requires: requires.length ? ["effect:test.externalReady"] : [],
     provides: [],
     artifacts: {
@@ -88,29 +85,33 @@ function stage(id: string, steps: readonly ReturnType<typeof step>[]) {
 }
 
 describe("recipe DAG authoring model", () => {
+  it("rejects duplicate stage identities before accumulating graph nodes", () => {
+    const duplicate = stage("foundation", [step({ id: "produce-source" })]);
+
+    expect(() => buildRecipeDag({ recipeId: "duplicate", stages: [duplicate, duplicate] })).toThrow(
+      'duplicate stage id "foundation"'
+    );
+  });
+
   it("builds stage nodes and artifact edges from authored artifact contracts", () => {
     const stages = [
       stage("source-stage", [
         step({
           id: "produce-source",
-          phase: "foundation",
           provides: [sourceArtifact],
         }),
         step({
           id: "consume-internal",
-          phase: "foundation",
           requires: [internalArtifact],
         }),
       ]),
       stage("target-stage", [
         step({
           id: "produce-internal",
-          phase: "morphology",
           provides: [internalArtifact],
         }),
         step({
           id: "consume-source",
-          phase: "morphology",
           requires: [sourceArtifact],
           provides: [terminalArtifact],
         }),
@@ -125,7 +126,6 @@ describe("recipe DAG authoring model", () => {
 
     expect(dag.recipeKey).toBe("test-mod/standard");
     expect(dag.stages.map((node) => node.stageId)).toEqual(["source-stage", "target-stage"]);
-    expect(dag.phases.map((phase) => phase.id)).toEqual(["foundation", "morphology"]);
     expect(
       dag.edges.map((edge) => ({
         artifact: edge.artifact.id,
@@ -175,12 +175,10 @@ describe("recipe DAG authoring model", () => {
       stage("foundation", [
         step({
           id: "produce-source",
-          phase: "foundation",
           provides: [sourceArtifact],
         }),
         step({
           id: "consume-source",
-          phase: "foundation",
           requires: [sourceArtifact],
         }),
       ]),
@@ -205,24 +203,20 @@ describe("recipe DAG authoring model", () => {
       stage("alpha", [
         step({
           id: "produce-a",
-          phase: "foundation",
           provides: [sourceArtifact],
         }),
       ]),
       stage("beta", [
         step({
           id: "produce-b",
-          phase: "morphology",
           provides: [sourceArtifact],
         }),
         step({
           id: "consume-missing",
-          phase: "morphology",
           requires: [missingArtifact],
         }),
         step({
           id: "consume-duplicate",
-          phase: "hydrology",
           requires: [sourceArtifact],
         }),
       ]),

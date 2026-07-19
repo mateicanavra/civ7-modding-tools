@@ -38,7 +38,6 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
-  phase: "gameplay",
   requires: ["effect:map.elevationBuilt"],
   provides: [],
   schema: Type.Object({}),
@@ -49,7 +48,6 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
-  phase: "gameplay",
   requires: [],
   provides: ['effect:map.riversPlotted'],
   schema: Type.Object({}),
@@ -60,7 +58,6 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
-  phase: "gameplay",
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt,
     "effect:map.riversModeled",
@@ -79,7 +76,6 @@ import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tags.js";
 
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
-  phase: "gameplay",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   schema: Type.Object({}),
@@ -91,7 +87,6 @@ import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artif
 
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
-  phase: "gameplay",
   requires: [],
   provides: [],
   artifacts: {
@@ -106,7 +101,6 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
-  phase: "gameplay",
   requires: [],
   provides: [],
   artifacts: {

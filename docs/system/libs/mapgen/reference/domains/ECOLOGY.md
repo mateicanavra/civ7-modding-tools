@@ -106,7 +106,7 @@ Feature scoring and planning stay separate:
 ## Engine projection notes (map-ecology)
 
 The `map-ecology` stage:
-- is `phase: "gameplay"` (projection-only),
+- is a projection-only stage whose exact identity comes from recipe composition,
 - consumes Ecology truth artifacts (biomeClassification, featureIntents.*, plotEffectPlan) and Morphology truth (topography),
 - publishes biome-binding and post-Ecology feature-surface artifact evidence,
 - and publishes engine effect tags (e.g., `effect:engine.biomesApplied`).

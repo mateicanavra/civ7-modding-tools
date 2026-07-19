@@ -1,7 +1,7 @@
 import type {
-  VizLayerEntryV1,
+  VizLayerEntryV2,
   VizLayerMeta,
-  VizManifestV1,
+  VizManifestV2,
   VizScalarField,
 } from "@swooper/mapgen-viz";
 import { describe, expect, it } from "vitest";
@@ -45,7 +45,6 @@ describe("resolved visualization palette presentation", () => {
         },
       },
       values: new Float32Array([0, 5, 10]),
-      seedKey: "resolved-continuous",
     });
 
     expect(renderColor(0, palette, { min: 0, max: 10 })).toEqual([10, 20, 30, 40]);
@@ -66,12 +65,10 @@ describe("resolved visualization palette presentation", () => {
     const first = resolveVizPalettePresentation({
       meta,
       values: new Int16Array([5, 1, 3]),
-      seedKey: "ignored-for-resolved-pool",
     });
     const second = resolveVizPalettePresentation({
       meta,
       values: new Int16Array([3, 5, 1]),
-      seedKey: "different-seed-is-irrelevant",
     });
 
     expect(renderColor(1, first)).toEqual([1, 2, 3, 255]);
@@ -92,7 +89,6 @@ describe("resolved visualization palette presentation", () => {
         ],
       },
       values: new Uint8Array([0, 1, 2]),
-      seedKey: "explicit-categories",
     });
     const continuous = resolveVizPalettePresentation({
       meta: {
@@ -105,7 +101,6 @@ describe("resolved visualization palette presentation", () => {
         },
       },
       values: new Float32Array([0, 1]),
-      seedKey: "continuous-zero",
     });
 
     expect(renderColor(0, categorical)).toEqual([0, 0, 0, 0]);
@@ -129,11 +124,12 @@ describe("resolved visualization palette presentation", () => {
     });
     expect(Array.from(noData)).toEqual([0, 0, 0, 0]);
 
-    const categoricalLayer: VizLayerEntryV1 = {
+    const categoricalLayer: VizLayerEntryV2 = {
       kind: "grid",
       layerKey: "explicit-categories",
       dataTypeKey: "category.explicit",
       stepId: "category-step",
+      stageId: "ecology",
       stepIndex: 0,
       spaceId: "tile.hexOddR",
       bounds: [0, 0, 3, 1],
@@ -179,7 +175,6 @@ describe("resolved visualization palette presentation", () => {
       },
       field,
       values: new Float32Array([Number.NaN, -1, 1.5, 1]),
-      seedKey: "exact-resolved-categories",
     });
 
     expect(renderColor(-1, palette, undefined, field)).toEqual([0, 0, 0, 0]);
@@ -188,15 +183,7 @@ describe("resolved visualization palette presentation", () => {
     expect(renderColor(1.25, palette, undefined, field)).toEqual([107, 114, 128, 230]);
   });
 
-  it("reads numeric-string categories and centers signed palettes on declared zero", () => {
-    const categorical = resolveVizPalettePresentation({
-      meta: {
-        palette: { kind: "categorical" },
-        categories: [{ value: "1", label: "Legacy one", color: [1, 2, 3, 255] }],
-      },
-      values: new Uint8Array([1]),
-      seedKey: "legacy-numeric-string",
-    });
+  it("centers signed palettes on the declared zero", () => {
     const signed = resolveVizPalettePresentation({
       meta: {
         palette: {
@@ -209,7 +196,6 @@ describe("resolved visualization palette presentation", () => {
         },
       },
       values: new Float32Array([-0.1, 1]),
-      seedKey: "signed",
     });
     const signedField: VizScalarField = {
       format: "f32",
@@ -220,48 +206,28 @@ describe("resolved visualization palette presentation", () => {
       },
     };
 
-    expect(renderColor(1, categorical)).toEqual([1, 2, 3, 255]);
     expect(renderColor(0, signed, { min: -0.1, max: 1 }, signedField)).toEqual([
       100, 101, 102, 255,
     ]);
   });
 
-  it("preserves the legacy continuous fallback ramp", () => {
+  it("uses the deterministic neutral scalar fallback when metadata omits a palette", () => {
     const palette = resolveVizPalettePresentation({
-      meta: { palette: "continuous" },
       values: new Float32Array([0, 1]),
-      seedKey: "legacy",
     });
 
-    expect(renderColor(0, palette)).toEqual([68, 1, 84, 230]);
-    expect(renderColor(1, palette)).toEqual([253, 231, 37, 230]);
+    expect(renderColor(0, palette)).toEqual([241, 245, 249, 230]);
+    expect(renderColor(1, palette)).toEqual([30, 41, 59, 230]);
   });
 
-  it("preserves legacy int32 category coercion and labels declared palette domains", () => {
-    const legacy = resolveVizPalettePresentation({
-      meta: { palette: "categorical" },
-      values: new Float32Array([1.5]),
-      seedKey: "legacy-fractional-category",
-    });
-    expect(renderColor(1.5, legacy)).toEqual(renderColor(1, legacy));
-
-    const hybrid = resolveVizPalettePresentation({
-      meta: {
-        palette: "continuous",
-        categories: [{ value: 0, label: "Authored zero", color: [9, 19, 29, 255] }],
-      },
-      values: new Float32Array([0, 1]),
-      seedKey: "legacy-category-override",
-    });
-    expect(renderColor(0, hybrid)).toEqual([9, 19, 29, 255]);
-    expect(renderColor(1, hybrid)).toEqual([253, 231, 37, 230]);
-
+  it("labels declared palette domains", () => {
     const values = new Float32Array([-0.1, 1]);
-    const layer: VizLayerEntryV1 = {
+    const layer: VizLayerEntryV2 = {
       kind: "grid",
       layerKey: "signed-field",
       dataTypeKey: "field.signed",
       stepId: "signed-step",
+      stageId: "hydrology",
       stepIndex: 0,
       spaceId: "world.xy",
       bounds: [0, 0, 1, 1],
@@ -290,7 +256,6 @@ describe("resolved visualization palette presentation", () => {
       meta: layer.meta,
       field: layer.field,
       values,
-      seedKey: "signed-field-legend",
     });
     expect(
       legendForLayer(layer, {
@@ -304,11 +269,12 @@ describe("resolved visualization palette presentation", () => {
     const u = new Float32Array([-5, 5]);
     const v = new Float32Array([0, 0]);
     const magnitude = new Float32Array([0.2, 0.8]);
-    const layer: VizLayerEntryV1 = {
+    const layer: VizLayerEntryV2 = {
       kind: "gridFields",
       layerKey: "wind-fields",
       dataTypeKey: "climate.wind",
       stepId: "climate-step",
+      stageId: "hydrology-climate-baseline",
       stepIndex: 0,
       spaceId: "tile.hexOddR",
       bounds: [0, 0, 2, 1],
@@ -341,13 +307,12 @@ describe("resolved visualization palette presentation", () => {
         },
       },
       vector: { u: "u", v: "v", magnitude: "magnitude" },
-      meta: { palette: "continuous" },
     };
-    const manifest: VizManifestV1 = {
-      version: 1,
+    const manifest: VizManifestV2 = {
+      version: 2,
       runId: "grid-field-legend",
       planFingerprint: "grid-field-legend-plan",
-      steps: [{ stepId: layer.stepId, stepIndex: 0 }],
+      steps: [{ stepId: layer.stepId, stageId: layer.stageId, stepIndex: 0 }],
       layers: [layer],
     };
     const rendered = await renderDeckLayers({
@@ -367,11 +332,12 @@ describe("resolved visualization palette presentation", () => {
     const values = new Uint8Array([5, 1, 3]);
     const first = [1, 2, 3, 255] as const;
     const second = [10, 20, 30, 255] as const;
-    const layer: VizLayerEntryV1 = {
+    const layer: VizLayerEntryV2 = {
       kind: "grid",
       layerKey: "resolved-categories",
       dataTypeKey: "ecology.category",
       stepId: "ecology-step",
+      stageId: "ecology-biomes",
       stepIndex: 0,
       spaceId: "tile.hexOddR",
       bounds: [0, 0, 3, 1],
@@ -383,11 +349,11 @@ describe("resolved visualization palette presentation", () => {
       },
       meta: { palette: { kind: "categorical", colors: [first, second] } },
     };
-    const manifest: VizManifestV1 = {
-      version: 1,
+    const manifest: VizManifestV2 = {
+      version: 2,
       runId: "resolved-categories",
       planFingerprint: "resolved-categories-plan",
-      steps: [{ stepId: layer.stepId, stepIndex: 0 }],
+      steps: [{ stepId: layer.stepId, stageId: layer.stageId, stepIndex: 0 }],
       layers: [layer],
     };
     const rendered = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });
@@ -401,11 +367,12 @@ describe("resolved visualization palette presentation", () => {
 
   it("excludes no-data sentinels from renderer statistics and fromStats legends", async () => {
     const values = new Int16Array([-999, 2, 8]);
-    const layer: VizLayerEntryV1 = {
+    const layer: VizLayerEntryV2 = {
       kind: "grid",
       layerKey: "sentinel-stats",
       dataTypeKey: "climate.measurement",
       stepId: "climate-step",
+      stageId: "hydrology-climate-baseline",
       stepIndex: 0,
       spaceId: "tile.hexOddR",
       bounds: [0, 0, 3, 1],
@@ -419,13 +386,12 @@ describe("resolved visualization palette presentation", () => {
           noData: { kind: "sentinel", value: -999 },
         },
       },
-      meta: { palette: "continuous" },
     };
-    const manifest: VizManifestV1 = {
-      version: 1,
+    const manifest: VizManifestV2 = {
+      version: 2,
       runId: "sentinel-stats",
       planFingerprint: "sentinel-stats-plan",
-      steps: [{ stepId: layer.stepId, stepIndex: 0 }],
+      steps: [{ stepId: layer.stepId, stageId: layer.stageId, stepIndex: 0 }],
       layers: [layer],
     };
     const rendered = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });
@@ -439,23 +405,23 @@ describe("resolved visualization palette presentation", () => {
 
   it("rejects scalar presentation after the selected manifest or layer object changes", async () => {
     const values = new Uint8Array([1]);
-    const layer: VizLayerEntryV1 = {
+    const layer: VizLayerEntryV2 = {
       kind: "grid",
       layerKey: "selection-bound",
       dataTypeKey: "selection.bound",
       stepId: "selection-step",
+      stageId: "placement",
       stepIndex: 0,
       spaceId: "tile.hexOddR",
       bounds: [0, 0, 1, 1],
       dims: { width: 1, height: 1 },
       field: { format: "u8", data: { kind: "inline", buffer: values.buffer } },
-      meta: { palette: "continuous" },
     };
-    const manifest: VizManifestV1 = {
-      version: 1,
+    const manifest: VizManifestV2 = {
+      version: 2,
       runId: "selection-run",
       planFingerprint: "selection-plan",
-      steps: [{ stepId: layer.stepId, stepIndex: 0 }],
+      steps: [{ stepId: layer.stepId, stageId: layer.stageId, stepIndex: 0 }],
       layers: [layer],
     };
     const rendered = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });

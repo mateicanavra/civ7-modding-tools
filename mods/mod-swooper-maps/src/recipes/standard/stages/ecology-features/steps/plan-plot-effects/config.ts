@@ -15,7 +15,6 @@ import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/
  */
 export const PlanPlotEffectsStepContract = defineStep({
   id: "plan-plot-effects",
-  phase: "ecology",
   requires: [],
   provides: [],
   artifacts: {

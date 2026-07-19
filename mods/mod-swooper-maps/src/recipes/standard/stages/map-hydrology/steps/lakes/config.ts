@@ -32,7 +32,6 @@ const LakesStepConfigSchema = Type.Object(
  */
 export const LakesStepContract = defineStep({
   id: "lakes",
-  phase: "hydrology",
   requires: [],
   provides: [
     MAP_PROJECTION_EFFECT_TAGS.map.lakesPlotted,

@@ -10,7 +10,6 @@ import {
  */
 export const LandmassesStepContract = defineStep({
   id: "landmasses",
-  phase: "morphology",
   requires: [],
   provides: [],
   artifacts: {

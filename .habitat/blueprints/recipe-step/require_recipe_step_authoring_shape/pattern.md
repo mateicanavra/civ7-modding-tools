@@ -5,11 +5,12 @@ level: error
 
 Recipe step source modules publish their named authoring value. `config.ts`
 exports a `*StepContract` created by `defineStep`; `step.ts` exports a `*Step`
-created by `createStep`. Default exports remain forbidden so stage and manifest
-composition name the value they consume. The literal step id must equal its
-immediate source directory so identity has one filesystem and runtime spelling.
-Each owned module contains exactly one authoring call, eliminating shadow
-contracts and executables.
+created by `createStep`. Recipe and stage composition own stage identity, so
+step authors must not supply legacy `phase` or `stageId` properties. Default
+exports remain forbidden so composition names the value it consumes. The
+literal step id must equal its immediate source directory so identity has one
+filesystem and runtime spelling. Each owned module contains exactly one
+authoring call, eliminating shadow contracts and executables.
 
 Meaningful JSDoc for these consumed exports is owned by the generic MapGen
 export-documentation authority rather than duplicated here.
@@ -30,6 +31,12 @@ or {
     $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/([^/]+)/config\.ts$"($step_id),
     ! $args <: `{ $..., id: "$step_id", $... }`
   },
+  `defineStep({ $..., phase: $_, $... })` where {
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/config\.ts$"
+  },
+  `defineStep({ $..., stageId: $_, $... })` where {
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/config\.ts$"
+  },
   program(statements=$body) where {
     $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/config\.ts$",
     $calls = [],
@@ -48,6 +55,12 @@ or {
   `export const $step = createStep($contract, $implementation)` where {
     $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/step\.ts$",
     ! $step <: r"^[A-Z][A-Za-z0-9]*Step$"
+  },
+  `createStep($_, { $..., phase: $_, $... })` where {
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/step\.ts$"
+  },
+  `createStep($_, { $..., stageId: $_, $... })` where {
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/step\.ts$"
   },
   program(statements=$body) where {
     $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/[^/]+/steps/[^/]+/step\.ts$",
@@ -107,6 +120,22 @@ import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
 export const StrayContractStepContract = defineStep({ id: "stray-contract" });
 const AlternateContract = defineStep({ id: "stray-contract" });
 
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/legacy-phase/config.ts
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+
+export const LegacyPhaseStepContract = defineStep({
+  id: "legacy-phase",
+  phase: "gameplay",
+});
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/authored-stage/config.ts
+import { defineStep } from "@swooper/mapgen-core/authoring/contracts";
+
+export const AuthoredStageStepContract = defineStep({
+  id: "authored-stage",
+  stageId: "ecology",
+});
+
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/missing-step/step.ts
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { MissingStepContract } from "./config.js";
@@ -134,6 +163,24 @@ import { StrayStepStepContract } from "./config.js";
 
 export const StrayStepStep = createStep(StrayStepStepContract, { run: () => undefined });
 const AlternateStep = createStep(StrayStepStepContract, { run: () => undefined });
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/legacy-phase/step.ts
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { LegacyPhaseStepContract } from "./config.js";
+
+export const LegacyPhaseStep = createStep(LegacyPhaseStepContract, {
+  phase: "gameplay",
+  run: () => undefined,
+});
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/authored-stage/step.ts
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { AuthoredStageStepContract } from "./config.js";
+
+export const AuthoredStageStep = createStep(AuthoredStageStepContract, {
+  stageId: "ecology",
+  run: () => undefined,
+});
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/default-contract/config.ts
 import { defineStep } from "@swooper/mapgen-core/authoring/contracts";

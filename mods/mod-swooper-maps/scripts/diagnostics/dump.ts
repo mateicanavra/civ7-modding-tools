@@ -9,14 +9,13 @@ import type {
   TraceSink,
 } from "@swooper/mapgen-core";
 import {
+  assertUniqueVizLayerKeys,
   materializeVizProjection,
   type VizBinaryMaterializer,
   type VizBinarySlot,
-  type VizLayerEmissionV1,
-  type VizLayerEntryV1,
-  type VizManifestV1,
+  type VizLayerEntryV2,
+  type VizManifestV2,
   type VizPathRef,
-  type VizProjection,
 } from "@swooper/mapgen-viz";
 
 function ensureDir(path: string): void {
@@ -45,102 +44,121 @@ function resolveDataDir(outputRoot: string, runId: string): string {
 }
 
 type DumpRunState = {
-  manifest: VizManifestV1<VizPathRef>;
-  stepIndexById: Map<string, number>;
+  manifest: VizManifestV2<VizPathRef>;
+  stepById: Map<string, DumpStepIdentity>;
+  stepIdByIndex: Map<number, string>;
   nextStepIndex: number;
 };
 
-function publishManifest(runDir: string, manifest: VizManifestV1<VizPathRef>): void {
+type DumpStepIdentity = Readonly<{
+  stageId: string;
+  stepId: string;
+  stepIndex: number;
+}>;
+
+function publishManifest(runDir: string, manifest: VizManifestV2<VizPathRef>): void {
   writeFileAtomic(join(runDir, "manifest.json"), JSON.stringify(manifest, null, 2));
 }
 
-function resolveDumpRunState(
+type DumpRunStatePlan = Readonly<{
+  state: DumpRunState;
+  isNew: boolean;
+}>;
+
+function planDumpRunState(
   stateByRun: Map<string, DumpRunState>,
-  outputRoot: string,
   runId: string,
   planFingerprint: string
-): DumpRunState {
+): DumpRunStatePlan {
   const existing = stateByRun.get(runId);
-  if (existing) return existing;
+  if (existing) {
+    if (existing.manifest.planFingerprint !== planFingerprint) {
+      throw new TypeError(
+        `Contradictory visualization run identity for "${runId}": expected plan ` +
+          `"${existing.manifest.planFingerprint}", received "${planFingerprint}".`
+      );
+    }
+    return { state: existing, isNew: false };
+  }
 
-  const runDir = resolveRunDir(outputRoot, runId);
-  ensureDir(resolveDataDir(outputRoot, runId));
   const state: DumpRunState = {
     manifest: {
-      version: 1,
+      version: 2,
       runId,
       planFingerprint,
       steps: [],
       layers: [],
     },
-    stepIndexById: new Map(),
+    stepById: new Map(),
+    stepIdByIndex: new Map(),
     nextStepIndex: 0,
   };
-  stateByRun.set(runId, state);
-  publishManifest(runDir, state.manifest);
-  return state;
+  return { state, isNew: true };
+}
+
+function commitDumpRunState(
+  stateByRun: Map<string, DumpRunState>,
+  runId: string,
+  plan: DumpRunStatePlan
+): void {
+  if (plan.isNew) stateByRun.set(runId, plan.state);
 }
 
 type StepAdmission = Readonly<{
-  manifest: VizManifestV1<VizPathRef>;
-  stepIndex: number;
+  manifest: VizManifestV2<VizPathRef>;
+  step: DumpStepIdentity;
   didChange: boolean;
 }>;
 
 function planStepAdmission(
   state: DumpRunState,
-  step: Readonly<{ stepId: string; phase?: string; stepIndex?: number }>
+  step: Readonly<{ stepId: string; stageId: string; stepIndex?: number }>
 ): StepAdmission {
-  const existingIndex = state.stepIndexById.get(step.stepId);
-  if (existingIndex !== undefined) {
-    if (step.stepIndex === undefined || step.stepIndex === existingIndex) {
-      return { manifest: state.manifest, stepIndex: existingIndex, didChange: false };
+  const existing = state.stepById.get(step.stepId);
+  if (existing) {
+    const stepIndex = step.stepIndex ?? existing.stepIndex;
+    if (step.stageId !== existing.stageId || stepIndex !== existing.stepIndex) {
+      throw new TypeError(
+        `Contradictory visualization step identity for "${step.stepId}": expected ` +
+          `${existing.stageId}#${existing.stepIndex}, received ${step.stageId}#${stepIndex}.`
+      );
     }
-
-    const stepIndex = step.stepIndex;
-    return {
-      manifest: {
-        ...state.manifest,
-        steps: state.manifest.steps.map((entry) =>
-          entry.stepId === step.stepId ? { ...entry, stepIndex } : entry
-        ),
-        layers: state.manifest.layers.map((layer) =>
-          layer.stepId === step.stepId ? { ...layer, stepIndex } : layer
-        ),
-      },
-      stepIndex,
-      didChange: true,
-    };
+    return { manifest: state.manifest, step: existing, didChange: false };
   }
 
   const stepIndex = step.stepIndex ?? state.nextStepIndex;
+  const indexedStepId = state.stepIdByIndex.get(stepIndex);
+  if (indexedStepId !== undefined) {
+    throw new TypeError(
+      `Contradictory visualization step identity at index ${stepIndex}: ` +
+        `expected "${indexedStepId}", received "${step.stepId}".`
+    );
+  }
+  const admittedStep = { stageId: step.stageId, stepId: step.stepId, stepIndex };
   return {
     manifest: {
       ...state.manifest,
-      steps: [...state.manifest.steps, { stepId: step.stepId, phase: step.phase, stepIndex }],
+      steps: [...state.manifest.steps, admittedStep],
     },
-    stepIndex,
+    step: admittedStep,
     didChange: true,
   };
 }
 
-function commitStepAdmission(state: DumpRunState, stepId: string, admission: StepAdmission): void {
+function commitStepAdmission(state: DumpRunState, admission: StepAdmission): void {
   if (!admission.didChange) return;
-  state.stepIndexById.set(stepId, admission.stepIndex);
-  state.nextStepIndex = Math.max(state.nextStepIndex, admission.stepIndex + 1);
+  state.stepById.set(admission.step.stepId, admission.step);
+  state.stepIdByIndex.set(admission.step.stepIndex, admission.step.stepId);
+  state.nextStepIndex = Math.max(state.nextStepIndex, admission.step.stepIndex + 1);
 }
 
-function upsertLayers(
-  manifest: VizManifestV1<VizPathRef>,
-  layers: readonly VizLayerEntryV1<VizPathRef>[]
-): VizManifestV1<VizPathRef> {
-  const next = [...manifest.layers];
-  for (const layer of layers) {
-    const existing = next.findIndex((candidate) => candidate.layerKey === layer.layerKey);
-    if (existing >= 0) next[existing] = layer;
-    else next.push(layer);
-  }
-  return { ...manifest, layers: next };
+function appendLayers(
+  manifest: VizManifestV2<VizPathRef>,
+  layers: readonly VizLayerEntryV2<VizPathRef>[]
+): VizManifestV2<VizPathRef> {
+  const combined = [...manifest.layers, ...layers];
+  assertUniqueVizLayerKeys(combined, "Visualization dump manifest");
+  return { ...manifest, layers: combined };
 }
 
 function createTraceDumpSinkWithState(
@@ -149,23 +167,24 @@ function createTraceDumpSinkWithState(
 ): TraceSink {
   const emit = (event: TraceEvent): void => {
     try {
+      const runPlan = planDumpRunState(stateByRun, event.runId, event.planFingerprint);
+      const { state } = runPlan;
+      const admission =
+        event.kind === "step.start" || event.kind === "step.event" || event.kind === "step.finish"
+          ? planStepAdmission(state, {
+              stepId: event.stepId,
+              stageId: event.stageId,
+            })
+          : undefined;
+      const manifest = admission?.manifest ?? state.manifest;
+
       const runDir = resolveRunDir(outputRoot, event.runId);
       ensureDir(resolveDataDir(outputRoot, event.runId));
       appendFileSync(join(runDir, "trace.jsonl"), `${JSON.stringify(event)}\n`);
-
-      const state = resolveDumpRunState(stateByRun, outputRoot, event.runId, event.planFingerprint);
-
-      if (event.kind === "step.start" && event.stepId) {
-        const admission = planStepAdmission(state, {
-          stepId: event.stepId,
-          phase: event.phase,
-        });
-        if (!admission.didChange) return;
-        publishManifest(runDir, admission.manifest);
-        state.manifest = admission.manifest;
-        commitStepAdmission(state, event.stepId, admission);
-        return;
-      }
+      if (runPlan.isNew || admission?.didChange) publishManifest(runDir, manifest);
+      state.manifest = manifest;
+      if (admission) commitStepAdmission(state, admission);
+      commitDumpRunState(stateByRun, event.runId, runPlan);
     } catch {
       // Trace persistence is diagnostic evidence and must never alter generation flow.
     }
@@ -174,32 +193,41 @@ function createTraceDumpSinkWithState(
   return { emit };
 }
 
-function binaryPath(slot: VizBinarySlot): string {
-  const layer = encodeURIComponent(slot.layerKey);
-  const bytes = new Uint8Array(slot.source.buffer, slot.source.byteOffset, slot.source.byteLength);
+function encodePortablePathComponent(value: string): string {
+  return encodeURIComponent(value).replace(
+    /[!'()*]/g,
+    (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`
+  );
+}
+
+function binaryPath(slot: VizBinarySlot, bytes: Uint8Array): string {
+  const layer = encodePortablePathComponent(slot.layerKey);
   const digest = createHash("sha256").update(bytes).digest("hex");
   const role =
-    slot.kind === "grid-field-values" ? `field-${encodeURIComponent(slot.fieldKey)}` : slot.kind;
+    slot.kind === "grid-field-values"
+      ? `field-${encodePortablePathComponent(slot.fieldKey)}`
+      : slot.kind;
   return `data/${layer}__${role}__sha256-${digest}.bin`;
 }
 
-function createPathMaterializer(runDir: string): VizBinaryMaterializer<VizPathRef> {
+type StagedVizBinary = Readonly<{ path: string; bytes: Uint8Array }>;
+
+function createStagedPathMaterializer(
+  stagedBinaries: StagedVizBinary[]
+): VizBinaryMaterializer<VizPathRef> {
   return (slot) => {
-    const path = binaryPath(slot);
-    writeBinaryAtomic(join(runDir, path), slot.source);
+    const bytes = new Uint8Array(slot.source.byteLength);
+    bytes.set(new Uint8Array(slot.source.buffer, slot.source.byteOffset, slot.source.byteLength));
+    const path = binaryPath(slot, bytes);
+    stagedBinaries.push({ path, bytes });
     return { kind: "path", path };
   };
 }
 
-function materializePathProjection(
-  outputRoot: string,
-  runId: string,
-  projection: VizProjection,
-  context: Readonly<{ stepId: string; phase?: string }>
-): VizLayerEmissionV1<VizPathRef> {
-  const runDir = resolveRunDir(outputRoot, runId);
-  ensureDir(resolveDataDir(outputRoot, runId));
-  return materializeVizProjection(projection, context, createPathMaterializer(runDir));
+function persistStagedBinaries(runDir: string, stagedBinaries: readonly StagedVizBinary[]): void {
+  for (const staged of stagedBinaries) {
+    writeBinaryAtomic(join(runDir, staged.path), staged.bytes);
+  }
 }
 
 function createFilesystemVizFacetSink(
@@ -207,21 +235,24 @@ function createFilesystemVizFacetSink(
   stateByRun: Map<string, DumpRunState>
 ): NonNullable<StepFacetSinks["viz"]> {
   return (projections, context: StepFacetSinkContext) => {
-    const state = resolveDumpRunState(
-      stateByRun,
-      outputRoot,
-      context.runId,
-      context.planFingerprint
-    );
+    const runPlan = planDumpRunState(stateByRun, context.runId, context.planFingerprint);
+    const { state } = runPlan;
     const admission = planStepAdmission(state, context);
+    const stagedBinaries: StagedVizBinary[] = [];
+    const materializePath = createStagedPathMaterializer(stagedBinaries);
     const layers = projections.map((projection) => {
-      const emitted = materializePathProjection(outputRoot, context.runId, projection, context);
-      return { ...emitted, stepIndex: context.stepIndex };
+      const emitted = materializeVizProjection(projection, admission.step, materializePath);
+      return { ...emitted, stepIndex: admission.step.stepIndex };
     });
-    const manifest = upsertLayers(admission.manifest, layers);
-    publishManifest(resolveRunDir(outputRoot, context.runId), manifest);
+    assertUniqueVizLayerKeys(layers, "Visualization dump batch");
+    const manifest = appendLayers(admission.manifest, layers);
+    const runDir = resolveRunDir(outputRoot, context.runId);
+    ensureDir(resolveDataDir(outputRoot, context.runId));
+    persistStagedBinaries(runDir, stagedBinaries);
+    publishManifest(runDir, manifest);
     state.manifest = manifest;
-    commitStepAdmission(state, context.stepId, admission);
+    commitStepAdmission(state, admission);
+    commitDumpRunState(stateByRun, context.runId, runPlan);
   };
 }
 

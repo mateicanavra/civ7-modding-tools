@@ -23,7 +23,6 @@ const PlotRiversStepConfigSchema = Type.Object(
  */
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
-  phase: "hydrology",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
   provides: [
     MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,

@@ -10,7 +10,6 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const MeshStepContract = defineStep({
   id: "mesh",
-  phase: "foundation",
   requires: [],
   provides: [],
   artifacts: {

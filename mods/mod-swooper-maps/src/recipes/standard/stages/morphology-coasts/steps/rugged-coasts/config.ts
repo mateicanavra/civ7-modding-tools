@@ -10,7 +10,6 @@ import {
  */
 export const RuggedCoastsStepContract = defineStep({
   id: "rugged-coasts",
-  phase: "morphology",
   requires: [],
   provides: [],
   artifacts: {

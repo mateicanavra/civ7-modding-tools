@@ -8,8 +8,8 @@
       "width": 248,
       "height": 122,
       "rank": 0,
-      "phaseRow": 0,
-      "phaseId": "foundation"
+      "domainRow": 0,
+      "domainId": "foundation"
     },
     "relief": {
       "x": 478,
@@ -17,8 +17,8 @@
       "width": 248,
       "height": 122,
       "rank": 1,
-      "phaseRow": 0,
-      "phaseId": "morphology"
+      "domainRow": 0,
+      "domainId": "morphology"
     },
     "coastlines": {
       "x": 876,
@@ -26,8 +26,8 @@
       "width": 248,
       "height": 122,
       "rank": 2,
-      "phaseRow": 1,
-      "phaseId": "morphology"
+      "domainRow": 1,
+      "domainId": "morphology"
     },
     "rivers": {
       "x": 1274,
@@ -35,8 +35,8 @@
       "width": 248,
       "height": 122,
       "rank": 3,
-      "phaseRow": 0,
-      "phaseId": "hydrology"
+      "domainRow": 0,
+      "domainId": "hydrology"
     },
     "biomes": {
       "x": 1672,
@@ -44,11 +44,11 @@
       "width": 248,
       "height": 122,
       "rank": 4,
-      "phaseRow": 0,
-      "phaseId": "ecology"
+      "domainRow": 0,
+      "domainId": "ecology"
     }
   },
-  "phaseBands": [
+  "domainBands": [
     {
       "id": "foundation",
       "y": 96,

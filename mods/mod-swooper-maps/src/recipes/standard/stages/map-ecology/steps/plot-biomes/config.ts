@@ -18,7 +18,6 @@ import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/
  */
 export const PlotBiomesStepContract = defineStep({
   id: "plot-biomes",
-  phase: "ecology",
   requires: [],
   provides: [
     STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied,

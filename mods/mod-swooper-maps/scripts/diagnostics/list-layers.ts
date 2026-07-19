@@ -1,4 +1,6 @@
-import { listLayers, loadManifest, parseArgs } from "./shared.js";
+import { parseDiagnosticArgs } from "./command-input.js";
+import { listLayers } from "./grid-analysis.js";
+import { loadPathVizManifest } from "./serialized-evidence.js";
 
 /**
  * List layers in a viz dump manifest.
@@ -7,12 +9,12 @@ import { listLayers, loadManifest, parseArgs } from "./shared.js";
  *   bun ./scripts/diagnostics/list-layers.ts -- <runDir> [--prefix foundation.] [--dataTypeKey morphology.topography.landMask]
  */
 function main(): void {
-  const { positionals, flags } = parseArgs(process.argv.slice(2));
+  const { positionals, flags } = parseDiagnosticArgs(process.argv.slice(2));
   const runDir = positionals[0];
   if (!runDir)
     throw new Error("Usage: bun ./scripts/diagnostics/list-layers.ts -- <runDir> [--prefix ...]");
 
-  const manifest = loadManifest(runDir);
+  const manifest = loadPathVizManifest(runDir);
   const prefix = typeof flags.prefix === "string" ? flags.prefix : undefined;
   const dataTypeKey = typeof flags.dataTypeKey === "string" ? flags.dataTypeKey : undefined;
 

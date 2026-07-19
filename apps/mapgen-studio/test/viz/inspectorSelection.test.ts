@@ -10,6 +10,7 @@ function makeRef(overrides: Partial<RiverLakeInspectorLayerRef> = {}): RiverLake
   return {
     dataTypeKey: "map.rivers.projectedRiverMask",
     layerKey: "step-a::map.rivers.projectedRiverMask::tile.hexOddQ::grid",
+    stageId: "stage-1",
     stepId: "stage-1.step-a",
     stepIndex: 1,
     spaceId: "tile.hexOddQ",
@@ -79,9 +80,9 @@ describe("applyRiverLakeInspectorSelection", () => {
     expect(hiddenPorts.setShowDebugLayers).not.toHaveBeenCalled();
   });
 
-  it("skips stage/step selection when no stage contains the step but still selects the viz layer", () => {
+  it("skips stage/step selection when the layer's exact stage is absent", () => {
     const ports = makePorts(STAGES);
-    const ref = makeRef({ stepId: "stale-recipe.unknown-step" });
+    const ref = makeRef({ stageId: "stale-recipe", stepId: "stale-recipe.unknown-step" });
 
     applyRiverLakeInspectorSelection(ref, ports);
 

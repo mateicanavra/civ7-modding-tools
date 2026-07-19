@@ -14,7 +14,6 @@ import {
  */
 export const MountainsStepContract = defineStep({
   id: "mountains",
-  phase: "morphology",
   requires: [],
   provides: [],
   artifacts: {

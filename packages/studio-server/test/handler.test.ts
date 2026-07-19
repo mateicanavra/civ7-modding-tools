@@ -1398,7 +1398,6 @@ function recipeDagResult(
     recipeId,
     recipeKey: recipeId,
     title: "Test Recipe",
-    phases: [],
     stages: [],
     edges: [],
     diagnostics: [],

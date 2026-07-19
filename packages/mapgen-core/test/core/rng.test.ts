@@ -26,7 +26,7 @@ function executeRandomSequence(seed: number, adapterRoll: number): readonly numb
   const registry = new StepRegistry();
   registry.register({
     id: "draw-authored-randomness",
-    phase: "foundation",
+    stageId: "foundation",
     requires: [],
     provides: [],
     run: (activeContext) => {
@@ -72,7 +72,7 @@ describe("core rng authority", () => {
     let value: number | undefined;
     registry.register({
       id: "draw-authored-randomness",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: (activeContext) => {

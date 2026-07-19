@@ -14,7 +14,6 @@ import {
  */
 export const ComputeShelfStepContract = defineStep({
   id: "compute-shelf",
-  phase: "morphology",
   requires: [],
   provides: [],
   artifacts: {

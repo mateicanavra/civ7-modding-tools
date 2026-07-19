@@ -14,7 +14,6 @@ import {
  */
 export const PlaceResourcesStepContract = defineStep({
   id: "place-resources",
-  phase: "placement",
   requires: [
     PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared,
     PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesAdjusted,

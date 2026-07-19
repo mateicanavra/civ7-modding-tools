@@ -1,10 +1,11 @@
-import type { DependencyTag, GenerationPhase } from "@mapgen/engine/index.js";
+import type { DependencyTag } from "@mapgen/engine/index.js";
 import { type TObject, type TSchema, Type } from "typebox";
 import { type ArtifactContract, assertCanonicalArtifactContract } from "../artifact/contract.js";
 import type { ArtifactModule } from "../artifact/module.js";
 import { buildOpEnvelopeSchema } from "../op/envelope.js";
 import type { OpTypeBagOf } from "../op/types.js";
 import { applySchemaConventions } from "../schema.js";
+import { assertNoStepStageIdentityAliases } from "./identity.js";
 import type {
   OpContractAny,
   StepOpsDecl,
@@ -263,7 +264,6 @@ export type StepContract<
   Artifacts extends StepArtifactsDeclAny | undefined = StepArtifactsDeclAny | undefined,
 > = Readonly<{
   id: Id;
-  phase: GenerationPhase;
   requires: readonly DependencyTag[];
   provides: readonly DependencyTag[];
   artifacts?: Artifacts;
@@ -278,7 +278,6 @@ type StepContractInput<
   Artifacts extends StepArtifactsDeclInput | undefined,
 > = Readonly<{
   id: Id;
-  phase: GenerationPhase;
   requires: readonly DependencyTag[];
   provides: readonly DependencyTag[];
   artifacts?: Artifacts;
@@ -338,6 +337,7 @@ export function defineStep<
 >;
 
 export function defineStep(def: any): any {
+  assertNoStepStageIdentityAliases(def, "step contract");
   if (!STEP_ID_RE.test(def.id)) {
     throw new Error(`step id "${def.id}" must be kebab-case (e.g. "plot-vegetation")`);
   }
@@ -401,11 +401,11 @@ export function defineStep(def: any): any {
   applySchemaConventions(schema, `step:${def.id}.schema`);
 
   return Object.freeze({
-    ...def,
-    ...(hasArtifacts ? { artifacts } : {}),
+    id: def.id,
     requires,
     provides,
-    ops,
+    ...(hasArtifacts ? { artifacts } : {}),
     schema,
+    ...(ops === undefined ? {} : { ops }),
   });
 }

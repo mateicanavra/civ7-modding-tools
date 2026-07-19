@@ -1,5 +1,5 @@
 import type {
-  VizLayerEntryV1,
+  VizLayerEntryV2,
   VizLayerKind,
   VizLayerMeta,
   VizLayerVisibility,
@@ -22,13 +22,10 @@ export type VizPalettePresentation =
   | Readonly<{
       kind: "continuous";
       colors: readonly RgbaColor[];
-      exactColorsByValue?: ReadonlyMap<number, RgbaColor>;
     }>
   | Readonly<{
       kind: "categorical";
-      valueIdentity: "exact" | "legacy-int32";
       colorsByValue: ReadonlyMap<number, RgbaColor>;
-      exactColorsByValue?: ReadonlyMap<number, RgbaColor>;
       hasUnmappedValues: boolean;
     }>;
 
@@ -41,7 +38,7 @@ export type VizRenderedScalarPresentation = Readonly<{
 /** One human-readable legend entry paired with the exact color used by the renderer. */
 export type VizLegendItem = { label: string; color: RgbaColor };
 
-/** Legend presentation for one selected layer and its optional pipeline address context. */
+/** Legend presentation for one selected layer and its exact owning-step presentation context. */
 export type VizLegendModel = {
   title: string;
   items: VizLegendItem[];
@@ -64,266 +61,11 @@ export function formatStepLabel(stepId: string): string {
 }
 
 /** Normalizes omitted layer visibility to the default Studio presentation lane. */
-export function resolveLayerVisibility(layer: VizLayerEntryV1): VizLayerVisibility {
+export function resolveLayerVisibility(layer: VizLayerEntryV2): VizLayerVisibility {
   const visibility = layer.meta?.visibility;
   if (visibility === "debug") return "debug";
   if (visibility === "hidden") return "hidden";
   return "default";
-}
-
-function hashStringToSeed(input: string): number {
-  let hash = 2166136261;
-  for (let i = 0; i < input.length; i++) {
-    hash ^= input.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return hash >>> 0;
-}
-
-function createRng(seed: number): () => number {
-  let state = seed >>> 0;
-  return () => {
-    state = (state * 1664525 + 1013904223) >>> 0;
-    return state / 0xffffffff;
-  };
-}
-
-function hslToRgb(h: number, s: number, l: number): [number, number, number] {
-  const c = (1 - Math.abs(2 * l - 1)) * s;
-  const hh = h / 60;
-  const x = c * (1 - Math.abs((hh % 2) - 1));
-  let r = 0;
-  let g = 0;
-  let b = 0;
-
-  if (hh >= 0 && hh < 1) {
-    r = c;
-    g = x;
-  } else if (hh < 2) {
-    r = x;
-    g = c;
-  } else if (hh < 3) {
-    g = c;
-    b = x;
-  } else if (hh < 4) {
-    g = x;
-    b = c;
-  } else if (hh < 5) {
-    r = x;
-    b = c;
-  } else {
-    r = c;
-    b = x;
-  }
-
-  const m = l - c / 2;
-  return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
-}
-
-function randomColor(rng: () => number): RgbaColor {
-  const hue = rng() * 360;
-  const saturation = 0.62 + rng() * 0.28;
-  const lightness = 0.48 + rng() * 0.18;
-  const [r, g, b] = hslToRgb(hue, saturation, lightness);
-  return [r, g, b, 230];
-}
-
-function hexToRgb(hex: string): [number, number, number] {
-  const normalized = hex.trim().replace(/^#/, "");
-  if (normalized.length === 3) {
-    const r = Number.parseInt(normalized[0] + normalized[0], 16);
-    const g = Number.parseInt(normalized[1] + normalized[1], 16);
-    const b = Number.parseInt(normalized[2] + normalized[2], 16);
-    return [r, g, b];
-  }
-  const r = Number.parseInt(normalized.slice(0, 2), 16);
-  const g = Number.parseInt(normalized.slice(2, 4), 16);
-  const b = Number.parseInt(normalized.slice(4, 6), 16);
-  return [r, g, b];
-}
-
-function hexToRgba(hex: string, alpha = 230): RgbaColor {
-  const [r, g, b] = hexToRgb(hex);
-  return [r, g, b, alpha];
-}
-
-function srgbToLinear(c: number): number {
-  const v = c / 255;
-  return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-}
-
-function rgbToOklab(rgb: RgbaColor): [number, number, number] {
-  const r = srgbToLinear(rgb[0]);
-  const g = srgbToLinear(rgb[1]);
-  const b = srgbToLinear(rgb[2]);
-
-  const l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
-  const m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
-  const s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
-
-  const l_ = Math.cbrt(l);
-  const m_ = Math.cbrt(m);
-  const s_ = Math.cbrt(s);
-
-  const L = 0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_;
-  const A = 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_;
-  const B = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_;
-
-  return [L, A, B];
-}
-
-function oklabDistance(a: RgbaColor, b: RgbaColor): number {
-  const [l1, a1, b1] = rgbToOklab(a);
-  const [l2, a2, b2] = rgbToOklab(b);
-  const dl = l1 - l2;
-  const da = a1 - a2;
-  const db = b1 - b2;
-  return dl * dl + da * da + db * db;
-}
-
-// Tailwind v3 default palette (300-700 shades) from the official docs:
-// https://v3.tailwindcss.com/docs/customizing-colors#default-color-palette
-const TAILWIND_COLOR_POOL: RgbaColor[] = [
-  // Slate
-  "#cbd5e1",
-  "#94a3b8",
-  "#64748b",
-  "#475569",
-  "#334155",
-  // Gray
-  "#d1d5db",
-  "#9ca3af",
-  "#6b7280",
-  "#4b5563",
-  "#374151",
-  // Zinc
-  "#d4d4d8",
-  "#a1a1aa",
-  "#71717a",
-  "#52525b",
-  "#3f3f46",
-  // Neutral
-  "#d4d4d4",
-  "#a3a3a3",
-  "#737373",
-  "#525252",
-  "#404040",
-  // Stone
-  "#d6d3d1",
-  "#a8a29e",
-  "#78716c",
-  "#57534e",
-  "#44403c",
-  // Red
-  "#fca5a5",
-  "#f87171",
-  "#ef4444",
-  "#dc2626",
-  "#b91c1c",
-  // Orange
-  "#fdba74",
-  "#fb923c",
-  "#f97316",
-  "#ea580c",
-  "#c2410c",
-  // Amber
-  "#fcd34d",
-  "#fbbf24",
-  "#f59e0b",
-  "#d97706",
-  "#b45309",
-  // Yellow
-  "#fde047",
-  "#facc15",
-  "#eab308",
-  "#ca8a04",
-  "#a16207",
-  // Lime
-  "#bef264",
-  "#a3e635",
-  "#84cc16",
-  "#65a30d",
-  "#4d7c0f",
-  // Green
-  "#86efac",
-  "#4ade80",
-  "#22c55e",
-  "#16a34a",
-  "#15803d",
-  // Emerald
-  "#6ee7b7",
-  "#34d399",
-  "#10b981",
-  "#059669",
-  "#047857",
-  // Teal
-  "#5eead4",
-  "#2dd4bf",
-  "#14b8a6",
-  "#0d9488",
-  "#0f766e",
-  // Cyan
-  "#67e8f9",
-  "#22d3ee",
-  "#06b6d4",
-  "#0891b2",
-  "#0e7490",
-  // Sky
-  "#7dd3fc",
-  "#38bdf8",
-  "#0ea5e9",
-  "#0284c7",
-  "#0369a1",
-  // Blue
-  "#93c5fd",
-  "#60a5fa",
-  "#3b82f6",
-  "#2563eb",
-  "#1d4ed8",
-  // Indigo
-  "#a5b4fc",
-  "#818cf8",
-  "#6366f1",
-  "#4f46e5",
-  "#4338ca",
-  // Violet
-  "#c4b5fd",
-  "#a78bfa",
-  "#8b5cf6",
-  "#7c3aed",
-  "#6d28d9",
-  // Purple
-  "#d8b4fe",
-  "#c084fc",
-  "#a855f7",
-  "#9333ea",
-  "#7e22ce",
-  // Fuchsia
-  "#f0abfc",
-  "#e879f9",
-  "#d946ef",
-  "#c026d3",
-  "#a21caf",
-  // Pink
-  "#f9a8d4",
-  "#f472b6",
-  "#ec4899",
-  "#db2777",
-  "#be185d",
-  // Rose
-  "#fda4af",
-  "#fb7185",
-  "#f43f5e",
-  "#e11d48",
-  "#be123c",
-].map((hex) => hexToRgba(hex));
-
-function collectLegacyCategoryIds(values: VizScalarSource["values"]): number[] {
-  const ids = new Set<number>();
-  for (let i = 0; i < values.length; i++) {
-    ids.add(Number(values[i] ?? 0) | 0);
-  }
-  return [...ids].filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
 }
 
 function collectResolvedCategoryIds(
@@ -339,72 +81,10 @@ function collectResolvedCategoryIds(
   return [...ids].sort((a, b) => a - b);
 }
 
-function generateOpposedPalette(count: number, seedKey: string): RgbaColor[] {
-  if (count <= 0) return [];
-  const rng = createRng(hashStringToSeed(seedKey));
-  const candidates = TAILWIND_COLOR_POOL.length ? TAILWIND_COLOR_POOL : [randomColor(rng)];
-  const used = new Array(candidates.length).fill(false);
-  const selected: RgbaColor[] = [];
-
-  const firstIndex = Math.floor(rng() * candidates.length);
-  selected.push(candidates[firstIndex] ?? [148, 163, 184, 220]);
-  used[firstIndex] = true;
-
-  while (selected.length < count) {
-    let bestIndex = -1;
-    let bestScore = -Infinity;
-    const allowReuse = selected.length >= candidates.length;
-
-    for (let i = 0; i < candidates.length; i++) {
-      if (!allowReuse && used[i]) continue;
-      const color = candidates[i]!;
-
-      let minDist = Infinity;
-      for (const chosen of selected) {
-        const d = oklabDistance(color, chosen);
-        if (d < minDist) minDist = d;
-      }
-
-      if (!Number.isFinite(minDist)) minDist = 0;
-      const score = minDist + rng() * 1e-3;
-      if (score > bestScore) {
-        bestScore = score;
-        bestIndex = i;
-      }
-    }
-
-    if (bestIndex < 0) {
-      bestIndex = Math.floor(rng() * candidates.length);
-    }
-
-    const chosen = candidates[bestIndex] ?? [148, 163, 184, 220];
-    selected.push(chosen);
-    if (bestIndex >= 0 && bestIndex < used.length) used[bestIndex] = true;
-  }
-
-  return selected;
-}
-
-/** Preserves the seeded legacy categorical palette used by v1 string-palette manifests. */
-export function buildCategoricalColorMap(options: {
-  values: VizScalarSource["values"];
-  seedKey: string;
-}): Map<number, RgbaColor> {
-  const ids = collectLegacyCategoryIds(options.values);
-  const palette = generateOpposedPalette(ids.length, options.seedKey);
-  const colorById = new Map<number, RgbaColor>();
-  for (let i = 0; i < ids.length; i++) {
-    colorById.set(ids[i]!, palette[i] ?? [148, 163, 184, 220]);
-  }
-  return colorById;
-}
-
-const VALUE_RAMP: ReadonlyArray<RgbaColor> = [
-  [68, 1, 84, 230],
-  [59, 82, 139, 230],
-  [33, 145, 140, 230],
-  [94, 201, 98, 230],
-  [253, 231, 37, 230],
+const NEUTRAL_SCALAR_RAMP: ReadonlyArray<RgbaColor> = [
+  [241, 245, 249, 230],
+  [148, 163, 184, 230],
+  [30, 41, 59, 230],
 ];
 
 // Nonfinite/no-data evidence remains transparent under the existing tile contract. A finite
@@ -421,29 +101,27 @@ function hasResolvedCategoryColors(palette: object): palette is VizResolvedCateg
 }
 
 /**
- * Normalizes legacy and resolved palette metadata through one renderer-facing path.
- * Resolved category pools bind to sorted observed ids without run-specific randomness, while
- * legacy categorical strings retain their seeded color selection exactly.
+ * Resolves portable v2 palette metadata through one renderer-facing path.
+ * Resolved category pools bind to sorted observed ids; omitted palettes use one neutral scalar
+ * ramp and never invent run-specific presentation state.
  */
 export function resolveVizPalettePresentation(
   options: Readonly<{
     meta?: VizLayerMeta;
     field?: VizScalarField | null;
     values: VizScalarSource["values"];
-    seedKey: string;
   }>
 ): VizPalettePresentation {
   const categories = options.meta?.categories;
-  const exactColorsByValue = new Map<number, RgbaColor>();
+  const colorsByValue = new Map<number, RgbaColor>();
   if (categories) {
     for (const category of categories) {
-      const value = typeof category.value === "number" ? category.value : Number(category.value);
-      if (Number.isFinite(value)) exactColorsByValue.set(value, copyColor(category.color));
+      colorsByValue.set(category.value, copyColor(category.color));
     }
   }
 
-  const palette = options.meta?.palette ?? "auto";
-  if (typeof palette === "object" && palette.kind === "categorical") {
+  const palette = options.meta?.palette;
+  if (palette?.kind === "categorical") {
     if (!hasResolvedCategoryColors(palette)) {
       const observedIds = collectResolvedCategoryIds(
         options.values,
@@ -451,41 +129,29 @@ export function resolveVizPalettePresentation(
       );
       return {
         kind: "categorical",
-        valueIdentity: "exact",
-        colorsByValue: exactColorsByValue,
-        hasUnmappedValues: observedIds.some((value) => !exactColorsByValue.has(value)),
+        colorsByValue,
+        hasUnmappedValues: observedIds.some((value) => !colorsByValue.has(value)),
       };
     }
     const ids = collectResolvedCategoryIds(options.values, options.field?.valueSpec?.noData);
     const colors = palette.colors;
-    const colorsByValue = new Map<number, RgbaColor>();
+    const pooledColorsByValue = new Map<number, RgbaColor>();
     for (let index = 0; index < ids.length; index++) {
       const color = colors[index % colors.length];
-      if (color) colorsByValue.set(ids[index]!, copyColor(color));
+      if (color) pooledColorsByValue.set(ids[index]!, copyColor(color));
     }
     return {
       kind: "categorical",
-      valueIdentity: "exact",
-      colorsByValue,
+      colorsByValue: pooledColorsByValue,
       hasUnmappedValues: false,
     };
   }
-  if (palette === "categorical") {
-    return {
-      kind: "categorical",
-      valueIdentity: "legacy-int32",
-      colorsByValue: buildCategoricalColorMap({ values: options.values, seedKey: options.seedKey }),
-      ...(exactColorsByValue.size > 0 ? { exactColorsByValue } : {}),
-      hasUnmappedValues: false,
-    };
-  }
-  if (typeof palette === "object") {
+  if (palette?.kind === "continuous") {
     return { kind: "continuous", colors: palette.stops.map(copyColor) };
   }
   return {
     kind: "continuous",
-    colors: VALUE_RAMP.map(copyColor),
-    ...(exactColorsByValue.size > 0 ? { exactColorsByValue } : {}),
+    colors: NEUTRAL_SCALAR_RAMP.map(copyColor),
   };
 }
 
@@ -664,15 +330,8 @@ function resolveColorForValue(args: {
     return;
   }
 
-  const exactColor = args.palette.exactColorsByValue?.get(rawValue);
-  if (exactColor) {
-    writeRgba(args.out, args.offset, exactColor);
-    return;
-  }
-
   if (args.palette.kind === "categorical") {
-    const identity = args.palette.valueIdentity === "legacy-int32" ? rawValue | 0 : rawValue;
-    const color = args.palette.colorsByValue.get(identity) ?? UNKNOWN_COLOR;
+    const color = args.palette.colorsByValue.get(rawValue) ?? UNKNOWN_COLOR;
     writeRgba(args.out, args.offset, color);
     return;
   }
@@ -699,7 +358,7 @@ function resolveColorForValue(args: {
 }
 
 /** Formats one layer's semantic identity, variant, role, space, and visibility for inspection. */
-export function formatLayerLabel(layer: VizLayerEntryV1): string {
+export function formatLayerLabel(layer: VizLayerEntryV2): string {
   const base = layer.meta?.label ?? layer.dataTypeKey;
   const visibility = layer.meta?.visibility === "debug" ? ", debug" : "";
   const role = layer.meta?.role ? `:${layer.meta.role}` : "";
@@ -729,7 +388,7 @@ export function writeColorForScalarValue(
 }
 
 /** Selects the scalar field rendered for a layer, including the canonical `gridFields` priority. */
-export function selectVizScalarField(layer: VizLayerEntryV1): VizScalarField | null {
+export function selectVizScalarField(layer: VizLayerEntryV2): VizScalarField | null {
   if (layer.kind === "grid") return layer.field;
   if (layer.kind === "points" || layer.kind === "segments") return layer.values ?? null;
   const fieldKey = layer.vector?.magnitude ?? layer.vector?.u ?? Object.keys(layer.fields)[0];
@@ -738,14 +397,14 @@ export function selectVizScalarField(layer: VizLayerEntryV1): VizScalarField | n
 
 /** Builds the legend for the exact scalar field selected by the renderer. */
 export function legendForLayer(
-  layer: VizLayerEntryV1 | null,
+  layer: VizLayerEntryV2 | null,
   scalar: VizRenderedScalarPresentation | null,
   context?: VizLegendModel["context"]
 ): VizLegendModel | null {
   if (!layer) return null;
 
   const title = layer.meta?.label ?? layer.dataTypeKey;
-  const palette = layer.meta?.palette ?? "auto";
+  const palette = layer.meta?.palette;
 
   if (layer.meta?.categories?.length) {
     const items = layer.meta.categories.map((entry) => ({
@@ -773,14 +432,8 @@ export function legendForLayer(
     };
   }
 
-  if (
-    palette === "categorical" ||
-    (typeof palette === "object" && palette.kind === "categorical")
-  ) {
-    const colors =
-      typeof palette === "object" && hasResolvedCategoryColors(palette)
-        ? palette.colors
-        : undefined;
+  if (palette?.kind === "categorical") {
+    const colors = hasResolvedCategoryColors(palette) ? palette.colors : undefined;
     return {
       title,
       items: colors?.length
@@ -788,7 +441,7 @@ export function legendForLayer(
             label: `category color ${index + 1}`,
             color: copyColor(color),
           }))
-        : [{ label: "categorical palette (auto)", color: [148, 163, 184, 220] }],
+        : [{ label: "categorical palette", color: [148, 163, 184, 220] }],
       context,
     };
   }
@@ -811,9 +464,9 @@ export function legendForLayer(
     const ramp =
       scalar?.palette.kind === "continuous"
         ? scalar.palette.colors
-        : typeof palette === "object" && palette.kind === "continuous"
+        : palette?.kind === "continuous"
           ? palette.stops.map(copyColor)
-          : VALUE_RAMP;
+          : NEUTRAL_SCALAR_RAMP;
     return {
       title,
       items: [

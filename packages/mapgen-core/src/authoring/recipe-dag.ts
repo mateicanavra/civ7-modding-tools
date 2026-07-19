@@ -1,5 +1,6 @@
 import type { ArtifactContract } from "./artifact/contract.js";
 import type { ArtifactModule } from "./artifact/module.js";
+import { assertStageIds } from "./stage.js";
 
 export type RecipeDagArtifactRef = Readonly<{
   id: string;
@@ -7,13 +8,11 @@ export type RecipeDagArtifactRef = Readonly<{
 }>;
 
 export type RecipeDagStep = Readonly<{
-  id: string;
   stageId: string;
   stepId: string;
   fullStepId: string;
   order: number;
   orderInStage: number;
-  phase: string;
   artifactRequires: readonly RecipeDagArtifactRef[];
   artifactProvides: readonly RecipeDagArtifactRef[];
   tagRequires: readonly string[];
@@ -21,10 +20,8 @@ export type RecipeDagStep = Readonly<{
 }>;
 
 export type RecipeDagStage = Readonly<{
-  id: string;
   stageId: string;
   order: number;
-  phases: readonly string[];
   steps: readonly RecipeDagStep[];
   artifactRequires: readonly RecipeDagArtifactRef[];
   artifactProvides: readonly RecipeDagArtifactRef[];
@@ -32,13 +29,6 @@ export type RecipeDagStage = Readonly<{
   outboundArtifactEdgeCount: number;
   internalArtifactEdgeCount: number;
   diagnosticCount: number;
-}>;
-
-export type RecipeDagPhase = Readonly<{
-  id: string;
-  order: number;
-  stageIds: readonly string[];
-  stepCount: number;
 }>;
 
 export type RecipeDagEndpoint = Readonly<{
@@ -79,7 +69,6 @@ export type RecipeDag = Readonly<{
   recipeKey: string;
   namespace?: string;
   title: string;
-  phases: readonly RecipeDagPhase[];
   stages: readonly RecipeDagStage[];
   edges: readonly RecipeDagEdge[];
   diagnostics: readonly RecipeDagDiagnostic[];
@@ -87,7 +76,6 @@ export type RecipeDag = Readonly<{
 
 export type RecipeDagStepContractInput = Readonly<{
   id: string;
-  phase: string;
   requires: readonly string[];
   provides: readonly string[];
   artifacts?: Readonly<{
@@ -122,18 +110,18 @@ type StageAccumulator = {
   diagnostics: number;
 };
 
+/**
+ * Projects an authored recipe into its exact stage/step dependency graph.
+ * Stage identity comes only from recipe composition; artifact diagnostics describe the same graph.
+ */
 export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
+  assertStageIds(input.stages.map((stage) => stage.id));
   const recipeKey =
     input.recipeKey ?? (input.namespace ? `${input.namespace}/${input.recipeId}` : input.recipeId);
   const providers = new Map<string, ArtifactProvider[]>();
   const consumerArtifactIds = new Set<string>();
   const steps: RecipeDagStep[] = [];
   const stageAccumulators = new Map<string, StageAccumulator>();
-  const phaseAccumulators = new Map<
-    string,
-    { order: number; stageIds: Set<string>; stepCount: number }
-  >();
-
   let stepOrder = 0;
   input.stages.forEach((stage, stageIndex) => {
     const stageSteps: RecipeDagStep[] = [];
@@ -147,13 +135,11 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
       const artifactRequires = artifactRefs(step.contract.artifacts?.requires);
       const artifactProvides = artifactModuleRefs(step.contract.artifacts?.provides);
       const dagStep: RecipeDagStep = {
-        id: fullStepId,
         stageId: stage.id,
         stepId: step.contract.id,
         fullStepId,
         order: stepOrder++,
         orderInStage: stepIndex,
-        phase: step.contract.phase,
         artifactRequires,
         artifactProvides,
         tagRequires: [...step.contract.requires],
@@ -162,7 +148,6 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
 
       steps.push(dagStep);
       stageSteps.push(dagStep);
-      collectPhase(phaseAccumulators, dagStep.phase, stage.id);
 
       for (const artifact of artifactProvides) {
         const list = providers.get(artifact.id) ?? [];
@@ -180,10 +165,8 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
 
     stageAccumulators.set(stage.id, {
       stage: {
-        id: stage.id,
         stageId: stage.id,
         order: stageIndex,
-        phases: unique(stageSteps.map((step) => step.phase)),
         steps: stageSteps,
         artifactRequires: uniqueArtifacts(stageSteps.flatMap((step) => step.artifactRequires)),
         artifactProvides: uniqueArtifacts(stageSteps.flatMap((step) => step.artifactProvides)),
@@ -271,14 +254,6 @@ export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
     recipeKey,
     ...(input.namespace ? { namespace: input.namespace } : {}),
     title: input.title ?? recipeKey,
-    phases: Array.from(phaseAccumulators.entries())
-      .map(([id, phase]) => ({
-        id,
-        order: phase.order,
-        stageIds: Array.from(phase.stageIds),
-        stepCount: phase.stepCount,
-      }))
-      .sort((a, b) => a.order - b.order),
     stages: Array.from(stageAccumulators.values()).map((entry) => ({
       ...entry.stage,
       inboundArtifactEdgeCount: entry.inbound,
@@ -309,28 +284,6 @@ function artifactModuleRefs(
   modules: readonly ArtifactModule[] | undefined
 ): RecipeDagArtifactRef[] {
   return artifactRefs(modules?.map((module) => module.artifact));
-}
-
-function collectPhase(
-  phases: Map<string, { order: number; stageIds: Set<string>; stepCount: number }>,
-  phaseId: string,
-  stageId: string
-): void {
-  const existing = phases.get(phaseId);
-  if (existing) {
-    existing.stageIds.add(stageId);
-    existing.stepCount += 1;
-    return;
-  }
-  phases.set(phaseId, {
-    order: phases.size,
-    stageIds: new Set([stageId]),
-    stepCount: 1,
-  });
-}
-
-function unique(values: readonly string[]): string[] {
-  return Array.from(new Set(values));
 }
 
 function uniqueArtifacts(artifacts: readonly RecipeDagArtifactRef[]): RecipeDagArtifactRef[] {

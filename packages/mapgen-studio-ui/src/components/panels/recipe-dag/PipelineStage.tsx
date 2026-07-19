@@ -6,9 +6,9 @@ import { cn } from "../../../lib/utils.js";
 import { EmptyState } from "../../composites/EmptyState.js";
 import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation.js";
 import {
-  chooseRecipeDagDomainId,
+  getRecipeDagDomainLaneColors,
   getRecipeDagDomainPresentation,
-  getRecipeDagPhaseLaneColors,
+  normalizeRecipeDagDomainId,
 } from "./domainPresentation.js";
 import {
   buildArtifactEdgeLabels,
@@ -33,11 +33,11 @@ export type RecipeDagLoadStatus = "idle" | "loading" | "ready" | "error";
 // Chrome is token-driven (single theme class; no lightMode palette forks); the
 // ONLY place a light/dark boolean survives is the preserved domain presentation
 // module, whose lane fills/accents are data color with explicit light/dark
-// variants (handoff §2.4 — domain drives color, not phase order). That boolean is
+// variants (handoff §2.4 — domain drives color, not execution order). That boolean is
 // resolved from the rendered root theme (`useResolvedTheme`), not a threaded prop.
 //
 // Everything the handoff lists under §2.3–§2.6 is consumed or reproduced
-// verbatim: the headless layout (dependency rank × phase-lane waterfall,
+// verbatim: the headless layout (dependency rank × domain-lane waterfall,
 // bundled trunks, deterministic label fanning), the one-icon contract across
 // nodes/lanes/pills/chips/diagnostics, stage selection separate from step
 // expansion (click-again unselects), selectable per-artifact connector
@@ -85,14 +85,6 @@ export function PipelineStage(props: PipelineStageProps) {
   const isLightMode = useResolvedTheme() === "light";
   const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
   const layout = useMemo(() => (dag ? buildRecipeDagLayout(dag) : null), [dag]);
-  const phaseIdByStageId = useMemo(() => {
-    const ids = new Map<string, string | null>();
-    if (!dag) return ids;
-    for (const stage of dag.stages) {
-      ids.set(stage.stageId, chooseRecipeDagDomainId(stage.phases));
-    }
-    return ids;
-  }, [dag]);
   const edgeLayerGroups = useMemo(() => {
     if (!layout) return [];
     return [...layout.edgeGroups].sort((a, b) => a.id.localeCompare(b.id));
@@ -139,8 +131,8 @@ export function PipelineStage(props: PipelineStageProps) {
   // selection/expansion change.
   const getStageAccent = useCallback(
     (stageId: string) =>
-      getRecipeDagPhaseLaneColors(phaseIdByStageId.get(stageId) ?? null, isLightMode).accent,
-    [phaseIdByStageId, isLightMode]
+      getRecipeDagDomainLaneColors(normalizeRecipeDagDomainId(stageId), isLightMode).accent,
+    [isLightMode]
   );
   const handleSelectStage = useCallback(
     (stageId: string, options?: { keepSelected?: boolean }) => {
@@ -185,7 +177,7 @@ export function PipelineStage(props: PipelineStageProps) {
           </span>
         </div>
         <div className="w-px h-5 bg-border" />
-        <PipelineMetric label="Phases" value={dag?.phases.length ?? 0} />
+        <PipelineMetric label="Domains" value={layout?.domainBands.length ?? 0} />
         <PipelineMetric label="Stages" value={dag?.stages.length ?? 0} />
         <PipelineMetric label="Edges" value={dag?.edges.length ?? 0} />
         <PipelineMetric
@@ -297,24 +289,24 @@ export function PipelineStage(props: PipelineStageProps) {
                     </text>
                   </g>
                 ))}
-                {layout.phaseBands.map((phase) => {
-                  const lane = getRecipeDagPhaseLaneColors(phase.id, isLightMode);
+                {layout.domainBands.map((domain) => {
+                  const lane = getRecipeDagDomainLaneColors(domain.id, isLightMode);
                   return (
-                    <g key={phase.id}>
+                    <g key={domain.id}>
                       <rect
                         x={32}
-                        y={phase.y}
+                        y={domain.y}
                         width={layout.width - 64}
-                        height={phase.height}
+                        height={domain.height}
                         rx={8}
                         fill={lane.fill}
                         stroke="var(--border)"
                       />
                       <rect
                         x={32}
-                        y={phase.y}
+                        y={domain.y}
                         width={4}
-                        height={phase.height}
+                        height={domain.height}
                         rx={2}
                         fill={lane.accent}
                         opacity="0.9"
@@ -378,13 +370,13 @@ export function PipelineStage(props: PipelineStageProps) {
                 );
               })}
 
-              {layout.phaseBands.map((phase) => (
-                <PhaseLaneLabel
-                  key={`${phase.id}:label`}
-                  phaseId={phase.id}
+              {layout.domainBands.map((domain) => (
+                <DomainLaneLabel
+                  key={`${domain.id}:label`}
+                  domainId={domain.id}
                   x={52}
-                  y={phase.y + 16}
-                  accent={getRecipeDagPhaseLaneColors(phase.id, isLightMode).accent}
+                  y={domain.y + 16}
+                  accent={getRecipeDagDomainLaneColors(domain.id, isLightMode).accent}
                 />
               ))}
 
@@ -504,8 +496,8 @@ const StageNode = React.memo(function StageNode(props: {
   const headingClass = dimmed ? "text-muted-foreground/70" : "text-foreground";
   const bodyClass = dimmed ? "text-muted-foreground/50" : "text-muted-foreground";
   const iconClass = dimmed ? "text-muted-foreground/50" : "text-muted-foreground";
-  const stageDomainId = chooseRecipeDagDomainId(stage.phases);
-  const stageAccent = getRecipeDagPhaseLaneColors(stageDomainId, isLightMode).accent;
+  const stageDomainId = normalizeRecipeDagDomainId(stage.stageId);
+  const stageAccent = getRecipeDagDomainLaneColors(stageDomainId, isLightMode).accent;
   const activeNodeAccent = selected || edgeActive ? stageAccent : null;
   const zIndex = selected || edgeActive ? (expanded ? 95 : 85) : expanded ? 70 : dimmed ? 20 : 30;
   const expandedPanelId = `recipe-dag-stage-${stage.stageId}-steps`;
@@ -597,10 +589,6 @@ const StageNode = React.memo(function StageNode(props: {
               >
                 <div className={cn("truncate text-label font-medium", headingClass)}>
                   Step {step.orderInStage + 1}: {step.stepId}
-                </div>
-                <div className={cn("mt-1 flex items-center gap-1 truncate text-label", bodyClass)}>
-                  <DomainInlineIcon domainId={step.phase} className="h-2.5 w-2.5" />
-                  <span className="truncate">Phase: {step.phase}</span>
                 </div>
                 <ArtifactList
                   label="Needs"
@@ -745,18 +733,18 @@ const DomainInlineIcon = React.memo(function DomainInlineIcon(props: {
   );
 });
 
-const PhaseLaneLabel = React.memo(function PhaseLaneLabel(props: {
-  phaseId: string;
+const DomainLaneLabel = React.memo(function DomainLaneLabel(props: {
+  domainId: string;
   x: number;
   y: number;
   accent: string;
 }) {
-  const { Icon, label, strokeWidth } = getRecipeDagDomainPresentation(props.phaseId);
+  const { Icon, label, strokeWidth } = getRecipeDagDomainPresentation(props.domainId);
   return (
     <div
       className="absolute z-10 flex items-center gap-1.5 rounded-full border border-border bg-popover/90 px-2 py-1 text-label font-semibold uppercase tracking-normal text-foreground shadow-sm backdrop-blur-sm"
       style={{ left: props.x, top: props.y }}
-      title={`Phase ${label}`}
+      title={`${label} domain`}
     >
       <Icon
         className="h-3.5 w-3.5 shrink-0"
@@ -764,7 +752,7 @@ const PhaseLaneLabel = React.memo(function PhaseLaneLabel(props: {
         style={{ color: props.accent }}
         aria-hidden="true"
       />
-      <span>{props.phaseId}</span>
+      <span>{props.domainId}</span>
     </div>
   );
 });

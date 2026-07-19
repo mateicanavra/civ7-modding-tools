@@ -2,6 +2,8 @@ export type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
 
 export type VizRunId = string;
 export type VizPlanFingerprint = string;
+/** Exact authored stage identity assigned by recipe composition. */
+export type VizStageId = string;
 export type VizStepId = string;
 
 /** Opaque, stable identity for one visualization layer within a run. */
@@ -15,9 +17,6 @@ export type VizVariantKey = string;
 export type VizScalarFormat = "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
 
 export type VizLayerVisibility = "default" | "debug" | "hidden";
-
-/** Legacy v1 palette selector retained so existing manifests and producers remain readable. */
-export type VizLegacyPaletteMode = "auto" | "categorical" | "continuous";
 
 /** Portable red, green, blue, and alpha channels encoded as integer bytes. */
 export type VizRgbaColor = readonly [red: number, green: number, blue: number, alpha: number];
@@ -39,9 +38,6 @@ export type VizResolvedPalette = VizResolvedContinuousPalette | VizResolvedCateg
 
 /** Selects explicit `VizLayerMeta.categories` as the sole categorical color authority. */
 export type VizExplicitCategoryPalette = Readonly<{ kind: "categorical"; colors?: never }>;
-
-/** @deprecated Use `VizLegacyPaletteMode` when reading legacy palette selectors. */
-export type VizPaletteMode = VizLegacyPaletteMode;
 
 export type VizLayerKind = "grid" | "points" | "segments" | "gridFields";
 
@@ -81,13 +77,9 @@ export type VizScalarStats = {
   stddev?: number;
 };
 
-/**
- * Explicit presentation for one integer scalar identity.
- * Integer strings remain readable for existing v1 manifests, but materialization and rendering
- * normalize them to the same safe-integer identity as their number-valued equivalent.
- */
+/** Explicit presentation for one safe-integer scalar identity. */
 export type VizLayerCategory = Readonly<{
-  value: number | string;
+  value: number;
   label: string;
   color: VizRgbaColor;
 }>;
@@ -109,14 +101,14 @@ type VizLayerMetaBase = Readonly<{
 
 /**
  * Closed palette/category authority for portable layer metadata.
- * Legacy v1 selectors retain their existing optional category table, while resolved palettes
- * either own a color pool or require one nonempty explicit category table, never both.
+ * A layer either relies on the renderer's neutral scalar fallback, carries a resolved palette,
+ * or carries a nonempty explicit category table. Those authorities never overlap.
  */
 export type VizLayerMeta = VizLayerMetaBase &
   (
     | Readonly<{
-        palette?: VizLegacyPaletteMode;
-        categories?: readonly VizLayerCategory[];
+        palette?: never;
+        categories?: never;
       }>
     | Readonly<{
         palette: VizResolvedPalette;
@@ -134,7 +126,7 @@ export type VizInlineRef = { kind: "inline"; buffer: ArrayBuffer };
 /** Filesystem-owned binary evidence addressed relative to a visualization manifest. */
 export type VizPathRef = { kind: "path"; path: string };
 
-/** Serialized binary references admitted by the v1 visualization contract. */
+/** Serialized binary references admitted by the v2 visualization contract. */
 export type VizBinaryRef = VizInlineRef | VizPathRef;
 
 export type VizDims = { width: number; height: number };
@@ -147,33 +139,33 @@ export type VizScalarField<Ref extends VizBinaryRef = VizBinaryRef> = {
   valueSpec?: VizValueSpec;
 };
 
-export type VizLayerIdentityV1 = {
+export type VizLayerIdentityV2 = {
   kind: VizLayerKind;
   layerKey: VizLayerKey;
   dataTypeKey: VizDataTypeKey;
   variantKey?: VizVariantKey;
   stepId: VizStepId;
-  phase?: string;
+  stageId: VizStageId;
   spaceId: VizSpaceId;
   bounds: Bounds;
   meta?: VizLayerMeta;
 };
 
-export type VizLayerEmissionBaseV1 = VizLayerIdentityV1;
+export type VizLayerEmissionBaseV2 = VizLayerIdentityV2;
 
-export type VizLayerEntryBaseV1 = VizLayerIdentityV1 & {
+export type VizLayerEntryBaseV2 = VizLayerIdentityV2 & {
   stepIndex: number;
 };
 
-export type VizGridLayerEmissionV1<Ref extends VizBinaryRef = VizBinaryRef> =
-  VizLayerEmissionBaseV1 & {
+export type VizGridLayerEmissionV2<Ref extends VizBinaryRef = VizBinaryRef> =
+  VizLayerEmissionBaseV2 & {
     kind: "grid";
     dims: VizDims;
     field: VizScalarField<Ref>;
   };
 
-export type VizPointsLayerEmissionV1<Ref extends VizBinaryRef = VizBinaryRef> =
-  VizLayerEmissionBaseV1 & {
+export type VizPointsLayerEmissionV2<Ref extends VizBinaryRef = VizBinaryRef> =
+  VizLayerEmissionBaseV2 & {
     kind: "points";
     count: number;
     /** Float32 `[x, y]` pairs materialized by the owning adapter. */
@@ -181,8 +173,8 @@ export type VizPointsLayerEmissionV1<Ref extends VizBinaryRef = VizBinaryRef> =
     values?: VizScalarField<Ref>;
   };
 
-export type VizSegmentsLayerEmissionV1<Ref extends VizBinaryRef = VizBinaryRef> =
-  VizLayerEmissionBaseV1 & {
+export type VizSegmentsLayerEmissionV2<Ref extends VizBinaryRef = VizBinaryRef> =
+  VizLayerEmissionBaseV2 & {
     kind: "segments";
     count: number;
     /** Float32 `[x0, y0, x1, y1]` segments materialized by the owning adapter. */
@@ -190,8 +182,8 @@ export type VizSegmentsLayerEmissionV1<Ref extends VizBinaryRef = VizBinaryRef> 
     values?: VizScalarField<Ref>;
   };
 
-export type VizGridFieldsLayerEmissionV1<Ref extends VizBinaryRef = VizBinaryRef> =
-  VizLayerEmissionBaseV1 & {
+export type VizGridFieldsLayerEmissionV2<Ref extends VizBinaryRef = VizBinaryRef> =
+  VizLayerEmissionBaseV2 & {
     kind: "gridFields";
     dims: VizDims;
     fields: Record<string, VizScalarField<Ref>>;
@@ -199,36 +191,36 @@ export type VizGridFieldsLayerEmissionV1<Ref extends VizBinaryRef = VizBinaryRef
     vector?: { u: string; v: string; magnitude?: string };
   };
 
-/** Materialized v1 layer evidence, parameterized by its adapter-owned binary reference. */
-export type VizLayerEmissionV1<Ref extends VizBinaryRef = VizBinaryRef> =
-  | VizGridLayerEmissionV1<Ref>
-  | VizPointsLayerEmissionV1<Ref>
-  | VizSegmentsLayerEmissionV1<Ref>
-  | VizGridFieldsLayerEmissionV1<Ref>;
+/** Materialized v2 layer evidence, parameterized by its adapter-owned binary reference. */
+export type VizLayerEmissionV2<Ref extends VizBinaryRef = VizBinaryRef> =
+  | VizGridLayerEmissionV2<Ref>
+  | VizPointsLayerEmissionV2<Ref>
+  | VizSegmentsLayerEmissionV2<Ref>
+  | VizGridFieldsLayerEmissionV2<Ref>;
 
-export type VizGridLayerEntryV1<Ref extends VizBinaryRef = VizBinaryRef> = VizLayerEntryBaseV1 & {
+export type VizGridLayerEntryV2<Ref extends VizBinaryRef = VizBinaryRef> = VizLayerEntryBaseV2 & {
   kind: "grid";
   dims: VizDims;
   field: VizScalarField<Ref>;
 };
 
-export type VizPointsLayerEntryV1<Ref extends VizBinaryRef = VizBinaryRef> = VizLayerEntryBaseV1 & {
+export type VizPointsLayerEntryV2<Ref extends VizBinaryRef = VizBinaryRef> = VizLayerEntryBaseV2 & {
   kind: "points";
   count: number;
   positions: Ref;
   values?: VizScalarField<Ref>;
 };
 
-export type VizSegmentsLayerEntryV1<Ref extends VizBinaryRef = VizBinaryRef> =
-  VizLayerEntryBaseV1 & {
+export type VizSegmentsLayerEntryV2<Ref extends VizBinaryRef = VizBinaryRef> =
+  VizLayerEntryBaseV2 & {
     kind: "segments";
     count: number;
     segments: Ref;
     values?: VizScalarField<Ref>;
   };
 
-export type VizGridFieldsLayerEntryV1<Ref extends VizBinaryRef = VizBinaryRef> =
-  VizLayerEntryBaseV1 & {
+export type VizGridFieldsLayerEntryV2<Ref extends VizBinaryRef = VizBinaryRef> =
+  VizLayerEntryBaseV2 & {
     kind: "gridFields";
     dims: VizDims;
     fields: Record<string, VizScalarField<Ref>>;
@@ -236,17 +228,17 @@ export type VizGridFieldsLayerEntryV1<Ref extends VizBinaryRef = VizBinaryRef> =
   };
 
 /** Manifest layer entry, parameterized so inline and path evidence cannot be mixed accidentally. */
-export type VizLayerEntryV1<Ref extends VizBinaryRef = VizBinaryRef> =
-  | VizGridLayerEntryV1<Ref>
-  | VizPointsLayerEntryV1<Ref>
-  | VizSegmentsLayerEntryV1<Ref>
-  | VizGridFieldsLayerEntryV1<Ref>;
+export type VizLayerEntryV2<Ref extends VizBinaryRef = VizBinaryRef> =
+  | VizGridLayerEntryV2<Ref>
+  | VizPointsLayerEntryV2<Ref>
+  | VizSegmentsLayerEntryV2<Ref>
+  | VizGridFieldsLayerEntryV2<Ref>;
 
 /** Replay or streaming manifest whose binary-reference mode is fixed for every layer. */
-export type VizManifestV1<Ref extends VizBinaryRef = VizBinaryRef> = {
-  version: 1;
+export type VizManifestV2<Ref extends VizBinaryRef = VizBinaryRef> = {
+  version: 2;
   runId: VizRunId;
   planFingerprint: VizPlanFingerprint;
-  steps: Array<{ stepId: VizStepId; phase?: string; stepIndex: number }>;
-  layers: Array<VizLayerEntryV1<Ref>>;
+  steps: Array<{ stepId: VizStepId; stageId: VizStageId; stepIndex: number }>;
+  layers: Array<VizLayerEntryV2<Ref>>;
 };

@@ -143,7 +143,7 @@ export const ClimateRefineStep = createStep(ClimateRefineStepContract, {
       humidityF32[i] = humidity / 255;
     }
 
-    const stepId = `${ClimateRefineStepContract.phase}/${ClimateRefineStepContract.id}`;
+    const stepId = `hydrology/${ClimateRefineStepContract.id}`;
     const perlinSeed = ctxRandom(
       context,
       ctxRandomLabel(stepId, "hydrology/compute-precipitation/noise"),

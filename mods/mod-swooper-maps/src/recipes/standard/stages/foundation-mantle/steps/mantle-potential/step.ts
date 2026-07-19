@@ -13,7 +13,7 @@ const GROUP_MANTLE = "Foundation / Mantle";
 export const MantlePotentialStep = createStep(MantlePotentialStepContract, {
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
-    const stepId = `${MantlePotentialStepContract.phase}/${MantlePotentialStepContract.id}`;
+    const stepId = `foundation/${MantlePotentialStepContract.id}`;
     const rngSeed = ctxRandom(
       context,
       ctxRandomLabel(stepId, "foundation/compute-mantle-potential"),

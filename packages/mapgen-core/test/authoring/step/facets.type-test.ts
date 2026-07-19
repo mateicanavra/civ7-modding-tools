@@ -7,7 +7,6 @@ type Expect<T extends true> = T;
 const FacetedStep = createStep(
   defineStep({
     id: "faceted-step",
-    phase: "foundation",
     requires: [],
     provides: [],
     schema: Type.Object({ scale: Type.Number() }, { additionalProperties: false }),
@@ -54,7 +53,6 @@ export type StepRunSamplesArePreserved = Expect<
 const AsyncFacetedStep = createStep(
   defineStep({
     id: "async-faceted-step",
-    phase: "foundation",
     requires: [],
     provides: [],
     schema: Type.Object({}, { additionalProperties: false }),

@@ -26,34 +26,34 @@ describe("recipe DAG layout", () => {
     expect(layoutValue).toEqual(recipeDagLayoutFixture);
   });
 
-  it("places stages by dependency rank while preserving phase grouping", () => {
+  it("places stages by dependency rank while preserving derived domain grouping", () => {
     const layout = buildRecipeDagLayout(recipeDag());
 
-    expect(layout.positions.get("source")?.rank).toBe(0);
-    expect(layout.positions.get("branch-a")?.rank).toBe(1);
-    expect(layout.positions.get("branch-b")?.rank).toBe(1);
-    expect(layout.positions.get("sink")?.rank).toBe(2);
-    expect(layout.positions.get("sink")?.phaseId).toBe("finish");
+    expect(layout.positions.get("shape-source")?.rank).toBe(0);
+    expect(layout.positions.get("shape-branch-a")?.rank).toBe(1);
+    expect(layout.positions.get("shape-branch-b")?.rank).toBe(1);
+    expect(layout.positions.get("finish")?.rank).toBe(2);
+    expect(layout.positions.get("finish")?.domainId).toBe("finish");
     expect(layout.rankColumns.map((column) => column.label)).toEqual(["Sources", "D1", "D2"]);
   });
 
-  it("assigns every stage in a phase to its own vertical row", () => {
+  it("assigns every stage in a derived domain to its own vertical row", () => {
     const layout = buildRecipeDagLayout(recipeDag());
-    const source = layout.positions.get("source");
-    const branchA = layout.positions.get("branch-a");
-    const branchB = layout.positions.get("branch-b");
-    const sink = layout.positions.get("sink");
-    const shapeBand = layout.phaseBands.find((phase) => phase.id === "shape");
+    const source = layout.positions.get("shape-source");
+    const branchA = layout.positions.get("shape-branch-a");
+    const branchB = layout.positions.get("shape-branch-b");
+    const sink = layout.positions.get("finish");
+    const morphologyBand = layout.domainBands.find((domain) => domain.id === "morphology");
 
-    expect(source?.phaseRow).toBe(0);
-    expect(branchA?.phaseRow).toBe(1);
-    expect(branchB?.phaseRow).toBe(2);
-    expect(sink?.phaseRow).toBe(0);
+    expect(source?.domainRow).toBe(0);
+    expect(branchA?.domainRow).toBe(1);
+    expect(branchB?.domainRow).toBe(2);
+    expect(sink?.domainRow).toBe(0);
     expect(new Set([source?.y, branchA?.y, branchB?.y])).toHaveLength(3);
     expect(branchA?.rank).toBe(branchB?.rank);
     expect(branchA?.y).not.toBe(branchB?.y);
-    expect(shapeBand).toBeDefined();
-    expect(shapeBand!.y + shapeBand!.height).toBeGreaterThanOrEqual(
+    expect(morphologyBand).toBeDefined();
+    expect(morphologyBand!.y + morphologyBand!.height).toBeGreaterThanOrEqual(
       branchB!.y + branchB!.height + 26
     );
   });
@@ -63,7 +63,7 @@ describe("recipe DAG layout", () => {
     const groups = groupStageEdges(dag);
     const layout = buildRecipeDagLayout(dag);
     const routed = layout.edgeGroups.find(
-      (edge) => edge.fromStageId === "source" && edge.toStageId === "branch-a"
+      (edge) => edge.fromStageId === "shape-source" && edge.toStageId === "shape-branch-a"
     );
 
     expect(groups).toHaveLength(4);
@@ -74,7 +74,7 @@ describe("recipe DAG layout", () => {
   it("spreads crowded edge labels in the same horizontal bucket", () => {
     const layout = buildRecipeDagLayout(crowdedRecipeDag());
     const labels = layout.edgeGroups
-      .filter((edge) => edge.fromStageId === "source")
+      .filter((edge) => edge.fromStageId === "shape-source")
       .map((edge) => edge.labelY)
       .sort((a, b) => a - b);
 
@@ -87,16 +87,17 @@ describe("recipe DAG layout", () => {
   it("pulls selected-stage edge labels toward the dependency destination", () => {
     const layout = buildRecipeDagLayout(recipeDag());
     const edge = layout.edgeGroups.find(
-      (candidate) => candidate.fromStageId === "source" && candidate.toStageId === "branch-a"
+      (candidate) =>
+        candidate.fromStageId === "shape-source" && candidate.toStageId === "shape-branch-a"
     );
 
     expect(edge).toBeDefined();
     const routed = edge!;
     const last = routed.points[routed.points.length - 1]!;
     const defaultPosition = resolveEdgeLabelPosition(routed, null);
-    const sourcePosition = resolveEdgeLabelPosition(routed, "source");
-    const targetPosition = resolveEdgeLabelPosition(routed, "branch-a");
-    const unrelatedPosition = resolveEdgeLabelPosition(routed, "sink");
+    const sourcePosition = resolveEdgeLabelPosition(routed, "shape-source");
+    const targetPosition = resolveEdgeLabelPosition(routed, "shape-branch-a");
+    const unrelatedPosition = resolveEdgeLabelPosition(routed, "finish");
 
     expect(defaultPosition).toEqual({ x: routed.labelX, y: routed.labelY });
     expect(unrelatedPosition).toEqual(defaultPosition);
@@ -134,7 +135,7 @@ describe("recipe DAG layout", () => {
 
   it("bundles shared-source edges before separating toward destinations", () => {
     const layout = buildRecipeDagLayout(recipeDag());
-    const outgoing = layout.edgeGroups.filter((edge) => edge.fromStageId === "source");
+    const outgoing = layout.edgeGroups.filter((edge) => edge.fromStageId === "shape-source");
 
     expect(outgoing).toHaveLength(2);
     expect(new Set(outgoing.map((edge) => edge.points[0]?.y))).toHaveLength(1);
@@ -147,11 +148,11 @@ describe("recipe DAG layout", () => {
     const labels = buildArtifactEdgeLabels(layout.edgeGroups);
     const seedLabels = labels.filter((label) => label.artifact === "seed-grid");
     const seedLabel = seedLabels[0];
-    const sourceEdge = layout.edgeGroups.find((edge) => edge.fromStageId === "source")!;
+    const sourceEdge = layout.edgeGroups.find((edge) => edge.fromStageId === "shape-source")!;
 
     expect(seedLabels).toHaveLength(1);
     expect(seedLabel?.edgeIds).toHaveLength(2);
-    expect(seedLabel?.toStageIds).toEqual(["branch-a", "branch-b"]);
+    expect(seedLabel?.toStageIds).toEqual(["shape-branch-a", "shape-branch-b"]);
     expect(seedLabel?.label).toBe("seed-grid");
     expect(seedLabel?.labelX).toBeGreaterThan(sourceEdge.points[0]!.x);
     expect(seedLabel?.labelX).toBeLessThanOrEqual(sourceEdge.points[1]!.x);
@@ -162,16 +163,16 @@ describe("recipe DAG layout", () => {
 
   it("moves a split artifact label near the selected destination branch", () => {
     const layout = buildRecipeDagLayout(recipeDag());
-    const labels = buildArtifactEdgeLabels(layout.edgeGroups, "branch-b");
+    const labels = buildArtifactEdgeLabels(layout.edgeGroups, "shape-branch-b");
     const seedLabel = labels.find((label) => label.artifact === "seed-grid");
     const branchBEdge = layout.edgeGroups.find(
-      (edge) => edge.fromStageId === "source" && edge.toStageId === "branch-b"
+      (edge) => edge.fromStageId === "shape-source" && edge.toStageId === "shape-branch-b"
     )!;
     const branchBEndpoint = branchBEdge.points[branchBEdge.points.length - 1]!;
 
     expect(seedLabel).toBeDefined();
     expect(seedLabel?.edgeIds).toHaveLength(2);
-    expect(seedLabel?.toStageIds).toEqual(["branch-a", "branch-b"]);
+    expect(seedLabel?.toStageIds).toEqual(["shape-branch-a", "shape-branch-b"]);
     expect(seedLabel?.labelX).toBeGreaterThan(branchBEdge.points[1]!.x);
     expect(Math.abs(seedLabel!.labelY - branchBEndpoint.y)).toBeLessThan(8);
   });
@@ -206,21 +207,17 @@ function recipeDag(): RecipeDagResult {
     recipeKey: "mod-swooper-maps/standard",
     namespace: "mod-swooper-maps",
     title: "Swooper Maps / Standard",
-    phases: [
-      { id: "shape", order: 0, stageIds: ["source", "branch-a", "branch-b"], stepCount: 3 },
-      { id: "finish", order: 1, stageIds: ["sink"], stepCount: 1 },
-    ],
     stages: [
-      stage("source", 0, "shape", [], ["seed-grid"]),
-      stage("branch-a", 1, "shape", ["seed-grid"], ["coast-grid"]),
-      stage("branch-b", 2, "shape", ["seed-grid"], ["height-grid"]),
-      stage("sink", 3, "finish", ["coast-grid", "height-grid"], []),
+      stage("shape-source", 0, [], ["seed-grid"]),
+      stage("shape-branch-a", 1, ["seed-grid"], ["coast-grid"]),
+      stage("shape-branch-b", 2, ["seed-grid"], ["height-grid"]),
+      stage("finish", 3, ["coast-grid", "height-grid"], []),
     ],
     edges: [
-      edge("source", "seed", "branch-a", "coast", "seed-grid"),
-      edge("source", "seed", "branch-b", "height", "seed-grid"),
-      edge("branch-a", "coast", "sink", "finalize", "coast-grid"),
-      edge("branch-b", "height", "sink", "finalize", "height-grid"),
+      edge("shape-source", "seed", "shape-branch-a", "coast", "seed-grid"),
+      edge("shape-source", "seed", "shape-branch-b", "height", "seed-grid"),
+      edge("shape-branch-a", "coast", "finish", "finalize", "coast-grid"),
+      edge("shape-branch-b", "height", "finish", "finalize", "height-grid"),
     ],
     diagnostics: [],
   };
@@ -232,26 +229,18 @@ function crowdedRecipeDag(): RecipeDagResult {
     recipeKey: "mod-swooper-maps/crowded",
     namespace: "mod-swooper-maps",
     title: "Crowded DAG",
-    phases: [
-      {
-        id: "shape",
-        order: 0,
-        stageIds: ["source", "branch-a", "branch-b", "branch-c", "branch-d"],
-        stepCount: 5,
-      },
-    ],
     stages: [
-      stage("source", 0, "shape", [], ["seed-a", "seed-b", "seed-c", "seed-d"]),
-      stage("branch-a", 1, "shape", ["seed-a"], []),
-      stage("branch-b", 2, "shape", ["seed-b"], []),
-      stage("branch-c", 3, "shape", ["seed-c"], []),
-      stage("branch-d", 4, "shape", ["seed-d"], []),
+      stage("shape-source", 0, [], ["seed-a", "seed-b", "seed-c", "seed-d"]),
+      stage("shape-branch-a", 1, ["seed-a"], []),
+      stage("shape-branch-b", 2, ["seed-b"], []),
+      stage("shape-branch-c", 3, ["seed-c"], []),
+      stage("shape-branch-d", 4, ["seed-d"], []),
     ],
     edges: [
-      edge("source", "seed", "branch-a", "step", "seed-a"),
-      edge("source", "seed", "branch-b", "step", "seed-b"),
-      edge("source", "seed", "branch-c", "step", "seed-c"),
-      edge("source", "seed", "branch-d", "step", "seed-d"),
+      edge("shape-source", "seed", "shape-branch-a", "step", "seed-a"),
+      edge("shape-source", "seed", "shape-branch-b", "step", "seed-b"),
+      edge("shape-source", "seed", "shape-branch-c", "step", "seed-c"),
+      edge("shape-source", "seed", "shape-branch-d", "step", "seed-d"),
     ],
     diagnostics: [],
   };
@@ -260,24 +249,19 @@ function crowdedRecipeDag(): RecipeDagResult {
 function stage(
   stageId: string,
   order: number,
-  phase: string,
   requires: readonly string[],
   provides: readonly string[]
 ): RecipeDagResult["stages"][number] {
   return {
-    id: stageId,
     stageId,
     order,
-    phases: [phase],
     steps: [
       {
-        id: `mod-swooper-maps.standard.${stageId}.step`,
         stageId,
         stepId: "step",
         fullStepId: `mod-swooper-maps.standard.${stageId}.step`,
         order,
         orderInStage: 0,
-        phase,
         artifactRequires: requires.map((id) => ({ id, name: id })),
         artifactProvides: provides.map((id) => ({ id, name: id })),
         tagRequires: [],

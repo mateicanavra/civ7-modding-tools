@@ -24,6 +24,7 @@ import {
   type RequiredArtifactRuntime,
 } from "./artifact/runtime.js";
 import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./bindings.js";
+import { assertStageIds } from "./stage.js";
 import type {
   CompiledRecipeConfigOf,
   RecipeAsyncExecutionOptions,
@@ -321,7 +322,7 @@ function finalizeOccurrences(input: {
         stepId,
         step: {
           id: fullId,
-          phase: authored.contract.phase,
+          stageId: stage.id,
           requires: authored.contract.requires,
           provides: authored.contract.provides,
           configSchema: authored.contract.schema,
@@ -407,6 +408,7 @@ export function createRecipe<const TStages extends readonly AnyStage[]>(
 ): RecipeModule<RecipePublicConfigOf<TStages>, CompiledRecipeConfigOf<TStages>> {
   const authorship = snapshotAuthorship(input);
   assertTagDefinitions(authorship.tagDefinitions);
+  assertStageIds(authorship.stages.map((stage) => stage.id));
 
   const runtimeOpsById =
     authorship.runtimeOpsById ??

@@ -29,7 +29,6 @@ const ClimateRefineStepConfigSchema = Type.Object(
  */
 export const ClimateRefineStepContract = defineStep({
   id: "climate-refine",
-  phase: "hydrology",
   requires: [],
   provides: [],
   artifacts: {

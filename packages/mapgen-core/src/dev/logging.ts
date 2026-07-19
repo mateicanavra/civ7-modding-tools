@@ -6,12 +6,9 @@
  * @module dev/logging
  */
 
-import type { TraceScope } from "@mapgen/trace/index.js";
+import type { TraceJsonObject, TraceJsonValue, TraceScope } from "@mapgen/trace/index.js";
 
-type TraceEventPayload = {
-  type: string;
-  [key: string]: unknown;
-};
+type TraceEventPayload = TraceJsonObject & Readonly<{ type: string }>;
 
 function emitTrace(trace: TraceScope | null | undefined, payload: TraceEventPayload): void {
   if (!trace?.isVerbose) return;
@@ -21,7 +18,7 @@ function emitTrace(trace: TraceScope | null | undefined, payload: TraceEventPayl
 /**
  * Emit a trace event for ad-hoc logs.
  */
-export function devLog(trace: TraceScope | null | undefined, ...args: unknown[]): void {
+export function devLog(trace: TraceScope | null | undefined, ...args: TraceJsonValue[]): void {
   emitTrace(trace, { type: "dev.log", args });
 }
 
@@ -31,7 +28,7 @@ export function devLog(trace: TraceScope | null | undefined, ...args: unknown[])
 export function devLogIf(
   trace: TraceScope | null | undefined,
   flag: string,
-  ...args: unknown[]
+  ...args: TraceJsonValue[]
 ): void {
   emitTrace(trace, { type: "dev.log", flag, args });
 }
@@ -42,7 +39,7 @@ export function devLogIf(
 export function devLogPrefixed(
   trace: TraceScope | null | undefined,
   prefix: string,
-  ...args: unknown[]
+  ...args: TraceJsonValue[]
 ): void {
   emitTrace(trace, { type: "dev.log", prefix, args });
 }
@@ -50,14 +47,14 @@ export function devLogPrefixed(
 /**
  * Emit a warning trace event.
  */
-export function devWarn(trace: TraceScope | null | undefined, ...args: unknown[]): void {
+export function devWarn(trace: TraceScope | null | undefined, ...args: TraceJsonValue[]): void {
   emitTrace(trace, { type: "dev.warn", args });
 }
 
 /**
  * Emit an error trace event.
  */
-export function devError(trace: TraceScope | null | undefined, ...args: unknown[]): void {
+export function devError(trace: TraceScope | null | undefined, ...args: TraceJsonValue[]): void {
   emitTrace(trace, { type: "dev.error", args });
 }
 
@@ -67,7 +64,7 @@ export function devError(trace: TraceScope | null | undefined, ...args: unknown[
 export function devLogJson(
   trace: TraceScope | null | undefined,
   label: string,
-  data: unknown
+  data: TraceJsonValue
 ): void {
   emitTrace(trace, { type: "dev.json", label, data });
 }
@@ -80,5 +77,9 @@ export function devLogLines(
   lines: string[],
   prefix?: string
 ): void {
-  emitTrace(trace, { type: "dev.lines", prefix, lines });
+  emitTrace(trace, {
+    type: "dev.lines",
+    ...(prefix === undefined ? {} : { prefix }),
+    lines,
+  });
 }

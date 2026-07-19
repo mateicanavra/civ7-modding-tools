@@ -83,7 +83,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
     const historyTiles = deps.artifacts.foundationTectonicHistoryTiles.read(context);
     const provenanceTiles = deps.artifacts.foundationTectonicProvenanceTiles.read(context);
     const { width, height } = context.setup.dimensions;
-    const stepId = `${LandmassPlatesStepContract.phase}/${LandmassPlatesStepContract.id}`;
+    const stepId = `morphology/${LandmassPlatesStepContract.id}`;
 
     const beltDrivers = ops.beltDrivers(
       {

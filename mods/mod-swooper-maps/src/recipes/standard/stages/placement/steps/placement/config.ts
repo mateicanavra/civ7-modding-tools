@@ -23,7 +23,6 @@ import {
  */
 export const PlacementStepContract = defineStep({
   id: "placement",
-  phase: "placement",
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned],
   provides: [
     STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied,

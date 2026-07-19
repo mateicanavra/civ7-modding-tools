@@ -13,15 +13,15 @@ export interface WaterDriftPolicyOptions {
   sampleLimit?: number;
 }
 
-export interface WaterDriftSample {
+export type WaterDriftSample = {
   index: number;
   x: number;
   y: number;
   expected: "land" | "water";
   actual: "land" | "water";
-}
+};
 
-export interface WaterDriftReport {
+export type WaterDriftReport = {
   label: string;
   width: number;
   height: number;
@@ -33,7 +33,7 @@ export interface WaterDriftReport {
   maxMismatchShare: number;
   withinPolicy: boolean;
   samples: WaterDriftSample[];
-}
+};
 
 /**
  * Asserts that engine water classification matches the projected map surface.

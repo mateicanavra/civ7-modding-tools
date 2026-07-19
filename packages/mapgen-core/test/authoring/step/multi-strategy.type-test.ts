@@ -19,7 +19,6 @@ const MultiStrategyOp = defineOp({
 
 const MultiOpStepContract = defineStep({
   id: "multi-op-step",
-  phase: "foundation",
   requires: [],
   provides: [],
   schema: Type.Object({}, { additionalProperties: false }),
@@ -49,7 +48,6 @@ export type RuntimeOpConfigHasStrategy = Expect<
 
 const FastDefaultStepContract = defineStep({
   id: "fast-default-step",
-  phase: "foundation",
   requires: [],
   provides: [],
   schema: Type.Object({}, { additionalProperties: false }),
@@ -63,7 +61,6 @@ const reusableFastDefault: StepOpUse<typeof MultiStrategyOp, "fast"> = {
 
 const ReusableFastDefaultStepContract = defineStep({
   id: "reusable-fast-default-step",
-  phase: "foundation",
   requires: [],
   provides: [],
   schema: Type.Object({}, { additionalProperties: false }),
@@ -72,7 +69,6 @@ const ReusableFastDefaultStepContract = defineStep({
 
 defineStep({
   id: "invalid-inline-default-step",
-  phase: "foundation",
   requires: [],
   provides: [],
   schema: Type.Object({}, { additionalProperties: false }),

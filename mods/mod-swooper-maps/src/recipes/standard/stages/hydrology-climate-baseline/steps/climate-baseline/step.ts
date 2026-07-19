@@ -369,7 +369,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
       isWaterMask[i] = landMask[i] === 0 ? 1 : 0;
     }
 
-    const stepId = `${ClimateBaselineStepContract.phase}/${ClimateBaselineStepContract.id}`;
+    const stepId = `hydrology/${ClimateBaselineStepContract.id}`;
     const rngSeed = ctxRandom(
       context,
       ctxRandomLabel(stepId, "hydrology/compute-atmospheric-circulation"),

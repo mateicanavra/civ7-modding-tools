@@ -26,7 +26,6 @@ const RiversStepConfigSchema = Type.Object(
  */
 export const RiversStepContract = defineStep({
   id: "rivers",
-  phase: "hydrology",
   requires: [],
   provides: [],
   artifacts: {

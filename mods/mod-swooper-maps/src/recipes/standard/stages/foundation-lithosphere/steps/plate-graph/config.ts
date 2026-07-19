@@ -10,7 +10,6 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const PlateGraphStepContract = defineStep({
   id: "plate-graph",
-  phase: "foundation",
   requires: [],
   provides: [],
   artifacts: {

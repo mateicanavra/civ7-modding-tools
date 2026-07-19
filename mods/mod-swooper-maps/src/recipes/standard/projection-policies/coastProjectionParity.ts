@@ -14,15 +14,15 @@ export interface CoastClassificationSurface {
   waterClass: Uint8Array;
 }
 
-export interface CoastProjectionRepairSample {
+export type CoastProjectionRepairSample = {
   index: number;
   x: number;
   y: number;
   expectedTerrain: number;
   actualTerrain: number;
-}
+};
 
-export interface CoastProjectionRepairReport {
+export type CoastProjectionRepairReport = {
   label: string;
   width: number;
   height: number;
@@ -30,7 +30,7 @@ export interface CoastProjectionRepairReport {
   coastRepairCount: number;
   oceanRepairCount: number;
   samples: CoastProjectionRepairSample[];
-}
+};
 
 function validateCoastSurface(
   context: MapContext,

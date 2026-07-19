@@ -13,7 +13,6 @@ import {
  */
 export const RoutingStepContract = defineStep({
   id: "routing",
-  phase: "morphology",
   requires: [],
   provides: [],
   artifacts: {

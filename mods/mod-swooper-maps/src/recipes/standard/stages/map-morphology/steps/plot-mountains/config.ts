@@ -9,7 +9,6 @@ import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/
  */
 export const PlotMountainsStepContract = defineStep({
   id: "plot-mountains",
-  phase: "morphology",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted],
   artifacts: {

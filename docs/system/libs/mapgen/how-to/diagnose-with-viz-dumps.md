@@ -18,9 +18,8 @@ Use **visualization dumps** (manifest + trace + binary layers) as the canonical,
 - “Did an upstream change move the landmask (or is this lever dead)?”
 - “Is land coherent (continents) or speckled (salt-and-pepper)?”
 
-This workflow is intentionally **data-first**:
-- trust dump outputs first,
-- treat Studio as a viewer for those outputs.
+This workflow is intentionally **data-first**: diagnostic commands read persisted dump evidence;
+Studio separately renders live worker emissions.
 
 See also:
 - `docs/system/libs/mapgen/how-to/debug-with-trace-and-viz.md`
@@ -107,8 +106,12 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
   - `mods/mod-swooper-maps/scripts/diagnostics/diff-layers.ts`
   - `mods/mod-swooper-maps/scripts/diagnostics/list-layers.ts`
   - `mods/mod-swooper-maps/scripts/diagnostics/extract-trace.ts`
-- Shared dump readers and helpers:
-  - `mods/mod-swooper-maps/scripts/diagnostics/shared.ts`
+- Serialized evidence admission:
+  - `mods/mod-swooper-maps/scripts/diagnostics/serialized-evidence.ts`
+- Grid loading and analysis:
+  - `mods/mod-swooper-maps/scripts/diagnostics/grid-analysis.ts`
+- Diagnostic command input:
+  - `mods/mod-swooper-maps/scripts/diagnostics/command-input.ts`
 - Trace + visualization sink wiring:
   - `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
 - Standard recipe styles:
@@ -123,4 +126,6 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
 nx run mod-swooper-maps:diag:list -- <runDirA> --prefix foundation.
 ```
 
-- Keep comparisons deterministic: fixed `{width,height,seed}` and one change at a time.
+- Keep comparisons deterministic: select one canonical Civ7 map-size preset, fix the seed, and
+  change one input at a time. Use custom dimensions only when the investigation explicitly targets
+  out-of-preset behavior.

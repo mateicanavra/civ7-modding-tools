@@ -13,7 +13,7 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 
 ## Terms
 
-- **`planFingerprint`**: Stable identity of an execution plan (hash of recipe id/schema, map setup, and each node's id, phase, `requires`, `provides`, and config; observation policy is excluded by construction).
+- **`planFingerprint`**: Stable identity of an execution plan (hash of recipe id/schema, map setup, and each node's id, stage id, `requires`, `provides`, and config; observation policy is excluded by construction).
 - **`runId`**: Unique identity for one execution attempt, shared by its trace, metrics, and visualization evidence.
   - Repeated executions of the same plan receive distinct run ids while retaining the same `planFingerprint`.
 - **Recipe (authoring)**: A typed module that declares stages and steps (the “blueprint”).
@@ -24,9 +24,8 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 - **Map setup**: Immutable physical initial conditions for one run: seed, dimensions, and latitude bounds.
 - **Map context**: One run-scoped carrier for setup, adapter, deterministic random state, artifacts, and the executor's current trace scope.
 - **Execution plan**: A list/graph of execution nodes derived from the recipe, registry, and `MapSetup`.
-- **Step**: A single execution unit with a stable id, `requires/provides`, a phase, and an implementation.
-- **Phase**: The step’s `GenerationPhase` (used for ordering/grouping and observability).
-- **Stage (authoring)**: An authoring-time grouping used to organize steps and compile stage-specific config into step configs.
+- **Step**: A single execution unit with a stable id, `requires/provides`, and an implementation.
+- **Stage (authoring)**: The recipe-owned grouping that assigns each composed step its exact `stageId`, organizes authoring, and compiles stage-specific config into step configs.
 - **Op**: A strategy envelope used *within* a step (declared via `contract.ops`) to make algorithms configurable without turning the step schema into an untyped bag of options.
 - **TagRegistry**: Registry that validates dependency tags and their kinds; used to enforce wiring correctness.
 - **StepRegistry**: Registry of step implementations and their dependency tags.

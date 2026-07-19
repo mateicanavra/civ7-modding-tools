@@ -2,13 +2,13 @@ import { Blocks, Droplet, Leaf, SunSnow } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
 import {
+  getRecipeDagDomainLaneColors,
   getRecipeDagDomainPresentation,
-  getRecipeDagPhaseLaneColors,
   normalizeRecipeDagDomainId,
 } from "../src/components/panels/recipe-dag/domainPresentation.js";
 
 describe("recipe DAG domain presentation", () => {
-  it("covers canonical phases and Studio aliases with stable domain ids", () => {
+  it("covers canonical domains and Studio aliases with stable domain ids", () => {
     expect(normalizeRecipeDagDomainId("setup")).toBe("setup");
     expect(normalizeRecipeDagDomainId("foundation")).toBe("foundation");
     expect(normalizeRecipeDagDomainId("morphology")).toBe("morphology");
@@ -24,8 +24,8 @@ describe("recipe DAG domain presentation", () => {
     expect(normalizeRecipeDagDomainId("unknown-domain")).toBe("artifact");
   });
 
-  it("returns non-generic presentations for every canonical DAG phase", () => {
-    const phases = [
+  it("returns non-generic presentations for every canonical DAG domain", () => {
+    const domains = [
       "setup",
       "foundation",
       "morphology",
@@ -35,9 +35,9 @@ describe("recipe DAG domain presentation", () => {
       "placement",
     ] as const;
 
-    for (const phase of phases) {
-      const presentation = getRecipeDagDomainPresentation(phase);
-      expect(presentation.id).toBe(phase);
+    for (const domain of domains) {
+      const presentation = getRecipeDagDomainPresentation(domain);
+      expect(presentation.id).toBe(domain);
       expect(presentation.label).not.toBe("Artifact");
     }
   });
@@ -73,18 +73,18 @@ describe("recipe DAG domain presentation", () => {
     expect(getRecipeDagDomainPresentation("gameplay").Icon.displayName).toBe("Bolt");
   });
 
-  it("maps phase lane colors to domain meaning instead of cycling by order", () => {
-    expect(getRecipeDagPhaseLaneColors("ecology", false)).toMatchObject({
+  it("maps lane colors to domain meaning instead of cycling by order", () => {
+    expect(getRecipeDagDomainLaneColors("ecology", false)).toMatchObject({
       fill: "rgba(6,95,70,0.22)",
       accent: "#34d399",
     });
-    expect(getRecipeDagPhaseLaneColors("ecology", true)).toMatchObject({
+    expect(getRecipeDagDomainLaneColors("ecology", true)).toMatchObject({
       fill: "rgba(236,253,245,0.70)",
       accent: "#16a34a",
     });
-    expect(getRecipeDagPhaseLaneColors("hydrology", false).accent).toBe("#38bdf8");
-    expect(getRecipeDagPhaseLaneColors("morphology", false).accent).toBe("#f59e0b");
-    expect(getRecipeDagPhaseLaneColors("gameplay", false).accent).toBe("#a78bfa");
+    expect(getRecipeDagDomainLaneColors("hydrology", false).accent).toBe("#38bdf8");
+    expect(getRecipeDagDomainLaneColors("morphology", false).accent).toBe("#f59e0b");
+    expect(getRecipeDagDomainLaneColors("gameplay", false).accent).toBe("#a78bfa");
   });
 
   it("does not expose surface-specific artifact icon overrides", () => {

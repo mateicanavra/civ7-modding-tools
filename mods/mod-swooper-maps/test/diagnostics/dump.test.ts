@@ -6,14 +6,14 @@ import { join } from "node:path";
 import { createMockAdapter } from "@civ7/adapter";
 import { admitMapSetup, createMapContext, createTraceSession } from "@swooper/mapgen-core";
 import { createRecipe, createStage, createStep, defineStep } from "@swooper/mapgen-core/authoring";
-import { createVizLayerKey, type VizManifestV1, type VizPathRef } from "@swooper/mapgen-viz";
+import { admitPathVizManifest, createVizLayerKey, type PathVizManifest } from "@swooper/mapgen-viz";
 import { Type } from "typebox";
 import { createVizDumpAdapters } from "../../scripts/diagnostics/dump.js";
 
-function readManifest(outputRoot: string, runId: string): VizManifestV1<VizPathRef> {
-  return JSON.parse(
-    readFileSync(join(outputRoot, runId, "manifest.json"), "utf8")
-  ) as VizManifestV1<VizPathRef>;
+function readManifest(outputRoot: string, runId: string): PathVizManifest {
+  return admitPathVizManifest(
+    JSON.parse(readFileSync(join(outputRoot, runId, "manifest.json"), "utf8")) as unknown
+  );
 }
 
 describe("filesystem visualization adapters", () => {
@@ -27,13 +27,13 @@ describe("filesystem visualization adapters", () => {
         config: { steps: { "test.facet-step": "verbose" } },
         sink: outputs.traceSink,
       });
-      session.emitStepStart({ stepId: "test.facet-step", phase: "foundation" });
+      session.emitStepStart({ stepId: "test.facet-step", stageId: "foundation" });
       const backing = new Uint8Array([90, 4, 7, 91]);
       outputs.facetSinks.viz?.(
         [
           {
             kind: "grid",
-            dataTypeKey: "test.facet-grid",
+            dataTypeKey: "test.facet*grid",
             spaceId: "tile.hexOddQ",
             dims: { width: 2, height: 1 },
             field: {
@@ -46,34 +46,35 @@ describe("filesystem visualization adapters", () => {
           runId: "facet-run",
           planFingerprint: "facet-plan",
           stepId: "test.facet-step",
-          phase: "foundation",
+          stageId: "foundation",
           stepIndex: 0,
         }
       );
 
       const manifest = readManifest(outputRoot, "facet-run");
       expect(manifest.steps).toEqual([
-        { stepId: "test.facet-step", phase: "foundation", stepIndex: 0 },
+        { stepId: "test.facet-step", stageId: "foundation", stepIndex: 0 },
       ]);
       expect(manifest.layers).toHaveLength(1);
       const layer = manifest.layers[0];
       if (layer?.kind !== "grid") throw new Error("Expected grid facet evidence.");
       expect(layer).toMatchObject({
-        dataTypeKey: "test.facet-grid",
+        dataTypeKey: "test.facet*grid",
         stepId: "test.facet-step",
-        phase: "foundation",
+        stageId: "foundation",
         stepIndex: 0,
       });
       expect(
         Array.from(readFileSync(join(outputRoot, "facet-run", layer.field.data.path)))
       ).toEqual([4, 7]);
+      expect(layer.field.data.path).toContain("%2A");
       expect(Array.from(backing)).toEqual([90, 4, 7, 91]);
     } finally {
       rmSync(outputRoot, { recursive: true, force: true });
     }
   });
 
-  it("reconciles partial trace order to the Core-assigned facet index", () => {
+  it("rejects facet identity that contradicts an admitted trace tuple", () => {
     const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-index-"));
     try {
       const runId = "partial-trace-run";
@@ -85,30 +86,94 @@ describe("filesystem visualization adapters", () => {
         config: { steps: { [stepId]: "verbose" } },
         sink: outputs.traceSink,
       });
-      session.emitStepStart({ stepId, phase: "foundation" });
-      outputs.facetSinks.viz?.(
-        [
-          {
-            kind: "grid",
-            dataTypeKey: "test.core-facet",
-            spaceId: "tile.hexOddQ",
-            dims: { width: 1, height: 1 },
-            field: { format: "u8", values: new Uint8Array([2]) },
-          },
-        ],
+      session.emitStepStart({ stepId, stageId: "foundation" });
+      const projections = [
         {
+          kind: "grid" as const,
+          dataTypeKey: "test.core-facet",
+          spaceId: "tile.hexOddQ" as const,
+          dims: { width: 1, height: 1 },
+          field: { format: "u8" as const, values: new Uint8Array([2]) },
+        },
+      ];
+      expect(() =>
+        outputs.facetSinks.viz?.(projections, {
           runId,
           planFingerprint: "partial-trace-plan",
           stepId,
-          phase: "foundation",
+          stageId: "foundation",
           stepIndex: 7,
-        }
-      );
+        })
+      ).toThrow("Contradictory visualization step identity");
+      expect(() =>
+        outputs.facetSinks.viz?.(projections, {
+          runId,
+          planFingerprint: "partial-trace-plan",
+          stepId,
+          stageId: "other-stage",
+          stepIndex: 0,
+        })
+      ).toThrow("Contradictory visualization step identity");
+      expect(() =>
+        outputs.facetSinks.viz?.(projections, {
+          runId,
+          planFingerprint: "different-plan",
+          stepId,
+          stageId: "foundation",
+          stepIndex: 0,
+        })
+      ).toThrow("Contradictory visualization run identity");
 
       const manifest = readManifest(outputRoot, runId);
-      expect(manifest.steps).toEqual([{ stepId, phase: "foundation", stepIndex: 7 }]);
-      expect(manifest.layers).toHaveLength(1);
-      expect(manifest.layers.every((layer) => layer.stepIndex === 7)).toBe(true);
+      expect(manifest.steps).toEqual([{ stepId, stageId: "foundation", stepIndex: 0 }]);
+      expect(manifest.layers).toHaveLength(0);
+    } finally {
+      rmSync(outputRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("leaves trace and manifest evidence unchanged when run or step identity is contradictory", () => {
+    const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-trace-identity-"));
+    try {
+      const runId = "identity-run";
+      const planFingerprint = "identity-plan";
+      const runDir = join(outputRoot, runId);
+      const outputs = createVizDumpAdapters({ outputRoot });
+      outputs.traceSink.emit({
+        tsMs: 1,
+        runId,
+        planFingerprint,
+        kind: "step.start",
+        stepId: "test.step",
+        stageId: "foundation",
+      });
+      const tracePath = join(runDir, "trace.jsonl");
+      const manifestPath = join(runDir, "manifest.json");
+      const admittedTrace = readFileSync(tracePath, "utf8");
+      const admittedManifest = readFileSync(manifestPath, "utf8");
+
+      outputs.traceSink.emit({
+        tsMs: 2,
+        runId,
+        planFingerprint: "different-plan",
+        kind: "run.finish",
+        success: false,
+      });
+      outputs.traceSink.emit({
+        tsMs: 3,
+        runId,
+        planFingerprint,
+        kind: "step.finish",
+        stepId: "test.step",
+        stageId: "morphology",
+        success: false,
+      });
+
+      expect(readFileSync(tracePath, "utf8")).toBe(admittedTrace);
+      expect(readFileSync(manifestPath, "utf8")).toBe(admittedManifest);
+      expect(readManifest(outputRoot, runId).steps).toEqual([
+        { stepId: "test.step", stageId: "foundation", stepIndex: 0 },
+      ]);
     } finally {
       rmSync(outputRoot, { recursive: true, force: true });
     }
@@ -122,14 +187,12 @@ describe("filesystem visualization adapters", () => {
       const EmptySchema = Type.Object({}, { additionalProperties: false });
       const projectorContract = defineStep({
         id: "projector-failure",
-        phase: "foundation",
         requires: [],
         provides: [],
         schema: EmptySchema,
       });
       const sinkContract = defineStep({
         id: "sink-failure",
-        phase: "foundation",
         requires: [],
         provides: [],
         schema: EmptySchema,
@@ -207,7 +270,7 @@ describe("filesystem visualization adapters", () => {
     }
   });
 
-  it("isolates run step indexes, upserts layer identity, and writes exact subview bytes", () => {
+  it("isolates run step indexes, rejects repeated layer identity, and writes exact subview bytes", () => {
     const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-"));
     try {
       const outputs = createVizDumpAdapters({ outputRoot });
@@ -218,8 +281,8 @@ describe("filesystem visualization adapters", () => {
           config: { steps: { "test.step": "verbose" } },
           sink: outputs.traceSink,
         });
-        session.emitStepStart({ stepId: "test.step" });
-        for (const values of [first, second]) {
+        session.emitStepStart({ stepId: "test.step", stageId: "foundation" });
+        const publish = (values: Uint8Array): void => {
           outputs.facetSinks.viz?.(
             [
               {
@@ -234,11 +297,15 @@ describe("filesystem visualization adapters", () => {
               runId,
               planFingerprint: `${runId}-plan`,
               stepId: "test.step",
-              phase: "foundation",
+              stageId: "foundation",
               stepIndex: 0,
             }
           );
-        }
+        };
+        publish(first);
+        const beforeDuplicate = readdirSync(join(outputRoot, runId, "data")).sort();
+        expect(() => publish(second)).toThrow("duplicate layer key");
+        expect(readdirSync(join(outputRoot, runId, "data")).sort()).toEqual(beforeDuplicate);
       };
 
       const firstBacking = new Uint8Array([90, 1, 2, 91]);
@@ -252,8 +319,12 @@ describe("filesystem visualization adapters", () => {
 
       const firstManifest = readManifest(outputRoot, "run-one");
       const secondManifest = readManifest(outputRoot, "run-two");
-      expect(firstManifest.steps).toEqual([{ stepId: "test.step", stepIndex: 0 }]);
-      expect(secondManifest.steps).toEqual([{ stepId: "test.step", stepIndex: 0 }]);
+      expect(firstManifest.steps).toEqual([
+        { stepId: "test.step", stageId: "foundation", stepIndex: 0 },
+      ]);
+      expect(secondManifest.steps).toEqual([
+        { stepId: "test.step", stageId: "foundation", stepIndex: 0 },
+      ]);
       expect(firstManifest.layers).toHaveLength(1);
       expect(secondManifest.layers).toHaveLength(1);
 
@@ -261,8 +332,47 @@ describe("filesystem visualization adapters", () => {
       if (firstLayer?.kind !== "grid") throw new Error("Expected grid manifest layer.");
       expect(
         Array.from(readFileSync(join(outputRoot, "run-one", firstLayer.field.data.path)))
-      ).toEqual([7, 8]);
+      ).toEqual([1, 2]);
       expect(Array.from(secondBacking)).toEqual([80, 7, 8, 81]);
+    } finally {
+      rmSync(outputRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("leaves the data directory unchanged when one batch repeats a layer identity", () => {
+    const outputRoot = mkdtempSync(join(tmpdir(), "swooper-viz-duplicate-batch-"));
+    try {
+      const runId = "duplicate-batch-run";
+      const outputs = createVizDumpAdapters({ outputRoot });
+      const session = createTraceSession({
+        runId,
+        planFingerprint: "duplicate-batch-plan",
+        config: { steps: { "test.step": "verbose" } },
+        sink: outputs.traceSink,
+      });
+      session.emitStepStart({ stepId: "test.step", stageId: "foundation" });
+      const dataDirectory = join(outputRoot, runId, "data");
+      const beforeDuplicate = readdirSync(dataDirectory).sort();
+      const projection = {
+        kind: "grid" as const,
+        dataTypeKey: "test.duplicate-batch",
+        spaceId: "tile.hexOddQ" as const,
+        dims: { width: 1, height: 1 },
+        field: { format: "u8" as const, values: new Uint8Array([1]) },
+      };
+
+      expect(() =>
+        outputs.facetSinks.viz?.([projection, projection], {
+          runId,
+          planFingerprint: "duplicate-batch-plan",
+          stepId: "test.step",
+          stageId: "foundation",
+          stepIndex: 0,
+        })
+      ).toThrow("duplicate layer key");
+
+      expect(readdirSync(dataDirectory).sort()).toEqual(beforeDuplicate);
+      expect(readManifest(outputRoot, runId).layers).toEqual([]);
     } finally {
       rmSync(outputRoot, { recursive: true, force: true });
     }
@@ -280,13 +390,13 @@ describe("filesystem visualization adapters", () => {
         config: { steps: { "test.step": "verbose" } },
         sink: outputs.traceSink,
       });
-      session.emitStepStart({ stepId: "test.step" });
-      const dump = (a: number, b: number): void => {
+      session.emitStepStart({ stepId: "test.step", stageId: "foundation" });
+      const dump = (a: number, b: number, dataTypeKey = "test.atomic"): void => {
         outputs.facetSinks.viz?.(
           [
             {
               kind: "gridFields",
-              dataTypeKey: "test.atomic",
+              dataTypeKey,
               spaceId: "tile.hexOddQ",
               dims: { width: 1, height: 1 },
               fields: {
@@ -299,7 +409,7 @@ describe("filesystem visualization adapters", () => {
             runId,
             planFingerprint: "atomic-plan",
             stepId: "test.step",
-            phase: "foundation",
+            stageId: "foundation",
             stepIndex: 0,
           }
         );
@@ -319,7 +429,7 @@ describe("filesystem visualization adapters", () => {
 
       const layerKey = createVizLayerKey({
         stepId: "test.step",
-        dataTypeKey: "test.atomic",
+        dataTypeKey: "test.atomic.second",
         spaceId: "tile.hexOddQ",
         kind: "gridFields",
       });
@@ -332,7 +442,7 @@ describe("filesystem visualization adapters", () => {
       );
       mkdirSync(blockedPath);
 
-      expect(() => dump(9, 10)).toThrow();
+      expect(() => dump(9, 10, "test.atomic.second")).toThrow();
 
       expect(readFileSync(manifestPath, "utf8")).toBe(lastGoodManifest);
       expect(Array.from(readFileSync(join(runDir, oldAPath)))).toEqual([1]);

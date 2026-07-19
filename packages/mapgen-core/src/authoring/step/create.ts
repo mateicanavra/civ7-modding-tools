@@ -6,6 +6,7 @@ import type { Static } from "typebox";
 import { implementArtifactModules } from "../artifact/runtime.js";
 import type { StepDeps, StepModule } from "../types.js";
 import type { StepContract } from "./contract.js";
+import { assertNoStepStageIdentityAliases } from "./identity.js";
 import type { StepRuntimeOps } from "./ops.js";
 
 type StepConfigOf<C extends StepContract<any, any, any, any>> = Static<C["schema"]>;
@@ -44,11 +45,17 @@ export function createStep<const C extends StepContract<any, any, any, any>, TRe
   if (Object.prototype.hasOwnProperty.call(impl, "artifacts")) {
     throw new Error(`step "${contract.id}" implementation cannot declare artifact modules`);
   }
+  assertNoStepStageIdentityAliases(impl, `step "${contract.id}" implementation`);
   const modules = contract.artifacts?.provides;
   const artifacts =
     modules === undefined || modules.length === 0 ? undefined : implementArtifactModules(modules);
 
-  return (artifacts === undefined
-    ? { ...impl, contract }
-    : { ...impl, artifacts, contract }) as unknown as StepModule<C, TResult>;
+  return Object.freeze({
+    contract,
+    run: impl.run,
+    ...(impl.normalize === undefined ? {} : { normalize: impl.normalize }),
+    ...(impl.metrics === undefined ? {} : { metrics: impl.metrics }),
+    ...(impl.viz === undefined ? {} : { viz: impl.viz }),
+    ...(artifacts === undefined ? {} : { artifacts }),
+  }) as unknown as StepModule<C, TResult>;
 }

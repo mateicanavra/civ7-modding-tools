@@ -67,7 +67,7 @@ export type BrowserVizLayerUpsertEvent = {
   type: "viz.layer.upsert";
   runToken: string;
   generation: number;
-  layer: VizLayerEntryV1;
+  layer: VizLayerEntryV2;
 };
 ```
 
@@ -145,7 +145,7 @@ state, so callers never derive or supply `runId` themselves.
 Studio surfaces two observability channels from the worker:
 
 - **Progress events**: step start/finish + duration for UI progress bars and logs.
-- **Visualization events**: `viz.layer.upsert` events that carry `VizLayerEntryV1` payloads to be rendered by Studio’s deck.gl visualization pipeline.
+- **Visualization events**: `viz.layer.upsert` events that carry `VizLayerEntryV2` payloads to be rendered by Studio’s deck.gl visualization pipeline.
 
 Key posture:
 - A step's optional `viz` projector runs after successful execution and provider admission, and only

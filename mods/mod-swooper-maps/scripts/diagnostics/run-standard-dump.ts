@@ -14,8 +14,8 @@ import { admitStandardMapConfig } from "../../src/maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
+import { isJsonDataObject, mergeDiagnosticConfig, parseDiagnosticArgs } from "./command-input.js";
 import { createVizDumpAdapters } from "./dump.js";
-import { isPlainObject, mergeDeep, parseArgs } from "./shared.js";
 
 function parseIntOr(value: unknown, fallback: number): number {
   const n = typeof value === "string" ? Number.parseInt(value, 10) : Number.NaN;
@@ -60,7 +60,7 @@ function loadConfig(flags: Record<string, string | true>): unknown {
  *   {"runId":"...","outputDir":"..."}
  */
 async function main(): Promise<void> {
-  const { positionals, flags } = parseArgs(process.argv.slice(2));
+  const { positionals, flags } = parseDiagnosticArgs(process.argv.slice(2));
   const width = parseIntOr(positionals[0], 106);
   const height = parseIntOr(positionals[1], 66);
   const seed = parseIntOr(positionals[2], 1337);
@@ -115,8 +115,8 @@ async function main(): Promise<void> {
   const baseConfig = envelope.config;
   const override = loadOverride(flags);
   const mergedConfig =
-    override && isPlainObject(baseConfig) && isPlainObject(override)
-      ? mergeDeep(baseConfig, override)
+    override && isJsonDataObject(baseConfig) && isJsonDataObject(override)
+      ? mergeDiagnosticConfig(baseConfig, override)
       : baseConfig;
   const config = admitStandardMapConfig({ ...envelope, config: mergedConfig }).config;
 

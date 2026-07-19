@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import { type UseVizSelectionArgs, useVizSelection } from "../../src/app/hooks/useVizSelection";
 import { getRecipeDefaultCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
 import { type LayerVariant, type StepDataTypeModel } from "../../src/features/viz/dataTypeModel";
-import type { VizLayerEntryV1 } from "../../src/features/viz/model";
+import type { VizLayerEntryV2 } from "../../src/features/viz/model";
 import type { UseVizStateResult } from "../../src/features/viz/useVizState";
 import type { RecipeArtifacts } from "../../src/recipes/catalog";
 import { useViewStore } from "../../src/stores/viewStore";
@@ -58,12 +58,13 @@ function variant(
   layerKey: string,
   variantKey: string | null
 ): LayerVariant {
-  const layer: VizLayerEntryV1 = {
+  const layer: VizLayerEntryV2 = {
     kind: "grid",
     layerKey,
     dataTypeKey,
     ...(variantKey === null ? {} : { variantKey }),
     stepId: "stageA.a1",
+    stageId: "stageA",
     stepIndex: 0,
     spaceId,
     bounds: [0, 0, 1, 1],
@@ -186,8 +187,6 @@ function makeVizHandle(): VizTestHandle {
     showDebugLayers: false,
     setShowDebugLayers: vi.fn<UseVizStateResult["setShowDebugLayers"]>(),
     steps: [],
-    pipelineSteps: [],
-    pipelineStages: [],
     dataTypeModel: makeModel(),
     selectableLayers: [],
     legend: null,

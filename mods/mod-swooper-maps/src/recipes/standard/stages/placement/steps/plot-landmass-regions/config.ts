@@ -9,7 +9,6 @@ import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/
  */
 export const PlotLandmassRegionsStepContract = defineStep({
   id: "plot-landmass-regions",
-  phase: "placement",
   requires: [],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.landmassRegionsPlotted],
   artifacts: {

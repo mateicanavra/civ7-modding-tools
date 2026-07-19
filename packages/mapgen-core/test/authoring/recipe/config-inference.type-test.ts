@@ -26,7 +26,6 @@ const MultiStrategyOp = defineOp({
 const MultiOpStep = createStep(
   defineStep({
     id: "multi-op-step",
-    phase: "foundation",
     requires: [],
     provides: [],
     schema: Type.Object({}, { additionalProperties: false }),

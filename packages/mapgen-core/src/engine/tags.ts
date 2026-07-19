@@ -5,7 +5,6 @@ import {
   InvalidDependencyTagError,
   UnknownDependencyTagError,
 } from "@mapgen/engine/errors.js";
-import type { GenerationPhase } from "@mapgen/engine/types.js";
 
 export type DependencyTagKind = "artifact" | "effect";
 
@@ -13,18 +12,10 @@ type SatisfactionState = {
   satisfied: ReadonlySet<string>;
 };
 
-/** Authorship metadata identifying the package and pipeline surface that owns a dependency tag. */
-export interface TagOwner {
-  readonly pkg: string;
-  readonly phase: GenerationPhase;
-  readonly stepId?: string;
-}
-
 /** Immutable authority for one artifact or effect dependency observed by pipeline execution. */
 export interface DependencyTagDefinition {
   readonly id: string;
   readonly kind: DependencyTagKind;
-  readonly owner?: TagOwner;
   readonly satisfies?: (context: MapContext, state: SatisfactionState) => boolean;
   readonly demo?: unknown;
   readonly validateDemo?: (demo: unknown) => boolean;
@@ -36,11 +27,10 @@ export class TagRegistry {
 
   /** Admits one tag definition by owned snapshot and rejects duplicate or invalid identities. */
   registerTag(candidate: DependencyTagDefinition): void {
-    const { id, kind, owner, satisfies, demo, validateDemo } = candidate;
+    const { id, kind, satisfies, demo, validateDemo } = candidate;
     const definition = Object.freeze({
       id,
       kind,
-      owner: owner && Object.freeze({ pkg: owner.pkg, phase: owner.phase, stepId: owner.stepId }),
       satisfies,
       demo,
       validateDemo,

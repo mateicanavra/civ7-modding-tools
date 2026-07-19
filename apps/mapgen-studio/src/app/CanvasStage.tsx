@@ -2,13 +2,13 @@ import type { Layer } from "@deck.gl/core";
 import { EmptyState } from "@swooper/mapgen-studio-ui";
 import type { MutableRefObject } from "react";
 import { DeckCanvas, type DeckCanvasApi } from "../features/viz/DeckCanvas";
-import type { Bounds, VizLayerEntryV1 } from "../features/viz/model";
+import type { Bounds, VizLayerEntryV2 } from "../features/viz/model";
 
 export type CanvasStageProps = {
   apiRef: MutableRefObject<DeckCanvasApi | null>;
   onApiReady: () => void;
   layers: Layer[];
-  effectiveLayer: VizLayerEntryV1 | null;
+  effectiveLayer: VizLayerEntryV2 | null;
   viewportSize: { width: number; height: number };
   activeBounds: Bounds | null;
   /** Whether the decorative background grid is rendered behind the canvas. */

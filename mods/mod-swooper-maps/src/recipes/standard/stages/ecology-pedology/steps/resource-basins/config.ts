@@ -14,7 +14,6 @@ import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/
  */
 export const ResourceBasinsStepContract = defineStep({
   id: "resource-basins",
-  phase: "ecology",
   requires: [],
   provides: [],
   artifacts: {

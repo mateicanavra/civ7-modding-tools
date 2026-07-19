@@ -1,4 +1,4 @@
-import type { VizLayerEntryV1, VizLayerVisibility, VizSpaceId } from "@swooper/mapgen-viz";
+import type { VizLayerEntryV2, VizLayerVisibility, VizSpaceId } from "@swooper/mapgen-viz";
 
 export type DataTypeId = string;
 export type RenderModeId = string;
@@ -9,7 +9,7 @@ export type LayerVariant = Readonly<{
   variantId: LayerVariantId;
   label: string;
   layerKey: string;
-  layer: VizLayerEntryV1;
+  layer: VizLayerEntryV2;
 }>;
 
 export type RenderModeModel = Readonly<{
@@ -37,18 +37,18 @@ export type StepDataTypeModel = Readonly<{
   dataTypes: readonly DataTypeModel[];
 }>;
 
-function resolveLayerVisibility(layer: VizLayerEntryV1): VizLayerVisibility {
+function resolveLayerVisibility(layer: VizLayerEntryV2): VizLayerVisibility {
   const visibility = layer.meta?.visibility;
   if (visibility === "debug") return "debug";
   if (visibility === "hidden") return "hidden";
   return "default";
 }
 
-function inferLayerVariantId(layer: VizLayerEntryV1): string | null {
+function inferLayerVariantId(layer: VizLayerEntryV2): string | null {
   return layer.variantKey ?? null;
 }
 
-function computeRenderModeId(layer: VizLayerEntryV1): RenderModeId {
+function computeRenderModeId(layer: VizLayerEntryV2): RenderModeId {
   const role = layer.meta?.role;
   return role ? `${layer.kind}:${role}` : layer.kind;
 }
@@ -104,7 +104,7 @@ function formatVariantLabel(variantKey: string | null): string {
 }
 
 export function buildStepDataTypeModel(
-  manifest: { layers: readonly VizLayerEntryV1[] },
+  manifest: { layers: readonly VizLayerEntryV2[] },
   stepId: string,
   opts?: { includeDebug?: boolean }
 ): StepDataTypeModel {

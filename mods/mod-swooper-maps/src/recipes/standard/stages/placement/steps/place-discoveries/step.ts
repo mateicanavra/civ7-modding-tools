@@ -1,4 +1,5 @@
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { runPlacementProductStep } from "../../log.js";
 import { PlaceDiscoveriesStepContract } from "./config.js";
@@ -17,7 +18,7 @@ export const PlaceDiscoveriesStep = createStep(PlaceDiscoveriesStepContract, {
     const startAssignment = deps.artifacts.startAssignment.read(context);
     const startPositions = startAssignment.positions.filter((plotIndex) => plotIndex >= 0);
     const polarMargin = Math.max(0, CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows | 0);
-    const emit = (payload: Record<string, unknown>): void => {
+    const emit = (payload: TraceJsonObject): void => {
       if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);
     };

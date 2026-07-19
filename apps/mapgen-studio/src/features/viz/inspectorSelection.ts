@@ -6,9 +6,7 @@ import type { RiverLakeInspectorLayerRef } from "./riverLakeInspector";
  * imports (StudioShell supplies viewStore setters + `useVizState` setters).
  */
 export interface RiverLakeInspectorSelectionPorts {
-  stages:
-    | ReadonlyArray<{ stageId: string; steps: ReadonlyArray<{ fullStepId?: string; id?: string }> }>
-    | undefined;
+  stages: ReadonlyArray<{ stageId: string }> | undefined;
   setSelectedStageId: (id: string) => void;
   setSelectedStepId: (id: string) => void;
   setShowDebugLayers: (show: boolean) => void;
@@ -21,8 +19,7 @@ export interface RiverLakeInspectorSelectionPorts {
  *
  * The inspector row's layer chips are claims about pipeline evidence; clicking
  * one must land the user ON that evidence. That means (1) re-pointing the
- * stage/step lists at the stage whose steps contain the layer's step (matched
- * by `fullStepId`, the id the explore step list uses as its option value),
+ * stage/step lists at the exact stage identity carried by the layer,
  * (2) forcing debug layers visible when the evidence is debug-class —
  * otherwise the jump would select a layer the data list is filtering out — and
  * (3) selecting the viz step + concrete layer key so the canvas renders it.
@@ -33,9 +30,7 @@ export function applyRiverLakeInspectorSelection(
   ref: RiverLakeInspectorLayerRef,
   ports: RiverLakeInspectorSelectionPorts
 ): void {
-  const stage = ports.stages?.find((candidate) =>
-    candidate.steps.some((step) => step.fullStepId === ref.stepId)
-  );
+  const stage = ports.stages?.find((candidate) => candidate.stageId === ref.stageId);
   if (stage) {
     ports.setSelectedStageId(stage.stageId);
     ports.setSelectedStepId(ref.stepId);

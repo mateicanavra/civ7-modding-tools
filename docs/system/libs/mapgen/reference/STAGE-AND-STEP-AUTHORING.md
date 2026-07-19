@@ -18,7 +18,6 @@ Define the canonical authoring-time contracts for stages and steps.
 A step contract defines:
 
 - `id` (kebab-case, stable)
-- `phase` (generation phase)
 - `requires` / `provides` tags (validated)
 - optional `artifacts` requires/provides (preferred over mixing artifact tags into requires/provides)
 - `schema` (TypeBox schema; closed by default)
@@ -43,7 +42,6 @@ import { artifactModules as mapRiversArtifactModules } from "../../artifacts/ind
 /** Contract and compiled configuration boundary for Civ7 river projection. */
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
-  phase: "hydrology",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
   provides: [
     MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
@@ -146,7 +144,6 @@ Projection rules:
 - Step `requires/provides` tags remain metadata; they are not converted into
   artifact edges.
 - Same-stage artifact dependencies are retained as internal edges.
-- Phase ids are grouping tags for display, not ordering semantics.
 - Recipe order remains the source of truth for stage and step order.
 
 The projection may report diagnostics for missing artifact providers, duplicate

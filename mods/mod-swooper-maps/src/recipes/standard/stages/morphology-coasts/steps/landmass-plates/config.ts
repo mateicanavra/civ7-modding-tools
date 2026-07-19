@@ -9,7 +9,6 @@ import { artifactModules as morphologyArtifactModules } from "../../../morpholog
  */
 export const LandmassPlatesStepContract = defineStep({
   id: "landmass-plates",
-  phase: "morphology",
   requires: [],
   provides: [],
   artifacts: {

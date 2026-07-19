@@ -9,7 +9,16 @@ describe("visualization variant projectors", () => {
       spaceId: "tile.hexOddQ",
       dims: { width: 3, height: 2 },
       field: { format: "u8", values },
-      meta: { label: "Biome Index", palette: "categorical" },
+      meta: {
+        label: "Biome Index",
+        palette: {
+          kind: "categorical",
+          colors: [
+            [15, 23, 42, 255],
+            [148, 163, 184, 255],
+          ],
+        },
+      },
       points: { sampleStep: 2, debugOnly: true },
     });
 
@@ -38,7 +47,16 @@ describe("visualization variant projectors", () => {
       dims: { width: 2, height: 2 },
       u: { format: "f32", values: new Float32Array([3, 0, 0, -4]) },
       v: { format: "f32", values: new Float32Array([4, 0, 2, 0]) },
-      meta: { label: "Plate Motion", palette: "continuous" },
+      meta: {
+        label: "Plate Motion",
+        palette: {
+          kind: "continuous",
+          stops: [
+            [241, 245, 249, 255],
+            [30, 41, 59, 255],
+          ],
+        },
+      },
       vector: { debugOnly: true },
       magnitude: {},
       arrows: { sampleStep: 1, maxArrowLengthTiles: 2 },

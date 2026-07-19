@@ -1,6 +1,6 @@
-import type { Bounds, VizLayerEntryV1, VizManifestV1 } from "@swooper/mapgen-viz";
+import type { Bounds, VizLayerEntryV2, VizManifestV2 } from "@swooper/mapgen-viz";
 
-export type { Bounds, VizLayerEntryV1, VizManifestV1 };
+export type { Bounds, VizLayerEntryV2, VizManifestV2 };
 
 export type VizAssetResolver = {
   readArrayBuffer(path: string): Promise<ArrayBuffer>;

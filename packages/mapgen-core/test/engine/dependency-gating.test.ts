@@ -114,7 +114,7 @@ describe("dependency gating", () => {
     registry.registerTags(TEST_TAG_DEFINITIONS);
     registry.register({
       id: "dependent-step",
-      phase: "placement",
+      stageId: "placement",
       requires: [TEST_TAGS.artifact.requiredInput],
       provides: [],
       run: () => {},
@@ -136,7 +136,7 @@ describe("dependency gating", () => {
     registry.registerTags(TEST_TAG_DEFINITIONS);
     registry.register({
       id: "provide-input",
-      phase: "placement",
+      stageId: "placement",
       requires: [],
       provides: [TEST_TAGS.artifact.requiredInput],
       run: (current) => {
@@ -160,7 +160,7 @@ describe("dependency gating", () => {
     registry.registerTags(TEST_TAG_DEFINITIONS);
     registry.register({
       id: "apply-operation",
-      phase: "placement",
+      stageId: "placement",
       requires: [],
       provides: [TEST_TAGS.effect.operationApplied],
       run: () => {},
@@ -182,7 +182,7 @@ describe("dependency gating", () => {
     registry.registerTags(TEST_TAG_DEFINITIONS);
     registry.register({
       id: "apply-operation",
-      phase: "placement",
+      stageId: "placement",
       requires: [],
       provides: [TEST_TAGS.effect.operationApplied],
       run: (current) => {
@@ -206,7 +206,7 @@ describe("dependency gating", () => {
     registry.registerTags(TEST_TAG_DEFINITIONS);
     registry.register({
       id: "apply-operation",
-      phase: "placement",
+      stageId: "placement",
       requires: [],
       provides: [TEST_TAGS.effect.operationApplied],
       run: () => {},

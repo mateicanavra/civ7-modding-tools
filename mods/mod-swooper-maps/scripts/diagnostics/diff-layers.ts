@@ -1,14 +1,9 @@
-import {
-  hammingU8,
-  listLayers,
-  loadManifest,
-  parseArgs,
-  readF32Grid,
-  readI16Grid,
-  readU8Grid,
-} from "./shared.js";
+import { parseDiagnosticArgs } from "./command-input.js";
+import { hammingU8, listLayers, readF32Grid, readI16Grid, readU8Grid } from "./grid-analysis.js";
+import { loadPathVizManifest } from "./serialized-evidence.js";
 
-type DiffRow = Readonly<{
+export type DiffRow = Readonly<{
+  layerKey: string;
   dataTypeKey: string;
   variantKey?: string | null;
   stepIdA: string;
@@ -17,45 +12,172 @@ type DiffRow = Readonly<{
   hamming?: number;
   hammingPct?: number;
   maxAbsDiff?: number;
+  nonFiniteMismatchCount?: number;
   note?: string;
 }>;
 
-type Manifest = ReturnType<typeof loadManifest>;
+type Manifest = ReturnType<typeof loadPathVizManifest>;
 type LayerRow = ReturnType<typeof listLayers>[number];
 type GridLayer = Extract<Manifest["layers"][number], { kind: "grid" }>;
 
-function pickComparablePairs(args: {
+export type ComparableLayerPairs = Readonly<{
+  pairs: readonly (readonly [LayerRow, LayerRow])[];
+  unmatchedLeft: readonly LayerRow[];
+  unmatchedRight: readonly LayerRow[];
+}>;
+
+/** Pairs cross-run layers only by their canonical semantic identity, never by payload location. */
+export function pairComparableLayers(args: {
   manifestA: Manifest;
   manifestB: Manifest;
   prefix?: string;
   dataTypeKey?: string;
-}): Array<[LayerRow, LayerRow]> {
+}): ComparableLayerPairs {
   const { manifestA, manifestB } = args;
   const rowsA = listLayers(manifestA, { prefix: args.prefix, dataTypeKey: args.dataTypeKey });
   const rowsB = listLayers(manifestB, { prefix: args.prefix, dataTypeKey: args.dataTypeKey });
 
-  // Pair by `path` too: a single (dataTypeKey, stepId, variantKey) can be dumped in multiple
-  // representations (e.g. different roles), and collapsing would yield false diffs.
-  const keyOf = (r: LayerRow): string =>
-    `${r.dataTypeKey}::${r.stepId}::${r.variantKey ?? ""}::${r.path ?? ""}`;
-  const byKeyB = new Map(rowsB.map((r) => [keyOf(r), r] as const));
+  const byLayerKeyB = new Map(rowsB.map((row) => [row.layerKey, row] as const));
+  const matchedLayerKeys = new Set<string>();
   const out: Array<[LayerRow, LayerRow]> = [];
-  for (const rA of rowsA) {
-    const rB = byKeyB.get(keyOf(rA));
-    if (rB) out.push([rA, rB]);
+  for (const rowA of rowsA) {
+    const rowB = byLayerKeyB.get(rowA.layerKey);
+    if (!rowB) continue;
+    out.push([rowA, rowB]);
+    matchedLayerKeys.add(rowA.layerKey);
   }
-  return out;
+  return {
+    pairs: out,
+    unmatchedLeft: rowsA.filter((row) => !matchedLayerKeys.has(row.layerKey)),
+    unmatchedRight: rowsB.filter((row) => !matchedLayerKeys.has(row.layerKey)),
+  };
 }
 
 function findGridLayer(manifest: Manifest, row: LayerRow): GridLayer | undefined {
   return manifest.layers.find(
-    (layer): layer is GridLayer =>
-      layer.kind === "grid" &&
-      layer.stepId === row.stepId &&
-      layer.dataTypeKey === row.dataTypeKey &&
-      (layer.variantKey ?? null) === row.variantKey &&
-      layer.field.data.path === row.path
+    (layer): layer is GridLayer => layer.kind === "grid" && layer.layerKey === row.layerKey
   );
+}
+
+function diffIdentity(left: LayerRow, right: LayerRow): Omit<DiffRow, "note"> {
+  return {
+    layerKey: left.layerKey,
+    dataTypeKey: left.dataTypeKey,
+    variantKey: left.variantKey ?? null,
+    stepIdA: left.stepId,
+    stepIdB: right.stepId,
+    format: left.format ?? null,
+  };
+}
+
+function requireGridLayer(manifest: Manifest, row: LayerRow): GridLayer {
+  const layer = findGridLayer(manifest, row);
+  if (!layer) throw new Error(`Missing paired grid layer "${row.layerKey}".`);
+  return layer;
+}
+
+/** Diffs one canonical cross-run layer pair after refusing incompatible grid shapes. */
+export function diffComparableLayerPair(args: {
+  runDirA: string;
+  runDirB: string;
+  manifestA: Manifest;
+  manifestB: Manifest;
+  left: LayerRow;
+  right: LayerRow;
+}): DiffRow {
+  const { runDirA, runDirB, manifestA, manifestB, left, right } = args;
+  const identity = diffIdentity(left, right);
+
+  if (left.kind === "grid" && right.kind === "grid") {
+    const leftDims = left.dims;
+    const rightDims = right.dims;
+    if (!leftDims || !rightDims) {
+      throw new Error(`Missing paired grid dimensions for "${left.layerKey}".`);
+    }
+    if (leftDims.width !== rightDims.width || leftDims.height !== rightDims.height) {
+      return {
+        ...identity,
+        note:
+          `dimension mismatch: ${leftDims.width}x${leftDims.height} vs ` +
+          `${rightDims.width}x${rightDims.height}`,
+      };
+    }
+  }
+
+  if (left.format !== right.format) {
+    return {
+      ...identity,
+      note: `format mismatch: ${String(left.format)} vs ${String(right.format)}`,
+    };
+  }
+
+  if (identity.format === "u8") {
+    const leftGrid = readU8Grid(runDirA, requireGridLayer(manifestA, left));
+    const rightGrid = readU8Grid(runDirB, requireGridLayer(manifestB, right));
+    if (leftGrid.values.length !== rightGrid.values.length) {
+      return { ...identity, note: "length mismatch" };
+    }
+    const hamming = hammingU8(leftGrid.values, rightGrid.values);
+    return {
+      ...identity,
+      hamming,
+      hammingPct: leftGrid.values.length > 0 ? hamming / leftGrid.values.length : 0,
+    };
+  }
+
+  if (identity.format === "i16") {
+    const leftGrid = readI16Grid(runDirA, requireGridLayer(manifestA, left));
+    const rightGrid = readI16Grid(runDirB, requireGridLayer(manifestB, right));
+    if (leftGrid.values.length !== rightGrid.values.length) {
+      return { ...identity, note: "length mismatch" };
+    }
+    let hamming = 0;
+    for (let index = 0; index < leftGrid.values.length; index++) {
+      if (leftGrid.values[index] !== rightGrid.values[index]) hamming++;
+    }
+    return {
+      ...identity,
+      hamming,
+      hammingPct: leftGrid.values.length > 0 ? hamming / leftGrid.values.length : 0,
+    };
+  }
+
+  if (identity.format === "f32") {
+    const leftGrid = readF32Grid(runDirA, requireGridLayer(manifestA, left));
+    const rightGrid = readF32Grid(runDirB, requireGridLayer(manifestB, right));
+    if (leftGrid.values.length !== rightGrid.values.length) {
+      return { ...identity, note: "length mismatch" };
+    }
+    let hamming = 0;
+    let nonFiniteMismatchCount = 0;
+    let maxAbsDiff: number | undefined;
+    for (let index = 0; index < leftGrid.values.length; index++) {
+      const leftValue = leftGrid.values[index] as number;
+      const rightValue = rightGrid.values[index] as number;
+      if (Object.is(leftValue, rightValue)) continue;
+      if (Number.isNaN(leftValue) && Number.isNaN(rightValue)) continue;
+      hamming++;
+      if (!Number.isFinite(leftValue) || !Number.isFinite(rightValue)) {
+        nonFiniteMismatchCount++;
+        continue;
+      }
+      const absoluteDifference = Math.abs(leftValue - rightValue);
+      maxAbsDiff =
+        maxAbsDiff === undefined ? absoluteDifference : Math.max(maxAbsDiff, absoluteDifference);
+    }
+    return {
+      ...identity,
+      hamming,
+      hammingPct: leftGrid.values.length > 0 ? hamming / leftGrid.values.length : 0,
+      nonFiniteMismatchCount,
+      ...(maxAbsDiff === undefined ? {} : { maxAbsDiff }),
+    };
+  }
+
+  return {
+    ...identity,
+    note: "format not diffed (supported: u8, i16, f32)",
+  };
 }
 
 /**
@@ -65,7 +187,7 @@ function findGridLayer(manifest: Manifest, row: LayerRow): GridLayer | undefined
  *   bun ./scripts/diagnostics/diff-layers.ts -- <runDirA> <runDirB> [--prefix morphology.topography] [--dataTypeKey morphology.topography.landMask]
  */
 function main(): void {
-  const { positionals, flags } = parseArgs(process.argv.slice(2));
+  const { positionals, flags } = parseDiagnosticArgs(process.argv.slice(2));
   const runDirA = positionals[0];
   const runDirB = positionals[1];
   if (!runDirA || !runDirB) {
@@ -74,126 +196,22 @@ function main(): void {
     );
   }
 
-  const manifestA = loadManifest(runDirA);
-  const manifestB = loadManifest(runDirB);
+  const manifestA = loadPathVizManifest(runDirA);
+  const manifestB = loadPathVizManifest(runDirB);
   const prefix = typeof flags.prefix === "string" ? flags.prefix : undefined;
   const dataTypeKey = typeof flags.dataTypeKey === "string" ? flags.dataTypeKey : undefined;
 
-  const pairs = pickComparablePairs({ manifestA, manifestB, prefix, dataTypeKey });
-  const diffs: DiffRow[] = [];
-
-  for (const [a, b] of pairs) {
-    const format = a.format ?? null;
-    const variantKey = a.variantKey ?? null;
-    if (format === "u8") {
-      const layerA = findGridLayer(manifestA, a);
-      const layerB = findGridLayer(manifestB, b);
-      if (!layerA || !layerB) continue;
-      const gA = readU8Grid(runDirA, layerA);
-      const gB = readU8Grid(runDirB, layerB);
-      if (gA.values.length !== gB.values.length) {
-        diffs.push({
-          dataTypeKey: a.dataTypeKey,
-          variantKey,
-          stepIdA: a.stepId,
-          stepIdB: b.stepId,
-          format,
-          note: "length mismatch",
-        });
-        continue;
-      }
-      const ham = hammingU8(gA.values, gB.values);
-      diffs.push({
-        dataTypeKey: a.dataTypeKey,
-        variantKey,
-        stepIdA: a.stepId,
-        stepIdB: b.stepId,
-        format,
-        hamming: ham,
-        hammingPct: gA.values.length > 0 ? ham / gA.values.length : 0,
-      });
-      continue;
-    }
-    if (format === "i16") {
-      const layerA = findGridLayer(manifestA, a);
-      const layerB = findGridLayer(manifestB, b);
-      if (!layerA || !layerB) continue;
-      const gA = readI16Grid(runDirA, layerA);
-      const gB = readI16Grid(runDirB, layerB);
-      if (gA.values.length !== gB.values.length) {
-        diffs.push({
-          dataTypeKey: a.dataTypeKey,
-          variantKey,
-          stepIdA: a.stepId,
-          stepIdB: b.stepId,
-          format,
-          note: "length mismatch",
-        });
-        continue;
-      }
-      let diff = 0;
-      for (let i = 0; i < gA.values.length; i++) if (gA.values[i] !== gB.values[i]) diff++;
-      diffs.push({
-        dataTypeKey: a.dataTypeKey,
-        variantKey,
-        stepIdA: a.stepId,
-        stepIdB: b.stepId,
-        format,
-        hamming: diff,
-        hammingPct: gA.values.length > 0 ? diff / gA.values.length : 0,
-      });
-      continue;
-    }
-    if (format === "f32") {
-      const layerA = findGridLayer(manifestA, a);
-      const layerB = findGridLayer(manifestB, b);
-      if (!layerA || !layerB) continue;
-      const gA = readF32Grid(runDirA, layerA);
-      const gB = readF32Grid(runDirB, layerB);
-      if (gA.values.length !== gB.values.length) {
-        diffs.push({
-          dataTypeKey: a.dataTypeKey,
-          variantKey,
-          stepIdA: a.stepId,
-          stepIdB: b.stepId,
-          format,
-          note: "length mismatch",
-        });
-        continue;
-      }
-      let diff = 0;
-      let maxAbsDiff = 0;
-      for (let i = 0; i < gA.values.length; i++) {
-        const va = gA.values[i]!;
-        const vb = gB.values[i]!;
-        if (Object.is(va, vb)) continue;
-        if (Number.isNaN(va) && Number.isNaN(vb)) continue;
-        diff++;
-        const abs = Math.abs(va - vb);
-        if (abs > maxAbsDiff) maxAbsDiff = abs;
-      }
-      diffs.push({
-        dataTypeKey: a.dataTypeKey,
-        variantKey,
-        stepIdA: a.stepId,
-        stepIdB: b.stepId,
-        format,
-        hamming: diff,
-        hammingPct: gA.values.length > 0 ? diff / gA.values.length : 0,
-        maxAbsDiff,
-      });
-      continue;
-    }
-
-    diffs.push({
-      dataTypeKey: a.dataTypeKey,
-      variantKey,
-      stepIdA: a.stepId,
-      stepIdB: b.stepId,
-      format,
-      note: "format not diffed (supported: u8, i16, f32)",
-    });
-  }
+  const comparison = pairComparableLayers({ manifestA, manifestB, prefix, dataTypeKey });
+  const diffs = comparison.pairs.map(([left, right]) =>
+    diffComparableLayerPair({
+      runDirA,
+      runDirB,
+      manifestA,
+      manifestB,
+      left,
+      right,
+    })
+  );
 
   console.log(
     JSON.stringify(
@@ -201,6 +219,10 @@ function main(): void {
         runA: { runId: manifestA.runId, runDir: runDirA },
         runB: { runId: manifestB.runId, runDir: runDirB },
         filter: { prefix: prefix ?? null, dataTypeKey: dataTypeKey ?? null },
+        unmatched: {
+          left: comparison.unmatchedLeft,
+          right: comparison.unmatchedRight,
+        },
         diffs,
       },
       null,
@@ -209,9 +231,11 @@ function main(): void {
   );
 }
 
-try {
-  main();
-} catch (err) {
-  console.error(err);
-  process.exitCode = 1;
+if (import.meta.main) {
+  try {
+    main();
+  } catch (err) {
+    console.error(err);
+    process.exitCode = 1;
+  }
 }

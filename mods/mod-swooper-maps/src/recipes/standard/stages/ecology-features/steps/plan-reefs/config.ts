@@ -12,7 +12,6 @@ import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-h
  */
 export const PlanReefsStepContract = defineStep({
   id: "plan-reefs",
-  phase: "ecology",
   requires: [],
   provides: [],
   artifacts: {
