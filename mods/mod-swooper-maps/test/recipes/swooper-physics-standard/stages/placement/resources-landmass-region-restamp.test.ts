@@ -1,11 +1,11 @@
 import { describe, expect, it } from "bun:test";
 
 import { type MapInfo, MockAdapter } from "@civ7/adapter";
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import { resolveStandardProjectionTerrainTypes } from "../../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../../src/recipes/standard/runtime.js";
 import { artifacts as placementArtifacts } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
@@ -73,7 +73,7 @@ function runRecipeWithAdapter(adapter: MockAdapter, width: number, height: numbe
     },
   });
   const context = createMapContext({ setup, adapter });
-  const flatTerrain = resolveStandardProjectionTerrainTypes(adapter).flat;
+  const flatTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT;
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       adapter.setTerrainType(x, y, flatTerrain);

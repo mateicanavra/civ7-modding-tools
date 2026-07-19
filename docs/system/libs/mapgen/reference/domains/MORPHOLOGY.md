@@ -71,7 +71,8 @@ artifact evidence consumed through declared step contracts.
 
 **Ground truth anchors**
 
-- `mods/mod-swooper-maps/src/recipes/standard/projection-policies/noWaterDrift.ts` (`assertNoWaterDrift`)
+- `mods/mod-swooper-maps/src/recipes/standard/water-surface-parity.ts` (`assertNoWaterDrift`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/coast-terrain-restoration.ts` (`restoreProjectedCoastTerrain`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plot-coasts/step.ts` (seeds source coast from post-island `shelf.coastalWater || shelf.shelfMask`, applies the Civ7 coast-ring policy, then guards with `assertWaterDriftWithinPolicy`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plot-continents/step.ts` (`context.adapter.stampContinents`, `assertNoWaterDrift`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/build-elevation/step.ts` (`context.adapter.buildElevation`, `assertNoWaterDrift`)

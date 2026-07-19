@@ -1,8 +1,8 @@
 import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
-import { assertWaterDriftWithinPolicy } from "../../../../projection-policies/noWaterDrift.js";
 import { defineStandardVizMeta } from "../../../../viz.js";
+import { assertWaterDriftWithinPolicy } from "../../../../water-surface-parity.js";
+import { restoreProjectedCoastTerrain } from "../../coast-terrain-restoration.js";
 import { PlotContinentsStepContract } from "./config.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";

@@ -1,8 +1,8 @@
 import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import type { VizProjection } from "@swooper/mapgen-viz";
-import { assertWaterDriftWithinPolicy } from "../../../../projection-policies/noWaterDrift.js";
 import { defineStandardVizMeta } from "../../../../viz.js";
+import { assertWaterDriftWithinPolicy } from "../../../../water-surface-parity.js";
 import { BuildElevationStepContract } from "./config.js";
 
 const GROUP_MAP_ELEVATION = "Map / Elevation (Engine)";

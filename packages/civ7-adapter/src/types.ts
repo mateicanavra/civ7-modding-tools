@@ -8,15 +8,10 @@
 /// <reference types="@civ7/types" />
 
 import type { OfficialAgeType } from "@civ7/map-policy";
+import type { FeatureData } from "@civ7/types";
 
-/**
- * Feature placement data
- */
-export interface FeatureData {
-  Feature: number;
-  Direction: number;
-  Elevation: number;
-}
+/** Civ7's native feature-placement payload, re-exported for adapter API compatibility. */
+export type { FeatureData } from "@civ7/types";
 
 export interface NaturalWonderCatalogEntry {
   featureType: number;

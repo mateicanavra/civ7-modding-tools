@@ -1,5 +1,5 @@
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
-import { resolveStandardProjectionTerrainTypes } from "../../projection-policies/standardProjectionEngineTypes.js";
 
 /**
  * Engine-safe warn logging for placement steps.
@@ -51,7 +51,7 @@ export function logTerrainStats(context: MapContext, stage: string): void {
   const { adapter, trace } = context;
   if (!trace?.isVerbose) return;
   const { width, height } = context.setup.dimensions;
-  const terrain = resolveStandardProjectionTerrainTypes(adapter);
+  const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
   let flat = 0;
   let hill = 0;
   let mountain = 0;
@@ -65,8 +65,8 @@ export function logTerrainStats(context: MapContext, stage: string): void {
         continue;
       }
       const terrainType = adapter.getTerrainType(x, y);
-      if (terrainType === terrain.mountain) mountain++;
-      else if (terrainType === terrain.hill) hill++;
+      if (terrainType === terrain.TERRAIN_MOUNTAIN) mountain++;
+      else if (terrainType === terrain.TERRAIN_HILL) hill++;
       else flat++;
     }
   }
@@ -96,7 +96,7 @@ export function logAsciiMap(context: MapContext): void {
   const { adapter, trace } = context;
   if (!trace?.isVerbose) return;
   const { width, height } = context.setup.dimensions;
-  const terrain = resolveStandardProjectionTerrainTypes(adapter);
+  const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
   const lines: string[] = ["[Placement] Final Map ASCII:"];
 
   for (let y = height - 1; y >= 0; y--) {
@@ -105,17 +105,17 @@ export function logAsciiMap(context: MapContext): void {
     for (let x = 0; x < width; x++) {
       const value = adapter.getTerrainType(x, y);
       const symbol =
-        value === terrain.mountain
+        value === terrain.TERRAIN_MOUNTAIN
           ? "M"
-          : value === terrain.hill
+          : value === terrain.TERRAIN_HILL
             ? "^"
-            : value === terrain.flat
+            : value === terrain.TERRAIN_FLAT
               ? "."
-              : value === terrain.coast
+              : value === terrain.TERRAIN_COAST
                 ? "~"
-                : value === terrain.ocean
+                : value === terrain.TERRAIN_OCEAN
                   ? "O"
-                  : value === terrain.navigableRiver
+                  : value === terrain.TERRAIN_NAVIGABLE_RIVER
                     ? "R"
                     : "?";
       row += `${symbol} `;

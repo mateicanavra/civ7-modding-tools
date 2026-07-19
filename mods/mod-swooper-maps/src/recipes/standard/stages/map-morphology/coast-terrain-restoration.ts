@@ -1,20 +1,13 @@
+import { CIV7_BROWSER_TABLES_V0, WATER_CLASS_COAST, WATER_CLASS_OCEAN } from "@civ7/map-policy";
 import type { MapContext } from "@swooper/mapgen-core";
-import {
-  resolveStandardProjectionTerrainTypes,
-  type StandardProjectionTerrainTypes,
-} from "./standardProjectionEngineTypes.js";
 
-const WATER_CLASS_COAST = 1;
-const WATER_CLASS_OCEAN = 2;
 const DEFAULT_SAMPLE_LIMIT = 16;
 
-export interface CoastClassificationSurface {
-  width: number;
-  height: number;
+interface CoastClassificationSurface {
   waterClass: Uint8Array;
 }
 
-export type CoastProjectionRepairSample = {
+type CoastProjectionRepairSample = {
   index: number;
   x: number;
   y: number;
@@ -22,7 +15,7 @@ export type CoastProjectionRepairSample = {
   actualTerrain: number;
 };
 
-export type CoastProjectionRepairReport = {
+type CoastProjectionRepairReport = {
   label: string;
   width: number;
   height: number;
@@ -32,39 +25,13 @@ export type CoastProjectionRepairReport = {
   samples: CoastProjectionRepairSample[];
 };
 
-function validateCoastSurface(
-  context: MapContext,
-  coastClassification: CoastClassificationSurface,
-  label: string
-): void {
-  const { width, height } = context.setup.dimensions;
-  const size = width * height;
-  if (coastClassification.width !== width) {
-    throw new Error(
-      `[${label}] coastClassification width ${coastClassification.width} does not match ${width}.`
-    );
+function expectedTerrainForWaterClass(waterClass: number): number | null {
+  if (waterClass === WATER_CLASS_COAST) {
+    return CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST;
   }
-  if (coastClassification.height !== height) {
-    throw new Error(
-      `[${label}] coastClassification height ${coastClassification.height} does not match ${height}.`
-    );
+  if (waterClass === WATER_CLASS_OCEAN) {
+    return CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_OCEAN;
   }
-  if (!(coastClassification.waterClass instanceof Uint8Array)) {
-    throw new Error(`[${label}] coastClassification.waterClass must be a Uint8Array.`);
-  }
-  if (coastClassification.waterClass.length !== size) {
-    throw new Error(
-      `[${label}] coastClassification.waterClass length ${coastClassification.waterClass.length} does not match ${size}.`
-    );
-  }
-}
-
-function expectedTerrainForWaterClass(
-  waterClass: number,
-  terrain: StandardProjectionTerrainTypes
-): number | null {
-  if (waterClass === WATER_CLASS_COAST) return terrain.coast;
-  if (waterClass === WATER_CLASS_OCEAN) return terrain.ocean;
   return null;
 }
 
@@ -72,7 +39,8 @@ function expectedTerrainForWaterClass(
  * Restores the declared map-morphology water terrain surface after adapter-owned
  * maintenance calls such as validateAndFixTerrain(). Land terrain is deliberately
  * skipped so mountains, hills, volcanoes, and natural-wonder terrain remain owned
- * by their projection steps.
+ * by their projection steps. The coast-classification artifact owns shape and
+ * cardinality admission before this repair policy runs.
  */
 export function restoreProjectedCoastTerrain(
   context: MapContext,
@@ -80,10 +48,7 @@ export function restoreProjectedCoastTerrain(
   label: string,
   options: { sampleLimit?: number } = {}
 ): CoastProjectionRepairReport {
-  validateCoastSurface(context, coastClassification, label);
-
   const { width, height } = context.setup.dimensions;
-  const terrain = resolveStandardProjectionTerrainTypes(context.adapter);
   const sampleLimit = Math.max(0, options.sampleLimit ?? DEFAULT_SAMPLE_LIMIT);
   let repairedCount = 0;
   let coastRepairCount = 0;
@@ -94,8 +59,7 @@ export function restoreProjectedCoastTerrain(
     for (let x = 0; x < width; x++) {
       const index = y * width + x;
       const expectedTerrain = expectedTerrainForWaterClass(
-        coastClassification.waterClass[index] | 0,
-        terrain
+        coastClassification.waterClass[index] | 0
       );
       if (expectedTerrain == null) continue;
 
@@ -104,8 +68,12 @@ export function restoreProjectedCoastTerrain(
 
       context.adapter.setTerrainType(x, y, expectedTerrain);
       repairedCount += 1;
-      if (expectedTerrain === terrain.coast) coastRepairCount += 1;
-      if (expectedTerrain === terrain.ocean) oceanRepairCount += 1;
+      if (expectedTerrain === CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST) {
+        coastRepairCount += 1;
+      }
+      if (expectedTerrain === CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_OCEAN) {
+        oceanRepairCount += 1;
+      }
       if (samples.length < sampleLimit) {
         samples.push({ index, x, y, expectedTerrain, actualTerrain });
       }

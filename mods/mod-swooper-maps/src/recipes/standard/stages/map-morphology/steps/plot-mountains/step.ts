@@ -1,6 +1,6 @@
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { assertNoWaterDrift } from "../../../../projection-policies/noWaterDrift.js";
-import { resolveStandardProjectionTerrainTypes } from "../../../../projection-policies/standardProjectionEngineTypes.js";
+import { assertNoWaterDrift } from "../../../../water-surface-parity.js";
 import { PlotMountainsStepContract } from "./config.js";
 
 /**
@@ -12,7 +12,6 @@ export const PlotMountainsStep = createStep(PlotMountainsStepContract, {
     const topography = deps.artifacts.topography.read(context);
     const mountains = deps.artifacts.mountains.read(context);
     const { width, height } = context.setup.dimensions;
-    const terrain = resolveStandardProjectionTerrainTypes(context.adapter);
 
     // Projection-only: Morphology has already decided mountain/hill intent.
     // This map step only materializes that intent into Civ7 terrain and then
@@ -22,11 +21,19 @@ export const PlotMountainsStep = createStep(PlotMountainsStepContract, {
         const idx = y * width + x;
         if (topography.landMask[idx] !== 1) continue;
         if (mountains.mountainMask[idx] === 1) {
-          context.adapter.setTerrainType(x, y, terrain.mountain);
+          context.adapter.setTerrainType(
+            x,
+            y,
+            CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN
+          );
           continue;
         }
         if (mountains.hillMask[idx] === 1) {
-          context.adapter.setTerrainType(x, y, terrain.hill);
+          context.adapter.setTerrainType(
+            x,
+            y,
+            CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_HILL
+          );
         }
       }
     }

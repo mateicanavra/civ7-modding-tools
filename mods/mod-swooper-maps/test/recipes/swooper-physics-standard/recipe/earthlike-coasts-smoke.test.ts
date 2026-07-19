@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { resolveStandardProjectionTerrainTypes } from "../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
 import { artifacts as morphologyArtifacts } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
@@ -42,9 +42,8 @@ describe("Earthlike coasts (smoke)", () => {
       rng: createLabelRng(seed),
     });
     const context = createMapContext({ setup, adapter });
-    const { coast: coastTerrain, ocean: oceanTerrain } = resolveStandardProjectionTerrainTypes(
-      context.adapter
-    );
+    const { TERRAIN_COAST: coastTerrain, TERRAIN_OCEAN: oceanTerrain } =
+      CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
     standardRecipe.run(context, standardConfig, { log: () => {} });
 

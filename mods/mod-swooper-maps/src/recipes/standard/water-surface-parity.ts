@@ -3,7 +3,7 @@ import type { MapContext } from "@swooper/mapgen-core";
 const DEFAULT_MAX_WATER_DRIFT_SHARE = 0.05;
 const DEFAULT_SAMPLE_LIMIT = 16;
 
-export interface WaterDriftPolicyOptions {
+interface WaterDriftPolicyOptions {
   /**
    * Maximum tolerated land/water classification mismatch share. A small drift
    * budget keeps Civ cache/readback quirks observable without making otherwise
@@ -13,7 +13,7 @@ export interface WaterDriftPolicyOptions {
   sampleLimit?: number;
 }
 
-export type WaterDriftSample = {
+type WaterDriftSample = {
   index: number;
   x: number;
   y: number;
@@ -21,7 +21,7 @@ export type WaterDriftSample = {
   actual: "land" | "water";
 };
 
-export type WaterDriftReport = {
+type WaterDriftReport = {
   label: string;
   width: number;
   height: number;
@@ -42,7 +42,8 @@ export type WaterDriftReport = {
  * engine readback for gameplay continuity. The expected land mask must be the
  * projection surface for that specific lifecycle point, not always Morphology's
  * raw topography: after lake projection, planned lake tiles are intentionally
- * engine water even though they began as land in Morphology truth.
+ * engine water even though they began as land in Morphology truth. Pipeline
+ * artifact admission or local construction owns mask cardinality before this check.
  */
 export function assertNoWaterDrift(
   context: MapContext,
@@ -50,12 +51,6 @@ export function assertNoWaterDrift(
   label: string
 ): void {
   const { width, height } = context.setup.dimensions;
-  const size = width * height;
-  if (expectedLandMask.length !== size) {
-    throw new Error(
-      `[${label}] expectedLandMask length ${expectedLandMask.length} does not match ${size}.`
-    );
-  }
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -81,9 +76,10 @@ export function assertNoWaterDrift(
  *
  * Some lifecycle calls can expose small engine readback/cache deltas after the
  * owning projection has stamped terrain. Those deltas should be observable and
- * bounded without forcing generation to fail for every playable mismatch.
+ * bounded without forcing generation to fail for every playable mismatch. Input
+ * admission remains upstream; this helper owns only parity evidence.
  */
-export function captureWaterDriftReport(
+function captureWaterDriftReport(
   context: MapContext,
   expectedLandMask: Uint8Array,
   label: string,
@@ -93,12 +89,6 @@ export function captureWaterDriftReport(
   const size = width * height;
   const maxMismatchShare = options.maxMismatchShare ?? DEFAULT_MAX_WATER_DRIFT_SHARE;
   const sampleLimit = Math.max(0, options.sampleLimit ?? DEFAULT_SAMPLE_LIMIT);
-
-  if (expectedLandMask.length !== size) {
-    throw new Error(
-      `[${label}] expectedLandMask length ${expectedLandMask.length} does not match ${size}.`
-    );
-  }
 
   let mismatchCount = 0;
   let expectedLandWaterCount = 0;

@@ -1,6 +1,6 @@
-import { createStep } from "@swooper/mapgen-core/authoring";
 import type { TraceJsonObject } from "@swooper/mapgen-core";
-import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { restoreProjectedCoastTerrain } from "../../../map-morphology/coast-terrain-restoration.js";
 import { logTerrainStats, runPlacementProductStep } from "../../log.js";
 import { PreparePlacementSurfaceStepContract } from "./config.js";
 import { readFinalLakeProjection } from "./lake-readback.js";

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter, MockAdapter } from "@civ7/adapter";
-import { requireResourceRuntimeId } from "@civ7/map-policy";
+import { CIV7_BROWSER_TABLES_V0, requireResourceRuntimeId } from "@civ7/map-policy";
 import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { computeRiverAdjacencyMaskFromRiverClass } from "@mapgen/domain/hydrology/model/policy/river-adjacency.js";
 import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
@@ -8,10 +8,6 @@ import { DEFERRED_INITIAL_MAP_RESOURCE_TYPES } from "@mapgen/domain/resources";
 import { admitMapSetup, createMapContext, sha256Hex, stableStringify } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { artifacts as standardArtifacts } from "../../../../src/recipes/standard/artifacts/index.js";
-import {
-  resolveStandardProjectionTerrainTypes,
-  resolveStandardVolcanoFeatureType,
-} from "../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import type { StandardRecipeConfig } from "../../../../src/recipes/standard/recipe.js";
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
@@ -249,10 +245,9 @@ describe("standard recipe execution", () => {
 
     const adapter = new RainfallCountingAdapter({ width, height, mapInfo, mapSizeId: 1 });
     const context = createMapContext({ setup, adapter });
-    const { hill: hillTerrain, mountain: mountainTerrain } = resolveStandardProjectionTerrainTypes(
-      context.adapter
-    );
-    const volcanoFeature = resolveStandardVolcanoFeatureType(context.adapter);
+    const { TERRAIN_HILL: hillTerrain, TERRAIN_MOUNTAIN: mountainTerrain } =
+      CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
+    const volcanoFeature = CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_VOLCANO;
 
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
 
