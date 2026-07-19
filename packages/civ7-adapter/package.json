@@ -23,6 +23,10 @@
       "types": "./dist/map-script-build.d.ts",
       "import": "./dist/map-script-build.js"
     },
+    "./mapgen": {
+      "types": "./dist/mapgen.d.ts",
+      "import": "./dist/mapgen.js"
+    },
     "./mock": {
       "types": "./dist/mock-adapter.d.ts",
       "import": "./dist/mock-adapter.js"

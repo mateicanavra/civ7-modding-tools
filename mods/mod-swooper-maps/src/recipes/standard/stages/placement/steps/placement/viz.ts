@@ -15,7 +15,6 @@ export function projectPlacementCompletionViz(
   result: ApplyPlacementResult,
   dimensions: Readonly<{ width: number; height: number }>
 ): readonly VizProjection[] {
-  if (!result.engineSnapshot) return [];
   const projections: VizProjection[] = [];
   if (result.waterDrift.length === dimensions.width * dimensions.height) {
     projections.push({

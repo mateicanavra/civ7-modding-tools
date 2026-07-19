@@ -1,3 +1,4 @@
+import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import { CIV7_DEFAULT_RIVER_MODELING_ARGS } from "@civ7/map-policy";
 import {
   HYDROLOGY_FLOW_INTERMITTENT,
@@ -6,7 +7,6 @@ import {
   HYDROLOGY_MOUTH_OCEAN,
   HYDROLOGY_MOUTH_SPILL_PATH,
 } from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
-import { snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
 import { resolveStandardProjectionTerrainTypes } from "../../../../projection-policies/standardProjectionEngineTypes.js";
@@ -320,72 +320,72 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     context.adapter.recalculateAreas();
     context.adapter.storeWaterData();
 
-    const engine = snapshotEngineHeightfield(context);
-    let engineEvidence: PlotRiversVizEvidence["engineEvidence"];
-    if (engine) {
-      const riverReadback = context.adapter.readRiverProjection(
-        width,
-        height,
-        materialized.riverMask
-      );
-      const lakeMask = new Uint8Array(size);
-      for (let i = 0; i < size; i++) {
-        const isWater = (engine.landMask[i] ?? 1) === 0;
-        if (isWater) lakeMask[i] = 1;
-      }
-
-      const sinkMismatchCount = lakeMask.reduce((acc, _v, idx) => {
-        if ((hydrography.sinkMask[idx] ?? 0) === 1 && lakeMask[idx] === 0) return acc + 1;
-        return acc;
-      }, 0);
-
-      deps.artifacts.engineProjectionRivers.publish(context, {
-        width,
-        height,
-        lakeMask,
-        riverMask: riverReadback.terrainNavigableRiverMask,
-        engineRiverType: riverReadback.engineRiverType,
-        engineIsRiverMask: riverReadback.engineIsRiverMask,
-        engineNavigableRiverMask: riverReadback.engineNavigableRiverMask,
-        engineMinorRiverMask: riverReadback.engineMinorRiverMask,
-        terrainNavigableRiverMask: riverReadback.terrainNavigableRiverMask,
-        rejectedNavigableRiverMask: riverReadback.rejectedNavigableRiverMask,
-        sinkMismatchCount,
-        riverMismatchCount: riverReadback.navigableRiverMismatchTileCount,
-        selectedRiverRejectedCount: riverReadback.rejectedNavigableRiverTileCount,
-        extraEngineRiverCount: riverReadback.extraNavigableRiverTileCount,
-        engineRiverTileCount: riverReadback.engineRiverTileCount,
-        engineNavigableRiverTileCount: riverReadback.engineNavigableRiverTileCount,
-        engineMinorRiverTileCount: riverReadback.engineMinorRiverTileCount,
-        terrainNavigableRiverTileCount: riverReadback.terrainNavigableRiverTileCount,
-        minorRiverStampingSupported: riverReadback.minorRiverStampingSupported,
-        minorRiverUnsupportedReason: riverReadback.minorRiverUnsupportedReason,
-      });
-
-      deps.artifacts.riversEngineTerrainSnapshot.publish(context, {
-        stage: "map-rivers/plot-rivers",
-        width,
-        height,
-        landMask: engine.landMask,
-        terrain: engine.terrain,
-        elevation: engine.elevation,
-      });
-
-      context.trace.event(() => ({
-        type: "map.rivers.parity",
-        riverMismatchCount: riverReadback.navigableRiverMismatchTileCount,
-        selectedRiverRejectedCount: riverReadback.rejectedNavigableRiverTileCount,
-        extraEngineRiverCount: riverReadback.extraNavigableRiverTileCount,
-        engineRiverTileCount: riverReadback.engineRiverTileCount,
-        engineNavigableRiverTileCount: riverReadback.engineNavigableRiverTileCount,
-        engineMinorRiverTileCount: riverReadback.engineMinorRiverTileCount,
-        minorRiverStampingSupported: riverReadback.minorRiverStampingSupported,
-        riverMismatchShare: Number(
-          (riverReadback.navigableRiverMismatchTileCount / (width * height)).toFixed(4)
-        ),
-      }));
-      engineEvidence = { engineLandMask: engine.landMask, riverReadback };
+    const engine = snapshotEngineHeightfield(context.adapter);
+    const riverReadback = context.adapter.readRiverProjection(
+      width,
+      height,
+      materialized.riverMask
+    );
+    const lakeMask = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      const isWater = (engine.landMask[i] ?? 1) === 0;
+      if (isWater) lakeMask[i] = 1;
     }
+
+    const sinkMismatchCount = lakeMask.reduce((acc, _v, idx) => {
+      if ((hydrography.sinkMask[idx] ?? 0) === 1 && lakeMask[idx] === 0) return acc + 1;
+      return acc;
+    }, 0);
+
+    deps.artifacts.engineProjectionRivers.publish(context, {
+      width,
+      height,
+      lakeMask,
+      riverMask: riverReadback.terrainNavigableRiverMask,
+      engineRiverType: riverReadback.engineRiverType,
+      engineIsRiverMask: riverReadback.engineIsRiverMask,
+      engineNavigableRiverMask: riverReadback.engineNavigableRiverMask,
+      engineMinorRiverMask: riverReadback.engineMinorRiverMask,
+      terrainNavigableRiverMask: riverReadback.terrainNavigableRiverMask,
+      rejectedNavigableRiverMask: riverReadback.rejectedNavigableRiverMask,
+      sinkMismatchCount,
+      riverMismatchCount: riverReadback.navigableRiverMismatchTileCount,
+      selectedRiverRejectedCount: riverReadback.rejectedNavigableRiverTileCount,
+      extraEngineRiverCount: riverReadback.extraNavigableRiverTileCount,
+      engineRiverTileCount: riverReadback.engineRiverTileCount,
+      engineNavigableRiverTileCount: riverReadback.engineNavigableRiverTileCount,
+      engineMinorRiverTileCount: riverReadback.engineMinorRiverTileCount,
+      terrainNavigableRiverTileCount: riverReadback.terrainNavigableRiverTileCount,
+      minorRiverStampingSupported: riverReadback.minorRiverStampingSupported,
+      minorRiverUnsupportedReason: riverReadback.minorRiverUnsupportedReason,
+    });
+
+    deps.artifacts.riversEngineTerrainSnapshot.publish(context, {
+      stage: "map-rivers/plot-rivers",
+      width,
+      height,
+      landMask: engine.landMask,
+      terrain: engine.terrain,
+      elevation: engine.elevation,
+    });
+
+    context.trace.event(() => ({
+      type: "map.rivers.parity",
+      riverMismatchCount: riverReadback.navigableRiverMismatchTileCount,
+      selectedRiverRejectedCount: riverReadback.rejectedNavigableRiverTileCount,
+      extraEngineRiverCount: riverReadback.extraNavigableRiverTileCount,
+      engineRiverTileCount: riverReadback.engineRiverTileCount,
+      engineNavigableRiverTileCount: riverReadback.engineNavigableRiverTileCount,
+      engineMinorRiverTileCount: riverReadback.engineMinorRiverTileCount,
+      minorRiverStampingSupported: riverReadback.minorRiverStampingSupported,
+      riverMismatchShare: Number(
+        (riverReadback.navigableRiverMismatchTileCount / (width * height)).toFixed(4)
+      ),
+    }));
+    const engineEvidence: PlotRiversVizEvidence["engineEvidence"] = {
+      engineLandMask: engine.landMask,
+      riverReadback,
+    };
     return {
       riverClass: hydrography.riverClass,
       discharge: hydrography.discharge,

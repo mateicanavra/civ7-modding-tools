@@ -14,7 +14,7 @@ export type PlotRiversVizEvidence = Readonly<{
     plannedMajorRiverMask: Uint8Array;
   }>;
   topographyLandMask: Uint8Array;
-  engineEvidence?: Readonly<{
+  engineEvidence: Readonly<{
     engineLandMask: Uint8Array;
     riverReadback: Readonly<{
       terrainNavigableRiverMask: Uint8Array;
@@ -26,8 +26,7 @@ export type PlotRiversVizEvidence = Readonly<{
 }>;
 
 /**
- * Projects completed river intent and readback evidence without touching Civ7. Engine parity layers
- * are absent when the adapter did not provide a stable heightfield snapshot.
+ * Projects completed river intent and readback evidence without touching Civ7.
  */
 export function buildPlotRiversVizProjections(
   result: PlotRiversVizEvidence,
@@ -58,8 +57,6 @@ export function buildPlotRiversVizProjections(
       }),
     },
   ];
-  if (!result.engineEvidence) return projections;
-
   const { riverReadback } = result.engineEvidence;
   projections.push(
     {

@@ -34,10 +34,6 @@ export {
   logReliefAscii,
   renderAsciiGrid,
 } from "@mapgen/dev/ascii.js";
-export {
-  type EngineHeightfieldSnapshot,
-  snapshotEngineHeightfield,
-} from "@mapgen/dev/engine-heightfield.js";
 // Histograms
 export {
   buildHistogram,

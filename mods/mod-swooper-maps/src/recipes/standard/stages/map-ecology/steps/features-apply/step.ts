@@ -1,6 +1,6 @@
 import type { EngineAdapter } from "@civ7/adapter";
+import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import type { FeatureKey } from "@civ7/map-policy";
-import { snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { resolveFeatureKeyForIntent } from "./apply.js";
 import { FeaturesApplyStepContract } from "./config.js";
@@ -217,7 +217,7 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
       featureType,
     });
 
-    const engine = applied > 0 ? (snapshotEngineHeightfield(context) ?? undefined) : undefined;
+    const engine = applied > 0 ? snapshotEngineHeightfield(context.adapter) : undefined;
     if (applied > 0) context.adapter.recalculateAreas();
 
     return {
