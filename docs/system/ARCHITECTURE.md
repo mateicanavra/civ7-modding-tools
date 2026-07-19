@@ -21,7 +21,7 @@ packages/           # Core libraries
 ├── config/         # Shared configuration (@civ7/config)
 ├── civ7-direct-control/ # Direct tuner-socket control API (@civ7/direct-control)
 └── plugins/        # Reusable plugins
-    ├── plugin-files/   # Zip/unzip utilities
+    ├── plugin-files/   # Reusable file, archive, copy, and generated-plan mechanics
     ├── plugin-graph/   # XML graph crawling
     ├── plugin-git/     # Git operations
     └── plugin-mods/    # Mod management

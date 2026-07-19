@@ -1,6 +1,6 @@
 /**
  * Generated from ../configs/sundered-archipelago.config.json.
- * Do not edit by hand; re-run `bun run gen:maps`.
+ * Do not edit by hand; re-run `nx run mod-swooper-maps:gen:maps`.
  */
 
 /// <reference types="@civ7/types" />

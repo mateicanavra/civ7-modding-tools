@@ -1,9 +1,13 @@
-import { dirname, relative, resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   civ7MapScriptTextEncoderBanner,
   civ7TypeBoxCompatibilityPlugin,
 } from "@civ7/adapter/map-script-build";
+import {
+  applyGeneratedFilePlan,
+  type GeneratedFilePlan,
+} from "@civ7/plugin-files/generated-file-plan";
 import {
   readStudioRunGenerationManifest,
   runCorrelationForManifest,
@@ -14,15 +18,13 @@ import { build } from "esbuild";
 import { admitStandardMapConfig } from "../src/maps/configs/canonical.js";
 import {
   buildSwooperRunGeneratedModFilePlan,
-  type SwooperMapArtifactFilePlan,
   type SwooperRunGeneratedModPlanInput,
 } from "./map-artifacts/file-plan.js";
-import { writeSwooperMapArtifactFilePlan } from "./map-artifacts/write-file-plan.js";
 
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SWOOPER_STANDARD_RECIPE_ID = "standard";
 
-export type SwooperRunGeneratedMod = Readonly<{
+type SwooperRunGeneratedMod = Readonly<{
   requestId: string;
   runArtifactId: string;
   generatedModRoot: string;
@@ -40,11 +42,16 @@ type StudioRunGenerationManifest = Awaited<ReturnType<typeof readStudioRunGenera
  * self-consistently rehashed manifest data without creating another semantic
  * owner or applying defaults.
  */
-export type VerifiedSwooperStandardRun = Readonly<{
+type VerifiedSwooperStandardRun = Readonly<{
   manifest: StudioRunGenerationManifest;
   renderInput: SwooperRunGeneratedModPlanInput;
 }>;
 
+/**
+ * Materializes and bundles the request-local Swooper mod authenticated by one
+ * Studio generation manifest. The source plan is consumed before its
+ * exclusive set is replaced by the final bundled map script.
+ */
 export async function generateSwooperRunGeneratedModFromManifestPath(
   manifestPath: string
 ): Promise<SwooperRunGeneratedMod> {
@@ -54,14 +61,14 @@ export async function generateSwooperRunGeneratedModFromManifestPath(
   const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, verifiedManifest);
   const mapRowId = STUDIO_RUN_MAP_ROW_ID;
   const plan = buildSwooperRunGeneratedModFilePlan(renderInput);
-  await writeSwooperMapArtifactFilePlan(plan, { outputRoot: generatedModRoot });
+  await applyGeneratedFilePlan(plan, { outputRoot: generatedModRoot });
 
   const mapScriptPath = STUDIO_RUN_MAP_SCRIPT_PATH;
   const bundledMap = await bundleRunMapScript({
     generatedModRoot,
     correlation: renderInput.correlation,
   });
-  await writeSwooperMapArtifactFilePlan(bundledMap, { outputRoot: generatedModRoot });
+  await applyGeneratedFilePlan(bundledMap, { outputRoot: generatedModRoot });
 
   return {
     requestId: verifiedManifest.payload.requestId,
@@ -73,7 +80,7 @@ export async function generateSwooperRunGeneratedModFromManifestPath(
   };
 }
 
-export function resolveSwooperRunGeneratedModRoot(
+function resolveSwooperRunGeneratedModRoot(
   manifestPath: string,
   manifest: StudioRunGenerationManifest
 ): string {
@@ -117,7 +124,7 @@ async function bundleRunMapScript(
     generatedModRoot: string;
     correlation: ReturnType<typeof runCorrelationForManifest>;
   }>
-): Promise<SwooperMapArtifactFilePlan> {
+): Promise<GeneratedFilePlan> {
   const entryPoint = resolve(
     args.generatedModRoot,
     ".source/maps",
@@ -150,31 +157,17 @@ async function bundleRunMapScript(
   if (!output) throw new Error("Swooper run manifest bundler produced no map script.");
 
   return {
-    metadata: { configProjections: [] },
     exclusiveSets: [
       {
-        id: "generated-map-entrypoints",
         relativeDir: ".source/maps",
         fileExtension: ".ts",
-        artifactKind: "generated-map-entry",
       },
     ],
     files: [
       {
         relativePath: STUDIO_RUN_MAP_SCRIPT_PATH,
-        kind: "generated-map-entry",
-        content: { kind: "text", text: output.text },
-        markerMetadata: {
-          configId: args.correlation.runArtifactId,
-          configHash: "bundled",
-          launchEnvelopeDigest: args.correlation.launchEnvelopeDigest,
-          requestId: args.correlation.requestId,
-        },
+        content: output.text,
       },
     ],
   };
-}
-
-export function generatedModRelative(path: string): string {
-  return relative(pkgRoot, path).replaceAll("\\", "/");
 }

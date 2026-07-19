@@ -5,7 +5,7 @@
   "targets": {
     "build": {
       "command": "tsup --config scripts/tsup.config.ts",
-      "dependsOn": ["^build", "gen:maps"],
+      "dependsOn": ["^build", "generated:check"],
       "inputs": ["default", "^default"],
       "outputs": ["{projectRoot}/mod/maps/**"],
       "options": {
@@ -65,7 +65,7 @@
     },
     "test": {
       "command": "bun test",
-      "dependsOn": ["build", "build:studio-recipes", "generated:check"],
+      "dependsOn": ["build", "build:studio-recipes"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -88,13 +88,16 @@
     },
     "gen:map-artifacts": {
       "command": "bun ./scripts/generate-map-artifacts.ts",
-      "dependsOn": [
-        {
-          "projects": ["mapgen-core"],
-          "target": "build"
-        }
+      "dependsOn": ["^build"],
+      "inputs": [
+        "default",
+        "^default",
+        "!{projectRoot}/src/maps/generated/**",
+        "!{projectRoot}/mod/config/config.xml",
+        "!{projectRoot}/mod/swooper-maps.modinfo",
+        "!{projectRoot}/mod/data/biome-hazards.xml",
+        "!{projectRoot}/mod/text/en_us/MapText.xml"
       ],
-      "inputs": ["default", "^default"],
       "outputs": [
         "{projectRoot}/src/maps/generated/**",
         "{projectRoot}/mod/config/config.xml",
@@ -108,15 +111,15 @@
     },
     "gen:studio-deploy-map-artifacts": {
       "command": "bun ./scripts/generate-map-artifacts.ts --include-studio-deploy-config",
-      "dependsOn": [
-        {
-          "projects": ["mapgen-core"],
-          "target": "build"
-        }
-      ],
+      "dependsOn": ["^build"],
       "inputs": [
         "default",
         "^default",
+        "!{projectRoot}/src/maps/generated/**",
+        "!{projectRoot}/mod/config/config.xml",
+        "!{projectRoot}/mod/swooper-maps.modinfo",
+        "!{projectRoot}/mod/data/biome-hazards.xml",
+        "!{projectRoot}/mod/text/en_us/MapText.xml",
         {
           "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_ID"
         },
@@ -145,9 +148,11 @@
       }
     },
     "generated:check": {
-      "command": "status=$(git status --porcelain -- src/maps/generated); test -z \"$status\" || { printf '%s\\n' \"$status\"; exit 1; }",
-      "dependsOn": ["gen:maps"],
-      "cache": false,
+      "command": "bun ./scripts/generate-map-artifacts.ts --check",
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^default"],
+      "cache": true,
+      "outputs": [],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -187,12 +192,7 @@
     },
     "gen:studio-map-catalog": {
       "command": "bun ./scripts/generate-studio-map-catalog.ts",
-      "dependsOn": [
-        {
-          "projects": ["mapgen-core"],
-          "target": "build"
-        }
-      ],
+      "dependsOn": ["^build"],
       "inputs": [
         "default",
         "^default",

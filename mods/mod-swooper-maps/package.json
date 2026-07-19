@@ -44,6 +44,7 @@
   "dependencies": {
     "@civ7/adapter": "workspace:*",
     "@civ7/map-policy": "workspace:*",
+    "@civ7/plugin-files": "workspace:*",
     "@civ7/studio-contract": "workspace:*",
     "@civ7/studio-run-workspace": "workspace:*",
     "@mateicanavra/civ7-sdk": "workspace:*",

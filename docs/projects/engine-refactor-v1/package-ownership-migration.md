@@ -151,10 +151,11 @@ already bundled the recipe without either resolver.
   cases remain unresolved rather than becoming false.
 - Empty and delete `mods/mod-swooper-maps/src/dev` and its TypeScript config.
 
-The tooling package train is deliberately narrow: `mapgen-diagnostics` now,
-then reusable file-plan mechanics, then reusable live verification. Until their
-own slices land, live commands and `scripts/map-artifacts/{file-plan,write-file-plan}.ts`
-remain together under Swooper ownership; none belongs in Core.
+The tooling package train is deliberately narrow: reusable diagnostics, then
+generated file plans under `@civ7/plugin-files/generated-file-plan`, then
+reusable live verification. Swooper retains product renderers and paths while
+the plugin owns path admission, currentness inspection, cleanup, and writes;
+neither concern belongs in Core.
 
 ### Categorical deletions
 

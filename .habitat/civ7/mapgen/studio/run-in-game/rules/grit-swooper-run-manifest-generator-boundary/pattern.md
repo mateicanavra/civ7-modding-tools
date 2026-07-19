@@ -7,7 +7,7 @@ Packet 8 makes request-local Swooper generation manifest-only. The executable
 command owns argument parsing only. The generator port owns reading the private
 workspace manifest, deriving the `generated-mod` root from that manifest path,
 rendering the request-local file plan, and routing writes through the shared
-file-plan writer. Generated file bytes, row identity, script path, and
+`@civ7/plugin-files/generated-file-plan` capability. Generated file bytes, row identity, script path, and
 correlation markers are behavior-tested; this rule guards the durable topology.
 
 ```grit
@@ -36,7 +36,11 @@ or {
   },
   program(statements=$body) where {
     $filename <: r".*mods/mod-swooper-maps/scripts/run-manifest-generator\.ts$",
-    ! $body <: contains `await writeSwooperMapArtifactFilePlan(plan, { outputRoot: generatedModRoot })`
+    ! $body <: contains `import { $..., applyGeneratedFilePlan, $... } from "@civ7/plugin-files/generated-file-plan"`
+  },
+  program(statements=$body) where {
+    $filename <: r".*mods/mod-swooper-maps/scripts/run-manifest-generator\.ts$",
+    ! $body <: contains `await applyGeneratedFilePlan(plan, { outputRoot: generatedModRoot })`
   },
   program(statements=$body) where {
     $filename <: r".*mods/mod-swooper-maps/project\.json$",
@@ -149,6 +153,8 @@ const manifestPath = parseSwooperRunManifestPathArg(process.argv.slice(2));
 await generateSwooperRunGeneratedModFromManifestPath(manifestPath);
 
 // @filename: mods/mod-swooper-maps/scripts/run-manifest-generator.ts
+import { applyGeneratedFilePlan } from "@civ7/plugin-files/generated-file-plan";
+
 export async function generateSwooperRunGeneratedModFromManifestPath(
   manifestPath: string
 ) {
@@ -156,7 +162,7 @@ export async function generateSwooperRunGeneratedModFromManifestPath(
   const verifiedManifest = verifySwooperStandardRunManifest(manifest).manifest;
   const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, verifiedManifest);
   const plan = buildSwooperRunGeneratedModFilePlan({ manifest });
-  await writeSwooperMapArtifactFilePlan(plan, { outputRoot: generatedModRoot });
+  await applyGeneratedFilePlan(plan, { outputRoot: generatedModRoot });
 }
 
 // @filename: mods/mod-swooper-maps/project.json

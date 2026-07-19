@@ -1,5 +1,6 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { applyGeneratedFilePlan } from "@civ7/plugin-files/generated-file-plan";
 
 import { buildCanonicalMapConfigSchema } from "../src/maps/configs/canonical.js";
 import { deriveStandardRecipeArtifacts } from "../src/recipes/standard/artifacts.js";
@@ -8,12 +9,12 @@ import {
   buildSwooperCatalogMetadataFilePlan,
   type SwooperMapArtifactFilePlan,
 } from "./map-artifacts/file-plan.js";
-import { writeSwooperMapArtifactFilePlan } from "./map-artifacts/write-file-plan.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const pkgRoot = resolve(__dirname, "..");
 
+/** Builds the Studio catalog metadata plan from the admitted Swooper source index. */
 export async function buildSwooperStudioCatalogMetadataPlan(
   options: Readonly<{ catalogSourceIndex?: unknown; repoRoot?: string }> = {}
 ): Promise<SwooperMapArtifactFilePlan> {
@@ -27,6 +28,7 @@ export async function buildSwooperStudioCatalogMetadataPlan(
   return buildSwooperCatalogMetadataFilePlan({ configs, envelopeSchema });
 }
 
+/** Applies the admitted Studio catalog metadata plan below its selected package root. */
 export async function generateSwooperStudioCatalogMetadata(
   options: Readonly<{
     catalogSourceIndex?: unknown;
@@ -38,7 +40,7 @@ export async function generateSwooperStudioCatalogMetadata(
     catalogSourceIndex: options.catalogSourceIndex,
     repoRoot: options.repoRoot,
   });
-  await writeSwooperMapArtifactFilePlan(plan, { outputRoot: options.outputRoot ?? pkgRoot });
+  await applyGeneratedFilePlan(plan, { outputRoot: options.outputRoot ?? pkgRoot });
   return {
     configCount: plan.metadata.configProjections.length,
     fileCount: plan.files.length,

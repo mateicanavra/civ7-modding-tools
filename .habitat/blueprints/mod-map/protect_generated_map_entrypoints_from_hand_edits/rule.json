@@ -14,7 +14,7 @@
   "lane": "enforced",
   "forbids": "staged hand-edits to generated Swooper map entrypoints",
   "why": "Generated map entrypoints must be regenerated from canonical map configs.",
-  "remediate": "bun run --cwd mods/mod-swooper-maps gen:maps",
+  "remediate": "nx run mod-swooper-maps:gen:maps",
   "message": "Generated Swooper map entrypoints are protected from hand edit.",
   "pathCoverage": [
     {

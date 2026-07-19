@@ -14,7 +14,7 @@ export default defineConfig({
     js: civ7MapScriptTextEncoderBanner,
   },
 
-  // Generated from canonical src/maps/configs/*.config.json by `bun run gen:maps`.
+  // Generated from canonical configs by `nx run mod-swooper-maps:gen:maps`.
   entry: Object.fromEntries(
     readdirSync(join(__dirname, "../src/maps/generated"))
       .filter((file) => file.endsWith(".ts"))

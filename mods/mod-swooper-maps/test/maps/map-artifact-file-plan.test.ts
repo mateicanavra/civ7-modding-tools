@@ -1,15 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { resolve } from "node:path";
 import { loadSwooperMapConfigRegistry } from "../../scripts/generate-map-artifacts";
 import {
   buildSwooperCatalogMetadataFilePlan,
-  buildSwooperMapArtifactFilePlan,
+  buildSwooperCatalogModFilePlan,
   buildSwooperRunGeneratedModFilePlan,
-  type SwooperMapArtifactFilePlan,
 } from "../../scripts/map-artifacts/file-plan";
-import { writeSwooperMapArtifactFilePlan } from "../../scripts/map-artifacts/write-file-plan";
 import {
   buildCanonicalMapConfigSchema,
   type CanonicalMapConfigEnvelope,
@@ -28,30 +23,33 @@ const recipeSchema = STANDARD_RECIPE_CONFIG_SCHEMA;
 const fixtureRecipeConfig = buildStandardRecipeDefaultConfig();
 const fixtureEnvelopeSchema = buildCanonicalMapConfigSchema(recipeSchema);
 
-async function buildCurrentPlan() {
+async function buildCurrentPlans() {
   const configs = await loadSwooperMapConfigRegistry();
   const envelopeSchema = buildCanonicalMapConfigSchema(recipeSchema);
   return {
     configs,
-    plan: buildSwooperMapArtifactFilePlan({ configs, envelopeSchema }),
+    modPlan: buildSwooperCatalogModFilePlan({ configs }),
+    metadataPlan: buildSwooperCatalogMetadataFilePlan({ configs, envelopeSchema }),
   };
 }
 
-function textContent(file: { content: { kind: "text"; text: string } | { kind: "bytes" } }) {
-  if (file.content.kind !== "text") {
+function textContent(file: { content: string | Uint8Array }) {
+  if (typeof file.content !== "string") {
     throw new Error("Expected text artifact content");
   }
-  return file.content.text;
+  return file.content;
 }
 
 function artifactEnvelope(config: ValidatedMapConfig): StandardMapConfigEnvelope {
   return config.canonicalConfig;
 }
 
-function plannedFile(
-  plan: ReturnType<typeof buildSwooperMapArtifactFilePlan>,
-  relativePath: string
-) {
+function plannedFile<
+  const TFiles extends readonly Readonly<{
+    relativePath: string;
+    content: string | Uint8Array;
+  }>[],
+>(plan: Readonly<{ files: TFiles }>, relativePath: string): TFiles[number] {
   const file = plan.files.find((entry) => entry.relativePath === relativePath);
   if (!file) throw new Error(`Missing planned file ${relativePath}`);
   return file;
@@ -75,10 +73,11 @@ function buildFixtureConfig(): ValidatedMapConfig {
 
 describe("Swooper map artifact file plan", () => {
   it("renders every catalog artifact as pure file-plan data", async () => {
-    const { configs, plan } = await buildCurrentPlan();
-    const paths = new Set(plan.files.map((file) => file.relativePath));
+    const { configs, modPlan, metadataPlan } = await buildCurrentPlans();
+    const files = [...modPlan.files, ...metadataPlan.files];
+    const paths = new Set(files.map((file) => file.relativePath));
 
-    expect(plan.exclusiveSets).toEqual([
+    expect(modPlan.exclusiveSets).toEqual([
       {
         id: "generated-map-entrypoints",
         relativeDir: "src/maps/generated",
@@ -96,24 +95,23 @@ describe("Swooper map artifact file plan", () => {
     expect(paths.has("dist/recipes/standard-map-config.schema.json")).toBe(true);
     expect(paths.has("dist/recipes/standard-map-configs.js")).toBe(true);
     expect(paths.has("dist/recipes/standard-map-configs.d.ts")).toBe(true);
-    expect(plan.files).toHaveLength(configs.length + 7);
-    expect(
-      plan.files.every((file) =>
-        file.content.kind === "text" ? file.content.text.length > 0 : file.content.bytes.length > 0
-      )
-    ).toBe(true);
+    expect(files).toHaveLength(configs.length + 7);
+    expect(files.every((file) => file.content.length > 0)).toBe(true);
   });
 
   it("feeds every schema-materialized catalog envelope into its generated artifact intact", async () => {
-    const { configs, plan } = await buildCurrentPlan();
+    const { configs, modPlan } = await buildCurrentPlans();
 
     for (const config of configs) {
-      const generatedMap = plannedFile(plan, `src/maps/generated/${config.canonicalConfig.id}.ts`);
+      const generatedMap = plannedFile(
+        modPlan,
+        `src/maps/generated/${config.canonicalConfig.id}.ts`
+      );
       expect(textContent(generatedMap), config.canonicalConfig.id).toContain(
         JSON.stringify(artifactEnvelope(config), null, 2)
       );
     }
-    expect(plan.metadata.configProjections).toEqual(
+    expect(modPlan.metadata.configProjections).toEqual(
       configs.map((config) => ({
         sourceKind: "catalog",
         sourcePath: `mods/mod-swooper-maps/src/maps/configs/${config.fileName}`,
@@ -156,10 +154,14 @@ describe("Swooper map artifact file plan", () => {
 
   it("renders exact file-plan content for a schema-valid fixture config", () => {
     const fixtureConfig = buildFixtureConfig();
-    const plan = buildSwooperMapArtifactFilePlan({
+    const modPlan = buildSwooperCatalogModFilePlan({ configs: [fixtureConfig] });
+    const metadataPlan = buildSwooperCatalogMetadataFilePlan({
       configs: [fixtureConfig],
       envelopeSchema: fixtureEnvelopeSchema,
     });
+    const plan = {
+      files: [...modPlan.files, ...metadataPlan.files],
+    };
 
     expect(plan.files.map((file) => [file.relativePath, file.kind])).toEqual([
       ["src/maps/generated/fixture-map.ts", "generated-map-entry"],
@@ -218,7 +220,7 @@ describe("Swooper map artifact file plan", () => {
     expect(catalogModule).toStartWith(
       "// This file is generated by scripts/generate-studio-map-catalog.ts"
     );
-    expect(plan.metadata.configProjections).toEqual([
+    expect(metadataPlan.metadata.configProjections).toEqual([
       {
         sourceKind: "catalog",
         sourcePath: "mods/mod-swooper-maps/src/maps/configs/fixture-map.config.json",
@@ -247,8 +249,8 @@ describe("Swooper map artifact file plan", () => {
   });
 
   it("emits catalog-only config identity for every catalog map entry", async () => {
-    const { plan } = await buildCurrentPlan();
-    const generatedMapFiles = plan.files.filter((file) => file.kind === "generated-map-entry");
+    const { modPlan } = await buildCurrentPlans();
+    const generatedMapFiles = modPlan.files.filter((file) => file.kind === "generated-map-entry");
 
     for (const file of generatedMapFiles) {
       if (!("markerMetadata" in file)) {
@@ -258,12 +260,24 @@ describe("Swooper map artifact file plan", () => {
       expect(file.markerMetadata).toHaveProperty("envelopeHash");
       expect(file.markerMetadata).not.toHaveProperty("requestId");
       expect(file.markerMetadata).not.toHaveProperty("launchEnvelopeDigest");
-      expect(file.content.kind).toBe("text");
-      const text = file.content.kind === "text" ? file.content.text : "";
+      expect(typeof file.content).toBe("string");
+      const text = typeof file.content === "string" ? file.content : "";
       expect(text).not.toContain("runCorrelation");
       expect(text).not.toContain("requestId:");
       expect(text).not.toContain("launchEnvelopeDigest");
       expect(text).not.toContain("generationManifestDigest");
+    }
+  });
+
+  it("keeps transient Studio identity out of every shipped catalog artifact", async () => {
+    const { modPlan } = await buildCurrentPlans();
+
+    for (const file of modPlan.files) {
+      const content = textContent(file);
+      expect(content, file.relativePath).not.toContain("studio-current");
+      expect(content, file.relativePath).not.toContain("STUDIO_CURRENT");
+      expect(content, file.relativePath).not.toContain("launchEnvelopeDigest");
+      expect(content, file.relativePath).not.toContain("generationManifestDigest");
     }
   });
 
@@ -301,123 +315,5 @@ describe("Swooper map artifact file plan", () => {
     expect(plan.metadata.configProjections).toEqual([
       { sourceKind: "generated-run", canonicalConfig: fixtureConfig.canonicalConfig },
     ]);
-  });
-
-  it("writes a file plan under the supplied output root and removes stale generated entries", async () => {
-    const { plan } = await buildCurrentPlan();
-    const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-map-artifact-plan-"));
-    try {
-      const staleGenerated = resolve(outputRoot, "src/maps/generated/stale.ts");
-      await mkdir(resolve(outputRoot, "src/maps/generated"), { recursive: true });
-      await writeFile(staleGenerated, "stale");
-
-      await writeSwooperMapArtifactFilePlan(plan, { outputRoot });
-
-      await expect(readFile(staleGenerated, "utf8")).rejects.toThrow();
-      const firstPlannedFile = plan.files[0];
-      expect(await readFile(resolve(outputRoot, firstPlannedFile.relativePath), "utf8")).toBe(
-        firstPlannedFile.content.kind === "text"
-          ? firstPlannedFile.content.text
-          : Buffer.from(firstPlannedFile.content.bytes).toString("utf8")
-      );
-      const modInfoFile = plannedFile(plan, "mod/swooper-maps.modinfo");
-      expect(await readFile(resolve(outputRoot, "mod/swooper-maps.modinfo"), "utf8")).toBe(
-        textContent(modInfoFile)
-      );
-    } finally {
-      await rm(outputRoot, { recursive: true, force: true });
-    }
-  });
-
-  it("rejects escaped file-plan paths before deleting stale generated entries", async () => {
-    const { plan } = await buildCurrentPlan();
-    const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-map-artifact-plan-invalid-"));
-    try {
-      const staleGenerated = resolve(outputRoot, "src/maps/generated/stale.ts");
-      await mkdir(resolve(outputRoot, "src/maps/generated"), { recursive: true });
-      await writeFile(staleGenerated, "stale");
-      const invalidPlan: SwooperMapArtifactFilePlan = {
-        metadata: plan.metadata,
-        exclusiveSets: plan.exclusiveSets,
-        files: [
-          {
-            relativePath: "../outside.ts",
-            kind: "mod-info",
-            content: { kind: "text", text: "escape" },
-          },
-          ...plan.files,
-        ],
-      };
-
-      await expect(writeSwooperMapArtifactFilePlan(invalidPlan, { outputRoot })).rejects.toThrow(
-        "escapes output root"
-      );
-      expect(await readFile(staleGenerated, "utf8")).toBe("stale");
-    } finally {
-      await rm(outputRoot, { recursive: true, force: true });
-    }
-  });
-
-  it("rejects symlinked plan paths before deleting outside generated entries", async () => {
-    const { plan } = await buildCurrentPlan();
-    const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-map-artifact-plan-symlink-"));
-    const outsideRoot = await mkdtemp(resolve(tmpdir(), "swooper-map-artifact-plan-outside-"));
-    try {
-      const outsideGenerated = resolve(outsideRoot, "stale.ts");
-      await mkdir(resolve(outputRoot, "src/maps"), { recursive: true });
-      await writeFile(outsideGenerated, "outside");
-      await symlink(outsideRoot, resolve(outputRoot, "src/maps/generated"));
-
-      await expect(writeSwooperMapArtifactFilePlan(plan, { outputRoot })).rejects.toThrow(
-        "traverses symlink"
-      );
-      expect(await readFile(outsideGenerated, "utf8")).toBe("outside");
-    } finally {
-      await rm(outputRoot, { recursive: true, force: true });
-      await rm(outsideRoot, { recursive: true, force: true });
-    }
-  });
-
-  it("rejects a symlinked output root before deleting outside generated entries", async () => {
-    const { plan } = await buildCurrentPlan();
-    const outputRootParent = await mkdtemp(resolve(tmpdir(), "swooper-map-artifact-root-link-"));
-    const outsideRoot = await mkdtemp(resolve(tmpdir(), "swooper-map-artifact-root-link-outside-"));
-    const outputRoot = resolve(outputRootParent, "generated-mod");
-    try {
-      const outsideGenerated = resolve(outsideRoot, "src/maps/generated/stale.ts");
-      await mkdir(resolve(outsideRoot, "src/maps/generated"), { recursive: true });
-      await writeFile(outsideGenerated, "outside");
-      await symlink(outsideRoot, outputRoot);
-
-      await expect(writeSwooperMapArtifactFilePlan(plan, { outputRoot })).rejects.toThrow(
-        "output root must not be a symlink"
-      );
-      expect(await readFile(outsideGenerated, "utf8")).toBe("outside");
-    } finally {
-      await rm(outputRootParent, { recursive: true, force: true });
-      await rm(outsideRoot, { recursive: true, force: true });
-    }
-  });
-
-  it("rejects symlinked write paths before deleting stale generated entries", async () => {
-    const { plan } = await buildCurrentPlan();
-    const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-map-artifact-plan-write-link-"));
-    const outsideRoot = await mkdtemp(
-      resolve(tmpdir(), "swooper-map-artifact-plan-write-outside-")
-    );
-    try {
-      const staleGenerated = resolve(outputRoot, "src/maps/generated/stale.ts");
-      await mkdir(resolve(outputRoot, "src/maps/generated"), { recursive: true });
-      await writeFile(staleGenerated, "stale");
-      await symlink(outsideRoot, resolve(outputRoot, "mod"));
-
-      await expect(writeSwooperMapArtifactFilePlan(plan, { outputRoot })).rejects.toThrow(
-        "traverses symlink"
-      );
-      expect(await readFile(staleGenerated, "utf8")).toBe("stale");
-    } finally {
-      await rm(outputRoot, { recursive: true, force: true });
-      await rm(outsideRoot, { recursive: true, force: true });
-    }
   });
 });
