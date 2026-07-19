@@ -374,10 +374,11 @@ Studio/SDK metadata.
 
 - Public docs/examples should not teach workspace-only aliases.
 - Public consumers should use package exports.
-- Standard recipe assembly may use sanctioned domain surfaces such as
-  `@mapgen/domain/<domain>`, `/ops`, and `/config`.
-- Cross-domain source should avoid deep internals once public entrypoints exist.
-- Intra-op/domain internals should use relative imports.
+- `@mapgen/domain/*` is a temporary workspace alias, not a durable public
+  surface. Package-local consumers use finite mod-owned facades or relative
+  internals; external consumers use real package exports.
+- Cross-domain source should avoid deep internals once finite owner surfaces
+  exist. Intra-op/domain internals use relative imports.
 - Tests should follow the code under test.
 
 **First enforcement:** ship a narrow G4 guardrail for `src/recipes/**` deep

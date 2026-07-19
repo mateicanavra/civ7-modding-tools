@@ -17,10 +17,14 @@ for the truth-vs-projection stage split and the vocabulary.
 | `@swooper/mapgen-core/authoring/contracts` | `defineOp`, `defineStep`, `defineArtifact`, `defineArtifactCatalog`, `defineDomain`, `Type`, `TypedArraySchemas`, `validateArtifactSchema`, `OpTypeBagOf` — contract-only schemas, types, validation, and catalog assembly | op `contract.ts`, recipe-step `config.ts`, `*.artifact.ts`, artifact catalogs, domain contract `index.ts` |
 | `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomain`, `collectCompileOps` — attach runtime implementations | op runtime `index.ts`, recipe-step `step.ts`, strategy files, stage/recipe files |
 
-`@mapgen/domain/*` → `src/domain/*` (tsconfig path alias). Step **contracts** import the
-domain contract via `@mapgen/domain/<domain>` (the `defineDomain` index). `recipe.ts`
-imports the domain **runtime** via `@mapgen/domain/<domain>/ops` (the `createDomain` module).
-ESM relative imports use the `.js` extension even though the files are `.ts`.
+`@mapgen/domain/*` is a transitional tsconfig alias over the existing domain
+roots. Until the package-surface migration removes it, use only the already
+admitted root and `/ops` forms shown by live source; do not add alias mappings or
+new deep-import surfaces. Step contracts currently import the `defineDomain`
+root and `recipe.ts` currently imports the `createDomain` `/ops` root. Slice 7
+of the package-ownership migration replaces this compatibility graph with real
+owner surfaces. ESM relative imports use the `.js` extension even though the
+files are `.ts`.
 
 ---
 
@@ -198,7 +202,9 @@ is kebab-case (`/^[a-z0-9]+(?:-[a-z0-9]+)*$/`). The reference no-ops step is
 `map-morphology/steps/plot-continents`; the reference with-ops step is
 `morphology-features/steps/landmasses`.
 
-**`config.ts`** — `defineStep`. Import the domain *contract* via `@mapgen/domain/<domain>`.
+**`config.ts`** — `defineStep`. Existing code temporarily imports the domain
+contract through the admitted `@mapgen/domain/<domain>` root; do not extend that
+alias or deep-import through it.
 ```ts
 // steps/<step-name>/config.ts
 import someDomain from "@mapgen/domain/<domain>";

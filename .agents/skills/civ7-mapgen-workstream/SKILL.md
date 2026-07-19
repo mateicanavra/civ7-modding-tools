@@ -19,7 +19,8 @@ verification overlays, the orchestration loop).
 Two load-bearing lines govern everything below:
 
 - **Recipe-domain logic is NOT engine/SDK architecture.** Generation logic is
-  authored in the mod: `mods/mod-swooper-maps/src/{domain,recipes,maps,dev}`.
+  authored in the mod: `mods/mod-swooper-maps/src/{domain,recipes,maps}`;
+  product tools live under `mods/mod-swooper-maps/scripts/{diagnostics,live}`.
   `@swooper/mapgen-core` (`packages/mapgen-core`) is the engine/authoring
   substrate; `packages/sdk` is the SDK. Engine/SDK architecture is owned by
   `civ7-architecture-authority` — referenced, never redefined here.
@@ -118,7 +119,7 @@ map, and the benchmark overlay are in `references/facet-verification.md`.
   │  system-design               │                                              │  orpc-control-architecture (Studio-viz problem class only)
   │  team-design                 │                                              │  open-spec-workstream / systematic-workstream (closure handoff)
   └──────────────────────────────┴───────────────────────────────────────────────┘
-  LIVE recipe/domain source (AUTHORITATIVE): mods/mod-swooper-maps/src/{domain,recipes,maps,dev} · engine: @swooper/mapgen-core
+  LIVE recipe/domain source (AUTHORITATIVE): mods/mod-swooper-maps/src/{domain,recipes,maps} · tools: mods/mod-swooper-maps/scripts/{diagnostics,live} · engine: @swooper/mapgen-core
   NEW depth lives in: references/facet-physics.md ; the orchestration loop ; the map-gen verification + Civ7-domain-research overlays.
 ```
 

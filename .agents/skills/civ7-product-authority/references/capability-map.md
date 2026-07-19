@@ -11,10 +11,10 @@ This map names durable product/domain owners for Civ7 Modding Tools. It is a sta
 | SDK mod authoring | `packages/sdk` | builders, nodes, XML file generation contracts, authoring ergonomics | CLI UX, MapGen algorithms, Civ7 runtime adapter calls |
 | CLI workflows | `packages/cli` | command UX, flags, command orchestration, command errors | reusable plugin internals, SDK semantics |
 | Plugin libraries | `packages/plugins/*` | reusable pure mechanics for graph/file/git/mod workflows | CLI-specific behavior, product-specific generated output claims |
-| MapGen core | `packages/mapgen-core` | deterministic generation model, recipe/stage/step/config/artifact contracts, pure domains | Civ7 runtime globals, generated mod files, MapGen Studio UI |
+| MapGen core | `packages/mapgen-core` | authoring/compiler/executor/artifact/trace contracts and generic generation primitives | Swooper domain implementations, Civ7 runtime globals, generated mod files, MapGen Studio UI |
 | Civ7 adapter | `packages/civ7-adapter` | engine/runtime API boundary and stable adapter methods | MapGen algorithms, mod tuning, pure SDK XML generation |
 | MapGen visualization | `packages/mapgen-viz`, `apps/mapgen-studio` | visualization contracts, viewers, workers, UI, trace/dump presentation | generation truth, engine projection |
-| Swooper Maps mod | `mods/mod-swooper-maps` | game-facing map mod integration, source recipe content, deployment package generation | pure core algorithms, adapter internals, hand-edited `mod/` output |
+| Swooper Maps mod | `mods/mod-swooper-maps` | all six Swooper domains and operations, recipes, game-facing integration, deployment package generation | generic SDK/runtime mechanics, adapter internals, hand-edited `mod/` output |
 | Docs and examples | `docs/**`, `apps/playground` | canonical promises, tutorials, examples, project state | executable behavior without matching source/tests |
 
 ## Explicit Non-Ownership Rules

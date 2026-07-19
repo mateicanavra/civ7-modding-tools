@@ -117,8 +117,8 @@ A single op is a directory. Using `morphology/compute-landmask` as the reference
 
 ```
 domain/morphology/
-  index.ts                  defineDomain (contract-only) — referenced by step contracts via @mapgen/domain/morphology
-  ops.ts                    createDomain (runtime) — referenced by recipe.ts via @mapgen/domain/morphology/ops
+  index.ts                  defineDomain (contract-only) — current step-contract owner surface
+  ops.ts                    createDomain (runtime) — current recipe runtime owner surface
   ops/
     contracts.ts            registry: { computeLandmask: MyContract, ... }  (contract-only)
     index.ts                registry: { computeLandmask: myOp, ... } satisfies DomainOpImplementationsForContracts
@@ -132,9 +132,11 @@ domain/morphology/
       types.ts              OpTypeBagOf<Contract> — typed input/output/envelope bag
 ```
 
-Two import faces of a domain (path alias `@mapgen/domain/*` → `src/domain/*`):
-- Step **contracts** import `@mapgen/domain/<domain>` (the `defineDomain` contract index) to reference op contracts.
-- `recipe.ts` imports `@mapgen/domain/<domain>/ops` (the `createDomain` runtime) for `collectCompileOps`.
+Two current import faces of a domain are routed through the transitional
+`@mapgen/domain/*` alias: the contract root used by step contracts and the
+`/ops` runtime root used by `recipe.ts`. These exact roots are compatibility
+surfaces, not a pattern to extend: do not add alias mappings or deep imports.
+Package-ownership Slice 7 replaces them with real mod-owned dependency surfaces.
 
 Visualization is owned by the step's optional `createStep(contract, { viz })`
 facet. A helper private to one step lives at

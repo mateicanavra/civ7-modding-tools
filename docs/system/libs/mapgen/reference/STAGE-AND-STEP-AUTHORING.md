@@ -26,6 +26,11 @@ A step contract defines:
 
 Representative example (dependency tags + artifact requirements; excerpt; see full file in anchors):
 
+The example reflects the current transitional `@mapgen/domain/*` alias. Use
+only its admitted domain root or `/ops` surface while the active package
+ownership migration removes the alias; do not add new alias mappings or deep
+imports.
+
 ```ts
 import hydrology from "@mapgen/domain/hydrology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
