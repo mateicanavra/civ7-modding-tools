@@ -12,15 +12,8 @@ const BOUNDARY_TRANSFORM = 3;
 
 export const defaultStrategy = createStrategy(ComputeCoastlineMetricsContract, "default", {
   run: (input, config) => {
-    const { width, height } = input;
+    const { width, height, landMask, boundaryCloseness: closeness, boundaryType } = input;
     const size = width * height;
-    const landMask = input.landMask as Uint8Array;
-    const closeness = input.boundaryCloseness as Uint8Array;
-    const boundaryType = input.boundaryType as Uint8Array;
-
-    if (landMask.length !== size || closeness.length !== size || boundaryType.length !== size) {
-      throw new Error("[CoastlineMetrics] Input tensors must match width*height.");
-    }
 
     const coastCfg = config.coast;
     const bayCfg = coastCfg.bay;

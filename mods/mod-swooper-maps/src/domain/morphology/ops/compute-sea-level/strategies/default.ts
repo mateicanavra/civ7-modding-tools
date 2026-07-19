@@ -2,17 +2,16 @@ import { createLabelRng } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeSeaLevelContract from "../contract.js";
-import { resolveSeaLevel, resolveTargetPercent, validateSeaLevelInputs } from "../rules/index.js";
+import { resolveSeaLevel, resolveTargetPercent } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeSeaLevelContract, "default", {
   run: (input, config) => {
-    const { elevation, crustType, boundaryCloseness } = validateSeaLevelInputs(input);
+    const { elevation, crustType, boundaryCloseness } = input;
     const rng = createLabelRng(input.rngSeed | 0);
     const targetPct = resolveTargetPercent(config, rng);
 
     const values = Array.from(elevation);
     values.sort((a, b) => a - b);
-    if (values.length === 0) return { seaLevel: 0 };
 
     const seaLevel = resolveSeaLevel({
       values,

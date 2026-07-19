@@ -135,11 +135,6 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     const height = plan.height;
     const size = width * height;
     const seed = input.seed | 0;
-    if (input.landmassIdByTile.length !== size || input.regionSlotByTile.length !== size) {
-      throw new Error(
-        "[resources] adjust-resource-support landmass/region fields must match grid size."
-      );
-    }
     const landmassIdByTile = input.landmassIdByTile;
     const regionSlotByTile = input.regionSlotByTile;
 
@@ -166,21 +161,11 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     };
     const eligibilityByType = new Map<OfficialResourceType, Eligibility>();
     for (const row of input.eligibility) {
-      if (row.habitatMask.length !== size || row.legalMask.length !== size) {
-        throw new Error(
-          `[resources] adjust-resource-support eligibility masks for ${row.resourceType} must match grid size ${size}.`
-        );
-      }
-      if (row.intensity.length !== size) {
-        throw new Error(
-          `[resources] adjust-resource-support intensity for ${row.resourceType} must match grid size.`
-        );
-      }
       eligibilityByType.set(row.resourceType, {
         resourceType: row.resourceType,
-        habitatMask: row.habitatMask as Uint8Array,
-        legalMask: row.legalMask as Uint8Array,
-        intensity: row.intensity as Float32Array,
+        habitatMask: row.habitatMask,
+        legalMask: row.legalMask,
+        intensity: row.intensity,
       });
     }
 

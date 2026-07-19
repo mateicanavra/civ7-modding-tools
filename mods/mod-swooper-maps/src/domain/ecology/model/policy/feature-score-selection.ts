@@ -1,24 +1,5 @@
 import { clamp01, normalizeRange } from "@swooper/mapgen-core";
 
-/** Checks that every supplied score field covers the requested grid and returns its tile count. */
-export function validateGridFields(
-  args: Readonly<{
-    width: number;
-    height: number;
-    fields: ReadonlyArray<Readonly<{ label: string; arr: { length: number } }>>;
-  }>
-): number {
-  const size = args.width * args.height;
-
-  for (const field of args.fields) {
-    if (field.arr.length !== size) {
-      throw new Error(`${field.label} length ${field.arr.length} != ${size}`);
-    }
-  }
-
-  return size;
-}
-
 export function rampUp01(value: number, start: number, end: number): number {
   return normalizeRange(value, start, end);
 }

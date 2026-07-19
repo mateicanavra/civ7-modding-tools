@@ -10,41 +10,6 @@ const WORLD_AGE_SCALE: Record<string, number> = {
 };
 
 /**
- * Ensures geomorphic-cycle inputs match the expected map size.
- */
-export function validateGeomorphicInputs(input: ComputeGeomorphicCycleTypes["input"]): {
-  size: number;
-  elevation: Int16Array;
-  flowDir: Int32Array;
-  flowAccum: Float32Array;
-  erodibility: Float32Array;
-  sedimentDepth: Float32Array;
-  landMask: Uint8Array;
-} {
-  const { width, height } = input;
-  const size = width * height;
-  const elevation = input.elevation as Int16Array;
-  const flowDir = input.flowDir as Int32Array;
-  const flowAccum = input.flowAccum as Float32Array;
-  const erodibility = input.erodibilityK as Float32Array;
-  const sedimentDepth = input.sedimentDepth as Float32Array;
-  const landMask = input.landMask as Uint8Array;
-
-  if (
-    elevation.length !== size ||
-    flowDir.length !== size ||
-    flowAccum.length !== size ||
-    erodibility.length !== size ||
-    sedimentDepth.length !== size ||
-    landMask.length !== size
-  ) {
-    throw new Error("[Geomorphology] Input tensors must match width*height.");
-  }
-
-  return { size, elevation, flowDir, flowAccum, erodibility, sedimentDepth, landMask };
-}
-
-/**
  * Resolves the world-age scaling multiplier.
  */
 export function resolveWorldAgeScale(

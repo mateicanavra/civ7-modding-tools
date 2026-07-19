@@ -3,7 +3,6 @@ import { clamp01 } from "@swooper/mapgen-core";
 import type {
   PedologyClassifyAdmittedInput,
   PedologyClassifyConfig,
-  PedologyClassifyInput,
   PedologyClassifyOutput,
 } from "../types.js";
 
@@ -47,17 +46,6 @@ export function classifyPedology(
 }
 
 /**
- * Throws when an input array length does not match the expected map size.
- */
-export function ensureSize(array: ArrayLike<number>, expected: number, label: string): void {
-  if (array.length !== expected) {
-    throw new Error(
-      `Pedology classify: expected ${label} length ${expected}, got ${array.length}.`
-    );
-  }
-}
-
-/**
  * Returns a normalized relief field, using slope when provided or elevation as a fallback.
  */
 export function computeReliefProxy(
@@ -65,7 +53,7 @@ export function computeReliefProxy(
   elevation: Int16Array,
   size: number
 ): Float32Array {
-  if (slope && slope.length === size) {
+  if (slope) {
     return slope;
   }
   // Fallback: normalize elevation magnitude as a proxy for relief.
@@ -135,41 +123,4 @@ export function soilPaletteIndex(fertility: number, relief: number, moisture: nu
   if (moisture > 0.65) return 3; // clayish / wet
   if (fertility < 0.35) return 1; // sandy
   return 2;
-}
-
-/**
- * Normalizes an optional field into a 0..1 Float32Array or returns zeros when missing.
- */
-export function normalizeOptionalField(
-  field: Float32Array | Int16Array | undefined,
-  size: number
-): Float32Array {
-  if (!field || field.length !== size) return new Float32Array(size);
-  let max = 1;
-  for (let i = 0; i < size; i++) {
-    const value = Math.abs(field[i] ?? 0);
-    if (value > max) max = value;
-  }
-  const inv = max === 0 ? 1 : 1 / max;
-  const result = new Float32Array(size);
-  for (let i = 0; i < size; i++) {
-    result[i] = clamp01(Math.abs(field[i] ?? 0) * inv);
-  }
-  return result;
-}
-
-/**
- * Validates pedology input array sizes and returns the total tile count.
- */
-export function validateInput(input: PedologyClassifyInput): number {
-  const { width, height, landMask, elevation, rainfall, humidity } = input;
-  const size = width * height;
-  ensureSize(landMask, size, "landMask");
-  ensureSize(elevation, size, "elevation");
-  ensureSize(rainfall, size, "rainfall");
-  ensureSize(humidity, size, "humidity");
-  if (input.sedimentDepth) ensureSize(input.sedimentDepth, size, "sedimentDepth");
-  if (input.bedrockAge) ensureSize(input.bedrockAge, size, "bedrockAge");
-  if (input.slope) ensureSize(input.slope, size, "slope");
-  return size;
 }

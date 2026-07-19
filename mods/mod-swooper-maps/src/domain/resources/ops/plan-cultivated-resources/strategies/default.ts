@@ -7,6 +7,7 @@ import {
   type CultivatedResourceType,
 } from "../../../model/policy/cultivated-resource-signals.js";
 import PlanCultivatedResourcesContract from "../contract.js";
+import type { PlanCultivatedResourcesTypes } from "../types.js";
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
@@ -127,53 +128,37 @@ export const defaultStrategy = createStrategy(PlanCultivatedResourcesContract, "
 });
 
 function presentFields(
-  input: Record<string, unknown>,
+  input: PlanCultivatedResourcesTypes["input"],
   fields: readonly CultivatedMaskField[]
 ): string[] {
   return fields.filter((field) => input[field] !== undefined);
 }
 
 function countEligibleTiles(
-  input: Record<string, unknown>,
+  input: PlanCultivatedResourcesTypes["input"],
   size: number,
   signals: CultivatedResourceSignals
 ): number {
-  const primaryMasks = signals.primary
-    .map((field) => ({ field, mask: readMask(input, field, size) }))
-    .filter(
-      (entry): entry is { field: CultivatedMaskField; mask: Uint8Array } => entry.mask !== undefined
-    );
+  const primaryMasks: Uint8Array[] = [];
+  for (const field of signals.primary) {
+    const mask = input[field] ?? null;
+    if (mask !== null) primaryMasks.push(mask);
+  }
   if (primaryMasks.length === 0) return 0;
 
-  const suppressMasks = signals.suppress
-    .map((field) => readMask(input, field, size))
-    .filter((mask): mask is Uint8Array => mask !== undefined);
+  const suppressMasks: Uint8Array[] = [];
+  for (const field of signals.suppress) {
+    const mask = input[field] ?? null;
+    if (mask !== null) suppressMasks.push(mask);
+  }
 
   let count = 0;
   for (let i = 0; i < size; i++) {
-    if (!primaryMasks.some(({ mask }) => mask[i] !== 0)) continue;
+    if (!primaryMasks.some((mask) => mask[i] !== 0)) continue;
     if (suppressMasks.some((mask) => mask[i] !== 0)) continue;
     count += 1;
   }
   return count;
-}
-
-function readMask(
-  input: Record<string, unknown>,
-  field: string,
-  size: number
-): Uint8Array | undefined {
-  const value = input[field];
-  if (value === undefined) return undefined;
-  if (!(value instanceof Uint8Array)) {
-    throw new Error(`Cultivated resource mask ${field} must be a Uint8Array.`);
-  }
-  if (value.length !== size) {
-    throw new Error(
-      `Cultivated resource mask ${field} length ${value.length} does not match grid size ${size}.`
-    );
-  }
-  return value;
 }
 
 function compareRange(

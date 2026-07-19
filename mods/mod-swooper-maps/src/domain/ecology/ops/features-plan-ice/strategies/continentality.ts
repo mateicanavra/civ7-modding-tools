@@ -1,8 +1,5 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import {
-  confidenceFromScore01,
-  validateGridFields,
-} from "../../../model/policy/feature-score-selection.js";
+import { confidenceFromScore01 } from "../../../model/policy/feature-score-selection.js";
 import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import PlanIceContract from "../contract.js";
 import { admitIceIntent } from "../policy/index.js";
@@ -11,15 +8,7 @@ export const continentalityStrategy = createStrategy(PlanIceContract, "continent
   run: (input, config) => {
     const width = input.width;
     const height = input.height;
-    const size = validateGridFields({
-      width,
-      height,
-      fields: [
-        { label: "score01", arr: input.score01 as Float32Array },
-        { label: "featureOccupancyMask", arr: input.featureOccupancyMask as Uint8Array },
-        { label: "reserved", arr: input.reserved as Uint8Array },
-      ],
-    });
+    const size = width * height;
 
     const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
       [];

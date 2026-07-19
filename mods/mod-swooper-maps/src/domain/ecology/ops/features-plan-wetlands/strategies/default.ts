@@ -3,7 +3,6 @@ import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
-  validateGridFields,
 } from "../../../model/policy/feature-score-selection.js";
 import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import PlanWetlandsContract from "../contract.js";
@@ -13,20 +12,7 @@ export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;
-    const size = validateGridFields({
-      width,
-      height,
-      fields: [
-        { label: "scoreMarsh01", arr: input.scoreMarsh01 as Float32Array },
-        { label: "scoreTundraBog01", arr: input.scoreTundraBog01 as Float32Array },
-        { label: "scoreMangrove01", arr: input.scoreMangrove01 as Float32Array },
-        { label: "scoreOasis01", arr: input.scoreOasis01 as Float32Array },
-        { label: "scoreWateringHole01", arr: input.scoreWateringHole01 as Float32Array },
-        { label: "flatLandMask", arr: input.flatLandMask as Uint8Array },
-        { label: "featureOccupancyMask", arr: input.featureOccupancyMask as Uint8Array },
-        { label: "reserved", arr: input.reserved as Uint8Array },
-      ],
-    });
+    const size = width * height;
     const flatLandMask = input.flatLandMask as Uint8Array;
 
     const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =

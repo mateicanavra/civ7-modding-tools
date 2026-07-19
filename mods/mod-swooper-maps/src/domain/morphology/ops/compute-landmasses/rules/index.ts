@@ -1,21 +1,3 @@
-import type { ComputeLandmassesTypes } from "../types.js";
-
-/**
- * Ensures landmass inputs match the expected map size.
- */
-export function validateLandmassInputs(input: ComputeLandmassesTypes["input"]): {
-  size: number;
-  landMask: Uint8Array;
-} {
-  const { width, height } = input;
-  const size = width * height;
-  const landMask = input.landMask as Uint8Array;
-  if (landMask.length !== size) {
-    throw new Error(`Expected landMask length ${size} (received ${landMask.length}).`);
-  }
-  return { size, landMask };
-}
-
 /**
  * Computes seam-aware bounds for columns marked as used.
  */

@@ -8,19 +8,6 @@ export const defaultStrategy = createStrategy(AccumulateDischargeContract, "defa
     const height = input.height;
     const size = width * height;
 
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/accumulate-discharge.");
-    }
-    if (!(input.flowDir instanceof Int32Array) || input.flowDir.length !== size) {
-      throw new Error("[Hydrology] Invalid flowDir for hydrology/accumulate-discharge.");
-    }
-    if (!(input.rainfall instanceof Uint8Array) || input.rainfall.length !== size) {
-      throw new Error("[Hydrology] Invalid rainfall for hydrology/accumulate-discharge.");
-    }
-    if (!(input.humidity instanceof Uint8Array) || input.humidity.length !== size) {
-      throw new Error("[Hydrology] Invalid humidity for hydrology/accumulate-discharge.");
-    }
-
     const runoff = new Float32Array(size);
     const discharge = new Float32Array(size);
     const sinkMask = new Uint8Array(size);

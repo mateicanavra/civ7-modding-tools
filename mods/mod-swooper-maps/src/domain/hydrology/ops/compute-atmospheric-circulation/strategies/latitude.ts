@@ -8,11 +8,6 @@ export const latitudeStrategy = createStrategy(ComputeAtmosphericCirculationCont
     const height = input.height;
     const rngSeed = input.rngSeed | 0;
     const latitudeByRow = input.latitudeByRow;
-    if (!(latitudeByRow instanceof Float32Array) || latitudeByRow.length !== height) {
-      throw new Error(
-        "[Hydrology] Invalid latitudeByRow for hydrology/compute-atmospheric-circulation."
-      );
-    }
 
     return computeWinds(width, height, latitudeByRow, {
       seed: rngSeed,

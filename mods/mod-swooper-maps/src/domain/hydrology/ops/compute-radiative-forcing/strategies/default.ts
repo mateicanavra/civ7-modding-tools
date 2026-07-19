@@ -8,9 +8,6 @@ export const defaultStrategy = createStrategy(ComputeRadiativeForcingContract, "
     const height = input.height;
     const size = width * height;
     const latitudeByRow = input.latitudeByRow;
-    if (!(latitudeByRow instanceof Float32Array) || latitudeByRow.length !== height) {
-      throw new Error("[Hydrology] Invalid latitudeByRow for hydrology/compute-radiative-forcing.");
-    }
 
     const insolation = new Float32Array(size);
     const equator = config.equatorInsolation;

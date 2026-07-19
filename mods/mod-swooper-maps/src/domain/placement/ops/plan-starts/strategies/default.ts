@@ -70,13 +70,6 @@ const ZERO_COMPONENTS: StartComponents = {
   roughness: 0,
 };
 
-function requireLength<T extends { length: number }>(value: T, expected: number, label: string): T {
-  if (value.length !== expected) {
-    throw new Error(`[Placement] Invalid ${label} for placement/plan-starts.`);
-  }
-  return value;
-}
-
 function addRejection(counts: Map<RejectionReason, number>, reason: RejectionReason): void {
   counts.set(reason, (counts.get(reason) ?? 0) + 1);
 }
@@ -305,26 +298,26 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
     const height = input.height;
     const size = width * height;
 
-    const landMask = requireLength(input.landMask, size, "landMask");
-    const slotByTile = requireLength(input.slotByTile, size, "slotByTile");
-    const landmassIdByTile = requireLength(input.landmassIdByTile, size, "landmassIdByTile");
+    const landMask = input.landMask;
+    const slotByTile = input.slotByTile;
+    const landmassIdByTile = input.landmassIdByTile;
 
     // --- input coverage assertions (never silently neutral-defaulted) ---------------------
     const inputCoverage: InputCoverageRow[] = [];
     const imputedComponents = new Set<string>();
-    const covered = <T extends { length: number }>(
+    const covered = <T>(
       value: T | undefined,
       inputName: string,
       affectsComponent: string
     ): T | undefined => {
-      const ok = Boolean(value && value.length === size);
+      const provided = value !== undefined;
       inputCoverage.push({
         input: inputName,
-        status: ok ? "provided" : "imputed",
+        status: provided ? "provided" : "imputed",
         affectsComponent,
       });
-      if (!ok) imputedComponents.add(affectsComponent);
-      return ok ? value : undefined;
+      if (!provided) imputedComponents.add(affectsComponent);
+      return value;
     };
 
     const lakeMask = covered(input.lakeMask, "lakeMask", "freshwater");
@@ -346,9 +339,7 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
       if (plotIndex >= 0 && plotIndex < size) naturalWonderPlots.add(plotIndex);
     }
     const resourceSupport =
-      (input.resourceSupport && input.resourceSupport.length === size
-        ? input.resourceSupport
-        : undefined) ??
+      input.resourceSupport ??
       buildResourceSupport({
         width,
         height,

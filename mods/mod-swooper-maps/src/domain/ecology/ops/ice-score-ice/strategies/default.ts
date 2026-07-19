@@ -1,25 +1,12 @@
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import {
-  rampDown01,
-  rampUp01,
-  validateGridFields,
-} from "../../../model/policy/feature-score-selection.js";
+import { rampDown01, rampUp01 } from "../../../model/policy/feature-score-selection.js";
 import ScoreIceContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(ScoreIceContract, "default", {
   run: (input, config) => {
-    const size = validateGridFields({
-      width: input.width,
-      height: input.height,
-      fields: [
-        { label: "landMask", arr: input.landMask as Uint8Array },
-        { label: "surfaceTemperature", arr: input.surfaceTemperature as Float32Array },
-        { label: "elevation", arr: input.elevation as Int16Array },
-        { label: "freezeIndex", arr: input.freezeIndex as Float32Array },
-      ],
-    });
+    const size = input.width * input.height;
 
     const score01 = new Float32Array(size);
 

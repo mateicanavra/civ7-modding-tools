@@ -2,25 +2,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeFeatureSubstrateContract from "../contract.js";
 import { computeWetlandSubstrateMasks } from "../policy/index.js";
-import {
-  computeCoastalLandMask,
-  computeRiverAdjacencyMask,
-  validateFeatureSubstrateInputs,
-} from "../rules/index.js";
+import { computeCoastalLandMask, computeRiverAdjacencyMask } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeFeatureSubstrateContract, "default", {
   run: (input, config) => {
-    validateFeatureSubstrateInputs({
-      width: input.width,
-      height: input.height,
-      riverClass: input.riverClass as Uint8Array,
-      navigableRiverMask: input.navigableRiverMask as Uint8Array,
-      landMask: input.landMask as Uint8Array,
-      elevation: input.elevation as Int16Array,
-      discharge: input.discharge as Float32Array,
-      sinkMask: input.sinkMask as Uint8Array,
-    });
-
     const width = input.width;
     const height = input.height;
     const riverClass = input.riverClass as Uint8Array;

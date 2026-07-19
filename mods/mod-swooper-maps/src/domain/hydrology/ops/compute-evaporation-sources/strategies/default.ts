@@ -13,40 +13,6 @@ export const defaultStrategy = createStrategy(ComputeEvaporationSourcesContract,
     const height = input.height;
     const size = width * height;
 
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/compute-evaporation-sources.");
-    }
-    if (
-      !(input.surfaceTemperatureC instanceof Float32Array) ||
-      input.surfaceTemperatureC.length !== size
-    ) {
-      throw new Error(
-        "[Hydrology] Invalid surfaceTemperatureC for hydrology/compute-evaporation-sources."
-      );
-    }
-    if (input.windU != null) {
-      if (!(input.windU instanceof Int8Array) || input.windU.length !== size) {
-        throw new Error("[Hydrology] Invalid windU for hydrology/compute-evaporation-sources.");
-      }
-    }
-    if (input.windV != null) {
-      if (!(input.windV instanceof Int8Array) || input.windV.length !== size) {
-        throw new Error("[Hydrology] Invalid windV for hydrology/compute-evaporation-sources.");
-      }
-    }
-    if (input.sstC != null) {
-      if (!(input.sstC instanceof Float32Array) || input.sstC.length !== size) {
-        throw new Error("[Hydrology] Invalid sstC for hydrology/compute-evaporation-sources.");
-      }
-    }
-    if (input.seaIceMask != null) {
-      if (!(input.seaIceMask instanceof Uint8Array) || input.seaIceMask.length !== size) {
-        throw new Error(
-          "[Hydrology] Invalid seaIceMask for hydrology/compute-evaporation-sources."
-        );
-      }
-    }
-
     const evaporation = new Float32Array(size);
     const minT = config.minTempC;
     const maxT = Math.max(minT + 1e-6, config.maxTempC);

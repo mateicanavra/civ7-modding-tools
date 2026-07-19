@@ -52,25 +52,6 @@ export const defaultStrategy = createStrategy(ComputePrecipitationContract, "def
     const size = width * height;
     const perlinSeed = input.perlinSeed | 0;
 
-    if (!(input.latitudeByRow instanceof Float32Array) || input.latitudeByRow.length !== height) {
-      throw new Error("[Hydrology] Invalid latitudeByRow for hydrology/compute-precipitation.");
-    }
-    if (!(input.elevation instanceof Int16Array) || input.elevation.length !== size) {
-      throw new Error("[Hydrology] Invalid elevation for hydrology/compute-precipitation.");
-    }
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/compute-precipitation.");
-    }
-    if (!(input.windU instanceof Int8Array) || input.windU.length !== size) {
-      throw new Error("[Hydrology] Invalid windU for hydrology/compute-precipitation.");
-    }
-    if (!(input.windV instanceof Int8Array) || input.windV.length !== size) {
-      throw new Error("[Hydrology] Invalid windV for hydrology/compute-precipitation.");
-    }
-    if (!(input.humidityF32 instanceof Float32Array) || input.humidityF32.length !== size) {
-      throw new Error("[Hydrology] Invalid humidityF32 for hydrology/compute-precipitation.");
-    }
-
     const rainfall = new Uint8Array(size);
     const humidity = new Uint8Array(size);
 

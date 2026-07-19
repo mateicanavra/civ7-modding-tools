@@ -4,7 +4,7 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 import ComputeLandmaskContract from "../contract.js";
-import { validateLandmaskInputs } from "../rules/index.js";
+import { assertRiftPotentialEraPresent } from "../rules/index.js";
 
 /**
  * Weights for the low-frequency crust-driven continent potential.
@@ -359,9 +359,10 @@ function computeDistanceToCoast(width: number, height: number, landMask: Uint8Ar
 
 export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default", {
   run: (input, config) => {
-    const { width, height } = input;
+    assertRiftPotentialEraPresent(input.riftPotentialByEra);
     const {
-      size,
+      width,
+      height,
       elevation,
       boundaryCloseness,
       boundaryType,
@@ -385,7 +386,8 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
       lastActiveEra,
       movementU,
       movementV,
-    } = validateLandmaskInputs(input);
+    } = input;
+    const size = width * height;
 
     // Preserve hypsometry intent by targeting the land fraction implied by (elevation > seaLevel),
     // but derive the actual landmask from a low-frequency continent potential grounded in Foundation truth.

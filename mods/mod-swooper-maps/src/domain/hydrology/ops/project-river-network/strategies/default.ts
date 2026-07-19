@@ -37,16 +37,6 @@ export const defaultStrategy = createStrategy(ProjectRiverNetworkContract, "defa
     const height = input.height;
     const size = width * height;
 
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/project-river-network.");
-    }
-    if (!(input.discharge instanceof Float32Array) || input.discharge.length !== size) {
-      throw new Error("[Hydrology] Invalid discharge for hydrology/project-river-network.");
-    }
-    if (!(input.flowDir instanceof Int32Array) || input.flowDir.length !== size) {
-      throw new Error("[Hydrology] Invalid flowDir for hydrology/project-river-network.");
-    }
-
     const riverClass = new Uint8Array(size);
     const minorMask = new Uint8Array(size);
 

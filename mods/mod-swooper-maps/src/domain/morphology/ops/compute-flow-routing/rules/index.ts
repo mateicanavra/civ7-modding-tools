@@ -1,25 +1,5 @@
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
-import type { ComputeFlowRoutingTypes } from "../types.js";
-
-/**
- * Ensures flow-routing inputs match the expected map size.
- */
-export function validateFlowRoutingInputs(input: ComputeFlowRoutingTypes["input"]): {
-  size: number;
-  elevation: Int16Array;
-  landMask: Uint8Array;
-} {
-  const { width, height } = input;
-  const size = width * height;
-  const elevation = input.elevation as Int16Array;
-  const landMask = input.landMask as Uint8Array;
-  if (elevation.length !== size || landMask.length !== size) {
-    throw new Error("[FlowRouting] Input tensors must match width*height.");
-  }
-  return { size, elevation, landMask };
-}
-
 /**
  * Selects the steepest-descent neighbor for a tile.
  */

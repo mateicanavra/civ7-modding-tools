@@ -7,25 +7,6 @@ export const defaultStrategy = createStrategy(ComputeOceanThermalStateContract, 
   run: (input, config) => {
     const width = input.width;
     const height = input.height;
-    const size = width * height;
-
-    if (!(input.latitudeByRow instanceof Float32Array) || input.latitudeByRow.length !== height) {
-      throw new Error(
-        "[Hydrology] Invalid latitudeByRow for hydrology/compute-ocean-thermal-state."
-      );
-    }
-    if (!(input.isWaterMask instanceof Uint8Array) || input.isWaterMask.length !== size) {
-      throw new Error("[Hydrology] Invalid isWaterMask for hydrology/compute-ocean-thermal-state.");
-    }
-    if (!(input.shelfMask instanceof Uint8Array) || input.shelfMask.length !== size) {
-      throw new Error("[Hydrology] Invalid shelfMask for hydrology/compute-ocean-thermal-state.");
-    }
-    if (!(input.currentU instanceof Int8Array) || input.currentU.length !== size) {
-      throw new Error("[Hydrology] Invalid currentU for hydrology/compute-ocean-thermal-state.");
-    }
-    if (!(input.currentV instanceof Int8Array) || input.currentV.length !== size) {
-      throw new Error("[Hydrology] Invalid currentV for hydrology/compute-ocean-thermal-state.");
-    }
 
     return computeOceanThermalState(
       width,

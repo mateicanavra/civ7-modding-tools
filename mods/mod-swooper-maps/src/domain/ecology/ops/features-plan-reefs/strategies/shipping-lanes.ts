@@ -3,7 +3,6 @@ import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
-  validateGridFields,
 } from "../../../model/policy/feature-score-selection.js";
 import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import PlanReefsContract from "../contract.js";
@@ -13,18 +12,7 @@ export const shippingLanesStrategy = createStrategy(PlanReefsContract, "shipping
   run: (input, config) => {
     const width = input.width;
     const height = input.height;
-    const size = validateGridFields({
-      width,
-      height,
-      fields: [
-        { label: "scoreReef01", arr: input.scoreReef01 as Float32Array },
-        { label: "scoreColdReef01", arr: input.scoreColdReef01 as Float32Array },
-        { label: "scoreAtoll01", arr: input.scoreAtoll01 as Float32Array },
-        { label: "scoreLotus01", arr: input.scoreLotus01 as Float32Array },
-        { label: "featureOccupancyMask", arr: input.featureOccupancyMask as Uint8Array },
-        { label: "reserved", arr: input.reserved as Uint8Array },
-      ],
-    });
+    const size = width * height;
 
     const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
       [];

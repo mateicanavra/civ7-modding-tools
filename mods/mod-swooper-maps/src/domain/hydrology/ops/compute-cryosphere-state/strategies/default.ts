@@ -9,21 +9,6 @@ export const defaultStrategy = createStrategy(ComputeCryosphereStateContract, "d
     const height = input.height;
     const size = width * height;
 
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/compute-cryosphere-state.");
-    }
-    if (
-      !(input.surfaceTemperatureC instanceof Float32Array) ||
-      input.surfaceTemperatureC.length !== size
-    ) {
-      throw new Error(
-        "[Hydrology] Invalid surfaceTemperatureC for hydrology/compute-cryosphere-state."
-      );
-    }
-    if (!(input.rainfall instanceof Uint8Array) || input.rainfall.length !== size) {
-      throw new Error("[Hydrology] Invalid rainfall for hydrology/compute-cryosphere-state.");
-    }
-
     const snowCover = new Uint8Array(size);
     const seaIceCover = new Uint8Array(size);
     const albedo = new Uint8Array(size);

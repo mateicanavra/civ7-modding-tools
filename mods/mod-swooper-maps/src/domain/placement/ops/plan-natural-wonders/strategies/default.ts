@@ -72,47 +72,15 @@ type NaturalWonderFeatureCandidate = {
 };
 
 /**
- * Runs the pure natural-wonder planner: validates dimensioned inputs, ranks legal anchors by
- * physical suitability, then applies deterministic cross-group diversity and spacing. It uses
- * no RNG or engine access and preserves fallback anchors for materialization refusals.
+ * Runs the pure natural-wonder planner over admitted dimensioned inputs: ranks legal anchors by
+ * physical suitability, then applies deterministic cross-group diversity and spacing. It uses no
+ * RNG or engine access and preserves fallback anchors for materialization refusals.
  */
 export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "default", {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;
     const size = width * height;
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Placement] Invalid landMask for placement/plan-natural-wonders.");
-    }
-    if (!(input.elevation instanceof Int16Array) || input.elevation.length !== size) {
-      throw new Error("[Placement] Invalid elevation for placement/plan-natural-wonders.");
-    }
-    if (!(input.aridityIndex instanceof Float32Array) || input.aridityIndex.length !== size) {
-      throw new Error("[Placement] Invalid aridityIndex for placement/plan-natural-wonders.");
-    }
-    if (!(input.riverClass instanceof Uint8Array) || input.riverClass.length !== size) {
-      throw new Error("[Placement] Invalid riverClass for placement/plan-natural-wonders.");
-    }
-    if (!(input.lakeMask instanceof Uint8Array) || input.lakeMask.length !== size) {
-      throw new Error("[Placement] Invalid lakeMask for placement/plan-natural-wonders.");
-    }
-    if (!(input.terrainType instanceof Uint8Array) || input.terrainType.length !== size) {
-      throw new Error("[Placement] Invalid terrainType for placement/plan-natural-wonders.");
-    }
-    if (!(input.biomeType instanceof Uint8Array) || input.biomeType.length !== size) {
-      throw new Error("[Placement] Invalid biomeType for placement/plan-natural-wonders.");
-    }
-    if (!(input.featureType instanceof Int16Array) || input.featureType.length !== size) {
-      throw new Error("[Placement] Invalid featureType for placement/plan-natural-wonders.");
-    }
-    if (
-      !(input.naturalWonderBlockedMask instanceof Uint8Array) ||
-      input.naturalWonderBlockedMask.length !== size
-    ) {
-      throw new Error(
-        "[Placement] Invalid naturalWonderBlockedMask for placement/plan-natural-wonders."
-      );
-    }
 
     const wondersCount = Math.max(0, input.wondersCount | 0);
     const noFeatureType = Number.isFinite(input.noFeatureType)
@@ -185,16 +153,12 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
 
     // Forwarded physical suitability signals (optional — fall back to neutral when
     // an input omits them, e.g. minimal unit tests). Never recomputed here.
-    const optionalF32 = (value: unknown): Float32Array | null =>
-      value instanceof Float32Array && value.length === size ? value : null;
-    const optionalU8 = (value: unknown): Uint8Array | null =>
-      value instanceof Uint8Array && value.length === size ? value : null;
-    const vegetationDensity = optionalF32(input.vegetationDensity);
-    const effectiveMoisture = optionalF32(input.effectiveMoisture);
-    const surfaceTemperature = optionalF32(input.surfaceTemperature);
-    const fertility = optionalF32(input.fertility);
-    const discharge = optionalF32(input.discharge);
-    const slopeClass = optionalU8(input.slopeClass);
+    const vegetationDensity = input.vegetationDensity ?? null;
+    const effectiveMoisture = input.effectiveMoisture ?? null;
+    const surfaceTemperature = input.surfaceTemperature ?? null;
+    const fertility = input.fertility ?? null;
+    const discharge = input.discharge ?? null;
+    const slopeClass = input.slopeClass ?? null;
 
     let maxElevAbs = 1;
     let maxDischarge = 0;

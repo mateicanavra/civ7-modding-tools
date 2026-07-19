@@ -42,28 +42,19 @@ export const defaultStrategy = createStrategy(DeriveHabitatFieldsContract, "defa
     const width = input.width;
     const height = input.height;
     const size = width * height;
-    const requireField = <T extends { length: number }>(name: string, value: T | undefined): T => {
-      if (!value || value.length !== size) {
-        throw new Error(
-          `[resources] derive-habitat-fields input ${name} missing or wrong length (expected ${size}).`
-        );
-      }
-      return value;
-    };
-
-    const landMask = requireField("landMask", input.landMask);
-    const lakeMask = requireField("lakeMask", input.lakeMask);
-    const coastalWater = requireField("coastalWater", input.coastalWater);
-    const shelfWater = requireField("shelfWater", input.shelfWater);
-    const riverClass = requireField("riverClass", input.riverClass);
-    const temperature = requireField("surfaceTemperature", input.surfaceTemperature);
-    const aridity = requireField("aridityIndex", input.aridityIndex);
-    const moisture = requireField("effectiveMoisture", input.effectiveMoisture);
-    const vegetation = requireField("vegetationDensity", input.vegetationDensity);
-    const fertility = requireField("fertility", input.fertility);
-    const elevation = requireField("elevation", input.elevation);
-    const hillMask = requireField("hillMask", input.hillMask);
-    const mountainMask = requireField("mountainMask", input.mountainMask);
+    const landMask = input.landMask;
+    const lakeMask = input.lakeMask;
+    const coastalWater = input.coastalWater;
+    const shelfWater = input.shelfWater;
+    const riverClass = input.riverClass;
+    const temperature = input.surfaceTemperature;
+    const aridity = input.aridityIndex;
+    const moisture = input.effectiveMoisture;
+    const vegetation = input.vegetationDensity;
+    const fertility = input.fertility;
+    const elevation = input.elevation;
+    const hillMask = input.hillMask;
+    const mountainMask = input.mountainMask;
     const foothillMask = input.foothillMask;
     const orogeny = input.orogenyPotential;
     const uplift = input.upliftPotential;

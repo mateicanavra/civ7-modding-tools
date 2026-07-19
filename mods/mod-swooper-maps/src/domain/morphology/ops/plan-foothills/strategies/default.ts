@@ -10,76 +10,6 @@ import type {
 import PlanFoothillsContract from "../contract.js";
 import { computeHexDistanceToMask } from "../rules/distance-to-mask.js";
 import { computeHillScore } from "../rules/hill-score.js";
-import type { PlanFoothillsTypes } from "../types.js";
-
-function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
-  size: number;
-  landMask: Uint8Array;
-  mountainMask: Uint8Array;
-  mountainRegionMask: Uint8Array;
-  mountainRegionIdByTile: Int32Array;
-  boundaryCloseness: Uint8Array;
-  boundaryType: Uint8Array;
-  upliftPotential: Uint8Array;
-  collisionPotential: Uint8Array;
-  subductionPotential: Uint8Array;
-  riftPotential: Uint8Array;
-  tectonicStress: Uint8Array;
-  beltAge: Uint8Array;
-  fractalHill: Int16Array;
-} {
-  const { width, height } = input;
-  const size = width * height;
-
-  const landMask = input.landMask as Uint8Array;
-  const mountainMask = input.mountainMask as Uint8Array;
-  const mountainRegionMask = input.mountainRegionMask as Uint8Array;
-  const mountainRegionIdByTile = input.mountainRegionIdByTile as Int32Array;
-  const boundaryCloseness = input.boundaryCloseness as Uint8Array;
-  const boundaryType = input.boundaryType as Uint8Array;
-  const upliftPotential = input.upliftPotential as Uint8Array;
-  const collisionPotential = input.collisionPotential as Uint8Array;
-  const subductionPotential = input.subductionPotential as Uint8Array;
-  const riftPotential = input.riftPotential as Uint8Array;
-  const tectonicStress = input.tectonicStress as Uint8Array;
-  const beltAge = input.beltAge as Uint8Array;
-  const fractalHill = input.fractalHill as Int16Array;
-
-  if (
-    landMask.length !== size ||
-    mountainMask.length !== size ||
-    mountainRegionMask.length !== size ||
-    mountainRegionIdByTile.length !== size ||
-    boundaryCloseness.length !== size ||
-    boundaryType.length !== size ||
-    upliftPotential.length !== size ||
-    collisionPotential.length !== size ||
-    subductionPotential.length !== size ||
-    riftPotential.length !== size ||
-    tectonicStress.length !== size ||
-    beltAge.length !== size ||
-    fractalHill.length !== size
-  ) {
-    throw new Error("[PlanFoothills] Input tensors must match width*height.");
-  }
-
-  return {
-    size,
-    landMask,
-    mountainMask,
-    mountainRegionMask,
-    mountainRegionIdByTile,
-    boundaryCloseness,
-    boundaryType,
-    upliftPotential,
-    collisionPotential,
-    subductionPotential,
-    riftPotential,
-    tectonicStress,
-    beltAge,
-    fractalHill,
-  };
-}
 
 function applyRangeEnvelope(closenessNorm: number, rangeEnvelopeScale: number): number {
   return Math.max(0, Math.min(1, closenessNorm * Math.max(0.25, rangeEnvelopeScale)));
@@ -88,7 +18,8 @@ function applyRangeEnvelope(closenessNorm: number, rangeEnvelopeScale: number): 
 export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", {
   run: (input, config) => {
     const {
-      size,
+      width,
+      height,
       landMask,
       mountainMask,
       mountainRegionMask,
@@ -102,9 +33,8 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       tectonicStress,
       beltAge,
       fractalHill,
-    } = validateFoothillsInputs(input);
-
-    const { width, height } = input;
+    } = input;
+    const size = width * height;
     const w = width;
     const h = height;
 

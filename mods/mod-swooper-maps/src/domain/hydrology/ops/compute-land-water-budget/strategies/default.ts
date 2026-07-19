@@ -8,24 +8,6 @@ export const defaultStrategy = createStrategy(ComputeLandWaterBudgetContract, "d
     const height = input.height;
     const size = width * height;
 
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/compute-land-water-budget.");
-    }
-    if (!(input.rainfall instanceof Uint8Array) || input.rainfall.length !== size) {
-      throw new Error("[Hydrology] Invalid rainfall for hydrology/compute-land-water-budget.");
-    }
-    if (!(input.humidity instanceof Uint8Array) || input.humidity.length !== size) {
-      throw new Error("[Hydrology] Invalid humidity for hydrology/compute-land-water-budget.");
-    }
-    if (
-      !(input.surfaceTemperatureC instanceof Float32Array) ||
-      input.surfaceTemperatureC.length !== size
-    ) {
-      throw new Error(
-        "[Hydrology] Invalid surfaceTemperatureC for hydrology/compute-land-water-budget."
-      );
-    }
-
     const pet = new Float32Array(size);
     const aridityIndex = new Float32Array(size);
 

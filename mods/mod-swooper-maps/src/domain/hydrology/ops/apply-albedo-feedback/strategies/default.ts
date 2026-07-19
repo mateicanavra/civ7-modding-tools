@@ -8,21 +8,6 @@ export const defaultStrategy = createStrategy(ApplyAlbedoFeedbackContract, "defa
     const height = input.height;
     const size = width * height;
 
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/apply-albedo-feedback.");
-    }
-    if (!(input.rainfall instanceof Uint8Array) || input.rainfall.length !== size) {
-      throw new Error("[Hydrology] Invalid rainfall for hydrology/apply-albedo-feedback.");
-    }
-    if (
-      !(input.surfaceTemperatureC instanceof Float32Array) ||
-      input.surfaceTemperatureC.length !== size
-    ) {
-      throw new Error(
-        "[Hydrology] Invalid surfaceTemperatureC for hydrology/apply-albedo-feedback."
-      );
-    }
-
     const iterations = config.iterations | 0;
     const snowCoolingC = config.snowCoolingC;
     const seaIceCoolingC = config.seaIceCoolingC;

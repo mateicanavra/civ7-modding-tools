@@ -8,21 +8,6 @@ export const defaultStrategy = createStrategy(ComputeThermalStateContract, "defa
     const height = input.height;
     const size = width * height;
 
-    if (!(input.insolation instanceof Float32Array) || input.insolation.length !== size) {
-      throw new Error("[Hydrology] Invalid insolation for hydrology/compute-thermal-state.");
-    }
-    if (!(input.elevation instanceof Int16Array) || input.elevation.length !== size) {
-      throw new Error("[Hydrology] Invalid elevation for hydrology/compute-thermal-state.");
-    }
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/compute-thermal-state.");
-    }
-    if (input.sstC != null) {
-      if (!(input.sstC instanceof Float32Array) || input.sstC.length !== size) {
-        throw new Error("[Hydrology] Invalid sstC for hydrology/compute-thermal-state.");
-      }
-    }
-
     const surfaceTemperatureC = new Float32Array(size);
     const base = config.baseTemperatureC;
     const insolationScale = config.insolationScaleC;

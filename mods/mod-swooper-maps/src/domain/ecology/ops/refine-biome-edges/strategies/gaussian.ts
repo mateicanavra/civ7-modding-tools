@@ -11,9 +11,6 @@ export const runGaussianBiomeRefinement: StrategyImplFor<
 >["run"] = (input, config) => {
   const { width, height } = input;
   const size = width * height;
-  if (input.biomeIndex.length !== size || input.landMask.length !== size) {
-    throw new Error("Refine biome edges (gaussian): invalid input size.");
-  }
 
   const radius = config.radius;
   const sigma = Math.max(1, radius);

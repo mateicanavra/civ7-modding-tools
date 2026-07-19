@@ -6,94 +6,6 @@ import { resolveDriverStrength } from "../../../model/policy/driver-strength.js"
 import { normalizeMountainFractal } from "../../../model/policy/mountain-fractal.js";
 import { encodeNormalizedToU8 } from "../../../model/policy/normalized-byte.js";
 import PlanRoughLandsContract from "../contract.js";
-import type { PlanRoughLandsTypes } from "../types.js";
-
-type RoughLandInputs = Readonly<{
-  size: number;
-  landMask: Uint8Array;
-  mountainMask: Uint8Array;
-  mountainRegionMask: Uint8Array;
-  mountainRegionIdByTile: Int32Array;
-  foothillMask: Uint8Array;
-  elevation: Int16Array;
-  boundaryCloseness: Uint8Array;
-  boundaryType: Uint8Array;
-  upliftPotential: Uint8Array;
-  riftPotential: Uint8Array;
-  tectonicStress: Uint8Array;
-  beltAge: Uint8Array;
-  erodibilityK: Float32Array;
-  sedimentDepth: Float32Array;
-  flowAccum: Float32Array;
-  distanceToCoast: Uint16Array;
-  fractalRoughLand: Int16Array;
-}>;
-
-function validateRoughLandInputs(input: PlanRoughLandsTypes["input"]): RoughLandInputs {
-  const { width, height } = input;
-  const size = width * height;
-
-  const landMask = input.landMask as Uint8Array;
-  const mountainMask = input.mountainMask as Uint8Array;
-  const mountainRegionMask = input.mountainRegionMask as Uint8Array;
-  const mountainRegionIdByTile = input.mountainRegionIdByTile as Int32Array;
-  const foothillMask = input.foothillMask as Uint8Array;
-  const elevation = input.elevation as Int16Array;
-  const boundaryCloseness = input.boundaryCloseness as Uint8Array;
-  const boundaryType = input.boundaryType as Uint8Array;
-  const upliftPotential = input.upliftPotential as Uint8Array;
-  const riftPotential = input.riftPotential as Uint8Array;
-  const tectonicStress = input.tectonicStress as Uint8Array;
-  const beltAge = input.beltAge as Uint8Array;
-  const erodibilityK = input.erodibilityK as Float32Array;
-  const sedimentDepth = input.sedimentDepth as Float32Array;
-  const flowAccum = input.flowAccum as Float32Array;
-  const distanceToCoast = input.distanceToCoast as Uint16Array;
-  const fractalRoughLand = input.fractalRoughLand as Int16Array;
-
-  if (
-    landMask.length !== size ||
-    mountainMask.length !== size ||
-    mountainRegionMask.length !== size ||
-    mountainRegionIdByTile.length !== size ||
-    foothillMask.length !== size ||
-    elevation.length !== size ||
-    boundaryCloseness.length !== size ||
-    boundaryType.length !== size ||
-    upliftPotential.length !== size ||
-    riftPotential.length !== size ||
-    tectonicStress.length !== size ||
-    beltAge.length !== size ||
-    erodibilityK.length !== size ||
-    sedimentDepth.length !== size ||
-    flowAccum.length !== size ||
-    distanceToCoast.length !== size ||
-    fractalRoughLand.length !== size
-  ) {
-    throw new Error("[PlanRoughLands] Input tensors must match width*height.");
-  }
-
-  return {
-    size,
-    landMask,
-    mountainMask,
-    mountainRegionMask,
-    mountainRegionIdByTile,
-    foothillMask,
-    elevation,
-    boundaryCloseness,
-    boundaryType,
-    upliftPotential,
-    riftPotential,
-    tectonicStress,
-    beltAge,
-    erodibilityK,
-    sedimentDepth,
-    flowAccum,
-    distanceToCoast,
-    fractalRoughLand,
-  };
-}
 
 function computeLocalRelief(params: {
   index: number;
@@ -240,7 +152,8 @@ class RoughComponentSizer {
 export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default", {
   run: (input, config) => {
     const {
-      size,
+      width,
+      height,
       landMask,
       mountainMask,
       mountainRegionMask,
@@ -258,9 +171,8 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
       flowAccum,
       distanceToCoast,
       fractalRoughLand,
-    } = validateRoughLandInputs(input);
-    const width = input.width;
-    const height = input.height;
+    } = input;
+    const size = width * height;
     const hillMask = new Uint8Array(size);
     const roughnessPotential = new Uint8Array(size);
     const roughScoreByTile = new Float32Array(size);
