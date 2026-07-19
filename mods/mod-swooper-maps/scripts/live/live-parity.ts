@@ -21,6 +21,7 @@ import {
   type TraceSink,
 } from "@swooper/mapgen-core";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
+import { compareExactNumericGrids } from "@swooper/mapgen-diagnostics";
 import {
   admitStandardMapConfig,
   canonicalRecipeConfig,
@@ -967,16 +968,11 @@ export function diffFinalSurfaceSnapshots(
   live: FinalSurfaceSnapshot,
   options: { maxExamples?: number; maxPairs?: number } = {}
 ): ReadonlyArray<SurfaceDiffSummary> {
-  const maxExamples = options.maxExamples ?? 16;
-  const maxPairs = options.maxPairs ?? 24;
   return FINAL_SURFACE_KEYS.map((key) => {
     const localGrid = local.surfaces[key];
     const liveGrid = live.surfaces[key];
-    if (
-      localGrid.width !== liveGrid.width ||
-      localGrid.height !== liveGrid.height ||
-      localGrid.values.length !== liveGrid.values.length
-    ) {
+    const comparison = compareExactNumericGrids(localGrid, liveGrid, options);
+    if (comparison.outcome === "incompatible") {
       return {
         key,
         status: "dimension-mismatch",
@@ -988,49 +984,25 @@ export function diffFinalSurfaceSnapshots(
         pairCounts: [],
       };
     }
-
-    let missingLive = 0;
-    let mismatches = 0;
-    const examples: SurfaceMismatchExample[] = [];
-    const pairCounts = new Map<
-      string,
-      { local: number | null; live: number | null; count: number }
-    >();
-
-    for (let index = 0; index < localGrid.values.length; index += 1) {
-      const localValue = localGrid.values[index] ?? null;
-      const liveValue = liveGrid.values[index] ?? null;
-      if (liveValue === null) missingLive += 1;
-      if (localValue === liveValue) continue;
-      mismatches += 1;
-      const pairKey = `${localValue ?? "null"}:${liveValue ?? "null"}`;
-      const pair = pairCounts.get(pairKey) ?? { local: localValue, live: liveValue, count: 0 };
-      pair.count += 1;
-      pairCounts.set(pairKey, pair);
-      if (examples.length < maxExamples) {
-        const y = Math.floor(index / localGrid.width);
-        const x = index - y * localGrid.width;
-        examples.push({
-          x,
-          y,
-          local: localValue,
-          live: liveValue,
-          classification: liveValue === null ? "missing-live-readback" : "unclassified",
-        });
-      }
-    }
-
-    const compared = localGrid.values.length;
-    const pairs = [...pairCounts.values()].sort((a, b) => b.count - a.count).slice(0, maxPairs);
     return {
       key,
-      status: mismatches === 0 ? "match" : "mismatch",
-      compared,
-      missingLive,
-      mismatches,
-      mismatchPct: compared > 0 ? mismatches / compared : 0,
-      examples,
-      pairCounts: pairs,
+      status: comparison.outcome,
+      compared: comparison.compared,
+      missingLive: comparison.missingObserved,
+      mismatches: comparison.mismatches,
+      mismatchPct: comparison.mismatchRatio,
+      examples: comparison.examples.map(({ x, y, expected, observed, reason }) => ({
+        x,
+        y,
+        local: expected,
+        live: observed,
+        classification: reason === "missing-observation" ? "missing-live-readback" : "unclassified",
+      })),
+      pairCounts: comparison.pairCounts.map(({ expected, observed, count }) => ({
+        local: expected,
+        live: observed,
+        count,
+      })),
     };
   });
 }

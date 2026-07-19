@@ -46,14 +46,28 @@ import {
 import {
   createFinalSurfaceParityMapInfo,
   diffFinalSurfaceSnapshots,
+  type FinalSurfaceKey,
   liveGridToFinalSurfaceSnapshot,
   runLocalFinalSurfaceSnapshot,
+  type SurfaceDiffSummary,
 } from "./live-parity.js";
 import { serializeVerifierError } from "./verifier-error";
 
 const MAP_SCRIPT_PATTERN = /^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*)\.js$/;
 
-type FieldThresholds = { terrain: number; biome: number; feature: number; resource: number };
+type FieldThresholds = Record<FinalSurfaceKey, number>;
+
+type OutputParityRow = Readonly<{
+  field: FinalSurfaceKey;
+  status: SurfaceDiffSummary["status"];
+  compared: number;
+  mismatches: number;
+  matchPct: number | null;
+  mismatchPct: number;
+  threshold: number;
+  within: boolean;
+  examples: SurfaceDiffSummary["examples"];
+}>;
 
 type Args = {
   host?: string;
@@ -260,6 +274,50 @@ function terrainHistogram(values: ReadonlyArray<number | null>, idx: (n: string)
   };
 }
 
+function isWithinOutputParityThreshold(
+  status: SurfaceDiffSummary["status"],
+  mismatchPct: number,
+  threshold: number
+): boolean {
+  switch (status) {
+    case "match":
+    case "mismatch":
+      return mismatchPct <= threshold;
+    case "dimension-mismatch":
+      return false;
+  }
+  const unhandledStatus: never = status;
+  throw new Error(`Unhandled output parity status: ${unhandledStatus}`);
+}
+
+/**
+ * Projects final-surface evidence into the output-parity command's threshold rows.
+ * Only complete comparisons may pass a threshold; incompatible dimensions or cardinality fail
+ * closed even though their intentionally empty comparison totals calculate to zero percent.
+ */
+export function assessOutputParity(
+  diffs: ReadonlyArray<SurfaceDiffSummary>,
+  thresholds: Readonly<FieldThresholds>
+): ReadonlyArray<OutputParityRow> {
+  return diffs.map((diff) => {
+    const mismatchPct = diff.compared ? +((100 * diff.mismatches) / diff.compared).toFixed(3) : 0;
+    const threshold = thresholds[diff.key];
+    return {
+      field: diff.key,
+      status: diff.status,
+      compared: diff.compared,
+      mismatches: diff.mismatches,
+      matchPct: diff.compared
+        ? +((100 * (diff.compared - diff.mismatches)) / diff.compared).toFixed(2)
+        : null,
+      mismatchPct,
+      threshold,
+      within: isWithinOutputParityThreshold(diff.status, mismatchPct, threshold),
+      examples: diff.examples.slice(0, 4),
+    };
+  });
+}
+
 async function main(): Promise<number> {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
@@ -352,24 +410,7 @@ async function main(): Promise<number> {
     const idx = (n: string) => tAdapter.getTerrainTypeIndex(n);
 
     const diffs = diffFinalSurfaceSnapshots(local, live, { maxExamples: 6 });
-    const parity = diffs.map((d) => {
-      const field = d.key;
-      const compared = d.compared;
-      const mismatches = d.mismatches;
-      const mismatchPct = compared ? +((100 * mismatches) / compared).toFixed(3) : 0;
-      const threshold = args.thresholds[field];
-      const within = mismatchPct <= threshold;
-      return {
-        field,
-        compared,
-        mismatches,
-        matchPct: compared ? +((100 * (compared - mismatches)) / compared).toFixed(2) : null,
-        mismatchPct,
-        threshold,
-        within,
-        examples: d.examples.slice(0, 4),
-      };
-    });
+    const parity = assessOutputParity(diffs, args.thresholds);
 
     const fieldsWithinThreshold = parity.every((p) => p.within);
     const seedMatch = liveSeed === undefined || args.seed === undefined || liveSeed === args.seed;
