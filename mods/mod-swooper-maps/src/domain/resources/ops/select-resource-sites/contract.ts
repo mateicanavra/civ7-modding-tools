@@ -90,6 +90,7 @@ const SelectResourceSitesContract = defineOp({
     { additionalProperties: false }
   ),
   output: ResourceSitePlanSchema,
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object(
       {

@@ -28,7 +28,8 @@ This how-to is **domain-level** (ops live inside a domain). It routes to:
 ### 1) Define the op contract (`defineOp`)
 
 - Create `contract.ts` for the op.
-- Use `defineOp({ kind, id, input, output, strategies })`.
+- Use `defineOp({ kind, id, input, output, defaultStrategy, strategies })`.
+- Name the default explicitly; strategy object order never selects behavior.
 - Make schemas explicit (TypedArray schemas for binary grids; keep descriptions meaningful).
 
 Representative example (defineOp with typed-array I/O + strategy envelope; excerpt; see full file in anchors):
@@ -51,6 +52,7 @@ const ComputeBaseTopographyContract = defineOp({
   output: Type.Object({
     elevation: TypedArraySchemas.i16({ description: "Base elevation per tile (normalized, scaled to int16)." }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: ReliefConfigSchema,
   },

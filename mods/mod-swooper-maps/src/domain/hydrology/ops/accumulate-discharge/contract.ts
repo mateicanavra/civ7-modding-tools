@@ -100,6 +100,7 @@ const AccumulateDischargeContract = defineOp({
   id: "hydrology/accumulate-discharge",
   input: AccumulateDischargeInputSchema,
   output: AccumulateDischargeOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: AccumulateDischargeDefaultStrategySchema,
   },

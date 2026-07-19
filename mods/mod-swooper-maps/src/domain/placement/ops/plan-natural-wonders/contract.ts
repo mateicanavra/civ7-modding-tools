@@ -99,6 +99,7 @@ const PlanNaturalWondersContract = defineOp({
       })
     ),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       minSpacingTiles: Type.Integer({

@@ -68,6 +68,7 @@ const ComputeMantleForcingContract = defineOp({
         "Mesh-wide velocity, stress, divergence, and upwelling signals derived from mantle potential and shared by plate-motion, hotspot, and tracer reconstruction.",
     }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: StrategySchema,
   },

@@ -64,6 +64,7 @@ const ComputeEraPlateMembershipContract = defineOp({
         "Oldest-to-newest pseudo-history schedule: each weighted era carries one mesh-wide cell-to-plate assignment used to reconstruct tectonic events.",
     }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: StrategySchema,
   },

@@ -22,6 +22,7 @@ export type StrategySelection<Strategies extends RuntimeStrategiesLike> = {
 export type OpContractLike = Readonly<{
   input: TSchema;
   output: TSchema;
+  defaultStrategy: string;
   strategies: StrategiesLike;
 }>;
 
@@ -56,6 +57,12 @@ export type OpConfigSchema<Strategies extends RuntimeStrategiesLike> = TUnsafe<
   StrategySelection<Strategies>
 >;
 
+/** The configuration case selected by an operation's explicit default authority. */
+export type DefaultStrategySelection<
+  Strategies extends RuntimeStrategiesLike,
+  DefaultStrategy extends keyof Strategies & string,
+> = Extract<StrategySelection<Strategies>, Readonly<{ strategy: DefaultStrategy }>>;
+
 /**
  * Strict operation kind taxonomy for domain operation modules.
  *
@@ -80,13 +87,15 @@ export type DomainOp<
   OutputSchema extends TSchema,
   Strategies extends RuntimeStrategiesLike,
   Id extends string = string,
+  DefaultStrategy extends keyof Strategies & string = keyof Strategies & string,
 > = Readonly<{
   kind: DomainOpKind;
   id: Id;
   input: InputSchema;
   output: OutputSchema;
   config: OpConfigSchema<Strategies>;
-  defaultConfig: StrategySelection<Strategies>;
+  defaultStrategy: DefaultStrategy;
+  defaultConfig: DefaultStrategySelection<Strategies, DefaultStrategy>;
   strategies: Strategies;
   run: BivariantCallback<
     [Static<InputSchema>, StrategySelection<Strategies>],

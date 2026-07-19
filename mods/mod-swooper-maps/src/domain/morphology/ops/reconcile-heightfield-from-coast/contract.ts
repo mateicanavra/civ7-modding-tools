@@ -46,6 +46,7 @@ const ReconcileHeightfieldFromCoastContract = defineOp({
       description: "Reconciled bathymetry: 0 on land; min(0, elevation - seaLevel) in water.",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object(
       {},

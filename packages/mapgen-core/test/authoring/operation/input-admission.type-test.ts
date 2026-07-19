@@ -60,6 +60,7 @@ const InputAdmissionContract = defineOp({
     { additionalProperties: false }
   ),
   output: Type.Integer(),
+  defaultStrategy: "default",
   strategies: { default: Type.Object({}, { additionalProperties: false }) },
 });
 
@@ -97,6 +98,7 @@ const OtherInputAdmissionContract = defineOp({
   id: "test/input-admission-types-other",
   input: InputAdmissionContract.input,
   output: InputAdmissionContract.output,
+  defaultStrategy: "default",
   strategies: InputAdmissionContract.strategies,
 });
 const otherStrategy = createStrategy(OtherInputAdmissionContract, "default", {

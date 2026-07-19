@@ -16,8 +16,9 @@ const MultiStrategyOp = defineOp({
   id: "test/compute-multi-strategy",
   input: Type.Object({}, { additionalProperties: false }),
   output: Type.Object({}, { additionalProperties: false }),
+  defaultStrategy: "balanced",
   strategies: {
-    default: Type.Object({ plateauCount: Type.Integer() }, { additionalProperties: false }),
+    balanced: Type.Object({ plateauCount: Type.Integer() }, { additionalProperties: false }),
     fast: Type.Object({ turbo: Type.Boolean() }, { additionalProperties: false }),
   },
 });

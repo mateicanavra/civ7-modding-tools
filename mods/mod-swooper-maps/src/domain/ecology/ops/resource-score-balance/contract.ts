@@ -69,6 +69,7 @@ const ResourceScoreBalanceContract = defineOp({
       description: "Balanced resource basin outputs with adjusted scoring.",
     }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object(
       {

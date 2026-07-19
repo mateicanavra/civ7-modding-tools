@@ -195,6 +195,7 @@ const ComputeAtmosphericCirculationContract = defineOp({
   id: "hydrology/compute-atmospheric-circulation",
   input: ComputeAtmosphericCirculationInputSchema,
   output: ComputeAtmosphericCirculationOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeAtmosphericCirculationDefaultStrategySchema,
     latitude: ComputeAtmosphericCirculationLatitudeStrategySchema,

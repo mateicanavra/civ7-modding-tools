@@ -80,6 +80,7 @@ const ComputeRadiativeForcingContract = defineOp({
   id: "hydrology/compute-radiative-forcing",
   input: ComputeRadiativeForcingInputSchema,
   output: ComputeRadiativeForcingOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeRadiativeForcingDefaultStrategySchema,
   },

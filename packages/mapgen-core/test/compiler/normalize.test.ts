@@ -181,6 +181,7 @@ describe("compiler normalize helpers", () => {
       id: "test/plan",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
+      defaultStrategy: "default",
       strategies: {
         default: Type.Object({}, { additionalProperties: false }),
       },
@@ -212,6 +213,7 @@ describe("compiler normalize helpers", () => {
       id: "test/plan",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
+      defaultStrategy: "default",
       strategies: {
         default: Type.Object({}, { additionalProperties: false }),
       },

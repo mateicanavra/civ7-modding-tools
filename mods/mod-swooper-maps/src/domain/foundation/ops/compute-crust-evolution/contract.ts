@@ -76,6 +76,7 @@ const ComputeCrustEvolutionContract = defineOp({
       description: "Output payload for foundation/compute-crust-evolution.",
     }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: StrategySchema,
   },

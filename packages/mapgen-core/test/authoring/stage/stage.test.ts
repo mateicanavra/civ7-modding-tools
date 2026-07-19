@@ -401,6 +401,7 @@ describe("authoring SDK", () => {
       id: "test/op/private-envelope",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
+      defaultStrategy: "default",
       strategies: {
         default: Type.Object(
           { internalRate: Type.Number({ default: 1 }) },

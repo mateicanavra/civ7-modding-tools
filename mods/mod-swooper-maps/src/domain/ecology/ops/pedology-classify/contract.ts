@@ -72,6 +72,7 @@ const PedologyClassifyContract = defineOp({
     soilType: TypedArraySchemas.u8({ description: "Soil palette index per tile." }),
     fertility: TypedArraySchemas.f32({ description: "Fertility score per tile (0..1)." }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: PedologyClassifyStrategySchema,
     "coastal-shelf": PedologyClassifyStrategySchema,

@@ -70,6 +70,7 @@ const DeriveHabitatFieldsContract = defineOp({
   id: "resources/derive-habitat-fields",
   input: PlanInput,
   output: PlanOutput,
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object(
       {},

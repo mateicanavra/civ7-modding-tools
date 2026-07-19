@@ -167,6 +167,7 @@ const ComputeOceanSurfaceCurrentsContract = defineOp({
   id: "hydrology/compute-ocean-surface-currents",
   input: ComputeOceanSurfaceCurrentsInputSchema,
   output: ComputeOceanSurfaceCurrentsOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeOceanSurfaceCurrentsEarthlikeStrategySchema,
     latitude: ComputeOceanSurfaceCurrentsDefaultStrategySchema,

@@ -105,6 +105,7 @@ const ComputeClimateDiagnosticsContract = defineOp({
   id: "hydrology/compute-climate-diagnostics",
   input: ComputeClimateDiagnosticsInputSchema,
   output: ComputeClimateDiagnosticsOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeClimateDiagnosticsDefaultStrategySchema,
   },

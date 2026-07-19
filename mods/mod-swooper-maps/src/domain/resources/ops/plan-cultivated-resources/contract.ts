@@ -161,6 +161,7 @@ const PlanCultivatedResourcesContract = defineOp({
     },
     { additionalProperties: false }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),
   },

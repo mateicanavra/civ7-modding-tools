@@ -19,6 +19,68 @@ import { Type } from "typebox";
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
 describe("operation authoring", () => {
+  it("copies explicit default authority and refuses forged defaults", () => {
+    const contract = defineOp({
+      kind: "compute",
+      id: "test/explicit-default-authority",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.String(),
+      defaultStrategy: "balanced",
+      strategies: {
+        balanced: Type.Object(
+          { plateauCount: Type.Integer({ default: 3 }) },
+          { additionalProperties: false }
+        ),
+        fast: Type.Object(
+          { turbo: Type.Boolean({ default: true }) },
+          { additionalProperties: false }
+        ),
+      },
+    });
+    const strategies = {
+      balanced: createStrategy(contract, "balanced", { run: () => "balanced" }),
+      fast: createStrategy(contract, "fast", { run: () => "fast" }),
+    };
+    const op = createOp(contract, { strategies });
+
+    expect(op.defaultStrategy).toBe("balanced");
+    expect(op.defaultConfig).toEqual({ strategy: "balanced", config: { plateauCount: 3 } });
+    expect(op.run({}, op.defaultConfig)).toBe("balanced");
+
+    const forged = {
+      ...contract,
+      defaultConfig: { strategy: "fast", config: { turbo: true } },
+    } as unknown as typeof contract;
+    expect(() => createOp(forged, { strategies })).toThrow(
+      "createOp(test/explicit-default-authority) requires contract.defaultConfig"
+    );
+
+    const malformedSameStrategy = {
+      ...contract,
+      defaultConfig: { strategy: "balanced", config: { plateauCount: "three" } },
+    } as unknown as typeof contract;
+    expect(() => createOp(malformedSameStrategy, { strategies })).toThrow(
+      "createOp(test/explicit-default-authority) requires contract.defaultConfig"
+    );
+
+    const forgedPair = {
+      ...contract,
+      defaultStrategy: "fast",
+      defaultConfig: { strategy: "fast", config: { turbo: true } },
+    } as unknown as typeof contract;
+    expect(() => createOp(forgedPair, { strategies })).toThrow(
+      "createOp(test/explicit-default-authority) requires contract.defaultConfig"
+    );
+
+    const forgedStrategyOnly = {
+      ...contract,
+      defaultStrategy: "fast",
+    } as unknown as typeof contract;
+    expect(() => createOp(forgedStrategyOnly, { strategies })).toThrow(
+      "createOp(test/explicit-default-authority) requires contract.defaultConfig"
+    );
+  });
+
   it("binds compile/runtime ops by contract ids", () => {
     const declarations = { trees: { id: "ecology/trees" } } as const;
     const contract = defineOp({
@@ -26,6 +88,7 @@ describe("operation authoring", () => {
       id: "ecology/trees",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const compileOp = createOp(contract, {
@@ -52,6 +115,7 @@ describe("operation authoring", () => {
       id: "test/ops/missing-runtime",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const op = createOp(contract, {
@@ -115,6 +179,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     let runs = 0;
@@ -158,6 +223,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const op = createOp(contract, {
@@ -203,6 +269,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     let runs = 0;
@@ -276,6 +343,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     let runs = 0;
@@ -343,6 +411,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     let runs = 0;
@@ -404,6 +473,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const op = createOp(contract, {
@@ -442,6 +512,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
 
@@ -467,6 +538,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const op = createOp(contract, {
@@ -516,6 +588,7 @@ describe("operation authoring", () => {
         id: `test/unsupported-${id}-operation-input`,
         input,
         output: Type.Integer(),
+        defaultStrategy: "default",
         strategies: { default: Type.Object({}, { additionalProperties: false }) },
       });
 
@@ -545,6 +618,7 @@ describe("operation authoring", () => {
         id: `test/${id}-referenced-operation-input`,
         input,
         output: Type.Integer(),
+        defaultStrategy: "default",
         strategies: { default: Type.Object({}, { additionalProperties: false }) },
       });
 
@@ -571,6 +645,7 @@ describe("operation authoring", () => {
       id: "test/inherited-operation-input-constructor",
       input: Type.Object({ value: inheritedConstructorSchema }, { additionalProperties: false }),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
 
@@ -594,6 +669,7 @@ describe("operation authoring", () => {
       id: "test/inherited-operation-input-kind",
       input: Type.Object({ value: inheritedKindSchema }, { additionalProperties: false }),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
 
@@ -613,6 +689,7 @@ describe("operation authoring", () => {
         id: `test/malformed-${key}-operation-input`,
         input: Type.Object({ value: Type.Any() }, { additionalProperties: false }),
         output: Type.Integer(),
+        defaultStrategy: "default",
         strategies: { default: Type.Object({}, { additionalProperties: false }) },
       });
       const valueSchema = (
@@ -648,6 +725,7 @@ describe("operation authoring", () => {
       id: "test/sparse-operation-input-cardinality",
       input: Type.Object({ value: sparseCardinalitySchema }, { additionalProperties: false }),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
 
@@ -666,6 +744,7 @@ describe("operation authoring", () => {
       id: "test/strategy-descriptor-first",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const secondContract = defineOp({
@@ -673,6 +752,7 @@ describe("operation authoring", () => {
       id: "test/strategy-descriptor-second",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const secondStrategy = createStrategy(secondContract, "default", { run: () => 2 });
@@ -692,6 +772,7 @@ describe("operation authoring", () => {
       id: "test/same-id-strategy-descriptor",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const otherContract = defineOp({
@@ -699,6 +780,7 @@ describe("operation authoring", () => {
       id: "test/same-id-strategy-descriptor",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const otherStrategy = createStrategy(otherContract, "default", { run: () => "wrong" });
@@ -723,6 +805,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
 
@@ -747,6 +830,7 @@ describe("operation authoring", () => {
         Type.Object({ grid: TypedArraySchemas.u8() }),
       ]),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const op = createOp(contract, {
@@ -786,6 +870,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const op = createOp(contract, {
@@ -808,6 +893,7 @@ describe("operation authoring", () => {
         Type.Object({ value: Type.Any() }),
       ]),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const op = createOp(contract, {
@@ -853,6 +939,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     let runs = 0;
@@ -897,6 +984,7 @@ describe("operation authoring", () => {
       id: "test/closed-operation-input-array-traversal",
       input: Type.Array(TypedArraySchemas.u8({ cardinality: null })),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const op = createOp(contract, {
@@ -932,6 +1020,7 @@ describe("operation authoring", () => {
         { additionalProperties: false }
       ),
       output: Type.Integer(),
+      defaultStrategy: "default",
       strategies: { default: Type.Object({}, { additionalProperties: false }) },
     });
     const op = createOp(contract, {

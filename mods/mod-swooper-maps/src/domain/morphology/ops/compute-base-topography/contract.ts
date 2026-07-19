@@ -130,6 +130,7 @@ const ComputeBaseTopographyContract = defineOp({
       description: "Base elevation per tile (normalized, scaled to int16).",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: ReliefConfigSchema,
   },

@@ -149,6 +149,7 @@ describe("authoring: hello recipe compile/execute", () => {
       id: "test/ops/tree-plan",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({ ok: Type.Boolean() }, { additionalProperties: false }),
+      defaultStrategy: "default",
       strategies: {
         default: Type.Object(
           { enabled: Type.Boolean({ default: true }) },

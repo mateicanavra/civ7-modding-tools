@@ -288,6 +288,7 @@ const BiomeClassificationContract = defineOp({
     aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),
     freezeIndex: TypedArraySchemas.f32({ description: "Freeze index per tile (0..1)." }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object(
       {

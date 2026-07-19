@@ -103,6 +103,7 @@ const ComputeLandWaterBudgetContract = defineOp({
   id: "hydrology/compute-land-water-budget",
   input: ComputeLandWaterBudgetInputSchema,
   output: ComputeLandWaterBudgetOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeLandWaterBudgetDefaultStrategySchema,
   },

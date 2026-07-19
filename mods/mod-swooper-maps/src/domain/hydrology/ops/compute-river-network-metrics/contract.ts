@@ -143,6 +143,7 @@ const ComputeRiverNetworkMetricsContract = defineOp({
   id: "hydrology/compute-river-network-metrics",
   input: ComputeRiverNetworkMetricsInputSchema,
   output: ComputeRiverNetworkMetricsOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeRiverNetworkMetricsDefaultStrategySchema,
   },

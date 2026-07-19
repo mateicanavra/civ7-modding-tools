@@ -255,6 +255,7 @@ const ComputeSculptContinentalMarginContract = defineOp({
         "Per-tile apron length scale (tiles) propagated from the nearest margin seed; a physical margin property.",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: SculptContinentalMarginConfigSchema,
   },

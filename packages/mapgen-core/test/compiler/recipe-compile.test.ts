@@ -80,6 +80,7 @@ describe("compileRecipeConfig", () => {
       id: "test/op",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
+      defaultStrategy: "default",
       strategies: {
         default: Type.Object(
           { tag: Type.String({ default: "before-op" }) },
@@ -222,6 +223,7 @@ describe("compileRecipeConfig", () => {
       id: "test/delete-required",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
+      defaultStrategy: "default",
       strategies: {
         default: Type.Object(
           { amount: Type.Number({ default: 1 }) },

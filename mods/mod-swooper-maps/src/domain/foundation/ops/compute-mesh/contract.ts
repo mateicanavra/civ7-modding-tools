@@ -19,6 +19,7 @@ const ComputeMeshContract = defineOp({
     { additionalProperties: false }
   ),
   output: Type.Object({ mesh: FoundationMeshSchema }, { additionalProperties: false }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object(
       {

@@ -386,6 +386,7 @@ const PlanStartsContract = defineOp({
         "Per-input coverage assertion results; imputed rows are surfaced, never silently neutral-defaulted.",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       minContiguousLandTiles: Type.Integer({

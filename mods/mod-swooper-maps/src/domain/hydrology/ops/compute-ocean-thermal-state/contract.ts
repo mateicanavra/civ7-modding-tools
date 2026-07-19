@@ -104,6 +104,7 @@ const ComputeOceanThermalStateContract = defineOp({
   id: "hydrology/compute-ocean-thermal-state",
   input: ComputeOceanThermalStateInputSchema,
   output: ComputeOceanThermalStateOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeOceanThermalStateDefaultStrategySchema,
   },

@@ -49,7 +49,7 @@ or {
   `$domain.ops.$operation.config` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$"
   },
-  `$domain.ops.$operation.strategies.default` where {
+  `$domain.ops.$operation.strategies.$strategy` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$"
   }
 }

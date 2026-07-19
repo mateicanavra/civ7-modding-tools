@@ -22,6 +22,7 @@ const ScoreColdReefContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Cold reef suitability score per tile (0..1)." }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       tempColdMaxC: Type.Number({

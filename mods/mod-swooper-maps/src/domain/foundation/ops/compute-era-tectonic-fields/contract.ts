@@ -56,6 +56,7 @@ const ComputeEraTectonicFieldsContract = defineOp({
         "Mesh-wide boundary, deformation, volcanism, and drift fields for one weighted tectonic era; history rollups and current-state projection consume this record.",
     }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: StrategySchema,
   },

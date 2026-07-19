@@ -282,6 +282,7 @@ const AdjustResourceSupportContract = defineOp({
     },
     { additionalProperties: false }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object(
       {

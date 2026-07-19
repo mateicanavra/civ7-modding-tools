@@ -1,4 +1,5 @@
 import type { Static, TSchema } from "typebox";
+import { Value } from "typebox/value";
 import type { OpContract } from "./contract.js";
 import { admitOperationInput, compileOperationInputAdmissionPlan } from "./input-admission.js";
 import {
@@ -29,7 +30,13 @@ type OpImpl<C extends OpContract<any, any, any, any, any>> = Readonly<{
 export function createOp<const C extends OpContract<any, any, any, any, any>>(
   contract: C,
   impl: OpImpl<C>
-): DomainOp<C["input"], C["output"], RuntimeStrategiesForContract<C>, C["id"]>;
+): DomainOp<
+  C["input"],
+  C["output"],
+  RuntimeStrategiesForContract<C>,
+  C["id"],
+  C["defaultStrategy"]
+>;
 
 export function createOp(contract: any, impl: any): any {
   const rawStrategySchemas = contract?.strategies as Record<string, TSchema> | undefined;
@@ -43,16 +50,35 @@ export function createOp(contract: any, impl: any): any {
     throw new Error(`createOp(${contract?.id ?? "unknown"}) requires strategies`);
   }
 
-  const strategySchemas = rawStrategySchemas as typeof rawStrategySchemas & { default: TSchema };
+  const strategySchemas = rawStrategySchemas;
+  const defaultStrategy = contract.defaultStrategy as string | undefined;
   const configSchema = contract.config as TSchema | undefined;
   const defaultConfig = contract.defaultConfig as unknown;
   const strategyIds = Object.keys(strategySchemas);
+
+  if (
+    typeof defaultStrategy !== "string" ||
+    !Object.prototype.hasOwnProperty.call(strategySchemas, defaultStrategy)
+  ) {
+    throw new Error(`createOp(${contract?.id}) requires a declared default strategy`);
+  }
 
   if (!configSchema) {
     throw new Error(`createOp(${contract?.id}) requires contract.config`);
   }
 
-  if (!defaultConfig) {
+  let materializedDefaultConfig: unknown;
+  try {
+    Value.Assert(configSchema, defaultConfig);
+    materializedDefaultConfig = Value.Create(configSchema);
+  } catch {
+    throw new Error(`createOp(${contract?.id}) requires contract.defaultConfig`);
+  }
+
+  if (
+    !Value.Equal(defaultConfig, materializedDefaultConfig) ||
+    (materializedDefaultConfig as { strategy?: unknown }).strategy !== defaultStrategy
+  ) {
     throw new Error(`createOp(${contract?.id}) requires contract.defaultConfig`);
   }
 
@@ -107,6 +133,7 @@ export function createOp(contract: any, impl: any): any {
     output: contract.output,
     strategies: runtimeStrategies,
     config,
+    defaultStrategy,
     defaultConfig: defaultConfig as StrategySelection<typeof runtimeStrategies>,
     normalize,
     run: (input: any, cfg: any) => {

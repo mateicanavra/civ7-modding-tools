@@ -61,6 +61,7 @@ const ComputeLandmassesContract = defineOp({
       description: "Per-tile landmass id (-1 for water). Values map to landmasses[].",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object(
       {},

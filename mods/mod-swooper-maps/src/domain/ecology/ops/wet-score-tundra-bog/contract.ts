@@ -20,6 +20,7 @@ const ScoreWetTundraBogContract = defineOp({
       description: "Tundra bog suitability score per tile (0..1).",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       waterMin01: Type.Number({

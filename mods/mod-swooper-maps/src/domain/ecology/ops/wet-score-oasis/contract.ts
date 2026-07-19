@@ -17,6 +17,7 @@ const ScoreWetOasisContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Oasis suitability score per tile (0..1)." }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       dryMin01: Type.Number({

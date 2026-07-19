@@ -1,20 +1,27 @@
 import { describe, expect, it } from "bun:test";
-import {
-  buildOpEnvelopeSchema,
-  buildOpEnvelopeSchemaWithDefaultStrategy,
-} from "@mapgen/authoring/op/envelope.js";
+import { buildOpEnvelopeSchema } from "@mapgen/authoring/op/envelope.js";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 
 describe("op envelope defaults", () => {
-  it("reports one authoritative error when the default strategy is missing", () => {
-    expect(() => buildOpEnvelopeSchema("test/missing-default", {})).toThrow(
-      'op(test/missing-default) missing required "default" strategy schema'
+  it("refuses an empty default-strategy identity", () => {
+    expect(() => buildOpEnvelopeSchema("test/empty-default", {}, "")).toThrow(
+      "op(test/empty-default) requires an explicit default strategy"
     );
   });
 
+  it("refuses a default strategy that is absent from the declared strategy set", () => {
+    expect(() =>
+      buildOpEnvelopeSchema(
+        "test/missing-default",
+        { available: Type.Object({}, { additionalProperties: false }) },
+        "missing"
+      )
+    ).toThrow('op(test/missing-default) missing strategy "missing" (available: available)');
+  });
+
   it("materializes the selected strategy directly regardless of strategy order", () => {
-    const result = buildOpEnvelopeSchemaWithDefaultStrategy(
+    const result = buildOpEnvelopeSchema(
       "test/ordered-strategies",
       {
         first: Type.Object(
@@ -42,7 +49,7 @@ describe("op envelope defaults", () => {
   });
 
   it("creates required nested strategy objects without structural defaults", () => {
-    const result = buildOpEnvelopeSchemaWithDefaultStrategy(
+    const result = buildOpEnvelopeSchema(
       "test/native-create",
       {
         selected: Type.Object(

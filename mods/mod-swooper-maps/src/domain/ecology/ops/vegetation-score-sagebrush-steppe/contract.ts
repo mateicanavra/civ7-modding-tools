@@ -22,6 +22,7 @@ const ScoreVegetationSagebrushSteppeContract = defineOp({
       description: "Sagebrush steppe suitability score per tile (0..1).",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),
   },

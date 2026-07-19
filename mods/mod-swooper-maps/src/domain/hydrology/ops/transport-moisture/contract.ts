@@ -132,6 +132,7 @@ const TransportMoistureContract = defineOp({
   id: "hydrology/transport-moisture",
   input: TransportMoistureInputSchema,
   output: TransportMoistureOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: TransportMoistureVectorStrategySchema,
     cardinal: TransportMoistureDefaultStrategySchema,

@@ -42,29 +42,15 @@ function buildEnvelope(
   };
 }
 
+/** Builds the closed strategy envelope and materializes one explicitly selected default. */
 export function buildOpEnvelopeSchema(
-  contractId: string,
-  strategySchemas: StrategyConfigSchemas
-): OpEnvelopeBuildResult {
-  const defaultStrategySchema = strategySchemas.default;
-  if (
-    !Object.prototype.hasOwnProperty.call(strategySchemas, "default") ||
-    defaultStrategySchema === undefined
-  ) {
-    throw new Error(`op(${contractId}) missing required "default" strategy schema`);
-  }
-  return buildEnvelope(strategySchemas, "default", defaultStrategySchema);
-}
-
-export function buildOpEnvelopeSchemaWithDefaultStrategy(
   contractId: string,
   strategySchemas: StrategyConfigSchemas,
   defaultStrategy: string
-): Readonly<{
-  schema: TSchema;
-  defaultConfig: StrategySelectionDefault;
-  strategyIds: readonly string[];
-}> {
+): OpEnvelopeBuildResult {
+  if (typeof defaultStrategy !== "string" || defaultStrategy.length === 0) {
+    throw new Error(`op(${contractId}) requires an explicit default strategy`);
+  }
   const defaultStrategySchema = strategySchemas[defaultStrategy];
   if (
     !Object.prototype.hasOwnProperty.call(strategySchemas, defaultStrategy) ||

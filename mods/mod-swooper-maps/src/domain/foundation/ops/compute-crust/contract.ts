@@ -89,6 +89,7 @@ const ComputeCrustContract = defineOp({
   id: "foundation/compute-crust",
   input: InputSchema,
   output: OutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: StrategySchema,
   },

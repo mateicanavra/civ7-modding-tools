@@ -74,6 +74,7 @@ const ComputeDrainageRoutingContract = defineOp({
   id: "hydrology/compute-drainage-routing",
   input: ComputeDrainageRoutingInputSchema,
   output: ComputeDrainageRoutingOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeDrainageRoutingDefaultStrategySchema,
   },

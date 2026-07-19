@@ -128,6 +128,7 @@ const ComputeGeomorphicCycleContract = defineOp({
       description: "Sediment depth delta per tile to apply for geomorphic relaxation.",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: GeomorphicCycleConfigSchema,
   },

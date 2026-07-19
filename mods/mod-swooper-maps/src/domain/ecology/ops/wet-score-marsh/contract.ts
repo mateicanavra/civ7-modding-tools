@@ -18,6 +18,7 @@ const ScoreWetMarshContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Marsh suitability score per tile (0..1)." }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       waterMin01: Type.Number({

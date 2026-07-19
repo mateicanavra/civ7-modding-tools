@@ -64,6 +64,7 @@ const ResourcePlanBasinsContract = defineOp({
       })
     ),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: ResourceBasinPlanConfigSchema,
     "hydro-fluvial": ResourceBasinPlanConfigSchema,

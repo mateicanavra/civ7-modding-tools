@@ -186,6 +186,7 @@ const ComputeCryosphereStateContract = defineOp({
   id: "hydrology/compute-cryosphere-state",
   input: ComputeCryosphereStateInputSchema,
   output: ComputeCryosphereStateOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeCryosphereStateDefaultStrategySchema,
   },

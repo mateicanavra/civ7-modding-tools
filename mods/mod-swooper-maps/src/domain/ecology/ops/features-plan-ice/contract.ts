@@ -19,6 +19,7 @@ const PlanIceContract = defineOp({
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       minConfidence01: Type.Number({

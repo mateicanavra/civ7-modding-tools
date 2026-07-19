@@ -353,6 +353,7 @@ const ComputePlatesTensorsContract = defineOp({
   id: "foundation/compute-plates-tensors",
   input: InputSchema,
   output: OutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: StrategySchema,
   },

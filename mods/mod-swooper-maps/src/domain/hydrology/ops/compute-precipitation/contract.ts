@@ -380,6 +380,7 @@ const ComputePrecipitationContract = defineOp({
   id: "hydrology/compute-precipitation",
   input: ComputePrecipitationInputSchema,
   output: ComputePrecipitationOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputePrecipitationVectorStrategySchema,
     basic: ComputePrecipitationBaselineStrategySchema,

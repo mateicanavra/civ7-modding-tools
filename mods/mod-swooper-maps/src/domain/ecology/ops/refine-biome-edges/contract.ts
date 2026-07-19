@@ -12,6 +12,7 @@ const RefineBiomeEdgesContract = defineOp({
   output: Type.Object({
     biomeIndex: TypedArraySchemas.u8({ description: "Smoothed biome indices per tile." }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       radius: Type.Integer({ minimum: 1, maximum: 5, default: 1 }),

@@ -103,6 +103,7 @@ const ProjectRiverNetworkContract = defineOp({
   id: "hydrology/project-river-network",
   input: ProjectRiverNetworkInputSchema,
   output: ProjectRiverNetworkOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ProjectRiverNetworkDefaultStrategySchema,
   },
