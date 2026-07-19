@@ -13,7 +13,7 @@
 | Domain algorithms (ops, strategies, rules) | `mods/mod-swooper-maps/src/domain/<domain>/` | the mod |
 | Recipe (stages, steps, ordering, artifacts) | `mods/mod-swooper-maps/src/recipes/standard/` | the mod |
 | Map configs / generated entrypoints / presets | `mods/mod-swooper-maps/src/maps/{configs,generated,presets}` | the mod |
-| Diagnostics / viz (the harness) | `mods/mod-swooper-maps/src/dev/{diagnostics,viz}` | the mod |
+| Diagnostics / viz (the harness) | `mods/mod-swooper-maps/scripts/diagnostics` | the mod |
 | Authoring API + execution infra (`createRecipe`/`createStage`/`createStep`/`createOp`/`defineArtifact`, PipelineExecutor, write-once artifact runtime, TypeBox validation, trace/viz) | `@swooper/mapgen-core` = `packages/mapgen-core` | engine substrate (referenced, not changed for domain work) |
 | SDK / Civ7 adapter contracts | `packages/sdk`, adapter | `civ7-architecture-authority` |
 

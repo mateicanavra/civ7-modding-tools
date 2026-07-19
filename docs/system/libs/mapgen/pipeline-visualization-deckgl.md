@@ -130,7 +130,7 @@ Implemented sinks:
   - copies each exact typed-array view into an inline buffer,
   - materializes `VizLayerEmissionV1`,
   - posts `viz.layer.upsert` with Transferables.
-- **Node/dev dump sink**: `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+- **Node diagnostic dump sink**: `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
   - writes exact binary views under `data/`,
   - materializes path-backed layers and updates `manifest.json`.
 
@@ -284,5 +284,5 @@ Replay (dump viewer):
 - Viz manifest contract: `packages/mapgen-viz/src/index.ts`
 - Studio viz manifest state: `apps/mapgen-studio/src/features/viz/vizStore.ts`
 - Deck.gl renderer: `apps/mapgen-studio/src/features/viz/deckgl/render.ts`
-- Node/dev dump harness: `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+- Node diagnostic dump harness: `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
 - Viz contract routing: `docs/system/libs/mapgen/reference/VISUALIZATION.md`

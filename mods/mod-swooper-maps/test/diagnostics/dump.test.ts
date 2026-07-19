@@ -8,7 +8,7 @@ import { admitMapSetup, createMapContext, createTraceSession } from "@swooper/ma
 import { createRecipe, createStage, createStep, defineStep } from "@swooper/mapgen-core/authoring";
 import { createVizLayerKey, type VizManifestV1, type VizPathRef } from "@swooper/mapgen-viz";
 import { Type } from "typebox";
-import { createVizDumpAdapters } from "../../../src/dev/viz/dump.js";
+import { createVizDumpAdapters } from "../../scripts/diagnostics/dump.js";
 
 function readManifest(outputRoot: string, runId: string): VizManifestV1<VizPathRef> {
   return JSON.parse(

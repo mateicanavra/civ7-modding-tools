@@ -10,11 +10,11 @@ import {
   type TraceSink,
 } from "@swooper/mapgen-core";
 
-import { admitStandardMapConfig } from "../../maps/configs/canonical.js";
-import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
-import standardRecipe from "../../recipes/standard/recipe.js";
-import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import { createVizDumpAdapters } from "../viz/dump.js";
+import { admitStandardMapConfig } from "../../src/maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
+import standardRecipe from "../../src/recipes/standard/recipe.js";
+import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
+import { createVizDumpAdapters } from "./dump.js";
 import { isPlainObject, mergeDeep, parseArgs } from "./shared.js";
 
 function parseIntOr(value: unknown, fallback: number): number {
@@ -54,7 +54,7 @@ function loadConfig(flags: Record<string, string | true>): unknown {
  * Data-first dump runner for the full standard pipeline.
  *
  * Usage:
- *   bun ./src/dev/diagnostics/run-standard-dump.ts -- 106 66 1337 --label probe --override '{...}'
+ *   bun ./scripts/diagnostics/run-standard-dump.ts -- 106 66 1337 --label probe --override '{...}'
  *
  * Output:
  *   {"runId":"...","outputDir":"..."}

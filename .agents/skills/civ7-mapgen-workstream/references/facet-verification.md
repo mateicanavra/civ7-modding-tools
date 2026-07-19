@@ -67,7 +67,7 @@ helpers belong in `stages/<stage>/viz.ts`. See the canonical model in
 `docs/system/libs/mapgen/reference/VISUALIZATION.md`. If metadata is wrong, fix
 the owning recipe step/helper, not `presentation.ts`. The browser dumper
 (`browser-runner/worker-viz-dumper.ts`, inline ArrayBuffers) and CLI facet sink
-(`src/dev/viz/dump.ts`, `.bin` path refs) must materialize identical
+(`scripts/diagnostics/dump.ts`, `.bin` path refs) must materialize identical
 `VizLayerEntryV1` shapes — divergence makes Studio disagree with `diag:diff`.
 
 Studio launch / daemon contract (port 5174, oRPC `/rpc`, `runtimeMode: "studio-daemon-effect-orpc"`) and the control-surface design owner (`civ7-orpc-control-architecture`) live in `references/pipeline-map.md` — not repeated here.
@@ -104,7 +104,7 @@ Physics targets behind the metrics — what is modeled vs approximated vs absent
 
 Map-gen has two independent diagnostic surfaces; conflating them produces mislabeled proof.
 
-- **Pipeline-internal diagnostics** (`mods/mod-swooper-maps/src/dev/{diagnostics,viz}`) run headlessly through **MockAdapter**. They prove the recipe *computes* a given surface. Closure label: `generated` at most — never `in-game observed`. A clean `diag:dump` says nothing about the live engine.
+- **Pipeline-internal diagnostics** (`mods/mod-swooper-maps/scripts/diagnostics`) run headlessly through **MockAdapter**. They prove the recipe *computes* a given surface. Closure label: `generated` at most — never `in-game observed`. A clean `diag:dump` says nothing about the live engine.
 - **Civ7 Logs** (`~/Library/Application Support/Civilization VII/Logs/Scripting.log`) are emitted by the **live engine**. Only these support `logged` / `in-game observed`. (Tuner/log discipline: `civ7-operational-debugging/references/firetuner-runtime.md`.)
 
 A MockAdapter-clean map can still **SIGSEGV** the live engine — so internal diagnostics are necessary but never sufficient for a map-gen change. The closure test is the in-game gate.

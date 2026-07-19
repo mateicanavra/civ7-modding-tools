@@ -103,7 +103,7 @@ Forbidden shapes:
 - Viz manifest contract types: `packages/mapgen-viz/src/index.ts`
 - Step facet contract and dispatch: `packages/mapgen-core/src/engine/step-projectors.ts` and
   `packages/mapgen-core/src/engine/step-facets.ts`
-- Viz dump sink (mod-owned): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+- Viz dump sink (mod-owned): `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
 - Studio worker facet sink: `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`
 - Standard recipe style vocabulary: `mods/mod-swooper-maps/src/recipes/standard/viz.ts`
 - Standard-recipe stage/step ownership guard:

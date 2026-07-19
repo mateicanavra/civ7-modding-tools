@@ -536,6 +536,10 @@ const ODD_R_NEIGHBORS_ODD_ROW = [
   [1, 1],
 ] as const;
 
+/**
+ * Enumerates feature and resource cells whose local replay differs from live Civ7 readback.
+ * Rows retain both surface contexts and cross-surface legality so follow-up probes start from exact deltas.
+ */
 export function buildSurfaceDeltaContexts(
   report: Pick<FinalSurfaceParityReport, "local" | "live">,
   options: {
@@ -565,6 +569,10 @@ export function buildSurfaceDeltaContexts(
   return rows;
 }
 
+/**
+ * Enriches feature deltas with local intent, natural-wonder footprint alternatives, and evidence classes.
+ * Classifications describe diagnostic provenance only; they do not assign product or source authority.
+ */
 export function buildFeatureDeltaPlacementContexts(
   report: Pick<FinalSurfaceParityReport, "local" | "live">,
   options: { maxRows?: number } = {}
@@ -604,6 +612,10 @@ export function buildFeatureDeltaPlacementContexts(
   return classified.slice(0, maxRows);
 }
 
+/**
+ * Tests every supported natural-wonder footprint direction against local and live final surfaces.
+ * Best-match directions remain plural so symmetric footprints do not manufacture a unique readback claim.
+ */
 export function buildNaturalWonderFootprintReadbackContexts(
   report: Pick<FinalSurfaceParityReport, "local" | "live">
 ): ReadonlyArray<NaturalWonderFootprintReadbackContext> {
@@ -677,6 +689,10 @@ export function buildNaturalWonderFootprintReadbackContexts(
   });
 }
 
+/**
+ * Projects the complete natural-wonder policy catalog alongside any observed footprint readbacks.
+ * Catalog entries remain visible without observations, preserving the distinction between policy and evidence.
+ */
 export function buildNaturalWonderFootprintCatalogContexts(
   readbacks: ReadonlyArray<NaturalWonderFootprintReadbackContext> = []
 ): ReadonlyArray<NaturalWonderFootprintCatalogContext> {
@@ -729,6 +745,10 @@ export function buildNaturalWonderFootprintCatalogContexts(
   });
 }
 
+/**
+ * Compares local natural-wonder placement statistics with each admitted exact-log evidence channel.
+ * Missing sides produce named unresolved links rather than being treated as zero placements.
+ */
 export function buildNaturalWonderLiveEvidenceBoundaryContext(
   report: Pick<FinalSurfaceParityReport, "local" | "exactAuthorshipEvidence">
 ): NaturalWonderLiveEvidenceBoundaryContext {
@@ -764,6 +784,10 @@ export function buildNaturalWonderLiveEvidenceBoundaryContext(
   };
 }
 
+/**
+ * Enriches resource deltas with authored plan intent, placement outcomes, spacing, and static legality.
+ * Both observed values are evaluated on both surfaces to expose whether drift follows policy or engine state.
+ */
 export function buildResourceDeltaPlacementContexts(
   report: Pick<FinalSurfaceParityReport, "local" | "live">,
   options: { maxRows?: number } = {}
@@ -865,6 +889,10 @@ export function buildResourceDeltaPlacementContexts(
   return rows;
 }
 
+/**
+ * Joins resource delta rows with exact-runtime feasibility probes and assigns a diagnostic class.
+ * Missing probes remain `null`; static policy evidence is never promoted to live engine feasibility.
+ */
 export function buildResourceDeltaFeasibilityContexts(
   report: Pick<FinalSurfaceParityReport, "local" | "live">,
   feasibility: ResourceFeasibilityReadbackLike,
@@ -894,6 +922,10 @@ export function buildResourceDeltaFeasibilityContexts(
   });
 }
 
+/**
+ * Enriches terrain mismatches with odd-row neighborhoods and the local projection evidence chain.
+ * Source authority remains explicitly unresolved while the report offers bounded owner candidates.
+ */
 export function buildTerrainDeltaEdgeContexts(
   report: Pick<FinalSurfaceParityReport, "local" | "live">,
   options: { maxRows?: number } = {}
@@ -937,6 +969,10 @@ export function buildTerrainDeltaEdgeContexts(
   return rows;
 }
 
+/**
+ * Builds the four-way local/live legality comparison for one mismatched feature or resource cell.
+ * This is the shared row shape used by aggregate delta reports and targeted diagnostic tests.
+ */
 export function buildSurfaceDeltaContext(
   local: FinalSurfaceSnapshot,
   live: FinalSurfaceSnapshot,
@@ -979,6 +1015,10 @@ export function buildSurfaceDeltaContext(
   };
 }
 
+/**
+ * Evaluates one feature or resource against the snapshot's static Civ7 surface policy.
+ * The result explains policy compatibility only; it is not a substitute for live engine feasibility readback.
+ */
 export function staticSurfaceLegality(
   snapshot: FinalSurfaceSnapshot,
   key: ClassifiableSurfaceKey,
@@ -1011,11 +1051,7 @@ export function staticSurfaceLegality(
   };
 }
 
-export function cellSurfaceContext(
-  snapshot: SnapshotLike,
-  x: number,
-  y: number
-): CellSurfaceContext {
+function cellSurfaceContext(snapshot: SnapshotLike, x: number, y: number): CellSurfaceContext {
   const terrain = surfaceValue(snapshot, "terrain", x, y);
   const biome = surfaceValue(snapshot, "biome", x, y);
   const feature = surfaceValue(snapshot, "feature", x, y);

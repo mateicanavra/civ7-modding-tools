@@ -20,12 +20,12 @@ import {
   type FinalSurfaceParityReport,
   hashParityValue,
   stableParityReportStringify,
-} from "../../src/dev/diagnostics/live-parity.js";
+} from "./live-parity.js";
 import {
   buildResourceDeltaFeasibilityContexts,
   buildResourceDeltaPlacementContexts,
   type ResourceDeltaFeasibilityContext,
-} from "../../src/dev/diagnostics/surface-delta-context.js";
+} from "./surface-delta-context.js";
 
 type Args = Readonly<{
   reportFile?: string;

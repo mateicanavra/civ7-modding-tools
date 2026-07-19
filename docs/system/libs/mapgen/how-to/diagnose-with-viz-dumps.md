@@ -101,16 +101,16 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
 ## Ground truth anchors
 
 - Dump writer / pipeline entry:
-  - `mods/mod-swooper-maps/src/dev/diagnostics/run-standard-dump.ts`
+  - `mods/mod-swooper-maps/scripts/diagnostics/run-standard-dump.ts`
 - Dump analyzers:
-  - `mods/mod-swooper-maps/src/dev/diagnostics/analyze-dump.ts`
-  - `mods/mod-swooper-maps/src/dev/diagnostics/diff-layers.ts`
-  - `mods/mod-swooper-maps/src/dev/diagnostics/list-layers.ts`
-  - `mods/mod-swooper-maps/src/dev/diagnostics/extract-trace.ts`
+  - `mods/mod-swooper-maps/scripts/diagnostics/analyze-dump.ts`
+  - `mods/mod-swooper-maps/scripts/diagnostics/diff-layers.ts`
+  - `mods/mod-swooper-maps/scripts/diagnostics/list-layers.ts`
+  - `mods/mod-swooper-maps/scripts/diagnostics/extract-trace.ts`
 - Shared dump readers and helpers:
-  - `mods/mod-swooper-maps/src/dev/diagnostics/shared.ts`
+  - `mods/mod-swooper-maps/scripts/diagnostics/shared.ts`
 - Trace + visualization sink wiring:
-  - `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+  - `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
 - Standard recipe styles:
   - `mods/mod-swooper-maps/src/recipes/standard/viz.ts`
 

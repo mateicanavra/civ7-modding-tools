@@ -27,10 +27,10 @@ Example:
 
 ```bash
 # baseline
-bun run diag:dump -- 106 66 1337 --label probe-baseline
+nx run mod-swooper-maps:diag:dump -- 106 66 1337 --label probe-baseline
 
 # variant
-bun run diag:dump -- 106 66 1337 --label probe-platecount6 --override '{\"foundation\":{\"knobs\":{\"plateCount\":6}}}'
+nx run mod-swooper-maps:diag:dump -- 106 66 1337 --label probe-platecount6 --override '{\"foundation\":{\"knobs\":{\"plateCount\":6}}}'
 
 # analyze / diff
 bun run diag:analyze -- dist/visualization/probe-baseline/<runId> dist/visualization/probe-platecount6/<runId>

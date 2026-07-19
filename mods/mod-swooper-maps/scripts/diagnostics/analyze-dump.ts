@@ -26,10 +26,10 @@ function tryPickLatestGridLayer(manifest: ReturnType<typeof loadManifest>, dataT
 function landmaskLayers(manifest: ReturnType<typeof loadManifest>) {
   return manifest.layers
     .filter(
-      (l) =>
-        l.kind === "grid" &&
-        l.dataTypeKey === "morphology.topography.landMask" &&
-        l.field?.format === "u8"
+      (layer): layer is ReturnType<typeof pickLatestGridLayer> =>
+        layer.kind === "grid" &&
+        layer.dataTypeKey === "morphology.topography.landMask" &&
+        layer.field.format === "u8"
     )
     .slice()
     .sort((a, b) => (a.stepIndex ?? 0) - (b.stepIndex ?? 0));
@@ -44,8 +44,8 @@ function summarizeLandmasks(runDir: string, manifest: ReturnType<typeof loadMani
       stepId: layer.stepId,
       stepIndex: layer.stepIndex,
       dataTypeKey: layer.dataTypeKey,
-      format: layer.field?.format ?? null,
-      path: layer.field?.data?.path ?? null,
+      format: layer.field.format,
+      path: layer.field.data.path,
       ...basic,
       ...cc,
     };
@@ -128,7 +128,7 @@ function diffLandmasks(
  * Dump analyzer (metrics-first).
  *
  * Usage:
- *   bun ./src/dev/diagnostics/analyze-dump.ts -- <runDirA> [runDirB]
+ *   bun ./scripts/diagnostics/analyze-dump.ts -- <runDirA> [runDirB]
  *
  * Output:
  *   JSON summary with land coherence metrics + optional hamming diffs.
@@ -138,7 +138,7 @@ function main(): void {
   const runDirA = positionals[0];
   const runDirB = positionals[1];
   if (!runDirA)
-    throw new Error("Usage: bun ./src/dev/diagnostics/analyze-dump.ts -- <runDirA> [runDirB]");
+    throw new Error("Usage: bun ./scripts/diagnostics/analyze-dump.ts -- <runDirA> [runDirB]");
 
   const manifestA = loadManifest(runDirA);
   const traceA = loadTraceLines(runDirA);

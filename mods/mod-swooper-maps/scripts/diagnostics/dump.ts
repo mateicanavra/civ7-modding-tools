@@ -236,6 +236,7 @@ function reportFilesystemFacetFailure(failure: StepFacetFailure): undefined {
 /**
  * Creates the coupled filesystem outputs for one diagnostic execution surface.
  * Trace progress and execution-owned visualization facets share one path-backed manifest state.
+ * Persistence remains diagnostic-only: sink failures are reported without changing generation flow.
  */
 export function createVizDumpAdapters(options: { outputRoot: string }): Readonly<{
   traceSink: TraceSink;

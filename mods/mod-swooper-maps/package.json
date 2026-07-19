@@ -35,10 +35,10 @@
     }
   },
   "scripts": {
-    "diag:analyze": "bun ./src/dev/diagnostics/analyze-dump.ts",
-    "diag:diff": "bun ./src/dev/diagnostics/diff-layers.ts",
-    "diag:list": "bun ./src/dev/diagnostics/list-layers.ts",
-    "diag:trace": "bun ./src/dev/diagnostics/extract-trace.ts",
+    "diag:analyze": "bun ./scripts/diagnostics/analyze-dump.ts",
+    "diag:diff": "bun ./scripts/diagnostics/diff-layers.ts",
+    "diag:list": "bun ./scripts/diagnostics/list-layers.ts",
+    "diag:trace": "bun ./scripts/diagnostics/extract-trace.ts",
     "metrics:report": "bun ./scripts/metrics/report.ts"
   },
   "dependencies": {

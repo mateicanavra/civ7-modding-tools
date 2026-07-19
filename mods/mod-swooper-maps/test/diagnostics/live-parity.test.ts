@@ -14,7 +14,7 @@ import {
   type FinalSurfaceSnapshot,
   hashParityValue,
   parseCompleteExactAuthorshipEvidencePacket,
-} from "../../src/dev/diagnostics/live-parity";
+} from "../../scripts/live/live-parity";
 
 const pipelineConfig = STANDARD_RECIPE_CONFIG;
 const canonicalConfig = {

@@ -53,7 +53,7 @@
       }
     },
     "check:tools": {
-      "command": "tsc -p scripts/tsconfig.json --noEmit && tsc -p src/dev/tsconfig.json --noEmit",
+      "command": "tsc -p scripts/tsconfig.json --noEmit",
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -211,7 +211,7 @@
       }
     },
     "viz:standard": {
-      "command": "bun ./src/dev/viz/standard-run.ts",
+      "command": "bun ./scripts/diagnostics/standard-run.ts",
       "dependsOn": ["viz:runtime-deps"],
       "cache": false,
       "options": {
@@ -219,7 +219,7 @@
       }
     },
     "diag:dump": {
-      "command": "bun ./src/dev/diagnostics/run-standard-dump.ts",
+      "command": "bun ./scripts/diagnostics/run-standard-dump.ts",
       "dependsOn": ["viz:runtime-deps"],
       "cache": false,
       "options": {

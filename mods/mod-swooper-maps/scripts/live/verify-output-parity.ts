@@ -39,17 +39,16 @@ import {
   getCiv7FullMapGrid,
 } from "@civ7/direct-control";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
+import {
+  admitStandardMapConfig,
+  type StandardMapConfigEnvelope,
+} from "../../src/maps/configs/canonical.js";
 import {
   createFinalSurfaceParityMapInfo,
   diffFinalSurfaceSnapshots,
   liveGridToFinalSurfaceSnapshot,
   runLocalFinalSurfaceSnapshot,
-} from "../../src/dev/diagnostics/live-parity.js";
-import {
-  admitStandardMapConfig,
-  type StandardMapConfigEnvelope,
-} from "../../src/maps/configs/canonical.js";
+} from "./live-parity.js";
 import { serializeVerifierError } from "./verifier-error";
 
 const MAP_SCRIPT_PATTERN = /^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*)\.js$/;

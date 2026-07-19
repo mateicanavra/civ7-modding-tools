@@ -8,14 +8,14 @@ function asString(value: unknown): string | null {
  * Extract selected trace events from a dump run.
  *
  * Usage:
- *   bun ./src/dev/diagnostics/extract-trace.ts -- <runDir> [--eventKind morphology.landmassPlates.summary]
+ *   bun ./scripts/diagnostics/extract-trace.ts -- <runDir> [--eventKind morphology.landmassPlates.summary]
  */
 function main(): void {
   const { positionals, flags } = parseArgs(process.argv.slice(2));
   const runDir = positionals[0];
   if (!runDir)
     throw new Error(
-      "Usage: bun ./src/dev/diagnostics/extract-trace.ts -- <runDir> [--eventKind ...]"
+      "Usage: bun ./scripts/diagnostics/extract-trace.ts -- <runDir> [--eventKind ...]"
     );
 
   const trace = loadTraceLines(runDir);

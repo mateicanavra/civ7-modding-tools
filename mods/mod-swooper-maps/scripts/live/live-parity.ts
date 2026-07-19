@@ -25,21 +25,26 @@ import {
   admitStandardMapConfig,
   canonicalRecipeConfig,
   type StandardMapConfigEnvelope,
-} from "../../maps/configs/canonical.js";
-import { artifacts as standardArtifacts } from "../../recipes/standard/artifacts/index.js";
-import standardRecipe, { type StandardRecipeConfig } from "../../recipes/standard/recipe.js";
-import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import { artifacts as ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts/index.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import { artifacts as mapElevationArtifacts } from "../../recipes/standard/stages/map-elevation/artifacts/index.js";
-import { artifacts as mapHydrologyArtifacts } from "../../recipes/standard/stages/map-hydrology/artifacts/index.js";
-import { artifacts as mapMorphologyArtifacts } from "../../recipes/standard/stages/map-morphology/artifacts/index.js";
-import { artifacts as mapRiversArtifacts } from "../../recipes/standard/stages/map-rivers/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts/index.js";
-import { artifacts as placementArtifacts } from "../../recipes/standard/stages/placement/artifacts/index.js";
-import { isPlainObject } from "./shared.js";
+} from "../../src/maps/configs/canonical.js";
+import { artifacts as standardArtifacts } from "../../src/recipes/standard/artifacts/index.js";
+import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
+import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
+import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifacts as mapElevationArtifacts } from "../../src/recipes/standard/stages/map-elevation/artifacts/index.js";
+import { artifacts as mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map-hydrology/artifacts/index.js";
+import { artifacts as mapMorphologyArtifacts } from "../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
+import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 
-export const FINAL_SURFACE_KEYS = ["terrain", "biome", "feature", "resource"] as const;
+const FINAL_SURFACE_KEYS = ["terrain", "biome", "feature", "resource"] as const;
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
 
 export type FinalSurfaceKey = (typeof FINAL_SURFACE_KEYS)[number];
 
@@ -505,6 +510,10 @@ function createMemoryTraceSink(events: TraceEvent[]): TraceSink {
   };
 }
 
+/**
+ * Reconstructs the Civ7 map metadata required for a deterministic local parity replay.
+ * Known dimensions inherit their official preset metadata; exact envelope latitudes override fallbacks.
+ */
 export function createFinalSurfaceParityMapInfo(
   width: number,
   height: number,
@@ -550,6 +559,10 @@ function resolveRecipeConfig(config: StandardMapConfigEnvelope): StandardRecipeC
   return canonicalRecipeConfig(config);
 }
 
+/**
+ * Replays the admitted Standard config through the real recipe on the mock engine adapter.
+ * The snapshot captures final surfaces plus selected artifact and trace evidence for same-run live comparison.
+ */
 export function runLocalFinalSurfaceSnapshot(
   input: RunLocalFinalSurfaceInput
 ): FinalSurfaceSnapshot {
@@ -858,6 +871,10 @@ function stripUndefined(
   return entries.length === 0 ? undefined : Object.fromEntries(entries);
 }
 
+/**
+ * Normalizes an untrusted Civ7 full-grid response into the parity snapshot shape.
+ * Missing plots and facts remain `null` so incomplete readback cannot masquerade as a surface match.
+ */
 export function liveGridToFinalSurfaceSnapshot(args: {
   grid: unknown;
   width: number;
@@ -941,6 +958,10 @@ function createEmptyRiverMetadataSnapshot(width: number, height: number): RiverM
   };
 }
 
+/**
+ * Compares local authored surfaces with live Civ7 readback using bounded mismatch evidence.
+ * Missing live cells remain explicit mismatches rather than being omitted from parity totals.
+ */
 export function diffFinalSurfaceSnapshots(
   local: FinalSurfaceSnapshot,
   live: FinalSurfaceSnapshot,
@@ -1014,6 +1035,10 @@ export function diffFinalSurfaceSnapshots(
   });
 }
 
+/**
+ * Joins exact-authorship, local replay, and live readback into the final parity evidence packet.
+ * The report is complete only when identity and full-grid links resolve; mismatches remain explicit evidence.
+ */
 export function buildFinalSurfaceParityReport(args: {
   exactAuthorship?: CompleteExactAuthorshipEvidence;
   local: FinalSurfaceSnapshot;
@@ -1262,6 +1287,10 @@ export function buildFinalSurfaceParityReport(args: {
   };
 }
 
+/**
+ * Admits only complete exact-authorship evidence for parity analysis.
+ * Invalid or incomplete packets return stable unresolved links instead of weakening the evidence contract.
+ */
 export function parseCompleteExactAuthorshipEvidencePacket(value: unknown): {
   evidence?: CompleteExactAuthorshipEvidence;
   unresolvedLinks: ReadonlyArray<string>;
@@ -1558,7 +1587,10 @@ function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLake
   );
 }
 
-/** The persisted manifest is the only launch-envelope authority for parity replay. */
+/**
+ * Admits the canonical Standard config from the persisted generation manifest.
+ * The manifest is the only launch-envelope authority for replay; invalid payloads remain unavailable.
+ */
 export function canonicalConfigFromGenerationManifest(
   manifest: StudioRunGenerationManifest | undefined
 ): StandardMapConfigEnvelope | undefined {
@@ -1571,10 +1603,15 @@ export function canonicalConfigFromGenerationManifest(
   }
 }
 
+/** Produces the stable content digest used to correlate parity reports and their derived contexts. */
 export function hashParityValue(value: unknown): string {
   return sha256Hex(stableStringify(value));
 }
 
+/**
+ * Projects the replay dimensions and seed owned by complete exact-authorship evidence.
+ * Missing evidence stays absent so callers can report the precise replay prerequisites that remain unresolved.
+ */
 export function dimensionsFromExactAuthorshipEvidence(
   exact: CompleteExactAuthorshipEvidence | undefined
 ): {
@@ -1589,6 +1626,7 @@ export function dimensionsFromExactAuthorshipEvidence(
   };
 }
 
+/** Serializes parity evidence with stable key ordering for reproducible reports and hashes. */
 export function stableParityReportStringify(value: unknown): string {
   return stableStringify(value);
 }

@@ -121,6 +121,6 @@ supply their own facet sink; trace verbosity is unrelated to whether the project
 
 - Standard recipe wiring: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
 - Foundation projection step (source of many viz layer dumps): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts`
-- Trace+viz dump harness (writes `trace.jsonl`, `manifest.json`, and `data/*`): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
-- Example runner that produces dumps: `mods/mod-swooper-maps/src/dev/viz/standard-run.ts`
+- Trace+viz dump harness (writes `trace.jsonl`, `manifest.json`, and `data/*`): `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
+- Example runner that produces dumps: `mods/mod-swooper-maps/scripts/diagnostics/standard-run.ts`
 - Trace core contract: `packages/mapgen-core/src/trace/index.ts`

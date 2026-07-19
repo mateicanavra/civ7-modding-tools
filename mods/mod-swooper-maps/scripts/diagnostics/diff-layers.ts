@@ -20,22 +20,26 @@ type DiffRow = Readonly<{
   note?: string;
 }>;
 
+type Manifest = ReturnType<typeof loadManifest>;
+type LayerRow = ReturnType<typeof listLayers>[number];
+type GridLayer = Extract<Manifest["layers"][number], { kind: "grid" }>;
+
 function pickComparablePairs(args: {
-  manifestA: ReturnType<typeof loadManifest>;
-  manifestB: ReturnType<typeof loadManifest>;
+  manifestA: Manifest;
+  manifestB: Manifest;
   prefix?: string;
   dataTypeKey?: string;
-}): Array<[any, any]> {
+}): Array<[LayerRow, LayerRow]> {
   const { manifestA, manifestB } = args;
   const rowsA = listLayers(manifestA, { prefix: args.prefix, dataTypeKey: args.dataTypeKey });
   const rowsB = listLayers(manifestB, { prefix: args.prefix, dataTypeKey: args.dataTypeKey });
 
   // Pair by `path` too: a single (dataTypeKey, stepId, variantKey) can be dumped in multiple
   // representations (e.g. different roles), and collapsing would yield false diffs.
-  const keyOf = (r: any): string =>
+  const keyOf = (r: LayerRow): string =>
     `${r.dataTypeKey}::${r.stepId}::${r.variantKey ?? ""}::${r.path ?? ""}`;
-  const byKeyB = new Map(rowsB.map((r: any) => [keyOf(r), r] as const));
-  const out: Array<[any, any]> = [];
+  const byKeyB = new Map(rowsB.map((r) => [keyOf(r), r] as const));
+  const out: Array<[LayerRow, LayerRow]> = [];
   for (const rA of rowsA) {
     const rB = byKeyB.get(keyOf(rA));
     if (rB) out.push([rA, rB]);
@@ -43,11 +47,22 @@ function pickComparablePairs(args: {
   return out;
 }
 
+function findGridLayer(manifest: Manifest, row: LayerRow): GridLayer | undefined {
+  return manifest.layers.find(
+    (layer): layer is GridLayer =>
+      layer.kind === "grid" &&
+      layer.stepId === row.stepId &&
+      layer.dataTypeKey === row.dataTypeKey &&
+      (layer.variantKey ?? null) === row.variantKey &&
+      layer.field.data.path === row.path
+  );
+}
+
 /**
  * Diff layer binaries between two runs for u8/i16 grids.
  *
  * Usage:
- *   bun ./src/dev/diagnostics/diff-layers.ts -- <runDirA> <runDirB> [--prefix morphology.topography] [--dataTypeKey morphology.topography.landMask]
+ *   bun ./scripts/diagnostics/diff-layers.ts -- <runDirA> <runDirB> [--prefix morphology.topography] [--dataTypeKey morphology.topography.landMask]
  */
 function main(): void {
   const { positionals, flags } = parseArgs(process.argv.slice(2));
@@ -55,7 +70,7 @@ function main(): void {
   const runDirB = positionals[1];
   if (!runDirA || !runDirB) {
     throw new Error(
-      "Usage: bun ./src/dev/diagnostics/diff-layers.ts -- <runDirA> <runDirB> [--prefix ...]"
+      "Usage: bun ./scripts/diagnostics/diff-layers.ts -- <runDirA> <runDirB> [--prefix ...]"
     );
   }
 
@@ -71,20 +86,8 @@ function main(): void {
     const format = a.format ?? null;
     const variantKey = a.variantKey ?? null;
     if (format === "u8") {
-      const layerA = manifestA.layers.find(
-        (l) =>
-          l.stepId === a.stepId &&
-          l.dataTypeKey === a.dataTypeKey &&
-          (l.variantKey ?? null) === variantKey &&
-          l.field?.data?.path === a.path
-      );
-      const layerB = manifestB.layers.find(
-        (l) =>
-          l.stepId === b.stepId &&
-          l.dataTypeKey === b.dataTypeKey &&
-          (l.variantKey ?? null) === variantKey &&
-          l.field?.data?.path === b.path
-      );
+      const layerA = findGridLayer(manifestA, a);
+      const layerB = findGridLayer(manifestB, b);
       if (!layerA || !layerB) continue;
       const gA = readU8Grid(runDirA, layerA);
       const gB = readU8Grid(runDirB, layerB);
@@ -112,20 +115,8 @@ function main(): void {
       continue;
     }
     if (format === "i16") {
-      const layerA = manifestA.layers.find(
-        (l) =>
-          l.stepId === a.stepId &&
-          l.dataTypeKey === a.dataTypeKey &&
-          (l.variantKey ?? null) === variantKey &&
-          l.field?.data?.path === a.path
-      );
-      const layerB = manifestB.layers.find(
-        (l) =>
-          l.stepId === b.stepId &&
-          l.dataTypeKey === b.dataTypeKey &&
-          (l.variantKey ?? null) === variantKey &&
-          l.field?.data?.path === b.path
-      );
+      const layerA = findGridLayer(manifestA, a);
+      const layerB = findGridLayer(manifestB, b);
       if (!layerA || !layerB) continue;
       const gA = readI16Grid(runDirA, layerA);
       const gB = readI16Grid(runDirB, layerB);
@@ -154,20 +145,8 @@ function main(): void {
       continue;
     }
     if (format === "f32") {
-      const layerA = manifestA.layers.find(
-        (l) =>
-          l.stepId === a.stepId &&
-          l.dataTypeKey === a.dataTypeKey &&
-          (l.variantKey ?? null) === variantKey &&
-          l.field?.data?.path === a.path
-      );
-      const layerB = manifestB.layers.find(
-        (l) =>
-          l.stepId === b.stepId &&
-          l.dataTypeKey === b.dataTypeKey &&
-          (l.variantKey ?? null) === variantKey &&
-          l.field?.data?.path === b.path
-      );
+      const layerA = findGridLayer(manifestA, a);
+      const layerB = findGridLayer(manifestB, b);
       if (!layerA || !layerB) continue;
       const gA = readF32Grid(runDirA, layerA);
       const gB = readF32Grid(runDirB, layerB);

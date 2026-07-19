@@ -1,39 +1,43 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
+import type {
+  VizGridLayerEntryV1,
+  VizManifestV1,
+  VizPathRef,
+  VizScalarFormat,
+  VizScalarStats,
+} from "@swooper/mapgen-viz";
 
-export type VizManifestV1 = Readonly<{
-  version: number;
-  runId: string;
-  planFingerprint: string;
-  steps: ReadonlyArray<Readonly<{ stepId: string; phase: string; stepIndex: number }>>;
-  layers: ReadonlyArray<
-    Readonly<{
-      kind: string;
-      layerKey: string;
-      dataTypeKey: string;
-      variantKey?: string;
-      stepId: string;
-      phase: string;
-      stepIndex: number;
-      spaceId: string;
-      meta?: unknown;
-      dims?: Readonly<{ width: number; height: number }>;
-      field?: Readonly<{
-        format: string;
-        stats?: unknown;
-        data: Readonly<{ kind: "path"; path: string }>;
-      }>;
-    }>
-  >;
+type PathManifest = VizManifestV1<VizPathRef>;
+type PathGridLayer = VizGridLayerEntryV1<VizPathRef>;
+
+type LayerInventoryRow = Readonly<{
+  dataTypeKey: string;
+  variantKey: string | null;
+  stepId: string;
+  stepIndex: number;
+  kind: PathManifest["layers"][number]["kind"];
+  format: VizScalarFormat | null;
+  stats: VizScalarStats | null;
+  path: string | null;
+  dims: Readonly<{ width: number; height: number }> | null;
 }>;
 
+/**
+ * Identifies JSON-style records accepted by the diagnostic config merger.
+ * Arrays and class instances remain atomic values so command overrides cannot silently reshape them.
+ */
 export function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
   const proto = Object.getPrototypeOf(value);
   return proto === Object.prototype || proto === null;
 }
 
+/**
+ * Applies diagnostic command overrides recursively while replacing non-record values as a unit.
+ * This keeps shipped recipe config structure intact without giving arrays implicit merge semantics.
+ */
 export function mergeDeep(base: unknown, override: unknown): unknown {
   if (override === undefined) return base;
   if (!isPlainObject(base) || !isPlainObject(override)) return override;
@@ -45,6 +49,10 @@ export function mergeDeep(base: unknown, override: unknown): unknown {
   return out;
 }
 
+/**
+ * Splits a diagnostic command line into positional operands and `--key [value]` flags.
+ * A flag without a following value is preserved as `true`, which distinguishes switches from omission.
+ */
 export function parseArgs(argv: readonly string[]): {
   positionals: string[];
   flags: Record<string, string | true>;
@@ -71,15 +79,23 @@ export function parseArgs(argv: readonly string[]): {
   return { positionals, flags };
 }
 
-export function loadJsonFile(path: string): unknown {
+function loadJsonFile(path: string): unknown {
   const text = readFileSync(path, "utf8");
   return JSON.parse(text) as unknown;
 }
 
-export function loadManifest(runDir: string): VizManifestV1 {
-  return loadJsonFile(join(runDir, "manifest.json")) as VizManifestV1;
+/**
+ * Loads the path-backed visualization manifest that indexes one diagnostic map run.
+ * Diagnostic readers use its layer paths and step ordering as the run's evidence inventory.
+ */
+export function loadManifest(runDir: string): PathManifest {
+  return loadJsonFile(join(runDir, "manifest.json")) as PathManifest;
 }
 
+/**
+ * Reads the trace stream for a diagnostic run, discarding malformed or blank JSONL rows.
+ * Consumers use the remaining events as best-effort evidence rather than generation authority.
+ */
 export function loadTraceLines(runDir: string): any[] {
   const text = readFileSync(join(runDir, "trace.jsonl"), "utf8");
   return text
@@ -95,19 +111,26 @@ export function loadTraceLines(runDir: string): any[] {
     .filter(Boolean);
 }
 
-export function pickLatestGridLayer(
-  manifest: VizManifestV1,
-  dataTypeKey: string
-): VizManifestV1["layers"][number] {
-  const matches = manifest.layers.filter((l) => l.kind === "grid" && l.dataTypeKey === dataTypeKey);
+/**
+ * Selects the last emitted grid for a semantic data type.
+ * The manifest step index, not filesystem ordering, determines which projection is current.
+ */
+export function pickLatestGridLayer(manifest: PathManifest, dataTypeKey: string): PathGridLayer {
+  const matches = manifest.layers.filter(
+    (layer): layer is PathGridLayer => layer.kind === "grid" && layer.dataTypeKey === dataTypeKey
+  );
   if (matches.length === 0) throw new Error(`Missing grid layer for dataTypeKey="${dataTypeKey}".`);
-  return matches.slice().sort((a, b) => (b.stepIndex ?? 0) - (a.stepIndex ?? 0))[0]!;
+  return matches.slice().sort((a, b) => b.stepIndex - a.stepIndex)[0]!;
 }
 
+/**
+ * Projects manifest layers into stable, human-readable inventory rows for CLI diagnostics.
+ * Optional filters narrow by exact data type or monotonic key prefix without reading payload files.
+ */
 export function listLayers(
-  manifest: VizManifestV1,
+  manifest: PathManifest,
   filter?: { prefix?: string; dataTypeKey?: string }
-): any[] {
+): LayerInventoryRow[] {
   const prefix = filter?.prefix;
   const exact = filter?.dataTypeKey;
   return manifest.layers
@@ -116,76 +139,100 @@ export function listLayers(
       if (prefix && !l.dataTypeKey.startsWith(prefix)) return false;
       return true;
     })
-    .map((l) => ({
-      dataTypeKey: l.dataTypeKey,
-      variantKey: l.variantKey ?? null,
-      stepId: l.stepId,
-      stepIndex: l.stepIndex,
-      kind: l.kind,
-      format: l.field?.format ?? null,
-      stats: l.field?.stats ?? null,
-      path: l.field?.data?.path ?? null,
-      dims: l.dims ?? null,
-    }))
-    .sort((a, b) => (a.stepIndex ?? 0) - (b.stepIndex ?? 0));
+    .map((layer): LayerInventoryRow => {
+      const grid = layer.kind === "grid" ? layer : undefined;
+      const dims = layer.kind === "grid" || layer.kind === "gridFields" ? layer.dims : undefined;
+      return {
+        dataTypeKey: layer.dataTypeKey,
+        variantKey: layer.variantKey ?? null,
+        stepId: layer.stepId,
+        stepIndex: layer.stepIndex,
+        kind: layer.kind,
+        format: grid?.field.format ?? null,
+        stats: grid?.field.stats ?? null,
+        path: grid?.field.data.path ?? null,
+        dims: dims ?? null,
+      };
+    })
+    .sort((a, b) => a.stepIndex - b.stepIndex);
 }
 
-export function readBinaryView(runDir: string, relPath: string): Buffer {
+function readBinaryView(runDir: string, relPath: string): Buffer {
   const abs = join(runDir, relPath);
   return readFileSync(abs);
 }
 
+function requireGridLayer(layer: PathManifest["layers"][number]): PathGridLayer {
+  if (layer.kind !== "grid") {
+    throw new Error(`Layer "${layer.dataTypeKey}" is ${layer.kind}, not a scalar grid.`);
+  }
+  return layer;
+}
+
+/**
+ * Reads an unsigned-byte grid from the layer's manifest-owned binary path.
+ * Non-grid entries are refused before accessing the canonical grid dimensions and payload reference.
+ */
 export function readU8Grid(
   runDir: string,
-  layer: VizManifestV1["layers"][number]
+  layer: PathManifest["layers"][number]
 ): {
   values: Uint8Array;
   width: number;
   height: number;
 } {
-  if (!layer.dims) throw new Error(`Layer "${layer.dataTypeKey}" missing dims.`);
-  const relPath = layer.field?.data?.path;
-  if (!relPath) throw new Error(`Layer "${layer.dataTypeKey}" missing field.data.path.`);
+  const grid = requireGridLayer(layer);
+  const relPath = grid.field.data.path;
   const buf = readBinaryView(runDir, relPath);
   return {
     values: new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength),
-    width: layer.dims.width,
-    height: layer.dims.height,
+    width: grid.dims.width,
+    height: grid.dims.height,
   };
 }
 
+/**
+ * Reads a signed 16-bit grid from the layer's manifest-owned binary path.
+ * The returned typed view preserves the manifest dimensions used by cross-run diagnostics.
+ */
 export function readI16Grid(
   runDir: string,
-  layer: VizManifestV1["layers"][number]
+  layer: PathManifest["layers"][number]
 ): {
   values: Int16Array;
   width: number;
   height: number;
 } {
-  if (!layer.dims) throw new Error(`Layer "${layer.dataTypeKey}" missing dims.`);
-  const relPath = layer.field?.data?.path;
-  if (!relPath) throw new Error(`Layer "${layer.dataTypeKey}" missing field.data.path.`);
+  const grid = requireGridLayer(layer);
+  const relPath = grid.field.data.path;
   const buf = readBinaryView(runDir, relPath);
   const arr = new Int16Array(buf.buffer, buf.byteOffset, Math.floor(buf.byteLength / 2));
-  return { values: arr, width: layer.dims.width, height: layer.dims.height };
+  return { values: arr, width: grid.dims.width, height: grid.dims.height };
 }
 
+/**
+ * Reads a 32-bit floating-point grid from the layer's manifest-owned binary path.
+ * The returned typed view preserves the manifest dimensions used by cross-run diagnostics.
+ */
 export function readF32Grid(
   runDir: string,
-  layer: VizManifestV1["layers"][number]
+  layer: PathManifest["layers"][number]
 ): {
   values: Float32Array;
   width: number;
   height: number;
 } {
-  if (!layer.dims) throw new Error(`Layer "${layer.dataTypeKey}" missing dims.`);
-  const relPath = layer.field?.data?.path;
-  if (!relPath) throw new Error(`Layer "${layer.dataTypeKey}" missing field.data.path.`);
+  const grid = requireGridLayer(layer);
+  const relPath = grid.field.data.path;
   const buf = readBinaryView(runDir, relPath);
   const arr = new Float32Array(buf.buffer, buf.byteOffset, Math.floor(buf.byteLength / 4));
-  return { values: arr, width: layer.dims.width, height: layer.dims.height };
+  return { values: arr, width: grid.dims.width, height: grid.dims.height };
 }
 
+/**
+ * Counts differing cells between equal-length unsigned-byte grids.
+ * Length mismatches are refused so a shape error cannot be misreported as ordinary cell drift.
+ */
 export function hammingU8(a: Uint8Array, b: Uint8Array): number {
   if (a.length !== b.length) throw new Error(`Hamming length mismatch: ${a.length} vs ${b.length}`);
   let diff = 0;
@@ -193,6 +240,10 @@ export function hammingU8(a: Uint8Array, b: Uint8Array): number {
   return diff;
 }
 
+/**
+ * Summarizes the binary land mask used by dump reports and map-balance diagnostics.
+ * Only the canonical value `1` counts as land; every other cell remains water evidence.
+ */
 export function landmaskStats(values: Uint8Array): {
   land: number;
   water: number;
@@ -204,6 +255,10 @@ export function landmaskStats(values: Uint8Array): {
   return { land, water, pctLand: values.length > 0 ? land / values.length : 0 };
 }
 
+/**
+ * Measures connected landmasses with the engine's odd-Q hex adjacency.
+ * The input must cover the declared grid exactly; wrapping is intentionally not inferred here.
+ */
 export function connectedComponentsLandOddQ(
   values: Uint8Array,
   width: number,

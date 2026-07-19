@@ -6,10 +6,10 @@ import {
   type TraceEvent,
   type TraceSink,
 } from "@swooper/mapgen-core";
-import { canonicalRecipeConfig } from "../../maps/configs/canonical.js";
-import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
-import standardRecipe from "../../recipes/standard/recipe.js";
-import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
+import { canonicalRecipeConfig } from "../../src/maps/configs/canonical.js";
+import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
+import standardRecipe from "../../src/recipes/standard/recipe.js";
+import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { createVizDumpAdapters } from "./dump.js";
 
 function parseIntArg(value: string | undefined, fallback: number): number {

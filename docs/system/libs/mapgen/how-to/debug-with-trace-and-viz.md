@@ -129,7 +129,7 @@ Routing:
 - Execution identity + stable plan fingerprint: `packages/mapgen-core/src/engine/observability.ts`
 - Step facet dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
 - Portable visualization contracts: `packages/mapgen-viz/src/index.ts`
-- Local trace+viz dump harness (writes `trace.jsonl` + `manifest.json`): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
-- Standard run harness producing dumps: `mods/mod-swooper-maps/src/dev/viz/standard-run.ts`
+- Local trace+viz dump harness (writes `trace.jsonl` + `manifest.json`): `mods/mod-swooper-maps/scripts/diagnostics/dump.ts`
+- Standard run harness producing dumps: `mods/mod-swooper-maps/scripts/diagnostics/standard-run.ts`
 - Studio “Dump mode” UI + folder picker entrypoint: `apps/mapgen-studio/src/App.tsx`
 - Studio mode selector (“World” → “Mode: Dump”): `packages/mapgen-studio-ui/src/components/composites/AppHeader.tsx`
