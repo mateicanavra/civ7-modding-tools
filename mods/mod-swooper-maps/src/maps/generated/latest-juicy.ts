@@ -655,11 +655,10 @@ const mapConfig = {
         }
       },
       "icePlanning": {
-        "profile": "continentality",
         "minConfidence01": 0.5
       },
       "reefPlanning": {
-        "profile": "default",
+        "profile": "habitat",
         "minConfidence01": 0.84,
         "stride": 4
       },
@@ -842,7 +841,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "00cc9af500b85cbeabe678eb6faae125c29c86e4ddce18de6b1ce31c488d1f48",
-  envelopeHash: "edf5222390fa99e1ba278b1837ba292760e67d930eaf1c4b20ea89fd3aa245a8",
+  configHash: "54d6231dcd708cfda1c5323f2a4f9c0f22b84aeb71607c74261f083f6b72b1ae",
+  envelopeHash: "9ef864ef2dd20152848358fd3d6b598c9e3538bf0b182caefca0d2ab1d82f735",
   config: mapConfig.config,
 });

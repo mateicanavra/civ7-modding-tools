@@ -80,7 +80,7 @@ Hydrology domain ops are bound by step contracts. In the standard recipe, Hydrol
 - `computeOceanSurfaceCurrents`
 - `computeEvaporationSources`
 - `transportMoisture`
-- `computePrecipitation` (baseline + refine strategies)
+- `computePrecipitation` (`vector`, `baseline`, and `refine` strategies)
 - `computeDrainageRouting`
 - `accumulateDischarge`
 - `projectRiverNetwork`

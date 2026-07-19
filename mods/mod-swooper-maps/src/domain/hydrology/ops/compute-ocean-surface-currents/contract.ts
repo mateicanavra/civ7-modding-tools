@@ -72,9 +72,9 @@ const ComputeOceanSurfaceCurrentsOutputSchema = Type.Object(
 );
 
 /**
- * Default surface current parameters.
+ * Latitude-only surface current parameters.
  */
-const ComputeOceanSurfaceCurrentsDefaultStrategySchema = Type.Object(
+const ComputeOceanSurfaceCurrentsLatitudeStrategySchema = Type.Object(
   {
     /**
      * Global current strength multiplier.
@@ -92,17 +92,17 @@ const ComputeOceanSurfaceCurrentsDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Ocean surface current parameters (default strategy).",
+    description: "Ocean surface current parameters for the latitude strategy.",
   }
 );
 
 /**
- * Earthlike surface current parameters.
+ * Wind-and-basin gyre projection parameters.
  *
  * This strategy blends wind imprint + Ekman deflection + (optional) basin gyres and coastal boundary currents,
  * then applies bounded smoothing and divergence reduction. It is deterministic and bounded-cost.
  */
-const ComputeOceanSurfaceCurrentsEarthlikeStrategySchema = Type.Object(
+const ComputeOceanSurfaceCurrentsWindGyreProjectionStrategySchema = Type.Object(
   {
     /** Max speed used for quantization to i8 (higher = weaker output for same internal field). */
     maxSpeed: Type.Number({
@@ -158,19 +158,20 @@ const ComputeOceanSurfaceCurrentsEarthlikeStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Ocean surface current parameters (earthlike strategy).",
+    description: "Ocean surface current parameters for the wind-gyre-projection strategy.",
   }
 );
 
+/** Surface-current contract whose wind/gyre projection is the product default and latitude is the fallback. */
 const ComputeOceanSurfaceCurrentsContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-ocean-surface-currents",
   input: ComputeOceanSurfaceCurrentsInputSchema,
   output: ComputeOceanSurfaceCurrentsOutputSchema,
-  defaultStrategy: "default",
+  defaultStrategy: "wind-gyre-projection",
   strategies: {
-    default: ComputeOceanSurfaceCurrentsEarthlikeStrategySchema,
-    latitude: ComputeOceanSurfaceCurrentsDefaultStrategySchema,
+    "wind-gyre-projection": ComputeOceanSurfaceCurrentsWindGyreProjectionStrategySchema,
+    latitude: ComputeOceanSurfaceCurrentsLatitudeStrategySchema,
   },
 });
 

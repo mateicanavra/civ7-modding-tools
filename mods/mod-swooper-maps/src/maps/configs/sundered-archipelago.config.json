@@ -595,13 +595,12 @@
         }
       },
       "icePlanning": {
-        "profile": "continentality",
         "minConfidence01": 0.5
       },
       "reefPlanning": {
         "profile": "shippingLanes",
         "minConfidence01": 0.52,
-        "stride": 2
+        "stride": 10
       },
       "wetlandPlanning": {
         "minConfidence01": 0.35

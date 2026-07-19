@@ -1,10 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ResourcePlanBasinsContract from "./contract.js";
-import { defaultStrategy, hydroFluvialStrategy, mixedStrategy } from "./strategies/index.js";
+import { balancedStrategy, hydroFluvialStrategy, mixedStrategy } from "./strategies/index.js";
 
+/** Resource-basin operation exposing balanced, hydro-fluvial, and mixed bias profiles. */
 const planResourceBasins = createOp(ResourcePlanBasinsContract, {
   strategies: {
-    default: defaultStrategy,
+    balanced: balancedStrategy,
     "hydro-fluvial": hydroFluvialStrategy,
     mixed: mixedStrategy,
   },

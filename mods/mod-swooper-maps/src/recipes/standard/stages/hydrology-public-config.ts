@@ -48,11 +48,11 @@ export const HydrologyClimateBaselinePublicSchema = Type.Object(
       "Baseline thermal-state controls for Hydrology climate generation."
     ),
     atmosphericCirculation: publicStrategySchema(
-      baselineOps.computeAtmosphericCirculation.strategies.default,
+      baselineOps.computeAtmosphericCirculation.strategies["geostrophic-proxy"],
       "Baseline atmospheric-circulation controls for Hydrology climate generation."
     ),
     oceanCurrents: publicStrategySchema(
-      baselineOps.computeOceanSurfaceCurrents.strategies.default,
+      baselineOps.computeOceanSurfaceCurrents.strategies["wind-gyre-projection"],
       "Baseline ocean-current controls for Hydrology climate generation."
     ),
     oceanGeometry: publicStrategySchema(
@@ -68,11 +68,11 @@ export const HydrologyClimateBaselinePublicSchema = Type.Object(
       "Baseline evaporation-source controls for Hydrology climate generation."
     ),
     moistureTransport: publicStrategySchema(
-      baselineOps.transportMoisture.strategies.default,
+      baselineOps.transportMoisture.strategies["vector-advection"],
       "Baseline moisture-transport controls for Hydrology climate generation."
     ),
     precipitation: publicStrategySchema(
-      baselineOps.computePrecipitation.strategies.default,
+      baselineOps.computePrecipitation.strategies.vector,
       "Baseline precipitation controls for Hydrology climate generation."
     ),
   },

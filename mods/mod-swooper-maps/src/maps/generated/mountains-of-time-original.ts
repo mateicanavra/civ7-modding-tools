@@ -642,11 +642,10 @@ const mapConfig = {
         }
       },
       "icePlanning": {
-        "profile": "continentality",
         "minConfidence01": 0.5
       },
       "reefPlanning": {
-        "profile": "default",
+        "profile": "habitat",
         "minConfidence01": 0.84,
         "stride": 4
       },
@@ -829,7 +828,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-original",
-  configHash: "91ecf53110eefa842fd2c53fff50e53d27a7b15fa97dde73f3102ac23654fa37",
-  envelopeHash: "a6a9adb58a461da2bffe6e9efe0a2177eec20c76064f71f5a47f025da74affc4",
+  configHash: "707acff1edf2248df74cd32186434bed3aaf5d087983e5db64dfd61eed18fa55",
+  envelopeHash: "9a8876ffeac8f100c6d4a35e7d680b7d644eb298593b52df5e86a02982cfc0dd",
   config: mapConfig.config,
 });

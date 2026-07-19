@@ -9,7 +9,8 @@ import {
   upwindBarrierDistance,
 } from "../rules/index.js";
 
-export const basicStrategy = createStrategy(ComputePrecipitationContract, "basic", {
+/** Computes the latitude- and barrier-based precipitation baseline retained for comparison. */
+export const baselineStrategy = createStrategy(ComputePrecipitationContract, "baseline", {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

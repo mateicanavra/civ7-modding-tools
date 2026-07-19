@@ -12,4 +12,4 @@ export type ResourcePlanBasinsAdmittedInput = AdmittedOperationInput<
 >;
 
 export type ResourcePlanBasinsOutput = ResourcePlanBasinsTypes["output"];
-export type ResourcePlanBasinsConfig = ResourcePlanBasinsTypes["config"]["default"];
+export type ResourcePlanBasinsConfig = ResourcePlanBasinsTypes["config"]["balanced"];

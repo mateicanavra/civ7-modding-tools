@@ -44,7 +44,7 @@ function defaultEnvelope(config: unknown) {
 
 const BalancedSoilClassificationPublicSchema = profileVariant(
   "balanced",
-  ecologyOps.classifyPedology.strategies.default,
+  ecologyOps.classifyPedology.strategies.balanced,
   "Balanced soil classification driven by climate, relief, sediment, and bedrock."
 );
 
@@ -71,7 +71,7 @@ const SoilClassificationPublicSchema = Type.Union(
 
 const BalancedResourceBasinPlanningPublicSchema = profileVariant(
   "balanced",
-  ecologyOps.planResourceBasins.strategies.default,
+  ecologyOps.planResourceBasins.strategies.balanced,
   "Balanced resource-basin planning."
 );
 
@@ -219,45 +219,28 @@ const IceScoringPublicSchema = Type.Object(
   }
 );
 
-const DefaultIcePlanningPublicSchema = profileVariant(
-  "default",
-  ecologyOps.planIce.strategies.default,
-  "Baseline polar ice planning."
+const IcePlanningPublicSchema = requiredPublicSchema(
+  ecologyOps.planIce.strategies["score-threshold"],
+  "Controls the freeze-score threshold that admits ice placement intent."
 );
 
-const IcePlanningPublicSchema = Type.Union(
-  [
-    DefaultIcePlanningPublicSchema,
-    profileVariant(
-      "continentality",
-      ecologyOps.planIce.strategies.continentality,
-      "Continentality-aware ice planning."
-    ),
-  ],
-  {
-    default: createValidatedDefault(DefaultIcePlanningPublicSchema),
-    description:
-      "Controls whether ice planning uses the baseline polar profile or a continentality-aware profile.",
-  }
-);
-
-const DefaultReefPlanningPublicSchema = profileVariant(
-  "default",
-  ecologyOps.planReefs.strategies.default,
+const HabitatReefPlanningPublicSchema = profileVariant(
+  "habitat",
+  ecologyOps.planReefs.strategies.habitat,
   "Baseline reef habitat planning."
 );
 
 const ReefPlanningPublicSchema = Type.Union(
   [
-    DefaultReefPlanningPublicSchema,
+    HabitatReefPlanningPublicSchema,
     profileVariant(
       "shippingLanes",
-      ecologyOps.planReefs.strategies["shipping-lanes"],
-      "Shipping-lane-aware reef spacing."
+      ecologyOps.planReefs.strategies["diagonal-stride"],
+      "Diagonal reef spacing for the Shipping Lanes map profile."
     ),
   ],
   {
-    default: createValidatedDefault(DefaultReefPlanningPublicSchema),
+    default: createValidatedDefault(HabitatReefPlanningPublicSchema),
     description:
       "Controls whether reef planning uses the baseline habitat profile or a shipping-lane spacing profile.",
   }
@@ -329,25 +312,20 @@ export const EcologyFeaturesPublicSchema = Type.Object(
 );
 
 const SOIL_PROFILE_TO_STRATEGY = {
-  balanced: "default",
+  balanced: "balanced",
   coastalShelf: "coastal-shelf",
   orogenyBoosted: "orogeny-boosted",
 } as const;
 
 const RESOURCE_BASIN_PROFILE_TO_STRATEGY = {
-  balanced: "default",
+  balanced: "balanced",
   hydroFluvial: "hydro-fluvial",
   mixed: "mixed",
 } as const;
 
-const ICE_PROFILE_TO_STRATEGY = {
-  default: "default",
-  continentality: "continentality",
-} as const;
-
 const REEF_PROFILE_TO_STRATEGY = {
-  default: "default",
-  shippingLanes: "shipping-lanes",
+  habitat: "habitat",
+  shippingLanes: "diagonal-stride",
 } as const;
 
 /** Compiles pedology controls into the fixed soil and resource-basin step envelopes. */
@@ -404,7 +382,7 @@ export function compileEcologyFeaturesPublicConfig(config: Record<string, unknow
       scoreIce: defaultEnvelope(iceScoring.ice),
     },
     "plan-ice": {
-      planIce: profileEnvelope(config.icePlanning, ICE_PROFILE_TO_STRATEGY),
+      planIce: { strategy: "score-threshold" as const, config: config.icePlanning },
     },
     "plan-reefs": {
       planReefs: profileEnvelope(config.reefPlanning, REEF_PROFILE_TO_STRATEGY),

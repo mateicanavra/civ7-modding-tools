@@ -1,1 +1,1 @@
-export { gaussianStrategy, runGaussianBiomeRefinement } from "./gaussian.js";
+export { gaussianStrategy } from "./gaussian.js";

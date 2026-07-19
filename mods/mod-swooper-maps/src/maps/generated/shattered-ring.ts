@@ -628,11 +628,10 @@ const mapConfig = {
         }
       },
       "icePlanning": {
-        "profile": "continentality",
         "minConfidence01": 0.5
       },
       "reefPlanning": {
-        "profile": "default",
+        "profile": "habitat",
         "minConfidence01": 0.58,
         "stride": 2
       },
@@ -830,7 +829,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "21242b645220615e3350cbeeded1e4633253123959312c249494c43747bddb4b",
-  envelopeHash: "ab1ad9f45ae9cbacf800bce72ae2492e22fe1b968dcd847cc3f862ffc9ac8821",
+  configHash: "9b1dea61486ccc6d615835e7b01b4531f294573ca058b87e06f572d75139dfd9",
+  envelopeHash: "6e53b105dab7c40483a79ed8e083799b1abea46f8ea78dcf16494c55eef34f3e",
   config: mapConfig.config,
 });

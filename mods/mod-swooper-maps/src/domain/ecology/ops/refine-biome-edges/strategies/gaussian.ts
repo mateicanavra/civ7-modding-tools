@@ -2,10 +2,9 @@ import { createStrategy, type StrategyImplFor } from "@swooper/mapgen-core/autho
 import RefineBiomeEdgesContract from "../contract.js";
 
 /**
- * Smooths an admitted biome grid with the Gaussian refinement shared by the retained aliases.
- * The input type keeps Core's operation-admission proof intact until those aliases are retired.
+ * Smooths an admitted biome grid while preserving water sentinels and Core's input-admission proof.
  */
-export const runGaussianBiomeRefinement: StrategyImplFor<
+const runGaussianBiomeRefinement: StrategyImplFor<
   typeof RefineBiomeEdgesContract,
   "gaussian"
 >["run"] = (input, config) => {
@@ -15,12 +14,10 @@ export const runGaussianBiomeRefinement: StrategyImplFor<
   const radius = config.radius;
   const sigma = Math.max(1, radius);
   const kernel: number[] = [];
-  let kernelSum = 0;
   for (let dy = -radius; dy <= radius; dy++) {
     for (let dx = -radius; dx <= radius; dx++) {
       const weight = Math.exp(-(dx * dx + dy * dy) / (2 * sigma * sigma));
       kernel.push(weight);
-      kernelSum += weight;
     }
   }
 

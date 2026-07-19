@@ -1,9 +1,10 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputeOceanSurfaceCurrentsContract from "./contract.js";
-import { defaultStrategy, latitudeStrategy } from "./strategies/index.js";
+import { latitudeStrategy, windGyreProjectionStrategy } from "./strategies/index.js";
 
+/** Computes ocean currents through the contract-selected coupled or latitude-only model. */
 const computeOceanSurfaceCurrents = createOp(ComputeOceanSurfaceCurrentsContract, {
-  strategies: { default: defaultStrategy, latitude: latitudeStrategy },
+  strategies: { "wind-gyre-projection": windGyreProjectionStrategy, latitude: latitudeStrategy },
 });
 
 export type * from "./contract.js";

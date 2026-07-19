@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import PlanIceContract from "./contract.js";
-import { continentalityStrategy, defaultStrategy } from "./strategies/index.js";
+import { scoreThresholdStrategy } from "./strategies/index.js";
 
+/** Ice-intent operation with one explicit score-threshold strategy. */
 const planIce = createOp(PlanIceContract, {
   strategies: {
-    default: defaultStrategy,
-    continentality: continentalityStrategy,
+    "score-threshold": scoreThresholdStrategy,
   },
 });
 

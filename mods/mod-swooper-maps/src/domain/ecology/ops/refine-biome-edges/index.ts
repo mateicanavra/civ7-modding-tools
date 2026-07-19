@@ -1,18 +1,10 @@
-import { createOp, createStrategy } from "@swooper/mapgen-core/authoring";
+import { createOp } from "@swooper/mapgen-core/authoring";
 import RefineBiomeEdgesContract from "./contract.js";
-import { gaussianStrategy, runGaussianBiomeRefinement } from "./strategies/index.js";
+import { gaussianStrategy } from "./strategies/index.js";
 
-const defaultStrategy = createStrategy(RefineBiomeEdgesContract, "default", {
-  run: runGaussianBiomeRefinement,
-});
-const morphologicalStrategy = createStrategy(RefineBiomeEdgesContract, "morphological", {
-  run: runGaussianBiomeRefinement,
-});
-
+/** Biome-edge refinement operation with Gaussian smoothing as its sole admitted strategy. */
 const refineBiomeEdges = createOp(RefineBiomeEdgesContract, {
   strategies: {
-    default: defaultStrategy,
-    morphological: morphologicalStrategy,
     gaussian: gaussianStrategy,
   },
 });

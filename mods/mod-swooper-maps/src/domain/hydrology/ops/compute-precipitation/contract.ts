@@ -153,7 +153,7 @@ const ComputePrecipitationBaselineStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Precipitation baseline parameters (default strategy).",
+    description: "Precipitation parameters for the baseline strategy.",
   }
 );
 
@@ -375,15 +375,16 @@ const ComputePrecipitationOutputSchema = Type.Object(
   }
 );
 
+/** Precipitation contract with vector transport as the product default plus baseline and refinement passes. */
 const ComputePrecipitationContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-precipitation",
   input: ComputePrecipitationInputSchema,
   output: ComputePrecipitationOutputSchema,
-  defaultStrategy: "default",
+  defaultStrategy: "vector",
   strategies: {
-    default: ComputePrecipitationVectorStrategySchema,
-    basic: ComputePrecipitationBaselineStrategySchema,
+    vector: ComputePrecipitationVectorStrategySchema,
+    baseline: ComputePrecipitationBaselineStrategySchema,
     refine: ComputePrecipitationRefineStrategySchema,
   },
 });

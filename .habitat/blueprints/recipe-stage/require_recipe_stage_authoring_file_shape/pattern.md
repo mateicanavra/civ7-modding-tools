@@ -51,6 +51,9 @@ or {
   },
   `$domain.ops.$operation.strategies.$strategy` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$"
+  },
+  `$domain.ops.$operation.strategies[$strategy]` where {
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$"
   }
 }
 ```
@@ -72,12 +75,28 @@ export default createStage({ id: "morphology-erosion", public: GeomorphicCycleCo
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
-import { morphology } from "@mapgen/domain/morphology";
+
+declare const exampleDomain: {
+  ops: { exampleOperation: { strategies: { balanced: unknown } } };
+};
 
 export default createStage({
   id: "morphology-erosion",
   steps: {},
-  knobsSchema: morphology.ops.computeErosion.strategies.default,
+  knobsSchema: exampleDomain.ops.exampleOperation.strategies.balanced,
+});
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/index.ts
+import { createStage } from "@swooper/mapgen-core/authoring";
+
+declare const exampleDomain: {
+  ops: { exampleOperation: { strategies: { "wind-gyre-projection": unknown } } };
+};
+
+export default createStage({
+  id: "hydrology-climate-baseline",
+  steps: {},
+  knobsSchema: exampleDomain.ops.exampleOperation.strategies["wind-gyre-projection"],
 });
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/index.ts

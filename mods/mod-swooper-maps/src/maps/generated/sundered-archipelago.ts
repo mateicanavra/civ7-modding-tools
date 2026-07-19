@@ -628,13 +628,12 @@ const mapConfig = {
         }
       },
       "icePlanning": {
-        "profile": "continentality",
         "minConfidence01": 0.5
       },
       "reefPlanning": {
         "profile": "shippingLanes",
         "minConfidence01": 0.52,
-        "stride": 2
+        "stride": 10
       },
       "wetlandPlanning": {
         "minConfidence01": 0.35
@@ -829,7 +828,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "sundered-archipelago",
-  configHash: "cde7adab55f401ec4b3d429c800792f31cd8a6fda5667c975f912447da49d79d",
-  envelopeHash: "a6a3981e47f7169f9454e7599fa32be738b37abb54fb68d08f1bf4cb6f82b6ba",
+  configHash: "8b8947f819fc7cda7032aada9f93e0f991e6637e8fe4d1a37a1e9defbf442a32",
+  envelopeHash: "c9a19437b8ffa165706faac939ae0bc3888426dc0e5dfeb65fe164c77b911756",
   config: mapConfig.config,
 });

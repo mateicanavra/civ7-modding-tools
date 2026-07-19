@@ -7,7 +7,7 @@ function idx(x: number, y: number, width: number): number {
   return y * width + x;
 }
 
-describe("hydrology/compute-precipitation (default)", () => {
+describe("hydrology/compute-precipitation (vector)", () => {
   it("produces a windward uplift signal on a ridge (noise disabled)", () => {
     const width = 16;
     const height = 10;
@@ -52,7 +52,7 @@ describe("hydrology/compute-precipitation (default)", () => {
         riverAdjacency: new Uint8Array(size),
       },
       {
-        strategy: "default",
+        strategy: "vector",
         config: {
           rainfallScale: 180,
           humidityExponent: 1,

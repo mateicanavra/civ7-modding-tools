@@ -1,1 +1,5 @@
-export { admitReefIntent, admitReefStride } from "./admit-reef-intent.js";
+export {
+  admitReefIntent,
+  admitReefStride,
+  selectReefIntentCandidate,
+} from "./admit-reef-intent.js";

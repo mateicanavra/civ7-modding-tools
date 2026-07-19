@@ -4,7 +4,8 @@ import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import PlanIceContract from "../contract.js";
 import { admitIceIntent } from "../policy/index.js";
 
-export const continentalityStrategy = createStrategy(PlanIceContract, "continentality", {
+/** Selects ice intent wherever the admitted freeze score reaches the configured threshold. */
+export const scoreThresholdStrategy = createStrategy(PlanIceContract, "score-threshold", {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

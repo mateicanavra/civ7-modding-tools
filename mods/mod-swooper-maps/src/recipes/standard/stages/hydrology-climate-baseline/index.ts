@@ -96,15 +96,18 @@ export default createStage({
       computeRadiativeForcing: { strategy: "default", config: config.solarForcing },
       computeThermalState: { strategy: "default", config: config.thermalState },
       computeAtmosphericCirculation: {
-        strategy: "default",
+        strategy: "geostrophic-proxy",
         config: config.atmosphericCirculation,
       },
-      computeOceanSurfaceCurrents: { strategy: "default", config: config.oceanCurrents },
+      computeOceanSurfaceCurrents: {
+        strategy: "wind-gyre-projection",
+        config: config.oceanCurrents,
+      },
       computeOceanGeometry: { strategy: "default", config: config.oceanGeometry },
       computeOceanThermalState: { strategy: "default", config: config.oceanThermalState },
       computeEvaporationSources: { strategy: "default", config: config.evaporation },
-      transportMoisture: { strategy: "default", config: config.moistureTransport },
-      computePrecipitation: { strategy: "default", config: config.precipitation },
+      transportMoisture: { strategy: "vector-advection", config: config.moistureTransport },
+      computePrecipitation: { strategy: "vector", config: config.precipitation },
     },
   }),
 } as const);

@@ -12,4 +12,4 @@ export type PedologyClassifyAdmittedInput = AdmittedOperationInput<
 >;
 
 export type PedologyClassifyOutput = PedologyClassifyTypes["output"];
-export type PedologyClassifyConfig = PedologyClassifyTypes["config"]["default"];
+export type PedologyClassifyConfig = PedologyClassifyTypes["config"]["balanced"];

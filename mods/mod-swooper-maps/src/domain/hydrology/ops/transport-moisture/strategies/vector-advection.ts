@@ -96,41 +96,46 @@ function selectUpwind(
   return { i0, w0, i1, w1 };
 }
 
-export const defaultStrategy = createStrategy(TransportMoistureContract, "default", {
-  run: (input, config) => {
-    const width = input.width;
-    const height = input.height;
-    const size = width * height;
+/** Advects moisture through one or two hex-aligned upwind donors per iteration. */
+export const vectorAdvectionStrategy = createStrategy(
+  TransportMoistureContract,
+  "vector-advection",
+  {
+    run: (input, config) => {
+      const width = input.width;
+      const height = input.height;
+      const size = width * height;
 
-    const iterations = config.iterations | 0;
-    const advection = config.advection;
-    const retention = config.retention;
-    const secondaryWeightMin = config.secondaryWeightMin;
+      const iterations = config.iterations | 0;
+      const advection = config.advection;
+      const retention = config.retention;
+      const secondaryWeightMin = config.secondaryWeightMin;
 
-    let prev = new Float32Array(size);
-    let next = new Float32Array(size);
-    for (let i = 0; i < size; i++) prev[i] = clamp01(input.evaporation[i] ?? 0);
+      let prev = new Float32Array(size);
+      let next = new Float32Array(size);
+      for (let i = 0; i < size; i++) prev[i] = clamp01(input.evaporation[i] ?? 0);
 
-    for (let iter = 0; iter < iterations; iter++) {
-      for (let y = 0; y < height; y++) {
-        const absLat = Math.abs(input.latitudeByRow[y] ?? 0);
-        const row = y * width;
-        for (let x = 0; x < width; x++) {
-          const i = row + x;
-          const local = input.evaporation[i] ?? 0;
-          const windX = input.windU[i] | 0;
-          const windY = input.windV[i] | 0;
+      for (let iter = 0; iter < iterations; iter++) {
+        for (let y = 0; y < height; y++) {
+          const absLat = Math.abs(input.latitudeByRow[y] ?? 0);
+          const row = y * width;
+          for (let x = 0; x < width; x++) {
+            const i = row + x;
+            const local = input.evaporation[i] ?? 0;
+            const windX = input.windU[i] | 0;
+            const windY = input.windV[i] | 0;
 
-          const up = selectUpwind(x, y, width, height, windX, windY, absLat, secondaryWeightMin);
-          const advected = (prev[up.i0] ?? 0) * up.w0 + (prev[up.i1] ?? 0) * up.w1;
-          next[i] = clamp01((local + advected * advection) * retention);
+            const up = selectUpwind(x, y, width, height, windX, windY, absLat, secondaryWeightMin);
+            const advected = (prev[up.i0] ?? 0) * up.w0 + (prev[up.i1] ?? 0) * up.w1;
+            next[i] = clamp01((local + advected * advection) * retention);
+          }
         }
+        const swap = prev;
+        prev = next;
+        next = swap;
       }
-      const swap = prev;
-      prev = next;
-      next = swap;
-    }
 
-    return { humidity: prev } as const;
-  },
-});
+      return { humidity: prev } as const;
+    },
+  }
+);

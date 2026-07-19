@@ -1,2 +1,1 @@
-export { continentalityStrategy } from "./continentality.js";
-export { defaultStrategy } from "./default.js";
+export { scoreThresholdStrategy } from "./score-threshold.js";

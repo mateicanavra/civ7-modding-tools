@@ -45,7 +45,8 @@ function elevationGradientOddQ(
   return { x: gx / w, y: gy / w };
 }
 
-export const defaultStrategy = createStrategy(ComputePrecipitationContract, "default", {
+/** Computes precipitation from vector wind convergence, uplift, water proximity, and noise. */
+export const vectorStrategy = createStrategy(ComputePrecipitationContract, "vector", {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

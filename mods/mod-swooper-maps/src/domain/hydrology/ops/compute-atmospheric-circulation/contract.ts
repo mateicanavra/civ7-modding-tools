@@ -109,7 +109,7 @@ const ComputeAtmosphericCirculationLatitudeStrategySchema = Type.Object(
  * This strategy aims for tile-varying winds with coherent structure (planetary waves + noise-driven pressure gradients),
  * while remaining deterministic and bounded-cost. It is a gameplay-oriented proxy, not a CFD atmosphere.
  */
-const ComputeAtmosphericCirculationDefaultStrategySchema = Type.Object(
+const ComputeAtmosphericCirculationGeostrophicProxyStrategySchema = Type.Object(
   {
     /** Max physical-ish speed used for quantization to i8 (higher = weaker output for same internal field). */
     maxSpeed: Type.Number({
@@ -186,18 +186,19 @@ const ComputeAtmosphericCirculationDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Atmospheric circulation parameters (default strategy).",
+    description: "Atmospheric circulation parameters for the geostrophic-proxy strategy.",
   }
 );
 
+/** Wind-field contract whose geostrophic proxy is the product default and latitude is the simpler fallback. */
 const ComputeAtmosphericCirculationContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-atmospheric-circulation",
   input: ComputeAtmosphericCirculationInputSchema,
   output: ComputeAtmosphericCirculationOutputSchema,
-  defaultStrategy: "default",
+  defaultStrategy: "geostrophic-proxy",
   strategies: {
-    default: ComputeAtmosphericCirculationDefaultStrategySchema,
+    "geostrophic-proxy": ComputeAtmosphericCirculationGeostrophicProxyStrategySchema,
     latitude: ComputeAtmosphericCirculationLatitudeStrategySchema,
   },
 });
