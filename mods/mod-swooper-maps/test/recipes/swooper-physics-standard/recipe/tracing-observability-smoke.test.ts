@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { createMockAdapter } from "@civ7/adapter";
+import { createMockAdapter, getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { admitMapSetup, createMapContext, type TraceEvent } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
@@ -16,20 +16,15 @@ function isKindEvent(value: unknown): value is KindEvent {
 
 describe("Morphology tracing (observability hardening smoke)", () => {
   it("emits required morphology.* kind events when steps are verbose", () => {
-    const width = 20;
-    const height = 12;
+    const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
+    const { width, height } = tinyPreset.dimensions;
     const seed = 424242;
-
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 4,
-      PlayersLandmass2: 4,
-      StartSectorRows: 4,
-      StartSectorCols: 4,
-    };
+    const mapInfo = { ...tinyPreset.mapInfo };
+    const topLatitude = mapInfo.MaxLatitude;
+    const bottomLatitude = mapInfo.MinLatitude;
+    if (typeof topLatitude !== "number" || typeof bottomLatitude !== "number") {
+      throw new Error("Civ7 Tiny map-size metadata is missing latitude bounds.");
+    }
 
     const full = (stageId: string, stepId: string) =>
       `mod-swooper-maps.standard.${stageId}.${stepId}`;
@@ -48,10 +43,10 @@ describe("Morphology tracing (observability hardening smoke)", () => {
 
     const setup = admitMapSetup({
       mapSeed: seed,
-      dimensions: { width, height },
+      dimensions: { ...tinyPreset.dimensions },
       latitudeBounds: {
-        topLatitude: mapInfo.MaxLatitude,
-        bottomLatitude: mapInfo.MinLatitude,
+        topLatitude,
+        bottomLatitude,
       },
     });
 
@@ -59,7 +54,7 @@ describe("Morphology tracing (observability hardening smoke)", () => {
       width,
       height,
       mapInfo,
-      mapSizeId: 1,
+      mapSizeId: tinyPreset.id,
       rng: createLabelRng(seed),
     });
     const context = createMapContext({ setup, adapter });
@@ -84,17 +79,12 @@ describe("Morphology tracing (observability hardening smoke)", () => {
 
     const requiredKinds = [
       "morphology.landmassPlates.summary",
-      "morphology.landmassPlates.ascii.landMask",
       "morphology.routing.summary",
       "morphology.geomorphology.summary",
       "morphology.coastlines.summary",
-      "morphology.coastlines.ascii.coastMask",
       "morphology.islands.summary",
-      "morphology.islands.ascii.edits",
       "morphology.mountains.summary",
-      "morphology.mountains.ascii.reliefMask",
       "morphology.volcanoes.summary",
-      "morphology.volcanoes.ascii.indices",
     ];
 
     for (const required of requiredKinds) {

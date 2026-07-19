@@ -4,7 +4,6 @@ import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { summarizeSwooperLandMask } from "../../scripts/diagnostics/map-analysis.js";
 
 const tinyMapSize = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
-if (!tinyMapSize) throw new Error("Missing Civ7 Tiny map-size metadata.");
 
 const { width, height } = tinyMapSize.dimensions;
 const mapSize = width * height;

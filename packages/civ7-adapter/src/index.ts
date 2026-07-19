@@ -38,6 +38,7 @@ export type {
 export {
   CIV7_STANDARD_MAP_SIZE_PRESETS,
   CIV7_STANDARD_ROW_LATITUDE_BOUNDS,
+  findCiv7StandardMapSizePreset,
   getCiv7MapInfoLatitudeBounds,
   getCiv7RowLatitude,
   getCiv7StandardMapSizePreset,

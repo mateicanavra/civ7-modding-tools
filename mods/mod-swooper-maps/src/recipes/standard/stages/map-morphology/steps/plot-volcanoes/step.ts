@@ -1,5 +1,5 @@
 import type { FeatureData } from "@civ7/adapter";
-import { logVolcanoSummary, xyFromIndex } from "@swooper/mapgen-core";
+import { xyFromIndex } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { assertNoWaterDrift } from "../../../../projection-policies/noWaterDrift.js";
 import {
@@ -34,7 +34,6 @@ export const PlotVolcanoesStep = createStep(PlotVolcanoesStepContract, {
       context.adapter.setFeatureType(x, y, featureData);
     }
 
-    logVolcanoSummary(context.trace, context.adapter, width, height, volcanoFeature);
     assertNoWaterDrift(context, topography.landMask, "map-morphology/plot-volcanoes");
     return plan;
   },

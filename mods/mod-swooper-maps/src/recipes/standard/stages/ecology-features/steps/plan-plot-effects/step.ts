@@ -1,6 +1,5 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { PlanPlotEffectsStepContract } from "./config.js";
-import { logSnowEligibilitySummary } from "./diagnostics.js";
 import { buildPlotEffectsInput } from "./inputs.js";
 
 /**
@@ -84,16 +83,6 @@ export const PlanPlotEffectsStep = createStep(PlanPlotEffectsStepContract, {
       },
       config.plotEffects
     );
-
-    if (context.trace.isVerbose) {
-      logSnowEligibilitySummary(
-        context.trace,
-        input,
-        config.scoreSnow.config,
-        config.plotEffects.config.snow,
-        result.placements
-      );
-    }
 
     deps.artifacts.plotEffectPlan.publish(context, result.placements);
   },

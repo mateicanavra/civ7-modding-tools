@@ -11,11 +11,7 @@ import { buildStepDataTypeModel } from "../../src/features/viz/dataTypeModel";
 import type { VizLayerEntryV2 } from "../../src/features/viz/model";
 import { studioStandardRecipeConfig } from "./standardRecipeConfig";
 
-const tinyMapSize = (() => {
-  const preset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
-  if (!preset) throw new Error("Missing Civ7 Tiny map-size metadata.");
-  return preset;
-})();
+const tinyMapSize = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
 const { width: TINY_WIDTH, height: TINY_HEIGHT } = tinyMapSize.dimensions;
 
 describe("buildStepDataTypeModel", () => {

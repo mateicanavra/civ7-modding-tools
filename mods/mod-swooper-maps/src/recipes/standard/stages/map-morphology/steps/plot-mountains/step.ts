@@ -1,4 +1,3 @@
-import { logMountainSummary, logReliefAscii } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { assertNoWaterDrift } from "../../../../projection-policies/noWaterDrift.js";
 import { resolveStandardProjectionTerrainTypes } from "../../../../projection-policies/standardProjectionEngineTypes.js";
@@ -32,8 +31,6 @@ export const PlotMountainsStep = createStep(PlotMountainsStepContract, {
       }
     }
 
-    logMountainSummary(context.trace, context.adapter, width, height);
-    logReliefAscii(context.trace, context.adapter, width, height, terrain.hill);
     assertNoWaterDrift(context, topography.landMask, "map-morphology/plot-mountains");
   },
 });

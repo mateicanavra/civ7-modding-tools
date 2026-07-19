@@ -1,9 +1,7 @@
 import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
-import { logElevationSummary, logLandmassAscii } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import type { VizProjection } from "@swooper/mapgen-viz";
 import { assertWaterDriftWithinPolicy } from "../../../../projection-policies/noWaterDrift.js";
-import { resolveStandardProjectionTerrainTypes } from "../../../../projection-policies/standardProjectionEngineTypes.js";
 import { defineStandardVizMeta } from "../../../../viz.js";
 import { BuildElevationStepContract } from "./config.js";
 
@@ -68,15 +66,6 @@ export const BuildElevationStep = createStep(BuildElevationStepContract, {
       landMaskMismatchShare: Number((mismatchCount / (width * height)).toFixed(4)),
     }));
 
-    logElevationSummary(
-      context.trace,
-      context.adapter,
-      width,
-      height,
-      resolveStandardProjectionTerrainTypes(context.adapter),
-      "map-elevation/build-elevation"
-    );
-    logLandmassAscii(context.trace, context.adapter, width, height);
     return {
       physicsElevation: topography.elevation,
       expectedLandMask,

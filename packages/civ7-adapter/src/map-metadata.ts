@@ -38,8 +38,8 @@ const HUGE_106X66_ROW_LATITUDES = Object.freeze([
   23, 27, 28, 32, 34, 37, 39, 43, 45, 48, 50, 54, 55, 59, 61, 64, 66, 70, 72, 75, 77, 81, 82, 86,
 ] as const);
 
-export const CIV7_STANDARD_MAP_SIZE_PRESETS: readonly Civ7StandardMapSizePreset[] = [
-  {
+const CIV7_STANDARD_MAP_SIZE_PRESET_BY_ID = {
+  MAPSIZE_TINY: {
     id: "MAPSIZE_TINY",
     label: "Tiny",
     dimensions: { width: 60, height: 38 },
@@ -58,7 +58,7 @@ export const CIV7_STANDARD_MAP_SIZE_PRESETS: readonly Civ7StandardMapSizePreset[
       StartSectorCols: 2,
     },
   },
-  {
+  MAPSIZE_SMALL: {
     id: "MAPSIZE_SMALL",
     label: "Small",
     dimensions: { width: 74, height: 46 },
@@ -77,7 +77,7 @@ export const CIV7_STANDARD_MAP_SIZE_PRESETS: readonly Civ7StandardMapSizePreset[
       StartSectorCols: 3,
     },
   },
-  {
+  MAPSIZE_STANDARD: {
     id: "MAPSIZE_STANDARD",
     label: "Standard",
     dimensions: { width: 84, height: 54 },
@@ -96,7 +96,7 @@ export const CIV7_STANDARD_MAP_SIZE_PRESETS: readonly Civ7StandardMapSizePreset[
       StartSectorCols: 3,
     },
   },
-  {
+  MAPSIZE_LARGE: {
     id: "MAPSIZE_LARGE",
     label: "Large",
     dimensions: { width: 96, height: 60 },
@@ -115,7 +115,7 @@ export const CIV7_STANDARD_MAP_SIZE_PRESETS: readonly Civ7StandardMapSizePreset[
       StartSectorCols: 3,
     },
   },
-  {
+  MAPSIZE_HUGE: {
     id: "MAPSIZE_HUGE",
     label: "Huge",
     dimensions: { width: 106, height: 66 },
@@ -134,10 +134,21 @@ export const CIV7_STANDARD_MAP_SIZE_PRESETS: readonly Civ7StandardMapSizePreset[
       StartSectorCols: 3,
     },
   },
-] as const;
+} as const satisfies Record<Civ7StandardMapSizeId, Civ7StandardMapSizePreset>;
 
-export function getCiv7StandardMapSizePreset(
-  id: Civ7StandardMapSizeId | string | number
+/** Canonical Civ7 standard map-size presets in game selection order. */
+export const CIV7_STANDARD_MAP_SIZE_PRESETS: readonly Civ7StandardMapSizePreset[] = Object.values(
+  CIV7_STANDARD_MAP_SIZE_PRESET_BY_ID
+);
+
+/** Resolves metadata for a validated Civ7 standard map-size id. */
+export function getCiv7StandardMapSizePreset(id: Civ7StandardMapSizeId): Civ7StandardMapSizePreset {
+  return CIV7_STANDARD_MAP_SIZE_PRESET_BY_ID[id];
+}
+
+/** Finds standard map metadata for a runtime id, or null when the id is not in the catalog. */
+export function findCiv7StandardMapSizePreset(
+  id: string | number
 ): Civ7StandardMapSizePreset | null {
   if (typeof id !== "string") return null;
   return CIV7_STANDARD_MAP_SIZE_PRESETS.find((preset) => preset.id === id) ?? null;

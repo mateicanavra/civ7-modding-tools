@@ -3,13 +3,7 @@ import {
   MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER,
 } from "@mapgen/domain/morphology/model/policy/landform-knob-policy.js";
-import {
-  BYTE_SHADE_RAMP,
-  computeSampleStep,
-  deriveStepSeed,
-  renderAsciiGrid,
-  shadeByte,
-} from "@swooper/mapgen-core";
+import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
@@ -288,70 +282,6 @@ export const MountainsStep = createStep(MountainsStepContract, {
         roughLandHillTiles,
       };
     });
-    context.trace.event(() => {
-      const sampleStep = computeSampleStep(width, height);
-      const rows = renderAsciiGrid({
-        width,
-        height,
-        sampleStep,
-        cellFn: (x, y) => {
-          const idx = y * width + x;
-          const base = topography.landMask[idx] === 1 ? "." : "~";
-          const overlay =
-            plan.mountainMask[idx] === 1
-              ? "M"
-              : plan.foothillMask[idx] === 1
-                ? "f"
-                : plan.roughLandMask[idx] === 1
-                  ? "r"
-                  : undefined;
-          return { base, overlay };
-        },
-      });
-      return {
-        kind: "morphology.mountains.ascii.reliefMask",
-        sampleStep,
-        legend: ".=land ~=water M=mountain f=foothill r=rough-land hill",
-        rows,
-      };
-    });
-    context.trace.event(() => {
-      const sampleStep = computeSampleStep(width, height);
-      const rows = renderAsciiGrid({
-        width,
-        height,
-        sampleStep,
-        cellFn: (x, y) => {
-          const idx = y * width + x;
-          return { base: shadeByte(plan.orogenyPotential[idx] ?? 0) };
-        },
-      });
-      return {
-        kind: "morphology.mountains.ascii.orogenyPotential",
-        sampleStep,
-        legend: `${BYTE_SHADE_RAMP} (low→high)`,
-        rows,
-      };
-    });
-    context.trace.event(() => {
-      const sampleStep = computeSampleStep(width, height);
-      const rows = renderAsciiGrid({
-        width,
-        height,
-        sampleStep,
-        cellFn: (x, y) => {
-          const idx = y * width + x;
-          return { base: shadeByte(plan.fracturePotential[idx] ?? 0) };
-        },
-      });
-      return {
-        kind: "morphology.mountains.ascii.fracturePotential",
-        sampleStep,
-        legend: `${BYTE_SHADE_RAMP} (low→high)`,
-        rows,
-      };
-    });
-
     deps.artifacts.mountains.publish(context, plan);
     return plan;
   },

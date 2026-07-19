@@ -6,7 +6,6 @@ import {
   WATER_CLASS_LAND,
   WATER_CLASS_OCEAN,
 } from "@civ7/map-policy";
-import { logLandmassAscii } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { assertWaterDriftWithinPolicy } from "../../../../projection-policies/noWaterDrift.js";
 import { resolveStandardProjectionTerrainTypes } from "../../../../projection-policies/standardProjectionEngineTypes.js";
@@ -108,7 +107,6 @@ export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
       elevation: engineAfterCoasts.elevation,
     });
 
-    logLandmassAscii(context.trace, context.adapter, width, height);
     assertWaterDriftWithinPolicy(context, topography.landMask, "map-morphology/plot-coasts");
     return {
       coastClassification,

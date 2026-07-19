@@ -3,12 +3,7 @@ import { DEFAULT_ELEVATION_SCALE } from "@mapgen/domain/morphology/model/policy/
 // SINGLE SOURCE OF TRUTH for the absolute-elevation quantization scale: the same constant
 // base topography quantizes with, imported so the margin sculpt derives its profile on the
 // exact engine scale rather than mirroring it as a config field.
-import {
-  computeSampleStep,
-  ctxRandom,
-  ctxRandomLabel,
-  renderAsciiGrid,
-} from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 import {
@@ -249,26 +244,6 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
       elevationMax: stats.maxElevation,
       seaLevel: seaLevelValue,
     }));
-    context.trace.event(() => {
-      const sampleStep = computeSampleStep(width, height);
-      const rows = renderAsciiGrid({
-        width,
-        height,
-        sampleStep,
-        cellFn: (x, y) => {
-          const idx = y * width + x;
-          const isLand = landMask[idx] === 1;
-          return { base: isLand ? "." : "~" };
-        },
-      });
-      return {
-        kind: "morphology.landmassPlates.ascii.landMask",
-        sampleStep,
-        legend: ".=land ~=water",
-        rows,
-      };
-    });
-
     deps.artifacts.baseTopography.publish(context, topography);
     deps.artifacts.baseSubstrate.publish(context, substrate);
     deps.artifacts.beltDrivers.publish(context, beltDrivers);

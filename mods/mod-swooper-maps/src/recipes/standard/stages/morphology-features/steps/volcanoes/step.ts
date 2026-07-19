@@ -3,12 +3,7 @@ import {
   MORPHOLOGY_VOLCANISM_CONVERGENT_MULTIPLIER_MULTIPLIER,
   MORPHOLOGY_VOLCANISM_HOTSPOT_WEIGHT_MULTIPLIER,
 } from "@mapgen/domain/morphology/model/policy/landform-knob-policy.js";
-import {
-  computeSampleStep,
-  deriveStepSeed,
-  renderAsciiGrid,
-  xyFromIndex,
-} from "@swooper/mapgen-core";
+import { deriveStepSeed, xyFromIndex } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampFinite } from "@swooper/mapgen-core/lib/math";
 import { defineStandardVizMeta } from "../../../../viz.js";
@@ -96,27 +91,6 @@ export const VolcanoesStep = createStep(VolcanoesStepContract, {
       kind: "morphology.volcanoes.summary",
       volcanoes: volcanoes.length,
     }));
-    context.trace.event(() => {
-      const sampleStep = computeSampleStep(width, height);
-      const rows = renderAsciiGrid({
-        width,
-        height,
-        sampleStep,
-        cellFn: (x, y) => {
-          const idx = y * width + x;
-          const base = topography.landMask[idx] === 1 ? "." : "~";
-          const overlay = volcanoMask[idx] === 1 ? "V" : undefined;
-          return { base, overlay };
-        },
-      });
-      return {
-        kind: "morphology.volcanoes.ascii.indices",
-        sampleStep,
-        legend: ".=land ~=water V=volcano",
-        rows,
-      };
-    });
-
     const volcanoEvidence = {
       volcanoMask,
       volcanoes,

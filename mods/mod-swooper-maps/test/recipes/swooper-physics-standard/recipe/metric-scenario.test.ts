@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { type Civ7StandardMapSizePreset, getCiv7StandardMapSizePreset } from "@civ7/adapter";
+import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { FEATURE_PLACEMENT_KEYS } from "@civ7/map-policy";
 import { admitStandardMapConfig } from "../../../../src/maps/configs/canonical.js";
 import swooperEarthlikeRaw from "../../../../src/maps/configs/swooper-earthlike.config.json";
@@ -12,7 +12,7 @@ import {
 } from "../../../../src/recipes/standard/metrics/studies/index.js";
 import { STANDARD_INTEGRITY_TARGET } from "../../../../src/recipes/standard/metrics/targets/integrity.js";
 
-const standardPreset = requireStandardPreset();
+const standardPreset = getCiv7StandardMapSizePreset("MAPSIZE_STANDARD");
 const earthlikeConfig = admitStandardMapConfig(swooperEarthlikeRaw);
 
 describe("Standard metric scenario admission", () => {
@@ -84,7 +84,6 @@ describe("Standard metric scenario admission", () => {
 
   it("captures the complete canonical feature legality corpus including floodplains", () => {
     const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
-    if (!tinyPreset) throw new Error("Missing Civ7 Tiny map-size metadata.");
     const capture = captureStandardMapScenario(
       standardProductMetricScenario(earthlikeConfig, tinyPreset, 1018)
     );
@@ -108,10 +107,4 @@ function validCustomScenario() {
     playerCount: standardPreset.defaultPlayers,
     seed: 1018,
   };
-}
-
-function requireStandardPreset(): Civ7StandardMapSizePreset {
-  const preset = getCiv7StandardMapSizePreset("MAPSIZE_STANDARD");
-  if (!preset) throw new Error("Missing Civ7 Standard map-size metadata.");
-  return preset;
 }

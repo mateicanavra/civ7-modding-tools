@@ -17,8 +17,6 @@ export type { EngineAdapter } from "@civ7/adapter";
 
 // Re-export core utilities and types
 export * from "@mapgen/core/index.js";
-// Re-export dev diagnostics module
-export * from "@mapgen/dev/index.js";
 // Re-export engine primitives (runtime SDK)
 export * from "@mapgen/engine/index.js";
 // Re-export tracing primitives

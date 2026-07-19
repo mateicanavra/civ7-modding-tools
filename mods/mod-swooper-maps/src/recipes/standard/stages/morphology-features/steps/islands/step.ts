@@ -1,4 +1,4 @@
-import { computeSampleStep, deriveStepSeed, renderAsciiGrid } from "@swooper/mapgen-core";
+import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampInt16 } from "@swooper/mapgen-core/lib/math";
 import { defineStandardVizMeta } from "../../../../viz.js";
@@ -75,26 +75,6 @@ export const IslandsStep = createStep(IslandsStepContract, {
         edits: plan.edits.length,
         peaks,
         inBoundsPeaks,
-      };
-    });
-    context.trace.event(() => {
-      const sampleStep = computeSampleStep(width, height);
-      const rows = renderAsciiGrid({
-        width,
-        height,
-        sampleStep,
-        cellFn: (x, y) => {
-          const idx = y * width + x;
-          const base = landMask[idx] === 1 ? "." : "~";
-          const overlay = editMask[idx] === 1 ? "I" : undefined;
-          return { base, overlay };
-        },
-      });
-      return {
-        kind: "morphology.islands.ascii.edits",
-        sampleStep,
-        legend: ".=land ~=water I=edit",
-        rows,
       };
     });
     deps.artifacts.topography.publish(context, {
