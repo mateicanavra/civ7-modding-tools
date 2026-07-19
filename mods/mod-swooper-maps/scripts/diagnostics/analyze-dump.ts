@@ -8,7 +8,7 @@ import {
   readU8Grid,
 } from "@swooper/mapgen-diagnostics";
 import { parseDiagnosticArgs } from "./command-input.js";
-import { connectedComponentsLandOddQ, landmaskStats } from "./map-analysis.js";
+import { summarizeSwooperLandMask } from "./map-analysis.js";
 
 function lastSummary(trace: ReturnType<typeof readTraceEvents>, kind: string): unknown {
   const matches = trace
@@ -44,16 +44,13 @@ function landmaskLayers(manifest: ReturnType<typeof readPathVizManifest>) {
 function summarizeLandmasks(runDir: string, manifest: ReturnType<typeof readPathVizManifest>) {
   return landmaskLayers(manifest).map((layer) => {
     const grid = readU8Grid(runDir, layer);
-    const basic = landmaskStats(grid.values);
-    const cc = connectedComponentsLandOddQ(grid.values, grid.width, grid.height);
     return {
       stepId: layer.stepId,
       stepIndex: layer.stepIndex,
       dataTypeKey: layer.dataTypeKey,
       format: layer.field.format,
       path: layer.field.data.path,
-      ...basic,
-      ...cc,
+      ...summarizeSwooperLandMask(grid.values, grid.width, grid.height),
     };
   });
 }

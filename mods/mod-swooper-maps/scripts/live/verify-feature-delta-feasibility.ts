@@ -5,21 +5,21 @@ import { dirname, resolve } from "node:path";
 import {
   type Civ7FeaturePlacementFeasibilityResult,
   type Civ7MapGridResult,
-  type Civ7MapSummaryResult,
   type Civ7PlotSnapshotField,
   getCiv7FeaturePlacementFeasibility,
   getCiv7MapGrid,
   getCiv7MapSummary,
 } from "@civ7/direct-control";
-import {
-  type FinalSurfaceParityReport,
-  hashParityValue,
-  stableParityReportStringify,
-} from "./live-parity.js";
+import { hashParityValue, stableParityReportStringify } from "./live-parity.js";
 import {
   buildFeatureDeltaPlacementContexts,
   type FeatureDeltaPlacementContext,
 } from "./surface-delta-context.js";
+import {
+  compareVerificationRuntimeIdentity,
+  extractVerificationReport,
+  resolveVerificationRequestIdentity,
+} from "./verification-identity.js";
 
 type Args = Readonly<{
   reportFile?: string;
@@ -133,12 +133,12 @@ async function main(): Promise<number> {
   }
   if (!args.reportFile) throw new Error("Expected --report-file");
 
-  const report = extractFinalSurfaceParityReport(JSON.parse(readFileSync(args.reportFile, "utf8")));
+  const report = extractVerificationReport(JSON.parse(readFileSync(args.reportFile, "utf8")));
   const contextArtifact = args.contextFile
     ? JSON.parse(readFileSync(args.contextFile, "utf8"))
     : undefined;
   const contextRowsByPlot = readContextRowsByPlot(contextArtifact);
-  const requestIdentity = resolveRequestIdentity(report);
+  const requestIdentity = resolveVerificationRequestIdentity(report);
   if (requestIdentity.blockedBy.length > 0) {
     const outputWithoutHash = {
       ok: false,
@@ -154,7 +154,12 @@ async function main(): Promise<number> {
     return 2;
   }
 
-  const runtimeIdentity = await readAndCompareRuntimeIdentity(report, args);
+  const currentRuntime = await getCiv7MapSummary({
+    host: args.host,
+    port: args.port,
+    timeoutMs: args.timeoutMs,
+  });
+  const runtimeIdentity = compareVerificationRuntimeIdentity(report, currentRuntime);
   if (runtimeIdentity.blockedBy.length > 0) {
     const outputWithoutHash = {
       ok: false,
@@ -215,107 +220,6 @@ async function main(): Promise<number> {
   writeOutput(args.output, output);
   console.log(stableParityReportStringify(output));
   return 0;
-}
-
-function extractFinalSurfaceParityReport(payload: unknown): FinalSurfaceParityReport {
-  if (!isRecord(payload)) throw new Error("Report payload must be an object");
-  const report = isRecord(payload.report) ? payload.report : payload;
-  if (!isRecord(report.local) || !isRecord(report.live)) {
-    throw new Error("Expected final-surface parity report with local/live snapshots");
-  }
-  return report as FinalSurfaceParityReport;
-}
-
-function resolveRequestIdentity(report: FinalSurfaceParityReport) {
-  const packet = report.exactAuthorshipEvidence;
-  const sources = {
-    exactAuthorshipSummary: stringValue(recordValue(report.exactAuthorshipSummary, "requestId")),
-    exactAuthorshipEvidence: packet?.requestId,
-    log: packet?.log.requestId,
-  };
-  const values = Object.values(sources).filter((value): value is string => value !== undefined);
-  const uniqueValues = [...new Set(values)].sort((left, right) => left.localeCompare(right));
-  const blockedBy =
-    uniqueValues.length === 0
-      ? ["request-identity.missing"]
-      : uniqueValues.length > 1
-        ? ["request-identity.conflict"]
-        : [];
-  return {
-    requestId: uniqueValues.length === 1 ? uniqueValues[0] : undefined,
-    status: blockedBy.length === 0 ? ("matched" as const) : ("blocked" as const),
-    blockedBy,
-    sources,
-  };
-}
-
-async function readAndCompareRuntimeIdentity(
-  report: FinalSurfaceParityReport,
-  args: Pick<Args, "host" | "port" | "timeoutMs">
-) {
-  const current = await getCiv7MapSummary({
-    host: args.host,
-    port: args.port,
-    timeoutMs: args.timeoutMs,
-  });
-  const saved = savedRuntimeIdentity(report);
-  const observed = observedRuntimeIdentity(current);
-  const comparisons = {
-    width: compareIdentityValue(saved.width, observed.width),
-    height: compareIdentityValue(saved.height, observed.height),
-    plotCount: compareIdentityValue(saved.plotCount, observed.plotCount),
-    seed: compareIdentityValue(saved.seed, observed.seed),
-    turn: compareIdentityValue(saved.turn, observed.turn),
-    gameHash: compareIdentityValue(saved.gameHash, observed.gameHash),
-  };
-  const blockedBy = Object.entries(comparisons)
-    .filter(([, comparison]) => comparison.status !== "matched")
-    .map(([key, comparison]) => `runtime-identity.${key}.${comparison.status}`)
-    .sort((left, right) => left.localeCompare(right));
-
-  return {
-    status: blockedBy.length === 0 ? ("matched" as const) : ("blocked" as const),
-    blockedBy,
-    saved,
-    observed,
-    comparisons,
-  };
-}
-
-function savedRuntimeIdentity(report: FinalSurfaceParityReport) {
-  const evidence = isRecord(report.live.evidence) ? report.live.evidence : {};
-  const runtime = isRecord(evidence.runtime) ? evidence.runtime : {};
-  const fullGrid = isRecord(evidence.fullGrid) ? evidence.fullGrid : {};
-  const initialSummary = isRecord(fullGrid.initialSummary) ? fullGrid.initialSummary : {};
-  return {
-    width: numberValue(runtime.width) ?? numberValue(initialSummary.width) ?? report.live.width,
-    height: numberValue(runtime.height) ?? numberValue(initialSummary.height) ?? report.live.height,
-    plotCount: numberValue(runtime.plotCount) ?? numberValue(initialSummary.plotCount),
-    seed: numberValue(runtime.seed) ?? numberValue(initialSummary.seed) ?? report.live.seed,
-    turn: numberValue(runtime.turn) ?? numberValue(initialSummary.turn),
-    gameHash: numberValue(runtime.gameHash) ?? numberValue(initialSummary.gameHash),
-  };
-}
-
-function observedRuntimeIdentity(summary: Civ7MapSummaryResult) {
-  return {
-    host: summary.host,
-    port: summary.port,
-    state: summary.state,
-    width: probeNumber(summary.map.width),
-    height: probeNumber(summary.map.height),
-    plotCount: probeNumber(summary.map.plotCount),
-    seed: probeNumber(summary.map.randomSeed),
-    turn: probeNumber(summary.game.turn),
-    gameHash: probeNumber(summary.game.hash),
-  };
-}
-
-function compareIdentityValue(saved: number | undefined, observed: number | undefined) {
-  if (saved === undefined) return { status: "missing-saved" as const, saved, observed };
-  if (observed === undefined) return { status: "missing-observed" as const, saved, observed };
-  if (saved !== observed) return { status: "mismatch" as const, saved, observed };
-  return { status: "matched" as const, saved, observed };
 }
 
 function summarizeLivePlotContext(readback: Civ7MapGridResult) {
@@ -477,21 +381,8 @@ function writeOutput(path: string | undefined, output: unknown): void {
   writeFileSync(absolute, `${stableParityReportStringify(output)}\n`);
 }
 
-function probeNumber(value: unknown): number | undefined {
-  if (isRecord(value) && value.ok === true && typeof value.value === "number") return value.value;
-  return undefined;
-}
-
 function numberValue(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
-function stringValue(value: unknown): string | undefined {
-  return typeof value === "string" && value.length > 0 ? value : undefined;
-}
-
-function recordValue(value: unknown, key: string): unknown {
-  return isRecord(value) ? value[key] : undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

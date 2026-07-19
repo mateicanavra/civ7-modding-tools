@@ -231,6 +231,14 @@
         {
           "projects": ["mapgen-diagnostics"],
           "target": "build"
+        },
+        {
+          "projects": ["mapgen-core"],
+          "target": "build"
+        },
+        {
+          "projects": ["mapgen-metrics"],
+          "target": "build"
         }
       ]
     },
