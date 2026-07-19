@@ -323,7 +323,10 @@ const ComputePrecipitationInputSchema = Type.Object(
     /** Tile grid height. */
     height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
     /** Latitude per row (degrees). */
-    latitudeByRow: TypedArraySchemas.f32({ description: "Latitude per row (degrees)." }),
+    latitudeByRow: TypedArraySchemas.f32({
+      cardinality: ["height"],
+      description: "Latitude per row (degrees).",
+    }),
     /** Elevation (meters) per tile. */
     elevation: TypedArraySchemas.i16({ description: "Elevation (meters) per tile." }),
     /** Land mask per tile (1=land, 0=water). */

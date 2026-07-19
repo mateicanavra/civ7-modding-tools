@@ -24,15 +24,16 @@ check that includes the relevant type cases.
 
 ## Current Runtime Schema Capability
 
-`TypedArraySchemas` uses `Type.Unsafe(Type.Any(...))` for static typing and adds
-enumerable `x-runtime` metadata for the required constructor and optional grid
-shape. The metadata is available to runtime validation, but `Type.Any` and the
-schema's static type do not validate a runtime value.
+`TypedArraySchemas` uses `Type.Unsafe(Type.Any(...))` for raw structural typing and adds
+enumerable `x-runtime` metadata for the exact constructor and input-relative cardinality.
+`createOp` compiles that metadata once, admits every annotated input before the selected strategy
+runs, and exposes admitted buffer types only inside the opaque strategy descriptor. Operation
+callers continue to provide raw typed arrays. Output validation remains outside this boundary.
 
-Current config-only helpers do not validate operation input or output
-constructors and grid shapes. A future generic harness must invoke the
-production-owned validator to interpret `x-runtime`; it must not duplicate
-runtime checks or treat static typing as runtime validation.
+The operation component tests exact constructor and cardinality refusal, nested paths, frozen
+typed failures, and the public raw-input/strategy-admitted type transition. Consumer tests must use
+the production factory rather than duplicate these checks or treat TypeBox static typing as runtime
+validation.
 
 ## Planned Generic Harnesses
 

@@ -1,6 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import PedologyClassifyContract from "../contract.js";
-import { defaultStrategy } from "./default.js";
+import { classifyPedology } from "../rules/index.js";
 
 export const orogenyBoostedStrategy = createStrategy(PedologyClassifyContract, "orogeny-boosted", {
   run: (input, config) => {
@@ -10,6 +10,6 @@ export const orogenyBoostedStrategy = createStrategy(PedologyClassifyContract, "
       reliefWeight: config.reliefWeight * 1.4,
       fertilityCeiling: Math.min(config.fertilityCeiling, 0.9),
     };
-    return defaultStrategy.run(input, boosted as never);
+    return classifyPedology(input, boosted);
   },
 });

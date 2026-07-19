@@ -1,5 +1,5 @@
 import { createLabelRng } from "@swooper/mapgen-core";
-import { createOp, type Static } from "@swooper/mapgen-core/authoring";
+import { createOp, createStrategy, type Static } from "@swooper/mapgen-core/authoring";
 import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import type { FoundationPlate } from "./contract.js";
@@ -321,7 +321,7 @@ function filterByMinComponentSize(params: {
 
 const computePlateGraph = createOp(ComputePlateGraphContract, {
   strategies: {
-    default: {
+    default: createStrategy(ComputePlateGraphContract, "default", {
       normalize: (config: PlateGraphConfig) => {
         const scaledPlateCount = Math.max(PLATE_COUNT_CLAMP_MIN, config.plateCount | 0);
 
@@ -653,7 +653,7 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
           plateGraph: { cellToPlate, plates },
         };
       },
-    },
+    }),
   },
 });
 

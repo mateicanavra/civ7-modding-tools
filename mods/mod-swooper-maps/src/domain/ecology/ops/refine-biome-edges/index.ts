@@ -1,11 +1,18 @@
-import { createOp } from "@swooper/mapgen-core/authoring";
+import { createOp, createStrategy } from "@swooper/mapgen-core/authoring";
 import RefineBiomeEdgesContract from "./contract.js";
-import { gaussianStrategy } from "./strategies/index.js";
+import { gaussianStrategy, runGaussianBiomeRefinement } from "./strategies/index.js";
+
+const defaultStrategy = createStrategy(RefineBiomeEdgesContract, "default", {
+  run: runGaussianBiomeRefinement,
+});
+const morphologicalStrategy = createStrategy(RefineBiomeEdgesContract, "morphological", {
+  run: runGaussianBiomeRefinement,
+});
 
 const refineBiomeEdges = createOp(RefineBiomeEdgesContract, {
   strategies: {
-    default: gaussianStrategy,
-    morphological: gaussianStrategy,
+    default: defaultStrategy,
+    morphological: morphologicalStrategy,
     gaussian: gaussianStrategy,
   },
 });

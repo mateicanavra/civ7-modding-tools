@@ -1,6 +1,50 @@
 import { clamp01 } from "@swooper/mapgen-core";
 
-import type { PedologyClassifyInput } from "../types.js";
+import type {
+  PedologyClassifyAdmittedInput,
+  PedologyClassifyConfig,
+  PedologyClassifyInput,
+  PedologyClassifyOutput,
+} from "../types.js";
+
+/**
+ * Classifies soil and fertility for each admitted map tile.
+ * Strategies shape only the weights before entering this shared algorithm, so variants cannot
+ * bypass operation admission by invoking another strategy descriptor.
+ */
+export function classifyPedology(
+  input: PedologyClassifyAdmittedInput,
+  config: PedologyClassifyConfig
+): PedologyClassifyOutput {
+  const size = input.width * input.height;
+  const relief = computeReliefProxy(input.slope, input.elevation, size);
+  const sediment = input.sedimentDepth;
+  const bedrock = input.bedrockAge;
+
+  const soilType = new Uint8Array(size);
+  const fertility = new Float32Array(size);
+
+  for (let i = 0; i < size; i++) {
+    if (input.landMask[i] === 0) {
+      soilType[i] = 0;
+      fertility[i] = 0;
+      continue;
+    }
+    const tileFertility = fertilityForTile({
+      rainfall: input.rainfall[i],
+      humidity: input.humidity[i],
+      relief: relief[i],
+      sedimentDepth: sediment ? sediment[i] : 0,
+      bedrockAge: bedrock ? bedrock[i] : 0,
+      weights: config,
+    });
+    fertility[i] = tileFertility;
+    const moisture = (input.rainfall[i] + input.humidity[i]) / 510;
+    soilType[i] = soilPaletteIndex(tileFertility, relief[i], moisture);
+  }
+
+  return { soilType, fertility };
+}
 
 /**
  * Throws when an input array length does not match the expected map size.

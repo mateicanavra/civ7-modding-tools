@@ -1,4 +1,4 @@
-import { createOp } from "@swooper/mapgen-core/authoring";
+import { createOp, createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import ComputeMantleForcingContract from "./contract.js";
@@ -16,7 +16,7 @@ function clampSigned(value: number): number {
 
 const computeMantleForcing = createOp(ComputeMantleForcingContract, {
   strategies: {
-    default: {
+    default: createStrategy(ComputeMantleForcingContract, "default", {
       run: (input, config) => {
         const mesh = input.mesh;
         const mantlePotential = input.mantlePotential;
@@ -153,7 +153,7 @@ const computeMantleForcing = createOp(ComputeMantleForcingContract, {
           },
         } as const;
       },
-    },
+    }),
   },
 });
 

@@ -1,4 +1,4 @@
-import { createOp } from "@swooper/mapgen-core/authoring";
+import { createOp, createStrategy } from "@swooper/mapgen-core/authoring";
 import { buildDelaunayMesh } from "@swooper/mapgen-core/lib/mesh";
 
 import ComputeMeshContract from "./contract.js";
@@ -8,7 +8,7 @@ const CELL_COUNT_CLAMP_MIN = 1;
 
 const computeMesh = createOp(ComputeMeshContract, {
   strategies: {
-    default: {
+    default: createStrategy(ComputeMeshContract, "default", {
       normalize: (config) => {
         const scaledPlateCount = Math.max(PLATE_COUNT_CLAMP_MIN, config.plateCount | 0);
         return {
@@ -37,7 +37,7 @@ const computeMesh = createOp(ComputeMeshContract, {
           }),
         } as const;
       },
-    },
+    }),
   },
 });
 

@@ -16,7 +16,10 @@ const ComputeOceanSurfaceCurrentsInputSchema = Type.Object(
     /** Tile grid height. */
     height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
     /** Latitude by row in degrees; length must equal `height`. */
-    latitudeByRow: TypedArraySchemas.f32({ description: "Latitude per row (degrees)." }),
+    latitudeByRow: TypedArraySchemas.f32({
+      cardinality: ["height"],
+      description: "Latitude per row (degrees).",
+    }),
     /** Water mask per tile (1=water, 0=land). */
     isWaterMask: TypedArraySchemas.u8({ description: "Water mask per tile (1=water, 0=land)." }),
     /** Wind U component per tile (-127..127). */

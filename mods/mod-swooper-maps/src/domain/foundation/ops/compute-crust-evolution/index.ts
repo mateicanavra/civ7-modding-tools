@@ -1,4 +1,4 @@
-import { createOp } from "@swooper/mapgen-core/authoring";
+import { createOp, createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampU8 } from "@swooper/mapgen-core/lib/math";
 
 import {
@@ -142,7 +142,7 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
 
 const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
   strategies: {
-    default: {
+    default: createStrategy(ComputeCrustEvolutionContract, "default", {
       run: (input, config) => {
         // Per-map-class character knobs (defaults = earthlike profile; see ./config.ts).
         const {
@@ -400,7 +400,7 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           },
         } as const;
       },
-    },
+    }),
   },
 });
 

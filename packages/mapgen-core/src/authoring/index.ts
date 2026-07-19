@@ -55,22 +55,34 @@ export type {
 } from "./domain.js";
 export { createDomain, defineDomain } from "./domain.js";
 export type {
+  AdmittedBuffer,
+  AdmittedOperationInput,
   DomainOp,
   DomainOpKind,
+  GridBuffer,
   OpContract,
   OpContractLike,
+  OperationInputAdmissionIssue,
   OpRef,
   OpStrategy,
   OpStrategyId,
   OpTypeBag,
   OpTypeBagOf,
   StrategyConfigSchemas,
+  StrategyDescriptor,
+  StrategyDescriptorFor,
   StrategyImpl,
   StrategyImplFor,
   StrategyImplMapFor,
   StrategySelection,
 } from "./op/index.js";
-export { createOp, createStrategy, defineOp, opRef } from "./op/index.js";
+export {
+  createOp,
+  createStrategy,
+  defineOp,
+  OperationInputAdmissionError,
+  opRef,
+} from "./op/index.js";
 export { createRecipe } from "./recipe.js";
 export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
 export type {

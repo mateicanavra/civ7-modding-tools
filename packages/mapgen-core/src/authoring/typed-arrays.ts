@@ -21,8 +21,9 @@ export function isTypedArrayOf<T extends SupportedTypedArray>(
   ctor: TypedArrayConstructor<T>,
   expectedLength?: number
 ): value is T {
-  const ctorAny = ctor as unknown as { new (...args: unknown[]): T };
-  if (!(value instanceof ctorAny)) return false;
+  if (!ArrayBuffer.isView(value) || value instanceof DataView) return false;
+  const prototype = (ctor as unknown as Readonly<{ prototype: object }>).prototype;
+  if (Object.getPrototypeOf(value) !== prototype) return false;
   if (expectedLength == null) return true;
   return (value as T).length === expectedLength;
 }

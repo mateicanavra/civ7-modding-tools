@@ -126,7 +126,7 @@ const ComputeLandmaskContract = defineOp({
     provenanceDriftDistance: TypedArraySchemas.u8({
       description: "Foundation provenance drift distance bucket per tile (0..255).",
     }),
-    riftPotentialByEra: Type.Array(TypedArraySchemas.u8({ shape: null }), {
+    riftPotentialByEra: Type.Array(TypedArraySchemas.u8({ cardinality: ["width", "height"] }), {
       description:
         "Rift potential per tile (0..255) for each tectonic era (oldest..newest). Used for time-stepped rift-driven craton growth.",
     }),
