@@ -1,6 +1,9 @@
 import { type TSchema, Type } from "typebox";
 
-import { toStandardSchema } from "./lib/typeboxStandardSchema.js";
+import {
+  toStandardSchema,
+  type TypeBoxStandardSchemaOptions,
+} from "./lib/typeboxStandardSchema.js";
 
 /**
  * Shared TypeBox building blocks for the studio-server success I/O contracts.
@@ -22,8 +25,11 @@ export const isoTimestampSchema = Type.String();
 export const emptyInputSchema = toStandardSchema(Type.Object({}, { additionalProperties: false }));
 
 /** Convert a TypeBox schema to the Standard Schema artifact oRPC consumes. */
-export function contractSchema<TypeSchema extends TSchema>(schema: TypeSchema) {
-  return toStandardSchema(schema);
+export function contractSchema<TypeSchema extends TSchema>(
+  schema: TypeSchema,
+  options?: TypeBoxStandardSchemaOptions
+) {
+  return toStandardSchema(schema, options);
 }
 
 /**

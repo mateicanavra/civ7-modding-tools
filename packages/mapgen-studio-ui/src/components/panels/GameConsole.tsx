@@ -22,26 +22,10 @@ import {
   runInGamePrimaryActionLabel,
 } from "./statusLabels.js";
 
-// ============================================================================
-// GAME CONSOLE
-// ============================================================================
-// The Game bar's command cluster (Pass-5 toolbar-architecture-v2 spec; Z-wave
-// status consolidation): every control and readout that observes or commands
-// the LIVE GAME lives here. The cluster is ONE status + THREE commands:
-//
-//   [signal chip: dot + turn/seed + chevron]  [autoplay]  [explore]  [Play]
-//
-// The chip is the single merged game status — its dot folds the live runtime,
-// the Run in Game operation, and save/deploy into one color, and clicking it
-// opens the status hang-off: a panel docked under the bar (same idiom as the
-// header's setup disclosure) carrying the expanded per-operation statuses and
-// their secondary affordances (apply-live-to-Studio, copy
-// diagnostics as the Bug action). Nothing else in the bar pulses or stacks
-// pills; the studio↔game bridge cues (stale warning ring, Current/Stale/
-// Previous relation) surface on the chip and inside the hang-off. Operation
-// freshness is daemon-pushed; the hang-off offers diagnostics, not status
-// readback.
-// ============================================================================
+// The Game bar is the single UI surface where live Civ7 state, Run in Game,
+// and save/deploy status are co-rendered. It presents the safe public operation
+// stream and exposes private diagnostics only as an explicit action when the
+// server provides a diagnostics id.
 
 /** Read-only live Civ7 runtime snapshot the console renders. */
 export interface GameConsoleLiveRuntime {
@@ -163,6 +147,10 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   const runInGamePhaseLabel = runInGameStatus
     ? formatRunInGamePhaseLabel(runInGameStatus.phase)
     : "Run in Game";
+  const runInGameSafeFailureCategory =
+    runInGameStatus && "safeFailureCategory" in runInGameStatus
+      ? runInGameStatus.safeFailureCategory
+      : null;
   const runInGameStateLabel =
     runInGameStatus && !isRunInGameRunning
       ? runInGameCurrentRelation === "stale"
@@ -172,13 +160,11 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
           : "Previous"
       : null;
   const runInGameFailed =
-    runInGameStatus?.status === "failed" ||
-    runInGameStatus?.status === "blocked" ||
-    runInGameStatus?.status === "uncertain";
+    runInGameStatus?.status === "failed" || runInGameStatus?.status === "cancelled";
   const runInGameDotClass =
     runInGameCurrentRelation === "stale"
       ? "bg-warning"
-      : runInGameStatus?.status === "complete"
+      : runInGameStatus?.status === "completed"
         ? "bg-success"
         : runInGameFailed
           ? "bg-destructive"
@@ -280,14 +266,9 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     runInGameButtonText,
     runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : "Launches the current config in Civ7",
     runInGameStatus?.requestId ? `Request: ${runInGameStatus.requestId}` : null,
-    runInGameStatus?.materialization?.mapScript
-      ? `Map: ${runInGameStatus.materialization.mapScript}`
-      : null,
     runInGameStateLabel ? `Studio state: ${runInGameStateLabel}` : null,
-    runInGameStatus?.error ? `Error: ${runInGameStatus.error}` : null,
-    runInGameStatus?.details?.recoveryHint
-      ? `Recovery: ${runInGameStatus.details.recoveryHint}`
-      : null,
+    runInGameSafeFailureCategory ? `Failure category: ${runInGameSafeFailureCategory}` : null,
+    runInGameStatus?.diagnosticsId ? `Diagnostics: ${runInGameStatus.diagnosticsId}` : null,
     operationControlsDisabled && operationBusyLabel ? operationBusyLabel : null,
   ]
     .filter(Boolean)
@@ -524,31 +505,14 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                   >
                     {runInGameStatus.requestId}
                   </span>
-                  {runInGameStatus.details?.code === "map-mod-not-loaded" ? (
-                    // Known error: the map deployed fine but Civ isn't loading the
-                    // mod (a game update commonly auto-disables it). Surface it as a
-                    // named, actionable condition rather than a raw failure string.
-                    <div className="flex flex-col gap-1 rounded border border-warning/40 bg-warning/10 px-2 py-1.5">
-                      <span className="text-label font-medium text-warning">
-                        Map mod disabled in Civilization
-                      </span>
-                      <p className="text-label text-muted-foreground">
-                        {runInGameStatus.details.recoveryHint ??
-                          "Enable the Swooper Physics Maps mod in Civ’s Add-Ons menu, then retry Run in Game."}
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      {runInGameStatus.error ? (
-                        <p className="text-label text-destructive">{runInGameStatus.error}</p>
-                      ) : null}
-                      {runInGameStatus.details?.recoveryHint ? (
-                        <p className={cn("text-label", textMuted)}>
-                          {runInGameStatus.details.recoveryHint}
-                        </p>
-                      ) : null}
-                    </>
-                  )}
+                  {runInGameSafeFailureCategory ? (
+                    <p className="text-label text-destructive">{runInGameSafeFailureCategory}</p>
+                  ) : null}
+                  {runInGameStatus.diagnosticsId ? (
+                    <p className={cn("text-label", textMuted)}>
+                      Diagnostics: {runInGameStatus.diagnosticsId}
+                    </p>
+                  ) : null}
                 </>
               ) : (
                 <span className={cn("text-data", textMuted)}>No run yet</span>

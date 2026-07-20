@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_ecology_fudge_tokens",
+  "title": "Prohibit Ecology Fudge Tokens",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/runtime",
+    "blueprint": "_remainder",
+    "category": "policy"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "probabilistic fudge terminology in ecology domain and standard ecology stage planning surfaces",
+  "why": "The command-check split corpus classifies these source-token bans as Grit authority; this focused packet keeps the ecology terminology assertion independently executable.",
+  "remediate": "Remove probabilistic fudge terminology or explicitly reclassify the invariant before changing this check.",
+  "message": "MapGen ecology planning source contains forbidden fudge terminology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/ecology/**",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology*/**",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/**"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/ecology",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-pedology",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_tokens/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_tokens/pattern.md"
+    },
+    "patternName": "prohibit_ecology_fudge_tokens"
+  }
+}

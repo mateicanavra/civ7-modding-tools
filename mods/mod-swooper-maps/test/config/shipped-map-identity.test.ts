@@ -36,10 +36,8 @@ describe("shipped map config identity", () => {
     expect(swooperEarthlikeConfigRaw.description).toContain("Earth-analogue world");
     expect(swooperEarthlikeConfigRaw.sortIndex).toBe(501);
     expect(earthlike["foundation-tectonics"].knobs.plateActivity).toBe(0.5);
-    expect(earthlike["foundation-mantle"].mesh.computeMesh.config.plateCount).toBe(28);
-    expect(
-      earthlike["foundation-lithosphere"]["plate-graph"].computePlateGraph.config.plateCount
-    ).toBe(42);
+    expect(earthlike["foundation-mantle"].meshResolution.plateCount).toBe(28);
+    expect(earthlike["foundation-lithosphere"].platePartition.plateCount).toBe(42);
     expect(earthlike["morphology-shelf"].knobs.shelfWidth).toBe("wide");
     // Re-blessed for the physical-margin shelf model (Path A): the compute-shelf-mask
     // classifier reads a seabed-gradient break (breakGradient/breakGradientScale) off the
@@ -55,23 +53,19 @@ describe("shipped map config identity", () => {
       rangeSystemLengthTiles: 30,
       provinceRadiusTiles: 5,
     });
-    expect(earthlike["ecology-pedology"].pedology.classify).toMatchObject({
-      strategy: "orogeny-boosted",
-      config: {
-        reliefWeight: 1.18,
-        bedrockWeight: 0.82,
-      },
+    expect(earthlike["ecology-pedology"].soilClassification).toMatchObject({
+      profile: "orogenyBoosted",
+      reliefWeight: 1.18,
+      bedrockWeight: 0.82,
     });
-    expect(earthlike["ecology-biomes"].biomes.classify.config.moisture.thresholds).toEqual([
+    expect(earthlike["ecology-biomes"].biomeClassification.moisture.thresholds).toEqual([
       90, 188, 228, 252,
     ]);
-    expect(earthlike["ecology-features"]["plan-reefs"].planReefs).toMatchObject({
-      config: {
-        minConfidence01: 0.84,
-        stride: 4,
-      },
+    expect(earthlike["ecology-features"].reefPlanning).toMatchObject({
+      minConfidence01: 0.84,
+      stride: 4,
     });
-    expect(earthlike.placement["plan-resources"].selectSites.config).toEqual({
+    expect(earthlike.placement.resources).toEqual({
       density: 1,
       sparsity: 0,
       rarityFidelity: 1,
@@ -84,8 +78,8 @@ describe("shipped map config identity", () => {
 
     expect(earthlike.placement).not.toHaveProperty("floodplains");
     expect(earthlike["map-rivers"].knobs.navigableRiverDensity).toBe("normal");
-    expect(earthlike["foundation-mantle"]).not.toHaveProperty("meshResolution");
-    expect(earthlike["foundation-lithosphere"]).not.toHaveProperty("platePartition");
+    expect(earthlike["foundation-mantle"]).not.toHaveProperty("mesh");
+    expect(earthlike["foundation-lithosphere"]).not.toHaveProperty("plate-graph");
   });
 
   it("keeps Ecology feature tuning in current step config while compiled planners preserve tuned identity", () => {
@@ -99,12 +93,12 @@ describe("shipped map config identity", () => {
       const config = recipeConfig(raw);
       const features = config["ecology-features"];
       expect(features, `${label} ecology-features`).toBeDefined();
-      expect(features, `${label} ecology-features`).toHaveProperty("plan-vegetation");
-      expect(features, `${label} ecology-features`).toHaveProperty("plan-wetlands");
-      expect(features, `${label} ecology-features`).toHaveProperty("plan-ice");
-      expect(features, `${label} ecology-features`).toHaveProperty("plan-reefs");
-      expect(features, `${label} ecology-features`).not.toHaveProperty("vegetationPlanning");
-      expect(features, `${label} ecology-features`).not.toHaveProperty("plotEffectCoverage");
+      expect(features, `${label} ecology-features`).toHaveProperty("vegetationPlanning");
+      expect(features, `${label} ecology-features`).toHaveProperty("wetlandPlanning");
+      expect(features, `${label} ecology-features`).toHaveProperty("icePlanning");
+      expect(features, `${label} ecology-features`).toHaveProperty("reefPlanning");
+      expect(features, `${label} ecology-features`).not.toHaveProperty("plan-vegetation");
+      expect(features, `${label} ecology-features`).not.toHaveProperty("plan-plot-effects");
 
       const compiled = standardRecipe.compileConfig(env, config) as any;
       const compiledFeatures = compiled["ecology-features"];

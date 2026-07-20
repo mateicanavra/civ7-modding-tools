@@ -1,5 +1,9 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
+import {
+  compileEcologyFeaturesPublicConfig,
+  EcologyFeaturesPublicSchema,
+} from "../ecology-public-config.js";
 import { steps } from "./steps/index.js";
 
 /**
@@ -20,6 +24,7 @@ export default createStage({
         "Ecology-features currently has no stage-level knobs; authoring control lives in feature scoring and planning groups.",
     }
   ),
+  public: EcologyFeaturesPublicSchema,
   steps: orderStandardStageSteps("ecology-features", {
     "score-layers": steps.scoreLayers,
     "plan-floodplains": steps.planFloodplains,
@@ -29,4 +34,6 @@ export default createStage({
     "plan-vegetation": steps.planVegetation,
     "plan-plot-effects": steps.planPlotEffects,
   }),
+  compile: ({ config }: { config: Record<string, unknown> }) =>
+    compileEcologyFeaturesPublicConfig(config),
 } as const);

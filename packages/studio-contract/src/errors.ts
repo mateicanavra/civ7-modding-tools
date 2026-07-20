@@ -6,6 +6,9 @@ import {
   expectedFailureErrorDataSchema,
   type FailedErrorData,
   failedErrorDataSchema,
+  type RunInGamePublicErrorData,
+  runInGamePublicErrorDataSchema,
+  runInGameStatusNotFoundErrorDataSchema,
   type StatusNotFoundErrorData,
   statusNotFoundErrorDataSchema,
   type UnavailableFailureErrorData,
@@ -50,11 +53,12 @@ const unavailableFailureData: StandardSchemaV1<
 > = toStandardSchema(unavailableFailureErrorDataSchema);
 const failedFailureData: StandardSchemaV1<FailedErrorData, FailedErrorData> =
   toStandardSchema(failedErrorDataSchema);
+const runInGamePublicFailureData: StandardSchemaV1<
+  RunInGamePublicErrorData,
+  RunInGamePublicErrorData
+> = toStandardSchema(runInGamePublicErrorDataSchema);
 
-/**
- * Run-in-game status-miss echo: the server identity the client uses for
- * restart detection (PARITY INVARIANT, audit/05 #13).
- */
+// Save/Deploy and non-run-in-game status misses retain the server identity echo.
 const serverIdentityEchoData: StandardSchemaV1<StatusNotFoundErrorData, StatusNotFoundErrorData> =
   toStandardSchema(statusNotFoundErrorDataSchema);
 
@@ -156,34 +160,34 @@ export const autoplayErrors = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// runInGame.* — package operation runtime (409/400/500/503; 404 with server-identity echo)
+// runInGame.* — package operation runtime (409/400/500/503; 404 without daemon identity)
 // ---------------------------------------------------------------------------
 
 export const runInGameErrors = {
   RUN_IN_GAME_BLOCKED: {
     status: 409,
     message: "Run in Game is blocked by an active operation",
-    data: expectedFailureData,
+    data: runInGamePublicFailureData,
   },
   RUN_IN_GAME_INVALID: {
     status: 400,
     message: "Invalid Run in Game request",
-    data: expectedFailureData,
+    data: runInGamePublicFailureData,
   },
   RUN_IN_GAME_FAILED: {
     status: 500,
     message: "Run in Game failed",
-    data: failedFailureData,
+    data: runInGamePublicFailureData,
   },
   RUN_IN_GAME_UNAVAILABLE: {
     status: 503,
     message: "Run in Game dependencies are unavailable",
-    data: unavailableFailureData,
+    data: runInGamePublicFailureData,
   },
   RUN_IN_GAME_STATUS_NOT_FOUND: {
     status: 404,
     message: "Run in Game request not found",
-    data: serverIdentityEchoData,
+    data: toStandardSchema(runInGameStatusNotFoundErrorDataSchema),
   },
 } as const;
 

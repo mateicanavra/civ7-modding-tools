@@ -88,7 +88,7 @@ describe("standard browser runner layer visibility", () => {
         "foundation.crustInit.cellAge",
         "foundation.crustInit.cellBaseElevation",
         "foundation.plates.tileMovement",
-        "ecology.scoreLayers.FEATURE_FOREST",
+        "ecology.scoreLayers.forest",
         "map.placement.engine.landMask",
       ])
     );

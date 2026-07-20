@@ -1,3 +1,4 @@
+import type { RunDiagnosticsLookupResult } from "@civ7/studio-contract";
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import type {
   PipelineConfig,
@@ -27,7 +28,7 @@ import {
   type RunInGameSourceSnapshot,
   relationForRunInGameOperation,
 } from "../../features/runInGame/clientState";
-import { formatRunInGameDiagnostics } from "../../features/runInGame/status";
+import { orpcClient } from "../../lib/orpc";
 import type { AuthoringState } from "../../stores/authoringStore";
 import type { RunState } from "../../stores/runStore";
 import type { UseLiveRuntimeResult } from "./useLiveRuntime";
@@ -112,26 +113,11 @@ export type UseRunInGameResult = {
  * (`syncStudioFromLiveGame`), the diagnostics-copy handler, and the run-in-game
  * terminal-toast effect.
  *
- * This is an "atomic move WITH contract": the moved bodies are byte-for-byte
- * behaviorally identical, and the sync-back path CALLS two contracts owned by
- * `usePresetLifecycle` (`applyAuthoringSnapshot`) — that one ordered authoring
- * write is threaded in, not re-implemented here.
- *
- * Cycle-break (design.md §7.6): `provedRunInGameSource` and
- * `runInGameMaterializationMode` are HOST-computed and threaded IN — this hook does
- * NOT own them. `displayedPresetOptions`/`studioMatchesProvedLiveSource`/
- * `liveGameStudioRelation` stay host.
- *
- * Load-bearing invariants preserved verbatim from the prior host body:
- * - RIG-2: `runInGameMaterializationMode` is consumed render-time (prop), never an
- *   effect-assigned ref — durable/disposable game-file routing is security-adjacent.
- * - RIG-4: the fingerprint includes `materializationMode`.
- * - RIG-5: `syncStudioFromLiveGame` shapes the snapshot and calls
- *   `applyAuthoringSnapshot` — the 5-setter ORDER lives in that contract.
- * - RIG-6: the sync busy-gate + silent-when-status≠ok guards stay exact.
- * - RIG-7: the non-proved path applies ONLY seed + setup suggestions.
- * - RIG-1/3: the fingerprint/relation pure logic stays in `features/runInGame/*`.
- * - D1: the hardcoded `recipeId` in `handleRunInGame` is left untouched (out of scope).
+ * The hook is deliberately a coordinator, not a runtime truth owner: source
+ * proof and materialization mode are computed by the host and threaded in,
+ * authoring writes go through `usePresetLifecycle`, and private diagnostics are
+ * copied only through the explicit server lookup when the public status exposes
+ * a diagnostics id.
  */
 export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
   const {
@@ -245,15 +231,14 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       if (!("requestId" in result)) {
         toast(`Run in Game failed: ${result.error}`, { variant: "error" });
         setRunInGameOperation({
-          ok: false,
           requestId: `studio-run-in-game-client-error-${Date.now()}`,
           phase: "failed",
           status: "failed",
-          startedAt: new Date().toISOString(),
+          safeFailureCategory: result.safeFailureCategory,
+          recoveryActions: ["retry-run"],
+          createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          completedPhases: [],
-          error: result.error,
-          details: result.details,
+          terminalAt: new Date().toISOString(),
         });
         return;
       }
@@ -278,7 +263,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
         selectedConfig,
       });
       setLastRunInGameSource(sourceSnapshot);
-      toast(`Run in Game started: ${result.materialization?.mapScript ?? result.requestId}`, {
+      toast(`Run in Game started: ${result.requestId}`, {
         variant: "info",
       });
     },
@@ -292,13 +277,16 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       runInGameRunning,
       saveDeployRunning,
       setLastRunInGameSource,
+      setLocalError,
       setRunInGameSnapshot,
+      setRunInGameOperation,
       setupConfig,
       toast,
       worldSettings,
       worldSettings.mapSize,
       worldSettings.playerCount,
       worldSettings.resources,
+      lastRunInGameToastRef,
     ]
   );
 
@@ -424,12 +412,22 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     runInGameRunning,
     saveDeployRunning,
     toast,
+    applyAuthoringSnapshot,
+    setRecipeSettings,
+    setSetupConfig,
   ]);
 
   const copyRunInGameDiagnostics = useCallback(async () => {
     if (!runInGameOperation) return;
+    if (runInGameOperation.diagnosticsId === undefined) {
+      toast("Run in Game diagnostics are not available yet", { variant: "info" });
+      return;
+    }
     try {
-      await navigator.clipboard.writeText(formatRunInGameDiagnostics(runInGameOperation));
+      const diagnostics = await orpcClient.runInGame
+        .diagnostics({ diagnosticsId: runInGameOperation.diagnosticsId })
+        .then((result: RunDiagnosticsLookupResult) => JSON.stringify(result, null, 2));
+      await navigator.clipboard.writeText(diagnostics);
       toast("Run in Game diagnostics copied", { variant: "info" });
     } catch (err) {
       toast(

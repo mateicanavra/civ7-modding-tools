@@ -88,13 +88,21 @@ function makeRunInGameWorkflow(
       Effect.gen(function* () {
         let phase: RunInGameFailurePhase = "materializing";
         let materialized: RunInGameMaterialized = {};
-        let cleanupAttempted = false;
-        const cleanupMaterialized = (failure?: unknown) => {
-          if (cleanupAttempted || materialized.cleanup === undefined) return Effect.void;
-          return Effect.sync(() => {
-            cleanupAttempted = true;
-          }).pipe(
-            Effect.flatMap(() => tryPromise(() => materialized.cleanup?.() ?? Promise.resolve())),
+        let cleanup: (() => Promise<void>) | undefined;
+        let cleanupPromise: Promise<void> | undefined;
+        let materializationPromise: Promise<RunInGameMaterialized> | undefined;
+        let materializationRejected = false;
+        const rememberMaterialized = (next: RunInGameMaterialized): RunInGameMaterialized => {
+          materialized = next;
+          if (next.cleanup !== undefined) cleanup = next.cleanup;
+          return next;
+        };
+        const runCleanupOnce = (
+          cleanupToRun: () => Promise<void>,
+          failure?: unknown
+        ): Effect.Effect<void, unknown> => {
+          const run = () => (cleanupPromise ??= Promise.resolve().then(cleanupToRun));
+          return tryPromise(run).pipe(
             Effect.mapError((err) =>
               runInGameCleanupFailure({
                 err,
@@ -104,15 +112,44 @@ function makeRunInGameWorkflow(
             )
           );
         };
+        const cleanupMaterialized = (failure?: unknown): Effect.Effect<void, unknown> => {
+          if (cleanup !== undefined) return runCleanupOnce(cleanup, failure);
+          if (materializationPromise === undefined) return Effect.void;
+          if (materializationRejected) return Effect.void;
+          const pendingMaterialization = materializationPromise;
+          return tryPromise(() => pendingMaterialization).pipe(
+            Effect.map(rememberMaterialized),
+            Effect.flatMap((next) =>
+              next.cleanup === undefined ? Effect.void : runCleanupOnce(next.cleanup, failure)
+            )
+          );
+        };
         const work = Effect.gen(function* () {
-          yield* workflow.transitions.transition({ phase });
-          materialized = yield* tryPromise(() =>
+          yield* workflow.transitions.registerCleanup(() => cleanupMaterialized());
+          materializationPromise = Promise.resolve().then(() =>
             args.ports.materializeRunInGame({
               requestId: workflow.requestId,
               input: workflow.input,
               prepared: workflow.prepared,
+              registerCleanup: (registeredCleanup) => {
+                cleanup = registeredCleanup;
+              },
             })
           );
+          void materializationPromise.catch(() => undefined);
+          yield* workflow.transitions.transition({ phase });
+          const pendingMaterialization = materializationPromise;
+          materialized = yield* tryPromise(() => pendingMaterialization).pipe(
+            Effect.tapError(() =>
+              Effect.sync(() => {
+                materializationRejected = true;
+              })
+            ),
+            Effect.map(rememberMaterialized)
+          );
+          if (materialized.cleanup !== undefined) {
+            cleanup = materialized.cleanup;
+          }
           if (materialized.materialization) {
             yield* workflow.transitions.transition({
               phase,

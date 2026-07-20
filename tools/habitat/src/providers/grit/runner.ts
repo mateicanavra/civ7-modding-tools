@@ -20,9 +20,10 @@ import type { GritDiagnosticAcquisition } from "./output.js";
 import type { GritProviderRequirements, GritProviderService } from "./resource.js";
 import {
   decidePatternScanRoots,
-  pathsOverlap,
   ruleHasDocsScanRoot,
   ruleUsesDocsApplyDryRun,
+  scanRootIsWithinDeclaredRoot,
+  scanRootMatchesDeclaredRoot,
   selectedScanRootsForRules,
 } from "./scan-roots/index.js";
 import { runGritCheckWithScopedConfigEffect } from "./scoped-config.js";
@@ -78,7 +79,7 @@ function runGritRuleOutcomeGroupEffect(
   if (requestedScanRoots.length === 0) {
     return runGritScanRootBatchEffect(selectedRules, [], options, outputFormat);
   }
-  const batches = scanRootBatchesForRules(selectedRules, requestedScanRoots);
+  const batches = scanRootBatchesForRules(selectedRules, requestedScanRoots, options);
   return Effect.all(
     batches.map((batch) =>
       runGritScanRootBatchEffect(batch.rules, batch.scanRoots, options, outputFormat)
@@ -94,14 +95,19 @@ interface GritScanRootBatch {
 
 function scanRootBatchesForRules(
   selectedRules: readonly RuleSourceFacts[],
-  requestedScanRoots: readonly string[]
+  requestedScanRoots: readonly string[],
+  options: Pick<GritRunOptions, "scanRoots"> = {}
 ): GritScanRootBatch[] {
-  return requestedScanRoots.map((scanRoot) => ({
-    scanRoots: [scanRoot],
-    rules: selectedRules.filter((rule) =>
-      rule.scanRoots.some((declaredRoot) => pathsOverlap(scanRoot, declaredRoot))
-    ),
-  }));
+  const matchesDeclaredRoot = options.scanRoots
+    ? scanRootIsWithinDeclaredRoot
+    : scanRootMatchesDeclaredRoot;
+  return requestedScanRoots.flatMap((scanRoot) =>
+    selectedRules
+      .filter((rule) =>
+        rule.scanRoots.some((declaredRoot) => matchesDeclaredRoot(scanRoot, declaredRoot))
+      )
+      .map((rule) => ({ scanRoots: [scanRoot], rules: [rule] }))
+  );
 }
 
 function runGritScanRootBatchEffect(

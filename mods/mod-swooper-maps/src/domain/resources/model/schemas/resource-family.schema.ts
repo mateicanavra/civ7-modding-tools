@@ -13,5 +13,8 @@ export const ResourceFamilySchema = Type.Union([
 ]);
 
 export const ResourceSymbolSchema = Type.Unsafe<ResourceSymbol>(
-  Type.String({ pattern: "^RESOURCE_[A-Z0-9_]+$" })
+  Type.String({
+    pattern: "^RESOURCE_[A-Z0-9_]+$",
+    description: "Civ7 resource type key such as RESOURCE_IRON or RESOURCE_WHEAT.",
+  })
 );

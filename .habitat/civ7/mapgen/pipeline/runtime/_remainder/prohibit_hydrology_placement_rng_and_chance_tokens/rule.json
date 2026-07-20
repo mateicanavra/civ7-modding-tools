@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_hydrology_placement_rng_and_chance_tokens",
+  "title": "Prohibit Hydrology Placement Rng And Chance Tokens",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/runtime",
+    "blueprint": "_remainder",
+    "category": "policy"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "local RNG and chance helper tokens in lake planning, placement, and hydrology/river/placement standard stage surfaces",
+  "why": "The command-check split corpus keeps this narrower helper-token policy in Grit even where ambient RNG policy overlaps.",
+  "remediate": "Remove local RNG or chance helper tokens or explicitly reclassify the invariant before changing this check.",
+  "message": "MapGen hydrology or placement planning source contains a forbidden RNG or chance helper token.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/**/*.ts",
+        "mods/mod-swooper-maps/src/domain/placement/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/placement/**/*.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes",
+    "mods/mod-swooper-maps/src/domain/placement",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/placement"
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_hydrology_placement_rng_and_chance_tokens/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_hydrology_placement_rng_and_chance_tokens/pattern.md"
+    },
+    "patternName": "prohibit_hydrology_placement_rng_and_chance_tokens"
+  }
+}

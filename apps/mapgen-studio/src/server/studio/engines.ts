@@ -544,6 +544,7 @@ async function materializeRunInGameConfig(args: {
   sourcePath?: string;
   envelope: Record<string, unknown>;
   mode: "durable" | "disposable";
+  registerCleanup?(cleanup: () => Promise<void>): void;
 }): Promise<{
   path: string;
   mapScript: string;
@@ -572,14 +573,16 @@ async function materializeRunInGameConfig(args: {
   });
   await mkdir(dirname(target), { recursive: true });
   await writeFile(target, `${JSON.stringify(args.envelope, null, 2)}\n`);
+  const cleanup = async () => {
+    if (args.mode !== "disposable") return;
+    await restoreRepoConfig(target, previous);
+    await regenerateSwooperMapArtifacts(args.repoRoot);
+  };
+  args.registerCleanup?.(cleanup);
   return {
     path,
     mapScript: mapScriptForConfigId(args.id),
-    cleanup: async () => {
-      if (args.mode !== "disposable") return;
-      await restoreRepoConfig(target, previous);
-      await regenerateSwooperMapArtifacts(args.repoRoot);
-    },
+    cleanup,
   };
 }
 
@@ -689,9 +692,16 @@ export function createStudioOperationRuntimePorts(
   const saveContexts = new Map<string, SaveDeployLeafContext>();
 
   return {
-    materializeRunInGame: async ({ requestId, input, prepared }) => {
+    runInGameWorkspaceRoot: resolve(repoRoot, ".mapgen-studio/run-in-game"),
+    materializeRunInGame: async ({ requestId, input, prepared, registerCleanup }) => {
       const context = makeRunInGameLeafContext({ requestId, input, prepared });
       let materialized: Awaited<ReturnType<typeof materializeRunInGameConfig>> | undefined;
+      let cleaned = false;
+      const cleanupMaterialized = async (cleanup?: () => Promise<void>) => {
+        cleaned = true;
+        runContexts.delete(requestId);
+        await cleanup?.();
+      };
       materialized = await materializeRunInGameConfig({
         repoRoot,
         id: context.id,
@@ -702,6 +712,9 @@ export function createStudioOperationRuntimePorts(
             : undefined,
         envelope: context.envelope,
         mode: context.requestedMode,
+        registerCleanup: (cleanup) => {
+          registerCleanup(() => cleanupMaterialized(cleanup));
+        },
       });
       const materialization = {
         mode: context.requestedMode,
@@ -713,14 +726,13 @@ export function createStudioOperationRuntimePorts(
           (sourceConfig) => (sourceConfig ? { sourceConfig } : {})
         )),
       };
-      context.materialization = materialization;
-      runContexts.set(requestId, context);
+      if (!cleaned) {
+        context.materialization = materialization;
+        runContexts.set(requestId, context);
+      }
       return {
         materialization,
-        cleanup: async () => {
-          runContexts.delete(requestId);
-          await materialized?.cleanup();
-        },
+        cleanup: () => cleanupMaterialized(materialized?.cleanup),
       };
     },
     deployRunInGame: async ({ requestId }) => {
