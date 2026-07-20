@@ -19,10 +19,8 @@ export default createStep(CrustEvolutionStepContract, {
       validate: (value) => foundationArtifactValidators.crust(value),
     },
   }),
-  // The crust-character knobs are high-level coupled levers: each, when an author sets it, overrides
-  // its coupled compute-crust-evolution properties (abundance → survival + breakup-resistance;
-  // relief → freeboard + shelf depth + abyssal depth). Unset levers leave the raw op config (internal-as-public)
-  // untouched, so granular per-property authoring still works.
+  // Explicit knobs remain late semantic overrides over public crustCharacter; omitted knobs stay
+  // undefined so they cannot replace authored crust-character fields with neutral defaults.
   normalize: (config, ctx) => {
     const { continentalAbundance, continentalRelief } = ctx.knobs as Readonly<{
       continentalAbundance?: number;
