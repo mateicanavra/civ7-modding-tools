@@ -9,12 +9,65 @@ import {
   PipelineExecutor,
   StepRegistry,
 } from "@mapgen/engine/index.js";
-import { createNoopTraceSession, sha256Hex, type TraceEvent } from "@mapgen/trace/index.js";
+import {
+  createNoopTraceSession,
+  createTraceSession,
+  sha256Hex,
+  type TraceEvent,
+  TraceEventSchema,
+} from "@mapgen/trace/index.js";
 import { Type } from "typebox";
+import { Value } from "typebox/value";
 
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
 describe("pipeline tracing", () => {
+  it("emits only schema-valid JSON-serializable events", () => {
+    const events: TraceEvent[] = [];
+    let timestamp = 0;
+    const session = createTraceSession({
+      runId: "trace-json",
+      planFingerprint: "trace-plan",
+      config: { steps: { "recipe.foundation.alpha": "verbose" } },
+      sink: { emit: (event) => events.push(event) },
+      nowMs: () => ++timestamp,
+    });
+    const meta = { stepId: "recipe.foundation.alpha", stageId: "foundation" };
+
+    session.emitRunStart();
+    session.emitStepStart(meta);
+    const scope = session.createStepScope(meta);
+    scope.event(() => ({
+      kind: "test.nested",
+      values: [1, true, null, "four", { finite: 5 }],
+    }));
+    const emittedCount = events.length;
+    (scope.event as (value: unknown) => void)({ invalid: 1n });
+    expect(events).toHaveLength(emittedCount);
+    session.emitStepFinish({ ...meta, durationMs: 2, success: true });
+    session.emitRunFinish({ success: true });
+
+    expect(events).toHaveLength(5);
+    for (const event of events) {
+      expect(Value.Check(TraceEventSchema, event)).toBe(true);
+      const serialized = JSON.stringify(event);
+      expect(Value.Check(TraceEventSchema, JSON.parse(serialized) as unknown)).toBe(true);
+    }
+  });
+
+  it("rejects dotted stage identities at the execution registry ingress", () => {
+    const registry = new StepRegistry();
+    expect(() =>
+      registry.register({
+        id: "recipe.bad-stage.alpha",
+        stageId: "bad.stage",
+        requires: [],
+        provides: [],
+        run: () => {},
+      })
+    ).toThrow("must be kebab-case");
+  });
+
   it("hashes astral and malformed Unicode deterministically", () => {
     expect(sha256Hex("map 🗺")).toBe(
       "a3399eedfbf0fcd3256726d919a5d40808b8a3fa6b4afeb01323e776720ad2bf"
@@ -28,7 +81,7 @@ describe("pipeline tracing", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       configSchema: Type.Object({}),
@@ -83,7 +136,7 @@ describe("pipeline tracing", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => {},
@@ -137,7 +190,7 @@ describe("pipeline tracing", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       configSchema: Type.Object({}),
@@ -147,7 +200,7 @@ describe("pipeline tracing", () => {
     });
     registry.register({
       id: "beta",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       configSchema: Type.Object({}),
@@ -202,7 +255,7 @@ describe("pipeline tracing", () => {
     };
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: (context) => {
@@ -263,7 +316,7 @@ describe("pipeline tracing", () => {
     let activeTrace: ReturnType<typeof createMapContext>["trace"] | undefined;
     registry.register({
       id: "fail",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: (context) => {
@@ -308,7 +361,6 @@ describe("pipeline tracing", () => {
 
     const contract = defineStep({
       id: "alpha",
-      phase: "foundation",
       requires: [],
       provides: [],
       schema: Type.Object({}, { additionalProperties: false }),

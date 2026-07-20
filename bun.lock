@@ -117,10 +117,12 @@
       "dependencies": {
         "@civ7/adapter": "workspace:*",
         "@civ7/map-policy": "workspace:*",
+        "@civ7/plugin-files": "workspace:*",
         "@civ7/studio-contract": "workspace:*",
         "@civ7/studio-run-workspace": "workspace:*",
         "@mateicanavra/civ7-sdk": "workspace:*",
         "@swooper/mapgen-core": "workspace:*",
+        "@swooper/mapgen-diagnostics": "workspace:*",
         "@swooper/mapgen-metrics": "workspace:*",
         "@swooper/mapgen-viz": "workspace:*",
         "typebox": "catalog:",
@@ -220,12 +222,21 @@
         "@swooper/mapgen-metrics": "workspace:*",
         "@swooper/mapgen-viz": "workspace:*",
         "d3-delaunay": "^6.0.4",
+        "type-fest": "^5.7.0",
         "typebox": "catalog:",
       },
       "devDependencies": {
         "@civ7/map-policy": "workspace:*",
         "@types/d3-delaunay": "^6.0.4",
-        "type-fest": "^5.7.0",
+      },
+    },
+    "packages/mapgen-diagnostics": {
+      "name": "@swooper/mapgen-diagnostics",
+      "version": "0.1.0",
+      "dependencies": {
+        "@swooper/mapgen-core": "workspace:*",
+        "@swooper/mapgen-viz": "workspace:*",
+        "typebox": "catalog:",
       },
     },
     "packages/mapgen-metrics": {
@@ -288,6 +299,9 @@
     "packages/mapgen-viz": {
       "name": "@swooper/mapgen-viz",
       "version": "0.1.0",
+      "dependencies": {
+        "typebox": "catalog:",
+      },
     },
     "packages/plugins/plugin-files": {
       "name": "@civ7/plugin-files",
@@ -1423,6 +1437,8 @@
     "@swc/helpers": ["@swc/helpers@0.5.23", "", { "dependencies": { "tslib": "^2.8.0" } }, "sha512-5lSsMOTXURePglDfvuAQUqkGek9Hg2kksOYay2m0+XR++b2NWYL/4sWyuvVBIs8oKnJaxkdi9whaL/sqN13afw=="],
 
     "@swooper/mapgen-core": ["@swooper/mapgen-core@workspace:packages/mapgen-core"],
+
+    "@swooper/mapgen-diagnostics": ["@swooper/mapgen-diagnostics@workspace:packages/mapgen-diagnostics"],
 
     "@swooper/mapgen-metrics": ["@swooper/mapgen-metrics@workspace:packages/mapgen-metrics"],
 

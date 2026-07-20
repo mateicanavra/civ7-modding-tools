@@ -72,7 +72,7 @@ Optional:
 - Verify the UI reflects stage/step identities derived from the recipe’s UI meta.
 - Open step detail views (if present) to correlate:
   - full step id (namespace + recipe + step)
-  - phase/stage grouping
+  - the exact recipe-assigned stage
 
 ### 7) Inspect trace/viz outputs
 

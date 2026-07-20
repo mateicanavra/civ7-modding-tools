@@ -5,7 +5,10 @@ Scope: `mods/mod-swooper-maps/**`
 ## What This Directory Is
 
 - The Swooper Maps / MapGen mod package.
-- `src/` holds the TypeScript game‑facing entry files.
+- `src/` owns the Swooper domain model, recipes, map configuration, and thin
+  game-facing entry files.
+- All six domain roots remain mod-owned; reusable SDK mechanics belong in the
+  smallest named substrate package rather than moving a domain into Core.
 - `mod/` is generated build output for Civ VII; treat it as read‑only.
 
 ## Tooling Rules

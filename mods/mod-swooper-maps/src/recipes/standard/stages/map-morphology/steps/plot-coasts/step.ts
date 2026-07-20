@@ -1,20 +1,19 @@
 import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import {
   applyCiv7CoastRingPolicy,
+  CIV7_BROWSER_TABLES_V0,
   CIV7_COAST_RING_POLICY_V0,
   WATER_CLASS_COAST,
   WATER_CLASS_LAND,
   WATER_CLASS_OCEAN,
 } from "@civ7/map-policy";
-import { logLandmassAscii } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { assertWaterDriftWithinPolicy } from "../../../../projection-policies/noWaterDrift.js";
-import { resolveStandardProjectionTerrainTypes } from "../../../../projection-policies/standardProjectionEngineTypes.js";
 import {
   defineStandardVizCategoryMeta,
   defineStandardVizMeta,
   STANDARD_VIZ_COLORS,
 } from "../../../../viz.js";
+import { assertWaterDriftWithinPolicy } from "../../../../water-surface-parity.js";
 import { PlotCoastsStepContract } from "./config.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
@@ -29,7 +28,6 @@ export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
     const topography = deps.artifacts.topography.read(context);
     const shelf = deps.artifacts.shelf.read(context);
     const { width, height } = context.setup.dimensions;
-    const terrainTypes = resolveStandardProjectionTerrainTypes(context.adapter);
     const size = width * height;
 
     // 0=land, 1=coast, 2=ocean
@@ -90,10 +88,10 @@ export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
         const cls = waterClass[idx] | 0;
         const terrain =
           cls === WATER_CLASS_LAND
-            ? terrainTypes.flat
+            ? CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT
             : cls === WATER_CLASS_COAST
-              ? terrainTypes.coast
-              : terrainTypes.ocean;
+              ? CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST
+              : CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_OCEAN;
         context.adapter.setTerrainType(x, y, terrain);
       }
     }
@@ -108,7 +106,6 @@ export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
       elevation: engineAfterCoasts.elevation,
     });
 
-    logLandmassAscii(context.trace, context.adapter, width, height);
     assertWaterDriftWithinPolicy(context, topography.landMask, "map-morphology/plot-coasts");
     return {
       coastClassification,

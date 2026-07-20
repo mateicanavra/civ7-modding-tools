@@ -23,13 +23,13 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
 ## Prereqs
 
 - You know which **domain** you’re extending (Foundation/Morphology/Hydrology/Ecology/Gameplay) and which **stage** owns the new step.
-- You have a step id and phase that fit the stage’s naming/ordering conventions.
+- You have a stable step id and know which authored stage owns it.
 
 ## Checklist
 
 ### 1) Decide the contract surface (before writing code)
 
-- Pick a stable step id (string) and phase (`"foundation" | "morphology" | "hydrology" | "ecology" | "gameplay" | ...`).
+- Pick a stable step id. Recipe composition assigns the exact `stageId`; the step must not duplicate a coarse phase label.
 - Identify required dependency tags (what must exist before your step can run).
 - Identify provided dependency tags (what your step guarantees after it runs).
 - Identify the exact artifact vintages the step reads and the new vintages it publishes once.
@@ -37,7 +37,7 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
 ### 2) Define the step contract (`defineStep`)
 
 - Create `steps/<step-id>/config.ts`; the directory name must equal the contract id.
-- Use `defineStep({ id, phase, requires, provides, artifacts, ops, schema })`.
+- Use `defineStep({ id, requires, provides, artifacts, ops, schema })`.
 - Wire **artifact requirements** (and any required ops) explicitly into the contract.
 
 Representative example (artifact + ops wiring; excerpt; see full file in anchors):
@@ -48,7 +48,6 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 /** Contract and compiled configuration boundary for geomorphic evolution. */
 export const GeomorphologyStepContract = defineStep({
   id: "geomorphology",
-  phase: "morphology",
   requires: [],
   provides: [],
   artifacts: {
@@ -84,7 +83,6 @@ import { artifactModules as mapRiversArtifactModules } from "../../artifacts/ind
 /** Contract and compiled configuration boundary for Civ7 river projection. */
 export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
-  phase: "gameplay",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   artifacts: {

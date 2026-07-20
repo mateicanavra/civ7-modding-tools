@@ -1,4 +1,4 @@
-import type { VizInlineRef, VizLayerEntryV1 } from "@swooper/mapgen-viz";
+import type { VizInlineRef, VizLayerEntryV2 } from "@swooper/mapgen-viz";
 
 export type BrowserRunStartRequest = {
   type: "run.start";
@@ -48,7 +48,7 @@ export type BrowserRunProgressEvent = {
   generation: number;
   kind: "step.start" | "step.finish";
   stepId: string;
-  phase?: string;
+  stageId: string;
   stepIndex: number;
   durationMs?: number;
 };
@@ -57,7 +57,7 @@ export type BrowserVizLayerUpsertEvent = {
   type: "viz.layer.upsert";
   runToken: string;
   generation: number;
-  layer: VizLayerEntryV1<VizInlineRef>;
+  layer: VizLayerEntryV2<VizInlineRef>;
 };
 
 export type BrowserRunFinishedEvent = {

@@ -6,7 +6,7 @@ import {
 } from "@mapgen/core/map-setup.js";
 import type { StepRegistry } from "@mapgen/engine/StepRegistry.js";
 import { TagRegistry } from "@mapgen/engine/tags.js";
-import type { GenerationPhase, MapGenStep } from "@mapgen/engine/types.js";
+import type { MapGenStep } from "@mapgen/engine/types.js";
 import { sha256Hex, stableStringify } from "@mapgen/trace/index.js";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
@@ -33,7 +33,7 @@ interface PlanFingerprintInput {
   setup: MapSetup;
   nodes: Array<{
     stepId: string;
-    phase: string;
+    stageId: string;
     requires: readonly string[];
     provides: readonly string[];
     config: unknown;
@@ -42,13 +42,13 @@ interface PlanFingerprintInput {
 
 function hashExecutionPlan(plan: ExecutionPlan): string {
   const fingerprintInput: PlanFingerprintInput = {
-    version: 2,
+    version: 3,
     recipeSchemaVersion: plan.recipeSchemaVersion,
     recipeId: plan.recipeId ?? null,
     setup: plan.setup,
     nodes: plan.nodes.map((node) => ({
       stepId: node.stepId,
-      phase: node.phase,
+      stageId: node.stageId,
       requires: node.requires,
       provides: node.provides,
       config: node.config,
@@ -153,7 +153,7 @@ export type RunRequest = Readonly<
 /** Frozen executable projection of one registered recipe step. */
 export interface ExecutionPlanNode {
   readonly stepId: string;
-  readonly phase: GenerationPhase;
+  readonly stageId: string;
   readonly requires: readonly string[];
   readonly provides: readonly string[];
   readonly config: Readonly<Record<string, unknown>>;
@@ -315,7 +315,7 @@ export function compileExecutionPlan(
     nodes.push(
       Object.freeze({
         stepId,
-        phase: registryStep.phase,
+        stageId: registryStep.stageId,
         requires: Object.freeze([...registryStep.requires]),
         provides: Object.freeze([...registryStep.provides]),
         config,

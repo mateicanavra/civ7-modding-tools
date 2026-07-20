@@ -1,6 +1,7 @@
 import type { Layer } from "@deck.gl/core";
 import { LineLayer, PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import type {
+  VizBinaryLayout,
   VizBinaryRef,
   VizScalarField,
   VizScalarFormat,
@@ -8,8 +9,12 @@ import type {
   VizScalarStats,
   VizSpaceId,
 } from "@swooper/mapgen-viz";
-import { admitVizScalarSource, computeVizScalarStats } from "@swooper/mapgen-viz";
-import type { Bounds, VizAssetResolver, VizLayerEntryV1, VizManifestV1 } from "../model";
+import {
+  admitVizScalarSource,
+  assertVizBinaryByteLength,
+  computeVizScalarStats,
+} from "@swooper/mapgen-viz";
+import type { Bounds, VizAssetResolver, VizLayerEntryV2, VizManifestV2 } from "../model";
 import {
   resolveVizPalettePresentation,
   selectVizScalarField,
@@ -30,9 +35,9 @@ const MAX_HEX_GRID_GEOMETRY_CACHE_ENTRIES = 4;
 
 /** Inputs for rendering one selected visualization layer and its optional overlay. */
 export type RenderDeckLayersArgs = {
-  manifest: VizManifestV1 | null;
-  layer: VizLayerEntryV1 | null;
-  overlayLayer?: VizLayerEntryV1 | null;
+  manifest: VizManifestV2 | null;
+  layer: VizLayerEntryV2 | null;
+  overlayLayer?: VizLayerEntryV2 | null;
   overlayOpacity?: number;
   showEdgeOverlay: boolean;
   assetResolver?: VizAssetResolver | null;
@@ -40,8 +45,8 @@ export type RenderDeckLayersArgs = {
 };
 
 type RenderSingleLayerArgs = {
-  manifest: VizManifestV1;
-  layer: VizLayerEntryV1;
+  manifest: VizManifestV2;
+  layer: VizLayerEntryV2;
   showEdgeOverlay: boolean;
   assetResolver?: VizAssetResolver | null;
   signal?: AbortSignal;
@@ -52,7 +57,7 @@ type RenderSingleLayerArgs = {
 export type RenderDeckLayersResult = {
   layers: Layer[];
   scalar: VizRenderedScalarPresentation | null;
-  source: Readonly<{ manifest: VizManifestV1; layer: VizLayerEntryV1 }> | null;
+  source: Readonly<{ manifest: VizManifestV2; layer: VizLayerEntryV2 }> | null;
 };
 
 type RenderSingleLayerResult = Omit<RenderDeckLayersResult, "source">;
@@ -69,8 +74,8 @@ const EMPTY_RENDER_RESULT: RenderDeckLayersResult = {
  */
 export function renderDeckLayersForSelection(
   result: RenderDeckLayersResult,
-  manifest: VizManifestV1 | null,
-  layer: VizLayerEntryV1 | null
+  manifest: VizManifestV2 | null,
+  layer: VizLayerEntryV2 | null
 ): RenderDeckLayersResult {
   return result.source?.manifest === manifest && result.source.layer === layer
     ? result
@@ -234,7 +239,7 @@ export function boundsForTileGrid(
 }
 
 /** Projects a portable layer's authored bounds into the coordinate space used by Deck.gl. */
-export function boundsForLayerInRenderSpace(layer: VizLayerEntryV1, tileSize = 1): Bounds {
+export function boundsForLayerInRenderSpace(layer: VizLayerEntryV2, tileSize = 1): Bounds {
   if (layer.kind === "grid" || layer.kind === "gridFields") {
     if (isTileSpace(layer.spaceId)) return boundsForTileGrid(layer.spaceId, layer.dims, tileSize);
     return layer.bounds;
@@ -285,10 +290,15 @@ async function readBinaryRef(
   return buf;
 }
 
+type VizScalarBinaryLayout = Extract<VizBinaryLayout, { format: VizScalarFormat }>;
+
 function decodeScalarArray(
   buffer: ArrayBuffer,
-  format: VizScalarFormat
+  layout: VizScalarBinaryLayout,
+  label: string
 ): VizScalarSource["values"] {
+  assertVizBinaryByteLength(buffer.byteLength, layout, label);
+  const { format } = layout;
   switch (format) {
     case "u8":
       return new Uint8Array(buffer);
@@ -303,6 +313,15 @@ function decodeScalarArray(
     case "f32":
       return new Float32Array(buffer);
   }
+}
+
+function decodeFloat32Geometry(
+  buffer: ArrayBuffer,
+  layout: Extract<VizBinaryLayout, { kind: "points-positions" | "segments-geometry" }>,
+  label: string
+): Float32Array {
+  assertVizBinaryByteLength(buffer.byteLength, layout, label);
+  return new Float32Array(buffer);
 }
 
 function scalarStats(
@@ -331,7 +350,6 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
   const tick = createYieldTicker(signal);
 
   const tileSize = 1;
-  const seedKey = `${manifest.runId}:${layer.layerKey}`;
 
   const edgeOverlaySegments = manifest.layers.find(
     (l) => l.kind === "segments" && l.meta?.role === "edgeOverlay" && l.spaceId === layer.spaceId
@@ -345,16 +363,20 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
 
   if (shouldShowEdgeOverlay && edgeOverlaySegments && edgeOverlaySegments.kind === "segments") {
     const segBuf = await readBinaryRef(edgeOverlaySegments.segments, assetResolver ?? null, signal);
-    const seg = new Float32Array(segBuf);
-    const count = (edgeOverlaySegments.count ?? seg.length / 4) | 0;
+    const count = edgeOverlaySegments.count;
+    const seg = decodeFloat32Geometry(
+      segBuf,
+      { kind: "segments-geometry", count },
+      `Edge-overlay layer "${edgeOverlaySegments.layerKey}" geometry`
+    );
     const sourcePositions = new Float32Array(count * 2);
     const targetPositions = new Float32Array(count * 2);
     for (let i = 0; i < count; i++) {
       await tick(i);
-      const x0 = seg[i * 4] ?? 0;
-      const y0 = seg[i * 4 + 1] ?? 0;
-      const x1 = seg[i * 4 + 2] ?? 0;
-      const y1 = seg[i * 4 + 3] ?? 0;
+      const x0 = seg[i * 4] as number;
+      const y0 = seg[i * 4 + 1] as number;
+      const x1 = seg[i * 4 + 2] as number;
+      const y1 = seg[i * 4 + 3] as number;
       const [tx0, ty0] = transformPoint(edgeOverlaySegments.spaceId, x0, y0, tileSize);
       const [tx1, ty1] = transformPoint(edgeOverlaySegments.spaceId, x1, y1, tileSize);
       const base = i * 2;
@@ -386,18 +408,22 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
   if (layer.kind === "grid") {
     const field = layer.field;
     const buf = await readBinaryRef(field.data, assetResolver ?? null, signal);
-    const values = decodeScalarArray(buf, field.format);
     const { width, height } = layer.dims;
-    const len = Math.min((width * height) | 0, values.length);
+    const values = decodeScalarArray(
+      buf,
+      { kind: "grid-values", format: field.format, width, height },
+      `Grid layer "${layer.layerKey}" values`
+    );
+    const len = values.length;
 
-    const palette = resolveVizPalettePresentation({ meta: layer.meta, field, values, seedKey });
+    const palette = resolveVizPalettePresentation({ meta: layer.meta, field, values });
     const statsForMapping = scalarStats(values, field);
 
     const colors = new Uint8ClampedArray(len * 4);
 
     for (let i = 0; i < len; i++) {
       await tick(i);
-      const v = Number(values[i] ?? 0);
+      const v = Number(values[i]);
       writeColorForScalarValue(colors, i * 4, {
         rawValue: v,
         palette,
@@ -462,19 +488,24 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
 
   if (layer.kind === "points") {
     const posBuf = await readBinaryRef(layer.positions, assetResolver ?? null, signal);
-    const positions = new Float32Array(posBuf);
-    const count = layer.count ?? (positions.length / 2) | 0;
+    const count = layer.count;
+    const positions = decodeFloat32Geometry(
+      posBuf,
+      { kind: "points-positions", count },
+      `Point layer "${layer.layerKey}" geometry`
+    );
 
     const valueField = layer.values ?? null;
     const values = valueField
       ? decodeScalarArray(
           await readBinaryRef(valueField.data, assetResolver ?? null, signal),
-          valueField.format
+          { kind: "points-values", format: valueField.format, count },
+          `Point layer "${layer.layerKey}" values`
         )
       : null;
 
     const palette = values
-      ? resolveVizPalettePresentation({ meta: layer.meta, field: valueField, values, seedKey })
+      ? resolveVizPalettePresentation({ meta: layer.meta, field: valueField, values })
       : undefined;
     const statsForMapping = values && valueField ? scalarStats(values, valueField) : null;
 
@@ -483,14 +514,14 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
 
     for (let i = 0; i < count; i++) {
       await tick(i);
-      const rawX = positions[i * 2] ?? 0;
-      const rawY = positions[i * 2 + 1] ?? 0;
+      const rawX = positions[i * 2] as number;
+      const rawY = positions[i * 2 + 1] as number;
       const [x, y] = transformPoint(layer.spaceId, rawX, rawY, tileSize);
       const base = i * 2;
       positionsOut[base] = x;
       positionsOut[base + 1] = y;
 
-      const v = values ? Number(values[i] ?? 0) : Number.NaN;
+      const v = values ? Number(values[i]) : Number.NaN;
       if (values && valueField && palette) {
         writeColorForScalarValue(colors, i * 4, {
           rawValue: v,
@@ -531,19 +562,24 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
 
   if (layer.kind === "segments") {
     const segBuf = await readBinaryRef(layer.segments, assetResolver ?? null, signal);
-    const seg = new Float32Array(segBuf);
-    const count = layer.count ?? (seg.length / 4) | 0;
+    const count = layer.count;
+    const seg = decodeFloat32Geometry(
+      segBuf,
+      { kind: "segments-geometry", count },
+      `Segment layer "${layer.layerKey}" geometry`
+    );
 
     const valueField = layer.values ?? null;
     const values = valueField
       ? decodeScalarArray(
           await readBinaryRef(valueField.data, assetResolver ?? null, signal),
-          valueField.format
+          { kind: "segments-values", format: valueField.format, count },
+          `Segment layer "${layer.layerKey}" values`
         )
       : null;
 
     const palette = values
-      ? resolveVizPalettePresentation({ meta: layer.meta, field: valueField, values, seedKey })
+      ? resolveVizPalettePresentation({ meta: layer.meta, field: valueField, values })
       : undefined;
     const statsForMapping = values && valueField ? scalarStats(values, valueField) : null;
 
@@ -553,10 +589,10 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
 
     for (let i = 0; i < count; i++) {
       await tick(i);
-      const rx0 = seg[i * 4] ?? 0;
-      const ry0 = seg[i * 4 + 1] ?? 0;
-      const rx1 = seg[i * 4 + 2] ?? 0;
-      const ry1 = seg[i * 4 + 3] ?? 0;
+      const rx0 = seg[i * 4] as number;
+      const ry0 = seg[i * 4 + 1] as number;
+      const rx1 = seg[i * 4 + 2] as number;
+      const ry1 = seg[i * 4 + 3] as number;
       const [x0, y0] = transformPoint(layer.spaceId, rx0, ry0, tileSize);
       const [x1, y1] = transformPoint(layer.spaceId, rx1, ry1, tileSize);
       const base = i * 2;
@@ -565,7 +601,7 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
       targetPositions[base] = x1;
       targetPositions[base + 1] = y1;
 
-      const v = values ? Number(values[i] ?? 0) : Number.NaN;
+      const v = values ? Number(values[i]) : Number.NaN;
       if (values && valueField && palette) {
         writeColorForScalarValue(colors, i * 4, {
           rawValue: v,
@@ -611,7 +647,7 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
     }
 
     const { width, height } = layer.dims;
-    const len = (width * height) | 0;
+    const len = width * height;
 
     const vector = layer.vector;
     const uFieldKey = vector?.u ?? null;
@@ -622,7 +658,13 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
     const chosenScalarValues = chosenScalarField
       ? decodeScalarArray(
           await readBinaryRef(chosenScalarField.data, assetResolver ?? null, signal),
-          chosenScalarField.format
+          {
+            kind: "grid-field-values",
+            format: chosenScalarField.format,
+            width,
+            height,
+          },
+          `Grid-fields layer "${layer.layerKey}" scalar values`
         )
       : null;
 
@@ -631,7 +673,6 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
           meta: layer.meta,
           field: chosenScalarField,
           values: chosenScalarValues,
-          seedKey,
         })
       : undefined;
     const statsForMapping =
@@ -644,7 +685,7 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
     if (chosenScalarValues && chosenScalarField && palette) {
       for (let i = 0; i < len; i++) {
         await tick(i);
-        const v = Number(chosenScalarValues[i] ?? 0);
+        const v = Number(chosenScalarValues[i]);
         writeColorForScalarValue(colors, i * 4, {
           rawValue: v,
           palette,
@@ -715,16 +756,19 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
       if (uField && vField) {
         const uValues = decodeScalarArray(
           await readBinaryRef(uField.data, assetResolver ?? null, signal),
-          uField.format
+          { kind: "grid-field-values", format: uField.format, width, height },
+          `Grid-fields layer "${layer.layerKey}" vector u values`
         );
         const vValues = decodeScalarArray(
           await readBinaryRef(vField.data, assetResolver ?? null, signal),
-          vField.format
+          { kind: "grid-field-values", format: vField.format, width, height },
+          `Grid-fields layer "${layer.layerKey}" vector v values`
         );
         const magValues = magField
           ? decodeScalarArray(
               await readBinaryRef(magField.data, assetResolver ?? null, signal),
-              magField.format
+              { kind: "grid-field-values", format: magField.format, width, height },
+              `Grid-fields layer "${layer.layerKey}" vector magnitude values`
             )
           : null;
         const magStats = magValues && magField ? scalarStats(magValues, magField) : null;
@@ -740,13 +784,13 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
         for (let y = 0; y < height; y += stride) {
           for (let x = 0; x < width; x += stride) {
             const i = (y * width + x) | 0;
-            const ux = Number(uValues[i] ?? 0);
-            const vy = Number(vValues[i] ?? 0);
+            const ux = Number(uValues[i]);
+            const vy = Number(vValues[i]);
             if (!Number.isFinite(ux) || !Number.isFinite(vy)) continue;
             const [cx, cy] = tileCenter(layer.spaceId, x, y, tileSize);
 
             // Interpret u/v as a direction vector; scale to tile space for legible arrows.
-            const mag = magValues ? Number(magValues[i] ?? 0) : Math.hypot(ux, vy);
+            const mag = magValues ? Number(magValues[i]) : Math.hypot(ux, vy);
             if (!Number.isFinite(mag) || mag < 1e-6) continue;
             const uxN = ux / mag;
             const vyN = vy / mag;
@@ -770,10 +814,10 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
         const targetPositions = new Float32Array(arrowCount * 2);
         for (let i = 0; i < arrowCount; i++) {
           const base = i * 2;
-          sourcePositions[base] = seg[i * 4] ?? 0;
-          sourcePositions[base + 1] = seg[i * 4 + 1] ?? 0;
-          targetPositions[base] = seg[i * 4 + 2] ?? 0;
-          targetPositions[base + 1] = seg[i * 4 + 3] ?? 0;
+          sourcePositions[base] = seg[i * 4] as number;
+          sourcePositions[base + 1] = seg[i * 4 + 1] as number;
+          targetPositions[base] = seg[i * 4 + 2] as number;
+          targetPositions[base + 1] = seg[i * 4 + 3] as number;
         }
 
         layersOut.push(

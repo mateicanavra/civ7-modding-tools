@@ -9,23 +9,25 @@ semantics.
 
 ## Outcome
 
-Reusable MapGen domain implementations live in MapGen Core. Swooper Maps owns
-only its recipes and Civ7 product-specific domain policy. Civ7-specific bundle
-compatibility lives at the adapter boundary. Diagnostic and development tools
-live with their actual reusable or product owner, not in the shipped mod source
-tree.
+MapGen Core owns the generic authoring, compilation, execution, artifact, trace,
+and reusable primitive substrate. Swooper Maps owns its complete map-generation
+product: all six domain models and operations plus its recipes and product
+policy. Civ7-specific bundle compatibility lives at the adapter boundary.
+Diagnostic and development tools live with their actual reusable or product
+owner, not in the shipped mod source tree.
 
 This is a behavior-preserving ownership migration. It is not A.2 Authority, a
 domain-interior redesign, or a generated-output certification exercise.
 
 ## Ownership Laws
 
-1. `@swooper/mapgen-core` owns reusable domain contracts, operations,
-   strategies, rules, algorithms, authoring/execution lifecycle, artifacts,
-   trace, and optional step-facet dispatch.
-2. Swooper Maps owns recipes plus Civ7 product policy that is meaningful only
-   for that mod. Its runtime source tree does not own reusable SDK mechanics,
-   bundler shims, diagnostics, or live tooling.
+1. `@swooper/mapgen-core` owns the MapGen authoring language, compiler,
+   executor, artifact runtime, trace, optional step-facet dispatch, and
+   genuinely generic algorithms and data-structure primitives. Purity or
+   possible reuse alone does not transfer a product domain into Core.
+2. Swooper Maps owns Foundation, Morphology, Hydrology, Ecology, Resources,
+   Placement, its recipes, and its Civ7 product policy. Its runtime source tree
+   does not own reusable SDK mechanics, bundler shims, or command-line tools.
 3. `@civ7/adapter` owns Civ7 runtime adaptation and Civ7-specific map-script
    bundle compatibility. MapGen Core's build remains environment-neutral.
 4. `@swooper/mapgen-viz` owns environment-neutral spatial projection contracts,
@@ -45,97 +47,37 @@ domain-interior redesign, or a generated-output certification exercise.
    the source lint surface. Source contracts, builds, import boundaries, and
    runtime smoke tests are the proof owners.
 
-## Exact Domain Cut
+## Domain Retention And Dependency Surfaces
 
-Move these four complete domain roots from
-`mods/mod-swooper-maps/src/domain/` to
-`packages/mapgen-core/src/domains/`:
+All six domain roots and all 101 operation roots remain under
+`mods/mod-swooper-maps/src/domain/`. They are Swooper's generation product,
+even when an operation is deterministic, adapter-free, or potentially reusable.
+Their contracts, strategies, rules, artifacts, policy, and behavior tests move
+together only if a later product decision creates a real independent domain
+package. This migration does not make that decision.
 
-| Domain | Operation roots | Source files |
-| --- | ---: | ---: |
-| Foundation | 18 | 94 |
-| Morphology | 19 | 126 |
-| Hydrology | 19 | 125 |
-| Ecology | 34 | 216 |
-| **Total** | **90** | **561** |
+Generic mechanics may still be extracted into Core, Metrics, Viz, or another
+named substrate when the contract is independent of Swooper's domain language
+and has concrete consumers. Extract the capability; do not relocate a whole
+domain merely to reach a helper inside it.
 
-The moved roots do not import Swooper recipes, maps, or development tools; have
-no `@civ7/*` or Node dependencies; and contain only two cross-domain imports,
-both from Ecology to Hydrology policy. Their consumers do move to the new
-facades. Move each root intact and do not redesign operation interiors.
-
-Keep these product-owned domains in Swooper Maps:
-
-- Resources: 8 operation roots.
-- Placement: 3 operation roots.
-
-Those 11 contracts embed Swooper/Civ7 resource identity, catalogs, start
-policy, or natural-wonder policy. Moving or splitting them now would change
-authority rather than correct ownership. A later decision may extract a proven
-reusable kernel; this migration does not invent one.
-
-Core exposes only explicit domain subpaths:
-
-```text
-@swooper/mapgen-core/domains/foundation
-@swooper/mapgen-core/domains/foundation/ops
-@swooper/mapgen-core/domains/morphology
-@swooper/mapgen-core/domains/morphology/ops
-@swooper/mapgen-core/domains/hydrology
-@swooper/mapgen-core/domains/hydrology/ops
-@swooper/mapgen-core/domains/ecology
-@swooper/mapgen-core/domains/ecology/ops
-```
-
-Do not add the domains to Core's broad root barrel. After the final consumer
-moves, delete `@mapgen/domain` aliases and the custom resolver that supports
-them.
-
-Each listed Core entry is both a tsup entry and a package export. Its domain
-root is the curated public facade for admitted model, policy, schema, and
-artifact values; `/ops` is the operation catalog. Promote the 56 current deep
-consumer imports through those finite facades rather than exposing wildcard
-deep paths. Imports inside the moved Core sources use package-local relative
-source imports, not `@swooper/mapgen-core` self-imports that resolve through
-`dist`.
-
-The retained domains expose the same two curated Swooper-owned facades:
-
-```text
-mod-swooper-maps/domains/resources
-mod-swooper-maps/domains/resources/ops
-mod-swooper-maps/domains/placement
-mod-swooper-maps/domains/placement/ops
-```
-
-Promote the current retained-domain policy, schema, data, and artifact
-consumers through those roots. Do not replace `@mapgen/domain/*` with another
-wildcard compatibility surface.
+Delete the temporary `@mapgen/domain` TypeScript aliases and custom resolver.
+Package-local domain internals use relative imports or finite mod-owned facades.
+A consumer outside the mod receives the smallest real `mod-swooper-maps`
+package export it needs, or the dependency is inverted around a genuinely
+generic capability. Do not replace the alias with wildcard domain exports,
+Core self-imports, or another compatibility graph.
 
 ## Tests And Authority
 
-Move the 54 environment-neutral domain tests to
-`packages/mapgen-core/test/domains/**`. Move both shared owners they consume:
-promote the generic `compiler-helpers.ts` capability through the explicit
-`@swooper/mapgen-core/testing` subpath so both Core and retained Swooper tests
-consume one owner, and move the Foundation-specific
-`tectonics-history-runner.ts` to Foundation test support. Keep these nine
-product/recipe integrations in Swooper Maps:
+Domain and recipe behavior tests remain in Swooper Maps. Core tests own only
+the SDK/runtime contract and generic primitives. Shared test helpers move to
+Core only when they exercise that substrate rather than Swooper domain policy.
 
-- Foundation: `foundation-gates`.
-- Morphology: `relief-metrics-consistency`, `mountain-range-length`,
-  `terrain-relief-balance`, `compute-shelf-mask-margin-depth`.
-- Hydrology: `hydrology-river-network-metrics`.
-- Ecology: `biomes-stripes-regression`, `earthlike-balance-smoke`,
-  `biomes-latcutoff-regression`.
-
-Mechanically re-anchor active Habitat path scopes, owner-project identities,
-imports, fixtures, manifests, and baselines required to keep existing authority
-executable. The initial census found 99 active old-path or `@mapgen/domain`
-references. Do not change rule ids, predicates, topology expectations, fixture
-semantics, baseline contents beyond path relocation, or fix admission. After
-the final move, update the A.2 launch frame to the new physical roots without
-beginning A.2. Historical receipts remain historical.
+Active Habitat authority continues to govern the mod-owned domain roots. Alias
+removal updates the smallest active import rules, fixtures, manifests, and
+baselines needed to preserve the same predicates; it does not relocate domain
+authority or rewrite historical receipts.
 
 ## Bundle And Tool Owners
 
@@ -172,9 +114,10 @@ already bundled the recipe without either resolver.
   `@civ7/adapter/mapgen`.
 - Move pure layer contracts, builders, bounds/statistics, and materialization
   from Core and duplicated consumers into environment-neutral
-  `@swooper/mapgen-viz`. Studio owns browser transport/state/rendering. Keep the
-  sole filesystem dump adapter as a thin Swooper diagnostic consumer until a
-  second independent Node owner earns a separate package.
+  `@swooper/mapgen-viz`. Studio owns browser transport/state/rendering.
+  `@swooper/mapgen-diagnostics` owns reusable Node/Bun path-backed capture,
+  evidence reads, exact binary admission, inventory, and neutral diffing;
+  Swooper owns Standard replay, product reports, thresholds, and command UX.
 - Add optional `viz` and `metrics` declarations to `createStep` only through an
   executor-owned post-provides facet hook. Facets receive the typed step result
   plus immutable config/dimensions, never mutable context or operations; trace
@@ -182,9 +125,9 @@ already bundled the recipe without either resolver.
 - Let step `provides` name `ArtifactModule` values directly and derive provider
   contracts/runtimes once, deleting the duplicate implementation-level artifact
   tuple without introducing a registry or hidden lookup.
-- Move Swooper-specific analysis, profiling, live, and placement commands to
-  the mod's existing `scripts/{diagnostics,live}` owners until each durable
-  command reaches its package owner.
+- Keep Swooper-specific analysis, profiling, placement policy, and diagnostic
+  command entrypoints in the mod. Reusable live verification moves only in its
+  later package slice; no diagnostic package may acquire Civ7 control.
 - Extract pure count, numeric, and component measurement plus `MetricTarget`
   evaluation into `@swooper/mapgen-metrics`. The Standard recipe owns product
   provenance, sample and cohort membership, admitted preset scenarios, seed
@@ -208,9 +151,11 @@ already bundled the recipe without either resolver.
   cases remain unresolved rather than becoming false.
 - Empty and delete `mods/mod-swooper-maps/src/dev` and its TypeScript config.
 
-Keep `scripts/map-artifacts/file-plan.ts` and `write-file-plan.ts` together in
-Swooper. Their three consumers and their data model are product-specific; no
-public Core build-support abstraction is earned.
+The tooling package train is deliberately narrow: reusable diagnostics, then
+generated file plans under `@civ7/plugin-files/generated-file-plan`, then
+reusable live verification. Swooper retains product renderers and paths while
+the plugin owns path admission, currentness inspection, cleanup, and writes;
+neither concern belongs in Core.
 
 ### Categorical deletions
 
@@ -230,8 +175,8 @@ and fresh sessions filling the permanent review roles.
    and normalize the surviving operational task surface.
 2. **Documentation authority.** Replace the stale Ecology-only checker with
    generic consumed-export JSDoc authority and semantic contract descriptions;
-   close the retained Swooper corpus and carry moved-domain repairs with their
-   destination slices.
+   close the retained Swooper corpus and carry domain documentation repairs
+   with the semantic slice that owns the affected surface.
 3. **Bundle compatibility authority.** Establish adapter-owned map-script build
    support, neutralize Core's build, remove duplicate shims, and prove both
    Swooper and Studio-run bundling.
@@ -243,17 +188,15 @@ and fresh sessions filling the permanent review roles.
    consolidate the pure visualization model, migrate stable step projections
    through the post-provides facet, move live policy and Swooper-specific
    commands to their real owners, and delete `src/dev`.
-6. **Foundation.** Move the complete domain, neutral tests, exports, consumers,
-   and active Habitat authority.
-7. **Morphology.** Apply the same complete move.
-8. **Hydrology.** Apply the same complete move.
-9. **Ecology.** Move after Hydrology, then delete the final fake domain aliases
-   and resolver paths. Assert exactly 90 moved and 11 retained operation roots.
+6. **Core development boundary.** Remove Swooper taxonomy and product-specific
+   diagnostics from Core; promote only neutral primitives into Trace, Metrics,
+   or Viz and keep product consumers in the mod.
+7. **Domain dependency surface.** Keep all six domains in Swooper, replace the
+   fake `@mapgen/domain` graph with finite real ownership surfaces, and delete
+   obsolete resolver paths without changing domain behavior.
 
-Foundation precedes Morphology because three Morphology tests consume the
-Foundation tectonics runner. Hydrology precedes Ecology. Those two dependency
-chains may proceed independently. Slice boundaries may combine only when the
-implementation proves one inseparable contract; file count is not a reason.
+Slice boundaries may combine only when implementation proves one inseparable
+contract; file count is not a reason.
 
 ## Proof
 
@@ -263,9 +206,10 @@ Nx graph. The final package boundary additionally proves:
 - Core and Swooper build, typecheck, and test from normal package imports.
 - Swooper's `test:studio-run-in-game` lane remains green;
 - Habitat policy and import boundaries govern the new paths;
-- no production import uses `@mapgen/domain` or the old Swooper paths;
-- no Core domain imports Swooper, a mod, Node, or `@civ7/*`;
-- exactly 90 operation roots moved and 11 product-owned roots remain;
+- no production import uses `@mapgen/domain` or a custom domain resolver;
+- no Swooper domain implementation or product taxonomy is exported by Core;
+- Foundation, Morphology, Hydrology, Ecology, Resources, and Placement remain
+  mod-owned, with all 101 operation roots under the Swooper source tree;
 - Swooper and Studio-run bundles build with one adapter-owned compatibility
   surface;
 - `test/build/map-bundle-runtime-compatibility.test.ts` proves the embedded-V8
@@ -278,7 +222,8 @@ are the relevant oracles.
 
 ## Workspace And Project References
 
-Only after this package topology is final, migrate the workspace from
+Only after these package ownership and public dependency surfaces are final,
+migrate the workspace from
 TypeScript path aliases to package-manager workspaces and project references
 using the Nx 23 guide. The migration must:
 
@@ -309,7 +254,7 @@ preserving the old topology.
 
 - No A.2 rules, blueprints, advisory census, operation-interior normalization,
   or domain migration ledger.
-- No Resources/Placement redesign or move.
+- No Swooper domain-root move or domain-package split.
 - No recipe, stage, config, runtime, or product behavior change.
 - No compatibility package, broad barrel, second task graph, custom compiler
   verifier, or generated-output lint regime.

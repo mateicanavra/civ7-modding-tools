@@ -1,5 +1,5 @@
 import { MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER } from "@mapgen/domain/morphology/model/policy/coast-knob-policy.js";
-import { computeSampleStep, deriveStepSeed, renderAsciiGrid } from "@swooper/mapgen-core";
+import { deriveStepSeed } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import { defineStandardVizMeta } from "../../../../viz.js";
@@ -111,27 +111,6 @@ export const RuggedCoastsStep = createStep(RuggedCoastsStepContract, {
         waterTiles: Math.max(0, size - landTiles),
       };
     });
-    context.trace.event(() => {
-      const sampleStep = computeSampleStep(width, height);
-      const rows = renderAsciiGrid({
-        width,
-        height,
-        sampleStep,
-        cellFn: (x, y) => {
-          const idx = y * width + x;
-          const base = carvedTopography.landMask[idx] === 1 ? "." : "~";
-          const overlay = coastMask[idx] === 1 ? "," : undefined;
-          return { base, overlay };
-        },
-      });
-      return {
-        kind: "morphology.coastlines.ascii.coastMask",
-        sampleStep,
-        legend: ".=land ~=water ,=coast",
-        rows,
-      };
-    });
-
     // Carved distance-to-coast (pre-island): windows the shelf-break sample is now the
     // shelf stage's concern; here it is the snapshot mountains(morphology-features) consume.
     const coastal = new Uint8Array(width * height);

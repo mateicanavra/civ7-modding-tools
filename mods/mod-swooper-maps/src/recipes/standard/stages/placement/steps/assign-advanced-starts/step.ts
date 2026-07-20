@@ -1,4 +1,5 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
+import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { runPlacementProductStep } from "../../log.js";
 import { AssignAdvancedStartsStepContract } from "./config.js";
 
@@ -8,7 +9,7 @@ import { AssignAdvancedStartsStepContract } from "./config.js";
  */
 export const AssignAdvancedStartsStep = createStep(AssignAdvancedStartsStepContract, {
   run: (context, _config, _ops, deps) => {
-    const emit = (payload: Record<string, unknown>): void => {
+    const emit = (payload: TraceJsonObject): void => {
       if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);
     };

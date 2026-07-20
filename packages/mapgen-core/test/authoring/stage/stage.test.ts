@@ -23,7 +23,6 @@ describe("authoring SDK", () => {
   const makeContract = (id: string, schema = EmptyStepConfigSchema) =>
     defineStep({
       id,
-      phase: "foundation",
       requires: [],
       provides: [],
       schema,
@@ -38,7 +37,6 @@ describe("authoring SDK", () => {
           {
             contract: {
               id: "alpha",
-              phase: "foundation",
               requires: [],
               provides: [],
             } as unknown as ReturnType<typeof makeContract>,
@@ -59,7 +57,6 @@ describe("authoring SDK", () => {
           {
             contract: {
               id: "BadId",
-              phase: "foundation",
               requires: [],
               provides: [],
               schema: EmptyStepConfigSchema,
@@ -73,6 +70,14 @@ describe("authoring SDK", () => {
     }
     expect(error?.message).toContain("foundation");
     expect(error?.message).toContain("BadId");
+  });
+
+  it("createStage rejects stage ids that cannot safely compose into execution identities", () => {
+    const step = createStep(makeContract("alpha"), { run: () => {} });
+
+    expect(() =>
+      createStage({ id: "Map.Hydrology", knobsSchema: EmptyKnobsSchema, steps: [step] })
+    ).toThrow('stage id "Map.Hydrology" must be kebab-case');
   });
 
   it("createStage computes surfaceSchema for internal stages", () => {
@@ -412,7 +417,6 @@ describe("authoring SDK", () => {
     const step = createStep(
       defineStep({
         id: "internal-step",
-        phase: "foundation",
         requires: [],
         provides: [],
         ops: { privateOp: op },
@@ -452,7 +456,6 @@ describe("authoring SDK", () => {
     const knobsStep = createStep(
       defineStep({
         id: "knobs",
-        phase: "foundation",
         requires: [],
         provides: [],
         schema: EmptyStepConfigSchema,

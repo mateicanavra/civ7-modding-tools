@@ -14,7 +14,7 @@ export function toVizEvent(event: BrowserRunEvent): VizEvent {
         type: "run.progress",
         kind: event.kind,
         stepId: event.stepId,
-        phase: event.phase,
+        stageId: event.stageId,
         stepIndex: event.stepIndex,
         durationMs: event.durationMs,
       };

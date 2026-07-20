@@ -1,4 +1,4 @@
-import type { VizGridLayerEntryV1, VizPathRef } from "@swooper/mapgen-viz";
+import type { VizGridLayerEntryV2, VizPathRef } from "@swooper/mapgen-viz";
 import { describe, expect, it } from "vitest";
 import type {
   BrowserRunEvent,
@@ -6,7 +6,7 @@ import type {
 } from "../../src/browser-runner/protocol";
 import { createWorkerVizFacetSink } from "../../src/browser-runner/worker-viz-facet-sink";
 
-function assertBrowserRejectsPathRef(pathBackedReplayLayer: VizGridLayerEntryV1<VizPathRef>): void {
+function assertBrowserRejectsPathRef(pathBackedReplayLayer: VizGridLayerEntryV2<VizPathRef>): void {
   // @ts-expect-error Browser live events categorically reject path-backed replay evidence.
   const invalidLiveBrowserLayer: BrowserVizLayerUpsertEvent["layer"] = pathBackedReplayLayer;
   void invalidLiveBrowserLayer;
@@ -38,7 +38,7 @@ describe("createWorkerVizFacetSink", () => {
         runId: "core-run",
         planFingerprint: "core-plan",
         stepId: "test.facet-step",
-        phase: "foundation",
+        stageId: "foundation",
         stepIndex: 7,
       }
     );
@@ -51,7 +51,7 @@ describe("createWorkerVizFacetSink", () => {
       layer: {
         dataTypeKey: "test.facet-grid",
         stepId: "test.facet-step",
-        phase: "foundation",
+        stageId: "foundation",
         stepIndex: 7,
       },
     });
@@ -92,7 +92,7 @@ describe("createWorkerVizFacetSink", () => {
         runId: "core-run",
         planFingerprint: "core-plan",
         stepId: "test.aborted-step",
-        phase: "foundation",
+        stageId: "foundation",
         stepIndex: 0,
       }
     );
@@ -130,11 +130,38 @@ describe("createWorkerVizFacetSink", () => {
           runId: "core-run",
           planFingerprint: "core-plan",
           stepId: "test.invalid-step",
-          phase: "foundation",
+          stageId: "foundation",
           stepIndex: 0,
         }
       )
     ).toThrow("requires 2 scalar values");
+    expect(posted).toEqual([]);
+  });
+
+  it("rejects repeated canonical layer identity before posting any batch member", () => {
+    const posted: BrowserRunEvent[] = [];
+    const sink = createWorkerVizFacetSink({
+      runToken: "duplicate-run",
+      generation: 1,
+      post: (event) => posted.push(event),
+    });
+    const projection = {
+      kind: "grid" as const,
+      dataTypeKey: "test.duplicate",
+      spaceId: "tile.hexOddQ" as const,
+      dims: { width: 1, height: 1 },
+      field: { format: "u8" as const, values: new Uint8Array([1]) },
+    };
+
+    expect(() =>
+      sink([projection, projection], {
+        runId: "core-run",
+        planFingerprint: "core-plan",
+        stepId: "test.duplicate-step",
+        stageId: "foundation",
+        stepIndex: 0,
+      })
+    ).toThrow("duplicate layer key");
     expect(posted).toEqual([]);
   });
 });

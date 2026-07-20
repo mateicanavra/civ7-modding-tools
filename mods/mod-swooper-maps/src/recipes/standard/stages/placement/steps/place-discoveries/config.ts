@@ -12,7 +12,6 @@ import {
  */
 export const PlaceDiscoveriesStepContract = defineStep({
   id: "place-discoveries",
-  phase: "placement",
   // Discoveries run last (after natural wonders, resources, and starts), exactly
   // as Civ7's base maps run discovery generation: the official generator reads
   // engine state (isNaturalWonder / getResourceType / distance-from-start) that

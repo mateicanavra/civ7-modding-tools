@@ -1,8 +1,4 @@
-import {
-  type Civ7StandardMapSizeId,
-  type Civ7StandardMapSizePreset,
-  getCiv7StandardMapSizePreset,
-} from "@civ7/adapter";
+import { type Civ7StandardMapSizePreset, getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { stableStringify } from "@swooper/mapgen-core";
 
 import {
@@ -33,11 +29,11 @@ export const SHIPPED_STANDARD_CONFIGURATIONS = Object.freeze([
 
 /** Civ7 presets used by Standard product studies, admitted explicitly from canonical metadata. */
 export const STANDARD_METRIC_PRESETS = Object.freeze({
-  tiny: requirePreset("MAPSIZE_TINY"),
-  small: requirePreset("MAPSIZE_SMALL"),
-  standard: requirePreset("MAPSIZE_STANDARD"),
-  large: requirePreset("MAPSIZE_LARGE"),
-  huge: requirePreset("MAPSIZE_HUGE"),
+  tiny: getCiv7StandardMapSizePreset("MAPSIZE_TINY"),
+  small: getCiv7StandardMapSizePreset("MAPSIZE_SMALL"),
+  standard: getCiv7StandardMapSizePreset("MAPSIZE_STANDARD"),
+  large: getCiv7StandardMapSizePreset("MAPSIZE_LARGE"),
+  huge: getCiv7StandardMapSizePreset("MAPSIZE_HUGE"),
 });
 
 /**
@@ -83,10 +79,4 @@ function shippedConfiguration(
     throw new Error(`Expected shipped Standard config ${expectedId}, received ${config.id}.`);
   }
   return Object.freeze({ id: expectedId, config });
-}
-
-function requirePreset(id: Civ7StandardMapSizeId): Civ7StandardMapSizePreset {
-  const preset = getCiv7StandardMapSizePreset(id);
-  if (!preset) throw new Error(`Missing required Civ7 map-size metadata for ${id}.`);
-  return preset;
 }

@@ -1,10 +1,11 @@
 import type { VizEvent } from "../../shared/vizEvents";
-import type { VizManifestV1 } from "./model";
+import type { VizManifestV2 } from "./model";
 
-export function ingestVizEvent(prev: VizManifestV1 | null, event: VizEvent): VizManifestV1 | null {
+/** Reduces one browser-run visualization event into the current v2 manifest snapshot. */
+export function ingestVizEvent(prev: VizManifestV2 | null, event: VizEvent): VizManifestV2 | null {
   if (event.type === "run.started") {
     return {
-      version: 1,
+      version: 2,
       runId: event.runId,
       planFingerprint: event.planFingerprint,
       steps: [],
@@ -21,7 +22,7 @@ export function ingestVizEvent(prev: VizManifestV1 | null, event: VizEvent): Viz
       ...prev,
       steps: [
         ...prev.steps,
-        { stepId: event.stepId, phase: event.phase, stepIndex: event.stepIndex },
+        { stepId: event.stepId, stageId: event.stageId, stepIndex: event.stepIndex },
       ],
     };
   }

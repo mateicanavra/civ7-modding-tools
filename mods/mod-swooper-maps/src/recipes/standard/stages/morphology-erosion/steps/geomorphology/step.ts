@@ -1,10 +1,4 @@
 import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/model/policy/erosion-knob-policy.js";
-import {
-  BYTE_SHADE_RAMP,
-  computeSampleStep,
-  renderAsciiGrid,
-  shadeByte,
-} from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 import { buildScalarFieldProjections } from "@swooper/mapgen-viz";
@@ -142,53 +136,6 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
       };
     });
 
-    if (context.trace.isVerbose) {
-      context.trace.event(() => {
-        const sampleStep = computeSampleStep(width, height);
-
-        let maxErosion = 0;
-        let maxDeposit = 0;
-        for (let i = 0; i < deltas.elevationDelta.length; i++) {
-          const delta = deltas.elevationDelta[i] ?? 0;
-          if (delta < 0) maxErosion = Math.max(maxErosion, -delta);
-          if (delta > 0) maxDeposit = Math.max(maxDeposit, delta);
-        }
-
-        const erosionRows = renderAsciiGrid({
-          width,
-          height,
-          sampleStep,
-          cellFn: (x, y) => {
-            const idx = y * width + x;
-            if (landMask[idx] !== 1) return { base: "~" };
-            const delta = deltas.elevationDelta[idx] ?? 0;
-            const erosion = delta < 0 ? (-delta / Math.max(1e-9, maxErosion)) * 255 : 0;
-            return { base: shadeByte(Math.round(erosion)) };
-          },
-        });
-
-        const depositRows = renderAsciiGrid({
-          width,
-          height,
-          sampleStep,
-          cellFn: (x, y) => {
-            const idx = y * width + x;
-            if (landMask[idx] !== 1) return { base: "~" };
-            const delta = deltas.elevationDelta[idx] ?? 0;
-            const deposit = delta > 0 ? (delta / Math.max(1e-9, maxDeposit)) * 255 : 0;
-            return { base: shadeByte(Math.round(deposit)) };
-          },
-        });
-
-        return {
-          kind: "morphology.geomorphology.ascii.netErosionAndDeposit",
-          sampleStep,
-          legend: `${BYTE_SHADE_RAMP} (low→high) ~=water`,
-          erosionRows,
-          depositRows,
-        };
-      });
-    }
     const erodedTopography = {
       elevation,
       seaLevel,

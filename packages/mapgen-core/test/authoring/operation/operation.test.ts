@@ -128,7 +128,6 @@ describe("operation authoring", () => {
     const step = createStep(
       defineStep({
         id: "alpha",
-        phase: "foundation",
         requires: [],
         provides: [],
         ops: { trees: contract },

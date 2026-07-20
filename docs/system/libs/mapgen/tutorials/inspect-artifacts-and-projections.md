@@ -14,14 +14,14 @@
 Learn how to inspect “what the pipeline produced” using:
 - **artifacts** (pipeline-internal data products), and
 - **projections** (views of domain truth into tile space),
-with **trace + viz dumps** that you can render via the canonical deck.gl viewer.
+with live Studio visualization and path-backed diagnostic dumps.
 
 This tutorial uses the Standard recipe visualization harness, which emits the current projection layers used by Studio.
 
 ## What you’ll learn
 
 - How to produce a deterministic run dump (`trace.jsonl` + `manifest.json` + binary layer payloads).
-- How to connect a viz dump to deck.gl for interactive inspection.
+- How to inspect a dump through Swooper commands backed by reusable diagnostic readers.
 - How to reason about truth vs projection in practice (without guessing).
 
 ## Prereqs
@@ -53,12 +53,13 @@ Inside the run directory:
 - `manifest.json`: indexed list of steps and layers emitted, with stable `layerKey`s
 - `data/`: binary payload files referenced by the manifest
 
-### 3) Replay the dump in Studio (Dump mode)
+### 3) Inspect the dump
 
-Follow the concrete replay workflow:
+Follow the concrete diagnostic workflow:
 - [`docs/system/libs/mapgen/how-to/debug-with-trace-and-viz.md`](/system/libs/mapgen/how-to/debug-with-trace-and-viz.md)
 
-This uses MapGen Studio’s dump viewer (deck.gl) to load `manifest.json` and the referenced `data/*` payloads.
+The diagnostic commands admit `manifest.json` and read its referenced `data/*` payloads. Studio's
+deck.gl viewer consumes live worker emissions rather than path-backed dump folders.
 
 ### 4) Open the deck.gl visualization workflow (system reference)
 
@@ -68,7 +69,7 @@ Follow the canonical viz doc (do not invent alternate viewers):
 ### 5) Correlate projections back to their source step
 
 Use `manifest.json` to identify:
-- which step emitted the layer (`stepId` + `phase`),
+- which exact recipe location emitted the layer (`stageId` + `stepId`),
 - what data type key it used,
 - and what scalar format it wrote (e.g. `u8`, `i16`, `f32`).
 
@@ -121,6 +122,6 @@ supply their own facet sink; trace verbosity is unrelated to whether the project
 
 - Standard recipe wiring: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
 - Foundation projection step (source of many viz layer dumps): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts`
-- Trace+viz dump harness (writes `trace.jsonl`, `manifest.json`, and `data/*`): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
-- Example runner that produces dumps: `mods/mod-swooper-maps/src/dev/viz/standard-run.ts`
+- Trace+viz dump capability (writes `trace.jsonl`, `manifest.json`, and `data/*`): `packages/mapgen-diagnostics/src/dump.ts`
+- Example runner that produces dumps: `mods/mod-swooper-maps/scripts/diagnostics/standard-run.ts`
 - Trace core contract: `packages/mapgen-core/src/trace/index.ts`

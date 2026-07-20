@@ -11,7 +11,6 @@ import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/
  */
 export const PedologyStepContract = defineStep({
   id: "pedology",
-  phase: "ecology",
   requires: [],
   provides: [],
   artifacts: {

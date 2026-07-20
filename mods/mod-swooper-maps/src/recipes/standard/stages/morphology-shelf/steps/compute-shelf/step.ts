@@ -141,13 +141,15 @@ export const ComputeShelfStep = createStep(ComputeShelfStepContract, {
         activeShelfTiles,
         passiveShelfTiles,
         strategy: selection.strategy,
-        config: shelfConfig
+        ...(shelfConfig
           ? {
-              breakGradient: shelfConfig.breakGradient,
-              breakGradientScale: shelfConfig.breakGradientScale,
-              activeClosenessThreshold: shelfConfig.activeClosenessThreshold,
+              config: {
+                breakGradient: shelfConfig.breakGradient,
+                breakGradientScale: shelfConfig.breakGradientScale,
+                activeClosenessThreshold: shelfConfig.activeClosenessThreshold,
+              },
             }
-          : undefined,
+          : {}),
       };
     });
 

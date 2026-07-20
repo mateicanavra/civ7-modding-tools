@@ -11,7 +11,6 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const CrustEvolutionStepContract = defineStep({
   id: "crust-evolution",
-  phase: "foundation",
   requires: [],
   provides: [],
   artifacts: {

@@ -2,7 +2,7 @@ import type { RecipeDagResult } from "@civ7/studio-contract";
 
 /**
  * A small but complete, valid `RecipeDagResult` for the `PipelineStage` story —
- * a four-phase map-generation recipe (foundation → morphology → hydrology →
+ * a four-domain map-generation recipe (foundation → morphology → hydrology →
  * ecology), wired by the artifacts each stage provides/consumes. Ported from the
  * synced `.design-sync/previews/PipelineStage.tsx` fixture and typed against the
  * real `@civ7/studio-contract` schema, so `buildRecipeDagLayout` lays it
@@ -23,17 +23,14 @@ const step = (
   stepId: string,
   order: number,
   orderInStage: number,
-  phase: string,
   requires: string[],
   provides: string[]
 ): Step => ({
-  id: `${stageId}.${stepId}`,
   stageId,
   stepId,
   fullStepId: `${stageId}.${stepId}`,
   order,
   orderInStage,
-  phase,
   artifactRequires: requires.map(ref),
   artifactProvides: provides.map(ref),
   tagRequires: [],
@@ -59,21 +56,13 @@ export const recipeDagFixture: RecipeDagResult = {
   recipeKey: "standard",
   namespace: "mod-swooper-maps",
   title: "Standard",
-  phases: [
-    { id: "foundation", order: 0, stageIds: ["plates"], stepCount: 2 },
-    { id: "morphology", order: 1, stageIds: ["relief", "coastlines"], stepCount: 3 },
-    { id: "hydrology", order: 2, stageIds: ["rivers"], stepCount: 3 },
-    { id: "ecology", order: 3, stageIds: ["biomes"], stepCount: 2 },
-  ],
   stages: [
     {
-      id: "plates",
       stageId: "plates",
       order: 0,
-      phases: ["foundation"],
       steps: [
-        step("plates", "seedPlates", 0, 0, "foundation", [], ["crust"]),
-        step("plates", "driftPlates", 1, 1, "foundation", ["crust"], ["plates"]),
+        step("plates", "seedPlates", 0, 0, [], ["crust"]),
+        step("plates", "driftPlates", 1, 1, ["crust"], ["plates"]),
       ],
       artifactRequires: [],
       artifactProvides: [ref("crust"), ref("plates")],
@@ -83,13 +72,11 @@ export const recipeDagFixture: RecipeDagResult = {
       diagnosticCount: 0,
     },
     {
-      id: "relief",
       stageId: "relief",
       order: 1,
-      phases: ["morphology"],
       steps: [
-        step("relief", "upliftRanges", 2, 0, "morphology", ["crust"], ["elevation"]),
-        step("relief", "carveBasins", 3, 1, "morphology", ["elevation"], ["landmask"]),
+        step("relief", "upliftRanges", 2, 0, ["crust"], ["elevation"]),
+        step("relief", "carveBasins", 3, 1, ["elevation"], ["landmask"]),
       ],
       artifactRequires: [ref("crust")],
       artifactProvides: [ref("elevation"), ref("landmask")],
@@ -99,11 +86,9 @@ export const recipeDagFixture: RecipeDagResult = {
       diagnosticCount: 0,
     },
     {
-      id: "coastlines",
       stageId: "coastlines",
       order: 2,
-      phases: ["morphology"],
-      steps: [step("coastlines", "traceCoast", 4, 0, "morphology", ["landmask"], ["coast"])],
+      steps: [step("coastlines", "traceCoast", 4, 0, ["landmask"], ["coast"])],
       artifactRequires: [ref("landmask")],
       artifactProvides: [ref("coast")],
       inboundArtifactEdgeCount: 1,
@@ -112,14 +97,12 @@ export const recipeDagFixture: RecipeDagResult = {
       diagnosticCount: 0,
     },
     {
-      id: "rivers",
       stageId: "rivers",
       order: 3,
-      phases: ["hydrology"],
       steps: [
-        step("rivers", "accumulateFlow", 5, 0, "hydrology", ["elevation"], ["flow"]),
-        step("rivers", "routeRivers", 6, 1, "hydrology", ["flow", "coast"], ["rivers"]),
-        step("rivers", "carveValleys", 7, 2, "hydrology", ["rivers"], ["valleys"]),
+        step("rivers", "accumulateFlow", 5, 0, ["elevation"], ["flow"]),
+        step("rivers", "routeRivers", 6, 1, ["flow", "coast"], ["rivers"]),
+        step("rivers", "carveValleys", 7, 2, ["rivers"], ["valleys"]),
       ],
       artifactRequires: [ref("elevation"), ref("coast")],
       artifactProvides: [ref("rivers"), ref("flow"), ref("valleys")],
@@ -129,13 +112,11 @@ export const recipeDagFixture: RecipeDagResult = {
       diagnosticCount: 1,
     },
     {
-      id: "biomes",
       stageId: "biomes",
       order: 4,
-      phases: ["ecology"],
       steps: [
-        step("biomes", "classifyBiomes", 8, 0, "ecology", ["rivers", "elevation"], ["biomes"]),
-        step("biomes", "scatterVegetation", 9, 1, "ecology", ["biomes"], ["vegetation"]),
+        step("biomes", "classifyBiomes", 8, 0, ["rivers", "elevation"], ["biomes"]),
+        step("biomes", "scatterVegetation", 9, 1, ["biomes"], ["vegetation"]),
       ],
       artifactRequires: [ref("rivers"), ref("elevation")],
       artifactProvides: [ref("biomes"), ref("vegetation")],

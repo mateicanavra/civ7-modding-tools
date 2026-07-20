@@ -334,3 +334,25 @@ corridors to hide broken upstream drainage.
   precise terrain-shaping inputs.
 - Verification must keep generated hydrology truth, map projection/readback,
   Studio display, and rendered in-game Civ visibility as separate proof classes.
+
+## ADR-013: Recipe composition owns exact stage identity and visualization manifests require it
+
+**Status:** Accepted (supersedes ADR-005's v1 manifest contract)
+**Date:** 2026-07-18
+**Context:** Step-authored phase labels and inferred stage names created parallel
+pipeline taxonomies. Visualization v1 also omitted the exact recipe stage that
+owned each emitted layer, so consumers reconstructed identity from step strings
+or presentation groupings.
+**Decision:** Steps author stable local ids only. A recipe composes steps into
+unique, delimiter-safe stage ids and assigns exact `stageId` to compiled plans,
+trace events, facets, visualization emissions, and recipe-DAG projections.
+Visualization uses a hard v2 manifest cut: every step and layer carries that
+exact stage identity, and path-backed readers reject non-v2 or identity-incomplete
+manifests. No v1 adapter or inferred stage fallback is admitted.
+**Consequences:**
+- Recipe order and stage membership have one authority: recipe composition.
+- Steps and dependency-tag definitions do not repeat phase or stage ownership.
+- Studio consumes exact stage identity from live worker evidence; it does not
+  parse step ids to recreate it.
+- Viz owns serialized v2 admission; mod diagnostics own filesystem orchestration and comparison.
+- Existing v1 dumps are historical evidence and must be regenerated before use.

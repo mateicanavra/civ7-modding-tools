@@ -120,8 +120,8 @@ export type BrowserRunRequest =
 
 export type BrowserRunEvent =
   | { type: "run.started"; runToken: string; generation: number; runId: string; planFingerprint: string }
-  | { type: "run.progress"; runToken: string; generation: number; kind: "step.start" | "step.finish"; stepId: string; stepIndex: number; /* ... */ }
-  | { type: "viz.layer.upsert"; runToken: string; generation: number; layer: VizLayerEntryV1 }
+  | { type: "run.progress"; runToken: string; generation: number; kind: "step.start" | "step.finish"; stageId: string; stepId: string; stepIndex: number; /* ... */ }
+  | { type: "viz.layer.upsert"; runToken: string; generation: number; layer: VizLayerEntryV2 }
   | { type: "run.finished"; runToken: string; generation: number }
   | { type: "run.canceled"; runToken: string; generation: number }
   | { type: "run.error"; runToken: string; generation: number; message: string; /* ... */ };
@@ -153,8 +153,8 @@ Concrete forwarding logic (excerpt):
 
 ```ts
 // apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts
-if (event.kind === "step.start" && event.stepId) post({ type: "run.progress", runToken, generation, kind: "step.start", stepId: event.stepId, phase: event.phase, stepIndex });
-if (event.kind === "step.finish" && event.stepId) post({ type: "run.progress", runToken, generation, kind: "step.finish", stepId: event.stepId, phase: event.phase, stepIndex, durationMs: event.durationMs });
+if (event.kind === "step.start") post({ type: "run.progress", runToken, generation, kind: "step.start", stageId: event.stageId, stepId: event.stepId, stepIndex });
+if (event.kind === "step.finish") post({ type: "run.progress", runToken, generation, kind: "step.finish", stageId: event.stageId, stepId: event.stepId, stepIndex, durationMs: event.durationMs });
 
 // apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts
 const emitted = materializeVizProjection(projection, identity, materializeInline);

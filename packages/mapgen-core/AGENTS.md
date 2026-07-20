@@ -4,8 +4,10 @@ Scope: `packages/mapgen-core/**`
 
 ## What This Package Is
 
-- Shared MapGen engine/library used by map mods.
-- Pure TypeScript domain logic: algorithms, phases/layers, config schema, orchestration glue.
+- Shared MapGen authoring and execution SDK used by map mods.
+- Owns generic compiler, artifact, trace, lifecycle, and algorithm/data-structure primitives.
+- Does not own Swooper's Foundation, Morphology, Hydrology, Ecology, Resources,
+  Placement, or recipe implementations; purity alone does not transfer product ownership.
 - `dist/` is generated build output; treat it as read‑only.
 
 ## Tooling Rules
@@ -17,6 +19,7 @@ Scope: `packages/mapgen-core/**`
 ## Domain Rules
 
 - No direct Civ7 engine imports here; all engine interaction goes through `@civ7/adapter` and `MapContext.adapter`.
+- No Swooper domain model or operation implementation; product generation logic stays in the mod.
 - Avoid global mutable state; steps communicate through declared artifacts while `MapContext` owns one run's setup and execution state.
 - Step identity is recipe-unique (`step.id` only); `instanceId`/`nodeId` are retired and tracing/plan fingerprints are keyed by `stepId`.
 

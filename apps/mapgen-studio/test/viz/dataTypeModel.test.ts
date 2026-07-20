@@ -1,4 +1,4 @@
-import { createMockAdapter } from "@civ7/adapter";
+import { createMockAdapter, getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import standardRecipe from "mod-swooper-maps/recipes/standard";
@@ -8,25 +8,29 @@ import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
 import { createWorkerTraceSink } from "../../src/browser-runner/worker-trace-sink";
 import { createWorkerVizFacetSink } from "../../src/browser-runner/worker-viz-facet-sink";
 import { buildStepDataTypeModel } from "../../src/features/viz/dataTypeModel";
-import type { VizLayerEntryV1 } from "../../src/features/viz/model";
+import type { VizLayerEntryV2 } from "../../src/features/viz/model";
 import { studioStandardRecipeConfig } from "./standardRecipeConfig";
+
+const tinyMapSize = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
+const { width: TINY_WIDTH, height: TINY_HEIGHT } = tinyMapSize.dimensions;
 
 describe("buildStepDataTypeModel", () => {
   it("groups layers by data type (dataTypeKey) and render mode (kind + role)", () => {
     const stepId = "mod-swooper-maps.standard.ecology.assign-biomes";
 
-    const layers: VizLayerEntryV1[] = [
+    const layers: VizLayerEntryV2[] = [
       {
         kind: "grid",
         layerKey: `${stepId}::heightfield::tile.hexOddR::grid::f32`,
         dataTypeKey: "heightfield",
         variantKey: "f32",
         stepId,
+        stageId: "ecology",
         stepIndex: 0,
         spaceId: "tile.hexOddR",
-        dims: { width: 4, height: 3 },
+        dims: tinyMapSize.dimensions,
         field: { format: "f32", data: { kind: "path", path: "height/f32" } },
-        bounds: [0, 0, 4, 3],
+        bounds: [0, 0, TINY_WIDTH, TINY_HEIGHT],
         meta: { label: "Elevation" },
       },
       {
@@ -35,11 +39,12 @@ describe("buildStepDataTypeModel", () => {
         dataTypeKey: "heightfield",
         variantKey: "u8",
         stepId,
+        stageId: "ecology",
         stepIndex: 0,
         spaceId: "tile.hexOddR",
-        dims: { width: 4, height: 3 },
+        dims: tinyMapSize.dimensions,
         field: { format: "u8", data: { kind: "path", path: "height/u8" } },
-        bounds: [0, 0, 4, 3],
+        bounds: [0, 0, TINY_WIDTH, TINY_HEIGHT],
         meta: { visibility: "debug" },
       },
       {
@@ -47,12 +52,13 @@ describe("buildStepDataTypeModel", () => {
         layerKey: `${stepId}::hotspots::world.xy::points:gradient`,
         dataTypeKey: "hotspots",
         stepId,
+        stageId: "ecology",
         stepIndex: 0,
         spaceId: "world.xy",
         count: 2,
         positions: { kind: "path", path: "hotspots/positions" },
         values: { format: "f32", data: { kind: "path", path: "hotspots/gradient" } },
-        bounds: [0, 0, 4, 3],
+        bounds: [0, 0, TINY_WIDTH, TINY_HEIGHT],
         meta: { role: "gradient", label: "Hotspots" },
       },
       {
@@ -60,12 +66,13 @@ describe("buildStepDataTypeModel", () => {
         layerKey: `${stepId}::hotspots::world.xy::points:clamped`,
         dataTypeKey: "hotspots",
         stepId,
+        stageId: "ecology",
         stepIndex: 0,
         spaceId: "world.xy",
         count: 2,
         positions: { kind: "path", path: "hotspots/positions" },
         values: { format: "f32", data: { kind: "path", path: "hotspots/clamped" } },
-        bounds: [0, 0, 4, 3],
+        bounds: [0, 0, TINY_WIDTH, TINY_HEIGHT],
         meta: { role: "clamped" },
       },
     ];
@@ -105,16 +112,17 @@ describe("buildStepDataTypeModel", () => {
       dataTypeKey: string,
       visibility: "default" | "debug",
       role: string | undefined = undefined
-    ): VizLayerEntryV1 => ({
+    ): VizLayerEntryV2 => ({
       kind: "grid",
       layerKey: `${stepId}::${dataTypeKey}::tile.hexOddQ::grid`,
       dataTypeKey,
       stepId,
+      stageId: "map-rivers",
       stepIndex: 0,
       spaceId: "tile.hexOddQ",
-      dims: { width: 4, height: 3 },
+      dims: tinyMapSize.dimensions,
       field: { format: "u8", data: { kind: "path", path: `${dataTypeKey}.u8` } },
-      bounds: [0, 0, 4, 3],
+      bounds: [0, 0, TINY_WIDTH, TINY_HEIGHT],
       meta: { visibility, ...(role === undefined ? {} : { role }) },
     });
 
@@ -172,27 +180,18 @@ describe("buildStepDataTypeModel", () => {
   });
 
   it("builds the river step model from actual standard recipe Studio emissions", () => {
-    const width = 32;
-    const height = 20;
+    const { width, height } = tinyMapSize.dimensions;
     const seed = 1337;
     const stepId = "mod-swooper-maps.standard.map-rivers.plot-rivers";
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 4,
-      PlayersLandmass2: 4,
-      StartSectorRows: 4,
-      StartSectorCols: 4,
-    };
+    const mapInfo = tinyMapSize.mapInfo;
+    const { MaxLatitude: topLatitude, MinLatitude: bottomLatitude } = mapInfo;
+    if (typeof topLatitude !== "number" || typeof bottomLatitude !== "number") {
+      throw new Error("Civ7 Tiny map-size metadata must declare latitude bounds.");
+    }
     const setup = admitMapSetup({
       mapSeed: seed,
       dimensions: { width, height },
-      latitudeBounds: {
-        topLatitude: mapInfo.MaxLatitude,
-        bottomLatitude: mapInfo.MinLatitude,
-      },
+      latitudeBounds: { topLatitude, bottomLatitude },
     });
     const earthlikeArtifact = standardMapConfigs.find(
       ({ canonicalConfig }) => canonicalConfig.id === "swooper-earthlike"

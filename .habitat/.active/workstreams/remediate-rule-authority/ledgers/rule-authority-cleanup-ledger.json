@@ -2,14 +2,14 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-18",
+  "updatedOn": "2026-07-19",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
     "liveManifestCount": 123,
     "currentRowCount": 123,
-    "retiredHistoricalRowCount": 38,
+    "retiredHistoricalRowCount": 39,
     "duplicateLiveRows": []
   },
   "counts": {
@@ -19,10 +19,10 @@
       "consolidation/dedup": 1,
       "context admission": 27,
       "no action": 54,
-      "positive authority creation": 11,
+      "positive authority creation": 12,
       "retirement/garbage collection": 3,
       "runtime/source validation": 3,
-      "split by owner": 15
+      "split by owner": 14
     },
     "packetNeeded": {
       "false": 123
@@ -32,9 +32,9 @@
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 3,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 85,
-      "packet-complete": 16,
-      "transition-decision-accepted": 16
+      "none": 86,
+      "packet-complete": 17,
+      "transition-decision-accepted": 14
     }
   },
   "gateState": {
@@ -315,30 +315,30 @@
       "lane": "MapGen Studio",
       "actionDecision": "boundary inversion",
       "packetNeeded": false,
-      "expectedRemediation": "Preserve the pure render-plan versus filesystem-mutation boundary, but replace exact scripts/map-artifacts paths and function names with the durable Swooper artifact writer capability when target ownership is constructed.",
-      "evidenceNote": "The Grit manifest, pattern, empty baseline, Swooper scripts scope, swooper-map-artifact-file-plan OpenSpec packet, mutation-boundary law, and transition decision were reviewed. Writer exclusivity is durable; the current script topology is not.",
+      "expectedRemediation": "Keep Swooper renderers pure and delegate currentness inspection and mutation to @civ7/plugin-files/generated-file-plan.",
+      "evidenceNote": "The reusable generated-file-plan capability now owns normalized path admission, read-only currentness, exclusive cleanup, and writes. Swooper retains only product rendering, metadata, paths, and command orchestration.",
       "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-map-render-file-plan-boundary/rule.json",
-      "layer2Status": "transition-decision-accepted",
-      "wholeRuleFit": "durable mutation boundary expressed through exact transitional scripts",
-      "ruleIdPlan": "retain now; later re-express as artifact-plan construction plus one named mutation owner and retire the exact-path proxy",
-      "semanticDecision": "Rendering remains pure and filesystem writes remain behind one owner; current script and helper names are implementation evidence only.",
-      "residualFollowUp": "Install capability-level writer authority before reorganizing or retiring the present script fence.",
-      "implementationReadiness": "no mutation in Packet A.1; future boundary inversion follows target artifact ownership"
+      "layer2Status": "packet-complete",
+      "wholeRuleFit": "durable Swooper renderer boundary backed by the plugin-files mutation owner",
+      "ruleIdPlan": "retain as the Swooper-side import and delegation boundary",
+      "semanticDecision": "Rendering is pure and reusable filesystem effects have one plugin-files owner.",
+      "residualFollowUp": "None for writer ownership; future renderer moves must preserve the same package boundary.",
+      "implementationReadiness": "implemented and enforced"
     },
     {
       "ruleId": "grit-swooper-run-manifest-generator-boundary",
       "lane": "MapGen Studio",
       "actionDecision": "split by owner",
       "packetNeeded": false,
-      "expectedRemediation": "Keep one manifest input, request-local generated-mod identity, and shared writer mutation boundary; later split those contracts from the exact CLI shim, Nx target, and generator script topology.",
-      "evidenceNote": "The Grit manifest, pattern, empty baseline, Swooper command/port/project scope, swooper-run-manifest-generator OpenSpec packet, and transition decision were reviewed. Manifest and mutation laws are durable; current scripts and target spelling are transitional.",
+      "expectedRemediation": "Keep one manifest input and request-local generated-mod identity while delegating both source-plan and bundled-plan writes to @civ7/plugin-files/generated-file-plan.",
+      "evidenceNote": "Manifest identity and output derivation remain Swooper-owned; reusable plan application is implemented by plugin-files and the local writer has retired.",
       "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-run-manifest-generator-boundary/rule.json",
-      "layer2Status": "transition-decision-accepted",
-      "wholeRuleFit": "mixed durable manifest/output/mutation contracts and transitional command topology",
-      "ruleIdPlan": "retain now; future authority separates manifest generation semantics, writer ownership, and command/Nx integration",
-      "semanticDecision": "Generation must derive one request-local output from one private manifest and route mutation through one writer; exact command files and target names are not permanent.",
-      "residualFollowUp": "Rebind the manifest generator to future materialization and task-graph owners before retiring exact current assertions.",
-      "implementationReadiness": "no mutation in Packet A.1; future split spans source contract, mutation owner, and Nx integration"
+      "layer2Status": "packet-complete",
+      "wholeRuleFit": "durable manifest/output law with plugin-owned mutation and current command topology",
+      "ruleIdPlan": "retain the manifest boundary; rebind exact command anchors only when their owner moves",
+      "semanticDecision": "One private manifest derives one request-local mod; plugin-files owns all file-plan effects.",
+      "residualFollowUp": "Only future command-topology movement remains; file-plan ownership is settled.",
+      "implementationReadiness": "implemented and enforced"
     },
     {
       "ruleId": "habitat-studio-run-runtime-authority-closure",
@@ -822,6 +822,15 @@
       "currentPath": ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/rule.json"
     },
     {
+      "ruleId": "prohibit_recipe_step_runtime_viz_sink_access",
+      "lane": "blueprints/recipe-step",
+      "actionDecision": "positive authority creation",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep visualization as an optional pure createStep facet; recipe step execution must not read or invoke runtime visualization sinks.",
+      "evidenceNote": "The visualization extraction moved portable evidence projection to createStep({ viz }) and left sink transport at runtime composition boundaries. The registered Grit rule prevents a second trace-coupled emission authority from returning to step execution.",
+      "currentPath": ".habitat/blueprints/recipe-step/prohibit_recipe_step_runtime_viz_sink_access/rule.json"
+    },
+    {
       "ruleId": "prohibit_rng_callback_state_in_ops",
       "lane": "blueprints/domain-operation",
       "actionDecision": "no action",
@@ -1237,22 +1246,6 @@
       "ruleIdPlan": "replace by positive authority",
       "semanticDecision": "Replace tag-contracts.ts literal suffix scan with registered effect:map.* family/name validation over tag definitions. Current suffix policy is real, but the path-local Grit rule misses owner metadata and future colocated definitions.",
       "residualFollowUp": "Retain current Grit rail only until registered tag-family validation exists; then absorb/delete or narrow to injected source proof if needed.",
-      "implementationReadiness": "ready after positive registered tag-family authority rail is selected"
-    },
-    {
-      "ruleId": "require_standard_recipe_tag_catalog_owner_tokens",
-      "lane": "standard recipe top-level",
-      "actionDecision": "split by owner",
-      "packetNeeded": false,
-      "expectedRemediation": "Do not strengthen the root-catalog token scan. Replace it with registered tag-family/owner validation or colocated tag authority, then retire this currentness rule if replacement covers it.",
-      "evidenceNote": "Corrective review confirmed this preserves a target-divergent recipe-root catalog. It remains packet-needed, but the likely outcome is replacement then retirement, not local enhancement. Layer 2 packet dependency-effect-tag-family-authority: Do not strengthen root tags.ts token presence. Replace FIELD/MAP/ENGINE/PLACEMENT family presence checks with registered tag-family and owner validation. Current script is a weak token scan and omits PLACEMENT_PRODUCT_EFFECT_TAGS.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_tag_catalog_owner_tokens/rule.json",
-      "layer2Status": "packet-complete",
-      "packetSliceId": "dependency-effect-tag-family-authority",
-      "wholeRuleFit": "split/consolidate",
-      "ruleIdPlan": "replace by positive authority; retire token scan",
-      "semanticDecision": "Do not strengthen root tags.ts token presence. Replace FIELD/MAP/ENGINE/PLACEMENT family presence checks with registered tag-family and owner validation. Current script is a weak token scan and omits PLACEMENT_PRODUCT_EFFECT_TAGS.",
-      "residualFollowUp": "Field tags can get family/shape validation now; owner validation for fields needs separate source-backed design if required.",
       "implementationReadiness": "ready after positive registered tag-family authority rail is selected"
     },
     {
@@ -3247,6 +3240,18 @@
     }
   ],
   "retiredRules": [
+    {
+      "ruleId": "require_standard_recipe_tag_catalog_owner_tokens",
+      "lane": "standard recipe top-level",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Retired after stage identity and effect ownership became compositional; do not recreate the root tag-catalog token scan.",
+      "evidenceNote": "The rule inspected one target-divergent root catalog and duplicated the compositional stage declarations that now own tag identity. Current source no longer contains its manifest or checker.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_tag_catalog_owner_tokens/rule.json",
+      "retiredBy": "refactor(mapgen): make stage identity compositional",
+      "retiredOn": "2026-07-18"
+    },
     {
       "ruleId": "require_projection_calls_in_projection_steps",
       "lane": "Standard recipe map projection",

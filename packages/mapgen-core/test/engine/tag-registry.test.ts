@@ -55,7 +55,7 @@ function executeContextStep(context: MapContext, run: (context: MapContext) => v
   const registry = new StepRegistry();
   registry.register({
     id: "tag-test-step",
-    phase: "foundation",
+    stageId: "foundation",
     requires: [],
     provides: [],
     run,
@@ -77,7 +77,7 @@ describe("tag registry", () => {
 
     registry.register({
       id: "snapshot-consumer",
-      phase: "foundation",
+      stageId: "foundation",
       requires: varyingRequires,
       provides: [],
       run: () => {},
@@ -103,7 +103,6 @@ describe("tag registry", () => {
     const step = createStep(
       defineStep({
         id: "legacy-field-consumer",
-        phase: "foundation",
         requires: ["field:test.legacy"],
         provides: [],
         schema: Type.Object({}, { additionalProperties: false }),
@@ -239,7 +238,7 @@ describe("tag registry", () => {
     expect(() =>
       registry.register({
         id: "alpha",
-        phase: "foundation",
+        stageId: "foundation",
         requires: ["artifact:missing"],
         provides: [],
         run: () => {},
@@ -271,7 +270,7 @@ describe("tag registry", () => {
     });
     registry.register({
       id: "failing-provider",
-      phase: "ecology",
+      stageId: "ecology",
       requires: [],
       provides: [TEST_TAGS.effect.failedPostcondition],
       run: () => {},
@@ -297,7 +296,7 @@ describe("tag registry", () => {
     });
     registry.register({
       id: "passing-provider",
-      phase: "morphology",
+      stageId: "morphology",
       requires: [],
       provides: [TEST_TAGS.effect.passedPostcondition],
       run: () => {},
@@ -321,7 +320,6 @@ describe("tag registry", () => {
     const step = createStep(
       defineStep({
         id: "alpha",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: {

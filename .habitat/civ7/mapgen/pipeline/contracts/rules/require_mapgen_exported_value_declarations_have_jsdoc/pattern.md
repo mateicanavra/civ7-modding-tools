@@ -3,24 +3,16 @@ level: error
 ---
 # Require MapGen Exported Value Declarations To Have JSDoc
 
-Authored domain and recipe value exports are cross-module contracts. Their
-defining declarations require adjacent nonempty JSDoc. This rule rejects only
-missing, empty, and obvious placeholder blocks; review owns whether accepted
-documentation explains the value's behavior, purpose, or invariants. A direct
-anonymous default value is documented at its export statement; re-export
-barrels inherit documentation from the owner.
+Authored domain, recipe, and reusable diagnostic capability value exports are
+cross-module contracts. Their defining declarations require adjacent nonempty
+JSDoc. This rule rejects only missing, empty, and obvious placeholder blocks;
+review owns whether accepted documentation explains the value's behavior,
+purpose, or invariants. A direct anonymous default value is documented at its
+export statement; re-export barrels inherit documentation from the owner.
 
 This structural rule deliberately checks the authored value-export superset.
 Knip and review own whether an export has a real consumer, while review owns the
 semantic quality of non-placeholder documentation.
-
-During the package moves, follow
-`docs/projects/engine-refactor-v1/package-ownership-migration.md`. Each domain
-slice atomically splits or re-homes the rule owner, path coverage, scan roots,
-pattern path predicates and fixtures, support-file manifest relation, and
-occurrence baseline. Placement, Resources, and recipes remain governed by the
-Swooper-owned authority throughout; destination Core paths do not inherit the
-moving domains' Swooper baseline debt.
 
 ```grit
 language js(typescript)
@@ -36,7 +28,7 @@ predicate lacks_declaration_jsdoc($declaration) {
 
 or {
   export_statement(declaration=$declaration) as $export where {
-    $filename <: r".*mods/mod-swooper-maps/src/(?:domain|recipes)/.*\.ts$",
+    $filename <: r".*(?:mods/mod-swooper-maps/src/(?:domain|recipes)|packages/mapgen-diagnostics/src)/.*\.ts$",
     $declaration <: or {
       lexical_declaration(),
       variable_declaration(),
@@ -47,7 +39,7 @@ or {
     lacks_declaration_jsdoc($export)
   },
   `export default $value` as $export where {
-    $filename <: r".*mods/mod-swooper-maps/src/(?:domain|recipes)/.*\.ts$",
+    $filename <: r".*(?:mods/mod-swooper-maps/src/(?:domain|recipes)|packages/mapgen-diagnostics/src)/.*\.ts$",
     ! $value <: identifier(),
     lacks_declaration_jsdoc($export)
   },
@@ -56,7 +48,7 @@ or {
     `export { $..., $name, $... }`,
     `export { $..., $name as $_, $... }`
   } as $export where {
-    $filename <: r".*mods/mod-swooper-maps/src/(?:domain|recipes)/.*\.ts$",
+    $filename <: r".*(?:mods/mod-swooper-maps/src/(?:domain|recipes)|packages/mapgen-diagnostics/src)/.*\.ts$",
     $program <: contains or {
       lexical_declaration() as $declaration where {
         $declaration <: contains variable_declarator(name=$name),

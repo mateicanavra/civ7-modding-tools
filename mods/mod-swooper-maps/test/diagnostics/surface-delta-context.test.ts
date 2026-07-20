@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import type { FinalSurfaceSnapshot } from "../../src/dev/diagnostics/live-parity";
+import type { FinalSurfaceSnapshot } from "../../scripts/live/live-parity";
 import {
   buildFeatureDeltaPlacementContexts,
   buildNaturalWonderFootprintCatalogContexts,
@@ -12,7 +12,7 @@ import {
   buildSurfaceDeltaContexts,
   buildTerrainDeltaEdgeContexts,
   staticSurfaceLegality,
-} from "../../src/dev/diagnostics/surface-delta-context";
+} from "../../scripts/live/surface-delta-context";
 
 function snapshot(
   overrides: Partial<FinalSurfaceSnapshot["surfaces"]> = {},

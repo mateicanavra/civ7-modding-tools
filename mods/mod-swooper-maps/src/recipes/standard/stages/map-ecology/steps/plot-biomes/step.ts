@@ -1,5 +1,4 @@
 import * as ecology from "@mapgen/domain/ecology";
-import { logBiomeSummary } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import {
   defineStandardVizCategoryMeta,
@@ -97,8 +96,6 @@ export const PlotBiomesStep = createStep(PlotBiomesStepContract, {
       collisionEngineBiomeIds: [...collidingEngineBiomeIds].sort((a, b) => a - b),
     }));
 
-    // Map-stage visualization: engine biomes are best-effort bindings of ecology truth (not 1:1).
-    logBiomeSummary(context.trace, context.adapter, width, height);
     return { projectedBiomeId, projectedTemperature, bindingClass, engineBiomeIds };
   },
   viz: ({ result, dimensions }) => {

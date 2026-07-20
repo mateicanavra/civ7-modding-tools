@@ -1,7 +1,10 @@
+export * from "./binary-layout.js";
 export * from "./geometry.js";
 export * from "./materialize.js";
 export * from "./meta.js";
 export * from "./model.js";
+export * from "./path-manifest.js";
 export * from "./projection.js";
+export { assertUniqueVizLayerKeys } from "./semantic.js";
 export * from "./stats.js";
 export * from "./variants.js";

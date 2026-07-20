@@ -33,7 +33,7 @@ describe("compileExecutionPlan", () => {
     registry.registerTags([{ id: TEST_TAGS.artifact.foundationPlates, kind: "artifact" }]);
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [TEST_TAGS.artifact.foundationPlates],
       configSchema: Type.Object(
@@ -63,7 +63,7 @@ describe("compileExecutionPlan", () => {
 
     expect(plan.nodes).toHaveLength(1);
     expect(plan.nodes[0].stepId).toBe("alpha");
-    expect(plan.nodes[0].phase).toBe("foundation");
+    expect(plan.nodes[0].stageId).toBe("foundation");
     expect(plan.nodes[0].config).toEqual({ value: 3 });
     expect(plan.nodes[0].requires).toEqual([]);
     expect(plan.nodes[0].provides).toEqual([TEST_TAGS.artifact.foundationPlates]);
@@ -91,7 +91,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => {},
@@ -115,7 +115,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     const step = {
       id: "alpha",
-      phase: "foundation" as MapGenStep["phase"],
+      stageId: "foundation" as MapGenStep["stageId"],
       requires: [],
       provides: [],
       run: () => {
@@ -128,7 +128,7 @@ describe("compileExecutionPlan", () => {
       registry
     );
 
-    step.phase = "placement";
+    step.stageId = "placement";
     step.run = () => {
       observed.push("mutated");
     };
@@ -139,7 +139,7 @@ describe("compileExecutionPlan", () => {
     });
     new PipelineExecutor(registry, { log: () => {} }).executePlan(context, plan);
 
-    expect(plan.nodes[0]?.phase).toBe("foundation");
+    expect(plan.nodes[0]?.stageId).toBe("foundation");
     expect(observed).toEqual(["registered"]);
     expect(Object.isFrozen(registry.get("alpha"))).toBe(true);
   });
@@ -150,7 +150,7 @@ describe("compileExecutionPlan", () => {
     registry.registerTag({ id: effectTag, kind: "effect" });
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [effectTag],
       run: () => {},
@@ -177,7 +177,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => {},
@@ -262,7 +262,7 @@ describe("compileExecutionPlan", () => {
         reads += 1;
         return reads === 1 ? "alpha" : "beta";
       },
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => {},
@@ -279,7 +279,7 @@ describe("compileExecutionPlan", () => {
     first.registerTags([{ id: "artifact:test.first", kind: "artifact" }]);
     first.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: ["artifact:test.first"],
       run: () => {},
@@ -287,7 +287,7 @@ describe("compileExecutionPlan", () => {
     const second = new StepRegistry();
     second.register({
       id: "alpha",
-      phase: "placement",
+      stageId: "placement",
       requires: [],
       provides: [],
       run: () => {},
@@ -306,7 +306,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => {},
@@ -330,7 +330,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: (_context, _config) => {},
@@ -359,7 +359,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => {},
@@ -402,7 +402,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => {},
@@ -462,7 +462,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       configSchema: Type.Object(
@@ -493,7 +493,7 @@ describe("compileExecutionPlan", () => {
     let observedConfig: unknown = null;
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       configSchema: Type.Object(
@@ -538,7 +538,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: async () => {
@@ -576,7 +576,7 @@ describe("compileExecutionPlan", () => {
     let recursiveRefusal = "";
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => {
@@ -608,7 +608,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "fail",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: () => {
@@ -644,7 +644,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       run: (_context, config) => {
@@ -691,7 +691,7 @@ describe("compileExecutionPlan", () => {
     const registry = new StepRegistry();
     registry.register({
       id: "alpha",
-      phase: "foundation",
+      stageId: "foundation",
       requires: [],
       provides: [],
       configSchema: Type.Object(

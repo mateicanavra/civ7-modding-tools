@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import { resolveStandardProjectionTerrainTypes } from "../../../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import { artifactModules as hydrologyArtifactModules } from "../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 import { LakesStep } from "../../../../../../src/recipes/standard/stages/map-hydrology/steps/lakes/step.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
@@ -121,7 +121,7 @@ function createContext(
     }),
     adapter,
   });
-  const flatTerrain = resolveStandardProjectionTerrainTypes(adapter).flat;
+  const flatTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT;
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       adapter.setTerrainType(x, y, flatTerrain);

@@ -83,7 +83,7 @@ from `artifactModules`. `createStep` receives behavior only:
 
 ```ts
 const TopographyStepContract = defineStep({
-  // ...id, phase, tags, ops, and schema...
+  // ...id, tags, ops, and schema...
   artifacts: {
     provides: [artifactModules.topography],
   },

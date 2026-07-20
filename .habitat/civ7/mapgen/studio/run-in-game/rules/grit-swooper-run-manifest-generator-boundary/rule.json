@@ -13,8 +13,8 @@
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "Swooper Run in Game generation drifting from one manifest input and request-local generated-mod output",
-  "why": "Packet 8 makes request generation manifest-only: the command accepts one manifest path, the port reads the shared private manifest contract, derives generated-mod from that manifest, and routes artifact writes through the Swooper file-plan writer.",
-  "remediate": "Keep generate-run-manifest.ts as the single-argument CLI shim and run-manifest-generator.ts as the manifest-path port that calls buildSwooperRunGeneratedModFilePlan and writeSwooperMapArtifactFilePlan(plan, { outputRoot: generatedModRoot }).",
+  "why": "Packet 8 makes request generation manifest-only: the command accepts one manifest path, the port reads the shared private manifest contract, derives generated-mod from that manifest, and delegates file-plan application to @civ7/plugin-files.",
+  "remediate": "Keep generate-run-manifest.ts as the single-argument CLI shim and run-manifest-generator.ts as the manifest-path port that calls buildSwooperRunGeneratedModFilePlan and applyGeneratedFilePlan(plan, { outputRoot: generatedModRoot }).",
   "message": "Swooper Run in Game manifest generator boundary drifted.",
   "pathCoverage": [
     {

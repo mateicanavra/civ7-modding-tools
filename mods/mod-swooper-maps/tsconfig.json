@@ -21,6 +21,5 @@
     "noUncheckedSideEffectImports": true,
     "types": ["@civ7/types"]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["src/dev/**"]
+  "include": ["src/**/*.ts"]
 }

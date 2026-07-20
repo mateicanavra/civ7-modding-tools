@@ -38,7 +38,7 @@ export type {
   StepFacetSinks,
   StepFacets,
 } from "@mapgen/engine/step-facets.js";
-export type { DependencyTagDefinition, DependencyTagKind, TagOwner } from "@mapgen/engine/tags.js";
+export type { DependencyTagDefinition, DependencyTagKind } from "@mapgen/engine/tags.js";
 export {
   computeInitialSatisfiedTags,
   isDependencyTagSatisfied,
@@ -48,7 +48,6 @@ export {
 } from "@mapgen/engine/tags.js";
 export type {
   DependencyTag,
-  GenerationPhase,
   MapGenStep,
   NormalizeContext,
   PipelineStepResult,

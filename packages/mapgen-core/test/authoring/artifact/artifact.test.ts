@@ -42,7 +42,7 @@ function executeContextStep(context: MapContext, run: (context: MapContext) => v
   const registry = new StepRegistry();
   registry.register({
     id: "artifact-test-step",
-    phase: "foundation",
+    stageId: "artifact-test",
     requires: [],
     provides: [],
     run,
@@ -87,7 +87,6 @@ describe("artifact authoring", () => {
     });
     const contract = defineStep({
       id: "alpha",
-      phase: "foundation",
       requires: ["effect:test.engineReady"],
       provides: [],
       artifacts: { requires: [artifact], provides: [] },
@@ -108,7 +107,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "alpha",
-        phase: "foundation",
         requires: ["artifact:test.foo"],
         provides: [],
         artifacts: { requires: [artifact], provides: [] },
@@ -127,7 +125,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "alpha",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { requires: [artifact], provides: [schemaModule(artifact)] },
@@ -158,7 +155,6 @@ describe("artifact authoring", () => {
     const provides: Array<typeof providedModule> = [providedModule];
     const contract = defineStep({
       id: "artifact-snapshot",
-      phase: "foundation",
       requires: [],
       provides: [],
       artifacts: { requires, provides },
@@ -216,7 +212,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "mutable-artifact-contract",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { requires: [mutableArtifact] },
@@ -226,7 +221,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "accessor-artifact-contract",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { provides: [schemaModule(accessorArtifact)] },
@@ -236,7 +230,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "malformed-artifact-contract",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { provides: [schemaModule(malformedArtifact)] },
@@ -263,7 +256,6 @@ describe("artifact authoring", () => {
     const artifact = defineArtifact(definition);
     const contract = defineStep({
       id: "exact-artifact-contract",
-      phase: "foundation",
       requires: [],
       provides: [],
       artifacts: { provides: [schemaModule(artifact)] },
@@ -277,7 +269,6 @@ describe("artifact authoring", () => {
   it("omits artifact runtimes when the contract declares an empty provider set", () => {
     const contract = defineStep({
       id: "empty-artifact-provider",
-      phase: "foundation",
       requires: [],
       provides: [],
       artifacts: { provides: [] },
@@ -297,7 +288,6 @@ describe("artifact authoring", () => {
     const stepA = createStep(
       defineStep({
         id: "alpha",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { provides: [schemaModule(contract)] as const },
@@ -308,7 +298,6 @@ describe("artifact authoring", () => {
     const stepB = createStep(
       defineStep({
         id: "beta",
-        phase: "foundation",
         requires: [],
         provides: [contract.id],
         schema: EmptyStepConfigSchema,
@@ -536,7 +525,6 @@ describe("artifact authoring", () => {
     const declaredModule = schemaModule(declared);
     const contract = defineStep({
       id: "exact-runtime-provider",
-      phase: "foundation",
       requires: [],
       provides: [],
       artifacts: { provides: [declaredModule] },
@@ -587,7 +575,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "cross-realm-modules",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { provides: crossRealm },
@@ -597,7 +584,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "inherited-array-entry",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { provides: inheritedEntry },
@@ -607,7 +593,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "inherited-module",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { provides: [inheritedOnlyModule] },
@@ -617,7 +602,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "accessor-array-entry",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { provides: accessorEntry },
@@ -627,7 +611,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "sparse-module-array",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { provides: sparse },
@@ -637,7 +620,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "extra-key-module-array",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { provides: extraKey },
@@ -679,7 +661,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "duplicate-module-name",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { provides: [schemaModule(first), schemaModule(duplicateName)] },
@@ -689,7 +670,6 @@ describe("artifact authoring", () => {
     expect(() =>
       defineStep({
         id: "duplicate-module-id",
-        phase: "foundation",
         requires: [],
         provides: [],
         artifacts: { provides: [schemaModule(first), schemaModule(duplicateId)] },
@@ -724,7 +704,6 @@ describe("artifact authoring", () => {
     };
     const contract = defineStep({
       id: "single-artifact-admission",
-      phase: "foundation",
       requires: [],
       provides: [],
       artifacts: { provides: [module] },
@@ -764,7 +743,6 @@ if (false) {
   const moduleWithExtraState = { ...module, Schema: artifact.schema };
   const providesArtifact = defineStep({
     id: "type-provider",
-    phase: "foundation",
     requires: [],
     provides: [],
     artifacts: { provides: [module] },
@@ -772,7 +750,6 @@ if (false) {
   });
   const normalizedProviderContract = defineStep({
     id: "type-provider-normalized",
-    phase: "foundation",
     requires: [],
     provides: [],
     artifacts: { provides: [moduleWithExtraState] },
@@ -780,7 +757,6 @@ if (false) {
   });
   const requiresArtifact = defineStep({
     id: "type-consumer",
-    phase: "foundation",
     requires: [],
     provides: [],
     artifacts: { requires: [artifact] },
@@ -788,7 +764,6 @@ if (false) {
   });
   const emptyArtifacts = defineStep({
     id: "type-empty",
-    phase: "foundation",
     requires: [],
     provides: [],
     artifacts: { provides: [] },
@@ -797,7 +772,6 @@ if (false) {
   const widenedProvides: readonly (typeof module)[] = [module];
   const widenedArtifacts = defineStep({
     id: "type-widened-provider",
-    phase: "foundation",
     requires: [],
     provides: [],
     artifacts: { provides: widenedProvides },

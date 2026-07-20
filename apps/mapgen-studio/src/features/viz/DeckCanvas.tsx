@@ -4,7 +4,7 @@ import { LineLayer } from "@deck.gl/layers";
 import { useResolvedTheme } from "@swooper/mapgen-studio-ui";
 import type { MutableRefObject } from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { type Bounds, DEFAULT_VIEW_STATE, type VizLayerEntryV1 } from "./model";
+import { type Bounds, DEFAULT_VIEW_STATE, type VizLayerEntryV2 } from "./model";
 
 function niceStep(target: number): number {
   const t = Math.max(1e-9, target);
@@ -23,7 +23,7 @@ export type DeckCanvasApi = {
 
 export type DeckCanvasProps = {
   layers: Layer[];
-  effectiveLayer: VizLayerEntryV1 | null;
+  effectiveLayer: VizLayerEntryV2 | null;
   viewportSize: { width: number; height: number };
   showBackgroundGrid?: boolean;
   lightMode?: boolean;

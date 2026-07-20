@@ -12,21 +12,23 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "Node filesystem write authority outside the Swooper map artifact file-plan writer",
-  "why": "Packet 6 separates pure Swooper map artifact rendering from filesystem writes so catalog generation and future request-local generation can share one deterministic file-plan API.",
-  "remediate": "Keep Swooper artifact rendering in buildSwooperMapArtifactFilePlan and route all filesystem mutation through writeSwooperMapArtifactFilePlan(plan, { outputRoot }).",
-  "message": "Swooper map artifact filesystem ownership drifted from the file-plan writer boundary.",
+  "forbids": "Swooper map artifact renderers or catalog commands acquiring reusable filesystem mutation authority",
+  "why": "Swooper owns product-specific rendering while @civ7/plugin-files/generated-file-plan owns reusable path admission, currentness inspection, cleanup, and writes.",
+  "remediate": "Keep Swooper renderers pure and delegate plan inspection or application to @civ7/plugin-files/generated-file-plan.",
+  "message": "Swooper map artifact filesystem ownership drifted from the plugin-files boundary.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
         "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
+        "mods/mod-swooper-maps/scripts/generate-studio-map-catalog.ts",
         "mods/mod-swooper-maps/scripts/map-artifacts"
       ]
     }
   ],
   "scanRoots": [
     "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
+    "mods/mod-swooper-maps/scripts/generate-studio-map-catalog.ts",
     "mods/mod-swooper-maps/scripts/map-artifacts"
   ],
   "supportFiles": {

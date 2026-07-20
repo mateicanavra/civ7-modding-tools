@@ -1,8 +1,9 @@
 /**
- * @swooper/mapgen-core - Pure TypeScript domain library for map generation
+ * @swooper/mapgen-core - Map generation authoring and execution SDK
  *
- * This package contains all map generation algorithms and can be tested
- * via `bun test` without the Civ7 game engine.
+ * This package owns the generic MapGen language, runtime, trace, artifact
+ * system, and reusable primitives. Product domain algorithms remain in their
+ * map mod.
  *
  * Architecture:
  * - engine/: Step wiring + execution primitives
@@ -16,8 +17,6 @@ export type { EngineAdapter } from "@civ7/adapter";
 
 // Re-export core utilities and types
 export * from "@mapgen/core/index.js";
-// Re-export dev diagnostics module
-export * from "@mapgen/dev/index.js";
 // Re-export engine primitives (runtime SDK)
 export * from "@mapgen/engine/index.js";
 // Re-export tracing primitives

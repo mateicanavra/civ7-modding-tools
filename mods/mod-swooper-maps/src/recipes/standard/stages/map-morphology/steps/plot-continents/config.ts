@@ -13,7 +13,6 @@ import {
  */
 export const PlotContinentsStepContract = defineStep({
   id: "plot-continents",
-  phase: "morphology",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   artifacts: {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
-import { RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
+import { CIV7_BROWSER_TABLES_V0, RIVER_TYPE_NAVIGABLE } from "@civ7/map-policy";
 import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
@@ -9,7 +9,6 @@ import {
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { resolveStandardProjectionTerrainTypes } from "../../../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import { artifactModules as hydrologyArtifactModules } from "../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 import { artifactModules as mapMorphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
 import { artifacts as mapRiversArtifacts } from "../../../../../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
@@ -107,8 +106,8 @@ describe("map-rivers/plot-rivers", () => {
       rng: createLabelRng(seed),
     });
     const context = createMapContext({ setup, adapter });
-    const { flat: flatTerrain, navigableRiver: navigableRiverTerrain } =
-      resolveStandardProjectionTerrainTypes(context.adapter);
+    const { TERRAIN_FLAT: flatTerrain, TERRAIN_NAVIGABLE_RIVER: navigableRiverTerrain } =
+      CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         adapter.setTerrainType(x, y, flatTerrain);

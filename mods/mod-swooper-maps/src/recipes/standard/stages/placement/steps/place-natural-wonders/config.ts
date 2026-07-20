@@ -15,7 +15,6 @@ import {
  */
 export const PlaceNaturalWondersStepContract = defineStep({
   id: "place-natural-wonders",
-  phase: "placement",
   requires: [],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced],
   artifacts: {

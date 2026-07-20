@@ -737,7 +737,6 @@ function minimalRecipeDagResult(recipeId: string) {
     recipeKey: recipeId,
     namespace: "mod-swooper-maps",
     title: "Swooper Maps / Standard",
-    phases: [],
     stages: [],
     edges: [],
     diagnostics: [],

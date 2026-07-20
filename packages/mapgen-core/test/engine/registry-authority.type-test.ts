@@ -9,5 +9,5 @@ registeredStep.id = "replacement";
 registeredStep.requires = [];
 // @ts-expect-error Registered tag identity is immutable to consumers.
 registeredTag.id = "artifact:replacement";
-// @ts-expect-error Registered tag ownership is immutable to consumers.
-if (registeredTag.owner) registeredTag.owner.pkg = "replacement";
+// @ts-expect-error Registered tag kind is immutable to consumers.
+registeredTag.kind = "effect";

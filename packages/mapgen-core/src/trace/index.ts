@@ -1,42 +1,144 @@
+import { StageIdSchema } from "@mapgen/authoring/stage-id.js";
 import { encodeUtf8 } from "@mapgen/lib/encoding/utf8.js";
 import type { TraceConfig, TraceLevel } from "@mapgen/trace/config.js";
+import { Type } from "typebox";
+import { Value } from "typebox/value";
 
 export type { TraceConfig, TraceLevel } from "@mapgen/trace/config.js";
 export { TraceConfigSchema, TraceLevelSchema } from "@mapgen/trace/config.js";
 
-export interface TraceEvent {
+const TraceEventIdentitySchema = {
+  tsMs: Type.Number(),
+  runId: Type.String({ minLength: 1 }),
+  planFingerprint: Type.String({ minLength: 1 }),
+} as const;
+
+const TraceStepIdentitySchema = {
+  ...TraceEventIdentitySchema,
+  stepId: Type.String({ minLength: 1 }),
+  stageId: StageIdSchema,
+} as const;
+
+/** Recursive value contract accepted by JSON serialization without coercion or omission. */
+export type TraceJsonValue =
+  | null
+  | boolean
+  | number
+  | string
+  | readonly TraceJsonValue[]
+  | TraceJsonObject;
+
+/** Record-shaped JSON trace payload used by diagnostic event producers. */
+export type TraceJsonObject = Readonly<{ [key: string]: TraceJsonValue }>;
+
+const TraceJsonValueCyclicSchema = Type.Cyclic(
+  {
+    JsonValue: Type.Union([
+      Type.Null(),
+      Type.Boolean(),
+      Type.Number(),
+      Type.String(),
+      Type.Array(Type.Ref("JsonValue")),
+      Type.Record(Type.String(), Type.Ref("JsonValue")),
+    ]),
+  },
+  "JsonValue"
+);
+
+/** Runtime schema for recursive JSON-compatible trace payloads. */
+export const TraceJsonValueSchema = Type.Unsafe<TraceJsonValue>(TraceJsonValueCyclicSchema);
+
+/** Closed serialized evidence emitted by one pipeline run or authored step. */
+export const TraceEventSchema = Type.Union([
+  Type.Object(
+    { ...TraceEventIdentitySchema, kind: Type.Literal("run.start") },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      ...TraceEventIdentitySchema,
+      kind: Type.Literal("run.finish"),
+      success: Type.Boolean(),
+      error: Type.Optional(Type.String()),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    { ...TraceStepIdentitySchema, kind: Type.Literal("step.start") },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      ...TraceStepIdentitySchema,
+      kind: Type.Literal("step.finish"),
+      durationMs: Type.Optional(Type.Number({ minimum: 0 })),
+      success: Type.Optional(Type.Boolean()),
+      error: Type.Optional(Type.String()),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      ...TraceStepIdentitySchema,
+      kind: Type.Literal("step.event"),
+      data: Type.Optional(TraceJsonValueSchema),
+    },
+    { additionalProperties: false }
+  ),
+]);
+
+type TraceEventIdentity = Readonly<{
   tsMs: number;
   runId: string;
   planFingerprint: string;
-  kind: "run.start" | "run.finish" | "step.start" | "step.finish" | "step.event";
-  stepId?: string;
-  phase?: string;
-  durationMs?: number;
-  success?: boolean;
-  error?: string;
-  data?: unknown;
-}
+}>;
 
+type TraceEventPayload =
+  | Readonly<{ kind: "run.start" }>
+  | Readonly<{ kind: "run.finish"; success: boolean; error?: string }>
+  | Readonly<{ kind: "step.start"; stepId: string; stageId: string }>
+  | Readonly<{
+      kind: "step.finish";
+      stepId: string;
+      stageId: string;
+      durationMs?: number;
+      success?: boolean;
+      error?: string;
+    }>
+  | Readonly<{
+      kind: "step.event";
+      stepId: string;
+      stageId: string;
+      data?: TraceJsonValue;
+    }>;
+
+/** Closed run-versus-step evidence emitted by one pipeline execution. */
+export type TraceEvent = TraceEventIdentity & TraceEventPayload;
+
+/** Receives immutable execution evidence without participating in pipeline control flow. */
 export interface TraceSink {
   emit(event: TraceEvent): void;
 }
 
+/** Exact authored step identity supplied by the executor for step-scoped trace evidence. */
 export interface TraceStepMeta {
   stepId: string;
-  phase?: string;
+  stageId: string;
 }
 
+/** Step-local trace capability whose identity is fixed by recipe composition. */
 export interface TraceScope {
   readonly runId: string;
   readonly planFingerprint: string;
   readonly stepId: string;
-  readonly phase?: string;
+  readonly stageId: string;
   readonly level: TraceLevel;
   readonly isEnabled: boolean;
   readonly isVerbose: boolean;
-  readonly event: (data?: unknown | (() => unknown)) => void;
+  readonly event: (data?: TraceJsonValue | (() => TraceJsonValue)) => void;
 }
 
+/** Run-scoped trace lifecycle owned by one pipeline execution. */
 export interface TraceSession {
   readonly enabled: boolean;
   readonly runId: string;
@@ -54,7 +156,7 @@ const NOOP_SCOPE: TraceScope = Object.freeze({
   runId: "",
   planFingerprint: "",
   stepId: "",
-  phase: undefined,
+  stageId: "",
   level: "off",
   isEnabled: false,
   isVerbose: false,
@@ -84,6 +186,7 @@ function nowMs(): number {
 
 function safeEmit(sink: TraceSink, event: TraceEvent): void {
   try {
+    if (!Value.Check(TraceEventSchema, event)) return;
     sink.emit(event);
   } catch {
     // tracing should never alter execution flow
@@ -132,7 +235,7 @@ export function createTraceSession(options: TraceSessionOptions): TraceSession {
   });
 
   const now = options.nowMs ?? nowMs;
-  const emit = (event: Omit<TraceEvent, "tsMs" | "runId" | "planFingerprint">): void => {
+  const emit = (event: TraceEventPayload): void => {
     safeEmit(sink, {
       tsMs: now(),
       runId,
@@ -149,7 +252,7 @@ export function createTraceSession(options: TraceSessionOptions): TraceSession {
     emit({
       kind: "run.finish",
       success: result.success,
-      error: result.error,
+      ...(result.error === undefined ? {} : { error: result.error }),
     });
   };
 
@@ -162,7 +265,14 @@ export function createTraceSession(options: TraceSessionOptions): TraceSession {
     meta: TraceStepMeta & { durationMs?: number; success?: boolean; error?: string }
   ): void => {
     if (resolveTraceLevel(config, meta.stepId) === "off") return;
-    emit({ kind: "step.finish", ...meta });
+    emit({
+      kind: "step.finish",
+      stepId: meta.stepId,
+      stageId: meta.stageId,
+      ...(meta.durationMs === undefined ? {} : { durationMs: meta.durationMs }),
+      ...(meta.success === undefined ? {} : { success: meta.success }),
+      ...(meta.error === undefined ? {} : { error: meta.error }),
+    });
   };
 
   const createStepScope = (meta: TraceStepMeta): TraceScope => {
@@ -170,17 +280,21 @@ export function createTraceSession(options: TraceSessionOptions): TraceSession {
     const isEnabled = level !== "off";
     const isVerbose = level === "verbose";
 
-    const event = (data?: unknown | (() => unknown)): void => {
+    const event = (data?: TraceJsonValue | (() => TraceJsonValue)): void => {
       if (!isVerbose) return;
       const payload = typeof data === "function" ? data() : data;
-      emit({ kind: "step.event", ...meta, data: payload });
+      emit({
+        kind: "step.event",
+        ...meta,
+        ...(payload === undefined ? {} : { data: payload }),
+      });
     };
 
     return Object.freeze({
       runId,
       planFingerprint,
       stepId: meta.stepId,
-      phase: meta.phase,
+      stageId: meta.stageId,
       level,
       isEnabled,
       isVerbose,
@@ -206,6 +320,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return proto === Object.prototype || proto === null;
 }
 
+/** Converts supported trace data into a deterministic JSON-compatible representation. */
 export function canonicalize(value: unknown): unknown {
   if (value == null || typeof value !== "object") return value;
 
@@ -247,6 +362,7 @@ function stableKey(value: unknown): string {
   return JSON.stringify(canonicalize(value)) ?? String(value);
 }
 
+/** Serializes trace data with deterministic key ordering across supported hosts. */
 export function stableStringify(value: unknown): string {
   return JSON.stringify(canonicalize(value));
 }

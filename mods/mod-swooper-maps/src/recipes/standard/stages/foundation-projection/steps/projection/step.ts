@@ -1,4 +1,3 @@
-import { computeSampleStep, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import {
   buildVectorFieldProjections,
@@ -91,27 +90,6 @@ export const ProjectionStep = createStep(ProjectionStepContract, {
       platesResult.tectonicProvenanceTiles
     );
 
-    context.trace.event(() => {
-      const sampleStep = computeSampleStep(width, height);
-      const boundaryType = platesResult.plates.boundaryType;
-      const rows = renderAsciiGrid({
-        width,
-        height,
-        sampleStep,
-        cellFn: (x, y) => {
-          const idx = y * width + x;
-          const t = boundaryType[idx] ?? 0;
-          const base = t === 1 ? "C" : t === 2 ? "D" : t === 3 ? "T" : ".";
-          return { base };
-        },
-      });
-      return {
-        kind: "foundation.plates.ascii.boundaryType",
-        sampleStep,
-        legend: ".=none C=convergent D=divergent T=transform",
-        rows,
-      };
-    });
     return platesResult;
   },
   viz: ({ result, dimensions }) => {

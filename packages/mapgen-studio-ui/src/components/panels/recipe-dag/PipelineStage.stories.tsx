@@ -6,7 +6,7 @@ import { recipeDagFixture } from "../../../storybook/recipeDagFixture.js";
 /**
  * Adapted from `.design-sync/previews/PipelineStage.tsx`. The recipe dependency
  * graph as a first-class stage view: a headless-laid-out SVG canvas — dependency
- * rank crossed with phase lanes, bundled artifact edges, and selectable stage
+ * rank crossed with derived domain lanes, bundled artifact edges, and selectable stage
  * nodes that expand to their steps. Driven by the shared `recipeDagFixture`
  * (a valid `RecipeDagResult`) so `buildRecipeDagLayout` lays it out
  * deterministically with no server.
@@ -50,7 +50,7 @@ function Stage({ children }: { children: ReactNode }) {
   );
 }
 
-// The ready graph: phase lanes crossed with dependency ranks, the `relief` stage
+// The ready graph: domain lanes crossed with dependency ranks, the `relief` stage
 // expanded to its steps (the fixture invariant), the console strip top-right.
 export const PipelineGraph: Story = {
   args: props,

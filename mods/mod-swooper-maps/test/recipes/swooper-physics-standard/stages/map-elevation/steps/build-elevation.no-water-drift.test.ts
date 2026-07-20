@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import { resolveStandardProjectionTerrainTypes } from "../../../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import { BuildElevationStep } from "../../../../../../src/recipes/standard/stages/map-elevation/steps/build-elevation/step.js";
 import { artifactModules as mapHydrologyArtifactModules } from "../../../../../../src/recipes/standard/stages/map-hydrology/artifacts/index.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
@@ -126,9 +126,8 @@ describe("map-elevation/build-elevation", () => {
       rng: createLabelRng(seed),
     });
     const context = createMapContext({ setup, adapter });
-    const { flat: flatTerrain, ocean: oceanTerrain } = resolveStandardProjectionTerrainTypes(
-      context.adapter
-    );
+    const { TERRAIN_FLAT: flatTerrain, TERRAIN_OCEAN: oceanTerrain } =
+      CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
 
     const size = width * height;
     const landMask = new Uint8Array(size).fill(0);
@@ -180,7 +179,7 @@ describe("map-elevation/build-elevation", () => {
       rng: createLabelRng(seed),
     });
     const context = createMapContext({ setup, adapter });
-    const { flat: flatTerrain } = resolveStandardProjectionTerrainTypes(context.adapter);
+    const flatTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -228,9 +227,8 @@ describe("map-elevation/build-elevation", () => {
       rng: createLabelRng(seed),
     });
     const context = createMapContext({ setup, adapter });
-    const { flat: flatTerrain, hill: hillTerrain } = resolveStandardProjectionTerrainTypes(
-      context.adapter
-    );
+    const { TERRAIN_FLAT: flatTerrain, TERRAIN_HILL: hillTerrain } =
+      CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -271,9 +269,8 @@ describe("map-elevation/build-elevation", () => {
       rng: createLabelRng(seed),
     });
     const context = createMapContext({ setup, adapter });
-    const { coast: coastTerrain, flat: flatTerrain } = resolveStandardProjectionTerrainTypes(
-      context.adapter
-    );
+    const { TERRAIN_COAST: coastTerrain, TERRAIN_FLAT: flatTerrain } =
+      CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
     const lakeMask = new Uint8Array(width * height);
     lakeMask[0] = 1;
 
@@ -316,7 +313,7 @@ describe("map-elevation/build-elevation", () => {
       rng: createLabelRng(seed),
     });
     const context = createMapContext({ setup, adapter });
-    const { flat: flatTerrain } = resolveStandardProjectionTerrainTypes(context.adapter);
+    const flatTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {

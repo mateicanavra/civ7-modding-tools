@@ -2,8 +2,11 @@
 
 Scope: `mods/mod-swooper-maps/src/**`
 
-- These files are game‑facing entrypoints for map variants. Keep them small and declarative (bootstrap + imports).
-- Avoid adding generator logic here; put shared logic in MapGen core or the mod’s shared modules instead.
+- This source tree owns Swooper's six domain models, recipes, map configuration,
+  and game-facing map entrypoints.
+- Keep map entrypoints small and declarative. Domain generation logic stays in
+  `domain/`; recipe composition stays in `recipes/`; generic SDK mechanics move
+  only to a named substrate such as MapGen Core, Metrics, or Viz.
 - Validate changes with `nx run mod-swooper-maps:check` and the relevant
   `mod-swooper-maps` build or test target.
 

@@ -11,7 +11,7 @@ import {
   type VizProjection,
 } from "../src/index.js";
 
-const context = { stepId: "standard.test.project", phase: "test" } as const;
+const context = { stepId: "standard.test.project", stageId: "test" } as const;
 
 function pathMaterializer(calls: VizBinarySlot[]): VizBinaryMaterializer<VizPathRef> {
   return (slot) => {
@@ -50,7 +50,7 @@ describe("materializeVizProjection", () => {
       kind: "grid",
       layerKey: "standard.test.project::morphology.elevation::tile.hexOddQ::grid:height::final",
       stepId: context.stepId,
-      phase: context.phase,
+      stageId: context.stageId,
       bounds: [0, 0, 2, 2],
       dims: { width: 2, height: 2 },
       field: { format: "f32", stats: { min: 3, max: 7 } },
@@ -208,6 +208,17 @@ describe("materializeVizProjection", () => {
       {
         projection: {
           kind: "gridFields" as const,
+          dataTypeKey: "invalid.vector-prototype-name",
+          spaceId: "tile.hexOddQ" as const,
+          dims: { width: 1, height: 1 },
+          fields: { u: { format: "i8" as const, values: new Int8Array(1) } },
+          vector: { u: "u", v: "toString" },
+        },
+        message: "u and v references",
+      },
+      {
+        projection: {
+          kind: "gridFields" as const,
           dataTypeKey: "invalid.vector-magnitude-alias",
           spaceId: "tile.hexOddQ" as const,
           dims: { width: 1, height: 1 },
@@ -336,7 +347,7 @@ describe("materializeVizProjection", () => {
           palette: { kind: "categorical" },
           categories: [
             { value: 1, label: "One", color: [1, 2, 3, 4] },
-            { value: "1", label: "Duplicate", color: [5, 6, 7, 8] },
+            { value: 1, label: "Duplicate", color: [5, 6, 7, 8] },
           ],
         },
         message: "category values must be unique",
@@ -346,7 +357,7 @@ describe("materializeVizProjection", () => {
           palette: { kind: "categorical" },
           categories: [{ value: Number.NaN, label: "Invalid", color: [1, 2, 3, 4] }],
         },
-        message: "category values must be finite numbers",
+        message: "category values must be safe integers",
       },
       {
         meta: {
@@ -378,42 +389,6 @@ describe("materializeVizProjection", () => {
       ).toThrow(message);
       expect(calls).toBe(0);
     }
-
-    expect(() =>
-      materializeVizProjection(
-        {
-          kind: "grid",
-          dataTypeKey: "palette.legacy",
-          spaceId: "tile.hexOddQ",
-          meta: {
-            palette: "continuous",
-            categories: [{ value: 1.5, label: "One and a half", color: [1, 2, 3, 4] }],
-          },
-          dims: { width: 1, height: 1 },
-          field: { format: "f32", values: new Float32Array([1.5]) },
-        },
-        context,
-        () => ({ kind: "path", path: "legacy.bin" })
-      )
-    ).not.toThrow();
-
-    expect(() =>
-      materializeVizProjection(
-        {
-          kind: "grid",
-          dataTypeKey: "palette.numeric-string-category",
-          spaceId: "tile.hexOddQ",
-          meta: {
-            palette: { kind: "categorical" },
-            categories: [{ value: "1", label: "Legacy one", color: [1, 2, 3, 4] }],
-          },
-          dims: { width: 1, height: 1 },
-          field: { format: "u8", values: new Uint8Array([1]) },
-        },
-        context,
-        () => ({ kind: "path", path: "numeric-string-category.bin" })
-      )
-    ).not.toThrow();
 
     expect(() =>
       materializeVizProjection(
@@ -495,11 +470,12 @@ describe("materializeVizProjection", () => {
   });
 
   it("snapshots semantic metadata that participates in identity and statistics", () => {
+    const categories: [{ value: number; label: string; color: [number, number, number, number] }] =
+      [{ value: 1, label: "One", color: [1, 2, 3, 4] }];
     const meta = {
       role: "before",
-      categories: [
-        { value: 1, label: "One", color: [1, 2, 3, 4] as [number, number, number, number] },
-      ],
+      palette: { kind: "categorical" as const },
+      categories,
     };
     const valueSpec = {
       scale: "linear" as const,
@@ -536,6 +512,7 @@ describe("materializeVizProjection", () => {
     expect(layer.layerKey).toContain("grid:before");
     expect(layer.meta).toEqual({
       role: "before",
+      palette: { kind: "categorical" },
       categories: [{ value: 1, label: "One", color: [1, 2, 3, 4] }],
     });
     expect(layer.kind).toBe("grid");

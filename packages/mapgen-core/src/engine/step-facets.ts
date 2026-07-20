@@ -1,7 +1,6 @@
 import type { MetricProjection } from "@swooper/mapgen-metrics";
 import type { VizProjection } from "@swooper/mapgen-viz";
 import type { StepFacetInput, StepFacets } from "./step-projectors.js";
-import type { GenerationPhase } from "./types.js";
 
 export type { StepFacetInput, StepFacets } from "./step-projectors.js";
 
@@ -10,7 +9,7 @@ export type StepFacetSinkContext = Readonly<{
   runId: string;
   planFingerprint: string;
   stepId: string;
-  phase: GenerationPhase;
+  stageId: string;
   stepIndex: number;
 }>;
 

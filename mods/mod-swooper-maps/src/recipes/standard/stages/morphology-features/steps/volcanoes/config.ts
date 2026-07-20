@@ -12,7 +12,6 @@ import {
  */
 export const VolcanoesStepContract = defineStep({
   id: "volcanoes",
-  phase: "morphology",
   requires: [],
   artifacts: {
     requires: [standardArtifacts.foundationPlates, morphologyArtifacts.topography],

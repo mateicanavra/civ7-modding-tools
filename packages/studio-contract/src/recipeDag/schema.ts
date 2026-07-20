@@ -19,13 +19,11 @@ const EndpointSchema = Type.Object(
 
 const StepSchema = Type.Object(
   {
-    id: Type.String(),
     stageId: Type.String(),
     stepId: Type.String(),
     fullStepId: Type.String(),
     order: Type.Integer({ minimum: 0 }),
     orderInStage: Type.Integer({ minimum: 0 }),
-    phase: Type.String(),
     artifactRequires: Type.Array(ArtifactRefSchema),
     artifactProvides: Type.Array(ArtifactRefSchema),
     tagRequires: Type.Array(Type.String()),
@@ -36,10 +34,8 @@ const StepSchema = Type.Object(
 
 const StageSchema = Type.Object(
   {
-    id: Type.String(),
     stageId: Type.String(),
     order: Type.Integer({ minimum: 0 }),
-    phases: Type.Array(Type.String()),
     steps: Type.Array(StepSchema),
     artifactRequires: Type.Array(ArtifactRefSchema),
     artifactProvides: Type.Array(ArtifactRefSchema),
@@ -47,16 +43,6 @@ const StageSchema = Type.Object(
     outboundArtifactEdgeCount: Type.Integer({ minimum: 0 }),
     internalArtifactEdgeCount: Type.Integer({ minimum: 0 }),
     diagnosticCount: Type.Integer({ minimum: 0 }),
-  },
-  { additionalProperties: false }
-);
-
-const PhaseSchema = Type.Object(
-  {
-    id: Type.String(),
-    order: Type.Integer({ minimum: 0 }),
-    stageIds: Type.Array(Type.String()),
-    stepCount: Type.Integer({ minimum: 0 }),
   },
   { additionalProperties: false }
 );
@@ -114,7 +100,6 @@ export const RecipeDagResultSchema = Type.Object(
     recipeKey: Type.String(),
     namespace: Type.Optional(Type.String()),
     title: Type.String(),
-    phases: Type.Array(PhaseSchema),
     stages: Type.Array(StageSchema),
     edges: Type.Array(EdgeSchema),
     diagnostics: Type.Array(DiagnosticSchema),

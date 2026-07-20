@@ -102,7 +102,7 @@ import { artifactModules as morphologyArtifactModules } from "../artifacts/index
 
 /** Admits the routing artifact as the canonical output of the routing step. */
 export const RoutingStepContract = defineStep({
-  // ...id, phase, tags, ops, and schema...
+  // ...id, tags, ops, and schema...
   artifacts: {
     provides: [morphologyArtifactModules.routing],
   },

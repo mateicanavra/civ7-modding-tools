@@ -56,35 +56,18 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
 - Effect tags add a `DependencyTagDefinition` entry:
   - `id`
   - `kind`
-  - optional `owner` (recommended for effects)
   - optional `satisfies(context, state?)` predicate for runtime validation
 - Ensure the registry function registers the full set of definitions.
 - Artifact modules register their own IDs and complete validators when selected by step contracts;
   do not duplicate them in the explicit effect registry.
 
-Representative example (registration + owner attribution; excerpt; see full file in anchors):
+Representative registration example (excerpt; see full file in anchors):
 
 ```ts
-const EFFECT_OWNERS: Record<string, TagOwner> = {
-  [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt]: {
-    pkg: "mod-swooper-maps",
-    phase: "gameplay",
-    stepId: "build-elevation",
-  },
-  [MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted]: {
-    pkg: "mod-swooper-maps",
-    phase: "gameplay",
-    stepId: "plot-mountains",
-  },
-};
-
 export const STANDARD_TAG_DEFINITIONS = [
-  ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map((id) => {
-    const definition: DependencyTagDefinition<MapContext> = { id, kind: "effect" };
-    const owner = EFFECT_OWNERS[id];
-    if (owner) definition.owner = owner;
-    return definition;
-  }),
+  ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map(
+    (id): DependencyTagDefinition<MapContext> => ({ id, kind: "effect" })
+  ),
 ] as const;
 
 export function registerStandardTags(registry: {

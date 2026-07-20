@@ -12,7 +12,6 @@ import { artifactModules as mapElevationArtifactModules } from "../../artifacts/
  */
 export const BuildElevationStepContract = defineStep({
   id: "build-elevation",
-  phase: "morphology",
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted,
     MAP_PROJECTION_EFFECT_TAGS.map.volcanoesPlotted,

@@ -1,17 +1,15 @@
 import type {
   VizBinaryRef,
-  VizLayerCategory,
-  VizLayerEmissionV1,
-  VizLayerIdentityV1,
-  VizLayerMeta,
-  VizResolvedPalette,
-  VizRgbaColor,
+  VizLayerEmissionV2,
+  VizLayerIdentityV2,
   VizScalarField,
+  VizStageId,
   VizStepId,
   VizValueSpec,
 } from "./model.js";
 import type { VizBinarySource, VizProjection, VizScalarSource } from "./projection.js";
 import { createVizLayerKey } from "./projection.js";
+import { assertVizVectorReferences, snapshotVizLayerMeta } from "./semantic.js";
 import { computeVizScalarStats } from "./stats.js";
 
 /** One binary slot the portable kernel delegates to an environment-owned adapter exactly once. */
@@ -35,7 +33,7 @@ export type VizBinarySlot =
 export type VizBinaryMaterializer<Ref extends VizBinaryRef> = (slot: VizBinarySlot) => Ref;
 
 /** Execution-owned identity attached while projections cross a transport boundary. */
-export type VizMaterializationContext = Readonly<{ stepId: VizStepId; phase?: string }>;
+export type VizMaterializationContext = Readonly<{ stepId: VizStepId; stageId: VizStageId }>;
 
 function assertPositiveDimensions(width: number, height: number): number {
   if (!Number.isSafeInteger(width) || width <= 0)
@@ -117,148 +115,10 @@ function snapshotValueSpec(valueSpec: VizValueSpec | undefined): VizValueSpec | 
   };
 }
 
-function assertRgbaColor(color: readonly number[], label: string): asserts color is VizRgbaColor {
-  if (
-    color.length !== 4 ||
-    color.some((channel) => !Number.isInteger(channel) || channel < 0 || channel > 255)
-  ) {
-    throw new RangeError(`${label} must contain exactly four integer channels from 0 through 255.`);
-  }
-}
-
-function assertVisibleColor(color: VizRgbaColor, label: string): void {
-  if (color[3] === 0) {
-    throw new RangeError(
-      `${label} must remain visible; only explicit categories may be transparent.`
-    );
-  }
-}
-
-function copyRgbaColor(color: VizRgbaColor): VizRgbaColor {
-  return [color[0], color[1], color[2], color[3]];
-}
-
-function normalizedCategoryValue(value: number | string, requireInteger: boolean): number {
-  const normalized = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(normalized)) {
-    throw new RangeError(
-      `Visualization category values must be finite numbers or numeric strings.`
-    );
-  }
-  if (requireInteger && !Number.isSafeInteger(normalized)) {
-    throw new RangeError(
-      `Resolved visualization category values must be safe integers or integer strings.`
-    );
-  }
-  return normalized;
-}
-
-function snapshotResolvedPalette(palette: VizResolvedPalette): VizResolvedPalette {
-  if (palette.kind === "continuous") {
-    const [first, second, ...rest] = palette.stops;
-    if (!first || !second) {
-      throw new RangeError(`A resolved continuous palette requires at least two color stops.`);
-    }
-    palette.stops.forEach((color, index) => {
-      assertRgbaColor(color, `Continuous palette stop ${index}`);
-      assertVisibleColor(color, `Continuous palette stop ${index}`);
-    });
-    return {
-      kind: "continuous",
-      stops: [copyRgbaColor(first), copyRgbaColor(second), ...rest.map(copyRgbaColor)],
-    };
-  }
-
-  const [first, ...rest] = palette.colors;
-  if (!first) {
-    throw new RangeError(`A resolved categorical palette color pool must be nonempty.`);
-  }
-  palette.colors.forEach((color, index) => {
-    assertRgbaColor(color, `Categorical palette color ${index}`);
-    assertVisibleColor(color, `Categorical palette color ${index}`);
-  });
-  return {
-    kind: "categorical",
-    colors: [copyRgbaColor(first), ...rest.map(copyRgbaColor)],
-  };
-}
-
-function requireNonEmptyCategories(
-  categories: readonly VizLayerCategory[] | undefined
-): readonly [VizLayerCategory, ...VizLayerCategory[]] {
-  const [first, ...rest] = categories ?? [];
-  if (!first) {
-    throw new RangeError(
-      `A resolved categorical palette requires exactly one color authority: palette colors or categories.`
-    );
-  }
-  return [first, ...rest];
-}
-
-function snapshotMeta(meta: VizLayerMeta | undefined): VizLayerMeta | undefined {
-  if (!meta) return undefined;
-  const requiresIntegerCategories =
-    typeof meta.palette === "object" &&
-    meta.palette.kind === "categorical" &&
-    meta.palette.colors === undefined;
-  const categories = meta.categories?.map((category) => {
-    normalizedCategoryValue(category.value, requiresIntegerCategories);
-    assertRgbaColor(category.color, `Category ${String(category.value)} color`);
-    return { ...category, color: copyRgbaColor(category.color) };
-  });
-  if (categories?.length) {
-    const identities = new Set<number>();
-    for (const category of categories) {
-      const identity = normalizedCategoryValue(category.value, requiresIntegerCategories);
-      if (identities.has(identity)) {
-        throw new RangeError(`Visualization category values must be unique; found ${identity}.`);
-      }
-      identities.add(identity);
-    }
-  }
-
-  const palette =
-    typeof meta.palette !== "object"
-      ? meta.palette
-      : meta.palette.kind === "continuous"
-        ? snapshotResolvedPalette(meta.palette)
-        : meta.palette.colors === undefined
-          ? ({ kind: "categorical" } as const)
-          : snapshotResolvedPalette(meta.palette);
-  if (typeof palette === "object" && palette.kind === "continuous" && categories?.length) {
-    throw new RangeError(`A resolved continuous palette cannot also define categories.`);
-  }
-  if (typeof palette === "object" && palette.kind === "categorical") {
-    const hasColors = "colors" in palette;
-    const hasCategories = Boolean(categories?.length);
-    if (hasColors === hasCategories) {
-      throw new RangeError(
-        `A resolved categorical palette requires exactly one color authority: palette colors or categories.`
-      );
-    }
-  }
-
-  const { categories: _categories, palette: _palette, ...base } = meta;
-  if (typeof palette === "object") {
-    if (palette.kind === "continuous" || "colors" in palette) {
-      return { ...base, palette };
-    }
-    return {
-      ...base,
-      palette,
-      categories: requireNonEmptyCategories(categories),
-    };
-  }
-  if (palette === undefined && categories === undefined) return base;
-  if (palette === undefined) return { ...base, categories };
-  if (categories === undefined) return { ...base, palette };
-  return { ...base, palette, categories };
-}
-
 function materializedIdentity(
   projection: VizProjection,
   context: VizMaterializationContext
-): Omit<VizLayerIdentityV1, "bounds"> {
+): Omit<VizLayerIdentityV2, "bounds"> {
   const layerKey = createVizLayerKey({
     stepId: context.stepId,
     dataTypeKey: projection.dataTypeKey,
@@ -273,9 +133,9 @@ function materializedIdentity(
     dataTypeKey: projection.dataTypeKey,
     variantKey: projection.variantKey,
     stepId: context.stepId,
-    phase: context.phase,
+    stageId: context.stageId,
     spaceId: projection.spaceId,
-    meta: snapshotMeta(projection.meta),
+    meta: snapshotVizLayerMeta(projection.meta),
   };
 }
 
@@ -290,7 +150,7 @@ export function materializeVizProjection<Ref extends VizBinaryRef>(
   projection: VizProjection,
   context: VizMaterializationContext,
   materializeBinary: VizBinaryMaterializer<Ref>
-): VizLayerEmissionV1<Ref> {
+): VizLayerEmissionV2<Ref> {
   const identity = materializedIdentity(projection, context);
 
   if (projection.kind === "grid") {
@@ -377,19 +237,7 @@ export function materializeVizProjection<Ref extends VizBinaryRef>(
     if (fieldKey.length === 0) throw new RangeError(`Grid-fields keys must not be empty.`);
     assertScalarCardinality(field, size, `Grid field ${fieldKey}`);
   }
-  if (projection.vector) {
-    const { u: uKey, v: vKey, magnitude: magnitudeKey } = projection.vector;
-    if (uKey === vKey || magnitudeKey === uKey || magnitudeKey === vKey) {
-      throw new RangeError(`Vector u, v, and magnitude references must name distinct grid fields.`);
-    }
-    const fieldByKey = new Map(entries);
-    const u = fieldByKey.get(uKey);
-    const v = fieldByKey.get(vKey);
-    if (!u || !v) throw new RangeError(`Vector u and v references must name existing grid fields.`);
-    if (magnitudeKey && !fieldByKey.has(magnitudeKey)) {
-      throw new RangeError(`Vector magnitude reference must name an existing grid field.`);
-    }
-  }
+  assertVizVectorReferences(projection.fields, projection.vector);
 
   const fieldEvidence = entries.map(
     ([fieldKey, field]) => [fieldKey, field, snapshotScalarField(field)] as const

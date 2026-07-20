@@ -1,9 +1,8 @@
 import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
-import { logLandmassAscii } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
-import { assertWaterDriftWithinPolicy } from "../../../../projection-policies/noWaterDrift.js";
 import { defineStandardVizMeta } from "../../../../viz.js";
+import { assertWaterDriftWithinPolicy } from "../../../../water-surface-parity.js";
+import { restoreProjectedCoastTerrain } from "../../coast-terrain-restoration.js";
 import { PlotContinentsStepContract } from "./config.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
@@ -34,7 +33,6 @@ export const PlotContinentsStep = createStep(PlotContinentsStepContract, {
       elevation: engine.elevation,
     });
 
-    logLandmassAscii(context.trace, context.adapter, width, height);
     assertWaterDriftWithinPolicy(context, topography.landMask, "map-morphology/plot-continents");
     return { physicsLandMask: topography.landMask, engineLandMask: engine.landMask };
   },

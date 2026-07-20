@@ -2,7 +2,7 @@ import type {
   VizGridProjection,
   VizInlineRef,
   VizLayerMeta,
-  VizManifestV1,
+  VizManifestV2,
   VizScalarSource,
 } from "../src/index.js";
 
@@ -29,17 +29,18 @@ const invalidProjection: VizGridProjection = {
   field: { format: "u8", data: materializedRef },
 };
 
-const invalidInlineManifest: VizManifestV1<VizInlineRef> = {
-  version: 1,
+const invalidInlineManifest: VizManifestV2<VizInlineRef> = {
+  version: 2,
   runId: "run",
   planFingerprint: "plan",
-  steps: [{ stepId: "step", stepIndex: 0 }],
+  steps: [{ stepId: "step", stageId: "stage", stepIndex: 0 }],
   layers: [
     {
       kind: "grid",
       layerKey: "layer",
       dataTypeKey: "data",
       stepId: "step",
+      stageId: "stage",
       stepIndex: 0,
       spaceId: "tile.hexOddQ",
       bounds: [0, 0, 1, 1],
@@ -65,6 +66,15 @@ const emptyResolvedCategoryPool: VizLayerMeta = { palette: { kind: "categorical"
 // @ts-expect-error An explicit-category marker requires a nonempty category table.
 const categoryMarkerWithoutCategories: VizLayerMeta = { palette: { kind: "categorical" } };
 
+// @ts-expect-error V2 accepts resolved palette objects, never legacy string selectors.
+const legacyStringPalette: VizLayerMeta = { palette: "continuous" };
+
+const numericStringCategory: VizLayerMeta = {
+  palette: { kind: "categorical" },
+  // @ts-expect-error V2 category identities are numeric safe integers, never numeric strings.
+  categories: [{ value: "1", label: "one", color: [1, 2, 3, 255] }],
+};
+
 void validProjection;
 void mismatchedSource;
 void invalidProjection;
@@ -72,3 +82,5 @@ void invalidInlineManifest;
 void pooledPaletteWithCategories;
 void emptyResolvedCategoryPool;
 void categoryMarkerWithoutCategories;
+void legacyStringPalette;
+void numericStringCategory;

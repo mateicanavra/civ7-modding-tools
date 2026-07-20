@@ -22,6 +22,7 @@ const depConstraints = [
     onlyDependOnLibsWithTags: [
       "kind:sdk",
       "kind:engine",
+      "kind:mapgen-tool",
       "kind:adapter",
       "kind:control",
       "kind:library",
@@ -33,6 +34,10 @@ const depConstraints = [
   { sourceTag: "kind:library", onlyDependOnLibsWithTags: ["kind:library"] },
   { sourceTag: "kind:adapter", onlyDependOnLibsWithTags: ["kind:library"] },
   { sourceTag: "kind:engine", onlyDependOnLibsWithTags: ["kind:adapter", "kind:library"] },
+  {
+    sourceTag: "kind:mapgen-tool",
+    onlyDependOnLibsWithTags: ["kind:engine", "kind:library", "kind:control"],
+  },
   { sourceTag: "kind:plugin", onlyDependOnLibsWithTags: ["kind:plugin", "kind:library"] },
   {
     sourceTag: "kind:sdk",
@@ -47,6 +52,7 @@ const depConstraints = [
     onlyDependOnLibsWithTags: [
       "kind:sdk",
       "kind:engine",
+      "kind:mapgen-tool",
       "kind:adapter",
       "kind:library",
       "kind:control",

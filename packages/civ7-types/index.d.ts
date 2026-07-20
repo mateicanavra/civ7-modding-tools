@@ -24,10 +24,8 @@ interface PlotLocation {
   y: number;
 }
 
-/**
- * Feature placement data
- */
-interface FeatureData {
+/** Civ7 TerrainBuilder payload that selects a feature and its directional/elevation variants. */
+export interface FeatureData {
   Feature: number;
   Direction: number;
   Elevation: number;

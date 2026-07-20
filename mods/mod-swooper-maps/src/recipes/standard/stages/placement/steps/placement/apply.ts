@@ -1,5 +1,5 @@
 import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
-import type { MapContext } from "@swooper/mapgen-core";
+import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
 
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import type { PlacementOutputsV1 } from "../../artifacts/placement-outputs.artifact.js";
@@ -83,7 +83,7 @@ export function applyPlacementPlan({
 }: ApplyPlacementArgs): ApplyPlacementResult {
   const { trace } = context;
   const { width, height } = context.setup.dimensions;
-  const emit = (payload: Record<string, unknown>): void => {
+  const emit = (payload: TraceJsonObject): void => {
     if (!trace?.isVerbose) return;
     trace.event(() => payload);
   };

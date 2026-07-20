@@ -170,6 +170,7 @@ const ORDERED_DOMAIN_IDS = [
   "routing",
 ] as const;
 
+/** Resolves the visual language for a presentation domain derived from an exact stage id. */
 export function getRecipeDagDomainPresentation(
   domainId: string | null
 ): RecipeDagDomainPresentation {
@@ -177,20 +178,22 @@ export function getRecipeDagDomainPresentation(
   return DOMAIN_PRESENTATIONS[normalized] ?? DOMAIN_PRESENTATIONS.artifact;
 }
 
-export function getRecipeDagPhaseLaneColors(
-  phaseId: string | null,
+/** Resolves the presentation colors for a domain-derived recipe lane. */
+export function getRecipeDagDomainLaneColors(
+  domainId: string | null,
   lightMode: boolean
 ): Readonly<{
   fill: string;
   accent: string;
 }> {
-  const lane = getRecipeDagDomainPresentation(phaseId).lane;
+  const lane = getRecipeDagDomainPresentation(domainId).lane;
   return {
     fill: lightMode ? lane.lightFill : lane.darkFill,
     accent: lightMode ? lane.lightAccent : lane.darkAccent,
   };
 }
 
+/** Classifies an authored stage id into a presentation-only Studio domain. */
 export function normalizeRecipeDagDomainId(
   domainId: string | null
 ): keyof typeof DOMAIN_PRESENTATIONS {
@@ -223,6 +226,7 @@ export function normalizeRecipeDagDomainId(
     normalized.includes("morphology") ||
     normalized.includes("terrain") ||
     normalized.includes("topography") ||
+    normalized.includes("relief") ||
     normalized.includes("elevation") ||
     normalized.includes("coast") ||
     normalized.includes("landmass") ||
@@ -261,6 +265,7 @@ export function normalizeRecipeDagDomainId(
   return "artifact";
 }
 
+/** Selects the first meaningful presentation domain from ordered semantic candidates. */
 export function chooseRecipeDagDomainId(
   candidates: readonly (string | null | undefined)[]
 ): string | null {

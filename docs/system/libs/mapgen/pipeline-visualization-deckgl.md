@@ -69,7 +69,7 @@ Key goals:
 - **Live inspection:** see layers as steps execute (streaming upserts).
 - **External replay:** run once, inspect later (dump folders).
 - **Layered inspection:** show buffers (e.g., temperature), indices (e.g., biome IDs), and derived fields (e.g., mountain masks).
-- **Correlated provenance:** every layer carries its unique `runId`, stable `planFingerprint`, step id, phase, and layer keys.
+- **Correlated provenance:** every layer carries its unique `runId`, stable `planFingerprint`, exact `stageId` + `stepId`, and layer keys.
 - **Zero coupling to runtime:** pipeline must not depend on deck.gl.
 
 ---
@@ -100,9 +100,9 @@ step.run succeeds and declared providers are admitted
   → execution-owned sink attaches run/step identity and materializes binary refs
        - browser/Studio: inline refs → `viz.layer.upsert` (Transferables)
        - node/dev: path refs → manifest.json + data/
-  → deck.gl viewer:
-       - live: render streamed upserts
-       - replay: load manifest + data
+  → consumers:
+       - Studio: render streamed upserts
+       - diagnostic tooling: read manifest + data for replay and comparison
 ```
 
 **Key properties:** recipe algorithms never observe a visualization sink, and the viewer never runs
@@ -128,19 +128,20 @@ Implemented sinks:
 
 - **Studio worker sink**: `apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts`
   - copies each exact typed-array view into an inline buffer,
-  - materializes `VizLayerEmissionV1`,
+  - materializes `VizLayerEmissionV2`,
   - posts `viz.layer.upsert` with Transferables.
-- **Node/dev dump sink**: `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+- **Node diagnostic dump sink**: `packages/mapgen-diagnostics/src/dump.ts`
   - writes exact binary views under `data/`,
   - materializes path-backed layers and updates `manifest.json`.
 
 Trace sinks independently record progress and structured events. They do not transport
 visualization layers.
 
-### 3) Manifest contract: `VizManifestV1`
+### 3) Manifest contract: `VizManifestV2`
 
-The replay manifest schema is `VizManifestV1` from `@swooper/mapgen-viz` (`packages/mapgen-viz/src/index.ts`).
-MapGen Studio’s dump viewer expects `manifest.json` with `version: 1`.
+The replay manifest schema is `VizManifestV2` from `@swooper/mapgen-viz` (`packages/mapgen-viz/src/index.ts`).
+`@swooper/mapgen-diagnostics` readers admit only `manifest.json` with `version: 2`; Studio builds
+the same manifest shape from live worker events rather than loading path-backed dumps.
 
 ---
 
@@ -173,10 +174,9 @@ generation state or synthesize missing product evidence.
 
 ## Viewer design (implemented)
 
-MapGen Studio contains both viewer modes:
-
-- **Live viewer**: renders `viz.layer.upsert` events as they stream from the worker.
-- **Dump viewer**: loads `manifest.json` + referenced binary payloads and replays layers.
+MapGen Studio renders `viz.layer.upsert` events as they stream from the worker. Path-backed dump
+capture, admission, binary reads, inventory, and neutral comparison belong to
+`@swooper/mapgen-diagnostics`; Swooper's commands own Standard replay and product reporting.
 
 ### Deck.gl Layer Mapping
 
@@ -190,7 +190,7 @@ MapGen Studio contains both viewer modes:
 
 ### Authoritative loading + rendering implementation
 
-MapGen Studio’s v1 loader + renderer:
+MapGen Studio’s live v2 ingestion + renderer:
 - manifest contract: `packages/mapgen-viz/src/index.ts`
 - live manifest ingestion/state: `apps/mapgen-studio/src/features/viz/ingest.ts` and `apps/mapgen-studio/src/features/viz/vizStore.ts`
 - binary reference resolution: `apps/mapgen-studio/src/features/viz/deckgl/render.ts`
@@ -260,10 +260,11 @@ Live (Studio):
 - Confirm `viz.layer.upsert` events appear for steps with a `viz` facet and that the rendered colors
   match the projection's resolved metadata.
 
-Replay (dump viewer):
-- Produce a dump folder using the node/dev dump harness (mod-owned).
+Replay and comparison:
+- Produce a dump folder using the package-owned node/dev dump harness from a Swooper runner.
 - Confirm `<outputsRoot>/<runId>/manifest.json` exists and contains `layers[]`.
-- Load the folder in Studio’s dump viewer and confirm layers render.
+- Run a Swooper list, analyze, trace, or diff command and confirm it admits the v2 manifest through
+  `@swooper/mapgen-diagnostics`.
 
 ---
 
@@ -284,5 +285,5 @@ Replay (dump viewer):
 - Viz manifest contract: `packages/mapgen-viz/src/index.ts`
 - Studio viz manifest state: `apps/mapgen-studio/src/features/viz/vizStore.ts`
 - Deck.gl renderer: `apps/mapgen-studio/src/features/viz/deckgl/render.ts`
-- Node/dev dump harness: `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+- Node diagnostic capability: `packages/mapgen-diagnostics/src/index.ts`
 - Viz contract routing: `docs/system/libs/mapgen/reference/VISUALIZATION.md`

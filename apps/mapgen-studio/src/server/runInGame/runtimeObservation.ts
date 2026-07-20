@@ -1,4 +1,4 @@
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
+import { findCiv7StandardMapSizePreset } from "@civ7/adapter";
 import type { Civ7LiveSnapshotOutput, Civ7LiveStatusOutput } from "@civ7/studio-contract";
 import type { RunCorrelation } from "@civ7/studio-run-workspace";
 import {
@@ -491,7 +491,7 @@ function mapScriptFromMaterialization(value: string | undefined): string {
 }
 
 function expectedDimensionsForMapSize(mapSize: string): Dimensions {
-  const preset = getCiv7StandardMapSizePreset(mapSize);
+  const preset = findCiv7StandardMapSizePreset(mapSize);
   if (preset) return preset.dimensions;
   throw verificationFailed({
     message: "Run in Game requested map size cannot be resolved for runtime observation",

@@ -17,7 +17,6 @@ import { artifactModules as placementArtifactModules } from "../../artifacts/ind
  */
 export const PreparePlacementSurfaceStepContract = defineStep({
   id: "prepare-placement-surface",
-  phase: "placement",
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.landmassRegionsPlotted,
     PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced,

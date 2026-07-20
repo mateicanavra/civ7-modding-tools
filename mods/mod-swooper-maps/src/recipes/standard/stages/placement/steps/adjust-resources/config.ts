@@ -14,7 +14,6 @@ import {
  */
 export const AdjustResourcesStepContract = defineStep({
   id: "adjust-resources",
-  phase: "placement",
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesAdjusted],
   artifacts: {

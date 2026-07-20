@@ -52,10 +52,10 @@ When the branch resolves to **display**, the fix is one of a small set of files 
 | Symptom | Owner file | Note |
 |---|---|---|
 | wrong tile color / scale / legend | `presentation.ts` | `writeColorForScalarValue`, `VALUE_RAMP` (viridis-like 5-stop), `buildCategoricalColorMap`, `legendForLayer`, `resolveUnitValue` (transform/domain/scale) |
-| layer missing from the picker | `dataTypeModel.ts` | `buildStepDataTypeModel` groups `VizLayerEntryV1[]` by `dataTypeKey`; check the `visibility` / `includeDebug` filter |
+| layer missing from the picker | `dataTypeModel.ts` | `buildStepDataTypeModel` groups `VizLayerEntryV2[]` by `dataTypeKey`; check the `visibility` / `includeDebug` filter |
 | wrong projection / hex misalignment | `deckgl/render.ts` | `renderDeckLayers`/`renderSingleLayer`; `oddRTileCenter`, `orientTilePointNorthUp` (y-flip); `tile.hexOddR` and `tile.hexOddQ` render as the same odd-R lattice |
 | wrong default / overlay layer selected | `useVizState.ts` | `effectiveLayer` / `overlayLayer` memos |
-| layers never appear after a run | `ingest.ts` / `vizStore.ts` | `ingestVizEvent` maps the `VizEvent` union onto `VizManifestV1`; streaming-commit state |
+| layers never appear after a run | `ingest.ts` / `vizStore.ts` | `ingestVizEvent` maps the `VizEvent` union onto `VizManifestV2`; streaming-commit state |
 
 **Caveat — wrong layer *metadata* is not a Studio fix.**
 `meta.categories` / `meta.palette` / `meta.label` / `dataTypeKey` /
@@ -67,8 +67,8 @@ helpers belong in `stages/<stage>/viz.ts`. See the canonical model in
 `docs/system/libs/mapgen/reference/VISUALIZATION.md`. If metadata is wrong, fix
 the owning recipe step/helper, not `presentation.ts`. The browser dumper
 (`browser-runner/worker-viz-dumper.ts`, inline ArrayBuffers) and CLI facet sink
-(`src/dev/viz/dump.ts`, `.bin` path refs) must materialize identical
-`VizLayerEntryV1` shapes — divergence makes Studio disagree with `diag:diff`.
+(`scripts/diagnostics/dump.ts`, `.bin` path refs) must materialize identical
+`VizLayerEntryV2` shapes — divergence makes Studio disagree with `diag:diff`.
 
 Studio launch / daemon contract (port 5174, oRPC `/rpc`, `runtimeMode: "studio-daemon-effect-orpc"`) and the control-surface design owner (`civ7-orpc-control-architecture`) live in `references/pipeline-map.md` — not repeated here.
 
@@ -104,7 +104,7 @@ Physics targets behind the metrics — what is modeled vs approximated vs absent
 
 Map-gen has two independent diagnostic surfaces; conflating them produces mislabeled proof.
 
-- **Pipeline-internal diagnostics** (`mods/mod-swooper-maps/src/dev/{diagnostics,viz}`) run headlessly through **MockAdapter**. They prove the recipe *computes* a given surface. Closure label: `generated` at most — never `in-game observed`. A clean `diag:dump` says nothing about the live engine.
+- **Pipeline-internal diagnostics** (`mods/mod-swooper-maps/scripts/diagnostics`) run headlessly through **MockAdapter**. They prove the recipe *computes* a given surface. Closure label: `generated` at most — never `in-game observed`. A clean `diag:dump` says nothing about the live engine.
 - **Civ7 Logs** (`~/Library/Application Support/Civilization VII/Logs/Scripting.log`) are emitted by the **live engine**. Only these support `logged` / `in-game observed`. (Tuner/log discipline: `civ7-operational-debugging/references/firetuner-runtime.md`.)
 
 A MockAdapter-clean map can still **SIGSEGV** the live engine — so internal diagnostics are necessary but never sufficient for a map-gen change. The closure test is the in-game gate.

@@ -1,7 +1,7 @@
 {
   "name": "@swooper/mapgen-core",
   "version": "0.1.0",
-  "description": "Pure TypeScript domain library for map generation algorithms",
+  "description": "Map generation authoring, compilation, and execution SDK",
   "keywords": [
     "civ7",
     "civilization",

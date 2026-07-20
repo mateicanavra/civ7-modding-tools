@@ -76,10 +76,10 @@ export type VizProjection =
   | VizGridFieldsProjection;
 
 /**
- * Admits a legacy format/view pair into the closed scalar-source union.
+ * Admits a declared scalar format and its exact typed-array representation.
  *
- * Compatibility adapters call this at their boundary; the projection kernel never carries an
- * arbitrary `ArrayBufferView` whose representation can contradict its declared scalar format.
+ * Callers use this boundary when representation arrives separately from the scalar-format tag;
+ * the projection kernel never carries an arbitrary view that can contradict its declared format.
  */
 export function admitVizScalarSource(
   args: Readonly<{

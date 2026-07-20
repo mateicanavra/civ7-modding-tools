@@ -11,7 +11,6 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const PlateMotionStepContract = defineStep({
   id: "plate-motion",
-  phase: "foundation",
   requires: [],
   provides: [],
   artifacts: {

@@ -5,7 +5,7 @@
   "targets": {
     "build": {
       "command": "tsup --config scripts/tsup.config.ts",
-      "dependsOn": ["^build", "gen:maps"],
+      "dependsOn": ["^build", "generated:check"],
       "inputs": ["default", "^default"],
       "outputs": ["{projectRoot}/mod/maps/**"],
       "options": {
@@ -53,7 +53,7 @@
       }
     },
     "check:tools": {
-      "command": "tsc -p scripts/tsconfig.json --noEmit && tsc -p src/dev/tsconfig.json --noEmit",
+      "command": "tsc -p scripts/tsconfig.json --noEmit",
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -65,7 +65,7 @@
     },
     "test": {
       "command": "bun test",
-      "dependsOn": ["build", "build:studio-recipes", "generated:check"],
+      "dependsOn": ["build", "build:studio-recipes"],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -88,13 +88,16 @@
     },
     "gen:map-artifacts": {
       "command": "bun ./scripts/generate-map-artifacts.ts",
-      "dependsOn": [
-        {
-          "projects": ["mapgen-core"],
-          "target": "build"
-        }
+      "dependsOn": ["^build"],
+      "inputs": [
+        "default",
+        "^default",
+        "!{projectRoot}/src/maps/generated/**",
+        "!{projectRoot}/mod/config/config.xml",
+        "!{projectRoot}/mod/swooper-maps.modinfo",
+        "!{projectRoot}/mod/data/biome-hazards.xml",
+        "!{projectRoot}/mod/text/en_us/MapText.xml"
       ],
-      "inputs": ["default", "^default"],
       "outputs": [
         "{projectRoot}/src/maps/generated/**",
         "{projectRoot}/mod/config/config.xml",
@@ -108,15 +111,15 @@
     },
     "gen:studio-deploy-map-artifacts": {
       "command": "bun ./scripts/generate-map-artifacts.ts --include-studio-deploy-config",
-      "dependsOn": [
-        {
-          "projects": ["mapgen-core"],
-          "target": "build"
-        }
-      ],
+      "dependsOn": ["^build"],
       "inputs": [
         "default",
         "^default",
+        "!{projectRoot}/src/maps/generated/**",
+        "!{projectRoot}/mod/config/config.xml",
+        "!{projectRoot}/mod/swooper-maps.modinfo",
+        "!{projectRoot}/mod/data/biome-hazards.xml",
+        "!{projectRoot}/mod/text/en_us/MapText.xml",
         {
           "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_ID"
         },
@@ -145,9 +148,11 @@
       }
     },
     "generated:check": {
-      "command": "status=$(git status --porcelain -- src/maps/generated); test -z \"$status\" || { printf '%s\\n' \"$status\"; exit 1; }",
-      "dependsOn": ["gen:maps"],
-      "cache": false,
+      "command": "bun ./scripts/generate-map-artifacts.ts --check",
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^default"],
+      "cache": true,
+      "outputs": [],
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
@@ -187,12 +192,7 @@
     },
     "gen:studio-map-catalog": {
       "command": "bun ./scripts/generate-studio-map-catalog.ts",
-      "dependsOn": [
-        {
-          "projects": ["mapgen-core"],
-          "target": "build"
-        }
-      ],
+      "dependsOn": ["^build"],
       "inputs": [
         "default",
         "^default",
@@ -211,7 +211,7 @@
       }
     },
     "viz:standard": {
-      "command": "bun ./src/dev/viz/standard-run.ts",
+      "command": "bun ./scripts/diagnostics/standard-run.ts",
       "dependsOn": ["viz:runtime-deps"],
       "cache": false,
       "options": {
@@ -219,12 +219,52 @@
       }
     },
     "diag:dump": {
-      "command": "bun ./src/dev/diagnostics/run-standard-dump.ts",
+      "command": "bun ./scripts/diagnostics/run-standard-dump.ts",
       "dependsOn": ["viz:runtime-deps"],
       "cache": false,
       "options": {
         "cwd": "mods/mod-swooper-maps"
       }
+    },
+    "diag:analyze": {
+      "dependsOn": [
+        {
+          "projects": ["mapgen-diagnostics"],
+          "target": "build"
+        },
+        {
+          "projects": ["mapgen-core"],
+          "target": "build"
+        },
+        {
+          "projects": ["mapgen-metrics"],
+          "target": "build"
+        }
+      ]
+    },
+    "diag:diff": {
+      "dependsOn": [
+        {
+          "projects": ["mapgen-diagnostics"],
+          "target": "build"
+        }
+      ]
+    },
+    "diag:list": {
+      "dependsOn": [
+        {
+          "projects": ["mapgen-diagnostics"],
+          "target": "build"
+        }
+      ]
+    },
+    "diag:trace": {
+      "dependsOn": [
+        {
+          "projects": ["mapgen-diagnostics"],
+          "target": "build"
+        }
+      ]
     },
     "viz:runtime-deps": {
       "executor": "nx:noop",
@@ -239,6 +279,10 @@
         },
         {
           "projects": ["mapgen-viz"],
+          "target": "build"
+        },
+        {
+          "projects": ["mapgen-diagnostics"],
           "target": "build"
         }
       ],

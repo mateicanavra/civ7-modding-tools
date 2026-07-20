@@ -86,9 +86,9 @@ Does not own:
 
 Owns:
 
-- pure procedural generation logic;
-- recipes, stage/step authoring, config compilation, plan/execution contracts;
-- domains, ops, artifacts, fields, diagnostics, determinism, and tracing.
+- stage/step/recipe authoring APIs, config compilation, and plan/execution contracts;
+- artifact admission/publication, deterministic execution, tracing, and generic
+  algorithm/data-structure primitives.
 
 Does not own:
 
@@ -96,7 +96,8 @@ Does not own:
 - game-facing bootstrap files;
 - generated mod output;
 - MapGen Studio UI;
-- mod-specific content/tuning unless expressed as a source recipe contract.
+- Swooper domain models, operations, recipes, or product tuning. Purity and
+  possible reuse do not make N=1 product logic part of the SDK.
 
 ## MapGen Viz And Apps
 
@@ -114,11 +115,14 @@ Do not own:
 
 Owns:
 
-- game-facing mod integration, map entrypoints, mod package scripts, source recipe content, and Civ7 deployment output generation.
+- Foundation, Morphology, Hydrology, Ecology, Resources, and Placement domain
+  models and operations;
+- recipes, product policy, game-facing map integration, mod package scripts,
+  and Civ7 deployment output generation.
 
 Does not own:
 
-- pure core algorithms that should be reusable;
+- generic SDK/runtime mechanics already owned by a named substrate;
 - adapter internals;
 - hand-edited `mod/` output.
 

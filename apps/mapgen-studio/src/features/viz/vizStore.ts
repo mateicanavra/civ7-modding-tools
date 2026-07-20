@@ -1,9 +1,9 @@
 import type { VizEvent } from "../../shared/vizEvents";
 import { ingestVizEvent } from "./ingest";
-import type { VizManifestV1 } from "./model";
+import type { VizManifestV2 } from "./model";
 
 export type VizStoreSnapshot = Readonly<{
-  streamManifest: VizManifestV1 | null;
+  streamManifest: VizManifestV2 | null;
   selectedStepId: string | null;
   selectedLayerKey: string | null;
   showDebugLayers: boolean;
@@ -24,7 +24,7 @@ export type VizStore = {
 export function createVizStore(): VizStore {
   const listeners = new Set<() => void>();
 
-  let streamManifest: VizManifestV1 | null = null;
+  let streamManifest: VizManifestV2 | null = null;
   let selectedStepId: string | null = null;
   let selectedLayerKey: string | null = null;
   let showDebugLayers = false;
@@ -39,7 +39,7 @@ export function createVizStore(): VizStore {
     showDebugLayers,
   });
 
-  let pendingStreamManifest: VizManifestV1 | null | undefined = undefined;
+  let pendingStreamManifest: VizManifestV2 | null | undefined = undefined;
   let pendingSelectedStepId: string | null | undefined = undefined;
   let pendingSelectedLayerKey: string | null | undefined = undefined;
   let rafId: number | null = null;
@@ -105,7 +105,7 @@ export function createVizStore(): VizStore {
     }
   };
 
-  const getOrInitPendingManifest = (): VizManifestV1 | null => {
+  const getOrInitPendingManifest = (): VizManifestV2 | null => {
     if (pendingStreamManifest !== undefined) return pendingStreamManifest;
     pendingStreamManifest = streamManifest;
     return pendingStreamManifest;

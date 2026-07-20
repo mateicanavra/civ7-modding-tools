@@ -1,6 +1,11 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  applyGeneratedFilePlan,
+  type GeneratedFilePlanIssue,
+  inspectGeneratedFilePlan,
+} from "@civ7/plugin-files/generated-file-plan";
 import type { TSchema } from "typebox";
 import { admitSwooperCatalogConfig } from "../src/maps/catalog/admission.js";
 import { CatalogSourceIndex } from "../src/maps/catalog/sourceIndex.js";
@@ -12,7 +17,6 @@ import {
 import type { ValidatedMapConfig } from "../src/maps/configs/canonical.js";
 import { deriveStandardRecipeArtifacts } from "../src/recipes/standard/artifacts.js";
 import { buildSwooperCatalogModFilePlan } from "./map-artifacts/file-plan.js";
-import { writeSwooperMapArtifactFilePlan } from "./map-artifacts/write-file-plan.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -20,6 +24,7 @@ const pkgRoot = resolve(__dirname, "..");
 const repoRoot = resolve(pkgRoot, "../..");
 
 const configsDir = resolve(pkgRoot, "src/maps/configs");
+const checkCurrentArg = "--check";
 const includeStudioDeployConfigArg = "--include-studio-deploy-config";
 const studioDeployConfigIdEnv = "SWOOPER_STUDIO_DEPLOY_CONFIG_ID";
 const studioDeployConfigPathEnv = "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH";
@@ -179,12 +184,55 @@ function readStudioDeployConfigReference(
   return { id, path };
 }
 
-function shouldIncludeStudioDeployConfig(args: readonly string[]): boolean {
-  return args.includes(includeStudioDeployConfigArg);
+type GenerationMode = "apply-catalog" | "check-catalog" | "apply-studio-deploy";
+
+function parseGenerationMode(args: readonly string[]): GenerationMode {
+  const admitted = new Set<string>();
+  for (const arg of args) {
+    if (arg !== checkCurrentArg && arg !== includeStudioDeployConfigArg) {
+      throw new Error(`Unknown generate-map-artifacts argument: ${arg}`);
+    }
+    if (admitted.has(arg)) {
+      throw new Error(`Duplicate generate-map-artifacts argument: ${arg}`);
+    }
+    admitted.add(arg);
+  }
+  if (admitted.has(checkCurrentArg) && admitted.has(includeStudioDeployConfigArg)) {
+    throw new Error(
+      `${checkCurrentArg} verifies only the durable catalog plan and cannot include a request-local Studio deploy config.`
+    );
+  }
+  if (admitted.has(checkCurrentArg)) return "check-catalog";
+  if (admitted.has(includeStudioDeployConfigArg)) return "apply-studio-deploy";
+  return "apply-catalog";
+}
+
+function formatCurrentnessIssue(issue: GeneratedFilePlanIssue): string {
+  switch (issue.kind) {
+    case "missing":
+      return `${issue.relativePath}: missing`;
+    case "content-mismatch":
+      return `${issue.relativePath}: content differs from the catalog source plan`;
+    case "unexpected":
+      return `${issue.relativePath}: unexpected file in an exclusive generated set`;
+  }
+}
+
+function formatCurrentnessFailure(issues: readonly GeneratedFilePlanIssue[]): string {
+  const shown = issues.slice(0, 20).map((issue) => `- ${formatCurrentnessIssue(issue)}`);
+  const remainder = issues.length - shown.length;
+  return [
+    "Swooper tracked map artifacts are not current with their catalog source plan.",
+    ...shown,
+    ...(remainder > 0 ? [`- ...and ${remainder} more difference(s)`] : []),
+    "Run `nx run mod-swooper-maps:gen:maps` to materialize the admitted plan.",
+  ].join("\n");
 }
 
 async function main(): Promise<void> {
-  const includeStudioDeployConfig = shouldIncludeStudioDeployConfig(process.argv.slice(2));
+  const mode = parseGenerationMode(process.argv.slice(2));
+  const includeStudioDeployConfig = mode === "apply-studio-deploy";
+  const checkCurrent = mode === "check-catalog";
   const { schema: recipeSchema } = deriveStandardRecipeArtifacts();
   const configs = includeStudioDeployConfig
     ? await loadSwooperStudioDeployConfigRegistry({
@@ -193,11 +241,17 @@ async function main(): Promise<void> {
       })
     : await loadSwooperMapConfigRegistry({ recipeSchema });
   const plan = buildSwooperCatalogModFilePlan({ configs });
-  await writeSwooperMapArtifactFilePlan(plan, { outputRoot: pkgRoot });
+  if (checkCurrent) {
+    const inspection = await inspectGeneratedFilePlan(plan, { outputRoot: pkgRoot });
+    if (inspection.kind === "stale") throw new Error(formatCurrentnessFailure(inspection.issues));
+  } else {
+    await applyGeneratedFilePlan(plan, { outputRoot: pkgRoot });
+  }
 
   const rel = (path: string) => path.replace(`${repoRoot}/`, "");
+  const verb = checkCurrent ? "Verified" : "Generated";
   console.log(
-    `Generated ${configs.length} Swooper map configs from ${rel(configsDir)}: ${configs
+    `${verb} ${configs.length} Swooper map configs from ${rel(configsDir)}: ${configs
       .map((config) => config.canonicalConfig.id)
       .join(", ")}`
   );

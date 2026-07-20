@@ -22,7 +22,6 @@ const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 const makeContract = (id: string, schema = EmptyStepConfigSchema) =>
   defineStep({
     id,
-    phase: "foundation",
     requires: [],
     provides: [],
     schema,
@@ -74,11 +73,24 @@ describe("recipe authoring", () => {
     expect(recipe.recipe.steps[0]?.id).toBe("core.base.foundation.alpha");
   });
 
+  it("createRecipe rejects duplicate stage identities before compiling indexed surfaces", () => {
+    const step = createStep(makeContract("alpha"), { run: () => {} });
+    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
+
+    expect(() =>
+      createRecipe({
+        id: "core.base",
+        tagDefinitions: [],
+        stages: [stage, stage],
+        compileOpsById: {},
+      })
+    ).toThrow('duplicate stage id "foundation"');
+  });
+
   it("createRecipe rejects invalid tag prefixes", () => {
     const step = createStep(
       defineStep({
         id: "alpha",
-        phase: "foundation",
         requires: ["bad:tag"],
         provides: [],
         schema: EmptyStepConfigSchema,

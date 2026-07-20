@@ -11,7 +11,6 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
  */
 export const MantlePotentialStepContract = defineStep({
   id: "mantle-potential",
-  phase: "foundation",
   requires: [],
   provides: [],
   artifacts: {

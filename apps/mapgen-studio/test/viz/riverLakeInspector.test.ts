@@ -1,4 +1,4 @@
-import { createMockAdapter } from "@civ7/adapter";
+import { createMockAdapter, getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import standardRecipe from "mod-swooper-maps/recipes/standard";
@@ -7,33 +7,49 @@ import { describe, expect, it } from "vitest";
 import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
 import { createWorkerTraceSink } from "../../src/browser-runner/worker-trace-sink";
 import { createWorkerVizFacetSink } from "../../src/browser-runner/worker-viz-facet-sink";
-import type { VizLayerEntryV1 } from "../../src/features/viz/model";
+import type { VizLayerEntryV2 } from "../../src/features/viz/model";
 import { buildRiverLakeFloodplainInspectorSummary } from "../../src/features/viz/riverLakeInspector";
 import { studioStandardRecipeConfig } from "./standardRecipeConfig";
 
+const tinyMapSize = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
+const { width: TINY_WIDTH, height: TINY_HEIGHT } = tinyMapSize.dimensions;
+const TINY_CELL_COUNT = TINY_WIDTH * TINY_HEIGHT;
+
 function gridLayer(args: {
+  stageId: string;
   stepId: string;
   stepIndex?: number;
   dataTypeKey: string;
   role?: string;
   visibility?: "default" | "debug" | "hidden";
   values?: readonly number[];
-}): VizLayerEntryV1 {
-  const { stepId, stepIndex = 0, dataTypeKey, role, visibility = "default", values } = args;
-  const buffer = values ? Uint8Array.from(values).buffer : null;
+}): VizLayerEntryV2 {
+  const {
+    stageId,
+    stepId,
+    stepIndex = 0,
+    dataTypeKey,
+    role,
+    visibility = "default",
+    values,
+  } = args;
+  const buffer = values
+    ? Uint8Array.from({ length: TINY_CELL_COUNT }, (_, index) => values[index] ?? 0).buffer
+    : null;
   return {
     kind: "grid",
     layerKey: `${stepId}::${dataTypeKey}::tile.hexOddQ::${role ? `grid:${role}` : "grid"}`,
     dataTypeKey,
+    stageId,
     stepId,
     stepIndex,
     spaceId: "tile.hexOddQ",
-    dims: { width: 4, height: 3 },
+    dims: tinyMapSize.dimensions,
     field: {
       format: "u8",
       data: buffer ? { kind: "inline", buffer } : { kind: "path", path: `${dataTypeKey}.u8` },
     },
-    bounds: [0, 0, 4, 3],
+    bounds: [0, 0, TINY_WIDTH, TINY_HEIGHT],
     meta: {
       label: dataTypeKey,
       visibility,
@@ -52,16 +68,19 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     const summary = buildRiverLakeFloodplainInspectorSummary({
       layers: [
         gridLayer({
+          stageId: "hydrology-hydrography",
           stepId: hydroStep,
           stepIndex: 1,
           dataTypeKey: "hydrology.hydrography.riverClass",
         }),
         gridLayer({
+          stageId: "hydrology-hydrography",
           stepId: hydroStep,
           stepIndex: 1,
           dataTypeKey: "hydrology.hydrography.discharge",
         }),
         gridLayer({
+          stageId: "map-rivers",
           stepId: mapRiverStep,
           stepIndex: 2,
           dataTypeKey: "map.rivers.projectedRiverMask",
@@ -69,6 +88,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
           values: [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
         }),
         gridLayer({
+          stageId: "map-rivers",
           stepId: mapRiverStep,
           stepIndex: 2,
           dataTypeKey: "map.rivers.plannedMajorRiverMask",
@@ -76,6 +96,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
           values: [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
         }),
         gridLayer({
+          stageId: "map-rivers",
           stepId: mapRiverStep,
           stepIndex: 2,
           dataTypeKey: "map.rivers.engineRiverMask",
@@ -83,6 +104,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
           values: [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
         }),
         gridLayer({
+          stageId: "map-rivers",
           stepId: mapRiverStep,
           stepIndex: 2,
           dataTypeKey: "map.rivers.engineNavigableRiverMetadataMask",
@@ -91,6 +113,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
           values: [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         }),
         gridLayer({
+          stageId: "map-hydrology",
           stepId: mapLakeStep,
           stepIndex: 3,
           dataTypeKey: "map.hydrology.lakes.plannedLakeMask",
@@ -98,6 +121,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
           values: [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
         }),
         gridLayer({
+          stageId: "map-hydrology",
           stepId: mapLakeStep,
           stepIndex: 3,
           dataTypeKey: "map.hydrology.lakes.engineLakeMask",
@@ -105,6 +129,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
           values: [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
         }),
         gridLayer({
+          stageId: "ecology-features",
           stepId: floodplainPlanStep,
           stepIndex: 4,
           dataTypeKey: "map.ecology.features.floodplainIntentMask",
@@ -112,6 +137,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
           values: [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
         }),
         gridLayer({
+          stageId: "map-ecology",
           stepId: featuresStep,
           stepIndex: 5,
           dataTypeKey: "map.ecology.features.floodplainAppliedMask",
@@ -119,6 +145,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
           values: [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
         }),
         gridLayer({
+          stageId: "map-ecology",
           stepId: featuresStep,
           stepIndex: 5,
           dataTypeKey: "map.ecology.features.floodplainRejectedMask",
@@ -266,27 +293,39 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     });
   });
 
-  it("builds evidence rows from actual standard recipe Studio emissions", () => {
-    const width = 32;
-    const height = 20;
-    const seed = 1337;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 4,
-      PlayersLandmass2: 4,
-      StartSectorRows: 4,
-      StartSectorCols: 4,
+  it("refuses malformed inline grid bytes before counting inspector samples", () => {
+    const layer = gridLayer({
+      stageId: "map-rivers",
+      stepId: "test.rivers",
+      dataTypeKey: "map.rivers.projectedRiverMask",
+      values: [1],
+    });
+    if (layer.kind !== "grid") throw new Error("Expected a grid fixture.");
+    const malformed: VizLayerEntryV2 = {
+      ...layer,
+      field: {
+        ...layer.field,
+        data: { kind: "inline", buffer: new Uint8Array([1]).buffer },
+      },
     };
+
+    expect(() => buildRiverLakeFloodplainInspectorSummary({ layers: [malformed] })).toThrow(
+      `requires exactly ${TINY_CELL_COUNT} bytes`
+    );
+  });
+
+  it("builds evidence rows from actual standard recipe Studio emissions", () => {
+    const { width, height } = tinyMapSize.dimensions;
+    const seed = 1337;
+    const mapInfo = tinyMapSize.mapInfo;
+    const { MaxLatitude: topLatitude, MinLatitude: bottomLatitude } = mapInfo;
+    if (typeof topLatitude !== "number" || typeof bottomLatitude !== "number") {
+      throw new Error("Civ7 Tiny map-size metadata must declare latitude bounds.");
+    }
     const setup = admitMapSetup({
       mapSeed: seed,
       dimensions: { width, height },
-      latitudeBounds: {
-        topLatitude: mapInfo.MaxLatitude,
-        bottomLatitude: mapInfo.MinLatitude,
-      },
+      latitudeBounds: { topLatitude, bottomLatitude },
     });
     const earthlikeArtifact = standardMapConfigs.find(
       ({ canonicalConfig }) => canonicalConfig.id === "swooper-earthlike"
@@ -351,7 +390,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     });
     expect(projected?.nonZeroCount).toBeGreaterThan(0);
 
-    expect(byRowKey.get("hydrology-truth")?.claimStatus).toBe("available");
+    expect(byRowKey.get("hydrology-model")?.claimStatus).toBe("available");
     expect(byRowKey.get("projection-plan")?.claimStatus).toBe("available");
     expect(byRowKey.get("terrain-readback")?.layerRefs.map((ref) => ref.dataTypeKey)).toContain(
       "map.rivers.engineRiverMask"

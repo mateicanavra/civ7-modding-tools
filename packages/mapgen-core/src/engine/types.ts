@@ -3,15 +3,6 @@ import type { MapSetup } from "@mapgen/core/map-setup.js";
 import type { TSchema } from "typebox";
 import type { StepFacets } from "./step-projectors.js";
 
-export type GenerationPhase =
-  | "setup"
-  | "foundation"
-  | "morphology"
-  | "gameplay"
-  | "hydrology"
-  | "ecology"
-  | "placement";
-
 export type DependencyTag = string;
 /** Setup and stage knobs available while compiling one step's internal configuration. */
 export type NormalizeContext<TKnobs = unknown> = Readonly<{
@@ -22,7 +13,8 @@ export type NormalizeContext<TKnobs = unknown> = Readonly<{
 /** One registered execution node over the single authentic MapGen context for a run. */
 export interface MapGenStep<TConfig = unknown, TResult = unknown> {
   readonly id: string;
-  readonly phase: GenerationPhase;
+  /** Recipe-composition stage that owns this executable occurrence. */
+  readonly stageId: string;
   readonly requires: readonly DependencyTag[];
   readonly provides: readonly DependencyTag[];
   readonly configSchema?: TSchema;

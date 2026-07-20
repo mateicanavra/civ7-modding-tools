@@ -1,5 +1,6 @@
 import type { RecipeDagResult } from "@civ7/studio-contract";
 import { formatArtifactGroupLabel, formatArtifactLabel } from "./artifactPresentation.js";
+import { normalizeRecipeDagDomainId } from "./domainPresentation.js";
 
 export type DagPoint = Readonly<{
   x: number;
@@ -12,8 +13,8 @@ export type StagePosition = Readonly<{
   width: number;
   height: number;
   rank: number;
-  phaseRow: number;
-  phaseId: string;
+  domainRow: number;
+  domainId: string;
 }>;
 
 export type StageEdgeGroup = Readonly<{
@@ -43,7 +44,7 @@ export type RoutedArtifactEdgeLabel = Readonly<{
   labelY: number;
 }>;
 
-export type PhaseBand = Readonly<{
+export type DomainBand = Readonly<{
   id: string;
   y: number;
   height: number;
@@ -59,7 +60,7 @@ export type RecipeDagLayout = Readonly<{
   width: number;
   height: number;
   positions: ReadonlyMap<string, StagePosition>;
-  phaseBands: readonly PhaseBand[];
+  domainBands: readonly DomainBand[];
   rankColumns: readonly RankColumn[];
   edgeGroups: readonly RoutedStageEdgeGroup[];
 }>;
@@ -70,8 +71,8 @@ const RANK_GAP_X = 150;
 const GRAPH_PAD_X = 80;
 const GRAPH_PAD_TOP = 96;
 const GRAPH_PAD_BOTTOM = 110;
-const PHASE_TITLE_HEIGHT = 42;
-const PHASE_MIN_HEIGHT = 188;
+const DOMAIN_TITLE_HEIGHT = 42;
+const DOMAIN_MIN_HEIGHT = 188;
 const STAGE_GAP_Y = 36;
 const EDGE_STEM = 34;
 const EDGE_LABEL_MIN_GAP = 26;
@@ -81,25 +82,20 @@ const EDGE_LABEL_ENDPOINT_FRACTION = 0.28;
 const EDGE_LABEL_DESTINATION_X_OFFSET = 128;
 const EDGE_LABEL_COLLISION_GAP = 30;
 
+/** Builds a deterministic recipe graph layout with presentation domains derived from stage ids. */
 export function buildRecipeDagLayout(dag: RecipeDagResult): RecipeDagLayout {
   const edgeGroups = groupStageEdges(dag);
-  const phaseIndexById = new Map(dag.phases.map((phase, index) => [phase.id, index]));
+  const orderedDomainIds = collectOrderedDomainIds(dag);
   const rankByStageId = assignDependencyRanks(dag, edgeGroups);
-  const phaseRowByStageId = assignPhaseRows(dag, phaseIndexById);
+  const domainRowByStageId = assignDomainRows(dag);
   const rankCount = Math.max(1, Math.max(...Array.from(rankByStageId.values()), 0) + 1);
-  const phaseMetrics = measurePhaseLanes(dag, phaseIndexById, phaseRowByStageId);
-  const positions = positionStages(
-    dag,
-    phaseMetrics,
-    phaseIndexById,
-    rankByStageId,
-    phaseRowByStageId
-  );
+  const domainMetrics = measureDomainLanes(dag, orderedDomainIds, domainRowByStageId);
+  const positions = positionStages(dag, domainMetrics, rankByStageId, domainRowByStageId);
   const width = Math.max(
     1040,
     GRAPH_PAD_X * 2 + rankCount * STAGE_WIDTH + Math.max(0, rankCount - 1) * RANK_GAP_X
   );
-  const height = Math.max(560, GRAPH_PAD_TOP + phaseMetrics.totalHeight + GRAPH_PAD_BOTTOM);
+  const height = Math.max(560, GRAPH_PAD_TOP + domainMetrics.totalHeight + GRAPH_PAD_BOTTOM);
   const rankColumns = Array.from({ length: rankCount }, (_, rank) => ({
     rank,
     x: GRAPH_PAD_X + rank * (STAGE_WIDTH + RANK_GAP_X),
@@ -110,12 +106,12 @@ export function buildRecipeDagLayout(dag: RecipeDagResult): RecipeDagLayout {
     width,
     height,
     positions,
-    phaseBands: dag.phases.map((phase) => {
-      const metrics = phaseMetrics.byPhaseId.get(phase.id);
+    domainBands: orderedDomainIds.map((domainId) => {
+      const metrics = domainMetrics.byDomainId.get(domainId);
       return {
-        id: phase.id,
+        id: domainId,
         y: metrics?.y ?? GRAPH_PAD_TOP,
-        height: metrics?.height ?? PHASE_MIN_HEIGHT,
+        height: metrics?.height ?? DOMAIN_MIN_HEIGHT,
       };
     }),
     rankColumns,
@@ -123,6 +119,7 @@ export function buildRecipeDagLayout(dag: RecipeDagResult): RecipeDagLayout {
   };
 }
 
+/** Collapses artifact edges with the same stage endpoints into one routed edge group. */
 export function groupStageEdges(dag: RecipeDagResult): StageEdgeGroup[] {
   const groups = new Map<
     string,
@@ -176,82 +173,94 @@ function assignDependencyRanks(
   return rankByStageId;
 }
 
-function measurePhaseLanes(
+function measureDomainLanes(
   dag: RecipeDagResult,
-  phaseIndexById: ReadonlyMap<string, number>,
-  phaseRowByStageId: ReadonlyMap<string, number>
+  orderedDomainIds: readonly string[],
+  domainRowByStageId: ReadonlyMap<string, number>
 ): {
   totalHeight: number;
-  byPhaseId: ReadonlyMap<string, { y: number; height: number; rowCount: number }>;
+  byDomainId: ReadonlyMap<string, { y: number; height: number; rowCount: number }>;
 } {
-  const rowCountByPhaseId = new Map<string, number>();
+  const rowCountByDomainId = new Map<string, number>();
   for (const stage of dag.stages) {
-    const phaseId = resolveStagePhaseId(dag, phaseIndexById, stage.phases);
-    const phaseRow = phaseRowByStageId.get(stage.stageId) ?? 0;
-    rowCountByPhaseId.set(phaseId, Math.max(rowCountByPhaseId.get(phaseId) ?? 0, phaseRow + 1));
+    const domainId = normalizeRecipeDagDomainId(stage.stageId);
+    const domainRow = domainRowByStageId.get(stage.stageId) ?? 0;
+    rowCountByDomainId.set(
+      domainId,
+      Math.max(rowCountByDomainId.get(domainId) ?? 0, domainRow + 1)
+    );
   }
 
-  const byPhaseId = new Map<string, { y: number; height: number; rowCount: number }>();
+  const byDomainId = new Map<string, { y: number; height: number; rowCount: number }>();
   let cursor = GRAPH_PAD_TOP;
-  for (const phase of dag.phases) {
-    const rowCount = Math.max(1, rowCountByPhaseId.get(phase.id) ?? 1);
+  for (const domainId of orderedDomainIds) {
+    const rowCount = Math.max(1, rowCountByDomainId.get(domainId) ?? 1);
     const height = Math.max(
-      PHASE_MIN_HEIGHT,
-      PHASE_TITLE_HEIGHT + rowCount * STAGE_HEIGHT + Math.max(0, rowCount - 1) * STAGE_GAP_Y + 26
+      DOMAIN_MIN_HEIGHT,
+      DOMAIN_TITLE_HEIGHT + rowCount * STAGE_HEIGHT + Math.max(0, rowCount - 1) * STAGE_GAP_Y + 26
     );
-    byPhaseId.set(phase.id, { y: cursor, height, rowCount });
+    byDomainId.set(domainId, { y: cursor, height, rowCount });
     cursor += height + 28;
   }
 
   return {
-    totalHeight: Math.max(PHASE_MIN_HEIGHT, cursor - GRAPH_PAD_TOP),
-    byPhaseId,
+    totalHeight: Math.max(DOMAIN_MIN_HEIGHT, cursor - GRAPH_PAD_TOP),
+    byDomainId,
   };
 }
 
 function positionStages(
   dag: RecipeDagResult,
-  phaseMetrics: ReturnType<typeof measurePhaseLanes>,
-  phaseIndexById: ReadonlyMap<string, number>,
+  domainMetrics: ReturnType<typeof measureDomainLanes>,
   rankByStageId: ReadonlyMap<string, number>,
-  phaseRowByStageId: ReadonlyMap<string, number>
+  domainRowByStageId: ReadonlyMap<string, number>
 ): ReadonlyMap<string, StagePosition> {
   const positions = new Map<string, StagePosition>();
 
   for (const stage of dag.stages) {
-    const phaseId = resolveStagePhaseId(dag, phaseIndexById, stage.phases);
+    const domainId = normalizeRecipeDagDomainId(stage.stageId);
     const rank = rankByStageId.get(stage.stageId) ?? 0;
-    const phaseRow = phaseRowByStageId.get(stage.stageId) ?? 0;
-    const phase = phaseMetrics.byPhaseId.get(phaseId);
+    const domainRow = domainRowByStageId.get(stage.stageId) ?? 0;
+    const domain = domainMetrics.byDomainId.get(domainId);
     positions.set(stage.stageId, {
       x: GRAPH_PAD_X + rank * (STAGE_WIDTH + RANK_GAP_X),
-      y: (phase?.y ?? GRAPH_PAD_TOP) + PHASE_TITLE_HEIGHT + phaseRow * (STAGE_HEIGHT + STAGE_GAP_Y),
+      y:
+        (domain?.y ?? GRAPH_PAD_TOP) +
+        DOMAIN_TITLE_HEIGHT +
+        domainRow * (STAGE_HEIGHT + STAGE_GAP_Y),
       width: STAGE_WIDTH,
       height: STAGE_HEIGHT,
       rank,
-      phaseRow,
-      phaseId,
+      domainRow,
+      domainId,
     });
   }
 
   return positions;
 }
 
-function assignPhaseRows(
-  dag: RecipeDagResult,
-  phaseIndexById: ReadonlyMap<string, number>
-): ReadonlyMap<string, number> {
+function assignDomainRows(dag: RecipeDagResult): ReadonlyMap<string, number> {
   const rowByStageId = new Map<string, number>();
-  const nextRowByPhaseId = new Map<string, number>();
+  const nextRowByDomainId = new Map<string, number>();
   for (const stage of [...dag.stages].sort(
     (a, b) => a.order - b.order || a.stageId.localeCompare(b.stageId)
   )) {
-    const phaseId = resolveStagePhaseId(dag, phaseIndexById, stage.phases);
-    const row = nextRowByPhaseId.get(phaseId) ?? 0;
+    const domainId = normalizeRecipeDagDomainId(stage.stageId);
+    const row = nextRowByDomainId.get(domainId) ?? 0;
     rowByStageId.set(stage.stageId, row);
-    nextRowByPhaseId.set(phaseId, row + 1);
+    nextRowByDomainId.set(domainId, row + 1);
   }
   return rowByStageId;
+}
+
+function collectOrderedDomainIds(dag: RecipeDagResult): readonly string[] {
+  return Array.from(
+    new Set(
+      [...dag.stages]
+        .sort((a, b) => a.order - b.order || a.stageId.localeCompare(b.stageId))
+        .map((stage) => normalizeRecipeDagDomainId(stage.stageId))
+    )
+  );
 }
 
 function routeEdges(
@@ -373,22 +382,14 @@ function spreadEdgeLabels(edgeGroups: readonly RoutedStageEdgeGroup[]): RoutedSt
   }));
 }
 
-function resolveStagePhaseId(
-  dag: RecipeDagResult,
-  phaseIndexById: ReadonlyMap<string, number>,
-  stagePhases: readonly string[]
-): string {
-  return (
-    stagePhases.find((phaseId) => phaseIndexById.has(phaseId)) ?? dag.phases[0]?.id ?? "unphased"
-  );
-}
-
+/** Encodes a polyline as an SVG path without changing point order. */
 export function pointsToPath(points: readonly DagPoint[]): string {
   if (points.length === 0) return "";
   const [first, ...rest] = points;
   return [`M ${first.x} ${first.y}`, ...rest.map((point) => `L ${point.x} ${point.y}`)].join(" ");
 }
 
+/** Builds collision-spread artifact labels for the selected recipe stage. */
 export function buildArtifactEdgeLabels(
   edgeGroups: readonly RoutedStageEdgeGroup[],
   selectedStageId: string | null = null
@@ -427,6 +428,7 @@ export function buildArtifactEdgeLabels(
   return spreadArtifactLabels(labels, selectedStageId);
 }
 
+/** Resolves the primary label position for one routed stage edge. */
 export function resolveEdgeLabelPosition(
   edge: RoutedStageEdgeGroup,
   selectedStageId: string | null
@@ -439,6 +441,7 @@ export function resolveEdgeLabelPosition(
   return resolveDestinationEdgeLabelPosition(edge);
 }
 
+/** Resolves every label position for one routed stage edge in stable artifact order. */
 export function resolveEdgeLabelPositions(
   edgeGroups: readonly RoutedStageEdgeGroup[],
   selectedStageId: string | null

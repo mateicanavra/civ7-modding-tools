@@ -33,7 +33,7 @@ import {
   type NativeRiverObjectSnapshot,
   parseCompleteExactAuthorshipEvidencePacket,
   runLocalFinalSurfaceSnapshot,
-} from "../../src/dev/diagnostics/live-parity.js";
+} from "./live-parity.js";
 
 type Args = Readonly<{
   requestId?: string;

@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
 import { NO_RIVER_TYPE } from "@civ7/map-policy";
+import type { FinalSurfaceSnapshot } from "../../scripts/live/live-parity";
+import { buildTerrainDeltaEdgeContexts } from "../../scripts/live/surface-delta-context";
 import { summarizeTerrainEdgeReadbackCompleteness } from "../../scripts/live/verify-terrain-edge-live-context";
-import type { FinalSurfaceSnapshot } from "../../src/dev/diagnostics/live-parity";
-import { buildTerrainDeltaEdgeContexts } from "../../src/dev/diagnostics/surface-delta-context";
 
 type TerrainRows = Parameters<typeof summarizeTerrainEdgeReadbackCompleteness>[0];
 type MapGrid = Parameters<typeof summarizeTerrainEdgeReadbackCompleteness>[1];

@@ -7,7 +7,6 @@ describe("step authoring", () => {
   const makeContract = (id: string) =>
     defineStep({
       id,
-      phase: "foundation",
       requires: [],
       provides: [],
       schema: EmptyStepConfigSchema,
@@ -16,7 +15,6 @@ describe("step authoring", () => {
   it("createStep rejects missing schema", () => {
     const contractWithoutSchema = {
       id: "alpha",
-      phase: "foundation",
       requires: [],
       provides: [],
     } as unknown as Parameters<typeof createStep>[0];
@@ -30,9 +28,30 @@ describe("step authoring", () => {
 
   it("createStep keeps the supplied contract authoritative over implementation object extras", () => {
     const alpha = makeContract("alpha");
-    const implementation = { contract: makeContract("beta"), run: () => {} };
+    const implementation = { contract: makeContract("beta"), debugAlias: true, run: () => {} };
+    const step = createStep(alpha, implementation);
 
-    expect(createStep(alpha, implementation).contract).toBe(alpha);
+    expect(step.contract).toBe(alpha);
+    expect(Object.prototype.hasOwnProperty.call(step, "debugAlias")).toBe(false);
+  });
+
+  it("rejects spread stage-identity aliases at both step authoring boundaries", () => {
+    const contractInput = {
+      id: "aliased-contract",
+      requires: [],
+      provides: [],
+      schema: EmptyStepConfigSchema,
+    };
+
+    expect(() => defineStep({ ...contractInput, ...{ phase: "foundation" } } as never)).toThrow(
+      "recipe composition owns stage identity"
+    );
+    expect(() =>
+      createStep(makeContract("aliased-implementation"), {
+        run: () => {},
+        ...{ stageId: "foundation" },
+      } as never)
+    ).toThrow("recipe composition owns stage identity");
   });
 
   it("materializes an explicit step default without mutating the operation contract", () => {
@@ -55,7 +74,6 @@ describe("step authoring", () => {
     });
     const step = defineStep({
       id: "fast-step",
-      phase: "foundation",
       requires: [],
       provides: [],
       schema: EmptyStepConfigSchema,
@@ -79,7 +97,6 @@ describe("step authoring", () => {
     expect(() =>
       defineStep({
         id: "invalid-empty-default-step",
-        phase: "foundation",
         requires: [],
         provides: [],
         schema: EmptyStepConfigSchema,
@@ -95,7 +112,6 @@ describe("step authoring", () => {
     expect(() =>
       defineStep({
         id: "missing-default-override-step",
-        phase: "foundation",
         requires: [],
         provides: [],
         schema: EmptyStepConfigSchema,
@@ -110,7 +126,6 @@ describe("step authoring", () => {
     expect(() =>
       defineStep({
         id: "BadId",
-        phase: "foundation",
         requires: [],
         provides: [],
         schema: EmptyStepConfigSchema,

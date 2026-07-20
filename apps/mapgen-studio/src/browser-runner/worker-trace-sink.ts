@@ -27,7 +27,7 @@ export function createWorkerTraceSink(options: {
     // will explicitly emit `run.canceled` once the execution unwinds.
     if (abortSignal?.aborted) return;
 
-    if (event.kind === "step.start" && event.stepId) {
+    if (event.kind === "step.start") {
       let stepIndex = stepIndexById.get(event.stepId);
       if (stepIndex === undefined) {
         stepIndex = nextStepIndex++;
@@ -39,13 +39,13 @@ export function createWorkerTraceSink(options: {
         generation,
         kind: "step.start",
         stepId: event.stepId,
-        phase: event.phase,
+        stageId: event.stageId,
         stepIndex,
       });
       return;
     }
 
-    if (event.kind === "step.finish" && event.stepId) {
+    if (event.kind === "step.finish") {
       const stepIndex = stepIndexById.get(event.stepId) ?? -1;
       post({
         type: "run.progress",
@@ -53,7 +53,7 @@ export function createWorkerTraceSink(options: {
         generation,
         kind: "step.finish",
         stepId: event.stepId,
-        phase: event.phase,
+        stageId: event.stageId,
         stepIndex,
         durationMs: event.durationMs,
       });

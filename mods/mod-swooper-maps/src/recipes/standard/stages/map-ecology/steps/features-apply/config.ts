@@ -17,7 +17,6 @@ import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/
  */
 export const FeaturesApplyStepContract = defineStep({
   id: "features-apply",
-  phase: "ecology",
   requires: [],
   provides: [
     STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied,

@@ -11,7 +11,6 @@ import {
  */
 export const GeomorphologyStepContract = defineStep({
   id: "geomorphology",
-  phase: "morphology",
   requires: [],
   provides: [],
   artifacts: {

@@ -1,3 +1,7 @@
+import type {
+  GeneratedFilePlanExclusiveSet,
+  GeneratedFilePlanFile,
+} from "@civ7/plugin-files/generated-file-plan";
 import {
   type RunCorrelation,
   STUDIO_RUN_MAP_ROW_ID,
@@ -12,13 +16,14 @@ import {
   type ValidatedMapConfig,
 } from "../../src/maps/configs/canonical.js";
 
+/** Admitted config and correlation used to render one request-local Studio run mod. */
 export type SwooperRunGeneratedModPlanInput = Readonly<{
   correlation: RunCorrelation;
   config: StandardMapConfigEnvelope;
   seed: number;
 }>;
 
-export type SwooperMapArtifactFileKind =
+type SwooperMapArtifactFileKind =
   | "generated-map-entry"
   | "mod-config"
   | "mod-info"
@@ -44,40 +49,40 @@ type SwooperRunArtifactMarkerMetadata = Readonly<{
   requestId: string;
 }>;
 
-export type SwooperMapArtifactMarkerMetadata =
+type SwooperMapArtifactMarkerMetadata =
   | SwooperCatalogArtifactMarkerMetadata
   | SwooperRunArtifactMarkerMetadata;
-
-export type SwooperMapArtifactFileContent =
-  | Readonly<{ kind: "text"; text: string }>
-  | Readonly<{ kind: "bytes"; bytes: Uint8Array }>;
 
 type SwooperMapArtifactNonGeneratedFileKind = Exclude<
   SwooperMapArtifactFileKind,
   "generated-map-entry"
 >;
 
-export type SwooperMapArtifactPlannedFile =
-  | Readonly<{
-      relativePath: string;
-      kind: "generated-map-entry";
-      content: SwooperMapArtifactFileContent;
-      markerMetadata: SwooperMapArtifactMarkerMetadata;
-    }>
-  | Readonly<{
-      relativePath: string;
-      kind: SwooperMapArtifactNonGeneratedFileKind;
-      content: SwooperMapArtifactFileContent;
-    }>;
+type SwooperMapArtifactPlannedFile =
+  | Readonly<
+      GeneratedFilePlanFile & {
+        relativePath: string;
+        kind: "generated-map-entry";
+        markerMetadata: SwooperMapArtifactMarkerMetadata;
+      }
+    >
+  | Readonly<
+      GeneratedFilePlanFile & {
+        relativePath: string;
+        kind: SwooperMapArtifactNonGeneratedFileKind;
+      }
+    >;
 
-export type SwooperMapArtifactExclusiveSet = Readonly<{
-  id: "generated-map-entrypoints";
-  relativeDir: string;
-  fileExtension: ".ts";
-  artifactKind: "generated-map-entry";
-}>;
+type SwooperMapArtifactExclusiveSet = Readonly<
+  GeneratedFilePlanExclusiveSet & {
+    id: "generated-map-entrypoints";
+    relativeDir: string;
+    fileExtension: ".ts";
+    artifactKind: "generated-map-entry";
+  }
+>;
 
-export type SwooperMapArtifactConfigProjection =
+type SwooperMapArtifactConfigProjection =
   | Readonly<{
       sourceKind: "catalog";
       sourcePath: string;
@@ -90,8 +95,8 @@ export type SwooperMapArtifactConfigProjection =
 
 /**
  * Pure artifact intent for Swooper map generation. The renderer owns relative
- * paths, content, and marker metadata; the writer owns output-root resolution,
- * cleanup, directory creation, and filesystem writes.
+ * paths, content, and marker metadata; `@civ7/plugin-files` owns generic
+ * output-root admission, currentness inspection, cleanup, and writes.
  */
 export type SwooperMapArtifactFilePlan = Readonly<{
   metadata: Readonly<{
@@ -137,11 +142,9 @@ function renderMapEntryArtifact(
       configHash,
       envelopeHash,
     },
-    content: {
-      kind: "text",
-      text: `/**
+    content: `/**
  * Generated from ../configs/${config.fileName}.
- * Do not edit by hand; re-run \`bun run gen:maps\`.
+ * Do not edit by hand; re-run \`nx run mod-swooper-maps:gen:maps\`.
  */
 
 /// <reference types="@civ7/types" />
@@ -163,7 +166,6 @@ export default createMap({
   config: mapConfig.config,
 });
 `,
-    },
   };
 }
 
@@ -182,9 +184,7 @@ function renderRunMapEntryArtifact(
       launchEnvelopeDigest: input.correlation.launchEnvelopeDigest,
       requestId: input.correlation.requestId,
     },
-    content: {
-      kind: "text",
-      text: `/**
+    content: `/**
  * Generated from a Studio Run in Game generation manifest.
  * Do not edit by hand; re-run the manifest generator.
  */
@@ -208,7 +208,6 @@ export default createMap({
   config: mapConfig.config,
 });
 `,
-    },
   };
 }
 
@@ -470,31 +469,22 @@ export function buildSwooperCatalogModFilePlan(
       {
         relativePath: "mod/config/config.xml",
         kind: "mod-config",
-        content: {
-          kind: "text",
-          text: renderConfigXml(options.configs.map((config) => config.canonicalConfig)),
-        },
+        content: renderConfigXml(options.configs.map((config) => config.canonicalConfig)),
       },
       {
         relativePath: "mod/swooper-maps.modinfo",
         kind: "mod-info",
-        content: {
-          kind: "text",
-          text: renderModInfo(options.configs.map((config) => config.canonicalConfig)),
-        },
+        content: renderModInfo(options.configs.map((config) => config.canonicalConfig)),
       },
       {
         relativePath: "mod/data/biome-hazards.xml",
         kind: "mod-data",
-        content: { kind: "text", text: renderBiomeHazardData() },
+        content: renderBiomeHazardData(),
       },
       {
         relativePath: "mod/text/en_us/MapText.xml",
         kind: "mod-text",
-        content: {
-          kind: "text",
-          text: renderMapText(options.configs.map((config) => config.canonicalConfig)),
-        },
+        content: renderMapText(options.configs.map((config) => config.canonicalConfig)),
       },
     ],
   };
@@ -525,42 +515,19 @@ export function buildSwooperCatalogMetadataFilePlan(
       {
         relativePath: "dist/recipes/standard-map-config.schema.json",
         kind: "recipe-schema",
-        content: { kind: "text", text: stableJson(options.envelopeSchema) },
+        content: stableJson(options.envelopeSchema),
       },
       {
         relativePath: "dist/recipes/standard-map-configs.js",
         kind: "studio-catalog-module",
-        content: {
-          kind: "text",
-          text: renderMapConfigsArtifact(options.configs),
-        },
+        content: renderMapConfigsArtifact(options.configs),
       },
       {
         relativePath: "dist/recipes/standard-map-configs.d.ts",
         kind: "studio-catalog-types",
-        content: { kind: "text", text: renderMapConfigsDts() },
+        content: renderMapConfigsDts(),
       },
     ],
-  };
-}
-
-/**
- * Builds the complete durable catalog artifact plan without touching disk.
- * Prefer the narrower catalog-mod or metadata plan when a target owns only one
- * output class.
- */
-export function buildSwooperMapArtifactFilePlan(
-  options: Readonly<{
-    configs: readonly ValidatedMapConfig[];
-    envelopeSchema: unknown;
-  }>
-): SwooperMapArtifactFilePlan {
-  const modPlan = buildSwooperCatalogModFilePlan({ configs: options.configs });
-  const metadataPlan = buildSwooperCatalogMetadataFilePlan(options);
-  return {
-    metadata: metadataPlan.metadata,
-    exclusiveSets: modPlan.exclusiveSets,
-    files: [...modPlan.files, ...metadataPlan.files],
   };
 }
 
@@ -606,27 +573,21 @@ export function buildSwooperRunGeneratedModFilePlan(
       {
         relativePath: "config/config.xml",
         kind: "mod-config",
-        content: {
-          kind: "text",
-          text: renderConfigXml([config], {
-            moduleId: STUDIO_RUN_MOD_ID,
-            outputFile: STUDIO_RUN_MAP_SCRIPT_PATH,
-            mapRowId: STUDIO_RUN_MAP_ROW_ID,
-          }),
-        },
+        content: renderConfigXml([config], {
+          moduleId: STUDIO_RUN_MOD_ID,
+          outputFile: STUDIO_RUN_MAP_SCRIPT_PATH,
+          mapRowId: STUDIO_RUN_MAP_ROW_ID,
+        }),
       },
       {
         relativePath: `${STUDIO_RUN_MOD_ID}.modinfo`,
         kind: "mod-info",
-        content: {
-          kind: "text",
-          text: renderModInfo([config], renderMode),
-        },
+        content: renderModInfo([config], renderMode),
       },
       {
         relativePath: "text/en_us/MapText.xml",
         kind: "mod-text",
-        content: { kind: "text", text: renderMapText([config], renderMode) },
+        content: renderMapText([config], renderMode),
       },
     ],
   };

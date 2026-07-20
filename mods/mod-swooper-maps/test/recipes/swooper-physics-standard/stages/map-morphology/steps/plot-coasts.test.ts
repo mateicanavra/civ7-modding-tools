@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
+import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { resolveStandardProjectionTerrainTypes } from "../../../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import { artifacts as mapMorphologyArtifacts } from "../../../../../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
 import { PlotCoastsStep } from "../../../../../../src/recipes/standard/stages/map-morphology/steps/plot-coasts/step.js";
 import { PlotContinentsStep } from "../../../../../../src/recipes/standard/stages/map-morphology/steps/plot-continents/step.js";
@@ -49,10 +49,10 @@ describe("map-morphology/plot-coasts", () => {
     });
     const context = createMapContext({ setup, adapter });
     const {
-      coast: coastTerrain,
-      flat: flatTerrain,
-      ocean: oceanTerrain,
-    } = resolveStandardProjectionTerrainTypes(context.adapter);
+      TERRAIN_COAST: coastTerrain,
+      TERRAIN_FLAT: flatTerrain,
+      TERRAIN_OCEAN: oceanTerrain,
+    } = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
 
     const size = width * height;
     // Land only at (0,0). Source coast = a shoreline-ring water tile (1,0) + a shelf tile (2,1).
@@ -135,9 +135,8 @@ describe("map-morphology/plot-coasts", () => {
       rng: createLabelRng(seed),
     });
     const context = createMapContext({ setup, adapter });
-    const { coast: coastTerrain, ocean: oceanTerrain } = resolveStandardProjectionTerrainTypes(
-      context.adapter
-    );
+    const { TERRAIN_COAST: coastTerrain, TERRAIN_OCEAN: oceanTerrain } =
+      CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
     const size = width * height;
     const landMask = new Uint8Array(size).fill(0);
     landMask[0] = 1;

@@ -28,7 +28,6 @@ describe("authoring: hello recipe compile/execute", () => {
     const executions: string[] = [];
     const helloContract = defineStep({
       id: "hello",
-      phase: "foundation",
       requires: [],
       provides: [],
       schema: Type.Object({}, { additionalProperties: false }),
@@ -69,7 +68,6 @@ describe("authoring: hello recipe compile/execute", () => {
     let normalizationCount = 0;
     const contract = defineStep({
       id: "observe-seed",
-      phase: "foundation",
       requires: [],
       provides: [],
       schema: Type.Object({ seed: Type.Number() }, { additionalProperties: false }),
@@ -169,7 +167,6 @@ describe("authoring: hello recipe compile/execute", () => {
 
     const stepContract = defineStep({
       id: "use-op",
-      phase: "foundation",
       requires: [],
       provides: [],
       ops: {
@@ -225,7 +222,6 @@ describe("authoring: hello recipe compile/execute", () => {
   it("threads step facet sinks through synchronous and asynchronous recipe runs", async () => {
     const facetContract = defineStep({
       id: "facet-output",
-      phase: "foundation",
       requires: [],
       provides: [],
       schema: Type.Object({ score: Type.Number() }, { additionalProperties: false }),

@@ -16,7 +16,6 @@ import { artifactModules as placementArtifactModules } from "../../artifacts/ind
  */
 export const DerivePlacementInputsStepContract = defineStep({
   id: "derive-placement-inputs",
-  phase: "placement",
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
     STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied,

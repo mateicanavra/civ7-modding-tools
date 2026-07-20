@@ -12,7 +12,6 @@ import {
  */
 export const PlanFloodplainsStepContract = defineStep({
   id: "plan-floodplains",
-  phase: "ecology",
   requires: [],
   provides: [],
   artifacts: {

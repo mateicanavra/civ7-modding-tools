@@ -33,7 +33,7 @@ Plan compilation must:
 - validates step ids are unique,
 - validates steps exist in the StepRegistry,
 - emits `ExecutionPlanNode` for each enabled step:
-  - `phase` is taken from the registered step
+  - `stageId` is assigned by the recipe composition that owns the step occurrence
   - `requires`/`provides` are taken from the registered step
   - `config` is taken from the recipe step config
 

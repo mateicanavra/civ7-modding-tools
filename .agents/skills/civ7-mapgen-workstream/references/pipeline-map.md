@@ -13,7 +13,7 @@
 | Domain algorithms (ops, strategies, rules) | `mods/mod-swooper-maps/src/domain/<domain>/` | the mod |
 | Recipe (stages, steps, ordering, artifacts) | `mods/mod-swooper-maps/src/recipes/standard/` | the mod |
 | Map configs / generated entrypoints / presets | `mods/mod-swooper-maps/src/maps/{configs,generated,presets}` | the mod |
-| Diagnostics / viz (the harness) | `mods/mod-swooper-maps/src/dev/{diagnostics,viz}` | the mod |
+| Diagnostics / viz (the harness) | `mods/mod-swooper-maps/scripts/diagnostics` | the mod |
 | Authoring API + execution infra (`createRecipe`/`createStage`/`createStep`/`createOp`/`defineArtifact`, PipelineExecutor, write-once artifact runtime, TypeBox validation, trace/viz) | `@swooper/mapgen-core` = `packages/mapgen-core` | engine substrate (referenced, not changed for domain work) |
 | SDK / Civ7 adapter contracts | `packages/sdk`, adapter | `civ7-architecture-authority` |
 
@@ -27,7 +27,7 @@
 - **op** — op-per-concern unit. `defineOp({ kind, id, input, output, strategies })` in `contract.ts`. Each op is its own directory `ops/<op-id>/{contract.ts, index.ts, types.ts, strategies/, rules?/}`. No cross-op reach-ins. Op id is `<domain>/<op-name>` kebab-case.
 - **strategy** — a named variant inside an op's `strategies` record. Key `default` is mandatory. The op envelope is `{ strategy: "<id>", config: {...} }` (TypeBox discriminated union built by `defineOp`). Most ops are single-strategy; multi-strategy ops live mostly in hydrology + ecology (see strategy table below).
 - **rule** — pure function in an op's `rules/`, shared across that op's strategies (e.g. `computeWindsEarthlike`).
-- **step** — executable contract boundary. `defineStep({ id, phase, requires, provides, artifacts:{requires,provides}, ops, schema })` selects consumed artifact contracts and complete provider modules; `createStep(contract, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. `run(context, config, ops, deps)` publishes and reads through `deps.artifacts.<name>`, whose runtimes derive from the contract's provider modules.
+- **step** — executable contract boundary. `defineStep({ id, requires, provides, artifacts:{requires,provides}, ops, schema })` selects consumed artifact contracts and complete provider modules; `createStep(contract, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. Recipe composition assigns the exact `stageId`; steps do not author a duplicate phase. `run(context, config, ops, deps)` publishes and reads through `deps.artifacts.<name>`, whose runtimes derive from the contract's provider modules.
 - **stage** — recipe-level authoring + ownership surface. `createStage({ id, knobsSchema, steps, public?, compile? })`. Owns its authoring surface, knobs, and step composition — NOT global ordering, truth authority, or compute.
 - **recipe** — global stage/step order. `createRecipe({ id, namespace, tagDefinitions, stages, compileOpsById })`. Standard recipe id `mod-swooper-maps/standard`. Ordering is enforced by `contract-manifest.ts`, not by key order in `recipe.ts`.
 - **artifact** — named, typed, write-once cross-stage data. One artifact module owns its `defineArtifact({ name, id, schema })` contract and complete structural/semantic `validate` function. `defineArtifactCatalog` derives runtime modules and consumer handles from that single registry; id `artifact:<domain>.<name>` or `artifact:map.<name>`. Pipeline dependencies are closed to artifact data (`artifact:*`) and execution guarantees (`effect:*`).
@@ -117,8 +117,8 @@ A single op is a directory. Using `morphology/compute-landmask` as the reference
 
 ```
 domain/morphology/
-  index.ts                  defineDomain (contract-only) — referenced by step contracts via @mapgen/domain/morphology
-  ops.ts                    createDomain (runtime) — referenced by recipe.ts via @mapgen/domain/morphology/ops
+  index.ts                  defineDomain (contract-only) — current step-contract owner surface
+  ops.ts                    createDomain (runtime) — current recipe runtime owner surface
   ops/
     contracts.ts            registry: { computeLandmask: MyContract, ... }  (contract-only)
     index.ts                registry: { computeLandmask: myOp, ... } satisfies DomainOpImplementationsForContracts
@@ -132,9 +132,11 @@ domain/morphology/
       types.ts              OpTypeBagOf<Contract> — typed input/output/envelope bag
 ```
 
-Two import faces of a domain (path alias `@mapgen/domain/*` → `src/domain/*`):
-- Step **contracts** import `@mapgen/domain/<domain>` (the `defineDomain` contract index) to reference op contracts.
-- `recipe.ts` imports `@mapgen/domain/<domain>/ops` (the `createDomain` runtime) for `collectCompileOps`.
+Two current import faces of a domain are routed through the transitional
+`@mapgen/domain/*` alias: the contract root used by step contracts and the
+`/ops` runtime root used by `recipe.ts`. These exact roots are compatibility
+surfaces, not a pattern to extend: do not add alias mappings or deep imports.
+Package-ownership Slice 7 replaces them with real mod-owned dependency surfaces.
 
 Visualization is owned by the step's optional `createStep(contract, { viz })`
 facet. A helper private to one step lives at

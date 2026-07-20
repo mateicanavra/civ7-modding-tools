@@ -12,7 +12,6 @@ import {
  */
 export const IslandsStepContract = defineStep({
   id: "islands",
-  phase: "morphology",
   requires: [],
   provides: [],
   artifacts: {

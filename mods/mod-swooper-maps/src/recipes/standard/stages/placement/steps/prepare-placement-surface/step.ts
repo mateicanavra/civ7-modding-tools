@@ -1,5 +1,6 @@
+import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
+import { restoreProjectedCoastTerrain } from "../../../map-morphology/coast-terrain-restoration.js";
 import { logTerrainStats, runPlacementProductStep } from "../../log.js";
 import { PreparePlacementSurfaceStepContract } from "./config.js";
 import { readFinalLakeProjection } from "./lake-readback.js";
@@ -19,7 +20,7 @@ export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceSte
     const { adapter, trace } = context;
     const { width, height } = context.setup.dimensions;
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
-    const emit = (payload: Record<string, unknown>): void => {
+    const emit = (payload: TraceJsonObject): void => {
       if (!trace?.isVerbose) return;
       trace.event(() => payload);
     };
