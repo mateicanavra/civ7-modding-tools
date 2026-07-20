@@ -7,6 +7,7 @@
  */
 
 import { describe, expect, it } from "bun:test";
+import ecology from "@mapgen/domain/ecology/ops";
 import type { EngineAdapter } from "@swooper/mapgen-core";
 
 type ClimateAdapter = Pick<
@@ -126,8 +127,7 @@ describe("CIV-18: Call-site Fixes", () => {
   });
 
   describe("biomes op exports", () => {
-    it("classifyBiomes exposes a runnable op with defaults", async () => {
-      const ecology = (await import("@mapgen/domain/ecology/ops")).default;
+    it("classifyBiomes exposes a runnable op with defaults", () => {
       expect(typeof ecology.ops.classifyBiomes.run).toBe("function");
       expect(ecology.ops.classifyBiomes.defaultConfig).toBeDefined();
     });

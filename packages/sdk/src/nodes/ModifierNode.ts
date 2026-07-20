@@ -6,6 +6,11 @@ import { BaseNode } from "./BaseNode";
 import { ModifierRequirementNode, TModifierRequirementNode } from "./ModifierRequirementNode";
 import { StringNode, TStringNode } from "./StringNode";
 
+function booleanAttribute(value: boolean): "true" | "false" {
+  if (value) return "true";
+  return "false";
+}
+
 export type TModifierNode = Pick<
   ModifierNode,
   | "id"
@@ -42,8 +47,8 @@ export class ModifierNode extends BaseNode<TModifierNode> {
         id: this.id,
         collection: this.collection,
         effect: this.effect,
-        ...(this.permanent !== null && { permanent: this.permanent ? "true" : "false" }),
-        ...(this.runOnce !== null && { "run-once": this.runOnce ? "true" : "false" }),
+        ...(this.permanent !== null && { permanent: booleanAttribute(this.permanent) }),
+        ...(this.runOnce !== null && { "run-once": booleanAttribute(this.runOnce) }),
       },
       _content: [
         {
