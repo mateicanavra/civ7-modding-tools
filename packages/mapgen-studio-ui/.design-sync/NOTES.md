@@ -449,3 +449,53 @@ historical.
   `other`); selector-scoped finding shrinks to the utility-internal residue
   (required to be selector-scoped — do not follow the hoist-to-`:root`
   advice). Outcome to be recorded in root DEF-017 either way.
+
+## Flat-and-flush domino sealed (2026-07-20) — RecipePanel config surface, 9 deltas
+
+- **Scope:** the design guide `explorations/proposals/recipe-panel/flat-and-flush.implementation.md`
+  implemented whole (order 5 → 8 → 9 → rest) on `agent-DS-studio-ui-design-sync`:
+  per-stage Reset/JSON actions in the stage header (5), dirty-gated Reset
+  (8), per-field drift highlight + inside undo on NumberWidget/SelectWidget
+  (9), flush/flat/hugged body rhythm (1), flush transparent footer trigger
+  (2), single Power overrides toggle (3), Link glyph (4), Auto-Expand removed
+  incl. the whole sticky scroll engine (6), scroll fade removed (7).
+- **Defaults authority (ruled, evidence):** the recipe artifacts generator
+  materializes the default config FROM the schema (`Value.Create` in
+  mods/mod-swooper-maps/src/recipes/standard/artifacts.ts; verified 484/484
+  leaf equality). The schema is the single defaults authority; templates
+  resolve it once (schemaDefaultsFor) and the reset request CARRIES those
+  defaults — the panel never re-resolves (post-review collapse of a
+  duplicated resolution path).
+- **Review:** LENS-BEHAVIOR + LENS-FIDELITY (Opus) via ultracode workflow,
+  3-refuter adversarial verification; 1 P2 accepted (fixed as above), 1 P2
+  rejected on evidence (global `*:focus-visible` outline in theme.css covers
+  the icon-button family; ring-less is the house pattern — same evidence
+  rejects the 3 hygiene advisories), advisories applied (dead scroll ref
+  removed; scoped-reset regression test added; nested-indent ruling recorded
+  in FORM comments). SOL-GATE UNAVAILABLE (Codex usage limit until
+  2026-07-26) — core probes run inline by the director at reduced depth:
+  approve-with-findings, both hardenings applied (null/undefined drift
+  normalization; pointer unescape via pointerToPath). Recorded as a
+  known-depth-reduction, not a skip. Biome check clean.
+- **Behavior removals (OpenSpec disposition):** global config reset
+  (RecipePanel `onConfigReset` prop dropped; StudioShell wiring removed) and
+  Auto-Expand-on-Scroll are design-directed capability removals confined to
+  the studio UI surface; no runtime-contract seam moved. Recorded here + in
+  the commit trail; no OpenSpec change opened (granularity ruling under the
+  FRAME's protective belt).
+- **Sync:** reference storybook rebuilt BEFORE compare (REFERENCE_STALE guard
+  honored). Grades: RecipePanel (2), BrowserConfigObjectFieldTemplate (3, incl.
+  new Modified Stage), NumberWidget (3, incl. Modified), SelectWidget (3,
+  incl. Modified), StudioShellLayout (1) — all match. Canary
+  (reference_drift): two samples × 5 carried components spot-checked, all
+  confirmed, churned=[]. Known limits: Toaster RENDER_BLANK warning
+  (non-blocking); Dialog/MapConfigSaveDialog sb-error = portal-set capture
+  limitation on UNCHANGED components (grades carried; manual full-page path
+  remains their law).
+- **Upload (atomic):** sentinel fence → 40 content files (7 component dirs +
+  7 previews + bundle + styling + README + design-tokens.md) → `_ds_sync.json`
+  alone → sentinel re-arm. New hashes: `styleSha 690b8349e506…`,
+  `bundleSha12 a84c6564c321`, `auxSha ca43ecd42b201e39`. Local anchor
+  refreshed from the uploaded sidecar.
+- **Tests:** 203/203 package tests; app typecheck green; new scoped-reset
+  regression test (dirty gate + scoped dialog copy + schema-defaults patch).
