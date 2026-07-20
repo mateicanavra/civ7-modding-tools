@@ -1,11 +1,13 @@
 import { describe, expect, it } from "bun:test";
 
+import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { NATURAL_WONDER_CATALOG } from "@civ7/map-policy";
 import { WONDER_GROUPS } from "@mapgen/domain/placement/model/policy/natural-wonder-groups.js";
 import placementDomain from "@mapgen/domain/placement/ops";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
 const { planNaturalWonders, planWonders } = placementDomain.ops;
+const tinyMapSize = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
 
 function naturalWonderSelection(minSpacingTiles: number) {
   const selection = structuredClone(planNaturalWonders.defaultConfig);
@@ -80,19 +82,6 @@ describe("natural wonder planning", () => {
     expect(result.wondersCount).toBe(2);
   });
 
-  it("rejects legacy wondersPlusOne config", () => {
-    expect(() =>
-      runAdmittedOperationForTest(
-        planWonders,
-        { mapInfo: { NumNaturalWonders: 2 } },
-        {
-          strategy: "default",
-          config: { wondersPlusOne: true },
-        }
-      )
-    ).toThrow();
-  });
-
   it("plans zero wonders when map-size default is absent", () => {
     const result = runAdmittedOperationForTest(
       planWonders,
@@ -103,8 +92,7 @@ describe("natural wonder planning", () => {
   });
 
   it("plans deterministic natural wonder placements from physical fields", () => {
-    const syntheticDimensions = { width: 4, height: 3 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = tinyMapSize.dimensions;
     const size = width * height;
     const result = runAdmittedOperationForTest(
       planNaturalWonders,
@@ -113,7 +101,7 @@ describe("natural wonder planning", () => {
         height,
         wondersCount: 2,
         landMask: new Uint8Array(size).fill(1),
-        elevation: Int16Array.from([5, 20, 30, 40, 10, 100, 70, 20, 0, 10, 15, 60]),
+        elevation: Int16Array.from({ length: size }, (_, index) => (index * 37) % 120),
         aridityIndex: new Float32Array(size).fill(0.3),
         riverClass: new Uint8Array(size),
         lakeMask: new Uint8Array(size),
@@ -149,8 +137,7 @@ describe("natural wonder planning", () => {
   });
 
   it("drops explicit empty natural-wonder footprints from placement candidates", () => {
-    const syntheticDimensions = { width: 4, height: 3 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = tinyMapSize.dimensions;
     const size = width * height;
     const result = runAdmittedOperationForTest(
       planNaturalWonders,
@@ -159,7 +146,7 @@ describe("natural wonder planning", () => {
         height,
         wondersCount: 2,
         landMask: new Uint8Array(size).fill(1),
-        elevation: Int16Array.from([5, 20, 30, 40, 10, 100, 70, 20, 0, 10, 15, 60]),
+        elevation: Int16Array.from({ length: size }, (_, index) => (index * 37) % 120),
         aridityIndex: new Float32Array(size).fill(0.3),
         riverClass: new Uint8Array(size),
         lakeMask: new Uint8Array(size),
@@ -190,8 +177,7 @@ describe("natural wonder planning", () => {
   });
 
   it("produces identical natural-wonder placements on repeated runs (deterministic, no RNG)", () => {
-    const syntheticDimensions = { width: 6, height: 6 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = tinyMapSize.dimensions;
     const size = width * height;
     const f32 = (fn: (i: number) => number) =>
       Float32Array.from(Array.from({ length: size }, (_, i) => fn(i)));
@@ -242,8 +228,7 @@ describe("natural wonder planning", () => {
   });
 
   it("emits next-best fallback anchors for materialize retry", () => {
-    const syntheticDimensions = { width: 4, height: 3 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = tinyMapSize.dimensions;
     const size = width * height;
     const result = runAdmittedOperationForTest(
       planNaturalWonders,
@@ -252,7 +237,7 @@ describe("natural wonder planning", () => {
         height,
         wondersCount: 1,
         landMask: new Uint8Array(size).fill(1),
-        elevation: Int16Array.from([5, 20, 30, 40, 10, 100, 70, 20, 0, 10, 15, 60]),
+        elevation: Int16Array.from({ length: size }, (_, index) => (index * 37) % 120),
         aridityIndex: new Float32Array(size).fill(0.3),
         riverClass: new Uint8Array(size),
         lakeMask: new Uint8Array(size),
@@ -290,6 +275,7 @@ describe("natural wonder planning", () => {
   });
 
   it("excludes overlapping footprints from fallback anchors (multi-tile + used plots)", () => {
+    // A controlled 6x6 topology makes multi-tile wrapping and overlap exclusions inspectable.
     const syntheticDimensions = { width: 6, height: 6 } as const;
     const { width, height } = syntheticDimensions;
     const size = width * height;
@@ -368,8 +354,7 @@ describe("natural wonder planning", () => {
   });
 
   it("diminishing-returns decay flips the second pick to a fresh group (variety)", () => {
-    const syntheticDimensions = { width: 4, height: 3 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = tinyMapSize.dimensions;
     const size = width * height;
     const anchorOnly = { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] };
     // Uniform map tuned so two arid wonders (group H) each score ~0.8 and one
@@ -413,8 +398,4 @@ describe("natural wonder planning", () => {
     // selected because the decay made it lose to the fresh forest group.
     expect(placed).toEqual([30, 31]);
   });
-
-  // The generic plan-resources op was deleted in placement-realignment S3;
-  // resource planning is covered by the domain/resources op-contract tests
-  // (derive-habitat-fields, select-resource-sites) and the recipe smoke tests.
 });

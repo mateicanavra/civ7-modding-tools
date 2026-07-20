@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
+import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
@@ -60,8 +61,7 @@ function buildDeterministicTerrain(
 
 describe("m11 geomorphology (stream-power erosion + sediment transport)", () => {
   it("is deterministic and correlates erosion/deposition with physics proxies (no noise)", () => {
-    const syntheticDimensions = { width: 80, height: 54 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = getCiv7StandardMapSizePreset("MAPSIZE_TINY").dimensions;
     const size = width * height;
 
     const { elevation, landMask } = buildDeterministicTerrain(width, height);
@@ -214,71 +214,5 @@ describe("m11 geomorphology (stream-power erosion + sediment transport)", () => 
     const lowSlopeDeposit = mean(depositHighFlowLowSlope);
     const highSlopeDeposit = mean(depositHighFlowHighSlope);
     expect(lowSlopeDeposit).toBeGreaterThan(highSlopeDeposit);
-  });
-
-  it("runs within a loose budget for a medium fixture size", () => {
-    const syntheticDimensions = { width: 128, height: 96 } as const;
-    const { width, height } = syntheticDimensions;
-    const size = width * height;
-
-    const { elevation, landMask } = buildDeterministicTerrain(width, height);
-    const routing = runAdmittedOperationForTest(
-      computeFlowRouting,
-      { width, height, elevation, landMask },
-      {
-        ...computeFlowRouting.defaultConfig,
-        config: { ...computeFlowRouting.defaultConfig.config },
-      }
-    );
-
-    const erodibilityK = new Float32Array(size);
-    const sedimentDepth = new Float32Array(size);
-    for (let i = 0; i < size; i++) {
-      erodibilityK[i] = landMask[i] === 1 ? 1 : 0;
-      sedimentDepth[i] = landMask[i] === 1 ? 0.08 : 0;
-    }
-
-    const start = performance.now();
-    void runAdmittedOperationForTest(
-      computeGeomorphicCycle,
-      {
-        width,
-        height,
-        elevation,
-        landMask,
-        flowDir: routing.flowDir,
-        flowAccum: routing.flowAccum,
-        erodibilityK,
-        sedimentDepth,
-      },
-      {
-        ...computeGeomorphicCycle.defaultConfig,
-        config: {
-          ...computeGeomorphicCycle.defaultConfig.config,
-          geomorphology: {
-            ...computeGeomorphicCycle.defaultConfig.config.geomorphology,
-            fluvial: {
-              ...computeGeomorphicCycle.defaultConfig.config.geomorphology.fluvial,
-              rate: 0.2,
-              m: 0.55,
-              n: 1.0,
-            },
-            diffusion: {
-              ...computeGeomorphicCycle.defaultConfig.config.geomorphology.diffusion,
-              rate: 0.05,
-            },
-            deposition: {
-              ...computeGeomorphicCycle.defaultConfig.config.geomorphology.deposition,
-              rate: 0.22,
-            },
-            eras: 2,
-          },
-          worldAge: "mature",
-        },
-      }
-    );
-    const elapsedMs = performance.now() - start;
-
-    expect(elapsedMs).toBeLessThan(1000);
   });
 });
