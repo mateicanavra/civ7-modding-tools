@@ -2,31 +2,30 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-10",
+  "updatedOn": "2026-07-12",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 112,
-    "currentRowCount": 112,
-    "retiredHistoricalRowCount": 24,
-    "missingLiveRows": [],
+    "liveManifestCount": 125,
+    "currentRowCount": 125,
+    "retiredHistoricalRowCount": 30,
     "duplicateLiveRows": []
   },
   "counts": {
     "actionDecision": {
-      "boundary inversion": 3,
+      "boundary inversion": 6,
       "closed structure inversion": 2,
-      "consolidation/dedup": 1,
-      "context admission": 26,
+      "consolidation/dedup": 2,
+      "context admission": 27,
       "no action": 58,
       "positive authority creation": 8,
-      "retirement/garbage collection": 3,
-      "runtime/source validation": 2,
-      "split by owner": 9
+      "retirement/garbage collection": 4,
+      "runtime/source validation": 3,
+      "split by owner": 15
     },
     "packetNeeded": {
-      "false": 112
+      "false": 125
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 2,
@@ -37,15 +36,16 @@
       "decision-packet-accepted; split-generalization-needed": 1,
       "excluded-native-rail-not-semantic-remediation": 1,
       "none": 85,
-      "packet-complete": 18
+      "packet-complete": 17,
+      "transition-decision-accepted": 14
     }
   },
   "gateState": {
-    "currentLayer": "Domain Source Topology Enforcement Ratchet closure.",
-    "currentGate": "Closed: deletion slice complete. The ratchet initiative is concluded by removal of the two absorbed duplicate rules and retention of require_domain_source_topology as survivor authority.",
-    "mutationAuthorization": "No further rule mutation is authorized by the completed domain-source-topology closure. New mutations require a new named remediation or blueprint-authority slice.",
+    "currentLayer": "Packet A.1 ecology/hydrology/placement token-authority review repair.",
+    "currentGate": "Closed: five split lexical/path proxy packets are retired; accepted deterministic authored-generation and adjacent boundary rows remain the live authority owners.",
+    "mutationAuthorization": "The explicit Packet A.1 repair authorized this bounded deletion slice. Further rule mutation requires a new named remediation or blueprint-authority slice.",
     "nextSliceId": null,
-    "nextLegalAction": "Select the next highest-leverage blueprint authority descent or remediation slice from the updated rule and scope corpuses.",
+    "nextLegalAction": "Complete the already-open non-lexical deterministic authored-generation authority implementation before closing prohibit_ambient_rng_in_authored_generation or selecting a separate remediation slice.",
     "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json",
     "sourceCommit": null
   },
@@ -210,6 +210,171 @@
       "currentPath": ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/rule.json"
     },
     {
+      "ruleId": "grit-studio-run-attribution-report-boundary",
+      "lane": "MapGen Studio",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Preserve private attribution and explicit diagnostics lookup, but replace the exact operationRuntime/attributionReport.ts and diagnostics.ts symbol fence when the transitional Studio runtime is decomposed.",
+      "evidenceNote": "The Grit manifest, pattern, empty baseline, Studio server/app-host scan scope, studio-run-attribution-report OpenSpec packet, and transition decision were reviewed. The redaction boundary is durable; the two allowed files and named report symbols are current-topology proxies.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-attribution-report-boundary/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "durable private-report boundary expressed through transitional files and symbols",
+      "ruleIdPlan": "retain for the transitional baseline, then re-express at the future private diagnostics/reporting owner and retire the exact-file proxy",
+      "semanticDecision": "Attribution must remain private and reachable only through explicit diagnostics lookup. Current Studio report assembly files are implementation evidence, not permanent owner topology.",
+      "residualFollowUp": "Future Studio decomposition must install equivalent redaction/report-owner authority before this exact source fence retires.",
+      "implementationReadiness": "no mutation in Packet A.1; future boundary rewrite is gated by target-owner construction"
+    },
+    {
+      "ruleId": "grit-studio-run-cancel-command-owner",
+      "lane": "MapGen Studio",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the closed public cancel-command contract and single cancellation owner; later split contract authority from exact router, StudioOperationRuntime, and registry wiring.",
+      "evidenceNote": "The Grit manifest, pattern, empty baseline, contract/server source scope, studio-run-explicit-cancellation OpenSpec packet, and transition decision were reviewed. The command semantics are durable, while current oRPC leaf and runtime symbol placement are transitional.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "mixed durable command contract and transitional runtime topology",
+      "ruleIdPlan": "retain now; future authority separates the public command shape from cancellation implementation ownership",
+      "semanticDecision": "Run in Game cancellation remains one explicit request-id command, but the current router/service/registry chain is not future architecture.",
+      "residualFollowUp": "Rebind the command to the future service/control owner before retiring exact current symbols and paths.",
+      "implementationReadiness": "no mutation in Packet A.1; split accompanies Studio target construction"
+    },
+    {
+      "ruleId": "grit-studio-run-copy-deploy-boundary",
+      "lane": "MapGen Studio",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Preserve copy-only deployment, stable deployment identity, private snapshot evidence, and lease protection; later separate those invariants from exact engines.ts, workflow, record, and workspace symbols.",
+      "evidenceNote": "The Grit manifest, pattern, empty baseline, server/workspace/app-host scope, studio-run-deployment-snapshot-lease OpenSpec packet, and transition decision were reviewed. Deployment identity and mutation safety are durable; current host orchestration is replacement-listed.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "mixed durable deployment/lease law and transitional orchestration topology",
+      "ruleIdPlan": "retain now; future authority splits deploy identity and mutation boundary from host implementation wiring",
+      "semanticDecision": "Run deployment must copy the request-local generated mod under one protected deployment identity and retain private evidence; engines.ts and StudioOperationRuntime are not permanent owners.",
+      "residualFollowUp": "Construct the future deployment capability and lease owner before retiring exact current source assertions.",
+      "implementationReadiness": "no mutation in Packet A.1; future split requires target deployment ownership"
+    },
+    {
+      "ruleId": "grit-studio-run-direct-control-observation-boundary",
+      "lane": "MapGen Studio",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep direct-control as the sole Civ7 transport, correlation inputs, and private observation evidence; later retire the exact Studio self-RPC client, port, workflow, and engines.ts topology.",
+      "evidenceNote": "The Grit manifest, pattern, empty baseline, server/app-host scope, studio-run-runtime-observation OpenSpec packet, direct-control authority, and transition decision were reviewed. The one-transport and private-evidence boundaries survive; current observation plumbing does not.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "mixed durable control/evidence boundaries and transitional host/service topology",
+      "ruleIdPlan": "retain now; future authority separates direct-control transport law and observation evidence from current Studio orchestration",
+      "semanticDecision": "Civ7 observation remains behind @civ7/direct-control and must consume correlated private evidence, but the current Studio RPC loop and host files are not target architecture.",
+      "residualFollowUp": "Re-express control and evidence ownership at the future oRPC/control boundary before deleting exact current topology assertions.",
+      "implementationReadiness": "no mutation in Packet A.1; future split is coupled to control-architecture realization"
+    },
+    {
+      "ruleId": "grit-studio-run-generator-port-boundary",
+      "lane": "MapGen Studio",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Preserve manifest-only generation handoff and private generated-mod evidence; later split that contract from exact port, workflow, and app-host generator symbols.",
+      "evidenceNote": "The Grit manifest, pattern, empty baseline, Studio server/app-host scope, studio-run-generator-integration OpenSpec packet, and transition decision were reviewed. One manifest handoff is durable; RunInGameWorkflow.ts and engines.ts wiring is transitional.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-generator-port-boundary/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "mixed durable manifest handoff and transitional port/workflow topology",
+      "ruleIdPlan": "retain now; future authority separates the manifest input contract from current Studio generator integration",
+      "semanticDecision": "Request-specific generation data must cross one manifest boundary without side channels, but current port and host symbol placement is not permanent.",
+      "residualFollowUp": "Bind manifest generation to the future runtime/materialization owner before retiring exact current symbols.",
+      "implementationReadiness": "no mutation in Packet A.1; future split follows target runtime construction"
+    },
+    {
+      "ruleId": "grit-studio-run-launch-source-boundary",
+      "lane": "MapGen Studio",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the closed launch-source input and one source-resolution owner; later split public contract authority from current operation-runtime resolver and React hook topology.",
+      "evidenceNote": "The Grit manifest, pattern, empty baseline, contract/server/app scope, studio-run-launch-source-resolution OpenSpec packet, and transition decision were reviewed. Closed source identity is durable; current resolver and browser hook placement are replacement-listed.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "mixed durable launch contract and transitional resolver/UI topology",
+      "ruleIdPlan": "retain now; future authority separates closed launch input from source-resolution implementation and UI projection",
+      "semanticDecision": "Launch source remains a closed identity-bearing input realized by one runtime owner; current server and React files do not define that future owner.",
+      "residualFollowUp": "Move the invariant to future contract/source-resolution owners before removing exact current paths and symbols.",
+      "implementationReadiness": "no mutation in Packet A.1; future split is target-architecture work"
+    },
+    {
+      "ruleId": "grit-studio-run-operation-identity-owner",
+      "lane": "MapGen Studio",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Preserve request-id operation identity, one durable ownership lease, and restart reconciliation; later split those laws from the exact StudioOperationRuntime registry and record-file topology.",
+      "evidenceNote": "The Grit manifest, pattern, empty baseline, operationRuntime scope, studio-run-operation-registry-identity OpenSpec packet, and transition decision were reviewed. Identity and one-owner safety are durable; the current runtime/registry decomposition is explicitly replacement-listed.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "mixed durable identity/lease invariants and transitional registry implementation",
+      "ruleIdPlan": "retain now; future authority separates operation identity, ownership, and recovery from current registry symbols",
+      "semanticDecision": "Request id remains operation identity and shared deployment mutation remains single-owner, but StudioOperationRuntime and its registry are not permanent architecture.",
+      "residualFollowUp": "Construct future operation and lease owners before retiring exact model, record, registry, and runtime assertions.",
+      "implementationReadiness": "no mutation in Packet A.1; future split requires target operation ownership"
+    },
+    {
+      "ruleId": "grit-studio-run-public-contract-closed",
+      "lane": "MapGen Studio",
+      "actionDecision": "context admission",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep the closed public status and explicit private-diagnostics boundary live during transition; future contract owners must preserve the invariant without inheriting current runtime file topology.",
+      "evidenceNote": "The Grit manifest, pattern, empty baseline, contract/runtime projection scope, studio-run-public-status-diagnostics OpenSpec packet, and transition decision were reviewed. Closed schemas and redaction are durable safety authority despite transitional symbol and file names.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "durable safety boundary with replaceable implementation anchors",
+      "ruleIdPlan": "retain as current-context authority; rebind to future public projection and diagnostics owners during cutover",
+      "semanticDecision": "Public status remains closed and safe, and private diagnostics remain explicit lookup-only. The exact TypeBox symbols and operationRuntime projection path are not permanent.",
+      "residualFollowUp": "Future contract construction must prove equivalent closure and redaction before this current-context rule can retire.",
+      "implementationReadiness": "no action in Packet A.1; current rule remains live until replacement authority exists"
+    },
+    {
+      "ruleId": "grit-swooper-map-render-file-plan-boundary",
+      "lane": "MapGen Studio",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Preserve the pure render-plan versus filesystem-mutation boundary, but replace exact scripts/map-artifacts paths and function names with the durable Swooper artifact writer capability when target ownership is constructed.",
+      "evidenceNote": "The Grit manifest, pattern, empty baseline, Swooper scripts scope, swooper-map-artifact-file-plan OpenSpec packet, mutation-boundary law, and transition decision were reviewed. Writer exclusivity is durable; the current script topology is not.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-map-render-file-plan-boundary/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "durable mutation boundary expressed through exact transitional scripts",
+      "ruleIdPlan": "retain now; later re-express as artifact-plan construction plus one named mutation owner and retire the exact-path proxy",
+      "semanticDecision": "Rendering remains pure and filesystem writes remain behind one owner; current script and helper names are implementation evidence only.",
+      "residualFollowUp": "Install capability-level writer authority before reorganizing or retiring the present script fence.",
+      "implementationReadiness": "no mutation in Packet A.1; future boundary inversion follows target artifact ownership"
+    },
+    {
+      "ruleId": "grit-swooper-run-manifest-generator-boundary",
+      "lane": "MapGen Studio",
+      "actionDecision": "split by owner",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep one manifest input, request-local generated-mod identity, and shared writer mutation boundary; later split those contracts from the exact CLI shim, Nx target, and generator script topology.",
+      "evidenceNote": "The Grit manifest, pattern, empty baseline, Swooper command/port/project scope, swooper-run-manifest-generator OpenSpec packet, and transition decision were reviewed. Manifest and mutation laws are durable; current scripts and target spelling are transitional.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-run-manifest-generator-boundary/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "mixed durable manifest/output/mutation contracts and transitional command topology",
+      "ruleIdPlan": "retain now; future authority separates manifest generation semantics, writer ownership, and command/Nx integration",
+      "semanticDecision": "Generation must derive one request-local output from one private manifest and route mutation through one writer; exact command files and target names are not permanent.",
+      "residualFollowUp": "Rebind the manifest generator to future materialization and task-graph owners before retiring exact current assertions.",
+      "implementationReadiness": "no mutation in Packet A.1; future split spans source contract, mutation owner, and Nx integration"
+    },
+    {
+      "ruleId": "habitat-studio-run-runtime-authority-closure",
+      "lane": "MapGen Studio",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep only as transitional packet-train closure evidence, then retire the exact SA-01-through-SA-14 sibling-set and Markdown-matrix check once the current baseline is closed and individual rules are dispositioned.",
+      "evidenceNote": "The Habitat script manifest, check.mjs, empty baseline, structural matrix scope, studio-run-diagnostics-retention-guards OpenSpec packet, ledger sole-live-row contract, and transition decision were reviewed. The script verifies a historical packet set and exact current topology rather than a reusable architecture class.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "transitional meta-closure over an exact packet corpus",
+      "ruleIdPlan": "retain through closeout only; retire without replacement after the individual durable/transitional rows have their target dispositions",
+      "semanticDecision": "Habitat remains the authority tree, but a script that freezes exactly fourteen historical packet rows and a project Markdown matrix is not permanent authority.",
+      "residualFollowUp": "Retirement must preserve ordinary manifest discovery, unique identity, ledger parity, and each surviving invariant's own rule authority.",
+      "implementationReadiness": "no mutation in Packet A.1; retirement belongs to runtime packet-train closeout"
+    },
+    {
       "ruleId": "preserve_decomposed_foundation_contract_surfaces",
       "lane": "domains/foundation",
       "actionDecision": "no action",
@@ -291,16 +456,16 @@
       "lane": "pipeline config/contracts/runtime",
       "actionDecision": "positive authority creation",
       "packetNeeded": false,
-      "expectedRemediation": "Define deterministic authored-generation authority plus exception policy.",
-      "evidenceNote": "One deliberate official-discovery generator exception exists and is exempted by script. Layer 2 packet deterministic-authored-generation-authority: Authored MapGen planning/truth may use declared config, artifacts, policy tables, and seed-derived MapGen entropy, but must not consume ambient Math.random, Civ7 engine RNG, or official generator output as authored truth. Current official discovery generator use is a sanctioned adapter compatibility/materialization exception, not a general hole.",
+      "expectedRemediation": "Finish deterministic authored-generation authority plus its explicit adapter compatibility/materialization exception model; do not retain lexical successor rules as proxies.",
+      "evidenceNote": "One deliberate official-discovery generator exception exists and is exempted by script. Layer 2 packet deterministic-authored-generation-authority accepts a class-level invariant: authored MapGen planning/truth may use declared config, artifacts, policy tables, and seed-derived MapGen entropy, but must not consume ambient Math.random, Civ7 engine RNG, or official generator output as authored truth. The current script provides partial interim enforcement while class-level authority work remains open.",
       "currentPath": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/rule.json",
       "layer2Status": "packet-complete",
       "packetSliceId": "deterministic-authored-generation-authority",
       "wholeRuleFit": "replace by positive authority with declared adapter exception model",
       "ruleIdPlan": "replace literal ambient/engine/official-generator blacklist with deterministic authored-generation authority plus explicit approved adapter compatibility exceptions",
       "semanticDecision": "Authored MapGen planning/truth may use declared config, artifacts, policy tables, and seed-derived MapGen entropy, but must not consume ambient Math.random, Civ7 engine RNG, or official generator output as authored truth. Current official discovery generator use is a sanctioned adapter compatibility/materialization exception, not a general hole.",
-      "residualFollowUp": "Retire or move the @swooper/mapgen-core/lib/rng deep-import clause into approved RNG API/import-surface authority; preserve only the engine/ambient/official-generator authored-truth ban and declared exception model.",
-      "implementationReadiness": "implementation-ready as part of deterministic authored-generation / adapter capability authority; not cascade-stopping"
+      "residualFollowUp": "Retire the five split token/path proxies. Preserve the engine/ambient/official-generator authored-truth class and declared exception model here, move the @swooper/mapgen-core/lib/rng deep-import clause into approved RNG API/import-surface authority, and finish a non-lexical class-level rail before this row can leave `_remainder`.",
+      "implementationReadiness": "open implementation: accepted class-level authority exists and the current script remains live while the non-lexical authority rail is completed"
     },
     {
       "ruleId": "prohibit_bare_value_export_all_from_contract_surfaces",
@@ -353,22 +518,6 @@
       "expectedRemediation": "Stay live as truth/projection boundary.",
       "evidenceNote": "`artifact:map.*` and `effect:map.*` appear in projection contexts, not domain ops.",
       "currentPath": ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/rule.json"
-    },
-    {
-      "ruleId": "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
-      "lane": "pipeline config/contracts/runtime",
-      "actionDecision": "split by owner",
-      "packetNeeded": false,
-      "expectedRemediation": "Split deterministic-generation, lexical cleanup, owner-specific generator, and projection/runtime clauses.",
-      "evidenceNote": "Predicate mixes multiple owners despite clean branch-level source checks. Layer 2 packet deterministic-authored-generation-authority: The rule mixes deterministic-generation policy, ecology vocabulary cleanup, seeded RNG literals, legacy official generator calls, and retired module-path strings. Generic words such as chance/multiplier/bonus/penalty are not durable authority, and seeded helper usage must be judged by explicit seed input rather than banned by token.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/rule.json",
-      "layer2Status": "packet-complete",
-      "packetSliceId": "deterministic-authored-generation-authority",
-      "wholeRuleFit": "split by owner and retire lexical junk-catcher clauses",
-      "ruleIdPlan": "split deterministic-generation clauses into the positive deterministic authority; delete ecology lexical/fudge and retired generator path clauses unless concrete recurrence risk is proven; keep owner-specific live risks only after source-backed narrowing",
-      "semanticDecision": "The rule mixes deterministic-generation policy, ecology vocabulary cleanup, seeded RNG literals, legacy official generator calls, and retired module-path strings. Generic words such as chance/multiplier/bonus/penalty are not durable authority, and seeded helper usage must be judged by explicit seed input rather than banned by token.",
-      "residualFollowUp": "Do not preserve this rule as one invariant. Future implementation should absorb direct official-generator authored-truth bans into deterministic authority, preserve discovery as an approved adapter exception, and garbage-collect zero-hit retired lexical/path clauses.",
-      "implementationReadiness": "implementation-ready only as a split/GC slice after deterministic authority is created; not cascade-stopping"
     },
     {
       "ruleId": "prohibit_empty_object_defaults_in_contract_schemas",
@@ -1129,6 +1278,51 @@
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/placement/rules/require_typed_placement_outcomes_before_apply/rule.json"
     },
     {
+      "ruleId": "structure-studio-run-workspace-topology",
+      "lane": "MapGen Studio",
+      "actionDecision": "boundary inversion",
+      "packetNeeded": false,
+      "expectedRemediation": "Preserve one private manifest/workspace contract owner, artifact identity, and correlation boundary; later replace the closed four-file studio-run-workspace package shape with target contract ownership.",
+      "evidenceNote": "The structure manifest, structure.toml, empty baseline, exact package scope, studio-run-generation-manifest and swooper-run-manifest-generator OpenSpec packets, and transition decision were reviewed. Shared manifest identity is durable; the exact package and file topology is transitional.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/structure-studio-run-workspace-topology/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "durable private handoff boundary expressed as a closed transitional package layout",
+      "ruleIdPlan": "retain now; future authority re-expresses manifest, path, artifact-id, and correlation ownership without freezing these four files",
+      "semanticDecision": "The private generation handoff requires one owner and stable identity semantics, but packages/studio-run-workspace/src and its exact children are not permanent architecture.",
+      "residualFollowUp": "Construct the future manifest/workspace contract owner before relaxing or retiring the closed package topology.",
+      "implementationReadiness": "no mutation in Packet A.1; future boundary inversion requires target contract construction"
+    },
+    {
+      "ruleId": "structure-swooper-catalog-index-target-topology",
+      "lane": "MapGen Studio",
+      "actionDecision": "consolidation/dedup",
+      "packetNeeded": false,
+      "expectedRemediation": "Consolidate durable catalog source identity with its source-owned authority, leave target ordering to Nx, and retire the duplicate exact-file plus retired-temporary-rule topology check.",
+      "evidenceNote": "The structure manifest, structure.toml, empty baseline, catalog/scripts/Habitat scope, swooper-catalog-index-cutover OpenSpec packet, SA-04 source-index rule, and transition decision were reviewed. The rule duplicates source-index files and preserves a retired advisory name while target dependencies belong to Nx.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-index-target-topology/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "mixed duplicate source topology, native task-graph concern, and retired-name garbage collection",
+      "ruleIdPlan": "retain during closeout; later absorb source identity into its owner, use Nx for target relationships, and retire this exact cutover packet",
+      "semanticDecision": "CatalogSourceIndex remains the source authority, but exact generator filenames and absence of a historical temporary rule do not warrant permanent duplicate authority.",
+      "residualFollowUp": "Prove the source-index owner and Nx target graph cover the live invariants before deleting this cutover-specific packet.",
+      "implementationReadiness": "no mutation in Packet A.1; consolidation is a later authority/native-rail slice"
+    },
+    {
+      "ruleId": "structure-swooper-catalog-source-index",
+      "lane": "MapGen Studio",
+      "actionDecision": "runtime/source validation",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep explicit catalog source identity now; future authority should validate the source index contract at its source owner rather than freeze the maps/catalog directory and three exact files.",
+      "evidenceNote": "The structure manifest, structure.toml, empty baseline, maps source scope, swooper-catalog-source-index OpenSpec packet, current source index, and transition decision were reviewed. Explicit source identity is durable; exact catalog folder/file topology is a transitional implementation.",
+      "currentPath": ".habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-source-index/rule.json",
+      "layer2Status": "transition-decision-accepted",
+      "wholeRuleFit": "durable source-identity contract represented by exact current file topology",
+      "ruleIdPlan": "retain now; later move authority to source-schema/index validation and retire exact directory-shape assertions",
+      "semanticDecision": "Catalog membership requires one explicit source-owned index, but mods/mod-swooper-maps/src/maps/catalog and its three files are not permanent architecture merely because they merged.",
+      "residualFollowUp": "Install source-native index validation at the future catalog owner before retiring the structure packet.",
+      "implementationReadiness": "no mutation in Packet A.1; future migration requires an accepted source-owner validation rail"
+    },
+    {
       "ruleId": "validate_boundary_taxonomy_against_workspace_graph",
       "lane": "non-Civ docs/global/toolkit",
       "actionDecision": "no action",
@@ -1167,8 +1361,8 @@
       "lane": "mixed blueprints",
       "actionDecision": "no action",
       "packetNeeded": false,
-      "expectedRemediation": "Retain generated map entrypoint contract validator; it verifies generated map SDK entrypoints against canonical public config envelopes and hashes.",
-      "evidenceNote": "Focused Habitat proof passes. The script imports recipe/config authority and validates generated output currentness, which is not expressible as a single Grit source pattern or Nx boundary.",
+      "expectedRemediation": "Retain generated map entrypoint contract validation against the package-owned map artifact file plan.",
+      "evidenceNote": "The Habitat script derives the canonical config envelope, builds the package file plan, and compares the generated entrypoint set and text to that plan. This generated-output currentness belongs to mod-map authority rather than package behavior tests or Nx boundaries.",
       "currentPath": ".habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/rule.json"
     },
     {
@@ -2909,6 +3103,40 @@
         "bun run check -- --outputStyle=static --skipNxCache --nxBail=false",
         "git diff --check"
       ]
+    },
+    {
+      "sliceId": "packet-a1-token-authority-repair-001",
+      "status": "complete",
+      "actionClass": "retirement/garbage collection and consolidation/dedup",
+      "rules": [
+        "prohibit_ecology_fudge_tokens",
+        "prohibit_hydrology_placement_rng_and_chance_tokens",
+        "prohibit_legacy_generator_call_surfaces",
+        "prohibit_legacy_generator_module_surfaces",
+        "prohibit_scoped_ecology_runtime_tokens"
+      ],
+      "survivorRows": [
+        "prohibit_ambient_rng_in_authored_generation",
+        "block_adapter_context_imports_from_domain_ops",
+        "block_engine_runtime_imports_from_domain_ops",
+        "require_typed_placement_outcomes_before_apply"
+      ],
+      "outcome": "Deleted five brittle token/path packets. Generic Ecology vocabulary, seeded RNG helper spellings, and retired generator path strings have no replacement; official-generator authored-truth and dependency/placement ownership remain under the survivor authority rows.",
+      "completedOn": "2026-07-12",
+      "deletedRows": [
+        "prohibit_ecology_fudge_tokens",
+        "prohibit_hydrology_placement_rng_and_chance_tokens",
+        "prohibit_legacy_generator_call_surfaces",
+        "prohibit_legacy_generator_module_surfaces",
+        "prohibit_scoped_ecology_runtime_tokens"
+      ],
+      "verification": [
+        "focused classify for the ledger, deleted rule paths, and survivor rule records",
+        "focused Habitat checks for all survivor authority rows",
+        "deleted rule ids are unregistered",
+        "reconciled corpus: 125 unique live manifest ids exactly equal 125 unique current ledger rule ids after admitting the 14 previously omitted Studio Run in Game rows",
+        "git diff --check"
+      ]
     }
   ],
   "blockers": [
@@ -3137,6 +3365,20 @@
       "kind": "post-ratchet-deletion-closure",
       "finding": "The Domain Source Topology Enforcement Ratchet cleanup concluded with deletion of prohibit_retired_domain_root_catalogs and require_domain_ops_root_presence; both were absorbed by require_domain_source_topology.",
       "handling": "Live rows retired, rule packets deleted, and the completed slice recorded as closed. Residual adjacent rows remain as future descents or separate remediation frames, not part of this ratchet."
+    },
+    {
+      "findingId": "2026-07-12-ecology-hydrology-placement-token-authority-repair",
+      "recordedOn": "2026-07-12",
+      "kind": "layer3-review-repair",
+      "rules": [
+        "prohibit_ecology_fudge_tokens",
+        "prohibit_hydrology_placement_rng_and_chance_tokens",
+        "prohibit_legacy_generator_call_surfaces",
+        "prohibit_legacy_generator_module_surfaces",
+        "prohibit_scoped_ecology_runtime_tokens"
+      ],
+      "summary": "Retired five split token/path successors whose empty baselines recorded only current execution. Common scoring vocabulary, seeded RNG helper names, exact legacy call names, and retired module strings do not define durable authority with honest false-positive models.",
+      "handling": "Deleted the five packets and their live rows. Deterministic authored-generation and official-generator ownership remain open under prohibit_ambient_rng_in_authored_generation and adjacent domain-operation/placement boundary authority; no package test or replacement lexical assertion was created."
     }
   ],
   "retiredRules": [
@@ -3145,8 +3387,8 @@
       "lane": "pipeline config/contracts/runtime",
       "actionDecision": "retirement/garbage collection",
       "packetNeeded": true,
-      "expectedRemediation": "Delete after source absence/no-consumer proof.",
-      "evidenceNote": "Fresh script passed; no shim/dual/legacy stage alias residue in live roots.",
+      "expectedRemediation": "Retired; current recipe topology and explicit contracts own accepted surfaces, so a broad cutover-vocabulary ban must not be recreated.",
+      "evidenceNote": "Current source has no dual, shadow, or legacy stage migration surface. A package-wide lexical scan is not durable structural authority.",
       "currentPath": null,
       "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-retirement-slice.md"
     },
@@ -3165,8 +3407,8 @@
       "lane": "standard recipe morphology stage",
       "actionDecision": "retirement/garbage collection",
       "packetNeeded": true,
-      "expectedRemediation": "Retire after confirming no active dual-read migration authority remains.",
-      "evidenceNote": "Scans only `morphology-coasts/steps`; no live source hits outside the rule packet.",
+      "expectedRemediation": "Retired; Morphology contracts and public artifact dependencies own the current read model, so the completed migration token must stay historical.",
+      "evidenceNote": "The scoped dual-read migration surface is absent. The former token scan does not define a current Morphology kind invariant.",
       "currentPath": null,
       "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/rule-remediation-retirement-slice.md"
     },
@@ -3411,6 +3653,92 @@
       "retirementRecord": ".habitat/.active/workstreams/remediate-rule-authority/receipts/domain-source-topology-ratchet-closure.md",
       "retiredBy": "require_domain_source_topology",
       "retiredOn": "2026-07-06"
+    },
+    {
+      "ruleId": "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
+      "lane": "pipeline config/contracts/runtime",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Retired aggregate; the later five-way split was also retired after semantic review rejected token/path proxies as durable authority.",
+      "evidenceNote": "The accepted deterministic-authored-generation decision requires positive class-level authority, allows seed-derived MapGen entropy, and explicitly rejects generic lexical and retired-path clauses. Empty successor baselines were execution observations only.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/rule.json",
+      "retiredOn": "2026-07-11",
+      "retainedAuthorityRuleIds": [
+        "prohibit_ambient_rng_in_authored_generation",
+        "block_adapter_context_imports_from_domain_ops",
+        "block_engine_runtime_imports_from_domain_ops",
+        "require_typed_placement_outcomes_before_apply"
+      ]
+    },
+    {
+      "ruleId": "prohibit_ecology_fudge_tokens",
+      "lane": "pipeline config/contracts/runtime",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Deleted without replacement; Ecology scoring and probability vocabulary is not a durable forbidden class.",
+      "evidenceNote": "The pattern banned common chance/multiplier words and two helper names across broad Ecology source roots. It had no behavior, dependency, or ownership discriminator and therefore no honest false-positive model; its empty baseline proved only that the current scan found no match.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_tokens/rule.json",
+      "retiredOn": "2026-07-12",
+      "retiredReason": "Generic domain vocabulary cannot stand in for explicit policy/config/seed authority."
+    },
+    {
+      "ruleId": "prohibit_hydrology_placement_rng_and_chance_tokens",
+      "lane": "pipeline config/contracts/runtime",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Deleted without a lexical replacement; judge entropy by declared seed and owner, not helper spelling.",
+      "evidenceNote": "The accepted decision explicitly permits seed-derived MapGen entropy. The pattern could not distinguish a declared-seed createLabelRng/rng call from ambient entropy and treated rollPercent/coverageChance names as policy, so a clean result was not authority evidence.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_hydrology_placement_rng_and_chance_tokens/rule.json",
+      "retiredOn": "2026-07-12",
+      "retiredReason": "Raw helper tokens do not encode entropy provenance.",
+      "retainedAuthorityRuleIds": ["prohibit_ambient_rng_in_authored_generation"]
+    },
+    {
+      "ruleId": "prohibit_legacy_generator_call_surfaces",
+      "lane": "pipeline config/contracts/runtime",
+      "actionDecision": "consolidation/dedup",
+      "packetNeeded": false,
+      "expectedRemediation": "Deleted exact-call proxy; keep official-generator authored-truth ownership in deterministic authored-generation and typed placement authority.",
+      "evidenceNote": "The pattern matched three unqualified call names, so local functions and official generator capabilities were indistinguishable. The accepted invariant is the class-level ban on official generator output as authored planning truth, with explicit materialization exceptions, not these spellings.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_legacy_generator_call_surfaces/rule.json",
+      "retiredOn": "2026-07-12",
+      "retiredReason": "Exact callee names are a brittle proxy for capability ownership.",
+      "retainedAuthorityRuleIds": [
+        "prohibit_ambient_rng_in_authored_generation",
+        "require_typed_placement_outcomes_before_apply"
+      ]
+    },
+    {
+      "ruleId": "prohibit_legacy_generator_module_surfaces",
+      "lane": "pipeline config/contracts/runtime",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Deleted retired module-path string guard without replacement.",
+      "evidenceNote": "The pattern searched three legacy path fragments as raw text rather than import/dependency structure. The accepted decision classifies those zero-hit retired module-path strings as garbage collection; adapter/domain-operation boundaries own live engine dependency direction.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_legacy_generator_module_surfaces/rule.json",
+      "retiredOn": "2026-07-12",
+      "retiredReason": "Retired path fragments have no demonstrated recurrence risk and no import-aware false-positive model.",
+      "retainedAuthorityRuleIds": [
+        "block_adapter_context_imports_from_domain_ops",
+        "block_engine_runtime_imports_from_domain_ops"
+      ]
+    },
+    {
+      "ruleId": "prohibit_scoped_ecology_runtime_tokens",
+      "lane": "pipeline config/contracts/runtime",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Deleted without replacement; Ecology score functions, thresholds, weights, and seeded tie-breaking remain source/domain policy concerns.",
+      "evidenceNote": "The pattern combined seeded RNG helper names with valid scoring vocabulary such as bandpass, ramps, windows, bonus, penalty, and minScore comparisons. Its narrowly frozen directories no longer represent current Ecology operation topology, while the same vocabulary is valid in current score/policy code.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_scoped_ecology_runtime_tokens/rule.json",
+      "retiredOn": "2026-07-12",
+      "retiredReason": "The rule was both topology-stale and lexically overbroad, with no stable behavioral class."
     }
   ],
   "staleRules": [
@@ -3447,7 +3775,7 @@
     {
       "dominoReference": "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
       "status": "stale/retired",
-      "handling": "Do not include in live rule ledger; garbage-collection slice retired completed cutover shim, dual-path, and legacy stage-alias cleanup after source absence and topology/native-rail proof."
+      "handling": "Do not include in live rule ledger or recreate it as a package no-shadow scan. Current recipe topology and explicit contracts own accepted structure; broad cutover vocabulary is historical."
     },
     {
       "dominoReference": "prohibit_narrative_swatches_stage_token",
@@ -3462,7 +3790,7 @@
     {
       "dominoReference": "prohibit_morphology_dual_read_tokens",
       "status": "stale/retired",
-      "handling": "Do not include in live rule ledger; garbage-collection slice retired the completed morphology dual-read migration guard after source absence and native no-shadow proof."
+      "handling": "Do not include in live rule ledger or recreate it as a package no-shadow scan. Current Morphology contracts and public artifact dependencies own the read model."
     },
     {
       "dominoReference": "verify_standard_recipe_declared_stage_keys",
@@ -3493,6 +3821,11 @@
       "dominoReference": "prohibit_morphology_contract_legacy_plate_driver_dependencies",
       "status": "retired/replaced",
       "handling": "Do not include in live ledger rows; Domino 66 retired this rule after `preserve_morphology_belt_driver_contracts` absorbed the legacy plate-driver absence proof."
+    },
+    {
+      "dominoReference": "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
+      "status": "retired/split-successors-retired",
+      "handling": "Do not include the aggregate or its five token/path successors in live rule rows. The accepted deterministic-authored-generation class and adjacent dependency/placement boundaries own genuine invariants; lexical and retired-path clauses have no replacement."
     }
   ]
 }

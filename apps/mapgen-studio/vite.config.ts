@@ -53,6 +53,15 @@ export default defineConfig(({ command }) => ({
                 new URL("../../packages/mapgen-viz/src/index.ts", import.meta.url)
               ),
             },
+            // Development serve uses source freshness; production builds have the design goal
+            // of package artifact authority. Exact matching prevents this alias from
+            // intercepting contract subpaths.
+            {
+              find: /^@civ7\/studio-contract$/,
+              replacement: fileURLToPath(
+                new URL("../../packages/studio-contract/src/index.ts", import.meta.url)
+              ),
+            },
             // DEV-ONLY source alias (DESIGN.md §2 adjudication 7): HMR against
             // the UI package's source barrel; the production build resolves
             // dist via the exports map so the shipped app consumes the real
@@ -76,6 +85,7 @@ export default defineConfig(({ command }) => ({
     sourcemap: true,
   },
   server: {
+    host: "127.0.0.1",
     port: STUDIO_DEV_PORT,
     strictPort: true,
     proxy: {

@@ -25,7 +25,7 @@ const SUGGESTIONS_BY_RECIPE: Readonly<Record<string, readonly OverlaySuggestion[
     // published by the selected step (App overlayCandidates + per-step
     // dataTypeModel), so every pair below is emitted by a single step:
     // assign-starts, plan-resources, or adjust-resources. The emitted-key
-    // coverage guard lives in mods/mod-swooper-maps/test/placement/viz-coverage.test.ts.
+    // coverage guard lives in mods/mod-swooper-maps/test/recipes/swooper-physics-standard/stages/placement/viz-coverage.test.ts.
     {
       id: "placement.starts.viabilityScore::placement.starts.startPosition",
       primaryDataTypeKey: "placement.starts.viabilityScore",

@@ -24,7 +24,10 @@ developer's normal Studio process.
   health proof.
 - The helper owns a private tmux socket and derives a unique session and port
   pair from the Git worktree root. Its state is under the already ignored
-  `.mapgen-studio/codex-environment/`. Do not replace this with the shared
+  `.mapgen-studio/codex-environment/`. Preserve its private
+  `NX_WORKSPACE_DATA_DIRECTORY` under that state directory; this Nx coordination
+  isolation is required for coexistence with a standard Studio session in the
+  same worktree. Do not replace this with the shared
   `scripts/restart-mapgen-studio.sh` or with listener-wide port kills.
 - The standard Studio defaults and ports remain untouched. Codex-specific
   ports exist only while this helper's private session is running.

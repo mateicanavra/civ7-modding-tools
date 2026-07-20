@@ -1,6 +1,7 @@
 # Testing
 
-This repository uses [Vitest](https://vitest.dev/) for unit tests across most workspaces, and [Bun](https://bun.sh/) (`bun test`) for `@swooper/mapgen-core`.
+This repository routes project test suites through Nx. Projects use Vitest or
+Bun according to their runtime and package contract.
 
 ## Running all tests
 
@@ -8,11 +9,8 @@ This repository uses [Vitest](https://vitest.dev/) for unit tests across most wo
 bun run test
 ```
 
-Runs:
-
-- `vitest` across all configured projects in `vitest.config.ts`
-- `bun test` for `@swooper/mapgen-core`
-- `bun test` for `mods/mod-swooper-maps`
+This runs every project that currently exposes an Nx `test` target. Use
+`nx show projects --with-target test` to inspect the current set.
 
 To run only the Vitest projects:
 
@@ -32,6 +30,19 @@ To run only the mod tests:
 nx run mod-swooper-maps:test
 ```
 
+To run only the Civ7 adapter tests:
+
+```bash
+nx run civ7-adapter:test
+```
+
+See the [Swooper Maps test corpus guide](../../mods/mod-swooper-maps/test/README.md)
+for its current ownership and classification rules and its explicitly future
+harness direction.
+
+See the [MapGen Core test corpus guide](../../packages/mapgen-core/test/README.md)
+for the generic component ownership tree.
+
 ## Visualizing test runs
 
 ```bash
@@ -48,18 +59,23 @@ bunx vitest run --project <name>
 
 Use the project name from `vitest.config.ts` (`cli`, `sdk`, `docs`, or `playground`) to target an individual suite.
 
-Each app and package includes a minimal smoke test and a local `TESTING.md` describing recommended scenarios to cover.
+Test ownership and execution are declared by each project's Nx targets and its
+nearest test-corpus guide. Bun and Vitest execute transpiled TypeScript; a
+passing runtime suite does not substitute for a TypeScript target whose file
+set includes that suite.
 
 ## Physics-Truth Guardrails (Swooper Maps)
 
 For `mods/mod-swooper-maps`, CI/local validation should include:
 
-- Deterministic placement suite (`test/placement/**`) validating stamp-based resources/wonders/discoveries.
-- Hydrology regression suite (`test/map-hydrology/**`, `test/hydrology/plan-lakes.test.ts`) validating sink-driven lake planning and runtime fill parity.
-- Static policy scans (`bun habitat check --rule ecology-fudging-guardrails`) enforcing no RNG/fudge constructs and no legacy generator call/module usage in scoped ecology/hydrology/placement surfaces.
+- Placement domain suites (`test/domains/placement/**`, `test/domains/resources/**`) validating direct planning behavior, plus the concrete placement stage suite (`test/recipes/swooper-physics-standard/stages/placement/**`) validating projections and composition.
+- Hydrology domain suite (`test/domains/hydrology/**`) validating direct hydrology behavior, plus concrete recipe and stage cases under `test/recipes/swooper-physics-standard/**` validating runtime fill and projection behavior.
+- Habitat policy checks reported by `bun habitat classify` for the changed
+  source scope. Structural and import invariants belong to Habitat rather than
+  package tests that scan source text.
 - RNG authority guards (`packages/mapgen-core/test/core/rng.test.ts`,
   `.habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs`, and
-  `mods/mod-swooper-maps/test/pipeline/standard-rng-authority.test.ts`)
+  `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/recipe/standard-rng-authority.test.ts`)
   ensuring authored MapGen entropy comes from `env.seed`, not Civ7 adapter RNG
   or official generators.
 

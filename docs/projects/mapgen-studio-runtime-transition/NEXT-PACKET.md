@@ -1,6 +1,6 @@
 # Next Packet: Close The Studio Product Outcome
 
-Status: Packet A closed-passed; A.1 test-topology preparation next
+Status: Packets A, A.1, A.1a, and the lifecycle alignment child closed-passed; A.2 is next
 
 Normative frame:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -22,7 +22,10 @@ codex/studio-run-live-playability@4f501fabfdc6
   -> codex/mapgen-studio-config-envelope-runtime-cutover@3f5ed12e81a5
   -> codex/mapgen-studio-manifest-parity-replay@b2367c50d6ae
   -> codex/mapgen-studio-runtime-stage-0-census@76bfbcaa434d
-  -> codex/mapgen-studio-complete-config-admission (Packet A, closed-passed)
+  -> codex/mapgen-studio-complete-config-admission@9b082bac2434 (Packet A)
+  -> codex/mapgen-swooper-test-topology@ceb6832e329d (Packet A.1)
+  -> codex/mapgen-studio-dev-contract-freshness (Packet A.1a)
+  -> codex/mapgen-studio-codex-lifecycle-alignment (lifecycle alignment)
 ```
 
 The historical source recovery is verified. The config and parity branches
@@ -41,9 +44,8 @@ complete-config boundary but does not claim the Run in Game product outcome.
 - All nine checked-in configs pass current schema admission, exact envelope
   round-trip, complete 22-stage materialization, four-seed generation,
   deterministic repeat, and fresh artifact rendering. No all-water output was
-  reproduced. The remaining generic defect is that current admission can accept
-  a partial 16-stage default object because it mistakes normalization no-op for
-  completeness.
+  reproduced. Packet A removed the partial-config admission path and requires
+  the recipe-produced complete config at every public boundary.
 - Studio still owns setup/start orchestration by importing direct-control
   functions in `Civ7WorkflowControl.ts`. The control oRPC surface has no
   setup/lifecycle family. That is the next larger ownership defect after config
@@ -84,8 +86,8 @@ Primary files:
 - `packages/mapgen-core/test/compiler/normalize.test.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/artifacts.ts`
 - `mods/mod-swooper-maps/src/maps/configs/canonical.ts`
-- `mods/mod-swooper-maps/test/config/maps-schema-valid.test.ts`
-- `mods/mod-swooper-maps/test/config/standard-complete-config-boundary.test.ts`
+- `mods/mod-swooper-maps/test/maps/map-config-schema.test.ts`
+- `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts`
 - `apps/mapgen-studio/src/features/configAuthoring/canonicalConfig.ts`
 - `apps/mapgen-studio/test/config/standardRecipeArtifactGuards.test.ts`
 
@@ -96,90 +98,72 @@ Graphite child above the census branch.
 
 ### A.1. Restore The Intended Test Topology
 
-Reapply the already-chosen Swooper test moves under the small set of
-domain-oriented test roots. Keep this branch mechanical: tracked moves,
-import-path repair, current-reference repair, and unchanged behavior only.
+The initial move-only frame was falsified by semantic review. The accepted A.1
+candidate instead performs one bounded ownership cleanup:
 
-The closed inventory admits exactly 106 moves:
+- domain tests own algorithms, rules, invariants, metrics, and benchmarks;
+- `recipes/swooper-physics-standard` owns recipe, stage, and step authorship and
+  orchestration;
+- maps, diagnostics, build behavior, and non-owning support data have explicit
+  roots;
+- MapGen Core owns generic authoring, compiler, engine, and library laws;
+- Civ7 adapter tests are reachable through a real Nx test target;
+- source-text topology tests are deleted after their durable invariants are
+  either confirmed in Habitat, retained as behavior, or recorded with an
+  activation trigger for positive authority;
+- one generic artifact-satisfaction law removed with the old Swooper pipeline
+  test is retained in MapGen Core;
+- the standing test guides define the future strategy/operation/step/stage/
+  recipe harness family without claiming that it exists today.
 
-- the historical 82 tests from `ecology`, `foundation`, `hydrology`,
-  `map-elevation`, `map-hydrology`, `map-morphology`, `map-rivers`,
-  `morphology`, and `placement` into their matching `test/domains/*` roots;
-- all ten `test/resources/*.test.ts` files into `test/domains/resources`;
-- all fourteen root `test/hydrology-*.test.ts` files into
-  `test/domains/hydrology`.
+A.1 does not create a harness, TypeScript test project, topology script, or new
+Grit authority. Its remaining 281 test/dev/tool diagnostics stay owned by A.3:
+280 independent diagnostics plus the existing unresolved MapGen trace export.
 
-Keep `standard-recipe.test.ts` and `standard-run.test.ts` as package-level
-sentinels. Defer `layers/callsite-fixes.test.ts` to A.3 because it mixes
-behavioral and structural concerns. Defer `m11-config-knobs-and-presets.test.ts`
-to A.4 because the preset ontology decision may rename, rewrite, or delete it.
-Keep build, config, diagnostics, fixtures, pipeline, and support at their
-current roots.
+Close A.1 only after its three dedicated review lanes clear, all integrated and
+classify-reported gates rerun, the Graphite child is committed, and a regular
+Git worktree reproduces the committed project checks and tests.
 
-A.1 also creates `mods/mod-swooper-maps/test/README.md` as the standing,
-normative guide for this test corpus and links it from
-`mods/mod-swooper-maps/AGENTS.md` and `docs/system/TESTING.md`. This scoped guide
-is the only non-mechanical addition to the branch. It must distinguish rules
-that apply now from the later harness destination rather than describing
-unimplemented tooling as current capability.
+### A.1a. Restore Serve-Mode Contract Freshness
 
-The guide must establish these current laws:
+The development browser and daemon currently use different freshness models:
+the daemon resolves `@civ7/studio-contract` from source through `bun-source`,
+while Vite resolves the same package from its one-time-built `dist`. A frontend
+source change can therefore import a contract export that the live Vite graph
+cannot link even though Vite still returns HTML and daemon health remains green.
 
-- `test/domains/<domain>` expresses behavioral ownership, not a test category;
-- unit and integration describe scope, while conformance, metrics regression,
-  build/package smoke, offline runtime, and live describe distinct oracles or
-  environments; they become directories or Nx targets only when execution
-  policy actually differs;
-- meaningful algorithm units and domain behavior remain domain-owned tests;
-  framework-derivable contract and composition laws are enforced centrally;
-- structural and import authority belongs to Habitat, not source-string tests;
-- headless recipe execution never substitutes for rendered browser or Civ7
-  observation.
+Repair this on one dedicated child before A.2:
 
-The guide must also record the later test-harness destination and its re-entry
-gates:
+- add an exact `@civ7/studio-contract` source alias only when Vite runs in
+  serve mode;
+- keep production builds and generated recipe runtime imports on their owned
+  built artifacts;
+- bind the frontend explicitly to `127.0.0.1`;
+- extend the existing `enforce_studio_dev_runner_topology` Habitat owner to
+  assert the serve alias, its build-mode absence, and loopback binding as
+  durable development-topology invariants;
+- verify browser module evaluation and a nonempty React root in addition to
+  frontend reachability and daemon `/healthz`.
 
-- one operation-case kernel executes a real operation with explicit input and
-  complete strategy envelope, test-only contract validation, and independent
-  domain assertions;
-- one recipe-case kernel invokes real recipe compilation and execution with a
-  caller-supplied runtime/context;
-- strategy cases select through the operation kernel, while step and stage
-  cases compose through the recipe kernel and public production factories;
-- no harness may copy normalization, op binding, dependency satisfaction,
-  artifact publication, plan compilation, or execution logic;
-- no global fixture registry, generated operation-input defaults, copied
-  config inventory, domain switch, or production runtime-validation path is
-  admitted;
-- the pilot begins only after operation topology and test TypeScript authority
-  are stable, and broad migration begins only if the pilot removes duplicated
-  setup while preserving or strengthening independent behavioral oracles.
+Do not add a watcher, supervisor, broad package alias, export-specific test, or
+second lifecycle path. Align the Codex worktree helper with its existing
+environment handoff on a separate bounded child after this freshness repair;
+retain its private tmux socket, per-worktree ports, and ownership-only teardown.
 
-The guide should name the current seams that motivate later work without
-blessing them as architecture: `runOpValidated` does not currently validate
-operation output, `buildTestDeps` duplicates part of production recipe
-assembly, and the normal Swooper TypeScript check excludes tests. It must also
-record that TypeBox's current `Type.Unsafe(Type.Any(...))` typed-array schemas
-require explicit `x-runtime` constructor and shape interpretation in any
-test-only contract validator.
+A.1a is closed-passed. Development serve resolves the exact bare Studio
+contract import from source, production build has no matching alias, Vite binds
+to `127.0.0.1`, and the existing Habitat owner validates the resolved serve and
+build configurations. A clean restart from this worktree produced a healthy
+daemon whose reported repository root matched this worktree; real browser
+navigation evaluated the contract source module, retained generated recipe
+artifact imports from `dist`, and mounted a nonempty React root without a
+module-link error.
 
-The move requires relative import repairs in the moved files and one additional
-parent segment in the five tests that derive source or fixture paths from
-`import.meta.dir`: ecology baseline fixtures, ecology feature-planner policies,
-ecology static structural scans, the Foundation contract guard, and placement
-contracts. Preserve their existing behavior and source-string assertions.
-Update only live current-path references in Studio and evergreen system docs;
-historical OpenSpec and project records retain the paths actually used.
-
-Close A.1 only when the tracked test-file count remains 142, the rename-aware
-diff contains exactly 106 moves, and, apart from the scoped test guide and its
-two routing links, the diff contains no assertion, fixture, config, runtime,
-Nx, TypeScript-project, or Habitat-rule change. Required gates are
-`git diff --check`, link/current-path review, the Habitat
-`require_public_domain_surfaces_in_tests` rule, the Swooper lint target, and the
-full Swooper test target with the Packet A oracle of 534 passed, 2 intentionally
-skipped, and 0 failed. Bun and Habitat already discover the destination
-recursively; add no new topology script or rule.
+The bounded Codex worktree lifecycle child is also closed-passed. Its helper
+composes the canonical Nx daemon target, requires frontend and repository-owned
+daemon health, and retains private ports, tmux ownership, and teardown. Two
+regular worktrees ran healthy instances concurrently; stopping either one left
+the other instance and the standard Studio runtime healthy.
 
 ### A.2. Normalize Domain Operation Topology
 
@@ -235,6 +219,24 @@ and Studio tests. Bun and Vitest transpile and execute tests without invoking
 the TypeScript checker, so passing behavior tests can coexist with editor
 diagnostics. Close that execution-versus-static-authority gap before changing
 the config ontology again:
+
+The completed inventory found five source-local compile-time tests. Retain them
+through A.2 because production `tsc` is currently their only oracle. During
+A.3, move them atomically with green owner-local `tsconfig.test.json` projects
+and independently runnable Nx `check:test` targets:
+
+| Current source-local test | Destination |
+| --- | --- |
+| Swooper `maps/__type_tests__/authoring-sdk.multi-strategy.inference.ts` | split into MapGen Core operation, step, and recipe `.type-test.ts` files under their existing semantic test roots |
+| Swooper `maps/__type_tests__/createMap-config.inference.ts` | Swooper `test/maps/create-map-config.type-test.ts` |
+| Swooper `recipes/standard/__type_tests__/config-boundaries.ts` | Swooper Standard-recipe `standard-complete-config-boundary.type-test.ts` |
+| MapGen Core `authoring/__type_tests__/artifact-readonly.ts` | MapGen Core `test/authoring/artifact/artifact-readonly.type-test.ts` |
+| Studio browser-runner `__type_tests__/recipeRuntime.inference.ts` | Studio `test/browserRunner/recipeRuntime.type-test.ts` |
+
+Static tests live under the semantic owner they constrain and use the
+`.type-test.ts` suffix. Do not create a top-level `types` or `type-tests` root.
+Make each move only in the same change that proves the destination compiler
+project includes it and the production project no longer does.
 
 1. retain the closed Packet A base-versus-tip comparison as the boundary between
    its repaired diagnostics and the independent historical corpus;
