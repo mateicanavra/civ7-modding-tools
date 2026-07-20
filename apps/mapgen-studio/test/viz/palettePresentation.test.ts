@@ -216,8 +216,9 @@ describe("resolved visualization palette presentation", () => {
       values: new Float32Array([0, 1]),
     });
 
-    expect(renderColor(0, palette)).toEqual([241, 245, 249, 230]);
-    expect(renderColor(1, palette)).toEqual([30, 41, 59, 230]);
+    expect(renderColor(0, palette)).toEqual([35, 35, 41, 72]);
+    expect(renderColor(0.5, palette)).toEqual([35, 35, 41, 150]);
+    expect(renderColor(1, palette)).toEqual([35, 35, 41, 230]);
   });
 
   it("labels declared palette domains", () => {

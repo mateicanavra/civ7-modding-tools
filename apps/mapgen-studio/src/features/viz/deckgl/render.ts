@@ -18,7 +18,7 @@ import type { Bounds, VizAssetResolver, VizLayerEntryV2, VizManifestV2 } from ".
 import {
   resolveVizPalettePresentation,
   selectVizScalarField,
-  tileBorderColorForFill,
+  tileBorderColorForPresentTile,
   type VizRenderedScalarPresentation,
   writeColorForScalarValue,
 } from "../presentation";
@@ -463,18 +463,11 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
           stroked: true,
           // Mesh contract: unfilled tiles draw nothing — the border follows
           // the fill's alpha so transparent tiles leave no phantom mesh.
-          // Filled tiles grout with their OWN fill darkened (the one
-          // tile-border rule) so the lattice stays legible at fit zoom.
+          // Every present tile uses the shared graphite border.
           getLineColor: (i) => {
             const base = Number(i) * 4;
             const alpha = colors[base + 3] ?? 0;
-            return alpha === 0
-              ? [0, 0, 0, 0]
-              : tileBorderColorForFill(
-                  colors[base] ?? 0,
-                  colors[base + 1] ?? 0,
-                  colors[base + 2] ?? 0
-                );
+            return alpha === 0 ? [0, 0, 0, 0] : tileBorderColorForPresentTile();
           },
           getLineWidth: 1,
           lineWidthUnits: "pixels",
@@ -729,18 +722,11 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
         stroked: true,
         // Mesh contract: unfilled tiles draw nothing — the border follows
         // the fill's alpha so transparent tiles leave no phantom mesh.
-        // Filled tiles grout with their OWN fill darkened (the one
-        // tile-border rule) so the lattice stays legible at fit zoom.
+        // Every present tile uses the shared graphite border.
         getLineColor: (i) => {
           const base = Number(i) * 4;
           const alpha = colors[base + 3] ?? 0;
-          return alpha === 0
-            ? [0, 0, 0, 0]
-            : tileBorderColorForFill(
-                colors[base] ?? 0,
-                colors[base + 1] ?? 0,
-                colors[base + 2] ?? 0
-              );
+          return alpha === 0 ? [0, 0, 0, 0] : tileBorderColorForPresentTile();
         },
         getLineWidth: 1,
         lineWidthUnits: "pixels",

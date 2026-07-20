@@ -26,9 +26,9 @@ export const STANDARD_VIZ_COLORS = {
   vegetation: [34, 139, 94, 235],
   field: {
     negative: [59, 130, 246, 235],
-    neutral: [107, 114, 128, 230],
+    neutral: [35, 35, 41, 230],
     positive: [239, 68, 68, 235],
-    low: [107, 114, 128, 230],
+    low: [35, 35, 41, 96],
     moderate: [59, 130, 246, 235],
     elevated: [34, 197, 94, 235],
     high: [245, 158, 11, 235],
