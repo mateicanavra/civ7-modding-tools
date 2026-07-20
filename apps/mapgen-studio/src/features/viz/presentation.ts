@@ -82,9 +82,9 @@ function collectResolvedCategoryIds(
 }
 
 const NEUTRAL_SCALAR_RAMP: ReadonlyArray<RgbaColor> = [
-  [241, 245, 249, 230],
-  [148, 163, 184, 230],
-  [30, 41, 59, 230],
+  [35, 35, 41, 72],
+  [35, 35, 41, 150],
+  [35, 35, 41, 230],
 ];
 
 // Nonfinite/no-data evidence remains transparent under the existing tile contract. A finite
@@ -156,29 +156,15 @@ export function resolveVizPalettePresentation(
 }
 
 /**
- * The one tile-border RULE (Pass-5 tile-orientation spec, retuned twice on
- * user feedback): the border is the tile's OWN fill pulled toward black —
- * self-grout. The previous constant graphite ink (#0d0d11, the page
- * substrate) vanished at map scale: at fit zoom a Huge map's tiles are a few
- * pixels wide, and a page-colored 1px seam between dark fills dissolved the
- * tessellation into disconnected dots — the grid disappeared everywhere the
- * Delaunay mesh (its own slate ink) wasn't drawn. A fill-derived seam is
- * darker than its fill BY CONSTRUCTION, so the hex lattice reads at every
- * zoom, in both themes, for every palette — and up close it still recedes
- * like etched grout instead of glowing slate. Unfilled tiles draw nothing
- * (mesh contract — stroke alpha follows fill alpha). All tile-space polygon
- * strokes use this rule — no per-call border literals.
+ * Canonical dark-theme `--border` color used to grout every present map tile.
+ * Keeping the border independent of semantic fill hue makes the hex lattice read as one matte
+ * graphite surface while transparent tiles continue to opt out at the renderer call site.
  */
-export const TILE_BORDER_FILL_RATIO = 0.55;
+export const TILE_BORDER_COLOR = [52, 52, 61, 255] as const satisfies Readonly<RgbaColor>;
 
-/** Produces self-grout that remains legible against the tile's own fill color. */
-export function tileBorderColorForFill(r: number, g: number, b: number): RgbaColor {
-  return [
-    Math.round(r * TILE_BORDER_FILL_RATIO),
-    Math.round(g * TILE_BORDER_FILL_RATIO),
-    Math.round(b * TILE_BORDER_FILL_RATIO),
-    255,
-  ];
+/** Returns the shared graphite border for a present tile. */
+export function tileBorderColorForPresentTile(): RgbaColor {
+  return copyColor(TILE_BORDER_COLOR);
 }
 
 type ColorOut = { [index: number]: number };

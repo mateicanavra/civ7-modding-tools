@@ -2,7 +2,7 @@ import type { Layer } from "@deck.gl/core";
 import { describe, expect, it } from "vitest";
 import { boundsForTileGrid, renderDeckLayers } from "../../src/features/viz/deckgl/render";
 import type { VizLayerEntryV2, VizManifestV2 } from "../../src/features/viz/model";
-import { TILE_BORDER_FILL_RATIO } from "../../src/features/viz/presentation";
+import { TILE_BORDER_COLOR } from "../../src/features/viz/presentation";
 
 type GridLayerEntry = Extract<VizLayerEntryV2, { kind: "grid" }>;
 type HexLayerAccessors = {
@@ -186,7 +186,7 @@ describe("tile-space rendering orientation", () => {
     expect(filledLine[3]).toBeGreaterThan(0);
   });
 
-  it("grouts each filled tile with its OWN fill darkened (the one border rule)", async () => {
+  it("grouts every filled tile with the shared design-system graphite border", async () => {
     const layer = gridLayer("tile.hexOddR");
     const manifest: VizManifestV2 = {
       version: 2,
@@ -198,20 +198,18 @@ describe("tile-space rendering orientation", () => {
     const result = await renderDeckLayers({ manifest, layer, showEdgeOverlay: false });
     const hexLayer = requireHexLayer(result.layers);
 
-    // The previous CONSTANT graphite ink matched the page substrate, so at
-    // fit zoom the lattice dissolved into dots ("the grid disappeared" for
-    // every tile layer). The border must now derive from the tile's fill —
-    // strictly darker than it, fully opaque, and different per tile.
     for (const index of [0, 1]) {
-      const fill = hexLayer.props.getFillColor(index);
       const line = hexLayer.props.getLineColor(index);
-      expect(line[3]).toBe(255);
-      for (const channel of [0, 1, 2]) {
-        expect(line[channel]).toBe(Math.round((fill[channel] ?? 0) * TILE_BORDER_FILL_RATIO));
-      }
+      expect(line).toEqual(TILE_BORDER_COLOR);
     }
     const line0 = hexLayer.props.getLineColor(0);
     const line1 = hexLayer.props.getLineColor(1);
-    expect(line0).not.toEqual(line1);
+    expect(line0).toEqual(line1);
+
+    const neutralFill = hexLayer.props.getFillColor(3);
+    const neutralLine = hexLayer.props.getLineColor(3);
+    expect(neutralFill).toEqual([35, 35, 41, 230]);
+    expect(neutralLine).toEqual(TILE_BORDER_COLOR);
+    expect(neutralLine.slice(0, 3)).not.toEqual(neutralFill.slice(0, 3));
   });
 });
