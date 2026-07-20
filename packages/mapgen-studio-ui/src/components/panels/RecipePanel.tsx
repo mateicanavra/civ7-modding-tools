@@ -8,7 +8,7 @@
 
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
 import { BookOpen, Eraser, Link, Power, Save, Settings } from "lucide-react";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useState } from "react";
 import type { XSchema } from "typebox/schema";
 import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
 import { LAYOUT } from "../../lib/layout.js";
@@ -18,12 +18,7 @@ import { DisclosureHeader } from "../composites/DisclosureHeader.js";
 import { OptionSelect } from "../composites/OptionSelect.js";
 import { setAtPath } from "../forms/pathUtils.js";
 import { SchemaConfigForm } from "../forms/SchemaConfigForm.js";
-import {
-  normalizeSchemaForRjsf,
-  schemaDefaultsFor,
-  toRjsfSchema,
-  tryGetSchemaAtPath,
-} from "../forms/schemaPresentation.js";
+import { pointerToPath } from "../forms/schemaPresentation.js";
 import { useConfigCollapse } from "../forms/useConfigCollapse.js";
 import { Button } from "../ui/button.js";
 import {
@@ -134,10 +129,14 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const [showAllSteps, setShowAllSteps] = useState(false);
   // Scoped reset (flat-and-flush delta 5): the confirmation dialog is owned
   // here but always targets ONE stage — pointer for the patch, label for the
-  // dialog copy. Null ⇒ closed. There is no global reset affordance.
+  // dialog copy, and the stage's schema-resolved defaults captured at request
+  // time (the template resolves them once for its dirty gate; the panel never
+  // re-resolves — one authority path). Null ⇒ closed. There is no global
+  // reset affordance.
   const [stageResetTarget, setStageResetTarget] = useState<{
     pointer: string;
     label: string;
+    defaults: unknown;
   } | null>(null);
   const [showSaveMenu, setShowSaveMenu] = useState(false);
 
@@ -182,28 +181,13 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const focusPath = !showAllSteps && selectedStep ? [selectedStep] : null;
   // Config-object collapse (Pass-4): collapsed by default with manual expand;
   // the focused stage root defaults expanded.
-  const configScrollRef = useRef<HTMLDivElement | null>(null);
   const collapse = useConfigCollapse({
     focusRootPointer: focusPath ? `/${focusPath.join("/")}` : null,
   });
-  // Normalized rjsf view of the config schema — the same normalization the
-  // form itself applies — so a stage's reset patch resolves defaults from the
-  // exact schema shape the form renders.
-  const rjsfSchema = useMemo(() => {
-    try {
-      return toRjsfSchema(normalizeSchemaForRjsf(configSchema));
-    } catch {
-      return null;
-    }
-  }, [configSchema]);
   const confirmStageReset = () => {
     if (!stageResetTarget) return;
-    const path = stageResetTarget.pointer.split("/").filter(Boolean);
-    const stageSchema = rjsfSchema ? tryGetSchemaAtPath(rjsfSchema, path) : null;
-    const defaults = schemaDefaultsFor(stageSchema);
-    if (defaults !== undefined) {
-      onConfigChange(setAtPath(config, path, defaults) as PipelineConfig);
-    }
+    const path = pointerToPath(stageResetTarget.pointer);
+    onConfigChange(setAtPath(config, path, stageResetTarget.defaults) as PipelineConfig);
     setStageResetTarget(null);
   };
   // ==========================================================================
@@ -390,7 +374,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         {!configCollapsed && (
           <div
             id="recipe-panel-config-section"
-            ref={configScrollRef}
             className="flex-1 overflow-y-auto overflow-x-hidden"
           >
             {/* Config form (flat-and-flush delta 1): flush — no horizontal
@@ -410,7 +393,9 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 focusPath={focusPath}
                 disabled={!configEditingEnabled}
                 collapse={collapse}
-                onStageResetRequest={(pointer, label) => setStageResetTarget({ pointer, label })}
+                onStageResetRequest={(pointer, label, defaults) =>
+                  setStageResetTarget({ pointer, label, defaults })
+                }
                 onChange={(next) => onConfigChange(next)}
               />
             </div>

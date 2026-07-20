@@ -53,8 +53,11 @@ const DRIFT_CLASSES = "border-warning text-warning ring-1 ring-warning/40";
 function fieldDrift(schema: RJSFSchema | undefined, value: unknown) {
   const hasDefault = schema != null && typeof schema === "object" && "default" in schema;
   const defaultValue = hasDefault ? schema.default : undefined;
+  // null and undefined both mean "empty" here (rjsf emptyValue vs a null
+  // schema default) — normalize both sides so an empty field with a null
+  // default reads clean, not perpetually dirty.
   return {
-    dirty: hasDefault && !deepEquals(value ?? undefined, defaultValue),
+    dirty: hasDefault && !deepEquals(value ?? undefined, defaultValue ?? undefined),
     defaultValue,
   };
 }
