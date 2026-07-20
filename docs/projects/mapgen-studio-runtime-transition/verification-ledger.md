@@ -1,6 +1,6 @@
 # Verification Ledger
 
-Status: pre-A.2 package foundation in progress; final P21 remains open
+Status: pre-A.2 foundation certified; Graphite merge preparation active; final P21 remains open
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -10,30 +10,34 @@ Current scope and DRA frame:
 
 ## Live Control State
 
-- Last updated: 2026-07-16 EDT
-- Current phase: `pre-a2-package-foundation`
-- Ratcheted foundation: the split base, native Nx/toolchain layers, G.1/G.2,
+- Last updated: 2026-07-20 EDT
+- Current phase: `pre-a2-foundation-merge`
+- Ratcheted foundation: the certified pre-A.2 foundation, native Nx/toolchain layers, G.1/G.2,
   RuleFixPreview, A.3a, A.4, control-oRPC lifecycle and Studio adoption, Tuner
   session/admission repair, P19 generated-mod visibility, and P20 saved-config
   reconciliation, P21 deterministic proof, source-independent A.3 static
-  coverage, hook diagnostics, and lossless operation-event adoption are sealed
-  Graphite layers.
-- Current gate: the independent-track census found no further admitted product
-  slice. One native workspace typecheck graph passes all 25 projects and 82
-  tasks; deterministic proof and operation-event adoption passed fresh review.
-  A.5 remains unadmitted because neither lazy payload loading nor a worker
-  readiness state earned complexity from valid product evidence.
-- Next action: seal A.3 compiler ownership, normalize repository TypeScript
-  project ownership, then move reusable MapGen capabilities and tooling to their
-  correct package owners before A.2 begins.
+  coverage, hook diagnostics, lossless operation-event adoption, MapGen
+  capability/package boundaries, operation admission, test authority, and
+  compiler ownership are sealed Graphite layers.
+- Current gate: the complete foundation certification graph, strict OpenSpec,
+  generated-currentness, and permanent review roles passed. The subsequent
+  Habitat authority-script compiler repair passed its owning Nx check graph and
+  exact-tree review. A.5 remains unadmitted because neither lazy payload loading
+  nor a worker readiness state earned complexity from valid product evidence.
+- Next action: consolidate the local-only delivery stack into reviewable semantic
+  Graphite branches, rerun certification, then obtain explicit submission and
+  merge-mode approval. After the approved foundation merge, drain only the
+  explicitly allowlisted local state and begin A.2 from merged `main`.
 - Graphite law: preserve coherent layers. No returned-stack protocol,
   replacement stack, full replay, or wholesale recut. Native Graphite operations
   handle only concrete branch dependencies.
-- A.2 owner after the split: the user's A.2 orchestrator owns Authority, the
-  advisory census and deterministic classification, and six domain migrations.
-  This DRA owns the independent closeout track and final product closure.
-- Blocked by: nothing. A.2 has not begun and remains outside this package
-  ownership work.
+- A.2 owner after the foundation merge: the user's A.2 orchestrator owns
+  Authority, the advisory census and deterministic classification, and six
+  domain migrations.
+  This DRA owns final combined-tree readiness and product closure.
+- Blocked by: explicit fold, protected-owner-lane, submission, merge-mode, and
+  drain dispositions only. A.2 has not begun and remains outside this foundation
+  merge.
 - Product state: the complete rendered browser/endpoint/Civ7 matrix remains
   open, so no product closure is claimed.
 
@@ -296,11 +300,11 @@ prerequisite without admitting dependent authority mutation.
 | --- | --- | --- |
 | 0 Opening census | complete; historical recovery is verified and the current continuation lineage is reconciled through takeover | recovery artifact remains readable and every later source addition stays explicit |
 | 1 Semantic disposition | open only for unresolved legacy rows or a unit whose authority is not final | every disposition required by the unit being admitted is final; complete corpus has zero unresolved rows before Stage 2 exit |
-| 2 Semantic product tree | active; A.2 split base sealed and product semantic closure continues | no known accepted product defect or undecided semantic row at the product tree |
-| 3 Current-stack inspection | not started | coherent layers preserved; real dependencies identified |
-| 4 Targeted Graphite normalization | not started; may be unnecessary | only concretely required moves, splits, folds, or restacks complete |
-| 5 Change-unit closure | not started | P01-P20/tooling branches closed and P21 `authority-ready` |
-| 6 Integrated readiness | not started | A.2/A.3 reconverged, deterministic gates green, P21 runtime-ready |
+| 2 Semantic product tree | complete for the independent pre-A.2 foundation; A.2 remains a separate post-merge track | no known accepted product defect or undecided semantic row at the product tree |
+| 3 Current-stack inspection | complete; local-only ancestry, protected owner lanes, worktrees, and drain ownership audited | coherent layers preserved; real dependencies identified |
+| 4 Targeted Graphite normalization | ready; exact semantic folds and protected-owner-lane handling await explicit disposition | only concretely required moves, splits, folds, or restacks complete |
+| 5 Change-unit closure | current foundation complete; submission CI pending | P01-P20/tooling branches closed and P21 `authority-ready` |
+| 6 Integrated readiness | not started | A.2 complete on the merged foundation, deterministic gates green, P21 runtime-ready |
 | 7 Record/archive | not started | completed packet/spec/archive state reconciled; P21 remains active |
 | 8 Final runtime/merge | not started | one final three-row P21 matrix green; accepted branches merged; current stack terminal |
 | 9 Habitat return | not started | closeout records current and zero-context continuation usable |
@@ -453,7 +457,7 @@ database.
 | Effect diagnostics | `TOOL-EFFECT` source accounting and native Biome output | independent corpus open | every in-scope diagnostic dispositioned without hiding or elaborating disposable topology |
 | touched Habitat rules | authority manifests, cleanup rows, rule fixtures, and native Habitat output | per-unit; provider and A.2 rows open | every retained/retired rule has one authority owner and complete lifecycle evidence |
 | packet obligations | P01-P21 task/evidence records plus this ledger | P01-P18 historically checked; P19-P20 closed; P21 authority corrected with final live rows open | every declared gate has current evidence at the required proof class |
-| control inputs | current frame/workstream plus historical opening-stack, gate, cleanup, and wave records | current through the sealed split base | current semantic claims agree before the dependent slice closes |
+| control inputs | current frame/workstream plus historical opening-stack, gate, cleanup, and wave records | current through the certified pre-A.2 foundation | current semantic claims agree before the dependent slice closes |
 
 ## Runtime Matrix Register
 
@@ -466,9 +470,9 @@ support; they do not create a second mutable checkpoint.
 
 | Row id | Authority | Final runtime state |
 | --- | --- | --- |
-| `success-earthlike` | P21 fixed tuple | pending A.2/A.3 and runtime freeze |
-| `success-latest-juicy` | P21 fixed tuple | pending A.2/A.3 and runtime freeze |
-| `success-desert-mountains` | P21 fixed tuple | pending A.2/A.3 and runtime freeze |
+| `success-earthlike` | P21 fixed tuple | pending A.2 and runtime freeze |
+| `success-latest-juicy` | P21 fixed tuple | pending A.2 and runtime freeze |
+| `success-desert-mountains` | P21 fixed tuple | pending A.2 and runtime freeze |
 
 Validation, ownership, cancellation, terminal adoption, row/config mismatch,
 freshness, route projection, and redaction are behavior-test gates. They are not
