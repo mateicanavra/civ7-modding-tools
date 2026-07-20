@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { buildStandardRecipeDefaultConfig } from "../../../../src/recipes/standard/artifacts.js";
@@ -8,20 +8,20 @@ import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 
-const env = {
-  seed: 123,
+const setup = admitMapSetup({
+  mapSeed: 123,
   dimensions: { width: 12, height: 9 },
   latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-};
+});
 
 function runHydrologyTruth(navigableRiverDensity: "sparse" | "dense") {
-  const width = env.dimensions.width;
-  const height = env.dimensions.height;
+  const width = setup.dimensions.width;
+  const height = setup.dimensions.height;
   const mapInfo = {
     GridWidth: width,
     GridHeight: height,
-    MinLatitude: env.latitudeBounds.bottomLatitude,
-    MaxLatitude: env.latitudeBounds.topLatitude,
+    MinLatitude: setup.latitudeBounds.bottomLatitude,
+    MaxLatitude: setup.latitudeBounds.topLatitude,
     PlayersLandmass1: 4,
     PlayersLandmass2: 4,
     StartSectorRows: 4,
@@ -33,9 +33,9 @@ function runHydrologyTruth(navigableRiverDensity: "sparse" | "dense") {
     height,
     mapInfo,
     mapSizeId: 1,
-    rng: createLabelRng(env.seed),
+    rng: createLabelRng(setup.mapSeed),
   });
-  const context = createExtendedMapContext({ width, height }, adapter, env);
+  const context = createMapContext({ setup, adapter });
   const config = structuredClone(buildStandardRecipeDefaultConfig());
   config["hydrology-hydrography"].knobs.riverDensity = "normal";
   config["map-rivers"].knobs.navigableRiverDensity = navigableRiverDensity;
@@ -43,7 +43,7 @@ function runHydrologyTruth(navigableRiverDensity: "sparse" | "dense") {
     mapInfo,
     logPrefix: "[hydrology-knobs]",
   });
-  standardRecipe.run(context, env, config, { log: () => {} });
+  standardRecipe.run(context, config, { log: () => {} });
 
   return context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
     | {
@@ -100,8 +100,8 @@ describe("hydrology knobs compilation", () => {
     config["map-rivers"].knobs.navigableRiverDensity = "dense";
     config["hydrology-climate-refine"].knobs.dryness = "wet";
 
-    const a = standardRecipe.compileConfig(env, config);
-    const b = standardRecipe.compileConfig(env, config);
+    const a = standardRecipe.compileConfig(setup, config);
+    const b = standardRecipe.compileConfig(setup, config);
     expect(a["hydrology-climate-baseline"]).toEqual(b["hydrology-climate-baseline"]);
     expect(a["hydrology-climate-refine"]).toEqual(b["hydrology-climate-refine"]);
     expect(a["map-rivers"]).toEqual(b["map-rivers"]);
@@ -114,8 +114,8 @@ describe("hydrology knobs compilation", () => {
     const dryConfig = structuredClone(buildStandardRecipeDefaultConfig());
     dryConfig["hydrology-climate-baseline"].knobs.dryness = "dry";
     dryConfig["hydrology-climate-refine"].knobs.dryness = "dry";
-    const wet = standardRecipe.compileConfig(env, wetConfig);
-    const dry = standardRecipe.compileConfig(env, dryConfig);
+    const wet = standardRecipe.compileConfig(setup, wetConfig);
+    const dry = standardRecipe.compileConfig(setup, dryConfig);
 
     const wetScale = rainfallScale(
       wet["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config
@@ -141,9 +141,9 @@ describe("hydrology knobs compilation", () => {
     normalConfig["hydrology-hydrography"].knobs.riverDensity = "normal";
     const denseConfig = structuredClone(buildStandardRecipeDefaultConfig());
     denseConfig["hydrology-hydrography"].knobs.riverDensity = "dense";
-    const sparse = standardRecipe.compileConfig(env, sparseConfig);
-    const normal = standardRecipe.compileConfig(env, normalConfig);
-    const dense = standardRecipe.compileConfig(env, denseConfig);
+    const sparse = standardRecipe.compileConfig(setup, sparseConfig);
+    const normal = standardRecipe.compileConfig(setup, normalConfig);
+    const dense = standardRecipe.compileConfig(setup, denseConfig);
 
     expect(
       sparse["hydrology-hydrography"].rivers.projectRiverNetwork.config.minorPercentile
@@ -168,11 +168,11 @@ describe("hydrology knobs compilation", () => {
     sparsePhysicalDenseVisibleConfig["hydrology-hydrography"].knobs.riverDensity = "sparse";
     sparsePhysicalDenseVisibleConfig["map-rivers"].knobs.navigableRiverDensity = "dense";
     const densePhysicalSparseVisible = standardRecipe.compileConfig(
-      env,
+      setup,
       densePhysicalSparseVisibleConfig
     );
     const sparsePhysicalDenseVisible = standardRecipe.compileConfig(
-      env,
+      setup,
       sparsePhysicalDenseVisibleConfig
     );
 
@@ -220,7 +220,7 @@ describe("hydrology knobs compilation", () => {
     config["hydrology-climate-refine"].knobs.cryosphere = "on";
     config["hydrology-climate-refine"].precipitationRefinement.riverCorridor.lowlandAdjacencyBonus =
       44;
-    const compiled = standardRecipe.compileConfig(env, config);
+    const compiled = standardRecipe.compileConfig(setup, config);
 
     // Baseline values apply first (schema defaults + semantic public config), then knobs transform them.
     // - lakeiness=many admits a wider high-discharge basin set than normal while keeping lakes clustered.

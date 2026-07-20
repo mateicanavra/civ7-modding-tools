@@ -20,7 +20,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const PlotBiomesStep = createStep(PlotBiomesStepContract, {
   run: (context, config, _ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const classification = deps.artifacts.biomeClassification.read(context);
     const topography = deps.artifacts.topography.read(context);
     const engineBiomeIds = resolveEngineBiomeIds(context.adapter, config.bindings);

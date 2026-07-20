@@ -12,7 +12,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 export const LandmassesStep = createStep(LandmassesStepContract, {
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const snapshot = ops.landmasses(
       {
         width,

@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { canonicalRecipeConfig } from "../../../../../src/maps/configs/canonical.js";
 import { artifacts as standardArtifacts } from "../../../../../src/recipes/standard/artifacts/index.js";
@@ -42,14 +42,14 @@ function runStandardContext(args: {
     StartSectorRows: 4,
     StartSectorCols: 4,
   };
-  const env = {
-    seed,
+  const setup = admitMapSetup({
+    mapSeed: seed,
     dimensions: { width, height },
     latitudeBounds: {
       topLatitude: mapInfo.MaxLatitude,
       bottomLatitude: mapInfo.MinLatitude,
     },
-  };
+  });
 
   // compileConfig may normalize/mutate inputs; keep the runtime config object pristine for standardRecipe.run.
   const adapter = createMockAdapter({
@@ -59,13 +59,13 @@ function runStandardContext(args: {
     mapSizeId: 1,
     rng: createLabelRng(seed),
   });
-  const context = createExtendedMapContext({ width, height }, adapter, env);
+  const context = createMapContext({ setup, adapter });
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[mountains-probe]",
   });
-  standardRecipe.run(context, env, config, { log: () => {} });
-  return { context, env } as const;
+  standardRecipe.run(context, config, { log: () => {} });
+  return { context, setup } as const;
 }
 
 function countMask(mask: Uint8Array): number {

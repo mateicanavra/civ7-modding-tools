@@ -1,5 +1,5 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import { snapshotEngineHeightfield } from "@swooper/mapgen-core";
+import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
+import type { MapContext } from "@swooper/mapgen-core";
 
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import type { PlacementOutputsV1 } from "../../artifacts/placement-outputs.artifact.js";
@@ -34,7 +34,7 @@ type StartAssignment = Static<
 >;
 
 type ApplyPlacementArgs = {
-  context: ExtendedMapContext;
+  context: MapContext;
   naturalWonderPlacement: DeepReadonly<NaturalWonderPlacement>;
   surfacePreparation: DeepReadonly<PlacementSurfacePreparation>;
   resourcePlacement: DeepReadonly<ResourcePlacementOutcomes>;
@@ -50,11 +50,11 @@ type ApplyPlacementArgs = {
   ) => DeepReadonly<EngineTerrainSnapshot>;
 };
 
-type EngineHeightfieldSnapshot = NonNullable<ReturnType<typeof snapshotEngineHeightfield>>;
+type EngineHeightfieldSnapshot = ReturnType<typeof snapshotEngineHeightfield>;
 
 /** Completed placement evidence needed by the terminal step's optional visualization facet. */
 export type ApplyPlacementResult = Readonly<{
-  engineSnapshot: EngineHeightfieldSnapshot | null;
+  engineSnapshot: EngineHeightfieldSnapshot;
   waterDrift: Uint8Array;
 }>;
 
@@ -81,8 +81,8 @@ export function applyPlacementPlan({
   publishEngineState = (engineState) => engineState,
   publishEngineTerrainSnapshot = (snapshot) => snapshot,
 }: ApplyPlacementArgs): ApplyPlacementResult {
-  const { adapter, trace } = context;
-  const { width, height } = context.dimensions;
+  const { trace } = context;
+  const { width, height } = context.setup.dimensions;
   const emit = (payload: Record<string, unknown>): void => {
     if (!trace?.isVerbose) return;
     trace.event(() => payload);
@@ -118,15 +118,13 @@ export function applyPlacementPlan({
     throw new Error("[Placement] Advanced start evidence is incomplete.");
   }
 
-  logTerrainStats(trace, adapter, width, height, "Final");
-  logAsciiMap(trace, adapter, width, height);
+  logTerrainStats(context, "Final");
+  logAsciiMap(context);
 
   // Compare the final Morphology land classification with the engine surface
   // after all placement product work has completed.
-  const engineSnapshot = snapshotEngineHeightfield(context);
-  const engineLandMask = engineSnapshot
-    ? engineSnapshot.landMask
-    : new Uint8Array(topographyLandMask);
+  const engineSnapshot = snapshotEngineHeightfield(context.adapter);
+  const engineLandMask = engineSnapshot.landMask;
   let waterDriftCount = 0;
   const waterDrift = new Uint8Array(engineLandMask.length);
   for (let i = 0; i < engineLandMask.length; i++) {
@@ -136,16 +134,14 @@ export function applyPlacementPlan({
       waterDrift[i] = (engineLandMask[i] ?? 0) === 1 ? 1 : 2;
     }
   }
-  if (engineSnapshot) {
-    publishEngineTerrainSnapshot({
-      stage: "placement/placement",
-      width,
-      height,
-      landMask: engineSnapshot.landMask,
-      terrain: engineSnapshot.terrain,
-      elevation: engineSnapshot.elevation,
-    });
-  }
+  publishEngineTerrainSnapshot({
+    stage: "placement/placement",
+    width,
+    height,
+    landMask: engineSnapshot.landMask,
+    terrain: engineSnapshot.terrain,
+    elevation: engineSnapshot.elevation,
+  });
 
   publishEngineState({
     width,

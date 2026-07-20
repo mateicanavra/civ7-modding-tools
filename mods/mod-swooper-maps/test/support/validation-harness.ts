@@ -1,5 +1,5 @@
 import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core";
 import { artifacts as standardArtifacts } from "../../src/recipes/standard/artifacts/index.js";
 
@@ -21,7 +21,7 @@ export type InvariantResult = {
 };
 
 export type ValidationInvariantContext = {
-  context: ExtendedMapContext;
+  context: MapContext;
   fingerprints: FingerprintReport;
 };
 
@@ -90,7 +90,7 @@ export function fingerprintValue(value: unknown): string {
 }
 
 export function computeArtifactFingerprints(
-  context: ExtendedMapContext,
+  context: MapContext,
   artifactIds: readonly string[]
 ): FingerprintReport {
   const artifacts: Record<string, ArtifactFingerprintEntry> = {};
@@ -113,7 +113,7 @@ export function computeArtifactFingerprints(
 }
 
 export function runValidationHarness(args: {
-  context: ExtendedMapContext;
+  context: MapContext;
   artifactIds: readonly string[];
   invariants: readonly ValidationInvariant[];
 }): ValidationHarnessReport {

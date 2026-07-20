@@ -1,9 +1,5 @@
 import { createMockAdapter } from "@civ7/adapter";
-import {
-  createExtendedMapContext,
-  type StepFacetSinks,
-  type TraceSink,
-} from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext, type StepFacetSinks } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
@@ -12,8 +8,6 @@ import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages
 
 import { standardConfig } from "./standard-config.js";
 import { computeArtifactFingerprints } from "./validation-harness.js";
-
-const NOOP_TRACE_SINK: TraceSink = { emit: () => undefined };
 
 export const ECOLOGY_TIER1_ARTIFACT_IDS = [
   ecologyArtifacts.pedology.id,
@@ -90,13 +84,13 @@ export function computeEcologyBaselineV1(input?: {
     StartSectorCols: 4,
   } as const;
 
-  const envBase = {
-    seed,
+  const setupBase = {
+    mapSeed: seed,
     dimensions: { width, height },
     latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
   } as const;
 
-  const env = envBase;
+  const setup = admitMapSetup(setupBase);
 
   const adapter = createMockAdapter({
     width,
@@ -106,7 +100,7 @@ export function computeEcologyBaselineV1(input?: {
     rng: createLabelRng(seed),
   });
 
-  const context = createExtendedMapContext({ width, height }, adapter, env);
+  const context = createMapContext({ setup, adapter });
   const { sink, entries } = createVizKeyCollector();
 
   initializeStandardRuntime(context, {
@@ -114,8 +108,7 @@ export function computeEcologyBaselineV1(input?: {
     logPrefix: "[ecology-baseline]",
   });
 
-  standardRecipe.run(context, env, config, {
-    traceSink: NOOP_TRACE_SINK,
+  standardRecipe.run(context, config, {
     facets: { viz: sink },
     log: () => {},
   });

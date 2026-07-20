@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { ArtifactValidationError, implementArtifactModules } from "@swooper/mapgen-core/authoring";
 import {
   artifactModules as ecologyArtifactModules,
@@ -10,68 +10,70 @@ import {
 import { FeaturesApplyStep as featuresApplyStep } from "../../../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/step.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";
-import { buildTestDeps } from "../../../../../support/step-deps.js";
+import { buildTestDeps, withMapContextExecutionForTest } from "../../../../../support/step-deps.js";
 
 describe("map-ecology features-apply strictness (M3-008)", () => {
   it("fails loudly when intents contain unknown feature keys", () => {
     const width = 2;
     const height = 2;
-    const env = {
-      seed: 0,
+    const setup = admitMapSetup({
+      mapSeed: 0,
       dimensions: { width, height },
-      latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
-    };
+      latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
+    });
 
     const adapter = createMockAdapter({ width, height });
     adapter.fillWater(false);
-    const ctx = createExtendedMapContext({ width, height }, adapter, env);
+    const ctx = createMapContext({ setup, adapter });
 
-    const stageArtifacts = implementArtifactModules([
-      morphologyArtifactModules.topography,
-      ecologyArtifactModules.featureIntentsVegetation,
-      ecologyArtifactModules.featureIntentsWetlands,
-      ecologyArtifactModules.featureIntentsFloodplains,
-      ecologyArtifactModules.featureIntentsReefs,
-      ecologyArtifactModules.featureIntentsIce,
-    ]);
+    expect(() =>
+      withMapContextExecutionForTest(ctx, () => {
+        const stageArtifacts = implementArtifactModules([
+          morphologyArtifactModules.topography,
+          ecologyArtifactModules.featureIntentsVegetation,
+          ecologyArtifactModules.featureIntentsWetlands,
+          ecologyArtifactModules.featureIntentsFloodplains,
+          ecologyArtifactModules.featureIntentsReefs,
+          ecologyArtifactModules.featureIntentsIce,
+        ]);
 
-    stageArtifacts.topography.publish(ctx, {
-      elevation: new Int16Array(width * height),
-      seaLevel: 0,
-      landMask: new Uint8Array(width * height).fill(1),
-      bathymetry: new Int16Array(width * height),
-    });
+        stageArtifacts.topography.publish(ctx, {
+          elevation: new Int16Array(width * height),
+          seaLevel: 0,
+          landMask: new Uint8Array(width * height).fill(1),
+          bathymetry: new Int16Array(width * height),
+        });
 
-    ctx.artifacts.set(ecologyArtifacts.featureIntentsVegetation.id, [
-      { x: 0, y: 0, feature: "FEATURE_DOES_NOT_EXIST" },
-    ]);
-    stageArtifacts.featureIntentsWetlands.publish(ctx, []);
-    stageArtifacts.featureIntentsFloodplains.publish(ctx, []);
-    stageArtifacts.featureIntentsReefs.publish(ctx, []);
-    stageArtifacts.featureIntentsIce.publish(ctx, []);
+        const vegetationIntent = { x: 0, y: 0, feature: "forest" } as const;
+        stageArtifacts.featureIntentsVegetation.publish(ctx, [vegetationIntent]);
+        // Simulate corrupted external evidence without widening the closed authored feature type.
+        Reflect.set(vegetationIntent, "feature", "FEATURE_DOES_NOT_EXIST");
+        stageArtifacts.featureIntentsWetlands.publish(ctx, []);
+        stageArtifacts.featureIntentsFloodplains.publish(ctx, []);
+        stageArtifacts.featureIntentsReefs.publish(ctx, []);
+        stageArtifacts.featureIntentsIce.publish(ctx, []);
 
-    const config = {
-      apply: normalizeOpSelectionOrThrow(
-        ecology.ops.applyFeatures,
-        ecology.ops.applyFeatures.defaultConfig
-      ),
-    };
-    const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
-
-    expect(() => featuresApplyStep.run(ctx, config, ops, buildTestDeps(featuresApplyStep))).toThrow(
-      /unknown feature intent/i
-    );
+        const config = {
+          apply: normalizeOpSelectionOrThrow(
+            ecology.ops.applyFeatures,
+            ecology.ops.applyFeatures.defaultConfig
+          ),
+        };
+        const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
+        featuresApplyStep.run(ctx, config, ops, buildTestDeps(featuresApplyStep));
+      })
+    ).toThrow(/unknown feature intent/i);
     expect(ctx.artifacts.has(ecologyArtifacts.featureEngineSnapshot.id)).toBe(false);
   });
 
   it("keeps canHaveFeature rejections non-fatal and publishes diagnostics", () => {
     const width = 2;
     const height = 2;
-    const env = {
-      seed: 0,
+    const setup = admitMapSetup({
+      mapSeed: 0,
       dimensions: { width, height },
-      latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
-    };
+      latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
+    });
 
     const adapter = createMockAdapter({
       width,
@@ -81,41 +83,43 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     adapter.fillWater(false);
     const existingFeature = adapter.getFeatureTypeIndex("FEATURE_ICE");
     adapter.setFeatureType(1, 1, { Feature: existingFeature, Direction: -1, Elevation: 0 });
-    const ctx = createExtendedMapContext({ width, height }, adapter, env);
+    const ctx = createMapContext({ setup, adapter });
 
-    const stageArtifacts = implementArtifactModules([
-      morphologyArtifactModules.topography,
-      ecologyArtifactModules.featureIntentsVegetation,
-      ecologyArtifactModules.featureIntentsWetlands,
-      ecologyArtifactModules.featureIntentsFloodplains,
-      ecologyArtifactModules.featureIntentsReefs,
-      ecologyArtifactModules.featureIntentsIce,
-    ]);
+    withMapContextExecutionForTest(ctx, () => {
+      const stageArtifacts = implementArtifactModules([
+        morphologyArtifactModules.topography,
+        ecologyArtifactModules.featureIntentsVegetation,
+        ecologyArtifactModules.featureIntentsWetlands,
+        ecologyArtifactModules.featureIntentsFloodplains,
+        ecologyArtifactModules.featureIntentsReefs,
+        ecologyArtifactModules.featureIntentsIce,
+      ]);
 
-    stageArtifacts.topography.publish(ctx, {
-      elevation: new Int16Array(width * height),
-      seaLevel: 0,
-      landMask: new Uint8Array(width * height).fill(1),
-      bathymetry: new Int16Array(width * height),
+      stageArtifacts.topography.publish(ctx, {
+        elevation: new Int16Array(width * height),
+        seaLevel: 0,
+        landMask: new Uint8Array(width * height).fill(1),
+        bathymetry: new Int16Array(width * height),
+      });
+
+      stageArtifacts.featureIntentsVegetation.publish(ctx, [{ x: 0, y: 0, feature: "forest" }]);
+      stageArtifacts.featureIntentsWetlands.publish(ctx, []);
+      stageArtifacts.featureIntentsFloodplains.publish(ctx, []);
+      stageArtifacts.featureIntentsReefs.publish(ctx, []);
+      stageArtifacts.featureIntentsIce.publish(ctx, []);
+
+      const config = {
+        apply: normalizeOpSelectionOrThrow(
+          ecology.ops.applyFeatures,
+          ecology.ops.applyFeatures.defaultConfig
+        ),
+      };
+      const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
+
+      expect(() =>
+        featuresApplyStep.run(ctx, config, ops, buildTestDeps(featuresApplyStep))
+      ).not.toThrow();
     });
-
-    stageArtifacts.featureIntentsVegetation.publish(ctx, [{ x: 0, y: 0, feature: "forest" }]);
-    stageArtifacts.featureIntentsWetlands.publish(ctx, []);
-    stageArtifacts.featureIntentsFloodplains.publish(ctx, []);
-    stageArtifacts.featureIntentsReefs.publish(ctx, []);
-    stageArtifacts.featureIntentsIce.publish(ctx, []);
-
-    const config = {
-      apply: normalizeOpSelectionOrThrow(
-        ecology.ops.applyFeatures,
-        ecology.ops.applyFeatures.defaultConfig
-      ),
-    };
-    const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
-
-    expect(() =>
-      featuresApplyStep.run(ctx, config, ops, buildTestDeps(featuresApplyStep))
-    ).not.toThrow();
 
     const diagnostics = ctx.artifacts.get(ecologyArtifacts.featureApplyDiagnostics.id) as
       | {
@@ -151,11 +155,11 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
   it("publishes the complete engine surface after terrain validation", () => {
     const width = 2;
     const height = 2;
-    const env = {
-      seed: 0,
+    const setup = admitMapSetup({
+      mapSeed: 0,
       dimensions: { width, height },
-      latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
-    };
+      latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
+    });
 
     const adapter = createMockAdapter({ width, height, canHaveFeature: () => true });
     adapter.fillWater(false);
@@ -171,37 +175,39 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
         Elevation: 0,
       });
     };
-    const ctx = createExtendedMapContext({ width, height }, adapter, env);
+    const ctx = createMapContext({ setup, adapter });
 
-    const stageArtifacts = implementArtifactModules([
-      morphologyArtifactModules.topography,
-      ecologyArtifactModules.featureIntentsVegetation,
-      ecologyArtifactModules.featureIntentsWetlands,
-      ecologyArtifactModules.featureIntentsFloodplains,
-      ecologyArtifactModules.featureIntentsReefs,
-      ecologyArtifactModules.featureIntentsIce,
-    ]);
-    stageArtifacts.topography.publish(ctx, {
-      elevation: new Int16Array(width * height),
-      seaLevel: 0,
-      landMask: new Uint8Array(width * height).fill(1),
-      bathymetry: new Int16Array(width * height),
+    withMapContextExecutionForTest(ctx, () => {
+      const stageArtifacts = implementArtifactModules([
+        morphologyArtifactModules.topography,
+        ecologyArtifactModules.featureIntentsVegetation,
+        ecologyArtifactModules.featureIntentsWetlands,
+        ecologyArtifactModules.featureIntentsFloodplains,
+        ecologyArtifactModules.featureIntentsReefs,
+        ecologyArtifactModules.featureIntentsIce,
+      ]);
+      stageArtifacts.topography.publish(ctx, {
+        elevation: new Int16Array(width * height),
+        seaLevel: 0,
+        landMask: new Uint8Array(width * height).fill(1),
+        bathymetry: new Int16Array(width * height),
+      });
+      stageArtifacts.featureIntentsVegetation.publish(ctx, [{ x: 0, y: 0, feature: "forest" }]);
+      stageArtifacts.featureIntentsWetlands.publish(ctx, []);
+      stageArtifacts.featureIntentsFloodplains.publish(ctx, []);
+      stageArtifacts.featureIntentsReefs.publish(ctx, []);
+      stageArtifacts.featureIntentsIce.publish(ctx, []);
+
+      const config = {
+        apply: normalizeOpSelectionOrThrow(
+          ecology.ops.applyFeatures,
+          ecology.ops.applyFeatures.defaultConfig
+        ),
+      };
+      const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
+
+      featuresApplyStep.run(ctx, config, ops, buildTestDeps(featuresApplyStep));
     });
-    stageArtifacts.featureIntentsVegetation.publish(ctx, [{ x: 0, y: 0, feature: "forest" }]);
-    stageArtifacts.featureIntentsWetlands.publish(ctx, []);
-    stageArtifacts.featureIntentsFloodplains.publish(ctx, []);
-    stageArtifacts.featureIntentsReefs.publish(ctx, []);
-    stageArtifacts.featureIntentsIce.publish(ctx, []);
-
-    const config = {
-      apply: normalizeOpSelectionOrThrow(
-        ecology.ops.applyFeatures,
-        ecology.ops.applyFeatures.defaultConfig
-      ),
-    };
-    const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
-
-    featuresApplyStep.run(ctx, config, ops, buildTestDeps(featuresApplyStep));
 
     const snapshot = ctx.artifacts.get(ecologyArtifacts.featureEngineSnapshot.id) as {
       featureType: Int16Array;
@@ -222,36 +228,45 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
   it("refuses feature snapshots with the wrong dimensions, type, or cardinality", () => {
     const width = 2;
     const height = 2;
-    const env = {
-      seed: 0,
+    const setup = admitMapSetup({
+      mapSeed: 0,
       dimensions: { width, height },
-      latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
-    };
+      latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
+    });
     const runtime = implementArtifactModules([ecologyArtifactModules.featureEngineSnapshot]);
 
     const makeContext = () =>
-      createExtendedMapContext({ width, height }, createMockAdapter({ width, height }), env);
+      createMapContext({ setup, adapter: createMockAdapter({ width, height }) });
 
+    const wrongDimensionsContext = makeContext();
     expect(() =>
-      runtime.featureEngineSnapshot.publish(makeContext(), {
-        width: 1,
-        height: 4,
-        featureType: new Int16Array(4),
-      })
+      withMapContextExecutionForTest(wrongDimensionsContext, () =>
+        runtime.featureEngineSnapshot.publish(wrongDimensionsContext, {
+          width: 1,
+          height: 4,
+          featureType: new Int16Array(4),
+        })
+      )
     ).toThrow(ArtifactValidationError);
+    const wrongCardinalityContext = makeContext();
     expect(() =>
-      runtime.featureEngineSnapshot.publish(makeContext(), {
-        width,
-        height,
-        featureType: new Int16Array(3),
-      })
+      withMapContextExecutionForTest(wrongCardinalityContext, () =>
+        runtime.featureEngineSnapshot.publish(wrongCardinalityContext, {
+          width,
+          height,
+          featureType: new Int16Array(3),
+        })
+      )
     ).toThrow(ArtifactValidationError);
+    const wrongTypeContext = makeContext();
     expect(() =>
-      runtime.featureEngineSnapshot.publish(makeContext(), {
-        width,
-        height,
-        featureType: new Uint8Array(4),
-      } as never)
+      withMapContextExecutionForTest(wrongTypeContext, () =>
+        runtime.featureEngineSnapshot.publish(wrongTypeContext, {
+          width,
+          height,
+          featureType: new Uint8Array(4),
+        } as never)
+      )
     ).toThrow(ArtifactValidationError);
   });
 });

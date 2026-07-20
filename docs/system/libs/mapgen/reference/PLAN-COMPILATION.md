@@ -37,11 +37,12 @@ Plan compilation must:
   - `requires`/`provides` are taken from the registered step
   - `config` is taken from the recipe step config
 
-The resulting plan also carries the validated `env` (current) as part of the plan.
+The resulting plan retains the exact admitted `MapSetup` used for compilation. Execution accepts
+only a `MapContext` that owns that same setup identity. Physical setup is admitted once before
+compilation; step and operation normalizers cannot reinterpret it as operation configuration.
 
 ## Ground truth anchors
 
 - Execution plan compilation: `packages/mapgen-core/src/engine/execution-plan.ts`
 - Recipe schema and run request schema: `packages/mapgen-core/src/engine/execution-plan.ts`
 - Target posture: pipeline boundary and compiled plan: `docs/projects/engine-refactor-v1/resources/spec/adr/adr-er1-003-pipeline-boundary-is-runrequest-recipe-settings-compiled-to-executionplan.md`
-

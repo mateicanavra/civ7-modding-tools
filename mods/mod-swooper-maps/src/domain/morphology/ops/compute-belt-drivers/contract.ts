@@ -124,6 +124,7 @@ const ComputeBeltDriversContract = defineOp({
     },
     { description: "Derived belt-driver fields used by morphology landmask + belts + mountains." }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: StrategySchema,
   },

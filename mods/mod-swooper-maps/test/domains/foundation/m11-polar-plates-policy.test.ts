@@ -54,15 +54,10 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
   it("always emits north+south cap plates (contiguous)", () => {
     const width = 90;
     const height = 60;
-
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 18, cellsPerPlate: 3, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 18, cellsPerPlate: 3, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 1234 }, meshConfig).mesh;
     const mantlePotential = computeMantlePotential.run(
@@ -109,15 +104,10 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
   it("enables polar microplates only when configured, and they are not slivers", () => {
     const width = 120;
     const height = 80;
-
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 24, cellsPerPlate: 8, relaxationSteps: 2 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 24, cellsPerPlate: 8, relaxationSteps: 2 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 4444 }, meshConfig).mesh;
     const mantlePotential = computeMantlePotential.run(

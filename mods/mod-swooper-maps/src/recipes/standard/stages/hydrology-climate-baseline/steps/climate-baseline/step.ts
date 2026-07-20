@@ -122,7 +122,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
         };
       }
 
-      if (config.computeAtmosphericCirculation.strategy === "default") {
+      if (config.computeAtmosphericCirculation.strategy === "geostrophic-proxy") {
         return {
           ...config.computeAtmosphericCirculation,
           config: {
@@ -166,7 +166,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
         };
       }
 
-      if (config.computeOceanSurfaceCurrents.strategy === "default") {
+      if (config.computeOceanSurfaceCurrents.strategy === "wind-gyre-projection") {
         return {
           ...config.computeOceanSurfaceCurrents,
           config: {
@@ -211,7 +211,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
         : config.computeEvaporationSources;
 
     const transportMoisture = (() => {
-      if (config.transportMoisture.strategy === "default") {
+      if (config.transportMoisture.strategy === "vector-advection") {
         return {
           ...config.transportMoisture,
           config: {
@@ -248,7 +248,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
         HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE[oceanCoupling] -
         HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE.earthlike;
 
-      if (config.computePrecipitation.strategy === "basic") {
+      if (config.computePrecipitation.strategy === "baseline") {
         const scaleDenom = Math.max(0.1, wetnessScale);
         return {
           ...config.computePrecipitation,
@@ -297,7 +297,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
         };
       }
 
-      if (config.computePrecipitation.strategy === "default") {
+      if (config.computePrecipitation.strategy === "vector") {
         return {
           ...config.computePrecipitation,
           config: {
@@ -347,8 +347,8 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
     };
   },
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
-    const { topLatitude, bottomLatitude } = context.env.latitudeBounds;
+    const { width, height } = context.setup.dimensions;
+    const { topLatitude, bottomLatitude } = context.setup.latitudeBounds;
     const latitudeByRow = new Float32Array(height);
     if (height <= 1) {
       const mid = (topLatitude + bottomLatitude) / 2;
@@ -381,7 +381,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
       2_147_483_647
     );
 
-    const size = Math.max(0, width * height);
+    const size = width * height;
     const zeros = new Uint8Array(size);
 
     const modeCount = config.seasonality.modeCount;
@@ -395,11 +395,11 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
     const seasonalCurrentU: Int8Array[] = [];
     const seasonalCurrentV: Int8Array[] = [];
 
-    const useCirculationV2 =
-      config.computeAtmosphericCirculation.strategy === "default" ||
-      config.computeOceanSurfaceCurrents.strategy === "default" ||
-      config.transportMoisture.strategy === "default" ||
-      config.computePrecipitation.strategy === "default";
+    const usesCoupledClimatePath =
+      config.computeAtmosphericCirculation.strategy === "geostrophic-proxy" ||
+      config.computeOceanSurfaceCurrents.strategy === "wind-gyre-projection" ||
+      config.transportMoisture.strategy === "vector-advection" ||
+      config.computePrecipitation.strategy === "vector";
 
     let oceanGeometry: {
       basinId: Int32Array;
@@ -410,7 +410,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
       coastTangentV: Int8Array;
     } | null = null;
 
-    if (useCirculationV2) {
+    if (usesCoupledClimatePath) {
       oceanGeometry = ops.computeOceanGeometry(
         {
           width,
@@ -503,7 +503,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
     }
 
     let oceanThermal: { sstC: Float32Array; seaIceMask: Uint8Array } | null = null;
-    if (useCirculationV2) {
+    if (usesCoupledClimatePath) {
       // Annual mean SST/ice coupling: compute once from mean currents (bounded, deterministic).
       oceanThermal = ops.computeOceanThermalState(
         {
@@ -519,7 +519,7 @@ export const ClimateBaselineStep = createStep(ClimateBaselineStepContract, {
       );
     }
 
-    if (useCirculationV2) {
+    if (usesCoupledClimatePath) {
       // Pass 2: moisture + precip (seasonal), with optional SST/wind coupling into thermal+evap.
       for (let s = 0; s < phases.length; s++) {
         const phase = phases[s] ?? 0;

@@ -5,33 +5,6 @@ type LabelRng = (range: number, label: string) => number;
 type IslandConfig = PlanIslandChainsTypes["config"]["default"]["islands"];
 
 /**
- * Ensures island-chain inputs match the expected map size.
- */
-export function validateIslandInputs(input: PlanIslandChainsTypes["input"]): {
-  size: number;
-  landMask: Uint8Array;
-  boundaryCloseness: Uint8Array;
-  boundaryType: Uint8Array;
-  volcanism: Uint8Array;
-} {
-  const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
-  const landMask = input.landMask as Uint8Array;
-  const boundaryCloseness = input.boundaryCloseness as Uint8Array;
-  const boundaryType = input.boundaryType as Uint8Array;
-  const volcanism = input.volcanism as Uint8Array;
-  if (
-    landMask.length !== size ||
-    boundaryCloseness.length !== size ||
-    boundaryType.length !== size ||
-    volcanism.length !== size
-  ) {
-    throw new Error("[IslandChains] Input tensors must match width*height.");
-  }
-  return { size, landMask, boundaryCloseness, boundaryType, volcanism };
-}
-
-/**
  * Normalizes island placement tunables from authored config.
  */
 export function normalizeIslandTunables(config: PlanIslandChainsTypes["config"]["default"]): {

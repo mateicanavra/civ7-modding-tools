@@ -4,24 +4,9 @@ import { clampNumber } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeThermalStateContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
-
-    if (!(input.insolation instanceof Float32Array) || input.insolation.length !== size) {
-      throw new Error("[Hydrology] Invalid insolation for hydrology/compute-thermal-state.");
-    }
-    if (!(input.elevation instanceof Int16Array) || input.elevation.length !== size) {
-      throw new Error("[Hydrology] Invalid elevation for hydrology/compute-thermal-state.");
-    }
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/compute-thermal-state.");
-    }
-    if (input.sstC != null) {
-      if (!(input.sstC instanceof Float32Array) || input.sstC.length !== size) {
-        throw new Error("[Hydrology] Invalid sstC for hydrology/compute-thermal-state.");
-      }
-    }
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     const surfaceTemperatureC = new Float32Array(size);
     const base = config.baseTemperatureC;

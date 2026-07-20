@@ -10,7 +10,7 @@ export const PlanIceStep = createStep(PlanIceStepContract, {
   run: (context, config, ops, deps) => {
     const base = deps.artifacts.occupancyFloodplains.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
 
     const seed = ctxStepSeed(context, PlanIceStepContract.id, "ecology/plan-ice");
     const placements = ops.planIce(

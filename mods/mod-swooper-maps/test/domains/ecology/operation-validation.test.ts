@@ -670,13 +670,13 @@ describe("ecology op contract surfaces", () => {
     expect(result.placements.length).toBeGreaterThan(0);
   });
 
-  it("planReefs shipping lanes strategy validates output", () => {
+  it("planReefs diagonal-stride strategy validates output", () => {
     const width = 3;
     const height = 3;
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planReefs, {
-      strategy: "shipping-lanes",
-      config: Value.Create(ecology.ops.planReefs.strategies["shipping-lanes"].config),
+      strategy: "diagonal-stride",
+      config: Value.Create(ecology.ops.planReefs.strategies["diagonal-stride"].config),
     });
     const result = ecology.ops.planReefs.run(
       {
@@ -704,28 +704,6 @@ describe("ecology op contract surfaces", () => {
       ecology.ops.planIce,
       ecology.ops.planIce.defaultConfig
     );
-    const result = ecology.ops.planIce.run(
-      {
-        width,
-        height,
-        seed: 1337,
-        score01: new Float32Array(size).fill(1),
-        featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
-      },
-      selection
-    );
-    expect(result.placements.length).toBeGreaterThan(0);
-  });
-
-  it("planIce continentality strategy validates output", () => {
-    const width = 2;
-    const height = 2;
-    const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planIce, {
-      strategy: "continentality",
-      config: Value.Create(ecology.ops.planIce.strategies.continentality.config),
-    });
     const result = ecology.ops.planIce.run(
       {
         width,

@@ -7,7 +7,7 @@ import { ProjectRainfallStepContract } from "./config.js";
  */
 export const ProjectRainfallStep = createStep(ProjectRainfallStepContract, {
   run: (context, _config, _ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const { rainfall } = deps.artifacts.climateField.read(context);
 
     for (let y = 0; y < height; y++) {

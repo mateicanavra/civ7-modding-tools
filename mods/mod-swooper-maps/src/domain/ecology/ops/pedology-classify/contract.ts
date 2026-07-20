@@ -1,5 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
+/** Shared configuration shape for pedology strategies that reweight the same classifier. */
 const PedologyClassifyStrategySchema = Type.Object(
   {
     climateWeight: Type.Number({
@@ -39,6 +40,7 @@ const PedologyClassifyStrategySchema = Type.Object(
   }
 );
 
+/** Contract for deriving soil class and fertility from admitted terrain and climate evidence. */
 const PedologyClassifyContract = defineOp({
   kind: "compute",
   id: "ecology/pedology/classify",
@@ -72,8 +74,9 @@ const PedologyClassifyContract = defineOp({
     soilType: TypedArraySchemas.u8({ description: "Soil palette index per tile." }),
     fertility: TypedArraySchemas.f32({ description: "Fertility score per tile (0..1)." }),
   }),
+  defaultStrategy: "balanced",
   strategies: {
-    default: PedologyClassifyStrategySchema,
+    balanced: PedologyClassifyStrategySchema,
     "coastal-shelf": PedologyClassifyStrategySchema,
     "orogeny-boosted": PedologyClassifyStrategySchema,
   },

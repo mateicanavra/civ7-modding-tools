@@ -1,6 +1,6 @@
 import type { EngineAdapter } from "@civ7/adapter";
+import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import type { FeatureKey } from "@civ7/map-policy";
-import { snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { resolveFeatureKeyForIntent } from "./apply.js";
 import { FeaturesApplyStepContract } from "./config.js";
@@ -81,10 +81,11 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
     }));
 
     resolvedPlacements.sort(
-      (a, b) => a.y * context.dimensions.width + a.x - (b.y * context.dimensions.width + b.x)
+      (a, b) =>
+        a.y * context.setup.dimensions.width + a.x - (b.y * context.setup.dimensions.width + b.x)
     );
 
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const floodplainIntentMask = new Uint8Array(width * height);
     for (const placement of placements.floodplains) {
       const x = placement.x | 0;
@@ -216,7 +217,7 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
       featureType,
     });
 
-    const engine = applied > 0 ? (snapshotEngineHeightfield(context) ?? undefined) : undefined;
+    const engine = applied > 0 ? snapshotEngineHeightfield(context.adapter) : undefined;
     if (applied > 0) context.adapter.recalculateAreas();
 
     return {

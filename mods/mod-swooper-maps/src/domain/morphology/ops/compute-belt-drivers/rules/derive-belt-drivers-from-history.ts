@@ -207,9 +207,9 @@ export function deriveBeltDriversFromHistory(input: {
   historyTiles: TectonicHistorySourceTiles;
   provenanceTiles: TectonicProvenanceSourceTiles;
 }): BeltDriverOutputs {
-  const width = input.width | 0;
-  const height = input.height | 0;
-  const size = Math.max(0, width * height);
+  const width = input.width;
+  const height = input.height;
+  const size = width * height;
   const historyTiles = input.historyTiles;
   const provenanceTiles = input.provenanceTiles;
 

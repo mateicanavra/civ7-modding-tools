@@ -1,15 +1,16 @@
-import type { ExtendedMapContext } from "@mapgen/core/types.js";
+import type { MapContext } from "@mapgen/core/map-context.js";
 
 import type {
-  Env,
   ExecutionPlan,
+  MapSetup,
+  MapSetupInput,
   NormalizeContext,
   RecipeV2,
-  RunRequest,
 } from "@mapgen/engine/index.js";
+import type { PlanTraceOptions } from "@mapgen/engine/observability.js";
 import type { StepFacetSinks, StepFacets } from "@mapgen/engine/step-facets.js";
 import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
-import type { TraceSession, TraceSink } from "@mapgen/trace/index.js";
+import type { ReadonlyDeep } from "type-fest";
 import type { Static, TObject, TSchema } from "typebox";
 import type { CompileOpsById } from "../compiler/recipe-compile.js";
 import type { ArtifactContract } from "./artifact/contract.js";
@@ -37,26 +38,19 @@ type ArtifactContractsOfModules<T extends readonly ArtifactModule[]> = {
 };
 
 /** Provider runtimes keyed by the artifact names carried by a step's admitted modules. */
-export type StepProvidedArtifactsRuntime<
-  TContext extends ExtendedMapContext,
-  TArtifacts extends StepArtifactsDeclAny | undefined,
-> =
+export type StepProvidedArtifactsRuntime<TArtifacts extends StepArtifactsDeclAny | undefined> =
   TArtifacts extends StepArtifactsDecl<any, infer Provides>
     ? Provides extends readonly ArtifactModule[]
       ? {
           [K in ArtifactNameOf<ArtifactContractsOfModules<Provides>>]: ProvidedArtifactRuntime<
-            ArtifactByName<ArtifactContractsOfModules<Provides>, K>,
-            TContext
+            ArtifactByName<ArtifactContractsOfModules<Provides>, K>
           >;
         }
       : {}
     : {};
 
 /** Runtime publication surface derived by `createStep` from the author's artifact modules. */
-export type StepArtifactRuntimes<
-  TContext extends ExtendedMapContext,
-  TArtifacts extends StepArtifactsDeclAny | undefined,
-> =
+export type StepArtifactRuntimes<TArtifacts extends StepArtifactsDeclAny | undefined> =
   TArtifacts extends StepArtifactsDecl<any, infer Provides>
     ? [Provides] extends [undefined]
       ? Readonly<{ artifacts?: never }>
@@ -65,25 +59,21 @@ export type StepArtifactRuntimes<
         : Provides extends readonly ArtifactModule[]
           ? number extends Provides["length"]
             ? Readonly<{
-                artifacts?: StepProvidedArtifactsRuntime<TContext, TArtifacts>;
+                artifacts?: StepProvidedArtifactsRuntime<TArtifacts>;
               }>
             : Readonly<{
-                artifacts: StepProvidedArtifactsRuntime<TContext, TArtifacts>;
+                artifacts: StepProvidedArtifactsRuntime<TArtifacts>;
               }>
           : Readonly<{ artifacts?: never }>
     : Readonly<{ artifacts?: never }>;
 
 type ArtifactListOrEmpty<T> = T extends readonly ArtifactContract[] ? T : readonly [];
 
-type StepArtifactsSurface<
-  TContext extends ExtendedMapContext,
-  TArtifacts extends StepArtifactsDeclAny | undefined,
-> =
+type StepArtifactsSurface<TArtifacts extends StepArtifactsDeclAny | undefined> =
   TArtifacts extends StepArtifactsDecl<infer Requires, infer Provides>
     ? {
         [K in ArtifactNameOf<ArtifactListOrEmpty<Requires>>]: RequiredArtifactRuntime<
-          ArtifactByName<ArtifactListOrEmpty<Requires>, K>,
-          TContext
+          ArtifactByName<ArtifactListOrEmpty<Requires>, K>
         >;
       } & {
         [K in Provides extends readonly ArtifactModule[]
@@ -94,23 +84,19 @@ type StepArtifactsSurface<
               ? ArtifactContractsOfModules<Provides>
               : readonly [],
             K
-          >,
-          TContext
+          >
         >;
       }
     : {};
 
-export type StepDeps<
-  TContext extends ExtendedMapContext,
-  TArtifacts extends StepArtifactsDeclAny | undefined,
-> = Readonly<{
+export type StepDeps<TArtifacts extends StepArtifactsDeclAny | undefined> = Readonly<{
   /**
    * Canonical dependency surface for artifacts.
    *
    * Legacy mutable buffer aliases retire into explicit artifact vintages rather
    * than becoming a second dependency authority.
    */
-  artifacts: StepArtifactsSurface<TContext, TArtifacts>;
+  artifacts: StepArtifactsSurface<TArtifacts>;
 }>;
 
 type StepContractAny = StepContract<any, any, any, any>;
@@ -120,28 +106,25 @@ type StepConfigOfContract<C extends StepContractAny> = Static<C["schema"]>;
 type StepArtifactsDeclOfContract<C extends StepContractAny> =
   C extends StepContract<any, any, any, infer A> ? A : undefined;
 
-export type StepModule<
-  TContext extends ExtendedMapContext = ExtendedMapContext,
-  C extends StepContractAny = StepContractAny,
-  TResult = unknown,
-> = Readonly<{
+/** Authored step behavior bound to one contract and the canonical map execution context. */
+export type StepModule<C extends StepContractAny = StepContractAny, TResult = unknown> = Readonly<{
   contract: C;
   normalize?: (config: unknown, ctx: NormalizeContext) => unknown;
   run: (
-    context: TContext,
+    context: MapContext,
     config: unknown,
     ops: unknown,
-    deps: StepDeps<TContext, StepArtifactsDeclOfContract<C>>
+    deps: StepDeps<StepArtifactsDeclOfContract<C>>
   ) => TResult | Promise<TResult>;
 }> &
   StepFacets<StepConfigOfContract<C>, TResult> &
-  StepArtifactRuntimes<TContext, StepArtifactsDeclOfContract<C>>;
+  StepArtifactRuntimes<StepArtifactsDeclOfContract<C>>;
 
-export type Step<
-  TContext extends ExtendedMapContext = ExtendedMapContext,
-  C extends StepContractAny = StepContractAny,
-  TResult = unknown,
-> = StepModule<TContext, C, TResult>;
+/** Canonical authored step module accepted by stage composition. */
+export type Step<C extends StepContractAny = StepContractAny, TResult = unknown> = StepModule<
+  C,
+  TResult
+>;
 
 export const RESERVED_STAGE_KEY = "knobs" as const;
 export type ReservedStageKey = typeof RESERVED_STAGE_KEY;
@@ -153,12 +136,9 @@ type StepSurface = Readonly<{
   }>;
 }>;
 
-type StepsArray<TContext extends ExtendedMapContext> = readonly StepSurface[];
-type StepIdOf<TSteps extends StepsArray<any>> = TSteps[number]["contract"]["id"] & string;
-type NonReservedStepIdOf<TSteps extends StepsArray<any>> = Exclude<
-  StepIdOf<TSteps>,
-  ReservedStageKey
->;
+type StepsArray = readonly StepSurface[];
+type StepIdOf<TSteps extends StepsArray> = TSteps[number]["contract"]["id"] & string;
+type NonReservedStepIdOf<TSteps extends StepsArray> = Exclude<StepIdOf<TSteps>, ReservedStageKey>;
 
 type StepSchemaOf<TStep> = TStep extends { contract: { schema: infer Schema } } ? Schema : never;
 
@@ -179,7 +159,7 @@ export type StageToInternalResult<StepId extends string, Knobs> = Readonly<{
 }>;
 
 export type StageCompileFn<PublicSchema extends TObject, StepId extends string, Knobs> = (args: {
-  env: unknown;
+  setup: MapSetup;
   knobs: Knobs;
   config: Static<PublicSchema>;
 }) => Partial<Record<StepId, unknown>>;
@@ -207,10 +187,9 @@ export type StageAuthoringModel<
 
 type StageDefBase<
   Id extends string,
-  TContext extends ExtendedMapContext,
   KnobsSchema extends TObject,
   Knobs,
-  TSteps extends StepsArray<TContext>,
+  TSteps extends StepsArray,
 > = Readonly<{
   id: Id;
   steps: TSteps;
@@ -219,11 +198,10 @@ type StageDefBase<
 
 type StageDefInternal<
   Id extends string,
-  TContext extends ExtendedMapContext,
   KnobsSchema extends TObject,
   Knobs,
-  TSteps extends StepsArray<TContext>,
-> = StageDefBase<Id, TContext, KnobsSchema, Knobs, TSteps> &
+  TSteps extends StepsArray,
+> = StageDefBase<Id, KnobsSchema, Knobs, TSteps> &
   Readonly<{
     public?: undefined;
     compile?: undefined;
@@ -231,53 +209,51 @@ type StageDefInternal<
 
 type StageDefPublic<
   Id extends string,
-  TContext extends ExtendedMapContext,
   KnobsSchema extends TObject,
   Knobs,
-  TSteps extends StepsArray<TContext>,
+  TSteps extends StepsArray,
   PublicSchema extends TObject,
-> = StageDefBase<Id, TContext, KnobsSchema, Knobs, TSteps> &
+> = StageDefBase<Id, KnobsSchema, Knobs, TSteps> &
   Readonly<{
     public: PublicSchema;
     compile: StageCompileFn<PublicSchema, NonReservedStepIdOf<TSteps>, Knobs>;
   }>;
 
+/** Authorship input for one stage's ordered steps and configuration boundary. */
 export type StageDef<
   Id extends string,
-  TContext extends ExtendedMapContext,
   KnobsSchema extends TObject,
   Knobs = Static<KnobsSchema>,
-  TSteps extends StepsArray<TContext> = StepsArray<TContext>,
+  TSteps extends StepsArray = StepsArray,
   PublicSchema extends TObject | undefined = undefined,
 > = PublicSchema extends TObject
-  ? StageDefPublic<Id, TContext, KnobsSchema, Knobs, TSteps, PublicSchema>
-  : StageDefInternal<Id, TContext, KnobsSchema, Knobs, TSteps>;
+  ? StageDefPublic<Id, KnobsSchema, Knobs, TSteps, PublicSchema>
+  : StageDefInternal<Id, KnobsSchema, Knobs, TSteps>;
 
+/** Stage contract validated at construction and snapshotted when admitted into a recipe. */
 export type StageContract<
   Id extends string,
-  TContext extends ExtendedMapContext,
   KnobsSchema extends TObject,
   Knobs = Static<KnobsSchema>,
-  TSteps extends StepsArray<TContext> = StepsArray<TContext>,
+  TSteps extends StepsArray = StepsArray,
   PublicSchema extends TObject | undefined = undefined,
-> = StageDef<Id, TContext, KnobsSchema, Knobs, TSteps, PublicSchema> &
+> = StageDef<Id, KnobsSchema, Knobs, TSteps, PublicSchema> &
   Readonly<{
     surfaceSchema: TObject;
     authoring: StageAuthoringModel<Id, NonReservedStepIdOf<TSteps>>;
     toInternal: (args: {
-      env: unknown;
+      setup: MapSetup;
       stageConfig: unknown;
     }) => StageToInternalResult<NonReservedStepIdOf<TSteps>, Knobs>;
   }>;
 
-export type StageContractAny = StageContract<any, ExtendedMapContext, any, any, any, any>;
+export type StageContractAny = StageContract<any, any, any, any, any>;
 
 export type Stage<
-  TContext extends ExtendedMapContext = ExtendedMapContext,
-  TSteps extends StepsArray<TContext> = StepsArray<TContext>,
+  TSteps extends StepsArray = StepsArray,
   KnobsSchema extends TObject = TObject,
   PublicSchema extends TObject | undefined = TObject | undefined,
-> = StageContract<any, TContext, KnobsSchema, Static<KnobsSchema>, TSteps, PublicSchema>;
+> = StageContract<any, KnobsSchema, Static<KnobsSchema>, TSteps, PublicSchema>;
 
 export type RecipeConfig = Readonly<Record<string, Readonly<Record<string, unknown>>>>;
 
@@ -296,7 +272,7 @@ type StepConfigRuntimeById<S, K extends string> = StepConfigRuntimeOf<
 
 type StageIdOf<S> = S extends { id: infer Id } ? Id & string : never;
 
-type StageStepsOf<S> = Extract<StepsOfStage<S>, StepsArray<any>>;
+type StageStepsOf<S> = Extract<StepsOfStage<S>, StepsArray>;
 
 type StageKnobsSchemaOf<S> = S extends { knobsSchema: infer KS } ? KS : never;
 
@@ -328,72 +304,71 @@ export type CompiledRecipeConfigOf<TStages extends readonly unknown[]> = Readonl
   }>;
 }>;
 
-type StageListOf<TContext extends ExtendedMapContext> = readonly StageContract<
-  any,
-  TContext,
-  any,
-  any,
-  any,
-  any
->[];
+type StageList = readonly StageContract<any, any, any, any, any>[];
 
-export type RecipeDefinition<
-  TContext extends ExtendedMapContext = ExtendedMapContext,
-  TStages extends StageListOf<TContext> = StageListOf<TContext>,
-> = Readonly<{
+export type RecipeDefinition<TStages extends StageList = StageList> = Readonly<{
   id: string;
   namespace?: string;
-  tagDefinitions: readonly DependencyTagDefinition<TContext>[];
+  tagDefinitions: readonly DependencyTagDefinition[];
   stages: TStages;
   compileOpsById: CompileOpsById;
   runtimeOpsById?: OpsById<DomainOpRuntimeAny>;
 }>;
 
-export type RecipeModule<
-  TContext extends ExtendedMapContext = ExtendedMapContext,
-  TPublicConfig = RecipeConfig,
-  TConfigCompiled = RecipeConfig,
-> = {
+/** Execution-only observers and logging accepted by synchronous recipe execution. */
+export type RecipeExecutionOptions = Readonly<{
+  trace?: PlanTraceOptions | null;
+  /** Execution-owned consumers for optional post-provides step projections. */
+  facets?: StepFacetSinks;
+  log?: (message: string) => void;
+}>;
+
+/** Synchronous recipe execution options plus cooperative async scheduling controls. */
+export type RecipeAsyncExecutionOptions = RecipeExecutionOptions &
+  Readonly<{
+    abortSignal?: { readonly aborted: boolean } | null;
+    yieldToEventLoop?: boolean;
+    yieldFn?: (() => Promise<void>) | null;
+  }>;
+
+/**
+ * Compiled recipe capability exposed to SDK and runtime consumers.
+ *
+ * `compile` creates one frozen plan; `execute` consumes that exact plan without normalization or
+ * recompilation. Convenience `run` methods compile once from `context.setup` and delegate to the
+ * corresponding execution method. Trace and facet sinks are execution-only observers.
+ */
+export type RecipeModule<TPublicConfig = RecipeConfig, TConfigCompiled = RecipeConfig> = Readonly<{
+  /** Stable recipe identity used in plans, traces, and generated runtime evidence. */
   readonly id: string;
-  readonly recipe: RecipeV2;
-  instantiate: (config: TConfigCompiled) => RecipeV2;
-  compileConfig: (env: Env, config: TPublicConfig) => TConfigCompiled;
-  runRequest: (env: Env, config: TConfigCompiled) => RunRequest;
-  compile: (env: Env, config: TPublicConfig) => ExecutionPlan;
-  run: (
-    context: TContext,
-    env: Env,
-    config: TPublicConfig,
-    options?: {
-      trace?: TraceSession | null;
-      traceSink?: TraceSink | null;
-      /** Execution-owned consumers for optional post-provides step projections. */
-      facets?: StepFacetSinks;
-      log?: (message: string) => void;
-    }
-  ) => void;
-  runAsync: (
-    context: TContext,
-    env: Env,
-    config: TPublicConfig,
-    options?: {
-      trace?: TraceSession | null;
-      traceSink?: TraceSink | null;
-      /** Execution-owned consumers for optional post-provides step projections. */
-      facets?: StepFacetSinks;
-      log?: (message: string) => void;
-      abortSignal?: { readonly aborted: boolean } | null;
-      yieldToEventLoop?: boolean;
-      yieldFn?: (() => Promise<void>) | null;
-    }
+  /** Deep-readonly registered step graph snapshotted when the recipe is authored. */
+  readonly recipe: ReadonlyDeep<RecipeV2>;
+  /** Compiles public authoring config for inspection under one admitted physical setup snapshot. */
+  compileConfig: (setup: MapSetup | MapSetupInput, config: TPublicConfig) => TConfigCompiled;
+  /** Compiles an immutable execution plan that retains its admitted setup identity. */
+  compile: (setup: MapSetup | MapSetupInput, config: TPublicConfig) => ExecutionPlan;
+  /** Executes the exact supplied plan synchronously and refuses a different context setup identity. */
+  execute: (context: MapContext, plan: ExecutionPlan, options?: RecipeExecutionOptions) => void;
+  /** Compiles exactly once from `context.setup`, then delegates to `execute`. */
+  run: (context: MapContext, config: TPublicConfig, options?: RecipeExecutionOptions) => void;
+  /** Executes the exact supplied plan asynchronously and refuses a different setup identity. */
+  executeAsync: (
+    context: MapContext,
+    plan: ExecutionPlan,
+    options?: RecipeAsyncExecutionOptions
   ) => Promise<void>;
-};
+  /** Compiles exactly once from `context.setup`, then delegates to `executeAsync`. */
+  runAsync: (
+    context: MapContext,
+    config: TPublicConfig,
+    options?: RecipeAsyncExecutionOptions
+  ) => Promise<void>;
+}>;
 
 export type StageModule<
-  TContext extends ExtendedMapContext = ExtendedMapContext,
   Id extends string = string,
   KnobsSchema extends TObject = TObject,
   Knobs = Static<KnobsSchema>,
-  TSteps extends StepsArray<TContext> = StepsArray<TContext>,
+  TSteps extends StepsArray = StepsArray,
   PublicSchema extends TObject | undefined = undefined,
-> = StageContract<Id, TContext, KnobsSchema, Knobs, TSteps, PublicSchema>;
+> = StageContract<Id, KnobsSchema, Knobs, TSteps, PublicSchema>;

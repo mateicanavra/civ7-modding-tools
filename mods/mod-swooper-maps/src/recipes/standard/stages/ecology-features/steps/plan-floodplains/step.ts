@@ -26,7 +26,7 @@ export const PlanFloodplainsStep = createStep(PlanFloodplainsStepContract, {
   run: (context, config, ops, deps) => {
     const base = deps.artifacts.occupancyBase.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
 
     const seed = ctxStepSeed(context, PlanFloodplainsStepContract.id, "ecology/plan-floodplains");
     const placements = ops.planFloodplains(

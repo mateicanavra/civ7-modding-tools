@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 import ecology from "@mapgen/domain/ecology/ops";
-import { Value } from "typebox/value";
 import { normalizeOpSelectionOrThrow } from "../../support/compiler-helpers.js";
 
 function f32(size: number, value: number): Float32Array {
@@ -92,25 +91,68 @@ describe("ecology feature planner policies", () => {
       normalizeOpSelectionOrThrow(ecology.ops.planIce, ecology.ops.planIce.defaultConfig)
     );
 
-    const continentalIce = ecology.ops.planIce.run(
-      {
-        width,
-        height,
-        seed: 1,
-        score01: f32(size, weakPositive),
-        featureOccupancyMask: new Uint8Array(size),
-        reserved: new Uint8Array(size),
-      },
-      normalizeOpSelectionOrThrow(ecology.ops.planIce, {
-        strategy: "continentality",
-        config: Value.Create(ecology.ops.planIce.strategies.continentality.config),
-      })
-    );
-
     expect(reefs.placements).toEqual([]);
     expect(wetlands.placements).toEqual([]);
     expect(vegetation.placements).toEqual([]);
     expect(ice.placements).toEqual([]);
-    expect(continentalIce.placements).toEqual([]);
+  });
+
+  it("keeps diagonal-stride lotus intent on lake tiles", () => {
+    const width = 3;
+    const height = 1;
+    const size = width * height;
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planReefs, {
+      strategy: "diagonal-stride",
+      config: { minConfidence01: 0.5, stride: 1 },
+    });
+    const input = {
+      width,
+      height,
+      seed: 1,
+      scoreReef01: f32(size, 0),
+      scoreColdReef01: f32(size, 0),
+      scoreAtoll01: f32(size, 0),
+      scoreLotus01: f32(size, 1),
+      featureOccupancyMask: new Uint8Array(size),
+      reserved: new Uint8Array(size),
+    };
+
+    const withoutLakes = ecology.ops.planReefs.run(
+      { ...input, lakeMask: new Uint8Array(size) },
+      selection
+    );
+    const withLakes = ecology.ops.planReefs.run(
+      { ...input, lakeMask: new Uint8Array(size).fill(1) },
+      selection
+    );
+
+    expect(withoutLakes.placements).toEqual([]);
+    expect(withLakes.placements.map(({ feature }) => feature)).toEqual(["lotus", "lotus", "lotus"]);
+  });
+
+  it("uses one authored stride for the diagonal pattern", () => {
+    const width = 6;
+    const height = 1;
+    const size = width * height;
+    const result = ecology.ops.planReefs.run(
+      {
+        width,
+        height,
+        seed: 1,
+        scoreReef01: f32(size, 1),
+        scoreColdReef01: f32(size, 0),
+        scoreAtoll01: f32(size, 0),
+        scoreLotus01: f32(size, 0),
+        lakeMask: new Uint8Array(size),
+        featureOccupancyMask: new Uint8Array(size),
+        reserved: new Uint8Array(size),
+      },
+      normalizeOpSelectionOrThrow(ecology.ops.planReefs, {
+        strategy: "diagonal-stride",
+        config: { minConfidence01: 0.5, stride: 2 },
+      })
+    );
+
+    expect(result.placements.map(({ x }) => x)).toEqual([0, 2, 4]);
   });
 });

@@ -6,9 +6,16 @@ import {
   defineStep,
   deriveRecipeConfigSchema,
 } from "@mapgen/authoring/index.js";
+import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import { type TObject, type TSchema, Type } from "typebox";
 import { Value } from "typebox/value";
+
+const TEST_SETUP = admitMapSetup({
+  mapSeed: 1,
+  dimensions: { width: 2, height: 2 },
+  latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
+});
 
 describe("authoring SDK", () => {
   const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
@@ -381,7 +388,10 @@ describe("authoring SDK", () => {
     });
     expect(stage.authoring.runtime.steps).toEqual([{ stepId: "alpha" }, { stepId: "beta" }]);
 
-    const internal = stage.toInternal({ env: {}, stageConfig: { knobs: {}, climate: 2 } });
+    const internal = stage.toInternal({
+      setup: TEST_SETUP,
+      stageConfig: { knobs: {}, climate: 2 },
+    });
     expect(internal.rawSteps).toEqual({ alpha: { value: 2 } });
   });
 
@@ -391,6 +401,7 @@ describe("authoring SDK", () => {
       id: "test/op/private-envelope",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
+      defaultStrategy: "default",
       strategies: {
         default: Type.Object(
           { internalRate: Type.Number({ default: 1 }) },
@@ -488,7 +499,9 @@ describe("authoring SDK", () => {
       compile: () => ({ knobs: {} }),
       steps: [step],
     });
-    expect(() => stage.toInternal({ env: {}, stageConfig: { climate: 1 } })).toThrow(/knobs/);
+    expect(() => stage.toInternal({ setup: TEST_SETUP, stageConfig: { climate: 1 } })).toThrow(
+      /knobs/
+    );
   });
 
   it("createStage rejects undefined and non-object public compile results", () => {
@@ -507,9 +520,9 @@ describe("authoring SDK", () => {
         steps: [step],
       });
 
-      expect(() => stage.toInternal({ env: {}, stageConfig: { knobs: {}, climate: 1 } })).toThrow(
-        /must return an object/
-      );
+      expect(() =>
+        stage.toInternal({ setup: TEST_SETUP, stageConfig: { knobs: {}, climate: 1 } })
+      ).toThrow(/must return an object/);
     }
   });
 });

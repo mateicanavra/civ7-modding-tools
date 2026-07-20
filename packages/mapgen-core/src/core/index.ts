@@ -5,11 +5,19 @@
  * across all other modules.
  */
 
-export * from "@mapgen/core/env.js";
-export * from "@mapgen/core/plot-tags.js";
-export * from "@mapgen/core/terrain-constants.js";
-// Re-export types
-export * from "@mapgen/core/types.js";
+export {
+  type ArtifactStoreView,
+  type CreateMapContextInput,
+  createMapContext,
+  type MapContext,
+} from "@mapgen/core/map-context.js";
+export {
+  admitMapSetup,
+  type MapSetup,
+  type MapSetupInput,
+  MapSetupSchema,
+} from "@mapgen/core/map-setup.js";
+export * from "@mapgen/core/random.js";
 export { inBounds } from "@mapgen/lib/grid/bounds.js";
 export { idx, xyFromIndex } from "@mapgen/lib/grid/indexing.js";
 export { wrapX } from "@mapgen/lib/grid/wrap.js";

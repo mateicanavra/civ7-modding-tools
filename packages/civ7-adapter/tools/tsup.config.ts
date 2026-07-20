@@ -7,6 +7,7 @@ export default defineConfig({
     "civ7-adapter": "src/civ7-adapter.ts",
     "mock-adapter": "src/mock-adapter.ts",
     "map-script-build": "tools/map-script-build.ts",
+    mapgen: "src/mapgen.ts",
   },
   format: ["esm"],
   target: "esnext",

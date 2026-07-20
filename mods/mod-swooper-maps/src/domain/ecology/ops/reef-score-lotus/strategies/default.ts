@@ -1,28 +1,12 @@
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import {
-  rampDown01,
-  rampUp01,
-  validateGridSize,
-} from "../../../model/policy/feature-score-selection.js";
+import { rampDown01, rampUp01 } from "../../../model/policy/feature-score-selection.js";
 import ScoreLotusContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(ScoreLotusContract, "default", {
   run: (input, config) => {
-    const size = validateGridSize({
-      width: input.width,
-      height: input.height,
-      fields: [
-        { label: "landMask", arr: input.landMask as Uint8Array },
-        { label: "surfaceTemperature", arr: input.surfaceTemperature as Float32Array },
-        { label: "bathymetry", arr: input.bathymetry as Int16Array },
-        { label: "lakeMask", arr: input.lakeMask as Uint8Array },
-        { label: "shelfMask", arr: input.shelfMask as Uint8Array },
-        { label: "coastalWater", arr: input.coastalWater as Uint8Array },
-        { label: "distanceToCoast", arr: input.distanceToCoast as Uint16Array },
-      ],
-    });
+    const size = input.width * input.height;
 
     const score01 = new Float32Array(size);
 

@@ -23,7 +23,7 @@ export const defaultStrategy = createStrategy(ComputeShelfMaskContract, "default
   }),
   run: (input, config) => {
     const { width, height } = input;
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const size = width * height;
 
     const landMask = input.landMask as Uint8Array;
     const bathymetry = input.bathymetry as Int16Array;

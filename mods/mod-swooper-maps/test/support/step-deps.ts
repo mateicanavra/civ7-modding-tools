@@ -1,9 +1,13 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import {
   type ArtifactContract,
   ArtifactMissingError,
   type ArtifactModule,
+  type ArtifactValueOf,
+  implementArtifactModules,
 } from "@swooper/mapgen-core/authoring";
+
+export { withMapContextExecutionForTest } from "@swooper/mapgen-core/testing";
 
 type TestableStep = Readonly<{
   contract: Readonly<{
@@ -23,7 +27,6 @@ type StepArguments<TStep> = TStep extends {
   : never;
 
 type StepDependencies<TStep> = StepArguments<TStep>[3];
-type StepContext<TStep> = Extract<StepArguments<TStep>[0], ExtendedMapContext>;
 type StepArtifactDependencies<TStep> =
   StepDependencies<TStep> extends Readonly<{
     artifacts: infer TArtifacts;
@@ -31,13 +34,10 @@ type StepArtifactDependencies<TStep> =
     ? TArtifacts
     : never;
 
-function createRequiredRuntime<TContext extends ExtendedMapContext>(
-  contract: ArtifactContract,
-  consumerStepId: string
-) {
+function createRequiredRuntime(contract: ArtifactContract, consumerStepId: string) {
   return {
     contract,
-    read: (context: TContext) => {
+    read: (context: MapContext) => {
       if (!context.artifacts.has(contract.id)) {
         throw new ArtifactMissingError({
           artifactId: contract.id,
@@ -47,11 +47,24 @@ function createRequiredRuntime<TContext extends ExtendedMapContext>(
       }
       return context.artifacts.get(contract.id) as unknown;
     },
-    tryRead: (context: TContext) => {
-      if (!context.artifacts.has(contract.id)) return null;
-      return context.artifacts.get(contract.id) as unknown;
-    },
   };
+}
+
+function isArtifactPublisher<C extends ArtifactContract>(
+  candidate: unknown,
+  contract: C
+): candidate is Readonly<{
+  contract: C;
+  publish: (context: MapContext, value: ArtifactValueOf<C>) => unknown;
+}> {
+  return (
+    typeof candidate === "object" &&
+    candidate !== null &&
+    "contract" in candidate &&
+    candidate.contract === contract &&
+    "publish" in candidate &&
+    typeof candidate.publish === "function"
+  );
 }
 
 export function buildTestDeps<TStep>(step: TStep & TestableStep): StepDependencies<TStep> {
@@ -60,7 +73,7 @@ export function buildTestDeps<TStep>(step: TStep & TestableStep): StepDependenci
   const stepId = step.contract.id;
 
   for (const contract of artifacts?.requires ?? []) {
-    depsArtifacts[contract.name] = createRequiredRuntime<StepContext<TStep>>(contract, stepId);
+    depsArtifacts[contract.name] = createRequiredRuntime(contract, stepId);
   }
 
   for (const { artifact: contract } of artifacts?.provides ?? []) {
@@ -77,4 +90,20 @@ export function buildTestDeps<TStep>(step: TStep & TestableStep): StepDependenci
     // Runtime keys come from the same literal contracts that define the static dependency surface.
     artifacts: depsArtifacts as StepArtifactDependencies<TStep>,
   };
+}
+
+/** Publishes test setup through the declared module's production validation and write-once path. */
+export function publishTestArtifact<C extends ArtifactContract>(
+  context: MapContext,
+  module: ArtifactModule<C>,
+  value: ArtifactValueOf<C>
+): void {
+  const runtimes = implementArtifactModules([module] as const);
+  const runtime = Object.values(runtimes).find((candidate) =>
+    isArtifactPublisher(candidate, module.artifact)
+  );
+  if (!runtime) {
+    throw new Error(`Missing test artifact runtime for "${module.artifact.name}".`);
+  }
+  runtime.publish(context, value);
 }

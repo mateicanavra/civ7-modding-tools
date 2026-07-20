@@ -1,5 +1,5 @@
 import placement from "@mapgen/domain/placement";
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 
 type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
@@ -46,7 +46,7 @@ export type NaturalWonderPlanInputSurfaceDigests = {
 };
 
 type NaturalWonderPlanInputTelemetryArgs = {
-  context: ExtendedMapContext;
+  context: MapContext;
   plan: NaturalWonderPlan;
   physical: {
     topography: {
@@ -103,7 +103,7 @@ export function buildNaturalWonderPlanInputRuntimeTelemetry({
   plan,
   physical,
 }: NaturalWonderPlanInputTelemetryArgs): NaturalWonderPlanInputRuntimeTelemetry {
-  const { width, height } = context.dimensions;
+  const { width, height } = context.setup.dimensions;
   const size = width * height;
   const inputRows: NaturalWonderPlanInputRuntimeRow[] = [];
   const { terrainType, biomeType, featureType, blockedMask } = physical.naturalWonderPlanSurfaces;
@@ -162,7 +162,7 @@ export function logNaturalWonderPlanInputRuntimeTelemetry(
 
 /** Emits the same bounded planning telemetry only when verbose tracing is enabled. */
 export function traceNaturalWonderPlanInputRuntimeTelemetry(
-  context: ExtendedMapContext,
+  context: MapContext,
   telemetry: NaturalWonderPlanInputRuntimeTelemetry
 ): void {
   if (!context.trace?.isVerbose) return;

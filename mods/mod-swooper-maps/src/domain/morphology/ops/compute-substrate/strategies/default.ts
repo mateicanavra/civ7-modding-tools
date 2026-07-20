@@ -1,21 +1,21 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeSubstrateContract from "../contract.js";
-import {
-  erodibilityForTile,
-  sedimentDepthForTile,
-  validateSubstrateInputs,
-} from "../rules/index.js";
+import { erodibilityForTile, sedimentDepthForTile } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeSubstrateContract, "default", {
   run: (input, config) => {
-    const size = validateSubstrateInputs(input);
-    const uplift = input.upliftPotential as Uint8Array;
-    const rift = input.riftPotential as Uint8Array;
-    const boundaryCloseness = input.boundaryCloseness as Uint8Array;
-    const boundaryType = input.boundaryType as Uint8Array;
-    const crustType = input.crustType as Uint8Array;
-    const crustAge = input.crustAge as Uint8Array;
+    const {
+      width,
+      height,
+      upliftPotential: uplift,
+      riftPotential: rift,
+      boundaryCloseness,
+      boundaryType,
+      crustType,
+      crustAge,
+    } = input;
+    const size = width * height;
 
     const erodibilityK = new Float32Array(size);
     const sedimentDepth = new Float32Array(size);

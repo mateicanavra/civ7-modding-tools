@@ -7,9 +7,8 @@ import type { StepOpsDecl } from "../authoring/step/ops.js";
 import type { CompileErrorItem } from "./errors.js";
 import { createPortableJsonSnapshot } from "./portable-json-snapshot.js";
 
+export type { CompileErrorItem } from "./errors.js";
 export { createPortableJsonSnapshot } from "./portable-json-snapshot.js";
-
-export type NormalizeCtx<TEnv = unknown, TKnobs = unknown> = Readonly<{ env: TEnv; knobs: TKnobs }>;
 
 export type StepModuleAny = Readonly<{ contract?: Readonly<{ ops?: StepOpsDecl }> }>;
 
@@ -83,7 +82,6 @@ export function validateSchemaValue<T>(
 export function normalizeOpsTopLevel(
   step: StepModuleAny,
   stepConfig: Record<string, unknown>,
-  ctx: NormalizeCtx,
   compileOpsById: OpsById<DomainOpCompileAny>,
   path: string
 ): { value: Record<string, unknown>; errors: CompileErrorItem[] } {
@@ -134,7 +132,7 @@ export function normalizeOpsTopLevel(
 
     if (typeof op.normalize === "function") {
       try {
-        const next = op.normalize(envelope as Readonly<{ strategy: string; config: unknown }>, ctx);
+        const next = op.normalize(envelope as Readonly<{ strategy: string; config: unknown }>);
         value = { ...value, [opKey]: next };
       } catch (err) {
         errors.push({

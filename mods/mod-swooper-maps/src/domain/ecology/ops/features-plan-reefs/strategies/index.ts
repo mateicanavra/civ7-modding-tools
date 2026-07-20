@@ -1,2 +1,2 @@
-export { defaultStrategy } from "./default.js";
-export { shippingLanesStrategy } from "./shipping-lanes.js";
+export { diagonalStrideStrategy } from "./diagonal-stride.js";
+export { habitatStrategy } from "./habitat.js";

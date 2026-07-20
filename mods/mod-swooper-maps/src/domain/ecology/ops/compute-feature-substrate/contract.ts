@@ -117,6 +117,7 @@ const ComputeFeatureSubstrateContract = defineOp({
       description: "Mask (1/0): isolated lowland water-point substrate for arid wet features.",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: FeatureSubstrateConfigSchema,
   },

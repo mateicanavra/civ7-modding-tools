@@ -36,7 +36,7 @@ At a high level, `compileRecipeConfig(...)` does:
 1) For each stage:
    - validate the supplied public stage config unchanged against its authoring
      schema
-   - run `stage.toInternal({ env, stageConfig })` to produce:
+   - run `stage.toInternal({ setup, stageConfig })` to produce:
      - `knobs` (derived tuning values)
      - `rawSteps` (recipe-produced internal per-step inputs)
    - error if `toInternal` references unknown step ids
@@ -45,7 +45,7 @@ At a high level, `compileRecipeConfig(...)` does:
    - materialize defaults on the recipe-produced internal step input
    - strict-validate against the step schema
    - run `step.normalize(...)` (optional), then strict-validate again (shape-preserving requirement)
-   - run declared op normalization and bind op implementations
+   - run declared op normalization over operation config only and bind op implementations
    - strict-validate again as a final gate
 
 The output is per-stage, per-step compiled config that is then inserted into `RecipeV2.steps[].config`.
@@ -54,6 +54,10 @@ The step materialization in item 2 is the only defaulting boundary in this
 algorithm. It cannot accept or repair incomplete public recipe config: it runs
 only after a complete public stage value has passed validation and the stage has
 translated that value into an internal step envelope.
+
+`MapSetup` is admitted at the run boundary. Step normalization may derive configuration from that
+already-valid physical setup; domain-operation normalization never receives setup and cannot become
+a second owner of dimension, seed, or latitude validation.
 
 ## Error model
 

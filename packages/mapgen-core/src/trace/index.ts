@@ -1,11 +1,8 @@
 import { encodeUtf8 } from "@mapgen/lib/encoding/utf8.js";
+import type { TraceConfig, TraceLevel } from "@mapgen/trace/config.js";
 
-export type TraceLevel = "off" | "basic" | "verbose";
-
-export interface TraceConfig {
-  enabled?: boolean;
-  steps?: Record<string, TraceLevel>;
-}
+export type { TraceConfig, TraceLevel } from "@mapgen/trace/config.js";
+export { TraceConfigSchema, TraceLevelSchema } from "@mapgen/trace/config.js";
 
 export interface TraceEvent {
   tsMs: number;
@@ -30,27 +27,27 @@ export interface TraceStepMeta {
 }
 
 export interface TraceScope {
-  runId: string;
-  planFingerprint: string;
-  stepId: string;
-  phase?: string;
-  level: TraceLevel;
-  isEnabled: boolean;
-  isVerbose: boolean;
-  event: (data?: unknown | (() => unknown)) => void;
+  readonly runId: string;
+  readonly planFingerprint: string;
+  readonly stepId: string;
+  readonly phase?: string;
+  readonly level: TraceLevel;
+  readonly isEnabled: boolean;
+  readonly isVerbose: boolean;
+  readonly event: (data?: unknown | (() => unknown)) => void;
 }
 
 export interface TraceSession {
-  enabled: boolean;
-  runId: string;
-  planFingerprint: string;
-  emitRunStart: () => void;
-  emitRunFinish: (result: { success: boolean; error?: string }) => void;
-  emitStepStart: (meta: TraceStepMeta) => void;
-  emitStepFinish: (
+  readonly enabled: boolean;
+  readonly runId: string;
+  readonly planFingerprint: string;
+  readonly emitRunStart: () => void;
+  readonly emitRunFinish: (result: { success: boolean; error?: string }) => void;
+  readonly emitStepStart: (meta: TraceStepMeta) => void;
+  readonly emitStepFinish: (
     meta: TraceStepMeta & { durationMs?: number; success?: boolean; error?: string }
   ) => void;
-  createStepScope: (meta: TraceStepMeta) => TraceScope;
+  readonly createStepScope: (meta: TraceStepMeta) => TraceScope;
 }
 
 const NOOP_SCOPE: TraceScope = Object.freeze({
@@ -62,6 +59,16 @@ const NOOP_SCOPE: TraceScope = Object.freeze({
   isEnabled: false,
   isVerbose: false,
   event: () => undefined,
+});
+const NOOP_SESSION: TraceSession = Object.freeze({
+  enabled: false,
+  runId: "",
+  planFingerprint: "",
+  emitRunStart: () => undefined,
+  emitRunFinish: () => undefined,
+  emitStepStart: () => undefined,
+  emitStepFinish: () => undefined,
+  createStepScope: () => NOOP_SCOPE,
 });
 
 function nowMs(): number {
@@ -83,23 +90,17 @@ function safeEmit(sink: TraceSink, event: TraceEvent): void {
   }
 }
 
+/** Returns the immutable disabled scope installed when no trace capability was supplied. */
 export function createNoopTraceScope(): TraceScope {
   return NOOP_SCOPE;
 }
 
+/** Creates the executor's explicit disabled session without inventing trace identity or events. */
 export function createNoopTraceSession(): TraceSession {
-  return {
-    enabled: false,
-    runId: "",
-    planFingerprint: "",
-    emitRunStart: () => undefined,
-    emitRunFinish: () => undefined,
-    emitStepStart: () => undefined,
-    emitStepFinish: () => undefined,
-    createStepScope: () => NOOP_SCOPE,
-  };
+  return NOOP_SESSION;
 }
 
+/** Creates a diagnostic sink that writes complete structured trace events to the host console. */
 export function createConsoleTraceSink(): TraceSink {
   return {
     emit: (event) => {
@@ -108,32 +109,27 @@ export function createConsoleTraceSink(): TraceSink {
   };
 }
 
-export function resolveTraceLevel(
-  config: TraceConfig | null | undefined,
-  stepId: string
-): TraceLevel {
-  if (!isTraceEnabled(config)) return "off";
-  const level = config?.steps?.[stepId];
+/** Resolves one step's trace level, defaulting an enabled session to basic lifecycle events. */
+export function resolveTraceLevel(config: TraceConfig, stepId: string): TraceLevel {
+  const level = config.steps?.[stepId];
   return level ?? "basic";
 }
 
+/** Complete inputs for an enabled trace session; absence is represented outside this contract. */
 export interface TraceSessionOptions {
   runId: string;
   planFingerprint: string;
-  config?: TraceConfig | null;
-  sink?: TraceSink | null;
+  config: TraceConfig;
+  sink: TraceSink;
   nowMs?: () => number;
 }
 
+/** Creates an enabled trace session from explicit identity, selection, and event-sink authority. */
 export function createTraceSession(options: TraceSessionOptions): TraceSession {
-  const { runId, planFingerprint } = options;
-  const sink = options.sink ?? null;
-  const config = options.config ?? null;
-  const enabled = isTraceEnabled(config) && Boolean(sink);
-
-  if (!enabled || !sink) {
-    return createNoopTraceSession();
-  }
+  const { runId, planFingerprint, sink } = options;
+  const config: TraceConfig = Object.freeze({
+    steps: Object.freeze({ ...(options.config.steps ?? {}) }),
+  });
 
   const now = options.nowMs ?? nowMs;
   const emit = (event: Omit<TraceEvent, "tsMs" | "runId" | "planFingerprint">): void => {
@@ -180,7 +176,7 @@ export function createTraceSession(options: TraceSessionOptions): TraceSession {
       emit({ kind: "step.event", ...meta, data: payload });
     };
 
-    return {
+    return Object.freeze({
       runId,
       planFingerprint,
       stepId: meta.stepId,
@@ -189,10 +185,10 @@ export function createTraceSession(options: TraceSessionOptions): TraceSession {
       isEnabled,
       isVerbose,
       event,
-    };
+    });
   };
 
-  return {
+  return Object.freeze({
     enabled: true,
     runId,
     planFingerprint,
@@ -201,13 +197,7 @@ export function createTraceSession(options: TraceSessionOptions): TraceSession {
     emitStepStart,
     emitStepFinish,
     createStepScope,
-  };
-}
-
-function isTraceEnabled(config: TraceConfig | null | undefined): boolean {
-  if (!config) return false;
-  if (config.enabled !== undefined) return config.enabled;
-  return Boolean(config.steps && Object.keys(config.steps).length > 0);
+  });
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

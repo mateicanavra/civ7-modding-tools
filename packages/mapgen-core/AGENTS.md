@@ -16,8 +16,8 @@ Scope: `packages/mapgen-core/**`
 
 ## Domain Rules
 
-- No direct Civ7 engine imports here; all engine interaction goes through `@civ7/adapter` and `MapGenContext.adapter`.
-- Avoid global mutable state; steps/layers communicate only via `MapGenContext`.
+- No direct Civ7 engine imports here; all engine interaction goes through `@civ7/adapter` and `MapContext.adapter`.
+- Avoid global mutable state; steps communicate through declared artifacts while `MapContext` owns one run's setup and execution state.
 - Step identity is recipe-unique (`step.id` only); `instanceId`/`nodeId` are retired and tracing/plan fingerprints are keyed by `stepId`.
 
 ## Canonical Docs

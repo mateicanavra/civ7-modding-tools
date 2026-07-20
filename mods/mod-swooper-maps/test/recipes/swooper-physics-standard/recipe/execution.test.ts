@@ -5,16 +5,13 @@ import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { computeRiverAdjacencyMaskFromRiverClass } from "@mapgen/domain/hydrology/model/policy/river-adjacency.js";
 import { isAnyRiverClass } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { DEFERRED_INITIAL_MAP_RESOURCE_TYPES } from "@mapgen/domain/resources";
-import {
-  createExtendedMapContext,
-  HILL_TERRAIN,
-  MOUNTAIN_TERRAIN,
-  sha256Hex,
-  stableStringify,
-  VOLCANO_FEATURE,
-} from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext, sha256Hex, stableStringify } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { artifacts as standardArtifacts } from "../../../../src/recipes/standard/artifacts/index.js";
+import {
+  resolveStandardProjectionTerrainTypes,
+  resolveStandardVolcanoFeatureType,
+} from "../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import type { StandardRecipeConfig } from "../../../../src/recipes/standard/recipe.js";
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
@@ -51,14 +48,14 @@ describe("standard recipe execution", () => {
       StartSectorCols: 4,
     };
 
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: {
         topLatitude: mapInfo.MaxLatitude,
         bottomLatitude: mapInfo.MinLatitude,
       },
-    };
+    });
 
     const adapter = createMockAdapter({
       width,
@@ -67,10 +64,10 @@ describe("standard recipe execution", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
 
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-    standardRecipe.run(context, env, standardConfig, { log: () => {} });
+    standardRecipe.run(context, standardConfig, { log: () => {} });
 
     const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
       | { discharge?: Float32Array; riverClass?: Uint8Array }
@@ -241,25 +238,29 @@ describe("standard recipe execution", () => {
       StartSectorCols: 4,
     };
 
-    const env = {
-      seed: 123,
+    const setup = admitMapSetup({
+      mapSeed: 123,
       dimensions: { width, height },
       latitudeBounds: {
         topLatitude: mapInfo.MaxLatitude,
         bottomLatitude: mapInfo.MinLatitude,
       },
-    };
+    });
 
     const adapter = new RainfallCountingAdapter({ width, height, mapInfo, mapSizeId: 1 });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
+    const { hill: hillTerrain, mountain: mountainTerrain } = resolveStandardProjectionTerrainTypes(
+      context.adapter
+    );
+    const volcanoFeature = resolveStandardVolcanoFeatureType(context.adapter);
 
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
 
     const config = standardConfig;
-    const plan = standardRecipe.compile(env, config);
+    const plan = standardRecipe.compile(setup, config);
     expect(plan.nodes.length).toBeGreaterThan(0);
 
-    expect(() => standardRecipe.run(context, env, config, { log: () => {} })).not.toThrow();
+    expect(() => standardRecipe.run(context, config, { log: () => {} })).not.toThrow();
 
     const baselineClimateField = context.artifacts.get(
       hydrologyClimateBaselineArtifacts.baselineClimateField.id
@@ -324,8 +325,8 @@ describe("standard recipe execution", () => {
         landTiles++;
         const feature = adapter.getFeatureType(x, y);
         const terrain = adapter.getTerrainType(x, y);
-        if (terrain === MOUNTAIN_TERRAIN && feature !== VOLCANO_FEATURE) nonVolcanoMountainTiles++;
-        else if (terrain === HILL_TERRAIN) hillTiles++;
+        if (terrain === mountainTerrain && feature !== volcanoFeature) nonVolcanoMountainTiles++;
+        else if (terrain === hillTerrain) hillTiles++;
       }
     }
     expect(landTiles).toBeGreaterThan(0);
@@ -399,14 +400,14 @@ describe("standard recipe execution", () => {
         StartSectorRows: 4,
         StartSectorCols: 4,
       };
-      const env = {
-        seed,
+      const setup = admitMapSetup({
+        mapSeed: seed,
         dimensions: { width, height },
         latitudeBounds: {
           topLatitude: mapInfo.MaxLatitude,
           bottomLatitude: mapInfo.MinLatitude,
         },
-      };
+      });
       const adapter = createMockAdapter({
         width,
         height,
@@ -414,9 +415,9 @@ describe("standard recipe execution", () => {
         mapSizeId: 1,
         rng: createLabelRng(seed),
       });
-      const context = createExtendedMapContext({ width, height }, adapter, env);
+      const context = createMapContext({ setup, adapter });
       initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-      standardRecipe.run(context, env, cfg, { log: () => {} });
+      standardRecipe.run(context, cfg, { log: () => {} });
       const indices = context.artifacts.get(hydrologyClimateRefineArtifacts.climateIndices.id) as
         | { surfaceTemperatureC?: Float32Array }
         | undefined;
@@ -453,14 +454,14 @@ describe("standard recipe execution", () => {
         StartSectorRows: 4,
         StartSectorCols: 4,
       };
-      const env = {
-        seed,
+      const setup = admitMapSetup({
+        mapSeed: seed,
         dimensions: { width, height },
         latitudeBounds: {
           topLatitude: mapInfo.MaxLatitude,
           bottomLatitude: mapInfo.MinLatitude,
         },
-      };
+      });
       const adapter = createMockAdapter({
         width,
         height,
@@ -468,9 +469,9 @@ describe("standard recipe execution", () => {
         mapSizeId: 1,
         rng: createLabelRng(seed),
       });
-      const context = createExtendedMapContext({ width, height }, adapter, env);
+      const context = createMapContext({ setup, adapter });
       initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-      standardRecipe.run(context, env, cfg, { log: () => {} });
+      standardRecipe.run(context, cfg, { log: () => {} });
       const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
         | { riverClass?: Uint8Array }
         | undefined;

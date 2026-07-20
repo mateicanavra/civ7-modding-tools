@@ -1,9 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, FLAT_TERRAIN } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
+import { resolveStandardProjectionTerrainTypes } from "../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
 import { artifacts as placementArtifacts } from "../../../../src/recipes/standard/stages/placement/artifacts/index.js";
@@ -67,7 +68,7 @@ class AreaSensitiveLakeAdapter extends MockAdapter {
     // If lake stamping did not refresh areas before later validation, model the
     // kind of stale-cache normalization that previously dried projected lakes.
     if (this.lakeNeedsAreaRefresh) {
-      this.setTerrainType(1, 1, FLAT_TERRAIN);
+      this.setTerrainType(1, 1, this.getTerrainTypeIndex("TERRAIN_FLAT"));
     }
   }
 
@@ -111,11 +112,11 @@ describe("map-hydrology lakes area/water ordering", () => {
       NumNaturalWonders: 0,
       LakeGenerationFrequency: 5,
     };
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
+    });
 
     const adapter = new AreaSensitiveLakeAdapter({
       width,
@@ -123,15 +124,20 @@ describe("map-hydrology lakes area/water ordering", () => {
       mapInfo,
       mapSizeId: 1,
       rng: createLabelRng(seed),
-      defaultTerrainType: FLAT_TERRAIN,
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
+    const flatTerrain = resolveStandardProjectionTerrainTypes(adapter).flat;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        adapter.setTerrainType(x, y, flatTerrain);
+      }
+    }
 
     initializeStandardRuntime(context, {
       mapInfo,
       logPrefix: "[test]",
     });
-    standardRecipe.run(context, env, standardConfig, { log: () => {} });
+    standardRecipe.run(context, standardConfig, { log: () => {} });
 
     const firstLakeStamp = adapter.callOrder.indexOf("stampLakes");
     const firstAreaRefreshAfterLakes = adapter.callOrder.findIndex(

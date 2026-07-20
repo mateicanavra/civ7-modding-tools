@@ -18,7 +18,7 @@ export const PlateTopologyStep = createStep(PlateTopologyStepContract, {
     // Plate adjacency is derived from the projected tile plate-id field via the
     // compute-plate-topology op (tile-derived; see the op contract for the
     // mesh-native follow-on note).
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const plates = deps.artifacts.foundationPlates.read(context);
 
     const { plateTopology } = ops.computePlateTopology(

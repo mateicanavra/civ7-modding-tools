@@ -17,12 +17,15 @@ export type OpContractCore<
   OutputSchema extends TSchema,
   // IMPORTANT: avoid constraining strategies to Record<string, TSchema> here.
   // Doing so tends to widen `keyof strategies` to `string`, which destroys authoring DX.
-  Strategies extends Readonly<{ default: TSchema }>,
+  Strategies extends Readonly<object>,
+  DefaultStrategy extends keyof Strategies & string,
 > = Readonly<{
   kind: Kind;
   id: Id;
   input: InputSchema;
   output: OutputSchema;
+  /** Strategy selected when authored configuration omits this operation envelope. */
+  defaultStrategy: DefaultStrategy;
   strategies: EnsureSchemaValues<Strategies>;
 }>;
 
@@ -31,31 +34,42 @@ export type OpContract<
   Id extends string,
   InputSchema extends TSchema,
   OutputSchema extends TSchema,
-  Strategies extends Readonly<{ default: TSchema }>,
-> = OpContractCore<Kind, Id, InputSchema, OutputSchema, Strategies> &
+  Strategies extends Readonly<object>,
+  DefaultStrategy extends keyof Strategies & string = keyof Strategies & string,
+> = OpContractCore<Kind, Id, InputSchema, OutputSchema, Strategies, DefaultStrategy> &
   Readonly<{
     config: TUnsafe<
       OpTypeBag<InputSchema, OutputSchema, EnsureSchemaValues<Strategies>>["envelope"]
     >;
-    defaultConfig: Readonly<
-      OpTypeBag<InputSchema, OutputSchema, EnsureSchemaValues<Strategies>>["envelope"]
+    defaultConfig: Extract<
+      OpTypeBag<InputSchema, OutputSchema, EnsureSchemaValues<Strategies>>["envelope"],
+      Readonly<{ strategy: DefaultStrategy }>
     >;
   }>;
 
+/**
+ * Defines one immutable operation contract and derives its closed configuration envelope.
+ * The explicit default names one declared strategy; strategy object order carries no authority.
+ */
 export function defineOp<
   const Kind extends DomainOpKind,
   const Id extends string,
   const InputSchema extends TSchema,
   const OutputSchema extends TSchema,
-  const Strategies extends Readonly<{ default: TSchema }>,
->(def: OpContractCore<Kind, Id, InputSchema, OutputSchema, Strategies>) {
+  const Strategies extends Readonly<object>,
+  const DefaultStrategy extends keyof Strategies & string,
+>(def: OpContractCore<Kind, Id, InputSchema, OutputSchema, Strategies, DefaultStrategy>) {
   applySchemaConventions(def.input, `op:${def.id}.input`);
   applySchemaConventions(def.output, `op:${def.id}.output`);
-  for (const [strategyId, schema] of Object.entries(def.strategies)) {
+  for (const [strategyId, schema] of Object.entries(def.strategies) as [string, TSchema][]) {
     applySchemaConventions(schema, `op:${def.id}.strategies.${strategyId}`);
   }
 
-  const { schema: configSchema, defaultConfig } = buildOpEnvelopeSchema(def.id, def.strategies);
+  const { schema: configSchema, defaultConfig } = buildOpEnvelopeSchema(
+    def.id,
+    def.strategies,
+    def.defaultStrategy
+  );
   applySchemaConventions(configSchema, `op:${def.id}.config`);
 
   return {
@@ -68,7 +82,8 @@ export function defineOp<
       Id,
       InputSchema,
       OutputSchema,
-      Strategies
+      Strategies,
+      DefaultStrategy
     >["defaultConfig"],
   } as const;
 }

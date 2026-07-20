@@ -1,13 +1,20 @@
 import { describe, expect, it } from "bun:test";
 
 import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, FLAT_TERRAIN } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
+import { resolveStandardProjectionTerrainTypes } from "../../../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
+import { artifactModules as hydrologyArtifactModules } from "../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 import { LakesStep } from "../../../../../../src/recipes/standard/stages/map-hydrology/steps/lakes/step.js";
-import { buildTestDeps } from "../../../../../support/step-deps.js";
+import { artifactModules as morphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import {
+  buildTestDeps,
+  publishTestArtifact,
+  withMapContextExecutionForTest,
+} from "../../../../../support/step-deps.js";
 
-type TestContext = ReturnType<typeof createExtendedMapContext>;
+type TestContext = ReturnType<typeof createMapContext>;
 
 /**
  * Cache-backed adapter double.
@@ -106,41 +113,67 @@ function createContext(
   height: number,
   seed: number
 ): TestContext {
-  return createExtendedMapContext({ width, height }, adapter, {
-    seed,
-    dimensions: { width, height },
-    latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+  const context = createMapContext({
+    setup: admitMapSetup({
+      mapSeed: seed,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    }),
+    adapter,
   });
+  const flatTerrain = resolveStandardProjectionTerrainTypes(adapter).flat;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      adapter.setTerrainType(x, y, flatTerrain);
+    }
+  }
+  return context;
 }
 
 function seedLakePlan(
   context: TestContext,
   lakeMask: Uint8Array,
-  mountainMask: Uint8Array = new Uint8Array(context.dimensions.width * context.dimensions.height)
+  mountainMask: Uint8Array = new Uint8Array(
+    context.setup.dimensions.width * context.setup.dimensions.height
+  )
 ): void {
-  const { width, height } = context.dimensions;
+  const { width, height } = context.setup.dimensions;
   const size = width * height;
-  context.artifacts.set("artifact:morphology.topography", {
+  publishTestArtifact(context, morphologyArtifactModules.topography, {
     elevation: new Int16Array(size),
     seaLevel: 0,
     landMask: new Uint8Array(size).fill(1),
     bathymetry: new Int16Array(size),
   });
-  context.artifacts.set("artifact:hydrology.lakePlan", {
+  publishTestArtifact(context, hydrologyArtifactModules.lakePlan, {
     width,
     height,
     lakeMask,
     plannedLakeTileCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
     sinkLakeCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
   });
-  context.artifacts.set("artifact:morphology.mountains", {
+  publishTestArtifact(context, morphologyArtifactModules.mountains, {
     mountainMask,
+    mountainRegionMask: Uint8Array.from(mountainMask),
+    mountainRegionIdByTile: Int32Array.from(mountainMask, (value) => (value === 1 ? 0 : -1)),
     hillMask: new Uint8Array(size),
     foothillMask: new Uint8Array(size),
     roughLandMask: new Uint8Array(size),
     orogenyPotential: new Uint8Array(size),
     fracturePotential: new Uint8Array(size),
     roughnessPotential: new Uint8Array(size),
+  });
+}
+
+function executeLakesStep(
+  context: TestContext,
+  lakeMask: Uint8Array,
+  projectionReadback: boolean,
+  mountainMask?: Uint8Array
+): void {
+  withMapContextExecutionForTest(context, () => {
+    seedLakePlan(context, lakeMask, mountainMask);
+    LakesStep.run(context as any, { projectionReadback }, {} as any, buildTestDeps(LakesStep));
   });
 }
 
@@ -155,21 +188,13 @@ describe("map-hydrology/lakes", () => {
       mapInfo: { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 },
       mapSizeId: 1,
       rng: createLabelRng(seed),
-      defaultTerrainType: FLAT_TERRAIN,
     });
     const context = createContext(adapter, width, height, seed);
     const lakeMask = new Uint8Array(width * height);
     lakeMask[1 + width] = 1;
-    seedLakePlan(context, lakeMask);
-
     expect(adapter.isWater(1, 1)).toBe(false);
 
-    LakesStep.run(
-      context as any,
-      { projectionReadback: true },
-      {} as any,
-      buildTestDeps(LakesStep)
-    );
+    executeLakesStep(context, lakeMask, true);
 
     expect(adapter.callOrder.slice(-3)).toEqual([
       "stampLakes",
@@ -195,21 +220,11 @@ describe("map-hydrology/lakes", () => {
       mapInfo: { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 },
       mapSizeId: 1,
       rng: createLabelRng(seed),
-      defaultTerrainType: FLAT_TERRAIN,
     });
     const context = createContext(adapter, width, height, seed);
     const lakeMask = new Uint8Array(width * height);
     lakeMask[1 + width] = 1;
-    seedLakePlan(context, lakeMask);
-
-    expect(() =>
-      LakesStep.run(
-        context as any,
-        { projectionReadback: true },
-        {} as any,
-        buildTestDeps(LakesStep)
-      )
-    ).not.toThrow();
+    expect(() => executeLakesStep(context, lakeMask, true)).not.toThrow();
 
     const projection = context.artifacts.get("artifact:map.hydrology.engineProjectionLakes") as
       | { sinkMismatchCount: number; nonLakeTileCount?: number; terrainMismatchTileCount?: number }
@@ -236,20 +251,12 @@ describe("map-hydrology/lakes", () => {
       },
       mapSizeId: 1,
       rng: createLabelRng(seed),
-      defaultTerrainType: FLAT_TERRAIN,
     });
     const context = createContext(adapter, width, height, seed);
     const lakeMask = new Uint8Array(width * height);
     lakeMask[2 + width] = 1;
     lakeMask[3 + width] = 1;
-    seedLakePlan(context, lakeMask);
-
-    LakesStep.run(
-      context as any,
-      { projectionReadback: false },
-      {} as any,
-      buildTestDeps(LakesStep)
-    );
+    executeLakesStep(context, lakeMask, false);
 
     expect(adapter.calls.generateLakes).toEqual([]);
     expect(Array.from(adapter.calls.stampLakes.at(-1)?.lakeMask ?? [])).toEqual(
@@ -267,7 +274,6 @@ describe("map-hydrology/lakes", () => {
       mapInfo: { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 },
       mapSizeId: 1,
       rng: createLabelRng(seed),
-      defaultTerrainType: FLAT_TERRAIN,
     });
     const context = createContext(adapter, width, height, seed);
     const mountainTile = 2 + width;
@@ -277,14 +283,7 @@ describe("map-hydrology/lakes", () => {
     lakeMask[plainLakeTile] = 1;
     const mountainMask = new Uint8Array(width * height);
     mountainMask[mountainTile] = 1;
-    seedLakePlan(context, lakeMask, mountainMask);
-
-    LakesStep.run(
-      context as any,
-      { projectionReadback: false },
-      {} as any,
-      buildTestDeps(LakesStep)
-    );
+    executeLakesStep(context, lakeMask, false, mountainMask);
 
     const stamped = adapter.calls.stampLakes.at(-1)?.lakeMask;
     expect(stamped).toBeInstanceOf(Uint8Array);

@@ -224,21 +224,25 @@ const PlanStartsContract = defineOp({
           "Optional per-seat official start biases. Absent = neutral default (no per-civ data offline).",
       })
     ),
-    width: Type.Optional(Type.Integer({ minimum: 1 })),
-    height: Type.Optional(Type.Integer({ minimum: 1 })),
-    landMask: Type.Optional(
-      TypedArraySchemas.u8({ description: "Land mask per tile (1=land,0=water)." })
-    ),
-    slotByTile: Type.Optional(
-      TypedArraySchemas.u8({
-        description: "Requested landmass slot by tile (0=none,1=west,2=east).",
-      })
-    ),
-    landmassIdByTile: Type.Optional(
-      TypedArraySchemas.i32({
-        description: "Per-tile connected landmass id (-1 for water).",
-      })
-    ),
+    width: Type.Integer({
+      minimum: 1,
+      description:
+        "Map width projected by the recipe step from admitted setup to index placement evidence.",
+    }),
+    height: Type.Integer({
+      minimum: 1,
+      description:
+        "Map height projected by the recipe step from admitted setup to index placement evidence.",
+    }),
+    landMask: TypedArraySchemas.u8({
+      description: "Required land mask per tile (1=land,0=water).",
+    }),
+    slotByTile: TypedArraySchemas.u8({
+      description: "Required requested landmass slot per tile (0=none,1=west,2=east).",
+    }),
+    landmassIdByTile: TypedArraySchemas.i32({
+      description: "Required connected landmass id per tile (-1 for water).",
+    }),
     landmassTileCounts: Type.Optional(
       Type.Array(Type.Integer({ minimum: 0 }), {
         description: "Tile counts indexed by landmass id.",
@@ -382,6 +386,7 @@ const PlanStartsContract = defineOp({
         "Per-input coverage assertion results; imputed rows are surfaced, never silently neutral-defaulted.",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       minContiguousLandTiles: Type.Integer({

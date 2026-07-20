@@ -10,25 +10,8 @@ import {
 
 export const refineStrategy = createStrategy(ComputePrecipitationContract, "refine", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
-
-    if (!(input.elevation instanceof Int16Array) || input.elevation.length !== size) {
-      throw new Error("[Hydrology] Invalid elevation for hydrology/compute-precipitation.");
-    }
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/compute-precipitation.");
-    }
-    if (!(input.rainfallIn instanceof Uint8Array) || input.rainfallIn.length !== size) {
-      throw new Error("[Hydrology] Invalid rainfallIn for hydrology/compute-precipitation.");
-    }
-    if (!(input.humidityIn instanceof Uint8Array) || input.humidityIn.length !== size) {
-      throw new Error("[Hydrology] Invalid humidityIn for hydrology/compute-precipitation.");
-    }
-    if (!(input.riverAdjacency instanceof Uint8Array) || input.riverAdjacency.length !== size) {
-      throw new Error("[Hydrology] Invalid riverAdjacency for hydrology/compute-precipitation.");
-    }
+    const width = input.width;
+    const height = input.height;
 
     const rainfall = new Uint8Array(input.rainfallIn);
     const humidity = new Uint8Array(input.humidityIn);

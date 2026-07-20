@@ -1,4 +1,4 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 
 const DEFAULT_MAX_WATER_DRIFT_SHARE = 0.05;
 const DEFAULT_SAMPLE_LIMIT = 16;
@@ -45,12 +45,12 @@ export interface WaterDriftReport {
  * engine water even though they began as land in Morphology truth.
  */
 export function assertNoWaterDrift(
-  context: ExtendedMapContext,
+  context: MapContext,
   expectedLandMask: Uint8Array,
   label: string
 ): void {
-  const { width, height } = context.dimensions;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const { width, height } = context.setup.dimensions;
+  const size = width * height;
   if (expectedLandMask.length !== size) {
     throw new Error(
       `[${label}] expectedLandMask length ${expectedLandMask.length} does not match ${size}.`
@@ -84,13 +84,13 @@ export function assertNoWaterDrift(
  * bounded without forcing generation to fail for every playable mismatch.
  */
 export function captureWaterDriftReport(
-  context: ExtendedMapContext,
+  context: MapContext,
   expectedLandMask: Uint8Array,
   label: string,
   options: WaterDriftPolicyOptions = {}
 ): WaterDriftReport {
-  const { width, height } = context.dimensions;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const { width, height } = context.setup.dimensions;
+  const size = width * height;
   const maxMismatchShare = options.maxMismatchShare ?? DEFAULT_MAX_WATER_DRIFT_SHARE;
   const sampleLimit = Math.max(0, options.sampleLimit ?? DEFAULT_SAMPLE_LIMIT);
 
@@ -130,7 +130,7 @@ export function captureWaterDriftReport(
     }
   }
 
-  const mismatchShare = mismatchCount / Math.max(1, size);
+  const mismatchShare = mismatchCount / size;
   return {
     label,
     width,
@@ -151,7 +151,7 @@ export function captureWaterDriftReport(
  * throws only when the configured mismatch-share ceiling is exceeded.
  */
 export function assertWaterDriftWithinPolicy(
-  context: ExtendedMapContext,
+  context: MapContext,
   expectedLandMask: Uint8Array,
   label: string,
   options: WaterDriftPolicyOptions = {}

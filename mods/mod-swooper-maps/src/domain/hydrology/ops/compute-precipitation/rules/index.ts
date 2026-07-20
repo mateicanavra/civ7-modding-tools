@@ -14,7 +14,7 @@ export function computeDistanceToWater(
   height: number,
   landMask: Uint8Array
 ): Int16Array {
-  const total = Math.max(0, width * height);
+  const total = width * height;
   const dist = new Int16Array(total);
   dist.fill(-1);
   const queueX: number[] = [];

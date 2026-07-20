@@ -12,7 +12,7 @@ export function computeHexDistanceToMask(params: {
   maxDistance: number;
 }): Uint8Array {
   const { mask, width, height } = params;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const maxDistance = Math.max(0, Math.min(255, Math.round(params.maxDistance))) | 0;
 
   const distance = new Uint8Array(size);

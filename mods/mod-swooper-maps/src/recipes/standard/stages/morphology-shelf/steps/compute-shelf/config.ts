@@ -22,15 +22,9 @@ export const ComputeShelfStepContract = defineStep({
     provides: [morphologyArtifactModules.shelf],
   },
   ops: {
-    coastalAdjacency: {
-      contract: morphology.ops.computeCoastalAdjacency,
-      defaultStrategy: "default",
-    },
-    distanceToCoast: {
-      contract: morphology.ops.computeDistanceToCoast,
-      defaultStrategy: "default",
-    },
-    shelfMask: { contract: morphology.ops.computeShelfMask, defaultStrategy: "default" },
+    coastalAdjacency: morphology.ops.computeCoastalAdjacency,
+    distanceToCoast: morphology.ops.computeDistanceToCoast,
+    shelfMask: morphology.ops.computeShelfMask,
   },
   schema: Type.Object({}),
 });

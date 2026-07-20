@@ -1,15 +1,11 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeFlowRoutingContract from "../contract.js";
-import {
-  computeFlowAccumulation,
-  selectFlowReceiver,
-  validateFlowRoutingInputs,
-} from "../rules/index.js";
+import { computeFlowAccumulation, selectFlowReceiver } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeFlowRoutingContract, "default", {
   run: (input) => {
-    const { width, height } = input;
-    const { size, elevation, landMask } = validateFlowRoutingInputs(input);
+    const { width, height, elevation, landMask } = input;
+    const size = width * height;
 
     const flowDir = new Int32Array(size);
     flowDir.fill(-1);

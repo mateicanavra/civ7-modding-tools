@@ -1,27 +1,12 @@
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import {
-  rampDown01,
-  rampUp01,
-  validateGridSize,
-} from "../../../model/policy/feature-score-selection.js";
+import { rampDown01, rampUp01 } from "../../../model/policy/feature-score-selection.js";
 import ScoreWetTundraBogContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(ScoreWetTundraBogContract, "default", {
   run: (input, config) => {
-    const size = validateGridSize({
-      width: input.width,
-      height: input.height,
-      fields: [
-        { label: "landMask", arr: input.landMask as Uint8Array },
-        { label: "hydromorphicMask", arr: input.hydromorphicMask as Uint8Array },
-        { label: "water01", arr: input.water01 as Float32Array },
-        { label: "fertility01", arr: input.fertility01 as Float32Array },
-        { label: "surfaceTemperature", arr: input.surfaceTemperature as Float32Array },
-        { label: "freezeIndex", arr: input.freezeIndex as Float32Array },
-      ],
-    });
+    const size = input.width * input.height;
 
     const score01 = new Float32Array(size);
 

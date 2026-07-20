@@ -2,12 +2,12 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import ComputeLandmassesContract from "../contract.js";
-import { computeCircularBounds, validateLandmassInputs } from "../rules/index.js";
+import { computeCircularBounds } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeLandmassesContract, "default", {
   run: (input) => {
-    const { width, height } = input;
-    const { size, landMask } = validateLandmassInputs(input);
+    const { width, height, landMask } = input;
+    const size = width * height;
 
     const visited = new Uint8Array(size);
     const landmassIdByTile = new Int32Array(size);

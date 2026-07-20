@@ -2,9 +2,16 @@ import type { DependencyTag, GenerationPhase } from "@mapgen/engine/index.js";
 import { type TObject, type TSchema, Type } from "typebox";
 import { type ArtifactContract, assertCanonicalArtifactContract } from "../artifact/contract.js";
 import type { ArtifactModule } from "../artifact/module.js";
-import { buildOpEnvelopeSchemaWithDefaultStrategy } from "../op/envelope.js";
+import { buildOpEnvelopeSchema } from "../op/envelope.js";
+import type { OpTypeBagOf } from "../op/types.js";
 import { applySchemaConventions } from "../schema.js";
-import type { StepOpsDecl, StepOpsDeclInput, StepOpUse } from "./ops.js";
+import type {
+  OpContractAny,
+  StepOpsDecl,
+  StepOpsDeclInput,
+  StepOpUse,
+  ValidatedStepOpsDeclInput,
+} from "./ops.js";
 
 type PropsOf<T extends TObject> = T extends TObject<infer P> ? P : never;
 
@@ -49,7 +56,26 @@ type StepOpsDeclNormalizedFromInput<Ops extends StepOpsDeclInput> = Readonly<{
   [K in keyof Ops & string]: NormalizeOpDecl<Ops[K]>;
 }>;
 
-type NormalizeOpDecl<T> = T extends StepOpUse<infer C> ? C : T;
+type NormalizeOpDecl<T> =
+  T extends Readonly<{
+    contract: infer C;
+    defaultStrategy: infer DefaultStrategy;
+  }>
+    ? C extends OpContractAny
+      ? DefaultStrategy extends keyof C["strategies"] & string
+        ? Omit<C, "defaultStrategy" | "defaultConfig"> &
+            Readonly<{
+              defaultStrategy: DefaultStrategy;
+              defaultConfig: Extract<
+                OpTypeBagOf<C>["envelope"],
+                Readonly<{ strategy: DefaultStrategy }>
+              >;
+            }>
+        : never
+      : never
+    : T extends StepOpUse<infer C>
+      ? C
+      : T;
 
 function isOpUse(value: unknown): value is StepOpUse {
   return Boolean(value) && typeof value === "object" && "contract" in (value as any);
@@ -71,12 +97,7 @@ function normalizeOpsDecl<const Ops extends StepOpsDeclInput>(input: {
 
     const contract = entry.contract;
     const defaultStrategy = entry.defaultStrategy;
-    if (!defaultStrategy) {
-      out[opKey] = contract;
-      continue;
-    }
-
-    const { schema: config, defaultConfig } = buildOpEnvelopeSchemaWithDefaultStrategy(
+    const { schema: config, defaultConfig } = buildOpEnvelopeSchema(
       contract.id,
       contract.strategies,
       defaultStrategy
@@ -86,6 +107,7 @@ function normalizeOpsDecl<const Ops extends StepOpsDeclInput>(input: {
     out[opKey] = {
       ...contract,
       config,
+      defaultStrategy,
       defaultConfig,
     };
   }
@@ -288,7 +310,9 @@ export function defineStep<
   const Id extends string,
   const Ops extends StepOpsDeclInput,
 >(
-  def: StepContractInput<Schema, Id, Ops, undefined> & { ops: Ops }
+  def: StepContractInput<Schema, Id, Ops, undefined> & {
+    ops: Ops & ValidatedStepOpsDeclInput<Ops>;
+  }
 ): StepContract<
   SchemaWithOps<Schema, StepOpsDeclNormalizedFromInput<Ops>>,
   Id,
@@ -302,7 +326,10 @@ export function defineStep<
   const Ops extends StepOpsDeclInput,
   const Artifacts extends StepArtifactsDeclInput,
 >(
-  def: StepContractInput<Schema, Id, Ops, Artifacts> & { ops: Ops; artifacts: Artifacts }
+  def: StepContractInput<Schema, Id, Ops, Artifacts> & {
+    ops: Ops & ValidatedStepOpsDeclInput<Ops>;
+    artifacts: Artifacts;
+  }
 ): StepContract<
   SchemaWithOps<Schema, StepOpsDeclNormalizedFromInput<Ops>>,
   Id,

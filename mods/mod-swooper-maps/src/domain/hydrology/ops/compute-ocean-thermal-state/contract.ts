@@ -14,7 +14,10 @@ const ComputeOceanThermalStateInputSchema = Type.Object(
     /** Tile grid height. */
     height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
     /** Latitude by row in degrees; length must equal `height`. */
-    latitudeByRow: TypedArraySchemas.f32({ description: "Latitude per row (degrees)." }),
+    latitudeByRow: TypedArraySchemas.f32({
+      cardinality: ["height"],
+      description: "Latitude per row (degrees).",
+    }),
     /** Water mask per tile (1=water, 0=land). */
     isWaterMask: TypedArraySchemas.u8({ description: "Water mask per tile (1=water, 0=land)." }),
     /** Continental shelf mask per tile (1=shelf, 0=not), from Morphology coastline metrics. */
@@ -101,6 +104,7 @@ const ComputeOceanThermalStateContract = defineOp({
   id: "hydrology/compute-ocean-thermal-state",
   input: ComputeOceanThermalStateInputSchema,
   output: ComputeOceanThermalStateOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeOceanThermalStateDefaultStrategySchema,
   },

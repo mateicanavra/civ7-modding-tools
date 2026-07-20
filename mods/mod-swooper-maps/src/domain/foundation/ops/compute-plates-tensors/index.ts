@@ -1,13 +1,13 @@
-import { createOp } from "@swooper/mapgen-core/authoring";
+import { createOp, createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputePlatesTensorsContract from "./contract.js";
 import { projectPlatesFromModel } from "./rules/project-plates.js";
 
 const computePlatesTensors = createOp(ComputePlatesTensorsContract, {
   strategies: {
-    default: {
+    default: createStrategy(ComputePlatesTensorsContract, "default", {
       run: (input, config) => {
-        const width = input.width | 0;
-        const height = input.height | 0;
+        const width = input.width;
+        const height = input.height;
         const mesh = input.mesh;
         const crust = input.crust;
         const plateGraph = input.plateGraph;
@@ -82,7 +82,7 @@ const computePlatesTensors = createOp(ComputePlatesTensorsContract, {
           tectonicProvenanceTiles: platesResult.tectonicProvenanceTiles,
         } as const;
       },
-    },
+    }),
   },
 });
 

@@ -642,11 +642,10 @@ const mapConfig = {
         }
       },
       "icePlanning": {
-        "profile": "continentality",
         "minConfidence01": 0.5
       },
       "reefPlanning": {
-        "profile": "default",
+        "profile": "habitat",
         "minConfidence01": 0.84,
         "stride": 4
       },
@@ -829,7 +828,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountain-patch",
-  configHash: "0728aebd1aacf028a944f9f9ba4e20fce9e850f394cb61d70e66a426d53619da",
-  envelopeHash: "4a5b044e72ab26fc8765eafeb4c86493ef9f50ad697e018346d414b5b5025ceb",
+  configHash: "8812fb44107af5caf63714f611e86cf00b1329b156dd2b4ab7f15f8d6f59d671",
+  envelopeHash: "4305c3599cba7515aa53ad84d29399b62d0fcc43dcfaedde0fcdab71ac0a50fe",
   config: mapConfig.config,
 });

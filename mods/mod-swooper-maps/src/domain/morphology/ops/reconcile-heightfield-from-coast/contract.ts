@@ -10,10 +10,9 @@ import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authorin
  *    sea level is dropped to sea level (so elevation agrees with the class);
  *  - bathymetry is re-derived as min(0, elevation - seaLevel) on water, 0 on land.
  *
- * This is the pure core of the side effect that the carving step performs on the
- * shared heightfield. The op returns NEW {landMask, elevation, bathymetry} arrays
- * and never mutates its inputs; the step is the only place allowed to copy the
- * result back into the shared `context.buffers.heightfield` + topography buffers.
+ * This is the pure core of coastline reconciliation. The op returns new
+ * {landMask, elevation, bathymetry} arrays and never mutates its inputs; the
+ * owning step publishes that result as the next explicit topography artifact.
  */
 const ReconcileHeightfieldFromCoastContract = defineOp({
   kind: "compute",
@@ -47,6 +46,7 @@ const ReconcileHeightfieldFromCoastContract = defineOp({
       description: "Reconciled bathymetry: 0 on land; min(0, elevation - seaLevel) in water.",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object(
       {},

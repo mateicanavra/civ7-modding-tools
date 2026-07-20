@@ -18,7 +18,7 @@ import { projectResourcePlanViz } from "./viz.js";
  */
 export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const topography = deps.artifacts.topography.read(context);
     const shelf = deps.artifacts.shelf.read(context);
     const landmasses = deps.artifacts.landmasses.read(context);
@@ -211,7 +211,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
       {
         width,
         height,
-        seed: deriveStepSeed(context.env.seed, "resources:selectResourceSites"),
+        seed: deriveStepSeed(context.setup.mapSeed, "resources:selectResourceSites"),
         landMask: topography.landMask,
         lakeMask: lakePlan.lakeMask,
         landmassIdByTile: landmasses.landmassIdByTile,

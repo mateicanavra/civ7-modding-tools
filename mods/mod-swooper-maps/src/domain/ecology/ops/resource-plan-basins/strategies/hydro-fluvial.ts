@@ -1,6 +1,6 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ResourcePlanBasinsContract from "../contract.js";
-import { defaultStrategy } from "./default.js";
+import { planResourceBasins } from "../rules/index.js";
 
 export const hydroFluvialStrategy = createStrategy(ResourcePlanBasinsContract, "hydro-fluvial", {
   run: (input, config) => {
@@ -11,6 +11,6 @@ export const hydroFluvialStrategy = createStrategy(ResourcePlanBasinsContract, "
         moistureBias: res.moistureBias * 1.5,
       })),
     };
-    return defaultStrategy.run(input, boosted as never);
+    return planResourceBasins(input, boosted);
   },
 });

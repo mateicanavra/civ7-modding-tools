@@ -7,6 +7,7 @@ import {
   type TerrestrialResourceType,
 } from "../../../model/policy/terrestrial-resource-signals.js";
 import PlanTerrestrialResourcesContract from "../contract.js";
+import type { PlanTerrestrialResourcesTypes } from "../types.js";
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
@@ -23,7 +24,7 @@ const DEFAULT_RANGE = {
  */
 export const defaultStrategy = createStrategy(PlanTerrestrialResourcesContract, "default", {
   run: (input) => {
-    const size = validateGrid(input.width, input.height);
+    const size = input.width * input.height;
     const expectations = new Map(input.expectations.map((row) => [row.resourceType, row]));
     const plans = [];
     const missingResourceTypes: TerrestrialResourceType[] = [];
@@ -124,65 +125,38 @@ export const defaultStrategy = createStrategy(PlanTerrestrialResourcesContract, 
   },
 });
 
-function validateGrid(width: number, height: number): number {
-  const size = width * height;
-  if (!Number.isSafeInteger(size) || size <= 0) {
-    throw new Error(
-      `Invalid grid dimensions for terrestrial resource planning: ${width}x${height}.`
-    );
-  }
-  return size;
-}
-
 function presentFields(
-  input: Record<string, unknown>,
+  input: PlanTerrestrialResourcesTypes["input"],
   fields: readonly TerrestrialMaskField[]
 ): string[] {
   return fields.filter((field) => input[field] !== undefined);
 }
 
 function countEligibleTiles(
-  input: Record<string, unknown>,
+  input: PlanTerrestrialResourcesTypes["input"],
   size: number,
   signals: TerrestrialResourceSignals
 ): number {
-  const primaryMasks = signals.primary
-    .map((field) => ({ field, mask: readMask(input, field, size) }))
-    .filter(
-      (entry): entry is { field: TerrestrialMaskField; mask: Uint8Array } =>
-        entry.mask !== undefined
-    );
+  const primaryMasks: Uint8Array[] = [];
+  for (const field of signals.primary) {
+    const mask = input[field] ?? null;
+    if (mask !== null) primaryMasks.push(mask);
+  }
   if (primaryMasks.length === 0) return 0;
 
-  const suppressMasks = signals.suppress
-    .map((field) => readMask(input, field, size))
-    .filter((mask): mask is Uint8Array => mask !== undefined);
+  const suppressMasks: Uint8Array[] = [];
+  for (const field of signals.suppress) {
+    const mask = input[field] ?? null;
+    if (mask !== null) suppressMasks.push(mask);
+  }
 
   let count = 0;
   for (let i = 0; i < size; i++) {
-    if (!primaryMasks.some(({ mask }) => mask[i] !== 0)) continue;
+    if (!primaryMasks.some((mask) => mask[i] !== 0)) continue;
     if (suppressMasks.some((mask) => mask[i] !== 0)) continue;
     count += 1;
   }
   return count;
-}
-
-function readMask(
-  input: Record<string, unknown>,
-  field: string,
-  size: number
-): Uint8Array | undefined {
-  const value = input[field];
-  if (value === undefined) return undefined;
-  if (!(value instanceof Uint8Array)) {
-    throw new Error(`Terrestrial resource mask ${field} must be a Uint8Array.`);
-  }
-  if (value.length !== size) {
-    throw new Error(
-      `Terrestrial resource mask ${field} length ${value.length} does not match grid size ${size}.`
-    );
-  }
-  return value;
 }
 
 function compareRange(

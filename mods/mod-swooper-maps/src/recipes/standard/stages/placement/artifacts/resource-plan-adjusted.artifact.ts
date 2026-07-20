@@ -72,13 +72,14 @@ function validateDimensions(
     );
     return null;
   }
+  const executionDimensions = context?.dimensions;
   if (
-    context?.dimensions &&
-    (context.dimensions.width !== value.width || context.dimensions.height !== value.height)
+    executionDimensions &&
+    (executionDimensions.width !== value.width || executionDimensions.height !== value.height)
   ) {
     issues.push(
       issue(
-        `resourcePlanAdjusted dimensions ${value.width}x${value.height} do not match execution dimensions ${context.dimensions.width}x${context.dimensions.height}.`
+        `resourcePlanAdjusted dimensions ${value.width}x${value.height} do not match execution dimensions ${executionDimensions.width}x${executionDimensions.height}.`
       )
     );
   }

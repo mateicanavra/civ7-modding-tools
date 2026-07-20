@@ -8,7 +8,7 @@ import {
   HYDROLOGY_FLOW_PERENNIAL,
   HYDROLOGY_MOUTH_UNRESOLVED,
 } from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { canonicalRecipeConfig } from "../../../src/maps/configs/canonical.js";
 import desertMountainsRaw from "../../../src/maps/configs/swooper-desert-mountains.config.json";
@@ -39,11 +39,11 @@ function runHydrologyMetrics(
     StartSectorRows: 4,
     StartSectorCols: 4,
   };
-  const env = {
-    seed: args.seed,
+  const setup = admitMapSetup({
+    mapSeed: args.seed,
     dimensions: { width: args.width, height: args.height },
     latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
-  };
+  });
 
   const adapter = createMockAdapter({
     width: args.width,
@@ -52,16 +52,12 @@ function runHydrologyMetrics(
     mapSizeId: 1,
     rng: createLabelRng(args.seed),
   });
-  const context = createExtendedMapContext(
-    { width: args.width, height: args.height },
-    adapter,
-    env
-  );
+  const context = createMapContext({ setup, adapter });
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[hydrology-metrics]",
   });
-  standardRecipe.run(context, env, args.config, { log: () => {} });
+  standardRecipe.run(context, args.config, { log: () => {} });
 
   const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
     | { riverClass?: Uint8Array }

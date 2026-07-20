@@ -112,6 +112,12 @@ describe("standard browser runner layer visibility", () => {
           event.type === "run.canceled"
       );
       expect(terminal).toEqual(expect.objectContaining({ type: "run.finished" }));
+      const started = events.find((event) => event.type === "run.started");
+      if (!started || started.type !== "run.started") {
+        throw new Error("Browser execution emitted no run.started evidence.");
+      }
+      expect(events[0]).toBe(started);
+      expect(started.runId).not.toBe(started.planFingerprint);
 
       const layers = events.filter(
         (event): event is Extract<BrowserRunEvent, { type: "viz.layer.upsert" }> => {

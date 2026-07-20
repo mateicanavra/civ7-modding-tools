@@ -5,24 +5,9 @@ import { clamp01, clampU8, lerp01 } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeCryosphereStateContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
-
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/compute-cryosphere-state.");
-    }
-    if (
-      !(input.surfaceTemperatureC instanceof Float32Array) ||
-      input.surfaceTemperatureC.length !== size
-    ) {
-      throw new Error(
-        "[Hydrology] Invalid surfaceTemperatureC for hydrology/compute-cryosphere-state."
-      );
-    }
-    if (!(input.rainfall instanceof Uint8Array) || input.rainfall.length !== size) {
-      throw new Error("[Hydrology] Invalid rainfall for hydrology/compute-cryosphere-state.");
-    }
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     const snowCover = new Uint8Array(size);
     const seaIceCover = new Uint8Array(size);

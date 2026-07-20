@@ -25,7 +25,7 @@ export const AssignStartsStep = createStep(AssignStartsStepContract, {
     const pedology = deps.artifacts.pedology.read(context);
     const baseStarts = placementInputs.starts;
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const plan = _ops.starts(
       {
         baseStarts: {

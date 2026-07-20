@@ -1,5 +1,5 @@
 import { createLabelRng } from "@swooper/mapgen-core";
-import { createOp } from "@swooper/mapgen-core/authoring";
+import { createOp, createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampInt, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import ComputeMantlePotentialContract from "./contract.js";
@@ -99,7 +99,7 @@ function pickPoissonSeed(params: {
 
 const computeMantlePotential = createOp(ComputeMantlePotentialContract, {
   strategies: {
-    default: {
+    default: createStrategy(ComputeMantlePotentialContract, "default", {
       run: (input, config) => {
         const mesh = input.mesh;
         const rngSeed = input.rngSeed | 0;
@@ -238,7 +238,7 @@ const computeMantlePotential = createOp(ComputeMantlePotentialContract, {
           },
         } as const;
       },
-    },
+    }),
   },
 });
 

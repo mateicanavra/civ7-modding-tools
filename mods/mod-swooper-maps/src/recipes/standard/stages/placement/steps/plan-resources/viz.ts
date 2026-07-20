@@ -35,7 +35,7 @@ export function projectResourcePlanViz(input: {
   habitat: HabitatIntensityFields;
 }): readonly VizProjection[] {
   const { width, height } = input.dimensions;
-  const size = Math.max(0, width * height);
+  const size = width * height;
   const projections: VizProjection[] = [];
 
   const typeOrder = input.summaries.map((row) => row.resourceType);

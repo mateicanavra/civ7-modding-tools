@@ -1,3 +1,4 @@
+import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import {
   applyCiv7CoastRingPolicy,
   CIV7_COAST_RING_POLICY_V0,
@@ -5,15 +6,10 @@ import {
   WATER_CLASS_LAND,
   WATER_CLASS_OCEAN,
 } from "@civ7/map-policy";
-import {
-  COAST_TERRAIN,
-  FLAT_TERRAIN,
-  logLandmassAscii,
-  OCEAN_TERRAIN,
-  snapshotEngineHeightfield,
-} from "@swooper/mapgen-core";
+import { logLandmassAscii } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { assertWaterDriftWithinPolicy } from "../../../../projection-policies/noWaterDrift.js";
+import { resolveStandardProjectionTerrainTypes } from "../../../../projection-policies/standardProjectionEngineTypes.js";
 import {
   defineStandardVizCategoryMeta,
   defineStandardVizMeta,
@@ -32,8 +28,9 @@ export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const shelf = deps.artifacts.shelf.read(context);
-    const { width, height } = context.dimensions;
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const { width, height } = context.setup.dimensions;
+    const terrainTypes = resolveStandardProjectionTerrainTypes(context.adapter);
+    const size = width * height;
 
     // 0=land, 1=coast, 2=ocean
     const baseWaterClass = new Uint8Array(size);
@@ -93,25 +90,23 @@ export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
         const cls = waterClass[idx] | 0;
         const terrain =
           cls === WATER_CLASS_LAND
-            ? FLAT_TERRAIN
+            ? terrainTypes.flat
             : cls === WATER_CLASS_COAST
-              ? COAST_TERRAIN
-              : OCEAN_TERRAIN;
+              ? terrainTypes.coast
+              : terrainTypes.ocean;
         context.adapter.setTerrainType(x, y, terrain);
       }
     }
 
-    const engineAfterCoasts = snapshotEngineHeightfield(context);
-    if (engineAfterCoasts) {
-      deps.artifacts.coastEngineTerrainSnapshot.publish(context, {
-        stage: "map-morphology/plot-coasts",
-        width,
-        height,
-        landMask: engineAfterCoasts.landMask,
-        terrain: engineAfterCoasts.terrain,
-        elevation: engineAfterCoasts.elevation,
-      });
-    }
+    const engineAfterCoasts = snapshotEngineHeightfield(context.adapter);
+    deps.artifacts.coastEngineTerrainSnapshot.publish(context, {
+      stage: "map-morphology/plot-coasts",
+      width,
+      height,
+      landMask: engineAfterCoasts.landMask,
+      terrain: engineAfterCoasts.terrain,
+      elevation: engineAfterCoasts.elevation,
+    });
 
     logLandmassAscii(context.trace, context.adapter, width, height);
     assertWaterDriftWithinPolicy(context, topography.landMask, "map-morphology/plot-coasts");

@@ -25,6 +25,9 @@ always refused.
 - Producers publish artifacts once.
 - Consumers read as immutable; if they need mutation, they must copy first.
 - Republishing is an error.
+- `MapContext.artifacts` is a frozen `has`/`get` query facade, not the backing store. Even an
+  untyped cast cannot recover `set`, `delete`, or `clear`; declared artifact runtimes retain the
+  only production publication path.
 
 Representative artifact owner (`topography.artifact.ts`; excerpt):
 
@@ -105,7 +108,7 @@ authoring surface.
 - Artifact runtime (write-once enforcement, read-only reads): `packages/mapgen-core/src/authoring/artifact/runtime.ts`
 - Artifact module and catalog derivation: `packages/mapgen-core/src/authoring/artifact/module.ts`
 - Artifact types and DeepReadonly: `packages/mapgen-core/src/authoring/artifact/contract.ts`
-- ArtifactStore ownership: `packages/mapgen-core/src/core/types.ts`
+- Artifact-store ownership: `packages/mapgen-core/src/core/map-context.ts`
 - Policy: artifact mutation: `docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`
 - Example artifact owner: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts/topography.artifact.ts`
 - Example artifact catalog: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts/index.ts`

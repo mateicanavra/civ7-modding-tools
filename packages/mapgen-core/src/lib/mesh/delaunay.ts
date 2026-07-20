@@ -83,7 +83,6 @@ function normalizePolygon(points: Polygon2D | null | undefined): Polygon2D | nul
 }
 
 function wrapToSpan(x: number, span: number): number {
-  if (span <= 0) return x;
   if (x < 0) return x + span;
   if (x >= span) return x - span;
   return x;
@@ -126,9 +125,14 @@ function buildNeighborsCsr(neighborsBySite: Array<number[]>): {
   return { offsets, values };
 }
 
+/**
+ * Builds the relaxed Foundation mesh inside an already-admitted map extent.
+ *
+ * Width and height are physical setup facts supplied by the recipe step; this algorithm normalizes
+ * only its own mesh-density and relaxation controls.
+ */
 export function buildDelaunayMesh(input: DelaunayMeshInput): DelaunayMesh {
-  const width = Math.max(1, input.width | 0);
-  const height = Math.max(1, input.height | 0);
+  const { width, height } = input;
   const cellCount = Math.max(1, input.cellCount | 0);
   const relaxationSteps = Math.max(0, input.relaxationSteps | 0);
   const label = input.label ?? "FoundationMesh";
@@ -139,11 +143,10 @@ export function buildDelaunayMesh(input: DelaunayMeshInput): DelaunayMesh {
   const wrapWidth = width * HEX_WIDTH;
   const spanY = height * HEX_HEIGHT;
   const bbox: MeshBBox = { xl: 0, xr: wrapWidth, yt: 0, yb: spanY };
-  const spanX = Math.max(1e-6, wrapWidth);
 
   let sites: Point2D[] = Array.from({ length: cellCount }, () => ({ x: 0, y: 0 }));
   for (let i = 0; i < cellCount; i++) {
-    const x = rollUnit(rng, `${label}:x`) * spanX;
+    const x = rollUnit(rng, `${label}:x`) * wrapWidth;
     const y = rollUnit(rng, `${label}:y`) * spanY;
     sites[i] = { x, y };
   }

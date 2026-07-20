@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
@@ -22,14 +22,14 @@ describe("standard recipe RNG authority", () => {
       StartSectorRows: 4,
       StartSectorCols: 4,
     };
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: {
         topLatitude: mapInfo.MaxLatitude,
         bottomLatitude: mapInfo.MinLatitude,
       },
-    };
+    });
     const adapter = createMockAdapter({
       width,
       height,
@@ -39,13 +39,13 @@ describe("standard recipe RNG authority", () => {
         throw new Error("Standard recipe must not consume adapter RNG.");
       },
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
 
     initializeStandardRuntime(context, {
       mapInfo,
       logPrefix: "[rng-authority]",
     });
-    standardRecipe.run(context, env, standardConfig, { log: () => {} });
+    standardRecipe.run(context, standardConfig, { log: () => {} });
 
     const topography = context.artifacts.get(morphologyArtifacts.topography.id) as
       | { landMask?: Uint8Array }

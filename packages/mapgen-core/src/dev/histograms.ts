@@ -8,9 +8,6 @@
  */
 
 import type { EngineAdapter } from "@civ7/adapter";
-// Terrain type constants - imported from shared module (matched to Civ7 terrain.xml)
-// CORRECT terrain.xml order: 0:MOUNTAIN, 1:HILL, 2:FLAT, 3:COAST, 4:OCEAN
-import { HILL_TERRAIN } from "@mapgen/core/terrain-constants.js";
 import { devLog, devLogJson } from "@mapgen/dev/logging.js";
 import type { TraceScope } from "@mapgen/trace/index.js";
 
@@ -199,111 +196,5 @@ export function logFoundationHistograms(
   devLogJson(trace, "foundation rift histogram", {
     samples: riftHist.total,
     distribution: formatHistogramPercent(riftHist.counts, riftHist.total),
-  });
-}
-
-/**
- * Log boundary closeness distribution by type.
- */
-export function logBoundaryMetrics(
-  trace: TraceScope | null | undefined,
-  adapter: EngineAdapter,
-  width: number,
-  height: number,
-  foundation: {
-    boundaryType?: Uint8Array;
-    boundaryCloseness?: Uint8Array;
-  },
-  options: { thresholds?: number[] } = {}
-): void {
-  if (!trace?.isVerbose) return;
-
-  const { boundaryType, boundaryCloseness } = foundation;
-  if (!boundaryType || !boundaryCloseness) {
-    devLog(trace, "[boundary] metrics: Missing boundary data");
-    return;
-  }
-
-  const thresholds = options.thresholds ?? [0.35, 0.6];
-  const totalTiles = Math.min(width * height, boundaryType.length, boundaryCloseness.length);
-
-  // Count boundary types
-  const typeCounts = { none: 0, convergent: 0, divergent: 0, transform: 0 };
-  const thresholdHits = thresholds.map(() => 0);
-
-  // Count terrain overlaps
-  let mountains = 0;
-  let hills = 0;
-  const mountainByType = [0, 0, 0, 0];
-  const hillByType = [0, 0, 0, 0];
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const idx = y * width + x;
-      if (idx >= totalTiles) continue;
-
-      const bType = boundaryType[idx];
-      const closeness = boundaryCloseness[idx] / 255;
-
-      // Count by type
-      if (bType === 0) typeCounts.none++;
-      else if (bType === 1) typeCounts.convergent++;
-      else if (bType === 2) typeCounts.divergent++;
-      else if (bType === 3) typeCounts.transform++;
-
-      // Count threshold hits
-      for (let t = 0; t < thresholds.length; t++) {
-        if (closeness >= thresholds[t]) thresholdHits[t]++;
-      }
-
-      // Terrain overlap
-      const isMountain = adapter.isMountain(x, y);
-      // Check hills by terrain type (no isHills on adapter)
-      const terrainType = adapter.getTerrainType(x, y);
-      const isHill = terrainType === HILL_TERRAIN;
-
-      if (isMountain) {
-        mountains++;
-        if (bType >= 0 && bType < 4) mountainByType[bType]++;
-      } else if (isHill) {
-        hills++;
-        if (bType >= 0 && bType < 4) hillByType[bType]++;
-      }
-    }
-  }
-
-  const pct = (v: number) => `${((v / totalTiles) * 100).toFixed(1)}%`;
-
-  devLogJson(trace, "boundary type counts", {
-    total: totalTiles,
-    ...typeCounts,
-    shares: {
-      convergent: pct(typeCounts.convergent),
-      divergent: pct(typeCounts.divergent),
-      transform: pct(typeCounts.transform),
-    },
-  });
-
-  for (let t = 0; t < thresholds.length; t++) {
-    devLogJson(trace, `boundary closeness >= ${thresholds[t].toFixed(2)}`, {
-      tiles: thresholdHits[t],
-      share: pct(thresholdHits[t]),
-    });
-  }
-
-  devLogJson(trace, "mountains by boundary type", {
-    total: mountains,
-    none: mountainByType[0],
-    convergent: mountainByType[1],
-    divergent: mountainByType[2],
-    transform: mountainByType[3],
-  });
-
-  devLogJson(trace, "hills by boundary type", {
-    total: hills,
-    none: hillByType[0],
-    convergent: hillByType[1],
-    divergent: hillByType[2],
-    transform: hillByType[3],
   });
 }

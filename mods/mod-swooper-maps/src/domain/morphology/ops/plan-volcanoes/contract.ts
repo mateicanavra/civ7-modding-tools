@@ -137,6 +137,7 @@ const PlanVolcanoesContract = defineOp({
   output: Type.Object({
     volcanoes: Type.Array(VolcanoPlanSchema, { description: "Planned volcano placements." }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: VolcanoesConfigSchema,
   },

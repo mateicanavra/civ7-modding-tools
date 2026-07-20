@@ -20,7 +20,7 @@ function varianceI8Row(values: Int8Array, width: number, y: number): number {
   return acc / Math.max(1, n);
 }
 
-describe("hydrology/compute-atmospheric-circulation (default)", () => {
+describe("hydrology/compute-atmospheric-circulation (geostrophic-proxy)", () => {
   it("is deterministic and not row-uniform", () => {
     const width = 64;
     const height = 32;
@@ -31,7 +31,7 @@ describe("hydrology/compute-atmospheric-circulation (default)", () => {
       computeAtmosphericCirculation.run(
         { width, height, latitudeByRow: lat, rngSeed: 123, seasonPhase01: 0.25 },
         {
-          strategy: "default",
+          strategy: "geostrophic-proxy",
           config: {
             maxSpeed: 110,
             zonalStrength: 90,

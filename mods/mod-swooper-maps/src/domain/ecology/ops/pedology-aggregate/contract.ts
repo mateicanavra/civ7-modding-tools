@@ -21,6 +21,7 @@ const AggregatePedologyContract = defineOp({
       })
     ),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       cellSize: Type.Integer({ minimum: 1, default: 8 }),

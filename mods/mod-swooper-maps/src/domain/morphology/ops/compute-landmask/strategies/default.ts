@@ -4,7 +4,7 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 import ComputeLandmaskContract from "../contract.js";
-import { validateLandmaskInputs } from "../rules/index.js";
+import { assertRiftPotentialEraPresent } from "../rules/index.js";
 
 /**
  * Weights for the low-frequency crust-driven continent potential.
@@ -70,7 +70,7 @@ function buildCoarseAverageHexOddQ(
   values: Float32Array,
   grain: number
 ): Float32Array {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const g = Math.max(1, Math.round(grain)) | 0;
 
   // Bin in axial coordinates derived from the engine's odd-R (row-offset) coordinates so the low-pass
@@ -110,7 +110,7 @@ function buildCoarseAverageHexOddQ(
 }
 
 function blurHex(width: number, height: number, values: Float32Array, steps: number): Float32Array {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const n = Math.max(0, Math.round(steps)) | 0;
   if (n <= 0) return values;
 
@@ -190,7 +190,7 @@ function computeComponents(
   height: number,
   landMask: Uint8Array
 ): { id: Int32Array; sizes: number[] } {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const id = new Int32Array(size);
   id.fill(-1);
 
@@ -316,7 +316,7 @@ function fillToTarget(params: {
 }
 
 function computeDistanceToCoast(width: number, height: number, landMask: Uint8Array): Uint16Array {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   const distanceToCoast = new Uint16Array(size);
   distanceToCoast.fill(65535);
   const queue = new Int32Array(size);
@@ -359,9 +359,10 @@ function computeDistanceToCoast(width: number, height: number, landMask: Uint8Ar
 
 export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default", {
   run: (input, config) => {
-    const { width, height } = input;
+    assertRiftPotentialEraPresent(input.riftPotentialByEra);
     const {
-      size,
+      width,
+      height,
       elevation,
       boundaryCloseness,
       boundaryType,
@@ -385,7 +386,8 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
       lastActiveEra,
       movementU,
       movementV,
-    } = validateLandmaskInputs(input);
+    } = input;
+    const size = width * height;
 
     // Preserve hypsometry intent by targeting the land fraction implied by (elevation > seaLevel),
     // but derive the actual landmask from a low-frequency continent potential grounded in Foundation truth.

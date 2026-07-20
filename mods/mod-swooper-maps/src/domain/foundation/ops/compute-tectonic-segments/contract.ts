@@ -46,6 +46,7 @@ const ComputeTectonicSegmentsContract = defineOp({
         "Canonical plate-boundary table with aligned cell and plate endpoints, classified regime and polarity, event intensities, and drift for each segment.",
     }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: StrategySchema,
   },

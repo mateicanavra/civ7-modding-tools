@@ -10,16 +10,17 @@ import {
   defineStep,
   deriveRecipeConfigSchema,
 } from "@mapgen/authoring/index.js";
-import { createExtendedMapContext } from "@mapgen/core/types.js";
-import type { StepFacetSinks } from "@mapgen/engine/index.js";
+import { createMapContext } from "@mapgen/core/map-context.js";
+import { admitMapSetup } from "@mapgen/core/map-setup.js";
+import type { ExecutionPlan, MapSetup, StepFacetSinks } from "@mapgen/engine/index.js";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 
-const baseSettings = {
-  seed: 1,
+const baseSetup = admitMapSetup({
+  mapSeed: 1,
   dimensions: { width: 8, height: 6 },
   latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
-};
+});
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
 describe("authoring: hello recipe compile/execute", () => {
@@ -53,14 +54,92 @@ describe("authoring: hello recipe compile/execute", () => {
     });
 
     const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
-    const ctx = createExtendedMapContext({ width: 8, height: 6 }, adapter, baseSettings);
+    const ctx = createMapContext({ setup: baseSetup, adapter });
 
-    const plan = recipe.compile(baseSettings, { foundation: { knobs: {}, hello: {} } });
+    const plan = recipe.compile(baseSetup, { foundation: { knobs: {}, hello: {} } });
     expect(plan.nodes).toHaveLength(1);
     expect(plan.nodes[0]?.stepId).toContain("hello");
 
-    recipe.run(ctx, baseSettings, { foundation: { knobs: {}, hello: {} } });
+    recipe.execute(ctx, plan);
     expect(executions).toContain("hello");
+  });
+
+  it("executes an exact plan without renormalizing and run compiles only once", async () => {
+    const observedSeeds: number[] = [];
+    let normalizationCount = 0;
+    const contract = defineStep({
+      id: "observe-seed",
+      phase: "foundation",
+      requires: [],
+      provides: [],
+      schema: Type.Object({ seed: Type.Number() }, { additionalProperties: false }),
+    });
+    const step = createStep(contract, {
+      normalize: (_config, { setup }) => {
+        normalizationCount += 1;
+        return { seed: (setup as MapSetup).mapSeed };
+      },
+      run: (_context, config) => {
+        observedSeeds.push(config.seed);
+      },
+    });
+    const stage = createStage({
+      id: "foundation",
+      knobsSchema: EmptyKnobsSchema,
+      steps: [step],
+    });
+    const recipe = createRecipe({
+      id: "setup-authority",
+      namespace: "test",
+      tagDefinitions: [],
+      stages: [stage],
+      compileOpsById: {},
+    });
+    const setup = admitMapSetup({ ...baseSetup, mapSeed: 444 });
+    const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
+    const context = createMapContext({ setup, adapter });
+    const config = { foundation: { knobs: {}, "observe-seed": { seed: 0 } } };
+    const plan = recipe.compile(setup, config);
+
+    expect(normalizationCount).toBe(1);
+    recipe.execute(context, plan);
+    expect(normalizationCount).toBe(1);
+    recipe.run(createMapContext({ setup, adapter }), config);
+
+    expect(normalizationCount).toBe(2);
+    expect(observedSeeds).toEqual([444, 444]);
+
+    const equalSetup = admitMapSetup({ ...setup });
+    const mismatchedContext = createMapContext({ setup: equalSetup, adapter });
+    expect(() => recipe.execute(mismatchedContext, plan)).toThrow(
+      "Pipeline context setup must be the exact admitted setup retained by the execution plan."
+    );
+
+    let forgedPropertyReads = 0;
+    const forged = Object.defineProperties(
+      {},
+      {
+        setup: {
+          get: () => {
+            forgedPropertyReads += 1;
+            return setup;
+          },
+        },
+        nodes: {
+          get: () => {
+            forgedPropertyReads += 1;
+            return [];
+          },
+        },
+      }
+    ) as ExecutionPlan;
+    expect(() => recipe.execute(context, forged)).toThrow(
+      "authentic execution plan returned by compileExecutionPlan"
+    );
+    await expect(recipe.executeAsync(context, forged)).rejects.toThrow(
+      "authentic execution plan returned by compileExecutionPlan"
+    );
+    expect(forgedPropertyReads).toBe(0);
   });
 
   it("binds step-declared ops and compiles op defaults/normalization", () => {
@@ -70,6 +149,7 @@ describe("authoring: hello recipe compile/execute", () => {
       id: "test/ops/tree-plan",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({ ok: Type.Boolean() }, { additionalProperties: false }),
+      defaultStrategy: "default",
       strategies: {
         default: Type.Object(
           { enabled: Type.Boolean({ default: true }) },
@@ -120,7 +200,7 @@ describe("authoring: hello recipe compile/execute", () => {
     });
 
     const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
-    const ctx = createExtendedMapContext({ width: 8, height: 6 }, adapter, baseSettings);
+    const ctx = createMapContext({ setup: baseSetup, adapter });
 
     const configSchema = Type.Object(
       {
@@ -133,12 +213,12 @@ describe("authoring: hello recipe compile/execute", () => {
     );
     expect(deriveRecipeConfigSchema([stage])).toEqual(configSchema);
     const config = Value.Create(configSchema);
-    const plan = recipe.compile(baseSettings, config);
+    const plan = recipe.compile(baseSetup, config);
     expect(plan.nodes[0]?.config).toEqual({
       trees: { strategy: "default", config: { enabled: false } },
     });
 
-    recipe.run(ctx, baseSettings, config);
+    recipe.run(ctx, config);
     expect(executions).toContain("trees:false");
   });
 
@@ -168,7 +248,8 @@ describe("authoring: hello recipe compile/execute", () => {
       compileOpsById: {},
     });
     const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
-    const ctx = createExtendedMapContext({ width: 8, height: 6 }, adapter, baseSettings);
+    const syncContext = createMapContext({ setup: baseSetup, adapter });
+    const asyncContext = createMapContext({ setup: baseSetup, adapter });
     const config = { foundation: { knobs: {}, "facet-output": { score: 4 } } };
     const emitted: string[] = [];
     const facets = {
@@ -182,8 +263,9 @@ describe("authoring: hello recipe compile/execute", () => {
       },
     } satisfies StepFacetSinks;
 
-    recipe.run(ctx, baseSettings, config, { trace: null, facets });
-    await recipe.runAsync(ctx, baseSettings, config, { trace: null, facets });
+    const plan = recipe.compile(baseSetup, config);
+    recipe.execute(syncContext, plan, { trace: null, facets });
+    await recipe.executeAsync(asyncContext, plan, { trace: null, facets });
 
     expect(emitted).toEqual(["metrics:4", "viz:0", "metrics:4", "viz:0"]);
   });

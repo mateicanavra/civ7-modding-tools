@@ -20,7 +20,7 @@ export function readFinalLakeProjection(
   height: number,
   acceptedLakeMask: Uint8Array
 ): FinalLakeReadback {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   if (acceptedLakeMask.length !== size) {
     throw new Error(
       `[Placement] Invalid accepted lake mask length for final lake readback (expected ${size}, got ${acceptedLakeMask.length}).`

@@ -9,8 +9,9 @@ const MultiStrategyOp = defineOp({
   id: "test/compute-multi-strategy",
   input: Type.Object({}, { additionalProperties: false }),
   output: Type.Object({}, { additionalProperties: false }),
+  defaultStrategy: "balanced",
   strategies: {
-    default: Type.Object(
+    balanced: Type.Object(
       { plateauCount: Type.Integer({ default: 3, minimum: 1 }) },
       { additionalProperties: false }
     ),
@@ -29,7 +30,14 @@ type BagEnvelope = OpTypeBagOf<typeof MultiStrategyOp>["envelope"];
 type BagEnvelopeStrategy = BagEnvelope["strategy"];
 export type BagEnvelopeStrategyIsNarrow = Expect<IsStringLiteral<BagEnvelopeStrategy>>;
 
-type DefaultConfig = Extract<Envelope, { strategy: "default" }>["config"];
+export type ContractDefaultStrategyIsExact = Expect<
+  IsEqual<(typeof MultiStrategyOp)["defaultStrategy"], "balanced">
+>;
+export type ContractDefaultConfigIsExact = Expect<
+  IsEqual<(typeof MultiStrategyOp)["defaultConfig"], Extract<Envelope, { strategy: "balanced" }>>
+>;
+
+type DefaultConfig = Extract<Envelope, { strategy: "balanced" }>["config"];
 type FastConfig = Extract<Envelope, { strategy: "fast" }>["config"];
 export type DefaultHasPlateauCount = Expect<
   IsEqual<"plateauCount" extends keyof DefaultConfig ? true : false, true>
@@ -49,11 +57,13 @@ acceptsEnvelopeStrategy("nope");
 
 defineOp({
   kind: "compute",
-  id: "test/missing-default-strategy",
+  id: "test/unknown-default-strategy",
   input: Type.Object({}, { additionalProperties: false }),
   output: Type.Object({}, { additionalProperties: false }),
+  // @ts-expect-error The default must name one of this contract's declared strategies.
+  defaultStrategy: "missing",
   strategies: {
-    // @ts-expect-error Every operation requires a default strategy.
+    balanced: Type.Object({}, { additionalProperties: false }),
     fast: Type.Object({}, { additionalProperties: false }),
   },
 });

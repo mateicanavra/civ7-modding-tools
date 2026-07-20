@@ -23,7 +23,7 @@
 
 - **Dump folder**: replayable output containing `manifest.json` plus payloads under `data/`.
 - `outputsRoot`: where dump folders are written (implementation chooses the root; the contract only assumes a per-run folder containing `manifest.json`).
-- `runId`: execution identity assigned by Core and used by trace and facet sinks. Current implementation: `runId === planFingerprint` (see [`docs/system/libs/mapgen/reference/GLOSSARY.md`](/system/libs/mapgen/reference/GLOSSARY.md)).
+- `runId`: unique execution-attempt identity assigned by Core and shared by trace and facet sinks; repeated attempts of one plan receive different values.
 - `planFingerprint`: plan identity (hash of plan inputs); see [`docs/system/libs/mapgen/reference/GLOSSARY.md`](/system/libs/mapgen/reference/GLOSSARY.md) and `packages/mapgen-core/src/engine/observability.ts`.
 - `dataTypeKey`: stable semantic identity for a data product (e.g. `"hydrology.wind.wind"`).
 - `layerKey`: canonical, opaque identity for a layer within a run (used for streaming upserts and dump replay identity).
@@ -69,7 +69,7 @@ Key goals:
 - **Live inspection:** see layers as steps execute (streaming upserts).
 - **External replay:** run once, inspect later (dump folders).
 - **Layered inspection:** show buffers (e.g., temperature), indices (e.g., biome IDs), and derived fields (e.g., mountain masks).
-- **Deterministic provenance:** every layer is tagged with stable ids (`runId`/`planFingerprint`, step id, phase, layer keys).
+- **Correlated provenance:** every layer carries its unique `runId`, stable `planFingerprint`, step id, phase, and layer keys.
 - **Zero coupling to runtime:** pipeline must not depend on deck.gl.
 
 ---
@@ -274,7 +274,7 @@ Replay (dump viewer):
 
 ## Ground truth anchors
 
-- Run identity (runId == planFingerprint): `packages/mapgen-core/src/engine/observability.ts`
+- Execution identity and plan fingerprint: `packages/mapgen-core/src/engine/observability.ts`
 - Step facet contracts and dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
 - Portable projections and materialization: `packages/mapgen-viz/src/index.ts`
 - Standard recipe semantic styles: `mods/mod-swooper-maps/src/recipes/standard/viz.ts`

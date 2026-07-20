@@ -19,64 +19,6 @@ import PlanRidgesContract from "../contract.js";
 import { computeFracturePotential } from "../rules/fracture-potential.js";
 import { isStrictLocalMaximumHexWithTies } from "../rules/local-maximum.js";
 import { computeMountainScore } from "../rules/mountain-score.js";
-import type { PlanRidgesTypes } from "../types.js";
-
-function validateRidgesInputs(input: PlanRidgesTypes["input"]): {
-  size: number;
-  landMask: Uint8Array;
-  boundaryCloseness: Uint8Array;
-  boundaryType: Uint8Array;
-  upliftPotential: Uint8Array;
-  collisionPotential: Uint8Array;
-  subductionPotential: Uint8Array;
-  riftPotential: Uint8Array;
-  tectonicStress: Uint8Array;
-  beltAge: Uint8Array;
-  fractalMountain: Int16Array;
-} {
-  const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
-
-  const landMask = input.landMask as Uint8Array;
-  const boundaryCloseness = input.boundaryCloseness as Uint8Array;
-  const boundaryType = input.boundaryType as Uint8Array;
-  const upliftPotential = input.upliftPotential as Uint8Array;
-  const collisionPotential = input.collisionPotential as Uint8Array;
-  const subductionPotential = input.subductionPotential as Uint8Array;
-  const riftPotential = input.riftPotential as Uint8Array;
-  const tectonicStress = input.tectonicStress as Uint8Array;
-  const beltAge = input.beltAge as Uint8Array;
-  const fractalMountain = input.fractalMountain as Int16Array;
-
-  if (
-    landMask.length !== size ||
-    boundaryCloseness.length !== size ||
-    boundaryType.length !== size ||
-    upliftPotential.length !== size ||
-    collisionPotential.length !== size ||
-    subductionPotential.length !== size ||
-    riftPotential.length !== size ||
-    tectonicStress.length !== size ||
-    beltAge.length !== size ||
-    fractalMountain.length !== size
-  ) {
-    throw new Error("[PlanRidges] Input tensors must match width*height.");
-  }
-
-  return {
-    size,
-    landMask,
-    boundaryCloseness,
-    boundaryType,
-    upliftPotential,
-    collisionPotential,
-    subductionPotential,
-    riftPotential,
-    tectonicStress,
-    beltAge,
-    fractalMountain,
-  };
-}
 
 function markSpineExclusion(params: {
   exclusionMask: Uint8Array;
@@ -171,7 +113,7 @@ const OPPOSITE_DIRECTION = [1, 0, 3, 2, 5, 4] as const;
 
 function resolveMapScaledRangeLength(width: number, height: number, lengthTiles: number): number {
   if (!Number.isFinite(lengthTiles) || lengthTiles <= 1) return 0;
-  const scale = Math.sqrt(Math.max(1, width * height) / LARGE_MAP_AREA);
+  const scale = Math.sqrt((width * height) / LARGE_MAP_AREA);
   return Math.max(2, Math.round(lengthTiles * scale)) | 0;
 }
 
@@ -191,11 +133,9 @@ function axisDirectionScore(axisDirection: number, nextDirection: number): numbe
 
 export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
   run: (input, config) => {
-    const { width, height } = input;
-    const w = width | 0;
-    const h = height | 0;
     const {
-      size,
+      width,
+      height,
       landMask,
       boundaryCloseness,
       boundaryType,
@@ -206,7 +146,10 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
       tectonicStress,
       beltAge,
       fractalMountain,
-    } = validateRidgesInputs(input);
+    } = input;
+    const size = width * height;
+    const w = width;
+    const h = height;
 
     const mountainMask = new Uint8Array(size);
     const mountainRegionMask = new Uint8Array(size);

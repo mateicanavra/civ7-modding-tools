@@ -23,6 +23,7 @@ const ScoreLotusContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Lotus suitability score per tile (0..1)." }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       tempWarmStartC: Type.Number({

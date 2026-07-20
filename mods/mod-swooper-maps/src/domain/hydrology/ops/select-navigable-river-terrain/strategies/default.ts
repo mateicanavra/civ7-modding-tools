@@ -15,14 +15,6 @@ function percentileFloor(valuesAscending: readonly number[], percentile: number)
   return valuesAscending[index] ?? 0;
 }
 
-function assertLength(name: string, actual: number, expected: number): void {
-  if (actual !== expected) {
-    throw new Error(
-      `[Hydrology] Invalid ${name} for hydrology/select-navigable-river-terrain: length ${actual} !== ${expected}.`
-    );
-  }
-}
-
 function bestUnselectedUpstream(
   upstream: readonly number[],
   discharge: Float32Array,
@@ -53,42 +45,9 @@ function isTerminalAnchoredMouth(mouthType: number): boolean {
 
 export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
-
-    if (!(input.riverClass instanceof Uint8Array)) {
-      throw new Error(
-        "[Hydrology] Invalid riverClass for hydrology/select-navigable-river-terrain."
-      );
-    }
-    if (!(input.discharge instanceof Float32Array)) {
-      throw new Error(
-        "[Hydrology] Invalid discharge for hydrology/select-navigable-river-terrain."
-      );
-    }
-    if (!(input.flowDir instanceof Int32Array)) {
-      throw new Error("[Hydrology] Invalid flowDir for hydrology/select-navigable-river-terrain.");
-    }
-    if (!(input.mouthType instanceof Uint8Array)) {
-      throw new Error(
-        "[Hydrology] Invalid mouthType for hydrology/select-navigable-river-terrain."
-      );
-    }
-    if (!(input.lakeMask instanceof Uint8Array)) {
-      throw new Error("[Hydrology] Invalid lakeMask for hydrology/select-navigable-river-terrain.");
-    }
-    if (!(input.projectableLandMask instanceof Uint8Array)) {
-      throw new Error(
-        "[Hydrology] Invalid projectableLandMask for hydrology/select-navigable-river-terrain."
-      );
-    }
-    assertLength("riverClass", input.riverClass.length, size);
-    assertLength("discharge", input.discharge.length, size);
-    assertLength("flowDir", input.flowDir.length, size);
-    assertLength("mouthType", input.mouthType.length, size);
-    assertLength("lakeMask", input.lakeMask.length, size);
-    assertLength("projectableLandMask", input.projectableLandMask.length, size);
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     const plannedMinorRiverMask = new Uint8Array(size);
     const plannedMajorRiverMask = new Uint8Array(size);

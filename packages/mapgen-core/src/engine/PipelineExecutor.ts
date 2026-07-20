@@ -1,11 +1,24 @@
+import type { MapContext } from "@mapgen/core/map-context.js";
+import {
+  assertMapContextInternal,
+  beginMapContextExecutionInternal,
+  finishMapContextExecutionInternal,
+  setMapContextTraceInternal,
+} from "@mapgen/core/map-context.js";
 import {
   MissingDependencyError,
   PipelineAbortError,
   StepExecutionError,
   UnsatisfiedProvidesError,
 } from "@mapgen/engine/errors.js";
-import type { ExecutionPlan } from "@mapgen/engine/execution-plan.js";
-import { computePlanFingerprint } from "@mapgen/engine/observability.js";
+import {
+  type ExecutionPlan,
+  getExecutionPlanBindingInternal,
+} from "@mapgen/engine/execution-plan.js";
+import {
+  createTraceSessionForExecutionInternal,
+  type PlanTraceOptions,
+} from "@mapgen/engine/observability.js";
 import type { StepRegistry } from "@mapgen/engine/StepRegistry.js";
 import {
   dispatchStepFacets,
@@ -15,14 +28,10 @@ import {
 import {
   computeInitialSatisfiedTags,
   isDependencyTagSatisfied,
+  type TagRegistry,
   validateDependencyTags,
 } from "@mapgen/engine/tags.js";
-import type {
-  EngineContext,
-  GenerationPhase,
-  MapGenStep,
-  PipelineStepResult,
-} from "@mapgen/engine/types.js";
+import type { GenerationPhase, MapGenStep, PipelineStepResult } from "@mapgen/engine/types.js";
 import type { TraceSession } from "@mapgen/trace/index.js";
 import { createNoopTraceSession } from "@mapgen/trace/index.js";
 
@@ -32,7 +41,7 @@ export interface PipelineExecutorOptions {
 }
 
 export interface PipelineExecutionOptions {
-  trace?: TraceSession | null;
+  trace?: PlanTraceOptions | null;
   /** Optional execution-owned consumers for post-provides step evidence. */
   facets?: StepFacetSinks;
   /**
@@ -58,10 +67,11 @@ type PipelineFacetIdentity = Readonly<{
   dimensions: Readonly<{ width: number; height: number }>;
 }>;
 
-function facetIdentityFromPlan<TContext, TConfig, TResult>(
+function facetIdentityFromPlan(
   plan: ExecutionPlan,
-  nodes: readonly Readonly<{ step: MapGenStep<TContext, TConfig, TResult> }>[],
-  trace: TraceSession | null | undefined,
+  planFingerprint: string,
+  nodes: readonly Readonly<{ step: MapGenStep<unknown, unknown> }>[],
+  runId: string,
   sinks: StepFacetSinks | undefined
 ): PipelineFacetIdentity | undefined {
   const hasApplicableFacet = nodes.some(
@@ -71,17 +81,21 @@ function facetIdentityFromPlan<TContext, TConfig, TResult>(
   );
   if (!hasApplicableFacet) return undefined;
 
-  let identity: Readonly<{ runId: string; planFingerprint: string }>;
-  if (trace?.runId && trace.planFingerprint) {
-    identity = { runId: trace.runId, planFingerprint: trace.planFingerprint };
-  } else {
-    const planFingerprint = computePlanFingerprint(plan);
-    identity = { runId: planFingerprint, planFingerprint };
-  }
   return Object.freeze({
-    ...identity,
-    dimensions: Object.freeze({ ...plan.env.dimensions }),
+    runId,
+    planFingerprint,
+    dimensions: Object.freeze({ ...plan.setup.dimensions }),
   });
+}
+
+function traceSessionForExecution(
+  runId: string,
+  planFingerprint: string,
+  trace: PlanTraceOptions | null | undefined
+): TraceSession {
+  return trace === null || trace === undefined
+    ? createNoopTraceSession()
+    : createTraceSessionForExecutionInternal(runId, planFingerprint, trace);
 }
 
 function stepFacetContext(
@@ -109,65 +123,111 @@ function nowMs(): number {
   return Date.now();
 }
 
-export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown> {
-  private readonly registry: StepRegistry<TContext>;
+function assertPlanContextSetup(context: MapContext, plan: ExecutionPlan): void {
+  if (context.setup === plan.setup) return;
+  throw new Error(
+    "Pipeline context setup must be the exact admitted setup retained by the execution plan."
+  );
+}
+
+/**
+ * Executes compiled plan nodes against their registered step implementations.
+ *
+ * Every public plan entrypoint rejects execution unless `context.setup` is the exact admitted
+ * object retained by the plan; structurally equal setups admitted separately cannot cross runs.
+ */
+export class PipelineExecutor {
+  private readonly registry: StepRegistry;
   private readonly log: (message: string) => void;
   private readonly logPrefix: string;
 
-  constructor(registry: StepRegistry<TContext>, options: PipelineExecutorOptions = {}) {
+  constructor(registry: StepRegistry, options: PipelineExecutorOptions = {}) {
     this.registry = registry;
     this.log = options.log ?? (() => undefined);
     this.logPrefix = options.logPrefix ?? "[PipelineExecutor]";
   }
 
+  /** Executes synchronously and throws on the first failed step or violated invariant. */
   executePlan(
-    context: TContext,
+    context: MapContext,
     plan: ExecutionPlan,
     options: PipelineExecutionOptions = {}
   ): { stepResults: PipelineStepResult[]; satisfied: ReadonlySet<string> } {
-    const nodes = plan.nodes.map((node) => ({
-      step: this.registry.get<TConfig>(node.stepId),
-      config: node.config as TConfig,
-    }));
-    return this.executeNodes(
-      context,
-      nodes,
-      options,
-      "throw",
-      facetIdentityFromPlan(plan, nodes, options.trace, options.facets)
-    );
+    assertMapContextInternal(context);
+    const binding = getExecutionPlanBindingInternal(plan, this.registry);
+    assertPlanContextSetup(context, plan);
+    const runId = beginMapContextExecutionInternal(context);
+    try {
+      const trace = traceSessionForExecution(runId, binding.fingerprint, options.trace);
+      const facetIdentity = facetIdentityFromPlan(
+        plan,
+        binding.fingerprint,
+        binding.nodes,
+        runId,
+        options.facets
+      );
+      return this.executeNodes(
+        context,
+        binding.nodes,
+        binding.tagRegistry,
+        options,
+        trace,
+        "throw",
+        facetIdentity
+      );
+    } finally {
+      finishMapContextExecutionInternal(context);
+    }
   }
 
+  /** Executes synchronously while returning failed step evidence instead of rethrowing it. */
   executePlanReport(
-    context: TContext,
+    context: MapContext,
     plan: ExecutionPlan,
     options: PipelineExecutionOptions = {}
   ): { stepResults: PipelineStepResult[]; satisfied: ReadonlySet<string> } {
-    const nodes = plan.nodes.map((node) => ({
-      step: this.registry.get<TConfig>(node.stepId),
-      config: node.config as TConfig,
-    }));
-    return this.executeNodes(
-      context,
-      nodes,
-      options,
-      "report",
-      facetIdentityFromPlan(plan, nodes, options.trace, options.facets)
-    );
+    assertMapContextInternal(context);
+    const binding = getExecutionPlanBindingInternal(plan, this.registry);
+    assertPlanContextSetup(context, plan);
+    const runId = beginMapContextExecutionInternal(context);
+    try {
+      const trace = traceSessionForExecution(runId, binding.fingerprint, options.trace);
+      const facetIdentity = facetIdentityFromPlan(
+        plan,
+        binding.fingerprint,
+        binding.nodes,
+        runId,
+        options.facets
+      );
+      return this.executeNodes(
+        context,
+        binding.nodes,
+        binding.tagRegistry,
+        options,
+        trace,
+        "report",
+        facetIdentity
+      );
+    } finally {
+      finishMapContextExecutionInternal(context);
+    }
   }
 
   private executeNodes(
-    context: TContext,
-    nodes: Array<{ step: MapGenStep<TContext, TConfig>; config: TConfig }>,
-    options: PipelineExecutionOptions = {},
+    context: MapContext,
+    nodes: readonly Readonly<{
+      step: MapGenStep<unknown, unknown>;
+      config: Readonly<Record<string, unknown>>;
+    }>[],
+    tagRegistry: TagRegistry,
+    options: PipelineExecutionOptions,
+    trace: TraceSession,
     mode: "throw" | "report",
     facetIdentity: PipelineFacetIdentity | undefined
   ): { stepResults: PipelineStepResult[]; satisfied: ReadonlySet<string> } {
     const stepResults: PipelineStepResult[] = [];
-    const tagRegistry = this.registry.getTagRegistry();
     const satisfied = computeInitialSatisfiedTags(context);
     const satisfactionState = { satisfied };
-    const trace = options.trace ?? createNoopTraceSession();
     const baseTrace = context.trace;
 
     const total = nodes.length;
@@ -194,7 +254,7 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
 
         const stepMeta = { stepId: step.id, phase: step.phase };
         const previousTrace = context.trace;
-        context.trace = trace.createStepScope(stepMeta);
+        setMapContextTraceInternal(context, trace.createStepScope(stepMeta));
 
         this.log(`${this.logPrefix} [${index + 1}/${total}] start ${step.id}`);
         trace.emitStepStart(stepMeta);
@@ -259,7 +319,7 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
           }
           break;
         } finally {
-          context.trace = previousTrace;
+          setMapContextTraceInternal(context, previousTrace);
         }
       }
 
@@ -272,58 +332,91 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
       trace.emitRunFinish({ success: false, error: errorMessage });
       throw err;
     } finally {
-      context.trace = baseTrace;
+      setMapContextTraceInternal(context, baseTrace);
     }
   }
 
+  /** Executes asynchronously with optional cooperative cancellation and event-loop yielding. */
   async executePlanAsync(
-    context: TContext,
+    context: MapContext,
     plan: ExecutionPlan,
     options: PipelineExecutionOptions = {}
   ): Promise<{ stepResults: PipelineStepResult[]; satisfied: ReadonlySet<string> }> {
-    const nodes = plan.nodes.map((node) => ({
-      step: this.registry.get<TConfig>(node.stepId),
-      config: node.config as TConfig,
-    }));
-    return this.executeNodesAsync(
-      context,
-      nodes,
-      options,
-      "throw",
-      facetIdentityFromPlan(plan, nodes, options.trace, options.facets)
-    );
+    assertMapContextInternal(context);
+    const binding = getExecutionPlanBindingInternal(plan, this.registry);
+    assertPlanContextSetup(context, plan);
+    const runId = beginMapContextExecutionInternal(context);
+    try {
+      const trace = traceSessionForExecution(runId, binding.fingerprint, options.trace);
+      const facetIdentity = facetIdentityFromPlan(
+        plan,
+        binding.fingerprint,
+        binding.nodes,
+        runId,
+        options.facets
+      );
+      return await this.executeNodesAsync(
+        context,
+        binding.nodes,
+        binding.tagRegistry,
+        options,
+        trace,
+        "throw",
+        facetIdentity
+      );
+    } finally {
+      finishMapContextExecutionInternal(context);
+    }
   }
 
+  /** Executes asynchronously while returning failed step evidence instead of rethrowing it. */
   async executePlanReportAsync(
-    context: TContext,
+    context: MapContext,
     plan: ExecutionPlan,
     options: PipelineExecutionOptions = {}
   ): Promise<{ stepResults: PipelineStepResult[]; satisfied: ReadonlySet<string> }> {
-    const nodes = plan.nodes.map((node) => ({
-      step: this.registry.get<TConfig>(node.stepId),
-      config: node.config as TConfig,
-    }));
-    return this.executeNodesAsync(
-      context,
-      nodes,
-      options,
-      "report",
-      facetIdentityFromPlan(plan, nodes, options.trace, options.facets)
-    );
+    assertMapContextInternal(context);
+    const binding = getExecutionPlanBindingInternal(plan, this.registry);
+    assertPlanContextSetup(context, plan);
+    const runId = beginMapContextExecutionInternal(context);
+    try {
+      const trace = traceSessionForExecution(runId, binding.fingerprint, options.trace);
+      const facetIdentity = facetIdentityFromPlan(
+        plan,
+        binding.fingerprint,
+        binding.nodes,
+        runId,
+        options.facets
+      );
+      return await this.executeNodesAsync(
+        context,
+        binding.nodes,
+        binding.tagRegistry,
+        options,
+        trace,
+        "report",
+        facetIdentity
+      );
+    } finally {
+      finishMapContextExecutionInternal(context);
+    }
   }
 
   private async executeNodesAsync(
-    context: TContext,
-    nodes: Array<{ step: MapGenStep<TContext, TConfig>; config: TConfig }>,
-    options: PipelineExecutionOptions = {},
+    context: MapContext,
+    nodes: readonly Readonly<{
+      step: MapGenStep<unknown, unknown>;
+      config: Readonly<Record<string, unknown>>;
+    }>[],
+    tagRegistry: TagRegistry,
+    options: PipelineExecutionOptions,
+    trace: TraceSession,
     mode: "throw" | "report",
     facetIdentity: PipelineFacetIdentity | undefined
   ): Promise<{ stepResults: PipelineStepResult[]; satisfied: ReadonlySet<string> }> {
     const stepResults: PipelineStepResult[] = [];
-    const tagRegistry = this.registry.getTagRegistry();
     const satisfied = computeInitialSatisfiedTags(context);
     const satisfactionState = { satisfied };
-    const trace = options.trace ?? createNoopTraceSession();
     const baseTrace = context.trace;
 
     const total = nodes.length;
@@ -357,7 +450,7 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
 
         const stepMeta = { stepId: step.id, phase: step.phase };
         const previousTrace = context.trace;
-        context.trace = trace.createStepScope(stepMeta);
+        setMapContextTraceInternal(context, trace.createStepScope(stepMeta));
 
         this.log(`${this.logPrefix} [${index + 1}/${total}] start ${step.id}`);
         trace.emitStepStart(stepMeta);
@@ -418,7 +511,7 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
           }
           break;
         } finally {
-          context.trace = previousTrace;
+          setMapContextTraceInternal(context, previousTrace);
         }
 
         // If enabled, yield between steps to allow cancellation/messages to be processed.
@@ -436,7 +529,7 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
       trace.emitRunFinish({ success: false, error: errorMessage });
       throw err;
     } finally {
-      context.trace = baseTrace;
+      setMapContextTraceInternal(context, baseTrace);
     }
   }
 }

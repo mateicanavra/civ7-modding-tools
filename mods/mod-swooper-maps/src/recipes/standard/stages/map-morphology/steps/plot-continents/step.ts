@@ -1,4 +1,5 @@
-import { logLandmassAscii, snapshotEngineHeightfield } from "@swooper/mapgen-core";
+import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
+import { logLandmassAscii } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
 import { assertWaterDriftWithinPolicy } from "../../../../projection-policies/noWaterDrift.js";
@@ -16,28 +17,26 @@ export const PlotContinentsStep = createStep(PlotContinentsStepContract, {
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const coastClassification = deps.artifacts.coastClassification.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
 
     context.adapter.validateAndFixTerrain();
     context.adapter.recalculateAreas();
     context.adapter.stampContinents();
     restoreProjectedCoastTerrain(context, coastClassification, "map-morphology/plot-continents");
 
-    const engine = snapshotEngineHeightfield(context);
-    if (engine) {
-      deps.artifacts.continentValidationTerrainSnapshot.publish(context, {
-        stage: "map-morphology/plot-continents",
-        width,
-        height,
-        landMask: engine.landMask,
-        terrain: engine.terrain,
-        elevation: engine.elevation,
-      });
-    }
+    const engine = snapshotEngineHeightfield(context.adapter);
+    deps.artifacts.continentValidationTerrainSnapshot.publish(context, {
+      stage: "map-morphology/plot-continents",
+      width,
+      height,
+      landMask: engine.landMask,
+      terrain: engine.terrain,
+      elevation: engine.elevation,
+    });
 
     logLandmassAscii(context.trace, context.adapter, width, height);
     assertWaterDriftWithinPolicy(context, topography.landMask, "map-morphology/plot-continents");
-    return { physicsLandMask: topography.landMask, engineLandMask: engine?.landMask };
+    return { physicsLandMask: topography.landMask, engineLandMask: engine.landMask };
   },
   viz: ({ result, dimensions }) => [
     {
@@ -52,21 +51,17 @@ export const PlotContinentsStep = createStep(PlotContinentsStepContract, {
         role: "physics",
       }),
     },
-    ...(result.engineLandMask
-      ? [
-          {
-            kind: "grid" as const,
-            dataTypeKey: "map.morphology.continents.landMask",
-            spaceId: TILE_SPACE_ID,
-            dims: dimensions,
-            field: { format: "u8" as const, values: result.engineLandMask },
-            meta: defineStandardVizMeta("map.morphology.continents.landMask", "category.distinct", {
-              label: "Land Mask (Engine After Stamp Continents)",
-              group: GROUP_MAP_MORPHOLOGY,
-              role: "engine",
-            }),
-          },
-        ]
-      : []),
+    {
+      kind: "grid",
+      dataTypeKey: "map.morphology.continents.landMask",
+      spaceId: TILE_SPACE_ID,
+      dims: dimensions,
+      field: { format: "u8", values: result.engineLandMask },
+      meta: defineStandardVizMeta("map.morphology.continents.landMask", "category.distinct", {
+        label: "Land Mask (Engine After Stamp Continents)",
+        group: GROUP_MAP_MORPHOLOGY,
+        role: "engine",
+      }),
+    },
   ],
 });

@@ -1,11 +1,12 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputePrecipitationContract from "./contract.js";
-import { basicStrategy, defaultStrategy, refineStrategy } from "./strategies/index.js";
+import { baselineStrategy, refineStrategy, vectorStrategy } from "./strategies/index.js";
 
+/** Computes precipitation through the selected vector, baseline, or explicit refinement mechanism. */
 const computePrecipitation = createOp(ComputePrecipitationContract, {
   strategies: {
-    default: defaultStrategy,
-    basic: basicStrategy,
+    vector: vectorStrategy,
+    baseline: baselineStrategy,
     refine: refineStrategy,
   },
 });

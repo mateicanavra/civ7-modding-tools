@@ -1,5 +1,5 @@
 import type { EngineAdapter, MapInfo } from "@civ7/adapter";
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 
 export type StandardRuntime = {
   logPrefix: string;
@@ -13,7 +13,7 @@ export type StandardRuntimeInit = {
   mapInfo?: MapInfo;
 };
 
-const runtimeByContext = new WeakMap<ExtendedMapContext, StandardRuntime>();
+const runtimeByContext = new WeakMap<MapContext, StandardRuntime>();
 
 function resolveMapInfo(adapter: EngineAdapter): MapInfo {
   const mapInfo = adapter.lookupMapInfo(adapter.getMapSizeId());
@@ -23,7 +23,7 @@ function resolveMapInfo(adapter: EngineAdapter): MapInfo {
   return mapInfo;
 }
 
-function createRuntime(context: ExtendedMapContext): StandardRuntime {
+function createRuntime(context: MapContext): StandardRuntime {
   const { adapter } = context;
   const mapInfo = resolveMapInfo(adapter);
   const playersLandmass1 = mapInfo.PlayersLandmass1 ?? 4;
@@ -41,7 +41,7 @@ function createRuntime(context: ExtendedMapContext): StandardRuntime {
  * Returns the single mutable Standard runtime record associated with a map
  * context, lazily deriving required Civ7 map metadata on first access.
  */
-export function getStandardRuntime(context: ExtendedMapContext): StandardRuntime {
+export function getStandardRuntime(context: MapContext): StandardRuntime {
   const existing = runtimeByContext.get(context);
   if (existing) return existing;
   const runtime = createRuntime(context);
@@ -55,7 +55,7 @@ export function getStandardRuntime(context: ExtendedMapContext): StandardRuntime
  * also refreshes both landmass player counts with field-wise fallback.
  */
 export function initializeStandardRuntime(
-  context: ExtendedMapContext,
+  context: MapContext,
   init: StandardRuntimeInit = {}
 ): StandardRuntime {
   const runtime = getStandardRuntime(context);

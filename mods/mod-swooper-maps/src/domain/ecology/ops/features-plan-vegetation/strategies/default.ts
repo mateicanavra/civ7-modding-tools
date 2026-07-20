@@ -3,7 +3,6 @@ import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
-  validateGridSize,
 } from "../../../model/policy/feature-score-selection.js";
 import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import { BIOME_SYMBOL_TO_INDEX } from "../../../model/schemas/index.js";
@@ -61,28 +60,9 @@ function isBroadVegetationHabitat(
 
 export const defaultStrategy = createStrategy(PlanVegetationContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = validateGridSize({
-      width,
-      height,
-      fields: [
-        { label: "scoreForest01", arr: input.scoreForest01 as Float32Array },
-        { label: "scoreRainforest01", arr: input.scoreRainforest01 as Float32Array },
-        { label: "scoreTaiga01", arr: input.scoreTaiga01 as Float32Array },
-        { label: "scoreSavannaWoodland01", arr: input.scoreSavannaWoodland01 as Float32Array },
-        { label: "scoreSagebrushSteppe01", arr: input.scoreSagebrushSteppe01 as Float32Array },
-        { label: "landMask", arr: input.landMask as Uint8Array },
-        { label: "flatLandMask", arr: input.flatLandMask as Uint8Array },
-        { label: "biomeIndex", arr: input.biomeIndex as Uint8Array },
-        { label: "surfaceTemperature", arr: input.surfaceTemperature as Float32Array },
-        { label: "effectiveMoisture", arr: input.effectiveMoisture as Float32Array },
-        { label: "aridityIndex", arr: input.aridityIndex as Float32Array },
-        { label: "vegetationDensity", arr: input.vegetationDensity as Float32Array },
-        { label: "featureOccupancyMask", arr: input.featureOccupancyMask as Uint8Array },
-        { label: "reserved", arr: input.reserved as Uint8Array },
-      ],
-    });
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
     const flatLandMask = input.flatLandMask as Uint8Array;
     const biomeIndex = input.biomeIndex as Uint8Array;
     const broadHabitatFields = {

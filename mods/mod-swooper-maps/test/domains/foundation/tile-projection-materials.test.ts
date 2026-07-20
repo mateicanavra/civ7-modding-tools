@@ -116,6 +116,13 @@ describe("foundation tile projection (materials)", () => {
           fracture: new Uint8Array([0, 0, 0, 0]),
         },
       ],
+      plateIdByEra: [
+        new Int16Array([0, 0, 0, 0]),
+        new Int16Array([0, 0, 0, 0]),
+        new Int16Array([0, 0, 0, 0]),
+        new Int16Array([0, 0, 0, 0]),
+        new Int16Array([0, 0, 0, 0]),
+      ],
       upliftTotal: new Uint8Array([10, 11, 12, 13]),
       collisionTotal: new Uint8Array([14, 15, 16, 17]),
       subductionTotal: new Uint8Array([18, 19, 20, 21]),

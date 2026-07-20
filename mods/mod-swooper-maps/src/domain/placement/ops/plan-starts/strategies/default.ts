@@ -23,11 +23,7 @@ import {
   isClimateExtreme,
 } from "../policy/climate-comfort.js";
 import { balanceFairness } from "../policy/fairness.js";
-import {
-  buildSeatIdentities,
-  resolveSeatDemand,
-  type SeatDemand,
-} from "../policy/seat-identity.js";
+import { buildSeatIdentities, resolveSeatDemand } from "../policy/seat-identity.js";
 import {
   compareSelectableTiles,
   type RelaxationEntry,
@@ -73,72 +69,6 @@ const ZERO_COMPONENTS: StartComponents = {
   resource: 0,
   roughness: 0,
 };
-
-function emptyPlan(args: {
-  playersWest: number;
-  playersEast: number;
-  seatDemand: SeatDemand;
-  spacingFloorTiles: number;
-  desiredSpacingTiles: number;
-  fairnessTolerance: number;
-}) {
-  const seats = buildSeatIdentities({
-    playersWest: args.playersWest,
-    playersEast: args.playersEast,
-    demand: args.seatDemand,
-  }).map((seat) => ({
-    seatIndex: seat.seatIndex,
-    playerId: seat.playerId,
-    playerIdSource: seat.playerIdSource,
-    regionSlot: seat.regionSlot as number,
-    realizedRegionSlot: 0,
-    plotIndex: -1,
-    rung: "spacing-relaxed" as const,
-    status: "degraded" as const,
-    tier: "none" as const,
-    score: 0,
-    components: { ...ZERO_COMPONENTS },
-    achievedSpacing: -1,
-    imputedFlags: ["unseated"],
-  }));
-  return {
-    playersLandmass1: args.playersWest,
-    playersLandmass2: args.playersEast,
-    spacingFloorTiles: args.spacingFloorTiles,
-    desiredSpacingTiles: args.desiredSpacingTiles,
-    width: 0,
-    height: 0,
-    candidateCount: 0,
-    settleableTileCount: 0,
-    rejectionCounts: [],
-    tierCounts: { primary: 0, islandCluster: 0, marginal: 0 },
-    scoreByTile: new Float32Array(0),
-    tierByTile: new Uint8Array(0),
-    candidates: [],
-    seats,
-    fairnessReport: {
-      tolerance: args.fairnessTolerance,
-      parity: [],
-      worstPairGap: null,
-      balanced: true,
-      swaps: [],
-      relaxations: [],
-    },
-    status: seats.length ? ("degraded" as const) : ("full" as const),
-    inputCoverage: [],
-  };
-}
-
-function requireLength<T extends { length: number }>(
-  value: T | undefined,
-  expected: number,
-  label: string
-): T {
-  if (!value || value.length !== expected) {
-    throw new Error(`[Placement] Invalid ${label} for placement/plan-starts.`);
-  }
-  return value;
-}
 
 function addRejection(counts: Map<RejectionReason, number>, reason: RejectionReason): void {
   counts.set(reason, (counts.get(reason) ?? 0) + 1);
@@ -255,7 +185,7 @@ function buildResourceSupport(args: {
   plannedResourcePlotIndices?: readonly number[];
 }): Uint8Array | undefined {
   if (!args.plannedResourcePlotIndices?.length || args.radius <= 0) return undefined;
-  const size = Math.max(0, args.width * args.height);
+  const size = args.width * args.height;
   const counts = new Uint16Array(size);
   let maxCount = 0;
   for (const raw of args.plannedResourcePlotIndices) {
@@ -364,46 +294,30 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
     const spacingFloorTiles = Math.max(0, config.spacingFloorTiles | 0);
     const desiredSpacingTiles = Math.max(spacingFloorTiles, config.desiredSpacingTiles | 0);
 
-    const width = Math.max(0, input.width ?? 0) | 0;
-    const height = Math.max(0, input.height ?? 0) | 0;
-    const size = Math.max(0, width * height);
-    if (width <= 0 || height <= 0 || size <= 0) {
-      const allocation = apportionStartsByCapacity({
-        capacities: [westSlotCapacity, eastSlotCapacity],
-        ceilings: [westSlotCapacity, eastSlotCapacity],
-        total: totalPlayers,
-        balanceBias: 0,
-      });
-      return emptyPlan({
-        playersWest: allocation[0]!,
-        playersEast: allocation[1]!,
-        seatDemand,
-        spacingFloorTiles,
-        desiredSpacingTiles,
-        fairnessTolerance: config.fairnessTolerance,
-      });
-    }
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
-    const landMask = requireLength(input.landMask, size, "landMask");
-    const slotByTile = requireLength(input.slotByTile, size, "slotByTile");
-    const landmassIdByTile = requireLength(input.landmassIdByTile, size, "landmassIdByTile");
+    const landMask = input.landMask;
+    const slotByTile = input.slotByTile;
+    const landmassIdByTile = input.landmassIdByTile;
 
     // --- input coverage assertions (never silently neutral-defaulted) ---------------------
     const inputCoverage: InputCoverageRow[] = [];
     const imputedComponents = new Set<string>();
-    const covered = <T extends { length: number }>(
+    const covered = <T>(
       value: T | undefined,
       inputName: string,
       affectsComponent: string
     ): T | undefined => {
-      const ok = Boolean(value && value.length === size);
+      const provided = value !== undefined;
       inputCoverage.push({
         input: inputName,
-        status: ok ? "provided" : "imputed",
+        status: provided ? "provided" : "imputed",
         affectsComponent,
       });
-      if (!ok) imputedComponents.add(affectsComponent);
-      return ok ? value : undefined;
+      if (!provided) imputedComponents.add(affectsComponent);
+      return value;
     };
 
     const lakeMask = covered(input.lakeMask, "lakeMask", "freshwater");
@@ -425,9 +339,7 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
       if (plotIndex >= 0 && plotIndex < size) naturalWonderPlots.add(plotIndex);
     }
     const resourceSupport =
-      (input.resourceSupport && input.resourceSupport.length === size
-        ? input.resourceSupport
-        : undefined) ??
+      input.resourceSupport ??
       buildResourceSupport({
         width,
         height,

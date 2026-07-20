@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, type StepFacetSinks } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext, type StepFacetSinks } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import type { VizLayerMeta } from "@swooper/mapgen-viz";
 
@@ -24,14 +24,14 @@ describe("standard pipeline viz emissions", () => {
       StartSectorCols: 4,
     };
 
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: {
         topLatitude: mapInfo.MaxLatitude,
         bottomLatitude: mapInfo.MinLatitude,
       },
-    };
+    });
 
     const adapter = createMockAdapter({
       width,
@@ -40,7 +40,7 @@ describe("standard pipeline viz emissions", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
 
     const seenLayers = new Set<string>();
     const captureViz: NonNullable<StepFacetSinks["viz"]> = (projections) => {
@@ -48,7 +48,7 @@ describe("standard pipeline viz emissions", () => {
     };
 
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-    standardRecipe.run(context, env, standardConfig, {
+    standardRecipe.run(context, standardConfig, {
       facets: { viz: captureViz },
       log: () => {},
     });
@@ -114,14 +114,14 @@ describe("standard pipeline viz emissions", () => {
       StartSectorCols: 4,
     };
 
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: {
         topLatitude: mapInfo.MaxLatitude,
         bottomLatitude: mapInfo.MinLatitude,
       },
-    };
+    });
 
     const adapter = createMockAdapter({
       width,
@@ -130,7 +130,7 @@ describe("standard pipeline viz emissions", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
 
     const variantsByKey = new Map<string, Set<string>>();
     const captureViz: NonNullable<StepFacetSinks["viz"]> = (projections) => {
@@ -143,7 +143,7 @@ describe("standard pipeline viz emissions", () => {
     };
 
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-    standardRecipe.run(context, env, standardConfig, {
+    standardRecipe.run(context, standardConfig, {
       facets: { viz: captureViz },
       log: () => {},
     });
@@ -176,14 +176,14 @@ describe("standard pipeline viz emissions", () => {
       StartSectorCols: 4,
     };
 
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: {
         topLatitude: mapInfo.MaxLatitude,
         bottomLatitude: mapInfo.MinLatitude,
       },
-    };
+    });
 
     const adapter = createMockAdapter({
       width,
@@ -192,7 +192,7 @@ describe("standard pipeline viz emissions", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
 
     const metasByKey = new Map<string, Array<VizLayerMeta | undefined>>();
     const captureViz: NonNullable<StepFacetSinks["viz"]> = (projections) => {
@@ -205,7 +205,7 @@ describe("standard pipeline viz emissions", () => {
     };
 
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-    standardRecipe.run(context, env, standardConfig, {
+    standardRecipe.run(context, standardConfig, {
       facets: { viz: captureViz },
       log: () => {},
     });

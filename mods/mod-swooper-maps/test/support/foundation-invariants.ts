@@ -210,16 +210,16 @@ function resolveRuntimeMountainsOpConfig(ctx: ValidationInvariantContext): Mount
     foothills: planFoothills.defaultConfig,
   } satisfies MountainsOpConfig;
 
-  const { env } = ctx.context;
-  if (!env?.dimensions?.width || !env?.dimensions?.height) return defaultResolved;
+  const { setup } = ctx.context;
+  if (!setup?.dimensions?.width || !setup?.dimensions?.height) return defaultResolved;
 
   // NOTE: The correlation gate should use the same compiled config that the recipe used at runtime,
   // not the op's static defaultConfig replay (thread #1092).
   const key = JSON.stringify({
-    width: env.dimensions.width,
-    height: env.dimensions.height,
-    topLatitude: env.latitudeBounds?.topLatitude ?? null,
-    bottomLatitude: env.latitudeBounds?.bottomLatitude ?? null,
+    width: setup.dimensions.width,
+    height: setup.dimensions.height,
+    topLatitude: setup.latitudeBounds?.topLatitude ?? null,
+    bottomLatitude: setup.latitudeBounds?.bottomLatitude ?? null,
   });
 
   if (cachedMountainsOpConfig && cachedMountainsConfigKey === key) return cachedMountainsOpConfig;
@@ -227,7 +227,7 @@ function resolveRuntimeMountainsOpConfig(ctx: ValidationInvariantContext): Mount
   cachedMountainsOpConfig = null;
 
   try {
-    const mountains = standardRecipe.compileConfig(env, standardConfig)["morphology-features"]
+    const mountains = standardRecipe.compileConfig(setup, standardConfig)["morphology-features"]
       .mountains;
     cachedMountainsOpConfig = {
       ridges: mountains.ridges,
@@ -493,8 +493,8 @@ const eventProvenanceInvariant: ValidationInvariant = {
       };
     }
 
-    const width = ctx.context.dimensions.width | 0;
-    const height = ctx.context.dimensions.height | 0;
+    const width = ctx.context.setup.dimensions.width | 0;
+    const height = ctx.context.setup.dimensions.height | 0;
     const size = Math.max(0, width * height);
 
     const perEra: Array<any> = historyTiles.perEra ?? [];
@@ -611,8 +611,8 @@ const beltContinuityInvariant: ValidationInvariant = {
         message: "Missing belt driver inputs.",
       };
     }
-    const width = ctx.context.dimensions.width | 0;
-    const height = ctx.context.dimensions.height | 0;
+    const width = ctx.context.setup.dimensions.width | 0;
+    const height = ctx.context.setup.dimensions.height | 0;
     const size = Math.max(0, width * height);
     const rollups = historyTiles.rollups ?? {};
     const upliftTotal: Uint8Array = rollups.upliftTotal ?? new Uint8Array(size);
@@ -709,7 +709,7 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
       };
     }
 
-    const { width, height } = ctx.context.dimensions;
+    const { width, height } = ctx.context.setup.dimensions;
     const size = Math.max(0, width * height);
     const landMask: Uint8Array = topography.landMask ?? new Uint8Array(size);
     if (landMask.length !== size) {
@@ -720,7 +720,7 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
       };
     }
 
-    const baseSeed = deriveStepSeed(ctx.context.env.seed, "morphology:planMountains");
+    const baseSeed = deriveStepSeed(ctx.context.setup.mapSeed, "morphology:planMountains");
     const fractalMountain = buildFractalArray(width, height, baseSeed ^ 0x3d, 5);
     const fractalHill = buildFractalArray(width, height, baseSeed ^ 0x5f, 5);
 

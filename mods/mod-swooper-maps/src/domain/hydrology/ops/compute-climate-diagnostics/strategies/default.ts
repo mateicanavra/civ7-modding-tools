@@ -6,33 +6,9 @@ import { clamp01, computeDistanceToWater, upwindBarrierDistance } from "../rules
 
 export const defaultStrategy = createStrategy(ComputeClimateDiagnosticsContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
-
-    if (!(input.latitudeByRow instanceof Float32Array) || input.latitudeByRow.length !== height) {
-      throw new Error(
-        "[Hydrology] Invalid latitudeByRow for hydrology/compute-climate-diagnostics."
-      );
-    }
-    if (!(input.elevation instanceof Int16Array) || input.elevation.length !== size) {
-      throw new Error("[Hydrology] Invalid elevation for hydrology/compute-climate-diagnostics.");
-    }
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/compute-climate-diagnostics.");
-    }
-    if (!(input.windU instanceof Int8Array) || input.windU.length !== size) {
-      throw new Error("[Hydrology] Invalid windU for hydrology/compute-climate-diagnostics.");
-    }
-    if (!(input.windV instanceof Int8Array) || input.windV.length !== size) {
-      throw new Error("[Hydrology] Invalid windV for hydrology/compute-climate-diagnostics.");
-    }
-    if (!(input.rainfall instanceof Uint8Array) || input.rainfall.length !== size) {
-      throw new Error("[Hydrology] Invalid rainfall for hydrology/compute-climate-diagnostics.");
-    }
-    if (!(input.humidity instanceof Uint8Array) || input.humidity.length !== size) {
-      throw new Error("[Hydrology] Invalid humidity for hydrology/compute-climate-diagnostics.");
-    }
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     const distToWater = computeDistanceToWater(width, height, input.landMask);
     const rainShadowIndex = new Float32Array(size);

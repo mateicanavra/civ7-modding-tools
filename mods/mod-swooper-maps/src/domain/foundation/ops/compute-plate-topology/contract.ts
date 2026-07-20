@@ -20,7 +20,7 @@ const ComputePlateTopologyContract = defineOp({
   input: Type.Object(
     {
       plateIds: TypedArraySchemas.i16({
-        shape: null,
+        cardinality: ["width", "height"],
         description: "Plate id per tile (tile order).",
       }),
       width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
@@ -32,6 +32,7 @@ const ComputePlateTopologyContract = defineOp({
     { plateTopology: FoundationPlateTopologySchema },
     { additionalProperties: false }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),
   },

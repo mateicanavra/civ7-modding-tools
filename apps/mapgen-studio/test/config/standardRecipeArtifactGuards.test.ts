@@ -174,7 +174,7 @@ describe("standard recipe generated artifact guardrails", () => {
 
     const plan = runtimeEntry.recipe.compile(
       {
-        seed: 123,
+        mapSeed: 123,
         dimensions: { width: 84, height: 54 },
         latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
       },

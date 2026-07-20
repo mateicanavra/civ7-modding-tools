@@ -3,18 +3,19 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import ComputeBaseTopographyContract from "../contract.js";
-import {
-  blendBoundaryElevation,
-  computeElevationRaw,
-  quantizeElevation,
-  validateBaseTopographyInputs,
-} from "../rules/index.js";
+import { blendBoundaryElevation, computeElevationRaw, quantizeElevation } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ComputeBaseTopographyContract, "default", {
   run: (input, config) => {
-    const { width, height } = input;
-    const { size, crustBaseElevation, uplift, rift, closeness } =
-      validateBaseTopographyInputs(input);
+    const {
+      width,
+      height,
+      crustBaseElevation,
+      upliftPotential: uplift,
+      riftPotential: rift,
+      boundaryCloseness: closeness,
+    } = input;
+    const size = width * height;
 
     const rng = createLabelRng(input.rngSeed | 0);
     const noiseAmplitude = config.crustNoiseAmplitude;

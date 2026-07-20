@@ -1,5 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
+/** Contract for Gaussian biome-edge smoothing that preserves water sentinel tiles. */
 const RefineBiomeEdgesContract = defineOp({
   kind: "compute",
   id: "ecology/biomes/refine-edge",
@@ -12,15 +13,8 @@ const RefineBiomeEdgesContract = defineOp({
   output: Type.Object({
     biomeIndex: TypedArraySchemas.u8({ description: "Smoothed biome indices per tile." }),
   }),
+  defaultStrategy: "gaussian",
   strategies: {
-    default: Type.Object({
-      radius: Type.Integer({ minimum: 1, maximum: 5, default: 1 }),
-      iterations: Type.Integer({ minimum: 1, maximum: 4, default: 1 }),
-    }),
-    morphological: Type.Object({
-      radius: Type.Integer({ minimum: 1, maximum: 5, default: 1 }),
-      iterations: Type.Integer({ minimum: 1, maximum: 4, default: 1 }),
-    }),
     gaussian: Type.Object({
       radius: Type.Integer({ minimum: 1, maximum: 5, default: 1 }),
       iterations: Type.Integer({ minimum: 1, maximum: 4, default: 1 }),

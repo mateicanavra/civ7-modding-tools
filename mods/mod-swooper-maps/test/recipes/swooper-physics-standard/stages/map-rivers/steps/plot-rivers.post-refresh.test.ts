@@ -7,18 +7,20 @@ import {
   RIVER_CLASS_MINOR,
 } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
-import {
-  createExtendedMapContext,
-  FLAT_TERRAIN,
-  NAVIGABLE_RIVER_TERRAIN,
-} from "@swooper/mapgen-core";
-import { implementArtifactModules } from "@swooper/mapgen-core/authoring";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { artifacts as mapMorphologyArtifacts } from "../../../../../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
+import { resolveStandardProjectionTerrainTypes } from "../../../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
+import { artifactModules as hydrologyArtifactModules } from "../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifactModules as mapMorphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
 import { artifacts as mapRiversArtifacts } from "../../../../../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
 import { PlotRiversStep } from "../../../../../../src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
-import { buildTestDeps } from "../../../../../support/step-deps.js";
+import { createRiverNetworkBenchmarkSummaryFixture } from "../../../../../support/river-network-metrics-fixture.js";
+import {
+  buildTestDeps,
+  publishTestArtifact,
+  withMapContextExecutionForTest,
+} from "../../../../../support/step-deps.js";
 
 const { selectNavigableRiverTerrain } = hydrologyOpsPublic.ops;
 
@@ -91,11 +93,11 @@ describe("map-rivers/plot-rivers", () => {
       MinLatitude: -60,
       MaxLatitude: 60,
     };
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
+    });
 
     const adapter = new RiverCacheRefreshAdapter({
       width,
@@ -103,11 +105,18 @@ describe("map-rivers/plot-rivers", () => {
       mapInfo,
       mapSizeId: 1,
       rng: createLabelRng(seed),
-      defaultTerrainType: FLAT_TERRAIN,
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
+    const { flat: flatTerrain, navigableRiver: navigableRiverTerrain } =
+      resolveStandardProjectionTerrainTypes(context.adapter);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        adapter.setTerrainType(x, y, flatTerrain);
+      }
+    }
 
     const size = width * height;
+    const riverTileCount = width * 2;
     const discharge = new Float32Array(size);
     const riverClass = new Uint8Array(size);
     const flowDir = new Int32Array(size).fill(-1);
@@ -124,62 +133,86 @@ describe("map-rivers/plot-rivers", () => {
       flowDir[index] = x < width - 1 ? width + x + 1 : -1;
     }
 
-    context.artifacts.set("artifact:hydrology.hydrography", {
-      runoff: new Float32Array(size),
-      discharge,
-      riverClass,
-      flowDir,
-      sinkMask: new Uint8Array(size),
-      outletMask: new Uint8Array(size),
-    });
-    context.artifacts.set("artifact:hydrology.riverNetworkMetrics", {
-      upstreamArea: Int32Array.from({ length: size }, (_value, index) =>
-        index < width ? index + 1 : 1
-      ),
-      streamOrderProxy: new Uint8Array(size),
-      mouthType: Uint8Array.from({ length: size }, (_value, index) => (index < width ? 1 : 0)),
-      slopeClass: new Uint8Array(size),
-      flowPermanenceProxy: Uint8Array.from({ length: size }, (_value, index) =>
-        index < width ? 3 : index < width * 2 ? 2 : 0
-      ),
-    });
-    context.artifacts.set("artifact:hydrology.lakePlan", {
-      width,
-      height,
-      lakeMask: new Uint8Array(size),
-      plannedLakeTileCount: 0,
-      sinkLakeCount: 0,
-    });
-    context.artifacts.set(mapMorphologyArtifacts.coastClassification.id, {
-      width,
-      height,
-      baseWaterClass: new Uint8Array(size),
-      sourceCoastMask: new Uint8Array(size),
-      waterClass: new Uint8Array(size),
-      coastRingMask: new Uint8Array(size),
-      promotedOceanToCoast: 0,
-    });
-    const morphologyArtifacts = implementArtifactModules([morphologyArtifactModules.topography]);
-    morphologyArtifacts.topography.publish(context, {
-      elevation: new Int16Array(size),
-      seaLevel: 0,
-      landMask: new Uint8Array(size).fill(1),
-      bathymetry: new Int16Array(size),
-    });
+    expect(adapter.getTerrainType(0, 0)).toBe(flatTerrain);
 
-    expect(adapter.getTerrainType(0, 0)).toBe(FLAT_TERRAIN);
+    withMapContextExecutionForTest(context, () => {
+      publishTestArtifact(context, hydrologyArtifactModules.hydrography, {
+        runoff: new Float32Array(size),
+        discharge,
+        riverClass,
+        flowDir,
+        sinkMask: new Uint8Array(size),
+        outletMask: new Uint8Array(size),
+      });
+      publishTestArtifact(context, hydrologyArtifactModules.riverNetworkMetrics, {
+        upstreamArea: Int32Array.from({ length: size }, (_value, index) =>
+          index < width ? index + 1 : 1
+        ),
+        streamOrderProxy: new Uint8Array(size),
+        mouthType: Uint8Array.from({ length: size }, (_value, index) => (index < width ? 1 : 0)),
+        slopeClass: new Uint8Array(size),
+        flowPermanenceProxy: Uint8Array.from({ length: size }, (_value, index) =>
+          index < width ? 3 : index < width * 2 ? 2 : 0
+        ),
+        benchmarkSummary: createRiverNetworkBenchmarkSummaryFixture({
+          landTileCount: size,
+          riverTileCount,
+          minorRiverTileCount: width,
+          majorRiverTileCount: width,
+          riverLandShare: riverTileCount / size,
+          minorRiverShareOfRiverTiles: 0.5,
+          majorRiverShareOfRiverTiles: 0.5,
+          lowOrderRiverTileCount: riverTileCount,
+          lowOrderRiverShareOfRiverTiles: 1,
+          dryFlowTileCount: size - riverTileCount,
+          intermittentFlowTileCount: width,
+          perennialFlowTileCount: width,
+          nonDryFlowLandShare: riverTileCount / size,
+          riverIntermittentTileCount: width,
+          riverPerennialTileCount: width,
+          nonPerennialRiverShareOfRiverTiles: 0.5,
+          oceanMouthTileCount: width,
+          unresolvedMouthTileCount: size - width,
+          resolvedMouthTileCount: width,
+          unassignedBasinLandTileCount: size,
+          maxUpstreamArea: width,
+        }),
+      });
+      publishTestArtifact(context, hydrologyArtifactModules.lakePlan, {
+        width,
+        height,
+        lakeMask: new Uint8Array(size),
+        plannedLakeTileCount: 0,
+        sinkLakeCount: 0,
+      });
+      publishTestArtifact(context, mapMorphologyArtifactModules.coastClassification, {
+        width,
+        height,
+        baseWaterClass: new Uint8Array(size),
+        sourceCoastMask: new Uint8Array(size),
+        waterClass: new Uint8Array(size),
+        coastRingMask: new Uint8Array(size),
+        promotedOceanToCoast: 0,
+      });
+      publishTestArtifact(context, morphologyArtifactModules.topography, {
+        elevation: new Int16Array(size),
+        seaLevel: 0,
+        landMask: new Uint8Array(size).fill(1),
+        bathymetry: new Int16Array(size),
+      });
 
-    PlotRiversStep.run(
-      context as any,
-      {
-        selectNavigableRiverTerrain: {
-          strategy: "default",
-          config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
+      PlotRiversStep.run(
+        context as any,
+        {
+          selectNavigableRiverTerrain: {
+            strategy: "default",
+            config: { endpointDischargePercentileMin: 0.94, targetMajorTileFraction: 0.28 },
+          },
         },
-      },
-      { selectNavigableRiverTerrain: selectNavigableRiverTerrain.run } as any,
-      buildTestDeps(PlotRiversStep)
-    );
+        { selectNavigableRiverTerrain: selectNavigableRiverTerrain.run } as any,
+        buildTestDeps(PlotRiversStep)
+      );
+    });
 
     expect(adapter.callOrder).toEqual([
       "modelRivers",
@@ -188,9 +221,9 @@ describe("map-rivers/plot-rivers", () => {
       "recalculateAreas",
       "storeWaterData",
     ]);
-    expect(adapter.getTerrainType(0, 0)).toBe(NAVIGABLE_RIVER_TERRAIN);
-    expect(adapter.getTerrainType(4, 0)).toBe(NAVIGABLE_RIVER_TERRAIN);
-    expect(adapter.getTerrainType(0, 1)).toBe(FLAT_TERRAIN);
+    expect(adapter.getTerrainType(0, 0)).toBe(navigableRiverTerrain);
+    expect(adapter.getTerrainType(4, 0)).toBe(navigableRiverTerrain);
+    expect(adapter.getTerrainType(0, 1)).toBe(flatTerrain);
 
     const projected = context.artifacts.get(mapRiversArtifacts.projectedNavigableRivers.id) as
       | {

@@ -1,5 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
+/** Shared authored resource-family controls used by each basin-planning strategy. */
 const ResourceBasinPlanConfigSchema = Type.Object(
   {
     resources: Type.Array(
@@ -42,6 +43,7 @@ const ResourceBasinPlanConfigSchema = Type.Object(
   { description: "Controls resource-basin targets, biases, and spacing." }
 );
 
+/** Contract for grouping admitted ecological suitability into per-resource basin plans. */
 const ResourcePlanBasinsContract = defineOp({
   kind: "plan",
   id: "ecology/resources/plan-basins",
@@ -64,8 +66,9 @@ const ResourcePlanBasinsContract = defineOp({
       })
     ),
   }),
+  defaultStrategy: "balanced",
   strategies: {
-    default: ResourceBasinPlanConfigSchema,
+    balanced: ResourceBasinPlanConfigSchema,
     "hydro-fluvial": ResourceBasinPlanConfigSchema,
     mixed: ResourceBasinPlanConfigSchema,
   },

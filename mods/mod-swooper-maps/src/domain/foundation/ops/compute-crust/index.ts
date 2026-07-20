@@ -1,4 +1,4 @@
-import { createOp } from "@swooper/mapgen-core/authoring";
+import { createOp, createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampU8 } from "@swooper/mapgen-core/lib/math";
 
 import {
@@ -12,7 +12,7 @@ import ComputeCrustContract from "./contract.js";
 
 const computeCrust = createOp(ComputeCrustContract, {
   strategies: {
-    default: {
+    default: createStrategy(ComputeCrustContract, "default", {
       run: (input, config) => {
         const mesh = input.mesh;
         const mantleForcing = input.mantleForcing;
@@ -93,7 +93,7 @@ const computeCrust = createOp(ComputeCrustContract, {
           },
         } as const;
       },
-    },
+    }),
   },
 });
 

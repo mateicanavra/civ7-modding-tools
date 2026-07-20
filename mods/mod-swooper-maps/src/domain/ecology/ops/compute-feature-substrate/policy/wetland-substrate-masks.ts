@@ -35,9 +35,9 @@ export function computeWetlandSubstrateMasks(
     floodplainDischargeMin: number;
   }>
 ): WetlandSubstrateMasks {
-  const width = args.width | 0;
-  const height = args.height | 0;
-  const size = Math.max(0, width * height);
+  const width = args.width;
+  const height = args.height;
+  const size = width * height;
   const riverRadius = Math.max(0, args.nearRiverRadius | 0);
   const lowlandMax = Math.max(0, args.lowlandMaxElevationAboveSeaM | 0);
   const intertidalMax = Math.max(0, args.intertidalMaxElevationAboveSeaM | 0);

@@ -153,7 +153,7 @@ const ComputePrecipitationBaselineStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Precipitation baseline parameters (default strategy).",
+    description: "Precipitation parameters for the baseline strategy.",
   }
 );
 
@@ -323,7 +323,10 @@ const ComputePrecipitationInputSchema = Type.Object(
     /** Tile grid height. */
     height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
     /** Latitude per row (degrees). */
-    latitudeByRow: TypedArraySchemas.f32({ description: "Latitude per row (degrees)." }),
+    latitudeByRow: TypedArraySchemas.f32({
+      cardinality: ["height"],
+      description: "Latitude per row (degrees).",
+    }),
     /** Elevation (meters) per tile. */
     elevation: TypedArraySchemas.i16({ description: "Elevation (meters) per tile." }),
     /** Land mask per tile (1=land, 0=water). */
@@ -372,14 +375,16 @@ const ComputePrecipitationOutputSchema = Type.Object(
   }
 );
 
+/** Precipitation contract with vector transport as the product default plus baseline and refinement passes. */
 const ComputePrecipitationContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-precipitation",
   input: ComputePrecipitationInputSchema,
   output: ComputePrecipitationOutputSchema,
+  defaultStrategy: "vector",
   strategies: {
-    default: ComputePrecipitationVectorStrategySchema,
-    basic: ComputePrecipitationBaselineStrategySchema,
+    vector: ComputePrecipitationVectorStrategySchema,
+    baseline: ComputePrecipitationBaselineStrategySchema,
     refine: ComputePrecipitationRefineStrategySchema,
   },
 });

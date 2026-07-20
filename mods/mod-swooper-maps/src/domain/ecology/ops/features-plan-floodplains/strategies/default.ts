@@ -3,7 +3,6 @@ import {
   choosePhysicalCandidate,
   confidenceFromScore01,
   stressFromConfidence01,
-  validateGridSize,
 } from "../../../model/policy/feature-score-selection.js";
 import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import PlanFloodplainsContract from "../contract.js";
@@ -16,29 +15,9 @@ type FloodplainCandidate = Readonly<{
 
 export const defaultStrategy = createStrategy(PlanFloodplainsContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = validateGridSize({
-      width,
-      height,
-      fields: [
-        { label: "scoreDesertMinor01", arr: input.scoreDesertMinor01 as Float32Array },
-        { label: "scoreDesertNavigable01", arr: input.scoreDesertNavigable01 as Float32Array },
-        { label: "scoreGrasslandMinor01", arr: input.scoreGrasslandMinor01 as Float32Array },
-        {
-          label: "scoreGrasslandNavigable01",
-          arr: input.scoreGrasslandNavigable01 as Float32Array,
-        },
-        { label: "scorePlainsMinor01", arr: input.scorePlainsMinor01 as Float32Array },
-        { label: "scorePlainsNavigable01", arr: input.scorePlainsNavigable01 as Float32Array },
-        { label: "scoreTropicalMinor01", arr: input.scoreTropicalMinor01 as Float32Array },
-        { label: "scoreTropicalNavigable01", arr: input.scoreTropicalNavigable01 as Float32Array },
-        { label: "scoreTundraMinor01", arr: input.scoreTundraMinor01 as Float32Array },
-        { label: "scoreTundraNavigable01", arr: input.scoreTundraNavigable01 as Float32Array },
-        { label: "featureOccupancyMask", arr: input.featureOccupancyMask as Uint8Array },
-        { label: "reserved", arr: input.reserved as Uint8Array },
-      ],
-    });
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
       [];

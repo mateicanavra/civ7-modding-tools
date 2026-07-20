@@ -16,8 +16,9 @@ const MultiStrategyOp = defineOp({
   id: "test/compute-multi-strategy",
   input: Type.Object({}, { additionalProperties: false }),
   output: Type.Object({}, { additionalProperties: false }),
+  defaultStrategy: "balanced",
   strategies: {
-    default: Type.Object({ plateauCount: Type.Integer() }, { additionalProperties: false }),
+    balanced: Type.Object({ plateauCount: Type.Integer() }, { additionalProperties: false }),
     fast: Type.Object({ turbo: Type.Boolean() }, { additionalProperties: false }),
   },
 });
@@ -47,8 +48,20 @@ const TypeTestRecipe = createRecipe({
   compileOpsById: {},
 });
 
+if (false) {
+  const replacementCompile: typeof TypeTestRecipe.compile = () => {
+    throw new Error("unreachable");
+  };
+  // @ts-expect-error Compiled recipe capabilities are immutable after authorship.
+  TypeTestRecipe.compile = replacementCompile;
+  // @ts-expect-error Public recipe structure is deeply readonly.
+  TypeTestRecipe.recipe.steps[0]!.id = "forged";
+  // @ts-expect-error Public recipe structure cannot acquire new execution nodes.
+  TypeTestRecipe.recipe.steps.push({ id: "forged" });
+}
+
 type ConfigInput =
-  typeof TypeTestRecipe extends RecipeModule<any, infer TConfigInput, any> ? TConfigInput : never;
+  typeof TypeTestRecipe extends RecipeModule<infer TConfigInput, any> ? TConfigInput : never;
 
 // @ts-expect-error Unknown stage ids are not part of the authored config.
 type NoBogusStage = ConfigInput["bogus-stage"];

@@ -1,48 +1,34 @@
-import type { Env } from "@mapgen/core/env.js";
-import type { ExecutionPlan } from "@mapgen/engine/execution-plan.js";
-import type { TraceSession, TraceSink } from "@mapgen/trace/index.js";
-import { createTraceSession, sha256Hex, stableStringify } from "@mapgen/trace/index.js";
+import {
+  type ExecutionPlan,
+  getExecutionPlanBindingInternal,
+} from "@mapgen/engine/execution-plan.js";
+import type { TraceConfig, TraceSession, TraceSink } from "@mapgen/trace/index.js";
+import { createTraceSession } from "@mapgen/trace/index.js";
 
-interface PlanFingerprintInput {
-  version: number;
-  recipeSchemaVersion: number;
-  recipeId: string | null;
-  env: Env;
-  nodes: Array<{ stepId: string; config: unknown }>;
-}
+/** Observation configuration for one execution attempt of a compiled plan. */
+export type PlanTraceOptions = Readonly<{
+  config: TraceConfig;
+  sink: TraceSink;
+}>;
 
-function stripTraceEnv(env: Env): Env {
-  const { trace: _trace, ...rest } = env as Env & { trace?: unknown };
-  return rest as Env;
-}
-
+/**
+ * Hashes recipe identity, admitted physical setup, exact step topology, and compiled config.
+ * Observation policy and sinks are excluded because they cannot change generated map behavior.
+ */
 export function computePlanFingerprint(plan: ExecutionPlan): string {
-  const fingerprintInput: PlanFingerprintInput = {
-    version: 1,
-    recipeSchemaVersion: plan.recipeSchemaVersion,
-    recipeId: plan.recipeId ?? null,
-    env: stripTraceEnv(plan.env),
-    nodes: plan.nodes.map((node) => ({
-      stepId: node.stepId,
-      config: node.config ?? {},
-    })),
-  };
-
-  return sha256Hex(stableStringify(fingerprintInput));
+  return getExecutionPlanBindingInternal(plan).fingerprint;
 }
 
-export function deriveRunId(plan: ExecutionPlan): string {
-  return computePlanFingerprint(plan);
-}
-
-export function createTraceSessionFromPlan(
-  plan: ExecutionPlan,
-  sink: TraceSink | null | undefined
+/** @internal Builds trace evidence from the identity allocated by the active MapContext. */
+export function createTraceSessionForExecutionInternal(
+  runId: string,
+  planFingerprint: string,
+  trace: PlanTraceOptions
 ): TraceSession {
   return createTraceSession({
-    runId: deriveRunId(plan),
-    planFingerprint: computePlanFingerprint(plan),
-    config: plan.env.trace ?? null,
-    sink,
+    runId,
+    planFingerprint,
+    config: trace.config,
+    sink: trace.sink,
   });
 }

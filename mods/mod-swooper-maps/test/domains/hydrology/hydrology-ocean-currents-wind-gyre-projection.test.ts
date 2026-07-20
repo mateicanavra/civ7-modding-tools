@@ -4,9 +4,9 @@ import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
 
 const { computeOceanSurfaceCurrents } = hydrologyOpsPublic.ops;
-type DefaultCurrentSelection = Extract<
+type WindGyreProjectionSelection = Extract<
   Parameters<typeof computeOceanSurfaceCurrents.run>[1],
-  { strategy: "default" }
+  { strategy: "wind-gyre-projection" }
 >;
 
 function rms(values: Float32Array, mask: Uint8Array): number {
@@ -23,15 +23,15 @@ function rms(values: Float32Array, mask: Uint8Array): number {
 
 function runOceanSurfaceCurrents(
   input: Parameters<typeof computeOceanSurfaceCurrents.run>[0],
-  config: DefaultCurrentSelection["config"]
+  config: WindGyreProjectionSelection["config"]
 ) {
   return computeOceanSurfaceCurrents.run(input, {
-    strategy: "default",
+    strategy: "wind-gyre-projection",
     config,
-  } satisfies DefaultCurrentSelection);
+  } satisfies WindGyreProjectionSelection);
 }
 
-describe("hydrology/compute-ocean-surface-currents (default)", () => {
+describe("hydrology/compute-ocean-surface-currents (wind-gyre-projection)", () => {
   it("zeros land and reduces divergence with projection", () => {
     const width = 32;
     const height = 16;

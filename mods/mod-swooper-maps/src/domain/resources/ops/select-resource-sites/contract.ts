@@ -41,15 +41,15 @@ const DemandRowSchema = Type.Object(
     maxCount: Type.Integer({ minimum: 0 }),
     regionMinimumRequirement: ResourceRegionMinimumRequirementSchema,
     habitatMask: TypedArraySchemas.u8({
-      shape: null,
+      cardinality: ["width", "height"],
       description: "Habitat lane eligibility (1=in-lane).",
     }),
     legalMask: TypedArraySchemas.u8({
-      shape: null,
+      cardinality: ["width", "height"],
       description: "Per-resource policy legality from Resource_ValidPlacements rows (1=legal).",
     }),
     intensity: TypedArraySchemas.f32({
-      shape: null,
+      cardinality: ["width", "height"],
       description: "Habitat intensity (0..1) modulating site acceptance within the lane.",
     }),
   },
@@ -69,7 +69,7 @@ const SelectResourceSitesContract = defineOp({
     {
       width: Type.Integer({ minimum: 1 }),
       height: Type.Integer({ minimum: 1 }),
-      seed: Type.Integer({ description: "Deterministic seed (from env.seed)." }),
+      seed: Type.Integer({ description: "Deterministic seed (from setup.mapSeed)." }),
       landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land)." }),
       lakeMask: TypedArraySchemas.u8({ description: "Lake mask per tile (1=lake)." }),
       landmassIdByTile: TypedArraySchemas.i32({
@@ -90,6 +90,7 @@ const SelectResourceSitesContract = defineOp({
     { additionalProperties: false }
   ),
   output: ResourceSitePlanSchema,
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object(
       {

@@ -237,7 +237,7 @@ describe("Shipped map configs", () => {
       const canonicalConfig = config.canonicalConfig;
       const compiled = standardRecipe.compileConfig(
         {
-          seed: 123,
+          mapSeed: 123,
           dimensions: { width: 80, height: 60 },
           latitudeBounds: canonicalConfig.latitudeBounds,
         },

@@ -168,16 +168,16 @@ const EligibilityRowSchema = Type.Object(
   {
     resourceType: ResourceSymbolSchema,
     habitatMask: TypedArraySchemas.u8({
-      shape: null,
+      cardinality: ["plan.width", "plan.height"],
       description: "Habitat lane eligibility (1=in-lane); required for adjusted destinations.",
     }),
     legalMask: TypedArraySchemas.u8({
-      shape: null,
+      cardinality: ["plan.width", "plan.height"],
       description:
         "Per-resource policy legality from Resource_ValidPlacements rows (1=legal); combined with habitat as a hard gate for adjusted destinations.",
     }),
     intensity: TypedArraySchemas.f32({
-      shape: null,
+      cardinality: ["plan.width", "plan.height"],
       description: "Habitat intensity (0..1) scoring destination preference.",
     }),
   },
@@ -206,7 +206,7 @@ const AdjustResourceSupportContract = defineOp({
   id: "resources/adjust-resource-support",
   input: Type.Object(
     {
-      seed: Type.Integer({ description: "Deterministic seed (from env.seed)." }),
+      seed: Type.Integer({ description: "Deterministic seed (from setup.mapSeed)." }),
       plan: ResourceSitePlanSchema,
       eligibility: Type.Array(EligibilityRowSchema, {
         description:
@@ -216,12 +216,14 @@ const AdjustResourceSupportContract = defineOp({
         description: "Seated StartRecord seats from the start assignment (seat order).",
       }),
       landmassIdByTile: TypedArraySchemas.i32({
+        cardinality: ["plan.width", "plan.height"],
         description: "Landmass id per tile (-1 for water).",
       }),
       landmassTileCounts: Type.Array(Type.Integer({ minimum: 0 }), {
         description: "Tile count per landmass id (index-aligned).",
       }),
       regionSlotByTile: TypedArraySchemas.u8({
+        cardinality: ["plan.width", "plan.height"],
         description: "Landmass region slot per tile (0=none, 1=west, 2=east).",
       }),
     },
@@ -280,6 +282,7 @@ const AdjustResourceSupportContract = defineOp({
     },
     { additionalProperties: false }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object(
       {

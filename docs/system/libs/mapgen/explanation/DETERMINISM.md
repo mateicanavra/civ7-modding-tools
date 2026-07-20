@@ -21,8 +21,8 @@ Explain how MapGen achieves deterministic runs (and where determinism can be acc
 ## Mechanics (what makes runs reproducible)
 
 Key contributors:
-- an explicit run `env` with seed and dimensions,
-- a deterministic RNG state tracked in context and derived from `env.seed`,
+- one immutable `MapSetup` with `mapSeed`, dimensions, and latitude bounds,
+- a deterministic RNG state tracked in context and derived from `context.setup.mapSeed`,
 - strict config compilation (no silent unknowns),
 - stable plan fingerprinting for trace/viz identity.
 
@@ -40,6 +40,7 @@ When determinism is in doubt:
 
 ## Ground truth anchors
 
-- RNG state type: `packages/mapgen-core/src/core/types.ts`
+- Map setup and context: `packages/mapgen-core/src/core/{map-setup,map-context}.ts`
+- RNG helpers: `packages/mapgen-core/src/core/random.ts`
 - Run identity derivation: `packages/mapgen-core/src/engine/execution-plan.ts`
 - Trace session + stable stringify: `packages/mapgen-core/src/trace/index.ts`

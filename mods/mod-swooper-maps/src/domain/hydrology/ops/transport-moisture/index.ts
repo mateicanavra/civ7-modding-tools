@@ -1,9 +1,10 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import TransportMoistureContract from "./contract.js";
-import { cardinalStrategy, defaultStrategy } from "./strategies/index.js";
+import { cardinalStrategy, vectorAdvectionStrategy } from "./strategies/index.js";
 
+/** Transports moisture through the selected vector-advection or cardinal mechanism. */
 const transportMoisture = createOp(TransportMoistureContract, {
-  strategies: { default: defaultStrategy, cardinal: cardinalStrategy },
+  strategies: { "vector-advection": vectorAdvectionStrategy, cardinal: cardinalStrategy },
 });
 
 export type * from "./contract.js";

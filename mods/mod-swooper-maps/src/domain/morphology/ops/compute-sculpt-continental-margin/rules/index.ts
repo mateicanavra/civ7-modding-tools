@@ -38,25 +38,9 @@ export type Relief = {
   elevationScale: number;
 };
 
-/**
- * Ensures sculpt inputs match the expected map size and exposes them as concrete typed arrays,
- * plus the single-sourced relief datums (validated as finite numbers).
- */
-export function validateSculptInputs(input: ComputeSculptContinentalMarginTypes["input"]): {
-  size: number;
-  relief: Relief;
-  elevation: Int16Array;
-  crustType: Uint8Array;
-  crustAge: Uint8Array;
-  crustBuoyancy: Float32Array;
-  boundaryCloseness: Uint8Array;
-  boundaryType: Uint8Array;
-} {
-  const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
-  const oceanicHeight = input.oceanicHeight;
-  const continentalHeight = input.continentalHeight;
-  const elevationScale = input.elevationScale;
+/** Ensures the single-sourced relief datums remain finite before profile evaluation. */
+export function assertFiniteReliefDatums(relief: Relief): void {
+  const { oceanicHeight, continentalHeight, elevationScale } = relief;
   if (
     !Number.isFinite(oceanicHeight) ||
     !Number.isFinite(continentalHeight) ||
@@ -66,32 +50,6 @@ export function validateSculptInputs(input: ComputeSculptContinentalMarginTypes[
       "[SculptContinentalMargin] Relief datums (oceanicHeight/continentalHeight/elevationScale) must be finite numbers."
     );
   }
-  const elevation = input.elevation as Int16Array;
-  const crustType = input.crustType as Uint8Array;
-  const crustAge = input.crustAge as Uint8Array;
-  const crustBuoyancy = input.crustBuoyancy as Float32Array;
-  const boundaryCloseness = input.boundaryCloseness as Uint8Array;
-  const boundaryType = input.boundaryType as Uint8Array;
-  if (
-    elevation.length !== size ||
-    crustType.length !== size ||
-    crustAge.length !== size ||
-    crustBuoyancy.length !== size ||
-    boundaryCloseness.length !== size ||
-    boundaryType.length !== size
-  ) {
-    throw new Error("[SculptContinentalMargin] Input tensors must match width*height.");
-  }
-  return {
-    size,
-    relief: { oceanicHeight, continentalHeight, elevationScale },
-    elevation,
-    crustType,
-    crustAge,
-    crustBuoyancy,
-    boundaryCloseness,
-    boundaryType,
-  };
 }
 
 /**

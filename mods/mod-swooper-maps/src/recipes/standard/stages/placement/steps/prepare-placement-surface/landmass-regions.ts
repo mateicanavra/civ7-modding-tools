@@ -1,4 +1,4 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 
 type RegionSlot = 0 | 1 | 2;
 
@@ -12,12 +12,12 @@ type RegionSlot = 0 | 1 | 2;
  * resources, starts, and discoveries consume it.
  */
 export function applyLandmassRegionSlots(
-  adapter: ExtendedMapContext["adapter"],
+  adapter: MapContext["adapter"],
   width: number,
   height: number,
   slotByTile: Uint8Array
 ): void {
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   if (slotByTile.length !== size) {
     throw new Error(`Expected slotByTile length ${size} (received ${slotByTile.length}).`);
   }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../../src/recipes/standard/runtime.js";
@@ -23,14 +23,14 @@ describe("placement landmass region projection", () => {
       StartSectorCols: 1,
       NumNaturalWonders: 0,
     };
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: {
         topLatitude: mapInfo.MaxLatitude,
         bottomLatitude: mapInfo.MinLatitude,
       },
-    };
+    });
 
     const adapter = createMockAdapter({
       width,
@@ -59,9 +59,9 @@ describe("placement landmass region projection", () => {
       originalSetStartPosition(plotIndex, playerId);
     };
 
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-    standardRecipe.run(context, env, standardConfig, { log: () => {} });
+    standardRecipe.run(context, standardConfig, { log: () => {} });
 
     const firstProjection = callOrder.indexOf("setLandmassRegionId");
     const firstResourceIntent = callOrder.indexOf("placeResourceIntent");

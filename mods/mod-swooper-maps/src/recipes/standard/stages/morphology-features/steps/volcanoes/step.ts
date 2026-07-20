@@ -58,8 +58,8 @@ export const VolcanoesStep = createStep(VolcanoesStepContract, {
   run: (context, config, ops, deps) => {
     const plates = deps.artifacts.foundationPlates.read(context);
     const topography = deps.artifacts.topography.read(context);
-    const { width, height } = context.dimensions;
-    const rngSeed = deriveStepSeed(context.env.seed, "morphology:planVolcanoes");
+    const { width, height } = context.setup.dimensions;
+    const rngSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planVolcanoes");
 
     const plan = ops.volcanoes(
       {
@@ -75,7 +75,7 @@ export const VolcanoesStep = createStep(VolcanoesStepContract, {
       config.volcanoes
     );
 
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const size = width * height;
     const volcanoMask = new Uint8Array(size);
     const volcanoes = plan.volcanoes
       .map((entry) => entry.index | 0)

@@ -14,26 +14,6 @@ const MAX_ITERATIONS = 8;
 const MAX_TARGET_ADJUSTMENT_PCT = 20; // percentage points
 
 /**
- * Ensures sea-level inputs match the expected map size.
- */
-export function validateSeaLevelInputs(input: ComputeSeaLevelTypes["input"]): {
-  size: number;
-  elevation: Int16Array;
-  crustType: Uint8Array;
-  boundaryCloseness: Uint8Array;
-} {
-  const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
-  const elevation = input.elevation as Int16Array;
-  const crustType = input.crustType as Uint8Array;
-  const boundaryCloseness = input.boundaryCloseness as Uint8Array;
-  if (elevation.length !== size || crustType.length !== size || boundaryCloseness.length !== size) {
-    throw new Error("[SeaLevel] Input tensors must match width*height.");
-  }
-  return { size, elevation, crustType, boundaryCloseness };
-}
-
-/**
  * Applies variance to the target water percent using a deterministic RNG.
  */
 export function resolveTargetPercent(

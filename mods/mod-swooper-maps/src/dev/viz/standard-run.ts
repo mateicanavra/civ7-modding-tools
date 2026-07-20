@@ -1,7 +1,11 @@
 import { join } from "node:path";
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
-import { deriveRunId } from "@swooper/mapgen-core/engine";
+import {
+  createLabelRng,
+  createMapContext,
+  type TraceEvent,
+  type TraceSink,
+} from "@swooper/mapgen-core";
 import { canonicalRecipeConfig } from "../../maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../recipes/standard/recipe.js";
@@ -33,8 +37,8 @@ const mapInfo = {
   StartSectorCols: 4,
 };
 
-const envBase = {
-  seed,
+const setupBase = {
+  mapSeed: seed,
   dimensions: { width, height },
   latitudeBounds: {
     topLatitude: mapInfo.MaxLatitude,
@@ -43,18 +47,10 @@ const envBase = {
 } as const;
 
 const config = canonicalRecipeConfig(swooperEarthlikeConfigRaw);
-const plan = standardRecipe.compile(envBase, config);
+const plan = standardRecipe.compile(setupBase, config);
 const verboseSteps = Object.fromEntries(
   plan.nodes.map((node) => [node.stepId, "verbose"] as const)
 );
-
-const env = {
-  ...envBase,
-  trace: {
-    enabled: true,
-    steps: verboseSteps,
-  },
-} as const;
 
 const adapter = createMockAdapter({
   width,
@@ -64,14 +60,24 @@ const adapter = createMockAdapter({
   rng: createLabelRng(seed),
 });
 
-const context = createExtendedMapContext({ width, height }, adapter, env);
+const context = createMapContext({ setup: plan.setup, adapter });
+let runId: string | undefined;
+const traceSink: TraceSink = {
+  emit: (event: TraceEvent): void => {
+    if (event.kind === "run.start") runId = event.runId;
+    vizOutputs.traceSink.emit(event);
+  },
+};
 
 initializeStandardRuntime(context, { mapInfo, logPrefix: "[viz]" });
-standardRecipe.run(context, env, config, {
-  traceSink: vizOutputs.traceSink,
+standardRecipe.execute(context, plan, {
+  trace: {
+    config: { steps: verboseSteps },
+    sink: traceSink,
+  },
   facets: vizOutputs.facetSinks,
   log: () => {},
 });
 
-const runId = deriveRunId(plan);
+if (!runId) throw new Error("Standard visualization execution emitted no run.start evidence.");
 console.log(`[viz] wrote dump under: ${join(outputRoot, runId)}`);

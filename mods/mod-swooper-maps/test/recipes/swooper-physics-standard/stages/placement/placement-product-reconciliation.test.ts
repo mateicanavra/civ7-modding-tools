@@ -7,7 +7,7 @@ import {
   type ResourcePlacementIntent,
   type ResourcePlacementOutcome,
 } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
@@ -57,14 +57,14 @@ function runStandardPlacementRecipe({
     NumNaturalWonders: 0,
     ...mapInfo,
   };
-  const env = {
-    seed,
+  const setup = admitMapSetup({
+    mapSeed: seed,
     dimensions: { width, height },
     latitudeBounds: {
       topLatitude: resolvedMapInfo.MaxLatitude ?? 60,
       bottomLatitude: resolvedMapInfo.MinLatitude ?? -60,
     },
-  };
+  });
   const resolvedAdapter =
     adapter ??
     createMockAdapter({
@@ -74,13 +74,13 @@ function runStandardPlacementRecipe({
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-  const context = createExtendedMapContext({ width, height }, resolvedAdapter, env);
+  const context = createMapContext({ setup, adapter: resolvedAdapter });
 
   initializeStandardRuntime(context, {
     mapInfo: resolvedMapInfo,
     logPrefix: "[test]",
   });
-  standardRecipe.run(context, env, config, { log: () => {} });
+  standardRecipe.run(context, config, { log: () => {} });
 
   return { adapter: resolvedAdapter, context };
 }

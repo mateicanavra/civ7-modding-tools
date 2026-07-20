@@ -97,6 +97,7 @@ const PlanResourceGroupsContract = defineOp({
         "Warning-only reconciliation of the four resource-family plans, preserving each symbolic row while reporting aggregate counts, missing evidence, duplicate ownership, and group-id blockers.",
     }
   ),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),
   },

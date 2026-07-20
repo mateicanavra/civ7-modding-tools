@@ -13,15 +13,17 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 
 ## Terms
 
-- **`planFingerprint`**: Stable identity of an execution plan (hash of recipe id/schema, env/run settings, and step configs; excludes trace config).
-- **`runId`**: Stable identity for a run used by trace/dumps.
-  - Current implementation: `runId === planFingerprint` (`deriveRunId(plan)` delegates to `computePlanFingerprint(plan)`).
+- **`planFingerprint`**: Stable identity of an execution plan (hash of recipe id/schema, map setup, and each node's id, phase, `requires`, `provides`, and config; observation policy is excluded by construction).
+- **`runId`**: Unique identity for one execution attempt, shared by its trace, metrics, and visualization evidence.
+  - Repeated executions of the same plan receive distinct run ids while retaining the same `planFingerprint`.
 - **Recipe (authoring)**: A typed module that declares stages and steps (the “blueprint”).
 - **Recipe config (authoring input)**: User-provided data that parameterizes the recipe; validated and defaulted during config compilation.
 - **Compiled recipe config**: The shape-preserving, schema-valid config bundle produced by `compileRecipeConfig(...)`.
 - **RecipeV2 (runtime)**: A structural representation of steps (id + enabled + config) that is used to compile an execution plan.
 - **Run request / run boundary**: The input boundary that is compiled into an execution plan and then executed.
-- **Execution plan**: A list/graph of execution nodes derived from the recipe, registry, and run boundary (`Env`).
+- **Map setup**: Immutable physical initial conditions for one run: seed, dimensions, and latitude bounds.
+- **Map context**: One run-scoped carrier for setup, adapter, deterministic random state, artifacts, and the executor's current trace scope.
+- **Execution plan**: A list/graph of execution nodes derived from the recipe, registry, and `MapSetup`.
 - **Step**: A single execution unit with a stable id, `requires/provides`, a phase, and an implementation.
 - **Phase**: The step’s `GenerationPhase` (used for ordering/grouping and observability).
 - **Stage (authoring)**: An authoring-time grouping used to organize steps and compile stage-specific config into step configs.
@@ -35,9 +37,8 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 
 ## Drift vocabulary (target vs current)
 
-The remaining high-impact naming drift is:
-
-- Legacy specs **RunSettings** → canonical **Env**.
+Legacy specs may call `MapSetup` either `RunSettings` or `Env`; current code and docs use
+`MapSetup` / `setup` exclusively.
 
 ## Ground truth anchors
 

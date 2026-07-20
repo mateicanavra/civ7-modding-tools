@@ -26,14 +26,18 @@ This enables reproducibility, caching, and reliable inspection.
 
 - Producers publish an artifact once.
 - Consumers read artifacts as immutable (treat the returned value as read-only).
+- Consumers may query `MapContext.artifacts` with `has` and `get`; the mutable backing store is
+  private to MapGen Core.
 - If a consumer needs to mutate, it must copy first (caller-owned copy).
 
 ### Disallowed
 
 - Republishing an artifact (write-once violated).
+- Casting the artifact query facade to recover store mutation; the runtime facade has no mutation
+  methods or retained backing-map reference.
 - Mutating shared artifact values in-place.
 
 ## Ground truth anchors
 
 - Write-once enforcement and read-only reads: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
-- Runtime context and artifact store: `packages/mapgen-core/src/core/types.ts`
+- Runtime context and artifact store: `packages/mapgen-core/src/core/map-context.ts`

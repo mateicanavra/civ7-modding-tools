@@ -53,7 +53,11 @@ describe("derive placement inputs", () => {
     const featureTypeSnapshot = new Int16Array(size).fill(adapter.NO_FEATURE);
     featureTypeSnapshot[0] = featureTypes.FEATURE_ICE;
     const context = {
-      dimensions: { width, height },
+      setup: {
+        mapSeed: 1,
+        dimensions: { width, height },
+        latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
+      },
       adapter,
     } as never;
     initializeStandardRuntime(context, { mapInfo });
@@ -170,7 +174,11 @@ describe("derive placement inputs", () => {
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_BARRIER_REEF, direction: -1 }],
     });
     const context = {
-      dimensions: { width, height },
+      setup: {
+        mapSeed: 1,
+        dimensions: { width, height },
+        latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
+      },
       adapter,
     } as never;
     initializeStandardRuntime(context, { mapInfo });
@@ -339,7 +347,11 @@ describe("derive placement inputs", () => {
     const blockedMask = new Uint8Array(size);
     blockedMask[5] = 1;
     const context = {
-      dimensions: { width, height },
+      setup: {
+        mapSeed: 1,
+        dimensions: { width, height },
+        latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
+      },
       adapter,
     } as never;
     const telemetry = buildNaturalWonderPlanInputRuntimeTelemetry({

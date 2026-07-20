@@ -20,6 +20,7 @@ const ScoreWetWateringHoleContract = defineOp({
       description: "Watering hole suitability score per tile (0..1).",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       dryMin01: Type.Number({

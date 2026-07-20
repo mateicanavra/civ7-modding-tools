@@ -4,6 +4,7 @@ import { clamp01, clampInt16 } from "@swooper/mapgen-core/lib/math";
 
 import ComputeSculptContinentalMarginContract from "../contract.js";
 import {
+  assertFiniteReliefDatums,
   byteToUnit,
   computeApronLengthScale,
   deriveApronAnchorCeiling,
@@ -11,24 +12,28 @@ import {
   evaluateApronTarget,
   evaluateSlopeTarget,
   MARGIN_UNREACHED,
-  validateSculptInputs,
 } from "../rules/index.js";
 
 const CRUST_CONTINENTAL = 1;
 
 export const defaultStrategy = createStrategy(ComputeSculptContinentalMarginContract, "default", {
   run: (input, config) => {
-    const { width, height } = input;
     const {
-      size,
-      relief,
+      width,
+      height,
+      oceanicHeight,
+      continentalHeight,
+      elevationScale,
       elevation: baseElevation,
       crustType,
       crustAge,
       crustBuoyancy,
       boundaryCloseness,
       boundaryType,
-    } = validateSculptInputs(input);
+    } = input;
+    const size = width * height;
+    const relief = { oceanicHeight, continentalHeight, elevationScale };
+    assertFiniteReliefDatums(relief);
 
     const elevation = new Int16Array(size);
     elevation.set(baseElevation);

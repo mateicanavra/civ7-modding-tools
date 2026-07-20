@@ -1,14 +1,15 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import PedologyClassifyContract from "./contract.js";
 import {
+  balancedStrategy,
   coastalShelfStrategy,
-  defaultStrategy,
   orogenyBoostedStrategy,
 } from "./strategies/index.js";
 
+/** Pedology operation with balanced, coastal-shelf, and orogeny-weighted strategies. */
 const classifyPedology = createOp(PedologyClassifyContract, {
   strategies: {
-    default: defaultStrategy,
+    balanced: balancedStrategy,
     "coastal-shelf": coastalShelfStrategy,
     "orogeny-boosted": orogenyBoostedStrategy,
   },

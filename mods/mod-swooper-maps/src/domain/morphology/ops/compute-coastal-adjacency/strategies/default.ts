@@ -6,7 +6,7 @@ import ComputeCoastalAdjacencyContract from "../contract.js";
 export const defaultStrategy = createStrategy(ComputeCoastalAdjacencyContract, "default", {
   run: (input) => {
     const { width, height } = input;
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const size = width * height;
     const landMask = input.landMask as Uint8Array;
 
     const coastalLand = new Uint8Array(size);

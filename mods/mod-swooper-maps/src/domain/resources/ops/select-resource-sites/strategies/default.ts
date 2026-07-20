@@ -101,25 +101,12 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
     return config;
   },
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
+    const width = input.width;
+    const height = input.height;
     const size = width * height;
     const seed = input.seed | 0;
-    if (!Number.isSafeInteger(size) || size <= 0) {
-      throw new Error(`[resources] Invalid grid for select-resource-sites: ${width}x${height}.`);
-    }
-    const landMask = input.landMask;
-    const lakeMask = input.lakeMask;
     const landmassIdByTile = input.landmassIdByTile;
     const regionSlotByTile = input.regionSlotByTile;
-    if (landMask.length !== size || lakeMask.length !== size) {
-      throw new Error("[resources] select-resource-sites land/lake masks must match grid size.");
-    }
-    if (landmassIdByTile.length !== size || regionSlotByTile.length !== size) {
-      throw new Error(
-        "[resources] select-resource-sites landmass/region fields must match grid size."
-      );
-    }
 
     const density = config.density;
     const sparsity = config.sparsity;
@@ -136,14 +123,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
 
     // --- demand state -------------------------------------------------------------------------
     const demands: DemandState[] = input.demands.map((row, index) => {
-      if (row.habitatMask.length !== size || row.legalMask.length !== size) {
-        throw new Error(
-          `[resources] Demand ${row.resourceType} masks must match grid size ${size}.`
-        );
-      }
-      if (row.intensity.length !== size) {
-        throw new Error(`[resources] Demand ${row.resourceType} intensity must match grid size.`);
-      }
       let eligibleTileCount = 0;
       for (let i = 0; i < size; i++) {
         if (row.habitatMask[i] !== 0 && row.legalMask[i] !== 0) eligibleTileCount += 1;
@@ -175,12 +154,12 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         minCount: row.minCount,
         maxCount: row.maxCount,
         regionMinimumRequirement: row.regionMinimumRequirement,
-        habitatMask: row.habitatMask as Uint8Array,
-        legalMask: row.legalMask as Uint8Array,
-        intensity: row.intensity as Float32Array,
+        habitatMask: row.habitatMask,
+        legalMask: row.legalMask,
+        intensity: row.intensity,
         spacingFloorTiles,
-        habitatTileCount: countMask(row.habitatMask as Uint8Array),
-        legalTileCount: countMask(row.legalMask as Uint8Array),
+        habitatTileCount: countMask(row.habitatMask),
+        legalTileCount: countMask(row.legalMask),
         eligibleTileCount,
         runningWeight: 0,
         plannedPlots: [],

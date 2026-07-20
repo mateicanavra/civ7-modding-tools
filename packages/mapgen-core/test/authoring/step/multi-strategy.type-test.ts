@@ -1,6 +1,7 @@
 import type { Static, StepRuntimeOps } from "@mapgen/authoring/index.js";
 import { defineOp, defineStep, Type } from "@mapgen/authoring/index.js";
 import type { IsAny, IsEqual, IsNever, IsUnknown, Or } from "type-fest";
+import type { StepOpUse } from "../../../src/authoring/step/ops.js";
 
 type Expect<T extends true> = T;
 
@@ -9,8 +10,9 @@ const MultiStrategyOp = defineOp({
   id: "test/compute-multi-strategy",
   input: Type.Object({}, { additionalProperties: false }),
   output: Type.Object({}, { additionalProperties: false }),
+  defaultStrategy: "balanced",
   strategies: {
-    default: Type.Object({ plateauCount: Type.Integer() }, { additionalProperties: false }),
+    balanced: Type.Object({ plateauCount: Type.Integer() }, { additionalProperties: false }),
     fast: Type.Object({ turbo: Type.Boolean() }, { additionalProperties: false }),
   },
 });
@@ -43,4 +45,63 @@ type RuntimeOps = StepRuntimeOps<{ multi: typeof MultiStrategyOp }>;
 type RuntimeOpConfig = Parameters<RuntimeOps["multi"]>[1];
 export type RuntimeOpConfigHasStrategy = Expect<
   IsEqual<"strategy" extends keyof RuntimeOpConfig ? true : false, true>
+>;
+
+const FastDefaultStepContract = defineStep({
+  id: "fast-default-step",
+  phase: "foundation",
+  requires: [],
+  provides: [],
+  schema: Type.Object({}, { additionalProperties: false }),
+  ops: { multi: { contract: MultiStrategyOp, defaultStrategy: "fast" } },
+});
+
+const reusableFastDefault: StepOpUse<typeof MultiStrategyOp, "fast"> = {
+  contract: MultiStrategyOp,
+  defaultStrategy: "fast",
+};
+
+const ReusableFastDefaultStepContract = defineStep({
+  id: "reusable-fast-default-step",
+  phase: "foundation",
+  requires: [],
+  provides: [],
+  schema: Type.Object({}, { additionalProperties: false }),
+  ops: { multi: reusableFastDefault },
+});
+
+defineStep({
+  id: "invalid-inline-default-step",
+  phase: "foundation",
+  requires: [],
+  provides: [],
+  schema: Type.Object({}, { additionalProperties: false }),
+  ops: {
+    // @ts-expect-error A step override must name a strategy from its own contract.
+    multi: {
+      contract: MultiStrategyOp,
+      defaultStrategy: "missing",
+    },
+  },
+});
+
+type FastDefaultMultiOp = Required<typeof FastDefaultStepContract>["ops"]["multi"];
+
+export type StepOverrideDefaultStrategyIsExact = Expect<
+  IsEqual<FastDefaultMultiOp["defaultStrategy"], "fast">
+>;
+export type StepOverrideDefaultConfigIsExact = Expect<
+  IsEqual<
+    FastDefaultMultiOp["defaultConfig"],
+    Extract<Static<(typeof MultiStrategyOp)["config"]>, { strategy: "fast" }>
+  >
+>;
+export type BaseDefaultRemainsBalanced = Expect<
+  IsEqual<(typeof MultiStrategyOp)["defaultStrategy"], "balanced">
+>;
+export type ReusableStepOverrideRemainsFast = Expect<
+  IsEqual<
+    Required<typeof ReusableFastDefaultStepContract>["ops"]["multi"]["defaultStrategy"],
+    "fast"
+  >
 >;

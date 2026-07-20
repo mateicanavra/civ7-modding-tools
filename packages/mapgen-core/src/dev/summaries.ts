@@ -7,14 +7,6 @@
  */
 
 import type { EngineAdapter } from "@civ7/adapter";
-import {
-  COAST_TERRAIN,
-  FLAT_TERRAIN,
-  HILL_TERRAIN,
-  MOUNTAIN_TERRAIN,
-  NAVIGABLE_RIVER_TERRAIN,
-  OCEAN_TERRAIN,
-} from "@mapgen/core/terrain-constants.js";
 import { devLog, devLogJson } from "@mapgen/dev/logging.js";
 import type { TraceScope } from "@mapgen/trace/index.js";
 
@@ -27,6 +19,16 @@ type ElevationStats = {
   p90: number;
   p99: number;
 };
+
+/** Recipe-resolved terrain identities used to group engine elevation evidence. */
+export type ElevationTerrainTypes = Readonly<{
+  mountain: number;
+  hill: number;
+  flat: number;
+  coast: number;
+  ocean: number;
+  navigableRiver: number;
+}>;
 
 function computeElevationStats(values: number[]): ElevationStats | null {
   if (!values.length) return null;
@@ -266,6 +268,7 @@ export function logElevationSummary(
   adapter: EngineAdapter,
   width: number,
   height: number,
+  terrainTypes: ElevationTerrainTypes,
   stage?: string
 ): void {
   if (!trace?.isVerbose) return;
@@ -290,22 +293,22 @@ export function logElevationSummary(
       }
 
       switch (terrain) {
-        case MOUNTAIN_TERRAIN:
+        case terrainTypes.mountain:
           mountain.push(elevation);
           break;
-        case HILL_TERRAIN:
+        case terrainTypes.hill:
           hill.push(elevation);
           break;
-        case FLAT_TERRAIN:
+        case terrainTypes.flat:
           flat.push(elevation);
           break;
-        case COAST_TERRAIN:
+        case terrainTypes.coast:
           coast.push(elevation);
           break;
-        case OCEAN_TERRAIN:
+        case terrainTypes.ocean:
           ocean.push(elevation);
           break;
-        case NAVIGABLE_RIVER_TERRAIN:
+        case terrainTypes.navigableRiver:
           river.push(elevation);
           break;
         default:

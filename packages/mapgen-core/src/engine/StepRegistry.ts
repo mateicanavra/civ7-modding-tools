@@ -1,3 +1,4 @@
+import type { MapContext } from "@mapgen/core/map-context.js";
 import { DuplicateStepError, UnknownStepError } from "@mapgen/engine/errors.js";
 import {
   type DependencyTagDefinition,
@@ -6,43 +7,64 @@ import {
 } from "@mapgen/engine/tags.js";
 import type { MapGenStep } from "@mapgen/engine/types.js";
 
-export class StepRegistry<TContext> {
-  private readonly steps = new Map<string, MapGenStep<TContext, unknown, unknown>>();
-  private readonly tags: TagRegistry<TContext>;
+/** Owns immutable registered step snapshots and their single MapContext dependency authority. */
+export class StepRegistry {
+  private readonly steps = new Map<string, MapGenStep<unknown, unknown>>();
+  private readonly tags: TagRegistry;
 
-  constructor(options: { tags?: TagRegistry<TContext> } = {}) {
-    this.tags = options.tags ?? new TagRegistry<TContext>();
+  constructor(options: { tags?: TagRegistry } = {}) {
+    this.tags = options.tags ?? new TagRegistry();
   }
 
-  registerTag(definition: DependencyTagDefinition<TContext>): void {
+  /** Adds one dependency tag to the registry's closed execution vocabulary. */
+  registerTag(definition: DependencyTagDefinition): void {
     this.tags.registerTag(definition);
   }
 
-  registerTags(definitions: readonly DependencyTagDefinition<TContext>[]): void {
+  /** Adds a related set of dependency tags through the same duplicate-safe authority. */
+  registerTags(definitions: readonly DependencyTagDefinition[]): void {
     this.tags.registerTags(definitions);
   }
 
-  getTagRegistry(): TagRegistry<TContext> {
+  /** Returns the dependency authority used when execution plans validate step edges. */
+  getTagRegistry(): TagRegistry {
     return this.tags;
   }
 
-  register<TConfig, TResult>(step: MapGenStep<TContext, TConfig, TResult>): void {
-    if (this.steps.has(step.id)) {
-      throw new DuplicateStepError(step.id);
+  /** Snapshots and registers one uniquely identified step after validating its tag edges. */
+  register<TConfig, TResult>(step: MapGenStep<TConfig, TResult>): void {
+    const { id, phase, requires, provides, configSchema, normalize, run, facets } = step;
+    if (this.steps.has(id)) {
+      throw new DuplicateStepError(id);
     }
-    validateDependencyTags(step.requires, this.tags);
-    validateDependencyTags(step.provides, this.tags);
-    this.steps.set(step.id, step as MapGenStep<TContext, unknown, unknown>);
+    const registeredRequires = Object.freeze([...requires]);
+    const registeredProvides = Object.freeze([...provides]);
+    validateDependencyTags(registeredRequires, this.tags);
+    validateDependencyTags(registeredProvides, this.tags);
+    const registeredStep = Object.freeze({
+      id,
+      phase,
+      requires: registeredRequires,
+      provides: registeredProvides,
+      configSchema,
+      normalize,
+      run,
+      facets:
+        facets === undefined
+          ? undefined
+          : Object.freeze({ metrics: facets.metrics, viz: facets.viz }),
+    }) as MapGenStep<unknown, unknown>;
+    this.steps.set(id, registeredStep);
   }
 
-  get<TConfig = unknown, TResult = unknown>(
-    stepId: string
-  ): MapGenStep<TContext, TConfig, TResult> {
+  /** Resolves a registered immutable step, rejecting unknown identifiers. */
+  get<TConfig = unknown, TResult = unknown>(stepId: string): MapGenStep<TConfig, TResult> {
     const step = this.steps.get(stepId);
     if (!step) throw new UnknownStepError(stepId);
-    return step as MapGenStep<TContext, TConfig, TResult>;
+    return step as MapGenStep<TConfig, TResult>;
   }
 
+  /** Reports whether a step identifier is already registered. */
   has(stepId: string): boolean {
     return this.steps.has(stepId);
   }

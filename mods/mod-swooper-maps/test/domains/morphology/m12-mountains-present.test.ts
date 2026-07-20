@@ -35,15 +35,10 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
     const height = 72;
     const size = width * height;
 
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 19, cellsPerPlate: 7, relaxationSteps: 6 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 19, cellsPerPlate: 7, relaxationSteps: 6 },
+    });
     const mesh = computeMesh.run({ width, height, rngSeed: 1 }, meshConfig).mesh;
     const mantlePotential = computeMantlePotential.run(
       { mesh, rngSeed: 2 },
@@ -58,13 +53,10 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
       computeCrust.defaultConfig
     ).crust;
 
-    const plateGraphConfig = computePlateGraph.normalize(
-      {
-        ...computePlateGraph.defaultConfig,
-        config: { ...computePlateGraph.defaultConfig.config, plateCount: 19 },
-      },
-      ctx as any
-    );
+    const plateGraphConfig = computePlateGraph.normalize({
+      ...computePlateGraph.defaultConfig,
+      config: { ...computePlateGraph.defaultConfig.config, plateCount: 19 },
+    });
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 3 },
       plateGraphConfig

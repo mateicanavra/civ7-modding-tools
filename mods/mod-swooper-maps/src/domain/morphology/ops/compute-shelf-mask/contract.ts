@@ -107,6 +107,7 @@ const ComputeShelfMaskContract = defineOp({
         "Deprecated under the physical-break model (the quantile estimator was removed). Always 0; retained <=0 for output-contract stability.",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: ShelfMaskConfigSchema,
   },

@@ -18,7 +18,7 @@ export const AdjustResourcesStep = createStep(AdjustResourcesStepContract, {
     const landmasses = deps.artifacts.landmasses.read(context);
 
     const supportInput: Parameters<typeof ops.support>[0] = {
-      seed: deriveStepSeed(context.env.seed, "resources:adjustResourceSupport"),
+      seed: deriveStepSeed(context.setup.mapSeed, "resources:adjustResourceSupport"),
       plan: {
         ...plan,
         intents: plan.intents.map((intent) => ({ ...intent })),

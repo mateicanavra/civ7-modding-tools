@@ -22,6 +22,7 @@ const ScoreVegetationSavannaWoodlandContract = defineOp({
       description: "Savanna woodland suitability score per tile (0..1).",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),
   },

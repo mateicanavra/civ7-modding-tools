@@ -1,4 +1,3 @@
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { RecipeModule } from "@swooper/mapgen-core/authoring";
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import standardRecipe from "mod-swooper-maps/recipes/standard";
@@ -8,13 +7,16 @@ import {
 } from "mod-swooper-maps/recipes/standard-artifacts";
 import type { XSchema } from "typebox/schema";
 
+/** Stable recipe identity accepted by the Studio browser worker. */
 export type StudioRecipeId = string;
 
+/** Small executable recipe surface required by the browser worker. */
 export type RecipeRuntimeModule = Pick<
-  RecipeModule<ExtendedMapContext, PipelineConfig, unknown>,
-  "compile" | "runAsync"
+  RecipeModule<PipelineConfig, unknown>,
+  "compile" | "executeAsync"
 >;
 
+/** Registered browser-worker recipe with its canonical authoring schema and defaults. */
 export type RuntimeRecipeEntry = Readonly<{
   id: StudioRecipeId;
   label: string;
@@ -27,7 +29,7 @@ function defineRuntimeRecipeEntry<TConfig extends PipelineConfig>(
   input: Readonly<{
     id: StudioRecipeId;
     label: string;
-    recipe: RecipeModule<ExtendedMapContext, TConfig, unknown>;
+    recipe: RecipeModule<TConfig, unknown>;
     defaultConfig: TConfig;
     configSchema: XSchema;
   }>
@@ -38,9 +40,8 @@ function defineRuntimeRecipeEntry<TConfig extends PipelineConfig>(
     defaultConfig: input.defaultConfig,
     configSchema: input.configSchema,
     recipe: {
-      compile: (env, config) => input.recipe.compile(env, config as TConfig),
-      runAsync: (context, env, config, options) =>
-        input.recipe.runAsync(context, env, config as TConfig, options),
+      compile: (setup, config) => input.recipe.compile(setup, config as TConfig),
+      executeAsync: (context, plan, options) => input.recipe.executeAsync(context, plan, options),
     },
   };
 }
@@ -55,6 +56,7 @@ const RUNTIME_RECIPES: readonly RuntimeRecipeEntry[] = [
   }),
 ] as const;
 
+/** Resolves the executable browser-worker recipe registered for a Studio recipe identity. */
 export function getRuntimeRecipe(recipeId: StudioRecipeId): RuntimeRecipeEntry {
   const entry = RUNTIME_RECIPES.find((r) => r.id === recipeId);
   if (!entry) throw new Error(`Unknown recipeId: ${recipeId}`);

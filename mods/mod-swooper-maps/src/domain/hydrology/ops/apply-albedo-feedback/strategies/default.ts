@@ -4,24 +4,9 @@ import { clamp01, clampNumber, lerp01 } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(ApplyAlbedoFeedbackContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
-
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/apply-albedo-feedback.");
-    }
-    if (!(input.rainfall instanceof Uint8Array) || input.rainfall.length !== size) {
-      throw new Error("[Hydrology] Invalid rainfall for hydrology/apply-albedo-feedback.");
-    }
-    if (
-      !(input.surfaceTemperatureC instanceof Float32Array) ||
-      input.surfaceTemperatureC.length !== size
-    ) {
-      throw new Error(
-        "[Hydrology] Invalid surfaceTemperatureC for hydrology/apply-albedo-feedback."
-      );
-    }
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     const iterations = config.iterations | 0;
     const snowCoolingC = config.snowCoolingC;

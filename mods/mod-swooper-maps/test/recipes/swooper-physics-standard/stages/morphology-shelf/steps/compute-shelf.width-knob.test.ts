@@ -8,7 +8,7 @@ describe("morphology-shelf shelfWidth knob", () => {
     const base = (
       standardRecipe.compileConfig(
         {
-          seed: 123,
+          mapSeed: 123,
           dimensions: { width: 80, height: 60 },
           latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
         },

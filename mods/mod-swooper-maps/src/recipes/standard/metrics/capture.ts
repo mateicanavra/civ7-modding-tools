@@ -5,12 +5,11 @@ import {
   getEngineFeatureLegality,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
-import { createExtendedMapContext, type ExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
 import {
   assertFloat32Array,
   assertInt32Array,
   assertUint8Array,
-  expectedGridSize,
 } from "@swooper/mapgen-core/authoring";
 import {
   type ArtifactReadValueOf,
@@ -257,11 +256,11 @@ export function captureStandardMapScenario(
   const admittedScenario = defineStandardMapMetricScenario(scenario);
   const selection = resolveMapSelection(admittedScenario);
   const { width, height } = selection.dimensions;
-  const env = {
-    seed: admittedScenario.seed,
+  const setup = admitMapSetup({
+    mapSeed: admittedScenario.seed,
     dimensions: selection.dimensions,
     latitudeBounds: admittedScenario.config.latitudeBounds,
-  };
+  });
 
   const adapter = createMockAdapter({
     width,
@@ -272,12 +271,12 @@ export function captureStandardMapScenario(
     rngSeed: admittedScenario.seed,
   });
 
-  const context = createExtendedMapContext({ width, height }, adapter, env);
+  const context = createMapContext({ setup, adapter });
   initializeStandardRuntime(context, {
     mapInfo: selection.mapInfo,
     logPrefix: "[map-product-metrics]",
   });
-  standardRecipe.run(context, env, canonicalRecipeConfig(admittedScenario.config), {
+  standardRecipe.run(context, canonicalRecipeConfig(admittedScenario.config), {
     log: () => {},
   });
 
@@ -286,12 +285,12 @@ export function captureStandardMapScenario(
 
 function copyCompletedRun(
   scenario: StandardMapMetricScenario,
-  context: ExtendedMapContext,
+  context: MapContext,
   adapter: ReturnType<typeof createMockAdapter>
 ): StandardMapCapture {
   const selection = resolveMapSelection(scenario);
   const { width, height } = selection.dimensions;
-  const gridSize = expectedGridSize(width, height);
+  const gridSize = width * height;
   const topographyValue = readValidatedArtifact(context, morphologyArtifactModules.topography);
   const landmassesValue = readValidatedArtifact(context, morphologyArtifactModules.landmasses);
   const mountainsValue = readValidatedArtifact(context, morphologyArtifactModules.mountains);

@@ -1,4 +1,3 @@
-import type { NormalizeContext } from "@mapgen/engine/index.js";
 import type { Static, TSchema, TUnsafe } from "typebox";
 
 // Allow ops with specific input/config types to flow through generic registries.
@@ -23,6 +22,7 @@ export type StrategySelection<Strategies extends RuntimeStrategiesLike> = {
 export type OpContractLike = Readonly<{
   input: TSchema;
   output: TSchema;
+  defaultStrategy: string;
   strategies: StrategiesLike;
 }>;
 
@@ -57,6 +57,12 @@ export type OpConfigSchema<Strategies extends RuntimeStrategiesLike> = TUnsafe<
   StrategySelection<Strategies>
 >;
 
+/** The configuration case selected by an operation's explicit default authority. */
+export type DefaultStrategySelection<
+  Strategies extends RuntimeStrategiesLike,
+  DefaultStrategy extends keyof Strategies & string,
+> = Extract<StrategySelection<Strategies>, Readonly<{ strategy: DefaultStrategy }>>;
+
 /**
  * Strict operation kind taxonomy for domain operation modules.
  *
@@ -81,24 +87,25 @@ export type DomainOp<
   OutputSchema extends TSchema,
   Strategies extends RuntimeStrategiesLike,
   Id extends string = string,
+  DefaultStrategy extends keyof Strategies & string = keyof Strategies & string,
 > = Readonly<{
   kind: DomainOpKind;
   id: Id;
   input: InputSchema;
   output: OutputSchema;
   config: OpConfigSchema<Strategies>;
-  defaultConfig: StrategySelection<Strategies>;
+  defaultStrategy: DefaultStrategy;
+  defaultConfig: DefaultStrategySelection<Strategies, DefaultStrategy>;
   strategies: Strategies;
   run: BivariantCallback<
     [Static<InputSchema>, StrategySelection<Strategies>],
     Static<OutputSchema>
   >;
   /**
-   * Compile-time config normalization hook (called by the compiler).
-   * This is never invoked at runtime; default behavior returns the input envelope unchanged.
+   * Normalizes one selected operation configuration during compilation.
+   *
+   * Physical map setup is already admitted by the pipeline boundary and is intentionally absent;
+   * operation normalization owns only the operation's authored configuration values.
    */
-  normalize: BivariantCallback<
-    [StrategySelection<Strategies>, NormalizeContext],
-    StrategySelection<Strategies>
-  >;
+  normalize: BivariantCallback<[StrategySelection<Strategies>], StrategySelection<Strategies>>;
 }>;

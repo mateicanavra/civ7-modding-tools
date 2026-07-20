@@ -35,7 +35,7 @@ export const LakesStep = createStep(LakesStepContract, {
     };
   },
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const topography = deps.artifacts.topography.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
     if (

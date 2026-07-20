@@ -68,14 +68,10 @@ describe("m11 plate graph resistance sensitivity", () => {
   it("is deterministic for identical resistance fields and responds to weak-zone bands", () => {
     const width = 140;
     const height = 90;
-    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
-    const meshConfig = computeMesh.normalize(
-      {
-        strategy: "default",
-        config: { plateCount: 26, cellsPerPlate: 10, relaxationSteps: 3 },
-      },
-      ctx as any
-    );
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: { plateCount: 26, cellsPerPlate: 10, relaxationSteps: 3 },
+    });
 
     const mesh = computeMesh.run({ width, height, rngSeed: 221 }, meshConfig).mesh;
     const mantleNeutral = makeMantleForcing(mesh, { mode: "neutral" });

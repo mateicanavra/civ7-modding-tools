@@ -654,6 +654,7 @@ const PlanRidgesContract = defineOp({
       description: "Fracture proxy per tile (0..255). Diagnostic driver surface (physics-gated).",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: MountainsConfigSchema,
   },

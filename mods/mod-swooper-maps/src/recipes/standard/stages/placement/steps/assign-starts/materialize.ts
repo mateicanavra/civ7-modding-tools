@@ -1,5 +1,5 @@
 import placement from "@mapgen/domain/placement";
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import { warnLog } from "../../log.js";
 
@@ -17,7 +17,7 @@ type StartSeatRecord = PlanStartsOutput["seats"][number];
  * op; this only makes them audible.
  */
 function warnStartDegradations(
-  context: ExtendedMapContext,
+  context: MapContext,
   seats: DeepReadonly<PlanStartsOutput["seats"]>
 ): void {
   const byRung = new Map<string, number[]>();
@@ -80,13 +80,13 @@ function warnStartDegradations(
  * left is a map with literally zero settleable land candidates.
  */
 export function materializeStartAssignment(args: {
-  context: ExtendedMapContext;
+  context: MapContext;
   plan: DeepReadonly<PlanStartsOutput>;
 }): StartAssignmentArtifact {
   const { context, plan } = args;
   const { adapter } = context;
-  const { width, height } = context.dimensions;
-  if ((plan.width | 0) !== (width | 0) || (plan.height | 0) !== (height | 0)) {
+  const { width, height } = context.setup.dimensions;
+  if (plan.width !== width || plan.height !== height) {
     throw new Error(
       `[Placement] Start plan dimensions ${plan.width}x${plan.height} do not match map ${width}x${height}.`
     );

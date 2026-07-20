@@ -652,11 +652,10 @@ const mapConfig = {
         }
       },
       "icePlanning": {
-        "profile": "continentality",
         "minConfidence01": 0.5
       },
       "reefPlanning": {
-        "profile": "default",
+        "profile": "habitat",
         "minConfidence01": 0.84,
         "stride": 4
       },
@@ -829,7 +828,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-earthlike",
-  configHash: "ad3c654dec97666ffbbb924c727ad69669fd8230a6a19639d33eff3138472285",
-  envelopeHash: "4e12817e6fae64b89d0fec489fe62844954a4401ac94accdf299c736e06d6067",
+  configHash: "12f6eef320ec308a50562cd6ea8d43b5cbcc865497001e7542157ff50a91d2ce",
+  envelopeHash: "d9e016e0ccb38fc139e86f49127647b974e5aaa7752681d7aad0d40a81a56fb8",
   config: mapConfig.config,
 });

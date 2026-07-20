@@ -1,9 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { MockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { artifacts as hydrologyClimateRefineArtifacts } from "../../../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { artifactModules as hydrologyClimateRefineArtifactModules } from "../../../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
 import { ProjectRainfallStep } from "../../../../../../src/recipes/standard/stages/map-hydrology/steps/project-rainfall/step.js";
-import { buildTestDeps } from "../../../../../support/step-deps.js";
+import {
+  buildTestDeps,
+  publishTestArtifact,
+  withMapContextExecutionForTest,
+} from "../../../../../support/step-deps.js";
 
 class RainfallRecordingAdapter extends MockAdapter {
   readonly projected: { x: number; y: number; rainfall: number }[] = [];
@@ -20,17 +24,22 @@ describe("map-hydrology/project-rainfall", () => {
     const height = 2;
     const rainfall = new Uint8Array([0, 17, 200, 42, 81, 133]);
     const adapter = new RainfallRecordingAdapter({ width, height });
-    const context = createExtendedMapContext({ width, height }, adapter, {
-      seed: 7,
-      dimensions: { width, height },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    const context = createMapContext({
+      setup: admitMapSetup({
+        mapSeed: 7,
+        dimensions: { width, height },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      }),
+      adapter,
     });
-    context.artifacts.set(hydrologyClimateRefineArtifacts.climateField.id, {
-      rainfall,
-      humidity: new Uint8Array(width * height),
-    });
+    withMapContextExecutionForTest(context, () => {
+      publishTestArtifact(context, hydrologyClimateRefineArtifactModules.climateField, {
+        rainfall,
+        humidity: new Uint8Array(width * height),
+      });
 
-    ProjectRainfallStep.run(context, {}, {}, buildTestDeps(ProjectRainfallStep));
+      ProjectRainfallStep.run(context, {}, {}, buildTestDeps(ProjectRainfallStep));
+    });
 
     expect(adapter.projected).toEqual([
       { x: 0, y: 0, rainfall: 0 },

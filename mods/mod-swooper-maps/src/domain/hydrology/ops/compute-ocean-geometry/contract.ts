@@ -105,6 +105,7 @@ const ComputeOceanGeometryContract = defineOp({
   id: "hydrology/compute-ocean-geometry",
   input: ComputeOceanGeometryInputSchema,
   output: ComputeOceanGeometryOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeOceanGeometryDefaultStrategySchema,
   },

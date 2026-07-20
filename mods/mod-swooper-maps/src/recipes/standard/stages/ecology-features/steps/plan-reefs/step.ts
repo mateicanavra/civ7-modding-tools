@@ -13,7 +13,7 @@ export const PlanReefsStep = createStep(PlanReefsStepContract, {
     const prev = deps.artifacts.occupancyIce.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
 
     const seed = ctxStepSeed(context, PlanReefsStepContract.id, "ecology/plan-reefs");
     const placements = ops.planReefs(

@@ -7,7 +7,7 @@
     },
     {
       "key": "mods/mod-swooper-maps/src/domain/ecology/model/policy/feature-score-selection.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 8
+      "count": 7
     },
     {
       "key": "mods/mod-swooper-maps/src/domain/ecology/model/schemas/biome-symbol.schema.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
@@ -74,38 +74,6 @@
       "count": 1
     },
     {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-ice/contract.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-ice/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-ice/strategies/continentality.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-ice/strategies/default.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-reefs/contract.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-reefs/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-reefs/strategies/default.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-reefs/strategies/shipping-lanes.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
       "key": "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-vegetation/contract.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 1
     },
@@ -162,19 +130,7 @@
       "count": 1
     },
     {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/pedology-classify/contract.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/pedology-classify/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
       "key": "mods/mod-swooper-maps/src/domain/ecology/ops/pedology-classify/strategies/coastal-shelf.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/pedology-classify/strategies/default.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 1
     },
     {
@@ -287,34 +243,6 @@
     },
     {
       "key": "mods/mod-swooper-maps/src/domain/ecology/ops/reef-score-reef/strategies/default.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/refine-biome-edges/contract.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/refine-biome-edges/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/refine-biome-edges/strategies/default.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/refine-biome-edges/strategies/gaussian.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/resource-plan-basins/contract.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/resource-plan-basins/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/ecology/ops/resource-plan-basins/strategies/default.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 1
     },
     {
@@ -470,10 +398,6 @@
       "count": 3
     },
     {
-      "key": "mods/mod-swooper-maps/src/domain/foundation/artifacts/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 3
-    },
-    {
       "key": "mods/mod-swooper-maps/src/domain/foundation/artifacts/mantle-forcing.artifact.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 3
     },
@@ -532,10 +456,6 @@
     {
       "key": "mods/mod-swooper-maps/src/domain/foundation/model/policy/crust-buoyancy.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 6
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/foundation/model/policy/reference-area.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 2
     },
     {
       "key": "mods/mod-swooper-maps/src/domain/foundation/model/policy/tectonic-event-types.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
@@ -830,20 +750,8 @@
       "count": 1
     },
     {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-atmospheric-circulation/contract.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-atmospheric-circulation/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
       "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-atmospheric-circulation/rules/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 2
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-atmospheric-circulation/strategies/geostrophic-proxy.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
     },
     {
       "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-atmospheric-circulation/strategies/latitude.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
@@ -946,23 +854,11 @@
       "count": 1
     },
     {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-ocean-surface-currents/contract.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-ocean-surface-currents/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
       "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-ocean-surface-currents/rules/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 2
     },
     {
       "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-ocean-surface-currents/strategies/latitude.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-ocean-surface-currents/strategies/wind-gyre-projection.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 1
     },
     {
@@ -982,27 +878,11 @@
       "count": 1
     },
     {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-precipitation/contract.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-precipitation/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
       "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-precipitation/rules/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 7
     },
     {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-precipitation/strategies/baseline.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
       "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-precipitation/strategies/refine.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/compute-precipitation/strategies/vector.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 1
     },
     {
@@ -1086,23 +966,11 @@
       "count": 1
     },
     {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/transport-moisture/contract.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/transport-moisture/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
       "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/transport-moisture/rules/index.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 3
     },
     {
       "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/transport-moisture/strategies/cardinal.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
-      "count": 1
-    },
-    {
-      "key": "mods/mod-swooper-maps/src/domain/hydrology/ops/transport-moisture/strategies/vector-advection.ts::Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
       "count": 1
     },
     {

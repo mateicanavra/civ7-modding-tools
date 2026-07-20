@@ -1,30 +1,5 @@
 import type { ComputeSubstrateTypes } from "../types.js";
 
-/**
- * Ensures substrate inputs match the expected map size.
- */
-export function validateSubstrateInputs(input: ComputeSubstrateTypes["input"]): number {
-  const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
-  const uplift = input.upliftPotential as Uint8Array;
-  const rift = input.riftPotential as Uint8Array;
-  const boundaryCloseness = input.boundaryCloseness as Uint8Array;
-  const boundaryType = input.boundaryType as Uint8Array;
-  const crustType = input.crustType as Uint8Array;
-  const crustAge = input.crustAge as Uint8Array;
-  if (
-    uplift.length !== size ||
-    rift.length !== size ||
-    boundaryCloseness.length !== size ||
-    boundaryType.length !== size ||
-    crustType.length !== size ||
-    crustAge.length !== size
-  ) {
-    throw new Error("[Substrate] Input tensors must match width*height.");
-  }
-  return size;
-}
-
 function clampNonNegative(value: number): number {
   if (!Number.isFinite(value)) return 0;
   return Math.max(0, value);

@@ -39,6 +39,7 @@ export default defineOp({
   output: Type.Object({
     elevation: TypedArraySchemas.i16({ description: "Base elevation per tile (normalized, scaled to int16)." }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: ReliefConfigSchema,
   },
@@ -51,8 +52,9 @@ Ops use a “strategy envelope”:
 
 - `config.strategy` selects a strategy id
 - `config.config` holds strategy-specific config
+- `defaultStrategy` explicitly selects the strategy used when authored config omits the envelope
 
-This makes op config explicit and schema-valid, and prevents config drift.
+The strategy set and its default are separate authorities. Object order never selects behavior.
 
 Representative example (createOp binds strategy implementations by id; excerpt; see full file in anchors):
 

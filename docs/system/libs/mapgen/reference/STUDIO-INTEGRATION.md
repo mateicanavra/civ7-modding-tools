@@ -86,34 +86,48 @@ values inside a complete editor config before the worker request is created.
 
 ## Plan compile + execution
 
-The worker composes an `envBase` from run inputs (seed/dimensions/latitudes) and then:
+The worker translates its public seed input into one `MapSetup` (`mapSeed`/dimensions/latitudes) and then:
 
-- compiles a plan using the runtime recipe (`recipe.compile(envBase, config)`),
-- derives stable run identity from the plan:
-  - `runId` via `deriveRunId(plan)`
-  - `planFingerprint` via `computePlanFingerprint(plan)` (current code uses the same value as `runId`)
+- compiles a plan using the runtime recipe (`recipe.compile(setup, config)`),
+- receives the executor-owned `runId` and stable `planFingerprint` from the
+  emitted `run.start` trace event,
 - enables step tracing for Studio's progress posture,
 - constructs an adapter (mock civ7 adapter in browser),
-- constructs an extended map context,
+- constructs one map context from the same setup,
 - creates a browser visualization facet sink,
-- and calls `recipe.runAsync(context, env, config, { traceSink, facets, abortSignal,
+- and calls `recipe.executeAsync(context, plan, { trace: { config, sink }, facets, abortSignal,
   yieldToEventLoop: true })`.
 
 Concrete execution posture (excerpt):
 
 ```ts
 // apps/mapgen-studio/src/browser-runner/pipeline.worker.ts
-const plan = recipeEntry.recipe.compile(envBase, config);
-const runId = deriveRunId(plan);
+const setup = admitMapSetup({ mapSeed: seed, dimensions, latitudeBounds });
+const plan = recipeEntry.recipe.compile(setup, config);
 const verboseSteps: Record<string, "verbose"> = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
 
-const env = { ...envBase, trace: { enabled: true, steps: verboseSteps } };
-const context = createExtendedMapContext(dimensions, adapter, env);
-const traceSink = createWorkerTraceSink({ runToken, generation, post, abortSignal });
+const context = createMapContext({ setup, adapter });
+const workerTraceSink = createWorkerTraceSink({ runToken, generation, post, abortSignal });
+const traceSink = {
+  emit(event: TraceEvent) {
+    if (event.kind === "run.start") {
+      post({
+        type: "run.started",
+        runToken,
+        generation,
+        runId: event.runId,
+        planFingerprint: event.planFingerprint,
+      });
+    }
+    workerTraceSink.emit(event);
+  },
+};
 
-post({ type: "run.started", runToken, generation, runId, planFingerprint: runId });
-await recipeEntry.recipe.runAsync(context, env, config, {
-  traceSink,
+await recipeEntry.recipe.executeAsync(context, plan, {
+  trace: {
+    config: { steps: verboseSteps },
+    sink: traceSink,
+  },
   facets: {
     viz: createWorkerVizFacetSink({ runToken, generation, post, abortSignal }),
   },
@@ -121,6 +135,10 @@ await recipeEntry.recipe.runAsync(context, env, config, {
   yieldToEventLoop: true,
 });
 ```
+
+The request token identifies Studio's request lifecycle. The executor allocates
+a distinct run identity only after the context enters its active execution
+state, so callers never derive or supply `runId` themselves.
 
 ## Trace + visualization in Studio
 

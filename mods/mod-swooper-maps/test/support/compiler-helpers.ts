@@ -1,9 +1,9 @@
 import type { DomainOp, Static, StrategySelection, TSchema } from "@swooper/mapgen-core/authoring";
-import { validateSchemaValue, validateStrict } from "@swooper/mapgen-core/compiler/normalize";
-import type { CompileErrorItem } from "@swooper/mapgen-core/compiler/recipe-compile";
-import type { NormalizeContext } from "@swooper/mapgen-core/engine";
-
-const DEFAULT_NORMALIZE_CTX: NormalizeContext = { env: {}, knobs: {} };
+import {
+  type CompileErrorItem,
+  validateSchemaValue,
+  validateStrict,
+} from "@swooper/mapgen-core/compiler/normalize";
 
 export class TestCompileError extends Error {
   readonly errors: CompileErrorItem[];
@@ -37,17 +37,16 @@ export function normalizeOpSelectionOrThrow<
 >(
   op: DomainOp<InputSchema, OutputSchema, Strategies>,
   selection: StrategySelection<Strategies>,
-  options?: Readonly<{ path?: string; ctx?: NormalizeContext }>
+  options?: Readonly<{ path?: string }>
 ): StrategySelection<Strategies> {
   const path = options?.path ?? `/ops/${op.id}`;
-  const ctx = options?.ctx ?? DEFAULT_NORMALIZE_CTX;
 
   const first = validateStrict<StrategySelection<Strategies>>(op.config, selection, path);
   if (first.errors.length > 0) {
     throw new TestCompileError(`op config validation failed at ${path}`, first.errors);
   }
 
-  const normalizedByStrategy = op.normalize(first.value, ctx);
+  const normalizedByStrategy = op.normalize(first.value);
   const second = validateStrict<StrategySelection<Strategies>>(
     op.config,
     normalizedByStrategy,
@@ -68,7 +67,7 @@ export function runOpValidated<
   op: DomainOp<InputSchema, OutputSchema, Strategies>,
   input: Static<InputSchema>,
   selection: StrategySelection<Strategies>,
-  options?: Readonly<{ path?: string; ctx?: NormalizeContext }>
+  options?: Readonly<{ path?: string }>
 ): Static<OutputSchema> {
   const normalizedSelection = normalizeOpSelectionOrThrow(op, selection, options);
   return op.run(input, normalizedSelection);

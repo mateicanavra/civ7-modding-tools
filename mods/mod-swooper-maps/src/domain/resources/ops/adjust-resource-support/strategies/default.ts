@@ -131,18 +131,10 @@ function resourceSalt(resourceType: string): number {
 export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "default", {
   run: (input, config) => {
     const plan = input.plan;
-    const width = plan.width | 0;
-    const height = plan.height | 0;
+    const width = plan.width;
+    const height = plan.height;
     const size = width * height;
     const seed = input.seed | 0;
-    if (!Number.isSafeInteger(size) || size <= 0) {
-      throw new Error(`[resources] Invalid grid for adjust-resource-support: ${width}x${height}.`);
-    }
-    if (input.landmassIdByTile.length !== size || input.regionSlotByTile.length !== size) {
-      throw new Error(
-        "[resources] adjust-resource-support landmass/region fields must match grid size."
-      );
-    }
     const landmassIdByTile = input.landmassIdByTile;
     const regionSlotByTile = input.regionSlotByTile;
 
@@ -169,21 +161,11 @@ export const defaultStrategy = createStrategy(AdjustResourceSupportContract, "de
     };
     const eligibilityByType = new Map<OfficialResourceType, Eligibility>();
     for (const row of input.eligibility) {
-      if (row.habitatMask.length !== size || row.legalMask.length !== size) {
-        throw new Error(
-          `[resources] adjust-resource-support eligibility masks for ${row.resourceType} must match grid size ${size}.`
-        );
-      }
-      if (row.intensity.length !== size) {
-        throw new Error(
-          `[resources] adjust-resource-support intensity for ${row.resourceType} must match grid size.`
-        );
-      }
       eligibilityByType.set(row.resourceType, {
         resourceType: row.resourceType,
-        habitatMask: row.habitatMask as Uint8Array,
-        legalMask: row.legalMask as Uint8Array,
-        intensity: row.intensity as Float32Array,
+        habitatMask: row.habitatMask,
+        legalMask: row.legalMask,
+        intensity: row.intensity,
       });
     }
 

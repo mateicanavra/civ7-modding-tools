@@ -16,7 +16,7 @@ export function computeOceanGeometry(
   coastalWaterMask: Uint8Array,
   options: ComputeOceanGeometryOptions
 ): ComputeOceanGeometryOutput {
-  const size = Math.max(0, width * height);
+  const size = width * height;
   const basinId = new Int32Array(size);
   const coastDistance = new Uint16Array(size);
   const coastNormalU = new Int8Array(size);

@@ -1,13 +1,20 @@
 import { describe, expect, it } from "bun:test";
+import { createMockAdapter } from "@civ7/adapter";
+import {
+  defineArtifact,
+  implementArtifactModules,
+  validateArtifactSchema,
+} from "@mapgen/authoring/index.js";
+import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import {
   compileExecutionPlan,
-  type EngineContext,
+  type MapSetup,
   MissingDependencyError,
   PipelineExecutor,
   StepExecutionError,
   StepRegistry,
 } from "@mapgen/engine/index.js";
-import { createNoopTraceScope } from "@mapgen/trace/index.js";
+import { Type } from "typebox";
 
 const TEST_TAGS = {
   artifact: {
@@ -19,52 +26,74 @@ const TEST_TAGS = {
   },
 } as const;
 
-interface TestContext extends EngineContext {
-  artifacts: Map<string, { valid: boolean }>;
+const EvidenceSchema = Type.Object({ valid: Type.Boolean() }, { additionalProperties: false });
+const requiredInputArtifact = defineArtifact({
+  name: "requiredInput",
+  id: TEST_TAGS.artifact.requiredInput,
+  schema: EvidenceSchema,
+});
+const outputArtifact = defineArtifact({
+  name: "output",
+  id: TEST_TAGS.artifact.output,
+  schema: EvidenceSchema,
+});
+const testArtifactRuntimes = implementArtifactModules([
+  {
+    artifact: requiredInputArtifact,
+    validate: (value: unknown) => validateArtifactSchema(EvidenceSchema, value),
+  },
+  {
+    artifact: outputArtifact,
+    validate: (value: unknown) => validateArtifactSchema(EvidenceSchema, value),
+  },
+]);
+
+function isValidEvidence(value: unknown): value is { readonly valid: boolean } {
+  return typeof value === "object" && value !== null && "valid" in value && value.valid === true;
 }
 
 const TEST_TAG_DEFINITIONS = [
   {
     id: TEST_TAGS.artifact.requiredInput,
     kind: "artifact",
-    satisfies: (context: TestContext) =>
-      context.artifacts.get(TEST_TAGS.artifact.requiredInput)?.valid === true,
+    satisfies: (context: MapContext) =>
+      isValidEvidence(context.artifacts.get(TEST_TAGS.artifact.requiredInput)),
   },
   {
     id: TEST_TAGS.artifact.output,
     kind: "artifact",
-    satisfies: (context: TestContext) =>
-      context.artifacts.get(TEST_TAGS.artifact.output)?.valid === true,
+    satisfies: (context: MapContext) =>
+      isValidEvidence(context.artifacts.get(TEST_TAGS.artifact.output)),
   },
   {
     id: TEST_TAGS.effect.operationApplied,
     kind: "effect",
-    satisfies: (context: TestContext) =>
-      context.artifacts.get(TEST_TAGS.artifact.output)?.valid === true,
+    satisfies: (context: MapContext) =>
+      isValidEvidence(context.artifacts.get(TEST_TAGS.artifact.output)),
   },
 ] as const;
 
 const TEST_ENV = {
-  seed: 0,
+  mapSeed: 0,
   dimensions: { width: 1, height: 1 },
-  latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
+  latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
 };
 
-function createTestContext(): TestContext {
-  return {
-    trace: createNoopTraceScope(),
-    artifacts: new Map(),
-  };
+function createTestContext(setup: MapSetup): MapContext {
+  return createMapContext({
+    setup,
+    adapter: createMockAdapter({ width: 1, height: 1, rng: () => 0 }),
+  });
 }
 
-function compilePlan<TContext>(registry: StepRegistry<TContext>, steps: readonly string[]) {
+function compilePlan(registry: StepRegistry, steps: readonly string[]) {
   return compileExecutionPlan(
     {
       recipe: {
         schemaVersion: 2,
         steps: steps.map((id) => ({ id, config: {} })),
       },
-      env: TEST_ENV,
+      setup: TEST_ENV,
     },
     registry
   );
@@ -81,9 +110,7 @@ function captureThrown(run: () => void): unknown {
 
 describe("dependency gating", () => {
   it("fails fast when a dependent step runs without its required input", () => {
-    const context = createTestContext();
-
-    const registry = new StepRegistry<TestContext>();
+    const registry = new StepRegistry();
     registry.registerTags(TEST_TAG_DEFINITIONS);
     registry.register({
       id: "dependent-step",
@@ -95,6 +122,7 @@ describe("dependency gating", () => {
 
     const executor = new PipelineExecutor(registry, { log: () => {} });
     const plan = compilePlan(registry, ["dependent-step"]);
+    const context = createTestContext(plan.setup);
 
     const error = captureThrown(() => executor.executePlan(context, plan));
     expect(error).toBeInstanceOf(MissingDependencyError);
@@ -104,9 +132,7 @@ describe("dependency gating", () => {
   });
 
   it("fails fast when a provided input has an invalid payload", () => {
-    const context = createTestContext();
-
-    const registry = new StepRegistry<TestContext>();
+    const registry = new StepRegistry();
     registry.registerTags(TEST_TAG_DEFINITIONS);
     registry.register({
       id: "provide-input",
@@ -114,12 +140,13 @@ describe("dependency gating", () => {
       requires: [],
       provides: [TEST_TAGS.artifact.requiredInput],
       run: (current) => {
-        current.artifacts.set(TEST_TAGS.artifact.requiredInput, { valid: false });
+        testArtifactRuntimes.requiredInput.publish(current, { valid: false });
       },
     });
 
     const executor = new PipelineExecutor(registry, { log: () => {} });
     const plan = compilePlan(registry, ["provide-input"]);
+    const context = createTestContext(plan.setup);
     const { stepResults } = executor.executePlanReport(context, plan);
 
     expect(stepResults).toHaveLength(1);
@@ -129,9 +156,7 @@ describe("dependency gating", () => {
   });
 
   it("fails fast when declared output effects are missing", () => {
-    const context = createTestContext();
-
-    const registry = new StepRegistry<TestContext>();
+    const registry = new StepRegistry();
     registry.registerTags(TEST_TAG_DEFINITIONS);
     registry.register({
       id: "apply-operation",
@@ -143,6 +168,7 @@ describe("dependency gating", () => {
 
     const executor = new PipelineExecutor(registry, { log: () => {} });
     const plan = compilePlan(registry, ["apply-operation"]);
+    const context = createTestContext(plan.setup);
     const { stepResults } = executor.executePlanReport(context, plan);
 
     expect(stepResults).toHaveLength(1);
@@ -152,9 +178,7 @@ describe("dependency gating", () => {
   });
 
   it("fails fast when output effects are backed by invalid state", () => {
-    const context = createTestContext();
-
-    const registry = new StepRegistry<TestContext>();
+    const registry = new StepRegistry();
     registry.registerTags(TEST_TAG_DEFINITIONS);
     registry.register({
       id: "apply-operation",
@@ -162,12 +186,13 @@ describe("dependency gating", () => {
       requires: [],
       provides: [TEST_TAGS.effect.operationApplied],
       run: (current) => {
-        current.artifacts.set(TEST_TAGS.artifact.output, { valid: false });
+        testArtifactRuntimes.output.publish(current, { valid: false });
       },
     });
 
     const executor = new PipelineExecutor(registry, { log: () => {} });
     const plan = compilePlan(registry, ["apply-operation"]);
+    const context = createTestContext(plan.setup);
     const { stepResults } = executor.executePlanReport(context, plan);
 
     expect(stepResults).toHaveLength(1);
@@ -177,9 +202,7 @@ describe("dependency gating", () => {
   });
 
   it("throws StepExecutionError on unsatisfied provides", () => {
-    const context = createTestContext();
-
-    const registry = new StepRegistry<TestContext>();
+    const registry = new StepRegistry();
     registry.registerTags(TEST_TAG_DEFINITIONS);
     registry.register({
       id: "apply-operation",
@@ -191,6 +214,7 @@ describe("dependency gating", () => {
 
     const executor = new PipelineExecutor(registry, { log: () => {} });
     const plan = compilePlan(registry, ["apply-operation"]);
+    const context = createTestContext(plan.setup);
 
     const error = captureThrown(() => executor.executePlan(context, plan));
     expect(error).toBeInstanceOf(StepExecutionError);

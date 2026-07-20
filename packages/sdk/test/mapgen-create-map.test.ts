@@ -80,6 +80,13 @@ describe("createMap", () => {
         args: [{ width: 2, height: 2, topLatitude: 60, bottomLatitude: -60, mapSize: 4 }],
       });
       expect(recipeRun).toHaveBeenCalledTimes(1);
+      const [context, config] = recipeRun.mock.calls[0] as unknown as [{ setup: unknown }, unknown];
+      expect(context.setup).toEqual({
+        mapSeed: 123,
+        dimensions: { width: 2, height: 2 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      });
+      expect(config).toEqual({});
 
       const evidenceIndex = logs.findIndex((line) => line.includes("[mapgen-evidence]"));
       const recipeIndex = logs.findIndex((line) => line === "recipe-run");

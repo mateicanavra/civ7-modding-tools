@@ -129,8 +129,8 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
 
     const deltas = ops.geomorphology(
       {
-        width: context.dimensions.width,
-        height: context.dimensions.height,
+        width: context.setup.dimensions.width,
+        height: context.setup.dimensions.height,
         elevation,
         landMask,
         flowDir: routing.flowDir,

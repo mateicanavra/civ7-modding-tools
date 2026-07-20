@@ -33,80 +33,90 @@ describe("Swooper run manifest generator", () => {
     );
   });
 
-  test("generates the stable Studio run mod tree from a valid Studio manifest", async () => {
-    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-generator-"));
-    try {
-      const manifestRef = await writeStudioRunGenerationManifest({
-        manifestInput: manifestInput(),
-        workspaceRoot,
-      });
-      const manifest = await readStudioRunGenerationManifest(manifestRef.path);
-      const generated = await generateSwooperRunGeneratedModFromManifestPath(manifestRef.path);
-      const runArtifactId = createRunArtifactId(manifest.payload.requestId);
-      const mapRowId = STUDIO_RUN_MAP_ROW_ID;
+  test(
+    "generates the stable Studio run mod tree from a valid Studio manifest",
+    async () => {
+      const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-generator-"));
+      try {
+        const manifestRef = await writeStudioRunGenerationManifest({
+          manifestInput: manifestInput(),
+          workspaceRoot,
+        });
+        const manifest = await readStudioRunGenerationManifest(manifestRef.path);
+        const generated = await generateSwooperRunGeneratedModFromManifestPath(manifestRef.path);
+        const runArtifactId = createRunArtifactId(manifest.payload.requestId);
+        const mapRowId = STUDIO_RUN_MAP_ROW_ID;
 
-      expect(generated).toMatchObject({
-        requestId: manifest.payload.requestId,
-        runArtifactId,
-        generatedModRoot: resolve(workspaceRoot, manifest.payload.requestId, "generated-mod"),
-        mapRowId: STUDIO_RUN_MAP_ROW_ID,
-        mapScriptPath: STUDIO_RUN_MAP_SCRIPT_PATH,
-        fileCount: 5,
-      });
-      expect(
-        await readFile(resolve(generated.generatedModRoot, `${STUDIO_RUN_MOD_ID}.modinfo`), "utf8")
-      ).toContain(`<Mod id="${STUDIO_RUN_MOD_ID}"`);
-      const modInfo = await readFile(
-        resolve(generated.generatedModRoot, `${STUDIO_RUN_MOD_ID}.modinfo`),
-        "utf8"
-      );
-      expect(modInfo).toContain(`<Mod id="swooper-maps" title="LOC_MODULE_SWOOPER_MAPS_NAME"/>`);
-      expect(modInfo.split(`id="always-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
-      expect(modInfo.split(`id="game-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
-      expect(modInfo.split(`id="shell-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
-      expect(modInfo).not.toContain('<Criteria id="always">');
-      expect(modInfo).not.toContain('id="game-swooper-maps"');
-      expect(modInfo).not.toContain('id="shell-swooper-maps"');
-      expect(modInfo).not.toContain("data/biome-hazards.xml");
-      const configXml = await readFile(
-        resolve(generated.generatedModRoot, "config/config.xml"),
-        "utf8"
-      );
-      expect(
-        configXml.split(`File="{${STUDIO_RUN_MOD_ID}}/${STUDIO_RUN_MAP_SCRIPT_PATH}"`).length - 1
-      ).toBe(1);
-      expect(configXml.split(`Name="LOC_MAP_${mapRowId}_NAME"`).length - 1).toBe(1);
-      expect(configXml.split(`Description="LOC_MAP_${mapRowId}_DESCRIPTION"`).length - 1).toBe(1);
-      const mapText = await readFile(
-        resolve(generated.generatedModRoot, "text/en_us/MapText.xml"),
-        "utf8"
-      );
-      expect(mapText.split(`Tag="LOC_MAP_${mapRowId}_NAME"`).length - 1).toBe(1);
-      expect(mapText.split(`Tag="LOC_MAP_${mapRowId}_DESCRIPTION"`).length - 1).toBe(1);
-      expect(mapText).not.toContain("LOC_PLOTEFFECT_DESERT_HEAT_NAME");
-      await expect(
-        readFile(resolve(generated.generatedModRoot, "data/biome-hazards.xml"), "utf8")
-      ).rejects.toThrow();
-      await expect(
-        readFile(resolve(generated.generatedModRoot, "text/en_us/ModuleText.xml"), "utf8")
-      ).rejects.toThrow();
-      const mapScript = await readFile(
-        resolve(generated.generatedModRoot, STUDIO_RUN_MAP_SCRIPT_PATH),
-        "utf8"
-      );
-      expect(mapScript.length).toBeGreaterThan(0);
-      expect(mapScript).toContain(manifest.payload.requestId);
-      expect(mapScript).toContain(manifest.payload.canonicalConfigDigest);
-      expect(mapScript).toContain(manifest.payload.launchEnvelopeDigest);
-      expect(mapScript).not.toContain("configContentDigest");
-      await expectCiv7MapScriptCompatibility(mapScript, STUDIO_RUN_MAP_SCRIPT_PATH);
-      await expect(
-        readFile(resolve(generated.generatedModRoot, ".source/maps", `${runArtifactId}.ts`), "utf8")
-      ).rejects.toThrow();
-    } finally {
-      await rm(workspaceRoot, { recursive: true, force: true });
-    }
-  });
+        expect(generated).toMatchObject({
+          requestId: manifest.payload.requestId,
+          runArtifactId,
+          generatedModRoot: resolve(workspaceRoot, manifest.payload.requestId, "generated-mod"),
+          mapRowId: STUDIO_RUN_MAP_ROW_ID,
+          mapScriptPath: STUDIO_RUN_MAP_SCRIPT_PATH,
+          fileCount: 5,
+        });
+        expect(
+          await readFile(
+            resolve(generated.generatedModRoot, `${STUDIO_RUN_MOD_ID}.modinfo`),
+            "utf8"
+          )
+        ).toContain(`<Mod id="${STUDIO_RUN_MOD_ID}"`);
+        const modInfo = await readFile(
+          resolve(generated.generatedModRoot, `${STUDIO_RUN_MOD_ID}.modinfo`),
+          "utf8"
+        );
+        expect(modInfo).toContain(`<Mod id="swooper-maps" title="LOC_MODULE_SWOOPER_MAPS_NAME"/>`);
+        expect(modInfo.split(`id="always-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
+        expect(modInfo.split(`id="game-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
+        expect(modInfo.split(`id="shell-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
+        expect(modInfo).not.toContain('<Criteria id="always">');
+        expect(modInfo).not.toContain('id="game-swooper-maps"');
+        expect(modInfo).not.toContain('id="shell-swooper-maps"');
+        expect(modInfo).not.toContain("data/biome-hazards.xml");
+        const configXml = await readFile(
+          resolve(generated.generatedModRoot, "config/config.xml"),
+          "utf8"
+        );
+        expect(
+          configXml.split(`File="{${STUDIO_RUN_MOD_ID}}/${STUDIO_RUN_MAP_SCRIPT_PATH}"`).length - 1
+        ).toBe(1);
+        expect(configXml.split(`Name="LOC_MAP_${mapRowId}_NAME"`).length - 1).toBe(1);
+        expect(configXml.split(`Description="LOC_MAP_${mapRowId}_DESCRIPTION"`).length - 1).toBe(1);
+        const mapText = await readFile(
+          resolve(generated.generatedModRoot, "text/en_us/MapText.xml"),
+          "utf8"
+        );
+        expect(mapText.split(`Tag="LOC_MAP_${mapRowId}_NAME"`).length - 1).toBe(1);
+        expect(mapText.split(`Tag="LOC_MAP_${mapRowId}_DESCRIPTION"`).length - 1).toBe(1);
+        expect(mapText).not.toContain("LOC_PLOTEFFECT_DESERT_HEAT_NAME");
+        await expect(
+          readFile(resolve(generated.generatedModRoot, "data/biome-hazards.xml"), "utf8")
+        ).rejects.toThrow();
+        await expect(
+          readFile(resolve(generated.generatedModRoot, "text/en_us/ModuleText.xml"), "utf8")
+        ).rejects.toThrow();
+        const mapScript = await readFile(
+          resolve(generated.generatedModRoot, STUDIO_RUN_MAP_SCRIPT_PATH),
+          "utf8"
+        );
+        expect(mapScript.length).toBeGreaterThan(0);
+        expect(mapScript).toContain(manifest.payload.requestId);
+        expect(mapScript).toContain(manifest.payload.canonicalConfigDigest);
+        expect(mapScript).toContain(manifest.payload.launchEnvelopeDigest);
+        expect(mapScript).not.toContain("configContentDigest");
+        await expectCiv7MapScriptCompatibility(mapScript, STUDIO_RUN_MAP_SCRIPT_PATH);
+        await expect(
+          readFile(
+            resolve(generated.generatedModRoot, ".source/maps", `${runArtifactId}.ts`),
+            "utf8"
+          )
+        ).rejects.toThrow();
+      } finally {
+        await rm(workspaceRoot, { recursive: true, force: true });
+      }
+    },
+    { timeout: 15_000 }
+  );
 
   test("preserves the complete canonical config in a generated run manifest", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-config-"));

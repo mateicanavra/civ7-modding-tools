@@ -1,4 +1,4 @@
-import { snapshotEngineHeightfield } from "@swooper/mapgen-core";
+import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import type { VizProjection } from "@swooper/mapgen-viz";
 import { defineStandardVizMeta } from "../../../../viz.js";
@@ -16,8 +16,8 @@ export const LakesStep = createStep(LakesStepContract, {
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const mountains = deps.artifacts.mountains.read(context);
     const topography = deps.artifacts.topography.read(context);
-    const { width, height } = context.dimensions;
-    const size = Math.max(0, width * height);
+    const { width, height } = context.setup.dimensions;
+    const size = width * height;
 
     const projectionLakeMask = new Uint8Array(size);
     let morphologyProtectedLakeTileCount = 0;
@@ -34,57 +34,53 @@ export const LakesStep = createStep(LakesStepContract, {
     // so this stage records projection evidence without owning Civ7 terrain APIs.
     const topographyLandMask = topography.landMask;
     const projection = context.adapter.stampLakes(width, height, projectionLakeMask);
-    const engineAfter = snapshotEngineHeightfield(context);
-    if (engineAfter) {
-      deps.artifacts.engineProjectionLakes.publish(context, {
-        width,
-        height,
-        lakeMask: projection.stampedLakeMask,
-        plannedLakeMask: lakePlan.lakeMask,
-        engineWaterMask: projection.engineWaterMask,
-        engineLakeMask: projection.engineLakeMask,
-        engineTerrain: projection.engineTerrain,
-        engineAreaId: projection.engineAreaId,
-        engineElevation: projection.engineElevation,
-        nonWaterMask: projection.nonWaterMask,
-        nonLakeMask: projection.nonLakeMask,
-        terrainMismatchMask: projection.terrainMismatchMask,
-        sinkMismatchCount: projection.rejectedLakeTileCount,
-        nonLakeTileCount: projection.nonLakeTileCount,
-        terrainMismatchTileCount: projection.terrainMismatchTileCount,
-        morphologyProtectedLakeTileCount,
-      });
+    const engineAfter = snapshotEngineHeightfield(context.adapter);
+    deps.artifacts.engineProjectionLakes.publish(context, {
+      width,
+      height,
+      lakeMask: projection.stampedLakeMask,
+      plannedLakeMask: lakePlan.lakeMask,
+      engineWaterMask: projection.engineWaterMask,
+      engineLakeMask: projection.engineLakeMask,
+      engineTerrain: projection.engineTerrain,
+      engineAreaId: projection.engineAreaId,
+      engineElevation: projection.engineElevation,
+      nonWaterMask: projection.nonWaterMask,
+      nonLakeMask: projection.nonLakeMask,
+      terrainMismatchMask: projection.terrainMismatchMask,
+      sinkMismatchCount: projection.rejectedLakeTileCount,
+      nonLakeTileCount: projection.nonLakeTileCount,
+      terrainMismatchTileCount: projection.terrainMismatchTileCount,
+      morphologyProtectedLakeTileCount,
+    });
 
-      deps.artifacts.hydrologyLakesEngineTerrainSnapshot.publish(context, {
-        stage: "map-hydrology/lakes",
-        width,
-        height,
-        landMask: engineAfter.landMask,
-        terrain: engineAfter.terrain,
-        elevation: engineAfter.elevation,
-      });
+    deps.artifacts.hydrologyLakesEngineTerrainSnapshot.publish(context, {
+      stage: "map-hydrology/lakes",
+      width,
+      height,
+      landMask: engineAfter.landMask,
+      terrain: engineAfter.terrain,
+      elevation: engineAfter.elevation,
+    });
 
-      context.trace.event(() => ({
-        type: "map.hydrology.lakes.parity",
-        plannedLakeTileCount: lakePlan.plannedLakeTileCount,
-        projectedCandidateLakeTileCount: projection.plannedLakeTileCount,
-        stampedLakeTileCount: projection.stampedLakeTileCount,
-        rejectedLakeTileCount: projection.rejectedLakeTileCount,
-        morphologyProtectedLakeTileCount,
-        nonLakeTileCount: projection.nonLakeTileCount,
-        terrainMismatchTileCount: projection.terrainMismatchTileCount,
-        rejectedLakeShare: Number(
-          (projection.rejectedLakeTileCount / Math.max(1, projection.plannedLakeTileCount)).toFixed(
-            4
-          )
-        ),
-      }));
-    }
+    context.trace.event(() => ({
+      type: "map.hydrology.lakes.parity",
+      plannedLakeTileCount: lakePlan.plannedLakeTileCount,
+      projectedCandidateLakeTileCount: projection.plannedLakeTileCount,
+      stampedLakeTileCount: projection.stampedLakeTileCount,
+      rejectedLakeTileCount: projection.rejectedLakeTileCount,
+      morphologyProtectedLakeTileCount,
+      nonLakeTileCount: projection.nonLakeTileCount,
+      terrainMismatchTileCount: projection.terrainMismatchTileCount,
+      rejectedLakeShare: Number(
+        (projection.rejectedLakeTileCount / Math.max(1, projection.plannedLakeTileCount)).toFixed(4)
+      ),
+    }));
     return {
       plannedLakeMask: lakePlan.lakeMask,
       topographyLandMask,
       projection,
-      engineLandMask: engineAfter?.landMask,
+      engineLandMask: engineAfter.landMask,
     };
   },
   viz: ({ result, config, dimensions }) => {
@@ -102,8 +98,6 @@ export const LakesStep = createStep(LakesStepContract, {
         }),
       },
     ];
-    if (!result.engineLandMask) return projections;
-
     if (config.projectionReadback) {
       projections.push(
         {

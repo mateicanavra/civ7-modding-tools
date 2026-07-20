@@ -13,7 +13,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
  */
 export const IslandsStep = createStep(IslandsStepContract, {
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const plates = deps.artifacts.foundationPlates.read(context);
     const topography = deps.artifacts.erodedTopography.read(context);
     const elevation = new Int16Array(topography.elevation);
@@ -21,7 +21,7 @@ export const IslandsStep = createStep(IslandsStepContract, {
     const bathymetry = new Int16Array(topography.bathymetry);
     const seaLevelValue = topography.seaLevel;
     const landElevation = clampInt16(Math.floor(seaLevelValue) + 1);
-    const rngSeed = deriveStepSeed(context.env.seed, "morphology:planIslandChains");
+    const rngSeed = deriveStepSeed(context.setup.mapSeed, "morphology:planIslandChains");
 
     const plan = ops.islands(
       {
@@ -50,7 +50,7 @@ export const IslandsStep = createStep(IslandsStepContract, {
       }
     }
 
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const size = width * height;
     const editMask = new Uint8Array(size);
     for (const edit of plan.edits) {
       const index = edit.index | 0;

@@ -17,7 +17,10 @@ const TransportMoistureInputSchema = Type.Object(
     /** Tile grid height. */
     height: Type.Integer({ minimum: 1, description: "Tile grid height (rows)." }),
     /** Latitude by row in degrees; length must equal `height`. */
-    latitudeByRow: TypedArraySchemas.f32({ description: "Latitude per row (degrees)." }),
+    latitudeByRow: TypedArraySchemas.f32({
+      cardinality: ["height"],
+      description: "Latitude per row (degrees).",
+    }),
     /** Land mask per tile (1=land, 0=water). */
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
     /** Wind U component per tile (-127..127). */
@@ -50,9 +53,9 @@ const TransportMoistureOutputSchema = Type.Object(
 );
 
 /**
- * Default transport parameters.
+ * Cardinal transport parameters.
  */
-const TransportMoistureDefaultStrategySchema = Type.Object(
+const TransportMoistureCardinalStrategySchema = Type.Object(
   {
     /** Fixed advection iterations (no convergence loops). */
     iterations: Type.Integer({
@@ -78,7 +81,7 @@ const TransportMoistureDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Moisture transport parameters (default strategy).",
+    description: "Moisture transport parameters for the cardinal strategy.",
   }
 );
 
@@ -87,7 +90,7 @@ const TransportMoistureDefaultStrategySchema = Type.Object(
  *
  * This strategy uses the full U/V vector (rather than cardinal snapping) to choose 1–2 upwind neighbors.
  */
-const TransportMoistureVectorStrategySchema = Type.Object(
+const TransportMoistureVectorAdvectionStrategySchema = Type.Object(
   {
     /** Fixed advection iterations (no convergence loops). */
     iterations: Type.Integer({
@@ -120,18 +123,20 @@ const TransportMoistureVectorStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Moisture transport parameters (vector strategy).",
+    description: "Moisture transport parameters for the vector-advection strategy.",
   }
 );
 
+/** Moisture-transport contract with vector advection as the product default and cardinal fallback. */
 const TransportMoistureContract = defineOp({
   kind: "compute",
   id: "hydrology/transport-moisture",
   input: TransportMoistureInputSchema,
   output: TransportMoistureOutputSchema,
+  defaultStrategy: "vector-advection",
   strategies: {
-    default: TransportMoistureVectorStrategySchema,
-    cardinal: TransportMoistureDefaultStrategySchema,
+    "vector-advection": TransportMoistureVectorAdvectionStrategySchema,
+    cardinal: TransportMoistureCardinalStrategySchema,
   },
 });
 

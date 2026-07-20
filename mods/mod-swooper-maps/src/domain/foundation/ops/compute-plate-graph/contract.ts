@@ -77,6 +77,7 @@ const ComputePlateGraphContract = defineOp({
     { additionalProperties: false }
   ),
   output: Type.Object({ plateGraph: FoundationPlateGraphSchema }, { additionalProperties: false }),
+  defaultStrategy: "default",
   strategies: {
     default: StrategySchema,
   },

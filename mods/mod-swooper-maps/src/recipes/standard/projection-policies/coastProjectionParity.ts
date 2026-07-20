@@ -1,4 +1,8 @@
-import { COAST_TERRAIN, type ExtendedMapContext, OCEAN_TERRAIN } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
+import {
+  resolveStandardProjectionTerrainTypes,
+  type StandardProjectionTerrainTypes,
+} from "./standardProjectionEngineTypes.js";
 
 const WATER_CLASS_COAST = 1;
 const WATER_CLASS_OCEAN = 2;
@@ -29,18 +33,18 @@ export interface CoastProjectionRepairReport {
 }
 
 function validateCoastSurface(
-  context: ExtendedMapContext,
+  context: MapContext,
   coastClassification: CoastClassificationSurface,
   label: string
 ): void {
-  const { width, height } = context.dimensions;
-  const size = Math.max(0, (width | 0) * (height | 0));
-  if ((coastClassification.width | 0) !== (width | 0)) {
+  const { width, height } = context.setup.dimensions;
+  const size = width * height;
+  if (coastClassification.width !== width) {
     throw new Error(
       `[${label}] coastClassification width ${coastClassification.width} does not match ${width}.`
     );
   }
-  if ((coastClassification.height | 0) !== (height | 0)) {
+  if (coastClassification.height !== height) {
     throw new Error(
       `[${label}] coastClassification height ${coastClassification.height} does not match ${height}.`
     );
@@ -55,9 +59,12 @@ function validateCoastSurface(
   }
 }
 
-function expectedTerrainForWaterClass(waterClass: number): number | null {
-  if (waterClass === WATER_CLASS_COAST) return COAST_TERRAIN;
-  if (waterClass === WATER_CLASS_OCEAN) return OCEAN_TERRAIN;
+function expectedTerrainForWaterClass(
+  waterClass: number,
+  terrain: StandardProjectionTerrainTypes
+): number | null {
+  if (waterClass === WATER_CLASS_COAST) return terrain.coast;
+  if (waterClass === WATER_CLASS_OCEAN) return terrain.ocean;
   return null;
 }
 
@@ -68,14 +75,15 @@ function expectedTerrainForWaterClass(waterClass: number): number | null {
  * by their projection steps.
  */
 export function restoreProjectedCoastTerrain(
-  context: ExtendedMapContext,
+  context: MapContext,
   coastClassification: CoastClassificationSurface,
   label: string,
   options: { sampleLimit?: number } = {}
 ): CoastProjectionRepairReport {
   validateCoastSurface(context, coastClassification, label);
 
-  const { width, height } = context.dimensions;
+  const { width, height } = context.setup.dimensions;
+  const terrain = resolveStandardProjectionTerrainTypes(context.adapter);
   const sampleLimit = Math.max(0, options.sampleLimit ?? DEFAULT_SAMPLE_LIMIT);
   let repairedCount = 0;
   let coastRepairCount = 0;
@@ -86,7 +94,8 @@ export function restoreProjectedCoastTerrain(
     for (let x = 0; x < width; x++) {
       const index = y * width + x;
       const expectedTerrain = expectedTerrainForWaterClass(
-        coastClassification.waterClass[index] | 0
+        coastClassification.waterClass[index] | 0,
+        terrain
       );
       if (expectedTerrain == null) continue;
 
@@ -95,8 +104,8 @@ export function restoreProjectedCoastTerrain(
 
       context.adapter.setTerrainType(x, y, expectedTerrain);
       repairedCount += 1;
-      if (expectedTerrain === COAST_TERRAIN) coastRepairCount += 1;
-      if (expectedTerrain === OCEAN_TERRAIN) oceanRepairCount += 1;
+      if (expectedTerrain === terrain.coast) coastRepairCount += 1;
+      if (expectedTerrain === terrain.ocean) oceanRepairCount += 1;
       if (samples.length < sampleLimit) {
         samples.push({ index, x, y, expectedTerrain, actualTerrain });
       }

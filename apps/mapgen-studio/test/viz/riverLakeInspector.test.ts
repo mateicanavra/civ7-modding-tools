@@ -1,5 +1,5 @@
 import { createMockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import standardRecipe from "mod-swooper-maps/recipes/standard";
 import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
@@ -280,31 +280,24 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       StartSectorRows: 4,
       StartSectorCols: 4,
     };
-    const envBase = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: {
         topLatitude: mapInfo.MaxLatitude,
         bottomLatitude: mapInfo.MinLatitude,
       },
-    };
+    });
     const earthlikeArtifact = standardMapConfigs.find(
       ({ canonicalConfig }) => canonicalConfig.id === "swooper-earthlike"
     );
     if (!earthlikeArtifact)
       throw new Error("swooper-earthlike config missing from standard map config catalog");
     const standardConfig = studioStandardRecipeConfig(earthlikeArtifact.canonicalConfig);
-    const plan = standardRecipe.compile(envBase, standardConfig);
+    const plan = standardRecipe.compile(setup, standardConfig);
     const verboseSteps = Object.fromEntries(
       plan.nodes.map((node) => [node.stepId, "verbose"] as const)
     );
-    const env = {
-      ...envBase,
-      trace: {
-        enabled: true,
-        steps: verboseSteps,
-      },
-    };
     const adapter = createMockAdapter({
       width,
       height,
@@ -312,18 +305,21 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
     const events: BrowserRunEvent[] = [];
     const post = (event: BrowserRunEvent): void => {
       events.push(event);
     };
 
-    standardRecipe.run(context, env, standardConfig, {
-      traceSink: createWorkerTraceSink({
-        runToken: "studio-river-lake-inspector-test",
-        generation: 1,
-        post,
-      }),
+    standardRecipe.run(context, standardConfig, {
+      trace: {
+        config: { steps: verboseSteps },
+        sink: createWorkerTraceSink({
+          runToken: "studio-river-lake-inspector-test",
+          generation: 1,
+          post,
+        }),
+      },
       facets: {
         viz: createWorkerVizFacetSink({
           runToken: "studio-river-lake-inspector-test",

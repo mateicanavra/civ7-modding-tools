@@ -114,6 +114,7 @@ const PlanIslandChainsContract = defineOp({
       description: "Terrain edits to apply for island chains.",
     }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: IslandChainsConfigSchema,
   },

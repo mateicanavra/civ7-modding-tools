@@ -94,8 +94,8 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     const hydrography = deps.artifacts.hydrography.read(context);
     const projected = ops.selectNavigableRiverTerrain(
       {
-        width: context.dimensions.width,
-        height: context.dimensions.height,
+        width: context.setup.dimensions.width,
+        height: context.setup.dimensions.height,
         riverClass: hydrography.riverClass,
         discharge: hydrography.discharge,
         flowDir: hydrography.flowDir,
@@ -121,7 +121,7 @@ terrain stamping, as native Civ materialization for metadata/model/cache state.
 Stages exist to compile stage-level configuration into per-step config:
 
 - `stage.surfaceSchema` validates the stage config surface.
-- `stage.toInternal({ env, stageConfig })` returns:
+- `stage.toInternal({ setup, stageConfig })` returns:
   - `knobs` (derived tuning)
   - `rawSteps` (per-step raw config objects)
 

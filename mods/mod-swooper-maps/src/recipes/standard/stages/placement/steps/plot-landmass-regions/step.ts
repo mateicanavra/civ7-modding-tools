@@ -10,7 +10,6 @@ import { PlotLandmassRegionsStepContract } from "./config.js";
 type RegionSlot = 0 | 1 | 2;
 
 function computeWrappedIntervalCenter(west: number, east: number, width: number): number {
-  if (width <= 0) return 0;
   const w = ((west % width) + width) % width;
   const e = ((east % width) + width) % width;
   if (w <= e) return Math.floor((w + e) / 2);
@@ -37,7 +36,7 @@ function circularCentroidColumn(
   }
   let angle = Math.atan2(s, c);
   if (angle < 0) angle += 2 * Math.PI;
-  return width > 0 ? Math.round((angle / (2 * Math.PI)) * width) % width : 0;
+  return Math.round((angle / (2 * Math.PI)) * width) % width;
 }
 
 function resolveSlotByTile(input: {
@@ -48,7 +47,7 @@ function resolveSlotByTile(input: {
   landmasses: ReadonlyArray<{ id: number; bbox: { west: number; east: number } }>;
 }): Uint8Array {
   const { width, height, landMask, landmassIdByTile, landmasses } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
+  const size = width * height;
   if (landMask.length !== size) {
     throw new Error(`Expected landMask length ${size} (received ${landMask.length}).`);
   }
@@ -68,7 +67,7 @@ function resolveSlotByTile(input: {
   const columnLand = new Float64Array(width);
   const cosSum = new Float64Array(landmasses.length);
   const sinSum = new Float64Array(landmasses.length);
-  const radiansPerColumn = width > 0 ? (2 * Math.PI) / width : 0;
+  const radiansPerColumn = (2 * Math.PI) / width;
   for (let i = 0; i < size; i++) {
     if ((landMask[i] | 0) !== 1) continue;
     const y = (i / width) | 0;
@@ -119,7 +118,7 @@ export const PlotLandmassRegionsStep = createStep(PlotLandmassRegionsStepContrac
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const landmasses = deps.artifacts.landmasses.read(context);
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const slotByTile = resolveSlotByTile({
       width,
       height,
@@ -132,7 +131,7 @@ export const PlotLandmassRegionsStep = createStep(PlotLandmassRegionsStepContrac
     const eastRegionId = context.adapter.getLandmassId("EAST");
     const noneRegionId = context.adapter.getLandmassId("NONE");
 
-    const size = Math.max(0, (width | 0) * (height | 0));
+    const size = width * height;
     for (let i = 0; i < size; i++) {
       const y = (i / width) | 0;
       const x = i - y * width;

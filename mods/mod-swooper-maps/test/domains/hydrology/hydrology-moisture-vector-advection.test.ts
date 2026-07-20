@@ -7,7 +7,7 @@ function idx(x: number, y: number, width: number): number {
   return y * width + x;
 }
 
-describe("hydrology/transport-moisture (default)", () => {
+describe("hydrology/transport-moisture (vector-advection)", () => {
   it("advects humidity downwind (eastward)", () => {
     const width = 16;
     const height = 8;
@@ -30,7 +30,7 @@ describe("hydrology/transport-moisture (default)", () => {
     const out = transportMoisture.run(
       { width, height, latitudeByRow, landMask, windU, windV, evaporation },
       {
-        strategy: "default",
+        strategy: "vector-advection",
         config: { iterations: 48, advection: 1, retention: 1, secondaryWeightMin: 0.2 },
       }
     );

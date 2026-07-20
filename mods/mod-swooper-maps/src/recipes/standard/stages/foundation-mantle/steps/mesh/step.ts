@@ -12,7 +12,7 @@ const GROUP_MESH = "Foundation / Mesh";
  */
 export const MeshStep = createStep(MeshStepContract, {
   run: (context, config, ops, deps) => {
-    const { width, height } = context.dimensions;
+    const { width, height } = context.setup.dimensions;
     const stepId = `${MeshStepContract.phase}/${MeshStepContract.id}`;
     const rngSeed = ctxRandom(
       context,

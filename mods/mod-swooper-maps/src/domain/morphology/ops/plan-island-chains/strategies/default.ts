@@ -9,7 +9,6 @@ import {
   resolveClusterCount,
   selectIslandKind,
   shouldSeedIsland,
-  validateIslandInputs,
 } from "../rules/index.js";
 
 const BOUNDARY_CONVERGENT = 1;
@@ -17,8 +16,7 @@ const BOUNDARY_TRANSFORM = 3;
 
 export const defaultStrategy = createStrategy(PlanIslandChainsContract, "default", {
   run: (input, config) => {
-    const { width, height } = input;
-    const { landMask, boundaryCloseness, boundaryType, volcanism } = validateIslandInputs(input);
+    const { width, height, landMask, boundaryCloseness, boundaryType, volcanism } = input;
 
     const rng = createLabelRng(input.rngSeed | 0);
     const perlin = new PerlinNoise((input.rngSeed | 0) ^ 0x5f356495);

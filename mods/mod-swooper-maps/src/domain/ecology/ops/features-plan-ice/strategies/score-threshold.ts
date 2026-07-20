@@ -1,25 +1,15 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import {
-  confidenceFromScore01,
-  validateGridSize,
-} from "../../../model/policy/feature-score-selection.js";
+import { confidenceFromScore01 } from "../../../model/policy/feature-score-selection.js";
 import type { FeatureIntentKey } from "../../../model/schemas/index.js";
 import PlanIceContract from "../contract.js";
 import { admitIceIntent } from "../policy/index.js";
 
-export const defaultStrategy = createStrategy(PlanIceContract, "default", {
+/** Selects ice intent wherever the admitted freeze score reaches the configured threshold. */
+export const scoreThresholdStrategy = createStrategy(PlanIceContract, "score-threshold", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = validateGridSize({
-      width,
-      height,
-      fields: [
-        { label: "score01", arr: input.score01 as Float32Array },
-        { label: "featureOccupancyMask", arr: input.featureOccupancyMask as Uint8Array },
-        { label: "reserved", arr: input.reserved as Uint8Array },
-      ],
-    });
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
       [];

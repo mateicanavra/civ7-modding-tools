@@ -1,21 +1,21 @@
-import type { ExtendedMapContext } from "@mapgen/core/types.js";
+import type { MapContext } from "@mapgen/core/map-context.js";
+import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import {
   compileExecutionPlan,
-  createTraceSessionFromPlan,
   type DependencyTagDefinition,
-  type Env,
   type ExecutionPlan,
   type MapGenStep,
+  type MapSetup,
+  type MapSetupInput,
   PipelineExecutor,
   type RecipeV2,
   type RunRequest,
-  type StepFacetSinks,
   StepRegistry,
   TagRegistry,
 } from "@mapgen/engine/index.js";
-import type { TraceSession, TraceSink } from "@mapgen/trace/index.js";
-import { createConsoleTraceSink } from "@mapgen/trace/index.js";
+import type { ReadonlyDeep } from "type-fest";
 import { compileRecipeConfig } from "../compiler/recipe-compile.js";
+import { assertExecutionPlanRegistryInternal } from "../engine/execution-plan.js";
 import type { ArtifactContract, ArtifactReadValueOf } from "./artifact/contract.js";
 import type { ArtifactModule } from "./artifact/module.js";
 import {
@@ -26,8 +26,9 @@ import {
 import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./bindings.js";
 import type {
   CompiledRecipeConfigOf,
-  RecipeConfig,
+  RecipeAsyncExecutionOptions,
   RecipeDefinition,
+  RecipeExecutionOptions,
   RecipeModule,
   RecipePublicConfigOf,
   StageContract,
@@ -35,28 +36,67 @@ import type {
   StepDeps,
 } from "./types.js";
 
-type AnyStage<TContext extends ExtendedMapContext> = StageContract<
-  any,
-  TContext,
-  any,
-  any,
-  any,
-  any
->;
+type AnyStage = StageContract<any, any, any, any, any>;
 
-type StepOccurrence<TContext> = {
+type StepOccurrence = {
   stageId: string;
   stepId: string;
-  step: MapGenStep<TContext, unknown>;
+  step: MapGenStep<unknown>;
 };
 
-function assertTagDefinitions(value: unknown): void {
-  if (!Array.isArray(value)) {
-    throw new Error("createRecipe requires tagDefinitions (may be an empty array)");
+function snapshotAuthorship<T>(value: T, seen = new WeakMap<object, unknown>()): T {
+  if ((typeof value !== "object" || value === null) && typeof value !== "function") return value;
+  if (typeof value === "function") return value;
+
+  const existing = seen.get(value);
+  if (existing !== undefined) return existing as T;
+
+  if (Array.isArray(value)) {
+    const snapshot: unknown[] = new Array(value.length);
+    seen.set(value, snapshot);
+    for (const key of Reflect.ownKeys(value)) {
+      if (key === "length") continue;
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (!descriptor || !("value" in descriptor)) {
+        throw new TypeError("Recipe authorship arrays must contain data properties only.");
+      }
+      Object.defineProperty(snapshot, key, {
+        ...descriptor,
+        value: snapshotAuthorship(descriptor.value, seen),
+      });
+    }
+    return Object.freeze(snapshot) as T;
   }
+
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) {
+    throw new TypeError("Recipe authorship must contain plain data objects and functions only.");
+  }
+
+  const snapshot = Object.create(prototype) as Record<PropertyKey, unknown>;
+  seen.set(value, snapshot);
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (!descriptor || !("value" in descriptor)) {
+      throw new TypeError("Recipe authorship must contain data properties only.");
+    }
+    Object.defineProperty(snapshot, key, {
+      ...descriptor,
+      value: snapshotAuthorship(descriptor.value, seen),
+    });
+  }
+  return Object.freeze(snapshot) as T;
 }
 
-function inferTagKind(id: string): DependencyTagDefinition<unknown>["kind"] {
+function assertTagDefinitions(value: unknown): void {
+  Array.isArray(value) || rejectMissingTagDefinitions();
+}
+
+function rejectMissingTagDefinitions(): never {
+  throw new Error("createRecipe requires tagDefinitions (may be an empty array)");
+}
+
+function inferTagKind(id: string): DependencyTagDefinition["kind"] {
   if (id.startsWith("artifact:")) return "artifact";
   if (id.startsWith("effect:")) return "effect";
   throw new Error(`Invalid dependency tag "${id}" (expected artifact:/effect:)`);
@@ -68,62 +108,103 @@ function computeFullStepId(input: {
   stageId: string;
   stepId: string;
 }): string {
-  const base = input.namespace ? `${input.namespace}.${input.recipeId}` : input.recipeId;
+  const base = [input.namespace, input.recipeId]
+    .filter((segment): segment is string => Boolean(segment))
+    .join(".");
   return `${base}.${input.stageId}.${input.stepId}`;
 }
 
-function createRequiredArtifactRuntime<
-  TContext extends ExtendedMapContext,
-  C extends ArtifactContract,
->(contract: C, consumerStepId: string): RequiredArtifactRuntime<C, TContext> {
+function createRequiredArtifactRuntime<C extends ArtifactContract>(
+  contract: C,
+  consumerStepId: string
+): RequiredArtifactRuntime<C> {
   return {
     contract,
-    read: (context: TContext) => {
-      if (!context.artifacts.has(contract.id)) {
-        throw new ArtifactMissingError({
-          artifactId: contract.id,
-          artifactName: contract.name,
-          consumerStepId,
-        });
-      }
-      return context.artifacts.get(contract.id) as ArtifactReadValueOf<C>;
-    },
-    tryRead: (context: TContext) => {
-      if (!context.artifacts.has(contract.id)) return null;
+    read: (context: MapContext) => {
+      context.artifacts.has(contract.id) || rejectMissingArtifact(contract, consumerStepId);
       return context.artifacts.get(contract.id) as ArtifactReadValueOf<C>;
     },
   };
 }
 
-function resolveProvidedArtifactRuntime<TContext extends ExtendedMapContext>(
-  authored: Step<TContext, any>,
+function rejectMissingArtifact(contract: ArtifactContract, consumerStepId: string): never {
+  throw new ArtifactMissingError({
+    artifactId: contract.id,
+    artifactName: contract.name,
+    consumerStepId,
+  });
+}
+
+function resolveProvidedArtifactRuntime(
+  authored: Step<any>,
   contract: ArtifactContract,
   fullStepId: string,
   recipeId: string
-): ProvidedArtifactRuntime<any, TContext> {
+): ProvidedArtifactRuntime<any> {
   const runtime = authored.artifacts?.[contract.name as keyof typeof authored.artifacts];
-  if (!runtime) {
-    throw new Error(
-      `[recipe:${recipeId}] step "${fullStepId}" missing artifact runtime for "${contract.name}"`
-    );
-  }
-  return runtime as unknown as ProvidedArtifactRuntime<any, TContext>;
+  runtime || rejectMissingProvidedArtifactRuntime(contract, fullStepId, recipeId);
+  return runtime as unknown as ProvidedArtifactRuntime<any>;
 }
 
-function buildArtifactDeps<TContext extends ExtendedMapContext>(
-  authored: Step<TContext, any>,
+function rejectMissingProvidedArtifactRuntime(
+  contract: ArtifactContract,
   fullStepId: string,
   recipeId: string
-): StepDeps<TContext, any>["artifacts"] {
+): never {
+  throw new Error(
+    `[recipe:${recipeId}] step "${fullStepId}" missing artifact runtime for "${contract.name}"`
+  );
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function rejectMissingCompiledConfig(recipeId: string): never {
+  throw new Error(`[recipe:${recipeId}] compiled config required (use recipe.compileConfig(...))`);
+}
+
+function requireCompiledStepConfig(
+  config: Readonly<Record<string, unknown>>,
+  recipeId: string,
+  stageId: string,
+  stepId: string
+): Readonly<Record<string, unknown>> {
+  const stageConfig = requireCompiledConfigRecord(
+    config[stageId],
+    recipeId,
+    `missing compiled config for stage "${stageId}" (use recipe.compileConfig(...))`
+  );
+  return requireCompiledConfigRecord(
+    stageConfig[stepId],
+    recipeId,
+    `missing compiled config for step "${stageId}.${stepId}" (use recipe.compileConfig(...))`
+  );
+}
+
+function rejectInvalidCompiledConfig(recipeId: string, detail: string): never {
+  throw new Error(`[recipe:${recipeId}] ${detail}`);
+}
+
+function requireCompiledConfigRecord(
+  value: unknown,
+  recipeId: string,
+  detail: string
+): Readonly<Record<string, unknown>> {
+  return (isRecord(value) && value) || rejectInvalidCompiledConfig(recipeId, detail);
+}
+
+function buildArtifactDeps(
+  authored: Step<any>,
+  fullStepId: string,
+  recipeId: string
+): StepDeps<any>["artifacts"] {
   const artifacts = authored.contract.artifacts;
-  if (!artifacts) return {} as StepDeps<TContext, any>["artifacts"];
+  if (!artifacts) return {} as StepDeps<any>["artifacts"];
 
-  const out: Record<
-    string,
-    RequiredArtifactRuntime<any, TContext> | ProvidedArtifactRuntime<any, TContext>
-  > = {};
+  const out: Record<string, RequiredArtifactRuntime<any> | ProvidedArtifactRuntime<any>> = {};
 
-  const requires = (artifacts.requires ?? []) as readonly ArtifactContract[];
+  const requires: readonly ArtifactContract[] = artifacts.requires ?? [];
   const provides = (artifacts.provides ?? []).map((module: ArtifactModule) => module.artifact);
 
   for (const contract of requires) {
@@ -134,25 +215,25 @@ function buildArtifactDeps<TContext extends ExtendedMapContext>(
     out[contract.name] = resolveProvidedArtifactRuntime(authored, contract, fullStepId, recipeId);
   }
 
-  return out as StepDeps<TContext, typeof artifacts>["artifacts"];
+  return out as StepDeps<typeof artifacts>["artifacts"];
 }
 
-function buildStepDeps<TContext extends ExtendedMapContext>(
-  authored: Step<TContext, any>,
+function buildStepDeps(
+  authored: Step<any>,
   fullStepId: string,
   recipeId: string
-): StepDeps<TContext, typeof authored.contract.artifacts> {
+): StepDeps<typeof authored.contract.artifacts> {
   return {
     artifacts: buildArtifactDeps(authored, fullStepId, recipeId),
-  } as StepDeps<TContext, typeof authored.contract.artifacts>;
+  } as StepDeps<typeof authored.contract.artifacts>;
 }
 
-function collectArtifactTagDefinitions<TContext extends ExtendedMapContext>(input: {
+function collectArtifactTagDefinitions(input: {
   namespace?: string;
   recipeId: string;
-  stages: readonly AnyStage<TContext>[];
-}): DependencyTagDefinition<TContext>[] {
-  const defs = new Map<string, DependencyTagDefinition<TContext>>();
+  stages: readonly AnyStage[];
+}): DependencyTagDefinition[] {
+  const defs = new Map<string, DependencyTagDefinition>();
   const providers = new Map<string, string>();
 
   for (const stage of input.stages) {
@@ -166,18 +247,13 @@ function collectArtifactTagDefinitions<TContext extends ExtendedMapContext>(inpu
       });
 
       const hasArtifactDecl = Boolean(authored.contract.artifacts);
-      for (const tag of authored.contract.provides) {
-        if (!tag.startsWith("artifact:")) continue;
-        if (hasArtifactDecl) {
-          // defineStep merges artifacts.* into requires/provides for gating; tag defs are owned by artifacts.*.
-          continue;
-        }
+      const legacyArtifactTags = authored.contract.provides.filter(
+        (tag: string) => tag.startsWith("artifact:") && !hasArtifactDecl
+      );
+      for (const tag of legacyArtifactTags) {
         const existing = providers.get(tag);
-        if (existing) {
-          throw new Error(
-            `[recipe:${input.recipeId}] artifact "${tag}" provided by multiple steps: ${existing}, ${fullId}`
-          );
-        }
+        existing === undefined ||
+          rejectDuplicateArtifactProvider(input.recipeId, tag, existing, fullId);
         providers.set(tag, fullId);
       }
 
@@ -186,11 +262,8 @@ function collectArtifactTagDefinitions<TContext extends ExtendedMapContext>(inpu
       );
       for (const contract of provides) {
         const existing = providers.get(contract.id);
-        if (existing) {
-          throw new Error(
-            `[recipe:${input.recipeId}] artifact "${contract.id}" provided by multiple steps: ${existing}, ${fullId}`
-          );
-        }
+        existing === undefined ||
+          rejectDuplicateArtifactProvider(input.recipeId, contract.id, existing, fullId);
         const runtime = resolveProvidedArtifactRuntime(authored, contract, fullId, input.recipeId);
         defs.set(contract.id, {
           id: contract.id,
@@ -205,13 +278,24 @@ function collectArtifactTagDefinitions<TContext extends ExtendedMapContext>(inpu
   return Array.from(defs.values());
 }
 
-function finalizeOccurrences<TContext extends ExtendedMapContext>(input: {
+function rejectDuplicateArtifactProvider(
+  recipeId: string,
+  artifactId: string,
+  existingStepId: string,
+  duplicateStepId: string
+): never {
+  throw new Error(
+    `[recipe:${recipeId}] artifact "${artifactId}" provided by multiple steps: ${existingStepId}, ${duplicateStepId}`
+  );
+}
+
+function finalizeOccurrences(input: {
   namespace?: string;
   recipeId: string;
-  stages: readonly AnyStage<TContext>[];
+  stages: readonly AnyStage[];
   runtimeOpsById: Readonly<Record<string, DomainOpRuntimeAny>>;
-}): StepOccurrence<TContext>[] {
-  const out: StepOccurrence<TContext>[] = [];
+}): StepOccurrence[] {
+  const out: StepOccurrence[] = [];
 
   for (const stage of input.stages) {
     for (const authored of stage.steps) {
@@ -228,9 +312,9 @@ function finalizeOccurrences<TContext extends ExtendedMapContext>(input: {
         viz: authored.viz,
       };
 
-      const ops = authored.contract.ops
-        ? bindRuntimeOps(authored.contract.ops as any, input.runtimeOpsById as any)
-        : {};
+      const boundOps =
+        authored.contract.ops &&
+        bindRuntimeOps(authored.contract.ops as any, input.runtimeOpsById as any);
 
       out.push({
         stageId: stage.id,
@@ -241,12 +325,14 @@ function finalizeOccurrences<TContext extends ExtendedMapContext>(input: {
           requires: authored.contract.requires,
           provides: authored.contract.provides,
           configSchema: authored.contract.schema,
-          normalize: authored.normalize as MapGenStep<TContext, unknown>["normalize"] | undefined,
-          run: ((context: TContext, config: unknown) =>
-            (authored.run as any)(context, config, ops, deps)) as unknown as MapGenStep<
-            TContext,
-            unknown
-          >["run"],
+          normalize: authored.normalize as MapGenStep<unknown>["normalize"] | undefined,
+          run: ((context: MapContext, config: unknown) =>
+            (authored.run as any)(
+              context,
+              config,
+              boundOps ?? {},
+              deps
+            )) as MapGenStep<unknown>["run"],
           facets,
         },
       });
@@ -256,12 +342,12 @@ function finalizeOccurrences<TContext extends ExtendedMapContext>(input: {
   return out;
 }
 
-function collectTagDefinitions<TContext>(
-  occurrences: readonly StepOccurrence<TContext>[],
-  explicit: readonly DependencyTagDefinition<TContext>[],
-  artifactTagDefinitions: readonly DependencyTagDefinition<TContext>[]
-): DependencyTagDefinition<TContext>[] {
-  const defs = new Map<string, DependencyTagDefinition<TContext>>();
+function collectTagDefinitions(
+  occurrences: readonly StepOccurrence[],
+  explicit: readonly DependencyTagDefinition[],
+  artifactTagDefinitions: readonly DependencyTagDefinition[]
+): DependencyTagDefinition[] {
+  const defs = new Map<string, DependencyTagDefinition>();
 
   const tagIds = new Set<string>();
   for (const occ of occurrences) {
@@ -269,7 +355,7 @@ function collectTagDefinitions<TContext>(
     for (const tag of occ.step.provides) tagIds.add(tag);
   }
   for (const id of tagIds) {
-    defs.set(id, { id, kind: inferTagKind(id) } as DependencyTagDefinition<TContext>);
+    defs.set(id, { id, kind: inferTagKind(id) });
   }
 
   for (const def of artifactTagDefinitions) {
@@ -283,182 +369,160 @@ function collectTagDefinitions<TContext>(
   return Array.from(defs.values());
 }
 
-function buildRegistry<TContext extends ExtendedMapContext>(
-  occurrences: readonly StepOccurrence<TContext>[],
-  tagDefinitions: readonly DependencyTagDefinition<TContext>[],
-  artifactTagDefinitions: readonly DependencyTagDefinition<TContext>[]
-): StepRegistry<TContext> {
-  const tags = new TagRegistry<TContext>();
+function buildRegistry(
+  occurrences: readonly StepOccurrence[],
+  tagDefinitions: readonly DependencyTagDefinition[],
+  artifactTagDefinitions: readonly DependencyTagDefinition[]
+): StepRegistry {
+  const tags = new TagRegistry();
   tags.registerTags(collectTagDefinitions(occurrences, tagDefinitions, artifactTagDefinitions));
 
-  const registry = new StepRegistry<TContext>({ tags });
+  const registry = new StepRegistry({ tags });
   for (const occ of occurrences) registry.register(occ.step);
   return registry;
 }
 
-function toStructuralRecipeV2<TContext>(
+function toStructuralRecipeV2(
   id: string,
-  occurrences: readonly StepOccurrence<TContext>[]
-): RecipeV2 {
-  return {
+  occurrences: readonly StepOccurrence[]
+): ReadonlyDeep<RecipeV2> {
+  return Object.freeze({
     schemaVersion: 2,
     id,
-    steps: occurrences.map((occ) => ({
-      id: occ.step.id,
-    })),
-  };
+    steps: Object.freeze(occurrences.map((occ) => Object.freeze({ id: occ.step.id }))),
+  });
 }
 
-export function createRecipe<
-  TContext extends ExtendedMapContext,
-  const TStages extends readonly AnyStage<TContext>[],
->(
-  input: RecipeDefinition<TContext, TStages>
-): RecipeModule<TContext, RecipePublicConfigOf<TStages>, CompiledRecipeConfigOf<TStages>> {
-  assertTagDefinitions(input.tagDefinitions);
+/**
+ * Compiles one authored recipe definition into its config, frozen plan, and execution surface.
+ *
+ * Authorship is deeply snapshotted once, so later mutation of caller aliases or the public
+ * structural recipe cannot change future compilation or execution.
+ *
+ * A compiled plan retains one admitted setup identity. Direct execution consumes that exact plan;
+ * convenience run methods compile once from `context.setup` and delegate without a second pass.
+ */
+export function createRecipe<const TStages extends readonly AnyStage[]>(
+  input: RecipeDefinition<TStages>
+): RecipeModule<RecipePublicConfigOf<TStages>, CompiledRecipeConfigOf<TStages>> {
+  const authorship = snapshotAuthorship(input);
+  assertTagDefinitions(authorship.tagDefinitions);
 
   const runtimeOpsById =
-    input.runtimeOpsById ??
+    authorship.runtimeOpsById ??
     (Object.fromEntries(
-      Object.entries(input.compileOpsById).map(([id, op]) => [id, runtimeOp(op)])
+      Object.entries(authorship.compileOpsById).map(([id, op]) => [id, runtimeOp(op)])
     ) as Readonly<Record<string, DomainOpRuntimeAny>>);
 
   const occurrences = finalizeOccurrences({
-    namespace: input.namespace,
-    recipeId: input.id,
-    stages: input.stages,
+    namespace: authorship.namespace,
+    recipeId: authorship.id,
+    stages: authorship.stages,
     runtimeOpsById,
   });
   const artifactTagDefinitions = collectArtifactTagDefinitions({
-    namespace: input.namespace,
-    recipeId: input.id,
-    stages: input.stages,
+    namespace: authorship.namespace,
+    recipeId: authorship.id,
+    stages: authorship.stages,
   });
-  const registry = buildRegistry(occurrences, input.tagDefinitions, artifactTagDefinitions);
-  const recipe = toStructuralRecipeV2(input.id, occurrences);
+  const registry = buildRegistry(occurrences, authorship.tagDefinitions, artifactTagDefinitions);
+  const recipe = toStructuralRecipeV2(authorship.id, occurrences);
 
-  function assertCompiledConfig(
+  function requireCompiledConfig(
     config: CompiledRecipeConfigOf<TStages> | null | undefined
-  ): asserts config is CompiledRecipeConfigOf<TStages> {
-    if (!config) {
-      throw new Error(
-        `[recipe:${input.id}] compiled config required (use recipe.compileConfig(...))`
-      );
-    }
-
-    const cfg = config as RecipeConfig;
-    for (const stage of input.stages) {
-      const stageConfig = cfg[stage.id];
-      if (!stageConfig || typeof stageConfig !== "object") {
-        throw new Error(
-          `[recipe:${input.id}] missing compiled config for stage "${stage.id}" (use recipe.compileConfig(...))`
-        );
-      }
+  ): Readonly<Record<string, unknown>> {
+    const cfg: Readonly<Record<string, unknown>> =
+      config || rejectMissingCompiledConfig(authorship.id);
+    for (const stage of authorship.stages) {
       for (const step of stage.steps) {
-        const stepId = step.contract.id;
-        if (!(stepId in stageConfig)) {
-          throw new Error(
-            `[recipe:${input.id}] missing compiled config for step "${stage.id}.${stepId}" (use recipe.compileConfig(...))`
-          );
-        }
+        requireCompiledStepConfig(cfg, authorship.id, stage.id, step.contract.id);
       }
     }
+    return cfg;
   }
 
   function instantiate(config: CompiledRecipeConfigOf<TStages>): RecipeV2 {
-    assertCompiledConfig(config);
-    const cfg = config as RecipeConfig;
+    const cfg = requireCompiledConfig(config);
     return {
       ...recipe,
       steps: occurrences.map((occ) => ({
         id: occ.step.id,
-        config: cfg
-          ? (cfg[occ.stageId]?.[occ.stepId] as Record<string, unknown> | undefined)
-          : undefined,
+        config: requireCompiledStepConfig(cfg, authorship.id, occ.stageId, occ.stepId),
       })),
     };
   }
 
-  function compileConfig(
-    env: Env,
+  function compileAdmittedConfig(
+    setup: MapSetup,
     config: RecipePublicConfigOf<TStages>
   ): CompiledRecipeConfigOf<TStages> {
     return compileRecipeConfig({
-      env,
-      recipe: { stages: input.stages },
+      setup,
+      recipe: { stages: authorship.stages },
       config,
-      compileOpsById: input.compileOpsById,
+      compileOpsById: authorship.compileOpsById,
     }) as CompiledRecipeConfigOf<TStages>;
   }
 
-  function runRequest(env: Env, config: CompiledRecipeConfigOf<TStages>): RunRequest {
-    return { recipe: instantiate(config), env };
+  function admittedRunRequest(
+    setup: MapSetup,
+    config: CompiledRecipeConfigOf<TStages>
+  ): RunRequest {
+    return { recipe: instantiate(config), setup };
   }
 
-  function compile(env: Env, config: RecipePublicConfigOf<TStages>): ExecutionPlan {
-    const compiled = compileConfig(env, config);
-    return compileExecutionPlan(runRequest(env, compiled), registry);
+  function compileConfig(
+    setupInput: MapSetup | MapSetupInput,
+    config: RecipePublicConfigOf<TStages>
+  ): CompiledRecipeConfigOf<TStages> {
+    return compileAdmittedConfig(admitMapSetup(setupInput), config);
   }
 
-  function run(
-    context: TContext,
-    env: Env,
-    config: RecipePublicConfigOf<TStages>,
-    options: {
-      trace?: TraceSession | null;
-      traceSink?: TraceSink | null;
-      facets?: StepFacetSinks;
-      log?: (message: string) => void;
-    } = {}
+  function compile(
+    setupInput: MapSetup | MapSetupInput,
+    config: RecipePublicConfigOf<TStages>
+  ): ExecutionPlan {
+    const setup = admitMapSetup(setupInput);
+    const compiled = compileAdmittedConfig(setup, config);
+    return compileExecutionPlan(admittedRunRequest(setup, compiled), registry);
+  }
+
+  function execute(
+    context: MapContext,
+    plan: ExecutionPlan,
+    options: RecipeExecutionOptions = {}
   ): void {
-    const plan = compile(env, config);
-    context.env = plan.env;
-    const traceSession =
-      options.trace !== undefined
-        ? options.trace
-        : createTraceSessionFromPlan(
-            plan,
-            options.traceSink !== undefined ? options.traceSink : createConsoleTraceSink()
-          );
+    assertExecutionPlanRegistryInternal(plan, registry);
     const executor = new PipelineExecutor(registry, {
       log: options.log,
-      logPrefix: `[recipe:${input.id}]`,
+      logPrefix: `[recipe:${authorship.id}]`,
     });
     executor.executePlan(context, plan, {
-      trace: traceSession ?? null,
+      trace: options.trace ?? null,
       facets: options.facets,
     });
   }
 
-  async function runAsync(
-    context: TContext,
-    env: Env,
+  function run(
+    context: MapContext,
     config: RecipePublicConfigOf<TStages>,
-    options: {
-      trace?: TraceSession | null;
-      traceSink?: TraceSink | null;
-      facets?: StepFacetSinks;
-      log?: (message: string) => void;
-      abortSignal?: { readonly aborted: boolean } | null;
-      yieldToEventLoop?: boolean;
-      yieldFn?: (() => Promise<void>) | null;
-    } = {}
+    options: RecipeExecutionOptions = {}
+  ): void {
+    execute(context, compile(context.setup, config), options);
+  }
+
+  async function executeAsync(
+    context: MapContext,
+    plan: ExecutionPlan,
+    options: RecipeAsyncExecutionOptions = {}
   ): Promise<void> {
-    const plan = compile(env, config);
-    context.env = plan.env;
-    const traceSession =
-      options.trace !== undefined
-        ? options.trace
-        : createTraceSessionFromPlan(
-            plan,
-            options.traceSink !== undefined ? options.traceSink : createConsoleTraceSink()
-          );
+    assertExecutionPlanRegistryInternal(plan, registry);
     const executor = new PipelineExecutor(registry, {
       log: options.log,
-      logPrefix: `[recipe:${input.id}]`,
+      logPrefix: `[recipe:${authorship.id}]`,
     });
     await executor.executePlanAsync(context, plan, {
-      trace: traceSession ?? null,
+      trace: options.trace ?? null,
       facets: options.facets,
       abortSignal: options.abortSignal ?? null,
       yieldToEventLoop: options.yieldToEventLoop,
@@ -466,5 +530,22 @@ export function createRecipe<
     });
   }
 
-  return { id: input.id, recipe, instantiate, compileConfig, runRequest, compile, run, runAsync };
+  async function runAsync(
+    context: MapContext,
+    config: RecipePublicConfigOf<TStages>,
+    options: RecipeAsyncExecutionOptions = {}
+  ): Promise<void> {
+    await executeAsync(context, compile(context.setup, config), options);
+  }
+
+  return Object.freeze({
+    id: authorship.id,
+    recipe,
+    compileConfig,
+    compile,
+    execute,
+    run,
+    executeAsync,
+    runAsync,
+  });
 }

@@ -628,11 +628,10 @@ const mapConfig = {
         }
       },
       "icePlanning": {
-        "profile": "continentality",
         "minConfidence01": 0.55
       },
       "reefPlanning": {
-        "profile": "default",
+        "profile": "habitat",
         "minConfidence01": 0.62,
         "stride": 3
       },
@@ -830,7 +829,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "3bc83bb636c34fdb0457e9f67d37385fa87d179b06d03b8ac6408fe2e5905fc9",
-  envelopeHash: "c4f65e038d58377f1c9809a181cf202a34596ef19c8ef6ff3d4016c18508b689",
+  configHash: "ae4285e43adefe2b90f6ce07e81567042f68de51664fc30adc2445c747e1b47d",
+  envelopeHash: "c33b10b8d3b18280d059a95d4d9572899b0daf00ba8b5e80ae018dcb913e8573",
   config: mapConfig.config,
 });

@@ -9,10 +9,10 @@ export function computeCoastalLandMask(args: {
   landMask: Uint8Array;
   radius: number;
 }): Uint8Array {
-  const width = args.width | 0;
-  const height = args.height | 0;
+  const width = args.width;
+  const height = args.height;
   const radius = clampInt(args.radius | 0, 0, Math.max(width, height));
-  const size = Math.max(0, width * height);
+  const size = width * height;
 
   const mask = new Uint8Array(size);
   if (radius <= 0) return mask;

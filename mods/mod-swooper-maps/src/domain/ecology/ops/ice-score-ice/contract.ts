@@ -14,6 +14,7 @@ const ScoreIceContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Ice suitability score per tile (0..1)." }),
   }),
+  defaultStrategy: "default",
   strategies: {
     default: Type.Object({
       seaTempColdC: Type.Number({

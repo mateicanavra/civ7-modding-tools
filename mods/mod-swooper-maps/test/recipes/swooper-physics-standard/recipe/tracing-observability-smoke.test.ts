@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import type { TraceEvent } from "@swooper/mapgen-core";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext, type TraceEvent } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import standardRecipe from "../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
@@ -47,17 +46,14 @@ describe("Morphology tracing (observability hardening smoke)", () => {
       verboseSteps.map((id) => [id, "verbose"] as const)
     );
 
-    const env = {
-      seed,
+    const setup = admitMapSetup({
+      mapSeed: seed,
       dimensions: { width, height },
       latitudeBounds: {
         topLatitude: mapInfo.MaxLatitude,
         bottomLatitude: mapInfo.MinLatitude,
       },
-      trace: {
-        steps: traceSteps,
-      },
-    };
+    });
 
     const adapter = createMockAdapter({
       width,
@@ -66,13 +62,16 @@ describe("Morphology tracing (observability hardening smoke)", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createMapContext({ setup, adapter });
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
 
     const events: TraceEvent[] = [];
-    standardRecipe.run(context, env, standardConfig, {
+    standardRecipe.run(context, standardConfig, {
       log: () => {},
-      traceSink: { emit: (event) => events.push(event) },
+      trace: {
+        config: { steps: traceSteps },
+        sink: { emit: (event) => events.push(event) },
+      },
     });
 
     const kinds = new Set(

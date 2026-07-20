@@ -1,16 +1,48 @@
 import { clamp01 } from "@swooper/mapgen-core";
 
-import type { PedologyClassifyInput } from "../types.js";
+import type {
+  PedologyClassifyAdmittedInput,
+  PedologyClassifyConfig,
+  PedologyClassifyOutput,
+} from "../types.js";
 
 /**
- * Throws when an input array length does not match the expected map size.
+ * Classifies soil and fertility for each admitted map tile.
+ * Strategies shape only the weights before entering this shared algorithm, so variants cannot
+ * bypass operation admission by invoking another strategy descriptor.
  */
-export function ensureSize(array: ArrayLike<number>, expected: number, label: string): void {
-  if (array.length !== expected) {
-    throw new Error(
-      `Pedology classify: expected ${label} length ${expected}, got ${array.length}.`
-    );
+export function classifyPedology(
+  input: PedologyClassifyAdmittedInput,
+  config: PedologyClassifyConfig
+): PedologyClassifyOutput {
+  const size = input.width * input.height;
+  const relief = computeReliefProxy(input.slope, input.elevation, size);
+  const sediment = input.sedimentDepth;
+  const bedrock = input.bedrockAge;
+
+  const soilType = new Uint8Array(size);
+  const fertility = new Float32Array(size);
+
+  for (let i = 0; i < size; i++) {
+    if (input.landMask[i] === 0) {
+      soilType[i] = 0;
+      fertility[i] = 0;
+      continue;
+    }
+    const tileFertility = fertilityForTile({
+      rainfall: input.rainfall[i],
+      humidity: input.humidity[i],
+      relief: relief[i],
+      sedimentDepth: sediment ? sediment[i] : 0,
+      bedrockAge: bedrock ? bedrock[i] : 0,
+      weights: config,
+    });
+    fertility[i] = tileFertility;
+    const moisture = (input.rainfall[i] + input.humidity[i]) / 510;
+    soilType[i] = soilPaletteIndex(tileFertility, relief[i], moisture);
   }
+
+  return { soilType, fertility };
 }
 
 /**
@@ -21,7 +53,7 @@ export function computeReliefProxy(
   elevation: Int16Array,
   size: number
 ): Float32Array {
-  if (slope && slope.length === size) {
+  if (slope) {
     return slope;
   }
   // Fallback: normalize elevation magnitude as a proxy for relief.
@@ -91,41 +123,4 @@ export function soilPaletteIndex(fertility: number, relief: number, moisture: nu
   if (moisture > 0.65) return 3; // clayish / wet
   if (fertility < 0.35) return 1; // sandy
   return 2;
-}
-
-/**
- * Normalizes an optional field into a 0..1 Float32Array or returns zeros when missing.
- */
-export function normalizeOptionalField(
-  field: Float32Array | Int16Array | undefined,
-  size: number
-): Float32Array {
-  if (!field || field.length !== size) return new Float32Array(size);
-  let max = 1;
-  for (let i = 0; i < size; i++) {
-    const value = Math.abs(field[i] ?? 0);
-    if (value > max) max = value;
-  }
-  const inv = max === 0 ? 1 : 1 / max;
-  const result = new Float32Array(size);
-  for (let i = 0; i < size; i++) {
-    result[i] = clamp01(Math.abs(field[i] ?? 0) * inv);
-  }
-  return result;
-}
-
-/**
- * Validates pedology input array sizes and returns the total tile count.
- */
-export function validateInput(input: PedologyClassifyInput): number {
-  const { width, height, landMask, elevation, rainfall, humidity } = input;
-  const size = width * height;
-  ensureSize(landMask, size, "landMask");
-  ensureSize(elevation, size, "elevation");
-  ensureSize(rainfall, size, "rainfall");
-  ensureSize(humidity, size, "humidity");
-  if (input.sedimentDepth) ensureSize(input.sedimentDepth, size, "sedimentDepth");
-  if (input.bedrockAge) ensureSize(input.bedrockAge, size, "bedrockAge");
-  if (input.slope) ensureSize(input.slope, size, "slope");
-  return size;
 }

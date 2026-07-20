@@ -135,6 +135,7 @@ const ApplyAlbedoFeedbackContract = defineOp({
   id: "hydrology/apply-albedo-feedback",
   input: ApplyAlbedoFeedbackInputSchema,
   output: ApplyAlbedoFeedbackOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ApplyAlbedoFeedbackDefaultStrategySchema,
   },

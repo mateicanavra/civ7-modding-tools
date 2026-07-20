@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
-import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { implementArtifactModules } from "@swooper/mapgen-core/authoring";
 import {
   artifactModules as ecologyArtifactModules,
@@ -14,7 +14,7 @@ import { FeaturesApplyStep } from "../../../../src/recipes/standard/stages/map-e
 import { artifactModules as morphologyArtifactModules } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../support/compiler-helpers.js";
 import { createEmptyFeatureScoreLayers } from "../../../support/feature-score-layers.js";
-import { buildTestDeps } from "../../../support/step-deps.js";
+import { buildTestDeps, withMapContextExecutionForTest } from "../../../support/step-deps.js";
 
 const FLOODPLAIN_INTENT_KEYS = [
   "desert-floodplain-minor",
@@ -96,11 +96,11 @@ describe("floodplain feature product row", () => {
       }
     }
 
-    const env = {
-      seed: 24681357,
+    const setup = admitMapSetup({
+      mapSeed: 24681357,
       dimensions: { width, height },
-      latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
-    };
+      latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
+    });
     // Keep the fixture on legal plains/flat terrain so the test exercises
     // floodplain intent/apply plumbing instead of soft rejection diagnostics.
     const adapter = createMockAdapter({ width, height });
@@ -119,84 +119,86 @@ describe("floodplain feature product row", () => {
       Math.floor(riverIndex / width),
       navigableRiverTerrain
     );
-    const ctx = createExtendedMapContext({ width, height }, adapter, env);
+    const ctx = createMapContext({ setup, adapter });
 
-    const setupArtifacts = implementArtifactModules([
-      morphologyArtifactModules.topography,
-      ecologyArtifactModules.scoreLayers,
-      ecologyArtifactModules.occupancyBase,
-    ]);
-    setupArtifacts.topography.publish(ctx, {
-      elevation: new Int16Array(size).fill(24),
-      seaLevel: 0,
-      landMask,
-      bathymetry: new Int16Array(size),
+    withMapContextExecutionForTest(ctx, () => {
+      const setupArtifacts = implementArtifactModules([
+        morphologyArtifactModules.topography,
+        ecologyArtifactModules.scoreLayers,
+        ecologyArtifactModules.occupancyBase,
+      ]);
+      setupArtifacts.topography.publish(ctx, {
+        elevation: new Int16Array(size).fill(24),
+        seaLevel: 0,
+        landMask,
+        bathymetry: new Int16Array(size),
+      });
+      setupArtifacts.scoreLayers.publish(ctx, { width, height, layers });
+      setupArtifacts.occupancyBase.publish(ctx, {
+        width,
+        height,
+        featureOccupancyMask: new Uint8Array(size),
+        reserved: new Uint8Array(size),
+      });
+
+      const planConfig = {
+        planFloodplains: normalizeOpSelectionOrThrow(ecology.ops.planFloodplains, {
+          ...ecology.ops.planFloodplains.defaultConfig,
+          config: {
+            ...ecology.ops.planFloodplains.defaultConfig.config,
+            minConfidence01: 0.5,
+          },
+        }),
+      };
+      const planOps = ecology.ops.bind(PlanFloodplainsStep.contract.ops!).runtime;
+      const planDeps = buildTestDeps(PlanFloodplainsStep);
+      PlanFloodplainsStep.run(ctx, planConfig, planOps, planDeps);
+
+      const floodplainIntents = planDeps.artifacts.featureIntentsFloodplains.read(ctx);
+      expect(floodplainIntents.length).toBeGreaterThan(0);
+      expect(
+        floodplainIntents.every((intent) =>
+          FLOODPLAIN_INTENT_KEYS.some((feature) => feature === intent.feature)
+        )
+      ).toBe(true);
+
+      const emptyIntentArtifacts = implementArtifactModules([
+        ecologyArtifactModules.featureIntentsVegetation,
+        ecologyArtifactModules.featureIntentsWetlands,
+        ecologyArtifactModules.featureIntentsReefs,
+        ecologyArtifactModules.featureIntentsIce,
+      ]);
+      emptyIntentArtifacts.featureIntentsVegetation.publish(ctx, []);
+      emptyIntentArtifacts.featureIntentsWetlands.publish(ctx, []);
+      emptyIntentArtifacts.featureIntentsReefs.publish(ctx, []);
+      emptyIntentArtifacts.featureIntentsIce.publish(ctx, []);
+
+      const applyConfig = {
+        apply: normalizeOpSelectionOrThrow(
+          ecology.ops.applyFeatures,
+          ecology.ops.applyFeatures.defaultConfig
+        ),
+      };
+      const applyOps = ecology.ops.bind(FeaturesApplyStep.contract.ops!).runtime;
+      FeaturesApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(FeaturesApplyStep));
+
+      const diagnostics = ctx.artifacts.get(ecologyArtifacts.featureApplyDiagnostics.id) as
+        | {
+            attempted: number;
+            applied: number;
+            rejected: number;
+            attemptedByFeature: Record<string, number>;
+            appliedByFeature: Record<string, number>;
+          }
+        | undefined;
+
+      if (!diagnostics) throw new Error("Missing feature application diagnostics");
+      expect(diagnostics.attempted).toBe(floodplainIntents.length);
+      expect(diagnostics.applied).toBe(diagnostics.attempted);
+      expect(diagnostics.rejected).toBe(0);
+      expect(floodplainAttemptCount(diagnostics.attemptedByFeature)).toBe(diagnostics.attempted);
+      expect(floodplainAttemptCount(diagnostics.appliedByFeature)).toBe(diagnostics.applied);
     });
-    setupArtifacts.scoreLayers.publish(ctx, { width, height, layers });
-    setupArtifacts.occupancyBase.publish(ctx, {
-      width,
-      height,
-      featureOccupancyMask: new Uint8Array(size),
-      reserved: new Uint8Array(size),
-    });
-
-    const planConfig = {
-      planFloodplains: normalizeOpSelectionOrThrow(ecology.ops.planFloodplains, {
-        ...ecology.ops.planFloodplains.defaultConfig,
-        config: {
-          ...ecology.ops.planFloodplains.defaultConfig.config,
-          minConfidence01: 0.5,
-        },
-      }),
-    };
-    const planOps = ecology.ops.bind(PlanFloodplainsStep.contract.ops!).runtime;
-    const planDeps = buildTestDeps(PlanFloodplainsStep);
-    PlanFloodplainsStep.run(ctx, planConfig, planOps, planDeps);
-
-    const floodplainIntents = planDeps.artifacts.featureIntentsFloodplains.read(ctx);
-    expect(floodplainIntents.length).toBeGreaterThan(0);
-    expect(
-      floodplainIntents.every((intent) =>
-        FLOODPLAIN_INTENT_KEYS.some((feature) => feature === intent.feature)
-      )
-    ).toBe(true);
-
-    const emptyIntentArtifacts = implementArtifactModules([
-      ecologyArtifactModules.featureIntentsVegetation,
-      ecologyArtifactModules.featureIntentsWetlands,
-      ecologyArtifactModules.featureIntentsReefs,
-      ecologyArtifactModules.featureIntentsIce,
-    ]);
-    emptyIntentArtifacts.featureIntentsVegetation.publish(ctx, []);
-    emptyIntentArtifacts.featureIntentsWetlands.publish(ctx, []);
-    emptyIntentArtifacts.featureIntentsReefs.publish(ctx, []);
-    emptyIntentArtifacts.featureIntentsIce.publish(ctx, []);
-
-    const applyConfig = {
-      apply: normalizeOpSelectionOrThrow(
-        ecology.ops.applyFeatures,
-        ecology.ops.applyFeatures.defaultConfig
-      ),
-    };
-    const applyOps = ecology.ops.bind(FeaturesApplyStep.contract.ops!).runtime;
-    FeaturesApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(FeaturesApplyStep));
-
-    const diagnostics = ctx.artifacts.get(ecologyArtifacts.featureApplyDiagnostics.id) as
-      | {
-          attempted: number;
-          applied: number;
-          rejected: number;
-          attemptedByFeature: Record<string, number>;
-          appliedByFeature: Record<string, number>;
-        }
-      | undefined;
-
-    if (!diagnostics) throw new Error("Missing feature application diagnostics");
-    expect(diagnostics.attempted).toBe(floodplainIntents.length);
-    expect(diagnostics.applied).toBe(diagnostics.attempted);
-    expect(diagnostics.rejected).toBe(0);
-    expect(floodplainAttemptCount(diagnostics.attemptedByFeature)).toBe(diagnostics.attempted);
-    expect(floodplainAttemptCount(diagnostics.appliedByFeature)).toBe(diagnostics.applied);
   });
 
   it("does not author floodplains when the same valley lacks meaningful discharge", () => {

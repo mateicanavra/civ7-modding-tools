@@ -8,14 +8,13 @@ import {
   normalizeVolcanoTuning,
   resolveTargetVolcanoes,
   scoreVolcanoWeight,
-  validateVolcanoInputs,
 } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(PlanVolcanoesContract, "default", {
   run: (input, config) => {
-    const { width, height } = input;
-    const { size, landMask, boundaryCloseness, boundaryType, shieldStability, volcanism } =
-      validateVolcanoInputs(input);
+    const { width, height, landMask, boundaryCloseness, boundaryType, shieldStability, volcanism } =
+      input;
+    const size = width * height;
 
     if (!config.enabled) return { volcanoes: [] };
 

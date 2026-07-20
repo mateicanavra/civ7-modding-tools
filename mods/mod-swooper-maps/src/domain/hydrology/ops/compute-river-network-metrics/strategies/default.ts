@@ -140,34 +140,15 @@ function isMountainBlockedClosedBasin(
 
 export const defaultStrategy = createStrategy(ComputeRiverNetworkMetricsContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     const highOrderConfluenceUpstreamAreaMin =
       Number.isFinite(config.highOrderConfluenceUpstreamAreaMin) &&
       config.highOrderConfluenceUpstreamAreaMin >= 0
         ? config.highOrderConfluenceUpstreamAreaMin
         : HIGH_ORDER_CONFLUENCE_UPSTREAM_AREA_MIN_DEFAULT;
-
-    const arrays = [
-      ["landMask", input.landMask, Uint8Array],
-      ["elevation", input.elevation, Int16Array],
-      ["routingElevation", input.routingElevation, Float32Array],
-      ["depressionDepth", input.depressionDepth, Float32Array],
-      ["runoff", input.runoff, Float32Array],
-      ["discharge", input.discharge, Float32Array],
-      ["riverClass", input.riverClass, Uint8Array],
-      ["flowDir", input.flowDir, Int32Array],
-      ["basinId", input.basinId, Int32Array],
-      ["terminalType", input.terminalType, Uint8Array],
-      ["lakeMask", input.lakeMask, Uint8Array],
-    ] as const;
-    for (const [name, value, ctor] of arrays) {
-      if (!(value instanceof ctor) || value.length !== size) {
-        throw new Error(`[Hydrology] Invalid ${name} for hydrology/compute-river-network-metrics.`);
-      }
-    }
 
     const { receiver, order } = computeLandReceiver(size, input.landMask, input.flowDir);
     const upstreamArea = new Int32Array(size);

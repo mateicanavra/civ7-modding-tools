@@ -104,6 +104,7 @@ const ComputeEvaporationSourcesContract = defineOp({
   id: "hydrology/compute-evaporation-sources",
   input: ComputeEvaporationSourcesInputSchema,
   output: ComputeEvaporationSourcesOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: ComputeEvaporationSourcesDefaultStrategySchema,
   },

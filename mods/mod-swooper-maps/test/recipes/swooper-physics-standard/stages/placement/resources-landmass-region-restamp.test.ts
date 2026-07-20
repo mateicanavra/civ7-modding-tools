@@ -1,10 +1,11 @@
 import { describe, expect, it } from "bun:test";
 
 import { type MapInfo, MockAdapter } from "@civ7/adapter";
-import { createExtendedMapContext, FLAT_TERRAIN } from "@swooper/mapgen-core";
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
+import { resolveStandardProjectionTerrainTypes } from "../../../../../src/recipes/standard/projection-policies/standardProjectionEngineTypes.js";
 import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../../src/recipes/standard/runtime.js";
 import { artifacts as placementArtifacts } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
@@ -63,21 +64,27 @@ function runRecipeWithAdapter(adapter: MockAdapter, width: number, height: numbe
     StartSectorCols: 1,
     NumNaturalWonders: 0,
   };
-  const env = {
-    seed,
+  const setup = admitMapSetup({
+    mapSeed: seed,
     dimensions: { width, height },
     latitudeBounds: {
       topLatitude: mapInfo.MaxLatitude ?? 60,
       bottomLatitude: mapInfo.MinLatitude ?? -60,
     },
-  };
-  const context = createExtendedMapContext({ width, height }, adapter, env);
+  });
+  const context = createMapContext({ setup, adapter });
+  const flatTerrain = resolveStandardProjectionTerrainTypes(adapter).flat;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      adapter.setTerrainType(x, y, flatTerrain);
+    }
+  }
 
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[test]",
   });
-  standardRecipe.run(context, env, standardConfig, { log: () => {} });
+  standardRecipe.run(context, standardConfig, { log: () => {} });
 
   return context;
 }
@@ -105,7 +112,6 @@ describe("placement resources landmass-region restamp", () => {
       mapInfo,
       mapSizeId: 1,
       rng: createLabelRng(seed),
-      defaultTerrainType: FLAT_TERRAIN,
     });
 
     const context = runRecipeWithAdapter(adapter, width, height, seed);
@@ -139,7 +145,6 @@ describe("placement resources landmass-region restamp", () => {
       },
       mapSizeId: 1,
       rng: createLabelRng(seed),
-      defaultTerrainType: FLAT_TERRAIN,
     });
 
     expect(() => runRecipeWithAdapter(adapter, width, height, seed)).toThrow(

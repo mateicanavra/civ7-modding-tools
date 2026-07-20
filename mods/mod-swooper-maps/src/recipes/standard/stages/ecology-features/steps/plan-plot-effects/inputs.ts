@@ -1,4 +1,4 @@
-import { ctxStepSeed, type ExtendedMapContext } from "@swooper/mapgen-core";
+import { ctxStepSeed, type MapContext } from "@swooper/mapgen-core";
 import type { BiomeClassificationArtifact } from "../../../ecology/artifacts/biome-classification.artifact.js";
 
 /**
@@ -23,14 +23,14 @@ export type PlotEffectsStepInput = {
  * Builds the input payload for plot effects planning from published artifacts.
  */
 export function buildPlotEffectsInput(
-  context: ExtendedMapContext,
+  context: MapContext,
   artifacts: {
     classification: BiomeClassificationArtifact;
     topography: Readonly<{ elevation: Int16Array; landMask: Uint8Array }>;
   },
   stepId: string
 ): PlotEffectsStepInput {
-  const { width, height } = context.dimensions;
+  const { width, height } = context.setup.dimensions;
   const { classification, topography } = artifacts;
 
   return {

@@ -1,4 +1,4 @@
-import { createOp } from "@swooper/mapgen-core/authoring";
+import { createOp, createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampInt, clampU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import ComputePlateMotionContract from "./contract.js";
@@ -14,7 +14,7 @@ const P90_QUANTILE = 0.9;
 
 const computePlateMotion = createOp(ComputePlateMotionContract, {
   strategies: {
-    default: {
+    default: createStrategy(ComputePlateMotionContract, "default", {
       run: (input, config) => {
         const mesh = input.mesh;
         const plateGraph = input.plateGraph;
@@ -46,8 +46,8 @@ const computePlateMotion = createOp(ComputePlateMotionContract, {
           SMOOTHING_STEPS_CLAMP_MAX
         );
 
-        let forcingU = mantleForcing.forcingU;
-        let forcingV = mantleForcing.forcingV;
+        let forcingU: Float32Array = mantleForcing.forcingU;
+        let forcingV: Float32Array = mantleForcing.forcingV;
 
         if (smoothingSteps > 0) {
           const smoothedU = new Float32Array(cellCount);
@@ -325,7 +325,7 @@ const computePlateMotion = createOp(ComputePlateMotionContract, {
           },
         } as const;
       },
-    },
+    }),
   },
 });
 

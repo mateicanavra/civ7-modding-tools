@@ -1,3 +1,3 @@
-export { basicStrategy } from "./baseline.js";
+export { baselineStrategy } from "./baseline.js";
 export { refineStrategy } from "./refine.js";
-export { defaultStrategy } from "./vector.js";
+export { vectorStrategy } from "./vector.js";

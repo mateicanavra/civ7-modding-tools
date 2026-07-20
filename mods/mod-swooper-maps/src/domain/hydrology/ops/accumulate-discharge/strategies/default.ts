@@ -4,22 +4,9 @@ import { clamp01, clampMin } from "../rules/index.js";
 
 export const defaultStrategy = createStrategy(AccumulateDischargeContract, "default", {
   run: (input, config) => {
-    const width = input.width | 0;
-    const height = input.height | 0;
-    const size = Math.max(0, width * height);
-
-    if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
-      throw new Error("[Hydrology] Invalid landMask for hydrology/accumulate-discharge.");
-    }
-    if (!(input.flowDir instanceof Int32Array) || input.flowDir.length !== size) {
-      throw new Error("[Hydrology] Invalid flowDir for hydrology/accumulate-discharge.");
-    }
-    if (!(input.rainfall instanceof Uint8Array) || input.rainfall.length !== size) {
-      throw new Error("[Hydrology] Invalid rainfall for hydrology/accumulate-discharge.");
-    }
-    if (!(input.humidity instanceof Uint8Array) || input.humidity.length !== size) {
-      throw new Error("[Hydrology] Invalid humidity for hydrology/accumulate-discharge.");
-    }
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
 
     const runoff = new Float32Array(size);
     const discharge = new Float32Array(size);

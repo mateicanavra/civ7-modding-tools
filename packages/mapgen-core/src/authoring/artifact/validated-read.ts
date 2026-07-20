@@ -1,4 +1,4 @@
-import type { ExtendedMapContext } from "@mapgen/core/types.js";
+import type { MapContext } from "@mapgen/core/map-context.js";
 
 import type { ArtifactContract, ArtifactReadValueOf } from "./contract.js";
 import type { ArtifactModule } from "./module.js";
@@ -10,14 +10,14 @@ import type { ArtifactModule } from "./module.js";
  * copy what they consume.
  */
 export function readValidatedArtifact<C extends ArtifactContract>(
-  context: ExtendedMapContext,
+  context: MapContext,
   module: ArtifactModule<C>
 ): ArtifactReadValueOf<C> {
   if (!context.artifacts.has(module.artifact.id)) {
     throw new Error(`Missing required artifact ${module.artifact.id}.`);
   }
   const value: unknown = context.artifacts.get(module.artifact.id);
-  const issues = module.validate(value, { dimensions: context.dimensions });
+  const issues = module.validate(value, { dimensions: context.setup.dimensions });
   if (issues.length > 0) {
     throw new Error(
       `Invalid artifact ${module.artifact.id}: ${issues.map(({ message }) => message).join("; ")}`

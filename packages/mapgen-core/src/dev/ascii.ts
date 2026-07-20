@@ -8,9 +8,6 @@
  */
 
 import type { EngineAdapter } from "@civ7/adapter";
-// Terrain type constants - imported from shared module (matched to Civ7 terrain.xml)
-// CORRECT terrain.xml order: 0:MOUNTAIN, 1:HILL, 2:FLAT, 3:COAST, 4:OCEAN
-import { HILL_TERRAIN } from "@mapgen/core/terrain-constants.js";
 import { devLog, devLogLines } from "@mapgen/dev/logging.js";
 import type { TraceScope } from "@mapgen/trace/index.js";
 
@@ -232,12 +229,12 @@ export function logReliefAscii(
   adapter: EngineAdapter,
   width: number,
   height: number,
+  hillTerrain: number,
   options: { sampleStep?: number } = {}
 ): void {
   if (!trace?.isVerbose) return;
 
   const chars = ASCII_CHARS;
-
   logAsciiGrid(
     trace,
     "[relief] terrain",
@@ -254,7 +251,7 @@ export function logReliefAscii(
         const isMountain = adapter.isMountain(x, y);
         // Check hills by terrain type (no isHills on adapter)
         const terrainType = adapter.getTerrainType(x, y);
-        const isHills = terrainType === HILL_TERRAIN;
+        const isHills = terrainType === hillTerrain;
 
         if (isMountain) {
           return { base: chars.base.land, overlay: chars.relief.mountain };

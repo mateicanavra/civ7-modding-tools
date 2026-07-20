@@ -1,4 +1,4 @@
-import { createOp } from "@swooper/mapgen-core/authoring";
+import { createOp, createStrategy } from "@swooper/mapgen-core/authoring";
 import { quantizeUnitVec2I8 } from "@swooper/mapgen-core/lib/grid";
 import { clamp01, quantizeU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
@@ -47,7 +47,7 @@ function boundaryRegimeFromIntensities(intensities: {
 
 const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
   strategies: {
-    default: {
+    default: createStrategy(ComputeTectonicSegmentsContract, "default", {
       run: (input, config) => {
         const mesh = input.mesh;
         const crust = input.crust;
@@ -243,7 +243,7 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
           },
         } as const;
       },
-    },
+    }),
   },
 });
 

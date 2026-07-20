@@ -143,6 +143,7 @@ const SelectNavigableRiverTerrainContract = defineOp({
   id: "hydrology/select-navigable-river-terrain",
   input: SelectNavigableRiverTerrainInputSchema,
   output: SelectNavigableRiverTerrainOutputSchema,
+  defaultStrategy: "default",
   strategies: {
     default: SelectNavigableRiverTerrainDefaultStrategySchema,
   },

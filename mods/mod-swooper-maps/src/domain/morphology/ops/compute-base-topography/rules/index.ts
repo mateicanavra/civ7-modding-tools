@@ -4,33 +4,6 @@ import { DEFAULT_ELEVATION_SCALE } from "../../../model/policy/elevation-scale.j
 import type { ComputeBaseTopographyTypes } from "../types.js";
 
 /**
- * Ensures base-topography inputs match the expected map size.
- */
-export function validateBaseTopographyInputs(input: ComputeBaseTopographyTypes["input"]): {
-  size: number;
-  crustBaseElevation: Float32Array;
-  uplift: Uint8Array;
-  rift: Uint8Array;
-  closeness: Uint8Array;
-} {
-  const { width, height } = input;
-  const size = Math.max(0, (width | 0) * (height | 0));
-  const crustBaseElevation = input.crustBaseElevation as Float32Array;
-  const uplift = input.upliftPotential as Uint8Array;
-  const rift = input.riftPotential as Uint8Array;
-  const closeness = input.boundaryCloseness as Uint8Array;
-  if (
-    crustBaseElevation.length !== size ||
-    uplift.length !== size ||
-    rift.length !== size ||
-    closeness.length !== size
-  ) {
-    throw new Error("[BaseTopography] Input tensors must match width*height.");
-  }
-  return { size, crustBaseElevation, uplift, rift, closeness };
-}
-
-/**
  * Converts uplift + boundary proximity into a blended uplift intensity.
  */
 export function computeUpliftBlend(params: {

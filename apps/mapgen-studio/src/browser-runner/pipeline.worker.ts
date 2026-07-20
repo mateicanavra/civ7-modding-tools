@@ -3,11 +3,13 @@
 import { createMockAdapter } from "@civ7/adapter/mock";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import {
-  createExtendedMapContext,
+  admitMapSetup,
   createLabelRng,
+  createMapContext,
   type StepFacetFailure,
+  type TraceEvent,
+  type TraceSink,
 } from "@swooper/mapgen-core";
-import { deriveRunId } from "@swooper/mapgen-core/engine";
 import { admitPipelineConfig } from "../features/configAuthoring/canonicalConfig";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
 import { getRuntimeRecipe } from "./recipeRuntime";
@@ -121,11 +123,11 @@ async function runRecipe(
   } = request;
   const recipeEntry = getRuntimeRecipe(recipeId);
 
-  const envBase = {
-    seed,
+  const setup = admitMapSetup({
+    mapSeed: seed,
     dimensions,
     latitudeBounds,
-  };
+  });
 
   const configResult = admitPipelineConfig({
     schema: recipeEntry.configSchema,
@@ -136,19 +138,10 @@ async function runRecipe(
     throw new Error(`Invalid recipe config:\n${formatConfigErrors(configResult.errors)}`);
   }
 
-  const plan = recipeEntry.recipe.compile(envBase, configResult.value);
-  const runId = deriveRunId(plan);
+  const plan = recipeEntry.recipe.compile(setup, configResult.value);
   const verboseSteps: Record<string, "verbose"> = Object.fromEntries(
     plan.nodes.map((node) => [node.stepId, "verbose"] as const)
   );
-
-  const env = {
-    ...envBase,
-    trace: {
-      enabled: true,
-      steps: verboseSteps,
-    },
-  };
 
   // PlayersLandmass1/2 are PER-HEMISPHERE counts (base-game mapInfo semantics);
   // duplicating the total into both slots doubled seating (E1.2). Split the
@@ -171,25 +164,41 @@ async function runRecipe(
     featureTypes: { ...CIV7_BROWSER_TABLES_V0.featureTypes },
   });
 
-  const context = createExtendedMapContext(dimensions, adapter, env);
+  const context = createMapContext({ setup, adapter });
 
   let didEmitFinished = false;
   const postFromTrace = (event: BrowserRunEvent, transfer?: Transferable[]): void => {
     if (event.type === "run.finished") didEmitFinished = true;
     post(event, transfer);
   };
-  const traceSink = createWorkerTraceSink({
+  const workerTraceSink = createWorkerTraceSink({
     runToken,
     generation,
     post: postFromTrace,
     abortSignal,
   });
+  let didEmitStarted = false;
+  const traceSink: TraceSink = {
+    emit: (event: TraceEvent): void => {
+      if (event.kind === "run.start" && !didEmitStarted) {
+        didEmitStarted = true;
+        postFromTrace({
+          type: "run.started",
+          runToken,
+          generation,
+          runId: event.runId,
+          planFingerprint: event.planFingerprint,
+        });
+      }
+      workerTraceSink.emit(event);
+    },
+  };
 
-  // Ensure the worker posts a stable run identity early, even if a failure occurs.
-  post({ type: "run.started", runToken, generation, runId, planFingerprint: runId });
-
-  await recipeEntry.recipe.runAsync(context, env, configResult.value, {
-    traceSink,
+  await recipeEntry.recipe.executeAsync(context, plan, {
+    trace: {
+      config: { steps: verboseSteps },
+      sink: traceSink,
+    },
     facets: {
       viz: createWorkerVizFacetSink({
         runToken,
