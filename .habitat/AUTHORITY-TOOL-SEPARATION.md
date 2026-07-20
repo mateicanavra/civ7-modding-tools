@@ -48,9 +48,10 @@ owner checks project local rule execution and graph-backed work as sibling
 dependencies, then expose dependency-only public targets. They never start a
 second Nx scheduler.
 
-Habitat-executed rules remain Habitat runners. When a rule consumes generated
-output, its closed `graphDependencies` list schedules only the exact producers;
-the generated rule target and owner-local batch still execute and report the
+Habitat-executed rules remain Habitat runners. When a rule consumes tracked
+generated output, its closed `graphDependencies` list schedules the exact
+non-mutating currentness target; ephemeral output schedules its exact producer.
+The generated rule target and owner-local batch still execute and report the
 rule through Habitat.
 
 Direct `bun habitat check --rule <id>` remains a diagnostic surface and may

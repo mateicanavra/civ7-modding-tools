@@ -107,7 +107,7 @@ function validateKnownDirectory(directory: string, kind: string): void {
       );
       continue;
     }
-    if (kind === "policy" && !isPolicyFile(relativeToKind)) {
+    if (kind === "policy" && !isPolicyFile(relativeToKind, { strictPolicyNames: false })) {
       report(
         relativePath,
         "policy/ files must be *.policy.ts, known policy implementation files, index.ts, or schemas owned by that policy."

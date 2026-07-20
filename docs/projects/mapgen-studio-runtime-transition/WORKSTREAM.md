@@ -23,26 +23,26 @@ verification, the product loop wins.
 project files provide method, snapshots, corpora, decisions, or handoff context;
 they do not independently declare the current gate.
 
-### Current Graphite Law (2026-07-13)
+### Current Graphite Law (2026-07-20)
 
-The final reconciled semantic tip becomes the A.2 split base only after its
-current checks and reviews pass. From that tip, create ordinary sibling Graphite
-children for A.2 and for the independent product-closeout continuation. Keep the
-siblings parallel while their code is independent. If a real dependency later
-appears, move the continuation's first unique branch above the completed A.2 tip
-with native Graphite, then restack only its descendants.
+The certified independent foundation merges before A.2 begins. Normalize its
+local-only branches with native Graphite, rerun the required proof, and obtain
+explicit submission and merge-mode approval before remote mutation. After the
+foundation merges, A.2 starts from merged `main`; do not preserve or create an
+A.2 split-base sibling merely to carry the old sequencing model.
 
 Preserve every coherent existing layer. Use normal Graphite operations to
 restack, move, split, fold, submit, and merge only where inspection shows a
 concrete need. Do not construct a replacement stack, replay the repository from
 `main`, rebuild the tree from a manifest, create a dedicated recut worktree, or
-treat one sibling as a returned stack to integrate. The sibling branches already
-belong to one Graphite topology.
+treat an owner lane as a returned stack to integrate. All retained branches
+already belong to one Graphite topology.
 
-This law supersedes every later reference to sink-stack reconstruction,
-wholesale replay, mechanical recut, returned-stack integration, or mandatory
-source-to-sink ceremony. Those passages remain only as historical planning
-evidence. They are not executable authority.
+This law supersedes every later reference to an A.2 split base, parallel sibling
+tracks, later A.2/A.3 reconvergence, sink-stack reconstruction, wholesale replay,
+mechanical recut, returned-stack integration, or mandatory source-to-sink
+ceremony. Those passages remain only as historical planning evidence. They are
+not executable authority.
 
 ### Current Scope And Authority Amendment
 
@@ -71,12 +71,12 @@ readiness. Admission is unit-scoped: every disposition needed by the unit being
 executed must be final before that unit mutates. Stage 2 as a whole closes only
 when the complete admitted corpus has zero undecided semantic rows.
 
-Ownership amendment (2026-07-13): from the reviewed split base, the user's A.2
-orchestrator owns A.2 Authority, advisory census/classification, and the six
-domain migrations on one sibling track. The takeover DRA protects those
-surfaces, advances the independent product track on the other sibling, and
-retains final product and initiative closure. The Current Graphite Law governs
-any later dependency-driven movement between them.
+Ownership amendment (2026-07-20): after the independent foundation merges, the
+user's A.2 orchestrator owns A.2 Authority, advisory census/classification, and
+the six domain migrations from merged `main`. The takeover DRA retains final
+combined-tree readiness, P21, submission, merge, drain, and initiative closure.
+The Current Graphite Law governs any later work without a return-stack or replay
+protocol.
 
 ## Opening Packet
 
@@ -516,9 +516,9 @@ not authorize replacement branches. `Future target architecture` is reserved
 for the RAWR/Habitat destination. No lifecycle value implies the next.
 `authority-ready` is P21's Stage 5 state: its executable acceptance contract and
 pre-integration reviews are closed while integrated gates and all live rows
-remain open. `runtime-ready` is its Stage 6 state: the reconverged product tree
-and deterministic gates are green while the three final Stage 8 rows remain
-open.
+remain open. `runtime-ready` is its Stage 6 state: A.2 is complete on the merged
+foundation and deterministic gates are green while the three final Stage 8 rows
+remain open.
 
 ## Operating Model
 
@@ -528,10 +528,10 @@ This is a single-accountability systematic workstream:
 | --- | --- | --- | --- |
 | Takeover DRA | Current orchestrator | frame and authority, corpus synthesis, semantic decisions, sequencing, Git/Graphite and process state, evidence claims, finding disposition, commits, merge, drain, and closure | cannot self-approve required review lanes or delegate final synthesis and closure |
 
-The reviewed split base creates two ordinary sibling tracks. The A.2
-orchestrator owns A.2 synthesis, reviews, and Graphite layers; the takeover DRA
-owns the independent continuation and final product closure. Neither mutates
-the common ancestors or duplicates the other's implementation.
+The independent foundation merges before A.2 begins. The A.2 orchestrator owns
+A.2 synthesis, reviews, and Graphite layers from merged `main`; the takeover DRA
+owns final combined-tree readiness and product closure. Neither duplicates the
+other's implementation or rewrites merged ancestors.
 
 The three stable review roles are TypeScript/state-space simplification,
 architecture/authority simplification, and product/runtime/library verification.
@@ -629,8 +629,8 @@ classification is uncertain, use semantic backflow.
 The accountable track owner is the sole Graphite mutator for that track. Check
 current branch, stack, index, and worktree state before and after each operation;
 keep each branch one coherent semantic unit. Use native Graphite normally.
-Independent sibling tracks remain untouched, and dependency movement occurs
-only when current code proves it necessary.
+Independent owner lanes remain untouched, and dependency movement occurs only
+when current code proves it necessary.
 
 ## Durable Artifact Set
 
@@ -856,17 +856,13 @@ trunk checkpoint plus one immutable opening source chain.
 
 ```mermaid
 flowchart LR
-  A["Reviewed split base"] --> B["A.2 sibling"]
-  A --> C["Independent continuation sibling"]
-  B --> D["A.2 semantic layers"]
-  C --> E["Product closeout layers"]
-  D --> F["Dependency-earned Graphite movement, only if needed"]
-  E --> F
-  F --> G["S5: individually closed change units"]
-  G --> H["S6: integrated product readiness"]
-  H --> I["S7: reconcile completed change records"]
-  I --> J["S8: final P21 matrix, merge, and drain"]
-  J --> K["S9: closeout and Habitat continuation"]
+  A["Certified independent foundation"] --> B["Semantic Graphite normalization"]
+  B --> C["Approved submission and foundation merge"]
+  C --> D["A.2 from merged main"]
+  D --> E["S6: integrated product readiness"]
+  E --> F["S7: reconcile completed change records"]
+  F --> G["S8: final P21 matrix and closure merge"]
+  G --> H["S9: closeout and Habitat continuation"]
 ```
 
 Each arrow is a gate. Work does not advance merely because activity occurred;
@@ -1193,13 +1189,11 @@ own semantic loop rather than being hidden inside topology operations.
 
 The sealed Stage 2 spine includes control reconciliation, generic diagnostic
 acquisition, `RuleDiagnostics`, authority-derived fix admission,
-`RuleFixPreview`, A.3a, and Nx output ownership. Current readiness
-reconciliation produces the split base. From there A.2
-Authority/census/six domains and the disjoint
-A.3/A.4/A.5/control-oRPC/P19/P20 track advance as ordinary sibling Graphite
-children. Operation-sensitive A.3 waits for A.2 only when source dependencies
-prove that ordering. Dependency evidence may refine this order, but numeric
-labels and inherited branch shape do not.
+`RuleFixPreview`, A.3a, and Nx output ownership. The independent product and
+capability foundation is complete and merges first. A.2 Authority, its advisory
+census, and the six domain migrations then begin from merged `main`. Dependency
+evidence may refine later work, but numeric labels and inherited branch shape do
+not.
 
 **Candidate construction**
 
@@ -1544,8 +1538,9 @@ risks require them. Required lanes are never replaced by DRA self-review.
   unchecked OpenSpec, Habitat, review, and ledger rows close.
 - Treat `studio-run-real-user-matrix-closure` as `authority-ready` only when its
   executable matrix contract and pre-integration reviews are green. Stage 6
-  promotes it to `runtime-ready` after the reconverged static and behavior gates;
-  Stage 8 owns its three live rows, final review, commit, and packet closure.
+  promotes it to `runtime-ready` after A.2 completes on the merged foundation and
+  the combined static and behavior gates pass; Stage 8 owns its three live rows,
+  final review, commit, and packet closure.
 
 **Config single-source behavior**
 
@@ -1596,8 +1591,9 @@ behavioral and tooling units.
 
 ## Stage 6: Integrated Product Readiness
 
-**Purpose:** reconverge the accepted product tree, close deterministic gates,
-and make P21 runtime-ready before one final live matrix at Stage 8. P19 and P20
+**Purpose:** verify the merged foundation plus completed A.2 tree, close
+deterministic gates, and make P21 runtime-ready before one final live matrix at
+Stage 8. P19 and P20
 already provide preliminary rendered/Civ7 support; Stage 6 does not duplicate
 those rows or manufacture live failures.
 
@@ -1609,8 +1605,8 @@ those rows or manufacture live failures.
 
 ### Native Readiness Preflight
 
-1. Confirm the intended Graphite siblings have reconverged and the
-   runtime-relevant source tree is clean.
+1. Confirm A.2 is complete on the merged foundation and the runtime-relevant
+   source tree is clean.
 2. Run output-materializing proof through one Nx graph so Nx owns ordering,
    caching, deduplication, and parallelism.
 3. Run Habitat boundaries/policy, OpenSpec, generated-currentness, and
@@ -1907,7 +1903,7 @@ protocol, or future-hash assertion.
 
 **Post-closeout readiness consumer**
 
-The current split base already adopts the readiness semantics that remain live.
+The merged foundation adopts the readiness semantics that remain live.
 The separate readiness ref stays historical and untouched; it is not restacked,
 merged, replayed, or consumed after closeout.
 
@@ -2059,7 +2055,7 @@ Stop and reframe the affected stage if any of these becomes true:
 - [ ] Future initiatives and transitional risks have owners and re-entry
       triggers.
 - [ ] The readiness reference remains untouched after its settled semantics are
-      adopted into the current split base.
+      adopted into the merged foundation.
 - [ ] Zero-context Habitat return packet is reviewed and usable.
 - [ ] All agents, scratch paths, temporary worktrees, Studio processes,
       listeners, watchers, and tmux sessions are closed or explicitly handed

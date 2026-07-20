@@ -1,7 +1,7 @@
 # Next Packet: Close The Studio Product Outcome
 
-Status: A.3 compiler ownership closing; package-ownership normalization precedes
-A.2; final P21 remains open
+Status: pre-A.2 foundation certified; semantic Graphite merge preparation active;
+final P21 remains open
 
 Normative frame:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -24,9 +24,10 @@ The coherent continuation stack is sealed through A.3a, A.4, RuleFixPreview,
 native Nx/toolchain authority, G.1/G.2, control-oRPC lifecycle and Studio
 adoption, Tuner session/admission repair, P19 generated-mod visibility, P20
 saved-config reconciliation, P21 deterministic proof, source-independent A.3
-static coverage, Habitat hook diagnostics, and lossless operation-event adoption.
-The A.2 sibling still equals the split base; no A.2 Authority rule, live
-violation corpus, or domain migration is present.
+static coverage, Habitat hook diagnostics, lossless operation-event adoption,
+MapGen capability/package boundaries, operation admission, test authority, and
+compiler ownership. No A.2 Authority rule, live violation corpus, or domain
+migration is present.
 
 The historical source recovery remains reference evidence. No current-tree
 rendered browser/Civ7 matrix has closed, so none of these layers claims the
@@ -36,18 +37,18 @@ product result.
 
 Proceed in this order:
 
-1. seal A.3 test and tool compiler ownership;
-2. normalize repository compiler ownership around one discoverable
-   `tsconfig.json` per real compiler environment;
-3. define and execute the package-ownership migration that leaves reusable
-   MapGen capabilities in Core, Civ7 policy in Civ7 packages, and authored maps,
-   recipes, packaging, and live proof in Swooper;
-4. certify and restack the resulting pre-A.2 foundation with native Graphite.
+1. approve the exact semantic fold families and protected-sibling treatment;
+2. fold and rename the local-only delivery branches with native Graphite, without
+   replaying or reconstructing the repository;
+3. rerun the one Nx-owned certification graph plus strict OpenSpec, then obtain
+   explicit approval for submission shape and merge mode;
+4. only after that approval, submit with Graphite and merge bottom to top after CI;
+5. drain only the allowlisted merged branches and clean worktrees, preserve
+   independent owner lanes, and start A.2 from merged `main`.
 
-This package move does not execute A.2 Authority, normalize operation interiors,
-or begin the domain descent. A.2 starts later from the corrected package
-topology. Do not replay the repository, reconstruct a replacement stack, or
-invent a return/integration protocol.
+This foundation does not execute A.2 Authority, normalize operation interiors,
+or begin the domain descent. Do not replay the repository, reconstruct a
+replacement stack, or invent a return/integration protocol.
 
 ## Prepared Findings
 
@@ -261,9 +262,10 @@ runtime behavior.
 
 The validator-ownership and rule-introduction prerequisites are sealed. The old
 mixed Authority candidate was excluded after its unique settled evidence was
-reconciled. From the reviewed split-base sibling, the user's A.2 team creates
-Authority from current evidence, then executes Ecology, Foundation, Morphology,
-Hydrology, Resources, and Placement under the settled descent contract.
+reconciled. After the independent foundation merges, the user's A.2 team creates
+Authority from current evidence on merged `main`, then executes Ecology,
+Foundation, Morphology, Hydrology, Resources, and Placement under the settled
+descent contract.
 
 ### A.3. Close Static Test And Tool Coverage
 
@@ -359,10 +361,10 @@ application PID. P21's three final rows still own product closure.
 
 C is the umbrella across Stages 5 through 8, not a standalone matrix packet.
 First certify every accepted branch and close P01-P20 against the current
-contracts while making P21 `authority-ready`. After A.2 and A.3 reconverge,
-integrated gates promote P21 to `runtime-ready`; then run its three-row matrix once
-on the frozen runtime-relevant candidate, reconcile active records without
-changing that tree, and submit and merge bottom to top. Any later
+contracts while making P21 `authority-ready`. After A.2 completes on the merged
+foundation, integrated gates promote P21 to `runtime-ready`; then run its
+three-row matrix once on the frozen runtime-relevant candidate, reconcile active
+records without changing that tree, and submit and merge bottom to top. Any later
 runtime-relevant change invalidates all three rows so the accepted matrix remains
 bound to one exact tree. Record-only changes do not replay Civ7.
 Any semantic surprise returns to its owning product slice.

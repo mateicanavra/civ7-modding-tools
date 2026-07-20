@@ -241,8 +241,10 @@ const preflightPinnedGritEffect = Effect.fn("grit.native.preflight")(function* <
     .pipe(Effect.mapError((error) => preflightUnavailable(preflightRequest, String(error))));
   const packageJson = yield* parsePinnedPackage(packageSource, preflightRequest);
   yield* Effect.succeed(packageJson satisfies GritPackage);
-  const result = yield* run(preflightRequest);
-  const completed = yield* classifyPreflightExecution(result);
+  const firstResult = yield* observePinnedGritIdentity(run, preflightRequest);
+  const result = isCompletedBlankPreflight(firstResult)
+    ? yield* observePinnedGritIdentity(run, preflightRequest)
+    : firstResult;
   const validIdentity = !(
     result.stdout.truncated ||
     result.stderr.truncated ||
@@ -253,17 +255,39 @@ const preflightPinnedGritEffect = Effect.fn("grit.native.preflight")(function* <
     Match.when("", () => "no version"),
     Match.orElse((version) => version)
   );
-  return yield* Effect.succeed(completed).pipe(
+  return yield* Effect.succeed(result).pipe(
     Effect.filterOrFail(
       () => validIdentity,
       () =>
         nativeIdentityMismatchFromCompleted(
-          completed,
+          result,
           `Pinned Grit preflight expected completed exit 0 with ${pinnedGritIdentity.nativeVersion}, observed exit ${result.exit.code} with ${observedVersion}.`
         )
     )
   );
 });
+
+const observePinnedGritIdentity = Effect.fn("grit.native.preflight.observe")(function* <
+  Run extends CommandRunnerService["run"],
+>(run: Run, request: HabitatProcessRequest) {
+  const result = yield* run(request);
+  return yield* classifyPreflightExecution(result);
+});
+
+/**
+ * Identifies an inconclusive identity observation: exit zero with two untruncated blank streams.
+ * Preflight confirms it exactly once; contradictory or persistently blank evidence fails closed.
+ */
+function isCompletedBlankPreflight(result: HabitatCommandResult): boolean {
+  return (
+    !result.exit.interrupted &&
+    result.exit.code === 0 &&
+    !result.stdout.truncated &&
+    !result.stderr.truncated &&
+    result.stdout.text.trim().length === 0 &&
+    result.stderr.text.trim().length === 0
+  );
+}
 
 const classifyPreflightExecution = Effect.fn("grit.native.preflight.classify")(function* (
   result: HabitatCommandResult

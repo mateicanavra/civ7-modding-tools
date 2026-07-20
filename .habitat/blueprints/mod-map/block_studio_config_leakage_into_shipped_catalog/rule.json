@@ -32,7 +32,7 @@
   "graphDependencies": [
     {
       "project": "mod-swooper-maps",
-      "target": "gen:map-artifacts"
+      "target": "generated:check"
     }
   ],
   "supportFiles": {

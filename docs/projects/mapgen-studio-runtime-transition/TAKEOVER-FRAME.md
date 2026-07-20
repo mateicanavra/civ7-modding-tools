@@ -244,13 +244,13 @@ exact Habitat topology as the future realization.
 | A.1 test topology | Closed-passed candidate | Tests aligned to semantic owners; brittle mirrors removed; A.3 debt retained. |
 | A.1a dev freshness | Closed-passed candidate | Serve resolves Studio contract source; build remains artifact-owned. |
 | Lifecycle alignment child | Closed-passed candidate | Private worktree lifecycle composes canonical Nx daemon ownership. |
-| A.2 frame | Restored and adapted in the sealed split base | The target topology, separate D1-D4 decisions, and descent state model are preserved without beginning Authority implementation. |
+| A.2 frame | Restored and adapted in the pre-A.2 foundation | The target topology, separate D1-D4 decisions, and descent state model are preserved without beginning Authority implementation. |
 | A.2 generated-validator ownership prerequisite | Sealed at `dd38de22e` | Package/Nx owners retain behavior; three wrong-owner Habitat checks retired. |
 | A.2 rule-introduction-manifest prerequisite | Sealed at `9ff0f711e` | Habitat can admit explicit nonempty shrink-only baselines. |
 | Generic Grit capabilities | Sealed | Pinned acquisition, `RuleDiagnostics`, generic fix admission, and `RuleFixPreview` are ratcheted prerequisites. |
 | Nx output ownership | Sealed at `d40cd82a8` | One Nx graph owns output-materializing proof order; parallel output graphs use separate worktrees. |
-| A.2 split-base reconciliation | Sealed | Current readiness semantics and the nine-document descent container are preserved above the sealed prerequisites. A.2 implementation has not begun. |
-| A.2 Authority | Not started | The sibling A.2 track begins only from the reviewed split base. |
+| A.2 launch reconciliation | Sealed | Current readiness semantics and the nine-document descent container are preserved above the sealed prerequisites. The foundation merges before A.2 begins. |
+| A.2 Authority | Not started | A.2 begins from merged `main` after the independent foundation merge. |
 | A.2 domain slices | Not started | 34 Ecology, 18 Foundation, 19 Morphology, 19 Hydrology, 8 Resources, 3 Placement operations. |
 | A.3 static coverage | Closing candidate | Semantic test owners plus discoverable Swooper test/script/dev compiler projects close the static-authority gap. |
 | A.3a atomic reroll | Sealed at `93b1153ca` | One user command produces one worker start with Auto-run on or off. |
@@ -258,8 +258,8 @@ exact Habitat topology as the future realization.
 | A.5 browser payload/worker readiness | Proposed; cohesion unproven | Lazy selected config loading and worker warmup may need separate units. |
 | B control-oRPC ownership | Planned | Daemon-owned typed setup/start/soft-restart capability; no caller-local direct-control choreography. |
 | C rendered acceptance | Planned umbrella | Expands across Stages 5-8: branch certification, integrated deterministic readiness, one final exact-tree matrix, archive, and merge. |
-| Workstream Stage 1 control/corpus | Closed for the split boundary | Current control records agree; the absent historical `TRANSITION.md` filename is not a reason to invent another artifact. |
-| Workstream Stage 2 semantic lock | Active product closeout | The admitted scope includes A/A.1/A.1a/lifecycle and the ratcheted Habitat prerequisites; the split base opens the two remaining semantic tracks. |
+| Workstream Stage 1 control/corpus | Closed for the foundation merge boundary | Current control records agree; the absent historical `TRANSITION.md` filename is not a reason to invent another artifact. |
+| Workstream Stage 2 semantic lock | Foundation complete; A.2 not started | The independent product/capability foundation is certified. A.2 begins later from merged `main`. |
 | Workstream Stages 3-9 | Not started | Targeted Graphite normalization only if concrete inspection requires it, then branch certification, integrated readiness, one final matrix, archive, submit/merge, and Habitat handoff. |
 
 Historical `checked` means task state, not current product acceptance. The config
@@ -415,53 +415,41 @@ exists. These are integration facts, not closure receipts.
 
 The current stack preserves the sealed product, Habitat, Nx, TypeScript, and
 lint authority layers. The bounded descent container and active-ledger
-reconciliation are sealed in the split base. A.2 Authority, its live violation
-corpus, and domain migration have not begun.
+reconciliation are sealed in the certified independent foundation. A.2
+Authority, its live violation corpus, and domain migration have not begun.
 
-The reviewed semantic tip is the split base. Create ordinary sibling Graphite
-children from it: one for the user's A.2 track and one for this DRA's independent
-product-closeout continuation. Keep them parallel while independent. If a real
-dependency later appears, use native Graphite to move the continuation's first
-unique branch above the completed A.2 tip. There is no returned stack, wholesale
-replay, replacement stack, or mandatory recut.
+Normalize, certify, submit, and merge the independent foundation through native
+Graphite after explicit approval. A.2 then begins from merged `main`. There is no
+split-base sibling, returned stack, wholesale replay, replacement stack, or
+mandatory recut.
 
-The user's A.2 orchestrator owns Authority, the advisory file/clause/predicate
-census, deterministic destination/action classification, and the six domain
-migrations on its sibling. The takeover DRA protects those surfaces, continues
-the independent product track, and retains final P21, submission, merge, drain,
-and initiative-closure authority.
+After the independent foundation merges, the user's A.2 orchestrator owns
+Authority, the advisory file/clause/predicate census, deterministic
+destination/action classification, and the six domain migrations from merged
+`main`. The takeover DRA retains final combined-tree readiness, P21, submission,
+merge, drain, and initiative-closure authority.
 
 ## Remaining Order
 
 The initiative proceeds by dependency, not by numeric label alone.
 
-1. **Create the sibling branches.** Preserve the sealed split base and open
-   ordinary A.2 and independent-continuation children. Do not add A.2
-   implementation or live-corpus machinery to the common parent.
-2. **Run two protected sibling tracks.** The user's team implements and seals A.2
+1. **Merge the independent foundation.** Preserve coherent layers; use targeted
+   native Graphite fold, split, move, or restack only where the inspected stack
+   requires it. Rerun certification, obtain explicit remote-mutation approval,
+   submit, and merge bottom to top. Do not replay or reconstruct the repository.
+2. **Execute A.2 from merged `main`.** The user's team implements and seals A.2
    Authority, freezes the zero-unknown advisory corpus, and executes Ecology ->
-   Foundation -> Morphology -> Hydrology -> Resources -> Placement. The takeover
-   DRA closes only source-independent A.3 surfaces, A.4, separately admitted A.5
-   concerns, control-oRPC, P19, and P20.
-3. **Finish semantic lock.** Keep the tracks parallel unless source dependencies
-   require native Graphite movement, finish A.2-sensitive A.3 scopes, and reach
-   P21 semantic readiness with zero undecided semantic rows.
-4. **Inspect the current stack.** Preserve coherent layers. Use targeted native
-   Graphite restack, move, split, or fold only when concrete inspection requires
-   it; do not replay the repository or rebuild a replacement stack.
-5. **Stage 5 branch certification.** Re-review and gate every accepted layer, close
-   P01-P20 against current contracts, and make P21 genuinely ready. This is the
-   first bounded portion of umbrella C.
-6. **Stage 6 integrated readiness.** Reconverge A.2/A.3, run deterministic
-   product gates, and make P21 runtime-ready. P19/P20 are the preliminary live
-   support; do not spend another Civ7 matrix here.
-7. **Stages 7-8 archive, final matrix, and merge.** Reconcile completed records,
+   Foundation -> Morphology -> Hydrology -> Resources -> Placement.
+3. **Stage 6 integrated readiness.** On the combined merged-foundation plus A.2
+   tree, run deterministic product gates and make P21 runtime-ready. P19/P20 are
+   preliminary live support; do not spend another Civ7 matrix here.
+4. **Stages 7-8 archive, final matrix, and merge.** Reconcile completed records,
    then run the three accepted P21 rows once on the frozen runtime-relevant
-   submission candidate and merge bottom-to-top with post-merge tree checks.
-   Any runtime-relevant change invalidates all three rows so the final evidence
-   remains bound to one exact tree. Record-only changes do not replay Civ7.
-8. **Stage 9 handoff.** Drain worktrees/processes, write the zero-context
-    continuation, and return to the parked Habitat authority initiative.
+   candidate and merge the final closure layer with post-merge tree checks. Any
+   runtime-relevant change invalidates all three rows; record-only changes do not
+   replay Civ7.
+5. **Stage 9 handoff.** Drain worktrees/processes, write the zero-context
+   continuation, and return to the parked Habitat authority initiative.
 
 ## Development Philosophy
 
@@ -726,7 +714,7 @@ context. It contains only behavior-changing context:
 - the decision or integration point returned to the DRA.
 
 Only the accountable track owner stages, commits, or mutates Graphite. Peers do
-not stash, reset, rewrite worktrees, touch sibling tracks, or start persistent
+not stash, reset, rewrite worktrees, touch other owner lanes, or start persistent
 Studio/Civ7 processes unless their bounded assignment explicitly owns that
 operation.
 

@@ -1559,6 +1559,80 @@ describe("Grit generic acquisition and public disposition", () => {
     ).toHaveLength(2);
   });
 
+  test("re-observes one completed blank preflight and caches the recovered identity", async () => {
+    const observed: HabitatProcessRequest[] = [];
+    const runner = {
+      run: (request: HabitatProcessRequest) => {
+        const priorPreflights = observed.filter(
+          ({ commandId }) => commandId === "grit-pinned-native-preflight"
+        ).length;
+        observed.push(request);
+        const kind =
+          request.commandId === "grit-pinned-native-preflight" && priorPreflights === 0
+            ? "blank"
+            : "exact";
+        return preflightScenarioEffect(kind, request);
+      },
+    };
+    const request = {
+      scanRoots: [providerRoot] as const,
+      cwd: repoRoot,
+      gritDir: path.join(repoRoot, ".grit"),
+      cacheDir: path.join(repoRoot, ".cache"),
+      gritUserConfigDir: path.join(repoRoot, ".grit-user"),
+    };
+
+    const results = await Effect.runPromise(
+      makeGritCommandTestService(runner).pipe(
+        Effect.flatMap((grit) => Effect.all([grit.check(request), grit.check(request)]))
+      )
+    );
+
+    expect(results).toHaveLength(2);
+    expect(observed.map(({ commandId }) => commandId)).toEqual([
+      "grit-pinned-native-preflight",
+      "grit-pinned-native-preflight",
+      "grit-selected-rule-json-check",
+      "grit-selected-rule-json-check",
+    ]);
+  });
+
+  test("fails a persistently blank completed preflight after exactly two observations", async () => {
+    const observed: HabitatProcessRequest[] = [];
+    const runner = {
+      run: (request: HabitatProcessRequest) => {
+        observed.push(request);
+        return preflightScenarioEffect("blank", request);
+      },
+    };
+    const request = {
+      scanRoots: [providerRoot] as const,
+      cwd: repoRoot,
+      gritDir: path.join(repoRoot, ".grit"),
+      cacheDir: path.join(repoRoot, ".cache"),
+      gritUserConfigDir: path.join(repoRoot, ".grit-user"),
+    };
+
+    const result = await Effect.runPromise(
+      makeGritCommandTestService(runner).pipe(
+        Effect.flatMap((grit) => Effect.either(grit.check(request)))
+      )
+    );
+
+    expect(result).toMatchObject({
+      _tag: "Left",
+      left: {
+        _tag: "CommandUnavailable",
+        mismatchKind: "native-identity-mismatch",
+        observation: { kind: "completed" },
+      },
+    });
+    expect(observed.map(({ commandId }) => commandId)).toEqual([
+      "grit-pinned-native-preflight",
+      "grit-pinned-native-preflight",
+    ]);
+  });
+
   test("retries a failed preflight and reuses the first successful observation", async () => {
     const selected = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
     const root = path.join(repoRoot, providerRoot);
@@ -2159,6 +2233,7 @@ function preflightScenarioEffect(
     | "wrong-version"
     | "wrong-stream"
     | "truncated"
+    | "blank"
     | "exact",
   request: HabitatProcessRequest
 ) {
@@ -2211,6 +2286,7 @@ function preflightScenarioEffect(
         })
       )
     ),
+    Match.when("blank", () => Effect.succeed(makeHabitatCommandResult(request))),
     Match.when("exact", () => Effect.succeed(exactPreflightOrTargetResult(request))),
     Match.exhaustive
   );

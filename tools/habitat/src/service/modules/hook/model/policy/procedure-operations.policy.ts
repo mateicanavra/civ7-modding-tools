@@ -377,7 +377,9 @@ export const prePushChangedPaths = Effect.fn("hook.prePush.changedPaths")(functi
   base: string
 ) {
   const result = yield* context.git
-    .command(["diff", "--name-only", "-z", base, "HEAD"], { cwd: context.platform.repoRoot })
+    .command(["diff", "--no-renames", "--name-only", "-z", base, "HEAD"], {
+      cwd: context.platform.repoRoot,
+    })
     .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
   return Option.match(
     Option.fromNullable(result).pipe(Option.filter((command) => command.exit.code === 0)),
