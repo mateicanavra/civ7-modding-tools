@@ -7,15 +7,23 @@
 // ============================================================================
 
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
-import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
+import { BookOpen, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
 import React, { useMemo, useRef, useState } from "react";
 import type { XSchema } from "typebox/schema";
+import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
 import { LAYOUT } from "../../lib/layout.js";
 import { cn } from "../../lib/utils.js";
 import type { PipelineConfig, SelectOption } from "../../types/index.js";
 import { DisclosureHeader } from "../composites/DisclosureHeader.js";
 import { OptionSelect } from "../composites/OptionSelect.js";
+import { setAtPath } from "../forms/pathUtils.js";
 import { SchemaConfigForm } from "../forms/SchemaConfigForm.js";
+import {
+  normalizeSchemaForRjsf,
+  schemaDefaultsFor,
+  toRjsfSchema,
+  tryGetSchemaAtPath,
+} from "../forms/schemaPresentation.js";
 import { useConfigCollapse } from "../forms/useConfigCollapse.js";
 import { Button } from "../ui/button.js";
 import {
@@ -46,8 +54,6 @@ export interface RecipePanelProps {
   configSchema: XSchema;
   /** Path-based patch callback for efficient state updates */
   onConfigChange: (next: PipelineConfig) => void;
-  /** Callback to reset config to defaults */
-  onConfigReset: () => void;
   /** Available recipe options */
   recipeOptions: ReadonlyArray<SelectOption>;
   /** Available complete config options */
@@ -98,7 +104,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   config,
   configSchema,
   onConfigChange,
-  onConfigReset,
   recipeOptions,
   configOptions,
   selectedStep,
@@ -127,9 +132,14 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const [localRecipeCollapsed, setLocalRecipeCollapsed] = useState(false);
   const [localConfigCollapsed, setLocalConfigCollapsed] = useState(false);
   const [localConfigEditingEnabled, setLocalConfigEditingEnabled] = useState(true);
-  const [showJson, setShowJson] = useState(false);
   const [showAllSteps, setShowAllSteps] = useState(false);
-  const [showResetModal, setShowResetModal] = useState(false);
+  // Scoped reset (flat-and-flush delta 5): the confirmation dialog is owned
+  // here but always targets ONE stage — pointer for the patch, label for the
+  // dialog copy. Null ⇒ closed. There is no global reset affordance.
+  const [stageResetTarget, setStageResetTarget] = useState<{
+    pointer: string;
+    label: string;
+  } | null>(null);
   const [showSaveMenu, setShowSaveMenu] = useState(false);
 
   const configEditingEnabled = configEditingEnabledProp ?? localConfigEditingEnabled;
@@ -170,14 +180,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   // ==========================================================================
   // Derived State
   // ==========================================================================
-  const filteredConfig = useMemo(() => {
-    if (showAllSteps || !selectedStep) return config;
-    if (config[selectedStep])
-      return {
-        [selectedStep]: config[selectedStep],
-      };
-    return config;
-  }, [config, selectedStep, showAllSteps]);
   const focusPath = !showAllSteps && selectedStep ? [selectedStep] : null;
   // Config-object collapse (Pass-4): collapsed by default with manual expand;
   // the focused stage root defaults expanded; the sticky toggle (default OFF)
@@ -189,6 +191,26 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
     sticky: stickyAutoExpand,
     focusRootPointer: focusPath ? `/${focusPath.join("/")}` : null,
   });
+  // Normalized rjsf view of the config schema — the same normalization the
+  // form itself applies — so a stage's reset patch resolves defaults from the
+  // exact schema shape the form renders.
+  const rjsfSchema = useMemo(() => {
+    try {
+      return toRjsfSchema(normalizeSchemaForRjsf(configSchema));
+    } catch {
+      return null;
+    }
+  }, [configSchema]);
+  const confirmStageReset = () => {
+    if (!stageResetTarget) return;
+    const path = stageResetTarget.pointer.split("/").filter(Boolean);
+    const stageSchema = rjsfSchema ? tryGetSchemaAtPath(rjsfSchema, path) : null;
+    const defaults = schemaDefaultsFor(stageSchema);
+    if (defaults !== undefined) {
+      onConfigChange(setAtPath(config, path, defaults) as PipelineConfig);
+    }
+    setStageResetTarget(null);
+  };
   // ==========================================================================
   // Styles
   // ==========================================================================
@@ -203,10 +225,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const textMuted = "text-muted-foreground/70";
   const borderColor = "border-border";
   const borderSubtle = "border-border-subtle";
-  const iconBtn =
-    "h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent";
-  const iconBtnActive =
-    "h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-foreground bg-muted";
   // ==========================================================================
   // Render
   // ==========================================================================
@@ -360,7 +378,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                       }}
                       aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
                       aria-pressed={showAllSteps}
-                      className={!showAllSteps ? iconBtnActive : iconBtn}
+                      className={!showAllSteps ? iconButtonActive : iconButton}
                     >
                       <Focus className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
@@ -402,7 +420,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                           : "Enable Auto-Expand on Scroll"
                       }
                       aria-pressed={stickyAutoExpand}
-                      className={stickyAutoExpand ? iconBtnActive : iconBtn}
+                      className={stickyAutoExpand ? iconButtonActive : iconButton}
                     >
                       <ListCollapse className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
@@ -410,35 +428,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   <TooltipContent>
                     {stickyAutoExpand ? "Auto-Expand on Scroll: On" : "Auto-Expand on Scroll: Off"}
                   </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={() => setShowResetModal(true)}
-                      aria-label="Reset Config to Defaults"
-                      className={iconBtn}
-                    >
-                      <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Reset to Defaults</TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={() => setShowJson(!showJson)}
-                      aria-label={showJson ? "Show Form View" : "Show JSON View"}
-                      aria-pressed={showJson}
-                      className={showJson ? iconBtnActive : iconBtn}
-                    >
-                      <Braces className="w-3.5 h-3.5" aria-hidden="true" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>{showJson ? "Show Form View" : "Show JSON View"}</TooltipContent>
                 </Tooltip>
               </div>
 
@@ -451,28 +440,15 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   !configEditingEnabled && "opacity-40 pointer-events-none select-none"
                 )}
               >
-                {showJson ? (
-                  <div className="border border-border-subtle rounded p-2.5 max-h-[240px] overflow-auto bg-surface-sunken">
-                    <pre
-                      className={cn(
-                        "text-label font-mono leading-relaxed",
-                        textMuted,
-                        "whitespace-pre-wrap break-all"
-                      )}
-                    >
-                      {JSON.stringify(filteredConfig, null, 2)}
-                    </pre>
-                  </div>
-                ) : (
-                  <SchemaConfigForm
-                    schema={configSchema}
-                    value={config}
-                    focusPath={focusPath}
-                    disabled={!configEditingEnabled}
-                    collapse={collapse}
-                    onChange={(next) => onConfigChange(next)}
-                  />
-                )}
+                <SchemaConfigForm
+                  schema={configSchema}
+                  value={config}
+                  focusPath={focusPath}
+                  disabled={!configEditingEnabled}
+                  collapse={collapse}
+                  onStageResetRequest={(pointer, label) => setStageResetTarget({ pointer, label })}
+                  onChange={(next) => onConfigChange(next)}
+                />
               </div>
               {/* Scroll-edge fade: sticky inside the scroll container so mid-scroll
                 cuts read as "more below" instead of the end of the form. The
@@ -531,29 +507,29 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         </div>
       </div>
 
-      {/* Reset Confirmation Dialog */}
-      <Dialog open={showResetModal} onOpenChange={setShowResetModal}>
+      {/* Stage Reset Confirmation Dialog — copy names the one stage it acts
+          on; confirming patches only that stage back to its schema defaults. */}
+      <Dialog
+        open={stageResetTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setStageResetTarget(null);
+        }}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Eraser className="w-4 h-4" />
-              Reset Config
+              Reset {stageResetTarget?.label}
             </DialogTitle>
             <DialogDescription>
-              This will reset the recipe settings to their default values.
+              This will reset {stageResetTarget?.label} overrides to their default values.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                onConfigReset();
-                setShowResetModal(false);
-              }}
-            >
+            <Button variant="destructive" onClick={confirmStageReset}>
               Reset
             </Button>
           </DialogFooter>

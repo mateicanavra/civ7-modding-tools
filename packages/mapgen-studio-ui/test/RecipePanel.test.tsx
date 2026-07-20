@@ -16,7 +16,6 @@ describe("RecipePanel config editing lock", () => {
           config={{}}
           configSchema={{ type: "object", properties: {} }}
           onConfigChange={vi.fn()}
-          onConfigReset={vi.fn()}
           recipeOptions={[{ value: "standard", label: "Standard" }]}
           configOptions={[{ value: "studio-current", label: "Studio Current" }]}
           selectedStep=""
