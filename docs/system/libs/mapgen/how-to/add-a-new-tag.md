@@ -21,23 +21,23 @@ Routes to:
 ## Prereqs
 
 - You know what kind of tag you’re adding:
-  - `kind: "artifact"` (pipeline internal products), or
-  - `kind: "field"` (adapter-provided engine fields), or
+  - `kind: "artifact"` (write-once pipeline data), or
   - `kind: "effect"` (adapter-visible engine effects).
-- You have a stable id string (e.g. `field:elevation`, `artifact:morphology.topography`, `effect:engine.biomesApplied`).
+- You have a stable id string (e.g. `artifact:morphology.topography`, `effect:engine.biomesApplied`).
 
 ## Checklist
 
 ### 1) Pick the correct tag kind
 
 - Use **artifact** tags to gate pipeline-internal products.
-- Use **field** tags only for adapter fields (e.g. Civ7 engine fields).
 - Use **effect** tags for adapter-visible “effects applied” signals.
+- Cross-step data is always a validated artifact vintage; local scratch arrays are not context state
+  or dependency tags.
 
 ### 2) Add the tag id constant
 
-- Add the id to the appropriate constant set (field/effect/artifact grouping).
-- Prefer namespaced structures for discoverability.
+- Define artifact IDs in their owning `defineArtifact` module.
+- Add effect IDs to the owning namespaced constant set for discoverability.
 
 Representative example (tag id constants; excerpt; see full file in anchors):
 
@@ -53,12 +53,14 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
 
 ### 3) Register the tag definition
 
-- Add a `DependencyTagDefinition` entry:
+- Effect tags add a `DependencyTagDefinition` entry:
   - `id`
   - `kind`
   - optional `owner` (recommended for effects)
   - optional `satisfies(context, state?)` predicate for runtime validation
 - Ensure the registry function registers the full set of definitions.
+- Artifact modules register their own IDs and complete validators when selected by step contracts;
+  do not duplicate them in the explicit effect registry.
 
 Representative example (registration + owner attribution; excerpt; see full file in anchors):
 
@@ -103,13 +105,14 @@ export function registerStandardTags(registry: {
   - if missing, you should see `MissingDependencyError` naming your tag id (good)
   - once satisfied, the pipeline should proceed without missing dependency failures
 - Run:
-  - `bun run --cwd mods/mod-swooper-maps test`
+  - `nx run mod-swooper-maps:test`
 
 ## Footguns
 
 - **Defining tags but never registering** them: unregistered tags are invalid and will be rejected by validation.
 - **Overusing tags**: tags are contracts; too many tags becomes coupling noise.
-- **Conflating artifact vs field**: artifacts are pipeline-internal; fields are engine outputs.
+- **Encoding mutable state as a dependency**: publish validated artifact evidence instead.
+- **Conflating artifact vs effect**: artifacts carry data; effects guarantee execution or materialization.
 
 ## Ground truth anchors
 

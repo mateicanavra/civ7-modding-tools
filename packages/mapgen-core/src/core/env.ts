@@ -1,7 +1,5 @@
 import { type Static, Type } from "typebox";
 
-const UnknownRecord = Type.Record(Type.String(), Type.Unknown(), { default: {} });
-
 export const TraceLevelSchema = Type.Union([
   Type.Literal("off"),
   Type.Literal("basic"),
@@ -42,7 +40,6 @@ export const EnvSchema = Type.Object(
       },
       { additionalProperties: false }
     ),
-    metadata: Type.Optional(UnknownRecord),
     trace: Type.Optional(TraceConfigSchema),
   },
   { additionalProperties: false }

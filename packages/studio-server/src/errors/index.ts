@@ -32,7 +32,7 @@ export {
   operationBlocked,
   operationExpired,
   operationNotFound,
-  verificationFailed,
+  preventStudioRuntimeFailureReplay,
   runtimeDisposed,
   STUDIO_DEPENDENCY_KINDS,
   STUDIO_FAILURE_REASON_CODES,
@@ -46,6 +46,7 @@ export {
   unavailableFailureErrorDataSchema,
   unexpectedDefectDataSchema,
   unsupportedOperationType,
+  verificationFailed,
 } from "@civ7/studio-contract";
 export type {
   StudioDaemonIdentity,

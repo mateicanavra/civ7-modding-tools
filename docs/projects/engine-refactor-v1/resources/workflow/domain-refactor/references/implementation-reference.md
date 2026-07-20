@@ -29,37 +29,120 @@ Non-negotiable invariants (target architecture):
 - Semantic knobs require an explicit contract: meaning, missing/empty/null behavior, and determinism expectations must be written down and test-locked (do not infer ad hoc during implementation).
 - No dual paths, shims, translators, DeepPartial override blobs, or fallback behaviors within scope.
 - Artifacts are contract-first and stage-owned:
-  - contracts live at `stages/<stage>/artifacts.ts` (stable import surface),
-  - step contracts declare `artifacts.requires/provides` using those contracts,
-  - step runtime uses `deps.artifacts.*` exclusively (no ad-hoc artifact imports).
+  - each `stages/<stage>/artifacts/<name>.artifact.ts` module owns one contract and its complete structural/semantic validator,
+  - `stages/<stage>/artifacts/index.ts` is the single catalog and exports its derived `artifactModules` and `artifacts`,
+  - step contracts declare `artifacts.requires/provides` with the derived `artifacts` handles,
+  - producers pass selected derived modules to `createStep`; the SDK derives runtimes and data access stays on `deps.artifacts.*`,
+  - validators stay with their recipe/domain contracts; MapGen Core supplies admission machinery, not domain-specific validation.
 
-## Artifacts authoring (stage-owned contract + step-owned runtime)
+## Artifacts authoring (stage-owned module + catalog, step-owned runtime binding)
 
-Stage contract surface (stable import path for step contracts):
+Artifact module (one contract plus its complete validator):
 ```ts
-// mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts.ts
-import { Type, defineArtifact } from "@swooper/mapgen-core/authoring";
+// mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts/feature-occupancy.artifact.ts
+import type {
+  ArtifactValidationContext,
+  ArtifactValidationIssue,
+} from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  TypedArraySchemas,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
-export const ecologyArtifacts = {
-  featureIntents: defineArtifact({
-    name: "featureIntents",
-    id: "artifact:ecology.featureIntents",
-    schema: Type.Object({}, { additionalProperties: false }),
-  }),
-} as const;
+/** Closed structural schema for feature-planner occupancy state. */
+export const Schema = Type.Object(
+  {
+    width: Type.Integer({ minimum: 1, description: "Map width represented by occupancy." }),
+    height: Type.Integer({ minimum: 1, description: "Map height represented by occupancy." }),
+    occupied: TypedArraySchemas.u8({
+      description: "One byte per tile: 1 when occupied by a planned feature, otherwise 0.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description: "Ecology feature occupancy shared by ordered feature planners.",
+  },
+);
+
+/** Registers write-once occupancy state that prevents planners from claiming the same tile. */
+export const artifact = defineArtifact({
+  name: "featureOccupancy",
+  id: "artifact:ecology.featureOccupancy",
+  schema: Schema,
+});
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+/**
+ * Validates the closed schema, active-map dimensions, one occupancy cell per tile, and the
+ * binary occupancy value domain. These are the artifact's complete admission invariants.
+ */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext,
+): readonly ArtifactValidationIssue[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (!isRecord(value)) return Object.freeze(issues);
+
+  const { width, height, occupied } = value;
+  if (
+    typeof width !== "number" ||
+    !Number.isInteger(width) ||
+    typeof height !== "number" ||
+    !Number.isInteger(height) ||
+    width < 1 ||
+    height < 1 ||
+    !(occupied instanceof Uint8Array)
+  ) {
+    return Object.freeze(issues);
+  }
+
+  if (occupied.length !== width * height) {
+    issues.push({ message: "featureOccupancy.occupied must contain one cell per tile." });
+  }
+  if (
+    context?.dimensions &&
+    (width !== context.dimensions.width || height !== context.dimensions.height)
+  ) {
+    issues.push({ message: "featureOccupancy dimensions must match the active map." });
+  }
+  if (occupied.some((cell) => cell !== 0 && cell !== 1)) {
+    issues.push({ message: "featureOccupancy.occupied accepts only 0 or 1." });
+  }
+  return Object.freeze(issues);
+}
+```
+
+Stage catalog (the only registry; both public surfaces are derived from it):
+```ts
+// mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts/index.ts
+import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
+import * as featureOccupancy from "./feature-occupancy.artifact.js";
+
+const catalog = defineArtifactCatalog({ featureOccupancy });
+
+/** Ecology artifact modules pairing each contract with its complete admission validator. */
+export const artifactModules = catalog.modules;
+
+/** Ecology artifact handles derived from the module catalog for contracts and consumers. */
+export const artifacts = catalog.artifacts;
 ```
 
 Consumer step contract (declares dependencies via `artifacts.*`):
 ```ts
 // mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/features-apply/contract.ts
-import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology";
-import { ecologyArtifacts } from "../../artifacts.js";
+import { Type, defineStep } from "@swooper/mapgen-core/authoring/contracts";
+import { artifacts as ecologyArtifacts } from "../../artifacts/index.js";
 
 export default defineStep({
   id: "features-apply",
   phase: "ecology",
-  artifacts: { requires: [ecologyArtifacts.featureIntents], provides: [] },
+  artifacts: { requires: [ecologyArtifacts.featureOccupancy], provides: [] },
   ops: { apply: ecology.ops.applyFeatures },
   schema: Type.Object({}, { additionalProperties: false }),
   requires: [],
@@ -70,18 +153,17 @@ export default defineStep({
 Producer step runtime (binds runtime checks + publishes via `deps`):
 ```ts
 // mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/features-plan/index.ts
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { artifactModules as ecologyArtifactModules } from "../../artifacts/index.js";
 import contract from "./contract.js";
 
-const artifacts = implementArtifacts(contract.artifacts!.provides!, {
-  featureIntents: { /* validate/satisfies/freeze overrides (optional) */ },
-});
-
 export default createStep(contract, {
-  artifacts,
+  artifacts: [ecologyArtifactModules.featureOccupancy],
   run: (ctx, config, ops, deps) => {
-    // No artifact imports here: only deps.* access.
-    deps.artifacts.featureIntents.publish(ctx, { /* ... */ });
+    const { width, height } = ctx.dimensions;
+    const occupied = new Uint8Array(width * height);
+    // Planner output determines which cells are marked occupied before publication.
+    deps.artifacts.featureOccupancy.publish(ctx, { width, height, occupied });
   },
 });
 ```
@@ -91,15 +173,18 @@ export default createStep(contract, {
 ```mermaid
 flowchart LR
   DomainContract["@mapgen/domain/<domain>\n(contract entrypoint)\ndefineDomain({ id, ops })"]
-  StageArtifacts["Stage artifact contracts\nstages/<stage>/artifacts.ts\n- defineArtifact({ name, id, schema })"]
+  ArtifactModule["Stage artifact module\nartifacts/<name>.artifact.ts\n- defineArtifact({ name, id, schema })\n- complete validate(value, context)"]
+  ArtifactCatalog["Stage artifact catalog\nartifacts/index.ts\ndefineArtifactCatalog({ modules })\n-> artifactModules + artifacts"]
   StepContract["Step contract\ncontract.ts\n- ops: { key: domain.ops.<opContract> }\n- artifacts: { requires/provides }\n- schema: step-owned props only\n(defineStep merges op config schemas)"]
   DomainImpl["@mapgen/domain/<domain>/ops\n(implementation entrypoint)\nexport default { <opKey>: createOp(...) }"]
   Compiler["compileRecipeConfig\nprefillOpDefaults -> normalizeStrict -> step.normalize -> op.normalize fanout"]
   StepModule["Step module\ncreateStep(contract, { artifacts?, run(ctx, config, ops, deps) })\nctx.buffers.* = mutable working layers\n deps.artifacts.* = published contracts"]
-  ArtifactRuntime["implementArtifacts(contract.artifacts.provides, impl)\n-> deps.artifacts wrappers + satisfiers"]
+  ArtifactRuntime["createStep derives selected artifact modules\n-> validated deps.artifacts wrappers + satisfiers"]
   Recipe["createRecipe\ncollect step modules -> bindRuntimeOps + bindRuntimeDeps\n(auto-wire artifact tag defs + satisfiers)"]
 
-  StageArtifacts --> StepContract
+  ArtifactModule --> ArtifactCatalog
+  ArtifactCatalog --> StepContract
+  ArtifactCatalog --> ArtifactRuntime
   DomainContract --> StepContract
   DomainImpl --> Compiler
   StepContract --> StepModule
@@ -129,7 +214,9 @@ mods/mod-swooper-maps/src/domain/<domain>/
       index.ts
 
 mods/mod-swooper-maps/src/recipes/standard/stages/<stage>/
-  artifacts.ts            # stage-owned artifact contracts (defineArtifact)
+  artifacts/
+    index.ts              # defineArtifactCatalog; derives artifactModules + artifacts
+    <name>.artifact.ts    # one defineArtifact contract + its complete validator
   index.ts                # stage module (createStage), wires steps + knobsSchema + compile-time op registry
   steps/
     <step>/

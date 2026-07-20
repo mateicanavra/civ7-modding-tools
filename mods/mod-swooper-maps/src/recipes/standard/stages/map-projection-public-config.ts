@@ -63,6 +63,7 @@ export const BiomeEngineBindingsSchema = Type.Object(
 
 export type BiomeEngineBindings = Static<typeof BiomeEngineBindingsSchema>;
 
+/** Closed empty knob surface asserting that map-morphology projection has no authored tuning. */
 export const MapMorphologyKnobsSchema = Type.Object(
   {},
   {
@@ -72,6 +73,7 @@ export const MapMorphologyKnobsSchema = Type.Object(
   }
 );
 
+/** Authoring boundary for Civ7 coast, continent, mountain, and volcano projection. */
 export const MapMorphologyPublicSchema = Type.Object(
   {},
   {
@@ -81,6 +83,7 @@ export const MapMorphologyPublicSchema = Type.Object(
   }
 );
 
+/** Closed empty knob surface asserting that lake projection has no stage-wide authored tuning. */
 export const MapHydrologyKnobsSchema = Type.Object(
   {},
   {
@@ -89,6 +92,7 @@ export const MapHydrologyKnobsSchema = Type.Object(
   }
 );
 
+/** Authoring boundary for deterministic Hydrology lake intent projected into Civ7. */
 export const MapHydrologyPublicSchema = Type.Object(
   {},
   {
@@ -98,6 +102,7 @@ export const MapHydrologyPublicSchema = Type.Object(
   }
 );
 
+/** Closed empty knob surface asserting that elevation materialization has no authored tuning. */
 export const MapElevationKnobsSchema = Type.Object(
   {},
   {
@@ -107,6 +112,7 @@ export const MapElevationKnobsSchema = Type.Object(
   }
 );
 
+/** Authoring boundary for Civ7 elevation rebuild after water projection and before rivers. */
 export const MapElevationPublicSchema = Type.Object(
   {},
   {
@@ -116,6 +122,7 @@ export const MapElevationPublicSchema = Type.Object(
   }
 );
 
+/** Closed empty knob surface asserting that ecology projection has no stage-wide authored tuning. */
 export const MapEcologyKnobsSchema = Type.Object(
   {},
   {
@@ -125,6 +132,10 @@ export const MapEcologyKnobsSchema = Type.Object(
   }
 );
 
+/**
+ * Authoring boundary that binds Ecology biome symbols to Civ7 globals; feature and plot-effect
+ * projection retain deterministic implementation defaults.
+ */
 export const MapEcologyPublicSchema = Type.Object(
   {
     biomeBindings: BiomeEngineBindingsSchema,

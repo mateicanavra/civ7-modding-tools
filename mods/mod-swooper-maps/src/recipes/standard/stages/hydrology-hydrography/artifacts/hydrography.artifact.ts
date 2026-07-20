@@ -1,6 +1,8 @@
 import { findInvalidRiverClassIndex } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -11,7 +13,7 @@ import {
  * Snapshot of Hydrology hydrography derived from Morphology topography + Hydrology discharge projection.
  *
  * This is the canonical read path for “river-ness” and discharge-like signals inside the pipeline.
- * Engine rivers/lakes may differ (engine projection), and must not be treated as Hydrology internal truth.
+ * Engine rivers/lakes may differ because they are downstream projections of this model.
  */
 export const HydrologyHydrographyArtifactSchema = Type.Object(
   {
@@ -74,8 +76,14 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for Hydrology routing, discharge, and river-class evidence. */
 export const Schema = HydrologyHydrographyArtifactSchema;
 
+/**
+ * Registers canonical Hydrology routing, runoff, discharge, river class, and
+ * drainage-depression model before engine projection. Consumers must use this artifact rather
+ * than treating observed Civ7 rivers as the Hydrology model.
+ */
 export const artifact = defineArtifact({
   name: "hydrography",
   id: "artifact:hydrology.hydrography",
@@ -88,35 +96,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: unknown[]): { length: number } },
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
-
-function validatePayload(
-  value: unknown,
-  dimensions: NonNullable<ArtifactValidationContext["dimensions"]>
-): ArtifactValidationIssue[] {
+function validatePayload(value: unknown, expectedLength?: number): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
-  const size = expectedSize(dimensions);
   if (!isRecord(value)) {
     errors.push({ message: "Missing hydrology hydrography artifact payload." });
     return errors;
@@ -133,10 +114,28 @@ function validatePayload(
     depressionDepth?: unknown;
     terminalType?: unknown;
   };
-  validateTypedArray(errors, "hydrography.runoff", candidate.runoff, Float32Array, size);
-  validateTypedArray(errors, "hydrography.discharge", candidate.discharge, Float32Array, size);
+  appendArtifactTypedArrayIssues(
+    errors,
+    "hydrography.runoff",
+    candidate.runoff,
+    Float32Array,
+    expectedLength
+  );
+  appendArtifactTypedArrayIssues(
+    errors,
+    "hydrography.discharge",
+    candidate.discharge,
+    Float32Array,
+    expectedLength
+  );
   if (
-    validateTypedArray(errors, "hydrography.riverClass", candidate.riverClass, Uint8Array, size)
+    appendArtifactTypedArrayIssues(
+      errors,
+      "hydrography.riverClass",
+      candidate.riverClass,
+      Uint8Array,
+      expectedLength
+    )
   ) {
     const invalidIndex = findInvalidRiverClassIndex(candidate.riverClass);
     if (invalidIndex >= 0) {
@@ -145,47 +144,105 @@ function validatePayload(
       });
     }
   }
-  validateTypedArray(errors, "hydrography.flowDir", candidate.flowDir, Int32Array, size);
-  validateTypedArray(errors, "hydrography.sinkMask", candidate.sinkMask, Uint8Array, size);
-  validateTypedArray(errors, "hydrography.outletMask", candidate.outletMask, Uint8Array, size);
-  if (candidate.basinId != null) {
-    validateTypedArray(errors, "hydrography.basinId", candidate.basinId, Int32Array, size);
+  appendArtifactTypedArrayIssues(
+    errors,
+    "hydrography.flowDir",
+    candidate.flowDir,
+    Int32Array,
+    expectedLength
+  );
+  if (
+    appendArtifactTypedArrayIssues(
+      errors,
+      "hydrography.sinkMask",
+      candidate.sinkMask,
+      Uint8Array,
+      expectedLength
+    )
+  ) {
+    validateCategoricalGrid(errors, "hydrography.sinkMask", candidate.sinkMask, 1);
   }
-  if (candidate.routingElevation != null) {
-    validateTypedArray(
+  if (
+    appendArtifactTypedArrayIssues(
+      errors,
+      "hydrography.outletMask",
+      candidate.outletMask,
+      Uint8Array,
+      expectedLength
+    )
+  ) {
+    validateCategoricalGrid(errors, "hydrography.outletMask", candidate.outletMask, 1);
+  }
+  if (candidate.basinId !== undefined) {
+    appendArtifactTypedArrayIssues(
+      errors,
+      "hydrography.basinId",
+      candidate.basinId,
+      Int32Array,
+      expectedLength
+    );
+  }
+  if (candidate.routingElevation !== undefined) {
+    appendArtifactTypedArrayIssues(
       errors,
       "hydrography.routingElevation",
       candidate.routingElevation,
       Float32Array,
-      size
+      expectedLength
     );
   }
-  if (candidate.depressionDepth != null) {
-    validateTypedArray(
+  if (candidate.depressionDepth !== undefined) {
+    appendArtifactTypedArrayIssues(
       errors,
       "hydrography.depressionDepth",
       candidate.depressionDepth,
       Float32Array,
-      size
+      expectedLength
     );
   }
-  if (candidate.terminalType != null) {
-    validateTypedArray(
-      errors,
-      "hydrography.terminalType",
-      candidate.terminalType,
-      Uint8Array,
-      size
-    );
+  if (candidate.terminalType !== undefined) {
+    if (
+      appendArtifactTypedArrayIssues(
+        errors,
+        "hydrography.terminalType",
+        candidate.terminalType,
+        Uint8Array,
+        expectedLength
+      )
+    ) {
+      validateCategoricalGrid(errors, "hydrography.terminalType", candidate.terminalType, 2);
+    }
   }
   return errors;
 }
 
+function validateCategoricalGrid(
+  errors: ArtifactValidationIssue[],
+  label: string,
+  value: { readonly [index: number]: number; readonly length: number },
+  maximum: number
+): void {
+  for (let index = 0; index < value.length; index += 1) {
+    if (value[index]! > maximum) {
+      errors.push({
+        message: `Expected ${label} values in 0..${maximum} (first invalid index ${index}).`,
+      });
+      return;
+    }
+  }
+}
+
+/**
+ * Validates hydrography against its closed schema and, when map dimensions are supplied,
+ * verifies every tile field matches that width × height. It returns accumulated issues so
+ * artifact admission can reject a structurally valid but spatially inconsistent payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext
 ): readonly { message: string }[] {
-  const schemaIssues = validateArtifactSchema(Schema, value);
-  if (!context?.dimensions) return schemaIssues;
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context.dimensions)]);
+  return Object.freeze([
+    ...validateArtifactSchema(Schema, value),
+    ...validatePayload(value, artifactCellCount(context)),
+  ]);
 }

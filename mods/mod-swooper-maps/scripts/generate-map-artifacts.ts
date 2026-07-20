@@ -5,7 +5,6 @@ import type { TSchema } from "typebox";
 import { admitSwooperCatalogConfig } from "../src/maps/catalog/admission.js";
 import { CatalogSourceIndex } from "../src/maps/catalog/sourceIndex.js";
 import {
-  CATALOG_CONFIG_PATH_PREFIX,
   catalogConfigFileNameFromPath,
   parseCatalogSourceIndex,
   validateCatalogSourceIndex,

@@ -1,4 +1,4 @@
-import type { StudioEvent, StudioOperationsCurrent } from "@civ7/studio-contract";
+import type { StudioOperationsCurrent } from "@civ7/studio-contract";
 
 export interface StudioDaemonIdentity {
   serverInstanceId: string;
@@ -14,14 +14,6 @@ export type StudioBusyGateSubject =
 
 export function formatStudioEventStreamError(error: unknown): string {
   return error instanceof Error ? error.message : "Studio event stream unavailable";
-}
-
-export function identityFromStudioEvent(event: StudioEvent): StudioDaemonIdentity | null {
-  if (event.type !== "hello") return null;
-  return {
-    serverInstanceId: event.serverInstanceId,
-    serverStartedAt: event.serverStartedAt,
-  };
 }
 
 export function identityFromStudioOperationsCurrent(
@@ -50,11 +42,7 @@ export function formatStudioDaemonIdentityMismatch(
   observed: StudioDaemonIdentity
 ): string | null {
   if (sameStudioDaemonIdentity(expected, observed)) return null;
-  return `Studio daemon restarted while recovering operations; adopted current daemon state (${observed.serverInstanceId}).`;
-}
-
-export function studioEventClearsStreamError(event: StudioEvent): boolean {
-  return event.type === "hello" || event.type === "operation" || event.type === "live-game";
+  return `Studio daemon restarted while recovering operations; refused mismatched daemon state (${observed.serverInstanceId}).`;
 }
 
 export function studioBusyGateMessage(args: {

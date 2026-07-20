@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "incremental": false,
+    "noEmit": true,
+    "rootDir": "..",
+    "types": ["@civ7/types", "bun-types"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": []
+}

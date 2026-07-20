@@ -2,25 +2,39 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { access, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
+import type { Civ7AutoplayActionResult } from "@civ7/direct-control";
 import {
-  dependencyUnavailable,
+  createDefaultRunInGameSetupConfig,
   invalidRequest,
+  type JsonWireObject,
+  type MapConfigEnvelopeWire,
   operationBlocked,
   operationStatusTypeSchema,
+  type RunInGameOperationStatus,
   type RunInGameRequestStatus,
   type StudioEvent,
+  type StudioOperationEvent,
+  type StudioRuntimeFailure,
+  snapshotLaunchEnvelope,
   studio,
   typeboxOutputSchemaFromContractProcedure,
   verificationFailed,
 } from "@civ7/studio-contract";
-import { readStudioRunGenerationManifest } from "@civ7/studio-run-workspace";
+import {
+  canonicalValueDigest,
+  createRunArtifactId,
+  type RunArtifactId,
+  type RunCorrelation,
+  readStudioRunGenerationManifest,
+  type StudioRunGenerationManifest,
+  type StudioRunGenerationManifestReference,
+} from "@civ7/studio-run-workspace";
 import { Effect, Fiber, Layer, ManagedRuntime } from "effect";
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import type { StudioInputs } from "../src/context";
 import {
-  hashRunInGameEvidenceValue,
   makeStudioOperationRuntimeLayer,
   StudioOperationRuntime,
   type StudioOperationRuntimeApi,
@@ -32,7 +46,7 @@ import {
   writeRunDiagnostics,
 } from "../src/operationRuntime/diagnostics";
 import type { RegistryState, RunInGameInternalOperation } from "../src/operationRuntime/model";
-import type { RunInGamePreparedRequest } from "../src/operationRuntime/ports";
+import type { RunInGamePreparedRequest, SaveDeployRequest } from "../src/operationRuntime/ports";
 import {
   projectCurrent,
   operationEvent as projectOperationEvent,
@@ -45,12 +59,16 @@ import {
   markRunInGameDiagnosticsAvailable,
   transitionRunInGame,
 } from "../src/operationRuntime/registry";
-import { Civ7WorkflowControl, type Civ7WorkflowControlApi } from "../src/ports";
+import {
+  Civ7WorkflowControl,
+  type Civ7WorkflowControlApi,
+  type RunInGameStarted,
+} from "../src/ports";
 import { StudioEventHub, type StudioEventHubApi } from "../src/services/StudioEventHub";
 
 const { operationsCurrent, studioEventSchema } = studio;
 
-const openRuntimes: ManagedRuntime.ManagedRuntime<unknown, never>[] = [];
+const openRuntimes: Array<Readonly<{ dispose(): Promise<void> }>> = [];
 const runtimeWorkspaceRoots: string[] = [];
 let runtimeWorkspaceSequence = 0;
 
@@ -104,9 +122,7 @@ describe("StudioOperationRuntime", () => {
         serverStartedAt: sameTick,
       })
     );
-    const prepared: RunInGamePreparedRequest = {
-      request: runInGameInput(),
-    };
+    const prepared = preparedRunInGameRequest();
 
     await Effect.runPromise(
       admitRunInGame({
@@ -213,11 +229,7 @@ describe("StudioOperationRuntime", () => {
       kind: "run-in-game",
       requestId: "run-private-projection",
       leaseId: "runtime-lease-private-projection",
-      request: runInGameInput({
-        config: {
-          privateSourcePath: "/Users/matei/private/source.config.json",
-        },
-      }),
+      request: runInGameRequestStatus(),
       phase: "failed",
       status: "failed",
       operationRevision: 3,
@@ -225,8 +237,9 @@ describe("StudioOperationRuntime", () => {
       updatedAt: "2026-06-10T00:00:01.000Z",
       diagnosticsId: "run-diagnostics-private-projection",
       diagnosticsPersistedRevision: 3,
-      completedPhases: ["resolving-source"],
+      completedPhases: ["admitting-config"],
       result: {
+        privateSourcePath: "/Users/matei/private/source.config.json",
         rawOutput: "Traceback: setup cannot see /tmp/private-deploy/Swooper.lua",
       },
       failure: operationBlocked({
@@ -276,9 +289,7 @@ describe("StudioOperationRuntime", () => {
         nowIso: now,
         requestId: "run-cancelled",
         leaseId: "runtime-lease-run-cancelled",
-        prepared: {
-          request: runInGameInput(),
-        },
+        prepared: preparedRunInGameRequest(),
       })
     );
 
@@ -312,6 +323,7 @@ describe("StudioOperationRuntime", () => {
     const events: StudioEvent[] = [];
     const deployBlocker = deferred<void>();
     let cleanupCalls = 0;
+    let lifecycleCalls = 0;
     const runInGameWorkspaceRoot = join(
       tmpdir(),
       `studio-operation-runtime-cancel-deploy-${process.pid}-${++runtimeWorkspaceSequence}`
@@ -319,6 +331,12 @@ describe("StudioOperationRuntime", () => {
     runtimeWorkspaceRoots.push(runInGameWorkspaceRoot);
     const { runtime } = makeRuntime({
       eventSink: events,
+      civ7: {
+        startSinglePlayer: () => {
+          lifecycleCalls += 1;
+          return Effect.succeed(lifecycleStarted());
+        },
+      },
       ports: {
         runInGameWorkspaceRoot,
         generateRunInGameMod: async () => ({
@@ -376,6 +394,7 @@ describe("StudioOperationRuntime", () => {
       diagnosticsId: accepted.diagnosticsId,
     });
     expect(cleanupCalls).toBe(1);
+    expect(lifecycleCalls).toBe(0);
     expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
     const current = await runtime.runPromise(service.operationsCurrent);
     expect(current.runInGame.active).toBeNull();
@@ -397,6 +416,90 @@ describe("StudioOperationRuntime", () => {
     });
     expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
     expectTypeboxValid(operationStatusTypeSchema, cancelled);
+  });
+
+  test("keeps one in-flight lifecycle call authoritative when cancellation arrives after its fence", async () => {
+    const lifecycleBlocker = deferred<void>();
+    let lifecycleCalls = 0;
+    const { runtime } = makeRuntime({
+      civ7: {
+        startSinglePlayer: () =>
+          Effect.promise(async () => {
+            lifecycleCalls += 1;
+            await lifecycleBlocker.promise;
+            return lifecycleStarted();
+          }),
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("starting-game");
+    await expect.poll(() => lifecycleCalls).toBe(1);
+
+    const protectedRun = await runtime.runPromise(
+      service.runInGameCancel({ requestId: accepted.requestId })
+    );
+    expect(protectedRun).toMatchObject({
+      requestId: accepted.requestId,
+      status: "running",
+      phase: "starting-game",
+    });
+    expect(lifecycleCalls).toBe(1);
+
+    lifecycleBlocker.resolve();
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.status;
+      })
+      .toBe("completed");
+    expect(lifecycleCalls).toBe(1);
+  });
+
+  test("publishes observing-runtime as soon as Civ7 proves the game started", async () => {
+    const finalLifecycleProof = deferred<void>();
+    const gameStarted = deferred<void>();
+    const awaitFinalLifecycleProof = Effect.promise(() => finalLifecycleProof.promise);
+    const { runtime } = makeRuntime({
+      civ7: {
+        startSinglePlayer: ({ gameStarted: reportGameStarted }) =>
+          (reportGameStarted ?? Effect.void).pipe(
+            Effect.mapError(() =>
+              lifecycleStartFailure("Civ7 game-start progress publication failed")
+            ),
+            Effect.tap(() => Effect.sync(() => gameStarted.resolve())),
+            Effect.zipRight(awaitFinalLifecycleProof),
+            Effect.map(() => lifecycleStarted())
+          ),
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+
+    await gameStarted.promise;
+    await expect(
+      runtime.runPromise(service.runInGameStatus({ requestId: accepted.requestId }))
+    ).resolves.toMatchObject({ phase: "observing-runtime", status: "running" });
+
+    finalLifecycleProof.resolve();
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.status;
+      })
+      .toBe("completed");
   });
 
   test("records Run in Game cancellation cleanup failures only in private diagnostics", async () => {
@@ -474,7 +577,7 @@ describe("StudioOperationRuntime", () => {
     expectTypeboxValid(operationStatusTypeSchema, cancelled);
   });
 
-  test("cancellation waits for in-flight cleanup before publishing private cleanup diagnostics", async () => {
+  test("cancellation after the lifecycle fence preserves the running operation", async () => {
     const events: StudioEvent[] = [];
     const cleanupStarted = deferred<void>();
     const cleanupBlocker = deferred<void>();
@@ -503,42 +606,42 @@ describe("StudioOperationRuntime", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(0);
 
-    cleanupBlocker.reject(new Error("in-flight cleanup failed"));
-    const cancelled = await cancellation;
+    const protectedRun = await cancellation;
 
-    expect(cancelled).toMatchObject({
+    expect(protectedRun).toMatchObject({
       requestId: accepted.requestId,
-      status: "cancelled",
-      phase: "cancelled",
-      safeFailureCategory: "operation-cancelled",
-      diagnosticsId: accepted.diagnosticsId,
+      status: "running",
+      phase: "observing-runtime",
     });
     expect(cleanupCalls).toBe(1);
-    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(1);
-    const privateOperation = await readPrivateRunOperation(
-      runtime,
-      service,
-      cancelled.diagnosticsId
-    );
-    expect(privateOperation.cancellationCleanupFailure).toMatchObject({
-      diagnostics: {
-        code: "run-in-game-cancel-cleanup-failed",
-        cause: expect.stringContaining("in-flight cleanup failed"),
-      },
-    });
-    expectTypeboxValid(operationStatusTypeSchema, cancelled);
+    expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(0);
+    cleanupBlocker.resolve();
+    await expect
+      .poll(
+        async () =>
+          (await runtime.runPromise(service.runInGameStatus({ requestId: accepted.requestId })))
+            .status
+      )
+      .toBe("completed");
+    expectTypeboxValid(operationStatusTypeSchema, protectedRun);
   });
 
   test("cancellation during in-flight generation waits for late cleanup before publishing", async () => {
     const events: StudioEvent[] = [];
     const generationBlocker = deferred<void>();
+    const generationInterrupted = deferred<void>();
     const cleanupStarted = deferred<void>();
     const cleanupBlocker = deferred<void>();
     let cleanupCalls = 0;
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
-        generateRunInGameMod: async () => {
+        generateRunInGameMod: async ({ signal }) => {
+          if (signal?.aborted) generationInterrupted.resolve();
+          else
+            signal?.addEventListener("abort", () => generationInterrupted.resolve(), {
+              once: true,
+            });
           await generationBlocker.promise;
           return {
             ...generatedRunInGameMod({
@@ -567,7 +670,7 @@ describe("StudioOperationRuntime", () => {
     const cancellation = runtime.runPromise(
       service.runInGameCancel({ requestId: accepted.requestId })
     );
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await generationInterrupted.promise;
     expect(terminalRunInGameEvents(events, accepted.requestId)).toHaveLength(0);
 
     generationBlocker.resolve();
@@ -710,7 +813,7 @@ describe("StudioOperationRuntime", () => {
         }
         if (operation.operationRevision === 3) {
           return Effect.sync(() => {
-            writeTestRunDiagnostics(operation, options.workspaceRoot);
+            writeTestRunDiagnostics(operation, options?.workspaceRoot);
             currentRevisionWriteStarted = true;
           });
         }
@@ -807,7 +910,7 @@ describe("StudioOperationRuntime", () => {
     ).resolves.toEqual(cancelled);
   });
 
-  test("cancels Run in Game during runtime observation after cleanup", async () => {
+  test("does not report cancellation after lifecycle mutation during runtime observation", async () => {
     const evidenceBlocker = deferred<void>();
     let cleanupCalls = 0;
     const { runtime } = makeRuntime({
@@ -832,21 +935,31 @@ describe("StudioOperationRuntime", () => {
         const status = await runtime.runPromise(
           service.runInGameStatus({ requestId: accepted.requestId })
         );
-        return status.phase;
+        return (
+          status.phase === "observing-runtime" && status.diagnosticsId === accepted.diagnosticsId
+        );
       })
-      .toBe("observing-runtime");
-    const cancelled = await runtime.runPromise(
+      .toBe(true);
+    const protectedRun = await runtime.runPromise(
       service.runInGameCancel({ requestId: accepted.requestId })
     );
 
-    expect(cancelled).toMatchObject({
+    expect(protectedRun).toMatchObject({
       requestId: accepted.requestId,
-      status: "cancelled",
-      phase: "cancelled",
+      status: "running",
+      phase: "observing-runtime",
       diagnosticsId: accepted.diagnosticsId,
     });
-    expect(cleanupCalls).toBe(1);
+    expect(cleanupCalls).toBe(0);
     evidenceBlocker.resolve();
+    await expect
+      .poll(
+        async () =>
+          (await runtime.runPromise(service.runInGameStatus({ requestId: accepted.requestId })))
+            .status
+      )
+      .toBe("completed");
+    expect(cleanupCalls).toBe(1);
   });
 
   test("repeated Run in Game cancellation returns the cancelled terminal without another event", async () => {
@@ -1088,13 +1201,11 @@ describe("StudioOperationRuntime", () => {
     expect(current.saveDeploy.recent[0]).toEqual(saveStatus);
   });
 
-  test("preserves source snapshot evidence in the runtime-owned request projection", async () => {
-    let observedSourceSnapshot: Record<string, unknown> | undefined;
+  test("preserves config digest evidence in the runtime-owned request projection", async () => {
     let observedPrepared: RunInGamePreparedRequest | undefined;
     const { runtime } = makeRuntime({
       ports: {
         deployRunInGame: async ({ requestId, generatedMod, prepared }) => {
-          observedSourceSnapshot = prepared.request.sourceSnapshot as Record<string, unknown>;
           observedPrepared = prepared;
           return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
         },
@@ -1117,36 +1228,24 @@ describe("StudioOperationRuntime", () => {
       )
     );
 
-    await expect.poll(() => observedSourceSnapshot).toBeDefined();
-    expect(observedPrepared?.launchEnvelope.source).toEqual({
-      kind: "editor",
-      editorSessionId: "test-editor-session",
-      canonicalConfig: {
-        id: "studio-current",
-        name: "Current Editor Config",
-        description: "Current Studio editor configuration.",
-        recipe: "standard",
-        sortIndex: 9999,
-        latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
-        config: { example: true },
-      },
+    await expect.poll(() => observedPrepared).toBeDefined();
+    expect(observedPrepared?.launchEnvelope.canonicalConfig).toEqual({
+      id: "studio-current",
+      name: "Current Editor Config",
+      description: "Current Studio editor configuration.",
+      recipe: "standard",
+      sortIndex: 9999,
+      latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+      config: { example: true },
     });
-    expect(observedSourceSnapshot).toMatchObject({
-      requestId: accepted.requestId,
-      source: { kind: "editor", editorSessionId: "test-editor-session" },
-      canonicalConfigDigest: expect.any(String),
-      launchEnvelopeDigest: expect.any(String),
-    });
-    expect(observedSourceSnapshot).not.toHaveProperty("canonicalConfig");
-    expect(observedPrepared?.launchSourceDigest.canonicalConfigDigest).toBe(
-      hashRunInGameEvidenceValue(observedPrepared?.launchEnvelope.source.canonicalConfig)
+    expect(observedPrepared?.canonicalConfigDigest).toBe(
+      canonicalValueDigest(observedPrepared?.launchEnvelope.canonicalConfig)
     );
-    expect(observedSourceSnapshot?.launchEnvelopeDigest).toBe(
-      observedPrepared?.launchEnvelopeDigest
-    );
+    expect(observedPrepared?.launchEnvelopeDigest).toEqual(expect.any(String));
+    expect(accepted.requestId).toMatch(/^studio-run-in-game-/);
   });
 
-  test("wraps editor canonical-config admission failures at the Effect boundary", async () => {
+  test("wraps canonical-config admission failures at the Effect boundary", async () => {
     const admissionFailure = invalidRequest({
       message: "Standard envelope admission denied.",
       diagnostics: { code: "standard-admission-denied" },
@@ -1154,9 +1253,6 @@ describe("StudioOperationRuntime", () => {
     const { runtime } = makeRuntime({
       ports: {
         runInGameCanonicalConfigAdmission: {
-          resolveCatalogSource: async () =>
-            testCanonicalConfig({ id: "swooper-earthlike", name: "Swooper Earthlike" })
-              .canonicalConfig,
           admit: async () => {
             throw admissionFailure;
           },
@@ -1165,10 +1261,7 @@ describe("StudioOperationRuntime", () => {
     });
     const service = await runtime.runPromise(StudioOperationRuntime);
 
-    const failure = await expectFailure(
-      runtime,
-      service.runInGameStart(runInGameInput())
-    );
+    const failure = await expectFailure(runtime, service.runInGameStart(runInGameInput()));
 
     expect(failure).toMatchObject({
       tag: "InvalidRequest",
@@ -1186,7 +1279,6 @@ describe("StudioOperationRuntime", () => {
     const { runtime } = makeRuntime({
       ports: {
         runInGameCanonicalConfigAdmission: {
-          resolveCatalogSource: async () => undefined,
           admit: async (canonicalConfig) => {
             admissionCalls += 1;
             return canonicalConfig;
@@ -1198,7 +1290,7 @@ describe("StudioOperationRuntime", () => {
 
     for (const [label, value] of nonPortableJsonValues()) {
       const input = runInGameInput();
-      Object.defineProperty(input.source.canonicalConfig.config, "nested", {
+      Object.defineProperty(input.canonicalConfig.config, "nested", {
         configurable: true,
         enumerable: true,
         value,
@@ -1210,7 +1302,7 @@ describe("StudioOperationRuntime", () => {
     }
   });
 
-  test("keeps an admitted editor launch restart-free by default", async () => {
+  test("keeps an admitted launch restart-free by default", async () => {
     let observedRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
@@ -1225,136 +1317,19 @@ describe("StudioOperationRuntime", () => {
     const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
 
     await expect.poll(() => observedRequest).toBeDefined();
-    expect(observedRequest).toMatchObject({
-      sourceSnapshot: {
-        source: { kind: "editor", editorSessionId: "test-editor-session" },
-        canonicalConfigDigest: expect.any(String),
-        launchEnvelopeDigest: expect.any(String),
-      },
-    });
     expect(observedRequest?.restartCivProcess).toBeUndefined();
   });
 
-  test("does not process-restart after generated setup row remains unavailable", async () => {
-    const events: StudioEvent[] = [];
-    const { runtime } = makeRuntime({
-      eventSink: events,
-      civ7: {
-        prepareSetup: () =>
-          Effect.fail(
-            verificationFailed({
-              message: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
-              reason: "setup-row-unavailable",
-              recoveryActions: ["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"],
-              diagnostics: {
-                code: "setup-map-row-not-visible",
-                reloadBoundary: "process-restart-required",
-                reloadAttempted: true,
-              },
-            })
-          ),
-      },
-    });
-    const service = await runtime.runPromise(StudioOperationRuntime);
-
-    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
-
-    await expect
-      .poll(async () => {
-        const status = await runtime.runPromise(
-          service.runInGameStatus({ requestId: accepted.requestId })
-        );
-        return status.phase;
-      })
-      .toBe("failed");
-
-    const failed = await runtime.runPromise(
-      service.runInGameStatus({ requestId: accepted.requestId })
-    );
-    expect(failed).toMatchObject({
-      status: "failed",
-      safeFailureCategory: "runtime-observation",
-    });
-    expect(failed.recoveryActions).toEqual(
-      expect.arrayContaining(["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"])
-    );
-    expect(failed.recoveryActions).not.toContain("exit-to-shell-and-continue");
-    expect(operationPhases(events, accepted.requestId)).not.toContain("restarting-civ");
-    expect(operationPhases(events, accepted.requestId)).not.toContain("completed");
-  });
-
-  test("keeps catalog-backed Run in Game first attempt restart-free", async () => {
-    let observedCatalogRequest: Record<string, unknown> | undefined;
-    const { runtime } = makeRuntime({
-      ports: {
-        deployRunInGame: async ({ requestId, generatedMod, prepared }) => {
-          observedCatalogRequest = prepared.request as Record<string, unknown>;
-          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
-        },
-      },
-    });
-    const service = await runtime.runPromise(StudioOperationRuntime);
-
-    const catalogLaunch = await runtime.runPromise(
-      service.runInGameStart(
-        runInGameInput({
-          source: catalogSource("latest-juicy"),
-        })
-      )
-    );
-    await expect.poll(() => observedCatalogRequest).toBeDefined();
-    expect(observedCatalogRequest?.sourceSnapshot).toMatchObject({
-      source: {
-        kind: "catalog",
-        sourcePath: "mods/mod-swooper-maps/src/maps/configs/latest-juicy.config.json",
-      },
-    });
-    expect(observedCatalogRequest?.restartCivProcess).toBeUndefined();
-    expect(catalogLaunch.status).toBe("running");
-  });
-
-  test("does not process-restart catalog setup after generated row remains unavailable", async () => {
-    const { runtime } = makeRuntime({
-      civ7: {
-        prepareSetup: () =>
-          Effect.fail(
-            verificationFailed({
-              message: "Civ7 setup cannot see {mod-swooper-studio-run}/maps/studio-run.js",
-              reason: "setup-row-unavailable",
-              recoveryActions: ["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"],
-              diagnostics: {
-                code: "setup-map-row-not-visible",
-                reloadAttempted: true,
-              },
-            })
-          ),
-      },
-    });
-    const service = await runtime.runPromise(StudioOperationRuntime);
-
-    const accepted = await runtime.runPromise(
-      service.runInGameStart(
-        runInGameInput({
-          source: catalogSource("swooper-earthlike"),
-        })
-      )
-    );
-
-    await expect
-      .poll(async () => {
-        const status = await runtime.runPromise(
-          service.runInGameStatus({ requestId: accepted.requestId })
-        );
-        return status.phase;
-      })
-      .toBe("failed");
-  });
-
-  test("keeps one source snapshot evidence identity across runtime projections and final evidence", async () => {
+  test("keeps one digest identity across runtime projections and final evidence", async () => {
     const events: StudioEvent[] = [];
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-source-evidence-"));
     runtimeWorkspaceRoots.push(workspaceRoot);
-    let acceptedSourceSnapshot: Record<string, unknown> | undefined;
+    let acceptedDigests:
+      | Readonly<{
+          canonicalConfigDigest: string;
+          launchEnvelopeDigest: string;
+        }>
+      | undefined;
     let observedRuntimeObservation:
       | Awaited<ReturnType<StudioOperationRuntimePorts["observeRunInGameRuntime"]>>
       | undefined;
@@ -1364,7 +1339,10 @@ describe("StudioOperationRuntime", () => {
         ports: makePorts({
           runInGameWorkspaceRoot: workspaceRoot,
           buildRunInGameEvidence: async ({ requestId, prepared, deployment, observation }) => {
-            acceptedSourceSnapshot = prepared.request.sourceSnapshot as Record<string, unknown>;
+            acceptedDigests = {
+              canonicalConfigDigest: prepared.canonicalConfigDigest,
+              launchEnvelopeDigest: prepared.launchEnvelopeDigest,
+            };
             observedRuntimeObservation = observation;
             return {
               result: { ok: true },
@@ -1372,9 +1350,8 @@ describe("StudioOperationRuntime", () => {
                 status: "unresolved",
                 requestId,
                 createdAt: "2026-06-10T00:00:00.000Z",
-                ...(prepared.request.sourceSnapshot === undefined
-                  ? {}
-                  : { sourceSnapshot: prepared.request.sourceSnapshot }),
+                canonicalConfigDigest: prepared.canonicalConfigDigest,
+                launchEnvelopeDigest: prepared.launchEnvelopeDigest,
                 request: {
                   recipeId: prepared.request.recipeId,
                 },
@@ -1411,15 +1388,12 @@ describe("StudioOperationRuntime", () => {
         return status.phase;
       })
       .toBe("completed");
-    expect(acceptedSourceSnapshot).toBeDefined();
+    expect(acceptedDigests).toBeDefined();
 
     const status = await readPublicRunStatusWithDiagnostics(runtime, service, accepted);
-    const operationEvents = events.filter(
-      (event) =>
-        event.type === "operation" &&
-        event.kind === "run-in-game" &&
-        event.status.requestId === accepted.requestId
-    );
+    const operationEvents = events
+      .filter(isRunInGameOperationEvent)
+      .filter((event) => event.status.requestId === accepted.requestId);
     const current = await runtime.runPromise(service.operationsCurrent);
 
     expect(status).toMatchObject({
@@ -1438,10 +1412,8 @@ describe("StudioOperationRuntime", () => {
       service,
       accepted.diagnosticsId
     );
-    expect(finalPrivateOperation.request?.sourceSnapshot).toEqual(acceptedSourceSnapshot);
-    expect(finalPrivateOperation.exactAuthorshipEvidence?.sourceSnapshot).toEqual(
-      acceptedSourceSnapshot
-    );
+    expect(finalPrivateOperation.request).toMatchObject(acceptedDigests!);
+    expect(finalPrivateOperation.exactAuthorshipEvidence).toMatchObject(acceptedDigests!);
     expect(observedRuntimeObservation).toMatchObject({
       requestId: accepted.requestId,
       deploymentEvidence: {
@@ -1654,6 +1626,9 @@ describe("StudioOperationRuntime", () => {
           manifestDigestDuringGeneration = manifest.generationManifestDigest;
           return {
             materialization: {
+              mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+              canonicalConfigDigest: manifest.payload.canonicalConfigDigest,
+              launchEnvelopeDigest: manifest.payload.launchEnvelopeDigest,
               generationManifestDigest: generationManifest.generationManifestDigest,
               runArtifactId: manifest.payload.runArtifactId,
               generatedModRoot: resolve(workspaceRoot, manifest.payload.requestId, "generated-mod"),
@@ -1697,20 +1672,13 @@ describe("StudioOperationRuntime", () => {
         generatedModRoot: "generated-mod",
       },
       launchEnvelope: {
-        recipeSettings: {
-          recipe: "mod-swooper-maps/standard",
-          seed: 43,
-        },
+        seed: 43,
         worldSettings: { mapSize: "MAPSIZE_STANDARD" },
-        source: {
-          kind: "editor",
-          editorSessionId: "test-editor-session",
-          canonicalConfig: {
-            id: "studio-current",
-            name: "Studio Current",
-            config: {
-              alpha: { a: 2, z: 1 },
-            },
+        canonicalConfig: {
+          id: "studio-current",
+          name: "Studio Current",
+          config: {
+            alpha: { a: 2, z: 1 },
           },
         },
       },
@@ -1728,7 +1696,7 @@ describe("StudioOperationRuntime", () => {
     );
     for (const publicValue of [accepted, status, current, ...publicEvents]) {
       expect(JSON.stringify(publicValue)).not.toMatch(
-        /generationManifest|runArtifactId|RunCorrelation|launchEnvelope|sourceSnapshot/
+        /generationManifest|runArtifactId|RunCorrelation|launchEnvelope|canonicalConfigDigest/
       );
     }
 
@@ -1842,19 +1810,10 @@ describe("StudioOperationRuntime", () => {
         },
       },
       civ7: {
-        checkPlayable: ({ deployment }) =>
+        startSinglePlayer: ({ deployment }) =>
           Effect.sync(() => {
             observeDeployment(deployment);
-          }),
-        prepareSetup: ({ deployment }) =>
-          Effect.sync(() => {
-            observeDeployment(deployment);
-            return {};
-          }),
-        startGame: ({ deployment }) =>
-          Effect.sync(() => {
-            observeDeployment(deployment);
-            return {};
+            return lifecycleStarted();
           }),
       },
     });
@@ -1886,7 +1845,7 @@ describe("StudioOperationRuntime", () => {
       );
     }
     expect(observedDeploymentDigests).toEqual(
-      Array(5).fill("mod-swooper-studio-run:sha256-generated-tree:sha256-generated-tree")
+      Array(3).fill("mod-swooper-studio-run:sha256-generated-tree:sha256-generated-tree")
     );
 
     const privateOperation = await readPrivateRunOperation(
@@ -1894,14 +1853,15 @@ describe("StudioOperationRuntime", () => {
       service,
       accepted.diagnosticsId
     );
-    expect(privateOperation.deploymentEvidence?.runDeployment).toMatchObject({
+    const deploymentEvidence = privateRecordProperty(privateOperation, "deploymentEvidence");
+    expect(privateRecordProperty(deploymentEvidence, "runDeployment")).toMatchObject({
       requestId: accepted.requestId,
       deployedModId: "mod-swooper-studio-run",
       generatedModDigest: "sha256-generated-tree",
       targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
       filesCopied: 3,
     });
-    expect(privateOperation.deploymentEvidence?.deployedSnapshot).toMatchObject({
+    expect(privateRecordProperty(deploymentEvidence, "deployedSnapshot")).toMatchObject({
       requestId: accepted.requestId,
       deployedModId: "mod-swooper-studio-run",
       fileCount: 3,
@@ -1953,7 +1913,7 @@ describe("StudioOperationRuntime", () => {
     expect(current.runInGame.recent).toEqual([]);
   });
 
-  test("rejects missing Run in Game config before admission", async () => {
+  test("rejects missing Run in Game canonical config before admission", async () => {
     const events: StudioEvent[] = [];
     let generationCalls = 0;
     const { runtime } = makeRuntime({
@@ -1972,18 +1932,14 @@ describe("StudioOperationRuntime", () => {
         runtime,
         service.runInGameStart(
           runInGameInput({
-            source: {
-              kind: "editor",
-              editorSessionId: "missing-config-editor",
-              canonicalConfig: {},
-            } as StudioInputs["runInGame"]["start"]["source"],
+            invalidCanonicalConfig: {},
           })
         )
       )
     ).resolves.toMatchObject({
       tag: "InvalidRequest",
       reason: "invalid-request",
-      diagnostics: { code: "run-in-game-source-invalid" },
+      diagnostics: { code: "run-in-game-canonical-config-invalid" },
     });
 
     const current = await runtime.runPromise(service.operationsCurrent);
@@ -1993,7 +1949,7 @@ describe("StudioOperationRuntime", () => {
     expect(current.runInGame.recent).toEqual([]);
   });
 
-  test("rejects an editor envelope without admitted latitude bounds", async () => {
+  test("rejects a complete config envelope without admitted latitude bounds", async () => {
     const events: StudioEvent[] = [];
     let generationCalls = 0;
     const { runtime } = makeRuntime({
@@ -2012,30 +1968,26 @@ describe("StudioOperationRuntime", () => {
         runtime,
         service.runInGameStart(
           runInGameInput({
-            source: {
-              kind: "editor",
-              editorSessionId: "missing-latitude-bounds-editor",
-              canonicalConfig: {
-                id: "studio-current",
-                name: "Studio Current",
-                description: "Incomplete editor envelope.",
-                recipe: "standard",
-                sortIndex: 9999,
-                config: {},
-              },
-            } as StudioInputs["runInGame"]["start"]["source"],
+            invalidCanonicalConfig: {
+              id: "studio-current",
+              name: "Studio Current",
+              description: "Incomplete config envelope.",
+              recipe: "standard",
+              sortIndex: 9999,
+              config: {},
+            },
           })
         )
       )
     ).resolves.toMatchObject({
       tag: "InvalidRequest",
-      diagnostics: { code: "run-in-game-source-invalid" },
+      diagnostics: { code: "run-in-game-canonical-config-invalid" },
     });
     expect(generationCalls).toBe(0);
     expect(events).toEqual([]);
   });
 
-  test("rejects unknown keys in a complete editor envelope", async () => {
+  test("rejects unknown keys in a complete config envelope", async () => {
     const events: StudioEvent[] = [];
     let generationCalls = 0;
     const { runtime } = makeRuntime({
@@ -2054,24 +2006,20 @@ describe("StudioOperationRuntime", () => {
         runtime,
         service.runInGameStart(
           runInGameInput({
-            source: {
-              kind: "editor",
-              editorSessionId: "split-identity-editor",
-              canonicalConfig: {
-                ...testCanonicalConfig({
-                  id: "studio-current",
-                  name: "Studio Current",
-                }).canonicalConfig,
-                unexpected: "unknown-envelope-key",
-              },
-            } as StudioInputs["runInGame"]["start"]["source"],
+            invalidCanonicalConfig: {
+              ...testCanonicalConfig({
+                id: "studio-current",
+                name: "Studio Current",
+              }).canonicalConfig,
+              unexpected: "unknown-envelope-key",
+            },
           })
         )
       )
     ).resolves.toMatchObject({
       tag: "InvalidRequest",
       reason: "invalid-request",
-      diagnostics: { code: "run-in-game-source-invalid" },
+      diagnostics: { code: "run-in-game-canonical-config-invalid" },
     });
 
     const current = await runtime.runPromise(service.operationsCurrent);
@@ -2128,6 +2076,90 @@ describe("StudioOperationRuntime", () => {
     expect(generationCalls).toBe(0);
     expect(current.runInGame.active).toBeNull();
     expect(current.runInGame.recent).toEqual([]);
+  });
+
+  test.each([
+    {
+      label: "an empty id",
+      savedConfig: {
+        id: "",
+        displayName: "Test Config",
+        fileName: "Test.Civ7Cfg",
+        path: "/tmp/Test.Civ7Cfg",
+      },
+    },
+    {
+      label: "an empty display name",
+      savedConfig: {
+        id: "test-config",
+        displayName: "   ",
+        fileName: "Test.Civ7Cfg",
+        path: "/tmp/Test.Civ7Cfg",
+      },
+    },
+    {
+      label: "a non-Civ7Cfg filename",
+      savedConfig: {
+        id: "test-config",
+        displayName: "Test Config",
+        fileName: "Test.json",
+        path: "/tmp/Test.json",
+      },
+    },
+    {
+      label: "a multiline path",
+      savedConfig: {
+        id: "test-config",
+        displayName: "Test Config",
+        fileName: "Test.Civ7Cfg",
+        path: "/tmp/Test.Civ7Cfg\nother",
+      },
+    },
+  ])("rejects saved configuration with $label before lifecycle admission", async ({
+    savedConfig,
+  }) => {
+    let generationCalls = 0;
+    let lifecycleCalls = 0;
+    const { runtime } = makeRuntime({
+      ports: {
+        generateRunInGameMod: async () => {
+          generationCalls += 1;
+          return generatedRunInGameMod();
+        },
+      },
+      civ7: {
+        startSinglePlayer: () => {
+          lifecycleCalls += 1;
+          return Effect.succeed(lifecycleStarted());
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    await expect(
+      expectFailure(
+        runtime,
+        service.runInGameStart(
+          runInGameInput({
+            setupConfig: {
+              savedConfig,
+              gameOptions: {},
+              playerOptions: [{ playerId: 0, options: {} }],
+            },
+          })
+        )
+      )
+    ).resolves.toMatchObject({
+      tag: "InvalidRequest",
+      reason: "invalid-request",
+      recoveryActions: ["edit-config", "copy-diagnostics"],
+      diagnostics: {
+        code: "run-in-game-saved-config-invalid",
+        field: "setupConfig.savedConfig",
+      },
+    });
+    expect(generationCalls).toBe(0);
+    expect(lifecycleCalls).toBe(0);
   });
 
   test("preserves a valid setup mapScript in the canonical prepared request", async () => {
@@ -2211,10 +2243,15 @@ describe("StudioOperationRuntime", () => {
     );
     const current = await runtime.runPromise(service.operationsCurrent);
     expect(observedSeed).toBe(43);
+    if (status.status !== "failed") {
+      throw new Error(`Expected failed Run in Game status, observed ${status.status}`);
+    }
     expect(status.safeFailureCategory).toBe("request-validation");
     expect(status.diagnosticsId).toBe(accepted.diagnosticsId);
     const privateOperation = await readPrivateRunOperation(runtime, service, status.diagnosticsId);
-    expect(privateOperation.failure?.diagnostics?.materialization).toContain("studio-current.js");
+    const privateFailure = privateRecordProperty(privateOperation, "failure");
+    const privateFailureDiagnostics = privateRecordProperty(privateFailure, "diagnostics");
+    expect(privateFailureDiagnostics.materialization).toContain("studio-current.js");
     expectTypeboxValid(operationStatusTypeSchema, status);
     expectTypeboxValid(typeboxOutputSchemaFromContractProcedure(operationsCurrent), current);
     await expect
@@ -2238,27 +2275,69 @@ describe("StudioOperationRuntime", () => {
     expectTypeboxValid(studioEventSchema, terminalEvent);
   });
 
-  test("blocks a second Run in Game while the runtime ownership lease is held", async () => {
+  test("keeps one runtime lease and gives sequential same-content runs fresh identity", async () => {
     const events: StudioEvent[] = [];
     const blocker = deferred<void>();
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-sequential-freshness-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const input = runInGameInput({ resources: "balanced" });
+    const generations: Array<
+      Readonly<{
+        reference: StudioRunGenerationManifestReference;
+        manifest: StudioRunGenerationManifest;
+        generatedModRoot: string;
+      }>
+    > = [];
+    const deployments: Array<Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>> =
+      [];
+    const startSinglePlayer = vi.fn<Civ7WorkflowControlApi["startSinglePlayer"]>(() =>
+      Effect.succeed(lifecycleStarted())
+    );
     const { runtime } = makeRuntime({
       eventSink: events,
       ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+        generateRunInGameMod: async ({ generationManifest }) => {
+          const manifest = await readStudioRunGenerationManifest(generationManifest.path);
+          const generatedModRoot = resolve(
+            dirname(generationManifest.path),
+            manifest.payload.workspace.generatedModRoot
+          );
+          generations.push({ reference: generationManifest, manifest, generatedModRoot });
+          const generated = generatedRunInGameMod();
+          return {
+            ...generated,
+            materialization: {
+              ...generated.materialization,
+              canonicalConfigDigest: manifest.payload.canonicalConfigDigest,
+              launchEnvelopeDigest: manifest.payload.launchEnvelopeDigest,
+              generationManifestDigest: manifest.generationManifestDigest,
+              runArtifactId: manifest.payload.runArtifactId,
+              generatedModRoot,
+              generatedModDigest: "sha256-same-content-generated-mod",
+            },
+          };
+        },
         deployRunInGame: async ({ requestId, generatedMod }) => {
           await blocker.promise;
-          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
+          const deployment = runInGameDeployment({
+            requestId,
+            materialization: generatedMod.materialization,
+          });
+          deployments.push(deployment);
+          return deployment;
         },
       },
+      civ7: { startSinglePlayer },
     });
 
     const service = await runtime.runPromise(StudioOperationRuntime);
-    const first = await runtime.runPromise(service.runInGameStart(runInGameInput()));
-    await expect(
-      expectFailure(runtime, service.runInGameStart(runInGameInput()))
-    ).resolves.toMatchObject({
+    const first = await runtime.runPromise(service.runInGameStart(input));
+    await expect(expectFailure(runtime, service.runInGameStart(input))).resolves.toMatchObject({
       tag: "OperationBlocked",
       activeRequestId: first.requestId,
     });
+    expect(startSinglePlayer).not.toHaveBeenCalled();
 
     blocker.resolve();
     await expect
@@ -2273,9 +2352,122 @@ describe("StudioOperationRuntime", () => {
       })
       .toBe(true);
 
-    const repeatAfterComplete = await startRunInGameWhenLeaseReleased(runtime, service);
-    expect(repeatAfterComplete.requestId).not.toBe(first.requestId);
-    expect(repeatAfterComplete).toMatchObject({ status: "running" });
+    const repeat = await startRunInGameWhenLeaseReleased(runtime, service, input);
+    expect(repeat.requestId).not.toBe(first.requestId);
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: repeat.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("completed");
+
+    expect(generations).toHaveLength(2);
+    expect(deployments).toHaveLength(2);
+    expect(startSinglePlayer.mock.calls.map(([{ requestId }]) => requestId)).toEqual([
+      first.requestId,
+      repeat.requestId,
+    ]);
+    const [firstGeneration, repeatGeneration] = generations;
+    const [firstDeployment, repeatDeployment] = deployments;
+    if (!firstGeneration || !repeatGeneration || !firstDeployment || !repeatDeployment) {
+      throw new Error("Expected two complete same-content Run in Game observations");
+    }
+
+    for (const [accepted, generation, deployment] of [
+      [first, firstGeneration, firstDeployment],
+      [repeat, repeatGeneration, repeatDeployment],
+    ] as const) {
+      expect(generation.reference.path).toBe(
+        resolve(workspaceRoot, accepted.requestId, "generation-manifest.json")
+      );
+      expect(generation.manifest.payload).toMatchObject({
+        requestId: accepted.requestId,
+        workspace: {
+          requestRoot: `.mapgen-studio/run-in-game/${accepted.requestId}`,
+          generationManifestPath: "generation-manifest.json",
+          generatedModRoot: "generated-mod",
+        },
+        launchEnvelope: { worldSettings: { resources: "balanced" } },
+      });
+      expect(generation.generatedModRoot).toBe(
+        resolve(workspaceRoot, accepted.requestId, "generated-mod")
+      );
+      expect(generation.reference).toMatchObject({
+        generationManifestDigest: generation.manifest.generationManifestDigest,
+        runArtifactId: generation.manifest.payload.runArtifactId,
+        correlation: {
+          requestId: accepted.requestId,
+          runArtifactId: generation.manifest.payload.runArtifactId,
+          canonicalConfigDigest: generation.manifest.payload.canonicalConfigDigest,
+          launchEnvelopeDigest: generation.manifest.payload.launchEnvelopeDigest,
+          generationManifestDigest: generation.manifest.generationManifestDigest,
+        },
+      });
+      expect(generation.manifest.payload.launchEnvelopeDigest).toBe(
+        canonicalValueDigest(generation.manifest.payload.launchEnvelope)
+      );
+      expect(deployment).toMatchObject({
+        runDeployment: {
+          requestId: accepted.requestId,
+          deployedModId: "mod-swooper-studio-run",
+          generatedModRoot: generation.generatedModRoot,
+          targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+        },
+        deployedSnapshot: {
+          requestId: accepted.requestId,
+          deployedModId: "mod-swooper-studio-run",
+          targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+        },
+      });
+      const privateOperation = await readPrivateRunOperation(
+        runtime,
+        service,
+        accepted.diagnosticsId
+      );
+      expect(privateOperation).toMatchObject({
+        request: {
+          resources: "balanced",
+          launchEnvelopeDigest: generation.manifest.payload.launchEnvelopeDigest,
+        },
+        generationManifest: {
+          path: generation.reference.path,
+          generationManifestDigest: generation.manifest.generationManifestDigest,
+          runArtifactId: generation.manifest.payload.runArtifactId,
+        },
+        deploymentEvidence: {
+          runDeployment: { requestId: accepted.requestId },
+          deployedSnapshot: { requestId: accepted.requestId },
+        },
+      });
+    }
+
+    expect(firstGeneration.reference.path).not.toBe(repeatGeneration.reference.path);
+    expect(firstGeneration.manifest.payload.workspace.requestRoot).not.toBe(
+      repeatGeneration.manifest.payload.workspace.requestRoot
+    );
+    expect(firstGeneration.generatedModRoot).not.toBe(repeatGeneration.generatedModRoot);
+    expect(firstGeneration.manifest.payload.runArtifactId).not.toBe(
+      repeatGeneration.manifest.payload.runArtifactId
+    );
+    expect(firstGeneration.manifest.generationManifestDigest).not.toBe(
+      repeatGeneration.manifest.generationManifestDigest
+    );
+    expect(firstDeployment.runDeployment.requestId).toBe(first.requestId);
+    expect(repeatDeployment.runDeployment.requestId).toBe(repeat.requestId);
+    expect(firstDeployment.deployedSnapshot.requestId).toBe(first.requestId);
+    expect(repeatDeployment.deployedSnapshot.requestId).toBe(repeat.requestId);
+    expect(firstGeneration.manifest.payload.canonicalConfigDigest).toBe(
+      repeatGeneration.manifest.payload.canonicalConfigDigest
+    );
+    expect(firstGeneration.manifest.payload.launchEnvelopeDigest).toBe(
+      repeatGeneration.manifest.payload.launchEnvelopeDigest
+    );
+    expect(firstDeployment.runDeployment.generatedModDigest).toBe(
+      repeatDeployment.runDeployment.generatedModDigest
+    );
+    expect(startSinglePlayer).toHaveBeenCalledTimes(2);
   });
 
   test("starts a fresh same-content request after a failed terminal record", async () => {
@@ -2462,7 +2654,8 @@ describe("StudioOperationRuntime", () => {
         failedAtPhase: "deploying",
       },
     });
-    expect(privateOperation.deploymentEvidence?.runDeployment.deployedModId).toBe(
+    const deploymentEvidence = privateRecordProperty(privateOperation, "deploymentEvidence");
+    expect(privateRecordProperty(deploymentEvidence, "runDeployment").deployedModId).toBe(
       "mod-swooper-studio-run"
     );
     expect(evidenceCalls).toBe(0);
@@ -2531,14 +2724,7 @@ describe("StudioOperationRuntime", () => {
         runAutoplay: (input) =>
           Effect.sync(() => {
             autoplayCalls += 1;
-            return {
-              ok: true,
-              action: input.action,
-              autoplay: {},
-              game: {},
-              gameContext: {},
-              result: {},
-            };
+            return autoplayResult(input.action);
           }),
       },
     });
@@ -2605,7 +2791,7 @@ describe("StudioOperationRuntime", () => {
   test("snapshots Save/Deploy config input before asynchronous leaf work", async () => {
     const entered = deferred<void>();
     const release = deferred<void>();
-    let observedInput: StudioInputs["mapConfigs"]["saveDeploy"] | undefined;
+    let observedInput: SaveDeployRequest | undefined;
     const { runtime } = makeRuntime({
       ports: {
         prepareSaveDeployStart: async ({ input }) => {
@@ -2832,8 +3018,6 @@ describe("StudioOperationRuntime", () => {
 
   test("Run in Game worker failures are classified by lifecycle phase", async () => {
     const cases: Array<{
-      requestId: string;
-      input?: Partial<StudioInputs["runInGame"]["start"]>;
       ports?: Partial<StudioOperationRuntimePorts>;
       civ7?: Partial<Civ7WorkflowControlApi>;
       expected: {
@@ -2846,7 +3030,6 @@ describe("StudioOperationRuntime", () => {
       };
     }> = [
       {
-        requestId: "run-generation-fail",
         ports: {
           generateRunInGameMod: async () => {
             throw new Error("generation failed");
@@ -2861,7 +3044,6 @@ describe("StudioOperationRuntime", () => {
         },
       },
       {
-        requestId: "run-deploy-fail",
         ports: {
           deployRunInGame: async () => {
             throw new Error("deploy failed");
@@ -2877,24 +3059,11 @@ describe("StudioOperationRuntime", () => {
         },
       },
       {
-        requestId: "run-setup-row-fail",
         civ7: {
-          prepareSetup: () =>
-            Effect.fail(new Error("Civ7 setup cannot see {swooper-maps}/maps/studio-current.js")),
-        },
-        expected: {
-          status: "failed",
-          safeFailureCategory: "runtime-observation",
-          code: "run-in-game-setup-row-unavailable",
-          reason: "setup-row-unavailable",
-          failedAtPhase: "preparing-setup",
-          recoveryActions: ["retry-run"],
-        },
-      },
-      {
-        requestId: "run-start-game-fail",
-        civ7: {
-          startGame: () => Effect.fail(new Error("start game failed")),
+          startSinglePlayer: () =>
+            Effect.fail(
+              lifecycleStartFailure("Civ7 setup cannot see {swooper-maps}/maps/studio-current.js")
+            ),
         },
         expected: {
           status: "uncertain",
@@ -2902,18 +3071,30 @@ describe("StudioOperationRuntime", () => {
           code: "run-in-game-start-game-failed",
           reason: "start-game-failed",
           failedAtPhase: "starting-game",
-          recoveryActions: ["dismiss-civ-notification-and-retry"],
+          recoveryActions: ["retry-status"],
         },
       },
       {
-        requestId: "run-log-evidence-fail",
+        civ7: {
+          startSinglePlayer: () => Effect.fail(lifecycleStartFailure("start game failed")),
+        },
+        expected: {
+          status: "uncertain",
+          safeFailureCategory: "runtime-control",
+          code: "run-in-game-start-game-failed",
+          reason: "start-game-failed",
+          failedAtPhase: "starting-game",
+          recoveryActions: ["retry-status"],
+        },
+      },
+      {
         ports: {
           waitForRunInGameLogEvidence: async () => {
             throw new Error("log evidence missing");
           },
         },
         expected: {
-          status: "failed",
+          status: "uncertain",
           safeFailureCategory: "runtime-observation",
           code: "run-in-game-log-evidence-missing",
           reason: "log-evidence-missing",
@@ -2921,7 +3102,6 @@ describe("StudioOperationRuntime", () => {
         },
       },
       {
-        requestId: "run-loaded-game-readback-fail",
         ports: {
           observeRunInGameRuntime: async () => {
             throw verificationFailed({
@@ -2935,7 +3115,7 @@ describe("StudioOperationRuntime", () => {
           },
         },
         expected: {
-          status: "failed",
+          status: "uncertain",
           safeFailureCategory: "runtime-observation",
           code: "run-in-game-loaded-readback-mismatch",
           reason: "exact-authorship-mismatch",
@@ -2951,14 +3131,7 @@ describe("StudioOperationRuntime", () => {
       });
       const service = await runtime.runPromise(StudioOperationRuntime);
 
-      const accepted = await runtime.runPromise(
-        service.runInGameStart(
-          runInGameInput({
-            requestId: entry.requestId,
-            ...(entry.input ?? {}),
-          })
-        )
-      );
+      const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
       await expect
         .poll(async () => {
           const status = await runtime.runPromise(
@@ -2994,171 +3167,41 @@ describe("StudioOperationRuntime", () => {
         service,
         failed.diagnosticsId
       );
+      const privateFailure = privateRecordProperty(privateOperation, "failure");
+      const privateFailureDiagnostics = privateRecordProperty(privateFailure, "diagnostics");
       expect(privateOperation.status).toBe(entry.expected.status);
-      expect(privateOperation.failure).toMatchObject({
+      expect(privateOperation.failedAtPhase).toBe(entry.expected.failedAtPhase);
+      expect(privateFailure).toMatchObject({
         reason: entry.expected.reason,
         diagnostics: {
           code: entry.expected.code,
           failedAtPhase: entry.expected.failedAtPhase,
         },
       });
+      if (entry.expected.status === "uncertain") {
+        expect(failed.recoveryActions).toContain("retry-status");
+        expect(failed.recoveryActions).not.toContain("retry-run");
+        expect(privateFailureDiagnostics).toMatchObject({ noRepeat: true });
+      }
       expectTypeboxValid(operationStatusTypeSchema, failed);
     }
-  });
-
-  test("setup failure taxonomy stays private while public Run in Game status is safe", async () => {
-    const events: StudioEvent[] = [];
-    const { runtime } = makeRuntime({
-      eventSink: events,
-      civ7: {
-        prepareSetup: () =>
-          Effect.fail(
-            verificationFailed({
-              message:
-                "Civilization is not loading the generated Studio Run mod, so its setup map list cannot show {mod-swooper-studio-run}/maps/studio-run.js.",
-              reason: "setup-row-unavailable",
-              diagnostics: {
-                code: "generated-map-mod-not-enabled",
-                setupFailureReason: "generated-map-mod-not-enabled",
-                mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-                targetModId: "mod-swooper-studio-run",
-                activeTargetModSet: {
-                  available: true,
-                  identityAvailable: true,
-                  truncated: false,
-                  mods: [{ id: "base-standard", name: "Base Standard" }],
-                },
-                materialization: {
-                  generatedModRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
-                },
-              },
-            })
-          ),
-      },
-    });
-    const service = await runtime.runPromise(StudioOperationRuntime);
-
-    const accepted = await runtime.runPromise(
-      service.runInGameStart(runInGameInput({ requestId: "run-setup-taxonomy-private" }))
-    );
-    await expect
-      .poll(async () => {
-        const status = await runtime.runPromise(
-          service.runInGameStatus({ requestId: accepted.requestId })
-        );
-        return status.status;
-      })
-      .toBe("failed");
-
-    const status = await readPublicRunStatusWithDiagnostics(runtime, service, accepted);
-    const current = await runtime.runPromise(service.operationsCurrent);
-    const publicPayloads = JSON.stringify([
-      status,
-      current,
-      events.filter((event) => event.type === "operation"),
-    ]);
-
-    expect(status).toMatchObject({
-      safeFailureCategory: "runtime-observation",
-      diagnosticsId: accepted.diagnosticsId,
-    });
-    expect(publicPayloads).toContain("runtime-observation");
-    expect(publicPayloads).not.toMatch(
-      /generated-map-mod-not-enabled|activeTargetModSet|base-standard|mapScript|mod-swooper-studio-run|\/tmp\/Civ7/
-    );
-
-    const diagnostics = await readPrivateRunDiagnostics(runtime, service, status.diagnosticsId);
-    expect(diagnostics.sections.setupFailure).toMatchObject({
-      requestId: accepted.requestId,
-      setupFailureReason: "generated-map-mod-not-enabled",
-      activeTargetModSet: {
-        available: true,
-        identityAvailable: true,
-        truncated: false,
-        mods: [{ id: "base-standard" }],
-      },
-    });
-  });
-
-  test.each([
-    {
-      requestId: "run-setup-timeout-private",
-      setupFailureReason: "setup-read-timeout",
-      directControlCode: "setup-apply-timeout",
-    },
-    {
-      requestId: "run-tuner-unavailable-private",
-      setupFailureReason: "tuner-unavailable",
-      directControlCode: "connection-failed",
-    },
-    {
-      requestId: "run-direct-control-command-private",
-      setupFailureReason: "direct-control-command-failed",
-      directControlCode: "unexpected-command-failed",
-    },
-  ])("keeps $setupFailureReason private while public Run in Game status is safe", async ({
-    directControlCode,
-    requestId,
-    setupFailureReason,
-  }) => {
-    const { runtime } = makeRuntime({
-      civ7: {
-        prepareSetup: () =>
-          Effect.fail(
-            dependencyUnavailable({
-              message: "Civ7 setup control is unavailable",
-              dependency: "direct-control",
-              directControlCode,
-              diagnostics: {
-                code: setupFailureReason,
-                setupFailureReason,
-                directControlCode,
-              },
-            })
-          ),
-      },
-    });
-    const service = await runtime.runPromise(StudioOperationRuntime);
-
-    const accepted = await runtime.runPromise(
-      service.runInGameStart(runInGameInput({ requestId }))
-    );
-    await expect
-      .poll(async () => {
-        const status = await runtime.runPromise(
-          service.runInGameStatus({ requestId: accepted.requestId })
-        );
-        return status.status;
-      })
-      .toBe("failed");
-
-    const status = await readPublicRunStatusWithDiagnostics(runtime, service, accepted);
-    expect(status).toMatchObject({
-      safeFailureCategory: "runtime-control",
-      diagnosticsId: accepted.diagnosticsId,
-    });
-    expect(JSON.stringify(status)).not.toContain(setupFailureReason);
-
-    const diagnostics = await readPrivateRunDiagnostics(runtime, service, status.diagnosticsId);
-    expect(diagnostics.sections.setupFailure).toMatchObject({
-      setupFailureReason,
-      directControlCode,
-    });
   });
 
   test("keeps setup-map-row-mismatched private while public Run in Game status is safe", async () => {
     const { runtime } = makeRuntime({
       civ7: {
-        prepareSetup: () =>
+        startSinglePlayer: () =>
           Effect.fail(
             verificationFailed({
               message: "Civ7 selected a different setup map row than the generated Studio Run map.",
               reason: "exact-authorship-mismatch",
+              recoveryActions: ["retry-status", "copy-diagnostics"],
               diagnostics: {
                 code: "setup-map-row-mismatched",
                 setupFailureReason: "setup-map-row-mismatched",
                 mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
                 observedMapScripts: ["{base-standard}/maps/continents.js"],
+                noRepeat: true,
               },
             })
           ),
@@ -3166,9 +3209,7 @@ describe("StudioOperationRuntime", () => {
     });
     const service = await runtime.runPromise(StudioOperationRuntime);
 
-    const accepted = await runtime.runPromise(
-      service.runInGameStart(runInGameInput({ requestId: "run-setup-mismatch-private" }))
-    );
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
     await expect
       .poll(async () => {
         const status = await runtime.runPromise(
@@ -3184,14 +3225,20 @@ describe("StudioOperationRuntime", () => {
       safeFailureCategory: "runtime-observation",
       diagnosticsId: accepted.diagnosticsId,
     });
+    expect(status.recoveryActions).not.toContain("retry-run");
     expect(publicPayload).not.toMatch(
       /setup-map-row-mismatched|observedMapScripts|base-standard|mapScript|mod-swooper-studio-run/
     );
 
     const diagnostics = await readPrivateRunDiagnostics(runtime, service, status.diagnosticsId);
     expect(diagnostics.sections.setupFailure).toMatchObject({
+      setupPhase: "starting-game",
       setupFailureReason: "setup-map-row-mismatched",
       observedMapScripts: ["{base-standard}/maps/continents.js"],
+    });
+    expect(diagnostics.sections.operation).toMatchObject({
+      status: "uncertain",
+      failure: { diagnostics: { noRepeat: true } },
     });
   });
 
@@ -3208,24 +3255,78 @@ describe("StudioOperationRuntime", () => {
     expect(failure).not.toHaveProperty("serverStartedAt");
   });
 
-  test("scoped disposal interrupts active workers and projects runtime-disposed status", async () => {
-    const blocker = deferred<void>();
+  test("scoped disposal drains lifecycle work before releasing mutation ownership", async () => {
+    const lifecycleStarted = deferred<void>();
+    const lifecycleInterrupted = deferred<void>();
+    const lifecycleMutation = deferred<never>();
+    const lifecycleDrain = deferred<void>();
+    const events: StudioEvent[] = [];
+    const runInGameWorkspaceRoot = join(
+      tmpdir(),
+      `studio-operation-runtime-disposal-drain-${process.pid}-${++runtimeWorkspaceSequence}`
+    );
+    runtimeWorkspaceRoots.push(runInGameWorkspaceRoot);
+    const awaitLifecycleMutation = Effect.promise(() => lifecycleMutation.promise);
+    const awaitLifecycleDrain = Effect.promise(() => lifecycleDrain.promise);
+    const drainInterruptedLifecycle = Effect.sync(() => lifecycleInterrupted.resolve()).pipe(
+      Effect.zipRight(awaitLifecycleDrain)
+    );
     const { runtime } = makeRuntime({
       ports: {
-        buildRunInGameEvidence: async () => {
-          await blocker.promise;
-          return { result: { ok: true } };
-        },
+        runInGameWorkspaceRoot,
       },
+      civ7: {
+        startSinglePlayer: () =>
+          Effect.sync(() => lifecycleStarted.resolve()).pipe(
+            Effect.zipRight(awaitLifecycleMutation),
+            Effect.onInterrupt(() => drainInterruptedLifecycle)
+          ),
+      },
+      eventSink: events,
     });
 
     const service = await runtime.runPromise(StudioOperationRuntime);
     const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
-    await runtime.dispose();
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("starting-game");
+    await lifecycleStarted.promise;
 
+    const leasePath = join(runInGameWorkspaceRoot, "_runtime", "runtime-ownership-lease.json");
+    const disposal = runtime.dispose();
+    let disposed = false;
+    void disposal.then(() => {
+      disposed = true;
+    });
+    await lifecycleInterrupted.promise;
+    await Promise.resolve();
+
+    expect(disposed).toBe(false);
+    await expect(pathExists(leasePath)).resolves.toBe(true);
+    expect(
+      operationPhases(events, accepted.requestId).filter((phase) => phase === "failed")
+    ).toEqual([]);
     await expect(
-      Effect.runPromise(Effect.either(service.runInGameStatus({ requestId: accepted.requestId })))
-    ).resolves.toMatchObject({
+      Effect.runPromise(service.runInGameStatus({ requestId: accepted.requestId }))
+    ).resolves.toMatchObject({ phase: "starting-game", status: "running" });
+
+    lifecycleDrain.resolve();
+    await disposal;
+
+    await expect(pathExists(leasePath)).resolves.toBe(false);
+    expect(
+      operationPhases(events, accepted.requestId).filter((phase) => phase === "failed")
+    ).toEqual(["failed"]);
+
+    const statusAfterDisposal = service
+      .runInGameStatus({ requestId: accepted.requestId })
+      .pipe(Effect.either);
+    await expect(Effect.runPromise(statusAfterDisposal)).resolves.toMatchObject({
       _tag: "Right",
       right: {
         requestId: accepted.requestId,
@@ -3241,7 +3342,22 @@ describe("StudioOperationRuntime", () => {
       tag: "RuntimeDisposed",
       reason: "runtime-disposed",
     });
-    blocker.resolve();
+    await expect(
+      Effect.runPromise(
+        service.runInGameDiagnostics({ diagnosticsId: accepted.diagnosticsId ?? "missing" })
+      )
+    ).resolves.toMatchObject({
+      ok: true,
+      diagnostics: {
+        sections: {
+          operation: {
+            status: "uncertain",
+            failedAtPhase: "starting-game",
+            failure: { diagnostics: { noRepeat: true } },
+          },
+        },
+      },
+    });
   });
 
   test("daemon startup terminalizes abandoned Run in Game records and releases stale lease", async () => {
@@ -3308,6 +3424,7 @@ describe("StudioOperationRuntime", () => {
       safeFailureCategory: "ownership",
       diagnosticsId,
     });
+    expect(abandoned.recoveryActions).not.toContain("retry-run");
     const privateOperation = await readPrivateRunOperation(
       second.runtime,
       secondService,
@@ -3315,8 +3432,13 @@ describe("StudioOperationRuntime", () => {
     );
     expect(privateOperation.failure).toMatchObject({
       tag: "OperationBlocked",
-      diagnostics: { code: "run-in-game-ownership-lost-after-restart" },
+      diagnostics: {
+        code: "run-in-game-ownership-lost-after-restart",
+        noRepeat: true,
+      },
     });
+    expect(privateOperation.status).toBe("uncertain");
+    expect(privateOperation.failedAtPhase).toBe("collecting-evidence");
 
     await expect(
       second.runtime.runPromise(secondService.runInGameStart(runInGameInput()))
@@ -3349,6 +3471,23 @@ describe("StudioOperationRuntime", () => {
       safeFailureCategory: "ownership",
       diagnosticsId: `run-diagnostics-corrupt-${requestId}`,
     });
+    expect(recovered.recoveryActions).not.toContain("retry-run");
+    const privateOperation = await readPrivateRunOperation(
+      runtime,
+      service,
+      recovered.diagnosticsId
+    );
+    expect(privateOperation).toMatchObject({
+      status: "uncertain",
+      failure: {
+        tag: "OperationBlocked",
+        diagnostics: {
+          code: "run-in-game-record-untrusted-after-restart",
+          noRepeat: true,
+        },
+      },
+    });
+    expect(privateOperation.failedAtPhase).toBeUndefined();
     const entries = await readdir(join(workspaceRoot, requestId));
     expect(entries.some((entry) => entry.startsWith("operation-record.json.corrupt-"))).toBe(true);
     await expect(
@@ -3356,6 +3495,70 @@ describe("StudioOperationRuntime", () => {
     ).resolves.toMatchObject({
       status: "running",
     });
+  });
+
+  test("daemon startup treats retired running phases as untrusted mutation evidence", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-legacy-record-"));
+    runtimeWorkspaceRoots.push(workspaceRoot);
+    const requestId = "studio-run-in-game-legacy-record";
+    await mkdir(join(workspaceRoot, requestId), { recursive: true });
+    await writeFile(
+      join(workspaceRoot, requestId, "operation-record.json"),
+      `${JSON.stringify(
+        {
+          recordType: "RunOperationRecord",
+          requestId,
+          daemonId: "studio-server-previous",
+          daemonStartedAt: "2026-06-10T00:00:00.000Z",
+          leaseId: "runtime-lease-legacy-record",
+          phase: "preparing-setup",
+          status: "running",
+          operationRevision: 3,
+          diagnosticsId: "run-diagnostics-legacy-record",
+          createdAt: "2026-06-10T00:00:00.000Z",
+          updatedAt: "2026-06-10T00:00:00.500Z",
+        },
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
+
+    const { runtime } = makeRuntime({
+      ports: {
+        runInGameWorkspaceRoot: workspaceRoot,
+        clock: { now: () => new Date("2026-06-10T00:00:01.000Z") },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const recovered = await runtime.runPromise(service.runInGameStatus({ requestId }));
+    expect(recovered).toMatchObject({
+      requestId,
+      status: "failed",
+      phase: "failed",
+      safeFailureCategory: "ownership",
+      diagnosticsId: `run-diagnostics-corrupt-${requestId}`,
+    });
+    expect(recovered.recoveryActions).not.toContain("retry-run");
+    const privateOperation = await readPrivateRunOperation(
+      runtime,
+      service,
+      recovered.diagnosticsId
+    );
+    expect(privateOperation).toMatchObject({
+      status: "uncertain",
+      failure: {
+        tag: "OperationBlocked",
+        diagnostics: {
+          code: "run-in-game-record-untrusted-after-restart",
+          noRepeat: true,
+        },
+      },
+    });
+    expect(privateOperation.failedAtPhase).toBeUndefined();
+    const entries = await readdir(join(workspaceRoot, requestId));
+    expect(entries.some((entry) => entry.startsWith("operation-record.json.corrupt-"))).toBe(true);
   });
 
   test("daemon startup binds Run in Game records to their storage request id", async () => {
@@ -3906,14 +4109,7 @@ describe("StudioOperationRuntime", () => {
         runAutoplay: (input) =>
           Effect.sync(() => {
             autoplayCalls += 1;
-            return {
-              ok: true,
-              action: input.action,
-              autoplay: {},
-              game: {},
-              gameContext: {},
-              result: {},
-            };
+            return autoplayResult(input.action);
           }),
       },
     });
@@ -4096,7 +4292,7 @@ describe("StudioOperationRuntime", () => {
       kind: "run-in-game",
       status: {
         requestId: accepted.requestId,
-        phase: "resolving-source",
+        phase: "admitting-config",
         status: "running",
       },
     });
@@ -4228,15 +4424,13 @@ function makePorts(
     runInGameWorkspaceRoot,
     generateRunInGameMod: async () => generatedRunInGameMod(),
     runInGameCanonicalConfigAdmission: {
-      resolveCatalogSource: async () =>
-        testCanonicalConfig({ id: "catalog-source", name: "Catalog Source" }).canonicalConfig,
       admit: async (canonicalConfig) => canonicalConfig,
     },
     deployRunInGame: async ({ requestId, generatedMod }) =>
       runInGameDeployment({ requestId, materialization: generatedMod.materialization }),
     waitForRunInGameLogEvidence: async () => ({ result: { ok: true } }),
-    observeRunInGameRuntime: async ({ requestId, prepared, deployment, log }) =>
-      runInGameRuntimeObservation({ requestId, prepared, deployment, log }),
+    observeRunInGameRuntime: async ({ requestId, prepared, deployment, started, log }) =>
+      runInGameRuntimeObservation({ requestId, prepared, deployment, started, log }),
     buildRunInGameEvidence: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({
@@ -4252,6 +4446,8 @@ function makePorts(
   };
 }
 
+const TEST_RUN_ARTIFACT_ID = createRunArtifactId("studio-operation-runtime-test");
+
 function generatedRunInGameMod(
   options: Partial<Awaited<ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>>> = {}
 ): Awaited<ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>> {
@@ -4261,7 +4457,7 @@ function generatedRunInGameMod(
       canonicalConfigDigest: "test-config-hash",
       launchEnvelopeDigest: "test-envelope-hash",
       generationManifestDigest: "test-generation-manifest-digest",
-      runArtifactId: "run-test",
+      runArtifactId: TEST_RUN_ARTIFACT_ID,
       generatedModRoot: join(tmpdir(), "studio-generated-run-test"),
       generatedModFileCount: 1,
       generatedModDigest: "test-generated-mod-digest",
@@ -4326,17 +4522,24 @@ function runInGameRuntimeObservation(
     requestId: string;
     prepared: RunInGamePreparedRequest;
     deployment: Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>;
+    started: RunInGameStarted;
     log?: Awaited<ReturnType<StudioOperationRuntimePorts["waitForRunInGameLogEvidence"]>>;
   }>
 ): Awaited<ReturnType<StudioOperationRuntimePorts["observeRunInGameRuntime"]>> {
   const materialization = args.deployment.materialization;
-  const correlation = {
+  if (
+    materialization?.mapScript === undefined ||
+    materialization.runArtifactId === undefined ||
+    materialization.generationManifestDigest === undefined
+  ) {
+    throw new Error("Runtime observation fixture requires complete deployment materialization");
+  }
+  const correlation: RunCorrelation = {
     requestId: args.requestId,
-    runArtifactId: materialization?.runArtifactId ?? "run-test",
-    launchSourceDigest: args.prepared.launchSourceDigest,
+    runArtifactId: requireRunArtifactId(materialization.runArtifactId),
+    canonicalConfigDigest: args.prepared.canonicalConfigDigest,
     launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
-    generationManifestDigest:
-      materialization?.generationManifestDigest ?? "test-generation-manifest-digest",
+    generationManifestDigest: materialization.generationManifestDigest,
   };
   return {
     requestId: args.requestId,
@@ -4358,11 +4561,10 @@ function runInGameRuntimeObservation(
       requestId: args.requestId,
       correlation,
       state: "matched",
-      mapScript: materialization?.mapScript ?? "test-map-script",
+      mapScript: materialization.mapScript,
       runArtifactId: correlation.runArtifactId,
       deployedModId: args.deployment.runDeployment.deployedModId,
-      rowEvidence: { ok: true },
-      rowVisibility: { visible: true },
+      mapRowFiles: args.started.evidence.setup.mapRowFiles,
     },
     loadedGame: {
       requestId: args.requestId,
@@ -4399,35 +4601,23 @@ function runInGameInput(
   overrides: RunInGameInputOverrides = {}
 ): StudioInputs["runInGame"]["start"] {
   const canonicalConfigOverrides = overrides.canonicalConfig;
-  const config =
-    overrides.source?.kind === "editor" && isRecord(overrides.source.canonicalConfig)
-      ? overrides.source.canonicalConfig.config
-      : isRecord(overrides.config)
-        ? overrides.config
-        : {};
-  const source = overrides.source ?? {
-    kind: "editor" as const,
-    editorSessionId: "test-editor-session",
-    canonicalConfig: testCanonicalConfig({
-      id: canonicalConfigOverrides?.id ?? "studio-current",
-      name: canonicalConfigOverrides?.name ?? "Studio Current",
-      ...(canonicalConfigOverrides?.description === undefined
-        ? {}
-        : { description: canonicalConfigOverrides.description }),
-      sortIndex: canonicalConfigOverrides?.sortIndex,
-      ...(canonicalConfigOverrides?.latitudeBounds === undefined
-        ? {}
-        : { latitudeBounds: canonicalConfigOverrides.latitudeBounds }),
-      config: isRecord(config) ? config : {},
-    }).canonicalConfig,
-  };
-  return {
-    source,
-    recipeSettings: {
-      recipe: "mod-swooper-maps/standard",
-      seed: overrides.seed ?? 43,
-      ...overrides.recipeSettings,
-    },
+  const canonicalConfig = testCanonicalConfig({
+    id: canonicalConfigOverrides?.id ?? "studio-current",
+    name: canonicalConfigOverrides?.name ?? "Studio Current",
+    ...(canonicalConfigOverrides?.description === undefined
+      ? {}
+      : { description: canonicalConfigOverrides.description }),
+    ...(canonicalConfigOverrides?.sortIndex === undefined
+      ? {}
+      : { sortIndex: canonicalConfigOverrides.sortIndex }),
+    ...(canonicalConfigOverrides?.latitudeBounds === undefined
+      ? {}
+      : { latitudeBounds: canonicalConfigOverrides.latitudeBounds }),
+    config: overrides.config ?? {},
+  }).canonicalConfig;
+  const input: StudioInputs["runInGame"]["start"] = {
+    canonicalConfig,
+    seed: overrides.seed ?? 43,
     worldSettings: {
       mapSize: overrides.mapSize ?? "MAPSIZE_STANDARD",
       ...(overrides.playerCount === undefined ? {} : { playerCount: overrides.playerCount }),
@@ -4435,11 +4625,19 @@ function runInGameInput(
       ...overrides.worldSettings,
     },
     ...(overrides.setupConfig === undefined ? {} : { setupConfig: overrides.setupConfig }),
-    ...(overrides.recovery === undefined ? {} : { recovery: overrides.recovery }),
   };
+  if (overrides.invalidCanonicalConfig !== undefined) {
+    Object.defineProperty(input, "canonicalConfig", {
+      configurable: true,
+      enumerable: true,
+      value: overrides.invalidCanonicalConfig,
+      writable: true,
+    });
+  }
+  return input;
 }
 
-function testSaveDeployCanonicalConfig() {
+function testSaveDeployCanonicalConfig(): MapConfigEnvelopeWire {
   return testCanonicalConfig({
     id: "test-config",
     name: "Test Config",
@@ -4452,13 +4650,17 @@ function saveDeployInput(requestId: string): StudioInputs["mapConfigs"]["saveDep
   return { requestId, canonicalConfig: testSaveDeployCanonicalConfig() };
 }
 
-type RunInGameInputOverrides = Partial<StudioInputs["runInGame"]["start"]> &
+type RunInGameInputOverrides = Omit<
+  Partial<StudioInputs["runInGame"]["start"]>,
+  "canonicalConfig"
+> &
   Readonly<{
     seed?: string | number;
     mapSize?: string;
     resources?: string;
     playerCount?: number;
-    config?: unknown;
+    config?: JsonWireObject;
+    invalidCanonicalConfig?: unknown;
     canonicalConfig?: Readonly<{
       id?: string;
       name?: string;
@@ -4471,10 +4673,6 @@ type RunInGameInputOverrides = Partial<StudioInputs["runInGame"]["start"]> &
     }>;
   }>;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
 function testCanonicalConfig(
   args: Readonly<{
     id: string;
@@ -4482,16 +4680,22 @@ function testCanonicalConfig(
     description?: string;
     sortIndex?: number;
     latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
-    config?: Record<string, unknown>;
+    config?: JsonWireObject;
   }>
-) {
-  const canonicalConfig = {
+): Readonly<{ canonicalConfig: MapConfigEnvelopeWire }> {
+  const canonicalConfig: MapConfigEnvelopeWire = {
     id: args.id,
     name: args.name,
     description: args.description ?? "Current Studio editor configuration.",
-    recipe: "standard" as const,
+    recipe: "standard",
     sortIndex: args.sortIndex ?? 9999,
-    latitudeBounds: args.latitudeBounds ?? { topLatitude: 80, bottomLatitude: -80 },
+    latitudeBounds:
+      args.latitudeBounds === undefined
+        ? { topLatitude: 80, bottomLatitude: -80 }
+        : {
+            topLatitude: args.latitudeBounds.topLatitude,
+            bottomLatitude: args.latitudeBounds.bottomLatitude,
+          },
     config: args.config ?? {},
   };
   return {
@@ -4499,32 +4703,138 @@ function testCanonicalConfig(
   };
 }
 
-function catalogSource(id: string): StudioInputs["runInGame"]["start"]["source"] {
+function preparedRunInGameRequest(): RunInGamePreparedRequest {
+  const canonicalConfig = testCanonicalConfig({
+    id: "studio-current",
+    name: "Studio Current",
+  }).canonicalConfig;
+  const seed = 43;
+  const worldSettings = { mapSize: "MAPSIZE_STANDARD" };
+  const setupConfig = createDefaultRunInGameSetupConfig();
+  const launchEnvelope = snapshotLaunchEnvelope({
+    seed,
+    worldSettings,
+    setupConfig,
+    canonicalConfig,
+  });
   return {
-    kind: "catalog",
-    sourcePath: `mods/mod-swooper-maps/src/maps/configs/${id}.config.json`,
+    request: {
+      recipeId: canonicalConfig.recipe,
+      seed,
+      mapSize: worldSettings.mapSize,
+      setupConfig,
+    },
+    launchEnvelope,
+    canonicalConfigDigest: canonicalValueDigest(canonicalConfig),
+    launchEnvelopeDigest: canonicalValueDigest(launchEnvelope),
   };
+}
+
+function runInGameRequestStatus(): RunInGameRequestStatus {
+  const prepared = preparedRunInGameRequest();
+  return {
+    ...prepared.request,
+    canonicalConfigDigest: prepared.canonicalConfigDigest,
+    launchEnvelopeDigest: prepared.launchEnvelopeDigest,
+  };
+}
+
+function autoplayResult(action: StudioInputs["civ7"]["autoplay"]["action"]) {
+  const status: Civ7AutoplayActionResult["after"] = {
+    host: "127.0.0.1",
+    port: 43_155,
+    state: { id: "app-ui", name: "App UI" },
+    autoplay: {
+      isActive: action === "start",
+      turns: 0,
+      isPaused: false,
+      isPausedOrPending: false,
+      observeAsPlayer: -1,
+      returnAsPlayer: -1,
+    },
+    game: {
+      turn: 1,
+      age: 0,
+      maxTurns: 500,
+      turnDate: { ok: true, value: "4000 BCE" },
+      hash: { ok: true, value: 42 },
+    },
+    gameContext: {
+      localPlayerID: 0,
+      localObserverID: -1,
+      hasRequestedPause: { ok: true, value: false },
+    },
+  };
+  const result: Civ7AutoplayActionResult = {
+    host: status.host,
+    port: status.port,
+    state: status.state,
+    before: status,
+    after: status,
+    commands: [],
+    verified: true,
+  };
+  return {
+    ok: true,
+    action,
+    autoplay: status.autoplay,
+    game: status.game,
+    gameContext: status.gameContext,
+    result,
+  };
+}
+
+function lifecycleStartFailure(message: string): StudioRuntimeFailure {
+  return verificationFailed({
+    message,
+    reason: "start-game-failed",
+    diagnostics: {
+      code: "run-in-game-start-game-failed",
+      failedAtPhase: "starting-game",
+      noRepeat: true,
+    },
+    recoveryActions: ["retry-status", "copy-diagnostics"],
+  });
+}
+
+function requireRunArtifactId(value: string): RunArtifactId {
+  if (!isRunArtifactId(value)) {
+    throw new Error(`Runtime observation fixture received invalid run artifact id: ${value}`);
+  }
+  return value;
+}
+
+function isRunArtifactId(value: string): value is RunArtifactId {
+  return value.startsWith("run-");
 }
 
 function makeCiv7WorkflowControlLayer(
   overrides: Partial<Civ7WorkflowControlApi> = {}
 ): Layer.Layer<Civ7WorkflowControl> {
   const service: Civ7WorkflowControlApi = {
-    checkPlayable: () => Effect.void,
-    prepareSetup: () => Effect.succeed({}),
-    startGame: () => Effect.succeed({}),
-    runAutoplay: (input) =>
-      Effect.succeed({
-        ok: true,
-        action: input.action,
-        autoplay: {},
-        game: {},
-        gameContext: {},
-        result: {},
-      }),
+    startSinglePlayer: () => Effect.succeed(lifecycleStarted()),
+    runAutoplay: (input) => Effect.succeed(autoplayResult(input.action)),
     ...overrides,
   };
   return Layer.succeed(Civ7WorkflowControl, service);
+}
+
+function lifecycleStarted(): RunInGameStarted {
+  return {
+    status: "started",
+    evidence: {
+      setup: {
+        mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+        mapSize: "MAPSIZE_SMALL",
+        mapSeed: 42,
+        gameSeed: 42,
+        targetModId: "mod-swooper-studio-run",
+        mapRowFiles: ["{mod-swooper-studio-run}/maps/studio-run.js"],
+      },
+      runtime: { seed: 42, mapSize: "MAPSIZE_SMALL", width: 44, height: 26, plotCount: 1144 },
+    },
+    transition: { initialPhase: "shell", activeGameExit: "not-needed" },
+  };
 }
 
 async function expectFailure<A, E>(
@@ -4591,10 +4901,21 @@ async function readPrivateRunOperation(
 ): Promise<Record<string, unknown>> {
   const diagnostics = await readPrivateRunDiagnostics(runtime, service, diagnosticsId);
   const operation = diagnostics.sections.operation;
-  if (operation == null || typeof operation !== "object" || Array.isArray(operation)) {
+  if (!isUnknownRecord(operation)) {
     throw new Error(`Expected operation diagnostics for ${diagnosticsId}`);
   }
-  return operation as Record<string, unknown>;
+  return operation;
+}
+
+function privateRecordProperty(
+  record: Readonly<Record<string, unknown>>,
+  key: string
+): Record<string, unknown> {
+  const value = record[key];
+  if (!isUnknownRecord(value)) {
+    throw new Error(`Expected private operation diagnostics record: ${key}`);
+  }
+  return value;
 }
 
 async function readPrivateRunDiagnostics(
@@ -4617,10 +4938,10 @@ async function readPrivateRunDiagnostics(
 async function readPublicRunStatusWithDiagnostics(
   runtime: ManagedRuntime.ManagedRuntime<StudioOperationRuntime, never>,
   service: StudioOperationRuntimeApi,
-  expected: Pick<RunInGameRequestStatus, "requestId" | "diagnosticsId">
+  expected: Pick<RunInGameOperationStatus, "requestId" | "diagnosticsId">
 ) {
   const deadline = Date.now() + 2_000;
-  let status: RunInGameRequestStatus | undefined;
+  let status: RunInGameOperationStatus | undefined;
   do {
     status = await runtime.runPromise(service.runInGameStatus({ requestId: expected.requestId }));
     if (expected.diagnosticsId === undefined || status.diagnosticsId === expected.diagnosticsId) {
@@ -4633,13 +4954,14 @@ async function readPublicRunStatusWithDiagnostics(
 
 async function startRunInGameWhenLeaseReleased(
   runtime: ManagedRuntime.ManagedRuntime<StudioOperationRuntime, never>,
-  service: StudioOperationRuntimeApi
+  service: StudioOperationRuntimeApi,
+  input: StudioInputs["runInGame"]["start"] = runInGameInput()
 ) {
   const deadline = Date.now() + 2_000;
   let lastError: unknown;
   do {
     try {
-      return await runtime.runPromise(service.runInGameStart(runInGameInput()));
+      return await runtime.runPromise(service.runInGameStart(input));
     } catch (err) {
       lastError = err;
       if (!String(err).includes("studio-runtime-ownership-lease-held")) throw err;
@@ -4704,14 +5026,17 @@ function attributionRecordValue(value: unknown): Readonly<{
   path: unknown;
   report: unknown;
 }> {
-  if (value == null || typeof value !== "object" || Array.isArray(value)) {
+  if (!isUnknownRecord(value)) {
     throw new Error("Expected attribution diagnostics object");
   }
-  const record = value as Record<string, unknown>;
-  if (!("path" in record) || !("report" in record)) {
+  if (!("path" in value) || !("report" in value)) {
     throw new Error("Expected attribution diagnostics path and report");
   }
-  return { path: record.path, report: record.report };
+  return { path: value.path, report: value.report };
+}
+
+function isUnknownRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 async function seedRunOperationWorkspace(
@@ -4826,12 +5151,8 @@ function deferred<T>() {
 
 function operationPhases(events: readonly StudioEvent[], requestId: string): string[] {
   return events
-    .filter(
-      (event) =>
-        event.type === "operation" &&
-        event.kind === "run-in-game" &&
-        event.status.requestId === requestId
-    )
+    .filter(isRunInGameOperationEvent)
+    .filter((event) => event.status.requestId === requestId)
     .map((event) => event.status.phase);
 }
 
@@ -4841,8 +5162,7 @@ function terminalSaveDeployEvents(
 ): StudioEvent[] {
   return events.filter(
     (event) =>
-      event.type === "operation" &&
-      event.kind === "save-deploy" &&
+      isSaveDeployOperationEvent(event) &&
       event.status.requestId === requestId &&
       event.status.status !== "running"
   );
@@ -4851,17 +5171,27 @@ function terminalSaveDeployEvents(
 function terminalRunInGameEvents(events: readonly StudioEvent[], requestId: string): StudioEvent[] {
   return events.filter(
     (event) =>
-      event.type === "operation" &&
-      event.kind === "run-in-game" &&
+      isRunInGameOperationEvent(event) &&
       event.status.requestId === requestId &&
       event.status.status !== "running"
   );
 }
 
+function isRunInGameOperationEvent(
+  event: StudioEvent
+): event is Extract<StudioOperationEvent, { kind: "run-in-game" }> {
+  return event.type === "operation" && event.kind === "run-in-game";
+}
+
+function isSaveDeployOperationEvent(
+  event: StudioEvent
+): event is Extract<StudioOperationEvent, { kind: "save-deploy" }> {
+  return event.type === "operation" && event.kind === "save-deploy";
+}
+
 function expectTypeboxValid(schema: TSchema, value: unknown): void {
   const errors = [...Value.Errors(schema, value)].map((error) => ({
     message: error.message,
-    path: error.path,
   }));
   expect(errors).toEqual([]);
 }

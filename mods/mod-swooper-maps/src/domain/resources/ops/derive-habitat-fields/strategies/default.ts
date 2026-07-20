@@ -32,6 +32,11 @@ function percentileOf(sortedValues: readonly number[], q: number): number {
   return sortedValues[pos]!;
 }
 
+/**
+ * Derives every canonical resource habitat/suppression mask and family intensity on one
+ * map-sized pass. Optional physical inputs use explicit neutral handling; output keys remain
+ * fixed by the shared habitat-field vocabulary.
+ */
 export const defaultStrategy = createStrategy(DeriveHabitatFieldsContract, "default", {
   run: (input) => {
     const width = input.width | 0;

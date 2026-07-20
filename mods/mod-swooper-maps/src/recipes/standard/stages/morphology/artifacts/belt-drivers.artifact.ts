@@ -1,5 +1,7 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -103,8 +105,13 @@ const MorphologyBeltDriversArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for canonical tectonic belt drivers and their component summaries. */
 export const Schema = MorphologyBeltDriversArtifactSchema;
 
+/**
+ * Registers map-tile-sized tectonic belt drivers projected from Foundation
+ * history and provenance for landmass, mountain, and shelf policy.
+ */
 export const artifact = defineArtifact({
   name: "beltDrivers",
   id: "artifact:morphology.beltDrivers",
@@ -117,39 +124,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
-
 function validatePayload(
   value: unknown,
-  dimensions: NonNullable<ArtifactValidationContext["dimensions"]>
+  context?: ArtifactValidationContext
 ): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isRecord(value)) {
-    errors.push({ message: "Missing beltDrivers buffer." });
+    if (context?.dimensions) {
+      errors.push({ message: "Missing beltDrivers artifact value." });
+    }
     return errors;
   }
-  const size = expectedSize(dimensions);
+  const size = artifactCellCount(context);
   const candidate = value as {
     boundaryCloseness?: unknown;
     boundaryType?: unknown;
@@ -165,71 +151,104 @@ function validatePayload(
     beltNearestSeed?: unknown;
     beltComponents?: unknown;
   };
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
     errors,
     "beltDrivers.boundaryCloseness",
     candidate.boundaryCloseness,
     Uint8Array,
     size
   );
-  validateTypedArray(errors, "beltDrivers.boundaryType", candidate.boundaryType, Uint8Array, size);
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
+    errors,
+    "beltDrivers.boundaryType",
+    candidate.boundaryType,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
     errors,
     "beltDrivers.upliftPotential",
     candidate.upliftPotential,
     Uint8Array,
     size
   );
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
     errors,
     "beltDrivers.collisionPotential",
     candidate.collisionPotential,
     Uint8Array,
     size
   );
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
     errors,
     "beltDrivers.subductionPotential",
     candidate.subductionPotential,
     Uint8Array,
     size
   );
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
     errors,
     "beltDrivers.riftPotential",
     candidate.riftPotential,
     Uint8Array,
     size
   );
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
     errors,
     "beltDrivers.tectonicStress",
     candidate.tectonicStress,
     Uint8Array,
     size
   );
-  validateTypedArray(errors, "beltDrivers.beltAge", candidate.beltAge, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.dominantEra", candidate.dominantEra, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.beltMask", candidate.beltMask, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.beltDistance", candidate.beltDistance, Uint8Array, size);
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
+    errors,
+    "beltDrivers.beltAge",
+    candidate.beltAge,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    errors,
+    "beltDrivers.dominantEra",
+    candidate.dominantEra,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    errors,
+    "beltDrivers.beltMask",
+    candidate.beltMask,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    errors,
+    "beltDrivers.beltDistance",
+    candidate.beltDistance,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
     errors,
     "beltDrivers.beltNearestSeed",
     candidate.beltNearestSeed,
     Int32Array,
     size
   );
-  if (!Array.isArray(candidate.beltComponents)) {
+  if (context?.dimensions && !Array.isArray(candidate.beltComponents)) {
     errors.push({ message: "Expected beltDrivers.beltComponents to be an array." });
   }
   return errors;
 }
 
+/**
+ * Validates the closed belt vocabulary, component summaries, typed-array
+ * kinds, and, when dimensions are available, one value per map tile.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext
 ): readonly { message: string }[] {
   const schemaIssues = validateArtifactSchema(Schema, value);
-  if (!context?.dimensions) return schemaIssues;
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context.dimensions)]);
+  return Object.freeze([...schemaIssues, ...validatePayload(value, context)]);
 }

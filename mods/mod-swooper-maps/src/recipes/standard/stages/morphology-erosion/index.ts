@@ -1,6 +1,6 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { geomorphology } from "./steps/index.js";
+import { GeomorphologyStep } from "./steps/geomorphology/step.js";
 
 export type MorphologyErosionKnob = "low" | "normal" | "high";
 
@@ -122,6 +122,10 @@ const knobsSchema = Type.Object(
   }
 );
 
+/**
+ * Compiles erosion posture and world age into the single geomorphic pass that
+ * sculpts elevation and sediment without reclassifying land and water.
+ */
 export default createStage({
   id: "morphology-erosion",
   knobsSchema,
@@ -135,7 +139,7 @@ export default createStage({
         "Morphology geomorphic-cycle controls for fluvial incision, diffusion, deposition, and world-age erosion posture.",
     }
   ),
-  steps: orderStandardStageSteps("morphology-erosion", { geomorphology }),
+  steps: orderStandardStageSteps("morphology-erosion", { geomorphology: GeomorphologyStep }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     geomorphology: {
       geomorphology: { strategy: "default", config: config.geomorphicCycle },

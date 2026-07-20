@@ -41,7 +41,7 @@ This workflow produces a replayable folder containing:
 From the repo root:
 
 ```bash
-bun run --cwd mods/mod-swooper-maps viz:standard
+nx run mod-swooper-maps:viz:standard
 ```
 
 Notes:
@@ -64,13 +64,14 @@ Notes:
 
 ### 3) Why layers may not appear
 
-Visualization layers in this repo are emitted via trace `step.event` payloads:
-- `TraceScope.event(...)` is gated by `verbose`.
-- The node dumper (`createVizDumper`) returns early unless `trace.isVerbose` and `trace.runId` are set.
+Trace and visualization are separate optional channels. A layer appears only when:
 
-So:
-- You can get `trace.jsonl` without layers (basic trace only),
-- but you cannot get visualization layers unless the relevant steps are `verbose`.
+- the completed step owns a `viz` projector,
+- the run supplies a visualization facet sink,
+- and projection plus materialization succeed.
+
+Trace verbosity affects structured trace events, not visualization. The filesystem harness supplies
+both the trace sink and visualization facet sink and reports facet failures on stderr.
 
 ## Verification
 
@@ -115,14 +116,18 @@ Routing:
 
 - **Tracing “enabled” but no sink**: tracing becomes a noop (you won’t see events).
 - **Verbose events are gated**: `TraceScope.event()` emits only when the step is configured as `verbose`.
-- **Viz without verbose trace**: the canonical dumpers are gated behind `trace.isVerbose`; if you don’t mark steps verbose, you’ll see no `manifest.layers`.
+- **Missing facet half**: a `viz` projector without an environment sink, or a sink without a step
+  projector, intentionally produces no layer.
+- **Facet failures are non-fatal**: projection and materialization errors are reported but cannot
+  alter generation success; inspect stderr if a completed run is missing a layer.
 
 ## Ground truth anchors
 
 - Trace session + sinks (console): `packages/mapgen-core/src/trace/index.ts`
 - Pipeline executor wiring (trace scoping per step): `packages/mapgen-core/src/engine/PipelineExecutor.ts`
 - Run identity + fingerprint (`runId === planFingerprint` current): `packages/mapgen-core/src/engine/observability.ts`
-- Viz dumper interface + artifact notes: `packages/mapgen-core/src/core/types.ts`
+- Step facet dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
+- Portable visualization contracts: `packages/mapgen-viz/src/index.ts`
 - Local trace+viz dump harness (writes `trace.jsonl` + `manifest.json`): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
 - Standard run harness producing dumps: `mods/mod-swooper-maps/src/dev/viz/standard-run.ts`
 - Studio “Dump mode” UI + folder picker entrypoint: `apps/mapgen-studio/src/App.tsx`

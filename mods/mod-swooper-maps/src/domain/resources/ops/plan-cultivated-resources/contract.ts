@@ -71,6 +71,11 @@ const CultivatedPlanRowSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/**
+ * Admits warning-only cultivated demand planning from earthlike expectations and named
+ * agriculture/habitat signals. It assigns family-owned lanes and reports evidence gaps without
+ * selecting concrete sites.
+ */
 const PlanCultivatedResourcesContract = defineOp({
   kind: "plan",
   id: "resources/plan-cultivated-resources",

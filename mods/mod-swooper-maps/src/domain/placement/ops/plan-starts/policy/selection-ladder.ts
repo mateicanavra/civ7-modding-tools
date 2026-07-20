@@ -62,6 +62,7 @@ export type SelectionLadderResult = {
 
 const TIER_ORDER = ["primary", "islandCluster", "marginal", "none"] as const;
 
+/** Maps an admitted start tier to its stable quality rank; `none` remains the last resort. */
 export function tierValue(tier: SelectableTile["tier"]): number {
   if (tier === "primary") return 3;
   if (tier === "islandCluster") return 2;
@@ -69,6 +70,11 @@ export function tierValue(tier: SelectableTile["tier"]): number {
   return 0;
 }
 
+/**
+ * Orders start candidates by admitted terrain tier, then descending blended quality, then
+ * ascending plot index. The final plot-index tie-break makes candidate order reproducible
+ * across runtimes.
+ */
 export function compareSelectableTiles(a: SelectableTile, b: SelectableTile): number {
   const tierDiff = tierValue(b.tier) - tierValue(a.tier);
   if (tierDiff !== 0) return tierDiff;
@@ -93,7 +99,7 @@ type LadderArgs = {
   seatBiasOf: (seatIndex: number) => SeatBias | undefined;
   biasContextOf: (plotIndex: number) => SeatBiasContext;
   /**
-   * Settleable-land tiles per homeland region (D3). When a region has room to
+   * Settleable-land tiles per working selection region (D3). When a region has room to
    * spread (more land per seat than the fixed desired buffer covers), the
    * dispersion reward saturates at the even-dispersion distance rather than the
    * fixed buffer — recovering global spread without lowering the spacing floor.
@@ -101,6 +107,11 @@ type LadderArgs = {
   landByRegion?: { 1: number; 2: number };
 };
 
+/**
+ * Seats players through the regional, open-pool, quality-relaxed, and spacing-relaxed rungs
+ * without throwing. It preserves unique plots, records every relaxation, and returns an
+ * explicit unseated entry when even the deterministic last-resort pool cannot place a seat.
+ */
 export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
   const floor = Math.max(0, args.spacingFloorTiles | 0);
   const desired = Math.max(floor, args.desiredSpacingTiles | 0);
@@ -115,7 +126,7 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
   // 1.5x it into worse land. A single-seat region keeps the fixed desired buffer.
   const seatsPerRegion: Record<1 | 2, number> = { 1: 0, 2: 0 };
   for (const seat of args.seats) {
-    if (seat.regionSlot === 1 || seat.regionSlot === 2) seatsPerRegion[seat.regionSlot] += 1;
+    seatsPerRegion[seat.selectionRegionSlot] += 1;
   }
   const dispersionTargetFor = (slot: 1 | 2): number => {
     const land = args.landByRegion?.[slot] ?? 0;
@@ -215,8 +226,8 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
   };
 
   for (const seat of args.seats) {
-    activeDispersionTarget = dispersionTargetFor(seat.regionSlot);
-    const regionPool = candidates.filter((tile) => tile.regionSlot === seat.regionSlot);
+    activeDispersionTarget = dispersionTargetFor(seat.selectionRegionSlot);
+    const regionPool = candidates.filter((tile) => tile.regionSlot === seat.selectionRegionSlot);
     let rung: SeatRung = "regional";
     let tile = pickTierMajor(seat, regionPool, floor);
 
@@ -227,7 +238,7 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
         relaxations.push({
           seatIndex: seat.seatIndex,
           kind: "region",
-          from: seat.regionSlot,
+          from: seat.selectionRegionSlot,
           to: tile.regionSlot,
         });
       }

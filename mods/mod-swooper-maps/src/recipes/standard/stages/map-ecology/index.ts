@@ -1,7 +1,9 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { MapEcologyPublicSchema } from "../map-projection-public-config.js";
-import { steps } from "./steps/index.js";
+import { FeaturesApplyStep } from "./steps/features-apply/step.js";
+import { PlotBiomesStep } from "./steps/plot-biomes/step.js";
+import { PlotEffectsStep } from "./steps/plot-effects/step.js";
 
 const MapEcologyKnobsSchema = Type.Object(
   {},
@@ -29,8 +31,8 @@ export default createStage({
     "plot-effects": {},
   }),
   steps: orderStandardStageSteps("map-ecology", {
-    "plot-biomes": steps.plotBiomes,
-    "features-apply": steps.featuresApply,
-    "plot-effects": steps.plotEffects,
+    "plot-biomes": PlotBiomesStep,
+    "features-apply": FeaturesApplyStep,
+    "plot-effects": PlotEffectsStep,
   }),
 } as const);

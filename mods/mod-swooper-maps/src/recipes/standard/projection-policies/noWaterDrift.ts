@@ -146,6 +146,10 @@ export function captureWaterDriftReport(
   };
 }
 
+/**
+ * Compares engine land/water readback with expected truth, emits diagnostics on any mismatch, and
+ * throws only when the configured mismatch-share ceiling is exceeded.
+ */
 export function assertWaterDriftWithinPolicy(
   context: ExtendedMapContext,
   expectedLandMask: Uint8Array,

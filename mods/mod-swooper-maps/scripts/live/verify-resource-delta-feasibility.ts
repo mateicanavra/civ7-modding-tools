@@ -15,6 +15,7 @@ import {
   getCiv7ResourceBuilderDiagnostics,
   getCiv7ResourcePlacementFeasibility,
 } from "@civ7/direct-control";
+import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import {
   type FinalSurfaceParityReport,
   hashParityValue,
@@ -37,7 +38,7 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode resource-delta-feasibility --report-file <final-surface-parity-report.json>
+  nx run mod-swooper-maps:verify:operational -- --mode resource-delta-feasibility --report-file <final-surface-parity-report.json>
 
 Options:
   --host <host>       Civ7 tuner host
@@ -325,14 +326,11 @@ function extractFinalSurfaceParityReport(payload: unknown): FinalSurfaceParityRe
 }
 
 function resolveRequestIdentity(report: FinalSurfaceParityReport) {
-  const packet = isRecord(report.exactAuthorshipEvidence) ? report.exactAuthorshipEvidence : {};
-  const sourceSnapshot = isRecord(packet.sourceSnapshot) ? packet.sourceSnapshot : {};
-  const log = isRecord(packet.log) ? packet.log : {};
+  const packet = report.exactAuthorshipEvidence;
   const sources = {
     exactAuthorshipSummary: stringValue(report.exactAuthorshipSummary.requestId),
-    exactAuthorshipEvidence: stringValue(packet.requestId),
-    sourceSnapshot: stringValue(sourceSnapshot.requestId),
-    log: stringValue(log.requestId),
+    exactAuthorshipEvidence: packet?.requestId,
+    log: packet?.log.requestId,
   };
   const values = Object.values(sources).filter((value): value is string => value !== undefined);
   const uniqueValues = [...new Set(values)].sort((left, right) => left.localeCompare(right));
@@ -507,9 +505,8 @@ function summarizeResourceBuilderSubclassification(
     );
     const strict = probeBoolean(cellResource?.canHaveResource.strict);
     const ignoreWeight = probeBoolean(cellResource?.canHaveResource.ignoreWeight);
-    const assignmentPhase = row.assignmentTrace?.assignmentPhase ?? null;
+    const assignmentPhase = row.planIntent?.phase ?? null;
     const officialPolicy = summarizeResourcePolicy(resource);
-    const targetMinPerType = row.assignmentTrace?.targetMinPerType ?? null;
     const officialMinimum = officialPolicy.minimumPerHemisphere;
     const classification = classifyResourceBuilderFocusedRow({
       assignmentPhase,
@@ -525,7 +522,7 @@ function summarizeResourceBuilderSubclassification(
       localResource: row.localResource,
       plannedPreferredResourceSymbol: row.plannedPreferredResourceSymbol,
       feasibilityClass: row.feasibilityClass,
-      assignmentTrace: row.assignmentTrace,
+      planIntent: row.planIntent,
       resourceBuilder: {
         canHaveResource: {
           strict,
@@ -540,18 +537,7 @@ function summarizeResourceBuilderSubclassification(
         requiredForAge: probeBoolean(resource?.requiredForAge),
         ignoringWeightForRiverPlacement: probeBoolean(resource?.ignoringWeightForRiverPlacement),
         officialPolicy,
-        localScarceFloor: {
-          targetMinPerType,
-          officialMinimumPerHemisphere: officialMinimum,
-          targetExceedsOfficialMinimum:
-            targetMinPerType !== null && officialMinimum !== null
-              ? targetMinPerType > officialMinimum
-              : null,
-          targetMinusOfficialMinimum:
-            targetMinPerType !== null && officialMinimum !== null
-              ? targetMinPerType - officialMinimum
-              : null,
-        },
+        officialMinimumPerHemisphere: officialMinimum,
       },
       subclassification: classification,
     };
@@ -580,7 +566,7 @@ function summarizeResourceDistributionContext(
     (diagnostics?.resources ?? []).map((resource) => [resource.resourceType, resource] as const)
   );
   const locallyAssignedRows = rows.filter(
-    (row) => row.assignmentTrace !== null && row.localResource.value !== null
+    (row) => row.planIntent !== null && row.localResource.value !== null
   );
   const groups = new Map<
     number,
@@ -590,7 +576,6 @@ function summarizeResourceDistributionContext(
       deltaRowCount: number;
       feasibilityClassCounts: Record<string, number>;
       assignmentPhaseCounts: Record<string, number>;
-      targetMinPerTypeValues: Set<number>;
       minAssignmentOrder: number | null;
       maxAssignmentOrder: number | null;
     }
@@ -607,7 +592,6 @@ function summarizeResourceDistributionContext(
         deltaRowCount: 0,
         feasibilityClassCounts: {},
         assignmentPhaseCounts: {},
-        targetMinPerTypeValues: new Set<number>(),
         minAssignmentOrder: null,
         maxAssignmentOrder: null,
       };
@@ -615,13 +599,9 @@ function summarizeResourceDistributionContext(
     }
     group.deltaRowCount += 1;
     incrementCount(group.feasibilityClassCounts, row.feasibilityClass);
-    const phase = row.assignmentTrace?.assignmentPhase ?? "missing";
+    const phase = row.planIntent?.phase ?? "missing";
     incrementCount(group.assignmentPhaseCounts, phase);
-    const targetMinPerType = row.assignmentTrace?.targetMinPerType;
-    if (typeof targetMinPerType === "number" && Number.isFinite(targetMinPerType)) {
-      group.targetMinPerTypeValues.add(targetMinPerType);
-    }
-    const assignmentOrder = row.assignmentTrace?.assignmentOrder;
+    const assignmentOrder = row.planIntent?.order;
     if (typeof assignmentOrder === "number" && Number.isFinite(assignmentOrder)) {
       group.minAssignmentOrder =
         group.minAssignmentOrder === null
@@ -642,11 +622,6 @@ function summarizeResourceDistributionContext(
       const officialPolicy = summarizeResourcePolicy(builder);
       const builderCount = probeNumberLike(builder?.count);
       const assignedCount = assignment?.assignedCount ?? null;
-      const targetMinPerTypeValues = [...group.targetMinPerTypeValues].sort(
-        (left, right) => left - right
-      );
-      const primaryTargetMinPerType =
-        targetMinPerTypeValues.length === 1 ? targetMinPerTypeValues[0] : null;
       const officialMinimum = officialPolicy.minimumPerHemisphere;
       return {
         resourceType: group.resourceType,
@@ -666,11 +641,6 @@ function summarizeResourceDistributionContext(
         comparisons: {
           assignedMinusResourceBuilderCount:
             assignedCount !== null && builderCount !== null ? assignedCount - builderCount : null,
-          targetMinPerTypeValues,
-          targetMinPerTypeMinusOfficialMinimum:
-            primaryTargetMinPerType !== null && officialMinimum !== null
-              ? primaryTargetMinPerType - officialMinimum
-              : null,
           assignedCountMinusOfficialMinimum:
             assignedCount !== null && officialMinimum !== null
               ? assignedCount - officialMinimum
@@ -689,11 +659,6 @@ function summarizeResourceDistributionContext(
         row.comparisons.assignedMinusResourceBuilderCount !== null &&
         row.comparisons.assignedMinusResourceBuilderCount > 0
     ).length,
-    resourceTypesWithTargetGreaterThanOfficialMinimum: resourceRows.filter(
-      (row) =>
-        row.comparisons.targetMinPerTypeMinusOfficialMinimum !== null &&
-        row.comparisons.targetMinPerTypeMinusOfficialMinimum > 0
-    ).length,
     rows: resourceRows,
   };
 }
@@ -703,7 +668,7 @@ function summarizeResourcePositionContext(
   rows: ReadonlyArray<ResourceDeltaFeasibilityContext>
 ) {
   const localAssignedRows = rows.filter(
-    (row) => row.assignmentTrace !== null && row.localResource.value !== null
+    (row) => row.planIntent !== null && row.localResource.value !== null
   );
   const liveRowsByResource = new Map<number, ResourceDeltaFeasibilityContext[]>();
   for (const row of rows) {
@@ -729,8 +694,8 @@ function summarizeResourcePositionContext(
         plotIndex: row.plotIndex,
         resourceSymbol: row.localResource.symbol,
         feasibilityClass: row.feasibilityClass,
-        assignmentPhase: row.assignmentTrace?.assignmentPhase ?? null,
-        assignmentOrder: row.assignmentTrace?.assignmentOrder ?? null,
+        assignmentPhase: row.planIntent?.phase ?? null,
+        assignmentOrder: row.planIntent?.order ?? null,
       },
       matchedLive:
         match === null
@@ -880,37 +845,6 @@ function nearestResourceDeltaMatch(
   return best;
 }
 
-function hexDistanceOddQPeriodicX(aIndex: number, bIndex: number, width: number): number {
-  const ay = Math.trunc(aIndex / width);
-  const ax = aIndex - ay * width;
-  const by = Math.trunc(bIndex / width);
-  const bx = bIndex - by * width;
-  const wrappedBx = ax + wrapDeltaPeriodic(bx - ax, width);
-  const aCube = oddqToCube(ax, ay);
-  const bCube = oddqToCube(wrappedBx, by);
-  return Math.max(
-    Math.abs(aCube.x - bCube.x),
-    Math.abs(aCube.y - bCube.y),
-    Math.abs(aCube.z - bCube.z)
-  );
-}
-
-function oddqToCube(x: number, y: number): Readonly<{ x: number; y: number; z: number }> {
-  const z = y - (x - (x & 1)) / 2;
-  const xCube = x;
-  const zCube = z;
-  const yCube = -xCube - zCube;
-  return { x: xCube, y: yCube, z: zCube };
-}
-
-function wrapDeltaPeriodic(delta: number, width: number): number {
-  if (width <= 0) return delta;
-  const half = width / 2;
-  let wrapped = ((delta % width) + width) % width;
-  if (wrapped > half) wrapped -= width;
-  return wrapped;
-}
-
 function summarizeDistances(distances: ReadonlyArray<number>) {
   const sorted = [...distances].sort((left, right) => left - right);
   const quantile = (fraction: number): number | null => {
@@ -994,14 +928,13 @@ function readLocalAssignmentSummary(evidence: unknown): {
 }
 
 function summarizeAssignmentClasses(rows: ReadonlyArray<ResourceDeltaFeasibilityContext>) {
-  const locallyAssignedRows = rows.filter((row) => row.assignmentTrace !== null);
+  const locallyAssignedRows = rows.filter((row) => row.planIntent !== null);
   const classAndPhaseRows = locallyAssignedRows.map((row) => ({
     feasibilityClass: row.feasibilityClass,
     evidenceClass: row.evidenceClass,
-    assignmentPhase: row.assignmentTrace?.assignmentPhase ?? "missing",
-    targetMinPerType: row.assignmentTrace?.targetMinPerType ?? null,
+    assignmentPhase: row.planIntent?.phase ?? "missing",
     resourceSymbol: row.localResource.symbol,
-    assignmentOrder: row.assignmentTrace?.assignmentOrder ?? null,
+    assignmentOrder: row.planIntent?.order ?? null,
   }));
   const scarceFloorRows = classAndPhaseRows.filter((row) => row.assignmentPhase === "scarce-floor");
   return {
@@ -1012,8 +945,7 @@ function summarizeAssignmentClasses(rows: ReadonlyArray<ResourceDeltaFeasibility
     classCounts: countBy(rows, (row) => row.feasibilityClass),
     classPhaseCounts: countBy(
       classAndPhaseRows,
-      (row) =>
-        `${row.feasibilityClass}|${row.assignmentPhase}|target:${row.targetMinPerType ?? "missing"}`
+      (row) => `${row.feasibilityClass}|${row.assignmentPhase}`
     ),
     classPhaseResources: summarizeClassPhaseResources(classAndPhaseRows),
   };
@@ -1023,7 +955,6 @@ function summarizeClassPhaseResources(
   rows: ReadonlyArray<{
     feasibilityClass: string;
     assignmentPhase: string;
-    targetMinPerType: number | null;
     resourceSymbol: string;
     assignmentOrder: number | null;
   }>
@@ -1033,7 +964,6 @@ function summarizeClassPhaseResources(
     {
       feasibilityClass: string;
       assignmentPhase: string;
-      targetMinPerType: number | null;
       count: number;
       resources: Set<string>;
       minAssignmentOrder: number | null;
@@ -1041,13 +971,12 @@ function summarizeClassPhaseResources(
     }
   >();
   for (const row of rows) {
-    const key = `${row.feasibilityClass}|${row.assignmentPhase}|target:${row.targetMinPerType ?? "missing"}`;
+    const key = `${row.feasibilityClass}|${row.assignmentPhase}`;
     let group = groups.get(key);
     if (!group) {
       group = {
         feasibilityClass: row.feasibilityClass,
         assignmentPhase: row.assignmentPhase,
-        targetMinPerType: row.targetMinPerType,
         count: 0,
         resources: new Set<string>(),
         minAssignmentOrder: null,
@@ -1072,14 +1001,11 @@ function summarizeClassPhaseResources(
     .sort((left, right) => {
       const classDelta = left.feasibilityClass.localeCompare(right.feasibilityClass);
       if (classDelta !== 0) return classDelta;
-      const phaseDelta = left.assignmentPhase.localeCompare(right.assignmentPhase);
-      if (phaseDelta !== 0) return phaseDelta;
-      return (left.targetMinPerType ?? -1) - (right.targetMinPerType ?? -1);
+      return left.assignmentPhase.localeCompare(right.assignmentPhase);
     })
     .map((group) => ({
       feasibilityClass: group.feasibilityClass,
       assignmentPhase: group.assignmentPhase,
-      targetMinPerType: group.targetMinPerType,
       count: group.count,
       minAssignmentOrder: group.minAssignmentOrder,
       maxAssignmentOrder: group.maxAssignmentOrder,
@@ -1178,7 +1104,7 @@ function resourceTypesForResourceBuilderDiagnostics(
   rows: ReadonlyArray<ResourceDeltaFeasibilityContext>
 ): ReadonlyArray<number> {
   return uniqueNumbers(
-    rows.filter((row) => row.assignmentTrace !== null).map((row) => row.localResource.value)
+    rows.filter((row) => row.planIntent !== null).map((row) => row.localResource.value)
   );
 }
 

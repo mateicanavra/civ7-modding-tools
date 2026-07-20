@@ -1,49 +1,39 @@
-## 1. Harness Readiness
+## 1. Authority Readiness
 
-- [ ] 1.1 Read the browser-originated harness and final target vocabulary.
-- [ ] 1.2 Ensure the harness selects saved config, source, seed, Huge map, and
-      10 players through the rendered UI, then captures the rendered Run in
-      Game click's browser-originated `runInGame.start` request with
-      `worldSettings.resources: balanced` and the same request's generation
-      manifest.
-- [ ] 1.3 Ensure follow-up `/rpc` calls capture status/current/events,
-      diagnostics, live status, and live snapshot for the admitted request.
-- [ ] 1.4 Ensure evidence rows redact public records and retain private details
-      only by explicit diagnostics id/request id.
-- [ ] 1.5 Ensure evidence rows match setup row readback to the exact admitted
-      `runArtifactId` and fail on prior request rows.
+- [x] 1.1 Replace retired launch-source, phase, correlation, and request-specific
+      filename authority with the current canonical-config contract.
+- [x] 1.2 Define exactly three serial rendered success rows.
+- [x] 1.3 Route failure, recovery, freshness, and redaction cases to their
+      deterministic behavior-test owners.
+- [x] 1.4 Record P19/P20 as preliminary support rather than running a duplicate
+      preliminary matrix.
+- [x] 1.5 Validate the corrected P21 authority strictly.
+- [x] 1.6 Complete fresh TypeScript/state-space, architecture/authority, and
+      product/runtime/library review roles.
 
-## 2. Required Scenario Runs
+## 2. Frozen-Tree Gates
 
-- [ ] 2.1 Run Swooper Earthlike with `ToT_BasicModsEnabled.Civ7Cfg`, Huge map,
-      10 players, seed `1538316415`, and browser-originated
-      `worldSettings.resources: balanced` retained in the same request's
-      generation manifest.
-- [ ] 2.2 Run Latest Juicy with `ToT_BasicModsEnabled.Civ7Cfg`, Huge map, 10
-      players, seed `1538316415`, and browser-originated
-      `worldSettings.resources: balanced` retained in the same request's
-      generation manifest.
-- [ ] 2.3 Run Swooper Desert Mountains with `ToT_BasicModsEnabled.Civ7Cfg`,
-      Huge map, 10 players, seed `1538316415`, and browser-originated
-      `worldSettings.resources: balanced` retained in the same request's
-      generation manifest.
-- [ ] 2.4 Run missed terminal event or browser reload recovery row.
-- [ ] 2.5 Run generated-row-missing failure row.
-- [ ] 2.6 Run stale saved-config/generated-mod mismatch row.
-- [ ] 2.7 Run repeat freshness row for the same rendered scenario.
+- [ ] 2.1 Confirm A.2 and A.3 are already reconverged on the frozen candidate.
+- [ ] 2.2 Run one Nx-owned check/test/build graph for the final product owners.
+- [ ] 2.3 Run Habitat boundaries/policy, full OpenSpec, generated-currentness,
+      and clean-diff gates.
+- [ ] 2.4 Run the deterministic behavior owners mapped in `design.md`.
 
-## 3. Closure Verification
+## 3. Required Live Rows
 
-- [ ] 3.1 Run `nx run mapgen-studio:test`.
-- [ ] 3.2 Run contract/server/app/UI checks reported by Habitat and relevant
-      Nx targets.
-- [ ] 3.3 Run `bun run openspec -- validate studio-run-real-user-matrix-closure --strict`.
-- [ ] 3.4 Run `bun run openspec:validate`.
-- [ ] 3.5 Run `bun habitat classify` for the packet write set and all reported
-      commands.
-- [ ] 3.6 Run and record TypeScript refactoring, code quality/structure,
-      library correctness, testing-design, and Habitat/authority review lanes.
-- [ ] 3.7 Run and record public/private redaction scans over retained
-      workstream logs plus public status/current/event payloads.
-- [ ] 3.8 Record every gate and every live row in
-      `workstream/verification-evidence.md`.
+- [ ] 3.1 Run `swooper-earthlike` with the fixed realistic tuple.
+- [ ] 3.2 Run `latest-juicy` with the fixed realistic tuple.
+- [ ] 3.3 Run `swooper-desert-mountains` with the fixed realistic tuple.
+- [ ] 3.4 Verify exact correlation, stable-row identity, matching
+      generated/deployed digests, complete authorship and attribution,
+      `operation.request.resources === "balanced"`, parsed manifest
+      `payload.launchEnvelope.worldSettings.resources === "balanced"` with the
+      matching launch-envelope digest, nondegenerate/playable output, runtime
+      dimensions/turn, public redaction, unchanged Civ7 process identity, and
+      unchanged pre/post `/healthz` daemon identity for every row.
+
+## 4. Closure
+
+- [ ] 4.1 Complete final fresh review roles at the frozen runtime tree.
+- [ ] 4.2 Reconcile and close the active P21 evidence without changing the
+      runtime-relevant tree.

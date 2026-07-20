@@ -1,4 +1,7 @@
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -8,17 +11,17 @@ import {
 const MorphologyMountainsArtifactSchema = Type.Object(
   {
     mountainMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): Morphology truth intent for mountain terrain.",
+      description: "Mask (1/0): Morphology model intent for mountain terrain.",
     }),
     mountainRegionMask: TypedArraySchemas.u8({
       description:
-        "Mask (1/0): Morphology truth footprint for orographic provinces, including peak spines, passes, valleys, foothills, and internal rough terrain.",
+        "Mask (1/0): Morphology model footprint for orographic provinces, including peak spines, passes, valleys, foothills, and internal rough terrain.",
     }),
     mountainRegionIdByTile: TypedArraySchemas.i32({
       description: "Per-tile orographic province id (-1 outside the mountain-region footprint).",
     }),
     hillMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): Morphology truth intent for hill terrain excluding mountain tiles.",
+      description: "Mask (1/0): Morphology model intent for hill terrain excluding mountain tiles.",
     }),
     foothillMask: TypedArraySchemas.u8({
       description:
@@ -41,18 +44,73 @@ const MorphologyMountainsArtifactSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Mountain, foothill, and rough-land terrain intent. Morphology owns this truth; map-morphology only projects it into engine terrain.",
+      "Mountain, foothill, and rough-land terrain intent. Morphology owns this model; map-morphology only projects it into engine terrain.",
   }
 );
 
+/** Runtime schema for Morphology-owned mountain, foothill, and rough-land intent. */
 export const Schema = MorphologyMountainsArtifactSchema;
 
+/**
+ * Registers Morphology-owned mountain, foothill, and rough-land intent for
+ * later engine projection and placement suitability.
+ */
 export const artifact = defineArtifact({
   name: "mountains",
   id: "artifact:morphology.mountains",
   schema: Schema,
 });
 
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+/**
+ * Validates map-sized typed arrays for mountain-family intent and keeps each membership mask
+ * binary. Potential fields remain byte-valued measurements rather than membership masks.
+ */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (isRecord(value)) {
+    const size = artifactCellCount(context);
+    for (const key of [
+      "mountainMask",
+      "mountainRegionMask",
+      "hillMask",
+      "foothillMask",
+      "roughLandMask",
+    ] as const) {
+      if (
+        appendArtifactTypedArrayIssues(issues, `mountains.${key}`, value[key], Uint8Array, size)
+      ) {
+        validateBinaryMask(issues, `mountains.${key}`, value[key]);
+      }
+    }
+    appendArtifactTypedArrayIssues(
+      issues,
+      "mountains.mountainRegionIdByTile",
+      value.mountainRegionIdByTile,
+      Int32Array,
+      size
+    );
+    for (const key of ["orogenyPotential", "fracturePotential", "roughnessPotential"] as const) {
+      appendArtifactTypedArrayIssues(issues, `mountains.${key}`, value[key], Uint8Array, size);
+    }
+  }
+  return Object.freeze(issues);
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function validateBinaryMask(issues: { message: string }[], label: string, value: unknown): void {
+  if (!(value instanceof Uint8Array)) return;
+  for (let index = 0; index < value.length; index += 1) {
+    if (value[index] !== 0 && value[index] !== 1) {
+      issues.push({
+        message: `Expected ${label} values to be 0 or 1 (first invalid index ${index}).`,
+      });
+      return;
+    }
+  }
 }

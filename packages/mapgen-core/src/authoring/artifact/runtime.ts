@@ -2,6 +2,7 @@ import type { ExtendedMapContext } from "@mapgen/core/types.js";
 import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 
 import type { ArtifactContract, ArtifactReadValueOf, ArtifactValueOf } from "./contract.js";
+import type { ArtifactModule } from "./module.js";
 
 export class ArtifactMissingError extends Error {
   public readonly artifactId: string;
@@ -61,19 +62,15 @@ export class ArtifactValidationError extends Error {
   }
 }
 
-type ArtifactsByName<T extends readonly ArtifactContract[]> = {
-  [Name in T[number]["name"] & string]: Extract<T[number], { name: Name }>;
-};
-
-type ArtifactNameOf<T extends readonly ArtifactContract[]> = Extract<
-  keyof ArtifactsByName<T>,
-  string
->;
-
-type ArtifactByName<T extends readonly ArtifactContract[], K extends string> = Extract<
-  T[number],
-  { name: K }
->;
+type ArtifactModuleRuntimes<
+  Modules extends readonly ArtifactModule[],
+  TContext extends ExtendedMapContext,
+> = Readonly<{
+  [Module in Modules[number] as Module["artifact"]["name"]]: ProvidedArtifactRuntime<
+    Module["artifact"],
+    TContext
+  >;
+}>;
 
 export type RequiredArtifactRuntime<
   C extends ArtifactContract,
@@ -102,32 +99,21 @@ export type ProvidedArtifactRuntime<
      *
      * IMPORTANT:
      * - Publishing stores the provided value reference (no deep freeze, no snapshotting in prod).
-     * - Producers should treat published values as immutable once stored.
-     * - Buffer artifacts are a temporary exception: publish once, then mutate
-     *   the underlying buffer via ctx.buffers without re-publishing.
-     * TODO(architecture): redesign buffers as a distinct dependency kind (not artifacts).
+     * - Producers must treat published values as immutable once stored.
      */
     publish: (context: TContext, value: ArtifactValueOf<C>) => ArtifactReadValueOf<C>;
     satisfies: DependencyTagDefinition<TContext>["satisfies"];
   }>;
-
-export type ArtifactRuntimeImpl<
-  C extends ArtifactContract,
-  TContext extends ExtendedMapContext,
-> = Readonly<{
-  validate?: (value: ArtifactValueOf<C>, context: TContext) => readonly { message: string }[];
-  satisfies?: DependencyTagDefinition<TContext>["satisfies"];
-}>;
 
 function resolveStepId(context: ExtendedMapContext): string {
   const trace = context.trace as { stepId?: string } | null | undefined;
   return trace?.stepId ?? "unknown";
 }
 
-function assertUniqueContracts(provides: readonly ArtifactContract[]): void {
+function assertUniqueModules(modules: readonly ArtifactModule[]): void {
   const names = new Set<string>();
   const ids = new Set<string>();
-  for (const contract of provides) {
+  for (const { artifact: contract } of modules) {
     if (names.has(contract.name)) {
       throw new Error(`duplicate artifact name "${contract.name}" in provides list`);
     }
@@ -151,16 +137,14 @@ function readStored<C extends ArtifactContract>(
   return { hasValue, value };
 }
 
-function buildDefaultSatisfies<C extends ArtifactContract, TContext extends ExtendedMapContext>(
-  contract: C,
-  impl: ArtifactRuntimeImpl<C, TContext>
+function buildSatisfies<C extends ArtifactContract, TContext extends ExtendedMapContext>(
+  module: ArtifactModule<C>
 ): DependencyTagDefinition<TContext>["satisfies"] {
   return (context: TContext) => {
-    const { hasValue, value } = readStored(context, contract);
+    const { hasValue, value } = readStored(context, module.artifact);
     if (!hasValue) return false;
-    if (!impl.validate) return true;
     try {
-      const issues = impl.validate(value as ArtifactValueOf<C>, context) ?? [];
+      const issues = module.validate(value, { dimensions: context.dimensions });
       return issues.length === 0;
     } catch {
       return false;
@@ -175,29 +159,21 @@ function normalizeIssues(error: unknown): readonly { message: string }[] {
   return [{ message: String(error) }];
 }
 
-export function implementArtifacts<
-  TContext extends ExtendedMapContext,
-  const Provides extends readonly ArtifactContract[],
->(
-  provides: Provides,
-  impl: {
-    [K in ArtifactNameOf<Provides>]: ArtifactRuntimeImpl<ArtifactByName<Provides, K>, TContext>;
-  }
-): {
-  [K in ArtifactNameOf<Provides>]: ProvidedArtifactRuntime<ArtifactByName<Provides, K>, TContext>;
-} {
-  assertUniqueContracts(provides);
+/**
+ * Builds write-once artifact runtimes from the same modules that own contract registration and
+ * validation. Each validator runs once per publish or satisfaction observation; callers cannot
+ * omit validation or install a second admission path.
+ */
+export function implementArtifactModules<
+  const Modules extends readonly ArtifactModule[],
+  TContext extends ExtendedMapContext = ExtendedMapContext,
+>(modules: Modules): ArtifactModuleRuntimes<Modules, TContext> {
+  assertUniqueModules(modules);
+  const entries: Array<readonly [string, ProvidedArtifactRuntime<ArtifactContract, TContext>]> = [];
 
-  const runtimes = {} as {
-    [K in ArtifactNameOf<Provides>]: ProvidedArtifactRuntime<ArtifactByName<Provides, K>, TContext>;
-  };
-
-  for (const contract of provides) {
-    const runtimeImpl = impl[contract.name as ArtifactNameOf<Provides>] as ArtifactRuntimeImpl<
-      typeof contract,
-      TContext
-    >;
-    const satisfies = runtimeImpl.satisfies ?? buildDefaultSatisfies(contract, runtimeImpl);
+  for (const module of modules) {
+    const contract = module.artifact;
+    const satisfies = buildSatisfies<typeof contract, TContext>(module);
 
     const runtime: ProvidedArtifactRuntime<typeof contract, TContext> = {
       contract,
@@ -225,15 +201,13 @@ export function implementArtifacts<
           });
         }
 
-        let issues: readonly { message: string }[] = [];
+        let issues: readonly { message: string }[];
         let cause: unknown;
-        if (runtimeImpl.validate) {
-          try {
-            issues = runtimeImpl.validate(value as ArtifactValueOf<typeof contract>, context) ?? [];
-          } catch (error) {
-            cause = error;
-            issues = normalizeIssues(error);
-          }
+        try {
+          issues = module.validate(value, { dimensions: context.dimensions });
+        } catch (error) {
+          cause = error;
+          issues = normalizeIssues(error);
         }
 
         if (issues.length > 0) {
@@ -251,11 +225,8 @@ export function implementArtifacts<
       },
       satisfies,
     };
-    runtimes[contract.name as ArtifactNameOf<Provides>] = runtime as ProvidedArtifactRuntime<
-      ArtifactByName<Provides, ArtifactNameOf<Provides>>,
-      TContext
-    >;
+    entries.push([contract.name, runtime]);
   }
 
-  return runtimes;
+  return Object.freeze(Object.fromEntries(entries)) as ArtifactModuleRuntimes<Modules, TContext>;
 }

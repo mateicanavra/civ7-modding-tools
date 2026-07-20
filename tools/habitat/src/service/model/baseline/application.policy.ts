@@ -2,21 +2,26 @@ import type { HabitatDiagnostic } from "@habitat/cli/service/model/check/index";
 import {
   type BaselineApplicationResult,
   type BaselineAuthorityState,
+  type BaselineOccurrence,
   type BaselineRefusal,
 } from "./dto/baseline.schema.js";
 import { sameStringList } from "./utils.policy.js";
 
+/** Returns the stable path-and-message identity used by Habitat baseline authority. */
 export function violationKey(diagnostic: HabitatDiagnostic): string {
   return `${diagnostic.path}::${diagnostic.message}`;
 }
 
+/**
+ * Applies explicit baseline authority to diagnostics in place.
+ *
+ * Legacy key coverage admits every matching diagnostic, while occurrence
+ * coverage spends one admitted count per matching diagnostic.
+ */
 export function applyBaseline(
   diagnostics: HabitatDiagnostic[],
-  baseline: Set<string> | BaselineAuthorityState
+  baseline: BaselineAuthorityState
 ): BaselineApplicationResult {
-  if (baseline instanceof Set) {
-    return coverDiagnostics(diagnostics, baseline);
-  }
   if (baseline.kind === "baseline-refusal") {
     return { status: "refused", diagnosticsCovered: 0, refusals: [baseline] };
   }
@@ -44,9 +49,15 @@ export function applyBaseline(
     };
   }
 
-  return coverDiagnostics(diagnostics, new Set(baseline.keys));
+  return baseline.kind === "explicit-debt" && baseline.coverage === "occurrence"
+    ? coverDiagnosticOccurrences(diagnostics, baseline.occurrences)
+    : coverDiagnosticsByKey(
+        diagnostics,
+        new Set(baseline.kind === "explicit-debt" ? baseline.occurrences.map(({ key }) => key) : [])
+      );
 }
 
+/** Projects a typed baseline refusal into the check report's diagnostic channel. */
 export function baselineFailureDiagnostic(
   ruleId: string,
   refusal: BaselineRefusal
@@ -60,7 +71,7 @@ export function baselineFailureDiagnostic(
   };
 }
 
-function coverDiagnostics(
+function coverDiagnosticsByKey(
   diagnostics: HabitatDiagnostic[],
   keys: Set<string>
 ): BaselineApplicationResult {
@@ -70,6 +81,25 @@ function coverDiagnostics(
       diagnostic.baselined = true;
       diagnosticsCovered += 1;
     }
+  }
+  return { status: "applied", diagnosticsCovered, refusals: [] };
+}
+
+function coverDiagnosticOccurrences(
+  diagnostics: HabitatDiagnostic[],
+  occurrences: readonly BaselineOccurrence[]
+): BaselineApplicationResult {
+  const remaining = new Map(occurrences.map(({ key, count }) => [key, count]));
+
+  let diagnosticsCovered = 0;
+  for (const diagnostic of diagnostics) {
+    const key = violationKey(diagnostic);
+    const available = remaining.get(key) ?? 0;
+    if (available === 0) continue;
+    diagnostic.baselined = true;
+    diagnosticsCovered += 1;
+    if (available === 1) remaining.delete(key);
+    else remaining.set(key, available - 1);
   }
   return { status: "applied", diagnosticsCovered, refusals: [] };
 }

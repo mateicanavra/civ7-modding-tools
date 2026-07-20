@@ -20,7 +20,7 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/recipes/**/stages/**/steps/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/**/stages/*/steps/*/**/!(*.test|*.spec|config).ts",
         "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
       ]
     }

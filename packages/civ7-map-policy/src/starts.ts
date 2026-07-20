@@ -9,7 +9,7 @@
  *   - the official fixed spacing buffers (g_Required / g_Desired).
  *
  * The mod's `plan-starts` op COMPOSES these; this package owns no orchestration
- * and — being kind:foundation — no engine/grid adjacency. Hex distances are
+ * and — being `kind:library` — no engine/grid adjacency. Hex distances are
  * computed by the caller (engine odd-R model) and passed into `dispersionTerm`,
  * so the adjacency model stays owned by the engine substrate, not duplicated
  * here.

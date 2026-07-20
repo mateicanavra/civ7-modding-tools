@@ -4,14 +4,30 @@
     {
       "plugin": "./tools/habitat/src/nx-plugin.ts",
       "options": {
-        "checkTargetName": "habitat:check",
-        "boundariesTargetName": "boundaries",
-        "biomeFormatTargetName": "biome:format",
-        "biomeCheckTargetName": "biome:check",
-        "biomeCiTargetName": "biome:ci"
+        "checkTargetName": "check:policy"
       }
     }
   ],
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "sharedGlobals": ["{workspaceRoot}/tsconfig*.json"],
+    "typescriptRuntime": ["{workspaceRoot}/package.json", "{workspaceRoot}/bun.lock"],
+    "habitatRuntime": [
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/bun.lock",
+      "{workspaceRoot}/bunfig.toml",
+      "{workspaceRoot}/tsconfig*.json",
+      "{workspaceRoot}/tools/habitat/bin/**",
+      "{workspaceRoot}/tools/habitat/src/**",
+      "{workspaceRoot}/tools/habitat/package.json",
+      "{workspaceRoot}/tools/habitat/tsconfig*.json",
+      { "env": "HABITAT_HARNESS_ROOT" },
+      { "env": "HABITAT_CACHE_ROOT" },
+      { "env": "HABITAT_PATTERN_CACHE_ROOT" },
+      { "env": "HABITAT_TELEMETRY_DISABLED" },
+      { "env": "HABITAT_COMMAND_TIMEOUT_MS" }
+    ]
+  },
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],
@@ -33,37 +49,47 @@
       ],
       "cache": false
     },
-    "habitat:check": {
-      "dependsOn": [
-        "build",
-        {
-          "projects": ["habitat"],
-          "target": "build"
-        }
-      ],
-      "cache": true
-    },
     "dev": {
       "cache": false,
       "continuous": true
     },
     "check": {
-      "dependsOn": ["^build", "^check"],
-      "cache": true
+      "dependsOn": ["typecheck", "check:policy", "^check"],
+      "cache": false,
+      "outputs": []
+    },
+    "check:test": {
+      "dependsOn": ["^build"],
+      "cache": true,
+      "inputs": ["default", "^default", "typescriptRuntime"],
+      "outputs": []
+    },
+    "check:tools": {
+      "dependsOn": ["^build"],
+      "cache": true,
+      "inputs": ["default", "^default", "typescriptRuntime"],
+      "outputs": []
+    },
+    "typecheck": {
+      "dependsOn": ["check:test", "check:tools", "^build"],
+      "cache": true,
+      "inputs": ["default", "^default", "typescriptRuntime"],
+      "outputs": []
     },
     "lint": {
       "cache": true
     },
     "test": {
       "dependsOn": ["^build"],
-      "cache": true
+      "cache": true,
+      "inputs": ["default", "^default", "{workspaceRoot}/vitest.config.ts"]
     },
     "verify": {
       "dependsOn": ["build", "^build"],
       "cache": false
     },
     "clean": {
-      "cache": true
+      "cache": false
     }
   },
   "analytics": false

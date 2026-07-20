@@ -1,3 +1,4 @@
+import type { FileSystem } from "@effect/platform";
 import type { BiomeProviderService } from "@habitat/cli/providers/biome/index";
 import type { GitProviderService } from "@habitat/cli/providers/git/index";
 import type { GraphiteProviderService } from "@habitat/cli/providers/graphite/index";
@@ -20,7 +21,7 @@ export interface HabitatServiceContext {
 }
 
 export interface HabitatServiceSharedContext extends HabitatServiceContext {
-  readonly structuralCheck: StructuralExecutionContext;
+  readonly structuralCheck: StructuralExecutionContext<FileSystem.FileSystem>;
 }
 
 export interface HabitatServiceDeps {

@@ -59,6 +59,11 @@ export {
   OFFICIAL_RESOURCE_TYPE_ORDER,
 } from "./resources/index.js";
 export {
+  getUnconditionalResourceRequirementBasisForAge,
+  type UnconditionalResourceRequirementBasis,
+  type UnconditionalResourceRequirementBasisSet,
+} from "./resources/requirements.js";
+export {
   type ResolvedResourceRuntimeId,
   type ResourceRuntimeIdResolution,
   requireResourceRuntimeId,

@@ -11,9 +11,8 @@
 
 ## Purpose
 
-Add a new **artifact** (a published, dependency-gated data product) with a stable id and schema.
-
-This how-to is **recipe/stage-level**: artifacts are typically owned by a stage and used by steps.
+Add an artifact: a published, dependency-gated data product with one stable
+contract, one complete admission validator, and one catalog registration.
 
 Routes to:
 - Artifact reference: [`docs/system/libs/mapgen/reference/ARTIFACTS.md`](/system/libs/mapgen/reference/ARTIFACTS.md)
@@ -22,74 +21,148 @@ Routes to:
 
 ## Prereqs
 
-- You’ve determined whether your artifact is:
-  - a **snapshot** (immutable; publish once; safe to share), or
-  - a **buffer handle** (publish once; mutate later via `ctx.buffers`).
-- You have a stable artifact id string (e.g. `"artifact:morphology.topography"`).
+- Define the artifact as an immutable snapshot. If a later step changes the value,
+  it consumes this snapshot, copies it, and publishes a separately named vintage.
+- Choose a stable artifact id such as `"artifact:morphology.routing"`.
+- Identify the artifact owner directory and the single step that publishes it.
 
 ## Checklist
 
-### 1) Define the artifact schema (`defineArtifact`)
+### 1) Define one artifact module
 
-- Create or update the owning stage’s `artifacts.ts`.
-- Define a schema using `Type.*` / `TypedArraySchemas.*`.
-- Call `defineArtifact({ name, id, schema })`.
-
-Representative example (defineArtifact with Phase-2 schema; excerpt; see full file in anchors):
+Create `artifacts/<name>.artifact.ts`. The file owns the schema, contract, and
+complete structural and semantic admission validator.
 
 ```ts
-import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
+import {
+  defineArtifact,
+  Type,
+  TypedArraySchemas,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
-const MorphologyRoutingArtifactSchema = Type.Object(
+/** Closed structural schema for the routing fields published by the morphology step. */
+export const Schema = Type.Object(
   {
-    flowDir: TypedArraySchemas.i32({ description: "Steepest-descent receiver index per tile (or -1 for sinks/edges)." }),
+    flowDir: TypedArraySchemas.i32({
+      description: "Steepest-descent receiver index per tile, or -1 for a sink or edge.",
+    }),
     flowAccum: TypedArraySchemas.f32({ description: "Drainage area proxy per tile." }),
   },
-  { description: "Morphology routing buffer handle (publish once)." }
+  { additionalProperties: false, description: "Morphology routing flow fields." }
 );
 
-export const morphologyArtifacts = {
-  routing: defineArtifact({
-    name: "routing",
-    id: "artifact:morphology.routing",
-    schema: MorphologyRoutingArtifactSchema,
-  }),
-} as const;
+/** Contract for the immutable routing fields produced by the morphology pipeline. */
+export const artifact = defineArtifact({
+  name: "routing",
+  id: "artifact:morphology.routing",
+  schema: Schema,
+});
+
+/** Admits routing values through the contract's closed structural schema. */
+export function validate(value: unknown): readonly { message: string }[] {
+  return validateArtifactSchema(Schema, value);
+}
 ```
 
-### 2) Publish the artifact in exactly one step
+Add domain invariants to `validate(...)` after schema validation when the schema
+alone cannot express complete admission.
 
-- In the step that creates the artifact, publish it into `context.artifacts` (directly or via the helper used by that stage).
-- Add the artifact id as a `provides` tag (or ensure it’s satisfied by the tag registry’s `satisfies` predicate).
+### 2) Register the module once
 
-### 3) Read the artifact via the contract dependency injector
+In the adjacent `artifacts/index.ts`, namespace-import every sibling artifact
+module and register it with the contract-only catalog helper. Export only the
+derived producer modules and consumer handles.
 
-- Steps should read via `deps.artifacts.<name>.read(context)` (when using the authoring helpers that provide typed deps).
-- Avoid reaching into `context.artifacts.get(id)` directly unless you are in integration code (not steps).
+```ts
+import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
+import * as routing from "./routing.artifact.js";
 
-### 4) Update downstream step contracts
+const catalog = defineArtifactCatalog({
+  routing,
+});
 
-- Add your artifact to `artifacts.requires` where needed.
-- If the artifact is a buffer handle, ensure downstream steps mutate via `ctx.buffers` rather than republishing.
+/** Complete routing artifact modules selected by producer contracts. */
+export const artifactModules = catalog.modules;
+
+/** Read-only routing contract handles derived from the module catalog. */
+export const artifacts = catalog.artifacts;
+```
+
+Do not add parallel `artifactContracts` or `validators` maps. The catalog is the
+single registration authority.
+
+### 3) Declare the artifact in step contracts
+
+Consumer contracts select derived `artifacts` handles. Producer contracts select the
+complete module so the contract and validator cannot drift into separate declarations.
+
+```ts
+import { artifactModules as morphologyArtifactModules } from "../artifacts/index.js";
+
+/** Admits the routing artifact as the canonical output of the routing step. */
+export const RoutingStepContract = defineStep({
+  // ...id, phase, tags, ops, and schema...
+  artifacts: {
+    provides: [morphologyArtifactModules.routing],
+  },
+});
+```
+
+Add the derived handle from `artifacts` to downstream `artifacts.requires` declarations. Artifact
+dependencies already participate in dependency satisfaction; do not duplicate
+artifact ids as hand-authored tags.
+
+### 4) Publish through the derived producer runtime
+
+The producing step supplies behavior only. The SDK derives its validated publication
+runtime from the modules already admitted by the step contract.
+
+```ts
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { RoutingStepContract } from "./config.js";
+
+/** Computes and publishes the routing artifact through the admitted step dependency. */
+export const RoutingStep = createStep(RoutingStepContract, {
+  run: (context, config, ops, deps) => {
+    const routing = ops.computeRouting({ /* operation inputs */ }, config.computeRouting);
+    deps.artifacts.routing.publish(context, routing);
+  },
+});
+```
+
+Consumers read through `deps.artifacts.<name>.read(context)` rather than reaching
+into `context.artifacts` directly.
 
 ## Verification
 
-- Run:
-  - `nx run mapgen-core:test`
-  - `bun run --cwd mods/mod-swooper-maps test`
-- Run a traced execution and confirm:
-  - the artifact id appears in the satisfied tag set after the publishing step,
-  - downstream steps can read the artifact without shape mismatch.
+- Run the artifact owner and catalog authority:
+  - `bun habitat check --rule require_artifact_file_shape`
+  - `bun habitat check --rule require_artifact_index_aggregate_shape`
+- Run the owning project checks:
+  - `nx run mapgen-core:typecheck`
+  - `nx run mod-swooper-maps:typecheck`
+  - `nx run mod-swooper-maps:test`
+- For behavior-sensitive artifacts, run a traced execution and confirm publication,
+  downstream reads, and validator diagnostics against real values.
 
 ## Footguns
 
-- **Publishing twice**: buffer artifacts must be published exactly once; later steps must mutate via buffers.
-- **Shape mismatches**: typed array length must match `width * height` when the schema implies tile grids.
-- **Artifact vs field confusion**: fields are adapter-level (engine) outputs; artifacts are pipeline-internal products.
+- **Incomplete validation**: a schema-only validator is insufficient when admission
+  also requires domain invariants such as grid lengths, index ranges, or relational checks.
+- **Parallel registries**: do not recreate contract and validator maps beside the catalog.
+- **Duplicate provider authority**: never pass modules to `createStep`; provider modules
+  belong only in the contract's `artifacts.provides` declaration.
+- **Publishing twice or mutating after publication**: each artifact vintage has one producer;
+  later changes require a copied value and a new vintage contract.
+- **Artifact vs field confusion**: fields are adapter-level engine outputs; artifacts are
+  pipeline data products.
 
 ## Ground truth anchors
 
-- Artifact store + publish-once comment: `packages/mapgen-core/src/core/types.ts`
-- Artifact authoring API: `packages/mapgen-core/src/authoring/artifact/contract.ts`
-- Example artifact definitions: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts/index.ts`
-- Example step reading artifacts via deps: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.ts`
+- Artifact module and catalog: `packages/mapgen-core/src/authoring/artifact/module.ts`
+- Artifact runtime and admission: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
+- Step producer binding: `packages/mapgen-core/src/authoring/step/create.ts`
+- Example artifact owner: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts/routing.artifact.ts`
+- Example catalog: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts/index.ts`
+- Example producer: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing/steps/routing/step.ts`

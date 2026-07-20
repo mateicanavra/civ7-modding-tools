@@ -19,7 +19,7 @@ language js(typescript)
 ```typescript
 // @filename: mods/mod-swooper-maps/src/recipes/standard/tags.ts
 export const M1_TAGS = {
-  terrain: "field:terrainType",
+  terrain: "effect:engine.terrainApplied",
 };
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts
@@ -35,8 +35,8 @@ const localName = M3_SOME_OWNER_TAGS;
 
 ```typescript
 // @filename: mods/mod-swooper-maps/src/recipes/standard/tags.ts
-export const FIELD_DEPENDENCY_TAGS = {
-  terrain: "field:terrainType",
+export const STANDARD_ENGINE_EFFECT_TAGS = {
+  terrain: "effect:engine.terrainApplied",
 };
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts
@@ -45,7 +45,7 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
 };
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/tags.ts
-export const CANONICAL_FIELD_AND_ENGINE_TAGS = new Set();
+export const PLACEMENT_PRODUCT_EFFECT_TAGS = new Set();
 
 // @filename: mods/mod-swooper-maps/src/recipes/experimental/tags.ts
 export const M1_TAGS = {};

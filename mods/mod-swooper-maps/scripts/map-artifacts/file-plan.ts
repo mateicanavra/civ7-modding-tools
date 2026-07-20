@@ -573,11 +573,7 @@ export function buildSwooperMapArtifactFilePlan(
 export function buildSwooperRunGeneratedModFilePlan(
   input: SwooperRunGeneratedModPlanInput
 ): SwooperMapArtifactFilePlan {
-  const configHash = configHashFor(input.config);
-  if (
-    canonicalMapConfigDigest(input.config) !==
-    input.correlation.launchSourceDigest.canonicalConfigDigest
-  ) {
+  if (canonicalMapConfigDigest(input.config) !== input.correlation.canonicalConfigDigest) {
     throw new Error("Studio run canonical config digest does not match the launch config.");
   }
   const entry = renderRunMapEntryArtifact(input);

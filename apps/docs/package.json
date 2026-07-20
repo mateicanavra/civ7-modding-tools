@@ -2,20 +2,19 @@
   "name": "@civ7/docs",
   "private": true,
   "scripts": {
-    "start": "mintlify dev -p 6660 --no-open",
-    "normalize": "bun run scripts/update-code-blocks.ts",
-    "check": "tsc -p tsconfig.json --noEmit",
-    "check:ts": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --config ../../vitest.config.ts --project docs",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
     "fix:duplicate-h1": "bun run scripts/remove-duplicate-h1.ts",
+    "fix:mdx-links": "bun run scripts/fix-mdx-links.ts",
     "fix:title-prefixes": "bun run scripts/remove-title-prefixes.ts",
-    "fix:mdx-links": "bun run scripts/fix-mdx-links.ts"
-  },
-  "devDependencies": {
-    "mintlify": "^4.2.616"
+    "normalize": "bun run scripts/update-code-blocks.ts",
+    "test": "vitest run --config ../../vitest.config.ts --project docs",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
   },
   "dependencies": {
     "@civ7/config": "workspace:*",
     "@civ7/plugin-files": "workspace:*"
+  },
+  "devDependencies": {
+    "mintlify": "^4.2.616"
   }
 }

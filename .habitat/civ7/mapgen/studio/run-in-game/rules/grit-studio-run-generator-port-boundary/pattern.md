@@ -33,8 +33,7 @@ or {
     `args.ports.generateRunInGameMod({ $..., workspaceRoot: $value, $... })`,
     `args.ports.generateRunInGameMod({ $..., outputRoot: $value, $... })`,
     `args.ports.generateRunInGameMod({ $..., generatedModRoot: $value, $... })`,
-    `args.ports.generateRunInGameMod({ $..., launchEnvelope: $value, $... })`,
-    `args.ports.generateRunInGameMod({ $..., resolvedLaunchSource: $value, $... })`
+    `args.ports.generateRunInGameMod({ $..., launchEnvelope: $value, $... })`
   } where {
     $filename <: r".*packages/studio-server/src/workflows/RunInGameWorkflow\.ts$"
   },
@@ -45,8 +44,7 @@ or {
     `generateSwooperRunMod({ $..., workspaceRoot: $value, $... })`,
     `generateSwooperRunMod({ $..., outputRoot: $value, $... })`,
     `generateSwooperRunMod({ $..., generatedModRoot: $value, $... })`,
-    `generateSwooperRunMod({ $..., launchEnvelope: $value, $... })`,
-    `generateSwooperRunMod({ $..., resolvedLaunchSource: $value, $... })`
+    `generateSwooperRunMod({ $..., launchEnvelope: $value, $... })`
   } where {
     $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$"
   }

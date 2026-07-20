@@ -7,15 +7,16 @@ Subject:
 
 Ownership boundary:
 artifact owner files plus one optional local aggregate. Each `*.artifact.ts`
-file defines one pipeline truth product contract and its schema, artifact
+file defines one pipeline data-product contract and its schema, artifact
 definition, publish-time validator, and any narrow assertion surface justified
 by direct operation-boundary use. `index.ts` may only aggregate those owner
-modules and expose plain object maps such as `artifactContracts` and
-`validators`; it must not define artifact payload schema, artifact validation
-logic, or operation behavior.
+modules through one `defineArtifactCatalog` call and expose the catalog-derived
+`artifactModules` and `artifacts`; it must not define artifact payload schema,
+artifact validation logic, operation behavior, or parallel contract/validator
+maps.
 
 Architectural evidence:
-pipeline truth products need explicit contracts consumed by stages, steps, or
+pipeline data products need explicit contracts consumed by stages, steps, or
 artifact assemblers. The only accepted sibling to artifact owner files is a
 directory-local aggregate index for importing the artifact surface as one
 source. Implementation belongs to operations/model/core, and examples/notes

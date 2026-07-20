@@ -11,14 +11,13 @@ import {
 
 describe("Run in Game status helpers", () => {
   it("classifies running and terminal phases", () => {
-    expect(kindForRunInGamePhase("preparing-civ7")).toBe("running");
+    expect(kindForRunInGamePhase("starting-game")).toBe("running");
     expect(kindForRunInGamePhase("completed")).toBe("completed");
     expect(isRunInGameTerminalPhase("observing-runtime")).toBe(false);
     expect(isRunInGameTerminalPhase("failed")).toBe(true);
   });
 
   it("formats compact phase labels for footer controls", () => {
-    expect(formatRunInGamePhaseLabel("preparing-civ7")).toBe("Preparing Civ7");
     expect(formatRunInGamePhaseLabel("starting-game")).toBe("Starting Game");
     expect(formatRunInGamePhaseLabel("observing-runtime")).toBe("Observing Runtime");
   });
@@ -30,12 +29,9 @@ describe("Run in Game status helpers", () => {
       status: "failed",
       safeFailureCategory: "runtime-control",
       recoveryActions: ["restart-civ-process-and-retry", "copy-diagnostics"],
-      createdAt: "2026-06-01T00:00:00.000Z",
-      updatedAt: "2026-06-01T00:00:01.000Z",
-      terminalAt: "2026-06-01T00:00:01.000Z",
     };
 
-    expect(runInGamePrimaryActionLabel(status, "current")).toBe("Retry Run");
+    expect(runInGamePrimaryActionLabel(status, "current")).toBe("Run Unavailable");
     expect(runInGamePrimaryActionLabel(status, "stale")).toBe("Run Current");
     expect(
       runInGamePrimaryActionLabel({ ...status, recoveryActions: ["retry-run"] }, "current")

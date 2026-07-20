@@ -4,7 +4,8 @@ import {
   compileFoundationLithospherePublicConfig,
   FoundationLithospherePublicSchema,
 } from "../foundation-public-config.js";
-import { crust, plateGraph } from "./steps/index.js";
+import { CrustStep } from "./steps/crust/step.js";
+import { PlateGraphStep } from "./steps/plate-graph/step.js";
 
 /** Foundation / Lithosphere — initial crust + plate partition (the static plate structure). */
 export default createStage({
@@ -20,7 +21,7 @@ export default createStage({
   compile: ({ config }: { config: Record<string, unknown> }) =>
     compileFoundationLithospherePublicConfig(config),
   steps: orderStandardStageSteps("foundation-lithosphere", {
-    crust,
-    "plate-graph": plateGraph,
+    crust: CrustStep,
+    "plate-graph": PlateGraphStep,
   }),
 } as const);

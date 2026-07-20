@@ -5,19 +5,6 @@
 // ============================================================================
 
 /**
- * Format a stage/step name for display.
- * Converts kebab-case to Title Case.
- *
- * @example formatStageName('morphology-coasts') // 'Morphology Pre'
- */
-export function formatStageName(name: string): string {
-  return name
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
-/**
  * Format a camelCase field name for display.
  * Converts camelCase to Title Case with spaces.
  *

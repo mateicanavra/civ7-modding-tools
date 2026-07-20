@@ -1,6 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import type { FileSystem } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import {
   type GitProviderService,
@@ -103,6 +104,53 @@ describe("Habitat baseline contract", () => {
     expect(isBaselineLocked(state)).toBe(false);
   });
 
+  test("spends occurrence-aware coverage once per matching diagnostic", async () => {
+    const key = "src/a.ts::repeated debt";
+    const ctx = createBaselineContext({
+      registry: [rule("counted-rule")],
+      rulePackAtBase: ["counted-rule"],
+      baselinesAtBase: new Map([["counted-rule", occurrenceBaselineBody([[key, 2]])]]),
+    });
+    writeOccurrenceBaselineFile(ctx.baselinesDir, "counted-rule", [[key, 2]]);
+
+    const diagnostics = [
+      diagnostic("counted-rule", "src/a.ts", "repeated debt"),
+      diagnostic("counted-rule", "src/a.ts", "repeated debt"),
+      diagnostic("counted-rule", "src/a.ts", "repeated debt"),
+    ];
+    const state = await loadState(rule("counted-rule"), ctx);
+
+    expect(state).toMatchObject({
+      kind: "explicit-debt",
+      coverage: "occurrence",
+      occurrences: [{ key, count: 2 }],
+    });
+    expect(applyBaseline(diagnostics, state)).toMatchObject({
+      status: "applied",
+      diagnosticsCovered: 2,
+    });
+    expect(diagnostics.map((entry) => entry.baselined)).toEqual([true, true, false]);
+  });
+
+  test("applies large occurrence counts without expanding them into memory", async () => {
+    const key = "src/a.ts::repeated debt";
+    const count = 1_000_000_000;
+    const ctx = createBaselineContext({
+      registry: [rule("large-count-rule")],
+      rulePackAtBase: ["large-count-rule"],
+      baselinesAtBase: new Map([["large-count-rule", occurrenceBaselineBody([[key, count]])]]),
+    });
+    writeOccurrenceBaselineFile(ctx.baselinesDir, "large-count-rule", [[key, count]]);
+    const diagnostics = [diagnostic("large-count-rule", "src/a.ts", "repeated debt")];
+    const state = await loadState(rule("large-count-rule"), ctx);
+
+    expect(state).toMatchObject({ occurrences: [{ key, count }] });
+    expect(applyBaseline(diagnostics, state)).toMatchObject({
+      status: "applied",
+      diagnosticsCovered: 1,
+    });
+  });
+
   test("fails missing required baseline files for registered rules", async () => {
     const ctx = createBaselineContext({
       registry: [rule("missing-rule")],
@@ -118,13 +166,44 @@ describe("Habitat baseline contract", () => {
     ]);
   });
 
-  test("fails malformed, non-array, non-string, duplicate, and unsorted baseline files", async () => {
+  test("fails malformed, non-string, duplicate, unsorted, and invalid-count baselines", async () => {
     const cases = [
       { ruleId: "bad-json", body: "{", reason: "malformed-baseline" },
       { ruleId: "non-array", body: '{"items":[]}', reason: "malformed-baseline" },
       { ruleId: "non-string", body: "[1]", reason: "non-string-baseline-key" },
       { ruleId: "duplicate", body: '["a::b","a::b"]', reason: "duplicate-baseline-key" },
       { ruleId: "unsorted", body: '["z::b","a::b"]', reason: "unsorted-baseline" },
+      {
+        ruleId: "empty-occurrence",
+        body: occurrenceBaselineBody([]),
+        reason: "malformed-baseline",
+      },
+      {
+        ruleId: "duplicate-occurrence",
+        body: occurrenceBaselineBody([
+          ["a::b", 1],
+          ["a::b", 2],
+        ]),
+        reason: "duplicate-baseline-key",
+      },
+      {
+        ruleId: "unsorted-occurrence",
+        body: occurrenceBaselineBody([
+          ["z::b", 1],
+          ["a::b", 1],
+        ]),
+        reason: "unsorted-baseline",
+      },
+      {
+        ruleId: "zero-count",
+        body: occurrenceBaselineBody([["a::b", 0]]),
+        reason: "malformed-baseline",
+      },
+      {
+        ruleId: "fractional-count",
+        body: occurrenceBaselineBody([["a::b", 1.5]]),
+        reason: "malformed-baseline",
+      },
     ] as const;
     const ctx = createBaselineContext({
       registry: cases.map(({ ruleId }) => rule(ruleId)),
@@ -195,6 +274,50 @@ describe("Habitat baseline contract", () => {
         ),
       }),
     ]);
+  });
+
+  test("accepts occurrence debt shrinkage and refuses count growth", async () => {
+    const key = "src/example.ts::repeated diagnostic";
+    const base = occurrenceBaselineBody([[key, 3]]);
+    const ctx = createBaselineContext({
+      registry: [rule("counted-rule")],
+      rulePackAtBase: ["counted-rule"],
+      baselinesAtBase: new Map([["counted-rule", base]]),
+    });
+    writeOccurrenceBaselineFile(ctx.baselinesDir, "counted-rule", [[key, 2]]);
+    expect(await checkIntegrity("main", ctx)).toEqual({ status: "accepted", refusals: [] });
+
+    writeOccurrenceBaselineFile(ctx.baselinesDir, "counted-rule", [[key, 4]]);
+    expect(await checkIntegrity("main", ctx)).toMatchObject({
+      status: "refused",
+      refusals: [
+        expect.objectContaining({
+          reason: "baseline-growth-existing-rule",
+          addedKeys: [key],
+        }),
+      ],
+    });
+  });
+
+  test("refuses occurrence-to-key coverage broadening", async () => {
+    const key = "src/example.ts::repeated diagnostic";
+    const ctx = createBaselineContext({
+      registry: [rule("counted-rule")],
+      rulePackAtBase: ["counted-rule"],
+      baselinesAtBase: new Map([["counted-rule", occurrenceBaselineBody([[key, 2]])]]),
+    });
+    writeBaselineFile(ctx.baselinesDir, "counted-rule", [key]);
+
+    expect(await checkIntegrity("main", ctx)).toMatchObject({
+      status: "refused",
+      refusals: [
+        expect.objectContaining({
+          reason: "baseline-growth-existing-rule",
+          addedKeys: [key],
+          message: expect.stringContaining("broadened exact occurrence coverage"),
+        }),
+      ],
+    });
   });
 
   test("compares baseline authority against pre-D14A authored authority paths", async () => {
@@ -294,6 +417,58 @@ describe("Habitat baseline contract", () => {
     });
   });
 
+  test("binds introduced occurrence debt to exact manifest multiplicity", async () => {
+    const key = "src/example.ts::repeated diagnostic";
+    const secondKey = "src/z.ts::single diagnostic";
+    const ctx = createBaselineContext({
+      registry: [rule("new-counted-rule")],
+      rulePackAtBase: ["existing-rule"],
+      baselinesAtBase: new Map(),
+    });
+    writeOccurrenceBaselineFile(ctx.baselinesDir, "new-counted-rule", [
+      [key, 2],
+      [secondKey, 1],
+    ]);
+
+    const exactManifest: RuleIntroductionBaselineManifest = {
+      changeId: "fixture-change",
+      ruleId: "new-counted-rule",
+      ownerProject: "habitat",
+      runner: "grit",
+      baselinePath: ".habitat/baselines/new-counted-rule.json",
+      initialBaselineKeys: [key, key, secondKey],
+      comparisonBase: "main",
+    };
+    expect(
+      await checkIntegrity("main", {
+        ...ctx,
+        ruleIntroductionManifests: [exactManifest],
+      })
+    ).toEqual({ status: "accepted", refusals: [] });
+
+    expect(
+      await checkIntegrity("main", {
+        ...ctx,
+        ruleIntroductionManifests: [{ ...exactManifest, initialBaselineKeys: [key] }],
+      })
+    ).toMatchObject({
+      status: "refused",
+      refusals: [expect.objectContaining({ reason: "rule-introduction-manifest-mismatch" })],
+    });
+
+    expect(
+      await checkIntegrity("main", {
+        ...ctx,
+        ruleIntroductionManifests: [
+          { ...exactManifest, initialBaselineKeys: [secondKey, key, key] },
+        ],
+      })
+    ).toMatchObject({
+      status: "refused",
+      refusals: [expect.objectContaining({ reason: "rule-introduction-manifest-mismatch" })],
+    });
+  });
+
   test("loads an introduced rule manifest from its registry support relation", async () => {
     const fixture = {
       ruleId: "file-backed-new-rule",
@@ -320,7 +495,7 @@ describe("Habitat baseline contract", () => {
     expect(await guardExpansion(fixture.ruleId, [fixture.key], "main", ctx)).toMatchObject({
       status: "accepted",
       ruleId: fixture.ruleId,
-      keys: [fixture.key],
+      occurrences: [{ key: fixture.key, count: 1 }],
     });
   });
 
@@ -590,7 +765,7 @@ function guardExpansion(
 }
 
 function runBaselineEffect<A, E>(
-  effect: Effect.Effect<A, E, never>,
+  effect: Effect.Effect<A, E, FileSystem.FileSystem>,
   context: BaselineTestContext
 ): Promise<A> {
   return Effect.runPromise(effect.pipe(Effect.provide(NodeContext.layer)));
@@ -611,7 +786,7 @@ function diagnostic(
   };
 }
 
-interface BaselineTestContext extends BaselineAuthorityContext {
+interface BaselineTestContext extends BaselineAuthorityContext<FileSystem.FileSystem> {
   readonly git: GitProviderService;
   readonly repoRoot: string;
   readonly baselinesDir: string;
@@ -824,6 +999,28 @@ function baseRuleRecord(id: string) {
 function writeBaselineFile(baselinesDir: string, ruleId: string, entries: string[]) {
   mkdirSync(baselinesDir, { recursive: true });
   writeFileSync(path.join(baselinesDir, `${ruleId}.json`), `${JSON.stringify(entries, null, 2)}\n`);
+}
+
+function writeOccurrenceBaselineFile(
+  baselinesDir: string,
+  ruleId: string,
+  entries: readonly (readonly [key: string, count: number])[]
+) {
+  mkdirSync(baselinesDir, { recursive: true });
+  writeFileSync(path.join(baselinesDir, `${ruleId}.json`), `${occurrenceBaselineBody(entries)}\n`);
+}
+
+function occurrenceBaselineBody(
+  entries: readonly (readonly [key: string, count: number])[]
+): string {
+  return JSON.stringify(
+    {
+      schemaVersion: 1,
+      occurrences: entries.map(([key, count]) => ({ key, count })),
+    },
+    null,
+    2
+  );
 }
 
 function writeRuleIntroductionManifestFile(

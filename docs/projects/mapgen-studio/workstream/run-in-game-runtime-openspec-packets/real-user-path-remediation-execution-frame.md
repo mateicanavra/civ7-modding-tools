@@ -1,6 +1,8 @@
 # Real User Path Remediation Execution Frame
 
-Status: active six-packet execution frame after Packet 1 closure
+Status: superseded for current execution by `target-vocabulary.md` and
+`openspec/changes/studio-run-real-user-matrix-closure`. Retained only as
+historical remediation-wave context; do not execute the rows below.
 
 Packet index:
 `docs/projects/mapgen-studio/workstream/run-in-game-runtime-openspec-packets/real-user-path-remediation-packet-index.md`
@@ -75,9 +77,8 @@ codex/effect-biome-lint-rules-audit
   -> six remaining remediation packet branches
 ```
 
-Two unrelated local files are known and protected from staging:
+One unrelated local file is known and protected from staging:
 
-- `scripts/restart-mapgen-studio.sh`;
 - `mods/mod-swooper-maps/src/maps/configs/earthlike-wowza.config.json`.
 
 ## Remaining Packet Train

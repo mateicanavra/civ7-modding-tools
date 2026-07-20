@@ -29,18 +29,18 @@ export type BaselineExpansionResult =
       message: string;
     };
 
-export function expandBaselinesEffect(
+export function expandBaselinesEffect<R>(
   selection: RuleSelection = {},
   options: { base?: string; repoRoot: string },
-  executionContext: StructuralExecutionContext
-): Effect.Effect<BaselineExpansionResult, never, any> {
+  executionContext: StructuralExecutionContext<R>
+): Effect.Effect<BaselineExpansionResult, never, R> {
   return Effect.gen(function* () {
     const selected = selectRules(selection, executionContext.rules.selector);
     if (!selected.ok) return selected;
 
     const context = baselineContext(executionContext);
     const messages: string[] = [];
-    const ruleResults = yield* executeSelectedRulesEffect(selected.rules, {}, executionContext);
+    const ruleResults = yield* executeSelectedRulesEffect<R>(selected.rules, {}, executionContext);
     const baselinesByRuleId = factsByRuleId(
       baselineContractInputs(
         executionContext.rules,
@@ -51,7 +51,7 @@ export function expandBaselinesEffect(
       const baselineFacts = baselinesByRuleId.get(rule.id);
       if (!baselineFacts)
         throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-      const baseline = yield* loadBaselineStateEffect(baselineFacts, context);
+      const baseline = yield* loadBaselineStateEffect<R>(baselineFacts, context);
       if (baseline.kind === "baseline-refusal") {
         return {
           ok: false,
@@ -76,10 +76,15 @@ export function expandBaselinesEffect(
         .filter((diagnostic) => diagnostic.severity === "error" && !diagnostic.baselined)
         .map(violationKey);
       if (keys.length > 0) {
-        const guard = yield* guardBaselineExpansionEffect(rule.id, keys, options.base ?? "main", {
-          ...context,
-          registry: baselineContractInputs(executionContext.rules),
-        });
+        const guard = yield* guardBaselineExpansionEffect<R>(
+          rule.id,
+          keys,
+          options.base ?? "main",
+          {
+            ...context,
+            registry: baselineContractInputs(executionContext.rules),
+          }
+        );
         if (guard.status === "refused") {
           return {
             ok: false,
@@ -88,7 +93,7 @@ export function expandBaselinesEffect(
             message: guard.message,
           };
         }
-        const writeFailure = yield* writeBaselineEffect(rule.id, guard.keys, {
+        const writeFailure = yield* writeBaselineEffect<R>(rule.id, guard.occurrences, {
           ...context,
           registry: baselineContractInputs(executionContext.rules),
         }).pipe(
@@ -110,7 +115,7 @@ export function expandBaselinesEffect(
   });
 }
 
-function baselineContext(context: StructuralExecutionContext): BaselineAuthorityContext {
+function baselineContext<R>(context: StructuralExecutionContext<R>): BaselineAuthorityContext<R> {
   return {
     fileSystem: context.baselineFileSystem,
     git: context.git,

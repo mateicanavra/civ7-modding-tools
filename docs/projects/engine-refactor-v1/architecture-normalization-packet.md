@@ -33,6 +33,10 @@ The packet intentionally works at multiple levels:
 - **Verification:** acceptance criteria and guardrails that keep later work
   from re-opening settled questions.
 
+The accepted pre-A.2 package boundary correction is specified in
+[`package-ownership-migration.md`](package-ownership-migration.md). It refines
+the package-ownership consequences below without changing D1-D5.
+
 ## Decision Snapshot
 
 | Decision | Final call                                                                                                               | Why it matters                                                                                              | First implementation consequence                                                                       |
@@ -102,8 +106,15 @@ MapGen is a deterministic pipeline with explicit ownership boundaries.
 | Stage                | Authoring/config surface, knobs scope, stage id prefix, and local step composition.                                                                               | Global ordering, truth authority, runtime topology, or compute.          |
 | Recipe               | Global stage/step order and enablement.                                                                                                                           | Hidden manifests, prose ordering, or `shouldRun`-style skips.            |
 | Compilation          | Validate and normalize authoring config into executable step/op config.                                                                                           | Side effects or engine state.                                            |
-| Execution            | Run the compiled plan with dependency gates, write-once artifacts, traces, and buffers.                                                                           | Architecture design or compatibility shims.                              |
+| Execution            | Run the compiled plan with dependency gates, write-once artifact vintages, and traces.                                                                             | Architecture design, shared mutable buffers, or compatibility shims.     |
 | Projection / Runtime | Materialize truth artifacts into Civ7 engine state and verify effects.                                                                                            | Domain truth unless explicitly accepted as a projection limitation.      |
+
+Recipe steps use one source topology: `steps/<step-id>/config.ts` owns the
+runtime-free `defineStep` contract, while `steps/<step-id>/step.ts` owns the
+`createStep` implementation. The step directory name is the contract's exact
+kebab-case id. Stage roots import step implementations directly; forwarding
+step barrels and flat `*.contract.ts`/implementation pairs are not additional
+authorities.
 
 Two invariants dominate the refactor:
 

@@ -5,6 +5,7 @@ import {
   createStep,
   defineArtifact,
   defineStep,
+  validateArtifactSchema,
 } from "@mapgen/authoring/index.js";
 
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
@@ -42,14 +43,36 @@ function step(input: {
   requires?: readonly ReturnType<typeof defineArtifact>[];
   provides?: readonly ReturnType<typeof defineArtifact>[];
 }) {
+  const requires = input.requires ?? [];
+  const provides = input.provides ?? [];
+  if (provides.length === 0) {
+    const contract = defineStep({
+      id: input.id,
+      phase: input.phase,
+      requires: requires.length ? ["effect:test.externalReady"] : [],
+      provides: [],
+      artifacts: { requires },
+      schema: EmptyStepConfigSchema,
+    });
+    return createStep(contract, { run: () => {} });
+  }
+
+  const providedArtifacts = provides as readonly [
+    ReturnType<typeof defineArtifact>,
+    ...ReturnType<typeof defineArtifact>[],
+  ];
+  const artifactModules = providedArtifacts.map((artifact) => ({
+    artifact,
+    validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
+  }));
   const contract = defineStep({
     id: input.id,
     phase: input.phase,
-    requires: input.requires?.length ? ["field:test.external"] : [],
+    requires: requires.length ? ["effect:test.externalReady"] : [],
     provides: [],
     artifacts: {
-      requires: input.requires ?? [],
-      provides: input.provides ?? [],
+      requires,
+      provides: artifactModules,
     },
     schema: EmptyStepConfigSchema,
   });

@@ -2,7 +2,7 @@ import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 
 type DiscoveryPlacementOutcomes = Static<
-  typeof import("../../artifacts/index.js").artifactContracts["discoveryPlacementOutcomes"]["Schema"]
+  typeof import("../../artifacts/index.js").artifacts["discoveryPlacementOutcomes"]["schema"]
 >;
 
 type PlaceOfficialDiscoveriesArgs = {

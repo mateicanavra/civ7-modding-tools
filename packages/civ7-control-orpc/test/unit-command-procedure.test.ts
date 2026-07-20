@@ -1,5 +1,4 @@
 import { call } from "@orpc/server";
-import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 import {
@@ -9,16 +8,14 @@ import {
   Civ7UnitRequestUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
-import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+import { standardSchemaAccepts } from "./support/standard-schema";
 
 const unitId = { owner: 0, id: 1769488, type: 26 };
 const destination = { x: 17, y: 25 };
-const Civ7UnitUpgradeInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.unit.upgrade.request
-);
-const Civ7UnitResettleInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.unit.resettle.request
-);
+const Civ7UnitUpgradeInputSchema =
+  Civ7ControlOrpcContract.unit.upgrade.request["~orpc"].inputSchema;
+const Civ7UnitResettleInputSchema =
+  Civ7ControlOrpcContract.unit.resettle.request["~orpc"].inputSchema;
 
 type UnitCommandRuntimeResult = Awaited<
   ReturnType<Civ7ControlOrpcContext["directControl"]["requestCiv7UnitCommand"]>
@@ -26,9 +23,9 @@ type UnitCommandRuntimeResult = Awaited<
 
 describe("unit upgrade/resettle control-oRPC procedures", () => {
   test("own semantic unit input contracts without endpoint or raw command fields", () => {
-    expect(Value.Check(Civ7UnitUpgradeInputSchema, { unitId })).toBe(true);
+    expect(standardSchemaAccepts(Civ7UnitUpgradeInputSchema, { unitId })).toBe(true);
     expect(
-      Value.Check(Civ7UnitResettleInputSchema, {
+      standardSchemaAccepts(Civ7UnitResettleInputSchema, {
         unitId,
         destination,
       })
@@ -42,23 +39,23 @@ describe("unit upgrade/resettle control-oRPC procedures", () => {
       { unitId, host: "127.0.0.1" },
       { unitId, port: 4318 },
     ]) {
-      expect(Value.Check(Civ7UnitUpgradeInputSchema, invalid)).toBe(false);
+      expect(standardSchemaAccepts(Civ7UnitUpgradeInputSchema, invalid)).toBe(false);
     }
 
     expect(
-      Value.Check(Civ7UnitResettleInputSchema, {
+      standardSchemaAccepts(Civ7UnitResettleInputSchema, {
         unitId,
         destination: { x: 17.5, y: 25 },
       })
     ).toBe(false);
     expect(
-      Value.Check(Civ7UnitResettleInputSchema, {
+      standardSchemaAccepts(Civ7UnitResettleInputSchema, {
         unitId,
         destination: { x: -1, y: 25 },
       })
     ).toBe(false);
     expect(
-      Value.Check(Civ7UnitResettleInputSchema, {
+      standardSchemaAccepts(Civ7UnitResettleInputSchema, {
         unitId,
         destination: { x: 17, y: 1_000_001 },
       })

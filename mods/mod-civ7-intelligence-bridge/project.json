@@ -3,6 +3,11 @@
   "name": "mod-intelligence-bridge",
   "tags": ["kind:mod", "kind:control"],
   "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
     "build:bundle": {
       "command": "tsup",
       "dependsOn": ["^build", "gen:modinfo"],
@@ -15,14 +20,14 @@
     "build": {
       "command": "node -e \"\"",
       "dependsOn": ["build:bundle"],
-      "cache": true,
-      "outputs": [
-        "{projectRoot}/mod/civ7-intelligence-bridge.modinfo",
-        "{projectRoot}/mod/ui/civ7-intelligence-bridge.js"
-      ],
+      "cache": false,
+      "outputs": [],
       "options": {
         "cwd": "mods/mod-civ7-intelligence-bridge"
       }
+    },
+    "test": {
+      "dependsOn": ["build"]
     },
     "gen:modinfo": {
       "command": "bun ./scripts/generate-mod-artifacts.ts",

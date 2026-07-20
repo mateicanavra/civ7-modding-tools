@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import type { MapConfigEnvelope } from "@civ7/studio-contract";
 import {
   HYDROLOGY_FLOW_DRY,
   HYDROLOGY_FLOW_EPHEMERAL,
@@ -9,18 +10,15 @@ import {
 } from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import {
-  type CanonicalMapConfigWithRecipe,
-  canonicalRecipeConfig,
-} from "../../../src/maps/configs/canonical.js";
+import { canonicalRecipeConfig } from "../../../src/maps/configs/canonical.js";
 import desertMountainsRaw from "../../../src/maps/configs/swooper-desert-mountains.config.json";
 import earthlikeRaw from "../../../src/maps/configs/swooper-earthlike.config.json";
 import standardRecipe, { type StandardRecipeConfig } from "../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../src/recipes/standard/runtime.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 
-function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
-  return canonicalRecipeConfig<StandardRecipeConfig>(config);
+function recipeConfig(config: MapConfigEnvelope): StandardRecipeConfig {
+  return canonicalRecipeConfig(config);
 }
 
 function runHydrologyMetrics(

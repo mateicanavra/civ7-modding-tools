@@ -4,6 +4,7 @@ import { createMockAdapter } from "@civ7/adapter";
 import { FEATURE_PLACEMENT_KEYS } from "@civ7/map-policy";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
+import { resolveFeatureKeyLookups } from "../../../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/feature-keys.js";
 import {
   buildFeatureTypeVizCategories,
   FEATURE_TYPE_NONE_VALUE,
@@ -31,9 +32,10 @@ describe("features apply viz meta (engine featureType)", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
     });
+    const featureEngineIdsByKey = resolveFeatureKeyLookups(adapter).byKey;
 
-    const categoriesA = buildFeatureTypeVizCategories(adapter);
-    const categoriesB = buildFeatureTypeVizCategories(adapter);
+    const categoriesA = buildFeatureTypeVizCategories(featureEngineIdsByKey);
+    const categoriesB = buildFeatureTypeVizCategories(featureEngineIdsByKey);
 
     // Deterministic ordering/labels for a fixed adapter mapping.
     expect(JSON.stringify(categoriesA)).toBe(JSON.stringify(categoriesB));

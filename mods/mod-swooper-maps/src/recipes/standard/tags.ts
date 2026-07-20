@@ -1,25 +1,21 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DependencyTagDefinition, TagOwner } from "@swooper/mapgen-core/engine";
-import { artifacts as placementArtifacts } from "./stages/placement/artifacts/index.js";
+import {
+  artifactModules as placementArtifactModules,
+  artifacts as placementArtifacts,
+} from "./stages/placement/artifacts/index.js";
 import type { PlacementOutputsV1 } from "./stages/placement/artifacts/placement-outputs.artifact.js";
 import {
-  FIELD_DEPENDENCY_TAGS,
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "./tag-contracts.js";
 
 export {
-  FIELD_DEPENDENCY_TAGS,
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "./tag-contracts.js";
-
-export const CANONICAL_FIELD_AND_ENGINE_TAGS: ReadonlySet<string> = new Set([
-  ...Object.values(FIELD_DEPENDENCY_TAGS.field),
-  ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine),
-]);
 
 type EffectTagOwnerProperties = Pick<DependencyTagDefinition<ExtendedMapContext>, "owner">;
 type EffectTagSatisfiesProperties = Pick<DependencyTagDefinition<ExtendedMapContext>, "satisfies">;
@@ -64,6 +60,11 @@ const EFFECT_OWNERS: Partial<Record<string, TagOwner>> = {
     pkg: "mod-swooper-maps",
     phase: "placement",
     stepId: "plot-landmass-regions",
+  },
+  [MAP_PROJECTION_EFFECT_TAGS.map.rainfallProjected]: {
+    pkg: "mod-swooper-maps",
+    phase: "hydrology",
+    stepId: "project-rainfall",
   },
   [MAP_PROJECTION_EFFECT_TAGS.map.lakesPlotted]: {
     pkg: "mod-swooper-maps",
@@ -179,47 +180,18 @@ type SatisfactionState = {
   satisfied: ReadonlySet<string>;
 };
 
+/**
+ * Runtime definitions for every Standard effect tag. Effects carry declared owners and use
+ * adapter/artifact verification where completion cannot be trusted by name; data dependencies
+ * are registered by their step-owned artifact modules instead of this catalog.
+ */
 export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition<ExtendedMapContext>[] = [
-  {
-    id: FIELD_DEPENDENCY_TAGS.field.terrainType,
-    kind: "field",
-    satisfies: (context) => isUint8Array(context.fields?.terrainType, getExpectedSize(context)),
-    demo: new Uint8Array(0),
-    validateDemo: (demo) => isUint8Array(demo),
-  },
-  {
-    id: FIELD_DEPENDENCY_TAGS.field.elevation,
-    kind: "field",
-    satisfies: (context) => isInt16Array(context.fields?.elevation, getExpectedSize(context)),
-    demo: new Int16Array(0),
-    validateDemo: (demo) => isInt16Array(demo),
-  },
-  {
-    id: FIELD_DEPENDENCY_TAGS.field.rainfall,
-    kind: "field",
-    satisfies: (context) => isUint8Array(context.fields?.rainfall, getExpectedSize(context)),
-    demo: new Uint8Array(0),
-    validateDemo: (demo) => isUint8Array(demo),
-  },
-  {
-    id: FIELD_DEPENDENCY_TAGS.field.biomeId,
-    kind: "field",
-    satisfies: (context) => isUint8Array(context.fields?.biomeId, getExpectedSize(context)),
-    demo: new Uint8Array(0),
-    validateDemo: (demo) => isUint8Array(demo),
-  },
-  {
-    id: FIELD_DEPENDENCY_TAGS.field.featureType,
-    kind: "field",
-    satisfies: (context) => isInt16Array(context.fields?.featureType, getExpectedSize(context)),
-    demo: new Int16Array(0),
-    validateDemo: (demo) => isInt16Array(demo),
-  },
   ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map(effectTagDefinition),
   ...Object.values(PLACEMENT_PRODUCT_EFFECT_TAGS.placement).map(effectTagDefinition),
   ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine).map(standardEngineEffectTagDefinition),
 ];
 
+/** Registers the complete Standard dependency-tag vocabulary with the supplied recipe registry. */
 export function registerStandardTags(registry: {
   registerTags: (definitions: readonly DependencyTagDefinition<ExtendedMapContext>[]) => void;
 }): void {
@@ -236,11 +208,20 @@ function isPlacementOutputSatisfied(
   if (!isPlacementOutputsV1(outputs)) return false;
   const candidate = outputs;
 
-  const inputs = context.artifacts.get(placementArtifacts.placementInputs.id);
-  const expectedPlayers = getExpectedPlayers(inputs);
-  if (expectedPlayers > 0 && candidate.startsAssigned < expectedPlayers) return false;
-
-  return true;
+  const assignment = context.artifacts.get(placementArtifacts.startAssignment.id);
+  if (placementArtifactModules.startAssignment.validate(assignment).length > 0) return false;
+  if (
+    !isRecord(assignment) ||
+    !Array.isArray(assignment.seats) ||
+    !isNonNegativeInteger(assignment.assigned) ||
+    !isNonNegativeInteger(assignment.unseatedCount)
+  ) {
+    return false;
+  }
+  if (assignment.assigned !== assignment.seats.length || assignment.unseatedCount !== 0) {
+    return false;
+  }
+  return candidate.startsAssigned === assignment.assigned;
 }
 
 function effectTagDefinition(id: string): DependencyTagDefinition<ExtendedMapContext> {
@@ -270,17 +251,6 @@ function isPlacementOutputsV1(value: unknown): value is PlacementOutputsV1 {
   );
 }
 
-function getExpectedPlayers(value: unknown): number {
-  if (!isRecord(value) || !isRecord(value.starts)) return 0;
-  return countOrZero(value.starts.playersLandmass1) + countOrZero(value.starts.playersLandmass2);
-}
-
-function countOrZero(value: unknown): number {
-  if (typeof value !== "number") return 0;
-  if (!Number.isFinite(value) || value < 0) return 0;
-  return value;
-}
-
 function isNonNegativeInteger(value: unknown): value is number {
   if (typeof value !== "number") return false;
   if (!Number.isInteger(value) || value < 0) return false;
@@ -289,20 +259,4 @@ function isNonNegativeInteger(value: unknown): value is number {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
-}
-
-function getExpectedSize(context: ExtendedMapContext): number {
-  return context.dimensions.width * context.dimensions.height;
-}
-
-function isUint8Array(value: unknown, expectedSize?: number): value is Uint8Array {
-  if (!(value instanceof Uint8Array)) return false;
-  if (expectedSize == null) return true;
-  return value.length === expectedSize;
-}
-
-function isInt16Array(value: unknown, expectedSize?: number): value is Int16Array {
-  if (!(value instanceof Int16Array)) return false;
-  if (expectedSize == null) return true;
-  return value.length === expectedSize;
 }

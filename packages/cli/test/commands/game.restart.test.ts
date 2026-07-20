@@ -64,9 +64,17 @@ describe("game restart command", () => {
           } else if (frame.message === `CMD:65535:${CIV7_RESTART_COMMAND}`) {
             loadingState = 6;
             socket.write(encodeResponse(frame.listenerId, ["true"]));
-          } else if (frame.message === "CMD:65535:UI.notifyUIReady()") {
+          } else if (
+            frame.message.startsWith("CMD:65535:(() =>") &&
+            frame.message.includes("UI.notifyUIReady()")
+          ) {
+            const beginLoadingState = loadingState;
             loadingState = 8;
-            socket.write(encodeResponse(frame.listenerId, ["null"]));
+            socket.write(
+              encodeResponse(frame.listenerId, [
+                JSON.stringify({ status: "performed", loadingState: beginLoadingState }),
+              ])
+            );
           } else if (frame.message.includes("Network.isInSession")) {
             socket.write(
               encodeResponse(frame.listenerId, [JSON.stringify(appUiSnapshot(loadingState))])
@@ -92,7 +100,12 @@ describe("game restart command", () => {
       ]);
 
       expect(received).toContain(`CMD:65535:${CIV7_RESTART_COMMAND}`);
-      expect(received).toContain("CMD:65535:UI.notifyUIReady()");
+      expect(
+        received.some(
+          (message) =>
+            message.startsWith("CMD:65535:(() =>") && message.includes("UI.notifyUIReady()")
+        )
+      ).toBe(true);
       expect(received.some((message) => message.startsWith("CMD:1:(() =>"))).toBe(true);
     } finally {
       server.close();

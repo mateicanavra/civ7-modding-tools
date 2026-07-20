@@ -1,5 +1,5 @@
 import type { OfficialResourceType } from "@civ7/map-policy";
-import { createStrategy } from "@swooper/mapgen-core/authoring";
+import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import SelectResourceSitesContract from "../contract.js";
 import { spacingFloorFor } from "../policy/spacing-floors.js";
@@ -26,8 +26,7 @@ type DemandState = {
   readonly effectiveTargetCount: number;
   readonly minCount: number;
   readonly maxCount: number;
-  readonly minimumPerHemisphere: number;
-  readonly requiredForAge: boolean;
+  readonly regionMinimumRequirement: StaticRegionMinimumRequirement;
   readonly habitatMask: Uint8Array;
   readonly legalMask: Uint8Array;
   readonly intensity: Float32Array;
@@ -40,8 +39,11 @@ type DemandState = {
   rotationCount: number;
   rangeFloorCount: number;
   regionMinimumCount: number;
-  shortfalls: Map<string, number>;
 };
+
+type StaticRegionMinimumRequirement = Static<
+  (typeof SelectResourceSitesContract)["input"]
+>["demands"][number]["regionMinimumRequirement"];
 
 type Intent = {
   plotIndex: number;
@@ -87,6 +89,12 @@ function countMask(mask: Uint8Array): number {
   return count;
 }
 
+/**
+ * Selects typed resource intents with a hash-ordered blue-noise stream, official-weight
+ * deficit rotation, range-floor repair, and region minimums. Identical inputs are call-order
+ * independent; hard placement failures become shortfall evidence while affinity remains a
+ * best-effort score.
+ */
 export const defaultStrategy = createStrategy(SelectResourceSitesContract, "default", {
   // TODO: if you need to normalize, do it in the normalize method, not in run.
   normalize: (config) => {
@@ -166,8 +174,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         effectiveTargetCount,
         minCount: row.minCount,
         maxCount: row.maxCount,
-        minimumPerHemisphere: row.minimumPerHemisphere,
-        requiredForAge: row.requiredForAge,
+        regionMinimumRequirement: row.regionMinimumRequirement,
         habitatMask: row.habitatMask as Uint8Array,
         legalMask: row.legalMask as Uint8Array,
         intensity: row.intensity as Float32Array,
@@ -180,7 +187,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         rotationCount: 0,
         rangeFloorCount: 0,
         regionMinimumCount: 0,
-        shortfalls: new Map(),
       } satisfies DemandState;
     });
     const eligibleByDemand: Uint8Array[] = demands.map((demand) => {
@@ -262,11 +268,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         }
       }
       return { excluded: false, affinityBonus };
-    };
-
-    const recordShortfall = (demand: DemandState, reason: string, count: number): void => {
-      if (count <= 0) return;
-      demand.shortfalls.set(reason, (demand.shortfalls.get(reason) ?? 0) + count);
     };
 
     const place = (demand: DemandState, plotIndex: number, phase: Intent["phase"]): void => {
@@ -391,13 +392,12 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
     }
 
     // --- range-floor pass ------------------------------------------------------------------------
-    // Top types up to expectedCountRange.min with typed provenance. Candidates
-    // are POLICY-LEGAL tiles with a strong in-lane preference (habitat bonus
-    // dominates intensity), so out-of-lane placements happen only when the
-    // lane is exhausted and stay within the E2.3 fidelity budget; per-type
-    // spacing floors are preserved. Cross-type site spacing relaxes to
-    // same-plot avoidance here (the official minimum force pass behaves the
-    // same way).
+    // Top types up to expectedCountRange.min with typed provenance. Range
+    // repair is admitted only on the type's habitat-and-policy intersection;
+    // exhausting that set records a terminal shortfall instead of widening
+    // placement authority. Cross-type site spacing relaxes to same-plot
+    // avoidance here (the official region-minimum force pass is the sole
+    // legal-only exception).
     // Stage A tops every type up to expectedCountRange.min; stage B then
     // fills toward the effective target. Counts are corpus-range authority
     // (E2.7); the weight rotation governs allocation among co-eligible sites
@@ -411,9 +411,10 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         while (demand.plannedPlots.length < floorTarget) {
           let best = -1;
           let bestScore = Number.NEGATIVE_INFINITY;
-          const legal = demand.legalMask;
           for (let plotIndex = 0; plotIndex < size; plotIndex++) {
-            if (legal[plotIndex] === 0 || usedPlots.has(plotIndex)) continue;
+            if (eligibleByDemand[demand.index]![plotIndex] === 0 || usedPlots.has(plotIndex)) {
+              continue;
+            }
             if (violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) continue;
             if (violatesSpacing(plotIndex, sitePlots, 1)) continue;
             if (ruleStateAt(demand, plotIndex).excluded) continue;
@@ -423,7 +424,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
               if (eligibleByDemand[other.index]![plotIndex] !== 0) contested += 1;
             }
             const score =
-              (demand.habitatMask[plotIndex] !== 0 ? 10 : 0) +
               (demand.intensity[plotIndex] ?? 0) -
               contested * 0.05 +
               hash01(seed, plotIndex, (0xf100 ^ demand.resourceSalt) >>> 0) * 1e-3;
@@ -433,11 +433,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
             }
           }
           if (best < 0) {
-            recordShortfall(
-              demand,
-              demand.legalTileCount === 0 ? "eligible-tiles-exhausted" : "spacing-floor-preserved",
-              floorTarget - demand.plannedPlots.length
-            );
             break;
           }
           sitePlots.push(best);
@@ -447,9 +442,8 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
     }
 
     // --- region-minimum pass ---------------------------------------------------------------------
-    // Official semantics: per landmass-region, MinimumPerHemisphere +
-    // MapResourceMinimumAmountModifier, gated by isResourceRequiredForAge,
-    // forced onto legal plots with no adjacent resource.
+    // Official semantics: per landmass-region, the admitted minimum plus the active
+    // MapResourceMinimumAmountModifier, forced onto legal plots with no adjacent resource.
     const regionMinimums: Array<{
       resourceType: OfficialResourceType;
       regionSlot: number;
@@ -459,8 +453,9 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
       shortfall: number;
     }> = [];
     for (const demand of demands) {
-      if (!demand.requiredForAge || demand.minimumPerHemisphere <= 0) continue;
-      const required = Math.max(0, demand.minimumPerHemisphere + input.minimumAmountModifier);
+      if (demand.regionMinimumRequirement.kind !== "required") continue;
+      const { minimumPerHemisphere } = demand.regionMinimumRequirement;
+      const required = Math.max(0, minimumPerHemisphere + input.minimumAmountModifier);
       if (required === 0) continue;
       for (const regionSlot of [1, 2] as const) {
         const have = demand.plannedPlots.filter(
@@ -479,6 +474,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
             // dominates; unreachable minimums become recorded shortfalls).
             if (violatesSpacing(plotIndex, sitePlots, 2)) continue;
             if (violatesSpacing(plotIndex, demand.plannedPlots, demand.spacingFloorTiles)) continue;
+            if (ruleStateAt(demand, plotIndex).excluded) continue;
             const score =
               (demand.habitatMask[plotIndex] !== 0 ? 1 : 0) +
               (demand.intensity[plotIndex] ?? 0) +
@@ -495,15 +491,6 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
           deficit -= 1;
         }
         const shortfall = Math.max(0, required - have - forced);
-        if (shortfall > 0) {
-          recordShortfall(
-            demand,
-            demand.plannedPlots.length >= demand.maxCount
-              ? "max-count-reached"
-              : "region-tiles-exhausted",
-            shortfall
-          );
-        }
         regionMinimums.push({
           resourceType: demand.resourceType,
           regionSlot,
@@ -514,6 +501,25 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
         });
       }
     }
+
+    const terminalRangeShortfall = (
+      demand: DemandState
+    ): Array<{
+      resourceType: OfficialResourceType;
+      reason: "no-admitted-site";
+      count: number;
+    }> => {
+      const count = Math.max(0, demand.effectiveTargetCount - demand.plannedPlots.length);
+      if (count === 0) return [];
+
+      return [
+        {
+          resourceType: demand.resourceType,
+          reason: "no-admitted-site",
+          count,
+        },
+      ];
+    };
 
     const perType = demands.map((demand) => ({
       resourceType: demand.resourceType,
@@ -534,15 +540,7 @@ export const defaultStrategy = createStrategy(SelectResourceSitesContract, "defa
       rotationCount: demand.rotationCount,
       rangeFloorCount: demand.rangeFloorCount,
       regionMinimumCount: demand.regionMinimumCount,
-      shortfalls: Array.from(demand.shortfalls.entries()).map(([reason, count]) => ({
-        resourceType: demand.resourceType,
-        reason: reason as
-          | "eligible-tiles-exhausted"
-          | "spacing-floor-preserved"
-          | "max-count-reached"
-          | "region-tiles-exhausted",
-        count,
-      })),
+      shortfalls: terminalRangeShortfall(demand),
     }));
 
     return {

@@ -1,4 +1,7 @@
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -60,8 +63,13 @@ const MorphologyLandmassesArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for connected land components and the per-tile component lookup. */
 export const Schema = MorphologyLandmassesArtifactSchema;
 
+/**
+ * Registers connected land components and the per-tile component lookup used
+ * by region projection, placement, and landmass-aware policy.
+ */
 export const artifact = defineArtifact({
   name: "landmasses",
   id: "artifact:morphology.landmasses",
@@ -74,7 +82,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function validatePayload(value: unknown): ArtifactValidationIssue[] {
+function validatePayload(
+  value: unknown,
+  context?: ArtifactValidationContext
+): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isRecord(value)) {
     errors.push({ message: "Missing landmasses snapshot." });
@@ -112,13 +123,27 @@ function validatePayload(value: unknown): ArtifactValidationIssue[] {
       }
     }
   }
-  if (!(candidate.landmassIdByTile instanceof Int32Array)) {
-    errors.push({ message: "Expected landmasses.landmassIdByTile to be an Int32Array." });
-  }
+  appendArtifactTypedArrayIssues(
+    errors,
+    "landmasses.landmassIdByTile",
+    candidate.landmassIdByTile,
+    Int32Array,
+    artifactCellCount(context)
+  );
 
   return errors;
 }
 
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
+/**
+ * Validates component records, nonnegative metrics, bounding boxes, and the
+ * Int32 tile lookup; water remains represented by the schema's `-1` sentinel.
+ */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  return Object.freeze([
+    ...validateArtifactSchema(Schema, value),
+    ...validatePayload(value, context),
+  ]);
 }

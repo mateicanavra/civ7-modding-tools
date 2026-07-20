@@ -4,7 +4,7 @@ import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext, FLAT_TERRAIN } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import lakes from "../../../../../../src/recipes/standard/stages/map-hydrology/steps/lakes.js";
+import { LakesStep } from "../../../../../../src/recipes/standard/stages/map-hydrology/steps/lakes/step.js";
 import { buildTestDeps } from "../../../../../support/step-deps.js";
 
 type TestContext = ReturnType<typeof createExtendedMapContext>;
@@ -164,7 +164,12 @@ describe("map-hydrology/lakes", () => {
 
     expect(adapter.isWater(1, 1)).toBe(false);
 
-    lakes.run(context as any, { projectionReadback: true }, {} as any, buildTestDeps(lakes));
+    LakesStep.run(
+      context as any,
+      { projectionReadback: true },
+      {} as any,
+      buildTestDeps(LakesStep)
+    );
 
     expect(adapter.callOrder.slice(-3)).toEqual([
       "stampLakes",
@@ -198,7 +203,12 @@ describe("map-hydrology/lakes", () => {
     seedLakePlan(context, lakeMask);
 
     expect(() =>
-      lakes.run(context as any, { projectionReadback: true }, {} as any, buildTestDeps(lakes))
+      LakesStep.run(
+        context as any,
+        { projectionReadback: true },
+        {} as any,
+        buildTestDeps(LakesStep)
+      )
     ).not.toThrow();
 
     const projection = context.artifacts.get("artifact:map.hydrology.engineProjectionLakes") as
@@ -234,7 +244,12 @@ describe("map-hydrology/lakes", () => {
     lakeMask[3 + width] = 1;
     seedLakePlan(context, lakeMask);
 
-    lakes.run(context as any, { projectionReadback: false }, {} as any, buildTestDeps(lakes));
+    LakesStep.run(
+      context as any,
+      { projectionReadback: false },
+      {} as any,
+      buildTestDeps(LakesStep)
+    );
 
     expect(adapter.calls.generateLakes).toEqual([]);
     expect(Array.from(adapter.calls.stampLakes.at(-1)?.lakeMask ?? [])).toEqual(
@@ -264,7 +279,12 @@ describe("map-hydrology/lakes", () => {
     mountainMask[mountainTile] = 1;
     seedLakePlan(context, lakeMask, mountainMask);
 
-    lakes.run(context as any, { projectionReadback: false }, {} as any, buildTestDeps(lakes));
+    LakesStep.run(
+      context as any,
+      { projectionReadback: false },
+      {} as any,
+      buildTestDeps(LakesStep)
+    );
 
     const stamped = adapter.calls.stampLakes.at(-1)?.lakeMask;
     expect(stamped).toBeInstanceOf(Uint8Array);

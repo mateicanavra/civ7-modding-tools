@@ -8,7 +8,7 @@ import {
   type StudioBoundedDiagnosticValue,
   verificationFailed,
 } from "../errors/index.js";
-import type { RunInGameFailurePhase } from "../operationRuntime/registry.js";
+import type { RunInGameFailurePhase } from "../operationRuntime/model.js";
 import type {
   RunInGameDeployment,
   RunInGameGeneratedMod,
@@ -198,43 +198,52 @@ function makeRunInGameWorkflow(
             ...deploymentEvidence(deployment),
           });
 
-          phase = "checking-civ7";
-          yield* workflow.transitions.transition({
+          phase = "starting-game";
+          const lifecycleAdmitted = yield* workflow.transitions.transition({
             phase,
-            materialization: deployment.materialization ?? generated.materialization,
             ...deploymentEvidence(deployment),
           });
-          yield* args.civ7.checkPlayable({
+          if (!lifecycleAdmitted) return;
+          let gameStartedReported = false;
+          const gameStarted = Effect.sync(() => {
+            phase = "collecting-evidence";
+          }).pipe(
+            Effect.flatMap(() =>
+              workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) })
+            ),
+            Effect.filterOrFail(
+              (transitioned) => transitioned,
+              () =>
+                verificationFailed({
+                  message: "Run in Game could not publish confirmed game-start truth",
+                  reason: "timeout-uncertain",
+                  diagnostics: {
+                    code: "run-in-game-game-start-report-unavailable",
+                    noRepeat: true,
+                  },
+                  recoveryActions: ["retry-status", "copy-diagnostics"],
+                })
+            ),
+            Effect.tap(() =>
+              Effect.sync(() => {
+                gameStartedReported = true;
+              })
+            ),
+            Effect.when(() => !gameStartedReported),
+            Effect.asVoid
+          );
+          const started = yield* args.civ7.startSinglePlayer({
             requestId: workflow.requestId,
             prepared: workflow.prepared,
             deployment,
+            gameStarted,
           });
-
-          phase = "preparing-setup";
-          yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
-          const setup = yield* args.civ7.prepareSetup({
-            requestId: workflow.requestId,
-            prepared: workflow.prepared,
-            deployment,
-          });
-
-          phase = "starting-game";
-          yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
-          const started = yield* args.civ7.startGame({
-            requestId: workflow.requestId,
-            prepared: workflow.prepared,
-            deployment,
-            setup,
-          });
-
-          phase = "collecting-evidence";
-          yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
+          yield* gameStarted;
           const log = yield* tryPromise(() =>
             args.ports.waitForRunInGameLogEvidence({
               requestId: workflow.requestId,
               prepared: workflow.prepared,
               deployment,
-              setup,
               started,
             })
           );
@@ -243,7 +252,6 @@ function makeRunInGameWorkflow(
               requestId: workflow.requestId,
               prepared: workflow.prepared,
               deployment,
-              setup,
               started,
               log,
               signal,
@@ -254,7 +262,6 @@ function makeRunInGameWorkflow(
               requestId: workflow.requestId,
               prepared: workflow.prepared,
               deployment,
-              setup,
               started,
               log,
               observation,

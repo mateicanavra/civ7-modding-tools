@@ -3,11 +3,16 @@
   "name": "civ7-cli",
   "tags": ["kind:app"],
   "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    },
     "build:tsc": {
       "command": "tsc -b --force",
       "dependsOn": ["clean:dist", "^build"],
       "cache": true,
-      "outputs": ["{projectRoot}/dist/**"],
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/tsconfig.tsbuildinfo"],
       "options": {
         "cwd": "packages/cli"
       }
@@ -33,7 +38,7 @@
     "build": {
       "command": "node -e \"\"",
       "cache": false,
-      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/oclif.manifest.json"],
+      "outputs": [],
       "dependsOn": ["build:bin-mode"],
       "options": {
         "cwd": "packages/cli"
@@ -121,7 +126,15 @@
     },
     "publish:npm": {
       "command": "bun publish --access public",
-      "dependsOn": ["build", "lint", "test", "check"],
+      "dependsOn": [
+        "build",
+        "test",
+        "check",
+        {
+          "projects": ["habitat"],
+          "target": "check:hygiene"
+        }
+      ],
       "cache": false,
       "outputs": [],
       "options": {

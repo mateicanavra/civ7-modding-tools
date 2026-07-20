@@ -1,4 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { ResourceRegionMinimumRequirementSchema } from "../../model/schemas/region-minimum-requirement.schema.js";
 import {
   ResourceFamilySchema,
   ResourceSymbolSchema,
@@ -38,11 +39,7 @@ const DemandRowSchema = Type.Object(
     targetCount: Type.Integer({ minimum: 0 }),
     minCount: Type.Integer({ minimum: 0 }),
     maxCount: Type.Integer({ minimum: 0 }),
-    minimumPerHemisphere: Type.Integer({ minimum: 0 }),
-    requiredForAge: Type.Boolean({
-      description:
-        "Official isResourceRequiredForAge for the authoring age; gates the region-minimum force pass.",
-    }),
+    regionMinimumRequirement: ResourceRegionMinimumRequirementSchema,
     habitatMask: TypedArraySchemas.u8({
       shape: null,
       description: "Habitat lane eligibility (1=in-lane).",
@@ -59,6 +56,12 @@ const DemandRowSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/**
+ * Admits deterministic concrete site selection from typed per-resource demands, habitat/policy
+ * masks, landmass regions, and one seed. Its output carries intent provenance, range/region
+ * shortfalls, spacing floors, and pair settings: exclusion gates destinations while affinity is
+ * a best-effort scoring bias.
+ */
 const SelectResourceSitesContract = defineOp({
   kind: "plan",
   id: "resources/select-resource-sites",

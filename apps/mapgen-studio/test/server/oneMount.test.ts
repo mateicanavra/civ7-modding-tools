@@ -1,6 +1,15 @@
-import { createServer, type Server } from "node:http";
-import { type Civ7ControlOrpcContext, Civ7ControlOrpcContract } from "@civ7/control-orpc";
-import { Civ7DirectControlSession, type Civ7PlayableStatusResult } from "@civ7/direct-control";
+import { createServer, type RequestListener, type Server } from "node:http";
+import {
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcContract,
+  type Civ7ControlOrpcDirectLifecycleFacade,
+} from "@civ7/control-orpc";
+import {
+  type Civ7AppUiSnapshotResult,
+  Civ7DirectControlSession,
+  type Civ7PlayableStatusResult,
+} from "@civ7/direct-control";
+import { createRunArtifactId, type RunCorrelation } from "@civ7/studio-run-workspace";
 import {
   contract,
   createStudioRpcHandler,
@@ -29,6 +38,26 @@ import { RecipeDagNotFound } from "../../src/server/recipeDag/service";
 
 const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
+const RUN_ARTIFACT_ID = createRunArtifactId("one-mount-test");
+
+async function rejectUnexpectedLifecycleCall(): Promise<never> {
+  throw new Error("Unexpected Civ7 lifecycle call");
+}
+
+const unavailableDirectLifecycle = {
+  getSetupSnapshot: rejectUnexpectedLifecycleCall,
+  admitSetupShell: rejectUnexpectedLifecycleCall,
+  requestSavedConfigLoad: rejectUnexpectedLifecycleCall,
+  reconcileRequiredTargetMod: rejectUnexpectedLifecycleCall,
+  getSetupMapRows: rejectUnexpectedLifecycleCall,
+  reloadSetupUiInShell: rejectUnexpectedLifecycleCall,
+  applySinglePlayerSetup: rejectUnexpectedLifecycleCall,
+  hostPreparedSinglePlayerGame: rejectUnexpectedLifecycleCall,
+  getAppUiSnapshot: rejectUnexpectedLifecycleCall,
+  beginGame: rejectUnexpectedLifecycleCall,
+  checkTunerHealth: rejectUnexpectedLifecycleCall,
+  getMapSummary: rejectUnexpectedLifecycleCall,
+} satisfies Civ7ControlOrpcDirectLifecycleFacade;
 
 afterEach(async () => {
   await Promise.all(openServers.splice(0).map((server) => closeServer(server)));
@@ -38,6 +67,7 @@ afterEach(async () => {
 describe("one /rpc mount serves the whole unified contract", () => {
   test("studio, civ7-control, and recipeDag namespaces answer over one handler", async () => {
     const facadeCalls: Array<Civ7ControlOrpcContext["endpointDefaults"]> = [];
+    const lifecycleCalls: string[] = [];
     const recipeDagCalls: string[] = [];
     const { client } = await listenWithStudioServer({
       loadSetupCatalog: async () =>
@@ -57,6 +87,13 @@ describe("one /rpc mount serves the whole unified contract", () => {
             return playableStatusResult();
           },
         } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        directLifecycle: {
+          ...unavailableDirectLifecycle,
+          getSetupSnapshot: async () => {
+            lifecycleCalls.push("getSetupSnapshot");
+            throw new Error("Studio HTTP must not acquire lifecycle mutation");
+          },
+        },
         timeoutMs: 4321,
       },
       recipeDagService: {
@@ -94,7 +131,6 @@ describe("one /rpc mount serves the whole unified contract", () => {
     const readiness = await client.civ7.readiness.current({});
     await client.civ7.readiness.current({});
     expect(readiness).toMatchObject({ playable: true, readiness: "tuner-ready" });
-
     // Structural session sharing: the facade received the host timeout AND the
     // runtime's shared session — the SAME instance across calls.
     expect(facadeCalls).toHaveLength(2);
@@ -102,6 +138,26 @@ describe("one /rpc mount serves the whole unified contract", () => {
     expect(first?.timeoutMs).toBe(4321);
     expect(first?.session).toBeInstanceOf(Civ7DirectControlSession);
     expect(second?.session).toBe(first?.session);
+
+    // The merged control contract remains discoverable, but Studio deliberately
+    // withholds the lifecycle facade so setup/start can only enter through the
+    // operation runtime's admission, lease, correlation, and mutation fence.
+    const lifecycle = await safe(
+      client.civ7.lifecycle.singlePlayer.start({
+        mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+        mapSize: "MAPSIZE_STANDARD",
+        seed: 43,
+        targetModId: "mod-swooper-studio-run",
+        gameOptions: {},
+        playerOptions: {},
+        activeGamePolicy: "exit-active-game",
+      })
+    );
+    expect(lifecycle.error).toMatchObject({
+      code: "LIFECYCLE_DEPENDENCY_UNAVAILABLE",
+      data: { detail: "direct-lifecycle-facade-unavailable" },
+    });
+    expect(lifecycleCalls).toEqual([]);
 
     // Sanitization parity (pins moved from the deleted satellite-client test):
     // raw runtime detail stays out of readiness.current.
@@ -129,6 +185,149 @@ describe("one /rpc mount serves the whole unified contract", () => {
       await expect(res.text()).resolves.toBe("not found");
     }
   }, 20_000);
+
+  test("serializes complete public control procedures on the daemon Tuner lease", async () => {
+    const firstEntered = deferred<void>();
+    const releaseFirst = deferred<void>();
+    let calls = 0;
+    const { client } = createInProcessStudioClient({
+      civ7Control: {
+        directControl: {
+          getCiv7PlayableStatus: async () => {
+            calls += 1;
+            if (calls === 1) {
+              firstEntered.resolve();
+              await releaseFirst.promise;
+            }
+            return playableStatusResult();
+          },
+        } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        directLifecycle: unavailableDirectLifecycle,
+        timeoutMs: 1234,
+      },
+    });
+
+    const first = client.civ7.readiness.current({});
+    await firstEntered.promise;
+    const second = client.civ7.readiness.current({});
+    await Promise.resolve();
+    expect(calls).toBe(1);
+
+    releaseFirst.resolve();
+    await expect(Promise.all([first, second])).resolves.toHaveLength(2);
+    expect(calls).toBe(2);
+  });
+
+  test("removes an aborted queued control procedure before it can enter", async () => {
+    const firstEntered = deferred<void>();
+    const releaseFirst = deferred<void>();
+    let calls = 0;
+    const { client } = createInProcessStudioClient({
+      civ7Control: {
+        directControl: {
+          getCiv7PlayableStatus: async () => {
+            calls += 1;
+            if (calls === 1) {
+              firstEntered.resolve();
+              await releaseFirst.promise;
+            }
+            return playableStatusResult();
+          },
+        } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        directLifecycle: unavailableDirectLifecycle,
+        timeoutMs: 1234,
+      },
+    });
+
+    const first = client.civ7.readiness.current({});
+    await firstEntered.promise;
+    const controller = new AbortController();
+    const queued = client.civ7.readiness.current({}, { signal: controller.signal });
+    controller.abort();
+
+    await expect(queued).rejects.toBeDefined();
+    releaseFirst.resolve();
+    await first;
+    await client.civ7.readiness.current({});
+    expect(calls).toBe(2);
+  });
+
+  test("drains an admitted control procedure before cancellation releases its lease", async () => {
+    const firstEntered = deferred<void>();
+    const releaseFirst = deferred<void>();
+    const secondEntered = deferred<void>();
+    let calls = 0;
+    const { client } = createInProcessStudioClient({
+      civ7Control: {
+        directControl: {
+          getCiv7PlayableStatus: async () => {
+            calls += 1;
+            if (calls === 1) {
+              firstEntered.resolve();
+              await releaseFirst.promise;
+            } else {
+              secondEntered.resolve();
+            }
+            return playableStatusResult();
+          },
+        } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        directLifecycle: unavailableDirectLifecycle,
+        timeoutMs: 1234,
+      },
+    });
+
+    const controller = new AbortController();
+    const first = client.civ7.readiness.current({}, { signal: controller.signal });
+    const firstOutcome = first.then(
+      () => "resolved" as const,
+      () => "rejected" as const
+    );
+    await firstEntered.promise;
+    controller.abort();
+    const second = client.civ7.readiness.current({});
+
+    const secondEntryState = await promiseStateAfter(secondEntered.promise, 20);
+    const callsBeforeRelease = calls;
+    releaseFirst.resolve();
+    await expect(firstOutcome).resolves.toBe("rejected");
+    await expect(second).resolves.toMatchObject({ readiness: "tuner-ready" });
+    expect(secondEntryState).toBe("pending");
+    expect(callsBeforeRelease).toBe(1);
+    expect(calls).toBe(2);
+  });
+
+  test("daemon disposal drains an admitted control procedure before closing the session", async () => {
+    const entered = deferred<void>();
+    const release = deferred<void>();
+    const { client, handler } = createInProcessStudioClient({
+      civ7Control: {
+        directControl: {
+          getCiv7PlayableStatus: async () => {
+            entered.resolve();
+            await release.promise;
+            return playableStatusResult();
+          },
+        } as unknown as StudioServerContext["civ7Control"]["directControl"],
+        directLifecycle: unavailableDirectLifecycle,
+        timeoutMs: 1234,
+      },
+    });
+
+    const requestOutcome = client.civ7.readiness.current({}).then(
+      () => "resolved" as const,
+      () => "rejected" as const
+    );
+    await entered.promise;
+    const disposal = handler.dispose();
+
+    const disposalState = await promiseStateAfter(disposal, 20);
+    release.resolve();
+    await disposal;
+    await expect(requestOutcome).resolves.toBe("resolved");
+    expect(disposalState).toBe("pending");
+    const openHandleIndex = openHandles.indexOf(handler);
+    if (openHandleIndex >= 0) openHandles.splice(openHandleIndex, 1);
+  });
 
   test("the civ7 namespace merge is collision-free", () => {
     // The unified `civ7.*` node is the studio read surface plus the control
@@ -170,7 +369,25 @@ async function listenWithStudioServer(overrides: Partial<StudioServerContext>): 
   return { origin, client };
 }
 
-async function listen(handler: Parameters<typeof createServer>[0]): Promise<string> {
+function createInProcessStudioClient(overrides: Partial<StudioServerContext>): {
+  handler: StudioRpcHandle;
+  client: ContractRouterClient<StudioContract>;
+} {
+  const handler = createStudioRpcHandler(makeContext(overrides));
+  openHandles.push(handler);
+  const client: ContractRouterClient<StudioContract> = createORPCClient(
+    new RPCLink({
+      url: "http://studio.test/rpc",
+      fetch: async (request) => {
+        const result = await handler.handle(request, { prefix: "/rpc" });
+        return result.response ?? new Response("not found", { status: 404 });
+      },
+    })
+  );
+  return { handler, client };
+}
+
+async function listen(handler: RequestListener): Promise<string> {
   const server = createServer(handler);
   openServers.push(server);
   await new Promise<void>((resolve, reject) => {
@@ -235,6 +452,7 @@ function makeContext(overrides: Partial<StudioServerContext>): StudioServerConte
     },
     civ7Control: {
       directControl: {} as StudioServerContext["civ7Control"]["directControl"],
+      directLifecycle: unavailableDirectLifecycle,
       timeoutMs: 1234,
     },
     operationRuntime: makeOperationRuntimePorts(),
@@ -269,7 +487,7 @@ function generatedRunInGameMod(): Awaited<
       canonicalConfigDigest: "test-config-hash",
       launchEnvelopeDigest: "test-envelope-hash",
       generationManifestDigest: "test-generation-manifest-digest",
-      runArtifactId: "run-test",
+      runArtifactId: RUN_ARTIFACT_ID,
       generatedModRoot: "/tmp/studio-one-mount-generated-run-test",
       generatedModFileCount: 1,
       generatedModDigest: "test-generated-mod-digest",
@@ -328,10 +546,10 @@ function runInGameRuntimeObservation(
   args: Parameters<StudioOperationRuntimePorts["observeRunInGameRuntime"]>[0]
 ): Awaited<ReturnType<StudioOperationRuntimePorts["observeRunInGameRuntime"]>> {
   const materialization = args.deployment.materialization;
-  const correlation = {
+  const correlation: RunCorrelation = {
     requestId: args.requestId,
-    runArtifactId: materialization?.runArtifactId ?? "run-test",
-    launchSourceDigest: args.prepared.launchSourceDigest,
+    runArtifactId: RUN_ARTIFACT_ID,
+    canonicalConfigDigest: args.prepared.canonicalConfigDigest,
     launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
     generationManifestDigest:
       materialization?.generationManifestDigest ?? "test-generation-manifest-digest",
@@ -356,8 +574,7 @@ function runInGameRuntimeObservation(
       mapScript: materialization?.mapScript ?? "test-map-script",
       runArtifactId: correlation.runArtifactId,
       deployedModId: args.deployment.runDeployment.deployedModId,
-      rowEvidence: { ok: true },
-      rowVisibility: { visible: true },
+      mapRowFiles: args.started.evidence.setup.mapRowFiles,
     },
     loadedGame: {
       requestId: args.requestId,
@@ -394,19 +611,7 @@ function playableStatusResult(): Civ7PlayableStatusResult {
     port: 4318,
     playable: true,
     readiness: "tuner-ready",
-    appUi: {
-      host: "127.0.0.1",
-      port: 4318,
-      state: { id: "65535", name: "App UI" },
-      snapshot: {
-        ui: {
-          inGame: probe(true),
-          inShell: probe(false),
-          inLoading: probe(false),
-          canBeginGame: probe(false),
-        },
-      },
-    },
+    appUi: appUiSnapshotResult(),
     tuner: {
       host: "127.0.0.1",
       port: 4318,
@@ -415,14 +620,115 @@ function playableStatusResult(): Civ7PlayableStatusResult {
       snapshot: {
         evalOk: 2,
         ready: true,
+        globals: {
+          Game: "object",
+          Autoplay: "object",
+          GameplayMap: "object",
+          Players: "object",
+          Network: "object",
+        },
+        turn: probe(12),
+        turnDate: probe("4000 BCE"),
+        width: probe(84),
+        height: probe(54),
+        aliveIds: probe([0]),
+        aliveHumanIds: probe([0]),
+        autoplayActive: probe(false),
       },
     },
     errors: ["raw runtime detail stays out of readiness.current"],
-  } as Civ7PlayableStatusResult;
+  };
+}
+
+function appUiSnapshotResult(): Civ7AppUiSnapshotResult {
+  return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
+    snapshot: {
+      ui: {
+        inGame: probe(true),
+        inShell: probe(false),
+        inLoading: probe(false),
+        loadingState: probe(0),
+        loadingStateName: null,
+        canBeginGame: probe(false),
+        canNotifyUIReady: "false",
+        skipStartButton: probe(false),
+        automationActive: probe(false),
+        activeInputContext: probe(0),
+        activeInputContextName: null,
+      },
+      network: {
+        isInSession: probe(true),
+        numPlayers: probe(1),
+        hostPlayerId: probe(0),
+        isConnectedToNetwork: probe(false),
+        isAuthenticated: probe(false),
+        isLoggedIn: probe(false),
+      },
+      autoplay: {
+        isActive: false,
+        turns: 0,
+        isPaused: false,
+        isPausedOrPending: false,
+        observeAsPlayer: -1,
+        returnAsPlayer: -1,
+      },
+      game: {
+        turn: 12,
+        age: 0,
+        maxTurns: 500,
+        turnDate: probe("4000 BCE"),
+        hash: probe(987654321),
+      },
+      gameContext: {
+        localPlayerID: 0,
+        localObserverID: -1,
+        hasRequestedPause: probe(false),
+      },
+      players: {
+        maxPlayers: 8,
+        aliveIds: probe([0]),
+        aliveHumanIds: probe([0]),
+        numAliveHumans: probe(1),
+      },
+      map: {
+        width: probe(84),
+        height: probe(54),
+        plotCount: probe(4536),
+        mapSize: probe(3),
+        randomSeed: probe(43),
+      },
+    },
+  };
 }
 
 function probe<T>(value: T): { ok: true; value: T } {
   return { ok: true, value };
+}
+
+function deferred<T>() {
+  let resolve: (value: T | PromiseLike<T>) => void = () => undefined;
+  let reject: (reason?: unknown) => void = () => undefined;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+}
+
+async function promiseStateAfter(
+  promise: PromiseLike<unknown>,
+  delayMs: number
+): Promise<"pending" | "settled"> {
+  return Promise.race([
+    Promise.resolve(promise).then(
+      () => "settled" as const,
+      () => "settled" as const
+    ),
+    new Promise<"pending">((resolve) => setTimeout(() => resolve("pending"), delayMs)),
+  ]);
 }
 
 function minimalRecipeDagResult(recipeId: string) {

@@ -1,3 +1,4 @@
+import { Option } from "effect";
 import { describe, expect, test } from "vitest";
 import { civ7MutationProofBoundaryViolation as civ7MutationMiddlewareProofBoundaryViolation } from "../src/middleware/mutation-proof-boundary";
 import {
@@ -169,28 +170,32 @@ describe("control-oRPC mutation result policy", () => {
       nextSteps: [{ kind: "refresh-attention" }],
     };
 
-    expect(civ7MutationMiddlewareProofBoundaryViolation(repeatSafeUnverified)).toBe(
-      "unverified-repeat-safe"
-    );
     expect(
-      civ7MutationMiddlewareProofBoundaryViolation({
-        status: "sent-unverified",
-        postcondition: {
-          confidence: "unverified",
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [{ kind: "refresh-attention" }],
-      })
+      Option.getOrUndefined(civ7MutationMiddlewareProofBoundaryViolation(repeatSafeUnverified))
+    ).toBe("unverified-repeat-safe");
+    expect(
+      Option.getOrUndefined(
+        civ7MutationMiddlewareProofBoundaryViolation({
+          status: "sent-unverified",
+          postcondition: {
+            confidence: "unverified",
+            noRepeatAfterUnverified: true,
+          },
+          nextSteps: [{ kind: "refresh-attention" }],
+        })
+      )
     ).toBe("sent-unverified-without-do-not-repeat");
     expect(
-      civ7MutationMiddlewareProofBoundaryViolation({
-        status: "sent-unverified",
-        postcondition: {
-          confidence: "unverified",
-          noRepeatAfterUnverified: true,
-        },
-        nextSteps: [{ kind: "do-not-repeat" }],
-      })
-    ).toBeNull();
+      Option.isNone(
+        civ7MutationMiddlewareProofBoundaryViolation({
+          status: "sent-unverified",
+          postcondition: {
+            confidence: "unverified",
+            noRepeatAfterUnverified: true,
+          },
+          nextSteps: [{ kind: "do-not-repeat" }],
+        })
+      )
+    ).toBe(true);
   });
 });

@@ -3,12 +3,15 @@ import { createMockAdapter } from "@civ7/adapter";
 import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as ecologyArtifacts } from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import planVegetationStep from "../../../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/index.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import featuresApplyStep from "../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
-import { artifacts as morphologyArtifacts } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { implementArtifactModules } from "@swooper/mapgen-core/authoring";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { PlanVegetationStep } from "../../../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/step.js";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { FeaturesApplyStep } from "../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/step.js";
+import { artifactModules as morphologyArtifactModules } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../support/compiler-helpers.js";
 import { createEmptyFeatureScoreLayers } from "../../../support/feature-score-layers.js";
 import { buildTestDeps } from "../../../support/step-deps.js";
@@ -34,34 +37,22 @@ describe("plan-vegetation/apply pipeline", () => {
     adapter.fillWater(false);
 
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
-    ctx.buffers.heightfield.landMask.fill(1);
-    ctx.buffers.heightfield.elevation.fill(100);
+    const landMask = new Uint8Array(size).fill(1);
+    const elevation = new Int16Array(size).fill(100);
 
     const layers = createEmptyFeatureScoreLayers(size);
     layers.forest.fill(1);
 
-    const stageArtifacts = implementArtifacts(
-      [
-        ecologyArtifacts.scoreLayers,
-        ecologyArtifacts.occupancyWetlands,
-        ecologyArtifacts.biomeClassification,
-        hydrologyHydrographyArtifacts.hydrography,
-        hydrologyHydrographyArtifacts.lakePlan,
-        morphologyArtifacts.topography,
-        morphologyArtifacts.mountains,
-        morphologyArtifacts.volcanoes,
-      ],
-      {
-        scoreLayers: {},
-        occupancyWetlands: {},
-        biomeClassification: {},
-        hydrography: {},
-        lakePlan: {},
-        topography: {},
-        mountains: {},
-        volcanoes: {},
-      }
-    );
+    const stageArtifacts = implementArtifactModules([
+      ecologyArtifactModules.scoreLayers,
+      ecologyArtifactModules.occupancyWetlands,
+      ecologyArtifactModules.biomeClassification,
+      hydrologyHydrographyArtifactModules.hydrography,
+      hydrologyHydrographyArtifactModules.lakePlan,
+      morphologyArtifactModules.topography,
+      morphologyArtifactModules.mountains,
+      morphologyArtifactModules.volcanoes,
+    ]);
 
     stageArtifacts.scoreLayers.publish(ctx, { width, height, layers });
     stageArtifacts.occupancyWetlands.publish(ctx, {
@@ -100,13 +91,15 @@ describe("plan-vegetation/apply pipeline", () => {
       sinkLakeCount: 0,
     });
     stageArtifacts.topography.publish(ctx, {
-      elevation: ctx.buffers.heightfield.elevation,
+      elevation,
       seaLevel: 0,
-      landMask: ctx.buffers.heightfield.landMask,
+      landMask,
       bathymetry: new Int16Array(size),
     });
     stageArtifacts.mountains.publish(ctx, {
       mountainMask: new Uint8Array(size),
+      mountainRegionMask: new Uint8Array(size),
+      mountainRegionIdByTile: new Int32Array(size).fill(-1),
       hillMask: new Uint8Array(size),
       foothillMask: new Uint8Array(size),
       roughLandMask: new Uint8Array(size),
@@ -125,22 +118,23 @@ describe("plan-vegetation/apply pipeline", () => {
         ecology.ops.planVegetation.defaultConfig
       ),
     };
-    const planOps = ecology.ops.bind(planVegetationStep.contract.ops!).runtime;
-    planVegetationStep.run(ctx, planConfig, planOps, buildTestDeps(planVegetationStep));
+    const planOps = ecology.ops.bind(PlanVegetationStep.contract.ops!).runtime;
+    PlanVegetationStep.run(ctx, planConfig, planOps, buildTestDeps(PlanVegetationStep));
 
     // M3 stages: publish empty lists for non-vegetation families so the apply step has a complete surface.
-    implementArtifacts([ecologyArtifacts.featureIntentsIce], {
-      featureIntentsIce: {},
-    }).featureIntentsIce.publish(ctx, []);
-    implementArtifacts([ecologyArtifacts.featureIntentsReefs], {
-      featureIntentsReefs: {},
-    }).featureIntentsReefs.publish(ctx, []);
-    implementArtifacts([ecologyArtifacts.featureIntentsWetlands], {
-      featureIntentsWetlands: {},
-    }).featureIntentsWetlands.publish(ctx, []);
-    implementArtifacts([ecologyArtifacts.featureIntentsFloodplains], {
-      featureIntentsFloodplains: {},
-    }).featureIntentsFloodplains.publish(ctx, []);
+    implementArtifactModules([ecologyArtifactModules.featureIntentsIce]).featureIntentsIce.publish(
+      ctx,
+      []
+    );
+    implementArtifactModules([
+      ecologyArtifactModules.featureIntentsReefs,
+    ]).featureIntentsReefs.publish(ctx, []);
+    implementArtifactModules([
+      ecologyArtifactModules.featureIntentsWetlands,
+    ]).featureIntentsWetlands.publish(ctx, []);
+    implementArtifactModules([
+      ecologyArtifactModules.featureIntentsFloodplains,
+    ]).featureIntentsFloodplains.publish(ctx, []);
 
     const vegetationIntents = ctx.artifacts.get(ecologyArtifacts.featureIntentsVegetation.id);
     expect(vegetationIntents).toBeTruthy();
@@ -153,15 +147,22 @@ describe("plan-vegetation/apply pipeline", () => {
         ecology.ops.applyFeatures.defaultConfig
       ),
     };
-    const applyOps = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
-    featuresApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(featuresApplyStep));
+    const applyOps = ecology.ops.bind(FeaturesApplyStep.contract.ops!).runtime;
+    FeaturesApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(FeaturesApplyStep));
 
-    const featureField = ctx.fields.featureType;
-    expect(featureField).toBeDefined();
-    if (!(featureField instanceof Int16Array)) throw new Error("Missing featureType field.");
+    const snapshot = ctx.artifacts.get(ecologyArtifacts.featureEngineSnapshot.id) as
+      | { width: number; height: number; featureType: Int16Array }
+      | undefined;
+    expect(snapshot).toBeDefined();
+    expect(snapshot).toMatchObject({ width, height });
+    const featureField = snapshot?.featureType;
+    if (!(featureField instanceof Int16Array)) throw new Error("Missing feature engine snapshot.");
     let applied = 0;
     for (let i = 0; i < featureField.length; i++) {
-      if (featureField[i] !== -1) applied++;
+      const y = (i / width) | 0;
+      const x = i - y * width;
+      expect(featureField[i]).toBe(adapter.getFeatureType(x, y));
+      if (featureField[i] !== adapter.NO_FEATURE) applied++;
     }
     expect(applied).toBeGreaterThan(0);
   });

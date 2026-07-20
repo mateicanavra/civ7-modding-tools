@@ -15,21 +15,22 @@ import {
   type BaselineExpansionDecision,
   type BaselineIntegrityFinding,
   type BaselineIntegrityResult,
+  type BaselineOccurrence,
   type BaselineRefusal,
   type BaselineRuleContractInput,
 } from "./dto/baseline.schema.js";
 import { admitRuleIntroductionManifestEffect } from "./rule-introduction-manifest.policy.js";
-import { parseBaselineArray } from "./state.policy.js";
-import { sortedUnique } from "./utils.policy.js";
+import { type ParsedBaselineDocument, parseBaselineDocument } from "./state.policy.js";
+import { countOccurrences, occurrenceCount } from "./utils.policy.js";
 
-interface RequiredBaselineAuthorityContext {
-  readonly fileSystem: BaselineAuthorityContext["fileSystem"];
-  readonly git: BaselineAuthorityContext["git"];
+interface RequiredBaselineAuthorityContext<R> {
+  readonly fileSystem: BaselineAuthorityContext<R>["fileSystem"];
+  readonly git: BaselineAuthorityContext<R>["git"];
   readonly repoRoot: string;
   readonly baselinesDir: string;
   readonly registry: readonly BaselineRuleContractInput[];
   readonly ruleIntroductionManifests: NonNullable<
-    BaselineAuthorityContext["ruleIntroductionManifests"]
+    BaselineAuthorityContext<R>["ruleIntroductionManifests"]
   >;
 }
 
@@ -40,16 +41,17 @@ const preD14aAuthoredAuthorityPaths = {
   },
 };
 
-export function loadBaselineStateEffect(
+/** Loads and validates one rule's explicit baseline authority document. */
+export function loadBaselineStateEffect<R>(
   rule: BaselineRuleContractInput,
-  options: BaselineAuthorityContext
-) {
+  options: BaselineAuthorityContext<R>
+): Effect.Effect<BaselineAuthorityState, never, R> {
   return Effect.gen(function* () {
-    const context = yield* resolveBaselineAuthorityContext(options);
+    const context = yield* resolveBaselineAuthorityContext<R>(options);
     if (rule.baselinePath) {
       const explicitPath = path.join(context.repoRoot, rule.baselinePath);
       if (yield* fileExists(explicitPath, context)) {
-        return yield* parseBaselineFileEffect(explicitPath, rule.id, context);
+        return yield* parseBaselineFileEffect<R>(explicitPath, rule.id, context);
       }
       return {
         kind: "baseline-refusal" as const,
@@ -80,9 +82,10 @@ export function loadBaselineStateEffect(
   });
 }
 
-export function validateBaselineContractEffect(options: BaselineAuthorityContext) {
+/** Validates that every registered rule has one readable baseline and no orphan files exist. */
+export function validateBaselineContractEffect<R>(options: BaselineAuthorityContext<R>) {
   return Effect.gen(function* () {
-    const context = yield* resolveBaselineAuthorityContext(options);
+    const context = yield* resolveBaselineAuthorityContext<R>(options);
     const states = new Map<string, BaselineAuthorityState>();
     const refusals: BaselineRefusal[] = [];
     const registered = new Set(context.registry.map((rule) => rule.id));
@@ -107,7 +110,7 @@ export function validateBaselineContractEffect(options: BaselineAuthorityContext
     }
 
     for (const rule of context.registry) {
-      const state = yield* loadBaselineStateEffect(rule, context);
+      const state = yield* loadBaselineStateEffect<R>(rule, context);
       states.set(rule.id, state);
       if (state.kind === "baseline-refusal") refusals.push(state);
     }
@@ -116,16 +119,17 @@ export function validateBaselineContractEffect(options: BaselineAuthorityContext
   });
 }
 
-export function checkBaselineIntegrityEffect(
+/** Compares current baseline debt with a trusted base and refuses every form of growth. */
+export function checkBaselineIntegrityEffect<R>(
   base = "main",
-  options: BaselineAuthorityContext
-): Effect.Effect<BaselineIntegrityResult, never, any> {
+  options: BaselineAuthorityContext<R>
+): Effect.Effect<BaselineIntegrityResult, never, R> {
   return Effect.gen(function* () {
-    const context = yield* resolveBaselineAuthorityContext(options);
-    const contract = yield* validateBaselineContractEffect(context);
+    const context = yield* resolveBaselineAuthorityContext<R>(options);
+    const contract = yield* validateBaselineContractEffect<R>(context);
     const refusals: BaselineRefusal[] = [...contract.refusals];
 
-    const mb = yield* mergeBaseEffect(base, context);
+    const mb = yield* mergeBaseEffect<R>(base, context);
     if (!mb) {
       return refused([
         {
@@ -138,36 +142,39 @@ export function checkBaselineIntegrityEffect(
       ]);
     }
 
-    const baseRules = yield* loadBaseRuleIdsEffect(mb, context);
+    const baseRules = yield* loadBaseRuleIdsEffect<R>(mb, context);
     if (!baseRules.ok) return refused([baseRules.refusal, ...refusals]);
 
     for (const [ruleId, state] of contract.states) {
       if (state.kind !== "explicit-empty" && state.kind !== "explicit-debt") continue;
-      const before = yield* loadBaseBaselineKeysEffect(mb, ruleId, state.path, context);
+      const before = yield* loadBaseBaselineDocumentEffect<R>(mb, ruleId, state.path, context);
       if (!before.ok) {
         refusals.push(before.refusal);
         continue;
       }
-      const previous = new Set<string>(before.keys);
-      const added = state.keys.filter((key) => !previous.has(key));
-      if (added.length === 0) continue;
+      const growth = baselineGrowth(acceptedBaselineDocument(state), before.document);
+      if (growth.added.length === 0) continue;
+      const addedCount = occurrenceCount(growth.added);
       if (baseRules.ruleIds.has(ruleId)) {
         refusals.push({
           kind: "baseline-refusal",
           ruleId,
           path: state.path,
           reason: "baseline-growth-existing-rule",
-          addedKeys: added,
+          addedKeys: growth.added.map(({ key }) => key),
           message:
-            `baseline for existing rule '${ruleId}' grew by ${added.length} entr${added.length === 1 ? "y" : "ies"} ` +
+            (growth.kind === "coverage-broadened"
+              ? `baseline for existing rule '${ruleId}' broadened exact occurrence coverage to unbounded key coverage `
+              : `baseline for existing rule '${ruleId}' grew by ${addedCount} diagnostic ` +
+                `occurrence${addedCount === 1 ? "" : "s"} `) +
             `relative to merge-base ${mb.slice(0, 9)}; baselines are shrink-only outside rule-introduction changes`,
         });
         continue;
       }
 
-      const manifest = yield* admitRuleIntroductionManifestEffect(
+      const manifest = yield* admitRuleIntroductionManifestEffect<R>(
         ruleId,
-        added,
+        growth.added,
         base,
         state.path,
         context
@@ -179,22 +186,25 @@ export function checkBaselineIntegrityEffect(
   });
 }
 
+/** Projects baseline refusals into diagnostics for the built-in integrity rule. */
 export function baselineIntegrityFindingsEffect(result: BaselineIntegrityResult) {
   return Effect.succeed(
     result.status === "accepted" ? [] : result.refusals.map(findingFromRefusal)
   );
 }
 
-export function guardBaselineExpansionEffect(
+/** Admits a baseline authoring write only when rule-introduction authority exactly matches it. */
+export function guardBaselineExpansionEffect<R>(
   ruleId: string,
   keys: readonly string[],
   base = "main",
-  options: BaselineAuthorityContext
-): Effect.Effect<BaselineExpansionDecision, never, any> {
+  options: BaselineAuthorityContext<R>
+): Effect.Effect<BaselineExpansionDecision, never, R> {
   return Effect.gen(function* () {
-    const context = yield* resolveBaselineAuthorityContext(options);
-    const uniqueKeys = sortedUnique(keys);
-    const mb = yield* mergeBaseEffect(base, context);
+    const context = yield* resolveBaselineAuthorityContext<R>(options);
+    const occurrences = countOccurrences(keys);
+    const requestedCount = occurrenceCount(occurrences);
+    const mb = yield* mergeBaseEffect<R>(base, context);
     const baselinePath = baselineContractPathForRule(ruleId, context);
     if (!mb) {
       return expansionRefusal({
@@ -206,7 +216,7 @@ export function guardBaselineExpansionEffect(
       });
     }
 
-    const baseRules = yield* loadBaseRuleIdsEffect(mb, context);
+    const baseRules = yield* loadBaseRuleIdsEffect<R>(mb, context);
     if (!baseRules.ok) {
       return expansionRefusal({
         ...baseRules.refusal,
@@ -222,16 +232,16 @@ export function guardBaselineExpansionEffect(
         ruleId,
         path: baselinePath,
         reason: "baseline-growth-existing-rule",
-        addedKeys: uniqueKeys,
+        addedKeys: occurrences.map(({ key }) => key),
         message:
-          `Refusing baseline write for existing rule '${ruleId}': ${uniqueKeys.length} new ` +
-          `baseline key${uniqueKeys.length === 1 ? "" : "s"} would grow tracked debt relative to ${mb.slice(0, 9)}.`,
+          `Refusing baseline write for existing rule '${ruleId}': ${requestedCount} new ` +
+          `diagnostic occurrence${requestedCount === 1 ? "" : "s"} would grow tracked debt relative to ${mb.slice(0, 9)}.`,
       });
     }
 
-    const manifest = yield* admitRuleIntroductionManifestEffect(
+    const manifest = yield* admitRuleIntroductionManifestEffect<R>(
       ruleId,
-      uniqueKeys,
+      occurrences,
       base,
       baselinePath,
       context
@@ -242,35 +252,80 @@ export function guardBaselineExpansionEffect(
       status: "accepted",
       ruleId,
       baselinePath,
-      keys: uniqueKeys,
+      occurrences,
       comparisonBase: base,
       message: `baseline write accepted for introduced rule '${ruleId}'`,
     };
   });
 }
 
-export function writeBaselineEffect(
+/** Persists new nonempty baselines as exact counts while retaining the legacy empty lock form. */
+export function writeBaselineEffect<R>(
   ruleId: string,
-  keys: readonly string[],
-  options: BaselineAuthorityContext
-): Effect.Effect<void, unknown, any> {
+  occurrences: readonly BaselineOccurrence[],
+  options: BaselineAuthorityContext<R>
+): Effect.Effect<void, unknown, R> {
   return Effect.gen(function* () {
-    const context = yield* resolveBaselineAuthorityContext(options);
+    const context = yield* resolveBaselineAuthorityContext<R>(options);
     const baselinePath = absoluteBaselinePath(
       baselineContractPathForRule(ruleId, context),
       context
     );
     yield* context.fileSystem.makeDirectory(path.dirname(baselinePath));
-    yield* context.fileSystem.writeText(
-      baselinePath,
-      `${JSON.stringify([...keys].sort(), null, 2)}\n`
-    );
+    yield* context.fileSystem.writeText(baselinePath, renderBaselineDocument(occurrences));
   });
 }
 
-function resolveBaselineAuthorityContext(
-  options: BaselineAuthorityContext
-): Effect.Effect<RequiredBaselineAuthorityContext, never, any> {
+function acceptedBaselineDocument(state: Exclude<BaselineAuthorityState, BaselineRefusal>) {
+  return state.kind === "explicit-empty"
+    ? ({ coverage: "key", occurrences: [] } satisfies ParsedBaselineDocument)
+    : ({
+        coverage: state.coverage,
+        occurrences: state.occurrences,
+      } satisfies ParsedBaselineDocument);
+}
+
+function baselineGrowth(
+  current: ParsedBaselineDocument,
+  previous: ParsedBaselineDocument
+): {
+  readonly kind: "occurrences" | "coverage-broadened";
+  readonly added: BaselineOccurrence[];
+} {
+  if (current.coverage === "key" && previous.coverage === "occurrence") {
+    return {
+      kind: "coverage-broadened",
+      added: current.occurrences,
+    };
+  }
+
+  if (previous.coverage === "key") {
+    const previousKeys = new Set(previous.occurrences.map(({ key }) => key));
+    return {
+      kind: "occurrences",
+      added: current.occurrences.filter(({ key }) => !previousKeys.has(key)),
+    };
+  }
+
+  const previousCounts = new Map(
+    previous.occurrences.map(({ key, count }) => [key, count] as const)
+  );
+  const added: BaselineOccurrence[] = [];
+  for (const occurrence of current.occurrences) {
+    const additional = occurrence.count - (previousCounts.get(occurrence.key) ?? 0);
+    if (additional > 0) added.push({ key: occurrence.key, count: additional });
+  }
+  return { kind: "occurrences", added };
+}
+
+function renderBaselineDocument(occurrences: readonly BaselineOccurrence[]): string {
+  const document = occurrences.length === 0 ? [] : { schemaVersion: 1 as const, occurrences };
+  return `${JSON.stringify(document, null, 2)}\n`;
+}
+
+function resolveBaselineAuthorityContext<R>(
+  options: BaselineAuthorityContext<R>
+): Effect.Effect<RequiredBaselineAuthorityContext<R>, never, R> {
   return Effect.gen(function* () {
     return {
       git: options.git,
@@ -279,16 +334,16 @@ function resolveBaselineAuthorityContext(
       baselinesDir: options.baselinesDir ?? path.join(options.repoRoot, baselinesRepoPath),
       registry:
         options.registry ??
-        (yield* readCurrentRuleRegistryEffect(options.repoRoot, options.fileSystem)),
+        (yield* readCurrentRuleRegistryEffect<R>(options.repoRoot, options.fileSystem)),
       ruleIntroductionManifests: options.ruleIntroductionManifests ?? [],
     };
   });
 }
 
-function readCurrentRuleRegistryEffect(
+function readCurrentRuleRegistryEffect<R>(
   root: string,
-  fileSystem: BaselineFileSystemPort
-): Effect.Effect<BaselineRuleContractInput[], never, any> {
+  fileSystem: BaselineFileSystemPort<R>
+): Effect.Effect<BaselineRuleContractInput[], never, R> {
   return Effect.gen(function* () {
     try {
       const parsed = yield* loadRuleRegistryDocumentEffect(path.join(root, ruleRegistryRepoPath), {
@@ -318,11 +373,11 @@ function readCurrentRuleRegistryEffect(
   });
 }
 
-function parseBaselineFileEffect(
+function parseBaselineFileEffect<R>(
   filePath: string,
   ruleId: string,
-  context: RequiredBaselineAuthorityContext
-) {
+  context: RequiredBaselineAuthorityContext<R>
+): Effect.Effect<BaselineAuthorityState, never, R> {
   return Effect.gen(function* () {
     const raw = yield* context.fileSystem.readText(filePath).pipe(Effect.either);
     if (raw._tag === "Left") {
@@ -348,9 +403,13 @@ function parseBaselineFileEffect(
       };
     }
 
-    const keys = parseBaselineArray(parsed, toAuthorityRelative(filePath, context), ruleId);
-    if (!keys.ok) return keys.refusal;
-    return keys.keys.length === 0
+    const parsedBaseline = parseBaselineDocument(
+      parsed,
+      toAuthorityRelative(filePath, context),
+      ruleId
+    );
+    if (!parsedBaseline.ok) return parsedBaseline.refusal;
+    return parsedBaseline.document.occurrences.length === 0
       ? {
           kind: "explicit-empty" as const,
           ruleId,
@@ -363,31 +422,32 @@ function parseBaselineFileEffect(
           ruleId,
           path: toAuthorityRelative(filePath, context),
           locked: false as const,
-          keys: keys.keys,
+          coverage: parsedBaseline.document.coverage,
+          occurrences: parsedBaseline.document.occurrences,
         };
   });
 }
 
-function fileExists(
+function fileExists<R>(
   filePath: string,
-  context: RequiredBaselineAuthorityContext
-): Effect.Effect<boolean, never, any> {
+  context: RequiredBaselineAuthorityContext<R>
+): Effect.Effect<boolean, never, R> {
   return context.fileSystem.isFile(filePath).pipe(Effect.catchAll(() => Effect.succeed(false)));
 }
 
-function directoryExists(
+function directoryExists<R>(
   directoryPath: string,
-  context: RequiredBaselineAuthorityContext
-): Effect.Effect<boolean, never, any> {
+  context: RequiredBaselineAuthorityContext<R>
+): Effect.Effect<boolean, never, R> {
   return context.fileSystem
     .isDirectory(directoryPath)
     .pipe(Effect.catchAll(() => Effect.succeed(false)));
 }
 
-function mergeBaseEffect(
+function mergeBaseEffect<R>(
   base: string,
-  context: RequiredBaselineAuthorityContext
-): Effect.Effect<string | null, never, any> {
+  context: RequiredBaselineAuthorityContext<R>
+): Effect.Effect<string | null, never, R> {
   return Effect.gen(function* () {
     for (const ref of [base, `origin/${base}`]) {
       const mb = yield* context.git.mergeBase(ref, { cwd: context.repoRoot });
@@ -397,24 +457,24 @@ function mergeBaseEffect(
   });
 }
 
-function loadBaseRuleIdsEffect(
+function loadBaseRuleIdsEffect<R>(
   mb: string,
-  context: RequiredBaselineAuthorityContext
+  context: RequiredBaselineAuthorityContext<R>
 ): Effect.Effect<
   { ok: true; ruleIds: Set<string> } | { ok: false; refusal: BaselineRefusal },
   never,
-  any
+  R
 > {
   return Effect.gen(function* () {
     const registryPath = ruleRegistryRepoPath;
-    const rulePackAtBase = yield* gitShowMovedAuthoredArtifactEffect(
+    const rulePackAtBase = yield* gitShowMovedAuthoredArtifactEffect<R>(
       mb,
       `${registryPath}/rules.json`,
       preD14aAuthoredAuthorityPaths.ruleRegistry,
       context
     );
     if (rulePackAtBase === null) {
-      const ruleIds = yield* loadBaseRuleIdsFromDirectoryEffect(mb, registryPath, context);
+      const ruleIds = yield* loadBaseRuleIdsFromDirectoryEffect<R>(mb, registryPath, context);
       if (ruleIds) return { ok: true, ruleIds };
       return {
         ok: false,
@@ -449,11 +509,11 @@ function loadBaseRuleIdsEffect(
   });
 }
 
-function loadBaseRuleIdsFromDirectoryEffect(
+function loadBaseRuleIdsFromDirectoryEffect<R>(
   mb: string,
   registryPath: string,
-  context: RequiredBaselineAuthorityContext
-): Effect.Effect<Set<string> | null, never, any> {
+  context: RequiredBaselineAuthorityContext<R>
+): Effect.Effect<Set<string> | null, never, R> {
   return Effect.gen(function* () {
     const lines = yield* context.git.lsTreeNameOnly(mb, registryPath, { cwd: context.repoRoot });
     if (lines === null) return null;
@@ -484,28 +544,30 @@ function baseRuleIdFromManifestText(raw: string): string | undefined {
   }
 }
 
-function loadBaseBaselineKeysEffect(
+function loadBaseBaselineDocumentEffect<R>(
   mb: string,
   ruleId: string,
   baselinePath: string,
-  context: RequiredBaselineAuthorityContext
+  context: RequiredBaselineAuthorityContext<R>
 ): Effect.Effect<
-  { ok: true; keys: string[] } | { ok: false; refusal: BaselineRefusal },
+  { ok: true; document: ParsedBaselineDocument } | { ok: false; refusal: BaselineRefusal },
   never,
-  any
+  R
 > {
   return Effect.gen(function* () {
-    const beforeRaw = yield* gitShowMovedAuthoredArtifactEffect(
+    const beforeRaw = yield* gitShowMovedAuthoredArtifactEffect<R>(
       mb,
       baselinePath,
       preD14aAuthoredAuthorityPaths.baseline(ruleId),
       context
     );
-    if (beforeRaw === null) return { ok: true, keys: [] };
+    if (beforeRaw === null) {
+      return { ok: true, document: { coverage: "key", occurrences: [] } };
+    }
     try {
-      const parsed = parseBaselineArray(JSON.parse(beforeRaw.contents), baselinePath, ruleId);
+      const parsed = parseBaselineDocument(JSON.parse(beforeRaw.contents), baselinePath, ruleId);
       return parsed.ok
-        ? { ok: true, keys: parsed.keys }
+        ? { ok: true, document: parsed.document }
         : { ok: false, refusal: { ...parsed.refusal, reason: "base-baseline-unreadable" } };
     } catch (error) {
       return {
@@ -522,12 +584,12 @@ function loadBaseBaselineKeysEffect(
   });
 }
 
-function gitShowMovedAuthoredArtifactEffect(
+function gitShowMovedAuthoredArtifactEffect<R>(
   ref: string,
   currentRepoPath: string,
   previousRepoPath: string,
-  context: RequiredBaselineAuthorityContext
-): Effect.Effect<{ contents: string } | null, never, any> {
+  context: RequiredBaselineAuthorityContext<R>
+): Effect.Effect<{ contents: string } | null, never, R> {
   return Effect.gen(function* () {
     const current = yield* context.git.show(ref, currentRepoPath, { cwd: context.repoRoot });
     if (current !== null) return { contents: current };
@@ -569,16 +631,17 @@ function findingFromRefusal(refusal: BaselineRefusal): BaselineIntegrityFinding 
   };
 }
 
-function baselinePathForRule(
-  ruleId: string,
-  context: Pick<RequiredBaselineAuthorityContext, "baselinesDir">
-): string {
+function baselinePathForRule(ruleId: string, context: { readonly baselinesDir: string }): string {
   return path.join(context.baselinesDir, `${ruleId}.json`);
 }
 
 function baselineContractPathForRule(
   ruleId: string,
-  context: Pick<RequiredBaselineAuthorityContext, "baselinesDir" | "registry" | "repoRoot">
+  context: {
+    readonly baselinesDir: string;
+    readonly registry: readonly BaselineRuleContractInput[];
+    readonly repoRoot: string;
+  }
 ): string {
   const rule = context.registry.find((candidate) => candidate.id === ruleId);
   if (rule?.baselinePath) return rule.baselinePath;
@@ -587,7 +650,7 @@ function baselineContractPathForRule(
 
 function absoluteBaselinePath(
   baselinePath: string,
-  context: Pick<RequiredBaselineAuthorityContext, "repoRoot">
+  context: { readonly repoRoot: string }
 ): string {
   return path.isAbsolute(baselinePath) ? baselinePath : path.join(context.repoRoot, baselinePath);
 }
@@ -596,10 +659,7 @@ function toPosixPath(filePath: string): string {
   return filePath.split(path.sep).join("/");
 }
 
-function toAuthorityRelative(
-  filePath: string,
-  context: Pick<RequiredBaselineAuthorityContext, "repoRoot">
-): string {
+function toAuthorityRelative(filePath: string, context: { readonly repoRoot: string }): string {
   return externalSourceFilePath(
     path.relative(context.repoRoot, path.resolve(filePath)).split(path.sep).join("/")
   );

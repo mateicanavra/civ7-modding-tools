@@ -5,12 +5,15 @@ import {
   type Civ7MapLocation,
   Civ7PlotSnapshotProcedureDescriptor,
   Civ7PlotSnapshotProcedureSchemaArtifacts,
+  type Civ7PlotSnapshotResult,
   callCiv7PlotSnapshotProcedure,
   getCiv7PlotSnapshot,
   type PlotSnapshotReadDependencies,
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
+
+import { schemaPropertyKeys } from "./support/procedure-schema";
 
 describe("Civ7 plot-snapshot procedure descriptor", () => {
   test("records the read-only plot-snapshot atom and resolves its schemas", () => {
@@ -33,10 +36,10 @@ describe("Civ7 plot-snapshot procedure descriptor", () => {
       Civ7PlotSnapshotProcedureDescriptor,
       Civ7PlotSnapshotProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7PlotSnapshotProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7PlotSnapshotProcedureDescriptor.outputFields)
     );
     expect(
@@ -189,7 +192,7 @@ describe("Civ7 plot-snapshot procedure descriptor", () => {
   });
 });
 
-function plotSnapshotResult() {
+function plotSnapshotResult(): Civ7PlotSnapshotResult {
   return {
     host: "127.0.0.1",
     port: 4318,

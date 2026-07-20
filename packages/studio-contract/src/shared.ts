@@ -1,8 +1,8 @@
 import { type TSchema, Type } from "typebox";
 
 import {
-  toStandardSchema,
   type TypeBoxStandardSchemaOptions,
+  toStandardSchema,
 } from "./lib/typeboxStandardSchema.js";
 
 /**

@@ -4,7 +4,7 @@ import {
   MapElevationKnobsSchema,
   MapElevationPublicSchema,
 } from "../map-projection-public-config.js";
-import { buildElevation } from "./steps/index.js";
+import { BuildElevationStep } from "./steps/build-elevation/step.js";
 
 /**
  * Engine elevation materialization stage.
@@ -22,6 +22,6 @@ export default createStage({
     "build-elevation": {},
   }),
   steps: orderStandardStageSteps("map-elevation", {
-    "build-elevation": buildElevation,
+    "build-elevation": BuildElevationStep,
   }),
 } as const);

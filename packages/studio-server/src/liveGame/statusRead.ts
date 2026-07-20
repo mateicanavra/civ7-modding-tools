@@ -1,5 +1,6 @@
+import type { Civ7PlayableStatusResult } from "@civ7/direct-control";
 import type { LiveGameStatusBody } from "@civ7/studio-contract";
-import { Effect } from "effect";
+import { Effect, Option } from "effect";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
 
 export type LiveGameStatusOutput = LiveGameStatusBody &
@@ -13,38 +14,59 @@ export type LiveGameStatusOutput = LiveGameStatusBody &
     autoplay: Record<string, unknown> | { error: string };
   }>;
 
-export const readLiveGameStatusBody: Effect.Effect<LiveGameStatusOutput, never, Civ7TunerClient> =
-  Effect.gen(function* () {
-    const settled = yield* Effect.all(
-      {
-        status: Civ7TunerClient.playableStatus().pipe(Effect.either),
-        appUi: Civ7TunerClient.appUiSnapshot().pipe(Effect.either),
-        mapSummary: Civ7TunerClient.liveMapSummary().pipe(Effect.either),
-        autoplay: Civ7TunerClient.autoplayStatus().pipe(Effect.either),
-      },
-      { concurrency: "unbounded" }
-    );
-    const playableStatus = settled.status._tag === "Right" ? settled.status.right : undefined;
-    return {
-      ok: Boolean(playableStatus && playableStatus.readiness !== "unavailable"),
-      playable: playableStatus?.playable ?? false,
-      observedAt: new Date().toISOString(),
-      status: fieldOrError(settled.status, playableStatus),
-      appUi: fieldOrError(settled.appUi),
-      mapSummary: fieldOrError(settled.mapSummary),
-      autoplay: fieldOrError(settled.autoplay),
-    };
-  });
+export const readLiveGameStatusBody = Civ7TunerClient.playableStatus().pipe(
+  Effect.match({ onFailure: failedStatus, onSuccess: observedStatus })
+);
 
-/**
- * Map a `civ7.live.status` per-field result to the contract's
- * `unknownRecord | { error }` union, matching the legacy `allSettled` body:
- * a fulfilled value passes through; a rejection becomes `{ error: String(reason) }`.
- */
-export function fieldOrError<A>(
-  either: { _tag: "Left"; left: unknown } | { _tag: "Right"; right: A },
-  override?: A
-): Record<string, unknown> | { error: string } {
-  if (either._tag === "Right") return (override ?? either.right) as Record<string, unknown>;
-  return { error: String(either.left) };
+function failedStatus(cause: unknown): LiveGameStatusOutput {
+  const error = { error: String(cause) };
+  return {
+    ok: false,
+    playable: false,
+    observedAt: new Date().toISOString(),
+    status: error,
+    appUi: error,
+    mapSummary: error,
+    autoplay: error,
+  };
+}
+
+function observedStatus(status: Civ7PlayableStatusResult) {
+  const appUi = status.appUi;
+  const snapshot = appUi.snapshot;
+  const turn = Option.liftPredicate(snapshot.game.turn, (value) => value >= 0).pipe(
+    Option.match({
+      onNone: () => ({}),
+      onSome: (value) => ({ turn: { ok: true as const, value } }),
+    })
+  );
+  return {
+    ok: status.readiness !== "unavailable",
+    playable: status.playable,
+    observedAt: new Date().toISOString(),
+    status,
+    appUi,
+    mapSummary: {
+      host: appUi.host,
+      port: appUi.port,
+      state: appUi.state,
+      map: {
+        randomSeed: snapshot.map.randomSeed,
+        width: snapshot.map.width,
+        height: snapshot.map.height,
+      },
+      game: {
+        ...turn,
+        hash: snapshot.game.hash,
+      },
+    },
+    autoplay: {
+      host: appUi.host,
+      port: appUi.port,
+      state: appUi.state,
+      autoplay: snapshot.autoplay,
+      game: snapshot.game,
+      gameContext: snapshot.gameContext,
+    },
+  } satisfies LiveGameStatusOutput;
 }

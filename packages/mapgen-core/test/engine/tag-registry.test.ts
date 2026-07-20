@@ -6,19 +6,18 @@ import {
   createStep,
   defineArtifact,
   defineStep,
-  implementArtifacts,
+  validateArtifactSchema,
 } from "@mapgen/authoring/index.js";
 import { createExtendedMapContext } from "@mapgen/core/types.js";
 import {
   compileExecutionPlan,
   InvalidDependencyTagDemoError,
+  InvalidDependencyTagError,
   isDependencyTagSatisfied,
   PipelineExecutor,
-  StepExecutionError,
   StepRegistry,
   TagRegistry,
   UnknownDependencyTagError,
-  UnsatisfiedProvidesError,
 } from "@mapgen/engine/index.js";
 import { Type } from "typebox";
 
@@ -55,26 +54,75 @@ function compilePlan<TContext>(
 }
 
 describe("tag registry", () => {
+  it("admits only artifact and effect dependency kinds", () => {
+    const registry = new TagRegistry();
+
+    expect(() =>
+      registry.registerTag({ id: "artifact:test.snapshot", kind: "artifact" })
+    ).not.toThrow();
+    expect(() => registry.registerTag({ id: "effect:test.applied", kind: "effect" })).not.toThrow();
+    expect(() => registry.registerTag({ id: "field:test.legacy", kind: "field" } as never)).toThrow(
+      InvalidDependencyTagError
+    );
+  });
+
+  it("rejects legacy field ids during recipe tag inference", () => {
+    const step = createStep(
+      defineStep({
+        id: "legacy-field-consumer",
+        phase: "foundation",
+        requires: ["field:test.legacy"],
+        provides: [],
+        schema: Type.Object({}, { additionalProperties: false }),
+      }),
+      { run: () => {} }
+    );
+    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
+
+    expect(() =>
+      createRecipe({
+        id: "core.closed-dependency-kinds",
+        tagDefinitions: [],
+        stages: [stage],
+        compileOpsById: {},
+      })
+    ).toThrow(/expected artifact:\/effect:/);
+  });
+
   it("requires explicit provision and a passing artifact predicate for satisfaction", () => {
-    const artifactTag = "artifact:test.generic";
+    const artifact = defineArtifact({
+      name: "genericArtifact",
+      id: "artifact:test.generic",
+      schema: Type.Unknown(),
+    });
     const context = { artifacts: new Map<string, unknown>() };
     const registry = new TagRegistry<typeof context>();
     registry.registerTag({
-      id: artifactTag,
+      id: artifact.id,
       kind: "artifact",
-      satisfies: (current) => current.artifacts.has(artifactTag),
+      satisfies: (current) => current.artifacts.has(artifact.id),
     });
 
     expect(
-      isDependencyTagSatisfied(artifactTag, context, { satisfied: new Set([artifactTag]) }, registry)
+      isDependencyTagSatisfied(
+        artifact.id,
+        context,
+        { satisfied: new Set([artifact.id]) },
+        registry
+      )
     ).toBe(false);
 
-    context.artifacts.set(artifactTag, {});
+    context.artifacts.set(artifact.id, {});
+    expect(isDependencyTagSatisfied(artifact.id, context, { satisfied: new Set() }, registry)).toBe(
+      false
+    );
     expect(
-      isDependencyTagSatisfied(artifactTag, context, { satisfied: new Set() }, registry)
-    ).toBe(false);
-    expect(
-      isDependencyTagSatisfied(artifactTag, context, { satisfied: new Set([artifactTag]) }, registry)
+      isDependencyTagSatisfied(
+        artifact.id,
+        context,
+        { satisfied: new Set([artifact.id]) },
+        registry
+      )
     ).toBe(true);
   });
 
@@ -169,13 +217,17 @@ describe("tag registry", () => {
         phase: "foundation",
         requires: [],
         provides: [],
-        artifacts: { provides: [artifact] },
+        artifacts: {
+          provides: [
+            {
+              artifact,
+              validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
+            },
+          ],
+        },
         schema: Type.Object({}, { additionalProperties: false }),
       }),
-      {
-        artifacts: implementArtifacts([artifact], { artifactFoo: {} }),
-        run: () => {},
-      }
+      { run: () => {} }
     );
 
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
@@ -189,14 +241,8 @@ describe("tag registry", () => {
     const adapter = createMockAdapter({ width: 2, height: 2 });
     const ctx = createExtendedMapContext({ width: 2, height: 2 }, adapter, baseEnv);
 
-    let error: unknown;
-    try {
-      recipe.run(ctx, baseEnv, { foundation: { knobs: {}, alpha: {} } });
-    } catch (err) {
-      error = err;
-    }
-
-    expect(error).toBeInstanceOf(StepExecutionError);
-    expect((error as StepExecutionError).cause).toBeInstanceOf(UnsatisfiedProvidesError);
+    expect(() => recipe.run(ctx, baseEnv, { foundation: { knobs: {}, alpha: {} } })).toThrow(
+      /did not satisfy declared provides/
+    );
   });
 });

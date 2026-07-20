@@ -6,7 +6,7 @@ Studio dev startup must be reproducible on isolated ports and classified separat
 
 ## What Changes
 
-- Prove root/Nx `bun run dev:mapgen-studio` startup with daemon/Vite/RPC URLs recorded.
+- Prove `nx run mapgen-studio:dev` startup with daemon/Vite/RPC URLs recorded.
 - Preserve isolated port support through `STUDIO_DEV_PORT`, `STUDIO_DAEMON_PORT`, and `STUDIO_DEV_RPC_TARGET`.
 - Record generated-output and process cleanup state before and after dev proof.
 

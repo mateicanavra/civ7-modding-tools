@@ -1,4 +1,5 @@
 import {
+  appendArtifactTypedArrayIssues,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -36,8 +37,13 @@ const ResourceEligibilityArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for the exact habitat, legality, and intensity fields used during planning. */
 export const Schema = ResourceEligibilityArtifactSchema;
 
+/**
+ * Registers the exact habitat, legality, and intensity surfaces under which
+ * each symbolic resource demand was planned and later support-adjusted.
+ */
 export const artifact = defineArtifact({
   name: "resourceEligibility",
   id: "artifact:placement.resourceEligibility",
@@ -54,27 +60,25 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-/**
- * Validate hooks for the resource planning artifacts (placement-realignment
- * S3 artifact hygiene: placement previously registered zero validators).
- * These check cross-field invariants the schemas cannot express.
- */
-
 function validatePayload(value: unknown): ValidationIssue[] {
   if (!isRecord(value)) return [issue("resourceEligibility artifact must be an object.")];
   const issues: ValidationIssue[] = [];
   const width = Number(value.width);
   const height = Number(value.height);
-  const size = width * height;
-  if (!Number.isSafeInteger(size) || size <= 0) {
-    return [
+  const product = width * height;
+  const size = Number.isSafeInteger(product) && product > 0 ? product : undefined;
+  if (size === undefined) {
+    issues.push(
       issue(
         `resourceEligibility has invalid dimensions ${String(value.width)}x${String(value.height)}.`
-      ),
-    ];
+      )
+    );
   }
   const rows = Array.isArray(value.rows) ? value.rows : null;
-  if (!rows) return [issue("resourceEligibility.rows must be an array.")];
+  if (!rows) {
+    issues.push(issue("resourceEligibility.rows must be an array."));
+    return issues;
+  }
   const seenTypes = new Set<string>();
   for (const row of rows) {
     if (!isRecord(row)) {
@@ -85,16 +89,32 @@ function validatePayload(value: unknown): ValidationIssue[] {
     if (seenTypes.has(type))
       issues.push(issue(`resourceEligibility row ${type} appears more than once.`));
     seenTypes.add(type);
-    for (const field of ["habitatMask", "legalMask", "intensity"] as const) {
-      const mask = row[field] as { length?: number } | undefined;
-      if (!mask || mask.length !== size) {
-        issues.push(issue(`resourceEligibility ${type}.${field} length must equal ${size}.`));
-      }
-    }
+    appendArtifactTypedArrayIssues(
+      issues,
+      `resourceEligibility ${type}.habitatMask`,
+      row.habitatMask,
+      Uint8Array,
+      size
+    );
+    appendArtifactTypedArrayIssues(
+      issues,
+      `resourceEligibility ${type}.legalMask`,
+      row.legalMask,
+      Uint8Array,
+      size
+    );
+    appendArtifactTypedArrayIssues(
+      issues,
+      `resourceEligibility ${type}.intensity`,
+      row.intensity,
+      Float32Array,
+      size
+    );
   }
   return issues;
 }
 
+/** Requires unique resource rows and map-sized habitat, legality, and intensity fields. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

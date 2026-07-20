@@ -9,20 +9,45 @@ export const NxTargetDependencySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const NxTargetDefinitionSchema = Type.Object(
-  {
-    command: Type.String({ minLength: 1 }),
-    options: Type.Object({ cwd: Type.String({ minLength: 1 }) }, { additionalProperties: false }),
-    cache: Type.Boolean(),
-    inputs: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
-    outputs: Type.Optional(Type.Array(Type.String())),
-    dependsOn: Type.Optional(Type.Array(NxTargetDependencySchema)),
-    metadata: Type.Optional(
-      Type.Object({ description: Type.String({ minLength: 1 }) }, { additionalProperties: false })
-    ),
-  },
+const NxTargetMetadataSchema = Type.Object(
+  { description: Type.String({ minLength: 1 }) },
   { additionalProperties: false }
 );
+
+export const NxTargetDefinitionSchema = Type.Union([
+  Type.Object(
+    {
+      command: Type.String({ minLength: 1 }),
+      options: Type.Object(
+        {
+          cwd: Type.String({ minLength: 1 }),
+          env: Type.Optional(
+            Type.Record(Type.String({ minLength: 1 }), Type.String(), {
+              minProperties: 1,
+            })
+          ),
+        },
+        { additionalProperties: false }
+      ),
+      cache: Type.Boolean(),
+      inputs: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
+      outputs: Type.Optional(Type.Array(Type.String())),
+      dependsOn: Type.Optional(Type.Array(NxTargetDependencySchema)),
+      metadata: Type.Optional(NxTargetMetadataSchema),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      executor: Type.Literal("nx:noop"),
+      cache: Type.Literal(false),
+      outputs: Type.Tuple([]),
+      dependsOn: Type.Array(NxTargetDependencySchema, { minItems: 1 }),
+      metadata: Type.Optional(NxTargetMetadataSchema),
+    },
+    { additionalProperties: false }
+  ),
+]);
 
 export const InferredProjectSchema = Type.Object(
   {

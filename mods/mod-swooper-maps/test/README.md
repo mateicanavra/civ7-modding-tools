@@ -20,6 +20,13 @@ owns it rather than in this mod's test tree.
 - `support` contains non-owning helpers and fixtures. Shared setup does not
   transfer behavioral ownership to support code.
 
+`@swooper/mapgen-metrics` owns pure count, summary, component, and target
+evaluation contracts. The Standard recipe owns its scenario capture, map product
+sample and cohort shapes, measurements, and concrete product targets under
+`src/recipes/standard/metrics`; tests assert those shared targets rather than
+hiding thresholds in test support. One captured generation may be evaluated by
+multiple targets without rerunning it.
+
 Classify a test by its SUT and behavioral owner. Execution labels such as unit,
 integration, conformance, offline, and live do not create ownership roots.
 Structural and import topology belongs to Habitat, not source-string tests.

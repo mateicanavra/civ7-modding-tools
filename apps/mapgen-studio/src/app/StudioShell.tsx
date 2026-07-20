@@ -5,21 +5,19 @@ import {
   ExplorePanel,
   GameConsole,
   LeftDock,
+  MapConfigSaveDialog,
   PipelineStage,
-  PresetConfirmDialog,
-  PresetErrorDialog,
-  PresetSaveDialog,
   RecipePanel,
   RightDock,
   StageViewTabs,
 } from "@swooper/mapgen-studio-ui";
 import type { GenerationStatus } from "@swooper/mapgen-studio-ui/types";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../features/civ7Setup/seedPolicy";
-import { getRecipeDefaultConfig } from "../features/configAuthoring/canonicalConfig";
+import { getRecipeDefaultCanonicalConfig } from "../features/configAuthoring/canonicalConfig";
 import { orpcClient } from "../lib/orpc";
-import { STUDIO_RECIPE_OPTIONS } from "../recipes/catalog";
+import { getRecipeDagId } from "../recipes/catalog";
 import type { VizEvent } from "../shared/vizEvents";
 import { useAuthoringStore } from "../stores/authoringStore";
 import { useRunStore } from "../stores/runStore";
@@ -27,10 +25,10 @@ import { useViewStore } from "../stores/viewStore";
 import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS } from "../ui/constants";
 import { CanvasStage } from "./CanvasStage";
 import { useBrowserRun } from "./hooks/useBrowserRun";
+import { useConfigAuthoring } from "./hooks/useConfigAuthoring";
 import { useDeckAutofit } from "./hooks/useDeckAutofit";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useLiveRuntime } from "./hooks/useLiveRuntime";
-import { usePresetLifecycle } from "./hooks/usePresetLifecycle";
 import { useRunInGame } from "./hooks/useRunInGame";
 import { useSaveDeploy } from "./hooks/useSaveDeploy";
 import { useSetupControls } from "./hooks/useSetupControls";
@@ -40,7 +38,6 @@ import { useStudioOperations } from "./hooks/useStudioOperations";
 import { useToast } from "./hooks/useToast";
 import { useViewportLayout } from "./hooks/useViewportLayout";
 import { useVizSelection } from "./hooks/useVizSelection";
-import { readAndAdoptStudioOperationsCurrent } from "./operationAdoption";
 import { studioBusyGateMessage } from "./studioEventRecovery";
 
 export type StudioShellProps = {
@@ -53,19 +50,16 @@ export function StudioShell(props: StudioShellProps) {
   const toast = useToast();
   const { themePreference, cyclePreference } = props;
 
-  // The authoring store is the only persisted owner of the active config source.
+  // The authoring store owns the one complete config used by every execution path.
   const worldSettings = useAuthoringStore((s) => s.worldSettings);
   const setWorldSettings = useAuthoringStore((s) => s.setWorldSettings);
-  const recipeSettings = useAuthoringStore((s) => s.recipeSettings);
-  const setRecipeSettings = useAuthoringStore((s) => s.setRecipeSettings);
+  const seed = useAuthoringStore((s) => s.seed);
+  const setSeed = useAuthoringStore((s) => s.setSeed);
   const setupConfig = useAuthoringStore((s) => s.setupConfig);
   const setSetupConfig = useAuthoringStore((s) => s.setSetupConfig);
-  const authoringConfigSource = useAuthoringStore((s) => s.authoringConfigSource);
-  const setAuthoringConfigSource = useAuthoringStore((s) => s.setAuthoringConfigSource);
-  const setAuthoringSelection = useAuthoringStore((s) => s.setAuthoringSelection);
+  const canonicalConfig = useAuthoringStore((s) => s.canonicalConfig);
+  const setCanonicalConfig = useAuthoringStore((s) => s.setCanonicalConfig);
   const authoringRevision = useAuthoringStore((s) => s.authoringRevision);
-  const configEditingEnabled = useAuthoringStore((s) => s.configEditingEnabled);
-  const setConfigEditingEnabled = useAuthoringStore((s) => s.setConfigEditingEnabled);
 
   // View-only state is owned by `viewStore` (Zustand, architecture/10 §3). These
   // are presentation toggles/selections with no server coupling and no persistence
@@ -98,8 +92,11 @@ export function StudioShell(props: StudioShellProps) {
   const setExploreWaterStatsExpanded = useViewStore((s) => s.setExploreWaterStatsExpanded);
   const stageView = useViewStore((s) => s.stageView);
   const setStageView = useViewStore((s) => s.setStageView);
+  const configEditingEnabled = useViewStore((s) => s.configEditingEnabled);
+  const setConfigEditingEnabled = useViewStore((s) => s.setConfigEditingEnabled);
   const pipelineSelectedStageId = useViewStore((s) => s.pipelineSelectedStageId);
   const setPipelineSelectedStageId = useViewStore((s) => s.setPipelineSelectedStageId);
+  const recipeDagId = getRecipeDagId(canonicalConfig.recipe);
 
   // Coordination layer (init FIRST): owns the runInGame/saveDeploy operation
   // state + the single-owner error channel, and derives the busy booleans
@@ -116,8 +113,6 @@ export function StudioShell(props: StudioShellProps) {
     clearLocalErrorIfCurrent,
     runInGameRunning,
     saveDeployRunning,
-    runInGameOperationRef,
-    saveDeployOperationCurrentRef,
   } = useStudioOperations();
 
   // Viewport/layout chrome: deck canvas handle, measured viewport, docked-panel
@@ -136,40 +131,27 @@ export function StudioShell(props: StudioShellProps) {
     recipeDag,
     pipelineExpandedStageIds,
     handlePipelineStageToggle,
-  } = useViewportLayout({ recipe: recipeSettings.recipe, stageView });
+  } = useViewportLayout({ recipe: recipeDagId, stageView });
 
-  const setLastRunSnapshot = useRunStore((s) => s.setLastRunSnapshot);
+  const lastRunSnapshot = useRunStore((s) => s.lastRunSnapshot);
   const runInGameSnapshot = useRunStore((s) => s.runInGameSnapshot);
   const setRunInGameSnapshot = useRunStore((s) => s.setRunInGameSnapshot);
 
   const {
     recipeArtifacts,
-    presetOptions,
+    recipeOptions,
+    configOptions,
     pipelineConfig,
     setPipelineConfig,
-    isAuthoringBlocked,
-    authoringBlockReason,
-    recoverWithCatalogConfig,
-    recoverWithNewEditorConfig,
-    presetError,
-    setPresetError,
-    pendingImport,
+    selectRecipe,
+    selectConfig,
     importInputRef,
-    applyRecipeSettingsChange,
-    adoptSavedEditorConfig,
-    handleExportPreset,
-    handleImportPreset,
-    handleImportFileChange,
-    confirmImportSwitch,
-    cancelImportSwitch,
-  } = usePresetLifecycle({
-    recipeSettings,
-    authoringConfigSource,
-    setAuthoringConfigSource,
-    setAuthoringSelection,
-    setConfigEditingEnabled,
-    setRecipeSettings,
-    setLastRunSnapshot,
+    openImport,
+    importFile,
+    exportConfig,
+  } = useConfigAuthoring({
+    canonicalConfig,
+    setCanonicalConfig,
     toast,
   });
 
@@ -230,7 +212,7 @@ export function StudioShell(props: StudioShellProps) {
     handleEraValueChange,
     handleRiverLakeInspectorLayerSelect,
   } = useVizSelection({
-    recipe: recipeSettings.recipe,
+    recipe: canonicalConfig.recipe,
     recipeArtifacts,
     browserRunning,
     setLocalError,
@@ -257,14 +239,6 @@ export function StudioShell(props: StudioShellProps) {
   // `useVizSelection` (their sole writer).
   const setSelectedStepId = useViewStore((s) => s.setSelectedStepId);
 
-  // Static recipe dropdown options (`[]` deps — the catalog is build-time constant).
-  // A trivial host-render projection: too small to warrant a hook, and the recipe panel
-  // needs it synchronously.
-  const recipeOptions = useMemo(
-    () => STUDIO_RECIPE_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label })),
-    []
-  );
-
   // Browser-run command + auto-run orchestration (slice 2.6). The runner
   // instance + `browserRunning` derivation + `vizIngestRef` sink wiring stay in
   // host render scope above (they must straddle the host-owned `viz` call, which
@@ -277,19 +251,14 @@ export function StudioShell(props: StudioShellProps) {
     viz,
     runInGameRunning,
     saveDeployRunning,
-    pipelineConfig,
     toast,
     setLocalError,
   });
 
-  // Repo-backed save/deploy cluster (slice 2.9): the save-dialog state, the
-  // save/deploy terminal-event waiter machinery (mirror + unmount-cleanup effects,
-  // SD-5 ordered pair / SD-10 first-line ref assign), and the three save handlers
-  // plus their shared `saveRepoBackedConfigWithState` core. The operation state
-  // itself stays in `useStudioOperations`; the busy booleans are threaded IN. Initialized
-  // BEFORE the operation-adoption effect (§5) so a daemon-adopted terminal
-  // save/deploy commit can resolve a pending waiter.
+  // Save/Deploy owns one synchronous operation adopter so pushed daemon evidence and
+  // request responses share the same terminal authority and waiter resolution.
   const {
+    adoptSaveDeployOperation,
     saveDialogState,
     closeSaveDialog,
     handleSaveDialogConfirm,
@@ -301,10 +270,8 @@ export function StudioShell(props: StudioShellProps) {
     saveDeployRunning,
     browserRunning,
     runInGameRunning,
-    recipeId: recipeSettings.recipe,
-    authoringConfigSource,
-    pipelineConfig,
-    adoptSavedEditorConfig,
+    canonicalConfig,
+    setCanonicalConfig,
     toast,
   });
 
@@ -315,9 +282,7 @@ export function StudioShell(props: StudioShellProps) {
   // and run-in-game sync-back (2.11). The host still reads `liveRuntime.status/seed`,
   // `liveSetup.setup`, and `liveRuntimeSuggestions` from the returned outputs. The
   // `orpcClient` is threaded IN so the abort/staleness contracts are renderHook-testable.
-  // Initialized BEFORE `useRunInGame`'s territory / the operation-adoption effect (§5)
-  // because adoption needs the run-in-game + save-deploy setters and run-in-game inits
-  // after this hook.
+  // Initialized before `useRunInGame` because recovery consumes both operation adopters.
   const { liveRuntime, setLiveRuntime, liveRuntimeSuggestions, liveSetup, applyLiveGameState } =
     useLiveRuntime({ orpcClient });
 
@@ -331,12 +296,12 @@ export function StudioShell(props: StudioShellProps) {
     copyRunInGameDiagnostics,
     isRunInGameBlocked,
   } = useRunInGame({
-    recipeSettings,
+    seed,
     worldSettings,
-    authoringConfigSource,
+    canonicalConfig,
     authoringRevision,
     setupConfig,
-    setRecipeSettings,
+    setSeed,
     setSetupConfig,
     liveRuntime,
     liveRuntimeSuggestions,
@@ -354,19 +319,12 @@ export function StudioShell(props: StudioShellProps) {
 
   const liveGameStudioRelation = useMemo<"current" | "stale" | "unknown">(() => {
     if (liveRuntime.status !== "ok") return "unknown";
-    if (liveRuntime.seed !== undefined && String(liveRuntime.seed) !== recipeSettings.seed)
-      return "stale";
+    if (liveRuntime.seed !== undefined && String(liveRuntime.seed) !== seed) return "stale";
     if (runInGameCurrentRelation === "current" && runInGameOperation?.status === "completed") {
       return "current";
     }
     return runInGameCurrentRelation === "stale" ? "stale" : "unknown";
-  }, [
-    liveRuntime.seed,
-    liveRuntime.status,
-    recipeSettings.seed,
-    runInGameCurrentRelation,
-    runInGameOperation,
-  ]);
+  }, [liveRuntime.seed, liveRuntime.status, seed, runInGameCurrentRelation, runInGameOperation]);
 
   // Setup-controls cluster (slice 2.12): the derived `setupControlOptions`
   // projection, the value-equality saved-config drift detector, the saved-config
@@ -391,7 +349,7 @@ export function StudioShell(props: StudioShellProps) {
   } = useSetupControls({
     setupConfig,
     setSetupConfig,
-    setRecipeSettings,
+    setSeed,
     savedSetupConfigs,
     setupCatalog,
     liveSetup,
@@ -403,49 +361,17 @@ export function StudioShell(props: StudioShellProps) {
     toast,
   });
 
-  // Seam #2: the shared run-in-game toast-dedupe stamp. Both the adoption effect below
-  // and `useStudioEvents` call this to mark a requestId as already-toasted, so whichever
-  // observes a terminal run-in-game status first suppresses the other's toast (see
-  // `useRunInGameTerminalToast`). Stable identity (`[]`) so it can be threaded into the
-  // adoption effect's deps without re-triggering it.
+  // The subscription hello marks historical terminal operations as handled so a cold
+  // reload does not replay their toast. Direct terminal events remain toast-producing.
   const markRunInGameToastHandled = useCallback((requestId: string) => {
     lastRunInGameToastRef.current = requestId;
   }, []);
 
-  // The SINGLE mount-time operation-adoption effect (§5). On load, reconcile the shell
-  // against `studio.operations.current` so a run-in-game / save-deploy that completed
-  // (or is still running) on the daemon while the tab was closed is re-attached: it
-  // restores both op states and stamps the toast guard so an already-finished operation
-  // is not re-toasted. Reads the live op state via the `*Ref` mirrors (not deps) so it
-  // runs ONCE; `markRunInGameToastHandled` is its only reactive dep (and is `[]`-stable).
-  // This is the live-stream's static counterpart; `useStudioEvents` keeps it current
-  // afterward. Initialized after save/live/run hooks so their setters exist here.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Mount-time adoption intentionally reads operation refs without subscribing; live updates are owned by useStudioEvents.
-  useEffect(() => {
-    let cancelled = false;
-    void readAndAdoptStudioOperationsCurrent({
-      readCurrent: () => orpcClient.studio.operations.current({}),
-      targets: {
-        setRunInGameOperation,
-        setSaveDeployOperation,
-        markRunInGameToastHandled,
-      },
-      isCancelled: () => cancelled,
-      getCurrentRunInGameOperation: () => runInGameOperationRef.current,
-      getCurrentSaveDeployOperation: () => saveDeployOperationCurrentRef.current,
-      onError: setLocalError,
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [markRunInGameToastHandled]);
-
   useStudioEvents({
     applyLiveGameState,
     currentRunInGameOperation: runInGameOperation,
-    currentSaveDeployOperation: saveDeployOperation,
     setRunInGameOperation,
-    setSaveDeployOperation,
+    setSaveDeployOperation: adoptSaveDeployOperation,
     markRunInGameToastHandled,
     setLocalError,
     clearLocalError: clearLocalErrorIfCurrent,
@@ -513,9 +439,6 @@ export function StudioShell(props: StudioShellProps) {
     return true;
   }, [showGrid, viz.effectiveLayer, viz.manifest]);
 
-  const lastRunSettings = recipeSettings;
-  const lastGlobalSettings = worldSettings;
-
   const header = (
     <AppHeader
       themePreference={themePreference}
@@ -550,7 +473,7 @@ export function StudioShell(props: StudioShellProps) {
           }}
           runInGameDisabled={isRunInGameBlocked}
           runInGameDisabledReason={
-            isRunInGameBlocked ? "Recover the authoring source before running in game." : undefined
+            isRunInGameBlocked ? "The active config is invalid for this recipe." : undefined
           }
           onCopyRunInGameDiagnostics={copyRunInGameDiagnostics}
           saveDeployStatus={saveDeployOperation}
@@ -565,33 +488,22 @@ export function StudioShell(props: StudioShellProps) {
       configSchema={recipeArtifacts.configSchema}
       onConfigChange={setPipelineConfig}
       onConfigReset={() =>
-        setPipelineConfig(getRecipeDefaultConfig(recipeSettings.recipe, "config-reset"))
+        setPipelineConfig(getRecipeDefaultCanonicalConfig(canonicalConfig.recipe).config)
       }
       recipeOptions={recipeOptions}
-      presetOptions={presetOptions}
+      configOptions={configOptions}
       selectedStep={selectedStageId}
-      settings={recipeSettings}
-      onSettingsChange={(next) => {
-        applyRecipeSettingsChange(next);
-        if (next.recipe !== recipeSettings.recipe)
-          toast(`Recipe: ${next.recipe}`, { variant: "info" });
-      }}
+      recipeId={canonicalConfig.recipe}
+      onRecipeChange={selectRecipe}
+      configId={canonicalConfig.id}
+      onConfigSelect={selectConfig}
       onSaveToCurrent={handleSaveToCurrent}
       onSaveAsNew={handleSaveAsNew}
-      onImportPreset={handleImportPreset}
-      onExportPreset={handleExportPreset}
+      onImportConfig={openImport}
+      onExportConfig={exportConfig}
       isSaveDeployRunning={saveDeployRunning}
       saveDeployStatus={saveDeployOperation}
-      isSaveDisabled={browserRunning || runInGameRunning || saveDeployRunning || isAuthoringBlocked}
-      authoringBlocked={
-        authoringBlockReason === null
-          ? undefined
-          : {
-              reason: authoringBlockReason,
-              onSelectExistingCatalogConfig: recoverWithCatalogConfig,
-              onCreateNewEditorConfig: recoverWithNewEditorConfig,
-            }
-      }
+      isSaveDisabled={browserRunning || runInGameRunning || saveDeployRunning}
       isDirty={isDirty}
       configEditingEnabled={configEditingEnabled}
       onConfigEditingEnabledChange={setConfigEditingEnabled}
@@ -655,12 +567,11 @@ export function StudioShell(props: StudioShellProps) {
   const footer = (
     <AppFooter
       status={status}
-      lastRunSettings={lastRunSettings}
-      lastGlobalSettings={lastGlobalSettings}
+      lastRun={lastRunSnapshot}
       globalSettings={worldSettings}
       onGlobalSettingsChange={setWorldSettings}
-      currentSettings={recipeSettings}
-      onSettingsChange={setRecipeSettings}
+      seed={seed}
+      onSeedChange={setSeed}
       onRun={triggerRun}
       onReroll={reroll}
       isRunning={browserRunning}
@@ -677,39 +588,6 @@ export function StudioShell(props: StudioShellProps) {
       seedMin={CIV7_STUDIO_SEED_MIN}
       seedMax={CIV7_STUDIO_SEED_MAX}
     />
-  );
-
-  const presetDialogs = (
-    <>
-      <PresetSaveDialog
-        open={saveDialogState.open}
-        initialLabel={saveDialogState.label}
-        initialDescription={saveDialogState.description}
-        onCancel={closeSaveDialog}
-        onConfirm={handleSaveDialogConfirm}
-      />
-      <PresetErrorDialog
-        open={Boolean(presetError)}
-        title={presetError?.title ?? "Preset error"}
-        message={presetError?.message ?? "Preset operation failed."}
-        details={presetError?.details}
-        onOpenChange={(open) => {
-          if (!open) setPresetError(null);
-        }}
-      />
-      <PresetConfirmDialog
-        open={Boolean(pendingImport)}
-        title="Import preset?"
-        message={
-          pendingImport
-            ? `Preset is for ${pendingImport.recipeId}. Switch recipes and import it?`
-            : ""
-        }
-        confirmLabel="Switch & Import"
-        onCancel={cancelImportSwitch}
-        onConfirm={confirmImportSwitch}
-      />
-    </>
   );
 
   // Polite, visually-hidden mirror of the volatile run/live status so assistive
@@ -775,7 +653,7 @@ export function StudioShell(props: StudioShellProps) {
         </div>
         {stageView === "pipeline" ? (
           <PipelineStage
-            recipeId={recipeSettings.recipe}
+            recipeId={recipeDagId}
             dag={recipeDag.dag}
             status={recipeDag.status}
             error={recipeDag.error}
@@ -788,13 +666,21 @@ export function StudioShell(props: StudioShellProps) {
           />
         ) : null}
       </main>
-      {presetDialogs}
+      <MapConfigSaveDialog
+        open={saveDialogState.open}
+        initialName={saveDialogState.name}
+        initialDescription={saveDialogState.description}
+        onCancel={closeSaveDialog}
+        onConfirm={handleSaveDialogConfirm}
+      />
       <input
         ref={importInputRef}
         type="file"
         accept="application/json"
         className="hidden"
-        onChange={handleImportFileChange}
+        onChange={(event) => {
+          void importFile(event);
+        }}
       />
 
       <LeftDock top={panelTop} bottom={panelBottom}>

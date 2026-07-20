@@ -1,3 +1,4 @@
+import { runInNewContext } from "node:vm";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
@@ -10,6 +11,8 @@ import {
   resolveCiv7ProcedureCoreSchemas,
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
+
+import { schemaPropertyKeys } from "./support/procedure-schema";
 
 describe("Civ7 map-summary procedure descriptor", () => {
   test("records the read-only map-summary atom and resolves its schemas", () => {
@@ -32,10 +35,10 @@ describe("Civ7 map-summary procedure descriptor", () => {
       Civ7MapSummaryProcedureDescriptor,
       Civ7MapSummaryProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7MapSummaryProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7MapSummaryProcedureDescriptor.outputFields)
     );
     expect(
@@ -126,11 +129,43 @@ describe("Civ7 map-summary procedure descriptor", () => {
       port: 4318,
       state: { role: "tuner" },
     });
-    expect(executeCalls[0]?.command).toContain("GameplayMap.getGridWidth");
-    expect(executeCalls[0]?.command).toContain("MapAreas.getAreaIds");
-    expect(executeCalls[0]?.command).toContain("const cap = 64");
-    expect(executeCalls[0]?.command).not.toContain("sendRequest");
-    expect(executeCalls[0]?.command).not.toContain("sendOperation(");
+    const command = executeCalls[0]?.command;
+    expect(command).toEqual(expect.any(String));
+    if (command === undefined) throw new Error("map-summary command was not captured");
+
+    const lookupCalls: Array<string | number> = [];
+    const observed = JSON.parse(
+      runInNewContext(command, {
+        Configuration: {},
+        Game: {
+          age: 0,
+          getHash: () => 0,
+          getTurnDate: () => "4000 BCE",
+          maxTurns: 0,
+          turn: 1,
+        },
+        GameInfo: {
+          Maps: {
+            lookup: (id: string | number) => {
+              lookupCalls.push(id);
+              return id === 370405108 ? { MapSizeType: "MAPSIZE_HUGE" } : undefined;
+            },
+          },
+        },
+        GameplayMap: {
+          getGridHeight: () => 66,
+          getGridWidth: () => 106,
+          getMapSize: () => 370405108,
+          getPlotCount: () => 6996,
+          getRandomSeed: () => 33623781,
+        },
+        MapAreas: { getAreaIds: () => [1, 2] },
+        MapRegions: { getRegionIds: () => [7] },
+      }) as string
+    ) as { map: { mapSizeType: { ok: boolean; value?: string } } };
+
+    expect(observed.map.mapSizeType).toEqual({ ok: true, value: "MAPSIZE_HUGE" });
+    expect(lookupCalls).toEqual([370405108]);
   });
 
   test("rejects invalid procedure input before map-summary dependencies run", async () => {
@@ -194,6 +229,7 @@ function mapSummaryResult() {
       height: { ok: true as const, value: 54 },
       plotCount: { ok: true as const, value: 4536 },
       mapSize: { ok: true as const, value: "MAP_STANDARD" },
+      mapSizeType: { ok: true as const, value: "MAPSIZE_STANDARD" },
       randomSeed: { ok: true as const, value: 111 },
     },
     game: {

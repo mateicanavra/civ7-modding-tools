@@ -4,6 +4,11 @@ export {
   OFFICIAL_RESOURCE_CORPUS_ARTIFACT,
   OFFICIAL_RESOURCE_TYPE_ORDER,
 } from "./official-base-standard.js";
+export {
+  getUnconditionalResourceRequirementBasisForAge,
+  type UnconditionalResourceRequirementBasis,
+  type UnconditionalResourceRequirementBasisSet,
+} from "./requirements.js";
 export type {
   OfficialAgeType,
   OfficialPlacementConstraintSummary,

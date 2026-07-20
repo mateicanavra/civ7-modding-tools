@@ -1,21 +1,19 @@
 import { repoRoot } from "@habitat/cli/resources/paths";
-import { type CheckOptions, type CheckReport } from "@habitat/cli/service/model/check/index";
+import type { CheckOptions, CheckReport } from "@habitat/cli/service/model/check/index";
+import type { createCheckReportEffect } from "@habitat/cli/service/model/check/policy/structural/index";
 import type { RuleSelection } from "@habitat/cli/service/model/rules/policy/selection.policy";
-import type { BaselineExpansionResult } from "@habitat/cli/service/modules/check/model/policy/baseline-expansion.policy";
+import type {
+  BaselineExpansionResult,
+  expandBaselinesEffect,
+} from "@habitat/cli/service/modules/check/model/policy/baseline-expansion.policy";
 import { checkRouter } from "@habitat/cli/service/modules/check/router";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
-type CreateCheckReportPolicy = (options?: CheckOptions) => Effect.Effect<CheckReport>;
-type ExpandBaselinesPolicy = (
-  selection?: RuleSelection,
-  options?: { readonly base?: string }
-) => Effect.Effect<BaselineExpansionResult>;
-
-const mockCreateCheckReportEffect = vi.hoisted(() => vi.fn<CreateCheckReportPolicy>());
-const mockExpandBaselinesEffect = vi.hoisted(() => vi.fn<ExpandBaselinesPolicy>());
+const mockCreateCheckReportEffect = vi.hoisted(() => vi.fn<typeof createCheckReportEffect>());
+const mockExpandBaselinesEffect = vi.hoisted(() => vi.fn<typeof expandBaselinesEffect>());
 
 vi.mock(
   "@habitat/cli/service/modules/check/model/policy/baseline-expansion.policy",
@@ -42,13 +40,13 @@ vi.mock("@habitat/cli/service/model/check/policy/structural/index", async (impor
   };
 });
 
-const mockReport = {
+const mockReport: CheckReport = {
   schemaVersion: 2,
   command: "habitat check --json",
   startedAt: "2026-06-20T00:00:00.000Z",
   ok: true,
   rules: [],
-} as const;
+};
 
 describe("Habitat check service", () => {
   beforeEach(() => {
@@ -65,28 +63,27 @@ describe("Habitat check service", () => {
       })
     );
     mockExpandBaselinesEffect.mockImplementation(() => Effect.succeed({ ok: true, messages: [] }));
-    const result = await Effect.runPromise(
-      Effect.gen(function* () {
-        const reportCheck = checkRouter.report.callable({
-          context: { deps: makeTestHabitatServiceDeps() },
-        });
-        return yield* withFiberContext(() =>
-          reportCheck({
-            selectors: { rule: "enforce_formatting_and_import_hygiene", runner: "habitat" },
-            baselineIntegrity: true,
-            base: "origin/main",
-            staged: true,
-            stagedPaths: ["tools/habitat/src/cli/commands/check.ts"],
-          })
-        );
-      })
-    );
+    const program = Effect.gen(function* () {
+      const reportCheck = checkRouter.report.callable({
+        context: { deps: makeTestHabitatServiceDeps() },
+      });
+      return yield* withFiberContext(() =>
+        reportCheck({
+          selectors: { rule: "enforce_formatting_and_import_hygiene", runner: "nx" },
+          baselineIntegrity: true,
+          base: "origin/main",
+          staged: true,
+          stagedPaths: ["tools/habitat/src/cli/commands/check.ts"],
+        })
+      );
+    });
+    const result = await Effect.runPromise(program);
 
     expect(result).toBe(mockReport);
     expect(observed).toEqual([
       {
         rule: "enforce_formatting_and_import_hygiene",
-        runner: "habitat",
+        runner: "nx",
         base: "origin/main",
         baselineIntegrity: true,
         command: {
@@ -124,24 +121,23 @@ describe("Habitat check service", () => {
         "habitat check --rule prohibit_cross_op_runtime_calls --rule preserve_standard_stage_topology_and_path_invariants",
     };
 
-    await Effect.runPromise(
-      Effect.gen(function* () {
-        const reportCheck = checkRouter.report.callable({
-          context: { deps: makeTestHabitatServiceDeps() },
-        });
-        return yield* withFiberContext(() =>
-          reportCheck({
-            command,
-            selectors: {
-              rules: [
-                "prohibit_cross_op_runtime_calls",
-                "preserve_standard_stage_topology_and_path_invariants",
-              ],
-            },
-          })
-        );
-      })
-    );
+    const program = Effect.gen(function* () {
+      const reportCheck = checkRouter.report.callable({
+        context: { deps: makeTestHabitatServiceDeps() },
+      });
+      return yield* withFiberContext(() =>
+        reportCheck({
+          command,
+          selectors: {
+            rules: [
+              "prohibit_cross_op_runtime_calls",
+              "preserve_standard_stage_topology_and_path_invariants",
+            ],
+          },
+        })
+      );
+    });
+    await Effect.runPromise(program);
 
     expect(observed).toEqual([
       {
@@ -159,28 +155,30 @@ describe("Habitat check service", () => {
 
   test("projects baseline expansion into service output states", async () => {
     const observed: Array<{ selection: RuleSelection; options: { base?: string } }> = [];
-    let expansion = { ok: true as const, messages: ["baseline written: rule-a (1 entries)"] };
+    let expansion: BaselineExpansionResult = {
+      ok: true,
+      messages: ["baseline written: rule-a (1 entries)"],
+    };
     mockCreateCheckReportEffect.mockImplementation(() => Effect.succeed(mockReport));
-    mockExpandBaselinesEffect.mockImplementation((selection = {}, options = {}) =>
+    mockExpandBaselinesEffect.mockImplementation((selection = {}, options) =>
       Effect.sync(() => {
         observed.push({ selection, options });
         return expansion;
       })
     );
 
-    const expanded = await Effect.runPromise(
-      Effect.gen(function* () {
-        const expandBaseline = checkRouter.expandBaseline.callable({
-          context: { deps: makeTestHabitatServiceDeps() },
-        });
-        return yield* withFiberContext(() =>
-          expandBaseline({
-            selectors: { owner: "tools-habitat-harness" },
-            base: "main",
-          })
-        );
-      })
-    );
+    const expandOwnerBaseline = Effect.gen(function* () {
+      const expandBaseline = checkRouter.expandBaseline.callable({
+        context: { deps: makeTestHabitatServiceDeps() },
+      });
+      return yield* withFiberContext(() =>
+        expandBaseline({
+          selectors: { owner: "tools-habitat-harness" },
+          base: "main",
+        })
+      );
+    });
+    const expanded = await Effect.runPromise(expandOwnerBaseline);
 
     expect(expanded).toEqual({
       kind: "expanded",
@@ -198,18 +196,17 @@ describe("Habitat check service", () => {
       message: 'Unknown Habitat rule id: "missing-rule".',
     };
 
-    const refused = await Effect.runPromise(
-      Effect.gen(function* () {
-        const expandBaseline = checkRouter.expandBaseline.callable({
-          context: { deps: makeTestHabitatServiceDeps() },
-        });
-        return yield* withFiberContext(() =>
-          expandBaseline({
-            selectors: { rule: "missing-rule" },
-          })
-        );
-      })
-    );
+    const expandMissingBaseline = Effect.gen(function* () {
+      const expandBaseline = checkRouter.expandBaseline.callable({
+        context: { deps: makeTestHabitatServiceDeps() },
+      });
+      return yield* withFiberContext(() =>
+        expandBaseline({
+          selectors: { rule: "missing-rule" },
+        })
+      );
+    });
+    const refused = await Effect.runPromise(expandMissingBaseline);
 
     expect(refused).toEqual({
       kind: "refused",

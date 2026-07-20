@@ -13,6 +13,8 @@ import {
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 unit-target action request procedure descriptor", () => {
   test("records unit-target validator, postcondition, and no-repeat metadata and resolves schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(
@@ -39,10 +41,10 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
       Civ7UnitTargetActionRequestProcedureDescriptor,
       Civ7UnitTargetActionRequestProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7UnitTargetActionRequestProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7UnitTargetActionRequestProcedureDescriptor.outputFields)
     );
     expect(
@@ -107,8 +109,8 @@ describe("Civ7 unit-target action request procedure descriptor", () => {
         request: async (input, options) => {
           calls.push({
             input,
-            host: options.host,
-            port: options.port,
+            host: options?.host,
+            port: options?.port,
           });
           return unitTargetActionResult();
         },

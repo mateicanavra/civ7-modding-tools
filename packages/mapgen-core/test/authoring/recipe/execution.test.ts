@@ -11,6 +11,7 @@ import {
   deriveRecipeConfigSchema,
 } from "@mapgen/authoring/index.js";
 import { createExtendedMapContext } from "@mapgen/core/types.js";
+import type { StepFacetSinks } from "@mapgen/engine/index.js";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 
@@ -23,6 +24,7 @@ const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
 describe("authoring: hello recipe compile/execute", () => {
   it("compiles and executes a minimal recipe module", () => {
+    const executions: string[] = [];
     const helloContract = defineStep({
       id: "hello",
       phase: "foundation",
@@ -31,8 +33,8 @@ describe("authoring: hello recipe compile/execute", () => {
       schema: Type.Object({}, { additionalProperties: false }),
     });
     const helloStep = createStep(helloContract, {
-      run: (context) => {
-        context.metrics.warnings.push("hello");
+      run: () => {
+        executions.push("hello");
       },
     });
 
@@ -58,10 +60,11 @@ describe("authoring: hello recipe compile/execute", () => {
     expect(plan.nodes[0]?.stepId).toContain("hello");
 
     recipe.run(ctx, baseSettings, { foundation: { knobs: {}, hello: {} } });
-    expect(ctx.metrics.warnings).toContain("hello");
+    expect(executions).toContain("hello");
   });
 
   it("binds step-declared ops and compiles op defaults/normalization", () => {
+    const executions: string[] = [];
     const contract = defineOp({
       kind: "plan",
       id: "test/ops/tree-plan",
@@ -96,9 +99,9 @@ describe("authoring: hello recipe compile/execute", () => {
     });
 
     const step = createStep(stepContract, {
-      run: (context, config, ops) => {
+      run: (_context, config, ops) => {
         const result = ops.trees({}, config.trees);
-        context.metrics.warnings.push(`trees:${result.ok}`);
+        executions.push(`trees:${result.ok}`);
       },
     });
 
@@ -136,6 +139,52 @@ describe("authoring: hello recipe compile/execute", () => {
     });
 
     recipe.run(ctx, baseSettings, config);
-    expect(ctx.metrics.warnings).toContain("trees:false");
+    expect(executions).toContain("trees:false");
+  });
+
+  it("threads step facet sinks through synchronous and asynchronous recipe runs", async () => {
+    const facetContract = defineStep({
+      id: "facet-output",
+      phase: "foundation",
+      requires: [],
+      provides: [],
+      schema: Type.Object({ score: Type.Number() }, { additionalProperties: false }),
+    });
+    const facetStep = createStep(facetContract, {
+      run: (_context, config) => ({ score: config.score }),
+      metrics: ({ result }) => ({ score: result.score }),
+      viz: () => [],
+    });
+    const stage = createStage({
+      id: "foundation",
+      knobsSchema: EmptyKnobsSchema,
+      steps: [facetStep],
+    });
+    const recipe = createRecipe({
+      id: "facets",
+      namespace: "test",
+      tagDefinitions: [],
+      stages: [stage],
+      compileOpsById: {},
+    });
+    const adapter = createMockAdapter({ width: 8, height: 6, mapSizeId: 1 });
+    const ctx = createExtendedMapContext({ width: 8, height: 6 }, adapter, baseSettings);
+    const config = { foundation: { knobs: {}, "facet-output": { score: 4 } } };
+    const emitted: string[] = [];
+    const facets = {
+      metrics: (projection: Readonly<Record<string, unknown>>) => {
+        emitted.push(`metrics:${String(projection.score)}`);
+        return undefined;
+      },
+      viz: (projections: readonly unknown[]) => {
+        emitted.push(`viz:${projections.length}`);
+        return undefined;
+      },
+    } satisfies StepFacetSinks;
+
+    recipe.run(ctx, baseSettings, config, { trace: null, facets });
+    await recipe.runAsync(ctx, baseSettings, config, { trace: null, facets });
+
+    expect(emitted).toEqual(["metrics:4", "viz:0", "metrics:4", "viz:0"]);
   });
 });

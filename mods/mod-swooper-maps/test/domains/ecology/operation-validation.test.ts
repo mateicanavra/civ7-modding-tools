@@ -3,7 +3,7 @@ import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/inde
 import ecology from "@mapgen/domain/ecology/ops";
 import { RIVER_CLASS_MINOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { Value } from "typebox/value";
-import { normalizeOpSelectionOrThrow } from "../../support/compiler-helpers.js";
+import { normalizeOpSelectionOrThrow, runOpValidated } from "../../support/compiler-helpers.js";
 
 function broadVegetationHabitatFields(size: number) {
   return {
@@ -388,10 +388,10 @@ describe("ecology op contract surfaces", () => {
       const aridityIndex = new Float32Array(size).fill(0.5);
       const freezeIndex = new Float32Array(size).fill(0.6);
 
-      const wetScoreOps = [
-        {
-          op: ecology.ops.scoreWetMarsh,
-          input: {
+      const wetScores = [
+        runOpValidated(
+          ecology.ops.scoreWetMarsh,
+          {
             width,
             height,
             landMask,
@@ -401,10 +401,11 @@ describe("ecology op contract surfaces", () => {
             surfaceTemperature,
             aridityIndex,
           },
-        },
-        {
-          op: ecology.ops.scoreWetTundraBog,
-          input: {
+          ecology.ops.scoreWetMarsh.defaultConfig
+        ).score01,
+        runOpValidated(
+          ecology.ops.scoreWetTundraBog,
+          {
             width,
             height,
             landMask,
@@ -414,10 +415,11 @@ describe("ecology op contract surfaces", () => {
             surfaceTemperature,
             freezeIndex,
           },
-        },
-        {
-          op: ecology.ops.scoreWetMangrove,
-          input: {
+          ecology.ops.scoreWetTundraBog.defaultConfig
+        ).score01,
+        runOpValidated(
+          ecology.ops.scoreWetMangrove,
+          {
             width,
             height,
             landMask,
@@ -427,10 +429,11 @@ describe("ecology op contract surfaces", () => {
             surfaceTemperature,
             aridityIndex,
           },
-        },
-        {
-          op: ecology.ops.scoreWetOasis,
-          input: {
+          ecology.ops.scoreWetMangrove.defaultConfig
+        ).score01,
+        runOpValidated(
+          ecology.ops.scoreWetOasis,
+          {
             width,
             height,
             landMask,
@@ -439,10 +442,11 @@ describe("ecology op contract surfaces", () => {
             aridityIndex,
             surfaceTemperature,
           },
-        },
-        {
-          op: ecology.ops.scoreWetWateringHole,
-          input: {
+          ecology.ops.scoreWetOasis.defaultConfig
+        ).score01,
+        runOpValidated(
+          ecology.ops.scoreWetWateringHole,
+          {
             width,
             height,
             landMask,
@@ -452,14 +456,11 @@ describe("ecology op contract surfaces", () => {
             aridityIndex,
             surfaceTemperature,
           },
-        },
-      ] as const;
+          ecology.ops.scoreWetWateringHole.defaultConfig
+        ).score01,
+      ];
 
-      for (const { op, input } of wetScoreOps) {
-        const selection = normalizeOpSelectionOrThrow(op, op.defaultConfig);
-        const result = op.run(input, selection);
-        expectScore01(result.score01);
-      }
+      for (const score of wetScores) expectScore01(score);
     }
 
     {
@@ -471,28 +472,28 @@ describe("ecology op contract surfaces", () => {
       const openOceanMask = new Uint8Array(size).fill(1);
       const lakeMask = new Uint8Array(size).fill(1);
       const coastalWater = new Uint8Array(size).fill(1);
-      const distanceToCoast = new Uint8Array(size).fill(1);
+      const distanceToCoast = new Uint16Array(size).fill(1);
       const isolatedCoastalWater = new Uint8Array(size).fill(0);
-      const isolatedDistanceToCoast = new Uint8Array(size).fill(5);
+      const isolatedDistanceToCoast = new Uint16Array(size).fill(5);
 
-      const reefScoreOps = [
-        {
-          op: ecology.ops.scoreReef,
-          input: {
+      const reefScores = [
+        runOpValidated(
+          ecology.ops.scoreReef,
+          {
             width,
             height,
             landMask,
             surfaceTemperature: surfaceTemperatureWarm,
             bathymetry,
-            lakeMask,
             shelfMask,
             coastalWater,
             distanceToCoast,
           },
-        },
-        {
-          op: ecology.ops.scoreColdReef,
-          input: {
+          ecology.ops.scoreReef.defaultConfig
+        ).score01,
+        runOpValidated(
+          ecology.ops.scoreColdReef,
+          {
             width,
             height,
             landMask,
@@ -502,10 +503,11 @@ describe("ecology op contract surfaces", () => {
             coastalWater,
             distanceToCoast,
           },
-        },
-        {
-          op: ecology.ops.scoreReefAtoll,
-          input: {
+          ecology.ops.scoreColdReef.defaultConfig
+        ).score01,
+        runOpValidated(
+          ecology.ops.scoreReefAtoll,
+          {
             width,
             height,
             landMask,
@@ -516,10 +518,11 @@ describe("ecology op contract surfaces", () => {
             coastalWater: isolatedCoastalWater,
             distanceToCoast: isolatedDistanceToCoast,
           },
-        },
-        {
-          op: ecology.ops.scoreReefLotus,
-          input: {
+          ecology.ops.scoreReefAtoll.defaultConfig
+        ).score01,
+        runOpValidated(
+          ecology.ops.scoreReefLotus,
+          {
             width,
             height,
             landMask,
@@ -530,14 +533,11 @@ describe("ecology op contract surfaces", () => {
             coastalWater,
             distanceToCoast,
           },
-        },
-      ] as const;
+          ecology.ops.scoreReefLotus.defaultConfig
+        ).score01,
+      ];
 
-      for (const { op, input } of reefScoreOps) {
-        const selection = normalizeOpSelectionOrThrow(op, op.defaultConfig);
-        const result = op.run(input, selection);
-        expectScore01(result.score01);
-      }
+      for (const score of reefScores) expectScore01(score);
     }
 
     {
@@ -804,6 +804,8 @@ describe("ecology op contract surfaces", () => {
         sandEligibleMask: new Uint8Array(size),
         burnedScore01: new Float32Array(size),
         burnedEligibleMask: new Uint8Array(size),
+        jungleScore01: new Float32Array(size),
+        jungleEligibleMask: new Uint8Array(size),
       },
       planSelection
     );

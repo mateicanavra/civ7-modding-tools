@@ -1,3 +1,8 @@
+/**
+ * Canonical names for every binary habitat and suppression mask emitted by
+ * `deriveHabitatFields` and consumed by resource-family planners. The tuple is the shared key
+ * authority, preventing contract generation and strategy lookup from drifting.
+ */
 export const HABITAT_MASK_FIELD_NAMES = [
   "coastalWaterMask",
   "shelfMask",
@@ -63,6 +68,7 @@ export const HABITAT_MASK_FIELD_NAMES = [
   "igneousTerrainMask",
 ] as const;
 
+/** Intensity fields that weight otherwise eligible resource sites within each family lane. */
 export const HABITAT_INTENSITY_FIELD_NAMES = [
   "aquaticIntensity",
   "cultivatedIntensity",

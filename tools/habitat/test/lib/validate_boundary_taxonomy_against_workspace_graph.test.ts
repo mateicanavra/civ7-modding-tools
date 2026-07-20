@@ -53,7 +53,7 @@ describe("boundary taxonomy verifier", () => {
     });
     expect(taxonomy.constraints).toContainEqual({
       sourceTag: "kind:control",
-      onlyDependOnLibsWithTags: ["kind:adapter", "kind:control", "kind:engine", "kind:foundation"],
+      onlyDependOnLibsWithTags: ["kind:adapter", "kind:control", "kind:engine", "kind:library"],
     });
     expect(taxonomy.constraints).toContainEqual({
       sourceTag: "habitat:service",
@@ -150,7 +150,7 @@ describe("boundary taxonomy verifier", () => {
           .map((project) => [project.name, project.root, project.tags])
       ),
       configConstraints: taxonomy.constraints.filter(
-        (constraint) => constraint.sourceTag !== "kind:foundation"
+        (constraint) => constraint.sourceTag !== "kind:library"
       ),
       graphEdges: [],
     });
@@ -168,7 +168,7 @@ describe("boundary taxonomy verifier", () => {
             "error",
             {
               depConstraints: [
-                { sourceTag: "kind:foundation", onlyDependOnLibsWithTags: ["kind:foundation"] },
+                { sourceTag: "kind:library", onlyDependOnLibsWithTags: ["kind:library"] },
               ],
             },
           ],
@@ -180,7 +180,7 @@ describe("boundary taxonomy verifier", () => {
             "error",
             {
               depConstraints: [
-                { sourceTag: "kind:foundation", onlyDependOnLibsWithTags: ["kind:foundation"] },
+                { sourceTag: "kind:library", onlyDependOnLibsWithTags: ["kind:library"] },
               ],
             },
           ],
@@ -189,7 +189,7 @@ describe("boundary taxonomy verifier", () => {
     ]);
 
     expect(constraints).toEqual([
-      { sourceTag: "kind:foundation", onlyDependOnLibsWithTags: ["kind:foundation"] },
+      { sourceTag: "kind:library", onlyDependOnLibsWithTags: ["kind:library"] },
     ]);
   });
 });

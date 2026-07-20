@@ -9,7 +9,7 @@
  * docs/projects/placement-realignment/diagnosis.md RC4: the file claimed
  * generation by scripts/mapgen-studio/generate-civ7-browser-tables.ts, which
  * only ever emitted a terrain/biome/feature subset) and extends the output
- * with V1 policy data (resource weights/minimums/required-for-age,
+ * with V1 policy data (resource weights, minimums, valid ages, requirement owners,
  * MapResourceMinimumAmountModifier, StartBias tables, start-buffer globals).
  *
  * Usage:
@@ -344,19 +344,6 @@ for (const row of rowsAcross(allResourceDataFiles, "Resource_RequiredLeaders")) 
 }
 for (const leaders of Object.values(resourceRequiredLeaders)) leaders.sort();
 
-/**
- * Static approximation of ResourceBuilder.isResourceRequiredForAge: a
- * resource is "required" for an age when at least one leader requires it
- * (Resource_RequiredLeaders) and the resource is valid in that age
- * (Resource_ValidAges). The engine call additionally filters to leaders in
- * the running game — that game-state dependence cannot be tabled statically
- * (recorded in the S2 decision log; Milestone A live probe verifies).
- */
-const isResourceRequiredForAge: Record<string, string[]> = {};
-for (const idx of Object.keys(resourceRequiredLeaders)) {
-  isResourceRequiredForAge[idx] = [...(resourceValidAges[idx] ?? [])];
-}
-
 type MinimumAmountModifierRow = { mapType: string; mapSizeType: string; amount: number };
 const mapResourceMinimumAmountModifier: MinimumAmountModifierRow[] = rowsIn(
   MAPS_XML,
@@ -550,7 +537,7 @@ const file = `/* eslint-disable */
  * Purpose:
  * - Provide Civ7-derived terrain/biome/feature indices and river metadata for mock generation.
  * - Keep browser Studio, diagnostics, and adapter mocks on the same GameInfo order.
- * - V1 adds resource weights/hemisphere minimums/required-for-age data,
+ * - V1 adds resource weights, hemisphere minimums, age validity, and requirement owners,
  *   MapResourceMinimumAmountModifier rows, StartBias tables, and start-buffer
  *   globals for policy-grounded placement planning.
  */
@@ -611,14 +598,8 @@ export type Civ7PolicyTablesV1 = {
   readonly resourceRows: Readonly<Record<string, Civ7ResourceRowV1>>;
   /** Ages each resource is valid in (Resource_ValidAges), keyed by resource index. */
   readonly resourceValidAges: Readonly<Record<string, readonly string[]>>;
-  /** Leaders requiring each resource (Resource_RequiredLeaders incl. DLC), keyed by resource index. */
+  /** Leaders naming each resource in Resource_RequiredLeaders (including DLC), keyed by resource index. */
   readonly resourceRequiredLeaders: Readonly<Record<string, readonly string[]>>;
-  /**
-   * Static approximation of ResourceBuilder.isResourceRequiredForAge: ages
-   * for which the resource is leader-required AND age-valid. The live engine
-   * additionally filters to leaders present in the running game.
-   */
-  readonly isResourceRequiredForAge: Readonly<Record<string, readonly string[]>>;
   /** GameInfo.MapResourceMinimumAmountModifier rows (maps.xml). */
   readonly mapResourceMinimumAmountModifier: readonly Civ7MapResourceMinimumAmountModifierRowV1[];
   /** GameInfo.StartBias* rows across base + DLC civilization/leader data. */
@@ -650,7 +631,6 @@ export const CIV7_POLICY_TABLES_V1: Civ7PolicyTablesV1 = ${JSON.stringify(
     resourceRows,
     resourceValidAges,
     resourceRequiredLeaders,
-    isResourceRequiredForAge,
     mapResourceMinimumAmountModifier,
     startBias,
     startGlobals,

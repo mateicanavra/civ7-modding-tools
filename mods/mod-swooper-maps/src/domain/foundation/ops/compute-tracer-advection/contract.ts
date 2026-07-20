@@ -20,7 +20,11 @@ const ComputeTracerAdvectionContract = defineOp({
     {
       tracerIndex: TracerIndexByEraSchema,
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Oldest-to-newest source-cell maps for provenance advection: era zero is identity, and each later map selects a prior-era cell using boundary drift with mantle fallback.",
+    }
   ),
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),

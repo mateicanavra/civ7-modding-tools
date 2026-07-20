@@ -68,7 +68,7 @@ export type OpConfigSchema<Strategies extends RuntimeStrategiesLike> = TUnsafe<
  * - Ops are pure domain contracts: `run(input, config) -> output`.
  * - Op inputs/outputs should be plain values (POJOs + POJO-ish runtime values such as typed arrays),
  *   not runtime/engine “views” (e.g., adapters or callback readbacks).
- * - Steps own runtime binding (adapter reads, engine writes, buffer mutation, artifact publication).
+ * - Steps own runtime binding (adapter reads, engine writes, producer-local copies, artifact publication).
  *
  * Export discipline:
  * - Only export ops that are intended to be step-callable domain contracts.

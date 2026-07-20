@@ -19,7 +19,7 @@ Ecology turns climate + terrain truth into biosphere truth and engine-facing sur
 - soils/pedology,
 - resource basin candidates,
 - feature intents (planned placements),
-and projection steps that bind those products into Civ7 engine buffers and effects.
+and projection steps that bind those products into Civ7 engine state and publish evidence.
 
 ## Stages (standard recipe)
 
@@ -52,12 +52,16 @@ Ecology provides (truth artifacts):
 - `artifact:ecology.plotEffectPlan`
 
 Projection posture:
-- `map-ecology` is projection-only: it projects biome, feature-intent, and plot-effect-plan artifacts into engine state and publishes current runtime dependency tags (`field:*`) and effect tags.
+- `map-ecology` is projection-only: it projects biome, feature-intent, and plot-effect-plan artifacts into engine state, publishes `artifact:ecology.biomeBindings` and `artifact:ecology.featureEngineSnapshot` as immutable projection evidence, and declares effect tags for completed mutations.
 
 ## Key artifacts
 
 Ecology artifacts are authored by the standard recipe:
 - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts/index.ts`
+
+Projection evidence has distinct semantics: `biomeBindings` records symbolic-to-engine biome
+binding outcomes, while `featureEngineSnapshot` records exactly one post-Ecology engine feature ID per
+tile after feature stamping and terrain validation. Neither artifact is mutation authority.
 
 Note: some Ecology artifact schemas are currently permissive (`Type.Any()` fields). Treat those as implementation detail until tightened.
 
@@ -104,7 +108,7 @@ Feature scoring and planning stay separate:
 The `map-ecology` stage:
 - is `phase: "gameplay"` (projection-only),
 - consumes Ecology truth artifacts (biomeClassification, featureIntents.*, plotEffectPlan) and Morphology truth (topography),
-- publishes `field:*` runtime dependency tags (e.g., `field:biomeId`, `field:featureType`),
+- publishes biome-binding and post-Ecology feature-surface artifact evidence,
 - and publishes engine effect tags (e.g., `effect:engine.biomesApplied`).
 
 ## Ground truth anchors
@@ -120,13 +124,13 @@ The `map-ecology` stage:
   - `mods/mod-swooper-maps/src/domain/ecology/ops/contracts.ts`
   - `mods/mod-swooper-maps/src/domain/ecology/ops/index.ts`
 - Example step contracts (truth stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-pedology/steps/pedology/contract.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes/steps/biomes/contract.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-vegetation/contract.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-pedology/steps/pedology/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes/steps/biomes/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-vegetation/config.ts`
 - Example step contracts (projection stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plotBiomes.contract.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply/contract.ts`
-- Tag registry (effect tags, current `field:*` deps): `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plot-biomes/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply/config.ts`
+- Effect tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Architecture guardrails (import bans and parity gates):
   - `.habitat/civ7/mapgen/domains/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/rule.json`

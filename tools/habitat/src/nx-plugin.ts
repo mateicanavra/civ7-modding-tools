@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import type { CreateNodes } from "@nx/devkit";
 import { Value } from "typebox/value";
 import {
   loadRuleRegistryDocumentForNxPlugin,
@@ -20,15 +21,11 @@ import {
   NxTargetDefinitionSchema,
 } from "./service/model/graph/dto/target-definition.schema.ts";
 import {
-  aggregateCheckTarget,
   aliasRuleTarget,
-  biomeTargets,
-  boundariesTarget,
   directRuleTarget,
-  generatedCheckTarget,
   habitatInputs,
   ownerCheckTarget,
-  sourceCheckTarget,
+  ownerLocalCheckTarget,
 } from "./service/model/graph/policy/target-definitions.policy.ts";
 import {
   WorkspaceGraphTargetNameOptionsSchema,
@@ -71,9 +68,9 @@ const harnessInternalBoundaryProjects = [
   },
 ] as const;
 
-export const createNodesV2 = [
+export const createNodes = [
   `${ruleRegistryRepoPath}/**/*.json`,
-  (configFiles: string[], options: unknown) => {
+  (configFiles: readonly string[], options: unknown) => {
     const registry = loadRuleRegistryDocumentForNxPlugin(rulesPath);
     const projects = buildInferredProjects({
       registry,
@@ -83,7 +80,7 @@ export const createNodesV2 = [
       configFiles.find((configFile) => configFile.endsWith("index.json")) ?? configFiles[0];
     return anchorConfigFile ? [[anchorConfigFile, { projects }]] : [];
   },
-];
+] satisfies CreateNodes;
 
 function buildInferredProjects(input: {
   registry: NxRuleRegistryDocument;
@@ -114,32 +111,101 @@ function buildInferredProjects(input: {
     projects[root].targets[target] = targetDefinition(definition);
   };
 
-  addHarnessToolTargets({
-    addTarget,
-    ownerRoots,
-    records: input.registry.rules,
-    targetNames,
-  });
-  const graphFacts = ruleGraphFactsForNxPlugin(input.registry.rules, ownerRoots, targetNames);
-  const recordsByOwner = new Map<string, NxRuleRegistryRecord[]>();
+  const graphFacts = ruleGraphFactsForNxPlugin(input.registry.rules, ownerRoots);
   for (const rule of graphFacts) {
     const record = recordsById.get(rule.id);
     if (!record) {
       throw new Error(`Habitat graph metadata contract failure: missing rule record '${rule.id}'.`);
     }
-    appendMapValue(recordsByOwner, rule.ownerProject, record);
+    assertRuleTargetsLeafWork(rule, targetNames);
     addRuleTarget({ addTarget, record, rule, targetNames });
   }
-  for (const [owner, root] of ownerRootsForRules(graphFacts)) {
-    const records = recordsByOwner.get(owner) ?? [];
+  const ownerEntries = [...ownerRootsForRules(graphFacts)].sort(([left], [right]) =>
+    left.localeCompare(right)
+  );
+  for (const [owner, root] of ownerEntries) {
+    const ownerFacts = graphFacts
+      .filter((rule) => rule.ownerProject === owner)
+      .sort((left, right) => left.id.localeCompare(right.id));
+    const localRecords = ownerFacts.flatMap((rule) => {
+      if (rule.alias.kind !== "direct-rule-check") return [];
+      const record = recordsById.get(rule.id);
+      if (!record) {
+        throw new Error(`Habitat graph metadata contract failure: missing rule '${rule.id}'.`);
+      }
+      return [record];
+    });
+    const localRuleIds = ownerFacts.flatMap((rule) =>
+      rule.alias.kind === "direct-rule-check" ? [rule.id] : []
+    );
+    const localTarget = `${targetNames.check}:local`;
+    const [firstLocalRuleId, ...remainingLocalRuleIds] = localRuleIds;
+    if (firstLocalRuleId) {
+      addTarget(
+        root,
+        owner,
+        localTarget,
+        ownerLocalCheckTarget({
+          owner,
+          repoRoot,
+          ruleIds: [firstLocalRuleId, ...remainingLocalRuleIds],
+          inputs: inputsForOwner(localRecords, root),
+          graphDependencies: ownerFacts.flatMap((rule) =>
+            rule.alias.kind === "direct-rule-check"
+              ? rule.graphDependencies.map((target) => ({
+                  projects: [target.project],
+                  target: target.target,
+                }))
+              : []
+          ),
+        })
+      );
+    }
     addTarget(
       root,
       owner,
       targetNames.check,
-      ownerCheckTarget(owner, inputsForOwner(records, root))
+      ownerCheckTarget({
+        owner,
+        localTarget: localRuleIds.length > 0 ? localTarget : undefined,
+        graphDependencies: ownerFacts.flatMap((rule) =>
+          rule.alias.kind === "depends-on"
+            ? [rule.alias.target, ...rule.graphDependencies].map((target) => ({
+                projects: [target.project],
+                target: target.target,
+              }))
+            : []
+        ),
+      })
     );
   }
   return Value.Parse(InferredProjectsSchema, projects);
+}
+
+function assertRuleTargetsLeafWork(
+  rule: ReturnType<typeof ruleGraphFactsForNxPlugin>[number],
+  targetNames: ReturnType<typeof workspaceGraphTargetNames>
+): void {
+  const generatedRoutingTargets = new Set([
+    "check",
+    targetNames.check,
+    `${targetNames.check}:local`,
+  ]);
+  const targets = [
+    ...(rule.alias.kind === "depends-on" ? [rule.alias.target] : []),
+    ...rule.graphDependencies,
+  ];
+  for (const target of targets) {
+    if (
+      !generatedRoutingTargets.has(target.target) &&
+      !target.target.startsWith(targetNames.rulePrefix)
+    ) {
+      continue;
+    }
+    throw new Error(
+      `Habitat graph metadata contract failure: rule '${rule.id}' must target leaf work, not generated routing target '${target.project}:${target.target}'.`
+    );
+  }
 }
 
 function addHarnessInternalBoundaryProjects(projects: InferredProjects): void {
@@ -170,49 +236,6 @@ function harnessServiceModuleProjects(): Array<{
     }));
 }
 
-function addHarnessToolTargets(input: {
-  addTarget: (
-    root: string,
-    project: string,
-    target: string,
-    definition: NxTargetDefinition
-  ) => void;
-  ownerRoots: ReadonlyMap<string, string>;
-  records: readonly NxRuleRegistryRecord[];
-  targetNames: ReturnType<typeof workspaceGraphTargetNames>;
-}) {
-  const harnessProject = "habitat";
-  const harnessRoot = input.ownerRoots.get(harnessProject);
-  if (!harnessRoot) {
-    throw new Error(
-      `Habitat graph metadata contract failure: unknown ownerProject '${harnessProject}'.`
-    );
-  }
-  const biome = biomeTargets();
-  input.addTarget(harnessRoot, harnessProject, input.targetNames.biomeFormat, biome.format);
-  input.addTarget(harnessRoot, harnessProject, input.targetNames.biomeCheck, biome.check);
-  input.addTarget(harnessRoot, harnessProject, input.targetNames.biomeCi, biome.ci);
-  input.addTarget(harnessRoot, harnessProject, input.targetNames.boundaries, boundariesTarget());
-  input.addTarget(
-    harnessRoot,
-    harnessProject,
-    input.targetNames.sourceCheck,
-    sourceCheckTarget(inputsForSourceCheckTarget(input.records))
-  );
-  input.addTarget(
-    harnessRoot,
-    harnessProject,
-    input.targetNames.generatedCheck,
-    generatedCheckTarget()
-  );
-  input.addTarget(
-    harnessRoot,
-    harnessProject,
-    input.targetNames.aggregateCheck,
-    aggregateCheckTarget()
-  );
-}
-
 function addRuleTarget(input: {
   addTarget: (
     root: string,
@@ -233,19 +256,24 @@ function addRuleTarget(input: {
       directRuleTarget(
         input.rule.id,
         input.rule.ownerProject,
-        inputsForRuleTarget(input.record, input.rule.ownerRoot)
+        repoRoot,
+        inputsForRuleTarget(input.record, input.rule.ownerRoot),
+        input.rule.graphDependencies.map((target) => ({
+          projects: [target.project],
+          target: target.target,
+        }))
       )
     );
     return;
   }
-  const dependency = input.rule.alias.target;
+  const dependencies = [input.rule.alias.target, ...input.rule.graphDependencies];
   input.addTarget(
     input.rule.ownerRoot,
     input.rule.ownerProject,
     target,
     aliasRuleTarget(
-      [{ projects: [dependency.project], target: dependency.target }],
-      `Alias for ${dependency.project}:${dependency.target} (${input.rule.id})`
+      dependencies.map((target) => ({ projects: [target.project], target: target.target })),
+      `Alias for ${input.rule.alias.target.project}:${input.rule.alias.target.target} (${input.rule.id})`
     )
   );
 }
@@ -254,18 +282,11 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
   const covered = pathCoverageInputs(rule, ownerRoot);
   if (covered.kind === "workspace-gate") return habitatInputs();
 
-  const inputs = new Set<string>([
-    "{workspaceRoot}/package.json",
-    "{workspaceRoot}/bun.lock",
-    ...covered.inputs,
-  ]);
+  const inputs = new Set<string>(["{workspaceRoot}/.habitat/**", ...covered.inputs]);
   if (rule.manifestFilePath) inputs.add(workspaceInput(rule.manifestFilePath));
   if (rule.supportFiles?.baseline) inputs.add(workspaceInput(rule.supportFiles.baseline));
   if (rule.supportFiles?.ruleIntroductionManifest) {
     inputs.add(workspaceInput(rule.supportFiles.ruleIntroductionManifest));
-  }
-  if (rule.ownerProject === "habitat") {
-    inputs.add("{workspaceRoot}/tools/habitat/src/**");
   }
   if (isPatternBackedRule(rule)) {
     inputs.add(workspaceInput(rule.runner.files.pattern));
@@ -289,22 +310,6 @@ function inputsForOwner(rules: readonly NxRuleRegistryRecord[], ownerRoot: strin
     for (const input of ruleInputs) inputs.add(input);
   }
   return inputs.size ? [...inputs] : habitatInputs();
-}
-
-function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): string[] {
-  const inputs = new Set<string>([
-    "{workspaceRoot}/tools/habitat/src/**",
-    "{workspaceRoot}/package.json",
-    "{workspaceRoot}/bun.lock",
-    "{workspaceRoot}/.habitat/**",
-  ]);
-  for (const rule of rules) {
-    if (!isPatternBackedRule(rule)) continue;
-    inputs.add(workspaceInput(rule.runner.files.pattern));
-    if (rule.runner.fix) inputs.add(workspaceInput(rule.runner.fix.pattern));
-    for (const scopeInput of gritRuleScopeInputs(rule)) inputs.add(scopeInput);
-  }
-  return [...inputs];
 }
 
 type PatternBackedRegistryRecord =
@@ -362,15 +367,6 @@ function ownerRootsForRules(
   rules: ReturnType<typeof ruleGraphFactsForNxPlugin>
 ): Map<string, string> {
   return new Map(rules.map((rule) => [rule.ownerProject, rule.ownerRoot]));
-}
-
-function appendMapValue<T>(map: Map<string, T[]>, key: string, value: T): void {
-  const values = map.get(key);
-  if (values) {
-    values.push(value);
-    return;
-  }
-  map.set(key, [value]);
 }
 
 function sameInputSet(left: readonly string[], right: readonly string[]): boolean {

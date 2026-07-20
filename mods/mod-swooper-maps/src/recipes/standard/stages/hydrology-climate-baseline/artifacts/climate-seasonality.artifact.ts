@@ -1,5 +1,7 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -10,7 +12,7 @@ import {
  * Seasonal amplitude for Hydrology’s climate field outputs.
  *
  * This is the *public* seasonality output surface: Hydrology may internally simulate 2–4 seasonal modes, but it only
- * publishes the annual mean (via `artifact:climateField`) and the corresponding amplitude fields here.
+ * publishes the annual mean (via `artifact:hydrology.baselineClimateField`) and the corresponding amplitude fields here.
  */
 export const ClimateSeasonalityArtifactSchema = Type.Object(
   {
@@ -37,12 +39,18 @@ export const ClimateSeasonalityArtifactSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Hydrology climate seasonality outputs: annual amplitude fields corresponding to `artifact:climateField` mean signals.",
+      "Hydrology climate seasonality outputs: annual amplitude fields corresponding to the baseline climate mean.",
   }
 );
 
+/** Canonical schema entrypoint for seasonal forcing metadata and amplitude fields. */
 export const Schema = ClimateSeasonalityArtifactSchema;
 
+/**
+ * Registers seasonal temperature, rainfall, and humidity amplitudes together with the sampled
+ * seasonal mode count. Consumers can reason about variability without rerunning the baseline
+ * circulation pass.
+ */
 export const artifact = defineArtifact({
   name: "climateSeasonality",
   id: "artifact:hydrology.climateSeasonality",
@@ -51,41 +59,12 @@ export const artifact = defineArtifact({
 
 export type ArtifactValidationIssue = Readonly<{ message: string }>;
 
-type TypedArrayConstructor = { new (...args: unknown[]): { length: number } };
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: TypedArrayConstructor,
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
-
-function validatePayload(
-  value: unknown,
-  dimensions: NonNullable<ArtifactValidationContext["dimensions"]>
-): ArtifactValidationIssue[] {
+function validatePayload(value: unknown, expectedLength?: number): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
-  const size = expectedSize(dimensions);
   if (!isRecord(value)) {
     errors.push({ message: "Missing hydrology climate seasonality artifact payload." });
     return errors;
@@ -106,28 +85,35 @@ function validatePayload(
     errors.push({ message: "Expected climateSeasonality.axialTiltDeg to be a finite number." });
   }
 
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
     errors,
     "climateSeasonality.rainfallAmplitude",
     candidate.rainfallAmplitude,
     Uint8Array,
-    size
+    expectedLength
   );
-  validateTypedArray(
+  appendArtifactTypedArrayIssues(
     errors,
     "climateSeasonality.humidityAmplitude",
     candidate.humidityAmplitude,
     Uint8Array,
-    size
+    expectedLength
   );
   return errors;
 }
 
+/**
+ * Validates climate seasonality against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext
 ): readonly { message: string }[] {
-  const schemaIssues = validateArtifactSchema(Schema, value);
-  if (!context?.dimensions) return schemaIssues;
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context.dimensions)]);
+  return Object.freeze([
+    ...validateArtifactSchema(Schema, value),
+    ...validatePayload(value, artifactCellCount(context)),
+  ]);
 }

@@ -53,8 +53,11 @@ promotion decision before this packet closes.
 
 - Retention behavior tests.
 - Copy-diagnostics behavior tests after cleanup.
-- SA-14 `habitat-studio-run-runtime-authority-closure` verifies SA-01 through
-  SA-13 and temporary pattern disposition.
+- SA-14 `habitat-studio-run-runtime-authority-closure` verifies the registered
+  SA-01 through SA-13 authority-set topology, exact owners, canonical empty
+  baselines, and temporary pattern disposition; one Nx workspace policy graph
+  executes the MapGen Studio and Swooper Maps owner-local targets and proves
+  status.
 - `bun run openspec:validate`.
 - Full live verification matrix from `target-vocabulary.md`, including actual
   Studio endpoint calls, successful in-game Civ7 launch variants with generated

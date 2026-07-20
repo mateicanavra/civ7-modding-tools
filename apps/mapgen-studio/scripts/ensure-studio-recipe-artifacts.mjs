@@ -28,10 +28,9 @@ const requiredArtifacts = [
   // Recipe module declarations (written by generate-studio-recipe-types).
   "mods/mod-swooper-maps/dist/recipes/standard.d.ts",
 
-  // Generated Studio config artifacts (schema/defaults/presets).
+  // Generated Studio config artifacts (schema/defaults).
   "mods/mod-swooper-maps/dist/recipes/standard.schema.json",
   "mods/mod-swooper-maps/dist/recipes/standard.defaults.json",
-  "mods/mod-swooper-maps/dist/recipes/standard.presets.json",
 
   // Artifacts modules consumed by Studio for schema + defaults + UI metadata.
   "mods/mod-swooper-maps/dist/recipes/standard-artifacts.js",
@@ -42,18 +41,18 @@ const requiredArtifacts = [
   "mods/mod-swooper-maps/dist/recipes/standard-map-configs.js",
   "mods/mod-swooper-maps/dist/recipes/standard-map-configs.d.ts",
 ];
+const retiredArtifacts = ["mods/mod-swooper-maps/dist/recipes/standard.presets.json"];
 
 const artifactSources = [
   "mods/mod-swooper-maps/src/domain",
   "mods/mod-swooper-maps/src/maps/configs",
   "mods/mod-swooper-maps/src/maps/catalog",
-  "mods/mod-swooper-maps/src/maps/presets",
   "mods/mod-swooper-maps/src/recipes",
   "mods/mod-swooper-maps/scripts/generate-studio-map-catalog.ts",
   "mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts",
   "mods/mod-swooper-maps/package.json",
   "mods/mod-swooper-maps/project.json",
-  "mods/mod-swooper-maps/tsup.studio-recipes.config.ts",
+  "mods/mod-swooper-maps/scripts/tsup.studio-recipes.config.ts",
   "packages/mapgen-core/dist",
 ];
 
@@ -94,14 +93,19 @@ function oldestMtimeMs(rels) {
 
 function getArtifactState() {
   const missingArtifacts = requiredArtifacts.filter((rel) => !existsSync(join(repoRoot, rel)));
+  const presentRetiredArtifacts = retiredArtifacts.filter((rel) => existsSync(join(repoRoot, rel)));
   const artifactsAreStale =
     missingArtifacts.length === 0 &&
     Math.max(...artifactSources.map(newestMtimeMs)) > oldestMtimeMs(requiredArtifacts);
-  return { missingArtifacts, artifactsAreStale };
+  return { missingArtifacts, presentRetiredArtifacts, artifactsAreStale };
 }
 
 function isCurrent(state) {
-  return state.missingArtifacts.length === 0 && !state.artifactsAreStale;
+  return (
+    state.missingArtifacts.length === 0 &&
+    state.presentRetiredArtifacts.length === 0 &&
+    !state.artifactsAreStale
+  );
 }
 
 function isProcessAlive(pid) {
@@ -220,6 +224,13 @@ const stillMissing = requiredArtifacts.filter((rel) => !existsSync(join(repoRoot
 if (stillMissing.length > 0) {
   console.error(
     `[preflight] studio recipe artifacts still missing after build:\n${stillMissing.map((p) => `- ${p}`).join("\n")}`
+  );
+  process.exit(1);
+}
+const stillPresentRetired = retiredArtifacts.filter((rel) => existsSync(join(repoRoot, rel)));
+if (stillPresentRetired.length > 0) {
+  console.error(
+    `[preflight] retired Studio recipe artifacts remain after build:\n${stillPresentRetired.map((p) => `- ${p}`).join("\n")}`
   );
   process.exit(1);
 }

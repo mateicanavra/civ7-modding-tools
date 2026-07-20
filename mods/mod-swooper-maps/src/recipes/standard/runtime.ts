@@ -37,6 +37,10 @@ function createRuntime(context: ExtendedMapContext): StandardRuntime {
   };
 }
 
+/**
+ * Returns the single mutable Standard runtime record associated with a map
+ * context, lazily deriving required Civ7 map metadata on first access.
+ */
 export function getStandardRuntime(context: ExtendedMapContext): StandardRuntime {
   const existing = runtimeByContext.get(context);
   if (existing) return existing;
@@ -45,6 +49,11 @@ export function getStandardRuntime(context: ExtendedMapContext): StandardRuntime
   return runtime;
 }
 
+/**
+ * Initializes or updates the context-owned Standard runtime overrides in
+ * place. Unspecified values preserve their current runtime state; supplied map info
+ * also refreshes both landmass player counts with field-wise fallback.
+ */
 export function initializeStandardRuntime(
   context: ExtendedMapContext,
   init: StandardRuntimeInit = {}

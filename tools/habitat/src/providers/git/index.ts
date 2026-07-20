@@ -1,13 +1,11 @@
-import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import {
   type CommandProviderError,
   CommandRunner,
+  type CommandRunnerService,
   spawnResultFromCommandResult,
 } from "@habitat/cli/resources/command/index";
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
-import type { HabitatConfig } from "@habitat/cli/resources/config/index";
 import { Context, Effect, Layer } from "effect";
-import type { GitStateProvider } from "./state.js";
 
 export {
   GitStateProvider,
@@ -20,17 +18,8 @@ export {
   unknownGitState,
 } from "./state.js";
 
-export type GitProviderRequirements =
-  | CommandExecutor
-  | HabitatConfig
-  | CommandRunner
-  | GitStateProvider;
-type GitCommandEffect = Effect.Effect<
-  HabitatCommandResult,
-  CommandProviderError,
-  GitProviderRequirements
->;
-type GitTextEffect = Effect.Effect<string | null, never, GitProviderRequirements>;
+type GitCommandEffect = Effect.Effect<HabitatCommandResult, CommandProviderError>;
+type GitTextEffect = Effect.Effect<string | null>;
 
 export interface GitCommandOptions {
   cwd?: string;
@@ -49,7 +38,7 @@ export interface GitProviderService {
     ref: string,
     repoPath: string,
     options?: GitCommandOptions
-  ) => Effect.Effect<readonly string[] | null, never, GitProviderRequirements>;
+  ) => Effect.Effect<readonly string[] | null>;
   readonly add: (paths: readonly string[], options?: GitCommandOptions) => GitCommandEffect;
   readonly diffNameOnly: (
     input?: { cached?: boolean; paths?: readonly string[] } & GitCommandOptions
@@ -62,8 +51,11 @@ export class GitProvider extends Context.Tag("@habitat/cli/GitProvider")<
   GitProviderService
 >() {}
 
-export function makeGitProviderLayer(repoRoot: string): Layer.Layer<GitProvider> {
-  return Layer.succeed(GitProvider, makeLiveGitProvider(repoRoot));
+export function makeGitProviderLayer(repoRoot: string) {
+  return Layer.effect(
+    GitProvider,
+    Effect.map(CommandRunner, (runner) => makeLiveGitProvider(repoRoot, runner))
+  );
 }
 
 export function makeFakeGitProviderLayer(
@@ -82,20 +74,16 @@ export function makeGitProviderFromCommandHandler(
   return providerFromCommand(command);
 }
 
-function makeLiveGitProvider(repoRoot: string): GitProviderService {
+function makeLiveGitProvider(repoRoot: string, runner: CommandRunnerService): GitProviderService {
   const command: GitProviderService["command"] = (argv, options = {}) =>
-    CommandRunner.pipe(
-      Effect.flatMap((runner) =>
-        runner.run({
-          commandId: `git-${argv.join("-")}`,
-          kind: "git-state",
-          executable: "git",
-          argv,
-          cwd: options.cwd ?? repoRoot,
-          captureGitState: false,
-        })
-      )
-    );
+    runner.run({
+      commandId: `git-${argv.join("-")}`,
+      kind: "git-state",
+      executable: "git",
+      argv,
+      cwd: options.cwd ?? repoRoot,
+      captureGitState: false,
+    });
   return providerFromCommand(command);
 }
 

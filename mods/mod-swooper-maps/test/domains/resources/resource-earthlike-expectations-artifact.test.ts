@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { OFFICIAL_RESOURCE_BY_TYPE, OFFICIAL_RESOURCE_TYPE_ORDER } from "@civ7/map-policy";
-import { earthlikeExpectations } from "@mapgen/domain/resources/artifacts";
+import { artifactModules as resourceArtifactModules } from "@mapgen/domain/resources/artifacts";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT,
@@ -11,8 +11,9 @@ import {
 } from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
 import { Value } from "typebox/value";
 
-const resourceEarthlikeExpectationsArtifact = earthlikeExpectations.artifact;
-const ResourceEarthlikeExpectationsArtifactSchema = earthlikeExpectations.Schema;
+const resourceEarthlikeExpectationsArtifact =
+  resourceArtifactModules.earthlikeExpectations.artifact;
+const ResourceEarthlikeExpectationsArtifactSchema = resourceEarthlikeExpectationsArtifact.schema;
 
 const blockedResources = [
   "RESOURCE_CLOVES",
@@ -70,8 +71,8 @@ describe("resource earthlike expectations artifact", () => {
       (entry) => entry.initialMapAuthoring.status === "deferred-future-age"
     ).map((entry) => entry.resourceType);
 
-    expect(eligible).toEqual(INITIAL_MAP_RESOURCE_TYPES);
-    expect(deferred).toEqual(DEFERRED_INITIAL_MAP_RESOURCE_TYPES);
+    expect(eligible).toEqual([...INITIAL_MAP_RESOURCE_TYPES]);
+    expect(deferred).toEqual([...DEFERRED_INITIAL_MAP_RESOURCE_TYPES]);
     expect(deferred).toEqual([
       "RESOURCE_COCOA",
       "RESOURCE_FURS",

@@ -2,18 +2,21 @@ import { describe, expect, it } from "bun:test";
 
 import {
   CIV7_BROWSER_TABLES_V0,
+  type OfficialResourceType,
   type ResourceLegalitySurface,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
+import {
+  admitPositiveResourceRegionMinimum,
+  getInitialMapResourcePolicyForType,
+  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+} from "@mapgen/domain/resources";
 import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 import { RESOURCE_HABITAT_SIGNALS } from "@mapgen/domain/resources/model/policy/habitat-eligibility.js";
 import {
-  getInitialMapResourcePolicyForType,
-  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
-} from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
-import {
   buildResourceDemands,
   buildRiverResourceExclusionMask,
+  resolveResourceRegionMinimumRequirement,
 } from "../../../../../../src/recipes/standard/stages/placement/steps/plan-resources/planning.js";
 
 /**
@@ -22,12 +25,12 @@ import {
  * removed from every demand's legalMask before legal/eligible counts, so the
  * exclusion flows through site selection, the support pass, and stamping.
  */
-describe("resource demand planning river exclusion", () => {
+describe("resource demand planning", () => {
   const width = 4;
   const height = 3;
   const size = width * height;
 
-  function findExcludableType() {
+  function findFixtureFacts(requestedType?: OfficialResourceType) {
     const age = INITIAL_MAP_RESOURCE_AUTHORING_AGE;
     const resolution = resolveResourceRuntimeIds();
     const validRows = CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows as Record<
@@ -36,20 +39,26 @@ describe("resource demand planning river exclusion", () => {
     >;
     for (const expectation of EARTHLIKE_RESOURCE_EXPECTATIONS) {
       const resourceType = expectation.resourceType;
+      if (requestedType !== undefined && resourceType !== requestedType) continue;
       const signal = RESOURCE_HABITAT_SIGNALS.get(resourceType);
       if (!signal || signal.family === "aquatic") continue;
       if (getInitialMapResourcePolicyForType(resourceType, age)?.status !== "eligible") continue;
       const resolved = resolution.byType.get(resourceType);
       if (!resolved) continue;
+      if (requestedType === undefined && resolved.minimumPerHemisphere > 0) continue;
       const rows = validRows[String(resolved.resourceTypeId)];
       if (!rows?.length) continue;
       return { resourceType, signal, placementRow: rows[0]! };
     }
-    throw new Error("No age-eligible land resource type with policy placement rows found.");
+    throw new Error(
+      requestedType === undefined
+        ? "No age-eligible land resource without an official minimum has policy placement rows."
+        : `No age-eligible land fixture facts found for ${requestedType}.`
+    );
   }
 
-  function buildFixture() {
-    const { resourceType, signal, placementRow } = findExcludableType();
+  function buildFixture(requestedType?: OfficialResourceType) {
+    const { resourceType, signal, placementRow } = findFixtureFacts(requestedType);
     const legalitySurface: ResourceLegalitySurface = {
       width,
       height,
@@ -113,6 +122,7 @@ describe("resource demand planning river exclusion", () => {
       plannedRows: fixture.plannedRows,
       habitat: fixture.habitat as never,
       legalitySurface: fixture.legalitySurface,
+      requiredForAgeByResourceType: new Map(),
     });
     expect(baseline.demands.length).toBe(1);
     expect(baseline.demands[0]!.legalMask[0]).toBe(1);
@@ -128,6 +138,7 @@ describe("resource demand planning river exclusion", () => {
       plannedRows: fixture.plannedRows,
       habitat: fixture.habitat as never,
       legalitySurface: fixture.legalitySurface,
+      requiredForAgeByResourceType: new Map(),
       riverResourceExclusionMask,
     });
 
@@ -152,10 +163,13 @@ describe("resource demand planning river exclusion", () => {
       plannedRows: fixture.plannedRows,
       habitat: fixture.habitat as never,
       legalitySurface: fixture.legalitySurface,
+      requiredForAgeByResourceType: new Map(),
       riverResourceExclusionMask: new Uint8Array(size).fill(1),
     });
     expect(result.demands.length).toBe(0);
-    expect(result.excluded).toEqual([expect.objectContaining({ reason: "no-policy-legal-tiles" })]);
+    expect(result.excluded).toEqual([
+      expect.objectContaining({ reason: { kind: "no-admitted-legal-tiles" } }),
+    ]);
   });
 
   it("rejects an exclusion mask whose length does not match the grid", () => {
@@ -167,8 +181,106 @@ describe("resource demand planning river exclusion", () => {
         plannedRows: fixture.plannedRows,
         habitat: fixture.habitat as never,
         legalitySurface: fixture.legalitySurface,
+        requiredForAgeByResourceType: new Map(),
         riverResourceExclusionMask: new Uint8Array(size + 1),
       })
     ).toThrow(/riverResourceExclusionMask/);
+  });
+
+  it("preserves exact engine true and false decisions for an official regional minimum", () => {
+    const minimumPerHemisphere = admitPositiveResourceRegionMinimum(8);
+    expect(
+      resolveResourceRegionMinimumRequirement({
+        resourceType: "RESOURCE_GOLD",
+        age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+        minimumPerHemisphere,
+        observedRequiredForAge: true,
+      })
+    ).toEqual({ kind: "required", minimumPerHemisphere, source: "engine" });
+    expect(
+      resolveResourceRegionMinimumRequirement({
+        resourceType: "RESOURCE_GOLD",
+        age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+        minimumPerHemisphere,
+        observedRequiredForAge: false,
+      })
+    ).toEqual({ kind: "not-required", minimumPerHemisphere, source: "engine" });
+  });
+
+  it("keeps a zero official minimum not applicable for every engine observation", () => {
+    for (const observedRequiredForAge of [true, false, null] as const) {
+      expect(
+        resolveResourceRegionMinimumRequirement({
+          resourceType: "RESOURCE_FISH",
+          age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+          minimumPerHemisphere: 0,
+          observedRequiredForAge,
+        })
+      ).toEqual({ kind: "not-applicable", reason: "no-official-minimum" });
+    }
+  });
+
+  it("refuses non-integer and negative regional minimums before authority resolution", () => {
+    for (const minimumPerHemisphere of [-1, 0.5]) {
+      expect(() =>
+        resolveResourceRegionMinimumRequirement({
+          resourceType: "RESOURCE_GOLD",
+          age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+          minimumPerHemisphere,
+          observedRequiredForAge: true,
+        })
+      ).toThrow(/positive integer/);
+    }
+  });
+
+  it("uses Gold and Silver staple authority when the engine observation is unavailable", () => {
+    const minimumPerHemisphere = admitPositiveResourceRegionMinimum(8);
+    for (const resourceType of ["RESOURCE_GOLD", "RESOURCE_SILVER"] as const) {
+      expect(
+        resolveResourceRegionMinimumRequirement({
+          resourceType,
+          age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+          minimumPerHemisphere,
+          observedRequiredForAge: null,
+        })
+      ).toEqual({
+        kind: "required",
+        minimumPerHemisphere,
+        source: "static-unconditional",
+        basis: ["staple"],
+      });
+    }
+  });
+
+  it("keeps an unavailable conditional regional minimum unresolved", () => {
+    const minimumPerHemisphere = admitPositiveResourceRegionMinimum(8);
+    expect(
+      resolveResourceRegionMinimumRequirement({
+        resourceType: "RESOURCE_FISH",
+        age: INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+        minimumPerHemisphere,
+        observedRequiredForAge: null,
+      })
+    ).toEqual({
+      kind: "unresolved",
+      minimumPerHemisphere,
+      source: "engine-unavailable",
+    });
+  });
+
+  it("fails closed when a positive-minimum planned resource has no engine observation", () => {
+    const fixture = buildFixture("RESOURCE_GOLD");
+    expect(() =>
+      buildResourceDemands({
+        width,
+        height,
+        plannedRows: fixture.plannedRows,
+        habitat: fixture.habitat as never,
+        legalitySurface: fixture.legalitySurface,
+        requiredForAgeByResourceType: new Map(),
+      })
+    ).toThrow(
+      /Missing required-for-age observation for RESOURCE_GOLD with official regional minimum 8/
+    );
   });
 });

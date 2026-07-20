@@ -19,7 +19,11 @@ const ComputeTectonicsCurrentContract = defineOp({
     {
       tectonics: FoundationTectonicsSchema,
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Mesh-wide present-state tectonic surface combining the newest era's active boundary and deformation signals with cumulative uplift from the full history.",
+    }
   ),
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),

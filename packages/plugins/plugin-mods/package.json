@@ -3,27 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts",
-    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
-    "check": "tsc -p tsconfig.json --noEmit",
-    "lint": "biome check .",
-    "test": "vitest run --project plugin-mods",
-    "clean": "rimraf dist"
-  },
-  "dependencies": {
-    "@civ7/plugin-files": "workspace:*",
-    "@civ7/plugin-git": "workspace:*"
-  },
-  "engines": {
-    "node": "22.22.0"
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -32,5 +11,26 @@
       "require": "./dist/index.cjs"
     },
     "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "clean": "rimraf dist",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "test": "vitest run --project plugin-mods",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
+  },
+  "dependencies": {
+    "@civ7/plugin-files": "workspace:*",
+    "@civ7/plugin-git": "workspace:*"
+  },
+  "engines": {
+    "node": "22.22.0"
   }
 }

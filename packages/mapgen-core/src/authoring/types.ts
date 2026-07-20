@@ -1,19 +1,19 @@
 import type { ExtendedMapContext } from "@mapgen/core/types.js";
 
 import type {
-  DependencyTag,
   Env,
   ExecutionPlan,
-  GenerationPhase,
   NormalizeContext,
   RecipeV2,
   RunRequest,
 } from "@mapgen/engine/index.js";
+import type { StepFacetSinks, StepFacets } from "@mapgen/engine/step-facets.js";
 import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 import type { TraceSession, TraceSink } from "@mapgen/trace/index.js";
 import type { Static, TObject, TSchema } from "typebox";
 import type { CompileOpsById } from "../compiler/recipe-compile.js";
 import type { ArtifactContract } from "./artifact/contract.js";
+import type { ArtifactModule } from "./artifact/module.js";
 import type { ProvidedArtifactRuntime, RequiredArtifactRuntime } from "./artifact/runtime.js";
 import type { DomainOpRuntimeAny, OpsById } from "./bindings.js";
 import type { StepArtifactsDecl, StepArtifactsDeclAny, StepContract } from "./step/contract.js";
@@ -32,20 +32,46 @@ type ArtifactByName<T extends readonly ArtifactContract[], K extends string> = E
   { name: K }
 >;
 
+type ArtifactContractsOfModules<T extends readonly ArtifactModule[]> = {
+  readonly [K in keyof T]: T[K] extends ArtifactModule<infer C> ? C : never;
+};
+
+/** Provider runtimes keyed by the artifact names carried by a step's admitted modules. */
 export type StepProvidedArtifactsRuntime<
   TContext extends ExtendedMapContext,
   TArtifacts extends StepArtifactsDeclAny | undefined,
 > =
   TArtifacts extends StepArtifactsDecl<any, infer Provides>
-    ? Provides extends readonly ArtifactContract[]
+    ? Provides extends readonly ArtifactModule[]
       ? {
-          [K in ArtifactNameOf<Provides>]: ProvidedArtifactRuntime<
-            ArtifactByName<Provides, K>,
+          [K in ArtifactNameOf<ArtifactContractsOfModules<Provides>>]: ProvidedArtifactRuntime<
+            ArtifactByName<ArtifactContractsOfModules<Provides>, K>,
             TContext
           >;
         }
       : {}
     : {};
+
+/** Runtime publication surface derived by `createStep` from the author's artifact modules. */
+export type StepArtifactRuntimes<
+  TContext extends ExtendedMapContext,
+  TArtifacts extends StepArtifactsDeclAny | undefined,
+> =
+  TArtifacts extends StepArtifactsDecl<any, infer Provides>
+    ? [Provides] extends [undefined]
+      ? Readonly<{ artifacts?: never }>
+      : Provides extends readonly []
+        ? Readonly<{ artifacts?: never }>
+        : Provides extends readonly ArtifactModule[]
+          ? number extends Provides["length"]
+            ? Readonly<{
+                artifacts?: StepProvidedArtifactsRuntime<TContext, TArtifacts>;
+              }>
+            : Readonly<{
+                artifacts: StepProvidedArtifactsRuntime<TContext, TArtifacts>;
+              }>
+          : Readonly<{ artifacts?: never }>
+    : Readonly<{ artifacts?: never }>;
 
 type ArtifactListOrEmpty<T> = T extends readonly ArtifactContract[] ? T : readonly [];
 
@@ -60,8 +86,15 @@ type StepArtifactsSurface<
           TContext
         >;
       } & {
-        [K in ArtifactNameOf<ArtifactListOrEmpty<Provides>>]: ProvidedArtifactRuntime<
-          ArtifactByName<ArtifactListOrEmpty<Provides>, K>,
+        [K in Provides extends readonly ArtifactModule[]
+          ? ArtifactNameOf<ArtifactContractsOfModules<Provides>>
+          : never]: ProvidedArtifactRuntime<
+          ArtifactByName<
+            Provides extends readonly ArtifactModule[]
+              ? ArtifactContractsOfModules<Provides>
+              : readonly [],
+            K
+          >,
           TContext
         >;
       }
@@ -74,16 +107,15 @@ export type StepDeps<
   /**
    * Canonical dependency surface for artifacts.
    *
-   * Buffer artifacts are a temporary exception: they are published once and then
-   * mutated in-place via ctx.buffers without re-publishing.
-   * TODO(architecture): redesign buffers as a distinct dependency kind (not artifacts).
+   * Legacy mutable buffer aliases retire into explicit artifact vintages rather
+   * than becoming a second dependency authority.
    */
   artifacts: StepArtifactsSurface<TContext, TArtifacts>;
-  fields: unknown;
-  effects: unknown;
 }>;
 
 type StepContractAny = StepContract<any, any, any, any>;
+
+type StepConfigOfContract<C extends StepContractAny> = Static<C["schema"]>;
 
 type StepArtifactsDeclOfContract<C extends StepContractAny> =
   C extends StepContract<any, any, any, infer A> ? A : undefined;
@@ -91,22 +123,25 @@ type StepArtifactsDeclOfContract<C extends StepContractAny> =
 export type StepModule<
   TContext extends ExtendedMapContext = ExtendedMapContext,
   C extends StepContractAny = StepContractAny,
+  TResult = unknown,
 > = Readonly<{
   contract: C;
-  artifacts?: StepProvidedArtifactsRuntime<TContext, StepArtifactsDeclOfContract<C>>;
   normalize?: (config: unknown, ctx: NormalizeContext) => unknown;
   run: (
     context: TContext,
     config: unknown,
     ops: unknown,
     deps: StepDeps<TContext, StepArtifactsDeclOfContract<C>>
-  ) => void | Promise<void>;
-}>;
+  ) => TResult | Promise<TResult>;
+}> &
+  StepFacets<StepConfigOfContract<C>, TResult> &
+  StepArtifactRuntimes<TContext, StepArtifactsDeclOfContract<C>>;
 
 export type Step<
   TContext extends ExtendedMapContext = ExtendedMapContext,
   C extends StepContractAny = StepContractAny,
-> = StepModule<TContext, C>;
+  TResult = unknown,
+> = StepModule<TContext, C, TResult>;
 
 export const RESERVED_STAGE_KEY = "knobs" as const;
 export type ReservedStageKey = typeof RESERVED_STAGE_KEY;
@@ -332,6 +367,8 @@ export type RecipeModule<
     options?: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;
+      /** Execution-owned consumers for optional post-provides step projections. */
+      facets?: StepFacetSinks;
       log?: (message: string) => void;
     }
   ) => void;
@@ -342,6 +379,8 @@ export type RecipeModule<
     options?: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;
+      /** Execution-owned consumers for optional post-provides step projections. */
+      facets?: StepFacetSinks;
       log?: (message: string) => void;
       abortSignal?: { readonly aborted: boolean } | null;
       yieldToEventLoop?: boolean;

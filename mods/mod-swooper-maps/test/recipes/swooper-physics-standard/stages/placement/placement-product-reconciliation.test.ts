@@ -8,6 +8,7 @@ import {
   type ResourcePlacementOutcome,
 } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
+import type { Static } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe, {
@@ -25,6 +26,10 @@ type PlacementRecipeHarnessOptions = {
   width?: number;
   height?: number;
 };
+
+type ResourcePlacementOutcomes = Static<
+  (typeof placementArtifacts.resourcePlacementOutcomes)["schema"]
+>;
 
 /**
  * Runs D4 placement reconciliation through the standard recipe instead of
@@ -82,14 +87,7 @@ function runStandardPlacementRecipe({
 
 function readResourceOutcomes(context: ReturnType<typeof runStandardPlacementRecipe>["context"]) {
   return context.artifacts.get(placementArtifacts.resourcePlacementOutcomes.id) as
-    | {
-        summary: {
-          plannedCount: number;
-          placedCount: number;
-          rejectedCount: number;
-          mismatchCount: number;
-        };
-      }
+    | ResourcePlacementOutcomes
     | undefined;
 }
 
@@ -159,13 +157,14 @@ describe("placement reconciliation", () => {
 
     const resourceOutcomes = readResourceOutcomes(context);
     const discoveryOutcomes = readDiscoveryOutcomes(context);
+    if (!resourceOutcomes) throw new Error("Missing resource placement outcomes.");
 
     // Snow and the official RESOURCE generator stay off: the mod owns resource
     // placement via typed intents (engine indices + readback).
     expect(adapter.calls.generateSnow.length).toBe(0);
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
-    expect(resourceOutcomes?.summary.plannedCount).toBeGreaterThan(0);
-    expect(adapter.calls.setResourceType.length).toBe(resourceOutcomes?.summary.placedCount);
+    expect(resourceOutcomes.summary.plannedCount).toBeGreaterThan(0);
+    expect(adapter.calls.setResourceType.length).toBe(resourceOutcomes.summary.placedCount);
 
     // Discoveries defer to Civ7's official generator (narrative-coupled type and
     // availability), not a map-side catalog: the step calls it exactly once and
@@ -196,17 +195,18 @@ describe("placement reconciliation", () => {
 
     const { context } = runStandardPlacementRecipe({ adapter, seed, width, height });
     const resourceOutcomes = readResourceOutcomes(context);
+    if (!resourceOutcomes) throw new Error("Missing resource placement outcomes.");
 
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.calls.setResourceType.length).toBe(0);
-    expect(resourceOutcomes?.summary.plannedCount).toBeGreaterThan(0);
-    expect(resourceOutcomes?.summary.placedCount).toBe(0);
-    expect(resourceOutcomes?.summary.rejectedCount).toBe(resourceOutcomes?.summary.plannedCount);
-    expect(resourceOutcomes?.summary.mismatchCount).toBe(0);
+    expect(resourceOutcomes.summary.plannedCount).toBeGreaterThan(0);
+    expect(resourceOutcomes.summary.placedCount).toBe(0);
+    expect(resourceOutcomes.summary.rejectedCount).toBe(resourceOutcomes.summary.plannedCount);
+    expect(resourceOutcomes.summary.mismatchCount).toBe(0);
     expect(
-      resourceOutcomes?.summary.byReason.every((row) => row.reason === "cannot-have-resource")
+      resourceOutcomes.summary.byReason.every((row) => row.reason === "cannot-have-resource")
     ).toBe(true);
-    expect(resourceOutcomes?.reconciliation.shortfalls.length).toBeGreaterThan(0);
+    expect(resourceOutcomes.reconciliation.shortfalls.length).toBeGreaterThan(0);
   });
 
   it("fails hard when resource readback contradicts typed intent", () => {

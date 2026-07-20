@@ -17,16 +17,16 @@ import {
   createLabelRng,
   sha256Hex,
   stableStringify,
+  type TraceEvent,
+  type TraceSink,
 } from "@swooper/mapgen-core";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
-import type { TraceEvent, TraceSink } from "@swooper/mapgen-core/trace";
-import { admitSwooperCatalogConfig } from "../../maps/catalog/admission.js";
 import {
   admitStandardMapConfig,
   canonicalRecipeConfig,
   type StandardMapConfigEnvelope,
 } from "../../maps/configs/canonical.js";
-import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
+import { artifacts as standardArtifacts } from "../../recipes/standard/artifacts/index.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
 import { artifacts as ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts/index.js";
@@ -422,18 +422,17 @@ export type ResourcePlacementRejectionContext = Readonly<{
       observedResourceType?: number | null;
       reason?: string | null;
     }>;
-    assignment?: Readonly<{
-      resourceType: number;
-      initialResourceType: number;
-      preferredResourceType?: number | null;
-      assignmentPhase: string;
-      reassignedByRebalance?: boolean;
-      assignmentOrder?: number;
-      perTypeCountBefore?: number;
-      legalPlotCountForResource?: number;
-      targetMinPerType?: number;
-    }>;
+    planIntent?: LocalResourcePlanIntentEvidence;
   }>;
+}>;
+
+type LocalResourcePlanIntentEvidence = Readonly<{
+  resourceType: number;
+  resourceTypeName?: string;
+  phase: string;
+  family?: string;
+  laneId?: string;
+  inHabitat?: boolean;
 }>;
 
 export type FinalSurfaceParityReport = Readonly<{
@@ -670,9 +669,11 @@ function buildLocalRiverMetadataSnapshot(
   width: number,
   height: number
 ): RiverMetadataSnapshot | undefined {
-  const projected = context.artifacts.get(mapRiversArtifacts.projectedNavigableRivers.id);
-  const readback = context.artifacts.get(mapRiversArtifacts.engineProjectionRivers.id);
-  if (!isPlainObject(projected) && !isPlainObject(readback)) return undefined;
+  const projectedValue = context.artifacts.get(mapRiversArtifacts.projectedNavigableRivers.id);
+  const readbackValue = context.artifacts.get(mapRiversArtifacts.engineProjectionRivers.id);
+  const projected = isPlainObject(projectedValue) ? projectedValue : undefined;
+  const readback = isPlainObject(readbackValue) ? readbackValue : undefined;
+  if (projected === undefined && readback === undefined) return undefined;
   const size = width * height;
   return stripUndefined({
     width,
@@ -726,10 +727,10 @@ function buildTerrainProjectionEvidence(
     placementArtifacts.placementSurfacePreparation.id
   );
   const placementTerrainSnapshot = context.artifacts.get(
-    mapArtifacts.placementEngineTerrainSnapshot.id
+    standardArtifacts.placementEngineTerrainSnapshot.id
   );
   const placementValidationBoundary = context.artifacts.get(
-    mapArtifacts.placementSurfaceValidationBoundary.id
+    standardArtifacts.placementSurfaceValidationBoundary.id
   );
   return stripUndefined({
     coastlineMetrics: pickSerializableFields(coastlineMetrics, [
@@ -837,9 +838,8 @@ function pickSerializableFields(
 }
 
 function serializeEvidenceValue(value: unknown): unknown {
-  if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
-    return Array.from(value as ArrayLike<number>);
-  }
+  const numericValues = numericTypedArrayValues(value);
+  if (numericValues !== undefined) return numericValues;
   if (Array.isArray(value)) return value.map((entry) => serializeEvidenceValue(entry));
   if (isPlainObject(value)) {
     return stripUndefined(
@@ -869,12 +869,17 @@ export function liveGridToFinalSurfaceSnapshot(args: {
   evidence?: Readonly<Record<string, unknown>>;
 }): FinalSurfaceSnapshot {
   const { width, height } = args;
-  const surfaces = Object.fromEntries(
-    FINAL_SURFACE_KEYS.map((key) => [
-      key,
-      { width, height, values: new Array<number | null>(width * height).fill(null) },
-    ])
-  ) as Record<FinalSurfaceKey, SurfaceGrid>;
+  const createSurface = () => ({
+    width,
+    height,
+    values: new Array<number | null>(width * height).fill(null),
+  });
+  const surfaces = {
+    terrain: createSurface(),
+    biome: createSurface(),
+    feature: createSurface(),
+    resource: createSurface(),
+  } satisfies Record<FinalSurfaceKey, SurfaceGrid>;
   const riverMetadata = createEmptyRiverMetadataSnapshot(width, height);
   const plots = isPlainObject(args.grid) && Array.isArray(args.grid.plots) ? args.grid.plots : [];
   const navigableRiverTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_NAVIGABLE_RIVER;
@@ -888,7 +893,7 @@ export function liveGridToFinalSurfaceSnapshot(args: {
     const facts = isPlainObject(plot.facts) ? plot.facts : {};
     for (const key of FINAL_SURFACE_KEYS) {
       const value = probeNumberValue(facts[key]);
-      (surfaces[key].values as Array<number | null>)[index] = value;
+      surfaces[key].values[index] = value;
     }
     const terrain = probeNumberValue(facts.terrain);
     const riverType = probeNumberValue(facts.riverType);
@@ -1219,12 +1224,12 @@ export function buildFinalSurfaceParityReport(args: {
     exactAuthorshipSummary: {
       ...(exact?.requestId === undefined ? {} : { requestId: exact.requestId }),
       ...(exact?.status === undefined ? {} : { status: exact.status }),
-      ...(exact?.sourceSnapshot?.canonicalConfigDigest === undefined
+      ...(exact?.canonicalConfigDigest === undefined
         ? {}
-        : { canonicalConfigDigest: exact.sourceSnapshot.canonicalConfigDigest }),
-      ...(exact?.sourceSnapshot?.launchEnvelopeDigest === undefined
+        : { canonicalConfigDigest: exact.canonicalConfigDigest }),
+      ...(exact?.launchEnvelopeDigest === undefined
         ? {}
-        : { launchEnvelopeDigest: exact.sourceSnapshot.launchEnvelopeDigest }),
+        : { launchEnvelopeDigest: exact.launchEnvelopeDigest }),
       ...(exact?.request?.seed === undefined ? {} : { seed: exact.request.seed }),
       ...(exact?.request?.mapSize === undefined ? {} : { mapSize: exact.request.mapSize }),
       dimensions: {
@@ -1557,15 +1562,10 @@ function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLake
 export function canonicalConfigFromGenerationManifest(
   manifest: StudioRunGenerationManifest | undefined
 ): StandardMapConfigEnvelope | undefined {
-  const source = manifest?.payload.launchEnvelope.source;
-  if (source === undefined) return undefined;
+  const canonicalConfig = manifest?.payload.launchEnvelope.canonicalConfig;
+  if (canonicalConfig === undefined) return undefined;
   try {
-    return source.kind === "catalog"
-      ? admitSwooperCatalogConfig({
-          sourcePath: source.sourcePath,
-          canonicalConfig: source.canonicalConfig,
-        }).canonicalConfig
-      : admitStandardMapConfig(source.canonicalConfig);
+    return admitStandardMapConfig(canonicalConfig);
   } catch {
     return undefined;
   }
@@ -1593,6 +1593,12 @@ export function stableParityReportStringify(value: unknown): string {
   return stableStringify(value);
 }
 
+function exactLogRecord(
+  exact: CompleteExactAuthorshipEvidence | undefined
+): Readonly<Record<string, unknown>> | undefined {
+  return isPlainObject(exact?.log) ? exact.log : undefined;
+}
+
 const LAKE_READBACK_COUNTER_FIELDS = [
   "acceptedLakeTileCount",
   "finalLakeWaterDriftCount",
@@ -1607,7 +1613,9 @@ function buildLakeReadbackParityReport(
     ? local.evidence.terrainProjection
     : undefined;
   const localCounters = readLakeReadbackCounters(terrainProjection?.placementSurfacePreparation);
-  const exactCounters = readLakeReadbackCounters(exact?.log?.placementSurfacePreparation);
+  const exactCounters = readLakeReadbackCounters(
+    exactLogRecord(exact)?.placementSurfacePreparation
+  );
   if (localCounters === undefined && exactCounters === undefined) return undefined;
   if (localCounters === undefined) {
     return {
@@ -1670,7 +1678,10 @@ function buildFloodplainActiveParityReport(
       ? local.evidence.featureApplyDiagnostics
       : undefined
   );
-  const exactCounters = readFloodplainFeatureApplyCounters(exact?.log?.featureApply?.stats);
+  const exactFeatureApply = exactLogRecord(exact)?.featureApply;
+  const exactCounters = readFloodplainFeatureApplyCounters(
+    isPlainObject(exactFeatureApply) ? exactFeatureApply.stats : undefined
+  );
   const featureSurface = diffs.find((diff) => diff.key === "feature");
   if (localCounters === undefined && exactCounters === undefined) return undefined;
   if (localCounters === undefined) {
@@ -2260,7 +2271,8 @@ function buildNaturalWonderPlanCoordinateEvidenceComparison(
 function readExactNaturalWonderPlanRows(
   exact: CompleteExactAuthorshipEvidence
 ): NaturalWonderPlanRow[] {
-  const rows = exact.log?.naturalWonderPlan?.planRows;
+  const naturalWonderPlan = exactLogRecord(exact)?.naturalWonderPlan;
+  const rows = isPlainObject(naturalWonderPlan) ? naturalWonderPlan.planRows : undefined;
   return Array.isArray(rows) ? rows.flatMap((row) => readNaturalWonderPlanRow(row)) : [];
 }
 
@@ -2383,19 +2395,24 @@ function naturalWonderPlanDigestFields(
 function exactNaturalWonderPlanLoggedDigest(
   exact: CompleteExactAuthorshipEvidence
 ): { count?: number; hash32?: string } | undefined {
-  const planned = exact.log?.naturalWonderPlan?.coordinateEvidence?.planned;
+  const naturalWonderPlan = exactLogRecord(exact)?.naturalWonderPlan;
+  const coordinateEvidence = isPlainObject(naturalWonderPlan)
+    ? naturalWonderPlan.coordinateEvidence
+    : undefined;
+  const planned = isPlainObject(coordinateEvidence) ? coordinateEvidence.planned : undefined;
   const plannedDigest = coordinateDigest(planned);
   if (plannedDigest) return plannedDigest;
-  const payload = isPlainObject(exact.log?.naturalWonderPlan?.payload)
-    ? exact.log?.naturalWonderPlan?.payload
-    : undefined;
-  const coordinateEvidence = isPlainObject(payload?.coordinateEvidence)
+  const payload =
+    isPlainObject(naturalWonderPlan) && isPlainObject(naturalWonderPlan.payload)
+      ? naturalWonderPlan.payload
+      : undefined;
+  const payloadCoordinateEvidence = isPlainObject(payload?.coordinateEvidence)
     ? payload.coordinateEvidence
     : undefined;
-  const count = numberValue(coordinateEvidence?.plannedCount);
+  const count = numberValue(payloadCoordinateEvidence?.plannedCount);
   const hash32 =
-    typeof coordinateEvidence?.plannedHash32 === "string"
-      ? coordinateEvidence.plannedHash32
+    typeof payloadCoordinateEvidence?.plannedHash32 === "string"
+      ? payloadCoordinateEvidence.plannedHash32
       : undefined;
   return count === undefined && hash32 === undefined ? undefined : { count, hash32 };
 }
@@ -2516,8 +2533,9 @@ function buildNaturalWonderPlanInputSurfaceDigestComparison(
 function readExactNaturalWonderPlanInputSurfaceDigests(
   exact: CompleteExactAuthorshipEvidence
 ): NaturalWonderPlanInputSurfaceDigests | undefined {
+  const input = exactLogRecord(exact)?.naturalWonderPlanInput;
   return readNaturalWonderPlanInputSurfaceDigests(
-    exact.log?.naturalWonderPlanInput?.surfaceDigests
+    isPlainObject(input) ? input.surfaceDigests : undefined
   );
 }
 
@@ -2578,7 +2596,8 @@ function readNaturalWonderPlanInputSurfaceDigests(
 function readExactNaturalWonderPlanInputRows(
   exact: CompleteExactAuthorshipEvidence
 ): NaturalWonderPlanInputRow[] {
-  const rows = exact.log?.naturalWonderPlanInput?.inputRows;
+  const naturalWonderPlanInput = exactLogRecord(exact)?.naturalWonderPlanInput;
+  const rows = isPlainObject(naturalWonderPlanInput) ? naturalWonderPlanInput.inputRows : undefined;
   return Array.isArray(rows) ? rows.flatMap((row) => readNaturalWonderPlanInputRow(row)) : [];
 }
 
@@ -2790,8 +2809,11 @@ function buildResourcePlacementCoordinateEvidenceComparison(
 ): ResourcePlacementCoordinateEvidenceComparison | undefined {
   const localCoordinateEvidence = localResourcePlacementCoordinateEvidence(local);
   if (!localCoordinateEvidence) return undefined;
-  const logCoordinateEvidence = exact.log?.resourcePlacement?.coordinateEvidence;
-  if (!logCoordinateEvidence) {
+  const resourcePlacement = exactLogRecord(exact)?.resourcePlacement;
+  const logCoordinateEvidence = isPlainObject(resourcePlacement)
+    ? resourcePlacement.coordinateEvidence
+    : undefined;
+  if (!isPlainObject(logCoordinateEvidence)) {
     return {
       status: "missing-exact-log",
       local: localCoordinateEvidence,
@@ -2903,7 +2925,9 @@ function buildResourcePlacementRejectionContexts(
 function readExactResourcePlacementRejectionRows(
   exact: CompleteExactAuthorshipEvidence
 ): ResourcePlacementRejectionContext["exact"][] {
-  const rows = exact.log?.resourcePlacement?.stats?.rejectionRows;
+  const resourcePlacement = exactLogRecord(exact)?.resourcePlacement;
+  const stats = isPlainObject(resourcePlacement) ? resourcePlacement.stats : undefined;
+  const rows = isPlainObject(stats) ? stats.rejectionRows : undefined;
   if (!Array.isArray(rows)) return [];
   return rows.flatMap((row) => {
     if (!isPlainObject(row)) return [];
@@ -2970,17 +2994,7 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
       reason?: string | null;
     }
   >;
-  planIntentByPlot: ReadonlyMap<
-    number,
-    {
-      resourceType: number;
-      resourceTypeName?: string;
-      phase: string;
-      family?: string;
-      laneId?: string;
-      inHabitat?: boolean;
-    }
-  >;
+  planIntentByPlot: ReadonlyMap<number, LocalResourcePlanIntentEvidence>;
 } {
   // S5: prefer the support-ADJUSTED plan when present — its intents are the
   // ones actually stamped; the base resourcePlan stays as fallback evidence.
@@ -3053,17 +3067,7 @@ function readLocalResourcePlacementEvidence(local: FinalSurfaceSnapshot): {
     });
   }
 
-  const planIntentByPlot = new Map<
-    number,
-    {
-      resourceType: number;
-      resourceTypeName?: string;
-      phase: string;
-      family?: string;
-      laneId?: string;
-      inHabitat?: boolean;
-    }
-  >();
+  const planIntentByPlot = new Map<number, LocalResourcePlanIntentEvidence>();
   for (const planIntent of intents) {
     if (!isPlainObject(planIntent)) continue;
     const plotIndex = numberValue(planIntent.plotIndex);
@@ -3180,9 +3184,26 @@ function numberOrNullValue(value: unknown): number | null | undefined {
 }
 
 function probeNumberValue(value: unknown): number | null {
-  if (!isPlainObject(value)) return numberValue(value);
+  if (!isPlainObject(value)) return numberValue(value) ?? null;
   if (value.ok !== true) return null;
-  return numberValue(value.value);
+  return numberValue(value.value) ?? null;
+}
+
+function numericTypedArrayValues(value: unknown): number[] | undefined {
+  if (
+    value instanceof Int8Array ||
+    value instanceof Uint8Array ||
+    value instanceof Uint8ClampedArray ||
+    value instanceof Int16Array ||
+    value instanceof Uint16Array ||
+    value instanceof Int32Array ||
+    value instanceof Uint32Array ||
+    value instanceof Float32Array ||
+    value instanceof Float64Array
+  ) {
+    return Array.from(value);
+  }
+  return undefined;
 }
 
 function probeBooleanValue(value: unknown): number | null {

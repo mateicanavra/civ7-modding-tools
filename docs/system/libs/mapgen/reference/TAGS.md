@@ -16,6 +16,7 @@ Define the dependency tag system used to wire the pipeline and validate correctn
 - Every step has `requires` and `provides` dependency tags.
 - Tags must be validated against a registry.
 - Missing requirements or unknown tags are errors (unless compiled out).
+- Dependency kinds are closed to `artifact:*` data and `effect:*` execution guarantees.
 - Recipe tag catalog names describe their owner/surface, not the milestone that
   introduced them.
 
@@ -27,16 +28,10 @@ TagRegistry is responsible for:
 - validating tags (kind and id correctness),
 - and validating `requires/provides` lists.
 
-Representative example (canonical tag ids + registry registration; excerpt; see full file in anchors):
+Artifact IDs are owned and registered by step-selected artifact modules. Explicit catalogs own
+effect IDs and their optional runtime postconditions. Representative effect example:
 
 ```ts
-export const FIELD_DEPENDENCY_TAGS = {
-  field: {
-    elevation: "field:elevation",
-    rainfall: "field:rainfall",
-  },
-} as const;
-
 export const MAP_PROJECTION_EFFECT_TAGS = {
   map: {
     riversPlotted: "effect:map.riversPlotted",
@@ -55,4 +50,5 @@ export function registerStandardTags(registry: {
 - TagRegistry implementation and helpers: `packages/mapgen-core/src/engine/tags.ts`
 - StepRegistry validation: `packages/mapgen-core/src/engine/StepRegistry.ts`
 - Policy: registered-only tags: `docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`
-- Example tag registry + definitions: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
+- Example effect registry + definitions: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
+- Artifact module runtime: `packages/mapgen-core/src/authoring/artifact/runtime.ts`

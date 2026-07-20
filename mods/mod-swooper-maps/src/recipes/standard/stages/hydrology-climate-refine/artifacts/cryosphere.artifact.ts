@@ -1,5 +1,7 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -38,8 +40,13 @@ export const HydrologyCryosphereSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for snow, sea-ice, albedo, and frozen-ground state. */
 export const Schema = HydrologyCryosphereSchema;
 
+/**
+ * Registers refined snow, sea-ice, albedo, ground-ice, permafrost, and melt-potential fields.
+ * Downstream biome and ice planning consume one dimension-aligned cryosphere vintage.
+ */
 export const artifact = defineArtifact({
   name: "cryosphere",
   id: "artifact:hydrology.cryosphere",
@@ -52,51 +59,73 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function expectedSize(context: ArtifactValidationContext | undefined): number | undefined {
-  const width = context?.dimensions?.width;
-  const height = context?.dimensions?.height;
-  if (!Number.isFinite(width) || !Number.isFinite(height)) return undefined;
-  return Math.max(0, (width! | 0) * (height! | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): void {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-}
-
-function validatePayload(
-  value: unknown,
-  context?: ArtifactValidationContext
-): ArtifactValidationIssue[] {
+function validatePayload(value: unknown, expectedLength?: number): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
-  const size = expectedSize(context);
   if (!isRecord(value)) return [{ message: "Missing hydrology cryosphere artifact payload." }];
-  const candidate = value as { snowCover?: unknown; seaIceCover?: unknown; albedo?: unknown };
-  validateTypedArray(errors, "cryosphere.snowCover", candidate.snowCover, Uint8Array, size);
-  validateTypedArray(errors, "cryosphere.seaIceCover", candidate.seaIceCover, Uint8Array, size);
-  validateTypedArray(errors, "cryosphere.albedo", candidate.albedo, Uint8Array, size);
+  const candidate = value as {
+    snowCover?: unknown;
+    seaIceCover?: unknown;
+    albedo?: unknown;
+    groundIce01?: unknown;
+    permafrost01?: unknown;
+    meltPotential01?: unknown;
+  };
+  appendArtifactTypedArrayIssues(
+    errors,
+    "cryosphere.snowCover",
+    candidate.snowCover,
+    Uint8Array,
+    expectedLength
+  );
+  appendArtifactTypedArrayIssues(
+    errors,
+    "cryosphere.seaIceCover",
+    candidate.seaIceCover,
+    Uint8Array,
+    expectedLength
+  );
+  appendArtifactTypedArrayIssues(
+    errors,
+    "cryosphere.albedo",
+    candidate.albedo,
+    Uint8Array,
+    expectedLength
+  );
+  appendArtifactTypedArrayIssues(
+    errors,
+    "cryosphere.groundIce01",
+    candidate.groundIce01,
+    Float32Array,
+    expectedLength
+  );
+  appendArtifactTypedArrayIssues(
+    errors,
+    "cryosphere.permafrost01",
+    candidate.permafrost01,
+    Float32Array,
+    expectedLength
+  );
+  appendArtifactTypedArrayIssues(
+    errors,
+    "cryosphere.meltPotential01",
+    candidate.meltPotential01,
+    Float32Array,
+    expectedLength
+  );
   return errors;
 }
 
+/**
+ * Validates cryosphere state against its closed schema and, when map dimensions are supplied,
+ * verifies every tile field matches that width × height. It returns accumulated issues so
+ * artifact admission can reject a structurally valid but spatially inconsistent payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext
 ): readonly { message: string }[] {
   return Object.freeze([
     ...validateArtifactSchema(Schema, value),
-    ...validatePayload(value, context),
+    ...validatePayload(value, artifactCellCount(context)),
   ]);
 }

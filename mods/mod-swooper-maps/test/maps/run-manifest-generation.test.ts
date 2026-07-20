@@ -22,6 +22,7 @@ import {
   admitStandardMapConfig,
   type StandardMapConfigEnvelope,
 } from "../../src/maps/configs/canonical";
+import { expectCiv7MapScriptCompatibility } from "../support/civ7-map-script-compatibility";
 
 describe("Swooper run manifest generator", () => {
   test("requires exactly one manifest path", () => {
@@ -60,15 +61,28 @@ describe("Swooper run manifest generator", () => {
         "utf8"
       );
       expect(modInfo).toContain(`<Mod id="swooper-maps" title="LOC_MODULE_SWOOPER_MAPS_NAME"/>`);
+      expect(modInfo.split(`id="always-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
+      expect(modInfo.split(`id="game-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
+      expect(modInfo.split(`id="shell-${STUDIO_RUN_MOD_ID}"`).length - 1).toBe(1);
+      expect(modInfo).not.toContain('<Criteria id="always">');
+      expect(modInfo).not.toContain('id="game-swooper-maps"');
+      expect(modInfo).not.toContain('id="shell-swooper-maps"');
       expect(modInfo).not.toContain("data/biome-hazards.xml");
+      const configXml = await readFile(
+        resolve(generated.generatedModRoot, "config/config.xml"),
+        "utf8"
+      );
       expect(
-        await readFile(resolve(generated.generatedModRoot, "config/config.xml"), "utf8")
-      ).toContain(`File="{${STUDIO_RUN_MOD_ID}}/${STUDIO_RUN_MAP_SCRIPT_PATH}"`);
+        configXml.split(`File="{${STUDIO_RUN_MOD_ID}}/${STUDIO_RUN_MAP_SCRIPT_PATH}"`).length - 1
+      ).toBe(1);
+      expect(configXml.split(`Name="LOC_MAP_${mapRowId}_NAME"`).length - 1).toBe(1);
+      expect(configXml.split(`Description="LOC_MAP_${mapRowId}_DESCRIPTION"`).length - 1).toBe(1);
       const mapText = await readFile(
         resolve(generated.generatedModRoot, "text/en_us/MapText.xml"),
         "utf8"
       );
-      expect(mapText).toContain(`LOC_MAP_${mapRowId}_NAME`);
+      expect(mapText.split(`Tag="LOC_MAP_${mapRowId}_NAME"`).length - 1).toBe(1);
+      expect(mapText.split(`Tag="LOC_MAP_${mapRowId}_DESCRIPTION"`).length - 1).toBe(1);
       expect(mapText).not.toContain("LOC_PLOTEFFECT_DESERT_HEAT_NAME");
       await expect(
         readFile(resolve(generated.generatedModRoot, "data/biome-hazards.xml"), "utf8")
@@ -82,9 +96,10 @@ describe("Swooper run manifest generator", () => {
       );
       expect(mapScript.length).toBeGreaterThan(0);
       expect(mapScript).toContain(manifest.payload.requestId);
-      expect(mapScript).toContain(manifest.payload.launchSourceDigest.canonicalConfigDigest);
+      expect(mapScript).toContain(manifest.payload.canonicalConfigDigest);
       expect(mapScript).toContain(manifest.payload.launchEnvelopeDigest);
       expect(mapScript).not.toContain("configContentDigest");
+      await expectCiv7MapScriptCompatibility(mapScript, STUDIO_RUN_MAP_SCRIPT_PATH);
       await expect(
         readFile(resolve(generated.generatedModRoot, ".source/maps", `${runArtifactId}.ts`), "utf8")
       ).rejects.toThrow();
@@ -103,10 +118,8 @@ describe("Swooper run manifest generator", () => {
       const manifest = await readStudioRunGenerationManifest(manifestRef.path);
       await generateSwooperRunGeneratedModFromManifestPath(manifestRef.path);
 
-      expect(manifest.payload.launchEnvelope.source).toMatchObject({
-        kind: "catalog",
-        sourcePath: "mods/mod-swooper-maps/src/maps/configs/latest-juicy.config.json",
-        canonicalConfig: { id: "latest-juicy" },
+      expect(manifest.payload.launchEnvelope.canonicalConfig).toMatchObject({
+        id: "latest-juicy",
       });
     } finally {
       await rm(workspaceRoot, { recursive: true, force: true });
@@ -126,50 +139,10 @@ describe("Swooper run manifest generator", () => {
 
       expect(verifiedRun.manifest).toBe(manifest);
       expect(verifiedRun.renderInput.config).toEqual(
-        admitStandardMapConfig(manifest.payload.launchEnvelope.source.canonicalConfig)
+        admitStandardMapConfig(manifest.payload.launchEnvelope.canonicalConfig)
       );
       expect(verifiedRun.renderInput.seed).toBe(1538316418);
       expect(verifiedRun.renderInput.correlation.requestId).toBe(manifest.payload.requestId);
-    } finally {
-      await rm(workspaceRoot, { recursive: true, force: true });
-    }
-  });
-
-  test("rejects a catalog manifest whose source path disagrees with its config id", async () => {
-    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-path-mismatch-"));
-    try {
-      const manifestRef = await writeStudioRunGenerationManifest({
-        manifestInput: manifestInput({
-          sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-        }),
-        workspaceRoot,
-      });
-      const manifest = await readStudioRunGenerationManifest(manifestRef.path);
-
-      expect(() => verifySwooperStandardRunManifest(manifest)).toThrow("must match file stem");
-      await expect(
-        generateSwooperRunGeneratedModFromManifestPath(manifestRef.path)
-      ).rejects.toThrow("must match file stem");
-    } finally {
-      await rm(workspaceRoot, { recursive: true, force: true });
-    }
-  });
-
-  test("admits editor manifests without applying catalog path identity", async () => {
-    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-editor-"));
-    try {
-      const manifestRef = await writeStudioRunGenerationManifest({
-        manifestInput: manifestInput({ sourceKind: "editor" }),
-        workspaceRoot,
-      });
-      const manifest = await readStudioRunGenerationManifest(manifestRef.path);
-
-      const verified = verifySwooperStandardRunManifest(manifest);
-      expect(verified.renderInput.config.id).toBe("latest-juicy");
-      expect(verified.renderInput.config).not.toBe(
-        manifest.payload.launchEnvelope.source.canonicalConfig
-      );
-      expect(Object.isFrozen(verified.renderInput.config)).toBe(true);
     } finally {
       await rm(workspaceRoot, { recursive: true, force: true });
     }
@@ -206,7 +179,7 @@ describe("Swooper run manifest generator", () => {
 
       await expect(
         generateSwooperRunGeneratedModFromManifestPath(manifestRef.path)
-      ).rejects.toThrow(/recipe envelope must be mod-swooper-maps\/standard/);
+      ).rejects.toThrow(/recipe envelope must be standard/);
       const manifest = await readStudioRunGenerationManifest(manifestRef.path);
       await expect(
         readFile(
@@ -231,10 +204,7 @@ describe("Swooper run manifest generator", () => {
         ...manifest,
         payload: {
           ...manifest.payload,
-          launchSourceDigest: {
-            ...manifest.payload.launchSourceDigest,
-            canonicalConfigDigest: "b".repeat(64),
-          },
+          canonicalConfigDigest: "b".repeat(64),
         },
       };
       await writeFile(manifestRef.path, `${JSON.stringify(malformedManifest, null, 2)}\n`);
@@ -265,26 +235,21 @@ describe("Swooper run manifest generator", () => {
       });
       const manifest = await readStudioRunGenerationManifest(manifestRef.path);
       const [, ...remainingRecipeEntries] = Object.entries(
-        manifest.payload.launchEnvelope.source.canonicalConfig.config
+        manifest.payload.launchEnvelope.canonicalConfig.config
       );
       const incompleteRecipeConfig = Object.fromEntries(remainingRecipeEntries);
       const incompleteCanonicalConfig = {
-        ...manifest.payload.launchEnvelope.source.canonicalConfig,
+        ...manifest.payload.launchEnvelope.canonicalConfig,
         config: incompleteRecipeConfig,
       };
       const incompleteLaunchEnvelope = {
         ...manifest.payload.launchEnvelope,
-        source: {
-          ...manifest.payload.launchEnvelope.source,
-          canonicalConfig: incompleteCanonicalConfig,
-        },
+        canonicalConfig: incompleteCanonicalConfig,
       };
       const payload = {
         ...manifest.payload,
         launchEnvelope: incompleteLaunchEnvelope,
-        launchSourceDigest: {
-          canonicalConfigDigest: stableHash(incompleteCanonicalConfig),
-        },
+        canonicalConfigDigest: stableHash(incompleteCanonicalConfig),
         launchEnvelopeDigest: stableHash(incompleteLaunchEnvelope),
       };
       const selfConsistentlyRehashedManifest = {
@@ -338,8 +303,6 @@ describe("Swooper run manifest generator", () => {
 function manifestInput(
   options: Readonly<{
     recipe?: string;
-    sourceKind?: "catalog" | "editor";
-    sourcePath?: string;
   }> = {}
 ): StudioRunGenerationManifestInput {
   const sourceCanonicalConfig = standardMapConfigs.find(
@@ -348,10 +311,7 @@ function manifestInput(
   if (!sourceCanonicalConfig) throw new Error("latest-juicy config fixture is missing");
   const canonicalConfig = sourceCanonicalConfig;
   const launchEnvelope = {
-    recipeSettings: {
-      recipe: options.recipe ?? "mod-swooper-maps/standard",
-      seed: 1538316418,
-    },
+    seed: 1538316418,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },
@@ -359,20 +319,7 @@ function manifestInput(
       gameOptions: {},
       playerOptions: [{ playerId: 0, options: {} }],
     },
-    source:
-      options.sourceKind === "editor"
-        ? {
-            kind: "editor" as const,
-            editorSessionId: "run-manifest-generator-test",
-            canonicalConfig,
-          }
-        : {
-            kind: "catalog" as const,
-            sourcePath:
-              options.sourcePath ??
-              "mods/mod-swooper-maps/src/maps/configs/latest-juicy.config.json",
-            canonicalConfig,
-          },
+    canonicalConfig: { ...canonicalConfig, recipe: options.recipe ?? "standard" },
   };
   return {
     requestId: "studio-run-in-game-generator-test",

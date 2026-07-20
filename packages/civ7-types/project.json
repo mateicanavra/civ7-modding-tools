@@ -1,5 +1,12 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "civ7-types",
-  "tags": ["kind:foundation"]
+  "tags": ["kind:library"],
+  "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    }
+  }
 }

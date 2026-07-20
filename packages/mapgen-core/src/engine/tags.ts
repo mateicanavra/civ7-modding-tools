@@ -6,7 +6,7 @@ import {
 } from "@mapgen/engine/errors.js";
 import type { EngineContext, GenerationPhase } from "@mapgen/engine/types.js";
 
-export type DependencyTagKind = "artifact" | "field" | "effect";
+export type DependencyTagKind = "artifact" | "effect";
 
 type SatisfactionState = {
   satisfied: ReadonlySet<string>;
@@ -109,7 +109,6 @@ export function computeInitialSatisfiedTags<TContext>(_context: TContext): Set<s
 
 function isTagKindCompatible(id: string, kind: DependencyTagKind): boolean {
   if (kind === "artifact") return id.startsWith("artifact:");
-  if (kind === "field") return id.startsWith("field:");
   if (kind === "effect") return id.startsWith("effect:");
   return false;
 }

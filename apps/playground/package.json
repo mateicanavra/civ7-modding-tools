@@ -2,11 +2,11 @@
   "name": "@civ7/playground",
   "private": true,
   "scripts": {
-    "dev": "bun run src/build.ts",
     "build": "bun run src/build.ts",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
     "clean": "rimraf dist",
-    "test": "vitest run --project playground"
+    "test": "vitest run --project playground",
+    "typecheck": "tsc -p tsconfig.json --noEmit --composite false --incremental false"
   },
   "dependencies": {
     "@mateicanavra/civ7-sdk": "workspace:*"

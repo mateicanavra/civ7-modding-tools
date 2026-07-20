@@ -2,19 +2,22 @@ import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authorin
 
 const StartsBaseSchema = Type.Object(
   {
-    playersLandmass1: Type.Number({
+    playersLandmass1: Type.Integer({
       minimum: 0,
       maximum: 16,
-      description: "Player count allocated to the west landmass region.",
+      description:
+        "West regional slot contribution to Civ7 map-size capacity; not a fixed final allocation.",
     }),
-    playersLandmass2: Type.Number({
+    playersLandmass2: Type.Integer({
       minimum: 0,
       maximum: 16,
-      description: "Player count allocated to the east landmass region.",
+      description:
+        "East regional slot contribution to Civ7 map-size capacity; not a fixed final allocation.",
     }),
   },
   {
-    description: "Per-hemisphere start counts supplied by the run environment (map-size config).",
+    description:
+      "Regional slot contributions supplied by Civ7 map-size metadata. Their sum bounds admitted player demand; planning may reapportion admitted players across generated regions.",
   }
 );
 
@@ -77,12 +80,19 @@ const StartRecordSchema = Type.Object(
     }),
     playerIdSource: Type.Union([Type.Literal("alive-majors"), Type.Literal("slot-index")], {
       description:
-        "Where the playerId came from: the adapter alive-majors read surface, or the seat slot index when no alive id covers the seat (recorded, never silent).",
+        "Identity authority for this seat: an exact adapter-reported alive-major ID, or a slot-index fallback used only when the alive-major observation is empty.",
     }),
     regionSlot: Type.Integer({
+      minimum: 1,
+      maximum: 2,
+      description:
+        "Immutable requested homeland region for the seat (1=west, 2=east); fallback never rewrites it.",
+    }),
+    realizedRegionSlot: Type.Integer({
       minimum: 0,
       maximum: 2,
-      description: "Requested landmass region for the seat (1=west, 2=east).",
+      description:
+        "Terminal homeland region of the selected plot after fallback and fairness (1=west, 2=east); 0 only when unseated.",
     }),
     plotIndex: Type.Integer({
       minimum: -1,
@@ -203,8 +213,9 @@ const PlanStartsContract = defineOp({
     baseStarts: StartsBaseSchema,
     alivePlayerIds: Type.Optional(
       Type.Array(Type.Integer({ minimum: 0 }), {
+        uniqueItems: true,
         description:
-          "Alive major player ids from the adapter read surface; the op owns the slot→player mapping (D3).",
+          "Ordered alive major player IDs from the adapter read surface. A nonempty list is authoritative player demand, capped by combined map-size seat capacity and never padded with synthesized IDs.",
       })
     ),
     seatBiases: Type.Optional(
@@ -294,11 +305,13 @@ const PlanStartsContract = defineOp({
     ),
   }),
   output: Type.Object({
-    playersLandmass1: Type.Number({
-      description: "Player count allocated to the west landmass region.",
+    playersLandmass1: Type.Integer({
+      minimum: 0,
+      description: "Admitted player seats allocated to the west landmass region.",
     }),
-    playersLandmass2: Type.Number({
-      description: "Player count allocated to the east landmass region.",
+    playersLandmass2: Type.Integer({
+      minimum: 0,
+      description: "Admitted player seats allocated to the east landmass region.",
     }),
     spacingFloorTiles: Type.Integer({
       minimum: 0,
@@ -358,7 +371,7 @@ const PlanStartsContract = defineOp({
     ),
     seats: Type.Array(StartRecordSchema, {
       description:
-        "Per-player typed seat intents in seat order (west seats then east seats). The materializer stamps these verbatim.",
+        "One typed intent per admitted player in west-then-east seat order. The materializer stamps these exact identities without adding map-capacity surplus seats.",
     }),
     fairnessReport: FairnessReportSchema,
     status: Type.Union([Type.Literal("full"), Type.Literal("degraded")], {

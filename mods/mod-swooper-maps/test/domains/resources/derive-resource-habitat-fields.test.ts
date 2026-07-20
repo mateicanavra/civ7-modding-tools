@@ -1,9 +1,29 @@
 import { describe, expect, it } from "bun:test";
 import { RESOURCE_HABITAT_SIGNALS } from "@mapgen/domain/resources/model/policy/habitat-eligibility.js";
-import { HABITAT_MASK_FIELD_NAMES } from "@mapgen/domain/resources/model/schemas/habitat-fields.schema.js";
+import {
+  HABITAT_INTENSITY_FIELD_NAMES,
+  HABITAT_MASK_FIELD_NAMES,
+  type HabitatFieldsOutput,
+} from "@mapgen/domain/resources/model/schemas/habitat-fields.schema.js";
 import resources from "@mapgen/domain/resources/ops";
 
 import { runOpValidated } from "../../support/compiler-helpers.js";
+
+function assertHabitatFieldsOutput(value: unknown): asserts value is HabitatFieldsOutput {
+  if (typeof value !== "object" || value === null) {
+    throw new Error("Expected derived habitat fields output.");
+  }
+  for (const field of HABITAT_MASK_FIELD_NAMES) {
+    if (!(Reflect.get(value, field) instanceof Uint8Array)) {
+      throw new Error(`Expected ${field} to be a Uint8Array.`);
+    }
+  }
+  for (const field of HABITAT_INTENSITY_FIELD_NAMES) {
+    if (!(Reflect.get(value, field) instanceof Float32Array)) {
+      throw new Error(`Expected ${field} to be a Float32Array.`);
+    }
+  }
+}
 
 describe("derive-habitat-fields operation contract", () => {
   const width = 8;
@@ -59,15 +79,16 @@ describe("derive-habitat-fields operation contract", () => {
       resources.ops.deriveHabitatFields,
       syntheticInput(),
       structuredClone(resources.ops.deriveHabitatFields.defaultConfig)
-    ) as Record<string, unknown>;
+    );
+    assertHabitatFieldsOutput(result);
 
     for (const field of HABITAT_MASK_FIELD_NAMES) {
       const mask = result[field];
       expect(mask, field).toBeInstanceOf(Uint8Array);
-      expect((mask as Uint8Array).length, field).toBe(size);
+      expect(mask.length, field).toBe(size);
     }
-    for (const family of ["aquatic", "cultivated", "terrestrial", "geological"]) {
-      const intensity = result[`${family}Intensity`] as Float32Array;
+    for (const field of HABITAT_INTENSITY_FIELD_NAMES) {
+      const intensity = result[field];
       expect(intensity).toBeInstanceOf(Float32Array);
       for (const value of intensity) {
         expect(value).toBeGreaterThanOrEqual(0);
@@ -91,7 +112,8 @@ describe("derive-habitat-fields operation contract", () => {
       resources.ops.deriveHabitatFields,
       input,
       structuredClone(resources.ops.deriveHabitatFields.defaultConfig)
-    ) as Record<string, Uint8Array>;
+    );
+    assertHabitatFieldsOutput(result);
 
     let coastalCount = 0;
     for (let i = 0; i < size; i++) {

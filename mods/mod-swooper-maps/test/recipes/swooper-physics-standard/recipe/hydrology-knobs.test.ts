@@ -62,10 +62,32 @@ const navigableProfile = (
   targetMajorTileFraction: number
 ) => ({
   selectNavigableRiverTerrain: {
-    strategy: "default",
+    strategy: "default" as const,
     config: { endpointDischargePercentileMin, targetMajorTileFraction },
   },
 });
+
+function rainfallScale(config: object): number {
+  if (!("rainfallScale" in config) || typeof config.rainfallScale !== "number") {
+    throw new Error("Compiled precipitation config is missing rainfallScale");
+  }
+  return config.rainfallScale;
+}
+
+function riverLowlandAdjacencyBonus(config: object): number {
+  if (!("riverCorridor" in config) || typeof config.riverCorridor !== "object") {
+    throw new Error("Compiled precipitation config is missing riverCorridor");
+  }
+  const riverCorridor = config.riverCorridor;
+  if (
+    riverCorridor === null ||
+    !("lowlandAdjacencyBonus" in riverCorridor) ||
+    typeof riverCorridor.lowlandAdjacencyBonus !== "number"
+  ) {
+    throw new Error("Compiled precipitation config is missing lowlandAdjacencyBonus");
+  }
+  return riverCorridor.lowlandAdjacencyBonus;
+}
 
 describe("hydrology knobs compilation", () => {
   it("is deterministic for identical knob inputs", () => {
@@ -95,20 +117,20 @@ describe("hydrology knobs compilation", () => {
     const wet = standardRecipe.compileConfig(env, wetConfig);
     const dry = standardRecipe.compileConfig(env, dryConfig);
 
-    const wetScale =
+    const wetScale = rainfallScale(
       wet["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config
-        .rainfallScale;
-    const dryScale =
+    );
+    const dryScale = rainfallScale(
       dry["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config
-        .rainfallScale;
+    );
     expect(wetScale).toBeGreaterThan(dryScale);
 
-    const wetRiverBonus =
-      wet["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config.riverCorridor
-        .lowlandAdjacencyBonus;
-    const dryRiverBonus =
-      dry["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config.riverCorridor
-        .lowlandAdjacencyBonus;
+    const wetRiverBonus = riverLowlandAdjacencyBonus(
+      wet["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config
+    );
+    const dryRiverBonus = riverLowlandAdjacencyBonus(
+      dry["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config
+    );
     expect(wetRiverBonus).toBeGreaterThan(dryRiverBonus);
   });
 
@@ -211,8 +233,9 @@ describe("hydrology knobs compilation", () => {
     );
     // - dryness=wet scales rainfallScale by 1.15 (wetter climate).
     expect(
-      compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config
-        .rainfallScale
+      rainfallScale(
+        compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config
+      )
     ).toBeCloseTo(141.45, 6);
     // - riverDensity=dense shifts Hydrology river projection percentiles down relative to normal.
     expect(
@@ -225,8 +248,9 @@ describe("hydrology knobs compilation", () => {
     //   and exposes a separate navigableRiverDensity knob for Civ-visible trunk density.
     expect(compiled["map-rivers"]["plot-rivers"]).toEqual(navigableProfile(0.9, 0.4));
     expect(
-      compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config
-        .riverCorridor.lowlandAdjacencyBonus
+      riverLowlandAdjacencyBonus(
+        compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config
+      )
     ).toBe(51);
   });
 });

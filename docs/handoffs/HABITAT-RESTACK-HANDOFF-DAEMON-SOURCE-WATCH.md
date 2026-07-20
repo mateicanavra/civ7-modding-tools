@@ -13,6 +13,10 @@ while runtime operations write generated content, so it runs
 Treat historical `--watch` references in this handoff as context, not current
 authority.
 
+Lifecycle supersession (2026-07-13): Studio now runs only through
+`nx run mapgen-studio:dev`. The retired restart helper and any parallel process
+manager are historical evidence, not supported operation.
+
 Confidence: Verified for merge/PR/file/static evidence and current file deltas; Corroborated for historical hot-reload claims in the source commit messages; current live stabilization evidence is scoped to Run in Game daemon identity stability and browser status reconciliation, not to the full real-user matrix.
 
 ## What Changed
@@ -60,7 +64,8 @@ Only the dev daemon passes the custom `bun-source` condition. Production `serve`
   - `@civ7/direct-control`: `.`, `./play/*`, `./proof/*` entries present in the package exports
   - `@civ7/plugin-mods`: add/keep an exports map with `.` using `bun-source` and `./package.json`
 - Preserve the production/browser safety boundary: custom `bun-source` must remain opt-in to the dev daemon only.
-- Preserve `scripts/restart-mapgen-studio.sh` launching the daemon via `bun run dev:server` or the exact Habitat-equivalent target, not a raw `bun src/server/daemon/daemon.ts` invocation.
+- Preserve the `mapgen-studio:serve-daemon` target's opt-in `bun-source`
+  semantics beneath the canonical `mapgen-studio:dev` graph.
 - Preserve the daemon comment that documents dev-only source resolution, adjusted if the command moves into `project.json`.
 
 ## Likely Conflict Surfaces
@@ -85,7 +90,8 @@ The highest-risk conflict is `apps/mapgen-studio/package.json` versus Habitat pr
 Secondary conflict risks:
 
 - Habitat package manifests may have removed package-local `build`/`check` scripts while `main` added `bun-source` exports nearby.
-- `scripts/restart-mapgen-studio.sh` is not in the shallow Habitat overlap set, but it can silently remain stale if not checked.
+- The retired restart helper is historical evidence only and must not be
+  restored.
 - `bun.lock` may change indirectly after manifest resolution; regenerate only after all manifest decisions are made.
 
 ## Preservation Checks
@@ -100,7 +106,8 @@ Proof classes are separate:
 - Record truth proof: validate the owning daemon command by parsing `apps/mapgen-studio/project.json` and/or `apps/mapgen-studio/package.json`; the final dev daemon path must include `--conditions bun-source`, exclude Bun watch, include `src/server/daemon/daemon.ts`, and keep `cwd`/script ownership executing from `apps/mapgen-studio`.
 - Record truth proof: `git grep -- '--conditions bun-source'` should show the dev daemon consumer only, plus documentation/comments. Any new production/browser consumer is a stop condition.
 - Record truth proof: `apps/mapgen-studio/package.json` must not reintroduce the superseded inline `nx.targets` block; Habitat's `apps/mapgen-studio/project.json` remains the target owner.
-- Record truth proof: `scripts/restart-mapgen-studio.sh` must use `bun run dev:server` or the Habitat-equivalent target rather than raw daemon execution.
+- Record truth proof: `mapgen-studio:serve-daemon` owns the exact daemon command
+  beneath `mapgen-studio:dev`; no parallel raw-daemon entrypoint exists.
 - Habitat wrapper behavior: run the relevant Habitat/Nx checks for `mapgen-studio`, `studio-server`, `control-orpc`, `direct-control`, and `plugin-mods` after restack.
 - Runtime/product proof: if claimed later, boot the daemon under the dev command and show it resolves first-party source without rebuilding dist. Source hot-restart is no longer a user-facing daemon invariant because active Studio operations must preserve daemon identity.
 

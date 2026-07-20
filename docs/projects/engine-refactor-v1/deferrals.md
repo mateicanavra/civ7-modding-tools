@@ -84,13 +84,14 @@ Each deferral follows this structure:
 ## DEF-010: Rainfall Generation Ownership (Engine vs. TS)
 
 **Deferred:** 2025-12-18  
-**Trigger:** When the climate pipeline artifacts are stable and we need engine-less rainfall testing or broader engine decoupling.  
-**Context:** Climate is moving toward TS-owned canonical products. `syncClimateField()` has been removed and climate steps already publish `artifact:climateField`; however, some climate inputs still rely on engine adapter reads (e.g., `getLatitude`, `isWater`, `getElevation`) and thus full engine-less climate runs remain deferred.  
-**Scope:**
+**Original trigger:** When the climate pipeline artifacts are stable and we need engine-less rainfall testing or broader engine decoupling.
+**Resolved:** 2026-07-18 — baseline and final climate are distinct TS-owned artifacts, and `map-hydrology/project-rainfall` is the sole adapter projection boundary.
+**Original context:** Climate is moving toward TS-owned canonical products. `syncClimateField()` has been removed and climate steps already publish `artifact:climateField`; however, some climate inputs still rely on engine adapter reads (e.g., `getLatitude`, `isWater`, `getElevation`) and thus full engine-less climate runs remain deferred.
+**Original scope:**
 - Keep `artifact:climateField` as the canonical TS product and treat adapter writes as publish-only effects (not a source of truth).
 - Define and adopt explicit TS-owned prerequisites where feasible (e.g., `buffer:heightfield`, `buffer:latitude`, TS water/landmask) so climate generation no longer depends on engine-only reads.
 - When engine reads are unavoidable, ensure any cross-step dependency is reified into `buffer:*`/`artifact:*` with explicit `requires/provides` (no implicit “read engine later” edges).  
-**Impact:**
+**Original impact:**
 - Until this lands, climate remains partially engine-coupled via adapter reads, limiting offline testing and keeping hidden coupling to engine-derived signals.
 - Canonical ownership is still TS-first; this deferral tracks completing the reification of climate prerequisites and eliminating accidental engine-dependency surfaces.
 

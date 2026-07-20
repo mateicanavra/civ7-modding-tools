@@ -3,16 +3,16 @@ level: error
 ---
 # Require Typed Dependency Tag Constants
 
-Standard recipe step contracts must use typed dependency tag constants in
-top-level `requires` and `provides`; string literal dependency keys drift from
-the owning tag surfaces.
+Standard recipe `StepContract` definitions in `config.ts` must use typed
+dependency tag constants in top-level `requires` and `provides`; string literal
+dependency keys drift from the owning tag surfaces.
 
 ```grit
 language js(typescript)
 
 or {
   `defineStep({ $props })` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/.*/(?:contract|.*\.contract)\.ts$",
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/steps/[^/]+/config\.ts$",
     $props <: some bubble {
       pair(key=`requires`, value=array($elements)) where {
         $elements <: some string()
@@ -20,7 +20,7 @@ or {
     }
   },
   `defineStep({ $props })` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/.*/(?:contract|.*\.contract)\.ts$",
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/steps/[^/]+/config\.ts$",
     $props <: some bubble {
       pair(key=`provides`, value=array($elements)) where {
         $elements <: some string()
@@ -33,10 +33,10 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts
 import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
-export default defineStep({
+export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "gameplay",
   requires: ["effect:map.elevationBuilt"],
@@ -44,10 +44,10 @@ export default defineStep({
   schema: Type.Object({}),
 });
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts
 import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
-export default defineStep({
+export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "gameplay",
   requires: [],
@@ -55,10 +55,10 @@ export default defineStep({
   schema: Type.Object({}),
 });
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts
 import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
-export default defineStep({
+export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "gameplay",
   requires: [
@@ -73,11 +73,11 @@ export default defineStep({
 ## Ignores fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts
 import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tags.js";
 
-export default defineStep({
+export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "gameplay",
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
@@ -85,11 +85,11 @@ export default defineStep({
   schema: Type.Object({}),
 });
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts
 import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 
-export default defineStep({
+export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "gameplay",
   requires: [],
@@ -101,10 +101,10 @@ export default defineStep({
   schema: Type.Object({}),
 });
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts
 import { defineStep, Type } from "@swooper/mapgen-core/authoring";
 
-export default defineStep({
+export const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "gameplay",
   requires: [],
@@ -116,29 +116,29 @@ export default defineStep({
   schema: Type.Object({}),
 });
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.ts
 const requires = ["effect:map.elevationBuilt"];
 
 export const value = requires;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.tsx
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.tsx
 export const contract = {
   requires: ["effect:map.elevationBuilt"],
 };
 
-// @filename: mods/other-mod/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts
+// @filename: mods/other-mod/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts
 export const contract = {
   requires: ["effect:map.elevationBuilt"],
 };
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts
 const helper = {
   requires: ["effect:map.elevationBuilt"],
 };
 
 export const value = helper;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts
 const source = "effect:map.elevationBuilt";
 
 export const value = source;

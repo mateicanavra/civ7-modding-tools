@@ -1,9 +1,8 @@
 import { createMockAdapter } from "@civ7/adapter";
 import {
   createExtendedMapContext,
-  type TraceScope,
+  type StepFacetSinks,
   type TraceSink,
-  type VizDumper,
 } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
@@ -32,31 +31,25 @@ export const ECOLOGY_TIER1_ARTIFACT_IDS = [
   ecologyArtifacts.featureIntentsIce.id,
 ] as const;
 
-const VIZ_KEY_PREFIXES = ["ecology.", "map.ecology.", "debug.heightfield."] as const;
+const VIZ_KEY_PREFIXES = ["ecology.", "map.ecology."] as const;
 
 type VizKeyEntry = Readonly<{ dataTypeKey: string; spaceId: string; kind: string }>;
 
-function createVizKeyCollector(): { viz: VizDumper; entries: VizKeyEntry[] } {
+function createVizKeyCollector(): {
+  sink: NonNullable<StepFacetSinks["viz"]>;
+  entries: VizKeyEntry[];
+} {
   const entries: VizKeyEntry[] = [];
-
-  const push = (trace: TraceScope, entry: VizKeyEntry): void => {
-    if (!trace.isVerbose) return;
-    entries.push(entry);
+  const sink: NonNullable<StepFacetSinks["viz"]> = (projections) => {
+    for (const projection of projections) {
+      entries.push({
+        dataTypeKey: projection.dataTypeKey,
+        spaceId: projection.spaceId,
+        kind: projection.kind,
+      });
+    }
   };
-
-  const viz: VizDumper = {
-    outputRoot: "memory://viz-key-collector",
-    dumpGrid: (trace, layer) =>
-      push(trace, { dataTypeKey: layer.dataTypeKey, spaceId: layer.spaceId, kind: "grid" }),
-    dumpPoints: (trace, layer) =>
-      push(trace, { dataTypeKey: layer.dataTypeKey, spaceId: layer.spaceId, kind: "points" }),
-    dumpSegments: (trace, layer) =>
-      push(trace, { dataTypeKey: layer.dataTypeKey, spaceId: layer.spaceId, kind: "segments" }),
-    dumpGridFields: (trace, layer) =>
-      push(trace, { dataTypeKey: layer.dataTypeKey, spaceId: layer.spaceId, kind: "gridFields" }),
-  };
-
-  return { viz, entries };
+  return { sink, entries };
 }
 
 function listVizKeys(entries: readonly VizKeyEntry[]): string[] {
@@ -103,12 +96,7 @@ export function computeEcologyBaselineV1(input?: {
     latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
   } as const;
 
-  // Enable verbose tracing for every step so viz dumps are captured deterministically.
-  const plan = standardRecipe.compile(envBase, config);
-  const verboseSteps = Object.fromEntries(
-    plan.nodes.map((node: any) => [node.stepId, "verbose"] as const)
-  );
-  const env = { ...envBase, trace: { enabled: true, steps: verboseSteps } } as const;
+  const env = envBase;
 
   const adapter = createMockAdapter({
     width,
@@ -119,15 +107,18 @@ export function computeEcologyBaselineV1(input?: {
   });
 
   const context = createExtendedMapContext({ width, height }, adapter, env);
-  const { viz, entries } = createVizKeyCollector();
-  context.viz = viz;
+  const { sink, entries } = createVizKeyCollector();
 
   initializeStandardRuntime(context, {
     mapInfo,
     logPrefix: "[ecology-baseline]",
   });
 
-  standardRecipe.run(context, env, config, { traceSink: NOOP_TRACE_SINK, log: () => {} });
+  standardRecipe.run(context, env, config, {
+    traceSink: NOOP_TRACE_SINK,
+    facets: { viz: sink },
+    log: () => {},
+  });
 
   const report = computeArtifactFingerprints(context, ECOLOGY_TIER1_ARTIFACT_IDS);
   if (report.missing.length > 0) {

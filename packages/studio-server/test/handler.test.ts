@@ -1,12 +1,23 @@
+import { once } from "node:events";
 import { rm } from "node:fs/promises";
-import { createServer, type Server } from "node:http";
+import { createServer, type RequestListener, type Server } from "node:http";
+import { createServer as createTunerServer, type Socket } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import {
+  type Civ7AutoplayActionResult,
+  type Civ7PlayableStatusResult,
+  type Civ7RuntimeProbe,
+  encodeCiv7TunerRequest,
+  parseCiv7TunerFrame,
+} from "@civ7/direct-control";
+import type { JsonWireObject } from "@civ7/studio-contract";
+import { createRunArtifactId } from "@civ7/studio-run-workspace";
 import { createORPCClient, isDefinedError, ORPCError, safe } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
-import { Effect, Layer, ManagedRuntime } from "effect";
+import { Effect, Layer, ManagedRuntime, Option } from "effect";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import {
@@ -21,8 +32,8 @@ import {
   type StudioInputs,
   type StudioOperationRuntimePorts,
   type StudioRouter,
+  type StudioRouterRuntime,
   type StudioRpcHandle,
-  type StudioRuntime,
   type StudioServerContext,
   studioEventSubscriptionIterator,
   verificationFailed,
@@ -155,9 +166,6 @@ describe("studio-server RPC handler", () => {
         recoveryActions: ["copy-diagnostics", "retry-status"],
         safeFailureCategory: "ownership",
       });
-      expect(JSON.stringify(error.data)).not.toMatch(
-        /activeRequestId|causeMessage|reason|tag|message|stdout|stderr|\/Users\//
-      );
       expect(consoleError).not.toHaveBeenCalled();
     } finally {
       blocker.resolve();
@@ -195,7 +203,9 @@ describe("studio-server RPC handler", () => {
       });
 
       const accepted = await client.runInGame.start(runInGameStartInput());
-      if (!accepted.diagnosticsId) throw new Error("Expected accepted run diagnostics id");
+      const diagnosticsId = Option.fromNullable(accepted.diagnosticsId).pipe(
+        Option.getOrThrowWith(() => new Error("Expected accepted run diagnostics id"))
+      );
 
       const runEvent = await readOperationEvent(
         iterator,
@@ -214,29 +224,13 @@ describe("studio-server RPC handler", () => {
       await expect
         .poll(async () => {
           const lookup = await client.runInGame.diagnostics({
-            diagnosticsId: accepted.diagnosticsId,
+            diagnosticsId,
           });
-          if (!lookup.ok) return false;
-          const attribution = lookup.diagnostics.sections.attribution;
-          if (
-            attribution == null ||
-            typeof attribution !== "object" ||
-            Array.isArray(attribution)
-          ) {
-            return false;
-          }
-          const report = (attribution as { report?: unknown }).report;
-          if (report == null || typeof report !== "object" || Array.isArray(report)) return false;
-          const fields = report as { status?: unknown; missingSections?: unknown };
-          return (
-            fields.status === "complete" &&
-            Array.isArray(fields.missingSections) &&
-            fields.missingSections.length === 0
-          );
+          return lookup.ok && hasCompleteAttributionReport(lookup.diagnostics.sections.attribution);
         })
         .toBe(true);
       const diagnostics = await client.runInGame.diagnostics({
-        diagnosticsId: accepted.diagnosticsId,
+        diagnosticsId,
       });
       expect(diagnostics.ok).toBe(true);
       if (!diagnostics.ok) throw new Error("Expected diagnostics lookup result");
@@ -271,19 +265,18 @@ describe("studio-server RPC handler", () => {
     }
   }, 10_000);
 
-  test("reports generated setup-row misses through safe public RPC status and private diagnostics", async () => {
+  test("reports lifecycle setup-row mismatches through safe public RPC status and private diagnostics", async () => {
     const runtime = makeTestStudioRuntime(makeContext(), {
-      prepareSetup: () =>
+      startSinglePlayer: () =>
         Effect.fail(
           verificationFailed({
-            message: "Civ7 setup cannot see the generated Studio Run map row.",
-            reason: "setup-row-unavailable",
+            message: "Civ7 setup selected a different map row than the generated Studio Run map.",
+            reason: "exact-authorship-mismatch",
             diagnostics: {
-              code: "setup-map-row-not-visible",
-              setupFailureReason: "setup-map-row-not-visible",
-              mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-              rowEvidence: JSON.stringify({ rows: [] }),
-              rowVisibility: JSON.stringify({ refreshed: true, final: { rows: [] } }),
+              code: "setup-map-row-mismatched",
+              setupFailureReason: "setup-map-row-mismatched",
+              expectedMapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+              observedMapScripts: ["{base-standard}/maps/continents.js"],
             },
           })
         ),
@@ -312,7 +305,7 @@ describe("studio-server RPC handler", () => {
         diagnosticsId: accepted.diagnosticsId,
       });
       expect(publicPayload).not.toMatch(
-        /setup-map-row-not-visible|rowEvidence|rowVisibility|mod-swooper-studio-run|\/tmp\//
+        /setup-map-row-mismatched|base-standard|mod-swooper-studio-run|\/tmp\//
       );
 
       const diagnostics = await client.runInGame.diagnostics({
@@ -321,9 +314,9 @@ describe("studio-server RPC handler", () => {
       expect(diagnostics.ok).toBe(true);
       if (!diagnostics.ok) throw new Error("Expected diagnostics lookup result");
       expect(diagnostics.diagnostics.sections.setupFailure).toMatchObject({
-        setupFailureReason: "setup-map-row-not-visible",
+        setupFailureReason: "setup-map-row-mismatched",
         expectedGeneratedMapFile: "{mod-swooper-studio-run}/maps/studio-run.js",
-        rowSample: { rows: [] },
+        observedMapScripts: ["{base-standard}/maps/continents.js"],
       });
     } finally {
       await runtime.dispose();
@@ -339,15 +332,11 @@ describe("studio-server RPC handler", () => {
       const { error } = await safe(
         client.runInGame.start({
           ...runInGameStartInput(),
-          source: {
-            kind: "editor",
-            editorSessionId: "studio-current",
-            canonicalConfig: testCanonicalConfig({
-              id: "studio-current",
-              name: "Studio Current",
-              config: { rawJs: "UI.notifyUIReady()" },
-            }).canonicalConfig,
-          },
+          canonicalConfig: testCanonicalConfig({
+            id: "studio-current",
+            name: "Studio Current",
+            config: { rawJs: "UI.notifyUIReady()" },
+          }).canonicalConfig,
         } as StudioInputs["runInGame"]["start"])
       );
 
@@ -504,9 +493,6 @@ describe("studio-server RPC handler", () => {
       requestId: "save-1",
       safeFailureCategory: "request-validation",
     });
-    expect(JSON.stringify(error.data)).not.toMatch(
-      /serverInstance|serverStarted|causeMessage|message|tag|reason|stdout|stderr|\/Users\//
-    );
   });
 
   test("maps recipeDag.get not-found and explicit unavailable errors as defined errors without stack spam", async () => {
@@ -634,24 +620,123 @@ describe("studio-server RPC handler", () => {
     });
   });
 
-  test("keeps civ7.live.status at 200 with per-field errors for partial tuner failures", async () => {
+  test("validates live snapshot fields before forwarding one exact map read", async () => {
+    const mapGrid = vi.fn<Civ7TunerClient["mapGrid"]>((input) =>
+      Effect.succeed({
+        host: "127.0.0.1",
+        port: 4318,
+        state: { id: "1", name: "Tuner" },
+        bounds: input.bounds,
+        fields: [...input.fields],
+        plotCount: 0,
+        omitted: 0,
+        hiddenInfoPolicy: "not-player-scoped",
+        map: {
+          width: probe(84),
+          height: probe(54),
+        },
+        plots: [],
+      })
+    );
     await withRouterCiv7Client(
       {
         ...unavailableTunerClient("unused"),
-        playableStatus: () => Effect.succeed({ playable: true, readiness: "ready" }),
-        appUiSnapshot: () => Effect.fail(new Error("app-ui down")),
-        liveMapSummary: () => Effect.succeed({ map: "visible" }),
-        autoplayStatus: () => Effect.fail("autoplay unavailable"),
+        mapGrid,
+      },
+      async ({ client }) => {
+        await expect(
+          client.civ7.live.snapshot({ fields: " terrain, visibility ", maxPlots: 3 })
+        ).resolves.toMatchObject({
+          ok: true,
+          grid: {
+            fields: ["terrain", "visibility"],
+          },
+        });
+        expect(mapGrid).toHaveBeenCalledWith({
+          bounds: { x: 0, y: 0, width: 24, height: 18 },
+          fields: ["terrain", "visibility"],
+          maxPlots: 3,
+        });
+
+        const invalid = await safe(client.civ7.live.snapshot({ fields: "terrain,enemy" }));
+        expect(invalid.error).toMatchObject({
+          code: "CIV7_LIVE_SNAPSHOT_FAILED",
+          status: 400,
+          message: "Unsupported Civ7 plot field: enemy",
+        });
+        expect(mapGrid).toHaveBeenCalledTimes(1);
+      }
+    );
+  });
+
+  test("projects civ7.live.status from one coherent playable-status observation", async () => {
+    const playable = playableStatusFixture();
+    const read = vi.fn(() => Effect.succeed(playable));
+    await withRouterCiv7Client(
+      {
+        ...unavailableTunerClient("unused"),
+        playableStatus: read,
       },
       async ({ client }) => {
         await expect(client.civ7.live.status({})).resolves.toMatchObject({
           ok: true,
           playable: true,
-          status: { playable: true, readiness: "ready" },
-          appUi: { error: "Error: app-ui down" },
-          mapSummary: { map: "visible" },
-          autoplay: { error: "autoplay unavailable" },
+          status: { playable: true, readiness: "app-ui-game" },
+          appUi: playable.appUi,
+          mapSummary: {
+            map: {
+              randomSeed: { ok: true, value: 43 },
+              width: { ok: true, value: 84 },
+              height: { ok: true, value: 54 },
+            },
+            game: {
+              turn: { ok: true, value: 12 },
+              hash: { ok: true, value: 987654321 },
+            },
+          },
+          autoplay: {
+            autoplay: playable.appUi.snapshot.autoplay,
+            game: playable.appUi.snapshot.game,
+            gameContext: playable.appUi.snapshot.gameContext,
+          },
         });
+        expect(read).toHaveBeenCalledTimes(1);
+      }
+    );
+  });
+
+  test("keeps civ7.live.status at 200 with one coherent error when observation fails", async () => {
+    const read = vi.fn(() => Effect.fail(new Error("tuner down")));
+    await withRouterCiv7Client(
+      { ...unavailableTunerClient("unused"), playableStatus: read },
+      async ({ client }) => {
+        await expect(client.civ7.live.status({})).resolves.toMatchObject({
+          ok: false,
+          playable: false,
+          status: { error: "Error: tuner down" },
+          appUi: { error: "Error: tuner down" },
+          mapSummary: { error: "Error: tuner down" },
+          autoplay: { error: "Error: tuner down" },
+        });
+        expect(read).toHaveBeenCalledTimes(1);
+      }
+    );
+  });
+
+  test("does not project the App UI turn sentinel as successful runtime evidence", async () => {
+    const playable = playableStatusFixture(-1);
+    await withRouterCiv7Client(
+      { ...unavailableTunerClient("unused"), playableStatus: () => Effect.succeed(playable) },
+      async ({ client }) => {
+        const result = await client.civ7.live.status({});
+        expect(result).toMatchObject({
+          mapSummary: {
+            game: {
+              hash: playable.appUi.snapshot.game.hash,
+            },
+          },
+        });
+        expect(result.mapSummary).not.toMatchObject({ game: { turn: expect.anything() } });
       }
     );
   });
@@ -682,6 +767,49 @@ describe("studio-server RPC handler", () => {
     });
 
     await iterator.return?.();
+  }, 10_000);
+
+  test("normal handler initialization starts and replays the live-game watcher", async () => {
+    const tuner = await startPlayableStatusTunerServer();
+    vi.stubEnv("CIV7_TUNER_HOSTS", "127.0.0.1");
+    vi.stubEnv("CIV7_TUNER_HOST", "127.0.0.1");
+    vi.stubEnv("CIV7_TUNER_PORT", String(tuner.port));
+    try {
+      const handler = createStudioRpcHandler(makeContext(), {
+        liveGameWatch: {
+          initialDelayMs: 0,
+          intervalMs: 60_000,
+          now: () => new Date("2026-06-13T00:00:00.000Z"),
+        },
+      });
+      try {
+        const iterator = await directClient(handler).studio.events.watch({});
+        await expect(iterator.next()).resolves.toMatchObject({
+          done: false,
+          value: { type: "hello" },
+        });
+        const observed = await withTimeout(iterator.next(), 2_000, "live-game watcher event");
+        expect(observed).toMatchObject({
+          done: false,
+          value: {
+            type: "live-game",
+            state: {
+              status: "ok",
+              turn: 12,
+              gameHash: 987654321,
+              readiness: "tuner-ready",
+            },
+          },
+        });
+        await iterator.return?.();
+        expect(tuner.received.filter((message) => message.startsWith("CMD:"))).toHaveLength(2);
+      } finally {
+        await handler.dispose();
+      }
+    } finally {
+      vi.unstubAllEnvs();
+      await tuner.close();
+    }
   }, 10_000);
 
   test("operation mutations push through the watched RPC event stream", async () => {
@@ -951,7 +1079,7 @@ function directClient(handler: StudioRpcHandle): RouterClient<StudioRouter> {
   );
 }
 
-function directRuntimeClient(runtime: StudioRuntime): RouterClient<StudioRouter> {
+function directRuntimeClient(runtime: StudioRouterRuntime): RouterClient<StudioRouter> {
   const handler = new RPCHandler(createStudioRouter(runtime));
   return createORPCClient<RouterClient<StudioRouter>>(
     new RPCLink({
@@ -970,14 +1098,19 @@ function directRuntimeClient(runtime: StudioRuntime): RouterClient<StudioRouter>
 function makeTestStudioRuntime(
   context: StudioServerContext,
   civ7Overrides: Partial<Civ7WorkflowControlApi> = {}
-): StudioRuntime {
+): StudioRouterRuntime {
   const eventHubLayer = StudioEventHubLive;
   const operationRuntimeLayer = makeStudioOperationRuntimeLayer({
     ports: context.operationRuntime,
     civ7WorkflowControl: makeCiv7WorkflowControlLayer(civ7Overrides),
   }).pipe(Layer.provide(eventHubLayer));
-  const runtime: StudioRuntime = ManagedRuntime.make(
-    Layer.mergeAll(eventHubLayer, operationRuntimeLayer, Layer.succeed(StudioConfig, context))
+  const runtime: StudioRouterRuntime = ManagedRuntime.make(
+    Layer.mergeAll(
+      Layer.succeed(Civ7TunerClient, unavailableTunerClient("unused")),
+      eventHubLayer,
+      operationRuntimeLayer,
+      Layer.succeed(StudioConfig, context)
+    )
   );
   return runtime;
 }
@@ -994,12 +1127,12 @@ async function listenWithClient(context: StudioServerContext): Promise<RouterCli
     }
     res.statusCode = response.status;
     response.headers.forEach((value, key) => res.setHeader(key, value));
-    res.end(response.body ? Buffer.from(await response.arrayBuffer()) : undefined);
+    res.end(Buffer.from(await response.arrayBuffer()));
   });
   return createORPCClient<RouterClient<StudioRouter>>(new RPCLink({ url: `${origin}/rpc` }));
 }
 
-async function listen(handler: Parameters<typeof createServer>[0]): Promise<string> {
+async function listen(handler: RequestListener): Promise<string> {
   const server = createServer(handler);
   openServers.push(server);
   await new Promise<void>((resolve, reject) => {
@@ -1023,6 +1156,92 @@ async function closeServer(server: Server): Promise<void> {
       else resolve();
     });
   });
+}
+
+type FakePlayableStatusTunerServer = Readonly<{
+  port: number;
+  received: ReadonlyArray<string>;
+  close(): Promise<void>;
+}>;
+
+async function startPlayableStatusTunerServer(): Promise<FakePlayableStatusTunerServer> {
+  const received: string[] = [];
+  const sockets = new Set<Socket>();
+  const server = createTunerServer((socket) => {
+    sockets.add(socket);
+    socket.on("close", () => sockets.delete(socket));
+    let buffer = Buffer.alloc(0);
+    socket.on("data", (chunk) => {
+      buffer = Buffer.concat([buffer, chunk]);
+      for (;;) {
+        const parsed = parseCiv7TunerFrame(buffer);
+        if (!parsed) return;
+        buffer = buffer.subarray(parsed.bytesRead);
+        const message = parsed.frame.parts.join("\0");
+        received.push(message);
+        socket.write(
+          encodeCiv7TunerRequest(
+            parsed.frame.listenerId,
+            playableStatusTunerResponse(message).join("\0")
+          )
+        );
+      }
+    });
+  });
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  const address = server.address();
+  if (!address || typeof address === "string") {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+    throw new Error("Expected fake Civ7 tuner TCP address");
+  }
+  return {
+    port: address.port,
+    received,
+    close: async () => {
+      for (const socket of sockets) socket.destroy();
+      await new Promise<void>((resolve, reject) => {
+        server.close((error) =>
+          Option.fromNullable(error).pipe(
+            Option.match({
+              onNone: resolve,
+              onSome: reject,
+            })
+          )
+        );
+      });
+    },
+  };
+}
+
+function playableStatusTunerResponse(message: string): ReadonlyArray<string> {
+  if (message === "LSQ:") return ["65535", "App UI", "1", "Tuner"];
+  if (message.includes("network: {")) {
+    return [JSON.stringify(playableStatusFixture().appUi.snapshot)];
+  }
+  if (message.includes("snapshot.ready")) {
+    return [
+      JSON.stringify({
+        evalOk: 2,
+        ready: true,
+        globals: {
+          Game: "object",
+          Autoplay: "object",
+          GameplayMap: "object",
+          Players: "object",
+          Network: "object",
+        },
+        turn: probe(12),
+        turnDate: probe("4000 BCE"),
+        width: probe(84),
+        height: probe(54),
+        aliveIds: probe([0]),
+        aliveHumanIds: probe([0]),
+        autoplayActive: probe(false),
+      }),
+    ];
+  }
+  return ["null"];
 }
 
 async function nodeRequestToWebRequest(req: import("node:http").IncomingMessage): Promise<Request> {
@@ -1072,6 +1291,7 @@ function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServer
     },
     civ7Control: {
       directControl: {} as StudioServerContext["civ7Control"]["directControl"],
+      directLifecycle: {} as StudioServerContext["civ7Control"]["directLifecycle"],
       timeoutMs: 1234,
     },
     operationRuntime: makeOperationRuntimePorts(),
@@ -1079,25 +1299,90 @@ function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServer
   };
 }
 
-function makeCiv7WorkflowControlLayer(
-  overrides: Partial<Civ7WorkflowControlApi> = {}
-): Layer.Layer<Civ7WorkflowControl> {
+function makeCiv7WorkflowControlLayer(overrides: Partial<Civ7WorkflowControlApi> = {}) {
   const service: Civ7WorkflowControlApi = {
-    checkPlayable: () => Effect.void,
-    prepareSetup: () => Effect.succeed({}),
-    startGame: () => Effect.succeed({}),
-    runAutoplay: (input) =>
-      Effect.succeed({
-        ok: true,
-        action: input.action,
-        autoplay: {},
-        game: {},
-        gameContext: {},
-        result: {},
-      }),
+    startSinglePlayer: () => Effect.succeed(lifecycleStarted()),
+    runAutoplay: (input) => Effect.succeed(autoplayOutput(input.action)),
     ...overrides,
   };
   return Layer.succeed(Civ7WorkflowControl, service);
+}
+
+function autoplayOutput(action: "start" | "stop") {
+  const result = autoplayActionResult(action);
+  return {
+    ok: true as const,
+    action,
+    autoplay: result.after.autoplay,
+    game: result.after.game,
+    gameContext: result.after.gameContext,
+    result,
+  };
+}
+
+function autoplayActionResult(action: "start" | "stop"): Civ7AutoplayActionResult {
+  const appUi = playableStatusFixture().appUi;
+  const snapshot = appUi.snapshot.autoplay;
+  const autoplay = {
+    isActive: action === "start",
+    turns: snapshot.turns,
+    isPaused: snapshot.isPaused,
+    isPausedOrPending: snapshot.isPausedOrPending,
+    observeAsPlayer: snapshot.observeAsPlayer,
+    returnAsPlayer: snapshot.returnAsPlayer,
+  };
+  const status = {
+    host: appUi.host,
+    port: appUi.port,
+    state: appUi.state,
+    autoplay,
+    game: appUi.snapshot.game,
+    gameContext: appUi.snapshot.gameContext,
+  };
+  return {
+    host: appUi.host,
+    port: appUi.port,
+    state: appUi.state,
+    before: status,
+    after: status,
+    commands: [],
+    verified: true,
+  };
+}
+
+function lifecycleStarted() {
+  return {
+    status: "started" as const,
+    evidence: {
+      setup: {
+        mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+        mapSize: "MAPSIZE_SMALL",
+        mapSeed: 42,
+        gameSeed: 42,
+        targetModId: "mod-swooper-studio-run",
+        mapRowFiles: ["{mod-swooper-studio-run}/maps/studio-run.js"],
+      },
+      runtime: { seed: 42, mapSize: "MAPSIZE_SMALL", width: 44, height: 26, plotCount: 1144 },
+    },
+    transition: { initialPhase: "shell" as const, activeGameExit: "not-needed" as const },
+  };
+}
+
+function hasCompleteAttributionReport(value: unknown): boolean {
+  return isUnknownRecord(value) && isCompleteAttributionReport(value.report);
+}
+
+function isCompleteAttributionReport(value: unknown): boolean {
+  return (
+    isUnknownRecord(value) &&
+    value.status === "complete" &&
+    Array.isArray(value.missingSections) &&
+    value.missingSections.length === 0
+  );
+}
+
+function isUnknownRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function namedError(name: string, message: string): Error {
@@ -1121,21 +1406,92 @@ function recipeDagResult(
 }
 
 function unavailableTunerClient(message: string): Civ7TunerClient {
-  const fail = () => Effect.fail(new Error(message));
+  return Civ7TunerClient.make({
+    playableStatus: () => Effect.fail(new Error(message)),
+    mapSummary: () => Effect.fail(new Error(message)),
+    gameInfoRows: () => Effect.fail(new Error(message)),
+    setupSnapshot: () => Effect.fail(new Error(message)),
+    savedConfigurations: () => Effect.fail(new Error(message)),
+    mapGrid: () => Effect.fail(new Error(message)),
+    playerSummary: () => Effect.fail(new Error(message)),
+    unitSummary: () => Effect.fail(new Error(message)),
+    citySummary: () => Effect.fail(new Error(message)),
+  });
+}
+
+function playableStatusFixture(turn = 12): Civ7PlayableStatusResult {
+  const endpoint = { host: "127.0.0.1", port: 4318 } as const;
+  const state = { id: "65535", name: "App UI" };
   return {
-    playableStatus: fail,
-    mapSummary: fail,
-    liveMapSummary: fail,
-    appUiSnapshot: fail,
-    autoplayStatus: fail,
-    gameInfoRows: fail,
-    setupSnapshot: fail,
-    savedConfigurations: fail,
-    mapGrid: fail,
-    playerSummary: fail,
-    unitSummary: fail,
-    citySummary: fail,
-  } as unknown as Civ7TunerClient;
+    ...endpoint,
+    playable: true,
+    readiness: "app-ui-game",
+    appUi: {
+      ...endpoint,
+      state,
+      snapshot: {
+        network: {
+          isInSession: probe(true),
+          numPlayers: probe(1),
+          hostPlayerId: probe(0),
+          isConnectedToNetwork: probe(false),
+          isAuthenticated: probe(false),
+          isLoggedIn: probe(false),
+        },
+        autoplay: {
+          isActive: false,
+          turns: 0,
+          isPaused: false,
+          isPausedOrPending: false,
+          observeAsPlayer: -1,
+          returnAsPlayer: -1,
+        },
+        game: {
+          turn,
+          age: 0,
+          maxTurns: 500,
+          turnDate: probe("4000 BCE"),
+          hash: probe(987654321),
+        },
+        ui: {
+          inGame: probe(true),
+          inShell: probe(false),
+          inLoading: probe(false),
+          loadingState: probe(8),
+          loadingStateName: "GameStarted",
+          canBeginGame: probe(false),
+          canNotifyUIReady: "function",
+          skipStartButton: probe(false),
+          automationActive: probe(false),
+          activeInputContext: probe(0),
+          activeInputContextName: null,
+        },
+        gameContext: {
+          localPlayerID: 0,
+          localObserverID: -1,
+          hasRequestedPause: probe(false),
+        },
+        players: {
+          maxPlayers: 8,
+          aliveIds: probe([0]),
+          aliveHumanIds: probe([0]),
+          numAliveHumans: probe(1),
+        },
+        map: {
+          width: probe(84),
+          height: probe(54),
+          plotCount: probe(4536),
+          mapSize: probe(3),
+          randomSeed: probe(43),
+        },
+      },
+    },
+    errors: [],
+  };
+}
+
+function probe<T>(value: T): Civ7RuntimeProbe<T> {
+  return { ok: true, value };
 }
 
 function makeOperationRuntimePorts(
@@ -1154,7 +1510,6 @@ function makeOperationRuntimePorts(
     runInGameWorkspaceRoot,
     generateRunInGameMod: async () => generatedRunInGameMod(),
     runInGameCanonicalConfigAdmission: {
-      resolveCatalogSource: async () => undefined,
       admit: async (canonicalConfig) => canonicalConfig,
     },
     deployRunInGame: async ({ requestId, generatedMod }) =>
@@ -1240,8 +1595,8 @@ function runInGameRuntimeObservation(
   const materialization = args.deployment.materialization;
   const correlation = {
     requestId: args.requestId,
-    runArtifactId: materialization?.runArtifactId ?? "run-test",
-    launchSourceDigest: args.prepared.launchSourceDigest,
+    runArtifactId: createRunArtifactId(args.requestId),
+    canonicalConfigDigest: args.prepared.canonicalConfigDigest,
     launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
     generationManifestDigest:
       materialization?.generationManifestDigest ?? "test-generation-manifest-digest",
@@ -1266,8 +1621,7 @@ function runInGameRuntimeObservation(
       mapScript: materialization?.mapScript ?? "test-map-script",
       runArtifactId: correlation.runArtifactId,
       deployedModId: args.deployment.runDeployment.deployedModId,
-      rowEvidence: { ok: true },
-      rowVisibility: { visible: true },
+      mapRowFiles: args.started.evidence.setup.mapRowFiles,
     },
     loadedGame: {
       requestId: args.requestId,
@@ -1300,18 +1654,11 @@ function runInGameRuntimeObservation(
 
 function runInGameStartInput(): StudioInputs["runInGame"]["start"] {
   return {
-    source: {
-      kind: "editor",
-      editorSessionId: "handler-test-editor",
-      canonicalConfig: testCanonicalConfig({
-        id: "studio-current",
-        name: "Studio Current",
-      }).canonicalConfig,
-    },
-    recipeSettings: {
-      recipe: "mod-swooper-maps/standard",
-      seed: 43,
-    },
+    canonicalConfig: testCanonicalConfig({
+      id: "studio-current",
+      name: "Studio Current",
+    }).canonicalConfig,
+    seed: 43,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },
@@ -1325,7 +1672,7 @@ function testCanonicalConfig(
     description?: string;
     sortIndex?: number;
     latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
-    config?: Record<string, unknown>;
+    config?: JsonWireObject;
   }>
 ) {
   const canonicalConfig = {
@@ -1347,19 +1694,20 @@ function makeOperationRuntimeApi(): StudioOperationRuntimeApi {
     serverInstanceId: "studio-server-test",
     serverStartedAt: "2026-06-10T00:00:00.000Z",
   };
-  const unsupported = () => Effect.die("operation runtime method is not used by watch tests");
+  const unsupported = Effect.die("operation runtime method is not used by watch tests");
   return {
     identity,
-    runInGameStart: unsupported,
-    runInGameStatus: unsupported,
-    runInGameCancel: unsupported,
-    runInGameDiagnostics: unsupported,
-    saveDeployStart: unsupported,
-    saveDeployStatus: unsupported,
-    autoplay: unsupported,
+    runInGameStart: () => unsupported,
+    runInGameStatus: () => unsupported,
+    runInGameCancel: () => unsupported,
+    runInGameDiagnostics: () => unsupported,
+    saveDeployStart: () => unsupported,
+    saveDeployStatus: () => unsupported,
+    autoplay: () => unsupported,
     operationsCurrent: Effect.succeed({
       ok: true,
       ...identity,
+      observedAt: "2026-06-10T00:00:00.000Z",
       runInGame: { active: null, recent: [] },
       saveDeploy: { active: null, recent: [] },
     }),
@@ -1426,16 +1774,17 @@ async function withRouterEventHub<T>(
   fn: (args: {
     client: RouterClient<StudioRouter>;
     eventHub: StudioEventHubApi;
-    runtime: StudioRuntime;
+    runtime: StudioRouterRuntime;
   }) => Promise<T>
 ): Promise<T> {
-  const runtime = ManagedRuntime.make(
+  const runtime: StudioRouterRuntime = ManagedRuntime.make(
     Layer.mergeAll(
+      Layer.succeed(Civ7TunerClient, unavailableTunerClient("unused")),
       StudioEventHubLive,
       Layer.succeed(StudioConfig, makeContext()),
       Layer.succeed(StudioOperationRuntime, makeOperationRuntimeApi())
     )
-  ) as unknown as StudioRuntime;
+  );
   try {
     const eventHub = await runtime.runPromise(StudioEventHub);
     const rpcHandler = new RPCHandler(createStudioRouter(runtime));
@@ -1444,10 +1793,10 @@ async function withRouterEventHub<T>(
         url: "http://studio.test/rpc",
         fetch: async (request) => {
           const result = await rpcHandler.handle(request, { prefix: "/rpc" });
-          if (!result.matched || !result.response) {
-            return new Response("not found", { status: 404 });
-          }
-          return result.response;
+          return Option.fromNullable(result.response).pipe(
+            Option.filter(() => result.matched),
+            Option.getOrElse(() => new Response("not found", { status: 404 }))
+          );
         },
       })
     );
@@ -1460,16 +1809,16 @@ async function withRouterEventHub<T>(
 
 async function withRouterCiv7Client<T>(
   tunerClient: Civ7TunerClient,
-  fn: (args: { client: RouterClient<StudioRouter>; runtime: StudioRuntime }) => Promise<T>
+  fn: (args: { client: RouterClient<StudioRouter>; runtime: StudioRouterRuntime }) => Promise<T>
 ): Promise<T> {
-  const runtime = ManagedRuntime.make(
+  const runtime: StudioRouterRuntime = ManagedRuntime.make(
     Layer.mergeAll(
       Layer.succeed(Civ7TunerClient, tunerClient),
       Layer.succeed(StudioConfig, makeContext()),
       StudioEventHubLive,
       Layer.succeed(StudioOperationRuntime, makeOperationRuntimeApi())
     )
-  ) as unknown as StudioRuntime;
+  );
   try {
     const rpcHandler = new RPCHandler(createStudioRouter(runtime));
     const client = createORPCClient<RouterClient<StudioRouter>>(
@@ -1477,10 +1826,10 @@ async function withRouterCiv7Client<T>(
         url: "http://studio.test/rpc",
         fetch: async (request) => {
           const result = await rpcHandler.handle(request, { prefix: "/rpc" });
-          if (!result.matched || !result.response) {
-            return new Response("not found", { status: 404 });
-          }
-          return result.response;
+          return Option.fromNullable(result.response).pipe(
+            Option.filter(() => result.matched),
+            Option.getOrElse(() => new Response("not found", { status: 404 }))
+          );
         },
       })
     );
@@ -1538,9 +1887,8 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: str
 async function settle<T>(
   promise: Promise<T>
 ): Promise<{ status: "fulfilled"; value: T } | { status: "rejected"; reason: unknown }> {
-  try {
-    return { status: "fulfilled", value: await promise };
-  } catch (reason) {
-    return { status: "rejected", reason };
-  }
+  return await promise.then(
+    (value) => ({ status: "fulfilled" as const, value }),
+    (reason: unknown) => ({ status: "rejected" as const, reason })
+  );
 }

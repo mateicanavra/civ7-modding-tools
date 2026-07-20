@@ -826,10 +826,13 @@ function makeSyntheticSourceCheckHookRules() {
         message: "source-check hook check probe",
         runner: {
           name: "grit" as const,
-          patternPath: ".habitat/fixtures/rules/hook-source-check-probe/pattern.md",
+          files: {
+            pattern: ".habitat/fixtures/rules/hook-source-check-probe/pattern.md",
+          },
           patternName: "hook-source-check-probe",
         },
         patternName: "hook-source-check-probe",
+        diagnosticAcquisition: { kind: "check" as const },
         pathCoverage: [{ kind: "exact-path" as const, patterns: ["packages/example/src/**"] }],
         scanRoots: ["packages/example/src"],
       },
@@ -971,9 +974,14 @@ function renderPathList(paths: string[]): string {
   return paths.length === 0 ? "" : `${paths.join("\0")}\0`;
 }
 
-function renderReported(events: HabitatReportEvent[], kind: HabitatReportEvent["kind"]): string {
+function renderReported(
+  events: HabitatReportEvent[],
+  kind: Exclude<HabitatReportEvent["kind"], "trace">
+): string {
   return events
-    .filter((event) => event.kind === kind)
+    .filter(
+      (event): event is Extract<HabitatReportEvent, { kind: typeof kind }> => event.kind === kind
+    )
     .map((event) => event.text)
     .join("");
 }

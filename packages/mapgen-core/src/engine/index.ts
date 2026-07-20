@@ -34,6 +34,13 @@ export {
 } from "@mapgen/engine/observability.js";
 export { PipelineExecutor } from "@mapgen/engine/PipelineExecutor.js";
 export { StepRegistry } from "@mapgen/engine/StepRegistry.js";
+export type {
+  StepFacetFailure,
+  StepFacetInput,
+  StepFacetSinkContext,
+  StepFacetSinks,
+  StepFacets,
+} from "@mapgen/engine/step-facets.js";
 export type { DependencyTagDefinition, DependencyTagKind, TagOwner } from "@mapgen/engine/tags.js";
 export {
   computeInitialSatisfiedTags,

@@ -1,4 +1,5 @@
 import {
+  appendArtifactTypedArrayIssues,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -43,8 +44,10 @@ const PlacementEngineStateV1Schema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Runtime schema for terminal Civ7 placement readback and product totals. */
 export const Schema = PlacementEngineStateV1Schema;
 
+/** Registers the terminal Civ7 placement readback and aggregate product outcomes. */
 export const artifact = defineArtifact({
   name: "engineState",
   id: "artifact:placementEngineState",
@@ -66,9 +69,9 @@ function isCount(value: unknown): value is number {
 }
 
 /**
- * Validate hook for the terminal placement summary (placement-realignment
- * S6): every published count is measured, so anything non-finite or negative
- * is a publish-site bug, not gate noise.
+ * Shape-level validation for the terminal placement summary. It checks map-sized
+ * surfaces and non-negative totals without claiming that slot counts were derived
+ * from the corresponding slot buffer.
  */
 
 function validatePayload(value: unknown): ValidationIssue[] {
@@ -76,20 +79,27 @@ function validatePayload(value: unknown): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const width = Number(value.width);
   const height = Number(value.height);
-  const size = width * height;
-  if (!Number.isSafeInteger(size) || size <= 0) {
-    return [
-      issue(`engineState has invalid dimensions ${String(value.width)}x${String(value.height)}.`),
-    ];
+  const product = width * height;
+  const size = Number.isSafeInteger(product) && product > 0 ? product : undefined;
+  if (size === undefined) {
+    issues.push(
+      issue(`engineState has invalid dimensions ${String(value.width)}x${String(value.height)}.`)
+    );
   }
-  for (const key of ["slotByTile", "engineLandMask"] as const) {
-    const buffer = value[key] as { length?: number } | undefined;
-    if (typeof buffer?.length !== "number" || buffer.length !== size) {
-      issues.push(
-        issue(`engineState.${key} length ${String(buffer?.length)} != map size ${size}.`)
-      );
-    }
-  }
+  appendArtifactTypedArrayIssues(
+    issues,
+    "engineState.slotByTile",
+    value.slotByTile,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "engineState.engineLandMask",
+    value.engineLandMask,
+    Uint8Array,
+    size
+  );
   const slotCounts = isRecord(value.slotCounts) ? value.slotCounts : null;
   if (
     !slotCounts ||
@@ -98,7 +108,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
     !isCount(slotCounts.east)
   ) {
     issues.push(issue("engineState.slotCounts must carry none/west/east counts."));
-  } else if (slotCounts.none + slotCounts.west + slotCounts.east !== size) {
+  } else if (size !== undefined && slotCounts.none + slotCounts.west + slotCounts.east !== size) {
     issues.push(
       issue(
         `slotCounts ${slotCounts.none}+${slotCounts.west}+${slotCounts.east} != map size ${size}.`
@@ -128,6 +138,11 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/**
+ * Validates map-sized slot and land surfaces, a slot-count total equal to map
+ * size, and bounded wonder/discovery outcomes before publication. It does not
+ * reconcile each slot count against the slot buffer.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

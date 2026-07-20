@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -14,21 +14,11 @@ import { deriveStandardRecipeArtifacts } from "../src/recipes/standard/artifacts
 import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
 
 type JsonObject = Record<string, unknown>;
-type BuiltInPreset = Readonly<{
-  id: string;
-  label: string;
-  description?: string;
-  config: unknown;
-}>;
 
 function assertPlainObject(value: unknown, label: string): asserts value is JsonObject {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error(`${label} must be a JSON object`);
   }
-}
-
-function isPlainObject(value: unknown): value is JsonObject {
-  return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
 function stableJson(value: unknown): JsonObject {
@@ -74,7 +64,7 @@ function deriveStageStepConfigFocusMap(args: {
   namespace: string;
   recipeId: string;
   stage: StageLike;
-}): Readonly<Record<string, readonly string[]>> {
+}): Readonly<Partial<Record<string, readonly string[]>>> {
   const { stage } = args;
   return deriveStageAuthoringModel(stage).config.focusPathsByStepId;
 }
@@ -128,8 +118,8 @@ function deriveStudioRecipeUiMeta(args: {
       return {
         stageId,
         stageLabel,
-        steps: authoring.runtime.steps.map((s) => {
-          const stepId = s.stepId;
+        steps: authoring.runtime.steps.map((step: Readonly<{ stepId: string }>) => {
+          const stepId = step.stepId;
           const configFocusPathWithinStage = stepFocus[stepId] ?? [];
           const stepLabel = STEP_LABEL_OVERRIDES[stepId] ?? formatKebabIdLabel(stepId);
           return {
@@ -154,7 +144,6 @@ async function writeArtifactsModule(args: {
   schemaConstName: string; // e.g. "STANDARD_RECIPE_CONFIG_SCHEMA"
   configValue: unknown;
   uiMetaValue: StudioRecipeUiMeta;
-  builtInPresetsValue: ReadonlyArray<BuiltInPreset>;
 }): Promise<void> {
   const {
     pkgRoot,
@@ -166,7 +155,6 @@ async function writeArtifactsModule(args: {
     schemaConstName,
     configValue,
     uiMetaValue,
-    builtInPresetsValue,
   } = args;
 
   const jsLines = [
@@ -176,7 +164,6 @@ async function writeArtifactsModule(args: {
     `export const ${configConstName} = ${JSON.stringify(configValue, null, 2)};`,
     `export const ${schemaConstName} = ${JSON.stringify(schemaJson, null, 2)};`,
     `export const studioRecipeUiMeta = ${JSON.stringify(uiMetaValue, null, 2)};`,
-    `export const studioBuiltInPresets = ${JSON.stringify(builtInPresetsValue, null, 2)};`,
     ``,
   ];
 
@@ -203,17 +190,9 @@ async function writeArtifactsModule(args: {
     `  }>>;`,
     `}>;`,
     ``,
-    `export type StudioBuiltInPreset = Readonly<{`,
-    `  id: string;`,
-    `  label: string;`,
-    `  description?: string;`,
-    `  config: unknown;`,
-    `}>;`,
-    ``,
     `export const ${configConstName}: Readonly<${typeName}>;`,
     `export const ${schemaConstName}: XSchema;`,
     `export const studioRecipeUiMeta: Readonly<StudioRecipeUiMeta>;`,
-    `export const studioBuiltInPresets: ReadonlyArray<StudioBuiltInPreset>;`,
     ``,
   ];
 
@@ -227,6 +206,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const pkgRoot = resolve(__dirname, "..");
 
+await rm(resolve(pkgRoot, "dist", "recipes", "standard.presets.json"), { force: true });
+
 assertStageLikes(STANDARD_STAGES, "[recipe:mod-swooper-maps.standard]");
 const standardStages = STANDARD_STAGES;
 
@@ -238,7 +219,6 @@ const standardUiMeta = deriveStudioRecipeUiMeta({
   stages: standardStages,
 });
 assertPlainObject(standardDefaultsClean, "standard recipe defaults");
-const standardBuiltInPresets: ReadonlyArray<BuiltInPreset> = [];
 
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "standard.schema.json"),
@@ -248,11 +228,6 @@ await writeFile(
   resolve(pkgRoot, "dist", "recipes", "standard.defaults.json"),
   JSON.stringify(standardDefaultsClean, null, 2)
 );
-await writeFile(
-  resolve(pkgRoot, "dist", "recipes", "standard.presets.json"),
-  JSON.stringify(standardBuiltInPresets, null, 2)
-);
-
 const standardConfigTypes = await compile(standardSchemaJson, "StandardRecipeConfig", {
   bannerComment: "",
   style: {
@@ -267,7 +242,6 @@ const standardDts = [
   ``,
   standardConfigTypes.trimEnd(),
   ``,
-  `export const compileOpsById: Readonly<Record<string, unknown>>;`,
   `export const STANDARD_STAGES: ReadonlyArray<unknown>;`,
   ``,
   `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<StandardRecipeConfig>, unknown>;`,
@@ -287,10 +261,9 @@ await writeArtifactsModule({
   schemaConstName: "STANDARD_RECIPE_CONFIG_SCHEMA",
   configValue: standardDefaultsClean,
   uiMetaValue: standardUiMeta,
-  builtInPresetsValue: standardBuiltInPresets,
 });
 
-async function validateStandardMapConfigPresets(): Promise<void> {
+async function validateStandardMapConfigs(): Promise<void> {
   const errors: Array<{ path: string; message: string }> = [];
   for (const configPath of parseCatalogSourceIndex(CatalogSourceIndex).entries) {
     try {
@@ -312,9 +285,9 @@ async function validateStandardMapConfigPresets(): Promise<void> {
 
   if (errors.length > 0) {
     throw new Error(
-      `Invalid standard map config presets:\n${errors.map((e) => `- ${e.path}: ${e.message}`).join("\n")}`
+      `Invalid standard map configs:\n${errors.map((e) => `- ${e.path}: ${e.message}`).join("\n")}`
     );
   }
 }
 
-await validateStandardMapConfigPresets();
+await validateStandardMapConfigs();

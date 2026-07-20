@@ -145,12 +145,12 @@ function turnCompletionStatus(
     localPlayerId: 0,
     turn:
       options.turnOk === false
-        ? { ok: false, reason: "missing turn" }
+        ? { ok: false, error: "missing turn" }
         : { ok: true, value: options.turn },
     turnDate: { ok: true, value: "3990 BCE" },
     hasSentTurnComplete:
       options.hasSentTurnCompleteOk === false
-        ? { ok: false, reason: "missing sent state" }
+        ? { ok: false, error: "missing sent state" }
         : { ok: true, value: options.hasSentTurnComplete },
     canEndTurn: { ok: true, value: true },
     blocker: { ok: true, value: 0 },

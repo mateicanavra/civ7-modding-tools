@@ -1,7 +1,24 @@
 // @vitest-environment jsdom
+import type { StudioEvent, StudioOperationsCurrent } from "@civ7/studio-contract";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./_setup";
+
+const studioClientMocks = vi.hoisted(() => ({
+  watch: vi.fn(),
+  current: vi.fn(),
+  snapshot: vi.fn(),
+}));
+
+vi.mock("../../src/lib/orpc", () => ({
+  orpcClient: {
+    studio: {
+      events: { watch: studioClientMocks.watch },
+      operations: { current: studioClientMocks.current },
+    },
+    civ7: { live: { snapshot: studioClientMocks.snapshot } },
+  },
+}));
 
 // The setup fetch (`fetchCiv7SetupConfig`) runs unconditionally inside
 // `applyLiveGameState`. It is a module import (NOT a hook param), so we mock the
@@ -22,8 +39,10 @@ vi.mock("../../src/features/civ7Setup/api", async (importOriginal) => {
 });
 
 import { type UseLiveRuntimeArgs, useLiveRuntime } from "../../src/app/hooks/useLiveRuntime";
+import { useStudioEvents } from "../../src/app/hooks/useStudioEvents";
 import { fetchCiv7SetupConfig } from "../../src/features/civ7Setup/api";
 import type { LiveRuntimeStatusState } from "../../src/features/liveRuntime/model";
+import { orpcClient } from "../../src/lib/orpc";
 
 const setupFetch = vi.mocked(fetchCiv7SetupConfig);
 
@@ -88,8 +107,156 @@ beforeEach(() => {
   setupFetch.mockClear();
 });
 afterEach(() => {
+  vi.useRealTimers();
   vi.clearAllMocks();
 });
+
+describe("Studio event-driven live-runtime composition", () => {
+  it("turns one pushed live event into one bounded setup and snapshot read", async () => {
+    vi.useFakeTimers();
+    const setRunInGameOperation = vi.fn();
+    const setSaveDeployOperation = vi.fn();
+    const markRunInGameToastHandled = vi.fn();
+    const setLocalError = vi.fn();
+    const clearLocalError = vi.fn();
+    const liveEventRequested = deferred<void>();
+    const releaseLiveEvent = deferred<IteratorResult<StudioEvent, unknown>>();
+    const pendingAfterLiveEvent = deferred<IteratorResult<StudioEvent, unknown>>();
+    const iteratorReturned = deferred<void>();
+    const setupReadStarted = deferred<void>();
+    const snapshotReadStarted = deferred<void>();
+    const events: StudioEvent[] = [
+      {
+        type: "hello",
+        serverInstanceId: "studio-composed-test",
+        serverStartedAt: "2026-06-29T00:00:00.000Z",
+        observedAt: "2026-06-29T00:00:01.000Z",
+      },
+      {
+        type: "operation",
+        kind: "run-in-game",
+        observedAt: "2026-06-29T00:00:02.000Z",
+        status: {
+          requestId: "run-composed-test",
+          status: "running",
+          phase: "deploying",
+          recoveryActions: ["retry-status"],
+        },
+      },
+    ];
+    const liveEvent: StudioEvent = {
+      type: "live-game",
+      observedAt: "2026-06-29T00:00:03.000Z",
+      state: okStatus({
+        readiness: "ready",
+        snapshotId: "status:3:abcdef01",
+        snapshotHash: "abcdef01",
+        turn: 3,
+        failureCount: 0,
+        snapshotStatus: "idle",
+        bindingStatus: "unbound-runtime",
+      }),
+    };
+    let eventIndex = 0;
+    const iterator = {
+      next() {
+        const event = events[eventIndex++];
+        if (event) return Promise.resolve({ done: false as const, value: event });
+        if (eventIndex === events.length + 1) {
+          liveEventRequested.resolve();
+          return releaseLiveEvent.promise;
+        }
+        return pendingAfterLiveEvent.promise;
+      },
+      async return() {
+        pendingAfterLiveEvent.resolve({ done: true, value: undefined });
+        iteratorReturned.resolve();
+        return { done: true as const, value: undefined };
+      },
+      [Symbol.asyncIterator]() {
+        return this;
+      },
+    } as AsyncIteratorObject<StudioEvent, unknown, void>;
+    const current: StudioOperationsCurrent = {
+      ok: true,
+      serverInstanceId: "studio-composed-test",
+      serverStartedAt: "2026-06-29T00:00:00.000Z",
+      observedAt: "2026-06-29T00:00:01.000Z",
+      runInGame: { active: null, recent: [] },
+      saveDeploy: { active: null, recent: [] },
+    };
+    studioClientMocks.watch.mockResolvedValue(iterator);
+    studioClientMocks.current.mockResolvedValue(current);
+    studioClientMocks.snapshot.mockImplementationOnce(async () => {
+      snapshotReadStarted.resolve();
+      return {
+        ok: true,
+        observedAt: "2026-06-29T00:00:03.000Z",
+        grid: { tiles: [] },
+      };
+    });
+    setupFetch.mockImplementationOnce(async () => {
+      setupReadStarted.resolve();
+      return {
+        ok: false,
+        error: "setup unavailable (composed test)",
+        observedAt: "2026-06-29T00:00:03.000Z",
+      };
+    });
+
+    const { unmount } = renderHook(() => {
+      const runtime = useLiveRuntime({ orpcClient });
+      useStudioEvents({
+        applyLiveGameState: runtime.applyLiveGameState,
+        setRunInGameOperation,
+        setSaveDeployOperation,
+        markRunInGameToastHandled,
+        setLocalError,
+        clearLocalError,
+      });
+      return runtime;
+    });
+
+    await act(async () => {
+      await liveEventRequested.promise;
+    });
+
+    expect(studioClientMocks.watch).toHaveBeenCalledTimes(1);
+    expect(studioClientMocks.current).toHaveBeenCalledTimes(1);
+    expect(setRunInGameOperation).toHaveBeenCalledTimes(2);
+    expect(setupFetch).not.toHaveBeenCalled();
+    expect(studioClientMocks.snapshot).not.toHaveBeenCalled();
+
+    await act(async () => {
+      releaseLiveEvent.resolve({ done: false, value: liveEvent });
+      await Promise.all([setupReadStarted.promise, snapshotReadStarted.promise]);
+    });
+
+    expect(setupFetch).toHaveBeenCalledTimes(1);
+    expect(studioClientMocks.snapshot).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(120_000);
+    });
+    expect(studioClientMocks.current).toHaveBeenCalledTimes(1);
+    expect(setupFetch).toHaveBeenCalledTimes(1);
+    expect(studioClientMocks.snapshot).toHaveBeenCalledTimes(1);
+
+    unmount();
+    await act(async () => {
+      await iteratorReturned.promise;
+    });
+    expect(studioClientMocks.watch.mock.calls[0]?.[1]?.signal.aborted).toBe(true);
+  });
+});
+
+function deferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
+}
 
 describe("useLiveRuntime — snapshot abort + staleness (LR-2)", () => {
   it("LR-2: a new snapshot request aborts the prior in-flight controller; the stale (older) response is dropped", async () => {

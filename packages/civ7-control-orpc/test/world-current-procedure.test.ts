@@ -1,14 +1,16 @@
 import { call } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
+import type { Civ7ControlOrpcPlayableStatusResult } from "../src/dependencies/direct-control";
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
-  type Civ7ControlOrpcPlayableStatusResult,
   Civ7ControlOrpcRouter,
   Civ7WorldCurrentUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
+import { playableStatusResult as basePlayableStatusResult } from "./support/playable-status";
 
 describe("world.current control-oRPC procedure", () => {
   test("projects bounded current-world facts from playable status snapshot evidence", async () => {
@@ -145,11 +147,11 @@ describe("world.current control-oRPC procedure", () => {
 
   test("maps facade failures to a tagged Effect/oRPC error without raw details", async () => {
     const context: Civ7ControlOrpcContext = {
-      directControl: {
+      directControl: directControlFacadeFixture({
         getCiv7PlayableStatus: async () => {
           throw new Error("Timed out waiting for Civ7 tuner response to CMD:1:Game.turn");
         },
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
     };
 
     await expect(call(Civ7ControlOrpcRouter.world.current, {}, { context })).rejects.toMatchObject({
@@ -218,16 +220,16 @@ function playableStatusResult(
     readiness: Civ7ControlOrpcPlayableStatusResult["readiness"];
   }> = {}
 ): Civ7ControlOrpcPlayableStatusResult {
+  const result = basePlayableStatusResult({
+    playable: overrides.playable,
+    readiness: overrides.readiness,
+  });
   return {
-    host: "127.0.0.1",
-    port: 4318,
-    playable: overrides.playable ?? true,
-    readiness: overrides.readiness ?? "tuner-ready",
+    ...result,
     appUi: {
-      host: "127.0.0.1",
-      port: 4318,
-      state: { id: "65535", name: "App UI" },
+      ...result.appUi,
       snapshot: {
+        ...result.appUi.snapshot,
         game: {
           turn: 77,
           age: 1,
@@ -236,6 +238,7 @@ function playableStatusResult(
           hash: probe(123_456),
         },
         gameContext: {
+          ...result.appUi.snapshot.gameContext,
           localPlayerID: 0,
           localObserverID: 1,
         },
@@ -254,8 +257,7 @@ function playableStatusResult(
         },
       },
     },
-    errors: [],
-  } as Civ7ControlOrpcPlayableStatusResult;
+  };
 }
 
 function probe<T>(value: T) {

@@ -41,6 +41,8 @@ export type Civ7DirectControlOptions = Readonly<{
 export type Civ7DirectControlSessionStats = Readonly<{
   /** Response-timeouts since the last successfully resolved frame. */
   consecutiveResponseTimeouts: number;
+  /** Monotonic response-timeout count for this logical session. */
+  totalResponseTimeouts: number;
 }>;
 
 export type Civ7CommandResult = Readonly<{

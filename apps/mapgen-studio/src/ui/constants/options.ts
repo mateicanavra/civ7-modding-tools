@@ -66,18 +66,6 @@ export const RESOURCE_MODE_OPTIONS: readonly SelectOption<ResourceMode>[] = [
 ] as const;
 
 // ============================================================================
-// Recipe Options (defaults - can be overridden via props)
-// ============================================================================
-
-export const DEFAULT_RECIPE_OPTIONS: readonly SelectOption[] = [
-  { value: "mod-swooper-maps/standard", label: "Standard" },
-] as const;
-
-export const DEFAULT_PRESET_OPTIONS: readonly SelectOption[] = [
-  { value: "none", label: "None" },
-] as const;
-
-// ============================================================================
 // View Options (defaults - can be overridden via props)
 // ============================================================================
 

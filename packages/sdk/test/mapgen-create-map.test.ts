@@ -63,9 +63,7 @@ describe("createMap", () => {
         runCorrelation: {
           requestId: "studio-run-in-game-test",
           runArtifactId: "run-0123456789abcdef0123",
-          launchSourceDigest: {
-            canonicalConfigDigest: "canonical-config-digest",
-          },
+          canonicalConfigDigest: "canonical-config-digest",
           launchEnvelopeDigest: "envelope-hash",
           generationManifestDigest: "manifest-digest",
         },

@@ -192,7 +192,7 @@ export const placementArtifacts = {
   startAssignment: startAssignmentArtifact,
 };
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/config.ts
 export function validateProjectionArtifact(value: unknown) {
   return value;
 }

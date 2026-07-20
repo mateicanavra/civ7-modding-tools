@@ -44,6 +44,7 @@ export type ViewState = {
   // Panel collapse / expand
   recipeSectionCollapsed: boolean;
   configSectionCollapsed: boolean;
+  configEditingEnabled: boolean;
   exploreStageExpanded: boolean;
   exploreStepExpanded: boolean;
   exploreLayersExpanded: boolean;
@@ -68,6 +69,7 @@ export type ViewState = {
   setManualEra: (next: Updater<number>) => void;
   setRecipeSectionCollapsed: (next: Updater<boolean>) => void;
   setConfigSectionCollapsed: (next: Updater<boolean>) => void;
+  setConfigEditingEnabled: (next: Updater<boolean>) => void;
   setExploreStageExpanded: (next: Updater<boolean>) => void;
   setExploreStepExpanded: (next: Updater<boolean>) => void;
   setExploreLayersExpanded: (next: Updater<boolean>) => void;
@@ -89,6 +91,7 @@ export const useViewStore = create<ViewState>((set) => ({
   manualEra: 1,
   recipeSectionCollapsed: false,
   configSectionCollapsed: false,
+  configEditingEnabled: true,
   exploreStageExpanded: true,
   exploreStepExpanded: true,
   exploreLayersExpanded: true,
@@ -112,6 +115,8 @@ export const useViewStore = create<ViewState>((set) => ({
     set((s) => ({ recipeSectionCollapsed: resolve(next, s.recipeSectionCollapsed) })),
   setConfigSectionCollapsed: (next) =>
     set((s) => ({ configSectionCollapsed: resolve(next, s.configSectionCollapsed) })),
+  setConfigEditingEnabled: (next) =>
+    set((s) => ({ configEditingEnabled: resolve(next, s.configEditingEnabled) })),
   setExploreStageExpanded: (next) =>
     set((s) => ({ exploreStageExpanded: resolve(next, s.exploreStageExpanded) })),
   setExploreStepExpanded: (next) =>

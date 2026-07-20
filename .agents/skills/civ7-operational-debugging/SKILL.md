@@ -21,8 +21,9 @@ files into source authority.
 
 - Inspecting `mods/<mod-slug>/mod/` output or the OS-level Civ7 `Mods/`
   directory.
-- Checking whether `bun run --cwd mods/<mod-slug> build`, a package `deploy`
-  script, or root `bun run deploy:mods` actually produced the expected files.
+- Checking whether `nx run <mod-project>:build`,
+  `nx run <mod-project>:deploy`, or root `bun run deploy:mods` actually
+  produced the expected files.
 - Reading Civ7 `Logs/` files after launching the game or loading a map/mod.
 - Using the direct Civ7 tuner socket to inspect a running Civ7 session, switch
   scripting states, restart a map, run autoplay, or inspect runtime JavaScript

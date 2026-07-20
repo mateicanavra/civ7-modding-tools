@@ -79,7 +79,6 @@ describe("studio-server error spine", () => {
       deployFailed({ message: "deploy failed" }),
       deployFailed({ message: "save failed", reason: "save-failed" }),
       deployFailed({ message: "rollback failed", reason: "rollback-failed" }),
-      verificationFailed({ message: "setup row missing", reason: "setup-row-unavailable" }),
       verificationFailed({ message: "game start failed", reason: "start-game-failed" }),
       verificationFailed({ message: "log evidence missing", reason: "log-evidence-missing" }),
       verificationFailed({ message: "authorship mismatch", reason: "exact-authorship-mismatch" }),
@@ -105,6 +104,19 @@ describe("studio-server error spine", () => {
         }).data
       ).not.toMatchObject({ tag: "UnexpectedDefect" });
     }
+  });
+
+  test("projects every invalid request through the single request-validation category", () => {
+    const projected = mapStudioFailureToDefinedError({
+      failure: invalidRequest({
+        message: "legacy source-shaped refusal",
+        diagnostics: { code: "run-in-game-catalog-source-not-found" },
+      }),
+      procedure: "runInGame.start",
+      identity,
+    });
+
+    expect(projected.data).toMatchObject({ safeFailureCategory: "request-validation" });
   });
 
   test("maps lifecycle misses by procedure surface instead of namespace only", () => {

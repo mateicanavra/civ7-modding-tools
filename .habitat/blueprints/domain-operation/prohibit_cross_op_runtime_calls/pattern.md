@@ -125,7 +125,7 @@ import computeMesh from "../compute-mesh/index.js";
 
 export const value = computeMesh;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/demo.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/demo/step.ts
 import foundationOps from "@mapgen/domain/foundation/ops";
 
 export const value = foundationOps;

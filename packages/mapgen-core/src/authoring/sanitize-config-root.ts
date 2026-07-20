@@ -5,7 +5,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Preset/authoring files may include JSON Schema metadata like `$schema` at the root for editor support.
+ * Authored config files may include JSON Schema metadata like `$schema` at the root for editor support.
  * Mapgen's config normalization is strict about unknown keys, so strip schema metadata before validation.
  *
  * Root-only, non-recursive by design.

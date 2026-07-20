@@ -1,3 +1,4 @@
+import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
 import * as foundationCrustTiles from "./foundation-crust-tiles.artifact.js";
 import * as foundationPlates from "./foundation-plates.artifact.js";
 import * as foundationTectonicHistoryTiles from "./foundation-tectonic-history-tiles.artifact.js";
@@ -8,7 +9,7 @@ import * as placementEngineTerrainSnapshot from "./placement-engine-terrain-snap
 import * as placementSurfaceValidationBoundary from "./placement-surface-validation-boundary.artifact.js";
 import * as projectionMeta from "./projection-meta.artifact.js";
 
-export {
+const catalog = defineArtifactCatalog({
   foundationCrustTiles,
   foundationPlates,
   foundationTectonicHistoryTiles,
@@ -18,40 +19,10 @@ export {
   placementEngineTerrainSnapshot,
   placementSurfaceValidationBoundary,
   projectionMeta,
-};
+});
 
-export const artifactContracts = {
-  foundationCrustTiles,
-  foundationPlates,
-  foundationTectonicHistoryTiles,
-  foundationTectonicProvenanceTiles,
-  foundationTileToCellIndex,
-  landmassRegionSlotByTile,
-  placementEngineTerrainSnapshot,
-  placementSurfaceValidationBoundary,
-  projectionMeta,
-} as const;
+/** Standard recipe-wide artifact modules pairing every contract with its complete admission validator. */
+export const artifactModules = catalog.modules;
 
-export const artifacts = {
-  foundationCrustTiles: foundationCrustTiles.artifact,
-  foundationPlates: foundationPlates.artifact,
-  foundationTectonicHistoryTiles: foundationTectonicHistoryTiles.artifact,
-  foundationTectonicProvenanceTiles: foundationTectonicProvenanceTiles.artifact,
-  foundationTileToCellIndex: foundationTileToCellIndex.artifact,
-  landmassRegionSlotByTile: landmassRegionSlotByTile.artifact,
-  placementEngineTerrainSnapshot: placementEngineTerrainSnapshot.artifact,
-  placementSurfaceValidationBoundary: placementSurfaceValidationBoundary.artifact,
-  projectionMeta: projectionMeta.artifact,
-} as const;
-
-export const validators = {
-  foundationCrustTiles: foundationCrustTiles.validate,
-  foundationPlates: foundationPlates.validate,
-  foundationTectonicHistoryTiles: foundationTectonicHistoryTiles.validate,
-  foundationTectonicProvenanceTiles: foundationTectonicProvenanceTiles.validate,
-  foundationTileToCellIndex: foundationTileToCellIndex.validate,
-  landmassRegionSlotByTile: landmassRegionSlotByTile.validate,
-  placementEngineTerrainSnapshot: placementEngineTerrainSnapshot.validate,
-  placementSurfaceValidationBoundary: placementSurfaceValidationBoundary.validate,
-  projectionMeta: projectionMeta.validate,
-} as const;
+/** Standard recipe-wide artifact handles derived from the module catalog for contracts and consumers. */
+export const artifacts = catalog.artifacts;

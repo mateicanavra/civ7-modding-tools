@@ -7,6 +7,8 @@
 
 /// <reference types="@civ7/types" />
 
+import type { OfficialAgeType } from "@civ7/map-policy";
+
 /**
  * Feature placement data
  */
@@ -535,6 +537,13 @@ export interface EngineAdapter {
   canHaveResource(x: number, y: number, resourceType: number): boolean;
 
   /**
+   * Ask the live Civ7 resource policy whether a resource is required for the
+   * supplied age. `null` means the runtime does not expose the policy surface;
+   * engine errors and non-boolean responses are not suppressed.
+   */
+  isResourceRequiredForAge(resourceTypeId: number, ageType: OfficialAgeType): boolean | null;
+
+  /**
    * Adapter-owned symbolic resource catalog (id, RESOURCE_* type, class,
    * display name) used by placement telemetry. Keeps GameInfo access at the
    * adapter boundary instead of recipe-layer globalThis reads.
@@ -876,13 +885,4 @@ export interface ContinentBounds {
   south: number;
   north: number;
   continent?: number;
-}
-
-/**
- * Map context for passing state between generation stages
- */
-export interface MapContext {
-  dimensions: MapDimensions;
-  adapter: EngineAdapter;
-  config: Record<string, unknown>;
 }

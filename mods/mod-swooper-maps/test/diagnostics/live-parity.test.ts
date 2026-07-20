@@ -28,14 +28,10 @@ const canonicalConfig = {
 };
 const canonicalConfigDigest = hashParityValue(canonicalConfig);
 const launchEnvelope = {
-  recipeSettings: { recipe: "mod-swooper-maps/standard", seed: 1234 },
+  seed: 1234,
   worldSettings: { mapSize: "MAPSIZE_TINY" },
   setupConfig: { gameOptions: {}, playerOptions: [] },
-  source: {
-    kind: "catalog" as const,
-    sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-    canonicalConfig,
-  },
+  canonicalConfig,
 };
 const launchEnvelopeDigest = hashParityValue(launchEnvelope);
 const nativeRiverMetadataReadbackReason =
@@ -85,23 +81,17 @@ test("local final-surface replay uses supplied frozen envelope bounds without ch
   expect(frozenReplay.mapInfo).toEqual(defaultReplay.mapInfo);
 });
 
-function exactEvidence(
-  overrides: Partial<CompleteExactAuthorshipEvidence> = {}
-): CompleteExactAuthorshipEvidence {
-  return {
+function exactEvidencePacket(
+  overrides: Readonly<Record<string, unknown>> = {},
+  options: Readonly<{ includeResourcePlacement?: boolean }> = {}
+): unknown {
+  const base = {
     status: "complete",
     requestId: "run-1",
     createdAt: "2026-06-06T00:00:00.000Z",
     unresolvedLinks: [],
-    sourceSnapshot: {
-      requestId: "run-1",
-      source: {
-        kind: "catalog",
-        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-      },
-      canonicalConfigDigest: hashParityValue(canonicalConfig),
-      launchEnvelopeDigest: launchEnvelopeDigest,
-    },
+    canonicalConfigDigest,
+    launchEnvelopeDigest,
     request: {
       recipeId: "mod-swooper-maps/standard",
       seed: 1234,
@@ -134,17 +124,43 @@ function exactEvidence(
       evidencePayload: {},
       completionPayload: {},
       matched: [],
-      resourcePlacement: {
-        coordinateEvidence: {
-          version: 1,
-          placed: { count: 2, hash32: "aaaaaaaa" },
-          rejected: { count: 0, hash32: "811c9dc5" },
-          mismatch: { count: 0, hash32: "811c9dc5" },
-        },
-      },
+      ...(options.includeResourcePlacement === false
+        ? {}
+        : {
+            resourcePlacement: {
+              coordinateEvidence: {
+                version: 1,
+                placed: { count: 2, hash32: "aaaaaaaa" },
+                rejected: { count: 0, hash32: "811c9dc5" },
+                mismatch: { count: 0, hash32: "811c9dc5" },
+              },
+            },
+          }),
     },
-    ...overrides,
   };
+
+  return {
+    ...base,
+    ...overrides,
+    ...(isRecord(overrides.log) ? { log: { ...base.log, ...overrides.log } } : {}),
+  };
+}
+
+function exactEvidence(
+  overrides: Readonly<Record<string, unknown>> = {},
+  options: Readonly<{ includeResourcePlacement?: boolean }> = {}
+): CompleteExactAuthorshipEvidence {
+  const parsed = parseCompleteExactAuthorshipEvidencePacket(
+    exactEvidencePacket(overrides, options)
+  );
+  if (parsed.evidence === undefined) {
+    throw new Error(`Invalid exact-authorship fixture: ${parsed.unresolvedLinks.join(", ")}`);
+  }
+  return parsed.evidence;
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function snapshot(args: {
@@ -834,15 +850,7 @@ describe("final-surface parity evidence", () => {
 
   test("keeps parity unresolved when local resource coordinate evidence lacks matching exact log evidence", () => {
     const evidence = buildFinalSurfaceParityReport({
-      exactAuthorship: exactEvidence({
-        log: {
-          requestId: "run-1",
-          canonicalConfigDigest,
-          launchEnvelopeDigest,
-          seed: 1234,
-          dimensions: { width: 2, height: 1 },
-        },
-      }),
+      exactAuthorship: exactEvidence({}, { includeResourcePlacement: false }),
       local: snapshot({ source: "local-mapgen", resourceCoordinateEvidence: true }),
       live: snapshot({ source: "live-civ7" }),
     });
@@ -1284,16 +1292,15 @@ describe("final-surface parity evidence", () => {
     expect(evidence.unresolvedLinks).toContain("resource-placement-coordinate-evidence.rejected");
   });
 
-  test("rejects a source snapshot without provenance and derived envelope digests", () => {
-    const exact = exactEvidence({
-      sourceSnapshot: {
-        requestId: "run-1",
-      },
+  test("rejects exact authorship without its derived envelope digests", () => {
+    const exact = exactEvidencePacket({
+      canonicalConfigDigest: undefined,
+      launchEnvelopeDigest: undefined,
     });
 
     const validation = parseCompleteExactAuthorshipEvidencePacket(exact);
     const evidence = buildFinalSurfaceParityReport({
-      exactAuthorship: exact,
+      exactAuthorship: validation.evidence,
       local: snapshot({ source: "local-mapgen" }),
       live: snapshot({ source: "live-civ7" }),
     });
@@ -1351,7 +1358,7 @@ describe("final-surface parity evidence", () => {
     ],
   ] as const)("blocks request-generated packets missing the %s", (_label, field, _link) => {
     const validation = parseCompleteExactAuthorshipEvidencePacket(
-      exactEvidence({
+      exactEvidencePacket({
         materialization: {
           ...requestGeneratedMaterialization,
           [field]: undefined,
@@ -1370,7 +1377,7 @@ describe("final-surface parity evidence", () => {
 
   test("requires manifest correlation evidence for every parity packet", () => {
     const validation = parseCompleteExactAuthorshipEvidencePacket(
-      exactEvidence({
+      exactEvidencePacket({
         materialization: {
           mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
           canonicalConfigDigest,

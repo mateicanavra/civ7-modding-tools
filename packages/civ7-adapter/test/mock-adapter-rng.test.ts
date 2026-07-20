@@ -18,6 +18,22 @@ describe("MockAdapter RNG", () => {
     ]);
   });
 
+  it("derives deterministic engine RNG from an explicit adapter seed", () => {
+    const first = createMockAdapter({ rngSeed: 1018 });
+    const second = createMockAdapter({ rngSeed: 1018 });
+    const other = createMockAdapter({ rngSeed: 1337 });
+
+    const sample = (adapter: ReturnType<typeof createMockAdapter>) => [
+      adapter.getRandomNumber(10_000, "placement/discoveries"),
+      adapter.getRandomNumber(10_000, "placement/discoveries"),
+      adapter.getRandomNumber(10_000, "projection/coasts"),
+    ];
+
+    const firstSample = sample(first);
+    expect(sample(second)).toEqual(firstSample);
+    expect(sample(other)).not.toEqual(firstSample);
+  });
+
   it("keeps explicit adapter RNG overrides available for adapter-boundary tests", () => {
     let callCount = 0;
     const adapter = createMockAdapter({

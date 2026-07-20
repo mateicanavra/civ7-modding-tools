@@ -6,9 +6,10 @@ import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-config
 import { describe, expect, it } from "vitest";
 import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
 import { createWorkerTraceSink } from "../../src/browser-runner/worker-trace-sink";
-import { createWorkerVizDumper } from "../../src/browser-runner/worker-viz-dumper";
+import { createWorkerVizFacetSink } from "../../src/browser-runner/worker-viz-facet-sink";
 import type { VizLayerEntryV1 } from "../../src/features/viz/model";
 import { buildRiverLakeFloodplainInspectorSummary } from "../../src/features/viz/riverLakeInspector";
+import { studioStandardRecipeConfig } from "./standardRecipeConfig";
 
 function gridLayer(args: {
   stepId: string;
@@ -33,7 +34,11 @@ function gridLayer(args: {
       data: buffer ? { kind: "inline", buffer } : { kind: "path", path: `${dataTypeKey}.u8` },
     },
     bounds: [0, 0, 4, 3],
-    meta: { label: dataTypeKey, role, visibility } as any,
+    meta: {
+      label: dataTypeKey,
+      visibility,
+      ...(role === undefined ? {} : { role }),
+    },
   };
 }
 
@@ -288,7 +293,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     );
     if (!earthlikeArtifact)
       throw new Error("swooper-earthlike config missing from standard map config catalog");
-    const standardConfig = earthlikeArtifact.canonicalConfig.config;
+    const standardConfig = studioStandardRecipeConfig(earthlikeArtifact.canonicalConfig);
     const plan = standardRecipe.compile(envBase, standardConfig);
     const verboseSteps = Object.fromEntries(
       plan.nodes.map((node) => [node.stepId, "verbose"] as const)
@@ -309,14 +314,23 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     });
     const context = createExtendedMapContext({ width, height }, adapter, env);
     const events: BrowserRunEvent[] = [];
-    context.viz = createWorkerVizDumper();
+    const post = (event: BrowserRunEvent): void => {
+      events.push(event);
+    };
 
     standardRecipe.run(context, env, standardConfig, {
       traceSink: createWorkerTraceSink({
         runToken: "studio-river-lake-inspector-test",
         generation: 1,
-        post: (event) => events.push(event),
+        post,
       }),
+      facets: {
+        viz: createWorkerVizFacetSink({
+          runToken: "studio-river-lake-inspector-test",
+          generation: 1,
+          post,
+        }),
+      },
       log: () => {},
     });
 

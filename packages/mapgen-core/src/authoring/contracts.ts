@@ -10,8 +10,15 @@ export type {
   DeepReadonly,
 } from "./artifact/contract.js";
 export { defineArtifact } from "./artifact/contract.js";
+export type { ArtifactCatalog, ArtifactModule } from "./artifact/module.js";
+export { defineArtifactCatalog } from "./artifact/module.js";
+export { readValidatedArtifact } from "./artifact/validated-read.js";
 export type { ArtifactValidationContext, ArtifactValidationIssue } from "./artifact/validation.js";
-export { artifactCellCount, validateArtifactSchema } from "./artifact/validation.js";
+export {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
+  validateArtifactSchema,
+} from "./artifact/validation.js";
 export { defineOp } from "./op/contract.js";
 export type { OpTypeBagOf } from "./op/types.js";
 export { defineStep } from "./step/contract.js";

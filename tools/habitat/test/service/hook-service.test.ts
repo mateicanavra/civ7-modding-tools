@@ -14,14 +14,15 @@ import {
   makeFakeNxProviderLayer,
   type NxAffectedRequest,
   NxProvider,
-  type NxRunTargetRequest,
-  runTargetArgv,
+  type NxRunManyRequest,
+  runManyArgv,
 } from "@habitat/cli/providers/nx/index";
 import { captureOutput, makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { HabitatReportEvent } from "@habitat/cli/resources/reporter/index";
 import type { CheckOptions, CheckReport } from "@habitat/cli/service/model/check/index";
+import type { createCheckReportEffect } from "@habitat/cli/service/model/check/policy/structural/index";
 import type { RuleFactsCatalog } from "@habitat/cli/service/model/rules/index";
 import type {
   HookPreCommitInput,
@@ -29,13 +30,13 @@ import type {
 } from "@habitat/cli/service/modules/hook/contract";
 import type { HookResourcePolicy } from "@habitat/cli/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@habitat/cli/service/modules/hook/router";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Match, Option } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { makeTestHabitatServiceDeps, makeTestRuleFacts } from "../support/habitat-service-deps";
 
 type StructuralCheckPolicy = {
-  readonly createReport: (options?: CheckOptions) => Effect.Effect<CheckReport>;
+  readonly createReport: typeof createCheckReportEffect;
 };
 
 const mockCreateCheckReportEffect = vi.hoisted(() =>
@@ -53,15 +54,12 @@ vi.mock("@habitat/cli/service/model/check/policy/structural/index", async (impor
   };
 });
 
-const prePushAffectedTargets = "check,lint";
-const prePushGritRuleAuthorityTargets = "habitat:rule:require_runtime_domain_op_bundle_imports";
-const prePushNonSourceRuleAuthorityTargets = "habitat:rule:enforce_workspace_import_boundaries";
-const prePushMixedRuleAuthorityTargets =
-  "habitat:rule:enforce_workspace_import_boundaries,habitat:rule:require_runtime_domain_op_bundle_imports";
-const prePushBoundaryTaxonomyTargets = "lint";
-const prePushStructuralTargetDeclarationTargets = "lint";
-const prePushNoChangedSourceCheck =
-  "source checks: no changed TypeScript/JavaScript files in hook source-check roots\n";
+const prePushExpected = {
+  affectedTargets: ["check"],
+  gritRuleAuthorityTargets: ["habitat:rule:require_runtime_domain_op_bundle_imports"],
+  noChangedSourceCheck:
+    "source checks: no changed TypeScript/JavaScript files in hook source-check roots\n",
+} as const;
 
 describe("Habitat hook service", () => {
   beforeEach(() => {
@@ -76,7 +74,7 @@ describe("Habitat hook service", () => {
 
     expect(result).toEqual({
       exitCode: 0,
-      stdout: `hook result: workstation check only; CI remains authoritative.\n${prePushNoChangedSourceCheck}habitat hook pre-push: repo Nx affected base=HEAD~1\naffected ok\n`,
+      stdout: `hook result: workstation check only; CI remains authoritative.\n${prePushExpected.noChangedSourceCheck}habitat hook pre-push: repo Nx affected base=HEAD~1\naffected ok\n`,
       stderr: "",
     });
     expect(fake.calls).toEqual([]);
@@ -109,11 +107,10 @@ describe("Habitat hook service", () => {
       makeFakeGitProviderLayer((argv, options) => {
         gitCalls.push(argv.join(" "));
         const stdout =
-          argv[0] === "symbolic-ref"
-            ? "origin/main\n"
-            : argv[0] === "merge-base"
-              ? "abc123mergebase\n"
-              : "";
+          new Map([
+            ["symbolic-ref", "origin/main\n"],
+            ["merge-base", "abc123mergebase\n"],
+          ]).get(argv[0] ?? "") ?? "";
         return commandResult(argv, options.cwd, stdout);
       }),
       undefined,
@@ -162,21 +159,21 @@ describe("Habitat hook service", () => {
       { base: "" },
       {},
       undefined,
-      nxLayer(() =>
-        commandResult(
-          affectedArgv({
-            base: "agent-HR-parent",
-            targets: prePushAffectedTargets.split(","),
-            head: "HEAD",
-            excludeTaskDependencies: true,
-          }),
-          repoRootForTestCommand(),
-          "affected failed\n",
-          1,
-          "target failed\n",
-          "nx"
-        )
-      ),
+      nxLayer({
+        affected: () =>
+          commandResult(
+            affectedArgv({
+              base: "agent-HR-parent",
+              targets: prePushExpected.affectedTargets,
+              head: "HEAD",
+            }),
+            repoRootForTestCommand(),
+            "affected failed\n",
+            1,
+            "target failed\n",
+            "nx"
+          ),
+      }),
       undefined,
       undefined,
       graphiteLayer(fake)
@@ -184,7 +181,7 @@ describe("Habitat hook service", () => {
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=agent-HR-parent");
-    expect(result.stdout).toContain(prePushNoChangedSourceCheck);
+    expect(result.stdout).toContain(prePushExpected.noChangedSourceCheck);
     expect(result.stdout).toContain("affected failed");
     expect(result.stderr).toContain("target failed");
   });
@@ -197,21 +194,21 @@ describe("Habitat hook service", () => {
       { base: "" },
       { reporterEvents: events },
       undefined,
-      nxLayer(() =>
-        commandResult(
-          affectedArgv({
-            base: "agent-HR-parent",
-            targets: prePushAffectedTargets.split(","),
-            head: "HEAD",
-            excludeTaskDependencies: true,
-          }),
-          repoRootForTestCommand(),
-          "affected failed\n",
-          1,
-          "target failed\n",
-          "nx"
-        )
-      ),
+      nxLayer({
+        affected: () =>
+          commandResult(
+            affectedArgv({
+              base: "agent-HR-parent",
+              targets: prePushExpected.affectedTargets,
+              head: "HEAD",
+            }),
+            repoRootForTestCommand(),
+            "affected failed\n",
+            1,
+            "target failed\n",
+            "nx"
+          ),
+      }),
       undefined,
       undefined,
       graphiteLayer(fake)
@@ -226,7 +223,7 @@ describe("Habitat hook service", () => {
     });
     expect(events).toContainEqual({
       kind: "stdout",
-      text: prePushNoChangedSourceCheck,
+      text: prePushExpected.noChangedSourceCheck,
     });
     expect(events).toContainEqual({
       kind: "stderr",
@@ -245,19 +242,21 @@ describe("Habitat hook service", () => {
   });
 
   test("runs pre-push source checks over changed hook source paths", async () => {
-    const fake = makePrePushFixture();
     const checkRequests: CheckOptions[] = [];
-    const changedPath = "packages/sdk/src/index.ts";
+    const changedPaths = ["packages/sdk/src/index.ts"] as const;
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
       {
         sourceCheckHookEnabled: true,
-        pathExists: (targetPath) => targetPath.endsWith(changedPath),
+        pathExists: (targetPath) => changedPaths.some((path) => targetPath.endsWith(path)),
       },
       makeFakeGitProviderLayer((argv, options) => {
-        const stdout =
-          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        const stdout = stdoutForCommand(
+          argv,
+          "diff --name-only -z HEAD~1 HEAD",
+          renderPathList([...changedPaths])
+        );
         return commandResult(argv, options.cwd, stdout);
       }),
       nxLayer(),
@@ -277,7 +276,7 @@ describe("Habitat hook service", () => {
         runner: "grit",
         hookCheck: true,
         staged: true,
-        stagedPaths: [changedPath],
+        stagedPaths: changedPaths,
       }),
     ]);
     const affectedRequests: NxAffectedRequest[] = [];
@@ -285,23 +284,28 @@ describe("Habitat hook service", () => {
       { base: "HEAD~1" },
       {
         sourceCheckHookEnabled: true,
-        pathExists: (targetPath) => targetPath.endsWith(changedPath),
+        pathExists: (targetPath) => changedPaths.some((path) => targetPath.endsWith(path)),
       },
       makeFakeGitProviderLayer((argv, options) => {
-        const stdout =
-          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        const stdout = stdoutForCommand(
+          argv,
+          "diff --name-only -z HEAD~1 HEAD",
+          renderPathList([...changedPaths])
+        );
         return commandResult(argv, options.cwd, stdout);
       }),
-      nxLayer((request) => {
-        affectedRequests.push(request);
-        return commandResult(
-          affectedArgv(request),
-          repoRootForTestCommand(),
-          "affected ok\n",
-          0,
-          "",
-          "nx"
-        );
+      nxLayer({
+        affected: (request) => {
+          affectedRequests.push(request);
+          return commandResult(
+            affectedArgv(request),
+            repoRootForTestCommand(),
+            "affected ok\n",
+            0,
+            "",
+            "nx"
+          );
+        },
       }),
       {
         createReport: (options = {}) =>
@@ -323,22 +327,25 @@ describe("Habitat hook service", () => {
       { base: "HEAD~1" },
       { sourceCheckHookEnabled: true, pathExists: () => false },
       makeFakeGitProviderLayer((argv, options) => {
-        const stdout =
-          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD"
-            ? "packages/sdk/src/deleted.ts\0"
-            : "";
+        const stdout = stdoutForCommand(
+          argv,
+          "diff --name-only -z HEAD~1 HEAD",
+          renderPathList(["packages/sdk/src/deleted.ts"])
+        );
         return commandResult(argv, options.cwd, stdout);
       }),
-      nxLayer((request) => {
-        affectedRequests.push(request);
-        return commandResult(
-          affectedArgv(request),
-          repoRootForTestCommand(),
-          "affected ok\n",
-          0,
-          "",
-          "nx"
-        );
+      nxLayer({
+        affected: (request) => {
+          affectedRequests.push(request);
+          return commandResult(
+            affectedArgv(request),
+            repoRootForTestCommand(),
+            "affected ok\n",
+            0,
+            "",
+            "nx"
+          );
+        },
       }),
       {
         createReport: (options = {}) =>
@@ -350,91 +357,69 @@ describe("Habitat hook service", () => {
     );
 
     expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain(prePushNoChangedSourceCheck.trim());
+    expect(result.stdout).toContain(prePushExpected.noChangedSourceCheck.trim());
     expect(checkRequests).toEqual([]);
     expect(affectedRequests).toHaveLength(1);
   });
 
   test("uses the owning Grit rule target for migrated source rule authority-file pre-push changes", async () => {
-    const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
-    const changedPath =
-      ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/rule.json";
+    const runManyRequests: NxRunManyRequest[] = [];
+    const changedPaths = [
+      ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/rule.json",
+    ] as const;
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
-        const stdout =
-          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        const stdout = stdoutForCommand(
+          argv,
+          "diff --name-only -z HEAD~1 HEAD",
+          renderPathList([...changedPaths])
+        );
         return commandResult(argv, options.cwd, stdout);
       }),
-      nxLayer((request) => {
-        affectedRequests.push(request);
-        return commandResult(
-          affectedArgv(request),
-          repoRootForTestCommand(),
-          "affected ok\n",
-          0,
-          "",
-          "nx"
-        );
-      })
+      trackingNxLayer(affectedRequests, runManyRequests)
     );
 
     expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=HEAD~1");
-    expect(affectedRequests).toEqual([
-      {
-        base: "HEAD~1",
-        targets: prePushGritRuleAuthorityTargets.split(","),
-        head: "HEAD",
-        excludeTaskDependencies: true,
-      },
-    ]);
+    expect(result.stdout).toContain("habitat hook pre-push: repo Nx policy graph");
+    expect(runManyRequests).toEqual([{ targets: prePushExpected.gritRuleAuthorityTargets }]);
+    expect(affectedRequests).toEqual([]);
   });
 
-  test("uses the owning rule target for non-source rule authority-file pre-push changes", async () => {
-    const fake = makePrePushFixture();
+  test("runs the generated rule alias for graph-backed rule authority changes", async () => {
     const affectedRequests: NxAffectedRequest[] = [];
-    const changedPath =
-      ".habitat/global/workspace/_blueprints/project-boundary-model/enforce_workspace_import_boundaries/rule.json";
+    const runManyRequests: NxRunManyRequest[] = [];
+    const changedPaths = [
+      ".habitat/global/workspace/_blueprints/project-boundary-model/enforce_workspace_import_boundaries/rule.json",
+    ] as const;
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
-        const stdout =
-          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        const stdout = stdoutForCommand(
+          argv,
+          "diff --name-only -z HEAD~1 HEAD",
+          renderPathList([...changedPaths])
+        );
         return commandResult(argv, options.cwd, stdout);
       }),
-      nxLayer((request) => {
-        affectedRequests.push(request);
-        return commandResult(
-          affectedArgv(request),
-          repoRootForTestCommand(),
-          "affected ok\n",
-          0,
-          "",
-          "nx"
-        );
-      })
+      trackingNxLayer(affectedRequests, runManyRequests)
     );
 
     expect(result.exitCode).toBe(0);
-    expect(affectedRequests).toEqual([
-      {
-        base: "HEAD~1",
-        targets: prePushNonSourceRuleAuthorityTargets.split(","),
-        head: "HEAD",
-        excludeTaskDependencies: true,
-      },
+    expect(runManyRequests).toEqual([
+      { targets: ["habitat:rule:enforce_workspace_import_boundaries"] },
     ]);
+    expect(affectedRequests).toEqual([]);
   });
 
   test("uses owning rule targets for mixed rule authority-file pre-push changes", async () => {
-    const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
+    const runManyRequests: NxRunManyRequest[] = [];
     const changedPaths = [
       ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/rule.json",
       ".habitat/global/workspace/_blueprints/project-boundary-model/enforce_workspace_import_boundaries/rule.json",
@@ -444,187 +429,111 @@ describe("Habitat hook service", () => {
       { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
-        const stdout =
-          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD"
-            ? `${changedPaths.join("\0")}\0`
-            : "";
+        const stdout = stdoutForCommand(
+          argv,
+          "diff --name-only -z HEAD~1 HEAD",
+          renderPathList(changedPaths)
+        );
         return commandResult(argv, options.cwd, stdout);
       }),
-      nxLayer((request) => {
-        affectedRequests.push(request);
-        return commandResult(
-          affectedArgv(request),
-          repoRootForTestCommand(),
-          "affected ok\n",
-          0,
-          "",
-          "nx"
-        );
-      })
+      trackingNxLayer(affectedRequests, runManyRequests)
     );
 
     expect(result.exitCode).toBe(0);
-    expect(affectedRequests).toEqual([
+    expect(runManyRequests).toEqual([
       {
-        base: "HEAD~1",
-        targets: prePushMixedRuleAuthorityTargets.split(","),
-        head: "HEAD",
-        excludeTaskDependencies: true,
+        targets: [
+          "habitat:rule:enforce_workspace_import_boundaries",
+          ...prePushExpected.gritRuleAuthorityTargets,
+        ],
       },
     ]);
-  });
-
-  test("uses owner-local check without structural affected targets for ordinary tooling changes", async () => {
-    const fake = makePrePushFixture();
-    const affectedRequests: NxAffectedRequest[] = [];
-    const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat/src/nx-plugin.ts";
-
-    const result = await runPrePushHookServiceInTest(
-      { base: "HEAD~1" },
-      {},
-      makeFakeGitProviderLayer((argv, options) => {
-        const stdout =
-          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
-        return commandResult(argv, options.cwd, stdout);
-      }),
-      nxLayer({
-        affected: (request) => {
-          affectedRequests.push(request);
-          return commandResult(
-            affectedArgv(request),
-            repoRootForTestCommand(),
-            "affected ok\n",
-            0,
-            "",
-            "nx"
-          );
-        },
-        runTarget: (request) => {
-          runTargetRequests.push(request);
-          return commandResult(
-            runTargetArgv(request),
-            repoRootForTestCommand(),
-            "target ok\n",
-            0,
-            "",
-            "nx"
-          );
-        },
-      })
-    );
-
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("habitat hook pre-push: repo Nx target habitat:check");
-    expect(result.stdout).toContain("target ok");
-    expect(result.stdout).toContain("habitat hook pre-push: no repo Nx affected targets selected");
-    expect(runTargetRequests).toEqual([{ project: "habitat", target: "check" }]);
     expect(affectedRequests).toEqual([]);
   });
 
-  test("uses Toolkit lint target for boundary taxonomy tooling changes", async () => {
-    const fake = makePrePushFixture();
+  test("runs the generated formatting rule alias when its authority changes", async () => {
     const affectedRequests: NxAffectedRequest[] = [];
-    const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath =
-      "tools/habitat/src/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy.ts";
+    const runManyRequests: NxRunManyRequest[] = [];
+    const changedPaths = [
+      ".habitat/global/workspace/rules/enforce_formatting_and_import_hygiene/rule.json",
+    ] as const;
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
-        const stdout =
-          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        const stdout = stdoutForCommand(
+          argv,
+          "diff --name-only -z HEAD~1 HEAD",
+          renderPathList([...changedPaths])
+        );
         return commandResult(argv, options.cwd, stdout);
       }),
-      nxLayer({
-        affected: (request) => {
-          affectedRequests.push(request);
-          return commandResult(
-            affectedArgv(request),
-            repoRootForTestCommand(),
-            "affected ok\n",
-            0,
-            "",
-            "nx"
-          );
-        },
-        runTarget: (request) => {
-          runTargetRequests.push(request);
-          return commandResult(
-            runTargetArgv(request),
-            repoRootForTestCommand(),
-            "target ok\n",
-            0,
-            "",
-            "nx"
-          );
-        },
-      })
+      trackingNxLayer(affectedRequests, runManyRequests)
     );
 
     expect(result.exitCode).toBe(0);
-    expect(runTargetRequests).toEqual([{ project: "habitat", target: "check" }]);
-    expect(affectedRequests).toEqual([
-      {
-        base: "HEAD~1",
-        targets: prePushBoundaryTaxonomyTargets.split(","),
-        head: "HEAD",
-        excludeTaskDependencies: true,
-      },
+    expect(runManyRequests).toEqual([
+      { targets: ["habitat:rule:enforce_formatting_and_import_hygiene"] },
     ]);
+    expect(affectedRequests).toEqual([]);
   });
 
-  test("uses all structural targets for structural target declaration changes", async () => {
-    const fake = makePrePushFixture();
+  test("runs the policy graph for unclassified Habitat authority changes", async () => {
     const affectedRequests: NxAffectedRequest[] = [];
-    const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat/package.json";
+    const runManyRequests: NxRunManyRequest[] = [];
+    const changedPaths = [".habitat/index.json"] as const;
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
-        const stdout =
-          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        const stdout = stdoutForCommand(
+          argv,
+          "diff --name-only -z HEAD~1 HEAD",
+          renderPathList([...changedPaths])
+        );
         return commandResult(argv, options.cwd, stdout);
       }),
-      nxLayer({
-        affected: (request) => {
-          affectedRequests.push(request);
-          return commandResult(
-            affectedArgv(request),
-            repoRootForTestCommand(),
-            "affected ok\n",
-            0,
-            "",
-            "nx"
-          );
-        },
-        runTarget: (request) => {
-          runTargetRequests.push(request);
-          return commandResult(
-            runTargetArgv(request),
-            repoRootForTestCommand(),
-            "target ok\n",
-            0,
-            "",
-            "nx"
-          );
-        },
-      })
+      trackingNxLayer(affectedRequests, runManyRequests)
     );
 
     expect(result.exitCode).toBe(0);
-    expect(runTargetRequests).toEqual([{ project: "habitat", target: "check" }]);
+    expect(runManyRequests).toEqual([{ targets: ["check:policy"] }]);
+    expect(affectedRequests).toEqual([]);
+  });
+
+  test.each([
+    "tools/habitat/src/nx-plugin.ts",
+    "tools/habitat/src/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy.ts",
+    "tools/habitat/package.json",
+  ])("uses one dependency-complete affected check graph for ordinary change %s", async (changedPath) => {
+    const affectedRequests: NxAffectedRequest[] = [];
+    const runManyRequests: NxRunManyRequest[] = [];
+
+    const result = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
+      {},
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout = stdoutForCommand(
+          argv,
+          "diff --name-only -z HEAD~1 HEAD",
+          renderPathList([changedPath])
+        );
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      trackingNxLayer(affectedRequests, runManyRequests)
+    );
+
+    expect(result.exitCode).toBe(0);
     expect(affectedRequests).toEqual([
       {
         base: "HEAD~1",
-        targets: prePushStructuralTargetDeclarationTargets.split(","),
+        targets: ["check"],
         head: "HEAD",
-        excludeTaskDependencies: true,
       },
     ]);
+    expect(runManyRequests).toEqual([]);
   });
 
   test("runs pre-commit through the in-process Habitat service router", async () => {
@@ -684,10 +593,10 @@ describe("Habitat hook service", () => {
   });
 
   test("routes pre-commit Biome execution through the Biome provider", async () => {
-    const stagedPath = "tools/habitat/src/service/modules/hook/router.ts";
+    const stagedPaths = ["tools/habitat/src/service/modules/hook/router.ts"] as const;
     const fake = makePreCommitFixture({
-      stagedPaths: [stagedPath],
-      fileHashes: { [stagedPath]: ["before-format", "after-format"] },
+      stagedPaths: [...stagedPaths],
+      fileHashes: { [stagedPaths[0]]: ["before-format", "after-format"] },
     });
     const biomeRequests: BiomeCommandRequest[] = [];
 
@@ -717,18 +626,18 @@ describe("Habitat hook service", () => {
     expect(result.stdout).toContain("[biome format]\nformat ok\n");
     expect(result.stdout).toContain("[biome check]\ncheck ok\n");
     expect(fake.calls.some((call) => call.startsWith("biome "))).toBe(false);
-    expect(fake.calls).toContain(`git add -- ${stagedPath}`);
+    expect(fake.calls).toContain(`git add -- ${stagedPaths[0]}`);
     expect(biomeRequests).toEqual([
       {
         kind: "format",
         write: true,
         noErrorsOnUnmatched: true,
-        paths: [stagedPath],
+        paths: stagedPaths,
       },
       {
         kind: "check",
         noErrorsOnUnmatched: true,
-        paths: [stagedPath],
+        paths: stagedPaths,
       },
     ]);
   });
@@ -760,15 +669,24 @@ function runPrePushHookServiceInTest(
   biome = biomeLayer(),
   graphite = makeFakeGraphiteProviderLayer(() => null)
 ) {
-  if (structuralCheck) installStructuralCheckPolicy(structuralCheck);
+  Option.match(Option.fromNullable(structuralCheck), {
+    onNone: () => undefined,
+    onSome: installStructuralCheckPolicy,
+  });
   const layer = Layer.mergeAll(gitLayer, nx, biome, graphite);
-  return Effect.runPromise(
-    Effect.gen(function* () {
-      const context = yield* hookServiceContext(options);
-      const prePushHook = hookRouter.prePush.callable({ context });
-      return yield* withFiberContext(() => prePushHook(input));
-    }).pipe(Effect.provide(layer))
-  );
+  const program = Effect.gen(function* () {
+    const services = yield* Effect.all({
+      biome: BiomeProvider,
+      git: GitProvider,
+      graphite: GraphiteProvider,
+      nx: NxProvider,
+    });
+    const context = makeHookServiceContext(options, services);
+    const prePushHook = hookRouter.prePush.callable({ context });
+    return yield* withFiberContext(() => prePushHook(input));
+  });
+  const provided = program.pipe(Effect.provide(layer));
+  return Effect.runPromise(provided);
 }
 
 function runPreCommitHookServiceInTest(
@@ -786,61 +704,78 @@ function runPreCommitHookServiceInTest(
   biome = biomeLayer(),
   graphite = makeFakeGraphiteProviderLayer(() => null)
 ) {
-  if (structuralCheck) installStructuralCheckPolicy(structuralCheck);
+  Option.match(Option.fromNullable(structuralCheck), {
+    onNone: () => undefined,
+    onSome: installStructuralCheckPolicy,
+  });
   const layer = Layer.mergeAll(gitLayer, nx, biome, graphite);
-  return Effect.runPromise(
-    Effect.gen(function* () {
-      const context = yield* hookServiceContext(options);
-      const preCommitHook = hookRouter.preCommit.callable({ context });
-      return yield* withFiberContext(() =>
-        preCommitHook({
-          ...input,
-          ...(options.resourcePolicy ? { resourcePolicy: options.resourcePolicy } : {}),
-        })
-      );
-    }).pipe(Effect.provide(layer))
-  );
+  const program = Effect.gen(function* () {
+    const services = yield* Effect.all({
+      biome: BiomeProvider,
+      git: GitProvider,
+      graphite: GraphiteProvider,
+      nx: NxProvider,
+    });
+    const context = makeHookServiceContext(options, services);
+    const preCommitHook = hookRouter.preCommit.callable({ context });
+    const resourcePolicy = Option.match(Option.fromNullable(options.resourcePolicy), {
+      onNone: () => ({}),
+      onSome: (value) => ({ resourcePolicy: value }),
+    });
+    return yield* withFiberContext(() => preCommitHook({ ...input, ...resourcePolicy }));
+  });
+  const provided = program.pipe(Effect.provide(layer));
+  return Effect.runPromise(provided);
 }
 
-function hookServiceContext(options: {
-  readonly hashFile?: (targetPath: string) => string | null;
-  readonly pathExists?: (targetPath: string) => boolean;
-  readonly reporterEvents?: HabitatReportEvent[];
-  readonly sourceCheckHookEnabled?: boolean;
-}) {
-  return Effect.gen(function* () {
-    const biome = yield* BiomeProvider;
-    const git = yield* GitProvider;
-    const graphite = yield* GraphiteProvider;
-    const nx = yield* NxProvider;
-    return {
-      deps: {
-        ...makeTestHabitatServiceDeps({
-          biome,
-          git,
-          graphite,
-          nx,
-          platform: {
-            ...makeTestHabitatServiceDeps().platform,
-            ...(options.hashFile ? { hashFile: options.hashFile } : {}),
-            ...(options.pathExists ? { pathExists: options.pathExists } : {}),
-            repoRoot,
-          },
-          ...(options.reporterEvents
-            ? {
-                reporter: {
-                  emit: (event: HabitatReportEvent) =>
-                    Effect.sync(() => {
-                      options.reporterEvents?.push(event);
-                    }),
-                },
-              }
-            : {}),
-          ...(options.sourceCheckHookEnabled ? { rules: makeSyntheticSourceCheckHookRules() } : {}),
-        }),
-      },
-    };
+function makeHookServiceContext(
+  options: {
+    readonly hashFile?: (targetPath: string) => string | null;
+    readonly pathExists?: (targetPath: string) => boolean;
+    readonly reporterEvents?: HabitatReportEvent[];
+    readonly sourceCheckHookEnabled?: boolean;
+  },
+  services: Pick<ReturnType<typeof makeTestHabitatServiceDeps>, "biome" | "git" | "graphite" | "nx">
+) {
+  const hashFile = Option.match(Option.fromNullable(options.hashFile), {
+    onNone: () => ({}),
+    onSome: (value) => ({ hashFile: value }),
   });
+  const pathExists = Option.match(Option.fromNullable(options.pathExists), {
+    onNone: () => ({}),
+    onSome: (value) => ({ pathExists: value }),
+  });
+  const reporter = Option.match(Option.fromNullable(options.reporterEvents), {
+    onNone: () => ({}),
+    onSome: (events) => ({
+      reporter: {
+        emit: (event: HabitatReportEvent) =>
+          Effect.sync(() => {
+            events.push(event);
+          }),
+      },
+    }),
+  });
+  const rules = Option.match(
+    Option.liftPredicate(options.sourceCheckHookEnabled, (enabled) => enabled === true),
+    {
+      onNone: () => ({}),
+      onSome: () => ({ rules: makeSyntheticSourceCheckHookRules() }),
+    }
+  );
+  return {
+    deps: makeTestHabitatServiceDeps({
+      ...services,
+      platform: {
+        ...makeTestHabitatServiceDeps().platform,
+        ...hashFile,
+        ...pathExists,
+        repoRoot,
+      },
+      ...reporter,
+      ...rules,
+    }),
+  };
 }
 
 function makeSyntheticSourceCheckHookRules() {
@@ -873,10 +808,14 @@ function commandResult(
   stderr = "",
   executable = "git"
 ): HabitatCommandResult {
+  const kind = Match.value(executable).pipe(
+    Match.when("git", () => "git-state" as const),
+    Match.orElse(() => "workspace-tool" as const)
+  );
   return makeHabitatCommandResult(
     {
       commandId: `${executable}-${argv.join("-")}`,
-      kind: executable === "git" ? "git-state" : "workspace-tool",
+      kind,
       executable,
       argv,
       cwd,
@@ -910,37 +849,57 @@ function graphiteLayer(fake: { calls: string[]; options: { graphiteParent?: stri
 
 function prePushGitLayer(_fake: ReturnType<typeof makePrePushFixture>) {
   return makeFakeGitProviderLayer((argv, options) => {
-    const call = argv.join(" ");
-    if (call === "branch --show-current") {
-      return commandResult(argv, options.cwd, "agent-HR-test\n");
-    }
-    if (call === "rev-parse HEAD") {
-      return commandResult(argv, options.cwd, "abc123head\n");
-    }
-    if (call === "diff --cached --name-only -z" || call === "diff --name-only -z") {
-      return commandResult(argv, options.cwd, "");
-    }
-    return commandResult(argv, options.cwd, "");
+    return Match.value(argv.join(" ")).pipe(
+      Match.when("branch --show-current", () =>
+        commandResult(argv, options.cwd, "agent-HR-test\n")
+      ),
+      Match.when("rev-parse HEAD", () => commandResult(argv, options.cwd, "abc123head\n")),
+      Match.orElse(() => commandResult(argv, options.cwd, ""))
+    );
   });
 }
 
-function nxLayer(
-  handlerOrHandlers?:
-    | ((request: NxAffectedRequest) => HabitatCommandResult)
-    | {
-        affected?: (request: NxAffectedRequest) => HabitatCommandResult;
-        runTarget?: (request: NxRunTargetRequest) => HabitatCommandResult;
-      }
-) {
-  const handlers =
-    typeof handlerOrHandlers === "function" ? { affected: handlerOrHandlers } : handlerOrHandlers;
+function nxLayer(handlers?: {
+  affected?: (request: NxAffectedRequest) => HabitatCommandResult;
+  runMany?: (request: NxRunManyRequest) => HabitatCommandResult;
+}) {
   return makeFakeNxProviderLayer({
     affected: (request) =>
       handlers?.affected?.(request) ??
       commandResult(affectedArgv(request), repoRootForTestCommand(), "affected ok\n", 0, "", "nx"),
-    runTarget: (request) =>
-      handlers?.runTarget?.(request) ??
-      commandResult(runTargetArgv(request), repoRootForTestCommand(), "target ok\n", 0, "", "nx"),
+    runMany: (request) =>
+      handlers?.runMany?.(request) ??
+      commandResult(runManyArgv(request), repoRootForTestCommand(), "run-many ok\n", 0, "", "nx"),
+  });
+}
+
+function trackingNxLayer(
+  affectedRequests: NxAffectedRequest[],
+  runManyRequests: NxRunManyRequest[]
+) {
+  return nxLayer({
+    affected: (request) => {
+      affectedRequests.push(request);
+      return commandResult(
+        affectedArgv(request),
+        repoRootForTestCommand(),
+        "affected ok\n",
+        0,
+        "",
+        "nx"
+      );
+    },
+    runMany: (request) => {
+      runManyRequests.push(request);
+      return commandResult(
+        runManyArgv(request),
+        repoRootForTestCommand(),
+        "run-many ok\n",
+        0,
+        "",
+        "nx"
+      );
+    },
   });
 }
 
@@ -978,11 +937,14 @@ function makePreCommitFixture(
     (options.stagedPaths ?? []).some((candidate) => target.endsWith(candidate));
   const hashFile = (targetPath: string) => {
     const repoRelativePath = toTestRepoRelative(targetPath);
-    const sequence = options.fileHashes?.[repoRelativePath];
-    if (!sequence) return `stable:${repoRelativePath}`;
-    const readCount = hashReads.get(repoRelativePath) ?? 0;
-    hashReads.set(repoRelativePath, readCount + 1);
-    return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
+    return Option.match(Option.fromNullable(options.fileHashes?.[repoRelativePath]), {
+      onNone: () => `stable:${repoRelativePath}`,
+      onSome: (sequence) => {
+        const readCount = hashReads.get(repoRelativePath) ?? 0;
+        hashReads.set(repoRelativePath, readCount + 1);
+        return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
+      },
+    });
   };
   return {
     calls,
@@ -994,49 +956,67 @@ function makePreCommitFixture(
 
 function toTestRepoRelative(targetPath: string): string {
   const prefix = `${repoRoot}/`;
-  return targetPath.startsWith(prefix) ? targetPath.slice(prefix.length) : targetPath;
+  return Match.value(targetPath.startsWith(prefix)).pipe(
+    Match.when(true, () => targetPath.slice(prefix.length)),
+    Match.orElse(() => targetPath)
+  );
 }
 
 function preCommitGitLayer(fake: ReturnType<typeof makePreCommitFixture>) {
   return makeFakeGitProviderLayer((argv, options) => {
     const call = ["git", ...argv].join(" ");
     fake.calls.push(call);
-    if (call === "git branch --show-current") {
-      return commandResult(argv, options.cwd, "agent-HR-test\n");
-    }
-    if (call === "git rev-parse HEAD") {
-      return commandResult(argv, options.cwd, "abc123head\n");
-    }
-    if (call === "git diff --name-only -z") {
-      return commandResult(argv, options.cwd, "");
-    }
-    if (call === "git diff --cached --name-only -z") {
-      return commandResult(argv, options.cwd, renderPathList(fake.options.stagedPaths ?? []));
-    }
-    if (call === "git diff --cached --name-status -z") {
-      return commandResult(argv, options.cwd, renderNameStatus(fake.options.stagedPaths ?? []));
-    }
-    if (call.startsWith("git diff --name-only -z --")) {
-      return commandResult(argv, options.cwd, renderPathList(fake.options.unstagedPaths ?? []));
-    }
-    if (call.startsWith("git add --")) {
-      return commandResult(argv, options.cwd, "");
-    }
-    throw new Error(`Unexpected hook pre-commit service test command: ${call}`);
+    return Match.value(call).pipe(
+      Match.when("git branch --show-current", () =>
+        commandResult(argv, options.cwd, "agent-HR-test\n")
+      ),
+      Match.when("git rev-parse HEAD", () => commandResult(argv, options.cwd, "abc123head\n")),
+      Match.when("git diff --name-only -z", () => commandResult(argv, options.cwd, "")),
+      Match.when("git diff --cached --name-only -z", () =>
+        commandResult(argv, options.cwd, renderPathList(fake.options.stagedPaths ?? []))
+      ),
+      Match.when("git diff --cached --name-status -z", () =>
+        commandResult(argv, options.cwd, renderNameStatus(fake.options.stagedPaths ?? []))
+      ),
+      Match.when(
+        (command) => command.startsWith("git diff --name-only -z --"),
+        () => commandResult(argv, options.cwd, renderPathList(fake.options.unstagedPaths ?? []))
+      ),
+      Match.when(
+        (command) => command.startsWith("git add --"),
+        () => commandResult(argv, options.cwd, "")
+      ),
+      Match.orElse((unexpected) => {
+        throw new Error(`Unexpected hook pre-commit service test command: ${unexpected}`);
+      })
+    );
   });
 }
 
-function renderNameStatus(paths: string[]): string {
+function renderNameStatus(paths: readonly string[]): string {
   return paths.map((target) => `A\0${target}\0`).join("");
 }
 
-function renderPathList(paths: string[]): string {
-  return paths.length === 0 ? "" : `${paths.join("\0")}\0`;
+function renderPathList(paths: readonly string[]): string {
+  return paths.map((target) => `${target}\0`).join("");
 }
 
-function renderReported(events: HabitatReportEvent[], kind: HabitatReportEvent["kind"]): string {
+function stdoutForCommand(
+  argv: readonly string[],
+  expectedCommand: string,
+  stdout: string
+): string {
+  return new Map([[expectedCommand, stdout]]).get(argv.join(" ")) ?? "";
+}
+
+function renderReported(
+  events: HabitatReportEvent[],
+  kind: Exclude<HabitatReportEvent["kind"], "trace">
+): string {
   return events
-    .filter((event) => event.kind === kind)
+    .filter(
+      (event): event is Extract<HabitatReportEvent, { kind: typeof kind }> => event.kind === kind
+    )
     .map((event) => event.text)
     .join("");
 }

@@ -7,14 +7,11 @@ import {
   type RunInGameLogEvidence,
   type RunInGamePreparedRequest,
   type RunInGameRuntimeObservation,
-  type RunInGameSetupPrepared,
+  type RunInGameStarted,
   type StudioBoundedDiagnostics,
+  type StudioLiveRuntimeReader,
   verificationFailed,
 } from "@civ7/studio-server";
-import type { StudioContract } from "@civ7/studio-server/contract";
-import { createORPCClient } from "@orpc/client";
-import { RPCLink } from "@orpc/client/fetch";
-import type { ContractRouterClient } from "@orpc/contract";
 import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
 
 type RuntimeMarker = Readonly<{
@@ -36,14 +33,14 @@ type LiveStatusReadiness =
 const LIVE_STATUS_READY_TIMEOUT_MS = 30_000;
 const LIVE_STATUS_READY_POLL_INTERVAL_MS = 1_000;
 
-export async function observeRunInGameRuntimeThroughStudioRpc(
+export async function observeRunInGameRuntimeThroughStudioLiveReader(
   args: Readonly<{
     requestId: string;
     prepared: RunInGamePreparedRequest;
     deployment: RunInGameDeployment;
-    setup: RunInGameSetupPrepared;
+    started: RunInGameStarted;
     log: RunInGameLogEvidence;
-    selfRpcUrl?: string;
+    liveReader?: StudioLiveRuntimeReader;
     signal?: AbortSignal;
     sleep?: (ms: number, signal?: AbortSignal) => Promise<void>;
   }>
@@ -54,7 +51,7 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
   const correlation = {
     requestId: args.requestId,
     runArtifactId,
-    launchSourceDigest: args.prepared.launchSourceDigest,
+    canonicalConfigDigest: args.prepared.canonicalConfigDigest,
     launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
     generationManifestDigest: materialization?.generationManifestDigest ?? "",
   };
@@ -92,26 +89,14 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
       }),
     });
   }
-  const rowEvidence = requiredSetupReadbackValue({
-    requestId: args.requestId,
-    materialization,
-    key: "rowEvidence",
-    value: args.setup.rowEvidence,
-  });
-  const rowVisibility = requiredSetupReadbackValue({
-    requestId: args.requestId,
-    materialization,
-    key: "rowVisibility",
-    value: args.setup.rowVisibility,
-  });
   assertSetupRowReadbackMatches({
     requestId: args.requestId,
     materialization,
     mapScript,
-    rowEvidence,
+    mapRowFiles: args.started.evidence.setup.mapRowFiles,
   });
-  const baseUrl = args.selfRpcUrl;
-  if (!baseUrl) {
+  const liveReader = args.liveReader;
+  if (!liveReader) {
     throw verificationFailed({
       message: "Run in Game loaded-game readback endpoint is unavailable",
       reason: "timeout-uncertain",
@@ -123,11 +108,8 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
       recoveryActions: ["retry-run", "copy-diagnostics"],
     });
   }
-  const liveClient: ContractRouterClient<StudioContract> = createORPCClient(
-    new RPCLink({ url: `${baseUrl.replace(/\/$/, "")}/rpc` })
-  );
   const liveStatus = await waitForLoadedLiveStatus({
-    client: liveClient,
+    liveReader,
     requestId: args.requestId,
     materialization,
     signal: args.signal,
@@ -135,7 +117,7 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
     timeoutMs: LIVE_STATUS_READY_TIMEOUT_MS,
     pollIntervalMs: LIVE_STATUS_READY_POLL_INTERVAL_MS,
   });
-  const liveSnapshot: Civ7LiveSnapshotOutput = await liveClient.civ7.live
+  const liveSnapshot: Civ7LiveSnapshotOutput = await liveReader
     .snapshot(
       {
         width: dimensions.width,
@@ -198,8 +180,7 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
       mapScript,
       runArtifactId,
       deployedModId: args.deployment.runDeployment.deployedModId,
-      rowEvidence,
-      rowVisibility,
+      mapRowFiles: args.started.evidence.setup.mapRowFiles,
     },
     loadedGame: {
       requestId: args.requestId,
@@ -217,7 +198,7 @@ export async function observeRunInGameRuntimeThroughStudioRpc(
 
 async function waitForLoadedLiveStatus(
   args: Readonly<{
-    client: ContractRouterClient<StudioContract>;
+    liveReader: StudioLiveRuntimeReader;
     requestId: string;
     materialization: RunInGameDeployment["materialization"];
     signal?: AbortSignal;
@@ -242,7 +223,7 @@ async function waitForLoadedLiveStatus(
       });
     }
     try {
-      const status = await args.client.civ7.live.status({}, { signal: args.signal });
+      const status = await args.liveReader.status({}, { signal: args.signal });
       lastStatus = status;
       const readiness = classifyLiveStatusReadiness(status);
       if (readiness.kind === "loaded" || readiness.kind === "terminal") {
@@ -277,7 +258,7 @@ async function waitForLoadedLiveStatus(
     const remainingMs = deadline - Date.now();
     if (remainingMs <= 0) {
       throw verificationFailed({
-        message: "Run in Game live status did not become playable after map generation completed",
+        message: "Run in Game live status did not report an in-game App UI state",
         reason: "timeout-uncertain",
         diagnostics: boundedDiagnostics({
           code: "run-in-game-live-status-not-loaded",
@@ -296,7 +277,7 @@ function classifyLiveStatusReadiness(status: Civ7LiveStatusOutput): LiveStatusRe
   if (status.ok !== true || hasEmbeddedError(status.status) || hasEmbeddedError(status.appUi)) {
     return { kind: "terminal", status };
   }
-  if (status.playable === true && appUiReadbackInGame(status.appUi)) {
+  if (appUiReadbackInGame(status.appUi)) {
     return { kind: "loaded", status };
   }
   return { kind: "loading", status };
@@ -420,8 +401,8 @@ function runCorrelationMismatches(
   if (observed.generationManifestDigest !== expected.generationManifestDigest) {
     mismatches.push("generationManifestDigest");
   }
-  if (stableJson(observed.launchSourceDigest) !== stableJson(expected.launchSourceDigest)) {
-    mismatches.push("launchSourceDigest");
+  if (observed.canonicalConfigDigest !== expected.canonicalConfigDigest) {
+    mismatches.push("canonicalConfigDigest");
   }
   return mismatches;
 }
@@ -449,9 +430,7 @@ function compactRunCorrelationFromPayload(
   return {
     requestId: value.requestId,
     runArtifactId,
-    launchSourceDigest: {
-      canonicalConfigDigest: value.canonicalConfigDigest,
-    },
+    canonicalConfigDigest: value.canonicalConfigDigest,
     launchEnvelopeDigest: value.launchEnvelopeDigest,
     generationManifestDigest: value.generationManifestDigest,
   };
@@ -461,10 +440,9 @@ function runCorrelationFromValue(
   value: Record<string, unknown> | undefined
 ): RunCorrelation | undefined {
   if (!value) return undefined;
-  const launchSourceDigest = recordValue(value, "launchSourceDigest");
   const requestId = stringValue(value.requestId);
   const runArtifactId = runArtifactIdFromMarker(stringValue(value.runArtifactId));
-  const canonicalConfigDigest = stringValue(launchSourceDigest?.canonicalConfigDigest);
+  const canonicalConfigDigest = stringValue(value.canonicalConfigDigest);
   const launchEnvelopeDigest = stringValue(value.launchEnvelopeDigest);
   const generationManifestDigest = stringValue(value.generationManifestDigest);
   if (
@@ -479,9 +457,7 @@ function runCorrelationFromValue(
   return {
     requestId,
     runArtifactId,
-    launchSourceDigest: {
-      canonicalConfigDigest,
-    },
+    canonicalConfigDigest,
     launchEnvelopeDigest,
     generationManifestDigest,
   };
@@ -538,71 +514,28 @@ function runtimeMarkerDimensionProblems(
   return problems;
 }
 
-function requiredSetupReadbackValue(
-  args: Readonly<{
-    requestId: string;
-    materialization: RunInGameDeployment["materialization"];
-    key: "rowEvidence" | "rowVisibility";
-    value: unknown;
-  }>
-): unknown {
-  if (args.value !== undefined) return args.value;
-  throw verificationFailed({
-    message: "Run in Game setup row readback is missing",
-    reason: "exact-authorship-mismatch",
-    diagnostics: boundedDiagnostics({
-      code: "setup-map-row-not-visible",
-      priorCode: "run-in-game-setup-row-readback-missing",
-      setupFailureReason: "setup-map-row-not-visible",
-      requestId: args.requestId,
-      missing: args.key,
-      materialization: args.materialization,
-    }),
-    recoveryActions: ["retry-run", "copy-diagnostics"],
-  });
-}
-
 function assertSetupRowReadbackMatches(
   args: Readonly<{
     requestId: string;
     materialization: RunInGameDeployment["materialization"];
     mapScript: string;
-    rowEvidence: unknown;
+    mapRowFiles: readonly string[];
   }>
 ): void {
-  const rows = setupReadbackRows(args.rowEvidence);
-  if (rows.some((row) => setupReadbackRowScripts(row).includes(args.mapScript))) return;
+  if (args.mapRowFiles.includes(args.mapScript)) return;
   throw verificationFailed({
     message: "Run in Game setup row readback did not match the generated request",
     reason: "exact-authorship-mismatch",
     diagnostics: boundedDiagnostics({
       code: "setup-map-row-mismatched",
-      priorCode: "run-in-game-setup-row-readback-mismatch",
       setupFailureReason: "setup-map-row-mismatched",
       requestId: args.requestId,
       expectedMapScript: args.mapScript,
-      observedMapScripts: rows.flatMap((row) => setupReadbackRowScripts(row)),
+      observedMapScripts: args.mapRowFiles,
       materialization: args.materialization,
     }),
     recoveryActions: ["retry-run", "copy-diagnostics"],
   });
-}
-
-function setupReadbackRows(value: unknown): readonly Record<string, unknown>[] {
-  const rows = asRecord(value)?.rows;
-  return Array.isArray(rows)
-    ? rows.reduce<Record<string, unknown>[]>((records, row) => {
-        const record = asRecord(row);
-        if (record) records.push(record);
-        return records;
-      }, [])
-    : [];
-}
-
-function setupReadbackRowScripts(row: Record<string, unknown>): readonly string[] {
-  return [stringValue(row.file), stringValue(row.value), stringValue(row.mapScript)].filter(
-    (value): value is string => value !== undefined
-  );
 }
 
 function loadedGameReadbackProblems(
@@ -614,7 +547,7 @@ function loadedGameReadbackProblems(
 ): string[] {
   const problems: string[] = [];
   const status = args.liveStatus;
-  if (status.ok !== true || status.playable !== true) {
+  if (status.ok !== true) {
     problems.push("live-status-not-loaded");
   }
   if (hasEmbeddedError(recordValue(status, "status"))) problems.push("live-status-field-error");
@@ -736,22 +669,6 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined;
-}
-
-function stableJson(value: unknown): string {
-  return JSON.stringify(canonicalJson(value));
-}
-
-function canonicalJson(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonicalJson);
-  const record = asRecord(value);
-  if (!record) return value;
-  const out: Record<string, unknown> = {};
-  for (const key of Object.keys(record).sort()) {
-    const entry = record[key];
-    if (entry !== undefined) out[key] = canonicalJson(entry);
-  }
-  return out;
 }
 
 function diagnosticString(value: unknown): string | undefined {

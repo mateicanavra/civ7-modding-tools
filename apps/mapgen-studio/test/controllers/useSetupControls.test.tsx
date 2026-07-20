@@ -41,6 +41,7 @@ import { liveControlPort } from "../../src/lib/control/liveControlPort";
 
 const autoplayRpc = vi.mocked(requestCiv7Autoplay);
 const exploreRpc = vi.mocked(liveControlPort.display.explore.request);
+type ExploreRequestResult = Awaited<ReturnType<typeof liveControlPort.display.explore.request>>;
 
 // A minimal-but-valid saved config file. `studioSetupConfigFromSavedConfigFile`
 // (the same pure fn the real selection handler calls) derives the authored config
@@ -49,8 +50,8 @@ const exploreRpc = vi.mocked(liveControlPort.display.explore.request);
 const SAVED_CONFIG: Civ7SavedSetupConfigFile = {
   id: "saved-alpha",
   displayName: "Saved Alpha",
-  fileName: "saved-alpha.config.json",
-  path: "/configs/saved-alpha.config.json",
+  fileName: "saved-alpha.Civ7Cfg",
+  path: "/configs/saved-alpha.Civ7Cfg",
   sizeBytes: 10,
   modifiedAt: "2026-06-29T00:00:00.000Z",
   source: "local-disk",
@@ -67,16 +68,25 @@ const SAVED_CONFIG: Civ7SavedSetupConfigFile = {
   ],
 };
 
-const LIVE_RUNTIME_IDLE = {
+const LIVE_RUNTIME_IDLE: LiveRuntimeStatusState = {
   status: "idle",
   autoplayActive: false,
-} as unknown as LiveRuntimeStatusState;
+};
+
+const EXPLORE_ALREADY_VISIBLE_RESULT = {
+  playerId: 0,
+  skipped: true,
+  before: { revealed: 64, visible: 64 },
+  after: { revealed: 64, visible: 64 },
+  mapPlotCount: 64,
+  classification: "already-explored",
+} satisfies ExploreRequestResult;
 
 function makeArgs(over: Partial<UseSetupControlsArgs> = {}): UseSetupControlsArgs {
   return {
     setupConfig: studioSetupConfigFromSavedConfigFile(SAVED_CONFIG),
     setSetupConfig: vi.fn(),
-    setRecipeSettings: vi.fn(),
+    setSeed: vi.fn(),
     savedSetupConfigs: { status: "ok", configurations: [SAVED_CONFIG] },
     setupCatalog: { status: "idle" },
     liveSetup: { status: "idle" },
@@ -179,14 +189,15 @@ describe("useSetupControls — E4a header view-model + setup intents (the contai
     invoke: (r: ReturnType<typeof setup>["result"]) => void,
     base: Civ7StudioSetupConfig
   ): Civ7StudioSetupConfig {
-    const setSetupConfig = vi.fn();
+    const setSetupConfig = vi.fn<UseSetupControlsArgs["setSetupConfig"]>();
     const harness = setup({ setupConfig: base, setSetupConfig });
     invoke(harness.result);
     expect(setSetupConfig).toHaveBeenCalledTimes(1);
-    const updater = setSetupConfig.mock.calls[0]?.[0] as (
-      current: Civ7StudioSetupConfig
-    ) => Civ7StudioSetupConfig;
+    const updater = setSetupConfig.mock.calls[0]?.[0];
     expect(updater).toBeTypeOf("function");
+    if (typeof updater !== "function") {
+      throw new Error("Setup control intent must update from the current authored config");
+    }
     return updater(base);
   }
 
@@ -293,10 +304,10 @@ describe("useSetupControls — SC-5 (handleToggleAutoplay busy-gate + re-entrant
 
   it("reads the LIVE liveRuntime.autoplayActive (issues 'stop' when active, not a stale 'start')", async () => {
     autoplayRpc.mockResolvedValue({ ok: true, action: "stop", autoplay: { isActive: false } });
-    const activeRuntime = {
+    const activeRuntime: LiveRuntimeStatusState = {
       status: "ok",
       autoplayActive: true,
-    } as unknown as LiveRuntimeStatusState;
+    };
     const { result } = setup({ liveRuntime: activeRuntime });
     await act(async () => {
       await result.current.handleToggleAutoplay();
@@ -318,12 +329,12 @@ describe("useSetupControls — SC-6 (handleExplore busy-gate + re-entrant guard,
 
   it("early-returns + toasts (no RPC) on a re-entrant call while one is already in flight", async () => {
     const toast = vi.fn();
-    let resolveRpc: (v: { classification: string; grantedPlots: number }) => void = () => {};
+    let resolveRpc: (value: ExploreRequestResult) => void = () => {};
     exploreRpc.mockImplementationOnce(
       () =>
-        new Promise((resolve) => {
+        new Promise<ExploreRequestResult>((resolve) => {
           resolveRpc = resolve;
-        }) as ReturnType<typeof liveControlPort.display.explore.request>
+        })
     );
     const { result } = setup({ toast });
 
@@ -339,16 +350,13 @@ describe("useSetupControls — SC-6 (handleExplore busy-gate + re-entrant guard,
       variant: "info",
     });
     await act(async () => {
-      resolveRpc({ classification: "explored", grantedPlots: 12 });
+      resolveRpc(EXPLORE_ALREADY_VISIBLE_RESULT);
       await firstCall;
     });
   });
 
   it("issues the explore RPC + clears the in-flight flag in finally on success", async () => {
-    exploreRpc.mockResolvedValue({
-      classification: "explored",
-      grantedPlots: 7,
-    } as Awaited<ReturnType<typeof liveControlPort.display.explore.request>>);
+    exploreRpc.mockResolvedValue(EXPLORE_ALREADY_VISIBLE_RESULT);
     const { result } = setup();
     await act(async () => {
       await result.current.handleExplore();

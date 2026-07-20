@@ -26,17 +26,19 @@ output (`dist/**`) and `oclif.manifest.json` are generated artifacts.
 
 ```bash
 bun habitat                # command help
-nx run-many -t habitat:check # Nx owner-level Habitat checks
-bun run check              # graph-owned package checks
-bun run lint               # graph-owned package lint targets
+nx run-many -t check:policy # Nx owner-level Habitat checks
+bun run check              # complete non-mutating correctness graph
+bun run typecheck          # compiler-only proof lanes
+bun run lint               # advisory Effect source audit
+bun run format             # workspace source formatting
 bun habitat fix --dry-run  # plan every explicitly admitted rule; does not write
 bun habitat fix            # immediate unsupported-live-mutation refusal
 bun run verify             # graph-owned heavier verification aggregate
 bun habitat check          # diagnostic Habitat CLI loop (add --json for JSON)
 bun habitat verify         # diagnostic Habitat CLI verify loop
 bun habitat classify packages/config/src/index.ts
-nx run habitat:boundaries  # project-plane tag boundaries
-bun run biome:ci                                       # hygiene-layer CI gate
+nx run habitat:check:boundaries # project-plane tag boundaries
+nx run habitat:check:hygiene    # formatter/lint/import hygiene gate
 bun habitat hook pre-commit     # local staged hook path
 bun habitat hook pre-push       # local affected pre-push path
 ```
@@ -44,14 +46,14 @@ bun habitat hook pre-push       # local affected pre-push path
 Notes:
 
 - Curated `habitat check --rule <id>` execution remains a diagnostic selector,
-  not a package-script policy surface. `nx run-many -t habitat:check` enters
+  not a package-script policy surface. `nx run-many -t check:policy` enters
   the Nx graph and runs owner-level generated Habitat targets.
 - Direct `habitat check` assumes a built tree for bundle-output test rules.
-  Graph-owned `nx run-many -t habitat:check` declares the build dependencies needed by
-  generated owner targets.
-- `bun run lint` owns package-local lint targets. Habitat structural findings
-  belong to `nx run-many -t habitat:check`; broader graph validation belongs
-  to the relevant Nx target set.
+  Registered rules declare exact `graphDependencies`; Nx materializes those
+  outputs before the Habitat-owned rule target or owner-local batch executes.
+- `bun run check` is the public correctness aggregate. It composes compiler,
+  Habitat policy, workspace hygiene, boundary, and upstream checks in one Nx
+  graph. `bun run lint` is the narrower Biome lint operation.
 - Advisory-lane rules (`adr-lint`, `doc-ambiguity`) report but never fail —
   matching their pre-harness enforcement reality.
 - Baselines (`.habitat/baselines/<rule-id>.json`) are explicit contract artifacts and
@@ -169,11 +171,12 @@ CI and explicit verification remain authoritative.
 
 `--no-verify` remains a local escape hatch. CI remains authoritative.
 
-## Biome Hygiene
+## Workspace Hygiene
 
-Biome owns formatting, ordinary lint hygiene, import organization, and safe
-assists. The target names are deliberately namespaced (`biome:format`,
-`biome:check`, `biome:ci`); do not add a plain `lint` target for Biome or move
+`sort-package-json` owns canonical workspace manifest ordering. Biome owns
+formatting, ordinary lint hygiene, import organization, and safe assists. The
+Habitat project exposes workspace-wide `format`, `lint`, and `check:hygiene`
+targets; implementation tool names stay private. Do not move
 Biome-owned rules into ESLint.
 
 Use:
@@ -181,7 +184,7 @@ Use:
 ```bash
 bun habitat fix --dry-run  # admitted transformation observations; no writes
 bun habitat fix            # immediate live-mutation refusal; no service realization
-nx run-many -t biome:ci # CI-equivalent hygiene gate
+nx run habitat:check:hygiene # CI-equivalent hygiene gate
 ```
 
 `habitat fix` is not a Biome orchestration path. `--dry-run` derives preview-only
@@ -214,7 +217,7 @@ Current vocabulary:
 - `kind:engine`
 - `kind:adapter`
 - `kind:control`
-- `kind:foundation`
+- `kind:library`
 - `kind:plugin`
 - `kind:mod`
 - `kind:tooling`

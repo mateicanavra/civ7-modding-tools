@@ -46,9 +46,16 @@ Automatic setup follows the repository's ordinary clean-worktree bootstrap:
 
 There is no environment-specific build path. In particular, setup does not copy generated output or prebuild Habitat. The source-configured Habitat Nx plugin must be able to load before `tools/habitat/dist` exists, just like every clean checkout.
 
-This trades creation speed for a fully primed worktree. `bun run check` does not include lint, tests, or Habitat enforcement; those remain in the repository's `bun run ci` aggregate rather than making task creation depend on the current health of every project. Game-data refresh, publication, deployment, live-game operations, and ignored machine state remain outside setup.
+This trades creation speed for a fully primed worktree. `bun run check` includes
+project typechecking and Habitat policy through one Nx graph. Lint and tests
+remain outside setup; tests run in the `bun run ci` graph and lint remains an
+explicit root workflow. Game-data refresh, publication, deployment, live-game
+operations, and ignored machine state remain outside setup.
 
-Cleanup calls the worktree-scoped Studio helper only. The helper records a worktree-specific tmux server socket, session, and unused frontend/daemon port pair beneath ignored `.mapgen-studio/`; it kills only that session and never kills listeners merely because they use a recorded port. See the [operational field guide](OPERATIONAL-FIELD-GUIDE.md) for the action contract and recovery paths.
+Studio development is an explicit foreground action backed by one Nx continuous
+graph. The action terminal owns that graph, and interrupting it stops both the
+frontend and daemon. See the [operational field guide](OPERATIONAL-FIELD-GUIDE.md)
+for the action contract and recovery paths.
 
 ## Change Rules
 

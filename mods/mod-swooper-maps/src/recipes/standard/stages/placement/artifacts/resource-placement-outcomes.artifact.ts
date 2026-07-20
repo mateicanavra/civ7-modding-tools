@@ -150,8 +150,13 @@ const ResourcePlacementOutcomesArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema reconciling authoritative resource intents with Civ7 stamping outcomes. */
 export const Schema = ResourcePlacementOutcomesArtifactSchema;
 
+/**
+ * Registers typed reconciliation between authoritative resource intents and
+ * Civ7 stamping outcomes without reselecting resource type or fallback plots.
+ */
 export const artifact = defineArtifact({
   name: "resourcePlacementOutcomes",
   id: "artifact:placement.resourcePlacementOutcomes",
@@ -193,6 +198,10 @@ function validatePayload(value: unknown): { message: string }[] {
   return issues;
 }
 
+/**
+ * Requires one outcome per intent, zero publishable mismatches, coherent
+ * placed/rejected totals, and agreement between summary and reconciliation.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

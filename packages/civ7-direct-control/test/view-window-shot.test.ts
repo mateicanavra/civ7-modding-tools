@@ -71,7 +71,7 @@ function fakeDependencies(options: FakeOptions = {}): {
     mkdir: async () => undefined,
     now: () => now,
     readdir: async () => options.directoryEntries ?? [],
-    readFile: (async () => PNG_1X1) as WindowShotDependencies["readFile"],
+    readFile: async () => PNG_1X1,
     rm: async (path) => {
       removed.push(String(path));
     },

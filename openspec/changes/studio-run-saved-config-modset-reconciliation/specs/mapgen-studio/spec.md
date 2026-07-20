@@ -1,46 +1,47 @@
 ## ADDED Requirements
 
-### Requirement: Generated Mod Is Composed Into Saved Setup State
+### Requirement: Selected Saved Configuration Survives Launch Admission
 
-MapGen Studio SHALL compose the request-local generated Studio-run mod into the
-active Civ7 setup state before reading setup rows or starting the game.
+MapGen Studio SHALL retain the selected saved configuration as the exact file
+identity consumed by Run in Game.
 
-#### Scenario: Saved Test of Time config is used
+#### Scenario: Enriched saved configuration is selected
 
-- **WHEN** Run in Game uses saved setup config `ToT_BasicModsEnabled.Civ7Cfg`
-- **AND** the request generated `mod-swooper-studio-run`
-- **THEN** Studio ensures the generated mod is active in the setup target
-  before map-row readback
-- **AND** targeted reconciliation confirms `mod-swooper-studio-run` is active
-  in the setup target
-- **AND** setup readback sees the stable generated map row
-  `{mod-swooper-studio-run}/maps/studio-run.js`
-- **AND** private evidence retains the request `runArtifactId` and deployment
-  digest for the overwritten generated script content
+- **WHEN** the rendered selector chooses an enumerated `.Civ7Cfg` record
+- **THEN** launch state retains exactly its `id`, `displayName`, `fileName`, and
+  `path`
+- **AND** discovery metadata does not enter the closed identity
+- **AND** parsed game and player values remain in their sibling option maps
+- **AND** strict normalization does not replace the valid selection with a
+  default or custom setup
 
-#### Scenario: Setup values are read before Begin
+#### Scenario: Authored values drift after selection
 
-- **WHEN** the generated row is visible after setup reconciliation
-- **THEN** Studio applies and reads back the generated map row, seed, map size,
-  and player count before Begin
-- **AND** the readback values match the admitted request
-- **AND** the rendered Run in Game click produces a browser-originated
-  `runInGame.start` request with `worldSettings.resources: balanced`, and the
-  same request's generation manifest retains that value
-- **AND** Civ7 setup/readback does not establish a resulting resource
-  distribution
+- **WHEN** a user changes an option after selecting a saved configuration
+- **THEN** Studio truthfully presents the setup as custom
+- **AND** reselecting the saved configuration reapplies its parsed values
+  exactly
 
-#### Scenario: Start consumes the checked setup state
+### Requirement: Saved Configuration Precedes Generated Mod Setup
 
-- **WHEN** Studio starts Civ7 after successful setup readback
-- **THEN** the start path consumes the same reconciled setup state
-- **AND** does not reload or mutate saved config in a way that removes the
-  generated mod or changes the selected generated row
+The package-owned control-oRPC single-player lifecycle SHALL load the selected
+saved configuration before reconciling and applying the generated map setup.
 
-#### Scenario: Generated row cannot be made visible
+#### Scenario: Saved configuration starts generated content
 
-- **WHEN** the generated row remains absent after setup reconciliation
-- **THEN** Studio terminalizes the operation with the safe public runtime
-  category
-- **AND** private diagnostics use the setup failure reason from
-  `studio-run-setup-failure-taxonomy`
+- **WHEN** Run in Game receives a selected saved configuration
+- **THEN** the lifecycle loads it exactly once
+- **AND** reconciles `mod-swooper-studio-run` after the load
+- **AND** reads `{mod-swooper-studio-run}/maps/studio-run.js`
+- **AND** applies and reads back the admitted setup values
+- **AND** hosts and begins exactly once
+- **AND** returns runtime evidence correlated to the same request
+
+#### Scenario: Saved configuration evidence is incomplete
+
+- **WHEN** selection, load, target-mod, stable-row, setup, or runtime evidence
+  cannot be established
+- **THEN** the operation fails closed with typed private diagnostics
+- **AND** public status exposes only the safe failure category
+- **AND** no mutation is inferred, replayed, or retried
+- **AND** Civilization VII is not restarted

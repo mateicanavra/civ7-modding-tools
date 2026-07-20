@@ -1,4 +1,7 @@
-import type { Civ7ControlOrpcDirectControlFacade } from "@civ7/control-orpc/runtime";
+import type {
+  Civ7ControlOrpcDirectControlFacade,
+  Civ7ControlOrpcDirectLifecycleFacade,
+} from "@civ7/control-orpc/runtime";
 import type { studioEffectContract as contract } from "@civ7/studio-contract";
 import type { InferContractRouterInputs, InferContractRouterOutputs } from "@orpc/contract";
 import type { StudioOperationRuntimePorts } from "./operationRuntime/index.js";
@@ -42,13 +45,14 @@ export interface StudioServerContext {
   readonly recipeDagService: RecipeDagService;
 
   /**
-   * Civ7 control-oRPC dependencies (runtime-one-mount slice). The handler
-   * builds the control procedures' per-request context from these plus the
-   * runtime's shared `Civ7TunerSession` - session sharing is structural,
-   * not a host-side patch. Hosts pass the live facade; tests pass fakes.
+   * Civ7 control-oRPC dependencies (runtime-one-mount slice). HTTP procedures
+   * receive only `directControl`; the in-process operation runtime receives
+   * `directLifecycle` and the shared `Civ7TunerSession` as its sole setup/start
+   * mutation path. Hosts pass live facades; tests pass fakes.
    */
   readonly civ7Control: Readonly<{
     directControl: Civ7ControlOrpcDirectControlFacade;
+    directLifecycle: Civ7ControlOrpcDirectLifecycleFacade;
     timeoutMs: number;
   }>;
 

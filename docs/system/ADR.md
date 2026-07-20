@@ -148,26 +148,23 @@ unsafe ways to describe live AI influence: raw `game exec` as an agent API,
 companion UI scripts as a third control plane, Tuner-loaded mod claims, and a
 generic "bridge" architecture. Later live probes materially changed the
 implementation target: App UI game context exposed the same major gameplay roots
-checked in Tuner, plus App UI-only lifecycle/UI/storage roots. Direct-control
-already owns runtime transport, state selection, approval, validation, and
-wrapper promotion. Generated static profiles already own the native AI policy
-lane.
+checked in Tuner, plus App UI-only lifecycle/UI/storage roots. Generated static
+profiles already own the native AI policy lane.
 **Decision:** Civ7 intelligence uses a two-sided authority architecture:
 live external play through `@civ7/direct-control`, and native policy shaping
 through generated static AI profiles. A game-scoped App UI controller loaded
 through native `scope="game"` `UIScripts` is the baseline implementation
 candidate for replacing raw per-wrapper direct-control JavaScript with a stable
-in-game API. It remains subordinate to direct-control authority: direct-control
-owns socket transport, state discovery, approval, no-replay behavior, and proof
-promotion.
+in-game API. `@civ7/control-orpc` owns the public service contract, router,
+admission, and composed behavior. The game-scoped controller is a provider
+adapter for that service. Direct-control retains the currently mixed low-level
+tuner and Civ7-side JavaScript responsibilities until those nodes are extracted.
 **Consequences:**
 - Raw `CMD:<stateId>:<javascript>` / `game exec` stays a diagnostic and probe
   transport, not the agent-facing product API.
-- oRPC/Effect is the shared control substrate for the external direct-control
-  API, the game-scoped controller mod API, and future internal AI intelligence
-  services. The App UI `globalThis.Civ7IntelligenceBridge.invoke(...)` surface is
-  a serialized transport adapter into an in-process callable router, not an ad
-  hoc product API.
+- oRPC/Effect is the shared control substrate. The App UI installs the selected
+  native nested router client at `globalThis.Civ7IntelligenceBridge`; it does
+  not reconstruct schemas or dispatch serialized procedure keys.
 - `UIScripts` proof is App UI game-context proof unless shell or Tuner
   availability is separately demonstrated. Shell requires its own entrypoint;
   Tuner is not a modinfo deployment target in the baseline.
@@ -187,7 +184,9 @@ promotion.
 **Decision:** `mods/mod-swooper-maps/src/domain/resources` is the owning domain for resource planning: demand/eligibility planning (family planners + group rollup), habitat-lane derivation, and site selection emitting typed per-plot intents. Recipe-layer placement steps are thin wiring + stamp/reconcile shells. The Gameplay-absorption appendix now points at `domain/resources` for resource planning; a future Gameplay domain consolidation may absorb starts/discoveries/wonders orchestration but does not re-own resource planning logic.
 **Consequences:**
 - `domain/placement/ops/plan-resources` (generic scalar scorer) is superseded and deleted in the S3 slice; no dual path remains.
-- Resource policy grounding (Weight, MinimumPerHemisphere, legality rows, required-for-age) flows from `@civ7/map-policy` generated tables into `domain/resources` planning; the engine oracle (`canHaveResource`) is a reconcile-time check, not a planning authority.
+- Dependency-free static resource facts (`Weight`, `MinimumPerHemisphere`, age validity, and the roster-independent `Staple`/`UnlocksCiv` fallback basis) flow from `@civ7/map-policy` into `domain/resources` planning. `MinimumPerHemisphere` is an amount, not proof that the minimum applies.
+- Exact `isResourceRequiredForAge` is active-roster-dependent and enters planning only through `EngineAdapter`. If that policy surface is unavailable, planning admits an age-valid minimum only from the static roster-independent basis; otherwise it records `unresolved`, never `false`.
+- The engine legality oracle (`canHaveResource`) remains a reconcile-time check, not a planning authority.
 - The absorption appendix's "invoke the engine resource generator" posture is superseded for resources by the deterministic typed plan+stamp pipeline (ADR-009).
 - (S4 amendment, 2026-06-10) Start placement diverges from the official `chooseStartSectors` sector grid: the inert start-sector machinery (knobs, contract fields, runtime plumbing, sector viz) was removed and landmass-region slots (`plot-landmass-regions`) are the regional mechanism driving seat assignment; the adapter's `chooseStartSectors`/`assignStartPositions` wrappers remain typed but uncalled.
 
@@ -196,7 +195,7 @@ promotion.
 **Status:** Accepted
 **Date:** 2026-06-09
 **Context:** Placement survived three regime reversals in four months (engine-RNG delegation → deterministic plan+stamp → official-generator-primary → deterministic typed reconciliation via the normalization packet D3/D4, implemented 2026-05-30) and none of those decisions reached this record, which is part of why each regime's scaffolding accreted (diagnosis RC1). The placement-realignment workstream depends on the current posture being durable, so it is recorded here as the S3 entry gate (D2) requires.
-**Decision:** (a) The deterministic plan is the authority for typed intent: materializers stamp intents through the adapter and reconcile engine feasibility with per-tile typed rejection reasons — never re-deciding types, never falling back to official generators as truth (D4 posture, guardrail G8 in `docs/system/libs/mapgen/policies/NORMALIZATION-GUARDRAILS.md`). (b) Engine readbacks are evidence-only: they verify outcomes (readback assertions, parity snapshots) and may project current engine surface state into a declared planning input, but they are never undeclared planning truth; planning consumes pipeline artifacts and policy tables. Remaining declared engine-surface reads (e.g. post-maintenance legality masks) are tracked for artifact-based reconstruction in the S6 slice.
+**Decision:** (a) The deterministic plan is the authority for typed intent: materializers stamp intents through the adapter and reconcile engine feasibility with per-tile typed rejection reasons — never re-deciding types, never falling back to official generators as truth (D4 posture, guardrail G8 in `docs/system/libs/mapgen/policies/NORMALIZATION-GUARDRAILS.md`). (b) Engine state readbacks are evidence-only: they verify outcomes (readback assertions, parity snapshots) and may project current engine surface state into a declared planning input, but they are never undeclared planning truth. Declared live policy queries may enter planning only through `EngineAdapter`; resource age requirement follows the closed admission rule in ADR-008. Remaining declared engine-surface reads (e.g. post-maintenance legality masks) are tracked for artifact-based reconstruction in the S6 slice.
 **Consequences:**
 - Shortfalls and rejections are recorded as typed outcomes instead of being silently rescued (no whole-map fallback, no least-used-type rebalance, no spacing decay).
 - Live-game proof compares plan vs engine state at milestone boundaries; per-slice proof runs on artifacts + mock policy emulation.
@@ -264,6 +263,46 @@ realization; no live-write endpoint or internal live-write state is retained.
 - Live mutation, rollback, formatting, gates, and commit readiness require a
   new explicit product and authority decision; they cannot grow out of the
   preview-only type by fallback.
+
+## ADR-012: One Nx graph owns a worktree output namespace
+
+**Status:** Accepted
+**Date:** 2026-07-13
+**Context:** Independent Nx invocations in one worktree rebuilt the same
+dependency outputs concurrently. One graph cleaned `mapgen-core/dist` while a
+second graph's SDK build was consuming it, producing a false missing-module
+failure. Nx task ordering, deduplication, and `parallelism` apply inside one
+graph; cache restoration can also replace declared outputs, so changing a
+bundler's clean flag alone cannot make independent graphs safe.
+**Decision:** A worktree is one mutable build-output namespace. All
+output-materializing targets needed for one proof run in one Nx invocation,
+where Nx owns dependency order, deduplication, caching, and parallelism. Do not
+start competing output-materializing graphs for routine proof; compose the
+required targets and edges into one graph. Each cached writer declares only the
+artifacts it writes, aggregate targets declare no outputs, destructive clean
+targets are uncached, and consumers depend on every generated artifact they
+read. Validation-only TypeScript checks disable composite and incremental state
+and own no build artifacts.
+
+Nx-owned Habitat targets are one-way graph leaves or dependency-only nodes.
+Local Habitat rules execute in one owner-local leaf; registered `runner:nx`
+rules become concrete sibling dependencies. Public owner and aggregate targets
+use `nx:noop` and never launch Habitat or another Nx scheduler.
+**Consequences:**
+- Swooper checks and tests compose their bundle, generated artifacts, recipe
+  artifacts, and dependency builds in one task graph. Its default and Studio
+  deployment pipelines remain intentionally exclusive modes over the generated
+  map artifacts and `mod/maps`.
+- Habitat, CLI, Studio, direct-control, and intelligence-bridge aggregate
+  targets no longer duplicate their phase targets' output ownership.
+- Direct-control bundle and declaration phases have disjoint cached outputs;
+  each phase cleans only its own files.
+- Separate output-materializing shell invocations or proof worktrees are not a concurrency
+  mechanism for one worktree. Global locks, blanket serialization, retries,
+  disabled cleaning, and source aliases are rejected because they either
+  duplicate Nx authority, hide missing task edges, or permit stale artifacts.
+- Routine proof does not require a temporary worktree. One native Nx graph owns
+  scheduling, cache restoration, failure propagation, and parallel execution.
 
 ## ADR-008: Hydrology owns canonical drainage routing
 

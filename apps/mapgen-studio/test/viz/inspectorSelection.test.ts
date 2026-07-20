@@ -36,23 +36,15 @@ function makeRef(overrides: Partial<RiverLakeInspectorLayerRef> = {}): RiverLake
   };
 }
 
-function makePorts(
-  stages: RiverLakeInspectorSelectionPorts["stages"]
-): RiverLakeInspectorSelectionPorts & {
-  setSelectedStageId: ReturnType<typeof vi.fn>;
-  setSelectedStepId: ReturnType<typeof vi.fn>;
-  setShowDebugLayers: ReturnType<typeof vi.fn>;
-  setVizSelectedStepId: ReturnType<typeof vi.fn>;
-  setVizSelectedLayerKey: ReturnType<typeof vi.fn>;
-} {
+function makePorts(stages: RiverLakeInspectorSelectionPorts["stages"]) {
   return {
     stages,
-    setSelectedStageId: vi.fn(),
-    setSelectedStepId: vi.fn(),
-    setShowDebugLayers: vi.fn(),
-    setVizSelectedStepId: vi.fn(),
-    setVizSelectedLayerKey: vi.fn(),
-  };
+    setSelectedStageId: vi.fn<(id: string) => void>(),
+    setSelectedStepId: vi.fn<(id: string) => void>(),
+    setShowDebugLayers: vi.fn<(show: boolean) => void>(),
+    setVizSelectedStepId: vi.fn<(id: string) => void>(),
+    setVizSelectedLayerKey: vi.fn<(key: string) => void>(),
+  } satisfies RiverLakeInspectorSelectionPorts;
 }
 
 const STAGES = [

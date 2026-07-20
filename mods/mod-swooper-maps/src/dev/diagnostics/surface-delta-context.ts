@@ -4,6 +4,7 @@ import {
   getNaturalWonderFootprintOffsets,
   isResourceAdjacentToLandRuntimeOptional,
   NATURAL_WONDER_CATALOG,
+  type NaturalWonderPlacementPolicy,
 } from "@civ7/map-policy";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
@@ -380,6 +381,7 @@ export type TerrainWaterClass = "coast" | "ocean" | "other-water" | "land" | "em
 
 export type TerrainProjectionRowContext = Readonly<{
   morphology: TerrainMorphologyProjectionRowContext | null;
+  shelf: TerrainShelfProjectionRowContext | null;
   mapMorphologyCoastPolicy: TerrainMapMorphologyCoastPolicyRowContext | null;
   mapMorphologyCoastTerrainSnapshot: TerrainProjectionSnapshotRowContext | null;
   mapMorphologyContinentValidationSnapshot: TerrainProjectionSnapshotRowContext | null;
@@ -396,7 +398,13 @@ export type TerrainProjectionRowContext = Readonly<{
 export type TerrainMorphologyProjectionRowContext = Readonly<{
   coastalLand: number | null;
   coastalWater: number | null;
+  distanceToCoast: number | null;
+}>;
+
+export type TerrainShelfProjectionRowContext = Readonly<{
   shelfMask: number | null;
+  coastalLand: number | null;
+  coastalWater: number | null;
   distanceToCoast: number | null;
 }>;
 
@@ -502,7 +510,7 @@ const BIOME_SYMBOL_BY_ID = invertNumberMap(CIV7_BROWSER_TABLES_V0.biomeGlobals);
 const FEATURE_SYMBOL_BY_ID = invertNumberMap(CIV7_BROWSER_TABLES_V0.featureTypes);
 const RESOURCE_SYMBOL_BY_ID = invertNumberMap(CIV7_BROWSER_TABLES_V0.resourceTypes);
 
-const WATER_TERRAINS = new Set([
+const WATER_TERRAINS: ReadonlySet<number> = new Set([
   CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
   CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_OCEAN,
 ]);
@@ -600,7 +608,7 @@ export function buildNaturalWonderFootprintReadbackContexts(
   report: Pick<FinalSurfaceParityReport, "local" | "live">
 ): ReadonlyArray<NaturalWonderFootprintReadbackContext> {
   return readNaturalWonderPlacementEvidence(report.local).placements.map((placement) => {
-    const policy = CIV7_BROWSER_TABLES_V0.featurePolicies[String(placement.featureType)] ?? {};
+    const policy = naturalWonderPolicy(placement.featureType);
     const candidates = [0, 1, 2, 3, 4, 5].flatMap((direction) => {
       const footprintPlotIndexes = getNaturalWonderFootprintIndices({
         x: placement.anchorX,
@@ -688,7 +696,7 @@ export function buildNaturalWonderFootprintCatalogContexts(
   }
 
   return NATURAL_WONDER_CATALOG.map((entry) => {
-    const policy = CIV7_BROWSER_TABLES_V0.featurePolicies[String(entry.featureType)] ?? {};
+    const policy = naturalWonderPolicy(entry.featureType);
     const naturalWonderTiles = Math.max(1, Math.trunc(numberValue(policy.naturalWonderTiles) ?? 1));
     const localProjectionDirection = normalizeDirectionForReadback(entry.direction);
     const localProjectionOffsets = [
@@ -1029,11 +1037,17 @@ function addFeatureSurfaceReasons(
   featureType: number,
   context: CellSurfaceContext
 ): void {
-  const terrainRows = CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices[String(featureType)];
+  const terrainRows = numberArrayEntry(
+    CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices,
+    String(featureType)
+  );
   if (terrainRows?.length && !terrainRows.includes(context.terrain ?? -1)) {
     reasons.push("feature.terrain");
   }
-  const biomeRows = CIV7_BROWSER_TABLES_V0.featureValidBiomeTypeIndices[String(featureType)];
+  const biomeRows = numberArrayEntry(
+    CIV7_BROWSER_TABLES_V0.featureValidBiomeTypeIndices,
+    String(featureType)
+  );
   if (biomeRows?.length && !biomeRows.includes(context.biome ?? -1)) {
     reasons.push("feature.biome");
   }
@@ -1109,8 +1123,8 @@ function classifyFeatureDelta(
 }
 
 function isNaturalWonderFeature(featureType: number): boolean {
-  const policy = CIV7_BROWSER_TABLES_V0.featurePolicies[String(featureType)];
-  return typeof policy?.naturalWonderTiles === "number" && policy.naturalWonderTiles > 0;
+  const policy = naturalWonderPolicy(featureType);
+  return typeof policy.naturalWonderTiles === "number" && policy.naturalWonderTiles > 0;
 }
 
 function readFeatureIntentEvidence(snapshot: FinalSurfaceSnapshot): {
@@ -1150,7 +1164,7 @@ function readNaturalWonderFootprintEvidence(snapshot: FinalSurfaceSnapshot): {
       y: placement.anchorY,
       width: snapshot.width,
       height: snapshot.height,
-      policy: CIV7_BROWSER_TABLES_V0.featurePolicies[String(placement.featureType)] ?? {},
+      policy: naturalWonderPolicy(placement.featureType),
       direction: placement.direction,
     }) ?? [placement.anchorPlotIndex];
     for (const plotIndex of footprint) {
@@ -1234,7 +1248,7 @@ function buildNaturalWonderDirectionAlternatives(
     )[0];
   if (!placement) return null;
   const pairedPlotIndex = pairedSameFeatureDelta?.plotIndex ?? null;
-  const policy = CIV7_BROWSER_TABLES_V0.featurePolicies[String(featureType)] ?? {};
+  const policy = naturalWonderPolicy(featureType);
   const candidates = [0, 1, 2, 3, 4, 5].flatMap((direction) => {
     const footprintPlotIndexes = getNaturalWonderFootprintIndices({
       x: placement.anchorX,
@@ -1458,7 +1472,7 @@ function addResourceSurfaceReasons(
   resourceType: number,
   context: CellSurfaceContext
 ): void {
-  const rows = CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows[String(resourceType)];
+  const rows = resourcePlacementRows(resourceType);
   if (!rows?.length) {
     reasons.push("resource.unknown");
     return;
@@ -1468,7 +1482,7 @@ function addResourceSurfaceReasons(
       row[0] === context.biome && row[1] === context.terrain && row[2] === (context.feature ?? -1)
   );
   if (!surfaceMatches) reasons.push("resource.surface");
-  const flags = CIV7_BROWSER_TABLES_V0.resourcePlacementFlags[String(resourceType)];
+  const flags = resourcePlacementFlags(resourceType);
   if (
     flags?.adjacentToLand &&
     !isResourceAdjacentToLandRuntimeOptional(resourceType) &&
@@ -1485,7 +1499,7 @@ function resourceStaticPolicyContext(
   resourceType: number,
   context: CellSurfaceContext
 ): ResourceStaticPolicyContext {
-  const rows = CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows[String(resourceType)] ?? [];
+  const rows = resourcePlacementRows(resourceType);
   const matchingRows = rows
     .filter(
       (row) =>
@@ -1499,7 +1513,7 @@ function resourceStaticPolicyContext(
       feature: row[2] < 0 ? null : row[2],
       featureSymbol: symbolFor("feature", row[2] < 0 ? null : row[2]),
     }));
-  const flags = CIV7_BROWSER_TABLES_V0.resourcePlacementFlags[String(resourceType)];
+  const flags = resourcePlacementFlags(resourceType);
   return {
     matchingRows,
     flags:
@@ -1868,9 +1882,8 @@ function projectionSnapshotRowContext(
 
 function indexedInteger(value: unknown, index: number): number | null {
   if (Array.isArray(value)) return finiteInteger(value[index]);
-  if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
-    return finiteInteger((value as ArrayLike<number>)[index]);
-  }
+  const numericValues = numericTypedArrayValues(value);
+  if (numericValues !== undefined) return finiteInteger(numericValues[index]);
   if (isRecord(value)) return finiteInteger(value[String(index)]);
   return null;
 }
@@ -2086,6 +2099,81 @@ function readCoordinateDigest(
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function recordEntry(value: unknown, key: string): unknown {
+  return isRecord(value) ? value[key] : undefined;
+}
+
+function numberArrayEntry(value: unknown, key: string): readonly number[] {
+  const entry = recordEntry(value, key);
+  return Array.isArray(entry)
+    ? entry.filter((item): item is number => typeof item === "number")
+    : [];
+}
+
+function naturalWonderPolicy(featureType: number): NaturalWonderPlacementPolicy {
+  const value = recordEntry(CIV7_BROWSER_TABLES_V0.featurePolicies, String(featureType));
+  if (!isRecord(value)) return {};
+  const placementClass =
+    typeof value.placementClass === "string" ? value.placementClass : undefined;
+  const naturalWonderTiles = numberValue(value.naturalWonderTiles);
+  const naturalWonderDirection = numberValue(value.naturalWonderDirection);
+  return {
+    ...(placementClass === undefined ? {} : { placementClass }),
+    ...(naturalWonderTiles === null ? {} : { naturalWonderTiles }),
+    ...(naturalWonderDirection === null ? {} : { naturalWonderDirection }),
+  };
+}
+
+function resourcePlacementRows(
+  resourceType: number
+): ReadonlyArray<readonly [number, number, number]> {
+  const value = recordEntry(
+    CIV7_BROWSER_TABLES_V0.resourceValidPlacementRows,
+    String(resourceType)
+  );
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((row) => {
+    if (!Array.isArray(row)) return [];
+    const biome = numberValue(row[0]);
+    const terrain = numberValue(row[1]);
+    const feature = numberValue(row[2]);
+    if (biome === null || terrain === null || feature === null) return [];
+    const parsed: readonly [number, number, number] = [biome, terrain, feature];
+    return [parsed];
+  });
+}
+
+function resourcePlacementFlags(
+  resourceType: number
+): Readonly<{ adjacentToLand: boolean; lakeEligible: boolean }> | undefined {
+  const value = recordEntry(CIV7_BROWSER_TABLES_V0.resourcePlacementFlags, String(resourceType));
+  if (
+    !isRecord(value) ||
+    typeof value.adjacentToLand !== "boolean" ||
+    typeof value.lakeEligible !== "boolean"
+  ) {
+    return undefined;
+  }
+  return { adjacentToLand: value.adjacentToLand, lakeEligible: value.lakeEligible };
+}
+
+function numericTypedArrayValues(value: unknown): number[] | undefined {
+  if (
+    value instanceof Int8Array ||
+    value instanceof Uint8Array ||
+    value instanceof Uint8ClampedArray ||
+    value instanceof Int16Array ||
+    value instanceof Uint16Array ||
+    value instanceof Int32Array ||
+    value instanceof Uint32Array ||
+    value instanceof Float32Array ||
+    value instanceof Float64Array
+  ) {
+    return Array.from(value);
+  }
+  return undefined;
 }
 
 function surfaceValue(

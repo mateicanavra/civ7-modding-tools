@@ -1,5 +1,7 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -18,11 +20,19 @@ const MorphologyRoutingArtifactSchema = Type.Object(
       })
     ),
   },
-  { description: "Morphology routing buffer handle (publish once)." }
+  {
+    description:
+      "Immutable Morphology drainage routing snapshot with one receiver and accumulation value per tile.",
+  }
 );
 
+/** Runtime schema for publish-once receivers, accumulation, and basin assignments. */
 export const Schema = MorphologyRoutingArtifactSchema;
 
+/**
+ * Registers publish-once drainage routing: each tile's receiver, accumulation,
+ * and optional basin assignment for erosion and Hydrology consumers.
+ */
 export const artifact = defineArtifact({
   name: "routing",
   id: "artifact:morphology.routing",
@@ -35,53 +45,41 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
-
 function validatePayload(
   value: unknown,
-  dimensions: NonNullable<ArtifactValidationContext["dimensions"]>
+  context?: ArtifactValidationContext
 ): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isRecord(value)) {
-    errors.push({ message: "Missing routing buffer." });
+    if (context?.dimensions) {
+      errors.push({ message: "Missing routing artifact value." });
+    }
     return errors;
   }
-  const size = expectedSize(dimensions);
+  const size = artifactCellCount(context);
   const candidate = value as { flowDir?: unknown; flowAccum?: unknown; basinId?: unknown };
-  validateTypedArray(errors, "routing.flowDir", candidate.flowDir, Int32Array, size);
-  validateTypedArray(errors, "routing.flowAccum", candidate.flowAccum, Float32Array, size);
-  if (candidate.basinId != null) {
-    validateTypedArray(errors, "routing.basinId", candidate.basinId, Int32Array, size);
+  appendArtifactTypedArrayIssues(errors, "routing.flowDir", candidate.flowDir, Int32Array, size);
+  appendArtifactTypedArrayIssues(
+    errors,
+    "routing.flowAccum",
+    candidate.flowAccum,
+    Float32Array,
+    size
+  );
+  if (candidate.basinId !== undefined) {
+    appendArtifactTypedArrayIssues(errors, "routing.basinId", candidate.basinId, Int32Array, size);
   }
   return errors;
 }
 
+/**
+ * Validates routing array kinds and, when dimensions are supplied, exact
+ * map-sized cardinality; `-1` receiver/basin sentinels remain schema values.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext
 ): readonly { message: string }[] {
   const schemaIssues = validateArtifactSchema(Schema, value);
-  if (!context?.dimensions) return schemaIssues;
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context.dimensions)]);
+  return Object.freeze([...schemaIssues, ...validatePayload(value, context)]);
 }

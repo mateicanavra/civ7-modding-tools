@@ -1,5 +1,12 @@
 {
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "name": "plugin-mods",
-  "tags": ["kind:plugin"]
+  "tags": ["kind:plugin"],
+  "targets": {
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
+    }
+  }
 }

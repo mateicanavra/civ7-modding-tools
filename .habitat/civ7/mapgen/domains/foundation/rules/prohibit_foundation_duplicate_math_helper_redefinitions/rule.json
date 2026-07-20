@@ -34,7 +34,7 @@
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts",
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts",
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts"
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts"
   ],
   "hookCheck": true,
   "supportFiles": {

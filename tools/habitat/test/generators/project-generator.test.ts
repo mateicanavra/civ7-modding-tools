@@ -1,6 +1,7 @@
 import { projectGenerator } from "@habitat/cli/generators/scaffold/project/support/generator";
 import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
+import sortPackageJson from "sort-package-json";
 import { describe, expect, test } from "vitest";
 
 describe("Habitat project generator", () => {
@@ -15,15 +16,26 @@ describe("Habitat project generator", () => {
     expect(packageJson).toMatchObject({
       name: "plugin-rules",
       scripts: {
-        build: "tsc -p tsconfig.json",
-        check: "tsc -p tsconfig.json --noEmit",
+        build: "tsc -p tsconfig.json --composite false --incremental false",
+        typecheck: "tsc -p tsconfig.json --noEmit --composite false --incremental false",
         test: "bun test",
       },
     });
+    expect(Object.keys(packageJson)).toEqual(Object.keys(sortPackageJson(packageJson)));
+    expect(Object.keys(packageJson.scripts)).toEqual(
+      Object.keys(sortPackageJson(packageJson).scripts)
+    );
     expect(readJson(tree, "packages/plugins/plugin-rules/project.json")).toEqual({
       $schema: "../../../node_modules/nx/schemas/project-schema.json",
       name: "plugin-rules",
       tags: ["kind:plugin"],
+      targets: {
+        check: {
+          executor: "nx:noop",
+          cache: false,
+          outputs: [],
+        },
+      },
     });
   });
 

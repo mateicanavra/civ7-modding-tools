@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import foundation from "@mapgen/domain/foundation";
-import TectonicsStepContract from "../../../../../src/recipes/standard/stages/foundation-tectonics/steps/tectonics.contract.js";
+import { TectonicsStepContract } from "../../../../../src/recipes/standard/stages/foundation-tectonics/steps/tectonics/config.js";
 
 describe("foundation tectonics contracts", () => {
   it("binds the authored tectonics operation set to foundation contracts", () => {

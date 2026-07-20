@@ -23,7 +23,11 @@ import {
   isClimateExtreme,
 } from "../policy/climate-comfort.js";
 import { balanceFairness } from "../policy/fairness.js";
-import { buildSeatIdentities } from "../policy/seat-identity.js";
+import {
+  buildSeatIdentities,
+  resolveSeatDemand,
+  type SeatDemand,
+} from "../policy/seat-identity.js";
 import {
   compareSelectableTiles,
   type RelaxationEntry,
@@ -71,20 +75,23 @@ const ZERO_COMPONENTS: StartComponents = {
 };
 
 function emptyPlan(args: {
-  playersLandmass1: number;
-  playersLandmass2: number;
+  playersWest: number;
+  playersEast: number;
+  seatDemand: SeatDemand;
   spacingFloorTiles: number;
   desiredSpacingTiles: number;
   fairnessTolerance: number;
 }) {
   const seats = buildSeatIdentities({
-    playersWest: Math.max(0, args.playersLandmass1 | 0),
-    playersEast: Math.max(0, args.playersLandmass2 | 0),
+    playersWest: args.playersWest,
+    playersEast: args.playersEast,
+    demand: args.seatDemand,
   }).map((seat) => ({
     seatIndex: seat.seatIndex,
     playerId: seat.playerId,
     playerIdSource: seat.playerIdSource,
     regionSlot: seat.regionSlot as number,
+    realizedRegionSlot: 0,
     plotIndex: -1,
     rung: "spacing-relaxed" as const,
     status: "degraded" as const,
@@ -95,8 +102,8 @@ function emptyPlan(args: {
     imputedFlags: ["unseated"],
   }));
   return {
-    playersLandmass1: args.playersLandmass1,
-    playersLandmass2: args.playersLandmass2,
+    playersLandmass1: args.playersWest,
+    playersLandmass2: args.playersEast,
     spacingFloorTiles: args.spacingFloorTiles,
     desiredSpacingTiles: args.desiredSpacingTiles,
     width: 0,
@@ -341,10 +348,19 @@ function percentileRanks(values: readonly number[]): number[] {
   return ranks;
 }
 
+/**
+ * Runs deterministic start planning over typed map evidence: scores settleable candidates,
+ * applies the four-rung regional selection ladder, and balances cross-seat fairness. Missing
+ * optional evidence is recorded as imputation, while every region, quality, and spacing
+ * relaxation remains explicit in the result.
+ */
 export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
   run: (input, config) => {
-    const playersLandmass1 = Math.max(0, input.baseStarts.playersLandmass1 | 0);
-    const playersLandmass2 = Math.max(0, input.baseStarts.playersLandmass2 | 0);
+    const westSlotCapacity = Math.max(0, input.baseStarts.playersLandmass1 | 0);
+    const eastSlotCapacity = Math.max(0, input.baseStarts.playersLandmass2 | 0);
+    const seatDemand = resolveSeatDemand(westSlotCapacity + eastSlotCapacity, input.alivePlayerIds);
+    const totalPlayers =
+      seatDemand.kind === "alive-majors" ? seatDemand.playerIds.length : seatDemand.count;
     const spacingFloorTiles = Math.max(0, config.spacingFloorTiles | 0);
     const desiredSpacingTiles = Math.max(spacingFloorTiles, config.desiredSpacingTiles | 0);
 
@@ -352,9 +368,16 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
     const height = Math.max(0, input.height ?? 0) | 0;
     const size = Math.max(0, width * height);
     if (width <= 0 || height <= 0 || size <= 0) {
+      const allocation = apportionStartsByCapacity({
+        capacities: [westSlotCapacity, eastSlotCapacity],
+        ceilings: [westSlotCapacity, eastSlotCapacity],
+        total: totalPlayers,
+        balanceBias: 0,
+      });
       return emptyPlan({
-        playersLandmass1,
-        playersLandmass2,
+        playersWest: allocation[0]!,
+        playersEast: allocation[1]!,
+        seatDemand,
         spacingFloorTiles,
         desiredSpacingTiles,
         fairnessTolerance: config.fairnessTolerance,
@@ -703,7 +726,6 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
       if (slot === 1) landBySlot1 += 1;
       else if (slot === 2) landBySlot2 += 1;
     }
-    const totalPlayers = playersLandmass1 + playersLandmass2;
     const allocation = apportionStartsByCapacity({
       capacities: [candidatesBySlot[1], candidatesBySlot[2]],
       ceilings: [
@@ -731,7 +753,7 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
     const seatIdentities = buildSeatIdentities({
       playersWest,
       playersEast,
-      alivePlayerIds: input.alivePlayerIds,
+      demand: seatDemand,
     });
 
     // Region reassignment (recorded, never silent): a residual guard for any
@@ -742,16 +764,16 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
     const preLadderRelaxations: RelaxationEntry[] = [];
     const reassignedSeats = new Set<number>();
     for (const seat of seatIdentities) {
-      const own = candidatesBySlot[seat.regionSlot];
-      const other = (seat.regionSlot === 1 ? 2 : 1) as 1 | 2;
+      const own = candidatesBySlot[seat.selectionRegionSlot];
+      const other = (seat.selectionRegionSlot === 1 ? 2 : 1) as 1 | 2;
       if (own === 0 && candidatesBySlot[other] > 0) {
         preLadderRelaxations.push({
           seatIndex: seat.seatIndex,
           kind: "region",
-          from: seat.regionSlot,
+          from: seat.selectionRegionSlot,
           to: other,
         });
-        seat.regionSlot = other;
+        seat.selectionRegionSlot = other;
         reassignedSeats.add(seat.seatIndex);
       }
     }
@@ -782,7 +804,10 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
       selections: ladder.selections,
       swapPoolsOf: (selection: SeatSelection) =>
         selection.rung === "regional"
-          ? [candidates.filter((tile) => tile.regionSlot === selection.seat.regionSlot), candidates]
+          ? [
+              candidates.filter((tile) => tile.regionSlot === selection.seat.selectionRegionSlot),
+              candidates,
+            ]
           : [candidates],
       width,
       spacingFloorTiles,
@@ -827,6 +852,7 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
         playerId: entry.seat.playerId,
         playerIdSource: entry.seat.playerIdSource,
         regionSlot: entry.seat.regionSlot as number,
+        realizedRegionSlot: seated ? entry.tile!.regionSlot : 0,
         rung: entry.rung,
         plotIndex: seated ? entry.tile!.plotIndex : -1,
         status:

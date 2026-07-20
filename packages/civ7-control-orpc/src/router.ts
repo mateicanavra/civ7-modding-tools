@@ -6,6 +6,7 @@ import { cityRouter } from "./modules/city/router";
 import { diplomacyRouter } from "./modules/diplomacy/router";
 import { displayRouter } from "./modules/display/router";
 import { governmentRouter } from "./modules/government/router";
+import { lifecycleRouter } from "./modules/lifecycle/router";
 import { narrativeRouter } from "./modules/narrative/router";
 import { notificationsRouter } from "./modules/notifications/router";
 import { progressionRouter } from "./modules/progression/router";
@@ -17,20 +18,20 @@ import { viewRouter } from "./modules/view/router";
 import { worldRouter } from "./modules/world/router";
 import { civ7ControlOrpcImplementer } from "./procedure";
 
-export const Civ7ControlOrpcRouter: Router<typeof Civ7ControlOrpcContract, Civ7ControlOrpcContext> =
-  civ7ControlOrpcImplementer.router({
-    attention: attentionRouter,
-    city: cityRouter,
-    diplomacy: diplomacyRouter,
-    display: displayRouter,
-    government: governmentRouter,
-    narrative: narrativeRouter,
-    notifications: notificationsRouter,
-    progression: progressionRouter,
-    readiness: readinessRouter,
-    strategy: strategyRouter,
-    turn: turnRouter,
-    unit: unitRouter,
-    view: viewRouter,
-    world: worldRouter,
-  });
+export const Civ7ControlOrpcRouter = civ7ControlOrpcImplementer.router({
+  attention: attentionRouter,
+  city: cityRouter,
+  diplomacy: diplomacyRouter,
+  display: displayRouter,
+  government: governmentRouter,
+  lifecycle: lifecycleRouter,
+  narrative: narrativeRouter,
+  notifications: notificationsRouter,
+  progression: progressionRouter,
+  readiness: readinessRouter,
+  strategy: strategyRouter,
+  turn: turnRouter,
+  unit: unitRouter,
+  view: viewRouter,
+  world: worldRouter,
+}) satisfies Router<typeof Civ7ControlOrpcContract, Civ7ControlOrpcContext>;

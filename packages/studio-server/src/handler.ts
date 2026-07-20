@@ -1,15 +1,31 @@
-import { type Civ7ControlOrpcContext, Civ7ControlOrpcRouter } from "@civ7/control-orpc";
+import {
+  Civ7ControlOrpcAdmissionRefusal,
+  type Civ7ControlOrpcContext,
+  Civ7ControlOrpcRouter,
+} from "@civ7/control-orpc";
 import type { StudioEffectContract } from "@civ7/studio-contract";
-import { isDefinedError, onError, type Router } from "@orpc/server";
+import {
+  createRouterClient,
+  isDefinedError,
+  isLazy,
+  onError,
+  type Router,
+  type RouterClient,
+} from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import type { StudioServerContext } from "./context.js";
 import type { StudioContract } from "./contract/index.js";
-import { type LiveGameWatcherOptions, StudioLiveGameWatcher } from "./liveGame/watcher.js";
+import type { LiveGameWatcherOptions } from "./liveGame/watcher.js";
 import { type StudioDaemonIdentity, StudioOperationRuntime } from "./operationRuntime/index.js";
-import { createStudioRouter } from "./router/index.js";
+import { createStudioRouter, type StudioRouter } from "./router/index.js";
 import { makeStudioRuntime } from "./runtime.js";
-import { Civ7TunerSession, type Civ7TunerSessionHealth } from "./services/Civ7TunerSession.js";
+import {
+  type Civ7TunerAdmissionError,
+  Civ7TunerSession,
+  type Civ7TunerSessionApi,
+  type Civ7TunerSessionHealth,
+} from "./services/Civ7TunerSession.js";
 
 /**
  * `createStudioRpcHandler(context)` — the host entrypoint for the ONE oRPC
@@ -25,7 +41,9 @@ import { Civ7TunerSession, type Civ7TunerSessionHealth } from "./services/Civ7Tu
  *
  * Session sharing is STRUCTURAL: the control procedures' per-request context
  * is built here from `context.civ7Control` plus the runtime's shared
- * `Civ7TunerSession`, resolved once and memoized. The session object is
+ * `Civ7TunerSession`, resolved once and memoized. Its session and whole-
+ * procedure admission lease flow together, so the merged control router cannot
+ * bypass Studio reads, lifecycle ownership, or the backoff gate. The session is
  * acquired UNCONNECTED (`connect()` runs on first command and is
  * reuse-idempotent), so constructing the handler — including in tests — opens
  * no socket. There is no session-extraction port anymore; the former
@@ -53,8 +71,15 @@ export interface StudioRpcHandle {
   readonly operationRuntime: {
     identity(): Promise<StudioDaemonIdentity>;
   };
+  readonly live: StudioLiveRuntimeReader;
   dispose(): Promise<void>;
 }
+
+/** Narrow in-process read surface over the exact Studio router and runtime. */
+export type StudioLiveRuntimeReader = Pick<
+  RouterClient<StudioRouter>["civ7"]["live"],
+  "status" | "snapshot"
+>;
 
 export interface StudioRpcHandlerOptions {
   liveGameWatch?: LiveGameWatcherOptions;
@@ -70,10 +95,11 @@ export function createStudioRpcHandler(
   // contains lazy nodes (no `lazy()` anywhere in the builder), so unwrap the
   // `civ7` node for the spread — the single-mount contract pin exercises both
   // merged halves at runtime.
-  const studioCiv7 = effectRouter.civ7 as Router<
-    StudioEffectContract["civ7"],
-    Record<never, never>
-  >;
+  const studioCiv7Node = effectRouter.civ7;
+  const studioCiv7 = Match.value(studioCiv7Node).pipe(
+    Match.when(isLazy, unexpectedLazyStudioNamespace),
+    Match.orElse((router) => router)
+  );
   // The unified router, typed against the unified contract with the control
   // procedures' initial context. The effect procedures' initial context is
   // `Record<never, never>` — contravariantly assignable (they ignore the
@@ -87,57 +113,75 @@ export function createStudioRpcHandler(
   };
   const handler = new RPCHandler(router, {
     interceptors: [
-      onError((error) => {
-        // Surface unexpected (non-ORPCError) defects in the host console; expected
-        // status-mapped errors flow through quietly.
-        if (isDefinedError(error)) return;
-        console.error("[studio-server] rpc error", error);
-      }),
+      // Surface unexpected (non-ORPCError) defects in the host console; expected
+      // status-mapped errors flow through quietly.
+      onError((error) =>
+        Match.value(error).pipe(
+          Match.when(isDefinedError, () => undefined),
+          Match.orElse((defect) => console.error("[studio-server] rpc error", defect))
+        )
+      ),
     ],
   });
 
-  // The ONE shared tuner session, memoized for the handler's lifetime. The
-  // runtime layer builds on first resolution; lifecycle stays with the
+  // The ONE shared tuner service, memoized for the handler's lifetime. The
+  // runtime layer builds on first resolution; connection lifecycle stays with the
   // runtime scope (dispose() runs the release finalizer). A rejection clears
   // the memo so the next request retries instead of serving a cached failure
   // forever (today the only rejection path is deterministic env misconfig —
   // the session object itself is acquired without I/O — but the memo must
   // not be the thing that makes a failure sticky).
-  let sessionPromise: Promise<Civ7ControlOrpcContext["endpointDefaults"]> | undefined;
+  let tunerPromise: Promise<Civ7TunerSessionApi> | undefined;
   let liveGameWatcherReady: Promise<void> | undefined;
-  const ensureLiveGameWatcher = () => {
-    if (options.liveGameWatch === undefined) return Promise.resolve();
-    return (liveGameWatcherReady ??= runtime
-      .runPromise(StudioLiveGameWatcher)
-      .then(() => undefined)
-      .catch((error: unknown) => {
-        liveGameWatcherReady = undefined;
-        console.error("[studio-server] failed to acquire live-game watcher", error);
-        throw error;
-      }));
-  };
+  const ensureLiveGameWatcher = () =>
+    Match.value(options.liveGameWatch).pipe(
+      Match.when(undefined, () => Promise.resolve()),
+      Match.orElse(
+        () =>
+          (liveGameWatcherReady ??= runtime
+            .runPromise(Effect.void)
+            .then(() => undefined)
+            .catch((error: unknown) => {
+              liveGameWatcherReady = undefined;
+              console.error("[studio-server] failed to initialize live-game watcher", error);
+              throw error;
+            }))
+      )
+    );
 
-  const controlEndpointDefaults = () =>
-    (sessionPromise ??= runtime
-      .runPromise(Effect.map(Civ7TunerSession, (tuner) => tuner.session))
-      .then((session) => ({
-        timeoutMs: context.civ7Control.timeoutMs,
-        session,
-      }))
+  const controlTuner = () =>
+    (tunerPromise ??= runtime
+      .runPromise(Effect.map(Civ7TunerSession, (tuner) => tuner))
       .catch((error: unknown) => {
-        sessionPromise = undefined;
+        tunerPromise = undefined;
         throw error;
       }));
+  const controlContext = async (): Promise<Civ7ControlOrpcContext> => {
+    const tuner = await controlTuner();
+    return {
+      directControl: context.civ7Control.directControl,
+      // Studio's operation runtime is the sole setup/start admission owner.
+      // The merged router intentionally cannot acquire lifecycle mutation.
+      endpointDefaults: {
+        timeoutMs: context.civ7Control.timeoutMs,
+        session: tuner.session,
+      },
+      procedureAdmission: (procedure) => {
+        const admittedLease = tuner.lease.pipe(Effect.mapError(tunerAdmissionRefusal));
+        return Effect.uninterruptibleMask((restoreLease) =>
+          Effect.scoped(restoreLease(admittedLease).pipe(Effect.flatMap(() => procedure)))
+        );
+      },
+    };
+  };
+  const localClient = createRouterClient(router, { context: controlContext });
 
   return {
     handle: async (request, options) => {
       await ensureLiveGameWatcher();
       return handler.handle(request, {
         prefix: options?.prefix ?? "/rpc",
-        context: {
-          directControl: context.civ7Control.directControl,
-          endpointDefaults: await controlEndpointDefaults(),
-        } satisfies Civ7ControlOrpcContext,
+        context: await controlContext(),
       });
     },
     tuner: {
@@ -151,8 +195,29 @@ export function createStudioRpcHandler(
           )
         ),
     },
+    live: {
+      status: (...args) =>
+        ensureLiveGameWatcher().then(() => localClient.civ7.live.status(...args)),
+      snapshot: (...args) =>
+        ensureLiveGameWatcher().then(() => localClient.civ7.live.snapshot(...args)),
+    },
     dispose: async () => {
       await runtime.dispose();
     },
   };
+}
+
+function tunerAdmissionRefusal(error: Civ7TunerAdmissionError): Civ7ControlOrpcAdmissionRefusal {
+  return Match.value(error).pipe(
+    Match.tag(
+      "Civ7TunerBackoffError",
+      ({ retryAtMs }) => new Civ7ControlOrpcAdmissionRefusal(retryAtMs)
+    ),
+    Match.tag("Civ7TunerClosingError", () => new Civ7ControlOrpcAdmissionRefusal()),
+    Match.exhaustive
+  );
+}
+
+function unexpectedLazyStudioNamespace(): never {
+  throw new Error("The authored Studio router must not contain lazy namespaces");
 }

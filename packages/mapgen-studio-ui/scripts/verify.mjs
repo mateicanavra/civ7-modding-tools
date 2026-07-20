@@ -24,9 +24,9 @@ const dist = (p) => join(pkgRoot, "dist", p);
 // DropdownMenu×15, Input, Label, Popover×4, ScrollArea+ScrollBar, Select×10,
 // Separator, Toaster, Switch, Tabs×4, Textarea, Tooltip×4) + FieldRow +
 // cn + useResolvedTheme + resolveThemeFromDom + LAYOUT = 63.
-// B3 (composites + layout 14): AppBrand, AppFooter, StageViewTabs,
+// B3 (composites + layout): AppBrand, AppFooter, StageViewTabs,
 // ViewControls, WaterStatsSection, OptionSelect, DisclosureHeader, EmptyState,
-// ErrorBanner, PresetErrorDialog, PresetSaveDialog, PresetConfirmDialog,
+// ErrorBanner, MapConfigSaveDialog,
 // LeftDock, RightDock = 77.
 // B4 (forms 11 + engine): TextWidget, TextareaWidget, NumberWidget,
 // SelectWidget, CheckboxWidget, SwitchWidget, TagSelectWidget, configWidgets,
@@ -42,9 +42,9 @@ const dist = (p) => join(pkgRoot, "dist", p);
 // stay internal — package tests import them relatively.)
 // B6 (AppHeader, E4a redesign): AppHeader = 100. (AppHeaderProps /
 // AppHeaderSetupState are type-only — no runtime export.)
-// Operating-model wave (templates group): StudioShellLayout = 101.
+// Operating-model wave (templates group): StudioShellLayout = 98.
 // (StudioShellGeometry / StudioShellLayoutProps are type-only.)
-const EXPECTED_MIN_EXPORTS = 101;
+const EXPECTED_MIN_EXPORTS = 98;
 
 const failures = [];
 const assert = (cond, msg) => {
@@ -56,6 +56,7 @@ assert(existsSync(dist("index.js")), "dist/index.js missing — tsup did not run
 if (existsSync(dist("index.js"))) {
   const entry = await import(dist("index.js"));
   const exportCount = Object.keys(entry).length;
+  assert("MapConfigSaveDialog" in entry, "dist/index.js lacks MapConfigSaveDialog");
   assert(
     exportCount >= EXPECTED_MIN_EXPORTS,
     `dist/index.js has ${exportCount} exports, expected >= ${EXPECTED_MIN_EXPORTS}`

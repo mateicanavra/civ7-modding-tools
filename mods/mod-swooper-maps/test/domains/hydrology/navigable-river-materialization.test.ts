@@ -187,6 +187,8 @@ describe("select navigable river terrain", () => {
     expect(result.plannedMinorRiverTileCount).toBe(6);
     expect(result.plannedMajorRiverTileCount).toBe(0);
     expect(result.eligibleTileCount).toBe(0);
+    expect(result.selectedEndpointDischargeFloor).toBe(0);
+    expect(Number.isFinite(result.selectedEndpointDischargeFloor)).toBe(true);
     expect(result.selectedTileCount).toBe(0);
     expect(Array.from(result.selectedChainLengths)).toEqual([]);
     expect(result.longestSelectedChainLength).toBe(0);
@@ -304,6 +306,8 @@ describe("select navigable river terrain", () => {
     );
 
     expect(result.candidateEndpointCount).toBe(0);
+    expect(result.selectedEndpointDischargeFloor).toBe(0);
+    expect(Number.isFinite(result.selectedEndpointDischargeFloor)).toBe(true);
     expect(result.selectedChainCount).toBe(0);
     expect(result.selectedTileCount).toBe(0);
     expect(Array.from(result.riverMask)).toEqual([0, 0, 0, 0]);

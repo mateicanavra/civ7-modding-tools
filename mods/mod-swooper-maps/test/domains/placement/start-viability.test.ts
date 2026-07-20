@@ -1,34 +1,29 @@
 import { describe, expect, it } from "bun:test";
 import placementDomain from "@mapgen/domain/placement/ops";
-import { runOpValidated } from "../../support/compiler-helpers.js";
+import type { Static } from "@swooper/mapgen-core/authoring";
+import { runOpValidated, validateSchemaValueOrThrow } from "../../support/compiler-helpers.js";
 
 const { planStarts } = placementDomain.ops;
 
-type StartInput = {
-  baseStarts: {
-    playersLandmass1: number;
-    playersLandmass2: number;
-  };
-  alivePlayerIds?: number[];
-  seatBiases?: Array<{ seatIndex: number; river: number; lake: number; adjacentToCoast: number }>;
-  width: number;
-  height: number;
-  landMask: Uint8Array;
-  slotByTile: Uint8Array;
-  landmassIdByTile: Int32Array;
-  landmassTileCounts: number[];
-  coastalLand: Uint8Array;
-  distanceToCoast: Uint16Array;
-  shelfMask: Uint8Array;
-  elevation: Int16Array;
-  fertility: Float32Array;
-  effectiveMoisture: Float32Array;
-  surfaceTemperature: Float32Array;
-  aridityIndex: Float32Array;
-  riverClass: Uint8Array;
-  lakeMask: Uint8Array;
-  plannedResourcePlotIndices?: number[];
-};
+type PlanStartsInput = Static<(typeof planStarts)["input"]>;
+type StartInputField =
+  | "width"
+  | "height"
+  | "landMask"
+  | "slotByTile"
+  | "landmassIdByTile"
+  | "landmassTileCounts"
+  | "coastalLand"
+  | "distanceToCoast"
+  | "shelfMask"
+  | "elevation"
+  | "fertility"
+  | "effectiveMoisture"
+  | "surfaceTemperature"
+  | "aridityIndex"
+  | "riverClass"
+  | "lakeMask";
+type StartInput = PlanStartsInput & Required<Pick<PlanStartsInput, StartInputField>>;
 
 function idx(width: number, x: number, y: number): number {
   return y * width + x;
@@ -86,7 +81,7 @@ function addLandmass(
 }
 
 function plan(
-  input: StartInput,
+  input: PlanStartsInput,
   configure?: (config: (typeof planStarts.defaultConfig)["config"]) => void
 ) {
   const selection = structuredClone(planStarts.defaultConfig);
@@ -98,6 +93,18 @@ function plan(
   selection.config.desiredSpacingTiles = 4;
   configure?.(selection.config);
   return runOpValidated(planStarts, input, selection);
+}
+
+function makeSeatDemandInput(slotCapacity: number, alivePlayerIds?: readonly number[]): StartInput {
+  const input = makeInput(16, 10, slotCapacity, 0);
+  addLandmass(
+    input,
+    0,
+    1,
+    Array.from({ length: 80 }, (_value, i) => [1 + (i % 10), 1 + Math.floor(i / 10)] as const)
+  );
+  if (alivePlayerIds) input.alivePlayerIds = [...alivePlayerIds];
+  return input;
 }
 
 describe("start viability planning", () => {
@@ -204,6 +211,28 @@ describe("start viability planning", () => {
     expect(result.scoreByTile[supportedPlot]).toBeGreaterThan(result.scoreByTile[unsupportedPlot]);
   });
 
+  it("excludes every final natural-wonder footprint plot from start candidacy", () => {
+    const input = makeInput(12, 8);
+    addLandmass(
+      input,
+      0,
+      1,
+      Array.from({ length: 48 }, (_value, i) => [1 + (i % 8), 1 + Math.floor(i / 8)] as const)
+    );
+    const baseline = plan(input);
+    const occupiedPlot = baseline.candidates[0]?.plotIndex;
+    if (occupiedPlot === undefined)
+      throw new Error("Expected at least one admitted start candidate.");
+
+    input.naturalWonderPlotIndices = [occupiedPlot];
+    const result = plan(input);
+
+    expect(result.candidates.some((candidate) => candidate.plotIndex === occupiedPlot)).toBe(false);
+    expect(result.rejectionCounts.find((entry) => entry.reason === "natural-wonder")?.count).toBe(
+      1
+    );
+  });
+
   it("retains the full component vector on every candidate and seat", () => {
     const input = makeInput(12, 8);
     addLandmass(
@@ -220,10 +249,10 @@ describe("start viability planning", () => {
       "climate",
       "resource",
       "roughness",
-    ];
+    ] as const satisfies readonly (keyof (typeof result.candidates)[number]["components"])[];
     for (const candidate of result.candidates) {
       for (const key of componentKeys) {
-        const value = (candidate.components as Record<string, number>)[key];
+        const value = candidate.components[key];
         expect(value).toBeGreaterThanOrEqual(0);
         expect(value).toBeLessThanOrEqual(1);
       }
@@ -288,6 +317,35 @@ describe("start selection ladder (op-owned, S4)", () => {
     // The op reports the ACTUAL allocation (both players west).
     expect(result.playersLandmass1).toBe(2);
     expect(result.playersLandmass2).toBe(0);
+  });
+
+  it("preserves the requested homeland when zero-capacity overflow selects from the other region", () => {
+    const input = makeInput(10, 8, 13, 0);
+    addLandmass(
+      input,
+      0,
+      2,
+      Array.from({ length: 12 }, (_value, i) => [4 + (i % 3), 2 + Math.floor(i / 3)] as const)
+    );
+
+    const result = plan(input, (config) => {
+      config.spacingFloorTiles = 0;
+      config.desiredSpacingTiles = 0;
+    });
+    const reassigned = result.seats.find((seat) => seat.imputedFlags.includes("region-reassigned"));
+    if (!reassigned) throw new Error("Expected one region-reassigned seat.");
+
+    expect(reassigned).toMatchObject({
+      regionSlot: 1,
+      realizedRegionSlot: 2,
+      status: "degraded",
+    });
+    expect(result.fairnessReport.relaxations).toContainEqual({
+      seatIndex: reassigned.seatIndex,
+      kind: "region",
+      from: 1,
+      to: 2,
+    });
   });
 
   it("apportions each homeland a spaceable share by feasibility instead of overloading one (D2)", () => {
@@ -425,6 +483,7 @@ describe("start selection ladder (op-owned, S4)", () => {
     const unseated = result.seats.filter((seat) => seat.plotIndex < 0);
     expect(unseated.length).toBe(1);
     expect(unseated[0]!.status).toBe("degraded");
+    expect(unseated[0]!.realizedRegionSlot).toBe(0);
     expect(unseated[0]!.imputedFlags).toContain("unseated");
     expect(result.status).toBe("degraded");
   });
@@ -488,25 +547,122 @@ describe("start selection ladder (op-owned, S4)", () => {
     expect(Math.max(...seatedScores) - Math.min(...seatedScores)).toBeCloseTo(gap as number, 10);
   });
 
-  it("maps seats through the alive-majors read surface and flags slot-index fallbacks", () => {
-    const input = makeInput(16, 10, 2, 0);
-    addLandmass(
-      input,
-      0,
-      1,
-      Array.from({ length: 80 }, (_value, i) => [1 + (i % 10), 1 + Math.floor(i / 10)] as const)
+  it("improves weak seats without lowering strong seats to manufacture parity", () => {
+    const input = makeInput(24, 10, 1, 1);
+    const west = Array.from(
+      { length: 48 },
+      (_value, i) => [1 + (i % 6), 1 + Math.floor(i / 6)] as const
     );
-    input.alivePlayerIds = [7];
+    const east = Array.from(
+      { length: 48 },
+      (_value, i) => [15 + (i % 6), 1 + Math.floor(i / 6)] as const
+    );
+    addLandmass(input, 0, 1, west);
+    addLandmass(input, 1, 2, east);
+    for (const [x, y] of west) input.fertility[idx(input.width, x, y)] = 0.1;
+    for (const [x, y] of east) {
+      input.fertility[idx(input.width, x, y)] = x < 18 ? 1 : 0.2;
+    }
 
     const result = plan(input, (config) => {
-      config.spacingFloorTiles = 2;
-      config.desiredSpacingTiles = 4;
+      config.spacingFloorTiles = 1;
+      config.desiredSpacingTiles = 1;
+      config.largeLandmassWeight = 0;
+      config.fertilityWeight = 4;
+      config.resourceSupportWeight = 0;
+      config.freshwaterWeight = 0;
+      config.climateWeight = 0;
+      config.coastalPreferenceWeight = 0;
+      config.riverPreferenceWeight = 0;
+      config.roughnessPenaltyWeight = 0;
+      config.climateExtremePenaltyWeight = 0;
+      config.rankingBlend = 1;
+      config.fairnessTolerance = 0.35;
     });
 
-    expect(result.seats[0]!.playerId).toBe(7);
-    expect(result.seats[0]!.playerIdSource).toBe("alive-majors");
-    expect(result.seats[1]!.playerId).toBe(1);
-    expect(result.seats[1]!.playerIdSource).toBe("slot-index");
+    expect(result.fairnessReport.swaps.length).toBeGreaterThan(0);
+    expect(result.fairnessReport.swaps.every((swap) => swap.toScore > swap.fromScore)).toBe(true);
+    expect(result.fairnessReport.relaxations).toContainEqual({
+      seatIndex: 0,
+      kind: "region",
+      from: 1,
+      to: 2,
+    });
+    expect(result.seats.find(({ seatIndex }) => seatIndex === 0)).toMatchObject({
+      regionSlot: 1,
+      realizedRegionSlot: 2,
+      rung: "open-pool",
+      status: "degraded",
+    });
+    expect(result.fairnessReport.balanced).toBe(true);
+  });
+
+  it("uses a nonempty alive-major observation as exact demand below slot capacity", () => {
+    const alivePlayerIds = Array.from({ length: 10 }, (_value, playerId) => playerId);
+    const result = plan(makeSeatDemandInput(12, alivePlayerIds));
+
+    expect(result.playersLandmass1 + result.playersLandmass2).toBe(10);
+    expect(result.seats.map((seat) => seat.playerId)).toEqual(alivePlayerIds);
+    expect(result.seats.every((seat) => seat.playerIdSource === "alive-majors")).toBe(true);
+  });
+
+  it("falls back to slot-capacity identities only when no alive majors are observed", () => {
+    const result = plan(makeSeatDemandInput(2, []));
+
+    expect(result.playersLandmass1 + result.playersLandmass2).toBe(2);
+    expect(
+      result.seats.map(({ playerId, playerIdSource }) => ({ playerId, playerIdSource }))
+    ).toEqual([
+      { playerId: 0, playerIdSource: "slot-index" },
+      { playerId: 1, playerIdSource: "slot-index" },
+    ]);
+  });
+
+  it("caps alive-major demand at map-size slot capacity without synthesizing overflow", () => {
+    const result = plan(makeSeatDemandInput(2, [7, 9, 11]));
+
+    expect(result.playersLandmass1 + result.playersLandmass2).toBe(2);
+    expect(result.seats.map((seat) => seat.playerId)).toEqual([7, 9]);
+    expect(result.seats.every((seat) => seat.playerIdSource === "alive-majors")).toBe(true);
+  });
+
+  it("caps valid alive-major demand at zero capacity without synthesizing fallback identities", () => {
+    const result = plan({
+      baseStarts: { playersLandmass1: 0, playersLandmass2: 0 },
+      alivePlayerIds: [7],
+    });
+
+    expect(result.playersLandmass1 + result.playersLandmass2).toBe(0);
+    expect(result.seats).toEqual([]);
+  });
+
+  it("rejects duplicate alive-major identities instead of silently normalizing demand", () => {
+    expect(() => plan(makeSeatDemandInput(2, [7, 7]))).toThrow();
+  });
+
+  it("rejects fractional regional slot contributions at contract admission", () => {
+    const input = makeSeatDemandInput(2, [7]);
+    input.baseStarts.playersLandmass1 = 1.5;
+
+    expect(() =>
+      validateSchemaValueOrThrow(planStarts.input, input, "/placement/plan-starts/input")
+    ).toThrow();
+  });
+
+  it("preserves authoritative alive-major demand on the empty-map degraded path", () => {
+    const result = plan({
+      baseStarts: { playersLandmass1: 2, playersLandmass2: 0 },
+      alivePlayerIds: [7],
+    });
+
+    expect(result.playersLandmass1 + result.playersLandmass2).toBe(1);
+    expect(result.seats).toHaveLength(1);
+    expect(result.seats[0]).toMatchObject({
+      playerId: 7,
+      playerIdSource: "alive-majors",
+      plotIndex: -1,
+      status: "degraded",
+    });
   });
 
   it("applies official per-seat start biases through the offline scoring hook", () => {
@@ -536,15 +692,16 @@ describe("start selection ladder (op-owned, S4)", () => {
   });
 
   it("surfaces imputed inputs in coverage rows and seat flags instead of silently defaulting", () => {
-    const input = makeInput(12, 8, 1, 0);
+    const completeInput = makeInput(12, 8, 1, 0);
     addLandmass(
-      input,
+      completeInput,
       0,
       1,
       Array.from({ length: 48 }, (_value, i) => [1 + (i % 8), 1 + Math.floor(i / 8)] as const)
     );
-    (input as Record<string, unknown>).fertility = undefined;
-    (input as Record<string, unknown>).aridityIndex = undefined;
+    const input: PlanStartsInput = completeInput;
+    input.fertility = undefined;
+    input.aridityIndex = undefined;
 
     const result = plan(input);
 

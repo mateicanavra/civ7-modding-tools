@@ -1,15 +1,9 @@
 {
   "name": "@civ7/studio-server",
   "version": "0.1.0",
-  "description": "MapGen Studio server: oRPC contract-first API surface (Effect + Bun) for the Civ7 direct-control studio endpoints",
   "private": true,
+  "description": "MapGen Studio server: oRPC contract-first API surface (Effect + Bun) for the Civ7 direct-control studio endpoints",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "src",
-    "dist"
-  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -22,27 +16,34 @@
       "import": "./dist/contract/index.js"
     }
   },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
+    "check:test": "tsc -p tsconfig.test.json --noEmit",
+    "check:tools": "tsc -p tsconfig.tools.json --noEmit",
+    "clean": "rimraf dist",
     "dev": "tsup --watch",
-    "check": "tsc -p tsconfig.json --noEmit",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --config ./vitest.config.ts",
-    "clean": "rimraf dist"
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
     "@civ7/studio-contract": "workspace:*",
     "@civ7/studio-run-workspace": "workspace:*",
-    "@standard-schema/spec": "^1.1.0",
-    "typebox": "^1.0.80",
     "@orpc/client": "1.14.6",
     "@orpc/contract": "1.14.6",
     "@orpc/server": "1.14.6",
     "@orpc/tanstack-query": "1.14.5",
+    "@standard-schema/spec": "^1.1.0",
     "effect": "3.21.3",
-    "effect-orpc": "0.3.0"
+    "effect-orpc": "catalog:",
+    "typebox": "catalog:"
   },
   "engines": {
     "node": "22.22.0"

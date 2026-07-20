@@ -19,9 +19,7 @@ function median(values: number[]): number {
 }
 
 describe("biomes stripes regression (M3-012)", () => {
-  it("has within-row biome variety for fixed seed (no horizontal banding domination)", {
-    timeout: 20_000,
-  }, () => {
+  it("has within-row biome variety for fixed seed (no horizontal banding domination)", () => {
     const width = 106;
     const height = 66;
     const seed = 1337;
@@ -88,5 +86,5 @@ describe("biomes stripes regression (M3-012)", () => {
 
     // Ensure we're not collapsing into a single-biome landmass for the standard seed.
     expect(landBiomes.size).toBeGreaterThanOrEqual(3);
-  });
+  }, 20_000);
 });

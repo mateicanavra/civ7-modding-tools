@@ -11,9 +11,6 @@ bun run build
 bun run check
 '''
 
-[cleanup]
-script = "bash scripts/codex/manage-mapgen-studio.sh stop"
-
 [[actions]]
 name = "Rebuild workspace"
 icon = "tool"
@@ -51,16 +48,9 @@ icon = "run"
 command = "nx run civ7-playground:build"
 
 [[actions]]
-name = "Start isolated MapGen Studio"
+name = "Start MapGen Studio"
 icon = "run"
-command = "bash scripts/codex/manage-mapgen-studio.sh start"
-platform = "darwin"
-
-[[actions]]
-name = "Stop isolated MapGen Studio"
-icon = "tool"
-command = "bash scripts/codex/manage-mapgen-studio.sh stop"
-platform = "darwin"
+command = "nx run mapgen-studio:dev"
 
 [[actions]]
 name = "Build standard MapGen visualization"

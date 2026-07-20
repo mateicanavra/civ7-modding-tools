@@ -39,8 +39,14 @@ const PlacementSurfacePreparationSchema = Type.Object(
   }
 );
 
+/** Runtime schema for the prepared engine surface and lake-preservation evidence. */
 export const Schema = PlacementSurfacePreparationSchema;
 
+/**
+ * Registers evidence for the prepared engine-surface boundary that orders the
+ * downstream resource, start, and discovery chain after terrain maintenance
+ * and lake checks. Natural-wonder placement occurs before this boundary.
+ */
 export const artifact = defineArtifact({
   name: "placementSurfacePreparation",
   id: "artifact:placement.surfacePreparation",
@@ -63,7 +69,7 @@ function isCount(value: unknown): value is number {
 
 /**
  * Validate hook for the surface preparation evidence artifact
- * (placement-realignment S6): slot counts must partition the grid and the
+ * (placement-realignment S6): slot counts must total the grid size and the
  * lake drift counters must stay within the accepted lake corpus.
  */
 
@@ -107,6 +113,10 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/**
+ * Requires slot counts to total the grid size and lake drift counts not to
+ * exceed the accepted lake corpus.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

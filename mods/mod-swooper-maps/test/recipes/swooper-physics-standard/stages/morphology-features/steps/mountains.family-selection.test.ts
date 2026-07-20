@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { assertSameMountainFamilySelection } from "../../../../../../src/recipes/standard/stages/morphology-features/steps/mountains.js";
+import { assertSameMountainFamilySelection } from "../../../../../../src/recipes/standard/stages/morphology-features/steps/mountains/step.js";
 
 describe("mountains family selection", () => {
   it("treats absent mountain-family config as the empty shared config", () => {

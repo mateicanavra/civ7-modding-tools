@@ -3,7 +3,10 @@ import { homedir } from "node:os";
 import { basename, extname, join, resolve } from "node:path";
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { assessCiv7SignedIntSeed } from "../policy/setup.js";
-import { jsonPayloadFromCommandResult } from "../session/command-result.js";
+import {
+  jsonPayloadFromCommandResult,
+  throwUnexpectedCommandPayloadStatus,
+} from "../session/command-result.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -11,17 +14,12 @@ import type {
 } from "../session/types.js";
 import { validateIdentifier } from "../validation.js";
 import {
-  buildSetupSnapshotCommand,
-  ensureCiv7SetupMapRowVisible,
-  getCiv7SetupMapRows,
-  waitForCiv7SetupPhase,
   type Civ7SetupMapRow,
-  type Civ7SetupMapRowsResult,
-  type Civ7SetupMapRowVisibilityResult,
   type Civ7SetupParameterSnapshot,
   type Civ7SetupParameterValue,
   type Civ7SetupSnapshot,
   type Civ7SetupSnapshotResult,
+  type Civ7SetupSnapshotSelection,
   defaultSetupReadDependencies,
   type SetupReadDependencies,
   setupSnapshotScriptSource,
@@ -51,15 +49,11 @@ export type Civ7SavedGameConfigurationRef = Readonly<{
   path: string;
 }>;
 
-export type Civ7SavedGameConfigurationLoadResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
+export type Civ7SavedGameConfigurationLoadRequestResult = Readonly<{
+  command: Civ7CommandResult;
   savedConfig: Civ7SavedGameConfigurationRef;
   before: Civ7SetupSnapshotResult;
-  after: Civ7SetupSnapshotResult;
-  command: Civ7CommandResult;
-  loaded: boolean;
+  accepted: boolean;
 }>;
 
 export type Civ7SavedGameConfigurationSummary = Readonly<{
@@ -93,22 +87,19 @@ export type Civ7SavedGameConfigurationListResult = Readonly<{
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
 }>;
 
-export type Civ7SinglePlayerSetupInput = Readonly<{
+export type Civ7SinglePlayerSetupValues = Readonly<{
   mapScript: string;
   mapSize: string;
   seed: number;
   gameSeed?: number;
   playerCount?: number;
-  requiredActiveTargetModId?: string;
-  savedConfig?: Civ7SavedGameConfigurationRef;
   options?: Readonly<Record<string, Civ7SetupOptionValue>>;
   playerOptions?: ReadonlyArray<Civ7PlayerSetupOptions>;
-  fromRunningGame?: "reject" | "exit-to-shell";
-  requireShell?: boolean;
 }>;
 
 export type Civ7TargetModReconciliationResult = Readonly<{
   targetModId: string;
+  before: Civ7SetupSnapshotResult;
   command?: Civ7CommandResult;
   result?: Civ7TargetModReconciliationCommandResult;
   refreshed: boolean;
@@ -130,201 +121,200 @@ export type Civ7TargetModReconciliationCommandResult = Readonly<{
   targetActive: boolean;
 }>;
 
-export type Civ7SetupShellTransitionResult = Readonly<{
-  before: Civ7SetupSnapshotResult;
-  shellExit?: Civ7CommandResult;
-  after: Civ7SetupSnapshotResult;
-}>;
-
-export type Civ7PreparedSetupResult = Readonly<{
+export type Civ7SetupApplicationResult = Readonly<{
   host: string;
   port: number;
   state: Civ7TunerState;
   before: Civ7SetupSnapshotResult;
   after: Civ7SetupSnapshotResult;
   command: Civ7CommandResult;
-  shellTransition?: Civ7SetupShellTransitionResult;
-  savedConfigLoad?: Civ7SavedGameConfigurationLoadResult;
-  targetModReconciliation?: Civ7TargetModReconciliationResult;
-  rowVisibility: Civ7SetupMapRowVisibilityResult;
   applied: Readonly<Record<string, Civ7SetupOptionValue>>;
-  verified: boolean;
+  verified: true;
 }>;
 
-type SetupPreparePayload = Readonly<{
-  before: Civ7SetupSnapshot;
-  after: Civ7SetupSnapshot;
-  applied: Record<string, Civ7SetupOptionValue>;
-}>;
+type SavedConfigLoadRequestPayload =
+  | Readonly<{
+      status: "performed";
+      before: Civ7SetupSnapshot;
+      accepted: boolean;
+    }>
+  | Readonly<{
+      status: "refused";
+      before: Civ7SetupSnapshot;
+      reason: "phase" | "revision-unavailable";
+    }>;
+
+type SetupPreparePayload =
+  | Readonly<{
+      status: "performed";
+      before: Civ7SetupSnapshot;
+      after: Civ7SetupSnapshot;
+      applied: Record<string, Civ7SetupOptionValue>;
+    }>
+  | Readonly<{
+      status: "refused";
+      before: Civ7SetupSnapshot;
+      reason: "phase" | "map-row";
+    }>
+  | Readonly<{
+      status: "unverified";
+      before: Civ7SetupSnapshot;
+      after: Civ7SetupSnapshot;
+      applied: Record<string, Civ7SetupOptionValue>;
+      mismatch: string;
+    }>;
+
+type TargetModReconciliationPayload =
+  | Readonly<{
+      status: "performed";
+      before: Civ7SetupSnapshot;
+      result: Civ7TargetModReconciliationCommandResult;
+    }>
+  | Readonly<{
+      status: "refused";
+      before: Civ7SetupSnapshot;
+      reason: "phase";
+    }>;
 
 type SetupPrepareDependencies = SetupReadDependencies &
   Readonly<{
-    loadSavedGameConfiguration: (
-      input: Civ7SavedGameConfigurationRef,
-      options?: Civ7DirectControlOptions,
-      wait?: Readonly<{ waitTimeoutMs?: number; pollIntervalMs?: number }>
-    ) => Promise<Civ7SavedGameConfigurationLoadResult>;
+    parseSavedConfigLoadRequest: (
+      result: Civ7CommandResult,
+      label: string
+    ) => SavedConfigLoadRequestPayload;
     parseSetupPreparation: (result: Civ7CommandResult, label: string) => SetupPreparePayload;
     validateIdentifier: (value: string, label: string) => string;
   }>;
 
-export async function prepareCiv7SinglePlayerSetup(
-  input: Civ7SinglePlayerSetupInput,
+export async function requestCiv7SavedGameConfigurationLoad(
+  input: Civ7SavedGameConfigurationRef,
   options: Civ7DirectControlOptions = {},
   dependencies: SetupPrepareDependencies = defaultSetupPrepareDependencies
-): Promise<Civ7PreparedSetupResult> {
+): Promise<Civ7SavedGameConfigurationLoadRequestResult> {
+  const savedConfig = normalizeSavedGameConfigurationRef(input);
+  const command = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildLoadSavedGameConfigurationCommand(savedConfig, dependencies),
+  });
+  const payload = dependencies.parseSavedConfigLoadRequest(
+    command,
+    "Civ7 saved configuration load request"
+  );
+  const status = payload.status;
+  switch (status) {
+    case "performed": {
+      const before = setupSnapshotResult(command, payload.before);
+      return { command, savedConfig, before, accepted: payload.accepted };
+    }
+    case "refused": {
+      const before = setupSnapshotResult(command, payload.before);
+      throw new Civ7DirectControlError(
+        payload.reason === "phase" ? "setup-phase-refused" : "setup-config-evidence-missing",
+        payload.reason === "phase"
+          ? `Civ7 saved configuration load requires shell phase; observed ${payload.before.phase}`
+          : "Civ7 setup revision is unavailable before saved configuration load",
+        { details: before }
+      );
+    }
+    default:
+      return throwUnexpectedCommandPayloadStatus(
+        command,
+        "Civ7 saved configuration load request",
+        status
+      );
+  }
+}
+
+export async function applyCiv7SinglePlayerSetup(
+  input: Civ7SinglePlayerSetupValues,
+  options: Civ7DirectControlOptions = {},
+  dependencies: SetupPrepareDependencies = defaultSetupPrepareDependencies
+): Promise<Civ7SetupApplicationResult> {
   const normalized = normalizeSinglePlayerSetupInput(input, dependencies);
-  const shellTransition = await ensureSetupShell(normalized, options, dependencies);
-  const savedConfigLoad = normalized.savedConfig
-    ? await dependencies.loadSavedGameConfiguration(normalized.savedConfig, options, {
-        waitTimeoutMs: options.timeoutMs,
-        pollIntervalMs: 1_000,
-      })
-    : undefined;
-  if (savedConfigLoad && !savedConfigLoad.loaded) {
-    throw new Civ7DirectControlError(
-      "setup-config-load-failed",
-      `Civ7 did not load saved configuration ${savedConfigLoad.savedConfig.fileName}`,
-      { details: savedConfigLoad }
-    );
-  }
-  const targetModReconciliation = normalized.requiredActiveTargetModId
-    ? await reconcileCiv7RequiredTargetMod(normalized.requiredActiveTargetModId, options, dependencies)
-    : undefined;
-  if (targetModReconciliation && !targetModReconciliation.verified) {
-    throw new Civ7DirectControlError(
-      "setup-mod-reconciliation-failed",
-      `Civ7 setup active mod set does not include ${targetModReconciliation.targetModId}`,
-      { details: { targetModReconciliation } }
-    );
-  }
-  const rowVisibility = await ensureCiv7SetupMapRowVisible(
-    {
-      file: normalized.mapScript,
-      limit: 20,
-      reloadIfMissing: "exit-to-shell",
-      waitTimeoutMs: options.timeoutMs,
-      pollIntervalMs: 1_000,
-    },
-    options,
-    dependencies
-  );
-  if (!rowVisibility.verified) {
-    const allRows = await getCiv7SetupMapRows({ limit: 100 }, options, dependencies).catch(
-      () => undefined
-    );
-    throw new Civ7DirectControlError(
-      "setup-map-row-missing",
-      `Civ7 setup map row is not visible for ${normalized.mapScript}`,
-      { details: { rowVisibility, allRows, targetModReconciliation } }
-    );
-  }
-  const before = await dependencies.parseSetupSnapshot(
-    await dependencies.executeAppUiCommand({
-      ...options,
-      command: buildSetupSnapshotCommand(dependencies),
-    }),
-    "Civ7 setup snapshot"
-  );
-  if (normalized.requireShell !== false && before.snapshot.phase !== "shell") {
-    throw new Civ7DirectControlError(
-      "setup-phase-invalid",
-      `Civ7 setup requires shell/main-menu phase; observed ${before.snapshot.phase}`,
-      { details: before }
-    );
-  }
-
-  const rowProof = findSetupMapRow(before.snapshot, normalized.mapScript);
-  if (!rowProof) {
-    throw new Civ7DirectControlError(
-      "setup-map-row-missing",
-      `Civ7 setup map row is not visible for ${normalized.mapScript}`,
-      { details: before.snapshot.mapRows }
-    );
-  }
-
   const command = await dependencies.executeAppUiCommand({
     ...options,
     command: buildPrepareSinglePlayerSetupCommand(normalized, dependencies),
   });
-  const payload = dependencies.parseSetupPreparation(command, "Civ7 setup preparation");
-  const after = {
-    host: command.host,
-    port: command.port,
-    state: command.state,
-    snapshot: payload.after,
-  };
-  assertPreparedSetupMatches(normalized, after.snapshot);
-  return {
-    host: command.host,
-    port: command.port,
-    state: command.state,
-    before,
-    after,
-    command,
-    ...(shellTransition ? { shellTransition } : {}),
-    ...(savedConfigLoad ? { savedConfigLoad } : {}),
-    ...(targetModReconciliation ? { targetModReconciliation } : {}),
-    rowVisibility,
-    applied: payload.applied,
-    verified: true,
-  };
-}
-
-async function ensureSetupShell(
-  input: Civ7SinglePlayerSetupInput,
-  options: Civ7DirectControlOptions,
-  dependencies: SetupPrepareDependencies
-): Promise<Civ7SetupShellTransitionResult | undefined> {
-  if (input.requireShell === false) return undefined;
-  const before = await dependencies.parseSetupSnapshot(
-    await dependencies.executeAppUiCommand({
-      ...options,
-      command: buildSetupSnapshotCommand(dependencies),
-    }),
-    "Civ7 setup snapshot"
-  );
-  if (before.snapshot.phase === "shell") return { before, after: before };
-  if (input.fromRunningGame !== "exit-to-shell") {
-    throw new Civ7DirectControlError(
-      "setup-phase-invalid",
-      `Civ7 setup requires shell/main-menu phase; observed ${before.snapshot.phase}`,
-      { details: before }
-    );
+  const payload = dependencies.parseSetupPreparation(command, "Civ7 setup application");
+  const status = payload.status;
+  switch (status) {
+    case "performed": {
+      const before = setupSnapshotResult(command, payload.before);
+      const after = setupSnapshotResult(command, payload.after);
+      assertPreparedSetupMatches(normalized, after.snapshot);
+      return {
+        host: command.host,
+        port: command.port,
+        state: command.state,
+        before,
+        after,
+        command,
+        applied: payload.applied,
+        verified: true,
+      };
+    }
+    case "refused": {
+      const before = setupSnapshotResult(command, payload.before);
+      throw new Civ7DirectControlError(
+        payload.reason === "phase" ? "setup-phase-refused" : "setup-map-row-missing",
+        payload.reason === "phase"
+          ? `Civ7 setup application requires shell phase; observed ${payload.before.phase}`
+          : `Civ7 setup map row is not visible for ${normalized.mapScript}`,
+        { details: before }
+      );
+    }
+    case "unverified": {
+      const before = setupSnapshotResult(command, payload.before);
+      const after = setupSnapshotResult(command, payload.after);
+      throw new Civ7DirectControlError(
+        "setup-readback-mismatch",
+        `Civ7 setup application readback mismatch: ${payload.mismatch}`,
+        { details: { before, after, mismatch: payload.mismatch, applied: payload.applied } }
+      );
+    }
+    default:
+      return throwUnexpectedCommandPayloadStatus(command, "Civ7 setup application", status);
   }
-  const shellExit = await dependencies.executeAppUiCommand({
-    ...options,
-    command: dependencies.exitToMainMenuCommand,
-  });
-  const after = await waitForCiv7SetupPhase(
-    "shell",
-    options,
-    { waitTimeoutMs: options.timeoutMs ?? 120_000, pollIntervalMs: 1_000 },
-    dependencies
-  );
-  return { before, shellExit, after };
 }
 
-async function reconcileCiv7RequiredTargetMod(
+export async function reconcileCiv7RequiredTargetMod(
   targetModId: string,
-  options: Civ7DirectControlOptions,
-  dependencies: SetupPrepareDependencies
+  options: Civ7DirectControlOptions = {},
+  dependencies: SetupReadDependencies = defaultSetupReadDependencies
 ): Promise<Civ7TargetModReconciliationResult> {
   const command = await dependencies.executeAppUiCommand({
     ...options,
     command: buildReconcileTargetModCommand({ targetModId }, dependencies),
   });
-  const result = jsonPayloadFromCommandResult<Civ7TargetModReconciliationCommandResult>(
+  const payload = jsonPayloadFromCommandResult<TargetModReconciliationPayload>(
     command,
     "Civ7 target mod reconciliation"
   );
-  return {
-    targetModId,
-    command,
-    result,
-    refreshed: true,
-    verified: result.targetActive === true && result.enabledModsMetaContainsTarget === true,
-  };
+  const status = payload.status;
+  switch (status) {
+    case "performed": {
+      const before = setupSnapshotResult(command, payload.before);
+      const result = payload.result;
+      return {
+        targetModId,
+        before,
+        command,
+        result,
+        refreshed: true,
+        verified: result.targetActive === true && result.enabledModsMetaContainsTarget === true,
+      };
+    }
+    case "refused": {
+      const before = setupSnapshotResult(command, payload.before);
+      throw new Civ7DirectControlError(
+        "setup-phase-refused",
+        `Civ7 target mod reconciliation requires shell phase; observed ${payload.before.phase}`,
+        { details: before }
+      );
+    }
+    default:
+      return throwUnexpectedCommandPayloadStatus(command, "Civ7 target mod reconciliation", status);
+  }
 }
 
 export async function listCiv7SavedGameConfigurations(
@@ -350,67 +340,197 @@ export async function listCiv7SavedGameConfigurations(
   return { directory, configurations };
 }
 
-export function buildPrepareSinglePlayerSetupCommand(
-  input: Civ7SinglePlayerSetupInput,
+function buildLoadSavedGameConfigurationCommand(
+  input: Civ7SavedGameConfigurationRef,
   dependencies: SetupReadDependencies
 ): string {
   return `(() => {
     ${setupSnapshotScriptSource(dependencies)}
     const input = ${dependencies.jsLiteral(input)};
     const before = readSetupSnapshot();
+    if (before.phase !== "shell") {
+      return JSON.stringify({ status: "refused", before, reason: "phase" });
+    }
+    if (!before.setup.revision.ok || !Number.isInteger(before.setup.revision.value)) {
+      return JSON.stringify({ status: "refused", before, reason: "revision-unavailable" });
+    }
+    const serverType = typeof ServerType !== "undefined" && ServerType && ServerType.SERVER_TYPE_NONE !== undefined
+      ? ServerType.SERVER_TYPE_NONE
+      : 0;
+    const params = {
+      Location: SaveLocations.LOCAL_STORAGE,
+      LocationCategories: SaveLocationCategories.NORMAL,
+      Type: SaveTypes.SINGLE_PLAYER,
+      ContentType: SaveFileTypes.GAME_CONFIGURATION,
+      FileName: input.fileName,
+      DisplayName: input.displayName,
+    };
+    return JSON.stringify({
+      status: "performed",
+      before,
+      accepted: Network.loadGame(params, serverType) === true,
+    });
+  })()`;
+}
+
+/** Defines the single setup expectation law injected into apply and host wire commands. */
+export function setupExpectationScriptSource(): string {
+  return `const setupProbeValue = (value) => value && value.ok === true ? value.value : undefined;
+    const setupParameterValue = (snapshot, id) =>
+      snapshot.setup.parameters.find((parameter) => parameter.id === id)?.value;
+    const playerSetupParameterValue = (snapshot, playerId, id) =>
+      snapshot.setup.playerParameters
+        .find((player) => player.playerId === playerId)
+        ?.parameters.find((parameter) => parameter.id === id)?.value;
+    const playerIdentityVerified = (snapshot, playerId) => {
+      const player = snapshot.setup.playerParameters.find((entry) => entry.playerId === playerId);
+      return player?.exists?.ok === true && player.exists.value === true;
+    };
+    const setupExpectationMismatch = (input, snapshot) => {
+      if (snapshot.phase !== "shell") return "phase";
+      if (!snapshot.mapRows.some((row) => row.file === input.mapScript)) return "map-row";
+      if (setupParameterValue(snapshot, "Map") !== input.mapScript) return "setup-map";
+      if (setupParameterValue(snapshot, "MapSize") !== input.mapSize) return "setup-map-size";
+      if (Number(setupParameterValue(snapshot, "MapRandomSeed")) !== input.seed) return "setup-map-seed";
+      if (input.gameSeed !== undefined && Number(setupParameterValue(snapshot, "GameRandomSeed")) !== input.gameSeed) return "setup-game-seed";
+      if (input.playerCount !== undefined && setupProbeValue(snapshot.config.playerCount) !== input.playerCount) return "setup-player-count";
+      for (const [key, expected] of Object.entries(input.options ?? {})) {
+        if (setupParameterValue(snapshot, key) !== expected) return "setup-option:" + key;
+      }
+      for (const player of input.playerOptions ?? []) {
+        if (!playerIdentityVerified(snapshot, player.playerId)) {
+          return "player-identity:" + player.playerId;
+        }
+        for (const [key, expected] of Object.entries(player.options ?? {})) {
+          if (playerSetupParameterValue(snapshot, player.playerId, key) !== expected) {
+            return "player-option:" + player.playerId + ":" + key;
+          }
+        }
+      }
+      if (setupProbeValue(snapshot.config.mapScript) !== input.mapScript) return "runtime-map-script";
+      if (setupProbeValue(snapshot.config.mapSizeType) !== input.mapSize) return "runtime-map-size-type";
+      if (setupProbeValue(snapshot.config.mapSeed) !== input.seed) return "runtime-map-seed";
+      if (input.gameSeed !== undefined && setupProbeValue(snapshot.config.gameSeed) !== input.gameSeed) return "runtime-game-seed";
+      if (input.playerCount !== undefined && setupProbeValue(snapshot.config.playerCount) !== input.playerCount) return "runtime-player-count";
+      return null;
+    };`;
+}
+
+export function setupSnapshotSelectionFromInput(
+  input: Pick<Civ7SinglePlayerSetupValues, "options" | "playerOptions">
+): Civ7SetupSnapshotSelection {
+  const playerOptions = input.playerOptions ?? [];
+  return {
+    setupParameterIds: Object.keys(input.options ?? {}).sort(),
+    playerSetupParameterIds: Array.from(
+      new Set(playerOptions.flatMap((player) => Object.keys(player.options)))
+    ).sort(),
+    playerIds: Array.from(new Set(playerOptions.map((player) => player.playerId))).sort(
+      (left, right) => left - right
+    ),
+  };
+}
+
+export function buildPrepareSinglePlayerSetupCommand(
+  input: Civ7SinglePlayerSetupValues,
+  dependencies: SetupReadDependencies
+): string {
+  return `(() => {
+    ${setupSnapshotScriptSource(dependencies, setupSnapshotSelectionFromInput(input))}
+    ${setupExpectationScriptSource()}
+    const input = ${dependencies.jsLiteral(input)};
+    const before = readSetupSnapshot();
+    if (before.phase !== "shell") {
+      return JSON.stringify({ status: "refused", before, reason: "phase" });
+    }
+    if (!before.mapRows.some((row) => row.file === input.mapScript)) {
+      return JSON.stringify({ status: "refused", before, reason: "map-row" });
+    }
     const applied = {};
-    const setSetupParameter = (id, value) => {
-      if (typeof GameSetup !== "undefined" && GameSetup && typeof GameSetup.setGameParameterValue === "function") {
-        GameSetup.setGameParameterValue(id, value);
-      }
+    const requireFunction = (owner, key, label) => {
+      const candidate = owner?.[key];
+      if (typeof candidate !== "function") throw new Error(label + " unavailable");
+      return candidate;
     };
-    const setPlayerSetupParameter = (playerId, id, value) => {
-      if (typeof GameSetup !== "undefined" && GameSetup && typeof GameSetup.setPlayerParameterValue === "function") {
-        GameSetup.setPlayerParameterValue(playerId, id, value);
-      }
-    };
-    const editMap = Configuration.editMap();
-    const editGame = Configuration.editGame();
+    if (typeof Configuration === "undefined" || !Configuration) {
+      throw new Error("Configuration API unavailable");
+    }
+    if (typeof GameSetup === "undefined" || !GameSetup) throw new Error("GameSetup API unavailable");
+    requireFunction(Configuration, "getMap", "Configuration.getMap");
+    requireFunction(Configuration, "getGame", "Configuration.getGame");
+    readCanonicalMapSizeType();
+    requireFunction(GameSetup, "findGameParameter", "GameSetup.findGameParameter");
+    const editMapFactory = requireFunction(Configuration, "editMap", "Configuration.editMap");
+    const editGameFactory = requireFunction(Configuration, "editGame", "Configuration.editGame");
+    const editMap = editMapFactory.call(Configuration);
+    const editGame = editGameFactory.call(Configuration);
     if (!editMap || !editGame) throw new Error("Configuration edit APIs are unavailable");
-    editMap.setScript(input.mapScript);
-    setSetupParameter("Map", input.mapScript);
+    const setScript = requireFunction(editMap, "setScript", "Configuration.editMap().setScript");
+    const setMapSize = requireFunction(editMap, "setMapSize", "Configuration.editMap().setMapSize");
+    const setMapSeed = requireFunction(editMap, "setMapSeed", "Configuration.editMap().setMapSeed");
+    const setSetupParameter = requireFunction(GameSetup, "setGameParameterValue", "GameSetup.setGameParameterValue");
+    const setGameSeed = input.gameSeed === undefined
+      ? null
+      : requireFunction(editGame, "setGameSeed", "Configuration.editGame().setGameSeed");
+    const setMaxMajorPlayers = input.playerCount === undefined
+      ? null
+      : requireFunction(editMap, "setMaxMajorPlayers", "Configuration.editMap().setMaxMajorPlayers");
+    const hasPlayerOptionDemand = (input.playerOptions ?? []).some(
+      (player) => Object.keys(player.options ?? {}).length > 0
+    );
+    const setPlayerSetupParameter = hasPlayerOptionDemand
+      ? requireFunction(GameSetup, "setPlayerParameterValue", "GameSetup.setPlayerParameterValue")
+      : null;
+    if (hasPlayerOptionDemand) {
+      requireFunction(GameSetup, "findPlayerParameter", "GameSetup.findPlayerParameter");
+    }
+    setScript.call(editMap, input.mapScript);
+    setSetupParameter.call(GameSetup, "Map", input.mapScript);
     applied.Map = input.mapScript;
-    editMap.setMapSize(input.mapSize);
-    setSetupParameter("MapSize", input.mapSize);
+    setMapSize.call(editMap, input.mapSize);
+    setSetupParameter.call(GameSetup, "MapSize", input.mapSize);
     applied.MapSize = input.mapSize;
-    editMap.setMapSeed(input.seed);
-    setSetupParameter("MapRandomSeed", input.seed);
+    setMapSeed.call(editMap, input.seed);
+    setSetupParameter.call(GameSetup, "MapRandomSeed", input.seed);
     applied.MapRandomSeed = input.seed;
     if (input.gameSeed !== undefined) {
-      editGame.setGameSeed(input.gameSeed);
-      setSetupParameter("GameRandomSeed", input.gameSeed);
+      setGameSeed.call(editGame, input.gameSeed);
+      setSetupParameter.call(GameSetup, "GameRandomSeed", input.gameSeed);
       applied.GameRandomSeed = input.gameSeed;
     }
-    if (input.playerCount !== undefined && typeof editMap.setMaxMajorPlayers === "function") {
-      editMap.setMaxMajorPlayers(input.playerCount);
+    if (input.playerCount !== undefined) {
+      setMaxMajorPlayers.call(editMap, input.playerCount);
       applied.MaxMajorPlayers = input.playerCount;
     }
     for (const [key, value] of Object.entries(input.options ?? {})) {
-      GameSetup.setGameParameterValue(key, value);
+      setSetupParameter.call(GameSetup, key, value);
       applied[key] = value;
     }
     for (const player of input.playerOptions ?? []) {
       for (const [key, value] of Object.entries(player.options ?? {})) {
-        setPlayerSetupParameter(player.playerId, key, value);
+        setPlayerSetupParameter.call(GameSetup, player.playerId, key, value);
         applied["Player:" + player.playerId + ":" + key] = value;
       }
     }
     const after = readSetupSnapshot();
-    return JSON.stringify({ before, after, applied });
+    const mismatch = setupExpectationMismatch(input, after);
+    return mismatch
+      ? JSON.stringify({ status: "unverified", before, after, applied, mismatch })
+      : JSON.stringify({ status: "performed", before, after, applied });
   })()`;
 }
 
 export function buildReconcileTargetModCommand(
   input: Readonly<{ targetModId: string }>,
-  dependencies: Pick<SetupReadDependencies, "jsLiteral">
+  dependencies: SetupReadDependencies
 ): string {
   return `(() => {
+    ${setupSnapshotScriptSource(dependencies)}
     const input = ${dependencies.jsLiteral(input)};
+    const before = readSetupSnapshot();
+    if (before.phase !== "shell") {
+      return JSON.stringify({ status: "refused", before, reason: "phase" });
+    }
     const asArray = (value) => {
       if (value == null) return [];
       if (Array.isArray(value)) return value;
@@ -450,23 +570,32 @@ export function buildReconcileTargetModCommand(
     if (handle === undefined || handle === null || handle === -1) {
       throw new Error("Target mod is not installed: " + modId);
     }
-    const targetEnabled = target?.enabled ?? target?.Enabled ?? target?.isEnabled ?? target?.IsEnabled;
-    let canEnableResult = null;
-    let enableResult = null;
-    if (targetEnabled !== true) {
-      if (typeof Modding.canEnableMods === "function") {
-        canEnableResult = Modding.canEnableMods([handle], true);
-        if (canEnableResult && typeof canEnableResult === "object" && canEnableResult.status !== 0) {
-          throw new Error("Target mod cannot be enabled: " + modId);
-        }
-      }
-      if (typeof Modding.enableMods !== "function") throw new Error("Modding.enableMods unavailable");
-      enableResult = Modding.enableMods([handle], true);
-    }
     const editGame = Configuration.editGame();
     if (!editGame || typeof editGame.refreshEnabledMods !== "function") {
       throw new Error("Configuration.editGame().refreshEnabledMods unavailable");
     }
+    const readEnabledModIds = () => {
+      if (typeof Configuration.getGame !== "function") {
+        throw new Error("Configuration.getGame unavailable");
+      }
+      const game = Configuration.getGame();
+      if (!game || typeof game !== "object") {
+        throw new Error("Configuration.getGame() unavailable");
+      }
+      const enabledModCount = game.enabledModCount;
+      if (typeof enabledModCount !== "number" || !Number.isInteger(enabledModCount) || enabledModCount < 0) {
+        throw new Error("Configuration.getGame().enabledModCount invalid");
+      }
+      if (typeof game.getEnabledModId !== "function") {
+        throw new Error("Configuration.getGame().getEnabledModId unavailable");
+      }
+      const enabledModIds = [];
+      for (let index = 0; index < enabledModCount; index += 1) {
+        enabledModIds.push(game.getEnabledModId(index));
+      }
+      return enabledModIds;
+    };
+    readEnabledModIds();
     const readEnabledModsMeta = () => {
       const candidates = [
         ["Configuration.editGame", editGame.enableModsMetaString],
@@ -484,6 +613,19 @@ export function buildReconcileTargetModCommand(
       throw new Error("Current enabled mod metadata unavailable");
     };
     const enabledModsMetaRead = readEnabledModsMeta();
+    const targetEnabled = target?.enabled ?? target?.Enabled ?? target?.isEnabled ?? target?.IsEnabled;
+    let canEnableResult = null;
+    let enableResult = null;
+    if (targetEnabled !== true) {
+      if (typeof Modding.canEnableMods === "function") {
+        canEnableResult = Modding.canEnableMods([handle], true);
+        if (canEnableResult && typeof canEnableResult === "object" && canEnableResult.status !== 0) {
+          throw new Error("Target mod cannot be enabled: " + modId);
+        }
+      }
+      if (typeof Modding.enableMods !== "function") throw new Error("Modding.enableMods unavailable");
+      enableResult = Modding.enableMods([handle], true);
+    }
     const enabledModsMeta = enabledModsMetaRead.parsed;
     const enabledMods = enabledModsMeta.mods;
     const targetAlreadyInMetadata = enabledMods.some((mod) => normalizeId(mod?.modid ?? mod?.id) === targetKey);
@@ -504,36 +646,33 @@ export function buildReconcileTargetModCommand(
       } catch {}
     }
     const refreshResult = editGame.refreshEnabledMods();
-    const game = typeof Configuration.getGame === "function" ? Configuration.getGame() : undefined;
-    const enabledModCount = Number(game?.enabledModCount ?? 0);
-    const enabledModIds = [];
-    if (Number.isInteger(enabledModCount) && enabledModCount >= 0 && typeof game?.getEnabledModId === "function") {
-      for (let index = 0; index < enabledModCount; index += 1) {
-        enabledModIds.push(game.getEnabledModId(index));
-      }
-    }
+    const enabledModIds = readEnabledModIds();
     return JSON.stringify({
-      targetModId: modId,
-      handle,
-      targetInstalled: !!target,
-      targetWasEnabled: targetEnabled === true,
-      canEnableResult,
-      enableResult,
-      refreshResult,
-      enabledModCount: enabledModIds.length,
-      enabledModsMetaSource: enabledModsMetaRead.source,
-      enabledModsMetaUpdated: !targetAlreadyInMetadata,
-      enabledModsMetaModCount: enabledMods.length,
-      enabledModsMetaContainsTarget: enabledMods.some((mod) => normalizeId(mod?.modid ?? mod?.id) === targetKey),
-      targetActive: enabledModIds.some((id) => normalizeId(id) === targetKey),
+      status: "performed",
+      before,
+      result: {
+        targetModId: modId,
+        handle,
+        targetInstalled: !!target,
+        targetWasEnabled: targetEnabled === true,
+        canEnableResult,
+        enableResult,
+        refreshResult,
+        enabledModCount: enabledModIds.length,
+        enabledModsMetaSource: enabledModsMetaRead.source,
+        enabledModsMetaUpdated: !targetAlreadyInMetadata,
+        enabledModsMetaModCount: enabledMods.length,
+        enabledModsMetaContainsTarget: enabledMods.some((mod) => normalizeId(mod?.modid ?? mod?.id) === targetKey),
+        targetActive: enabledModIds.some((id) => normalizeId(id) === targetKey),
+      },
     });
   })()`;
 }
 
 export function normalizeSinglePlayerSetupInput(
-  input: Civ7SinglePlayerSetupInput,
+  input: Civ7SinglePlayerSetupValues,
   dependencies: Pick<SetupPrepareDependencies, "boundedInteger" | "validateIdentifier">
-): Civ7SinglePlayerSetupInput {
+): Civ7SinglePlayerSetupValues {
   validateMapScript(input.mapScript);
   if (!/^MAPSIZE_[A-Z0-9_]+$/.test(input.mapSize)) {
     throw new Civ7DirectControlError(
@@ -548,10 +687,6 @@ export function normalizeSinglePlayerSetupInput(
     input.playerCount !== undefined
       ? dependencies.boundedInteger(input.playerCount, 1, 64, "playerCount")
       : undefined;
-  const requiredActiveTargetModId =
-    input.requiredActiveTargetModId === undefined
-      ? undefined
-      : validateModIdentity(input.requiredActiveTargetModId, "requiredActiveTargetModId");
   const options: Record<string, Civ7SetupOptionValue> = {};
   for (const [key, value] of Object.entries(input.options ?? {})) {
     dependencies.validateIdentifier(key, "setup option id");
@@ -577,35 +712,17 @@ export function normalizeSinglePlayerSetupInput(
       }
       normalizedOptions[key] = value;
     }
-    if (Object.keys(normalizedOptions).length > 0) {
-      playerOptions.push({ playerId, options: normalizedOptions });
-    }
+    playerOptions.push({ playerId, options: normalizedOptions });
   }
   return {
-    ...input,
     mapScript: input.mapScript,
     mapSize: input.mapSize,
     seed,
     ...(gameSeed !== undefined ? { gameSeed } : {}),
     ...(playerCount !== undefined ? { playerCount } : {}),
-    ...(requiredActiveTargetModId !== undefined ? { requiredActiveTargetModId } : {}),
-    ...(input.savedConfig
-      ? { savedConfig: normalizeSavedGameConfigurationRef(input.savedConfig) }
-      : {}),
     options,
     playerOptions,
   };
-}
-
-function validateModIdentity(value: string, label: string): string {
-  const normalized = value.trim();
-  if (!normalized || /[\0\r\n]/.test(normalized)) {
-    throw new Civ7DirectControlError(
-      "setup-parameter-invalid",
-      `${label} must be a non-empty single-line mod id`
-    );
-  }
-  return normalized.replace(/^\{|\}$/g, "");
 }
 
 export function normalizeSavedGameConfigurationRef(
@@ -790,9 +907,16 @@ function validateSetupSeed(value: unknown, label: string): number {
 }
 
 export function assertPreparedSetupMatches(
-  input: Civ7SinglePlayerSetupInput,
+  input: Civ7SinglePlayerSetupValues,
   snapshot: Civ7SetupSnapshot
 ): void {
+  if (snapshot.phase !== "shell") {
+    throw new Civ7DirectControlError(
+      "setup-phase-refused",
+      `Civ7 prepared setup requires shell phase; observed ${snapshot.phase}`,
+      { details: snapshot }
+    );
+  }
   const mapRow = findSetupMapRow(snapshot, input.mapScript);
   if (!mapRow) {
     throw new Civ7DirectControlError(
@@ -805,7 +929,9 @@ export function assertPreparedSetupMatches(
   const mapSize = setupParameterValue(snapshot, "MapSize");
   const mapSeed = setupParameterValue(snapshot, "MapRandomSeed");
   const gameSeed = setupParameterValue(snapshot, "GameRandomSeed");
-  const playerCount = snapshot.config.playerCount.ok ? snapshot.config.playerCount.value : undefined;
+  const playerCount = snapshot.config.playerCount.ok
+    ? snapshot.config.playerCount.value
+    : undefined;
   if (script !== input.mapScript) {
     throw new Civ7DirectControlError(
       "setup-readback-mismatch",
@@ -852,6 +978,7 @@ export function assertPreparedSetupMatches(
     );
   }
   assertRuntimeConfigValue(snapshot, "mapScript", input.mapScript);
+  assertRuntimeConfigValue(snapshot, "mapSizeType", input.mapSize);
   assertRuntimeConfigValue(snapshot, "mapSeed", input.seed);
   if (input.gameSeed !== undefined) {
     assertRuntimeConfigValue(snapshot, "gameSeed", input.gameSeed);
@@ -872,6 +999,16 @@ export function assertPreparedSetupMatches(
     }
   }
   for (const player of input.playerOptions ?? []) {
+    const observedPlayer = snapshot.setup.playerParameters.find(
+      (entry) => entry.playerId === player.playerId
+    );
+    if (observedPlayer?.exists.ok !== true || observedPlayer.exists.value !== true) {
+      throw new Civ7DirectControlError(
+        "setup-readback-mismatch",
+        `Civ7 player ${player.playerId} identity was not observed`,
+        { details: { playerId: player.playerId, actual: observedPlayer?.exists, snapshot } }
+      );
+    }
     for (const [key, expected] of Object.entries(player.options)) {
       const actual = playerSetupParameterValue(snapshot, player.playerId, key);
       if (actual !== expected) {
@@ -941,17 +1078,25 @@ function playerSetupParameterValue(
 }
 
 function findSetupMapRow(snapshot: Civ7SetupSnapshot, file: string): Civ7SetupMapRow | undefined {
-  return snapshot.mapRows.find((row) => row.file === file || row.value === file);
+  return snapshot.mapRows.find((row) => row.file === file);
+}
+
+function setupSnapshotResult(
+  command: Civ7CommandResult,
+  snapshot: Civ7SetupSnapshot
+): Civ7SetupSnapshotResult {
+  return {
+    host: command.host,
+    port: command.port,
+    state: command.state,
+    snapshot,
+  };
 }
 
 const defaultSetupPrepareDependencies: SetupPrepareDependencies = {
   ...defaultSetupReadDependencies,
-  loadSavedGameConfiguration: async () => {
-    throw new Civ7DirectControlError(
-      "setup-config-load-failed",
-      "Saved configuration loading requires caller-provided setup prepare dependencies"
-    );
-  },
+  parseSavedConfigLoadRequest: (result, label) =>
+    jsonPayloadFromCommandResult<SavedConfigLoadRequestPayload>(result, label),
   parseSetupPreparation: (result, label) =>
     jsonPayloadFromCommandResult<SetupPreparePayload>(result, label),
   validateIdentifier,

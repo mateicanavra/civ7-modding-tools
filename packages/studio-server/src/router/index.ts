@@ -1,7 +1,9 @@
+import { type Civ7PlotSnapshotField, Civ7PlotSnapshotFieldSchema } from "@civ7/direct-control";
 import { type StudioEffectContract, studioEffectContract } from "@civ7/studio-contract";
 import { ORPCError, type Router } from "@orpc/server";
-import { Effect } from "effect";
+import { Effect, Match, Option } from "effect";
 import { implementEffect } from "effect-orpc";
+import { Value } from "typebox/value";
 import {
   mapStudioFailureToDefinedError,
   mapUnexpectedDefectToDefinedError,
@@ -12,7 +14,7 @@ import {
 import { errorMessage } from "../errors.js";
 import { readLiveGameStatusBody } from "../liveGame/statusRead.js";
 import { StudioOperationRuntime } from "../operationRuntime/index.js";
-import type { StudioRuntime } from "../runtime.js";
+import type { StudioRouterRuntime } from "../runtime.js";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
 import { StudioConfig } from "../services/StudioConfig.js";
 import { StudioEventHub, studioEventSubscriptionIterator } from "../services/StudioEventHub.js";
@@ -31,17 +33,17 @@ import { StudioEventHub, studioEventSubscriptionIterator } from "../services/Stu
  *     constructor param (packages/studio-contract/src/errors.ts). The codes pin the EXACT legacy
  *     status - they are NON-UNIFORM (gameInfo/live.* -> 400, setupConfig -> 503,
  *     most -> 500), the do-not-break registry (architecture/10 section 7).
- *   - `civ7.live.status` runs the four reads under `Effect.all({ mode: "either" })`
- *     (the `Promise.allSettled` analogue) and embeds `{ error }` per field at 200;
- *     only an outer defect yields a transport error. PARITY INVARIANT.
-   *   - Stateful surfaces (autoplay #8, runInGame #13/#14 plus cancel,
-   *     mapConfigs #15/#16, operations.current) route through the package
-   *     operation runtime, which owns admission, lifecycle, diagnostics,
-   *     worker supervision, events, and lease release. Expected outcomes are
-   *     typed `StudioRuntimeFailure`s mapped here to declared oRPC errors.
-   *     Run in Game failures use safe public category data; other stateful
-   *     defects are contained as namespace `*_FAILED` with package-projected
-   *     `UnexpectedDefectData`.
+ *   - `civ7.live.status` projects every field from one coherent playable-status
+ *     observation. A failed observation embeds the same `{ error }` evidence in
+ *     every field at 200; only an outer defect yields a transport error.
+ *   - Stateful surfaces (autoplay #8, runInGame #13/#14 plus cancel,
+ *     mapConfigs #15/#16, operations.current) route through the package
+ *     operation runtime, which owns admission, lifecycle, diagnostics,
+ *     worker supervision, events, and lease release. Expected outcomes are
+ *     typed `StudioRuntimeFailure`s mapped here to declared oRPC errors.
+ *     Run in Game failures use safe public category data; other stateful
+ *     defects are contained as namespace `*_FAILED` with package-projected
+ *     `UnexpectedDefectData`.
  *
  * Query parsing parity (clamps, csv split/trim/filter, playerId omit) that the
  * legacy handlers did from the URL is reproduced here against the typed input.
@@ -53,7 +55,7 @@ import { StudioEventHub, studioEventSubscriptionIterator } from "../services/Stu
 // inferring `EnhancedRouter<...>`, which would reference effect-orpc internals and
 // trip TS2742 in the emitted `.d.ts`) keeps `StudioRouter` contract-typed.
 export function createStudioRouter(
-  runtime: StudioRuntime
+  runtime: StudioRouterRuntime
 ): Router<StudioEffectContract, Record<never, never>> {
   const oe = implementEffect(studioEffectContract, runtime);
 
@@ -174,11 +176,26 @@ export function createStudioRouter(
 
         // #5 civ7.live.snapshot - error 400; clamps + csv parse parity
         snapshot: oe.civ7.live.snapshot.effect(function* ({ input, errors }) {
-          const fields = (input.fields ?? "terrain,biome,feature,resource,visibility,owner")
+          const fieldTokens = (input.fields ?? "terrain,biome,feature,resource,visibility,owner")
             .split(",")
             .map((field) => field.trim())
-            .filter(Boolean) as Parameters<Civ7TunerClient["mapGrid"]>[0]["fields"];
+            .filter(Boolean);
+          const fields = yield* Effect.forEach(fieldTokens, (field) =>
+            Effect.succeed(field).pipe(
+              Effect.filterOrFail(isCiv7PlotSnapshotField, () =>
+                errors.CIV7_LIVE_SNAPSHOT_FAILED({
+                  message: `Unsupported Civ7 plot field: ${field}`,
+                })
+              )
+            )
+          );
           const maxPlots = Math.min(512, Math.max(1, input.maxPlots ?? 512));
+          const player = Option.fromNullable(input.playerId).pipe(
+            Option.match({
+              onNone: () => ({}),
+              onSome: (playerId) => ({ playerId }),
+            })
+          );
           const grid = yield* Civ7TunerClient.mapGrid({
             bounds: {
               x: input.x ?? 0,
@@ -188,7 +205,7 @@ export function createStudioRouter(
             },
             fields,
             maxPlots,
-            ...(input.playerId === undefined ? {} : { playerId: input.playerId }),
+            ...player,
           }).pipe(
             Effect.mapError((err) =>
               errors.CIV7_LIVE_SNAPSHOT_FAILED({
@@ -206,19 +223,31 @@ export function createStudioRouter(
         // #6 civ7.live.entities - error 400; any failed read -> 400
         entities: oe.civ7.live.entities.effect(function* ({ input, errors }) {
           const maxItems = Math.min(128, Math.max(1, input.maxItems ?? 128));
-          const playerId = input.playerId;
+          const player = Option.fromNullable(input.playerId);
+          const playerSummaryInput = player.pipe(
+            Option.match({
+              onNone: () => ({}),
+              onSome: (playerId) => ({ playerIds: [playerId] }),
+            })
+          );
+          const entitySummaryInput = player.pipe(
+            Option.match({
+              onNone: () => ({}),
+              onSome: (playerId) => ({ playerId }),
+            })
+          );
           const result = yield* Effect.all(
             {
               players: Civ7TunerClient.playerSummary({
-                ...(playerId === undefined ? {} : { playerIds: [playerId] }),
+                ...playerSummaryInput,
                 maxItems,
               }),
               units: Civ7TunerClient.unitSummary({
-                ...(playerId === undefined ? {} : { playerId }),
+                ...entitySummaryInput,
                 maxItems,
               }),
               cities: Civ7TunerClient.citySummary({
-                ...(playerId === undefined ? {} : { playerId }),
+                ...entitySummaryInput,
                 maxItems,
               }),
             },
@@ -419,30 +448,44 @@ export function createStudioRouter(
         const config = yield* StudioConfig;
         return yield* Effect.tryPromise({
           try: () => config.recipeDagService.getRecipeDag(input.recipeId),
-          catch: (err) => {
-            if (err instanceof Error && err.name === "RecipeDagNotFound") {
-              return errors.RECIPE_DAG_RECIPE_NOT_FOUND({
-                data: {
-                  procedureKey: "recipeDag.get",
-                  recipeId: input.recipeId,
-                },
-              });
-            }
-            if (err instanceof Error && err.name === "RecipeDagUnavailable") {
-              return errors.RECIPE_DAG_UNAVAILABLE({
-                data: {
-                  procedureKey: "recipeDag.get",
-                  recipeId: input.recipeId,
-                  source: "recipe-dag-service",
-                },
-              });
-            }
-            throw err;
-          },
+          catch: (err) =>
+            Match.value(err).pipe(
+              Match.when(isRecipeDagNotFound, () =>
+                errors.RECIPE_DAG_RECIPE_NOT_FOUND({
+                  data: {
+                    procedureKey: "recipeDag.get",
+                    recipeId: input.recipeId,
+                  },
+                })
+              ),
+              Match.when(isRecipeDagUnavailable, () =>
+                errors.RECIPE_DAG_UNAVAILABLE({
+                  data: {
+                    procedureKey: "recipeDag.get",
+                    recipeId: input.recipeId,
+                    source: "recipe-dag-service",
+                  },
+                })
+              ),
+              Match.orElse(rethrow)
+            ),
         });
       }),
     },
   });
+}
+
+const isCiv7PlotSnapshotField = (value: string): value is Civ7PlotSnapshotField =>
+  Value.Check(Civ7PlotSnapshotFieldSchema, value);
+
+const isRecipeDagNotFound = (error: unknown): error is Error =>
+  error instanceof Error && error.name === "RecipeDagNotFound";
+
+const isRecipeDagUnavailable = (error: unknown): error is Error =>
+  error instanceof Error && error.name === "RecipeDagUnavailable";
+
+function rethrow(error: unknown): never {
+  throw error;
 }
 
 function statefulDefect(
@@ -469,22 +512,41 @@ function statefulFailure(
     procedure,
     identity,
   });
-  const constructor = studioDefinedErrorConstructor(errors, projected.code);
-  if (constructor) {
-    return constructor({
-      message: projected.message || fallbackMessage,
-      data: projected.data,
-    });
-  }
+  return Option.fromNullable(studioDefinedErrorConstructor(errors, projected.code)).pipe(
+    Option.match({
+      onSome: (constructor) =>
+        constructor({
+          message: projected.message || fallbackMessage,
+          data: projected.data,
+        }),
+      onNone: () => statefulFallbackError(errors, failure, procedure, fallbackMessage),
+    })
+  );
+}
+
+function statefulFallbackError(
+  errors: unknown,
+  failure: StudioRuntimeFailure,
+  procedure: StudioOperationProcedure,
+  fallbackMessage: string
+): ORPCError<string, unknown> {
   const defect = statefulDefect(failure, procedure, fallbackMessage);
+  const data = Match.value(defect.data).pipe(
+    Match.when(undefined, () => ({})),
+    Match.orElse((definedData) => ({ data: definedData }))
+  );
   return (
-    studioDefinedErrorConstructor(errors, defect.code)?.({
+    studioDefinedErrorConstructor(
+      errors,
+      defect.code
+    )?.({
       message: defect.message,
       data: defect.data,
-    }) ?? new ORPCError(defect.code, {
+    }) ??
+    new ORPCError(defect.code, {
       status: defect.status,
       message: defect.message,
-      ...(defect.data === undefined ? {} : { data: defect.data }),
+      ...data,
     })
   );
 }
@@ -498,9 +560,12 @@ function studioDefinedErrorConstructor(
   errors: unknown,
   code: StudioDeclaredErrorCode
 ): StudioDefinedErrorConstructor | undefined {
-  if (!isRecord(errors)) return undefined;
-  const constructor = errors[code];
-  return isStudioDefinedErrorConstructor(constructor) ? constructor : undefined;
+  return Option.fromNullable(errors).pipe(
+    Option.filter(isRecord),
+    Option.flatMap((definedErrors) => Option.fromNullable(definedErrors[code])),
+    Option.filter(isStudioDefinedErrorConstructor),
+    Option.getOrUndefined
+  );
 }
 
 function isStudioDefinedErrorConstructor(value: unknown): value is StudioDefinedErrorConstructor {

@@ -71,6 +71,11 @@ export type GeologicalResourceSignals = {
   readonly suppress: readonly GeologicalSuppressionField[];
 };
 
+/**
+ * Canonical ordered geological resource set owned by this planning family. The family planner
+ * iterates this list so missing expectations and signal coverage are reported for every
+ * admitted type.
+ */
 export const GEOLOGICAL_RESOURCE_TYPES: readonly GeologicalResourceType[] = [
   "RESOURCE_GOLD",
   "RESOURCE_GOLD_DISTANT_LANDS",
@@ -94,6 +99,12 @@ export const GEOLOGICAL_RESOURCE_TYPES: readonly GeologicalResourceType[] = [
   "RESOURCE_RUBIES",
 ];
 
+/**
+ * Physical eligibility policy for each geological resource, mapping it to an admitted geologic
+ * lane plus primary and suppressing substrate masks. Empty primary lists intentionally keep
+ * officially visible but currently unplaceable types blocked instead of assigning generic
+ * habitat.
+ */
 export const GEOLOGICAL_SIGNALS: Record<GeologicalResourceType, GeologicalResourceSignals> = {
   RESOURCE_GOLD: {
     laneId: "orogenic-hydrothermal",

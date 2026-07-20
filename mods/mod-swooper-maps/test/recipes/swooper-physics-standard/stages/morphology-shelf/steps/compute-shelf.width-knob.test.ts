@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import standardRecipe from "../../../../../../src/recipes/standard/recipe.js";
-import computeShelf from "../../../../../../src/recipes/standard/stages/morphology-shelf/steps/computeShelf.js";
+import { ComputeShelfStep } from "../../../../../../src/recipes/standard/stages/morphology-shelf/steps/compute-shelf/step.js";
 import { standardConfig } from "../../../../../support/standard-config.js";
 
 describe("morphology-shelf shelfWidth knob", () => {
@@ -28,13 +28,13 @@ describe("morphology-shelf shelfWidth knob", () => {
 
     // Wider shelf => more permissive gradient => larger break-gradient scale (the gentle apron
     // reaches further before the read break). Narrower => stricter => smaller.
-    const wide = (computeShelf as any).normalize(
+    const wide = (ComputeShelfStep as any).normalize(
       { ...base, shelfMask },
       { knobs: { shelfWidth: "wide" } }
     );
     expect(wide.shelfMask.config.breakGradientScale).toBeCloseTo(1.25);
 
-    const narrow = (computeShelf as any).normalize(
+    const narrow = (ComputeShelfStep as any).normalize(
       { ...base, shelfMask },
       { knobs: { shelfWidth: "narrow" } }
     );

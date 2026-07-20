@@ -7,7 +7,7 @@ import {
   Civ7AppUiSnapshotResultSchema,
   getCiv7AppUiSnapshot,
 } from "./app-ui-snapshot.js";
-import type { Civ7RuntimeProbe } from "./probe.js";
+import { probeValue } from "./probe.js";
 import {
   type Civ7TunerHealthResult,
   Civ7TunerHealthResultSchema,
@@ -104,7 +104,3 @@ const defaultPlayableStatusDependencies: PlayableStatusDependencies = {
   errorMessage,
   getAppUiSnapshot: getCiv7AppUiSnapshot,
 };
-
-function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
-  return probe.ok ? probe.value : undefined;
-}

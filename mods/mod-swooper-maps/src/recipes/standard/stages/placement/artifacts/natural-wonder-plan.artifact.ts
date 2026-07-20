@@ -5,6 +5,7 @@ import { defineArtifact, validateArtifactSchema } from "@swooper/mapgen-core/aut
 
 export const Schema = placement.ops.planNaturalWonders.output;
 
+/** Registers the bounded, scored natural-wonder intent consumed by stamping. */
 export const artifact = defineArtifact({
   name: "naturalWonderPlan",
   id: "artifact:placement.naturalWonderPlan",
@@ -24,12 +25,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function isCount(value: unknown): value is number {
   return Number.isInteger(value) && (value as number) >= 0;
 }
-
-/**
- * Validate hook for the shared placement inputs artifact: the seat counts and
- * the wonder-count plan must be coherent non-negative integers because every
- * downstream product step plans against them.
- */
 
 function validatePayload(value: unknown): ValidationIssue[] {
   if (!isRecord(value)) return [issue("naturalWonderPlan artifact must be an object.")];
@@ -85,6 +80,10 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
+/**
+ * Validates map dimensions, placement-count agreement, the target ceiling,
+ * unique in-bounds anchors, and normalized placement priorities.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

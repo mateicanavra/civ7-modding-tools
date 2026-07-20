@@ -8,11 +8,11 @@
   <item id="notes" title="Notes + footguns"/>
 </toc>
 
-# How-to: diagnose pipeline behavior with VizDumper dumps
+# How-to: diagnose pipeline behavior with visualization dumps
 
 ## Purpose
 
-Use **VizDumper dumps** (manifest + trace + binary layers) as the canonical, deterministic observability surface to answer questions like:
+Use **visualization dumps** (manifest + trace + binary layers) as the canonical, deterministic observability surface to answer questions like:
 
 - “Did my config change reach the compiled plan and step configs?”
 - “Did an upstream change move the landmask (or is this lever dead)?”
@@ -43,10 +43,10 @@ From repo root:
 
 ```bash
 # baseline
-bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label probe-baseline
+nx run mod-swooper-maps:diag:dump -- 106 66 1337 --label probe-baseline
 
 # variant (example: change plateCount)
-bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label probe-platecount6 --override '{"foundation":{"knobs":{"plateCount":6}}}'
+nx run mod-swooper-maps:diag:dump -- 106 66 1337 --label probe-platecount6 --override '{"foundation":{"knobs":{"plateCount":6}}}'
 ```
 
 Each run prints:
@@ -67,10 +67,10 @@ Compute them from the dump(s):
 
 ```bash
 # analyze a single run
-bun run --cwd mods/mod-swooper-maps diag:analyze -- <runDirA>
+nx run mod-swooper-maps:diag:analyze -- <runDirA>
 
 # analyze + diff between two runs
-bun run --cwd mods/mod-swooper-maps diag:analyze -- <runDirA> <runDirB>
+nx run mod-swooper-maps:diag:analyze -- <runDirA> <runDirB>
 ```
 
 ## A/B diff workflow
@@ -79,18 +79,18 @@ Use diffs to localize where the causal chain breaks:
 
 1) Confirm the upstream layers changed (Foundation)
 ```bash
-bun run --cwd mods/mod-swooper-maps diag:diff -- <runDirA> <runDirB> --prefix foundation.
+nx run mod-swooper-maps:diag:diff -- <runDirA> <runDirB> --prefix foundation.
 ```
 
 2) Confirm Morphology fields changed (elevation, landmask)
 ```bash
-bun run --cwd mods/mod-swooper-maps diag:diff -- <runDirA> <runDirB> --dataTypeKey morphology.topography.elevation
-bun run --cwd mods/mod-swooper-maps diag:diff -- <runDirA> <runDirB> --dataTypeKey morphology.topography.landMask
+nx run mod-swooper-maps:diag:diff -- <runDirA> <runDirB> --dataTypeKey morphology.topography.elevation
+nx run mod-swooper-maps:diag:diff -- <runDirA> <runDirB> --dataTypeKey morphology.topography.landMask
 ```
 
 3) Extract step summaries from trace (landmask, sea level, etc.)
 ```bash
-bun run --cwd mods/mod-swooper-maps diag:trace -- <runDirA> --eventPrefix morphology.
+nx run mod-swooper-maps:diag:trace -- <runDirA> --eventPrefix morphology.
 ```
 
 If Foundation layers change but landmask doesn’t, the problem is usually one of:
@@ -109,8 +109,10 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
   - `mods/mod-swooper-maps/src/dev/diagnostics/extract-trace.ts`
 - Shared dump readers and helpers:
   - `mods/mod-swooper-maps/src/dev/diagnostics/shared.ts`
-- Trace + viz observer wiring:
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/viz.ts`
+- Trace + visualization sink wiring:
+  - `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+- Standard recipe styles:
+  - `mods/mod-swooper-maps/src/recipes/standard/viz.ts`
 
 ## Notes + footguns
 
@@ -118,7 +120,7 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
 - Use `diag:list` to enumerate layers for a run:
 
 ```bash
-bun run --cwd mods/mod-swooper-maps diag:list -- <runDirA> --prefix foundation.
+nx run mod-swooper-maps:diag:list -- <runDirA> --prefix foundation.
 ```
 
 - Keep comparisons deterministic: fixed `{width,height,seed}` and one change at a time.

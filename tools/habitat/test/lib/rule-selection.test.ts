@@ -1,8 +1,12 @@
 import path from "node:path";
-import { makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
+import {
+  type HabitatProcessRequest,
+  makeHabitatCommandResult,
+} from "@habitat/cli/resources/command/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { RuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/index";
 import {
+  type CheckReport,
   CheckReportSchema,
   checkCommandContext,
   hookCheckSummary,
@@ -177,7 +181,7 @@ describe("rule selector boundary", () => {
   });
 
   test("rejects check reports whose ok flag contradicts failed rules", () => {
-    const invalid = {
+    const invalid: CheckReport = {
       schemaVersion: 2,
       command: "habitat check --json",
       startedAt: "2026-06-13T00:00:00.000Z",
@@ -211,7 +215,7 @@ describe("rule selector boundary", () => {
   });
 
   test("renders shared check work once instead of per-rule fake durations", () => {
-    const report = {
+    const report: CheckReport = {
       schemaVersion: 2,
       command: "habitat check --runner grit",
       startedAt: "2026-06-21T00:00:00.000Z",
@@ -245,6 +249,57 @@ describe("rule selector boundary", () => {
     );
     expect(rendered).toContain("beta-pattern (grit, enforced) [locked] — shared:grit:source-rules");
     expect(rendered).toContain("shared work:\n  grit:source-rules: 2500ms across 2 rules");
+  });
+
+  test("preserves multiline diagnostic detail in human output without changing JSON", () => {
+    const diagnosticMessage =
+      "Grit rule failed.\n--- diagnostic provider failure (DiagnosticOutputMalformed) ---\nGrit output contains wrapper text around JSON.";
+    const report = Value.Parse(CheckReportSchema, {
+      schemaVersion: 2,
+      command: "habitat check --rule provider-rendering",
+      startedAt: "2026-07-15T00:00:00.000Z",
+      ok: false,
+      rules: [
+        {
+          ruleId: "provider-rendering",
+          runner: "grit",
+          lane: "enforced",
+          status: "fail",
+          locked: true,
+          durationMs: 1,
+          disposition: {
+            kind: "execution-failed",
+            source: "diagnostic-provider",
+            failure: "DiagnosticOutputMalformed",
+            detail: "Grit output contains wrapper text around JSON.",
+          },
+          diagnostics: [
+            {
+              ruleId: "provider-rendering",
+              path: ".",
+              message: diagnosticMessage,
+              severity: "error",
+              baselined: false,
+            },
+          ],
+          message: "Grit rule failed.",
+          remediate: null,
+        },
+      ],
+    });
+
+    expect(renderCheckReport(report)).toContain(
+      [
+        "  .: Grit rule failed.",
+        "    --- diagnostic provider failure (DiagnosticOutputMalformed) ---",
+        "    Grit output contains wrapper text around JSON.",
+      ].join("\n")
+    );
+    const parsed = Value.Parse(
+      CheckReportSchema,
+      JSON.parse(renderCheckReport(report, { json: true }))
+    );
+    expect(parsed.rules[0]?.diagnostics[0]?.message).toBe(diagnosticMessage);
   });
 
   test("staged execution preserves selected rules for explicit not-applicable disposition", () => {
@@ -302,6 +357,18 @@ describe("rule selector boundary", () => {
     ).toEqual(["graph-proof"]);
   });
 
+  test("repeated explicit rule selectors preserve local and graph-backed rules", () => {
+    const local = fakeRule("local-proof", "habitat", "@habitat/cli");
+    const graph = fakeRule("graph-proof", "nx", "@habitat/cli");
+    const unselected = fakeRule("unselected", "grit", "@habitat/cli");
+
+    expect(
+      rulesForExecution([local, graph, unselected], {
+        selection: { rules: ["local-proof", "graph-proof"] },
+      }).map((rule) => rule.id)
+    ).toEqual(["local-proof", "graph-proof"]);
+  });
+
   test("Habitat script execution runs adjacent executable role files", async () => {
     const requests: Array<{ executable: string; argv: readonly string[] }> = [];
     const results = new Map();
@@ -328,13 +395,13 @@ describe("rule selector boundary", () => {
         {
           repoRoot,
           command: {
-            run: (request) =>
+            run: (request: HabitatProcessRequest) =>
               Effect.sync(() => {
                 requests.push({ executable: request.executable, argv: request.argv });
                 return makeHabitatCommandResult(request);
               }),
           },
-        } as any
+        }
       )
     );
 
@@ -817,6 +884,14 @@ function fakeRule(
 ): RuleRegistryRecord {
   return {
     id,
+    schemaVersion: 2,
+    title: `Test rule ${id}`,
+    placement: {
+      niche: "fixtures",
+      blueprint: "_self",
+      category: "quality",
+    },
+    operation: { kind: "check" },
     ownerProject,
     lane: "enforced",
     forbids: "test fixture",
@@ -830,7 +905,10 @@ function fakeRule(
   };
 }
 
-function passingRule(id: string, overrides: Record<string, unknown> = {}) {
+function passingRule(
+  id: string,
+  overrides: Partial<CheckReport["rules"][number]> = {}
+): CheckReport["rules"][number] {
   return {
     ruleId: id,
     runner: "grit",

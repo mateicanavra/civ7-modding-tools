@@ -52,6 +52,13 @@ describe("map and visibility reads", () => {
       Value.Check(Civ7MapSummaryInputSchema, { rawCommand: "GameplayMap.getGridWidth()" })
     ).toBe(false);
     expect(Value.Check(Civ7MapSummaryResultSchema, mapSummaryResult())).toBe(true);
+    const { mapSizeType: _mapSizeType, ...mapWithoutSizeType } = mapSummaryResult().map;
+    expect(
+      Value.Check(Civ7MapSummaryResultSchema, {
+        ...mapSummaryResult(),
+        map: mapWithoutSizeType,
+      })
+    ).toBe(false);
     expect(
       Value.Check(Civ7MapSummaryResultSchema, {
         ...mapSummaryResult(),
@@ -372,7 +379,7 @@ describe("map and visibility reads", () => {
         }
       );
       const reveal = await revealCiv7MapForPlayer(
-        { playerId: 0, disposableSession: true },
+        { playerId: 0 },
         { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
       const resources = await getCiv7GameInfoRows(
@@ -583,6 +590,7 @@ function mapSummaryPayload() {
       height: { ok: true, value: 54 },
       plotCount: { ok: true, value: 4536 },
       mapSize: { ok: true, value: 0 },
+      mapSizeType: { ok: true, value: "MAPSIZE_STANDARD" },
       randomSeed: { ok: true, value: 111 },
     },
     game: {

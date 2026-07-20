@@ -27,46 +27,69 @@
 - **op** — op-per-concern unit. `defineOp({ kind, id, input, output, strategies })` in `contract.ts`. Each op is its own directory `ops/<op-id>/{contract.ts, index.ts, types.ts, strategies/, rules?/}`. No cross-op reach-ins. Op id is `<domain>/<op-name>` kebab-case.
 - **strategy** — a named variant inside an op's `strategies` record. Key `default` is mandatory. The op envelope is `{ strategy: "<id>", config: {...} }` (TypeBox discriminated union built by `defineOp`). Most ops are single-strategy; multi-strategy ops live mostly in hydrology + ecology (see strategy table below).
 - **rule** — pure function in an op's `rules/`, shared across that op's strategies (e.g. `computeWindsEarthlike`).
-- **step** — executable contract boundary. `defineStep({ id, phase, requires, provides, artifacts:{requires,provides}, ops, schema })` + `createStep(contract, { artifacts, normalize?, run })`. `run(context, config, ops, deps)`; publish/read artifacts via `deps.artifacts.<name>.publish/read`.
+- **step** — executable contract boundary. `defineStep({ id, phase, requires, provides, artifacts:{requires,provides}, ops, schema })` selects consumed artifact contracts and complete provider modules; `createStep(contract, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. `run(context, config, ops, deps)` publishes and reads through `deps.artifacts.<name>`, whose runtimes derive from the contract's provider modules.
 - **stage** — recipe-level authoring + ownership surface. `createStage({ id, knobsSchema, steps, public?, compile? })`. Owns its authoring surface, knobs, and step composition — NOT global ordering, truth authority, or compute.
 - **recipe** — global stage/step order. `createRecipe({ id, namespace, tagDefinitions, stages, compileOpsById })`. Standard recipe id `mod-swooper-maps/standard`. Ordering is enforced by `contract-manifest.ts`, not by key order in `recipe.ts`.
-- **artifact** — named, typed, write-once cross-stage data. `defineArtifact({ name, id, schema })`; id `artifact:<domain>.<name>` or `artifact:map.<name>`. Also dependency-tag prefixes `field:<name>` and `effect:<name>`.
+- **artifact** — named, typed, write-once cross-stage data. One artifact module owns its `defineArtifact({ name, id, schema })` contract and complete structural/semantic `validate` function. `defineArtifactCatalog` derives runtime modules and consumer handles from that single registry; id `artifact:<domain>.<name>` or `artifact:map.<name>`. Pipeline dependencies are closed to artifact data (`artifact:*`) and execution guarantees (`effect:*`).
 - **knob** — stage-level semantic authoring shortcut, applied via `normalize()`/`compile()`.
 
 ---
 
-## The standard recipe — 17 ordered stages (VERIFY against `recipe.ts`)
+## The standard recipe — 22 ordered stages (VERIFY against `contract-manifest.ts`)
 
 Order authority is `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts` (`standardStageContractManifest`, enforced by `orderStandardStages()`). `recipe.ts` assembles via `orderStandardStages({...})`; its key order is irrelevant — the manifest reorders deterministically. `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md` was in sync at last check but is **down-ranked**: it can lag the engine-refactor-v1 normalization work — re-read `contract-manifest.ts` before trusting it.
 
 ```
-TRUTH STAGES (compute + publish artifacts; MUST NOT touch the adapter)
-  1  foundation                    mantle/plates/tectonics
-  2  morphology-coasts             landmass plates, rugged coasts
-  3  morphology-routing            flow routing
-  4  morphology-erosion            geomorphic cycle (stream-power + diffusion)
-  5  morphology-features           islands, mountains, volcanoes, landmasses
-  6  hydrology-climate-baseline    radiative/thermal/circulation/precip baseline
-  7  hydrology-hydrography         rivers, lakes
-  8  hydrology-climate-refine      precip refine (river-corridor / low-basin)
-  9  ecology-pedology              pedology classify + resource basins
-  10 ecology-biomes                Whittaker/Holdridge biome classify
+PHYSICS / TRUTH STAGES (compute + publish artifacts; MUST NOT touch the adapter)
+  1  foundation-mantle             mesh, mantle potential, mantle forcing
+  2  foundation-lithosphere        crust, plate graph
+  3  foundation-tectonics          plate motion, tectonics
+  4  foundation-orogeny            crust evolution
+  5  foundation-projection         tile-space foundation fields + plate topology (not engine projection)
+  6  morphology-coasts             landmass plates, rugged coasts
+  7  morphology-routing            flow routing
+  8  morphology-erosion            geomorphic cycle (stream-power + diffusion)
+  9  morphology-features           islands, mountains, volcanoes, landmasses
+  10 morphology-shelf              post-island coastline metrics + continental shelf
+  11 hydrology-climate-baseline    radiative/thermal/circulation/precip baseline
+  12 hydrology-hydrography         rivers, lakes
+  13 hydrology-climate-refine      precip refine (river-corridor / low-basin)
+  14 ecology-pedology              pedology classify + resource basins
+  15 ecology-biomes                Whittaker/Holdridge biome classify
 
-PROJECTION + PLANNER STAGES (consume truth, write engine terrain via adapter)
-  11 map-morphology                plot coasts/continents/mountains/volcanoes
-  12 map-hydrology                 project lakes
-  13 map-elevation                 build elevation
-  14 map-rivers                    plot rivers (authored terrain materialization)
-  15 ecology-features              score + plan floodplains/ice/reefs/wetlands/vegetation/plot-effects
-  16 map-ecology                   plot biomes, apply features, plot effects
-  17 placement                     starts, wonders, resources, discoveries
+MAP-PROJECTION STAGES (consume truth, materialize/read back through the adapter)
+  16 map-morphology                plot coasts/continents/mountains/volcanoes
+  17 map-hydrology                 project final rainfall, then lakes
+  18 map-elevation                 build elevation
+  19 map-rivers                    plot rivers (authored terrain materialization)
+
+PLANNER (adapter-free; publishes Ecology intent artifacts)
+  20 ecology-features              score + plan floodplains/ice/reefs/wetlands/vegetation/plot-effects
+
+MAP PROJECTION
+  21 map-ecology                   plot biomes, apply features, plot effects
+
+CIV7 PLANNER + MATERIALIZER
+  22 placement                     derive/plan/assign/place starts, wonders, resources, discoveries
 ```
 
-Read the interleave carefully: ecology *truth* (pedology, biomes) is computed at 9–10 *before* the `map-*` block; then `ecology-features` (15) runs *after* `map-rivers` because feature planning needs projected rivers; `map-ecology` (16) projects those features last before `placement` (17). `ecology-features` is a truth-consumer/planner — it has no `map-*` prefix and is NOT a pure projection stage even though it sits among them.
+Read the braid carefully: physical truth runs through `ecology-biomes` (15), but
+the pipeline then projects morphology/hydrology at 16–19 before the adapter-free
+`ecology-features` planner (20), whose scoring consumes projected river/coast
+evidence. `map-ecology` (21) materializes those plans, and `placement` (22)
+combines product planning with Civ7 writes/readback. `foundation-projection` (5)
+projects Foundation evidence onto the recipe's tile space; it does **not** call
+the Civ7 adapter. `morphology-shelf` (10) runs after island injection so the
+published shelf includes island coastlines before Hydrology starts.
 
 **narrative is absent.** The `narrative` domain has **0 ops** (`domain/narrative/ops/contracts.ts` is `export const contracts = {} as const`) and no live recipe stage slot. Subtrees (corridors/orogeny/overlays/tagging) persist as utilities; any claim of active narrative ops is wrong.
 
-**Residual non-stage dirs:** `stages/ecology/` and `stages/morphology/` exist but are NOT registered stages — they are shared artifact-helper directories (`artifacts.ts`, validation), have no `index.ts` stage registration, and are not passed to `orderStandardStages`. The normalization packet directs dissolving the `ecology` hub; treat both as implementation-internal residue, not stages.
+**Residual non-stage dirs:** `stages/foundation/`, `stages/ecology/`, and
+`stages/morphology/` are NOT registered stages. `foundation/` owns a shared
+stage-family viz helper; `ecology/` and `morphology/` own shared artifact
+catalogs. None has a stage `index.ts` or a manifest slot. Do not count these
+directories as stages or collapse the five registered `foundation-*` stages
+back into one.
 
 ---
 
@@ -113,11 +136,23 @@ Two import faces of a domain (path alias `@mapgen/domain/*` → `src/domain/*`):
 - Step **contracts** import `@mapgen/domain/<domain>` (the `defineDomain` contract index) to reference op contracts.
 - `recipe.ts` imports `@mapgen/domain/<domain>/ops` (the `createDomain` runtime) for `collectCompileOps`.
 
+Visualization is owned by the step's optional `createStep(contract, { viz })`
+facet. A helper private to one step lives at
+`stages/<stage>/steps/<step>/viz.ts`; helpers shared by multiple owner-stage
+steps (or consumed outside the stage) live at `stages/<stage>/viz.ts`. These
+files are implementation placement, not a second authoring surface. See
+`docs/system/libs/mapgen/reference/VISUALIZATION.md`; direct `context.viz`
+emission in live steps is compatibility code, not the scaffold for new work.
+For `morphology-shelf`, the owning surface is
+`stages/morphology-shelf/steps/compute-shelf`; a helper shared beyond that step
+would promote to `stages/morphology-shelf/viz.ts`, not the residual
+`stages/morphology/` artifact hub.
+
 **Registration points** when you add code (full skeletons in `assets/recipe-scaffolds.md`):
 - New **op** → create the `ops/<op-id>/` directory; add the contract to `ops/contracts.ts` and the impl to `ops/index.ts`.
 - New **step** → add the step contract to `standardStageContractManifest` (sets order) and the runtime step to the stage's `orderStandardStageSteps({...})`.
 - New **stage** → add to `standardStageContractManifest` (position = pipeline order), add to `orderStandardStages({...})` in `recipe.ts`; if it brings a new domain, add that domain to `collectCompileOps(...)`.
-- New **artifact** → `defineArtifact` in the stage's `artifacts.ts`; declare it in the producing step's `artifacts.provides` and any consumer's `artifacts.requires`.
+- New **artifact** → add one `artifacts/<name>.artifact.ts` module containing the contract and its complete validator; register that module once in `artifacts/index.ts` with `defineArtifactCatalog`; consumer contracts select derived `artifacts` handles, while producer contracts select `artifactModules`. `createStep` binds behavior only and derives publication runtimes from the producer contract.
 
 ---
 
@@ -146,8 +181,18 @@ Multi-strategy ops in live source (the rest are `default`-only):
 
 ## Truth vs projection (the load-bearing split)
 
-- **Truth stages** (1–10: `foundation` … `ecology-biomes`) compute deterministic physics and publish artifacts. They MUST NOT call the adapter. This is the layer where behavioral/physics changes live.
-- **Projection stages** (`map-*`) consume truth artifacts and write Civ7 engine terrain/features through the adapter. They MUST NOT own truth. `placement` (17) is the Civ7-facing planner/writer. `ecology-features` (15) is a truth-consumer/planner that feeds `map-ecology` — projection-adjacent, not `map-*`.
+- **Physics/truth stages** (1–15: the five `foundation-*`, five
+  `morphology-*` including `morphology-shelf`, three `hydrology-*`, then
+  `ecology-pedology` and `ecology-biomes`) publish canonical domain artifacts
+  and MUST NOT call the adapter. `foundation-projection` is tile-space physics,
+  not an engine-facing `map-*` projection.
+- **Planner stages** are deliberately distinct. `ecology-features` (20) is an
+  adapter-free, projection-adjacent intent planner feeding `map-ecology`;
+  `placement` (22) mixes domain planning with Civ7 materialization/readback.
+  Neither owns physical truth.
+- **Map-projection stages** (`map-*`: 16–19 and 21) consume authored evidence
+  and write/read engine terrain, biomes, and features through the adapter. They
+  MUST NOT become truth authorities.
 
 A common failure mode (see `references/worked-examples.md`, the coast-projection case): adapter terrain *maintenance* inside a `map-*` stage silently demotes a projected surface (coast→ocean) after the stamp. The fix reapplies the authoritative declared surface at each adapter boundary — drift happens after maintenance, not at the stamp.
 
@@ -158,15 +203,16 @@ A common failure mode (see `references/worked-examples.md`, the coast-projection
 The cross-stage contract is artifacts. The spine:
 
 ```
-foundation ──▶ artifact:foundation.{mesh,crust,plateGraph,tectonicHistory,...}
+foundation-* ──▶ artifact:foundation.{mesh,crust,plateGraph,tectonicHistory,...}
    │
    ▼
-morphology ──▶ artifact:morphology.topography   (elevation + seaLevel + landMask + bathymetry — canonical terrain truth)
-               artifact:morphology.{routing, coastlineMetrics(coastalLand/coastalWater/shelfMask/distanceToCoast),
-                                    mountains, volcanoes, beltDrivers, landmasses}
+morphology-* ──▶ artifact:morphology.topography   (elevation + seaLevel + landMask + bathymetry — canonical terrain truth)
+                 artifact:morphology.{routing, coastlineMetrics, shelf(post-island shelfMask/coast metrics),
+                                      mountains, volcanoes, beltDrivers, landmasses}
    │
    ▼
-hydrology  ──▶ artifact:climateField
+hydrology  ──▶ artifact:hydrology.baselineClimateField  (routing + refinement vintage)
+               artifact:climateField                    (final-refined consumer vintage)
                artifact:hydrology.{climateSeasonality, climateIndices, cryosphere, hydrography,
                                    lakePlan, riverNetworkMetrics, climateDiagnostics}
    │
@@ -178,10 +224,21 @@ ecology    ──▶ artifact:ecology.{biomeClassification, soils, resourceBasin
    ▼
 map-*      ──▶ writes engine terrain via adapter; may publish diagnostic artifact:map.* keys, e.g.
                artifact:map.morphology.coastClassification {baseWaterClass, sourceCoastMask, waterClass, policyCoastMask}
-               artifact:map.projectionMeta   (cross-stage map-level artifacts in recipes/standard/map-artifacts.ts)
+               artifact:map.projectionMeta   (cross-stage map-level module in recipes/standard/artifacts/)
 ```
 
-Artifacts are **write-once**: a producer `publish`es once; consumers `read`. To find who produces/consumes a given key, grep its `artifact:` id across `src/recipes/standard/stages/`. The `map.morphology.coastClassification.waterClass` key is treated as the authoritative post-`plotCoasts` coast/ocean projection and is reapplied after adapter maintenance in map-morphology/map-rivers/placement (commit `621658f3c`); `sourceCoastMask` is exposed separately for diagnostics.
+Artifacts are **write-once**: a producer `publish`es once; consumers `read`. Every
+`*.artifact.ts` module pairs one contract with the complete structural/semantic validator used
+by publish and satisfaction checks. Its owning `artifacts/index.ts` calls
+`defineArtifactCatalog`, then exports `catalog.modules` as `artifactModules` and
+`catalog.artifacts` as `artifacts`; a producer contract selects the relevant module entries and
+`createStep` derives the validated runtimes from that contract. This keeps registration, handles,
+and admission under one authority.
+To find who produces/consumes a given key, grep its `artifact:` id across
+`src/recipes/standard/stages/`. The `map.morphology.coastClassification.waterClass` key is treated
+as the authoritative post-`plotCoasts` coast/ocean projection and is reapplied after adapter
+maintenance in map-morphology/map-rivers/placement (commit `621658f3c`); `sourceCoastMask` is
+exposed separately for diagnostics.
 
 ---
 
@@ -189,8 +246,8 @@ Artifacts are **write-once**: a producer `publish`es once; consumers `read`. To 
 
 | `@swooper/mapgen-core` (engine substrate) owns | The mod (`mods/mod-swooper-maps`) authors |
 |---|---|
-| The authoring API (`defineOp/defineStep/defineArtifact/defineDomain`, `createOp/createStep/createStage/createRecipe/createDomain/implementArtifacts/collectCompileOps`) | All domain algorithms (ops, strategies, rules) |
-| Execution infra: PipelineExecutor, StepRegistry, write-once artifact runtime, TypeBox schema validation, trace/viz | Artifact schemas + ids; stage orchestration; recipe ordering; config schemas |
+| The authoring API (`defineOp/defineStep/defineArtifact/defineArtifactCatalog/defineDomain`, `createOp/createStep/createStage/createRecipe/createDomain/collectCompileOps`) | All domain algorithms (ops, strategies, rules) |
+| Execution infra: PipelineExecutor, StepRegistry, write-once artifact runtime, reusable TypeBox schema validation, trace/viz | Artifact schemas + ids + complete domain validators; stage orchestration; recipe ordering; config schemas |
 | Strategy dispatch (`runtimeStrategies[cfg.strategy]`) | Game-facing entrypoints, map configs, presets |
 | Zero Civ7 knowledge | Civ7 enters only at map entrypoints + `map-*`/`placement` adapter calls |
 

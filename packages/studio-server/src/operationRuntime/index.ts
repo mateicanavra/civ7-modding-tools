@@ -8,7 +8,6 @@ export type {
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
   RunInGameRuntimeObservation,
-  RunInGameSetupPrepared,
   RunInGameStarted,
   SaveDeployDeployed,
   SaveDeployPreparedRequest,
@@ -21,7 +20,3 @@ export {
   StudioOperationRuntime,
   type StudioOperationRuntimeApi,
 } from "./StudioOperationRuntime.js";
-export {
-  buildRunInGameSourceSnapshotEvidence,
-  hashRunInGameEvidenceValue,
-} from "./sourceSnapshot.js";

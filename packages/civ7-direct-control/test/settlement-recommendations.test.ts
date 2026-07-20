@@ -251,8 +251,9 @@ async function startSettlementRecommendationsTunerServer(): Promise<FakeTunerSer
 }
 
 function settlementRecommendations(input: SettlementInput) {
-  const playerId = Number.isInteger(input.playerId) ? input.playerId : 0;
-  const count = Number.isInteger(input.count) ? input.count : 5;
+  const playerId =
+    input.playerId !== undefined && Number.isInteger(input.playerId) ? input.playerId : 0;
+  const count = input.count !== undefined && Number.isInteger(input.count) ? input.count : 5;
   const requestedLocations = input.locations ?? [];
   const origins =
     requestedLocations.length > 0

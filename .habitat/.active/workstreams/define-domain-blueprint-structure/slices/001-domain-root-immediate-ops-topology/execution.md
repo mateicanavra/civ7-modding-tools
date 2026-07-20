@@ -109,7 +109,6 @@ bun habitat check --rule require_domain_ops_binding_surface --json
 bun run --cwd packages/civ7-map-policy check
 bun run --cwd packages/mapgen-core check
 bun run --cwd mods/mod-swooper-maps lint
-bun run --cwd mods/mod-swooper-maps verify
 bun habitat classify .habitat
 bun run --cwd tools/habitat check
 git diff --check

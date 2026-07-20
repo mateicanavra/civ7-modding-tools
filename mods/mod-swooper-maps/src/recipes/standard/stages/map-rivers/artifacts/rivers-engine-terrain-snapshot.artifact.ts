@@ -1,10 +1,14 @@
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/** Runtime schema for the final engine terrain snapshot captured after river modeling. */
 export const Schema = Type.Object(
   {
     stage: Type.String({
@@ -39,6 +43,17 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+/** Validates the post-river engine snapshot's dimensions and typed tile surfaces. */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") return Object.freeze(issues);
+  const candidate = value as Record<string, unknown>;
+  const cellCount = artifactCellCount(context);
+  appendArtifactTypedArrayIssues(issues, "landMask", candidate.landMask, Uint8Array, cellCount);
+  appendArtifactTypedArrayIssues(issues, "terrain", candidate.terrain, Uint8Array, cellCount);
+  appendArtifactTypedArrayIssues(issues, "elevation", candidate.elevation, Int16Array, cellCount);
+  return Object.freeze(issues);
 }

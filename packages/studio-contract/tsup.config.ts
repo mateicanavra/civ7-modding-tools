@@ -8,7 +8,7 @@ import { defineConfig } from "tsup";
  * proper JS and stay external — nothing is bundled in. This package must
  * never grow an `@orpc/server`, `effect`, or `effect-orpc` import; the
  * dependency list enforces that for externals (bun's isolated installs —
- * an undeclared import doesn't resolve), and the `kind:foundation` boundary
+ * an undeclared import doesn't resolve), and the `kind:library` boundary
  * row fences workspace-package imports.
  */
 export default defineConfig({

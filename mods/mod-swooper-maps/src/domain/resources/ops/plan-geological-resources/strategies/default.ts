@@ -16,6 +16,11 @@ const DEFAULT_RANGE = {
   evidence: "blocked" as const,
 };
 
+/**
+ * Builds deterministic geological demand rows across every canonical geological resource.
+ * Primary and suppression masks preserve physical host policy, while blocked derivative or
+ * unsupported types remain visible with typed blockers.
+ */
 export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "default", {
   run: (input) => {
     const size = validateGrid(input.width, input.height);

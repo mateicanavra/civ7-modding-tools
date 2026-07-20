@@ -17,11 +17,32 @@ verification, the product loop wins.
 
 - Record: `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
 - Live control record: `verification-ledger.md`
-- Snapshot/accounting record: `stack-recut-manifest.md`
+- Historical opening-stack snapshot: `stack-recut-manifest.md`
 
 `verification-ledger.md` is the only live status and resume authority. Other
 project files provide method, snapshots, corpora, decisions, or handoff context;
 they do not independently declare the current gate.
+
+### Current Graphite Law (2026-07-13)
+
+The final reconciled semantic tip becomes the A.2 split base only after its
+current checks and reviews pass. From that tip, create ordinary sibling Graphite
+children for A.2 and for the independent product-closeout continuation. Keep the
+siblings parallel while their code is independent. If a real dependency later
+appears, move the continuation's first unique branch above the completed A.2 tip
+with native Graphite, then restack only its descendants.
+
+Preserve every coherent existing layer. Use normal Graphite operations to
+restack, move, split, fold, submit, and merge only where inspection shows a
+concrete need. Do not construct a replacement stack, replay the repository from
+`main`, rebuild the tree from a manifest, create a dedicated recut worktree, or
+treat one sibling as a returned stack to integrate. The sibling branches already
+belong to one Graphite topology.
+
+This law supersedes every later reference to sink-stack reconstruction,
+wholesale replay, mechanical recut, returned-stack integration, or mandatory
+source-to-sink ceremony. Those passages remain only as historical planning
+evidence. They are not executable authority.
 
 ### Current Scope And Authority Amendment
 
@@ -29,7 +50,7 @@ The reviewed
 `docs/projects/mapgen-studio-runtime-transition/TAKEOVER-FRAME.md` is the
 current interpretation and Stage 2 scope supplement for this workstream. It
 records the direct takeover decision, the expanded closeout corpus, the
-protected inherited candidate, and the remaining stage order. This workstream
+ratcheted current layers, and the remaining stage order. This workstream
 retains execution-method authority; where its older role, admission, or scope
 language conflicts with the takeover frame, this amendment is the controlling
 repair.
@@ -50,14 +71,12 @@ readiness. Admission is unit-scoped: every disposition needed by the unit being
 executed must be final before that unit mutates. Stage 2 as a whole closes only
 when the complete admitted corpus has zero undecided semantic rows.
 
-Ownership amendment (2026-07-13): after `RuleFixPreview` and stale-Authority
-reconciliation seal one immutable A.2 launch commit, the user's A.2
-orchestrator owns A.2 Authority, advisory census/classification, six domain
-migrations, review disposition, and Graphite mutation below that launch tree.
-The takeover DRA protects those surfaces, advances the disjoint product track,
-then integrates the returned A.2 stack and retains final product/initiative
-closure. This bounded split supersedes older sole-orchestrator language only
-for the delegated A.2 track.
+Ownership amendment (2026-07-13): from the reviewed split base, the user's A.2
+orchestrator owns A.2 Authority, advisory census/classification, and the six
+domain migrations on one sibling track. The takeover DRA protects those
+surfaces, advances the independent product track on the other sibling, and
+retains final product and initiative closure. The Current Graphite Law governs
+any later dependency-driven movement between them.
 
 ## Opening Packet
 
@@ -107,15 +126,16 @@ Hooks/watchers:
 
 - no new hook or watcher is introduced by the planning frame;
 - existing Husky delegates and Habitat/Nx/Biome routing remain authoritative;
-- any execution watcher is declared in its Wave Packet, writes only to its
-  assigned scratch/control record, and is stopped at stage close.
+- any execution watcher is bounded in its agent prompt, writes only to its
+  assigned evidence home, and is stopped at stage close. A Wave Packet is not
+  required.
 
 Output contract:
 
 - accepted transition decision and authority routing;
-- complete obligation/source accounting;
-- semantically complete integration tree;
-- deterministic recut stacks and closed branches;
+- complete obligation disposition;
+- semantically complete product tree;
+- coherent, reviewed Graphite layers;
 - exact-head browser/Civ7 matrix;
 - reconciled and archived OpenSpec records;
 - merged/drained Graphite state and zero-context Habitat return packet.
@@ -167,9 +187,9 @@ the digest. Live ledger, gate, cleanup, and wave records remain outside this
 semantic digest and use their own append/update contracts. Any semantic change
 to a bound file requires affected re-review and a new supervisor attempt.
 
-Whenever execution pauses before closure, `NEXT-PACKET.md` is written or
-refreshed with the exact current gate and next action. It is not reserved only
-for Stage 9.
+Refresh `NEXT-PACKET.md` only at a meaningful semantic boundary, ownership
+transfer, or intentional long pause. Routine commands and intermediate slices
+do not earn another documentation cycle.
 
 ## Objective
 
@@ -206,8 +226,8 @@ This workstream is complete only when all of the following are true:
 
 - `main` contains the accepted behavioral baseline in semantically reviewable
   Graphite changes rather than one historically entangled branch.
-- Every commit and changed path from the opening stack has one recorded sink or
-  terminal disposition.
+- Every retained semantic layer is reviewable, and excluded or superseded work
+  has an explicit terminal disposition.
 - The 14 original runtime packets and 7 real-user-path remediation packets
   agree with their code, tasks, verification ledgers, promoted specs, and
   archive state.
@@ -391,16 +411,13 @@ vocabulary. In neither case do they carry separate authority.
   supported direct-control soft game/setup lifecycle and must not relaunch the
   whole Civilization VII application as the ordinary path.
 
-Studio process lifecycle, private Codex worktree lifecycle, shared developer
-lifecycle, Civ7 game soft restart, and whole-Civ application restart are five
-separate ownership axes:
+Studio process lifecycle, Civ7 game soft restart, and whole-Civ application
+restart are separate ownership axes:
 
-- `mapgen-studio:serve-daemon` is the canonical Studio daemon execution target;
-- `scripts/codex/manage-mapgen-studio.sh` is a worktree-owned composition
-  consumer with a private tmux socket, worktree-derived ports/state, and
-  ownership-only teardown;
-- shared developer restart/down commands retain their own explicitly bounded
-  process scope and may not be substituted for the private Codex helper;
+- `mapgen-studio:dev` is the sole development composition target;
+- its continuous `mapgen-studio:serve-daemon` dependency owns daemon startup,
+  while Nx owns the composed foreground process lifecycle and prerequisite
+  graph;
 - Run in Game asks direct control for the supported Civ7 game/setup transition;
 - no ordinary path turns a game soft restart into a whole-application restart.
 
@@ -461,14 +478,14 @@ stronger claim.
 | --- | --- | --- |
 | Authority | Intended ownership, behavior, and destination | Current implementation or runtime success |
 | Review | Independent finding/closure assessment at the bound tree or document digest | The gate being reviewed unless its findings and reruns close |
-| Source accounting | Every opening commit/path has a sink or terminal disposition | Semantic correctness of the sink |
+| Semantic disposition | Every retained, excluded, or superseded unit has an explicit outcome | Semantic correctness of the retained implementation |
 | Static verification | Types, lint, OpenSpec validity, Habitat rules, structure, dependency metadata | Endpoint, browser, or Civ7 behavior |
 | Behavior verification | Unit/integration behavior under controlled inputs | Running Studio endpoint or real Civ7 state |
 | Endpoint verification | Actual public `/rpc` behavior from the running worktree | Rendered browser request construction or in-game authorship |
 | Browser verification | Visible user controls produced and submitted the admitted request | Civ7 loaded the requested generated content |
 | Setup verification | Direct-control readback sees the request-local row and selected setup state before Begin | Post-start game content |
 | In-game verification | Request-specific marker plus live status/snapshot match the admitted run | Permanent architecture correctness |
-| Integration verification | Graphite/PR/main tree contains the reviewed sink stack | Runtime behavior if the relevant tree or environment changed |
+| Integration verification | Graphite/PR/main tree contains the reviewed accepted branches | Runtime behavior if the relevant tree or environment changed |
 
 Operational evidence is bound to the Git tree hash, generated artifact digests,
 Studio server identity and repo root, Civ7/runtime version where available, and
@@ -485,19 +502,23 @@ or semantic meaning and Graphite location, into one compound value.
 | --- | --- |
 | Opening semantic proposal | `unresolved`, `proposed-retain`, `proposed-repair`, `proposed-split`, `proposed-delete`, `proposed-park`, `proposed-exclude` |
 | Final semantic disposition | `retain-behavior`, `retain-pure-kernel`, `repair-before-merge`, `split-before-review`, `delete-or-supersede`, `park-future-initiative`, `exclude-unrelated` |
-| Graphite accounting | `needs-adoption`, `adopted`, `superseded`, `excluded`, `reference-only`, `adoption-sink` |
+| Historical source/sink accounting, reference only | `needs-adoption`, `adopted`, `superseded`, `excluded`, `reference-only`, `adoption-sink` |
 | Finding disposition | `accepted`, `rejected`, `invalidated`, `waived`, `deferred` |
 | Repair state | `not-required`, `open`, `repaired`, `rerun-pending`, `closed` |
 | Verification state | `not-run`, `running`, `failed`, `passed`, `not-applicable`, `stale`, `invalidated`, `environment-unavailable` |
-| Lifecycle state | `task-checked`, `branch-verified`, `integration-verified`, `runtime-ready`, `OpenSpec-archived`, `submitted`, `merged`, `workstream-closed` |
+| Lifecycle state | `task-checked`, `branch-verified`, `authority-ready`, `integration-verified`, `runtime-ready`, `OpenSpec-archived`, `submitted`, `merged`, `workstream-closed` |
 
-`integration tree` is the semantically complete Stage 2 staging tree.
+`integration tree` is the semantically complete Stage 2 product tree.
 `replacement-listed` identifies current topology explicitly slated for later
-decomposition or replacement; it is not a provisional decision. `Sink branch`
-and `sink stack` are Graphite destinations. `Future target architecture` is
-reserved for the RAWR/Habitat destination. No lifecycle value implies the next.
-`runtime-ready` is P21's Stage 5 state: implementation, static gates, and
-pre-runtime reviews are closed while Stage 6 live rows remain open.
+decomposition or replacement; it is not a provisional decision. Historical
+`sink branch` and `sink stack` values describe the superseded recut plan and do
+not authorize replacement branches. `Future target architecture` is reserved
+for the RAWR/Habitat destination. No lifecycle value implies the next.
+`authority-ready` is P21's Stage 5 state: its executable acceptance contract and
+pre-integration reviews are closed while integrated gates and all live rows
+remain open. `runtime-ready` is its Stage 6 state: the reconverged product tree
+and deterministic gates are green while the three final Stage 8 rows remain
+open.
 
 ## Operating Model
 
@@ -507,10 +528,10 @@ This is a single-accountability systematic workstream:
 | --- | --- | --- | --- |
 | Takeover DRA | Current orchestrator | frame and authority, corpus synthesis, semantic decisions, sequencing, Git/Graphite and process state, evidence claims, finding disposition, commits, merge, drain, and closure | cannot self-approve required review lanes or delegate final synthesis and closure |
 
-The immutable A.2 handoff creates a second bounded orchestrator below the
-launch tree. That orchestrator owns A.2 synthesis, reviews, and Graphite layers;
-the takeover DRA remains the final cross-track integrator and does not amend A.2
-ancestors or duplicate A.2 implementation.
+The reviewed split base creates two ordinary sibling tracks. The A.2
+orchestrator owns A.2 synthesis, reviews, and Graphite layers; the takeover DRA
+owns the independent continuation and final product closure. Neither mutates
+the common ancestors or duplicates the other's implementation.
 
 The three stable review roles are TypeScript/state-space simplification,
 architecture/authority simplification, and product/runtime/library verification.
@@ -534,27 +555,26 @@ Agent waves follow these rules:
 - Prompts name the packet context, authority sources, exact write or review
   scope, expected output, and failure modes to hunt.
 - Only the accountable orchestrator for a track mutates that track's Graphite
-  topology. The A.2 orchestrator owns descendants of the immutable launch tree;
-  the takeover DRA owns the main track and final integration. Concurrent
+  topology. The A.2 orchestrator owns its sibling descendants; the takeover DRA
+  owns the continuation. Concurrent
   implementation agents use isolated forks or disjoint write sets and return
   bounded changes.
 - Agents are closed when their wave is dispositioned. No stale agent is carried
   into a later packet.
 
-Every delegated lane receives an Agent Packet, and every multi-agent phase
-receives a Wave Packet. The live ledger records active, completed, and stale
-agents. A packet includes:
+Every delegated lane receives a rich, bounded prompt that includes:
 
 - authority order and bounded objective;
 - allowed and forbidden files;
-- evidence inputs, output paths, and record target;
+- evidence inputs and output destination;
 - expected diff or read-only output;
-- required gates and Graphite constraints;
+- required proof and Graphite boundaries;
 - lane done condition and DRA decision point;
 - scratch path and redaction/retention rules;
 - close condition.
 
-No stage promotes while an assigned agent is unaccounted or stale.
+No stage promotes while an assigned agent is unaccounted or stale. A separate
+packet, agent database, or wave record is not required.
 
 ## Universal Closed Loop
 
@@ -568,8 +588,7 @@ Every stage and every Stage 5 unit uses the same closure geometry:
    conditions to every row. Resolve live ambiguity through investigation.
 4. **Execute.** Make the smallest complete transformation that satisfies the
    decided rows.
-5. **Verify.** Run every declared gate at the evidence class it claims and
-   append one complete attempt row to `gate-register.jsonl`.
+5. **Verify.** Run every declared gate at the evidence class it claims.
 6. **Review.** Run fresh, risk-selected review lanes against the actual diff and
    records.
 7. **Repair.** Disposition every finding. P1/P2 findings close only through
@@ -577,9 +596,9 @@ Every stage and every Stage 5 unit uses the same closure geometry:
    cited user/owning-authority decision. Only P3 findings may be waived or
    deferred. Every repair retains the original finding and links affected-gate
    reruns.
-8. **Close.** Confirm the gate register and cleanup register are terminal for
-   the loop, commit through Graphite, restack only affected descendants, update
-   ledgers and downstream records, close agents, and leave the worktree clean.
+8. **Close.** Commit the semantic unit through Graphite, restack only affected
+   descendants, update the owning records, close agents, and leave the
+   worktree clean.
 
 A loop cannot close with an unmapped corpus row, an unchecked declared gate, an
 undispositioned finding, stale downstream packet text, or an unexplained dirty
@@ -597,41 +616,21 @@ exact next action, but the workstream remains open and is not reported green.
 
 Stages 3 through 9 are not new design surfaces. Any discovery that changes
 implementation, product behavior, contract, authority, semantic ownership, or
-code design invalidates the Stage 2 integration tree. If authority must change,
-reopen Stage 1 first; then always rebuild and reclose Stage 2 before replaying
-every affected later stage. No later stage may jump directly from an authority
-change to Stage 3.
+code design invalidates the Stage 2 product tree. If authority must change,
+reopen Stage 1 first; then reclose the affected Stage 2 units before continuing.
 
-Only a discrepancy proven to be purely mechanical may close locally in Stages
-3, 4, or 7: Graphite command syntax, source/sink transcription, archive command
-mechanics, or record formatting that leaves accepted semantics and the Stage 2
-tree unchanged. If that classification is uncertain, use semantic backflow.
+Only a discrepancy proven to be purely mechanical may close locally in later
+stages: Graphite command syntax, archive mechanics, or record formatting that
+leaves accepted semantics and the Stage 2 tree unchanged. If that
+classification is uncertain, use semantic backflow.
 
-### Graphite Mutation Lease
+### Graphite Ownership
 
-Every Graphite or branch-topology mutation cohort requires the same lease,
-including the planning commit, Stage 2 integration-branch construction, Stage
-4 recut, Stage 5 commits/restacks, P21 closure commit, Stage 7 archive layers,
-Stage 8 submit/merge/drain, and Stage 9 handoff. Before each cohort:
-
-1. capture fresh Git, Graphite, worktree, operation, remote, and PR state;
-2. record the sole mutator, scope, and starting state in the live ledger and
-   cleanup register;
-3. forbid sibling Graphite mutation until a clean ending census is recorded;
-4. release or explicitly transfer the lease before another cohort or owner.
-
-No opening Studio source ref may be restacked, folded, reparented, deleted, or
-rewritten until Stage 0 has verified the recovery bundle and Stage 1 has recorded
-the accepted refreshed-main prerequisite checkpoint. External main-root
-prerequisite branches may complete their own reviewed merge paths without
-rewriting an opening source ref. The planning branch is the only pre-Stage-0
-topology addition, and it must be created as a child without restacking its
-ancestors. `needs restack` is therefore an observed source fact, not permission
-to mutate the opening chain.
-
-`gt undo` is allowed only for the last understood local, unsubmitted mutation
-while the same lease remains held. It is never used for submitted, remote, or
-merged operations; those use an owning-branch correction or reviewed revert.
+The accountable track owner is the sole Graphite mutator for that track. Check
+current branch, stack, index, and worktree state before and after each operation;
+keep each branch one coherent semantic unit. Use native Graphite normally.
+Independent sibling tracks remain untouched, and dependency movement occurs
+only when current code proves it necessary.
 
 ## Durable Artifact Set
 
@@ -640,37 +639,26 @@ The project home is `docs/projects/mapgen-studio-runtime-transition/`.
 | Artifact | Role | Creation point |
 | --- | --- | --- |
 | `WORKSTREAM.md` | This normative operating frame | opening |
-| `stack-recut-manifest.md` | Opening snapshot, source-to-sink accounting, and sink branch graph | Stage 0 |
+| `stack-recut-manifest.md` | Historical opening snapshot and superseded recut model; reference only | Stage 0 history |
 | `obligation-corpus-contract.md` | Superseded planning rider retained as history; not an executable Stage 0 requirement | planning history |
 | `semantic-review-paths.txt` | Exact self-including path set for reproducible planning semantic digests | planning closure |
 | `TAKEOVER-FRAME.md` | Reviewed transition decision, Stage 2 scope supplement, DRA transfer, philosophy, and continuation boundary | takeover reconciliation |
 | `verification-ledger.md` | Aggregate gate status, review findings/dispositions, evidence invalidation, merge state | Stage 0, maintained throughout |
-| `gate-register.jsonl` | One immutable attempt row per planning, stage, packet, cross-cutting-unit, archive, merge, and cleanup gate | planning closure, appended throughout |
-| `cleanup-register.jsonl` | Lifecycle accounting for agents, scratch, processes, listeners, watchers, tmux sessions, temporary worktrees, recovery artifacts, and protected refs | planning closure, maintained throughout |
-| `evidence/runtime/<checkpoint>/<row-id>/<attempt-id>.md` | Immutable per-attempt runtime record; Stage 6 and Stage 8 never overwrite one another | Stage 6 and Stage 8 |
-| `waves/<wave-id>.md` | Durable Agent/Wave Packet, assignments, output/finding links, handoff state, and close condition | every delegated wave |
+| `gate-register.jsonl` | Historical detailed gate attempts; not a required current control plane | planning history |
+| `cleanup-register.jsonl` | Historical resource accounting; not a required current control plane | planning history |
+| `waves/<wave-id>.md` | Historical wave evidence; new work uses bounded prompts and owning records | prior waves only |
 | `deferrals.md` | Parked future initiatives and any consciously retained transitional risk, each with trigger | Stage 1 onward |
 | `triage.md` | Unsequenced discoveries that require a later decision; an explicit empty state is allowed | Stage 0 onward |
-| `NEXT-PACKET.md` | Zero-context return to the Habitat authority descent after closeout, or exact resume packet if paused | any pause; Stage 9 finalization |
+| `NEXT-PACKET.md` | Zero-context return to the Habitat authority descent after closeout, or exact resume packet at a semantic boundary | meaningful pause or transfer; Stage 9 finalization |
 
 Packet-local task and verification records remain the detailed homes for packet
 claims. The aggregate ledger links them and records current validity; it does
 not duplicate every terminal line. New rider documents require a distinct owner
 or query that cannot be answered from this set.
 
-Every `gate-register.jsonl` row records `gateId`, `attemptId`, `stage`,
-`unit`, claim and `evidenceClass`, command or procedure, preconditions, source
-tree and environment fingerprints, start/end timestamps, raw result and
-artifact links, oracle, verdict, skipped/not-applicable rationale,
-`invalidatedBy`, `rerunOf`, and review/finding links. A declared gate cannot
-close as skipped. `not-applicable` requires a cited authority decision showing
-that the gate does not apply.
-
-Every `cleanup-register.jsonl` row records `resourceId`, `kind`, `owner`,
-`purpose`, path/session/PID/ref `identity`, `openedAt`,
-`expectedTerminalState`, `currentState`, `evidenceRefs`,
-`preservationReason`, `retentionTrigger`, and `closedAt`. The live Agent Fleet
-is an index over these rows, not a substitute for them.
+Historical gate and cleanup rows retain their evidence value. New work records
+only the discriminants and prose needed for the owning semantic unit; it does
+not extend those files into a progress runtime.
 
 ## Planning Closure Loop: Trunk Drain And Design Lock
 
@@ -678,7 +666,7 @@ This historical loop is closed and non-replayable. It is retained to explain how
 the planning layer and prerequisite substrate were created; its commands, refs,
 roles, locks, and transitions are not current instructions. Current mutation
 authority and unit admission live in the control amendment, Operating Model,
-Universal Closed Loop, Graphite Mutation Lease, and live ledger.
+Universal Closed Loop, Graphite Ownership, and live ledger.
 
 This loop was pre-execution work, not Stage 0 implementation. It existed because
 the accepted prerequisite cohort had to become one exact trunk substrate before
@@ -868,16 +856,17 @@ trunk checkpoint plus one immutable opening source chain.
 
 ```mermaid
 flowchart LR
-  P["Planning: trunk drain and reviewed frame"] --> A["S0: finite opening corpus"]
-  A --> B["S1: accepted semantic dispositions"]
-  B --> C["S2: complete behavioral integration tree"]
-  C --> D["S3: deterministic sink branch graph"]
-  D --> E["S4: mechanically recut stacks"]
-  E --> F["S5: individually closed change units"]
-  F --> G["S6: preliminary P21 browser and Civ7 closure"]
-  G --> H["S7: reconciled and archived change records"]
-  H --> I["S8: final freeze, runtime matrix, merge, and drain"]
-  I --> J["S9: merged closeout handoff and Habitat return"]
+  A["Reviewed split base"] --> B["A.2 sibling"]
+  A --> C["Independent continuation sibling"]
+  B --> D["A.2 semantic layers"]
+  C --> E["Product closeout layers"]
+  D --> F["Dependency-earned Graphite movement, only if needed"]
+  E --> F
+  F --> G["S5: individually closed change units"]
+  G --> H["S6: integrated product readiness"]
+  H --> I["S7: reconcile completed change records"]
+  I --> J["S8: final P21 matrix, merge, and drain"]
+  J --> K["S9: closeout and Habitat continuation"]
 ```
 
 Each arrow is a gate. Work does not advance merely because activity occurred;
@@ -885,6 +874,9 @@ the prior stage must have reduced the next stage's decisions to a finite,
 recorded set.
 
 ## Stage 0: Opening Census And Control Plane
+
+Historical and closed. Its recovery and accounting work explains the current
+corpus but is not rerun from the split base.
 
 **Purpose:** replace historical intuition with a finite corpus.
 
@@ -991,6 +983,9 @@ are sequential DRA decisions.
 **Narrowing result:** an unknown historical stack becomes a finite set of rows.
 
 ## Stage 1: Transition Authority And Semantic Disposition
+
+Historical and closed. Its accepted transition decision is carried by the
+Current Scope And Authority Amendment; do not replay its opening corpus loop.
 
 **Purpose:** decide what deserves to survive before deciding how to package it.
 
@@ -1132,9 +1127,8 @@ baseline that hides live findings.
 
 Stage 1 must also close these known decisions before implementation continues:
 
-- whether `EditorLaunchSource` remains in the accepted public union; if it
-  remains, its live matrix row remains mandatory, and if it is removed the
-  contract/spec change is explicit and reviewed;
+- A.4 removed the launch-source union; P21 consumes one complete canonical
+  config and has no Editor live row;
 - whether the final merged local-environment handoff requires any Stage 2
   lifecycle composition change beyond its already accepted contract;
 - confirmation that the merged main-root Foundry sink is consumed as future
@@ -1180,13 +1174,9 @@ intent set.
 
 ## Stage 2: Integration Tree Completion And Semantic Lock
 
-**Purpose:** finish the accepted behavior on one controlled integration tip
-before asking history surgery to express it.
-
-Recutting an incomplete tree would force product and architecture decisions to
-occur while resolving Git history. This stage keeps those decisions in their
-own semantic loop. The integration tip is staging substrate, not a reviewable
-final stack and not target architecture.
+**Purpose:** finish accepted behavior in coherent semantic Graphite layers
+before product certification. Product and architecture decisions stay in their
+own semantic loop rather than being hidden inside topology operations.
 
 **Entry gate**
 
@@ -1201,32 +1191,28 @@ final stack and not target architecture.
 - every incomplete current obligation has a semantic owner and expected
   evidence class.
 
-The sealed Stage 2 spine is control reconciliation; generic diagnostic
-acquisition; `RuleDiagnostics`; generic authority-derived fix admission; and
-A.3a. The next serialized prerequisites are `RuleFixPreview`, stale-Authority
-reconciliation, selected descent-frame adoption, and the immutable A.2 launch
-boundary. From there A.2 Authority/census/six domains and the disjoint
-A.3/A.4/A.5/control-oRPC/P19/P20 track may advance independently. Returned A.2
-integration and operation-sensitive A.3 scopes precede P21 semantic readiness.
-Dependency evidence may refine this order, but numeric labels and inherited
-branch shape do not.
+The sealed Stage 2 spine includes control reconciliation, generic diagnostic
+acquisition, `RuleDiagnostics`, authority-derived fix admission,
+`RuleFixPreview`, A.3a, and Nx output ownership. Current readiness
+reconciliation produces the split base. From there A.2
+Authority/census/six domains and the disjoint
+A.3/A.4/A.5/control-oRPC/P19/P20 track advance as ordinary sibling Graphite
+children. Operation-sensitive A.3 waits for A.2 only when source dependencies
+prove that ordering. Dependency evidence may refine this order, but numeric
+labels and inherited branch shape do not.
 
 **Candidate construction**
 
-- Create the controlled integration branch from that exact refreshed-main
-  commit, not from the old `6b6946fe10` runtime tip or the opening stacked
-  authority branch. Replay every accepted runtime source row onto this base in
-  dependency order. Keep the opening runtime and authority refs separately
-  accounted until their sinks merge.
-- Do not replay the environment bootstrap, Desktop environment,
-  intelligence-bridge output, Foundry sink, Habitat harness repair, semantic UI
-  fixture repair, or token branch into Studio sinks; they are already-owned
-  trunk substrate.
-- Confirm the Stage 0 recovery bundle remains readable and checksum-valid
-  before changing the integration tip.
-- Implement missing or invalid accepted behavior in focused, forward-locked
-  commits on the integration tip. These commits are recut inputs, not final PR
-  boundaries.
+- Continue from the coherent existing Graphite stack. Add one reviewable
+  semantic child per product change; do not recreate the tree from `main` or
+  replay already accepted work.
+- Keep the external environment, Foundry, Habitat harness, Studio UI fixture,
+  and token changes in their existing owners. They are trunk substrate, not
+  changes to reproduce in this stack.
+- Use targeted native Graphite movement only when current dependency inspection
+  requires it. Ordinary branch history and reviews are the accounting surface.
+- Implement missing or invalid accepted behavior in focused commits on the
+  owning branch.
 - Complete generated-map-mod visibility before saved-config reconciliation,
   and reconciliation before matrix closure.
 - Repair the all-config materialization boundary generically before using any
@@ -1250,8 +1236,8 @@ branch shape do not.
   legitimate implementation discovery changes a row.
 
 Each semantic unit runs the universal loop through implementation review and
-targeted verification, but it is not called branch-closed until Stage 5 places
-and rechecks it in its final Graphite branch.
+targeted verification. It is branch-closed only after those checks pass on its
+actual Graphite branch.
 
 **Targeted integration-tree checks**
 
@@ -1263,9 +1249,9 @@ and rechecks it in its final Graphite branch.
   runtime design;
 - aggregate tree comparison against the Stage 1 retain/delete/repair set.
 
-The expensive complete live matrix remains the exact-head gate in Stage 6.
+The expensive complete live matrix remains the exact-head gate in Stage 8.
 Stage 2 must nevertheless establish enough real runtime behavior to prevent a
-known broken integration tree from being recut.
+known broken candidate from entering certification.
 
 **Parallel work**
 
@@ -1287,18 +1273,21 @@ the canonical integration branch.
 - no known accepted product defect remains in the integration tree;
 - every inherited red-gate row is terminal at its assigned authority/behavior
   gate, and the environment branch is not blamed for unrelated failures;
-- no semantic row is waiting for recut-time resolution;
+- no semantic row is waiting for topology-time resolution;
 - all integration-tree P1/P2 findings are repaired;
 - focused static, behavior, endpoint, and necessary runtime checks are green;
 - the integration tree hash and intentional delta from the opening tree are
   recorded;
-- the worktree is clean and all staging commits are available as recut sources.
+- the worktree is clean and every semantic layer is available in Graphite.
 
 **Narrowing result:** accepted intent becomes one semantically complete tree,
 leaving only topology, branch-local certification, and final composed runtime
 verification unresolved.
 
-## Stage 3: Sink Stack Design And Recut Simulation
+## Superseded Stage 3 Plan: Sink Stack Design And Recut Simulation
+
+Historical only. The Current Graphite Law replaces this replacement-stack
+design. Do not execute the steps in this section.
 
 **Purpose:** convert accepted intent into a deterministic Graphite graph before
 mutating history.
@@ -1394,7 +1383,11 @@ sequential synthesis.
 
 **Narrowing result:** accepted intent becomes a deterministic sink graph.
 
-## Stage 4: Mechanical Recut And Stack Integrity
+## Superseded Stage 4 Plan: Mechanical Recut And Stack Integrity
+
+Historical only. The Current Graphite Law preserves the existing stack and
+permits only concrete, native Graphite normalization. Do not execute the steps
+in this section.
 
 **Purpose:** realize the approved Graphite graph without changing semantics by
 accident.
@@ -1469,8 +1462,9 @@ unit before relying on integrated success.
 
 **Entry gate**
 
-- Stage 4 stack integrity is green;
-- sink branches are ordered by hard dependency;
+- current Graphite topology has been inspected and any concrete normalization
+  required by a real dependency is complete;
+- branches are ordered only by hard dependency;
 - no branch is considered complete solely because its source commit once had a
   green log.
 
@@ -1480,19 +1474,19 @@ Run one unit at a time in manifest order. For each packet or cross-cutting unit:
 
 1. Read its proposal, design, spec deltas, tasks, workstream records, relevant
    authority, current source, tests, and dependent packets.
-2. Reconcile each task and verification row with the recut branch and current
+2. Reconcile each task and verification row with its owning branch and current
    tree. Reopen stale claims.
 3. Confirm that no product, authority, contract, or code-design question remains.
-   Any such question returns the workstream to Stage 2, rebuilds the integration
-   tree, and reruns affected Stage 3 and Stage 4 work. Recut conflict resolution
-   and branch certification are never implementation design surfaces.
+   Any such question returns to its owning semantic slice and reruns affected
+   checks and reviews. Graphite conflict resolution and branch certification are
+   never implementation design surfaces.
 4. Run strict OpenSpec validation, `bun habitat classify` on the actual write
    set, every classify-reported command, packet behavior tests, and declared
    endpoint/runtime checks.
 5. Run fresh reviewer lanes against the actual branch diff.
 6. Repair evidence/record findings and rerun affected gates. A finding that
    requires implementation, contract, authority, or code-design change returns
-   to Stage 2 rather than being patched into the recut stack.
+   to its owning semantic slice rather than being patched during certification.
 7. Commit reserved branch-local verification records through Graphite, restack
    descendants, close the wave's agents, and
    leave the worktree clean.
@@ -1523,7 +1517,7 @@ risks require them. Required lanes are never replaced by DRA self-review.
 
 - Confirm the plugin change enables only the intended Effect rule surface, not
   unrelated framework rule sets.
-- Re-run the Effect-focused diagnostic inventory at the recut tip.
+- Re-run the Effect-focused diagnostic inventory at the current candidate tip.
 - Group fixes by semantic change type and dependency, not by arbitrary file
   count.
 - Close every diagnostic in the declared scope with a fix, deletion, or
@@ -1542,15 +1536,16 @@ risks require them. Required lanes are never replaced by DRA self-review.
 
 **Real-user-path remediation train**
 
-- Close P15 through P20 in index order and move P21 to `runtime-ready`.
+- Close P15 through P20 in index order and move P21 to `authority-ready`.
 - Treat `studio-run-generated-map-mod-visibility` as open until its renderer,
   deployment identity, Civ7 catalog refresh, setup-row readback, reviews, and
   declared gates close.
 - Treat `studio-run-saved-config-modset-reconciliation` as open until its current
   unchecked OpenSpec, Habitat, review, and ledger rows close.
-- Treat `studio-run-real-user-matrix-closure` as `runtime-ready` only when its
-  code, static gates, harness, and pre-runtime reviews are green; Stage 6 owns
-  its live rows, final review, commit, and packet closure.
+- Treat `studio-run-real-user-matrix-closure` as `authority-ready` only when its
+  executable matrix contract and pre-integration reviews are green. Stage 6
+  promotes it to `runtime-ready` after the reconverged static and behavior gates;
+  Stage 8 owns its three live rows, final review, commit, and packet closure.
 
 **Config single-source behavior**
 
@@ -1568,25 +1563,13 @@ risks require them. Required lanes are never replaced by DRA self-review.
 
 **Studio lifecycle and daemon stability**
 
-- Keep shared `bun run dev:mapgen-studio:down` and restart behavior
-  deterministic within their declared developer-owned scope.
+- Keep one Nx-owned `mapgen-studio:dev` graph with Vite depending on the
+  continuous daemon target.
 - Ensure the runtime host does not use source watch in a way that restarts during
   generated/runtime writes.
-- Ensure restart scripts start Studio from the active worktree and report the
-  daemon repo root and server identity.
-- Close `CODEX-WORKTREE-LIFECYCLE` as a distinct composition unit. Its helper
-  uses the Habitat-owned Nx daemon target rather than raw Bun/watch, retains the
-  canonical Vite launch and `STUDIO_DAEMON_PORT`, `STUDIO_DEV_PORT`, and
-  `STUDIO_DEV_RPC_TARGET`, and requires both frontend reachability and daemon
-  `/healthz` success from `start` and `status`.
-- Verify the private helper keeps a worktree-derived tmux socket/session,
-  disjoint ports, private ignored state, unchanged standard defaults, and
-  ownership-only stop/cleanup. It may not call shared down/restart or use a
-  listener scan as kill authority.
-- Keep `.codex/environments/environment.toml`, the helper path, the Nx target,
-  the local-environment handoff, and operator docs aligned. Run `bash -n`, build,
-  start, status, explicit frontend/health probes, and stop before closing the
-  unit.
+- Keep `.codex/environments/environment.toml`, the Nx targets, and operator docs
+  aligned on that graph. Prove the task graph, frontend reachability, daemon
+  `/healthz`, and that one interrupt releases both listeners.
 - Ensure Run in Game invokes direct-control soft restart/start semantics and has
   no whole-Civ process restart path.
 
@@ -1599,9 +1582,10 @@ risks require them. Required lanes are never replaced by DRA self-review.
 
 **Exit gate**
 
-- every P01-P20 and tooling sink branch has all declared gates recorded and
+- every P01-P20 and tooling branch has all declared gates recorded and
   green at a valid tree;
-- P21 is `runtime-ready`, with every Stage 6 live row explicitly open;
+- P21 is `authority-ready`, with integrated gates and all three Stage 8 live rows
+  explicitly open;
 - every required reviewer lane is complete with no unrepaired accepted P1/P2;
 - downstream packet and authority records reflect legitimate deviations;
 - no branch is closed by a narrower test than its claim;
@@ -1610,48 +1594,33 @@ risks require them. Required lanes are never replaced by DRA self-review.
 **Narrowing result:** a reviewable stack becomes a set of independently closed
 behavioral and tooling units.
 
-## Stage 6: Preliminary Integrated Product And P21 Closure
+## Stage 6: Integrated Product Readiness
 
-**Purpose:** establish that the composed product works through the path the user
-actually uses before its OpenSpec changes are archived. Stage 8 repeats the
-complete matrix against the final post-archive, post-restack runtime tree.
+**Purpose:** reconverge the accepted product tree, close deterministic gates,
+and make P21 runtime-ready before one final live matrix at Stage 8. P19 and P20
+already provide preliminary rendered/Civ7 support; Stage 6 does not duplicate
+those rows or manufacture live failures.
 
 **Entry gate**
 
-- every Stage 5 unit other than P21 is closed and P21 is `runtime-ready`;
-- the exact-head recut tree is clean and built from the intended worktree;
+- every Stage 5 unit other than P21 is closed and P21 is `authority-ready`;
+- the exact-head candidate tree is clean and built from the intended worktree;
 - no open P1/P2 review finding remains.
 
-### Fresh Environment Preflight
+### Native Readiness Preflight
 
-1. Record the exact clean source tree, lockfile digest, generated-artifact
-   digests, and runtime-relevant path set.
-2. Shut down only the Studio tmux sessions, listeners, and restart watchers
-   explicitly owned by this verification checkpoint. Record ownership before
-   teardown. Leave unrelated worktree-owned/private sessions untouched; if they
-   occupy a default port, use an explicitly recorded replacement rather than a
-   listener-wide kill.
-3. Reinstall dependencies with the repository's frozen-lockfile Bun workflow
-   and verify the Effect source submodule. Immediately verify the lockfile and
-   source tree remain unchanged.
-4. Regenerate recipe/config/map artifacts through owner commands. After each
-   constructor, compare expected digests and confirm the source tree remains
-   clean.
-5. Run a clean Studio build and confirm generated outputs match the recorded
-   constructor results.
-6. Start the daemon and Vite frontend from this worktree on the standard ports,
-   or record intentional replacement ports if occupied by an explicitly owned
-   process.
-7. Verify frontend reachability, daemon `/healthz`, and `studio.serverInfo`.
-   Record the exact-head repo root, `serverInstanceId`, `startedAt`, and expected
-   API version as the pre-operation daemon identity.
-8. Put Civ7 in the required shell/setup state. Apply the single center-screen
-   intro click on a fresh restart when needed rather than misclassifying the
-   intro screen as tuner or setup failure.
-
-Any unexpected install, generator, or build delta is an implementation input,
-not live-test setup. Return it to Stage 2, then rerun affected Stages 3 through
-5 before re-entering Stage 6.
+1. Confirm the intended Graphite siblings have reconverged and the
+   runtime-relevant source tree is clean.
+2. Run output-materializing proof through one Nx graph so Nx owns ordering,
+   caching, deduplication, and parallelism.
+3. Run Habitat boundaries/policy, OpenSpec, generated-currentness, and
+   clean-diff gates through their normal owners.
+4. Treat any unexpected build or generated delta as product input and repair it
+   at its owner. Do not create a second worktree, reinstall dependencies, or
+   start another scheduler merely to prove the same tree.
+5. Confirm the existing Studio continuous target and operator-owned Civ7
+   environment are available for the later final matrix; do not mutate them in
+   Stage 6.
 
 ### Static And Behavior Gate Set
 
@@ -1671,21 +1640,21 @@ At minimum, run and record:
 Use Nx parallel execution for independent graph tasks. Do not serialize checks
 with ad hoc scripts when Nx already owns their dependency graph.
 
-### Required Live Matrix
+### Accepted Final Live Matrix
 
-Live mutation rows run serially because Studio deployment and Civ7 setup have
-one mutation owner.
+Stage 8 executes the accepted live rows serially because Studio deployment and
+Civ7 setup have one mutation owner.
 
-Until Stage 1 amends and validates P21 and `target-vocabulary.md`, the rows and
-acceptance fields below are the required amendment payload, not current
-executable product authority. After that amendment, exact accepted anchors in
-P21 and the target vocabulary own row behavior; this section owns ordering,
-checkpoint repetition, invalidation, and aggregate closure only.
+`@civ7/studio-contract` owns public operation states,
+`@civ7/studio-run-workspace` owns the parsed manifest and derived
+`RunCorrelation` contract, and
+`target-vocabulary.md` defines the accepted row shapes and evidence class. P21
+owns execution and retained results. This section owns final-tree ordering,
+invalidation, and aggregate closure only.
 
-All primary realistic rows use the rendered Studio UI, saved setup config
+All three rows use the rendered Studio UI, saved setup config
 `ToT_BasicModsEnabled.Civ7Cfg`, basic mods enabled, `MAPSIZE_HUGE`, 10 players,
-balanced resources, and seed `1538316415` unless the row explicitly records the
-different accepted input before admission.
+balanced resources, and seed `1538316415`.
 
 Primary success rows:
 
@@ -1693,66 +1662,47 @@ Primary success rows:
 2. Latest Juicy.
 3. Swooper Desert Mountains.
 
-The integrated matrix also retains every non-overlapping row still required by
-`target-vocabulary.md`:
-
-- repeat Latest Juicy with fresh request/workspace/artifact/deployment identity;
-- distinct-input Latest Juicy;
-- editor launch while `EditorLaunchSource` remains in the accepted contract;
-- validation failure;
-- concurrent ownership conflict;
-- explicit cancellation and lease release;
-- missed terminal event or browser reload adoption;
-- generated-row-missing failure;
-- stale saved-config/generated-mod mismatch;
-- `mapConfigs.saveDeploy`, `mapConfigs.status`, `civ7.live.status`, and
-  `civ7.live.snapshot` through the public `/rpc` surface.
-
-If the two packet trains disagree about a row, amend the controlling packet and
-target vocabulary through an accepted authority decision before running the
-matrix. Do not silently choose the smaller set.
+Validation, ownership conflict, cancellation, terminal adoption, row-missing
+and saved-config mismatch, repeat freshness, public-route projection, and
+redaction are required deterministic behavior gates. They are not additional
+live Civ7 mutation rows. `mapConfigs.saveDeploy` retains its own operation
+authority; P21 consumes the Run in Game operation's resulting evidence.
 
 ### Per-Success-Row Acceptance
 
 Each success row records one chain:
 
-- exact source id or editor fixture, config/setup selections, seed, map size,
-  player count, resources, rendered-button provenance, and admission timestamp;
+- exact canonical config and saved setup selections, seed, map size, player
+  count, rendered-button provenance, and admission timestamp;
 - admitted request id and public operation phases;
 - matching `runInGame.status`, `studio.operations.current`,
   `studio.events.watch`, and explicit `runInGame.diagnostics` lookup;
-- applicable `mapConfigs.saveDeploy`, `mapConfigs.status`,
-  `civ7.live.status`, and `civ7.live.snapshot` calls through the running public
-  `/rpc` surface;
-- generation manifest and config/source digests;
+- generation manifest and canonical-config digests;
 - request-local generated mod and run artifact id;
 - copied deployment snapshot and digest;
-- generated map setup row visible after saved-config/mod-set reconciliation;
-- seed, map size, player count, resources, and target mods read back before
-  Begin;
+- stable `maps/studio-run.js` setup row visible after saved-config/mod-set
+  reconciliation;
+- seed, map size, player count, and target mods read back before Begin;
+- balanced resources bound through the admitted launch envelope and generation
+  manifest rather than claimed as Civ7 setup readback;
 - no later setup reload invalidating the checked session;
-- pre/post Civ7 process identity plus a direct-control soft-restart/setup/start
-  receipt showing the application process was not replaced;
+- unchanged pre/post Civ7 application process identity;
 - fresh request-specific scripting marker and mapgen completion marker;
-- live `/rpc` status and non-empty snapshot with expected dimensions;
-- request-specific in-game marker matching request, artifact, deployment,
-  config, seed, map size, mod id, snapshot identifiers, and every
-  `RunCorrelation` field: `requestId`, `runArtifactId`,
-  `launchSourceDigest`, `launchEnvelopeDigest`, and
-  `generationManifestDigest`;
+- bounded loaded-game readback with expected dimensions and turn;
+- request-specific in-game marker matching every `RunCorrelation` field and the
+  expected loaded dimensions;
+- separately joined operation, setup, and deployment evidence matching the
+  artifact, deployment digest, mod id, canonical config, seed, and map size;
 - recipe-owned nondegenerate/playability validation so an all-water or otherwise
   unusable map cannot pass merely because a snapshot exists;
 - terminal public `completed` status and private attribution/diagnostics record;
-- post-terminal `studio.serverInfo` with the same repo root,
-  `serverInstanceId`, and `startedAt` recorded before admission, demonstrating
+- post-terminal `/healthz` with the same repo root, `serverInstanceId`, and
+  `startedAt` recorded before admission, demonstrating
   that generation/deployment writes did not replace the operation owner;
 - redaction scan showing no private data in public status/current/event output.
 
-Each attempt is immutable under
-`evidence/runtime/preliminary/<row-id>/<attempt-id>.md`, is linked by a
-checkpoint-specific matrix-register row, and appends its gate attempt to
-`gate-register.jsonl`. Failed attempts remain queryable and never overwrite the
-accepted attempt.
+Each row records one concise evidence entry plus links to its existing private
+operation and diagnostics artifacts. Do not build a second attempt database.
 
 No endpoint-only request, handler call, fake direct-control test, pre-Begin row,
 scripting log alone, screenshot, or shape-only live snapshot substitutes for the
@@ -1772,20 +1722,13 @@ full rendered-button-to-in-game chain.
 **Exit gate**
 
 - all static and behavior gates are green;
-- every required live row is green at the exact-head recut tree and recorded
-  with its exact inputs and identities in the preliminary runtime evidence
-  checkpoint;
 - all reviewers have dispositioned findings and no accepted P1/P2 remains;
-- P21's live tasks, verification ledger, final review, and branch commit are
-  closed at the exact-head recut tree;
-- failed attempts are retained as diagnostic history but are not counted as
-  successful rows;
-- the exact-head recut tree and runtime environment fingerprints are
-  recorded.
+- P21 authority is `runtime-ready` with exactly three live rows explicitly open;
+- P19/P20 preliminary support remains valid for the integrated runtime model;
+- the intended runtime-relevant candidate tree is recorded for final freeze.
 
-**Narrowing result:** individually closed units become a P21-closed preliminary
-behavioral baseline that is eligible for archive simulation replay and final
-freeze.
+**Narrowing result:** independently closed units become one integrated,
+runtime-ready candidate without spending another set of Civ7 mutations.
 
 ## Stage 7: Record Reconciliation And OpenSpec Archival
 
@@ -1795,7 +1738,8 @@ and durable authority.
 **Entry gate**
 
 - Stage 6 integrated baseline is green;
-- all packet tasks and ledgers reflect current evidence.
+- completed packet tasks and ledgers reflect current evidence;
+- P21 remains active and runtime-ready with its three final live rows open.
 
 **Execution**
 
@@ -1810,9 +1754,8 @@ and durable authority.
   Topology-mixed deltas may not become canonical merely because the change is
   being archived. Any skip-promotion mode must be supported by the repo-local
   OpenSpec command and reviewed against change-management authority.
-- Archive the 14 original changes in packet order with the repo-local OpenSpec
-  archive command.
-- Archive the 7 remediation changes in packet order after their dependencies.
+- Archive completed changes in dependency order with the repo-local OpenSpec
+  command. Leave P21 active until its final live matrix closes.
 - Validate promoted specs after each archive operation and compare them with the
   Stage 3 simulation. Any semantic conflict or unexplained diff stops archival
   and follows the global backflow: Stage 1 first when authority changes, then a
@@ -1855,48 +1798,45 @@ and promoted-spec conflict resolution are sequential in packet order.
   operator docs agree and retain one routing path;
 - the aggregate ledger has no stale or contradictory status.
 
-**Narrowing result:** a preliminary accepted baseline becomes durable,
-non-contradictory change history ready for final runtime-tree freeze.
+**Narrowing result:** completed change history is reconciled while P21 remains
+the single active owner of the final runtime gate.
 
 ## Stage 8: Final Freeze, Runtime Verification, Submit, Merge, And Drain
 
-**Purpose:** move the accepted sink stacks into `main` without
+**Purpose:** move the accepted Graphite stack into `main` without
 losing reviewability or evidence validity.
 
 **Entry gate**
 
 - Stage 7 records are closed;
 - every branch is clean, reviewable, and has its required checks;
-- sink stack/source accounting is complete;
-- the reserved final runtime-evidence sink exists above the archived packet
-  layers;
-- a fresh Git/Graphite/worktree/remote-operation census agrees with the
-  manifest and the Stage 8 mutation lease is held for the first mutation
-  cohort.
+- the current stack is clean, coherent, and ordered by real dependencies;
+- final runtime evidence has a durable owner above the archived packet layers;
+- current Git, Graphite, worktree, and remote state is understood before the
+  first submit or merge operation.
 
 **Final freeze and runtime gate**
 
 1. Synchronize refreshed trunk state without global restacking, then restack
-   only the admitted sink stacks.
-2. Repeat the Stage 6 fresh-environment preflight and re-run branch/static gates
+   only affected descendants where required.
+2. Repeat the Stage 6 native readiness preflight and re-run branch/static gates
    affected by archive, promotion, or restack.
 3. Freeze and record the runtime-relevant tree, lockfile, generated artifact,
    OpenSpec, and environment fingerprints.
-4. Re-run the complete Stage 6 browser/endpoint/setup/in-game matrix. This is
-   the final product gate; no preliminary row substitutes for it. Append one
-   immutable record per attempt under
-   `evidence/runtime/final-freeze/<row-id>/<attempt-id>.md` and link it from the
-   matrix and gate registers.
+4. Run the three accepted P21 rendered/Civ7 rows once. This is the final product
+   gate; P19/P20 preliminary support does not substitute for it. Record each row
+   concisely in P21 and link its existing operation and diagnostics artifacts.
 5. Run fresh final integration reviewers and disposition every finding.
+6. Close and archive P21 without changing runtime-relevant source.
 
-Any runtime-relevant tree or dependency change after this freeze reopens the
-complete final matrix. A docs-only change still reruns affected static/link/
-OpenSpec checks and must preserve the recorded runtime-relevant tree hash.
-Any implementation, contract, authority, or code-design finding returns to
-Stage 2, rebuilds the integration tree, and replays affected Stages 3 through 7
-before Stage 8 begins again. Only evidence wording, links, and formatting that
-cannot affect runtime or authority may be repaired locally, with their affected
-gates rerun.
+Any runtime-relevant change after this freeze reopens all three rows so the
+accepted matrix remains bound to one exact tree. A docs-only change still reruns
+affected static/link/OpenSpec checks and must preserve the recorded
+runtime-relevant tree hash.
+Any implementation, contract, authority, or code-design finding returns to its
+owning semantic branch and reruns affected checks, reviews, and runtime evidence.
+Only evidence wording, links, and formatting that cannot affect runtime or
+authority may be repaired locally, with their affected gates rerun.
 
 **Submit and merge**
 
@@ -1907,33 +1847,20 @@ gates rerun.
   backflow above; it is not repaired opportunistically in the submitted stack.
 - Merge bottom to top through Graphite.
 - After each merge, synchronize with `gt sync --no-restack` when needed and
-  restack only the remaining sink stack.
+  restack only affected descendants.
 - Do not touch independent sibling stacks or worktrees.
-- Retire source branches only after their sink is present in `main` and the
-  manifest records the terminal disposition.
+- Retire branches only after their accepted changes are present in `main` and
+  no active work depends on them.
 - Compare merged `main` with the verified final runtime-relevant tree. Promote
   live evidence only when runtime paths, dependencies, generated artifacts, and
   environment binding are unchanged; otherwise rerun the complete affected
   matrix before closure.
-- Use two fresh standard `git worktree add` checkouts of merged `main` for final
-  clean install/build/static verification and the private Codex lifecycle
-  isolation gate. In each worktree run the checked-in environment/helper
-  composition, start and status, and explicit frontend plus daemon `/healthz`
-  probes. Record distinct sockets, sessions, ports, and state paths. Stop the
-  first instance and confirm the second frontend and `/healthz` remain
-  reachable; then stop the second. Shared listener-wide down/restart is
-  forbidden in this gate. Confirm both private sessions, listeners, and state
-  rows are terminal, then remove both clean worktrees with
-  `git worktree remove`.
+- Run final proof in the owning worktree through the native Nx graph. Use an
+  additional worktree only when a real isolation requirement cannot be
+  expressed by the repository's checked-in lifecycle targets.
 - Never use `gt undo` to reverse a submitted or merged remote operation. Repair
   remote history through a normal owning-branch correction before merge or a
   reviewed corrective/revert PR after merge.
-
-Release the mutation lease while waiting on remote review only after recording
-a clean operation census. Reacquisition for any later submit, restack, merge,
-or branch retirement requires a new census. The final Stage 8 release occurs
-only after merged-tree comparison, source retirement, and cleanup accounting
-are terminal.
 
 **Parallel work**
 
@@ -1943,13 +1870,13 @@ restack, source retirement, and final tree accounting are sequential.
 **Review lanes**
 
 - Graphite integration and PR dependency state;
-- final source/sink accounting;
+- final current-stack and dependency accounting;
 - merged-tree/evidence equivalence;
 - clean-worktree and process lifecycle closure.
 
 **Exit gate**
 
-- all accepted sink branches are merged;
+- all accepted branches are merged;
 - all rejected or superseded source work has an explicit terminal disposition;
 - no current-stack branch remains `needs restack` or ambiguously active;
 - the complete final matrix is green at the frozen runtime-relevant tree and
@@ -1957,8 +1884,6 @@ restack, source retirement, and final tree accounting are sequential.
 - merged `main` is green at the valid evidence classes;
 - Studio sessions started for verification are down unless intentionally handed
   off;
-- the two-worktree private lifecycle isolation gate is green and stopping one
-  instance left the other reachable;
 - owned worktrees are clean and temporary worktrees removed.
 
 **Narrowing result:** local accepted history becomes merged repository state
@@ -1966,86 +1891,25 @@ with no dangling source authority.
 
 ## Stage 9: Merge The Closeout Handoff And Return To Habitat
 
-**Purpose:** close this topic in one final docs-only Graphite branch without
-losing the work that should happen after the Habitat authority descent.
+**Purpose:** close the product work and leave the next Habitat objective
+discoverable without manufacturing a separate closure protocol.
 
 **Entry gate**
 
 - Stage 8 merge and drain are complete;
 - no current closeout obligation remains open;
-- a fresh Git/Graphite/worktree/remote-operation census matches merged `main`,
-  and the Stage 9 mutation lease is held before creating the final branch.
+- a fresh Git/Graphite/worktree and remote census matches merged `main`.
 
-Create the final closeout branch from refreshed `main`. It may change only this
-project's control/deferral/handoff records and required navigation links. Use
-this explicit bootstrap:
-
-1. under a mutation lease, create the branch and a bootstrap docs commit that
-   records the preceding behavioral-baseline main SHA/tree, merged sink state,
-   runtime-evidence binding, terminal source dispositions, and stable branch
-   name;
-2. submit that branch as a draft with `gt submit --stack --draft --ai` to obtain
-   its stable PR identity, then record a clean lease release;
-3. add the PR identity, terminal predicate, and terminal-record query to the
-   tracked closeout records; run reviews and affected docs/static gates;
-4. reacquire the mutation lease, commit the final tracked state, update the
-   existing draft with `gt submit --stack --update-only --publish --ai`, satisfy
-   review/CI, and merge;
-5. after merge and local cleanup, write the external terminal record defined
-   below.
-
-Do not record the final branch's own future commit, tree, merge SHA, or future
-post-merge main SHA inside itself; that is an unsatisfiable self-reference.
-
-The named external terminal record is one structured comment on the final
-closeout PR, written by the closing Product/Development DRA after merge. Its
-first line is `MAPGEN-STUDIO-RUNTIME-CLOSEOUT: CLOSED`; its fields are final PR
-URL, PR merge commit, refreshed-main commit/tree, required-check conclusion,
-Graphite operation/restack state, owned-worktree state, agent fleet state,
-scratch state, Studio tmux/listener/watcher/process state, temporary-worktree
-state, recovery-artifact/ref disposition, observation timestamp/timezone, and
-writer. Query it with:
-
-```text
-gh pr view <final-pr> --json state,mergeCommit,statusCheckRollup,comments
-```
-
-Before the final tracked commit, set the ledger to
-`ready-to-close-on-terminal-record` and record this predicate: the named PR is
-merged with green required checks; its merge is reachable from refreshed
-`main`; and the uniquely labeled external terminal record exists with every
-field terminal or explicitly handed off. Once true, the workstream is
-`workstream-closed` without a follow-up tracked edit. A merge record alone is
-insufficient because it cannot report local cleanup.
+Update the owning closeout records in the last semantic branch that needs them,
+run their affected checks and reviews, and merge through normal Graphite. Do not
+create a bookkeeping-only branch, self-binding receipt, external terminal
+protocol, or future-hash assertion.
 
 **Post-closeout readiness consumer**
 
-The readiness stack rooted at
-`codex/pre-descent-readiness-and-descent-roadmap` and ending at
-`codex/readiness-final-aggregate-proof-green` is not merged before this
-workstream. Its aggregate records cover an older Habitat/Studio tree and it has
-real semantic conflicts with the Studio stack in Grit provider/runtime files.
-Merging it first would publish stale conclusions and still require a second
-reconciliation.
-
-After the Studio behavioral baseline and this final closeout branch are merged:
-
-1. preserve the readiness stack's current local-only final commit as historical
-   input, not current truth;
-2. acquire a separate mutation lease and run `gt sync --no-restack`;
-3. target-restack PRs `#2036` through `#2043` bottom to top onto the merged
-   Studio main checkpoint;
-4. refresh rule counts, timing/corpus data, manifest-ledger parity, domain
-   operation rows, and the post-merge reconciliation against the merged Studio
-   implementation;
-5. resolve Grit ownership semantically rather than restoring superseded
-   fallback behavior;
-6. rebuild the final aggregate branch, rerun its full Habitat/Nx/Grit gates and
-   fresh reviews at exact submitted SHAs, then publish and merge bottom to top.
-
-This is the first named consumer in the Habitat-return packet. It remains an
-independent downstream stack, not a hidden Stage 8 dependency and not source
-material for the Studio recut.
+The current split base already adopts the readiness semantics that remain live.
+The separate readiness ref stays historical and untouched; it is not restacked,
+merged, replayed, or consumed after closeout.
 
 **Parked initiatives**
 
@@ -2073,23 +1937,16 @@ The project `deferrals.md` records these as intentional sequencing decisions,
 not vague future cleanup. It also records any transitional risk consciously
 retained at merge with a named owner and falsifier.
 
-Create `NEXT-PACKET.md` as a zero-context handoff back to the active Habitat
+Update `NEXT-PACKET.md` as a zero-context continuation into the active Habitat
 authority descent. It must include:
 
-- preceding merged behavioral-baseline main SHA/tree, final closeout branch
-  name and PR identity, plus the command/query that resolves the branch's
-  eventual merge commit from the PR record;
-- expected pre-merge stack/worktree state and the terminal-record query for
-  exact post-merge state;
 - links to the workstream transition amendment, takeover frame, deferrals,
   archived packets, and final verification ledger;
 - what is now safe to assume about Studio behavior;
 - what must not be assumed about target architecture;
 - the exact Habitat authority objective to resume;
-- the readiness-stack target-restack/reconciliation sequence that precedes or
-  composes with that resumed authority descent;
 - protected paths, known independent stacks, and excluded sibling worktrees;
-- first command/query set for the returning DRA.
+- the first current-tree checks for the returning DRA.
 
 **Review lanes**
 
@@ -2104,14 +1961,9 @@ authority descent. It must include:
 - no deferred item lacks an owner or trigger;
 - no current obligation is mislabeled as future work;
 - the returning Habitat DRA can resume without reading this conversation;
-- the readiness stack is still parked with its exact post-Studio reconciliation
-  trigger and has not been represented as current merged authority;
-- the final docs-only closeout branch passes its required checks, is reviewed,
-  submitted, merged, and leaves no subsequent tracked edit;
-- the external terminal closeout comment satisfies the tracked predicate;
+- the readiness ref remains historical and untouched;
 - refreshed final `main`, Graphite, worktree, agent, scratch, and Studio process
-  state are clean, with all pre-merge resources terminal in the cleanup
-  register and exact post-merge observations in that terminal record;
+  state are clean;
 - all final review findings were dispositioned before the terminal merge.
 
 **Narrowing result:** the Studio topic is put to bed as a merged transitional
@@ -2124,8 +1976,8 @@ its eventual replacement.
 | --- | --- | --- |
 | Opening | read-only stack, packet, Habitat, and ledger census lanes | corpus synthesis and status claims |
 | Semantic disposition | specialist recommendations | final row dispositions and authority conflicts |
-| Recut design | mapping, overlap analysis, proposed branch cuts | final parent graph and command order |
-| Recut execution | read-only review of completed lower layers | all Graphite mutations bottom to top |
+| Stack inspection | mapping and dependency analysis | decide whether any movement is earned |
+| Targeted normalization | read-only review of completed layers | only required Graphite moves, splits, folds, or restacks |
 | Unit closure | independent research; reviewer lanes; Nx graph tasks | packets and branches with hard dependencies; finding disposition |
 | Live verification | passive log capture and read-only analysis | Studio deployment, Civ7 setup, Begin, and scenario rows |
 | OpenSpec closure | stale-link and record audits | archive and promoted-spec resolution in packet order |
@@ -2157,7 +2009,7 @@ Stop and reframe the affected stage if any of these becomes true:
 
 - current code shape is being used as the target architecture;
 - a branch cut requires an unresolved semantic choice;
-- a commit or changed path has no source/sink accounting row;
+- a commit or changed path has no semantic owner or coherent branch;
 - a later packet is being used to excuse an unchecked earlier required gate;
 - a config fix names individual config properties, stages, or map ids instead
   of repairing the general materialization boundary;
@@ -2184,7 +2036,7 @@ Stop and reframe the affected stage if any of these becomes true:
       material prior-control rows.
 - [ ] Transition decision and reverse authority links are accepted.
 - [ ] Every source row has a terminal semantic and stack disposition.
-- [ ] Sink Graphite graph is realized and source/sink accounting is complete.
+- [ ] The current Graphite stack is coherent and every branch has one semantic owner.
 - [ ] Effect diagnostic scope is closed without hiding findings or elaborating
       disposable architecture.
 - [ ] All 14 original packets are reconciled, verified, reviewed, and archived.
@@ -2194,30 +2046,23 @@ Stop and reframe the affected stage if any of these becomes true:
       recipe-owned path.
 - [ ] Studio lifecycle, down/restart commands, stable daemon, and direct-control
       soft restart behavior are closed.
-- [ ] The private Codex helper composes the canonical daemon target, requires
-      frontend plus `/healthz`, and passes merged-main two-worktree isolation
-      with ownership-only teardown.
+- [ ] The native Nx lifecycle graph composes Studio and daemon ownership and
+      passes its declared health and teardown behavior.
 - [ ] Static, behavior, endpoint, browser, setup, and in-game gates are green at
       valid tree/environment bindings.
-- [ ] The complete matrix was rerun after archive/promotion and final restack at
-      the Stage 8 frozen runtime-relevant tree.
+- [ ] The three accepted P21 rows passed once at the Stage 8 frozen
+      runtime-relevant tree.
 - [ ] Required reviewer findings are fully dispositioned.
-- [ ] Stage/unit gate register has no missing, skipped, stale, or invalidated
-      gate counted as closed.
-- [ ] Sink stacks are submitted, merged bottom to top, and drained.
+- [ ] Every declared current gate has valid evidence.
+- [ ] Accepted Graphite branches are submitted, merged bottom to top, and drained.
 - [ ] Merged `main` and final worktree/process state are clean.
 - [ ] Future initiatives and transitional risks have owners and re-entry
       triggers.
-- [ ] The readiness stack remains unmerged and has an exact post-Studio
-      target-restack, reconciliation, verification, and merge handoff.
+- [ ] The readiness reference remains untouched after its settled semantics are
+      adopted into the current split base.
 - [ ] Zero-context Habitat return packet is reviewed and usable.
-- [ ] Final closeout branch records the preceding behavioral-baseline SHA/tree,
-      stable branch/PR identity, terminal predicate, and final objective outcome;
-      the structured post-merge terminal comment satisfies that predicate.
 - [ ] All agents, scratch paths, temporary worktrees, Studio processes,
       listeners, watchers, and tmux sessions are closed or explicitly handed
       off.
-- [ ] Cleanup register has a terminal row for every owned runtime or workstream
-      resource and a retention trigger for every intentionally preserved item.
 - [ ] Final review dispositions and all durable records are committed, and no
       tracked edit remains after closeout merge.

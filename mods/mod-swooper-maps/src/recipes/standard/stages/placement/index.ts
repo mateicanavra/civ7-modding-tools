@@ -5,19 +5,17 @@ import {
   PlacementKnobsSchema,
   PlacementPublicSchema,
 } from "../placement-public-config.js";
-import {
-  adjustResources,
-  assignAdvancedStarts,
-  assignStarts,
-  derivePlacementInputs,
-  placeDiscoveries,
-  placement,
-  placeNaturalWonders,
-  placeResources,
-  planResources,
-  plotLandmassRegions,
-  preparePlacementSurface,
-} from "./steps/index.js";
+import { AdjustResourcesStep } from "./steps/adjust-resources/step.js";
+import { AssignAdvancedStartsStep } from "./steps/assign-advanced-starts/step.js";
+import { AssignStartsStep } from "./steps/assign-starts/step.js";
+import { DerivePlacementInputsStep } from "./steps/derive-placement-inputs/step.js";
+import { PlaceDiscoveriesStep } from "./steps/place-discoveries/step.js";
+import { PlaceNaturalWondersStep } from "./steps/place-natural-wonders/step.js";
+import { PlaceResourcesStep } from "./steps/place-resources/step.js";
+import { PlacementStep } from "./steps/placement/step.js";
+import { PlanResourcesStep } from "./steps/plan-resources/step.js";
+import { PlotLandmassRegionsStep } from "./steps/plot-landmass-regions/step.js";
+import { PreparePlacementSurfaceStep } from "./steps/prepare-placement-surface/step.js";
 
 /**
  * Placement exposes each gameplay product as a step boundary. Surface
@@ -34,17 +32,17 @@ export default createStage({
   knobsSchema: PlacementKnobsSchema,
   public: PlacementPublicSchema,
   steps: orderStandardStageSteps("placement", {
-    "derive-placement-inputs": derivePlacementInputs,
-    "plot-landmass-regions": plotLandmassRegions,
-    "place-natural-wonders": placeNaturalWonders,
-    "prepare-placement-surface": preparePlacementSurface,
-    "plan-resources": planResources,
-    "assign-starts": assignStarts,
-    "adjust-resources": adjustResources,
-    "place-resources": placeResources,
-    "place-discoveries": placeDiscoveries,
-    "assign-advanced-starts": assignAdvancedStarts,
-    placement,
+    "derive-placement-inputs": DerivePlacementInputsStep,
+    "plot-landmass-regions": PlotLandmassRegionsStep,
+    "place-natural-wonders": PlaceNaturalWondersStep,
+    "prepare-placement-surface": PreparePlacementSurfaceStep,
+    "plan-resources": PlanResourcesStep,
+    "assign-starts": AssignStartsStep,
+    "adjust-resources": AdjustResourcesStep,
+    "place-resources": PlaceResourcesStep,
+    "place-discoveries": PlaceDiscoveriesStep,
+    "assign-advanced-starts": AssignAdvancedStartsStep,
+    placement: PlacementStep,
   }),
   compile: ({ config }: { config: Record<string, unknown> }) =>
     compilePlacementPublicConfig(config),

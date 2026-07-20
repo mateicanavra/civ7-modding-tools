@@ -1,5 +1,3 @@
-debug.heightfield.landMask|tile.hexOddQ|grid
-debug.heightfield.terrain|tile.hexOddQ|grid
 ecology.biome.aridityIndex|tile.hexOddQ|grid
 ecology.biome.biomeIndex|tile.hexOddQ|grid
 ecology.biome.effectiveMoisture|tile.hexOddQ|grid
@@ -45,6 +43,8 @@ ecology.scoreLayers.tundra-floodplain-navigable|tile.hexOddQ|grid
 ecology.scoreLayers.watering-hole|tile.hexOddQ|grid
 map.ecology.biome.bindingClass|tile.hexOddQ|grid
 map.ecology.biomeId|tile.hexOddQ|grid
+map.ecology.engineLandMask|tile.hexOddQ|grid
+map.ecology.engineTerrain|tile.hexOddQ|grid
 map.ecology.features.floodplainAppliedMask|tile.hexOddQ|grid
 map.ecology.features.floodplainIntentMask|tile.hexOddQ|grid
 map.ecology.features.floodplainRejectedMask|tile.hexOddQ|grid

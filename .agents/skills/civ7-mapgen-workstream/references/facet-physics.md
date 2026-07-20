@@ -12,7 +12,7 @@ Three disciplines define the facet:
 
 1. **Read the model as physics.** Every domain op encodes a genuine Earth-science abstraction. Read `mods/mod-swooper-maps/src/domain/<domain>/ops/<op>/{contract.ts,rules,strategies}` as the *physical model*, not as code. Live source is the read-truth — never the `mapgen:*` cache skills (philosophy-only / outdated arch; they cite a stale `packages/mapgen-core/src/foundation/plates.ts` that does not exist).
 2. **Hold the three buckets.** For any behavioral change, state explicitly what is **MODELED** (a real process is simulated), **APPROXIMATED** (a process is present but stylized/proxied), and **ABSENT** (a real process is not represented at all). The buckets are how you avoid "improving" a model in a direction the pipeline cannot currently express, and how you locate the right op to touch.
-3. **Translate constants to regime families, not scalars.** Earth anchors (below) become tile-scale *regime families* (wet / arid / mountain / closed-basin / archipelago), never single global numbers — benchmarks in this repo are regime-family based (`docs/projects/pipeline-realism/`).
+3. **Translate constants to regime families, not scalars.** Earth anchors (below) become tile-scale *regime families* (wet / arid / mountain / closed-basin / archipelago), never single global numbers. The subsystem contract is `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`; actual Standard regimes belong to the recipe's `metrics/studies/STUDIES.md` bank.
 
 Background-only physics reading (philosophy, NOT canonical architecture): `docs/system/libs/mapgen/research/SPIKE-earth-physics-systems-modeling.md` and `SPIKE-synthesis-earth-physics-systems-swooper-engine.md`. Domain *philosophy* (not arch): `mapgen:{foundation,morphology,hydrology,ecology}` — label them "philosophy-only / outdated arch" whenever cited.
 
@@ -28,7 +28,7 @@ Behavioral realism is tuned or swapped at the **op / strategy** layer. An op (`d
 
 **Where a strategy is selected** (the three control points — verified in `packages/mapgen-core/src/authoring/op/create.ts` runtime dispatch `runtimeStrategies[cfg.strategy].run(...)`):
 - **(a)** a public stage's `compile()` hard-codes the literal, e.g. hydrology-climate-refine sets `computePrecipitation: { strategy: "refine", config: ... }`;
-- **(b)** a step contract's `StepOpUse.defaultStrategy` changes the schema default (what you get when the envelope is omitted), e.g. `climateRefine.contract.ts` declares `defaultStrategy: "refine"`;
+- **(b)** a step contract's `StepOpUse.defaultStrategy` changes the schema default (what you get when the envelope is omitted), e.g. `climate-refine/config.ts` declares `defaultStrategy: "refine"`;
 - **(c)** the op envelope authored directly in an internal (non-public) stage's step config in the map `.config.json`.
 
 For a public stage with `compile()`, the config JSON never carries a `strategy` field — `compile()` injects it. Only internal stages let an author set `strategy` directly. **Always confirm which control point governs the op you intend to change before editing** — editing config that `compile()` overwrites is a classic dead-edit.
@@ -67,7 +67,7 @@ The physical chain: **belt drivers** (`compute-belt-drivers`: maps `FoundationTe
 
 ## HYDROLOGY — the coupled climate–water–ocean system (deepest domain)
 
-`src/domain/hydrology/ops/*` — 19 ops. The longest physical chain and the most multi-strategy ops — most behavioral climate/river asks land here. The recipe runs it as **hydrology-climate-baseline → hydrology-hydrography → hydrology-climate-refine** (climate is computed, drainage/rivers solved, then climate refined). Publishes `artifact:climateField`, `artifact:hydrology.{climateSeasonality,climateIndices,cryosphere,hydrography,lakePlan,riverNetworkMetrics,climateDiagnostics}`.
+`src/domain/hydrology/ops/*` — 19 ops. The longest physical chain and the most multi-strategy ops — most behavioral climate/river asks land here. The recipe runs it as **hydrology-climate-baseline → hydrology-hydrography → hydrology-climate-refine** (climate is computed, drainage/rivers solved, then climate refined). Publishes routing/refinement vintage `artifact:hydrology.baselineClimateField`, final consumer vintage `artifact:climateField`, and `artifact:hydrology.{climateSeasonality,climateIndices,cryosphere,hydrography,lakePlan,riverNetworkMetrics,climateDiagnostics}`.
 
 The physical chain (op by op):
 
@@ -113,7 +113,7 @@ The physical chain (op by op):
 
 ## Earth anchors & the eight flagged realism gaps
 
-**Earth anchors** (from the river/lake/coast project docs — translate to *regime families*, never single global scalars): HydroRIVERS (8.5M reaches / 35.9M km), GRWL (2.1M km of wide rivers), HydroLAKES (~1.8% of land is lake), non-perennial river share **51–60%**, endorheic (closed) basins ~**1/5** of land; **passive vs active continental-margin** shelf-width contrast (passive margins → broad shallow shelves; active/subducting margins → narrow steep ones). The repo's executed expectation-ledger pattern is in `docs/projects/placement-realignment/expectations.md`; the benchmark *program* is `docs/projects/pipeline-realism/`. There is **no turnkey "run the benchmark" script** — compose `diag:dump` → `computeEarthMetrics` and compare to the docs' regime targets (see `references/facet-verification.md`).
+**Earth anchors** (translate to *regime families*, never single global scalars): HydroRIVERS (8.5M reaches / 35.9M km), GRWL (2.1M km of wide rivers), HydroLAKES (~1.8% of land is lake), non-perennial river share **51–60%**, endorheic (closed) basins ~**1/5** of land; **passive vs active continental-margin** shelf-width contrast (passive margins → broad shallow shelves; active/subducting margins → narrow steep ones). Encode admitted expectations as `MetricTarget`s, bind them in named Standard `*.study.ts` modules, document the protocol beside the module, and run `nx run mod-swooper-maps:metrics:report` (see `references/facet-verification.md`).
 
 **The eight realism gaps Facet 1 must know** (evidence-backed; each is a candidate behavioral workstream and a known ABSENT/APPROXIMATED bucket):
 

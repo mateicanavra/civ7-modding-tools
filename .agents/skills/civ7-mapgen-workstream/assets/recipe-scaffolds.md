@@ -14,8 +14,8 @@ for the truth-vs-projection stage split and the vocabulary.
 
 | Import path | What it gives | Used in |
 |---|---|---|
-| `@swooper/mapgen-core/authoring/contracts` | `defineOp`, `defineStep`, `defineArtifact`, `defineDomain`, `Type`, `TypedArraySchemas`, `OpTypeBagOf` — pure schema/type declarations, NO implementation | every `contract.ts`, `artifacts.ts`, domain `index.ts` |
-| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomain`, `implementArtifacts`, `collectCompileOps` — attach implementations | every runtime `index.ts`, strategy file, stage/recipe file |
+| `@swooper/mapgen-core/authoring/contracts` | `defineOp`, `defineStep`, `defineArtifact`, `defineArtifactCatalog`, `defineDomain`, `Type`, `TypedArraySchemas`, `validateArtifactSchema`, `OpTypeBagOf` — contract-only schemas, types, validation, and catalog assembly | op `contract.ts`, recipe-step `config.ts`, `*.artifact.ts`, artifact catalogs, domain contract `index.ts` |
+| `@swooper/mapgen-core/authoring` | `createOp`, `createStrategy`, `createStep`, `createStage`, `createRecipe`, `createDomain`, `collectCompileOps` — attach runtime implementations | op runtime `index.ts`, recipe-step `step.ts`, strategy files, stage/recipe files |
 
 `@mapgen/domain/*` → `src/domain/*` (tsconfig path alias). Step **contracts** import the
 domain contract via `@mapgen/domain/<domain>` (the `defineDomain` index). `recipe.ts`
@@ -195,26 +195,29 @@ Runtime dispatch (`createOp.run`) reads `cfg.strategy`, looks up
 
 A step lives under `src/recipes/standard/stages/<stage-id>/steps/<step-name>/`. Step id
 is kebab-case (`/^[a-z0-9]+(?:-[a-z0-9]+)*$/`). The reference no-ops step is
-`map-morphology/steps/plotContinents`; the reference with-ops step is
+`map-morphology/steps/plot-continents`; the reference with-ops step is
 `morphology-features/steps/landmasses`.
 
-**`contract.ts`** — `defineStep`. Import the domain *contract* via `@mapgen/domain/<domain>`.
+**`config.ts`** — `defineStep`. Import the domain *contract* via `@mapgen/domain/<domain>`.
 ```ts
-// steps/<step-name>/contract.ts
+// steps/<step-name>/config.ts
 import someDomain from "@mapgen/domain/<domain>";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { myStageArtifacts } from "../../artifacts.js";
-import { otherArtifacts } from "../../../<other-stage>/artifacts.js";
+import {
+  artifactModules as myStageArtifactModules,
+} from "../../artifacts/index.js";
+import { artifacts as otherArtifacts } from "../../../<other-stage>/artifacts/index.js";
 
-const MyStepContract = defineStep({
+/** Contract and compiled configuration boundary for the example recipe step. */
+export const MyStepContract = defineStep({
   id: "my-step-name",
   phase: "morphology",          // GenerationPhase: morphology | hydrology | ecology | placement | ...
-  requires: ["effect:some.required.tag"],
-  provides: ["effect:some.provided.tag"],
+  requires: [] as const,
+  provides: [] as const,
   artifacts: {
     requires: [otherArtifacts.someInput],
-    provides: [myStageArtifacts.myArtifact],
+    provides: [myStageArtifactModules.surfaceMask],
   },
   ops: {
     myOp: someDomain.ops.myOpName,
@@ -222,43 +225,55 @@ const MyStepContract = defineStep({
   },
   schema: Type.Object({ /* step-level knobs not covered by ops; omit/empty if none */ }),
 });
-
-export default MyStepContract;
 ```
 
-**`index.ts`** — `createStep`. `run(context, config, ops, deps)`; `config.<opKey>` is the
+Keep those effect arrays empty unless the step truly needs execution ordering.
+When it does, import an existing typed member of
+`MAP_PROJECTION_EFFECT_TAGS`, `PLACEMENT_PRODUCT_EFFECT_TAGS`, or
+`STANDARD_ENGINE_EFFECT_TAGS` from `../../../../tag-contracts.js`; never author
+a raw `effect:*` string. Add a new effect to that registry first when no current
+constant expresses the contract.
+
+**`step.ts`** — `createStep`. `run(context, config, ops, deps)`; `config.<opKey>` is the
 auto-typed op envelope; artifacts are read/published via `deps.artifacts.<name>`.
 ```ts
-// steps/<step-name>/index.ts
-import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { myStageArtifacts } from "../../artifacts.js";
-import MyStepContract from "./contract.js";
+// steps/<step-name>/step.ts
+import { createStep } from "@swooper/mapgen-core/authoring";
+import { MyStepContract } from "./config.js";
 
-export default createStep(MyStepContract, {
-  // Required ONLY if this step provides artifacts:
-  artifacts: implementArtifacts(MyStepContract.artifacts!.provides!, {
-    myArtifact: { /* optional validate: (value, ctx) => [], satisfies: (ctx) => true */ },
-  }),
+/** Executes the example step against its declared operations and artifacts. */
+export const MyStep = createStep(MyStepContract, {
   // optional: normalize: (config, ctx) => config,
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const input = deps.artifacts.someInput.read(context);
     const output = ops.myOp({ width, height, myInput: input.myData }, config.myOp);
-    deps.artifacts.myArtifact.publish(context, { width, height, myData: output.myOutput });
+    deps.artifacts.surfaceMask.publish(context, { width, height, landMask: output.myOutput });
   },
 });
 ```
+
+Optional `viz` and `metrics` projectors are siblings of `run` in this same
+`createStep` call. They observe the completed return value after artifact
+admission; they do not run inside domain logic. Keep one-step projection helpers
+in `steps/<step>/viz.ts`; promote helpers shared by multiple owner-stage steps
+or external consumers to `stages/<stage>/viz.ts`. Do not create a shared
+`steps/viz.ts` hub. The canonical ownership model and migration posture for
+legacy direct `context.viz` calls live in
+`docs/system/libs/mapgen/reference/VISUALIZATION.md`.
 
 **Registration (two files, same step-id string):**
 1. `contract-manifest.ts` — add `MyStepContract` to the stage's contract list in
    `standardStageContractManifest` (position = within-stage execution order).
 2. The stage's `index.ts` — add the runtime step to `orderStandardStageSteps(...)`.
 
-> Gotchas: do NOT add `artifact:` ids to the top-level `requires`/`provides` arrays when
-> you also use `artifacts: { requires, provides }` — `defineStep` merges artifact ids
-> automatically and throws if you double-list. Op keys in `ops:` must NOT collide with
-> any key in `schema:` — `defineStep` throws on collision. `orderStandardStageSteps`
-> throws if a runtime step id is absent from the manifest for that stage.
+> Gotchas: `artifacts.requires` selects artifact contracts, while `artifacts.provides`
+> selects artifact modules so the contract and semantic validator have one authoring owner.
+> `createStep` binds behavior only and derives publication runtimes from the contract. Do
+> NOT add `artifact:` ids to the top-level `requires`/`provides` arrays — `defineStep`
+> merges them automatically and throws if you double-list. Op keys in `ops:` must NOT
+> collide with any key in `schema:` — `defineStep` throws on collision.
+> `orderStandardStageSteps` throws if a runtime step id is absent from the manifest.
 
 ---
 
@@ -273,7 +288,7 @@ MUST also be present (`createStage` throws otherwise). Reference stages:
 // src/recipes/standard/stages/<stage-id>/index.ts
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import myStep from "./steps/<step-name>/index.js";
+import { MyStep } from "./steps/<step-name>/step.js";
 
 const knobsSchema = Type.Object({}, { additionalProperties: false, description: "Knobs for <stage-id>." });
 
@@ -288,7 +303,7 @@ export default createStage({
   id: "my-stage-id",                 // must be registered in contract-manifest.ts
   knobsSchema,
   public: publicSchema,
-  steps: orderStandardStageSteps("my-stage-id", { "my-step-name": myStep }),
+  steps: orderStandardStageSteps("my-stage-id", { "my-step-name": MyStep }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     // one key per step id; synthesize each step's op envelopes here
     "my-step-name": { myOp: { strategy: "default", config: config.myControl ?? {} } },
@@ -300,7 +315,7 @@ export default createStage({
 ```ts
 // 1. contract-manifest.ts — import step contracts; add the stage entry at the
 //    pipeline position you want (array order = stage execution order):
-import MyStepContract from "./stages/my-stage-id/steps/my-step-name/contract.js";
+import { MyStepContract } from "./stages/my-stage-id/steps/my-step-name/config.js";
 stage("my-stage-id", [MyStepContract /* , ...in execution order */ ]),
 
 // 2. recipe.ts — import the stage and add it to orderStandardStages({...}).
@@ -314,59 +329,143 @@ import myDomain from "@mapgen/domain/<my-domain>/ops";
 export const compileOpsById = collectCompileOps(foundationDomain, morphologyDomain, myDomain);
 ```
 
-> Decide truth vs projection before authoring: TRUTH stages (foundation..ecology-biomes)
-> compute and publish `artifact:<domain>.*`; PROJECTION stages (`map-*` + placement) only
-> project truth artifacts onto engine terrain via the adapter. The canonical 17-stage
-> order is owned by `standardStageContractManifest` in `contract-manifest.ts` — read it,
-> do not trust a snapshot. See `references/pipeline-map.md`.
+> Decide the lane before authoring. Manifest stages 1–15 are adapter-free
+> physics/truth (`foundation-*` through `ecology-biomes`, including
+> `morphology-shelf`; `foundation-projection` is still physics). `map-*` stages
+> are engine-facing projection, `ecology-features` is an adapter-free planner,
+> and `placement` mixes product planning with Civ7 materialization. The exact
+> 22-stage order is owned by `standardStageContractManifest` in
+> `contract-manifest.ts` — read it, do not trust a snapshot. See
+> `references/pipeline-map.md`.
 
 ---
 
-## (5) New artifact (defineArtifact + publish/read)
+## (5) New artifact (module + catalog + publish/read)
 
-Artifacts are the typed data-flow contract between steps/stages. Declare them in a
-stage's `artifacts.ts`. Id MUST start with `artifact:` and MUST NOT carry a `@vN` suffix
-(`defineArtifact` throws on both). `name` is camelCase (`/^[a-z][a-zA-Z0-9]*$/`) and must
-match its key in the record. Reference: `map-morphology/artifacts.ts`.
+Artifacts are typed data-flow contracts between steps/stages. Each artifact is one mandatory
+module under the owning stage's `artifacts/` directory: it exports exactly one contract and the
+complete structural/semantic validator that admits values for that contract. The sibling
+`artifacts/index.ts` builds the single catalog authority and derives both `artifactModules`
+(runtime producers) and `artifacts` (step contracts/consumers) from it. Do not hand-maintain a
+second contract map or place a recipe-domain validator in MapGen Core.
 
+An id MUST start with `artifact:` and MUST NOT carry a `@vN` suffix (`defineArtifact` throws on
+both). The runtime `name` is camelCase (`/^[a-z][a-zA-Z0-9]*$/`). Catalog keys are
+consumer-facing lookup names and may differ from runtime artifact names. Reference:
+`map-morphology/artifacts/`.
+
+**`artifacts/surface-mask.artifact.ts` — contract and complete admission validator:**
 ```ts
-// src/recipes/standard/stages/<stage-id>/artifacts.ts
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import type {
+  ArtifactValidationContext,
+  ArtifactValidationIssue,
+} from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  Type,
+  TypedArraySchemas,
+  validateArtifactSchema,
+} from "@swooper/mapgen-core/authoring/contracts";
 
-const MyArtifactSchema = Type.Object(
+export const Schema = Type.Object(
   {
-    width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
-    height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
-    myData: TypedArraySchemas.u8({ description: "..." }),
+    width: Type.Integer({ minimum: 1, description: "Map width represented by the mask." }),
+    height: Type.Integer({ minimum: 1, description: "Map height represented by the mask." }),
+    landMask: TypedArraySchemas.u8({
+      description: "One byte per tile in row-major order: 1 for land and 0 for water.",
+    }),
   },
-  { additionalProperties: false, description: "..." },
+  {
+    additionalProperties: false,
+    description: "Authoritative land/water classification for one complete map surface.",
+  },
 );
 
-export const myStageArtifacts = {
-  myArtifact: defineArtifact({
-    name: "myArtifact",                          // camelCase; must match the key
-    id: "artifact:<stage>.<scope>.myArtifact",   // no @vN suffix; map-level uses artifact:map.<name>
-    schema: MyArtifactSchema,
-  }),
-} as const;
+/** Registers the write-once surface classification consumed by downstream map stages. */
+export const artifact = defineArtifact({
+  name: "surfaceMask",
+  id: "artifact:<stage>.surfaceMask",
+  schema: Schema,
+});
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+/**
+ * Validates the closed schema, map-dimension agreement, one mask cell per tile, and the binary
+ * land/water value domain. These are the complete admission invariants for this artifact.
+ */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext,
+): readonly ArtifactValidationIssue[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (!isRecord(value)) return Object.freeze(issues);
+
+  const { width, height, landMask } = value;
+  if (
+    typeof width !== "number" ||
+    !Number.isInteger(width) ||
+    typeof height !== "number" ||
+    !Number.isInteger(height) ||
+    width < 1 ||
+    height < 1 ||
+    !(landMask instanceof Uint8Array)
+  ) {
+    return Object.freeze(issues);
+  }
+
+  const expectedSize = width * height;
+  if (landMask.length !== expectedSize) {
+    issues.push({ message: `surfaceMask.landMask must contain ${expectedSize} cells.` });
+  }
+  if (
+    context?.dimensions &&
+    (width !== context.dimensions.width || height !== context.dimensions.height)
+  ) {
+    issues.push({ message: "surfaceMask dimensions must match the active map." });
+  }
+  if (landMask.some((cell) => cell !== 0 && cell !== 1)) {
+    issues.push({ message: "surfaceMask.landMask accepts only 0 (water) or 1 (land)." });
+  }
+  return Object.freeze(issues);
+}
 ```
 
-**Wire it through a step (write-once publish, read by consumers):**
+**`artifacts/index.ts` — the only catalog/handle registry:**
 ```ts
-// producing step contract: artifacts: { provides: [myStageArtifacts.myArtifact] }
-//   + index.ts: implementArtifacts(MyStepContract.artifacts!.provides!, { myArtifact: {} })
-deps.artifacts.myArtifact.publish(context, { width, height, myData });
+import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
+import * as surfaceMask from "./surface-mask.artifact.js";
 
-// consuming step contract: artifacts: { requires: [myStageArtifacts.myArtifact] }
-const value = deps.artifacts.myArtifact.read(context);
+const catalog = defineArtifactCatalog({ surfaceMask });
+
+/** Stage artifact modules pairing every contract with its complete admission validator. */
+export const artifactModules = catalog.modules;
+
+/** Stage artifact handles derived from the same catalog for contracts and consumers. */
+export const artifacts = catalog.artifacts;
 ```
+
+**Wire the same module authority through a step (write-once publish, read by consumers):**
+```ts
+// producing step contract: artifacts: { provides: [myStageArtifactModules.surfaceMask] }
+deps.artifacts.surfaceMask.publish(context, { width, height, landMask });
+
+// consuming step contract: artifacts: { requires: [myStageArtifacts.surfaceMask] }
+const value = deps.artifacts.surfaceMask.read(context);
+```
+
+`defineStep` admits and snapshots the selected modules; `createStep` derives producer runtimes
+from that contract while binding behavior only. The lower-level
+`implementArtifactModules` helper is Core runtime/test support, not normal recipe authoring.
 
 > Id namespaces seen in live source: `artifact:<domain>.<name>` (e.g.
-> `artifact:morphology.topography`, `artifact:ecology.biomeClassification`) for truth
+> `artifact:morphology.topography`, `artifact:ecology.biomeClassification`) for domain
 > artifacts, and `artifact:map.<name>` (e.g. `artifact:map.morphology.coastClassification`)
-> for map-level/projection artifacts. There are also `field:<name>` and `effect:<name>`
-> tags — `effect:*` tags express ordering dependencies in `requires`/`provides`, distinct
-> from `artifact:*` data. Publish is write-once: a second publish of the same artifact in
+> for map-level/projection artifacts. `effect:<name>` tags express execution guarantees in
+> `requires`/`provides`, distinct from `artifact:*` data. Those are the only two dependency
+> kinds. Publish is write-once: a second publish of the same artifact in
 > one run is an error.
 
 ---

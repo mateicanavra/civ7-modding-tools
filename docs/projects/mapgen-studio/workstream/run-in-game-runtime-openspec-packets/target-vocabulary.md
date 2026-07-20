@@ -6,14 +6,18 @@ train
 The standalone proposal remains the architectural rationale. This file and the
 14 OpenSpec packets are the executable vocabulary for implementation.
 
-## Public Status
+## Public Wire Contracts
+
+`@civ7/studio-contract` owns the closed TypeBox schemas below. This document
+names their accepted P21 use; it does not redefine them.
+
+### Operation Status
 
 Public phases:
 
-- `resolving-source`
+- `admitting-config`
 - `generating-artifacts`
 - `deploying`
-- `preparing-civ7`
 - `starting-game`
 - `observing-runtime`
 - `completed`
@@ -23,7 +27,6 @@ Public phases:
 Public failure categories:
 
 - `request-validation`
-- `source-resolution`
 - `artifact-generation`
 - `deployment`
 - `runtime-control`
@@ -35,16 +38,26 @@ Public failure categories:
 - `operation-cancelled`
 - `internal-defect`
 
-Public error/status payload shape:
+Every admitted operation status contains:
 
-- `requestId` for every admitted operation; pre-admission validation failures
-  without an operation record omit it;
+- `requestId`;
 - `status`;
 - `phase`;
-- `safeFailureCategory` when failed or cancelled;
 - `diagnosticsId` only after private diagnostics for the current operation revision are persisted;
 - `recoveryActions`;
-- `createdAt`, `updatedAt`, and terminal timestamp when terminal.
+- `safeFailureCategory` only when `status` is `failed` or `cancelled`.
+
+Operation-record timestamps remain private persistence and diagnostics evidence;
+they are not fields of the closed public status schema.
+
+### Defined Error Data
+
+Run in Game defined-error data is either absent or contains `namespace:
+"runInGame"`, `recoveryActions`, `safeFailureCategory`, and `requestId` when an
+operation was admitted; pre-admission failures may omit the id. The
+status-not-found variant is a separate closed object with those same fields and
+a required `requestId`. Defined-error data never carries `status`, `phase`, or
+`diagnosticsId`.
 
 ## Correlation
 
@@ -52,7 +65,7 @@ Public error/status payload shape:
 
 - `requestId`;
 - `runArtifactId`;
-- `launchSourceDigest`;
+- `canonicalConfigDigest`;
 - `launchEnvelopeDigest`;
 - `generationManifestDigest`.
 
@@ -127,128 +140,61 @@ deleted records returns a safe not-found result.
 
 ## Live Verification
 
-The final packet requires live Run in Game verification before the packet train
-can be closed-passed. This is the ultimate acceptance gate for the initiative.
-Behavior tests,
-fixture tests, fake direct-control tests, OpenSpec validation, and structural
-authority checks all run before it, but none of them replace it.
+P21 closes the product only after three serial requests originate from the
+rendered Studio control and complete in Civ7. Every row uses:
 
-Preconditions:
+- saved setup `ToT_BasicModsEnabled.Civ7Cfg`;
+- seed `1538316415`;
+- `MAPSIZE_HUGE`;
+- 10 players;
+- `worldSettings.resources: balanced` in the admitted launch envelope and
+  generation manifest;
+- the stable generated setup row
+  `{mod-swooper-studio-run}/maps/studio-run.js`.
 
-- Civ7 is installed and reachable through the repo's direct-control path;
-- Civ7 is at main menu/setup-control state;
-- Studio server is running from the implementation worktree;
-- the Swooper Studio-run mod can be enabled in the setup config.
+The required canonical configs are `swooper-earthlike`, `latest-juicy`, and
+`swooper-desert-mountains`. Config selection is authoring state, not a launch
+source variant. `runArtifactId` is request correlation identity, never a map
+script filename.
 
-The final live matrix uses actual Studio server endpoints. A live endpoint
-check starts the Studio server from the implementation worktree and issues real
-requests through the running Studio daemon's public `/rpc` oRPC mount.
-Handler-direct calls, mocked transports, fixture-only servers, and tests that
-bypass the running endpoint do not satisfy this gate.
+Each row must establish one chain:
 
-Endpoint evidence records:
+- one visible click and exactly one admitted `runInGame.start` request;
+- terminal public `completed` state with no replay or stuck
+  `starting-game` projection;
+- one request workspace and explicit private diagnostics lookup;
+- exact-authorship evidence with `status: "complete"` and
+  `unresolvedLinks: []`;
+- a separate attribution report with `status: "complete"` and
+  `missingSections: []`;
+- request-specific scripting marker with full `RunCorrelation` agreement to the
+  parsed manifest;
+- matching generated and deployed identities and digests for the stable map
+  script;
+- separately joined saved-config, target-mod, stable map-row, seed, map-size,
+  and player readback before Begin;
+- separately joined loaded in-game state, runtime dimensions `106x66`, and turn
+  at least 1;
+- recipe-owned nondegenerate/playability validation for the generated result;
+- unchanged Civ7 application process identity across the operation;
+- unchanged pre/post `/healthz` Studio daemon identity (`repoRoot`,
+  `serverInstanceId`, and `startedAt`) across the operation;
+- no private diagnostics or local paths in public status/current/event output.
 
-- server start command and URL;
-- oRPC operation name;
-- request payload shape with secrets redacted;
-- request id for admitted operations;
-- timestamps;
-- redacted response/status/current/event payloads;
-- terminal status when applicable;
-- command output or captured artifact path;
-- oracle satisfied by the result.
+Validation, ownership conflict, cancellation, terminal adoption after a missed
+event or reload, row-missing and saved-config mismatch, repeat freshness, and
+redaction are deterministic behavior gates. They are not additional live Civ7
+mutation rows. `mapConfigs.saveDeploy` and the public live-status routes retain
+their own packet and behavior-test authority; P21 observes their resulting facts
+through the Run in Game operation rather than invoking them again for ceremony.
 
-Required endpoint surfaces include `runInGame.start`, `runInGame.status`,
-`studio.events.watch`, `studio.operations.current`, diagnostics lookup,
-`mapConfigs.saveDeploy`, `mapConfigs.status`, `civ7.live.status`, and
-`civ7.live.snapshot`. All endpoint calls use the public `/rpc` oRPC surface.
-Direct `@civ7/direct-control` calls may support local investigation, but they
-do not satisfy endpoint evidence.
+P19 and P20 provide preliminary live support. The three-row matrix runs once
+after A.2 and A.3 reconverge on the frozen runtime-relevant tree. Any
+runtime-relevant change invalidates all three rows; record-only changes rerun
+only their static validation. Rows run serially through one existing
+Studio dev graph with no independent Tuner probe or automatic mutation replay.
+A whole-application restart is operator-owned wedge recovery, not part of a
+normal row.
 
-Successful in-game launch variants:
-
-1. Catalog source launch:
-   - source id: `latest-juicy`;
-   - seed: `1538316415`;
-   - map size: `MAPSIZE_HUGE`;
-   - player count: `10`;
-   - resources: `balanced`.
-2. Repeat catalog source launch:
-   - source id: `latest-juicy`;
-   - seed: `1538316415`;
-   - map size: `MAPSIZE_HUGE`;
-   - player count: `10`;
-   - resources: `balanced`;
-   - run after the first operation reaches terminal `completed`;
-   - evidence must show a fresh second `requestId`, durable operation record,
-     request workspace, `RunCorrelation`, generated run artifact identity, and
-     deployment snapshot identity. Deterministic source, config, and manifest
-     digests may match where the same input intentionally produces the same
-     generated content. Fresh operation identity and workspace/deployment
-     identity must not match the first launch.
-3. Distinct catalog source launch:
-   - source id: `latest-juicy`;
-   - seed: `2026070601`;
-   - map size: `MAPSIZE_STANDARD`;
-   - player count: `6`;
-   - resources: `balanced`;
-   - purpose: prove request-local generated artifacts and deployment snapshots
-     are not reused from the prior run.
-4. Editor launch source:
-   - source fixture:
-     `openspec/changes/studio-run-launch-source-resolution/fixtures/editor-launch-source-standard.json`;
-   - seed: `2026070602`;
-   - map size: `MAPSIZE_STANDARD`;
-   - player count: `6`;
-   - resources: `balanced`;
-   - required while `EditorLaunchSource` exists in the accepted start-input
-     schema. Removing this variant requires an accepted scope change that also
-     removes `EditorLaunchSource` from the closed union.
-
-Live API/control variants:
-
-1. A validation-failure start request reaches the actual Studio endpoint and
-   returns the public `request-validation` shape without private diagnostics.
-2. A concurrent Run in Game or Save/Deploy deployed-mod write reaches the actual
-   Studio endpoint while a run owns the lease and returns public `ownership`.
-3. A cancellation request reaches the actual Studio endpoint for an active run,
-   terminalizes as `cancelled`, releases the runtime lease, and leaves private
-   diagnostics retrievable by lookup.
-
-Each successful launch variant has a 180-second timeout from operation
-admission to terminal status unless the implementation records a stricter
-product timeout in the packet train.
-
-Expected evidence:
-
-- public status phases include source resolution, artifact generation,
-  deployment, Civ7 preparation, game start, runtime observation, and terminal
-  `completed`;
-- each successful launch variant has post-start Civ7 evidence that the loaded
-  game is using the generated Studio-run artifact. Required evidence is
-  a post-start request-specific generated-artifact marker observed from the
-  running game and matching `RunCorrelation`, plus `civ7.live.status` over
-  `/rpc` showing loaded/in-game state and runtime snapshot identifiers, plus
-  `civ7.live.snapshot` over `/rpc` returning a non-empty bounded map grid whose
-  dimensions match the requested map size. The marker must be emitted by the
-  generated runtime asset for this request and carry request id, generated run
-  artifact identity, deployment snapshot id, seed, map size, deployed mod id,
-  and the live runtime `snapshotId`/`snapshotHash` when present. Shape-only
-  status/snapshot evidence is supporting evidence; it does not satisfy the
-  in-game content oracle without the request-specific marker;
-- screenshot/appshot evidence and direct-control reads may be attached as
-  supporting evidence, but neither replaces the public `/rpc` loaded-game
-  readback oracle;
-- setup config/readback before game start and scripting-log correlation are
-  supporting evidence only. Neither satisfies the in-game content oracle by
-  itself;
-- request workspace contains manifest, generated mod metadata, deployment
-  snapshot, scripting-log observation, setup-row readback, attribution report,
-  and diagnostics record;
-- observed `RunCorrelation` matches the manifest and generated assets;
-- no public status/event/current payload embeds private diagnostics or
-  attribution records.
-
-If live Civ7 or the Studio endpoint environment is unavailable, the packet train
-is blocked and remains open. Availability must be restored and the full live
-matrix must pass before the initiative can close.
+If Civ7 or the Studio runtime is unavailable, P21 remains open until the
+environment is restored and the accepted rows pass.

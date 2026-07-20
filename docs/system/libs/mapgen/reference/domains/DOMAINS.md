@@ -40,7 +40,7 @@ Legacy domain naming (mapping only; not target-canonical domains):
 Each domain page is structured as:
 
 - **Stages**: which standard recipe stages correspond to the domain boundary.
-- **Contract**: required/provided artifacts + tags (and whether anything is mutated in-place).
+- **Contract**: required/provided artifact vintages and execution-effect tags.
 - **Truth vs projection**: how to interpret outputs (simulation truth vs engine-facing projections).
 - **Ops surface**: which op contracts the domain exposes (used by steps and by config compilation).
 - **Ground truth anchors**: file paths + symbols you can use to verify the doc against code.

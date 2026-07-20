@@ -1,5 +1,6 @@
 import type { EngineAdapter } from "@civ7/adapter";
 
+/** Final drift counts for lake tiles previously accepted by map-hydrology projection. */
 export type FinalLakeReadback = Readonly<{
   acceptedLakeTileCount: number;
   finalLakeWaterDriftCount: number;

@@ -1,6 +1,7 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { plateTopology, projection } from "./steps/index.js";
+import { PlateTopologyStep } from "./steps/plate-topology/step.js";
+import { ProjectionStep } from "./steps/projection/step.js";
 
 /**
  * Foundation / Projection — resample mesh-space truth onto the Civ7 tile grid
@@ -25,8 +26,8 @@ export default createStage({
     }
   ),
   steps: orderStandardStageSteps("foundation-projection", {
-    projection,
-    "plate-topology": plateTopology,
+    projection: ProjectionStep,
+    "plate-topology": PlateTopologyStep,
   }),
   compile: () => ({ projection: {} }),
 } as const);

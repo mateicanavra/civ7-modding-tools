@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_recipe_step_authoring_shape",
+  "title": "Require Recipe Step Authoring Shape",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "recipe-step",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "recipe step config.ts and step.ts modules without exactly one named defineStep/createStep export, whose literal step id differs from the immediate step directory, with a wrongly named authoring export, or with any default export",
+  "why": "A recipe step has one filesystem and runtime identity, one contract authoring call in config.ts, and one executable authoring call in step.ts. Exact directory/id equality and singular named values remove shadow authorities, path aliases, default exports, and barrel alternatives.",
+  "remediate": "Make the kebab-case step directory equal the literal defineStep id, retain exactly one documented <Name>StepContract in config.ts and one documented <Name>Step in step.ts, and remove extra authoring calls and default exports.",
+  "message": "Recipe step modules must use one exact directory/id identity and exactly one named *StepContract and *Step authoring value without default exports.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/recipes/*/stages/*/steps/*/config.ts",
+        "mods/*/src/recipes/*/stages/*/steps/*/step.ts"
+      ]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/recipe-step/require_recipe_step_authoring_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/recipe-step/require_recipe_step_authoring_shape/pattern.md"
+    },
+    "patternName": "require_recipe_step_authoring_shape"
+  }
+}

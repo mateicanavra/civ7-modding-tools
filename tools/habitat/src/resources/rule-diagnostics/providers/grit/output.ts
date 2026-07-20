@@ -485,15 +485,14 @@ function reconcileCompactEvents(
   }
 
   let observedFound = 0;
+  let invalidPattern = false;
+  const analysisFailures: Extract<GritCompactEvent, { __typename: "AnalysisLog" }>[] = [];
   const findings: GritApplyFindingEvidence[] = [];
   for (const event of events) {
     switch (event.__typename) {
       case "PatternInfo":
         if (!event.valid) {
-          return incomplete(
-            "invalid-pattern-info",
-            "Grit reported PatternInfo.valid=false for the selected pattern."
-          );
+          invalidPattern = true;
         }
         break;
       case "InputFile":
@@ -501,10 +500,7 @@ function reconcileCompactEvents(
         break;
       case "AnalysisLog":
         if (event.level < 400 && analysisPathIsRelevant(event.file)) {
-          return incomplete(
-            "analysis-failure",
-            `Grit analysis failed at level ${event.level}: ${event.message}`
-          );
+          analysisFailures.push(event);
         }
         break;
       case "Match":
@@ -531,6 +527,19 @@ function reconcileCompactEvents(
         assertNeverEvent(event);
     }
   }
+  if (invalidPattern) {
+    return incomplete(
+      "invalid-pattern-info",
+      "Grit reported PatternInfo.valid=false for the selected pattern."
+    );
+  }
+  const analysisFailure = analysisFailures.sort(compareAnalysisLogs)[0];
+  if (analysisFailure) {
+    return incomplete(
+      "analysis-failure",
+      `Grit analysis failed at level ${analysisFailure.level}: ${analysisFailure.message}`
+    );
+  }
   if (terminal.found !== observedFound) {
     return incomplete(
       "count-mismatch",
@@ -541,6 +550,26 @@ function reconcileCompactEvents(
     kind: "parsed",
     value: { processed: terminal.processed, found: terminal.found, findings },
   };
+}
+
+function compareAnalysisLogs(
+  left: Extract<GritCompactEvent, { __typename: "AnalysisLog" }>,
+  right: Extract<GritCompactEvent, { __typename: "AnalysisLog" }>
+): number {
+  return (
+    compareStrings(left.file, right.file) ||
+    left.position.line - right.position.line ||
+    left.position.column - right.position.column ||
+    left.level - right.level ||
+    compareStrings(left.message, right.message) ||
+    compareStrings(left.engineId, right.engineId)
+  );
+}
+
+function compareStrings(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }
 
 export type GritApplyFindingEvidence =

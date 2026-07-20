@@ -99,7 +99,7 @@ import packageRecipe from "@mapgen/domain/ecology";
 
 export const packageRecipeValue = packageRecipe;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/contract.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/example/config.ts
 import contractDomain from "@mapgen/domain/foundation";
 
 export const contractValue = contractDomain;

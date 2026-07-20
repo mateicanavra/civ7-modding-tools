@@ -3,6 +3,7 @@ export type Civ7ControlOrpcProcedureMeta = Readonly<{
     | "attention"
     | "readiness"
     | "runtime"
+    | "lifecycle"
     | "notifications"
     | "unit"
     | "city"

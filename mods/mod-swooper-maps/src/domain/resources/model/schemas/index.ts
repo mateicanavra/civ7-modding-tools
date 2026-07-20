@@ -1,6 +1,5 @@
 export {
   type ResourceExpectationRangeEvidence,
-  ResourceExpectationRangeEvidenceSchema,
   type ResourceExpectedCountRange,
   ResourceExpectedCountRangeSchema,
 } from "./expected-count-range.schema.js";
@@ -12,9 +11,13 @@ export {
   type HabitatIntensityFieldName,
   type HabitatMaskFieldName,
 } from "./habitat-fields.schema.js";
-
 export {
-  RESOURCE_FAMILIES,
+  admitPositiveResourceRegionMinimum,
+  type PositiveResourceRegionMinimum,
+  type ResourceRegionMinimumRequirement,
+  ResourceRegionMinimumRequirementSchema,
+} from "./region-minimum-requirement.schema.js";
+export {
   type ResourceFamily,
   ResourceFamilySchema,
   type ResourceSymbol,
@@ -24,9 +27,5 @@ export {
 export {
   ResourceAffinityRuleSchema,
   ResourceLaneKindSchema,
-  ResourcePlanIntentSchema,
-  ResourcePlanPerTypeSchema,
-  ResourcePlanPhaseSchema,
-  ResourcePlanRegionMinimumSchema,
   ResourceSitePlanSchema,
 } from "./resource-site-plan.schema.js";

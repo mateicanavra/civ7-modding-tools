@@ -1,0 +1,62 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "recipe-metrics-capability-roots"
+root = "mods/*/src/recipes/*/metrics"
+kind = "directory"
+mode = "open"
+required = [
+  "index.ts",
+  "families",
+  "targets",
+  "studies",
+]
+
+[[scopes]]
+name = "recipe-metrics-study-bank-roots"
+root = "mods/*/src/recipes/*/metrics/studies"
+kind = "directory"
+mode = "open"
+required = [
+  "index.ts",
+  "STUDIES.md",
+  "families",
+  "benchmarks",
+]
+
+[[scopes]]
+name = "recipe-metrics-family-modules"
+root = "mods/*/src/recipes/*/metrics/families"
+kind = "directory"
+mode = "open"
+required = [
+  "*.ts",
+]
+
+[[scopes]]
+name = "recipe-metrics-target-modules"
+root = "mods/*/src/recipes/*/metrics/targets"
+kind = "directory"
+mode = "open"
+required = [
+  "*.ts",
+]
+
+[[scopes]]
+name = "recipe-metrics-study-family-docs"
+root = "mods/*/src/recipes/*/metrics/studies/families"
+kind = "directory"
+mode = "open"
+required = [
+  "*.md",
+]
+
+[[scopes]]
+name = "recipe-metrics-study-benchmarks"
+root = "mods/*/src/recipes/*/metrics/studies/benchmarks"
+kind = "directory"
+mode = "open"
+required = [
+  "*.study.ts",
+  "*.md",
+]

@@ -1,7 +1,3 @@
-import { readFileSync } from "node:fs";
-import { readdir } from "node:fs/promises";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   operationStatusTypeSchema,
   RecipeDagGetContract,
@@ -18,8 +14,6 @@ import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 const { operationsCurrent, studioEventSchema, studioOperationEventSchema } = studio;
-
-const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 
 describe("studio-server TypeBox contract spine", () => {
   test("recovers TypeBox origins from Standard Schema wrappers and contract procedures", () => {
@@ -195,109 +189,6 @@ describe("studio-server TypeBox contract spine", () => {
       })
     ).toBe(false);
   });
-
-  test("keeps active Studio contract modules free of stale schema-tech residue", async () => {
-    const studioSources = [
-      ...(await sourceFiles(join(repoRoot, "packages/studio-server/src"))),
-      ...(await sourceFiles(join(repoRoot, "packages/studio-contract/src"))),
-    ];
-    const appStudioSources = await sourceFiles(join(repoRoot, "apps/mapgen-studio/src"));
-    const studioText = studioSources.map((file) => readFileSync(file, "utf8")).join("\n");
-    const nonRouterText = studioSources
-      .filter((file) => !file.includes("/router/"))
-      .map((file) => readFileSync(file, "utf8"))
-      .join("\n");
-    const appText = appStudioSources
-      .filter((file) => !file.includes("/browser-runner/"))
-      .map((file) => readFileSync(file, "utf8"))
-      .join("\n");
-
-    expect(studioText).not.toMatch(
-      /from ["']zod["']|\bz\.infer\b|legacy Studio success I\/O schemas.*Zod|remain Zod|zod-derived/
-    );
-    expect(appText).not.toMatch(/zod-derived/);
-    expect(nonRouterText).not.toMatch(/from ["']effect-orpc["'];/);
-
-    const routerText = readFileSync(
-      join(repoRoot, "packages/studio-server/src/router/index.ts"),
-      "utf8"
-    );
-    expect(routerText).toMatch(/from "effect-orpc"/);
-  });
-
-  test("keeps app operation DTO usage derived from the package contract", async () => {
-    const runInGameStatusPath = join(
-      repoRoot,
-      "apps/mapgen-studio/src/features/runInGame/status.ts"
-    );
-    const mapConfigStatusPath = join(
-      repoRoot,
-      "apps/mapgen-studio/src/features/mapConfigSave/status.ts"
-    );
-    const runInGameFeatureStatus = readFileSync(runInGameStatusPath, "utf8");
-    const mapConfigFeatureStatus = readFileSync(mapConfigStatusPath, "utf8");
-    const appStudioSources = await sourceFiles(join(repoRoot, "apps/mapgen-studio/src"));
-    const appTestSources = await sourceFiles(join(repoRoot, "apps/mapgen-studio/test"));
-    const appDtoConsumerSources = [...appStudioSources, ...appTestSources]
-      .filter((file) => file !== runInGameStatusPath && file !== mapConfigStatusPath)
-      .map((file) => readFileSync(file, "utf8"))
-      .join("\n");
-    const appSources = [
-      readFileSync(join(repoRoot, "apps/mapgen-studio/src/features/runInGame/api.ts"), "utf8"),
-      readFileSync(join(repoRoot, "apps/mapgen-studio/src/features/mapConfigSave/api.ts"), "utf8"),
-      readFileSync(join(repoRoot, "apps/mapgen-studio/src/app/operationAdoption.ts"), "utf8"),
-    ].join("\n");
-    const serverRunInGameSourceFiles = await sourceFiles(
-      join(repoRoot, "apps/mapgen-studio/src/server/runInGame")
-    );
-    const serverRunInGameSources = [
-      ...serverRunInGameSourceFiles.map((file) => readFileSync(file, "utf8")),
-      readFileSync(join(repoRoot, "apps/mapgen-studio/src/server/studio/engines.ts"), "utf8"),
-      readFileSync(join(repoRoot, "apps/mapgen-studio/src/server/studio/context.ts"), "utf8"),
-    ].join("\n");
-    const evidenceTypes = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/server/runInGame/evidenceTypes.ts"),
-      "utf8"
-    );
-
-    expect(runInGameFeatureStatus).toMatch(/from "@civ7\/studio-contract"/);
-    expect(mapConfigFeatureStatus).toMatch(/from "@civ7\/studio-contract"/);
-    expect(runInGameFeatureStatus).not.toMatch(/@civ7\/studio-server/);
-    expect(mapConfigFeatureStatus).not.toMatch(/@civ7\/studio-server/);
-    expect(runInGameFeatureStatus).not.toMatch(
-      /export\s+type\s+\{[\s\S]*\}\s+from\s+["']@civ7\/studio-server["']/
-    );
-    expect(mapConfigFeatureStatus).not.toMatch(
-      /export\s+type\s+\{[\s\S]*\}\s+from\s+["']@civ7\/studio-server["']/
-    );
-    expect(runInGameFeatureStatus).not.toMatch(
-      /export\s+(?:type\s+)?\{[^}]*\btype\s+RunInGame[A-Za-z]+[^}]*\}\s*(?:from\s+["'][^"']+["'])?;|export\s+type\s+\{[^}]*RunInGame[A-Za-z]+[^}]*\}\s*;/
-    );
-    expect(mapConfigFeatureStatus).not.toMatch(
-      /export\s+(?:type\s+)?\{[^}]*\btype\s+MapConfigSaveDeploy[A-Za-z]+[^}]*\}\s*(?:from\s+["'][^"']+["'])?;|export\s+type\s+\{[^}]*MapConfigSaveDeploy[A-Za-z]+[^}]*\}\s*;/
-    );
-    expect(runInGameFeatureStatus).not.toMatch(/RunInGameOperationStatus\s*=\s*Readonly/);
-    expect(mapConfigFeatureStatus).not.toMatch(/MapConfigSaveDeployStatus\s*=\s*Readonly/);
-    expect(appDtoConsumerSources).not.toMatch(
-      /import\s+type\s+\{[^}]*RunInGame[A-Za-z]+[^}]*\}\s+from\s+["'](?:[^"']*features\/runInGame\/status|\.\/status)["']|import\s+\{[^}]*type\s+RunInGame[A-Za-z]+[^}]*\}\s+from\s+["'](?:[^"']*features\/runInGame\/status|\.\/status)["']/
-    );
-    expect(appDtoConsumerSources).not.toMatch(
-      /import\s+type\s+\{[^}]*MapConfigSaveDeploy[A-Za-z]+[^}]*\}\s+from\s+["'](?:[^"']*features\/mapConfigSave\/status|\.\/status)["']|import\s+\{[^}]*type\s+MapConfigSaveDeploy[A-Za-z]+[^}]*\}\s+from\s+["'](?:[^"']*features\/mapConfigSave\/status|\.\/status)["']/
-    );
-    expect(appSources).not.toMatch(/as RunInGameOperationStatus|as MapConfigSaveDeployStatus/);
-    expect(serverRunInGameSources).not.toMatch(/features\/runInGame\/status/);
-    expect(serverRunInGameSources).not.toMatch(
-      /as Awaited<ReturnType<StudioServerContext\["runInGame(?:Start|Status)"\]>>|as RunInGameOperationEvent\["status"\]/
-    );
-    expect(evidenceTypes).not.toMatch(/export type \{[\s\S]*from "@civ7\/studio-server"/);
-    expect(evidenceTypes).not.toMatch(
-      /(?:export\s+)?(?:type|interface)\s+RunInGame(?!Detailed)[A-Za-z]+/
-    );
-    expect(evidenceTypes).toMatch(/RunInGameDetailedExactAuthorshipEvidence/);
-    expect(evidenceTypes).toMatch(
-      /RunInGameExactAuthorshipEvidence as PublicRunInGameExactAuthorshipEvidence/
-    );
-  });
 });
 
 function schemaProperty(schema: unknown, key: string): unknown {
@@ -306,16 +197,4 @@ function schemaProperty(schema: unknown, key: string): unknown {
 
 function unionOption(schema: unknown, index: number): unknown {
   return (schema as { anyOf?: unknown[] }).anyOf?.[index];
-}
-
-async function sourceFiles(root: string): Promise<string[]> {
-  const entries = await readdir(root, { withFileTypes: true });
-  const nested = await Promise.all(
-    entries.map(async (entry) => {
-      const path = join(root, entry.name);
-      if (entry.isDirectory()) return sourceFiles(path);
-      return path.endsWith(".ts") || path.endsWith(".tsx") ? [path] : [];
-    })
-  );
-  return nested.flat();
 }

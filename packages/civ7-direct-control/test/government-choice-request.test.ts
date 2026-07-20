@@ -253,7 +253,7 @@ function validationResult(
   return {
     host: "127.0.0.1",
     port: 4318,
-    state: { id: "1", name: "Tuner", role: "tuner" },
+    state: { id: "1", name: "Tuner" },
     family: "player-operation",
     operationType: options.operationType,
     enumValue: options.operationType,

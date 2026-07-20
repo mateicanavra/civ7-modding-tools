@@ -87,7 +87,7 @@ import { isAnyRiverClass } from "../../../../domain/hydrology/index.js";
 
 export const relativeValue = isAnyRiverClass;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/climateRefine.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/climate-refine/step.ts
 import { isMajorRiverClass } from "../../../../../domain/hydrology/index.js";
 
 export const major = isMajorRiverClass;

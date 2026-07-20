@@ -6,9 +6,7 @@ import type {
   RunInGameFileIdentity,
   RunInGameMaterializationStatus,
   RunInGameRequestStatus,
-  RunInGameSourceSnapshotEvidence,
 } from "@civ7/studio-server";
-import { buildRunInGameSourceSnapshotEvidence } from "@civ7/studio-server";
 import { describe, expect, it } from "vitest";
 import {
   buildRunInGameExactAuthorshipEvidence,
@@ -81,57 +79,6 @@ describe("Run in Game exact authorship evidence identity", () => {
     } finally {
       await rm(dir, { recursive: true, force: true });
     }
-  });
-
-  it("builds a source snapshot from provenance and derived digests", () => {
-    const first = buildRunInGameSourceSnapshotEvidence({
-      requestId,
-      sourceSnapshot: {
-        source: { kind: "editor", editorSessionId: "test-editor-session" },
-        canonicalConfigDigest: configHash,
-        launchEnvelopeDigest: launchEnvelopeDigest,
-      },
-      canonicalConfigDigest: configHash,
-      launchEnvelopeDigest: launchEnvelopeDigest,
-    });
-    const second = buildRunInGameSourceSnapshotEvidence({
-      requestId,
-      sourceSnapshot: {
-        source: { editorSessionId: "test-editor-session", kind: "editor" },
-        launchEnvelopeDigest: launchEnvelopeDigest,
-        canonicalConfigDigest: configHash,
-      },
-      canonicalConfigDigest: configHash,
-      launchEnvelopeDigest: launchEnvelopeDigest,
-    });
-
-    expect(first).toEqual(second);
-    expect(first).toMatchObject({
-      requestId,
-      source: { kind: "editor", editorSessionId: "test-editor-session" },
-      canonicalConfigDigest: configHash,
-      launchEnvelopeDigest: launchEnvelopeDigest,
-    });
-    expect(
-      buildRunInGameSourceSnapshotEvidence({
-        requestId,
-        sourceSnapshot: {
-          source: { kind: "editor", editorSessionId: "test-editor-session" },
-          canonicalConfigDigest: "changed-config-hash",
-          launchEnvelopeDigest: launchEnvelopeDigest,
-        },
-        canonicalConfigDigest: "changed-config-hash",
-        launchEnvelopeDigest: launchEnvelopeDigest,
-      })
-    ).not.toEqual(first);
-    expect(
-      buildRunInGameSourceSnapshotEvidence({
-        requestId,
-        sourceSnapshot: undefined,
-        canonicalConfigDigest: configHash,
-        launchEnvelopeDigest: launchEnvelopeDigest,
-      })
-    ).toBeUndefined();
   });
 
   it("parses bounded Swooper evidence and completion log payloads for the same request chain", () => {
@@ -572,8 +519,7 @@ describe("Run in Game exact authorship evidence identity", () => {
       gameHash: 123456,
       sourceSnapshotId: "live-runtime:abc",
     });
-    expect(evidence.sourceSnapshot).toMatchObject({
-      source: { kind: "editor", editorSessionId: "test-editor-session" },
+    expect(evidence).toMatchObject({
       canonicalConfigDigest: configHash,
       launchEnvelopeDigest: launchEnvelopeDigest,
     });
@@ -617,8 +563,8 @@ describe("Run in Game exact authorship evidence identity", () => {
     const args = completeEvidenceArgs();
     const evidence = buildRunInGameExactAuthorshipEvidence({
       ...args,
-      setupSnapshot: setupSnapshot({ mapSeed: 43 }),
-      startMapSummary: mapSummary({ seed: 43 }),
+      lifecycleSetup: { ...args.lifecycleSetup, mapSeed: 43 },
+      lifecycleRuntime: { ...args.lifecycleRuntime, seed: 43 },
       logEvidence: {
         ...args.logEvidence!,
         seed: 43,
@@ -686,11 +632,8 @@ describe("Run in Game exact authorship evidence identity", () => {
     );
   });
 
-  it("uses setup config player count as exact-authorship readback", () => {
-    const evidence = buildRunInGameExactAuthorshipEvidence({
-      ...completeEvidenceArgs(),
-      setupSnapshot: setupSnapshot({ includePlayerCountParameter: false }),
-    });
+  it("uses canonical lifecycle player count as exact-authorship readback", () => {
+    const evidence = buildRunInGameExactAuthorshipEvidence(completeEvidenceArgs());
 
     expect(evidence.status).toBe("complete");
     expect(evidence.civSetup.playerCount).toBe(8);
@@ -699,21 +642,12 @@ describe("Run in Game exact authorship evidence identity", () => {
 });
 
 function completeEvidenceArgs(): Parameters<typeof buildRunInGameExactAuthorshipEvidence>[0] {
-  const launchSourceDigest = {
-    canonicalConfigDigest: configHash,
-  };
   const request: RunInGameRequestStatus = {
-    recipeId: "mod-swooper-maps/standard",
+    recipeId: "standard",
     seed: 42,
     mapSize: "MAPSIZE_STANDARD",
     playerCount: 8,
     resources: "balanced",
-    launchSourceDigest,
-    launchEnvelopeDigest: launchEnvelopeDigest,
-  };
-  const sourceSnapshot: RunInGameSourceSnapshotEvidence = {
-    requestId,
-    source: { kind: "editor", editorSessionId: "test-editor-session" },
     canonicalConfigDigest: configHash,
     launchEnvelopeDigest: launchEnvelopeDigest,
   };
@@ -737,7 +671,6 @@ function completeEvidenceArgs(): Parameters<typeof buildRunInGameExactAuthorship
   return {
     requestId,
     request,
-    sourceSnapshot,
     materialization: {
       ...materialization,
       localModScript,
@@ -749,9 +682,24 @@ function completeEvidenceArgs(): Parameters<typeof buildRunInGameExactAuthorship
     generatedSourceScript: fileEvidence("generated/studio-current.ts", "generated-source-hash"),
     localModScript,
     deployedModScript,
-    rowEvidence: { rows: [{ file: mapScript }] },
-    setupSnapshot: setupSnapshot(),
-    startMapSummary: mapSummary(),
+    lifecycleSetup: {
+      mapScript,
+      mapSize: "MAPSIZE_STANDARD",
+      mapSeed: 42,
+      gameSeed: 42,
+      playerCount: 8,
+      targetModId: "mod-swooper-studio-run",
+      mapRowFiles: [mapScript],
+    },
+    lifecycleRuntime: {
+      seed: 42,
+      mapSize: "MAPSIZE_STANDARD",
+      width: 84,
+      height: 54,
+      plotCount: 4536,
+      turn: 1,
+      gameHash: 123456,
+    },
     logEvidence: logEvidence(),
     liveRuntimeSnapshot: {
       snapshotId: "live-runtime:abc",
@@ -788,43 +736,6 @@ function fileEvidence(path: string, sha256: string): RunInGameFileIdentity {
     sizeBytes: 100,
     mtimeMs: 1_780_704_000_000,
     mtimeIso: "2026-06-06T00:00:00.000Z",
-  };
-}
-
-function setupSnapshot(
-  overrides: { mapSeed?: number; includePlayerCountParameter?: boolean } = {}
-): unknown {
-  const parameters = [
-    { id: "Map", exists: true, value: mapScript },
-    { id: "MapSize", exists: true, value: "MAPSIZE_STANDARD" },
-    { id: "MapRandomSeed", exists: true, value: overrides.mapSeed ?? 42 },
-    { id: "GameRandomSeed", exists: true, value: 42 },
-  ];
-  if (overrides.includePlayerCountParameter !== false) {
-    parameters.push({ id: "PlayerCount", exists: true, value: 8 });
-  }
-  return {
-    setup: {
-      parameters,
-    },
-    config: {
-      playerCount: { ok: true, value: 8 },
-    },
-  };
-}
-
-function mapSummary(overrides: { seed?: number } = {}): unknown {
-  return {
-    map: {
-      randomSeed: { ok: true, value: overrides.seed ?? 42 },
-      width: { ok: true, value: 84 },
-      height: { ok: true, value: 54 },
-      plotCount: { ok: true, value: 4536 },
-    },
-    game: {
-      turn: { ok: true, value: 1 },
-      hash: { ok: true, value: 123456 },
-    },
   };
 }
 

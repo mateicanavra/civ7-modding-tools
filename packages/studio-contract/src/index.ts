@@ -16,14 +16,14 @@ import * as studio from "./studio.js";
  * (`implementEffect(studioEffectContract, runtime)`) and owns the merged
  * client-facing mount (`contract` / `StudioContract` on its `./contract`
  * subpath — the `civ7.*` spread with `@civ7/control-orpc`'s contract, a
- * server composition that must not enter this foundation package); clients
+ * server composition that must not enter this leaf library); clients
  * (the studio app, the studio UI package) type against THIS artifact and
  * never reach into server code.
  *
  * Runtime discipline: plain `oc` + TypeBox + `@standard-schema/spec` only —
  * no Effect, no `@orpc/server`, no effect-orpc. The dependency list is the
  * enforcement for external packages (bun's isolated installs: an undeclared
- * import doesn't resolve); the `kind:foundation` boundary row fences
+ * import doesn't resolve); the `kind:library` boundary row fences
  * workspace-package imports (it does not govern external npm imports).
  */
 export const studioCiv7Contract = {
@@ -111,12 +111,8 @@ export * from "./recipeDag/contract.js";
 export * from "./recipeDag/errors.js";
 export * from "./recipeDag/schema.js";
 export type {
-  ConfigSource,
-  ConfigSourceProvenance,
-  ConfigSourceWire,
   LaunchEnvelope,
   LaunchEnvelopeDigest,
-  LaunchSourceDigest,
   PublicRunStatus,
   RunDiagnosticsLookupResult,
   RunDiagnosticsRecord,
@@ -130,24 +126,17 @@ export type {
   RunInGameOperationStatus,
   RunInGamePhase,
   RunInGamePlayerSetupConfig,
-  RunInGameRecipeSettings,
   RunInGameRequestStatus,
   RunInGameSavedSetupConfigRef,
   RunInGameSetupConfig,
   RunInGameSetupOptionValue,
-  RunInGameSourceSnapshotEvidence,
-  RunInGameStartSource,
-  RunInGameStartSourceWire,
   RunInGameWorldSettings,
 } from "./runInGame.js";
 export {
-  configSource,
-  configSourceProvenance,
   createDefaultRunInGameSetupConfig,
   diagnosticsLookupResultSchema,
   exactAuthorshipEvidence,
   launchEnvelope,
-  launchSourceDigest,
   materializationStatus,
   normalizeRunInGameSetupConfig,
   operationStatusTypeSchema,
@@ -157,19 +146,12 @@ export {
   RUN_IN_GAME_PHASES,
   RUN_IN_GAME_PLAYER_OPTION_IDS,
   runDiagnosticsRecordSchema,
-  runInGameRecipeSettings,
+  runInGameSeed,
   runInGameStartPortableInputIssue,
-  runInGameStartSource,
   runInGameWorldSettings,
-  STUDIO_CURRENT_CONFIG_ID,
-  serializeConfigSource,
-  serializeRunInGameStartSource,
   setupConfig,
-  snapshotConfigSource,
-  snapshotConfigSourceProvenance,
   snapshotLaunchEnvelope,
   snapshotRunInGameExactAuthorshipEvidence,
-  snapshotRunInGameStartSource,
   validateRunInGameSetupConfig,
 } from "./runInGame.js";
 export type { RunInGameSafeFailureCategory } from "./runInGamePublic.js";

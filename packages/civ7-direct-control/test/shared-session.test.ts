@@ -16,6 +16,13 @@ type SharedSessionServer = Readonly<{
   close: () => Promise<void>;
 }>;
 
+type SharedSessionServerOptions = Readonly<{
+  endAfterFirstCommand?: boolean;
+  holdFirstFinOpen?: boolean;
+  silent?: boolean;
+  silentCommands?: readonly string[];
+}>;
+
 const openServers: Array<() => Promise<void>> = [];
 
 afterEach(async () => {
@@ -91,6 +98,68 @@ describe("caller-owned shared tuner session", () => {
     expect(server.connections()).toBe(2);
   });
 
+  test("reconnects the next distinct command after the peer ends an epoch", async () => {
+    const server = await startSharedSessionServer({ endAfterFirstCommand: true });
+    const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
+    try {
+      await expect(
+        executeCiv7Command({
+          port: server.port,
+          session,
+          command: "first",
+          timeoutMs: 1_000,
+        })
+      ).resolves.toMatchObject({ output: ["null"] });
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(session.endpoint).toBeUndefined();
+      await expect(
+        executeCiv7Command({
+          port: server.port,
+          session,
+          command: "second",
+          timeoutMs: 1_000,
+        })
+      ).resolves.toMatchObject({ output: ["null"] });
+
+      expect(server.connections()).toBe(2);
+    } finally {
+      await session.close();
+    }
+  });
+
+  test("a delayed close from a retired epoch cannot invalidate its replacement", async () => {
+    const server = await startSharedSessionServer({ holdFirstFinOpen: true });
+    const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
+    try {
+      await executeCiv7Command({
+        port: server.port,
+        session,
+        command: "first",
+        timeoutMs: 1_000,
+      });
+
+      const retiring = session.resetConnection();
+      await executeCiv7Command({
+        port: server.port,
+        session,
+        command: "replacement",
+        timeoutMs: 1_000,
+      });
+      expect(server.connections()).toBe(2);
+
+      await retiring;
+      await executeCiv7Command({
+        port: server.port,
+        session,
+        command: "replacement-still-current",
+        timeoutMs: 1_000,
+      });
+      expect(server.connections()).toBe(2);
+    } finally {
+      await session.close();
+    }
+  });
+
   test("close() delivers a FIN handshake, not an abrupt teardown", async () => {
     const server = await startSharedSessionServer();
     const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
@@ -108,6 +177,7 @@ describe("caller-owned shared tuner session", () => {
     const session = new Civ7DirectControlSession({ host: "127.0.0.1", port: server.port });
     try {
       expect(session.stats.consecutiveResponseTimeouts).toBe(0);
+      expect(session.stats.totalResponseTimeouts).toBe(0);
 
       await expect(
         executeCiv7Command({ port: server.port, session, command: "slow", timeoutMs: 50 })
@@ -119,6 +189,7 @@ describe("caller-owned shared tuner session", () => {
       // Each failed call performs LSQ (succeeds → reset) then CMD (times out),
       // so the counter reflects the trailing run of timeouts on this socket.
       expect(session.stats.consecutiveResponseTimeouts).toBe(1);
+      expect(session.stats.totalResponseTimeouts).toBe(2);
 
       const ok = await executeCiv7Command({
         port: server.port,
@@ -128,6 +199,7 @@ describe("caller-owned shared tuner session", () => {
       });
       expect(ok.output).toEqual(["null"]);
       expect(session.stats.consecutiveResponseTimeouts).toBe(0);
+      expect(session.stats.totalResponseTimeouts).toBe(2);
     } finally {
       await session.close();
     }
@@ -147,6 +219,7 @@ describe("caller-owned shared tuner session", () => {
         code: "response-timeout",
       });
       expect(session.stats.consecutiveResponseTimeouts).toBe(3);
+      expect(session.stats.totalResponseTimeouts).toBe(3);
     } finally {
       await session.close();
     }
@@ -154,18 +227,21 @@ describe("caller-owned shared tuner session", () => {
 });
 
 async function startSharedSessionServer(
-  options: Readonly<{ silent?: boolean; silentCommands?: readonly string[] }> = {}
+  options: SharedSessionServerOptions = {}
 ): Promise<SharedSessionServer> {
   let connections = 0;
+  let commands = 0;
   let finReceived = false;
   const sockets = new Set<Socket>();
 
-  const server = createServer((socket) => {
+  const server = createServer({ allowHalfOpen: options.holdFirstFinOpen === true }, (socket) => {
     connections += 1;
+    const connectionNumber = connections;
     sockets.add(socket);
     socket.on("close", () => sockets.delete(socket));
     socket.on("end", () => {
       finReceived = true;
+      if (!options.holdFirstFinOpen || connectionNumber !== 1) socket.end();
     });
     socket.on("error", () => {});
     let buffer = Buffer.alloc(0);
@@ -186,7 +262,10 @@ async function startSharedSessionServer(
         if (message === "LSQ:") {
           socket.write(encodeResponse(listenerId, ["65535", "App UI", "1", "Tuner"]));
         } else {
-          socket.write(encodeResponse(listenerId, ["null"]));
+          commands += 1;
+          const response = encodeResponse(listenerId, ["null"]);
+          if (options.endAfterFirstCommand && commands === 1) socket.end(response);
+          else socket.write(response);
         }
       }
     });

@@ -1,9 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import type { DomainOpCompileAny } from "@mapgen/authoring/index.js";
-
-import { defineOp } from "@mapgen/authoring/index.js";
+import { createOp, createStage, createStrategy, defineOp } from "@mapgen/authoring/index.js";
 import { compileRecipeConfig, RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
 import { Type } from "typebox";
+import { Value } from "typebox/value";
 
 function expectCompileError(run: () => unknown): RecipeCompileError {
   try {
@@ -30,21 +29,19 @@ describe("compileRecipeConfig", () => {
         ),
       },
     } as const);
+    const stepSchema = Type.Object(
+      { value: Type.String(), trees: op.config },
+      { additionalProperties: false }
+    );
     const step = {
       contract: {
         id: "alpha",
-        schema: Type.Object(
-          { value: Type.String(), trees: op.config },
-          { additionalProperties: false }
-        ),
+        schema: stepSchema,
         ops: { trees: op },
       },
       normalize: (config: unknown) => {
         calls.push("step.normalize");
-        const value = config as {
-          value: string;
-          trees: { strategy: string; config: { tag: string } };
-        };
+        const value = Value.Parse(stepSchema, config);
         expect(value.trees).toEqual({ strategy: "default", config: { tag: "before-op" } });
         return { ...value, value: "step" };
       },
@@ -54,38 +51,30 @@ describe("compileRecipeConfig", () => {
       { publicValue: Type.String() },
       { additionalProperties: false }
     );
-    const stage = {
+    const stage = createStage({
       id: "stage",
       knobsSchema,
       public: publicSchema,
-      surfaceSchema: Type.Object(
-        {
-          knobs: knobsSchema,
-          ...publicSchema.properties,
-        },
-        { additionalProperties: false }
-      ),
-      toInternal: ({ stageConfig }: { stageConfig: { knobs: {}; publicValue: string } }) => ({
-        knobs: stageConfig.knobs,
-        rawSteps: { alpha: { value: stageConfig.publicValue } },
-      }),
+      compile: ({ config }) => ({ alpha: { value: config.publicValue } }),
       steps: [step],
-    };
-    const compileOpsById: Record<string, DomainOpCompileAny> = {
-      [op.id]: {
-        id: op.id,
-        normalize: (envelope: { strategy: string; config: { tag: string } }) => {
-          calls.push("op.normalize");
-          return { ...envelope, config: { ...envelope.config, tag: "op" } };
-        },
-      } as DomainOpCompileAny,
-    };
+    });
+    const compileOp = createOp(op, {
+      strategies: {
+        default: createStrategy(op, "default", {
+          normalize: (config) => {
+            calls.push("op.normalize");
+            return { ...config, tag: "op" };
+          },
+          run: () => ({}),
+        }),
+      },
+    });
 
     const result = compileRecipeConfig({
       env: {},
       recipe: { stages: [stage] },
       config: { stage: { knobs: {}, publicValue: "base" } },
-      compileOpsById,
+      compileOpsById: { [compileOp.id]: compileOp },
     });
 
     expect(calls).toEqual(["step.normalize", "op.normalize"]);
@@ -105,20 +94,13 @@ describe("compileRecipeConfig", () => {
       { productRate: Type.Number({ default: 2 }) },
       { additionalProperties: false }
     );
-    const stage = {
+    const stage = createStage({
       id: "stage",
       knobsSchema,
       public: publicSchema,
-      surfaceSchema: Type.Object(
-        {
-          knobs: knobsSchema,
-          ...publicSchema.properties,
-        },
-        { additionalProperties: false }
-      ),
-      toInternal: () => ({ knobs: {}, rawSteps: {} }),
+      compile: () => ({}),
       steps: [],
-    };
+    });
     const incomplete = { stage: { knobs: {}, productRate: 2 } };
     Reflect.deleteProperty(incomplete.stage, "productRate");
 
@@ -136,21 +118,18 @@ describe("compileRecipeConfig", () => {
         (item) => item.path === "/config/stage" && item.message.includes("productRate")
       )
     ).toBe(true);
-    expect(incomplete).toEqual({ stage: { knobs: {} } });
+    expect(incomplete.stage).not.toHaveProperty("productRate");
+    expect(Object.keys(incomplete.stage)).toEqual(["knobs"]);
   });
 
   it("rejects a step normalizer that deletes a required field", () => {
     const knobsSchema = Type.Object({}, { additionalProperties: false });
     const publicSchema = Type.Object({}, { additionalProperties: false });
-    const stage = {
+    const stage = createStage({
       id: "stage",
       knobsSchema,
       public: publicSchema,
-      surfaceSchema: Type.Object({ knobs: knobsSchema }, { additionalProperties: false }),
-      toInternal: ({ stageConfig }: { stageConfig: { knobs: {} } }) => ({
-        knobs: stageConfig.knobs,
-        rawSteps: { alpha: { requiredValue: "present" } },
-      }),
+      compile: () => ({ alpha: { requiredValue: "present" } }),
       steps: [
         {
           contract: {
@@ -160,7 +139,7 @@ describe("compileRecipeConfig", () => {
           normalize: () => ({}),
         },
       ],
-    };
+    });
 
     const error = expectCompileError(() =>
       compileRecipeConfig({
@@ -194,15 +173,11 @@ describe("compileRecipeConfig", () => {
     } as const);
     const knobsSchema = Type.Object({}, { additionalProperties: false });
     const publicSchema = Type.Object({}, { additionalProperties: false });
-    const stage = {
+    const stage = createStage({
       id: "stage",
       knobsSchema,
       public: publicSchema,
-      surfaceSchema: Type.Object({ knobs: knobsSchema }, { additionalProperties: false }),
-      toInternal: ({ stageConfig }: { stageConfig: { knobs: {} } }) => ({
-        knobs: stageConfig.knobs,
-        rawSteps: { alpha: {} },
-      }),
+      compile: () => ({ alpha: {} }),
       steps: [
         {
           contract: {
@@ -212,7 +187,15 @@ describe("compileRecipeConfig", () => {
           },
         },
       ],
-    };
+    });
+    const invalidEnvelope = { strategy: "default" as const, config: { amount: 1 } };
+    Reflect.deleteProperty(invalidEnvelope, "strategy");
+    const compileOp = createOp(op, {
+      strategies: {
+        default: createStrategy(op, "default", { run: () => ({}) }),
+      },
+    });
+    Reflect.set(compileOp, "normalize", () => invalidEnvelope);
 
     const error = expectCompileError(() =>
       compileRecipeConfig({
@@ -220,10 +203,7 @@ describe("compileRecipeConfig", () => {
         recipe: { stages: [stage] },
         config: { stage: { knobs: {} } },
         compileOpsById: {
-          [op.id]: {
-            id: op.id,
-            normalize: () => ({ config: { amount: 1 } }),
-          } as DomainOpCompileAny,
+          [compileOp.id]: compileOp,
         },
       })
     );

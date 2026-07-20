@@ -6,6 +6,10 @@ import {
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/**
+ * Runtime contract for Ecology's physically scored resource basins, including member plots,
+ * per-plot intensity, and basin-level confidence.
+ */
 export const ResourceBasinsArtifactSchema = Type.Object({
   basins: Type.Array(
     Type.Object({
@@ -19,8 +23,14 @@ export const ResourceBasinsArtifactSchema = Type.Object({
 
 export type ResourceBasinsArtifact = Static<typeof ResourceBasinsArtifactSchema>;
 
+/** Canonical schema entrypoint for registering and validating resource-basin evidence. */
 export const Schema = ResourceBasinsArtifactSchema;
 
+/**
+ * Registers Ecology's scored basin groups from pedology, climate, and topography truth.
+ * Placement consumes the stable basin evidence without owning or recomputing ecological
+ * classification.
+ */
 export const artifact = defineArtifact({
   name: "resourceBasins",
   id: "artifact:ecology.resourceBasins",
@@ -55,6 +65,12 @@ function validatePayload(
   return errors;
 }
 
+/**
+ * Validates resource-basin plan against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext

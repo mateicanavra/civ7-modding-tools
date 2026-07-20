@@ -13,6 +13,6 @@ or {
   `$value.velocityX`,
   `$value.velocityY`
 } where {
-  $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection\.ts$"
+  $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step\.ts$"
 }
 ```

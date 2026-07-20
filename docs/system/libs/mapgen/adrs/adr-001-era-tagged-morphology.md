@@ -99,7 +99,7 @@ Normalize to `0..1`, threshold by configurable densities, and emit sparse overla
   - Early-era scars increase probability of paleo river corridors and canyon discoveries
   - Active-era belts temper rainforest swatches and boost geothermal hotspots
   - Mixed-era tiles (scars + active) signal uplifted plateaus suitable for highland biomes
-- **Guardrails:** Narrative consumers only adjust staged buffers (`writeClimateField`, placement metadata). Heightfield alterations remain in morphology stages.
+- **Guardrails:** Narrative consumers may consume authored climate artifacts and publish their own outputs; they do not mutate Hydrology climate products or project rainfall. Heightfield alterations remain in Morphology stages.
 
 ### Acceptance Tests
 

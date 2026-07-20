@@ -2,20 +2,18 @@ import { Effect } from "effect";
 import { Value } from "typebox/value";
 import { type VerifyBaseResolution, VerifyBaseResolutionSchema } from "../dto/verify.schema.js";
 
-export interface VerifyBaseGitPort {
+export interface VerifyBaseGitPort<R = never> {
   readonly remoteDefaultBranch: (options?: {
     readonly cwd?: string;
-  }) => Effect.Effect<string | null, never, any>;
+  }) => Effect.Effect<string | null, never, R>;
   readonly mergeBase: (
     ref: string,
     options?: { readonly cwd?: string }
-  ) => Effect.Effect<string | null, never, any>;
+  ) => Effect.Effect<string | null, never, R>;
 }
 
-export interface VerifyBaseGraphitePort {
-  readonly parent: (options?: {
-    readonly cwd?: string;
-  }) => Effect.Effect<string | null, never, any>;
+export interface VerifyBaseGraphitePort<R = never> {
+  readonly parent: (options?: { readonly cwd?: string }) => Effect.Effect<string | null, never, R>;
 }
 
 /**
@@ -29,14 +27,14 @@ export interface VerifyBaseGraphitePort {
  * @param base - Optional base ref supplied by the caller.
  * @returns A TypeBox-validated resolution or refusal.
  */
-export function resolveVerifyBaseEffect(
+export function resolveVerifyBaseEffect<R>(
   context: {
-    readonly git: VerifyBaseGitPort;
-    readonly graphite: VerifyBaseGraphitePort;
+    readonly git: VerifyBaseGitPort<R>;
+    readonly graphite: VerifyBaseGraphitePort<R>;
     readonly repoRoot: string;
   },
   base?: string
-) {
+): Effect.Effect<VerifyBaseResolution, never, R> {
   if (base)
     return Effect.succeed(
       Value.Parse(VerifyBaseResolutionSchema, { kind: "resolved", base, source: "flag" })

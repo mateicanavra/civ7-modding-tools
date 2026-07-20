@@ -11,10 +11,22 @@ language js(typescript)
 
 or {
   `$value ?? {}` where {
-    $filename <: r".*mods/mod-swooper-maps/src/(?:recipes/.*/stages/.*/steps|domain/.*/ops)/.*\.ts$"
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/.*/stages/[^/]+/steps/[^/]+/.*\.ts$",
+    not { $filename <: r".*/config\.ts$" },
+    not { $filename <: r".*\.(?:test|spec)\.ts$" },
+    not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" }
   },
   `Value.Default($args)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/(?:recipes/.*/stages/.*/steps|domain/.*/ops)/.*\.ts$"
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/.*/stages/[^/]+/steps/[^/]+/.*\.ts$",
+    not { $filename <: r".*/config\.ts$" },
+    not { $filename <: r".*\.(?:test|spec)\.ts$" },
+    not { $filename <: r".*/(?:__tests__|tests?)/.*\.ts$" }
+  },
+  `$value ?? {}` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
+  },
+  `Value.Default($args)` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$"
   }
 }
 ```
@@ -22,8 +34,11 @@ or {
 ## Matches fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/step.ts
 const config = input.config ?? {};
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/helpers/runtime.ts
+const helperConfig = input.config ?? {};
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
 const config = opConfig ?? {};
@@ -41,10 +56,13 @@ const schema = Value.Default(schemaNode);
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts
 const config = stageConfig ?? {};
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot.tsx
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/config.ts
 const config = input.config ?? {};
 
-// @filename: mods/other-mod/src/recipes/standard/stages/ecology/steps/plot.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/step.tsx
+const config = input.config ?? {};
+
+// @filename: mods/other-mod/src/recipes/standard/stages/ecology/steps/plot/step.ts
 const config = input.config ?? {};
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts

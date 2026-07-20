@@ -17,6 +17,10 @@
       "types": "./src/maps/configs/canonical.ts",
       "import": "./src/maps/configs/canonical.ts"
     },
+    "./maps/configs/standard-admission": {
+      "types": "./src/maps/configs/standard-admission.ts",
+      "import": "./src/maps/configs/standard-admission.ts"
+    },
     "./recipes/standard": {
       "types": "./dist/recipes/standard.d.ts",
       "import": "./dist/recipes/standard.js"
@@ -31,25 +35,25 @@
     }
   },
   "scripts": {
-    "lint": "biome check .",
     "diag:analyze": "bun ./src/dev/diagnostics/analyze-dump.ts",
-    "diag:list": "bun ./src/dev/diagnostics/list-layers.ts",
     "diag:diff": "bun ./src/dev/diagnostics/diff-layers.ts",
+    "diag:list": "bun ./src/dev/diagnostics/list-layers.ts",
     "diag:trace": "bun ./src/dev/diagnostics/extract-trace.ts",
-    "validate:ecology-op-contract-quality": "bun ./scripts/validate-ecology-op-contract-quality.ts",
-    "verify": "bun ./scripts/verify.ts"
+    "metrics:report": "bun ./scripts/metrics/report.ts"
   },
   "dependencies": {
-    "@swooper/mapgen-core": "workspace:*",
-    "@swooper/mapgen-viz": "workspace:*",
     "@civ7/adapter": "workspace:*",
     "@civ7/map-policy": "workspace:*",
     "@civ7/studio-contract": "workspace:*",
     "@civ7/studio-run-workspace": "workspace:*",
     "@mateicanavra/civ7-sdk": "workspace:*",
-    "typebox": "^1.0.80"
+    "@swooper/mapgen-core": "workspace:*",
+    "@swooper/mapgen-metrics": "workspace:*",
+    "@swooper/mapgen-viz": "workspace:*",
+    "typebox": "catalog:"
   },
   "devDependencies": {
+    "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
     "@civ7/plugin-mods": "workspace:*",
     "@civ7/types": "workspace:*",

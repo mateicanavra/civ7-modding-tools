@@ -2,9 +2,14 @@
   "name": "@civ7/adapter",
   "version": "0.1.0",
   "description": "Centralized adapter for Civ7 engine APIs - the only package allowed to import /base-standard/...",
+  "keywords": [
+    "civ7",
+    "civilization",
+    "modding",
+    "adapter"
+  ],
+  "license": "MIT",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -14,25 +19,29 @@
       "types": "./dist/civ7-adapter.d.ts",
       "import": "./dist/civ7-adapter.js"
     },
+    "./map-script-build": {
+      "types": "./dist/map-script-build.d.ts",
+      "import": "./dist/map-script-build.js"
+    },
     "./mock": {
       "types": "./dist/mock-adapter.d.ts",
       "import": "./dist/mock-adapter.js"
     }
   },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup",
-    "check": "tsc --noEmit",
-    "test": "bun test"
+    "build": "tsup --config tools/tsup.config.ts",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "check:tools": "tsc -p tools/tsconfig.json --noEmit",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@civ7/map-policy": "workspace:*",
     "@civ7/types": "workspace:*"
   },
-  "keywords": [
-    "civ7",
-    "civilization",
-    "modding",
-    "adapter"
-  ],
-  "license": "MIT"
+  "devDependencies": {
+    "esbuild": "^0.27.2"
+  }
 }

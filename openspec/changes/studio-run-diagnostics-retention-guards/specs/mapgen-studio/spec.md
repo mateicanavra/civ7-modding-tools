@@ -32,7 +32,10 @@ topology through the structural authority matrix rather than behavior tests.
 #### Scenario: Packet train closes
 
 - **WHEN** the runtime/materialization restructuring is complete
-- **THEN** SA-14 verifies that SA-01 through SA-13 are registered and green
+- **THEN** SA-14 verifies that SA-01 through SA-13 remain registered under their
+  exact owners with canonical empty baselines
+- **AND** one Nx workspace policy graph executes the MapGen Studio and Swooper
+  Maps owner-local Habitat targets and proves status
 - **AND** behavior tests remain scoped to product and code behavior
 
 ### Requirement: Final Closure Requires Live Run In Game Verification

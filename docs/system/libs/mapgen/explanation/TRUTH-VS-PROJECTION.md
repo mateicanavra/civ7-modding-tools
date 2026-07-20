@@ -49,11 +49,11 @@ The standard recipe often introduces explicit projection steps whose job is to:
 
 - Use trace/viz to compare:
   - truth-driven projection outputs across steps,
-  - “before/after” snapshots when a later step mutates buffers.
+  - named artifact vintages or truth artifacts against engine projection evidence.
 - Avoid “fixing drift” by copying projected fields; fix the projection source instead.
 
 ## Ground truth anchors
 
 - Policy (contracts/invariants): `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
-- Foundation projection step (tile projections + viz emissions): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.ts`
+- Foundation projection step (tile projections + viz emissions): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts`
 - Map projection no-water-drift invariant (policy): `mods/mod-swooper-maps/src/recipes/standard/projection-policies/noWaterDrift.ts`

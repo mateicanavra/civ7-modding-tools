@@ -11,6 +11,8 @@ import {
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 turn-completion status procedure descriptor", () => {
   test("records the turn-completion status read atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(
@@ -35,8 +37,8 @@ describe("Civ7 turn-completion status procedure descriptor", () => {
       Civ7TurnCompletionStatusProcedureDescriptor,
       Civ7TurnCompletionStatusProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual([]);
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual([]);
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7TurnCompletionStatusProcedureDescriptor.outputFields)
     );
     expect(Value.Check(resolved.inputSchema, {})).toBe(true);

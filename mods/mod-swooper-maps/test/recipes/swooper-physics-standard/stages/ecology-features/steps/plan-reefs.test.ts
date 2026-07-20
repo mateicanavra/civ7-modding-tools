@@ -2,10 +2,13 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as ecologyArtifacts } from "../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import planReefsStep from "../../../../../../src/recipes/standard/stages/ecology-features/steps/plan-reefs/index.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { implementArtifactModules } from "@swooper/mapgen-core/authoring";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { PlanReefsStep as planReefsStep } from "../../../../../../src/recipes/standard/stages/ecology-features/steps/plan-reefs/step.js";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";
 import { createEmptyFeatureScoreLayers } from "../../../../../support/feature-score-layers.js";
 import { buildTestDeps } from "../../../../../support/step-deps.js";
@@ -25,19 +28,15 @@ describe("ecology-features plan-reefs step", () => {
     adapter.fillWater(true);
 
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
-    ctx.buffers.heightfield.landMask.fill(0);
 
     const layers = createEmptyFeatureScoreLayers(size);
     layers.reef.fill(1);
 
-    const stageArtifacts = implementArtifacts(
-      [
-        ecologyArtifacts.scoreLayers,
-        ecologyArtifacts.occupancyIce,
-        hydrologyHydrographyArtifacts.lakePlan,
-      ],
-      { scoreLayers: {}, occupancyIce: {}, lakePlan: {} }
-    );
+    const stageArtifacts = implementArtifactModules([
+      ecologyArtifactModules.scoreLayers,
+      ecologyArtifactModules.occupancyIce,
+      hydrologyHydrographyArtifactModules.lakePlan,
+    ]);
     stageArtifacts.scoreLayers.publish(ctx, { width, height, layers });
     stageArtifacts.occupancyIce.publish(ctx, {
       width,

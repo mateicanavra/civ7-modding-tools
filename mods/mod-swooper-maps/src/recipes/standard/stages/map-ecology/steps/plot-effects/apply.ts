@@ -2,6 +2,10 @@ import type { PlotEffectKey } from "@civ7/map-policy";
 import type { PlotEffectIntentKey } from "@mapgen/domain/ecology";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 
+/**
+ * Exhaustive projection from Ecology plot-effect intent to Civ7 runtime keys. Keeping this map
+ * explicit prevents the projection stage from reinterpreting semantic effect choices.
+ */
 export const PLOT_EFFECT_KEY_BY_INTENT: Readonly<Record<PlotEffectIntentKey, PlotEffectKey>> = {
   "snow-light": "PLOTEFFECT_SNOW_LIGHT_PERMANENT",
   "snow-medium": "PLOTEFFECT_SNOW_MEDIUM_PERMANENT",

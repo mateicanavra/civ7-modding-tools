@@ -34,7 +34,8 @@ Domains should not own:
 - **Ops** are the “algorithm units”:
   - pure compute/plan with explicit input/output schemas.
 - **Steps** are orchestration:
-  - they bind ops, read/write artifacts/buffers, and emit trace/viz.
+  - they bind ops, read/write admitted artifacts/effects, emit trace events, and may project
+    completed results through optional metrics/visualization facets.
 
 This separation keeps algorithmic code reusable and keeps orchestration visible and debuggable.
 

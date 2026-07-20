@@ -60,13 +60,25 @@ const PlanOutput = Type.Object(
   { additionalProperties: false }
 );
 
+/**
+ * Admits the pure conversion from morphology, hydrology, ecology, and tectonic truth into the
+ * exact named masks and [0, 1] family intensity fields consumed by resource planning. It
+ * exposes no authored strategy knobs.
+ */
 const DeriveHabitatFieldsContract = defineOp({
   kind: "plan",
   id: "resources/derive-habitat-fields",
   input: PlanInput,
   output: PlanOutput,
   strategies: {
-    default: Type.Object({}, { additionalProperties: false }),
+    default: Type.Object(
+      {},
+      {
+        additionalProperties: false,
+        description:
+          "Fixed resource-planning policy that converts terrain, water, climate, ecology, and tectonic fields into named habitat masks and family intensity surfaces; it exposes no authored knobs.",
+      }
+    ),
   },
 });
 

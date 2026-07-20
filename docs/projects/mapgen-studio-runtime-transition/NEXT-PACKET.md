@@ -1,6 +1,7 @@
 # Next Packet: Close The Studio Product Outcome
 
-Status: A.3a is sealed; G.2.1 RuleFixPreview implementation is active; no product closure claim
+Status: A.3 compiler ownership closing; package-ownership normalization precedes
+A.2; final P21 remains open
 
 Normative frame:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -19,56 +20,34 @@ checks and lightweight records. Do not build custom progress-tracking tools.
 
 ## Current Stack
 
-```text
-codex/studio-run-live-playability@4f501fabfdc6
-  -> codex/mapgen-studio-runtime-transition-planning@ca6a06d24fff
-  -> codex/mapgen-studio-config-envelope-runtime-cutover@3f5ed12e81a5
-  -> codex/mapgen-studio-manifest-parity-replay@b2367c50d6ae
-  -> codex/mapgen-studio-runtime-stage-0-census@76bfbcaa434d
-  -> codex/mapgen-studio-complete-config-admission@9b082bac2434 (Packet A)
-  -> codex/mapgen-swooper-test-topology@ceb6832e329d (Packet A.1)
-  -> codex/mapgen-studio-dev-contract-freshness@3a2630c1085f (Packet A.1a)
-  -> codex/mapgen-studio-codex-lifecycle-alignment@e69842a4f680
-  -> codex/mapgen-domain-operation-topology@16745e337902 (Packet A.2 frame)
-  -> codex/mapgen-generated-validator-ownership@dd38de22e05b
-  -> codex/habitat-rule-introduction-baseline-manifests@9ff0f711e0d7
-  -> codex/mapgen-runtime-closeout-takeover-frame@8ec2a96e3319
-  -> codex/mapgen-runtime-closeout-control-reconciliation@d82b64450e18
-  -> codex/mapgen-runtime-closeout-grit-diagnostic-acquisition@e32c4749df0f
-  -> codex/mapgen-runtime-closeout-rule-diagnostics-resource@ede4871594fa
-  -> codex/mapgen-runtime-closeout-generic-fix-admission@171ee61ce0c1
-  -> codex/mapgen-studio-atomic-reroll@93b1153ca217
-  -> G.2.1 RuleFixPreview candidate (active, uncommitted)
-```
+The coherent continuation stack is sealed through A.3a, A.4, RuleFixPreview,
+native Nx/toolchain authority, G.1/G.2, control-oRPC lifecycle and Studio
+adoption, Tuner session/admission repair, P19 generated-mod visibility, P20
+saved-config reconciliation, P21 deterministic proof, source-independent A.3
+static coverage, Habitat hook diagnostics, and lossless operation-event adoption.
+The A.2 sibling still equals the split base; no A.2 Authority rule, live
+violation corpus, or domain migration is present.
 
-The historical source recovery is verified. The config and parity branches
-passed isolated static and behavior checks, but no current-tree rendered
-browser/Civ7 matrix has closed. Those branches are implementation evidence, not
-the product result. Packet A is committed and closed-passed; it establishes the
-complete-config boundary but does not claim the Run in Game product outcome.
+The historical source recovery remains reference evidence. No current-tree
+rendered browser/Civ7 matrix has closed, so none of these layers claims the
+product result.
 
 ## Immediate Execution Boundary
 
-The inherited worktree at
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`
-is preserved read-only evidence. It contains 62 tracked changes and 31
-untracked files with nothing staged; generic provider work, A.2 Authority, and
-record edits are interleaved. Do not stage or transplant that tree.
-
 Proceed in this order:
 
-1. preserve the sealed control, G.1, RuleDiagnostics, G.2, and A.3a layers;
-2. seal `RuleFixPreview`: closed admitted impacts, one complete-root Grit
-   observation, and categorical refusal of live mutation;
-3. account the stale `codex/mapgen-domain-operation-authority` worktree hunk by
-   hunk, retain only unique settled decisions/docs needed by the launch
-   contract, and then remove its worktree and ref. Do not transplant dirty
-   rules, fixtures, manifests, baselines, or source changes;
-4. import the selected readiness descent/N=1 planning corpus, settle the A.2
-   semantics and protected surfaces, and freeze an immutable handoff commit;
-5. hand A.2 Authority, advisory census, deterministic row classification, and
-   the six domain slices to the user's team. This DRA continues only on the
-   independent closeout track and later integrates the returned A.2 stack.
+1. seal A.3 test and tool compiler ownership;
+2. normalize repository compiler ownership around one discoverable
+   `tsconfig.json` per real compiler environment;
+3. define and execute the package-ownership migration that leaves reusable
+   MapGen capabilities in Core, Civ7 policy in Civ7 packages, and authored maps,
+   recipes, packaging, and live proof in Swooper;
+4. certify and restack the resulting pre-A.2 foundation with native Graphite.
+
+This package move does not execute A.2 Authority, normalize operation interiors,
+or begin the domain descent. A.2 starts later from the corrected package
+topology. Do not replay the repository, reconstruct a replacement stack, or
+invent a return/integration protocol.
 
 ## Prepared Findings
 
@@ -82,10 +61,10 @@ Proceed in this order:
   deterministic repeat, and fresh artifact rendering. No all-water output was
   reproduced. Packet A removed the partial-config admission path and requires
   the recipe-produced complete config at every public boundary.
-- Studio still owns setup/start orchestration by importing direct-control
-  functions in `Civ7WorkflowControl.ts`. The control oRPC surface has no
-  setup/lifecycle family. That is the next larger ownership defect after config
-  completeness is closed.
+- Control oRPC now owns `lifecycle.singlePlayer.start`, and Studio invokes it
+  once in process through the runtime-owned Tuner session. The HTTP router
+  intentionally cannot invoke lifecycle mutation. Rendered and in-game proof
+  remain before product closure.
 - One read-only investigation accidentally sent request
   `studio-run-in-game-mrgo592d-a58-2`. It generated and deployed the Studio run
   mod, then failed during `preparing-civ7` under Tuner backoff. It did not start
@@ -182,9 +161,8 @@ Repair this on one dedicated child before A.2:
   frontend reachability and daemon `/healthz`.
 
 Do not add a watcher, supervisor, broad package alias, export-specific test, or
-second lifecycle path. Align the Codex worktree helper with its existing
-environment handoff on a separate bounded child after this freshness repair;
-retain its private tmux socket, per-worktree ports, and ownership-only teardown.
+second lifecycle path. Studio development runs only through the foreground
+`nx run mapgen-studio:dev` graph.
 
 A.1a is closed-passed. Development serve resolves the exact bare Studio
 contract import from source, production build has no matching alias, Vite binds
@@ -195,11 +173,10 @@ navigation evaluated the contract source module, retained generated recipe
 artifact imports from `dist`, and mounted a nonempty React root without a
 module-link error.
 
-The bounded Codex worktree lifecycle child is also closed-passed. Its helper
-composes the canonical Nx daemon target, requires frontend and repository-owned
-daemon health, and retains private ports, tmux ownership, and teardown. Two
-regular worktrees ran healthy instances concurrently; stopping either one left
-the other instance and the standard Studio runtime healthy.
+The native lifecycle graph is closed-passed. Vite depends on the continuous
+daemon target, frontend and repository-owned daemon health were observed, and
+one interrupt released both listeners. There is no helper, private tmux/state,
+cleanup hook, or second start/stop surface to preserve.
 
 ### G.1. Reconstruct Generic Grit Diagnostic Acquisition
 
@@ -282,24 +259,18 @@ authority review. This stage may delete helpers made redundant by honest
 ownership, but it must not redesign algorithms, configuration semantics, or
 runtime behavior.
 
-The validator-ownership and rule-introduction prerequisites are sealed. The
-current Authority candidate remains preserved only as mixed-tree evidence.
-After the immutable handoff, the user's A.2 team recreates Authority rather
-than importing its hunks, then executes Ecology, Foundation, Morphology,
-Hydrology, Resources, and Placement under the frozen descent contract.
+The validator-ownership and rule-introduction prerequisites are sealed. The old
+mixed Authority candidate was excluded after its unique settled evidence was
+reconciled. From the reviewed split-base sibling, the user's A.2 team creates
+Authority from current evidence, then executes Ecology, Foundation, Morphology,
+Hydrology, Resources, and Placement under the settled descent contract.
 
 ### A.3. Close Static Test And Tool Coverage
 
-The current production checks exclude Swooper tests, `src/dev`, most scripts,
-and Studio tests. Bun and Vitest transpile and execute tests without invoking
-the TypeScript checker, so passing behavior tests can coexist with editor
-diagnostics. Close that execution-versus-static-authority gap before changing
-the config ontology again:
-
-The completed inventory found five source-local compile-time tests. Retain them
-through A.2 because production `tsc` is currently their only oracle. During
-A.3, move them atomically with green owner-local `tsconfig.test.json` projects
-and independently runnable Nx `check:test` targets:
+Bun and Vitest execution is not TypeScript ownership. A.3 moves source-local
+compile-time assertions to semantic test owners and gives Swooper tests,
+scripts, and development diagnostics discoverable compiler projects plus native
+Nx `check:test` and `check:tools` targets:
 
 | Current source-local test | Destination |
 | --- | --- |
@@ -314,16 +285,10 @@ Static tests live under the semantic owner they constrain and use the
 Make each move only in the same change that proves the destination compiler
 project includes it and the production project no longer does.
 
-1. retain the closed Packet A base-versus-tip comparison as the boundary between
-   its repaired diagnostics and the independent historical corpus;
-2. after A.1 settles test paths and A.2 settles production module paths, repair
-   pre-existing shared `src/dev` and script contract bridges first, then
-   Swooper test fixtures/consumers, then Studio tests on separate semantic
-   Graphite children;
-3. add the smallest separate `tsconfig.test.json` and `tsconfig.tools.json`
-   projects and Nx targets only after each admitted scope is green;
-4. make normal project checks depend on those green static surfaces without
-   mixing browser, game-runtime, and tooling environments.
+The destination law is one discoverable `tsconfig.json` per distinct compiler
+environment. Named `tsconfig.*.json` files are reserved for explicit build or
+emit programs, not hidden editor ownership. Normal project typecheck composes
+the owner-local surfaces through Nx.
 
 Do not restore partial config types, add suppression baselines, or silence
 diagnostics with casts. Use recipe-produced complete configs, operation
@@ -365,40 +330,42 @@ its own Graphite child before Packet B.
 
 ### A.5. Adjudicate Payload Loading And Worker Readiness
 
-Two observed performance concerns remain: the browser eagerly receives the
-complete all-config payload, and the first generation also pays worker startup.
-They are evidence, not yet one accepted packet. After A.4 leaves one
-config-selection path, decide whether they share a cohesive owner and change.
+The concerns are separate and neither is admitted. The complete catalog payload
+is small enough that lazy loading would add asynchronous selection and failure
+state without a measured product win. A worker readiness handshake would add a
+second lifecycle state without valid cold-versus-warm browser evidence; the
+bounded profiling attempt was invalidated by its own tooling and was stopped
+rather than converted into a harness.
 
-If admitted, selected-config payload loading must stay behind the recipe-owned
-complete-config boundary; it may not reintroduce sparse presets, browser
-merging, or delayed defaulting. Worker readiness must expose one small lifecycle
-handshake without adding a second run state machine. Split the concerns when
-their owners, gates, or failure modes differ. Close only with browser module
-observations, first/warm-run behavior, and unchanged generation output.
+Reopen either concern only when clean browser observations demonstrate a
+material bottleneck. Any selected-config loading must preserve the recipe-owned
+complete-config boundary, and worker readiness must not create a second run
+state machine.
 
 ### B. Control oRPC Setup And Start Ownership
 
-Design and implement the missing typed setup/lifecycle capability under
-`packages/civ7-control-orpc`, using the daemon-owned Tuner session and in-process
-server client. Move Studio off caller-local direct-control orchestration. The
-operation must exit only an active game when necessary, load and reconcile the
-saved setup and generated map, start the game, and retain request correlation
-without restarting the Civilization VII application.
+The typed setup/start lifecycle now lives under `packages/civ7-control-orpc` and
+uses the daemon-owned Tuner session through one in-process Studio dependency.
+Studio no longer owns caller-local setup/start orchestration, and the HTTP router
+refuses lifecycle mutation by construction. The lifecycle exits only an active
+game when necessary, reconciles saved setup and the generated map, starts once,
+and retains request correlation without restarting Civilization VII.
 
-Close with contract/router/client behavior tests, dedicated TypeScript,
-structure, oRPC, Effect, and direct-control reviews, and one rendered Swooper
-Earthlike run with unchanged Civ7 application PID.
+Package and Studio lifecycle behavior is sealed, with the rendered Swooper
+Earthlike saved-config run retained as P20 support and an unchanged Civ7
+application PID. P21's three final rows still own product closure.
 
 ### C. Certification, Matrices, Archive, And Merge
 
-C is the umbrella across Stages 5 through 8, not a standalone matrix packet
-before recut. First certify every recut branch and close P01-P20 against the
-current contracts while making P21 `runtime-ready`. Then run the complete
-preliminary P21 matrix, archive and reconcile records without changing the
-runtime tree, rerun the complete matrix on the exact submission candidate, and
-submit and merge bottom to top. Any semantic surprise returns to Stage 2; C
-never authorizes product design during recut or archive.
+C is the umbrella across Stages 5 through 8, not a standalone matrix packet.
+First certify every accepted branch and close P01-P20 against the current
+contracts while making P21 `authority-ready`. After A.2 and A.3 reconverge,
+integrated gates promote P21 to `runtime-ready`; then run its three-row matrix once
+on the frozen runtime-relevant candidate, reconcile active records without
+changing that tree, and submit and merge bottom to top. Any later
+runtime-relevant change invalidates all three rows so the accepted matrix remains
+bound to one exact tree. Record-only changes do not replay Civ7.
+Any semantic surprise returns to its owning product slice.
 
 ## Product Loop
 
@@ -417,8 +384,9 @@ never authorizes product design during recut or archive.
 5. Close the first success row with Swooper Earthlike,
    `ToT_BasicModsEnabled.Civ7Cfg`, Huge, 10 players, balanced resources, and
    seed `1538316415`.
-6. Run Latest Juicy and Swooper Desert Mountains plus the declared freshness,
-   recovery, cancellation, conflict, validation, and redaction rows.
+6. Run Latest Juicy and Swooper Desert Mountains. Run freshness, recovery,
+   cancellation, conflict, validation, and redaction through their deterministic
+   behavior-test owners rather than as extra live mutations.
 7. Reconcile OpenSpec/task/evidence records, run full static gates, submit and
    merge the accepted Graphite stack, then return the parked follow-up work to
    Habitat.
@@ -427,10 +395,11 @@ never authorizes product design during recut or archive.
 
 - Studio carries one complete admitted JSON config envelope without browser or
   server migration, deep merge, scrubbing, or property-level rescue.
-- One rendered request owns one source, manifest, generated mod, deployment,
+- One rendered request owns one canonical config, manifest, generated mod, deployment,
   setup reconciliation, and launched game.
-- Ordinary Run in Game uses the canonical direct-control oRPC capability to
-  soft-restart the Civ7 game. It does not restart the whole application.
+- Ordinary Run in Game invokes the package-owned control-oRPC lifecycle once in
+  process. That lifecycle reconciles setup and starts one game without restarting
+  the Civilization VII application.
 - Public status stays redacted. Private diagnostics require explicit lookup.
 - Endpoint, unit, browser, setup, and in-game observations are separate gates;
   none substitutes for another.

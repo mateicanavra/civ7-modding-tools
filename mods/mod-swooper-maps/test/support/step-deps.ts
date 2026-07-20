@@ -2,9 +2,34 @@ import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import {
   type ArtifactContract,
   ArtifactMissingError,
-  type StepDeps,
-  type StepModule,
+  type ArtifactModule,
 } from "@swooper/mapgen-core/authoring";
+
+type TestableStep = Readonly<{
+  contract: Readonly<{
+    id: string;
+    artifacts?: Readonly<{
+      requires?: readonly ArtifactContract[];
+      provides?: readonly ArtifactModule[];
+    }>;
+  }>;
+  artifacts?: Readonly<Record<string, unknown>>;
+}>;
+
+type StepArguments<TStep> = TStep extends {
+  run: (...args: infer TArguments) => unknown;
+}
+  ? TArguments
+  : never;
+
+type StepDependencies<TStep> = StepArguments<TStep>[3];
+type StepContext<TStep> = Extract<StepArguments<TStep>[0], ExtendedMapContext>;
+type StepArtifactDependencies<TStep> =
+  StepDependencies<TStep> extends Readonly<{
+    artifacts: infer TArtifacts;
+  }>
+    ? TArtifacts
+    : never;
 
 function createRequiredRuntime<TContext extends ExtendedMapContext>(
   contract: ArtifactContract,
@@ -29,22 +54,16 @@ function createRequiredRuntime<TContext extends ExtendedMapContext>(
   };
 }
 
-export function buildTestDeps<TContext extends ExtendedMapContext>(
-  step: StepModule<TContext, any, any, any>
-): StepDeps<TContext, any> {
+export function buildTestDeps<TStep>(step: TStep & TestableStep): StepDependencies<TStep> {
   const artifacts = step.contract.artifacts;
-  if (!artifacts) {
-    return { artifacts: {}, fields: {}, effects: {} };
-  }
-
   const depsArtifacts: Record<string, unknown> = {};
   const stepId = step.contract.id;
 
-  for (const contract of artifacts.requires ?? []) {
-    depsArtifacts[contract.name] = createRequiredRuntime<TContext>(contract, stepId);
+  for (const contract of artifacts?.requires ?? []) {
+    depsArtifacts[contract.name] = createRequiredRuntime<StepContext<TStep>>(contract, stepId);
   }
 
-  for (const contract of artifacts.provides ?? []) {
+  for (const { artifact: contract } of artifacts?.provides ?? []) {
     const runtime = step.artifacts?.[contract.name as keyof typeof step.artifacts];
     if (!runtime) {
       throw new Error(
@@ -55,8 +74,7 @@ export function buildTestDeps<TContext extends ExtendedMapContext>(
   }
 
   return {
-    artifacts: depsArtifacts as StepDeps<TContext, any>["artifacts"],
-    fields: {},
-    effects: {},
+    // Runtime keys come from the same literal contracts that define the static dependency surface.
+    artifacts: depsArtifacts as StepArtifactDependencies<TStep>,
   };
 }

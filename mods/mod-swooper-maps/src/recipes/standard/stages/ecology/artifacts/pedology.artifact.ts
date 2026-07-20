@@ -1,5 +1,7 @@
 import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   type Static,
   Type,
@@ -7,6 +9,7 @@ import {
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/** Runtime contract for Ecology's per-tile soil class and normalized fertility truth. */
 export const PedologyArtifactSchema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
@@ -16,8 +19,14 @@ export const PedologyArtifactSchema = Type.Object({
 
 export type PedologyArtifact = Static<typeof PedologyArtifactSchema>;
 
+/** Canonical schema entrypoint used by pedology publication and payload admission. */
 export const Schema = PedologyArtifactSchema;
 
+/**
+ * Registers per-tile soil class and normalized fertility derived from morphology and baseline
+ * climate. Biome and resource-basin planning share this artifact rather than recomputing soil
+ * proxies.
+ */
 export const artifact = defineArtifact({
   name: "pedology",
   id: "artifact:ecology.soils",
@@ -26,63 +35,38 @@ export const artifact = defineArtifact({
 
 export type ArtifactValidationIssue = Readonly<{ message: string }>;
 
-function expectedSize(dimensions: NonNullable<ArtifactValidationContext["dimensions"]>): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
-
-function isPedologyArtifact(value: unknown): value is PedologyArtifact {
-  if (!value || typeof value !== "object") return false;
-  const candidate = value as PedologyArtifact;
-  return (
-    typeof candidate.width === "number" &&
-    typeof candidate.height === "number" &&
-    candidate.soilType instanceof Uint8Array &&
-    candidate.fertility instanceof Float32Array
-  );
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function validatePayload(
   value: unknown,
-  dimensions: NonNullable<ArtifactValidationContext["dimensions"]>
+  context?: ArtifactValidationContext
 ): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
-  if (!isPedologyArtifact(value)) {
-    errors.push({ message: "Invalid pedology artifact payload." });
+  if (!isRecord(value)) {
+    if (context?.dimensions) errors.push({ message: "Invalid pedology artifact payload." });
     return errors;
   }
-  const size = expectedSize(dimensions);
-  if (value.width !== dimensions.width || value.height !== dimensions.height) {
+  const dimensions = context?.dimensions;
+  const size = artifactCellCount(context);
+  if (dimensions && (value.width !== dimensions.width || value.height !== dimensions.height)) {
     errors.push({ message: "Pedology dimensions mismatch." });
   }
-  validateTypedArray(errors, "soilType", value.soilType, Uint8Array, size);
-  validateTypedArray(errors, "fertility", value.fertility, Float32Array, size);
+  appendArtifactTypedArrayIssues(errors, "soilType", value.soilType, Uint8Array, size);
+  appendArtifactTypedArrayIssues(errors, "fertility", value.fertility, Float32Array, size);
   return errors;
 }
 
+/**
+ * Validates pedology against its closed schema and, when map dimensions are supplied, verifies
+ * every tile field matches that width × height. It returns accumulated issues so artifact
+ * admission can reject a structurally valid but spatially inconsistent payload.
+ */
 export function validate(
   value: unknown,
   context?: ArtifactValidationContext
 ): readonly { message: string }[] {
   const schemaIssues = validateArtifactSchema(Schema, value);
-  if (!context?.dimensions) return schemaIssues;
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context.dimensions)]);
+  return Object.freeze([...schemaIssues, ...validatePayload(value, context)]);
 }

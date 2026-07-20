@@ -5,6 +5,7 @@ import { defineArtifact, validateArtifactSchema } from "@swooper/mapgen-core/aut
 
 export const Schema = resources.ops.selectResourceSites.output;
 
+/** Registers authoritative per-plot resource intents before start-support adjustment. */
 export const artifact = defineArtifact({
   name: "resourcePlan",
   id: "artifact:placement.resourcePlan",
@@ -86,10 +87,39 @@ function validatePayload(value: unknown): ValidationIssue[] {
         issue(`resourcePlan perType ${type} plannedCount ${planned} exceeds maxCount ${maxCount}.`)
       );
     }
+
+    const effectiveTarget = Number(row.effectiveTargetCount);
+    const expectedShortfall = Math.max(0, effectiveTarget - planned);
+    const shortfalls = Array.isArray(row.shortfalls) ? row.shortfalls : null;
+    if (!Number.isSafeInteger(expectedShortfall) || !shortfalls) continue;
+    if (shortfalls.length !== (expectedShortfall > 0 ? 1 : 0)) {
+      issues.push(
+        issue(
+          `resourcePlan perType ${type} requires ${expectedShortfall > 0 ? "one" : "no"} terminal shortfall for deficit ${expectedShortfall}.`
+        )
+      );
+      continue;
+    }
+    const shortfall = shortfalls[0];
+    if (!isRecord(shortfall)) continue;
+    if (shortfall.resourceType !== row.resourceType) {
+      issues.push(issue(`resourcePlan perType ${type} shortfall names another resource type.`));
+    }
+    if (shortfall.count !== expectedShortfall) {
+      issues.push(
+        issue(
+          `resourcePlan perType ${type} shortfall count ${String(shortfall.count)} != terminal deficit ${expectedShortfall}.`
+        )
+      );
+    }
   }
   return issues;
 }
 
+/**
+ * Validates map bounds, unique intent plots, count coherence, declared maxima, and the exact
+ * terminal shortfall implied by each resource type's effective target.
+ */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

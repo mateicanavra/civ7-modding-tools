@@ -1,4 +1,4 @@
-import "../polyfills/text-encoder";
+import { encodeUtf8 } from "@mapgen/lib/encoding/utf8.js";
 
 export type TraceLevel = "off" | "basic" | "verbose";
 
@@ -276,9 +276,13 @@ function rotr(value: number, shift: number): number {
   return (value >>> shift) | (value << (32 - shift));
 }
 
+/**
+ * Hashes a JavaScript string through deterministic UTF-8 into lowercase SHA-256.
+ * Lone surrogates follow `TextEncoder` semantics and encode as the replacement
+ * character, keeping trace identities stable across browser, Node, and Civ7 hosts.
+ */
 export function sha256Hex(input: string): string {
-  const encoder = new TextEncoder();
-  const bytes = encoder.encode(input);
+  const bytes = encodeUtf8(input);
   const bitLen = BigInt(bytes.length) * 8n;
   const paddedLength = ((bytes.length + 9 + 63) >> 6) << 6;
   const padded = new Uint8Array(paddedLength);

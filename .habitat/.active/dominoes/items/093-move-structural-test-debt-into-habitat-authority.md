@@ -1,6 +1,6 @@
 # Domino 093: Move Structural Test Debt Into Habitat Authority
 
-Status: active sequence record
+Status: closed
 
 Source: captured during Domain Model Config Law and public-domain-test import
 closure.
@@ -9,7 +9,7 @@ closure.
 
 #### Domino 93: Move Structural Test Debt Into Habitat Authority
 
-Status: tracked follow-up before final Habitat authority initiative closure.
+Status: closed by the Studio source-test authority slice.
 
 Purpose: prevent package behavior tests from remaining the owner of source
 shape, topology, or structural law after import-boundary cleanup has made static
@@ -48,3 +48,15 @@ Closure:
 This domino closes only when structural source-shape assertions have an
 enforced Habitat owner or are deleted with proof, and package tests no longer
 act as fallback topology law.
+
+## Closure Result
+
+- Existing Habitat rules retain direct-control session and EventHub lifecycle
+  ownership.
+- `preserve_studio_event_driven_runtime_boundaries` owns the remaining Studio
+  polling, watcher, and recovery-persistence relapse boundary.
+- Source-text assertions were removed from product tests; observable lifecycle,
+  event adoption, bounded reads, replay, and cleanup remain behavior-tested.
+- File-reading tests whose files are actual inputs, fixtures, or emitted product
+  artifacts remain product tests rather than being misclassified as topology
+  checks.

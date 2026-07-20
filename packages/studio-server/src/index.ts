@@ -23,11 +23,8 @@
 // chunk (values silently vanish from dist; see src/contract/index.ts). Any
 // new contract re-export must be added by name.
 export type {
-  ConfigSource,
-  ConfigSourceProvenance,
   LaunchEnvelope,
   LaunchEnvelopeDigest,
-  LaunchSourceDigest,
   MapConfigSaveDeployKind,
   MapConfigSaveDeployPhase,
   MapConfigSaveDeployStatus,
@@ -42,7 +39,6 @@ export type {
   RunInGameOperationStatus,
   RunInGamePhase,
   RunInGameRequestStatus,
-  RunInGameSourceSnapshotEvidence,
   StudioEffectContract,
   StudioEvent,
   StudioHelloEvent,
@@ -116,7 +112,6 @@ export {
   operationBlocked,
   operationExpired,
   operationNotFound,
-  verificationFailed,
   runtimeDisposed,
   STUDIO_FAILURE_REASON_CODES,
   STUDIO_FAILURE_TAGS,
@@ -129,8 +124,13 @@ export {
   toStudioDefinedOrpcError,
   unavailableFailureErrorDataSchema,
   unsupportedOperationType,
+  verificationFailed,
 } from "./errors/index.js";
-export { createStudioRpcHandler, type StudioRpcHandle } from "./handler.js";
+export {
+  createStudioRpcHandler,
+  type StudioLiveRuntimeReader,
+  type StudioRpcHandle,
+} from "./handler.js";
 export {
   LIVE_GAME_WATCH_INITIAL_DELAY_MS,
   LIVE_GAME_WATCH_INTERVAL_MS,
@@ -145,21 +145,25 @@ export type {
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
   RunInGameRuntimeObservation,
-  RunInGameSetupPrepared,
+  RunInGameStarted,
   StudioOperationRuntimePorts,
-} from "./operationRuntime/index.js";
-export {
-  buildRunInGameSourceSnapshotEvidence,
-  hashRunInGameEvidenceValue,
 } from "./operationRuntime/index.js";
 export type { RecipeDagService } from "./recipeDag/service.js";
 export { createStudioRouter, type StudioRouter } from "./router/index.js";
-export { makeStudioRuntime, type StudioRuntime, type StudioRuntimeOptions } from "./runtime.js";
+export {
+  makeStudioRuntime,
+  type StudioRouterRuntime,
+  type StudioRouterServices,
+  type StudioRuntime,
+  type StudioRuntimeOptions,
+} from "./runtime.js";
 export { Civ7TunerClient } from "./services/Civ7TunerClient.js";
 export {
   CIV7_TUNER_GATE_COOLDOWN_MS,
   CIV7_TUNER_GATE_THRESHOLD,
+  type Civ7TunerAdmissionError,
   Civ7TunerBackoffError,
+  Civ7TunerClosingError,
   Civ7TunerSession,
   type Civ7TunerSessionApi,
   type Civ7TunerSessionHealth,

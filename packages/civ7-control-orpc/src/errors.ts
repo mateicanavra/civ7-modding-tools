@@ -745,6 +745,34 @@ export class Civ7TurnCompletionUnavailableError extends ORPCTaggedError(
   }
 ) {}
 
+export const Civ7ControllerCapabilityUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.String(),
+    source: Type.Literal("controller-context"),
+    risk: Type.Union([
+      Type.Literal("read-only"),
+      Type.Literal("runtime-support"),
+      Type.Literal("mutation"),
+    ]),
+    reason: Type.Union([Type.Literal("procedure-not-supported"), Type.Literal("proof-required")]),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false }
+);
+export type Civ7ControllerCapabilityUnavailableErrorData = Static<
+  typeof Civ7ControllerCapabilityUnavailableErrorDataSchema
+>;
+
+export class Civ7ControllerCapabilityUnavailableError extends ORPCTaggedError(
+  "Civ7ControllerCapabilityUnavailableError",
+  {
+    code: "CONTROLLER_CAPABILITY_UNAVAILABLE",
+    message: "The game controller cannot provide this capability.",
+    schema: toStandardSchema(Civ7ControllerCapabilityUnavailableErrorDataSchema),
+    status: 403,
+  }
+) {}
+
 export const Civ7MutationReadinessRequiredErrorDataSchema = Type.Object(
   {
     procedureKey: Type.String(),
@@ -898,6 +926,30 @@ export class Civ7PopulationPlacementUnavailableError extends ORPCTaggedError(
   }
 ) {}
 
+export const Civ7ControlAdmissionUnavailableErrorDataSchema = Type.Object(
+  {
+    procedureKey: Type.String({ minLength: 1 }),
+    source: Type.Literal("host-procedure-admission"),
+    reason: Type.Literal("temporarily-unavailable"),
+    retryAtMs: Type.Optional(Type.Number({ minimum: 0 })),
+    ...Civ7ControlOrpcErrorCorrelationProperties,
+  },
+  { additionalProperties: false }
+);
+export type Civ7ControlAdmissionUnavailableErrorData = Static<
+  typeof Civ7ControlAdmissionUnavailableErrorDataSchema
+>;
+
+export class Civ7ControlAdmissionUnavailableError extends ORPCTaggedError(
+  "Civ7ControlAdmissionUnavailableError",
+  {
+    code: "CONTROL_ADMISSION_UNAVAILABLE",
+    message: "Civ7 control procedure admission is temporarily unavailable.",
+    schema: toStandardSchema(Civ7ControlAdmissionUnavailableErrorDataSchema),
+    status: 503,
+  }
+) {}
+
 export const Civ7CorrelationIdInvalidErrorDataSchema = Type.Object(
   {
     source: Type.Literal("context.correlation"),
@@ -919,6 +971,115 @@ export class Civ7CorrelationIdInvalidError extends ORPCTaggedError(
   }
 ) {}
 
+const Civ7LifecycleSinglePlayerFailureDataProperties = {
+  procedureKey: Type.Literal("lifecycle.singlePlayer.start"),
+  source: Type.Literal("direct-control-facade"),
+  ...Civ7ControlOrpcErrorFailureProperties,
+  ...Civ7ControlOrpcErrorCorrelationProperties,
+};
+
+export const Civ7LifecycleStateRefusedErrorDataSchema = Type.Object(
+  {
+    ...Civ7LifecycleSinglePlayerFailureDataProperties,
+    initialPhase: Type.Union([
+      Type.Literal("loading"),
+      Type.Literal("begin-ready"),
+      Type.Literal("unavailable"),
+    ]),
+  },
+  { additionalProperties: false }
+);
+export type Civ7LifecycleStateRefusedErrorData = Static<
+  typeof Civ7LifecycleStateRefusedErrorDataSchema
+>;
+
+export class Civ7LifecycleStateRefusedError extends ORPCTaggedError(
+  "Civ7LifecycleStateRefusedError",
+  {
+    code: "LIFECYCLE_STATE_REFUSED",
+    message: "Civ7 lifecycle start was refused before mutation.",
+    schema: toStandardSchema(Civ7LifecycleStateRefusedErrorDataSchema),
+    status: 409,
+  }
+) {}
+
+export const Civ7LifecycleDependencyUnavailableErrorDataSchema = Type.Object(
+  {
+    ...Civ7LifecycleSinglePlayerFailureDataProperties,
+  },
+  { additionalProperties: false }
+);
+export type Civ7LifecycleDependencyUnavailableErrorData = Static<
+  typeof Civ7LifecycleDependencyUnavailableErrorDataSchema
+>;
+
+export class Civ7LifecycleDependencyUnavailableError extends ORPCTaggedError(
+  "Civ7LifecycleDependencyUnavailableError",
+  {
+    code: "LIFECYCLE_DEPENDENCY_UNAVAILABLE",
+    message: "Civ7 lifecycle dependencies are unavailable.",
+    schema: toStandardSchema(Civ7LifecycleDependencyUnavailableErrorDataSchema),
+    status: 503,
+  }
+) {}
+
+export const Civ7LifecycleMutationUncertainErrorDataSchema = Type.Object(
+  {
+    ...Civ7LifecycleSinglePlayerFailureDataProperties,
+    noRepeat: Type.Literal(true),
+  },
+  { additionalProperties: false }
+);
+export type Civ7LifecycleMutationUncertainErrorData = Static<
+  typeof Civ7LifecycleMutationUncertainErrorDataSchema
+>;
+
+export class Civ7LifecycleMutationUncertainError extends ORPCTaggedError(
+  "Civ7LifecycleMutationUncertainError",
+  {
+    code: "LIFECYCLE_MUTATION_UNCERTAIN",
+    message: "Civ7 lifecycle mutation outcome is uncertain; do not repeat automatically.",
+    schema: toStandardSchema(Civ7LifecycleMutationUncertainErrorDataSchema),
+    status: 502,
+  }
+) {}
+
+export const Civ7LifecycleVerificationFailedErrorDataSchema = Type.Object(
+  {
+    ...Civ7LifecycleSinglePlayerFailureDataProperties,
+    noRepeat: Type.Literal(true),
+  },
+  { additionalProperties: false }
+);
+export type Civ7LifecycleVerificationFailedErrorData = Static<
+  typeof Civ7LifecycleVerificationFailedErrorDataSchema
+>;
+
+export class Civ7LifecycleVerificationFailedError extends ORPCTaggedError(
+  "Civ7LifecycleVerificationFailedError",
+  {
+    code: "LIFECYCLE_VERIFICATION_FAILED",
+    message: "Civ7 lifecycle start could not be verified.",
+    schema: toStandardSchema(Civ7LifecycleVerificationFailedErrorDataSchema),
+    status: 502,
+  }
+) {}
+
+export const civ7LifecycleSinglePlayerStartErrorMap = {
+  CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
+  CONTROL_ADMISSION_UNAVAILABLE: Civ7ControlAdmissionUnavailableError,
+  CONTROLLER_CAPABILITY_UNAVAILABLE: Civ7ControllerCapabilityUnavailableError,
+  LIFECYCLE_DEPENDENCY_UNAVAILABLE: Civ7LifecycleDependencyUnavailableError,
+  LIFECYCLE_MUTATION_UNCERTAIN: Civ7LifecycleMutationUncertainError,
+  LIFECYCLE_STATE_REFUSED: Civ7LifecycleStateRefusedError,
+  LIFECYCLE_VERIFICATION_FAILED: Civ7LifecycleVerificationFailedError,
+} satisfies EffectErrorMap;
+
+export type Civ7LifecycleSinglePlayerStartEffectErrorMap =
+  typeof civ7LifecycleSinglePlayerStartErrorMap;
+export type Civ7LifecycleSinglePlayerStartErrorMap =
+  EffectErrorMapToErrorMap<Civ7LifecycleSinglePlayerStartEffectErrorMap>;
+
 export const civ7ControlOrpcErrorMap = {
   APPSHOT_CAPTURE_FAILED: Civ7AppshotCaptureFailedError,
   APPSHOT_CLEAN_FRAME_UNVERIFIED: Civ7AppshotCleanFrameUnverifiedError,
@@ -929,6 +1090,8 @@ export const civ7ControlOrpcErrorMap = {
   ATTENTION_CURRENT_UNAVAILABLE: Civ7AttentionCurrentUnavailableError,
   ATTENTION_PRIORITIES_UNAVAILABLE: Civ7AttentionPrioritiesUnavailableError,
   CORRELATION_ID_INVALID: Civ7CorrelationIdInvalidError,
+  CONTROL_ADMISSION_UNAVAILABLE: Civ7ControlAdmissionUnavailableError,
+  CONTROLLER_CAPABILITY_UNAVAILABLE: Civ7ControllerCapabilityUnavailableError,
   DIPLOMACY_RESPONSE_UNAVAILABLE: Civ7DiplomacyResponseUnavailableError,
   DISPLAY_QUEUE_UNAVAILABLE: Civ7DisplayQueueUnavailableError,
   EXPLORE_FAILED: Civ7ExploreFailedError,

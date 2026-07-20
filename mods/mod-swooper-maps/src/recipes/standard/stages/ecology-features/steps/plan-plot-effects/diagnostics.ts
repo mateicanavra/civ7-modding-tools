@@ -1,13 +1,6 @@
 import type { PlotEffectIntentKey } from "@mapgen/domain/ecology";
 import type { TraceScope } from "@swooper/mapgen-core";
-import {
-  clamp01,
-  devLogJson,
-  FLAT_TERRAIN,
-  HILL_TERRAIN,
-  MOUNTAIN_TERRAIN,
-  normalizeRange,
-} from "@swooper/mapgen-core";
+import { clamp01, devLogJson, normalizeRange } from "@swooper/mapgen-core";
 import type { PlotEffectsStepInput } from "./inputs.js";
 
 type PlotEffectsInput = PlotEffectsStepInput;
@@ -208,8 +201,7 @@ export function logSnowEligibilitySummary(
   input: PlotEffectsInput,
   scoreConfig: unknown,
   planConfig: unknown,
-  placements: PlotEffectPlacement[],
-  terrainType: Uint8Array
+  placements: PlotEffectPlacement[]
 ): void {
   if (!trace?.isVerbose) return;
 
@@ -231,20 +223,12 @@ export function logSnowEligibilitySummary(
   } as const;
 
   const bucketLand = createBucket();
-  const bucketMountain = createBucket();
-  const bucketHill = createBucket();
-  const bucketFlat = createBucket();
 
   const snowElevation = resolveSnowElevationRange(input, snow);
   const elevationMin = snowElevation.min;
   const elevationMax = snowElevation.max;
 
-  const totals = {
-    land: 0,
-    mountain: 0,
-    hill: 0,
-    flat: 0,
-  };
+  let landTiles = 0;
 
   for (let y = 0; y < input.height; y++) {
     const rowOffset = y * input.width;
@@ -252,24 +236,8 @@ export function logSnowEligibilitySummary(
       const idx = rowOffset + x;
       if (input.landMask[idx] === 0) continue;
 
-      const terrain = terrainType[idx];
-      const isMountain = terrain === MOUNTAIN_TERRAIN;
-      const isHill = terrain === HILL_TERRAIN;
-      const isFlat = terrain === FLAT_TERRAIN;
-
-      totals.land += 1;
+      landTiles += 1;
       bucketLand.total += 1;
-
-      if (isMountain) {
-        totals.mountain += 1;
-        bucketMountain.total += 1;
-      } else if (isHill) {
-        totals.hill += 1;
-        bucketHill.total += 1;
-      } else if (isFlat) {
-        totals.flat += 1;
-        bucketFlat.total += 1;
-      }
 
       const temp = input.surfaceTemperature[idx];
       const moisture = input.effectiveMoisture[idx];
@@ -302,9 +270,6 @@ export function logSnowEligibilitySummary(
       };
 
       applyBucket(bucketLand);
-      if (isMountain) applyBucket(bucketMountain);
-      if (isHill) applyBucket(bucketHill);
-      if (isFlat) applyBucket(bucketFlat);
     }
   }
 
@@ -356,22 +321,10 @@ export function logSnowEligibilitySummary(
       },
       scoreNormalization: snow.scoreNormalization,
     },
-    totals,
+    landTiles,
     land: {
       ...bucketLand,
       scoreStats: finalizeScoreStats(bucketLand),
-    },
-    mountain: {
-      ...bucketMountain,
-      scoreStats: finalizeScoreStats(bucketMountain),
-    },
-    hill: {
-      ...bucketHill,
-      scoreStats: finalizeScoreStats(bucketHill),
-    },
-    flat: {
-      ...bucketFlat,
-      scoreStats: finalizeScoreStats(bucketFlat),
     },
     placements: placementCounts,
     targetPlacements: Math.round((bucketLand.scoreEligible * snow.coveragePct) / 100),

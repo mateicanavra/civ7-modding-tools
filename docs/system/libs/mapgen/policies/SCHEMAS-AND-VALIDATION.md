@@ -107,6 +107,7 @@ cannot know a field, define a separate observation or sparse-input contract.
 - Recipe-owned default construction: `mods/mod-swooper-maps/src/recipes/standard/artifacts.ts`
 - Stage-to-step materialization: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Recipe and run request schemas: `packages/mapgen-core/src/engine/execution-plan.ts`
-- Civ7/V8 format shim rationale: `packages/mapgen-core/src/shims/typebox-format.ts`
+- Civ7/V8 final-bundle compatibility: `@civ7/adapter/map-script-build` and
+  `docs/system/libs/mapgen/adrs/adr-002-typebox-format-shim.md`
 - Target posture for config authoring surface: `docs/projects/engine-refactor-v1/resources/spec/adr/adr-er1-032-recipe-config-authoring-surface.md`
 - Complete-config decision: `docs/projects/engine-refactor-v1/resources/spec/adr/adr-er1-037-complete-recipe-config-admission.md`

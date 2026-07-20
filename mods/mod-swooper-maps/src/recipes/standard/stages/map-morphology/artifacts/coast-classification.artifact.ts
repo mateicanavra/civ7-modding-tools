@@ -1,4 +1,7 @@
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -37,14 +40,49 @@ const MapMorphologyCoastClassificationArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime schema for the authored coast classes and masks captured before engine stamping. */
 export const Schema = MapMorphologyCoastClassificationArtifactSchema;
 
+/**
+ * Registers the pre-stamp coast policy result consumed by continent projection
+ * and coast parity diagnostics.
+ */
 export const artifact = defineArtifact({
   name: "coastClassification",
   id: "artifact:map.morphology.coastClassification",
   schema: Schema,
 });
 
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+/** Validates the closed coast classes, masks, dimensions, and promotion count. */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") return Object.freeze(issues);
+  const candidate = value as Record<string, unknown>;
+  const cellCount = artifactCellCount(context);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "baseWaterClass",
+    candidate.baseWaterClass,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "sourceCoastMask",
+    candidate.sourceCoastMask,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(issues, "waterClass", candidate.waterClass, Uint8Array, cellCount);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "coastRingMask",
+    candidate.coastRingMask,
+    Uint8Array,
+    cellCount
+  );
+  return Object.freeze(issues);
 }

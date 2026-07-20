@@ -634,6 +634,11 @@ const DEFINITIONS_BY_TYPE = new Map(
   DEFINITIONS.map((definition) => [definition.resourceType, definition])
 );
 
+/**
+ * Frozen expectation row for every entry in the official resource corpus, in corpus order.
+ * Construction fails when a definition is missing, and the module-level parity checks reject
+ * duplicate or incomplete coverage before planners can consume it.
+ */
 export const EARTHLIKE_RESOURCE_EXPECTATIONS = deepFreeze(
   OFFICIAL_RESOURCE_CORPUS.map((entry) => {
     const definition = DEFINITIONS_BY_TYPE.get(entry.resourceType);
@@ -644,6 +649,10 @@ export const EARTHLIKE_RESOURCE_EXPECTATIONS = deepFreeze(
   })
 );
 
+/**
+ * Immutable payload published as the Resources expectation artifact. It couples corpus-complete
+ * rows to their authority, baseline, and runtime-calibrated hard-count evidence disposition.
+ */
 export const EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT = deepFreeze({
   source: {
     authority: "resource-earthlike-expectations",

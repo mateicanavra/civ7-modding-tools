@@ -26,19 +26,19 @@ or {
   },
   import_statement(source=$source) where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/[^/]+/step\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
   },
   `export { $exports } from $source` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/[^/]+/step\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
   },
   `export * from $source` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/[^/]+/step\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
   },
   `import($source)` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/(?:.*/)?index\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/[^/]+/step\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
   },
   `$domain.ops.$operation.input` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$"
@@ -109,19 +109,20 @@ export default createStage({ id: "placement", public: PlacementPublicSchema, ste
 import { FoundationPlateActivityKnobSchema } from "@mapgen/domain/foundation/model/schemas/plate-activity.schema.js";
 import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/model/policy/plate-activity.js";
 import { createStage } from "@swooper/mapgen-core/authoring";
+import { TectonicsStep } from "./steps/tectonics/step.js";
 
 export default createStage({
   id: "foundation-tectonics",
   knobsSchema: FoundationPlateActivityKnobSchema,
   public: Type.Object({ activity: FoundationPlateActivityKnobSchema }),
   compile: ({ config }) => ({ tectonics: config }),
-  steps: {},
+  steps: { tectonics: TectonicsStep },
 });
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics.ts
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics/step.ts
 import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/model/policy/plate-activity.js";
 
-export const multiplier = resolvePlateActivityOrogenyMultiplier;
+export const TectonicsStep = { multiplier: resolvePlateActivityOrogenyMultiplier };
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/recipe.ts
 import foundationTectonics from "./stages/foundation-tectonics/index.js";

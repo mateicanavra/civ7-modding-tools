@@ -3,15 +3,14 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createMockAdapter } from "@civ7/adapter";
-import { isMapConfigEnvelope } from "@civ7/studio-contract";
 import { createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 
-import { canonicalRecipeConfig } from "../../maps/configs/canonical.js";
+import { admitStandardMapConfig } from "../../maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import { createTraceDumpSink, createVizDumper } from "../viz/dump.js";
+import { createVizDumpAdapters } from "../viz/dump.js";
 import { isPlainObject, mergeDeep, parseArgs } from "./shared.js";
 
 function parseIntOr(value: unknown, fallback: number): number {
@@ -64,8 +63,7 @@ async function main(): Promise<void> {
 
   const label = parseLabel(flags.label);
   const outputRoot = join(process.cwd(), "dist", "visualization", label);
-  const traceSink = createTraceDumpSink({ outputRoot });
-  const viz = createVizDumper({ outputRoot });
+  const vizOutputs = createVizDumpAdapters({ outputRoot });
 
   // Player/sector geometry defaults reproduce the historical 8-player frame;
   // override to match a live engine Maps row (e.g. HUGE live row is
@@ -109,19 +107,18 @@ async function main(): Promise<void> {
     },
   } as const;
 
-  const loadedConfig = loadConfig(flags);
-  const baseConfig = isMapConfigEnvelope(loadedConfig)
-    ? canonicalRecipeConfig(loadedConfig)
-    : loadedConfig;
+  const envelope = admitStandardMapConfig(loadConfig(flags));
+  const baseConfig = envelope.config;
   const override = loadOverride(flags);
-  const merged =
+  const mergedConfig =
     override && isPlainObject(baseConfig) && isPlainObject(override)
       ? mergeDeep(baseConfig, override)
       : baseConfig;
+  const config = admitStandardMapConfig({ ...envelope, config: mergedConfig }).config;
 
-  const plan = standardRecipe.compile(envBase, merged);
+  const plan = standardRecipe.compile(envBase, config);
   const verboseSteps = Object.fromEntries(
-    plan.nodes.map((node: any) => [node.stepId, "verbose"] as const)
+    plan.nodes.map((node) => [node.stepId, "verbose"] as const)
   );
   const env = { ...envBase, trace: { enabled: true, steps: verboseSteps } } as const;
 
@@ -135,10 +132,13 @@ async function main(): Promise<void> {
   });
 
   const context = createExtendedMapContext({ width, height }, adapter, env);
-  context.viz = viz;
 
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[diag]" });
-  standardRecipe.run(context, env, merged, { traceSink, log: () => {} });
+  standardRecipe.run(context, env, config, {
+    traceSink: vizOutputs.traceSink,
+    facets: vizOutputs.facetSinks,
+    log: () => {},
+  });
 
   const runId = deriveRunId(plan);
   console.log(JSON.stringify({ runId, outputDir: join(outputRoot, runId) }));

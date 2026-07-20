@@ -26,18 +26,19 @@
 - Stage package layout:
   - `stages/<stageId>/index.ts` defines the stage via `createStage({ id, steps })`.
   - `stages/<stageId>/steps/` contains step modules (standardized contract + implementation pairing):
-    - `steps/index.ts` is the only barrel; it re-exports step modules explicitly.
-    - Each step is defined by `steps/<stepId>/contract.ts` + `steps/<stepId>/index.ts`.
+    - each child directory is named by the exact kebab-case step id;
+    - each step is defined by `steps/<stepId>/config.ts` + `steps/<stepId>/step.ts`;
+    - the stage root imports named steps directly; `steps/index.ts` barrels are forbidden.
   - Stage-scoped helpers/contracts (when shared across multiple steps) live at the stage root as explicit modules (e.g., `producer.ts`, `shared.model.ts`).
 - Step module invariants:
-  - `steps/<stepId>/contract.ts` is the step’s contract surface (schema + types + tags + step-owned artifact helpers).
-  - `steps/<stepId>/index.ts` is the step definition and `run` orchestration; it imports the contract and domain logic.
+  - `steps/<stepId>/config.ts` is the step’s contract and compiled-config surface.
+  - `steps/<stepId>/step.ts` is the named executable step; it imports the contract and domain logic.
   - Steps do not introduce recipe-wide catalogs; shared contracts live at the closest real owner (stage root or domain).
 
 ### 5.4 Config ownership (no global runtime config blob)
 
 - Config values (instances) are owned by maps (`src/maps/**`).
-- Step config schemas are owned by steps (`src/recipes/**/stages/**/steps/*/contract.ts`).
+- Step config schemas are owned by steps (`src/recipes/**/stages/**/steps/*/config.ts`).
 - Shared config schema fragments live with the closest owner:
   - stage scope (`stages/<stageId>/shared/**`) when stage-local
   - domain model scope (`src/domain/<domain>/model/config/<part>.config.ts`) when domain-owned and not purely stage-local

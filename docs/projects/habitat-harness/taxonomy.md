@@ -8,7 +8,8 @@ it. Wrong-tag discoveries are future refactors, not blockers (Matei D4).
 Two enforcement planes — do not conflate them:
 
 - **Project plane (Nx tags + `enforce-module-boundaries`):** rules between
-  workspace projects. Tags live in each `package.json` under `"nx": {"tags": [...]}`.
+  workspace projects. Tags live in resolved Nx project metadata (`project.json`
+  or a package's `"nx": {"tags": [...]}` configuration).
 - **Intra-project plane (GritQL / file layer):** rules inside a single project
   (domain/recipe/steps structure inside `mod-swooper-maps`, contract files,
   generated zones). Nx cannot see inside one project; these are grit/file rules
@@ -24,7 +25,7 @@ Two enforcement planes — do not conflate them:
 | `kind:engine` | Pure TS engine/domain logic (no Civ7 runtime values, no engine globals) | Habitat `mapgen-core-runtime-civ7`; normalization guardrail G3 |
 | `kind:adapter` | Sole owner of Civ7 engine globals and `/base-standard/` imports | `lint-adapter-boundary.sh`; `packages/civ7-adapter/AGENTS.md` |
 | `kind:control` | Runtime control of a live Civ7 instance: socket protocol (`direct-control`) and oRPC service surface (`control-orpc`, `studio-server`) | `packages/civ7-direct-control/AGENTS.md`; Habitat `grit-control-orpc-contract-ownership`; root `AGENTS.md` ("runtime Civ7 control belongs in @civ7/direct-control") |
-| `kind:foundation` | Pure leaf libraries: types, config, policy facts, viz contracts; no domain orchestration, broadly importable | `packages/civ7-types`, `config`, `civ7-map-policy`, `mapgen-viz` package docs |
+| `kind:library` | Pure leaf libraries: types, config, policy facts, metrics/viz contracts and evaluators; no domain orchestration, broadly importable | `packages/civ7-types`, `config`, `civ7-map-policy`, `mapgen-metrics`, `mapgen-viz` package docs |
 | `kind:plugin` | Reusable CLI/SDK helper libraries, leaf-local | `packages/plugins/*`; `packages/cli/AGENTS.md` |
 | `kind:mod` | Game-facing mod packages (recipes, domains, map configs, game runtime wrappers) | `mods/*`; `docs/system/ARCHITECTURE.md` |
 | `kind:tooling` | Repo-local dev tooling (the habitat harness itself) | new with this workstream |
@@ -83,16 +84,18 @@ treatment without adding a concrete tag or constraint row.
 | mapgen-studio | `apps/mapgen-studio` | `kind:app` |
 | civ7-sdk | `packages/sdk` | `kind:sdk` |
 | mapgen-core | `packages/mapgen-core` | `kind:engine` |
+| mapgen-metrics | `packages/mapgen-metrics` | `kind:library` |
 | civ7-adapter | `packages/civ7-adapter` | `kind:adapter` |
 | control-direct | `packages/civ7-direct-control` | `kind:control` |
 | control-orpc | `packages/civ7-control-orpc` | `kind:control` |
 | control-studio-server | `packages/studio-server` | `kind:control` |
-| studio-contract | `packages/studio-contract` | `kind:foundation` |
-| mapgen-studio-ui | `packages/mapgen-studio-ui` | `kind:foundation` |
-| civ7-types | `packages/civ7-types` | `kind:foundation` |
-| civ7-config | `packages/config` | `kind:foundation` |
-| civ7-map-policy | `packages/civ7-map-policy` | `kind:foundation` |
-| mapgen-viz | `packages/mapgen-viz` | `kind:foundation` |
+| studio-contract | `packages/studio-contract` | `kind:library` |
+| studio-run-workspace | `packages/studio-run-workspace` | `kind:library` |
+| mapgen-studio-ui | `packages/mapgen-studio-ui` | `kind:library` |
+| civ7-types | `packages/civ7-types` | `kind:library` |
+| civ7-config | `packages/config` | `kind:library` |
+| civ7-map-policy | `packages/civ7-map-policy` | `kind:library` |
+| mapgen-viz | `packages/mapgen-viz` | `kind:library` |
 | plugin-files | `packages/plugins/plugin-files` | `kind:plugin` |
 | plugin-git | `packages/plugins/plugin-git` | `kind:plugin` |
 | plugin-graph | `packages/plugins/plugin-graph` | `kind:plugin` |
@@ -130,16 +133,16 @@ owned by their Grit/file-layer rules.
 
 | sourceTag | onlyDependOnLibsWithTags | Generalizes |
 |---|---|---|
-| `kind:workspace` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:control`, `kind:foundation`, `kind:plugin`, `kind:mod`, `kind:tooling` | root orchestration/proof scripts may consume public package surfaces, but app code remains a caller surface rather than a library |
-| `kind:foundation` | `kind:foundation` | leaf purity (types/config/policy/viz import nothing higher) |
-| `kind:adapter` | `kind:foundation` | adapter translates engine↔types; owns `/base-standard/` exclusively (`lint-adapter-boundary.sh`) |
-| `kind:engine` | `kind:adapter`, `kind:foundation` | core purity: mapgen-core sees adapter *types* only, never runtime values (`mapgen-core-runtime-civ7`, G3) |
-| `kind:plugin` | `kind:plugin`, `kind:foundation` | plugins stay leaf-local (`cli/AGENTS.md`) |
-| `kind:sdk` | `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:plugin` | SDK composes engine+adapter; mapgen subpath isolation (G11) stays grit-owned |
-| `kind:control` | `kind:control`, `kind:foundation`, `kind:adapter`, `kind:engine` | control service layering (`control-orpc` over `direct-control`); lifecycle ownership remains governed by the control note above, and contract-ownership rules stay grit-owned. Architecture review 2026-06-12: no control→mod edge exists, and main `331534895` (studio-server) explicitly forbids that direction in code comments — the previously drafted `kind:mod` allowance was dropped pre-lock as falsely provenanced |
-| `kind:mod` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:control`, `kind:plugin` | mods consume SDK/engine/adapter/policy/control and plugin utilities needed for mod package workflows |
-| `kind:app` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:plugin`, `kind:control`, `kind:mod`, `kind:tooling` | apps are top of the graph; nothing imports apps or the workspace root |
-| `kind:tooling` | `kind:tooling`, `kind:foundation` | harness stays out of product graph |
+| `kind:workspace` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:control`, `kind:library`, `kind:plugin`, `kind:mod`, `kind:tooling` | root orchestration/proof scripts may consume public package surfaces, but app code remains a caller surface rather than a library |
+| `kind:library` | `kind:library` | leaf purity (types/config/policy/viz import nothing higher) |
+| `kind:adapter` | `kind:library` | adapter translates engine↔types; owns `/base-standard/` exclusively (`lint-adapter-boundary.sh`) |
+| `kind:engine` | `kind:adapter`, `kind:library` | core purity: mapgen-core sees adapter *types* only, never runtime values (`mapgen-core-runtime-civ7`, G3) |
+| `kind:plugin` | `kind:plugin`, `kind:library` | plugins stay leaf-local (`cli/AGENTS.md`) |
+| `kind:sdk` | `kind:engine`, `kind:adapter`, `kind:library`, `kind:plugin` | SDK composes engine+adapter; mapgen subpath isolation (G11) stays grit-owned |
+| `kind:control` | `kind:control`, `kind:library`, `kind:adapter`, `kind:engine` | control service layering (`control-orpc` over `direct-control`); lifecycle ownership remains governed by the control note above, and contract-ownership rules stay grit-owned. Architecture review 2026-06-12: no control→mod edge exists, and main `331534895` (studio-server) explicitly forbids that direction in code comments — the previously drafted `kind:mod` allowance was dropped pre-lock as falsely provenanced |
+| `kind:mod` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:library`, `kind:control`, `kind:plugin` | mods consume SDK/engine/adapter/policy/control and plugin utilities needed for mod package workflows |
+| `kind:app` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:library`, `kind:plugin`, `kind:control`, `kind:mod`, `kind:tooling` | apps are top of the graph; nothing imports apps or the workspace root |
+| `kind:tooling` | `kind:tooling`, `kind:library` | harness stays out of product graph |
 | `habitat:runtime` | `habitat:runtime`, `habitat:service` | runtime owns resource/provider integration and may consume service-owned structural facts needed to translate Habitat requests into vendor calls |
 | `habitat:service` | `habitat:runtime`, `habitat:service` | service modules own Habitat logic and consume runtime resources/providers |
 | `habitat:cli` | `habitat:runtime`, `habitat:service`, `habitat:cli` | CLI commands parse user flags, acquire runtime-backed service context, and call service routers while keeping command output at the edge |
@@ -152,7 +155,7 @@ owned by their Grit/file-layer rules.
 Dual-tagged projects (`mod-intelligence-bridge`: `kind:mod` +
 `kind:control`) are constrained by the **intersection** of their rows — every
 matching constraint is enforced, so its effective allowed set is
-{engine, adapter, foundation, control} (e.g. a future sdk dep would be red
+{engine, adapter, library, control} (e.g. a future sdk dep would be red
 despite the mod row allowing it).
 
 devDependency edges and test-file imports are constrained identically to
@@ -166,7 +169,7 @@ proof keeps that claim live only when the taxonomy, boundary config, resolved
 Nx tags, and resolved graph edges agree. The H3 direct rule run also found one
 hidden relative test import from `control-direct` into
 `civ7-map-policy`; it was repaired as an explicit package import/devDependency
-because `kind:control -> kind:foundation` is tag-legal. The burn-down backlog
+because `kind:control -> kind:library` is tag-legal. The burn-down backlog
 lives in the intra-project plane (existing allowlists + file-layer/Grit rules).
 
 ## 4. `scope:*` rule families (intra-project plane — grit/file-layer owned)

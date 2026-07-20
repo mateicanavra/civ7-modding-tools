@@ -6,7 +6,7 @@ import { canonicalRecipeConfig } from "../../maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import { createTraceDumpSink, createVizDumper } from "./dump.js";
+import { createVizDumpAdapters } from "./dump.js";
 
 function parseIntArg(value: string | undefined, fallback: number): number {
   if (!value) return fallback;
@@ -20,8 +20,7 @@ const height = parseIntArg(process.argv[3], 30);
 const seed = parseIntArg(process.argv[4], 1337);
 
 const outputRoot = join(process.cwd(), "dist", "visualization");
-const traceSink = createTraceDumpSink({ outputRoot });
-const viz = createVizDumper({ outputRoot });
+const vizOutputs = createVizDumpAdapters({ outputRoot });
 
 const mapInfo = {
   GridWidth: width,
@@ -66,10 +65,13 @@ const adapter = createMockAdapter({
 });
 
 const context = createExtendedMapContext({ width, height }, adapter, env);
-context.viz = viz;
 
 initializeStandardRuntime(context, { mapInfo, logPrefix: "[viz]" });
-standardRecipe.run(context, env, config, { traceSink, log: () => {} });
+standardRecipe.run(context, env, config, {
+  traceSink: vizOutputs.traceSink,
+  facets: vizOutputs.facetSinks,
+  log: () => {},
+});
 
 const runId = deriveRunId(plan);
 console.log(`[viz] wrote dump under: ${join(outputRoot, runId)}`);

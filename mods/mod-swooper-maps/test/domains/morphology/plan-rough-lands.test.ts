@@ -3,6 +3,10 @@ import morphology from "@mapgen/domain/morphology/ops";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 const { planRoughLands } = morphology.ops;
+type RoughLandSelection = Extract<
+  Parameters<typeof planRoughLands.run>[1],
+  { strategy: "default" }
+>;
 
 function countMask(mask: Uint8Array): number {
   let count = 0;
@@ -36,18 +40,20 @@ function createInput(width: number, height: number) {
   };
 }
 
-function roughLandConfig(overrides: Record<string, unknown> = {}) {
+function roughLandConfig(
+  overrides: Partial<RoughLandSelection["config"]> = {}
+): RoughLandSelection {
   return {
     strategy: "default",
     config: {
-      ...(planRoughLands.defaultConfig as any).config,
+      ...planRoughLands.defaultConfig.config,
       driverSignalByteMin: 0,
       driverExponent: 1,
       hillThreshold: 0.01,
       tectonicIntensity: 1,
       ...overrides,
     },
-  };
+  } satisfies RoughLandSelection;
 }
 
 describe("morphology/plan-rough-lands", () => {

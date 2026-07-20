@@ -3,8 +3,10 @@ import morphology from "@mapgen/domain/morphology/ops";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
-import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
-import standardRecipe from "../../src/recipes/standard/recipe.js";
+import { artifacts as standardArtifacts } from "../../src/recipes/standard/artifacts/index.js";
+import standardRecipe, {
+  type StandardRecipeCompiledConfig,
+} from "../../src/recipes/standard/recipe.js";
 import { artifacts as morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { standardConfig } from "./standard-config.js";
 import type { ValidationInvariant, ValidationInvariantContext } from "./validation-harness.js";
@@ -183,7 +185,7 @@ function buildFractalArray(width: number, height: number, seed: number, grain: n
   return fractal;
 }
 
-function requireArtifact<T>(ctx: ValidationInvariantContext, id: string, label: string): T | null {
+function requireArtifact<T>(ctx: ValidationInvariantContext, id: string): T | null {
   if (!ctx.context.artifacts.has(id)) {
     return null;
   }
@@ -194,43 +196,21 @@ function requireArtifact<T>(ctx: ValidationInvariantContext, id: string, label: 
   return value as T;
 }
 
+type MountainsOpConfig = Pick<
+  StandardRecipeCompiledConfig["morphology-features"]["mountains"],
+  "ridges" | "foothills"
+>;
+
 let cachedMountainsConfigKey: string | null = null;
-let cachedMountainsOpConfig: {
-  ridges: { strategy: string; config: Record<string, unknown> };
-  foothills: { strategy: string; config: Record<string, unknown> };
-} | null = null;
+let cachedMountainsOpConfig: MountainsOpConfig | null = null;
 
-function resolveRuntimeMountainsOpConfig(ctx: ValidationInvariantContext): {
-  ridges: { strategy: string; config: Record<string, unknown> };
-  foothills: { strategy: string; config: Record<string, unknown> };
-} {
-  const defaultRidges = planRidges.defaultConfig as {
-    strategy?: string;
-    config?: Record<string, unknown>;
-  };
-  const defaultFoothills = planFoothills.defaultConfig as {
-    strategy?: string;
-    config?: Record<string, unknown>;
-  };
-
+function resolveRuntimeMountainsOpConfig(ctx: ValidationInvariantContext): MountainsOpConfig {
   const defaultResolved = {
-    ridges: {
-      strategy: defaultRidges?.strategy ?? "default",
-      config: defaultRidges?.config ?? {},
-    },
-    foothills: {
-      strategy: defaultFoothills?.strategy ?? "default",
-      config: defaultFoothills?.config ?? {},
-    },
-  } as const;
+    ridges: planRidges.defaultConfig,
+    foothills: planFoothills.defaultConfig,
+  } satisfies MountainsOpConfig;
 
-  const env = (ctx.context as any)?.env as
-    | {
-        dimensions?: { width?: number; height?: number };
-        latitudeBounds?: { topLatitude?: number; bottomLatitude?: number };
-        seed?: number;
-      }
-    | undefined;
+  const { env } = ctx.context;
   if (!env?.dimensions?.width || !env?.dimensions?.height) return defaultResolved;
 
   // NOTE: The correlation gate should use the same compiled config that the recipe used at runtime,
@@ -247,19 +227,11 @@ function resolveRuntimeMountainsOpConfig(ctx: ValidationInvariantContext): {
   cachedMountainsOpConfig = null;
 
   try {
-    const compiled = standardRecipe.compileConfig(env as any, standardConfig) as any;
-    const mountains = compiled?.["morphology-features"]?.mountains;
-    const ridges = mountains?.ridges;
-    const foothills = mountains?.foothills;
+    const mountains = standardRecipe.compileConfig(env, standardConfig)["morphology-features"]
+      .mountains;
     cachedMountainsOpConfig = {
-      ridges: {
-        strategy: ridges?.strategy ?? defaultResolved.ridges.strategy,
-        config: ridges?.config ?? defaultResolved.ridges.config,
-      },
-      foothills: {
-        strategy: foothills?.strategy ?? defaultResolved.foothills.strategy,
-        config: foothills?.config ?? defaultResolved.foothills.config,
-      },
+      ridges: mountains.ridges,
+      foothills: mountains.foothills,
     };
   } catch {
     cachedMountainsOpConfig = null;
@@ -274,8 +246,7 @@ const mantlePotentialInvariant: ValidationInvariant = {
   check: (ctx) => {
     const mantle = requireArtifact<{ potential?: unknown; sourceCount?: unknown }>(
       ctx,
-      foundationArtifacts.mantlePotential.id,
-      "mantlePotential"
+      foundationArtifacts.mantlePotential.id
     );
     if (!mantle || !(mantle.potential instanceof Float32Array)) {
       return {
@@ -332,7 +303,7 @@ const mantleForcingInvariant: ValidationInvariant = {
       forcingU?: unknown;
       forcingV?: unknown;
       divergence?: unknown;
-    }>(ctx, foundationArtifacts.mantleForcing.id, "mantleForcing");
+    }>(ctx, foundationArtifacts.mantleForcing.id);
     if (
       !forcing ||
       !(forcing.forcingMag instanceof Float32Array) ||
@@ -427,14 +398,13 @@ const plateCouplingInvariant: ValidationInvariant = {
   check: (ctx) => {
     const forcing = requireArtifact<{ forcingU?: unknown; forcingV?: unknown }>(
       ctx,
-      foundationArtifacts.mantleForcing.id,
-      "mantleForcing"
+      foundationArtifacts.mantleForcing.id
     );
     const motion = requireArtifact<{
       plateFitRms?: unknown;
       plateQuality?: unknown;
       cellFitError?: unknown;
-    }>(ctx, foundationArtifacts.plateMotion.id, "plateMotion");
+    }>(ctx, foundationArtifacts.plateMotion.id);
     if (
       !forcing ||
       !(forcing.forcingU instanceof Float32Array) ||
@@ -472,7 +442,6 @@ const plateCouplingInvariant: ValidationInvariant = {
     }
     const meanRatio = rmsStats.mean / Math.max(meanForcing, EPS);
     const qualityStats = scanBytes(motion.plateQuality);
-    const cellStats = scanBytes(motion.cellFitError);
     let okFraction = 0;
     if (motion.cellFitError.length > 0) {
       let okCount = 0;
@@ -510,13 +479,11 @@ const eventProvenanceInvariant: ValidationInvariant = {
   check: (ctx) => {
     const historyTiles = requireArtifact<any>(
       ctx,
-      mapArtifacts.foundationTectonicHistoryTiles.id,
-      "tectonicHistoryTiles"
+      standardArtifacts.foundationTectonicHistoryTiles.id
     );
     const provenanceTiles = requireArtifact<any>(
       ctx,
-      mapArtifacts.foundationTectonicProvenanceTiles.id,
-      "tectonicProvenanceTiles"
+      standardArtifacts.foundationTectonicProvenanceTiles.id
     );
     if (!historyTiles || !provenanceTiles) {
       return {
@@ -631,13 +598,11 @@ const beltContinuityInvariant: ValidationInvariant = {
   check: (ctx) => {
     const historyTiles = requireArtifact<any>(
       ctx,
-      mapArtifacts.foundationTectonicHistoryTiles.id,
-      "tectonicHistoryTiles"
+      standardArtifacts.foundationTectonicHistoryTiles.id
     );
     const provenanceTiles = requireArtifact<any>(
       ctx,
-      mapArtifacts.foundationTectonicProvenanceTiles.id,
-      "tectonicProvenanceTiles"
+      standardArtifacts.foundationTectonicProvenanceTiles.id
     );
     if (!historyTiles || !provenanceTiles) {
       return {
@@ -729,15 +694,13 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
   check: (ctx) => {
     const historyTiles = requireArtifact<any>(
       ctx,
-      mapArtifacts.foundationTectonicHistoryTiles.id,
-      "tectonicHistoryTiles"
+      standardArtifacts.foundationTectonicHistoryTiles.id
     );
     const provenanceTiles = requireArtifact<any>(
       ctx,
-      mapArtifacts.foundationTectonicProvenanceTiles.id,
-      "tectonicProvenanceTiles"
+      standardArtifacts.foundationTectonicProvenanceTiles.id
     );
-    const topography = requireArtifact<any>(ctx, morphologyArtifacts.topography.id, "topography");
+    const topography = requireArtifact<any>(ctx, morphologyArtifacts.topography.id);
     if (!historyTiles || !provenanceTiles || !topography) {
       return {
         name: "morphology-driver-correlation",
@@ -906,7 +869,8 @@ const couplingDiagnostics: ValidationInvariant = {
       plateFitP90?: unknown;
       plateFitRms?: unknown;
       plateQuality?: unknown;
-    }>(ctx, foundationArtifacts.plateMotion.id, "plateMotion");
+      cellFitError?: unknown;
+    }>(ctx, foundationArtifacts.plateMotion.id);
     if (
       !motion ||
       !(motion.plateFitP90 instanceof Float32Array) ||

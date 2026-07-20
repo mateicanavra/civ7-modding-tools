@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "id": "preserve_studio_event_driven_runtime_boundaries",
+  "title": "Preserve Studio Event-Driven Runtime Boundaries",
+  "placement": {
+    "niche": "civ7/mapgen/studio/runtime",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "forbids": "browser operation reads outside the event owner, live-runtime timer cadence, browser storage outside admitted owners, and live-game watcher transport/runtime ownership",
+  "why": "The Studio event stream and daemon current-state registry own operation truth. Live-game events trigger bounded reads, browser storage has three explicit owners, and the server watcher consumes an injected read effect; callers may not create alternate polling, persistence, transport, or runtime authority.",
+  "remediate": "Reconcile daemon state only in useStudioEvents, trigger live-runtime reads from live-game events, route storage through the admitted state/theme owners, and inject the watcher's read effect.",
+  "message": "Studio event-driven runtime or browser-state authority escaped its admitted owner.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/mapgen-studio/src/**/*.ts",
+        "apps/mapgen-studio/src/**/*.tsx",
+        "packages/studio-server/src/liveGame/watcher.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": ["apps/mapgen-studio/src", "packages/studio-server/src/liveGame/watcher.ts"],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
+    },
+    "patternName": "preserve_studio_event_driven_runtime_boundaries"
+  }
+}

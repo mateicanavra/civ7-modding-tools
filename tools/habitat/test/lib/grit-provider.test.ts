@@ -12,7 +12,6 @@ import path from "node:path";
 import { FileSystem } from "@effect/platform";
 import * as PlatformError from "@effect/platform/Error";
 import { NodeContext } from "@effect/platform-node";
-import { makeFakeGitStateProviderLayer } from "@habitat/cli/providers/git/index";
 import {
   CommandInterrupted,
   CommandRunner,
@@ -22,7 +21,6 @@ import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@habitat/cli/resources/command/index";
-import { makeHabitatConfig, makeHabitatConfigLayer } from "@habitat/cli/resources/config/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import { runGritCheckAcquisitionEffect } from "@habitat/cli/resources/rule-diagnostics/providers/grit/check";
 import {
@@ -42,6 +40,7 @@ import {
   makeGritRuleFixPreviewService,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/fix-preview";
 import {
+  gritDiagnosticOutcomesFromReport,
   makeFakeGritCommandService,
   makeGritCommandService,
   ObservedGritDiagnosticIdentitySchema,
@@ -87,9 +86,10 @@ const gritFixturePaths = {
   providerFile: "tools/habitat/src/resources/rule-diagnostics/providers/grit/types.ts",
   providerPattern:
     ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md",
-  docsPattern: ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md",
+  applyPattern:
+    ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md",
 };
-const { providerRoot, providerFile, providerPattern, docsPattern } = gritFixturePaths;
+const { providerRoot, providerFile, providerPattern, applyPattern } = gritFixturePaths;
 const stringifyJsonDocument = Schema.encodeSync(Schema.parseJson());
 const withNodeContext = Effect.provide(NodeContext.layer);
 
@@ -669,6 +669,54 @@ describe("Grit closed wire decoders", () => {
     });
   });
 
+  test("selects one deterministic relevant analysis failure", () => {
+    const canonical = {
+      ...analysisLog(299, "a.ts"),
+      message: "canonical analysis",
+      position: { line: 1, column: 2 },
+    };
+    const laterPosition = {
+      ...analysisLog(100, "a.ts"),
+      message: "later position",
+      position: { line: 2, column: 1 },
+    };
+    const laterFile = {
+      ...analysisLog(100, "b.ts"),
+      message: "later file",
+      position: { line: 1, column: 1 },
+    };
+    const irrelevant = {
+      ...analysisLog(1, "0-irrelevant.ts"),
+      message: "irrelevant analysis",
+      position: { line: 1, column: 1 },
+    };
+    const parse = (analysisEvents: readonly object[]) =>
+      parseGritApplyDryRunCommand(
+        commandResult({ stdout: jsonl(...analysisEvents, allDone(1, 0)) }),
+        { analysisPathIsRelevant: (file) => file !== irrelevant.file }
+      );
+
+    const forward = parse([canonical, laterPosition, laterFile]);
+    const reverse = parse([laterFile, laterPosition, canonical]);
+    expect(forward).toEqual(reverse);
+    expect(forward).toEqual({
+      kind: "parsed-incomplete",
+      failure: "DiagnosticOutputIncomplete",
+      detail: "analysis-failure: Grit analysis failed at level 299: canonical analysis",
+    });
+    expect(parse([irrelevant, laterFile, canonical, laterPosition])).toEqual(forward);
+    expect(
+      parseGritApplyDryRunCommand(
+        commandResult({
+          stdout: jsonl(canonical, { ...patternInfoEvent(), valid: false }, allDone(1, 0)),
+        })
+      )
+    ).toMatchObject({
+      kind: "parsed-incomplete",
+      detail: expect.stringContaining("invalid-pattern-info"),
+    });
+  });
+
   test("requires one final successful AllDone and counts RemoveFile ranges", () => {
     const file = path.join(repoRoot, providerFile);
     expect(
@@ -947,7 +995,7 @@ async function previewEvents(
 describe("Grit immutable root planning", () => {
   test("plans each selected rule once and exposes unmatched rules", async () => {
     const alpha = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
-    const docs = rule("docs", "docs_pattern", docsPattern, ["docs"], "apply-dry-run");
+    const docs = rule("docs", "docs_pattern", applyPattern, ["docs"], "apply-dry-run");
     const plans = await Effect.runPromise(
       planGritRuleRoots([alpha, docs], { repoRoot, scanRoots: [providerFile] }).pipe(
         withNodeContext
@@ -1191,6 +1239,41 @@ describe("Grit immutable root planning", () => {
 });
 
 describe("Grit generic acquisition and public disposition", () => {
+  test("sorts public findings independently of native result order", () => {
+    const selected = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
+    const zetaPath = path.join(repoRoot, providerRoot, "zeta.ts");
+    const alphaPath = path.join(repoRoot, providerRoot, "alpha.ts");
+    const fixture = Value.Parse(GritReportSchema, {
+      paths: [zetaPath, alphaPath],
+      results: [
+        gritFinding(zetaPath, "alpha_pattern", 4, "zeta finding"),
+        gritFinding(alphaPath, "alpha_pattern", 7, "later finding"),
+        gritFinding(alphaPath, "alpha_pattern", 2, "first finding"),
+      ],
+    });
+    const reversed = Value.Parse(GritReportSchema, {
+      ...fixture,
+      results: [...fixture.results].reverse(),
+    });
+
+    const forwardOutcome = gritDiagnosticOutcomesFromReport([selected], fixture, {
+      repoRoot,
+    }).get(selected.id);
+    const reverseOutcome = gritDiagnosticOutcomesFromReport([selected], reversed, {
+      repoRoot,
+    }).get(selected.id);
+
+    expect(reverseOutcome).toEqual(forwardOutcome);
+    expect(forwardOutcome).toMatchObject({
+      kind: "findings",
+      diagnostics: [
+        { path: `${providerRoot}/alpha.ts`, line: 2, message: "first finding" },
+        { path: `${providerRoot}/alpha.ts`, line: 7, message: "later finding" },
+        { path: `${providerRoot}/zeta.ts`, line: 4, message: "zeta finding" },
+      ],
+    });
+  });
+
   test("builds a direct-native hermetic check request and cleans scoped state", async () => {
     const selected = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
     let observedRequest: HabitatProcessRequest | undefined;
@@ -1388,7 +1471,6 @@ describe("Grit generic acquisition and public disposition", () => {
       const runner = {
         run: (request: HabitatProcessRequest) =>
           preflightScenarioEffect(fixture.kind, recordAndReturn(observed, request, request)),
-        runSync: (request: HabitatProcessRequest) => makeHabitatCommandResult(request),
       };
       const acquisition = await Effect.runPromise(
         makeGritCommandTestService(runner).pipe(
@@ -1419,7 +1501,6 @@ describe("Grit generic acquisition and public disposition", () => {
     const passingRunner = {
       run: (request: HabitatProcessRequest) =>
         preflightScenarioEffect("exact", recordAndReturn(observed, request, request)),
-      runSync: (request: HabitatProcessRequest) => makeHabitatCommandResult(request),
     };
     const completed = await Effect.runPromise(
       makeGritCommandTestService(passingRunner).pipe(
@@ -1448,7 +1529,6 @@ describe("Grit generic acquisition and public disposition", () => {
     const runner = {
       run: (request: HabitatProcessRequest) =>
         preflightScenarioEffect("exact", recordAndReturn(observed, request, request)),
-      runSync: (request: HabitatProcessRequest) => makeHabitatCommandResult(request),
     };
     const request = {
       scanRoots: [providerRoot] as const,
@@ -1489,7 +1569,6 @@ describe("Grit generic acquisition and public disposition", () => {
           retryPreflightScenario(observed, request),
           recordAndReturn(observed, request, request)
         ),
-      runSync: (request: HabitatProcessRequest) => makeHabitatCommandResult(request),
     };
     const [first, second, third] = await Effect.runPromise(
       Effect.gen(function* () {
@@ -1598,7 +1677,7 @@ describe("Grit generic acquisition and public disposition", () => {
 
   test("carries no-matched-scan-roots as a required provider disposition", async () => {
     const alpha = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
-    const docs = rule("docs", "docs_pattern", docsPattern, ["docs"], "apply-dry-run");
+    const docs = rule("docs", "docs_pattern", applyPattern, ["docs"], "apply-dry-run");
     const grit = fakeCheckProvider(checkReport(path.join(repoRoot, providerFile), "alpha_pattern"));
     const executions = await Effect.runPromise(
       runGritRulesEffect([alpha, docs], {
@@ -1692,7 +1771,7 @@ describe("Grit generic acquisition and public disposition", () => {
     const selected = rule(
       "ordinary-docs-rule",
       "ordinary_docs_pattern",
-      docsPattern,
+      applyPattern,
       ["docs"],
       "apply-dry-run"
     );
@@ -1720,7 +1799,7 @@ describe("Grit generic acquisition and public disposition", () => {
   });
 
   test("blocks only analysis failures inside exact rule coverage", async () => {
-    const selected = rule("docs", "docs_pattern", docsPattern, ["docs"], "apply-dry-run");
+    const selected = rule("docs", "docs_pattern", applyPattern, ["docs"], "apply-dry-run");
     const outside = await Effect.runPromise(
       runGritDiagnosticOutcomesEffect([selected], {
         repoRoot,
@@ -1800,7 +1879,7 @@ describe("Grit generic acquisition and public disposition", () => {
 
   test("rejects canonical findings outside registered exact coverage", async () => {
     const selected = {
-      ...rule("docs", "docs_pattern", docsPattern, ["docs"], "apply-dry-run"),
+      ...rule("docs", "docs_pattern", applyPattern, ["docs"], "apply-dry-run"),
       pathCoverage: [{ kind: "exact-path" as const, patterns: ["docs/PRODUCT.md"] }],
     };
     const finding = path.join(repoRoot, "docs/SYSTEM.md");
@@ -1832,7 +1911,7 @@ describe("Grit generic acquisition and public disposition", () => {
   );
 
   test("blocks ambiguous relative CreateFile paths after establishing their count", async () => {
-    const selected = rule("create", "create_pattern", docsPattern, ["docs"], "apply-dry-run");
+    const selected = rule("create", "create_pattern", applyPattern, ["docs"], "apply-dry-run");
     const grit = makeFakeGritCommandService(
       (request) =>
         makeHabitatCommandResult(request, {
@@ -2050,21 +2129,7 @@ function expectAcquisitionCwd(
 }
 
 function makeGritCommandTestService(runner: CommandRunnerService) {
-  const prerequisites = Layer.mergeAll(
-    NodeContext.layer,
-    Layer.succeed(CommandRunner, runner),
-    makeHabitatConfigLayer(makeHabitatConfig({ repoRoot })),
-    makeFakeGitStateProviderLayer(
-      () => ({
-        branch: null,
-        head: null,
-        dirty: false,
-        statusShort: "",
-        statusDigest: "test",
-      }),
-      { repoRoot }
-    )
-  );
+  const prerequisites = Layer.mergeAll(NodeContext.layer, Layer.succeed(CommandRunner, runner));
   return makeGritCommandService(repoRoot).pipe(Effect.provide(prerequisites));
 }
 
@@ -2223,6 +2288,17 @@ function gritResultWithCheckId(fixture: GritResult, checkId: string) {
   };
 }
 
+function gritFinding(pathname: string, patternName: string, line: number, message: string) {
+  return {
+    check_id: `#${patternName}/js`,
+    local_name: patternName,
+    path: pathname,
+    start: { line, col: 1, offset: 0 },
+    end: { line, col: 2, offset: 1 },
+    extra: { message, severity: "error" },
+  };
+}
+
 function commandResult(
   options: { readonly stdout?: string; readonly stderr?: string; readonly exitCode?: number } = {}
 ) {
@@ -2273,23 +2349,30 @@ function compactMatch(sourceFile: string, rangeCount: number) {
 }
 
 function matchEvent(sourceFile: string, rangeCount: number) {
-  return { __typename: "Match", ...compactMatch(sourceFile, rangeCount) };
+  return { __typename: "Match" as const, ...compactMatch(sourceFile, rangeCount) };
 }
 
 function rewriteEvent(sourceFile: string, rangeCount: number) {
   return {
-    __typename: "Rewrite",
+    __typename: "Rewrite" as const,
     original: compactMatch(sourceFile, rangeCount),
     rewritten: { sourceFile },
   };
 }
 
 function createFileEvent(sourceFile: string) {
-  return { __typename: "CreateFile", rewritten: { sourceFile }, reason: compactMatchReason() };
+  return {
+    __typename: "CreateFile" as const,
+    rewritten: { sourceFile },
+    reason: compactMatchReason(),
+  };
 }
 
 function removeFileEvent(sourceFile: string, rangeCount = 1) {
-  return { __typename: "RemoveFile", original: compactMatch(sourceFile, rangeCount) };
+  return {
+    __typename: "RemoveFile" as const,
+    original: compactMatch(sourceFile, rangeCount),
+  };
 }
 
 function replaceMatchReason(

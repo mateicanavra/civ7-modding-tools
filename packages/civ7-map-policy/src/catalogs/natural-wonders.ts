@@ -33,11 +33,11 @@ function naturalWonderDirection(featureType: number): number {
 
 /**
  * Whether a feature is a placement-eligible natural wonder. The single source of
- * truth for catalog membership; `verify-manual-catalogs.ts` reuses this so the
- * catalog and its mirror check cannot disagree. A wonder is eligible when it has a
- * tile count, all its placement tags are supported, and its placement class yields
- * a footprint. `placeFirst` multi-tile wonders are NOT excluded — ordering is
- * honored by the planner, not by dropping the wonder.
+ * truth for catalog membership and the catalog is derived from it directly. A
+ * wonder is eligible when it has a tile count, all its placement tags are
+ * supported, and its placement class yields a footprint. `placeFirst` multi-tile
+ * wonders are NOT excluded — ordering is honored by the planner, not by dropping
+ * the wonder.
  */
 export function isSupportedNaturalWonder(featureType: number): boolean {
   const policy = featurePolicies[String(featureType)];

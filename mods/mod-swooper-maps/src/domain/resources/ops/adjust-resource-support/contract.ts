@@ -12,15 +12,11 @@ import {
  * Resource↔start support pass (placement-realignment S5, E3.1–E3.3).
  *
  * Takes the typed resource site plan (select-resource-sites output) plus the
- * seated StartRecord seats and produces an ADJUSTED intent set that satisfies
- * a per-start support floor within a radius and a cross-player support equity
- * tolerance, as a bounded adjustment: move or add the minimum number of
- * sites, with typed provenance per adjusted site (which start it serves and
- * why). Every S3 plan invariant is respected — policy-table legality, per-type
- * spacing floors, per-type [min,max] ranges (moves preserve counts; adds stay
- * under max), affinity/exclusion rules, and the per-landmass equity ceiling.
- * Adjustments that cannot be made without violating an invariant are recorded
- * as typed shortfalls, never forced.
+ * seated StartRecord seats and attempts a per-start support floor and
+ * cross-player support tolerance within a bounded move/add budget. Adjusted
+ * destinations must pass habitat admission, policy legality, spacing, range, exclusion, region,
+ * and landmass-density gates. Affinity is a best-effort scoring bias rather
+ * than a feasibility constraint. Unresolved targets become typed shortfalls.
  *
  * Ordering (D3 contract change, refactor-plan S5): resource PLANNING stays
  * before starts; resource STAMPING moves after this pass. Post-stamp mutation
@@ -41,28 +37,49 @@ const AdjustedPhaseSchema = Type.Union(
   }
 );
 
-const SupportProvenanceSchema = Type.Object(
+const SupportReasonSchema = Type.Union(
+  [Type.Literal("support-floor"), Type.Literal("support-equity")],
   {
-    action: Type.Union([Type.Literal("move"), Type.Literal("add")], {
-      description: "Whether the site was relocated from elsewhere in the plan or newly added.",
-    }),
-    reason: Type.Union([Type.Literal("support-floor"), Type.Literal("support-equity")], {
-      description:
-        "Why the adjustment happened: filling a start below the support floor (E3.1) or shrinking the cross-player support gap (E3.2).",
-    }),
-    seatIndex: Type.Integer({
-      minimum: 0,
-      description:
-        "Seat the adjustment serves (deficit seat for floor; trimmed/filled seat for equity).",
-    }),
-    fromPlotIndex: Type.Optional(
-      Type.Integer({
-        minimum: 0,
-        description: "Original plot of a moved site (absent for additions).",
-      })
+    description:
+      "Why the adjustment happened: filling a start below the support floor (E3.1) or shrinking the cross-player support gap (E3.2).",
+  }
+);
+
+const SupportSeatIndexSchema = Type.Integer({
+  minimum: 0,
+  description:
+    "Seat the adjustment serves (deficit seat for floor; trimmed/filled seat for equity).",
+});
+
+const SupportFromPlotIndexSchema = Type.Integer({
+  minimum: 0,
+  description: "Original plot of a moved resource intent.",
+});
+
+const SupportProvenanceSchema = Type.Union(
+  [
+    Type.Object(
+      {
+        action: Type.Literal("move"),
+        reason: SupportReasonSchema,
+        seatIndex: SupportSeatIndexSchema,
+        fromPlotIndex: SupportFromPlotIndexSchema,
+      },
+      { additionalProperties: false }
     ),
-  },
-  { additionalProperties: false }
+    Type.Object(
+      {
+        action: Type.Literal("add"),
+        reason: SupportReasonSchema,
+        seatIndex: SupportSeatIndexSchema,
+      },
+      { additionalProperties: false }
+    ),
+  ],
+  {
+    description:
+      "One terminal support adjustment: moves require their source plot, while additions cannot claim one.",
+  }
 );
 
 const AdjustedIntentSchema = Type.Object(
@@ -84,35 +101,66 @@ const AdjustedIntentSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const AdjustmentSchema = Type.Object(
+const AdjustmentEvidenceProperties = {
+  reason: SupportReasonSchema,
+  resourceType: ResourceSymbolSchema,
+  toPlotIndex: Type.Integer({
+    minimum: 0,
+    description: "Final plot occupied by the adjusted resource intent.",
+  }),
+  seatIndex: SupportSeatIndexSchema,
+} as const;
+
+const AdjustmentSchema = Type.Union(
+  [
+    Type.Object(
+      {
+        action: Type.Literal("move"),
+        ...AdjustmentEvidenceProperties,
+        fromPlotIndex: SupportFromPlotIndexSchema,
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        action: Type.Literal("add"),
+        ...AdjustmentEvidenceProperties,
+      },
+      { additionalProperties: false }
+    ),
+  ],
   {
-    action: Type.Union([Type.Literal("move"), Type.Literal("add")]),
-    reason: Type.Union([Type.Literal("support-floor"), Type.Literal("support-equity")]),
-    resourceType: ResourceSymbolSchema,
-    fromPlotIndex: Type.Optional(Type.Integer({ minimum: 0 })),
-    toPlotIndex: Type.Integer({ minimum: 0 }),
-    seatIndex: Type.Integer({ minimum: 0 }),
-  },
-  { additionalProperties: false }
+    description:
+      "Closed adjustment row paired bijectively with the terminal intent provenance at its destination.",
+  }
 );
 
 const SupportShortfallSchema = Type.Object(
   {
     seatIndex: Type.Integer({ minimum: 0 }),
-    reason: Type.Union([
-      Type.Literal("no-legal-tile-in-radius"),
-      Type.Literal("spacing-floor-preserved"),
-      Type.Literal("no-movable-site"),
-      Type.Literal("equity-unresolvable"),
-      Type.Literal("adjustment-budget-exhausted"),
-      Type.Literal("adjustment-disabled"),
-    ]),
-    missing: Type.Integer({ minimum: 1 }),
+    reason: Type.Union(
+      [
+        Type.Literal("no-admitted-adjustment"),
+        Type.Literal("equity-unresolvable"),
+        Type.Literal("floor-budget-exhausted"),
+        Type.Literal("equity-budget-exhausted"),
+        Type.Literal("adjustment-disabled"),
+      ],
+      {
+        description:
+          "Truthful terminal disposition: no complete adjustment was admitted, the configured budget ended, adjustment was disabled, or equity remained unresolvable.",
+      }
+    ),
+    missing: Type.Integer({
+      minimum: 1,
+      description:
+        "Terminal support units missing from the seat floor, or terminal gap units above the configured equity tolerance.",
+    }),
   },
   {
     additionalProperties: false,
     description:
-      "Typed record of a support adjustment that could not be made without violating an S3 plan invariant (or with adjustments disabled). Never silently forced.",
+      "Typed record of a support target unresolved within the bounded pass, its hard destination gates, or the configured adjustment budget.",
   }
 );
 
@@ -121,12 +169,12 @@ const EligibilityRowSchema = Type.Object(
     resourceType: ResourceSymbolSchema,
     habitatMask: TypedArraySchemas.u8({
       shape: null,
-      description: "Habitat lane eligibility (1=in-lane); preferred for adjusted destinations.",
+      description: "Habitat lane eligibility (1=in-lane); required for adjusted destinations.",
     }),
     legalMask: TypedArraySchemas.u8({
       shape: null,
       description:
-        "Per-resource policy legality from Resource_ValidPlacements rows (1=legal); hard gate for adjusted destinations.",
+        "Per-resource policy legality from Resource_ValidPlacements rows (1=legal); combined with habitat as a hard gate for adjusted destinations.",
     }),
     intensity: TypedArraySchemas.f32({
       shape: null,
@@ -148,6 +196,11 @@ const StartSeatInputSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/**
+ * Admits the bounded pre-stamp support adjustment over a typed site plan and seated starts.
+ * Adjusted destinations must pass habitat, legality, spacing, range, exclusion, region, and landmass
+ * gates; affinity only biases candidate scoring, and unresolved targets become shortfalls.
+ */
 const AdjustResourceSupportContract = defineOp({
   kind: "plan",
   id: "resources/adjust-resource-support",
@@ -207,7 +260,6 @@ const AdjustResourceSupportContract = defineOp({
         {
           gapBefore: Type.Union([Type.Integer({ minimum: 0 }), Type.Null()]),
           gapAfter: Type.Union([Type.Integer({ minimum: 0 }), Type.Null()]),
-          tolerance: Type.Integer({ minimum: 0 }),
         },
         {
           additionalProperties: false,
@@ -218,10 +270,10 @@ const AdjustResourceSupportContract = defineOp({
       settings: Type.Object(
         {
           enabled: Type.Boolean(),
-          supportFloor: Type.Integer({ minimum: 0 }),
-          supportRadiusTiles: Type.Integer({ minimum: 0 }),
-          equityTolerance: Type.Integer({ minimum: 0 }),
-          strength: Type.Number(),
+          supportFloor: Type.Integer({ minimum: 0, maximum: 6 }),
+          supportRadiusTiles: Type.Integer({ minimum: 1, maximum: 8 }),
+          equityTolerance: Type.Integer({ minimum: 0, maximum: 8 }),
+          strength: Type.Number({ minimum: 0, maximum: 1 }),
         },
         { additionalProperties: false }
       ),
@@ -241,7 +293,7 @@ const AdjustResourceSupportContract = defineOp({
           maximum: 6,
           default: 2,
           description:
-            "Minimum planned resource sites within supportRadiusTiles of every seated start (E3.1 guarantee at the default 2).",
+            "Target planned resource sites within supportRadiusTiles of each seated start; unattainable deficits are recorded as typed shortfalls.",
         }),
         supportRadiusTiles: Type.Integer({
           minimum: 1,
@@ -255,14 +307,14 @@ const AdjustResourceSupportContract = defineOp({
           maximum: 8,
           default: 2,
           description:
-            "Maximum allowed max−min per-player support-count gap after the pass (E3.2 measures 2).",
+            "Target max−min per-player support-count gap; an unresolved gap is retained in typed evidence.",
         }),
         strength: Type.Number({
           minimum: 0,
           maximum: 1,
           default: 1,
           description:
-            "Scales the adjustment budget: per-start floor fills apply ceil(strength × deficit) units and the equity pass budget scales with strength. 1 = fully enforce the gates; 0 = record-only (like disabled, but the pass still measures).",
+            "Scales the adjustment budget: per-start floor fills apply ceil(strength × deficit) units and the equity pass budget scales with strength. 1 uses the full budget; 0 is record-only while still measuring.",
         }),
       },
       { additionalProperties: false }

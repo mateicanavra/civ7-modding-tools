@@ -1,5 +1,7 @@
 import { describe, expect, it } from "bun:test";
+import { stableStringify } from "@swooper/mapgen-core";
 import { deriveStageAuthoringModel } from "@swooper/mapgen-core/authoring";
+import * as generatedRecipe from "mod-swooper-maps/recipes/standard";
 import {
   STANDARD_RECIPE_CONFIG as generatedDefaults,
   STANDARD_RECIPE_CONFIG_SCHEMA as generatedSchema,
@@ -9,10 +11,22 @@ import {
 import { deriveStandardRecipeArtifacts } from "../../../../src/recipes/standard/artifacts.js";
 import standardRecipe, { STANDARD_STAGES } from "../../../../src/recipes/standard/recipe.js";
 
-function toJsonValue(value: unknown): unknown {
-  const serialized = JSON.stringify(value);
-  if (serialized === undefined) throw new Error("Expected a JSON-serializable recipe artifact");
-  return JSON.parse(serialized) as unknown;
+const EXPECTED_STANDARD_RECIPE_EXPORTS = [
+  "STANDARD_STAGES",
+  "default",
+] as const satisfies readonly (keyof typeof generatedRecipe)[];
+const declarationsHaveNoUnexpectedExports: Exclude<
+  keyof typeof generatedRecipe,
+  (typeof EXPECTED_STANDARD_RECIPE_EXPORTS)[number]
+> extends never
+  ? true
+  : false = true;
+
+function focusPathsForStep(
+  focusPathsByStepId: Readonly<Partial<Record<string, readonly string[]>>>,
+  stepId: string
+): readonly string[] {
+  return focusPathsByStepId[stepId] ?? [];
 }
 
 function projectGeneratedUiStructure() {
@@ -42,7 +56,10 @@ function deriveSourceUiStructure() {
         return {
           stepId: step.stepId,
           fullStepId,
-          configFocusPathWithinStage: authoring.config.focusPathsByStepId[step.stepId] ?? [],
+          configFocusPathWithinStage: focusPathsForStep(
+            authoring.config.focusPathsByStepId,
+            step.stepId
+          ),
         };
       }),
     };
@@ -55,11 +72,18 @@ function deriveSourceUiStructure() {
 }
 
 describe("standard generated recipe artifacts", () => {
+  it("keeps runtime and declared recipe exports aligned", () => {
+    expect(declarationsHaveNoUnexpectedExports).toBe(true);
+    expect(Object.keys(generatedRecipe).sort()).toEqual(
+      [...EXPECTED_STANDARD_RECIPE_EXPORTS].sort()
+    );
+  });
+
   it("matches the source recipe artifacts and authoring structure", () => {
     const sourceArtifacts = deriveStandardRecipeArtifacts();
 
-    expect(generatedSchema).toEqual(toJsonValue(sourceArtifacts.schema));
-    expect(generatedDefaults).toEqual(toJsonValue(sourceArtifacts.defaults));
+    expect(stableStringify(generatedSchema)).toBe(stableStringify(sourceArtifacts.schema));
+    expect(stableStringify(generatedDefaults)).toBe(stableStringify(sourceArtifacts.defaults));
     expect(projectGeneratedUiStructure()).toEqual(deriveSourceUiStructure());
   });
 });

@@ -39,7 +39,11 @@ If local-vs-local and local-vs-live both agree and only the Studio canvas is wro
 
 ### Producing the binaries to diff
 
-`bun mods/mod-swooper-maps/src/dev/viz/standard-run.ts` (or `bun run viz:standard`, default 48×30 / seed 1337 / swooper-earthlike) writes a dump under `mods/mod-swooper-maps/dist/visualization/<runId>/{manifest.json,data/*.bin}`. Inspect with `diag:diff`. (Full diagnostics inventory: `references/pipeline-map.md`.)
+`nx run mod-swooper-maps:viz:standard` (default 48×30 / seed 1337 /
+swooper-earthlike) writes a dump under
+`mods/mod-swooper-maps/dist/visualization/<runId>/{manifest.json,data/*.bin}`.
+Inspect with `nx run mod-swooper-maps:diag:diff -- <args>`. (Full diagnostics
+inventory: `references/pipeline-map.md`.)
 
 ### The Studio edit surface (where a display bug actually lives)
 
@@ -53,27 +57,44 @@ When the branch resolves to **display**, the fix is one of a small set of files 
 | wrong default / overlay layer selected | `useVizState.ts` | `effectiveLayer` / `overlayLayer` memos |
 | layers never appear after a run | `ingest.ts` / `vizStore.ts` | `ingestVizEvent` maps the `VizEvent` union onto `VizManifestV1`; streaming-commit state |
 
-**Caveat — wrong layer *metadata* is not a Studio fix.** `meta.categories` / `meta.palette` / `meta.label` / `dataTypeKey` / `variantKey` come from the recipe step that calls `viz.dumpGrid/dumpPoints/dumpSegments/dumpGridFields` (schema in `@swooper/mapgen-viz`). If metadata is wrong, fix the **generation** step, not `presentation.ts`. The browser dumper (`browser-runner/worker-viz-dumper.ts`, emits `viz.layer.emit.v1` with inline ArrayBuffers) and the CLI dumper (`src/dev/viz/dump.ts`, emits `viz.layer.dump.v1` with `.bin` path refs) must emit identical `VizLayerEntryV1` shapes — divergence makes Studio disagree with `diag:diff`.
+**Caveat — wrong layer *metadata* is not a Studio fix.**
+`meta.categories` / `meta.palette` / `meta.label` / `dataTypeKey` /
+`variantKey` are recipe-owned. The current authoring surface is the owning
+step's optional `createStep(contract, { viz })` facet; legacy steps may still
+emit through `context.viz.dumpGrid/dumpPoints/dumpSegments/dumpGridFields` while
+they migrate. Private helpers belong in `steps/<step>/viz.ts`; shared owner-stage
+helpers belong in `stages/<stage>/viz.ts`. See the canonical model in
+`docs/system/libs/mapgen/reference/VISUALIZATION.md`. If metadata is wrong, fix
+the owning recipe step/helper, not `presentation.ts`. The browser dumper
+(`browser-runner/worker-viz-dumper.ts`, inline ArrayBuffers) and CLI facet sink
+(`src/dev/viz/dump.ts`, `.bin` path refs) must materialize identical
+`VizLayerEntryV1` shapes — divergence makes Studio disagree with `diag:diff`.
 
 Studio launch / daemon contract (port 5174, oRPC `/rpc`, `runtimeMode: "studio-daemon-effect-orpc"`) and the control-surface design owner (`civ7-orpc-control-architecture`) live in `references/pipeline-map.md` — not repeated here.
 
 ---
 
-## Overlay (ii) — Earth-like benchmark: a composed gate, not a turnkey script
+## Overlay (ii) — Earth-like benchmark: declared metrics and targets
 
-**There is no single "run the benchmark" command.** A future agent that goes looking for one will not find it. The benchmark is a *composed* call chain plus a *pre-declared expectation ledger* — and it is a **gate at loop step 5**, declared **before** any tuning, then amended with evidence.
+The benchmark is a reusable completed-map subsystem plus a *pre-declared
+expectation ledger*. It is a **gate at loop step 5**, declared **before** any
+tuning, then amended with evidence.
 
-### The composed chain
+### The owned chain
 
-1. `bun run diag:dump` (`src/dev/diagnostics/run-standard-dump.ts`) — run the full standard recipe through MockAdapter; writes the trace + viz dump; prints `{"runId","outputDir"}`. (Prereq: `viz:runtime-deps`.)
-2. `computeEarthMetrics(landMask, lakeMask?, riverClass?, riverNetworkBenchmarkSummary?, biomeIndex?)` (`src/dev/diagnostics/extract-earth-metrics.ts`) → `{ landShare, lakeShare, riverClassShare, biomeDiversity, dominantBiome, hydrology.riverNetworkSummary }`. This is the metric primitive. Also `diag:analyze` (`analyze-dump.ts`) for land-coherence (landmass summary, mountain/hill counts, landmask Hamming evolution); `placement-metrics.ts` for E1–E4 placement expectations (`verify --mode placement-metrics`).
-3. **Compare to Earth targets** in `docs/projects/pipeline-realism/`. Targets are **regime-family based** (wet / arid / mountain / closed / archipelago), **not** single scalars — never collapse a regime distribution to one number. Earth anchors the docs cite: HydroLAKES ~1.8% of land, non-perennial river share 51–60%, endorheic ~1/5 of land, passive-vs-active margin shelf-width contrast. `riverClass` is `0/1/≥2`; only `≥2` projects to `TERRAIN_NAVIGABLE_RIVER`.
+1. `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md` owns the generic subsystem, authoring contract, and proof boundary.
+2. Metric families under `src/recipes/standard/metrics/families` measure one completed Standard run without embedding pass/fail policy.
+3. `MetricTarget`s under `src/recipes/standard/metrics/targets` own product expectations. Logical `*.study.ts` modules under `src/recipes/standard/metrics/studies/benchmarks` bind them to named Civ7 map-size presets and stable seed cohorts. `STANDARD_METRIC_STUDIES` assembles the bank and deduplicates identical scenario captures.
+4. `src/recipes/standard/metrics/studies/STUDIES.md` is the Standard recipe research index. Each executable study is colocated with a sheet describing its hypothesis, dimensions, seeds, measurements, and expected outcomes.
+5. `nx run mod-swooper-maps:metrics:report` emits the complete machine-readable evaluation; `nx run mod-swooper-maps:test` is the behavioral gate. Use `diag:dump` / `diag:analyze` only for trace and visualization investigation, not as a second metrics authority.
+6. Targets are **regime-family based** (wet / arid / mountain / closed / archipelago), **not** single scalars — never collapse a regime distribution to one number. Earth anchors include HydroLAKES ~1.8% of land, non-perennial river share 51–60%, endorheic ~1/5 of land, and passive-vs-active margin shelf-width contrast. `riverClass` is `0/1/≥2`; only `≥2` projects to `TERRAIN_NAVIGABLE_RIVER`.
 
-`docs/projects/pipeline-realism/` holds the **program and philosophy** (M1 foundation cutover, M2 ecology alignment, resource packets, runbooks). The **executed** pre-declared-expectation pattern lives in `docs/projects/placement-realignment/expectations.md` — the reference implementation of the ledger, not pipeline-realism.
+Historical workstream docs retain the evidence and amendments for the studies they
+ran. They are not the current subsystem or Standard recipe authority.
 
 ### The pre-declared expectation ledger (the discipline)
 
-Declare expectations as a ledger **before** tuning (loop step 5 gate), then amend each row with the measured value and a pass/fail/amended verdict. Copy-paste template and worked rows: `assets/earthlike-expectation-ledger.md`. The placement-realignment ledger (E1 starts / E2 resources / E3 resource-start / E4 studio-live parity) is the canonical example; E4.4 passed at 0.9863 mock-vs-live legality there.
+Declare expectations as a ledger **before** tuning (loop step 5 gate), then amend each row with the measured value and a pass/fail/amended verdict. Copy-paste template: `assets/earthlike-expectation-ledger.md`. Recipe targets and studies are current authority; a project ledger records the workstream-specific hypothesis and evidence without replacing them.
 
 Physics targets behind the metrics — what is modeled vs approximated vs absent per domain — are owned by `references/facet-physics.md`. This overlay measures; the physics facet decides what the measurement *should* be.
 
@@ -90,16 +111,16 @@ A MockAdapter-clean map can still **SIGSEGV** the live engine — so internal di
 
 ### The verify dispatcher — headless vs live (what this overlay turns on)
 
-`nx run mod-swooper-maps:verify -- --mode <mode>` (or `bun ./scripts/verify.ts --mode <mode>`; dispatcher: `mods/mod-swooper-maps/scripts/verify.ts`). For *this* overlay, the only distinction that matters is the closure boundary:
+`nx run mod-swooper-maps:verify:operational -- --mode <mode>` (or `bun ./scripts/verify.ts --mode <mode>`; dispatcher: `mods/mod-swooper-maps/scripts/verify.ts`). For *this* overlay, the only distinction that matters is the closure boundary:
 
 | Class | Example mode | Closure ceiling |
 |---|---|---|
-| **headless** (no tuner) | `placement-catalogs` (default), `placement-metrics` | `generated` at most — MockAdapter, never `in-game observed` |
+| **headless** (no tuner) | Standard product-metrics test | `generated` at most — MockAdapter, never `in-game observed` |
 | **live** (running tuner required) | `studio-run-in-game-live` (the in-game gate) | the only path to `logged` / `in-game observed` |
 
-Full 9-mode table + aliases + invocations: `assets/live-verification-runbook.md` §5.
+Full operational mode table + aliases + invocations: `assets/live-verification-runbook.md` §5.
 
-Build before any live verify: `nx run mod-swooper-maps:build` → `mods/mod-swooper-maps/mod/`. Deploy: `bun run --cwd mods/mod-swooper-maps deploy` (or `nx run mod-swooper-maps:deploy`).
+Build before any live verify: `nx run mod-swooper-maps:build` → `mods/mod-swooper-maps/mod/`. Deploy with `nx run mod-swooper-maps:deploy`.
 
 ---
 
@@ -110,14 +131,14 @@ The runnable, ordered checklist with the exact failure-recovery branch is **`ass
 - **Success markers** (matched **in order** from the fresh, post-snapshot Scripting.log segment): `[mapgen-complete]` then `"seed":<N>`. Sequence-enforced via a cursor, not mere presence.
 - **rejectPattern:** `/\[mapgen-failure\]|Map generation failed|\[recipe:[^\]]+\].*fail|StepExecutionError|\b(?:TextEncoder|Uncaught|Exception|Error)\b/i`.
 - **Deploy gate:** the verifier SHA-256-compares local `mods/mod-swooper-maps/mod/maps/<name>.js` vs the deployed copy and requires both river-materialization markers (`map.rivers.authoredTerrainMaterialization`, `POST-AUTHORED-RIVERS`) in both. Mismatch ⇒ exit 2, `recoveryHint: "nx run mod-swooper-maps:deploy"`. **Always deploy immediately before a mutating verify** (nx cache can serve stale output).
-- **Tuner:** `127.0.0.1:4318`; the `Tuner` scripting state (not `App UI`) is command-ready only after Begin Game. `runCiv7SinglePlayerFromSetup` passes `waitForTuner: true` — never skip it (it also runs the standard write/prep ops that prevent the SIGSEGV class).
+- **Tuner:** `127.0.0.1:4318`; the `Tuner` scripting state (not `App UI`) is command-ready only after Begin Game. The live verifier calls `@civ7/control-orpc` `lifecycle.singlePlayer.start`, which requires post-start tuner evidence. Standard write/prep ownership remains in the deployed map recipe.
 - **Parity follow-up:** after a clean live run, `verify --mode final-surface-parity --request-id <id> --studio-url http://127.0.0.1:5174` fetches the `exactAuthorshipProof` from Studio `/rpc/runInGame/status`, runs `runLocalFinalSurfaceSnapshot`, and emits the proof. `parityStatus:"blocked"` usually means a missing `sourceSnapshot` in the start request, not a generation defect.
 - **Exit codes:** `0` ok · `1` exception · `2` stage-failure · `3` run-not-verified.
 
 ### Live constraints — set expectations honestly (these are normal, not exceptional)
 
 - **Attempt-1 live-only failures are expected**, and hotfix slices from live proof are a normal part of behavioral work. Precedent (placement-realignment, 2026-06-11): attempt 1 crashed at step 50 with `console.warn is not a function` — the `MapGeneration` scripting context exposes only `console.log`. Fixed with an engine-safe `warnLog` helper (recovery branch `placement-realignment-s9-live-compat`); attempt 2 ran 53/53.
-- **SIGSEGV on MockAdapter-valid maps** without standard write/prep ops — handled by `runCiv7SinglePlayerFromSetup`; not caught by the log-marker gate (it would surface as a health-check failure on the next run).
+- **SIGSEGV on MockAdapter-valid maps** without standard recipe write/prep ops — prevented by retaining the standard deployed map recipe; not caught by the log-marker gate (it would surface as a health-check failure on the next run).
 - **Age-intro / wonder-discovery cinematic overlay blocks OS capture.** After `game visibility --reveal`, the game sits behind a blocking notification queue; `screencapture` returns pixel-identical **stale** frames for many seconds. Drain the queue (activate `fxs-hero-button.cinematic-moment__close-button`) before any screenshot. This blocks **visual QA**, not the log-marker gate — the gate proves mapgen completed regardless of what the screen shows.
 - Huge maps take ~60–90 s of live map-gen; set `--wait-timeout-ms` to match.
 
@@ -138,5 +159,8 @@ The arms stay coupled: the coast fix (behavioral) required locating the adapter-
 ## Currency notes
 
 - The `mapgen:*` cache plugin skills are **philosophy-only / outdated arch** — never cite their paths, schemas, or stage structure as a verification surface.
-- `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md` was reconciled as **current** (17 stages, zero drift) at last check — but verify any stage list against `recipes/standard/recipe.ts` + `contract-manifest.ts` before trusting it.
+- `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md` currently lists the
+  same 22 stages, including the five `foundation-*` stages and
+  `morphology-shelf`, but the live order authority remains
+  `recipes/standard/contract-manifest.ts` (`standardStageContractManifest`).
 - The `@civ7/map-policy` snapshot is dated 2026-01-24; static legality tables may lag a game patch. Cross-check resource-legality claims against `game:gameinfo` when a live game is available.

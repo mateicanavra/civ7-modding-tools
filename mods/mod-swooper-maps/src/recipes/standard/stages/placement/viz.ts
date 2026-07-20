@@ -1,15 +1,54 @@
-import type { VizLayerCategory, VizValueSpec } from "@swooper/mapgen-core";
+import type {
+  VizDataTypeKey,
+  VizLayerCategory,
+  VizLayerMeta,
+  VizRgbaColor,
+  VizValueSpec,
+} from "@swooper/mapgen-viz";
+import {
+  defineStandardVizCategoryMeta,
+  defineStandardVizMeta,
+  STANDARD_VIZ_STYLES,
+  type StandardVizStyle,
+} from "../../viz.js";
 
-/**
- * Stage-local viz vocabulary for placement (placement-realignment S7).
- *
- * The "Gameplay / Placement" group label was previously re-declared inline in
- * three step files (audit-register studio-viz lane); every placement emit
- * site imports it from here so the studio layer tree cannot drift per file.
- */
+type PlacementVizMetaOverrides = Omit<Partial<VizLayerMeta>, "categories" | "group" | "palette">;
+
+/** Stable Studio group shared by every placement-owned step projection. */
 export const PLACEMENT_VIZ_GROUP = "Gameplay / Placement";
 
+/** Civ7 placement's canonical odd-column-offset tile coordinate space. */
 export const PLACEMENT_TILE_SPACE_ID = "tile.hexOddQ" as const;
+
+/**
+ * Resolves a Standard recipe style while attaching placement's stable Studio group.
+ * Placement callers own the layer semantics; this helper prevents group and palette drift.
+ */
+export function definePlacementVizMeta(
+  dataTypeKey: VizDataTypeKey,
+  style: StandardVizStyle,
+  meta: PlacementVizMetaOverrides = {}
+): VizLayerMeta {
+  return defineStandardVizMeta(dataTypeKey, style, {
+    ...meta,
+    group: PLACEMENT_VIZ_GROUP,
+  });
+}
+
+/**
+ * Attaches placement's stable Studio group to an explicit, owner-defined category table.
+ * Category identity stays local to the placement decision that produced the values.
+ */
+export function definePlacementVizCategoryMeta(
+  dataTypeKey: VizDataTypeKey,
+  categories: readonly [VizLayerCategory, ...VizLayerCategory[]],
+  meta: PlacementVizMetaOverrides = {}
+): VizLayerMeta {
+  return defineStandardVizCategoryMeta(dataTypeKey, categories, {
+    ...meta,
+    group: PLACEMENT_VIZ_GROUP,
+  });
+}
 
 /**
  * Stable legend domain for 0..1 scores (audit-register presentation defect c:
@@ -22,32 +61,10 @@ export const UNIT_SCORE_VALUE_SPEC: VizValueSpec = {
   units: "score (0-1)",
 };
 
-const CATEGORY_PALETTE: ReadonlyArray<[number, number, number, number]> = [
-  [59, 130, 246, 230],
-  [239, 68, 68, 230],
-  [34, 197, 94, 230],
-  [245, 158, 11, 230],
-  [168, 85, 247, 230],
-  [14, 116, 144, 230],
-  [249, 115, 22, 230],
-  [99, 102, 241, 230],
-  [236, 72, 153, 230],
-  [20, 184, 166, 230],
-  [132, 204, 22, 230],
-  [217, 70, 239, 230],
-  [234, 179, 8, 230],
-  [6, 182, 212, 230],
-  [244, 63, 94, 230],
-  [16, 185, 129, 230],
-];
-
-/** Deterministic categorical color for an index (cycles a fixed palette). */
-export function placementCategoryColor(index: number): [number, number, number, number] {
-  return (
-    CATEGORY_PALETTE[
-      ((index % CATEGORY_PALETTE.length) + CATEGORY_PALETTE.length) % CATEGORY_PALETTE.length
-    ] ?? [148, 163, 184, 220]
-  );
+/** Deterministic color for a placement category, drawn from the recipe's shared distinct pool. */
+export function placementCategoryColor(index: number): VizRgbaColor {
+  const colors = STANDARD_VIZ_STYLES["category.distinct"].colors;
+  return colors[((index % colors.length) + colors.length) % colors.length] ?? colors[0];
 }
 
 /** Human label for an official RESOURCE_* symbol (policy-table identity). */

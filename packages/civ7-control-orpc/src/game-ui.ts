@@ -1,8 +1,5 @@
-import type {
-  Civ7ControllerBridgeContextFactory,
-  Civ7ControllerBridgeMutationProof,
-} from "./bridge/controller-ingress";
 import {
+  type Civ7ControllerContextFactory,
   type Civ7IntelligenceBridge,
   installCiv7IntelligenceBridge,
 } from "./bridge/intelligence-bridge";
@@ -96,12 +93,18 @@ import {
   civ7GameUiUnitTargetActionAvailable,
   requestCiv7GameUiUnitTargetAction,
 } from "./game-ui-unit-target";
+import type { Civ7ControllerMutationProof } from "./model/controller-proof";
 import type { Civ7ControlOrpcComponentId } from "./model/primitives";
 
 type Civ7GameUiNotifications = NonNullable<
   NonNullable<Civ7GameUiNotificationDismissalTarget["Game"]>["Notifications"]
 > &
-  NonNullable<NonNullable<Civ7GameUiAttentionTarget["Game"]>["Notifications"]>;
+  NonNullable<NonNullable<Civ7GameUiAttentionTarget["Game"]>["Notifications"]> &
+  NonNullable<NonNullable<Civ7GameUiProgressionTarget["Game"]>["Notifications"]>;
+
+type Civ7GameUiPlayer = NonNullable<NonNullable<Civ7GameUiAttentionTarget["UI"]>["Player"]> &
+  NonNullable<NonNullable<Civ7GameUiProductionTarget["UI"]>["Player"]> &
+  NonNullable<NonNullable<Civ7GameUiUnitCommandTarget["UI"]>["Player"]>;
 
 type RuntimeProbe<T> = Readonly<{ ok: true; value: T } | { ok: false; error: string }>;
 
@@ -119,11 +122,7 @@ export type Civ7GameUiRuntimeTarget = {
     isInLoading?: () => boolean;
     getGameLoadingState?: () => number;
     notifyUIReady?: () => void;
-    Player?: Civ7GameUiAttentionTarget["UI"] extends infer UI
-      ? UI extends { Player?: infer Player }
-        ? Player
-        : never
-      : never;
+    Player?: Civ7GameUiPlayer;
   };
   UIGameLoadingState?: Record<string, number>;
   GameContext?: {
@@ -321,7 +320,7 @@ export function createCiv7GameUiControllerContextFactory(
     target: Civ7GameUiRuntimeTarget;
     timeoutMs?: number;
   }>
-): Civ7ControllerBridgeContextFactory {
+): Civ7ControllerContextFactory {
   const directControl = createCiv7GameUiDirectControlFacade(options.target);
   return () => ({
     directControl,
@@ -669,7 +668,7 @@ function gameUiSnapshot(target: Civ7GameUiRuntimeTarget) {
 
 function gameUiControllerMutationProof(
   target: Civ7GameUiRuntimeTarget
-): Civ7ControllerBridgeMutationProof | null {
+): Civ7ControllerMutationProof | null {
   if (probeValue(probe(() => target.UI?.isInGame?.() ?? false)) !== true) {
     return null;
   }

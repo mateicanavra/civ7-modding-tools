@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 2,
+  "id": "require_mapgen_exported_value_declarations_have_jsdoc",
+  "title": "Require MapGen Exported Value Declarations To Have JSDoc",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/contracts",
+    "blueprint": "_self",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "authored MapGen runtime value exports without adjacent nonempty declaration-site JSDoc or with an obvious placeholder JSDoc block",
+  "why": "Exported values are cross-module contracts; declaration-site documentation keeps their owner and intended semantics visible through reuse and relocation, while review owns the document's semantic quality.",
+  "remediate": "Delete an unused export or add adjacent nonempty, non-placeholder JSDoc before its defining declaration. Document purpose, behavior, or invariants when they are not already obvious. A direct anonymous default value is documented at the export statement; re-export barrels inherit the owner's documentation.",
+  "message": "Exported MapGen value declarations require adjacent nonempty non-placeholder declaration-site JSDoc.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/**/*.ts"
+      ]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain", "mods/mod-swooper-maps/src/recipes"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/baseline.json",
+    "ruleIntroductionManifest": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/rule-introduction.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+    },
+    "patternName": "require_mapgen_exported_value_declarations_have_jsdoc"
+  }
+}

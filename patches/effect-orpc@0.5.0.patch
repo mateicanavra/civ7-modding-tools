@@ -1,5 +1,291 @@
+diff --git a/dist/index.js b/dist/index.js
+index 6f0d43af29402a181651c769381e5d33b06a4d51..3efcea6636d58642b42b7aa7d3bf6701bdfb2f43 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1148,14 +1148,49 @@ var EffectDecoratedProcedure = class extends EffectProcedure {
+ };
+
+ // src/effect-enhance-router.ts
+-function enhanceEffectRouter(router, options) {
++function sameEffectStep(left, right) {
++  if (left._tag !== right._tag) {
++    return false;
++  }
++  switch (left._tag) {
++    case "middleware":
++      return right._tag === "middleware" && left.middleware === right.middleware;
++    case "provide":
++      return right._tag === "provide" && left.tag === right.tag && left.provider === right.provider;
++    case "provideOptional":
++      return right._tag === "provideOptional" && left.tag === right.tag && left.provider === right.provider;
++    case "provideLayer":
++      return right._tag === "provideLayer" && left.layer === right.layer;
++  }
++}
++function mergeEffectStepPrefix(prefix, steps) {
++  if (!prefix?.length) {
++    return steps;
++  }
++  if (!steps?.length) {
++    return prefix;
++  }
++  let sharedPrefixLength = 0;
++  const comparableLength = Math.min(prefix.length, steps.length);
++  while (sharedPrefixLength < comparableLength && sameEffectStep(prefix[sharedPrefixLength], steps[sharedPrefixLength])) {
++    sharedPrefixLength += 1;
++  }
++  return [...prefix, ...steps.slice(sharedPrefixLength)];
++}
++function enhanceEffectRouter(router, options, effectStateSource, effectStepPrefix) {
+   if (isLazy(router)) {
+     const laziedMeta = getLazyMeta(router);
+     const enhancedPrefix = laziedMeta?.prefix ? mergePrefix(options.prefix, laziedMeta.prefix) : options.prefix;
+     const enhanced2 = lazy(
+       async () => {
+         const { default: unlaziedRouter } = await unlazy(router);
+-        const wrappedRouter = enhanceEffectRouter(unlaziedRouter, options);
++        const resolvedEffectStateSource = typeof effectStateSource === "function" ? effectStateSource() : effectStateSource;
++        const wrappedRouter = enhanceEffectRouter(
++          unlaziedRouter,
++          options,
++          resolvedEffectStateSource,
++          effectStepPrefix
++        );
+         return unlazy(wrappedRouter);
+       },
+       {
+@@ -1166,6 +1201,8 @@ function enhanceEffectRouter(router, options) {
+     return createAccessibleLazyRouter(enhanced2);
+   }
+   if (isProcedure(router)) {
++    const staticEffectStateSource = typeof effectStateSource === "function" ? void 0 : effectStateSource;
++    const effectDef = staticEffectStateSource?.["~effect"] ?? router["~effect"];
+     const source = unwrapEffectUpstream(router);
+     const sourceEffectErrorMap = getEffectErrorMap(router);
+     const middlewares = mergeMiddlewares(
+@@ -1179,11 +1216,27 @@ function enhanceEffectRouter(router, options) {
+       ...sourceEffectErrorMap
+     };
+     const errorMap = effectErrorMapToErrorMap(effectErrorMap);
++    const effectSteps = mergeEffectStepPrefix(
++      effectStepPrefix,
++      effectDef?.effectSteps
++    );
++    const effectHandler = effectDef?.effectHandler;
++    const handler = effectHandler ? createEffectProcedureHandler({
++      defaultCaptureStackTrace: effectHandler.defaultCaptureStackTrace,
++      effectErrorMap,
++      effectFn: effectHandler.effectFn,
++      effectSteps,
++      runner: options.runner,
++      spanConfig: effectHandler.spanConfig
++    }) : source["~orpc"].handler;
+     return new EffectProcedure({
+       ...source["~orpc"],
+       route: enhanceRoute(source["~orpc"].route, options),
+       effectErrorMap,
++      effectSteps,
++      effectHandler,
+       errorMap,
++      handler,
+       middlewares,
+       inputValidationIndex: source["~orpc"].inputValidationIndex + newMiddlewareAdded,
+       outputValidationIndex: source["~orpc"].outputValidationIndex + newMiddlewareAdded,
+@@ -1191,8 +1244,14 @@ function enhanceEffectRouter(router, options) {
+     });
+   }
+   const enhanced = {};
++  const staticEffectStateSource = typeof effectStateSource === "function" ? void 0 : effectStateSource;
+   for (const key in router) {
+-    enhanced[key] = enhanceEffectRouter(router[key], options);
++    enhanced[key] = enhanceEffectRouter(
++      router[key],
++      options,
++      staticEffectStateSource?.[key],
++      effectStepPrefix
++    );
+   }
+   return enhanced;
+ }
+@@ -1700,7 +1759,22 @@ function makeEnhanceOptions(runner) {
+     runner
+   };
+ }
+-function wrapContractNode(contract, target, runner) {
++function appendEffectMiddleware(state, middleware) {
++  return {
++    effectSteps: [
++      ...(state.effectSteps ?? []),
++      { _tag: "middleware", middleware }
++    ]
++  };
++}
++function assertNativeMiddlewareCanFollow(state) {
++  if (state.effectSteps?.length) {
++    throw new Error(
++      "Native oRPC middleware cannot follow Effect middleware on an Effect implementer; register native middleware first."
++    );
++  }
++}
++function wrapContractNode(contract, target, runner, state = {}) {
+   const cache = /* @__PURE__ */ new Map();
+   return new Proxy(target, {
+     get(currentTarget, prop, receiver) {
+@@ -1711,16 +1785,24 @@ function wrapContractNode(contract, target, runner) {
+         if (prop === "effect") {
+           const effect = (effectFn) => {
+             const effectErrorMap = getEffectContractErrorMap(contract) ?? currentTarget["~orpc"].errorMap;
++            const defaultCaptureStackTrace = addSpanStackTrace();
++            const effectHandler = {
++              defaultCaptureStackTrace,
++              effectFn
++            };
+             return new EffectDecoratedProcedure({
+               ...currentTarget["~orpc"],
+               errorMap: effectErrorMapToErrorMap(effectErrorMap),
+               effectErrorMap,
++              effectSteps: state.effectSteps,
++              effectHandler,
+               runner,
+               handler: createEffectProcedureHandler({
+                 runner,
+                 effectErrorMap,
+                 effectFn,
+-                defaultCaptureStackTrace: addSpanStackTrace()
++                effectSteps: state.effectSteps,
++                defaultCaptureStackTrace
+               })
+             });
+           };
+@@ -1728,15 +1810,28 @@ function wrapContractNode(contract, target, runner) {
+           return effect;
+         }
+         if (prop === "use") {
+-          const use = (...args) => wrapContractNode(
+-            contract,
+-            Reflect.apply(
+-              Reflect.get(currentTarget, prop, currentTarget),
+-              currentTarget,
+-              args
+-            ),
+-            runner
+-          );
++          const use = (...args) => {
++            const [middleware, mapInput] = args;
++            if (mapInput === void 0 && isEffectMiddleware(middleware)) {
++              return wrapContractNode(
++                contract,
++                currentTarget,
++                runner,
++                appendEffectMiddleware(state, middleware)
++              );
++            }
++            assertNativeMiddlewareCanFollow(state);
++            return wrapContractNode(
++              contract,
++              Reflect.apply(
++                Reflect.get(currentTarget, prop, currentTarget),
++                currentTarget,
++                args
++              ),
++              runner,
++              state
++            );
++          };
+           cache.set(prop, use);
+           return use;
+         }
+@@ -1744,7 +1839,7 @@ function wrapContractNode(contract, target, runner) {
+           return void 0;
+         }
+       } else {
+-        if (prop === "$context" || prop === "$config" || prop === "use") {
++        if (prop === "$context" || prop === "$config") {
+           const wrappedMethod = (...args) => wrapContractNode(
+             contract,
+             Reflect.apply(
+@@ -1752,20 +1847,62 @@ function wrapContractNode(contract, target, runner) {
+               currentTarget,
+               args
+             ),
+-            runner
++            runner,
++            state
+           );
+           cache.set(prop, wrappedMethod);
+           return wrappedMethod;
+         }
++        if (prop === "use") {
++          const use = (...args) => {
++            const [middleware, mapInput] = args;
++            if (mapInput === void 0 && isEffectMiddleware(middleware)) {
++              return wrapContractNode(
++                contract,
++                currentTarget,
++                runner,
++                appendEffectMiddleware(state, middleware)
++              );
++            }
++            assertNativeMiddlewareCanFollow(state);
++            return wrapContractNode(
++              contract,
++              Reflect.apply(
++                Reflect.get(currentTarget, prop, currentTarget),
++                currentTarget,
++                args
++              ),
++              runner,
++              state
++            );
++          };
++          cache.set(prop, use);
++          return use;
++        }
+         if (prop === "router" || prop === "lazy") {
+-          const wrappedMethod = (...args) => enhanceEffectRouter(
+-            Reflect.apply(
++          const wrappedMethod = (...args) => {
++            let lazyEffectStateSource;
++            const appliedArgs = [...args];
++            if (prop === "lazy") {
++              const loader = args[0];
++              appliedArgs[0] = async () => {
++                const loaded = await loader();
++                lazyEffectStateSource = loaded.default;
++                return loaded;
++              };
++            }
++            const enhancedRouter = Reflect.apply(
+               Reflect.get(currentTarget, prop, currentTarget),
+               currentTarget,
+-              args
+-            ),
+-            makeEnhanceOptions(runner)
+-          );
++              appliedArgs
++            );
++            return enhanceEffectRouter(
++              enhancedRouter,
++              makeEnhanceOptions(runner),
++              prop === "router" ? args[0] : () => lazyEffectStateSource,
++              state.effectSteps
++            );
++          };
+           cache.set(prop, wrappedMethod);
+           return wrappedMethod;
+         }
+@@ -1773,7 +1910,8 @@ function wrapContractNode(contract, target, runner) {
+           const child = wrapContractNode(
+             contract[prop],
+             Reflect.get(currentTarget, prop, receiver),
+-            runner
++            runner,
++            state
+           );
+           cache.set(prop, child);
+           return child;
 diff --git a/package.json b/package.json
-index 090229169f12cccdbf38c135b8242317bdde99a4..9cbd7356210acbccde8b64c9765bdfad9a0ec5a9 100644
+index 090229169f12cccdbf38c135b8242317bdde99a4..feecbb90135f8e93b19f2b72107f1d06f28743a6 100644
 --- a/package.json
 +++ b/package.json
 @@ -20,8 +20,14 @@
@@ -19,3 +305,588 @@ index 090229169f12cccdbf38c135b8242317bdde99a4..9cbd7356210acbccde8b64c9765bdfad
    },
    "publishConfig": {
      "exports": {
+@@ -61,6 +67,6 @@
+     "@orpc/server": ">=1.13.0",
+     "@orpc/shared": ">=1.13.0",
+     "effect": ">=3.18.0",
+-    "typescript": "^5"
++    "typescript": "^5 || ^6"
+   }
+ }
+diff --git a/src/contract.ts b/src/contract.ts
+index 4ea8d0f90280b5b8dfd1e8af589978acd8585cd5..ccaef6894d8d7730cfec8a1e4e3b1d91fa12478f 100644
+--- a/src/contract.ts
++++ b/src/contract.ts
+@@ -11,6 +11,7 @@ import type {
+ } from "@orpc/contract";
+ import { isContractProcedure } from "@orpc/contract";
+ import type {
++  AnyRouter,
+   BuilderConfig,
+   BuilderDef,
+   Context,
+@@ -32,7 +33,10 @@ import type { Layer, ManagedRuntime } from "effect";
+ import { addSpanStackTrace } from "./effect-builder";
+ import { enhanceEffectRouter } from "./effect-enhance-router";
+ import { EffectDecoratedProcedure } from "./effect-procedure";
+-import { createEffectProcedureHandler } from "./effect-runtime";
++import {
++  createEffectProcedureHandler,
++  isEffectMiddleware,
++} from "./effect-runtime";
+ import { effectContractSymbol, getEffectContractErrorMap } from "./eoc";
+ import type {
+   EffectRuntimeRunner,
+@@ -41,7 +45,12 @@ import type {
+ import { makeEffectRuntimeRunner } from "./runtime-source";
+ import type { EffectErrorMap } from "./tagged-error";
+ import { effectErrorMapToErrorMap } from "./tagged-error";
+-import type { EffectErrorMapToErrorMap, EffectProcedureHandler } from "./types";
++import type {
++  EffectErrorMapToErrorMap,
++  EffectOrORPCMiddleware,
++  EffectPipelineStep,
++  EffectProcedureHandler,
++} from "./types";
+
+ type ContractLeafEffectHandler<
+   TCurrentContext extends Context,
+@@ -90,12 +99,13 @@ export interface EffectProcedureImplementer<
+     UOutContext extends IntersectPick<TCurrentContext, UOutContext>,
+     UInContext extends Context = TCurrentContext,
+   >(
+-    middleware: Middleware<
++    middleware: EffectOrORPCMiddleware<
+       UInContext | TCurrentContext,
+       UOutContext,
+       InferSchemaOutput<TInputSchema>,
+       InferSchemaInput<TOutputSchema>,
+-      ORPCErrorConstructorMap<EffectErrorMapToErrorMap<TErrorMap>>,
++      TErrorMap,
++      TRequirementsProvided,
+       TMeta
+     >,
+   ): EffectProcedureImplementer<
+@@ -218,12 +228,13 @@ export type EffectImplementerInternal<
+           UOutContext extends IntersectPick<TCurrentContext, UOutContext>,
+           UInContext extends Context = TCurrentContext,
+         >(
+-          middleware: Middleware<
++          middleware: EffectOrORPCMiddleware<
+             UInContext | TCurrentContext,
+             UOutContext,
+             unknown,
+             unknown,
+-            ORPCErrorConstructorMap<InferContractRouterErrorMap<TContract>>,
++            InferContractRouterErrorMap<TContract>,
++            TRequirementsProvided,
+             InferContractRouterMeta<TContract>
+           >,
+         ): EffectImplementerInternal<
+@@ -329,6 +340,33 @@ function makeEnhanceOptions<TRequirementsProvided, TRuntimeError>(
+   } as const;
+ }
+
++interface ImplementEffectState {
++  readonly effectSteps?: readonly EffectPipelineStep[];
++}
++
++function appendEffectMiddleware(
++  state: ImplementEffectState,
++  middleware: Extract<
++    EffectPipelineStep,
++    { readonly _tag: "middleware" }
++  >["middleware"],
++): ImplementEffectState {
++  return {
++    effectSteps: [
++      ...(state.effectSteps ?? []),
++      { _tag: "middleware", middleware },
++    ],
++  };
++}
++
++function assertNativeMiddlewareCanFollow(state: ImplementEffectState): void {
++  if (state.effectSteps?.length) {
++    throw new Error(
++      "Native oRPC middleware cannot follow Effect middleware on an Effect implementer; register native middleware first.",
++    );
++  }
++}
++
+ function wrapContractNode<
+   TContract extends AnyContractRouter,
+   TRequirementsProvided,
+@@ -337,6 +375,7 @@ function wrapContractNode<
+   contract: TContract,
+   target: any,
+   runner: EffectRuntimeRunner<TRequirementsProvided, TRuntimeError>,
++  state: ImplementEffectState = {},
+ ): EffectImplementerInternal<
+   TContract,
+   Context,
+@@ -360,17 +399,25 @@ function wrapContractNode<
+             const effectErrorMap =
+               getEffectContractErrorMap(contract) ??
+               currentTarget["~orpc"].errorMap;
++            const defaultCaptureStackTrace = addSpanStackTrace();
++            const effectHandler = {
++              defaultCaptureStackTrace,
++              effectFn,
++            };
+
+             return new EffectDecoratedProcedure({
+               ...currentTarget["~orpc"],
+               errorMap: effectErrorMapToErrorMap(effectErrorMap),
+               effectErrorMap,
++              effectSteps: state.effectSteps,
++              effectHandler,
+               runner,
+               handler: createEffectProcedureHandler({
+                 runner,
+                 effectErrorMap,
+                 effectFn,
+-                defaultCaptureStackTrace: addSpanStackTrace(),
++                effectSteps: state.effectSteps,
++                defaultCaptureStackTrace,
+               }),
+             });
+           };
+@@ -380,8 +427,19 @@ function wrapContractNode<
+         }
+
+         if (prop === "use") {
+-          const use = (...args: unknown[]) =>
+-            wrapContractNode(
++          const use = (...args: unknown[]) => {
++            const [middleware, mapInput] = args;
++            if (mapInput === undefined && isEffectMiddleware(middleware)) {
++              return wrapContractNode(
++                contract,
++                currentTarget,
++                runner,
++                appendEffectMiddleware(state, middleware),
++              );
++            }
++
++            assertNativeMiddlewareCanFollow(state);
++            return wrapContractNode(
+               contract,
+               Reflect.apply(
+                 Reflect.get(currentTarget, prop, currentTarget),
+@@ -389,7 +447,9 @@ function wrapContractNode<
+                 args,
+               ),
+               runner,
++              state,
+             );
++          };
+
+           cache.set(prop, use);
+           return use;
+@@ -399,7 +459,7 @@ function wrapContractNode<
+           return undefined;
+         }
+       } else {
+-        if (prop === "$context" || prop === "$config" || prop === "use") {
++        if (prop === "$context" || prop === "$config") {
+           const wrappedMethod = (...args: unknown[]) =>
+             wrapContractNode(
+               contract,
+@@ -409,22 +469,70 @@ function wrapContractNode<
+                 args,
+               ),
+               runner,
++              state,
+             );
+
+           cache.set(prop, wrappedMethod);
+           return wrappedMethod;
+         }
+
+-        if (prop === "router" || prop === "lazy") {
+-          const wrappedMethod = (...args: unknown[]) =>
+-            enhanceEffectRouter(
++        if (prop === "use") {
++          const use = (...args: unknown[]) => {
++            const [middleware, mapInput] = args;
++            if (mapInput === undefined && isEffectMiddleware(middleware)) {
++              return wrapContractNode(
++                contract,
++                currentTarget,
++                runner,
++                appendEffectMiddleware(state, middleware),
++              );
++            }
++
++            assertNativeMiddlewareCanFollow(state);
++            return wrapContractNode(
++              contract,
+               Reflect.apply(
+                 Reflect.get(currentTarget, prop, currentTarget),
+                 currentTarget,
+                 args,
+-              ) as any,
++              ),
++              runner,
++              state,
++            );
++          };
++
++          cache.set(prop, use);
++          return use;
++        }
++
++        if (prop === "router" || prop === "lazy") {
++          const wrappedMethod = (...args: unknown[]) => {
++            let lazyEffectStateSource: AnyRouter | undefined;
++            const appliedArgs = [...args];
++            if (prop === "lazy") {
++              const loader = args[0] as () => Promise<{
++                default: AnyRouter;
++              }>;
++              appliedArgs[0] = async () => {
++                const loaded = await loader();
++                lazyEffectStateSource = loaded.default;
++                return loaded;
++              };
++            }
++            const enhancedRouter = Reflect.apply(
++              Reflect.get(currentTarget, prop, currentTarget),
++              currentTarget,
++              appliedArgs,
++            ) as any;
++            return enhanceEffectRouter(
++              enhancedRouter,
+               makeEnhanceOptions(runner),
++              prop === "router"
++                ? (args[0] as any)
++                : () => lazyEffectStateSource,
++              state.effectSteps,
+             );
++          };
+
+           cache.set(prop, wrappedMethod);
+           return wrappedMethod;
+@@ -435,6 +543,7 @@ function wrapContractNode<
+             (contract as Record<string, AnyContractRouter>)[prop]!,
+             Reflect.get(currentTarget, prop, receiver),
+             runner,
++            state,
+           );
+
+           cache.set(prop, child);
+diff --git a/src/effect-enhance-router.ts b/src/effect-enhance-router.ts
+index db21595d66c28a4e6e94e6ce52cc835d094a21ed..2bafa067200fd8fc40dd0f4907ffddd74118716a 100644
+--- a/src/effect-enhance-router.ts
++++ b/src/effect-enhance-router.ts
+@@ -18,10 +18,15 @@ import {
+ } from "@orpc/server";
+
+ import { EffectProcedure } from "./effect-procedure";
++import { createEffectProcedureHandler } from "./effect-runtime";
+ import { getEffectErrorMap, unwrapEffectUpstream } from "./extension/state";
+ import type { EffectRuntimeRunner } from "./runtime-source";
+ import { effectErrorMapToErrorMap, type EffectErrorMap } from "./tagged-error";
+-import type { EffectErrorMapToErrorMap, EnhancedEffectRouter } from "./types";
++import type {
++  EffectErrorMapToErrorMap,
++  EffectPipelineStep,
++  EnhancedEffectRouter,
++} from "./types";
+
+ interface EnhanceEffectRouterOptions<
+   TEffectErrorMap extends EffectErrorMap,
+@@ -34,6 +39,61 @@ interface EnhanceEffectRouterOptions<
+   runner: EffectRuntimeRunner<TRequirementsProvided, TRuntimeError>;
+ }
+
++type EffectStateSource = AnyRouter | (() => AnyRouter | undefined);
++
++function sameEffectStep(
++  left: EffectPipelineStep,
++  right: EffectPipelineStep,
++): boolean {
++  if (left._tag !== right._tag) {
++    return false;
++  }
++
++  switch (left._tag) {
++    case "middleware":
++      return (
++        right._tag === "middleware" && left.middleware === right.middleware
++      );
++    case "provide":
++      return (
++        right._tag === "provide" &&
++        left.tag === right.tag &&
++        left.provider === right.provider
++      );
++    case "provideOptional":
++      return (
++        right._tag === "provideOptional" &&
++        left.tag === right.tag &&
++        left.provider === right.provider
++      );
++    case "provideLayer":
++      return right._tag === "provideLayer" && left.layer === right.layer;
++  }
++}
++
++function mergeEffectStepPrefix(
++  prefix: readonly EffectPipelineStep[] | undefined,
++  steps: readonly EffectPipelineStep[] | undefined,
++): readonly EffectPipelineStep[] | undefined {
++  if (!prefix?.length) {
++    return steps;
++  }
++  if (!steps?.length) {
++    return prefix;
++  }
++
++  let sharedPrefixLength = 0;
++  const comparableLength = Math.min(prefix.length, steps.length);
++  while (
++    sharedPrefixLength < comparableLength &&
++    sameEffectStep(prefix[sharedPrefixLength]!, steps[sharedPrefixLength]!)
++  ) {
++    sharedPrefixLength += 1;
++  }
++
++  return [...prefix, ...steps.slice(sharedPrefixLength)];
++}
++
+ export function enhanceEffectRouter<
+   T extends Lazyable<AnyRouter>,
+   TInitialContext extends Context,
+@@ -48,6 +108,8 @@ export function enhanceEffectRouter<
+     TRequirementsProvided,
+     TRuntimeError
+   >,
++  effectStateSource?: EffectStateSource,
++  effectStepPrefix?: readonly EffectPipelineStep[],
+ ): EnhancedEffectRouter<T, TInitialContext, TCurrentContext, TEffectErrorMap> {
+   if (isLazy(router)) {
+     const laziedMeta = getLazyMeta(router);
+@@ -58,7 +120,16 @@ export function enhanceEffectRouter<
+     const enhanced = lazy(
+       async () => {
+         const { default: unlaziedRouter } = await unlazy(router);
+-        const wrappedRouter = enhanceEffectRouter(unlaziedRouter, options);
++        const resolvedEffectStateSource =
++          typeof effectStateSource === "function"
++            ? effectStateSource()
++            : effectStateSource;
++        const wrappedRouter = enhanceEffectRouter(
++          unlaziedRouter,
++          options,
++          resolvedEffectStateSource,
++          effectStepPrefix,
++        );
+         return unlazy(wrappedRouter);
+       },
+       {
+@@ -71,12 +142,19 @@ export function enhanceEffectRouter<
+   }
+
+   if (isProcedure(router)) {
++    const staticEffectStateSource =
++      typeof effectStateSource === "function" ? undefined : effectStateSource;
++    const effectDef =
++      (staticEffectStateSource as any)?.["~effect"] ??
++      (router as any)["~effect"];
+     const source = unwrapEffectUpstream(router);
+     const sourceEffectErrorMap = getEffectErrorMap(router);
+     const middlewares = mergeMiddlewares(
+       options.middlewares,
+       source["~orpc"].middlewares,
+-      { dedupeLeading: options.dedupeLeadingMiddlewares },
++      {
++        dedupeLeading: options.dedupeLeadingMiddlewares,
++      },
+     );
+     const newMiddlewareAdded =
+       middlewares.length - source["~orpc"].middlewares.length;
+@@ -86,12 +164,30 @@ export function enhanceEffectRouter<
+     };
+     const errorMap: EffectErrorMapToErrorMap<typeof effectErrorMap> =
+       effectErrorMapToErrorMap(effectErrorMap);
++    const effectSteps = mergeEffectStepPrefix(
++      effectStepPrefix,
++      effectDef?.effectSteps,
++    );
++    const effectHandler = effectDef?.effectHandler;
++    const handler = effectHandler
++      ? createEffectProcedureHandler({
++          defaultCaptureStackTrace: effectHandler.defaultCaptureStackTrace,
++          effectErrorMap,
++          effectFn: effectHandler.effectFn,
++          effectSteps,
++          runner: options.runner,
++          spanConfig: effectHandler.spanConfig,
++        })
++      : source["~orpc"].handler;
+
+     return new EffectProcedure({
+       ...source["~orpc"],
+       route: enhanceRoute(source["~orpc"].route, options),
+       effectErrorMap,
++      effectSteps,
++      effectHandler,
+       errorMap: errorMap as EffectErrorMapToErrorMap<typeof effectErrorMap>,
++      handler,
+       middlewares,
+       inputValidationIndex:
+         source["~orpc"].inputValidationIndex + newMiddlewareAdded,
+@@ -102,9 +198,16 @@ export function enhanceEffectRouter<
+   }
+
+   const enhanced: Record<string, any> = {};
++  const staticEffectStateSource =
++    typeof effectStateSource === "function" ? undefined : effectStateSource;
+
+   for (const key in router) {
+-    enhanced[key] = enhanceEffectRouter(router[key]!, options);
++    enhanced[key] = enhanceEffectRouter(
++      router[key]!,
++      options,
++      (staticEffectStateSource as any)?.[key],
++      effectStepPrefix,
++    );
+   }
+
+   return enhanced as any;
+diff --git a/src/index.ts b/src/index.ts
+index 1f72acec7b4fb502859e3b7c76da28e206102490..3a7f93a4877aa512ccca781a2ad0fdaa535aee7e 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -19,7 +19,7 @@ export {
+   eos,
+   makeEffectORPC,
+ } from "./effect-builder";
+-export { EffectDecoratedProcedure } from "./effect-procedure";
++export { EffectDecoratedProcedure, type EffectProcedure } from "./effect-procedure";
+ export {
+   createEffectErrorConstructorMap,
+   effectErrorMapToErrorMap,
+@@ -50,6 +50,9 @@ export type {
+   EffectDecoratedProcedureSurface,
+   EffectBuilderWithMiddlewares,
+   EffectErrorMapToErrorMap,
++  EffectMiddlewareOptions,
++  EffectMiddlewareResult,
++  EffectOrORPCMiddleware,
+   EffectProcedureBuilder,
+   EffectProcedureBuilderWithInput,
+   EffectProcedureBuilderWithInputOutput,
+diff --git a/src/tests/contract.test.ts b/src/tests/contract.test.ts
+index baf4096c3209b6353df0a4a3a1b81291aff9b2b7..8cd4937893edc76cb4a1367b946ed62e94687271 100644
+--- a/src/tests/contract.test.ts
++++ b/src/tests/contract.test.ts
+@@ -1,7 +1,7 @@
+ import { oc, type InferSchemaOutput } from "@orpc/contract";
+-import { call, ORPCError, type Router } from "@orpc/server";
++import { call, ORPCError, type Router, unlazy } from "@orpc/server";
+ import { Effect, FiberRef, Layer, ManagedRuntime } from "effect";
+-import { describe, expect, expectTypeOf, it } from "vitest";
++import { describe, expect, expectTypeOf, it, vi } from "vitest";
+ import z from "zod";
+
+ import { eoc, implementEffect, ORPCTaggedError } from "../index";
+@@ -62,6 +62,96 @@ describe("implementEffect", () => {
+     });
+   });
+
++  it("prefixes implementer Effect middleware onto a prebuilt router leaf", async () => {
++    const runPromiseExit = vi.spyOn(runtime, "runPromiseExit");
++    const calls: string[] = [];
++    const base = implementEffect(contract, runtime);
++    const list = base.users.list.effect(function* ({ input }) {
++      calls.push("handler");
++      return { next: input.amount + 1, requestId: "prebuilt-leaf" };
++    });
++    const router = base
++      .use(function* ({ next }) {
++        calls.push("common:before");
++        const result = yield* next();
++        calls.push("common:after");
++        return result;
++      })
++      .router({ users: { list } });
++
++    expect(router.users.list["~effect"].effectSteps).toHaveLength(1);
++    await expect(call(router.users.list, { amount: 2 })).resolves.toEqual({
++      next: 3,
++      requestId: "prebuilt-leaf",
++    });
++    expect(calls).toEqual(["common:before", "handler", "common:after"]);
++    expect(runPromiseExit).toHaveBeenCalledTimes(1);
++    runPromiseExit.mockRestore();
++  });
++
++  it("deduplicates implementer middleware already present on a post-use leaf", async () => {
++    const runPromiseExit = vi.spyOn(runtime, "runPromiseExit");
++    const calls: string[] = [];
++    const oe = implementEffect(contract, runtime).use(function* ({ next }) {
++      calls.push("common:before");
++      const result = yield* next();
++      calls.push("common:after");
++      return result;
++    });
++    const list = oe.users.list
++      .effect(function* ({ input }) {
++        calls.push("handler");
++        return { next: input.amount + 1, requestId: "one-boundary" };
++      })
++      .use(function* ({ next }) {
++        calls.push("procedure:before");
++        return yield* next();
++      });
++    const router = oe.router({ users: { list } });
++
++    expect(router.users.list["~effect"].effectSteps).toHaveLength(2);
++    await expect(call(router.users.list, { amount: 2 })).resolves.toEqual({
++      next: 3,
++      requestId: "one-boundary",
++    });
++    expect(calls).toEqual([
++      "common:before",
++      "procedure:before",
++      "handler",
++      "common:after",
++    ]);
++    expect(runPromiseExit).toHaveBeenCalledTimes(1);
++    runPromiseExit.mockRestore();
++  });
++
++  it("prefixes implementer Effect middleware onto a prebuilt lazy leaf", async () => {
++    const runPromiseExit = vi.spyOn(runtime, "runPromiseExit");
++    const calls: string[] = [];
++    const base = implementEffect(contract, runtime);
++    const list = base.users.list.effect(function* ({ input }) {
++      calls.push("handler");
++      return { next: input.amount + 1, requestId: "lazy-prebuilt-leaf" };
++    });
++    const lazyRouter = base
++      .use(function* ({ next }) {
++        calls.push("common:before");
++        const result = yield* next();
++        calls.push("common:after");
++        return result;
++      })
++      .lazy(async () => ({ default: { users: { list } } }));
++    const { default: router } = await unlazy(lazyRouter);
++
++    expect(router.users.list["~effect"].effectSteps).toHaveLength(1);
++    await expect(call(router.users.list, { amount: 2 })).resolves.toEqual({
++      next: 3,
++      requestId: "lazy-prebuilt-leaf",
++    });
++    expect(calls).toEqual(["common:before", "handler", "common:after"]);
++    expect(runPromiseExit).toHaveBeenCalledTimes(1);
++    runPromiseExit.mockRestore();
++  });
++
+   it("can implement a contract directly from a Layer", async () => {
+     const CounterLive = Layer.succeed(Counter, {
+       increment: (n: number) => Effect.succeed(n + 1),

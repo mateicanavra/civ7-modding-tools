@@ -1,13 +1,17 @@
-import { runInGame, typeboxInputSchemaFromContractProcedure } from "@civ7/studio-contract";
+import {
+  type JsonWireObject,
+  type MapConfigEnvelope,
+  runInGame,
+  typeboxInputSchemaFromContractProcedure,
+} from "@civ7/studio-contract";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { Value } from "typebox/value";
 import { describe, expect, it } from "vitest";
 
 import { buildRunInGameStartRequest } from "../../src/features/runInGame/api";
-import { assertNoRawControlFields } from "../../src/server/runInGame/requestValidation";
 
 describe("Run in Game request validation", () => {
-  it("rejects raw-control top-level tunnel fields in TypeBox and nested fields in host validation", () => {
+  it("rejects undeclared raw-control tunnel fields at the public boundary", () => {
     const startInputSchema = typeboxInputSchemaFromContractProcedure(runInGame.start);
     const rawKeys = [
       "args",
@@ -25,45 +29,7 @@ describe("Run in Game request validation", () => {
     for (const key of rawKeys) {
       const topLevelPayload = validRunInGameRequest({ [key]: "raw-control" });
       expect(Value.Check(startInputSchema, topLevelPayload)).toBe(false);
-      expect(() => assertNoRawControlFields(topLevelPayload)).toThrow("raw control commands");
-
-      const nestedPayload = validRunInGameRequest({
-        source: {
-          kind: "editor",
-          editorSessionId: "studio-current",
-          canonicalConfig: canonicalEditorConfig({
-            nested: {
-              [key]: "raw-control",
-            },
-          }),
-        },
-      });
-      expect(Value.Check(startInputSchema, nestedPayload)).toBe(true);
-      expect(() => assertNoRawControlFields(nestedPayload)).toThrow("raw control commands");
     }
-  });
-
-  it("rejects raw control command fields anywhere in the payload", () => {
-    expect(() =>
-      assertNoRawControlFields({
-        config: {
-          nested: {
-            rawJs: "UI.notifyUIReady()",
-          },
-        },
-      })
-    ).toThrow("raw control commands");
-    expect(() =>
-      assertNoRawControlFields({
-        config: {
-          operations: [
-            {
-              rawCommand: "GameplayMap.revealAll()",
-            },
-          ],
-        },
-      })
-    ).toThrow("raw control commands");
   });
 
   it("rejects undeclared private-looking top-level fields in the contract", () => {
@@ -99,7 +65,7 @@ describe("Run in Game request validation", () => {
     ).toBe(true);
   });
 
-  it("requires the editor's complete canonical envelope at the oRPC boundary", () => {
+  it("requires one complete canonical envelope at the oRPC boundary", () => {
     const startInputSchema = typeboxInputSchemaFromContractProcedure(runInGame.start);
     const complete = validRunInGameRequest();
 
@@ -107,16 +73,13 @@ describe("Run in Game request validation", () => {
     expect(
       Value.Check(startInputSchema, {
         ...complete,
-        source: {
-          ...(complete.source as Record<string, unknown>),
-          canonicalConfig: {
-            id: "studio-current",
-            name: "Studio Current",
-            description: "Incomplete editor envelope.",
-            recipe: "standard",
-            sortIndex: 9999,
-            config: { ok: true },
-          },
+        canonicalConfig: {
+          id: "studio-current",
+          name: "Studio Current",
+          description: "Incomplete config envelope.",
+          recipe: "standard",
+          sortIndex: 9999,
+          config: { ok: true },
         },
       })
     ).toBe(false);
@@ -186,16 +149,8 @@ describe("Run in Game request validation", () => {
     };
 
     const request = buildRunInGameStartRequest({
-      source: {
-        kind: "editor",
-        editorSessionId: "studio-current",
-        canonicalConfig: canonicalEditorConfig({ continents: { targetLandRatio: 0.42 } }),
-      },
-      recipeSettings: {
-        preset: "none",
-        recipe: "mod-swooper-maps/standard",
-        seed: "1538316415",
-      },
+      canonicalConfig: canonicalConfig({ continents: { targetLandRatio: 0.42 } }),
+      seed: "1538316415",
       worldSettings: {
         mapSize: "MAPSIZE_HUGE",
         playerCount: 10,
@@ -206,16 +161,8 @@ describe("Run in Game request validation", () => {
 
     expect(Value.Check(startInputSchema, request)).toBe(true);
     expect(request).toEqual({
-      source: {
-        kind: "editor",
-        editorSessionId: "studio-current",
-        canonicalConfig: canonicalEditorConfig({ continents: { targetLandRatio: 0.42 } }),
-      },
-      recipeSettings: {
-        preset: "none",
-        recipe: "mod-swooper-maps/standard",
-        seed: "1538316415",
-      },
+      canonicalConfig: canonicalConfig({ continents: { targetLandRatio: 0.42 } }),
+      seed: "1538316415",
       worldSettings: {
         mapSize: "MAPSIZE_HUGE",
         playerCount: 10,
@@ -223,51 +170,13 @@ describe("Run in Game request validation", () => {
       },
       setupConfig,
     });
-    expect(() => assertNoRawControlFields(request)).not.toThrow();
-  });
-
-  it("serializes a catalog launch to its source path without catalog bytes", () => {
-    const request = buildRunInGameStartRequest({
-      source: {
-        kind: "catalog",
-        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-        canonicalConfig: canonicalEditorConfig({ continents: { targetLandRatio: 0.42 } }),
-      },
-      recipeSettings: {
-        preset: "builtin:swooper-earthlike",
-        recipe: "mod-swooper-maps/standard",
-        seed: "123",
-      },
-      worldSettings: {
-        mapSize: "MAPSIZE_STANDARD",
-        playerCount: 6,
-        resources: "balanced",
-      },
-      setupConfig: {
-        gameOptions: {},
-        playerOptions: [{ playerId: 0, options: {} }],
-      },
-    });
-
-    expect(request.source).toEqual({
-      kind: "catalog",
-      sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-    });
-    expect(request.source).not.toHaveProperty("canonicalConfig");
   });
 });
 
 function validRunInGameRequest(extra?: Record<string, unknown>): Record<string, unknown> {
   return {
-    source: {
-      kind: "editor",
-      editorSessionId: "studio-current",
-      canonicalConfig: canonicalEditorConfig({ ok: true }),
-    },
-    recipeSettings: {
-      recipe: "mod-swooper-maps/standard",
-      seed: 123,
-    },
+    canonicalConfig: canonicalConfig({ ok: true }),
+    seed: 123,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },
@@ -275,7 +184,7 @@ function validRunInGameRequest(extra?: Record<string, unknown>): Record<string, 
   };
 }
 
-function canonicalEditorConfig(config: Record<string, unknown>) {
+function canonicalConfig(config: JsonWireObject): MapConfigEnvelope {
   return {
     id: "studio-current",
     name: "Studio Current",

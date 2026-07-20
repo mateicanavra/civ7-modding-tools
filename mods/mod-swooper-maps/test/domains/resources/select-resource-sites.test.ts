@@ -1,8 +1,10 @@
 import { describe, expect, it } from "bun:test";
+import { admitPositiveResourceRegionMinimum } from "@mapgen/domain/resources";
 
 import resources from "@mapgen/domain/resources/ops";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
+import { artifactModules as placementArtifactModules } from "../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { runOpValidated } from "../../support/compiler-helpers.js";
 
 type SelectInput = Parameters<typeof resources.ops.selectResourceSites.run>[0];
@@ -10,7 +12,7 @@ type Demand = Pick<
   SelectInput["demands"][number],
   "resourceType" | "weight" | "targetCount" | "minCount" | "maxCount"
 > &
-  Partial<Pick<SelectInput["demands"][number], "minimumPerHemisphere" | "requiredForAge">>;
+  Partial<Pick<SelectInput["demands"][number], "regionMinimumRequirement">>;
 
 function buildInput(args: {
   width: number;
@@ -45,8 +47,10 @@ function buildInput(args: {
       targetCount: demand.targetCount,
       minCount: demand.minCount,
       maxCount: demand.maxCount,
-      minimumPerHemisphere: demand.minimumPerHemisphere ?? 0,
-      requiredForAge: demand.requiredForAge ?? false,
+      regionMinimumRequirement: demand.regionMinimumRequirement ?? {
+        kind: "not-applicable",
+        reason: "no-official-minimum",
+      },
       habitatMask: allLand,
       legalMask: allLand,
       intensity,
@@ -140,8 +144,8 @@ describe("select-resource-sites operation contract", () => {
     }
   });
 
-  it("records typed shortfalls instead of breaking floors when minimums are unreachable", () => {
-    // 4x3 grid with min 8: spacing floors make 8 placements impossible.
+  it("records one truthful terminal deficit when complete site admission ends", () => {
+    // The 4x3 periodic grid can satisfy the floor but not the target while preserving spacing.
     const result = run(
       buildInput({
         width: 4,
@@ -151,44 +155,244 @@ describe("select-resource-sites operation contract", () => {
             resourceType: "RESOURCE_A",
             weight: 10,
             targetCount: 8,
-            minCount: 8,
+            minCount: 1,
             maxCount: 10,
           },
         ],
       })
     );
     const row = result.perType[0]!;
-    expect(row.plannedCount).toBeLessThan(row.minCount);
-    const shortfall = row.shortfalls.reduce((sum, item) => sum + item.count, 0);
-    expect(shortfall).toBeGreaterThan(0);
+    expect(row.plannedCount).toBeGreaterThanOrEqual(row.minCount);
+    expect(row.plannedCount).toBeLessThan(row.effectiveTargetCount);
+    expect(row.shortfalls).toEqual([
+      {
+        resourceType: "RESOURCE_A",
+        reason: "no-admitted-site",
+        count: row.effectiveTargetCount - row.plannedCount,
+      },
+    ]);
   });
 
-  it("forces region minimums for required-for-age types with typed provenance (E2.2)", () => {
-    const result = run(
+  it("collapses a terminal deficit with no legal site to complete admission failure", () => {
+    const input = buildInput({
+      width: 4,
+      height: 3,
+      demands: [
+        {
+          resourceType: "RESOURCE_A",
+          weight: 10,
+          targetCount: 1,
+          minCount: 1,
+          maxCount: 1,
+        },
+      ],
+    });
+    input.demands[0]!.legalMask.fill(0);
+
+    expect(run(input).perType[0]!.shortfalls).toEqual([
+      {
+        resourceType: "RESOURCE_A",
+        reason: "no-admitted-site",
+        count: 1,
+      },
+    ]);
+  });
+
+  it("records a shortfall instead of widening range repair beyond habitat admission", () => {
+    const input = buildInput({
+      width: 8,
+      height: 6,
+      demands: [
+        {
+          resourceType: "RESOURCE_A",
+          weight: 10,
+          targetCount: 4,
+          minCount: 2,
+          maxCount: 4,
+        },
+      ],
+    });
+    input.demands[0]!.habitatMask.fill(0);
+
+    const result = run(input);
+    expect(result.intents).toEqual([]);
+    expect(result.perType[0]?.shortfalls).toEqual([
+      {
+        resourceType: "RESOURCE_A",
+        reason: "no-admitted-site",
+        count: 4,
+      },
+    ]);
+  });
+
+  it("rejects stale terminal deficit evidence at the resource-plan artifact boundary", () => {
+    const input = buildInput({
+      width: 4,
+      height: 3,
+      demands: [
+        {
+          resourceType: "RESOURCE_A",
+          weight: 10,
+          targetCount: 8,
+          minCount: 1,
+          maxCount: 10,
+        },
+      ],
+    });
+    const result = run(input);
+    const context = { dimensions: { width: input.width, height: input.height } };
+    expect(placementArtifactModules.resourcePlan.validate(result, context)).toEqual([]);
+
+    const missing = structuredClone(result);
+    missing.perType[0]!.shortfalls.splice(0);
+    expect(
+      placementArtifactModules.resourcePlan
+        .validate(missing, context)
+        .some((entry) => entry.message.includes("requires one terminal shortfall"))
+    ).toBe(true);
+
+    const wrongType = structuredClone(result);
+    wrongType.perType[0]!.shortfalls[0]!.resourceType = "RESOURCE_B";
+    expect(
+      placementArtifactModules.resourcePlan
+        .validate(wrongType, context)
+        .some((entry) => entry.message.includes("names another resource type"))
+    ).toBe(true);
+
+    const wrongCount = structuredClone(result);
+    wrongCount.perType[0]!.shortfalls[0]!.count += 1;
+    expect(
+      placementArtifactModules.resourcePlan
+        .validate(wrongCount, context)
+        .some((entry) => entry.message.includes("terminal deficit"))
+    ).toBe(true);
+
+    const stale = structuredClone(result);
+    stale.perType[0]!.effectiveTargetCount = stale.perType[0]!.plannedCount;
+    expect(
+      placementArtifactModules.resourcePlan
+        .validate(stale, context)
+        .some((entry) => entry.message.includes("requires no terminal shortfall"))
+    ).toBe(true);
+  });
+
+  it("runs the region-minimum force pass only for an admitted required state (E2.2)", () => {
+    const demand = {
+      resourceType: "RESOURCE_REQ",
+      weight: 10,
+      targetCount: 0,
+      minCount: 0,
+      maxCount: 12,
+    } as const;
+    const required = run(
       buildInput({
         width: 24,
         height: 16,
         demands: [
           {
-            resourceType: "RESOURCE_REQ",
-            weight: 10,
-            targetCount: 2,
-            minCount: 0,
-            maxCount: 12,
-            minimumPerHemisphere: 3,
-            requiredForAge: true,
+            ...demand,
+            regionMinimumRequirement: {
+              kind: "required",
+              minimumPerHemisphere: admitPositiveResourceRegionMinimum(3),
+              source: "engine",
+            },
           },
         ],
       })
     );
-    expect(result.regionMinimums).toHaveLength(2);
-    for (const row of result.regionMinimums) {
+    expect(required.regionMinimums).toHaveLength(2);
+    for (const row of required.regionMinimums) {
       expect(row.required).toBe(3);
       expect(row.fromRotation + row.forced + row.shortfall).toBeGreaterThanOrEqual(row.required);
     }
-    const perType = result.perType[0]!;
+    const perType = required.perType[0]!;
     expect(perType.plannedCount).toBeGreaterThanOrEqual(4);
-    expect(result.intents.some((intent) => intent.phase === "region-minimum")).toBe(true);
+    expect(required.intents.some((intent) => intent.phase === "region-minimum")).toBe(true);
+
+    for (const regionMinimumRequirement of [
+      {
+        kind: "not-required",
+        minimumPerHemisphere: admitPositiveResourceRegionMinimum(3),
+        source: "engine",
+      },
+      {
+        kind: "unresolved",
+        minimumPerHemisphere: admitPositiveResourceRegionMinimum(3),
+        source: "engine-unavailable",
+      },
+    ] as const) {
+      const skipped = run(
+        buildInput({
+          width: 24,
+          height: 16,
+          demands: [{ ...demand, regionMinimumRequirement }],
+        })
+      );
+      expect(skipped.regionMinimums).toEqual([]);
+      expect(skipped.intents).toEqual([]);
+    }
+  });
+
+  it("keeps exclusion hard during the region-minimum force pass", () => {
+    const result = run(
+      buildInput({
+        width: 8,
+        height: 6,
+        demands: [
+          {
+            resourceType: "RESOURCE_A",
+            weight: 10,
+            targetCount: 1,
+            minCount: 1,
+            maxCount: 1,
+          },
+          {
+            resourceType: "RESOURCE_B",
+            weight: 10,
+            targetCount: 0,
+            minCount: 0,
+            maxCount: 2,
+            regionMinimumRequirement: {
+              kind: "required",
+              minimumPerHemisphere: admitPositiveResourceRegionMinimum(1),
+              source: "engine",
+            },
+          },
+        ],
+      }),
+      (config) => {
+        config.affinityRules = [
+          {
+            resourceA: "RESOURCE_A",
+            resourceB: "RESOURCE_B",
+            relation: "exclusion",
+            radiusTiles: 8,
+          },
+        ];
+      }
+    );
+
+    expect(result.intents.filter((row) => row.resourceType === "RESOURCE_A")).toHaveLength(1);
+    expect(result.intents.filter((row) => row.resourceType === "RESOURCE_B")).toEqual([]);
+    expect(result.regionMinimums).toEqual([
+      {
+        resourceType: "RESOURCE_B",
+        regionSlot: 1,
+        required: 1,
+        fromRotation: 0,
+        forced: 0,
+        shortfall: 1,
+      },
+      {
+        resourceType: "RESOURCE_B",
+        regionSlot: 2,
+        required: 1,
+        fromRotation: 0,
+        forced: 0,
+        shortfall: 1,
+      },
+    ]);
+    expect(result.perType.find((row) => row.resourceType === "RESOURCE_B")?.shortfalls).toEqual([]);
   });
 
   it("expresses sparsity at knob max and resource-resource exclusion (E3.4)", () => {

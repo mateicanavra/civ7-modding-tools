@@ -1,9 +1,13 @@
 // @vitest-environment jsdom
 import { act, renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Type } from "typebox";
+import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import { type UseVizSelectionArgs, useVizSelection } from "../../src/app/hooks/useVizSelection";
+import { getRecipeDefaultCanonicalConfig } from "../../src/features/configAuthoring/canonicalConfig";
+import { type LayerVariant, type StepDataTypeModel } from "../../src/features/viz/dataTypeModel";
+import type { VizLayerEntryV1 } from "../../src/features/viz/model";
 import type { UseVizStateResult } from "../../src/features/viz/useVizState";
-import type { StudioRecipeId } from "../../src/recipes/catalog";
+import type { RecipeArtifacts } from "../../src/recipes/catalog";
 import { useViewStore } from "../../src/stores/viewStore";
 import "./_setup";
 
@@ -11,33 +15,69 @@ import "./_setup";
 // from a fixed `dataTypeModel`/`selectedLayerKey` and its viz writes observed.
 // `getOverlaySuggestions` is mocked so the overlay group (EO-3/EO-4) has a
 // deterministic, recipe-independent suggestion catalog.
-const vizMock = vi.hoisted(() => ({ handle: null as unknown as UseVizStateResult }));
-const overlayMock = vi.hoisted(() => ({
-  suggestions: [] as Array<{
-    id: string;
-    label: string;
-    primaryDataTypeKey: string;
-    overlayDataTypeKey: string;
-  }>,
-}));
+type VizMockMethod =
+  | "ingest"
+  | "clearStream"
+  | "setSelectedStepId"
+  | "setSelectedLayerKey"
+  | "setShowDebugLayers";
+
+type VizTestHandle = Omit<UseVizStateResult, VizMockMethod> & {
+  ingest: Mock<UseVizStateResult["ingest"]>;
+  clearStream: Mock<UseVizStateResult["clearStream"]>;
+  setSelectedStepId: Mock<UseVizStateResult["setSelectedStepId"]>;
+  setSelectedLayerKey: Mock<UseVizStateResult["setSelectedLayerKey"]>;
+  setShowDebugLayers: Mock<UseVizStateResult["setShowDebugLayers"]>;
+};
+
+type OverlaySuggestion = {
+  id: string;
+  label: string;
+  primaryDataTypeKey: string;
+  overlayDataTypeKey: string;
+};
+
+const vizMock = vi.hoisted<{ handle: VizTestHandle | null }>(() => ({ handle: null }));
+const overlayMock = vi.hoisted<{ suggestions: OverlaySuggestion[] }>(() => ({ suggestions: [] }));
 
 vi.mock("../../src/features/viz/useVizState", () => ({
-  useVizState: vi.fn(() => vizMock.handle),
+  useVizState: vi.fn(() => {
+    if (vizMock.handle === null) throw new Error("Viz test handle is not initialized");
+    return vizMock.handle;
+  }),
 }));
 vi.mock("../../src/recipes/overlaySuggestions", () => ({
   getOverlaySuggestions: vi.fn(() => overlayMock.suggestions),
 }));
 
 // ---- model fixture builders ----------------------------------------------
-function variant(variantId: string, layerKey: string, variantKey: string | null) {
+function variant(
+  dataTypeKey: string,
+  spaceId: "tile.hexOddR" | "world.xy",
+  variantId: string,
+  layerKey: string,
+  variantKey: string | null
+): LayerVariant {
+  const layer: VizLayerEntryV1 = {
+    kind: "grid",
+    layerKey,
+    dataTypeKey,
+    ...(variantKey === null ? {} : { variantKey }),
+    stepId: "stageA.a1",
+    stepIndex: 0,
+    spaceId,
+    bounds: [0, 0, 1, 1],
+    dims: { width: 1, height: 1 },
+    field: { format: "u8", data: { kind: "path", path: `${layerKey}.bin` } },
+  };
   return {
     variantId,
     label: variantId,
     layerKey,
-    layer: { variantKey } as unknown as { variantKey: string | null },
+    layer,
   };
 }
-function makeModel() {
+function makeModel(): StepDataTypeModel {
   return {
     stepId: "stageA.a1",
     dataTypes: [
@@ -54,9 +94,9 @@ function makeModel() {
                 renderModeId: "grid",
                 label: "Grid",
                 variants: [
-                  variant("v3", "terrain.grid.e3", "era:3"),
-                  variant("v1", "terrain.grid.e1", "era:1"),
-                  variant("vp", "terrain.grid.plain", null),
+                  variant("terrain", "tile.hexOddR", "v3", "terrain.grid.e3", "era:3"),
+                  variant("terrain", "tile.hexOddR", "v1", "terrain.grid.e1", "era:1"),
+                  variant("terrain", "tile.hexOddR", "vp", "terrain.grid.plain", null),
                 ],
               },
             ],
@@ -78,8 +118,8 @@ function makeModel() {
                 renderModeId: "grid",
                 label: "Grid",
                 variants: [
-                  variant("rv1", "rivers.grid.e1", "era:1"),
-                  variant("rv2", "rivers.grid.e2", "era:2"),
+                  variant("rivers", "world.xy", "rv1", "rivers.grid.e1", "era:1"),
+                  variant("rivers", "world.xy", "rv2", "rivers.grid.e2", "era:2"),
                 ],
               },
             ],
@@ -90,37 +130,61 @@ function makeModel() {
   };
 }
 
-// `stageB` deliberately omits `stageLabel` so SS-5 also pins the
-// `formatStageName` label fallback.
-const recipeArtifacts = {
+const recipeArtifacts: RecipeArtifacts = {
+  id: "test-recipe",
+  label: "Test Recipe",
+  configSchema: Type.Object({}),
+  defaultCanonicalConfig: getRecipeDefaultCanonicalConfig("standard"),
+  catalogConfigs: [],
   uiMeta: {
+    namespace: "test",
+    recipeId: "test-recipe",
     stages: [
       {
         stageId: "stageA",
         stageLabel: "Stage A",
         steps: [
-          { stepId: "a1", fullStepId: "stageA.a1", stepLabel: "A1" },
-          { stepId: "a2", fullStepId: "stageA.a2", stepLabel: "A2" },
+          {
+            stepId: "a1",
+            fullStepId: "stageA.a1",
+            stepLabel: "A1",
+            configFocusPathWithinStage: [],
+          },
+          {
+            stepId: "a2",
+            fullStepId: "stageA.a2",
+            stepLabel: "A2",
+            configFocusPathWithinStage: [],
+          },
         ],
       },
       {
         stageId: "stageB",
-        steps: [{ stepId: "b1", fullStepId: "stageB.b1", stepLabel: "B1" }],
+        stageLabel: "Stage B",
+        steps: [
+          {
+            stepId: "b1",
+            fullStepId: "stageB.b1",
+            stepLabel: "B1",
+            configFocusPathWithinStage: [],
+          },
+        ],
       },
     ],
   },
-} as unknown as UseVizSelectionArgs["recipeArtifacts"];
+  admitCanonicalConfig: (config) => config,
+};
 
-function makeVizHandle(): UseVizStateResult {
-  return {
-    ingest: vi.fn(),
-    clearStream: vi.fn(),
+function makeVizHandle(): VizTestHandle {
+  const handle = {
+    ingest: vi.fn<UseVizStateResult["ingest"]>(),
+    clearStream: vi.fn<UseVizStateResult["clearStream"]>(),
     selectedStepId: "stageA.a1",
-    setSelectedStepId: vi.fn(),
+    setSelectedStepId: vi.fn<UseVizStateResult["setSelectedStepId"]>(),
     selectedLayerKey: null,
-    setSelectedLayerKey: vi.fn(),
+    setSelectedLayerKey: vi.fn<UseVizStateResult["setSelectedLayerKey"]>(),
     showDebugLayers: false,
-    setShowDebugLayers: vi.fn(),
+    setShowDebugLayers: vi.fn<UseVizStateResult["setShowDebugLayers"]>(),
     steps: [],
     pipelineSteps: [],
     pipelineStages: [],
@@ -131,7 +195,8 @@ function makeVizHandle(): UseVizStateResult {
     effectiveLayer: null,
     activeBounds: null,
     manifest: null,
-  } as unknown as UseVizStateResult;
+  } satisfies VizTestHandle;
+  return handle;
 }
 
 beforeEach(() => {
@@ -153,7 +218,7 @@ beforeEach(() => {
 function render(overrides: Partial<UseVizSelectionArgs> = {}) {
   const setLocalError = vi.fn();
   let props: UseVizSelectionArgs = {
-    recipe: "test-recipe" as StudioRecipeId,
+    recipe: "test-recipe",
     recipeArtifacts,
     browserRunning: false,
     setLocalError,
@@ -167,16 +232,19 @@ function render(overrides: Partial<UseVizSelectionArgs> = {}) {
   return { view, rerender, setLocalError };
 }
 
-const viz = () => vizMock.handle;
+const viz = (): VizTestHandle => {
+  if (vizMock.handle === null) throw new Error("Viz test handle is not initialized");
+  return vizMock.handle;
+};
 const store = () => useViewStore.getState();
 
 describe("useVizSelection — Stage/Step cascade (SS)", () => {
-  it("SS-5: stages are 1-indexed StageOptions with formatStageName label fallback", () => {
+  it("SS-5: stages are 1-indexed StageOptions with their authored labels", () => {
     const { view } = render();
     const stages = view.result.current.stages;
     expect(stages.map((s) => s.index)).toEqual([1, 2]);
     expect(stages[0]!.label).toBe("Stage A"); // explicit stageLabel
-    expect(stages[1]!.label).not.toBe(""); // stageB had no label → formatStageName fallback
+    expect(stages[1]!.label).toBe("Stage B");
     expect(stages[1]!.value).toBe("stageB");
   });
 
@@ -208,35 +276,37 @@ describe("useVizSelection — Stage/Step cascade (SS)", () => {
   });
 
   it("SS-2: viz-sync clears the layer on a real step change, and is guarded when equal", () => {
-    const { view, rerender } = render();
-    viz().setSelectedLayerKey.mockClear();
+    const { rerender } = render();
+    const handle = viz();
+    handle.setSelectedLayerKey.mockClear();
 
     // (a) real step change → one layer clear
     act(() => useViewStore.setState({ selectedStepId: "stageA.a2" }));
     rerender();
-    expect(viz().setSelectedLayerKey).toHaveBeenCalledTimes(1);
-    expect(viz().setSelectedLayerKey).toHaveBeenCalledWith(null);
+    expect(handle.setSelectedLayerKey).toHaveBeenCalledTimes(1);
+    expect(handle.setSelectedLayerKey).toHaveBeenCalledWith(null);
 
     // (b) the effect RE-RUNS (store step changes a2→a1) but viz is ALREADY at the
     // new step → the dedupe guard must skip the clear (no layer clobber). This is
     // the path the guard actually protects: a viz-led step move (e.g. the inspector)
     // that the store then catches up to.
-    vizMock.handle.selectedStepId = "stageA.a1";
-    viz().setSelectedLayerKey.mockClear();
+    handle.selectedStepId = "stageA.a1";
+    handle.setSelectedLayerKey.mockClear();
     act(() => useViewStore.setState({ selectedStepId: "stageA.a1" }));
     rerender();
-    expect(viz().setSelectedLayerKey).not.toHaveBeenCalled();
+    expect(handle.setSelectedLayerKey).not.toHaveBeenCalled();
   });
 
   it("SS-4: viz-sync fires only on selectedStepId, not on unrelated viz rerenders", () => {
     const { rerender } = render();
-    viz().setSelectedStepId.mockClear();
+    const handle = viz();
+    handle.setSelectedStepId.mockClear();
 
     // A viz-internal change (new model) with selectedStepId unchanged must NOT
     // re-run the sync arm (deps are [selectedStepId] only).
-    vizMock.handle.dataTypeModel = makeModel();
+    handle.dataTypeModel = makeModel();
     rerender({ browserRunning: true });
-    expect(viz().setSelectedStepId).not.toHaveBeenCalled();
+    expect(handle.setSelectedStepId).not.toHaveBeenCalled();
   });
 
   it("SS-3: step-clamp RETAINS a step that is still valid in the (new) stage", () => {

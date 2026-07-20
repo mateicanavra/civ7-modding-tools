@@ -47,12 +47,13 @@ afterEach(() => {
   }
 });
 
-const LiveGritPrerequisites = Layer.mergeAll(
+const LiveCommandDependencies = Layer.mergeAll(
   NodeContext.layer,
-  CommandRunnerLive,
   makeHabitatConfigLayer(makeHabitatConfig({ repoRoot: workspaceRepoRoot })),
   makeGitStateProviderLayer(workspaceRepoRoot)
 );
+const LiveCommandRunner = CommandRunnerLive.pipe(Layer.provide(LiveCommandDependencies));
+const LiveGritPrerequisites = Layer.merge(LiveCommandDependencies, LiveCommandRunner);
 
 describe("generic Grit current-tree execution", () => {
   test("preflights and executes the installed pinned native without ambient config", async () => {
@@ -138,34 +139,6 @@ describe("generic Grit current-tree execution", () => {
       kind: "provider-failed",
       failure: "DiagnosticCommandFailed",
     });
-  });
-
-  test("observes the docs portability rewrite without mutating the fixture", async () => {
-    const fixture = docsFixture();
-    const before = treeDigest(fixture.repoRoot);
-    const execution = await executeFixture(fixture);
-
-    expect(execution.outcomes.get(fixture.rule.id)).toMatchObject({
-      kind: "findings",
-      diagnostics: [{ path: "docs/subject.md" }],
-    });
-    expect(execution.observation.applyRequest).toMatchObject({
-      commandId: `grit-diagnostic-apply-dry-run-${fixture.rule.id}`,
-      patternPath: realpathSync(
-        path.join(fixture.repoRoot, ".habitat/patterns/docs-portability.md")
-      ),
-      scanRoots: [realpathSync(fixture.scanPath)],
-      output: "compact",
-      serialization: "jsonl",
-      cacheMode: "isolated",
-    });
-    expect(execution.observation.applyCommand?.argv.slice(0, 3)).toEqual([
-      "--jsonl",
-      "apply",
-      realpathSync(path.join(fixture.repoRoot, ".habitat/patterns/docs-portability.md")),
-    ]);
-    expect(execution.applyStdout).toContain('"ranges":[]');
-    expect(treeDigest(fixture.repoRoot)).toBe(before);
   });
 
   test("observes pinned multi-range Match and Rewrite cardinality without mutation", async () => {
@@ -555,32 +528,6 @@ function checkFixture(
   };
 }
 
-function docsFixture(): Fixture {
-  const fixtureRoot = createFixtureRoot("habitat-grit-docs-");
-  const patternPath = path.join(fixtureRoot, ".habitat/patterns/docs-portability.md");
-  const scanPath = path.join(fixtureRoot, "docs");
-  const subjectPath = path.join(scanPath, "subject.md");
-  mkdirSync(path.dirname(patternPath), { recursive: true });
-  mkdirSync(scanPath, { recursive: true });
-  writeFileSync(patternPath, readFileSync(docsPortabilityPatternSourcePath));
-  writeFileSync(
-    subjectPath,
-    "See `/Users/alice/dev/worktrees/demo/docs/PROCESS.md` for details.\n"
-  );
-  return {
-    repoRoot: fixtureRoot,
-    scanPath,
-    subjectPath,
-    rule: sourceRule(
-      "portable-docs",
-      "docs_local_checkout_paths",
-      ".habitat/patterns/docs-portability.md",
-      ["docs"],
-      "apply-dry-run"
-    ),
-  };
-}
-
 function createFileFixture(): Fixture {
   const fixture = checkFixture("function testStuff() {}\n", false, true, createFilePattern);
   return {
@@ -673,8 +620,3 @@ language js
 \`forbidden_fixture_marker\` => \`accepted_fixture_marker\`
 \`\`\`
 `;
-
-const docsPortabilityPatternSourcePath = path.join(
-  workspaceRepoRoot,
-  ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md"
-);

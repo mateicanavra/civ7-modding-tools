@@ -7,6 +7,7 @@ import {
   Civ7BattlefieldScanInputSchema,
   Civ7BattlefieldScanResultSchema,
   Civ7DestinationAnalysisInputSchema,
+  type Civ7DestinationAnalysisResult,
   Civ7DestinationAnalysisResultSchema,
   Civ7TargetCandidatesInputSchema,
   Civ7TargetCandidatesResultSchema,
@@ -183,6 +184,10 @@ describe("tactical read wrappers", () => {
     ).toBe(false);
 
     const result = destinationAnalysisResult();
+    expect(result.corridor.units[0]?.corridorDistance).toBe(0);
+    expect(result.corridor.units[0]?.destinationDistance).toBe(0);
+    expect(result.destinationPressure.units[0]?.corridorDistance).toBe(0);
+    expect(result.destinationPressure.units[0]?.destinationDistance).toBe(0);
     expect(Value.Check(Civ7DestinationAnalysisResultSchema, result)).toBe(true);
     expect(
       Value.Check(Civ7DestinationAnalysisResultSchema, {
@@ -322,28 +327,21 @@ describe("tactical read wrappers", () => {
         radius: 8,
       });
 
-      const view = result as unknown as {
-        units: Array<{ owner: number; relationshipProof: string; relationshipLabel: string }>;
-        cities: Array<{ owner: number; relationshipProof: string; relationshipLabel: string }>;
-        owners: Array<{ owner: number; relationshipProof: string; relationshipLabel: string }>;
-        pointsOfInterest: Array<{ kind: string; summary: string }>;
-        notes: string[];
-      };
-      expect(view.units.find((unit) => unit.owner === 0)).toMatchObject({
+      expect(result.units.find((unit) => unit.owner === 0)).toMatchObject({
         relationshipProof: "self",
         relationshipLabel: "friendly",
       });
       for (const row of [
-        ...view.units.filter((unit) => unit.owner !== 0),
-        ...view.cities.filter((city) => city.owner !== 0),
-        ...view.owners.filter((owner) => owner.owner !== 0),
+        ...result.units.filter((unit) => unit.owner !== 0),
+        ...result.cities.filter((city) => city.owner !== 0),
+        ...result.owners.filter((owner) => owner.owner !== 0),
       ]) {
         expect(row).toMatchObject({
           relationshipProof: "none",
           relationshipLabel: "relationship-unproven",
         });
       }
-      expect(view.pointsOfInterest).toEqual(
+      expect(result.pointsOfInterest).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             kind: "city-front",
@@ -353,8 +351,8 @@ describe("tactical read wrappers", () => {
       );
       expectNoUnsupportedRelationshipClaims([
         result.hiddenInfoPolicy,
-        ...view.notes,
-        ...view.pointsOfInterest.map((point) => `${point.kind}: ${point.summary}`),
+        ...result.notes,
+        ...result.pointsOfInterest.map((point) => `${point.kind}: ${point.summary}`),
       ]);
       expectReadOnlyAppUiRouting(server.received, "readBattlefieldScan", [
         '"origins":[{"x":17,"y":20}]',
@@ -395,35 +393,26 @@ describe("tactical read wrappers", () => {
         },
       });
 
-      const view = result as unknown as {
-        corridor: { routeHint: string; directGridDistance: number; sampleCount: number };
-        destinationPressure: {
-          unitCount: number;
-          cityCount: number;
-          apparentOtherStrength: number;
-          units: Array<{ owner: number; relationshipProof: string; relationshipLabel: string }>;
-          cities: Array<{ owner: number; relationshipProof: string; relationshipLabel: string }>;
-        };
-        pointsOfInterest: Array<{ kind: string; summary: string }>;
-        notes: string[];
-      };
-      expect(view.corridor).toMatchObject({
+      expect(result.corridor).toMatchObject({
         routeHint: "straight-line-grid-corridor",
         directGridDistance: 7,
         sampleCount: 8,
       });
-      expect(view.destinationPressure).toMatchObject({
+      expect(result.destinationPressure).toMatchObject({
         unitCount: 1,
         cityCount: 1,
         apparentOtherStrength: 20,
       });
-      for (const row of [...view.destinationPressure.units, ...view.destinationPressure.cities]) {
+      for (const row of [
+        ...result.destinationPressure.units,
+        ...result.destinationPressure.cities,
+      ]) {
         expect(row).toMatchObject({
           relationshipProof: "none",
           relationshipLabel: "relationship-unproven",
         });
       }
-      expect(view.pointsOfInterest).toEqual(
+      expect(result.pointsOfInterest).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             kind: "destination-city-pressure",
@@ -433,8 +422,8 @@ describe("tactical read wrappers", () => {
       );
       expectNoUnsupportedRelationshipClaims([
         result.hiddenInfoPolicy,
-        ...view.notes,
-        ...view.pointsOfInterest.map((point) => `${point.kind}: ${point.summary}`),
+        ...result.notes,
+        ...result.pointsOfInterest.map((point) => `${point.kind}: ${point.summary}`),
       ]);
       expectReadOnlyAppUiRouting(server.received, "readDestinationAnalysis", [
         '"origin":{"x":20,"y":14}',
@@ -449,9 +438,41 @@ describe("tactical read wrappers", () => {
       await server.close();
     }
   });
+
+  test("rejects malformed battlefield evidence at the default wire parser", async () => {
+    const server = await startTacticalReadTunerServer({ battlefield: { localPlayerId: 0 } });
+    try {
+      const { port } = server.address();
+      await expect(
+        getCiv7BattlefieldScan({}, { host: "127.0.0.1", port, timeoutMs: 1_000 })
+      ).rejects.toMatchObject({ code: "command-failed" });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("rejects malformed destination evidence at the default wire parser", async () => {
+    const server = await startTacticalReadTunerServer({ destination: { localPlayerId: 0 } });
+    try {
+      const { port } = server.address();
+      await expect(
+        getCiv7DestinationAnalysis(
+          { destination: { x: 13, y: 17 } },
+          { host: "127.0.0.1", port, timeoutMs: 1_000 }
+        )
+      ).rejects.toMatchObject({ code: "command-failed" });
+    } finally {
+      await server.close();
+    }
+  });
 });
 
-async function startTacticalReadTunerServer(): Promise<FakeTacticalReadTunerServer> {
+async function startTacticalReadTunerServer(
+  payloads: Partial<{
+    battlefield: unknown;
+    destination: unknown;
+  }> = {}
+): Promise<FakeTacticalReadTunerServer> {
   const received: string[] = [];
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
@@ -466,7 +487,9 @@ async function startTacticalReadTunerServer(): Promise<FakeTacticalReadTunerServ
           socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
         } else if (frame.message.includes("readDestinationAnalysis")) {
           socket.write(
-            encodeResponse(frame.listenerId, [JSON.stringify(destinationAnalysisReadView())])
+            encodeResponse(frame.listenerId, [
+              JSON.stringify(payloads.destination ?? destinationAnalysisReadView()),
+            ])
           );
         } else if (frame.message.includes("readTargetCandidates")) {
           socket.write(
@@ -474,7 +497,9 @@ async function startTacticalReadTunerServer(): Promise<FakeTacticalReadTunerServ
           );
         } else if (frame.message.includes("readBattlefieldScan")) {
           socket.write(
-            encodeResponse(frame.listenerId, [JSON.stringify(battlefieldScanReadView())])
+            encodeResponse(frame.listenerId, [
+              JSON.stringify(payloads.battlefield ?? battlefieldScanReadView()),
+            ])
           );
         } else {
           socket.write(encodeResponse(frame.listenerId, ["2"]));
@@ -731,8 +756,11 @@ function battlefieldScanReadView() {
   };
 }
 
-function destinationAnalysisReadView() {
-  const otherOwnerUnit = {
+function destinationAnalysisReadView(): Omit<
+  Civ7DestinationAnalysisResult,
+  "host" | "port" | "state"
+> {
+  const otherOwnerUnit: Civ7DestinationAnalysisResult["corridor"]["units"][number] = {
     id: { owner: 9, id: 196608, type: 26 },
     owner: 9,
     stance: "other",
@@ -752,7 +780,12 @@ function destinationAnalysisReadView() {
     corridorDistance: 0,
     destinationDistance: 0,
   };
-  const otherOwnerCity = {
+  const otherOwnerDestinationUnit: Civ7DestinationAnalysisResult["destinationPressure"]["units"][number] =
+    {
+      ...otherOwnerUnit,
+      destinationDistance: 0,
+    };
+  const otherOwnerCity: Civ7DestinationAnalysisResult["destinationPressure"]["cities"][number] = {
     id: { owner: 9, id: 589824, type: 1 },
     owner: 9,
     stance: "other",
@@ -793,7 +826,7 @@ function destinationAnalysisReadView() {
       unitCount: 1,
     },
     destinationPressure: {
-      units: [otherOwnerUnit],
+      units: [otherOwnerDestinationUnit],
       unitCount: 1,
       cities: [otherOwnerCity],
       cityCount: 1,
@@ -803,9 +836,9 @@ function destinationAnalysisReadView() {
       {
         kind: "destination-pressure",
         severity: "medium",
-        location: otherOwnerUnit.location,
+        location: otherOwnerDestinationUnit.location,
         summary: "1 other-owner unit near destination",
-        units: [otherOwnerUnit],
+        units: [otherOwnerDestinationUnit],
       },
       {
         kind: "destination-city-pressure",
@@ -823,7 +856,7 @@ function destinationAnalysisReadView() {
   };
 }
 
-function destinationAnalysisResult() {
+function destinationAnalysisResult(): Civ7DestinationAnalysisResult {
   return {
     host: "127.0.0.1",
     port: 4318,
@@ -832,7 +865,9 @@ function destinationAnalysisResult() {
   };
 }
 
-function relationshipLabelPolicy(guidance: string) {
+function relationshipLabelPolicy(
+  guidance: string
+): Civ7DestinationAnalysisResult["relationshipLabelPolicy"] {
   return {
     relationshipSource: "not-classified",
     relationshipProof: "none",

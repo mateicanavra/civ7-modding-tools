@@ -42,9 +42,8 @@ Implemented commands:
 Implemented root aliases:
 
 - `habitat`
-- `habitat:check`
-- `habitat:fix`
-- graph-owned root `lint`, `verify`, and `check`
+- graph-owned root `build`, `typecheck`, `format`, `lint`, `check`, `test`,
+  `verify`, and `ci`
 
 Implemented command qualities:
 
@@ -59,14 +58,15 @@ Implemented command qualities:
 Implemented graph integration:
 
 - Habitat inference plugin loaded by the workspace graph;
-- inferred aggregate `habitat:check:all` for one-pass full Habitat graph checks;
-- inferred `habitat:check` per rule owner;
-- inferred `habitat:rule:<rule-id>` aliases;
-- inferred repo-wide boundary, formatter, pattern, and generated-zone checks;
-- explicit package-owned `lint` target for current Toolkit read-only checks,
-  including CLI smoke, boundary taxonomy, and service-module shape;
-- public-surface guard logic owned in Habitat source, with the root lint script
-  serving as the current-tree rule wrapper;
+- inferred dependency-only `check:policy` per rule owner;
+- inferred `check:policy:local` owner batches and `habitat:rule:<rule-id>` targets;
+- explicit workspace `format`, `lint`, `check:hygiene`, `check:boundaries`, and
+  dependency-only `check` targets;
+- canonical ordering of every workspace package manifest through the private
+  pinned `sort-package-json` implementation;
+- compiler-only project `typecheck` targets and dependency-only public `check`
+  targets;
+- exact scheduling-only rule `graphDependencies` for generated-output consumers;
 - root scripts normalized onto workspace graph entrypoints instead of manual task
   chaining;
 - package-local scripts kept leaf-local where possible.
@@ -172,6 +172,6 @@ Current tests cover:
 - process boundary behavior;
 - workspace tool discovery and verification receipt construction.
 
-These tests cover Habitat's enforcement and orchestration behavior. They do not
-cover current workspace topology by resolving the live graph; that validation is
-owned by graph targets such as `lint`, `boundary`, and `source:check`.
+These tests cover Habitat's enforcement and orchestration behavior. Current
+workspace topology is resolved by Nx and proven through public `check`,
+Habitat-only `check:policy`, and focused rule targets.

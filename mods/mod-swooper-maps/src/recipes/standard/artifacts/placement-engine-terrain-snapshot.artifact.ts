@@ -1,4 +1,5 @@
 import {
+  appendArtifactTypedArrayIssues,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -29,8 +30,10 @@ const EngineTerrainSnapshotArtifactSchema = Type.Object(
   }
 );
 
+/** Runtime contract for the terminal placement terrain readback used in parity checks. */
 export const Schema = EngineTerrainSnapshotArtifactSchema;
 
+/** Registers the final placement-boundary engine terrain readback for parity diagnostics. */
 export const artifact = defineArtifact({
   name: "placementEngineTerrainSnapshot",
   id: "artifact:map.placementEngineTerrainSnapshot",
@@ -47,12 +50,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-/**
- * Validate hook for the terminal placement summary (placement-realignment
- * S6): every published count is measured, so anything non-finite or negative
- * is a publish-site bug, not gate noise.
- */
-
 function validatePayload(value: unknown): ValidationIssue[] {
   if (!isRecord(value)) {
     return [issue("placementEngineTerrainSnapshot artifact must be an object.")];
@@ -60,27 +57,40 @@ function validatePayload(value: unknown): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const width = Number(value.width);
   const height = Number(value.height);
-  const size = width * height;
-  if (!Number.isSafeInteger(size) || size <= 0) {
-    return [
+  const product = width * height;
+  const size = Number.isSafeInteger(product) && product > 0 ? product : undefined;
+  if (size === undefined) {
+    issues.push(
       issue(
         `placementEngineTerrainSnapshot has invalid dimensions ${String(value.width)}x${String(value.height)}.`
-      ),
-    ];
+      )
+    );
   }
-  for (const key of ["landMask", "terrain", "elevation"] as const) {
-    const buffer = value[key] as { length?: number } | undefined;
-    if (typeof buffer?.length !== "number" || buffer.length !== size) {
-      issues.push(
-        issue(
-          `placementEngineTerrainSnapshot.${key} length ${String(buffer?.length)} != map size ${size}.`
-        )
-      );
-    }
-  }
+  appendArtifactTypedArrayIssues(
+    issues,
+    "placementEngineTerrainSnapshot.landMask",
+    value.landMask,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "placementEngineTerrainSnapshot.terrain",
+    value.terrain,
+    Uint8Array,
+    size
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "placementEngineTerrainSnapshot.elevation",
+    value.elevation,
+    Int16Array,
+    size
+  );
   return issues;
 }
 
+/** Validates positive dimensions and map-sized land, terrain, and elevation surfaces. */
 export function validate(value: unknown): readonly { message: string }[] {
   return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
 }

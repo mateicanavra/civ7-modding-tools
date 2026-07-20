@@ -1,8 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
-  type EarthlikeResourceExpectation,
-} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
+import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
 import resources from "@mapgen/domain/resources/ops";
 
 import { normalizeOpSelectionOrThrow, TestCompileError } from "../../support/compiler-helpers.js";
@@ -29,6 +26,9 @@ const GEOLOGICAL_RESOURCE_TYPES = [
   "RESOURCE_PITCH",
   "RESOURCE_RUBIES",
 ] as const;
+type GeologicalExpectation = Parameters<
+  typeof resources.ops.planGeologicalResources.run
+>[0]["expectations"][number];
 
 const BLOCKED_GEOLOGICAL_RESOURCE_TYPES = [
   "RESOURCE_GOLD_DISTANT_LANDS",
@@ -299,10 +299,19 @@ describe("geological resource operation contract", () => {
   });
 });
 
-function geologicalExpectations(): EarthlikeResourceExpectation[] {
+function geologicalExpectations(): GeologicalExpectation[] {
   return EARTHLIKE_RESOURCE_EXPECTATIONS.filter(
     (row) => row.groupId === "geological-mineral-gemstone-industrial"
-  );
+  ).map((row) => ({
+    resourceType: row.resourceType,
+    groupId: "geological-mineral-gemstone-industrial",
+    status: row.status,
+    earthlikePredicate: row.earthlikePredicate,
+    expectedCountRange: { ...row.expectedCountRange },
+    conditionMultipliers: [...row.conditionMultipliers],
+    signalRequirements: [...row.signalRequirements],
+    caveats: [...row.caveats],
+  }));
 }
 
 function every(size: number): Uint8Array {

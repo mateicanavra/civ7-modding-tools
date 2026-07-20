@@ -1,0 +1,28 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "recipe-step-roots"
+root = "mods/*/src/recipes/*/stages/*/steps"
+kind = "directory"
+mode = "closed"
+allowed = ["+([a-z0-9])*(-+([a-z0-9]))"]
+
+[[scopes]]
+name = "recipe-step-containers"
+root = "mods/*/src/recipes/*/stages/*/steps/+([a-z0-9])*(-+([a-z0-9]))"
+kind = "directory"
+mode = "open"
+required = ["config.ts", "step.ts"]
+forbidden = ["contract.ts", "index.ts", "*.contract.ts"]
+
+[[scopes]]
+name = "recipe-step-config-modules"
+root = "mods/*/src/recipes/*/stages/*/steps/+([a-z0-9])*(-+([a-z0-9]))/config.ts"
+kind = "file"
+mode = "open"
+
+[[scopes]]
+name = "recipe-step-runtime-modules"
+root = "mods/*/src/recipes/*/stages/*/steps/+([a-z0-9])*(-+([a-z0-9]))/step.ts"
+kind = "file"
+mode = "open"

@@ -229,7 +229,7 @@ export function updateStudioSetupMapScript(
  *
  * Why full replacement: at launch the engine loads the saved configuration
  * file into Civ7 first and then re-applies EVERY studio game/player option on
- * top of it (`prepareCiv7SinglePlayerSetup` in @civ7/direct-control), so any
+ * top of it (`lifecycle.singlePlayer.start` in @civ7/control-orpc), so any
  * studio key the file does not specify would silently override the loaded
  * file. The only state in which "the selected config is what launches" holds
  * is studio state that equals the file-derived state — stale keys from
@@ -240,8 +240,15 @@ export function updateStudioSetupMapScript(
 export function studioSetupConfigFromSavedConfigFile(
   savedConfig: Civ7SavedSetupConfigFile
 ): Civ7StudioSetupConfig {
+  const savedConfigRef = {
+    id: savedConfig.id,
+    displayName: savedConfig.displayName,
+    fileName: savedConfig.fileName,
+    path: savedConfig.path,
+  } satisfies Civ7StudioSavedConfigRef;
+
   return normalizeStudioSetupConfig({
-    savedConfig,
+    savedConfig: savedConfigRef,
     gameOptions: savedConfig.setupOptions,
     playerOptions:
       savedConfig.playerOptions.length > 0

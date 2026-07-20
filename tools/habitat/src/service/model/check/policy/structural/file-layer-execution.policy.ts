@@ -15,18 +15,18 @@ import type {
   StructuralGitPort,
 } from "./context.policy.js";
 
-export function executeFileLayerRulesEffect(
+export function executeFileLayerRulesEffect<R>(
   fileLayerRules: readonly RuleFileLayerFacts[],
   results: Map<string, RuleExecutionRecord>,
   options: Pick<CheckOptions, "staged" | "stagedPaths">,
-  context: StructuralExecutionContext
-): Effect.Effect<void, never, any> {
+  context: Pick<StructuralExecutionContext<R>, "git" | "repoRoot">
+): Effect.Effect<void, never, R> {
   return Effect.gen(function* () {
     const stagedPathsResult =
       options.staged && options.stagedPaths
         ? modifiedStagedPaths(options.stagedPaths)
         : options.staged
-          ? yield* currentStagedPathActionsEffect(context)
+          ? yield* currentStagedPathActionsEffect<R>(context)
           : undefined;
     for (const rule of fileLayerRules) {
       const started = yield* Clock.currentTimeMillis;
@@ -53,10 +53,10 @@ export function executeFileLayerRulesEffect(
   });
 }
 
-export function currentStagedPathsEffect(context: {
+export function currentStagedPathsEffect<R>(context: {
   readonly repoRoot: string;
-  readonly git: StructuralGitPort;
-}): Effect.Effect<string[], never, any> {
+  readonly git: StructuralGitPort<R>;
+}): Effect.Effect<string[], never, R> {
   return Effect.gen(function* () {
     const result = yield* context.git
       .diffNameOnly({ cached: true, cwd: context.repoRoot })
@@ -79,10 +79,10 @@ function isStagedPathReadFailure(
   return Boolean(result && "ok" in result && !result.ok);
 }
 
-function currentStagedPathActionsEffect(context: {
+function currentStagedPathActionsEffect<R>(context: {
   readonly repoRoot: string;
-  readonly git: StructuralGitPort;
-}): Effect.Effect<StagedPathActionReadResult, never, any> {
+  readonly git: StructuralGitPort<R>;
+}): Effect.Effect<StagedPathActionReadResult, never, R> {
   return Effect.gen(function* () {
     const result = yield* context.git
       .diffNameStatus({ cached: true, cwd: context.repoRoot })

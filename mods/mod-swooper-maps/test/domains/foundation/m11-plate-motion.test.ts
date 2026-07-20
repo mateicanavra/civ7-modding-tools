@@ -131,7 +131,12 @@ describe("foundation plate motion (D03r)", () => {
     const motionConfig = computePlateMotion.normalize(
       {
         strategy: "default",
-        config: { residualNormScale, p90NormScale: 1, histogramBins: 32 },
+        config: {
+          ...computePlateMotion.defaultConfig.config,
+          residualNormScale,
+          p90NormScale: 1,
+          histogramBins: 32,
+        },
       },
       ctx as any
     );

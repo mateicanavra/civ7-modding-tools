@@ -9,11 +9,11 @@ import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import { getStandardRuntime } from "../../../../runtime.js";
 import type { PlacementInputsV1 } from "../../artifacts/placement-inputs.artifact.js";
 
-import DerivePlacementInputsContract from "./contract.js";
+import { DerivePlacementInputsStepContract } from "./config.js";
 
-type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsContract.schema>;
+type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsStepContract.schema>;
 type DerivePlacementInputsOps = StepRuntimeOps<
-  NonNullable<typeof DerivePlacementInputsContract.ops>
+  NonNullable<typeof DerivePlacementInputsStepContract.ops>
 >;
 type PlanNaturalWondersOutput = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 
@@ -44,9 +44,16 @@ const FEATURE_TAGS_BY_FEATURE_TYPE = CIV7_BROWSER_TABLES_V0.featureTagsByFeature
   readonly string[] | undefined
 >;
 
+/** Placement inputs, natural-wonder intent, and the exact surfaces evaluated to produce it. */
 export type PlacementInputsBuildResult = {
   inputs: PlacementInputsV1;
   naturalWonderPlan: PlanNaturalWondersOutput;
+  naturalWonderPlanSurfaces: {
+    terrainType: Uint8Array;
+    biomeType: Uint8Array;
+    featureType: Int16Array;
+    blockedMask: Uint8Array;
+  };
 };
 
 /**
@@ -57,7 +64,7 @@ export type PlacementInputsBuildResult = {
  * (e.g. coast materialization) after every artifact-published terrain intent.
  * This mirrors the declared resource legality surface read in plan-resources:
  * the planner must see exactly what the stamp-time engine oracle will see.
- * Biome and feature surfaces ARE artifact/field-reconstructed (see
+ * Biome and feature surfaces are artifact-reconstructed (see
  * buildPlacementInputs); terrain stays a declared readback, not a silent one.
  */
 function readDeclaredEngineTerrainSurface(context: ExtendedMapContext): Uint8Array {
@@ -91,20 +98,6 @@ function buildEngineBiomeSurface(engineBiomeId: Uint16Array, size: number): Uint
   return biomeType;
 }
 
-/**
- * Engine feature surface from the declared `field:featureType` dependency.
- * The features projection step reifies the engine feature surface into this
- * field after stamping + terrain validation, so placement planning consumes a
- * declared field edge instead of an undeclared per-tile adapter readback.
- */
-function readDeclaredFeatureField(context: ExtendedMapContext, size: number): Int16Array {
-  const featureType = context.fields?.featureType;
-  if (!(featureType instanceof Int16Array) || featureType.length !== size) {
-    throw new Error("[Placement] Missing or invalid field:featureType for placement planning.");
-  }
-  return featureType;
-}
-
 function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Array {
   const size = width * height;
   const mask = new Uint8Array(size);
@@ -133,8 +126,8 @@ function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Arra
  *
  * It also forwards already-computed physical signals (vegetation, moisture,
  * temperature, fertility, discharge, slope) — never recomputed — and the engine
- * terrain/biome/feature surfaces (terrain is a DECLARED readback, biome/feature
- * are artifact-reconstructed; see the per-helper docs above) plus the polar-water
+ * terrain/biome/feature surfaces (terrain is a DECLARED readback, while biome and
+ * feature are artifact evidence) plus the polar-water
  * `naturalWonderBlockedMask`. Returns the assembled inputs and the planner's
  * `naturalWonderPlan` (the intent that `place-natural-wonders` later stamps).
  */
@@ -163,6 +156,11 @@ export function buildPlacementInputs(
     };
     biomeBindings: {
       engineBiomeId: Uint16Array;
+    };
+    featureEngineSnapshot: {
+      width: number;
+      height: number;
+      featureType: Int16Array;
     };
     pedology: {
       fertility: Float32Array;
@@ -215,7 +213,7 @@ export function buildPlacementInputs(
     physical.biomeBindings.engineBiomeId as Uint16Array,
     size
   );
-  const featureType = readDeclaredFeatureField(context, size);
+  const featureType = physical.featureEngineSnapshot.featureType;
   const naturalWonderBlockedMask = buildNaturalWonderBlockedMask(width, height);
   const naturalWonderPlan = ops.naturalWonders(
     {
@@ -254,5 +252,11 @@ export function buildPlacementInputs(
       placementConfig: config,
     },
     naturalWonderPlan,
+    naturalWonderPlanSurfaces: {
+      terrainType,
+      biomeType,
+      featureType,
+      blockedMask: naturalWonderBlockedMask,
+    },
   };
 }

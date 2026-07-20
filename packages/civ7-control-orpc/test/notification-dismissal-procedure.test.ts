@@ -1,31 +1,29 @@
 import { call } from "@orpc/server";
-import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
+import type { Civ7ControlOrpcNotificationDismissalResult } from "../src/dependencies/direct-control";
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
-  type Civ7ControlOrpcNotificationDismissalResult,
   Civ7ControlOrpcRouter,
   Civ7NotificationDismissalUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
-import { typeboxInputSchemaFromContractProcedure } from "../src/typebox-standard-schema";
+import { standardSchemaAccepts } from "./support/standard-schema";
 
 const notificationId = { owner: 0, id: 113, type: 20 };
-const Civ7NotificationDismissInputSchema = typeboxInputSchemaFromContractProcedure(
-  Civ7ControlOrpcContract.notifications.dismiss.request
-);
+const Civ7NotificationDismissInputSchema =
+  Civ7ControlOrpcContract.notifications.dismiss.request["~orpc"].inputSchema;
 
 describe("notifications.dismiss.request control-oRPC procedure", () => {
   test("owns the caller-facing notification dismiss contract without raw fields", () => {
     expect(
-      Value.Check(Civ7NotificationDismissInputSchema, {
+      standardSchemaAccepts(Civ7NotificationDismissInputSchema, {
         notificationId,
       })
     ).toBe(true);
     expect(
-      Value.Check(Civ7NotificationDismissInputSchema, {
+      standardSchemaAccepts(Civ7NotificationDismissInputSchema, {
         notificationId,
         rawCommand: "Game.turn",
       })
@@ -305,7 +303,8 @@ function notificationDismissalResult(
   } = {}
 ): Civ7ControlOrpcNotificationDismissalResult {
   const before = notificationSummary();
-  const after = "after" in options ? options.after : notificationSummary({ exists: false });
+  const after =
+    options.after === undefined ? notificationSummary({ exists: false }) : options.after;
   const sent = options.sent ?? classification !== "not-sent";
 
   return {

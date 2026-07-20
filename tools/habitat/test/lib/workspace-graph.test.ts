@@ -19,20 +19,20 @@ const projects: WorkspaceProject[] = [
     root: "tools/tooling",
     sourceRoot: null,
     tags: ["kind:tooling"],
-    targets: [{ name: "boundaries" }, { name: "biome:ci" }, { name: "generated:check" }],
+    targets: [{ name: "check:boundaries" }, { name: "check:hygiene" }],
   },
   {
     name: "library-a",
     root: "packages/library-a",
     sourceRoot: null,
-    tags: ["kind:foundation"],
+    tags: ["kind:library"],
     targets: [{ name: "build" }, { name: "test" }],
   },
   {
     name: "policy-b",
     root: "packages/policy-b",
     sourceRoot: null,
-    tags: ["kind:foundation"],
+    tags: ["kind:library"],
     targets: [{ name: "verify" }],
   },
 ];
@@ -40,16 +40,16 @@ const projects: WorkspaceProject[] = [
 describe("Workspace graph", () => {
   test("normalizes same-project dependency declarations", () => {
     expect(
-      resolveDependencyDeclaration(sameProjectTarget("boundaries"), {
+      resolveDependencyDeclaration(sameProjectTarget("check:boundaries"), {
         declaringProject: "tooling",
         projects,
       })
     ).toEqual([
       {
         kind: "resolved-target-dependency",
-        declaration: { kind: "same-project-target-dependency", target: "boundaries" },
+        declaration: { kind: "same-project-target-dependency", target: "check:boundaries" },
         project: "tooling",
-        target: "boundaries",
+        target: "check:boundaries",
       },
     ]);
   });
@@ -245,6 +245,9 @@ function ruleAlias(input: {
     id: input.id,
     ownerProject: "tooling",
     ownerRoot: "tools/tooling",
+    lane: "enforced",
+    message: "Fixture graph rule.",
+    graphDependencies: [],
     alias: {
       kind: "depends-on",
       target: input.target,

@@ -1,6 +1,7 @@
 # Diagnostics toolkit (dump‑first)
 
-This folder contains **data‑first** scripts for diagnosing pipeline behavior using **VizDumper** dumps (manifest + trace + binary layers).
+This folder contains **data-first** scripts for diagnosing pipeline behavior from execution-owned
+step visualization projections (manifest + trace + binary layers).
 
 The goal is to make it easy to answer questions like:
 
@@ -39,4 +40,3 @@ bun run diag:analyze -- dist/visualization/probe-baseline/<runId> dist/visualiza
 
 - These scripts are intended to be **observability tooling**; they should not modify recipe behavior.
 - Dumps are written under `dist/`, which is ignored by git.
-

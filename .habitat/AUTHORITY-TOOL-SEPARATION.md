@@ -39,6 +39,25 @@ itself.
 5. If a command-check script contains more than one proof class, split it by
    assertion before changing owners.
 
+## Graph Execution Rule
+
+Nx owns task scheduling, dependency order, caching, and parallelism. A
+registered `runner:nx` rule names one concrete leaf target; it must not point at
+a generated Habitat owner, aggregate, or rule-alias target. Nx-owned Habitat
+owner checks project local rule execution and graph-backed work as sibling
+dependencies, then expose dependency-only public targets. They never start a
+second Nx scheduler.
+
+Habitat-executed rules remain Habitat runners. When a rule consumes generated
+output, its closed `graphDependencies` list schedules only the exact producers;
+the generated rule target and owner-local batch still execute and report the
+rule through Habitat.
+
+Direct `bun habitat check --rule <id>` remains a diagnostic surface and may
+delegate an explicitly selected `runner:nx` rule. Formatting authority follows
+the same law: Habitat registers the rule, Biome owns the check, and Nx schedules
+the `habitat:check:hygiene` leaf exactly once.
+
 ## Source Pattern Execution Rule
 
 Habitat Grit rules are packet-local source-pattern authority. A rule's

@@ -28,10 +28,7 @@
       "kind": "project-owner"
     }
   ],
-  "scanRoots": [
-    "packages/studio-contract/src",
-    "packages/studio-server/src/operationRuntime"
-  ],
+  "scanRoots": ["packages/studio-contract/src", "packages/studio-server/src/operationRuntime"],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/baseline.json"
   },

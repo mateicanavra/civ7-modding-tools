@@ -1,6 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
-  "extends": ["@catenarycloud/linteffect"],
+  "$schema": "https://biomejs.dev/schemas/2.5.3/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -21,12 +20,15 @@
       "!.civ7/outputs/**",
       "!docs/_archive/**",
       "!**/_archive/**",
+      "!openspec/changes/**/workstream/*.json",
+      "!openspec/changes/**/workstream/**/*.json",
       "!mods/mod-swooper-maps/src/maps/generated/**",
       "!packages/civ7-types/generated/**",
       "!packages/civ7-map-policy/src/civ7-tables.gen.ts",
       "!.repos/effect/**",
       "!packages/mapgen-studio-ui/.ds-sync/**",
       "!packages/mapgen-studio-ui/.design-sync/light-canary-tokens.json",
+      "!apps/docs/public/**/*.svg",
       "!docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json"
     ]
   },

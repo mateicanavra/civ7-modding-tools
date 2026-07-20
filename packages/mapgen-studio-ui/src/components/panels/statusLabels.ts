@@ -30,14 +30,12 @@ export function formatMapConfigSaveDeployPhaseLabel(phase: MapConfigSaveDeployPh
 
 export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
   switch (phase) {
-    case "resolving-source":
-      return "Resolving Source";
+    case "admitting-config":
+      return "Admitting Config";
     case "generating-artifacts":
       return "Generating";
     case "deploying":
       return "Deploying";
-    case "preparing-civ7":
-      return "Preparing Civ7";
     case "starting-game":
       return "Starting Game";
     case "observing-runtime":
@@ -57,7 +55,8 @@ export function runInGamePrimaryActionLabel(
 ): string {
   if (status?.status === "running") return formatRunInGamePhaseLabel(status.phase);
   if (status?.status === "failed" || status?.status === "cancelled") {
-    return relation === "stale" ? "Run Current" : "Retry Run";
+    if (relation === "stale") return "Run Current";
+    return status.recoveryActions.includes("retry-run") ? "Retry Run" : "Run Unavailable";
   }
   return "Run in Game";
 }

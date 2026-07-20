@@ -1,17 +1,11 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import type {
-  LaunchEnvelope,
-  LaunchEnvelopeDigest,
-  LaunchSourceDigest,
-} from "@civ7/studio-contract";
+import type { LaunchEnvelope, LaunchEnvelopeDigest } from "@civ7/studio-contract";
 import {
   freezeSnapshot,
   isPortableJsonValue,
   launchEnvelope,
-  launchSourceDigest,
-  snapshotConfigSource,
   snapshotLaunchEnvelope,
 } from "@civ7/studio-contract";
 import { type Static, Type } from "typebox";
@@ -31,7 +25,7 @@ const SHA256_HEX = /^[a-f0-9]{64}$/;
 
 export const studioRunGenerationManifestPayloadSchema = Type.Object(
   {
-    schemaVersion: Type.Literal(1),
+    schemaVersion: Type.Literal(2),
     requestId: Type.String({ pattern: SAFE_RUN_REQUEST_ID.source }),
     runArtifactId: Type.String({ pattern: SAFE_RUN_ARTIFACT_ID.source }),
     workspace: Type.Object(
@@ -43,7 +37,7 @@ export const studioRunGenerationManifestPayloadSchema = Type.Object(
       { additionalProperties: false }
     ),
     launchEnvelope,
-    launchSourceDigest,
+    canonicalConfigDigest: Type.String({ pattern: SHA256_HEX.source }),
     launchEnvelopeDigest: Type.String({ pattern: SHA256_HEX.source }),
   },
   { additionalProperties: false }
@@ -63,7 +57,7 @@ export type StudioRunGenerationManifestInput = Readonly<{
 }>;
 
 export type StudioRunGenerationManifestPayload = Readonly<{
-  schemaVersion: 1;
+  schemaVersion: 2;
   requestId: string;
   readonly runArtifactId: RunArtifactId;
   readonly workspace: Readonly<{
@@ -72,7 +66,7 @@ export type StudioRunGenerationManifestPayload = Readonly<{
     generatedModRoot: "generated-mod";
   }>;
   readonly launchEnvelope: LaunchEnvelope;
-  readonly launchSourceDigest: LaunchSourceDigest;
+  readonly canonicalConfigDigest: string;
   readonly launchEnvelopeDigest: LaunchEnvelopeDigest;
 }>;
 
@@ -98,9 +92,9 @@ export function buildStudioRunGenerationManifestPayload(
   input: StudioRunGenerationManifestInput
 ): StudioRunGenerationManifestPayload {
   const snapshot = snapshotManifestLaunchEnvelope(input.launchEnvelope);
-  const launchEnvelopeDigest = valueDigest(snapshot);
+  const launchEnvelopeDigest = canonicalValueDigest(snapshot);
   return freezeSnapshot({
-    schemaVersion: 1,
+    schemaVersion: 2,
     requestId: input.requestId,
     runArtifactId: createRunArtifactId(input.requestId),
     workspace: {
@@ -109,9 +103,7 @@ export function buildStudioRunGenerationManifestPayload(
       generatedModRoot: "generated-mod",
     },
     launchEnvelope: snapshot,
-    launchSourceDigest: {
-      canonicalConfigDigest: valueDigest(snapshot.source.canonicalConfig),
-    },
+    canonicalConfigDigest: canonicalValueDigest(snapshot.canonicalConfig),
     launchEnvelopeDigest,
   });
 }
@@ -126,7 +118,12 @@ export function buildStudioRunGenerationManifest(
 }
 
 export function generationManifestDigest(payload: StudioRunGenerationManifestPayload): string {
-  return sha256Hex(canonicalSortedJson(payload));
+  return canonicalValueDigest(payload);
+}
+
+/** SHA-256 of the canonical sorted-JSON representation used by Run in Game evidence. */
+export function canonicalValueDigest(value: unknown): string {
+  return sha256Hex(canonicalSortedJson(value));
 }
 
 export function canonicalSortedJson(value: unknown): string {
@@ -141,21 +138,16 @@ export function parseStudioRunGenerationManifest(value: unknown): StudioRunGener
   if (parsed.payload.runArtifactId !== createRunArtifactId(parsed.payload.requestId)) {
     throw new Error("StudioRunGenerationManifest runArtifactId does not match requestId.");
   }
-  if (
-    parsed.payload.workspace.requestRoot !== logicalRunRequestRoot(parsed.payload.requestId)
-  ) {
+  if (parsed.payload.workspace.requestRoot !== logicalRunRequestRoot(parsed.payload.requestId)) {
     throw new Error("StudioRunGenerationManifest requestRoot does not match requestId.");
   }
   const snapshot = snapshotManifestLaunchEnvelope(parsed.payload.launchEnvelope);
-  if (
-    parsed.payload.launchSourceDigest.canonicalConfigDigest !==
-    valueDigest(snapshot.source.canonicalConfig)
-  ) {
+  if (parsed.payload.canonicalConfigDigest !== canonicalValueDigest(snapshot.canonicalConfig)) {
     throw new Error(
       "StudioRunGenerationManifest canonicalConfigDigest does not match canonical config."
     );
   }
-  if (parsed.payload.launchEnvelopeDigest !== valueDigest(snapshot)) {
+  if (parsed.payload.launchEnvelopeDigest !== canonicalValueDigest(snapshot)) {
     throw new Error(
       "StudioRunGenerationManifest launchEnvelopeDigest does not match launch envelope."
     );
@@ -209,10 +201,6 @@ function sha256Hex(input: string): string {
   return createHash("sha256").update(input, "utf8").digest("hex");
 }
 
-function valueDigest(value: unknown): string {
-  return sha256Hex(canonicalSortedJson(value));
-}
-
 function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalize);
   if (value && typeof value === "object") {
@@ -231,18 +219,8 @@ function snapshotManifestLaunchEnvelope(value: unknown): LaunchEnvelope {
     throw new Error("StudioRunGenerationManifest launchEnvelope must be portable and complete.");
   }
   const parsed = Value.Parse(launchEnvelope, value);
-  const source = snapshotConfigSource(parsed.source);
-  if (source === undefined) {
-    throw new Error("StudioRunGenerationManifest launchEnvelope source is invalid.");
-  }
   return snapshotLaunchEnvelope({
-    recipeSettings: {
-      ...(parsed.recipeSettings.preset === undefined
-        ? {}
-        : { preset: parsed.recipeSettings.preset }),
-      recipe: parsed.recipeSettings.recipe,
-      seed: parsed.recipeSettings.seed,
-    },
+    seed: parsed.seed,
     worldSettings: {
       mapSize: parsed.worldSettings.mapSize,
       ...(parsed.worldSettings.playerCount === undefined
@@ -253,6 +231,6 @@ function snapshotManifestLaunchEnvelope(value: unknown): LaunchEnvelope {
         : { resources: parsed.worldSettings.resources }),
     },
     setupConfig: parsed.setupConfig,
-    source,
+    canonicalConfig: parsed.canonicalConfig,
   });
 }

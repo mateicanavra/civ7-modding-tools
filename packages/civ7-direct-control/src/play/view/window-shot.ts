@@ -352,7 +352,7 @@ export type WindowShotDependencies = Readonly<{
   mkdir: typeof mkdir;
   now: () => Date;
   readdir: (path: string) => Promise<string[]>;
-  readFile: typeof readFile;
+  readFile: (path: string) => Promise<Buffer>;
   rm: (path: string, options: Readonly<{ force: boolean }>) => Promise<void>;
   stat: typeof stat;
   tmpdir: () => string;

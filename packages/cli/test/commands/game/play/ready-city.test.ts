@@ -1,7 +1,10 @@
+import type { Civ7ReadyCityViewResult } from "@civ7/direct-control";
 import { describe, expect, test, vi } from "vitest";
 import GamePlayReadyCity from "../../../../src/commands/game/play/ready-city";
 import { type FakeTunerServer, startFakeTunerServer } from "../../fixtures/tuner-socket-server";
 import { expectNormalPlayPayloadToOmitDebugInternals } from "./normal-output-boundary";
+
+type ReadyCityPayload = Omit<Civ7ReadyCityViewResult, "host" | "port" | "state">;
 
 describe("game play ready-city command", () => {
   test("reads ready-city decision view without sending operations", async () => {
@@ -216,7 +219,9 @@ describe("game play ready-city command", () => {
   });
 });
 
-async function startReadyCityTunerServer(view = readyCityView()): Promise<FakeTunerServer> {
+async function startReadyCityTunerServer(
+  view: ReadyCityPayload = readyCityView()
+): Promise<FakeTunerServer> {
   return startFakeTunerServer({
     handle({ message }) {
       if (message.includes("readReadyCityView")) {
@@ -250,7 +255,7 @@ function invalidProductionOnlyReadyCityView() {
         expansionResult: { ok: true, value: { Success: false, Plots: [] } },
       },
     },
-  };
+  } satisfies ReadyCityPayload;
 }
 
 function readyCityView() {
@@ -421,5 +426,5 @@ function readyCityView() {
       },
     },
     notes: ["Read-only ready-city view. This view intentionally does not choose production."],
-  };
+  } satisfies ReadyCityPayload;
 }

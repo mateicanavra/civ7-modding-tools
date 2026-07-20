@@ -1,4 +1,7 @@
 import {
+  type ArtifactValidationContext,
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
@@ -53,6 +56,10 @@ const HydrologyRiverNetworkBenchmarkSummarySchema = Type.Object(
   }
 );
 
+/**
+ * Runtime contract for per-tile river hierarchy, mouth, slope, and permanence classifications
+ * plus aggregate benchmark evidence derived before engine projection.
+ */
 export const HydrologyRiverNetworkMetricsArtifactSchema = Type.Object(
   {
     upstreamArea: TypedArraySchemas.i32({
@@ -83,14 +90,53 @@ export const HydrologyRiverNetworkMetricsArtifactSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for publishing and validating river-network evidence. */
 export const Schema = HydrologyRiverNetworkMetricsArtifactSchema;
 
+/**
+ * Registers Hydrology-owned network hierarchy, mouth, slope, permanence, and aggregate
+ * benchmark evidence. It supports diagnostics and product proof without becoming
+ * river-placement authority.
+ */
 export const artifact = defineArtifact({
   name: "riverNetworkMetrics",
   id: "artifact:hydrology.riverNetworkMetrics",
   schema: Schema,
 });
 
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+/**
+ * Validates river-network metric structure, exact field kinds, and map-sized cardinality when known.
+ */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") return Object.freeze(issues);
+  const candidate = value as Record<string, unknown>;
+  const cellCount = artifactCellCount(context);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "upstreamArea",
+    candidate.upstreamArea,
+    Int32Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "streamOrderProxy",
+    candidate.streamOrderProxy,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(issues, "mouthType", candidate.mouthType, Uint8Array, cellCount);
+  appendArtifactTypedArrayIssues(issues, "slopeClass", candidate.slopeClass, Uint8Array, cellCount);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "flowPermanenceProxy",
+    candidate.flowPermanenceProxy,
+    Uint8Array,
+    cellCount
+  );
+  return Object.freeze(issues);
 }

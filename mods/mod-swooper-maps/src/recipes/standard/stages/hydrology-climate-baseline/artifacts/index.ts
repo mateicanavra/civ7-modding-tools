@@ -1,23 +1,16 @@
-import * as climateField from "./climate-field.artifact.js";
+import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
+import * as baselineClimateField from "./baseline-climate-field.artifact.js";
 import * as climateSeasonality from "./climate-seasonality.artifact.js";
 import * as windField from "./wind-field.artifact.js";
 
-export { climateField, climateSeasonality, windField };
-
-export const artifactContracts = {
-  climateField,
+const catalog = defineArtifactCatalog({
+  baselineClimateField,
   climateSeasonality,
   windField,
-} as const;
+});
 
-export const artifacts = {
-  climateField: climateField.artifact,
-  climateSeasonality: climateSeasonality.artifact,
-  windField: windField.artifact,
-} as const;
+/** hydrology-climate-baseline artifact modules pairing every contract with its complete admission validator. */
+export const artifactModules = catalog.modules;
 
-export const validators = {
-  climateField: climateField.validate,
-  climateSeasonality: climateSeasonality.validate,
-  windField: windField.validate,
-} as const;
+/** hydrology-climate-baseline artifact handles derived from the module catalog for contracts and consumers. */
+export const artifacts = catalog.artifacts;

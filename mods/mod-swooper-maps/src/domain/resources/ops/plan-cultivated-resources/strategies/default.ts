@@ -16,6 +16,11 @@ const DEFAULT_RANGE = {
   evidence: "blocked" as const,
 };
 
+/**
+ * Builds deterministic cultivated demand rows across every canonical cultivated resource.
+ * Primary/suppression masks determine eligible counts; missing or intentionally empty signals
+ * remain explicit typed blockers rather than generic placement fallbacks.
+ */
 export const defaultStrategy = createStrategy(PlanCultivatedResourcesContract, "default", {
   run: (input) => {
     const size = validateGrid(input.width, input.height);

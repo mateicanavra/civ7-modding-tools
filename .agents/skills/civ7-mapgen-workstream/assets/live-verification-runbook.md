@@ -2,7 +2,7 @@
 
 > Open at loop step 7 (in-game verification) to run the mutating live gate end-to-end: build → deploy → cold-boot → run-in-game → log-marker proof → parity → proof labels. This is the **closure test** of the workstream — Studio is where you *see*, the live engine is where you *know*. A map-gen change is **not done** on Studio/diagnostic evidence alone (FRAMING hard core 2).
 
-This is a runnable checklist, not a concept doc. The display-vs-generation branch and the benchmark overlay live in `references/facet-verification.md`; tuner discipline lives in `civ7-operational-debugging` → `references/firetuner-runtime.md`; closure labels live in its `references/proof-boundaries.md`. This file does **not** restate those — it sequences the commands that exercise them. Re-derive any exact flag or path from live source (`mods/mod-swooper-maps/scripts/verify.ts` and `scripts/live/*`) if a detail here looks stale.
+This is a runnable checklist, not a concept doc. The display-vs-generation branch and benchmark overlay live in `references/facet-verification.md`; the generic benchmark contract lives in `docs/system/libs/mapgen/benchmarks/BENCHMARKS.md`; tuner discipline lives in `civ7-operational-debugging` → `references/firetuner-runtime.md`; closure labels live in its `references/proof-boundaries.md`. This file does **not** restate those — it sequences the commands that exercise them. Re-derive any exact flag or path from live source (`mods/mod-swooper-maps/scripts/verify.ts` and `scripts/live/*`) if a detail here looks stale.
 
 ---
 
@@ -26,10 +26,10 @@ This is a runnable checklist, not a concept doc. The display-vs-generation branc
 Direct-control has **no** cold-boot automation — it assumes Civ7 is already at the shell. The standard sequence (memory: `civ7-live-map-launch-and-capture`):
 
 1. **Cold-boot Steam**: `open "steam://rungameid/1295660"`. Poll the tuner socket until open, then `game status` until `readiness: shell`. A "tuner unreachable" failure is almost always just Civ7 not running yet.
-2. **Launch from setup**: `runCiv7SinglePlayerFromSetup` (from `@civ7/direct-control`). It does shell-check → `prepareCiv7SinglePlayerSetup` (tuner prepare) → `startPreparedCiv7SinglePlayerGame` (Begin Game) → polls to `inGame`. **Always pass `waitForTuner: true`** — the `Tuner` scripting state is command-ready only *after* Begin Game and is the canary for gameplay globals (`Game`, `GameplayMap`, `Players`).
-3. **SIGSEGV guard (do not skip).** Maps that pass local headless `MockAdapter` validation can still SIGSEGV the live engine (null-deref at 0x20) when standard `write`/`prep` ops are skipped. `runCiv7SinglePlayerFromSetup` replicates the standard recipe write order — never hand-roll a minimal bypass launch. A clean MockAdapter run does **not** prove live-engine safety.
+2. **Launch from setup**: use the `@civ7/control-orpc` `lifecycle.singlePlayer.start` capability through `verify-studio-run-in-game-live.ts`. It owns shell admission, setup application, Begin Game, and post-start tuner/readback evidence as one correlated lifecycle. The `Tuner` scripting state is command-ready only *after* Begin Game and remains the canary for gameplay globals (`Game`, `GameplayMap`, `Players`).
+3. **SIGSEGV guard (do not skip).** Maps that pass local headless `MockAdapter` validation can still SIGSEGV the live engine (null-deref at 0x20) when the deployed map recipe skips standard `write`/`prep` operations. Never hand-roll a minimal recipe or launch bypass. A clean MockAdapter run does **not** prove live-engine safety.
 
-The mutating `studio-run-in-game-live` verify mode wraps this launch (with `--from-running-game exit-to-shell` it will drop a running game back to the shell first), so for the gate you usually invoke the verify script rather than calling the launch primitive by hand.
+The mutating `studio-run-in-game-live` verify mode owns this launch, so invoke the verifier rather than calling lifecycle atoms by hand.
 
 ---
 
@@ -45,21 +45,19 @@ This is the primary in-game gate. Ordered internals (from `scripts/live/verify-s
 | 4. Map-row visibility | `getCiv7SetupMapRows` confirms the script is in the setup UI | exit 2 |
 | 5. Deployed-script identity | SHA-256 + marker presence (swooper scripts only) | exit 2 |
 | 6. Scripting.log snapshot | `snapshotFile` captures pre-launch log boundary (size + mtime + 4096-byte prefix) | — |
-| 7. Launch | `runCiv7SinglePlayerFromSetup` (prepare + Begin Game, `waitForTuner: true`) | exit 2 |
+| 7. Launch | `lifecycle.singlePlayer.start` through the live verifier | exit 2 |
 | 8. **waitForFreshLogMarkers** | the success gate — see §3 | reject ⇒ exit 2/3 |
 | 9. Proof output | `proofId` + report as JSON to stdout | — |
 
 Invocation (mutating):
 
 ```bash
-nx run mod-swooper-maps:verify -- --mode studio-run-in-game-live \
+nx run mod-swooper-maps:verify:operational -- --mode studio-run-in-game-live \
   --mutate \
   --map-script "{swooper-maps}/maps/swooper-earthlike.js" \
   --map-size MAPSIZE_HUGE \
   --seed 1337 \
-  --game-seed 1337 \
   --player-count 10 \
-  --from-running-game exit-to-shell \
   --wait-timeout-ms 120000
 ```
 
@@ -90,7 +88,7 @@ nx run mod-swooper-maps:verify -- --mode studio-run-in-game-live \
 On success, step 9 mints `proofId = createCiv7ControlRequestId("studio-run-in-game-live-proof")` → `"studio-run-in-game-live-proof-<base36 time>-<base36 pid>"`, printed in the JSON report. Capture that `requestId`, then run the parity proof on the **same live session** (it compares seed/turn/gameHash):
 
 ```bash
-nx run mod-swooper-maps:verify -- --mode final-surface-parity \
+nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity \
   --request-id studio-run-in-game-live-proof-<id> \
   --studio-url http://127.0.0.1:5174 \
   --output /tmp/parity-proof.json
@@ -103,23 +101,29 @@ It POSTs `{ json: { requestId } }` to `${studioUrl}/rpc/runInGame/status` (oRPC 
 
 ---
 
-## 5. The 9 verify modes
+## 5. The 6 Swooper operational verify modes
 
-`nx run mod-swooper-maps:verify -- --mode <mode> [flags]` (or `bun ./scripts/verify.ts --mode <mode>`). From `scripts/verify.ts`:
+`nx run mod-swooper-maps:verify:operational -- --mode <mode> [flags]` (or `bun ./scripts/verify.ts --mode <mode>`). From `scripts/verify.ts`:
 
 | Mode | Live? | Use |
 |---|---|---|
-| `placement-catalogs` (default) | no | offline catalog validation |
-| `placement-metrics` | no | offline placement metrics |
 | `studio-run-in-game-live` | **yes** | the mutating gate (§2) |
 | `final-surface-parity` | **yes** | local-vs-live grid parity (§4) |
+| `output-parity` | **yes** | loaded-map engine output vs headless recipe parity |
 | `resource-delta-feasibility` | **yes** | live `ResourceBuilder.canHaveResource` on parity delta rows |
 | `feature-delta-feasibility` | **yes** | live `TerrainBuilder.canHaveFeature` on delta rows |
 | `terrain-edge-live-context` | **yes** | live terrain/hydrology/area readback for edge deltas |
-| `placement-live-legality-agreement` | **yes** | mock-vs-live legality; `AGREEMENT_GATE_THRESHOLD=0.95` |
-| `placement-live-required-for-age` | **yes** | live `isResourceRequiredForAge` vs static tables |
 
-Aliases: `catalogs`→`placement-catalogs`, `metrics`→`placement-metrics`, `studio-run-in-game:live`→`studio-run-in-game-live`.
+Alias: `studio-run-in-game:live`→`studio-run-in-game-live`.
+
+The former placement legality and required-for-age probes were milestone-scoped
+characterization scripts, not durable operational gates. Their recorded evidence
+remains historical. Map Policy tests own static resource facts and the age-valid
+`Staple`/`UnlocksCiv` fallback; exact roster-dependent
+`isResourceRequiredForAge` flows through `EngineAdapter`. When that live policy
+is unavailable, planning records unresolved unless the static basis admits the
+minimum; it never substitutes `false`. Prove changed placement behavior with the
+product-level live gate above.
 
 ---
 
@@ -152,10 +156,10 @@ Hand the labeled proof to finalization (loop step 10 → `civ7-open-spec-workstr
 
 ## Evidence anchors (live source — re-derive, don't trust this snapshot)
 
-- `mods/mod-swooper-maps/scripts/verify.ts` — mode dispatcher (the 9 modes).
+- `mods/mod-swooper-maps/scripts/verify.ts` — dispatcher for the six current modes.
 - `mods/mod-swooper-maps/scripts/live/verify-studio-run-in-game-live.ts` — the gate; `waitForFreshLogMarkers` call + `REQUIRED_SWOOPER_RIVER_MATERIALIZATION_MARKERS`.
 - `mods/mod-swooper-maps/scripts/live/verify-final-surface-parity.ts` — parity proof / `exactAuthorshipProof`.
 - `packages/civ7-direct-control/src/proof/log-markers.ts` — `waitForFreshLogMarkers` + `snapshotFile`.
-- `packages/civ7-direct-control/src/setup/run.ts` — `runCiv7SinglePlayerFromSetup`.
+- `packages/civ7-control-orpc/src/modules/lifecycle/procedures/single-player-start.ts` — the correlated setup/start lifecycle.
 - `packages/civ7-direct-control/src/session/{constants,request-id}.ts` — tuner port/host, `createCiv7ControlRequestId`.
 - `docs/projects/placement-realignment/evidence/milestone-{a,b}-2026-06-11.md` — recorded attempt-1 failure (console.warn), attempt-2/3 success, age-intro overlay dismissal.

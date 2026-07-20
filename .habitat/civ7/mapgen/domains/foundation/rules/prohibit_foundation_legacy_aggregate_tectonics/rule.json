@@ -21,13 +21,13 @@
       "kind": "exact-path",
       "patterns": [
         "mods/mod-swooper-maps/src/domain/foundation/index.ts",
-        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics.contract.ts"
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics/config.ts"
       ]
     }
   ],
   "scanRoots": [
     "mods/mod-swooper-maps/src/domain/foundation/index.ts",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics.contract.ts"
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics/config.ts"
   ],
   "hookCheck": true,
   "supportFiles": {

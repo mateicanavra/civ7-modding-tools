@@ -118,7 +118,9 @@ The team writes its **own** workstream frame/record under `docs/projects/studio-
 
 - **Precondition:** the studio Graphite stack — #1991 → #1992 → #1993/#1994, all currently open drafts — must land on `main` before this workstream branches. Extraction off a main that lacks the Storybook workbench, the storybook-shape sync, and the theming fix would fork the very surface being extracted. If the stack has not landed, stop and say so.
 - **Nx collision:** `apps/mapgen-studio/project.json` does not exist on main; the habitat lane owns introducing it. The CI `design-sync` target this workstream wants must **compose with** that file, not race it. A target invocation was sketched during the design-sync work (running `resync.mjs` against the app shape) but never landed anywhere in the repo — treat it as lost and derive the CI target fresh against the package.
-- **After any Studio landing** — the precondition stack *and* this workstream's own stack at close-out — the parked studio runner worktree (find it via `git worktree list`) gets moved up to the new tip (detached) and relaunched via `scripts/restart-mapgen-studio.sh --no-build` — standing preference, cheap, easy to forget.
+- **After any Studio landing** — verify the current branch through
+  `nx run mapgen-studio:dev` when runtime proof is relevant. Do not maintain a
+  detached runner worktree or a separate restart path.
 - A Civ7 game update can silently disable the deployed mod; irrelevant to this workstream except as a reminder that "Run in Game" failures during testing may be environmental.
 
 ## 9. Falsifiers — how we'd know this frame is wrong

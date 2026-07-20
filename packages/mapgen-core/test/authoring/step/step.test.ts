@@ -27,6 +27,13 @@ describe("step authoring", () => {
     expect(() => createStep(makeContract("alpha"), { run: () => {} })).not.toThrow();
   });
 
+  it("createStep keeps the supplied contract authoritative over implementation object extras", () => {
+    const alpha = makeContract("alpha");
+    const implementation = { contract: makeContract("beta"), run: () => {} };
+
+    expect(createStep(alpha, implementation).contract).toBe(alpha);
+  });
+
   it("defineStep rejects non-kebab step ids", () => {
     expect(() =>
       defineStep({

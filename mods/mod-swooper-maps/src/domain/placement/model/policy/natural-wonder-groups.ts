@@ -23,6 +23,11 @@ export type WonderGroupDefinition = {
   suitability: (signals: GroupSuitabilitySignals) => number;
 };
 
+/**
+ * Load-bearing natural-wonder suitability policy grouped by shared physical requirements. Each
+ * formula maps normalized terrain, climate, and ecology signals into [0, 1]; catalog coverage
+ * is asserted below so a supported wonder cannot silently bypass grouping.
+ */
 export const WONDER_GROUPS: Readonly<Record<WonderGroup, WonderGroupDefinition>> = {
   A: {
     features: [35, 41],
@@ -66,6 +71,10 @@ const WONDER_GROUP_BY_FEATURE: ReadonlyMap<number, WonderGroup> = new Map(
   )
 );
 
+/**
+ * Official wonder feature IDs that lack a physical-suitability group. Module initialization
+ * rejects any entry so catalog growth cannot silently bypass placement policy.
+ */
 export const NATURAL_WONDER_GROUP_POLICY_GAPS = NATURAL_WONDER_CATALOG.map(
   (entry) => entry.featureType
 ).filter((featureType) => !WONDER_GROUP_BY_FEATURE.has(featureType));
@@ -78,6 +87,10 @@ if (NATURAL_WONDER_GROUP_POLICY_GAPS.length > 0) {
   );
 }
 
+/**
+ * Returns the physical-requirement group for an official natural-wonder feature ID. Unknown
+ * IDs fail closed because an ungrouped wonder has no admitted suitability formula.
+ */
 export function wonderGroup(featureType: number): WonderGroup {
   const group = WONDER_GROUP_BY_FEATURE.get(featureType);
   if (group !== undefined) return group;

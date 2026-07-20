@@ -4,27 +4,6 @@
   "private": true,
   "description": "Repo-local enforcement harness: single entrypoint over all structural checks, with ratchet baselines (see docs/projects/habitat-harness/FRAME.md)",
   "type": "module",
-  "main": "dist/index.js",
-  "bin": {
-    "habitat": "./bin/run.js"
-  },
-  "generators": "./generators.json",
-  "files": [
-    "bin",
-    "dist",
-    "generators.json",
-    "oclif.manifest.json",
-    "src"
-  ],
-  "scripts": {
-    "dev": "bun run bin/dev.ts",
-    "check": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --project habitat --testTimeout=30000",
-    "analyze:execution-surface": "bun run scripts/execution-surface-map.ts --repo-root ../.. --out-json ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json --out-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.md --out-anatomy-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-anatomy.md",
-    "generate:schemas": "bun run ../../.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/generate.ts",
-    "clean": "rimraf dist oclif.manifest.json",
-    "clean:dist": "rimraf dist oclif.manifest.json"
-  },
   "exports": {
     "./package.json": "./package.json",
     ".": {
@@ -101,10 +80,41 @@
       "default": "./dist/nx-plugin.js"
     }
   },
+  "main": "dist/index.js",
+  "bin": {
+    "habitat": "./bin/run.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "generators.json",
+    "oclif.manifest.json",
+    "src"
+  ],
+  "scripts": {
+    "analyze:execution-surface": "bun run scripts/execution-surface-map.ts --repo-root ../.. --out-json ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.json --out-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-map.md --out-anatomy-md ../../docs/projects/habitat-harness/execution-surface-map/execution-surface-anatomy.md",
+    "check:test": "tsc -p test/tsconfig.json --noEmit",
+    "check:tools": "tsc -p bin/tsconfig.json --noEmit && tsc -p scripts/tsconfig.json --noEmit",
+    "clean": "rimraf dist oclif.manifest.json",
+    "clean:dist": "rimraf dist",
+    "generate:schemas": "bun run ../../.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/generate.ts",
+    "test": "vitest run --project habitat --testTimeout=30000",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "oclif": {
+    "bin": "habitat",
+    "commands": "./dist/cli/commands",
+    "dirname": "habitat",
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "topicSeparator": " ",
+    "topics": {}
+  },
   "dependencies": {
     "@effect/platform": "0.96.1",
     "@effect/platform-node": "0.107.0",
-    "@nx/devkit": "22.7.5",
+    "@nx/devkit": "23.1.0",
     "@oclif/core": "^4.11.4",
     "@oclif/plugin-help": "^6.2.50",
     "@orpc/client": "1.14.6",
@@ -113,19 +123,10 @@
     "@orpc/shared": "^1.14.4",
     "@standard-schema/spec": "^1.1.0",
     "effect": "3.21.3",
-    "effect-orpc": "0.5.0",
+    "effect-orpc": "catalog:",
     "picomatch": "4.0.4",
     "smol-toml": "1.7.0",
-    "typebox": "^1.0.80"
+    "typebox": "catalog:"
   },
-  "oclif": {
-    "bin": "habitat",
-    "dirname": "habitat",
-    "commands": "./dist/cli/commands",
-    "plugins": [
-      "@oclif/plugin-help"
-    ],
-    "topicSeparator": " ",
-    "topics": {}
-  }
+  "generators": "./generators.json"
 }

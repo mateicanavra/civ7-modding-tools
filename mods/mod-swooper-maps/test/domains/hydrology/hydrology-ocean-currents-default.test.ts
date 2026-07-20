@@ -4,6 +4,11 @@ import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
 
 const { computeOceanSurfaceCurrents } = hydrologyOpsPublic.ops;
+type DefaultCurrentSelection = Extract<
+  Parameters<typeof computeOceanSurfaceCurrents.run>[1],
+  { strategy: "default" }
+>;
+
 function rms(values: Float32Array, mask: Uint8Array): number {
   let sum = 0;
   let n = 0;
@@ -18,9 +23,12 @@ function rms(values: Float32Array, mask: Uint8Array): number {
 
 function runOceanSurfaceCurrents(
   input: Parameters<typeof computeOceanSurfaceCurrents.run>[0],
-  config: (typeof computeOceanSurfaceCurrents.defaultConfig)["config"]
+  config: DefaultCurrentSelection["config"]
 ) {
-  return computeOceanSurfaceCurrents.run(input, { strategy: "default", config });
+  return computeOceanSurfaceCurrents.run(input, {
+    strategy: "default",
+    config,
+  } satisfies DefaultCurrentSelection);
 }
 
 describe("hydrology/compute-ocean-surface-currents (default)", () => {

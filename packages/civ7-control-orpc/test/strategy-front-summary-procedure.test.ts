@@ -12,6 +12,7 @@ import {
   Civ7StrategyFrontSummaryUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
 
 describe("strategy.frontSummary control-oRPC procedure", () => {
   test("composes target candidates and battlefield scan into a neutral planning view", async () => {
@@ -255,13 +256,13 @@ describe("strategy.frontSummary control-oRPC procedure", () => {
 
   test("maps source read failures to a tagged Effect/oRPC error without raw details", async () => {
     const context: Civ7ControlOrpcContext = {
-      directControl: {
+      directControl: directControlFacadeFixture({
         getCiv7TargetCandidates: async () => {
           throw new Error("Timed out waiting for Civ7 tuner response to CMD:1:Game.turn");
         },
         getCiv7BattlefieldScan: async () => battlefieldScanResult(),
         getCiv7DestinationAnalysis: async () => destinationAnalysisResult(),
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
     };
 
     await expect(

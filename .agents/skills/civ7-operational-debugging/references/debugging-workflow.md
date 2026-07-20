@@ -20,7 +20,7 @@
 
 Use when the question is "did source generate the expected mod files?"
 
-- Run `bun run --cwd mods/<mod-slug> build`.
+- Run `nx run <mod-project>:build`.
 - Inspect `mods/<mod-slug>/mod/` for the expected `.modinfo`, XML, JS, text, or
   config files.
 - If output is wrong, inspect source and build scripts; do not patch generated
@@ -30,7 +30,7 @@ Use when the question is "did source generate the expected mod files?"
 
 Use when the question is "did the built mod reach Civ7's Mods directory?"
 
-- Run `bun run --cwd mods/<mod-slug> deploy` for a single mod or
+- Run `nx run <mod-project>:deploy` for a single mod or
   `bun run deploy:mods` for all repo mods.
 - Inspect `<game-data>/Mods/<mod-id>/`.
 - Compare deployed files to `mods/<mod-slug>/mod/` when the copied content is in

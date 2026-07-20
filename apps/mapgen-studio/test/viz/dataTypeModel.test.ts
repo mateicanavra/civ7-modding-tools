@@ -6,9 +6,10 @@ import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-config
 import { describe, expect, it } from "vitest";
 import type { BrowserRunEvent } from "../../src/browser-runner/protocol";
 import { createWorkerTraceSink } from "../../src/browser-runner/worker-trace-sink";
-import { createWorkerVizDumper } from "../../src/browser-runner/worker-viz-dumper";
+import { createWorkerVizFacetSink } from "../../src/browser-runner/worker-viz-facet-sink";
 import { buildStepDataTypeModel } from "../../src/features/viz/dataTypeModel";
 import type { VizLayerEntryV1 } from "../../src/features/viz/model";
+import { studioStandardRecipeConfig } from "./standardRecipeConfig";
 
 describe("buildStepDataTypeModel", () => {
   it("groups layers by data type (dataTypeKey) and render mode (kind + role)", () => {
@@ -26,7 +27,7 @@ describe("buildStepDataTypeModel", () => {
         dims: { width: 4, height: 3 },
         field: { format: "f32", data: { kind: "path", path: "height/f32" } },
         bounds: [0, 0, 4, 3],
-        meta: { label: "Elevation" } as any,
+        meta: { label: "Elevation" },
       },
       {
         kind: "grid",
@@ -39,7 +40,7 @@ describe("buildStepDataTypeModel", () => {
         dims: { width: 4, height: 3 },
         field: { format: "u8", data: { kind: "path", path: "height/u8" } },
         bounds: [0, 0, 4, 3],
-        meta: { visibility: "debug" } as any,
+        meta: { visibility: "debug" },
       },
       {
         kind: "points",
@@ -52,7 +53,7 @@ describe("buildStepDataTypeModel", () => {
         positions: { kind: "path", path: "hotspots/positions" },
         values: { format: "f32", data: { kind: "path", path: "hotspots/gradient" } },
         bounds: [0, 0, 4, 3],
-        meta: { role: "gradient", label: "Hotspots" } as any,
+        meta: { role: "gradient", label: "Hotspots" },
       },
       {
         kind: "points",
@@ -65,7 +66,7 @@ describe("buildStepDataTypeModel", () => {
         positions: { kind: "path", path: "hotspots/positions" },
         values: { format: "f32", data: { kind: "path", path: "hotspots/clamped" } },
         bounds: [0, 0, 4, 3],
-        meta: { role: "clamped" } as any,
+        meta: { role: "clamped" },
       },
     ];
 
@@ -103,7 +104,7 @@ describe("buildStepDataTypeModel", () => {
     const layer = (
       dataTypeKey: string,
       visibility: "default" | "debug",
-      role: "physics" | "engine" | undefined = undefined
+      role: string | undefined = undefined
     ): VizLayerEntryV1 => ({
       kind: "grid",
       layerKey: `${stepId}::${dataTypeKey}::tile.hexOddQ::grid`,
@@ -114,7 +115,7 @@ describe("buildStepDataTypeModel", () => {
       dims: { width: 4, height: 3 },
       field: { format: "u8", data: { kind: "path", path: `${dataTypeKey}.u8` } },
       bounds: [0, 0, 4, 3],
-      meta: { visibility, role } as any,
+      meta: { visibility, ...(role === undefined ? {} : { role }) },
     });
 
     const layers = [
@@ -198,7 +199,7 @@ describe("buildStepDataTypeModel", () => {
     );
     if (!earthlikeArtifact)
       throw new Error("swooper-earthlike config missing from standard map config catalog");
-    const standardConfig = earthlikeArtifact.canonicalConfig.config;
+    const standardConfig = studioStandardRecipeConfig(earthlikeArtifact.canonicalConfig);
     const plan = standardRecipe.compile(envBase, standardConfig);
     const verboseSteps = Object.fromEntries(
       plan.nodes.map((node) => [node.stepId, "verbose"] as const)
@@ -219,14 +220,23 @@ describe("buildStepDataTypeModel", () => {
     });
     const context = createExtendedMapContext({ width, height }, adapter, env);
     const events: BrowserRunEvent[] = [];
-    context.viz = createWorkerVizDumper();
+    const post = (event: BrowserRunEvent): void => {
+      events.push(event);
+    };
 
     standardRecipe.run(context, env, standardConfig, {
       traceSink: createWorkerTraceSink({
         runToken: "studio-river-model-test",
         generation: 1,
-        post: (event) => events.push(event),
+        post,
       }),
+      facets: {
+        viz: createWorkerVizFacetSink({
+          runToken: "studio-river-model-test",
+          generation: 1,
+          post,
+        }),
+      },
       log: () => {},
     });
 
@@ -253,7 +263,8 @@ describe("buildStepDataTypeModel", () => {
       "map.rivers.engineNavigableRiverMetadataMask",
       "map.rivers.riverMismatchMask",
       "map.rivers.engineMinorRiverMask",
-      "debug.heightfield.landMask",
+      "morphology.topography.landMask",
+      "map.rivers.engineLandMask",
     ]);
 
     const byId = new Map(debugModel.dataTypes.map((dt) => [dt.dataTypeId, dt]));
@@ -272,5 +283,11 @@ describe("buildStepDataTypeModel", () => {
     expect(byId.get("map.rivers.engineNavigableRiverMetadataMask")?.visibility).toBe("debug");
     expect(byId.get("map.rivers.riverMismatchMask")?.visibility).toBe("debug");
     expect(byId.get("map.rivers.engineMinorRiverMask")?.visibility).toBe("debug");
+    expect(
+      byId.get("morphology.topography.landMask")?.spaces[0]?.renderModes[0]?.renderModeId
+    ).toBe("grid:physics");
+    expect(byId.get("map.rivers.engineLandMask")?.spaces[0]?.renderModes[0]?.renderModeId).toBe(
+      "grid:engine"
+    );
   });
 });

@@ -3,6 +3,8 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: [
     "src/index.ts",
+    "src/direct-control-error-boundary.ts",
+    "src/game-ui/loading-states.ts",
     "src/play/notifications/postconditions.ts",
     "src/play/operations/production-choice-proof.ts",
     "src/play/progression/choice-postconditions.ts",
@@ -21,5 +23,5 @@ export default defineConfig({
   ],
   format: ["esm", "cjs"],
   target: "es2022",
-  clean: true,
+  clean: ["!**/*.d.ts", "!**/*.d.ts.map"],
 });

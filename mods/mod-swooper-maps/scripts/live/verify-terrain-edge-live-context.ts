@@ -32,7 +32,7 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode terrain-edge-live-context --report-file <final-surface-parity-report.json>
+  nx run mod-swooper-maps:verify:operational -- --mode terrain-edge-live-context --report-file <final-surface-parity-report.json>
 
 Options:
   --context-file <path> Optional terrain edge context artifact to join by plot index
@@ -236,14 +236,11 @@ function extractFinalSurfaceParityReport(payload: unknown): FinalSurfaceParityRe
 }
 
 function resolveRequestIdentity(report: FinalSurfaceParityReport) {
-  const packet = isRecord(report.exactAuthorshipEvidence) ? report.exactAuthorshipEvidence : {};
-  const sourceSnapshot = isRecord(packet.sourceSnapshot) ? packet.sourceSnapshot : {};
-  const log = isRecord(packet.log) ? packet.log : {};
+  const packet = report.exactAuthorshipEvidence;
   const sources = {
     exactAuthorshipSummary: stringValue(recordValue(report.exactAuthorshipSummary, "requestId")),
-    exactAuthorshipEvidence: stringValue(packet.requestId),
-    sourceSnapshot: stringValue(sourceSnapshot.requestId),
-    log: stringValue(log.requestId),
+    exactAuthorshipEvidence: packet?.requestId,
+    log: packet?.log.requestId,
   };
   const values = Object.values(sources).filter((value): value is string => value !== undefined);
   const uniqueValues = [...new Set(values)].sort((left, right) => left.localeCompare(right));
@@ -336,39 +333,44 @@ export function summarizeTerrainEdgeReadbackCompleteness(
 ) {
   const plotsByLocation = plotsByLocationKey(readback.plots);
   const missingRows = rows.filter((row) => !plotsByLocation.has(locationKey(row.x, row.y)));
-  const factIssues = rows.flatMap((row) => {
+  const factIssues: Array<{
+    x: number;
+    y: number;
+    plotIndex: number;
+    field: (typeof REQUIRED_LIVE_TERRAIN_EDGE_FACTS)[number];
+    status: "missing" | "failed";
+    link: string;
+    fact?: unknown;
+  }> = [];
+  for (const row of rows) {
     const plot = plotsByLocation.get(locationKey(row.x, row.y));
-    if (plot === undefined) return [];
-    return REQUIRED_LIVE_TERRAIN_EDGE_FACTS.flatMap((field) => {
+    if (plot === undefined) continue;
+    for (const field of REQUIRED_LIVE_TERRAIN_EDGE_FACTS) {
       const fact = plot.facts[field];
       if (fact === undefined) {
-        return [
-          {
-            x: row.x,
-            y: row.y,
-            plotIndex: row.plotIndex,
-            field,
-            status: "missing" as const,
-            link: `live-terrain-readback.${field}.missing`,
-          },
-        ];
+        factIssues.push({
+          x: row.x,
+          y: row.y,
+          plotIndex: row.plotIndex,
+          field,
+          status: "missing",
+          link: `live-terrain-readback.${field}.missing`,
+        });
+        continue;
       }
       if (!isRecord(fact) || fact.ok !== true || !("value" in fact) || fact.value === undefined) {
-        return [
-          {
-            x: row.x,
-            y: row.y,
-            plotIndex: row.plotIndex,
-            field,
-            status: "failed" as const,
-            link: `live-terrain-readback.${field}.failed`,
-            fact,
-          },
-        ];
+        factIssues.push({
+          x: row.x,
+          y: row.y,
+          plotIndex: row.plotIndex,
+          field,
+          status: "failed",
+          link: `live-terrain-readback.${field}.failed`,
+          fact,
+        });
       }
-      return [];
-    });
-  });
+    }
+  }
   const blockedBy = [
     ...(readback.omitted > 0 ? ["live-terrain-readback.omitted"] : []),
     ...(missingRows.length > 0 ? ["live-terrain-readback.missing-rows"] : []),

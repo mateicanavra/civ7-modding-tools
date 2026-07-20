@@ -12,14 +12,16 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "overlay implementation reads in morphology non-contract step files",
+  "forbids": "overlay implementation reads in morphology step runtime modules",
   "why": "Morphology implementations should not depend on overlay implementation internals.",
   "remediate": null,
   "message": "Do not read overlay implementation modules from morphology step implementations.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/steps/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/steps/*/**/!(*.test|*.spec|config).ts"
+      ]
     }
   ],
   "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],

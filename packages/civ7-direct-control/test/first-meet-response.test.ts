@@ -100,7 +100,7 @@ function operationResult(
     before: {
       host: "127.0.0.1",
       port: 4318,
-      state: { id: "1", name: "Tuner", role: "tuner" },
+      state: { id: "1", name: "Tuner" },
       family: "player-operation",
       operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
       enumValue: "RESPOND_DIPLOMATIC_FIRST_MEET",
@@ -112,7 +112,7 @@ function operationResult(
     after: {
       host: "127.0.0.1",
       port: 4318,
-      state: { id: "1", name: "Tuner", role: "tuner" },
+      state: { id: "1", name: "Tuner" },
       family: "player-operation",
       operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
       enumValue: "RESPOND_DIPLOMATIC_FIRST_MEET",
@@ -129,6 +129,16 @@ function operationResult(
 function firstMeetNotificationView(
   mode: "first-meet" | "ready-unit"
 ): Civ7PlayNotificationViewResult {
+  const decision = {
+    category: "first-meet-diplomacy",
+    operationFamily: "player-operation",
+    operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
+    argsShape: "{ Player1, Player2, Type }",
+    requiredInputs: [],
+    commonActions: [],
+    confidence: "official-ui",
+    notes: [],
+  } satisfies Civ7PlayNotificationViewResult["decisions"][number];
   const notification = {
     id: { owner: 0, id: 44, type: 20 },
     type: 44,
@@ -143,20 +153,13 @@ function firstMeetNotificationView(
     expired: false,
     dismissed: false,
     isEndTurnBlocking: true,
-    decision: {
-      category: "first-meet-diplomacy",
-      operationFamily: "player-operation",
-      operationType: "RESPOND_DIPLOMATIC_FIRST_MEET",
-      argsShape: "{ Player1, Player2, Type }",
-      cli: "game play respond-first-meet",
-      requiredInputs: [],
-      commonActions: [],
-      notes: [],
-      details: { player2: 2 },
-    },
+    decision,
     details: { player2: 2 },
-  };
+  } satisfies Civ7PlayNotificationViewResult["notifications"][number];
   return {
+    host: "127.0.0.1",
+    port: 4318,
+    state: { id: "65535", name: "App UI" },
     localPlayerId: 0,
     turn: { ok: true, value: 27 },
     turnDate: { ok: true, value: "3350 BCE" },
@@ -171,8 +174,8 @@ function firstMeetNotificationView(
     selectedCityId: { ok: true, value: null },
     firstReadyUnitId: { ok: true, value: null },
     notifications: mode === "first-meet" ? [notification] : [],
-    decisions: mode === "first-meet" ? [notification.decision] : [],
+    decisions: mode === "first-meet" ? [decision] : [],
     hud: { nextDecision: null, decisionQueue: [] },
     limits: { maxNotifications: 25, truncated: false },
-  } as Civ7PlayNotificationViewResult;
+  };
 }

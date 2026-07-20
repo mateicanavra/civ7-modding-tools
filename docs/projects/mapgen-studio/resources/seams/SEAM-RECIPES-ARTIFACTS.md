@@ -5,7 +5,7 @@ The early separate browser-recipe packaging seam has been retired. Studio consum
 Current implementation anchors:
 
 - `mods/mod-swooper-maps/package.json`
-- `mods/mod-swooper-maps/tsup.studio-recipes.config.ts`
+- `mods/mod-swooper-maps/scripts/tsup.studio-recipes.config.ts`
 - `mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts`
 - `apps/mapgen-studio/src/recipes/catalog.ts`
 - `apps/mapgen-studio/src/browser-runner/recipeRuntime.ts`

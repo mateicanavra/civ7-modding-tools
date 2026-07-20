@@ -1,15 +1,12 @@
+import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
 import * as earthlikeExpectations from "./earthlike-expectations.artifact.js";
 
-export { earthlikeExpectations };
-
-export const artifactContracts = {
+const catalog = defineArtifactCatalog({
   earthlikeExpectations,
-} as const;
+});
 
-export const artifacts = {
-  earthlikeExpectations: earthlikeExpectations.artifact,
-} as const;
+/** Resources artifact modules pairing every contract with its complete admission validator. */
+export const artifactModules = catalog.modules;
 
-export const validators = {
-  earthlikeExpectations: earthlikeExpectations.validate,
-} as const;
+/** Resources artifact handles derived from the module catalog for contracts and consumers. */
+export const artifacts = catalog.artifacts;

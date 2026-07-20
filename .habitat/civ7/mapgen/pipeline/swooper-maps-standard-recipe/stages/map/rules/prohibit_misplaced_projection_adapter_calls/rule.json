@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "prohibit_misplaced_projection_adapter_calls",
-  "title": "Prohibit Misplaced Projection Adapter Calls",
+  "title": "Prohibit Adapter Access Outside Projection Boundaries",
   "placement": {
     "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/map",
     "blueprint": "_self",
@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "map projection adapter calls outside their owning projection steps, physics-stage engine projection reads, or row-major odd-r tile callsites",
-  "why": "Projection engine calls are structural source authority when the allowed callsites are exact recipe step files.",
-  "remediate": "Move projection adapter calls to their owning map projection step or consume authored artifacts upstream.",
-  "message": "Projection adapter call crossed its owning step boundary.",
+  "forbids": "engine-adapter access from Standard recipe stages outside map projection and terminal Placement boundaries",
+  "why": "Physics and planning stages communicate through admitted artifacts; only materialization and terminal Placement stages may observe or mutate Civ7 engine state.",
+  "remediate": "Consume an admitted artifact upstream, or move engine materialization into a map projection or terminal Placement step.",
+  "message": "Engine-adapter access crossed the Standard recipe projection boundary.",
   "pathCoverage": [
     {
       "kind": "exact-path",

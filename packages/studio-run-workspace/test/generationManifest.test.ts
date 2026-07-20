@@ -1,12 +1,13 @@
-import { createHash } from "node:crypto";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import type { JsonWireObject } from "@civ7/studio-contract";
 import { describe, expect, test } from "vitest";
 import {
   buildStudioRunGenerationManifest,
   buildStudioRunGenerationManifestPayload,
   canonicalSortedJson,
+  canonicalValueDigest,
   createRunArtifactId,
   generationManifestDigest,
   parseStudioRunGenerationManifest,
@@ -106,21 +107,15 @@ describe("Studio Run generation manifest", () => {
       parseStudioRunGenerationManifest(
         buildStudioRunGenerationManifest({
           ...manifest.payload,
-          launchSourceDigest: {
-            ...manifest.payload.launchSourceDigest,
-            launchEnvelopeDigest: "c".repeat(64),
-          },
+          canonicalConfigDigest: "not-a-digest",
         })
       )
     ).toThrow("Invalid StudioRunGenerationManifest");
     const changedLaunchEnvelope = {
       ...manifest.payload.launchEnvelope,
-      source: {
-        ...manifest.payload.launchEnvelope.source,
-        canonicalConfig: {
-          ...manifest.payload.launchEnvelope.source.canonicalConfig,
-          name: "Changed after admission",
-        },
+      canonicalConfig: {
+        ...manifest.payload.launchEnvelope.canonicalConfig,
+        name: "Changed after admission",
       },
     };
     expect(() =>
@@ -128,37 +123,29 @@ describe("Studio Run generation manifest", () => {
         buildStudioRunGenerationManifest({
           ...manifest.payload,
           launchEnvelope: changedLaunchEnvelope,
-          launchSourceDigest: {
-            ...manifest.payload.launchSourceDigest,
-            canonicalConfigDigest: digest(changedLaunchEnvelope.source.canonicalConfig),
-          },
+          canonicalConfigDigest: canonicalValueDigest(changedLaunchEnvelope.canonicalConfig),
         })
       )
     ).toThrow("launchEnvelopeDigest does not match launch envelope");
     const incompleteCanonicalConfig = {
-      id: manifest.payload.launchEnvelope.source.canonicalConfig.id,
-      recipe: manifest.payload.launchEnvelope.source.canonicalConfig.recipe,
-      config: manifest.payload.launchEnvelope.source.canonicalConfig.config,
+      id: manifest.payload.launchEnvelope.canonicalConfig.id,
+      recipe: manifest.payload.launchEnvelope.canonicalConfig.recipe,
+      config: manifest.payload.launchEnvelope.canonicalConfig.config,
     };
     const incompleteLaunchEnvelope = {
       ...manifest.payload.launchEnvelope,
-      source: {
-        ...manifest.payload.launchEnvelope.source,
-        canonicalConfig: incompleteCanonicalConfig,
-      },
+      canonicalConfig: incompleteCanonicalConfig,
     };
     const selfConsistentlyRehashedManifest = {
       payload: {
         ...manifest.payload,
         launchEnvelope: incompleteLaunchEnvelope,
-        launchSourceDigest: {
-          canonicalConfigDigest: digest(incompleteCanonicalConfig),
-        },
-        launchEnvelopeDigest: digest(incompleteLaunchEnvelope),
+        canonicalConfigDigest: canonicalValueDigest(incompleteCanonicalConfig),
+        launchEnvelopeDigest: canonicalValueDigest(incompleteLaunchEnvelope),
       },
       generationManifestDigest: "",
     };
-    selfConsistentlyRehashedManifest.generationManifestDigest = digest(
+    selfConsistentlyRehashedManifest.generationManifestDigest = canonicalValueDigest(
       selfConsistentlyRehashedManifest.payload
     );
     expect(() => parseStudioRunGenerationManifest(selfConsistentlyRehashedManifest)).toThrow(
@@ -167,8 +154,8 @@ describe("Studio Run generation manifest", () => {
     const rehashedPayloadWithSiblingRequest = {
       ...manifest.payload,
       request: {
-        recipeId: manifest.payload.launchEnvelope.recipeSettings.recipe,
-        seed: manifest.payload.launchEnvelope.recipeSettings.seed,
+        recipeId: manifest.payload.launchEnvelope.canonicalConfig.recipe,
+        seed: manifest.payload.launchEnvelope.seed,
         mapSize: manifest.payload.launchEnvelope.worldSettings.mapSize,
         setupConfig: manifest.payload.launchEnvelope.setupConfig,
       },
@@ -176,7 +163,7 @@ describe("Studio Run generation manifest", () => {
     expect(() =>
       parseStudioRunGenerationManifest({
         payload: rehashedPayloadWithSiblingRequest,
-        generationManifestDigest: digest(rehashedPayloadWithSiblingRequest),
+        generationManifestDigest: canonicalValueDigest(rehashedPayloadWithSiblingRequest),
       })
     ).toThrow("Invalid StudioRunGenerationManifest");
   });
@@ -203,7 +190,7 @@ describe("Studio Run generation manifest", () => {
       expect(Object.isFrozen(manifest)).toBe(true);
       expect(Object.isFrozen(manifest.payload)).toBe(true);
       expect(Object.isFrozen(manifest.payload.launchEnvelope)).toBe(true);
-      expect(Object.isFrozen(manifest.payload.launchEnvelope.source.canonicalConfig)).toBe(true);
+      expect(Object.isFrozen(manifest.payload.launchEnvelope.canonicalConfig)).toBe(true);
 
       await expect(
         writeStudioRunGenerationManifest({
@@ -216,11 +203,44 @@ describe("Studio Run generation manifest", () => {
     }
   });
 
+  test("gives sequential same-content requests fresh manifest identity", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-manifest-freshness-"));
+    try {
+      const firstWritten = await writeStudioRunGenerationManifest({
+        manifestInput: manifestInput({ requestId: "studio-run-first", resources: "balanced" }),
+        workspaceRoot,
+      });
+      const repeatWritten = await writeStudioRunGenerationManifest({
+        manifestInput: manifestInput({ requestId: "studio-run-repeat", resources: "balanced" }),
+        workspaceRoot,
+      });
+      const first = await readStudioRunGenerationManifest(firstWritten.path);
+      const repeat = await readStudioRunGenerationManifest(repeatWritten.path);
+
+      expect(parseStudioRunGenerationManifest(first)).toEqual(first);
+      expect(parseStudioRunGenerationManifest(repeat)).toEqual(repeat);
+      expect(firstWritten.path).not.toBe(repeatWritten.path);
+      expect(first.payload.requestId).not.toBe(repeat.payload.requestId);
+      expect(first.payload.workspace.requestRoot).not.toBe(repeat.payload.workspace.requestRoot);
+      expect(first.payload.runArtifactId).not.toBe(repeat.payload.runArtifactId);
+      expect(first.generationManifestDigest).not.toBe(repeat.generationManifestDigest);
+      expect(first.payload.canonicalConfigDigest).toBe(repeat.payload.canonicalConfigDigest);
+      expect(first.payload.launchEnvelopeDigest).toBe(repeat.payload.launchEnvelopeDigest);
+      expect(first.payload.launchEnvelope.worldSettings.resources).toBe("balanced");
+      expect(repeat.payload.launchEnvelope.worldSettings.resources).toBe("balanced");
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
   test("finalizes snapshot bytes and digest before filesystem awaits", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-manifest-snapshot-"));
     try {
       const mutableConfig = { nested: { label: "before" } };
-      const input = manifestInput({ config: mutableConfig, requestId: "studio-run-manifest-snapshot" });
+      const input = manifestInput({
+        config: mutableConfig,
+        requestId: "studio-run-manifest-snapshot",
+      });
       const writing = writeStudioRunGenerationManifest({
         manifestInput: input,
         workspaceRoot,
@@ -234,7 +254,7 @@ describe("Studio Run generation manifest", () => {
       expect(serialized).toContain('"label": "before"');
       expect(serialized).not.toContain('"label": "after"');
       expect(manifest.generationManifestDigest).toBe(written.generationManifestDigest);
-      expect(manifest.payload.launchEnvelope.source.canonicalConfig.config).toEqual({
+      expect(manifest.payload.launchEnvelope.canonicalConfig.config).toEqual({
         nested: { label: "before" },
       });
     } finally {
@@ -246,7 +266,10 @@ describe("Studio Run generation manifest", () => {
 function manifestInput(
   overrides: Readonly<{
     requestId?: string;
-    config?: Record<string, unknown>;
+    config?: JsonWireObject;
+    resources?: NonNullable<
+      StudioRunGenerationManifestInput["launchEnvelope"]["worldSettings"]["resources"]
+    >;
   }> = {}
 ): StudioRunGenerationManifestInput {
   const config = overrides.config ?? {};
@@ -259,32 +282,20 @@ function manifestInput(
     latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
     config,
   };
-  const source = {
-    kind: "editor" as const,
-    editorSessionId: "manifest-test-editor",
-    canonicalConfig,
-  };
   const launchEnvelope = {
-    recipeSettings: {
-      recipe: "mod-swooper-maps/standard",
-      seed: 43,
-    },
+    seed: 43,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
+      ...(overrides.resources === undefined ? {} : { resources: overrides.resources }),
     },
     setupConfig: {
       gameOptions: {},
       playerOptions: [{ playerId: 0, options: {} }],
     },
-    source,
+    canonicalConfig,
   };
-  const launchEnvelopeDigest = digest(launchEnvelope);
   return {
     requestId: overrides.requestId ?? "studio-run-in-game-digest",
     launchEnvelope,
   };
-}
-
-function digest(value: unknown): string {
-  return createHash("sha256").update(canonicalSortedJson(value), "utf8").digest("hex");
 }

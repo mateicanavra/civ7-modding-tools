@@ -9,6 +9,7 @@ import {
   PipelineExecutor,
   type RecipeV2,
   type RunRequest,
+  type StepFacetSinks,
   StepRegistry,
   TagRegistry,
 } from "@mapgen/engine/index.js";
@@ -16,6 +17,7 @@ import type { TraceSession, TraceSink } from "@mapgen/trace/index.js";
 import { createConsoleTraceSink } from "@mapgen/trace/index.js";
 import { compileRecipeConfig } from "../compiler/recipe-compile.js";
 import type { ArtifactContract, ArtifactReadValueOf } from "./artifact/contract.js";
+import type { ArtifactModule } from "./artifact/module.js";
 import {
   ArtifactMissingError,
   type ProvidedArtifactRuntime,
@@ -56,9 +58,8 @@ function assertTagDefinitions(value: unknown): void {
 
 function inferTagKind(id: string): DependencyTagDefinition<unknown>["kind"] {
   if (id.startsWith("artifact:")) return "artifact";
-  if (id.startsWith("field:")) return "field";
   if (id.startsWith("effect:")) return "effect";
-  throw new Error(`Invalid dependency tag "${id}" (expected artifact:/field:/effect:)`);
+  throw new Error(`Invalid dependency tag "${id}" (expected artifact:/effect:)`);
 }
 
 function computeFullStepId(input: {
@@ -123,7 +124,7 @@ function buildArtifactDeps<TContext extends ExtendedMapContext>(
   > = {};
 
   const requires = (artifacts.requires ?? []) as readonly ArtifactContract[];
-  const provides = (artifacts.provides ?? []) as readonly ArtifactContract[];
+  const provides = (artifacts.provides ?? []).map((module: ArtifactModule) => module.artifact);
 
   for (const contract of requires) {
     out[contract.name] = createRequiredArtifactRuntime(contract, fullStepId);
@@ -143,8 +144,6 @@ function buildStepDeps<TContext extends ExtendedMapContext>(
 ): StepDeps<TContext, typeof authored.contract.artifacts> {
   return {
     artifacts: buildArtifactDeps(authored, fullStepId, recipeId),
-    fields: {},
-    effects: {},
   } as StepDeps<TContext, typeof authored.contract.artifacts>;
 }
 
@@ -182,7 +181,9 @@ function collectArtifactTagDefinitions<TContext extends ExtendedMapContext>(inpu
         providers.set(tag, fullId);
       }
 
-      const provides = (authored.contract.artifacts?.provides ?? []) as readonly ArtifactContract[];
+      const provides = (authored.contract.artifacts?.provides ?? []).map(
+        (module: ArtifactModule) => module.artifact
+      );
       for (const contract of provides) {
         const existing = providers.get(contract.id);
         if (existing) {
@@ -222,6 +223,10 @@ function finalizeOccurrences<TContext extends ExtendedMapContext>(input: {
         stepId,
       });
       const deps = buildStepDeps(authored, fullId, input.recipeId);
+      const facets = (authored.metrics || authored.viz) && {
+        metrics: authored.metrics,
+        viz: authored.viz,
+      };
 
       const ops = authored.contract.ops
         ? bindRuntimeOps(authored.contract.ops as any, input.runtimeOpsById as any)
@@ -237,9 +242,12 @@ function finalizeOccurrences<TContext extends ExtendedMapContext>(input: {
           provides: authored.contract.provides,
           configSchema: authored.contract.schema,
           normalize: authored.normalize as MapGenStep<TContext, unknown>["normalize"] | undefined,
-          run: ((context: TContext, config: unknown) => {
-            return (authored.run as any)(context, config, ops, deps);
-          }) as unknown as MapGenStep<TContext, unknown>["run"],
+          run: ((context: TContext, config: unknown) =>
+            (authored.run as any)(context, config, ops, deps)) as unknown as MapGenStep<
+            TContext,
+            unknown
+          >["run"],
+          facets,
         },
       });
     }
@@ -399,6 +407,7 @@ export function createRecipe<
     options: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;
+      facets?: StepFacetSinks;
       log?: (message: string) => void;
     } = {}
   ): void {
@@ -415,7 +424,10 @@ export function createRecipe<
       log: options.log,
       logPrefix: `[recipe:${input.id}]`,
     });
-    executor.executePlan(context, plan, { trace: traceSession ?? null });
+    executor.executePlan(context, plan, {
+      trace: traceSession ?? null,
+      facets: options.facets,
+    });
   }
 
   async function runAsync(
@@ -425,6 +437,7 @@ export function createRecipe<
     options: {
       trace?: TraceSession | null;
       traceSink?: TraceSink | null;
+      facets?: StepFacetSinks;
       log?: (message: string) => void;
       abortSignal?: { readonly aborted: boolean } | null;
       yieldToEventLoop?: boolean;
@@ -446,6 +459,7 @@ export function createRecipe<
     });
     await executor.executePlanAsync(context, plan, {
       trace: traceSession ?? null,
+      facets: options.facets,
       abortSignal: options.abortSignal ?? null,
       yieldToEventLoop: options.yieldToEventLoop,
       yieldFn: options.yieldFn ?? null,

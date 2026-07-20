@@ -72,6 +72,11 @@ const TerrestrialPlanRowSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/**
+ * Admits warning-only terrestrial demand planning from earthlike expectations and named
+ * land-ecology signals. It assigns family-owned habitat lanes and reports evidence gaps
+ * without selecting concrete sites.
+ */
 const PlanTerrestrialResourcesContract = defineOp({
   kind: "plan",
   id: "resources/plan-terrestrial-resources",

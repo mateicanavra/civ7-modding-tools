@@ -30,14 +30,29 @@
     "build": {
       "command": "node -e \"\"",
       "cache": false,
-      "outputs": ["{projectRoot}/dist/**"],
+      "outputs": [],
       "dependsOn": ["build:vite"],
       "options": {
         "cwd": "apps/mapgen-studio"
       }
     },
-    "check": {
+    "typecheck": {
       "command": "tsc --noEmit",
+      "dependsOn": [
+        "check:test",
+        "check:tools",
+        "^build",
+        {
+          "projects": ["mod-swooper-maps"],
+          "target": "build:studio-recipes"
+        }
+      ],
+      "options": {
+        "cwd": "apps/mapgen-studio"
+      }
+    },
+    "check:test": {
+      "command": "tsc -p tsconfig.test.json --noEmit",
       "dependsOn": [
         "^build",
         {
@@ -48,6 +63,17 @@
       "options": {
         "cwd": "apps/mapgen-studio"
       }
+    },
+    "check:tools": {
+      "command": "tsc -p tsconfig.tools.json --noEmit",
+      "options": {
+        "cwd": "apps/mapgen-studio"
+      }
+    },
+    "check": {
+      "executor": "nx:noop",
+      "cache": false,
+      "outputs": []
     },
     "test": {
       "command": "vitest run --config ../../vitest.config.ts --project mapgen-studio",
@@ -64,8 +90,9 @@
     },
     "build:vite": {
       "command": "vite build",
+      "cache": true,
       "dependsOn": [
-        "check",
+        "typecheck",
         "^build",
         {
           "projects": ["mod-swooper-maps"],

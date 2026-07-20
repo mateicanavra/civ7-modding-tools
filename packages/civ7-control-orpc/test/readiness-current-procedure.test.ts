@@ -1,14 +1,18 @@
 import { call } from "@orpc/server";
+import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
+import type { Civ7ControlOrpcPlayableStatusResult } from "../src/dependencies/direct-control";
 import {
+  Civ7ControlOrpcAdmissionRefusal,
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
-  type Civ7ControlOrpcPlayableStatusResult,
   Civ7ControlOrpcRouter,
   Civ7ReadinessCurrentUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { directControlFacadeFixture } from "./support/direct-control-facade";
+import { playableStatusResult } from "./support/playable-status";
 
 describe("readiness.current control-oRPC procedure", () => {
   test("projects playable status into a semantic readiness result", async () => {
@@ -346,11 +350,11 @@ describe("readiness.current control-oRPC procedure", () => {
 
   test("maps direct-control facade failures to a tagged Effect/oRPC error without raw details", async () => {
     const context: Civ7ControlOrpcContext = {
-      directControl: {
+      directControl: directControlFacadeFixture({
         getCiv7PlayableStatus: async () => {
           throw new Error("Timed out waiting for Civ7 tuner response to CMD:1:Game.turn");
         },
-      } as Civ7ControlOrpcContext["directControl"],
+      }),
     };
 
     await expect(
@@ -375,6 +379,55 @@ describe("readiness.current control-oRPC procedure", () => {
     }
   });
 
+  test("refuses host admission before the direct-control facade runs", async () => {
+    let facadeCalls = 0;
+    const context: Civ7ControlOrpcContext = {
+      directControl: directControlFacadeFixture({
+        getCiv7PlayableStatus: async () => {
+          facadeCalls += 1;
+          return playableStatusResult();
+        },
+      }),
+      procedureAdmission: () => Effect.fail(new Civ7ControlOrpcAdmissionRefusal(1234)),
+    };
+
+    await expect(
+      call(Civ7ControlOrpcRouter.readiness.current, {}, { context })
+    ).rejects.toMatchObject({
+      code: "CONTROL_ADMISSION_UNAVAILABLE",
+      status: 503,
+      data: {
+        procedureKey: "readiness.current",
+        source: "host-procedure-admission",
+        reason: "temporarily-unavailable",
+        retryAtMs: 1234,
+      },
+    });
+    expect(facadeCalls).toBe(0);
+  });
+
+  test("preserves downstream defined errors through host admission", async () => {
+    const context: Civ7ControlOrpcContext = {
+      directControl: directControlFacadeFixture({
+        getCiv7PlayableStatus: async () => {
+          throw new Error("tuner unavailable");
+        },
+      }),
+      procedureAdmission: (procedure) => procedure,
+    };
+
+    await expect(
+      call(Civ7ControlOrpcRouter.readiness.current, {}, { context })
+    ).rejects.toMatchObject({
+      code: "READINESS_CURRENT_UNAVAILABLE",
+      status: 503,
+      data: {
+        procedureKey: "readiness.current",
+        source: "direct-control-facade",
+      },
+    });
+  });
+
   test("publishes a contract-first readiness.current service leaf", () => {
     expect(Civ7ControlOrpcContract.readiness.current["~orpc"]).toMatchObject({
       meta: {
@@ -386,6 +439,9 @@ describe("readiness.current control-oRPC procedure", () => {
     });
     expect(Civ7ControlOrpcContract.readiness.current["~orpc"].errorMap).toHaveProperty(
       "READINESS_CURRENT_UNAVAILABLE"
+    );
+    expect(Civ7ControlOrpcContract.readiness.current["~orpc"].errorMap).toHaveProperty(
+      "CONTROL_ADMISSION_UNAVAILABLE"
     );
     expect(Civ7ReadinessCurrentUnavailableError.code).toBe("READINESS_CURRENT_UNAVAILABLE");
   });
@@ -417,64 +473,4 @@ function fakeContext(
       ...overrides,
     },
   };
-}
-
-function playableStatusResult(
-  overrides: Partial<{
-    playable: boolean;
-    readiness: Civ7ControlOrpcPlayableStatusResult["readiness"];
-    tunerReady: boolean | null;
-    appUi: {
-      inGame: boolean | null;
-      inShell: boolean | null;
-      inLoading: boolean | null;
-      canBeginGame: boolean | null;
-    };
-    errors: string[];
-  }> = {}
-): Civ7ControlOrpcPlayableStatusResult {
-  const appUi = overrides.appUi ?? {
-    inGame: true,
-    inShell: false,
-    inLoading: false,
-    canBeginGame: false,
-  };
-
-  return {
-    host: "127.0.0.1",
-    port: 4318,
-    playable: overrides.playable ?? true,
-    readiness: overrides.readiness ?? "tuner-ready",
-    appUi: {
-      host: "127.0.0.1",
-      port: 4318,
-      state: { id: "65535", name: "App UI" },
-      snapshot: {
-        ui: {
-          inGame: probe(appUi.inGame),
-          inShell: probe(appUi.inShell),
-          inLoading: probe(appUi.inLoading),
-          canBeginGame: probe(appUi.canBeginGame),
-        },
-      },
-    },
-    tuner:
-      overrides.tunerReady == null
-        ? undefined
-        : {
-            host: "127.0.0.1",
-            port: 4318,
-            state: { id: "1", name: "Tuner" },
-            ready: overrides.tunerReady,
-            snapshot: {
-              evalOk: overrides.tunerReady ? 2 : 0,
-              ready: overrides.tunerReady,
-            },
-          },
-    errors: overrides.errors ?? [],
-  } as Civ7ControlOrpcPlayableStatusResult;
-}
-
-function probe<T>(value: T | null) {
-  return value == null ? { ok: false as const } : { ok: true as const, value };
 }

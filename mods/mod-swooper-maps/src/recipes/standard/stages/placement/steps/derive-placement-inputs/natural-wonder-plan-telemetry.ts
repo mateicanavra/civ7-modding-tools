@@ -3,6 +3,7 @@ import type { Static } from "@swooper/mapgen-core/authoring";
 
 type NaturalWonderPlan = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 
+/** Stable tuple emitted for each bounded natural-wonder plan sample. */
 export type NaturalWonderPlanRuntimeRow = readonly [
   status: "p",
   plotIndex: number,
@@ -14,6 +15,7 @@ export type NaturalWonderPlanRuntimeRow = readonly [
   priorityPpm: number | null,
 ];
 
+/** Versioned, bounded natural-wonder plan evidence and its order-independent coordinate hash. */
 export type NaturalWonderPlanRuntimeTelemetry = {
   version: 1;
   wondersCount: number;
@@ -62,6 +64,11 @@ function naturalWonderPlanCoordinateHash(rows: readonly NaturalWonderPlanRuntime
   );
 }
 
+/**
+ * Projects a natural-wonder plan into bounded runtime evidence: at most 16
+ * placement rows and an order-independent coordinate hash. Invalid optional
+ * elevation/priority values remain explicit `null` sentinels.
+ */
 export function buildNaturalWonderPlanRuntimeTelemetry(
   plan: NaturalWonderPlan
 ): NaturalWonderPlanRuntimeTelemetry {
@@ -95,6 +102,7 @@ export function buildNaturalWonderPlanRuntimeTelemetry(
   };
 }
 
+/** Builds and writes bounded natural-wonder plan evidence under the stable runtime log prefix. */
 export function logNaturalWonderPlanRuntimeTelemetry(plan: NaturalWonderPlan): void {
   console.log(
     `[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 ${JSON.stringify(

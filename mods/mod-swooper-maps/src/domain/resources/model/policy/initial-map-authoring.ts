@@ -5,6 +5,7 @@ import type {
 } from "@civ7/map-policy";
 import { OFFICIAL_RESOURCE_CORPUS } from "@civ7/map-policy";
 
+/** Age whose valid resource rows may be authored onto the initial map surface. */
 export const INITIAL_MAP_RESOURCE_AUTHORING_AGE =
   "AGE_ANTIQUITY" as const satisfies OfficialAgeType;
 
@@ -86,30 +87,43 @@ function byType(
   ) as Readonly<Record<OfficialResourceType, InitialMapResourceAuthoringPolicyEntry>>;
 }
 
+/** Frozen corpus-wide initial-map disposition for the configured authoring age. */
 export const INITIAL_MAP_RESOURCE_AUTHORING_POLICY = buildPolicyForAge(
   INITIAL_MAP_RESOURCE_AUTHORING_AGE
 );
 
+/** Constant-time lookup of the default-age authoring disposition by official resource type. */
 export const INITIAL_MAP_RESOURCE_POLICY_BY_TYPE = byType(INITIAL_MAP_RESOURCE_AUTHORING_POLICY);
 
+/** Official resource types admitted onto the configured initial-age map surface. */
 export const INITIAL_MAP_RESOURCE_TYPES = deepFreeze(
   INITIAL_MAP_RESOURCE_AUTHORING_POLICY.filter((entry) => entry.status === "eligible").map(
     (entry) => entry.resourceType
   )
 ) as readonly OfficialResourceType[];
 
+/** Placeable resource types withheld from the initial map because they belong to later ages. */
 export const DEFERRED_INITIAL_MAP_RESOURCE_TYPES = deepFreeze(
   INITIAL_MAP_RESOURCE_AUTHORING_POLICY.filter(
     (entry) => entry.status === "deferred-future-age"
   ).map((entry) => entry.resourceType)
 ) as readonly OfficialResourceType[];
 
+/**
+ * Derives a frozen initial-map disposition for every official resource at an arbitrary age,
+ * preserving blocked and not-placeable rows rather than dropping them from policy evidence.
+ */
 export function buildInitialMapResourceAuthoringPolicy(
   authoringAge: OfficialAgeType = INITIAL_MAP_RESOURCE_AUTHORING_AGE
 ): readonly InitialMapResourceAuthoringPolicyEntry[] {
   return buildPolicyForAge(authoringAge);
 }
 
+/**
+ * Returns the official initial-map authoring disposition for one resource and age. The
+ * Antiquity default uses the frozen lookup; other ages rebuild the corpus-derived policy so
+ * future-age resources are never admitted by stale default data.
+ */
 export function getInitialMapResourcePolicyForType(
   resourceType: OfficialResourceType,
   authoringAge: OfficialAgeType = INITIAL_MAP_RESOURCE_AUTHORING_AGE
@@ -120,6 +134,7 @@ export function getInitialMapResourcePolicyForType(
   return byType(buildPolicyForAge(authoringAge))[resourceType];
 }
 
+/** Reports whether an official resource may be authored onto the initial surface for an age. */
 export function isInitialMapResourceType(
   resourceType: OfficialResourceType,
   authoringAge: OfficialAgeType = INITIAL_MAP_RESOURCE_AUTHORING_AGE

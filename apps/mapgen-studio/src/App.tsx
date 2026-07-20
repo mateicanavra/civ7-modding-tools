@@ -7,7 +7,7 @@ import { StudioProviders } from "./app/StudioProviders";
  * tree under `src/app/`: `StudioProviders` (the provider shell) hosts
  * `StudioShell` (layout + orchestration), which composes `CanvasStage`,
  * `AppHeader`, `LeftDock`/`RecipePanel`, `RightDock`/`ExplorePanel`, `AppFooter`,
- * `PresetDialogs`, and `ErrorBanner`. State lives in the Zustand `viewStore`,
+ * the config save dialog, and `ErrorBanner`. State lives in the Zustand `viewStore`,
  * oRPC-backed queries, and the feature modules under `src/features/*`. This root
  * only re-exports the provider shell so `main.tsx` (which owns the
  * `QueryClientProvider`) has a stable mount point.

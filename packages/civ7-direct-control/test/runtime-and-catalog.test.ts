@@ -369,6 +369,8 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
 
       const appUiCommand = server.received.find((message) => message.startsWith("CMD:65535:"));
       const tunerCommand = server.received.find((message) => message.startsWith("CMD:1:"));
+      const appUiRoots: ReadonlySet<string> = new Set(DEFAULT_CIV7_APP_UI_API_ROOTS);
+      const tunerRoots: ReadonlySet<string> = new Set(DEFAULT_CIV7_TUNER_API_ROOTS);
       expect(appUiCommand).toBeDefined();
       expect(tunerCommand).toBeDefined();
       for (const root of DEFAULT_CIV7_APP_UI_API_ROOTS) {
@@ -377,14 +379,10 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
       for (const root of DEFAULT_CIV7_TUNER_API_ROOTS) {
         expect(tunerCommand).toContain(JSON.stringify(root));
       }
-      for (const root of DEFAULT_CIV7_TUNER_API_ROOTS.filter(
-        (root) => !DEFAULT_CIV7_APP_UI_API_ROOTS.includes(root)
-      )) {
+      for (const root of DEFAULT_CIV7_TUNER_API_ROOTS.filter((root) => !appUiRoots.has(root))) {
         expect(appUiCommand).not.toContain(JSON.stringify(root));
       }
-      for (const root of DEFAULT_CIV7_APP_UI_API_ROOTS.filter(
-        (root) => !DEFAULT_CIV7_TUNER_API_ROOTS.includes(root)
-      )) {
+      for (const root of DEFAULT_CIV7_APP_UI_API_ROOTS.filter((root) => !tunerRoots.has(root))) {
         expect(tunerCommand).not.toContain(JSON.stringify(root));
       }
     } finally {
@@ -441,6 +439,10 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
             kind: "gameinfo-table",
             confidence: "source",
             risk: "read",
+          }),
+          expect.objectContaining({
+            id: "wrapper.map-summary",
+            provenance: expect.arrayContaining(["Configuration.getMap"]),
           }),
         ])
       );

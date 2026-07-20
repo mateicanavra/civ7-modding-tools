@@ -13,6 +13,8 @@ import {
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 production choice request procedure descriptor", () => {
   test("records production-choice validator, postcondition, and no-repeat metadata and resolves schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(
@@ -39,10 +41,10 @@ describe("Civ7 production choice request procedure descriptor", () => {
       Civ7ProductionChoiceRequestProcedureDescriptor,
       Civ7ProductionChoiceRequestProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7ProductionChoiceRequestProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7ProductionChoiceRequestProcedureDescriptor.outputFields)
     );
     expect(Civ7ProductionChoiceRequestProcedureDescriptor.outputFields).not.toContain("command");
@@ -127,8 +129,8 @@ describe("Civ7 production choice request procedure descriptor", () => {
         request: async (input, options) => {
           calls.push({
             input,
-            host: options.host,
-            port: options.port,
+            host: options?.host,
+            port: options?.port,
           });
           return {
             ...productionChoiceResult(),

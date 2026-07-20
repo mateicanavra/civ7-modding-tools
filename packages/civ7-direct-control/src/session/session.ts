@@ -34,6 +34,7 @@ export class Civ7DirectControlSession {
   private buffer = Buffer.alloc(0);
   private readonly pending = new Map<number, PendingCiv7TunerRequest>();
   private consecutiveResponseTimeouts = 0;
+  private totalResponseTimeouts = 0;
   private connecting: Promise<Civ7DirectControlEndpoint> | undefined;
 
   constructor(options: Civ7DirectControlOptions = {}) {
@@ -51,7 +52,10 @@ export class Civ7DirectControlSession {
    * the studio's backoff gate keys on.
    */
   get stats(): Civ7DirectControlSessionStats {
-    return { consecutiveResponseTimeouts: this.consecutiveResponseTimeouts };
+    return {
+      consecutiveResponseTimeouts: this.consecutiveResponseTimeouts,
+      totalResponseTimeouts: this.totalResponseTimeouts,
+    };
   }
 
   /**
@@ -61,7 +65,7 @@ export class Civ7DirectControlSession {
    * own, the last assignment won, and the rest leaked open.
    */
   async connect(): Promise<Civ7DirectControlEndpoint> {
-    if (this.socket && !this.socket.destroyed && this.endpointValue) {
+    if (this.socket && isReusableSocket(this.socket) && this.endpointValue) {
       return this.endpointValue;
     }
     if (this.connecting) return await this.connecting;
@@ -75,7 +79,7 @@ export class Civ7DirectControlSession {
   }
 
   private async establishConnection(): Promise<Civ7DirectControlEndpoint> {
-    await this.close();
+    await this.retireConnection();
     const errors: Array<{ host: string; error: string }> = [];
     for (const host of this.config.hosts) {
       try {
@@ -87,18 +91,24 @@ export class Civ7DirectControlSession {
         this.socket = socket;
         this.endpointValue = { host, port: this.config.port };
         this.buffer = Buffer.alloc(0);
-        socket.on("data", (chunk) => this.handleData(chunk));
+        socket.on("data", (chunk) => this.handleData(socket, chunk));
         socket.once("error", (err) => {
-          this.rejectPending(
+          this.invalidateConnection(
+            socket,
             new Civ7DirectControlError("connection-failed", err.message, { cause: err })
           );
         });
+        socket.once("end", () => {
+          this.invalidateConnection(
+            socket,
+            new Civ7DirectControlError("socket-closed", "Civ7 tuner socket ended")
+          );
+        });
         socket.once("close", () => {
-          this.rejectPending(
+          this.invalidateConnection(
+            socket,
             new Civ7DirectControlError("socket-closed", "Civ7 tuner socket closed")
           );
-          this.socket = undefined;
-          this.endpointValue = undefined;
         });
         return this.endpointValue;
       } catch (err) {
@@ -114,18 +124,31 @@ export class Civ7DirectControlSession {
   }
 
   /**
+   * Retires the current physical socket epoch while preserving this logical
+   * session. The next command lazily acquires a fresh tuner connection.
+   */
+  async resetConnection(): Promise<void> {
+    await this.retireConnection();
+  }
+
+  /**
    * Graceful close: FIN first (`socket.end()`), so the game can release its
    * descriptor cleanly — abrupt `destroy()` teardown is the suspected driver
    * of the game-side fd leak that wedges the tuner after long sessions. The
    * destroy fallback only fires if the peer never completes the handshake.
    */
   async close(): Promise<void> {
+    await this.retireConnection();
+  }
+
+  private async retireConnection(): Promise<void> {
     const socket = this.socket;
-    this.socket = undefined;
-    this.endpointValue = undefined;
-    this.buffer = Buffer.alloc(0);
-    this.rejectPending(new Civ7DirectControlError("socket-closed", "Civ7 tuner socket closed"));
-    if (!socket || socket.destroyed) return;
+    if (!socket) return;
+    this.invalidateConnection(
+      socket,
+      new Civ7DirectControlError("socket-closed", "Civ7 tuner socket closed")
+    );
+    if (socket.destroyed || socket.readyState === "closed") return;
     await new Promise<void>((resolve) => {
       const timer = setTimeout(() => socket.destroy(), GRACEFUL_CLOSE_TIMEOUT_MS);
       socket.once("close", () => {
@@ -174,7 +197,7 @@ export class Civ7DirectControlSession {
   async request(message: string, timeoutMs = this.config.timeoutMs): Promise<Civ7TunerFrame> {
     await this.connect();
     const socket = this.socket;
-    if (!socket || socket.destroyed) {
+    if (!socket || !isReusableSocket(socket)) {
       throw new Civ7DirectControlError(
         "socket-closed",
         `Civ7 tuner socket is closed before ${message}`
@@ -185,6 +208,7 @@ export class Civ7DirectControlSession {
       const timer = setTimeout(() => {
         this.pending.delete(listenerId);
         this.consecutiveResponseTimeouts += 1;
+        this.totalResponseTimeouts += 1;
         reject(
           new Civ7DirectControlError(
             "response-timeout",
@@ -198,7 +222,8 @@ export class Civ7DirectControlSession {
     return await response;
   }
 
-  private handleData(chunk: Buffer): void {
+  private handleData(socket: Socket, chunk: Buffer): void {
+    if (this.socket !== socket) return;
     this.buffer = Buffer.concat([this.buffer, chunk]);
     for (;;) {
       const parsed = parseCiv7TunerFrame(this.buffer);
@@ -211,6 +236,14 @@ export class Civ7DirectControlSession {
       this.consecutiveResponseTimeouts = 0;
       pending.resolve(parsed.frame);
     }
+  }
+
+  private invalidateConnection(socket: Socket, err: Civ7DirectControlError): void {
+    if (this.socket !== socket) return;
+    this.socket = undefined;
+    this.endpointValue = undefined;
+    this.buffer = Buffer.alloc(0);
+    this.rejectPending(err);
   }
 
   private rejectPending(err: Civ7DirectControlError): void {
@@ -228,6 +261,15 @@ export class Civ7DirectControlSession {
       );
     }
   }
+}
+
+function isReusableSocket(socket: Socket): boolean {
+  return (
+    socket.readyState === "open" &&
+    !socket.destroyed &&
+    !socket.readableEnded &&
+    !socket.writableEnded
+  );
 }
 
 export async function withCiv7DirectControlSession<T>(

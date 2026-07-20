@@ -1,8 +1,12 @@
 # Habitat / Studio UI Post-Merge Semantic Restack Runbook
 
-Status: final prep artifact, reviewed, implementation-ready after Studio drain
+Status: historical restack artifact; Studio lifecycle instructions superseded
 
-No restack execution has been performed from this document.
+No restack execution has been performed from this document. Current Studio
+operation is `nx run mapgen-studio:dev`: one foreground Nx graph owns Vite, its
+continuous daemon dependency, and interrupt teardown. Any source-watch or
+restart-helper instruction below is historical evidence and must not be
+executed.
 
 ## Purpose
 
@@ -455,10 +459,10 @@ Stop if:
 Expected resolution:
 
 - `serve-daemon` stays in `apps/mapgen-studio/project.json`.
-- `serve-daemon.command` remains:
-  `bun --conditions bun-source --watch src/server/daemon/daemon.ts`
-- `scripts/restart-mapgen-studio.sh` continues to call the projectized daemon
-  target.
+- `serve-daemon.command` remains
+  `bun --conditions bun-source src/server/daemon/daemon.ts`, without watch.
+- `mapgen-studio:dev` is the sole process-composition entrypoint; no restart
+  helper or second process manager is restored.
 - `@civ7/studio-contract` has a `bun-source` export for source runtime
   resolution.
 - `@civ7/studio-server` keeps root and `./contract` `bun-source` exports and

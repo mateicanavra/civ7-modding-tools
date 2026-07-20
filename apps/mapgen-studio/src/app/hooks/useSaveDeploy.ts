@@ -1,14 +1,8 @@
-import {
-  isMapConfigEnvelope,
-  type MapConfigEnvelope,
-  type MapConfigSaveDeployStatus,
-} from "@civ7/studio-contract";
-import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
+import { type MapConfigEnvelope, type MapConfigSaveDeployStatus } from "@civ7/studio-contract";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  applyPresetConfig,
-  createStudioEditorCanonicalConfig,
-  STUDIO_EDITOR_CANONICAL_METADATA,
+  admitCanonicalConfig,
+  createNamedCanonicalConfig,
 } from "../../features/configAuthoring/canonicalConfig";
 import { saveRepoBackedConfig, toConfigId } from "../../features/mapConfigSave/api";
 import {
@@ -17,12 +11,13 @@ import {
   saveDeployFailureMessage,
   saveDeployResultFromTerminalStatus,
 } from "../../features/mapConfigSave/status";
-import type { AuthoringConfigSource } from "../../features/presets/types";
-import { findRecipeArtifacts } from "../../recipes/catalog";
+import type { AuthoringState } from "../../stores/authoringStore";
+import { mergeSaveDeployFailureResponse, mergeSaveDeployOperation } from "../operationAdoption";
 import type { StudioOperations } from "./useStudioOperations";
 import type { ToastFn } from "./useToast";
 
 const SAVE_DEPLOY_TERMINAL_EVENT_TIMEOUT_MS = 5 * 60_000;
+const SAVE_DEPLOY_WAIT_CANCELLED_MESSAGE = "Save/Deploy wait was cancelled";
 
 type SaveDeployTerminalWaiter = Readonly<{
   resolve(status: MapConfigSaveDeployStatus): void;
@@ -30,65 +25,28 @@ type SaveDeployTerminalWaiter = Readonly<{
   timeoutId: ReturnType<typeof setTimeout>;
 }>;
 
-function createNamedEditorCanonicalConfig(args: {
-  id: string;
-  name: string;
-  description?: string;
-  config: PipelineConfig;
-}): MapConfigEnvelope {
-  return createStudioEditorCanonicalConfig({
-    metadata: {
-      id: args.id,
-      name: args.name,
-      description: args.description ?? "Studio editor configuration.",
-      recipe: "standard",
-      sortIndex: STUDIO_EDITOR_CANONICAL_METADATA.sortIndex,
-      latitudeBounds: STUDIO_EDITOR_CANONICAL_METADATA.latitudeBounds,
-    },
-    config: args.config,
-  });
-}
-
-function isValidEditorCanonicalConfig(args: {
-  recipeId: string;
-  canonicalConfig: MapConfigEnvelope;
-}): boolean {
-  const recipeArtifacts = findRecipeArtifacts(args.recipeId);
-  return (
-    isMapConfigEnvelope(args.canonicalConfig) &&
-    recipeArtifacts !== null &&
-    applyPresetConfig({
-      schema: recipeArtifacts.configSchema,
-      presetConfig: args.canonicalConfig.config,
-      label: "save-editor",
-    }).ok
-  );
-}
-
 export type UseSaveDeployArgs = {
   saveDeployOperation: StudioOperations["saveDeployOperation"];
   setSaveDeployOperation: StudioOperations["setSaveDeployOperation"];
   saveDeployRunning: StudioOperations["saveDeployRunning"];
   browserRunning: boolean;
   runInGameRunning: StudioOperations["runInGameRunning"];
-  recipeId: string;
-  authoringConfigSource: AuthoringConfigSource;
-  pipelineConfig: PipelineConfig | null;
-  adoptSavedEditorConfig: (canonicalConfig: MapConfigEnvelope) => void;
+  canonicalConfig: MapConfigEnvelope;
+  setCanonicalConfig: AuthoringState["setCanonicalConfig"];
   toast: ToastFn;
 };
 
 export type UseSaveDeployResult = {
-  saveDialogState: { open: boolean; label: string; description?: string };
-  openSaveDialog: (seed?: { label?: string; description?: string }) => void;
+  adoptSaveDeployOperation: StudioOperations["setSaveDeployOperation"];
+  saveDialogState: { open: boolean; name: string; description?: string };
+  openSaveDialog: (seed?: { name?: string; description?: string }) => void;
   closeSaveDialog: () => void;
-  handleSaveDialogConfirm: (args: { label: string; description?: string }) => Promise<void>;
+  handleSaveDialogConfirm: (args: { name: string; description?: string }) => Promise<void>;
   handleSaveAsNew: () => void;
   handleSaveToCurrent: () => Promise<void>;
   canSaveToCurrent: boolean;
 };
 
-/** Writes only editor-owned envelopes; catalog selections are read-only references. */
 export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
   const {
     saveDeployOperation,
@@ -96,42 +54,52 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
     saveDeployRunning,
     browserRunning,
     runInGameRunning,
-    recipeId,
-    authoringConfigSource,
-    pipelineConfig,
-    adoptSavedEditorConfig,
+    canonicalConfig,
+    setCanonicalConfig,
     toast,
   } = args;
   const [saveDialogState, setSaveDialogState] = useState({
     open: false,
-    label: "",
+    name: "",
     description: "",
   });
-  const saveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(null);
+  const saveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(saveDeployOperation);
   const saveDeployWaitersRef = useRef<Map<string, SaveDeployTerminalWaiter>>(new Map());
+  const saveDeployInFlightRef = useRef(false);
+  const mountedRef = useRef(true);
 
-  useEffect(() => {
-    saveDeployOperationRef.current = saveDeployOperation;
-    if (!saveDeployOperation || !isSaveDeployTerminal(saveDeployOperation)) return;
-    const waiter = saveDeployWaitersRef.current.get(saveDeployOperation.requestId);
-    if (!waiter) return;
-    saveDeployWaitersRef.current.delete(saveDeployOperation.requestId);
-    clearTimeout(waiter.timeoutId);
-    waiter.resolve(saveDeployOperation);
-  }, [saveDeployOperation]);
-
-  useEffect(
-    () => () => {
-      for (const waiter of saveDeployWaitersRef.current.values()) {
-        clearTimeout(waiter.timeoutId);
-        waiter.reject(new Error("Save/Deploy wait cancelled"));
-      }
-      saveDeployWaitersRef.current.clear();
+  const adoptSaveDeployOperation = useCallback<StudioOperations["setSaveDeployOperation"]>(
+    (update) => {
+      const current = saveDeployOperationRef.current;
+      const next = typeof update === "function" ? update(current) : update;
+      saveDeployOperationRef.current = next;
+      setSaveDeployOperation(next);
+      if (!next || !isSaveDeployTerminal(next)) return;
+      const waiter = saveDeployWaitersRef.current.get(next.requestId);
+      if (!waiter) return;
+      saveDeployWaitersRef.current.delete(next.requestId);
+      clearTimeout(waiter.timeoutId);
+      waiter.resolve(next);
     },
-    []
+    [setSaveDeployOperation]
   );
 
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      for (const waiter of saveDeployWaitersRef.current.values()) {
+        clearTimeout(waiter.timeoutId);
+        waiter.reject(new Error(SAVE_DEPLOY_WAIT_CANCELLED_MESSAGE));
+      }
+      saveDeployWaitersRef.current.clear();
+    };
+  }, []);
+
   const waitForSaveDeployTerminalEvent = useCallback((requestId: string) => {
+    if (!mountedRef.current) {
+      return Promise.reject(new Error(SAVE_DEPLOY_WAIT_CANCELLED_MESSAGE));
+    }
     const current = saveDeployOperationRef.current;
     if (current?.requestId === requestId && isSaveDeployTerminal(current)) {
       return Promise.resolve(current);
@@ -145,66 +113,89 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
     });
   }, []);
 
-  const saveEditorCanonicalConfig = useCallback(
-    async (canonicalConfig: MapConfigEnvelope) => {
-      if (browserRunning || runInGameRunning || saveDeployRunning) {
-        const reason = browserRunning
-          ? "Map generation is running"
-          : runInGameRunning
-            ? "Run in Game is running"
-            : "Save/deploy is already running";
+  const saveCanonicalConfig = useCallback(
+    async (value: MapConfigEnvelope) => {
+      if (
+        saveDeployInFlightRef.current ||
+        browserRunning ||
+        runInGameRunning ||
+        saveDeployRunning
+      ) {
+        const reason = saveDeployInFlightRef.current
+          ? "Save/deploy admission is already in progress"
+          : browserRunning
+            ? "Map generation is running"
+            : runInGameRunning
+              ? "Run in Game is running"
+              : "Save/deploy is already running";
         return { ok: false as const, error: `${reason}; finish that operation before saving.` };
       }
-      if (!isValidEditorCanonicalConfig({ recipeId, canonicalConfig })) {
+      if (admitCanonicalConfig(value) === undefined) {
         return { ok: false as const, error: "Config is invalid for this recipe." };
       }
       const requestId = `studio-save-deploy-${Date.now().toString(36)}`;
-      setSaveDeployOperation(createMapConfigSaveDeployStatus({ requestId, phase: "queued" }));
-      const result = await saveRepoBackedConfig({
-        requestId,
-        canonicalConfig,
-        onStatus: (status) =>
-          setSaveDeployOperation((current) =>
-            current?.requestId === requestId ? status : current
-          ),
-      });
-      if (!result.ok) {
-        setSaveDeployOperation((current) => {
-          if (!current || current.requestId !== requestId) return current;
-          return result.status;
-        });
-        return saveDeployResultFromTerminalStatus(result.status);
-      }
+      saveDeployInFlightRef.current = true;
       try {
-        const terminal = isSaveDeployTerminal(result.status)
-          ? result.status
-          : await waitForSaveDeployTerminalEvent(requestId);
-        const terminalResult = saveDeployResultFromTerminalStatus(terminal);
-        return terminalResult;
-      } catch (error) {
-        return {
-          ok: false as const,
-          error:
-            error instanceof Error
-              ? error.message
-              : "Save/Deploy event stream did not report a terminal status",
-          saved: result.status.saved,
-          deployed: result.status.deployed,
-        };
+        adoptSaveDeployOperation(createMapConfigSaveDeployStatus({ requestId, phase: "queued" }));
+        const result = await saveRepoBackedConfig({
+          requestId,
+          canonicalConfig: value,
+          onStatus: (status) =>
+            adoptSaveDeployOperation((current) =>
+              current === null || current.requestId === requestId
+                ? mergeSaveDeployOperation(current, status)
+                : current
+            ),
+        });
+        if (!mountedRef.current) {
+          return {
+            ok: false as const,
+            error: SAVE_DEPLOY_WAIT_CANCELLED_MESSAGE,
+            saved: result.status.saved,
+            deployed: result.status.deployed,
+          };
+        }
+        if (!result.ok) {
+          const observed = saveDeployOperationRef.current;
+          if (observed?.requestId === requestId && isSaveDeployTerminal(observed)) {
+            return saveDeployResultFromTerminalStatus(observed);
+          }
+          adoptSaveDeployOperation((current) =>
+            mergeSaveDeployFailureResponse(current, result.status)
+          );
+          return saveDeployResultFromTerminalStatus(result.status);
+        }
+        try {
+          const terminal = isSaveDeployTerminal(result.status)
+            ? result.status
+            : await waitForSaveDeployTerminalEvent(requestId);
+          return saveDeployResultFromTerminalStatus(terminal);
+        } catch (error) {
+          return {
+            ok: false as const,
+            error:
+              error instanceof Error
+                ? error.message
+                : "Save/Deploy event stream did not report a terminal status",
+            saved: result.status.saved,
+            deployed: result.status.deployed,
+          };
+        }
+      } finally {
+        saveDeployInFlightRef.current = false;
       }
     },
     [
       browserRunning,
-      recipeId,
       runInGameRunning,
       saveDeployRunning,
-      setSaveDeployOperation,
+      adoptSaveDeployOperation,
       waitForSaveDeployTerminalEvent,
     ]
   );
 
   const presentSaveResult = useCallback(
-    (result: Awaited<ReturnType<typeof saveEditorCanonicalConfig>>) => {
+    (result: Awaited<ReturnType<typeof saveCanonicalConfig>>) => {
       if (!result.ok) {
         const message =
           "safeFailureCategory" in result
@@ -218,10 +209,10 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
     [toast]
   );
 
-  const openSaveDialog = useCallback((seed?: { label?: string; description?: string }) => {
+  const openSaveDialog = useCallback((seed?: { name?: string; description?: string }) => {
     setSaveDialogState({
       open: true,
-      label: seed?.label ?? "",
+      name: seed?.name ?? "",
       description: seed?.description ?? "",
     });
   }, []);
@@ -231,79 +222,54 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
   );
 
   const handleSaveDialogConfirm = useCallback(
-    async ({ label, description }: { label: string; description?: string }) => {
-      if (pipelineConfig === null) {
-        toast("Recover the authoring source before saving config.", { variant: "info" });
-        closeSaveDialog();
-        return;
-      }
-      const id = toConfigId(label);
-      let canonicalConfig: MapConfigEnvelope;
-      try {
-        canonicalConfig = createNamedEditorCanonicalConfig({
-          id,
-          name: label,
-          description,
-          config: pipelineConfig,
-        });
-      } catch {
+    async ({ name, description }: { name: string; description?: string }) => {
+      const next = createNamedCanonicalConfig({
+        current: canonicalConfig,
+        id: toConfigId(name),
+        name,
+        description,
+      });
+      if (next === undefined) {
         toast("Config save failed: config is invalid for this recipe.", { variant: "error" });
         closeSaveDialog();
         return;
       }
-      if (!isValidEditorCanonicalConfig({ recipeId, canonicalConfig })) {
-        toast("Config save failed: config is invalid for this recipe.", { variant: "error" });
-        closeSaveDialog();
-        return;
-      }
-      const result = await saveEditorCanonicalConfig(canonicalConfig);
-      if (result.ok) adoptSavedEditorConfig(canonicalConfig);
+      const result = await saveCanonicalConfig(next);
+      if (!mountedRef.current) return;
+      if (result.ok) setCanonicalConfig(next);
       presentSaveResult(result);
       closeSaveDialog();
     },
     [
-      adoptSavedEditorConfig,
+      canonicalConfig,
       closeSaveDialog,
-      pipelineConfig,
       presentSaveResult,
-      recipeId,
-      saveEditorCanonicalConfig,
+      saveCanonicalConfig,
+      setCanonicalConfig,
       toast,
     ]
   );
 
   const handleSaveAsNew = useCallback(() => {
-    const current =
-      authoringConfigSource.kind === "editor" ? authoringConfigSource.canonicalConfig : null;
     openSaveDialog({
-      label: current ? `Copy of ${current.name}` : "New Editor Config",
-      description: current?.description,
+      name: `Copy of ${canonicalConfig.name}`,
+      description: canonicalConfig.description,
     });
-  }, [authoringConfigSource, openSaveDialog]);
+  }, [canonicalConfig.description, canonicalConfig.name, openSaveDialog]);
 
   const handleSaveToCurrent = useCallback(async () => {
-    if (authoringConfigSource.kind === "blocked") {
-      toast("Recover the authoring source before saving config.", {
-        variant: "info",
-      });
-      return;
-    }
-    if (authoringConfigSource.kind === "catalog") {
-      toast("Catalog configs are read-only. Save & Deploy As creates an editor config.", {
-        variant: "info",
-      });
-      return;
-    }
-    await presentSaveResult(await saveEditorCanonicalConfig(authoringConfigSource.canonicalConfig));
-  }, [authoringConfigSource, presentSaveResult, saveEditorCanonicalConfig, toast]);
+    const result = await saveCanonicalConfig(canonicalConfig);
+    if (mountedRef.current) presentSaveResult(result);
+  }, [canonicalConfig, presentSaveResult, saveCanonicalConfig]);
 
   return {
+    adoptSaveDeployOperation,
     saveDialogState,
     openSaveDialog,
     closeSaveDialog,
     handleSaveDialogConfirm,
     handleSaveAsNew,
     handleSaveToCurrent,
-    canSaveToCurrent: authoringConfigSource.kind === "editor",
+    canSaveToCurrent: true,
   };
 }

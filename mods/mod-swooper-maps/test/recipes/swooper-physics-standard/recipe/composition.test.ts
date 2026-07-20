@@ -26,15 +26,18 @@ describe("standard recipe composition", () => {
     const indexOfStep = (stage: string, step: string): number =>
       stepIds.findIndex((id) => id.endsWith(`.${stage}.${step}`));
 
+    const rainfall = indexOfStep("map-hydrology", "project-rainfall");
     const lakes = indexOfStep("map-hydrology", "lakes");
     const elevation = indexOfStep("map-elevation", "build-elevation");
     const rivers = indexOfStep("map-rivers", "plot-rivers");
     const ecologyScoring = indexOfStep("ecology-features", "score-layers");
 
+    expect(rainfall).toBeGreaterThan(-1);
     expect(lakes).toBeGreaterThan(-1);
     expect(elevation).toBeGreaterThan(-1);
     expect(rivers).toBeGreaterThan(-1);
     expect(ecologyScoring).toBeGreaterThan(-1);
+    expect(rainfall).toBeLessThan(lakes);
     expect(lakes).toBeLessThan(elevation);
     expect(elevation).toBeLessThan(rivers);
     expect(rivers).toBeLessThan(ecologyScoring);

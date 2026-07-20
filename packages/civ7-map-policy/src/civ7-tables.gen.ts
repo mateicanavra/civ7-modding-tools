@@ -10,7 +10,7 @@
  * Purpose:
  * - Provide Civ7-derived terrain/biome/feature indices and river metadata for mock generation.
  * - Keep browser Studio, diagnostics, and adapter mocks on the same GameInfo order.
- * - V1 adds resource weights/hemisphere minimums/required-for-age data,
+ * - V1 adds resource weights, hemisphere minimums, age validity, and requirement owners,
  *   MapResourceMinimumAmountModifier rows, StartBias tables, and start-buffer
  *   globals for policy-grounded placement planning.
  */
@@ -475,14 +475,8 @@ export type Civ7PolicyTablesV1 = {
   readonly resourceRows: Readonly<Record<string, Civ7ResourceRowV1>>;
   /** Ages each resource is valid in (Resource_ValidAges), keyed by resource index. */
   readonly resourceValidAges: Readonly<Record<string, readonly string[]>>;
-  /** Leaders requiring each resource (Resource_RequiredLeaders incl. DLC), keyed by resource index. */
+  /** Leaders naming each resource in Resource_RequiredLeaders (including DLC), keyed by resource index. */
   readonly resourceRequiredLeaders: Readonly<Record<string, readonly string[]>>;
-  /**
-   * Static approximation of ResourceBuilder.isResourceRequiredForAge: ages
-   * for which the resource is leader-required AND age-valid. The live engine
-   * additionally filters to leaders present in the running game.
-   */
-  readonly isResourceRequiredForAge: Readonly<Record<string, readonly string[]>>;
   /** GameInfo.MapResourceMinimumAmountModifier rows (maps.xml). */
   readonly mapResourceMinimumAmountModifier: readonly Civ7MapResourceMinimumAmountModifierRowV1[];
   /** GameInfo.StartBias* rows across base + DLC civilization/leader data. */
@@ -1361,56 +1355,6 @@ export const CIV7_POLICY_TABLES_V1: Civ7PolicyTablesV1 = {
       "LEADER_HATSHEPSUT",
       "LEADER_JOSE_RIZAL",
       "LEADER_MACHIAVELLI"
-    ]
-  },
-  "isResourceRequiredForAge": {
-    "3": [
-      "AGE_ANTIQUITY",
-      "AGE_EXPLORATION",
-      "AGE_MODERN"
-    ],
-    "4": [
-      "AGE_ANTIQUITY",
-      "AGE_EXPLORATION",
-      "AGE_MODERN"
-    ],
-    "7": [
-      "AGE_ANTIQUITY",
-      "AGE_EXPLORATION"
-    ],
-    "9": [
-      "AGE_ANTIQUITY",
-      "AGE_EXPLORATION"
-    ],
-    "11": [
-      "AGE_ANTIQUITY",
-      "AGE_EXPLORATION",
-      "AGE_MODERN"
-    ],
-    "19": [
-      "AGE_ANTIQUITY",
-      "AGE_EXPLORATION",
-      "AGE_MODERN"
-    ],
-    "24": [
-      "AGE_EXPLORATION",
-      "AGE_MODERN"
-    ],
-    "25": [
-      "AGE_EXPLORATION",
-      "AGE_MODERN"
-    ],
-    "26": [
-      "AGE_EXPLORATION",
-      "AGE_MODERN"
-    ],
-    "27": [
-      "AGE_EXPLORATION",
-      "AGE_MODERN"
-    ],
-    "28": [
-      "AGE_EXPLORATION",
-      "AGE_MODERN"
     ]
   },
   "mapResourceMinimumAmountModifier": [

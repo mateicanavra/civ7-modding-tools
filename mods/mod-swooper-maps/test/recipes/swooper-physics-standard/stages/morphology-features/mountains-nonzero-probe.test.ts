@@ -5,7 +5,7 @@ import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { canonicalRecipeConfig } from "../../../../../src/maps/configs/canonical.js";
-import { mapArtifacts } from "../../../../../src/recipes/standard/map-artifacts.js";
+import { artifacts as standardArtifacts } from "../../../../../src/recipes/standard/artifacts/index.js";
 import type { StandardRecipeConfig } from "../../../../../src/recipes/standard/recipe.js";
 import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../../src/recipes/standard/runtime.js";
@@ -130,9 +130,7 @@ function maxU8WhereEq(
 }
 
 describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
-  it("produces nonzero orogeny + mountains, and keeps volcano points nonzero", {
-    timeout: 20_000,
-  }, () => {
+  it("produces nonzero orogeny + mountains, and keeps volcano points nonzero", () => {
     const config = loadEarthlikeConfig();
     const { context } = runStandardContext({
       width: PROBE_WIDTH,
@@ -146,7 +144,7 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
     const mountains = context.artifacts.get(morphologyArtifacts.mountains.id) as any;
     const volcanoes = context.artifacts.get(morphologyArtifacts.volcanoes.id) as any;
     const historyTiles = context.artifacts.get(
-      mapArtifacts.foundationTectonicHistoryTiles.id
+      standardArtifacts.foundationTectonicHistoryTiles.id
     ) as any;
 
     const size = PROBE_WIDTH * PROBE_HEIGHT;
@@ -247,5 +245,5 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
     // Volcanoes are planned via a separate step, but the artifact should remain non-degenerate.
     const volcanoList = Array.isArray(volcanoes?.volcanoes) ? volcanoes.volcanoes : [];
     expect(volcanoList.length).toBeGreaterThan(0);
-  });
+  }, 20_000);
 });

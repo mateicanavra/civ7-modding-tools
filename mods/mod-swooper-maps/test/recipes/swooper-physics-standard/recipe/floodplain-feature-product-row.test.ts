@@ -4,10 +4,14 @@ import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { artifacts as ecologyArtifacts } from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import planFloodplainsStep from "../../../../src/recipes/standard/stages/ecology-features/steps/plan-floodplains/index.js";
-import featuresApplyStep from "../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
+import { implementArtifactModules } from "@swooper/mapgen-core/authoring";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { PlanFloodplainsStep } from "../../../../src/recipes/standard/stages/ecology-features/steps/plan-floodplains/step.js";
+import { FeaturesApplyStep } from "../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/step.js";
+import { artifactModules as morphologyArtifactModules } from "../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../support/compiler-helpers.js";
 import { createEmptyFeatureScoreLayers } from "../../../support/feature-score-layers.js";
 import { buildTestDeps } from "../../../support/step-deps.js";
@@ -117,13 +121,17 @@ describe("floodplain feature product row", () => {
     );
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
-    const setupArtifacts = implementArtifacts(
-      [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase],
-      {
-        scoreLayers: {},
-        occupancyBase: {},
-      }
-    );
+    const setupArtifacts = implementArtifactModules([
+      morphologyArtifactModules.topography,
+      ecologyArtifactModules.scoreLayers,
+      ecologyArtifactModules.occupancyBase,
+    ]);
+    setupArtifacts.topography.publish(ctx, {
+      elevation: new Int16Array(size).fill(24),
+      seaLevel: 0,
+      landMask,
+      bathymetry: new Int16Array(size),
+    });
     setupArtifacts.scoreLayers.publish(ctx, { width, height, layers });
     setupArtifacts.occupancyBase.publish(ctx, {
       width,
@@ -141,32 +149,24 @@ describe("floodplain feature product row", () => {
         },
       }),
     };
-    const planOps = ecology.ops.bind(planFloodplainsStep.contract.ops!).runtime;
-    planFloodplainsStep.run(ctx, planConfig, planOps, buildTestDeps(planFloodplainsStep));
+    const planOps = ecology.ops.bind(PlanFloodplainsStep.contract.ops!).runtime;
+    const planDeps = buildTestDeps(PlanFloodplainsStep);
+    PlanFloodplainsStep.run(ctx, planConfig, planOps, planDeps);
 
-    const floodplainIntents = ctx.artifacts.get(ecologyArtifacts.featureIntentsFloodplains.id);
-    expect(Array.isArray(floodplainIntents)).toBe(true);
-    expect((floodplainIntents as unknown[]).length).toBeGreaterThan(0);
+    const floodplainIntents = planDeps.artifacts.featureIntentsFloodplains.read(ctx);
+    expect(floodplainIntents.length).toBeGreaterThan(0);
     expect(
-      (floodplainIntents as Array<{ feature: string }>).every((intent) =>
-        FLOODPLAIN_INTENT_KEYS.includes(intent.feature as (typeof FLOODPLAIN_INTENT_KEYS)[number])
+      floodplainIntents.every((intent) =>
+        FLOODPLAIN_INTENT_KEYS.some((feature) => feature === intent.feature)
       )
     ).toBe(true);
 
-    const emptyIntentArtifacts = implementArtifacts(
-      [
-        ecologyArtifacts.featureIntentsVegetation,
-        ecologyArtifacts.featureIntentsWetlands,
-        ecologyArtifacts.featureIntentsReefs,
-        ecologyArtifacts.featureIntentsIce,
-      ],
-      {
-        featureIntentsVegetation: {},
-        featureIntentsWetlands: {},
-        featureIntentsReefs: {},
-        featureIntentsIce: {},
-      }
-    );
+    const emptyIntentArtifacts = implementArtifactModules([
+      ecologyArtifactModules.featureIntentsVegetation,
+      ecologyArtifactModules.featureIntentsWetlands,
+      ecologyArtifactModules.featureIntentsReefs,
+      ecologyArtifactModules.featureIntentsIce,
+    ]);
     emptyIntentArtifacts.featureIntentsVegetation.publish(ctx, []);
     emptyIntentArtifacts.featureIntentsWetlands.publish(ctx, []);
     emptyIntentArtifacts.featureIntentsReefs.publish(ctx, []);
@@ -178,8 +178,8 @@ describe("floodplain feature product row", () => {
         ecology.ops.applyFeatures.defaultConfig
       ),
     };
-    const applyOps = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
-    featuresApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(featuresApplyStep));
+    const applyOps = ecology.ops.bind(FeaturesApplyStep.contract.ops!).runtime;
+    FeaturesApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(FeaturesApplyStep));
 
     const diagnostics = ctx.artifacts.get(ecologyArtifacts.featureApplyDiagnostics.id) as
       | {
@@ -191,12 +191,12 @@ describe("floodplain feature product row", () => {
         }
       | undefined;
 
-    expect(diagnostics).toBeDefined();
-    expect(diagnostics?.attempted).toBe((floodplainIntents as unknown[]).length);
-    expect(diagnostics?.applied).toBe(diagnostics?.attempted);
-    expect(diagnostics?.rejected).toBe(0);
-    expect(floodplainAttemptCount(diagnostics?.attemptedByFeature)).toBe(diagnostics?.attempted);
-    expect(floodplainAttemptCount(diagnostics?.appliedByFeature)).toBe(diagnostics?.applied);
+    if (!diagnostics) throw new Error("Missing feature application diagnostics");
+    expect(diagnostics.attempted).toBe(floodplainIntents.length);
+    expect(diagnostics.applied).toBe(diagnostics.attempted);
+    expect(diagnostics.rejected).toBe(0);
+    expect(floodplainAttemptCount(diagnostics.attemptedByFeature)).toBe(diagnostics.attempted);
+    expect(floodplainAttemptCount(diagnostics.appliedByFeature)).toBe(diagnostics.applied);
   });
 
   it("does not author floodplains when the same valley lacks meaningful discharge", () => {

@@ -99,6 +99,7 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 **Scope:** Capacity-aware split policy in `plan-starts` seat identity/region assignment; expectations note for the E1.7 measurement frame.
 **Impact:** Single-continent maps seat everyone on one region via recorded degradations rather than a planned split.
 **Trigger evidence (2026-06-11):** Milestone A5/A7 — live alive-major ids are contiguous-from-zero, human first; live HUGE advertises 6/6 landmass slots while a 10-player game has 10 alive, so the pipeline seats 12 with 2 inert flagged `slot-index` surplus seats. Capacity/alive-aware seat count (`min(slots, alive)`) is the recorded correction; see `milestone-a-2026-06-11-a7-seat-parity.md`.
+**Resolved (2026-07-17):** `plan-starts` now treats a nonempty alive-major observation as exact demand capped by map-size seat capacity; slot-index identities are a whole-demand fallback only when no alive majors are observed.
 
 ## DEF-011: Official resources submodule refresh (D4)
 
@@ -141,21 +142,6 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 **Scope:** Design the operator-facing recovery surface, decide whether restart is a button, guided action, or linked run flow, wire it to the existing direct-control restart capability, and prove it against tuner-wedged and game-not-running states.
 **Impact:** Studio can report wedge suspicion, but it does not yet give the operator a first-class one-click recovery affordance from that health signal.
 
-## DEF-016: Nx parallel task race around shared build outputs
-
-**Deferred:** 2026-06-25
-**Trigger:** Before relying on broad `nx run-many -t habitat:check` or other multi-project Habitat/Nx proof commands as authoritative CI gates; also before expanding Habitat owner targets that share build dependencies.
-**Context:** During the embedded authority migration proof, broad and parallel Nx runs repeatedly surfaced flaky behavior around shared build/output-producing tasks, including `control-direct:build-bundle` being reported as flaky and earlier Habitat CLI build/output races. The slice-specific owner graph passed when run as one focused target set, but the broader graph still showed concurrency-sensitive behavior. This is not the primary embedded-authority concern, but it is a real task-graph correctness issue.
-**Scope:**
-- Audit tasks with shared mutable outputs, clean steps, generated manifests, and bundle outputs used by multiple downstream targets.
-- Ensure output ownership is single-writer, and that dependent targets consume outputs through Nx dependencies rather than concurrent shell-level invocations.
-- Revisit Habitat CLI build/manifest generation and direct-control bundle tasks for cache/output isolation.
-- Add a targeted proof command that demonstrates the broad Habitat/Nx graph is stable without relying on incidental serial execution.
-**Impact:**
-- Broad multi-project Nx proofs can produce flaky failures unrelated to the authority being tested.
-- Reviewers cannot treat full-suite `habitat:check` graph failures as clean signal until this is resolved.
-- For now, use focused owner-target proof commands for Habitat migration slices and record broad-run failures separately when they hit known graph debt.
-
 ## DEF-018: Placement product-step dependency direction authority
 
 **Deferred:** 2026-07-11
@@ -181,6 +167,16 @@ Some deferrals are intentionally scoped to a specific project/milestone (e.g., E
 ## Resolved Deferrals
 
 *Move resolved deferrals here with resolution notes.*
+
+## DEF-016: Nx parallel task race around shared build outputs
+
+**Deferred:** 2026-06-25
+**Trigger:** Before relying on broad multi-project Habitat/Nx proof commands as authoritative CI gates; also before expanding Habitat owner targets that share build dependencies.
+**Context:** During the embedded authority migration proof, broad and parallel Nx runs repeatedly surfaced flaky behavior around shared build/output-producing tasks, including `control-direct:build-bundle` being reported as flaky and earlier Habitat CLI build/output races. The slice-specific owner graph passed when run as one focused target set, but the broader graph still showed concurrency-sensitive behavior. This is not the primary embedded-authority concern, but it is a real task-graph correctness issue.
+**Scope:** Audit shared mutable outputs, generated manifests, clean steps, and bundle outputs; establish single-writer output ownership and explicit Nx dependency edges; prove the composed graph without incidental serial execution.
+**Impact:** Broad multi-project proofs produced failures unrelated to the authority under test, so focused owner-target proof remained the trustworthy interim signal.
+**Resolved:** 2026-07-13
+**Resolution:** ADR-012 establishes one output-materializing Nx graph per proof, exact phase-owned outputs, uncached destructive cleanup, and explicit generated-artifact dependencies. Public project `check` targets compose `typecheck`, Habitat `check:policy`, and upstream checks; the root `check` graph also selects the Habitat-owned workspace hygiene and boundary gates. Registered Habitat output consumers declare exact scheduling-only graph dependencies and still execute through Habitat. Routine proof no longer creates competing graphs or temporary worktrees.
 
 ## DEF-002: Runtime-loadable recipes in the browser (no rebuild required)
 

@@ -7,11 +7,11 @@ import type {
 import {
   type Civ7ControlOrpcContext,
   Civ7ControlOrpcContract,
-  type Civ7ControlOrpcPlayableStatusResult,
   Civ7ControlOrpcRouter,
   Civ7GovernmentChoiceUnavailableError,
   createCiv7ControlOrpcServerClient,
 } from "../src/index";
+import { playableStatusResult } from "./support/playable-status";
 
 const governmentInput = {
   governmentType: 0,
@@ -395,7 +395,7 @@ function fakeContext(
       directControl: {
         getCiv7PlayableStatus: async (endpointDefaults) => {
           calls.readiness.push(endpointDefaults);
-          return playableStatusResult(options.playable ?? true);
+          return playableStatusResult({ playable: options.playable ?? true });
         },
         getCiv7PlayNotificationView: async (endpointDefaults) => {
           calls.views.push(endpointDefaults);
@@ -444,39 +444,47 @@ function governmentChoiceResult(
 ): Civ7ControlOrpcGovernmentChoiceResult {
   const valid = options.valid ?? true;
   const operationType = options.kind === "government" ? "CHANGE_GOVERNMENT" : "CHOOSE_GOLDEN_AGE";
-  const args =
+  const args: Readonly<Record<string, number>> =
     options.kind === "government"
       ? {
           GovernmentType: options.governmentType ?? 0,
           Action: options.action ?? -1_326_475_004,
         }
       : { GoldenAgeType: options.goldenAgeType ?? -340_825_966 };
-  return {
-    kind: options.kind,
+  const operation = {
+    before: validationResult(operationType, options.playerId, args, valid),
+    after: validationResult(operationType, options.playerId, args, valid),
+    sent: options.sent,
+    verified: options.sent && valid,
+  };
+  const classification: Civ7ControlOrpcGovernmentChoiceResult["postcondition"]["classification"] =
+    options.sent ? "pending-runtime-proof" : "not-sent";
+  const common = {
     playerId: options.playerId,
-    ...(options.kind === "government"
-      ? {
-          governmentType: options.governmentType ?? 0,
-          action: options.action ?? -1_326_475_004,
-        }
-      : { goldenAgeType: options.goldenAgeType ?? -340_825_966 }),
-    operation: {
-      before: validationResult(operationType, options.playerId, args, valid),
-      after: validationResult(operationType, options.playerId, args, valid),
-      sent: options.sent,
-      verified: options.sent && valid,
-    },
+    operation,
     beforeValidation: validationResult(operationType, options.playerId, args, valid),
     afterValidation: validationResult(operationType, options.playerId, args, valid),
     sent: options.sent,
     verified: false,
     postcondition: {
-      classification: options.sent ? "pending-runtime-proof" : "not-sent",
+      classification,
       reason: options.sent
         ? `${options.kind} choice pending runtime proof`
         : `${options.kind} choice not sent`,
     },
   };
+  return options.kind === "government"
+    ? {
+        ...common,
+        kind: "government",
+        governmentType: options.governmentType ?? 0,
+        action: options.action ?? -1_326_475_004,
+      }
+    : {
+        ...common,
+        kind: "celebration",
+        goldenAgeType: options.goldenAgeType ?? -340_825_966,
+      };
 }
 
 function validationResult(
@@ -488,7 +496,7 @@ function validationResult(
   return {
     host: "127.0.0.1",
     port: 4318,
-    state: { id: "65535", name: "Tuner", role: "tuner" },
+    state: { id: "65535", name: "Tuner" },
     family: "player-operation",
     operationType,
     enumValue: operationType,
@@ -506,10 +514,10 @@ function notificationView(
     host: "127.0.0.1",
     port: 4318,
     state: { id: "65535", name: "App UI" },
-    schemaVersion: "civ7-play-notifications.v1",
     localPlayerId: options.localPlayerId,
     turn: probe(80),
     turnDate: probe("2025 BCE"),
+    hasSentTurnComplete: probe(false),
     canEndTurn: probe(true),
     blocker: probe(0),
     firstReadyUnitId: probe(null),
@@ -517,40 +525,12 @@ function notificationView(
     selectedCityId: probe(null),
     blockingNotificationId: probe(null),
     notifications: [],
-  } as Civ7ControlOrpcPlayNotificationViewResult;
+    decisions: [],
+    hud: { nextDecision: null, decisionQueue: [] },
+    limits: { maxNotifications: 50, truncated: false },
+  };
 }
 
 function probe<T>(value: T): Readonly<{ ok: true; value: T }> {
   return { ok: true, value };
-}
-
-function playableStatusResult(playable: boolean): Civ7ControlOrpcPlayableStatusResult {
-  return {
-    host: "127.0.0.1",
-    port: 4318,
-    playable,
-    readiness: playable ? "tuner-ready" : "shell",
-    appUi: {
-      host: "127.0.0.1",
-      port: 4318,
-      state: { id: "65535", name: "App UI" },
-      snapshot: {
-        ui: {
-          inGame: { ok: true, value: playable },
-          inShell: { ok: true, value: !playable },
-          inLoading: { ok: true, value: false },
-          canBeginGame: { ok: true, value: false },
-        },
-        errors: [],
-      },
-    },
-    tuner: {
-      host: "127.0.0.1",
-      port: 4318,
-      ready: playable,
-      states: [],
-      errors: [],
-    },
-    errors: [],
-  };
 }

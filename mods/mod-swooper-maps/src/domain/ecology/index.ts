@@ -13,4 +13,5 @@ export {
   type BiomeSymbol,
   biomeSymbolFromIndex,
   PLOT_EFFECT_INTENT_KEYS,
+  PlotEffectIntentKeySchema,
 } from "./model/schemas/index.js";

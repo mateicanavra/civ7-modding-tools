@@ -1,6 +1,6 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { computeShelf } from "./steps/index.js";
+import { ComputeShelfStep } from "./steps/compute-shelf/step.js";
 
 export type MorphologyShelfWidthKnob = "narrow" | "normal" | "wide";
 
@@ -75,12 +75,16 @@ function defaultEnvelope(config: unknown): { strategy: "default"; config: unknow
   return { strategy: "default", config };
 }
 
+/**
+ * Compiles shelf-width controls into the post-feature physical-break classifier,
+ * so shelves and coastline metrics reflect the final island-bearing landmask.
+ */
 export default createStage({
   id: "morphology-shelf",
   knobsSchema,
   public: publicSchema,
   steps: orderStandardStageSteps("morphology-shelf", {
-    "compute-shelf": computeShelf,
+    "compute-shelf": ComputeShelfStep,
   }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     "compute-shelf": {

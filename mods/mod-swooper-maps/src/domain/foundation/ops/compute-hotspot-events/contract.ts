@@ -18,7 +18,11 @@ const ComputeHotspotEventsContract = defineOp({
     {
       events: TectonicEventsSchema,
     },
-    { additionalProperties: false }
+    {
+      additionalProperties: false,
+      description:
+        "Intraplate hotspot events for one reconstructed era, seeded at mantle upwellings and tagged with origin plates before merging with boundary events.",
+    }
   ),
   strategies: {
     default: Type.Object({}, { additionalProperties: false }),

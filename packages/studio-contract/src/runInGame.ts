@@ -30,10 +30,9 @@ import { contractSchema, unknownRecordSchema } from "./shared.js";
  */
 
 export const RUN_IN_GAME_PHASES = [
-  "resolving-source",
+  "admitting-config",
   "generating-artifacts",
   "deploying",
-  "preparing-civ7",
   "starting-game",
   "observing-runtime",
   "completed",
@@ -46,10 +45,9 @@ export type RunInGamePhase = (typeof RUN_IN_GAME_PHASES)[number];
 export type RunInGameOperationKind = "running" | "completed" | "failed" | "cancelled";
 
 export const runInGamePhase = Type.Union([
-  Type.Literal("resolving-source"),
+  Type.Literal("admitting-config"),
   Type.Literal("generating-artifacts"),
   Type.Literal("deploying"),
-  Type.Literal("preparing-civ7"),
   Type.Literal("starting-game"),
   Type.Literal("observing-runtime"),
   Type.Literal("completed"),
@@ -65,10 +63,9 @@ export const runInGameOperationKind = Type.Union([
 ]);
 
 const runInGameRunningPhase = Type.Union([
-  Type.Literal("resolving-source"),
+  Type.Literal("admitting-config"),
   Type.Literal("generating-artifacts"),
   Type.Literal("deploying"),
-  Type.Literal("preparing-civ7"),
   Type.Literal("starting-game"),
   Type.Literal("observing-runtime"),
 ]);
@@ -106,111 +103,7 @@ export const fileContentEvidence = Type.Object(
 export type RunInGameFileContentEvidence = Static<typeof fileContentEvidence>;
 
 /**
- * The external Run in Game source request. Catalog requests carry only an
- * indexed Swooper path; editor requests carry the complete portable envelope.
- */
-export const runInGameStartSource = Type.Union([
-  Type.Object(
-    {
-      kind: Type.Literal("catalog"),
-      sourcePath: Type.String({ minLength: 1 }),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("editor"),
-      editorSessionId: Type.String({ minLength: 1 }),
-      canonicalConfig: mapConfigEnvelopeSchema,
-    },
-    { additionalProperties: false }
-  ),
-]);
-/** Mutable source DTO accepted by the public oRPC start procedure. */
-export type RunInGameStartSourceWire = Static<typeof runInGameStartSource>;
-
-/** Frozen external source request retained only while server admission runs. */
-export type RunInGameStartSource = DeepReadonly<RunInGameStartSourceWire>;
-
-/**
- * The internal resolved source retained by manifests. Every variant carries a
- * snapshot because catalog bytes are resolved server-side before this type is
- * constructed.
- */
-export const configSource = Type.Union([
-  Type.Object(
-    {
-      kind: Type.Literal("catalog"),
-      sourcePath: Type.String({ minLength: 1 }),
-      canonicalConfig: mapConfigEnvelopeSchema,
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("editor"),
-      editorSessionId: Type.String({ minLength: 1 }),
-      canonicalConfig: mapConfigEnvelopeSchema,
-    },
-    { additionalProperties: false }
-  ),
-]);
-/** Mutable resolved-source DTO used only for manifest serialization. */
-export type ConfigSourceWire = Static<typeof configSource>;
-
-/** The immutable source snapshot retained after portable JSON admission. */
-export type ConfigSource = DeepReadonly<ConfigSourceWire>;
-
-/** Clones an immutable source snapshot into the TypeBox-derived oRPC DTO. */
-export function serializeConfigSource(source: ConfigSource): ConfigSourceWire {
-  return Value.Parse(configSource, Value.Clone(source));
-}
-
-/**
- * Produces the public start DTO without leaking catalog config bytes back over
- * the browser-to-server boundary.
- */
-export function serializeRunInGameStartSource(source: ConfigSource): RunInGameStartSourceWire {
-  return source.kind === "catalog"
-    ? { kind: "catalog", sourcePath: source.sourcePath }
-    : Value.Parse(runInGameStartSource, Value.Clone(source));
-}
-
-/** Provenance retained after the envelope leaves the source boundary. */
-export const configSourceProvenance = Type.Union([
-  Type.Object(
-    {
-      kind: Type.Literal("catalog"),
-      sourcePath: Type.String({ minLength: 1 }),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("editor"),
-      editorSessionId: Type.String({ minLength: 1 }),
-    },
-    { additionalProperties: false }
-  ),
-]);
-export type ConfigSourceProvenance =
-  | Readonly<{ kind: "catalog"; sourcePath: string }>
-  | Readonly<{ kind: "editor"; editorSessionId: string }>;
-
-// RunInGameSourceSnapshotEvidence
-export const sourceSnapshotEvidence = Type.Object(
-  {
-    requestId: Type.String(),
-    source: configSourceProvenance,
-    canonicalConfigDigest: Type.String(),
-    launchEnvelopeDigest: Type.String(),
-  },
-  { additionalProperties: false }
-);
-export type RunInGameSourceSnapshotEvidence = DeepReadonly<Static<typeof sourceSnapshotEvidence>>;
-
-/**
- * Private diagnostics/evidence evidence for how a Run in Game request became a
+ * Private diagnostics/evidence for how a Run in Game request became a
  * concrete map script. This schema intentionally admits absolute generated-mod
  * paths and tree digests, so it must stay behind diagnostics lookup and must
  * never be projected into public status.
@@ -241,12 +134,22 @@ export type RunInGameMaterializationStatus = Static<typeof materializationStatus
 export const setupOptionValue = Type.Union([Type.String(), Type.Number(), Type.Boolean()]);
 export type RunInGameSetupOptionValue = Static<typeof setupOptionValue>;
 
+const savedSetupSingleLine = Type.String({
+  minLength: 1,
+  maxLength: 512,
+  pattern: "^(?=.*\\S)[^\\r\\n\\0]+$",
+});
+
 export const savedSetupConfigRef = Type.Object(
   {
-    id: Type.String(),
-    displayName: Type.String(),
-    fileName: Type.String(),
-    path: Type.String(),
+    id: savedSetupSingleLine,
+    displayName: savedSetupSingleLine,
+    fileName: Type.String({
+      minLength: 9,
+      maxLength: 512,
+      pattern: "^[^/\\\\\\r\\n\\0]+\\.[Cc][Ii][Vv]7[Cc][Ff][Gg]$",
+    }),
+    path: savedSetupSingleLine,
   },
   { additionalProperties: false }
 );
@@ -272,8 +175,6 @@ export const setupConfig = Type.Object(
 );
 export type RunInGameSetupConfig = DeepReadonly<Static<typeof setupConfig>>;
 
-export const STUDIO_CURRENT_CONFIG_ID = "studio-current";
-
 export const runInGameWorldSettings = Type.Object(
   {
     mapSize: Type.String({ minLength: 1 }),
@@ -288,26 +189,14 @@ export type RunInGameWorldSettings = Readonly<{
   resources?: string;
 }>;
 
-export const runInGameRecipeSettings = Type.Object(
-  {
-    preset: Type.Optional(Type.String()),
-    recipe: Type.String({ minLength: 1 }),
-    seed: Type.Union([Type.Number(), Type.String()]),
-  },
-  { additionalProperties: false }
-);
-export type RunInGameRecipeSettings = Readonly<{
-  preset?: string;
-  recipe: string;
-  seed: number | string;
-}>;
+export const runInGameSeed = Type.Union([Type.Number(), Type.String()]);
 
 export const launchEnvelope = Type.Object(
   {
-    recipeSettings: runInGameRecipeSettings,
+    seed: Type.Number(),
     worldSettings: runInGameWorldSettings,
     setupConfig,
-    source: configSource,
+    canonicalConfig: mapConfigEnvelopeSchema,
   },
   { additionalProperties: false }
 );
@@ -317,88 +206,29 @@ export const launchEnvelope = Type.Object(
  * value that crosses the Studio/Swooper admission boundary.
  */
 export type LaunchEnvelope = Readonly<{
-  recipeSettings: RunInGameRecipeSettings;
+  seed: number;
   worldSettings: RunInGameWorldSettings;
   setupConfig: RunInGameSetupConfig;
-  source: ConfigSource;
+  canonicalConfig: MapConfigEnvelope;
 }>;
 
-export const launchSourceDigest = Type.Object(
-  {
-    canonicalConfigDigest: Type.String(),
-  },
-  { additionalProperties: false }
-);
-export type LaunchSourceDigest = DeepReadonly<Static<typeof launchSourceDigest>>;
 export type LaunchEnvelopeDigest = string;
 
-/**
- * Clones and freezes the external source request without assigning recipe
- * semantics. Catalog paths deliberately remain config-free here.
- */
-export function snapshotRunInGameStartSource(value: unknown): RunInGameStartSource | undefined {
-  if (!isPortableJsonValue(value) || !Value.Check(runInGameStartSource, value)) return undefined;
-
-  const kind = ownDataProperty(value, "kind");
-  if (kind === "catalog") {
-    const sourcePath = ownDataProperty(value, "sourcePath");
-    return typeof sourcePath === "string" ? freezeSnapshot({ kind, sourcePath }) : undefined;
-  }
-  if (kind === "editor") {
-    const editorSessionId = ownDataProperty(value, "editorSessionId");
-    const canonicalConfig = snapshotMapConfigEnvelope(ownDataProperty(value, "canonicalConfig"));
-    return typeof editorSessionId === "string" && canonicalConfig !== undefined
-      ? freezeSnapshot({ kind, editorSessionId, canonicalConfig })
-      : undefined;
-  }
-  return undefined;
-}
-
-/**
- * Clones and freezes an internal resolved source. This is manifest-only data:
- * both variants have a complete envelope after server-side catalog resolution.
- */
-export function snapshotConfigSource(value: unknown): ConfigSource | undefined {
-  if (!isPortableJsonValue(value) || !Value.Check(configSource, value)) return undefined;
-
-  const kind = ownDataProperty(value, "kind");
-  const canonicalConfig = snapshotMapConfigEnvelope(ownDataProperty(value, "canonicalConfig"));
-  if (canonicalConfig === undefined) return undefined;
-
-  if (kind === "catalog") {
-    const sourcePath = ownDataProperty(value, "sourcePath");
-    return typeof sourcePath === "string"
-      ? freezeSnapshot({ kind, sourcePath, canonicalConfig })
-      : undefined;
-  }
-  if (kind === "editor") {
-    const editorSessionId = ownDataProperty(value, "editorSessionId");
-    return typeof editorSessionId === "string"
-      ? freezeSnapshot({ kind, editorSessionId, canonicalConfig })
-      : undefined;
-  }
-  return undefined;
-}
-
-/** Creates an immutable launch envelope from the admitted source and normalized settings. */
+/** Creates an immutable launch envelope from one admitted complete config. */
 export function snapshotLaunchEnvelope(
   args: Readonly<{
-    recipeSettings: RunInGameRecipeSettings;
+    seed: number;
     worldSettings: RunInGameWorldSettings;
     setupConfig: RunInGameSetupConfig;
-    source: ConfigSource;
+    canonicalConfig: MapConfigEnvelope;
   }>
 ): LaunchEnvelope {
-  const source = snapshotConfigSource(args.source);
-  if (source === undefined) {
-    throw new TypeError("Run in Game launch source must be a portable config snapshot.");
+  const canonicalConfig = snapshotMapConfigEnvelope(args.canonicalConfig);
+  if (canonicalConfig === undefined) {
+    throw new TypeError("Run in Game requires a complete portable config envelope.");
   }
   const snapshot = {
-    recipeSettings: {
-      ...(args.recipeSettings.preset === undefined ? {} : { preset: args.recipeSettings.preset }),
-      recipe: args.recipeSettings.recipe,
-      seed: args.recipeSettings.seed,
-    },
+    seed: args.seed,
     worldSettings: {
       mapSize: args.worldSettings.mapSize,
       ...(args.worldSettings.playerCount === undefined
@@ -409,36 +239,17 @@ export function snapshotLaunchEnvelope(
         : { resources: args.worldSettings.resources }),
     },
     setupConfig: snapshotRunInGameSetupConfig(args.setupConfig),
-    source,
+    canonicalConfig,
   };
   freezeSnapshot(snapshot);
   return snapshot;
 }
 
-/** Creates a frozen provenance-only source evidence input. */
-export function snapshotConfigSourceProvenance(value: unknown): ConfigSourceProvenance | undefined {
-  if (!isPortableJsonValue(value) || !Value.Check(configSourceProvenance, value)) {
-    return undefined;
-  }
-  const kind = ownDataProperty(value, "kind");
-  if (kind === "catalog") {
-    const sourcePath = ownDataProperty(value, "sourcePath");
-    return typeof sourcePath === "string" ? freezeSnapshot({ kind, sourcePath }) : undefined;
-  }
-  if (kind === "editor") {
-    const editorSessionId = ownDataProperty(value, "editorSessionId");
-    return typeof editorSessionId === "string"
-      ? freezeSnapshot({ kind, editorSessionId })
-      : undefined;
-  }
-  return undefined;
-}
-
 /** Used by the actual TypeBox Standard Schema adapter before it invokes TypeBox. */
 export function runInGameStartPortableInputIssue(value: unknown): string | undefined {
-  const source = ownDataProperty(value, "source");
-  return snapshotRunInGameStartSource(source) === undefined
-    ? "runInGame.start source must be a catalog path or a complete editor config envelope."
+  const canonicalConfig = ownDataProperty(value, "canonicalConfig");
+  return snapshotMapConfigEnvelope(canonicalConfig) === undefined
+    ? "runInGame.start canonicalConfig must be a complete portable config envelope."
     : undefined;
 }
 
@@ -532,10 +343,15 @@ export type RunInGameSetupConfigValidation =
   | Readonly<{
       ok: false;
       message: string;
-      diagnostics: Readonly<{
-        code: "run-in-game-map-script-invalid";
-        field: "setupConfig.mapScript";
-      }>;
+      diagnostics:
+        | Readonly<{
+            code: "run-in-game-map-script-invalid";
+            field: "setupConfig.mapScript";
+          }>
+        | Readonly<{
+            code: "run-in-game-saved-config-invalid";
+            field: "setupConfig.savedConfig";
+          }>;
     }>;
 
 export function normalizeRunInGameSetupConfig(value: unknown): RunInGameSetupConfig {
@@ -558,10 +374,20 @@ export function validateRunInGameSetupConfig(value: unknown): RunInGameSetupConf
     };
   }
   const savedConfig = normalizeSavedConfigRef(value.savedConfig);
+  if (!savedConfig.ok) {
+    return {
+      ok: false,
+      message: "Run in Game setupConfig.savedConfig must identify one Civ7Cfg file.",
+      diagnostics: {
+        code: "run-in-game-saved-config-invalid",
+        field: "setupConfig.savedConfig",
+      },
+    };
+  }
   return {
     ok: true,
     value: snapshotRunInGameSetupConfig({
-      ...(savedConfig === undefined ? {} : { savedConfig }),
+      ...(savedConfig.value === undefined ? {} : { savedConfig: savedConfig.value }),
       ...(mapScript.value === undefined ? {} : { mapScript: mapScript.value }),
       gameOptions: normalizeSetupOptions(value.gameOptions, RUN_IN_GAME_GAME_OPTION_ID_SET),
       playerOptions: normalizePlayerOptions(value.playerOptions),
@@ -580,23 +406,21 @@ function normalizeSetupMapScript(value: unknown): MapScriptNormalization {
   return { ok: true, value };
 }
 
-function normalizeSavedConfigRef(value: unknown): RunInGameSetupConfig["savedConfig"] | undefined {
-  if (!isRecord(value)) return undefined;
-  if (
-    typeof value.id !== "string" ||
-    typeof value.displayName !== "string" ||
-    typeof value.fileName !== "string" ||
-    typeof value.path !== "string" ||
-    value.fileName.length === 0 ||
-    value.path.length === 0
-  ) {
-    return undefined;
-  }
+type SavedConfigNormalization =
+  | Readonly<{ ok: true; value: RunInGameSetupConfig["savedConfig"] | undefined }>
+  | Readonly<{ ok: false }>;
+
+function normalizeSavedConfigRef(value: unknown): SavedConfigNormalization {
+  if (value === undefined) return { ok: true, value: undefined };
+  if (!Value.Check(savedSetupConfigRef, value)) return { ok: false };
   return {
-    id: value.id,
-    displayName: value.displayName,
-    fileName: value.fileName,
-    path: value.path,
+    ok: true,
+    value: {
+      id: value.id,
+      displayName: value.displayName,
+      fileName: value.fileName,
+      path: value.path,
+    },
   };
 }
 
@@ -651,8 +475,7 @@ export const requestStatus = Type.Object(
     resources: Type.Optional(Type.String()),
     setupConfig: Type.Optional(setupConfig),
     setupConfigSource: Type.Optional(Type.String()),
-    sourceSnapshot: Type.Optional(sourceSnapshotEvidence),
-    launchSourceDigest: Type.Optional(launchSourceDigest),
+    canonicalConfigDigest: Type.Optional(Type.String()),
     launchEnvelopeDigest: Type.Optional(Type.String()),
   },
   { additionalProperties: false }
@@ -773,7 +596,7 @@ const completeExactAuthorshipMaterializationEvidence = Type.Object(
 
 /**
  * Exact authorship is a closed state space. Complete evidence has every
- * manifest-backed source, materialization, setup, runtime, and log fact and no
+ * manifest-backed launch, materialization, setup, runtime, and log fact and no
  * unresolved links. Unresolved evidence retains partial evidence and at least one
  * explicit missing or mismatched link.
  */
@@ -783,7 +606,8 @@ export const exactAuthorshipEvidence = Type.Union([
       status: Type.Literal("complete"),
       requestId: Type.String(),
       createdAt: Type.String(),
-      sourceSnapshot: sourceSnapshotEvidence,
+      canonicalConfigDigest: Type.String(),
+      launchEnvelopeDigest: Type.String(),
       request: exactAuthorshipRequestEvidence,
       materialization: completeExactAuthorshipMaterializationEvidence,
       civSetup: exactAuthorshipCivSetupEvidence,
@@ -798,7 +622,8 @@ export const exactAuthorshipEvidence = Type.Union([
       status: Type.Literal("unresolved"),
       requestId: Type.String(),
       createdAt: Type.String(),
-      sourceSnapshot: Type.Optional(sourceSnapshotEvidence),
+      canonicalConfigDigest: Type.Optional(Type.String()),
+      launchEnvelopeDigest: Type.Optional(Type.String()),
       request: partialExactAuthorshipRequestEvidence,
       materialization: materializationStatus,
       civSetup: partialExactAuthorshipCivSetupEvidence,
@@ -831,7 +656,7 @@ const publicRunStatusBaseFields = {
  * Status is the discriminant: running statuses can only expose live phases,
  * successful terminals can only expose `completed`, and abnormal terminals must
  * carry a safe public failure category. Private diagnostics, paths, commands,
- * attribution, source snapshots, generated artifacts, and raw errors are served
+ * attribution, runtime snapshots, generated artifacts, and raw errors are served
  * only through explicit diagnostics lookup.
  */
 export const publicRunStatusTypeSchema = Type.Union([
@@ -939,9 +764,10 @@ export const status = oc
 // runInGame.cancel - explicit operation cancellation by requestId.
 // ---------------------------------------------------------------------------
 // HTTP disconnects and browser aborts are transport events, not cancellation.
-// This command is the only public cancellation surface: active operations
-// terminalize as `cancelled`; terminal operations return their existing public
-// status; unknown request ids map to the declared safe not-found error.
+// This command is the only public cancellation surface. Pre-mutation operations
+// terminalize as `cancelled`; once setup/start owns mutation, cancellation returns
+// the existing running status and observation settles it. Terminal operations
+// return their existing public status; unknown ids map to the safe not-found error.
 export const cancel = oc
   .errors(runInGameErrors)
   .input(requestIdInputSchema)
@@ -970,28 +796,27 @@ export const diagnostics = oc
 // ---------------------------------------------------------------------------
 // #14 runInGame.start - accepted operation start.
 // ---------------------------------------------------------------------------
-// Body: one closed launch source plus launch settings. Success: PublicRunStatus
+// Body: one complete config plus launch settings. Success: PublicRunStatus
 // (async). Each accepted click owns a fresh request id; control correlation uses
 // request, deployment, and run-artifact identity rather than content digests.
 // Errors: 409 (run-in-game OR save/deploy active), 400/500/503 via declared
 // RUN_IN_GAME_* codes whose data is limited to safe category/recovery fields.
-// Runtime internals, source snapshots, materialization, evidence, and raw messages
+// Runtime internals, runtime snapshots, materialization, evidence, and raw messages
 // belong behind explicit diagnostics lookup, never this public procedure.
 //
 // SECURITY BOUNDARY (target-arch section 1): the TypeBox contract keeps the
-// public input closed, while the host validator scans the canonical source and
+// public input closed, while the host validator scans the canonical config and
 // setup values for raw-control vocabulary before any workflow port runs. The
-// package operation runtime owns structural request admission and source
-// resolution; host ports supply indexed Swooper catalog reads and Standard
-// semantic admission.
+// package operation runtime owns structural request admission; host ports own
+// Standard semantic admission.
 export const start = oc
   .errors(runInGameErrors)
   .input(
     contractSchema(
       Type.Object(
         {
-          source: runInGameStartSource,
-          recipeSettings: runInGameRecipeSettings,
+          canonicalConfig: mapConfigEnvelopeSchema,
+          seed: runInGameSeed,
           worldSettings: runInGameWorldSettings,
           setupConfig: Type.Optional(Type.Unknown()),
         },

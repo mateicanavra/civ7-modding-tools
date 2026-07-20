@@ -3,14 +3,17 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { implementArtifactModules } from "@swooper/mapgen-core/authoring";
 import { Value } from "typebox/value";
-import { artifacts as ecologyArtifacts } from "../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import biomesStep from "../../../../../../src/recipes/standard/stages/ecology-biomes/steps/biomes/index.js";
-import { artifacts as hydrologyClimateRefineArtifacts } from "../../../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
-import plotBiomesStep from "../../../../../../src/recipes/standard/stages/map-ecology/steps/plotBiomes.js";
+import {
+  artifactModules as ecologyArtifactModules,
+  artifacts as ecologyArtifacts,
+} from "../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { BiomesStep as biomesStep } from "../../../../../../src/recipes/standard/stages/ecology-biomes/steps/biomes/step.js";
+import { artifactModules as hydrologyClimateRefineArtifactModules } from "../../../../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
+import { PlotBiomesStep as plotBiomesStep } from "../../../../../../src/recipes/standard/stages/map-ecology/steps/plot-biomes/step.js";
 import { BiomeEngineBindingsSchema } from "../../../../../../src/recipes/standard/stages/map-projection-public-config.js";
-import { artifacts as morphologyArtifacts } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";
 import { buildTestDeps } from "../../../../../support/step-deps.js";
 
@@ -31,25 +34,22 @@ describe("biomes step", () => {
 
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
-    ctx.buffers.heightfield.landMask.fill(1);
-    ctx.buffers.heightfield.landMask[0] = 0;
-    ctx.buffers.heightfield.elevation.fill(1);
-    ctx.buffers.heightfield.elevation[0] = 0;
+    const landMask = new Uint8Array(size).fill(1);
+    landMask[0] = 0;
+    const elevation = new Int16Array(size).fill(1);
+    elevation[0] = 0;
 
-    const requiredArtifacts = implementArtifacts(
-      [
-        morphologyArtifacts.topography,
-        hydrologyClimateRefineArtifacts.cryosphere,
-        hydrologyClimateRefineArtifacts.climateIndices,
-        ecologyArtifacts.pedology,
-      ],
-      { topography: {}, cryosphere: {}, climateIndices: {}, pedology: {} }
-    );
+    const requiredArtifacts = implementArtifactModules([
+      morphologyArtifactModules.topography,
+      hydrologyClimateRefineArtifactModules.cryosphere,
+      hydrologyClimateRefineArtifactModules.climateIndices,
+      ecologyArtifactModules.pedology,
+    ]);
 
     requiredArtifacts.topography.publish(ctx, {
-      elevation: ctx.buffers.heightfield.elevation,
+      elevation,
       seaLevel: 0,
-      landMask: ctx.buffers.heightfield.landMask,
+      landMask,
       bathymetry: new Int16Array(size),
     });
     requiredArtifacts.cryosphere.publish(ctx, {
@@ -89,12 +89,21 @@ describe("biomes step", () => {
       buildTestDeps(plotBiomesStep)
     );
 
+    const bindings = ctx.artifacts.get(ecologyArtifacts.biomeBindings.id) as
+      | { engineBiomeId: Uint16Array }
+      | undefined;
+    const biomeId = bindings?.engineBiomeId;
+    if (!(biomeId instanceof Uint16Array)) {
+      throw new Error("Missing biomeBindings evidence after plot-biomes.");
+    }
     const marineId = adapter.getBiomeGlobal("BIOME_MARINE");
-    expect(ctx.fields.biomeId[0]).toBe(marineId);
+    expect(biomeId[0]).toBe(marineId);
+    expect(adapter.getBiomeType(0, 0)).toBe(marineId);
 
     const landIdx = 1;
-    expect(ctx.fields.biomeId[landIdx]).not.toBe(marineId);
-    expect(ctx.fields.biomeId[landIdx]).toBeGreaterThanOrEqual(0);
+    expect(biomeId[landIdx]).not.toBe(marineId);
+    expect(biomeId[landIdx]).toBeGreaterThanOrEqual(0);
+    expect(adapter.getBiomeType(landIdx, 0)).toBe(biomeId[landIdx]);
   });
 
   it("uses hydrology climateIndices for temperature/aridity/freeze (no local re-derive)", () => {
@@ -111,23 +120,20 @@ describe("biomes step", () => {
     adapter.fillWater(false);
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
-    ctx.buffers.heightfield.landMask.fill(1);
-    ctx.buffers.heightfield.elevation.fill(1);
+    const landMask = new Uint8Array(size).fill(1);
+    const elevation = new Int16Array(size).fill(1);
 
-    const requiredArtifacts = implementArtifacts(
-      [
-        morphologyArtifacts.topography,
-        hydrologyClimateRefineArtifacts.cryosphere,
-        hydrologyClimateRefineArtifacts.climateIndices,
-        ecologyArtifacts.pedology,
-      ],
-      { topography: {}, cryosphere: {}, climateIndices: {}, pedology: {} }
-    );
+    const requiredArtifacts = implementArtifactModules([
+      morphologyArtifactModules.topography,
+      hydrologyClimateRefineArtifactModules.cryosphere,
+      hydrologyClimateRefineArtifactModules.climateIndices,
+      ecologyArtifactModules.pedology,
+    ]);
 
     requiredArtifacts.topography.publish(ctx, {
-      elevation: ctx.buffers.heightfield.elevation,
+      elevation,
       seaLevel: 0,
-      landMask: ctx.buffers.heightfield.landMask,
+      landMask,
       bathymetry: new Int16Array(size),
     });
     requiredArtifacts.cryosphere.publish(ctx, {
@@ -209,23 +215,20 @@ describe("biomes step", () => {
 
       const ctx = createExtendedMapContext({ width, height }, adapter, env);
 
-      ctx.buffers.heightfield.landMask.fill(1);
-      ctx.buffers.heightfield.elevation.fill(1);
+      const landMask = new Uint8Array(size).fill(1);
+      const elevation = new Int16Array(size).fill(1);
 
-      const requiredArtifacts = implementArtifacts(
-        [
-          morphologyArtifacts.topography,
-          hydrologyClimateRefineArtifacts.cryosphere,
-          hydrologyClimateRefineArtifacts.climateIndices,
-          ecologyArtifacts.pedology,
-        ],
-        { topography: {}, cryosphere: {}, climateIndices: {}, pedology: {} }
-      );
+      const requiredArtifacts = implementArtifactModules([
+        morphologyArtifactModules.topography,
+        hydrologyClimateRefineArtifactModules.cryosphere,
+        hydrologyClimateRefineArtifactModules.climateIndices,
+        ecologyArtifactModules.pedology,
+      ]);
 
       requiredArtifacts.topography.publish(ctx, {
-        elevation: ctx.buffers.heightfield.elevation,
+        elevation,
         seaLevel: 0,
-        landMask: ctx.buffers.heightfield.landMask,
+        landMask,
         bathymetry: new Int16Array(size),
       });
       requiredArtifacts.cryosphere.publish(ctx, {

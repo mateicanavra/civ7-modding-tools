@@ -1,6 +1,3 @@
-// Ensure environments without Web TextEncoder (e.g., Civ7 embedded V8) have a compatible implementation.
-import "../polyfills/text-encoder";
-
 import { type Env, EnvSchema } from "@mapgen/core/env.js";
 
 import type { StepRegistry } from "@mapgen/engine/StepRegistry.js";

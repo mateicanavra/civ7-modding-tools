@@ -1,6 +1,7 @@
 import path from "node:path";
 import { biomeArgv } from "@habitat/cli/providers/biome/index";
 import { makeGitProviderFromCommandHandler } from "@habitat/cli/providers/git/index";
+import { parentArgv } from "@habitat/cli/providers/graphite/index";
 import {
   affectedArgv,
   graphArgv,
@@ -18,7 +19,6 @@ import {
 } from "@habitat/cli/resources/platform/filesystem";
 import type { HabitatReportEvent } from "@habitat/cli/resources/reporter/index";
 import type { HabitatServiceDeps } from "@habitat/cli/service/base";
-import type { CheckReport } from "@habitat/cli/service/model/check/index";
 import { loadRuleRegistryDocument, ruleFactsCatalog } from "@habitat/cli/service/model/rules/index";
 import { Effect } from "effect";
 
@@ -50,7 +50,6 @@ export function makeTestHabitatServiceDeps(
     },
     commandRunner: {
       run: (request) => Effect.succeed(commandResult(request)),
-      runSync: commandResult,
     },
     git: makeGitProviderFromCommandHandler((argv, options) =>
       commandResult({
@@ -62,6 +61,7 @@ export function makeTestHabitatServiceDeps(
       })
     ),
     graphite: {
+      parentArgv,
       parent: () => Effect.succeed(null),
     },
     nx: {
@@ -176,14 +176,4 @@ function commandResult(
     },
     { stdout: captureOutput("") }
   );
-}
-
-function passingCheckReport(command: string): CheckReport {
-  return {
-    schemaVersion: 2,
-    command,
-    startedAt: "2026-06-21T00:00:00.000Z",
-    ok: true,
-    rules: [],
-  };
 }

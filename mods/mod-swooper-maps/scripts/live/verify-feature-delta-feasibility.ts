@@ -39,7 +39,7 @@ type FeatureFeasibilityProbe = Readonly<{
 }>;
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode feature-delta-feasibility --report-file <final-surface-parity-report.json>
+  nx run mod-swooper-maps:verify:operational -- --mode feature-delta-feasibility --report-file <final-surface-parity-report.json>
 
 Options:
   --context-file <path> Optional feature delta context artifact to join by plot index
@@ -227,14 +227,11 @@ function extractFinalSurfaceParityReport(payload: unknown): FinalSurfaceParityRe
 }
 
 function resolveRequestIdentity(report: FinalSurfaceParityReport) {
-  const packet = isRecord(report.exactAuthorshipEvidence) ? report.exactAuthorshipEvidence : {};
-  const sourceSnapshot = isRecord(packet.sourceSnapshot) ? packet.sourceSnapshot : {};
-  const log = isRecord(packet.log) ? packet.log : {};
+  const packet = report.exactAuthorshipEvidence;
   const sources = {
     exactAuthorshipSummary: stringValue(recordValue(report.exactAuthorshipSummary, "requestId")),
-    exactAuthorshipEvidence: stringValue(packet.requestId),
-    sourceSnapshot: stringValue(sourceSnapshot.requestId),
-    log: stringValue(log.requestId),
+    exactAuthorshipEvidence: packet?.requestId,
+    log: packet?.log.requestId,
   };
   const values = Object.values(sources).filter((value): value is string => value !== undefined);
   const uniqueValues = [...new Set(values)].sort((left, right) => left.localeCompare(right));
@@ -412,12 +409,8 @@ function readFeatureFeasibilityProbe(
 ): FeatureFeasibilityProbe {
   const probe = cell?.feasibility[String(featureType)];
   if (probe === undefined) return { ok: false, value: null, error: "missing-probe" };
-  const ok = probe.ok === true;
-  return {
-    ok,
-    value: ok && typeof probe.value === "boolean" ? probe.value : null,
-    error: typeof probe.error === "string" ? probe.error : ok ? null : "probe-failed",
-  };
+  if (!probe.ok) return { ok: false, value: null, error: probe.error };
+  return { ok: true, value: probe.value, error: null };
 }
 
 function classifyFeatureFeasibility(args: {

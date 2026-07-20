@@ -16,6 +16,11 @@ const DEFAULT_RANGE = {
   evidence: "blocked" as const,
 };
 
+/**
+ * Builds deterministic terrestrial demand rows across every canonical terrestrial resource.
+ * Primary and suppression masks determine eligible land counts, and missing signals remain
+ * typed warning rows rather than neutral habitat defaults.
+ */
 export const defaultStrategy = createStrategy(PlanTerrestrialResourcesContract, "default", {
   run: (input) => {
     const size = validateGrid(input.width, input.height);

@@ -43,44 +43,67 @@ function collectSourceFiles(root) {
 function scanFile(file) {
   const sourceText = readFileSync(file, "utf8");
   const sourceFile = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true);
-  const importedArtifacts = new Set();
-  const artifactContractKeys = new Map();
-  const artifactKeys = new Map();
-  const validatorKeys = new Map();
+  const importedModules = new Map();
+  const importedSources = new Map();
+  const catalogValueCounts = new Map();
+  const catalogKeys = new Set();
   const violations = [];
+  let catalogImportCount = 0;
+  let catalogDeclarationCount = 0;
+  let artifactModulesExportCount = 0;
+  let artifactsExportCount = 0;
 
   for (const statement of sourceFile.statements) {
     if (ts.isImportDeclaration(statement)) {
       scanImport(statement);
       continue;
     }
-    if (ts.isExportDeclaration(statement)) {
-      scanExportDeclaration(statement);
-      continue;
-    }
-    if (ts.isVariableStatement(statement) && hasExportModifier(statement)) {
-      scanExportedVariable(statement);
+    if (ts.isVariableStatement(statement)) {
+      scanVariable(statement);
       continue;
     }
     addViolation(
       statement,
-      "artifacts/index.ts may contain only imports, re-exports, artifactContracts, artifacts, and validators."
+      "artifacts/index.ts may contain only the catalog import, sibling artifact-module imports, one catalog declaration, and its two derived exports"
     );
   }
 
-  if (!artifactContractKeys.size) addFileViolation("missing exported artifactContracts aggregate");
-  if (!artifactKeys.size) addFileViolation("missing exported artifacts aggregate");
-  if (!validatorKeys.size) addFileViolation("missing exported validators aggregate");
+  if (catalogImportCount !== 1) {
+    addFileViolation("artifacts/index.ts must import defineArtifactCatalog exactly once");
+  }
+  if (catalogDeclarationCount !== 1) {
+    addFileViolation("artifacts/index.ts must declare exactly one defineArtifactCatalog catalog");
+  }
+  if (artifactModulesExportCount !== 1) {
+    addFileViolation(
+      "artifacts/index.ts must export artifactModules = catalog.modules exactly once"
+    );
+  }
+  if (artifactsExportCount !== 1) {
+    addFileViolation("artifacts/index.ts must export artifacts = catalog.artifacts exactly once");
+  }
 
-  for (const binding of importedArtifacts) {
-    if (!artifactContractKeys.has(binding)) {
-      addFileViolation(`artifactContracts is missing imported artifact module '${binding}'`);
+  const expectedSources = new Set(
+    readdirSync(path.dirname(file), { withFileTypes: true })
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".artifact.ts"))
+      .map((entry) => `./${entry.name.slice(0, -3)}.js`)
+  );
+  for (const source of expectedSources) {
+    if (!importedSources.has(source)) {
+      addFileViolation(`catalog is missing sibling artifact module import '${source}'`);
     }
-    if (!artifactKeys.has(binding)) {
-      addFileViolation(`artifacts is missing imported artifact module '${binding}'`);
+  }
+  for (const [source] of importedSources) {
+    if (!expectedSources.has(source)) {
+      addFileViolation(`catalog imports non-sibling artifact module '${source}'`);
     }
-    if (!validatorKeys.has(binding)) {
-      addFileViolation(`validators is missing imported artifact module '${binding}'`);
+  }
+  for (const [binding] of importedModules) {
+    const count = catalogValueCounts.get(binding) ?? 0;
+    if (count !== 1) {
+      addFileViolation(
+        `catalog must register imported artifact module '${binding}' exactly once (found ${count})`
+      );
     }
   }
 
@@ -92,130 +115,162 @@ function scanFile(file) {
       addViolation(statement, "artifact index imports must use string module specifiers");
       return;
     }
+
     const source = specifier.text;
-    const namespaceImport = statement.importClause?.namedBindings;
-    if (!/^\.[/][^/]+\.artifact\.js$/.test(source)) {
+    const clause = statement.importClause;
+    if (source === "@swooper/mapgen-core/authoring/contracts") {
+      catalogImportCount += 1;
+      const imports = clause?.namedBindings;
+      const elements = imports && ts.isNamedImports(imports) ? imports.elements : [];
+      const importedName = elements[0]?.propertyName?.text ?? elements[0]?.name.text;
+      const localName = elements[0]?.name.text;
+      if (
+        !clause ||
+        clause.isTypeOnly ||
+        clause.name ||
+        !imports ||
+        !ts.isNamedImports(imports) ||
+        elements.length !== 1 ||
+        importedName !== "defineArtifactCatalog" ||
+        localName !== "defineArtifactCatalog"
+      ) {
+        addViolation(
+          statement,
+          "the contracts import must be exactly import { defineArtifactCatalog } from '@swooper/mapgen-core/authoring/contracts'"
+        );
+      }
+      return;
+    }
+
+    if (!/^\.\/[^/]+\.artifact\.js$/.test(source)) {
       addViolation(
         statement,
-        "artifact index imports must come from sibling ./*.artifact.js files only"
+        "artifact index imports must be defineArtifactCatalog or sibling ./*.artifact.js modules"
       );
       return;
     }
-    if (!namespaceImport || !ts.isNamespaceImport(namespaceImport)) {
+    const namespaceImport = clause?.namedBindings;
+    if (
+      !clause ||
+      clause.isTypeOnly ||
+      clause.name ||
+      !namespaceImport ||
+      !ts.isNamespaceImport(namespaceImport)
+    ) {
       addViolation(
         statement,
-        "artifact index imports must use namespace imports: import * as name from './item.artifact.js'"
+        "artifact modules must use namespace imports: import * as name from './item.artifact.js'"
       );
       return;
     }
-    importedArtifacts.add(namespaceImport.name.text);
-  }
 
-  function scanExportDeclaration(statement) {
-    if (statement.moduleSpecifier) {
-      addViolation(statement, "artifact index must not re-export from another module specifier");
+    const binding = namespaceImport.name.text;
+    if (importedModules.has(binding)) {
+      addViolation(statement, `duplicate artifact module binding '${binding}'`);
+      return;
     }
+    if (importedSources.has(source)) {
+      addViolation(statement, `duplicate artifact module import '${source}'`);
+      return;
+    }
+    importedModules.set(binding, source);
+    importedSources.set(source, binding);
   }
 
-  function scanExportedVariable(statement) {
-    for (const declaration of statement.declarationList.declarations) {
-      if (!ts.isIdentifier(declaration.name)) {
-        addViolation(declaration, "artifact index exported variables must use identifier names");
-        continue;
-      }
-      const name = declaration.name.text;
-      if (name === "artifactContracts") {
-        scanArtifactContracts(declaration);
-        continue;
-      }
-      if (name === "artifacts") {
-        scanArtifacts(declaration);
-        continue;
-      }
-      if (name === "validators") {
-        scanValidators(declaration);
-        continue;
-      }
+  function scanVariable(statement) {
+    if (!(statement.declarationList.flags & ts.NodeFlags.Const)) {
+      addViolation(statement, "artifact index variables must be const declarations");
+      return;
+    }
+    if (statement.declarationList.declarations.length !== 1) {
+      addViolation(statement, "artifact index variable statements must declare one binding");
+      return;
+    }
+
+    const declaration = statement.declarationList.declarations[0];
+    if (!ts.isIdentifier(declaration.name)) {
+      addViolation(declaration, "artifact index variables must use identifier names");
+      return;
+    }
+
+    const name = declaration.name.text;
+    if (!hasExportModifier(statement) && name === "catalog") {
+      scanCatalog(declaration);
+      return;
+    }
+    if (hasExportModifier(statement) && name === "artifactModules") {
+      artifactModulesExportCount += 1;
+      scanDerivedExport(declaration, "modules");
+      return;
+    }
+    if (hasExportModifier(statement) && name === "artifacts") {
+      artifactsExportCount += 1;
+      scanDerivedExport(declaration, "artifacts");
+      return;
+    }
+
+    addViolation(
+      declaration,
+      "artifact index may declare only catalog and export only artifactModules and artifacts"
+    );
+  }
+
+  function scanCatalog(declaration) {
+    catalogDeclarationCount += 1;
+    const initializer = unwrapAsConst(declaration.initializer);
+    if (
+      !initializer ||
+      !ts.isCallExpression(initializer) ||
+      !ts.isIdentifier(initializer.expression) ||
+      initializer.expression.text !== "defineArtifactCatalog" ||
+      initializer.arguments.length !== 1
+    ) {
       addViolation(
         declaration,
-        "artifact index may export only artifactContracts, artifacts, and validators variables"
+        "catalog must be initialized by one defineArtifactCatalog(...) call"
       );
+      return;
+    }
+
+    const modules = unwrapAsConst(initializer.arguments[0]);
+    if (!modules || !ts.isObjectLiteralExpression(modules)) {
+      addViolation(declaration, "defineArtifactCatalog must receive an object literal");
+      return;
+    }
+    if (modules.properties.length === 0) {
+      addViolation(modules, "artifact catalog must register at least one sibling artifact module");
+      return;
+    }
+
+    for (const property of modules.properties) {
+      const entry = objectEntry(property);
+      if (!entry) {
+        addViolation(property, "artifact catalog entries must be direct module references");
+        continue;
+      }
+      if (catalogKeys.has(entry.key)) {
+        addViolation(property, `duplicate artifact catalog key '${entry.key}'`);
+        continue;
+      }
+      catalogKeys.add(entry.key);
+      if (!ts.isIdentifier(entry.value) || !importedModules.has(entry.value.text)) {
+        addViolation(property, "artifact catalog values must reference sibling module imports");
+        continue;
+      }
+      catalogValueCounts.set(entry.value.text, (catalogValueCounts.get(entry.value.text) ?? 0) + 1);
     }
   }
 
-  function scanArtifactContracts(declaration) {
-    const objectLiteral = unwrapAsConst(declaration.initializer);
-    if (!objectLiteral || !ts.isObjectLiteralExpression(objectLiteral)) {
-      addViolation(declaration, "artifactContracts must be an object literal");
-      return;
-    }
-    for (const property of objectLiteral.properties) {
-      const entry = objectEntry(property);
-      if (!entry) {
-        addViolation(
-          property,
-          "artifactContracts entries must be direct artifact module references"
-        );
-        continue;
-      }
-      const value = entry.value;
-      if (!ts.isIdentifier(value) || !importedArtifacts.has(value.text)) {
-        addViolation(property, "artifactContracts values must reference imported artifact modules");
-        continue;
-      }
-      artifactContractKeys.set(value.text, entry.key);
-    }
-  }
-
-  function scanArtifacts(declaration) {
-    const objectLiteral = unwrapAsConst(declaration.initializer);
-    if (!objectLiteral || !ts.isObjectLiteralExpression(objectLiteral)) {
-      addViolation(declaration, "artifacts must be an object literal");
-      return;
-    }
-    for (const property of objectLiteral.properties) {
-      const entry = objectEntry(property);
-      if (!entry) {
-        addViolation(property, "artifacts entries must be direct artifact value references");
-        continue;
-      }
-      const value = entry.value;
-      if (
-        !ts.isPropertyAccessExpression(value) ||
-        value.name.text !== "artifact" ||
-        !ts.isIdentifier(value.expression) ||
-        !importedArtifacts.has(value.expression.text)
-      ) {
-        addViolation(property, "artifacts values must be importedArtifact.artifact references");
-        continue;
-      }
-      artifactKeys.set(value.expression.text, entry.key);
-    }
-  }
-
-  function scanValidators(declaration) {
-    const objectLiteral = unwrapAsConst(declaration.initializer);
-    if (!objectLiteral || !ts.isObjectLiteralExpression(objectLiteral)) {
-      addViolation(declaration, "validators must be an object literal");
-      return;
-    }
-    for (const property of objectLiteral.properties) {
-      const entry = objectEntry(property);
-      if (!entry) {
-        addViolation(property, "validators entries must be direct artifact validate references");
-        continue;
-      }
-      const value = entry.value;
-      if (
-        !ts.isPropertyAccessExpression(value) ||
-        value.name.text !== "validate" ||
-        !ts.isIdentifier(value.expression) ||
-        !importedArtifacts.has(value.expression.text)
-      ) {
-        addViolation(property, "validators values must be importedArtifact.validate references");
-        continue;
-      }
-      validatorKeys.set(value.expression.text, entry.key);
+  function scanDerivedExport(declaration, member) {
+    const initializer = unwrapAsConst(declaration.initializer);
+    if (
+      !initializer ||
+      !ts.isPropertyAccessExpression(initializer) ||
+      !ts.isIdentifier(initializer.expression) ||
+      initializer.expression.text !== "catalog" ||
+      initializer.name.text !== member
+    ) {
+      addViolation(declaration, `${declaration.name.text} must be derived from catalog.${member}`);
     }
   }
 

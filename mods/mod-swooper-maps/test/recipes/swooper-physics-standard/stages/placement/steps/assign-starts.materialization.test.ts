@@ -4,7 +4,7 @@ import placementDomain from "@mapgen/domain/placement/ops";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
-import { validators as placementArtifactValidators } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifactModules as placementArtifactModules } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { materializeStartAssignment } from "../../../../../../src/recipes/standard/stages/placement/steps/assign-starts/materialize.js";
 import { runOpValidated } from "../../../../../support/compiler-helpers.js";
 
@@ -99,7 +99,7 @@ describe("start materializer (thin shell)", () => {
     expect(
       adapter.calls.setStartPosition.map((call) => call.plotIndex).sort((a, b) => a - b)
     ).toEqual([...assignment.positions].sort((a, b) => a - b));
-    expect(placementArtifactValidators.startAssignment(assignment)).toEqual([]);
+    expect(placementArtifactModules.startAssignment.validate(assignment)).toEqual([]);
     const [firstPosition, secondPosition] = assignment.positions;
     if (firstPosition === undefined || secondPosition === undefined) {
       throw new Error("Expected two materialized start positions.");
@@ -136,6 +136,6 @@ describe("start materializer (thin shell)", () => {
     expect(assignment.unseatedCount).toBe(1);
     expect(assignment.status).toBe("degraded");
     expect(adapter.calls.setStartPosition.length).toBe(2);
-    expect(placementArtifactValidators.startAssignment(assignment)).toEqual([]);
+    expect(placementArtifactModules.startAssignment.validate(assignment)).toEqual([]);
   });
 });

@@ -138,16 +138,16 @@ describe("GameConsole Run in Game status", () => {
     expect(onRunInGame).toHaveBeenCalledTimes(1);
   });
 
-  it("disables Run in Game while authoring source recovery is required", () => {
+  it("disables Run in Game while the current config is invalid", () => {
     const onRunInGame = vi.fn();
     renderConsole({
       onRunInGame,
       runInGameDisabled: true,
-      runInGameDisabledReason: "Recover the authoring source before running in game.",
+      runInGameDisabledReason: "Correct the current config before running in game.",
     });
 
     const play = screen.getByRole("button", {
-      name: /Recover the authoring source before running in game/i,
+      name: /Correct the current config before running in game/i,
     });
     expect(play).toHaveProperty("disabled", true);
     fireEvent.click(play);
@@ -183,6 +183,26 @@ describe("GameConsole Run in Game status", () => {
     expect(html).toContain("Retry Run");
     expect(html).toContain("runtime-observation");
     expect(html).not.toContain("setup cannot see");
+  });
+
+  it("disables replay when a post-mutation failure admits observation only", () => {
+    const onRunInGame = vi.fn();
+    renderConsole({
+      onRunInGame,
+      runInGameCurrentRelation: "current",
+      runInGameStatus: {
+        requestId: "studio-run-in-game-no-repeat",
+        phase: "failed",
+        status: "failed",
+        safeFailureCategory: "runtime-observation",
+        recoveryActions: ["retry-status", "copy-diagnostics"],
+      },
+    });
+
+    const play = screen.getByRole("button", { name: /Run Unavailable/i });
+    expect(play).toHaveProperty("disabled", true);
+    fireEvent.click(play);
+    expect(onRunInGame).not.toHaveBeenCalled();
   });
 
   it.each([

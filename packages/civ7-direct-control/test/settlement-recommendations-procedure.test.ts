@@ -11,6 +11,8 @@ import {
   summarizeCiv7ProcedureCoreDescriptor,
 } from "../src/index";
 
+import { schemaPropertyKeys } from "./support/procedure-schema";
+
 describe("Civ7 settlement recommendations procedure descriptor", () => {
   test("records the read-only settlement atom and resolves its schemas", () => {
     const summary = summarizeCiv7ProcedureCoreDescriptor(
@@ -34,10 +36,10 @@ describe("Civ7 settlement recommendations procedure descriptor", () => {
       Civ7SettlementRecommendationsProcedureDescriptor,
       Civ7SettlementRecommendationsProcedureSchemaArtifacts
     );
-    expect(Object.keys(resolved.inputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.inputSchema)).toEqual(
       expect.arrayContaining(Civ7SettlementRecommendationsProcedureDescriptor.inputFields)
     );
-    expect(Object.keys(resolved.outputSchema.properties ?? {})).toEqual(
+    expect(schemaPropertyKeys(resolved.outputSchema)).toEqual(
       expect.arrayContaining(Civ7SettlementRecommendationsProcedureDescriptor.outputFields)
     );
     expect(

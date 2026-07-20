@@ -12,10 +12,10 @@
   },
   "ownerProject": "habitat",
   "lane": "enforced",
-  "forbids": "formatter drift, ordinary lint hygiene violations, and import-organization drift",
-  "why": "Biome owns formatter, ordinary hygiene, and import-organization checks; Habitat routes that native gate without duplicating its authority.",
-  "remediate": "bun run biome:check -- --write",
-  "message": "Run `bun run biome:check -- --write`; keep external, vendored, and generated surfaces excluded from native Biome coverage.",
+  "forbids": "workspace manifest ordering drift, formatter drift, ordinary lint hygiene violations, and import-organization drift",
+  "why": "sort-package-json owns package manifest ordering and Biome owns formatter, ordinary hygiene, and import-organization checks; Habitat routes that native gate without duplicating either authority.",
+  "remediate": "bun run format",
+  "message": "Run `bun run format`; keep workspace manifests canonically ordered and external, vendored, and generated surfaces excluded from native Biome coverage.",
   "pathCoverage": [
     {
       "kind": "project-owner"
@@ -27,12 +27,15 @@
   "supportFiles": {
     "baseline": ".habitat/global/workspace/rules/enforce_formatting_and_import_hygiene/baseline.json"
   },
+  "graphTarget": {
+    "project": "habitat",
+    "target": "check:hygiene"
+  },
   "runner": {
-    "name": "habitat",
-    "mode": "script",
-    "runtime": "bash",
-    "files": {
-      "script": ".habitat/global/workspace/rules/enforce_formatting_and_import_hygiene/check.sh"
+    "name": "nx",
+    "target": {
+      "project": "habitat",
+      "target": "check:hygiene"
     }
   }
 }

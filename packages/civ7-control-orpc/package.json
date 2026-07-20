@@ -4,28 +4,6 @@
   "private": true,
   "description": "Native oRPC/Effect procedure composition over Civ7 direct-control atoms.",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "game-ui": [
-        "./dist/game-ui.d.ts"
-      ],
-      "contract": [
-        "./dist/contract.d.ts"
-      ],
-      "runtime": [
-        "./dist/runtime.d.ts"
-      ],
-      "*": [
-        "./dist/index.d.ts"
-      ]
-    }
-  },
-  "files": [
-    "dist"
-  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -52,9 +30,33 @@
       "require": "./dist/contract.cjs"
     }
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "game-ui": [
+        "./dist/game-ui.d.ts"
+      ],
+      "contract": [
+        "./dist/contract.d.ts"
+      ],
+      "runtime": [
+        "./dist/runtime.d.ts"
+      ],
+      "*": [
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "vitest run --config vitest.config.ts",
-    "clean": "rimraf dist tsconfig.tsbuildinfo"
+    "check:test": "tsc -p tsconfig.test.json --noEmit",
+    "check:tools": "tsc -p tsconfig.tools.json --noEmit",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "test": "vitest run --config vitest.config.ts"
   },
   "dependencies": {
     "@civ7/direct-control": "workspace:*",
@@ -64,8 +66,8 @@
     "@orpc/shared": "^1.14.4",
     "@standard-schema/spec": "^1.1.0",
     "effect": "3.21.3",
-    "effect-orpc": "0.3.0",
-    "typebox": "^1.0.80"
+    "effect-orpc": "catalog:",
+    "typebox": "catalog:"
   },
   "engines": {
     "node": "22.22.0"

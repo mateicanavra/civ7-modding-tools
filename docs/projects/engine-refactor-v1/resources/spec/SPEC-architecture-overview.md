@@ -34,7 +34,7 @@
   - `effect:*` — declares an externally meaningful engine change/capability guarantee
 - **Artifact (value)**: an immutable snapshot stored in `context.artifacts` keyed by an `artifact:*` tag. Tags describe dependency edges; artifacts are the typed values that flow across those edges.
 - **Tag definition**: an optional registry entry (`DependencyTagDefinition`) that can attach postconditions (`satisfies`) and demo validation to a tag. Most tags only need an ID and kind; only a minority need custom `satisfies` logic.
-- **Step contract module**: a step-owned contract bundle for a single step (schema + derived config type + tag IDs/arrays + optional step-owned artifact helpers/validators). The default shape is `steps/<stepId>/contract.ts` colocated next to the step implementation.
+- **Step config module**: a step-owned contract bundle for a single step (schema + derived config type + tag IDs/arrays + optional step-owned artifact helpers/validators). The canonical shape is `steps/<stepId>/config.ts`, paired with `step.ts` in the exact-id directory.
 
 ### 1.2 Pipeline contract
 

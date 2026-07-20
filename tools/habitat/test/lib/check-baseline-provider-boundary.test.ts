@@ -130,18 +130,73 @@ describe("check and baseline provider boundaries", () => {
     const layer = makeFakePlatformFileSystemLayer(events);
 
     await Effect.runPromise(
-      writeBaselineEffect("new-rule", ["z::last", "a::first"], {
-        git: makeTestHabitatServiceDeps().git,
-        fileSystem: baselineFileSystemPort(),
-        repoRoot: "/repo",
-        baselinesDir,
-        registry: [],
-      }).pipe(Effect.provide(layer))
+      writeBaselineEffect(
+        "new-rule",
+        [
+          { key: "a::first", count: 1 },
+          { key: "z::last", count: 1 },
+        ],
+        {
+          git: makeTestHabitatServiceDeps().git,
+          fileSystem: baselineFileSystemPort(),
+          repoRoot: "/repo",
+          baselinesDir,
+          registry: [],
+        }
+      ).pipe(Effect.provide(layer))
     );
 
     expect(events).toEqual([
       `mkdir:${baselinesDir}`,
-      `write:${baselinesDir}/new-rule.json:${JSON.stringify(["a::first", "z::last"], null, 2)}\n`,
+      `write:${baselinesDir}/new-rule.json:${JSON.stringify(
+        {
+          schemaVersion: 1,
+          occurrences: [
+            { key: "a::first", count: 1 },
+            { key: "z::last", count: 1 },
+          ],
+        },
+        null,
+        2
+      )}\n`,
+    ]);
+  });
+
+  test("baseline expansion persists repeated diagnostics as exact occurrences", async () => {
+    const baselinesDir = "/repo/.habitat/baselines";
+    const events: string[] = [];
+    const layer = makeFakePlatformFileSystemLayer(events);
+
+    await Effect.runPromise(
+      writeBaselineEffect(
+        "counted-rule",
+        [
+          { key: "a::repeated", count: 2 },
+          { key: "z::single", count: 1 },
+        ],
+        {
+          git: makeTestHabitatServiceDeps().git,
+          fileSystem: baselineFileSystemPort(),
+          repoRoot: "/repo",
+          baselinesDir,
+          registry: [],
+        }
+      ).pipe(Effect.provide(layer))
+    );
+
+    expect(events).toEqual([
+      `mkdir:${baselinesDir}`,
+      `write:${baselinesDir}/counted-rule.json:${JSON.stringify(
+        {
+          schemaVersion: 1,
+          occurrences: [
+            { key: "a::repeated", count: 2 },
+            { key: "z::single", count: 1 },
+          ],
+        },
+        null,
+        2
+      )}\n`,
     ]);
   });
 
@@ -172,7 +227,7 @@ describe("check and baseline provider boundaries", () => {
           rules: deps.rules,
           structureFileSystem: structureFileSystemPort(),
         }
-      )
+      ).pipe(Effect.provide(makeFakePlatformFileSystemLayer([])))
     );
     const record = results.get(fileLayerRule!.id);
 

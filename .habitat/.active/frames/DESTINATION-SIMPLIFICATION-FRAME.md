@@ -145,8 +145,8 @@ Hard core:
 1. `artifact` is a real blueprint kind, and its artifact contract belongs
    inside artifact authority rather than a sibling `artifact-contract`
    blueprint.
-2. `dependency-tag` is a real blueprint kind; `artifact:*`, `field:*`, and
-   `effect:*` are tag kinds under it, not separate blueprint destinations.
+2. `dependency-tag` is a real blueprint kind; `artifact:*` and `effect:*` are
+   tag kinds under it, not separate blueprint destinations.
 3. `config-surface`, `adapter-boundary`, and generic `projection` are not
    blueprints now.
 4. Dependency-tag gathering was the correct first move because it clarified
@@ -221,9 +221,12 @@ Strong cleanup or pruning pressure exists in:
 - `pipeline/config/_remainder/prohibit_wrapper_only_advanced_config`;
 - `pipeline/cutover/_remainder`;
 - hydrology and morphology legacy config-key rows;
-- `domains/ecology/_remainder/validate_ecology_op_contract_quality`;
 - Studio `_blueprints` that look like service/build checks rather than
   constructible kinds.
+
+Supersession note: `validate_ecology_op_contract_quality` retired after generic
+MapGen Grit authority absorbed its JSDoc rail and its Ecology-only source proxy
+proved unfit to validate composed TypeBox values.
 
 Do not delete these rows just because they are noisy. Garbage collection should
 mean one of: behaviorless legacy cleanup can retire, a stronger positive rule

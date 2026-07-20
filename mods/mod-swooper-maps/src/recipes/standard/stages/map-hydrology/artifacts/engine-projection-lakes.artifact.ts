@@ -1,10 +1,17 @@
+import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
   validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
+/**
+ * Runtime contract reconciling Hydrology lake intent with Civ7 water, lake, terrain, area, and
+ * elevation readback plus explicit rejection and morphology-protection evidence.
+ */
 export const MapHydrologyEngineProjectionArtifactSchema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
@@ -68,6 +75,7 @@ export const MapHydrologyEngineProjectionArtifactSchema = Type.Object(
   }
 );
 
+/** Canonical schema entrypoint for admitting lake-projection readback evidence. */
 export const Schema = MapHydrologyEngineProjectionArtifactSchema;
 
 /**
@@ -82,6 +90,81 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+/**
+ * Validates the closed projection report, including dimensions, typed readback
+ * masks, mismatch counts, and morphology-protection evidence.
+ */
+export function validate(
+  value: unknown,
+  context?: ArtifactValidationContext
+): readonly { message: string }[] {
+  const issues = [...validateArtifactSchema(Schema, value)];
+  if (value === null || typeof value !== "object") return Object.freeze(issues);
+  const candidate = value as Record<string, unknown>;
+  const cellCount = artifactCellCount(context);
+  appendArtifactTypedArrayIssues(issues, "lakeMask", candidate.lakeMask, Uint8Array, cellCount);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "plannedLakeMask",
+    candidate.plannedLakeMask,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "engineWaterMask",
+    candidate.engineWaterMask,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "engineLakeMask",
+    candidate.engineLakeMask,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "engineTerrain",
+    candidate.engineTerrain,
+    Int32Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "engineAreaId",
+    candidate.engineAreaId,
+    Int32Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "engineElevation",
+    candidate.engineElevation,
+    Int16Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "nonWaterMask",
+    candidate.nonWaterMask,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "nonLakeMask",
+    candidate.nonLakeMask,
+    Uint8Array,
+    cellCount
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "terrainMismatchMask",
+    candidate.terrainMismatchMask,
+    Uint8Array,
+    cellCount
+  );
+  return Object.freeze(issues);
 }

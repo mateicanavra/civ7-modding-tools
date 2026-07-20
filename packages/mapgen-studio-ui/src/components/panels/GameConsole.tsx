@@ -42,7 +42,7 @@ export interface GameConsoleLiveRuntime {
 export interface GameConsoleProps {
   /** Read-only live Civ7 runtime status */
   liveRuntime?: GameConsoleLiveRuntime;
-  /** Whether the current Studio config/seed matches the proved live game source. */
+  /** Whether the current Studio config/seed matches the proved live game state. */
   liveGameStudioRelation?: "current" | "stale" | "unknown";
   /** Callback to apply a visible live-runtime or proved-run suggestion back into Studio. */
   onSyncFromLiveGame?: () => void;
@@ -71,7 +71,7 @@ export interface GameConsoleProps {
   runInGameCurrentRelation?: RunInGameRelation;
   /** Callback to launch the current map config in Civ7 */
   onRunInGame: () => void;
-  /** Whether authoring source recovery must happen before Run in Game can start. */
+  /** Whether the current config must be corrected before Run in Game can start. */
   runInGameDisabled?: boolean;
   /** User-facing explanation for a disabled Run in Game action. */
   runInGameDisabledReason?: string;
@@ -181,6 +181,10 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     runInGameStatus,
     runInGameCurrentRelation
   );
+  const runInGameRetryRefused =
+    (runInGameStatus?.status === "failed" || runInGameStatus?.status === "cancelled") &&
+    runInGameCurrentRelation !== "stale" &&
+    !runInGameStatus.recoveryActions.includes("retry-run");
   const liveSyncAvailable =
     liveRuntime?.status === "ok" &&
     liveGameStudioRelation === "stale" &&
@@ -409,7 +413,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
           <TooltipTrigger asChild>
             <Button
               onClick={onRunInGame}
-              disabled={operationControlsDisabled || runInGameDisabled}
+              disabled={operationControlsDisabled || runInGameDisabled || runInGameRetryRefused}
               aria-label={runInGameTitle}
               className={isRunInGameRunning ? "shrink-0 opacity-70 cursor-wait" : "shrink-0"}
             >

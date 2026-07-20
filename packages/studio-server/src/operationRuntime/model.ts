@@ -47,6 +47,12 @@ export type RunInGameInternalStatus =
   | "uncertain"
   | "cancelled";
 
+export type RunInGameFailurePhase =
+  | "materializing"
+  | "deploying"
+  | "starting-game"
+  | "collecting-evidence";
+
 export type RunInGameInternalOperation = Readonly<{
   kind: "run-in-game";
   requestId: string;
@@ -54,12 +60,7 @@ export type RunInGameInternalOperation = Readonly<{
   request: RunInGameRequestStatus;
   phase:
     | "accepted"
-    | "materializing"
-    | "deploying"
-    | "checking-civ7"
-    | "preparing-setup"
-    | "starting-game"
-    | "collecting-evidence"
+    | RunInGameFailurePhase
     | "complete"
     | "blocked"
     | "failed"
@@ -80,6 +81,7 @@ export type RunInGameInternalOperation = Readonly<{
   exactAuthorshipEvidence?: RunInGameExactAuthorshipEvidence;
   result?: unknown;
   failure?: StudioRuntimeFailure;
+  failedAtPhase?: RunInGameFailurePhase;
   cancellationCleanupFailure?: StudioRuntimeFailure;
 }>;
 
@@ -129,33 +131,86 @@ export function emptyRegistry(identity: StudioDaemonIdentity): RegistryState {
 export function statusForRunInGamePhase(
   phase: RunInGameInternalOperation["phase"]
 ): RunInGameInternalStatus {
-  if (phase === "complete") return "complete";
-  if (phase === "blocked") return "blocked";
-  if (phase === "failed" || phase === "runtime-disposed") return "failed";
-  if (phase === "uncertain") return "uncertain";
-  if (phase === "cancelled") return "cancelled";
-  return "running";
+  switch (phase) {
+    case "accepted":
+    case "materializing":
+    case "deploying":
+    case "starting-game":
+    case "collecting-evidence":
+      return "running";
+    case "complete":
+      return "complete";
+    case "blocked":
+      return "blocked";
+    case "failed":
+    case "runtime-disposed":
+      return "failed";
+    case "uncertain":
+      return "uncertain";
+    case "cancelled":
+      return "cancelled";
+  }
+  return unhandledPhase(phase);
+}
+
+/**
+ * Returns whether Studio has handed lifecycle mutation authority to Civ7.
+ * While one of these phases is running, cancellation or failure cannot prove
+ * that replay is safe; observation must settle the outcome instead.
+ */
+export function runInGameLifecycleOwnsMutation(
+  phase: RunInGameInternalOperation["phase"]
+): boolean {
+  return phase === "starting-game" || phase === "collecting-evidence";
+}
+
+export function failurePhaseForRunInGame(
+  phase: RunInGameInternalOperation["phase"]
+): RunInGameFailurePhase {
+  switch (phase) {
+    case "accepted":
+    case "materializing":
+      return "materializing";
+    case "deploying":
+    case "starting-game":
+    case "collecting-evidence":
+      return phase;
+    case "complete":
+    case "blocked":
+    case "failed":
+    case "uncertain":
+    case "cancelled":
+    case "runtime-disposed":
+      throw new Error(`Terminal Run in Game phase cannot require failure routing: ${phase}`);
+  }
 }
 
 export function statusForSaveDeployPhase(
   phase: SaveDeployInternalOperation["phase"]
 ): MapConfigSaveDeployStatus["status"] {
-  if (phase === "complete") return "complete";
-  if (phase === "failed" || phase === "runtime-disposed") return "failed";
-  return "running";
+  switch (phase) {
+    case "accepted":
+    case "queued":
+    case "saving":
+    case "deploying":
+      return "running";
+    case "complete":
+      return "complete";
+    case "failed":
+    case "runtime-disposed":
+      return "failed";
+  }
+  return unhandledPhase(phase);
 }
 
 export function publicRunInGamePhase(phase: RunInGameInternalOperation["phase"]): RunInGamePhase {
   switch (phase) {
     case "accepted":
-      return "resolving-source";
+      return "admitting-config";
     case "materializing":
       return "generating-artifacts";
     case "deploying":
       return "deploying";
-    case "checking-civ7":
-    case "preparing-setup":
-      return "preparing-civ7";
     case "starting-game":
       return "starting-game";
     case "collecting-evidence":
@@ -178,4 +233,8 @@ export function publicSaveDeployPhase(
   if (phase === "accepted") return "queued";
   if (phase === "runtime-disposed") return "failed";
   return phase;
+}
+
+function unhandledPhase(phase: never): never {
+  throw new Error(`Unhandled operation phase: ${String(phase)}`);
 }

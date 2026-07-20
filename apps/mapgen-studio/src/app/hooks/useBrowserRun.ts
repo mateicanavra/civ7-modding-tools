@@ -1,4 +1,3 @@
-import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
 import {
   type Dispatch,
   type SetStateAction,
@@ -16,10 +15,9 @@ import {
   parseCiv7StudioSeed,
   randomCiv7StudioSeed,
 } from "../../features/civ7Setup/seedPolicy";
-import { applyPresetConfig, isPlainObject } from "../../features/configAuthoring/canonicalConfig";
+import { admitCanonicalConfig } from "../../features/configAuthoring/canonicalConfig";
 import { buildBrowserRunSnapshot } from "../../features/runInGame/liveSource";
 import type { UseVizStateResult } from "../../features/viz/useVizState";
-import { findBuiltInPresetBySourcePath, findRecipeArtifacts } from "../../recipes/catalog";
 import { useAuthoringStore } from "../../stores/authoringStore";
 import { useRunStore } from "../../stores/runStore";
 import type { ToastFn } from "./useToast";
@@ -49,8 +47,6 @@ export type UseBrowserRunArgs = {
   /** Threaded busy flags from `useStudioOperations` (slice 2.4) — received, never re-derived. */
   runInGameRunning: boolean;
   saveDeployRunning: boolean;
-  /** Resolved from the one current authoring source by the preset lifecycle. */
-  pipelineConfig: PipelineConfig | null;
   toast: ToastFn;
   /** The single-owner error channel setter from `useStudioOperations`. */
   setLocalError: (message: string | null) => void;
@@ -94,21 +90,20 @@ export function useBrowserRun({
   viz,
   runInGameRunning,
   saveDeployRunning,
-  pipelineConfig,
   toast,
   setLocalError,
 }: UseBrowserRunArgs): UseBrowserRun {
   const worldSettings = useAuthoringStore((s) => s.worldSettings);
-  const recipeSettings = useAuthoringStore((s) => s.recipeSettings);
-  const setRecipeSettings = useAuthoringStore((s) => s.setRecipeSettings);
-  const authoringConfigSource = useAuthoringStore((s) => s.authoringConfigSource);
+  const seed = useAuthoringStore((s) => s.seed);
+  const setSeed = useAuthoringStore((s) => s.setSeed);
+  const canonicalConfig = useAuthoringStore((s) => s.canonicalConfig);
   const authoringRevision = useAuthoringStore((s) => s.authoringRevision);
   const lastRunSnapshot = useRunStore((s) => s.lastRunSnapshot);
   const setLastRunSnapshot = useRunStore((s) => s.setLastRunSnapshot);
 
   const currentBrowserRunSnapshot = useMemo(
-    () => buildBrowserRunSnapshot(authoringRevision),
-    [authoringRevision]
+    () => buildBrowserRunSnapshot({ authoringRevision, seed, worldSettings }),
+    [authoringRevision, seed, worldSettings]
   );
 
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
@@ -123,7 +118,7 @@ export function useBrowserRun({
     (target?: BrowserRunTarget) => {
       setLocalError(null);
 
-      const seedStr = target?.seed ?? recipeSettings.seed;
+      const seedStr = target?.seed ?? seed;
       const seedPolicy = parseCiv7StudioSeed(seedStr);
       if (!seedPolicy.ok) {
         const message = formatCiv7StudioSeedError(seedPolicy);
@@ -131,35 +126,9 @@ export function useBrowserRun({
         toast(message, { variant: "error" });
         return;
       }
-      const seed = seedPolicy.value;
+      const admittedSeed = seedPolicy.value;
       const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
-      if (authoringConfigSource.kind === "blocked") {
-        const message =
-          "Browser run is unavailable until you select an existing catalog config or create a new editor config.";
-        setLocalError(message);
-        toast(message, { variant: "error" });
-        return;
-      }
-      const catalogConfig =
-        authoringConfigSource.kind === "catalog"
-          ? (findBuiltInPresetBySourcePath(recipeSettings.recipe, authoringConfigSource.sourcePath)
-              ?.canonicalConfig ?? null)
-          : null;
-      const activeConfig =
-        authoringConfigSource.kind === "editor"
-          ? authoringConfigSource.canonicalConfig
-          : catalogConfig;
-      const recipeArtifacts = findRecipeArtifacts(recipeSettings.recipe);
-      if (
-        !activeConfig ||
-        !isPlainObject(pipelineConfig) ||
-        !recipeArtifacts ||
-        !applyPresetConfig({
-          schema: recipeArtifacts.configSchema,
-          presetConfig: pipelineConfig,
-          label: "browser-run",
-        }).ok
-      ) {
+      if (admitCanonicalConfig(canonicalConfig) === undefined) {
         const message = "Browser run failed: config is invalid for this recipe.";
         setLocalError(message);
         toast(message, { variant: "error" });
@@ -176,25 +145,30 @@ export function useBrowserRun({
 
       runnerActions.clearError();
 
-      setLastRunSnapshot(buildBrowserRunSnapshot(target?.authoringRevision ?? authoringRevision));
+      setLastRunSnapshot(
+        buildBrowserRunSnapshot({
+          authoringRevision: target?.authoringRevision ?? authoringRevision,
+          seed: seedStr,
+          worldSettings,
+        })
+      );
 
       runnerActions.start({
-        recipeId: recipeSettings.recipe,
-        seed,
+        recipeId: canonicalConfig.recipe,
+        seed: admittedSeed,
         mapSizeId: mapSize.id,
         dimensions: mapSize.dimensions,
-        latitudeBounds: activeConfig.latitudeBounds,
+        latitudeBounds: canonicalConfig.latitudeBounds,
         playerCount: worldSettings.playerCount,
         resourcesMode: worldSettings.resources,
-        pipelineConfig,
+        pipelineConfig: canonicalConfig.config,
       });
     },
     [
       runnerActions,
-      authoringConfigSource,
       authoringRevision,
-      pipelineConfig,
-      recipeSettings,
+      canonicalConfig,
+      seed,
       setLastRunSnapshot,
       setLocalError,
       toast,
@@ -270,10 +244,10 @@ export function useBrowserRun({
       return;
     }
     const next = randomCiv7StudioSeed();
-    setRecipeSettings((prev) => ({ ...prev, seed: next }));
+    setSeed(next);
     const targetRevision = useAuthoringStore.getState().authoringRevision;
     startBrowserRun({ seed: next, authoringRevision: targetRevision });
-  }, [runInGameRunning, saveDeployRunning, setRecipeSettings, startBrowserRun, toast]);
+  }, [runInGameRunning, saveDeployRunning, setSeed, startBrowserRun, toast]);
 
   const triggerRun = useCallback(() => {
     if (runInGameRunning || saveDeployRunning) {

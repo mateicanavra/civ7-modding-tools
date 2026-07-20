@@ -1,9 +1,17 @@
+export type {
+  StepFacetFailure,
+  StepFacetInput,
+  StepFacetSinkContext,
+  StepFacetSinks,
+  StepFacets,
+} from "@mapgen/engine/step-facets.js";
 export type { Static, TSchema } from "typebox";
 export { Type } from "typebox";
 export type {
+  ArtifactCatalog,
   ArtifactContract,
+  ArtifactModule,
   ArtifactReadValueOf,
-  ArtifactRuntimeImpl,
   ArtifactValidationContext,
   ArtifactValidationIssue,
   ArtifactValueOf,
@@ -15,9 +23,12 @@ export {
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
+  appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  implementArtifacts,
+  defineArtifactCatalog,
+  implementArtifactModules,
+  readValidatedArtifact,
   validateArtifactSchema,
 } from "./artifact/index.js";
 export type {
@@ -60,13 +71,6 @@ export type {
   StrategySelection,
 } from "./op/index.js";
 export { createOp, createStrategy, defineOp, opRef } from "./op/index.js";
-export type { RecipePresetDefinitionV1, StudioPresetExportFileV1 } from "./preset-schemas.js";
-export {
-  derivePresetLabel,
-  isPresetWrapper,
-  RecipePresetDefinitionV1Schema,
-  StudioPresetExportFileV1Schema,
-} from "./preset-schemas.js";
 export { createRecipe } from "./recipe.js";
 export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
 export type {
@@ -102,6 +106,7 @@ export {
   assertTypedArrayOf,
   assertUint8Array,
   assertUint16Array,
+  assertUint32Array,
   expectedGridSize,
   isFloat32Array,
   isInt8Array,
@@ -110,6 +115,7 @@ export {
   isTypedArrayOf,
   isUint8Array,
   isUint16Array,
+  isUint32Array,
 } from "./typed-arrays.js";
 export type {
   CompiledRecipeConfigOf,

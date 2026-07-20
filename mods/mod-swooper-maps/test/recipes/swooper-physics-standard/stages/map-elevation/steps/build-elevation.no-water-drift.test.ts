@@ -9,7 +9,7 @@ import {
 } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import buildElevation from "../../../../../../src/recipes/standard/stages/map-elevation/steps/buildElevation.js";
+import { BuildElevationStep } from "../../../../../../src/recipes/standard/stages/map-elevation/steps/build-elevation/step.js";
 import { buildTestDeps } from "../../../../../support/step-deps.js";
 
 class DriftAfterBuildElevationAdapter extends MockAdapter {
@@ -104,7 +104,7 @@ describe("map-elevation/build-elevation", () => {
     };
 
     try {
-      buildElevation.run(context as any, {}, {} as any, buildTestDeps(buildElevation));
+      BuildElevationStep.run(context as any, {}, {} as any, buildTestDeps(BuildElevationStep));
     } finally {
       console.log = originalLog;
     }
@@ -156,7 +156,7 @@ describe("map-elevation/build-elevation", () => {
     console.log = () => {};
     try {
       expect(() =>
-        buildElevation.run(context as any, {}, {} as any, buildTestDeps(buildElevation))
+        BuildElevationStep.run(context as any, {}, {} as any, buildTestDeps(BuildElevationStep))
       ).toThrow(/map-elevation\/build-elevation.*land\/water drift .*exceeds policy max/);
     } finally {
       console.log = originalLog;
@@ -200,7 +200,7 @@ describe("map-elevation/build-elevation", () => {
       sinkMismatchCount: 0,
     });
 
-    buildElevation.run(context as any, {}, {} as any, buildTestDeps(buildElevation));
+    BuildElevationStep.run(context as any, {}, {} as any, buildTestDeps(BuildElevationStep));
 
     expect(adapter.buildElevationCalls).toBe(1);
     expect(adapter.getTerrainType(1, 1)).toBe(HILL_TERRAIN);
@@ -251,7 +251,7 @@ describe("map-elevation/build-elevation", () => {
       sinkMismatchCount: 0,
     });
 
-    buildElevation.run(context as any, {}, {} as any, buildTestDeps(buildElevation));
+    BuildElevationStep.run(context as any, {}, {} as any, buildTestDeps(BuildElevationStep));
 
     expect(adapter.buildElevationCalls).toBe(1);
     expect(adapter.isWater(0, 0)).toBe(true);
@@ -293,7 +293,7 @@ describe("map-elevation/build-elevation", () => {
       sinkMismatchCount: 1,
     });
 
-    buildElevation.run(context as any, {}, {} as any, buildTestDeps(buildElevation));
+    BuildElevationStep.run(context as any, {}, {} as any, buildTestDeps(BuildElevationStep));
 
     expect(adapter.buildElevationCalls).toBe(1);
     expect(adapter.isWater(0, 0)).toBe(false);

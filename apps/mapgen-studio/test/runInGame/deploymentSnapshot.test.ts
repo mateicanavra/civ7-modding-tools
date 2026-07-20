@@ -125,38 +125,28 @@ function preparedRequest(): DeployRunInGameArgs["prepared"] {
     playerOptions: [{ playerId: 0, options: {} }],
   };
   const launchEnvelope = {
-    recipeSettings: {
-      recipe: "mod-swooper-maps/standard",
-      seed: 12345,
-    },
+    seed: 12345,
     worldSettings: { mapSize: "MAPSIZE_STANDARD" },
     setupConfig,
-    source: {
-      kind: "editor" as const,
-      editorSessionId: "deployment-snapshot-test",
-      canonicalConfig: {
-        id: "studio-current",
-        name: "Studio Current",
-        description: "Deployment snapshot fixture.",
-        recipe: "standard",
-        sortIndex: 9999,
-        latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
-        config: {},
-      },
+    canonicalConfig: {
+      id: "studio-current",
+      name: "Studio Current",
+      description: "Deployment snapshot fixture.",
+      recipe: "standard",
+      sortIndex: 9999,
+      latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+      config: {},
     },
   } satisfies DeployRunInGameArgs["prepared"]["launchEnvelope"];
-  const launchSourceDigest = {
-    canonicalConfigDigest: "config-hash-test",
-  } satisfies DeployRunInGameArgs["prepared"]["launchSourceDigest"];
   return {
     request: {
-      recipeId: launchEnvelope.recipeSettings.recipe,
-      seed: launchEnvelope.recipeSettings.seed,
+      recipeId: launchEnvelope.canonicalConfig.recipe,
+      seed: launchEnvelope.seed,
       mapSize: launchEnvelope.worldSettings.mapSize,
       setupConfig,
     },
     launchEnvelope,
-    launchSourceDigest,
+    canonicalConfigDigest: "config-hash-test",
     launchEnvelopeDigest: "envelope-hash-test",
   };
 }

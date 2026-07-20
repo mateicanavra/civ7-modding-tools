@@ -3,7 +3,12 @@ import { createHash } from "node:crypto";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { RunDiagnosticsLookupResult, RunInGameOperationStatus } from "@civ7/studio-contract";
+import {
+  type RunDiagnosticsLookupResult,
+  type RunInGameExactAuthorshipEvidence,
+  type RunInGameOperationStatus,
+  snapshotRunInGameExactAuthorshipEvidence,
+} from "@civ7/studio-contract";
 import {
   canonicalSortedJson,
   readStudioRunGenerationManifest,
@@ -12,17 +17,17 @@ import {
   writeStudioRunGenerationManifest,
 } from "@civ7/studio-run-workspace";
 import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
-
 import {
   extractFinalSurfaceParityEvidenceFromDiagnostics,
   loadFinalSurfaceParityEvidence,
   parseFinalSurfaceParityArgs,
   resolveFinalSurfaceParityReplay,
 } from "../../scripts/live/verify-final-surface-parity";
+import { admitStandardMapConfig } from "../../src/maps/configs/canonical";
 
 const requestId = "studio-run-in-game-test";
 const diagnosticsId = "run-diagnostics-test";
-const canonicalConfig = {
+const canonicalConfig = admitStandardMapConfig({
   id: "swooper-earthlike",
   name: "Swooper Earthlike",
   description: "A current launch-resolution snapshot fixture.",
@@ -30,17 +35,12 @@ const canonicalConfig = {
   sortIndex: 1,
   latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
   config: STANDARD_RECIPE_CONFIG,
-};
-const source = {
-  kind: "catalog" as const,
-  sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
-  canonicalConfig,
-};
+});
 const launchEnvelope = {
-  recipeSettings: { recipe: "mod-swooper-maps/standard", seed: 1234 },
+  seed: 1234,
   worldSettings: { mapSize: "MAPSIZE_TINY" },
   setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
-  source,
+  canonicalConfig,
 };
 const canonicalConfigDigest = digest(canonicalConfig);
 const launchEnvelopeDigest = digest(launchEnvelope);
@@ -73,18 +73,16 @@ afterAll(async () => {
   await rm(workspaceRoot, { recursive: true, force: true });
 });
 
-function exactAuthorshipEvidence(overrides: Record<string, unknown> = {}) {
+function exactAuthorshipEvidencePacket(
+  overrides: Record<string, unknown> = {}
+): Readonly<Record<string, unknown>> {
   return {
     status: "complete",
     requestId,
     createdAt: "2026-07-10T00:00:00.000Z",
     unresolvedLinks: [],
-    sourceSnapshot: {
-      requestId,
-      source: { kind: "catalog", sourcePath: source.sourcePath },
-      canonicalConfigDigest,
-      launchEnvelopeDigest,
-    },
+    canonicalConfigDigest,
+    launchEnvelopeDigest,
     request: {
       recipeId: "mod-swooper-maps/standard",
       seed: 1234,
@@ -136,6 +134,23 @@ function exactAuthorshipEvidence(overrides: Record<string, unknown> = {}) {
   };
 }
 
+type CompleteExactAuthorshipEvidence = Extract<
+  RunInGameExactAuthorshipEvidence,
+  Readonly<{ status: "complete" }>
+>;
+
+function exactAuthorshipEvidence(
+  overrides: Record<string, unknown> = {}
+): CompleteExactAuthorshipEvidence {
+  const snapshot = snapshotRunInGameExactAuthorshipEvidence(
+    exactAuthorshipEvidencePacket(overrides)
+  );
+  if (snapshot?.status !== "complete") {
+    throw new Error("Invalid complete exact-authorship test fixture");
+  }
+  return snapshot;
+}
+
 type CompletedPublicStatus = Extract<RunInGameOperationStatus, Readonly<{ status: "completed" }>>;
 type DiagnosticsLookupOverrides = Readonly<{
   returnedDiagnosticsId?: string;
@@ -153,11 +168,8 @@ function completedStatus(overrides: Partial<CompletedPublicStatus> = {}): Comple
     requestId,
     diagnosticsId,
     recoveryActions: [],
-    createdAt: "2026-07-10T00:00:00.000Z",
-    updatedAt: "2026-07-10T00:00:01.000Z",
     status: "completed",
     phase: "completed",
-    terminalAt: "2026-07-10T00:00:01.000Z",
     ...overrides,
   };
 }
@@ -176,7 +188,7 @@ function diagnosticsRecord(overrides: DiagnosticsLookupOverrides = {}) {
         operationRevision: overrides.operationRevision ?? 4,
         generationManifest: manifestReference,
         exactAuthorshipEvidence: {
-          ...exactAuthorshipEvidence(),
+          ...exactAuthorshipEvidencePacket(),
           requestId: overrides.evidenceRequestId ?? requestId,
           status: overrides.evidenceStatus ?? "complete",
         },
@@ -248,16 +260,16 @@ describe("final-surface parity verifier", () => {
     }
   });
 
-  test("blocks catalog replay when the manifest path disagrees with its config id", () => {
+  test("blocks replay when the canonical config is not semantically admissible", () => {
     const mismatchedManifest = {
       ...manifest,
       payload: {
         ...manifest.payload,
         launchEnvelope: {
           ...manifest.payload.launchEnvelope,
-          source: {
-            ...manifest.payload.launchEnvelope.source,
-            sourcePath: "mods/mod-swooper-maps/src/maps/configs/shattered-ring.config.json",
+          canonicalConfig: {
+            ...manifest.payload.launchEnvelope.canonicalConfig,
+            latitudeBounds: { topLatitude: -80, bottomLatitude: 80 },
           },
         },
       },

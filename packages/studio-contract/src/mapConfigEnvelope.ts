@@ -107,6 +107,10 @@ export function isPortableJsonValue(value: unknown): value is JsonWireValue {
 }
 
 /** Admits an exact portable JSON value into an independently owned immutable snapshot. */
+export function snapshotPortableJsonValue<Value extends JsonWireValue>(
+  value: Value
+): DeepReadonly<Value> | undefined;
+export function snapshotPortableJsonValue(value: unknown): DeepReadonly<JsonWireValue> | undefined;
 export function snapshotPortableJsonValue(value: unknown): DeepReadonly<JsonWireValue> | undefined {
   const snapshot = clonePortableJsonValueSafely(value);
 

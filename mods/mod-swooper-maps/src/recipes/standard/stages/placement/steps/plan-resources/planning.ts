@@ -2,12 +2,19 @@ import { getCiv7StandardMapSizePresetForDimensions } from "@civ7/adapter";
 import {
   buildResourceLegalityMask,
   CIV7_POLICY_TABLES_V1,
+  getUnconditionalResourceRequirementBasisForAge,
   OFFICIAL_RESOURCE_BY_TYPE,
   type OfficialResourceType,
   type ResourceLegalitySurface,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
-import { default as resources } from "@mapgen/domain/resources";
+import {
+  admitPositiveResourceRegionMinimum,
+  getInitialMapResourcePolicyForType,
+  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+  type ResourceRegionMinimumRequirement,
+  default as resources,
+} from "@mapgen/domain/resources";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
@@ -19,10 +26,6 @@ import {
   type ResourceFamilyId,
 } from "@mapgen/domain/resources/model/policy/habitat-eligibility.js";
 import {
-  getInitialMapResourcePolicyForType,
-  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
-} from "@mapgen/domain/resources/model/policy/initial-map-authoring.js";
-import {
   HABITAT_INTENSITY_FIELD_NAMES,
   HABITAT_MASK_FIELD_NAMES,
   type HabitatFieldsOutput,
@@ -31,12 +34,16 @@ import {
 } from "@mapgen/domain/resources/model/schemas";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
+import type { ResourceDemandExclusionReason } from "../../artifacts/resource-demand-plan.artifact.js";
 
 type DerivedHabitatFields = Static<(typeof resources.ops.deriveHabitatFields)["output"]>;
+/** Habitat output admitted only after every typed-array class and map cardinality is checked. */
 export type HabitatFields = HabitatFieldsOutput;
+/** Continuous habitat channels consumed by resource-plan visualization. */
 export type HabitatIntensityFields = Pick<HabitatFieldsOutput, HabitatIntensityFieldName>;
 type SelectSitesInput = Static<(typeof resources.ops.selectResourceSites)["input"]>;
 type DemandRow = SelectSitesInput["demands"][number];
+/** One immutable row from the canonical Earthlike resource expectation corpus. */
 export type EarthlikeExpectationRow = (typeof EARTHLIKE_RESOURCE_EXPECTATIONS)[number];
 type ResourceExpectationInput<G extends ResourceExpectationGroupId> = {
   resourceType: OfficialResourceType;
@@ -55,14 +62,14 @@ type ResourceExpectationInput<G extends ResourceExpectationGroupId> = {
   caveats: string[];
 };
 
+/** Diagnostic summary of the demand and eligible surface built for one resource type. */
 export type ResourceDemandSummaryRow = {
   resourceType: OfficialResourceType;
   family: ResourceFamilyId;
   laneId: string;
   laneKind: "land" | "water";
   weight: number;
-  minimumPerHemisphere: number;
-  requiredForAge: boolean;
+  regionMinimumRequirement: ResourceRegionMinimumRequirement;
   targetCount: number;
   minCount: number;
   maxCount: number;
@@ -71,15 +78,20 @@ export type ResourceDemandSummaryRow = {
   eligibleTileCount: number;
 };
 
+/** Resource demands plus explicit exclusions and the policy inputs used to derive them. */
 export type ResourceDemandBuildResult = {
   demands: DemandRow[];
   summaries: ResourceDemandSummaryRow[];
   /** Age-eligible planned types that produced no demand row, with the reason. */
-  excluded: Array<{ resourceType: string; reason: string }>;
-  age: string;
+  excluded: Array<{ resourceType: string; reason: ResourceDemandExclusionReason }>;
+  age: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE;
   minimumAmountModifier: number;
 };
 
+/**
+ * Asserts exact typed-array classes and map cardinality for every habitat mask and intensity,
+ * then narrows the derived payload to the planning-owned HabitatFields contract.
+ */
 export function assertHabitatFieldsOutput(
   habitat: DerivedHabitatFields,
   expectedSize: number
@@ -144,6 +156,10 @@ export function resolveMinimumAmountModifier(width: number, height: number): num
   return 0;
 }
 
+/**
+ * Returns expectation rows owned by one resource group with fresh mutable copies of nested range
+ * and evidence arrays, leaving the frozen earthlike authority untouched.
+ */
 export function expectationsForGroup<const G extends ResourceExpectationGroupId>(
   groupId: G
 ): Array<ResourceExpectationInput<G>> {
@@ -231,8 +247,8 @@ type GroupPlanRow = {
  * Builds the per-type demand rows for site selection from the family
  * planners' symbolic rows: proves symbolic→runtime ids against the policy
  * tables (hard-fail), derives per-type habitat eligibility and policy
- * legality masks, and attaches official Weight / MinimumPerHemisphere /
- * required-for-age facts (E2.1, E2.2).
+ * legality masks, and attaches official Weight plus the typed regional-minimum
+ * admission decision and its engine, static, or unresolved provenance (E2.1, E2.2).
  */
 export function buildResourceDemands(args: {
   width: number;
@@ -240,6 +256,11 @@ export function buildResourceDemands(args: {
   plannedRows: ReadonlyArray<GroupPlanRow>;
   habitat: HabitatFields;
   legalitySurface: ResourceLegalitySurface;
+  /**
+   * Exact live required-for-age observations for planned resources with an official regional
+   * minimum. `null` records that the adapter surface is unavailable; omitted entries are refused.
+   */
+  requiredForAgeByResourceType: ReadonlyMap<OfficialResourceType, boolean | null>;
   /**
    * Optional per-tile river exclusion (1 = river tile). Tiles flagged here
    * are removed from every demand's legalMask BEFORE legal/eligible counts,
@@ -250,7 +271,15 @@ export function buildResourceDemands(args: {
    */
   riverResourceExclusionMask?: Uint8Array;
 }): ResourceDemandBuildResult {
-  const { width, height, plannedRows, habitat, legalitySurface, riverResourceExclusionMask } = args;
+  const {
+    width,
+    height,
+    plannedRows,
+    habitat,
+    legalitySurface,
+    requiredForAgeByResourceType,
+    riverResourceExclusionMask,
+  } = args;
   const size = width * height;
   if (riverResourceExclusionMask !== undefined && riverResourceExclusionMask.length !== size) {
     throw new Error(
@@ -272,23 +301,23 @@ export function buildResourceDemands(args: {
 
   const demands: DemandRow[] = [];
   const summaries: ResourceDemandSummaryRow[] = [];
-  const excluded: Array<{ resourceType: string; reason: string }> = [];
+  const excluded: Array<{ resourceType: string; reason: ResourceDemandExclusionReason }> = [];
 
   for (const row of plannedRows) {
     const resourceType = row.resourceType as OfficialResourceType;
     if (!Object.hasOwn(OFFICIAL_RESOURCE_BY_TYPE, resourceType)) {
-      excluded.push({ resourceType, reason: "outside-official-resource-corpus" });
+      excluded.push({ resourceType, reason: { kind: "outside-official-resource-corpus" } });
       continue;
     }
     if (row.status !== "planned") {
-      excluded.push({ resourceType, reason: `planner-status:${row.status}` });
+      excluded.push({ resourceType, reason: { kind: "planner-status", status: row.status } });
       continue;
     }
     const agePolicy = getInitialMapResourcePolicyForType(resourceType, age);
     if (agePolicy?.status !== "eligible") {
       excluded.push({
         resourceType,
-        reason: `age-policy:${agePolicy?.status ?? "unknown"}:${age}`,
+        reason: { kind: "age-policy", status: agePolicy?.status ?? "unknown", age },
       });
       continue;
     }
@@ -325,11 +354,23 @@ export function buildResourceDemands(args: {
       }
     }
     if (legalTileCount === 0) {
-      excluded.push({ resourceType, reason: "no-policy-legal-tiles" });
+      excluded.push({ resourceType, reason: { kind: "no-admitted-legal-tiles" } });
       continue;
     }
 
     const laneKind: "land" | "water" = signal.family === "aquatic" ? "water" : "land";
+    const minimumPerHemisphere = resolved.minimumPerHemisphere;
+    if (minimumPerHemisphere > 0 && !requiredForAgeByResourceType.has(resourceType)) {
+      throw new Error(
+        `[resources] Missing required-for-age observation for ${resourceType} with official regional minimum ${minimumPerHemisphere}.`
+      );
+    }
+    const regionMinimumRequirement = resolveResourceRegionMinimumRequirement({
+      resourceType,
+      age,
+      minimumPerHemisphere,
+      observedRequiredForAge: requiredForAgeByResourceType.get(resourceType) ?? null,
+    });
     const demand: DemandRow = {
       resourceType,
       family: signal.family,
@@ -339,8 +380,7 @@ export function buildResourceDemands(args: {
       targetCount: row.targetIntentCount,
       minCount: Math.min(expectation.expectedCountRange.min, expectation.expectedCountRange.max),
       maxCount: expectation.expectedCountRange.max,
-      minimumPerHemisphere: resolved.minimumPerHemisphere,
-      requiredForAge: resolved.requiredForAges.includes(age),
+      regionMinimumRequirement,
       habitatMask: habitatEligibility.mask,
       legalMask,
       intensity: intensityByFamily[signal.family],
@@ -352,8 +392,7 @@ export function buildResourceDemands(args: {
       laneId: signal.laneId,
       laneKind,
       weight: demand.weight,
-      minimumPerHemisphere: demand.minimumPerHemisphere,
-      requiredForAge: demand.requiredForAge,
+      regionMinimumRequirement: demand.regionMinimumRequirement,
       targetCount: demand.targetCount,
       minCount: demand.minCount,
       maxCount: demand.maxCount,
@@ -369,5 +408,43 @@ export function buildResourceDemands(args: {
     excluded,
     age,
     minimumAmountModifier: resolveMinimumAmountModifier(width, height),
+  };
+}
+
+/**
+ * Resolves one official regional-minimum decision without flattening unavailable engine policy to
+ * false. Live answers are exact; only age-valid Staple/UnlocksCiv facts may admit headless forcing.
+ */
+export function resolveResourceRegionMinimumRequirement(args: {
+  resourceType: OfficialResourceType;
+  age: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE;
+  minimumPerHemisphere: number;
+  observedRequiredForAge: boolean | null;
+}): ResourceRegionMinimumRequirement {
+  const { resourceType, age, minimumPerHemisphere, observedRequiredForAge } = args;
+  if (minimumPerHemisphere === 0) {
+    return { kind: "not-applicable", reason: "no-official-minimum" };
+  }
+  const admittedMinimum = admitPositiveResourceRegionMinimum(minimumPerHemisphere);
+  if (observedRequiredForAge === true) {
+    return { kind: "required", minimumPerHemisphere: admittedMinimum, source: "engine" };
+  }
+  if (observedRequiredForAge === false) {
+    return { kind: "not-required", minimumPerHemisphere: admittedMinimum, source: "engine" };
+  }
+
+  const basis = getUnconditionalResourceRequirementBasisForAge(resourceType, age);
+  if (basis.length === 0) {
+    return {
+      kind: "unresolved",
+      minimumPerHemisphere: admittedMinimum,
+      source: "engine-unavailable",
+    };
+  }
+  return {
+    kind: "required",
+    minimumPerHemisphere: admittedMinimum,
+    source: "static-unconditional",
+    basis,
   };
 }

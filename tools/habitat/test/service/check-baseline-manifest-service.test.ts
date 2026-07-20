@@ -24,7 +24,8 @@ const fixture = {
   absoluteManifestPath:
     "/repo/.habitat/fixtures/rules/introduced-rule/rule-introduction-manifest.json",
   seededBaselineBody: '["src/a.ts::early finding","src/z.ts::late finding"]',
-  sortedBaselineWrite: '[\n  "src/a.ts::early finding",\n  "src/z.ts::late finding"\n]\n',
+  sortedBaselineWrite:
+    '{\n  "schemaVersion": 1,\n  "occurrences": [\n    {\n      "key": "src/a.ts::early finding",\n      "count": 1\n    },\n    {\n      "key": "src/z.ts::late finding",\n      "count": 1\n    }\n  ]\n}\n',
   existingRuleManifestBody: '{"id":"existing-rule"}',
   validManifestBody:
     '{"changeId":"fixture-change","ruleId":"introduced-rule","ownerProject":"habitat","runner":"grit","baselinePath":".habitat/fixtures/rules/introduced-rule/baseline.json","initialBaselineKeys":["src/a.ts::early finding","src/z.ts::late finding"],"comparisonBase":"main"}',

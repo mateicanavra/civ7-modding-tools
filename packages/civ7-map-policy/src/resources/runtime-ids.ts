@@ -26,7 +26,6 @@ export type ResolvedResourceRuntimeId = {
   readonly weight: number;
   readonly minimumPerHemisphere: number;
   readonly classType: string;
-  readonly requiredForAges: readonly string[];
 };
 
 export type ResourceRuntimeIdResolution = {
@@ -38,7 +37,6 @@ export type ResourceRuntimeIdResolution = {
 
 const V0_RESOURCE_TYPES = CIV7_BROWSER_TABLES_V0.resourceTypes as Readonly<Record<string, number>>;
 const V1_RESOURCE_ROWS = CIV7_POLICY_TABLES_V1.resourceRows;
-const V1_REQUIRED_FOR_AGE = CIV7_POLICY_TABLES_V1.isResourceRequiredForAge;
 
 let cachedResolution: ResourceRuntimeIdResolution | null = null;
 
@@ -84,7 +82,6 @@ export function resolveResourceRuntimeIds(): ResourceRuntimeIdResolution {
       weight: row.weight,
       minimumPerHemisphere: row.minimumPerHemisphere,
       classType: row.classType,
-      requiredForAges: V1_REQUIRED_FOR_AGE[String(tableIndex)] ?? [],
     };
     byType.set(resourceType, resolved);
     byId.set(tableIndex, resolved);

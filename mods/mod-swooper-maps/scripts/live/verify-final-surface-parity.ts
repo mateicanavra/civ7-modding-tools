@@ -49,9 +49,9 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode final-surface-parity --request-id <id>
-  nx run mod-swooper-maps:verify -- --mode final-surface-parity --diagnostics-id <id>
-  nx run mod-swooper-maps:verify -- --mode final-surface-parity --evidence-file <diagnostics.json>
+  nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity --request-id <id>
+  nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity --diagnostics-id <id>
+  nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity --evidence-file <diagnostics.json>
 
 Options:
   --request-id <id>           Fresh-run lookup: public completion status, then its private diagnostics record
@@ -511,7 +511,7 @@ export function resolveFinalSurfaceParityReplay(
       height,
       seed,
       config,
-      canonicalConfigDigest: manifest.payload.launchSourceDigest.canonicalConfigDigest,
+      canonicalConfigDigest: manifest.payload.canonicalConfigDigest,
       launchEnvelopeDigest: manifest.payload.launchEnvelopeDigest,
       mapEnvelopeBounds: boundsEvidence.bounds,
     },
@@ -530,20 +530,20 @@ function addManifestCorrelationBlockers(
   addStringMismatch(blockers, exact.requestId, payload.requestId, "generation-manifest.request-id");
   addStringMismatch(
     blockers,
-    exact.sourceSnapshot?.canonicalConfigDigest,
-    payload.launchSourceDigest.canonicalConfigDigest,
-    "generation-manifest.source-snapshot.canonical-config-digest"
+    exact.canonicalConfigDigest,
+    payload.canonicalConfigDigest,
+    "generation-manifest.canonical-config-digest"
   );
   addStringMismatch(
     blockers,
-    exact.sourceSnapshot?.launchEnvelopeDigest,
+    exact.launchEnvelopeDigest,
     payload.launchEnvelopeDigest,
-    "generation-manifest.source-snapshot.launch-envelope-digest"
+    "generation-manifest.launch-envelope-digest"
   );
   addStringMismatch(
     blockers,
     exact.materialization?.canonicalConfigDigest,
-    payload.launchSourceDigest.canonicalConfigDigest,
+    payload.canonicalConfigDigest,
     "generation-manifest.materialization.canonical-config-digest"
   );
   addStringMismatch(
@@ -567,7 +567,7 @@ function addManifestCorrelationBlockers(
   addStringMismatch(
     blockers,
     exact.log?.canonicalConfigDigest,
-    payload.launchSourceDigest.canonicalConfigDigest,
+    payload.canonicalConfigDigest,
     "generation-manifest.log.canonical-config-digest"
   );
   addStringMismatch(
@@ -667,7 +667,7 @@ export function buildBlockedFinalSurfaceParityOutput(args: {
     exactAuthorshipSummary: {
       requestId: args.exact.requestId,
       status: args.exact.status,
-      canonicalConfigDigest: args.manifest.payload.launchSourceDigest.canonicalConfigDigest,
+      canonicalConfigDigest: args.manifest.payload.canonicalConfigDigest,
       launchEnvelopeDigest: args.manifest.payload.launchEnvelopeDigest,
       dimensions: args.dimensions,
     },
@@ -727,7 +727,7 @@ async function main(): Promise<number> {
     width: grid.map.width,
     height: grid.map.height,
     ...(liveSeed === undefined ? {} : { seed: liveSeed }),
-    canonicalConfigDigest: evidence.manifest.payload.launchSourceDigest.canonicalConfigDigest,
+    canonicalConfigDigest: evidence.manifest.payload.canonicalConfigDigest,
     launchEnvelopeDigest: evidence.manifest.payload.launchEnvelopeDigest,
     nativeRiverObjects: nativeRiverObjectsSnapshot(nativeRiverObjects),
     evidence: {

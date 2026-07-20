@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "standard recipe map effect tag names outside the current plotted, built, or parity-captured suffix families",
-  "why": "The standard recipe tag catalog keeps map projection effects named by the current projected map outcome families.",
+  "forbids": "standard recipe map effect tag names outside the current projected, plotted, built, or parity-captured suffix families",
+  "why": "The standard recipe tag catalog keeps map materialization effects named by the outcome each map-facing step actually produces.",
   "remediate": null,
-  "message": "Use the current standard recipe map effect tag suffix families.",
+  "message": "Use the current projected, plotted, built, or parity-captured map effect suffix families.",
   "pathCoverage": [
     {
       "kind": "exact-path",
