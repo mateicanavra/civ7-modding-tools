@@ -40,7 +40,8 @@ When determinism is in doubt:
 
 ## Ground truth anchors
 
-- Map setup and context: `packages/mapgen-core/src/core/{map-setup,map-context}.ts`
+- Map setup: `packages/mapgen-core/src/core/map-setup.ts`
+- Map context: `packages/mapgen-core/src/core/map-context.ts`
 - RNG helpers: `packages/mapgen-core/src/core/random.ts`
 - Run identity derivation: `packages/mapgen-core/src/engine/execution-plan.ts`
 - Trace session + stable stringify: `packages/mapgen-core/src/trace/index.ts`

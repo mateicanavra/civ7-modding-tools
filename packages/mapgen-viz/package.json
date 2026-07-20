@@ -24,10 +24,10 @@
     "test": "bun test ./test",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
-  "engines": {
-    "node": "22.22.0"
-  },
   "dependencies": {
     "typebox": "catalog:"
+  },
+  "engines": {
+    "node": "22.22.0"
   }
 }

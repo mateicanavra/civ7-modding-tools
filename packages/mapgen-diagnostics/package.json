@@ -25,12 +25,12 @@
     "test": "bun test ./test",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
-  "engines": {
-    "node": "22.22.0"
-  },
   "dependencies": {
     "@swooper/mapgen-core": "workspace:*",
     "@swooper/mapgen-viz": "workspace:*",
     "typebox": "catalog:"
+  },
+  "engines": {
+    "node": "22.22.0"
   }
 }
