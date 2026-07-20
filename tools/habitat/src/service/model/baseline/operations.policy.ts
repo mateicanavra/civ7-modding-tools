@@ -18,6 +18,7 @@ import {
   type BaselineRefusal,
   type BaselineRuleContractInput,
 } from "./dto/baseline.schema.js";
+import { admitRuleIntroductionManifestEffect } from "./rule-introduction-manifest.policy.js";
 import { parseBaselineArray } from "./state.policy.js";
 import { sortedUnique } from "./utils.policy.js";
 
@@ -164,7 +165,13 @@ export function checkBaselineIntegrityEffect(
         continue;
       }
 
-      const manifest = acceptedRuleIntroductionManifest(ruleId, added, base, state.path, context);
+      const manifest = yield* admitRuleIntroductionManifestEffect(
+        ruleId,
+        added,
+        base,
+        state.path,
+        context
+      );
       if (!manifest.ok) refusals.push(manifest.refusal);
     }
 
@@ -222,7 +229,7 @@ export function guardBaselineExpansionEffect(
       });
     }
 
-    const manifest = acceptedRuleIntroductionManifest(
+    const manifest = yield* admitRuleIntroductionManifestEffect(
       ruleId,
       uniqueKeys,
       base,
@@ -545,58 +552,6 @@ function baseRuleIdsFromHistoricalRegistry(value: unknown): Set<string> | null {
   return new Set(ruleIds);
 }
 
-function acceptedRuleIntroductionManifest(
-  ruleId: string,
-  keys: readonly string[],
-  base: string,
-  baselinePath: string,
-  context: RequiredBaselineAuthorityContext
-): { ok: true } | { ok: false; refusal: BaselineRefusal } {
-  const manifest = context.ruleIntroductionManifests.find(
-    (candidate) => candidate.ruleId === ruleId
-  );
-  if (!manifest) {
-    return {
-      ok: false,
-      refusal: {
-        kind: "baseline-refusal",
-        ruleId,
-        path: baselinePath,
-        reason: "rule-introduction-manifest-missing",
-        addedKeys: sortedUnique(keys),
-        message:
-          `baseline for introduced rule '${ruleId}' has seeded keys but no accepted rule-introduction ` +
-          "baseline manifest; refusing baseline growth",
-      },
-    };
-  }
-
-  const sortedKeys = sortedUnique(keys);
-  const manifestKeys = sortedUnique(manifest.initialBaselineKeys);
-  const currentRule = context.registry.find((rule) => rule.id === ruleId);
-  if (
-    manifest.comparisonBase !== base ||
-    manifest.baselinePath !== baselinePath ||
-    manifest.ownerProject !== currentRule?.ownerProject ||
-    manifest.runner !== currentRule?.runner ||
-    manifestKeys.length !== manifest.initialBaselineKeys.length ||
-    !sameLengthList(manifestKeys, sortedKeys)
-  ) {
-    return {
-      ok: false,
-      refusal: {
-        kind: "baseline-refusal",
-        ruleId,
-        path: baselinePath,
-        reason: "rule-introduction-manifest-mismatch",
-        addedKeys: sortedUnique(keys),
-        message: `rule-introduction baseline manifest for '${ruleId}' does not match the requested write`,
-      },
-    };
-  }
-  return { ok: true };
-}
-
 function refused(refusals: BaselineRefusal[]): BaselineIntegrityResult {
   return { status: "refused", refusals };
 }
@@ -648,8 +603,4 @@ function toAuthorityRelative(
   return externalSourceFilePath(
     path.relative(context.repoRoot, path.resolve(filePath)).split(path.sep).join("/")
   );
-}
-
-function sameLengthList(a: readonly string[], b: readonly string[]): boolean {
-  return a.length === b.length && a.every((value, index) => value === b[index]);
 }

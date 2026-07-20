@@ -7,7 +7,7 @@ import {
   type RuleRegistryFileSystem,
   type RuleRegistrySyncFileSystem,
 } from "@habitat/cli/service/model/rules/index";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { describe, expect, test } from "vitest";
 
 describe("location-independent rule manifests", () => {
@@ -16,6 +16,13 @@ describe("location-independent rule manifests", () => {
     const rulePath = path.join(registryDir, "inventory/current/rules/sample/rule.json");
     const scriptPath = ".habitat/execution/rules/sample/check.mjs";
     const baselinePath = ".habitat/execution/rules/sample/baseline.json";
+    const ruleIntroductionManifestPath = path.posix.join(
+      ".habitat",
+      "execution",
+      "rules",
+      "sample",
+      "rule-introduction-manifest.json"
+    );
     const fileSystem = virtualRegistryFileSystem({
       [path.join(registryDir, "index.json")]: JSON.stringify(rulePackIndex()),
       [rulePath]: JSON.stringify(
@@ -28,11 +35,15 @@ describe("location-independent rule manifests", () => {
             runtime: "node",
             files: { script: scriptPath },
           },
-          supportFiles: { baseline: baselinePath },
+          supportFiles: {
+            baseline: baselinePath,
+            ruleIntroductionManifest: ruleIntroductionManifestPath,
+          },
         })
       ),
       [path.join("/repo", scriptPath)]: "",
       [path.join("/repo", baselinePath)]: "[]\n",
+      [path.join("/repo", ruleIntroductionManifestPath)]: "{}\n",
     });
 
     const document = await Effect.runPromise(
@@ -54,7 +65,10 @@ describe("location-independent rule manifests", () => {
           runtime: "node",
           files: { script: scriptPath },
         },
-        supportFiles: { baseline: baselinePath },
+        supportFiles: {
+          baseline: baselinePath,
+          ruleIntroductionManifest: ruleIntroductionManifestPath,
+        },
       }),
     ]);
   });
@@ -189,7 +203,71 @@ describe("location-independent rule manifests", () => {
     ).rejects.toThrow(/missing-baseline: referenced runner or support file does not exist/);
   });
 
-  test("classifies changed manifest, runner, and baseline files by manifest references", () => {
+  test("rejects a missing rule introduction manifest before execution", async () => {
+    const registryDir = path.join("/repo", ".habitat");
+    const rulePath = path.join(
+      registryDir,
+      "inventory/current/rules/missing-introduction-manifest/rule.json"
+    );
+    const scriptPath = path.posix.join(
+      ".habitat",
+      "execution",
+      "rules",
+      "missing-introduction-manifest",
+      "check.mjs"
+    );
+    const baselinePath = path.posix.join(
+      ".habitat",
+      "execution",
+      "rules",
+      "missing-introduction-manifest",
+      "baseline.json"
+    );
+    const missingManifestPath = path.posix.join(
+      ".habitat",
+      "execution",
+      "rules",
+      "missing-introduction-manifest",
+      "rule-introduction-manifest.json"
+    );
+    const fileSystem = virtualRegistryFileSystem({
+      [path.join(registryDir, "index.json")]: Schema.encodeSync(Schema.parseJson())(
+        rulePackIndex()
+      ),
+      [rulePath]: Schema.encodeSync(Schema.parseJson())(
+        ruleManifest({
+          id: "missing-introduction-manifest",
+          runner: {
+            name: "habitat",
+            mode: "script",
+            runtime: "node",
+            files: { script: scriptPath },
+          },
+          supportFiles: {
+            baseline: baselinePath,
+            ruleIntroductionManifest: missingManifestPath,
+          },
+        })
+      ),
+      [path.join("/repo", scriptPath)]: "",
+      [path.join("/repo", baselinePath)]: "[]\n",
+    });
+
+    await expect(
+      Effect.runPromise(loadRuleRegistryDocumentEffect(registryDir, fileSystem))
+    ).rejects.toThrow(
+      /missing-introduction-manifest: referenced runner or support file does not exist/
+    );
+  });
+
+  test("classifies changed manifest, runner, and support files by manifest references", () => {
+    const ruleIntroductionManifestPath = path.posix.join(
+      ".habitat",
+      "execution",
+      "rules",
+      "moved-rule",
+      "rule-introduction-manifest.json"
+    );
     const rule = ruleManifest({
       id: "moved-rule",
       runner: {
@@ -198,7 +276,10 @@ describe("location-independent rule manifests", () => {
         runtime: "node",
         files: { script: ".habitat/execution/rules/moved-rule/check.mjs" },
       },
-      supportFiles: { baseline: ".habitat/execution/rules/moved-rule/baseline.json" },
+      supportFiles: {
+        baseline: ".habitat/execution/rules/moved-rule/baseline.json",
+        ruleIntroductionManifest: ruleIntroductionManifestPath,
+      },
     });
 
     const plan = habitatAuthorityPathPlan(
@@ -206,6 +287,7 @@ describe("location-independent rule manifests", () => {
         ".habitat/future/ontology/rules/moved/rule.json",
         ".habitat/execution/rules/moved-rule/check.mjs",
         ".habitat/execution/rules/moved-rule/baseline.json",
+        ruleIntroductionManifestPath,
       ],
       [
         {

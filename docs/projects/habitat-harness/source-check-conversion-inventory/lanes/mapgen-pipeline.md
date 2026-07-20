@@ -1,12 +1,14 @@
 # mapgen-pipeline Lane Inventory
 
-Status: inspected lane findings
+Status: live lane inventory updated after Packet A.2 validator-ownership retirement
 
 Assigned surface: `.habitat/civ7/mapgen/pipeline/**`
 
 Coverage:
 
-- Rule records inspected: 17
+- Historical inventory records inspected: 17
+- Live Habitat rule records represented: 15
+- Rows retired to package/Nx owners: 2
 - Related source-check adapters inspected: 12
 - Existing pattern authority candidates inspected: 12
 - Command-check executors inspected: 7
@@ -29,8 +31,8 @@ currentness proof, or a small data-driven structural topology rule.
 | Disposition | Count | Rows |
 | --- | ---: | --- |
 | `grit_pattern_authority` | 12 | `prohibit_ambient_rng_in_authored_generation`, `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases`, `prohibit_wrapper_only_advanced_config`, `prohibit_sibling_stage_private_step_imports`, `require_shared_visualization_contracts_at_stage_surfaces`, `prohibit_bare_value_export_all_from_contract_surfaces`, `prohibit_empty_object_defaults_in_contract_schemas`, `require_typed_dependency_and_effect_tag_constants`, `prohibit_runtime_calls_to_runvalidated`, `prohibit_runtime_local_config_default_merging`, `prohibit_runtime_validation_and_compiler_imports`, `require_runtime_domain_op_bundle_imports` |
-| `needs_split` | 3 | `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces`, `verify_standard_recipe_public_authoring_surface`, `preserve_standard_stage_topology_and_path_invariants` |
-| `package_local_test_or_validator` | 2 | `verify_standard_recipe_artifacts_match_source_stages`, `verify_runtime_stage_order_matches_contract_manifest` |
+| `needs_split` | 2 | `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces`, `preserve_standard_stage_topology_and_path_invariants` |
+| `package_local_test_or_validator` | 3 | `verify_runtime_stage_order_matches_contract_manifest`, `verify_standard_recipe_artifacts_match_source_stages`, `verify_standard_recipe_public_authoring_surface` |
 
 ## First Grit Candidates
 
@@ -52,12 +54,22 @@ output or package execution.
 
 - `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces`: category notes already identify this as mixed. Split ecology terminology/fudge policy, scoped runtime RNG/helper bans, and legacy official generator surfaces before conversion. Most sub-assertions are still Grit-shaped.
 - `preserve_standard_stage_topology_and_path_invariants`: split retired alias text bans from exact stage order, foundation path uniqueness, and map-stage directory topology. The alias bans are Grit-shaped; topology wants data-driven structural proof or a manifest-backed checker.
-- `verify_standard_recipe_public_authoring_surface`: split stage-id/topology overlap from public schema derivation, strict object schema checks, raw operation envelope checks, and focus-path semantics. The latter are package authoring-model validators, not Grit authority.
 
 ## Keep Out Of Grit
 
-- `verify_standard_recipe_artifacts_match_source_stages`: imports runtime stages, mapgen-core authoring/normalization, generated artifacts, and map config validation. This is generated artifact currentness/package behavior proof.
 - `verify_runtime_stage_order_matches_contract_manifest`: compares exported runtime stages to exported contract manifest data. This should become package-local validator or be collapsed by deriving one surface from the other.
+
+## Packet A.2 Supersession
+
+- `verify_standard_recipe_artifacts_match_source_stages` is retired from
+  Habitat. Generated schema/default/UI metadata equivalence now lives in
+  `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/recipe/standard-generated-artifacts.test.ts`
+  through Nx `mod-swooper-maps:test`.
+- `verify_standard_recipe_public_authoring_surface` is retired from Habitat.
+  The same package test owns derived UI metadata structure; existing
+  `mapgen-core:test` and `mapgen-studio:test` retain generic authoring laws and
+  focus-path consumer behavior. Hardcoded config-key and raw property-name
+  mirrors are intentionally not preserved.
 
 ## Notable Data Quality Findings
 

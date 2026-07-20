@@ -135,6 +135,7 @@ const RulePathCoverageSchema = Type.Array(
 const RuleSupportFilesSchema = Type.Object(
   {
     baseline: Type.Optional(Type.String({ minLength: 1 })),
+    ruleIntroductionManifest: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
 );
@@ -225,6 +226,7 @@ export const RuleBaselineFactsSchema = Type.Object(
     id: Type.String({ minLength: 1 }),
     exceptionPath: Type.Optional(Type.String({ minLength: 1 })),
     baselinePath: Type.Optional(Type.String({ minLength: 1 })),
+    ruleIntroductionManifestPath: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
 );

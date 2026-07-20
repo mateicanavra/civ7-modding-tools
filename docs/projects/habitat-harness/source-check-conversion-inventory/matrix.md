@@ -1,10 +1,12 @@
 # Rule/Adapter Disposition Matrix
 
-Status: updated after command-check split systematic wave
+Status: live inventory updated after Packet A.2 validator-ownership retirement
 
 ## Coverage
 
-- Canonical rule records: 74
+- Historical inventory rows: 76
+- Active Habitat rule records represented: 73
+- Retired to package/Nx owners: `validate_generated_map_entrypoint_contracts`, `verify_standard_recipe_artifacts_match_source_stages`, `verify_standard_recipe_public_authoring_surface`
 - Centralized source-check adapters remaining: 0
 - Active `ownerTool: source-check` rule records: 0
 - Active source-check adapters: 0
@@ -18,7 +20,8 @@ Status: updated after command-check split systematic wave
 | Disposition | Count |
 | --- | ---: |
 | `data_driven_import_path_rule` | 11 |
-| `grit_pattern_authority` | 44 |
+| `grit_pattern_authority` | 45 |
+| `needs_projection_contract_surface` | 1 |
 | `needs_split` | 5 |
 | `package_local_test_or_validator` | 14 |
 
@@ -108,15 +111,23 @@ Status: updated after command-check split systematic wave
 | `preserve_evidence_provenance_labels` | platform-resources | command-check | no | no | possible for text matching, but not preferred: the oracle is generated-output/provenance correctness and remediation is regeneration, so the stronger owner is the civ7-map-policy generator/verify path. |
 | `validate_boundary_taxonomy_against_workspace_graph` | global-docs-toolkit | command-check | no | no | low: the oracle is cross-artifact graph/config consistency, not local structural source matching. |
 | `validate_docs_site_config_inputs` | global-docs-toolkit | command-check | no | no | low to medium: Grit could text-match JSON fragments, but the real oracle is docs app config validity and required site input presence. |
-| `validate_generated_map_entrypoint_contracts` | mapgen-other | command-check | no | no | low: hash/schema validation and generated-output currentness are runtime/package or generator correctness, not source-shape pattern authority |
+| `validate_generated_map_entrypoint_contracts` | mapgen-other | package-nx | no | no | Habitat packet retired; package/Nx owns generated-entrypoint currentness through `mod-swooper-maps:generated:check`. |
 | `require_recipe_dag_contract_metadata` | mapgen-other | command-check | no | no | split systematic wave: retained contract-surface and import-graph validation after direct runtime import bans moved to `prohibit_recipe_dag_runtime_source_dependencies`. |
 | `verify_docs_site_link_integrity` | global-docs-toolkit | command-check | no | no | low: the oracle is Mintlify link resolution/build behavior, not static source matching. |
 | `verify_habitat_cli_smoke_contract` | global-docs-toolkit | command-check | no | no | none: this is CLI runtime/contract behavior, not file/source shape. |
 | `verify_runtime_stage_order_matches_contract_manifest` | mapgen-pipeline | command-check | no | no | low: oracle is runtime/module-export parity between two package surfaces, not static source syntax. |
-| `verify_standard_recipe_artifacts_match_source_stages` | mapgen-pipeline | command-check | no | no | low: oracle is generated artifact currentness and package authoring behavior, not static source shape. |
-| `verify_standard_recipe_public_authoring_surface` | mapgen-pipeline | command-check | no | no | reviewed systematic wave: public authoring schema derivation, focus-path semantics, and package-derived stage metadata belong to package-local validation. |
+| `verify_standard_recipe_artifacts_match_source_stages` | mapgen-pipeline | package-nx | no | no | Habitat packet retired; the Swooper package test owns generated schema, defaults, and UI metadata equivalence. |
+| `verify_standard_recipe_public_authoring_surface` | mapgen-pipeline | package-nx | no | no | Habitat packet retired; meaningful derived authoring behavior remains package-tested and brittle vocabulary mirrors were discarded. |
 | `verify_studio_recipe_artifacts_are_current` | mapgen-other | command-check | no | no | none: generated artifact currentness and build ordering are package/Nx proof, not source pattern authority |
 | `verify_visualization_runtime_build_artifacts` | mapgen-other | command-check | no | no | none: missing build artifacts and dependency freshness are package/Nx currentness concerns, not source pattern authority |
+
+## Habitat Retirement Destinations
+
+| Historical Habitat rule | Lane | Current destination | Habitat status |
+| --- | --- | --- | --- |
+| `validate_generated_map_entrypoint_contracts` | mapgen-other | Nx `mod-swooper-maps:generated:check` after `gen:maps` | Habitat packet retired; package/Nx owns generated-entrypoint currentness. |
+| `verify_standard_recipe_artifacts_match_source_stages` | mapgen-pipeline | `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/recipe/standard-generated-artifacts.test.ts` via Nx `mod-swooper-maps:test` | Habitat packet retired; package test owns generated artifact equivalence. |
+| `verify_standard_recipe_public_authoring_surface` | mapgen-pipeline | the same Swooper package test, with existing `mapgen-core:test` and `mapgen-studio:test` coverage | Habitat packet retired; meaningful behavior stays with package consumers and brittle config-key mirrors are deleted. |
 
 ## Delete Or Demote
 
@@ -124,6 +135,7 @@ Status: updated after command-check split systematic wave
 
 ## Actionable Read
 
+- Packet A.2 supersedes the earlier retain-in-Habitat disposition for three command checks. Their historical inventory rows remain, but their live execution owner is now package/Nx and no Habitat manifest remains.
 - The canary proved the source-check to grit-check ownership switch for three diverse adapter-backed rules and deleted seven adapter files total.
 - The systematic burn-down converted the remaining 25 straightforward adapter-backed Grit rows and deleted their adapters.
 - The final residual, `require_explicit_mapgen_sdk_opt_in`, was split: SDK opt-in authority stayed in the SDK packet as `grit-check`, while the overlapping mapgen-core adapter-import branch remains owned by `preserve_mapgen_core_runtime_neutrality`.

@@ -137,12 +137,19 @@ describe("rule registry facts", () => {
           scanRoots: ["packages"],
           hookCheck: true,
           manifestPath: ".habitat/patterns/manifests/sample-rule.json",
+          supportFiles: {
+            baseline: ".habitat/fixtures/rules/sample-rule/baseline.json",
+            ruleIntroductionManifest:
+              ".habitat/fixtures/rules/sample-rule/rule-introduction-manifest.json",
+          },
         }),
       ])
     ).toEqual([
       {
         id: "sample-rule",
         baselinePath: ".habitat/fixtures/rules/sample-rule/baseline.json",
+        ruleIntroductionManifestPath:
+          ".habitat/fixtures/rules/sample-rule/rule-introduction-manifest.json",
         exceptionPath:
           ".habitat/civ7/platform/_blueprints/civ7-adapter/block_unapproved_base_standard_boundary_leaks/check.sh#ALLOWLIST",
       },

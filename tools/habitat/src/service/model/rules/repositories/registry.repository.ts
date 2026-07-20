@@ -495,6 +495,9 @@ function referencedFilePaths(rule: RuleRegistryRecord): string[] {
       break;
   }
   if (rule.supportFiles?.baseline) paths.push(rule.supportFiles.baseline);
+  if (rule.supportFiles?.ruleIntroductionManifest) {
+    paths.push(rule.supportFiles.ruleIntroductionManifest);
+  }
   return paths;
 }
 
