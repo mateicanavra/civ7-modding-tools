@@ -14,6 +14,7 @@ import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
 import { writeRunAttributionReport } from "./attributionReport.js";
 import type { RunInGameInternalOperation } from "./model.js";
 import { privateJson } from "./privateJson.js";
+import { isSetupFailureReason } from "../runInGameSetupFailureTaxonomy.js";
 
 export function lookupRunDiagnostics(
   diagnosticsId: string,
@@ -44,6 +45,7 @@ export function writeRunDiagnostics(
       const attribution = await writeRunAttributionReport(operation, {
         workspaceRoot: root,
       });
+      const setupFailure = setupFailureSection(operation);
       const record: RunDiagnosticsRecord = {
         diagnosticsId,
         requestId: operation.requestId,
@@ -54,6 +56,7 @@ export function writeRunDiagnostics(
         sections: {
           attribution: privateJson(attribution),
           operation: privateJson(operation),
+          ...(setupFailure === undefined ? {} : { setupFailure }),
         },
       };
       const path = requestDiagnosticsPath(root, operation.requestId);
@@ -115,6 +118,37 @@ function notFound(diagnosticsId: string): RunDiagnosticsLookupResult {
 
 function unavailable(diagnosticsId: string): RunDiagnosticsLookupResult {
   return { ok: false, diagnosticsId, reason: "unavailable" };
+}
+
+function setupFailureSection(operation: RunInGameInternalOperation) {
+  const diagnostics = operation.failure?.diagnostics;
+  const setupFailureReason = diagnostics?.setupFailureReason ?? diagnostics?.code;
+  if (typeof setupFailureReason !== "string" || !isSetupFailureReason(setupFailureReason)) {
+    return undefined;
+  }
+  return privateJson({
+    requestId: operation.requestId,
+    runArtifactId: operation.materialization?.runArtifactId,
+    expectedGeneratedMapFile: diagnostics?.mapScript ?? diagnostics?.expectedMapScript,
+    setupPhase: operation.phase,
+    setupFailureReason,
+    rowSample: parseMaybeJson(diagnostics?.rowProof) ?? parseMaybeJson(diagnostics?.rowVisibility),
+    observedMapScripts: diagnostics?.observedMapScripts,
+    activeTargetModSet: parseMaybeJson(diagnostics?.activeTargetModSet),
+    targetModReconciliation: parseMaybeJson(diagnostics?.targetModReconciliation),
+    activeTargetModSetReadbackLimitation: diagnostics?.activeTargetModSetReadbackLimitation,
+    directControlCode: diagnostics?.directControlCode ?? operation.failure?.directControlCode,
+    directControlDetails: parseMaybeJson(diagnostics?.directControlDetails),
+  });
+}
+
+function parseMaybeJson(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  try {
+    return JSON.parse(value) as unknown;
+  } catch {
+    return value;
+  }
 }
 
 function isNotFoundError(err: unknown): boolean {

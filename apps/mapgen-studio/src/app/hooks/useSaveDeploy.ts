@@ -1,7 +1,6 @@
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import type { PipelineConfig, RecipeSettings } from "@swooper/mapgen-studio-ui/types";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { saveRepoBackedConfig, toConfigId } from "../../features/mapConfigSave/api";
 import {
   createMapConfigSaveDeployStatus,
@@ -9,6 +8,8 @@ import {
   saveDeployResultFromTerminalStatus,
   updateMapConfigSaveDeployStatus,
 } from "../../features/mapConfigSave/status";
+import { materializePipelineConfig } from "../../features/configOverrides/configBuilders";
+import { resolveEffectivePipelineConfig } from "../../features/configOverrides/effectiveConfig";
 import { toRepoBackedPreset } from "../../features/presets/repoBacked";
 import { type PresetKey, parsePresetKey } from "../../features/presets/types";
 import type { AuthoringState } from "../../stores/authoringStore";
@@ -38,7 +39,7 @@ export type UseSaveDeployArgs = {
   runInGameRunning: StudioOperations["runInGameRunning"];
   /** Preset resolver (from `usePresetLifecycle`) — read by the save handlers. */
   resolvePreset: UsePresetLifecycleResult["resolvePreset"];
-  /** Records a repo-backed override (from `usePresetLifecycle`) before the key-flip. */
+  /** Records a session catalog entry (from `usePresetLifecycle`) before the key-flip. */
   rememberRepoBackedConfig: UsePresetLifecycleResult["rememberRepoBackedConfig"];
   /** Synchronous `lastAppliedPresetRef` writer (from `usePresetLifecycle`) — PL-7/PL-11. */
   markPresetApplied: UsePresetLifecycleResult["markPresetApplied"];
@@ -48,8 +49,10 @@ export type UseSaveDeployArgs = {
   presetActions: UsePresetLifecycleResult["presetActions"];
   /** Current authoring recipe/preset selection. */
   recipeSettings: RecipeSettings;
-  /** Current authoring pipeline config — the save payload source. */
+  /** Current authoring draft config. Outbound saves use the effective config source. */
   pipelineConfig: PipelineConfig;
+  /** UI edit/autorun gate; outbound saves still use the current complete config. */
+  overridesDisabled: boolean;
   setRecipeSettings: AuthoringState["setRecipeSettings"];
   setPipelineConfig: AuthoringState["setPipelineConfig"];
   setLastSaveDeployConfig: RunState["setLastSaveDeployConfig"];
@@ -105,11 +108,23 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
     presetActions,
     recipeSettings,
     pipelineConfig,
+    overridesDisabled,
     setRecipeSettings,
     setPipelineConfig,
     setLastSaveDeployConfig,
     toast,
   } = args;
+
+  const outboundConfigSource = useMemo(
+    () =>
+      resolveEffectivePipelineConfig({
+        recipeId: recipeSettings.recipe,
+        pipelineConfig,
+        overridesDisabled,
+      }),
+    [overridesDisabled, pipelineConfig, recipeSettings.recipe]
+  );
+  const outboundPipelineConfig = outboundConfigSource.config;
 
   const [saveDialogState, setSaveDialogState] = useState<{
     open: boolean;
@@ -197,6 +212,26 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
           error: `${reason}; finish that operation before saving.`,
           saved: false,
           deployed: false,
+          path: undefined as string | undefined,
+        };
+      }
+      const recipeArtifacts = resolveEffectivePipelineConfig({
+        recipeId: recipeSettings.recipe,
+        pipelineConfig,
+        overridesDisabled,
+      }).recipeArtifacts;
+      const validatedConfig = materializePipelineConfig({
+        schema: recipeArtifacts.configSchema,
+        config: args.config,
+        label: "save-deploy",
+      });
+      if (!validatedConfig.ok) {
+        return {
+          ok: false as const,
+          error: "Config is invalid for this recipe.",
+          saved: false,
+          deployed: false,
+          path: undefined as string | undefined,
         };
       }
 
@@ -206,6 +241,7 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
 
       const result = await saveRepoBackedConfig({
         ...args,
+        config: validatedConfig.value,
         requestId,
         onStatus: (status) => {
           setSaveDeployOperation((current) =>
@@ -224,7 +260,7 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
             deployed: result.deployed,
           });
         });
-        return result;
+        return { ...result, config: validatedConfig.value };
       }
 
       try {
@@ -232,8 +268,8 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
           ? result.status
           : await waitForSaveDeployTerminalEvent(requestId);
         const terminalResult = saveDeployResultFromTerminalStatus(terminal, result.path);
-        if (terminalResult.ok) setLastSaveDeployConfig(stripSchemaMetadataRoot(args.config));
-        return terminalResult;
+        if (terminalResult.ok) setLastSaveDeployConfig(validatedConfig.value);
+        return { ...terminalResult, config: validatedConfig.value };
       } catch (err) {
         return {
           ok: false as const,
@@ -244,11 +280,15 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
           saved: result.status.saved,
           deployed: result.status.deployed,
           path: result.path,
+          config: validatedConfig.value,
         };
       }
     },
     [
       browserRunning,
+      overridesDisabled,
+      pipelineConfig,
+      recipeSettings.recipe,
       runInGameRunning,
       saveDeployRunning,
       setLastSaveDeployConfig,
@@ -258,7 +298,6 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
 
   const handleSaveDialogConfirm = useCallback(
     async (args: { label: string; description?: string }) => {
-      const sanitized = stripSchemaMetadataRoot(pipelineConfig);
       const resolved = resolvePreset(recipeSettings.preset as PresetKey);
       const id = toConfigId(args.label);
       const sortIndex = (resolved?.sortIndex ?? 900) + 1000;
@@ -269,9 +308,9 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
         description: args.description,
         sortIndex,
         latitudeBounds,
-        config: sanitized,
+        config: outboundPipelineConfig,
       });
-      if (result.ok || result.saved) {
+      if ((result.ok || result.saved) && "config" in result) {
         rememberRepoBackedConfig(
           recipeSettings.recipe,
           toRepoBackedPreset({
@@ -281,12 +320,12 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
             sourcePath: result.path ?? `mods/mod-swooper-maps/src/maps/configs/${id}.config.json`,
             sortIndex,
             latitudeBounds,
-            config: sanitized,
+            config: result.config,
           })
         );
-        markPresetApplied({ key: `builtin:${id}`, config: sanitized });
+        markPresetApplied({ key: `builtin:${id}`, config: result.config });
+        setPipelineConfig(result.config);
         setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
-        setPipelineConfig(sanitized as PipelineConfig);
       }
       if (!result.ok) {
         toast(
@@ -305,7 +344,7 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
       setSaveDialogState({ open: false, label: "", description: "" });
     },
     [
-      pipelineConfig,
+      outboundPipelineConfig,
       recipeSettings.preset,
       recipeSettings.recipe,
       rememberRepoBackedConfig,
@@ -324,7 +363,6 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
   const handleSaveToCurrent = useCallback(async () => {
     const parsed = parsePresetKey(recipeSettings.preset);
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
-    const sanitized = stripSchemaMetadataRoot(pipelineConfig);
     if (parsed.kind === "builtin" && resolved) {
       const result = await saveRepoBackedConfigWithState({
         id: resolved.id,
@@ -333,9 +371,9 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
         sourcePath: resolved.sourcePath,
         sortIndex: resolved.sortIndex ?? 500,
         latitudeBounds: resolved.latitudeBounds,
-        config: sanitized,
+        config: outboundPipelineConfig,
       });
-      if (result.ok || result.saved) {
+      if ((result.ok || result.saved) && "config" in result) {
         rememberRepoBackedConfig(
           recipeSettings.recipe,
           toRepoBackedPreset({
@@ -345,14 +383,14 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
             sourcePath: result.path ?? resolved.sourcePath,
             sortIndex: resolved.sortIndex,
             latitudeBounds: resolved.latitudeBounds,
-            config: sanitized,
+            config: result.config,
           })
         );
         markPresetApplied({
           key: recipeSettings.preset as PresetKey,
-          config: sanitized,
+          config: result.config,
         });
-        setPipelineConfig(sanitized as PipelineConfig);
+        setPipelineConfig(result.config);
       }
       if (!result.ok) {
         toast(
@@ -378,10 +416,19 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
       });
       return;
     }
+    const validatedConfig = materializePipelineConfig({
+      schema: outboundConfigSource.recipeArtifacts.configSchema,
+      config: outboundPipelineConfig,
+      label: "save-current",
+    });
+    if (!validatedConfig.ok) {
+      toast("Config save failed: Config is invalid for this recipe.", { variant: "error" });
+      return;
+    }
     const result = presetActions.saveToCurrent({
       recipeId: recipeSettings.recipe,
       presetId: parsed.id,
-      config: sanitized,
+      config: validatedConfig.value,
     });
     if (result.error) {
       toast(result.error, { variant: "error" });
@@ -404,9 +451,9 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
       description,
       sortIndex: (resolved?.sortIndex ?? 900) + 1000,
       latitudeBounds: resolved?.latitudeBounds,
-      config: sanitized,
+      config: validatedConfig.value,
     });
-    if (repoResult.ok || repoResult.saved) {
+    if ((repoResult.ok || repoResult.saved) && "config" in repoResult) {
       rememberRepoBackedConfig(
         recipeSettings.recipe,
         toRepoBackedPreset({
@@ -416,12 +463,12 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
           sourcePath: repoResult.path ?? `mods/mod-swooper-maps/src/maps/configs/${id}.config.json`,
           sortIndex: (resolved?.sortIndex ?? 900) + 1000,
           latitudeBounds: resolved?.latitudeBounds,
-          config: sanitized,
+          config: repoResult.config,
         })
       );
-      markPresetApplied({ key: `builtin:${id}`, config: sanitized });
+      markPresetApplied({ key: `builtin:${id}`, config: repoResult.config });
+      setPipelineConfig(repoResult.config);
       setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
-      setPipelineConfig(sanitized as PipelineConfig);
     }
     if (!repoResult.ok) {
       toast(
@@ -440,7 +487,8 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
   }, [
     builtInPresets,
     handleSaveAsNew,
-    pipelineConfig,
+    outboundConfigSource,
+    outboundPipelineConfig,
     presetActions,
     recipeSettings.preset,
     recipeSettings.recipe,

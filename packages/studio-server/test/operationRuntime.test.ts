@@ -2,7 +2,9 @@ import { access, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:f
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import {
+  dependencyUnavailable,
   invalidRequest,
+  operationBlocked,
   operationStatusTypeSchema,
   proofFailed,
   type RunInGameRequestStatus,
@@ -22,7 +24,12 @@ import {
   type StudioOperationRuntimeApi,
   type StudioOperationRuntimePorts,
 } from "../src/operationRuntime";
+import type { RegistryState, RunInGameInternalOperation } from "../src/operationRuntime/model";
 import type { RunInGamePreparedRequest } from "../src/operationRuntime/ports";
+import {
+  projectCurrent,
+  operationEvent as projectOperationEvent,
+} from "../src/operationRuntime/projection";
 import {
   admitRunInGame,
   cancelRunInGame,
@@ -156,6 +163,61 @@ describe("StudioOperationRuntime", () => {
       })
     );
     expect(persistedTransition.diagnosticsId).toBe(persistedAccepted.diagnosticsId);
+  });
+
+  test("projects current and event Run in Game payloads without private operation detail", () => {
+    const now = "2026-06-10T00:00:00.000Z";
+    const privateOperation = {
+      kind: "run-in-game",
+      requestId: "run-private-projection",
+      leaseId: "runtime-lease-private-projection",
+      correlationDigest: "private-correlation-digest",
+      request: runInGameInput({
+        config: {
+          privateSourcePath: "/Users/matei/private/source.config.json",
+        },
+      }),
+      phase: "failed",
+      status: "failed",
+      operationRevision: 3,
+      startedAt: now,
+      updatedAt: "2026-06-10T00:00:01.000Z",
+      diagnosticsId: "run-diagnostics-private-projection",
+      diagnosticsPersistedRevision: 3,
+      completedPhases: ["resolving-source"],
+      result: {
+        rawOutput: "Traceback: setup cannot see /tmp/private-deploy/Swooper.lua",
+      },
+      failure: operationBlocked({
+        message: "setup cannot see /Users/matei/private/Civ7/Mods/Swooper.lua",
+        activeRequestId: "run-other-private",
+      }),
+    } satisfies RunInGameInternalOperation;
+    const registryState = {
+      identity: {
+        serverInstanceId: "studio-server-private-projection",
+        serverStartedAt: now,
+      },
+      disposed: false,
+      active: null,
+      runInGame: {
+        [privateOperation.requestId]: privateOperation,
+      },
+      saveDeploy: {},
+      tombstones: {},
+    } satisfies RegistryState;
+
+    const current = projectCurrent(registryState, "2026-06-10T00:00:02.000Z");
+    const event = projectOperationEvent(privateOperation);
+    const serializedPublicPayloads = JSON.stringify([current, event]);
+
+    expect(serializedPublicPayloads).toContain("run-diagnostics-private-projection");
+    expect(serializedPublicPayloads).toContain("ownership");
+    expect(serializedPublicPayloads).not.toMatch(
+      /privateSourcePath|leaseId|runtime-lease-private-projection|correlationDigest|private-correlation-digest|completedPhases|rawOutput|Traceback|setup cannot see|\/Users\/|\/tmp\/private-deploy|Swooper\.lua|run-other-private/
+    );
+    expectTypeboxValid(typeboxOutputSchemaFromContractProcedure(operationsCurrent), current);
+    expectTypeboxValid(studioEventSchema, event);
   });
 
   test("projects cancellation through the explicit Run in Game cancellation owner", async () => {
@@ -964,7 +1026,7 @@ describe("StudioOperationRuntime", () => {
     });
   });
 
-  test("keeps disposable studio-current launches on exit-to-shell unless row proof requires restart", async () => {
+  test("keeps disposable studio-current launches restart-free by default", async () => {
     let observedRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
@@ -988,39 +1050,24 @@ describe("StudioOperationRuntime", () => {
     expect(observedRequest?.restartCivProcess).toBeUndefined();
   });
 
-  test("restarts and retries setup only after disposable setup row proof misses", async () => {
+  test("does not process-restart after generated setup row remains unavailable", async () => {
     const events: StudioEvent[] = [];
-    let prepareSetupCalls = 0;
-    let restartCalls = 0;
     const { runtime } = makeRuntime({
       eventSink: events,
-      ports: {
-        restartCivForRunInGame: async () => {
-          restartCalls += 1;
-          return {
-            processRestart: {
-              command: "restart-civ",
-            },
-          };
-        },
-      },
       civ7: {
-        prepareSetup: () => {
-          prepareSetupCalls += 1;
-          if (prepareSetupCalls === 1) {
-            return Effect.fail(
-              proofFailed({
-                message: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
-                reason: "setup-row-unavailable",
-                diagnostics: {
-                  code: "setup-map-row-not-visible",
-                  reloadBoundary: "process-restart-required",
-                },
-              })
-            );
-          }
-          return Effect.succeed({ rowProof: { rows: [{ file: "studio-current.js" }] } });
-        },
+        prepareSetup: () =>
+          Effect.fail(
+            proofFailed({
+              message: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+              reason: "setup-row-unavailable",
+              recoveryActions: ["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"],
+              diagnostics: {
+                code: "setup-map-row-not-visible",
+                reloadBoundary: "process-restart-required",
+                reloadAttempted: true,
+              },
+            })
+          ),
       },
     });
     const service = await runtime.runPromise(StudioOperationRuntime);
@@ -1036,24 +1083,24 @@ describe("StudioOperationRuntime", () => {
         );
         return status.phase;
       })
-      .toBe("completed");
+      .toBe("failed");
 
-    expect(prepareSetupCalls).toBe(2);
-    expect(restartCalls).toBe(1);
-    await expect
-      .poll(() => operationPhases(events, accepted.requestId))
-      .toEqual(
-        expect.arrayContaining([
-          "preparing-civ7",
-          "preparing-civ7",
-          "preparing-civ7",
-          "starting-game",
-          "completed",
-        ])
-      );
+    const failed = await runtime.runPromise(
+      service.runInGameStatus({ requestId: accepted.requestId })
+    );
+    expect(failed).toMatchObject({
+      status: "failed",
+      safeFailureCategory: "runtime-observation",
+    });
+    expect(failed.recoveryActions).toEqual(
+      expect.arrayContaining(["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"])
+    );
+    expect(failed.recoveryActions).not.toContain("exit-to-shell-and-continue");
+    expect(operationPhases(events, accepted.requestId)).not.toContain("restarting-civ");
+    expect(operationPhases(events, accepted.requestId)).not.toContain("completed");
   });
 
-  test("keeps durable Run in Game launches restart opt-in", async () => {
+  test("keeps durable Run in Game first attempt restart-free", async () => {
     let observedDurableRequest: Record<string, unknown> | undefined;
     const { runtime } = makeRuntime({
       ports: {
@@ -1075,28 +1122,44 @@ describe("StudioOperationRuntime", () => {
     );
     await expect.poll(() => observedDurableRequest).toBeDefined();
     expect(observedDurableRequest?.restartCivProcess).toBeUndefined();
+  });
 
-    let observedRestartRequest: Record<string, unknown> | undefined;
-    const { runtime: restartRuntime } = makeRuntime({
-      ports: {
-        deployRunInGame: async ({ requestId, generatedMod, prepared }) => {
-          observedRestartRequest = prepared.request as Record<string, unknown>;
-          return runInGameDeployment({ requestId, materialization: generatedMod.materialization });
-        },
+  test("does not process-restart durable setup after generated row remains unavailable", async () => {
+    const { runtime } = makeRuntime({
+      civ7: {
+        prepareSetup: () =>
+          Effect.fail(
+            proofFailed({
+              message: "Civ7 setup cannot see {mod-swooper-studio-run}/maps/studio-run.js",
+              reason: "setup-row-unavailable",
+              recoveryActions: ["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"],
+              diagnostics: {
+                code: "setup-map-row-not-visible",
+                reloadAttempted: true,
+              },
+            })
+          ),
       },
     });
-    const restartService = await restartRuntime.runPromise(StudioOperationRuntime);
-    const restartDurable = await restartRuntime.runPromise(
-      restartService.runInGameStart(
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(
         runInGameInput({
           materialization: { mode: "durable" },
-          selectedConfig: { id: "latest-juicy" },
-          recovery: { restartCivProcess: true },
+          selectedConfig: { id: "swooper-earthlike" },
         })
       )
     );
-    await expect.poll(() => observedRestartRequest).toBeDefined();
-    expect(observedRestartRequest?.restartCivProcess).toBe(true);
+
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("failed");
   });
 
   test("keeps one source snapshot proof identity across runtime projections and final proof", async () => {
@@ -1417,7 +1480,7 @@ describe("StudioOperationRuntime", () => {
               generatedModRoot: resolve(workspaceRoot, manifest.payload.requestId, "generated-mod"),
               generatedModFileCount: 7,
               generatedModDigest: "sha256-generated-mod",
-              mapRowId: "MAP_RUN_TEST",
+              mapRowId: "MAP_STUDIO_RUN",
             },
           };
         },
@@ -1502,7 +1565,7 @@ describe("StudioOperationRuntime", () => {
       runArtifactId: manifest.payload.runArtifactId,
       generatedModFileCount: 7,
       generatedModDigest: "sha256-generated-mod",
-      mapRowId: "MAP_RUN_TEST",
+      mapRowId: "MAP_STUDIO_RUN",
     });
   });
 
@@ -1547,7 +1610,7 @@ describe("StudioOperationRuntime", () => {
               digest: generatedModDigest,
               files: [
                 {
-                  path: "maps/run-test.js",
+                  path: "maps/studio-run.js",
                   sha256: "sha256-map-script",
                   sizeBytes: 512,
                 },
@@ -1640,7 +1703,7 @@ describe("StudioOperationRuntime", () => {
       fileCount: 3,
       digest: "sha256-generated-tree",
       files: [
-        { path: "maps/run-test.js", sha256: "sha256-map-script", sizeBytes: 512 },
+        { path: "maps/studio-run.js", sha256: "sha256-map-script", sizeBytes: 512 },
         { path: "maps/run-test.config.json", sha256: "sha256-map-config", sizeBytes: 128 },
         { path: "modinfo.json", sha256: "sha256-modinfo", sizeBytes: 96 },
       ],
@@ -2057,7 +2120,7 @@ describe("StudioOperationRuntime", () => {
             },
             filesCopied: 3,
             files: [
-              { path: "maps/run-test.js", sha256: "sha256-map-script", sizeBytes: 512 },
+              { path: "maps/studio-run.js", sha256: "sha256-map-script", sizeBytes: 512 },
               { path: "maps/run-test.config.json", sha256: "sha256-map-config", sizeBytes: 128 },
               { path: "modinfo.json", sha256: "sha256-modinfo", sizeBytes: 96 },
             ],
@@ -2366,7 +2429,9 @@ describe("StudioOperationRuntime", () => {
     });
     expect(rollbackCalls).toBe(1);
     expect(cleanupCalls).toBe(1);
-    expect(terminalSaveDeployEvents(events, accepted.requestId)).toHaveLength(1);
+    await expect
+      .poll(() => terminalSaveDeployEvents(events, accepted.requestId).length)
+      .toBe(1);
 
     await expect(
       runtime.runPromise(service.runInGameStart(runInGameInput()))
@@ -2552,23 +2617,6 @@ describe("StudioOperationRuntime", () => {
         },
       },
       {
-        requestId: "run-restart-fail",
-        input: { recovery: { restartCivProcess: true } },
-        ports: {
-          restartCivForRunInGame: async () => {
-            throw new Error("restart failed");
-          },
-        },
-        expected: {
-          status: "failed",
-          safeFailureCategory: "runtime-control",
-          code: "run-in-game-restart-failed",
-          reason: "restart-failed",
-          failedAtPhase: "restarting-civ",
-          recoveryActions: ["restart-civ-process-and-retry"],
-        },
-      },
-      {
         requestId: "run-setup-row-fail",
         civ7: {
           prepareSetup: () =>
@@ -2580,7 +2628,7 @@ describe("StudioOperationRuntime", () => {
           code: "run-in-game-setup-row-unavailable",
           reason: "setup-row-unavailable",
           failedAtPhase: "preparing-setup",
-          recoveryActions: ["exit-to-shell-and-continue"],
+          recoveryActions: ["retry-run"],
         },
       },
       {
@@ -2696,6 +2744,197 @@ describe("StudioOperationRuntime", () => {
       });
       expectTypeboxValid(operationStatusTypeSchema, failed);
     }
+  });
+
+  test("setup failure taxonomy stays private while public Run in Game status is safe", async () => {
+    const events: StudioEvent[] = [];
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      civ7: {
+        prepareSetup: () =>
+          Effect.fail(
+            proofFailed({
+              message:
+                "Civilization is not loading the generated Studio Run mod, so its setup map list cannot show {mod-swooper-studio-run}/maps/studio-run.js.",
+              reason: "setup-row-unavailable",
+              diagnostics: {
+                code: "generated-map-mod-not-enabled",
+                setupFailureReason: "generated-map-mod-not-enabled",
+                mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+                targetModId: "mod-swooper-studio-run",
+                activeTargetModSet: {
+                  available: true,
+                  identityAvailable: true,
+                  truncated: false,
+                  mods: [{ id: "base-standard", name: "Base Standard" }],
+                },
+                materialization: {
+                  generatedModRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+                },
+              },
+            })
+          ),
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(runInGameInput({ requestId: "run-setup-taxonomy-private" }))
+    );
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.status;
+      })
+      .toBe("failed");
+
+    const status = await runtime.runPromise(
+      service.runInGameStatus({ requestId: accepted.requestId })
+    );
+    const current = await runtime.runPromise(service.operationsCurrent);
+    const publicPayloads = JSON.stringify([
+      status,
+      current,
+      events.filter((event) => event.type === "operation"),
+    ]);
+
+    expect(status).toMatchObject({
+      safeFailureCategory: "runtime-observation",
+      diagnosticsId: accepted.diagnosticsId,
+    });
+    expect(publicPayloads).toContain("runtime-observation");
+    expect(publicPayloads).not.toMatch(
+      /generated-map-mod-not-enabled|activeTargetModSet|base-standard|mapScript|mod-swooper-studio-run|\/tmp\/Civ7/
+    );
+
+    const diagnostics = await readPrivateRunDiagnostics(runtime, service, status.diagnosticsId);
+    expect(diagnostics.sections.setupFailure).toMatchObject({
+      requestId: accepted.requestId,
+      setupFailureReason: "generated-map-mod-not-enabled",
+      activeTargetModSet: {
+        available: true,
+        identityAvailable: true,
+        truncated: false,
+        mods: [{ id: "base-standard" }],
+      },
+    });
+  });
+
+  test.each([
+    {
+      requestId: "run-setup-timeout-private",
+      setupFailureReason: "setup-read-timeout",
+      directControlCode: "setup-apply-timeout",
+    },
+    {
+      requestId: "run-tuner-unavailable-private",
+      setupFailureReason: "tuner-unavailable",
+      directControlCode: "connection-failed",
+    },
+    {
+      requestId: "run-direct-control-command-private",
+      setupFailureReason: "direct-control-command-failed",
+      directControlCode: "unexpected-command-failed",
+    },
+  ])(
+    "keeps $setupFailureReason private while public Run in Game status is safe",
+    async ({ directControlCode, requestId, setupFailureReason }) => {
+      const { runtime } = makeRuntime({
+        civ7: {
+          prepareSetup: () =>
+            Effect.fail(
+              dependencyUnavailable({
+                message: "Civ7 setup control is unavailable",
+                dependency: "direct-control",
+                directControlCode,
+                diagnostics: {
+                  code: setupFailureReason,
+                  setupFailureReason,
+                  directControlCode,
+                },
+              })
+            ),
+        },
+      });
+      const service = await runtime.runPromise(StudioOperationRuntime);
+
+      const accepted = await runtime.runPromise(
+        service.runInGameStart(runInGameInput({ requestId }))
+      );
+      await expect
+        .poll(async () => {
+          const status = await runtime.runPromise(
+            service.runInGameStatus({ requestId: accepted.requestId })
+          );
+          return status.status;
+        })
+        .toBe("failed");
+
+      const status = await readPublicRunStatusWithDiagnostics(runtime, service, accepted);
+      expect(status).toMatchObject({
+        safeFailureCategory: "runtime-control",
+        diagnosticsId: accepted.diagnosticsId,
+      });
+      expect(JSON.stringify(status)).not.toContain(setupFailureReason);
+
+      const diagnostics = await readPrivateRunDiagnostics(runtime, service, status.diagnosticsId);
+      expect(diagnostics.sections.setupFailure).toMatchObject({
+        setupFailureReason,
+        directControlCode,
+      });
+    }
+  );
+
+  test("keeps setup-map-row-mismatched private while public Run in Game status is safe", async () => {
+    const { runtime } = makeRuntime({
+      civ7: {
+        prepareSetup: () =>
+          Effect.fail(
+            proofFailed({
+              message:
+                "Civ7 selected a different setup map row than the generated Studio Run map.",
+              reason: "exact-authorship-mismatch",
+              diagnostics: {
+                code: "setup-map-row-mismatched",
+                setupFailureReason: "setup-map-row-mismatched",
+                mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
+                observedMapScripts: ["{base-standard}/maps/continents.js"],
+              },
+            })
+          ),
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(runInGameInput({ requestId: "run-setup-mismatch-private" }))
+    );
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.status;
+      })
+      .toBe("failed");
+
+    const status = await readPublicRunStatusWithDiagnostics(runtime, service, accepted);
+    const publicPayload = JSON.stringify(status);
+    expect(status).toMatchObject({
+      safeFailureCategory: "runtime-observation",
+      diagnosticsId: accepted.diagnosticsId,
+    });
+    expect(publicPayload).not.toMatch(
+      /setup-map-row-mismatched|observedMapScripts|base-standard|mapScript|mod-swooper-studio-run/
+    );
+
+    const diagnostics = await readPrivateRunDiagnostics(runtime, service, status.diagnosticsId);
+    expect(diagnostics.sections.setupFailure).toMatchObject({
+      setupFailureReason: "setup-map-row-mismatched",
+      observedMapScripts: ["{base-standard}/maps/continents.js"],
+    });
   });
 
   test("maps Run in Game status misses to request-owned safe not-found failures", async () => {
@@ -3722,7 +3961,7 @@ function generatedRunInGameMod(
 ): Awaited<ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>> {
   return {
     materialization: {
-      mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+      mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
       configHash: "test-config-hash",
       envelopeHash: "test-envelope-hash",
       generationManifestDigest: "test-generation-manifest-digest",
@@ -3730,7 +3969,7 @@ function generatedRunInGameMod(
       generatedModRoot: join(tmpdir(), "studio-generated-run-test"),
       generatedModFileCount: 1,
       generatedModDigest: "test-generated-mod-digest",
-      mapRowId: "MAP_RUN_TEST",
+      mapRowId: "MAP_STUDIO_RUN",
       ...options.materialization,
     },
     ...(options.cleanup === undefined ? {} : { cleanup: options.cleanup }),
@@ -3753,7 +3992,7 @@ function runInGameDeployment(
   const filesCopied = args.filesCopied ?? 1;
   const files = args.files ?? [
     {
-      path: "maps/run-test.js",
+      path: "maps/studio-run.js",
       sha256: "sha256-map-script",
       sizeBytes: 512,
     },

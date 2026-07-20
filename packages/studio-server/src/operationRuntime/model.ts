@@ -3,7 +3,6 @@ import type {
   RunInGameExactAuthorshipProof,
   RunInGameMaterializationStatus,
   RunInGamePhase,
-  RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifestReference } from "@civ7/studio-run-workspace";
@@ -58,9 +57,7 @@ export type RunInGameInternalOperation = Readonly<{
     | "accepted"
     | "materializing"
     | "deploying"
-    | "restarting-civ"
     | "checking-civ7"
-    | "reload-needed"
     | "preparing-setup"
     | "starting-game"
     | "waiting-for-proof"
@@ -80,7 +77,6 @@ export type RunInGameInternalOperation = Readonly<{
   completedPhases: readonly RunInGamePhase[];
   materialization?: RunInGameMaterializationStatus;
   deploymentEvidence?: RunInGameDeploymentEvidence;
-  processRestart?: RunInGameProcessRestartStatus;
   runtimeObservation?: RunInGameRuntimeObservation;
   exactAuthorshipProof?: RunInGameExactAuthorshipProof;
   result?: unknown;
@@ -158,9 +154,7 @@ export function publicRunInGamePhase(phase: RunInGameInternalOperation["phase"])
       return "generating-artifacts";
     case "deploying":
       return "deploying";
-    case "restarting-civ":
     case "checking-civ7":
-    case "reload-needed":
     case "preparing-setup":
       return "preparing-civ7";
     case "starting-game":

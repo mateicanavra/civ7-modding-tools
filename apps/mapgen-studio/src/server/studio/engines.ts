@@ -5,10 +5,7 @@ import { dirname, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import {
   Civ7DirectControlError,
-  closeCiv7Displays,
   DEFAULT_CIV7_SCRIPTING_LOG,
-  DEFAULT_CIV7_TUNER_TIMEOUT_MS,
-  getCiv7PlayableStatus,
   logTextFromSnapshot,
   snapshotFile,
   waitForFreshLogMarkers,
@@ -20,7 +17,14 @@ import type {
   StudioOperationRuntimePorts,
   StudioRuntimeFailure,
 } from "@civ7/studio-server";
-import { readStudioRunGenerationManifest } from "@civ7/studio-run-workspace";
+import { deriveRecipeConfigSchema, type StageContractAny } from "@swooper/mapgen-core/authoring";
+import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import {
+  readStudioRunGenerationManifest,
+  STUDIO_RUN_MAP_ROW_ID,
+  STUDIO_RUN_MAP_SCRIPT_PATH,
+  STUDIO_RUN_MOD_ID,
+} from "@civ7/studio-run-workspace";
 import {
   dependencyUnavailable,
   deployFailed,
@@ -29,14 +33,12 @@ import {
   materializationFailed,
   proofFailed,
 } from "@civ7/studio-server";
-import { readCatalogSourceIndex } from "mod-swooper-maps/maps/catalog";
+import { type CatalogSourceEntry, readCatalogSourceIndex } from "mod-swooper-maps/maps/catalog";
+import { STANDARD_STAGES } from "mod-swooper-maps/recipes/standard";
+import { Value } from "typebox/value";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
 import { parseMapConfigSaveRequest } from "../mapConfigs/requestValidation";
 import { waitForCiv7MapgenLogFailure } from "../runInGame/logFailure";
-import {
-  launchCiv7MacViaSteamWithRetries,
-  shutdownCiv7MacProcess,
-} from "../runInGame/macosProcessRestart";
 import {
   buildRunInGameExactAuthorshipProof,
   fileContentMarkerProof,
@@ -69,21 +71,8 @@ const SCRIPTING_LOG_WAIT_TIMEOUT_MS = 90_000;
 const SCRIPTING_LOG_FAILURE_GRACE_MS = 5_000;
 const SCRIPTING_LOG_FAILURE_POLL_INTERVAL_MS = 250;
 const MAX_DEPLOY_OUTPUT_CHARS = 8_000;
-const CIV7_STEAM_APP_ID = "1295660";
-const CIV7_PROCESS_PATTERN = "CivilizationVII.app/Contents/MacOS/CivilizationVII";
-const CIV7_PROCESS_GRACEFUL_QUIT_TIMEOUT_MS = 45_000;
-const CIV7_PROCESS_FORCE_QUIT_TIMEOUT_MS = 30_000;
-const CIV7_PROCESS_FORCE_KILL_TIMEOUT_MS = 15_000;
-const CIV7_PROCESS_RESTART_POLL_INTERVAL_MS = 2_000;
-const CIV7_PROCESS_EXIT_STABLE_POLLS = 2;
-const CIV7_PROCESS_LAUNCH_COMMAND_TIMEOUT_MS = 10_000;
-const CIV7_PROCESS_LAUNCH_START_TIMEOUT_MS = 20_000;
-const CIV7_PROCESS_LAUNCH_ATTEMPTS = 6;
-const CIV7_PROCESS_LAUNCH_RETRY_DELAY_MS = 5_000;
-const CIV7_PROCESS_LAUNCH_SHELL_TIMEOUT_MS = 180_000;
-const CIV7_PROCESS_INTRO_DISMISS_INTERVAL_MS = 4_000;
-const CIV7_PROCESS_INTRO_DISMISS_CATEGORIES = ["Cinematic"] as const;
-const SWOOPER_STUDIO_RUN_MOD_ID = "mod-swooper-studio-run";
+const swooperStandardStages = STANDARD_STAGES as readonly StageContractAny[];
+const swooperStandardRecipeSchema = deriveRecipeConfigSchema(swooperStandardStages);
 
 function tail(value: string): string {
   return value.length > MAX_DEPLOY_OUTPUT_CHARS ? value.slice(-MAX_DEPLOY_OUTPUT_CHARS) : value;
@@ -100,7 +89,7 @@ async function readFreshLogText(
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolveSleep) => setTimeout(resolveSleep, ms));
 }
 
 function invalidEngineRequest(
@@ -115,6 +104,67 @@ function invalidEngineRequest(
       ...details,
     }),
   });
+}
+
+function materializeCatalogSourceConfig(args: {
+  catalogSourceId: string;
+  configPath: string;
+  config: unknown;
+}): Record<string, unknown> {
+  const { value, errors } = normalizeStrict<Record<string, unknown>>(
+    swooperStandardRecipeSchema,
+    args.config,
+    `/catalog/${args.catalogSourceId}/config`
+  );
+  if (errors.length === 0 && Value.Equal(value, args.config)) return value;
+  throw invalidEngineRequest(
+    "Catalog source config is not complete current recipe JSON",
+    "run-in-game-catalog-source-config-invalid",
+    {
+      catalogSourceId: args.catalogSourceId,
+      configPath: args.configPath,
+      errors:
+        errors.length > 0
+          ? errors
+          : [
+              {
+                path: `/catalog/${args.catalogSourceId}/config`,
+                message:
+                  "Config must be the complete recipe config JSON produced by the current recipe artifacts.",
+              },
+            ],
+    }
+  );
+}
+
+function assertCatalogSourceEnvelopeMatchesEntry(args: {
+  catalogSourceId: string;
+  entry: CatalogSourceEntry;
+  envelope: Record<string, unknown>;
+}) {
+  const mismatches: string[] = [];
+  if (args.envelope.id !== args.entry.catalogSourceId) mismatches.push("id");
+  if (args.envelope.name !== args.entry.name) mismatches.push("name");
+  if (args.envelope.description !== args.entry.description) mismatches.push("description");
+  if (args.envelope.recipe !== args.entry.recipe) mismatches.push("recipe");
+  if (args.envelope.sortIndex !== args.entry.sortIndex) mismatches.push("sortIndex");
+  if (!Value.Equal(args.envelope.latitudeBounds ?? null, args.entry.latitudeBounds ?? null)) {
+    mismatches.push("latitudeBounds");
+  }
+  if (mismatches.length === 0) return;
+  throw invalidEngineRequest(
+    "Catalog source index does not match its config envelope",
+    "run-in-game-catalog-source-envelope-mismatch",
+    {
+      catalogSourceId: args.catalogSourceId,
+      configPath: args.entry.configPath,
+      mismatches,
+    }
+  );
+}
+
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 function unavailableEngineDependency(
@@ -137,212 +187,6 @@ function unavailableEngineDependency(
     }),
     recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
   });
-}
-
-async function restartCiv7ProcessViaSteam(): Promise<{
-  command: string;
-  quit: { command: string; stdout: string; stderr: string };
-  kill?: { command: string; stdout: string; stderr: string };
-  forceKill?: { command: string; stdout: string; stderr: string };
-  shutdown: Awaited<ReturnType<typeof shutdownCiv7MacProcess>>;
-  launch: { command: string; stdout: string; stderr: string };
-  launchAttempts: Awaited<ReturnType<typeof launchCiv7MacViaSteamWithRetries>>["attempts"];
-  shellReadiness?: {
-    readiness: string;
-    playable: boolean;
-    elapsedMs: number;
-    polls: number;
-    errors: readonly string[];
-  };
-}> {
-  if (process.platform !== "darwin") {
-    throw unavailableEngineDependency(
-      "Civ7 process restart from Studio is currently supported on macOS only",
-      "civ7-process-restart-platform-unavailable",
-      undefined,
-      { platform: process.platform }
-    );
-  }
-
-  const shutdown = await shutdownCiv7MacProcess({
-    execFileAsync,
-    sleep,
-    tail,
-    processPattern: CIV7_PROCESS_PATTERN,
-    gracefulQuitTimeoutMs: CIV7_PROCESS_GRACEFUL_QUIT_TIMEOUT_MS,
-    forceQuitTimeoutMs: CIV7_PROCESS_FORCE_QUIT_TIMEOUT_MS,
-    forceKillTimeoutMs: CIV7_PROCESS_FORCE_KILL_TIMEOUT_MS,
-    pollIntervalMs: CIV7_PROCESS_RESTART_POLL_INTERVAL_MS,
-    stableAbsentPolls: CIV7_PROCESS_EXIT_STABLE_POLLS,
-  }).catch((err: unknown) => {
-    throw unavailableEngineDependency(
-      "Unable to shut down Civ7 process before restart",
-      "civ7-process-shutdown-unavailable",
-      err
-    );
-  });
-
-  const steamLaunch = await launchCiv7MacViaSteamWithRetries({
-    execFileAsync,
-    sleep,
-    tail,
-    steamAppId: CIV7_STEAM_APP_ID,
-    processPattern: CIV7_PROCESS_PATTERN,
-    launchCommandTimeoutMs: CIV7_PROCESS_LAUNCH_COMMAND_TIMEOUT_MS,
-    processStartTimeoutMs: CIV7_PROCESS_LAUNCH_START_TIMEOUT_MS,
-    pollIntervalMs: CIV7_PROCESS_RESTART_POLL_INTERVAL_MS,
-    maxLaunchAttempts: CIV7_PROCESS_LAUNCH_ATTEMPTS,
-    retryDelayMs: CIV7_PROCESS_LAUNCH_RETRY_DELAY_MS,
-  }).catch((err: unknown) => {
-    throw unavailableEngineDependency(
-      "Unable to launch Civ7 via Steam",
-      "civ7-steam-launch-unavailable",
-      err
-    );
-  });
-  const launch = steamLaunch.attempts[steamLaunch.attempts.length - 1]?.launch;
-  if (!launch) {
-    throw unavailableEngineDependency(
-      "Civ7 Steam launch did not record an attempt",
-      "civ7-steam-launch-attempt-missing",
-      undefined,
-      { launchAttempts: steamLaunch.attempts }
-    );
-  }
-  const shellReadiness = await waitForCiv7ShellReadiness({
-    timeoutMs: CIV7_PROCESS_LAUNCH_SHELL_TIMEOUT_MS,
-    pollIntervalMs: CIV7_PROCESS_RESTART_POLL_INTERVAL_MS,
-  }).catch((err: unknown) => {
-    throw unavailableEngineDependency(
-      "Civ7 did not reach shell after restart",
-      "civ7-shell-readiness-unavailable",
-      err,
-      { launchAttempts: steamLaunch.attempts }
-    );
-  });
-
-  return {
-    command: `${shutdown.quit.command} && ${steamLaunch.command}`,
-    quit: shutdown.quit,
-    ...(shutdown.kill === undefined ? {} : { kill: shutdown.kill }),
-    ...(shutdown.forceKill === undefined ? {} : { forceKill: shutdown.forceKill }),
-    shutdown,
-    launch,
-    launchAttempts: steamLaunch.attempts,
-    shellReadiness,
-  };
-}
-
-async function waitForCiv7ShellReadiness(options: {
-  timeoutMs: number;
-  pollIntervalMs: number;
-}): Promise<{
-  readiness: string;
-  playable: boolean;
-  elapsedMs: number;
-  polls: number;
-  errors: readonly string[];
-}> {
-  const startedAt = Date.now();
-  let polls = 0;
-  let last: Awaited<ReturnType<typeof getCiv7PlayableStatus>> | undefined;
-  let lastIntroDismissAttemptAt = 0;
-  const introDismissals: Civ7IntroDisplayDismissalAttempt[] = [];
-  while (Date.now() - startedAt <= options.timeoutMs) {
-    polls += 1;
-    try {
-      const status = await getCiv7PlayableStatus({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS });
-      last = status;
-      const inGame = directControlProbeValue(status.appUi.snapshot.ui.inGame);
-      const inShell = directControlProbeValue(status.appUi.snapshot.ui.inShell);
-      if (inShell === true) {
-        return {
-          readiness: status.readiness,
-          playable: status.playable,
-          elapsedMs: Date.now() - startedAt,
-          polls,
-          errors: status.errors,
-        };
-      }
-      const elapsedMs = Date.now() - startedAt;
-      if (
-        inGame !== true &&
-        elapsedMs - lastIntroDismissAttemptAt >= CIV7_PROCESS_INTRO_DISMISS_INTERVAL_MS
-      ) {
-        lastIntroDismissAttemptAt = elapsedMs;
-        introDismissals.push(await attemptCiv7IntroDisplayDismissal({ elapsedMs, poll: polls }));
-      }
-    } catch {
-      // Keep polling through the Civ7 intro/cinematic and tuner reconnect window.
-    }
-    await sleep(options.pollIntervalMs);
-  }
-  throw unavailableEngineDependency(
-    "Timed out waiting for Civ7 shell after restart",
-    "civ7-shell-readiness-timeout",
-    undefined,
-    {
-      elapsedMs: Date.now() - startedAt,
-      polls,
-      lastReadiness: last?.readiness,
-      lastErrors: last?.errors,
-      lastInGame: directControlProbeValue(last?.appUi.snapshot.ui.inGame),
-      lastInShell: directControlProbeValue(last?.appUi.snapshot.ui.inShell),
-      lastInLoading: directControlProbeValue(last?.appUi.snapshot.ui.inLoading),
-      introDismissals,
-    }
-  );
-}
-
-type Civ7IntroDisplayDismissalAttempt = Readonly<
-  | {
-      elapsedMs: number;
-      poll: number;
-      categories: readonly string[];
-      closedTotal: number;
-      closed: Awaited<ReturnType<typeof closeCiv7Displays>>["closed"];
-      remainingActive: Awaited<ReturnType<typeof closeCiv7Displays>>["remainingActive"];
-      remainingSuspended: Awaited<ReturnType<typeof closeCiv7Displays>>["remainingSuspended"];
-    }
-  | {
-      elapsedMs: number;
-      poll: number;
-      categories: readonly string[];
-      error: string;
-    }
->;
-
-async function attemptCiv7IntroDisplayDismissal(args: {
-  elapsedMs: number;
-  poll: number;
-}): Promise<Civ7IntroDisplayDismissalAttempt> {
-  try {
-    const result = await closeCiv7Displays({
-      categories: CIV7_PROCESS_INTRO_DISMISS_CATEGORIES,
-    });
-    return {
-      elapsedMs: args.elapsedMs,
-      poll: args.poll,
-      categories: CIV7_PROCESS_INTRO_DISMISS_CATEGORIES,
-      closedTotal: result.closedTotal,
-      closed: result.closed,
-      remainingActive: result.remainingActive,
-      remainingSuspended: result.remainingSuspended,
-    };
-  } catch (err) {
-    return {
-      elapsedMs: args.elapsedMs,
-      poll: args.poll,
-      categories: CIV7_PROCESS_INTRO_DISMISS_CATEGORIES,
-      error: diagnosticString(err) ?? "Unknown display-queue close failure",
-    };
-  }
-}
-
-function directControlProbeValue<T>(
-  probe: { ok: true; value: T } | { ok: false } | undefined
-): T | undefined {
-  return probe?.ok === true ? probe.value : undefined;
 }
 
 // Deploy = the Nx build graph + the @civ7/plugin-mods deploy API (the
@@ -420,8 +264,8 @@ async function generateSwooperRunMod(
   return {
     runArtifactId: manifest.payload.runArtifactId,
     generatedModRoot,
-    mapRowId: runMapRowIdForArtifact(manifest.payload.runArtifactId),
-    mapScriptPath: `maps/${manifest.payload.runArtifactId}.js`,
+    mapRowId: STUDIO_RUN_MAP_ROW_ID,
+    mapScriptPath: STUDIO_RUN_MAP_SCRIPT_PATH,
     fileCount: tree.fileCount,
     digest: tree.digest,
   };
@@ -439,7 +283,7 @@ async function deployGeneratedSwooperRunMod(
   const modsDir = resolveModsDir().modsDir;
   const deployed = deployMod({
     inputDir: options.generatedModRoot,
-    modId: SWOOPER_STUDIO_RUN_MOD_ID,
+    modId: STUDIO_RUN_MOD_ID,
     modsDir,
   });
   return {
@@ -525,10 +369,6 @@ async function listFiles(root: string): Promise<string[]> {
   return files.flat().sort((a, b) => relative(root, a).localeCompare(relative(root, b)));
 }
 
-function runMapRowIdForArtifact(runArtifactId: string): string {
-  return `MAP_${runArtifactId.replace(/-/g, "_").toUpperCase()}`;
-}
-
 async function optionalFileIdentity(args: {
   repoRoot: string;
   path: string;
@@ -546,11 +386,13 @@ function generatedSourceScriptPath(generatedModRoot: string, runArtifactId: stri
 }
 
 function localModScriptPath(generatedModRoot: string, runArtifactId: string): string {
-  return resolve(generatedModRoot, "maps", `${runArtifactId}.js`);
+  void runArtifactId;
+  return resolve(generatedModRoot, STUDIO_RUN_MAP_SCRIPT_PATH);
 }
 
 function deployedModScriptPath(targetDir: string, runArtifactId: string): string {
-  return resolve(targetDir, "maps", `${runArtifactId}.js`);
+  void runArtifactId;
+  return resolve(targetDir, STUDIO_RUN_MAP_SCRIPT_PATH);
 }
 
 function isNodeNotFound(err: unknown): boolean {
@@ -672,7 +514,10 @@ type RunInGameGeneratedMod = Awaited<
   ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
 >;
 type RunInGameDeployment = Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>>;
-type RunInGameStarted = Readonly<{ start?: unknown }>;
+type RunInGameStarted = Readonly<{
+  setup?: { setupSnapshot?: unknown };
+  start?: { mapSummary?: unknown };
+}>;
 type SaveDeployPrepared = Awaited<
   ReturnType<StudioOperationRuntimePorts["prepareSaveDeployStart"]>
 >;
@@ -716,9 +561,20 @@ export function createStudioOperationRuntimePorts(
       });
       const entry = entries.find((item) => item.catalogSourceId === catalogSourceId);
       if (entry === undefined) return undefined;
-      const envelope = JSON.parse(await readFile(resolve(repoRoot, entry.configPath), "utf8")) as {
-        config?: unknown;
-      };
+      const envelope = JSON.parse(await readFile(resolve(repoRoot, entry.configPath), "utf8")) as
+        unknown;
+      if (!isJsonObject(envelope)) {
+        throw invalidEngineRequest(
+          "Catalog source config must contain a map config envelope",
+          "run-in-game-catalog-source-config-invalid",
+          { catalogSourceId, configPath: entry.configPath }
+        );
+      }
+      assertCatalogSourceEnvelopeMatchesEntry({
+        catalogSourceId,
+        entry,
+        envelope,
+      });
       if (
         !envelope.config ||
         typeof envelope.config !== "object" ||
@@ -730,6 +586,11 @@ export function createStudioOperationRuntimePorts(
           { catalogSourceId, configPath: entry.configPath }
         );
       }
+      const config = materializeCatalogSourceConfig({
+        catalogSourceId,
+        configPath: entry.configPath,
+        config: envelope.config,
+      });
       return {
         catalogSourceId: entry.catalogSourceId,
         configPath: entry.configPath,
@@ -737,7 +598,7 @@ export function createStudioOperationRuntimePorts(
         description: entry.description,
         sortIndex: entry.sortIndex,
         ...(entry.latitudeBounds === undefined ? {} : { latitudeBounds: entry.latitudeBounds }),
-        config: envelope.config as Record<string, unknown>,
+        config,
       };
     },
     generateRunInGameMod: async ({ generationManifest, signal }) => {
@@ -750,7 +611,7 @@ export function createStudioOperationRuntimePorts(
       const materialization = {
         mode: manifest.payload.request.materializationMode,
         path: relative(repoRoot, generated.generatedModRoot),
-        mapScript: `{${SWOOPER_STUDIO_RUN_MOD_ID}}/${generated.mapScriptPath}`,
+        mapScript: `{${STUDIO_RUN_MOD_ID}}/${generated.mapScriptPath}`,
         configHash: manifest.payload.launchSourceDigest.configContentDigest,
         envelopeHash: manifest.payload.launchEnvelopeDigest,
         generationManifestDigest: generationManifest.generationManifestDigest,
@@ -795,7 +656,7 @@ export function createStudioOperationRuntimePorts(
       throwIfRunDeployAborted(signal);
       const deployedSnapshot = await snapshotDeployedMod({
         requestId,
-        deployedModId: SWOOPER_STUDIO_RUN_MOD_ID,
+        deployedModId: STUDIO_RUN_MOD_ID,
         targetRoot: deploy.targetDir,
         signal,
       });
@@ -807,7 +668,7 @@ export function createStudioOperationRuntimePorts(
           diagnostics: boundedDiagnostics({
             code: "run-in-game-deployed-snapshot-digest-mismatch",
             requestId,
-            deployedModId: SWOOPER_STUDIO_RUN_MOD_ID,
+            deployedModId: STUDIO_RUN_MOD_ID,
             targetRoot: deploy.targetDir,
             generatedModDigest: materialization.generatedModDigest,
             deployedModDigest: deployedSnapshot.digest,
@@ -824,7 +685,7 @@ export function createStudioOperationRuntimePorts(
       }
       const runDeployment: NonNullable<RunInGameDeployment["runDeployment"]> = {
         requestId,
-        deployedModId: SWOOPER_STUDIO_RUN_MOD_ID,
+        deployedModId: STUDIO_RUN_MOD_ID,
         generatedModRoot,
         generatedModDigest: materialization.generatedModDigest,
         targetRoot: deploy.targetDir,
@@ -921,7 +782,6 @@ export function createStudioOperationRuntimePorts(
       context.launchMapScript = materialization.mapScript;
       return context.deployment;
     },
-    restartCivForRunInGame: async () => ({ processRestart: await restartCiv7ProcessViaSteam() }),
     waitForRunInGameLogProof: async ({ requestId, setup, started }) => {
       const context = requireRunContext(runContexts, requestId);
       const materialization = requireMaterialization(context, requestId);
@@ -1039,12 +899,6 @@ export function createStudioOperationRuntimePorts(
     buildRunInGameProof: async ({ requestId, setup, started, log, observation }) => {
       const context = requireRunContext(runContexts, requestId);
       const materialization = requireMaterialization(context, requestId);
-      const startedResult = started.start as
-        | {
-            prepare?: { after?: { snapshot?: unknown } };
-            start?: { mapSummary?: unknown };
-          }
-        | undefined;
       const liveRuntimeStatus = liveRuntimeStatusFromObservation(observation.loadedGame.liveStatus);
       const exactAuthorshipProof = buildRunInGameExactAuthorshipProof({
         requestId,
@@ -1056,8 +910,8 @@ export function createStudioOperationRuntimePorts(
         localModScript: materialization.localModScript,
         deployedModScript: materialization.deployedModScript,
         rowProof: setup.rowProof,
-        setupSnapshot: startedResult?.prepare?.after?.snapshot,
-        startMapSummary: startedResult?.start?.mapSummary,
+        setupSnapshot: started.setup?.setupSnapshot ?? setup.setupSnapshot,
+        startMapSummary: started.start?.mapSummary,
         logProof: log.logProof as RunInGameDetailedProofLog | undefined,
         ...(liveRuntimeStatus
           ? {
@@ -1178,7 +1032,6 @@ export function createStudioOperationRuntimePorts(
       selectedConfigId: request.selectedConfigId,
       setupConfig,
       materializationMode: request.materializationMode,
-      ...(request.restartCivProcess === true ? { restartCivProcess: true } : {}),
       ...(sourceSnapshotProof ? { sourceSnapshot: sourceSnapshotProof } : {}),
     };
     return {

@@ -1,0 +1,1612 @@
+{
+  "generatedAt": "2026-07-09T07:28:58.953Z",
+  "daemon": "http://127.0.0.1:5174",
+  "serverInfo": {
+    "ok": true,
+    "serverInstanceId": "studio-server-mrd6ixcr-1fzf-1-70040b40-794d-43d2-8820-74f19dacc1e1",
+    "startedAt": "2026-07-09T07:22:34.203Z",
+    "runInGameApiVersion": 2,
+    "viteCommand": "daemon"
+  },
+  "savedSetupConfig": {
+    "id": "tot-basicmodsenabled",
+    "displayName": "ToT_BasicModsEnabled",
+    "fileName": "ToT_BasicModsEnabled.Civ7Cfg"
+  },
+  "results": [
+    {
+      "variant": "swooper-earthlike",
+      "requestId": "studio-run-in-game-mrd6o1a1-1fzf-2",
+      "input": {
+        "source": {
+          "kind": "catalog",
+          "catalogSourceId": "swooper-earthlike"
+        },
+        "recipeSettings": {
+          "preset": "swooper-earthlike",
+          "recipe": "mod-swooper-maps/standard",
+          "seed": 1538316511
+        },
+        "worldSettings": {
+          "mapSize": "MAPSIZE_HUGE",
+          "playerCount": 10,
+          "resources": "balanced"
+        },
+        "setupConfig": {
+          "savedConfig": {
+            "id": "tot-basicmodsenabled",
+            "displayName": "ToT_BasicModsEnabled",
+            "fileName": "ToT_BasicModsEnabled.Civ7Cfg"
+          },
+          "gameOptions": {
+            "Difficulty": "DIFFICULTY_CUSTOM",
+            "GameSpeeds": "GAMESPEED_STANDARD"
+          },
+          "playerOptions": [
+            {
+              "playerId": 0,
+              "options": {
+                "PlayerDifficulty": "DIFFICULTY_CUSTOM"
+              }
+            }
+          ]
+        }
+      },
+      "terminalStatus": {
+        "requestId": "studio-run-in-game-mrd6o1a1-1fzf-2",
+        "diagnosticsId": "run-diagnostics-de80839b-e281-4dc4-94f4-046166db327b",
+        "recoveryActions": [
+          "copy-diagnostics"
+        ],
+        "createdAt": "2026-07-09T07:26:32.592Z",
+        "updatedAt": "2026-07-09T07:27:13.839Z",
+        "status": "completed",
+        "phase": "completed",
+        "terminalAt": "2026-07-09T07:27:13.839Z"
+      },
+      "phases": [
+        "running:resolving-source",
+        "running:generating-artifacts",
+        "running:preparing-civ7",
+        "running:starting-game",
+        "running:observing-runtime",
+        "completed:completed"
+      ],
+      "diagnosticsSummary": {
+        "ok": true
+      },
+      "publicLeakScan": {
+        "terminalStatusContainsPrivateNeedle": false,
+        "phasesContainPrivateNeedle": false
+      },
+      "liveStatusAfter": {
+        "ok": true,
+        "playable": true,
+        "observedAt": "2026-07-09T07:27:15.328Z",
+        "status": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "playable": true,
+          "readiness": "tuner-ready",
+          "appUi": {
+            "host": "127.0.0.1",
+            "port": 4318,
+            "state": {
+              "id": "65535",
+              "name": "App UI"
+            },
+            "snapshot": {
+              "network": {
+                "isInSession": {
+                  "ok": true,
+                  "value": true
+                },
+                "numPlayers": {
+                  "ok": true,
+                  "value": 1
+                },
+                "hostPlayerId": {
+                  "ok": true,
+                  "value": 0
+                },
+                "isConnectedToNetwork": {
+                  "ok": true,
+                  "value": true
+                },
+                "isAuthenticated": {
+                  "ok": true,
+                  "value": false
+                },
+                "isLoggedIn": {
+                  "ok": true,
+                  "value": true
+                }
+              },
+              "autoplay": {
+                "isActive": false,
+                "turns": -1,
+                "isPaused": false,
+                "isPausedOrPending": false,
+                "observeAsPlayer": -1,
+                "returnAsPlayer": -1
+              },
+              "game": {
+                "turn": 1,
+                "age": 2077444219,
+                "maxTurns": 0,
+                "turnDate": {
+                  "ok": true,
+                  "value": "4000 BCE"
+                },
+                "hash": {
+                  "ok": true,
+                  "value": 0
+                }
+              },
+              "ui": {
+                "inGame": {
+                  "ok": true,
+                  "value": true
+                },
+                "inShell": {
+                  "ok": true,
+                  "value": false
+                },
+                "inLoading": {
+                  "ok": true,
+                  "value": false
+                },
+                "loadingState": {
+                  "ok": true,
+                  "value": 8
+                },
+                "loadingStateName": "GameStarted",
+                "canBeginGame": {
+                  "ok": true,
+                  "value": false
+                },
+                "canNotifyUIReady": "function",
+                "skipStartButton": {
+                  "ok": true,
+                  "value": false
+                },
+                "automationActive": {
+                  "ok": true,
+                  "value": false
+                },
+                "activeInputContext": {
+                  "ok": true,
+                  "value": 3
+                },
+                "activeInputContextName": "World"
+              },
+              "gameContext": {
+                "localPlayerID": 0,
+                "localObserverID": 0,
+                "hasRequestedPause": {
+                  "ok": true,
+                  "value": false
+                }
+              },
+              "players": {
+                "maxPlayers": 64,
+                "aliveIds": {
+                  "ok": true,
+                  "value": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ]
+                },
+                "aliveHumanIds": {
+                  "ok": true,
+                  "value": [
+                    0
+                  ]
+                },
+                "numAliveHumans": {
+                  "ok": true,
+                  "value": 1
+                }
+              },
+              "map": {
+                "width": {
+                  "ok": true,
+                  "value": 106
+                },
+                "height": {
+                  "ok": true,
+                  "value": 66
+                },
+                "plotCount": {
+                  "ok": true,
+                  "value": 6996
+                },
+                "mapSize": {
+                  "ok": true,
+                  "value": 370405108
+                },
+                "randomSeed": {
+                  "ok": true,
+                  "value": 1538316511
+                }
+              }
+            }
+          },
+          "tuner": {
+            "host": "127.0.0.1",
+            "port": 4318,
+            "state": {
+              "id": "1",
+              "name": "Tuner"
+            },
+            "ready": true,
+            "snapshot": {
+              "evalOk": 2,
+              "globals": {
+                "Game": "object",
+                "Autoplay": "object",
+                "GameplayMap": "object",
+                "Players": "object",
+                "Network": "undefined"
+              },
+              "turn": {
+                "ok": true,
+                "value": 1
+              },
+              "turnDate": {
+                "ok": true,
+                "value": "4000 BCE"
+              },
+              "width": {
+                "ok": true,
+                "value": 106
+              },
+              "height": {
+                "ok": true,
+                "value": 66
+              },
+              "aliveIds": {
+                "ok": true,
+                "value": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9
+                ]
+              },
+              "aliveHumanIds": {
+                "ok": true,
+                "value": [
+                  0
+                ]
+              },
+              "autoplayActive": {
+                "ok": true,
+                "value": false
+              },
+              "ready": true
+            }
+          },
+          "errors": []
+        },
+        "appUi": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "state": {
+            "id": "65535",
+            "name": "App UI"
+          },
+          "snapshot": {
+            "network": {
+              "isInSession": {
+                "ok": true,
+                "value": true
+              },
+              "numPlayers": {
+                "ok": true,
+                "value": 1
+              },
+              "hostPlayerId": {
+                "ok": true,
+                "value": 0
+              },
+              "isConnectedToNetwork": {
+                "ok": true,
+                "value": true
+              },
+              "isAuthenticated": {
+                "ok": true,
+                "value": false
+              },
+              "isLoggedIn": {
+                "ok": true,
+                "value": true
+              }
+            },
+            "autoplay": {
+              "isActive": false,
+              "turns": -1,
+              "isPaused": false,
+              "isPausedOrPending": false,
+              "observeAsPlayer": -1,
+              "returnAsPlayer": -1
+            },
+            "game": {
+              "turn": 1,
+              "age": 2077444219,
+              "maxTurns": 0,
+              "turnDate": {
+                "ok": true,
+                "value": "4000 BCE"
+              },
+              "hash": {
+                "ok": true,
+                "value": 0
+              }
+            },
+            "ui": {
+              "inGame": {
+                "ok": true,
+                "value": true
+              },
+              "inShell": {
+                "ok": true,
+                "value": false
+              },
+              "inLoading": {
+                "ok": true,
+                "value": false
+              },
+              "loadingState": {
+                "ok": true,
+                "value": 8
+              },
+              "loadingStateName": "GameStarted",
+              "canBeginGame": {
+                "ok": true,
+                "value": false
+              },
+              "canNotifyUIReady": "function",
+              "skipStartButton": {
+                "ok": true,
+                "value": false
+              },
+              "automationActive": {
+                "ok": true,
+                "value": false
+              },
+              "activeInputContext": {
+                "ok": true,
+                "value": 3
+              },
+              "activeInputContextName": "World"
+            },
+            "gameContext": {
+              "localPlayerID": 0,
+              "localObserverID": 0,
+              "hasRequestedPause": {
+                "ok": true,
+                "value": false
+              }
+            },
+            "players": {
+              "maxPlayers": 64,
+              "aliveIds": {
+                "ok": true,
+                "value": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9
+                ]
+              },
+              "aliveHumanIds": {
+                "ok": true,
+                "value": [
+                  0
+                ]
+              },
+              "numAliveHumans": {
+                "ok": true,
+                "value": 1
+              }
+            },
+            "map": {
+              "width": {
+                "ok": true,
+                "value": 106
+              },
+              "height": {
+                "ok": true,
+                "value": 66
+              },
+              "plotCount": {
+                "ok": true,
+                "value": 6996
+              },
+              "mapSize": {
+                "ok": true,
+                "value": 370405108
+              },
+              "randomSeed": {
+                "ok": true,
+                "value": 1538316511
+              }
+            }
+          }
+        },
+        "mapSummary": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "state": {
+            "id": "1",
+            "name": "Tuner"
+          },
+          "map": {
+            "width": {
+              "ok": true,
+              "value": 106
+            },
+            "height": {
+              "ok": true,
+              "value": 66
+            },
+            "plotCount": {
+              "ok": true,
+              "value": 6996
+            },
+            "mapSize": {
+              "ok": true,
+              "value": 370405108
+            },
+            "randomSeed": {
+              "ok": true,
+              "value": 1538316511
+            }
+          },
+          "game": {
+            "turn": {
+              "ok": true,
+              "value": 1
+            },
+            "age": {
+              "ok": true,
+              "value": 2077444219
+            },
+            "maxTurns": {
+              "ok": true,
+              "value": 0
+            },
+            "turnDate": {
+              "ok": true,
+              "value": "4000 BCE"
+            },
+            "hash": {
+              "ok": true,
+              "value": 0
+            }
+          }
+        },
+        "autoplay": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "state": {
+            "id": "65535",
+            "name": "App UI"
+          },
+          "autoplay": {
+            "isActive": false,
+            "turns": -1,
+            "isPaused": false,
+            "isPausedOrPending": false,
+            "observeAsPlayer": -1,
+            "returnAsPlayer": -1
+          },
+          "game": {
+            "turn": 1,
+            "age": 2077444219,
+            "maxTurns": 0,
+            "turnDate": {
+              "ok": true,
+              "value": "4000 BCE"
+            },
+            "hash": {
+              "ok": true,
+              "value": 0
+            }
+          },
+          "gameContext": {
+            "localPlayerID": 0,
+            "localObserverID": 0,
+            "hasRequestedPause": {
+              "ok": true,
+              "value": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "variant": "latest-juicy",
+      "requestId": "studio-run-in-game-mrd6oy9x-1fzf-3",
+      "input": {
+        "source": {
+          "kind": "catalog",
+          "catalogSourceId": "latest-juicy"
+        },
+        "recipeSettings": {
+          "preset": "latest-juicy",
+          "recipe": "mod-swooper-maps/standard",
+          "seed": 1538316512
+        },
+        "worldSettings": {
+          "mapSize": "MAPSIZE_HUGE",
+          "playerCount": 10,
+          "resources": "balanced"
+        },
+        "setupConfig": {
+          "savedConfig": {
+            "id": "tot-basicmodsenabled",
+            "displayName": "ToT_BasicModsEnabled",
+            "fileName": "ToT_BasicModsEnabled.Civ7Cfg"
+          },
+          "gameOptions": {
+            "Difficulty": "DIFFICULTY_CUSTOM",
+            "GameSpeeds": "GAMESPEED_STANDARD"
+          },
+          "playerOptions": [
+            {
+              "playerId": 0,
+              "options": {
+                "PlayerDifficulty": "DIFFICULTY_CUSTOM"
+              }
+            }
+          ]
+        }
+      },
+      "terminalStatus": {
+        "requestId": "studio-run-in-game-mrd6oy9x-1fzf-3",
+        "diagnosticsId": "run-diagnostics-08d0346c-d2e6-49bf-af32-3940cab5194e",
+        "recoveryActions": [
+          "copy-diagnostics"
+        ],
+        "createdAt": "2026-07-09T07:27:15.344Z",
+        "updatedAt": "2026-07-09T07:27:55.484Z",
+        "status": "completed",
+        "phase": "completed",
+        "terminalAt": "2026-07-09T07:27:55.484Z"
+      },
+      "phases": [
+        "running:resolving-source",
+        "running:preparing-civ7",
+        "running:starting-game",
+        "running:observing-runtime",
+        "completed:completed"
+      ],
+      "diagnosticsSummary": {
+        "ok": true
+      },
+      "publicLeakScan": {
+        "terminalStatusContainsPrivateNeedle": false,
+        "phasesContainPrivateNeedle": false
+      },
+      "liveStatusAfter": {
+        "ok": true,
+        "playable": true,
+        "observedAt": "2026-07-09T07:27:56.603Z",
+        "status": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "playable": true,
+          "readiness": "tuner-ready",
+          "appUi": {
+            "host": "127.0.0.1",
+            "port": 4318,
+            "state": {
+              "id": "65535",
+              "name": "App UI"
+            },
+            "snapshot": {
+              "network": {
+                "isInSession": {
+                  "ok": true,
+                  "value": true
+                },
+                "numPlayers": {
+                  "ok": true,
+                  "value": 1
+                },
+                "hostPlayerId": {
+                  "ok": true,
+                  "value": 0
+                },
+                "isConnectedToNetwork": {
+                  "ok": true,
+                  "value": true
+                },
+                "isAuthenticated": {
+                  "ok": true,
+                  "value": false
+                },
+                "isLoggedIn": {
+                  "ok": true,
+                  "value": true
+                }
+              },
+              "autoplay": {
+                "isActive": false,
+                "turns": -1,
+                "isPaused": false,
+                "isPausedOrPending": false,
+                "observeAsPlayer": -1,
+                "returnAsPlayer": -1
+              },
+              "game": {
+                "turn": 1,
+                "age": 2077444219,
+                "maxTurns": 0,
+                "turnDate": {
+                  "ok": true,
+                  "value": "4000 BCE"
+                },
+                "hash": {
+                  "ok": true,
+                  "value": 0
+                }
+              },
+              "ui": {
+                "inGame": {
+                  "ok": true,
+                  "value": true
+                },
+                "inShell": {
+                  "ok": true,
+                  "value": false
+                },
+                "inLoading": {
+                  "ok": true,
+                  "value": false
+                },
+                "loadingState": {
+                  "ok": true,
+                  "value": 8
+                },
+                "loadingStateName": "GameStarted",
+                "canBeginGame": {
+                  "ok": true,
+                  "value": false
+                },
+                "canNotifyUIReady": "function",
+                "skipStartButton": {
+                  "ok": true,
+                  "value": false
+                },
+                "automationActive": {
+                  "ok": true,
+                  "value": false
+                },
+                "activeInputContext": {
+                  "ok": true,
+                  "value": 3
+                },
+                "activeInputContextName": "World"
+              },
+              "gameContext": {
+                "localPlayerID": 0,
+                "localObserverID": 0,
+                "hasRequestedPause": {
+                  "ok": true,
+                  "value": false
+                }
+              },
+              "players": {
+                "maxPlayers": 64,
+                "aliveIds": {
+                  "ok": true,
+                  "value": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ]
+                },
+                "aliveHumanIds": {
+                  "ok": true,
+                  "value": [
+                    0
+                  ]
+                },
+                "numAliveHumans": {
+                  "ok": true,
+                  "value": 1
+                }
+              },
+              "map": {
+                "width": {
+                  "ok": true,
+                  "value": 106
+                },
+                "height": {
+                  "ok": true,
+                  "value": 66
+                },
+                "plotCount": {
+                  "ok": true,
+                  "value": 6996
+                },
+                "mapSize": {
+                  "ok": true,
+                  "value": 370405108
+                },
+                "randomSeed": {
+                  "ok": true,
+                  "value": 1538316512
+                }
+              }
+            }
+          },
+          "tuner": {
+            "host": "127.0.0.1",
+            "port": 4318,
+            "state": {
+              "id": "1",
+              "name": "Tuner"
+            },
+            "ready": true,
+            "snapshot": {
+              "evalOk": 2,
+              "globals": {
+                "Game": "object",
+                "Autoplay": "object",
+                "GameplayMap": "object",
+                "Players": "object",
+                "Network": "undefined"
+              },
+              "turn": {
+                "ok": true,
+                "value": 1
+              },
+              "turnDate": {
+                "ok": true,
+                "value": "4000 BCE"
+              },
+              "width": {
+                "ok": true,
+                "value": 106
+              },
+              "height": {
+                "ok": true,
+                "value": 66
+              },
+              "aliveIds": {
+                "ok": true,
+                "value": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9
+                ]
+              },
+              "aliveHumanIds": {
+                "ok": true,
+                "value": [
+                  0
+                ]
+              },
+              "autoplayActive": {
+                "ok": true,
+                "value": false
+              },
+              "ready": true
+            }
+          },
+          "errors": []
+        },
+        "appUi": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "state": {
+            "id": "65535",
+            "name": "App UI"
+          },
+          "snapshot": {
+            "network": {
+              "isInSession": {
+                "ok": true,
+                "value": true
+              },
+              "numPlayers": {
+                "ok": true,
+                "value": 1
+              },
+              "hostPlayerId": {
+                "ok": true,
+                "value": 0
+              },
+              "isConnectedToNetwork": {
+                "ok": true,
+                "value": true
+              },
+              "isAuthenticated": {
+                "ok": true,
+                "value": false
+              },
+              "isLoggedIn": {
+                "ok": true,
+                "value": true
+              }
+            },
+            "autoplay": {
+              "isActive": false,
+              "turns": -1,
+              "isPaused": false,
+              "isPausedOrPending": false,
+              "observeAsPlayer": -1,
+              "returnAsPlayer": -1
+            },
+            "game": {
+              "turn": 1,
+              "age": 2077444219,
+              "maxTurns": 0,
+              "turnDate": {
+                "ok": true,
+                "value": "4000 BCE"
+              },
+              "hash": {
+                "ok": true,
+                "value": 0
+              }
+            },
+            "ui": {
+              "inGame": {
+                "ok": true,
+                "value": true
+              },
+              "inShell": {
+                "ok": true,
+                "value": false
+              },
+              "inLoading": {
+                "ok": true,
+                "value": false
+              },
+              "loadingState": {
+                "ok": true,
+                "value": 8
+              },
+              "loadingStateName": "GameStarted",
+              "canBeginGame": {
+                "ok": true,
+                "value": false
+              },
+              "canNotifyUIReady": "function",
+              "skipStartButton": {
+                "ok": true,
+                "value": false
+              },
+              "automationActive": {
+                "ok": true,
+                "value": false
+              },
+              "activeInputContext": {
+                "ok": true,
+                "value": 3
+              },
+              "activeInputContextName": "World"
+            },
+            "gameContext": {
+              "localPlayerID": 0,
+              "localObserverID": 0,
+              "hasRequestedPause": {
+                "ok": true,
+                "value": false
+              }
+            },
+            "players": {
+              "maxPlayers": 64,
+              "aliveIds": {
+                "ok": true,
+                "value": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9
+                ]
+              },
+              "aliveHumanIds": {
+                "ok": true,
+                "value": [
+                  0
+                ]
+              },
+              "numAliveHumans": {
+                "ok": true,
+                "value": 1
+              }
+            },
+            "map": {
+              "width": {
+                "ok": true,
+                "value": 106
+              },
+              "height": {
+                "ok": true,
+                "value": 66
+              },
+              "plotCount": {
+                "ok": true,
+                "value": 6996
+              },
+              "mapSize": {
+                "ok": true,
+                "value": 370405108
+              },
+              "randomSeed": {
+                "ok": true,
+                "value": 1538316512
+              }
+            }
+          }
+        },
+        "mapSummary": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "state": {
+            "id": "1",
+            "name": "Tuner"
+          },
+          "map": {
+            "width": {
+              "ok": true,
+              "value": 106
+            },
+            "height": {
+              "ok": true,
+              "value": 66
+            },
+            "plotCount": {
+              "ok": true,
+              "value": 6996
+            },
+            "mapSize": {
+              "ok": true,
+              "value": 370405108
+            },
+            "randomSeed": {
+              "ok": true,
+              "value": 1538316512
+            }
+          },
+          "game": {
+            "turn": {
+              "ok": true,
+              "value": 1
+            },
+            "age": {
+              "ok": true,
+              "value": 2077444219
+            },
+            "maxTurns": {
+              "ok": true,
+              "value": 0
+            },
+            "turnDate": {
+              "ok": true,
+              "value": "4000 BCE"
+            },
+            "hash": {
+              "ok": true,
+              "value": 0
+            }
+          }
+        },
+        "autoplay": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "state": {
+            "id": "65535",
+            "name": "App UI"
+          },
+          "autoplay": {
+            "isActive": false,
+            "turns": -1,
+            "isPaused": false,
+            "isPausedOrPending": false,
+            "observeAsPlayer": -1,
+            "returnAsPlayer": -1
+          },
+          "game": {
+            "turn": 1,
+            "age": 2077444219,
+            "maxTurns": 0,
+            "turnDate": {
+              "ok": true,
+              "value": "4000 BCE"
+            },
+            "hash": {
+              "ok": true,
+              "value": 0
+            }
+          },
+          "gameContext": {
+            "localPlayerID": 0,
+            "localObserverID": 0,
+            "hasRequestedPause": {
+              "ok": true,
+              "value": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "variant": "swooper-desert-mountains",
+      "requestId": "studio-run-in-game-mrd6pu4f-1fzf-4",
+      "input": {
+        "source": {
+          "kind": "catalog",
+          "catalogSourceId": "swooper-desert-mountains"
+        },
+        "recipeSettings": {
+          "preset": "swooper-desert-mountains",
+          "recipe": "mod-swooper-maps/standard",
+          "seed": 1538316513
+        },
+        "worldSettings": {
+          "mapSize": "MAPSIZE_HUGE",
+          "playerCount": 10,
+          "resources": "balanced"
+        },
+        "setupConfig": {
+          "savedConfig": {
+            "id": "tot-basicmodsenabled",
+            "displayName": "ToT_BasicModsEnabled",
+            "fileName": "ToT_BasicModsEnabled.Civ7Cfg"
+          },
+          "gameOptions": {
+            "Difficulty": "DIFFICULTY_CUSTOM",
+            "GameSpeeds": "GAMESPEED_STANDARD"
+          },
+          "playerOptions": [
+            {
+              "playerId": 0,
+              "options": {
+                "PlayerDifficulty": "DIFFICULTY_CUSTOM"
+              }
+            }
+          ]
+        }
+      },
+      "terminalStatus": {
+        "requestId": "studio-run-in-game-mrd6pu4f-1fzf-4",
+        "diagnosticsId": "run-diagnostics-83f287fe-5c0e-4855-b650-f2f2a529a52c",
+        "recoveryActions": [
+          "copy-diagnostics"
+        ],
+        "createdAt": "2026-07-09T07:27:56.620Z",
+        "updatedAt": "2026-07-09T07:28:57.643Z",
+        "status": "completed",
+        "phase": "completed",
+        "terminalAt": "2026-07-09T07:28:57.643Z"
+      },
+      "phases": [
+        "running:generating-artifacts",
+        "running:preparing-civ7",
+        "running:starting-game",
+        "running:observing-runtime",
+        "completed:completed"
+      ],
+      "diagnosticsSummary": {
+        "ok": true
+      },
+      "publicLeakScan": {
+        "terminalStatusContainsPrivateNeedle": false,
+        "phasesContainPrivateNeedle": false
+      },
+      "liveStatusAfter": {
+        "ok": true,
+        "playable": true,
+        "observedAt": "2026-07-09T07:28:58.950Z",
+        "status": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "playable": true,
+          "readiness": "tuner-ready",
+          "appUi": {
+            "host": "127.0.0.1",
+            "port": 4318,
+            "state": {
+              "id": "65535",
+              "name": "App UI"
+            },
+            "snapshot": {
+              "network": {
+                "isInSession": {
+                  "ok": true,
+                  "value": true
+                },
+                "numPlayers": {
+                  "ok": true,
+                  "value": 1
+                },
+                "hostPlayerId": {
+                  "ok": true,
+                  "value": 0
+                },
+                "isConnectedToNetwork": {
+                  "ok": true,
+                  "value": true
+                },
+                "isAuthenticated": {
+                  "ok": true,
+                  "value": false
+                },
+                "isLoggedIn": {
+                  "ok": true,
+                  "value": true
+                }
+              },
+              "autoplay": {
+                "isActive": false,
+                "turns": -1,
+                "isPaused": false,
+                "isPausedOrPending": false,
+                "observeAsPlayer": -1,
+                "returnAsPlayer": -1
+              },
+              "game": {
+                "turn": 1,
+                "age": 2077444219,
+                "maxTurns": 0,
+                "turnDate": {
+                  "ok": true,
+                  "value": "4000 BCE"
+                },
+                "hash": {
+                  "ok": true,
+                  "value": 0
+                }
+              },
+              "ui": {
+                "inGame": {
+                  "ok": true,
+                  "value": true
+                },
+                "inShell": {
+                  "ok": true,
+                  "value": false
+                },
+                "inLoading": {
+                  "ok": true,
+                  "value": false
+                },
+                "loadingState": {
+                  "ok": true,
+                  "value": 8
+                },
+                "loadingStateName": "GameStarted",
+                "canBeginGame": {
+                  "ok": true,
+                  "value": false
+                },
+                "canNotifyUIReady": "function",
+                "skipStartButton": {
+                  "ok": true,
+                  "value": false
+                },
+                "automationActive": {
+                  "ok": true,
+                  "value": false
+                },
+                "activeInputContext": {
+                  "ok": true,
+                  "value": 3
+                },
+                "activeInputContextName": "World"
+              },
+              "gameContext": {
+                "localPlayerID": 0,
+                "localObserverID": 0,
+                "hasRequestedPause": {
+                  "ok": true,
+                  "value": false
+                }
+              },
+              "players": {
+                "maxPlayers": 64,
+                "aliveIds": {
+                  "ok": true,
+                  "value": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ]
+                },
+                "aliveHumanIds": {
+                  "ok": true,
+                  "value": [
+                    0
+                  ]
+                },
+                "numAliveHumans": {
+                  "ok": true,
+                  "value": 1
+                }
+              },
+              "map": {
+                "width": {
+                  "ok": true,
+                  "value": 106
+                },
+                "height": {
+                  "ok": true,
+                  "value": 66
+                },
+                "plotCount": {
+                  "ok": true,
+                  "value": 6996
+                },
+                "mapSize": {
+                  "ok": true,
+                  "value": 370405108
+                },
+                "randomSeed": {
+                  "ok": true,
+                  "value": 1538316513
+                }
+              }
+            }
+          },
+          "tuner": {
+            "host": "127.0.0.1",
+            "port": 4318,
+            "state": {
+              "id": "1",
+              "name": "Tuner"
+            },
+            "ready": true,
+            "snapshot": {
+              "evalOk": 2,
+              "globals": {
+                "Game": "object",
+                "Autoplay": "object",
+                "GameplayMap": "object",
+                "Players": "object",
+                "Network": "undefined"
+              },
+              "turn": {
+                "ok": true,
+                "value": 1
+              },
+              "turnDate": {
+                "ok": true,
+                "value": "4000 BCE"
+              },
+              "width": {
+                "ok": true,
+                "value": 106
+              },
+              "height": {
+                "ok": true,
+                "value": 66
+              },
+              "aliveIds": {
+                "ok": true,
+                "value": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9
+                ]
+              },
+              "aliveHumanIds": {
+                "ok": true,
+                "value": [
+                  0
+                ]
+              },
+              "autoplayActive": {
+                "ok": true,
+                "value": false
+              },
+              "ready": true
+            }
+          },
+          "errors": []
+        },
+        "appUi": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "state": {
+            "id": "65535",
+            "name": "App UI"
+          },
+          "snapshot": {
+            "network": {
+              "isInSession": {
+                "ok": true,
+                "value": true
+              },
+              "numPlayers": {
+                "ok": true,
+                "value": 1
+              },
+              "hostPlayerId": {
+                "ok": true,
+                "value": 0
+              },
+              "isConnectedToNetwork": {
+                "ok": true,
+                "value": true
+              },
+              "isAuthenticated": {
+                "ok": true,
+                "value": false
+              },
+              "isLoggedIn": {
+                "ok": true,
+                "value": true
+              }
+            },
+            "autoplay": {
+              "isActive": false,
+              "turns": -1,
+              "isPaused": false,
+              "isPausedOrPending": false,
+              "observeAsPlayer": -1,
+              "returnAsPlayer": -1
+            },
+            "game": {
+              "turn": 1,
+              "age": 2077444219,
+              "maxTurns": 0,
+              "turnDate": {
+                "ok": true,
+                "value": "4000 BCE"
+              },
+              "hash": {
+                "ok": true,
+                "value": 0
+              }
+            },
+            "ui": {
+              "inGame": {
+                "ok": true,
+                "value": true
+              },
+              "inShell": {
+                "ok": true,
+                "value": false
+              },
+              "inLoading": {
+                "ok": true,
+                "value": false
+              },
+              "loadingState": {
+                "ok": true,
+                "value": 8
+              },
+              "loadingStateName": "GameStarted",
+              "canBeginGame": {
+                "ok": true,
+                "value": false
+              },
+              "canNotifyUIReady": "function",
+              "skipStartButton": {
+                "ok": true,
+                "value": false
+              },
+              "automationActive": {
+                "ok": true,
+                "value": false
+              },
+              "activeInputContext": {
+                "ok": true,
+                "value": 3
+              },
+              "activeInputContextName": "World"
+            },
+            "gameContext": {
+              "localPlayerID": 0,
+              "localObserverID": 0,
+              "hasRequestedPause": {
+                "ok": true,
+                "value": false
+              }
+            },
+            "players": {
+              "maxPlayers": 64,
+              "aliveIds": {
+                "ok": true,
+                "value": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9
+                ]
+              },
+              "aliveHumanIds": {
+                "ok": true,
+                "value": [
+                  0
+                ]
+              },
+              "numAliveHumans": {
+                "ok": true,
+                "value": 1
+              }
+            },
+            "map": {
+              "width": {
+                "ok": true,
+                "value": 106
+              },
+              "height": {
+                "ok": true,
+                "value": 66
+              },
+              "plotCount": {
+                "ok": true,
+                "value": 6996
+              },
+              "mapSize": {
+                "ok": true,
+                "value": 370405108
+              },
+              "randomSeed": {
+                "ok": true,
+                "value": 1538316513
+              }
+            }
+          }
+        },
+        "mapSummary": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "state": {
+            "id": "1",
+            "name": "Tuner"
+          },
+          "map": {
+            "width": {
+              "ok": true,
+              "value": 106
+            },
+            "height": {
+              "ok": true,
+              "value": 66
+            },
+            "plotCount": {
+              "ok": true,
+              "value": 6996
+            },
+            "mapSize": {
+              "ok": true,
+              "value": 370405108
+            },
+            "randomSeed": {
+              "ok": true,
+              "value": 1538316513
+            }
+          },
+          "game": {
+            "turn": {
+              "ok": true,
+              "value": 1
+            },
+            "age": {
+              "ok": true,
+              "value": 2077444219
+            },
+            "maxTurns": {
+              "ok": true,
+              "value": 0
+            },
+            "turnDate": {
+              "ok": true,
+              "value": "4000 BCE"
+            },
+            "hash": {
+              "ok": true,
+              "value": 0
+            }
+          }
+        },
+        "autoplay": {
+          "host": "127.0.0.1",
+          "port": 4318,
+          "state": {
+            "id": "65535",
+            "name": "App UI"
+          },
+          "autoplay": {
+            "isActive": false,
+            "turns": -1,
+            "isPaused": false,
+            "isPausedOrPending": false,
+            "observeAsPlayer": -1,
+            "returnAsPlayer": -1
+          },
+          "game": {
+            "turn": 1,
+            "age": 2077444219,
+            "maxTurns": 0,
+            "turnDate": {
+              "ok": true,
+              "value": "4000 BCE"
+            },
+            "hash": {
+              "ok": true,
+              "value": 0
+            }
+          },
+          "gameContext": {
+            "localPlayerID": 0,
+            "localObserverID": 0,
+            "hasRequestedPause": {
+              "ok": true,
+              "value": false
+            }
+          }
+        }
+      }
+    }
+  ]
+}

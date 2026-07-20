@@ -51,7 +51,6 @@ export const studioRecoveryActionSchema = Type.Union([
   Type.Literal("copy-diagnostics"),
   Type.Literal("dismiss-civ-notification-and-retry"),
   Type.Literal("edit-config"),
-  Type.Literal("exit-to-shell-and-continue"),
   Type.Literal("inspect-deploy-output"),
   Type.Literal("restart-civ-process-and-retry"),
   Type.Literal("retry-run"),

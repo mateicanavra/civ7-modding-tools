@@ -4,7 +4,16 @@ Status: prep-phase handoff, no restack execution performed
 
 Change set: PR #1990, `agent-S-studio-daemon-watch`, merged as `f23784e7ebf420455481321eea063a9d44d22943` on 2026-06-30
 
-Confidence: Verified for merge/PR/file/static evidence and current file deltas; Corroborated for historical hot-reload claims in the source commit messages; fresh runtime proof was not rerun and is not claimed in this prep phase.
+Supersession note (2026-07-09): the `bun-source` export-condition direction
+remains active, but the `--watch` daemon-launch guidance below is superseded by
+the MapGen Studio Nx dev runner authority and live Run in Game evidence. The
+user-facing `mapgen-studio:serve-daemon` target must keep daemon identity stable
+while runtime operations write generated content, so it runs
+`bun --conditions bun-source src/server/daemon/daemon.ts` without Bun watch.
+Treat historical `--watch` references in this handoff as context, not current
+authority.
+
+Confidence: Verified for merge/PR/file/static evidence and current file deltas; Corroborated for historical hot-reload claims in the source commit messages; current live stabilization evidence is scoped to Run in Game daemon identity stability and browser status reconciliation, not to the full real-user matrix.
 
 ## What Changed
 
@@ -32,17 +41,17 @@ Evidence:
 
 Before this change, the dev daemon imported `@civ7/studio-server` and downstream packages from built `dist`, so server-package edits required a manual rebuild and daemon bounce. `bun --watch` alone did not solve that, because the app module graph still resolved through published package import conditions.
 
-The semantic fix is an opt-in export condition:
+The durable part of the semantic fix is an opt-in export condition:
 
 ```text
-bun --conditions bun-source --watch src/server/daemon/daemon.ts
+bun --conditions bun-source src/server/daemon/daemon.ts
 ```
 
-Only the dev daemon passes the custom `bun-source` condition. Production `serve`, Vite/browser consumers, TypeScript, and ordinary package import resolution keep using `dist`.
+Only the dev daemon passes the custom `bun-source` condition. Production `serve`, Vite/browser consumers, TypeScript, and ordinary package import resolution keep using `dist`. Do not add Bun watch to the user-facing daemon target; Run in Game materialization writes repo-local runtime files and must not restart the process that owns the active operation registry.
 
 ## What Must Not Be Dropped
 
-- Preserve a dev daemon invocation that includes both `--conditions bun-source` and `--watch`.
+- Preserve a dev daemon invocation that includes `--conditions bun-source` and excludes Bun watch.
 - In Habitat's projectized app, translate this into `apps/mapgen-studio/project.json` target `serve-daemon` or its owning command surface. Do not restore the old inline `nx.targets` object in `apps/mapgen-studio/package.json`.
 - Preserve `apps/mapgen-studio/package.json` script `dev:server` if the Habitat command surface still relies on package scripts under `cwd`; otherwise preserve equivalent Nx target command semantics.
 - Preserve `bun-source` export condition entries for every first-party package the daemon loads:
@@ -71,7 +80,7 @@ The highest-risk conflict is `apps/mapgen-studio/package.json` versus Habitat pr
 
 - `main` still has inline `nx.targets` and package scripts including `dev`, `dev:frontend`, `dev:server`, `check`, `test`, `build`, `build:vite`, `check:worker-bundle`, and `lint:react-compiler`.
 - Habitat moves the app target graph to `apps/mapgen-studio/project.json` and keeps a slim package `scripts` block.
-- Correct resolution is not "take main package.json" and not "take Habitat package.json"; it is "keep Habitat projectization while adding the dev-daemon source-watch semantics to the owning target/script surface."
+- Correct resolution is not "take main package.json" and not "take Habitat package.json"; it is "keep Habitat projectization while preserving the dev-daemon `bun-source` source-resolution semantics on the owning target/script surface."
 
 Secondary conflict risks:
 
@@ -88,20 +97,20 @@ Proof classes are separate:
   - `packages/civ7-control-orpc/package.json`: `.` -> `./src/index.ts`, `./runtime` -> `./src/runtime.ts`, `./game-ui` -> `./src/game-ui.ts`, `./contract` -> `./src/contract.ts`.
   - `packages/civ7-direct-control/package.json`: every non-`./package.json` export present in the final manifest has a `bun-source` value pointing to the matching `./src/**.ts` source path.
   - `packages/plugins/plugin-mods/package.json`: `.` -> `./src/index.ts`, and `./package.json` remains exported.
-- Record truth proof: validate the owning daemon command by parsing `apps/mapgen-studio/project.json` and/or `apps/mapgen-studio/package.json`; the final dev daemon path must include `--conditions bun-source`, `--watch`, `src/server/daemon/daemon.ts`, and `cwd`/script ownership that executes from `apps/mapgen-studio`.
+- Record truth proof: validate the owning daemon command by parsing `apps/mapgen-studio/project.json` and/or `apps/mapgen-studio/package.json`; the final dev daemon path must include `--conditions bun-source`, exclude Bun watch, include `src/server/daemon/daemon.ts`, and keep `cwd`/script ownership executing from `apps/mapgen-studio`.
 - Record truth proof: `git grep -- '--conditions bun-source'` should show the dev daemon consumer only, plus documentation/comments. Any new production/browser consumer is a stop condition.
 - Record truth proof: `apps/mapgen-studio/package.json` must not reintroduce the superseded inline `nx.targets` block; Habitat's `apps/mapgen-studio/project.json` remains the target owner.
 - Record truth proof: `scripts/restart-mapgen-studio.sh` must use `bun run dev:server` or the Habitat-equivalent target rather than raw daemon execution.
 - Habitat wrapper behavior: run the relevant Habitat/Nx checks for `mapgen-studio`, `studio-server`, `control-orpc`, `direct-control`, and `plugin-mods` after restack.
-- Runtime/product proof: if claimed later, boot the daemon under the dev command, edit one source file in `studio-server` or another first-party daemon dependency, and show the daemon restarts with the edited code without rebuilding dist.
+- Runtime/product proof: if claimed later, boot the daemon under the dev command and show it resolves first-party source without rebuilding dist. Source hot-restart is no longer a user-facing daemon invariant because active Studio operations must preserve daemon identity.
 
 Non-claims:
 
 - Static export checks do not prove Bun resolution or hot reload.
-- Habitat wrapper behavior and typecheck/build checks do not prove the dev daemon watches source.
+- Habitat wrapper behavior and typecheck/build checks do not prove the dev daemon resolves source.
 - The source commit-message runtime proof is historical evidence, not fresh post-restack proof.
 
 ## Unresolved Questions
 
-- Whether `serve-daemon` should call `bun run dev:server` in `apps/mapgen-studio/package.json` or inline the full Bun command in `apps/mapgen-studio/project.json`; either preserves behavior if the command and cwd are correct.
+- Whether `serve-daemon` should call `bun run dev:server` in `apps/mapgen-studio/package.json` or inline the full Bun command in `apps/mapgen-studio/project.json`; either preserves behavior if the command, absence of Bun watch, and cwd are correct.
 - Whether package-local `build`/`check` script restoration is desirable for any of the touched packages. Current Habitat task-graph direction suggests preserving Habitat's graph-owned scripts while adding only export-condition semantics.

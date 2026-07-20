@@ -1,11 +1,10 @@
 import type { RunDiagnosticsLookupResult } from "@civ7/studio-contract";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import type {
   PipelineConfig,
   RecipeSettings,
   WorldSettings,
 } from "@swooper/mapgen-studio-ui/types";
-import { type MutableRefObject, useCallback, useMemo } from "react";
+import { type MutableRefObject, useCallback, useEffect, useMemo } from "react";
 import { getCiv7MapSizePreset } from "../../features/browserRunner/mapSizes";
 import { LIVE_GAME_PRESET_KEY } from "../../features/civ7Setup/livePreset";
 import {
@@ -16,7 +15,11 @@ import {
   type Civ7StudioSetupConfig,
   normalizeStudioSetupConfig,
 } from "../../features/civ7Setup/setupConfig";
-import { isPlainObject } from "../../features/configOverrides/configBuilders";
+import {
+  isPlainObject,
+  materializePipelineConfig,
+} from "../../features/configOverrides/configBuilders";
+import { resolveEffectivePipelineConfig } from "../../features/configOverrides/effectiveConfig";
 import { buildLiveRuntimeSuggestionRecords } from "../../features/liveRuntime/model";
 import type { PresetKey } from "../../features/presets/types";
 import { runCurrentConfigInGame } from "../../features/runInGame/api";
@@ -31,6 +34,7 @@ import {
 import { orpcClient } from "../../lib/orpc";
 import type { AuthoringState } from "../../stores/authoringStore";
 import type { RunState } from "../../stores/runStore";
+import { configsEqual } from "../../ui/utils/config";
 import type { UseLiveRuntimeResult } from "./useLiveRuntime";
 import type { UsePresetLifecycleResult } from "./usePresetLifecycle";
 import { useRunInGameTerminalToast } from "./useRunInGameTerminalToast";
@@ -42,8 +46,10 @@ export type UseRunInGameArgs = {
   recipeSettings: RecipeSettings;
   /** Authoring world settings (map size / player count / resources). */
   worldSettings: WorldSettings;
-  /** Current authoring pipeline config — the launch payload source. */
+  /** Current authoring draft config. Outbound launches use the effective config source. */
   pipelineConfig: PipelineConfig;
+  /** UI edit/autorun gate; outbound launches still use the current complete config. */
+  overridesDisabled: boolean;
   /** Current authoring setup config. */
   setupConfig: Civ7StudioSetupConfig;
   setRecipeSettings: AuthoringState["setRecipeSettings"];
@@ -100,12 +106,42 @@ export type UseRunInGameResult = {
   /** Current run-in-game relation (current/stale/unknown) consumed by the Game console. */
   runInGameCurrentRelation: RunInGameCurrentRelation;
   /** Launch handler — busy-gated, seed-validated, fingerprint/source-recording. */
-  handleRunInGame: (options?: { restartCivProcess?: boolean }) => Promise<void>;
+  handleRunInGame: () => Promise<void>;
   /** Sync-back handler — proved-source restore or seed/setup suggestion apply. */
   syncStudioFromLiveGame: () => void;
   /** Copies run-in-game diagnostics to the clipboard. */
   copyRunInGameDiagnostics: () => Promise<void>;
 };
+
+const RUN_IN_GAME_CURRENT_RECONCILE_INTERVAL_MS = 1_500;
+
+type RunInGameSelectedConfig = Readonly<{
+  id?: string;
+  label?: string;
+  description?: string;
+  catalogSourceId?: string;
+  sourcePath?: string;
+  sortIndex?: number;
+  latitudeBounds?: Readonly<{
+    topLatitude: number;
+    bottomLatitude: number;
+  }>;
+}>;
+
+type RunInGameLaunchDecision = Readonly<
+  | {
+      kind: "catalog";
+      materializationMode: "durable";
+      config: PipelineConfig;
+      selectedConfig: RunInGameSelectedConfig & { id: string; catalogSourceId: string };
+    }
+  | {
+      kind: "editor";
+      materializationMode: "disposable";
+      config: PipelineConfig;
+      selectedConfig?: RunInGameSelectedConfig;
+    }
+>;
 
 /**
  * `useRunInGame` — owns the run-in-game cluster: the current fingerprint + relation
@@ -124,6 +160,7 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     recipeSettings,
     worldSettings,
     pipelineConfig,
+    overridesDisabled,
     setupConfig,
     setRecipeSettings,
     setSetupConfig,
@@ -146,16 +183,84 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     toast,
   } = args;
 
+  const effectivePipelineConfigSource = useMemo(
+    () =>
+      resolveEffectivePipelineConfig({
+        recipeId: recipeSettings.recipe,
+        pipelineConfig,
+        overridesDisabled,
+      }),
+    [overridesDisabled, pipelineConfig, recipeSettings.recipe]
+  );
+
+  const runInGameLaunchDecision = useMemo<RunInGameLaunchDecision>(() => {
+    const resolved = resolvePreset(recipeSettings.preset as PresetKey);
+    const selectedConfig =
+      resolved == null
+        ? undefined
+        : {
+            id: resolved.id,
+            label: resolved.label,
+            ...(resolved.description === undefined ? {} : { description: resolved.description }),
+            ...(resolved.catalogSourceId === undefined
+              ? {}
+              : { catalogSourceId: resolved.catalogSourceId }),
+            ...(resolved.sourcePath === undefined ? {} : { sourcePath: resolved.sourcePath }),
+            ...(resolved.sortIndex === undefined ? {} : { sortIndex: resolved.sortIndex }),
+            ...(resolved.latitudeBounds === undefined
+              ? {}
+              : { latitudeBounds: resolved.latitudeBounds }),
+          };
+    if (
+      runInGameMaterializationMode === "durable" &&
+      effectivePipelineConfigSource.kind === "draft" &&
+      resolved?.source === "builtin" &&
+      resolved.catalogSourceId &&
+      configsEqual(resolved.config as PipelineConfig, effectivePipelineConfigSource.config)
+    ) {
+      return {
+        kind: "catalog",
+        materializationMode: "durable",
+        config: resolved.config as PipelineConfig,
+        selectedConfig: {
+          ...selectedConfig,
+          id: resolved.id,
+          catalogSourceId: resolved.catalogSourceId,
+        },
+      };
+    }
+    return {
+      kind: "editor",
+      materializationMode: "disposable",
+      config: effectivePipelineConfigSource.config,
+      ...(effectivePipelineConfigSource.kind === "draft" && selectedConfig !== undefined
+        ? { selectedConfig }
+        : {}),
+    };
+  }, [
+    effectivePipelineConfigSource.config,
+    effectivePipelineConfigSource.kind,
+    recipeSettings.preset,
+    resolvePreset,
+    runInGameMaterializationMode,
+  ]);
+
   const runInGameCurrentFingerprint = useMemo(
     () =>
       buildRunInGameFingerprint({
         recipeSettings,
         worldSettings,
-        pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
+        pipelineConfig: runInGameLaunchDecision.config,
         setupConfig,
-        materializationMode: runInGameMaterializationMode,
+        materializationMode: runInGameLaunchDecision.materializationMode,
       }),
-    [pipelineConfig, recipeSettings, runInGameMaterializationMode, setupConfig, worldSettings]
+    [
+      recipeSettings,
+      runInGameLaunchDecision.config,
+      runInGameLaunchDecision.materializationMode,
+      setupConfig,
+      worldSettings,
+    ]
   );
 
   const runInGameCurrentRelation = useMemo<RunInGameCurrentRelation>(
@@ -174,8 +279,43 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
     toast,
   });
 
+  useEffect(() => {
+    if (runInGameOperation?.status !== "running") return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const requestId = runInGameOperation.requestId;
+
+    const reconcileFromDaemonCurrent = async () => {
+      try {
+        const current = await orpcClient.studio.operations.current({});
+        if (cancelled) return;
+        const operation =
+          current.runInGame.active ??
+          current.runInGame.recent.find((recent) => recent.requestId === requestId) ??
+          null;
+        setRunInGameOperation(operation);
+      } catch {
+        // The event stream remains primary. This fallback only prevents a missed
+        // event from leaving the UI stuck on the admitted operation forever.
+      } finally {
+        if (!cancelled) {
+          timer = setTimeout(
+            reconcileFromDaemonCurrent,
+            RUN_IN_GAME_CURRENT_RECONCILE_INTERVAL_MS
+          );
+        }
+      }
+    };
+
+    timer = setTimeout(reconcileFromDaemonCurrent, RUN_IN_GAME_CURRENT_RECONCILE_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      if (timer !== undefined) clearTimeout(timer);
+    };
+  }, [runInGameOperation?.requestId, runInGameOperation?.status, setRunInGameOperation]);
+
   const handleRunInGame = useCallback(
-    async (options?: { restartCivProcess?: boolean }) => {
+    async () => {
       // Busy gate must never be silent — a click that does nothing is
       // indistinguishable from a broken launch path.
       if (runInGameRunning || saveDeployRunning) {
@@ -195,41 +335,41 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
         toast(message, { variant: "error" });
         return;
       }
-      const sanitized = stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig;
-      const resolved = resolvePreset(recipeSettings.preset as PresetKey);
+      const validatedConfig = materializePipelineConfig({
+        schema: effectivePipelineConfigSource.recipeArtifacts.configSchema,
+        config: runInGameLaunchDecision.config,
+        label: "run-in-game",
+      });
+      if (!validatedConfig.ok) {
+        const message = "Run in Game failed: config is invalid for this recipe.";
+        setLocalError(message);
+        toast(message, { variant: "error" });
+        return;
+      }
+      const materializedPipelineConfig = validatedConfig.value;
       const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
-      const selectedConfig = resolved
-        ? {
-            id: resolved.id,
-            label: resolved.label,
-            description: resolved.description,
-            sourcePath: resolved.sourcePath,
-            sortIndex: resolved.sortIndex,
-            latitudeBounds: resolved.latitudeBounds,
-          }
-        : undefined;
       const launchSource =
-        runInGameMaterializationMode === "durable" && selectedConfig?.id
+        runInGameLaunchDecision.kind === "catalog"
           ? ({
               kind: "catalog" as const,
-              catalogSourceId: selectedConfig.id,
+              catalogSourceId: runInGameLaunchDecision.selectedConfig.catalogSourceId,
             } satisfies Parameters<typeof runCurrentConfigInGame>[0]["source"])
           : ({
               kind: "editor" as const,
               editorSessionId: "studio-current",
               payload: {
                 configId: "studio-current",
-                label: selectedConfig?.label ?? "Studio Current",
-                ...(selectedConfig?.description === undefined
+                label: runInGameLaunchDecision.selectedConfig?.label ?? "Studio Current",
+                ...(runInGameLaunchDecision.selectedConfig?.description === undefined
                   ? {}
-                  : { description: selectedConfig.description }),
+                  : { description: runInGameLaunchDecision.selectedConfig.description }),
                 mapScript: "{swooper-maps}/maps/studio-current.js",
-                pipelineConfig: sanitized,
+                pipelineConfig: materializedPipelineConfig,
                 recipeId: "mod-swooper-maps/standard",
-                sortIndex: selectedConfig?.sortIndex ?? 9999,
-                ...(selectedConfig?.latitudeBounds === undefined
+                sortIndex: runInGameLaunchDecision.selectedConfig?.sortIndex ?? 9999,
+                ...(runInGameLaunchDecision.selectedConfig?.latitudeBounds === undefined
                   ? {}
-                  : { latitudeBounds: selectedConfig.latitudeBounds }),
+                  : { latitudeBounds: runInGameLaunchDecision.selectedConfig.latitudeBounds }),
               },
             } satisfies Parameters<typeof runCurrentConfigInGame>[0]["source"]);
       const result = await runCurrentConfigInGame({
@@ -245,7 +385,6 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
           resources: worldSettings.resources,
         },
         setupConfig,
-        restartCivProcess: options?.restartCivProcess,
       });
       if (!("requestId" in result)) {
         toast(`Run in Game failed: ${result.error}`, { variant: "error" });
@@ -267,19 +406,19 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
         requestId: result.requestId,
         recipeSettings,
         worldSettings,
-        pipelineConfig: sanitized,
+        pipelineConfig: materializedPipelineConfig,
         setupConfig,
-        materializationMode: runInGameMaterializationMode,
+        materializationMode: runInGameLaunchDecision.materializationMode,
       });
       setRunInGameSnapshot(snapshot);
       const sourceSnapshot = buildRunInGameSourceSnapshot({
         requestId: result.requestId,
         recipeSettings,
         worldSettings,
-        pipelineConfig: sanitized,
+        pipelineConfig: materializedPipelineConfig,
         setupConfig,
-        materializationMode: runInGameMaterializationMode,
-        selectedConfig,
+        materializationMode: runInGameLaunchDecision.materializationMode,
+        selectedConfig: runInGameLaunchDecision.selectedConfig,
       });
       setLastRunInGameSource(sourceSnapshot);
       toast(`Run in Game started: ${result.requestId}`, {
@@ -287,12 +426,11 @@ export function useRunInGame(args: UseRunInGameArgs): UseRunInGameResult {
       });
     },
     [
-      pipelineConfig,
+      effectivePipelineConfigSource,
+      runInGameLaunchDecision,
       recipeSettings.preset,
       recipeSettings,
       recipeSettings.seed,
-      resolvePreset,
-      runInGameMaterializationMode,
       runInGameRunning,
       saveDeployRunning,
       setLastRunInGameSource,

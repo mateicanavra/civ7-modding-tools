@@ -64,7 +64,7 @@ export type Civ7SetupSnapshot = Readonly<{
   mapRows: ReadonlyArray<Civ7SetupMapRow>;
   config: Readonly<{
     mapScript: Civ7RuntimeProbe<string>;
-    mapSize: Civ7RuntimeProbe<string>;
+    mapSize: Civ7RuntimeProbe<string | number>;
     mapSeed: Civ7RuntimeProbe<number>;
     gameSeed: Civ7RuntimeProbe<number>;
     playerCount: Civ7RuntimeProbe<number>;
@@ -111,6 +111,42 @@ export type Civ7SetupMapRowVisibilityResult = Readonly<{
   verified: boolean;
 }>;
 
+export type Civ7ActiveTargetMod = Readonly<{
+  id?: string;
+  packageId?: string;
+  name?: string;
+  title?: string;
+  handle?: number | string;
+  enabled?: boolean;
+  source: string;
+}>;
+
+export type Civ7ActiveTargetModsInput = Readonly<{
+  limit?: number;
+}>;
+
+export type Civ7ActiveTargetModsResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  available: boolean;
+  identityAvailable: boolean;
+  mods: ReadonlyArray<Civ7ActiveTargetMod>;
+  limit: number;
+  truncated: boolean;
+  readbacks: ReadonlyArray<
+    Readonly<{
+      source: string;
+      available: boolean;
+      identityReadable: boolean;
+      count: number;
+      identityCount: number;
+      truncated: boolean;
+      error?: string;
+    }>
+  >;
+}>;
+
 export type SetupReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
@@ -118,6 +154,7 @@ export type SetupReadDependencies = Readonly<{
   ) => Promise<Civ7CommandResult>;
   exitToMainMenuCommand: string;
   jsLiteral: (value: unknown) => string;
+  parseActiveTargetMods: (result: Civ7CommandResult, label: string) => Civ7ActiveTargetModsResult;
   parseSetupMapRows: (result: Civ7CommandResult, label: string) => Civ7SetupMapRowsResult;
   parseSetupSnapshot: (result: Civ7CommandResult, label: string) => Civ7SetupSnapshotResult;
   probeHelperSource: () => string;
@@ -149,6 +186,19 @@ export async function getCiv7SetupMapRows(
     command: buildSetupMapRowsCommand({ ...input, limit }, dependencies),
   });
   return dependencies.parseSetupMapRows(result, "Civ7 setup map rows");
+}
+
+export async function getCiv7ActiveTargetMods(
+  input: Civ7ActiveTargetModsInput = {},
+  options: Civ7DirectControlOptions = {},
+  dependencies: SetupReadDependencies = defaultSetupReadDependencies
+): Promise<Civ7ActiveTargetModsResult> {
+  const limit = dependencies.boundedInteger(input.limit ?? 100, 1, 1_000, "limit");
+  const result = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildActiveTargetModsCommand({ limit }, dependencies),
+  });
+  return dependencies.parseActiveTargetMods(result, "Civ7 active target mods");
 }
 
 export async function ensureCiv7SetupMapRowVisible(
@@ -226,6 +276,170 @@ export function buildSetupMapRowsCommand(
       rows,
       limit: input.limit,
       ...(input.file ? { matchedFile: input.file } : {}),
+    });
+  })()`;
+}
+
+export function buildActiveTargetModsCommand(
+  input: Civ7ActiveTargetModsInput & { limit: number },
+  dependencies: SetupReadDependencies
+): string {
+  return `(() => {
+    const input = ${dependencies.jsLiteral(input)};
+    const limit = input.limit;
+    const hardLimit = Math.min(limit, 1000);
+    const safeError = (error) => String(error?.message ?? error ?? "unknown").slice(0, 160);
+    const asArray = (value) => {
+      if (value == null) return [];
+      if (Array.isArray(value)) return value;
+      if (typeof value[Symbol.iterator] === "function") return Array.from(value);
+      return [];
+    };
+    const unpackTitle = (value) => {
+      if (typeof value === "string") return value;
+      try {
+        if (typeof Locale !== "undefined" && Locale && typeof Locale.unpack === "function") {
+          const unpacked = Locale.unpack(value);
+          if (typeof unpacked === "string") return unpacked;
+        }
+      } catch {}
+      return undefined;
+    };
+    const normalize = (source, value, extra = {}) => {
+      if (value == null) return null;
+      const record = typeof value === "object" ? value : {};
+      const id = record.id ?? record.ID ?? record.Id ?? record.modID ?? record.modId ?? record.ModID ?? record.ModId;
+      const packageId = record.packageId ?? record.PackageId ?? record.PackageID;
+      const name = record.name ?? record.Name;
+      const title = unpackTitle(record.title ?? record.Title);
+      const enabled = record.enabled ?? record.Enabled ?? record.isEnabled ?? record.IsEnabled;
+      const handle = record.handle ?? record.Handle ?? extra.handle;
+      if (
+        typeof id !== "string" &&
+        typeof packageId !== "string" &&
+        typeof name !== "string" &&
+        typeof title !== "string" &&
+        typeof handle !== "number" &&
+        typeof handle !== "string"
+      ) return null;
+      return {
+        source,
+        ...(typeof id === "string" ? { id } : {}),
+        ...(typeof packageId === "string" ? { packageId } : {}),
+        ...(typeof name === "string" ? { name } : {}),
+        ...(typeof title === "string" ? { title } : {}),
+        ...(typeof handle === "number" || typeof handle === "string" ? { handle } : {}),
+        ...(typeof enabled === "boolean" ? { enabled } : {}),
+      };
+    };
+    const identityCount = (mods) => mods.filter((mod) => mod.id || mod.packageId).length;
+    const enabledValue = (record) => record?.enabled ?? record?.Enabled ?? record?.isEnabled ?? record?.IsEnabled;
+    const unavailable = (source, error) => ({
+      source,
+      available: false,
+      identityReadable: false,
+      values: [],
+      truncated: false,
+      ...(error ? { error: safeError(error) } : {}),
+    });
+    const callReader = (source, reader) => {
+      try {
+        const read = reader();
+        const values = (Array.isArray(read) ? read : read.values).filter(Boolean);
+        const identityReadable = Array.isArray(read) ? false : read.identityReadable === true;
+        return { source, available: true, identityReadable, values: values.slice(0, hardLimit), truncated: values.length > hardLimit };
+      } catch (error) {
+        return unavailable(source, error);
+      }
+    };
+    const readConfigurationGame = () => {
+      if (typeof globalThis.Configuration === "undefined" || !globalThis.Configuration || typeof globalThis.Configuration.getGame !== "function") {
+        return unavailable("Configuration.getGame");
+      }
+      return callReader("Configuration.getGame", () => {
+        const game = globalThis.Configuration.getGame();
+        const count = Number(game?.enabledModCount);
+        if (!Number.isInteger(count) || count < 0 || typeof game?.getEnabledModId !== "function") {
+          throw new Error("Configuration game mod identity API unavailable");
+        }
+        const values = [];
+        for (let index = 0; index < Math.min(count, hardLimit + 1); index += 1) {
+          const id = game.getEnabledModId(index);
+          const title = typeof game.getEnabledModTitle === "function" ? unpackTitle(game.getEnabledModTitle(index)) : undefined;
+          values.push(normalize("Configuration.getGame", { id, title, enabled: true }));
+        }
+        return { identityReadable: true, values };
+      });
+    };
+    const readModdingActiveMods = () => {
+      if (typeof globalThis.Modding === "undefined" || !globalThis.Modding || typeof globalThis.Modding.getActiveMods !== "function") {
+        return unavailable("Modding.getActiveMods");
+      }
+      return callReader("Modding.getActiveMods", () => {
+        const handles = asArray(globalThis.Modding.getActiveMods()).slice(0, hardLimit + 1);
+        const values = handles.map((handle) => {
+          const info = typeof globalThis.Modding.getModInfo === "function"
+            ? globalThis.Modding.getModInfo(handle)
+            : undefined;
+          return normalize("Modding.getActiveMods", info ?? {}, { handle });
+        });
+        return { identityReadable: typeof globalThis.Modding.getModInfo === "function", values };
+      });
+    };
+    const readModdingInstalledEnabled = () => {
+      if (typeof globalThis.Modding === "undefined" || !globalThis.Modding || typeof globalThis.Modding.getInstalledMods !== "function") {
+        return unavailable("Modding.getInstalledMods.enabled");
+      }
+      return callReader("Modding.getInstalledMods.enabled", () => ({
+        identityReadable: false,
+        values: asArray(globalThis.Modding.getInstalledMods())
+          .filter((mod) => mod && typeof mod === "object" && enabledValue(mod) === true)
+          .slice(0, hardLimit + 1)
+          .map((mod) => normalize("Modding.getInstalledMods.enabled", mod)),
+      }));
+    };
+    const readers = [
+      readConfigurationGame(),
+      readModdingActiveMods(),
+      readModdingInstalledEnabled(),
+    ];
+    const mods = [];
+    for (const readback of readers) {
+      if (!readback.available) continue;
+      mods.push(...readback.values);
+    }
+    const seen = new Set();
+    const unique = [];
+    const identityKey = (mod) => {
+      const identity = mod.id ?? mod.packageId;
+      return typeof identity === "string" ? "identity:" + identity.trim().toLowerCase() : undefined;
+    };
+    for (const mod of mods) {
+      const key = identityKey(mod) ?? [mod.name, mod.title, mod.handle, mod.source].filter(Boolean).join("|");
+      if (seen.has(key)) continue;
+      seen.add(key);
+      unique.push(mod);
+    }
+    const hasComparableIdentity = (entry) =>
+      entry.available &&
+      entry.identityReadable &&
+      !entry.truncated &&
+      identityCount(entry.values) === entry.values.length;
+    return JSON.stringify({
+      available: readers.some((entry) => entry.available),
+      identityAvailable: readers.some(hasComparableIdentity),
+      mods: unique.slice(0, limit),
+      limit,
+      truncated: unique.length > limit || readers.some((entry) => entry.truncated),
+      readbacks: readers.map((entry) => ({
+        source: entry.source,
+        available: entry.available,
+        identityReadable: entry.identityReadable,
+        count: entry.values.length,
+        identityCount: identityCount(entry.values),
+        truncated: entry.truncated,
+        ...(entry.error ? { error: entry.error } : {}),
+      })),
     });
   })()`;
 }
@@ -500,6 +714,8 @@ export const defaultSetupReadDependencies: SetupReadDependencies = {
   executeAppUiCommand: executeCiv7AppUiCommand,
   exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
   jsLiteral,
+  parseActiveTargetMods: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7ActiveTargetModsResult>(result, label),
   parseSetupMapRows: (result, label) =>
     jsonPayloadFromCommandResult<Civ7SetupMapRowsResult>(result, label),
   parseSetupSnapshot: (result, label) =>

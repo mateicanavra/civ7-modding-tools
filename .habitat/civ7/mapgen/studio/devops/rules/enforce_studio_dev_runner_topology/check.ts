@@ -70,7 +70,7 @@ if (dev) {
   }
 }
 if (serveDaemon) {
-  if (serveDaemon.command !== "bun --conditions bun-source --watch src/server/daemon/daemon.ts") {
+  if (serveDaemon.command !== "bun --conditions bun-source src/server/daemon/daemon.ts") {
     failures.push(`serve-daemon.command drifted: ${serveDaemon.command}`);
   }
   if (serveDaemon.executor !== undefined) failures.push("serve-daemon.executor must be undefined");
@@ -102,8 +102,11 @@ if (existsSync(join(appRoot, "src/server/daemon/devLive.ts"))) {
 for (const token of ["STUDIO_DAEMON_PORT"]) {
   if (!daemonSource.includes(token)) failures.push(`daemon source missing ${token}`);
 }
-for (const token of ["--conditions bun-source", "--watch", "src/server/daemon/daemon.ts"]) {
+for (const token of ["--conditions bun-source", "src/server/daemon/daemon.ts"]) {
   if (!daemonSource.includes(token)) failures.push(`daemon source comment missing ${token}`);
+}
+if (daemonSource.includes("--watch")) {
+  failures.push("daemon source comment must not preserve the retired Bun watch command");
 }
 for (const token of ["STUDIO_DEV_PORT", "STUDIO_DEV_RPC_TARGET"]) {
   if (!viteSource.includes(token)) failures.push(`vite config missing ${token}`);

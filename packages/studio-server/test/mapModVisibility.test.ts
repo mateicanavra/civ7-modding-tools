@@ -20,6 +20,32 @@ const SWOOPER_SIBLINGS = [
   { file: "{swooper-maps}/maps/swooper-earthlike.js" },
 ];
 
+function authoritativeReadback(
+  mods: ReadonlyArray<{
+    id?: string;
+    packageId?: string;
+    name?: string;
+    source?: string;
+  }>
+) {
+  return {
+    available: true,
+    identityAvailable: true,
+    truncated: false,
+    mods,
+    readbacks: [
+      {
+        source: "Configuration.getGame",
+        available: true,
+        identityReadable: true,
+        count: mods.length,
+        identityCount: mods.length,
+        truncated: false,
+      },
+    ],
+  };
+}
+
 describe("modNamespaceFromMapScript", () => {
   it("parses the mod namespace token", () => {
     expect(modNamespaceFromMapScript(TARGET)).toBe("{swooper-maps}");
@@ -33,18 +59,18 @@ describe("modNamespaceFromMapScript", () => {
 });
 
 describe("classifyMapRowVisibilityFailure", () => {
-  it('"seemed to work but CIV could not read it": mod disabled => map-mod-not-loaded', () => {
-    // Civ shows base-game maps, but NONE from {swooper-maps} (the mod is disabled).
+  it("classifies generated mod disabled only from active target mod-set readback", () => {
     const result = classifyMapRowVisibilityFailure({
       launchMapScript: TARGET,
       visibleMapRows: BASE_GAME_ROWS,
       materializationMode: "disposable",
+      targetModId: "swooper-maps",
+      activeTargetModSet: authoritativeReadback([{ id: "base-standard", source: "Configuration.getGame" }]),
     });
-    expect(result.code).toBe("map-mod-not-loaded");
+    expect(result.code).toBe("generated-map-mod-not-enabled");
     expect(result.modNamespace).toBe("{swooper-maps}");
-    expect(result.siblingMapRowCount).toBe(0);
-    expect(result.recoveryHint).toMatch(/enable the mod/i);
-    expect(result.recoveryHint).toMatch(/deployed correctly/i);
+    expect(result.targetModId).toBe("swooper-maps");
+    expect(result.recoveryHint).toMatch(/enable .*mod/i);
   });
 
   it('"works when mods enabled": siblings visible, target not yet enumerated => setup-map-row-not-visible', () => {
@@ -52,6 +78,8 @@ describe("classifyMapRowVisibilityFailure", () => {
       launchMapScript: TARGET,
       visibleMapRows: [...BASE_GAME_ROWS, ...SWOOPER_SIBLINGS],
       materializationMode: "disposable",
+      targetModId: "swooper-maps",
+      activeTargetModSet: authoritativeReadback([{ id: "swooper-maps", source: "Configuration.getGame" }]),
     });
     expect(result.code).toBe("setup-map-row-not-visible");
     expect(result.siblingMapRowCount).toBe(2);
@@ -63,28 +91,91 @@ describe("classifyMapRowVisibilityFailure", () => {
       launchMapScript: TARGET,
       visibleMapRows: [],
       materializationMode: "disposable",
+      targetModId: "swooper-maps",
+      activeTargetModSet: {
+        available: false,
+        identityAvailable: false,
+        truncated: false,
+        mods: [],
+      },
     });
     expect(result.code).toBe("setup-map-row-not-visible");
     expect(result.visibleMapRowCount).toBe(0);
   });
 
+  it("does not infer disabled mod from sibling rows without active mod-set evidence", () => {
+    const result = classifyMapRowVisibilityFailure({
+      launchMapScript: TARGET,
+      visibleMapRows: BASE_GAME_ROWS,
+      targetModId: "swooper-maps",
+    });
+    expect(result.code).toBe("setup-map-row-not-visible");
+    expect(result.siblingMapRowCount).toBe(0);
+  });
+
+  it("does not infer disabled mod from ambiguous active mod-set readback", () => {
+    const result = classifyMapRowVisibilityFailure({
+      launchMapScript: TARGET,
+      visibleMapRows: BASE_GAME_ROWS,
+      targetModId: "swooper-maps",
+      activeTargetModSet: {
+        available: true,
+        identityAvailable: false,
+        truncated: false,
+        mods: [{ handle: 42 }],
+      },
+    });
+    expect(result.code).toBe("setup-map-row-not-visible");
+  });
+
+  it("does not infer disabled mod from nested truncated active mod-set readback", () => {
+    const result = classifyMapRowVisibilityFailure({
+      launchMapScript: TARGET,
+      visibleMapRows: BASE_GAME_ROWS,
+      targetModId: "swooper-maps",
+      activeTargetModSet: {
+        available: true,
+        identityAvailable: true,
+        truncated: false,
+        readbacks: [{ truncated: true }],
+        mods: [{ id: "base-standard" }],
+      },
+    });
+    expect(result.code).toBe("setup-map-row-not-visible");
+  });
+
+  it("does not use display labels as comparable mod identity", () => {
+    const result = classifyMapRowVisibilityFailure({
+      launchMapScript: TARGET,
+      visibleMapRows: BASE_GAME_ROWS,
+      targetModId: "swooper-maps",
+      activeTargetModSet: authoritativeReadback([{ name: "swooper-maps", source: "Configuration.getGame" }]),
+    });
+    expect(result.code).toBe("generated-map-mod-not-enabled");
+  });
+
+  it("does not infer disabled mod from truncated active mod-set readback", () => {
+    const result = classifyMapRowVisibilityFailure({
+      launchMapScript: TARGET,
+      visibleMapRows: BASE_GAME_ROWS,
+      targetModId: "swooper-maps",
+      activeTargetModSet: {
+        available: true,
+        identityAvailable: true,
+        truncated: true,
+        mods: [{ id: "base-standard" }],
+      },
+    });
+    expect(result.code).toBe("setup-map-row-not-visible");
+  });
+
   it("does NOT count the target itself as a sibling", () => {
-    // Only the target row is present (and base maps): still no real siblings.
     const result = classifyMapRowVisibilityFailure({
       launchMapScript: TARGET,
       visibleMapRows: [...BASE_GAME_ROWS, { file: TARGET }],
     });
-    expect(result.code).toBe("map-mod-not-loaded");
+    expect(result.code).toBe("setup-map-row-not-visible");
     expect(result.siblingMapRowCount).toBe(0);
-  });
-
-  it("durable preset map with the mod disabled also classifies as map-mod-not-loaded", () => {
-    const result = classifyMapRowVisibilityFailure({
-      launchMapScript: "{swooper-maps}/maps/latest-juicy.js",
-      visibleMapRows: BASE_GAME_ROWS,
-      materializationMode: "durable",
-    });
-    expect(result.code).toBe("map-mod-not-loaded");
   });
 
   it("falls back to setup-map-row-not-visible when the script has no mod namespace", () => {

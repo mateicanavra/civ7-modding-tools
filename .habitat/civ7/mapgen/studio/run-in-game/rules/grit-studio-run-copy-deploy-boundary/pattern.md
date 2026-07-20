@@ -50,7 +50,15 @@ or {
   },
   program(statements=$body) where {
     $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$",
-    ! $body <: contains `const SWOOPER_STUDIO_RUN_MOD_ID = "mod-swooper-studio-run"`
+    ! $body <: contains `STUDIO_RUN_MOD_ID`
+  },
+  program(statements=$body) where {
+    $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$",
+    ! $body <: contains `"@civ7/studio-run-workspace"`
+  },
+  program(statements=$body) where {
+    $filename <: r".*packages/studio-run-workspace/src/paths\.ts$",
+    ! $body <: contains `export const STUDIO_RUN_MOD_ID = "mod-swooper-studio-run"`
   },
   `async function deployGeneratedSwooperRunMod($args) { $body }` where {
     $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$",
@@ -58,7 +66,7 @@ or {
   },
   `async function deployGeneratedSwooperRunMod($args) { $body }` where {
     $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$",
-    ! $body <: contains `modId: SWOOPER_STUDIO_RUN_MOD_ID`
+    ! $body <: contains `modId: STUDIO_RUN_MOD_ID`
   },
   `deployRunInGame: async ($args) => { $body }` where {
     $filename <: r".*apps/mapgen-studio/src/server/studio/engines\.ts$",
@@ -133,11 +141,11 @@ export type RunInGameDeployment = Readonly<{
 
 ```typescript
 // @filename: apps/mapgen-studio/src/server/studio/engines.ts
-const SWOOPER_STUDIO_RUN_MOD_ID = "mod-swooper-studio-run";
+const STUDIO_RUN_MOD_ID = "mod-swooper-studio-run";
 async function deployGeneratedSwooperRunMod(options: { generatedModRoot: string }) {
   return deployMod({
     inputDir: options.generatedModRoot,
-    modId: SWOOPER_STUDIO_RUN_MOD_ID,
+    modId: STUDIO_RUN_MOD_ID,
   });
 }
 

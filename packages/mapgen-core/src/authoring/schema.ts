@@ -1,4 +1,5 @@
 import { type Static, type TSchema, Type } from "typebox";
+import { Value } from "typebox/value";
 
 import type { DomainOpSchema } from "./op/schema.js";
 
@@ -26,6 +27,12 @@ function cloneDefault(value: unknown): unknown {
     return structuredClone(value);
   }
   return JSON.parse(JSON.stringify(value));
+}
+
+function materializeSchemaDefault(schema: TSchema): unknown {
+  const typed = schema as SchemaWithDefaults;
+  if (typed.default === undefined) return undefined;
+  return Value.Default(schema, undefined);
 }
 
 function schemaProvidesDefaults(schema: TSchema): boolean {
@@ -98,14 +105,13 @@ export function applySchemaConventions(schema: TSchema, path: string): TSchema {
 
 export function buildSchemaDefaults(schema: TSchema): unknown {
   const typed = schema as SchemaWithDefaults;
+  const schemaDefault = materializeSchemaDefault(schema);
+  if (schemaDefault !== undefined) return schemaDefault;
+
   if (typed.type === "object") {
     const props = typed.properties ?? {};
     const out: Record<string, unknown> = {};
     let hasDefaults = false;
-
-    if (typed.default !== undefined) {
-      return cloneDefault(typed.default);
-    }
 
     for (const [key, propSchema] of Object.entries(props)) {
       const value = buildSchemaDefaults(propSchema);
@@ -118,7 +124,22 @@ export function buildSchemaDefaults(schema: TSchema): unknown {
     return hasDefaults ? out : undefined;
   }
 
-  if (typed.default !== undefined) return cloneDefault(typed.default);
+  return undefined;
+}
+
+export function buildCompleteSchemaDefaults(schema: TSchema): unknown {
+  const typed = schema as SchemaWithDefaults;
+  const schemaDefault = materializeSchemaDefault(schema);
+  if (schemaDefault !== undefined) return cloneDefault(schemaDefault);
+
+  if (typed.type === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [key, propSchema] of Object.entries(typed.properties ?? {})) {
+      const value = buildCompleteSchemaDefaults(propSchema);
+      if (value !== undefined) out[key] = value;
+    }
+    return out;
+  }
 
   return undefined;
 }

@@ -3,10 +3,8 @@
 import { createMockAdapter } from "@civ7/adapter/mock";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
-import { migratePipelineConfigUnknown } from "../features/configMigrations/pipelineConfig";
+import { materializePipelineConfig } from "../features/configOverrides/configBuilders";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
 import { getRuntimeRecipe } from "./recipeRuntime";
 import { createWorkerTraceSink } from "./worker-trace-sink";
@@ -14,26 +12,6 @@ import { createWorkerVizDumper } from "./worker-viz-dumper";
 
 function post(event: BrowserRunEvent, transfer?: Transferable[]): void {
   (self as DedicatedWorkerGlobalScope).postMessage(event, transfer ?? []);
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
-  const proto = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
-}
-
-const FORBIDDEN_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
-
-function mergeDeterministic(base: unknown, overrides: unknown): unknown {
-  if (overrides === undefined) return base;
-  if (!isPlainObject(base) || !isPlainObject(overrides)) return overrides;
-
-  const out: Record<string, unknown> = { ...base };
-  for (const key of Object.keys(overrides)) {
-    if (FORBIDDEN_MERGE_KEYS.has(key)) continue;
-    out[key] = mergeDeterministic((base as Record<string, unknown>)[key], overrides[key]);
-  }
-  return out;
 }
 
 function formatConfigErrors(errors: ReadonlyArray<{ path: string; message: string }>): string {
@@ -122,7 +100,7 @@ async function runRecipe(
     mapSizeId,
     dimensions,
     latitudeBounds,
-    configOverrides,
+    pipelineConfig,
   } = request;
   const recipeEntry = getRuntimeRecipe(recipeId);
 
@@ -132,20 +110,16 @@ async function runRecipe(
     latitudeBounds,
   };
 
-  const mergedRaw = mergeDeterministic(
-    stripSchemaMetadataRoot(recipeEntry.defaultConfig),
-    migratePipelineConfigUnknown(stripSchemaMetadataRoot(configOverrides))
-  );
-  const { value: config, errors: configErrors } = normalizeStrict<Record<string, unknown>>(
-    recipeEntry.configSchema,
-    mergedRaw,
-    "/config"
-  );
-  if (configErrors.length > 0) {
-    throw new Error(`Invalid config overrides:\n${formatConfigErrors(configErrors)}`);
+  const configResult = materializePipelineConfig({
+    schema: recipeEntry.configSchema,
+    config: pipelineConfig,
+    label: "browser-run",
+  });
+  if (!configResult.ok) {
+    throw new Error(`Invalid recipe config:\n${formatConfigErrors(configResult.errors)}`);
   }
 
-  const plan: any = recipeEntry.recipe.compile(envBase, config);
+  const plan: any = recipeEntry.recipe.compile(envBase, configResult.value as Record<string, unknown>);
   const runId = deriveRunId(plan);
   const verboseSteps: Record<string, "verbose"> = Object.fromEntries(
     plan.nodes.map((node: any) => [node.stepId, "verbose"] as const)
@@ -198,7 +172,7 @@ async function runRecipe(
   // Ensure the worker posts a stable run identity early, even if a failure occurs.
   post({ type: "run.started", runToken, generation, runId, planFingerprint: runId });
 
-  await recipeEntry.recipe.runAsync(context, env, config, {
+  await recipeEntry.recipe.runAsync(context, env, configResult.value, {
     traceSink,
     abortSignal,
     // Yield between steps so cooperative cancellation (via postMessage) can be observed.

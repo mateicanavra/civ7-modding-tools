@@ -30,7 +30,8 @@
         "curvatureWeight": 0.45,
         "upwellingThreshold": 0.25,
         "downwellingThreshold": 0.35
-      }
+      },
+      "knobs": {}
     },
     "foundation-lithosphere": {
       "lithosphere": {
@@ -48,7 +49,8 @@
           "microplatesMinPlateCount": 14,
           "microplateMinAreaCells": 8
         }
-      }
+      },
+      "knobs": {}
     },
     "foundation-tectonics": {
       "knobs": {
@@ -740,7 +742,8 @@
         "fairnessTolerance": 0.3,
         "coastalPreferenceWeight": 0,
         "riverPreferenceWeight": 0,
-        "startBiasWeight": 1
+        "startBiasWeight": 1,
+        "overrides": {}
       },
       "support": {
         "enabled": true,
@@ -749,6 +752,19 @@
         "equityTolerance": 2,
         "strength": 1
       }
+    },
+    "foundation-orogeny": {
+      "knobs": {},
+      "crustCharacter": {
+        "continentalSurvivalMaturity": 0.6,
+        "continentalFreeboard": 0.35,
+        "hyperextensionBreakupBase": 0.1,
+        "thinningThicknessLoss": 0.55,
+        "oceanicAbyssalDepth": 0.75
+      }
+    },
+    "foundation-projection": {
+      "knobs": {}
     }
   }
 }

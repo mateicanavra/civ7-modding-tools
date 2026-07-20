@@ -1,4 +1,5 @@
 import type { StudioPresetExportFileV1 } from "@swooper/mapgen-core/authoring";
+import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
 import { describe, expect, it } from "vitest";
 import { resolveImportedPreset } from "../../src/features/presets/importFlow";
 import { findRecipeArtifacts } from "../../src/recipes/catalog";
@@ -41,41 +42,44 @@ describe("resolveImportedPreset", () => {
     }
   });
 
-  it("rejects imported legacy Foundation Orogeny envelopes instead of migrating them", () => {
+  it("accepts complete config JSON exactly", () => {
+    const config = STANDARD_RECIPE_CONFIG as Record<string, unknown>;
     const presetFile: StudioPresetExportFileV1 = {
       $schema: "https://civ7.tools/schemas/mapgen-studio/studio-preset-export.v1.schema.json",
       version: 1,
       recipeId: "mod-swooper-maps/standard",
       preset: {
-        label: "Legacy Foundation Orogeny",
-        config: {
-          "foundation-orogeny": {
-            "crust-evolution": {
-              computeCrustEvolution: {
-                strategy: "default",
-                config: {
-                  continentalSurvivalMaturity: 0.6,
-                  continentalFreeboard: 0.35,
-                  hyperextensionBreakupBase: 0.1,
-                  thinningThicknessLoss: 0.55,
-                  oceanicAbyssalDepth: 0.75,
-                },
-              },
-            },
-          },
-        },
+        label: "Complete",
+        config,
+      },
+    };
+
+    const result = resolveImportedPreset({ presetFile, findRecipeArtifacts });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.config).toEqual(config);
+    }
+  });
+
+  it("rejects imported config JSON that is missing current recipe keys", () => {
+    const [firstStage] = Object.keys(STANDARD_RECIPE_CONFIG);
+    const config = { ...(STANDARD_RECIPE_CONFIG as Record<string, unknown>) };
+    delete config[firstStage!];
+    const presetFile: StudioPresetExportFileV1 = {
+      $schema: "https://civ7.tools/schemas/mapgen-studio/studio-preset-export.v1.schema.json",
+      version: 1,
+      recipeId: "mod-swooper-maps/standard",
+      preset: {
+        label: "Incomplete",
+        config,
       },
     };
 
     const result = resolveImportedPreset({ presetFile, findRecipeArtifacts });
     expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.kind).toBe("invalid-config");
-      expect(result.details).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining("/preset/import/foundation-orogeny/crust-evolution"),
-        ])
-      );
-    }
+    if (result.ok) throw new Error("incomplete imported config was accepted");
+    expect(result.details).toContain(
+      "/config/import: Config must be the complete recipe config JSON produced by the current recipe artifacts."
+    );
   });
 });

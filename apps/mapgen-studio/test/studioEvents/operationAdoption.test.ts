@@ -86,6 +86,168 @@ describe("Studio event operation adoption", () => {
     expect(state.handledRunInGameToasts).toEqual(["run-terminal"]);
   });
 
+  test("missed terminal event recovery adopts daemon terminal current over local running state", () => {
+    const state = adoptionState({
+      runInGame: runningRunStatus({
+        requestId: "run-missed-terminal",
+        phase: "starting-game",
+        updatedAt: "2026-06-13T00:00:02.000Z",
+      }),
+    });
+
+    adoptStudioOperationsCurrent(
+      currentOperations({
+        observedAt: "2026-06-13T00:00:05.000Z",
+        runInGame: {
+          active: null,
+          recent: [
+            failedRunStatus({
+              requestId: "run-missed-terminal",
+              diagnosticsId: "run-diagnostics-missed-terminal",
+              safeFailureCategory: "runtime-control",
+              updatedAt: "2026-06-13T00:00:04.000Z",
+              terminalAt: "2026-06-13T00:00:04.000Z",
+            }),
+          ],
+        },
+      }),
+      state.targets,
+      { currentRunInGameOperation: state.runInGame }
+    );
+
+    expect(state.runInGame).toMatchObject({
+      requestId: "run-missed-terminal",
+      status: "failed",
+      phase: "failed",
+      diagnosticsId: "run-diagnostics-missed-terminal",
+      safeFailureCategory: "runtime-control",
+    });
+    expect(state.handledRunInGameToasts).toEqual(["run-missed-terminal"]);
+  });
+
+  test("browser reload adoption displays daemon active and terminal state without replaying start", async () => {
+    const state = adoptionState();
+    const currentReads: StudioOperationsCurrent[] = [
+      currentOperations({
+        runInGame: {
+          active: runningRunStatus({
+            requestId: "run-reload-active",
+            phase: "deploying",
+          }),
+          recent: [],
+        },
+      }),
+      currentOperations({
+        observedAt: "2026-06-13T00:00:04.000Z",
+        runInGame: {
+          active: null,
+          recent: [completedRunStatus({ requestId: "run-reload-terminal" })],
+        },
+      }),
+    ];
+    let readIndex = 0;
+
+    await readAndAdoptStudioOperationsCurrent({
+      readCurrent: async () => currentReads[readIndex++] ?? currentOperations(),
+      targets: state.targets,
+      onError: () => {
+        throw new Error("unexpected reload current read failure");
+      },
+    });
+
+    expect(state.runInGame).toMatchObject({
+      requestId: "run-reload-active",
+      status: "running",
+      phase: "deploying",
+    });
+
+    await readAndAdoptStudioOperationsCurrent({
+      readCurrent: async () => currentReads[readIndex++] ?? currentOperations(),
+      targets: state.targets,
+      getCurrentRunInGameOperation: () => state.runInGame,
+      onError: () => {
+        throw new Error("unexpected reload terminal current read failure");
+      },
+    });
+
+    expect(state.runInGame).toMatchObject({
+      requestId: "run-reload-terminal",
+      status: "completed",
+      phase: "completed",
+    });
+    expect(readIndex).toBe(2);
+    expect(state.handledRunInGameToasts).toEqual(["run-reload-terminal"]);
+  });
+
+  test("event stream reconnect reconciliation handles a retained terminal once", async () => {
+    const state = adoptionState({
+      runInGame: runningRunStatus({
+        requestId: "run-reconnect",
+        phase: "observing-runtime",
+        updatedAt: "2026-06-13T00:00:02.000Z",
+      }),
+    });
+    let adopted = 0;
+
+    await readAndAdoptStudioOperationsCurrent({
+      readCurrent: async () =>
+        currentOperations({
+          observedAt: "2026-06-13T00:00:05.000Z",
+          runInGame: {
+            active: null,
+            recent: [
+              completedRunStatus({
+                requestId: "run-reconnect",
+                updatedAt: "2026-06-13T00:00:04.000Z",
+                terminalAt: "2026-06-13T00:00:04.000Z",
+              }),
+            ],
+          },
+        }),
+      targets: state.targets,
+      getCurrentRunInGameOperation: () => state.runInGame,
+      onAdopted: () => {
+        adopted += 1;
+      },
+      onError: () => {
+        throw new Error("unexpected reconnect current read failure");
+      },
+    });
+
+    await readAndAdoptStudioOperationsCurrent({
+      readCurrent: async () =>
+        currentOperations({
+          observedAt: "2026-06-13T00:00:06.000Z",
+          runInGame: {
+            active: null,
+            recent: [
+              completedRunStatus({
+                requestId: "run-reconnect",
+                updatedAt: "2026-06-13T00:00:04.000Z",
+                terminalAt: "2026-06-13T00:00:04.000Z",
+              }),
+            ],
+          },
+        }),
+      targets: state.targets,
+      getCurrentRunInGameOperation: () => state.runInGame,
+      onAdopted: () => {
+        adopted += 1;
+      },
+      onError: () => {
+        throw new Error("unexpected second reconnect current read failure");
+      },
+    });
+
+    expect(state.runInGame).toMatchObject({
+      requestId: "run-reconnect",
+      status: "completed",
+      phase: "completed",
+    });
+    expect(adopted).toBe(2);
+    expect(state.handledRunInGameToasts).toEqual(["run-reconnect"]);
+  });
+
   test("clears stale displayed operations when daemon current truth is empty", () => {
     const state = adoptionState({
       runInGame: runningRunStatus({
@@ -125,7 +287,7 @@ describe("Studio event operation adoption", () => {
     expect(state.runInGame?.safeFailureCategory).toBe("runtime-control");
   });
 
-  test("does not replace newer local terminal Run in Game status with an older recent operation", () => {
+  test("adopts daemon recent terminal Run in Game status over newer local terminal state", () => {
     const state = adoptionState({
       runInGame: failedRunStatus({
         requestId: "run-local-failed",
@@ -145,7 +307,7 @@ describe("Studio event operation adoption", () => {
       { currentRunInGameOperation: state.runInGame }
     );
 
-    expect(state.runInGame?.requestId).toBe("run-local-failed");
+    expect(state.runInGame?.requestId).toBe("older-terminal");
   });
 
   test("adopts newer active current operations over local terminal state", () => {
@@ -404,6 +566,37 @@ describe("Studio event operation adoption", () => {
     );
 
     expect(state.runInGame?.requestId).toBe("run-pushed-1");
+    expect(state.handledRunInGameToasts).toEqual([]);
+  });
+
+  test("pushed Run in Game terminal events replace local running state immediately", () => {
+    const state = adoptionState({
+      runInGame: runningRunStatus({
+        requestId: "run-pushed-terminal",
+        phase: "starting-game",
+        updatedAt: "2026-06-13T00:00:02.000Z",
+      }),
+    });
+
+    applyStudioOperationEvent(
+      operationEvent({
+        kind: "run-in-game",
+        status: failedRunStatus({
+          requestId: "run-pushed-terminal",
+          diagnosticsId: "run-diagnostics-pushed-terminal",
+          updatedAt: "2026-06-13T00:00:03.000Z",
+          terminalAt: "2026-06-13T00:00:03.000Z",
+        }),
+      }),
+      state.targets
+    );
+
+    expect(state.runInGame).toMatchObject({
+      requestId: "run-pushed-terminal",
+      status: "failed",
+      phase: "failed",
+      diagnosticsId: "run-diagnostics-pushed-terminal",
+    });
     expect(state.handledRunInGameToasts).toEqual([]);
   });
 

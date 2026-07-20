@@ -1,5 +1,3 @@
-import { migratePipelineConfigUnknown } from "../configMigrations/pipelineConfig";
-
 export type LocalPresetV1 = Readonly<{
   id: string;
   label: string;
@@ -49,17 +47,6 @@ function isValidStore(value: unknown): value is StudioPresetStoreV1 {
   return true;
 }
 
-function migratePresetStore(store: StudioPresetStoreV1): StudioPresetStoreV1 {
-  const presetsByRecipeId: Record<string, ReadonlyArray<LocalPresetV1>> = {};
-  for (const [recipeId, presets] of Object.entries(store.presetsByRecipeId)) {
-    presetsByRecipeId[recipeId] = presets.map((preset) => ({
-      ...preset,
-      config: migratePipelineConfigUnknown(preset.config),
-    }));
-  }
-  return { version: 1, presetsByRecipeId };
-}
-
 function getLocalStorage(): Storage | null {
   if (typeof window === "undefined") return null;
   try {
@@ -85,7 +72,7 @@ export function loadPresetStore(): PresetStoreLoadResult {
     if (!isValidStore(parsed)) {
       return { store: createEmptyStore(), warning: "Preset storage invalid; reset to defaults." };
     }
-    return { store: migratePresetStore(parsed) };
+    return { store: parsed };
   } catch {
     return { store: createEmptyStore(), warning: "Preset storage corrupt; reset to defaults." };
   }

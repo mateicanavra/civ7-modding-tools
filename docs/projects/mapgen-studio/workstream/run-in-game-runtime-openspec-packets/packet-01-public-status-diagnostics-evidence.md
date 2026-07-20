@@ -72,6 +72,19 @@ Status: Packet 1 declared gates complete. Later packet-train live Civ7/generated
 - `runInGame.diagnostics({ diagnosticsId: "run-diagnostics-54ccfe0e-66b9-4689-883e-d9fdcd000634" })` returned the private record by explicit lookup with matching request id and section key `operation`.
 - After daemon restart, server id changed to `studio-server-mr9xvomm-1rsp-1`; the same diagnostics id still resolved from the request diagnostics workspace.
 
+## Current Live Stabilization Evidence
+
+The 2026-07-09 rendered-button investigation found that `mapgen-studio:serve-daemon`
+was running Bun watch. Run in Game materialization writes under the repo caused
+the daemon to restart while it owned an active operation registry, leaving the
+browser parked on the admitted public phase.
+
+- Reproduced lost ownership via diagnostics at `.mapgen-studio/run-in-game/studio-run-in-game-mrdraxtc-17b7-2/diagnostics/diagnostics.json`; the failure was `Run in Game operation ownership was lost after Studio daemon restart` while the active phase was `materializing`.
+- Restarted Studio from this worktree with `bun run dev:mapgen-studio:down && bun run restart:mapgen-studio --no-build --timeout 90`; the daemon pane then showed `bun --conditions bun-source src/server/daemon/daemon.ts`, without Bun watch.
+- Rendered UI click on the current draft completed request `studio-run-in-game-mrdrfjpl-1wpq-2`; the UI reached `Run in Game completed` with live Civ7 turn `1` and seed `123`.
+- Rendered UI click after selecting `Config / Latest Juicy` completed request `studio-run-in-game-mrdrlzxi-1wpq-3`; the generated manifest recorded `selectedConfigId: "latest-juicy"`, `materializationMode: "durable"`, `resolvedLaunchSource.kind: "catalog"`, `seed: 123`, `mapSize: "MAPSIZE_STANDARD"`, and `playerCount: 6`.
+- This evidence closes the observed stuck `resolving-source` failure class for the exercised UI paths only. It does not replace the later full real-user matrix for Swooper Earthlike, Latest Juicy, and Desert Mountains with the saved Test of Time config, Huge map, 10 players, and generated-content readback.
+
 ## Review Lanes
 
 Required review lanes were rerun after the harness and public-config authority

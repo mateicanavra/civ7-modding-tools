@@ -10,7 +10,11 @@ import {
   DEFAULT_CIV7_STUDIO_SETUP_CONFIG,
   normalizeStudioSetupConfig,
 } from "../civ7Setup/setupConfig";
-import { migratePipelineConfig } from "../configMigrations/pipelineConfig";
+
+type LatitudeBounds = Readonly<{
+  topLatitude: number;
+  bottomLatitude: number;
+}>;
 
 export type RunInGameClientSnapshot = Readonly<{
   requestId: string;
@@ -38,7 +42,10 @@ export type RunInGameSourceSnapshot = Readonly<{
     id?: string;
     label?: string;
     description?: string;
+    catalogSourceId?: string;
     sourcePath?: string;
+    sortIndex?: number;
+    latitudeBounds?: LatitudeBounds;
   };
 }>;
 
@@ -53,7 +60,6 @@ export function buildRunInGameFingerprint(args: {
   setupConfig: Civ7StudioSetupConfig;
   materializationMode: "durable" | "disposable";
 }): string {
-  const pipelineConfig = migratePipelineConfig(args.pipelineConfig);
   return stableRunInGameStringify({
     recipe: args.recipeSettings.recipe,
     preset: args.recipeSettings.preset,
@@ -63,7 +69,7 @@ export function buildRunInGameFingerprint(args: {
     resources: args.worldSettings.resources,
     materializationMode: args.materializationMode,
     setupConfig: normalizeStudioSetupConfig(args.setupConfig),
-    config: pipelineConfig,
+    config: args.pipelineConfig,
   });
 }
 
@@ -118,13 +124,12 @@ export function buildRunInGameSourceSnapshot(args: {
   selectedConfig?: RunInGameSourceSnapshot["selectedConfig"];
   now?: () => Date;
 }): RunInGameSourceSnapshot {
-  const pipelineConfig = migratePipelineConfig(args.pipelineConfig);
   return {
     requestId: args.requestId,
     createdAt: (args.now ?? (() => new Date()))().toISOString(),
     recipeSettings: args.recipeSettings,
     worldSettings: args.worldSettings,
-    pipelineConfig,
+    pipelineConfig: args.pipelineConfig,
     setupConfig: normalizeStudioSetupConfig(args.setupConfig),
     materializationMode: args.materializationMode,
     ...(args.selectedConfig === undefined ? {} : { selectedConfig: args.selectedConfig }),
@@ -182,11 +187,26 @@ function parseSelectedConfig(
 ): RunInGameSourceSnapshot["selectedConfig"] | undefined {
   if (value === undefined) return undefined;
   if (!isRecord(value)) return undefined;
+  const latitudeBounds = parseLatitudeBounds(value.latitudeBounds);
   return {
     ...(typeof value.id === "string" ? { id: value.id } : {}),
     ...(typeof value.label === "string" ? { label: value.label } : {}),
     ...(typeof value.description === "string" ? { description: value.description } : {}),
+    ...(typeof value.catalogSourceId === "string" ? { catalogSourceId: value.catalogSourceId } : {}),
     ...(typeof value.sourcePath === "string" ? { sourcePath: value.sourcePath } : {}),
+    ...(typeof value.sortIndex === "number" ? { sortIndex: value.sortIndex } : {}),
+    ...(latitudeBounds === undefined ? {} : { latitudeBounds }),
+  };
+}
+
+function parseLatitudeBounds(value: unknown): LatitudeBounds | undefined {
+  if (!isRecord(value)) return undefined;
+  if (typeof value.topLatitude !== "number" || typeof value.bottomLatitude !== "number") {
+    return undefined;
+  }
+  return {
+    topLatitude: value.topLatitude,
+    bottomLatitude: value.bottomLatitude,
   };
 }
 
@@ -241,7 +261,7 @@ export function parseRunInGameSourceSnapshot(value: string | null): RunInGameSou
       createdAt: parsed.createdAt,
       recipeSettings,
       worldSettings,
-      pipelineConfig: migratePipelineConfig(parsed.pipelineConfig as PipelineConfig),
+      pipelineConfig: parsed.pipelineConfig as PipelineConfig,
       setupConfig: normalizeStudioSetupConfig(
         parsed.setupConfig ?? DEFAULT_CIV7_STUDIO_SETUP_CONFIG
       ),

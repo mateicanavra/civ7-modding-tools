@@ -11,7 +11,27 @@ vi.mock("../../src/features/runInGame/api", () => ({
   runCurrentConfigInGame: vi.fn(),
 }));
 
+const orpcMocks = vi.hoisted(() => ({
+  diagnostics: vi.fn(),
+  operationsCurrent: vi.fn(),
+}));
+
+vi.mock("../../src/lib/orpc", () => ({
+  orpcClient: {
+    runInGame: {
+      diagnostics: orpcMocks.diagnostics,
+    },
+    studio: {
+      operations: {
+        current: orpcMocks.operationsCurrent,
+      },
+    },
+  },
+}));
+
+import type { RunInGameOperationStatus, StudioOperationsCurrent } from "@civ7/studio-contract";
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
+import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
 import { type UseRunInGameArgs, useRunInGame } from "../../src/app/hooks/useRunInGame";
 import { LIVE_GAME_PRESET_KEY } from "../../src/features/civ7Setup/livePreset";
 import type { Civ7StudioSetupConfig } from "../../src/features/civ7Setup/setupConfig";
@@ -23,7 +43,16 @@ import { DEFAULT_RECIPE_SETTINGS, DEFAULT_WORLD_SETTINGS } from "../../src/ui/co
 const runRpc = vi.mocked(runCurrentConfigInGame);
 
 const SETUP = { gameOptions: {}, players: [] } as unknown as Civ7StudioSetupConfig;
-const PIPELINE = { foo: 1 } as unknown as PipelineConfig;
+const PIPELINE = STANDARD_RECIPE_CONFIG as PipelineConfig;
+
+function withWaterTarget(config: PipelineConfig, targetWaterPercent: number): PipelineConfig {
+  const next = JSON.parse(JSON.stringify(config)) as PipelineConfig;
+  const coasts = next["morphology-coasts"] as {
+    waterCoverage: { targetWaterPercent: number };
+  };
+  coasts.waterCoverage.targetWaterPercent = targetWaterPercent;
+  return next;
+}
 
 const liveOk = (over: Partial<LiveRuntimeStatusState> = {}): LiveRuntimeStatusState =>
   ({
@@ -52,6 +81,7 @@ function makeArgs(over: Partial<UseRunInGameArgs> = {}): UseRunInGameArgs {
     recipeSettings: { ...DEFAULT_RECIPE_SETTINGS, seed: "123", preset: "none" },
     worldSettings: { ...DEFAULT_WORLD_SETTINGS },
     pipelineConfig: PIPELINE,
+    overridesDisabled: false,
     setupConfig: SETUP,
     setRecipeSettings: vi.fn(),
     setSetupConfig: vi.fn(),
@@ -84,8 +114,539 @@ function setup(over: Partial<UseRunInGameArgs> = {}) {
   return { result, rerender, props };
 }
 
+function expectNoPrivateRunRequestFields(value: unknown) {
+  const forbiddenKeys = new Set([
+    "attribution",
+    "diagnostics",
+    "diagnosticsId",
+    "exactAuthorshipProof",
+    "failureDetails",
+    "generatedModRoot",
+    "launchEnvelope",
+    "localModScript",
+    "materialization",
+    "resolvedLaunchSource",
+    "sourcePath",
+    "sourceSnapshot",
+  ]);
+  const found: string[] = [];
+  const visit = (entry: unknown, path: string) => {
+    if (path.endsWith("pipelineConfig")) return;
+    if (Array.isArray(entry)) {
+      entry.forEach((item, index) => visit(item, `${path}[${index}]`));
+      return;
+    }
+    if (!entry || typeof entry !== "object") return;
+    for (const [key, child] of Object.entries(entry)) {
+      const childPath = path ? `${path}.${key}` : key;
+      if (forbiddenKeys.has(key)) found.push(childPath);
+      visit(child, childPath);
+    }
+  };
+  visit(value, "");
+  expect(found).toEqual([]);
+}
+
+function expectNoStringValue(value: unknown, needle: string) {
+  const matches: string[] = [];
+  const visit = (entry: unknown, path: string) => {
+    if (typeof entry === "string") {
+      if (entry.includes(needle)) matches.push(path);
+      return;
+    }
+    if (Array.isArray(entry)) {
+      entry.forEach((item, index) => visit(item, `${path}[${index}]`));
+      return;
+    }
+    if (!entry || typeof entry !== "object") return;
+    for (const [key, child] of Object.entries(entry)) {
+      visit(child, path ? `${path}.${key}` : key);
+    }
+  };
+  visit(value, "");
+  expect(matches).toEqual([]);
+}
+
 afterEach(() => {
   vi.clearAllMocks();
+});
+
+describe("useRunInGame — browser-originated visible selection handoff", () => {
+  it("starts an editor-source run from visible selections and records daemon-admitted identity", async () => {
+    const daemonStatus = {
+      requestId: "daemon-admitted-editor-42",
+      status: "running",
+      phase: "deploying",
+      recoveryActions: ["retry-run"],
+      createdAt: "2026-07-08T12:00:00.000Z",
+      updatedAt: "2026-07-08T12:00:01.000Z",
+    } satisfies RunInGameOperationStatus;
+    const setupConfig = {
+      mapScript: "{swooper-maps}/maps/custom-visible-selection.js",
+      gameOptions: {
+        Difficulty: "DIFFICULTY_PRINCE",
+        GameSpeeds: "GAMESPEED_STANDARD",
+      },
+      playerOptions: [
+        {
+          playerId: 0,
+          options: {
+            PlayerLeader: "LEADER_HATSHEPSUT",
+            PlayerCivilization: "CIVILIZATION_EGYPT",
+          },
+        },
+      ],
+    } satisfies Civ7StudioSetupConfig;
+    runRpc.mockResolvedValue(daemonStatus);
+    const { result, props } = setup({
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        seed: "987654321",
+        preset: "none",
+      },
+      worldSettings: {
+        ...DEFAULT_WORLD_SETTINGS,
+        mapSize: "MAPSIZE_SMALL",
+        playerCount: 4,
+        resources: "abundant",
+      },
+      pipelineConfig: PIPELINE,
+      setupConfig,
+      runInGameMaterializationMode: "disposable",
+    });
+
+    await act(async () => {
+      await result.current.handleRunInGame();
+    });
+
+    expect(runRpc).toHaveBeenCalledTimes(1);
+    const handoff = runRpc.mock.calls[0][0];
+    expect(handoff).toEqual(
+      expect.objectContaining({
+        recipeSettings: {
+          preset: "none",
+          recipe: "mod-swooper-maps/standard",
+          seed: "987654321",
+        },
+        worldSettings: {
+          mapSize: "MAPSIZE_SMALL",
+          playerCount: 4,
+          resources: "abundant",
+        },
+        setupConfig,
+      })
+    );
+    expect(handoff.source).toEqual(
+      expect.objectContaining({
+        kind: "editor",
+        editorSessionId: "studio-current",
+        payload: expect.objectContaining({
+          configId: "studio-current",
+          label: "Studio Current",
+          mapScript: "{swooper-maps}/maps/studio-current.js",
+          pipelineConfig: PIPELINE,
+          recipeId: "mod-swooper-maps/standard",
+        }),
+      })
+    );
+    expect(handoff).not.toHaveProperty("requestId");
+    expectNoPrivateRunRequestFields(handoff);
+
+    expect(props.setRunInGameOperation).toHaveBeenCalledWith(daemonStatus);
+    expect(props.setRunInGameSnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-editor-42",
+        seed: "987654321",
+        mapSize: "MAPSIZE_SMALL",
+        playerCount: 4,
+        resources: "abundant",
+        setupConfig,
+        materializationMode: "disposable",
+      })
+    );
+    expect(props.setLastRunInGameSource).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-editor-42",
+        setupConfig,
+        materializationMode: "disposable",
+      })
+    );
+    expect(props.setLastRunInGameSource.mock.calls[0]?.[0].pipelineConfig).toEqual(PIPELINE);
+    expect(props.toast).toHaveBeenCalledWith("Run in Game started: daemon-admitted-editor-42", {
+      variant: "info",
+    });
+  });
+
+  it("rejects an editor-source run when the current config fails schema validation", async () => {
+    const invalidConfig = {
+      $schema: "https://example.invalid/studio.schema.json",
+      continents: { targetLandRatio: 0.42 },
+    } as unknown as PipelineConfig;
+    const { result, props } = setup({ pipelineConfig: invalidConfig });
+
+    await act(async () => {
+      await result.current.handleRunInGame();
+    });
+
+    expect(runRpc).not.toHaveBeenCalled();
+    expect(props.setLocalError).toHaveBeenCalledWith(
+      "Run in Game failed: config is invalid for this recipe."
+    );
+    expect(props.toast).toHaveBeenCalledWith(
+      "Run in Game failed: config is invalid for this recipe.",
+      { variant: "error" }
+    );
+  });
+
+  it("uses a durable catalog source without leaking preset source paths into the public request", async () => {
+    const daemonStatus = {
+      requestId: "daemon-admitted-catalog-7",
+      status: "running",
+      phase: "resolving-source",
+      recoveryActions: [],
+      createdAt: "2026-07-08T12:10:00.000Z",
+      updatedAt: "2026-07-08T12:10:01.000Z",
+    } satisfies RunInGameOperationStatus;
+    const presetSourcePath =
+      "/private-sentinel/worktree/mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json";
+
+    runRpc.mockResolvedValue(daemonStatus);
+    const { result, props } = setup({
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        seed: "2468",
+        preset: "builtin:swooper-earthlike",
+      },
+      worldSettings: {
+        ...DEFAULT_WORLD_SETTINGS,
+        mapSize: "MAPSIZE_HUGE",
+        playerCount: 10,
+        resources: "sparse",
+      },
+      runInGameMaterializationMode: "durable",
+      resolvePreset: vi.fn(() => ({
+        id: "swooper-earthlike",
+        label: "Swooper Earthlike",
+        description: "Durable catalog config",
+        catalogSourceId: "swooper-earthlike",
+        sourcePath: presetSourcePath,
+        sortIndex: 25,
+        latitudeBounds: { topLatitude: 75, bottomLatitude: -65 },
+        source: "builtin",
+        config: PIPELINE,
+      })),
+    });
+
+    await act(async () => {
+      await result.current.handleRunInGame();
+    });
+
+    expect(runRpc).toHaveBeenCalledTimes(1);
+    const handoff = runRpc.mock.calls[0][0];
+    expect(handoff.source).toEqual({
+      kind: "catalog",
+      catalogSourceId: "swooper-earthlike",
+    });
+    expect(handoff).toEqual(
+      expect.objectContaining({
+        recipeSettings: expect.objectContaining({
+          preset: "builtin:swooper-earthlike",
+          seed: "2468",
+        }),
+        worldSettings: {
+          mapSize: "MAPSIZE_HUGE",
+          playerCount: 10,
+          resources: "sparse",
+        },
+      })
+    );
+    expectNoPrivateRunRequestFields(handoff);
+    expectNoStringValue(handoff, presetSourcePath);
+
+    expect(props.setRunInGameOperation).toHaveBeenCalledWith(daemonStatus);
+    expect(props.setRunInGameSnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-catalog-7",
+        seed: "2468",
+        mapSize: "MAPSIZE_HUGE",
+        playerCount: 10,
+        resources: "sparse",
+        materializationMode: "durable",
+      })
+    );
+    expect(props.setLastRunInGameSource).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-catalog-7",
+        materializationMode: "durable",
+        selectedConfig: expect.objectContaining({
+          id: "swooper-earthlike",
+          catalogSourceId: "swooper-earthlike",
+          sourcePath: presetSourcePath,
+          latitudeBounds: { topLatitude: 75, bottomLatitude: -65 },
+        }),
+      })
+    );
+  });
+
+  it("keeps repo-backed session presets on the disposable editor path until they are catalog-indexed", async () => {
+    const daemonStatus = {
+      requestId: "daemon-admitted-session-repo-backed",
+      status: "running",
+      phase: "deploying",
+      recoveryActions: [],
+      createdAt: "2026-07-08T12:11:00.000Z",
+      updatedAt: "2026-07-08T12:11:01.000Z",
+    } satisfies RunInGameOperationStatus;
+    runRpc.mockResolvedValue(daemonStatus);
+    const sessionSourcePath =
+      "mods/mod-swooper-maps/src/maps/configs/new-session-config.config.json";
+    const { result, props } = setup({
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        seed: "2468",
+        preset: "builtin:new-session-config",
+      },
+      runInGameMaterializationMode: "durable",
+      resolvePreset: vi.fn(() => ({
+        id: "new-session-config",
+        label: "New Session Config",
+        description: "Saved during this Studio session",
+        sourcePath: sessionSourcePath,
+        sortIndex: 1025,
+        source: "builtin",
+        config: PIPELINE,
+      })),
+    });
+
+    await act(async () => {
+      await result.current.handleRunInGame();
+    });
+
+    expect(runRpc).toHaveBeenCalledTimes(1);
+    const handoff = runRpc.mock.calls[0][0];
+    expect(handoff.source).toEqual(
+      expect.objectContaining({
+        kind: "editor",
+        payload: expect.objectContaining({
+          configId: "studio-current",
+          label: "New Session Config",
+          pipelineConfig: PIPELINE,
+        }),
+      })
+    );
+    expect(handoff.source).not.toHaveProperty("catalogSourceId");
+    expect(props.setLastRunInGameSource).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-session-repo-backed",
+        materializationMode: "disposable",
+        selectedConfig: expect.objectContaining({
+          id: "new-session-config",
+          sourcePath: sessionSourcePath,
+        }),
+      })
+    );
+  });
+
+  it("does not catalog-launch when the durable prop is stale for the effective draft bytes", async () => {
+    const daemonStatus = {
+      requestId: "daemon-admitted-stale-durable-prop",
+      status: "running",
+      phase: "deploying",
+      recoveryActions: [],
+      createdAt: "2026-07-08T12:12:00.000Z",
+      updatedAt: "2026-07-08T12:12:01.000Z",
+    } satisfies RunInGameOperationStatus;
+    const editedPipeline = withWaterTarget(PIPELINE, 52);
+    runRpc.mockResolvedValue(daemonStatus);
+    const { result, props } = setup({
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        seed: "2468",
+        preset: "builtin:swooper-earthlike",
+      },
+      pipelineConfig: editedPipeline,
+      runInGameMaterializationMode: "durable",
+      resolvePreset: vi.fn(() => ({
+        id: "swooper-earthlike",
+        label: "Swooper Earthlike",
+        catalogSourceId: "swooper-earthlike",
+        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+        sortIndex: 25,
+        source: "builtin",
+        config: PIPELINE,
+      })),
+    });
+
+    await act(async () => {
+      await result.current.handleRunInGame();
+    });
+
+    expect(runRpc).toHaveBeenCalledTimes(1);
+    const handoff = runRpc.mock.calls[0][0];
+    expect(handoff.source).toEqual(
+      expect.objectContaining({
+        kind: "editor",
+        payload: expect.objectContaining({
+          configId: "studio-current",
+          pipelineConfig: editedPipeline,
+        }),
+      })
+    );
+    expect(props.setLastRunInGameSource).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "daemon-admitted-stale-durable-prop",
+        materializationMode: "disposable",
+        pipelineConfig: editedPipeline,
+        selectedConfig: expect.objectContaining({
+          id: "swooper-earthlike",
+        }),
+      })
+    );
+  });
+
+  it("does not replace the selected/current config with recipe defaults when overrides are disabled", async () => {
+    const daemonStatus = {
+      requestId: "daemon-admitted-default-override-disabled",
+      status: "running",
+      phase: "deploying",
+      recoveryActions: [],
+      createdAt: "2026-07-08T12:15:00.000Z",
+      updatedAt: "2026-07-08T12:15:01.000Z",
+    } satisfies RunInGameOperationStatus;
+    runRpc.mockResolvedValue(daemonStatus);
+    const { result, rerender, props } = setup({
+      overridesDisabled: true,
+      pipelineConfig: PIPELINE,
+      runInGameMaterializationMode: "durable",
+      recipeSettings: {
+        ...DEFAULT_RECIPE_SETTINGS,
+        seed: "2468",
+        preset: "builtin:swooper-earthlike",
+      },
+      resolvePreset: vi.fn(() => ({
+        id: "swooper-earthlike",
+        label: "Swooper Earthlike",
+        catalogSourceId: "swooper-earthlike",
+        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+        sortIndex: 25,
+        source: "builtin",
+        config: PIPELINE,
+      })),
+    });
+
+    await act(async () => {
+      await result.current.handleRunInGame();
+    });
+
+    expect(runRpc).toHaveBeenCalledTimes(1);
+    const handoff = runRpc.mock.calls[0][0];
+    expect(handoff.source).toEqual(
+      expect.objectContaining({
+        kind: "catalog",
+        catalogSourceId: "swooper-earthlike",
+      })
+    );
+    const sourceSnapshot = props.setLastRunInGameSource.mock.calls[0]?.[0];
+    expect(sourceSnapshot).toEqual(
+      expect.objectContaining({
+        requestId: "daemon-admitted-default-override-disabled",
+        materializationMode: "durable",
+        pipelineConfig: PIPELINE,
+        selectedConfig: expect.objectContaining({
+          id: "swooper-earthlike",
+          catalogSourceId: "swooper-earthlike",
+          sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+        }),
+      })
+    );
+    const clientSnapshot = props.setRunInGameSnapshot.mock.calls[0]?.[0];
+    rerender(
+      makeArgs({
+        ...props,
+        overridesDisabled: true,
+        pipelineConfig: PIPELINE,
+        runInGameMaterializationMode: "durable",
+        recipeSettings: {
+          ...DEFAULT_RECIPE_SETTINGS,
+          seed: "2468",
+          preset: "builtin:swooper-earthlike",
+        },
+        resolvePreset: props.resolvePreset,
+        runInGameOperation: daemonStatus,
+        runInGameSnapshot: clientSnapshot,
+      })
+    );
+    expect(result.current.runInGameCurrentRelation).toBe("current");
+  });
+
+  it("reconciles a running operation from daemon current when the event stream misses a transition", async () => {
+    vi.useFakeTimers();
+    try {
+      const initial = {
+        requestId: "daemon-admitted-reconcile-1",
+        status: "running",
+        phase: "resolving-source",
+        recoveryActions: [],
+        createdAt: "2026-07-08T12:20:00.000Z",
+        updatedAt: "2026-07-08T12:20:00.000Z",
+      } satisfies RunInGameOperationStatus;
+      const reconciled = {
+        ...initial,
+        phase: "generating-artifacts",
+        updatedAt: "2026-07-08T12:20:02.000Z",
+      } satisfies RunInGameOperationStatus;
+      orpcMocks.operationsCurrent.mockResolvedValue({
+        ok: true,
+        serverInstanceId: "studio-server-test",
+        serverStartedAt: "2026-07-08T12:00:00.000Z",
+        observedAt: "2026-07-08T12:20:02.000Z",
+        runInGame: { active: reconciled, recent: [] },
+        saveDeploy: { active: null, recent: [] },
+      } satisfies StudioOperationsCurrent);
+      const { props } = setup({ runInGameOperation: initial });
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1_500);
+      });
+
+      expect(orpcMocks.operationsCurrent).toHaveBeenCalledWith({});
+      expect(props.setRunInGameOperation).toHaveBeenCalledWith(reconciled);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("clears a local running operation when daemon current no longer owns it", async () => {
+    vi.useFakeTimers();
+    try {
+      const initial = {
+        requestId: "daemon-admitted-vanished-1",
+        status: "running",
+        phase: "resolving-source",
+        recoveryActions: [],
+        createdAt: "2026-07-08T12:20:00.000Z",
+        updatedAt: "2026-07-08T12:20:00.000Z",
+      } satisfies RunInGameOperationStatus;
+      orpcMocks.operationsCurrent.mockResolvedValue({
+        ok: true,
+        serverInstanceId: "studio-server-test",
+        serverStartedAt: "2026-07-08T12:00:00.000Z",
+        observedAt: "2026-07-08T12:20:02.000Z",
+        runInGame: { active: null, recent: [] },
+        saveDeploy: { active: null, recent: [] },
+      } satisfies StudioOperationsCurrent);
+      const { props } = setup({ runInGameOperation: initial });
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1_500);
+      });
+
+      expect(orpcMocks.operationsCurrent).toHaveBeenCalledWith({});
+      expect(props.setRunInGameOperation).toHaveBeenCalledWith(null);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 describe("useRunInGame — RIG-5 (syncStudioFromLiveGame proved path → applyAuthoringSnapshot)", () => {
@@ -286,8 +847,11 @@ describe("useRunInGame — RIG-2 (materializationMode is a render-time prop, sel
       resolvePreset: vi.fn(() => ({
         id: "swooper-earthlike",
         label: "Swooper Earthlike",
+        catalogSourceId: "swooper-earthlike",
         sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
         sortIndex: 100,
+        source: "builtin",
+        config: PIPELINE,
       })),
     });
     await act(async () => {
@@ -316,7 +880,7 @@ describe("useRunInGame — RIG-2 (materializationMode is a render-time prop, sel
         source: expect.objectContaining({
           kind: "editor",
           payload: expect.objectContaining({
-            pipelineConfig: { foo: 1 },
+            pipelineConfig: PIPELINE,
           }),
         }),
       })

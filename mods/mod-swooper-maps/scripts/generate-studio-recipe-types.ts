@@ -2,12 +2,11 @@ import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  buildCompleteSchemaDefaults,
   deriveRecipeConfigSchema,
   deriveStageAuthoringModel,
   type StageAuthoringModel,
-  stripSchemaMetadataRoot,
 } from "@swooper/mapgen-core/authoring";
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { compile } from "json-schema-to-typescript";
 import type { TObject, TSchema } from "typebox";
 import { STANDARD_STAGES } from "../dist/recipes/standard.js";
@@ -74,32 +73,6 @@ type StudioRecipeUiMeta = Readonly<{
     }>[];
   }>[];
 }>;
-
-function setAtPath(root: Record<string, unknown>, path: readonly string[]): void {
-  let current: Record<string, unknown> = root;
-  for (const segment of path) {
-    const next = current[segment];
-    if (isPlainObject(next)) {
-      current = next;
-      continue;
-    }
-    const created: Record<string, unknown> = {};
-    current[segment] = created;
-    current = created;
-  }
-}
-
-function buildDefaultsSkeleton(uiMeta: StudioRecipeUiMeta): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const stage of uiMeta.stages) {
-    const stageConfig: Record<string, unknown> = { knobs: {} };
-    for (const step of stage.steps) {
-      setAtPath(stageConfig, step.configFocusPathWithinStage);
-    }
-    out[stage.stageId] = stageConfig;
-  }
-  return out;
-}
 
 function deriveStageStepConfigFocusMap(args: {
   namespace: string;
@@ -268,39 +241,8 @@ const standardUiMeta = deriveStudioRecipeUiMeta({
   recipeId: "standard",
   stages: standardStages,
 });
-const standardDefaultPresetPath = resolve(
-  pkgRoot,
-  "src",
-  "maps",
-  "configs",
-  "swooper-earthlike.config.json"
-);
-const standardDefaultPresetRaw = JSON.parse(
-  await readFile(standardDefaultPresetPath, "utf-8")
-) as unknown;
-const standardDefaultMapConfig = validateCanonicalMapConfig({
-  fileName: "swooper-earthlike.config.json",
-  raw: standardDefaultPresetRaw,
-  recipeSchema: standardSchema,
-  stages: standardStages,
-});
-const standardDefaultPresetClean = {
-  ...buildDefaultsSkeleton(standardUiMeta),
-  ...stripSchemaMetadataRoot(standardDefaultMapConfig.config),
-};
-const { value: standardDefaults, errors: standardDefaultsErrors } = normalizeStrict<
-  Record<string, unknown>
->(standardSchema, standardDefaultPresetClean, "/defaults");
-if (standardDefaultsErrors.length > 0) {
-  throw new Error(
-    `[recipe:mod-swooper-maps.standard] derived defaults do not validate: ${JSON.stringify(
-      standardDefaultsErrors,
-      null,
-      2
-    )}`
-  );
-}
-const standardDefaultsClean = stripSchemaMetadataRoot(standardDefaults);
+const standardDefaultsClean = buildCompleteSchemaDefaults(standardSchema);
+assertPlainObject(standardDefaultsClean, "standard recipe defaults");
 const standardBuiltInPresets: ReadonlyArray<BuiltInPreset> = [];
 
 await writeFile(

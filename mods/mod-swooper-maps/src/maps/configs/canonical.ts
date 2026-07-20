@@ -1,5 +1,6 @@
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { type TObject, type TSchema, Type } from "typebox";
+import { Value } from "typebox/value";
 
 type JsonObject = Record<string, unknown>;
 
@@ -49,11 +50,6 @@ function assertPlainObject(value: unknown, label: string, errors: string[]): val
   if (isPlainObject(value)) return true;
   errors.push(`${label} must be a JSON object`);
   return false;
-}
-
-function stripRootSchema(value: JsonObject): JsonObject {
-  const { $schema: _schema, ...rest } = value;
-  return rest;
 }
 
 export function mapConfigFileStem(fileName: string): string {
@@ -172,10 +168,23 @@ export function validateCanonicalMapConfig(args: {
     errors.push(`${label}/logPrefix must be a non-empty string when present`);
   }
 
+  let materializedConfig: JsonObject | undefined;
   if (assertPlainObject(raw.config, `${label}/config`, errors)) {
-    const authorConfig = stripRootSchema(raw.config);
-    const { errors: schemaErrors } = normalizeStrict(recipeSchema, authorConfig, `${label}/config`);
+    const { value: normalizedConfig, errors: schemaErrors } = normalizeStrict<JsonObject>(
+      recipeSchema,
+      raw.config,
+      `${label}/config`
+    );
     errors.push(...schemaErrors.map((err) => `${err.path}: ${err.message}`));
+    if (schemaErrors.length === 0) {
+      if (!Value.Equal(normalizedConfig, raw.config)) {
+        errors.push(
+          `${label}/config must be the complete recipe config JSON produced by the current recipe artifacts`
+        );
+      } else {
+        materializedConfig = normalizedConfig;
+      }
+    }
   }
 
   if (errors.length > 0) {
@@ -187,6 +196,7 @@ export function validateCanonicalMapConfig(args: {
   const envelope = raw as unknown as CanonicalMapConfigEnvelope;
   return {
     ...envelope,
+    config: materializedConfig ?? envelope.config,
     fileName,
     fileStem,
     outputFile: `${envelope.id}.js`,

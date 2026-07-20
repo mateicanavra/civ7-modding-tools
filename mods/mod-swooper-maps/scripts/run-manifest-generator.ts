@@ -3,6 +3,8 @@ import { fileURLToPath } from "node:url";
 import {
   readStudioRunGenerationManifest,
   runCorrelationForManifest,
+  STUDIO_RUN_MAP_ROW_ID,
+  STUDIO_RUN_MAP_SCRIPT_PATH,
 } from "@civ7/studio-run-workspace";
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { build } from "esbuild";
@@ -13,7 +15,6 @@ import {
 import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
 import {
   buildSwooperRunGeneratedModFilePlan,
-  runMapRowIdForArtifact,
   type SwooperMapArtifactFilePlan,
 } from "./map-artifacts/file-plan.js";
 import { writeSwooperMapArtifactFilePlan } from "./map-artifacts/write-file-plan.js";
@@ -79,7 +80,7 @@ export async function generateSwooperRunGeneratedModFromManifestPath(
   const manifest = await readStudioRunGenerationManifest(manifestPath);
   assertSwooperStandardRunManifest(manifest);
   const generatedModRoot = resolveSwooperRunGeneratedModRoot(manifestPath, manifest);
-  const mapRowId = runMapRowIdForArtifact(manifest.payload.runArtifactId);
+  const mapRowId = STUDIO_RUN_MAP_ROW_ID;
   const config = validatedRunConfigFromManifest(manifest, mapRowId);
   const plan = buildSwooperRunGeneratedModFilePlan({
     selectedConfigId: manifest.payload.request.selectedConfigId,
@@ -89,7 +90,7 @@ export async function generateSwooperRunGeneratedModFromManifestPath(
   });
   await writeSwooperMapArtifactFilePlan(plan, { outputRoot: generatedModRoot });
 
-  const mapScriptPath = `maps/${manifest.payload.runArtifactId}.js`;
+  const mapScriptPath = STUDIO_RUN_MAP_SCRIPT_PATH;
   const bundledMap = await bundleRunMapScript({
     generatedModRoot,
     runArtifactId: manifest.payload.runArtifactId,
@@ -137,7 +138,7 @@ function validatedRunConfigFromManifest(
   });
   return {
     ...validated,
-    outputFile: `${manifest.payload.runArtifactId}.js`,
+    outputFile: STUDIO_RUN_MAP_SCRIPT_PATH.replace(/^maps\//, ""),
   };
 }
 
@@ -226,7 +227,7 @@ async function bundleRunMapScript(
     ],
     files: [
       {
-        relativePath: `maps/${args.runArtifactId}.js`,
+        relativePath: STUDIO_RUN_MAP_SCRIPT_PATH,
         kind: "generated-map-entry",
         content: { kind: "text", text: output.text },
         markerMetadata: {

@@ -17,6 +17,7 @@ vi.mock("../../src/features/mapConfigSave/api", async (importOriginal) => {
 });
 
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
+import { STANDARD_RECIPE_CONFIG } from "mod-swooper-maps/recipes/standard-artifacts";
 import { type UseSaveDeployArgs, useSaveDeploy } from "../../src/app/hooks/useSaveDeploy";
 import { saveRepoBackedConfig } from "../../src/features/mapConfigSave/api";
 import { createMapConfigSaveDeployStatus } from "../../src/features/mapConfigSave/status";
@@ -25,7 +26,7 @@ import { DEFAULT_RECIPE_SETTINGS } from "../../src/ui/constants/defaults";
 const saveRpc = vi.mocked(saveRepoBackedConfig);
 
 const RECIPE = DEFAULT_RECIPE_SETTINGS.recipe;
-const CONFIG = { foo: 1 } as unknown as PipelineConfig;
+const CONFIG = STANDARD_RECIPE_CONFIG as PipelineConfig;
 
 const status = (
   requestId: string,
@@ -52,6 +53,7 @@ function makeArgs(over: Partial<UseSaveDeployArgs> = {}): UseSaveDeployArgs {
     } as unknown as UseSaveDeployArgs["presetActions"],
     recipeSettings: { ...DEFAULT_RECIPE_SETTINGS, recipe: RECIPE, preset: "none" },
     pipelineConfig: CONFIG,
+    overridesDisabled: false,
     setRecipeSettings: vi.fn(),
     setPipelineConfig: vi.fn(),
     setLastSaveDeployConfig: vi.fn(),
@@ -209,6 +211,27 @@ describe("useSaveDeploy — waiter contract (SD-1/2/3/4)", () => {
 });
 
 describe("useSaveDeploy — busy gate + RPC short-circuits (SD-6/7/8)", () => {
+  it("rejects save/deploy when the current config fails schema validation", async () => {
+    const invalidConfig = {
+      $schema: "sentinel",
+      exact: { value: 1 },
+    } as unknown as PipelineConfig;
+    const { result, props } = setup({ pipelineConfig: invalidConfig });
+
+    await act(async () => {
+      await result.current.handleSaveDialogConfirm({ label: "Invalid" });
+    });
+
+    expect(saveRpc).not.toHaveBeenCalled();
+    expect(props.setLastSaveDeployConfig).not.toHaveBeenCalled();
+    expect(props.toast).toHaveBeenCalledWith(
+      "Config save failed: Config is invalid for this recipe.",
+      {
+        variant: "error",
+      }
+    );
+  });
+
   it("SD-6: the busy gate blocks the save with priority browser ≻ run ≻ save (no RPC issued)", async () => {
     // Oracle: any busy flag → { ok:false, error } with the priority-ordered reason
     // and NO saveRepoBackedConfig call. Falsifier: always-allow gate → the RPC fires
@@ -348,7 +371,31 @@ describe("useSaveDeploy — confirm ref/config gate (SD-11) + key-flip order (PL
       key: "builtin:my-cfg",
       config: props.pipelineConfig,
     });
+    expect(saveRpc.mock.calls[0]?.[0].config).toEqual(props.pipelineConfig);
+    expect(props.rememberRepoBackedConfig.mock.calls[0]?.[1].config).toEqual(
+      props.pipelineConfig
+    );
     expect(props.setRecipeSettings).toHaveBeenCalled();
+  });
+
+  it("uses the current complete config for outbound saves when overrides are disabled", async () => {
+    saveRpc.mockImplementation(async ({ requestId }) => ({
+      ok: true as const,
+      status: status(requestId, "complete", { saved: true, deployed: true }),
+      path: "p.json",
+    }));
+    const disabledConfig = { ...CONFIG } as PipelineConfig;
+    const { result } = setup({
+      overridesDisabled: true,
+      pipelineConfig: disabledConfig,
+    });
+
+    await act(async () => {
+      await result.current.handleSaveDialogConfirm({ label: "Default Outbound" });
+    });
+
+    expect(saveRpc).toHaveBeenCalledTimes(1);
+    expect(saveRpc.mock.calls[0]?.[0].config).toEqual(disabledConfig);
   });
 
   it("PL-7: markPresetApplied + rememberRepoBackedConfig run BEFORE the key-flip setRecipeSettings", async () => {
@@ -370,5 +417,7 @@ describe("useSaveDeploy — confirm ref/config gate (SD-11) + key-flip order (PL
     const order = (fn: ReturnType<typeof vi.fn>) => fn.mock.invocationCallOrder[0];
     expect(order(rememberRepoBackedConfig)).toBeLessThan(order(setRecipeSettings));
     expect(order(markPresetApplied)).toBeLessThan(order(setRecipeSettings));
+    expect(saveRpc.mock.calls[0]?.[0].config).toEqual(CONFIG);
+    expect(rememberRepoBackedConfig.mock.calls[0]?.[1].config).toEqual(CONFIG);
   });
 });

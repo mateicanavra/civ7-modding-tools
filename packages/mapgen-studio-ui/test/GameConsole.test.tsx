@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import type { RunInGameOperationStatus } from "@civ7/studio-contract";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GameConsole, type GameConsoleProps } from "../src/components/panels/GameConsole.js";
 import { TooltipProvider } from "../src/components/ui/tooltip.js";
@@ -56,7 +56,91 @@ function renderWithStatus(
   });
 }
 
+type PrivateRunStatusLeakSentinel = Readonly<{
+  command: string;
+  rawOutput: string;
+  stack: string;
+  workspaceRoot: string;
+  materialization: {
+    generatedModRoot: string;
+    sourcePath: string;
+  };
+  attribution: {
+    sourceDeploymentPath: string;
+  };
+  diagnostics: {
+    sections: {
+      deployment: string;
+    };
+  };
+}>;
+
+function terminalStatusWithPrivateSentinels(
+  terminalStatus: "failed" | "cancelled"
+): RunInGameOperationStatus & PrivateRunStatusLeakSentinel {
+  const privateSentinels = {
+    command: "runInGame.start --source /private-sentinel/user/source.config.json",
+    rawOutput: "Traceback: setup cannot see /tmp/private-deploy/Swooper.lua",
+    stack: "Error: hidden\n    at internal (/private/workspace/run.ts:12:3)",
+    workspaceRoot: "/private-sentinel/user/run-workspace",
+    materialization: {
+      generatedModRoot: "/private-sentinel/user/generated-mod",
+      sourcePath: "mods/mod-swooper-maps/src/maps/configs/private.config.json",
+    },
+    attribution: {
+      sourceDeploymentPath: "/private-sentinel/user/Civ7/Mods/Swooper.lua",
+    },
+    diagnostics: {
+      sections: {
+        deployment: "Private diagnostics section must not render",
+      },
+    },
+  } satisfies PrivateRunStatusLeakSentinel;
+  const common = {
+    requestId: `studio-run-in-game-${terminalStatus}-public`,
+    createdAt: "2026-06-01T00:00:00.000Z",
+    updatedAt: "2026-06-01T00:00:01.000Z",
+    terminalAt: "2026-06-01T00:00:01.000Z",
+    diagnosticsId: `run-diagnostics-${terminalStatus}-public`,
+    recoveryActions: ["copy-diagnostics" as const],
+    ...privateSentinels,
+  };
+
+  if (terminalStatus === "failed") {
+    return {
+      ...common,
+      phase: "failed",
+      status: "failed",
+      safeFailureCategory: "runtime-observation",
+    } satisfies RunInGameOperationStatus & PrivateRunStatusLeakSentinel;
+  }
+  return {
+    ...common,
+    phase: "cancelled",
+    status: "cancelled",
+    safeFailureCategory: "operation-cancelled",
+  } satisfies RunInGameOperationStatus & PrivateRunStatusLeakSentinel;
+}
+
 describe("GameConsole Run in Game status", () => {
+  it("wires the rendered Play control to the Run in Game callback", () => {
+    const onRunInGame = vi.fn();
+    render(
+      <TooltipProvider>
+        <GameConsole
+          operationControlsDisabled={false}
+          isRunInGameRunning={false}
+          onRunInGame={onRunInGame}
+          liveRuntime={{ status: "ok", readiness: "shell" }}
+        />
+      </TooltipProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Launches the current config in Civ7/i }));
+
+    expect(onRunInGame).toHaveBeenCalledTimes(1);
+  });
+
   it("renders the active Run in Game phase with its diagnostics affordance", () => {
     const html = renderWithStatus({
       requestId: "studio-run-in-game-test",
@@ -93,7 +177,47 @@ describe("GameConsole Run in Game status", () => {
     expect(html).not.toContain("setup cannot see");
   });
 
-  it("renders restart-Civ recovery as the primary Run in Game action", () => {
+  it.each([
+    "failed",
+    "cancelled",
+  ] as const)("keeps %s terminal public copy safe and action-neutral in the status panel", (terminalStatus) => {
+    const safeFailureCategory =
+      terminalStatus === "failed" ? "runtime-observation" : "operation-cancelled";
+    const statusWithPrivateSentinels = terminalStatusWithPrivateSentinels(terminalStatus);
+    const html = renderWithStatus(statusWithPrivateSentinels);
+
+    expect(html).toContain(terminalStatus === "failed" ? "Failed" : "Cancelled");
+    expect(html).toContain(`studio-run-in-game-${terminalStatus}-public`);
+    expect(html).toContain(safeFailureCategory);
+    expect(html).toContain(`run-diagnostics-${terminalStatus}-public`);
+
+    const statusPanel = document.querySelector<HTMLElement>('[aria-label="Expanded game status"]');
+    expect(statusPanel).not.toBeNull();
+    const statusPanelText = statusPanel?.textContent ?? "";
+    expect(statusPanelText).not.toContain("Retry Run");
+    expect(statusPanelText).not.toContain("Run Current");
+    expect(statusPanelText).not.toContain("Restart Civ");
+    expect(statusPanelText).not.toContain("Playing");
+    expect(statusPanelText).not.toContain("Starting Game");
+
+    for (const unsafeCopy of [
+      "runInGame.start",
+      "/private-sentinel/user",
+      "/tmp/private-deploy",
+      "/private/workspace",
+      "mods/mod-swooper-maps/src/maps/configs/private.config.json",
+      "Swooper.lua",
+      "Traceback",
+      "Error: hidden",
+      "Private diagnostics section must not render",
+      "sourceDeploymentPath",
+      "generatedModRoot",
+    ]) {
+      expect(html).not.toContain(unsafeCopy);
+    }
+  });
+
+  it("keeps restart-Civ recovery off the primary Run in Game action", () => {
     const html = renderWithStatus(
       {
         requestId: "studio-run-in-game-restart-needed",
@@ -108,7 +232,8 @@ describe("GameConsole Run in Game status", () => {
       "current"
     );
 
-    expect(html).toContain("Restart Civ &amp; Run");
+    expect(html).toContain("Retry Run");
+    expect(html).not.toContain("Restart Civ &amp; Run");
   });
 
   it("does not carry restart-Civ recovery onto stale authored Studio state", () => {

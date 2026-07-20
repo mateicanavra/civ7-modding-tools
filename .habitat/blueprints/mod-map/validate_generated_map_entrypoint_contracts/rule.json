@@ -12,8 +12,8 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "generated map entrypoints that drift from canonical public config envelopes or inline raw recipe operation envelopes",
-  "why": "Generated map entrypoints are a structural SDK surface and must remain tied to canonical config JSON inputs.",
+  "forbids": "generated map entrypoints that drift from the package-owned map artifact file plan",
+  "why": "Generated map entrypoints are a structural SDK surface and must launch the exact canonical config JSON selected by the catalog.",
   "remediate": "Regenerate map entrypoints from canonical map configs and standard recipe artifacts.",
   "message": "Generated map SDK entrypoint drifted from canonical config envelope shape.",
   "pathCoverage": [

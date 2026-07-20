@@ -548,7 +548,9 @@ function requiredSetupReadbackValue(
     message: "Run in Game setup row readback is missing",
     reason: "exact-authorship-mismatch",
     diagnostics: boundedDiagnostics({
-      code: "run-in-game-setup-row-readback-missing",
+      code: "setup-map-row-not-visible",
+      priorCode: "run-in-game-setup-row-readback-missing",
+      setupFailureReason: "setup-map-row-not-visible",
       requestId: args.requestId,
       missing: args.key,
       materialization: args.materialization,
@@ -571,7 +573,9 @@ function assertSetupRowReadbackMatches(
     message: "Run in Game setup row readback did not match the generated request",
     reason: "exact-authorship-mismatch",
     diagnostics: boundedDiagnostics({
-      code: "run-in-game-setup-row-readback-mismatch",
+      code: "setup-map-row-mismatched",
+      priorCode: "run-in-game-setup-row-readback-mismatch",
+      setupFailureReason: "setup-map-row-mismatched",
       requestId: args.requestId,
       expectedMapScript: args.mapScript,
       observedMapScripts: rows.flatMap((row) => setupReadbackRowScripts(row)),

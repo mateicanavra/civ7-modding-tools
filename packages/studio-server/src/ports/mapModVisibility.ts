@@ -1,30 +1,48 @@
 /**
- * Run-in-Game "map row not visible in Civ7 setup" classifier.
+ * Classifies absent setup map rows without guessing from public setup rows alone.
  *
- * Forensic basis (proven live 2026-06-29): a Run-in-Game request can materialize,
- * build, deploy (verified sha) AND register (inject the `<Maps>` row) the map
- * script — `studio.operations.current` shows every artifact present — and STILL
- * fail because Civ7's setup map list does not contain the map row. There are two
- * distinct real causes, and they need different messages (and, for the operator,
- * different actions):
- *
- *   1. THE MAP MOD ITSELF IS NOT LOADED — most commonly a Civ update auto-disabled
- *      it. Signature: Civ7 setup shows maps (base-game maps are present) but NONE
- *      of the target mod's maps are visible. For a disposable run the daemon has
- *      already exit-to-shell restarted Civ and the mod's maps still did not appear,
- *      so the mod is disabled / failed to load — a further restart will not help.
- *      => `map-mod-not-loaded`. Action: re-enable the mod in Civ, then retry.
- *
- *   2. THE MOD IS LOADED but this one freshly-deployed (disposable) map row has not
- *      been enumerated yet. Signature: sibling maps from the SAME mod ARE visible;
- *      only the target is missing.
- *      => `setup-map-row-not-visible`. Action: restart Civ / retry to re-scan.
- *
- * This is pure and deterministic so the identification path is unit-tested directly
- * against both forensic scenarios — no live engine required.
+ * The generated mod can be called disabled only when a complete active target
+ * mod-set readback exposes comparable mod ids and excludes the deployed mod.
+ * Labels and sibling map rows remain diagnostics; they are not identity.
  */
 
-export type MapRowVisibilityFailureCode = "map-mod-not-loaded" | "setup-map-row-not-visible";
+import type { SetupFailureReason } from "../runInGameSetupFailureTaxonomy.js";
+import {
+  activeTargetModSetContainsAuthoritativeTarget,
+  isAuthoritativeActiveTargetModSetReadback,
+} from "@civ7/direct-control";
+
+export type MapRowVisibilityFailureCode = Extract<
+  SetupFailureReason,
+  "generated-map-mod-not-enabled" | "setup-map-row-not-visible"
+>;
+
+export type ActiveTargetModSetReadback = Readonly<{
+  available: boolean;
+  identityAvailable: boolean;
+  mods: ReadonlyArray<
+    Readonly<{
+      id?: string;
+      packageId?: string;
+      name?: string;
+      title?: string;
+      handle?: string | number;
+      enabled?: boolean;
+      source?: string;
+    }>
+  >;
+  truncated: boolean;
+  readbacks?: ReadonlyArray<Readonly<{ truncated?: boolean }>>;
+}>;
+
+export type TargetModReconciliationReadback = Readonly<{
+  targetModId?: string;
+  verified?: boolean;
+  result?: Readonly<{
+    targetActive?: boolean;
+    enabledModsMetaContainsTarget?: boolean;
+  }>;
+}>;
 
 export type MapRowVisibilityClassification = Readonly<{
   code: MapRowVisibilityFailureCode;
@@ -36,6 +54,9 @@ export type MapRowVisibilityClassification = Readonly<{
   siblingMapRowCount: number;
   /** Total map rows Civ7 setup is currently showing (base game + any mods). */
   visibleMapRowCount: number;
+  activeTargetModSet?: ActiveTargetModSetReadback;
+  targetModReconciliation?: TargetModReconciliationReadback;
+  targetModId?: string;
 }>;
 
 /** Civ7 map-script references are mod-namespaced as `{mod-id}/path/to/map.js`. */
@@ -53,20 +74,27 @@ function isSameModRow(file: string, modNamespace: string): boolean {
 
 /**
  * Classify a "target map row absent from Civ7 setup" failure into a specific,
- * actionable cause using the sibling-visibility discriminator described above.
+ * actionable cause using active target mod-set readback as the disabled-mod
+ * discriminator. Sibling rows are retained only as bounded setup context.
  *
  * `visibleMapRows` is the FULL Civ7 setup map list (call `getCiv7SetupMapRows({})`
- * with no `file` filter). We only assert `map-mod-not-loaded` when Civ is
- * demonstrably showing OTHER maps yet none from the target mod — that guards
- * against a transient/empty setup read being mislabelled as a disabled mod.
+ * with no `file` filter). `activeTargetModSet` is the separate mod-set readback;
+ * without it this classifier never guesses that the generated mod is disabled.
+ * `targetModReconciliation` is the narrower happy-path setup action result; a
+ * negative target-active readback from that action is enough to classify the
+ * generated run mod as inactive without running broad inventory diagnostics.
  */
 export function classifyMapRowVisibilityFailure(args: {
   readonly launchMapScript: string;
   readonly visibleMapRows: ReadonlyArray<{ readonly file: string }>;
   readonly materializationMode?: string;
+  readonly targetModId?: string;
+  readonly activeTargetModSet?: ActiveTargetModSetReadback;
+  readonly targetModReconciliation?: TargetModReconciliationReadback;
 }): MapRowVisibilityClassification {
   const launchMapScript = args.launchMapScript;
   const modNamespace = modNamespaceFromMapScript(launchMapScript);
+  const targetModId = args.targetModId ?? modIdFromNamespace(modNamespace);
   const visibleMapRowCount = args.visibleMapRows.length;
   const siblingMapRowCount = modNamespace
     ? args.visibleMapRows.filter(
@@ -74,18 +102,38 @@ export function classifyMapRowVisibilityFailure(args: {
       ).length
     : 0;
 
-  // Disabled/not-loaded mod: Civ IS showing maps, but none belong to this mod.
-  if (modNamespace && siblingMapRowCount === 0 && visibleMapRowCount > 0) {
+  if (
+    targetModId &&
+    reconciliationExcludesTarget(args.targetModReconciliation, targetModId)
+  ) {
     return {
-      code: "map-mod-not-loaded",
-      message: `Civilization is not loading the ${modNamespace} map mod, so its setup map list cannot show ${launchMapScript}.`,
+      code: "generated-map-mod-not-enabled",
+      message: `Civilization is not loading the generated Studio Run mod, so its setup map list cannot show ${launchMapScript}.`,
       recoveryHint:
-        `Civilization isn't loading the ${modNamespace} map mod (Swooper Physics Maps) — a game update may have ` +
-        "auto-disabled it. In Civilization, open Add-Ons / Mods, enable the mod, then retry Run in Game. " +
-        "The map was generated and deployed correctly; Civ simply isn't loading the mod that provides it.",
+        "Civilization is missing the active generated Studio Run mod. Enable the generated Studio Run mod in Civilization, then retry Run in Game.",
       modNamespace,
       siblingMapRowCount,
       visibleMapRowCount,
+      targetModReconciliation: args.targetModReconciliation,
+      targetModId,
+    };
+  }
+
+  if (
+    targetModId &&
+    isAuthoritativeActiveModSetReadback(args.activeTargetModSet) &&
+    !activeTargetModSetContainsAuthoritativeTarget(args.activeTargetModSet, targetModId)
+  ) {
+    return {
+      code: "generated-map-mod-not-enabled",
+      message: `Civilization is not loading the generated Studio Run mod, so its setup map list cannot show ${launchMapScript}.`,
+      recoveryHint:
+        "Civilization is missing the active generated Studio Run mod. Enable the generated Studio Run mod in Civilization, then retry Run in Game.",
+      modNamespace,
+      siblingMapRowCount,
+      visibleMapRowCount,
+      activeTargetModSet: args.activeTargetModSet,
+      targetModId,
     };
   }
 
@@ -102,5 +150,43 @@ export function classifyMapRowVisibilityFailure(args: {
     modNamespace,
     siblingMapRowCount,
     visibleMapRowCount,
+    ...(args.activeTargetModSet === undefined
+      ? {}
+      : { activeTargetModSet: args.activeTargetModSet }),
+    ...(args.targetModReconciliation === undefined
+      ? {}
+      : { targetModReconciliation: args.targetModReconciliation }),
+    ...(targetModId === undefined ? {} : { targetModId }),
   };
+}
+
+function isAuthoritativeActiveModSetReadback(
+  readback: ActiveTargetModSetReadback | undefined
+): readback is ActiveTargetModSetReadback {
+  return isAuthoritativeActiveTargetModSetReadback(readback);
+}
+
+function modIdFromNamespace(namespace: string | null): string | undefined {
+  return namespace?.replace(/^\{|\}$/g, "");
+}
+
+function reconciliationExcludesTarget(
+  reconciliation: TargetModReconciliationReadback | undefined,
+  targetModId: string
+): boolean {
+  if (!reconciliation) return false;
+  if (
+    typeof reconciliation.targetModId === "string" &&
+    normalizeModToken(reconciliation.targetModId) !== normalizeModToken(targetModId)
+  ) {
+    return false;
+  }
+  if (reconciliation.verified === false) return true;
+  const targetActive = reconciliation.result?.targetActive;
+  const metadataContainsTarget = reconciliation.result?.enabledModsMetaContainsTarget;
+  return targetActive === false || metadataContainsTarget === false;
+}
+
+function normalizeModToken(value: string): string {
+  return value.trim().replace(/^\{|\}$/g, "").toLowerCase();
 }

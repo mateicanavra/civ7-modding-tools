@@ -1,11 +1,7 @@
 import type { StudioPresetExportFileV1 } from "@swooper/mapgen-core/authoring";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
-import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
+import { materializePipelineConfig } from "../configOverrides/configBuilders";
 import type { RecipeArtifacts } from "../../recipes/catalog";
-import {
-  migratePipelineConfigUnknown,
-  PipelineConfigMigrationError,
-} from "../configMigrations/pipelineConfig";
 
 export type ImportPresetResult =
   | Readonly<{
@@ -13,7 +9,7 @@ export type ImportPresetResult =
       recipeId: string;
       label: string;
       description?: string;
-      config: Record<string, unknown>;
+      config: PipelineConfig;
     }>
   | Readonly<{
       ok: false;
@@ -42,31 +38,17 @@ export function resolveImportedPreset(args: {
     };
   }
 
-  let sanitized: unknown;
-  try {
-    sanitized = migratePipelineConfigUnknown(stripSchemaMetadataRoot(presetFile.preset.config));
-  } catch (error) {
-    if (error instanceof PipelineConfigMigrationError) {
-      return {
-        ok: false,
-        kind: "invalid-config",
-        message: error.message,
-        details: error.details,
-      };
-    }
-    throw error;
-  }
-  const { value, errors } = normalizeStrict<Record<string, unknown>>(
-    recipe.configSchema,
-    sanitized,
-    "/preset/import"
-  );
-  if (errors.length > 0) {
+  const validated = materializePipelineConfig({
+    schema: recipe.configSchema,
+    config: presetFile.preset.config,
+    label: "import",
+  });
+  if (!validated.ok) {
     return {
       ok: false,
       kind: "invalid-config",
       message: "Imported preset failed schema validation.",
-      details: formatErrors(errors),
+      details: formatErrors(validated.errors),
     };
   }
 
@@ -75,6 +57,6 @@ export function resolveImportedPreset(args: {
     recipeId: presetFile.recipeId,
     label: presetFile.preset.label,
     description: presetFile.preset.description,
-    config: value,
+    config: validated.value,
   };
 }

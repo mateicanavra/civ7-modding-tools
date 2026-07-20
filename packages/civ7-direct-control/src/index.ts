@@ -250,6 +250,9 @@ import {
   prepareCiv7SinglePlayerSetup as prepareCiv7SinglePlayerSetupFromModule,
 } from "./setup/prepare.js";
 import {
+  type Civ7ActiveTargetMod,
+  type Civ7ActiveTargetModsInput,
+  type Civ7ActiveTargetModsResult,
   type Civ7PlayerSetupParameterSnapshot,
   type Civ7SetupMapRow,
   type Civ7SetupMapRowsInput,
@@ -261,6 +264,7 @@ import {
   type Civ7SetupSnapshot,
   type Civ7SetupSnapshotResult,
   defaultSetupReadDependencies,
+  getCiv7ActiveTargetMods,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   waitForCiv7SetupPhase,
@@ -1277,6 +1281,12 @@ export {
   DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
   DEFAULT_CIV7_SETUP_PARAMETER_IDS,
 } from "./setup/constants.js";
+export {
+  activeTargetModSetContainsAuthoritativeTarget,
+  CIV7_AUTHORITATIVE_ACTIVE_TARGET_MOD_SOURCE,
+  isAuthoritativeActiveTargetModSetReadback,
+  type Civ7ActiveTargetModSetLike,
+} from "./setup/active-target-mods.js";
 export type {
   Civ7PlayerSetupOptions,
   Civ7PreparedSetupResult,
@@ -1288,9 +1298,13 @@ export type {
   Civ7SavedGameConfigurationSummary,
   Civ7SetupOptionValue,
   Civ7SinglePlayerSetupInput,
+  Civ7TargetModReconciliationResult,
 } from "./setup/prepare.js";
-export { DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR } from "./setup/prepare.js";
+export { assertPreparedSetupMatches, DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR } from "./setup/prepare.js";
 export type {
+  Civ7ActiveTargetMod,
+  Civ7ActiveTargetModsInput,
+  Civ7ActiveTargetModsResult,
   Civ7PlayerSetupParameterSnapshot,
   Civ7SetupMapRow,
   Civ7SetupMapRowsInput,
@@ -1321,6 +1335,7 @@ export type {
 export { startPreparedCiv7SinglePlayerGame } from "./setup/start.js";
 export {
   getCiv7CitySummary,
+  getCiv7ActiveTargetMods,
   getCiv7GameInfoRows,
   getCiv7MapGrid,
   getCiv7MapSummary,
@@ -1329,6 +1344,7 @@ export {
   getCiv7PlotSnapshot,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
+  waitForCiv7SetupPhase,
   getCiv7UnitSummary,
 };
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;

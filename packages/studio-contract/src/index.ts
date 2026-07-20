@@ -108,7 +108,6 @@ export type {
   RunInGameOperationStatus,
   RunInGamePhase,
   RunInGamePlayerSetupConfig,
-  RunInGameProcessRestartStatus,
   RunInGameRecipeSettings,
   RunInGameRequestStatus,
   RunInGameSavedSetupConfigRef,

@@ -16,7 +16,7 @@ describe("Studio browser defined error projection", () => {
         tag: "ProofFailed",
         reason: "setup-row-unavailable",
         requestId: "studio-run-1",
-        recoveryActions: ["exit-to-shell-and-continue", "retry-run", "copy-diagnostics"],
+        recoveryActions: ["retry-run", "copy-diagnostics"],
         diagnostics: {
           code: "run-in-game-setup-row-unavailable",
           failedAtPhase: "preparing-setup",
@@ -40,11 +40,7 @@ describe("Studio browser defined error projection", () => {
         cause: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
       },
     });
-    expect(projection.details?.recoveryActions).toEqual([
-      "exit-to-shell-and-continue",
-      "retry-run",
-      "copy-diagnostics",
-    ]);
+    expect(projection.details?.recoveryActions).toEqual(["retry-run", "copy-diagnostics"]);
   });
 
   it("promotes observedAt from setup-config declared errors", () => {
