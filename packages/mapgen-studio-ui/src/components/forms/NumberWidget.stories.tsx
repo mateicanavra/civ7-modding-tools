@@ -62,3 +62,36 @@ export const Disabled: Story = {
     </Demo>
   ),
 };
+
+/**
+ * Flat-and-flush delta 9: value ≠ schema default ⇒ the DS drifted treatment
+ * (warning border/ring) plus the inside-overlaid one-field undo. The clean
+ * sibling shows the reserved slot: both fields keep identical box widths.
+ */
+export const Modified: Story = {
+  args: widgetProps({
+    id: "cfg_seaLevel",
+    name: "seaLevel",
+    label: "seaLevel",
+    value: 0.85,
+    options: { emptyValue: undefined },
+    schema: { type: "number", default: 0.6 },
+  }),
+  render: (args) => (
+    <Demo>
+      <div style={{ width: 160 }}>
+        <NumberWidget {...args} />
+      </div>
+      <div style={{ width: 160 }}>
+        <NumberWidget
+          {...args}
+          id="cfg_mountainDensity"
+          name="mountainDensity"
+          label="mountainDensity"
+          value={0.3}
+          schema={{ type: "number", default: 0.3 }}
+        />
+      </div>
+    </Demo>
+  ),
+};
