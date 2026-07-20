@@ -129,6 +129,29 @@ const allow = [
   "../../rules/**",
 ];
 
+// Habitat's virtual projects expose the admitted architectural layers inside one package.
+// Their direction is owned by the tag constraints below, not Nx's library-cycle heuristic.
+const habitatVirtualProjectCycles = [
+  ["habitat-providers", "habitat-resources"],
+  ["habitat-resources", "habitat-service-model"],
+  ["habitat-runtime", "habitat-service"],
+  ["habitat-service", "habitat-service-check"],
+  ["habitat-service", "habitat-service-classify"],
+  ["habitat-service", "habitat-service-fix"],
+  ["habitat-service", "habitat-service-graph"],
+  ["habitat-service", "habitat-service-hook"],
+  ["habitat-service", "habitat-service-verify"],
+];
+
+const habitatLazyCommandImports = [
+  "@habitat/cli/cli/commands/check",
+  "@habitat/cli/cli/commands/classify",
+  "@habitat/cli/cli/commands/fix",
+  "@habitat/cli/cli/commands/graph",
+  "@habitat/cli/cli/commands/hook",
+  "@habitat/cli/cli/commands/verify",
+];
+
 export default [
   {
     linterOptions: {
@@ -165,6 +188,12 @@ export default [
           // H3 enforces the project plane. Same-project package-entry imports
           // are left to intra-project Grit/file rules when they matter.
           allowCircularSelfDependency: true,
+          ignoredCircularDependencies: habitatVirtualProjectCycles,
+          // Habitat's CLI boot table lazy-loads its command projects. Other
+          // Habitat layers may still import their admitted public surfaces;
+          // this exception suppresses only the lazy-load heuristic, not tag
+          // or project-boundary enforcement.
+          checkDynamicDependenciesExceptions: habitatLazyCommandImports,
           // Civ7 engine virtual modules are imported by absolute path by design;
           // WHO may import them is the adapter-boundary rule's concern (grit/H5),
           // not the project-tag plane.
@@ -183,6 +212,7 @@ export default [
         {
           enforceBuildableLibDependency: false,
           allowCircularSelfDependency: true,
+          ignoredCircularDependencies: habitatVirtualProjectCycles,
           allow,
           depConstraints,
         },

@@ -87,6 +87,7 @@
     "string-width": "4.2.3",
     "tsup": "^8.5.1",
     "type-fest": "^5.7.0",
+    "typebox": "catalog:",
     "typescript": "6.0.3",
     "vitest": "^4.0.18"
   },
