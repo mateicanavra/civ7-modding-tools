@@ -56,9 +56,9 @@ Proceed in this order:
 2. reconstruct and repair generic Grit diagnostic acquisition from source
    evidence, not from a mixed patch;
 3. land authority-derived fix/apply admission as a separate capability;
-4. recreate A.2 Authority on those clean capability tips;
-5. land atomic reroll before the long domain train unless source mapping proves
-   a real dependency.
+4. land atomic reroll now that source mapping has proved it independent of A.2;
+5. recreate A.2 Authority on the sealed A.3a tip, then run the six domain
+   slices.
 
 ## Prepared Findings
 
