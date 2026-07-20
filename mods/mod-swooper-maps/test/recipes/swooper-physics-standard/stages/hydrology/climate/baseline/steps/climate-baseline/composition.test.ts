@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { createMockAdapter, getCiv7StandardMapSizePreset } from "@civ7/adapter";
+import { createMockAdapter } from "@civ7/adapter";
 import hydrologyDomain from "@mapgen/domain/hydrology/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import {
@@ -14,15 +14,15 @@ import hydrologyClimateBaselineStage from "../../../../../../../../../src/recipe
 import { ClimateBaselineStepContract } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/steps/climate-baseline/config.js";
 import { ClimateBaselineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/steps/climate-baseline/step.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { TEST_MAP_SIZE } from "../../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,
   standardMapConfig,
 } from "../../../../../../fixtures/standard-recipe.js";
 
-const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
 const setup = admitMapSetup({
   mapSeed: 123,
-  dimensions: tinyPreset.dimensions,
+  dimensions: TEST_MAP_SIZE.dimensions,
   latitudeBounds: standardMapConfig.latitudeBounds,
 });
 
@@ -58,7 +58,7 @@ function climateBaselineConfig() {
 
 describe("hydrology climate-baseline composition", () => {
   it("passes computed winds into currents and their seasonal mean into ocean thermal state", () => {
-    const { width, height } = tinyPreset.dimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const config = climateBaselineConfig();
     const context = createMapContext({

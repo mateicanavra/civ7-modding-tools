@@ -3,6 +3,7 @@ import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/
 import resources from "@mapgen/domain/resources/ops";
 
 import { normalizeOperationSelectionForTest, TestCompileError } from "@swooper/mapgen-core/testing";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const GEOLOGICAL_RESOURCE_TYPES = [
   "RESOURCE_GOLD",
@@ -39,8 +40,7 @@ const BLOCKED_GEOLOGICAL_RESOURCE_TYPES = [
 
 describe("geological resource operation contract", () => {
   it("plans all geological resource rows symbolically without runtime ids", () => {
-    const syntheticDimensions = { width: 5, height: 5 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
       resources.ops.planGeologicalResources,
@@ -99,8 +99,7 @@ describe("geological resource operation contract", () => {
   });
 
   it("keeps blocked official rows visible and active-zero", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const result = resources.ops.planGeologicalResources.run(
       {
@@ -125,8 +124,7 @@ describe("geological resource operation contract", () => {
   });
 
   it("preserves hydrothermal, carbonate, hydrocarbon, granite, and metamorphic signal families", () => {
-    const syntheticDimensions = { width: 3, height: 3 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const alluvial = new Uint8Array(size);
     const closedBasin = new Uint8Array(size);
@@ -181,8 +179,7 @@ describe("geological resource operation contract", () => {
   });
 
   it("keeps narrow geological proxies from broadening into generic terrain signals", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const result = resources.ops.planGeologicalResources.run(
       {
@@ -222,8 +219,7 @@ describe("geological resource operation contract", () => {
   });
 
   it("suppression masks reduce observed geological eligibility", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const all = every(size);
     const flat = new Uint8Array(size);
@@ -250,18 +246,17 @@ describe("geological resource operation contract", () => {
 
     expect(
       result.plans.find((plan) => plan.resourceType === "RESOURCE_GOLD")?.eligibleTileCount
-    ).toBe(3);
+    ).toBe(size - 1);
     expect(
       result.plans.find((plan) => plan.resourceType === "RESOURCE_OIL")?.eligibleTileCount
-    ).toBe(3);
+    ).toBe(size - 1);
     expect(
       result.plans.find((plan) => plan.resourceType === "RESOURCE_LIMESTONE")?.eligibleTileCount
-    ).toBe(3);
+    ).toBe(size - 1);
   });
 
   it("reports missing expectation rows instead of silently dropping resources", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const result = resources.ops.planGeologicalResources.run(
       {
@@ -292,8 +287,7 @@ describe("geological resource operation contract", () => {
   });
 
   it("marks active rows as signal gaps when no geological signal mask is supplied", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const result = resources.ops.planGeologicalResources.run(
       {
         width,

@@ -1,17 +1,16 @@
 import { describe, expect, it } from "bun:test";
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
 import { PlotRiversStepContract } from "../../../../../../../../src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.js";
 import { PlotRiversStep } from "../../../../../../../../src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.js";
+import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 import { standardMapConfig } from "../../../../../fixtures/standard-recipe.js";
 
-const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
 const setup = admitMapSetup({
   mapSeed: 123,
-  dimensions: tinyPreset.dimensions,
+  dimensions: TEST_MAP_SIZE.dimensions,
   latitudeBounds: standardMapConfig.latitudeBounds,
 });
 

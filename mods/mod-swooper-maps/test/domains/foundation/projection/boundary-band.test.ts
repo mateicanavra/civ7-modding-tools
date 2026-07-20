@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 import { runTectonicHistoryChain } from "../fixtures/tectonics-history.js";
 
 const {
@@ -95,8 +96,7 @@ function deriveMantleForcing(mesh: any, rngSeed: number) {
 
 describe("m11 plates projection (boundary band)", () => {
   it("projects boundary regime + signals beyond the exact boundary line", () => {
-    const syntheticDimensions = { width: 44, height: 26 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: {

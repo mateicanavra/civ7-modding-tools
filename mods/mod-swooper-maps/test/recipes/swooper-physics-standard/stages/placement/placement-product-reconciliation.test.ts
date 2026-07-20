@@ -36,7 +36,6 @@ function runStandardPlacementRecipe({
   seed = 1337,
 }: PlacementRecipeHarnessOptions = {}): Readonly<{ adapter: MockAdapter; context: MapContext }> {
   const options = {
-    presetId: "MAPSIZE_TINY",
     seed,
     mapInfo: {
       PlayersLandmass1: 1,

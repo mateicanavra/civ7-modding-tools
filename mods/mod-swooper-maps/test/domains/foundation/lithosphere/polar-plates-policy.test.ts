@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const {
   computeCrust,
@@ -52,8 +53,7 @@ function isContiguous(
 
 describe("m11 polar plates policy (caps + optional microplates)", () => {
   it("always emits north+south cap plates (contiguous)", () => {
-    const syntheticDimensions = { width: 90, height: 60 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 18, cellsPerPlate: 3, relaxationSteps: 2 },
@@ -102,8 +102,7 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
   });
 
   it("enables polar microplates only when configured, and they are not slivers", () => {
-    const syntheticDimensions = { width: 120, height: 80 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 24, cellsPerPlate: 8, relaxationSteps: 2 },

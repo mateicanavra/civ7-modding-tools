@@ -3,6 +3,7 @@ import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/
 import resources from "@mapgen/domain/resources/ops";
 
 import { normalizeOperationSelectionForTest, TestCompileError } from "@swooper/mapgen-core/testing";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const CULTIVATED_RESOURCE_TYPES = [
   "RESOURCE_COTTON",
@@ -30,8 +31,7 @@ type CultivatedExpectation = Parameters<
 
 describe("cultivated resource operation contract", () => {
   it("plans all cultivated resource rows symbolically without runtime ids", () => {
-    const syntheticDimensions = { width: 5, height: 5 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
       resources.ops.planCultivatedResources,
@@ -81,8 +81,7 @@ describe("cultivated resource operation contract", () => {
   });
 
   it("keeps highland and coastal signal requirements visible", () => {
-    const syntheticDimensions = { width: 3, height: 3 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const highlands = new Uint8Array(size);
     const coast = new Uint8Array(size);
@@ -112,8 +111,7 @@ describe("cultivated resource operation contract", () => {
   });
 
   it("keeps oasis and wetland signal families visible", () => {
-    const syntheticDimensions = { width: 3, height: 3 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const oasis = new Uint8Array(size);
     const wetland = new Uint8Array(size);
@@ -140,8 +138,7 @@ describe("cultivated resource operation contract", () => {
   });
 
   it("keeps blocked cloves visible and active-zero", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const result = resources.ops.planCultivatedResources.run(
       {
@@ -162,8 +159,7 @@ describe("cultivated resource operation contract", () => {
   });
 
   it("reports missing expectation rows instead of silently dropping resources", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const result = resources.ops.planCultivatedResources.run(
       {
@@ -194,8 +190,7 @@ describe("cultivated resource operation contract", () => {
   });
 
   it("marks active rows as signal gaps when no cultivated signal mask is supplied", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const result = resources.ops.planCultivatedResources.run(
       {
         width,

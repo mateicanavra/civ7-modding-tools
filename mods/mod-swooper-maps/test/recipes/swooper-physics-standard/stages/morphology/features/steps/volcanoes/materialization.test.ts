@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { createMockAdapter, getCiv7StandardMapSizePreset } from "@civ7/adapter";
+import { createMockAdapter } from "@civ7/adapter";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import {
@@ -12,12 +12,11 @@ import {
 import { artifactModules as standardArtifactModules } from "../../../../../../../../src/recipes/standard/artifacts/index.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { VolcanoesStep } from "../../../../../../../../src/recipes/standard/stages/morphology-features/steps/volcanoes/step.js";
-
-const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
+import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 
 describe("morphology-features volcano materialization", () => {
   it("filters invalid and water plans before deriving sorted tectonic evidence", () => {
-    const { width, height } = tinyPreset.dimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const waterIndex = 2;
     const riftIndex = 3;
@@ -36,7 +35,7 @@ describe("morphology-features volcano materialization", () => {
 
     const setup = admitMapSetup({
       mapSeed: 424242,
-      dimensions: tinyPreset.dimensions,
+      dimensions: TEST_MAP_SIZE.dimensions,
       latitudeBounds: { topLatitude: 70, bottomLatitude: -70 },
     });
     const context = createMapContext({

@@ -1,20 +1,19 @@
 import { describe, expect, it } from "bun:test";
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import hydrologyClimateBaselineStage from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/index.js";
 import { ClimateBaselineStepContract } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/steps/climate-baseline/config.js";
 import { ClimateBaselineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/steps/climate-baseline/step.js";
+import { TEST_MAP_SIZE } from "../../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,
   standardMapConfig,
 } from "../../../../../../fixtures/standard-recipe.js";
 
-const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
 const setup = admitMapSetup({
   mapSeed: 123,
-  dimensions: tinyPreset.dimensions,
+  dimensions: TEST_MAP_SIZE.dimensions,
   latitudeBounds: standardMapConfig.latitudeBounds,
 });
 

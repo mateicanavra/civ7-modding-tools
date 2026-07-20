@@ -18,6 +18,7 @@ import standardRecipe, {
   type StandardRecipeConfig,
 } from "../../../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../../../src/recipes/standard/runtime.js";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 type StandardRecipeExecutionOptions = NonNullable<Parameters<typeof standardRecipe.run>[2]>;
 type StandardRecipeTestMapInfoOverrides = Partial<
@@ -116,7 +117,7 @@ export function runStandardRecipeTestMap<TAdapter extends MockAdapter>(
 function runStandardRecipeTestMapWithAdapter<TAdapter extends MockAdapter>(
   options: StandardRecipeTestOptionsWithAdapter<TAdapter>
 ): StandardRecipeTestPreparation<TAdapter> {
-  const preset = getCiv7StandardMapSizePreset(options.presetId ?? "MAPSIZE_TINY");
+  const preset = getCiv7StandardMapSizePreset(options.presetId ?? TEST_MAP_SIZE.id);
   const mapConfig = options.mapConfig ?? standardMapConfig;
   const mapInfo: MapInfo = {
     ...preset.mapInfo,

@@ -1,9 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const { computeMesh } = foundationOpsPublic.ops;
-const tinyMapSize = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
 
 function neighborsFor(
   mesh: {
@@ -25,7 +24,7 @@ function sumAreas(areas: Float32Array): number {
 
 describe("foundation mesh generation", () => {
   it("is deterministic and shape-correct", () => {
-    const { width, height } = tinyMapSize.dimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },

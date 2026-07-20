@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const { computeAtmosphericCirculation } = hydrologyOpsPublic.ops;
 function idx(x: number, y: number, width: number): number {
@@ -22,8 +23,7 @@ function varianceI8Row(values: Int8Array, width: number, y: number): number {
 
 describe("hydrology/compute-atmospheric-circulation (geostrophic-proxy)", () => {
   it("is deterministic and not row-uniform", () => {
-    const syntheticDimensions = { width: 64, height: 32 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const lat = new Float32Array(height);
     for (let y = 0; y < height; y++) lat[y] = lerp(-60, 60, y / Math.max(1, height - 1));
 

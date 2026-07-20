@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const { computeMantleForcing, computeMantlePotential, computeMesh } = foundationOpsPublic.ops;
 function variance(values: Float32Array): number {
@@ -17,8 +18,7 @@ function variance(values: Float32Array): number {
 
 describe("foundation mantle forcing (D02r)", () => {
   it("is deterministic for identical inputs", () => {
-    const syntheticDimensions = { width: 40, height: 20 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
@@ -61,8 +61,7 @@ describe("foundation mantle forcing (D02r)", () => {
   });
 
   it("produces non-uniform mantle potential fields", () => {
-    const syntheticDimensions = { width: 50, height: 30 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 12, cellsPerPlate: 2, relaxationSteps: 2 },

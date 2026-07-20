@@ -1,11 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { summarizeSwooperLandMask } from "../../scripts/diagnostics/map-analysis.js";
+import { TEST_MAP_SIZE } from "../map-size.js";
 
-const tinyMapSize = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
-
-const { width, height } = tinyMapSize.dimensions;
+const { width, height } = TEST_MAP_SIZE.dimensions;
 const mapSize = width * height;
 
 describe("Swooper land-mask summary", () => {

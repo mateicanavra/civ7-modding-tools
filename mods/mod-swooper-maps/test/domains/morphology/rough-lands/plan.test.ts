@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import morphology from "@mapgen/domain/morphology/ops";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const { planRoughLands } = morphology.ops;
 type RoughLandSelection = Extract<
@@ -77,8 +78,7 @@ describe("morphology/plan-rough-lands", () => {
   });
 
   it("does not turn fractal texture alone into rough-land hills", () => {
-    const syntheticDimensions = { width: 5, height: 1 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const input = createInput(width, height);
     input.boundaryCloseness.fill(0);
     input.boundaryType.fill(BOUNDARY_TYPE.none);
@@ -100,8 +100,7 @@ describe("morphology/plan-rough-lands", () => {
   });
 
   it("keeps broad uplifted plateaus flat when there is no local relief or active deformation", () => {
-    const syntheticDimensions = { width: 8, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const input = createInput(width, height);
     input.boundaryCloseness.fill(0);
     input.boundaryType.fill(BOUNDARY_TYPE.none);

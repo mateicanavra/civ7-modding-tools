@@ -1,6 +1,5 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
@@ -13,6 +12,7 @@ import {
   validateCanonicalMapConfig,
 } from "../../src/maps/configs/canonical";
 import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
+import { TEST_MAP_SIZE } from "../map-size";
 
 const repoRoot = resolve(import.meta.dirname, "../../../..");
 
@@ -233,14 +233,13 @@ describe("Shipped map configs", () => {
 
   it("compiles every shipped config into an executable stage plan", async () => {
     const configs = await loadSwooperMapConfigRegistry();
-    const standardPreset = getCiv7StandardMapSizePreset("MAPSIZE_STANDARD");
 
     for (const config of configs) {
       const canonicalConfig = config.canonicalConfig;
       const compiled = standardRecipe.compileConfig(
         {
           mapSeed: 123,
-          dimensions: standardPreset.dimensions,
+          dimensions: TEST_MAP_SIZE.dimensions,
           latitudeBounds: canonicalConfig.latitudeBounds,
         },
         canonicalConfig.config

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 import { buildPlateTopology } from "@swooper/mapgen-core/lib/plates";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 import { deriveMantleForcing, derivePlateMotion } from "../fixtures/tectonic-operation-chain.js";
 import { runTectonicHistoryChain } from "../fixtures/tectonics-history.js";
 
@@ -34,8 +35,7 @@ function variance(values: number[]): number {
 
 describe("foundation plate partition topology", () => {
   it("yields non-uniform areas and plausible adjacency degrees", () => {
-    const syntheticDimensions = { width: 60, height: 40 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },

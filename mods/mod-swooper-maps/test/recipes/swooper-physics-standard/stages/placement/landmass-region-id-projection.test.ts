@@ -12,7 +12,6 @@ describe("placement landmass region projection", () => {
     const regionIds: number[] = [];
 
     const { adapter } = runStandardRecipeTestMap({
-      presetId: "MAPSIZE_TINY",
       seed,
       mapInfo: {
         PlayersLandmass1: 1,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const { computeCrust, computeMesh, computePlateGraph } = foundationOpsPublic.ops;
 function makeMantleForcing(
@@ -66,8 +67,7 @@ function diffCount(a: Int16Array, b: Int16Array): number {
 
 describe("m11 plate graph resistance sensitivity", () => {
   it("is deterministic for identical resistance fields and responds to weak-zone bands", () => {
-    const syntheticDimensions = { width: 140, height: 90 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 26, cellsPerPlate: 10, relaxationSteps: 3 },

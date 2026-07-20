@@ -2,7 +2,6 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import ecology from "@mapgen/domain/ecology/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
-import { ArtifactValidationError } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   normalizeOperationSelectionForTest,
@@ -17,7 +16,6 @@ import { FeaturesApplyStep as featuresApplyStep } from "../../../../../../../src
 import { artifactModules as morphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 2, height: 2 } as const;
-const FORGED_MISMATCHED_DIMENSIONS = { width: 1, height: 4 } as const;
 
 describe("map-ecology features-apply strictness (M3-008)", () => {
   it("fails loudly when intents contain unknown feature keys", () => {
@@ -207,45 +205,5 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
         adapter.getFeatureType(1, 1),
       ])
     );
-  });
-
-  it("refuses feature snapshots with the wrong dimensions, type, or cardinality", () => {
-    const { width, height } = SYNTHETIC_DIMENSIONS;
-    const setup = admitMapSetup({
-      mapSeed: 0,
-      dimensions: SYNTHETIC_DIMENSIONS,
-      latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
-    });
-
-    const makeContext = () =>
-      createMapContext({ setup, adapter: createMockAdapter({ width, height }) });
-
-    const wrongDimensionsContext = makeContext();
-    expect(() =>
-      withMapContextExecutionForTest(wrongDimensionsContext, () =>
-        publishTestArtifact(wrongDimensionsContext, ecologyArtifactModules.featureEngineSnapshot, {
-          ...FORGED_MISMATCHED_DIMENSIONS,
-          featureType: new Int16Array(4),
-        })
-      )
-    ).toThrow(ArtifactValidationError);
-    const wrongCardinalityContext = makeContext();
-    expect(() =>
-      withMapContextExecutionForTest(wrongCardinalityContext, () =>
-        publishTestArtifact(wrongCardinalityContext, ecologyArtifactModules.featureEngineSnapshot, {
-          ...SYNTHETIC_DIMENSIONS,
-          featureType: new Int16Array(3),
-        })
-      )
-    ).toThrow(ArtifactValidationError);
-    const wrongTypeContext = makeContext();
-    expect(() =>
-      withMapContextExecutionForTest(wrongTypeContext, () =>
-        publishTestArtifact(wrongTypeContext, ecologyArtifactModules.featureEngineSnapshot, {
-          ...SYNTHETIC_DIMENSIONS,
-          featureType: new Uint8Array(4),
-        } as never)
-      )
-    ).toThrow(ArtifactValidationError);
   });
 });

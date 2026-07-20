@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { forEachHexNeighborOddQWithDirection } from "@swooper/mapgen-core/lib/grid";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const { computeOceanThermalState } = hydrologyOpsPublic.ops;
 function idx(x: number, y: number, width: number): number {
@@ -51,8 +52,7 @@ function runOceanThermalState(
 
 describe("hydrology/compute-ocean-thermal-state", () => {
   it("produces colder SST near poles and sea ice in cold water", () => {
-    const syntheticDimensions = { width: 16, height: 10 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
 
     const latitudeByRow = new Float32Array(height);
@@ -94,8 +94,7 @@ describe("hydrology/compute-ocean-thermal-state", () => {
   });
 
   it("changes SST when currents advect warm water poleward", () => {
-    const syntheticDimensions = { width: 16, height: 10 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
 
     const latitudeByRow = new Float32Array(height);

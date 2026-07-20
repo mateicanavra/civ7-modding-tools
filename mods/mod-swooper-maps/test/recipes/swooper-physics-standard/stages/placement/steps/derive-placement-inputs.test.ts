@@ -9,10 +9,9 @@ import { initializeStandardRuntime } from "../../../../../../src/recipes/standar
 import { buildPlacementInputs } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/inputs.js";
 import { buildNaturalWonderPlanInputRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-input-telemetry.js";
 import { buildNaturalWonderPlanRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-telemetry.js";
+import { TEST_MAP_SIZE } from "../../../../../map-size.js";
 
 const { featureTypes, terrainTypeIndices, biomeGlobals } = CIV7_BROWSER_TABLES_V0;
-const SYNTHETIC_WONDER_CATALOG_DIMENSIONS = { width: 6, height: 6 } as const;
-const SYNTHETIC_TELEMETRY_DIMENSIONS = { width: 4, height: 4 } as const;
 const hugePreset = getCiv7StandardMapSizePreset("MAPSIZE_HUGE");
 
 function placementConfig() {
@@ -30,24 +29,14 @@ function placementConfig() {
 
 describe("derive placement inputs", () => {
   it("passes explicit projected natural-wonder direction to materialization planning", () => {
-    const { width, height } = SYNTHETIC_WONDER_CATALOG_DIMENSIONS;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 1,
-      PlayersLandmass2: 1,
-      StartSectorRows: 1,
-      StartSectorCols: 1,
-      NumNaturalWonders: 1,
-    };
+    const mapInfo = { ...TEST_MAP_SIZE.mapInfo };
     const adapter = createMockAdapter({
       width,
       height,
       mapInfo,
-      mapSizeId: 1,
+      mapSizeId: TEST_MAP_SIZE.id,
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_KILIMANJARO, direction: -1 }],
@@ -57,8 +46,11 @@ describe("derive placement inputs", () => {
     const context = createMapContext({
       setup: admitMapSetup({
         mapSeed: 1,
-        dimensions: SYNTHETIC_WONDER_CATALOG_DIMENSIONS,
-        latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
+        dimensions: TEST_MAP_SIZE.dimensions,
+        latitudeBounds: {
+          topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+          bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+        },
       }),
       adapter,
     });
@@ -152,24 +144,14 @@ describe("derive placement inputs", () => {
   });
 
   it("includes the recovered 4-tile natural wonders (Barrier Reef) in the plan catalog", () => {
-    const { width, height } = SYNTHETIC_WONDER_CATALOG_DIMENSIONS;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 1,
-      PlayersLandmass2: 1,
-      StartSectorRows: 1,
-      StartSectorCols: 1,
-      NumNaturalWonders: 1,
-    };
+    const mapInfo = { ...TEST_MAP_SIZE.mapInfo };
     const adapter = createMockAdapter({
       width,
       height,
       mapInfo,
-      mapSizeId: 1,
+      mapSizeId: TEST_MAP_SIZE.id,
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_BARRIER_REEF, direction: -1 }],
@@ -177,8 +159,11 @@ describe("derive placement inputs", () => {
     const context = createMapContext({
       setup: admitMapSetup({
         mapSeed: 1,
-        dimensions: SYNTHETIC_WONDER_CATALOG_DIMENSIONS,
-        latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
+        dimensions: TEST_MAP_SIZE.dimensions,
+        latitudeBounds: {
+          topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+          bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+        },
       }),
       adapter,
     });
@@ -316,24 +301,14 @@ describe("derive placement inputs", () => {
   });
 
   it("builds compact natural-wonder plan input telemetry for exact runtime evidence", () => {
-    const { width, height } = SYNTHETIC_TELEMETRY_DIMENSIONS;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 1,
-      PlayersLandmass2: 1,
-      StartSectorRows: 1,
-      StartSectorCols: 1,
-      NumNaturalWonders: 1,
-    };
+    const mapInfo = { ...TEST_MAP_SIZE.mapInfo };
     const adapter = createMockAdapter({
       width,
       height,
       mapInfo,
-      mapSizeId: 1,
+      mapSizeId: TEST_MAP_SIZE.id,
       defaultTerrainType: terrainTypeIndices.TERRAIN_COAST,
       defaultBiomeType: biomeGlobals.BIOME_MARINE,
     });
@@ -348,8 +323,11 @@ describe("derive placement inputs", () => {
     const context = createMapContext({
       setup: admitMapSetup({
         mapSeed: 1,
-        dimensions: SYNTHETIC_TELEMETRY_DIMENSIONS,
-        latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
+        dimensions: TEST_MAP_SIZE.dimensions,
+        latitudeBounds: {
+          topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+          bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+        },
       }),
       adapter,
     });
@@ -407,8 +385,8 @@ describe("derive placement inputs", () => {
         [
           "p",
           5,
-          1,
-          1,
+          5,
+          0,
           featureTypes.FEATURE_KILIMANJARO,
           terrainTypeIndices.TERRAIN_MOUNTAIN,
           biomeGlobals.BIOME_PLAINS,

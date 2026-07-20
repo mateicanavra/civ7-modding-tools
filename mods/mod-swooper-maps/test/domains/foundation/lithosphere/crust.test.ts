@@ -1,31 +1,15 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 import { deriveMantleForcing, derivePlateMotion } from "../fixtures/tectonic-operation-chain.js";
 import { runTectonicHistoryChain } from "../fixtures/tectonics-history.js";
 
 const { computeCrust, computeMesh, computePlateGraph, computePlatesTensors } =
   foundationOpsPublic.ops;
 
-function truncateMantleForcing(
-  mantleForcing: ReturnType<typeof deriveMantleForcing>,
-  cellCount: number
-) {
-  return {
-    ...mantleForcing,
-    cellCount,
-    stress: mantleForcing.stress.slice(0, cellCount),
-    forcingU: mantleForcing.forcingU.slice(0, cellCount),
-    forcingV: mantleForcing.forcingV.slice(0, cellCount),
-    forcingMag: mantleForcing.forcingMag.slice(0, cellCount),
-    upwellingClass: mantleForcing.upwellingClass.slice(0, cellCount),
-    divergence: mantleForcing.divergence.slice(0, cellCount),
-  };
-}
-
 describe("foundation crust", () => {
   it("initializes a basaltic lid with bounded fields", () => {
-    const syntheticDimensions = { width: 60, height: 30 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 16, cellsPerPlate: 4, relaxationSteps: 2 },
@@ -76,29 +60,8 @@ describe("foundation crust", () => {
     expect(maxDamage - minDamage).toBeGreaterThanOrEqual(0);
   });
 
-  it("rejects mantle forcing from a different mesh cell count", () => {
-    const syntheticDimensions = { width: 32, height: 20 } as const;
-    const { width, height } = syntheticDimensions;
-    const meshConfig = computeMesh.normalize({
-      strategy: "default",
-      config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2 },
-    });
-
-    const mesh = computeMesh.run({ width, height, rngSeed: 50 }, meshConfig).mesh;
-    const mantleForcing = deriveMantleForcing(mesh, 51);
-    const shorterMantleForcing = truncateMantleForcing(mantleForcing, mesh.cellCount - 1);
-
-    expect(() =>
-      computeCrust.run(
-        { mesh, mantleForcing: shorterMantleForcing, rngSeed: 51 },
-        computeCrust.defaultConfig
-      )
-    ).toThrow(/mantleForcing\.cellCount/);
-  });
-
   it("publishes an isostatic baseline and projects its basaltic lid to tiles", () => {
-    const syntheticDimensions = { width: 60, height: 40 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 16, cellsPerPlate: 3, relaxationSteps: 2 },

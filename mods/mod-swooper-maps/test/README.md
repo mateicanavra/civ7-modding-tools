@@ -41,6 +41,13 @@ Direct operation, step, artifact, and fault-mechanics tests may use a small
 synthetic grid when its cardinality is the subject or fixture. Such dimensions
 must be named as synthetic and never presented as a Civ7 product map size.
 
+Map-size-independent behavior tests use the root `TEST_MAP_SIZE` selection,
+which defaults to Civ7 Tiny. Run that broad test regime against another shipped
+size with `SWOOPER_TEST_MAP_SIZE=MAPSIZE_STANDARD nx run mod-swooper-maps:test`.
+Keep an explicit preset only when size participates in the oracle, such as a
+cross-size matrix, a calibrated product study, map-size admission, or exact
+coordinate evidence.
+
 ## Test Claims
 
 - Domain tests may exercise a stable algorithm unit directly when it has an

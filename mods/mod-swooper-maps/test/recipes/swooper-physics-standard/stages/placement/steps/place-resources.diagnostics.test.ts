@@ -7,6 +7,7 @@ import {
   buildResourcePlacementRuntimeTelemetry,
   placeResourcesWithTypedOutcomes,
 } from "../../../../../../src/recipes/standard/stages/placement/steps/place-resources/materialize.js";
+import { TEST_MAP_SIZE } from "../../../../../map-size.js";
 
 type PlanIntent = {
   plotIndex: number;
@@ -28,9 +29,6 @@ type PlanIntent = {
     fromPlotIndex?: number;
   };
 };
-
-const SYNTHETIC_DIAGNOSTIC_DIMENSIONS = { width: 4, height: 3 } as const;
-const SYNTHETIC_REJECTION_DIMENSIONS = { width: 5, height: 2 } as const;
 
 function intent(
   plotIndex: number,
@@ -81,12 +79,12 @@ function plan(width: number, height: number, intents: PlanIntent[]) {
 
 describe("resource placement diagnostics", () => {
   it("stamps plan intents verbatim and records typed per-type shortfalls", () => {
-    const { width, height } = SYNTHETIC_DIAGNOSTIC_DIMENSIONS;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const adapter = createMockAdapter({
       width,
       height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
       rng: createLabelRng(1931),
       canHaveResource: (_x, _y, resourceType) => resourceType !== 9,
     });
@@ -130,12 +128,12 @@ describe("resource placement diagnostics", () => {
   });
 
   it("fails hard on plan metadata mismatch", () => {
-    const { width, height } = SYNTHETIC_DIAGNOSTIC_DIMENSIONS;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const adapter = createMockAdapter({
       width,
       height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
       rng: createLabelRng(1932),
     });
     const broken = plan(width, height, [intent(0, width, "RESOURCE_GOLD")]) as {
@@ -160,13 +158,13 @@ describe("resource placement diagnostics", () => {
     // so no plan intent can target them. The stamping invariant proven here is
     // plan authority — a rejected intent stays a typed shortfall at its
     // planned plot; there is no rescue/relocation that could land on a river.
-    const { width, height } = SYNTHETIC_REJECTION_DIMENSIONS;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const riverTilePlots = new Set([0, 1]);
     const adapter = createMockAdapter({
       width,
       height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
       rng: createLabelRng(1934),
       // Engine rejects everything: a rescuing materializer would hunt for an
       // alternative plot (possibly a river tile); plan authority must not.

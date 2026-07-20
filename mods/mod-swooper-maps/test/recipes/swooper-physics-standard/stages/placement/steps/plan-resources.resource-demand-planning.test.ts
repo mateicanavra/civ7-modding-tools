@@ -18,8 +18,7 @@ import {
   buildRiverResourceExclusionMask,
   resolveResourceRegionMinimumRequirement,
 } from "../../../../../../src/recipes/standard/stages/placement/steps/plan-resources/planning.js";
-
-const SYNTHETIC_DIMENSIONS = { width: 4, height: 3 } as const;
+import { TEST_MAP_SIZE } from "../../../../../map-size.js";
 
 /**
  * Rivers product requirement re-expressed in the resources demand pipeline:
@@ -28,7 +27,7 @@ const SYNTHETIC_DIMENSIONS = { width: 4, height: 3 } as const;
  * exclusion flows through site selection, the support pass, and stamping.
  */
 describe("resource demand planning", () => {
-  const { width, height } = SYNTHETIC_DIMENSIONS;
+  const { width, height } = TEST_MAP_SIZE.dimensions;
   const size = width * height;
 
   function findFixtureFacts(requestedType?: OfficialResourceType) {

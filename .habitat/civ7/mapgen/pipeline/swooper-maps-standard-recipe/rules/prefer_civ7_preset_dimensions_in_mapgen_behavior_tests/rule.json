@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 2,
+  "id": "prefer_civ7_preset_dimensions_in_mapgen_behavior_tests",
+  "title": "Prefer Civ7 Preset Dimensions In MapGen Behavior Tests",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
+    "category": "quality"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "MapGen behavior tests silently presenting literal custom grid dimensions as representative Civ7 map sizes",
+  "why": "Product and domain behavior should run at a real Civ7 map size so the evidence reflects supported geometry. Literal custom dimensions are appropriate only when bounds, wrapping, local topology, exact cardinality, or dimension behavior is itself the controlled subject.",
+  "remediate": "Select a total static Civ7 map-size preset. Keep literal custom dimensions only with a reviewed causal reason tied to bounds, wrap or seam behavior, local topology, exact cardinality, or dimension behavior.",
+  "message": "MapGen behavior tests should use a static Civ7 map-size preset; literal custom dimensions require a reviewed causal reason.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/test/**/*.ts", "mods/mod-swooper-maps/test/**/*.tsx"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/test"],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prefer_civ7_preset_dimensions_in_mapgen_behavior_tests/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prefer_civ7_preset_dimensions_in_mapgen_behavior_tests/pattern.md"
+    },
+    "patternName": "prefer_civ7_preset_dimensions_in_mapgen_behavior_tests"
+  }
+}

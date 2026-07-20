@@ -1,13 +1,12 @@
 import { describe, expect, it } from "bun:test";
 
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { NATURAL_WONDER_CATALOG } from "@civ7/map-policy";
 import { WONDER_GROUPS } from "@mapgen/domain/placement/model/policy/natural-wonder-groups.js";
 import placementDomain from "@mapgen/domain/placement/ops";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const { planNaturalWonders, planWonders } = placementDomain.ops;
-const tinyMapSize = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
 
 function naturalWonderSelection(minSpacingTiles: number) {
   const selection = structuredClone(planNaturalWonders.defaultConfig);
@@ -92,7 +91,7 @@ describe("natural wonder planning", () => {
   });
 
   it("plans deterministic natural wonder placements from physical fields", () => {
-    const { width, height } = tinyMapSize.dimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const result = runAdmittedOperationForTest(
       planNaturalWonders,
@@ -137,7 +136,7 @@ describe("natural wonder planning", () => {
   });
 
   it("drops explicit empty natural-wonder footprints from placement candidates", () => {
-    const { width, height } = tinyMapSize.dimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const result = runAdmittedOperationForTest(
       planNaturalWonders,
@@ -177,7 +176,7 @@ describe("natural wonder planning", () => {
   });
 
   it("produces identical natural-wonder placements on repeated runs (deterministic, no RNG)", () => {
-    const { width, height } = tinyMapSize.dimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const f32 = (fn: (i: number) => number) =>
       Float32Array.from(Array.from({ length: size }, (_, i) => fn(i)));
@@ -228,7 +227,7 @@ describe("natural wonder planning", () => {
   });
 
   it("emits next-best fallback anchors for materialize retry", () => {
-    const { width, height } = tinyMapSize.dimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const result = runAdmittedOperationForTest(
       planNaturalWonders,
@@ -354,7 +353,7 @@ describe("natural wonder planning", () => {
   });
 
   it("diminishing-returns decay flips the second pick to a fresh group (variety)", () => {
-    const { width, height } = tinyMapSize.dimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const anchorOnly = { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] };
     // Uniform map tuned so two arid wonders (group H) each score ~0.8 and one

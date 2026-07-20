@@ -10,9 +10,8 @@ type ResourcePlacementOutcomes = Static<
 >;
 
 describe("Standard recipe generation", () => {
-  it("runs one canonical Tiny map through terminal placement product evidence", () => {
+  it("runs the selected test map through terminal placement product evidence", () => {
     const { context, adapter, preset } = runStandardRecipeTestMap({
-      presetId: "MAPSIZE_TINY",
       seed: 1018,
     });
     const outputs = context.artifacts.get(placementArtifacts.placementOutputs.id) as

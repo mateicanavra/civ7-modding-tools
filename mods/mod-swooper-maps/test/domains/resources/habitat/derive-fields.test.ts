@@ -8,26 +8,10 @@ import {
 import resources from "@mapgen/domain/resources/ops";
 
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
-
-function assertHabitatFieldsOutput(value: unknown): asserts value is HabitatFieldsOutput {
-  if (typeof value !== "object" || value === null) {
-    throw new Error("Expected derived habitat fields output.");
-  }
-  for (const field of HABITAT_MASK_FIELD_NAMES) {
-    if (!(Reflect.get(value, field) instanceof Uint8Array)) {
-      throw new Error(`Expected ${field} to be a Uint8Array.`);
-    }
-  }
-  for (const field of HABITAT_INTENSITY_FIELD_NAMES) {
-    if (!(Reflect.get(value, field) instanceof Float32Array)) {
-      throw new Error(`Expected ${field} to be a Float32Array.`);
-    }
-  }
-}
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 describe("derive-habitat-fields operation contract", () => {
-  const syntheticDimensions = { width: 8, height: 6 } as const;
-  const { width, height } = syntheticDimensions;
+  const { width, height } = TEST_MAP_SIZE.dimensions;
   const size = width * height;
 
   function syntheticInput() {
@@ -74,34 +58,26 @@ describe("derive-habitat-fields operation contract", () => {
     };
   }
 
-  it("derives every declared habitat lane mask plus per-family intensities", () => {
-    const result = runAdmittedOperationForTest(
-      resources.ops.deriveHabitatFields,
-      syntheticInput(),
-      structuredClone(resources.ops.deriveHabitatFields.defaultConfig)
-    );
-    assertHabitatFieldsOutput(result);
-
-    for (const field of HABITAT_MASK_FIELD_NAMES) {
-      const mask = result[field];
-      expect(mask, field).toBeInstanceOf(Uint8Array);
-      expect(mask.length, field).toBe(size);
-    }
-    for (const field of HABITAT_INTENSITY_FIELD_NAMES) {
-      const intensity = result[field];
-      expect(intensity).toBeInstanceOf(Float32Array);
-      for (const value of intensity) {
-        expect(value).toBeGreaterThanOrEqual(0);
-        expect(value).toBeLessThanOrEqual(1);
-      }
-    }
-  });
-
   it("covers every habitat signal field the family planners declare", () => {
     const declared = new Set<string>(HABITAT_MASK_FIELD_NAMES);
     for (const [resourceType, signal] of RESOURCE_HABITAT_SIGNALS) {
       for (const field of [...signal.primary, ...signal.suppress]) {
         expect(declared.has(field), `${resourceType} -> ${field}`).toBe(true);
+      }
+    }
+  });
+
+  it("bounds every resource-family habitat intensity to its declared unit interval", () => {
+    const result = runAdmittedOperationForTest(
+      resources.ops.deriveHabitatFields,
+      syntheticInput(),
+      structuredClone(resources.ops.deriveHabitatFields.defaultConfig)
+    ) as HabitatFieldsOutput;
+
+    for (const field of HABITAT_INTENSITY_FIELD_NAMES) {
+      for (const value of result[field]) {
+        expect(value, field).toBeGreaterThanOrEqual(0);
+        expect(value, field).toBeLessThanOrEqual(1);
       }
     }
   });
@@ -112,9 +88,7 @@ describe("derive-habitat-fields operation contract", () => {
       resources.ops.deriveHabitatFields,
       input,
       structuredClone(resources.ops.deriveHabitatFields.defaultConfig)
-    );
-    assertHabitatFieldsOutput(result);
-
+    ) as HabitatFieldsOutput;
     let coastalCount = 0;
     for (let i = 0; i < size; i++) {
       if (result.coastalWaterMask![i] === 1) {

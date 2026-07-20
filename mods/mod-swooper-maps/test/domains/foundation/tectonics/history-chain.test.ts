@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 import { deriveMantleForcing, derivePlateMotion } from "../fixtures/tectonic-operation-chain.js";
 import { runTectonicHistoryChain } from "../fixtures/tectonics-history.js";
 
@@ -8,8 +9,7 @@ const { computeCrust, computeMesh, computePlateGraph, computeTectonicSegments } 
 
 describe("foundation tectonic operation history chain", () => {
   it("keeps crust, plate graph, segments, and history deterministic and internally consistent", () => {
-    const syntheticDimensions = { width: 40, height: 20 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },

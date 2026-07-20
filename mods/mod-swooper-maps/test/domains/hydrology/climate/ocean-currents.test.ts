@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import hydrologyOpsPublic from "@mapgen/domain/hydrology/ops";
 import { estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const { computeOceanSurfaceCurrents } = hydrologyOpsPublic.ops;
 type WindGyreProjectionSelection = Extract<
@@ -33,8 +34,7 @@ function runOceanSurfaceCurrents(
 
 describe("hydrology/compute-ocean-surface-currents (wind-gyre-projection)", () => {
   it("zeros land and reduces divergence with projection", () => {
-    const syntheticDimensions = { width: 32, height: 16 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
 
     const latitudeByRow = new Float32Array(height);
@@ -42,9 +42,11 @@ describe("hydrology/compute-ocean-surface-currents (wind-gyre-projection)", () =
 
     const isWaterMask = new Uint8Array(size);
     isWaterMask.fill(1);
-    // A small land island.
-    for (let y = 6; y <= 9; y++) {
-      for (let x = 14; x <= 17; x++) {
+    // A small land island centered inside the selected Civ7 map size.
+    const islandLeft = Math.floor(width / 2) - 2;
+    const islandTop = Math.floor(height / 2) - 2;
+    for (let y = islandTop; y < islandTop + 4; y++) {
+      for (let x = islandLeft; x < islandLeft + 4; x++) {
         isWaterMask[y * width + x] = 0;
       }
     }

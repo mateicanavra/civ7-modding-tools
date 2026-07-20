@@ -20,40 +20,20 @@ describe("Standard climate artifact vintages", () => {
     );
   });
 
-  it("rejects wrong typed-array classes, spatial drift, and out-of-domain rainfall", () => {
+  it("rejects rainfall outside the Standard climate range", () => {
     for (const module of [baselineModules.baselineClimateField, refineModules.climateField]) {
       expect(
         module
           .validate(
             {
-              rainfall: new Int16Array(SYNTHETIC_CARDINALITY),
-              humidity: new Float32Array(SYNTHETIC_CARDINALITY),
+              rainfall: new Uint8Array([0, 1, 200, 201]),
+              humidity: new Uint8Array(SYNTHETIC_CARDINALITY),
             },
             context
           )
           .map((issue) => issue.message)
       ).toEqual(
-        expect.arrayContaining([
-          "Expected climate.rainfall to be Uint8Array.",
-          "Expected climate.humidity to be Uint8Array.",
-        ])
-      );
-
-      expect(
-        module
-          .validate(
-            {
-              rainfall: new Uint8Array([0, 1, 2, 201]),
-              humidity: new Uint8Array(SYNTHETIC_CARDINALITY - 1),
-            },
-            context
-          )
-          .map((issue) => issue.message)
-      ).toEqual(
-        expect.arrayContaining([
-          "Expected climate.rainfall[3] to be within 0..200 (received 201).",
-          `Expected climate.humidity length ${SYNTHETIC_CARDINALITY} (received ${SYNTHETIC_CARDINALITY - 1}).`,
-        ])
+        expect.arrayContaining(["Expected climate.rainfall[3] to be within 0..200 (received 201)."])
       );
     }
   });

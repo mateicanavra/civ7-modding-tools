@@ -7,11 +7,9 @@ import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { artifactModules as placementArtifactModules } from "../../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import { materializeStartAssignment } from "../../../../../../src/recipes/standard/stages/placement/steps/assign-starts/materialize.js";
+import { TEST_MAP_SIZE } from "../../../../../map-size.js";
 
 const { planStarts } = placementDomain.ops;
-const SYNTHETIC_TWO_SEAT_DIMENSIONS = { width: 16, height: 10 } as const;
-const SYNTHETIC_DEGRADED_DIMENSIONS = { width: 8, height: 6 } as const;
-
 type StartInput = Static<(typeof planStarts)["input"]>;
 
 function makeInput(
@@ -74,13 +72,20 @@ function plan(
   return runAdmittedOperationForTest(planStarts, input, selection);
 }
 
-function contextFor(syntheticDimensions: Readonly<{ width: number; height: number }>) {
-  const adapter = createMockAdapter(syntheticDimensions);
+function contextFor() {
+  const adapter = createMockAdapter({
+    ...TEST_MAP_SIZE.dimensions,
+    mapInfo: TEST_MAP_SIZE.mapInfo,
+    mapSizeId: TEST_MAP_SIZE.id,
+  });
   const context = createMapContext({
     setup: admitMapSetup({
       mapSeed: 1,
-      dimensions: syntheticDimensions,
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      dimensions: TEST_MAP_SIZE.dimensions,
+      latitudeBounds: {
+        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+      },
     }),
     adapter,
   });
@@ -89,14 +94,14 @@ function contextFor(syntheticDimensions: Readonly<{ width: number; height: numbe
 
 describe("start materializer (thin shell)", () => {
   it("stamps every seated intent via setStartPosition with the op's playerId and validates", () => {
-    const { width, height } = SYNTHETIC_TWO_SEAT_DIMENSIONS;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const input = makeInput(width, height, 2, 0, [4, 9]);
     addLandmass(
       input,
       Array.from({ length: 80 }, (_value, i) => [1 + (i % 10), 1 + Math.floor(i / 10)] as const)
     );
     const planned = plan(input);
-    const { adapter, context } = contextFor(SYNTHETIC_TWO_SEAT_DIMENSIONS);
+    const { adapter, context } = contextFor();
 
     const assignment = materializeStartAssignment({ context, plan: planned });
 
@@ -115,10 +120,10 @@ describe("start materializer (thin shell)", () => {
   });
 
   it("hard-fails ONLY when literally zero settleable land candidates exist", () => {
-    const { width, height } = SYNTHETIC_DEGRADED_DIMENSIONS;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const input = makeInput(width, height, 1, 0);
     const planned = plan(input);
-    const { context } = contextFor(SYNTHETIC_DEGRADED_DIMENSIONS);
+    const { context } = contextFor();
 
     expect(() => materializeStartAssignment({ context, plan: planned })).toThrow(
       /No settleable land candidates/
@@ -126,7 +131,7 @@ describe("start materializer (thin shell)", () => {
   });
 
   it("materializes degraded plans as data (no assign-or-throw)", () => {
-    const { width, height } = SYNTHETIC_DEGRADED_DIMENSIONS;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const input = makeInput(width, height, 3, 0);
     addLandmass(input, [
       [2, 2],
@@ -136,7 +141,7 @@ describe("start materializer (thin shell)", () => {
       config.spacingFloorTiles = 1;
       config.desiredSpacingTiles = 2;
     });
-    const { adapter, context } = contextFor(SYNTHETIC_DEGRADED_DIMENSIONS);
+    const { adapter, context } = contextFor();
 
     const assignment = materializeStartAssignment({ context, plan: planned });
 

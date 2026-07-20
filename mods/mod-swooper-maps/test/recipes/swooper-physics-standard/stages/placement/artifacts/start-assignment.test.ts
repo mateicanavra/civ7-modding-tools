@@ -8,8 +8,7 @@ import {
   STANDARD_ENGINE_EFFECT_TAGS,
   STANDARD_TAG_DEFINITIONS,
 } from "../../../../../../src/recipes/standard/tags.js";
-
-const SYNTHETIC_ASSIGNMENT_GRID = { width: 10, height: 1 } as const;
+import { TEST_MAP_SIZE } from "../../../../../map-size.js";
 
 function makeSyntheticStartAssignment(seatCount: number, assigned = seatCount) {
   const seats = Array.from({ length: seatCount }, (_value, seatIndex) => {
@@ -38,8 +37,7 @@ function makeSyntheticStartAssignment(seatCount: number, assigned = seatCount) {
     };
   });
   return {
-    width: Math.max(1, seatCount),
-    height: 1,
+    ...TEST_MAP_SIZE.dimensions,
     positions: seats.map((seat) => seat.plotIndex),
     seats,
     fairnessReport: {
@@ -81,10 +79,17 @@ describe("placement start-assignment artifacts", () => {
       createMapContext({
         setup: admitMapSetup({
           mapSeed: 1,
-          dimensions: SYNTHETIC_ASSIGNMENT_GRID,
-          latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+          dimensions: TEST_MAP_SIZE.dimensions,
+          latitudeBounds: {
+            topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+            bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+          },
         }),
-        adapter: createMockAdapter(SYNTHETIC_ASSIGNMENT_GRID),
+        adapter: createMockAdapter({
+          ...TEST_MAP_SIZE.dimensions,
+          mapInfo: TEST_MAP_SIZE.mapInfo,
+          mapSizeId: TEST_MAP_SIZE.id,
+        }),
       });
     const state = {
       satisfied: new Set([STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied]),

@@ -1,34 +1,17 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { Value } from "typebox/value";
 import { resolveEngineBiomeIds } from "../../../../../../../src/recipes/standard/stages/map-ecology/steps/plot-biomes/engine-biome-bindings.js";
 import { buildEngineBiomeIdVizCategories } from "../../../../../../../src/recipes/standard/stages/map-ecology/viz.js";
 import { BiomeEngineBindingsSchema } from "../../../../../../../src/recipes/standard/stages/map-projection-public-config.js";
-
-const SYNTHETIC_DIMENSIONS = { width: 1, height: 1 } as const;
+import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
 
 describe("plot biomes viz meta (engine biomeId)", () => {
   it("declares explicit stable categories/colors for engine biomeId", () => {
-    const { width, height } = SYNTHETIC_DIMENSIONS;
-    const seed = 1337;
-
     const adapter = createMockAdapter({
-      width,
-      height,
-      mapInfo: {
-        GridWidth: width,
-        GridHeight: height,
-        MinLatitude: -60,
-        MaxLatitude: 60,
-        PlayersLandmass1: 1,
-        PlayersLandmass2: 1,
-        StartSectorRows: 1,
-        StartSectorCols: 1,
-      },
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
+      ...TEST_MAP_SIZE.dimensions,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
     });
 
     const resolved = resolveEngineBiomeIds(adapter, Value.Create(BiomeEngineBindingsSchema));

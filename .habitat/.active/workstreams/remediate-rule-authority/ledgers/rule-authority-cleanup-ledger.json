@@ -7,8 +7,8 @@
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 124,
-    "currentRowCount": 124,
+    "liveManifestCount": 125,
+    "currentRowCount": 125,
     "retiredHistoricalRowCount": 39,
     "duplicateLiveRows": []
   },
@@ -19,20 +19,20 @@
       "consolidation/dedup": 1,
       "context admission": 27,
       "no action": 54,
-      "positive authority creation": 13,
+      "positive authority creation": 14,
       "retirement/garbage collection": 3,
       "runtime/source validation": 3,
       "split by owner": 14
     },
     "packetNeeded": {
-      "false": 124
+      "false": 125
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 3,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 87,
+      "none": 88,
       "packet-complete": 17,
       "transition-decision-accepted": 14
     }
@@ -425,6 +425,15 @@
       "expectedRemediation": "Stay as control-oRPC contract source-surface guard.",
       "evidenceNote": "Graph cannot express schema export privacy; rule matches package contract boundary.",
       "currentPath": ".habitat/civ7/platform/control-orpc/rules/preserve_transport_pure_orpc_contracts/rule.json"
+    },
+    {
+      "ruleId": "prefer_civ7_preset_dimensions_in_mapgen_behavior_tests",
+      "lane": "MapGen Swooper recipe testing",
+      "actionDecision": "positive authority creation",
+      "packetNeeded": false,
+      "expectedRemediation": "Keep advisory while the finite literal-dimension corpus is classified by causal test intent; ordinary map-shaped behavior tests use the shared switchable Civ7 preset.",
+      "evidenceNote": "The generic Grit pattern reports numeric width/height object literals without encoding preset values or file allowlists. Synthetic bounds, wrap, local-topology, and exact-cardinality fixtures remain visible for review rather than being silently exempted.",
+      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prefer_civ7_preset_dimensions_in_mapgen_behavior_tests/rule.json"
     },
     {
       "ruleId": "prohibit_adapter_local_legacy_generator_logic",

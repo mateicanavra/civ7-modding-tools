@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import morphologyDomain from "@mapgen/domain/morphology/ops";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const { computeBeltDrivers } = morphologyDomain.ops;
 
@@ -51,8 +52,7 @@ function sumMask(mask: Uint8Array): number {
 
 describe("morphology belt synthesis (history + provenance)", () => {
   it("noise-only inputs cannot create belts", () => {
-    const syntheticDimensions = { width: 12, height: 1 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const historyTiles = buildHistoryTiles(width, height, 3);
     const provenanceTiles = buildProvenanceTiles(width, height);
 

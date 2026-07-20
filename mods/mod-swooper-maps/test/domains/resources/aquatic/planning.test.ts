@@ -3,6 +3,7 @@ import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/
 import resources from "@mapgen/domain/resources/ops";
 
 import { normalizeOperationSelectionForTest, TestCompileError } from "@swooper/mapgen-core/testing";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const AQUATIC_RESOURCE_TYPES = [
   "RESOURCE_FISH",
@@ -18,8 +19,7 @@ type AquaticExpectation = Parameters<
 
 describe("aquatic resource operation contract", () => {
   it("plans all aquatic resource rows symbolically without runtime ids", () => {
-    const syntheticDimensions = { width: 4, height: 4 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
       resources.ops.planAquaticResources,
@@ -62,8 +62,7 @@ describe("aquatic resource operation contract", () => {
   });
 
   it("keeps crabs navigable-river signal visible", () => {
-    const syntheticDimensions = { width: 3, height: 3 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const riverMouths = new Uint8Array(size);
     riverMouths[4] = 1;
@@ -87,8 +86,7 @@ describe("aquatic resource operation contract", () => {
   });
 
   it("reports missing expectation rows instead of silently dropping resources", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const result = resources.ops.planAquaticResources.run(
       {
@@ -121,8 +119,7 @@ describe("aquatic resource operation contract", () => {
   });
 
   it("marks rows as signal gaps when no aquatic signal mask is supplied", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const result = resources.ops.planAquaticResources.run(
       {
         width,

@@ -3,6 +3,7 @@ import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/
 import resources from "@mapgen/domain/resources/ops";
 
 import { normalizeOperationSelectionForTest, TestCompileError } from "@swooper/mapgen-core/testing";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 type AquaticExpectation = Parameters<
   typeof resources.ops.planAquaticResources.run
@@ -19,14 +20,13 @@ type GeologicalExpectation = Parameters<
 
 describe("resource group rollup operation contract", () => {
   it("publishes one warning-only group plan artifact across all symbolic resource groups", () => {
-    const syntheticDimensions = { width: 5, height: 5 } as const;
     const selection = normalizeOperationSelectionForTest(
       resources.ops.planResourceGroups,
       structuredClone(resources.ops.planResourceGroups.defaultConfig)
     );
 
     const result = resources.ops.planResourceGroups.run(
-      allGroupPlans(syntheticDimensions),
+      allGroupPlans(TEST_MAP_SIZE.dimensions),
       selection
     );
 
@@ -39,7 +39,9 @@ describe("resource group rollup operation contract", () => {
     expect(result.missingSignalCount).toBe(0);
     expect(result.missingExpectationCount).toBe(0);
     expect(result.targetIntentCount).toBe(374);
-    expect(result.eligibleTileCount).toBe(1250);
+    expect(result.eligibleTileCount).toBe(
+      result.plannedCount * TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height
+    );
     expect(result.duplicateResourceTypes).toEqual([]);
     expect(result.missingResourceTypes).toEqual([]);
     expect(result.blockers).toEqual([]);
@@ -66,9 +68,8 @@ describe("resource group rollup operation contract", () => {
   });
 
   it("preserves group-level blocked, missing-signal, and missing-expectation counts", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
-    const plans = allGroupPlans(syntheticDimensions);
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const plans = allGroupPlans(TEST_MAP_SIZE.dimensions);
     const result = resources.ops.planResourceGroups.run(
       {
         ...plans,
@@ -99,8 +100,7 @@ describe("resource group rollup operation contract", () => {
   });
 
   it("reports duplicate resource ownership across group plans", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const plans = allGroupPlans(syntheticDimensions);
+    const plans = allGroupPlans(TEST_MAP_SIZE.dimensions);
     const result = resources.ops.planResourceGroups.run(
       {
         ...plans,
@@ -119,8 +119,7 @@ describe("resource group rollup operation contract", () => {
   });
 
   it("reports duplicate rows inside one group plan", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const plans = allGroupPlans(syntheticDimensions);
+    const plans = allGroupPlans(TEST_MAP_SIZE.dimensions);
     const result = resources.ops.planResourceGroups.run(
       {
         ...plans,
@@ -139,8 +138,7 @@ describe("resource group rollup operation contract", () => {
   });
 
   it("reports group input miswiring without changing the runtime boundary", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const plans = allGroupPlans(syntheticDimensions);
+    const plans = allGroupPlans(TEST_MAP_SIZE.dimensions);
     const result = resources.ops.planResourceGroups.run(
       {
         ...plans,

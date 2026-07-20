@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
 import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 import { runTectonicHistoryChain } from "../../foundation/fixtures/tectonics-history.js";
 
 const {
@@ -35,8 +36,7 @@ function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
 
 describe("m11 hypsometry: continentalFraction does not collapse water coverage", () => {
   it("keeps non-trivial water coverage while meeting continentalFraction target", () => {
-    const syntheticDimensions = { width: 80, height: 60 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
 
     const meshConfig = computeMesh.normalize({

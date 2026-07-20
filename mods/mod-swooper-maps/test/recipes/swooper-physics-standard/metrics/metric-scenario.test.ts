@@ -17,6 +17,7 @@ import {
 import { EARTHLIKE_BIOME_STRUCTURE_TARGET } from "../../../../src/recipes/standard/metrics/targets/ecology.js";
 import { STANDARD_INTEGRITY_TARGET } from "../../../../src/recipes/standard/metrics/targets/integrity.js";
 import { EARTHLIKE_RELIEF_REPRESENTATIVE_TARGET } from "../../../../src/recipes/standard/metrics/targets/relief.js";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const standardPreset = getCiv7StandardMapSizePreset("MAPSIZE_STANDARD");
 const earthlikeConfig = admitStandardMapConfig(swooperEarthlikeRaw);
@@ -94,9 +95,8 @@ describe("Standard metric scenario admission", () => {
   });
 
   it("captures the complete canonical feature legality corpus including floodplains", () => {
-    const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
     const capture = captureStandardMapScenario(
-      standardProductMetricScenario(earthlikeConfig, tinyPreset, 1018)
+      standardProductMetricScenario(earthlikeConfig, TEST_MAP_SIZE, 1018)
     );
     const capturedKeys = capture.observation.features.map(({ key }) => key);
     const floodplain = FEATURE_PLACEMENT_KEYS.find((key) => key.includes("_FLOODPLAIN_"));

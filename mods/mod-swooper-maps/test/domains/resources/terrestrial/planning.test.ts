@@ -3,6 +3,7 @@ import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "@mapgen/domain/resources/model/
 import resources from "@mapgen/domain/resources/ops";
 
 import { normalizeOperationSelectionForTest, TestCompileError } from "@swooper/mapgen-core/testing";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const TERRESTRIAL_RESOURCE_TYPES = [
   "RESOURCE_CAMELS",
@@ -23,8 +24,7 @@ type TerrestrialExpectation = Parameters<
 
 describe("terrestrial resource operation contract", () => {
   it("plans all terrestrial resource rows symbolically without runtime ids", () => {
-    const syntheticDimensions = { width: 5, height: 5 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
       resources.ops.planTerrestrialResources,
@@ -69,8 +69,7 @@ describe("terrestrial resource operation contract", () => {
   });
 
   it("keeps woodland-host and tropical-highland signal requirements visible", () => {
-    const syntheticDimensions = { width: 3, height: 3 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const woodland = new Uint8Array(size);
     const tropicalHighland = new Uint8Array(size);
@@ -101,8 +100,7 @@ describe("terrestrial resource operation contract", () => {
   });
 
   it("keeps ivory on savanna or forest-edge proxies instead of broad tropical forest", () => {
-    const syntheticDimensions = { width: 3, height: 3 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const forestEdge = new Uint8Array(size);
     forestEdge[5] = 1;
@@ -126,8 +124,7 @@ describe("terrestrial resource operation contract", () => {
   });
 
   it("keeps synthetic blocked rows visible and active-zero", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const expectations = terrestrialExpectations();
     const camels = expectations.find((row) => row.resourceType === "RESOURCE_CAMELS");
@@ -164,8 +161,7 @@ describe("terrestrial resource operation contract", () => {
   });
 
   it("suppression masks reduce observed eligibility", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const open = every(size);
     const denseForest = new Uint8Array(size);
@@ -188,15 +184,14 @@ describe("terrestrial resource operation contract", () => {
 
     expect(
       result.plans.find((plan) => plan.resourceType === "RESOURCE_HORSES")?.eligibleTileCount
-    ).toBe(3);
+    ).toBe(size - 1);
     expect(
       result.plans.find((plan) => plan.resourceType === "RESOURCE_WILD_GAME")?.eligibleTileCount
-    ).toBe(3);
+    ).toBe(size - 1);
   });
 
   it("keeps hardwood caveat visible", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const result = resources.ops.planTerrestrialResources.run(
       {
@@ -216,8 +211,7 @@ describe("terrestrial resource operation contract", () => {
   });
 
   it("reports missing expectation rows instead of silently dropping resources", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const result = resources.ops.planTerrestrialResources.run(
       {
@@ -248,8 +242,7 @@ describe("terrestrial resource operation contract", () => {
   });
 
   it("marks rows as signal gaps when no terrestrial signal mask is supplied", () => {
-    const syntheticDimensions = { width: 2, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const result = resources.ops.planTerrestrialResources.run(
       {
         width,

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const { computeFlowRouting, computeGeomorphicCycle } = morphologyDomain.ops;
 
@@ -61,7 +61,7 @@ function buildDeterministicTerrain(
 
 describe("m11 geomorphology (stream-power erosion + sediment transport)", () => {
   it("is deterministic and correlates erosion/deposition with physics proxies (no noise)", () => {
-    const { width, height } = getCiv7StandardMapSizePreset("MAPSIZE_TINY").dimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
 
     const { elevation, landMask } = buildDeterministicTerrain(width, height);

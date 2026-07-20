@@ -1,20 +1,19 @@
 import { describe, expect, it } from "bun:test";
-import { getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
 import morphologyFeaturesStage from "../../../../../../../../src/recipes/standard/stages/morphology-features/index.js";
 import { MountainsStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology-features/steps/mountains/config.js";
 import { MountainsStep } from "../../../../../../../../src/recipes/standard/stages/morphology-features/steps/mountains/step.js";
+import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,
   standardMapConfig,
 } from "../../../../../fixtures/standard-recipe.js";
 
-const tinyPreset = getCiv7StandardMapSizePreset("MAPSIZE_TINY");
 const setup = admitMapSetup({
   mapSeed: 123,
-  dimensions: tinyPreset.dimensions,
+  dimensions: TEST_MAP_SIZE.dimensions,
   latitudeBounds: standardMapConfig.latitudeBounds,
 });
 

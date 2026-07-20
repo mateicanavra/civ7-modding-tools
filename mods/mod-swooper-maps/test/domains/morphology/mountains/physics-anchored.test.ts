@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const { planFoothills, planRidges } = morphologyOpsPublic.ops;
 function countMask(mask: Uint8Array, start: number, end: number): number {
@@ -104,8 +105,7 @@ describe("m11 mountains (physics-anchored)", () => {
   });
 
   it("noise-only runs cannot create mountain belts without orogeny signal", () => {
-    const syntheticDimensions = { width: 20, height: 1 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
 
     const landMask = new Uint8Array(size);

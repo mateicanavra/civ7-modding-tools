@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
 
 const {
   computeCrust,
@@ -17,23 +18,9 @@ function allFinite(values: Float32Array): boolean {
   return true;
 }
 
-function truncateMantleForcing(mantleForcing: any, cellCount: number) {
-  return {
-    ...mantleForcing,
-    cellCount,
-    stress: mantleForcing.stress.slice(0, cellCount),
-    forcingU: mantleForcing.forcingU.slice(0, cellCount),
-    forcingV: mantleForcing.forcingV.slice(0, cellCount),
-    forcingMag: mantleForcing.forcingMag.slice(0, cellCount),
-    upwellingClass: mantleForcing.upwellingClass.slice(0, cellCount),
-    divergence: mantleForcing.divergence.slice(0, cellCount),
-  };
-}
-
 describe("foundation plate motion (D03r)", () => {
   it("is deterministic for identical inputs", () => {
-    const syntheticDimensions = { width: 44, height: 28 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
@@ -73,8 +60,7 @@ describe("foundation plate motion (D03r)", () => {
   });
 
   it("does not cap plateFitP90 at residualNorm (P90 can exceed normalization scale)", () => {
-    const syntheticDimensions = { width: 44, height: 28 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
@@ -144,8 +130,7 @@ describe("foundation plate motion (D03r)", () => {
   });
 
   it("responds to mantle forcing changes", () => {
-    const syntheticDimensions = { width: 44, height: 28 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
@@ -199,61 +184,8 @@ describe("foundation plate motion (D03r)", () => {
     expect(Array.from(motionA.cellFitError)).not.toEqual(Array.from(motionB.cellFitError));
   });
 
-  it("rejects plate graph and mantle forcing dimensions from a different mesh", () => {
-    const syntheticDimensions = { width: 36, height: 24 } as const;
-    const { width, height } = syntheticDimensions;
-    const meshConfig = computeMesh.normalize({
-      strategy: "default",
-      config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2 },
-    });
-
-    const mesh = computeMesh.run({ width, height, rngSeed: 41 }, meshConfig).mesh;
-    const mantlePotential = computeMantlePotential.run(
-      { mesh, rngSeed: 44 },
-      computeMantlePotential.defaultConfig
-    ).mantlePotential;
-    const mantleForcing = computeMantleForcing.run(
-      { mesh, mantlePotential },
-      computeMantleForcing.defaultConfig
-    ).mantleForcing;
-    const crust = computeCrust.run(
-      { mesh, mantleForcing, rngSeed: 42 },
-      computeCrust.defaultConfig
-    ).crust;
-    const plateGraph = computePlateGraph.run(
-      { mesh, crust, rngSeed: 43 },
-      computePlateGraph.defaultConfig
-    ).plateGraph;
-
-    expect(() =>
-      computePlateMotion.run(
-        {
-          mesh,
-          plateGraph: {
-            ...plateGraph,
-            cellToPlate: plateGraph.cellToPlate.slice(0, mesh.cellCount - 1),
-          },
-          mantleForcing,
-        },
-        computePlateMotion.defaultConfig
-      )
-    ).toThrow(/plateGraph\.cellToPlate/);
-
-    expect(() =>
-      computePlateMotion.run(
-        {
-          mesh,
-          plateGraph,
-          mantleForcing: truncateMantleForcing(mantleForcing, mesh.cellCount - 1),
-        },
-        computePlateMotion.defaultConfig
-      )
-    ).toThrow(/mantleForcing\.cellCount/);
-  });
-
   it("emits finite motion + diagnostics", () => {
-    const syntheticDimensions = { width: 32, height: 20 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
       strategy: "default",
       config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2 },

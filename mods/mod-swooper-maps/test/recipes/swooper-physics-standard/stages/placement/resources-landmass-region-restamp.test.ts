@@ -60,7 +60,6 @@ function runRecipeWithAdapter<TAdapter extends MockAdapter>(
   createAdapter: RegionAdapterFactory<TAdapter>
 ): Readonly<{ adapter: TAdapter; context: MapContext }> {
   return runStandardRecipeTestMap({
-    presetId: "MAPSIZE_TINY",
     seed,
     mapInfo: {
       PlayersLandmass1: 1,
