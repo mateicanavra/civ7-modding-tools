@@ -1,5 +1,5 @@
-import type { MapContext } from "@mapgen/core/map-context.js";
 import { assertStageId } from "@mapgen/authoring/stage-id.js";
+import type { MapContext } from "@mapgen/core/map-context.js";
 import { DuplicateStepError, UnknownStepError } from "@mapgen/engine/errors.js";
 import {
   type DependencyTagDefinition,

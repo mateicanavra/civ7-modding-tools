@@ -134,7 +134,8 @@ The `map-ecology` stage:
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Architecture guardrails (import bans and parity gates):
   - `.habitat/civ7/mapgen/domains/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/rule.json`
-  - `mods/mod-swooper-maps/test/domains/ecology/earthlike-balance-smoke.test.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/metrics/studies/benchmarks/earthlike-ecology.study.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/metrics/targets/ecology.ts`
 
 ## Open questions
 

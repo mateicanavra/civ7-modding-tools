@@ -348,6 +348,21 @@ export const STANDARD_INTEGRITY_TARGET = {
       (sample) => sample.metrics.hydrology.terminalOceanTiles !== null,
       true
     ),
+    equalTo<StandardMapProductSample>(
+      "river-network-closure",
+      "Every modeled land tile belongs to a closed river basin with valid, nondecreasing downstream routing.",
+      (sample) => {
+        const summary = sample.metrics.hydrology.networkSummary;
+        return (
+          summary.unresolvedMouthTileCount === 0 &&
+          summary.invalidReceiverTileCount === 0 &&
+          summary.downstreamDischargeDropEdgeCount === 0 &&
+          summary.unassignedBasinLandTileCount === 0 &&
+          summary.assignedBasinLandTileCount === summary.landTileCount
+        );
+      },
+      true
+    ),
     atLeast<StandardMapProductSample>(
       "ocean-river-terminals",
       "At least one modeled river terminal reaches the ocean.",

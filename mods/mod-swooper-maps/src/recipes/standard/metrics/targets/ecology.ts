@@ -23,6 +23,59 @@ const FLOODPLAIN_FEATURE_KEYS = [
   "FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE",
 ] as const;
 
+/** Representative Earthlike target for gradual latitude transitions and within-row variety. */
+export const EARTHLIKE_BIOME_STRUCTURE_TARGET = {
+  id: "swooper-earthlike/biome-structure",
+  description:
+    "Earthlike avoids abrupt rainforest latitude cuts and horizontally uniform biome bands.",
+  expectations: [
+    atLeast<StandardMapProductSample>(
+      "rainforest-latitude-row-evidence",
+      "The representative map contains adjacent latitude rows with enough land to compare rainforest share.",
+      (sample) => sample.metrics.ecology.biomeRows.adjacentRainforestRowPairCount,
+      1
+    ),
+    atMost<StandardMapProductSample>(
+      "rainforest-latitude-transition",
+      "Adjacent well-sampled latitude rows avoid an abrupt rainforest-share cutoff.",
+      (sample) =>
+        sample.metrics.ecology.biomeRows.maximumAdjacentRainforestShareDelta ??
+        Number.MAX_SAFE_INTEGER,
+      0.61
+    ),
+    atLeast<StandardMapProductSample>(
+      "cold-biome-presence",
+      "Tundra or boreal biome tiles remain present across the configured latitude span.",
+      (sample) => sample.metrics.ecology.coldBiomeTiles.count,
+      1
+    ),
+    atLeast<StandardMapProductSample>(
+      "land-row-evidence",
+      "The representative map contains at least one land-bearing latitude row.",
+      (sample) => sample.metrics.ecology.biomeRows.landRowCount,
+      1
+    ),
+    atLeast<StandardMapProductSample>(
+      "median-row-biome-diversity",
+      "A typical land-bearing row contains at least one classified biome.",
+      (sample) => sample.metrics.ecology.biomeRows.medianBiomeDiversity ?? -1,
+      1
+    ),
+    atLeast<StandardMapProductSample>(
+      "maximum-row-biome-diversity",
+      "At least one land-bearing row contains multiple biome families.",
+      (sample) => sample.metrics.ecology.biomeRows.maximumBiomeDiversity ?? -1,
+      2
+    ),
+    atLeast<StandardMapProductSample>(
+      "land-biome-diversity",
+      "The representative land surface contains at least three biome families.",
+      (sample) => sample.metrics.ecology.biomeDiversity,
+      3
+    ),
+  ],
+} satisfies MetricTarget<StandardMapProductSample>;
+
 /** Earthlike cohort benchmark for vegetation variety and biome balance. */
 export const EARTHLIKE_ECOLOGY_TARGET = {
   id: "swooper-earthlike/ecology-cohort",

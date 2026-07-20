@@ -71,7 +71,7 @@
       }
     },
     "test:studio-run-in-game": {
-      "command": "bun test test/recipes/swooper-physics-standard/recipe/execution.test.ts test/build/map-bundle-runtime-compatibility.test.ts test/maps/map-config-schema.test.ts test/recipes/swooper-physics-standard/recipe/standard-complete-config-boundary.test.ts",
+      "command": "bun test test/recipes/swooper-physics-standard/generation.test.ts test/recipes/swooper-physics-standard/complete-config-boundary.test.ts test/build/map-bundle-runtime-compatibility.test.ts test/maps/map-config-schema.test.ts",
       "dependsOn": ["build", "build:studio-recipes"],
       "cache": true,
       "options": {

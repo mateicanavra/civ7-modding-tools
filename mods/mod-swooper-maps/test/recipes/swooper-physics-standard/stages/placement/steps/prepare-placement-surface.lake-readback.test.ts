@@ -5,10 +5,11 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { readFinalLakeProjection } from "../../../../../../src/recipes/standard/stages/placement/steps/prepare-placement-surface/lake-readback.js";
 
+const SYNTHETIC_DIMENSIONS = { width: 4, height: 3 } as const;
+
 describe("placement final lake readback", () => {
   it("counts accepted lake tiles that placement-time maintenance dries or declassifies", () => {
-    const width = 4;
-    const height = 3;
+    const { width, height } = SYNTHETIC_DIMENSIONS;
     const adapter = new MockAdapter({
       width,
       height,

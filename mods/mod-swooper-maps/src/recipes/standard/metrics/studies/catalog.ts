@@ -1,5 +1,5 @@
 import type { NonEmptyTuple } from "type-fest";
-
+import { EARTHLIKE_BIOME_STRUCTURE_STUDY } from "./benchmarks/earthlike-biome-structure.study.js";
 import { EARTHLIKE_COLD_REEF_STUDY } from "./benchmarks/earthlike-cold-reef.study.js";
 import { EARTHLIKE_DEEP_OCEAN_STUDY } from "./benchmarks/earthlike-deep-ocean.study.js";
 import { EARTHLIKE_ECOLOGY_STUDY } from "./benchmarks/earthlike-ecology.study.js";
@@ -9,6 +9,7 @@ import { EARTHLIKE_HUGE_RELIEF_COHORT_STUDY } from "./benchmarks/earthlike-huge-
 import { EARTHLIKE_OROGENY_STUDY } from "./benchmarks/earthlike-orogeny.study.js";
 import { EARTHLIKE_PLACEMENT_STUDY } from "./benchmarks/earthlike-placement.study.js";
 import { EARTHLIKE_RELIEF_REPRESENTATIVE_STUDY } from "./benchmarks/earthlike-relief-representative.study.js";
+import { EARTHLIKE_RIVER_NETWORK_STUDY } from "./benchmarks/earthlike-river-network.study.js";
 import { SHIPPED_ARID_CLIMATE_STUDIES } from "./benchmarks/shipped-arid-climate.study.js";
 import { SHIPPED_GEOGRAPHY_STUDY } from "./benchmarks/shipped-geography.study.js";
 import { SHIPPED_IDENTITY_STUDIES } from "./benchmarks/shipped-identities.study.js";
@@ -20,7 +21,9 @@ export const STANDARD_METRIC_STUDIES: NonEmptyTuple<StandardMetricStudy> = Objec
   ...SHIPPED_ARID_CLIMATE_STUDIES,
   SHIPPED_GEOGRAPHY_STUDY,
   EARTHLIKE_GEOGRAPHY_STUDY,
+  EARTHLIKE_BIOME_STRUCTURE_STUDY,
   EARTHLIKE_DEEP_OCEAN_STUDY,
+  EARTHLIKE_RIVER_NETWORK_STUDY,
   EARTHLIKE_ECOLOGY_STUDY,
   EARTHLIKE_COLD_REEF_STUDY,
   EARTHLIKE_FLOODPLAIN_STUDY,

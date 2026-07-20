@@ -1,24 +1,27 @@
 import { describe, expect, it } from "bun:test";
 
-import { createMockAdapter } from "@civ7/adapter";
+import { createMockAdapter, getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement/ops";
-
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 import { initializeStandardRuntime } from "../../../../../../src/recipes/standard/runtime.js";
 import { buildPlacementInputs } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/inputs.js";
 import { buildNaturalWonderPlanInputRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-input-telemetry.js";
 import { buildNaturalWonderPlanRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-telemetry.js";
-import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";
 
 const { featureTypes, terrainTypeIndices, biomeGlobals } = CIV7_BROWSER_TABLES_V0;
+const SYNTHETIC_WONDER_CATALOG_DIMENSIONS = { width: 6, height: 6 } as const;
+const SYNTHETIC_TELEMETRY_DIMENSIONS = { width: 4, height: 4 } as const;
+const hugePreset = getCiv7StandardMapSizePreset("MAPSIZE_HUGE");
 
 function placementConfig() {
   return {
-    naturalWonders: normalizeOpSelectionOrThrow(
+    naturalWonders: normalizeOperationSelectionForTest(
       placement.ops.planNaturalWonders,
       placement.ops.planNaturalWonders.defaultConfig
     ),
-    wonders: normalizeOpSelectionOrThrow(
+    wonders: normalizeOperationSelectionForTest(
       placement.ops.planWonders,
       placement.ops.planWonders.defaultConfig
     ),
@@ -27,8 +30,7 @@ function placementConfig() {
 
 describe("derive placement inputs", () => {
   it("passes explicit projected natural-wonder direction to materialization planning", () => {
-    const width = 6;
-    const height = 6;
+    const { width, height } = SYNTHETIC_WONDER_CATALOG_DIMENSIONS;
     const size = width * height;
     const mapInfo = {
       GridWidth: width,
@@ -52,14 +54,14 @@ describe("derive placement inputs", () => {
     });
     const featureTypeSnapshot = new Int16Array(size).fill(adapter.NO_FEATURE);
     featureTypeSnapshot[0] = featureTypes.FEATURE_ICE;
-    const context = {
-      setup: {
+    const context = createMapContext({
+      setup: admitMapSetup({
         mapSeed: 1,
-        dimensions: { width, height },
+        dimensions: SYNTHETIC_WONDER_CATALOG_DIMENSIONS,
         latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
-      },
+      }),
       adapter,
-    } as never;
+    });
     initializeStandardRuntime(context, { mapInfo });
 
     let capturedNaturalWonderInput:
@@ -150,8 +152,7 @@ describe("derive placement inputs", () => {
   });
 
   it("includes the recovered 4-tile natural wonders (Barrier Reef) in the plan catalog", () => {
-    const width = 6;
-    const height = 6;
+    const { width, height } = SYNTHETIC_WONDER_CATALOG_DIMENSIONS;
     const size = width * height;
     const mapInfo = {
       GridWidth: width,
@@ -173,14 +174,14 @@ describe("derive placement inputs", () => {
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_BARRIER_REEF, direction: -1 }],
     });
-    const context = {
-      setup: {
+    const context = createMapContext({
+      setup: admitMapSetup({
         mapSeed: 1,
-        dimensions: { width, height },
+        dimensions: SYNTHETIC_WONDER_CATALOG_DIMENSIONS,
         latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
-      },
+      }),
       adapter,
-    } as never;
+    });
     initializeStandardRuntime(context, { mapInfo });
 
     let capturedNaturalWonderInput:
@@ -272,8 +273,7 @@ describe("derive placement inputs", () => {
 
   it("builds compact natural-wonder plan telemetry for exact runtime evidence", () => {
     const telemetry = buildNaturalWonderPlanRuntimeTelemetry({
-      width: 106,
-      height: 66,
+      ...hugePreset.dimensions,
       wondersCount: 7,
       targetCount: 7,
       plannedCount: 2,
@@ -316,8 +316,7 @@ describe("derive placement inputs", () => {
   });
 
   it("builds compact natural-wonder plan input telemetry for exact runtime evidence", () => {
-    const width = 4;
-    const height = 4;
+    const { width, height } = SYNTHETIC_TELEMETRY_DIMENSIONS;
     const size = width * height;
     const mapInfo = {
       GridWidth: width,
@@ -346,14 +345,14 @@ describe("derive placement inputs", () => {
     featureType[5] = featureTypes.FEATURE_ICE;
     const blockedMask = new Uint8Array(size);
     blockedMask[5] = 1;
-    const context = {
-      setup: {
+    const context = createMapContext({
+      setup: admitMapSetup({
         mapSeed: 1,
-        dimensions: { width, height },
+        dimensions: SYNTHETIC_TELEMETRY_DIMENSIONS,
         latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
-      },
+      }),
       adapter,
-    } as never;
+    });
     const telemetry = buildNaturalWonderPlanInputRuntimeTelemetry({
       context,
       plan: {

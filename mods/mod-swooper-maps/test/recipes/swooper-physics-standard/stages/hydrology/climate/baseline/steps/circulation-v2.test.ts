@@ -1,0 +1,220 @@
+import { describe, expect, it } from "bun:test";
+import { type StepFacetSinks, sha256Hex } from "@swooper/mapgen-core";
+import { artifacts as hydrologyClimateBaselineArtifacts } from "../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
+import {
+  createStandardRecipeTestConfig,
+  runStandardRecipeTestMap,
+} from "../../../../../fixtures/standard-recipe.js";
+
+function variance(values: Int8Array, start: number, count: number): number {
+  if (count <= 0) return 0;
+  let sum = 0;
+  for (let i = 0; i < count; i++) sum += values[start + i] ?? 0;
+  const mean = sum / count;
+  let acc = 0;
+  for (let i = 0; i < count; i++) {
+    const d = (values[start + i] ?? 0) - mean;
+    acc += d * d;
+  }
+  return acc / count;
+}
+
+function runAndCaptureSst(options: {
+  seed: number;
+  config: ReturnType<typeof createStandardRecipeTestConfig>;
+}): { sstC: Float32Array; windU: Int8Array; currentU: Int8Array; width: number } {
+  let capturedSst: Float32Array | null = null;
+  const captureViz: NonNullable<StepFacetSinks["viz"]> = (projections) => {
+    for (const projection of projections) {
+      if (projection.dataTypeKey !== "hydrology.ocean.sstC") continue;
+      if (projection.kind !== "grid" || !(projection.field.values instanceof Float32Array)) {
+        throw new Error("Expected hydrology.ocean.sstC to be projected as an f32 grid.");
+      }
+      capturedSst = new Float32Array(projection.field.values);
+    }
+  };
+
+  const { context, preset } = runStandardRecipeTestMap({
+    presetId: "MAPSIZE_TINY",
+    seed: options.seed,
+    recipeConfig: options.config,
+    execution: { facets: { viz: captureViz } },
+  });
+
+  if (!capturedSst)
+    throw new Error("Expected hydrology.ocean.sstC to be emitted when circulation v2 is enabled.");
+
+  const windField = context.artifacts.get(hydrologyClimateBaselineArtifacts.windField.id) as
+    | { windU?: Int8Array; currentU?: Int8Array }
+    | undefined;
+  if (!(windField?.windU instanceof Int8Array))
+    throw new Error("Missing artifact:hydrology._internal.windField windU.");
+  if (!(windField?.currentU instanceof Int8Array))
+    throw new Error("Missing artifact:hydrology._internal.windField currentU.");
+
+  return {
+    sstC: capturedSst,
+    windU: windField.windU,
+    currentU: windField.currentU,
+    width: preset.dimensions.width,
+  } as const;
+}
+
+describe("circulation v2 (pipeline integration)", () => {
+  it("produces non-row-uniform winds and SST responds to currents", () => {
+    const seed = 1337;
+
+    const baseV2 = createStandardRecipeTestConfig();
+    baseV2["hydrology-climate-baseline"].atmosphericCirculation = {
+      maxSpeed: 110,
+      zonalStrength: 90,
+      meridionalStrength: 30,
+      geostrophicStrength: 70,
+      pressureNoiseScale: 18,
+      pressureNoiseAmp: 55,
+      waveStrength: 45,
+      landHeatStrength: 20,
+      mountainDeflectStrength: 18,
+      smoothIters: 4,
+    };
+    baseV2["hydrology-climate-baseline"].oceanGeometry = {
+      maxCoastDistance: 64,
+      maxCoastVectorDistance: 10,
+    };
+    baseV2["hydrology-climate-baseline"].oceanCurrents = {
+      maxSpeed: 80,
+      windStrength: 0.9,
+      ekmanStrength: 0.35,
+      gyreStrength: 26,
+      coastStrength: 32,
+      smoothIters: 3,
+      projectionIters: 8,
+    };
+    baseV2["hydrology-climate-baseline"].oceanThermalState = {
+      equatorTempC: 28,
+      poleTempC: -2,
+      advectIters: 24,
+      diffusion: 0.12,
+      secondaryWeightMin: 0.25,
+      seaIceThresholdC: -1,
+    };
+    baseV2["hydrology-climate-baseline"].moistureTransport = {
+      iterations: 42,
+      advection: 0.7,
+      retention: 0.93,
+      secondaryWeightMin: 0.2,
+    };
+    baseV2["hydrology-climate-baseline"].precipitation = {
+      rainfallScale: 180,
+      humidityExponent: 1,
+      noiseAmplitude: 6,
+      noiseScale: 0.12,
+      waterGradient: {
+        radius: 5,
+        perRingBonus: 4,
+        lowlandBonus: 2,
+        lowlandElevationMax: 150,
+      },
+      upliftStrength: 22,
+      convergenceStrength: 16,
+    };
+
+    const weakCurrents = structuredClone(baseV2);
+    weakCurrents["hydrology-climate-baseline"].oceanCurrents = {
+      maxSpeed: 80,
+      windStrength: 0,
+      ekmanStrength: 0,
+      gyreStrength: 0,
+      coastStrength: 0,
+      smoothIters: 3,
+      projectionIters: 8,
+    };
+
+    const strong = runAndCaptureSst({ seed, config: baseV2 });
+    const weak = runAndCaptureSst({ seed, config: weakCurrents });
+
+    // Wind should not be a pure latitude stripe; check within-row variance on a mid-lat row.
+    const y = Math.floor(strong.windU.length / strong.width / 2);
+    expect(variance(strong.windU, y * strong.width, strong.width)).toBeGreaterThan(0);
+
+    // SST should respond to currents: strong-current run should differ from weak-current run.
+    let mad = 0;
+    const n = strong.sstC.length;
+    for (let i = 0; i < n; i++) mad += Math.abs((strong.sstC[i] ?? 0) - (weak.sstC[i] ?? 0));
+    mad /= Math.max(1, n);
+    expect(mad).toBeGreaterThan(0.02);
+  });
+
+  it("is deterministic for fixed seed+config (SST grid)", () => {
+    const seed = 1337;
+    const cfg = createStandardRecipeTestConfig();
+    cfg["hydrology-climate-baseline"].atmosphericCirculation = {
+      maxSpeed: 110,
+      zonalStrength: 90,
+      meridionalStrength: 30,
+      geostrophicStrength: 70,
+      pressureNoiseScale: 18,
+      pressureNoiseAmp: 55,
+      waveStrength: 45,
+      landHeatStrength: 20,
+      mountainDeflectStrength: 18,
+      smoothIters: 4,
+    };
+    cfg["hydrology-climate-baseline"].oceanGeometry = {
+      maxCoastDistance: 64,
+      maxCoastVectorDistance: 10,
+    };
+    cfg["hydrology-climate-baseline"].oceanCurrents = {
+      maxSpeed: 80,
+      windStrength: 0.55,
+      ekmanStrength: 0.35,
+      gyreStrength: 26,
+      coastStrength: 32,
+      smoothIters: 3,
+      projectionIters: 8,
+    };
+    cfg["hydrology-climate-baseline"].oceanThermalState = {
+      equatorTempC: 28,
+      poleTempC: -2,
+      advectIters: 28,
+      diffusion: 0.18,
+      secondaryWeightMin: 0.25,
+      seaIceThresholdC: -1,
+    };
+    cfg["hydrology-climate-baseline"].moistureTransport = {
+      iterations: 22,
+      advection: 0.7,
+      retention: 0.93,
+      secondaryWeightMin: 0.2,
+    };
+    cfg["hydrology-climate-baseline"].precipitation = {
+      rainfallScale: 180,
+      humidityExponent: 1,
+      noiseAmplitude: 6,
+      noiseScale: 0.12,
+      waterGradient: {
+        radius: 5,
+        perRingBonus: 4,
+        lowlandBonus: 2,
+        lowlandElevationMax: 150,
+      },
+      upliftStrength: 22,
+      convergenceStrength: 16,
+    };
+
+    const a = runAndCaptureSst({ seed, config: cfg });
+    const b = runAndCaptureSst({ seed, config: cfg });
+
+    const shaA = sha256Hex(
+      Buffer.from(new Uint8Array(a.sstC.buffer, a.sstC.byteOffset, a.sstC.byteLength)).toString(
+        "base64"
+      )
+    );
+    const shaB = sha256Hex(
+      Buffer.from(new Uint8Array(b.sstC.buffer, b.sstC.byteOffset, b.sstC.byteLength)).toString(
+        "base64"
+      )
+    );
+    expect(shaA).toBe(shaB);
+  });
+});

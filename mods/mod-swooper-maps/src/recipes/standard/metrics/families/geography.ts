@@ -17,6 +17,7 @@ export type StandardGeographyMetrics = Readonly<{
   realizedWater: CountMetric;
   coastWater: CountMetric;
   deepOceanWater: CountMetric;
+  shelfBeyondShoreline: CountMetric;
   plannedLakes: CountMetric;
   projectedLakes: CountMetric;
   projectedLakeComponents: ComponentMetricSummary;
@@ -36,6 +37,7 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
   let realizedWaterCount = 0;
   let coastWaterCount = 0;
   let deepOceanCount = 0;
+  let shelfBeyondShorelineCount = 0;
   let lakeWaterDriftCount = 0;
 
   for (let index = 0; index < tileCount; index += 1) {
@@ -47,6 +49,13 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
       if (terrain === capture.observation.oceanTerrain) deepOceanCount += 1;
     }
     if (capture.projection.lakeMask[index] === 1 && !water) lakeWaterDriftCount += 1;
+    if (
+      capture.model.shelfMask[index] === 1 &&
+      capture.model.coastalWater[index] === 0 &&
+      (capture.model.distanceToCoast[index] ?? 0) >= 2
+    ) {
+      shelfBeyondShorelineCount += 1;
+    }
   }
 
   const projectedLakeComponents = summarizeMetricComponents(
@@ -60,6 +69,7 @@ export function measureStandardGeography(capture: StandardMapCapture): StandardG
     realizedWater: measureMetricCount(realizedWaterCount, tileCount),
     coastWater: measureMetricCount(coastWaterCount, realizedWaterCount),
     deepOceanWater: measureMetricCount(deepOceanCount, realizedWaterCount),
+    shelfBeyondShoreline: measureMetricCount(shelfBeyondShorelineCount, realizedWaterCount),
     plannedLakes: measureMetricCount(
       countMetricMask(capture.model.plannedLakeMask).count,
       plannedLand.count

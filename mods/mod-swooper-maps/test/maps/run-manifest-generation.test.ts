@@ -22,7 +22,7 @@ import {
   admitStandardMapConfig,
   type StandardMapConfigEnvelope,
 } from "../../src/maps/configs/canonical";
-import { expectCiv7MapScriptCompatibility } from "../support/civ7-map-script-compatibility";
+import { expectCiv7MapScriptCompatibility } from "../build/fixtures/civ7-map-script-compatibility";
 
 describe("Swooper run manifest generator", () => {
   test("requires exactly one manifest path", () => {

@@ -1,4 +1,4 @@
-import { biomeSymbolFromIndex } from "@mapgen/domain/ecology";
+import { BIOME_SYMBOL_TO_INDEX, biomeSymbolFromIndex } from "@mapgen/domain/ecology";
 import { type CountMetric, measureMetricCount } from "@swooper/mapgen-metrics";
 
 import type { StandardFeatureRuntime, StandardMapCapture } from "../capture.js";
@@ -24,11 +24,24 @@ const VEGETATION_FEATURES = new Set([
   "FEATURE_SAVANNA_WOODLAND",
   "FEATURE_SAGEBRUSH_STEPPE",
 ]);
+const MINIMUM_LAND_TILES_PER_LATITUDE_ROW = 20;
+
+/** Neutral row-wise biome measurements retained for latitude and banding studies. */
+export type StandardBiomeRowMetrics = Readonly<{
+  landRowCount: number;
+  medianBiomeDiversity: number | null;
+  maximumBiomeDiversity: number | null;
+  qualifiedRainforestRowCount: number;
+  adjacentRainforestRowPairCount: number;
+  maximumAdjacentRainforestShareDelta: number | null;
+}>;
 
 /** Ecology facts for biome diversity, feature families, legality, and broad habitat fidelity. */
 export type StandardEcologyMetrics = Readonly<{
   biomeDiversity: number;
   dominantBiome: string | null;
+  biomeRows: StandardBiomeRowMetrics;
+  coldBiomeTiles: CountMetric;
   unclassifiedModeledLand: CountMetric;
   featureCounts: Readonly<Record<string, number>>;
   wetlandTiles: CountMetric;
@@ -44,6 +57,7 @@ export type StandardEcologyMetrics = Readonly<{
 
 /** Measures realized Ecology product evidence without applying identity thresholds. */
 export function measureStandardEcology(capture: StandardMapCapture): StandardEcologyMetrics {
+  const { width, height } = capture.provenance;
   const tileCount = capture.provenance.width * capture.provenance.height;
   const plannedLandCount = countBinary(capture.model.landMask);
   const realizedWaterCount = countBinary(capture.observation.isWater);
@@ -58,6 +72,8 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
     capture.observation.features.map(({ key }) => [key, 0])
   );
   const biomeCounts = new Map<string, number>();
+  const rowBiomeDiversity: number[] = [];
+  const rainforestShareByRow: Array<number | null> = [];
   let invalidFeatureSurfaceCount = 0;
   let unclassifiedModeledLandCount = 0;
 
@@ -80,6 +96,32 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
     }
   }
 
+  for (let y = 0; y < height; y += 1) {
+    let landTiles = 0;
+    let rainforestTiles = 0;
+    const rowBiomes = new Set<number>();
+    for (let x = 0; x < width; x += 1) {
+      const index = y * width + x;
+      if (capture.model.landMask[index] !== 1) continue;
+      landTiles += 1;
+      const biomeIndex = capture.model.biomeIndex[index]!;
+      if (biomeIndex !== 255) rowBiomes.add(biomeIndex);
+      if (biomeIndex === BIOME_SYMBOL_TO_INDEX.tropicalRainforest) rainforestTiles += 1;
+    }
+    if (landTiles > 0) rowBiomeDiversity.push(rowBiomes.size);
+    rainforestShareByRow.push(
+      landTiles >= MINIMUM_LAND_TILES_PER_LATITUDE_ROW ? rainforestTiles / landTiles : null
+    );
+  }
+
+  const adjacentRainforestShareDeltas: number[] = [];
+  for (let y = 1; y < rainforestShareByRow.length; y += 1) {
+    const previous = rainforestShareByRow[y - 1];
+    const current = rainforestShareByRow[y];
+    if (previous === null || current === null) continue;
+    adjacentRainforestShareDeltas.push(Math.abs(current - previous));
+  }
+
   let dominantBiome: string | null = null;
   let dominantCount = -1;
   for (const [biome, count] of biomeCounts) {
@@ -99,6 +141,21 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
   return Object.freeze({
     biomeDiversity: biomeCounts.size,
     dominantBiome,
+    biomeRows: Object.freeze({
+      landRowCount: rowBiomeDiversity.length,
+      medianBiomeDiversity: medianOrNull(rowBiomeDiversity),
+      maximumBiomeDiversity: rowBiomeDiversity.length === 0 ? null : Math.max(...rowBiomeDiversity),
+      qualifiedRainforestRowCount: rainforestShareByRow.filter((value) => value !== null).length,
+      adjacentRainforestRowPairCount: adjacentRainforestShareDeltas.length,
+      maximumAdjacentRainforestShareDelta:
+        adjacentRainforestShareDeltas.length === 0
+          ? null
+          : Math.max(...adjacentRainforestShareDeltas),
+    }),
+    coldBiomeTiles: measureMetricCount(
+      (biomeCounts.get("tundra") ?? 0) + (biomeCounts.get("boreal") ?? 0),
+      plannedLandCount
+    ),
     unclassifiedModeledLand: measureMetricCount(unclassifiedModeledLandCount, plannedLandCount),
     featureCounts: Object.freeze(featureCounts),
     wetlandTiles: measureMetricCount(wetlandCount, plannedLandCount),
@@ -111,6 +168,13 @@ export function measureStandardEcology(capture: StandardMapCapture): StandardEco
     featureAttemptCounts: capture.projection.featureAttempts,
     featureRejectCounts: capture.projection.featureRejections,
   });
+}
+
+function medianOrNull(values: readonly number[]): number | null {
+  if (values.length === 0) return null;
+  const sorted = values.slice().sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 1 ? sorted[middle]! : (sorted[middle - 1]! + sorted[middle]!) / 2;
 }
 
 function isSurfaceLegal(

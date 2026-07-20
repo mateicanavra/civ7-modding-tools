@@ -12,14 +12,16 @@ at seeds `123`, `1337`, `1538316415`, and `1538316523`. Runtime IDs are
 
 ## Measurements and expected outcomes
 
-The ecology family supplies wetland share, vegetation families, feature counts,
-and rainforest count. Each sample must retain the Desert Mountains configuration,
-keep wetlands `<=0.08`, expose at least two vegetation families, contain savanna
-and sagebrush, and realize at most 20 rainforest tiles.
+The ecology and hydrology families supply wetland share, vegetation families,
+feature counts, rainforest count, and dry-flow evidence. Each sample must retain
+the Desert Mountains configuration, keep wetlands `<=0.08`, expose at least two
+vegetation families, contain savanna and sagebrush, realize at most 20 rainforest
+tiles, and retain at least one land tile without sustained modeled flow.
 
 **Expectation IDs:** `configuration-identity`, `wetland-share`,
 `vegetation-family-variety`, `required-feature/feature_savanna_woodland`,
-`required-feature/feature_sagebrush_steppe`, and `rainforest-tile-count`.
+`required-feature/feature_sagebrush_steppe`, `rainforest-tile-count`, and
+`dry-flow-presence`.
 
 This study isolates the arid-climate hypothesis; it intentionally does not add
 the cross-domain `standard/integrity` target already exercised by shipped identity

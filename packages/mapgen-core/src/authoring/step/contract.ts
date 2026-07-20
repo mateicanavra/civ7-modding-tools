@@ -362,14 +362,19 @@ export function defineStep(def: any): any {
 
   const requiredArtifactIds = new Set<string>();
   const providedArtifactIds = new Set<string>();
-  const seenProvidedNames = new Set<string>();
-  for (const id of artifactRequires) {
+  const seenArtifactNames = new Set<string>();
+  for (const contract of artifacts?.requires ?? []) {
+    const { id, name } = contract;
     if (requiredArtifactIds.has(id)) {
       throw new Error(
         `step "${def.id}" declares artifact "${id}" multiple times in artifacts.requires`
       );
     }
+    if (seenArtifactNames.has(name)) {
+      throw new Error(`step "${def.id}" declares duplicate artifact name "${name}"`);
+    }
     requiredArtifactIds.add(id);
+    seenArtifactNames.add(name);
   }
   for (const module of artifacts?.provides ?? []) {
     const { id, name } = module.artifact;
@@ -383,13 +388,11 @@ export function defineStep(def: any): any {
         `step "${def.id}" declares duplicate artifact id "${id}" in artifacts.provides`
       );
     }
-    if (seenProvidedNames.has(name)) {
-      throw new Error(
-        `step "${def.id}" declares duplicate artifact name "${name}" in artifacts.provides`
-      );
+    if (seenArtifactNames.has(name)) {
+      throw new Error(`step "${def.id}" declares duplicate artifact name "${name}"`);
     }
     providedArtifactIds.add(id);
-    seenProvidedNames.add(name);
+    seenArtifactNames.add(name);
   }
 
   const requires = Object.freeze([...def.requires, ...artifactRequires]);

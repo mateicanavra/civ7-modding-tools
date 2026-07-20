@@ -7,8 +7,8 @@
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
-    "liveManifestCount": 123,
-    "currentRowCount": 123,
+    "liveManifestCount": 124,
+    "currentRowCount": 124,
     "retiredHistoricalRowCount": 39,
     "duplicateLiveRows": []
   },
@@ -19,20 +19,20 @@
       "consolidation/dedup": 1,
       "context admission": 27,
       "no action": 54,
-      "positive authority creation": 12,
+      "positive authority creation": 13,
       "retirement/garbage collection": 3,
       "runtime/source validation": 3,
       "split by owner": 14
     },
     "packetNeeded": {
-      "false": 123
+      "false": 124
     },
     "layer2Status": {
       "blocked-prior-source-owner-design": 1,
       "decision-packet-accepted; deletion-blocked-partial-absorber": 1,
       "decision-packet-accepted; split-generalization-needed": 3,
       "excluded-native-rail-not-semantic-remediation": 1,
-      "none": 86,
+      "none": 87,
       "packet-complete": 17,
       "transition-decision-accepted": 14
     }
@@ -476,6 +476,15 @@
       "evidenceNote": "The current guard is under-scoped to runtime calls and does not own private sibling rules, strategies, or cross-domain imports.",
       "currentPath": ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/rule.json",
       "layer2Status": "decision-packet-accepted; split-generalization-needed"
+    },
+    {
+      "ruleId": "prohibit_direct_standard_recipe_test_execution",
+      "lane": "MapGen Standard recipe testing",
+      "actionDecision": "positive authority creation",
+      "packetNeeded": false,
+      "expectedRemediation": "Route whole Standard recipe product execution through its canonical Civ7-preset fixture; keep operation, artifact, and step tests on their narrower production-owned surfaces.",
+      "evidenceNote": "Grit structurally matches direct Standard recipe calls across default, aliased named, and namespace imports. A package-local test .gritignore re-admits only the explicitly scanned Swooper test root without widening ordinary repository scans.",
+      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_direct_standard_recipe_test_execution/rule.json"
     },
     {
       "ruleId": "prohibit_domain_artifacts_modules",

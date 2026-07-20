@@ -11,6 +11,10 @@ import {
 
 const { biomeGlobals, featureTypes } = CIV7_BROWSER_TABLES_V0;
 
+const SYNTHETIC_REDWOOD_DIMENSIONS = { width: 4, height: 6 } as const;
+const SYNTHETIC_MOUNTAIN_DIMENSIONS = { width: 5, height: 8 } as const;
+const SYNTHETIC_CORRUPT_PLAN_DIMENSIONS = { width: 2, height: 2 } as const;
+
 type TerrainBackedMockAdapterConfig = Omit<MockAdapterConfig, "defaultTerrainType"> &
   Readonly<{ defaultTerrainName: "TERRAIN_FLAT" | "TERRAIN_HILL" }>;
 
@@ -37,10 +41,13 @@ const redwoodRow = {
   reason: "placed",
 } as const;
 
-function oneWonderPlan(featureType: number, plotIndex: number, width = 4, height = 6) {
+function oneWonderPlan(
+  featureType: number,
+  plotIndex: number,
+  dimensions: Readonly<{ width: number; height: number }> = SYNTHETIC_REDWOOD_DIMENSIONS
+) {
   return {
-    width,
-    height,
+    ...dimensions,
     wondersCount: 1,
     targetCount: 1,
     plannedCount: 1,
@@ -59,8 +66,7 @@ function oneWonderPlan(featureType: number, plotIndex: number, width = 4, height
 describe("natural wonder placement materialization", () => {
   it("projects generated valid-terrain policy before stamping a natural wonder", () => {
     const adapter = createMockAdapter({
-      width: 4,
-      height: 6,
+      ...SYNTHETIC_REDWOOD_DIMENSIONS,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
       defaultTerrainName: "TERRAIN_HILL",
     });
@@ -68,8 +74,7 @@ describe("natural wonder placement materialization", () => {
 
     const stats = stampNaturalWondersFromPlan({
       adapter,
-      width: 4,
-      height: 6,
+      ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
       requestedCount: 1,
     });
@@ -104,8 +109,7 @@ describe("natural wonder placement materialization", () => {
 
   it("observes engine-added wonder footprint cells from the final feature surface", () => {
     const adapter = createMockAdapter({
-      width: 4,
-      height: 6,
+      ...SYNTHETIC_REDWOOD_DIMENSIONS,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
       defaultTerrainName: "TERRAIN_HILL",
     });
@@ -124,8 +128,7 @@ describe("natural wonder placement materialization", () => {
 
     const stats = stampNaturalWondersFromPlan({
       adapter,
-      width: 4,
-      height: 6,
+      ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
       requestedCount: 1,
     });
@@ -135,15 +138,13 @@ describe("natural wonder placement materialization", () => {
 
   it("rejects malformed final wonder occupancy evidence at artifact publication", () => {
     const adapter = createMockAdapter({
-      width: 4,
-      height: 6,
+      ...SYNTHETIC_REDWOOD_DIMENSIONS,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
       defaultTerrainName: "TERRAIN_HILL",
     });
     const stats = stampNaturalWondersFromPlan({
       adapter,
-      width: 4,
-      height: 6,
+      ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
       requestedCount: 1,
     });
@@ -151,7 +152,7 @@ describe("natural wonder placement materialization", () => {
       placementArtifactModules.naturalWonderPlacement
         .validate(
           { ...stats, observedNaturalWonderPlotIndices },
-          { dimensions: { width: 4, height: 6 } }
+          { dimensions: SYNTHETIC_REDWOOD_DIMENSIONS }
         )
         .map((entry) => entry.message)
         .join("\n");
@@ -166,8 +167,7 @@ describe("natural wonder placement materialization", () => {
 
   it("uses feature-specific terrain policy instead of a generic land-water default", () => {
     const adapter = createMockAdapter({
-      width: 5,
-      height: 8,
+      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainName: "TERRAIN_FLAT",
     });
@@ -175,9 +175,8 @@ describe("natural wonder placement materialization", () => {
 
     const mountainStats = stampNaturalWondersFromPlan({
       adapter,
-      width: 5,
-      height: 8,
-      wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, 5, 8),
+      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
+      wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
       requestedCount: 1,
     });
 
@@ -192,8 +191,7 @@ describe("natural wonder placement materialization", () => {
 
   it("records planner shortfalls instead of failing browser/game generation", () => {
     const adapter = createMockAdapter({
-      width: 4,
-      height: 6,
+      ...SYNTHETIC_REDWOOD_DIMENSIONS,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
       defaultTerrainName: "TERRAIN_HILL",
     });
@@ -204,8 +202,7 @@ describe("natural wonder placement materialization", () => {
 
     const stats = stampNaturalWondersFromPlan({
       adapter,
-      width: 4,
-      height: 6,
+      ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: plan,
       requestedCount: 2,
     });
@@ -242,8 +239,7 @@ describe("natural wonder placement materialization", () => {
 
   it("records adapter legality rejection as a degraded outcome", () => {
     const adapter = createMockAdapter({
-      width: 5,
-      height: 8,
+      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainName: "TERRAIN_FLAT",
     });
@@ -259,9 +255,8 @@ describe("natural wonder placement materialization", () => {
 
     const stats = stampNaturalWondersFromPlan({
       adapter,
-      width: 5,
-      height: 8,
-      wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, 5, 8),
+      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
+      wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
       requestedCount: 1,
     });
 
@@ -283,8 +278,7 @@ describe("natural wonder placement materialization", () => {
 
   it("preserves natural-wonder readback mismatch evidence from the adapter", () => {
     const adapter = createMockAdapter({
-      width: 5,
-      height: 8,
+      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainName: "TERRAIN_FLAT",
     });
@@ -320,9 +314,8 @@ describe("natural wonder placement materialization", () => {
 
     const stats = stampNaturalWondersFromPlan({
       adapter,
-      width: 5,
-      height: 8,
-      wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, 5, 8),
+      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
+      wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
       requestedCount: 1,
     });
 
@@ -371,8 +364,7 @@ describe("natural wonder placement materialization", () => {
 
   it("retries a fallback anchor when the engine refuses the primary", () => {
     const adapter = createMockAdapter({
-      width: 5,
-      height: 8,
+      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainName: "TERRAIN_FLAT",
     });
@@ -396,11 +388,9 @@ describe("natural wonder placement materialization", () => {
 
     const stats = stampNaturalWondersFromPlan({
       adapter,
-      width: 5,
-      height: 8,
+      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: {
-        width: 5,
-        height: 8,
+        ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
         wondersCount: 1,
         targetCount: 1,
         plannedCount: 1,
@@ -428,8 +418,7 @@ describe("natural wonder placement materialization", () => {
 
   it("records the primary rejection once when every anchor fails", () => {
     const adapter = createMockAdapter({
-      width: 5,
-      height: 8,
+      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       defaultTerrainName: "TERRAIN_FLAT",
     });
@@ -445,11 +434,9 @@ describe("natural wonder placement materialization", () => {
 
     const stats = stampNaturalWondersFromPlan({
       adapter,
-      width: 5,
-      height: 8,
+      ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: {
-        width: 5,
-        height: 8,
+        ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
         wondersCount: 1,
         targetCount: 1,
         plannedCount: 1,
@@ -478,8 +465,7 @@ describe("natural wonder placement materialization", () => {
 
   it("still fails corrupt plan metadata", () => {
     const adapter = createMockAdapter({
-      width: 2,
-      height: 2,
+      ...SYNTHETIC_CORRUPT_PLAN_DIMENSIONS,
       defaultBiomeType: biomeGlobals.BIOME_GRASSLAND,
       defaultTerrainName: "TERRAIN_FLAT",
     });
@@ -487,11 +473,9 @@ describe("natural wonder placement materialization", () => {
     expect(() =>
       stampNaturalWondersFromPlan({
         adapter,
-        width: 2,
-        height: 2,
+        ...SYNTHETIC_CORRUPT_PLAN_DIMENSIONS,
         wonders: {
-          width: 2,
-          height: 2,
+          ...SYNTHETIC_CORRUPT_PLAN_DIMENSIONS,
           wondersCount: 1,
           targetCount: 1,
           plannedCount: 2,

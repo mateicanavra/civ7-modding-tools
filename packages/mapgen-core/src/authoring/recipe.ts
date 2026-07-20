@@ -16,15 +16,11 @@ import {
 import type { ReadonlyDeep } from "type-fest";
 import { compileRecipeConfig } from "../compiler/recipe-compile.js";
 import { assertExecutionPlanRegistryInternal } from "../engine/execution-plan.js";
-import type { ArtifactContract, ArtifactReadValueOf } from "./artifact/contract.js";
 import type { ArtifactModule } from "./artifact/module.js";
-import {
-  ArtifactMissingError,
-  type ProvidedArtifactRuntime,
-  type RequiredArtifactRuntime,
-} from "./artifact/runtime.js";
+import type { ProvidedArtifactRuntime } from "./artifact/runtime.js";
 import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./bindings.js";
 import { assertStageIds } from "./stage.js";
+import { buildDeclaredStepDependencies } from "./step/dependencies.js";
 import type {
   CompiledRecipeConfigOf,
   RecipeAsyncExecutionOptions,
@@ -34,7 +30,6 @@ import type {
   RecipePublicConfigOf,
   StageContract,
   Step,
-  StepDeps,
 } from "./types.js";
 
 type AnyStage = StageContract<any, any, any, any, any>;
@@ -115,48 +110,6 @@ function computeFullStepId(input: {
   return `${base}.${input.stageId}.${input.stepId}`;
 }
 
-function createRequiredArtifactRuntime<C extends ArtifactContract>(
-  contract: C,
-  consumerStepId: string
-): RequiredArtifactRuntime<C> {
-  return {
-    contract,
-    read: (context: MapContext) => {
-      context.artifacts.has(contract.id) || rejectMissingArtifact(contract, consumerStepId);
-      return context.artifacts.get(contract.id) as ArtifactReadValueOf<C>;
-    },
-  };
-}
-
-function rejectMissingArtifact(contract: ArtifactContract, consumerStepId: string): never {
-  throw new ArtifactMissingError({
-    artifactId: contract.id,
-    artifactName: contract.name,
-    consumerStepId,
-  });
-}
-
-function resolveProvidedArtifactRuntime(
-  authored: Step<any>,
-  contract: ArtifactContract,
-  fullStepId: string,
-  recipeId: string
-): ProvidedArtifactRuntime<any> {
-  const runtime = authored.artifacts?.[contract.name as keyof typeof authored.artifacts];
-  runtime || rejectMissingProvidedArtifactRuntime(contract, fullStepId, recipeId);
-  return runtime as unknown as ProvidedArtifactRuntime<any>;
-}
-
-function rejectMissingProvidedArtifactRuntime(
-  contract: ArtifactContract,
-  fullStepId: string,
-  recipeId: string
-): never {
-  throw new Error(
-    `[recipe:${recipeId}] step "${fullStepId}" missing artifact runtime for "${contract.name}"`
-  );
-}
-
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -195,40 +148,6 @@ function requireCompiledConfigRecord(
   return (isRecord(value) && value) || rejectInvalidCompiledConfig(recipeId, detail);
 }
 
-function buildArtifactDeps(
-  authored: Step<any>,
-  fullStepId: string,
-  recipeId: string
-): StepDeps<any>["artifacts"] {
-  const artifacts = authored.contract.artifacts;
-  if (!artifacts) return {} as StepDeps<any>["artifacts"];
-
-  const out: Record<string, RequiredArtifactRuntime<any> | ProvidedArtifactRuntime<any>> = {};
-
-  const requires: readonly ArtifactContract[] = artifacts.requires ?? [];
-  const provides = (artifacts.provides ?? []).map((module: ArtifactModule) => module.artifact);
-
-  for (const contract of requires) {
-    out[contract.name] = createRequiredArtifactRuntime(contract, fullStepId);
-  }
-
-  for (const contract of provides) {
-    out[contract.name] = resolveProvidedArtifactRuntime(authored, contract, fullStepId, recipeId);
-  }
-
-  return out as StepDeps<typeof artifacts>["artifacts"];
-}
-
-function buildStepDeps(
-  authored: Step<any>,
-  fullStepId: string,
-  recipeId: string
-): StepDeps<typeof authored.contract.artifacts> {
-  return {
-    artifacts: buildArtifactDeps(authored, fullStepId, recipeId),
-  } as StepDeps<typeof authored.contract.artifacts>;
-}
-
 function collectArtifactTagDefinitions(input: {
   namespace?: string;
   recipeId: string;
@@ -261,11 +180,17 @@ function collectArtifactTagDefinitions(input: {
       const provides = (authored.contract.artifacts?.provides ?? []).map(
         (module: ArtifactModule) => module.artifact
       );
+      const deps = buildDeclaredStepDependencies(authored, {
+        consumerStepId: fullId,
+        owner: `recipe:${input.recipeId}`,
+      });
       for (const contract of provides) {
         const existing = providers.get(contract.id);
         existing === undefined ||
           rejectDuplicateArtifactProvider(input.recipeId, contract.id, existing, fullId);
-        const runtime = resolveProvidedArtifactRuntime(authored, contract, fullId, input.recipeId);
+        const runtime = (deps.artifacts as Readonly<Record<string, ProvidedArtifactRuntime<any>>>)[
+          contract.name
+        ]!;
         defs.set(contract.id, {
           id: contract.id,
           kind: "artifact",
@@ -307,7 +232,10 @@ function finalizeOccurrences(input: {
         stageId: stage.id,
         stepId,
       });
-      const deps = buildStepDeps(authored, fullId, input.recipeId);
+      const deps = buildDeclaredStepDependencies(authored, {
+        consumerStepId: fullId,
+        owner: `recipe:${input.recipeId}`,
+      });
       const facets = (authored.metrics || authored.viz) && {
         metrics: authored.metrics,
         viz: authored.viz,

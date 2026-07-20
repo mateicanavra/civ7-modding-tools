@@ -29,6 +29,9 @@ type PlanIntent = {
   };
 };
 
+const SYNTHETIC_DIAGNOSTIC_DIMENSIONS = { width: 4, height: 3 } as const;
+const SYNTHETIC_REJECTION_DIMENSIONS = { width: 5, height: 2 } as const;
+
 function intent(
   plotIndex: number,
   width: number,
@@ -78,8 +81,7 @@ function plan(width: number, height: number, intents: PlanIntent[]) {
 
 describe("resource placement diagnostics", () => {
   it("stamps plan intents verbatim and records typed per-type shortfalls", () => {
-    const width = 4;
-    const height = 3;
+    const { width, height } = SYNTHETIC_DIAGNOSTIC_DIMENSIONS;
     const adapter = createMockAdapter({
       width,
       height,
@@ -128,8 +130,7 @@ describe("resource placement diagnostics", () => {
   });
 
   it("fails hard on plan metadata mismatch", () => {
-    const width = 4;
-    const height = 3;
+    const { width, height } = SYNTHETIC_DIAGNOSTIC_DIMENSIONS;
     const adapter = createMockAdapter({
       width,
       height,
@@ -154,13 +155,12 @@ describe("resource placement diagnostics", () => {
 
   it("never relocates a rejected intent onto another tile (river exclusion holds at stamping)", () => {
     // River-tile exclusion now lives at the planning seam (see
-    // test/domains/placement/plan-ops.test.ts "resource demand planning river
-    // exclusion"): excluded tiles are zeroed out of every demand's legalMask,
+    // plan-resources.resource-demand-planning.test.ts): excluded tiles are
+    // zeroed out of every demand's legalMask,
     // so no plan intent can target them. The stamping invariant proven here is
     // plan authority — a rejected intent stays a typed shortfall at its
     // planned plot; there is no rescue/relocation that could land on a river.
-    const width = 5;
-    const height = 2;
+    const { width, height } = SYNTHETIC_REJECTION_DIMENSIONS;
     const riverTilePlots = new Set([0, 1]);
     const adapter = createMockAdapter({
       width,

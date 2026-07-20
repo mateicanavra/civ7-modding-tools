@@ -19,6 +19,8 @@ import {
   resolveResourceRegionMinimumRequirement,
 } from "../../../../../../src/recipes/standard/stages/placement/steps/plan-resources/planning.js";
 
+const SYNTHETIC_DIMENSIONS = { width: 4, height: 3 } as const;
+
 /**
  * Rivers product requirement re-expressed in the resources demand pipeline:
  * river tiles (planned or engine-projected, navigable water included) are
@@ -26,8 +28,7 @@ import {
  * exclusion flows through site selection, the support pass, and stamping.
  */
 describe("resource demand planning", () => {
-  const width = 4;
-  const height = 3;
+  const { width, height } = SYNTHETIC_DIMENSIONS;
   const size = width * height;
 
   function findFixtureFacts(requestedType?: OfficialResourceType) {
