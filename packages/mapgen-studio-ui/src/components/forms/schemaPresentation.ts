@@ -222,6 +222,40 @@ export function tryGetSchemaAtPath(schema: unknown, path: readonly string[]): un
   return current;
 }
 
+const schemaDefaultsCache = new WeakMap<object, unknown>();
+
+/**
+ * Resolves the schema-declared default value for a node: a leaf's `default`,
+ * or an object assembled from its properties' defaults (properties with no
+ * resolvable default are omitted). The recipe artifact generator stamps every
+ * leaf's `default` from the recipe's default config, so for a stage node this
+ * IS the recipe default at that pointer — the same value a reset restores.
+ * Returns undefined when nothing is resolvable.
+ */
+export function schemaDefaultsFor(schema: unknown): unknown {
+  if (!isPlainObject(schema)) return undefined;
+  if (schemaDefaultsCache.has(schema)) return schemaDefaultsCache.get(schema);
+  let out: unknown;
+  if ("default" in schema) {
+    out = schema.default;
+  } else if (schema.type === "object" && isPlainObject(schema.properties)) {
+    const acc: Record<string, unknown> = {};
+    let any = false;
+    for (const [key, sub] of Object.entries(schema.properties)) {
+      const d = schemaDefaultsFor(sub);
+      if (d !== undefined) {
+        acc[key] = d;
+        any = true;
+      }
+    }
+    out = any ? acc : undefined;
+  } else {
+    out = undefined;
+  }
+  schemaDefaultsCache.set(schema, out);
+  return out;
+}
+
 export function pathToPointer(path: Array<string | number>): string {
   if (!path.length) return "";
   const parts = path.map((p) => String(p).replace(/~/g, "~0").replace(/\//g, "~1"));

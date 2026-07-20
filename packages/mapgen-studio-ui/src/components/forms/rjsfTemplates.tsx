@@ -4,12 +4,15 @@ import type {
   ObjectFieldTemplateProps,
   RJSFSchema,
 } from "@rjsf/utils";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { Fragment, type ReactNode } from "react";
+import { deepEquals } from "@rjsf/utils";
+import { Braces, ChevronDown, ChevronRight, Eraser } from "lucide-react";
+import { Fragment, type ReactNode, useState } from "react";
+import { iconButton } from "../../lib/iconButton.js";
 import { cn } from "../../lib/utils.js";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip.js";
 import { FieldRow } from "./FieldRow.js";
 import { errorFieldId } from "./fieldIds.js";
-import { pathToPointer } from "./schemaPresentation.js";
+import { pathToPointer, schemaDefaultsFor } from "./schemaPresentation.js";
 
 /**
  * Collapse state for the form's config objects (Pass-4 config-collapse
@@ -32,6 +35,13 @@ export type ConfigCollapseContext = Readonly<{
 export type BrowserConfigFormContext = {
   transparentPaths: ReadonlySet<string>;
   collapse?: ConfigCollapseContext;
+  /**
+   * Requests the scoped reset confirmation for one stage (flat-and-flush
+   * delta 5): the RecipePanel owns the dialog; the stage header's Reset icon
+   * only asks. Absent in bare `SchemaForm` reuse — stages then render no
+   * Reset action.
+   */
+  onStageResetRequest?: (pointer: string, label: string) => void;
 };
 
 // Token-driven chrome for the rjsf config form — this is a high-traffic live
@@ -298,6 +308,147 @@ function FlatObjectChildren(args: {
   );
 }
 
+/**
+ * One stage's disclosure section (depth-1 root config object). Owns the two
+ * per-stage header actions (flat-and-flush delta 5): Reset — rendered only
+ * while the stage's live values differ from its schema defaults (delta 8:
+ * absent, not disabled; the icon's presence is itself the "this stage
+ * changed" signal) — and a JSON reveal that swaps the stage's fields for its
+ * raw values (mutually exclusive; collapses with the stage). The stage's
+ * schema defaults ARE the recipe defaults at that pointer (the artifact
+ * generator stamps them from the same source the reset restores).
+ */
+function StageObjectSection(args: {
+  pointer: string;
+  title: string;
+  schema: RJSFSchema | undefined;
+  formData: unknown;
+  properties: readonly ObjectProperty[];
+  description?: ReactNode;
+  collapse: ConfigCollapseContext | undefined;
+  expanded: boolean;
+  onStageResetRequest?: (pointer: string, label: string) => void;
+}): ReactNode {
+  const {
+    pointer,
+    title,
+    schema,
+    formData,
+    properties,
+    description,
+    collapse,
+    expanded,
+    onStageResetRequest,
+  } = args;
+  const [showJson, setShowJson] = useState(false);
+  const labelClass = FORM.label;
+  const textClass = FORM.text;
+
+  const defaults = schemaDefaultsFor(schema);
+  const dirty = defaults !== undefined && !deepEquals(formData ?? {}, defaults);
+
+  // Local provider so the template stays self-sufficient in bare `SchemaForm`
+  // reuse (no host-provider contract); 300ms matches the app/storybook
+  // providers, so nesting under them changes nothing.
+  const actions = (
+    <TooltipProvider delayDuration={300}>
+      {dirty && onStageResetRequest ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={() => onStageResetRequest(pointer, title)}
+              aria-label={`Reset ${title}`}
+              className={iconButton}
+            >
+              <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>Reset {title}</TooltipContent>
+        </Tooltip>
+      ) : null}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            onClick={() => setShowJson(!showJson)}
+            aria-pressed={showJson}
+            aria-label={showJson ? `Show ${title} Form` : `Show ${title} JSON`}
+            className={cn(
+              iconButton,
+              showJson &&
+                "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+            )}
+          >
+            <Braces className="w-3.5 h-3.5" aria-hidden="true" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{showJson ? `Show ${title} Form` : `Show ${title} JSON`}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+
+  // Y4 flatten: stage objects lay FLAT on the panel — no card chrome, no
+  // raised surface. The header is a full-bleed disclosure row; expanding it
+  // opens a RECESSED slab (`surface-sunken` — below the panel, toward the
+  // page) so the interaction reads as a door opening into the graphite,
+  // not a card inflating off it. Inside the slab the config explorer v2
+  // layout takes over: full-bleed nested disclosure rows, hairline-divided,
+  // with only scalar-field runs carrying horizontal padding.
+  return (
+    <section data-config-section="" data-config-pointer={pointer}>
+      {collapse ? (
+        <CollapsibleHeader
+          pointer={pointer}
+          title={title}
+          titleClass={cn("text-sm font-semibold", textClass)}
+          expanded={expanded}
+          collapse={collapse}
+          className="px-2.5 py-2 hover:bg-muted/20 transition-colors"
+          actions={actions}
+        />
+      ) : (
+        <header className="flex flex-col gap-1 px-2.5 py-2">
+          <div className={cn("text-sm font-semibold", textClass)}>{title}</div>
+          {renderGsComments({ schema, className: labelClass })}
+          {description ? <div className={cn("text-data", labelClass)}>{description}</div> : null}
+        </header>
+      )}
+      {expanded ? (
+        <div
+          id={collapse ? configContentId(pointer) : undefined}
+          className={cn("border-t bg-surface-sunken/60", FORM.borderSubtle)}
+        >
+          {collapse &&
+          (description || normalizeGsComments((schema as GsSchemaMeta | null)?.gs?.comments)) ? (
+            <div className="flex flex-col gap-1 px-2.5 pt-2 pb-1.5">
+              {renderGsComments({ schema, className: labelClass })}
+              {description ? <div className={cn("text-data", labelClass)}>{description}</div> : null}
+            </div>
+          ) : null}
+          {showJson ? (
+            <div className="px-2.5 py-2">
+              <div className="border border-border-subtle rounded p-2.5 max-h-[240px] overflow-auto bg-surface-sunken">
+                <pre
+                  className={cn(
+                    "text-label font-mono leading-relaxed",
+                    FORM.muted,
+                    "whitespace-pre-wrap break-all"
+                  )}
+                >
+                  {JSON.stringify(formData ?? {}, null, 2)}
+                </pre>
+              </div>
+            </div>
+          ) : (
+            <FlatObjectChildren properties={properties} schema={schema} fieldsClass="px-2.5 py-2" />
+          )}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 export function BrowserConfigObjectFieldTemplate(
   props: ObjectFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>
 ) {
@@ -310,7 +461,6 @@ export function BrowserConfigObjectFieldTemplate(
   const isRoot = depth === 0;
   const isTransparent = transparentPaths.has(pathToPointer(path));
   const labelClass = FORM.label;
-  const textClass = FORM.text;
 
   if (isRoot) {
     // Y4 flatten: the stage list is a TIGHT accordion — flush rows separated
@@ -354,49 +504,18 @@ export function BrowserConfigObjectFieldTemplate(
   const expanded = collapse ? collapse.expandedPointers.has(pointer) : true;
 
   if (isStage) {
-    // Y4 flatten: stage objects lay FLAT on the panel — no card chrome, no
-    // raised surface. The header is a full-bleed disclosure row; expanding it
-    // opens a RECESSED slab (`surface-sunken` — below the panel, toward the
-    // page) so the interaction reads as a door opening into the graphite,
-    // not a card inflating off it. Inside the slab the config explorer v2
-    // layout takes over: full-bleed nested disclosure rows, hairline-divided,
-    // with only scalar-field runs carrying horizontal padding.
     return (
-      <section data-config-section="" data-config-pointer={pointer}>
-        {collapse ? (
-          <CollapsibleHeader
-            pointer={pointer}
-            title={prettyTitle}
-            titleClass={cn("text-sm font-semibold", textClass)}
-            expanded={expanded}
-            collapse={collapse}
-            className="px-2.5 py-2 hover:bg-muted/20 transition-colors"
-          />
-        ) : (
-          <header className="flex flex-col gap-1 px-2.5 py-2">
-            <div className={cn("text-sm font-semibold", textClass)}>{prettyTitle}</div>
-            {renderGsComments({ schema, className: labelClass })}
-            {description ? <div className={cn("text-data", labelClass)}>{description}</div> : null}
-          </header>
-        )}
-        {expanded ? (
-          <div
-            id={collapse ? configContentId(pointer) : undefined}
-            className={cn("border-t bg-surface-sunken/60", FORM.borderSubtle)}
-          >
-            {collapse &&
-            (description || normalizeGsComments((schema as GsSchemaMeta | null)?.gs?.comments)) ? (
-              <div className="flex flex-col gap-1 px-2.5 pt-2 pb-1.5">
-                {renderGsComments({ schema, className: labelClass })}
-                {description ? (
-                  <div className={cn("text-data", labelClass)}>{description}</div>
-                ) : null}
-              </div>
-            ) : null}
-            <FlatObjectChildren properties={properties} schema={schema} fieldsClass="px-2.5 py-2" />
-          </div>
-        ) : null}
-      </section>
+      <StageObjectSection
+        pointer={pointer}
+        title={prettyTitle}
+        schema={schema}
+        formData={props.formData}
+        properties={properties}
+        description={description}
+        collapse={collapse}
+        expanded={expanded}
+        onStageResetRequest={props.registry.formContext?.onStageResetRequest}
+      />
     );
   }
 

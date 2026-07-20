@@ -40,10 +40,15 @@ export type SchemaConfigFormProps<TConfig> = Readonly<{
    * Omitted ⇒ the form renders fully expanded with no disclosure chrome.
    */
   collapse?: ConfigCollapseContext;
+  /**
+   * Scoped stage-reset request (flat-and-flush delta 5). Omitted ⇒ stage
+   * headers render no Reset action.
+   */
+  onStageResetRequest?: (pointer: string, label: string) => void;
 }>;
 
 export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>) {
-  const { schema, value, onChange, disabled, focusPath, collapse } = props;
+  const { schema, value, onChange, disabled, focusPath, collapse, onStageResetRequest } = props;
 
   const buildUiSchema = useMemo(() => {
     const hasEnum = (node: RJSFSchema): boolean => Array.isArray(node.enum) && node.enum.length > 0;
@@ -189,8 +194,8 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
   // Pointers are mode-independent (focused mode wraps the stage under its own
   // key), so one collapse context serves both views unchanged.
   const formContext = useMemo<BrowserConfigFormContext | null>(
-    () => (activeFormContext ? { ...activeFormContext, collapse } : null),
-    [activeFormContext, collapse]
+    () => (activeFormContext ? { ...activeFormContext, collapse, onStageResetRequest } : null),
+    [activeFormContext, collapse, onStageResetRequest]
   );
 
   // Single guard after all hooks. `active`, `uiSchema`, and `formContext` are
