@@ -38,10 +38,12 @@ export type BrowserConfigFormContext = {
   /**
    * Requests the scoped reset confirmation for one stage (flat-and-flush
    * delta 5): the RecipePanel owns the dialog; the stage header's Reset icon
-   * only asks. Absent in bare `SchemaForm` reuse — stages then render no
-   * Reset action.
+   * only asks. The request carries the stage's schema-resolved defaults —
+   * the SAME value the dirty gate compared against — so exactly one place
+   * resolves defaults and the confirmer just applies them. Absent in bare
+   * `SchemaForm` reuse — stages then render no Reset action.
    */
-  onStageResetRequest?: (pointer: string, label: string) => void;
+  onStageResetRequest?: (pointer: string, label: string, defaults: unknown) => void;
 };
 
 // Token-driven chrome for the rjsf config form — this is a high-traffic live
@@ -62,7 +64,10 @@ const FORM = {
   // header inset (14) + chevron w-3 (12) + gap-1.5 (6) — it lands property
   // labels directly under the header's title TEXT. Change the header inset,
   // chevron size, or title gap and the field-run left inset must be
-  // re-derived from that fixed +18.
+  // re-derived from that fixed +18. Below the stage tier this derivation
+  // deliberately gives way to depth: nested bodies add `nestIndent`, so each
+  // level's field runs sit exactly one indent deeper than their header's
+  // title — indent-for-depth supersedes label-under-title past depth 1.
   fieldRunInset: "pl-8 pr-3.5",
   nestIndent: "pl-3",
   divider: "border-border",
@@ -329,7 +334,7 @@ function StageObjectSection(args: {
   description?: ReactNode;
   collapse: ConfigCollapseContext | undefined;
   expanded: boolean;
-  onStageResetRequest?: (pointer: string, label: string) => void;
+  onStageResetRequest?: (pointer: string, label: string, defaults: unknown) => void;
 }): ReactNode {
   const {
     pointer,
@@ -359,7 +364,7 @@ function StageObjectSection(args: {
           <TooltipTrigger asChild>
             <button
               type="button"
-              onClick={() => onStageResetRequest(pointer, title)}
+              onClick={() => onStageResetRequest(pointer, title, defaults)}
               aria-label={`Reset ${title}`}
               className={iconButton}
             >
@@ -425,7 +430,9 @@ function StageObjectSection(args: {
           (description || normalizeGsComments((schema as GsSchemaMeta | null)?.gs?.comments)) ? (
             <div className={cn("flex flex-col gap-1 pt-2 pb-1.5", FORM.fieldRunInset)}>
               {renderGsComments({ schema, className: labelClass })}
-              {description ? <div className={cn("text-data", labelClass)}>{description}</div> : null}
+              {description ? (
+                <div className={cn("text-data", labelClass)}>{description}</div>
+              ) : null}
             </div>
           ) : null}
           {showJson ? (
