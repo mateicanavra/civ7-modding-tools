@@ -94,3 +94,6 @@ apps/docs/public/civ7-official/resources/
 .habitat/cache/
 
 .nx/migrate-runs
+
+# Nx Storybook static builds
+storybook-static/

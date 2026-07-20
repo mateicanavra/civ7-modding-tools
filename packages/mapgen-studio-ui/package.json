@@ -2,7 +2,7 @@
   "name": "@swooper/mapgen-studio-ui",
   "version": "0.1.0",
   "private": true,
-  "description": "MapGen Studio UI component library — the 47 design-synced components as a real package (dist + generated .d.ts + compiled stylesheet), single source for the app and the Claude Design sync.",
+  "description": "MapGen Studio UI component library — the 45 design-synced components as a real package (dist + generated .d.ts + compiled stylesheet), single source for the app and the Claude Design sync.",
   "sideEffects": [
     "**/*.css"
   ],
@@ -26,14 +26,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup && tsc -p tsconfig.dts.json && tailwindcss -i src/styles/index.css -o dist/styles.css && node scripts/copy-fonts.mjs",
-    "build-storybook": "storybook build",
+    "build": "tsup && tsc -p tsconfig.dts.json && tailwindcss -i src/styles/index.css -o dist/styles.css && node scripts/curate-token-surface.mjs && node scripts/copy-fonts.mjs",
     "check:test": "tsc -p tsconfig.test.json --noEmit",
     "check:tools": "tsc -p tsconfig.tools.json --noEmit",
     "clean": "rm -rf dist",
     "design-sync:check": "node scripts/design-sync-check.mjs",
     "dev": "tsup --watch",
-    "storybook": "storybook dev -p 6006 --no-open",
     "test": "vitest run --config ../../vitest.config.ts --project mapgen-studio-ui",
     "test:light-canary-browser": "node scripts/light-canary-browser-test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -79,7 +77,8 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "storybook": "9.1.20",
-    "tailwindcss": "4.3.0"
+    "tailwindcss": "4.3.0",
+    "wait-on": "7.2.0"
   },
   "peerDependencies": {
     "react": "^19.0.0",

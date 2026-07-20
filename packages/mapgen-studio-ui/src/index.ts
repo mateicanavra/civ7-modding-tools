@@ -28,7 +28,7 @@
  * shell as a slot-based canonical assembly (the graduation path for
  * reference explorations; README.md → Operating model).
  * Each branch adds its exports here and raises the `verify` export floor.
- * Final surface: the 47 design-synced components (+ TooltipProvider and the
+ * Final surface: the 45 design-synced components (+ TooltipProvider and the
  * lib exports — `cn`, `useResolvedTheme`, `LAYOUT`, statusLabels formatters,
  * `useConfigCollapse`).
  *

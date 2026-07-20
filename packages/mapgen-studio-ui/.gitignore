@@ -13,5 +13,8 @@ ds-bundle/
 .design-sync/.cache/
 .design-sync/learnings/
 .design-sync/node_modules
+# Light-canary screenshots are regenerated observations; the token result is
+# the durable checked-in record.
+.design-sync/*__light-*.png
 # storybook-shape reference render (the fidelity oracle; never uploaded, never committed)
 .design-sync/sb-reference/

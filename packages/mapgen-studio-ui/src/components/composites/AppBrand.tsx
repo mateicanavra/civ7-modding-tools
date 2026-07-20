@@ -22,10 +22,24 @@ export interface AppBrandProps {
   footnote?: string;
 }
 
+// createElement keeps Storybook 9's default-value code generator from treating
+// JSX nested in this object literal as an unsupported expression node.
 const DEFAULT_LINKS: ReadonlyArray<AppBrandLink> = [
-  { icon: <User className="w-3.5 h-3.5" />, label: "Author Name", href: "#" },
-  { icon: <Github className="w-3.5 h-3.5" />, label: "View on GitHub", href: "#" },
-  { icon: <ExternalLink className="w-3.5 h-3.5" />, label: "Documentation", href: "#" },
+  {
+    icon: React.createElement(User, { className: "w-3.5 h-3.5" }),
+    label: "Author Name",
+    href: "#",
+  },
+  {
+    icon: React.createElement(Github, { className: "w-3.5 h-3.5" }),
+    label: "View on GitHub",
+    href: "#",
+  },
+  {
+    icon: React.createElement(ExternalLink, { className: "w-3.5 h-3.5" }),
+    label: "Documentation",
+    href: "#",
+  },
 ];
 
 /**

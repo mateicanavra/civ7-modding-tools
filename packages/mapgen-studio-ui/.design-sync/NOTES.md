@@ -359,3 +359,93 @@ historical.
   hashes are `styleSha: 038266...`, `auxSha: 5e3039...`, and
   `bundleSha12: 26fc014c4139`; all 47 component source/render keys are unchanged,
   no grades were reopened, and project-owned explorations remain untouched.
+
+## Drift refresh + DEF-017 @kind annotations (2026-07-18) — presets out, MapConfigSaveDialog in (→45)
+
+- **Verdict (anchored)**: `changed:[11]` (AppFooter, Button, Dialog,
+  DropdownMenu, ExplorePanel, RecipePanel, ScrollArea, StudioShellLayout, Tabs,
+  Textarea, TextareaWidget — the A.2 control-lifecycle refactor + neighbors),
+  `added:[MapConfigSaveDialog]`, `removed:[PresetConfirmDialog,
+  PresetErrorDialog, PresetSaveDialog]` (preset authoring removed upstream).
+  All 12 graded `match` from fresh sheets. **The portal set this era = Dialog +
+  MapConfigSaveDialog (sb-error, "no storybook root content") + DropdownMenu
+  (its trigger captures, but the open menu portals out of the root — the paired
+  cell can't verify menu content)** — all three graded via the manual full-page
+  path (sb-reference `iframe.html?id=<storyId>` vs card
+  `components/<group>/<Name>/<Name>.html?story=<Export>`, headless-Chrome
+  full-page, panels/menus pixel-equivalent). Supersedes the preset-era "4
+  portal dialogs" list.
+- **DEF-017 annotations are live.** The app-side classifier now accepts
+  project-supplied `/* @kind <kind> */` comments in the scanned stylesheet
+  (reported from the design side 2026-07-18 — the classification input
+  upstream-feedback item 4 asked for; still no `@kind` surface in the CC
+  2.1.209 skill/converter, so this is purely app-side).
+  `scripts/annotate-token-kinds.mjs` (wired into the package `build` after the
+  tailwind compile) annotates every custom-property declaration in
+  `dist/styles.css`: authored kinds from `test/fixtures/authored-tokens.json`
+  (`alias`→`color`), framework `@theme` defaults via an explicit in-script map,
+  `--tw-*` engine vars → `other`; a brace-scanner cross-check fails the build
+  if any declaration escapes annotation (238 annotated). The annotations land
+  in the uploaded `_ds_bundle.css` — inside `styles.css`'s `@import` closure,
+  which is where the classifier found the unclassified tokens; the bundle-top
+  `styles.css` is just two `@import` lines, so `grep @kind styles.css` = 0 is
+  EXPECTED. Repo consumers are comment-safe (designTokens strips comments,
+  themeTokens stops at `;`, emit.mjs matches names only). **Falsifier pending:
+  the next `check_design_system` run should clear the "unclassified tokens"
+  finding — record the outcome in the DEF-017 ledger entry either way.**
+  Finding 2 (selector-scoped `--tw-*`) remains app-side noise. Separate app
+  check: "no pages" clears only when one real page exists in the project — a
+  studio-side authoring action, not a sync concern.
+- **Graduation-vs-picker wording fixed at the source** (requested by the
+  project's `templates/README.md`): `conventions.md` + the package README now
+  say graduation yields the component + card in the `templates` CARD group,
+  and Templates-PICKER visibility additionally requires a hand-authored
+  `templates/<slug>/` wrapper (`templates/studio-shell/` is the precedent).
+  The remote `explorations/README.md` was already corrected in place.
+- **Upload (atomic full-write contract)**: sentinel fence → 314 content files
+  (233 + 81 fonts) → delete preset paths (15 deleted; the 3
+  `_preview/Preset*.css` entries in deletePaths never existed remotely —
+  speculative driver entries, not an error) → `_ds_sync.json` alone →
+  sentinel re-arm. Remote verified via list_files: 45 component dirs, zero
+  preset artifacts, `explorations/` + `templates/` + `screenshots/` untouched.
+  New hashes: `styleSha 9aa652c6...`, `auxSha 8c775e022306a867`,
+  `bundleSha12 1d93cd096f69`. Local anchor
+  (`.design-sync/.cache/remote-sync.json`) refreshed to the new remote state.
+
+## Token-surface curation (2026-07-18, same day) — fallback layer stripped, annotation scoped
+
+- **Why (Matei's report from the design side):** the `@kind` annotation pass
+  was consumed by the classifier but was "placed incorrectly / the attribution
+  doesn't hold" — the regenerated `x-omelette.tokens` registry still listed
+  all ~79 `--tw-*` engine names as design tokens (137 entries). Classification
+  is not exclusion: annotating plumbing `other` blessed it into the registry.
+- **Discovery model (proven, 2026-07-18):** `x-omelette.tokenKinds` ordering
+  follows FIRST-DECLARATION order across the whole stylesheet — @theme block,
+  then utility-scoped `--tw-*` assignments, then theme.css tokens, then
+  fallback-only names last. So the app scan reads every custom-property
+  declaration (utility bodies included) and never harvests `@property`
+  preludes. Corollary: what is not declared is not registered.
+- **Fix:** `scripts/curate-token-surface.mjs` (replaces
+  `annotate-token-kinds.mjs` in the package build): strips the trailing
+  `@layer properties { @supports … }` fallback block (78 universal `--tw-*`
+  declarations — Tailwind's emulation of `@property` initial values for
+  pre-`@property` browsers; the `@property` rules remain and utility bodies
+  carry inline `var(--x, fallback)` defaults, so removal is render-neutral in
+  every supported consumer), then annotates the remaining 160 declarations
+  (color 63, font 14, other 79, radius 1, spacing 3). Structure pins fail the
+  build loudly if Tailwind's output shape changes.
+- **Linter-config question answered (Matei):** `_adherence.oxlintrc.json` is
+  app-REGENERATED output, not a configurable input — the self-check rebuilt it
+  wholesale to incorporate our annotations, so hand-edits cannot survive a
+  sentinel cycle and the file is outside the upload contract anyway. The
+  configuration surface the repo owns is what the scan sees (the stylesheet)
+  plus the `@kind` channel; that is what this change exercises.
+- **Verification:** 211/211 package tests green (token guard unchanged — the
+  strays partition never depended on the fallback block); re-sync driver:
+  `changed:[] added:[] removed:[] pendingGrade:[]`, upload partitions
+  `styling + aux` only. No re-grades.
+- **Expected post-upload check state:** zero unclassified tokens; registry ≈
+  75 names (authored + @theme defaults + utility-internal `--tw-*` as
+  `other`); selector-scoped finding shrinks to the utility-internal residue
+  (required to be selector-scoped — do not follow the hoist-to-`:root`
+  advice). Outcome to be recorded in root DEF-017 either way.
