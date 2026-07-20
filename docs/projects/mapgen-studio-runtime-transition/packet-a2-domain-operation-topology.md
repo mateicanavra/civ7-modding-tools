@@ -1,6 +1,8 @@
 # Packet A.2: Domain Operation Topology
 
-Status: takeover-controlled; validator ownership and rule-introduction prerequisites sealed; two generic Grit capabilities precede clean Authority recreation
+Status: takeover-controlled; validator ownership, rule introduction, G.1,
+RuleDiagnostics, G.2, and A.3a are sealed; G.2.1 and an immutable handoff
+boundary precede user-team Authority and descent execution
 
 Parent workstream:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -87,12 +89,12 @@ required slots, operation-local `policy/` is removed, and strategy dependencies
 use positive generic authority. The remaining contract-quality question is
 dispositioned below. Later stack integration must drop or supersede the
 sentinel's overlapping execution frame rather than running a second
-operation-interior descent. Generic Grit diagnostic acquisition and
-authority-derived fix admission are prerequisites of A.2, not A.2 write
-surfaces. Their inherited mixed candidate is evidence only. Each capability is
-reconstructed, reviewed, and sealed on its own clean layer before Authority is
-recreated; no runner defect is repaired opportunistically inside a domain
-branch.
+operation-interior descent. Generic Grit diagnostic acquisition,
+authority-derived fix admission, and the corrective RuleFixPreview boundary
+are prerequisites of A.2, not A.2 write surfaces. Their inherited mixed
+candidate is evidence only. Each capability is reconstructed, reviewed, and
+sealed on its own clean layer before Authority is recreated; no runner defect
+is repaired opportunistically inside a domain branch.
 
 ## Authority Decision
 
@@ -238,8 +240,10 @@ kind shape generically after the corpus is normalized.
 
 ## Stack
 
-The continuation stack through A.2 is linear and must remain linear. A.3a is an
-independently owned product layer on that same spine, not an A.2 closure branch:
+The shared prerequisite spine is linear through one immutable A.2 launch
+commit. From that tree, A.2 and the disjoint product-closeout work advance on
+protected temporary tracks and are integrated later through inspected native
+Graphite operations:
 
 ```text
 codex/mapgen-domain-operation-topology               # this frame
@@ -250,23 +254,48 @@ codex/mapgen-domain-operation-topology               # this frame
   -> codex/mapgen-runtime-closeout-rule-diagnostics-resource
   -> codex/mapgen-runtime-closeout-generic-fix-admission
   -> codex/mapgen-studio-atomic-reroll              # A.3a; source-independent of A.2
-  -> codex/mapgen-domain-operation-authority
-  -> codex/mapgen-domain-operation-ecology
-  -> codex/mapgen-domain-operation-foundation
-  -> codex/mapgen-domain-operation-morphology
-  -> codex/mapgen-domain-operation-hydrology
-  -> codex/mapgen-domain-operation-resources
-  -> codex/mapgen-domain-operation-placement
+  -> codex/mapgen-runtime-closeout-rule-fix-preview # truthful no-write effect preview
+  -> immutable A.2 launch boundary
+       |-> user A.2: Authority -> census -> Ecology -> Foundation ->
+       |             Morphology -> Hydrology -> Resources -> Placement
+       |-> main: independent A.3 -> A.4 -> admitted A.5 -> control-oRPC ->
+                   P19 -> P20
+  -> inspected A.2 integration -> sensitive A.3 -> P21
 ```
 
 Each branch is a complete, reviewable domino. Source mapping proved A.3a has no
-A.2 dependency, so A.2 Authority starts from the sealed A.3a tip and Ecology
-starts from the Authority tip. A.3a is not counted among A.2's Authority-plus-six
-closure branches. The next branch starts only after the current branch's
+A.2 dependency. G.2.1 closes the false planning surface before the launch
+boundary; Ecology starts from the user team's sealed Authority tip. Neither
+prerequisite is counted among A.2's Authority-plus-six closure branches.
+
+The stale `codex/mapgen-domain-operation-authority` ref and its dirty worktree
+are historical evidence, not the future Authority branch. Before handoff,
+account every dirty hunk as adopted evidence, superseded, or excluded; retain
+only unique settled decisions/docs needed by the launch contract; then remove
+that worktree and branch ref. Dirty rules, fixtures, manifests, baselines, and
+source changes remain excluded from the handoff tree.
+
+Before the fork, the next branch starts only after the current branch's
 implementation, focused checks, three review lanes, repairs, closing checks,
-and Graphite commit are complete. Final aggregate
-receipts amend the Placement branch; do not create a bookkeeping-only closure
-branch.
+and Graphite commit are complete. After the fork, each track preserves those
+same branch gates within its protected surface. Final A.2 aggregate receipts
+amend the Placement branch; do not create a bookkeeping-only closure branch.
+
+### Temporary Ownership Split
+
+The takeover DRA owns every prerequisite through one clean immutable A.2
+handoff commit, the independent non-A.2 closeout track, later integration, and
+final product/stack closure. The user's A.2 team owns Authority implementation,
+the advisory census and deterministic row classification, and all six domain
+migrations from that handoff tree. The takeover DRA must consume the returned
+commits, not reproduce them.
+
+After handoff the main track does not mutate domain-operation source roots,
+A.2 blueprints/scopes/patterns/baselines/authority records, A.2-specific docs or
+tests, or the frozen generic Habitat rule/fix contracts. The A.2 track does not
+mutate Studio config/browser/control surfaces, control-oRPC, P19/P20, or
+unrelated static-coverage owners. Temporary parallel ancestry is permitted;
+final linearization uses native Graphite operations after concrete inspection.
 
 ## Prerequisite Branch: Check Boundaries
 
@@ -431,11 +460,11 @@ Cached Habitat check and boundaries, 44 focused tests, and both parts of the
 focused Biome gate passed. Uncached Habitat boundaries/check/build/test,
 focused Biome, record integrity, protected-ref, and Graphite seal gates then
 passed. The prerequisite is sealed at `9ff0f711e0d7`; those receipts do not
-admit Authority until the two generic Grit capability layers above are sealed.
+admit Authority until the three generic Grit capability layers above are sealed.
 
 ## Takeover Capability Prerequisites
 
-Provider investigation exposed two generic prerequisites between the sealed
+Provider investigation exposed three generic prerequisites between the sealed
 rule-introduction tip and Authority:
 
 1. reconstruct diagnostic acquisition as a hermetic, pinned-CLI,
@@ -443,12 +472,76 @@ rule-introduction tip and Authority:
    dispositions and no identity-specific adapter;
 2. derive admissible fix/apply planning from authority records instead of a
    hardcoded rule list, while preserving multi-rule selection and refusing
-   unsupported live mutation.
+   unsupported live mutation;
+3. correct that lossy planning surface into `RuleFixPreview`, with closed file
+   impacts, explicit per-rule effect authority, one complete-root Grit
+   observation, and categorical no-write semantics.
 
 The inherited worktree mixes both provider evidence and the A.2 Authority
-candidate. It remains read-only and uncommitted. Authority is re-derived from
-current diagnostics on the clean capability tips; no inherited Authority hunk
-crosses either generic changeset.
+candidate. It remains read-only and uncommitted. The user's team re-derives
+Authority from current diagnostics after the clean handoff; no inherited
+Authority hunk crosses a prerequisite changeset or the launch boundary.
+
+## Depth Cascade Admission
+
+A descent is executable only after it is mechanical. Planning is not complete
+because the destination shape is described; it is complete when every observed
+red row has exactly one enforceable action and one exact destination and no
+implementer must make an ownership or semantic decision.
+
+Before handoff, the takeover DRA reconciles and retires the stale Authority
+worktree/ref, imports the adapted readiness roadmap/workspace shape/pre-descent/
+`descend-002` documents without stale execution state, settles the target
+semantics and protected path surfaces, and freezes the launch SHA/tree plus
+return contract. It does not implement Authority or classify the live red
+corpus.
+
+Starting from that immutable handoff, the user's A.2 team owns the following
+gates before domain source mutation:
+
+1. Use the existing N=1 frames as the analysis grammar:
+   `BLUEPRINT-AUTHORITY-RATCHET-DESCENT-FRAME.md`,
+   `RULE-REMEDIATION-SLICE-FRAME.md`,
+   `RULE-ACTION-CLASSIFICATION-FRAME.md`,
+   `SINGLE-RED-INVENTORY-ITEM-INVESTIGATION-FRAME.md`, and
+   `DESTINATION-SIMPLIFICATION-FRAME.md` under `.habitat/.active/frames/`.
+   This packet's direct decisions supersede conflicts in those imported frames.
+2. Finalize the generic Structure and Grit laws, fixtures, ownership, and
+   diagnostic identity. Register their advisory form and run them against the
+   complete current corpus. Do not classify violations against a provisional
+   pattern.
+3. Store the bounded red corpus as JSONL beside the imported `descend-002`
+   workstream. Each row contains discriminants plus at most one explanatory
+   field:
+
+   ```json
+   {"id":"D2-0001","ruleId":"require_domain_operation_strategy_dependency_shape","file":"mods/.../default.ts","clause":"import-source","predicate":"cross-domain-private","action":"rewrite-import","destination":"mods/.../contract.ts","frameRefs":["RULE-ACTION-CLASSIFICATION-FRAME.md"],"state":"mechanical","detail":"consume the already-admitted contract field"}
+   ```
+
+   `file`, `clause`, and `predicate` identify the violation. `action` comes from
+   a finite vocabulary such as move, extract, inline, split, delete, add-slot,
+   rewrite-import, retire-rule, replace-rule, preserve, or close-stale.
+   `destination` is an exact owner path or an explicit no-change terminal, not
+   a broad category.
+4. Send disjoint row groups to fresh analysis agents with the relevant N=1
+   frame, rule law, source neighborhood, allowed action/destination vocabulary,
+   and proof oracle. They classify; they do not edit. The A.2 orchestrator
+   integrates duplicate or conflicting classifications and preserves one row per
+   file/clause/predicate.
+5. If any row needs an action outside the finite vocabulary, lacks an exact
+   destination, reveals a missing destination class, or cannot be asserted by
+   the finalized authority, stop the descent and ask the user for the contextual
+   decision. Do not hide that decision inside an implementation prompt.
+6. Freeze the complete zero-unknown JSONL corpus, source-symbol preservation
+   census, per-row focused proof, and disjoint write assignments. Only then
+   launch fresh implementation agents in broad parallel. Their prompts contain
+   predetermined rows and guardrails; implementation is relocation and repair,
+   not design.
+
+The JSONL ledger and imported frames are planning evidence, not a new runtime or
+tracking system. Habitat diagnostics remain the authority and are rerun after
+every slice. Any new red row invalidates mechanical readiness for the affected
+slice and returns it to classification.
 
 ## Branch 1: Authority
 
@@ -684,20 +777,22 @@ agent prompts are the Agent Packets, and the existing verification ledger holds
 the per-branch corpus and assignment rows. Do not create another tracking
 system.
 
-1. Admit the exact branch parent, clean worktree, mutation owner, current
-   sentinel SHA, and allowed write set. Create the named Graphite branch through
-   `gt` before implementation.
-2. Re-derive each affected operation, executable barrel, direct importer,
-   focused test, current diagnostic key, and expected baseline deletion. Record
-   one ledger row with destination owner/file, shared-file integrator, assigned
-   agent, and forbidden edits.
-3. Resolve every ownership question before editing. The opening corpus includes
-   a complete matrix of cross-operation and cross-domain private imports, not
-   only the known snow and Placement examples.
-4. Assign a fresh implementation team. Parallel agents receive disjoint
-   operation roots and one work kind only. They run TypeScript checking and
-   focused tests while editing, not only after return.
-5. Integrate and commit concrete semantic units through Graphite, then run the
+1. Re-run the finalized advisory rules and admit only a zero-unknown JSONL
+   slice whose rows still reproduce. A new or changed row returns to the depth
+   cascade; it never becomes an implementation surprise.
+2. Admit the exact branch parent, clean worktree, mutation owner, current
+   sentinel SHA, row ids, disjoint allowed write sets, shared-file integrator,
+   and forbidden edits. Create the named Graphite branch through `gt` only
+   after that admission is frozen.
+3. Assign a fresh implementation team. Parallel agents receive disjoint
+   operation roots, one work kind, and only predetermined action/destination
+   rows. They run TypeScript checking and focused tests while editing, not only
+   after return.
+4. The A.2 orchestrator integrates source-symbol preservation and reruns the
+   advisory corpus.
+   Any residual or novel row invalidates only the affected assignment and
+   returns it to analysis; agents do not improvise a destination during repair.
+5. Commit the complete semantic slice through Graphite, then run the
    branch's focused TypeScript, tests, Habitat, lint,
    and diff-hygiene checks.
 6. Run three fresh read-only review lanes:
@@ -837,37 +932,41 @@ These independent findings remain assigned to A.3 and must not expand A.2:
 - broader Studio source-token tests;
 - movement of source-local compile-time tests into owner-local test projects.
 
-## Takeover DRA Contract
+## Handoff And Return Contract
 
-The initiative takeover DRA owns A.2 end to end, with Product/Development and
-Supervisor/Enforcer obligations collapsed into one accountable orchestrator.
-That collapse does not replace independent review. Fresh agents fill the stable
-TypeScript/state-space, architecture/authority, and product/runtime/library
-review roles for every sealed changeset.
+The initiative takeover DRA owns prerequisite closure, the immutable A.2 launch
+commit, protected-surface accounting, the independent product track, returned-
+stack integration, and final initiative closure. The user's A.2 orchestrator
+owns this packet's Authority and domain execution from the launch tree through
+the aggregate A.2 receipt. Neither side reproduces the other's changes.
 
-The DRA must:
+The handoff records the exact launch commit and tree, Graphite ancestry,
+prerequisite gates, protected path sets, curated frames, settled semantic laws,
+known residuals, and return requirements. After handoff the takeover DRA does
+not amend, squash, reorder, or redesign those ancestors without explicit
+coordination.
 
-- use this document as its execution contract and update it only for a
-  legitimate semantic deviation that affects later branches;
-- manage fresh bounded research, implementation, and review teams with
-  model-optimized prompts;
-- use Narsil symbol/reference/import tools and Nx for investigation, never
-  Narsil hybrid search;
-- keep each team on one kind of work and each agent on disjoint files;
-- preserve unrelated user changes and never reset, stash, or rewrite another
-  worktree's state;
-- commit every sealed branch through Graphite before proceeding;
-- avoid custom progress tooling, topology scripts, behavior changes, generated
-  file edits, compatibility paths, and speculative cleanup;
-- report immediately when a discovered fact changes this packet's ontology or
-  branch dependency graph; ordinary implementation blockers are investigation
-  inputs, not stop conditions.
+The A.2 orchestrator:
 
-Peers may own bounded investigation, disjoint implementation, or fresh review.
-They do not own initiative synthesis, supervise the DRA, mutate Graphite, carry
-partial work across changesets, or accept closure. Ordinary blockers enter an
-investigation/repair loop; a same-rank authority conflict or ontology change is
-recorded and adjudicated before dependent mutation continues.
+- uses this packet and curated N=1 frames as the execution contract;
+- manages fresh bounded research, analysis, implementation, and review sessions
+  with model-optimized prompts and disjoint write sets;
+- freezes the zero-unknown row corpus before mechanical source work;
+- preserves unrelated main-track changes and never resets, stashes, or rewrites
+  another worktree's state;
+- seals coherent Authority and domain layers through Graphite;
+- avoids custom progress tooling, behavior changes, generated hand edits,
+  compatibility paths, and speculative cleanup;
+- escalates any new destination, action, semantic backflow, or ontology change
+  before dependent mutation.
+
+Permanent review roles remain TypeScript/state-space, architecture/authority,
+and product/runtime/library; fresh sessions fill them for every frozen
+changeset and every materially affected repair. The returned stack must descend
+from the launch commit, remain inside A.2-owned surfaces, be clean and reviewed,
+carry the frozen JSONL/aggregate closure receipts, and report every intentional
+deviation. The takeover DRA then inspects and integrates those commits with
+native Graphite operations rather than recreating their tree.
 
 ## Closure
 

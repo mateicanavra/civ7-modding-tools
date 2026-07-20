@@ -167,7 +167,7 @@ Supported outcome:
 This supports disciplined rule admission. It does not decide whether the pattern
 is useful; the rule authority and review must establish that.
 
-### Inspect Admitted Fix Plans
+### Preview Admitted Rule Fixes
 
 Use:
 
@@ -179,13 +179,13 @@ bun habitat fix --dry-run --rule <id> --rule <id>
 Supported outcome:
 
 - Habitat derives admission only from registered `runner.fix` authority;
-- omission plans every admitted rule in catalog order, while repeatable
+- omission previews every admitted rule in catalog order, while repeatable
   `--rule` selects one or many;
 - invalid explicit selection refuses atomically before execution;
-- admitted transformations report affected paths without writing.
+- admitted transformations report file impacts without writing.
 
-This is the only current `habitat fix` capability. It is a no-write planning
-surface, not a codemod path.
+This is the only current `habitat fix` capability. It is a no-write preview
+surface, not a codemod path or executable change plan.
 
 ### Observe The Live-Write Refusal
 
@@ -309,7 +309,7 @@ This is the next major product loop to build.
 ## Scenario Selection Rule
 
 If the scenario is about detecting, classifying, routing, checking, or
-no-write planning for explicitly admitted structure, first look for the
+no-write preview for explicitly admitted structure, first look for the
 supported Habitat surface.
 
 If the scenario is about creating MapGen recipe/domain/op/stage/step topology,

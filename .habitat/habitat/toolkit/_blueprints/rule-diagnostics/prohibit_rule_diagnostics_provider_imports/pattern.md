@@ -3,7 +3,7 @@ level: error
 ---
 # Prohibit Rule Diagnostics Provider Imports
 
-Production consumers use the stable RuleDiagnostics and RuleFixPlanning
+Production consumers use the stable RuleDiagnostics and RuleFixPreview
 capabilities. Concrete Grit construction stays inside the provider tree and
 the explicit runtime composition root.
 
@@ -71,7 +71,7 @@ export type ProviderModule = typeof import("../resources/rule-diagnostics/provid
 import { makeRuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/providers/grit/service";
 
 // @filename: tools/habitat/src/runtime/service-context.ts
-import { makeGritRuleFixPlanningLayer } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
+import { makeGritRuleFixPreviewLayer } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
 ```
 
 ## Ignores fixture
@@ -80,14 +80,14 @@ import { makeGritRuleFixPlanningLayer } from "@habitat/cli/resources/rule-diagno
 // @filename: tools/habitat/src/runtime/layers.ts
 import {
   makeGritRuleDiagnosticsLayer,
-  makeGritRuleFixPlanningLayer,
+  makeGritRuleFixPreviewLayer,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/provider";
 
 // @filename: tools/habitat/src/runtime/service-context.ts
-import { RuleFixPlanning } from "@habitat/cli/resources/rule-fix-planning/index";
+import { RuleFixPreview } from "@habitat/cli/resources/rule-fix-preview/index";
 
 // @filename: tools/habitat/src/service/base.ts
-import type { RuleFixPlanningService } from "@habitat/cli/resources/rule-fix-planning/index";
+import type { RuleFixPreviewService } from "@habitat/cli/resources/rule-fix-preview/index";
 
 // @filename: tools/habitat/test/provider.test.ts
 import { makeGritCommandService } from "../src/resources/rule-diagnostics/providers/grit/index.js";

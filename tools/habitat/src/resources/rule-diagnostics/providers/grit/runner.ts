@@ -15,7 +15,11 @@ import {
 } from "./diagnostics.js";
 import { renderUnexpectedObservedGritIdentity } from "./identity.js";
 import type { DiagnosticFinding, DiagnosticRunOutcome } from "./outcome.js";
-import { type GritDiagnosticAcquisition, preCommandFailure } from "./output.js";
+import {
+  type GritApplyFindingEvidence,
+  type GritDiagnosticAcquisition,
+  preCommandFailure,
+} from "./output.js";
 import { type PlannedGritRule, planGritRuleRoots, sortedUnique } from "./scan-roots/index.js";
 
 interface GritRunOptions {
@@ -156,72 +160,13 @@ const executeApplyPolicyEffect = Effect.fn("grit.applyPolicy.execute")(function*
   plan: Extract<PlannedGritRule, { kind: "execute" }>,
   options: GritRunOptions
 ) {
-  const acquisitions = yield* Effect.forEach(
+  const acquisition = yield* runGritApplyDryRunAcquisitionEffect(
+    plan.rule,
     plan.roots,
-    (root) => runGritApplyDryRunAcquisitionEffect(plan.rule, root, options).pipe(Effect.scoped),
-    { concurrency: 1 }
-  );
-  return outcomeFromApplyAcquisitions(plan.rule, acquisitions, options.repoRoot);
+    options
+  ).pipe(Effect.scoped);
+  return outcomeFromAcquisition(plan.rule, acquisition, options.repoRoot);
 });
-
-function outcomeFromApplyAcquisitions(
-  rule: RuleGritFacts,
-  acquisitions: readonly GritDiagnosticAcquisition[],
-  repoRoot: string
-): DiagnosticRunOutcome {
-  const blocking = acquisitions.find((acquisition) => acquisition.kind !== "observed-complete");
-  return Match.value(blocking).pipe(
-    Match.when(undefined, () => completeApplyOutcome(rule, acquisitions, repoRoot)),
-    Match.orElse((failed) => outcomeFromAcquisition(rule, failed, repoRoot))
-  );
-}
-
-function completeApplyOutcome(
-  rule: RuleGritFacts,
-  acquisitions: readonly GritDiagnosticAcquisition[],
-  repoRoot: string
-): DiagnosticRunOutcome {
-  const observations = acquisitions.flatMap(applyObservationFromAcquisition);
-  return Match.value(observations.length === acquisitions.length).pipe(
-    Match.when(false, () =>
-      providerFailure(
-        rule,
-        "DiagnosticProviderContractViolation",
-        "Apply dry-run acquisition returned a non-apply complete observation."
-      )
-    ),
-    Match.orElse(() => completeApplyObservationsOutcome(rule, observations, repoRoot))
-  );
-}
-
-function applyObservationFromAcquisition(
-  acquisition: GritDiagnosticAcquisition
-): readonly Extract<
-  Extract<GritDiagnosticAcquisition, { kind: "observed-complete" }>["observation"],
-  { kind: "apply-dry-run" }
->[] {
-  return Match.value(acquisition).pipe(
-    Match.when({ kind: "pre-command-failed" }, () => []),
-    Match.when({ kind: "command-failed" }, () => []),
-    Match.when({ kind: "evidence-mismatch" }, () => []),
-    Match.when({ kind: "parse-failed" }, () => []),
-    Match.when({ kind: "parsed-incomplete" }, () => []),
-    Match.when({ kind: "observed-complete" }, ({ observation }) =>
-      applyObservationFromCompleteObservation(observation)
-    ),
-    Match.exhaustive
-  );
-}
-
-function applyObservationFromCompleteObservation(
-  observation: Extract<GritDiagnosticAcquisition, { kind: "observed-complete" }>["observation"]
-) {
-  return Match.value(observation).pipe(
-    Match.when({ kind: "check" }, () => []),
-    Match.when({ kind: "apply-dry-run" }, (apply) => [apply]),
-    Match.exhaustive
-  );
-}
 
 function completeApplyObservationsOutcome(
   rule: RuleGritFacts,
@@ -233,7 +178,9 @@ function completeApplyObservationsOutcome(
 ): DiagnosticRunOutcome {
   const paths = sortedUnique(
     observations.flatMap((observation) =>
-      observation.findingPaths.map((findingPath) => path.relative(repoRoot, findingPath))
+      observation.findings
+        .flatMap(applyFindingPaths)
+        .map((findingPath) => path.relative(repoRoot, findingPath))
     )
   );
   const diagnostics = paths.map((findingPath) => diagnosticFromApplyPath(rule, findingPath));
@@ -250,6 +197,19 @@ function completeApplyObservationsOutcome(
         diagnostics: [finding, ...rest],
       })
     )
+  );
+}
+
+function applyFindingPaths(finding: GritApplyFindingEvidence): readonly string[] {
+  return Match.value(finding).pipe(
+    Match.when({ kind: "rewrite" }, ({ originalPath, rewrittenPath }) => [
+      originalPath,
+      rewrittenPath,
+    ]),
+    Match.when({ kind: "match" }, ({ path: findingPath }) => [findingPath]),
+    Match.when({ kind: "create-file" }, ({ path: findingPath }) => [findingPath]),
+    Match.when({ kind: "remove-file" }, ({ path: findingPath }) => [findingPath]),
+    Match.exhaustive
   );
 }
 

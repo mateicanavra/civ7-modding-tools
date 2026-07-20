@@ -145,8 +145,8 @@ export function makeTestHabitatServiceDeps(
           )
         ),
     },
-    ruleFixPlanning: {
-      plan: () => Effect.succeed({ kind: "completed", results: [] }),
+    ruleFixPreview: {
+      preview: () => Effect.succeed({ kind: "completed", results: [] }),
     },
     rules: makeTestRuleFacts(),
     ...overrides,

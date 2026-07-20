@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 592,
+    "totalSurfaces": 593,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
@@ -18,7 +18,7 @@
       "nx-target": 60,
       "nx-plugin": 1,
       "nx-target-default": 9,
-      "habitat-cli-source": 111
+      "habitat-cli-source": 112
     },
     "surfacesByRole": {
       "command_check_executor": 29,
@@ -27,23 +27,23 @@
       "structure_authority": 8,
       "operation_surface": 6,
       "workspace_entrypoint": 232,
-      "toolkit_runner": 111
+      "toolkit_runner": 112
     },
     "entrypointsByInvoker": {
       "unknown": 247,
       "package": 164,
       "nx": 70,
       "direct-script": 3,
-      "habitat": 111
+      "habitat": 112
     },
     "surfacesByBucket": {
       "package_boundary_tie": 96,
       "unknown_invocation": 247,
-      "mutation_surface": 126,
+      "mutation_surface": 129,
       "nx_ordering_tie": 113,
       "package_invoked": 234,
       "direct_script_invoked": 3,
-      "habitat_invoked": 111
+      "habitat_invoked": 112
     },
     "sanityAssertions": []
   },
@@ -54,7 +54,7 @@
       "policy-predicate": 91,
       "transient-dependency": 106,
       "entrypoint": 234,
-      "runner-runtime": 111
+      "runner-runtime": 112
     }
   },
   "topCrossBoundaryTiesByFanout": [
@@ -151,19 +151,19 @@
     {
       "target": "@habitat/cli/service/model/rules/index",
       "targetClass": "habitat-toolkit",
-      "references": 17,
-      "sourceCount": 17,
+      "references": 18,
+      "sourceCount": 18,
       "sampleSources": [
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/diagnostics.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/failure.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/provider.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/scan-roots/index.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/scoped-config.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/service.ts"
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/scoped-config.ts"
       ]
     },
     {
@@ -282,7 +282,7 @@
       "sampleSources": [
         ".habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/check.mjs",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts",
         "tools/habitat/src/service/model/check/policy/structural/execution.policy.ts",
         "tools/habitat/src/service/model/rules/dto/registry.schema.ts",
         "tools/habitat/src/service/model/rules/policy/authority-paths.policy.ts",
@@ -290,6 +290,23 @@
         "tools/habitat/src/service/model/rules/policy/selection.policy.ts",
         "tools/habitat/src/service/model/rules/repositories/registry.repository.ts",
         "tools/habitat/src/service/modules/hook/model/policy/procedure-operations.policy.ts"
+      ]
+    },
+    {
+      "target": "./output.js",
+      "targetClass": "relative",
+      "references": 18,
+      "sourceCount": 9,
+      "sampleSources": [
+        "tools/habitat/src/resources/command/index.ts",
+        "tools/habitat/src/resources/command/runner.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/index.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/request.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts"
       ]
     },
     {
@@ -391,16 +408,16 @@
       ]
     },
     {
-      "target": "./output.js",
+      "target": "./command.js",
       "targetClass": "relative",
       "references": 14,
       "sourceCount": 7,
       "sampleSources": [
-        "tools/habitat/src/resources/command/index.ts",
-        "tools/habitat/src/resources/command/runner.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/index.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/provider.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/request.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts"
       ]
@@ -448,20 +465,6 @@
         "packages/civ7-map-policy/package.json#scripts.check",
         "packages/civ7-types/package.json#scripts.check",
         "packages/mapgen-core/package.json#scripts.check"
-      ]
-    },
-    {
-      "target": "./command.js",
-      "targetClass": "relative",
-      "references": 12,
-      "sourceCount": 6,
-      "sampleSources": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/index.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/provider.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/request.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts"
       ]
     },
     {
@@ -776,6 +779,18 @@
       ]
     },
     {
+      "target": "./scan-roots/index.js",
+      "targetClass": "relative",
+      "references": 8,
+      "sourceCount": 4,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/diagnostics.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/index.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts"
+      ]
+    },
+    {
       "target": "./module.js",
       "targetClass": "relative",
       "references": 7,
@@ -836,12 +851,12 @@
       ]
     },
     {
-      "target": "@habitat/cli/resources/rule-fix-planning/index",
+      "target": "@habitat/cli/resources/rule-fix-preview/index",
       "targetClass": "habitat-toolkit",
       "references": 4,
       "sourceCount": 4,
       "sampleSources": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/provider.ts",
         "tools/habitat/src/service/modules/fix/module.ts",
         "tools/habitat/src/service/modules/fix/router.ts"
@@ -1007,7 +1022,7 @@
       "references": 6,
       "sourceCount": 3,
       "sampleSources": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/scoped-config.ts"
       ]
@@ -1032,17 +1047,6 @@
         "tools/habitat/src/service/modules/hook/model/policy/procedure-context.policy.ts",
         "tools/habitat/src/service/modules/hook/model/policy/procedure-operations.policy.ts",
         "tools/habitat/src/service/modules/hook/model/policy/resource-inspection.policy.ts"
-      ]
-    },
-    {
-      "target": "./scan-roots/index.js",
-      "targetClass": "relative",
-      "references": 6,
-      "sourceCount": 3,
-      "sampleSources": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/diagnostics.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/index.ts",
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts"
       ]
     },
     {
@@ -1087,17 +1091,6 @@
         "tools/habitat/src/resources/command/runner.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/scoped-config.ts",
         "tools/habitat/src/service/model/check/policy/structural/context.policy.ts"
-      ]
-    },
-    {
-      "target": "@habitat/cli/resources/rule-diagnostics/index",
-      "targetClass": "habitat-toolkit",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
-        "tools/habitat/src/service/model/check/policy/structural/context.policy.ts",
-        "tools/habitat/src/service/model/check/policy/structural/diagnostic-execution.policy.ts"
       ]
     },
     {
@@ -1297,6 +1290,16 @@
       ]
     },
     {
+      "target": "./apply-dry-run.js",
+      "targetClass": "relative",
+      "references": 4,
+      "sourceCount": 2,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts",
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts"
+      ]
+    },
+    {
       "target": "./check-command.policy.js",
       "targetClass": "relative",
       "references": 4,
@@ -1347,7 +1350,7 @@
       ]
     },
     {
-      "target": "./fix-planning.js",
+      "target": "./fix-preview.js",
       "targetClass": "relative",
       "references": 4,
       "sourceCount": 2,
@@ -1574,6 +1577,16 @@
       "sampleSources": [
         "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts",
         "tools/habitat/src/service/model/check/policy/structural/file-layer-execution.policy.ts"
+      ]
+    },
+    {
+      "target": "@habitat/cli/resources/rule-diagnostics/index",
+      "targetClass": "habitat-toolkit",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        "tools/habitat/src/service/model/check/policy/structural/context.policy.ts",
+        "tools/habitat/src/service/model/check/policy/structural/diagnostic-execution.policy.ts"
       ]
     },
     {
@@ -2240,12 +2253,12 @@
       ]
     },
     {
-      "target": "./apply-dry-run.js",
+      "target": "./apply-findings.js",
       "targetClass": "relative",
       "references": 2,
       "sourceCount": 1,
       "sampleSources": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts"
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts"
       ]
     },
     {
@@ -5480,12 +5493,129 @@
       ]
     },
     {
-      "target": "grit.applyDryRun.validateFindingPath",
+      "target": "grit.applyFinding.validate",
       "targetClass": "workspace-tool",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts"
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateAbsentAbsolute",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateAbsentEndpoint",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateAbsentParent",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateAbsentReadLinkFailure",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateAbsoluteRewriteDestination",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateCanonicalExistingEndpoint",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateCreate",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateExisting",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateExistingEndpoint",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateExistingRewriteDestination",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateRewrite",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFinding.validateRewriteDestination",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
+      ]
+    },
+    {
+      "target": "grit.applyFindings.validate",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts"
       ]
     },
     {
@@ -5576,6 +5706,15 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/runner.ts"
+      ]
+    },
+    {
+      "target": "grit.fixPreview.previewRule",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts"
       ]
     },
     {
@@ -55631,18 +55770,16 @@
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [
+          "./apply-findings.js",
           "./command.js",
           "./command.schema.js",
           "./output.js",
-          "./path.js",
           "./request.js",
           "./scoped-config.js",
           "@effect/platform",
           "@habitat/cli/service/model/diagnostics/index",
           "@habitat/cli/service/model/rules/index",
-          "effect",
-          "node:fs",
-          "node:path"
+          "effect"
         ],
         "relativeHabitatImports": [],
         "packageAppModImports": [],
@@ -55650,10 +55787,7 @@
         "shellCommandCalls": [
           "grit.applyDryRun.acquire",
           "grit.applyDryRun.completeCapture",
-          "grit.applyDryRun.completeObservation",
-          "grit.applyDryRun.validateFindingPath",
-          "node:fs",
-          "node:path"
+          "grit.applyDryRun.completeObservation"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -55661,6 +55795,11 @@
           "rm"
         ],
         "all": [
+          {
+            "kind": "import",
+            "value": "./apply-findings.js",
+            "targetClass": "relative"
+          },
           {
             "kind": "import",
             "value": "./command.js",
@@ -55674,11 +55813,6 @@
           {
             "kind": "import",
             "value": "./output.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "./path.js",
             "targetClass": "relative"
           },
           {
@@ -55712,19 +55846,14 @@
             "targetClass": "external"
           },
           {
-            "kind": "import",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
             "kind": "mutation-verb",
             "value": "rm",
             "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./apply-findings.js",
+            "targetClass": "relative"
           },
           {
             "kind": "path-reference",
@@ -55739,11 +55868,6 @@
           {
             "kind": "path-reference",
             "value": "./output.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./path.js",
             "targetClass": "relative"
           },
           {
@@ -55770,10 +55894,210 @@
             "kind": "shell-command",
             "value": "grit.applyDryRun.completeObservation",
             "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "runner-runtime"
+        ],
+        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked",
+        "mutation_surface"
+      ]
+    },
+    {
+      "id": "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts",
+      "path": "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts",
+      "surfaceKind": "habitat-cli-source",
+      "surfaceRole": "toolkit_runner",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [
+          "./output.js",
+          "./path.js",
+          "@effect/platform",
+          "@effect/platform/Error",
+          "@habitat/cli/service/model/rules/index",
+          "effect",
+          "node:fs",
+          "node:path"
+        ],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit.applyFinding.validate",
+          "grit.applyFinding.validateAbsentAbsolute",
+          "grit.applyFinding.validateAbsentEndpoint",
+          "grit.applyFinding.validateAbsentParent",
+          "grit.applyFinding.validateAbsentReadLinkFailure",
+          "grit.applyFinding.validateAbsoluteRewriteDestination",
+          "grit.applyFinding.validateCanonicalExistingEndpoint",
+          "grit.applyFinding.validateCreate",
+          "grit.applyFinding.validateExisting",
+          "grit.applyFinding.validateExistingEndpoint",
+          "grit.applyFinding.validateExistingRewriteDestination",
+          "grit.applyFinding.validateRewrite",
+          "grit.applyFinding.validateRewriteDestination",
+          "grit.applyFindings.validate",
+          "node:fs",
+          "node:path"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [
+          "Match.value(absolutePath === path.normalize(finding.originalPath)).pipe",
+          "path.normalize",
+          "rm",
+          "transformationEndpointConflict"
+        ],
+        "all": [
+          {
+            "kind": "import",
+            "value": "./output.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./path.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "@effect/platform",
+            "targetClass": "external"
+          },
+          {
+            "kind": "import",
+            "value": "@effect/platform/Error",
+            "targetClass": "external"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/service/model/rules/index",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "import",
+            "value": "effect",
+            "targetClass": "external"
+          },
+          {
+            "kind": "import",
+            "value": "node:fs",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "import",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "Match.value(absolutePath === path.normalize(finding.originalPath)).pipe",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "path.normalize",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "rm",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "transformationEndpointConflict",
+            "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./output.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./path.js",
+            "targetClass": "relative"
           },
           {
             "kind": "shell-command",
-            "value": "grit.applyDryRun.validateFindingPath",
+            "value": "grit.applyFinding.validate",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateAbsentAbsolute",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateAbsentEndpoint",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateAbsentParent",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateAbsentReadLinkFailure",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateAbsoluteRewriteDestination",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateCanonicalExistingEndpoint",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateCreate",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateExisting",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateExistingEndpoint",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateExistingRewriteDestination",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateRewrite",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFinding.validateRewriteDestination",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.applyFindings.validate",
             "targetClass": "workspace-tool"
           },
           {
@@ -56537,8 +56861,8 @@
       ]
     },
     {
-      "id": "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
-      "path": "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts",
+      "id": "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts",
+      "path": "tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts",
       "surfaceKind": "habitat-cli-source",
       "surfaceRole": "toolkit_runner",
       "invokedBy": [
@@ -56547,29 +56871,62 @@
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [
-          "@habitat/cli/resources/rule-diagnostics/index",
-          "@habitat/cli/resources/rule-fix-planning/index",
+          "./apply-dry-run.js",
+          "./command.js",
+          "./output.js",
+          "./scan-roots/index.js",
+          "@effect/platform",
+          "@habitat/cli/resources/rule-fix-preview/index",
           "@habitat/cli/service/model/rules/index",
-          "effect"
+          "effect",
+          "node:path"
         ],
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit"
+          "grit",
+          "grit.fixPreview.previewRule",
+          "node:path"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [],
+        "knownMutationVerbs": [
+          "Match.value(observation.found > 0 && transformations.length === 0).pipe",
+          "rename",
+          "resultFromTransformations",
+          "rm",
+          "transformations.flatMap"
+        ],
         "all": [
           {
             "kind": "import",
-            "value": "@habitat/cli/resources/rule-diagnostics/index",
-            "targetClass": "habitat-toolkit"
+            "value": "./apply-dry-run.js",
+            "targetClass": "relative"
           },
           {
             "kind": "import",
-            "value": "@habitat/cli/resources/rule-fix-planning/index",
+            "value": "./command.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./output.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "./scan-roots/index.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
+            "value": "@effect/platform",
+            "targetClass": "external"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/resources/rule-fix-preview/index",
             "targetClass": "habitat-toolkit"
           },
           {
@@ -56583,9 +56940,69 @@
             "targetClass": "external"
           },
           {
+            "kind": "import",
+            "value": "node:path",
+            "targetClass": "node-builtin"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "Match.value(observation.found > 0 && transformations.length === 0).pipe",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "rename",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "resultFromTransformations",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "rm",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "transformations.flatMap",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./apply-dry-run.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./command.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./output.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./scan-roots/index.js",
+            "targetClass": "relative"
+          },
+          {
             "kind": "shell-command",
             "value": "grit",
             "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit.fixPreview.previewRule",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "node:path",
+            "targetClass": "node-builtin"
           }
         ]
       },
@@ -56598,7 +57015,8 @@
         "transientSignals": []
       },
       "buckets": [
-        "habitat_invoked"
+        "habitat_invoked",
+        "mutation_surface"
       ]
     },
     {
@@ -56661,7 +57079,7 @@
           "./command.js",
           "./command.schema.js",
           "./diagnostics.js",
-          "./fix-planning.js",
+          "./fix-preview.js",
           "./identity.js",
           "./outcome.js",
           "./output.js",
@@ -56695,7 +57113,7 @@
           },
           {
             "kind": "import",
-            "value": "./fix-planning.js",
+            "value": "./fix-preview.js",
             "targetClass": "relative"
           },
           {
@@ -56750,7 +57168,7 @@
           },
           {
             "kind": "path-reference",
-            "value": "./fix-planning.js",
+            "value": "./fix-preview.js",
             "targetClass": "relative"
           },
           {
@@ -56995,11 +57413,11 @@
         "imports": [
           "../../resource.js",
           "./command.js",
-          "./fix-planning.js",
+          "./fix-preview.js",
           "./runner.js",
           "./service.js",
           "@effect/platform",
-          "@habitat/cli/resources/rule-fix-planning/index",
+          "@habitat/cli/resources/rule-fix-preview/index",
           "@habitat/cli/service/model/rules/index",
           "effect"
         ],
@@ -57025,7 +57443,7 @@
           },
           {
             "kind": "import",
-            "value": "./fix-planning.js",
+            "value": "./fix-preview.js",
             "targetClass": "relative"
           },
           {
@@ -57045,7 +57463,7 @@
           },
           {
             "kind": "import",
-            "value": "@habitat/cli/resources/rule-fix-planning/index",
+            "value": "@habitat/cli/resources/rule-fix-preview/index",
             "targetClass": "habitat-toolkit"
           },
           {
@@ -57075,7 +57493,7 @@
           },
           {
             "kind": "path-reference",
-            "value": "./fix-planning.js",
+            "value": "./fix-preview.js",
             "targetClass": "relative"
           },
           {
@@ -59171,7 +59589,8 @@
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [
-          "generate"
+          "generate",
+          "rename"
         ],
         "all": [
           {
@@ -59182,6 +59601,11 @@
           {
             "kind": "mutation-verb",
             "value": "generate",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "rename",
             "targetClass": "external"
           },
           {
@@ -60461,7 +60885,7 @@
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [
-          "@habitat/cli/resources/rule-fix-planning/index",
+          "@habitat/cli/resources/rule-fix-preview/index",
           "@habitat/cli/service/impl"
         ],
         "relativeHabitatImports": [],
@@ -60474,7 +60898,7 @@
         "all": [
           {
             "kind": "import",
-            "value": "@habitat/cli/resources/rule-fix-planning/index",
+            "value": "@habitat/cli/resources/rule-fix-preview/index",
             "targetClass": "habitat-toolkit"
           },
           {
@@ -60509,7 +60933,7 @@
         "imports": [
           "./module.js",
           "@habitat/cli/resources/command/index",
-          "@habitat/cli/resources/rule-fix-planning/index",
+          "@habitat/cli/resources/rule-fix-preview/index",
           "effect"
         ],
         "relativeHabitatImports": [],
@@ -60518,7 +60942,9 @@
         "shellCommandCalls": [],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [],
+        "knownMutationVerbs": [
+          "rename"
+        ],
         "all": [
           {
             "kind": "import",
@@ -60532,12 +60958,17 @@
           },
           {
             "kind": "import",
-            "value": "@habitat/cli/resources/rule-fix-planning/index",
+            "value": "@habitat/cli/resources/rule-fix-preview/index",
             "targetClass": "habitat-toolkit"
           },
           {
             "kind": "import",
             "value": "effect",
+            "targetClass": "external"
+          },
+          {
+            "kind": "mutation-verb",
+            "value": "rename",
             "targetClass": "external"
           },
           {
@@ -60556,7 +60987,8 @@
         "transientSignals": []
       },
       "buckets": [
-        "habitat_invoked"
+        "habitat_invoked",
+        "mutation_surface"
       ]
     },
     {

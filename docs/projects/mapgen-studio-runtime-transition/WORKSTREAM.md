@@ -50,6 +50,15 @@ readiness. Admission is unit-scoped: every disposition needed by the unit being
 executed must be final before that unit mutates. Stage 2 as a whole closes only
 when the complete admitted corpus has zero undecided semantic rows.
 
+Ownership amendment (2026-07-13): after `RuleFixPreview` and stale-Authority
+reconciliation seal one immutable A.2 launch commit, the user's A.2
+orchestrator owns A.2 Authority, advisory census/classification, six domain
+migrations, review disposition, and Graphite mutation below that launch tree.
+The takeover DRA protects those surfaces, advances the disjoint product track,
+then integrates the returned A.2 stack and retains final product/initiative
+closure. This bounded split supersedes older sole-orchestrator language only
+for the delegated A.2 track.
+
 ## Opening Packet
 
 Typed inputs:
@@ -498,6 +507,11 @@ This is a single-accountability systematic workstream:
 | --- | --- | --- | --- |
 | Takeover DRA | Current orchestrator | frame and authority, corpus synthesis, semantic decisions, sequencing, Git/Graphite and process state, evidence claims, finding disposition, commits, merge, drain, and closure | cannot self-approve required review lanes or delegate final synthesis and closure |
 
+The immutable A.2 handoff creates a second bounded orchestrator below the
+launch tree. That orchestrator owns A.2 synthesis, reviews, and Graphite layers;
+the takeover DRA remains the final cross-track integrator and does not amend A.2
+ancestors or duplicate A.2 implementation.
+
 The three stable review roles are TypeScript/state-space simplification,
 architecture/authority simplification, and product/runtime/library verification.
 The roles and their closure standards persist; the agent instances do not.
@@ -519,8 +533,11 @@ Agent waves follow these rules:
   implementers, Graphite mutators, or closure owners.
 - Prompts name the packet context, authority sources, exact write or review
   scope, expected output, and failure modes to hunt.
-- Only the orchestrator mutates Graphite topology. Concurrent implementation
-  agents use isolated forks or disjoint write sets and return bounded changes.
+- Only the accountable orchestrator for a track mutates that track's Graphite
+  topology. The A.2 orchestrator owns descendants of the immutable launch tree;
+  the takeover DRA owns the main track and final integration. Concurrent
+  implementation agents use isolated forks or disjoint write sets and return
+  bounded changes.
 - Agents are closed when their wave is dispositioned. No stale agent is carried
   into a later packet.
 
@@ -1184,12 +1201,15 @@ final stack and not target architecture.
 - every incomplete current obligation has a semantic owner and expected
   evidence class.
 
-The admitted Stage 2 order is control reconciliation; generic diagnostic
-acquisition; generic authority-derived fix admission; recreated A.2 Authority;
-A.3a at the first clean capability boundary unless source mapping proves a real
-dependency; the A.2 domain train; A.3/A.4 and any separately admitted A.5
-concern; control-oRPC; P19; P20; and P21 semantic readiness. Dependency evidence
-may refine this order, but numeric labels and inherited branch shape do not.
+The sealed Stage 2 spine is control reconciliation; generic diagnostic
+acquisition; `RuleDiagnostics`; generic authority-derived fix admission; and
+A.3a. The next serialized prerequisites are `RuleFixPreview`, stale-Authority
+reconciliation, selected descent-frame adoption, and the immutable A.2 launch
+boundary. From there A.2 Authority/census/six domains and the disjoint
+A.3/A.4/A.5/control-oRPC/P19/P20 track may advance independently. Returned A.2
+integration and operation-sensitive A.3 scopes precede P21 semantic readiness.
+Dependency evidence may refine this order, but numeric labels and inherited
+branch shape do not.
 
 **Candidate construction**
 

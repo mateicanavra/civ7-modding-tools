@@ -1,10 +1,10 @@
 import { FileSystem } from "@effect/platform";
-import { RuleFixPlanning } from "@habitat/cli/resources/rule-fix-planning/index";
+import { RuleFixPreview } from "@habitat/cli/resources/rule-fix-preview/index";
 import { RuleFacts, type RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect, Layer } from "effect";
 import { RuleDiagnostics } from "../../resource.js";
 import { makeGritCommandService } from "./command.js";
-import { makeGritRuleFixPlanningService } from "./fix-planning.js";
+import { makeGritRuleFixPreviewRunner, makeGritRuleFixPreviewService } from "./fix-preview.js";
 import { runGritRulesEffect } from "./runner.js";
 import { makeRuleDiagnosticsService } from "./service.js";
 
@@ -30,18 +30,17 @@ export function makeGritRuleDiagnosticsLayer(repoRoot: string) {
   );
 }
 
-export function makeGritRuleFixPlanningLayer(repoRoot: string) {
+export function makeGritRuleFixPreviewLayer(repoRoot: string) {
   return Layer.effect(
-    RuleFixPlanning,
+    RuleFixPreview,
     Effect.gen(function* () {
       const facts = yield* RuleFacts;
       const grit = yield* makeGritCommandService(repoRoot);
       const fs = yield* FileSystem.FileSystem;
-      const runGritRules = (selectedRules: readonly RuleGritFacts[]) =>
-        runGritRulesEffect(selectedRules, { repoRoot, grit }).pipe(
-          Effect.provideService(FileSystem.FileSystem, fs)
-        );
-      return makeGritRuleFixPlanningService(facts, runGritRules);
+      return makeGritRuleFixPreviewService(
+        facts,
+        makeGritRuleFixPreviewRunner({ repoRoot, grit, fs })
+      );
     })
   );
 }

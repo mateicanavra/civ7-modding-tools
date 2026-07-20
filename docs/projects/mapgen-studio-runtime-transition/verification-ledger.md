@@ -1,7 +1,8 @@
 # Verification Ledger
 
-Status: A.3a atomic reroll is a sealed local Graphite layer above the sealed G.2,
-RuleDiagnostics, G.1, and control local Graphite layers; no product closure claim
+Status: G.2.1 RuleFixPreview sealed as a local Graphite layer above A.3a, G.2,
+RuleDiagnostics, G.1, and control; A.2 handoff reconciliation is next; no
+product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
@@ -11,23 +12,26 @@ Current scope and DRA frame:
 
 ## Live Control State
 
-- Last updated: 2026-07-13T16:11:01-04:00 EDT
-- Current phase: `atomic-reroll-sealed`
-- Last completed gate: exact staging matched digest `eab2ca445659`; Graphite
-  created local child `codex/mapgen-studio-atomic-reroll` above `171ee61ce0c1`
-  with initial identity `d6b5f33aa887`, then four terminal records alone were
-  amended.
-- Current gate: semantic boundary complete. Preserve this ratcheted layer and
-  compact before entering the next decision container.
+- Last updated: 2026-07-13T18:02:59-04:00 EDT
+- Current phase: `a2-handoff-reconciliation`
+- Last completed gate: uncached Habitat check/build/test/boundaries, direct
+  Habitat check, strict OpenSpec, 119 focused tests, live current-tree/pinned
+  provider fixtures, generated execution-surface refresh, provider-import
+  authority, no-write CLI digest, JSON/JSONL validity, and diff hygiene passed.
+  Changed-path Biome errors fell from 29 at the A.3a base to 28 in the candidate;
+  all new provider/resource files pass directly.
+- Current gate: G.2.1 exact review, authority currentness, exact staging, and
+  local Graphite creation passed. Reconcile the stale A.2 evidence worktree and
+  selected readiness descent corpus from this clean committed boundary.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
-- Next action: compact, then team-review the proposed `RuleFixPreview` authority
-  against sealed G.2 and integrate the accepted decision into the closeout
-  sequence. Before A.2, reconcile and retire the stale authority worktree and
-  load the readiness descent/N=1 planning corpus.
+- Next action: reconcile and retire the stale authority worktree, import the
+  adapted readiness descent/N=1 corpus, and seal the immutable A.2 handoff.
+  The user's team then owns A.2; this DRA continues the protected independent
+  closeout track and later integrates the returned stack.
 - Blocked by: nothing external. The preceding layers remain ratcheted; A.2,
   A.3, A.4, A.5, control-oRPC, P19/P20/P21, recut, and merge are excluded.
 - Takeover DRA: Codex task
@@ -39,13 +43,13 @@ Current scope and DRA frame:
   accepted, idle and non-mutating. Its old standalone-A.2 ownership claims are
   historical receipts, not current authority.
 - Active Graphite mutation lease: none. Operation
-  `takeover-atomic-reroll-seal-20260713-01` closed after exact staging, one
-  local child, terminal record-only amendment, and clean census.
+  `takeover-rule-fix-preview-seal-20260713-01` closed after exact staging, one
+  local child, terminal record-only amendment, and clean ending census.
 - Control worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/431b/civ7-modding-tools`,
-  branch `codex/mapgen-studio-atomic-reroll`, parent `171ee61ce0c1`; initial
-  create `d6b5f33aa887`, with final identity owned by the amended branch ref.
-  The reviewed A.3a candidate is committed and the index is clean.
+  branch `codex/mapgen-runtime-closeout-rule-fix-preview`, parent
+  `93b1153ca217`; initial create `db29d01013d4`, with final identity owned by the
+  amended branch ref. The worktree and index are clean.
 - Preserved evidence worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`,
   branch `codex/mapgen-domain-operation-authority`, HEAD/base `9ff0f711e0d7`.
@@ -63,21 +67,24 @@ Current scope and DRA frame:
   differential Biome errors fell from 59 to 55; the sole new error-level finding
   is the explicit closed Effect signature on the stable capability, with zero
   formatter/import defects.
-- Current-lane Graphite state: A.3a is the local, unsubmitted tip above G.2.
-  RuleDiagnostics, G.1, and control reconciliation remain downstack above the
-  takeover frame and sealed baseline manifests.
+- Current-lane Graphite state: G.2.1 is the local, unsubmitted tip above A.3a
+  and G.2. RuleDiagnostics, G.1, and control reconciliation remain downstack
+  above the takeover frame and sealed baseline manifests.
   `main == origin/main == 46943c5f1165`; the readiness sentinel and its worktree
   remain excluded.
-- Agent/process state: A.3a product and inherited-evidence censuses and the
-  two-path implementation owner are terminal. Prior G.2 implementation, four
+- Agent/process state: the G.2.1 design, implementation, pre-freeze audit,
+  structural repair, exact review, one accepted documentation/proof repair, and
+  fresh affected re-review cohorts are terminal. TypeScript/state-space,
+  architecture/authority, and product/runtime/library all passed successor
+  digest `afbe13337a2d`; no G.2.1 implementation or review agent is active. A.3a product and inherited-
+  evidence censuses and its two-path implementation owner are terminal. Prior G.2 implementation, four
   repair owners, design census,
   three prior exact-review cohorts, pre-freeze audit, and differential-Biome
   sessions are terminal. Terminal TypeScript and architecture review passed;
   product review accepted `G2-TERM-RUNTIME-001`, and the bounded one-file repair
   passed a fresh product/runtime/library successor review. Fresh architecture/
-  authority closeout also passed; all agent sessions and the seal lease are
-  terminal. No new worktree, A.2, remote, or persistent-process ownership
-  exists. The
+  authority closeout also passed. No new worktree, A.2, remote, staging,
+  Graphite, or persistent-process ownership exists. The
   pinned standing compaction attendant
   `019f580b-76b2-7201-8fe6-8f91b7caf0f4` is idle and non-mutating. No provider
   command or review-owned persistent process remains. Editor language servers
@@ -96,7 +103,8 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 
 | Wave | Purpose | State | Required follow-up |
 | --- | --- | --- | --- |
-| A.3a atomic reroll | one authored seed/revision, one submitted browser run with Auto-run off or on | sealed-local-graphite-layer | ratcheted base; compact before the next decision container |
+| G.2.1 RuleFixPreview authority | closed vendor-neutral transformation impacts, exact effect admission, one complete-root provider observation, no writes | sealed-local-graphite-layer | ratcheted base; reopen only on concrete invalidation |
+| A.3a atomic reroll | one authored seed/revision, one submitted browser run with Auto-run off or on | sealed-local-graphite-layer | ratcheted base; reopen only on concrete invalidation |
 | G.2 generic fix admission | atomic registered plan-only authority, one/many no-write planning, duplicate-state deletion | sealed-local-graphite-layer | ratcheted base; compact before the next explicitly admitted closeout slice |
 | RuleDiagnostics resource/provider topology | stable capability demand/output, one immutable catalog, private Grit implementation, dead source-engine deletion | sealed-local-graphite-layer | ratcheted base; reopen only on concrete invalidation |
 | takeover framing and onboarding review | full initiative arc, philosophy, orchestration, mutation safety, and normative frame | closed-passed | three temporary frame reviewers dissolved after exact-digest pass; they are not initiative reviewers or implementers |
