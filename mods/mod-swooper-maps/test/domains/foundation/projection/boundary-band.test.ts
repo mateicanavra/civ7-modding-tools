@@ -1,0 +1,193 @@
+import { describe, expect, it } from "bun:test";
+import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
+import { TEST_MAP_SIZE } from "../../../map-size.js";
+import { runTectonicHistoryChain } from "../fixtures/tectonics-history.js";
+
+const {
+  computeMantleForcing,
+  computeMantlePotential,
+  computeMesh,
+  computePlateGraph,
+  computePlateMotion,
+  computePlatesTensors,
+} = foundationOpsPublic.ops;
+function computeBoundaryTiles(width: number, height: number, plateId: Int16Array): Uint8Array {
+  const size = width * height;
+  const boundary = new Uint8Array(size);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = y * width + x;
+      const myPlate = plateId[i]!;
+      let isBoundary = false;
+      forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+        const ni = ny * width + nx;
+        if (plateId[ni] !== myPlate) isBoundary = true;
+      });
+      boundary[i] = isBoundary ? 1 : 0;
+    }
+  }
+  return boundary;
+}
+
+function computeDistanceFieldOddQ(params: {
+  width: number;
+  height: number;
+  isSeed: Uint8Array;
+  maxDistance: number;
+}): Uint8Array {
+  const { width, height } = params;
+  const size = width * height;
+  const dist = new Uint8Array(size);
+  dist.fill(255);
+
+  const queue = new Int32Array(size);
+  let head = 0;
+  let tail = 0;
+  for (let i = 0; i < size; i++) {
+    if (params.isSeed[i]) {
+      dist[i] = 0;
+      queue[tail++] = i;
+    }
+  }
+
+  while (head < tail) {
+    const i = queue[head++]!;
+    const d = dist[i]!;
+    if (d >= (params.maxDistance | 0)) continue;
+    const x = i % width;
+    const y = Math.floor(i / width);
+    forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+      const ni = ny * width + nx;
+      const next = (d + 1) as number;
+      if (dist[ni]! > next) {
+        dist[ni] = next;
+        queue[tail++] = ni;
+      }
+    });
+  }
+
+  return dist;
+}
+
+function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
+  const mantlePotential = computeMantlePotential.run(
+    { mesh, rngSeed },
+    computeMantlePotential.defaultConfig
+  ).mantlePotential;
+  const mantleForcing = computeMantleForcing.run(
+    { mesh, mantlePotential },
+    computeMantleForcing.defaultConfig
+  ).mantleForcing;
+  return computePlateMotion.run(
+    { mesh, plateGraph, mantleForcing },
+    computePlateMotion.defaultConfig
+  ).plateMotion;
+}
+
+function deriveMantleForcing(mesh: any, rngSeed: number) {
+  const mantlePotential = computeMantlePotential.run(
+    { mesh, rngSeed },
+    computeMantlePotential.defaultConfig
+  ).mantlePotential;
+  return computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
+    .mantleForcing;
+}
+
+describe("m11 plates projection (boundary band)", () => {
+  it("projects boundary regime + signals beyond the exact boundary line", () => {
+    const { width, height } = TEST_MAP_SIZE.dimensions;
+    const meshConfig = computeMesh.normalize({
+      strategy: "default",
+      config: {
+        plateCount: 10,
+        cellsPerPlate: 4,
+        relaxationSteps: 2,
+      },
+    });
+    const mesh = computeMesh.run({ width, height, rngSeed: 7 }, meshConfig).mesh;
+    const cellCount = mesh.cellCount | 0;
+
+    const crust = {
+      maturity: new Float32Array(cellCount),
+      thickness: new Float32Array(cellCount).fill(0.25),
+      thermalAge: new Uint8Array(cellCount),
+      damage: new Uint8Array(cellCount),
+      type: new Uint8Array(cellCount),
+      age: new Uint8Array(cellCount),
+      buoyancy: new Float32Array(cellCount),
+      baseElevation: new Float32Array(cellCount),
+      strength: new Float32Array(cellCount),
+    } as const;
+
+    const plateGraphConfig = computePlateGraph.normalize({
+      ...computePlateGraph.defaultConfig,
+      config: { ...computePlateGraph.defaultConfig.config, plateCount: 10 },
+    });
+    const plateGraph = computePlateGraph.run(
+      { mesh, crust: crust as any, rngSeed: 11 },
+      plateGraphConfig
+    ).plateGraph;
+
+    const plateMotion = derivePlateMotion(mesh, plateGraph, 12);
+    const mantleForcing = deriveMantleForcing(mesh, 12);
+
+    const historyResult = runTectonicHistoryChain({
+      mesh,
+      crust,
+      mantleForcing,
+      plateGraph,
+      plateMotion,
+      config: {
+        eraWeights: [0.3, 0.25, 0.2, 0.15, 0.1],
+        driftStepsByEra: [2, 2, 2, 2, 2],
+        beltInfluenceDistance: 8,
+        beltDecay: 0.55,
+        activityThreshold: 1,
+      },
+    });
+
+    const projected = computePlatesTensors.run(
+      {
+        width,
+        height,
+        mesh,
+        crust: crust as any,
+        plateGraph: plateGraph as any,
+        plateMotion: plateMotion as any,
+        tectonics: historyResult.tectonics as any,
+        tectonicHistory: historyResult.tectonicHistory as any,
+      },
+      {
+        strategy: "default",
+        config: {
+          boundaryInfluenceDistance: 6,
+          boundaryDecay: 0.55,
+          movementScale: 100,
+          rotationScale: 100,
+        },
+      }
+    );
+
+    const plates = projected.plates;
+    const boundary = computeBoundaryTiles(width, height, plates.id);
+    const boundaryDist = computeDistanceFieldOddQ({
+      width,
+      height,
+      isSeed: boundary,
+      maxDistance: 8,
+    });
+
+    let sawMultiTileBelt = false;
+    for (let i = 0; i < width * height; i++) {
+      const d = boundaryDist[i] ?? 255;
+      if (d < 3 || d > 8) continue;
+      if ((plates.boundaryType[i] ?? 0) === 0) continue;
+      if ((plates.upliftPotential[i] ?? 0) <= 0 && (plates.riftPotential[i] ?? 0) <= 0) continue;
+      sawMultiTileBelt = true;
+      break;
+    }
+
+    expect(sawMultiTileBelt).toBe(true);
+  });
+});

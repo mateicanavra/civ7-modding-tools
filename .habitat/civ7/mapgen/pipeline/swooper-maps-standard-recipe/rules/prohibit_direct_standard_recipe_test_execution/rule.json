@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "prohibit_direct_standard_recipe_test_execution",
+  "title": "Prohibit Direct Standard Recipe Test Execution",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline/swooper-maps-standard-recipe",
+    "blueprint": "_self",
+    "category": "execution"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "test files invoking the Standard recipe outside its canonical product-test fixture",
+  "why": "Whole-recipe tests must share the same admitted Civ7 preset, complete map configuration, runtime initialization, and single execution boundary so synthetic grids cannot masquerade as product evidence.",
+  "remediate": "Route whole Standard recipe execution through test/recipes/swooper-physics-standard/fixtures/standard-recipe.ts. Operation, artifact, and step tests should invoke their narrower production-owned surfaces instead.",
+  "message": "Use the Standard recipe product-test fixture instead of invoking standardRecipe.run directly.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/test/**/*.ts", "mods/mod-swooper-maps/test/**/*.tsx"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/test"],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_direct_standard_recipe_test_execution/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_direct_standard_recipe_test_execution/pattern.md"
+    },
+    "patternName": "prohibit_direct_standard_recipe_test_execution"
+  }
+}

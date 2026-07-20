@@ -1,24 +1,26 @@
 import { describe, expect, it } from "bun:test";
 
-import { createMockAdapter } from "@civ7/adapter";
+import { createMockAdapter, getCiv7StandardMapSizePreset } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement/ops";
-
+import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 import { initializeStandardRuntime } from "../../../../../../src/recipes/standard/runtime.js";
 import { buildPlacementInputs } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/inputs.js";
 import { buildNaturalWonderPlanInputRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-input-telemetry.js";
 import { buildNaturalWonderPlanRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-telemetry.js";
-import { normalizeOpSelectionOrThrow } from "../../../../../support/compiler-helpers.js";
+import { TEST_MAP_SIZE } from "../../../../../map-size.js";
 
 const { featureTypes, terrainTypeIndices, biomeGlobals } = CIV7_BROWSER_TABLES_V0;
+const hugePreset = getCiv7StandardMapSizePreset("MAPSIZE_HUGE");
 
 function placementConfig() {
   return {
-    naturalWonders: normalizeOpSelectionOrThrow(
+    naturalWonders: normalizeOperationSelectionForTest(
       placement.ops.planNaturalWonders,
       placement.ops.planNaturalWonders.defaultConfig
     ),
-    wonders: normalizeOpSelectionOrThrow(
+    wonders: normalizeOperationSelectionForTest(
       placement.ops.planWonders,
       placement.ops.planWonders.defaultConfig
     ),
@@ -27,39 +29,31 @@ function placementConfig() {
 
 describe("derive placement inputs", () => {
   it("passes explicit projected natural-wonder direction to materialization planning", () => {
-    const width = 6;
-    const height = 6;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 1,
-      PlayersLandmass2: 1,
-      StartSectorRows: 1,
-      StartSectorCols: 1,
-      NumNaturalWonders: 1,
-    };
+    const mapInfo = { ...TEST_MAP_SIZE.mapInfo };
     const adapter = createMockAdapter({
       width,
       height,
       mapInfo,
-      mapSizeId: 1,
+      mapSizeId: TEST_MAP_SIZE.id,
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_KILIMANJARO, direction: -1 }],
     });
     const featureTypeSnapshot = new Int16Array(size).fill(adapter.NO_FEATURE);
     featureTypeSnapshot[0] = featureTypes.FEATURE_ICE;
-    const context = {
-      setup: {
+    const context = createMapContext({
+      setup: admitMapSetup({
         mapSeed: 1,
-        dimensions: { width, height },
-        latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
-      },
+        dimensions: TEST_MAP_SIZE.dimensions,
+        latitudeBounds: {
+          topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+          bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+        },
+      }),
       adapter,
-    } as never;
+    });
     initializeStandardRuntime(context, { mapInfo });
 
     let capturedNaturalWonderInput:
@@ -150,37 +144,29 @@ describe("derive placement inputs", () => {
   });
 
   it("includes the recovered 4-tile natural wonders (Barrier Reef) in the plan catalog", () => {
-    const width = 6;
-    const height = 6;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 1,
-      PlayersLandmass2: 1,
-      StartSectorRows: 1,
-      StartSectorCols: 1,
-      NumNaturalWonders: 1,
-    };
+    const mapInfo = { ...TEST_MAP_SIZE.mapInfo };
     const adapter = createMockAdapter({
       width,
       height,
       mapInfo,
-      mapSizeId: 1,
+      mapSizeId: TEST_MAP_SIZE.id,
       defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
       defaultBiomeType: biomeGlobals.BIOME_PLAINS,
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_BARRIER_REEF, direction: -1 }],
     });
-    const context = {
-      setup: {
+    const context = createMapContext({
+      setup: admitMapSetup({
         mapSeed: 1,
-        dimensions: { width, height },
-        latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
-      },
+        dimensions: TEST_MAP_SIZE.dimensions,
+        latitudeBounds: {
+          topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+          bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+        },
+      }),
       adapter,
-    } as never;
+    });
     initializeStandardRuntime(context, { mapInfo });
 
     let capturedNaturalWonderInput:
@@ -272,8 +258,7 @@ describe("derive placement inputs", () => {
 
   it("builds compact natural-wonder plan telemetry for exact runtime evidence", () => {
     const telemetry = buildNaturalWonderPlanRuntimeTelemetry({
-      width: 106,
-      height: 66,
+      ...hugePreset.dimensions,
       wondersCount: 7,
       targetCount: 7,
       plannedCount: 2,
@@ -316,25 +301,14 @@ describe("derive placement inputs", () => {
   });
 
   it("builds compact natural-wonder plan input telemetry for exact runtime evidence", () => {
-    const width = 4;
-    const height = 4;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 1,
-      PlayersLandmass2: 1,
-      StartSectorRows: 1,
-      StartSectorCols: 1,
-      NumNaturalWonders: 1,
-    };
+    const mapInfo = { ...TEST_MAP_SIZE.mapInfo };
     const adapter = createMockAdapter({
       width,
       height,
       mapInfo,
-      mapSizeId: 1,
+      mapSizeId: TEST_MAP_SIZE.id,
       defaultTerrainType: terrainTypeIndices.TERRAIN_COAST,
       defaultBiomeType: biomeGlobals.BIOME_MARINE,
     });
@@ -346,14 +320,17 @@ describe("derive placement inputs", () => {
     featureType[5] = featureTypes.FEATURE_ICE;
     const blockedMask = new Uint8Array(size);
     blockedMask[5] = 1;
-    const context = {
-      setup: {
+    const context = createMapContext({
+      setup: admitMapSetup({
         mapSeed: 1,
-        dimensions: { width, height },
-        latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
-      },
+        dimensions: TEST_MAP_SIZE.dimensions,
+        latitudeBounds: {
+          topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+          bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+        },
+      }),
       adapter,
-    } as never;
+    });
     const telemetry = buildNaturalWonderPlanInputRuntimeTelemetry({
       context,
       plan: {
@@ -408,8 +385,8 @@ describe("derive placement inputs", () => {
         [
           "p",
           5,
-          1,
-          1,
+          5,
+          0,
           featureTypes.FEATURE_KILIMANJARO,
           terrainTypeIndices.TERRAIN_MOUNTAIN,
           biomeGlobals.BIOME_PLAINS,

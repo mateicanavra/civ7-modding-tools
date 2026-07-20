@@ -5,15 +5,14 @@ import { admitMapSetup, createMapContext, ctxRandom } from "@mapgen/core/index.j
 import { withMapContextExecutionForTest } from "@mapgen/testing/index.js";
 
 function createTestContext() {
-  const width = 2;
-  const height = 2;
+  const syntheticDimensions = { width: 2, height: 2 } as const;
   return createMapContext({
     setup: admitMapSetup({
       mapSeed: 7,
-      dimensions: { width, height },
+      dimensions: syntheticDimensions,
       latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
     }),
-    adapter: createMockAdapter({ width, height }),
+    adapter: createMockAdapter(syntheticDimensions),
   });
 }
 

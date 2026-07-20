@@ -133,6 +133,29 @@ describe("artifact authoring", () => {
     ).toThrow(/artifacts\.requires/);
   });
 
+  it("defineStep rejects artifact names that would alias one dependency binding", () => {
+    const required = defineArtifact({
+      name: "sharedValue",
+      id: "artifact:test.shared-value.required",
+      schema: Type.Object({}, { additionalProperties: false }),
+    });
+    const provided = defineArtifact({
+      name: "sharedValue",
+      id: "artifact:test.shared-value.provided",
+      schema: Type.Object({}, { additionalProperties: false }),
+    });
+
+    expect(() =>
+      defineStep({
+        id: "artifact-name-alias",
+        requires: [],
+        provides: [],
+        artifacts: { requires: [required], provides: [schemaModule(provided)] },
+        schema: EmptyStepConfigSchema,
+      })
+    ).toThrow('declares duplicate artifact name "sharedValue"');
+  });
+
   it("snapshots artifact declarations before deriving step dependencies", () => {
     const required = defineArtifact({
       name: "requiredArtifact",

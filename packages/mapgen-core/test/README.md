@@ -35,19 +35,17 @@ typed failures, and the public raw-input/strategy-admitted type transition. Cons
 the production factory rather than duplicate these checks or treat TypeBox static typing as runtime
 validation.
 
-## Planned Generic Harnesses
+## Generic Testing Surface
 
-MapGen's future test harness follows the same hierarchy as its public
-authoring model: strategy, operation, step, stage, then recipe. Each layer uses
-the production factory and the next lower production contract rather than
-reimplementing compilation or runtime behavior.
+`@swooper/mapgen-core/testing` exposes only mechanics that Core can derive from
+its public authoring model:
 
-The generic owner tests the harness mechanics once: contract validation,
-explicit dependency injection, observable publication, deterministic
-execution, and failure reporting. Concrete domains and recipes supply fixtures
-and behavioral assertions. A framework-derivable law does not become a family
-of handwritten domain tests.
+- operation configuration normalization followed by the real operation entry,
+- artifact publication through the module's production validator and write-once runtime,
+- step dependency binding from declared artifact requirements and providers, and
+- one synchronous action inside the production one-shot `MapContext` lifecycle.
 
-This harness is planned, not present. Its first implementation waits for the
-domain-operation blueprint and test TypeScript surfaces to be stable. The
-Swooper corpus guide defines the consumer-side admission rules.
+These helpers do not infer domain inputs, select operation defaults, construct
+recipe configuration, or provide a generic recipe harness. Concrete domains
+and recipes own their fixtures and behavioral assertions; the Swooper corpus
+guide defines those consumer-side admission rules.

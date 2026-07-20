@@ -10,6 +10,12 @@ export const EARTHLIKE_RELIEF_REPRESENTATIVE_TARGET = {
     "Earthlike preserves useful foothills, bounded rough uplands, and varied realized terrain.",
   expectations: [
     atLeast<StandardMapProductSample>(
+      "planned-volcano-presence",
+      "The representative Earthlike map contains at least one planned volcano.",
+      (sample) => sample.metrics.relief.plannedVolcanoes,
+      1
+    ),
+    atLeast<StandardMapProductSample>(
       "foothill-share",
       "Modeled foothills occupy a meaningful share of land.",
       (sample) => requiredShare(sample.metrics.relief.plannedFoothills, "Foothill land share"),

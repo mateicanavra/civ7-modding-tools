@@ -117,6 +117,12 @@ const DESERT_MOUNTAINS_ARID_CLIMATE_EXPECTATIONS = [
       sample.metrics.ecology.featureCounts.FEATURE_RAINFOREST ?? 0,
     IDENTITY_SPECS["swooper-desert-mountains"].rainforestTileMaximum ?? 0
   ),
+  atLeast(
+    "dry-flow-presence",
+    "Desert Mountains retains land with no sustained modeled flow.",
+    (sample: StandardMapProductSample) => sample.metrics.hydrology.networkSummary.dryFlowTileCount,
+    1
+  ),
 ] satisfies NonEmptyTuple<MetricExpectation<StandardMapProductSample>>;
 
 /**
@@ -130,7 +136,7 @@ export const DESERT_MOUNTAINS_ARID_CLIMATE_TARGET: MetricTarget<StandardMapProdu
   Object.freeze({
     id: "swooper-desert-mountains/arid-climate",
     description:
-      "Desert Mountains preserves dry, varied vegetation without tropical drift across seeds.",
+      "Desert Mountains preserves dry land and varied vegetation without tropical drift across seeds.",
     expectations: Object.freeze(DESERT_MOUNTAINS_ARID_CLIMATE_EXPECTATIONS),
   });
 

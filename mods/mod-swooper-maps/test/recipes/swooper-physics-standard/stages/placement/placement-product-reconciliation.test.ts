@@ -2,29 +2,23 @@ import { describe, expect, it } from "bun:test";
 
 import {
   createMockAdapter,
-  type MapInfo,
   MockAdapter,
   type ResourcePlacementIntent,
   type ResourcePlacementOutcome,
 } from "@civ7/adapter";
-import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import standardRecipe, {
-  type StandardRecipeConfig,
-} from "../../../../../src/recipes/standard/recipe.js";
-import { initializeStandardRuntime } from "../../../../../src/recipes/standard/runtime.js";
 import { artifacts as placementArtifacts } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
-import { standardConfig } from "../../../../support/standard-config.js";
+import {
+  runStandardRecipeTestMap,
+  type StandardRecipeTestAdapterInput,
+} from "../../fixtures/standard-recipe.js";
 
 type PlacementRecipeHarnessOptions = {
-  adapter?: MockAdapter;
-  config?: StandardRecipeConfig;
-  mapInfo?: MapInfo;
+  createAdapter?: (input: StandardRecipeTestAdapterInput) => MockAdapter;
   seed?: number;
-  width?: number;
-  height?: number;
 };
 
 type ResourcePlacementOutcomes = Static<
@@ -38,51 +32,22 @@ type ResourcePlacementOutcomes = Static<
  * so the guard must observe the same boundary that shipped maps exercise.
  */
 function runStandardPlacementRecipe({
-  adapter,
-  config = standardConfig,
-  mapInfo,
+  createAdapter,
   seed = 1337,
-  width = 20,
-  height = 12,
-}: PlacementRecipeHarnessOptions = {}) {
-  const resolvedMapInfo = {
-    GridWidth: width,
-    GridHeight: height,
-    MinLatitude: -60,
-    MaxLatitude: 60,
-    PlayersLandmass1: 1,
-    PlayersLandmass2: 1,
-    StartSectorRows: 1,
-    StartSectorCols: 1,
-    NumNaturalWonders: 0,
-    ...mapInfo,
-  };
-  const setup = admitMapSetup({
-    mapSeed: seed,
-    dimensions: { width, height },
-    latitudeBounds: {
-      topLatitude: resolvedMapInfo.MaxLatitude ?? 60,
-      bottomLatitude: resolvedMapInfo.MinLatitude ?? -60,
+}: PlacementRecipeHarnessOptions = {}): Readonly<{ adapter: MockAdapter; context: MapContext }> {
+  const options = {
+    seed,
+    mapInfo: {
+      PlayersLandmass1: 1,
+      PlayersLandmass2: 1,
+      StartSectorRows: 1,
+      StartSectorCols: 1,
+      NumNaturalWonders: 0,
     },
-  });
-  const resolvedAdapter =
-    adapter ??
-    createMockAdapter({
-      width,
-      height,
-      mapInfo: resolvedMapInfo,
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-    });
-  const context = createMapContext({ setup, adapter: resolvedAdapter });
-
-  initializeStandardRuntime(context, {
-    mapInfo: resolvedMapInfo,
-    logPrefix: "[test]",
-  });
-  standardRecipe.run(context, config, { log: () => {} });
-
-  return { adapter: resolvedAdapter, context };
+  } as const;
+  return createAdapter
+    ? runStandardRecipeTestMap({ ...options, createAdapter })
+    : runStandardRecipeTestMap(options);
 }
 
 function readResourceOutcomes(context: ReturnType<typeof runStandardPlacementRecipe>["context"]) {
@@ -141,19 +106,18 @@ class UntypedResourceRejectionAdapter extends MockAdapter {
 
 describe("placement reconciliation", () => {
   it("places resources through typed intents and discoveries through the official generator", () => {
-    const width = 20;
-    const height = 12;
     const seed = 1337;
-    const adapter = createMockAdapter({
-      width,
-      height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-      officialDiscoveriesPlacedCount: 5,
+    const { adapter, context } = runStandardPlacementRecipe({
+      seed,
+      createAdapter: ({ preset, mapInfo }) =>
+        createMockAdapter({
+          ...preset.dimensions,
+          mapInfo,
+          mapSizeId: preset.id,
+          rng: createLabelRng(seed),
+          officialDiscoveriesPlacedCount: 5,
+        }),
     });
-
-    const { context } = runStandardPlacementRecipe({ adapter, seed, width, height });
 
     const resourceOutcomes = readResourceOutcomes(context);
     const discoveryOutcomes = readDiscoveryOutcomes(context);
@@ -177,23 +141,22 @@ describe("placement reconciliation", () => {
   });
 
   it("records typed resource rejections without relocation when the engine oracle rejects every intent", () => {
-    const width = 20;
-    const height = 12;
     const seed = 1441;
     // Plan-authority cutover (S3/D4): the plan is built within static policy
     // legality; a divergent live oracle produces typed per-intent rejections
     // (recorded shortfalls), never relocation, type re-decision, or official
     // generator fallback.
-    const adapter = createMockAdapter({
-      width,
-      height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-      canHaveResource: () => false,
+    const { adapter, context } = runStandardPlacementRecipe({
+      seed,
+      createAdapter: ({ preset, mapInfo }) =>
+        createMockAdapter({
+          ...preset.dimensions,
+          mapInfo,
+          mapSizeId: preset.id,
+          rng: createLabelRng(seed),
+          canHaveResource: () => false,
+        }),
     });
-
-    const { context } = runStandardPlacementRecipe({ adapter, seed, width, height });
     const resourceOutcomes = readResourceOutcomes(context);
     if (!resourceOutcomes) throw new Error("Missing resource placement outcomes.");
 
@@ -210,40 +173,48 @@ describe("placement reconciliation", () => {
   });
 
   it("fails hard when resource readback contradicts typed intent", () => {
-    const width = 20;
-    const height = 12;
     const seed = 1661;
-    const adapter = new MismatchingResourceAdapter({
-      width,
-      height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-    });
+    let adapter: MismatchingResourceAdapter | undefined;
 
-    expect(() => runStandardPlacementRecipe({ adapter, seed, width, height })).toThrow(
-      /placement\.resources failed/i
-    );
+    expect(() =>
+      runStandardPlacementRecipe({
+        seed,
+        createAdapter: ({ preset, mapInfo }) => {
+          adapter = new MismatchingResourceAdapter({
+            ...preset.dimensions,
+            mapInfo,
+            mapSizeId: preset.id,
+            rng: createLabelRng(seed),
+          });
+          return adapter;
+        },
+      })
+    ).toThrow(/placement\.resources failed/i);
+    if (!adapter) throw new Error("Expected the mismatching adapter to be constructed.");
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.calls.recalculateFertility).toBe(0);
     expect(adapter.calls.assignAdvancedStartRegions).toBe(0);
   });
 
   it("fails hard when resource outcomes omit typed rejection reasons", () => {
-    const width = 20;
-    const height = 12;
     const seed = 1771;
-    const adapter = new UntypedResourceRejectionAdapter({
-      width,
-      height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-    });
+    let adapter: UntypedResourceRejectionAdapter | undefined;
 
-    expect(() => runStandardPlacementRecipe({ adapter, seed, width, height })).toThrow(
-      /untyped rejection reason/i
-    );
+    expect(() =>
+      runStandardPlacementRecipe({
+        seed,
+        createAdapter: ({ preset, mapInfo }) => {
+          adapter = new UntypedResourceRejectionAdapter({
+            ...preset.dimensions,
+            mapInfo,
+            mapSizeId: preset.id,
+            rng: createLabelRng(seed),
+          });
+          return adapter;
+        },
+      })
+    ).toThrow(/untyped rejection reason/i);
+    if (!adapter) throw new Error("Expected the rejecting adapter to be constructed.");
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.calls.recalculateFertility).toBe(0);
     expect(adapter.calls.assignAdvancedStartRegions).toBe(0);

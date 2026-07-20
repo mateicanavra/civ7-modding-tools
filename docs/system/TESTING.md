@@ -77,8 +77,8 @@ nx run civ7-adapter:test
 ```
 
 See the [Swooper Maps test corpus guide](../../mods/mod-swooper-maps/test/README.md)
-for its current ownership and classification rules and its explicitly future
-harness direction.
+for its current ownership and classification rules and the reusable MapGen Core
+testing mechanics available to focused mod tests.
 
 See the [MapGen Core test corpus guide](../../packages/mapgen-core/test/README.md)
 for the generic component ownership tree.
@@ -104,7 +104,7 @@ nearest test-corpus guide. Bun and Vitest execute transpiled TypeScript; a
 passing runtime suite does not substitute for a TypeScript target whose file
 set includes that suite.
 
-## Physics-Truth Guardrails (Swooper Maps)
+## Physics Guardrails (Swooper Maps)
 
 For `mods/mod-swooper-maps`, CI/local validation should include:
 
@@ -115,7 +115,7 @@ For `mods/mod-swooper-maps`, CI/local validation should include:
   package tests that scan source text.
 - RNG authority guards (`packages/mapgen-core/test/core/rng.test.ts`,
   `.habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs`, and
-  `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/recipe/standard-rng-authority.test.ts`)
+  `mods/mod-swooper-maps/test/recipes/swooper-physics-standard/rng-authority.test.ts`)
   ensuring authored MapGen entropy comes from `env.seed`, not Civ7 adapter RNG
   or official generators.
 

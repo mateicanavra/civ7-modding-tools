@@ -8,7 +8,7 @@ import {
   HYDROLOGY_MOUTH_SPILL_PATH,
 } from "@mapgen/domain/hydrology/model/policy/river-network-metrics.js";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { restoreProjectedCoastTerrain } from "../../../map-morphology/coast-terrain-restoration.js";
+import { restoreProjectedCoastTerrain } from "../../../../water-surface-parity.js";
 import { PlotRiversStepContract } from "./config.js";
 import {
   NAVIGABLE_RIVER_PROJECTION_POLICY,

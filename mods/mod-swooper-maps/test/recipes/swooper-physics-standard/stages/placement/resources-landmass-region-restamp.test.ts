@@ -1,15 +1,16 @@
 import { describe, expect, it } from "bun:test";
 
-import { type MapInfo, MockAdapter } from "@civ7/adapter";
+import { MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import type { MapContext } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
-import { initializeStandardRuntime } from "../../../../../src/recipes/standard/runtime.js";
 import { artifacts as placementArtifacts } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
-import { standardConfig } from "../../../../support/standard-config.js";
+import {
+  runStandardRecipeTestMap,
+  type StandardRecipeTestAdapterInput,
+} from "../../fixtures/standard-recipe.js";
 
 type ResourcePlacementOutcomes = Static<
   (typeof placementArtifacts.resourcePlacementOutcomes)["schema"]
@@ -24,8 +25,6 @@ class RegionSensitiveResourceAdapter extends MockAdapter {
   }
 
   override validateAndFixTerrain(): void {
-    // Placement restamps region ids after terrain validation because Civ7
-    // normalization can clear projection-only region metadata.
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
         super.setLandmassRegionId(x, y, this.getLandmassId("NONE"));
@@ -52,69 +51,48 @@ class RestampFailingAdapter extends RegionSensitiveResourceAdapter {
   }
 }
 
-function runRecipeWithAdapter(adapter: MockAdapter, width: number, height: number, seed: number) {
-  const mapInfo: MapInfo = {
-    GridWidth: width,
-    GridHeight: height,
-    MinLatitude: -60,
-    MaxLatitude: 60,
-    PlayersLandmass1: 1,
-    PlayersLandmass2: 1,
-    StartSectorRows: 1,
-    StartSectorCols: 1,
-    NumNaturalWonders: 0,
-  };
-  const setup = admitMapSetup({
-    mapSeed: seed,
-    dimensions: { width, height },
-    latitudeBounds: {
-      topLatitude: mapInfo.MaxLatitude ?? 60,
-      bottomLatitude: mapInfo.MinLatitude ?? -60,
-    },
-  });
-  const context = createMapContext({ setup, adapter });
-  const flatTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT;
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      adapter.setTerrainType(x, y, flatTerrain);
-    }
-  }
+type RegionAdapterFactory<TAdapter extends MockAdapter> = (
+  input: StandardRecipeTestAdapterInput
+) => TAdapter;
 
-  initializeStandardRuntime(context, {
-    mapInfo,
-    logPrefix: "[test]",
-  });
-  standardRecipe.run(context, standardConfig, { log: () => {} });
-
-  return context;
-}
-
-describe("placement resources landmass-region restamp", () => {
-  it("re-stamps landmass regions before typed resource materialization", () => {
-    const width = 20;
-    const height = 12;
-    const seed = 4242;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
+function runRecipeWithAdapter<TAdapter extends MockAdapter>(
+  seed: number,
+  createAdapter: RegionAdapterFactory<TAdapter>
+): Readonly<{ adapter: TAdapter; context: MapContext }> {
+  return runStandardRecipeTestMap({
+    seed,
+    mapInfo: {
       PlayersLandmass1: 1,
       PlayersLandmass2: 1,
       StartSectorRows: 1,
       StartSectorCols: 1,
       NumNaturalWonders: 0,
-    };
+    },
+    createAdapter,
+    prepare: ({ preset, adapter }) => {
+      const flatTerrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_FLAT;
+      for (let y = 0; y < preset.dimensions.height; y++) {
+        for (let x = 0; x < preset.dimensions.width; x++) {
+          adapter.setTerrainType(x, y, flatTerrain);
+        }
+      }
+    },
+  });
+}
 
-    const adapter = new RegionSensitiveResourceAdapter({
-      width,
-      height,
-      mapInfo,
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-    });
-
-    const context = runRecipeWithAdapter(adapter, width, height, seed);
+describe("placement resources landmass-region restamp", () => {
+  it("re-stamps landmass regions before typed resource materialization", () => {
+    const seed = 4242;
+    const { adapter, context } = runRecipeWithAdapter(
+      seed,
+      ({ preset, mapInfo }) =>
+        new RegionSensitiveResourceAdapter({
+          ...preset.dimensions,
+          mapInfo,
+          mapSizeId: preset.id,
+          rng: createLabelRng(seed),
+        })
+    );
 
     const firstRestamp = adapter.callOrder.indexOf("setLandmassRegionId");
     const firstResourceIntent = adapter.callOrder.indexOf("placeResourceIntent");
@@ -131,26 +109,22 @@ describe("placement resources landmass-region restamp", () => {
   });
 
   it("aborts placement before resource materialization when region restamp fails", () => {
-    const width = 20;
-    const height = 12;
     const seed = 99;
-    const adapter = new RestampFailingAdapter({
-      width,
-      height,
-      mapInfo: {
-        GridWidth: width,
-        GridHeight: height,
-        MinLatitude: -60,
-        MaxLatitude: 60,
-      },
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-    });
+    let adapter: RestampFailingAdapter | undefined;
 
-    expect(() => runRecipeWithAdapter(adapter, width, height, seed)).toThrow(
-      /forced restamp failure/i
-    );
+    expect(() =>
+      runRecipeWithAdapter(seed, ({ preset, mapInfo }) => {
+        adapter = new RestampFailingAdapter({
+          ...preset.dimensions,
+          mapInfo,
+          mapSizeId: preset.id,
+          rng: createLabelRng(seed),
+        });
+        return adapter;
+      })
+    ).toThrow(/forced restamp failure/i);
 
+    if (!adapter) throw new Error("Expected the failing adapter to be constructed.");
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.callOrder.includes("placeResourceIntent")).toBe(false);
     expect(adapter.calls.recalculateFertility).toBe(0);

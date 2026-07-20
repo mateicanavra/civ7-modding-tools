@@ -11,12 +11,12 @@ at seed `1018` and applies `standard/integrity` first.
 
 ## Measurements and expected outcomes
 
-Foothill share must be `>=0.12` and exceed rough-upland share. Rough uplands must
+At least one planned volcano must exist. Foothill share must be `>=0.12` and exceed rough-upland share. Rough uplands must
 remain between `0.04` and `0.08`, with largest component `<=60`. Modeled hill
 share must be `>=0.12`; observed hill share `>=0.10`; observed flat share
 `<=0.75`; and observed non-volcano relief `>=0.18`.
 
-**Expectation IDs:** `foothill-share`, `foothills-exceed-rough-uplands`,
+**Expectation IDs:** `planned-volcano-presence`, `foothill-share`, `foothills-exceed-rough-uplands`,
 `rough-upland-share-floor`, `rough-upland-share-ceiling`,
 `rough-upland-component-size`, `modeled-hill-share`, `observed-hill-share`,
 `observed-flat-share`, and `observed-non-volcano-relief`.

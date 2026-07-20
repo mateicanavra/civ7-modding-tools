@@ -60,6 +60,8 @@ This policy prevents derived outputs from becoming accidental “sources of trut
 
 ## Ground truth anchors
 
-- Map setup and deterministic random ownership: `packages/mapgen-core/src/core/{map-setup,map-context,random}.ts`
+- Map setup: `packages/mapgen-core/src/core/map-setup.ts`
+- Map context: `packages/mapgen-core/src/core/map-context.ts`
+- Deterministic random ownership: `packages/mapgen-core/src/core/random.ts`
 - Target architecture posture for pipeline compilation and artifacts: `docs/projects/engine-refactor-v1/resources/spec/recipe-compile/architecture/00-fundamentals.md`
 - Standard content package posture: `docs/projects/engine-refactor-v1/resources/spec/SPEC-standard-content-package.md`

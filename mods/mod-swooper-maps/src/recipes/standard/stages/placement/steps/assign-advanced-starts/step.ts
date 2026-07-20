@@ -1,5 +1,5 @@
-import { createStep } from "@swooper/mapgen-core/authoring";
 import type { TraceJsonObject } from "@swooper/mapgen-core";
+import { createStep } from "@swooper/mapgen-core/authoring";
 import { runPlacementProductStep } from "../../log.js";
 import { AssignAdvancedStartsStepContract } from "./config.js";
 

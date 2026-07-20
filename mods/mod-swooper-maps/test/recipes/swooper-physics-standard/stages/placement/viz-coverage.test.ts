@@ -1,13 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { createMockAdapter } from "@civ7/adapter";
-import { admitMapSetup, createMapContext, type StepFacetSinks } from "@swooper/mapgen-core";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
+import type { StepFacetSinks } from "@swooper/mapgen-core";
 import type { VizLayerMeta } from "@swooper/mapgen-viz";
 
-import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
-import { initializeStandardRuntime } from "../../../../../src/recipes/standard/runtime.js";
 import { PLACEMENT_VIZ_GROUP } from "../../../../../src/recipes/standard/stages/placement/viz.js";
-import { standardConfig } from "../../../../support/standard-config.js";
+import { runStandardRecipeTestMap } from "../../fixtures/standard-recipe.js";
 
 /**
  * E4.2 coverage guard (placement-realignment S7): every placement step emits
@@ -77,37 +73,6 @@ const OVERLAY_SUGGESTION_KEYS = [
 ] as const;
 
 describe("placement per-step viz coverage (E4.2/E4.3)", () => {
-  const width = 32;
-  const height = 20;
-  const seed = 1337;
-  const mapInfo = {
-    GridWidth: width,
-    GridHeight: height,
-    MinLatitude: -60,
-    MaxLatitude: 60,
-    PlayersLandmass1: 4,
-    PlayersLandmass2: 4,
-    StartSectorRows: 4,
-    StartSectorCols: 4,
-  };
-  const setup = admitMapSetup({
-    mapSeed: seed,
-    dimensions: { width, height },
-    latitudeBounds: {
-      topLatitude: mapInfo.MaxLatitude,
-      bottomLatitude: mapInfo.MinLatitude,
-    },
-  });
-
-  const adapter = createMockAdapter({
-    width,
-    height,
-    mapInfo,
-    mapSizeId: 1,
-    rng: createLabelRng(seed),
-  });
-  const context = createMapContext({ setup, adapter });
-
   const metaByKey = new Map<string, VizLayerMeta | undefined>();
   const record = (layer: { dataTypeKey: string; meta?: VizLayerMeta }): void => {
     if (!metaByKey.has(layer.dataTypeKey) || layer.meta) {
@@ -117,10 +82,15 @@ describe("placement per-step viz coverage (E4.2/E4.3)", () => {
   const captureViz: NonNullable<StepFacetSinks["viz"]> = (projections) => {
     for (const projection of projections) record(projection);
   };
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-  standardRecipe.run(context, standardConfig, {
-    facets: { viz: captureViz },
-    log: () => {},
+  runStandardRecipeTestMap({
+    seed: 1337,
+    mapInfo: {
+      PlayersLandmass1: 4,
+      PlayersLandmass2: 4,
+      StartSectorRows: 4,
+      StartSectorCols: 4,
+    },
+    execution: { facets: { viz: captureViz } },
   });
 
   it("every placement step emits its expected decision-substance layers", () => {

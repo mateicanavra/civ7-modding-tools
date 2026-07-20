@@ -7,6 +7,7 @@ import {
   buildResourcePlacementRuntimeTelemetry,
   placeResourcesWithTypedOutcomes,
 } from "../../../../../../src/recipes/standard/stages/placement/steps/place-resources/materialize.js";
+import { TEST_MAP_SIZE } from "../../../../../map-size.js";
 
 type PlanIntent = {
   plotIndex: number;
@@ -78,13 +79,12 @@ function plan(width: number, height: number, intents: PlanIntent[]) {
 
 describe("resource placement diagnostics", () => {
   it("stamps plan intents verbatim and records typed per-type shortfalls", () => {
-    const width = 4;
-    const height = 3;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const adapter = createMockAdapter({
       width,
       height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
       rng: createLabelRng(1931),
       canHaveResource: (_x, _y, resourceType) => resourceType !== 9,
     });
@@ -128,13 +128,12 @@ describe("resource placement diagnostics", () => {
   });
 
   it("fails hard on plan metadata mismatch", () => {
-    const width = 4;
-    const height = 3;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const adapter = createMockAdapter({
       width,
       height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
       rng: createLabelRng(1932),
     });
     const broken = plan(width, height, [intent(0, width, "RESOURCE_GOLD")]) as {
@@ -154,19 +153,18 @@ describe("resource placement diagnostics", () => {
 
   it("never relocates a rejected intent onto another tile (river exclusion holds at stamping)", () => {
     // River-tile exclusion now lives at the planning seam (see
-    // test/domains/placement/plan-ops.test.ts "resource demand planning river
-    // exclusion"): excluded tiles are zeroed out of every demand's legalMask,
+    // plan-resources.resource-demand-planning.test.ts): excluded tiles are
+    // zeroed out of every demand's legalMask,
     // so no plan intent can target them. The stamping invariant proven here is
     // plan authority — a rejected intent stays a typed shortfall at its
     // planned plot; there is no rescue/relocation that could land on a river.
-    const width = 5;
-    const height = 2;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const riverTilePlots = new Set([0, 1]);
     const adapter = createMockAdapter({
       width,
       height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
       rng: createLabelRng(1934),
       // Engine rejects everything: a rescuing materializer would hunt for an
       // alternative plot (possibly a river tile); plan authority must not.

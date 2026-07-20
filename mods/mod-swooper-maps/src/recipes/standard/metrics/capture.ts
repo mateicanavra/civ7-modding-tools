@@ -10,6 +10,7 @@ import {
   assertFloat32Array,
   assertInt32Array,
   assertUint8Array,
+  assertUint16Array,
 } from "@swooper/mapgen-core/authoring";
 import {
   type ArtifactReadValueOf,
@@ -125,6 +126,9 @@ export type StandardMapCapture = Readonly<{
     hillMask: Uint8Array;
     foothillMask: Uint8Array;
     roughLandMask: Uint8Array;
+    shelfMask: Uint8Array;
+    coastalWater: Uint8Array;
+    distanceToCoast: Uint16Array;
     volcanoMask: Uint8Array;
     volcanoes: Volcanoes["volcanoes"];
     plannedLakeMask: Uint8Array;
@@ -294,6 +298,7 @@ function copyCompletedRun(
   const topographyValue = readValidatedArtifact(context, morphologyArtifactModules.topography);
   const landmassesValue = readValidatedArtifact(context, morphologyArtifactModules.landmasses);
   const mountainsValue = readValidatedArtifact(context, morphologyArtifactModules.mountains);
+  const shelfValue = readValidatedArtifact(context, morphologyArtifactModules.shelf);
   const volcanoesValue = readValidatedArtifact(context, morphologyArtifactModules.volcanoes);
   const lakePlanValue = readValidatedArtifact(
     context,
@@ -433,6 +438,17 @@ function copyCompletedRun(
       roughLandMask: copyUint8Grid(
         "morphology.mountains.roughLandMask",
         mountainsValue.roughLandMask,
+        gridSize
+      ),
+      shelfMask: copyUint8Grid("morphology.shelf.shelfMask", shelfValue.shelfMask, gridSize),
+      coastalWater: copyUint8Grid(
+        "morphology.shelf.coastalWater",
+        shelfValue.coastalWater,
+        gridSize
+      ),
+      distanceToCoast: copyUint16Grid(
+        "morphology.shelf.distanceToCoast",
+        shelfValue.distanceToCoast,
         gridSize
       ),
       volcanoMask: copyUint8Grid(
@@ -707,6 +723,10 @@ function copyRealizedMap(
 
 function copyUint8Grid(name: string, value: unknown, size: number): Uint8Array {
   return assertUint8Array(name, value, size).slice();
+}
+
+function copyUint16Grid(name: string, value: unknown, size: number): Uint16Array {
+  return assertUint16Array(name, value, size).slice();
 }
 
 function copyInt32Grid(name: string, value: unknown, size: number): Int32Array {

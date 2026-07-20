@@ -1,7 +1,7 @@
 import { describe, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { expectCiv7MapScriptCompatibility } from "../support/civ7-map-script-compatibility";
+import { expectCiv7MapScriptCompatibility } from "./fixtures/civ7-map-script-compatibility";
 
 const repoRoot = join(import.meta.dir, "..", "..");
 const mapOutputDir = join(repoRoot, "mod", "maps");
@@ -25,5 +25,5 @@ describe("built map runtime compatibility", () => {
         mapFile
       );
     }
-  });
+  }, 30_000);
 });

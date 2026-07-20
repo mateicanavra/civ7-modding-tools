@@ -74,6 +74,12 @@ export const EARTHLIKE_GEOGRAPHY_TARGET = {
       0.2
     ),
     atLeast<StandardMapProductSample>(
+      "shelf-beyond-shoreline",
+      "Earthlike preserves a continental-shelf band beyond shoreline-adjacent water.",
+      (sample) => sample.metrics.geography.shelfBeyondShoreline.count,
+      1
+    ),
+    atLeast<StandardMapProductSample>(
       "river-coverage",
       "Earthlike contains modeled rivers.",
       (sample) => sample.metrics.hydrology.riverTiles.count,

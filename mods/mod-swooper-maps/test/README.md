@@ -6,30 +6,47 @@ owns it rather than in this mod's test tree.
 
 ## Ownership Roots
 
-- `domains/<domain>` owns algorithm, rule, invariant, metrics, and benchmark
-  behavior for Swooper Maps domains.
-- `recipes/swooper-physics-standard/recipe` owns concrete recipe authorship,
-  composition, and whole-recipe orchestration.
+- `domains/<domain>/<capability>` owns algorithm and policy behavior for one
+  Swooper domain. A generic `operations` cabinet is not an owner.
+- `recipes/swooper-physics-standard` owns concrete Standard config,
+  composition, cross-stage orchestration, and whole-product behavior.
+- `recipes/swooper-physics-standard/fixtures/standard-recipe.ts` is the sole
+  direct Standard recipe test runner. Whole-recipe tests select a static Civ7
+  map-size preset through this fixture; they do not invent product dimensions.
+- `recipes/swooper-physics-standard/metrics` owns Standard scenario capture and
+  map-product metric behavior.
+- `recipes/swooper-physics-standard/trace` and `viz` own the recipe's optional
+  evidence emissions without turning those projections into product or SDK
+  behavior tests.
 - `recipes/swooper-physics-standard/stages/<stage>` owns concrete stage
-  authorship and orchestration. Step behavior lives under
-  `stages/<stage>/steps`.
+  authorship and orchestration, grouped first by stage family. Step behavior
+  lives under `stages/<family>/<stage>/steps`.
 - `maps` owns the map catalog, map config, generated-map metadata,
   run-manifest, and file-plan behavior.
-- `diagnostics` owns diagnostic and verifier component behavior.
+- `scripts` owns behavior of mod-local analysis and live-verification commands.
 - `build` owns behavior observable only in built artifacts.
-- `support` contains non-owning helpers and fixtures. Shared setup does not
-  transfer behavioral ownership to support code.
 
 `@swooper/mapgen-metrics` owns pure count, summary, component, and target
 evaluation contracts. The Standard recipe owns its scenario capture, map product
 sample and cohort shapes, measurements, and concrete product targets under
 `src/recipes/standard/metrics`; tests assert those shared targets rather than
-hiding thresholds in test support. One captured generation may be evaluated by
+hiding thresholds in incidental fixtures. One captured generation may be evaluated by
 multiple targets without rerunning it.
 
 Classify a test by its SUT and behavioral owner. Execution labels such as unit,
 integration, conformance, offline, and live do not create ownership roots.
 Structural and import topology belongs to Habitat, not source-string tests.
+
+Direct operation, step, artifact, and fault-mechanics tests may use a small
+synthetic grid when its cardinality is the subject or fixture. Such dimensions
+must be named as synthetic and never presented as a Civ7 product map size.
+
+Map-size-independent behavior tests use the root `TEST_MAP_SIZE` selection,
+which defaults to Civ7 Tiny. Run that broad test regime against another shipped
+size with `SWOOPER_TEST_MAP_SIZE=MAPSIZE_STANDARD nx run mod-swooper-maps:test`.
+Keep an explicit preset only when size participates in the oracle, such as a
+cross-size matrix, a calibrated product study, map-size admission, or exact
+coordinate evidence.
 
 ## Test Claims
 
@@ -50,52 +67,19 @@ Tests must not freeze a complete config property inventory unless that exact
 schema is the SUT. Config fixtures begin from a recipe-produced complete config
 and modify only the behavior under examination.
 
-## Current Runtime Schema Capability
+## Admission Ownership
 
-Typed-array schemas use `Type.Unsafe(Type.Any(...))` for static typing and carry
-enumerable `x-runtime` metadata for the required constructor and optional grid
-shape. The metadata is available to runtime validation, but `Type.Any` and the
-schema's static type do not validate a runtime value.
+Authored operation execution admits typed-array constructors and declared
+cardinality before strategy code runs. Artifact modules admit published values
+before they enter the pipeline. Tests call those production surfaces and add
+only the semantic oracle owned by the domain, stage, or recipe.
 
-Current helpers such as `runOpValidated` validate operation config only. They do
-not validate operation input or output constructors and grid shapes. A future
-generic harness must invoke the production-owned validator to interpret
-`x-runtime`; it must not duplicate runtime checks or treat static typing as
-runtime validation.
+Runtime-neutral helpers come from `@swooper/mapgen-core/testing`: operation
+input admission, artifact publication, declared step dependencies, and one-step
+lifecycle execution. Swooper's canonical whole-recipe fixture remains local
+because it owns Civ7 setup, the Standard runtime, and the shipped config.
 
-## Planned Harness Family
-
-The destination is one composable harness family aligned to the authored
-runtime hierarchy:
-
-1. A strategy case invokes one real strategy with explicit valid input and a
-   complete strategy config.
-2. An operation case resolves a real operation and strategy, validates input,
-   config, and output against their declared contracts, and leaves the
-   behavioral oracle to the caller.
-3. A step case runs a real authored step with explicit dependencies and an
-   observable artifact/effect boundary.
-4. A stage case composes real steps through the production stage surface.
-5. A recipe case compiles and executes a real recipe with a caller-supplied
-   runtime, context, and complete config.
-
-Step and stage cases may wire only the operations needed for the scenario, but
-they must do so through production authoring factories. They are not mock
-implementations of compilation or execution.
-
-The harness implementation and its own conformance tests belong to the generic
-MapGen testing owner. Swooper tests provide fixtures and assertions; they do not
-fork the harness by domain.
-
-## Harness Admission
-
-No generic harness is part of the current test suite yet. It may be admitted
-after domain-operation topology is normalized and the test TypeScript projects
-are green. A pilot must delete duplicated setup while preserving or
-strengthening an independent behavioral oracle before broader migration.
-
-No harness may copy config normalization, operation binding, dependency
-satisfaction, artifact publication, execution planning, or runtime execution.
-It may not infer missing operation inputs, construct domain defaults, keep a
-global fixture registry, or introduce a domain switch. Variants exist only
-when they produce a behaviorally distinct case.
+Do not duplicate generic admission checks, inspect `x-runtime` metadata, or
+pin generic admission-message formatting. Core owns those mechanics. A semantic
+validator may assert a discriminating message fragment when it exposes no typed
+issue code.

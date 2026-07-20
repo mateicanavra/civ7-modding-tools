@@ -4,17 +4,17 @@ import { MockAdapter } from "@civ7/adapter";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { readFinalLakeProjection } from "../../../../../../src/recipes/standard/stages/placement/steps/prepare-placement-surface/lake-readback.js";
+import { TEST_MAP_SIZE } from "../../../../../map-size.js";
 
 describe("placement final lake readback", () => {
   it("counts accepted lake tiles that placement-time maintenance dries or declassifies", () => {
-    const width = 4;
-    const height = 3;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const adapter = new MockAdapter({
       width,
       height,
       rng: createLabelRng(1234),
-      mapInfo: { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 },
-      mapSizeId: 1,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
     });
     const coastTerrain = adapter.getTerrainTypeIndex("TERRAIN_COAST");
     const flatTerrain = adapter.getTerrainTypeIndex("TERRAIN_FLAT");

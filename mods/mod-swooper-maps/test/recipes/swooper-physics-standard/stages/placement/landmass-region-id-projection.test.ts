@@ -1,67 +1,51 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import standardRecipe from "../../../../../src/recipes/standard/recipe.js";
-import { initializeStandardRuntime } from "../../../../../src/recipes/standard/runtime.js";
-import { standardConfig } from "../../../../support/standard-config.js";
+
+import { runStandardRecipeTestMap } from "../../fixtures/standard-recipe.js";
 
 describe("placement landmass region projection", () => {
-  it("projects LandmassRegionId before typed resource materialization and starts using adapter constants", () => {
-    const width = 20;
-    const height = 12;
+  it("projects landmass regions before typed resources and starts through adapter constants", () => {
     const seed = 1337;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 1,
-      PlayersLandmass2: 1,
-      StartSectorRows: 1,
-      StartSectorCols: 1,
-      NumNaturalWonders: 0,
-    };
-    const setup = admitMapSetup({
-      mapSeed: seed,
-      dimensions: { width, height },
-      latitudeBounds: {
-        topLatitude: mapInfo.MaxLatitude,
-        bottomLatitude: mapInfo.MinLatitude,
-      },
-    });
-
-    const adapter = createMockAdapter({
-      width,
-      height,
-      mapInfo,
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-    });
     const callOrder: string[] = [];
     const regionIds: number[] = [];
 
-    const originalSetLandmassRegionId = adapter.setLandmassRegionId.bind(adapter);
-    adapter.setLandmassRegionId = (x, y, regionId) => {
-      callOrder.push("setLandmassRegionId");
-      regionIds.push(regionId);
-      originalSetLandmassRegionId(x, y, regionId);
-    };
-    const originalPlaceResourceIntent = adapter.placeResourceIntent.bind(adapter);
-    adapter.placeResourceIntent = (mapWidth, mapHeight, intent) => {
-      callOrder.push("placeResourceIntent");
-      return originalPlaceResourceIntent(mapWidth, mapHeight, intent);
-    };
-    const originalSetStartPosition = adapter.setStartPosition.bind(adapter);
-    adapter.setStartPosition = (plotIndex, playerId) => {
-      callOrder.push("setStartPosition");
-      originalSetStartPosition(plotIndex, playerId);
-    };
-
-    const context = createMapContext({ setup, adapter });
-    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
-    standardRecipe.run(context, standardConfig, { log: () => {} });
+    const { adapter } = runStandardRecipeTestMap({
+      seed,
+      mapInfo: {
+        PlayersLandmass1: 1,
+        PlayersLandmass2: 1,
+        StartSectorRows: 1,
+        StartSectorCols: 1,
+        NumNaturalWonders: 0,
+      },
+      createAdapter: ({ preset, mapInfo }) => {
+        const instrumented = createMockAdapter({
+          ...preset.dimensions,
+          mapInfo,
+          mapSizeId: preset.id,
+          rng: createLabelRng(seed),
+        });
+        const originalSetLandmassRegionId = instrumented.setLandmassRegionId.bind(instrumented);
+        instrumented.setLandmassRegionId = (x, y, regionId) => {
+          callOrder.push("setLandmassRegionId");
+          regionIds.push(regionId);
+          originalSetLandmassRegionId(x, y, regionId);
+        };
+        const originalPlaceResourceIntent = instrumented.placeResourceIntent.bind(instrumented);
+        instrumented.placeResourceIntent = (width, height, intent) => {
+          callOrder.push("placeResourceIntent");
+          return originalPlaceResourceIntent(width, height, intent);
+        };
+        const originalSetStartPosition = instrumented.setStartPosition.bind(instrumented);
+        instrumented.setStartPosition = (plotIndex, playerId) => {
+          callOrder.push("setStartPosition");
+          originalSetStartPosition(plotIndex, playerId);
+        };
+        return instrumented;
+      },
+    });
 
     const firstProjection = callOrder.indexOf("setLandmassRegionId");
     const firstResourceIntent = callOrder.indexOf("placeResourceIntent");
@@ -70,8 +54,6 @@ describe("placement landmass region projection", () => {
     expect(firstProjection).toBeGreaterThanOrEqual(0);
     expect(firstResourceIntent).toBeGreaterThan(firstProjection);
     expect(firstStart).toBeGreaterThan(firstProjection);
-    // S5 (D3 reorder): starts stamp BEFORE resources — resource stamping now
-    // runs after the resource-to-start support pass.
     expect(firstResourceIntent).toBeGreaterThan(firstStart);
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.calls.setResourceType.length).toBeGreaterThan(0);
@@ -82,8 +64,6 @@ describe("placement landmass region projection", () => {
       adapter.getLandmassId("NONE"),
     ]);
     expect(regionIds.length).toBeGreaterThan(0);
-    for (const id of regionIds) {
-      expect(allowed.has(id)).toBe(true);
-    }
+    for (const id of regionIds) expect(allowed.has(id)).toBe(true);
   });
 });
