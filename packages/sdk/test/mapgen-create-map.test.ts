@@ -29,7 +29,7 @@ describe("createMap", () => {
     delete (globalThis as any).GameplayMap;
   });
 
-  test("emits exact-authorship proof and completion markers around a successful recipe run", () => {
+  test("emits exact-authorship evidence and completion markers around a successful recipe run", () => {
     const handlers = new Map<string, (...args: unknown[]) => void>();
     const engineCalls: Array<{ method: string; args: unknown[] }> = [];
     (globalThis as any).engine = {
@@ -64,8 +64,7 @@ describe("createMap", () => {
           requestId: "studio-run-in-game-test",
           runArtifactId: "run-0123456789abcdef0123",
           launchSourceDigest: {
-            configContentDigest: "config-hash",
-            launchEnvelopeDigest: "envelope-hash",
+            canonicalConfigDigest: "canonical-config-digest",
           },
           launchEnvelopeDigest: "envelope-hash",
           generationManifestDigest: "manifest-digest",
@@ -84,33 +83,62 @@ describe("createMap", () => {
       });
       expect(recipeRun).toHaveBeenCalledTimes(1);
 
-      const proofIndex = logs.findIndex((line) => line.includes("[mapgen-proof]"));
+      const evidenceIndex = logs.findIndex((line) => line.includes("[mapgen-evidence]"));
       const recipeIndex = logs.findIndex((line) => line === "recipe-run");
       const completeIndex = logs.findIndex((line) => line.includes("[mapgen-complete]"));
-      expect(proofIndex).toBeGreaterThanOrEqual(0);
-      expect(recipeIndex).toBeGreaterThan(proofIndex);
+      expect(evidenceIndex).toBeGreaterThanOrEqual(0);
+      expect(recipeIndex).toBeGreaterThan(evidenceIndex);
       expect(completeIndex).toBeGreaterThan(recipeIndex);
 
-      const proofPayload = payloadAfter(logs[proofIndex]!, "[mapgen-proof]");
+      const evidencePayload = payloadAfter(logs[evidenceIndex]!, "[mapgen-evidence]");
       const completePayload = payloadAfter(logs[completeIndex]!, "[mapgen-complete]");
-      expect(completePayload).toEqual(proofPayload);
-      expect(logs[proofIndex]!.length).toBeLessThan(1_000);
+      expect(completePayload).toEqual(evidencePayload);
+      expect(logs[evidenceIndex]!.length).toBeLessThan(1_000);
       expect(logs[completeIndex]!.length).toBeLessThan(1_000);
-      expect(proofPayload).toMatchObject({
+      expect(evidencePayload).toMatchObject({
         mapId: "test-map",
         sourceConfigId: "studio-current",
         requestId: "studio-run-in-game-test",
         runArtifactId: "run-0123456789abcdef0123",
-        configHash: "config-hash",
-        envelopeHash: "envelope-hash",
+        canonicalConfigDigest: "canonical-config-digest",
+        launchEnvelopeDigest: "envelope-hash",
         generationManifestDigest: "manifest-digest",
         seed: 123,
         mapSize: 4,
         dimensions: { width: 2, height: 2 },
       });
-      expect(proofPayload).not.toHaveProperty("runCorrelation");
+      expect(evidencePayload).not.toHaveProperty("runCorrelation");
+      expect(evidencePayload).not.toHaveProperty("configContentDigest");
+      expect(evidencePayload).not.toHaveProperty("configHash");
+      expect(evidencePayload).not.toHaveProperty("envelopeHash");
     } finally {
       console.log = originalLog;
+    }
+  });
+
+  test("rejects incomplete Run in Game identity", () => {
+    const incompleteDefinitions = [
+      {
+        id: "test-map",
+        name: "Test Map",
+        requestId: "studio-run-in-game-test",
+        launchEnvelopeDigest: "envelope-hash",
+        config: {},
+        recipe: { run: vi.fn() } as any,
+      },
+      {
+        id: "test-map",
+        name: "Test Map",
+        runCorrelation: { requestId: "studio-run-in-game-test" },
+        config: {},
+        recipe: { run: vi.fn() } as any,
+      },
+    ];
+
+    for (const definition of incompleteDefinitions) {
+      expect(() => createMap(definition as never)).toThrow(
+        "Run maps require a complete runCorrelation"
+      );
     }
   });
 });

@@ -3,10 +3,10 @@ import { createMockAdapter } from "@civ7/adapter";
 import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { artifacts as ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
+import { standardConfig } from "../support/standard-config.js";
 
 describe("Earthlike ecology balance (smoke)", () => {
   it("has biome variety and non-zero vegetation without drowning coasts", {
@@ -47,7 +47,7 @@ describe("Earthlike ecology balance (smoke)", () => {
     const context = createExtendedMapContext({ width, height }, adapter, env);
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
 
-    standardRecipe.run(context, env, realismEarthlikeConfig, { log: () => {} });
+    standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
     const classification = context.artifacts.get(ecologyArtifacts.biomeClassification.id) as
       | { biomeIndex?: Uint8Array }

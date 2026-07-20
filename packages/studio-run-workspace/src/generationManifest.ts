@@ -5,14 +5,14 @@ import type {
   LaunchEnvelope,
   LaunchEnvelopeDigest,
   LaunchSourceDigest,
-  ResolvedLaunchSource,
-  RunInGameSetupConfig,
 } from "@civ7/studio-contract";
 import {
+  freezeSnapshot,
+  isPortableJsonValue,
   launchEnvelope,
   launchSourceDigest,
-  resolvedLaunchSource,
-  setupConfig,
+  snapshotConfigSource,
+  snapshotLaunchEnvelope,
 } from "@civ7/studio-contract";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
@@ -42,21 +42,6 @@ export const studioRunGenerationManifestPayloadSchema = Type.Object(
       },
       { additionalProperties: false }
     ),
-    request: Type.Object(
-      {
-        recipeId: Type.String(),
-        seed: Type.Number(),
-        mapSize: Type.String(),
-        playerCount: Type.Optional(Type.Number()),
-        resources: Type.Optional(Type.String()),
-        selectedConfigId: Type.String(),
-        setupConfig,
-        materializationMode: Type.Union([Type.Literal("durable"), Type.Literal("disposable")]),
-        restartCivProcess: Type.Optional(Type.Boolean()),
-      },
-      { additionalProperties: false }
-    ),
-    resolvedLaunchSource,
     launchEnvelope,
     launchSourceDigest,
     launchEnvelopeDigest: Type.String({ pattern: SHA256_HEX.source }),
@@ -72,43 +57,29 @@ export const studioRunGenerationManifestSchema = Type.Object(
   { additionalProperties: false }
 );
 
-type StudioRunGenerationManifestPayloadSchemaStatic = Static<
-  typeof studioRunGenerationManifestPayloadSchema
->;
-
 export type StudioRunGenerationManifestInput = Readonly<{
   requestId: string;
-  request: Omit<StudioRunGenerationManifestPayloadSchemaStatic["request"], "setupConfig"> & {
-    readonly setupConfig: RunInGameSetupConfig;
-  };
-  resolvedLaunchSource: ResolvedLaunchSource;
   launchEnvelope: LaunchEnvelope;
-  launchSourceDigest: LaunchSourceDigest;
-  launchEnvelopeDigest: LaunchEnvelopeDigest;
 }>;
 
-type StudioRunGenerationManifestRequest = StudioRunGenerationManifestInput["request"];
-
-export type StudioRunGenerationManifestPayload = Omit<
-  StudioRunGenerationManifestPayloadSchemaStatic,
-  | "runArtifactId"
-  | "request"
-  | "resolvedLaunchSource"
-  | "launchEnvelope"
-  | "launchSourceDigest"
-  | "launchEnvelopeDigest"
-> & {
+export type StudioRunGenerationManifestPayload = Readonly<{
+  schemaVersion: 1;
+  requestId: string;
   readonly runArtifactId: RunArtifactId;
-  readonly request: StudioRunGenerationManifestRequest;
-  readonly resolvedLaunchSource: ResolvedLaunchSource;
+  readonly workspace: Readonly<{
+    requestRoot: string;
+    generationManifestPath: typeof RUN_GENERATION_MANIFEST_FILE;
+    generatedModRoot: "generated-mod";
+  }>;
   readonly launchEnvelope: LaunchEnvelope;
   readonly launchSourceDigest: LaunchSourceDigest;
   readonly launchEnvelopeDigest: LaunchEnvelopeDigest;
-};
+}>;
 
-export type StudioRunGenerationManifest = Static<typeof studioRunGenerationManifestSchema> & {
+export type StudioRunGenerationManifest = Readonly<{
   readonly payload: StudioRunGenerationManifestPayload;
-};
+  readonly generationManifestDigest: string;
+}>;
 
 export type StudioRunGenerationManifestReference = Readonly<{
   path: string;
@@ -126,7 +97,9 @@ export type StudioRunGenerationManifestReference = Readonly<{
 export function buildStudioRunGenerationManifestPayload(
   input: StudioRunGenerationManifestInput
 ): StudioRunGenerationManifestPayload {
-  return {
+  const snapshot = snapshotManifestLaunchEnvelope(input.launchEnvelope);
+  const launchEnvelopeDigest = valueDigest(snapshot);
+  return freezeSnapshot({
     schemaVersion: 1,
     requestId: input.requestId,
     runArtifactId: createRunArtifactId(input.requestId),
@@ -135,21 +108,21 @@ export function buildStudioRunGenerationManifestPayload(
       generationManifestPath: RUN_GENERATION_MANIFEST_FILE,
       generatedModRoot: "generated-mod",
     },
-    request: input.request,
-    resolvedLaunchSource: input.resolvedLaunchSource,
-    launchEnvelope: input.launchEnvelope,
-    launchSourceDigest: input.launchSourceDigest,
-    launchEnvelopeDigest: input.launchEnvelopeDigest,
-  };
+    launchEnvelope: snapshot,
+    launchSourceDigest: {
+      canonicalConfigDigest: valueDigest(snapshot.source.canonicalConfig),
+    },
+    launchEnvelopeDigest,
+  });
 }
 
 export function buildStudioRunGenerationManifest(
   payload: StudioRunGenerationManifestPayload
 ): StudioRunGenerationManifest {
-  return {
+  return freezeSnapshot({
     payload,
     generationManifestDigest: generationManifestDigest(payload),
-  };
+  });
 }
 
 export function generationManifestDigest(payload: StudioRunGenerationManifestPayload): string {
@@ -161,27 +134,40 @@ export function canonicalSortedJson(value: unknown): string {
 }
 
 export function parseStudioRunGenerationManifest(value: unknown): StudioRunGenerationManifest {
-  if (!Value.Check(studioRunGenerationManifestSchema, value)) {
+  if (!isPortableJsonValue(value) || !Value.Check(studioRunGenerationManifestSchema, value)) {
     throw new Error("Invalid StudioRunGenerationManifest.");
   }
-  const manifest = value as StudioRunGenerationManifest;
-  const expectedDigest = generationManifestDigest(manifest.payload);
-  if (manifest.generationManifestDigest !== expectedDigest) {
-    throw new Error("StudioRunGenerationManifest digest does not match payload.");
-  }
-  if (manifest.payload.runArtifactId !== createRunArtifactId(manifest.payload.requestId)) {
+  const parsed = Value.Parse(studioRunGenerationManifestSchema, value);
+  if (parsed.payload.runArtifactId !== createRunArtifactId(parsed.payload.requestId)) {
     throw new Error("StudioRunGenerationManifest runArtifactId does not match requestId.");
   }
   if (
-    manifest.payload.workspace.requestRoot !== logicalRunRequestRoot(manifest.payload.requestId)
+    parsed.payload.workspace.requestRoot !== logicalRunRequestRoot(parsed.payload.requestId)
   ) {
     throw new Error("StudioRunGenerationManifest requestRoot does not match requestId.");
   }
+  const snapshot = snapshotManifestLaunchEnvelope(parsed.payload.launchEnvelope);
   if (
-    manifest.payload.launchSourceDigest.launchEnvelopeDigest !==
-    manifest.payload.launchEnvelopeDigest
+    parsed.payload.launchSourceDigest.canonicalConfigDigest !==
+    valueDigest(snapshot.source.canonicalConfig)
   ) {
-    throw new Error("StudioRunGenerationManifest launchEnvelopeDigest is inconsistent.");
+    throw new Error(
+      "StudioRunGenerationManifest canonicalConfigDigest does not match canonical config."
+    );
+  }
+  if (parsed.payload.launchEnvelopeDigest !== valueDigest(snapshot)) {
+    throw new Error(
+      "StudioRunGenerationManifest launchEnvelopeDigest does not match launch envelope."
+    );
+  }
+  const manifest = buildStudioRunGenerationManifest(
+    buildStudioRunGenerationManifestPayload({
+      requestId: parsed.payload.requestId,
+      launchEnvelope: snapshot,
+    })
+  );
+  if (parsed.generationManifestDigest !== manifest.generationManifestDigest) {
+    throw new Error("StudioRunGenerationManifest digest does not match payload.");
   }
   return manifest;
 }
@@ -204,8 +190,9 @@ export async function writeStudioRunGenerationManifest(
   });
   const payload = buildStudioRunGenerationManifestPayload(args.manifestInput);
   const manifest = buildStudioRunGenerationManifest(payload);
+  const serialized = `${JSON.stringify(manifest, null, 2)}\n`;
   await mkdir(dirname(paths.generationManifestPath), { recursive: true });
-  await writeFile(paths.generationManifestPath, `${JSON.stringify(manifest, null, 2)}\n`, {
+  await writeFile(paths.generationManifestPath, serialized, {
     encoding: "utf8",
     flag: "wx",
     signal: args.signal,
@@ -222,15 +209,50 @@ function sha256Hex(input: string): string {
   return createHash("sha256").update(input, "utf8").digest("hex");
 }
 
+function valueDigest(value: unknown): string {
+  return sha256Hex(canonicalSortedJson(value));
+}
+
 function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalize);
   if (value && typeof value === "object") {
     const out: Record<string, unknown> = {};
-    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
-      const item = (value as Record<string, unknown>)[key];
+    for (const key of Object.keys(value).sort()) {
+      const item = Object.getOwnPropertyDescriptor(value, key)?.value;
       if (item !== undefined) out[key] = canonicalize(item);
     }
     return out;
   }
   return value;
+}
+
+function snapshotManifestLaunchEnvelope(value: unknown): LaunchEnvelope {
+  if (!isPortableJsonValue(value) || !Value.Check(launchEnvelope, value)) {
+    throw new Error("StudioRunGenerationManifest launchEnvelope must be portable and complete.");
+  }
+  const parsed = Value.Parse(launchEnvelope, value);
+  const source = snapshotConfigSource(parsed.source);
+  if (source === undefined) {
+    throw new Error("StudioRunGenerationManifest launchEnvelope source is invalid.");
+  }
+  return snapshotLaunchEnvelope({
+    recipeSettings: {
+      ...(parsed.recipeSettings.preset === undefined
+        ? {}
+        : { preset: parsed.recipeSettings.preset }),
+      recipe: parsed.recipeSettings.recipe,
+      seed: parsed.recipeSettings.seed,
+    },
+    worldSettings: {
+      mapSize: parsed.worldSettings.mapSize,
+      ...(parsed.worldSettings.playerCount === undefined
+        ? {}
+        : { playerCount: parsed.worldSettings.playerCount }),
+      ...(parsed.worldSettings.resources === undefined
+        ? {}
+        : { resources: parsed.worldSettings.resources }),
+    },
+    setupConfig: parsed.setupConfig,
+    source,
+  });
 }

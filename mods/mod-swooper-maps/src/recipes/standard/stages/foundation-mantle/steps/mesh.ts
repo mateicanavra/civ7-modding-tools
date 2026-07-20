@@ -2,7 +2,7 @@ import {
   artifacts as foundationArtifacts,
   validators as foundationArtifactValidators,
 } from "@mapgen/domain/foundation";
-import { clampInt, ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { interleaveXY, segmentsFromMeshNeighbors } from "../../foundation/viz.js";
 import MeshStepContract from "./mesh.contract.js";
@@ -15,24 +15,6 @@ export default createStep(MeshStepContract, {
       validate: (value) => foundationArtifactValidators.mesh(value),
     },
   }),
-  normalize: (config, ctx) => {
-    const { plateCount } = ctx.knobs as Readonly<{ plateCount?: number }>;
-    const override =
-      typeof plateCount === "number" && Number.isFinite(plateCount) ? plateCount : undefined;
-
-    const computeMesh =
-      config.computeMesh.strategy === "default" && override !== undefined
-        ? {
-            ...config.computeMesh,
-            config: {
-              ...config.computeMesh.config,
-              plateCount: clampInt(override, 2, 256),
-            },
-          }
-        : config.computeMesh;
-
-    return { ...config, computeMesh };
-  },
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const stepId = `${MeshStepContract.phase}/${MeshStepContract.id}`;

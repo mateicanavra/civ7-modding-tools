@@ -1,5 +1,4 @@
 {
-  "$schema": "../../../dist/recipes/standard-map-config.schema.json",
   "id": "swooper-desert-mountains",
   "name": "Swooper Desert Mountains",
   "description": "Plate-forged mega ranges carve a hyper-arid world into stark basins and windward oases. Expect towering boundary cordilleras, savage lee-side deserts, and a handful of monsoon belts clinging to the mountains that feed them.",
@@ -646,6 +645,12 @@
           "maxVegetation": 0.22,
           "maxMoisture": 90,
           "allowedBiomes": ["desert", "temperateDry", "tropicalSeasonal"]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": ["tropicalRainforest"]
         }
       },
       "plotEffectCoverage": {
@@ -654,15 +659,22 @@
           "coveragePct": 35,
           "lightThreshold": 0.5,
           "mediumThreshold": 0.7,
-          "heavyThreshold": 0.85
+          "heavyThreshold": 0.85,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 15
+          "coveragePct": 15,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": true,
           "coveragePct": 16
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       },
       "floodplainPlanning": {
@@ -718,7 +730,6 @@
         "affinityRules": []
       },
       "starts": {
-        "overrides": {},
         "minContiguousLandTiles": 24,
         "expansionRadiusTiles": 4,
         "minExpansionLandTiles": 14,

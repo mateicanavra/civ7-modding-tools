@@ -6,20 +6,11 @@
 /// <reference types="@civ7/types" />
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
-import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
+import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
-type GeneratedMapConfig = Readonly<{
-  id: string;
-  name: string;
-  description?: string;
-  recipe: "standard";
-  sortIndex: number;
-  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
-  logPrefix?: string;
-  config: unknown;
-}>;
-
+// The file plan only receives an admitted immutable envelope; this assertion
+// projects its serialized data without adding a second runtime admission path.
 const mapConfig = {
   "id": "shattered-ring",
   "name": "The Shattered Ring",
@@ -694,6 +685,14 @@ const mapConfig = {
             "temperateDry",
             "tropicalSeasonal"
           ]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": [
+            "tropicalRainforest"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -702,15 +701,22 @@ const mapConfig = {
           "coveragePct": 55,
           "lightThreshold": 0.4,
           "mediumThreshold": 0.65,
-          "heavyThreshold": 0.82
+          "heavyThreshold": 0.82,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 14
+          "coveragePct": 14,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": true,
           "coveragePct": 20
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       },
       "floodplainPlanning": {
@@ -766,7 +772,6 @@ const mapConfig = {
         "affinityRules": []
       },
       "starts": {
-        "overrides": {},
         "minContiguousLandTiles": 24,
         "expansionRadiusTiles": 4,
         "minExpansionLandTiles": 14,
@@ -819,19 +824,13 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const satisfies GeneratedMapConfig;
+} as unknown as StandardMapConfigEnvelope;
 
 export default createMap({
-  id: mapConfig.id,
-  name: mapConfig.name,
-  description: mapConfig.description,
+  ...mapConfig,
   recipe: standardRecipe,
-  latitudeBounds: {
-    "topLatitude": 80,
-    "bottomLatitude": -80
-  },
   sourceConfigId: "shattered-ring",
-  configHash: "8f0e56e071e4832ad101c2b7c84d9d5e3f6145382738fa8656148cbd41c270cd",
-  envelopeHash: "fd8bf3bbbdc006ef83160467928ded9a31709578a58356d70cbc859c97092252",
-  config: mapConfig.config as unknown as StandardRecipeConfig,
+  configHash: "21242b645220615e3350cbeeded1e4633253123959312c249494c43747bddb4b",
+  envelopeHash: "ab1ad9f45ae9cbacf800bce72ae2492e22fe1b968dcd847cc3f862ffc9ac8821",
+  config: mapConfig.config,
 });

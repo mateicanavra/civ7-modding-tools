@@ -1,24 +1,20 @@
-import type { TSchema } from "typebox";
+import type { TObject, TSchema } from "typebox";
+import { Value } from "typebox/value";
 
 import type { DomainOpCompileAny } from "../authoring/bindings.js";
 import type { StepOpsDecl } from "../authoring/step/ops.js";
-import type { CompiledRecipeConfigOf, RecipeConfigInputOf } from "../authoring/types.js";
-import type { CompileErrorItem } from "./errors.js";
+import type { CompiledRecipeConfigOf, RecipePublicConfigOf } from "../authoring/types.js";
+import { type CompileErrorItem, RecipeCompileError } from "./errors.js";
 import type { NormalizeCtx } from "./normalize.js";
-import { normalizeOpsTopLevel, normalizeStrict, prefillOpDefaults } from "./normalize.js";
+import {
+  createPortableJsonSnapshot,
+  normalizeOpsTopLevel,
+  validateSchemaValue,
+  validateStrict,
+} from "./normalize.js";
 
 export type { CompileErrorCode, CompileErrorItem } from "./errors.js";
-
-export class RecipeCompileError extends Error {
-  readonly errors: CompileErrorItem[];
-
-  constructor(errors: CompileErrorItem[]) {
-    const message = errors.map((err) => `${err.path}: ${err.message}`).join("; ");
-    super(`Recipe compile failed: ${message}`);
-    this.name = "RecipeCompileError";
-    this.errors = errors;
-  }
-}
+export { RecipeCompileError } from "./errors.js";
 
 export type CompileOpsById = Readonly<Record<string, DomainOpCompileAny>>;
 
@@ -30,7 +26,7 @@ export type StepContractAny = Readonly<{
 
 export type StepModuleAny = Readonly<{
   contract: StepContractAny;
-  normalize?: (config: unknown, ctx: NormalizeCtx<any, any>) => unknown;
+  normalize?: (config: unknown, ctx: NormalizeCtx) => unknown;
 }>;
 
 export type StageToInternalResult<StepId extends string = string, Knobs = unknown> = Readonly<{
@@ -40,6 +36,8 @@ export type StageToInternalResult<StepId extends string = string, Knobs = unknow
 
 export type StageContractAny = Readonly<{
   id: string;
+  knobsSchema: TObject;
+  public?: TObject;
   surfaceSchema: TSchema;
   authoring?: Readonly<{
     config: Readonly<{
@@ -52,33 +50,63 @@ export type StageContractAny = Readonly<{
 
 const RESERVED_STAGE_KEY = "knobs";
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function materializeStageStepConfig<T>(
+  schema: TSchema,
+  stageOutput: unknown,
+  path: string
+): { value: T; errors: CompileErrorItem[] } {
+  const materialized = Value.Default(
+    schema,
+    Value.Clone(stageOutput === undefined ? {} : stageOutput)
+  );
+  return validateStrict<T>(schema, materialized, path);
+}
+
 export function compileRecipeConfig<const TStages extends readonly StageContractAny[]>(args: {
   env: unknown;
   recipe: Readonly<{ stages: TStages }>;
-  config: RecipeConfigInputOf<any> | null | undefined;
+  config: RecipePublicConfigOf<TStages>;
   compileOpsById: CompileOpsById;
-}): CompiledRecipeConfigOf<any> {
+}): CompiledRecipeConfigOf<TStages> {
   const errors: CompileErrorItem[] = [];
   const out: Record<string, Record<string, unknown>> = {};
 
   const env = args.env;
   const recipe = args.recipe as Readonly<{ stages: readonly StageContractAny[] }>;
-  const config = (args.config ?? {}) as Record<string, unknown>;
+  const configSnapshot = createPortableJsonSnapshot(args.config, "/config");
+  if (!configSnapshot.ok) {
+    throw new RecipeCompileError([
+      {
+        code: "config.invalid",
+        path: configSnapshot.path,
+        message: configSnapshot.message,
+      },
+    ]);
+  }
+  const configValue = configSnapshot.value;
+  if (!isRecord(configValue)) {
+    throw new RecipeCompileError([
+      {
+        code: "config.invalid",
+        path: "/config",
+        message: "Expected object",
+      },
+    ]);
+  }
+  const config = configValue;
   const compileOpsById = args.compileOpsById;
   const declaredStageIds = new Set(recipe.stages.map((stage) => stage.id));
 
   for (const stageKey of Object.keys(config)) {
     if (declaredStageIds.has(stageKey)) continue;
-    const message =
-      stageKey === "ecology" &&
-      declaredStageIds.has("ecology-pedology") &&
-      declaredStageIds.has("ecology-biomes")
-        ? 'Unknown stage id "ecology"; use split ecology stages (for example: "ecology-pedology", "ecology-biomes", "ecology-features").'
-        : `Unknown stage id "${stageKey}"`;
     errors.push({
       code: "config.invalid",
       path: `/config/${stageKey}`,
-      message,
+      message: `Unknown stage id "${stageKey}"`,
     });
   }
 
@@ -87,7 +115,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
     const stagePath = `/config/${stageId}`;
     const configSchema = stage.authoring?.config.schema ?? stage.surfaceSchema;
 
-    const { value: stageConfig, errors: stageErrors } = normalizeStrict(
+    const { value: stageConfig, errors: stageErrors } = validateSchemaValue(
       configSchema as TSchema,
       config[stageId],
       stagePath
@@ -147,19 +175,9 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
       const stepId = step.contract.id;
       const stepPath = `${stagePath}/${stepId}`;
 
-      const { value: prefilled, errors: prefillErrors } = prefillOpDefaults(
-        step,
-        (rawSteps as Record<string, unknown> | undefined)?.[stepId],
-        stepPath
-      );
-      if (prefillErrors.length > 0) {
-        errors.push(...prefillErrors.map((e) => ({ ...e, stageId, stepId })));
-        continue;
-      }
-
-      const { value: strict1, errors: strict1Errors } = normalizeStrict(
+      const { value: strict1, errors: strict1Errors } = materializeStageStepConfig(
         step.contract.schema as TSchema,
-        prefilled,
+        (rawSteps as Record<string, unknown> | undefined)?.[stepId],
         stepPath
       );
       if (strict1Errors.length > 0) {
@@ -183,7 +201,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
           continue;
         }
 
-        const { value: strict2, errors: strict2Errors } = normalizeStrict(
+        const { value: strict2, errors: strict2Errors } = validateStrict(
           step.contract.schema as TSchema,
           next,
           stepPath
@@ -206,7 +224,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
       const { value: opNormalized, errors: opNormErrors } = normalizeOpsTopLevel(
         step,
         normalized as Record<string, unknown>,
-        { env, knobs } as NormalizeCtx<any, any>,
+        { env, knobs },
         compileOpsById,
         stepPath
       );
@@ -215,7 +233,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
         continue;
       }
 
-      const { value: strict3, errors: strict3Errors } = normalizeStrict(
+      const { value: strict3, errors: strict3Errors } = validateStrict(
         step.contract.schema as TSchema,
         opNormalized,
         stepPath
@@ -232,5 +250,5 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
   }
 
   if (errors.length > 0) throw new RecipeCompileError(errors);
-  return out as CompiledRecipeConfigOf<any>;
+  return out as CompiledRecipeConfigOf<TStages>;
 }

@@ -6,20 +6,11 @@
 /// <reference types="@civ7/types" />
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
-import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
+import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
-type GeneratedMapConfig = Readonly<{
-  id: string;
-  name: string;
-  description?: string;
-  recipe: "standard";
-  sortIndex: number;
-  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
-  logPrefix?: string;
-  config: unknown;
-}>;
-
+// The file plan only receives an admitted immutable envelope; this assertion
+// projects its serialized data without adding a second runtime admission path.
 const mapConfig = {
   "id": "mountains-of-time-earthlike",
   "name": "Mountains of Time Earthlike",
@@ -710,6 +701,14 @@ const mapConfig = {
             "temperateDry",
             "tropicalSeasonal"
           ]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": [
+            "tropicalRainforest"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -718,15 +717,22 @@ const mapConfig = {
           "coveragePct": 55,
           "lightThreshold": 0.38,
           "mediumThreshold": 0.62,
-          "heavyThreshold": 0.82
+          "heavyThreshold": 0.82,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 24
+          "coveragePct": 24,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": true,
           "coveragePct": 6
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       }
     },
@@ -793,8 +799,7 @@ const mapConfig = {
         "fairnessTolerance": 0.3,
         "coastalPreferenceWeight": 0,
         "riverPreferenceWeight": 0,
-        "startBiasWeight": 1,
-        "overrides": {}
+        "startBiasWeight": 1
       },
       "support": {
         "enabled": true,
@@ -818,19 +823,13 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const satisfies GeneratedMapConfig;
+} as unknown as StandardMapConfigEnvelope;
 
 export default createMap({
-  id: mapConfig.id,
-  name: mapConfig.name,
-  description: mapConfig.description,
+  ...mapConfig,
   recipe: standardRecipe,
-  latitudeBounds: {
-    "topLatitude": 80,
-    "bottomLatitude": -80
-  },
   sourceConfigId: "mountains-of-time-earthlike",
-  configHash: "224118303383aa9a6778aa0ef7f291682eb2efdb114504f96d13919d37839041",
-  envelopeHash: "5343b36577b39f4bc2767774606d3ccbddc74f01fdcbb0d3cbaf27e0d15fdf51",
-  config: mapConfig.config as unknown as StandardRecipeConfig,
+  configHash: "365e45c2b6c73082c704e2e41353387c717a9dbe43cf6c9f0b405b2c7d50f1af",
+  envelopeHash: "6b8a05f6147158b57f394a802647f0ff31f6006dd889e687c34674b89f93203e",
+  config: mapConfig.config,
 });

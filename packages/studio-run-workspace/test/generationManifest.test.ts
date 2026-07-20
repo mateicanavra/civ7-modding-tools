@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -42,18 +43,15 @@ describe("Studio Run generation manifest", () => {
   test("computes the manifest digest from canonical sorted payload JSON only", () => {
     const payload = buildStudioRunGenerationManifestPayload(
       manifestInput({
-        config: { beta: undefined, alpha: { z: 1, a: 2 } },
+        config: { alpha: { z: 1, a: 2 } },
       })
     );
     const samePayloadDifferentKeyOrder = {
       ...payload,
-      request: {
-        setupConfig: payload.request.setupConfig,
-        selectedConfigId: payload.request.selectedConfigId,
-        seed: payload.request.seed,
-        recipeId: payload.request.recipeId,
-        mapSize: payload.request.mapSize,
-        materializationMode: payload.request.materializationMode,
+      workspace: {
+        generatedModRoot: payload.workspace.generatedModRoot,
+        generationManifestPath: payload.workspace.generationManifestPath,
+        requestRoot: payload.workspace.requestRoot,
       },
     };
     const manifest = buildStudioRunGenerationManifest(payload);
@@ -114,21 +112,72 @@ describe("Studio Run generation manifest", () => {
           },
         })
       )
-    ).toThrow("launchEnvelopeDigest is inconsistent");
+    ).toThrow("Invalid StudioRunGenerationManifest");
+    const changedLaunchEnvelope = {
+      ...manifest.payload.launchEnvelope,
+      source: {
+        ...manifest.payload.launchEnvelope.source,
+        canonicalConfig: {
+          ...manifest.payload.launchEnvelope.source.canonicalConfig,
+          name: "Changed after admission",
+        },
+      },
+    };
     expect(() =>
       parseStudioRunGenerationManifest(
         buildStudioRunGenerationManifest({
           ...manifest.payload,
-          request: {
-            ...manifest.payload.request,
-            setupConfig: {
-              gameOptions: {},
-              playerOptions: [{ playerId: 0, options: {} }],
-              extra: true,
-            },
+          launchEnvelope: changedLaunchEnvelope,
+          launchSourceDigest: {
+            ...manifest.payload.launchSourceDigest,
+            canonicalConfigDigest: digest(changedLaunchEnvelope.source.canonicalConfig),
           },
         })
       )
+    ).toThrow("launchEnvelopeDigest does not match launch envelope");
+    const incompleteCanonicalConfig = {
+      id: manifest.payload.launchEnvelope.source.canonicalConfig.id,
+      recipe: manifest.payload.launchEnvelope.source.canonicalConfig.recipe,
+      config: manifest.payload.launchEnvelope.source.canonicalConfig.config,
+    };
+    const incompleteLaunchEnvelope = {
+      ...manifest.payload.launchEnvelope,
+      source: {
+        ...manifest.payload.launchEnvelope.source,
+        canonicalConfig: incompleteCanonicalConfig,
+      },
+    };
+    const selfConsistentlyRehashedManifest = {
+      payload: {
+        ...manifest.payload,
+        launchEnvelope: incompleteLaunchEnvelope,
+        launchSourceDigest: {
+          canonicalConfigDigest: digest(incompleteCanonicalConfig),
+        },
+        launchEnvelopeDigest: digest(incompleteLaunchEnvelope),
+      },
+      generationManifestDigest: "",
+    };
+    selfConsistentlyRehashedManifest.generationManifestDigest = digest(
+      selfConsistentlyRehashedManifest.payload
+    );
+    expect(() => parseStudioRunGenerationManifest(selfConsistentlyRehashedManifest)).toThrow(
+      "Invalid StudioRunGenerationManifest"
+    );
+    const rehashedPayloadWithSiblingRequest = {
+      ...manifest.payload,
+      request: {
+        recipeId: manifest.payload.launchEnvelope.recipeSettings.recipe,
+        seed: manifest.payload.launchEnvelope.recipeSettings.seed,
+        mapSize: manifest.payload.launchEnvelope.worldSettings.mapSize,
+        setupConfig: manifest.payload.launchEnvelope.setupConfig,
+      },
+    };
+    expect(() =>
+      parseStudioRunGenerationManifest({
+        payload: rehashedPayloadWithSiblingRequest,
+        generationManifestDigest: digest(rehashedPayloadWithSiblingRequest),
+      })
     ).toThrow("Invalid StudioRunGenerationManifest");
   });
 
@@ -151,6 +200,10 @@ describe("Studio Run generation manifest", () => {
       const manifest = await readStudioRunGenerationManifest(written.path);
       expect(manifest.generationManifestDigest).toBe(written.generationManifestDigest);
       expect(JSON.parse(await readFile(written.path, "utf8"))).toEqual(manifest);
+      expect(Object.isFrozen(manifest)).toBe(true);
+      expect(Object.isFrozen(manifest.payload)).toBe(true);
+      expect(Object.isFrozen(manifest.payload.launchEnvelope)).toBe(true);
+      expect(Object.isFrozen(manifest.payload.launchEnvelope.source.canonicalConfig)).toBe(true);
 
       await expect(
         writeStudioRunGenerationManifest({
@@ -158,6 +211,32 @@ describe("Studio Run generation manifest", () => {
           workspaceRoot,
         })
       ).rejects.toThrow();
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("finalizes snapshot bytes and digest before filesystem awaits", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "studio-run-manifest-snapshot-"));
+    try {
+      const mutableConfig = { nested: { label: "before" } };
+      const input = manifestInput({ config: mutableConfig, requestId: "studio-run-manifest-snapshot" });
+      const writing = writeStudioRunGenerationManifest({
+        manifestInput: input,
+        workspaceRoot,
+      });
+      mutableConfig.nested.label = "after";
+
+      const written = await writing;
+      const serialized = await readFile(written.path, "utf8");
+      const manifest = await readStudioRunGenerationManifest(written.path);
+
+      expect(serialized).toContain('"label": "before"');
+      expect(serialized).not.toContain('"label": "after"');
+      expect(manifest.generationManifestDigest).toBe(written.generationManifestDigest);
+      expect(manifest.payload.launchEnvelope.source.canonicalConfig.config).toEqual({
+        nested: { label: "before" },
+      });
     } finally {
       await rm(workspaceRoot, { recursive: true, force: true });
     }
@@ -171,6 +250,20 @@ function manifestInput(
   }> = {}
 ): StudioRunGenerationManifestInput {
   const config = overrides.config ?? {};
+  const canonicalConfig = {
+    id: "studio-current",
+    name: "Studio Current",
+    description: "Current Studio editor configuration.",
+    recipe: "standard" as const,
+    sortIndex: 9999,
+    latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+    config,
+  };
+  const source = {
+    kind: "editor" as const,
+    editorSessionId: "manifest-test-editor",
+    canonicalConfig,
+  };
   const launchEnvelope = {
     recipeSettings: {
       recipe: "mod-swooper-maps/standard",
@@ -183,40 +276,15 @@ function manifestInput(
       gameOptions: {},
       playerOptions: [{ playerId: 0, options: {} }],
     },
-    source: {
-      kind: "editor" as const,
-      id: "studio-current",
-      label: "Studio Current",
-      mapScript: "{swooper-maps}/maps/studio-current.js",
-      sortIndex: 9999,
-    },
-    config,
+    source,
   };
-  const launchEnvelopeDigest = "a".repeat(64);
+  const launchEnvelopeDigest = digest(launchEnvelope);
   return {
     requestId: overrides.requestId ?? "studio-run-in-game-digest",
-    request: {
-      recipeId: "mod-swooper-maps/standard",
-      seed: 43,
-      mapSize: "MAPSIZE_STANDARD",
-      selectedConfigId: "studio-current",
-      setupConfig: launchEnvelope.setupConfig,
-      materializationMode: "disposable",
-    },
-    resolvedLaunchSource: {
-      kind: "editor",
-      editorSessionId: "manifest-test-editor",
-      configId: "studio-current",
-      label: "Studio Current",
-      mapScript: "{swooper-maps}/maps/studio-current.js",
-      sortIndex: 9999,
-      config,
-    },
     launchEnvelope,
-    launchSourceDigest: {
-      configContentDigest: "b".repeat(64),
-      launchEnvelopeDigest,
-    },
-    launchEnvelopeDigest,
   };
+}
+
+function digest(value: unknown): string {
+  return createHash("sha256").update(canonicalSortedJson(value), "utf8").digest("hex");
 }

@@ -1,10 +1,13 @@
 {
-  "$schema": "../../../dist/recipes/standard-map-config.schema.json",
   "id": "swooper-earthlike",
   "name": "Swooper Earthlike",
   "description": "An Earth-analogue world with vast oceans, a handful of major continents, and familiar climate belts. Expect wet equatorial jungles, dry subtropical deserts, temperate heartlands, and polar tundra shaped by plate-driven mountain arcs and broad passive coasts.",
   "recipe": "standard",
   "sortIndex": 501,
+  "latitudeBounds": {
+    "topLatitude": 80,
+    "bottomLatitude": -80
+  },
   "config": {
     "foundation-mantle": {
       "meshResolution": {
@@ -82,13 +85,11 @@
       }
     },
     "foundation-orogeny": {
-      "knobs": {
-        "continentalAbundance": 0.65
-      },
+      "knobs": {},
       "crustCharacter": {
-        "continentalSurvivalMaturity": 0.6,
+        "continentalSurvivalMaturity": 0.54,
         "continentalFreeboard": 0.35,
-        "hyperextensionBreakupBase": 0.1,
+        "hyperextensionBreakupBase": 0.16,
         "thinningThicknessLoss": 0.55,
         "oceanicAbyssalDepth": 0.75
       }
@@ -671,6 +672,12 @@
           "maxVegetation": 0.26,
           "maxMoisture": 98,
           "allowedBiomes": ["temperateDry", "tropicalSeasonal"]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": ["tropicalRainforest"]
         }
       },
       "plotEffectCoverage": {
@@ -679,15 +686,22 @@
           "coveragePct": 55,
           "lightThreshold": 0.38,
           "mediumThreshold": 0.62,
-          "heavyThreshold": 0.82
+          "heavyThreshold": 0.82,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 24
+          "coveragePct": 24,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": true,
           "coveragePct": 6
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       }
     },
@@ -754,8 +768,7 @@
         "fairnessTolerance": 0.3,
         "coastalPreferenceWeight": 0,
         "riverPreferenceWeight": 0,
-        "startBiasWeight": 1,
-        "overrides": {}
+        "startBiasWeight": 1
       },
       "support": {
         "enabled": true,

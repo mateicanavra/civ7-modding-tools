@@ -9,7 +9,7 @@ import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
 import type {
   FinalSurfaceKey,
-  FinalSurfaceParityProof,
+  FinalSurfaceParityReport,
   FinalSurfaceSnapshot,
 } from "./live-parity.js";
 
@@ -205,10 +205,10 @@ export type NaturalWonderFootprintCatalogReadbackContext = Readonly<{
   classification: NaturalWonderFootprintReadbackContext["classification"];
 }>;
 
-export type NaturalWonderLiveProofBoundaryContext = Readonly<{
+export type NaturalWonderLiveEvidenceBoundaryContext = Readonly<{
   localPlacementStats: NaturalWonderPlacementStatsContext | null;
   liveTelemetryPlacementStats: NaturalWonderPlacementStatsContext | null;
-  liveProofPlacementStats: NaturalWonderPlacementStatsContext | null;
+  liveEvidencePlacementStats: NaturalWonderPlacementStatsContext | null;
   liveCompletionPlacementStats: NaturalWonderPlacementStatsContext | null;
   boundaryClass:
     | "local-and-live-placement-stats-present"
@@ -225,7 +225,7 @@ export type NaturalWonderPlacementStatsContext = Readonly<{
   rejectedCount: number | null;
   shortfallCount: number | null;
   rejectionExamples: ReadonlyArray<string>;
-  coordinateProof: Readonly<{
+  coordinateEvidence: Readonly<{
     version: number | null;
     placed: Readonly<{ count: number | null; hash32: string | null }>;
     rejected: Readonly<{ count: number | null; hash32: string | null }>;
@@ -529,7 +529,7 @@ const ODD_R_NEIGHBORS_ODD_ROW = [
 ] as const;
 
 export function buildSurfaceDeltaContexts(
-  proof: Pick<FinalSurfaceParityProof, "local" | "live">,
+  report: Pick<FinalSurfaceParityReport, "local" | "live">,
   options: {
     keys?: ReadonlyArray<ClassifiableSurfaceKey>;
     maxRows?: number;
@@ -540,16 +540,16 @@ export function buildSurfaceDeltaContexts(
   const rows: SurfaceDeltaContext[] = [];
 
   for (const key of keys) {
-    const localValues = proof.local.surfaces[key].values;
-    const liveValues = proof.live.surfaces[key].values;
+    const localValues = report.local.surfaces[key].values;
+    const liveValues = report.live.surfaces[key].values;
     const length = Math.min(localValues.length, liveValues.length);
     for (let index = 0; index < length; index += 1) {
       const localValue = normalizeSurfaceValue(localValues[index]);
       const liveValue = normalizeSurfaceValue(liveValues[index]);
       if (localValue === liveValue) continue;
-      const y = Math.floor(index / proof.local.width);
-      const x = index - y * proof.local.width;
-      rows.push(buildSurfaceDeltaContext(proof.local, proof.live, key, x, y));
+      const y = Math.floor(index / report.local.width);
+      const x = index - y * report.local.width;
+      rows.push(buildSurfaceDeltaContext(report.local, report.live, key, x, y));
       if (rows.length >= maxRows) return rows;
     }
   }
@@ -558,15 +558,15 @@ export function buildSurfaceDeltaContexts(
 }
 
 export function buildFeatureDeltaPlacementContexts(
-  proof: Pick<FinalSurfaceParityProof, "local" | "live">,
+  report: Pick<FinalSurfaceParityReport, "local" | "live">,
   options: { maxRows?: number } = {}
 ): ReadonlyArray<FeatureDeltaPlacementContext> {
   const maxRows = options.maxRows ?? Number.POSITIVE_INFINITY;
-  const featureIntents = readFeatureIntentEvidence(proof.local);
-  const naturalWonderFootprints = readNaturalWonderFootprintEvidence(proof.local);
-  const naturalWonderPlacements = readNaturalWonderPlacementEvidence(proof.local);
-  const rows = buildSurfaceDeltaContexts(proof, { keys: ["feature"] }).map((row) => {
-    const plotIndex = row.y * proof.local.width + row.x;
+  const featureIntents = readFeatureIntentEvidence(report.local);
+  const naturalWonderFootprints = readNaturalWonderFootprintEvidence(report.local);
+  const naturalWonderPlacements = readNaturalWonderPlacementEvidence(report.local);
+  const rows = buildSurfaceDeltaContexts(report, { keys: ["feature"] }).map((row) => {
+    const plotIndex = row.y * report.local.width + row.x;
     return {
       ...row,
       key: "feature" as const,
@@ -579,7 +579,7 @@ export function buildFeatureDeltaPlacementContexts(
     };
   });
   const classified = rows.map((row) => {
-    const pairedSameFeatureDelta = findPairedFeatureDelta(row, rows, proof.local.width);
+    const pairedSameFeatureDelta = findPairedFeatureDelta(row, rows, report.local.width);
     return {
       ...row,
       pairedSameFeatureDelta,
@@ -587,8 +587,8 @@ export function buildFeatureDeltaPlacementContexts(
         row,
         pairedSameFeatureDelta,
         naturalWonderPlacements.placements,
-        proof.local.width,
-        proof.local.height
+        report.local.width,
+        report.local.height
       ),
       evidenceClass: classifyFeatureDelta(row, pairedSameFeatureDelta),
     };
@@ -597,27 +597,27 @@ export function buildFeatureDeltaPlacementContexts(
 }
 
 export function buildNaturalWonderFootprintReadbackContexts(
-  proof: Pick<FinalSurfaceParityProof, "local" | "live">
+  report: Pick<FinalSurfaceParityReport, "local" | "live">
 ): ReadonlyArray<NaturalWonderFootprintReadbackContext> {
-  return readNaturalWonderPlacementEvidence(proof.local).placements.map((placement) => {
+  return readNaturalWonderPlacementEvidence(report.local).placements.map((placement) => {
     const policy = CIV7_BROWSER_TABLES_V0.featurePolicies[String(placement.featureType)] ?? {};
     const candidates = [0, 1, 2, 3, 4, 5].flatMap((direction) => {
       const footprintPlotIndexes = getNaturalWonderFootprintIndices({
         x: placement.anchorX,
         y: placement.anchorY,
-        width: proof.local.width,
-        height: proof.local.height,
+        width: report.local.width,
+        height: report.local.height,
         policy,
         direction,
       });
       if (!footprintPlotIndexes) return [];
       const localMatchCount = countFeatureMatches(
-        proof.local,
+        report.local,
         footprintPlotIndexes,
         placement.featureType
       );
       const liveMatchCount = countFeatureMatches(
-        proof.live,
+        report.live,
         footprintPlotIndexes,
         placement.featureType
       );
@@ -721,27 +721,27 @@ export function buildNaturalWonderFootprintCatalogContexts(
   });
 }
 
-export function buildNaturalWonderLiveProofBoundaryContext(
-  proof: Pick<FinalSurfaceParityProof, "local" | "exactAuthorshipPacket">
-): NaturalWonderLiveProofBoundaryContext {
+export function buildNaturalWonderLiveEvidenceBoundaryContext(
+  report: Pick<FinalSurfaceParityReport, "local" | "exactAuthorshipEvidence">
+): NaturalWonderLiveEvidenceBoundaryContext {
   const localPlacementStats = readNaturalWonderPlacementStats(
-    proof.local.evidence?.naturalWonderPlacement
+    report.local.evidence?.naturalWonderPlacement
   );
   const liveTelemetryPlacementStats = readNaturalWonderPlacementStatsFromLogTelemetry(
-    proof.exactAuthorshipPacket?.log
+    report.exactAuthorshipEvidence?.log
   );
-  const liveProofPlacementStats = readNaturalWonderPlacementStatsFromLogPayload(
-    proof.exactAuthorshipPacket?.log,
-    "proofPayload"
+  const liveEvidencePlacementStats = readNaturalWonderPlacementStatsFromLogPayload(
+    report.exactAuthorshipEvidence?.log,
+    "evidencePayload"
   );
   const liveCompletionPlacementStats = readNaturalWonderPlacementStatsFromLogPayload(
-    proof.exactAuthorshipPacket?.log,
+    report.exactAuthorshipEvidence?.log,
     "completionPayload"
   );
   const hasLocal = localPlacementStats !== null;
   const hasLive =
     liveTelemetryPlacementStats !== null ||
-    liveProofPlacementStats !== null ||
+    liveEvidencePlacementStats !== null ||
     liveCompletionPlacementStats !== null;
   const unresolvedLinks: string[] = [];
   if (!hasLocal) unresolvedLinks.push("natural-wonder.local-placement-stats");
@@ -749,36 +749,36 @@ export function buildNaturalWonderLiveProofBoundaryContext(
   return {
     localPlacementStats,
     liveTelemetryPlacementStats,
-    liveProofPlacementStats,
+    liveEvidencePlacementStats,
     liveCompletionPlacementStats,
-    boundaryClass: naturalWonderLiveProofBoundaryClass({ hasLocal, hasLive }),
+    boundaryClass: naturalWonderLiveEvidenceBoundaryClass({ hasLocal, hasLive }),
     unresolvedLinks,
   };
 }
 
 export function buildResourceDeltaPlacementContexts(
-  proof: Pick<FinalSurfaceParityProof, "local" | "live">,
+  report: Pick<FinalSurfaceParityReport, "local" | "live">,
   options: { maxRows?: number } = {}
 ): ReadonlyArray<ResourceDeltaPlacementContext> {
   const maxRows = options.maxRows ?? Number.POSITIVE_INFINITY;
-  const resourcePlan = readResourcePlanEvidence(proof.local.evidence);
-  const outcomes = readResourceOutcomeEvidence(proof.local.evidence);
-  const planIntents = readResourcePlanIntentEvidence(proof.local.evidence);
+  const resourcePlan = readResourcePlanEvidence(report.local.evidence);
+  const outcomes = readResourceOutcomeEvidence(report.local.evidence);
+  const planIntents = readResourcePlanIntentEvidence(report.local.evidence);
   const rows: ResourceDeltaPlacementContext[] = [];
-  const localValues = proof.local.surfaces.resource.values;
-  const liveValues = proof.live.surfaces.resource.values;
+  const localValues = report.local.surfaces.resource.values;
+  const liveValues = report.live.surfaces.resource.values;
   const length = Math.min(localValues.length, liveValues.length);
 
   for (let index = 0; index < length; index += 1) {
     const localResource = normalizeSurfaceValue(localValues[index]);
     const liveResource = normalizeSurfaceValue(liveValues[index]);
     if (localResource === liveResource) continue;
-    const y = Math.floor(index / proof.local.width);
-    const x = index - y * proof.local.width;
+    const y = Math.floor(index / report.local.width);
+    const x = index - y * report.local.width;
     const plannedPreferredResourceType = resourcePlan.preferredByPlot.get(index) ?? null;
     const localOutcome = outcomes.byPlot.get(index) ?? null;
-    const localContext = cellSurfaceContext(proof.local, x, y);
-    const liveContext = cellSurfaceContext(proof.live, x, y);
+    const localContext = cellSurfaceContext(report.local, x, y);
+    const liveContext = cellSurfaceContext(report.live, x, y);
     rows.push({
       x,
       y,
@@ -798,7 +798,7 @@ export function buildResourceDeltaPlacementContexts(
           ? {}
           : {
               localValueOnLocal: staticSurfaceLegality(
-                proof.local,
+                report.local,
                 "resource",
                 x,
                 y,
@@ -808,16 +808,18 @@ export function buildResourceDeltaPlacementContexts(
         ...(localResource === null
           ? {}
           : {
-              localValueOnLive: staticSurfaceLegality(proof.live, "resource", x, y, localResource),
+              localValueOnLive: staticSurfaceLegality(report.live, "resource", x, y, localResource),
             }),
         ...(liveResource === null
           ? {}
           : {
-              liveValueOnLocal: staticSurfaceLegality(proof.local, "resource", x, y, liveResource),
+              liveValueOnLocal: staticSurfaceLegality(report.local, "resource", x, y, liveResource),
             }),
         ...(liveResource === null
           ? {}
-          : { liveValueOnLive: staticSurfaceLegality(proof.live, "resource", x, y, liveResource) }),
+          : {
+              liveValueOnLive: staticSurfaceLegality(report.live, "resource", x, y, liveResource),
+            }),
       },
       plannedPreferredResourceType,
       plannedPreferredResourceSymbol: symbolFor("resource", plannedPreferredResourceType),
@@ -828,19 +830,19 @@ export function buildResourceDeltaPlacementContexts(
         localResourceOnLocal:
           localResource === null
             ? null
-            : resourceNeighborhood(proof.local, x, y, localResource, resourcePlan.minSpacingTiles),
+            : resourceNeighborhood(report.local, x, y, localResource, resourcePlan.minSpacingTiles),
         localResourceOnLive:
           localResource === null
             ? null
-            : resourceNeighborhood(proof.live, x, y, localResource, resourcePlan.minSpacingTiles),
+            : resourceNeighborhood(report.live, x, y, localResource, resourcePlan.minSpacingTiles),
         liveResourceOnLocal:
           liveResource === null
             ? null
-            : resourceNeighborhood(proof.local, x, y, liveResource, resourcePlan.minSpacingTiles),
+            : resourceNeighborhood(report.local, x, y, liveResource, resourcePlan.minSpacingTiles),
         liveResourceOnLive:
           liveResource === null
             ? null
-            : resourceNeighborhood(proof.live, x, y, liveResource, resourcePlan.minSpacingTiles),
+            : resourceNeighborhood(report.live, x, y, liveResource, resourcePlan.minSpacingTiles),
       },
       evidenceClass: classifyResourceDeltaPlacement({
         localResource,
@@ -856,12 +858,12 @@ export function buildResourceDeltaPlacementContexts(
 }
 
 export function buildResourceDeltaFeasibilityContexts(
-  proof: Pick<FinalSurfaceParityProof, "local" | "live">,
+  report: Pick<FinalSurfaceParityReport, "local" | "live">,
   feasibility: ResourceFeasibilityReadbackLike,
   options: { maxRows?: number } = {}
 ): ReadonlyArray<ResourceDeltaFeasibilityContext> {
   const byCell = readResourceFeasibilityByCell(feasibility);
-  return buildResourceDeltaPlacementContexts(proof, options).map((row) => {
+  return buildResourceDeltaPlacementContexts(report, options).map((row) => {
     const cell = byCell.get(resourceFeasibilityCellKey(row.x, row.y, row.plotIndex));
     const localFeasibleInCiv =
       row.localResource.value === null
@@ -885,22 +887,22 @@ export function buildResourceDeltaFeasibilityContexts(
 }
 
 export function buildTerrainDeltaEdgeContexts(
-  proof: Pick<FinalSurfaceParityProof, "local" | "live">,
+  report: Pick<FinalSurfaceParityReport, "local" | "live">,
   options: { maxRows?: number } = {}
 ): ReadonlyArray<TerrainDeltaEdgeContext> {
   const maxRows = options.maxRows ?? Number.POSITIVE_INFINITY;
   const rows: TerrainDeltaEdgeContext[] = [];
-  const localValues = proof.local.surfaces.terrain.values;
-  const liveValues = proof.live.surfaces.terrain.values;
+  const localValues = report.local.surfaces.terrain.values;
+  const liveValues = report.live.surfaces.terrain.values;
   const length = Math.min(localValues.length, liveValues.length);
 
   for (let index = 0; index < length; index += 1) {
     const localTerrain = normalizeSurfaceValue(localValues[index]);
     const liveTerrain = normalizeSurfaceValue(liveValues[index]);
     if (localTerrain === liveTerrain) continue;
-    const y = Math.floor(index / proof.local.width);
-    const x = index - y * proof.local.width;
-    const neighborhood = terrainDeltaNeighborhood(proof.local, proof.live, x, y);
+    const y = Math.floor(index / report.local.width);
+    const x = index - y * report.local.width;
+    const neighborhood = terrainDeltaNeighborhood(report.local, report.live, x, y);
     rows.push({
       x,
       y,
@@ -908,15 +910,15 @@ export function buildTerrainDeltaEdgeContexts(
       localTerrain: {
         value: localTerrain,
         symbol: symbolFor("terrain", localTerrain),
-        context: cellSurfaceContext(proof.local, x, y),
+        context: cellSurfaceContext(report.local, x, y),
       },
       liveTerrain: {
         value: liveTerrain,
         symbol: symbolFor("terrain", liveTerrain),
-        context: cellSurfaceContext(proof.live, x, y),
+        context: cellSurfaceContext(report.live, x, y),
       },
       neighborhood,
-      localProjection: terrainProjectionRowContext(proof.local, index),
+      localProjection: terrainProjectionRowContext(report.local, index),
       evidenceClass: classifyTerrainDeltaEdge(localTerrain, liveTerrain),
       sourceAuthorityStatus: "unresolved",
       ownerCandidates: terrainOwnerCandidates(localTerrain, liveTerrain),
@@ -1349,10 +1351,10 @@ function naturalWonderReadbackDisposition(
   return "observed-local-live-aligned";
 }
 
-function naturalWonderLiveProofBoundaryClass(args: {
+function naturalWonderLiveEvidenceBoundaryClass(args: {
   hasLocal: boolean;
   hasLive: boolean;
-}): NaturalWonderLiveProofBoundaryContext["boundaryClass"] {
+}): NaturalWonderLiveEvidenceBoundaryContext["boundaryClass"] {
   if (args.hasLocal && args.hasLive) return "local-and-live-placement-stats-present";
   if (args.hasLocal) return "local-placement-stats-only";
   if (args.hasLive) return "live-placement-stats-only";
@@ -1363,7 +1365,7 @@ function readNaturalWonderPlacementStats(
   value: unknown
 ): NaturalWonderPlacementStatsContext | null {
   if (!isRecord(value)) return null;
-  const coordinateProof = readNaturalWonderCoordinateProof(value.coordinateProof);
+  const coordinateEvidence = readNaturalWonderCoordinateEvidence(value.coordinateEvidence);
   const rejectionExamples = Array.isArray(value.rejectionExamples)
     ? value.rejectionExamples
         .filter((entry): entry is string => typeof entry === "string")
@@ -1376,21 +1378,21 @@ function readNaturalWonderPlacementStats(
     rejectedCount: numberValue(value.rejectedCount),
     shortfallCount: numberValue(value.shortfallCount),
     rejectionExamples,
-    coordinateProof,
+    coordinateEvidence,
   };
   return stats.plannedCount !== null ||
     stats.targetCount !== null ||
     stats.placedCount !== null ||
     stats.rejectedCount !== null ||
     stats.shortfallCount !== null ||
-    stats.coordinateProof !== null
+    stats.coordinateEvidence !== null
     ? stats
     : null;
 }
 
 function readNaturalWonderPlacementStatsFromLogPayload(
   log: unknown,
-  payloadKey: "proofPayload" | "completionPayload"
+  payloadKey: "evidencePayload" | "completionPayload"
 ): NaturalWonderPlacementStatsContext | null {
   if (!isRecord(log)) return null;
   const payload = log[payloadKey];
@@ -1408,16 +1410,16 @@ function readNaturalWonderPlacementStatsFromLogTelemetry(
     readNaturalWonderPlacementStats(telemetry.payload) ??
     readNaturalWonderPlacementStats({
       ...(isRecord(telemetry.stats) ? telemetry.stats : {}),
-      ...(isRecord(telemetry.coordinateProof)
-        ? { coordinateProof: telemetry.coordinateProof }
+      ...(isRecord(telemetry.coordinateEvidence)
+        ? { coordinateEvidence: telemetry.coordinateEvidence }
         : {}),
     })
   );
 }
 
-function readNaturalWonderCoordinateProof(
+function readNaturalWonderCoordinateEvidence(
   value: unknown
-): NaturalWonderPlacementStatsContext["coordinateProof"] {
+): NaturalWonderPlacementStatsContext["coordinateEvidence"] {
   if (!isRecord(value)) return null;
   const nestedPlaced = readCoordinateDigest(value.placed);
   const nestedRejected = readCoordinateDigest(value.rejected);

@@ -2,9 +2,9 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
+import { standardConfig } from "../support/standard-config.js";
 
 type MorphologyTopographyArtifact = {
   landMask: Uint8Array;
@@ -53,7 +53,7 @@ describe("m11 volcanoes truth contract", () => {
     const context = createExtendedMapContext({ width, height }, adapter, env);
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]" });
 
-    standardRecipe.run(context, env, realismEarthlikeConfig, { log: () => {} });
+    standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
     const topography = context.artifacts.get("artifact:morphology.topography") as
       | MorphologyTopographyArtifact

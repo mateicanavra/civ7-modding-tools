@@ -1,6 +1,16 @@
 # Run In Game Runtime Packet Index
 
-Status: draft packet train ready for adversarial review
+Opening status snapshot: draft packet train ready for adversarial review
+
+Current stack closeout planning:
+`docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`.
+
+Execution hold: do not begin or resume any packet from this index until Stage 1
+of the closeout workstream has amended and strictly validated the controlling
+packet authority and its verification ledger explicitly names the next
+executable unit. The hold does not expire when Stage 0 opens. The closeout
+ledger owns current execution state; the status above is an opening snapshot,
+not permission to execute.
 
 Source proposal:
 `docs/projects/mapgen-studio/resources/run-in-game-deploy-manifest-proposal.md`

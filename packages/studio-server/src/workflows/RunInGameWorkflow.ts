@@ -1,11 +1,12 @@
+import { snapshotRunInGameExactAuthorshipEvidence } from "@civ7/studio-contract";
 import { writeStudioRunGenerationManifest } from "@civ7/studio-run-workspace";
 import { Context, Effect, Layer } from "effect";
 
-import type { StudioInputs } from "../context.js";
 import {
   materializationFailed,
   type StudioBoundedDiagnostics,
   type StudioBoundedDiagnosticValue,
+  verificationFailed,
 } from "../errors/index.js";
 import type { RunInGameFailurePhase } from "../operationRuntime/registry.js";
 import type {
@@ -19,7 +20,6 @@ import type { RunInGameWorkflowTransitions } from "./workflowTransitions.js";
 
 export type RunInGameWorkflowStart = Readonly<{
   requestId: string;
-  input: StudioInputs["runInGame"]["start"];
   prepared: RunInGamePreparedRequest;
   transitions: RunInGameWorkflowTransitions;
 }>;
@@ -135,24 +135,7 @@ function makeRunInGameWorkflow(
             writeStudioRunGenerationManifest({
               manifestInput: {
                 requestId: workflow.requestId,
-                request: {
-                  recipeId: workflow.prepared.request.recipeId,
-                  seed: workflow.prepared.request.seed,
-                  mapSize: workflow.prepared.request.mapSize,
-                  ...(workflow.prepared.request.playerCount === undefined
-                    ? {}
-                    : { playerCount: workflow.prepared.request.playerCount }),
-                  ...(workflow.prepared.request.resources === undefined
-                    ? {}
-                    : { resources: workflow.prepared.request.resources }),
-                  selectedConfigId: workflow.prepared.request.selectedConfigId,
-                  setupConfig: workflow.prepared.request.setupConfig,
-                  materializationMode: workflow.prepared.request.materializationMode,
-                },
-                resolvedLaunchSource: workflow.prepared.resolvedLaunchSource,
                 launchEnvelope: workflow.prepared.launchEnvelope,
-                launchSourceDigest: workflow.prepared.launchSourceDigest,
-                launchEnvelopeDigest: workflow.prepared.launchEnvelopeDigest,
               },
               workspaceRoot: args.ports.runInGameWorkspaceRoot,
               signal,
@@ -244,10 +227,10 @@ function makeRunInGameWorkflow(
             setup,
           });
 
-          phase = "waiting-for-proof";
+          phase = "collecting-evidence";
           yield* workflow.transitions.transition({ phase, ...deploymentEvidence(deployment) });
           const log = yield* tryPromise(() =>
-            args.ports.waitForRunInGameLogProof({
+            args.ports.waitForRunInGameLogEvidence({
               requestId: workflow.requestId,
               prepared: workflow.prepared,
               deployment,
@@ -266,8 +249,8 @@ function makeRunInGameWorkflow(
               signal,
             })
           );
-          const proof = yield* tryPromise(() =>
-            args.ports.buildRunInGameProof({
+          const evidence = yield* tryPromise(() =>
+            args.ports.buildRunInGameEvidence({
               requestId: workflow.requestId,
               prepared: workflow.prepared,
               deployment,
@@ -277,17 +260,31 @@ function makeRunInGameWorkflow(
               observation,
             })
           );
+          const exactAuthorshipEvidence =
+            evidence.exactAuthorshipEvidence === undefined
+              ? undefined
+              : snapshotRunInGameExactAuthorshipEvidence(evidence.exactAuthorshipEvidence);
+          if (
+            evidence.exactAuthorshipEvidence !== undefined &&
+            exactAuthorshipEvidence === undefined
+          ) {
+            yield* Effect.fail(
+              verificationFailed({
+                message: "Run in Game exact-authorship evidence is invalid",
+                reason: "exact-authorship-mismatch",
+                diagnostics: { code: "run-in-game-exact-authorship-invalid" },
+              })
+            );
+          }
           yield* cleanupGeneratedMod();
           yield* workflow.transitions.transition({
             phase: "complete",
-            result: proof.result ?? { ok: true },
+            result: evidence.result ?? { ok: true },
             materialization:
-              proof.materialization ?? deployment.materialization ?? generated.materialization,
+              evidence.materialization ?? deployment.materialization ?? generated.materialization,
             ...deploymentEvidence(deployment),
             runtimeObservation: observation,
-            ...(proof.exactAuthorshipProof === undefined
-              ? {}
-              : { exactAuthorshipProof: proof.exactAuthorshipProof }),
+            ...(exactAuthorshipEvidence === undefined ? {} : { exactAuthorshipEvidence }),
           });
         });
 

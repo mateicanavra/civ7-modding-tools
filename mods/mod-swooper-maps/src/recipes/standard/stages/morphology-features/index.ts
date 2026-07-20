@@ -463,8 +463,8 @@ const VolcanoesConfigSchema = Type.Object(
 
 const knobsSchema = Type.Object(
   {
-    orogeny: Type.Optional(MorphologyOrogenyKnobSchema),
-    volcanism: Type.Optional(MorphologyVolcanismKnobSchema),
+    orogeny: MorphologyOrogenyKnobSchema,
+    volcanism: MorphologyVolcanismKnobSchema,
   },
   {
     additionalProperties: false,
@@ -475,9 +475,9 @@ const knobsSchema = Type.Object(
 
 const publicSchema = Type.Object(
   {
-    islandChains: Type.Optional(IslandsConfigSchema),
-    mountainRanges: Type.Optional(MountainRangesPublicSchema),
-    volcanoes: Type.Optional(VolcanoesConfigSchema),
+    islandChains: IslandsConfigSchema,
+    mountainRanges: MountainRangesPublicSchema,
+    volcanoes: VolcanoesConfigSchema,
   },
   {
     additionalProperties: false,
@@ -487,7 +487,7 @@ const publicSchema = Type.Object(
 );
 
 function defaultEnvelope(config: unknown): { strategy: "default"; config: unknown } {
-  return { strategy: "default", config: config ?? {} };
+  return { strategy: "default", config };
 }
 
 export default createStage({
@@ -504,7 +504,7 @@ export default createStage({
     const mountainRanges = resolveMountainRangesPublicConfig(config.mountainRanges);
     return {
       islands: {
-        islands: defaultEnvelope({ islands: config.islandChains ?? {} }),
+        islands: defaultEnvelope({ islands: config.islandChains }),
       },
       mountains: {
         ridges: defaultEnvelope(mountainRanges),

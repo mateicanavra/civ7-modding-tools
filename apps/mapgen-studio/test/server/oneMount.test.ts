@@ -250,9 +250,9 @@ function makeOperationRuntimePorts(): StudioOperationRuntimePorts {
     generateRunInGameMod: async () => generatedRunInGameMod(),
     deployRunInGame: async ({ requestId, generatedMod }) =>
       runInGameDeployment({ requestId, materialization: generatedMod.materialization }),
-    waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
+    waitForRunInGameLogEvidence: async () => ({ result: { ok: true } }),
     observeRunInGameRuntime: async (args) => runInGameRuntimeObservation(args),
-    buildRunInGameProof: async () => ({ result: { ok: true } }),
+    buildRunInGameEvidence: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({ saved: true }),
     deploySavedMapConfig: async () => ({ deployed: true }),
@@ -266,8 +266,8 @@ function generatedRunInGameMod(): Awaited<
   return {
     materialization: {
       mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
-      configHash: "test-config-hash",
-      envelopeHash: "test-envelope-hash",
+      canonicalConfigDigest: "test-config-hash",
+      launchEnvelopeDigest: "test-envelope-hash",
       generationManifestDigest: "test-generation-manifest-digest",
       runArtifactId: "run-test",
       generatedModRoot: "/tmp/studio-one-mount-generated-run-test",
@@ -346,8 +346,8 @@ function runInGameRuntimeObservation(
     scriptingLog: {
       requestId: args.requestId,
       correlation,
-      matchedMarkers: ["[mapgen-proof]", args.requestId, "[mapgen-complete]"],
-      proof: args.log.logProof,
+      matchedMarkers: ["[mapgen-evidence]", args.requestId, "[mapgen-complete]"],
+      evidence: args.log.logEvidence,
     },
     setupRow: {
       requestId: args.requestId,
@@ -356,7 +356,7 @@ function runInGameRuntimeObservation(
       mapScript: materialization?.mapScript ?? "test-map-script",
       runArtifactId: correlation.runArtifactId,
       deployedModId: args.deployment.runDeployment.deployedModId,
-      rowProof: { ok: true },
+      rowEvidence: { ok: true },
       rowVisibility: { visible: true },
     },
     loadedGame: {

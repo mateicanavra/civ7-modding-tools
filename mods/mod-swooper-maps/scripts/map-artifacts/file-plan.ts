@@ -1,26 +1,20 @@
-import { createHash } from "node:crypto";
-
 import {
   type RunCorrelation,
   STUDIO_RUN_MAP_ROW_ID,
   STUDIO_RUN_MAP_SCRIPT_PATH,
   STUDIO_RUN_MOD_ID,
 } from "@civ7/studio-run-workspace";
-import { mapLocalizationTag, type ValidatedMapConfig } from "../../src/maps/configs/canonical.js";
-
-export type StudioRunEvidenceEnv =
-  | Readonly<{ kind: "none" }>
-  | Readonly<{
-      kind: "run";
-      requestId: string;
-      launchConfigId: string;
-      launchEnvelopeDigest: string;
-    }>;
+import {
+  canonicalMapConfigContentDigest,
+  canonicalMapConfigDigest,
+  mapLocalizationTag,
+  type StandardMapConfigEnvelope,
+  type ValidatedMapConfig,
+} from "../../src/maps/configs/canonical.js";
 
 export type SwooperRunGeneratedModPlanInput = Readonly<{
-  selectedConfigId: string;
   correlation: RunCorrelation;
-  config: ValidatedMapConfig;
+  config: StandardMapConfigEnvelope;
   seed: number;
 }>;
 
@@ -34,12 +28,25 @@ export type SwooperMapArtifactFileKind =
   | "studio-catalog-module"
   | "studio-catalog-types";
 
-export type SwooperMapArtifactMarkerMetadata = Readonly<{
+type SwooperCatalogArtifactMarkerMetadata = Readonly<{
   configId: string;
   configHash: string;
   envelopeHash: string;
-  requestId?: string;
+  launchEnvelopeDigest?: never;
+  requestId?: never;
 }>;
+
+type SwooperRunArtifactMarkerMetadata = Readonly<{
+  configId: string;
+  configHash: string;
+  envelopeHash?: never;
+  launchEnvelopeDigest: string;
+  requestId: string;
+}>;
+
+export type SwooperMapArtifactMarkerMetadata =
+  | SwooperCatalogArtifactMarkerMetadata
+  | SwooperRunArtifactMarkerMetadata;
 
 export type SwooperMapArtifactFileContent =
   | Readonly<{ kind: "text"; text: string }>
@@ -70,15 +77,16 @@ export type SwooperMapArtifactExclusiveSet = Readonly<{
   artifactKind: "generated-map-entry";
 }>;
 
-const DEFAULT_GENERATED_MAP_LATITUDE_BOUNDS = {
-  topLatitude: 80,
-  bottomLatitude: -80,
-} as const;
-
-type GeneratedMapLatitudeBounds = Readonly<{
-  topLatitude: number;
-  bottomLatitude: number;
-}>;
+export type SwooperMapArtifactConfigProjection =
+  | Readonly<{
+      sourceKind: "catalog";
+      sourcePath: string;
+      canonicalConfig: StandardMapConfigEnvelope;
+    }>
+  | Readonly<{
+      sourceKind: "generated-run";
+      canonicalConfig: StandardMapConfigEnvelope;
+    }>;
 
 /**
  * Pure artifact intent for Swooper map generation. The renderer owns relative
@@ -86,6 +94,9 @@ type GeneratedMapLatitudeBounds = Readonly<{
  * cleanup, directory creation, and filesystem writes.
  */
 export type SwooperMapArtifactFilePlan = Readonly<{
+  metadata: Readonly<{
+    configProjections: readonly SwooperMapArtifactConfigProjection[];
+  }>;
   exclusiveSets: readonly SwooperMapArtifactExclusiveSet[];
   files: readonly SwooperMapArtifactPlannedFile[];
 }>;
@@ -94,43 +105,12 @@ function stableJson(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
-function canonicalize(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonicalize);
-  if (value && typeof value === "object") {
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
-      out[key] = canonicalize((value as Record<string, unknown>)[key]);
-    }
-    return out;
-  }
-  return value;
+function configHashFor(config: StandardMapConfigEnvelope): string {
+  return canonicalMapConfigContentDigest(config);
 }
 
-function stableHash(value: unknown): string {
-  return createHash("sha256")
-    .update(JSON.stringify(canonicalize(value)))
-    .digest("hex");
-}
-
-function configHashFor(config: ValidatedMapConfig): string {
-  return stableHash(config.config);
-}
-
-function mapLatitudeBoundsFor(config: ValidatedMapConfig): GeneratedMapLatitudeBounds {
-  return config.latitudeBounds ?? DEFAULT_GENERATED_MAP_LATITUDE_BOUNDS;
-}
-
-function latitudeBoundsProperty(config: ValidatedMapConfig): string {
-  return `\n  latitudeBounds: ${JSON.stringify(mapLatitudeBoundsFor(config), null, 2).replace(/\n/g, "\n  ")},`;
-}
-
-function envelopeHashFor(config: ValidatedMapConfig, configHash: string): string {
-  return stableHash({
-    id: config.id,
-    recipe: config.recipe,
-    latitudeBounds: mapLatitudeBoundsFor(config),
-    configHash,
-  });
+function envelopeHashFor(config: StandardMapConfigEnvelope): string {
+  return canonicalMapConfigDigest(config);
 }
 
 function xmlEscape(value: string): string {
@@ -143,28 +123,19 @@ function xmlEscape(value: string): string {
 }
 
 function renderMapEntryArtifact(
-  config: ValidatedMapConfig,
-  studioRunEvidenceEnv: StudioRunEvidenceEnv
+  config: ValidatedMapConfig
 ): Pick<
   Extract<SwooperMapArtifactPlannedFile, { kind: "generated-map-entry" }>,
   "content" | "markerMetadata"
 > {
-  const configHash = configHashFor(config);
-  const isSelectedRunConfig =
-    studioRunEvidenceEnv.kind === "run" && studioRunEvidenceEnv.launchConfigId === config.id;
-  const envelopeHash = isSelectedRunConfig
-    ? studioRunEvidenceEnv.launchEnvelopeDigest
-    : envelopeHashFor(config, configHash);
-  const requestId = isSelectedRunConfig ? studioRunEvidenceEnv.requestId : undefined;
-  const latitudeBounds = latitudeBoundsProperty(config);
-  const logPrefix = config.logPrefix ? `\n  logPrefix: ${JSON.stringify(config.logPrefix)},` : "";
-  const requestIdLine = requestId ? `\n  requestId: ${JSON.stringify(requestId)},` : "";
+  const canonicalConfig = config.canonicalConfig;
+  const configHash = configHashFor(canonicalConfig);
+  const envelopeHash = envelopeHashFor(canonicalConfig);
   return {
     markerMetadata: {
-      configId: config.id,
+      configId: canonicalConfig.id,
       configHash,
       envelopeHash,
-      ...(requestId ? { requestId } : {}),
     },
     content: {
       kind: "text",
@@ -176,44 +147,20 @@ function renderMapEntryArtifact(
 /// <reference types="@civ7/types" />
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
-import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
+import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
-type GeneratedMapConfig = Readonly<{
-  id: string;
-  name: string;
-  description?: string;
-  recipe: "standard";
-  sortIndex: number;
-  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
-  logPrefix?: string;
-  config: unknown;
-}>;
-
-const mapConfig = ${JSON.stringify(
-        {
-          id: config.id,
-          name: config.name,
-          description: config.description,
-          recipe: config.recipe,
-          sortIndex: config.sortIndex,
-          latitudeBounds: mapLatitudeBoundsFor(config),
-          ...(config.logPrefix === undefined ? {} : { logPrefix: config.logPrefix }),
-          config: config.config,
-        },
-        null,
-        2
-      )} as const satisfies GeneratedMapConfig;
+// The file plan only receives an admitted immutable envelope; this assertion
+// projects its serialized data without adding a second runtime admission path.
+const mapConfig = ${JSON.stringify(canonicalConfig, null, 2)} as unknown as StandardMapConfigEnvelope;
 
 export default createMap({
-  id: mapConfig.id,
-  name: mapConfig.name,
-  description: mapConfig.description,
-  recipe: standardRecipe,${latitudeBounds}${logPrefix}
-  sourceConfigId: ${JSON.stringify(config.id)},
+  ...mapConfig,
+  recipe: standardRecipe,
+  sourceConfigId: ${JSON.stringify(canonicalConfig.id)},
   configHash: ${JSON.stringify(configHash)},
-  envelopeHash: ${JSON.stringify(envelopeHash)},${requestIdLine}
-  config: mapConfig.config as unknown as StandardRecipeConfig,
+  envelopeHash: ${JSON.stringify(envelopeHash)},
+  config: mapConfig.config,
 });
 `,
     },
@@ -228,13 +175,11 @@ function renderRunMapEntryArtifact(
 > {
   const config = input.config;
   const configHash = configHashFor(config);
-  const latitudeBounds = latitudeBoundsProperty(config);
-  const logPrefix = config.logPrefix ? `\n  logPrefix: ${JSON.stringify(config.logPrefix)},` : "";
   return {
     markerMetadata: {
-      configId: input.selectedConfigId,
+      configId: config.id,
       configHash,
-      envelopeHash: input.correlation.launchEnvelopeDigest,
+      launchEnvelopeDigest: input.correlation.launchEnvelopeDigest,
       requestId: input.correlation.requestId,
     },
     content: {
@@ -247,45 +192,20 @@ function renderRunMapEntryArtifact(
 /// <reference types="@civ7/types" />
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
-import type { StandardRecipeConfig } from "mod-swooper-maps/recipes/standard";
+import type { StandardMapConfigEnvelope } from "mod-swooper-maps/maps/configs/canonical";
 import standardRecipe from "mod-swooper-maps/recipes/standard";
 
-type GeneratedMapConfig = Readonly<{
-  id: string;
-  name: string;
-  description?: string;
-  recipe: "standard";
-  sortIndex: number;
-  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
-  logPrefix?: string;
-  config: unknown;
-}>;
-
 const runCorrelation = ${JSON.stringify(input.correlation, null, 2)} as const;
-const mapConfig = ${JSON.stringify(
-        {
-          id: config.id,
-          name: config.name,
-          description: config.description,
-          recipe: config.recipe,
-          sortIndex: config.sortIndex,
-          latitudeBounds: mapLatitudeBoundsFor(config),
-          ...(config.logPrefix === undefined ? {} : { logPrefix: config.logPrefix }),
-          config: config.config,
-        },
-        null,
-        2
-      )} as const satisfies GeneratedMapConfig;
+// The manifest generator admitted this envelope before building the file plan.
+const mapConfig = ${JSON.stringify(config, null, 2)} as unknown as StandardMapConfigEnvelope;
 
 export default createMap({
-  id: mapConfig.id,
-  name: mapConfig.name,
-  description: mapConfig.description,
-  recipe: standardRecipe,${latitudeBounds}${logPrefix}
-  sourceConfigId: ${JSON.stringify(input.selectedConfigId)},
+  ...mapConfig,
+  recipe: standardRecipe,
+  sourceConfigId: mapConfig.id,
   runCorrelation,
   seed: ${JSON.stringify(input.seed)},
-  config: mapConfig.config as unknown as StandardRecipeConfig,
+  config: mapConfig.config,
 });
 `,
     },
@@ -293,16 +213,16 @@ export default createMap({
 }
 
 function renderConfigXml(
-  configs: readonly ValidatedMapConfig[],
+  configs: readonly StandardMapConfigEnvelope[],
   options: Readonly<{ moduleId?: string; outputFile?: string; mapRowId?: string }> = {}
 ): string {
   const moduleId = options.moduleId ?? "swooper-maps";
   const rows = configs
     .map(
       (config) => `\t\t<Row
-\t\t\tFile="{${moduleId}}/${options.outputFile ?? `maps/${config.outputFile}`}"
-\t\t\tName="${options.mapRowId ? mapLocalizationTag(options.mapRowId, "name") : config.localizationNameTag}"
-\t\t\tDescription="${options.mapRowId ? mapLocalizationTag(options.mapRowId, "description") : config.localizationDescriptionTag}"
+\t\t\tFile="{${moduleId}}/${options.outputFile ?? `maps/${config.id}.js`}"
+\t\t\tName="${mapLocalizationTag(options.mapRowId ?? config.id, "name")}"
+\t\t\tDescription="${mapLocalizationTag(options.mapRowId ?? config.id, "description")}"
 \t\t\tSortIndex="${config.sortIndex}"
 \t\t/>`
     )
@@ -326,19 +246,14 @@ type SwooperModRenderMode =
     }>;
 
 function renderMapText(
-  configs: readonly ValidatedMapConfig[],
+  configs: readonly StandardMapConfigEnvelope[],
   mode: SwooperModRenderMode = { kind: "catalog" }
 ): string {
   const rows = configs
     .flatMap((config) => {
-      const nameTag =
-        mode.kind === "studio-run"
-          ? mapLocalizationTag(mode.mapRowId, "name")
-          : config.localizationNameTag;
-      const descriptionTag =
-        mode.kind === "studio-run"
-          ? mapLocalizationTag(mode.mapRowId, "description")
-          : config.localizationDescriptionTag;
+      const mapId = mode.kind === "studio-run" ? mode.mapRowId : config.id;
+      const nameTag = mapLocalizationTag(mapId, "name");
+      const descriptionTag = mapLocalizationTag(mapId, "description");
       return [
         `\t\t<Row Tag="${nameTag}">
 \t\t\t<Text>${xmlEscape(config.name)}</Text>
@@ -414,7 +329,7 @@ function renderBiomeHazardData(): string {
 }
 
 function renderModInfo(
-  configs: readonly ValidatedMapConfig[],
+  configs: readonly StandardMapConfigEnvelope[],
   mode: SwooperModRenderMode = { kind: "catalog" }
 ): string {
   const moduleId = mode.moduleId ?? "swooper-maps";
@@ -444,7 +359,7 @@ function renderModInfo(
 `;
   const importPath = mode.kind === "studio-run" ? STUDIO_RUN_MAP_SCRIPT_PATH : undefined;
   const imports = configs
-    .map((config) => `\t\t\t\t\t<Item>${importPath ?? `maps/${config.outputFile}`}</Item>`)
+    .map((config) => `\t\t\t\t\t<Item>${importPath ?? `maps/${config.id}.js`}</Item>`)
     .join("\n");
   return `<?xml version="1.0" encoding="utf-8"?>
 <Mod id="${xmlEscape(moduleId)}" version="1" xmlns="ModInfo">
@@ -490,17 +405,8 @@ ${localizedModuleText}</Mod>
 
 function renderMapConfigsArtifact(configs: readonly ValidatedMapConfig[]): string {
   const values = configs.map((config) => ({
-    id: config.id,
-    label: config.name,
-    name: config.name,
-    description: config.description,
-    recipe: config.recipe,
-    sortIndex: config.sortIndex,
-    latitudeBounds: mapLatitudeBoundsFor(config),
-    configHash: configHashFor(config),
-    envelopeHash: envelopeHashFor(config, configHashFor(config)),
     sourcePath: `mods/mod-swooper-maps/src/maps/configs/${config.fileName}`,
-    config: config.config,
+    canonicalConfig: config.canonicalConfig,
   }));
   return `// This file is generated by scripts/generate-studio-map-catalog.ts
 // Do not edit by hand; re-run \`nx run mod-swooper-maps:gen:studio-map-catalog\`.
@@ -513,21 +419,11 @@ function renderMapConfigsDts(): string {
   return `// This file is generated by scripts/generate-studio-map-catalog.ts
 // Do not edit by hand; re-run \`nx run mod-swooper-maps:gen:studio-map-catalog\`.
 
+import type { MapConfigEnvelope } from "@civ7/studio-contract";
+
 export type StudioMapConfig = Readonly<{
-  id: string;
-  label: string;
-  name: string;
-  description: string;
-  recipe: "standard";
-  sortIndex: number;
-  configHash: string;
-  envelopeHash: string;
-  latitudeBounds?: Readonly<{
-    topLatitude: number;
-    bottomLatitude: number;
-  }>;
   sourcePath: string;
-  config: unknown;
+  canonicalConfig: MapConfigEnvelope;
 }>;
 
 export const standardMapConfigs: ReadonlyArray<StudioMapConfig>;
@@ -542,21 +438,25 @@ export const standardMapConfigs: ReadonlyArray<StudioMapConfig>;
 export function buildSwooperCatalogModFilePlan(
   options: Readonly<{
     configs: readonly ValidatedMapConfig[];
-    envelopeSchema: unknown;
-    evidenceEnv?: StudioRunEvidenceEnv;
   }>
 ): SwooperMapArtifactFilePlan {
-  const evidenceEnv = options.evidenceEnv ?? { kind: "none" };
   const generatedMapFiles = options.configs.map((config) => {
-    const entry = renderMapEntryArtifact(config, evidenceEnv);
+    const entry = renderMapEntryArtifact(config);
     return {
-      relativePath: `src/maps/generated/${config.id}.ts`,
+      relativePath: `src/maps/generated/${config.canonicalConfig.id}.ts`,
       kind: "generated-map-entry",
       content: entry.content,
       markerMetadata: entry.markerMetadata,
     } as const satisfies SwooperMapArtifactPlannedFile;
   });
   return {
+    metadata: {
+      configProjections: options.configs.map((config) => ({
+        sourceKind: "catalog",
+        sourcePath: `mods/mod-swooper-maps/src/maps/configs/${config.fileName}`,
+        canonicalConfig: config.canonicalConfig,
+      })),
+    },
     exclusiveSets: [
       {
         id: "generated-map-entrypoints",
@@ -570,12 +470,18 @@ export function buildSwooperCatalogModFilePlan(
       {
         relativePath: "mod/config/config.xml",
         kind: "mod-config",
-        content: { kind: "text", text: renderConfigXml(options.configs) },
+        content: {
+          kind: "text",
+          text: renderConfigXml(options.configs.map((config) => config.canonicalConfig)),
+        },
       },
       {
         relativePath: "mod/swooper-maps.modinfo",
         kind: "mod-info",
-        content: { kind: "text", text: renderModInfo(options.configs) },
+        content: {
+          kind: "text",
+          text: renderModInfo(options.configs.map((config) => config.canonicalConfig)),
+        },
       },
       {
         relativePath: "mod/data/biome-hazards.xml",
@@ -585,7 +491,10 @@ export function buildSwooperCatalogModFilePlan(
       {
         relativePath: "mod/text/en_us/MapText.xml",
         kind: "mod-text",
-        content: { kind: "text", text: renderMapText(options.configs) },
+        content: {
+          kind: "text",
+          text: renderMapText(options.configs.map((config) => config.canonicalConfig)),
+        },
       },
     ],
   };
@@ -604,6 +513,13 @@ export function buildSwooperCatalogMetadataFilePlan(
   }>
 ): SwooperMapArtifactFilePlan {
   return {
+    metadata: {
+      configProjections: options.configs.map((config) => ({
+        sourceKind: "catalog",
+        sourcePath: `mods/mod-swooper-maps/src/maps/configs/${config.fileName}`,
+        canonicalConfig: config.canonicalConfig,
+      })),
+    },
     exclusiveSets: [],
     files: [
       {
@@ -614,7 +530,10 @@ export function buildSwooperCatalogMetadataFilePlan(
       {
         relativePath: "dist/recipes/standard-map-configs.js",
         kind: "studio-catalog-module",
-        content: { kind: "text", text: renderMapConfigsArtifact(options.configs) },
+        content: {
+          kind: "text",
+          text: renderMapConfigsArtifact(options.configs),
+        },
       },
       {
         relativePath: "dist/recipes/standard-map-configs.d.ts",
@@ -634,12 +553,12 @@ export function buildSwooperMapArtifactFilePlan(
   options: Readonly<{
     configs: readonly ValidatedMapConfig[];
     envelopeSchema: unknown;
-    evidenceEnv?: StudioRunEvidenceEnv;
   }>
 ): SwooperMapArtifactFilePlan {
-  const modPlan = buildSwooperCatalogModFilePlan(options);
+  const modPlan = buildSwooperCatalogModFilePlan({ configs: options.configs });
   const metadataPlan = buildSwooperCatalogMetadataFilePlan(options);
   return {
+    metadata: metadataPlan.metadata,
     exclusiveSets: modPlan.exclusiveSets,
     files: [...modPlan.files, ...metadataPlan.files],
   };
@@ -655,8 +574,11 @@ export function buildSwooperRunGeneratedModFilePlan(
   input: SwooperRunGeneratedModPlanInput
 ): SwooperMapArtifactFilePlan {
   const configHash = configHashFor(input.config);
-  if (configHash !== input.correlation.launchSourceDigest.configContentDigest) {
-    throw new Error("Studio run config digest does not match the launch config.");
+  if (
+    canonicalMapConfigDigest(input.config) !==
+    input.correlation.launchSourceDigest.canonicalConfigDigest
+  ) {
+    throw new Error("Studio run canonical config digest does not match the launch config.");
   }
   const entry = renderRunMapEntryArtifact(input);
   const config = input.config;
@@ -667,6 +589,9 @@ export function buildSwooperRunGeneratedModFilePlan(
     moduleId: STUDIO_RUN_MOD_ID,
   } satisfies SwooperModRenderMode;
   return {
+    metadata: {
+      configProjections: [{ sourceKind: "generated-run", canonicalConfig: config }],
+    },
     exclusiveSets: [
       {
         id: "generated-map-entrypoints",

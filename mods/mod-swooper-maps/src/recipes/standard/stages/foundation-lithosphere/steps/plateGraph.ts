@@ -2,7 +2,7 @@ import {
   artifacts as foundationArtifacts,
   validators as foundationArtifactValidators,
 } from "@mapgen/domain/foundation";
-import { clampInt, ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { interleaveXY, pointsFromPlateSeeds } from "../../foundation/viz.js";
 import PlateGraphStepContract from "./plateGraph.contract.js";
@@ -15,24 +15,6 @@ export default createStep(PlateGraphStepContract, {
       validate: (value) => foundationArtifactValidators.plateGraph(value),
     },
   }),
-  normalize: (config, ctx) => {
-    const { plateCount } = ctx.knobs as Readonly<{ plateCount?: number }>;
-    const override =
-      typeof plateCount === "number" && Number.isFinite(plateCount) ? plateCount : undefined;
-
-    const computePlateGraph =
-      config.computePlateGraph.strategy === "default" && override !== undefined
-        ? {
-            ...config.computePlateGraph,
-            config: {
-              ...config.computePlateGraph.config,
-              plateCount: clampInt(override, 2, 256),
-            },
-          }
-        : config.computePlateGraph;
-
-    return { ...config, computePlateGraph };
-  },
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const crust = deps.artifacts.foundationCrustInit.read(context);

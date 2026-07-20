@@ -86,10 +86,10 @@ describe("ecology-features plan-wetlands step", () => {
     });
 
     const config = {
-      planWetlands: normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {
-        strategy: "default",
-        config: {},
-      }),
+      planWetlands: normalizeOpSelectionOrThrow(
+        ecology.ops.planWetlands,
+        ecology.ops.planWetlands.defaultConfig
+      ),
     };
     const ops = ecology.ops.bind(planWetlandsStep.contract.ops!).runtime;
     planWetlandsStep.run(ctx, config, ops, buildTestDeps(planWetlandsStep));

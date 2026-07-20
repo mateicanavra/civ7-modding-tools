@@ -144,7 +144,7 @@ export type _RuntimeOpConfigHasStrategyAssertion = Expect<
 
 const MultiOpStep = createStep(MultiOpStepContract, { run: () => {} });
 
-const KnobsSchema = Type.Object({}, { additionalProperties: false, default: {} });
+const KnobsSchema = Type.Object({}, { additionalProperties: false });
 
 const TypeTestStage = createStage({
   id: "type-test",
@@ -187,6 +187,7 @@ export type _AuthoredStrategyIsNarrow = Expect<
 
 const _okConfig: _ConfigInput = {
   "type-test": {
+    knobs: {},
     "multi-op-step": {
       multi: {
         strategy: "fast",
@@ -200,10 +201,12 @@ const _okConfig: _ConfigInput = {
 
 const _badStrategyConfig: _ConfigInput = {
   "type-test": {
+    knobs: {},
     "multi-op-step": {
       multi: {
         // @ts-expect-error - invalid strategy string should fail.
         strategy: "nope",
+        config: { turbo: true },
       },
     },
   },
@@ -211,6 +214,7 @@ const _badStrategyConfig: _ConfigInput = {
 
 const _badConfigValueType: _ConfigInput = {
   "type-test": {
+    knobs: {},
     "multi-op-step": {
       multi: {
         strategy: "fast",

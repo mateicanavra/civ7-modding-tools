@@ -26,28 +26,23 @@ Routes to:
 - Authors who want to tune outcomes without extending SDK internals.
 - Developers who need to keep knobs stable while changing implementations.
 
-## Mental model (knobs vs step config)
+## Mental model (complete config and recipe translation)
 
-Each stage has a surface schema shaped like:
+The selected map config is one complete JSON value. A stage may expose small
+semantic knobs or direct author-facing values, but every declared property is
+present. Recipe-owned stage translation turns that complete public value into
+internal step inputs before execution.
 
-- `knobs`: small semantic enums (author-friendly)
-- top-level step IDs: deep per-step config overrides (expert-only)
-
-Contract (stage-level posture):
-
-- Step config is the baseline (schema-defaulted + authored overrides).
-- `knobs` apply **last**, as deterministic transforms over that baseline.
-  Foundation additionally exposes `profiles` in its public schema; profiles select the baseline defaults that `knobs` then refine.
+Studio never merges a sparse realism profile, reconstructs omitted values, or
+defaults a config during admission.
 
 ## Checklist
 
-### 1) Start from an existing realism preset (recommended)
+### 1) Start from an existing complete config
 
-Pick a preset config file and use it as your starting point:
-
-- `mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts`
-- `mods/mod-swooper-maps/src/maps/presets/realism/young-tectonics.config.ts`
-- `mods/mod-swooper-maps/src/maps/presets/realism/old-erosion.config.ts`
+Select one canonical config under
+`mods/mod-swooper-maps/src/maps/configs/` and use its complete JSON value as
+the baseline.
 
 ### 2) Edit stage knob values (not step config)
 
@@ -73,7 +68,7 @@ Use Studio as the canonical “author feedback loop”:
 Then:
 
 - select `mod-swooper-maps/standard`,
-- apply your knob changes through the config UI (or by routing your preset into Studio in a future feature slice),
+- apply your changes through the complete config editor,
 - run with a fixed seed,
 - compare before/after via trace/viz.
 
@@ -85,8 +80,7 @@ Then:
 
 ## Ground truth anchors
 
-- Preset configs (author surface): `mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts`
-- Foundation stage surface schema (knobs plus step-id overrides, “knobs apply last” statement): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/index.ts`
-- Morphology erosion knob application (normalize-time multiplier): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.ts`
-- Morphology erosion knob multipliers: `mods/mod-swooper-maps/src/domain/morphology/model/policy/erosion-knob-policy.ts`
-- Studio knob option enums (UI): `apps/mapgen-studio/src/ui/constants/options.ts`
+- Complete map configs: `mods/mod-swooper-maps/src/maps/configs/`
+- Standard recipe schema and default artifact: `mods/mod-swooper-maps/src/recipes/standard/artifacts.ts`
+- Standard recipe stage translation: `mods/mod-swooper-maps/src/recipes/standard/stages/`
+- Studio complete config editor: `packages/mapgen-studio-ui/src/components/panels/RecipePanel.tsx`

@@ -19,12 +19,11 @@ describe("plot effects (jungle / jungle fever hazard)", () => {
     const planSelection = normalizeOpSelectionOrThrow(
       ecology.ops.planPlotEffects,
       {
-        strategy: "default",
+        ...ecology.ops.planPlotEffects.defaultConfig,
         config: {
-          snow: { enabled: false },
-          sand: { enabled: false },
-          burned: { enabled: false },
+          ...ecology.ops.planPlotEffects.defaultConfig.config,
           jungle: {
+            ...ecology.ops.planPlotEffects.defaultConfig.config.jungle,
             enabled: true,
             coveragePct: 100,
           },

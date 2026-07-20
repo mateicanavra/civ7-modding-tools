@@ -14,7 +14,8 @@ It is **not** canonical documentation.
 ## Canonical replacements
 
 - [`docs/system/libs/mapgen/how-to/tune-realism-knobs.md`](/system/libs/mapgen/how-to/tune-realism-knobs.md)
-- [`docs/system/libs/mapgen/tutorials/tune-a-preset-and-knobs.md`](/system/libs/mapgen/tutorials/tune-a-preset-and-knobs.md)
+- Tune a complete recipe config:
+  [`docs/system/libs/mapgen/tutorials/tune-a-preset-and-knobs.md`](/system/libs/mapgen/tutorials/tune-a-preset-and-knobs.md)
 
 ## Legacy archive
 

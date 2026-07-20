@@ -4,6 +4,13 @@ import { clamp01, clampInt, clampU8, wrapDeltaPeriodic } from "@swooper/mapgen-c
 import ComputePlateMotionContract from "./contract.js";
 
 const EPS = 1e-9;
+const PLATE_RADIUS_CLAMP_MIN = 1e-6;
+const RESIDUAL_NORM_SCALE_CLAMP_MIN = 0.01;
+const P90_NORM_SCALE_CLAMP_MIN = 0.01;
+const HISTOGRAM_BINS_CLAMP_MIN = 8;
+const HISTOGRAM_BINS_CLAMP_MAX = 128;
+const SMOOTHING_STEPS_CLAMP_MAX = 1;
+const P90_QUANTILE = 0.9;
 
 const computePlateMotion = createOp(ComputePlateMotionContract, {
   strategies: {
@@ -24,12 +31,20 @@ const computePlateMotion = createOp(ComputePlateMotionContract, {
         const plateCount = plateGraph.plates.length | 0;
         const wrapWidth = mesh.wrapWidth;
 
-        const omegaFactor = Math.max(0, config.omegaFactor ?? 1);
-        const plateRadiusMin = Math.max(1e-6, config.plateRadiusMin ?? 1);
-        const residualNormScale = Math.max(0.01, config.residualNormScale ?? 1);
-        const p90NormScale = Math.max(0.01, config.p90NormScale ?? 1);
-        const histogramBins = clampInt(Math.round(config.histogramBins ?? 32), 8, 128);
-        const smoothingSteps = clampInt(Math.round(config.smoothingSteps ?? 0), 0, 1);
+        const omegaFactor = Math.max(0, config.omegaFactor);
+        const plateRadiusMin = Math.max(PLATE_RADIUS_CLAMP_MIN, config.plateRadiusMin);
+        const residualNormScale = Math.max(RESIDUAL_NORM_SCALE_CLAMP_MIN, config.residualNormScale);
+        const p90NormScale = Math.max(P90_NORM_SCALE_CLAMP_MIN, config.p90NormScale);
+        const histogramBins = clampInt(
+          Math.round(config.histogramBins),
+          HISTOGRAM_BINS_CLAMP_MIN,
+          HISTOGRAM_BINS_CLAMP_MAX
+        );
+        const smoothingSteps = clampInt(
+          Math.round(config.smoothingSteps),
+          0,
+          SMOOTHING_STEPS_CLAMP_MAX
+        );
 
         let forcingU = mantleForcing.forcingU;
         let forcingV = mantleForcing.forcingV;
@@ -274,7 +289,7 @@ const computePlateMotion = createOp(ComputePlateMotionContract, {
           }
           plateFitRms[p] = Math.sqrt((sumErrSq[p] ?? 0) / weight);
 
-          const target = weight * 0.9;
+          const target = weight * P90_QUANTILE;
           let cumulative = 0;
           let bin = histogramBins - 1;
           for (let b = 0; b < histogramBins; b++) {

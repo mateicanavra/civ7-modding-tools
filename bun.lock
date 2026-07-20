@@ -115,6 +115,7 @@
       "dependencies": {
         "@civ7/adapter": "workspace:*",
         "@civ7/map-policy": "workspace:*",
+        "@civ7/studio-contract": "workspace:*",
         "@civ7/studio-run-workspace": "workspace:*",
         "@mateicanavra/civ7-sdk": "workspace:*",
         "@swooper/mapgen-core": "workspace:*",
@@ -125,6 +126,8 @@
         "@civ7/direct-control": "workspace:*",
         "@civ7/plugin-mods": "workspace:*",
         "@civ7/types": "workspace:*",
+        "@orpc/client": "1.14.6",
+        "@orpc/contract": "1.14.6",
         "esbuild": "^0.27.2",
         "json-schema-to-typescript": "^15.0.4",
         "type-fest": "^5.7.0",

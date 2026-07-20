@@ -1,6 +1,3 @@
-// The phase-label formatter moved to the package with the B5 statusLabels
-// split; its pin stays in this suite and exercises the package's public
-// surface.
 import { formatMapConfigSaveDeployPhaseLabel } from "@swooper/mapgen-studio-ui";
 import { describe, expect, it } from "vitest";
 
@@ -12,7 +9,7 @@ import {
   updateMapConfigSaveDeployStatus,
 } from "../../src/features/mapConfigSave/status";
 
-describe("Map config save/deploy status helpers", () => {
+describe("Map config save/deploy safe status projection", () => {
   it("classifies save/deploy phases without implying Civ lifecycle work", () => {
     expect(kindForMapConfigSaveDeployPhase("saving")).toBe("running");
     expect(kindForMapConfigSaveDeployPhase("queued")).toBe("running");
@@ -22,87 +19,113 @@ describe("Map config save/deploy status helpers", () => {
     expect(formatMapConfigSaveDeployPhaseLabel("failed")).toBe("Save Failed");
   });
 
-  it("preserves request identity while advancing operation status", () => {
+  it("preserves only public operation fields while advancing status", () => {
     const status = createMapConfigSaveDeployStatus({
       requestId: "studio-save-deploy-test",
       phase: "saving",
-      now: () => new Date("2026-06-01T00:00:00.000Z"),
+      recoveryActions: ["retry-status"],
     });
     const next = updateMapConfigSaveDeployStatus(status, {
       phase: "complete",
-      path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
-      saved: true,
-      deployed: true,
-      now: () => new Date("2026-06-01T00:00:01.000Z"),
+      recoveryActions: ["copy-diagnostics"],
     });
 
-    expect(next.requestId).toBe("studio-save-deploy-test");
-    expect(next.status).toBe("complete");
-    expect(next.path).toContain("studio-current.config.json");
-    expect(next.startedAt).toBe("2026-06-01T00:00:00.000Z");
-    expect(next.updatedAt).toBe("2026-06-01T00:00:01.000Z");
+    expect(next).toEqual({
+      ok: true,
+      requestId: "studio-save-deploy-test",
+      phase: "complete",
+      status: "complete",
+      saved: true,
+      deployed: true,
+      recoveryActions: ["copy-diagnostics"],
+    });
+    expect(next).not.toHaveProperty("path");
+    expect(next).not.toHaveProperty("startedAt");
+    expect(next).not.toHaveProperty("updatedAt");
+    expect(next).not.toHaveProperty("deploy");
+    expect(next).not.toHaveProperty("details");
+    expect(next).not.toHaveProperty("error");
+  });
+
+  it("requires a safe category and fixed recovery data for failed state", () => {
+    const status = createMapConfigSaveDeployStatus({
+      requestId: "failed-save",
+      phase: "failed",
+      saved: true,
+      deployed: false,
+      safeFailureCategory: "deployment",
+      recoveryActions: ["retry-save-deploy", "copy-diagnostics"],
+    });
+
+    expect(status).toEqual({
+      ok: false,
+      requestId: "failed-save",
+      phase: "failed",
+      status: "failed",
+      saved: true,
+      deployed: false,
+      safeFailureCategory: "deployment",
+      recoveryActions: ["retry-save-deploy", "copy-diagnostics"],
+    });
   });
 });
 
-// H0 (Phase-8 slice): pure helpers moved out of StudioShell into this module.
 describe("isSaveDeployTerminal", () => {
-  it("treats only `running` as non-terminal", () => {
+  it("treats only running status as non-terminal", () => {
     const running = createMapConfigSaveDeployStatus({ requestId: "r", phase: "saving" });
+    const complete = createMapConfigSaveDeployStatus({ requestId: "r", phase: "complete" });
+    const failed = createMapConfigSaveDeployStatus({
+      requestId: "r",
+      phase: "failed",
+      safeFailureCategory: "save",
+    });
+
     expect(isSaveDeployTerminal(running)).toBe(false);
-    expect(isSaveDeployTerminal({ ...running, status: "complete" })).toBe(true);
-    expect(isSaveDeployTerminal({ ...running, status: "failed" })).toBe(true);
-    expect(isSaveDeployTerminal({ ...running, status: "idle" })).toBe(true);
+    expect(isSaveDeployTerminal(complete)).toBe(true);
+    expect(isSaveDeployTerminal(failed)).toBe(true);
   });
 });
 
 describe("saveDeployResultFromTerminalStatus", () => {
-  it("maps a successful terminal status to ok:true with path + deploy flags", () => {
-    const status = createMapConfigSaveDeployStatus({
-      requestId: "r",
-      phase: "complete",
-      path: "configs/a.config.json",
-      saved: true,
-      deployed: true,
-    });
-    expect(saveDeployResultFromTerminalStatus(status)).toMatchObject({
+  it("projects success without recreating a host path or deploy details", () => {
+    const result = saveDeployResultFromTerminalStatus(
+      createMapConfigSaveDeployStatus({ requestId: "r", phase: "complete" })
+    );
+
+    expect(result).toEqual({
       ok: true,
-      path: "configs/a.config.json",
-      saved: true,
-      deployed: true,
-    });
-  });
-
-  it("uses fallbackPath when the status carries no path", () => {
-    const status = createMapConfigSaveDeployStatus({
       requestId: "r",
       phase: "complete",
+      status: "complete",
       saved: true,
+      deployed: true,
+      recoveryActions: [],
     });
-    const result = saveDeployResultFromTerminalStatus(status, "configs/fallback.config.json");
-    expect(result.ok).toBe(true);
-    expect(result.path).toBe("configs/fallback.config.json");
+    expect(result).not.toHaveProperty("path");
+    expect(result).not.toHaveProperty("deploy");
   });
 
-  it("maps a failed status to ok:false, preserving the error + saved/deployed flags", () => {
-    const status = createMapConfigSaveDeployStatus({
+  it("projects failure using only the safe category and recovery actions", () => {
+    const result = saveDeployResultFromTerminalStatus(
+      createMapConfigSaveDeployStatus({
+        requestId: "r",
+        phase: "failed",
+        saved: true,
+        deployed: false,
+        safeFailureCategory: "deployment",
+        recoveryActions: ["retry-save-deploy"],
+      })
+    );
+
+    expect(result).toEqual({
+      ok: false,
       requestId: "r",
       phase: "failed",
-      error: "deploy blew up",
+      status: "failed",
       saved: true,
       deployed: false,
+      safeFailureCategory: "deployment",
+      recoveryActions: ["retry-save-deploy"],
     });
-    expect(saveDeployResultFromTerminalStatus(status)).toMatchObject({
-      ok: false,
-      error: "deploy blew up",
-      saved: true,
-      deployed: false,
-    });
-  });
-
-  it("falls back to a default error message when ok is false but no error is set", () => {
-    const status = createMapConfigSaveDeployStatus({ requestId: "r", phase: "failed" });
-    const result = saveDeployResultFromTerminalStatus({ ...status, error: undefined });
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error).toBe("Save/deploy failed");
   });
 });

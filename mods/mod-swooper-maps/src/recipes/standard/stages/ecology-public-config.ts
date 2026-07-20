@@ -1,284 +1,108 @@
 import ecology from "@mapgen/domain/ecology";
-import { type TSchema, Type } from "typebox";
-
-type MutableSchemaNode = TSchema & {
-  description?: string;
-  properties?: Record<string, unknown>;
-  items?: unknown;
-  anyOf?: unknown[];
-  oneOf?: unknown[];
-  allOf?: unknown[];
-  minimum?: number;
-  maximum?: number;
-  type?: string;
-};
-
-type PublicObject = Record<string, unknown>;
-
-const AUTHOR_DESCRIPTION_RE =
-  /(impact|controls|sets|determines|affects|used|author|map|gameplay|density|coverage|shape|terrain|biome|river|lake|coast|plate|climate|feature|placement|derived|projection|coordinate)/i;
-
-const FORBIDDEN_AUTHOR_TERMS_RE = /\b(step|op|envelope|internal|strategy)\b/i;
+import { type TObject, type TSchema, Type } from "typebox";
+import { Value } from "typebox/value";
 
 const ecologyOps = ecology.ops;
 
-function sentenceCase(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return trimmed;
-  return `${trimmed[0]!.toLowerCase()}${trimmed.slice(1)}`;
+function requiredPublicSchema<T extends TSchema>(schema: T, description: string) {
+  return Type.With(schema, { description });
 }
 
-function labelFromKey(key: string): string {
-  return key
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .replace(/[-_]+/g, " ")
-    .toLowerCase();
-}
-
-function cleanDescription(value: string): string {
-  return value
-    .replace(/\binternally\b/gi, "during deterministic computation")
-    .replace(/\binternal\b/gi, "pipeline")
-    .replace(/\bstrategy\b/gi, "mode")
-    .replace(/\bstrategies\b/gi, "modes")
-    .replace(/\bops\b/gi, "calculations")
-    .replace(/\bop\b/gi, "calculation")
-    .replace(/\bsteps\b/gi, "passes")
-    .replace(/\bstep\b/gi, "pass")
-    .replace(/\benvelopes\b/gi, "groups")
-    .replace(/\benvelope\b/gi, "group")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function authorDescription(existing: unknown, label: string): string {
-  const publicLabel = cleanDescription(label);
-  const text = typeof existing === "string" ? cleanDescription(existing) : "";
-  if (!text || FORBIDDEN_AUTHOR_TERMS_RE.test(text)) {
-    return `Controls ${publicLabel} for Ecology map generation.`;
-  }
-  if (AUTHOR_DESCRIPTION_RE.test(text)) return text;
-  return `Controls ${publicLabel}: ${sentenceCase(text)}`;
-}
-
-function defaultMinimum(label: string, type: string): number {
-  const normalized = label.toLowerCase();
-  if (
-    /(01|0\.\.1|percentile|fraction|confidence|humidity dampening|ceiling|min aridity|max aridity|min freeze|max freeze|freeze min|max vegetation|min fertility|water min|dry min|dry max)/.test(
-      normalized
-    )
-  ) {
-    return 0;
-  }
-  if (/(pct|percent|coverage)/.test(normalized)) return 0;
-  if (
-    /\b(radius|distance|spacing|count|target|iterations|class|tiles)\b|per resource/.test(
-      normalized
-    )
-  ) {
-    return type === "integer" ? 0 : 0;
-  }
-  if (
-    /(moisture|rainfall|normalization|discharge|depth|elevation max|elevation min|sea level)/.test(
-      normalized
-    )
-  ) {
-    return -10000;
-  }
-  if (/(temperature|tempc| c\b|cold|warm|polar|tundra|tropical|lapse|bias)/.test(normalized)) {
-    return -100;
-  }
-  if (/(weight|scale|scalar|base|padding|penalty)/.test(normalized)) return 0;
-  return type === "integer" ? -100000 : -100000;
-}
-
-function defaultMaximum(label: string, type: string): number {
-  const normalized = label.toLowerCase();
-  if (
-    /(01|0\.\.1|percentile|fraction|confidence|humidity dampening|ceiling|min aridity|max aridity|min freeze|max freeze|freeze min|max vegetation|min fertility|water min|dry min|dry max)/.test(
-      normalized
-    )
-  ) {
-    return 1;
-  }
-  if (/(pct|percent|coverage)/.test(normalized)) return 100;
-  if (
-    /\b(class|tiles|iterations|radius|distance|spacing|count|target)\b|per resource/.test(
-      normalized
-    )
-  ) {
-    return type === "integer" ? 100000 : 100000;
-  }
-  if (/(moisture|rainfall|normalization|discharge|depth|elevation|sea level)/.test(normalized)) {
-    return 10000;
-  }
-  if (/(weight|scale|scalar|base|padding|penalty)/.test(normalized)) return 1000;
-  if (/(temperature|tempc| c\b|cold|warm|polar|tundra|tropical|lapse|bias)/.test(normalized)) {
-    return 100;
-  }
-  return type === "integer" ? 100000 : 100000;
-}
-
-function withAuthoringMetadata<T extends TSchema>(schema: T, label: string): T {
-  const node = schema as MutableSchemaNode;
-  const clone = { ...schema } as MutableSchemaNode;
-  clone.description = authorDescription(node.description, label);
-
-  if ((node.type === "number" || node.type === "integer") && clone.minimum === undefined) {
-    clone.minimum = defaultMinimum(label, node.type);
-  }
-  if ((node.type === "number" || node.type === "integer") && clone.maximum === undefined) {
-    clone.maximum = defaultMaximum(label, node.type);
-  }
-
-  if (node.properties) {
-    clone.properties = Object.fromEntries(
-      Object.entries(node.properties).map(([key, child]) => [
-        key,
-        withAuthoringMetadata(child as TSchema, `${label} ${labelFromKey(key)}`),
-      ])
-    );
-  }
-  if (Array.isArray(node.items)) {
-    clone.items = node.items.map((item, index) =>
-      withAuthoringMetadata(item as TSchema, `${label} item ${index + 1}`)
-    );
-  } else if (node.items) {
-    clone.items = withAuthoringMetadata(node.items as TSchema, `${label} item`);
-  }
-  if (node.anyOf) {
-    clone.anyOf = node.anyOf.map((variant) => withAuthoringMetadata(variant as TSchema, label));
-  }
-  if (node.oneOf) {
-    clone.oneOf = node.oneOf.map((variant) => withAuthoringMetadata(variant as TSchema, label));
-  }
-  if (node.allOf) {
-    clone.allOf = node.allOf.map((variant) => withAuthoringMetadata(variant as TSchema, label));
-  }
-
-  return clone as T;
-}
-
-function optionalAuthorSchema<T extends TSchema>(schema: T, label: string) {
-  return Type.Optional(withAuthoringMetadata(schema, label));
-}
-
-function profileObjectVariant(
-  profile: string,
-  schema: TSchema,
-  label: string,
-  description: string,
-  options: { defaultProfile?: string } = {}
-) {
-  const profileProperty =
-    options.defaultProfile === profile
-      ? Type.Optional(Type.Literal(profile, { default: profile, description }))
-      : Type.Literal(profile, { description });
-  return Type.Object(
-    {
-      profile: profileProperty,
-      ...((withAuthoringMetadata(schema, label) as MutableSchemaNode).properties ?? {}),
-    },
-    {
-      additionalProperties: false,
-      description: `Controls ${label} for Ecology map generation.`,
-    }
-  );
-}
-
-function profileObjectSchema(
-  variants: readonly {
-    profile: string;
-    schema: TSchema;
-    label: string;
-  }[],
-  defaultProfile: string,
+function profileVariant<const Profile extends string, const Schema extends TObject>(
+  profile: Profile,
+  schema: Schema,
   description: string
 ) {
-  return Type.Optional(
-    Type.Union(
-      variants.map((variant) =>
-        profileObjectVariant(variant.profile, variant.schema, variant.label, description, {
-          defaultProfile,
-        })
-      ) as never,
-      { description }
-    )
+  return Type.Object(
+    {
+      profile: Type.Literal(profile, {
+        default: profile,
+        description: "Selects the Ecology profile represented by this configuration.",
+      }),
+      ...schema.properties,
+    },
+    { additionalProperties: false, description }
   );
 }
 
-function publicObject(value: unknown): PublicObject {
-  return value && typeof value === "object" && !Array.isArray(value) ? (value as PublicObject) : {};
+function createValidatedDefault<const Schema extends TSchema>(schema: Schema) {
+  const value = Value.Create(schema);
+  Value.Assert(schema, value);
+  return value;
 }
 
-function withoutProfile(value: unknown): PublicObject {
-  const { profile: _profile, ...config } = publicObject(value);
-  return config;
-}
-
-function profileEnvelope(
-  value: unknown,
-  profileToMode: Record<string, string>,
-  defaultProfile: string
-) {
-  const config = publicObject(value);
-  const profile = typeof config.profile === "string" ? config.profile : defaultProfile;
-  const mode = profileToMode[profile] ?? profileToMode[defaultProfile];
-  if (!mode) throw new Error(`Unknown Ecology public profile "${profile}".`);
-  return { strategy: mode, config: withoutProfile(value) };
+function profileEnvelope(value: unknown, profileToStrategy: Readonly<Record<string, string>>) {
+  const { profile, ...config } = value as Record<string, unknown>;
+  const strategy = typeof profile === "string" ? profileToStrategy[profile] : undefined;
+  if (!strategy) throw new Error(`Unknown Ecology public profile "${String(profile)}".`);
+  return { strategy, config };
 }
 
 function defaultEnvelope(config: unknown) {
-  return { strategy: "default" as const, config: config ?? {} };
+  return { strategy: "default" as const, config };
 }
+
+const BalancedSoilClassificationPublicSchema = profileVariant(
+  "balanced",
+  ecologyOps.classifyPedology.strategies.default,
+  "Balanced soil classification driven by climate, relief, sediment, and bedrock."
+);
+
+const SoilClassificationPublicSchema = Type.Union(
+  [
+    BalancedSoilClassificationPublicSchema,
+    profileVariant(
+      "coastalShelf",
+      ecologyOps.classifyPedology.strategies["coastal-shelf"],
+      "Soil classification that emphasizes coastal-shelf fertility patterns."
+    ),
+    profileVariant(
+      "orogenyBoosted",
+      ecologyOps.classifyPedology.strategies["orogeny-boosted"],
+      "Soil classification that emphasizes orogeny-influenced fertility patterns."
+    ),
+  ],
+  {
+    default: createValidatedDefault(BalancedSoilClassificationPublicSchema),
+    description:
+      "Controls the soil-classification profile that emphasizes balanced, coastal-shelf, or orogeny-influenced fertility patterns.",
+  }
+);
+
+const BalancedResourceBasinPlanningPublicSchema = profileVariant(
+  "balanced",
+  ecologyOps.planResourceBasins.strategies.default,
+  "Balanced resource-basin planning."
+);
+
+const ResourceBasinPlanningPublicSchema = Type.Union(
+  [
+    BalancedResourceBasinPlanningPublicSchema,
+    profileVariant(
+      "hydroFluvial",
+      ecologyOps.planResourceBasins.strategies["hydro-fluvial"],
+      "River-shaped resource-basin planning."
+    ),
+    profileVariant(
+      "mixed",
+      ecologyOps.planResourceBasins.strategies.mixed,
+      "Mixed resource-basin planning."
+    ),
+  ],
+  {
+    default: createValidatedDefault(BalancedResourceBasinPlanningPublicSchema),
+    description:
+      "Controls the resource-basin planning profile for balanced, river-shaped, or mixed resource basins.",
+  }
+);
 
 export const EcologyPedologyPublicSchema = Type.Object(
   {
-    soilClassification: profileObjectSchema(
-      [
-        {
-          profile: "balanced",
-          schema: ecologyOps.classifyPedology.strategies.default,
-          label: "balanced soil classification",
-        },
-        {
-          profile: "coastalShelf",
-          schema: ecologyOps.classifyPedology.strategies["coastal-shelf"],
-          label: "coastal shelf soil classification",
-        },
-        {
-          profile: "orogenyBoosted",
-          schema: ecologyOps.classifyPedology.strategies["orogeny-boosted"],
-          label: "orogeny boosted soil classification",
-        },
-      ],
-      "balanced",
-      "Controls the soil-classification profile that emphasizes balanced, coastal-shelf, or orogeny-influenced fertility patterns."
-    ),
-    resourceBasinPlanning: profileObjectSchema(
-      [
-        {
-          profile: "balanced",
-          schema: ecologyOps.planResourceBasins.strategies.default,
-          label: "balanced resource basin planning",
-        },
-        {
-          profile: "hydroFluvial",
-          schema: ecologyOps.planResourceBasins.strategies["hydro-fluvial"],
-          label: "hydro fluvial resource basin planning",
-        },
-        {
-          profile: "mixed",
-          schema: ecologyOps.planResourceBasins.strategies.mixed,
-          label: "mixed resource basin planning",
-        },
-      ],
-      "balanced",
-      "Controls the resource-basin planning profile for balanced, river-shaped, or mixed resource basins."
-    ),
-    resourceBasinScoring: optionalAuthorSchema(
+    soilClassification: SoilClassificationPublicSchema,
+    resourceBasinPlanning: ResourceBasinPlanningPublicSchema,
+    resourceBasinScoring: requiredPublicSchema(
       ecologyOps.scoreResourceBasins.strategies.default,
-      "resource basin scoring"
+      "Controls resource-basin scoring and balancing."
     ),
   },
   {
@@ -288,13 +112,14 @@ export const EcologyPedologyPublicSchema = Type.Object(
   }
 );
 
+const biomeStrategy = ecologyOps.classifyBiomes.strategies.default;
+const BiomeClassificationPublicSchema = Type.With(biomeStrategy, {
+  description:
+    "Controls temperature, moisture, aridity, vegetation density, and deterministic biome edge smoothing.",
+});
+
 export const EcologyBiomesPublicSchema = Type.Object(
-  {
-    biomeClassification: optionalAuthorSchema(
-      ecologyOps.classifyBiomes.strategies.default,
-      "biome classification"
-    ),
-  },
+  { biomeClassification: BiomeClassificationPublicSchema },
   {
     additionalProperties: false,
     description:
@@ -304,13 +129,13 @@ export const EcologyBiomesPublicSchema = Type.Object(
 
 const SubstrateScoringPublicSchema = Type.Object(
   {
-    vegetationGrowth: optionalAuthorSchema(
+    vegetationGrowth: requiredPublicSchema(
       ecologyOps.computeVegetationSubstrate.strategies.default,
-      "vegetation growth substrate"
+      "Controls the normalized substrate fields used for vegetation growth."
     ),
-    featureHabitats: optionalAuthorSchema(
+    featureHabitats: requiredPublicSchema(
       ecologyOps.computeFeatureSubstrate.strategies.default,
-      "feature habitat substrate"
+      "Controls reusable feature-family habitat substrate fields."
     ),
   },
   {
@@ -322,19 +147,25 @@ const SubstrateScoringPublicSchema = Type.Object(
 
 const WetlandScoringPublicSchema = Type.Object(
   {
-    marsh: optionalAuthorSchema(ecologyOps.scoreWetMarsh.strategies.default, "marsh scoring"),
-    tundraBog: optionalAuthorSchema(
+    marsh: requiredPublicSchema(
+      ecologyOps.scoreWetMarsh.strategies.default,
+      "Controls marsh suitability scoring."
+    ),
+    tundraBog: requiredPublicSchema(
       ecologyOps.scoreWetTundraBog.strategies.default,
-      "tundra bog scoring"
+      "Controls tundra-bog suitability scoring."
     ),
-    mangrove: optionalAuthorSchema(
+    mangrove: requiredPublicSchema(
       ecologyOps.scoreWetMangrove.strategies.default,
-      "mangrove scoring"
+      "Controls mangrove suitability scoring."
     ),
-    oasis: optionalAuthorSchema(ecologyOps.scoreWetOasis.strategies.default, "oasis scoring"),
-    wateringHole: optionalAuthorSchema(
+    oasis: requiredPublicSchema(
+      ecologyOps.scoreWetOasis.strategies.default,
+      "Controls oasis suitability scoring."
+    ),
+    wateringHole: requiredPublicSchema(
       ecologyOps.scoreWetWateringHole.strategies.default,
-      "watering hole scoring"
+      "Controls watering-hole suitability scoring."
     ),
   },
   {
@@ -346,13 +177,22 @@ const WetlandScoringPublicSchema = Type.Object(
 
 const ReefScoringPublicSchema = Type.Object(
   {
-    warmReef: optionalAuthorSchema(ecologyOps.scoreReef.strategies.default, "warm reef scoring"),
-    coldReef: optionalAuthorSchema(
-      ecologyOps.scoreColdReef.strategies.default,
-      "cold reef scoring"
+    warmReef: requiredPublicSchema(
+      ecologyOps.scoreReef.strategies.default,
+      "Controls warm-reef suitability scoring."
     ),
-    atoll: optionalAuthorSchema(ecologyOps.scoreReefAtoll.strategies.default, "atoll scoring"),
-    lotus: optionalAuthorSchema(ecologyOps.scoreReefLotus.strategies.default, "lotus scoring"),
+    coldReef: requiredPublicSchema(
+      ecologyOps.scoreColdReef.strategies.default,
+      "Controls cold-reef suitability scoring."
+    ),
+    atoll: requiredPublicSchema(
+      ecologyOps.scoreReefAtoll.strategies.default,
+      "Controls atoll suitability scoring."
+    ),
+    lotus: requiredPublicSchema(
+      ecologyOps.scoreReefLotus.strategies.default,
+      "Controls lotus suitability scoring."
+    ),
   },
   {
     additionalProperties: false,
@@ -363,7 +203,10 @@ const ReefScoringPublicSchema = Type.Object(
 
 const IceScoringPublicSchema = Type.Object(
   {
-    ice: optionalAuthorSchema(ecologyOps.scoreIce.strategies.default, "ice scoring"),
+    ice: requiredPublicSchema(
+      ecologyOps.scoreIce.strategies.default,
+      "Controls ice suitability scoring."
+    ),
   },
   {
     additionalProperties: false,
@@ -371,173 +214,103 @@ const IceScoringPublicSchema = Type.Object(
   }
 );
 
-const IcePlanningPublicSchema = profileObjectSchema(
-  [
-    {
-      profile: "default",
-      schema: ecologyOps.planIce.strategies.default,
-      label: "default ice planning",
-    },
-    {
-      profile: "continentality",
-      schema: ecologyOps.planIce.strategies.continentality,
-      label: "continentality ice planning",
-    },
-  ],
+const DefaultIcePlanningPublicSchema = profileVariant(
   "default",
-  "Controls whether ice planning uses the baseline polar profile or a continentality-aware profile."
+  ecologyOps.planIce.strategies.default,
+  "Baseline polar ice planning."
 );
 
-const ReefPlanningPublicSchema = profileObjectSchema(
+const IcePlanningPublicSchema = Type.Union(
   [
-    {
-      profile: "default",
-      schema: ecologyOps.planReefs.strategies.default,
-      label: "default reef planning",
-    },
-    {
-      profile: "shippingLanes",
-      schema: ecologyOps.planReefs.strategies["shipping-lanes"],
-      label: "shipping lane reef planning",
-    },
+    DefaultIcePlanningPublicSchema,
+    profileVariant(
+      "continentality",
+      ecologyOps.planIce.strategies.continentality,
+      "Continentality-aware ice planning."
+    ),
   ],
-  "default",
-  "Controls whether reef planning uses the baseline habitat profile or a shipping-lane spacing profile."
-);
-
-const PlotEffectSnowCoveragePublicSchema = Type.Object(
   {
-    enabled: Type.Optional(
-      Type.Boolean({
-        default: true,
-        description: "Controls whether snow plot effects are planned.",
-      })
-    ),
-    coveragePct: Type.Optional(
-      Type.Number({
-        default: 80,
-        minimum: 0,
-        maximum: 100,
-        description: "Controls the percent of eligible snow tiles that receive snow plot effects.",
-      })
-    ),
-    lightThreshold: Type.Optional(
-      Type.Number({
-        default: 0.35,
-        minimum: 0,
-        maximum: 1,
-        description: "Controls the minimum snow suitability score for light snow effects.",
-      })
-    ),
-    mediumThreshold: Type.Optional(
-      Type.Number({
-        default: 0.6,
-        minimum: 0,
-        maximum: 1,
-        description: "Controls the minimum snow suitability score for medium snow effects.",
-      })
-    ),
-    heavyThreshold: Type.Optional(
-      Type.Number({
-        default: 0.8,
-        minimum: 0,
-        maximum: 1,
-        description: "Controls the minimum snow suitability score for heavy snow effects.",
-      })
-    ),
-  },
-  {
-    additionalProperties: false,
+    default: createValidatedDefault(DefaultIcePlanningPublicSchema),
     description:
-      "Controls snow plot-effect coverage and score thresholds while fixed engine effect names stay selected by the recipe.",
+      "Controls whether ice planning uses the baseline polar profile or a continentality-aware profile.",
   }
 );
 
-const PlotEffectSimpleCoveragePublicSchema = (
-  label: string,
-  defaultEnabled: boolean,
-  defaultCoverage: number
-) =>
-  Type.Object(
-    {
-      enabled: Type.Optional(
-        Type.Boolean({
-          default: defaultEnabled,
-          description: `Controls whether ${label} plot effects are planned.`,
-        })
-      ),
-      coveragePct: Type.Optional(
-        Type.Number({
-          default: defaultCoverage,
-          minimum: 0,
-          maximum: 100,
-          description: `Controls the percent of eligible ${label} tiles that receive plot effects.`,
-        })
-      ),
-    },
-    {
-      additionalProperties: false,
-      description: `Controls ${label} plot-effect coverage while fixed engine effect names stay selected by the recipe.`,
-    }
-  );
+const DefaultReefPlanningPublicSchema = profileVariant(
+  "default",
+  ecologyOps.planReefs.strategies.default,
+  "Baseline reef habitat planning."
+);
 
-const PlotEffectCoveragePublicSchema = Type.Object(
+const ReefPlanningPublicSchema = Type.Union(
+  [
+    DefaultReefPlanningPublicSchema,
+    profileVariant(
+      "shippingLanes",
+      ecologyOps.planReefs.strategies["shipping-lanes"],
+      "Shipping-lane-aware reef spacing."
+    ),
+  ],
   {
-    snow: Type.Optional(PlotEffectSnowCoveragePublicSchema),
-    sand: Type.Optional(PlotEffectSimpleCoveragePublicSchema("sand", false, 18)),
-    burned: Type.Optional(PlotEffectSimpleCoveragePublicSchema("burned", false, 8)),
-  },
-  {
-    additionalProperties: false,
+    default: createValidatedDefault(DefaultReefPlanningPublicSchema),
     description:
-      "Controls plot-effect coverage for snow, sand, and burned effects without exposing engine selector identifiers.",
+      "Controls whether reef planning uses the baseline habitat profile or a shipping-lane spacing profile.",
   }
 );
 
 const PlotEffectScoringPublicSchema = Type.Object(
   {
-    snow: optionalAuthorSchema(
+    snow: requiredPublicSchema(
       ecologyOps.scorePlotEffectsSnow.strategies.default,
-      "snow effect scoring"
+      "Controls snow plot-effect suitability scoring."
     ),
-    sand: optionalAuthorSchema(
+    sand: requiredPublicSchema(
       ecologyOps.scorePlotEffectsSand.strategies.default,
-      "sand effect scoring"
+      "Controls sand plot-effect suitability scoring."
     ),
-    burned: optionalAuthorSchema(
+    burned: requiredPublicSchema(
       ecologyOps.scorePlotEffectsBurned.strategies.default,
-      "burned effect scoring"
+      "Controls burned plot-effect suitability scoring."
+    ),
+    jungle: requiredPublicSchema(
+      ecologyOps.scorePlotEffectsJungle.strategies.default,
+      "Controls jungle plot-effect suitability scoring."
     ),
   },
   {
     additionalProperties: false,
     description:
-      "Controls snow, sand, and burned plot-effect suitability scoring before coverage selection.",
+      "Controls snow, sand, burned, and jungle plot-effect suitability scoring before coverage selection.",
   }
+);
+
+const PlotEffectCoveragePublicSchema = requiredPublicSchema(
+  ecologyOps.planPlotEffects.strategies.default,
+  "Controls snow, sand, burned, and jungle plot-effect coverage and thresholds."
 );
 
 export const EcologyFeaturesPublicSchema = Type.Object(
   {
-    substrateScoring: Type.Optional(SubstrateScoringPublicSchema),
-    wetlandScoring: Type.Optional(WetlandScoringPublicSchema),
-    reefScoring: Type.Optional(ReefScoringPublicSchema),
-    iceScoring: Type.Optional(IceScoringPublicSchema),
+    substrateScoring: SubstrateScoringPublicSchema,
+    wetlandScoring: WetlandScoringPublicSchema,
+    reefScoring: ReefScoringPublicSchema,
+    iceScoring: IceScoringPublicSchema,
     icePlanning: IcePlanningPublicSchema,
     reefPlanning: ReefPlanningPublicSchema,
-    wetlandPlanning: optionalAuthorSchema(
+    wetlandPlanning: requiredPublicSchema(
       ecologyOps.planWetlands.strategies.default,
-      "wetland planning"
+      "Controls wetland placement planning."
     ),
-    floodplainPlanning: optionalAuthorSchema(
+    floodplainPlanning: requiredPublicSchema(
       ecologyOps.planFloodplains.strategies.default,
-      "floodplain planning"
+      "Controls floodplain placement planning."
     ),
-    vegetationPlanning: optionalAuthorSchema(
+    vegetationPlanning: requiredPublicSchema(
       ecologyOps.planVegetation.strategies.default,
-      "vegetation planning"
+      "Controls vegetation placement planning."
     ),
-    plotEffectScoring: Type.Optional(PlotEffectScoringPublicSchema),
-    plotEffectCoverage: Type.Optional(PlotEffectCoveragePublicSchema),
+    plotEffectScoring: PlotEffectScoringPublicSchema,
+    plotEffectCoverage: PlotEffectCoveragePublicSchema,
   },
   {
     additionalProperties: false,
@@ -546,64 +319,35 @@ export const EcologyFeaturesPublicSchema = Type.Object(
   }
 );
 
-const SOIL_PROFILE_TO_MODE: Record<string, string> = {
+const SOIL_PROFILE_TO_STRATEGY = {
   balanced: "default",
   coastalShelf: "coastal-shelf",
   orogenyBoosted: "orogeny-boosted",
-};
+} as const;
 
-const RESOURCE_BASIN_PROFILE_TO_MODE: Record<string, string> = {
+const RESOURCE_BASIN_PROFILE_TO_STRATEGY = {
   balanced: "default",
   hydroFluvial: "hydro-fluvial",
   mixed: "mixed",
-};
+} as const;
 
-const ICE_PROFILE_TO_MODE: Record<string, string> = {
+const ICE_PROFILE_TO_STRATEGY = {
   default: "default",
   continentality: "continentality",
-};
+} as const;
 
-const REEF_PROFILE_TO_MODE: Record<string, string> = {
+const REEF_PROFILE_TO_STRATEGY = {
   default: "default",
   shippingLanes: "shipping-lanes",
-};
-
-function plotEffectCoverageConfig(value: unknown) {
-  const config = publicObject(value);
-  const snow = publicObject(config.snow);
-  const sand = publicObject(config.sand);
-  const burned = publicObject(config.burned);
-  return {
-    snow: {
-      hazardEnabled: false,
-      hazardThreshold: 0.85,
-      ...snow,
-    },
-    sand: {
-      hazardEnabled: false,
-      ...sand,
-    },
-    burned: {
-      ...burned,
-    },
-    jungle: {
-      enabled: false,
-      coveragePct: 12,
-    },
-  };
-}
+} as const;
 
 export function compileEcologyPedologyPublicConfig(config: Record<string, unknown>) {
   return {
     pedology: {
-      classify: profileEnvelope(config.soilClassification, SOIL_PROFILE_TO_MODE, "balanced"),
+      classify: profileEnvelope(config.soilClassification, SOIL_PROFILE_TO_STRATEGY),
     },
     "resource-basins": {
-      plan: profileEnvelope(
-        config.resourceBasinPlanning,
-        RESOURCE_BASIN_PROFILE_TO_MODE,
-        "balanced"
-      ),
+      plan: profileEnvelope(config.resourceBasinPlanning, RESOURCE_BASIN_PROFILE_TO_STRATEGY),
       score: defaultEnvelope(config.resourceBasinScoring),
     },
   };
@@ -618,11 +362,11 @@ export function compileEcologyBiomesPublicConfig(config: Record<string, unknown>
 }
 
 export function compileEcologyFeaturesPublicConfig(config: Record<string, unknown>) {
-  const substrateScoring = publicObject(config.substrateScoring);
-  const wetlandScoring = publicObject(config.wetlandScoring);
-  const reefScoring = publicObject(config.reefScoring);
-  const iceScoring = publicObject(config.iceScoring);
-  const plotEffectScoring = publicObject(config.plotEffectScoring);
+  const substrateScoring = config.substrateScoring as Record<string, unknown>;
+  const wetlandScoring = config.wetlandScoring as Record<string, unknown>;
+  const reefScoring = config.reefScoring as Record<string, unknown>;
+  const iceScoring = config.iceScoring as Record<string, unknown>;
+  const plotEffectScoring = config.plotEffectScoring as Record<string, unknown>;
 
   return {
     "score-layers": {
@@ -645,10 +389,10 @@ export function compileEcologyFeaturesPublicConfig(config: Record<string, unknow
       scoreIce: defaultEnvelope(iceScoring.ice),
     },
     "plan-ice": {
-      planIce: profileEnvelope(config.icePlanning, ICE_PROFILE_TO_MODE, "default"),
+      planIce: profileEnvelope(config.icePlanning, ICE_PROFILE_TO_STRATEGY),
     },
     "plan-reefs": {
-      planReefs: profileEnvelope(config.reefPlanning, REEF_PROFILE_TO_MODE, "default"),
+      planReefs: profileEnvelope(config.reefPlanning, REEF_PROFILE_TO_STRATEGY),
     },
     "plan-wetlands": {
       planWetlands: defaultEnvelope(config.wetlandPlanning),
@@ -663,8 +407,8 @@ export function compileEcologyFeaturesPublicConfig(config: Record<string, unknow
       scoreSnow: defaultEnvelope(plotEffectScoring.snow),
       scoreSand: defaultEnvelope(plotEffectScoring.sand),
       scoreBurned: defaultEnvelope(plotEffectScoring.burned),
-      scoreJungle: defaultEnvelope({}),
-      plotEffects: defaultEnvelope(plotEffectCoverageConfig(config.plotEffectCoverage)),
+      scoreJungle: defaultEnvelope(plotEffectScoring.jungle),
+      plotEffects: defaultEnvelope(config.plotEffectCoverage),
     },
   };
 }

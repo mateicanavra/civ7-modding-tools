@@ -60,13 +60,10 @@ describe("floodplain feature product row", () => {
     discharge[riverIndex] = 160;
 
     const substrateConfig = normalizeOpSelectionOrThrow(ecology.ops.computeFeatureSubstrate, {
-      strategy: "default",
+      ...ecology.ops.computeFeatureSubstrate.defaultConfig,
       config: {
-        nearRiverRadius: 1,
-        isolatedRiverRadius: 1,
-        coastalAdjacencyRadius: 0,
+        ...ecology.ops.computeFeatureSubstrate.defaultConfig.config,
         lowlandMaxElevationAboveSeaM: 80,
-        intertidalMaxElevationAboveSeaM: 12,
         floodplainDischargeMin: 96,
       },
     });
@@ -100,7 +97,7 @@ describe("floodplain feature product row", () => {
       dimensions: { width, height },
       latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
     };
-    // Keep the fixture on legal plains/flat terrain so the proof exercises
+    // Keep the fixture on legal plains/flat terrain so the test exercises
     // floodplain intent/apply plumbing instead of soft rejection diagnostics.
     const adapter = createMockAdapter({ width, height });
     adapter.fillWater(false);
@@ -137,8 +134,11 @@ describe("floodplain feature product row", () => {
 
     const planConfig = {
       planFloodplains: normalizeOpSelectionOrThrow(ecology.ops.planFloodplains, {
-        strategy: "default",
-        config: { minConfidence01: 0.5 },
+        ...ecology.ops.planFloodplains.defaultConfig,
+        config: {
+          ...ecology.ops.planFloodplains.defaultConfig.config,
+          minConfidence01: 0.5,
+        },
       }),
     };
     const planOps = ecology.ops.bind(planFloodplainsStep.contract.ops!).runtime;
@@ -173,10 +173,10 @@ describe("floodplain feature product row", () => {
     emptyIntentArtifacts.featureIntentsIce.publish(ctx, []);
 
     const applyConfig = {
-      apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, {
-        strategy: "default",
-        config: {},
-      }),
+      apply: normalizeOpSelectionOrThrow(
+        ecology.ops.applyFeatures,
+        ecology.ops.applyFeatures.defaultConfig
+      ),
     };
     const applyOps = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
     featuresApplyStep.run(ctx, applyConfig, applyOps, buildTestDeps(featuresApplyStep));
@@ -208,13 +208,10 @@ describe("floodplain feature product row", () => {
     riverClass[riverIndex] = RIVER_CLASS_MAJOR;
 
     const substrateConfig = normalizeOpSelectionOrThrow(ecology.ops.computeFeatureSubstrate, {
-      strategy: "default",
+      ...ecology.ops.computeFeatureSubstrate.defaultConfig,
       config: {
-        nearRiverRadius: 1,
-        isolatedRiverRadius: 1,
-        coastalAdjacencyRadius: 0,
+        ...ecology.ops.computeFeatureSubstrate.defaultConfig.config,
         lowlandMaxElevationAboveSeaM: 80,
-        intertidalMaxElevationAboveSeaM: 12,
         floodplainDischargeMin: 96,
       },
     });

@@ -1,8 +1,12 @@
 import { oc } from "@orpc/contract";
 import { type Static, Type } from "typebox";
 
-import { studioRecoveryActionSchema } from "./errors/errorData.js";
+import {
+  saveDeploySafeFailureCategorySchema,
+  studioRecoveryActionSchema,
+} from "./errors/errorData.js";
 import { mapConfigsErrors } from "./errors.js";
+import { mapConfigEnvelopeSchema, snapshotMapConfigEnvelope } from "./mapConfigEnvelope.js";
 import { contractSchema } from "./shared.js";
 
 /**
@@ -45,64 +49,82 @@ export const saveDeployKind = Type.Union([
   Type.Literal("failed"),
 ]);
 
-export const saveDeployStatusDetailsSchema = Type.Record(
-  Type.String(),
-  Type.Union([Type.String(), Type.Number(), Type.Boolean(), Type.Null(), Type.Array(Type.String())])
-);
+const saveDeployPublicBaseFields = {
+  requestId: Type.String(),
+  recoveryActions: Type.Array(studioRecoveryActionSchema),
+} as const;
 
 /** `MapConfigSaveDeployStatus` - returned by both saveDeploy (#16, 202) and status (#15, 200). */
-export const saveDeployStatusTypeSchema = Type.Object(
-  {
-    ok: Type.Boolean(),
-    requestId: Type.String(),
-    phase: saveDeployPhase,
-    status: saveDeployKind,
-    startedAt: Type.String(),
-    updatedAt: Type.String(),
-    path: Type.Optional(Type.String()),
-    saved: Type.Optional(Type.Boolean()),
-    deployed: Type.Optional(Type.Boolean()),
-    error: Type.Optional(Type.String()),
-    deploy: Type.Optional(
-      Type.Object(
-        {
-          build: Type.Optional(
-            Type.Object(
-              {
-                task: Type.Optional(Type.String()),
-                stdout: Type.Optional(Type.String()),
-                stderr: Type.Optional(Type.String()),
-              },
-              { additionalProperties: false }
-            )
-          ),
-          targetDir: Type.Optional(Type.String()),
-          modsDir: Type.Optional(Type.String()),
-          filesCopied: Type.Optional(Type.Number()),
-        },
-        { additionalProperties: false }
-      )
-    ),
-    details: Type.Optional(saveDeployStatusDetailsSchema),
-    recoveryActions: Type.Optional(Type.Array(studioRecoveryActionSchema)),
-  },
-  { additionalProperties: false }
-);
+export const saveDeployStatusTypeSchema = Type.Union([
+  Type.Object(
+    {
+      ...saveDeployPublicBaseFields,
+      ok: Type.Literal(true),
+      phase: Type.Union([
+        Type.Literal("idle"),
+        Type.Literal("queued"),
+        Type.Literal("saving"),
+        Type.Literal("deploying"),
+      ]),
+      status: Type.Union([Type.Literal("idle"), Type.Literal("running")]),
+      saved: Type.Optional(Type.Boolean()),
+      deployed: Type.Optional(Type.Boolean()),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      ...saveDeployPublicBaseFields,
+      ok: Type.Literal(true),
+      phase: Type.Literal("complete"),
+      status: Type.Literal("complete"),
+      saved: Type.Literal(true),
+      deployed: Type.Literal(true),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      ...saveDeployPublicBaseFields,
+      ok: Type.Literal(false),
+      phase: Type.Literal("failed"),
+      status: Type.Literal("failed"),
+      saved: Type.Boolean(),
+      deployed: Type.Boolean(),
+      safeFailureCategory: saveDeploySafeFailureCategorySchema,
+    },
+    { additionalProperties: false }
+  ),
+]);
 export type MapConfigSaveDeployStatus = Static<typeof saveDeployStatusTypeSchema>;
 
 export const saveDeployStatusSchema = contractSchema(saveDeployStatusTypeSchema);
+
+/** Rejects unsafe wire values before TypeBox inspects the public save DTO. */
+function mapConfigSaveDeployInputIssue(value: unknown): string | undefined {
+  const canonicalConfig = ownDataProperty(value, "canonicalConfig");
+  return snapshotMapConfigEnvelope(canonicalConfig) !== undefined
+    ? undefined
+    : "mapConfigs.saveDeploy canonicalConfig must be a complete portable JSON envelope.";
+}
+
+function ownDataProperty(value: unknown, key: string): unknown {
+  if (value === null || typeof value !== "object") return undefined;
+  try {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    return descriptor !== undefined && "value" in descriptor ? descriptor.value : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // #15 mapConfigs.status - keyed mutation-state read
 // Retired REST parity: GET /api/map-configs/status?requestId=
 // ---------------------------------------------------------------------------
 // Query: requestId (REQUIRED). Success 200: MapConfigSaveDeployStatus.
-// Errors: 400 (missing); 404 { ok:false, error, serverInstanceId,
-// serverStartedAt }.
-//
-// S1.2 PARITY INVARIANT: the 404 now matches runInGame.status and echoes
-// `serverInstanceId`/`serverStartedAt` so the client can distinguish a missing
-// request id from a daemon restart.
+// Errors: 400 (missing); 404 with only request identity, a safe failure
+// category, and recovery actions.
 export const status = oc
   .errors(mapConfigsErrors)
   .input(
@@ -121,7 +143,7 @@ export const status = oc
 // #16 mapConfigs.saveDeploy - save/deploy mutation
 // Retired REST parity: POST /api/map-configs
 // ---------------------------------------------------------------------------
-// Body: { requestId?, id, sourcePath?, envelope, restart?, verifyRestart? }.
+// Body: { requestId?, canonicalConfig, restart?, verifyRestart? }.
 // `restart`/`verifyRestart` MUST be falsy -> else 400.
 // Success 202: MapConfigSaveDeployStatus (async). 202 idempotent (same active
 // requestId returns current). Errors: 409 (run-in-game active OR different save/
@@ -129,8 +151,8 @@ export const status = oc
 // SAVE_DEPLOY_BLOCKED/INVALID/UNAVAILABLE/FAILED codes (./errors.ts).
 //
 // PARITY NOTE (audit/05 #16): write-then-deploy with ROLLBACK on deploy-phase
-// failure; idempotent requestId reuse; path-jail (configRoot prefix + .config.json
-// suffix); kebab-case id; requestId pattern ^[a-zA-Z0-9._:-]+$. Validation +
+// failure; idempotent requestId reuse; server-derived path jail from the safe
+// canonical config id; requestId pattern ^[a-zA-Z0-9._:-]+$. Validation +
 // rollback land in MapConfigStore (A2) / handler (A3). `restart`/`verifyRestart`
 // are typed as optional booleans here; the falsy-only enforcement lives in
 // `parseMapConfigSaveRequest`.
@@ -141,14 +163,16 @@ export const saveDeploy = oc
       Type.Object(
         {
           requestId: Type.Optional(Type.String()),
-          id: Type.String(),
-          sourcePath: Type.Optional(Type.String()),
-          envelope: Type.Unknown(),
+          canonicalConfig: mapConfigEnvelopeSchema,
           restart: Type.Optional(Type.Boolean()),
           verifyRestart: Type.Optional(Type.Boolean()),
         },
         { additionalProperties: false }
-      )
+      ),
+      {
+        cleanUnknownProperties: false,
+        precheck: mapConfigSaveDeployInputIssue,
+      }
     )
   )
   .output(saveDeployStatusSchema);

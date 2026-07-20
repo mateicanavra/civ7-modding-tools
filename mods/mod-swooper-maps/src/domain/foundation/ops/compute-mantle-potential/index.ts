@@ -4,6 +4,13 @@ import { clamp01, clampInt, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/m
 
 import ComputeMantlePotentialContract from "./contract.js";
 
+const POISSON_SEED_ATTEMPT_LIMIT = 64;
+const PLUME_COUNT_CLAMP_MAX = 32;
+const DOWNWELLING_COUNT_CLAMP_MAX = 32;
+const SOURCE_RADIUS_CLAMP_MIN = 1e-6;
+const MISSING_SOURCE_RADIUS_FALLBACK = 0.0001;
+const SMOOTHING_ITERATIONS_CLAMP_MAX = 4;
+
 function distanceSqWrapped(
   ax: number,
   ay: number,
@@ -37,7 +44,6 @@ function pickPoissonSeed(params: {
   label: string;
 }): number {
   const cellCount = params.mesh.cellCount | 0;
-  const attempts = 64;
   let bestCandidate = -1;
   let bestScore = -Infinity;
 
@@ -57,7 +63,7 @@ function pickPoissonSeed(params: {
     return minSq;
   };
 
-  for (let attempt = 0; attempt < attempts; attempt++) {
+  for (let attempt = 0; attempt < POISSON_SEED_ATTEMPT_LIMIT; attempt++) {
     const candidate = params.rng(cellCount, params.label) | 0;
     if (params.used[candidate]) continue;
     const minSq = minDistanceSq(candidate);
@@ -100,15 +106,19 @@ const computeMantlePotential = createOp(ComputeMantlePotentialContract, {
         const rng = createLabelRng(rngSeed);
         const cellCount = mesh.cellCount | 0;
 
-        const plumeCount = clampInt(config.plumeCount ?? 6, 0, 32);
-        const downwellingCount = clampInt(config.downwellingCount ?? 6, 0, 32);
-        const plumeRadius = Math.max(1e-6, config.plumeRadius ?? 0.18);
-        const downwellingRadius = Math.max(1e-6, config.downwellingRadius ?? 0.18);
-        const plumeAmplitude = config.plumeAmplitude ?? 1.0;
-        const downwellingAmplitude = config.downwellingAmplitude ?? -1.0;
-        const smoothingIterations = clampInt(config.smoothingIterations ?? 2, 0, 4);
-        const smoothingAlpha = clamp01(config.smoothingAlpha ?? 0.35);
-        const minSeparationScale = Math.max(0, config.minSeparationScale ?? 0.85);
+        const plumeCount = clampInt(config.plumeCount, 0, PLUME_COUNT_CLAMP_MAX);
+        const downwellingCount = clampInt(config.downwellingCount, 0, DOWNWELLING_COUNT_CLAMP_MAX);
+        const plumeRadius = Math.max(SOURCE_RADIUS_CLAMP_MIN, config.plumeRadius);
+        const downwellingRadius = Math.max(SOURCE_RADIUS_CLAMP_MIN, config.downwellingRadius);
+        const plumeAmplitude = config.plumeAmplitude;
+        const downwellingAmplitude = config.downwellingAmplitude;
+        const smoothingIterations = clampInt(
+          config.smoothingIterations,
+          0,
+          SMOOTHING_ITERATIONS_CLAMP_MAX
+        );
+        const smoothingAlpha = clamp01(config.smoothingAlpha);
+        const minSeparationScale = Math.max(0, config.minSeparationScale);
 
         const sourceCount = plumeCount + downwellingCount;
         const sourceType = new Int8Array(sourceCount);
@@ -177,7 +187,7 @@ const computeMantlePotential = createOp(ComputeMantlePotentialContract, {
           for (let s = 0; s < sourceCount; s++) {
             const dx = wrapDeltaPeriodic(x - (sourceX[s] ?? 0), mesh.wrapWidth);
             const dy = y - (sourceY[s] ?? 0);
-            const r = sourceRadius[s] ?? 0.0001;
+            const r = sourceRadius[s] ?? MISSING_SOURCE_RADIUS_FALLBACK;
             const inv = 1 / (r * r);
             value += (sourceAmplitude[s] ?? 0) * Math.exp(-(dx * dx + dy * dy) * inv);
           }

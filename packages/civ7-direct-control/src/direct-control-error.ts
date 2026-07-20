@@ -20,7 +20,7 @@ export type Civ7DirectControlErrorCode =
   | "setup-seed-mismatch"
   | "setup-map-size-mismatch"
   | "setup-config-load-failed"
-  | "setup-config-proof-missing"
+  | "setup-config-evidence-missing"
   | "procedure-descriptor-invalid"
   | "procedure-call-failed"
   | "clean-frame-unverified"

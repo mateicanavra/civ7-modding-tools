@@ -5,8 +5,8 @@ import { createCiv7Adapter } from "@civ7/adapter/civ7";
 import { createExtendedMapContext, type Env, type ExtendedMapContext } from "@swooper/mapgen-core";
 import type { RecipeModule } from "@swooper/mapgen-core/authoring";
 
-type RecipeConfigInputOfRecipe<TRecipe extends RecipeModule<any, any, any>> =
-  TRecipe extends RecipeModule<any, infer TConfigInput, any> ? TConfigInput : never;
+type RecipePublicConfigOfRecipe<TRecipe extends RecipeModule<any, any, any>> =
+  TRecipe extends RecipeModule<any, infer TPublicConfig, any> ? TPublicConfig : never;
 
 export type MapLatitudeBounds = Readonly<{
   topLatitude: number;
@@ -17,8 +17,7 @@ export type MapRunCorrelation = Readonly<{
   requestId: string;
   runArtifactId: string;
   launchSourceDigest: Readonly<{
-    configContentDigest: string;
-    launchEnvelopeDigest: string;
+    canonicalConfigDigest: string;
   }>;
   launchEnvelopeDigest: string;
   generationManifestDigest: string;
@@ -28,7 +27,7 @@ type MapDefinitionCore<TRecipe extends RecipeModule<ExtendedMapContext, any, any
   id: string;
   name: string;
   recipe: TRecipe;
-  config: RecipeConfigInputOfRecipe<TRecipe>;
+  config: RecipePublicConfigOfRecipe<TRecipe>;
   description?: string;
   latitudeBounds?: MapLatitudeBounds;
   logPrefix?: string;
@@ -36,22 +35,30 @@ type MapDefinitionCore<TRecipe extends RecipeModule<ExtendedMapContext, any, any
   seed?: number;
 }>;
 
-type MapDefinitionStandaloneProof = Readonly<{
-  requestId?: string;
+type MapDefinitionCatalogEvidence = Readonly<{
+  requestId?: never;
+  runArtifactId?: never;
+  launchSourceDigest?: never;
   configHash?: string;
   envelopeHash?: string;
+  launchEnvelopeDigest?: never;
+  generationManifestDigest?: never;
   runCorrelation?: never;
 }>;
 
-type MapDefinitionRunProof = Readonly<{
+type MapDefinitionRunSource = Readonly<{
   runCorrelation: MapRunCorrelation;
   requestId?: never;
+  runArtifactId?: never;
+  launchSourceDigest?: never;
+  launchEnvelopeDigest?: never;
+  generationManifestDigest?: never;
   configHash?: never;
   envelopeHash?: never;
 }>;
 
 export type MapDefinition<TRecipe extends RecipeModule<ExtendedMapContext, any, any>> =
-  MapDefinitionCore<TRecipe> & (MapDefinitionStandaloneProof | MapDefinitionRunProof);
+  MapDefinitionCore<TRecipe> & (MapDefinitionCatalogEvidence | MapDefinitionRunSource);
 
 type MapDefinitionInput<TRecipe extends RecipeModule<ExtendedMapContext, any, any>> =
   MapDefinition<TRecipe>;
@@ -69,31 +76,64 @@ type InitCapture = {
     Pick<MapInitParams, "mapSize">;
 };
 
-type MapProofPayloadIdentity = Readonly<{
+type MapEvidencePayloadIdentity = Readonly<{
   requestId: string | null;
   runArtifactId: string | null;
-  configHash: string | null;
-  envelopeHash: string | null;
+  canonicalConfigDigest: string | null;
   generationManifestDigest: string | null;
-}>;
+}> &
+  (
+    | Readonly<{ launchEnvelopeDigest: string; envelopeHash?: never }>
+    | Readonly<{ envelopeHash: string | null; launchEnvelopeDigest?: never }>
+  );
 
-function mapProofPayloadIdentityFor(def: MapDefinition<any>): MapProofPayloadIdentity {
+function mapEvidencePayloadIdentityFor(def: MapDefinition<any>): MapEvidencePayloadIdentity {
   if (def.runCorrelation) {
     return {
       requestId: def.runCorrelation.requestId,
       runArtifactId: def.runCorrelation.runArtifactId,
-      configHash: def.runCorrelation.launchSourceDigest.configContentDigest,
-      envelopeHash: def.runCorrelation.launchEnvelopeDigest,
+      canonicalConfigDigest: def.runCorrelation.launchSourceDigest.canonicalConfigDigest,
+      launchEnvelopeDigest: def.runCorrelation.launchEnvelopeDigest,
       generationManifestDigest: def.runCorrelation.generationManifestDigest,
     };
   }
   return {
-    requestId: def.requestId ?? null,
+    requestId: null,
     runArtifactId: null,
-    configHash: def.configHash ?? null,
+    canonicalConfigDigest: null,
     envelopeHash: def.envelopeHash ?? null,
     generationManifestDigest: null,
   };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object";
+}
+
+function isMapRunCorrelation(value: unknown): value is MapRunCorrelation {
+  if (!isRecord(value) || !isRecord(value.launchSourceDigest)) return false;
+  return (
+    typeof value.requestId === "string" &&
+    typeof value.runArtifactId === "string" &&
+    typeof value.launchSourceDigest.canonicalConfigDigest === "string" &&
+    typeof value.launchEnvelopeDigest === "string" &&
+    typeof value.generationManifestDigest === "string"
+  );
+}
+
+function assertCompleteRunCorrelation(def: MapDefinition<any>): void {
+  const hasDirectRunIdentity =
+    "requestId" in def ||
+    "runArtifactId" in def ||
+    "launchSourceDigest" in def ||
+    "launchEnvelopeDigest" in def ||
+    "generationManifestDigest" in def;
+  if (
+    hasDirectRunIdentity ||
+    ("runCorrelation" in def && !isMapRunCorrelation(def.runCorrelation))
+  ) {
+    throw new Error("Run maps require a complete runCorrelation.");
+  }
 }
 
 function resolveSeed(def: MapDefinition<any>): number {
@@ -198,6 +238,7 @@ function resolveInitCapture(
 export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext, any, any>>(
   def: MapDefinitionInput<TRecipe>
 ): MapDefinition<TRecipe> {
+  assertCompleteRunCorrelation(def);
   const engineApi = engine as unknown as CivEngine;
   let captured: InitCapture | null = null;
 
@@ -232,21 +273,21 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
     const prefix = def.logPrefix ?? "[SWOOPER_MOD]";
-    const proofIdentity = mapProofPayloadIdentityFor(def);
-    const proofPayload = {
+    const evidenceIdentity = mapEvidencePayloadIdentityFor(def);
+    const evidencePayload = {
       mapId: def.id,
       sourceConfigId: def.sourceConfigId ?? def.id,
-      ...proofIdentity,
+      ...evidenceIdentity,
       seed,
       mapSize: captured.mapSizeId,
       dimensions: { width, height },
     };
-    console.log(`${prefix} [mapgen-proof] ${JSON.stringify(proofPayload)}`);
+    console.log(`${prefix} [mapgen-evidence] ${JSON.stringify(evidencePayload)}`);
     try {
       def.recipe.run(context, env, def.config, {
         log: (message) => console.log(prefix, message),
       });
-      console.log(`${prefix} [mapgen-complete] ${JSON.stringify(proofPayload)}`);
+      console.log(`${prefix} [mapgen-complete] ${JSON.stringify(evidencePayload)}`);
     } catch (err) {
       console.error(prefix, "Map generation failed:", err);
       throw err;

@@ -1,26 +1,18 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-
-import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
+import type { TSchema } from "typebox";
+import { admitSwooperCatalogConfig } from "../src/maps/catalog/admission.js";
 import { CatalogSourceIndex } from "../src/maps/catalog/sourceIndex.js";
 import {
   CATALOG_CONFIG_PATH_PREFIX,
-  type CatalogSourceEntry,
   catalogConfigFileNameFromPath,
   parseCatalogSourceIndex,
   validateCatalogSourceIndex,
 } from "../src/maps/catalog/sources.js";
-import {
-  buildCanonicalMapConfigSchema,
-  type ValidatedMapConfig,
-  validateCanonicalMapConfig,
-} from "../src/maps/configs/canonical.js";
-import { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
-import {
-  buildSwooperCatalogModFilePlan,
-  type StudioRunEvidenceEnv,
-} from "./map-artifacts/file-plan.js";
+import type { ValidatedMapConfig } from "../src/maps/configs/canonical.js";
+import { deriveStandardRecipeArtifacts } from "../src/recipes/standard/artifacts.js";
+import { buildSwooperCatalogModFilePlan } from "./map-artifacts/file-plan.js";
 import { writeSwooperMapArtifactFilePlan } from "./map-artifacts/write-file-plan.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -34,32 +26,6 @@ const studioDeployConfigIdEnv = "SWOOPER_STUDIO_DEPLOY_CONFIG_ID";
 const studioDeployConfigPathEnv = "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH";
 
 /**
- * Reads the all-or-nothing Studio run evidence tuple before generation performs
- * discovery I/O. The executable script owns ambient env discovery; the renderer
- * receives an explicit evidence state and stays deterministic.
- */
-export function readStudioRunEvidenceEnv(
-  env: NodeJS.ProcessEnv = process.env
-): StudioRunEvidenceEnv {
-  const requestId = env.SWOOPER_STUDIO_RUN_ID;
-  const launchConfigId = env.SWOOPER_STUDIO_LAUNCH_CONFIG_ID;
-  const launchEnvelopeDigest = env.SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST;
-  if (
-    requestId === undefined &&
-    launchConfigId === undefined &&
-    launchEnvelopeDigest === undefined
-  ) {
-    return { kind: "none" };
-  }
-  if (!requestId || !launchConfigId || !launchEnvelopeDigest) {
-    throw new Error(
-      "Studio run evidence env must set SWOOPER_STUDIO_RUN_ID, SWOOPER_STUDIO_LAUNCH_CONFIG_ID, and SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST together"
-    );
-  }
-  return { kind: "run", requestId, launchConfigId, launchEnvelopeDigest };
-}
-
-/**
  * Loads the authored Swooper map config registry for artifact generation. This
  * is the CLI's discovery boundary: it may read config files, while the renderer
  * receives already-validated configs and returns only file-plan data.
@@ -67,44 +33,43 @@ export function readStudioRunEvidenceEnv(
 export async function loadSwooperMapConfigRegistry(
   options: Readonly<{
     catalogSourceIndex?: unknown;
+    recipeSchema?: TSchema;
     repoRoot?: string;
   }> = {}
 ): Promise<ValidatedMapConfig[]> {
-  const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
   const indexValue = options.catalogSourceIndex ?? CatalogSourceIndex;
   const root = options.repoRoot ?? repoRoot;
-  const indexEntries = [...parseCatalogSourceIndex(indexValue).entries];
+  const configPaths = [...parseCatalogSourceIndex(indexValue).entries];
   return loadValidatedCatalogEntries({
-    entries: indexEntries,
+    configPaths,
     indexValue,
+    recipeSchema: options.recipeSchema,
     repoRoot: root,
-    schema,
   });
 }
 
 /**
- * Builds the deploy-only registry used by Studio operations. A selected
- * operation config is not catalog membership; it is an explicit runtime overlay
- * until later packets move every Run in Game launch through the request-local
- * manifest generator.
+ * Builds the deploy-only registry used by catalog deployment. Run in Game does
+ * not pass through this registry: its selected canonical envelope is owned by
+ * the request-local generation manifest.
  */
 export async function loadSwooperStudioDeployConfigRegistry(
   options: Readonly<{
     catalogSourceIndex?: unknown;
     deployConfig?: StudioDeployConfigReference;
+    recipeSchema?: TSchema;
     repoRoot?: string;
   }> = {}
 ): Promise<ValidatedMapConfig[]> {
-  const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
   const indexValue = options.catalogSourceIndex ?? CatalogSourceIndex;
   const root = options.repoRoot ?? repoRoot;
-  const indexEntries = [...parseCatalogSourceIndex(indexValue).entries];
+  const configPaths = [...parseCatalogSourceIndex(indexValue).entries];
   const deployConfig = options.deployConfig ?? readStudioDeployConfigReference(process.env);
   const configs = await loadValidatedCatalogEntries({
-    entries: studioDeployCatalogEntries(indexEntries, deployConfig),
+    configPaths: studioDeployConfigPaths(configPaths, deployConfig),
     indexValue,
+    recipeSchema: options.recipeSchema,
     repoRoot: root,
-    schema,
   });
   assertDeployConfigMatchesLoadedConfig(configs, deployConfig);
   return configs;
@@ -116,38 +81,35 @@ type StudioDeployConfigReference = Readonly<{
 }>;
 
 async function loadValidatedCatalogEntries(args: {
-  entries: readonly CatalogSourceEntry[];
+  configPaths: readonly string[];
   indexValue: unknown;
+  recipeSchema?: TSchema;
   repoRoot: string;
-  schema: ReturnType<typeof deriveRecipeConfigSchema>;
 }): Promise<ValidatedMapConfig[]> {
   const configsByPath = new Map<string, ValidatedMapConfig>();
   const readErrors: string[] = [];
 
-  for (const entry of args.entries) {
+  for (const configPath of args.configPaths) {
     try {
-      const fileName = catalogConfigFileNameFromPath(entry.configPath);
       const raw = JSON.parse(
-        await readFile(resolve(args.repoRoot, entry.configPath), "utf-8")
+        await readFile(resolve(args.repoRoot, configPath), "utf-8")
       ) as unknown;
       configsByPath.set(
-        entry.configPath,
-        validateCanonicalMapConfig({
-          fileName,
-          raw,
-          recipeSchema: args.schema,
-          stages: STANDARD_STAGES,
+        configPath,
+        admitSwooperCatalogConfig({
+          sourcePath: configPath,
+          canonicalConfig: raw,
+          recipeSchema: args.recipeSchema,
         })
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      readErrors.push(`${entry.configPath}: ${message}`);
+      readErrors.push(`${configPath}: ${message}`);
     }
   }
 
   const indexErrors = validateCatalogSourceIndex(args.indexValue, {
     knownConfigPaths: new Set(configsByPath.keys()),
-    configMetadataByPath: configsByPath,
   });
   if (indexErrors.length > 0 || readErrors.length > 0) {
     throw new Error(
@@ -157,9 +119,9 @@ async function loadValidatedCatalogEntries(args: {
     );
   }
 
-  const configs = args.entries.map((entry) => {
-    const config = configsByPath.get(entry.configPath);
-    if (!config) throw new Error(`Catalog source config was not loaded: ${entry.configPath}`);
+  const configs = args.configPaths.map((configPath) => {
+    const config = configsByPath.get(configPath);
+    if (!config) throw new Error(`Catalog source config was not loaded: ${configPath}`);
     return config;
   });
   assertUniqueConfigIds(configs);
@@ -171,8 +133,10 @@ async function loadValidatedCatalogEntries(args: {
 function assertUniqueConfigIds(configs: readonly ValidatedMapConfig[]): void {
   const seen = new Set<string>();
   for (const config of configs) {
-    if (seen.has(config.id)) throw new Error(`Duplicate map config id "${config.id}"`);
-    seen.add(config.id);
+    if (seen.has(config.canonicalConfig.id)) {
+      throw new Error(`Duplicate map config id "${config.canonicalConfig.id}"`);
+    }
+    seen.add(config.canonicalConfig.id);
   }
 }
 
@@ -184,31 +148,22 @@ function assertDeployConfigMatchesLoadedConfig(
   const fileName = catalogConfigFileNameFromPath(deployConfig.path);
   const config = configs.find((candidate) => candidate.fileName === fileName);
   if (!config) throw new Error(`Studio deploy config was not loaded: ${deployConfig.path}`);
-  if (config.id !== deployConfig.id) {
+  if (config.canonicalConfig.id !== deployConfig.id) {
     throw new Error(
-      `Studio deploy config id "${deployConfig.id}" must match loaded config id "${config.id}" at ${deployConfig.path}`
+      `Studio deploy config id "${deployConfig.id}" must match loaded config id "${config.canonicalConfig.id}" at ${deployConfig.path}`
     );
   }
 }
 
-function studioDeployCatalogEntries(
-  indexEntries: readonly CatalogSourceEntry[],
+function studioDeployConfigPaths(
+  configPaths: readonly string[],
   deployConfig?: StudioDeployConfigReference
-): readonly CatalogSourceEntry[] {
-  if (!deployConfig) return indexEntries;
+): readonly string[] {
+  if (!deployConfig) return configPaths;
   const configPath = deployConfig.path;
   catalogConfigFileNameFromPath(configPath);
-  if (indexEntries.some((entry) => entry.configPath === configPath)) return indexEntries;
-  const deployEntry = {
-    catalogSourceId: deployConfig.id,
-    configPath,
-    name: "Studio Deploy Config",
-    description: "Current Studio operation configuration.",
-    recipe: "standard",
-    sortIndex: 9999,
-    digestInputs: [{ kind: "config-file", path: configPath }],
-  } satisfies CatalogSourceEntry;
-  return [...indexEntries, deployEntry];
+  if (configPaths.includes(configPath)) return configPaths;
+  return [...configPaths, configPath];
 }
 
 function readStudioDeployConfigReference(
@@ -231,25 +186,20 @@ function shouldIncludeStudioDeployConfig(args: readonly string[]): boolean {
 
 async function main(): Promise<void> {
   const includeStudioDeployConfig = shouldIncludeStudioDeployConfig(process.argv.slice(2));
-  const evidenceEnv = includeStudioDeployConfig ? readStudioRunEvidenceEnv() : { kind: "none" };
+  const { schema: recipeSchema } = deriveStandardRecipeArtifacts();
   const configs = includeStudioDeployConfig
     ? await loadSwooperStudioDeployConfigRegistry({
         deployConfig: readStudioDeployConfigReference(process.env),
+        recipeSchema,
       })
-    : await loadSwooperMapConfigRegistry();
-  const recipeSchema = deriveRecipeConfigSchema(STANDARD_STAGES);
-  const envelopeSchema = buildCanonicalMapConfigSchema(recipeSchema);
-  const plan = buildSwooperCatalogModFilePlan({
-    configs,
-    envelopeSchema,
-    evidenceEnv,
-  });
+    : await loadSwooperMapConfigRegistry({ recipeSchema });
+  const plan = buildSwooperCatalogModFilePlan({ configs });
   await writeSwooperMapArtifactFilePlan(plan, { outputRoot: pkgRoot });
 
   const rel = (path: string) => path.replace(`${repoRoot}/`, "");
   console.log(
     `Generated ${configs.length} Swooper map configs from ${rel(configsDir)}: ${configs
-      .map((config) => config.id)
+      .map((config) => config.canonicalConfig.id)
       .join(", ")}`
   );
 }

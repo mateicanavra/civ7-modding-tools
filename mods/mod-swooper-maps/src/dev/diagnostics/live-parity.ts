@@ -7,6 +7,12 @@ import {
 } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0, RIVER_TYPE_MINOR } from "@civ7/map-policy";
 import {
+  type DeepReadonly,
+  type RunInGameExactAuthorshipEvidence,
+  snapshotRunInGameExactAuthorshipEvidence,
+} from "@civ7/studio-contract";
+import type { StudioRunGenerationManifest } from "@civ7/studio-run-workspace";
+import {
   createExtendedMapContext,
   createLabelRng,
   sha256Hex,
@@ -14,13 +20,14 @@ import {
 } from "@swooper/mapgen-core";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import type { TraceEvent, TraceSink } from "@swooper/mapgen-core/trace";
-
+import { admitSwooperCatalogConfig } from "../../maps/catalog/admission.js";
 import {
+  admitStandardMapConfig,
   canonicalRecipeConfig,
-  isPlainObject as isCanonicalMapConfigObject,
+  type StandardMapConfigEnvelope,
 } from "../../maps/configs/canonical.js";
 import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
-import standardRecipe from "../../recipes/standard/recipe.js";
+import standardRecipe, { type StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
 import { artifacts as ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts/index.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
@@ -30,7 +37,7 @@ import { artifacts as mapMorphologyArtifacts } from "../../recipes/standard/stag
 import { artifacts as mapRiversArtifacts } from "../../recipes/standard/stages/map-rivers/artifacts/index.js";
 import { artifacts as morphologyArtifacts } from "../../recipes/standard/stages/morphology/artifacts/index.js";
 import { artifacts as placementArtifacts } from "../../recipes/standard/stages/placement/artifacts/index.js";
-import { isPlainObject, mergeDeep } from "./shared.js";
+import { isPlainObject } from "./shared.js";
 
 export const FINAL_SURFACE_KEYS = ["terrain", "biome", "feature", "resource"] as const;
 
@@ -47,8 +54,8 @@ export type FinalSurfaceSnapshot = Readonly<{
   width: number;
   height: number;
   seed?: number;
-  configHash?: string;
-  envelopeHash?: string;
+  canonicalConfigDigest?: string;
+  launchEnvelopeDigest?: string;
   surfaces: Readonly<Record<FinalSurfaceKey, SurfaceGrid>>;
   riverMetadata?: RiverMetadataSnapshot;
   nativeRiverObjects?: NativeRiverObjectSnapshot;
@@ -204,9 +211,9 @@ export type FloodplainActiveParityReport = Readonly<{
   mismatchedFields: ReadonlyArray<keyof FloodplainFeatureApplyCounters>;
 }>;
 
-export type RiverLakeProofClaimStatus = "pass" | "fail" | "unresolved" | "out-of-scope";
+export type RiverLakeVerificationClaimStatus = "pass" | "fail" | "unresolved" | "out-of-scope";
 
-export type RiverLakeProofLabel =
+export type RiverLakeVerificationLabel =
   | "exact-authorship"
   | "hydrology-truth"
   | "projection-plan"
@@ -218,16 +225,16 @@ export type RiverLakeProofLabel =
   | "floodplain-active"
   | "product-acceptance";
 
-export type RiverLakeProofClaim = Readonly<{
-  label: RiverLakeProofLabel;
-  status: RiverLakeProofClaimStatus;
+export type RiverLakeVerificationClaim = Readonly<{
+  label: RiverLakeVerificationLabel;
+  status: RiverLakeVerificationClaimStatus;
   reason: string;
   evidenceLinks: ReadonlyArray<string>;
 }>;
 
-export type RiverLakeProofClaimLedger = Readonly<{
+export type RiverLakeVerificationClaimLedger = Readonly<{
   version: 1;
-  claims: Readonly<Record<RiverLakeProofLabel, RiverLakeProofClaim>>;
+  claims: Readonly<Record<RiverLakeVerificationLabel, RiverLakeVerificationClaim>>;
 }>;
 
 export type ParityResidualClassification = Readonly<{
@@ -246,7 +253,7 @@ export type ParityResidualClassification = Readonly<{
   evidence: string;
 }>;
 
-type ResourcePlacementCoordinateProofComparison = Readonly<{
+type ResourcePlacementCoordinateEvidenceComparison = Readonly<{
   status: "match" | "mismatch" | "missing-exact-log";
   local: Readonly<{
     placed?: Readonly<{ count?: number; hash32?: string }>;
@@ -261,7 +268,7 @@ type ResourcePlacementCoordinateProofComparison = Readonly<{
   mismatchedLinks: ReadonlyArray<string>;
 }>;
 
-type NaturalWonderPlanCoordinateProofComparison = Readonly<{
+type NaturalWonderPlanCoordinateEvidenceComparison = Readonly<{
   status: "match" | "mismatch" | "missing-exact-log" | "missing-local-plan";
   local?: Readonly<{
     planned?: Readonly<{ count?: number; hash32?: string }>;
@@ -273,7 +280,7 @@ type NaturalWonderPlanCoordinateProofComparison = Readonly<{
   mismatchedLinks: ReadonlyArray<string>;
 }>;
 
-type NaturalWonderPlanInputContextProofComparison = Readonly<{
+type NaturalWonderPlanInputContextEvidenceComparison = Readonly<{
   status: "compared" | "missing-exact-log" | "missing-local-input";
   surfaceDigests?: NaturalWonderPlanInputSurfaceDigestComparison;
   rowComparisons: ReadonlyArray<NaturalWonderPlanInputRowComparison>;
@@ -429,15 +436,15 @@ export type ResourcePlacementRejectionContext = Readonly<{
   }>;
 }>;
 
-export type FinalSurfaceParityProof = Readonly<{
+export type FinalSurfaceParityReport = Readonly<{
   status: "complete" | "unresolved";
   createdAt: string;
-  exactAuthorshipPacket?: ExactAuthorshipProofLike;
+  exactAuthorshipEvidence?: CompleteExactAuthorshipEvidence;
   exactAuthorshipSummary: Readonly<{
     requestId?: string;
     status?: string;
-    configHash?: string;
-    envelopeHash?: string;
+    canonicalConfigDigest?: string;
+    launchEnvelopeDigest?: string;
     seed?: number;
     mapSize?: string;
     dimensions?: Readonly<{ width?: number; height?: number }>;
@@ -446,146 +453,37 @@ export type FinalSurfaceParityProof = Readonly<{
   local: FinalSurfaceSnapshot;
   live: FinalSurfaceSnapshot;
   diffs: ReadonlyArray<SurfaceDiffSummary>;
-  naturalWonderPlanCoordinateProof?: NaturalWonderPlanCoordinateProofComparison;
-  naturalWonderPlanInputContextProof?: NaturalWonderPlanInputContextProofComparison;
-  resourcePlacementCoordinateProof?: ResourcePlacementCoordinateProofComparison;
+  naturalWonderPlanCoordinateEvidence?: NaturalWonderPlanCoordinateEvidenceComparison;
+  naturalWonderPlanInputContextEvidence?: NaturalWonderPlanInputContextEvidenceComparison;
+  resourcePlacementCoordinateEvidence?: ResourcePlacementCoordinateEvidenceComparison;
   resourcePlacementRejectionContexts?: ReadonlyArray<ResourcePlacementRejectionContext>;
   riverMetadataParity?: RiverMetadataParityReport;
   lakeReadbackParity?: LakeReadbackParityReport;
   floodplainActiveParity?: FloodplainActiveParityReport;
-  proofClaims: RiverLakeProofClaimLedger;
+  verificationClaims: RiverLakeVerificationClaimLedger;
   residuals: ReadonlyArray<ParityResidualClassification>;
   unresolvedLinks: ReadonlyArray<string>;
+}>;
+
+export type MapEnvelopeBounds = Readonly<{
+  topLatitude: number;
+  bottomLatitude: number;
 }>;
 
 export type RunLocalFinalSurfaceInput = Readonly<{
   width: number;
   height: number;
   seed: number;
-  config: unknown;
-  configHash?: string;
-  envelopeHash?: string;
-  override?: unknown;
+  config: StandardMapConfigEnvelope;
+  canonicalConfigDigest?: string;
+  launchEnvelopeDigest?: string;
+  mapEnvelopeBounds?: MapEnvelopeBounds;
 }>;
 
-export type ExactAuthorshipProofLike = Readonly<{
-  status?: string;
-  requestId?: string;
-  unresolvedLinks?: ReadonlyArray<string>;
-  sourceSnapshot?: Readonly<{
-    identityHash?: string;
-    requestId?: string;
-    recipeSettings?: unknown;
-    worldSettings?: unknown;
-    pipelineConfig?: unknown;
-    setupConfig?: unknown;
-    materializationMode?: string;
-    selectedConfig?: unknown;
-    configHash?: string;
-    envelopeHash?: string;
-  }>;
-  request?: Readonly<{
-    seed?: number;
-    mapSize?: string;
-  }>;
-  materialization?: Readonly<{
-    mode?: string;
-    path?: string;
-    mapScript?: string;
-    configHash?: string;
-    envelopeHash?: string;
-    sourceConfig?: FileIdentityLike;
-    generatedSourceScript?: FileIdentityLike;
-    localModScript?: FileIdentityLike;
-    deployedModScript?: FileIdentityLike;
-  }>;
-  runtime?: Readonly<{
-    seed?: number;
-    width?: number;
-    height?: number;
-    plotCount?: number;
-    turn?: number;
-    gameHash?: number;
-    sourceSnapshotId?: string;
-    snapshotHash?: string;
-  }>;
-  log?: Readonly<{
-    requestId?: string;
-    configHash?: string;
-    envelopeHash?: string;
-    seed?: number;
-    dimensions?: Readonly<{ width?: number; height?: number }>;
-    resourcePlacement?: Readonly<{
-      stats?: Readonly<{
-        rejectionRows?: ReadonlyArray<unknown>;
-      }>;
-      coordinateProof?: Readonly<{
-        version?: number;
-        placed?: Readonly<{ count?: number; hash32?: string }>;
-        rejected?: Readonly<{ count?: number; hash32?: string }>;
-        mismatch?: Readonly<{ count?: number; hash32?: string }>;
-      }>;
-    }>;
-    featureApply?: Readonly<{
-      stats?: Readonly<{
-        attempted?: number;
-        applied?: number;
-        rejected?: number;
-        rejectedCanHaveFeature?: number;
-        attemptedByFeature?: Readonly<Record<string, number>>;
-        appliedByFeature?: Readonly<Record<string, number>>;
-        rejectedCanHaveFeatureByFeature?: Readonly<Record<string, number>>;
-      }>;
-    }>;
-    naturalWonderPlacement?: Readonly<{
-      stats?: Readonly<{
-        version?: number;
-        plannedCount?: number;
-        targetCount?: number;
-        placedCount?: number;
-        terrainAdjustedCount?: number;
-        skippedOutOfBoundsCount?: number;
-        rejectedCount?: number;
-        shortfallCount?: number;
-        rejectionExampleCount?: number;
-        rejectionExamples?: ReadonlyArray<string>;
-      }>;
-      coordinateProof?: Readonly<{
-        version?: number;
-        placed?: Readonly<{ count?: number; hash32?: string }>;
-        rejected?: Readonly<{ count?: number; hash32?: string }>;
-      }>;
-      payload?: unknown;
-    }>;
-    naturalWonderPlan?: Readonly<{
-      planRows?: ReadonlyArray<unknown>;
-      coordinateProof?: Readonly<{
-        version?: number;
-        planned?: Readonly<{ count?: number; hash32?: string }>;
-      }>;
-      payload?: unknown;
-    }>;
-    naturalWonderPlanInput?: Readonly<{
-      stats?: Readonly<{
-        version?: number;
-        plannedCount?: number;
-        rowCount?: number;
-      }>;
-      surfaceDigests?: unknown;
-      inputRows?: ReadonlyArray<unknown>;
-      payload?: unknown;
-    }>;
-    placementSurfacePreparation?: LakeReadbackCounters;
-  }>;
-}>;
-
-type FileIdentityLike = Readonly<{
-  path?: string;
-  sha256?: string;
-  sizeBytes?: number;
-  mtimeMs?: number;
-  mtimeIso?: string;
-}>;
+export type CompleteExactAuthorshipEvidence = Extract<
+  DeepReadonly<RunInGameExactAuthorshipEvidence>,
+  { readonly status: "complete" }
+>;
 
 type LocalTraceEvidence = {
   placementParity?: unknown;
@@ -608,7 +506,11 @@ function createMemoryTraceSink(events: TraceEvent[]): TraceSink {
   };
 }
 
-export function createFinalSurfaceParityMapInfo(width: number, height: number) {
+export function createFinalSurfaceParityMapInfo(
+  width: number,
+  height: number,
+  mapEnvelopeBounds?: MapEnvelopeBounds
+) {
   const mapSizePreset = getCiv7StandardMapSizePresetForDimensions(width, height);
   const fallbackLatitudeBounds = mapSizePreset?.latitudeBounds ?? CIV7_STANDARD_ROW_LATITUDE_BOUNDS;
   const fallbackMinLatitude = Math.min(
@@ -631,40 +533,39 @@ export function createFinalSurfaceParityMapInfo(width: number, height: number) {
     StartSectorRows: mapSizePreset?.mapInfo.StartSectorRows ?? 4,
     StartSectorCols: mapSizePreset?.mapInfo.StartSectorCols ?? 4,
   } as const;
-  const latitudeBounds = {
-    topLatitude: mapInfo.MaxLatitude,
-    bottomLatitude: mapInfo.MinLatitude,
-  } as const;
-  return { latitudeBounds, mapInfo };
+  const latitudeBounds =
+    mapEnvelopeBounds ??
+    ({
+      topLatitude: mapInfo.MaxLatitude,
+      bottomLatitude: mapInfo.MinLatitude,
+    } as const);
+  return { latitudeBounds, mapInfo, mapSizeId: mapSizePreset?.id ?? 1 };
 }
 
-function resolveRecipeConfig(config: unknown, override: unknown): unknown {
+function resolveRecipeConfig(config: StandardMapConfigEnvelope): StandardRecipeConfig {
   if (config === undefined) {
     throw new Error(
-      "Final-surface parity local run requires an exact-authored source snapshot config."
+      "Final-surface parity local run requires the Standard config admitted from its generation manifest."
     );
   }
-  const loadedConfig = config;
-  const baseConfig =
-    isCanonicalMapConfigObject(loadedConfig) && isCanonicalMapConfigObject(loadedConfig.config)
-      ? canonicalRecipeConfig(loadedConfig)
-      : loadedConfig;
-  return override && isPlainObject(baseConfig) && isPlainObject(override)
-    ? mergeDeep(baseConfig, override)
-    : baseConfig;
+  return canonicalRecipeConfig(config);
 }
 
 export function runLocalFinalSurfaceSnapshot(
   input: RunLocalFinalSurfaceInput
 ): FinalSurfaceSnapshot {
   const { width, height, seed } = input;
-  const { latitudeBounds, mapInfo } = createFinalSurfaceParityMapInfo(width, height);
+  const { latitudeBounds, mapInfo, mapSizeId } = createFinalSurfaceParityMapInfo(
+    width,
+    height,
+    input.mapEnvelopeBounds
+  );
   const envBase = {
     seed,
     dimensions: { width, height },
     latitudeBounds,
   } as const;
-  const config = resolveRecipeConfig(input.config, input.override);
+  const config = resolveRecipeConfig(input.config);
   const plan = standardRecipe.compile(envBase, config);
   const verboseSteps = Object.fromEntries(
     plan.nodes.map((node: any) => [node.stepId, "verbose"] as const)
@@ -674,7 +575,7 @@ export function runLocalFinalSurfaceSnapshot(
     width,
     height,
     mapInfo,
-    mapSizeId: mapInfo.MapSizeType ?? 1,
+    mapSizeId,
     rng: createLabelRng(seed),
   });
   const context = createExtendedMapContext({ width, height }, adapter, env);
@@ -747,8 +648,12 @@ export function runLocalFinalSurfaceSnapshot(
     width,
     height,
     seed,
-    ...(input.configHash === undefined ? {} : { configHash: input.configHash }),
-    ...(input.envelopeHash === undefined ? {} : { envelopeHash: input.envelopeHash }),
+    ...(input.canonicalConfigDigest === undefined
+      ? {}
+      : { canonicalConfigDigest: input.canonicalConfigDigest }),
+    ...(input.launchEnvelopeDigest === undefined
+      ? {}
+      : { launchEnvelopeDigest: input.launchEnvelopeDigest }),
     surfaces: {
       terrain: { width, height, values: terrain },
       biome: { width, height, values: biome },
@@ -958,8 +863,8 @@ export function liveGridToFinalSurfaceSnapshot(args: {
   width: number;
   height: number;
   seed?: number;
-  configHash?: string;
-  envelopeHash?: string;
+  canonicalConfigDigest?: string;
+  launchEnvelopeDigest?: string;
   nativeRiverObjects?: NativeRiverObjectSnapshot;
   evidence?: Readonly<Record<string, unknown>>;
 }): FinalSurfaceSnapshot {
@@ -1003,8 +908,12 @@ export function liveGridToFinalSurfaceSnapshot(args: {
     width,
     height,
     ...(args.seed === undefined ? {} : { seed: args.seed }),
-    ...(args.configHash === undefined ? {} : { configHash: args.configHash }),
-    ...(args.envelopeHash === undefined ? {} : { envelopeHash: args.envelopeHash }),
+    ...(args.canonicalConfigDigest === undefined
+      ? {}
+      : { canonicalConfigDigest: args.canonicalConfigDigest }),
+    ...(args.launchEnvelopeDigest === undefined
+      ? {}
+      : { launchEnvelopeDigest: args.launchEnvelopeDigest }),
     surfaces,
     riverMetadata,
     ...(args.nativeRiverObjects === undefined
@@ -1100,33 +1009,33 @@ export function diffFinalSurfaceSnapshots(
   });
 }
 
-export function buildFinalSurfaceParityProof(args: {
-  exactAuthorship?: ExactAuthorshipProofLike;
+export function buildFinalSurfaceParityReport(args: {
+  exactAuthorship?: CompleteExactAuthorshipEvidence;
   local: FinalSurfaceSnapshot;
   live: FinalSurfaceSnapshot;
   now?: () => Date;
-}): FinalSurfaceParityProof {
+}): FinalSurfaceParityReport {
   const diffs = diffFinalSurfaceSnapshots(args.local, args.live);
   const unresolvedLinks: string[] = [];
   const exact = args.exactAuthorship;
-  const naturalWonderPlanCoordinateProof =
+  const naturalWonderPlanCoordinateEvidence =
     exact === undefined
       ? undefined
-      : buildNaturalWonderPlanCoordinateProofComparison(exact, args.local);
-  const naturalWonderPlanInputContextProof =
+      : buildNaturalWonderPlanCoordinateEvidenceComparison(exact, args.local);
+  const naturalWonderPlanInputContextEvidence =
     exact === undefined
       ? undefined
-      : buildNaturalWonderPlanInputContextProofComparison(exact, args.local);
-  const resourcePlacementCoordinateProof =
+      : buildNaturalWonderPlanInputContextEvidenceComparison(exact, args.local);
+  const resourcePlacementCoordinateEvidence =
     exact === undefined
       ? undefined
-      : buildResourcePlacementCoordinateProofComparison(exact, args.local);
+      : buildResourcePlacementCoordinateEvidenceComparison(exact, args.local);
   const resourcePlacementRejectionContexts =
     exact === undefined ? [] : buildResourcePlacementRejectionContexts(exact, args.local);
   const riverMetadataParity = buildRiverMetadataParityReport(args.local, args.live);
   const lakeReadbackParity = buildLakeReadbackParityReport(exact, args.local);
   const floodplainActiveParity = buildFloodplainActiveParityReport(exact, args.local, diffs);
-  const exactAuthorshipValidation = validateExactAuthorshipProofPacket(exact);
+  const exactAuthorshipValidation = parseCompleteExactAuthorshipEvidencePacket(exact);
 
   unresolvedLinks.push(...exactAuthorshipValidation.unresolvedLinks);
   addSurfaceShapeLinks(
@@ -1146,44 +1055,44 @@ export function buildFinalSurfaceParityProof(args: {
   addFullGridEvidenceLinks(unresolvedLinks, args.live);
   if (exact) {
     if (exact.request?.seed !== undefined && args.local.seed !== exact.request.seed) {
-      unresolvedLinks.push("exact-authorship-proof.request-seed.local-seed");
+      unresolvedLinks.push("exact-authorship-evidence.request-seed.local-seed");
     }
     if (exact.log?.seed !== undefined && args.local.seed !== exact.log.seed) {
-      unresolvedLinks.push("exact-authorship-proof.log-seed.local-seed");
+      unresolvedLinks.push("exact-authorship-evidence.log-seed.local-seed");
     }
     if (exact.runtime?.seed !== undefined && args.local.seed !== exact.runtime.seed) {
-      unresolvedLinks.push("exact-authorship-proof.runtime-seed.local-seed");
+      unresolvedLinks.push("exact-authorship-evidence.runtime-seed.local-seed");
     }
     if (exact.runtime?.width !== undefined && args.local.width !== exact.runtime.width) {
-      unresolvedLinks.push("exact-authorship-proof.runtime-width.local-width");
+      unresolvedLinks.push("exact-authorship-evidence.runtime-width.local-width");
     }
     if (exact.runtime?.height !== undefined && args.local.height !== exact.runtime.height) {
-      unresolvedLinks.push("exact-authorship-proof.runtime-height.local-height");
+      unresolvedLinks.push("exact-authorship-evidence.runtime-height.local-height");
     }
     if (
       exact.log?.dimensions?.width !== undefined &&
       args.local.width !== exact.log.dimensions.width
     ) {
-      unresolvedLinks.push("exact-authorship-proof.log-width.local-width");
+      unresolvedLinks.push("exact-authorship-evidence.log-width.local-width");
     }
     if (
       exact.log?.dimensions?.height !== undefined &&
       args.local.height !== exact.log.dimensions.height
     ) {
-      unresolvedLinks.push("exact-authorship-proof.log-height.local-height");
+      unresolvedLinks.push("exact-authorship-evidence.log-height.local-height");
     }
     if (
       exact.runtime?.seed !== undefined &&
       args.live.seed !== undefined &&
       exact.runtime.seed !== args.live.seed
     ) {
-      unresolvedLinks.push("exact-authorship-proof.runtime-seed.live-seed");
+      unresolvedLinks.push("exact-authorship-evidence.runtime-seed.live-seed");
     }
     if (exact.runtime?.width !== undefined && exact.runtime.width !== args.live.width) {
-      unresolvedLinks.push("exact-authorship-proof.runtime-width.live-width");
+      unresolvedLinks.push("exact-authorship-evidence.runtime-width.live-width");
     }
     if (exact.runtime?.height !== undefined && exact.runtime.height !== args.live.height) {
-      unresolvedLinks.push("exact-authorship-proof.runtime-height.live-height");
+      unresolvedLinks.push("exact-authorship-evidence.runtime-height.live-height");
     }
     const liveRuntime = isPlainObject(args.live.evidence?.runtime)
       ? args.live.evidence.runtime
@@ -1196,65 +1105,53 @@ export function buildFinalSurfaceParityProof(args: {
       liveTurn !== undefined &&
       exact.runtime.turn !== liveTurn
     ) {
-      unresolvedLinks.push("exact-authorship-proof.runtime-turn.live-turn");
+      unresolvedLinks.push("exact-authorship-evidence.runtime-turn.live-turn");
     }
     if (
       exact.runtime?.gameHash !== undefined &&
       liveGameHash !== undefined &&
       exact.runtime.gameHash !== liveGameHash
     ) {
-      unresolvedLinks.push("exact-authorship-proof.runtime-game-hash.live-game-hash");
+      unresolvedLinks.push("exact-authorship-evidence.runtime-game-hash.live-game-hash");
     }
     if (
       exact.runtime?.plotCount !== undefined &&
       livePlotCount !== undefined &&
       exact.runtime.plotCount !== livePlotCount
     ) {
-      unresolvedLinks.push("exact-authorship-proof.runtime-plot-count.live-plot-count");
+      unresolvedLinks.push("exact-authorship-evidence.runtime-plot-count.live-plot-count");
     }
     if (!exact.runtime?.sourceSnapshotId)
-      unresolvedLinks.push("exact-authorship-proof.runtime.source-snapshot-id");
+      unresolvedLinks.push("exact-authorship-evidence.runtime.source-snapshot-id");
     if (!exact.runtime?.snapshotHash)
-      unresolvedLinks.push("exact-authorship-proof.runtime.snapshot-hash");
+      unresolvedLinks.push("exact-authorship-evidence.runtime.snapshot-hash");
     if (exact.runtime?.turn === undefined)
-      unresolvedLinks.push("exact-authorship-proof.runtime.turn");
+      unresolvedLinks.push("exact-authorship-evidence.runtime.turn");
     if (exact.runtime?.gameHash === undefined)
-      unresolvedLinks.push("exact-authorship-proof.runtime.game-hash");
+      unresolvedLinks.push("exact-authorship-evidence.runtime.game-hash");
     if (
-      exact.sourceSnapshot?.configHash !== undefined &&
-      args.local.configHash !== undefined &&
-      exact.sourceSnapshot.configHash !== args.local.configHash
-    ) {
-      unresolvedLinks.push("exact-authorship-proof.config-hash.local-config-hash");
-    }
-    if (
-      exact.sourceSnapshot?.envelopeHash !== undefined &&
-      args.local.envelopeHash !== undefined &&
-      exact.sourceSnapshot.envelopeHash !== args.local.envelopeHash
-    ) {
-      unresolvedLinks.push("exact-authorship-proof.envelope-hash.local-envelope-hash");
-    }
-    if (
-      exact.materialization?.configHash !== undefined &&
-      args.local.configHash !== undefined &&
-      exact.materialization.configHash !== args.local.configHash
-    ) {
-      unresolvedLinks.push("exact-authorship-proof.materialization-config-hash.local-config-hash");
-    }
-    if (
-      exact.materialization?.envelopeHash !== undefined &&
-      args.local.envelopeHash !== undefined &&
-      exact.materialization.envelopeHash !== args.local.envelopeHash
+      exact.materialization?.canonicalConfigDigest !== undefined &&
+      args.local.canonicalConfigDigest !== undefined &&
+      exact.materialization.canonicalConfigDigest !== args.local.canonicalConfigDigest
     ) {
       unresolvedLinks.push(
-        "exact-authorship-proof.materialization-envelope-hash.local-envelope-hash"
+        "exact-authorship-evidence.materialization-canonical-config-digest.local-canonical-config-digest"
       );
     }
-    if (naturalWonderPlanCoordinateProof) {
-      unresolvedLinks.push(...naturalWonderPlanCoordinateProof.mismatchedLinks);
+    if (
+      exact.materialization?.launchEnvelopeDigest !== undefined &&
+      args.local.launchEnvelopeDigest !== undefined &&
+      exact.materialization.launchEnvelopeDigest !== args.local.launchEnvelopeDigest
+    ) {
+      unresolvedLinks.push(
+        "exact-authorship-evidence.materialization-launch-envelope-digest.local-launch-envelope-digest"
+      );
     }
-    if (resourcePlacementCoordinateProof) {
-      unresolvedLinks.push(...resourcePlacementCoordinateProof.mismatchedLinks);
+    if (naturalWonderPlanCoordinateEvidence) {
+      unresolvedLinks.push(...naturalWonderPlanCoordinateEvidence.mismatchedLinks);
+    }
+    if (resourcePlacementCoordinateEvidence) {
+      unresolvedLinks.push(...resourcePlacementCoordinateEvidence.mismatchedLinks);
     }
   }
   if (riverMetadataParity?.status === "readback-missing") {
@@ -1308,7 +1205,7 @@ export function buildFinalSurfaceParityProof(args: {
   for (const residual of residuals) {
     if (residual.status === "unresolved") unresolvedLinks.push(`residual.${residual.key}`);
   }
-  const proofClaims = buildRiverLakeProofClaimLedger({
+  const verificationClaims = buildRiverLakeVerificationClaimLedger({
     exactAuthorshipUnresolvedLinks: exactAuthorshipValidation.unresolvedLinks,
     riverMetadataParity,
     lakeReadbackParity,
@@ -1318,16 +1215,16 @@ export function buildFinalSurfaceParityProof(args: {
   return {
     status: unresolvedLinks.length === 0 ? "complete" : "unresolved",
     createdAt: (args.now ?? (() => new Date()))().toISOString(),
-    ...(exact === undefined ? {} : { exactAuthorshipPacket: exact }),
+    ...(exact === undefined ? {} : { exactAuthorshipEvidence: exact }),
     exactAuthorshipSummary: {
       ...(exact?.requestId === undefined ? {} : { requestId: exact.requestId }),
       ...(exact?.status === undefined ? {} : { status: exact.status }),
-      ...(exact?.sourceSnapshot?.configHash === undefined
+      ...(exact?.sourceSnapshot?.canonicalConfigDigest === undefined
         ? {}
-        : { configHash: exact.sourceSnapshot.configHash }),
-      ...(exact?.sourceSnapshot?.envelopeHash === undefined
+        : { canonicalConfigDigest: exact.sourceSnapshot.canonicalConfigDigest }),
+      ...(exact?.sourceSnapshot?.launchEnvelopeDigest === undefined
         ? {}
-        : { envelopeHash: exact.sourceSnapshot.envelopeHash }),
+        : { launchEnvelopeDigest: exact.sourceSnapshot.launchEnvelopeDigest }),
       ...(exact?.request?.seed === undefined ? {} : { seed: exact.request.seed }),
       ...(exact?.request?.mapSize === undefined ? {} : { mapSize: exact.request.mapSize }),
       dimensions: {
@@ -1339,137 +1236,58 @@ export function buildFinalSurfaceParityProof(args: {
     local: args.local,
     live: args.live,
     diffs,
-    ...(naturalWonderPlanCoordinateProof === undefined ? {} : { naturalWonderPlanCoordinateProof }),
-    ...(naturalWonderPlanInputContextProof === undefined
+    ...(naturalWonderPlanCoordinateEvidence === undefined
       ? {}
-      : { naturalWonderPlanInputContextProof }),
-    ...(resourcePlacementCoordinateProof === undefined ? {} : { resourcePlacementCoordinateProof }),
+      : { naturalWonderPlanCoordinateEvidence }),
+    ...(naturalWonderPlanInputContextEvidence === undefined
+      ? {}
+      : { naturalWonderPlanInputContextEvidence }),
+    ...(resourcePlacementCoordinateEvidence === undefined
+      ? {}
+      : { resourcePlacementCoordinateEvidence }),
     ...(resourcePlacementRejectionContexts.length === 0
       ? {}
       : { resourcePlacementRejectionContexts }),
     ...(riverMetadataParity === undefined ? {} : { riverMetadataParity }),
     ...(lakeReadbackParity === undefined ? {} : { lakeReadbackParity }),
     ...(floodplainActiveParity === undefined ? {} : { floodplainActiveParity }),
-    proofClaims,
+    verificationClaims,
     residuals,
     unresolvedLinks: [...new Set(unresolvedLinks)].sort((a, b) => a.localeCompare(b)),
   };
 }
 
-export function validateExactAuthorshipProofPacket(value: unknown): {
-  proof?: ExactAuthorshipProofLike;
+export function parseCompleteExactAuthorshipEvidencePacket(value: unknown): {
+  evidence?: CompleteExactAuthorshipEvidence;
   unresolvedLinks: ReadonlyArray<string>;
 } {
-  const unresolvedLinks: string[] = [];
-  if (!isPlainObject(value)) {
-    return { unresolvedLinks: ["exact-authorship-proof.missing"] };
+  const snapshot = snapshotRunInGameExactAuthorshipEvidence(value);
+  if (snapshot === undefined) {
+    return { unresolvedLinks: ["exact-authorship-evidence.invalid"] };
   }
-
-  const exact = value as ExactAuthorshipProofLike;
-  if (exact.status !== "complete") unresolvedLinks.push("exact-authorship-proof.complete");
-  if (!Array.isArray(exact.unresolvedLinks)) {
-    unresolvedLinks.push("exact-authorship-proof.unresolved-links");
-  } else if (exact.unresolvedLinks.length > 0) {
-    unresolvedLinks.push("exact-authorship-proof.unresolved-links-empty");
+  if (snapshot.status !== "complete") {
+    return {
+      unresolvedLinks: ["exact-authorship-evidence.complete", ...snapshot.unresolvedLinks],
+    };
   }
-  if (!exact.requestId) unresolvedLinks.push("exact-authorship-proof.request-id");
-  if (!exact.sourceSnapshot?.identityHash)
-    unresolvedLinks.push("exact-authorship-proof.source-snapshot.identity-hash");
-  if (
-    exact.sourceSnapshot?.requestId &&
-    exact.requestId &&
-    exact.sourceSnapshot.requestId !== exact.requestId
-  ) {
-    unresolvedLinks.push("exact-authorship-proof.source-snapshot.request-id-mismatch");
-  }
-  if (exact.sourceSnapshot?.recipeSettings === undefined)
-    unresolvedLinks.push("exact-authorship-proof.source-snapshot.recipe-settings");
-  if (exact.sourceSnapshot?.worldSettings === undefined)
-    unresolvedLinks.push("exact-authorship-proof.source-snapshot.world-settings");
-  if (exact.sourceSnapshot?.pipelineConfig === undefined)
-    unresolvedLinks.push("exact-authorship-proof.source-snapshot.pipeline-config");
-  if (exact.sourceSnapshot?.setupConfig === undefined)
-    unresolvedLinks.push("exact-authorship-proof.source-snapshot.setup-config");
-  if (!exact.sourceSnapshot?.materializationMode)
-    unresolvedLinks.push("exact-authorship-proof.source-snapshot.materialization-mode");
-  if (exact.sourceSnapshot?.selectedConfig === undefined)
-    unresolvedLinks.push("exact-authorship-proof.source-snapshot.selected-config");
-  if (!exact.sourceSnapshot?.configHash)
-    unresolvedLinks.push("exact-authorship-proof.source-snapshot.config-hash");
-  if (!exact.sourceSnapshot?.envelopeHash)
-    unresolvedLinks.push("exact-authorship-proof.source-snapshot.envelope-hash");
-  if (
-    exact.sourceSnapshot?.pipelineConfig !== undefined &&
-    exact.sourceSnapshot?.configHash &&
-    hashParityValue(exact.sourceSnapshot.pipelineConfig) !== exact.sourceSnapshot.configHash
-  ) {
-    unresolvedLinks.push("exact-authorship-proof.source-snapshot.config-hash-body-mismatch");
-  }
-  if (!exact.materialization?.mapScript)
-    unresolvedLinks.push("exact-authorship-proof.materialization.map-script");
-  if (!exact.materialization?.configHash)
-    unresolvedLinks.push("exact-authorship-proof.materialization.config-hash");
-  if (!exact.materialization?.envelopeHash)
-    unresolvedLinks.push("exact-authorship-proof.materialization.envelope-hash");
-  if (!hasFileIdentity(exact.materialization?.sourceConfig))
-    unresolvedLinks.push("exact-authorship-proof.materialization.source-config");
-  if (!hasFileIdentity(exact.materialization?.generatedSourceScript)) {
-    unresolvedLinks.push("exact-authorship-proof.materialization.generated-source-script");
-  }
-  if (!hasFileIdentity(exact.materialization?.localModScript))
-    unresolvedLinks.push("exact-authorship-proof.materialization.local-mod-script");
-  if (!hasFileIdentity(exact.materialization?.deployedModScript))
-    unresolvedLinks.push("exact-authorship-proof.materialization.deployed-mod-script");
-  if (!exact.log?.requestId) unresolvedLinks.push("exact-authorship-proof.log.request-id");
-  if (!exact.log?.configHash) unresolvedLinks.push("exact-authorship-proof.log.config-hash");
-  if (!exact.log?.envelopeHash) unresolvedLinks.push("exact-authorship-proof.log.envelope-hash");
-  if (exact.log?.requestId && exact.requestId && exact.log.requestId !== exact.requestId) {
-    unresolvedLinks.push("exact-authorship-proof.log.request-id-mismatch");
-  }
-  if (
-    exact.log?.configHash &&
-    exact.materialization?.configHash &&
-    exact.log.configHash !== exact.materialization.configHash
-  ) {
-    unresolvedLinks.push("exact-authorship-proof.log.config-hash-mismatch");
-  }
-  if (
-    exact.log?.envelopeHash &&
-    exact.materialization?.envelopeHash &&
-    exact.log.envelopeHash !== exact.materialization.envelopeHash
-  ) {
-    unresolvedLinks.push("exact-authorship-proof.log.envelope-hash-mismatch");
-  }
-  if (!exact.runtime?.sourceSnapshotId)
-    unresolvedLinks.push("exact-authorship-proof.runtime.source-snapshot-id");
-  if (!exact.runtime?.snapshotHash)
-    unresolvedLinks.push("exact-authorship-proof.runtime.snapshot-hash");
-  if (exact.runtime?.turn === undefined)
-    unresolvedLinks.push("exact-authorship-proof.runtime.turn");
-  if (exact.runtime?.gameHash === undefined)
-    unresolvedLinks.push("exact-authorship-proof.runtime.game-hash");
-
-  return {
-    proof: exact,
-    unresolvedLinks: [...new Set(unresolvedLinks)].sort((a, b) => a.localeCompare(b)),
-  };
+  return { evidence: snapshot, unresolvedLinks: [] };
 }
 
-function proofClaim(
-  label: RiverLakeProofLabel,
-  status: RiverLakeProofClaimStatus,
+function verificationClaim(
+  label: RiverLakeVerificationLabel,
+  status: RiverLakeVerificationClaimStatus,
   reason: string,
   evidenceLinks: ReadonlyArray<string> = []
-): RiverLakeProofClaim {
+): RiverLakeVerificationClaim {
   return { label, status, reason, evidenceLinks };
 }
 
-function buildRiverLakeProofClaimLedger(args: {
+function buildRiverLakeVerificationClaimLedger(args: {
   exactAuthorshipUnresolvedLinks: ReadonlyArray<string>;
   riverMetadataParity?: RiverMetadataParityReport;
   lakeReadbackParity?: LakeReadbackParityReport;
   floodplainActiveParity?: FloodplainActiveParityReport;
-}): RiverLakeProofClaimLedger {
+}): RiverLakeVerificationClaimLedger {
   const {
     exactAuthorshipUnresolvedLinks,
     riverMetadataParity,
@@ -1478,27 +1296,27 @@ function buildRiverLakeProofClaimLedger(args: {
   } = args;
   const exactAuthorship =
     exactAuthorshipUnresolvedLinks.length === 0
-      ? proofClaim(
+      ? verificationClaim(
           "exact-authorship",
           "pass",
           "Exact-authorship packet has no unresolved identity, materialization, log, or runtime links.",
-          ["exact-authorship-proof"]
+          ["exact-authorship-evidence"]
         )
-      : proofClaim(
+      : verificationClaim(
           "exact-authorship",
           "unresolved",
           "Exact-authorship packet is missing required identity, materialization, log, or runtime links.",
           exactAuthorshipUnresolvedLinks
         );
-  const claims: Record<RiverLakeProofLabel, RiverLakeProofClaim> = {
+  const claims: Record<RiverLakeVerificationLabel, RiverLakeVerificationClaim> = {
     "exact-authorship": exactAuthorship,
-    "hydrology-truth": proofClaim(
+    "hydrology-truth": verificationClaim(
       "hydrology-truth",
       "unresolved",
       "Physical hydrology network metrics are not part of this parity packet yet.",
       ["hydrology-river-network-metrics"]
     ),
-    "projection-plan": proofClaim(
+    "projection-plan": verificationClaim(
       "projection-plan",
       "unresolved",
       "Navigable projection coherence and density metrics are not part of this parity packet yet.",
@@ -1506,25 +1324,25 @@ function buildRiverLakeProofClaimLedger(args: {
     ),
     "terrain-readback": terrainReadbackClaim(riverMetadataParity),
     "metadata-readback": metadataReadbackClaim(riverMetadataParity),
-    "studio-visible": proofClaim(
+    "studio-visible": verificationClaim(
       "studio-visible",
       "unresolved",
       "Studio river/lake/floodplain inspector visibility is not proven by final-surface parity readback.",
       ["studio-river-lake-inspector-dx"]
     ),
-    "civ-rendered": proofClaim(
+    "civ-rendered": verificationClaim(
       "civ-rendered",
       "unresolved",
-      "No same-run Civ screenshot/viewport proof is attached to this parity packet.",
-      ["river-runtime-visible-proof"]
+      "No same-run Civ screenshot/viewport evidence is attached to this parity packet.",
+      ["river-runtime-visible-evidence"]
     ),
     "lake-final": lakeFinalClaim(lakeReadbackParity),
     "floodplain-active": floodplainActiveClaim(floodplainActiveParity),
-    "product-acceptance": proofClaim(
+    "product-acceptance": verificationClaim(
       "product-acceptance",
       "unresolved",
-      "Product acceptance requires all proof labels plus reviewer disposition; parity packets do not close product acceptance.",
-      ["swooper-earthlike-product-acceptance-proof"]
+      "Product acceptance requires all evidence labels plus reviewer disposition; parity packets do not close product acceptance.",
+      ["swooper-earthlike-product-acceptance-evidence"]
     ),
   };
   return { version: 1, claims };
@@ -1532,17 +1350,17 @@ function buildRiverLakeProofClaimLedger(args: {
 
 function floodplainActiveClaim(
   parity: FloodplainActiveParityReport | undefined
-): RiverLakeProofClaim {
+): RiverLakeVerificationClaim {
   if (parity === undefined) {
-    return proofClaim(
+    return verificationClaim(
       "floodplain-active",
       "unresolved",
-      "No floodplain feature-apply proof counters are present.",
+      "No floodplain feature-apply evidence counters are present.",
       ["floodplain-active.local-diagnostics"]
     );
   }
   if (parity.status === "inactive-control") {
-    return proofClaim(
+    return verificationClaim(
       "floodplain-active",
       "out-of-scope",
       "This row has zero floodplain-family attempts/applies and is a no-signal control, not a product pass.",
@@ -1550,7 +1368,7 @@ function floodplainActiveClaim(
     );
   }
   if (parity.status === "active-live-match") {
-    return proofClaim(
+    return verificationClaim(
       "floodplain-active",
       "pass",
       "Exact and local floodplain-family apply counts agree, and the live feature grid matches local final surface readback.",
@@ -1558,7 +1376,7 @@ function floodplainActiveClaim(
     );
   }
   if (parity.status === "mismatch") {
-    return proofClaim(
+    return verificationClaim(
       "floodplain-active",
       "fail",
       "Exact and local floodplain-family apply counters diverge.",
@@ -1566,24 +1384,26 @@ function floodplainActiveClaim(
     );
   }
   if (parity.status === "live-feature-mismatch") {
-    return proofClaim(
+    return verificationClaim(
       "floodplain-active",
       "fail",
       "Floodplain-family apply counters agree, but live feature readback does not match the local final surface.",
       ["floodplain-active.live-feature-mismatch"]
     );
   }
-  return proofClaim(
+  return verificationClaim(
     "floodplain-active",
     "unresolved",
-    "Floodplain active proof is missing required local, exact, or live feature evidence.",
+    "Floodplain active evidence is missing required local, exact, or live feature evidence.",
     [`floodplain-active.${parity.status}`]
   );
 }
 
-function terrainReadbackClaim(parity: RiverMetadataParityReport | undefined): RiverLakeProofClaim {
+function terrainReadbackClaim(
+  parity: RiverMetadataParityReport | undefined
+): RiverLakeVerificationClaim {
   if (parity === undefined) {
-    return proofClaim(
+    return verificationClaim(
       "terrain-readback",
       "unresolved",
       "No river terrain readback comparison is present.",
@@ -1591,7 +1411,7 @@ function terrainReadbackClaim(parity: RiverMetadataParityReport | undefined): Ri
     );
   }
   if (parity.status === "match" || parity.status === "terrain-match-metadata-divergent") {
-    return proofClaim(
+    return verificationClaim(
       "terrain-readback",
       "pass",
       "Projected navigable terrain matches live TERRAIN_NAVIGABLE_RIVER readback.",
@@ -1599,14 +1419,14 @@ function terrainReadbackClaim(parity: RiverMetadataParityReport | undefined): Ri
     );
   }
   if (parity.status === "readback-missing") {
-    return proofClaim(
+    return verificationClaim(
       "terrain-readback",
       "unresolved",
       "River terrain readback is missing or incomplete.",
       ["river-metadata.readback"]
     );
   }
-  return proofClaim(
+  return verificationClaim(
     "terrain-readback",
     "fail",
     "Projected navigable terrain does not match live terrain readback.",
@@ -1614,9 +1434,11 @@ function terrainReadbackClaim(parity: RiverMetadataParityReport | undefined): Ri
   );
 }
 
-function metadataReadbackClaim(parity: RiverMetadataParityReport | undefined): RiverLakeProofClaim {
+function metadataReadbackClaim(
+  parity: RiverMetadataParityReport | undefined
+): RiverLakeVerificationClaim {
   if (parity === undefined) {
-    return proofClaim(
+    return verificationClaim(
       "metadata-readback",
       "unresolved",
       "No Civ river metadata readback comparison is present.",
@@ -1624,7 +1446,7 @@ function metadataReadbackClaim(parity: RiverMetadataParityReport | undefined): R
     );
   }
   if (parity.status === "readback-missing") {
-    return proofClaim(
+    return verificationClaim(
       "metadata-readback",
       "unresolved",
       "Civ river metadata readback is missing or incomplete.",
@@ -1632,7 +1454,7 @@ function metadataReadbackClaim(parity: RiverMetadataParityReport | undefined): R
     );
   }
   if (parity.status === "dimension-mismatch" || parity.status === "mismatch") {
-    return proofClaim("metadata-readback", "fail", "Civ river metadata comparison failed.", [
+    return verificationClaim("metadata-readback", "fail", "Civ river metadata comparison failed.", [
       `river-metadata.${parity.status}`,
     ]);
   }
@@ -1641,7 +1463,7 @@ function metadataReadbackClaim(parity: RiverMetadataParityReport | undefined): R
     (parity.nativeRiverObjectReadbackStatus === "not-provided" ||
       parity.nativeRiverObjectReadbackStatus === "unavailable")
   ) {
-    return proofClaim(
+    return verificationClaim(
       "metadata-readback",
       "unresolved",
       "Civ native MapRivers object readback is missing or unavailable for a run with river surfaces.",
@@ -1652,7 +1474,7 @@ function metadataReadbackClaim(parity: RiverMetadataParityReport | undefined): R
     riverMetadataParityExpectsNativeObjects(parity) &&
     parity.nativeRiverObjectReadbackStatus === "zero-rivers"
   ) {
-    return proofClaim(
+    return verificationClaim(
       "metadata-readback",
       "fail",
       "Projected or live river terrain exists, but Civ MapRivers reports zero native river objects.",
@@ -1660,7 +1482,7 @@ function metadataReadbackClaim(parity: RiverMetadataParityReport | undefined): R
     );
   }
   if (parity.status === "match") {
-    return proofClaim(
+    return verificationClaim(
       "metadata-readback",
       "pass",
       "Civ river metadata agrees with the local river metadata claim.",
@@ -1668,21 +1490,21 @@ function metadataReadbackClaim(parity: RiverMetadataParityReport | undefined): R
     );
   }
   if (parity.status === "terrain-match-metadata-divergent") {
-    return proofClaim(
+    return verificationClaim(
       "metadata-readback",
       "fail",
       "Live terrain contains navigable-river terrain while Civ river metadata remains divergent.",
       ["river-metadata.terrain-match-metadata-divergent"]
     );
   }
-  return proofClaim("metadata-readback", "fail", "Civ river metadata comparison failed.", [
+  return verificationClaim("metadata-readback", "fail", "Civ river metadata comparison failed.", [
     `river-metadata.${parity.status}`,
   ]);
 }
 
-function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLakeProofClaim {
+function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLakeVerificationClaim {
   if (parity === undefined) {
-    return proofClaim(
+    return verificationClaim(
       "lake-final",
       "unresolved",
       "No local/exact lake final-readback counters are present.",
@@ -1690,7 +1512,7 @@ function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLake
     );
   }
   if (parity.status === "missing-exact-log") {
-    return proofClaim(
+    return verificationClaim(
       "lake-final",
       "unresolved",
       "Local lake counters exist, but the exact runtime log lacks lake counters.",
@@ -1698,7 +1520,7 @@ function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLake
     );
   }
   if (parity.status === "missing-local-readback") {
-    return proofClaim(
+    return verificationClaim(
       "lake-final",
       "unresolved",
       "Exact lake counters exist, but local lake final-readback counters are missing.",
@@ -1706,7 +1528,7 @@ function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLake
     );
   }
   if (parity.status === "mismatch") {
-    return proofClaim(
+    return verificationClaim(
       "lake-final",
       "fail",
       "Exact and local lake final-readback counters diverge.",
@@ -1716,14 +1538,14 @@ function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLake
   const finalWaterDrift = parity.local?.finalLakeWaterDriftCount;
   const finalClassificationDrift = parity.local?.finalLakeClassificationDriftCount;
   if (finalWaterDrift === 0 && finalClassificationDrift === 0) {
-    return proofClaim(
+    return verificationClaim(
       "lake-final",
       "pass",
       "Exact and local lake final-readback counters match with zero final water/classification drift.",
       ["lakeReadbackParity"]
     );
   }
-  return proofClaim(
+  return verificationClaim(
     "lake-final",
     "fail",
     "Lake counters match, but final lake drift is nonzero or incomplete.",
@@ -1731,17 +1553,31 @@ function lakeFinalClaim(parity: LakeReadbackParityReport | undefined): RiverLake
   );
 }
 
-export function configFromExactAuthorshipProof(
-  exact: ExactAuthorshipProofLike | undefined
-): unknown {
-  return exact?.sourceSnapshot?.pipelineConfig;
+/** The persisted manifest is the only launch-envelope authority for parity replay. */
+export function canonicalConfigFromGenerationManifest(
+  manifest: StudioRunGenerationManifest | undefined
+): StandardMapConfigEnvelope | undefined {
+  const source = manifest?.payload.launchEnvelope.source;
+  if (source === undefined) return undefined;
+  try {
+    return source.kind === "catalog"
+      ? admitSwooperCatalogConfig({
+          sourcePath: source.sourcePath,
+          canonicalConfig: source.canonicalConfig,
+        }).canonicalConfig
+      : admitStandardMapConfig(source.canonicalConfig);
+  } catch {
+    return undefined;
+  }
 }
 
 export function hashParityValue(value: unknown): string {
   return sha256Hex(stableStringify(value));
 }
 
-export function dimensionsFromExactAuthorshipProof(exact: ExactAuthorshipProofLike | undefined): {
+export function dimensionsFromExactAuthorshipEvidence(
+  exact: CompleteExactAuthorshipEvidence | undefined
+): {
   width?: number;
   height?: number;
   seed?: number;
@@ -1753,7 +1589,7 @@ export function dimensionsFromExactAuthorshipProof(exact: ExactAuthorshipProofLi
   };
 }
 
-export function stableParityProofStringify(value: unknown): string {
+export function stableParityReportStringify(value: unknown): string {
   return stableStringify(value);
 }
 
@@ -1764,7 +1600,7 @@ const LAKE_READBACK_COUNTER_FIELDS = [
 ] as const satisfies readonly (keyof LakeReadbackCounters)[];
 
 function buildLakeReadbackParityReport(
-  exact: ExactAuthorshipProofLike | undefined,
+  exact: CompleteExactAuthorshipEvidence | undefined,
   local: FinalSurfaceSnapshot
 ): LakeReadbackParityReport | undefined {
   const terrainProjection = isPlainObject(local.evidence?.terrainProjection)
@@ -1825,7 +1661,7 @@ const FLOODPLAIN_ACTIVE_COUNTER_FIELDS = [
 ] as const satisfies readonly (keyof FloodplainFeatureApplyCounters)[];
 
 function buildFloodplainActiveParityReport(
-  exact: ExactAuthorshipProofLike | undefined,
+  exact: CompleteExactAuthorshipEvidence | undefined,
   local: FinalSurfaceSnapshot,
   diffs: ReadonlyArray<SurfaceDiffSummary>
 ): FloodplainActiveParityReport | undefined {
@@ -1974,7 +1810,7 @@ function classifyResidualSurfaces(
       status: "direct-control-readback-limitation",
       owner: "direct-control-readback",
       evidence:
-        "Local placement records assigned start counts, but current live readback has no start-position wrapper in this proof path.",
+        "Local placement records assigned start counts, but current live readback has no start-position wrapper in this evidence path.",
     },
     {
       key: "wonders",
@@ -2361,63 +2197,69 @@ function addFullGridEvidenceLinks(unresolvedLinks: string[], live: FinalSurfaceS
   if (identityCheck?.stable !== true) unresolvedLinks.push("live.full-grid.identity-check");
 }
 
-function buildNaturalWonderPlanCoordinateProofComparison(
-  exact: ExactAuthorshipProofLike,
+function buildNaturalWonderPlanCoordinateEvidenceComparison(
+  exact: CompleteExactAuthorshipEvidence,
   local: FinalSurfaceSnapshot
-): NaturalWonderPlanCoordinateProofComparison | undefined {
+): NaturalWonderPlanCoordinateEvidenceComparison | undefined {
   const localRows = readLocalNaturalWonderPlanRows(local);
   const exactRows = readExactNaturalWonderPlanRows(exact);
   if (localRows.length === 0 && exactRows.length === 0) return undefined;
 
-  const localProof =
+  const localEvidence =
     localRows.length === 0
       ? undefined
       : {
           planned: naturalWonderPlanCoordinateDigest(localRows),
         };
   const exactLoggedDigest = exactNaturalWonderPlanLoggedDigest(exact);
-  const exactProof =
+  const exactEvidence =
     exactRows.length === 0 && !exactLoggedDigest
       ? undefined
       : {
           planned: exactLoggedDigest ?? naturalWonderPlanCoordinateDigest(exactRows),
         };
   const rowComparisons = buildNaturalWonderPlanRowComparisons(exactRows, localRows, local.width);
-  if (!exactProof) {
+  if (!exactEvidence) {
     return {
       status: "missing-exact-log",
-      local: localProof,
+      local: localEvidence,
       rowComparisons,
       mismatchedLinks:
-        (localProof?.planned?.count ?? 0) > 0 ? ["natural-wonder-plan-coordinate-proof.log"] : [],
+        (localEvidence?.planned?.count ?? 0) > 0
+          ? ["natural-wonder-plan-coordinate-evidence.log"]
+          : [],
     };
   }
-  if (!localProof) {
+  if (!localEvidence) {
     return {
       status: "missing-local-plan",
-      exact: exactProof,
+      exact: exactEvidence,
       rowComparisons,
       mismatchedLinks:
-        (exactProof.planned?.count ?? 0) > 0 ? ["natural-wonder-plan-coordinate-proof.local"] : [],
+        (exactEvidence.planned?.count ?? 0) > 0
+          ? ["natural-wonder-plan-coordinate-evidence.local"]
+          : [],
     };
   }
   const mismatchedLinks = [
     coordinateDigestMismatchLink(
-      localProof.planned,
-      exactProof.planned,
-      "natural-wonder-plan-coordinate-proof.planned"
+      localEvidence.planned,
+      exactEvidence.planned,
+      "natural-wonder-plan-coordinate-evidence.planned"
     ),
   ].filter((link): link is string => link !== undefined);
   return {
     status: mismatchedLinks.length === 0 ? "match" : "mismatch",
-    local: localProof,
-    exact: exactProof,
+    local: localEvidence,
+    exact: exactEvidence,
     rowComparisons,
     mismatchedLinks,
   };
 }
 
-function readExactNaturalWonderPlanRows(exact: ExactAuthorshipProofLike): NaturalWonderPlanRow[] {
+function readExactNaturalWonderPlanRows(
+  exact: CompleteExactAuthorshipEvidence
+): NaturalWonderPlanRow[] {
   const rows = exact.log?.naturalWonderPlan?.planRows;
   return Array.isArray(rows) ? rows.flatMap((row) => readNaturalWonderPlanRow(row)) : [];
 }
@@ -2539,20 +2381,22 @@ function naturalWonderPlanDigestFields(
 }
 
 function exactNaturalWonderPlanLoggedDigest(
-  exact: ExactAuthorshipProofLike
+  exact: CompleteExactAuthorshipEvidence
 ): { count?: number; hash32?: string } | undefined {
-  const planned = exact.log?.naturalWonderPlan?.coordinateProof?.planned;
+  const planned = exact.log?.naturalWonderPlan?.coordinateEvidence?.planned;
   const plannedDigest = coordinateDigest(planned);
   if (plannedDigest) return plannedDigest;
   const payload = isPlainObject(exact.log?.naturalWonderPlan?.payload)
     ? exact.log?.naturalWonderPlan?.payload
     : undefined;
-  const coordinateProof = isPlainObject(payload?.coordinateProof)
-    ? payload.coordinateProof
+  const coordinateEvidence = isPlainObject(payload?.coordinateEvidence)
+    ? payload.coordinateEvidence
     : undefined;
-  const count = numberValue(coordinateProof?.plannedCount);
+  const count = numberValue(coordinateEvidence?.plannedCount);
   const hash32 =
-    typeof coordinateProof?.plannedHash32 === "string" ? coordinateProof.plannedHash32 : undefined;
+    typeof coordinateEvidence?.plannedHash32 === "string"
+      ? coordinateEvidence.plannedHash32
+      : undefined;
   return count === undefined && hash32 === undefined ? undefined : { count, hash32 };
 }
 
@@ -2602,10 +2446,10 @@ function buildNaturalWonderPlanRowComparisons(
   });
 }
 
-function buildNaturalWonderPlanInputContextProofComparison(
-  exact: ExactAuthorshipProofLike,
+function buildNaturalWonderPlanInputContextEvidenceComparison(
+  exact: CompleteExactAuthorshipEvidence,
   local: FinalSurfaceSnapshot
-): NaturalWonderPlanInputContextProofComparison | undefined {
+): NaturalWonderPlanInputContextEvidenceComparison | undefined {
   const exactRows = readExactNaturalWonderPlanInputRows(exact);
   const localRows = readLocalNaturalWonderPlanInputRows(local);
   const surfaceDigests = buildNaturalWonderPlanInputSurfaceDigestComparison(exact, local);
@@ -2638,7 +2482,7 @@ function buildNaturalWonderPlanInputContextProofComparison(
 }
 
 function buildNaturalWonderPlanInputSurfaceDigestComparison(
-  exact: ExactAuthorshipProofLike,
+  exact: CompleteExactAuthorshipEvidence,
   local: FinalSurfaceSnapshot
 ): NaturalWonderPlanInputSurfaceDigestComparison | undefined {
   const exactSurfaceDigests = readExactNaturalWonderPlanInputSurfaceDigests(exact);
@@ -2670,7 +2514,7 @@ function buildNaturalWonderPlanInputSurfaceDigestComparison(
 }
 
 function readExactNaturalWonderPlanInputSurfaceDigests(
-  exact: ExactAuthorshipProofLike
+  exact: CompleteExactAuthorshipEvidence
 ): NaturalWonderPlanInputSurfaceDigests | undefined {
   return readNaturalWonderPlanInputSurfaceDigests(
     exact.log?.naturalWonderPlanInput?.surfaceDigests
@@ -2732,7 +2576,7 @@ function readNaturalWonderPlanInputSurfaceDigests(
 }
 
 function readExactNaturalWonderPlanInputRows(
-  exact: ExactAuthorshipProofLike
+  exact: CompleteExactAuthorshipEvidence
 ): NaturalWonderPlanInputRow[] {
   const rows = exact.log?.naturalWonderPlanInput?.inputRows;
   return Array.isArray(rows) ? rows.flatMap((row) => readNaturalWonderPlanInputRow(row)) : [];
@@ -2940,46 +2784,46 @@ function hash32Hex(input: string): string {
   return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
-function buildResourcePlacementCoordinateProofComparison(
-  exact: ExactAuthorshipProofLike,
+function buildResourcePlacementCoordinateEvidenceComparison(
+  exact: CompleteExactAuthorshipEvidence,
   local: FinalSurfaceSnapshot
-): ResourcePlacementCoordinateProofComparison | undefined {
-  const localCoordinateProof = localResourcePlacementCoordinateProof(local);
-  if (!localCoordinateProof) return undefined;
-  const logCoordinateProof = exact.log?.resourcePlacement?.coordinateProof;
-  if (!logCoordinateProof) {
+): ResourcePlacementCoordinateEvidenceComparison | undefined {
+  const localCoordinateEvidence = localResourcePlacementCoordinateEvidence(local);
+  if (!localCoordinateEvidence) return undefined;
+  const logCoordinateEvidence = exact.log?.resourcePlacement?.coordinateEvidence;
+  if (!logCoordinateEvidence) {
     return {
       status: "missing-exact-log",
-      local: localCoordinateProof,
-      mismatchedLinks: ["resource-placement-coordinate-proof.log"],
+      local: localCoordinateEvidence,
+      mismatchedLinks: ["resource-placement-coordinate-evidence.log"],
     };
   }
-  const exactCoordinateProof = {
-    placed: coordinateDigest(logCoordinateProof.placed),
-    rejected: coordinateDigest(logCoordinateProof.rejected),
-    mismatch: coordinateDigest(logCoordinateProof.mismatch),
+  const exactCoordinateEvidence = {
+    placed: coordinateDigest(logCoordinateEvidence.placed),
+    rejected: coordinateDigest(logCoordinateEvidence.rejected),
+    mismatch: coordinateDigest(logCoordinateEvidence.mismatch),
   };
   const mismatchedLinks = [
     coordinateDigestMismatchLink(
-      localCoordinateProof.placed,
-      exactCoordinateProof.placed,
-      "resource-placement-coordinate-proof.placed"
+      localCoordinateEvidence.placed,
+      exactCoordinateEvidence.placed,
+      "resource-placement-coordinate-evidence.placed"
     ),
     coordinateDigestMismatchLink(
-      localCoordinateProof.rejected,
-      exactCoordinateProof.rejected,
-      "resource-placement-coordinate-proof.rejected"
+      localCoordinateEvidence.rejected,
+      exactCoordinateEvidence.rejected,
+      "resource-placement-coordinate-evidence.rejected"
     ),
     coordinateDigestMismatchLink(
-      localCoordinateProof.mismatch,
-      exactCoordinateProof.mismatch,
-      "resource-placement-coordinate-proof.mismatch"
+      localCoordinateEvidence.mismatch,
+      exactCoordinateEvidence.mismatch,
+      "resource-placement-coordinate-evidence.mismatch"
     ),
   ].filter((link): link is string => link !== undefined);
   return {
     status: mismatchedLinks.length === 0 ? "match" : "mismatch",
-    local: localCoordinateProof,
-    exact: exactCoordinateProof,
+    local: localCoordinateEvidence,
+    exact: exactCoordinateEvidence,
     mismatchedLinks,
   };
 }
@@ -2996,7 +2840,7 @@ function coordinateDigestMismatchLink(
   return local.count !== log.count || local.hash32 !== log.hash32 ? link : undefined;
 }
 
-function localResourcePlacementCoordinateProof(local: FinalSurfaceSnapshot):
+function localResourcePlacementCoordinateEvidence(local: FinalSurfaceSnapshot):
   | {
       placed?: { count?: number; hash32?: string };
       rejected?: { count?: number; hash32?: string };
@@ -3009,14 +2853,14 @@ function localResourcePlacementCoordinateProof(local: FinalSurfaceSnapshot):
   const summary = isPlainObject(resourcePlacementOutcomes?.summary)
     ? resourcePlacementOutcomes.summary
     : undefined;
-  const coordinateProof = isPlainObject(summary?.coordinateProof)
-    ? summary.coordinateProof
+  const coordinateEvidence = isPlainObject(summary?.coordinateEvidence)
+    ? summary.coordinateEvidence
     : undefined;
-  if (!coordinateProof) return undefined;
+  if (!coordinateEvidence) return undefined;
   return {
-    placed: coordinateDigest(coordinateProof.placed),
-    rejected: coordinateDigest(coordinateProof.rejected),
-    mismatch: coordinateDigest(coordinateProof.mismatch),
+    placed: coordinateDigest(coordinateEvidence.placed),
+    rejected: coordinateDigest(coordinateEvidence.rejected),
+    mismatch: coordinateDigest(coordinateEvidence.mismatch),
   };
 }
 
@@ -3029,7 +2873,7 @@ function coordinateDigest(value: unknown): { count?: number; hash32?: string } |
 }
 
 function buildResourcePlacementRejectionContexts(
-  exact: ExactAuthorshipProofLike,
+  exact: CompleteExactAuthorshipEvidence,
   local: FinalSurfaceSnapshot
 ): ResourcePlacementRejectionContext[] {
   const rows = readExactResourcePlacementRejectionRows(exact);
@@ -3057,7 +2901,7 @@ function buildResourcePlacementRejectionContexts(
 }
 
 function readExactResourcePlacementRejectionRows(
-  exact: ExactAuthorshipProofLike
+  exact: CompleteExactAuthorshipEvidence
 ): ResourcePlacementRejectionContext["exact"][] {
   const rows = exact.log?.resourcePlacement?.stats?.rejectionRows;
   if (!Array.isArray(rows)) return [];
@@ -3345,16 +3189,6 @@ function probeBooleanValue(value: unknown): number | null {
   if (!isPlainObject(value)) return typeof value === "boolean" ? (value ? 1 : 0) : null;
   if (value.ok !== true) return null;
   return typeof value.value === "boolean" ? (value.value ? 1 : 0) : null;
-}
-
-function hasFileIdentity(value: FileIdentityLike | undefined): boolean {
-  return Boolean(
-    value?.path &&
-      value.sha256 &&
-      value.sizeBytes !== undefined &&
-      value.mtimeMs !== undefined &&
-      value.mtimeIso
-  );
 }
 
 function numberValue(value: unknown): number | undefined {

@@ -22,7 +22,8 @@ import {
 import { RecipeCompileError } from "@mapgen/compiler/recipe-compile.js";
 import { createExtendedMapContext } from "@mapgen/core/types.js";
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
-import { Type } from "typebox";
+import { type TSchema, Type } from "typebox";
+import { Value } from "typebox/value";
 
 describe("authoring SDK", () => {
   const baseSettings = {
@@ -30,7 +31,7 @@ describe("authoring SDK", () => {
     dimensions: { width: 2, height: 2 },
     latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
   };
-  const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false, default: {} });
+  const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
   const makeContract = (id: string, schema = EmptyStepConfigSchema) =>
     defineStep({
@@ -176,15 +177,288 @@ describe("authoring SDK", () => {
 
   it("createStage computes surfaceSchema for internal stages", () => {
     const stepSchema = Type.Object(
-      { value: Type.Number({ minimum: 1 }) },
+      { value: Type.Number({ minimum: 1, default: 1 }) },
       { additionalProperties: false }
     );
-    const step = createStep(makeContract("alpha", stepSchema), { run: () => {} });
-    const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
-    const props = (stage.surfaceSchema as any).properties as Record<string, unknown>;
-    expect(props).toHaveProperty("knobs");
-    expect(props).toHaveProperty("alpha");
-    expect((props.alpha as any).properties).toHaveProperty("value");
+    const step = createStep(makeContract("step-a", stepSchema), { run: () => {} });
+    const stage = createStage({
+      id: "stage-a",
+      knobsSchema: Type.Object({}, { additionalProperties: false }),
+      steps: [step],
+    });
+    const schema = deriveRecipeConfigSchema([stage]);
+    const created = Value.Create(schema);
+    expect(() => Value.Assert(schema, created)).not.toThrow();
+    expect(created).toEqual({ "stage-a": { knobs: {}, "step-a": { value: 1 } } });
+  });
+
+  it("derives required recipe objects and preserves only composable annotations", () => {
+    const step = createStep(
+      makeContract(
+        "step-a",
+        Type.Object({ amount: Type.Number({ default: 3 }) }, { additionalProperties: false })
+      ),
+      { run: () => {} }
+    );
+    const publicSchema = Type.Object(
+      {
+        requiredValue: Type.Number({ default: 1 }),
+        label: Type.Union([
+          Type.Object({ mode: Type.Literal("default") }, { additionalProperties: false }),
+          Type.Object(
+            { mode: Type.Literal("custom"), value: Type.String({ default: "Custom" }) },
+            { additionalProperties: false }
+          ),
+        ]),
+      },
+      {
+        $id: "test-stage-schema",
+        title: "Test stage",
+        description: "Metadata survives composition",
+        default: { requiredValue: 99, label: { mode: "default" } },
+        minProperties: 2,
+        additionalProperties: false,
+        gs: { group: "test" },
+      }
+    );
+    const stage = createStage({
+      id: "stage-a",
+      knobsSchema: Type.Object(
+        { enabled: Type.Boolean({ default: true }) },
+        { additionalProperties: false }
+      ),
+      public: publicSchema,
+      compile: ({ config }) => ({ "step-a": { amount: config.requiredValue } }),
+      steps: [step],
+    });
+    const schema = deriveRecipeConfigSchema([stage]);
+    const created = Value.Create(schema);
+
+    expect(() => Value.Assert(schema, created)).not.toThrow();
+    expect(created).toEqual({
+      "stage-a": { knobs: { enabled: true }, requiredValue: 1, label: { mode: "default" } },
+    });
+    expect(Value.Check(schema, { "stage-a": { knobs: { enabled: true } } })).toBe(false);
+    expect(stage.surfaceSchema).toMatchObject({
+      title: "Test stage",
+      description: "Metadata survives composition",
+      gs: { group: "test" },
+    });
+    expect(stage.surfaceSchema).not.toHaveProperty("$id");
+    expect(stage.surfaceSchema).not.toHaveProperty("default");
+    expect(stage.surfaceSchema).not.toHaveProperty("minProperties");
+  });
+
+  it("rejects direct and nested optional properties across public surface algebra", () => {
+    const step = createStep(makeContract("alpha"), { run: () => {} });
+    const optional = () => Type.Optional(Type.Number({ default: 1 }));
+    const cases: ReadonlyArray<readonly [string, TSchema]> = [
+      ["direct", Type.Object({ amount: optional() }, { additionalProperties: false })],
+      [
+        "object",
+        Type.Object(
+          {
+            nested: Type.Object({ amount: optional() }, { additionalProperties: false }),
+          },
+          { additionalProperties: false }
+        ),
+      ],
+      [
+        "union",
+        Type.Object(
+          {
+            nested: Type.Union([
+              Type.Object({ amount: optional() }, { additionalProperties: false }),
+              Type.Object({ amount: Type.Number() }, { additionalProperties: false }),
+            ]),
+          },
+          { additionalProperties: false }
+        ),
+      ],
+      [
+        "array",
+        Type.Object(
+          {
+            nested: Type.Array(
+              Type.Object({ amount: optional() }, { additionalProperties: false })
+            ),
+          },
+          { additionalProperties: false }
+        ),
+      ],
+      [
+        "tuple",
+        Type.Object(
+          {
+            nested: Type.Tuple([
+              Type.Object({ amount: optional() }, { additionalProperties: false }),
+            ]),
+          },
+          { additionalProperties: false }
+        ),
+      ],
+      [
+        "intersect",
+        Type.Object(
+          {
+            nested: Type.Intersect([
+              Type.Object({ amount: optional() }, { additionalProperties: false }),
+            ]),
+          },
+          { additionalProperties: false }
+        ),
+      ],
+      [
+        "record",
+        Type.Object(
+          {
+            nested: Type.Record(
+              Type.String(),
+              Type.Object({ amount: optional() }, { additionalProperties: false })
+            ),
+          },
+          { additionalProperties: false }
+        ),
+      ],
+    ];
+
+    for (const [label, publicSchema] of cases) {
+      expect(() =>
+        createStage({
+          id: `public-${label}`,
+          knobsSchema: EmptyKnobsSchema,
+          public: publicSchema,
+          compile: () => ({ alpha: {} }),
+          steps: [step],
+        })
+      ).toThrow(new RegExp(`stage/public-${label}/.*amount.*optional`));
+    }
+  });
+
+  it("rejects optional properties on internal stage surfaces", () => {
+    const step = createStep(
+      makeContract(
+        "alpha",
+        Type.Object(
+          { nested: Type.Object({ amount: Type.Optional(Type.Number()) }) },
+          { additionalProperties: false }
+        )
+      ),
+      { run: () => {} }
+    );
+
+    expect(() =>
+      createStage({ id: "internal-stage", knobsSchema: EmptyKnobsSchema, steps: [step] })
+    ).toThrow(/stage\/internal-stage\/alpha\/nested\/amount.*optional/);
+  });
+
+  it("rejects optional properties at the final recipe schema boundary", () => {
+    const legacySurface = Type.Object(
+      { amount: Type.Optional(Type.Number()) },
+      { additionalProperties: false }
+    );
+
+    expect(() =>
+      deriveRecipeConfigSchema([
+        {
+          id: "legacy-stage",
+          public: true,
+          surfaceSchema: legacySurface,
+          knobsSchema: EmptyKnobsSchema,
+          steps: [],
+        },
+      ])
+    ).toThrow(/recipe\/legacy-stage\/amount.*optional/);
+  });
+
+  it("rejects open objects and empty structural object defaults", () => {
+    const cases: ReadonlyArray<readonly [string, TSchema]> = [
+      ["open", Type.Object({ value: Type.Number({ default: 1 }) })],
+      [
+        "structural-default",
+        Type.Object(
+          { value: Type.Number({ default: 1 }) },
+          { additionalProperties: false, default: {} }
+        ),
+      ],
+    ];
+
+    for (const [label, surfaceSchema] of cases) {
+      expect(() =>
+        deriveRecipeConfigSchema([
+          {
+            id: label,
+            public: true,
+            surfaceSchema,
+            knobsSchema: EmptyKnobsSchema,
+            steps: [],
+          },
+        ])
+      ).toThrow(
+        new RegExp(`recipe/${label}.*${label === "open" ? "closed" : "structural default"}`)
+      );
+    }
+  });
+
+  it("rejects non-portable TypeBox kinds from complete config schemas", () => {
+    const cases: ReadonlyArray<readonly [string, TSchema]> = [
+      ["bigint", Type.BigInt()],
+      ["bigint-literal", Type.Literal(1n)],
+      ["symbol", Type.Symbol()],
+      ["undefined", Type.Undefined()],
+      ["void", Type.Void()],
+    ];
+
+    for (const [label, nonPortable] of cases) {
+      expect(() =>
+        deriveRecipeConfigSchema([
+          {
+            id: label,
+            public: true,
+            surfaceSchema: Type.Object({ nonPortable }, { additionalProperties: false }),
+            knobsSchema: EmptyKnobsSchema,
+            steps: [],
+          },
+        ])
+      ).toThrow(/non-portable/);
+    }
+  });
+
+  it("fails closed for unresolved TypeBox schema kinds", () => {
+    const step = createStep(makeContract("alpha"), { run: () => {} });
+    const cases: ReadonlyArray<readonly [string, TSchema]> = [
+      ["Ref", Type.Ref("Missing")],
+      [
+        "Cyclic",
+        Type.Cyclic(
+          { Node: Type.Object({ value: Type.Number() }, { additionalProperties: false }) },
+          "Node"
+        ),
+      ],
+      ["Deferred", Type.Partial(Type.Ref("Missing"))],
+    ];
+
+    for (const [kind, unresolved] of cases) {
+      expect(() =>
+        createStage({
+          id: `unresolved-${kind.toLowerCase()}`,
+          knobsSchema: EmptyKnobsSchema,
+          public: Type.Object({ unresolved }, { additionalProperties: false }),
+          compile: () => ({ alpha: {} }),
+          steps: [step],
+        })
+      ).toThrow(new RegExp(`unresolved.*${kind}`));
+    }
+
+    expect(() =>
+      createStage({
+        id: "unsupported-unknown",
+        knobsSchema: EmptyKnobsSchema,
+        public: Type.Object({ unresolved: Type.Unknown() }, { additionalProperties: false }),
+        compile: () => ({ alpha: {} }),
+        steps: [step],
+      })
+    ).toThrow(/unsupported, unresolved, or non-portable TypeBox kind/);
   });
 
   it("createStage supports public schema with compile mapping", () => {
@@ -195,7 +469,7 @@ describe("authoring SDK", () => {
         climate: Type.Number(),
         beta: Type.Object({}, { additionalProperties: false }),
       },
-      { additionalProperties: false, default: {} }
+      { additionalProperties: false }
     );
     const stage = createStage({
       id: "foundation",
@@ -204,10 +478,8 @@ describe("authoring SDK", () => {
       compile: ({ config }) => ({ alpha: { value: config.climate } }),
       steps: [step, beta],
     });
-    const props = (stage.surfaceSchema as any).properties as Record<string, unknown>;
-    expect(props).toHaveProperty("knobs");
-    expect(props).toHaveProperty("climate");
-    expect(props).not.toHaveProperty("alpha");
+    expect(Value.Check(stage.surfaceSchema, { knobs: {}, climate: 2, beta: {} })).toBe(true);
+    expect(Value.Check(stage.surfaceSchema, { knobs: {}, climate: 2, alpha: {} })).toBe(false);
     expect(stage.authoring.config.layer).toBe("semantic-public-config");
     expect(stage.authoring.config.schema).toBe(stage.surfaceSchema);
     expect(stage.authoring.config.focusPathsByStepId).toEqual({
@@ -229,7 +501,7 @@ describe("authoring SDK", () => {
       strategies: {
         default: Type.Object(
           { internalRate: Type.Number({ default: 1 }) },
-          { additionalProperties: false, default: {} }
+          { additionalProperties: false }
         ),
       },
     } as const);
@@ -249,7 +521,7 @@ describe("authoring SDK", () => {
       knobsSchema: EmptyKnobsSchema,
       public: Type.Object(
         { productRate: Type.Number({ default: 1 }) },
-        { additionalProperties: false, default: {} }
+        { additionalProperties: false }
       ),
       compile: ({ config }) => ({
         "internal-step": {
@@ -259,14 +531,17 @@ describe("authoring SDK", () => {
       steps: [step],
     });
 
-    const stageProps = ((deriveRecipeConfigSchema([stage]) as any).properties.foundation as any)
-      .properties as Record<string, unknown>;
-
-    expect(stageProps).toHaveProperty("knobs");
-    expect(stageProps).toHaveProperty("productRate");
-    expect(stageProps).not.toHaveProperty("internal-step");
-    expect(JSON.stringify(stageProps)).not.toContain("privateOp");
-    expect(JSON.stringify(stageProps)).not.toContain("strategy");
+    const recipeSchema = deriveRecipeConfigSchema([stage]);
+    expect(Value.Check(recipeSchema, { foundation: { knobs: {}, productRate: 1 } })).toBe(true);
+    expect(
+      Value.Check(recipeSchema, {
+        foundation: {
+          knobs: {},
+          productRate: 1,
+          "internal-step": { privateOp: { strategy: "default", config: {} } },
+        },
+      })
+    ).toBe(false);
   });
 
   it("createStage rejects reserved knobs key in steps or public schema", () => {
@@ -292,7 +567,7 @@ describe("authoring SDK", () => {
       {
         knobs: Type.String(),
       },
-      { additionalProperties: false, default: {} }
+      { additionalProperties: false }
     );
     expect(() =>
       createStage({
@@ -311,7 +586,7 @@ describe("authoring SDK", () => {
       {
         climate: Type.Number(),
       },
-      { additionalProperties: false, default: {} }
+      { additionalProperties: false }
     );
     const stage = createStage({
       id: "foundation",
@@ -321,6 +596,28 @@ describe("authoring SDK", () => {
       steps: [step],
     });
     expect(() => stage.toInternal({ env: {}, stageConfig: { climate: 1 } })).toThrow(/knobs/);
+  });
+
+  it("createStage rejects undefined and non-object public compile results", () => {
+    const step = createStep(makeContract("alpha"), { run: () => {} });
+    const publicSchema = Type.Object({ climate: Type.Number() }, { additionalProperties: false });
+
+    for (const invalidResult of [undefined, "not-an-object"]) {
+      const compile = new Proxy(() => ({ alpha: {} }), {
+        apply: () => invalidResult,
+      });
+      const stage = createStage({
+        id: "foundation",
+        knobsSchema: EmptyKnobsSchema,
+        public: publicSchema,
+        compile,
+        steps: [step],
+      });
+
+      expect(() => stage.toInternal({ env: {}, stageConfig: { knobs: {}, climate: 1 } })).toThrow(
+        /must return an object/
+      );
+    }
   });
 
   it("createRecipe rejects missing tagDefinitions", () => {
@@ -459,7 +756,7 @@ describe("authoring SDK", () => {
     ).toThrow(/provided by multiple steps/i);
   });
 
-  it("compile applies schema defaults and rejects unknown keys", () => {
+  it("compiles recipe-created complete config and rejects unknown keys", () => {
     const schema = Type.Object(
       {
         count: Type.Number({ default: 2 }),
@@ -475,12 +772,13 @@ describe("authoring SDK", () => {
       compileOpsById: {},
     });
 
-    const plan = recipe.compile(baseSettings);
+    const config = Value.Create(deriveRecipeConfigSchema([stage]));
+    const plan = recipe.compile(baseSettings, config);
     expect(plan.nodes[0]?.config).toEqual({ count: 2 });
 
     expect(() =>
       recipe.compile(baseSettings, {
-        foundation: { alpha: { count: 1, extra: "nope" } },
+        foundation: { knobs: {}, alpha: { count: 1, extra: "nope" } },
       })
     ).toThrow(RecipeCompileError);
   });

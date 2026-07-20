@@ -32,10 +32,10 @@ const computeCrust = createOp(ComputeCrustContract, {
         const baseElevation = new Float32Array(cellCount);
         const strength = new Float32Array(cellCount);
 
-        const basalticThickness = clamp01(config.basalticThickness01 ?? 0.25);
-        const yieldStrength = clamp01(config.yieldStrength01 ?? 0.55);
-        const mantleCoupling = clamp01(config.mantleCoupling01 ?? 0.6);
-        const riftWeakening = clamp01(config.riftWeakening01 ?? 0.35);
+        const basalticThickness = clamp01(config.basalticThickness01);
+        const yieldStrength = clamp01(config.yieldStrength01);
+        const mantleCoupling = clamp01(config.mantleCoupling01);
+        const riftWeakening = clamp01(config.riftWeakening01);
 
         const strengthYieldScalar = 0.85 + 0.3 * yieldStrength;
         const strengthCouplingScalar = 0.9 + 0.2 * mantleCoupling;

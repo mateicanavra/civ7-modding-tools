@@ -34,7 +34,7 @@ const baseEnv = {
   latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
 };
 
-const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false, default: {} });
+const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
 function compilePlan<TContext>(
   registry: StepRegistry<TContext>,
@@ -167,7 +167,7 @@ describe("tag registry", () => {
 
     let error: unknown;
     try {
-      recipe.run(ctx, baseEnv);
+      recipe.run(ctx, baseEnv, { foundation: { knobs: {}, alpha: {} } });
     } catch (err) {
       error = err;
     }

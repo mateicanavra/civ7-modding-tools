@@ -1,6 +1,6 @@
 import type {
   MapConfigSaveDeployStatus,
-  RunInGameExactAuthorshipProof,
+  RunInGameExactAuthorshipEvidence,
   RunInGameMaterializationStatus,
   RunInGamePhase,
   RunInGameRequestStatus,
@@ -51,7 +51,6 @@ export type RunInGameInternalOperation = Readonly<{
   kind: "run-in-game";
   requestId: string;
   leaseId: string;
-  correlationDigest: string;
   request: RunInGameRequestStatus;
   phase:
     | "accepted"
@@ -60,7 +59,7 @@ export type RunInGameInternalOperation = Readonly<{
     | "checking-civ7"
     | "preparing-setup"
     | "starting-game"
-    | "waiting-for-proof"
+    | "collecting-evidence"
     | "complete"
     | "blocked"
     | "failed"
@@ -78,7 +77,7 @@ export type RunInGameInternalOperation = Readonly<{
   materialization?: RunInGameMaterializationStatus;
   deploymentEvidence?: RunInGameDeploymentEvidence;
   runtimeObservation?: RunInGameRuntimeObservation;
-  exactAuthorshipProof?: RunInGameExactAuthorshipProof;
+  exactAuthorshipEvidence?: RunInGameExactAuthorshipEvidence;
   result?: unknown;
   failure?: StudioRuntimeFailure;
   cancellationCleanupFailure?: StudioRuntimeFailure;
@@ -102,7 +101,7 @@ export type SaveDeployInternalOperation = Readonly<{
   path?: string;
   saved?: boolean;
   deployed?: boolean;
-  deploy?: MapConfigSaveDeployStatus["deploy"];
+  deploy?: unknown;
   failure?: StudioRuntimeFailure;
   failedAtPhase?: "saving" | "deploying";
 }>;
@@ -159,7 +158,7 @@ export function publicRunInGamePhase(phase: RunInGameInternalOperation["phase"])
       return "preparing-civ7";
     case "starting-game":
       return "starting-game";
-    case "waiting-for-proof":
+    case "collecting-evidence":
       return "observing-runtime";
     case "complete":
       return "completed";

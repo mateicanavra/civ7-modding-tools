@@ -9,7 +9,6 @@ import shatteredRingRaw from "../../src/maps/configs/shattered-ring.config.json"
 import sunderedArchipelagoRaw from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
-import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import {
   collectWorldBalanceStats,
@@ -74,24 +73,6 @@ const CASES = [
     // widens the shelf into the atoll distance band, removing them entirely (measured
     // wide=0 / normal=2 / narrow=7 at seed 1018). An explicit config tradeoff, not a bug:
     // atoll-rich identity belongs to the archipelago/atoll maps below, which keep them.
-  },
-  {
-    label: "realism-earthlike",
-    config: realismEarthlikeConfig,
-    wetlandMax: 0.08,
-    // Same cold-reef re-baseline as swooper-earthlike — reef behavior is byte-identical
-    // (1018 = 0.0795 / cold 334, bloom max 0.117). See the swooper-earthlike case above.
-    reefMax: 0.13,
-    requiredFeatures: [
-      "FEATURE_FOREST",
-      "FEATURE_RAINFOREST",
-      "FEATURE_SAVANNA_WOODLAND",
-      "FEATURE_SAGEBRUSH_STEPPE",
-    ],
-    vegetationFamiliesMin: 4,
-    // See swooper-earthlike: continental earthlike geography yields ~0 atolls under the
-    // post-features shelf (island rings are shelf; atolls need beyond-shelf banks). Atolls
-    // remain required on the archipelago/atoll maps below.
   },
   {
     label: "shattered-ring",

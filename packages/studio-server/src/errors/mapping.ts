@@ -2,6 +2,7 @@ import type {
   DependencyUnavailableData,
   RunInGamePublicErrorData,
   RunInGameStatusNotFoundErrorData,
+  SaveDeployPublicErrorData,
   StatusNotFoundData,
   StudioFailureData,
   StudioFailureTag,
@@ -17,6 +18,10 @@ import {
   publicRunInGameFailureCategory,
   publicRunInGameFailureMessage,
 } from "../runInGamePublic.js";
+import {
+  publicSaveDeployFailureCategory,
+  publicSaveDeployFailureMessage,
+} from "../saveDeployPublic.js";
 
 export const STUDIO_OPERATION_PROCEDURES = [
   "autoplay.command",
@@ -54,7 +59,8 @@ export type StudioDefinedErrorProjection = Readonly<{
     | StatusNotFoundData
     | DependencyUnavailableData
     | UnexpectedDefectData
-    | RunInGamePublicErrorData;
+    | RunInGamePublicErrorData
+    | SaveDeployPublicErrorData;
 }>;
 
 export type StudioDaemonIdentity = Readonly<{
@@ -145,13 +151,17 @@ export function mapStudioFailureToDefinedError(args: {
   const data = failureData(args.failure, namespace, args.identity, status);
   const runInGameCategory =
     namespace === "runInGame" ? publicRunInGameFailureCategory(args.failure) : undefined;
+  const saveDeployCategory =
+    namespace === "saveDeploy" ? publicSaveDeployFailureCategory(args.failure) : undefined;
   return {
     code,
     status,
     message:
-      runInGameCategory === undefined
-        ? args.failure.message
-        : publicRunInGameFailureMessage(runInGameCategory),
+      runInGameCategory !== undefined
+        ? publicRunInGameFailureMessage(runInGameCategory)
+        : saveDeployCategory !== undefined
+          ? publicSaveDeployFailureMessage(saveDeployCategory)
+          : args.failure.message,
     data,
   };
 }
@@ -170,6 +180,19 @@ export function mapUnexpectedDefectToDefinedError(args: {
       message: publicRunInGameFailureMessage(safeFailureCategory),
       data: {
         namespace: "runInGame",
+        recoveryActions: ["copy-diagnostics"],
+        safeFailureCategory,
+      },
+    };
+  }
+  if (namespace === "saveDeploy") {
+    const safeFailureCategory = "internal-defect" as const;
+    return {
+      code: namespaceCodes.saveDeploy.failed,
+      status: 500,
+      message: publicSaveDeployFailureMessage(safeFailureCategory),
+      data: {
+        namespace: "saveDeploy",
         recoveryActions: ["copy-diagnostics"],
         safeFailureCategory,
       },
@@ -237,9 +260,17 @@ function failureData(
   namespace: StudioOperationNamespace,
   identity: StudioDaemonIdentity | undefined,
   status: number
-): StudioFailureData | StatusNotFoundData | DependencyUnavailableData | RunInGamePublicErrorData {
+):
+  | StudioFailureData
+  | StatusNotFoundData
+  | DependencyUnavailableData
+  | RunInGamePublicErrorData
+  | SaveDeployPublicErrorData {
   if (namespace === "runInGame") {
     return runInGamePublicFailureData(failure, identity, status);
+  }
+  if (namespace === "saveDeploy") {
+    return saveDeployPublicFailureData(failure, status);
   }
   const base = {
     tag: failure.tag,
@@ -254,21 +285,7 @@ function failureData(
     ...(failure.diagnostics === undefined ? {} : { diagnostics: failure.diagnostics }),
   };
   if (status === 404) {
-    if (namespace === "autoplay") {
-      throw new Error("Autoplay does not declare a status-not-found failure surface.");
-    }
-    if (!identity) {
-      throw new Error(`${namespace} status-not-found mapping requires daemon identity.`);
-    }
-    if (!failure.requestId) {
-      throw new Error(`${namespace} status-not-found mapping requires a request id.`);
-    }
-    return {
-      ...base,
-      requestId: failure.requestId,
-      serverInstanceId: identity.serverInstanceId,
-      serverStartedAt: identity.serverStartedAt,
-    };
+    throw new Error("Autoplay does not declare a status-not-found failure surface.");
   }
   if (failure.tag === "DependencyUnavailable" || failure.tag === "RuntimeDisposed") {
     return {
@@ -281,6 +298,21 @@ function failureData(
     };
   }
   return base;
+}
+
+function saveDeployPublicFailureData(
+  failure: StudioRuntimeFailure,
+  status: number
+): Exclude<SaveDeployPublicErrorData, undefined> {
+  if (status === 404 && !failure.requestId) {
+    throw new Error("saveDeploy status-not-found mapping requires a request id.");
+  }
+  return {
+    namespace: "saveDeploy",
+    recoveryActions: publicRecoveryActions(failure),
+    safeFailureCategory: publicSaveDeployFailureCategory(failure),
+    ...(failure.requestId === undefined ? {} : { requestId: failure.requestId }),
+  };
 }
 
 function runInGamePublicFailureData(

@@ -14,6 +14,8 @@ type OrpcContractProcedureWithSchemas = Readonly<{
 
 export type TypeBoxStandardSchemaOptions = Readonly<{
   cleanUnknownProperties?: boolean;
+  /** Runs before TypeBox inspects input that needs runtime-only admission. */
+  precheck?: (value: unknown) => string | undefined;
 }>;
 
 export function toStandardSchema<TypeSchema extends TSchema>(
@@ -28,27 +30,46 @@ export function toStandardSchema<TypeSchema extends TSchema>(
       version: 1,
       vendor: "typebox",
       validate(value) {
-        const checked = cleanUnknownProperties ? Value.Clean(schema, value) : value;
-        if (!cleanUnknownProperties && !validator.Check(checked)) {
+        try {
+          const precheckIssue = options.precheck?.(value);
+          if (precheckIssue !== undefined) {
+            return {
+              issues: [{ message: precheckIssue }],
+            };
+          }
+
+          // TypeBox 1.3 Clean mutates its argument. Clone first so Standard
+          // Schema validation never edits caller-owned input.
+          const checked = cleanUnknownProperties
+            ? Value.Clean(schema, Value.Clone(value))
+            : value;
+          if (!cleanUnknownProperties && !validator.Check(checked)) {
+            return {
+              issues: [...validator.Errors(checked)].map((error) => ({
+                message: error.message,
+                path: pathSegments(error.instancePath),
+              })),
+            };
+          }
+          try {
+            // TypeBox 1.3 Parse returns an already-valid value unchanged; it is
+            // validation here, not an ownership or immutability boundary.
+            return { value: Value.Parse(schema, checked) as Static<TypeSchema> };
+          } catch {
+            return {
+              issues: [...validator.Errors(checked)].map((error) => ({
+                message: error.message,
+                path: pathSegments(error.instancePath),
+              })),
+            };
+          }
+        } catch {
+          // Descriptor and Proxy traps are invalid boundary values. Standard
+          // Schema adapters report admission issues rather than throwing.
           return {
-            issues: [...validator.Errors(checked)].map((error) => ({
-              message: error.message,
-              path: pathSegments(error.instancePath),
-            })),
+            issues: [{ message: "Studio contract input could not be inspected safely." }],
           };
         }
-        try {
-          return { value: Value.Parse(schema, checked) as Static<TypeSchema> };
-        } catch {
-          // Fall through to TypeBox's structural errors after cleanup so closed
-          // object extras keep the existing Studio wire-surface strip behavior.
-        }
-        return {
-          issues: [...validator.Errors(checked)].map((error) => ({
-            message: error.message,
-            path: pathSegments(error.instancePath),
-          })),
-        };
       },
     },
   };

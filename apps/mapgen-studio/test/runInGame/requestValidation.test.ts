@@ -31,17 +31,11 @@ describe("Run in Game request validation", () => {
         source: {
           kind: "editor",
           editorSessionId: "studio-current",
-          payload: {
-            configId: "studio-current",
-            label: "Studio Current",
-            mapScript: "{swooper-maps}/maps/studio-current.js",
-            pipelineConfig: {
-              nested: {
-                [key]: "raw-control",
-              },
+          canonicalConfig: canonicalEditorConfig({
+            nested: {
+              [key]: "raw-control",
             },
-            recipeId: "mod-swooper-maps/standard",
-          },
+          }),
         },
       });
       expect(Value.Check(startInputSchema, nestedPayload)).toBe(true);
@@ -89,8 +83,9 @@ describe("Run in Game request validation", () => {
       "generationManifestDigest",
       "manifestPath",
     ]) {
-      expect(Value.Check(startInputSchema, validRunInGameRequest({ [privateField]: "private" })))
-        .toBe(false);
+      expect(
+        Value.Check(startInputSchema, validRunInGameRequest({ [privateField]: "private" }))
+      ).toBe(false);
     }
     expect(
       "issues" in
@@ -102,6 +97,29 @@ describe("Run in Game request validation", () => {
           validRunInGameRequest({ serverInstanceId: "studio-server" })
         )
     ).toBe(true);
+  });
+
+  it("requires the editor's complete canonical envelope at the oRPC boundary", () => {
+    const startInputSchema = typeboxInputSchemaFromContractProcedure(runInGame.start);
+    const complete = validRunInGameRequest();
+
+    expect(Value.Check(startInputSchema, complete)).toBe(true);
+    expect(
+      Value.Check(startInputSchema, {
+        ...complete,
+        source: {
+          ...(complete.source as Record<string, unknown>),
+          canonicalConfig: {
+            id: "studio-current",
+            name: "Studio Current",
+            description: "Incomplete editor envelope.",
+            recipe: "standard",
+            sortIndex: 9999,
+            config: { ok: true },
+          },
+        },
+      })
+    ).toBe(false);
   });
 
   it("keeps cancellation input to request id only", () => {
@@ -171,13 +189,7 @@ describe("Run in Game request validation", () => {
       source: {
         kind: "editor",
         editorSessionId: "studio-current",
-        payload: {
-          configId: "studio-current",
-          label: "Studio Current",
-          mapScript: "{swooper-maps}/maps/studio-current.js",
-          pipelineConfig: { continents: { targetLandRatio: 0.42 } },
-          recipeId: "mod-swooper-maps/standard",
-        },
+        canonicalConfig: canonicalEditorConfig({ continents: { targetLandRatio: 0.42 } }),
       },
       recipeSettings: {
         preset: "none",
@@ -197,13 +209,7 @@ describe("Run in Game request validation", () => {
       source: {
         kind: "editor",
         editorSessionId: "studio-current",
-        payload: {
-          configId: "studio-current",
-          label: "Studio Current",
-          mapScript: "{swooper-maps}/maps/studio-current.js",
-          pipelineConfig: { continents: { targetLandRatio: 0.42 } },
-          recipeId: "mod-swooper-maps/standard",
-        },
+        canonicalConfig: canonicalEditorConfig({ continents: { targetLandRatio: 0.42 } }),
       },
       recipeSettings: {
         preset: "none",
@@ -217,9 +223,37 @@ describe("Run in Game request validation", () => {
       },
       setupConfig,
     });
-    expect(request).not.toHaveProperty("restartCivProcess");
-    expect(request).not.toHaveProperty("recovery");
     expect(() => assertNoRawControlFields(request)).not.toThrow();
+  });
+
+  it("serializes a catalog launch to its source path without catalog bytes", () => {
+    const request = buildRunInGameStartRequest({
+      source: {
+        kind: "catalog",
+        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+        canonicalConfig: canonicalEditorConfig({ continents: { targetLandRatio: 0.42 } }),
+      },
+      recipeSettings: {
+        preset: "builtin:swooper-earthlike",
+        recipe: "mod-swooper-maps/standard",
+        seed: "123",
+      },
+      worldSettings: {
+        mapSize: "MAPSIZE_STANDARD",
+        playerCount: 6,
+        resources: "balanced",
+      },
+      setupConfig: {
+        gameOptions: {},
+        playerOptions: [{ playerId: 0, options: {} }],
+      },
+    });
+
+    expect(request.source).toEqual({
+      kind: "catalog",
+      sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+    });
+    expect(request.source).not.toHaveProperty("canonicalConfig");
   });
 });
 
@@ -228,13 +262,7 @@ function validRunInGameRequest(extra?: Record<string, unknown>): Record<string, 
     source: {
       kind: "editor",
       editorSessionId: "studio-current",
-      payload: {
-        configId: "studio-current",
-        label: "Studio Current",
-        mapScript: "{swooper-maps}/maps/studio-current.js",
-        pipelineConfig: { ok: true },
-        recipeId: "mod-swooper-maps/standard",
-      },
+      canonicalConfig: canonicalEditorConfig({ ok: true }),
     },
     recipeSettings: {
       recipe: "mod-swooper-maps/standard",
@@ -244,5 +272,17 @@ function validRunInGameRequest(extra?: Record<string, unknown>): Record<string, 
       mapSize: "MAPSIZE_STANDARD",
     },
     ...extra,
+  };
+}
+
+function canonicalEditorConfig(config: Record<string, unknown>) {
+  return {
+    id: "studio-current",
+    name: "Studio Current",
+    description: "Current Studio editor configuration.",
+    recipe: "standard" as const,
+    sortIndex: 9999,
+    latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+    config,
   };
 }

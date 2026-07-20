@@ -1,100 +1,26 @@
 import hydrology from "@mapgen/domain/hydrology";
 import { type TSchema, Type } from "typebox";
 
-type MutableSchemaNode = TSchema & {
-  description?: string;
-  properties?: Record<string, unknown>;
-  items?: unknown;
-  anyOf?: unknown[];
-  oneOf?: unknown[];
-};
-
-const AUTHOR_DESCRIPTION_RE =
-  /(impact|controls|sets|determines|affects|used|author|map|gameplay|density|coverage|shape|terrain|biome|river|lake|coast|plate|climate|feature|placement|derived|projection|coordinate)/i;
-
-function sentenceCase(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return trimmed;
-  return `${trimmed[0]!.toLowerCase()}${trimmed.slice(1)}`;
-}
-
-function labelFromKey(key: string): string {
-  return key
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .replace(/[-_]+/g, " ")
-    .toLowerCase();
-}
-
-function authorDescription(existing: unknown, label: string): string {
-  const text = typeof existing === "string" ? existing.trim() : "";
-  const cleaned = text
-    .replace(/\binternally\b/gi, "during deterministic computation")
-    .replace(/\binternal\b/gi, "pipeline")
-    .replace(/\s*\((?:basic|cardinal|default|latitude|refine|vector) strategy\)/gi, "")
-    .replace(
-      /\b(?:basic|cardinal|default|latitude|refine|vector) strategy\b/gi,
-      "deterministic control set"
-    )
-    .replace(/\bstrategy\b/gi, "control mode")
-    .replace(/\beach step\b/gi, "each iteration");
-  if (!cleaned) return `Controls ${label} for Hydrology map generation.`;
-  if (AUTHOR_DESCRIPTION_RE.test(cleaned)) return cleaned;
-  if (/^scales\b/i.test(cleaned)) {
-    return `Controls ${sentenceCase(cleaned.replace(/^scales\b/i, "scaling"))}`;
-  }
-  return `Controls ${sentenceCase(cleaned)}`;
-}
-
-function withAuthoringDescriptions<T extends TSchema>(schema: T, label: string): T {
-  const node = schema as MutableSchemaNode;
-  const clone = { ...schema } as MutableSchemaNode;
-  clone.description = authorDescription(node.description, label);
-
-  if (node.properties) {
-    clone.properties = Object.fromEntries(
-      Object.entries(node.properties).map(([key, child]) => [
-        key,
-        withAuthoringDescriptions(child as TSchema, `${label} ${labelFromKey(key)}`),
-      ])
-    );
-  }
-  if (node.items) {
-    clone.items = withAuthoringDescriptions(node.items as TSchema, `${label} item`);
-  }
-  if (node.anyOf) {
-    clone.anyOf = node.anyOf.map((variant) => withAuthoringDescriptions(variant as TSchema, label));
-  }
-  if (node.oneOf) {
-    clone.oneOf = node.oneOf.map((variant) => withAuthoringDescriptions(variant as TSchema, label));
-  }
-
-  return clone as T;
-}
-
-function optionalAuthorSchema<T extends TSchema>(schema: T, label: string) {
-  return Type.Optional(withAuthoringDescriptions(schema, label));
+function publicStrategySchema<T extends TSchema>(schema: T, description: string) {
+  return Type.With(schema, { description });
 }
 
 const baselineOps = hydrology.ops;
 
 export const HydrologySeasonalCycleSchema = Type.Object(
   {
-    modeCount: Type.Optional(
-      Type.Union([Type.Literal(2), Type.Literal(4)], {
-        default: 2,
-        description:
-          "Controls seasonal climate samples used to compute annual means and amplitude fields.",
-      })
-    ),
-    axialTiltDeg: Type.Optional(
-      Type.Number({
-        default: 18,
-        minimum: 0,
-        maximum: 45,
-        description:
-          "Controls axial tilt in degrees for seasonal climate forcing; 0 disables seasonal amplitudes.",
-      })
-    ),
+    modeCount: Type.Union([Type.Literal(2), Type.Literal(4)], {
+      default: 2,
+      description:
+        "Controls seasonal climate samples used to compute annual means and amplitude fields.",
+    }),
+    axialTiltDeg: Type.Number({
+      default: 18,
+      minimum: 0,
+      maximum: 45,
+      description:
+        "Controls axial tilt in degrees for seasonal climate forcing; 0 disables seasonal amplitudes.",
+    }),
   },
   {
     additionalProperties: false,
@@ -104,42 +30,42 @@ export const HydrologySeasonalCycleSchema = Type.Object(
 
 export const HydrologyClimateBaselinePublicSchema = Type.Object(
   {
-    seasonalCycle: Type.Optional(HydrologySeasonalCycleSchema),
-    solarForcing: optionalAuthorSchema(
+    seasonalCycle: HydrologySeasonalCycleSchema,
+    solarForcing: publicStrategySchema(
       baselineOps.computeRadiativeForcing.strategies.default,
-      "baseline solar forcing"
+      "Baseline solar-forcing controls for Hydrology climate generation."
     ),
-    thermalState: optionalAuthorSchema(
+    thermalState: publicStrategySchema(
       baselineOps.computeThermalState.strategies.default,
-      "baseline thermal state"
+      "Baseline thermal-state controls for Hydrology climate generation."
     ),
-    atmosphericCirculation: optionalAuthorSchema(
+    atmosphericCirculation: publicStrategySchema(
       baselineOps.computeAtmosphericCirculation.strategies.default,
-      "baseline atmospheric circulation"
+      "Baseline atmospheric-circulation controls for Hydrology climate generation."
     ),
-    oceanCurrents: optionalAuthorSchema(
+    oceanCurrents: publicStrategySchema(
       baselineOps.computeOceanSurfaceCurrents.strategies.default,
-      "baseline ocean currents"
+      "Baseline ocean-current controls for Hydrology climate generation."
     ),
-    oceanGeometry: optionalAuthorSchema(
+    oceanGeometry: publicStrategySchema(
       baselineOps.computeOceanGeometry.strategies.default,
-      "baseline ocean geometry"
+      "Baseline ocean-geometry controls for Hydrology climate generation."
     ),
-    oceanThermalState: optionalAuthorSchema(
+    oceanThermalState: publicStrategySchema(
       baselineOps.computeOceanThermalState.strategies.default,
-      "baseline ocean thermal state"
+      "Baseline ocean thermal-state controls for Hydrology climate generation."
     ),
-    evaporation: optionalAuthorSchema(
+    evaporation: publicStrategySchema(
       baselineOps.computeEvaporationSources.strategies.default,
-      "baseline evaporation sources"
+      "Baseline evaporation-source controls for Hydrology climate generation."
     ),
-    moistureTransport: optionalAuthorSchema(
+    moistureTransport: publicStrategySchema(
       baselineOps.transportMoisture.strategies.default,
-      "baseline moisture transport"
+      "Baseline moisture-transport controls for Hydrology climate generation."
     ),
-    precipitation: optionalAuthorSchema(
+    precipitation: publicStrategySchema(
       baselineOps.computePrecipitation.strategies.default,
-      "baseline precipitation"
+      "Baseline precipitation controls for Hydrology climate generation."
     ),
   },
   {
@@ -151,19 +77,22 @@ export const HydrologyClimateBaselinePublicSchema = Type.Object(
 
 export const HydrologyHydrographyPublicSchema = Type.Object(
   {
-    drainageRouting: optionalAuthorSchema(
+    drainageRouting: publicStrategySchema(
       baselineOps.computeDrainageRouting.strategies.default,
-      "hydrography drainage routing"
+      "Hydrography drainage-routing controls."
     ),
-    runoff: optionalAuthorSchema(
+    runoff: publicStrategySchema(
       baselineOps.accumulateDischarge.strategies.default,
-      "hydrography runoff"
+      "Hydrography runoff and discharge controls."
     ),
-    riverNetwork: optionalAuthorSchema(
+    riverNetwork: publicStrategySchema(
       baselineOps.projectRiverNetwork.strategies.default,
-      "hydrography river network"
+      "Hydrography river-network classification controls."
     ),
-    lakes: optionalAuthorSchema(baselineOps.planLakes.strategies.default, "hydrography lakes"),
+    lakes: publicStrategySchema(
+      baselineOps.planLakes.strategies.default,
+      "Hydrography lake-intent controls."
+    ),
   },
   {
     additionalProperties: false,
@@ -174,33 +103,33 @@ export const HydrologyHydrographyPublicSchema = Type.Object(
 
 export const HydrologyClimateRefinePublicSchema = Type.Object(
   {
-    precipitationRefinement: optionalAuthorSchema(
+    precipitationRefinement: publicStrategySchema(
       baselineOps.computePrecipitation.strategies.refine,
-      "climate refinement precipitation"
+      "Climate-refinement precipitation controls."
     ),
-    solarForcing: optionalAuthorSchema(
+    solarForcing: publicStrategySchema(
       baselineOps.computeRadiativeForcing.strategies.default,
-      "climate refinement solar forcing"
+      "Climate-refinement solar-forcing controls."
     ),
-    thermalState: optionalAuthorSchema(
+    thermalState: publicStrategySchema(
       baselineOps.computeThermalState.strategies.default,
-      "climate refinement thermal state"
+      "Climate-refinement thermal-state controls."
     ),
-    albedoFeedback: optionalAuthorSchema(
+    albedoFeedback: publicStrategySchema(
       baselineOps.applyAlbedoFeedback.strategies.default,
-      "climate refinement albedo feedback"
+      "Climate-refinement albedo-feedback controls."
     ),
-    cryosphereState: optionalAuthorSchema(
+    cryosphereState: publicStrategySchema(
       baselineOps.computeCryosphereState.strategies.default,
-      "climate refinement cryosphere state"
+      "Climate-refinement cryosphere-state controls."
     ),
-    landWaterBudget: optionalAuthorSchema(
+    landWaterBudget: publicStrategySchema(
       baselineOps.computeLandWaterBudget.strategies.default,
-      "climate refinement land water budget"
+      "Climate-refinement land-water-budget controls."
     ),
-    diagnostics: optionalAuthorSchema(
+    diagnostics: publicStrategySchema(
       baselineOps.computeClimateDiagnostics.strategies.default,
-      "climate refinement diagnostics"
+      "Climate-refinement diagnostic controls."
     ),
   },
   {

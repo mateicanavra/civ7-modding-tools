@@ -1,5 +1,6 @@
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import { randomUUID } from "node:crypto";
+import { link, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import type { RunDiagnosticsLookupResult, RunDiagnosticsRecord } from "@civ7/studio-contract";
 import { runDiagnosticsRecordSchema } from "@civ7/studio-contract";
 import {
@@ -11,10 +12,10 @@ import {
 import { Effect } from "effect";
 import { Value } from "typebox/value";
 import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
+import { isSetupFailureReason } from "../runInGameSetupFailureTaxonomy.js";
 import { writeRunAttributionReport } from "./attributionReport.js";
 import type { RunInGameInternalOperation } from "./model.js";
 import { privateJson } from "./privateJson.js";
-import { isSetupFailureReason } from "../runInGameSetupFailureTaxonomy.js";
 
 export function lookupRunDiagnostics(
   diagnosticsId: string,
@@ -24,9 +25,13 @@ export function lookupRunDiagnostics(
     if (!SAFE_RUN_DIAGNOSTICS_ID.test(diagnosticsId)) return notFound(diagnosticsId);
     try {
       const root = workspaceRoot(options.workspaceRoot);
-      const path = await findDiagnosticsRecordPath(root, diagnosticsId);
-      if (!path) return notFound(diagnosticsId);
-      return await readDiagnosticsRecord(path, diagnosticsId);
+      const index = await readDiagnosticsIndex(root, diagnosticsId);
+      if (!index) return notFound(diagnosticsId);
+      return await readDiagnosticsRecord(
+        requestDiagnosticsPath(root, index.requestId),
+        diagnosticsId,
+        index.requestId
+      );
     } catch (err) {
       return isNotFoundError(err) ? notFound(diagnosticsId) : unavailable(diagnosticsId);
     }
@@ -60,47 +65,101 @@ export function writeRunDiagnostics(
         },
       };
       const path = requestDiagnosticsPath(root, operation.requestId);
-      await mkdir(dirname(path), { recursive: true });
-      await writeFile(path, `${JSON.stringify(record, null, 2)}\n`, "utf8");
+      await writeDiagnosticsRecord(path, record);
+      await ensureDiagnosticsIndex(root, {
+        diagnosticsId,
+        requestId: operation.requestId,
+      });
     },
     catch: (err) => err,
   });
 }
 
-async function findDiagnosticsRecordPath(
-  root: string,
-  diagnosticsId: string
-): Promise<string | null> {
-  const entries = await readdir(root, { withFileTypes: true });
-  for (const entry of entries) {
-    if (!entry.isDirectory() || !SAFE_RUN_REQUEST_ID.test(entry.name)) continue;
-    const path = requestDiagnosticsPath(root, entry.name);
-    try {
-      const content = await readFile(path, "utf8");
-      const parsed = JSON.parse(content) as unknown;
-      if (
-        Value.Check(runDiagnosticsRecordSchema, parsed) &&
-        parsed.requestId === entry.name &&
-        parsed.diagnosticsId === diagnosticsId
-      ) {
-        return path;
-      }
-    } catch (err) {
-      if (isNotFoundError(err)) continue;
-    }
-  }
-  return null;
-}
-
 async function readDiagnosticsRecord(
   path: string,
-  diagnosticsId: string
+  diagnosticsId: string,
+  requestId: string
 ): Promise<RunDiagnosticsLookupResult> {
   const content = await readFile(path, "utf8");
-  const parsed = JSON.parse(content) as unknown;
-  return Value.Check(runDiagnosticsRecordSchema, parsed) && parsed.diagnosticsId === diagnosticsId
-    ? { ok: true, diagnostics: parsed as RunDiagnosticsRecord }
+  const parsed: unknown = JSON.parse(content);
+  return Value.Check(runDiagnosticsRecordSchema, parsed) &&
+    parsed.diagnosticsId === diagnosticsId &&
+    parsed.requestId === requestId
+    ? { ok: true, diagnostics: parsed }
     : unavailable(diagnosticsId);
+}
+
+type DiagnosticsIndexRecord = Readonly<{
+  diagnosticsId: string;
+  requestId: string;
+}>;
+
+async function readDiagnosticsIndex(
+  root: string,
+  diagnosticsId: string
+): Promise<DiagnosticsIndexRecord | null> {
+  try {
+    const content = await readFile(runDiagnosticsIndexPath(root, diagnosticsId), "utf8");
+    const parsed: unknown = JSON.parse(content);
+    return isDiagnosticsIndexRecord(parsed, diagnosticsId) ? parsed : null;
+  } catch (err) {
+    if (isNotFoundError(err)) return null;
+    throw err;
+  }
+}
+
+async function ensureDiagnosticsIndex(root: string, record: DiagnosticsIndexRecord): Promise<void> {
+  const path = runDiagnosticsIndexPath(root, record.diagnosticsId);
+  await mkdir(dirname(path), { recursive: true });
+  const tempPath = `${path}.${process.pid}.${randomUUID()}.tmp`;
+  await writeFile(tempPath, `${JSON.stringify(record)}\n`, "utf8");
+  try {
+    await link(tempPath, path);
+  } catch (err) {
+    if (!isAlreadyExistsError(err)) throw err;
+    const existing = await readDiagnosticsIndex(root, record.diagnosticsId);
+    if (existing?.requestId !== record.requestId) {
+      throw new Error("Run diagnostics id is already assigned to another request.");
+    }
+  } finally {
+    await rm(tempPath, { force: true });
+  }
+}
+
+export async function removeRunDiagnosticsIndex(
+  args: Readonly<{
+    root: string;
+    diagnosticsId: string;
+    requestId: string;
+  }>
+): Promise<void> {
+  if (!SAFE_RUN_DIAGNOSTICS_ID.test(args.diagnosticsId)) return;
+  const existing = await readDiagnosticsIndex(args.root, args.diagnosticsId);
+  if (existing?.requestId !== args.requestId) return;
+  await rm(runDiagnosticsIndexPath(args.root, args.diagnosticsId), { force: true });
+}
+
+export function runDiagnosticsIndexPath(root: string, diagnosticsId: string): string {
+  if (!SAFE_RUN_DIAGNOSTICS_ID.test(diagnosticsId)) {
+    throw new TypeError("Unsafe Run diagnostics id.");
+  }
+  return join(root, ".diagnostics", "by-id", `${diagnosticsId}.json`);
+}
+
+function isDiagnosticsIndexRecord(
+  value: unknown,
+  diagnosticsId: string
+): value is DiagnosticsIndexRecord {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    Object.keys(value).length === 2 &&
+    "diagnosticsId" in value &&
+    value.diagnosticsId === diagnosticsId &&
+    "requestId" in value &&
+    typeof value.requestId === "string" &&
+    SAFE_RUN_REQUEST_ID.test(value.requestId)
+  );
 }
 
 function workspaceRoot(root: string | undefined): string {
@@ -110,6 +169,13 @@ function workspaceRoot(root: string | undefined): string {
 function requestDiagnosticsPath(root: string, requestId: string): string {
   assertSafeRunRequestId(requestId);
   return jailedRunWorkspacePath(root, requestId, "diagnostics", "diagnostics.json");
+}
+
+async function writeDiagnosticsRecord(path: string, record: RunDiagnosticsRecord): Promise<void> {
+  await mkdir(dirname(path), { recursive: true });
+  const tempPath = `${path}.${process.pid}.${randomUUID()}.tmp`;
+  await writeFile(tempPath, `${JSON.stringify(record, null, 2)}\n`, "utf8");
+  await rename(tempPath, path);
 }
 
 function notFound(diagnosticsId: string): RunDiagnosticsLookupResult {
@@ -132,7 +198,8 @@ function setupFailureSection(operation: RunInGameInternalOperation) {
     expectedGeneratedMapFile: diagnostics?.mapScript ?? diagnostics?.expectedMapScript,
     setupPhase: operation.phase,
     setupFailureReason,
-    rowSample: parseMaybeJson(diagnostics?.rowProof) ?? parseMaybeJson(diagnostics?.rowVisibility),
+    rowSample:
+      parseMaybeJson(diagnostics?.rowEvidence) ?? parseMaybeJson(diagnostics?.rowVisibility),
     observedMapScripts: diagnostics?.observedMapScripts,
     activeTargetModSet: parseMaybeJson(diagnostics?.activeTargetModSet),
     targetModReconciliation: parseMaybeJson(diagnostics?.targetModReconciliation),
@@ -145,17 +212,16 @@ function setupFailureSection(operation: RunInGameInternalOperation) {
 function parseMaybeJson(value: unknown): unknown {
   if (typeof value !== "string") return value;
   try {
-    return JSON.parse(value) as unknown;
+    return JSON.parse(value);
   } catch {
     return value;
   }
 }
 
 function isNotFoundError(err: unknown): boolean {
-  return (
-    err != null &&
-    typeof err === "object" &&
-    "code" in err &&
-    (err as { code?: unknown }).code === "ENOENT"
-  );
+  return err != null && typeof err === "object" && "code" in err && err.code === "ENOENT";
+}
+
+function isAlreadyExistsError(err: unknown): boolean {
+  return err != null && typeof err === "object" && "code" in err && err.code === "EEXIST";
 }

@@ -54,13 +54,12 @@ export const RecipePanel: Story = {
         </TabsContent>
         <TabsContent value="config">
           <p className="text-muted-foreground" style={{ fontSize: 12, lineHeight: 1.5, margin: 0 }}>
-            Per-domain overrides (plate count, water %, climate bands) layered onto the recipe
-            defaults.
+            Per-domain config values for plate count, water %, and climate bands defaults.
           </p>
         </TabsContent>
         <TabsContent value="presets">
           <p className="text-muted-foreground" style={{ fontSize: 12, lineHeight: 1.5, margin: 0 }}>
-            Saved recipe + override bundles. Load a preset to seed a new map.
+            Saved recipe and complete config bundles. Load a preset to seed a new map.
           </p>
         </TabsContent>
       </Tabs>

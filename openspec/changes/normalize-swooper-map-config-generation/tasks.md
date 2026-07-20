@@ -93,3 +93,22 @@
 - [x] 7.9 Run `git diff --check`.
 - [x] 7.10 Run focused CLI restart command tests and a `--dry-run` command
   smoke before collecting live FireTuner bridge evidence.
+
+## 8. Portable Canonical Envelope Correction
+
+- [ ] 8.1 Restrict `@civ7/studio-contract` to the portable recursive-JSON
+  envelope wire schema, type, and predicate; keep Standard defaults and strict
+  recipe admission in Swooper Maps.
+- [ ] 8.2 Land the catalog-authority slice: the index carries ordered source
+  paths only, and each admitted catalog result carries one complete envelope
+  without mirrored metadata.
+- [ ] 8.3 Land one atomic vertical envelope cutover across Studio saved/editor
+  construction, Run in Game, launch, and manifest paths. Reject malformed,
+  incomplete, unknown, and old persisted data; add no partial DTO, merge,
+  `unknown` tunnel, migration, fallback, or equality/digest routing.
+- [ ] 8.4 Bind diagnostics and attribution to request and operation-revision
+  identity, retaining envelope digests only as derived evidence.
+- [ ] 8.5 Replace legacy parity/source-snapshot inputs with the exact manifest
+  launch envelope and derived evidence, then collect the required focused and
+  live parity verification. Do not mark this correction complete from source or test
+  evidence alone.

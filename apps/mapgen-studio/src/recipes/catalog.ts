@@ -1,4 +1,5 @@
-import type { TSchema } from "@swooper/mapgen-core/authoring";
+import { type MapConfigEnvelope, snapshotMapConfigEnvelope } from "@civ7/studio-contract";
+import type { XSchema } from "typebox/schema";
 
 export type StudioRecipeId = string;
 
@@ -22,28 +23,15 @@ export type StudioRecipeUiMeta = Readonly<{
 }>;
 
 export type BuiltInPreset = Readonly<{
-  id: string;
-  label: string;
-  description?: string;
-  catalogSourceId?: string;
-  sourcePath?: string;
-  sortIndex?: number;
-  latitudeBounds?: Readonly<{
-    topLatitude: number;
-    bottomLatitude: number;
-  }>;
-  config: unknown;
+  sourcePath: string;
+  canonicalConfig: MapConfigEnvelope;
 }>;
 
 export type RecipeArtifacts<TConfig = unknown> = {
   id: StudioRecipeId;
   label: string;
-  /**
-   * JSON-schema-ish object that drives the config overrides UI.
-   *
-   * Treated as unknown by Studio so recipes can choose their own schema tooling.
-   */
-  configSchema: TSchema;
+  /** Raw JSON Schema used for interpreted config validation and the authoring UI. */
+  configSchema: XSchema;
   /**
    * Complete default recipe config object produced by recipe artifacts.
    *
@@ -87,7 +75,13 @@ export const STUDIO_RECIPE_ARTIFACTS: readonly RecipeArtifacts[] = [
     configSchema: swooperStandardConfigSchema,
     defaultConfig: swooperStandardDefaultConfig,
     uiMeta: swooperStandardUiMeta,
-    studioBuiltInPresets: swooperStandardMapConfigs,
+    studioBuiltInPresets: swooperStandardMapConfigs.map(({ sourcePath, canonicalConfig }) => {
+      const snapshot = snapshotMapConfigEnvelope(canonicalConfig);
+      if (snapshot === undefined) {
+        throw new TypeError(`Invalid generated Studio catalog config: ${sourcePath}`);
+      }
+      return { sourcePath, canonicalConfig: snapshot };
+    }),
   },
 ] as const;
 
@@ -101,6 +95,18 @@ export const DEFAULT_STUDIO_RECIPE_ID: StudioRecipeId =
 
 export function findRecipeArtifacts(recipeId: StudioRecipeId): RecipeArtifacts | null {
   return STUDIO_RECIPE_ARTIFACTS.find((r) => r.id === recipeId) ?? null;
+}
+
+/** Catalog resolution stays in generated recipe artifacts, never browser storage. */
+export function findBuiltInPresetBySourcePath(
+  recipeId: StudioRecipeId,
+  sourcePath: string
+): BuiltInPreset | null {
+  return (
+    findRecipeArtifacts(recipeId)?.studioBuiltInPresets?.find(
+      (preset) => preset.sourcePath === sourcePath
+    ) ?? null
+  );
 }
 
 export function getRecipeArtifacts(recipeId: StudioRecipeId): RecipeArtifacts {

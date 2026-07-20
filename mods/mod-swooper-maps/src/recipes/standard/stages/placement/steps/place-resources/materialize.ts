@@ -18,7 +18,7 @@ type ResourcePlacementReason = ResourcePlacementRejectionReason | ResourcePlacem
 type ResourcePlacementSummary = ResourcePlacementOutcomes["summary"];
 type ResourceReconciliationSummary = ResourcePlacementOutcomes["reconciliation"];
 type ResourcePlacementRuntimeTelemetryOutcome = ResourcePlacementOutcomes["outcomes"][number];
-type ResourcePlacementCoordinateDigest = ResourcePlacementSummary["coordinateProof"]["placed"];
+type ResourcePlacementCoordinateDigest = ResourcePlacementSummary["coordinateEvidence"]["placed"];
 
 type PlaceResourcesWithTypedOutcomesArgs = {
   adapter: ExtendedMapContext["adapter"];
@@ -138,7 +138,7 @@ function summarizeResourceOutcomes(
     placedCount,
     rejectedCount,
     mismatchCount,
-    coordinateProof: {
+    coordinateEvidence: {
       version: 1,
       placed: buildResourcePlacementCoordinateDigest(outcomes, "placed"),
       rejected: buildResourcePlacementCoordinateDigest(outcomes, "rejected"),
@@ -165,7 +165,7 @@ function summarizeResourceOutcomes(
 /**
  * RESOURCE_PLACEMENT_V1 runtime telemetry. Same envelope as before the S3
  * cutover (version/planned/placed/rejected/mismatch counts, per-type
- * extremes, coordinate proof, rejection examples); the old `assignment`
+ * extremes, coordinate evidence, rejection examples); the old `assignment`
  * subblock is replaced by a `reconciliation` subblock because type-at-plot is
  * now plan authority — there is no assignment pass to report.
  */
@@ -214,20 +214,20 @@ export function buildResourcePlacementRuntimeTelemetry(
     minPlacedCountByType: placedCounts.length > 0 ? Math.min(...placedCounts) : 0,
     maxPlacedCountByType: placedCounts.length > 0 ? Math.max(...placedCounts) : 0,
     runtimeCatalogCount: runtimeCatalog.length,
-    coordinateProof: {
-      version: summary.coordinateProof.version,
-      placedCount: summary.coordinateProof.placed.count,
-      placedHash32: summary.coordinateProof.placed.hash32,
-      ...(summary.coordinateProof.rejected.count > 0
+    coordinateEvidence: {
+      version: summary.coordinateEvidence.version,
+      placedCount: summary.coordinateEvidence.placed.count,
+      placedHash32: summary.coordinateEvidence.placed.hash32,
+      ...(summary.coordinateEvidence.rejected.count > 0
         ? {
-            rejectedCount: summary.coordinateProof.rejected.count,
-            rejectedHash32: summary.coordinateProof.rejected.hash32,
+            rejectedCount: summary.coordinateEvidence.rejected.count,
+            rejectedHash32: summary.coordinateEvidence.rejected.hash32,
           }
         : {}),
-      ...(summary.coordinateProof.mismatch.count > 0
+      ...(summary.coordinateEvidence.mismatch.count > 0
         ? {
-            mismatchCount: summary.coordinateProof.mismatch.count,
-            mismatchHash32: summary.coordinateProof.mismatch.hash32,
+            mismatchCount: summary.coordinateEvidence.mismatch.count,
+            mismatchHash32: summary.coordinateEvidence.mismatch.hash32,
           }
         : {}),
     },

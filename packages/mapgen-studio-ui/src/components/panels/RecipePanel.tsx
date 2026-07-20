@@ -7,8 +7,18 @@
 // ============================================================================
 
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
-import { BookOpen, Braces, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
+import {
+  BookOpen,
+  Braces,
+  Eraser,
+  Focus,
+  ListCollapse,
+  Save,
+  Settings,
+  TriangleAlert,
+} from "lucide-react";
 import React, { useMemo, useRef, useState } from "react";
+import type { XSchema } from "typebox/schema";
 import { LAYOUT } from "../../lib/layout.js";
 import { cn } from "../../lib/utils.js";
 import type { PipelineConfig, RecipeSettings, SelectOption } from "../../types/index.js";
@@ -30,7 +40,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu.js";
 import { Switch } from "../ui/switch.js";
@@ -41,9 +50,9 @@ import { formatMapConfigSaveDeployPhaseLabel } from "./statusLabels.js";
 // ============================================================================
 export interface RecipePanelProps {
   /** Current pipeline configuration */
-  config: PipelineConfig;
+  config: PipelineConfig | null;
   /** Config schema (recipe artifacts) */
-  configSchema: unknown;
+  configSchema: XSchema;
   /** Path-based patch callback for efficient state updates */
   onConfigChange: (next: PipelineConfig) => void;
   /** Callback to reset config to defaults */
@@ -66,10 +75,6 @@ export interface RecipePanelProps {
   onImportPreset: () => void;
   /** Callback to export preset */
   onExportPreset: () => void;
-  /** Callback to delete preset */
-  onDeletePreset: () => void;
-  /** Whether delete is available */
-  canDeletePreset?: boolean;
   /** Whether config save/deploy is running */
   isSaveDeployRunning?: boolean;
   /** Current config save/deploy status */
@@ -78,10 +83,10 @@ export interface RecipePanelProps {
   isSaveDisabled?: boolean;
   /** Whether settings have changed since last run */
   isDirty: boolean;
-  /** Whether config overrides are disabled (optional controlled mode) */
-  overridesDisabled?: boolean;
-  /** Callback when overrides disabled changes (optional controlled mode) */
-  onOverridesDisabledChange?: (disabled: boolean) => void;
+  /** Whether config editing is enabled (optional controlled mode) */
+  configEditingEnabled?: boolean;
+  /** Callback when config editing enablement changes (optional controlled mode) */
+  onConfigEditingEnabledChange?: (enabled: boolean) => void;
   /** Whether the recipe section is collapsed (optional controlled mode) */
   recipeCollapsed?: boolean;
   /** Callback when recipe collapsed changes (optional controlled mode) */
@@ -90,6 +95,12 @@ export interface RecipePanelProps {
   configCollapsed?: boolean;
   /** Callback when config collapsed changes (optional controlled mode) */
   onConfigCollapsedChange?: (collapsed: boolean) => void;
+  /** Recovery commands shown when persisted authoring cannot resolve to a config. */
+  authoringBlocked?: Readonly<{
+    reason: "missing-catalog-source" | "invalid-persistence";
+    onSelectExistingCatalogConfig: () => void;
+    onCreateNewEditorConfig: () => void;
+  }>;
 }
 // ============================================================================
 // Main Component
@@ -108,34 +119,33 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   onSaveAsNew,
   onImportPreset,
   onExportPreset,
-  onDeletePreset,
-  canDeletePreset = false,
   isSaveDeployRunning = false,
   saveDeployStatus,
   isSaveDisabled = false,
   isDirty,
-  overridesDisabled: overridesDisabledProp,
-  onOverridesDisabledChange,
+  configEditingEnabled: configEditingEnabledProp,
+  onConfigEditingEnabledChange,
   recipeCollapsed: recipeCollapsedProp,
   onRecipeCollapsedChange,
   configCollapsed: configCollapsedProp,
   onConfigCollapsedChange,
+  authoringBlocked,
 }) => {
   // ==========================================================================
   // Local State
   // ==========================================================================
   const [localRecipeCollapsed, setLocalRecipeCollapsed] = useState(false);
   const [localConfigCollapsed, setLocalConfigCollapsed] = useState(false);
-  const [localOverridesDisabled, setLocalOverridesDisabled] = useState(false);
+  const [localConfigEditingEnabled, setLocalConfigEditingEnabled] = useState(true);
   const [showJson, setShowJson] = useState(false);
   const [showAllSteps, setShowAllSteps] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const [showSaveMenu, setShowSaveMenu] = useState(false);
 
-  const overridesDisabled = overridesDisabledProp ?? localOverridesDisabled;
-  const setOverridesDisabled = (next: boolean) => {
-    onOverridesDisabledChange?.(next);
-    if (overridesDisabledProp === undefined) setLocalOverridesDisabled(next);
+  const configEditingEnabled = configEditingEnabledProp ?? localConfigEditingEnabled;
+  const setConfigEditingEnabled = (next: boolean) => {
+    onConfigEditingEnabledChange?.(next);
+    if (configEditingEnabledProp === undefined) setLocalConfigEditingEnabled(next);
   };
   const recipeCollapsed = recipeCollapsedProp ?? localRecipeCollapsed;
   const setRecipeCollapsed = (next: boolean) => {
@@ -147,14 +157,17 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
     onConfigCollapsedChange?.(next);
     if (configCollapsedProp === undefined) setLocalConfigCollapsed(next);
   };
-  const saveActionDisabled = isSaveDisabled || isSaveDeployRunning;
+  const saveActionDisabled =
+    isSaveDisabled || isSaveDeployRunning || authoringBlocked !== undefined;
   const saveLabel = saveDeployStatus
     ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase)
     : "Save & Deploy Config";
   const saveTitle = isSaveDeployRunning
     ? `Save & Deploy Config: ${saveLabel}`
     : saveActionDisabled
-      ? "Save unavailable while another operation is running"
+      ? authoringBlocked
+        ? "Recover the authoring source before saving"
+        : "Save unavailable while another operation is running"
       : "Save & Deploy Config";
 
   // Close the save menu the instant the action transitions to disabled. Done
@@ -171,6 +184,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   // Derived State
   // ==========================================================================
   const filteredConfig = useMemo(() => {
+    if (config === null) return null;
     if (showAllSteps || !selectedStep) return config;
     if (config[selectedStep])
       return {
@@ -277,6 +291,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   label: opt.label,
                 }))}
                 className="flex-1"
+                disabled={authoringBlocked !== undefined}
               />
             </div>
 
@@ -298,6 +313,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   label: opt.label,
                 }))}
                 className="flex-1"
+                disabled={authoringBlocked !== undefined}
               />
             </div>
           </div>
@@ -330,53 +346,57 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               </div>
             )}
             trailing={
-              <>
-                {/* Caller-owned stopPropagation: clicking the On label / Switch
+              authoringBlocked ? null : (
+                <>
+                  {/* Caller-owned stopPropagation: clicking the On label / Switch
                     must NOT toggle the section. */}
-                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                  <span
-                    className={cn(
-                      "text-[9px] font-medium uppercase tracking-wider",
-                      overridesDisabled ? "text-primary" : textMuted
-                    )}
-                  >
-                    On
-                  </span>
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <span
+                      className={cn(
+                        "text-[9px] font-medium uppercase tracking-wider",
+                        configEditingEnabled ? "text-primary" : textMuted
+                      )}
+                    >
+                      {configEditingEnabled ? "Editing" : "Locked"}
+                    </span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Switch
+                          checked={configEditingEnabled}
+                          onCheckedChange={setConfigEditingEnabled}
+                          aria-label={
+                            configEditingEnabled ? "Lock config editing" : "Enable config editing"
+                          }
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {configEditingEnabled ? "Lock config editing" : "Enable config editing"}
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+
+                  {/* Focus button self-guards its own click. */}
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Switch
-                        checked={!overridesDisabled}
-                        onCheckedChange={(checked) => setOverridesDisabled(!checked)}
-                        aria-label={overridesDisabled ? "Enable Overrides" : "Disable Overrides"}
-                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowAllSteps(!showAllSteps);
+                        }}
+                        aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
+                        aria-pressed={showAllSteps}
+                        className={!showAllSteps ? iconBtnActive : iconBtn}
+                      >
+                        <Focus className="w-3.5 h-3.5" aria-hidden="true" />
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      {overridesDisabled ? "Enable Overrides" : "Disable Overrides"}
+                      {showAllSteps ? "Focus Current Step" : "Show All Steps"}
                     </TooltipContent>
                   </Tooltip>
-                </div>
-
-                {/* Focus button self-guards its own click. */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowAllSteps(!showAllSteps);
-                      }}
-                      aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
-                      aria-pressed={showAllSteps}
-                      className={!showAllSteps ? iconBtnActive : iconBtn}
-                    >
-                      <Focus className="w-3.5 h-3.5" aria-hidden="true" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {showAllSteps ? "Focus Current Step" : "Show All Steps"}
-                  </TooltipContent>
-                </Tooltip>
-              </>
+                </>
+              )
             }
           />
         </div>
@@ -388,106 +408,144 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             ref={configScrollRef}
             className="flex-1 overflow-y-auto overflow-x-hidden"
           >
-            {/* Config Actions */}
-            <div
-              className={cn(
-                "px-3 py-2 flex items-center gap-2",
-                overridesDisabled && "opacity-40 pointer-events-none select-none"
-              )}
-            >
-              <div className="flex-1" />
+            {authoringBlocked ? (
+              <div className="px-3 py-4">
+                <div className="border border-warning/40 bg-warning/10 p-3 text-data">
+                  <div className="flex items-start gap-2">
+                    <TriangleAlert
+                      className="mt-0.5 h-4 w-4 shrink-0 text-warning"
+                      aria-hidden="true"
+                    />
+                    <div className="space-y-3">
+                      <p className={cn("font-medium", textPrimary)}>
+                        {authoringBlocked.reason === "missing-catalog-source"
+                          ? "The saved catalog config is no longer available."
+                          : "The saved authoring config is invalid."}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={authoringBlocked.onSelectExistingCatalogConfig}
+                        >
+                          Select existing catalog config
+                        </Button>
+                        <Button size="sm" onClick={authoringBlocked.onCreateNewEditorConfig}>
+                          Create new editor config
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Config Actions */}
+                <div
+                  className={cn(
+                    "px-3 py-2 flex items-center gap-2",
+                    !configEditingEnabled && "opacity-40 pointer-events-none select-none"
+                  )}
+                >
+                  <div className="flex-1" />
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={() => setStickyAutoExpand(!stickyAutoExpand)}
-                    aria-label={
-                      stickyAutoExpand
-                        ? "Disable Auto-Expand on Scroll"
-                        : "Enable Auto-Expand on Scroll"
-                    }
-                    aria-pressed={stickyAutoExpand}
-                    className={stickyAutoExpand ? iconBtnActive : iconBtn}
-                  >
-                    <ListCollapse className="w-3.5 h-3.5" aria-hidden="true" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {stickyAutoExpand ? "Auto-Expand on Scroll: On" : "Auto-Expand on Scroll: Off"}
-                </TooltipContent>
-              </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => setStickyAutoExpand(!stickyAutoExpand)}
+                        aria-label={
+                          stickyAutoExpand
+                            ? "Disable Auto-Expand on Scroll"
+                            : "Enable Auto-Expand on Scroll"
+                        }
+                        aria-pressed={stickyAutoExpand}
+                        className={stickyAutoExpand ? iconBtnActive : iconBtn}
+                      >
+                        <ListCollapse className="w-3.5 h-3.5" aria-hidden="true" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {stickyAutoExpand
+                        ? "Auto-Expand on Scroll: On"
+                        : "Auto-Expand on Scroll: Off"}
+                    </TooltipContent>
+                  </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={() => setShowResetModal(true)}
-                    aria-label="Reset Config to Defaults"
-                    className={iconBtn}
-                  >
-                    <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>Reset to Defaults</TooltipContent>
-              </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => setShowResetModal(true)}
+                        aria-label="Reset Config to Defaults"
+                        className={iconBtn}
+                      >
+                        <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Reset to Defaults</TooltipContent>
+                  </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={() => setShowJson(!showJson)}
-                    aria-label={showJson ? "Show Form View" : "Show JSON View"}
-                    aria-pressed={showJson}
-                    className={showJson ? iconBtnActive : iconBtn}
-                  >
-                    <Braces className="w-3.5 h-3.5" aria-hidden="true" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>{showJson ? "Show Form View" : "Show JSON View"}</TooltipContent>
-              </Tooltip>
-            </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => setShowJson(!showJson)}
+                        aria-label={showJson ? "Show Form View" : "Show JSON View"}
+                        aria-pressed={showJson}
+                        className={showJson ? iconBtnActive : iconBtn}
+                      >
+                        <Braces className="w-3.5 h-3.5" aria-hidden="true" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {showJson ? "Show Form View" : "Show JSON View"}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
 
-            {/* Config Form / JSON. pb-6 matches the h-6 scroll-edge fade below:
+                {/* Config Form / JSON. pb-6 matches the h-6 scroll-edge fade below:
                 at full scroll the fade overlays only this padding, never the
                 last field row. */}
-            <div
-              className={cn(
-                "px-3 pb-6",
-                overridesDisabled && "opacity-40 pointer-events-none select-none"
-              )}
-            >
-              {showJson ? (
-                <div className="border border-border-subtle rounded p-2.5 max-h-[240px] overflow-auto bg-surface-sunken">
-                  <pre
-                    className={cn(
-                      "text-label font-mono leading-relaxed",
-                      textMuted,
-                      "whitespace-pre-wrap break-all"
-                    )}
-                  >
-                    {JSON.stringify(filteredConfig, null, 2)}
-                  </pre>
+                <div
+                  className={cn(
+                    "px-3 pb-6",
+                    !configEditingEnabled && "opacity-40 pointer-events-none select-none"
+                  )}
+                >
+                  {config === null ? null : showJson ? (
+                    <div className="border border-border-subtle rounded p-2.5 max-h-[240px] overflow-auto bg-surface-sunken">
+                      <pre
+                        className={cn(
+                          "text-label font-mono leading-relaxed",
+                          textMuted,
+                          "whitespace-pre-wrap break-all"
+                        )}
+                      >
+                        {JSON.stringify(filteredConfig, null, 2)}
+                      </pre>
+                    </div>
+                  ) : (
+                    <SchemaConfigForm
+                      schema={configSchema}
+                      value={config}
+                      focusPath={focusPath}
+                      disabled={!configEditingEnabled}
+                      collapse={collapse}
+                      onChange={(next) => onConfigChange(next)}
+                    />
+                  )}
                 </div>
-              ) : (
-                <SchemaConfigForm
-                  schema={configSchema}
-                  value={config}
-                  focusPath={focusPath}
-                  disabled={overridesDisabled}
-                  collapse={collapse}
-                  onChange={(next) => onConfigChange(next)}
-                />
-              )}
-            </div>
-            {/* Scroll-edge fade: sticky inside the scroll container so mid-scroll
+                {/* Scroll-edge fade: sticky inside the scroll container so mid-scroll
                 cuts read as "more below" instead of the end of the form. The
                 negative margin keeps it from adding scroll height; it fades to
                 the panel surface (popover) and never intercepts the pointer. */}
-            <div
-              aria-hidden="true"
-              className="sticky bottom-0 -mt-6 h-6 shrink-0 pointer-events-none bg-gradient-to-t from-popover to-transparent"
-            />
+                <div
+                  aria-hidden="true"
+                  className="sticky bottom-0 -mt-6 h-6 shrink-0 pointer-events-none bg-gradient-to-t from-popover to-transparent"
+                />
+              </>
+            )}
           </div>
         )}
 
@@ -497,11 +555,9 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             {/*
               Save & Deploy menu — Radix `DropdownMenu` (role=menu/menuitem,
               Escape, arrow-key roving focus, focus trap + restore for free). The
-              action set + values are preserved exactly (Save & Deploy →
-              onSaveToCurrent, As… → onSaveAsNew, Export… → onExportPreset,
-              Import… → onImportPreset, Delete Scratch → onDeletePreset gated by
-              `canDeletePreset`). Radix closes on select; the controlled open
-              state stays so the `saveActionDisabled` effect can force-close it.
+              Actions map directly to the repo-backed save and portable
+              import/export boundaries. Radix closes on select; the controlled
+              open state lets disabled transitions force-close it.
 
               This is the panel's only footer action: running lives exclusively
               in the footer run console (Pass-2 run-console spec — one Run CTA).
@@ -532,14 +588,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => onExportPreset()}>Export…</DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => onImportPreset()}>Import…</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  disabled={!canDeletePreset}
-                  onSelect={() => onDeletePreset()}
-                  className="text-destructive focus:text-destructive"
-                >
-                  Delete Scratch
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -555,7 +603,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               Reset Config
             </DialogTitle>
             <DialogDescription>
-              This will reset all config overrides to their default values.
+              This will reset the complete config to its default values.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

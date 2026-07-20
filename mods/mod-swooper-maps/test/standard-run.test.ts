@@ -351,28 +351,12 @@ describe("standard recipe execution", () => {
     const height = 18;
     const seed = 123;
 
-    const configCold: StandardRecipeConfig = {
-      ...standardConfig,
-      "hydrology-climate-baseline": {
-        ...standardConfig["hydrology-climate-baseline"],
-        knobs: { ...standardConfig["hydrology-climate-baseline"].knobs, temperature: "cold" },
-      },
-      "hydrology-climate-refine": {
-        ...standardConfig["hydrology-climate-refine"],
-        knobs: { ...standardConfig["hydrology-climate-refine"].knobs, temperature: "cold" },
-      },
-    };
-    const configHot: StandardRecipeConfig = {
-      ...standardConfig,
-      "hydrology-climate-baseline": {
-        ...standardConfig["hydrology-climate-baseline"],
-        knobs: { ...standardConfig["hydrology-climate-baseline"].knobs, temperature: "hot" },
-      },
-      "hydrology-climate-refine": {
-        ...standardConfig["hydrology-climate-refine"],
-        knobs: { ...standardConfig["hydrology-climate-refine"].knobs, temperature: "hot" },
-      },
-    };
+    const configCold = structuredClone(standardConfig);
+    configCold["hydrology-climate-baseline"].knobs.temperature = "cold";
+    configCold["hydrology-climate-refine"].knobs.temperature = "cold";
+    const configHot = structuredClone(standardConfig);
+    configHot["hydrology-climate-baseline"].knobs.temperature = "hot";
+    configHot["hydrology-climate-refine"].knobs.temperature = "hot";
 
     const runAndMeanSurfaceTemperature = (cfg: StandardRecipeConfig): number => {
       const mapInfo = {
@@ -425,20 +409,10 @@ describe("standard recipe execution", () => {
     const height = 18;
     const seed = 123;
 
-    const configDense: StandardRecipeConfig = {
-      ...standardConfig,
-      "hydrology-hydrography": {
-        ...standardConfig["hydrology-hydrography"],
-        knobs: { ...standardConfig["hydrology-hydrography"].knobs, riverDensity: "dense" },
-      },
-    };
-    const configSparse: StandardRecipeConfig = {
-      ...standardConfig,
-      "hydrology-hydrography": {
-        ...standardConfig["hydrology-hydrography"],
-        knobs: { ...standardConfig["hydrology-hydrography"].knobs, riverDensity: "sparse" },
-      },
-    };
+    const configDense = structuredClone(standardConfig);
+    configDense["hydrology-hydrography"].knobs.riverDensity = "dense";
+    const configSparse = structuredClone(standardConfig);
+    configSparse["hydrology-hydrography"].knobs.riverDensity = "sparse";
 
     const runAndCountRivers = (cfg: StandardRecipeConfig): number => {
       const mapInfo = {

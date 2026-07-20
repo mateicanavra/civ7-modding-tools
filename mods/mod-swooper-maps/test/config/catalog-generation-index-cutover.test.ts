@@ -3,15 +3,15 @@ import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promis
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { loadSwooperStudioDeployConfigRegistry } from "../../scripts/generate-map-artifacts";
-import { generateSwooperStudioCatalogMetadata } from "../../scripts/generate-studio-map-catalog";
-import { CatalogSourceIndex } from "../../src/maps/catalog/sourceIndex";
 import {
-  CATALOG_CONFIG_PATH_PREFIX,
-  type CatalogSourceEntry,
-} from "../../src/maps/catalog/sources";
+  buildSwooperStudioCatalogMetadataPlan,
+  generateSwooperStudioCatalogMetadata,
+} from "../../scripts/generate-studio-map-catalog";
+import { CatalogSourceIndex } from "../../src/maps/catalog/sourceIndex";
+import { CATALOG_CONFIG_PATH_PREFIX } from "../../src/maps/catalog/sources";
 
-function indexedSource(index: number): CatalogSourceEntry {
-  return CatalogSourceIndex[index] as CatalogSourceEntry;
+function indexedSource(index: number): string {
+  return CatalogSourceIndex[index] as string;
 }
 
 async function outputPaths(root: string): Promise<string[]> {
@@ -55,6 +55,7 @@ describe("Swooper catalog generation index cutover", () => {
     const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-catalog-index-cutover-"));
     try {
       const selected = [indexedSource(1), indexedSource(0)];
+      const plan = await buildSwooperStudioCatalogMetadataPlan({ catalogSourceIndex: selected });
 
       const result = await generateSwooperStudioCatalogMetadata({
         catalogSourceIndex: selected,
@@ -68,22 +69,15 @@ describe("Swooper catalog generation index cutover", () => {
         "standard-map-configs.js",
       ]);
 
-      const catalogModule = await readFile(
-        resolve(outputRoot, "dist/recipes/standard-map-configs.js"),
-        "utf8"
-      );
-      const catalogJson = catalogModule
-        .replace(/^.*export const standardMapConfigs = /s, "")
-        .replace(/;\n$/, "");
-      const catalog = JSON.parse(catalogJson) as Array<{ id: string; sourcePath: string }>;
-      expect(catalog.map((entry) => entry.id)).toEqual([
-        selected[0].catalogSourceId,
-        selected[1].catalogSourceId,
+      expect(plan.metadata.configProjections.map((entry) => entry.canonicalConfig.id)).toEqual([
+        "swooper-earthlike",
+        "swooper-desert-mountains",
       ]);
-      expect(catalog.map((entry) => entry.sourcePath)).toEqual([
-        selected[0].configPath,
-        selected[1].configPath,
-      ]);
+      expect(
+        plan.metadata.configProjections.map((entry) =>
+          entry.sourceKind === "catalog" ? entry.sourcePath : undefined
+        )
+      ).toEqual([selected[0], selected[1]]);
     } finally {
       await rm(outputRoot, { recursive: true, force: true });
     }
@@ -92,17 +86,7 @@ describe("Swooper catalog generation index cutover", () => {
   it("fails before emitting metadata when an indexed source is missing", async () => {
     const outputRoot = await mkdtemp(resolve(tmpdir(), "swooper-catalog-index-missing-"));
     try {
-      const missing = {
-        ...indexedSource(0),
-        catalogSourceId: "missing-indexed-source",
-        configPath: `${CATALOG_CONFIG_PATH_PREFIX}missing-indexed-source.config.json`,
-        digestInputs: [
-          {
-            kind: "config-file",
-            path: `${CATALOG_CONFIG_PATH_PREFIX}missing-indexed-source.config.json`,
-          },
-        ],
-      } satisfies CatalogSourceEntry;
+      const missing = `${CATALOG_CONFIG_PATH_PREFIX}missing-indexed-source.config.json`;
 
       await expect(
         generateSwooperStudioCatalogMetadata({ catalogSourceIndex: [missing], outputRoot })
@@ -129,15 +113,7 @@ describe("Swooper catalog generation index cutover", () => {
           config: "not-an-object",
         },
       });
-      const invalid = {
-        catalogSourceId: "indexed-invalid",
-        configPath,
-        name: "Indexed Invalid",
-        description: "Invalid indexed config",
-        recipe: "standard",
-        sortIndex: 1,
-        digestInputs: [{ kind: "config-file", path: configPath }],
-      } satisfies CatalogSourceEntry;
+      const invalid = configPath;
 
       await expect(
         generateSwooperStudioCatalogMetadata({
@@ -178,7 +154,7 @@ describe("Swooper catalog generation index cutover", () => {
         repoRoot: fakeRepoRoot,
       });
 
-      expect(deployConfigs.map((config) => config.id)).toEqual(["saved-config"]);
+      expect(deployConfigs.map((config) => config.canonicalConfig.id)).toEqual(["saved-config"]);
     } finally {
       await rm(fakeRepoRoot, { recursive: true, force: true });
       await rm(outputRoot, { recursive: true, force: true });

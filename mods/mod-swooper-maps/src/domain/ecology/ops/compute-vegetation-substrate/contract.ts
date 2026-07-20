@@ -7,14 +7,19 @@ const VegetationSubstrateConfigSchema = Type.Object(
         "Effective moisture value mapped to water01=1.0. Default aligns with humid threshold + padding in biome classification.",
       default: 230,
       minimum: 1,
+      maximum: 1_000,
     }),
     temperatureMinC: Type.Number({
       description: "Surface temperature (C) mapped to energy01=0.0.",
       default: -20,
+      minimum: -100,
+      maximum: 100,
     }),
     temperatureMaxC: Type.Number({
       description: "Surface temperature (C) mapped to energy01=1.0.",
       default: 40,
+      minimum: -100,
+      maximum: 100,
     }),
   },
   {

@@ -37,7 +37,7 @@ This is a compact “where are the real gaps?” map; it is not authoritative co
 | Domain authoring | Recipe config surface (no global overrides; explicitness rules) | Proposed | Strategy config encoding | SPEC-architecture-overview; SPEC-packaging-and-file-structure; SPEC-step-domain-operation-modules |
 | Domain authoring | Step schema composition approach (manual vs declarative op wiring) | Proposed | Recipe config surface | SPEC-architecture-overview; SPEC-packaging-and-file-structure; SPEC-step-domain-operation-modules |
 | Domain semantics | Operation kind semantics (`plan`/`compute`/`score`/`select`) | Accepted | — | ADR-ER1-034; SPEC-step-domain-operation-modules |
-| Compile/validate | Config normalization beyond schema defaults | Accepted | Recipe config surface | ADR-ER1-035; SPEC-architecture-overview; SPEC-step-domain-operation-modules |
+| Compile/validate | Complete config construction and exact admission | Accepted | Recipe config surface | ADR-ER1-037; SPEC-architecture-overview; SPEC-step-domain-operation-modules |
 | Narrative debug | Overlays as derived-only vs dependency surface | Accepted | — | ADR-ER1-025 |
 | Runtime boundary | Directionality source of truth (`RunRequest.settings`) | Accepted | — | ADR-ER1-019 |
 
@@ -76,6 +76,7 @@ This is a compact “where are the real gaps?” map; it is not authoritative co
 - ADR-ER1-034 — Operation kind semantics.
 - ADR-ER1-035 — Config normalization and derived defaults.
 - ADR-ER1-036 — Sequence strategy-required `createOp` cutover before remaining domain refactors.
+- ADR-ER1-037 — Complete recipe config construction and exact admission (supersedes ADR-ER1-035).
 
 ## Archived/noise decisions (do not treat as current design)
 

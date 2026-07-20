@@ -4,7 +4,7 @@ import { createMockAdapter } from "@civ7/adapter/mock";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createExtendedMapContext, createLabelRng } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
-import { materializePipelineConfig } from "../features/configOverrides/configBuilders";
+import { admitPipelineConfig } from "../features/configAuthoring/canonicalConfig";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
 import { getRuntimeRecipe } from "./recipeRuntime";
 import { createWorkerTraceSink } from "./worker-trace-sink";
@@ -110,7 +110,7 @@ async function runRecipe(
     latitudeBounds,
   };
 
-  const configResult = materializePipelineConfig({
+  const configResult = admitPipelineConfig({
     schema: recipeEntry.configSchema,
     config: pipelineConfig,
     label: "browser-run",
@@ -119,10 +119,10 @@ async function runRecipe(
     throw new Error(`Invalid recipe config:\n${formatConfigErrors(configResult.errors)}`);
   }
 
-  const plan: any = recipeEntry.recipe.compile(envBase, configResult.value as Record<string, unknown>);
+  const plan = recipeEntry.recipe.compile(envBase, configResult.value);
   const runId = deriveRunId(plan);
   const verboseSteps: Record<string, "verbose"> = Object.fromEntries(
-    plan.nodes.map((node: any) => [node.stepId, "verbose"] as const)
+    plan.nodes.map((node) => [node.stepId, "verbose"] as const)
   );
 
   const env = {

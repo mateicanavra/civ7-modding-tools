@@ -20,12 +20,42 @@ const ScoreWetMarshContract = defineOp({
   }),
   strategies: {
     default: Type.Object({
-      waterMin01: Type.Number({ default: 0.55, minimum: 0, maximum: 1 }),
-      fertilityMin01: Type.Number({ default: 0.2, minimum: 0, maximum: 1 }),
-      aridityMax01: Type.Number({ default: 0.6, minimum: 0, maximum: 1 }),
-      tempMinC: Type.Number({ default: -2 }),
-      tempPeakC: Type.Number({ default: 10 }),
-      tempMaxC: Type.Number({ default: 24 }),
+      waterMin01: Type.Number({
+        default: 0.55,
+        minimum: 0,
+        maximum: 1,
+        description: "Minimum water availability for marsh suitability.",
+      }),
+      fertilityMin01: Type.Number({
+        default: 0.2,
+        minimum: 0,
+        maximum: 1,
+        description: "Minimum soil fertility for marsh suitability.",
+      }),
+      aridityMax01: Type.Number({
+        default: 0.6,
+        minimum: 0,
+        maximum: 1,
+        description: "Maximum aridity for marsh suitability.",
+      }),
+      tempMinC: Type.Number({
+        default: -2,
+        minimum: -100,
+        maximum: 100,
+        description: "Minimum temperature for marsh suitability.",
+      }),
+      tempPeakC: Type.Number({
+        default: 10,
+        minimum: -100,
+        maximum: 100,
+        description: "Temperature of peak marsh suitability.",
+      }),
+      tempMaxC: Type.Number({
+        default: 24,
+        minimum: -100,
+        maximum: 100,
+        description: "Maximum temperature for marsh suitability.",
+      }),
     }),
   },
 });

@@ -2,10 +2,6 @@ import {
   artifacts as foundationArtifacts,
   validators as foundationArtifactValidators,
 } from "@mapgen/domain/foundation";
-import {
-  resolveContinentalAbundance,
-  resolveContinentalRelief,
-} from "@mapgen/domain/foundation/model/policy/crust-character.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { interleaveXY } from "../../foundation/viz.js";
@@ -19,29 +15,6 @@ export default createStep(CrustEvolutionStepContract, {
       validate: (value) => foundationArtifactValidators.crust(value),
     },
   }),
-  // Explicit knobs remain late semantic overrides over public crustCharacter; omitted knobs stay
-  // undefined so they cannot replace authored crust-character fields with neutral defaults.
-  normalize: (config, ctx) => {
-    const { continentalAbundance, continentalRelief } = ctx.knobs as Readonly<{
-      continentalAbundance?: number;
-      continentalRelief?: number;
-    }>;
-    if (config.computeCrustEvolution.strategy !== "default") return config;
-    if (continentalAbundance === undefined && continentalRelief === undefined) return config;
-    return {
-      ...config,
-      computeCrustEvolution: {
-        ...config.computeCrustEvolution,
-        config: {
-          ...config.computeCrustEvolution.config,
-          ...(continentalAbundance === undefined
-            ? {}
-            : resolveContinentalAbundance(continentalAbundance)),
-          ...(continentalRelief === undefined ? {} : resolveContinentalRelief(continentalRelief)),
-        },
-      },
-    };
-  },
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const crustInit = deps.artifacts.foundationCrustInit.read(context);

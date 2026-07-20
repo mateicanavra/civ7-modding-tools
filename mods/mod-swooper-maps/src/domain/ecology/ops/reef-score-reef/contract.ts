@@ -24,11 +24,36 @@ const ScoreReefContract = defineOp({
   }),
   strategies: {
     default: Type.Object({
-      tempWarmStartC: Type.Number({ default: 14 }),
-      tempWarmEndC: Type.Number({ default: 28 }),
-      shallowDepthM: Type.Integer({ default: 0 }),
-      deepDepthM: Type.Integer({ default: 120 }),
-      maxDistanceToCoast: Type.Integer({ default: 3, minimum: 0 }),
+      tempWarmStartC: Type.Number({
+        default: 14,
+        minimum: -100,
+        maximum: 100,
+        description: "Temperature where warm-reef suitability begins increasing.",
+      }),
+      tempWarmEndC: Type.Number({
+        default: 28,
+        minimum: -100,
+        maximum: 100,
+        description: "Temperature where warm-reef suitability reaches its warm optimum.",
+      }),
+      shallowDepthM: Type.Integer({
+        default: 0,
+        minimum: 0,
+        maximum: 12_000,
+        description: "Shallow-water depth used for warm-reef scoring.",
+      }),
+      deepDepthM: Type.Integer({
+        default: 120,
+        minimum: 0,
+        maximum: 12_000,
+        description: "Deep-water limit used for warm-reef scoring.",
+      }),
+      maxDistanceToCoast: Type.Integer({
+        default: 3,
+        minimum: 0,
+        maximum: 512,
+        description: "Maximum tile distance from coast for warm-reef suitability.",
+      }),
     }),
   },
 });

@@ -16,9 +16,9 @@ import {
   getCiv7ResourcePlacementFeasibility,
 } from "@civ7/direct-control";
 import {
-  type FinalSurfaceParityProof,
+  type FinalSurfaceParityReport,
   hashParityValue,
-  stableParityProofStringify,
+  stableParityReportStringify,
 } from "../../src/dev/diagnostics/live-parity.js";
 import {
   buildResourceDeltaFeasibilityContexts,
@@ -27,7 +27,7 @@ import {
 } from "../../src/dev/diagnostics/surface-delta-context.js";
 
 type Args = Readonly<{
-  proofFile?: string;
+  reportFile?: string;
   host?: string;
   port?: number;
   timeoutMs: number;
@@ -37,14 +37,14 @@ type Args = Readonly<{
 }>;
 
 const usage = `Usage:
-  nx run mod-swooper-maps:verify -- --mode resource-delta-feasibility --proof-file <final-surface-proof.json>
+  nx run mod-swooper-maps:verify -- --mode resource-delta-feasibility --report-file <final-surface-parity-report.json>
 
 Options:
   --host <host>       Civ7 tuner host
   --port <port>       Civ7 tuner port
   --timeout-ms <ms>   Direct-control timeout (default: 45000)
   --max-cells <n>     Safety cap for resource delta cells (default: 256)
-  --output <path>     Write full proof JSON to path
+  --output <path>     Write full report JSON to path
 `;
 
 const LIVE_RESOURCE_CONTEXT_FIELDS = [
@@ -63,7 +63,7 @@ const RESOURCE_BUILDER_DIAGNOSTIC_BATCH_SIZE = 8;
 
 function parseArgs(argv: string[]): Args {
   const args: {
-    proofFile?: string;
+    reportFile?: string;
     host?: string;
     port?: number;
     timeoutMs: number;
@@ -89,8 +89,8 @@ function parseArgs(argv: string[]): Args {
       case "-h":
         args.help = true;
         break;
-      case "--proof-file":
-        args.proofFile = value();
+      case "--report-file":
+        args.reportFile = value();
         break;
       case "--host":
         args.host = value();
@@ -126,49 +126,49 @@ async function main(): Promise<number> {
     console.log(usage);
     return 0;
   }
-  if (!args.proofFile) throw new Error("Expected --proof-file");
+  if (!args.reportFile) throw new Error("Expected --report-file");
 
-  const proof = extractFinalSurfaceParityProof(JSON.parse(readFileSync(args.proofFile, "utf8")));
-  const requestIdentity = resolveRequestIdentity(proof);
+  const report = extractFinalSurfaceParityReport(JSON.parse(readFileSync(args.reportFile, "utf8")));
+  const requestIdentity = resolveRequestIdentity(report);
   if (requestIdentity.blockedBy.length > 0) {
     const outputWithoutHash = {
       ok: false,
       status: "blocked" as const,
       requestId: requestIdentity.requestId,
-      sourceProofHash: hashParityValue(proof),
+      sourceReportHash: hashParityValue(report),
       blockedBy: requestIdentity.blockedBy,
       requestIdentity,
     };
     const output = {
       ...outputWithoutHash,
-      proofHash: hashParityValue(outputWithoutHash),
+      reportHash: hashParityValue(outputWithoutHash),
     };
     writeOutput(args.output, output);
-    console.log(stableParityProofStringify(output));
+    console.log(stableParityReportStringify(output));
     return 2;
   }
 
-  const runtimeIdentity = await readAndCompareRuntimeIdentity(proof, args);
+  const runtimeIdentity = await readAndCompareRuntimeIdentity(report, args);
   if (runtimeIdentity.blockedBy.length > 0) {
     const outputWithoutHash = {
       ok: false,
       status: "blocked" as const,
       requestId: requestIdentity.requestId,
-      sourceProofHash: hashParityValue(proof),
+      sourceReportHash: hashParityValue(report),
       blockedBy: runtimeIdentity.blockedBy,
       requestIdentity,
       runtimeIdentity,
     };
     const output = {
       ...outputWithoutHash,
-      proofHash: hashParityValue(outputWithoutHash),
+      reportHash: hashParityValue(outputWithoutHash),
     };
     writeOutput(args.output, output);
-    console.log(stableParityProofStringify(output));
+    console.log(stableParityReportStringify(output));
     return 2;
   }
 
-  const deltaRows = buildResourceDeltaPlacementContexts({ local: proof.local, live: proof.live });
+  const deltaRows = buildResourceDeltaPlacementContexts({ local: report.local, live: report.live });
   if (deltaRows.length === 0) throw new Error("Expected at least one resource delta row");
   if (deltaRows.length > args.maxCells) {
     throw new Error(
@@ -200,10 +200,12 @@ async function main(): Promise<number> {
       { host: args.host, port: args.port, timeoutMs: args.timeoutMs }
     ),
   ]);
-  const ignoreWeightProof = summarizeFeasibilityProof(proof, ignoreWeight);
-  const resourceBuilderDiagnosticCells = cellsForResourceBuilderDiagnostics(ignoreWeightProof.rows);
+  const ignoreWeightVerification = summarizeFeasibilityVerification(report, ignoreWeight);
+  const resourceBuilderDiagnosticCells = cellsForResourceBuilderDiagnostics(
+    ignoreWeightVerification.rows
+  );
   const resourceBuilderDiagnosticResourceTypes = resourceTypesForResourceBuilderDiagnostics(
-    ignoreWeightProof.rows
+    ignoreWeightVerification.rows
   );
   const resourceBuilderDiagnostics =
     resourceBuilderDiagnosticCells.length > 0
@@ -224,14 +226,14 @@ async function main(): Promise<number> {
     resourceBuilderDiagnosticsSummary === null
       ? null
       : summarizeResourceBuilderSubclassification(
-          ignoreWeightProof.rows,
+          ignoreWeightVerification.rows,
           resourceBuilderDiagnosticsSummary
         );
 
   const outputWithoutHash = {
     ok: true,
     requestId: requestIdentity.requestId,
-    sourceProofHash: hashParityValue(proof),
+    sourceReportHash: hashParityValue(report),
     requestIdentity,
     runtimeIdentity,
     rowCount: deltaRows.length,
@@ -239,25 +241,28 @@ async function main(): Promise<number> {
     resourceBuilderDiagnostics: resourceBuilderDiagnosticsSummary,
     resourceBuilderSubclassification,
     resourceDistributionContext: summarizeResourceDistributionContext(
-      proof,
-      ignoreWeightProof.rows,
+      report,
+      ignoreWeightVerification.rows,
       resourceBuilderDiagnosticsSummary
     ),
-    resourcePositionContext: summarizeResourcePositionContext(proof, ignoreWeightProof.rows),
-    localMaterializationContext: summarizeLocalMaterializationContext(
-      proof,
-      ignoreWeightProof.rows
+    resourcePositionContext: summarizeResourcePositionContext(
+      report,
+      ignoreWeightVerification.rows
     ),
-    assignmentClassSummary: summarizeAssignmentClasses(ignoreWeightProof.rows),
-    strict: summarizeFeasibilityProof(proof, strict),
-    ignoreWeight: ignoreWeightProof,
+    localMaterializationContext: summarizeLocalMaterializationContext(
+      report,
+      ignoreWeightVerification.rows
+    ),
+    assignmentClassSummary: summarizeAssignmentClasses(ignoreWeightVerification.rows),
+    strict: summarizeFeasibilityVerification(report, strict),
+    ignoreWeight: ignoreWeightVerification,
   };
   const output = {
     ...outputWithoutHash,
-    proofHash: hashParityValue(outputWithoutHash),
+    reportHash: hashParityValue(outputWithoutHash),
   };
   writeOutput(args.output, output);
-  console.log(stableParityProofStringify(output));
+  console.log(stableParityReportStringify(output));
   return 0;
 }
 
@@ -310,22 +315,22 @@ async function getResourceBuilderDiagnosticsBatched(
   };
 }
 
-function extractFinalSurfaceParityProof(payload: unknown): FinalSurfaceParityProof {
-  if (!isRecord(payload)) throw new Error("Proof payload must be an object");
-  const proof = isRecord(payload.proof) ? payload.proof : payload;
-  if (!isRecord(proof.local) || !isRecord(proof.live)) {
-    throw new Error("Expected final-surface parity proof with local/live snapshots");
+function extractFinalSurfaceParityReport(payload: unknown): FinalSurfaceParityReport {
+  if (!isRecord(payload)) throw new Error("Report payload must be an object");
+  const report = isRecord(payload.report) ? payload.report : payload;
+  if (!isRecord(report.local) || !isRecord(report.live)) {
+    throw new Error("Expected final-surface parity report with local/live snapshots");
   }
-  return proof as FinalSurfaceParityProof;
+  return report as FinalSurfaceParityReport;
 }
 
-function resolveRequestIdentity(proof: FinalSurfaceParityProof) {
-  const packet = isRecord(proof.exactAuthorshipPacket) ? proof.exactAuthorshipPacket : {};
+function resolveRequestIdentity(report: FinalSurfaceParityReport) {
+  const packet = isRecord(report.exactAuthorshipEvidence) ? report.exactAuthorshipEvidence : {};
   const sourceSnapshot = isRecord(packet.sourceSnapshot) ? packet.sourceSnapshot : {};
   const log = isRecord(packet.log) ? packet.log : {};
   const sources = {
-    exactAuthorshipSummary: stringValue(proof.exactAuthorshipSummary.requestId),
-    exactAuthorshipPacket: stringValue(packet.requestId),
+    exactAuthorshipSummary: stringValue(report.exactAuthorshipSummary.requestId),
+    exactAuthorshipEvidence: stringValue(packet.requestId),
     sourceSnapshot: stringValue(sourceSnapshot.requestId),
     log: stringValue(log.requestId),
   };
@@ -346,7 +351,7 @@ function resolveRequestIdentity(proof: FinalSurfaceParityProof) {
 }
 
 async function readAndCompareRuntimeIdentity(
-  proof: FinalSurfaceParityProof,
+  report: FinalSurfaceParityReport,
   args: Pick<Args, "host" | "port" | "timeoutMs">
 ) {
   const current = await getCiv7MapSummary({
@@ -354,7 +359,7 @@ async function readAndCompareRuntimeIdentity(
     port: args.port,
     timeoutMs: args.timeoutMs,
   });
-  const saved = savedRuntimeIdentity(proof);
+  const saved = savedRuntimeIdentity(report);
   const observed = observedRuntimeIdentity(current);
   const comparisons = {
     width: compareIdentityValue(saved.width, observed.width),
@@ -378,16 +383,16 @@ async function readAndCompareRuntimeIdentity(
   };
 }
 
-function savedRuntimeIdentity(proof: FinalSurfaceParityProof) {
-  const evidence = isRecord(proof.live.evidence) ? proof.live.evidence : {};
+function savedRuntimeIdentity(report: FinalSurfaceParityReport) {
+  const evidence = isRecord(report.live.evidence) ? report.live.evidence : {};
   const runtime = isRecord(evidence.runtime) ? evidence.runtime : {};
   const fullGrid = isRecord(evidence.fullGrid) ? evidence.fullGrid : {};
   const initialSummary = isRecord(fullGrid.initialSummary) ? fullGrid.initialSummary : {};
   return {
-    width: numberValue(runtime.width) ?? numberValue(initialSummary.width) ?? proof.live.width,
-    height: numberValue(runtime.height) ?? numberValue(initialSummary.height) ?? proof.live.height,
+    width: numberValue(runtime.width) ?? numberValue(initialSummary.width) ?? report.live.width,
+    height: numberValue(runtime.height) ?? numberValue(initialSummary.height) ?? report.live.height,
     plotCount: numberValue(runtime.plotCount) ?? numberValue(initialSummary.plotCount),
-    seed: numberValue(runtime.seed) ?? numberValue(initialSummary.seed) ?? proof.live.seed,
+    seed: numberValue(runtime.seed) ?? numberValue(initialSummary.seed) ?? report.live.seed,
     turn: numberValue(runtime.turn) ?? numberValue(initialSummary.turn),
     gameHash: numberValue(runtime.gameHash) ?? numberValue(initialSummary.gameHash),
   };
@@ -414,12 +419,12 @@ function compareIdentityValue(saved: number | undefined, observed: number | unde
   return { status: "matched" as const, saved, observed };
 }
 
-function summarizeFeasibilityProof(
-  proof: Pick<FinalSurfaceParityProof, "local" | "live">,
+function summarizeFeasibilityVerification(
+  report: Pick<FinalSurfaceParityReport, "local" | "live">,
   readback: Civ7ResourcePlacementFeasibilityResult
 ) {
   const rows = buildResourceDeltaFeasibilityContexts(
-    { local: proof.local, live: proof.live },
+    { local: report.local, live: report.live },
     readback
   );
   return {
@@ -561,11 +566,11 @@ function summarizeResourceBuilderSubclassification(
 }
 
 function summarizeResourceDistributionContext(
-  proof: Pick<FinalSurfaceParityProof, "local">,
+  report: Pick<FinalSurfaceParityReport, "local">,
   rows: ReadonlyArray<ResourceDeltaFeasibilityContext>,
   diagnostics: ResourceBuilderDiagnosticsSummary | null
 ) {
-  const assignmentSummary = readLocalAssignmentSummary(proof.local.evidence);
+  const assignmentSummary = readLocalAssignmentSummary(report.local.evidence);
   const assignmentByResource = new Map(
     assignmentSummary.byPreferredResource.map(
       (resource) => [resource.resourceType, resource] as const
@@ -694,7 +699,7 @@ function summarizeResourceDistributionContext(
 }
 
 function summarizeResourcePositionContext(
-  proof: Pick<FinalSurfaceParityProof, "local">,
+  report: Pick<FinalSurfaceParityReport, "local">,
   rows: ReadonlyArray<ResourceDeltaFeasibilityContext>
 ) {
   const localAssignedRows = rows.filter(
@@ -715,7 +720,7 @@ function summarizeResourcePositionContext(
     const candidates = (liveRowsByResource.get(resourceType) ?? []).filter(
       (candidate) => !matchedLivePlotIndexes.has(candidate.plotIndex)
     );
-    const match = nearestResourceDeltaMatch(row, candidates, proof.local.width);
+    const match = nearestResourceDeltaMatch(row, candidates, report.local.width);
     if (match !== null) matchedLivePlotIndexes.add(match.row.plotIndex);
     return {
       local: {
@@ -768,11 +773,11 @@ function summarizeResourcePositionContext(
 }
 
 function summarizeLocalMaterializationContext(
-  proof: Pick<FinalSurfaceParityProof, "local">,
+  report: Pick<FinalSurfaceParityReport, "local">,
   rows: ReadonlyArray<ResourceDeltaFeasibilityContext>
 ) {
-  const outcomes = readLocalResourcePlacementOutcomes(proof.local.evidence);
-  const localResourceValues = proof.local.surfaces.resource.values;
+  const outcomes = readLocalResourcePlacementOutcomes(report.local.evidence);
+  const localResourceValues = report.local.surfaces.resource.values;
   const deltaPlotIndexes = new Set(rows.map((row) => row.plotIndex));
   const placedOutcomes = outcomes.filter((outcome) => outcome.status === "placed");
   const placedRows = placedOutcomes.map((outcome) => {

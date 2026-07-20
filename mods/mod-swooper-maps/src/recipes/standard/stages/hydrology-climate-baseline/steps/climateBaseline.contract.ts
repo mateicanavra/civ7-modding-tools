@@ -11,49 +11,42 @@ import { artifacts as hydrologyClimateBaselineArtifacts } from "../artifacts/ind
  *
  * Configuration posture:
  * - Broad author-facing control flows through Hydrology knobs compiled at stage compile time.
- * - Optional flat `climate-baseline.seasonality` step config is reserved for exact seasonality posture overrides.
+ * - Required `climate-baseline.seasonality` values carry the exact authored posture.
  */
 const ClimateBaselineStepConfigSchema = Type.Object(
   {
     /**
-     * Seasonality controls (optional).
+     * Seasonality controls.
      *
      * Hydrology still exposes the broad `seasonality` knob, but these let authors override the exact internal
      * computation posture while keeping the public outputs stable (mean + amplitude only).
      */
-    seasonality: Type.Optional(
-      Type.Object(
-        {
-          /** Seasonal mode count sampled internally when computing annual mean + amplitude. */
-          modeCount: Type.Optional(
-            Type.Union([Type.Literal(2), Type.Literal(4)], {
-              default: 2,
-              description: "Seasonal mode count sampled internally (2=solstices, 4=quarter-year).",
-            })
-          ),
-          /** Effective axial tilt (declination amplitude) in degrees for seasonal forcing. */
-          axialTiltDeg: Type.Optional(
-            Type.Number({
-              default: 18,
-              minimum: 0,
-              maximum: 45,
-              description:
-                "Axial tilt (degrees) used to simulate seasonal declination forcing. Set to 0 to disable seasonal amplitudes.",
-            })
-          ),
-        },
-        {
-          additionalProperties: false,
+    seasonality: Type.Object(
+      {
+        /** Seasonal mode count sampled internally when computing annual mean + amplitude. */
+        modeCount: Type.Union([Type.Literal(2), Type.Literal(4)], {
+          default: 2,
+          description: "Seasonal mode count sampled internally (2=solstices, 4=quarter-year).",
+        }),
+        /** Effective axial tilt (declination amplitude) in degrees for seasonal forcing. */
+        axialTiltDeg: Type.Number({
+          default: 18,
+          minimum: 0,
+          maximum: 45,
           description:
-            "Seasonality controls (optional). Explicit values override Hydrology knobs; missing values are derived from knobs.",
-        }
-      )
+            "Axial tilt (degrees) used to simulate seasonal declination forcing. Set to 0 to disable seasonal amplitudes.",
+        }),
+      },
+      {
+        additionalProperties: false,
+        description: "Seasonality controls for climate-baseline sampling.",
+      }
     ),
   },
   {
     additionalProperties: false,
     description:
-      "Climate baseline step config. Prefer Hydrology knobs for broad tuning; use this for explicit seasonality posture overrides.",
+      "Climate baseline step config with complete seasonality values and operation envelopes.",
   }
 );
 

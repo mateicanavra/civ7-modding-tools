@@ -5,7 +5,13 @@ import { WONDER_GROUPS } from "@mapgen/domain/placement/model/policy/natural-won
 import placementDomain from "@mapgen/domain/placement/ops";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
-const { planNaturalWonders, planResources, planStarts, planWonders } = placementDomain.ops;
+const { planNaturalWonders, planStarts, planWonders } = placementDomain.ops;
+
+function naturalWonderSelection(minSpacingTiles: number) {
+  const selection = structuredClone(planNaturalWonders.defaultConfig);
+  selection.config.minSpacingTiles = minSpacingTiles;
+  return selection;
+}
 
 describe("placement plan operations", () => {
   it("wonder-group registry: membership and suitability formulas match the pinned definitions", () => {
@@ -77,10 +83,7 @@ describe("placement plan operations", () => {
     const result = runOpValidated(
       planWonders,
       { mapInfo: { NumNaturalWonders: 2 } },
-      {
-        strategy: "default",
-        config: {},
-      }
+      structuredClone(planWonders.defaultConfig)
     );
     expect(result.wondersCount).toBe(2);
   });
@@ -102,10 +105,7 @@ describe("placement plan operations", () => {
     const result = runOpValidated(
       planWonders,
       { mapInfo: {} },
-      {
-        strategy: "default",
-        config: {},
-      }
+      structuredClone(planWonders.defaultConfig)
     );
     expect(result.wondersCount).toBe(0);
   });
@@ -146,10 +146,7 @@ describe("placement plan operations", () => {
           },
         ],
       },
-      {
-        strategy: "default",
-        config: { minSpacingTiles: 1 },
-      }
+      naturalWonderSelection(1)
     );
 
     expect(result.targetCount).toBe(2);
@@ -192,10 +189,7 @@ describe("placement plan operations", () => {
           },
         ],
       },
-      {
-        strategy: "default",
-        config: { minSpacingTiles: 1 },
-      }
+      naturalWonderSelection(1)
     );
 
     expect(result.targetCount).toBe(1);
@@ -244,7 +238,7 @@ describe("placement plan operations", () => {
         { featureType: 39, direction: 0, footprintOffsetsByParity: anchorOnly },
       ],
     };
-    const cfg = { strategy: "default" as const, config: { minSpacingTiles: 1 } };
+    const cfg = naturalWonderSelection(1);
     const first = runOpValidated(planNaturalWonders, input, cfg);
     const second = runOpValidated(planNaturalWonders, input, cfg);
     expect(first.placements.length).toBeGreaterThan(0);
@@ -286,7 +280,7 @@ describe("placement plan operations", () => {
           },
         ],
       },
-      { strategy: "default", config: { minSpacingTiles: 0 } }
+      naturalWonderSelection(0)
     );
 
     expect(result.placements.length).toBe(1);
@@ -344,7 +338,7 @@ describe("placement plan operations", () => {
           { featureType: 30, direction: 0, footprintOffsetsByParity: twoTile }, // group I
         ],
       },
-      { strategy: "default", config: { minSpacingTiles: 0 } }
+      naturalWonderSelection(0)
     );
 
     expect(result.placements.length).toBe(2);
@@ -418,7 +412,7 @@ describe("placement plan operations", () => {
           { featureType: 30, direction: 0, footprintOffsetsByParity: anchorOnly }, // Redwood (I)
         ],
       },
-      { strategy: "default", config: { minSpacingTiles: 0 } }
+      naturalWonderSelection(0)
     );
 
     expect(result.plannedCount).toBe(2);
@@ -431,31 +425,4 @@ describe("placement plan operations", () => {
   // The generic plan-resources op was deleted in placement-realignment S3;
   // resource planning is covered by the domain/resources op-contract tests
   // (derive-habitat-fields, select-resource-sites) and the recipe smoke tests.
-
-  it("merges per-hemisphere player-count overrides", () => {
-    const baseStarts = {
-      playersLandmass1: 1,
-      playersLandmass2: 1,
-    };
-
-    const result = runOpValidated(
-      planStarts,
-      { baseStarts },
-      {
-        strategy: "default",
-        config: {
-          overrides: {
-            playersLandmass1: 3,
-          },
-        },
-      }
-    );
-
-    expect(result.playersLandmass1).toBe(3);
-    expect(result.playersLandmass2).toBe(1);
-    expect(result.seats.length).toBe(4);
-    // Sector machinery was removed in placement-realignment S4; the op output
-    // carries the spacing contract instead.
-    expect(result.spacingFloorTiles).toBeGreaterThanOrEqual(0);
-  });
 });

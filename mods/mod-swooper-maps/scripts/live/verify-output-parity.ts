@@ -5,7 +5,7 @@
 // `studio-run-in-game-live` SIGSEGV/[mapgen-complete] gate does NOT do: a map can
 // generate cleanly yet produce the wrong geography.
 //
-// Unlike `final-surface-parity` (which consumes a Studio exactAuthorshipProof), this
+// Unlike `final-surface-parity` (which consumes a Studio exactAuthorshipEvidence), this
 // mode is Studio-free: it loads the map itself (or reads the currently-loaded game with
 // --no-load), recomputes the headless surface from this worktree's config, and diffs
 // per-tile with the SAME primitives the official parity uses
@@ -41,7 +41,10 @@ import {
   liveGridToFinalSurfaceSnapshot,
   runLocalFinalSurfaceSnapshot,
 } from "../../src/dev/diagnostics/live-parity.js";
-import { canonicalRecipeConfig } from "../../src/maps/configs/canonical.js";
+import {
+  admitStandardMapConfig,
+  type StandardMapConfigEnvelope,
+} from "../../src/maps/configs/canonical.js";
 
 const MAP_SCRIPT_PATTERN = /^\{swooper-maps\}\/maps\/([a-z0-9]+(?:-[a-z0-9]+)*)\.js$/;
 
@@ -208,13 +211,13 @@ function configBasename(args: Args): string {
   return match[1]!;
 }
 
-function loadConfig(repoRoot: string, basename: string): unknown {
+function loadConfig(repoRoot: string, basename: string): StandardMapConfigEnvelope {
   const path = resolve(
     repoRoot,
     "mods/mod-swooper-maps/src/maps/configs",
     `${basename}.config.json`
   );
-  return canonicalRecipeConfig(JSON.parse(readFileSync(path, "utf8")));
+  return admitStandardMapConfig(JSON.parse(readFileSync(path, "utf8")));
 }
 
 function probeNumber(value: unknown): number | undefined {
@@ -333,22 +336,18 @@ async function main(): Promise<number> {
       }
     }
 
-    const grid = (await getCiv7FullMapGrid(
+    const grid = await getCiv7FullMapGrid(
       {
         fields: ["terrain", "biome", "feature", "resource", "hydrology"],
         includeHidden: true,
         maxPlotsPerRead: 512,
       },
       options
-    )) as {
-      map?: { width?: number; height?: number };
-      summary?: { map?: { randomSeed?: unknown } };
-      plots?: unknown[];
-    };
-    const width = grid.map?.width ?? 0;
-    const height = grid.map?.height ?? 0;
-    const liveSeed = probeNumber(grid.summary?.map?.randomSeed);
-    const plotsReturned = Array.isArray(grid.plots) ? grid.plots.length : 0;
+    );
+    const width = grid.map.width;
+    const height = grid.map.height;
+    const liveSeed = probeNumber(grid.summary.map.randomSeed);
+    const plotsReturned = grid.plots.length;
     if (!width || !height || plotsReturned === 0) {
       report.failureStage = "live-readback";
       report.error = `Empty live grid (width=${width} height=${height} plots=${plotsReturned})`;
@@ -363,33 +362,24 @@ async function main(): Promise<number> {
     const live = liveGridToFinalSurfaceSnapshot({ grid, width, height, seed: liveSeed });
 
     // Terrain name -> engine index via the same MockAdapter table the recipe uses.
-    const { mapInfo } = createFinalSurfaceParityMapInfo(width, height);
+    const { mapInfo, mapSizeId } = createFinalSurfaceParityMapInfo(width, height);
     const tAdapter = createMockAdapter({
       width,
       height,
       mapInfo,
-      mapSizeId: mapInfo.MapSizeType ?? 1,
+      mapSizeId,
       rng: createLabelRng(seedForHeadless),
     });
     const idx = (n: string) => tAdapter.getTerrainTypeIndex(n);
 
-    const diffs = diffFinalSurfaceSnapshots(local, live, { maxExamples: 6 }) as Array<{
-      field?: string;
-      key?: string;
-      status?: string;
-      compared?: number;
-      mismatches?: number;
-      examples?: unknown[];
-    }>;
-
-    const thresholdByField = args.thresholds as Record<string, number>;
+    const diffs = diffFinalSurfaceSnapshots(local, live, { maxExamples: 6 });
     const parity = diffs.map((d) => {
-      const field = (d.field ?? d.key)!;
-      const compared = d.compared ?? 0;
-      const mismatches = d.mismatches ?? 0;
+      const field = d.key;
+      const compared = d.compared;
+      const mismatches = d.mismatches;
       const mismatchPct = compared ? +((100 * mismatches) / compared).toFixed(3) : 0;
-      const threshold = thresholdByField[field];
-      const within = threshold === undefined ? true : mismatchPct <= threshold;
+      const threshold = args.thresholds[field];
+      const within = mismatchPct <= threshold;
       return {
         field,
         compared,
@@ -398,7 +388,7 @@ async function main(): Promise<number> {
         mismatchPct,
         threshold,
         within,
-        examples: (d.examples ?? []).slice(0, 4),
+        examples: d.examples.slice(0, 4),
       };
     });
 

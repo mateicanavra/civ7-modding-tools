@@ -26,10 +26,7 @@ import {
 
 import resourcesDomainOps from "../../domain/resources/ops.js";
 
-import {
-  canonicalRecipeConfig,
-  isPlainObject as isCanonicalMapConfigObject,
-} from "../../maps/configs/canonical.js";
+import { canonicalRecipeConfig } from "../../maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
@@ -365,11 +362,7 @@ export function runPlacementMetrics(options: PlacementMetricsRunOptions): Placem
     },
   } as const;
 
-  const loadedConfig = swooperEarthlikeConfigRaw as unknown;
-  const config =
-    isCanonicalMapConfigObject(loadedConfig) && isCanonicalMapConfigObject(loadedConfig.config)
-      ? canonicalRecipeConfig(loadedConfig)
-      : loadedConfig;
+  const config = canonicalRecipeConfig(swooperEarthlikeConfigRaw);
 
   const adapter = createMockAdapter({
     width,
@@ -1467,7 +1460,7 @@ export function computePlacementMetricsFromRun(
     "requires-live-engine",
     {},
     {
-      note: "Needs a same-seed live run via civ7 game (milestone boundary proof).",
+      note: "Needs a same-seed live run via civ7 game (milestone boundary verification).",
     }
   );
   metrics["E4.2"] = metric(

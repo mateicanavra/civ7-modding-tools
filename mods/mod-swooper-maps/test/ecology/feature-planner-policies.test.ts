@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 import ecology from "@mapgen/domain/ecology/ops";
+import { Value } from "typebox/value";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
 function f32(size: number, value: number): Float32Array {
@@ -41,7 +42,7 @@ describe("ecology feature planner policies", () => {
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
-      normalizeOpSelectionOrThrow(ecology.ops.planReefs, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(ecology.ops.planReefs, ecology.ops.planReefs.defaultConfig)
     );
 
     const wetlands = ecology.ops.planWetlands.run(
@@ -58,7 +59,7 @@ describe("ecology feature planner policies", () => {
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
-      normalizeOpSelectionOrThrow(ecology.ops.planWetlands, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(ecology.ops.planWetlands, ecology.ops.planWetlands.defaultConfig)
     );
 
     const vegetation = ecology.ops.planVegetation.run(
@@ -76,7 +77,10 @@ describe("ecology feature planner policies", () => {
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
-      normalizeOpSelectionOrThrow(ecology.ops.planVegetation, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(
+        ecology.ops.planVegetation,
+        ecology.ops.planVegetation.defaultConfig
+      )
     );
 
     const ice = ecology.ops.planIce.run(
@@ -88,7 +92,7 @@ describe("ecology feature planner policies", () => {
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
-      normalizeOpSelectionOrThrow(ecology.ops.planIce, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(ecology.ops.planIce, ecology.ops.planIce.defaultConfig)
     );
 
     const continentalIce = ecology.ops.planIce.run(
@@ -100,7 +104,10 @@ describe("ecology feature planner policies", () => {
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       },
-      normalizeOpSelectionOrThrow(ecology.ops.planIce, { strategy: "continentality", config: {} })
+      normalizeOpSelectionOrThrow(ecology.ops.planIce, {
+        strategy: "continentality",
+        config: Value.Create(ecology.ops.planIce.strategies.continentality.config),
+      })
     );
 
     expect(reefs.placements).toEqual([]);

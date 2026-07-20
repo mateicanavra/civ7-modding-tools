@@ -1,20 +1,14 @@
-import {
-  type StudioPresetExportFileV1,
-} from "@swooper/mapgen-core/authoring";
-import type {
-  PipelineConfig,
-  RecipeSettings,
-  WorldSettings,
-} from "@swooper/mapgen-studio-ui/types";
+import type { MapConfigEnvelope } from "@civ7/studio-contract";
+import { type StudioPresetExportFileV1 } from "@swooper/mapgen-core/authoring";
+import type { PipelineConfig, RecipeSettings } from "@swooper/mapgen-studio-ui/types";
 import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { type Civ7StudioSetupConfig } from "../../features/civ7Setup/setupConfig";
 import {
-  type AppliedPresetSnapshot,
   applyPresetConfig,
+  createStudioEditorCanonicalConfig,
   formatPresetErrors,
+  getRecipeDefaultConfig,
   isPlainObject,
-} from "../../features/configOverrides/configBuilders";
-import { getMaterializedRecipeDefaultConfig } from "../../features/configOverrides/effectiveConfig";
+} from "../../features/configAuthoring/canonicalConfig";
 import type { PresetErrorState } from "../../features/presets/dialogState";
 import {
   buildPresetExportFile,
@@ -22,46 +16,20 @@ import {
   parsePresetExportFile,
 } from "../../features/presets/importExport";
 import { resolveImportedPreset } from "../../features/presets/importFlow";
-import { mergeBuiltInPresetsWithSessionPresets } from "../../features/presets/repoBacked";
-import { type PresetKey, parsePresetKey } from "../../features/presets/types";
-import { type LivePreset, usePresets } from "../../features/presets/usePresets";
+import { type AuthoringConfigSource, parsePresetKey } from "../../features/presets/types";
+import { usePresets } from "../../features/presets/usePresets";
 import { type BuiltInPreset, findRecipeArtifacts, getRecipeArtifacts } from "../../recipes/catalog";
 import type { AuthoringState } from "../../stores/authoringStore";
 import type { RunState } from "../../stores/runStore";
 import type { ToastFn } from "./useToast";
 
-/**
- * The fully-resolved authoring snapshot consumed by {@link applyAuthoringSnapshot}.
- * `recipeSettings` is computed by the caller (the run-in-game sync path) — the hook
- * performs the ordered 5-setter write, it does not reshape the payload.
- */
-export type AuthoringSnapshotInput = {
-  key: PresetKey;
-  worldSettings: WorldSettings;
-  pipelineConfig: PipelineConfig;
-  setupConfig: Civ7StudioSetupConfig;
-  recipeSettings: RecipeSettings;
-};
-
 export type UsePresetLifecycleArgs = {
-  /** Authoring recipe/preset selection — drives the catalog + apply-effects. */
   recipeSettings: RecipeSettings;
-  /** Session-only configs saved before the generated recipe catalog reloads. */
-  repoBackedSessionPresetsByRecipe: Record<string, Record<string, BuiltInPreset>>;
-  /**
-   * Host-owned live-preset projection (cycle break, design.md §7.6) threaded in so
-   * `resolvePreset(LIVE_GAME_PRESET_KEY).config` stays referentially the proved
-   * `lastRunInGameSource.pipelineConfig` — the live-sync identity invariant (ADD-1b).
-   */
-  livePresets: ReadonlyArray<LivePreset>;
-  /** Current authoring pipeline config — the export handler's fallback source. */
-  pipelineConfig: PipelineConfig;
-  setWorldSettings: AuthoringState["setWorldSettings"];
-  setSetupConfig: AuthoringState["setSetupConfig"];
-  setPipelineConfig: AuthoringState["setPipelineConfig"];
-  setOverridesDisabled: AuthoringState["setOverridesDisabled"];
+  authoringConfigSource: AuthoringConfigSource;
+  setAuthoringConfigSource: AuthoringState["setAuthoringConfigSource"];
+  setAuthoringSelection: AuthoringState["setAuthoringSelection"];
+  setConfigEditingEnabled: AuthoringState["setConfigEditingEnabled"];
   setRecipeSettings: AuthoringState["setRecipeSettings"];
-  setRepoBackedSessionPresetsByRecipe: AuthoringState["setRepoBackedSessionPresetsByRecipe"];
   setLastRunSnapshot: RunState["setLastRunSnapshot"];
   toast: ToastFn;
 };
@@ -71,31 +39,19 @@ export type UsePresetLifecycleResult = {
   builtInPresets: ReadonlyArray<BuiltInPreset>;
   presetOptions: ReturnType<typeof usePresets>["options"];
   resolvePreset: ReturnType<typeof usePresets>["resolvePreset"];
-  presetActions: ReturnType<typeof usePresets>["actions"];
-  isLocalPresetSelected: boolean;
+  pipelineConfig: PipelineConfig | null;
+  setPipelineConfig: (next: PipelineConfig) => void;
+  canSaveToCurrent: boolean;
   presetError: PresetErrorState | null;
   setPresetError: (next: PresetErrorState | null) => void;
   pendingImport: StudioPresetExportFileV1 | null;
   importInputRef: React.RefObject<HTMLInputElement | null>;
-  /**
-   * The single synchronous writer of `lastAppliedPresetRef` for OUT-OF-EFFECT
-   * callers (save + run-in-game). Stores the same `{key, config}` object — no
-   * clone/normalize — so the apply-effect skip-guard
-   * (`lastApplied.config === resolved.config`) short-circuits a redundant
-   * re-apply (ADD-1).
-   */
-  markPresetApplied: (snapshot: AppliedPresetSnapshot) => void;
-  /**
-   * The ordered authoring write used by run-in-game sync: `markPresetApplied`
-   * FIRST, then `setWorldSettings → setPipelineConfig → setSetupConfig →
-   * setOverridesDisabled(false) → setRecipeSettings` (LAST). The `config` recorded
-   * is `snapshot.pipelineConfig` (the same object set into the store) — live-sync
-   * identity (ADD-1b).
-   */
-  applyAuthoringSnapshot: (snapshot: AuthoringSnapshotInput) => void;
   applyRecipeSettingsChange: (next: RecipeSettings) => void;
-  rememberRepoBackedConfig: (recipeId: string, preset: BuiltInPreset) => void;
-  handleDeletePreset: () => void;
+  isAuthoringBlocked: boolean;
+  authoringBlockReason: "missing-catalog-source" | "invalid-persistence" | null;
+  recoverWithCatalogConfig: () => void;
+  recoverWithNewEditorConfig: () => void;
+  adoptSavedEditorConfig: (canonicalConfig: MapConfigEnvelope) => void;
   handleExportPreset: () => void;
   handleImportPreset: () => void;
   handleImportFileChange: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
@@ -103,319 +59,373 @@ export type UsePresetLifecycleResult = {
   cancelImportSwitch: () => void;
 };
 
+function editorCanonicalConfig(args: {
+  config: unknown;
+  existing?: MapConfigEnvelope;
+}): MapConfigEnvelope {
+  const { existing } = args;
+  return createStudioEditorCanonicalConfig({
+    ...(existing === undefined
+      ? {}
+      : {
+          metadata: {
+            id: existing.id,
+            name: existing.name,
+            description: existing.description,
+            recipe: "standard",
+            sortIndex: existing.sortIndex,
+            latitudeBounds: existing.latitudeBounds,
+          },
+        }),
+    config: args.config,
+  });
+}
+
 /**
- * `usePresetLifecycle` — owns the preset catalog/local-preset surface, the
- * recipe-artifact projection, the two Tier-A preset apply-effects, and the
- * `lastAppliedPresetRef` (this hook is its SOLE owner and reader). It synthesizes
- * the two cross-hook contracts the save + run-in-game owners drive through it
- * (`markPresetApplied`, `applyAuthoringSnapshot`).
- *
- * Live-source-aware derivations (`provedRunInGameSource`, `livePresets`,
- * `displayedPresetOptions`, `runInGameMaterializationMode`,
- * `studioMatchesProvedLiveSource`) stay in the host (design.md §7.6) and the
- * live-preset projection is threaded IN so `resolvePreset` can see it without the
- * hook reaching into run-state.
+ * Owns selection changes and converts a catalog edit to one editor-owned
+ * envelope before any authoring state changes.
  */
 export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifecycleResult {
   const {
     recipeSettings,
-    repoBackedSessionPresetsByRecipe,
-    livePresets,
-    pipelineConfig,
-    setWorldSettings,
-    setSetupConfig,
-    setPipelineConfig,
-    setOverridesDisabled,
+    authoringConfigSource,
+    setAuthoringConfigSource,
+    setAuthoringSelection,
+    setConfigEditingEnabled,
     setRecipeSettings,
-    setRepoBackedSessionPresetsByRecipe,
     setLastRunSnapshot,
     toast,
   } = args;
-
   const [presetError, setPresetError] = useState<PresetErrorState | null>(null);
   const [pendingImport, setPendingImport] = useState<StudioPresetExportFileV1 | null>(null);
   const importInputRef = useRef<HTMLInputElement | null>(null);
-  const lastAppliedPresetRef = useRef<AppliedPresetSnapshot | null>(null);
-  const lastPresetKeyRef = useRef(recipeSettings.preset);
-  const lastRecipeIdRef = useRef(recipeSettings.recipe);
+  const previousSelectionRef = useRef({
+    recipe: recipeSettings.recipe,
+    preset: recipeSettings.preset,
+  });
 
   const recipeArtifacts = useMemo(
     () => getRecipeArtifacts(recipeSettings.recipe),
     [recipeSettings.recipe]
   );
-  const builtInPresets = useMemo(() => {
-    const catalogPresets = (recipeArtifacts.studioBuiltInPresets ?? []).map((preset) => ({
-      ...preset,
-      catalogSourceId: preset.id,
-    }));
-    return mergeBuiltInPresetsWithSessionPresets(
-      catalogPresets,
-      repoBackedSessionPresetsByRecipe[recipeSettings.recipe] ?? {}
-    );
-  }, [
-    recipeArtifacts.studioBuiltInPresets,
-    recipeSettings.recipe,
-    repoBackedSessionPresetsByRecipe,
-  ]);
-  const {
-    options: presetOptions,
-    resolvePreset,
-    actions: presetActions,
-    loadWarning,
-  } = usePresets({
+  // Catalog entries resolve from generated recipe artifacts, never session data.
+  const builtInPresets = recipeArtifacts.studioBuiltInPresets ?? [];
+  const { options: presetOptions, resolvePreset } = usePresets({
     recipeId: recipeSettings.recipe,
     builtIns: builtInPresets,
-    livePresets,
   });
-  const isLocalPresetSelected = parsePresetKey(recipeSettings.preset).kind === "local";
+  const catalogCanonicalConfig = useMemo(
+    () =>
+      authoringConfigSource.kind === "catalog"
+        ? (builtInPresets.find((preset) => preset.sourcePath === authoringConfigSource.sourcePath)
+            ?.canonicalConfig ?? null)
+        : null,
+    [authoringConfigSource, builtInPresets]
+  );
+  const canonicalConfig =
+    authoringConfigSource.kind === "editor"
+      ? authoringConfigSource.canonicalConfig
+      : authoringConfigSource.kind === "catalog"
+        ? catalogCanonicalConfig
+        : null;
+  const resolvedPipelineConfig = useMemo(
+    () =>
+      canonicalConfig === null
+        ? null
+        : applyPresetConfig({
+            schema: recipeArtifacts.configSchema,
+            presetConfig: canonicalConfig.config,
+            label: "current-authoring",
+          }),
+    [canonicalConfig, recipeArtifacts.configSchema]
+  );
+  const pipelineConfig = resolvedPipelineConfig?.ok ? resolvedPipelineConfig.value : null;
+  const isAuthoringBlocked = pipelineConfig === null;
+  const canSaveToCurrent = authoringConfigSource.kind === "editor";
 
-  useEffect(() => {
-    const previousPreset = lastPresetKeyRef.current;
-    const previousRecipe = lastRecipeIdRef.current;
-    lastPresetKeyRef.current = recipeSettings.preset;
-    lastRecipeIdRef.current = recipeSettings.recipe;
-    if (parsePresetKey(recipeSettings.preset).kind !== "none") return;
-    if (previousPreset === recipeSettings.preset && previousRecipe === recipeSettings.recipe)
-      return;
-    setPipelineConfig(getMaterializedRecipeDefaultConfig(recipeSettings.recipe, "preset-none"));
-    setOverridesDisabled(false);
-    setLastRunSnapshot(null);
-    lastAppliedPresetRef.current = null;
-  }, [
-    recipeSettings.recipe,
-    recipeSettings.preset,
-  ]);
-
-  useEffect(() => {
-    const nextKey = recipeSettings.preset as PresetKey;
-    const parsed = parsePresetKey(nextKey);
-    if (parsed.kind === "none") {
-      lastAppliedPresetRef.current = null;
-      return;
-    }
-    const resolved = resolvePreset(nextKey);
-    if (!resolved) {
-      toast("Preset not found", { variant: "error" });
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- This effect applies the selected preset: it resolves the preset, validates it, surfaces toasts, and on failure records the error. The interleaved side effects (toast, resolvePreset, applyPresetConfig) make it genuinely effect-shaped, not render-derivable.
-      setPresetError({
-        title: "Preset not found",
-        message: "The selected preset could not be resolved for this recipe.",
+  const validateCanonicalConfig = useCallback(
+    (canonicalConfig: MapConfigEnvelope, label: string): boolean => {
+      const applied = applyPresetConfig({
+        schema: recipeArtifacts.configSchema,
+        presetConfig: canonicalConfig.config,
+        label,
       });
-      return;
-    }
-    const lastApplied = lastAppliedPresetRef.current;
-    if (lastApplied?.key === nextKey && lastApplied.config === resolved.config) return;
-    const applied = applyPresetConfig({
-      schema: recipeArtifacts.configSchema,
-      presetConfig: resolved.config,
-      label: resolved.label,
-    });
-    if (!applied.ok) {
+      if (applied.ok) return true;
       toast("Preset invalid", { variant: "error" });
       setPresetError({
         title: "Preset invalid",
         message: "The selected preset failed schema validation.",
         details: formatPresetErrors(applied.errors),
       });
-      return;
-    }
-    setPipelineConfig(applied.value);
-    lastAppliedPresetRef.current = { key: nextKey, config: resolved.config };
-  }, [
-    resolvePreset,
-    recipeArtifacts.configSchema,
-    recipeSettings.preset,
-    toast,
-  ]);
+      return false;
+    },
+    [recipeArtifacts.configSchema, toast]
+  );
 
-  useEffect(() => {
-    if (!loadWarning) return;
-    toast(loadWarning, { variant: "info" });
-  }, [loadWarning, toast]);
-
-  const markPresetApplied = useCallback((snapshot: AppliedPresetSnapshot) => {
-    lastAppliedPresetRef.current = snapshot;
-  }, []);
-
-  const applyAuthoringSnapshot = useCallback(
-    (snapshot: AuthoringSnapshotInput) => {
-      markPresetApplied({ key: snapshot.key, config: snapshot.pipelineConfig });
-      lastPresetKeyRef.current = snapshot.recipeSettings.preset;
-      lastRecipeIdRef.current = snapshot.recipeSettings.recipe;
-      setWorldSettings(snapshot.worldSettings);
-      setPipelineConfig(snapshot.pipelineConfig);
-      setSetupConfig(snapshot.setupConfig);
-      setOverridesDisabled(false);
-      setRecipeSettings(snapshot.recipeSettings);
+  const applyResolvedPreset = useCallback(
+    (key: string, nextRecipeSettings: RecipeSettings): boolean => {
+      const resolved = resolvePreset(key);
+      if (!resolved) {
+        toast("Preset not found", { variant: "error" });
+        setPresetError({
+          title: "Preset not found",
+          message: "The selected preset could not be resolved for this recipe.",
+        });
+        return false;
+      }
+      if (!validateCanonicalConfig(resolved.canonicalConfig, resolved.label)) return false;
+      const nextSource: AuthoringConfigSource = {
+        kind: "catalog",
+        sourcePath: resolved.sourcePath,
+      };
+      const appliedRecipeSettings = nextRecipeSettings;
+      previousSelectionRef.current = {
+        recipe: appliedRecipeSettings.recipe,
+        preset: appliedRecipeSettings.preset,
+      };
+      setConfigEditingEnabled(true);
+      setLastRunSnapshot(null);
+      setAuthoringSelection(nextSource, appliedRecipeSettings);
+      return true;
     },
     [
-      markPresetApplied,
-      setWorldSettings,
-      setPipelineConfig,
-      setSetupConfig,
-      setOverridesDisabled,
-      setRecipeSettings,
+      resolvePreset,
+      setAuthoringSelection,
+      setLastRunSnapshot,
+      setConfigEditingEnabled,
+      toast,
+      validateCanonicalConfig,
+    ]
+  );
+
+  useEffect(() => {
+    if (
+      previousSelectionRef.current.recipe === recipeSettings.recipe &&
+      previousSelectionRef.current.preset === recipeSettings.preset
+    ) {
+      return;
+    }
+    previousSelectionRef.current = {
+      recipe: recipeSettings.recipe,
+      preset: recipeSettings.preset,
+    };
+    const parsed = parsePresetKey(recipeSettings.preset);
+    if (parsed.kind === "none") {
+      setAuthoringSelection(
+        {
+          kind: "editor",
+          canonicalConfig: editorCanonicalConfig({
+            config: getRecipeDefaultConfig(recipeSettings.recipe, "preset-none"),
+          }),
+        },
+        recipeSettings
+      );
+      setConfigEditingEnabled(true);
+      setLastRunSnapshot(null);
+      return;
+    }
+    const resolved = resolvePreset(recipeSettings.preset);
+    if (!resolved || !validateCanonicalConfig(resolved.canonicalConfig, resolved.label)) return;
+    setAuthoringSelection({ kind: "catalog", sourcePath: resolved.sourcePath }, recipeSettings);
+    setConfigEditingEnabled(true);
+    setLastRunSnapshot(null);
+  }, [
+    recipeSettings,
+    resolvePreset,
+    setAuthoringSelection,
+    setLastRunSnapshot,
+    setConfigEditingEnabled,
+    validateCanonicalConfig,
+  ]);
+
+  const setPipelineConfig = useCallback(
+    (next: PipelineConfig) => {
+      if (isAuthoringBlocked) {
+        toast("Recover the authoring source before editing config.", { variant: "info" });
+        return;
+      }
+      let nextCanonicalConfig: MapConfigEnvelope;
+      try {
+        nextCanonicalConfig = editorCanonicalConfig({
+          config: next,
+          ...(authoringConfigSource.kind === "editor" && canonicalConfig !== null
+            ? { existing: canonicalConfig }
+            : {}),
+        });
+      } catch {
+        toast("Config edit failed: config is invalid for this recipe.", { variant: "error" });
+        return;
+      }
+      const applied = applyPresetConfig({
+        schema: recipeArtifacts.configSchema,
+        presetConfig: nextCanonicalConfig.config,
+        label: "editor",
+      });
+      if (!applied.ok) {
+        toast("Config edit failed: config is invalid for this recipe.", { variant: "error" });
+        return;
+      }
+      if (authoringConfigSource.kind === "catalog") {
+        const nextSettings = { ...recipeSettings, preset: "none" };
+        previousSelectionRef.current = {
+          recipe: nextSettings.recipe,
+          preset: nextSettings.preset,
+        };
+        setAuthoringSelection(
+          { kind: "editor", canonicalConfig: nextCanonicalConfig },
+          nextSettings
+        );
+      } else {
+        setAuthoringConfigSource({ kind: "editor", canonicalConfig: nextCanonicalConfig });
+      }
+    },
+    [
+      authoringConfigSource,
+      canonicalConfig,
+      isAuthoringBlocked,
+      recipeArtifacts.configSchema,
+      recipeSettings,
+      setAuthoringConfigSource,
+      setAuthoringSelection,
+      toast,
     ]
   );
 
   const applyRecipeSettingsChange = useCallback(
     (next: RecipeSettings) => {
-      const nextSettings =
-        next.recipe !== recipeSettings.recipe ? { ...next, preset: "none" } : next;
-      const recipeChanged = nextSettings.recipe !== recipeSettings.recipe;
-      const presetChanged = nextSettings.preset !== recipeSettings.preset;
-
-      if (recipeChanged || presetChanged) {
-        const parsed = parsePresetKey(nextSettings.preset);
-        if (parsed.kind === "none") {
-          const defaultConfig = getMaterializedRecipeDefaultConfig(
-            nextSettings.recipe,
-            recipeChanged ? "recipe-switch" : "preset-none"
-          );
-          lastPresetKeyRef.current = nextSettings.preset;
-          lastRecipeIdRef.current = nextSettings.recipe;
-          lastAppliedPresetRef.current = null;
-          setPipelineConfig(defaultConfig);
-          setOverridesDisabled(false);
-          setLastRunSnapshot(null);
-          setRecipeSettings(nextSettings);
-          return;
-        }
-
-        const key = nextSettings.preset as PresetKey;
-        const resolved = resolvePreset(key);
-        if (!resolved) {
-          toast("Preset not found", { variant: "error" });
-          setPresetError({
-            title: "Preset not found",
-            message: "The selected preset could not be resolved for this recipe.",
-          });
-          return;
-        }
-        const applied = applyPresetConfig({
-          schema: recipeArtifacts.configSchema,
-          presetConfig: resolved.config,
-          label: resolved.label,
+      if (isAuthoringBlocked) {
+        toast("Recover the authoring source before changing config selection.", {
+          variant: "info",
         });
-        if (!applied.ok) {
-          toast("Preset invalid", { variant: "error" });
-          setPresetError({
-            title: "Preset invalid",
-            message: "The selected preset failed schema validation.",
-            details: formatPresetErrors(applied.errors),
-          });
-          return;
-        }
-        lastPresetKeyRef.current = nextSettings.preset;
-        lastRecipeIdRef.current = nextSettings.recipe;
-        lastAppliedPresetRef.current = { key, config: resolved.config };
-        setPipelineConfig(applied.value);
-        setOverridesDisabled(false);
-        setLastRunSnapshot(null);
+        return;
+      }
+      const nextSettings =
+        next.recipe === recipeSettings.recipe ? next : { ...next, preset: "none" };
+      if (
+        nextSettings.recipe === recipeSettings.recipe &&
+        nextSettings.preset === recipeSettings.preset
+      ) {
         setRecipeSettings(nextSettings);
         return;
       }
-
-      setRecipeSettings(nextSettings);
+      if (parsePresetKey(nextSettings.preset).kind !== "none") {
+        applyResolvedPreset(nextSettings.preset, nextSettings);
+        return;
+      }
+      const nextCanonicalConfig = editorCanonicalConfig({
+        config: getRecipeDefaultConfig(
+          nextSettings.recipe,
+          nextSettings.recipe === recipeSettings.recipe ? "preset-none" : "recipe-switch"
+        ),
+      });
+      previousSelectionRef.current = {
+        recipe: nextSettings.recipe,
+        preset: nextSettings.preset,
+      };
+      setAuthoringSelection({ kind: "editor", canonicalConfig: nextCanonicalConfig }, nextSettings);
+      setConfigEditingEnabled(true);
+      setLastRunSnapshot(null);
     },
     [
-      recipeArtifacts.configSchema,
+      applyResolvedPreset,
+      isAuthoringBlocked,
       recipeSettings.preset,
       recipeSettings.recipe,
-      resolvePreset,
+      setAuthoringSelection,
       setLastRunSnapshot,
-      setOverridesDisabled,
-      setPipelineConfig,
+      setConfigEditingEnabled,
       setRecipeSettings,
       toast,
     ]
   );
 
-  const rememberRepoBackedConfig = useCallback(
-    (recipeId: string, preset: BuiltInPreset) => {
-      setRepoBackedSessionPresetsByRecipe((prev) => ({
-        ...prev,
-        [recipeId]: {
-          ...(prev[recipeId] ?? {}),
-          [preset.id]: preset,
-        },
-      }));
-    },
-    [setRepoBackedSessionPresetsByRecipe]
-  );
-
-  const handleDeletePreset = useCallback(() => {
-    const parsed = parsePresetKey(recipeSettings.preset);
-    if (parsed.kind !== "local") {
-      toast("Select a scratch config to delete.", { variant: "info" });
+  const recoverWithCatalogConfig = useCallback(() => {
+    const catalog = builtInPresets[0];
+    if (!catalog) {
+      toast("No catalog config is available for this recipe.", { variant: "error" });
       return;
     }
-    const result = presetActions.deleteLocal({
-      recipeId: recipeSettings.recipe,
-      presetId: parsed.id,
+    const nextSettings = {
+      ...recipeSettings,
+      preset: `builtin:${catalog.canonicalConfig.id}`,
+    };
+    previousSelectionRef.current = {
+      recipe: nextSettings.recipe,
+      preset: nextSettings.preset,
+    };
+    setAuthoringSelection({ kind: "catalog", sourcePath: catalog.sourcePath }, nextSettings);
+    setConfigEditingEnabled(true);
+    setLastRunSnapshot(null);
+  }, [
+    builtInPresets,
+    recipeSettings,
+    setAuthoringSelection,
+    setLastRunSnapshot,
+    setConfigEditingEnabled,
+    toast,
+  ]);
+
+  const recoverWithNewEditorConfig = useCallback(() => {
+    const nextSettings = { ...recipeSettings, preset: "none" };
+    const canonicalConfig = editorCanonicalConfig({
+      config: getRecipeDefaultConfig(recipeSettings.recipe, "recovery-new-editor"),
     });
-    if (result.persistenceError) {
-      toast(`Scratch config deleted but could not persist: ${result.persistenceError}`, {
-        variant: "error",
-      });
-    } else {
-      toast("Scratch config deleted", { variant: "success" });
-    }
-    if (result.deleted) {
-      applyRecipeSettingsChange({ ...recipeSettings, preset: "none" });
-    }
-  }, [applyRecipeSettingsChange, presetActions, recipeSettings, toast]);
+    previousSelectionRef.current = {
+      recipe: nextSettings.recipe,
+      preset: nextSettings.preset,
+    };
+    setAuthoringSelection({ kind: "editor", canonicalConfig }, nextSettings);
+    setConfigEditingEnabled(true);
+    setLastRunSnapshot(null);
+  }, [recipeSettings, setAuthoringSelection, setConfigEditingEnabled, setLastRunSnapshot]);
+
+  const adoptSavedEditorConfig = useCallback(
+    (canonicalConfig: MapConfigEnvelope) => {
+      const nextSettings = { ...recipeSettings, preset: "none" };
+      previousSelectionRef.current = { recipe: nextSettings.recipe, preset: nextSettings.preset };
+      setAuthoringSelection({ kind: "editor", canonicalConfig }, nextSettings);
+    },
+    [recipeSettings, setAuthoringSelection]
+  );
 
   const handleExportPreset = useCallback(() => {
-    const key = recipeSettings.preset as PresetKey;
-    const resolved = resolvePreset(key);
-    const config = resolved ? resolved.config : pipelineConfig;
-    if (!isPlainObject(config)) {
+    if (canonicalConfig === null) {
+      toast("Recover the authoring source before exporting config.", { variant: "info" });
+      return;
+    }
+    if (pipelineConfig === null || !isPlainObject(pipelineConfig)) {
       toast("Preset export failed: config must be an object", { variant: "error" });
       return;
     }
-    const validated = applyPresetConfig({
+    const applied = applyPresetConfig({
       schema: recipeArtifacts.configSchema,
-      presetConfig: config,
+      presetConfig: pipelineConfig,
       label: "export",
     });
-    if (!validated.ok) {
+    if (!applied.ok) {
       toast("Preset export failed: config is invalid for this recipe", { variant: "error" });
       setPresetError({
         title: "Preset export failed",
         message: "The selected config failed schema validation.",
-        details: formatPresetErrors(validated.errors),
+        details: formatPresetErrors(applied.errors),
       });
       return;
     }
-    const payload = resolved
-      ? {
-          label: resolved.label,
-          description: resolved.description,
-          config: validated.value as Record<string, unknown>,
-        }
-      : {
-          label: "Current Config",
-          config: validated.value as Record<string, unknown>,
-        };
-    const built = buildPresetExportFile({ recipeId: recipeSettings.recipe, preset: payload });
+    const built = buildPresetExportFile({
+      recipeId: recipeSettings.recipe,
+      preset: {
+        label: canonicalConfig.name,
+        description: canonicalConfig.description,
+        config: pipelineConfig,
+      },
+    });
     downloadPresetFile(built.filename, built.json);
     toast("Preset exported", { variant: "success" });
-  }, [
-    pipelineConfig,
-    recipeArtifacts.configSchema,
-    recipeSettings.preset,
-    recipeSettings.recipe,
-    resolvePreset,
-    toast,
-  ]);
+  }, [canonicalConfig, pipelineConfig, recipeArtifacts.configSchema, recipeSettings.recipe, toast]);
 
   const importPresetValue = useCallback(
     (presetFile: StudioPresetExportFileV1) => {
-      const resolved = resolveImportedPreset({
-        presetFile,
-        findRecipeArtifacts,
-      });
+      const resolved = resolveImportedPreset({ presetFile, findRecipeArtifacts });
       if (!resolved.ok) {
         toast("Preset import failed", { variant: "error" });
         setPresetError({
@@ -425,55 +435,42 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
         });
         return;
       }
-      const result = presetActions.saveAsNew({
-        recipeId: resolved.recipeId,
-        label: resolved.label,
-        description: resolved.description,
-        config: resolved.config,
-      });
-      if (result.persistenceError) {
-        toast(`Preset imported but could not persist: ${result.persistenceError}`, {
-          variant: "error",
+      let nextCanonicalConfig: MapConfigEnvelope;
+      try {
+        nextCanonicalConfig = editorCanonicalConfig({
+          config: resolved.config,
+          existing: createStudioEditorCanonicalConfig({
+            metadata: {
+              id: `import-${Date.now().toString(36)}`,
+              name: resolved.label,
+              description: resolved.description ?? "Imported Studio editor configuration.",
+              recipe: "standard",
+              sortIndex: 9999,
+              latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+            },
+          }),
         });
-      } else {
-        toast("Preset imported", { variant: "success" });
+      } catch {
+        toast("Preset import failed", { variant: "error" });
+        return;
       }
-      const key = `local:${result.preset.id}` as PresetKey;
-      markPresetApplied({ key, config: resolved.config });
-      lastPresetKeyRef.current = key;
-      lastRecipeIdRef.current = resolved.recipeId;
-      setPipelineConfig(resolved.config);
-      setOverridesDisabled(false);
+      const nextSettings = { ...recipeSettings, recipe: resolved.recipeId, preset: "none" };
+      previousSelectionRef.current = { recipe: resolved.recipeId, preset: "none" };
+      setAuthoringSelection({ kind: "editor", canonicalConfig: nextCanonicalConfig }, nextSettings);
+      setConfigEditingEnabled(true);
       setLastRunSnapshot(null);
-      setRecipeSettings({
-        ...recipeSettings,
-        recipe: resolved.recipeId,
-        preset: key,
-      });
+      toast("Preset imported", { variant: "success" });
     },
-    [
-      markPresetApplied,
-      presetActions,
-      recipeSettings,
-      setLastRunSnapshot,
-      setOverridesDisabled,
-      setPipelineConfig,
-      setRecipeSettings,
-      toast,
-    ]
+    [recipeSettings, setAuthoringSelection, setConfigEditingEnabled, setLastRunSnapshot, toast]
   );
 
-  const handleImportPreset = useCallback(() => {
-    importInputRef.current?.click();
-  }, []);
-
+  const handleImportPreset = useCallback(() => importInputRef.current?.click(), []);
   const handleImportFileChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       event.target.value = "";
       if (!file) return;
-      const text = await file.text();
-      const parsed = parsePresetExportFile(text);
+      const parsed = parsePresetExportFile(await file.text());
       if (!parsed.ok) {
         toast("Preset import failed", { variant: "error" });
         setPresetError({
@@ -491,14 +488,11 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
     },
     [importPresetValue, recipeSettings.recipe, toast]
   );
-
   const confirmImportSwitch = useCallback(() => {
     if (!pendingImport) return;
-    const next = pendingImport;
     setPendingImport(null);
-    importPresetValue(next);
+    importPresetValue(pendingImport);
   }, [importPresetValue, pendingImport]);
-
   const cancelImportSwitch = useCallback(() => setPendingImport(null), []);
 
   return {
@@ -506,17 +500,25 @@ export function usePresetLifecycle(args: UsePresetLifecycleArgs): UsePresetLifec
     builtInPresets,
     presetOptions,
     resolvePreset,
-    presetActions,
-    isLocalPresetSelected,
+    pipelineConfig,
+    setPipelineConfig,
+    canSaveToCurrent,
     presetError,
     setPresetError,
     pendingImport,
     importInputRef,
-    markPresetApplied,
-    applyAuthoringSnapshot,
     applyRecipeSettingsChange,
-    rememberRepoBackedConfig,
-    handleDeletePreset,
+    isAuthoringBlocked,
+    authoringBlockReason: isAuthoringBlocked
+      ? authoringConfigSource.kind === "blocked"
+        ? authoringConfigSource.reason
+        : authoringConfigSource.kind === "catalog"
+          ? "missing-catalog-source"
+          : "invalid-persistence"
+      : null,
+    recoverWithCatalogConfig,
+    recoverWithNewEditorConfig,
+    adoptSavedEditorConfig,
     handleExportPreset,
     handleImportPreset,
     handleImportFileChange,

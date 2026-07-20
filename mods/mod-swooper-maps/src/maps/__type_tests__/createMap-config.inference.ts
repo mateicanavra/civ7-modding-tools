@@ -4,8 +4,10 @@ import foundationDomain from "@mapgen/domain/foundation";
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import type { ExtendsStrict, IsEqual, IsStringLiteral } from "type-fest";
+import { buildStandardRecipeDefaultConfig } from "../../recipes/standard/artifacts.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import foundationMantleStage from "../../recipes/standard/stages/foundation-mantle/index.js";
+import { FoundationMantlePublicSchema } from "../../recipes/standard/stages/foundation-public-config.js";
 
 // This file exists purely to lock in authoring DX: the inline config should be
 // structurally typed (stage keys + step keys + op config shapes), so TS provides
@@ -60,10 +62,11 @@ export type _ComputeMeshEnvelopeFromStepSchemaConfigIsObject = Expect<
   ExtendsStrict<_ComputeMeshEnvelopeFromStepSchemaConfig, object, { strictAny: true }>
 >;
 
-// plateCount is authored on the mantle stage (mesh density).
-type _FoundationMantleKnobs = NonNullable<_FoundationMantleConfig["knobs"]>;
-type _PlateCountKnob = _FoundationMantleKnobs["plateCount"];
-export type _PlateCountKnobIsNumber = Expect<IsEqual<Exclude<_PlateCountKnob, undefined>, number>>;
+// plateCount is authored directly on meshResolution (mesh density).
+type _FoundationMantlePublicConfig = Static<typeof FoundationMantlePublicSchema>;
+type _MeshResolution = _FoundationMantlePublicConfig["meshResolution"];
+type _MeshPlateCount = _MeshResolution["plateCount"];
+export type _MeshPlateCountIsNumber = Expect<IsEqual<_MeshPlateCount, number>>;
 
 // plateActivity is authored on the tectonics stage (scales the plate motion truth).
 type _FoundationTectonicsConfig = NonNullable<StandardRecipeConfig["foundation-tectonics"]>;
@@ -77,11 +80,7 @@ createMap({
   id: "__type_test__",
   name: "__type_test__",
   recipe: standardRecipe,
-  config: {
-    "foundation-mantle": { knobs: { plateCount: 28 } },
-    "foundation-lithosphere": { knobs: { plateCount: 28 } },
-    "foundation-tectonics": { knobs: { plateActivity: 0.5 } },
-  },
+  config: buildStandardRecipeDefaultConfig(),
 });
 
 export {};

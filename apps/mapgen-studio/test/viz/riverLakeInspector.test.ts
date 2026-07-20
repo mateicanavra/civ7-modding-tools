@@ -127,7 +127,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
     const byRowKey = new Map(summary?.rows.map((row) => [row.rowKey, row]));
 
     const projection = byRowKey.get("projection-plan");
-    expect(projection?.proofClass).toBe("projection-plan");
+    expect(projection?.evidenceClass).toBe("projection-plan");
     expect(projection?.claimStatus).toBe("available");
     expect(projection?.displayStatus).toBe("projection-plan-present");
     expect(
@@ -149,7 +149,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
 
     const terrain = byRowKey.get("terrain-readback");
     expect(terrain).toMatchObject({
-      proofClass: "terrain-readback",
+      evidenceClass: "terrain-readback",
       claimStatus: "available",
       displayStatus: "terrain-readback-present",
     });
@@ -180,7 +180,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       },
     });
     expect(byRowKey.get("lake-plan-readback")).toMatchObject({
-      proofClass: "lake-final",
+      evidenceClass: "lake-final",
       claimStatus: "available",
       displayStatus: "lake-readback-present",
     });
@@ -202,12 +202,12 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       },
     });
     expect(byRowKey.get("lake-exact-counters")).toMatchObject({
-      proofClass: "lake-final",
+      evidenceClass: "lake-final",
       claimStatus: "unresolved",
       displayStatus: "lake-exact-log-missing",
     });
     expect(byRowKey.get("floodplain-intent")).toMatchObject({
-      proofClass: "floodplain-active",
+      evidenceClass: "floodplain-active",
       claimStatus: "available",
       displayStatus: "floodplain-apply-present",
     });
@@ -226,7 +226,7 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       },
     });
     expect(byRowKey.get("floodplain-apply")).toMatchObject({
-      proofClass: "floodplain-active",
+      evidenceClass: "floodplain-active",
       claimStatus: "available",
       displayStatus: "floodplain-apply-present",
     });
@@ -245,23 +245,23 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
       },
     });
     expect(byRowKey.get("floodplain-live-readback")).toMatchObject({
-      proofClass: "floodplain-active",
+      evidenceClass: "floodplain-active",
       claimStatus: "unresolved",
       displayStatus: "floodplain-live-missing",
     });
     expect(byRowKey.get("civ-rendered")).toMatchObject({
-      proofClass: "civ-rendered",
+      evidenceClass: "civ-rendered",
       claimStatus: "unresolved",
-      displayStatus: "rendered-proof-missing",
+      displayStatus: "rendered-evidence-missing",
     });
     expect(byRowKey.get("product-acceptance")).toMatchObject({
-      proofClass: "product-acceptance",
+      evidenceClass: "product-acceptance",
       claimStatus: "unresolved",
-      displayStatus: "acceptance-proof-missing",
+      displayStatus: "acceptance-evidence-missing",
     });
   });
 
-  it("builds proof rows from actual standard recipe Studio emissions", () => {
+  it("builds evidence rows from actual standard recipe Studio emissions", () => {
     const width = 32;
     const height = 20;
     const seed = 1337;
@@ -283,11 +283,12 @@ describe("buildRiverLakeFloodplainInspectorSummary", () => {
         bottomLatitude: mapInfo.MinLatitude,
       },
     };
-    const standardConfig = standardMapConfigs.find(
-      (config) => config.id === "swooper-earthlike"
-    )?.config;
-    if (!standardConfig)
+    const earthlikeArtifact = standardMapConfigs.find(
+      ({ canonicalConfig }) => canonicalConfig.id === "swooper-earthlike"
+    );
+    if (!earthlikeArtifact)
       throw new Error("swooper-earthlike config missing from standard map config catalog");
+    const standardConfig = earthlikeArtifact.canonicalConfig.config;
     const plan = standardRecipe.compile(envBase, standardConfig);
     const verboseSteps = Object.fromEntries(
       plan.nodes.map((node) => [node.stepId, "verbose"] as const)

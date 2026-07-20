@@ -1,7 +1,7 @@
 import type { StudioPresetExportFileV1 } from "@swooper/mapgen-core/authoring";
 import type { PipelineConfig } from "@swooper/mapgen-studio-ui/types";
-import { materializePipelineConfig } from "../configOverrides/configBuilders";
 import type { RecipeArtifacts } from "../../recipes/catalog";
+import { admitPipelineConfig } from "../configAuthoring/canonicalConfig";
 
 export type ImportPresetResult =
   | Readonly<{
@@ -38,7 +38,7 @@ export function resolveImportedPreset(args: {
     };
   }
 
-  const validated = materializePipelineConfig({
+  const validated = admitPipelineConfig({
     schema: recipe.configSchema,
     config: presetFile.preset.config,
     label: "import",

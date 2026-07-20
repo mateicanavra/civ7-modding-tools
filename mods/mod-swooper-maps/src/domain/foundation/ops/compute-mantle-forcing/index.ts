@@ -3,6 +3,10 @@ import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import ComputeMantleForcingContract from "./contract.js";
 
+const NEIGHBOR_DISTANCE_SQUARED_THRESHOLD = 1e-8;
+const STRESS_NORM_CLAMP_MIN = 1e-6;
+const LOCAL_EXTREMUM_EPSILON = 1e-6;
+
 function clampSigned(value: number): number {
   if (!Number.isFinite(value)) return 0;
   if (value <= -1) return -1;
@@ -23,12 +27,12 @@ const computeMantleForcing = createOp(ComputeMantleForcingContract, {
           );
         }
 
-        const velocityScale = config.velocityScale ?? 1.0;
-        const rotationScale = config.rotationScale ?? 0.2;
-        const stressNorm = config.stressNorm ?? 1.0;
-        const curvatureWeight = config.curvatureWeight ?? 0.35;
-        const upwellingThreshold = clamp01(config.upwellingThreshold ?? 0.35);
-        const downwellingThreshold = clamp01(config.downwellingThreshold ?? 0.35);
+        const velocityScale = config.velocityScale;
+        const rotationScale = config.rotationScale;
+        const stressNorm = config.stressNorm;
+        const curvatureWeight = config.curvatureWeight;
+        const upwellingThreshold = clamp01(config.upwellingThreshold);
+        const downwellingThreshold = clamp01(config.downwellingThreshold);
 
         const gradX = new Float32Array(cellCount);
         const gradY = new Float32Array(cellCount);
@@ -52,7 +56,7 @@ const computeMantleForcing = createOp(ComputeMantleForcingContract, {
             const dx = wrapDeltaPeriodic((mesh.siteX[n] ?? 0) - x0, mesh.wrapWidth);
             const dy = (mesh.siteY[n] ?? 0) - y0;
             const distSq = dx * dx + dy * dy;
-            if (!Number.isFinite(distSq) || distSq <= 1e-8) continue;
+            if (!Number.isFinite(distSq) || distSq <= NEIGHBOR_DISTANCE_SQUARED_THRESHOLD) continue;
             const invDist = 1 / Math.sqrt(distSq);
             const diff = (mantlePotential.potential[n] ?? 0) - base;
             gx += diff * dx * invDist;
@@ -89,7 +93,9 @@ const computeMantleForcing = createOp(ComputeMantleForcingContract, {
           const lap = laplacian[i] ?? 0;
           const gradMag = Math.hypot(gx, gy);
           const curv = Math.abs(lap);
-          stress[i] = clamp01((gradMag + curvatureWeight * curv) / Math.max(1e-6, stressNorm));
+          stress[i] = clamp01(
+            (gradMag + curvatureWeight * curv) / Math.max(STRESS_NORM_CLAMP_MIN, stressNorm)
+          );
 
           const rotX = -gy;
           const rotY = gx;
@@ -125,10 +131,9 @@ const computeMantleForcing = createOp(ComputeMantleForcingContract, {
             if (v < minNeighbor) minNeighbor = v;
           }
 
-          const eps = 1e-6;
-          if (phi >= maxNeighbor - eps && phi >= upwellingThreshold) {
+          if (phi >= maxNeighbor - LOCAL_EXTREMUM_EPSILON && phi >= upwellingThreshold) {
             upwellingClass[i] = 1;
-          } else if (phi <= minNeighbor + eps && phi <= -downwellingThreshold) {
+          } else if (phi <= minNeighbor + LOCAL_EXTREMUM_EPSILON && phi <= -downwellingThreshold) {
             upwellingClass[i] = -1;
           } else {
             upwellingClass[i] = 0;

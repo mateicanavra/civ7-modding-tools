@@ -63,7 +63,6 @@ const MOVEMENT_UV_NORM_DENOM = 127;
 const MOVEMENT_SPEED_ADVECTION_GATE = 0.05;
 
 const CRATON_HALF_SATURATION_MIN = 0.01;
-const CRATON_HALF_SATURATION_FALLBACK = 0.35;
 
 function buildCoarseAverageHexOddQ(
   width: number,
@@ -472,15 +471,12 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
     // Deterministic, physics-anchored seeding derived from rifts/fractures + plate motion.
     // This is a time-stepped accumulator (eras × steps) that creates small craton seeds near rifts,
     // then merges and drifts them without introducing stochastic noise.
-    const stepsPerEra = Math.max(0, Math.round(config.cratonStepsPerEra ?? 0)) | 0;
-    const nucleationScale = Math.max(0, config.cratonNucleationScale ?? 0);
-    const diffusion = clamp01(config.cratonDiffusion ?? 0);
-    const advection = clamp01(config.cratonAdvection ?? 0);
-    const halfSat = Math.max(
-      CRATON_HALF_SATURATION_MIN,
-      config.cratonHalfSaturation ?? CRATON_HALF_SATURATION_FALLBACK
-    );
-    const cratonWeight = clamp01(config.cratonPotentialWeight ?? 0);
+    const stepsPerEra = Math.max(0, Math.round(config.cratonStepsPerEra)) | 0;
+    const nucleationScale = Math.max(0, config.cratonNucleationScale);
+    const diffusion = clamp01(config.cratonDiffusion);
+    const advection = clamp01(config.cratonAdvection);
+    const halfSat = Math.max(CRATON_HALF_SATURATION_MIN, config.cratonHalfSaturation);
+    const cratonWeight = clamp01(config.cratonPotentialWeight);
 
     let cratonMass = new Float32Array(size);
     let cratonNext = new Float32Array(size);

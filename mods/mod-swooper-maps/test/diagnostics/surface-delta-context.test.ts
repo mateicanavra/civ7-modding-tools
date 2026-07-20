@@ -5,7 +5,7 @@ import {
   buildFeatureDeltaPlacementContexts,
   buildNaturalWonderFootprintCatalogContexts,
   buildNaturalWonderFootprintReadbackContexts,
-  buildNaturalWonderLiveProofBoundaryContext,
+  buildNaturalWonderLiveEvidenceBoundaryContext,
   buildResourceDeltaFeasibilityContexts,
   buildResourceDeltaPlacementContexts,
   buildSurfaceDeltaContext,
@@ -535,7 +535,7 @@ describe("surface delta context diagnostics", () => {
     });
   });
 
-  test("keeps natural-wonder placement proof unresolved when stats are local-only", () => {
+  test("keeps natural-wonder placement report unresolved when stats are local-only", () => {
     const local = snapshot(
       {},
       {
@@ -549,9 +549,9 @@ describe("surface delta context diagnostics", () => {
       }
     );
 
-    const context = buildNaturalWonderLiveProofBoundaryContext({
+    const context = buildNaturalWonderLiveEvidenceBoundaryContext({
       local,
-      exactAuthorshipPacket: {
+      exactAuthorshipEvidence: {
         log: {
           requestId: "studio-run-in-game-test",
         },
@@ -567,14 +567,14 @@ describe("surface delta context diagnostics", () => {
         shortfallCount: 0,
       },
       liveTelemetryPlacementStats: null,
-      liveProofPlacementStats: null,
+      liveEvidencePlacementStats: null,
       liveCompletionPlacementStats: null,
       boundaryClass: "local-placement-stats-only",
       unresolvedLinks: ["natural-wonder.live-placement-stats"],
     });
   });
 
-  test("accepts natural-wonder placement stats only when live proof payload carries them", () => {
+  test("accepts natural-wonder placement stats only when live report payload carries them", () => {
     const local = snapshot(
       {},
       {
@@ -585,9 +585,9 @@ describe("surface delta context diagnostics", () => {
       }
     );
 
-    const context = buildNaturalWonderLiveProofBoundaryContext({
+    const context = buildNaturalWonderLiveEvidenceBoundaryContext({
       local,
-      exactAuthorshipPacket: exactAuthorshipPacket({
+      exactAuthorshipEvidence: exactAuthorshipEvidence({
         log: {
           completionPayload: {
             naturalWonderPlacement: {
@@ -604,7 +604,7 @@ describe("surface delta context diagnostics", () => {
 
     expect(context).toMatchObject({
       liveTelemetryPlacementStats: null,
-      liveProofPlacementStats: null,
+      liveEvidencePlacementStats: null,
       liveCompletionPlacementStats: {
         plannedCount: 7,
         targetCount: 7,
@@ -628,9 +628,9 @@ describe("surface delta context diagnostics", () => {
       }
     );
 
-    const context = buildNaturalWonderLiveProofBoundaryContext({
+    const context = buildNaturalWonderLiveEvidenceBoundaryContext({
       local,
-      exactAuthorshipPacket: exactAuthorshipPacket({
+      exactAuthorshipEvidence: exactAuthorshipEvidence({
         log: {
           naturalWonderPlacement: {
             marker: "NATURAL_WONDER_PLACEMENT_V1",
@@ -645,7 +645,7 @@ describe("surface delta context diagnostics", () => {
               shortfallCount: 0,
               rejectionExampleCount: 0,
             },
-            coordinateProof: {
+            coordinateEvidence: {
               version: 1,
               placed: { count: 7, hash32: "3c3530cb" },
             },
@@ -661,13 +661,13 @@ describe("surface delta context diagnostics", () => {
         placedCount: 7,
         rejectedCount: 0,
         shortfallCount: 0,
-        coordinateProof: {
+        coordinateEvidence: {
           version: 1,
           placed: { count: 7, hash32: "3c3530cb" },
           rejected: { count: null, hash32: null },
         },
       },
-      liveProofPlacementStats: null,
+      liveEvidencePlacementStats: null,
       liveCompletionPlacementStats: null,
       boundaryClass: "local-and-live-placement-stats-present",
       unresolvedLinks: [],
@@ -1033,12 +1033,12 @@ function feasibilityCell(
   };
 }
 
-function exactAuthorshipPacket(
+function exactAuthorshipEvidence(
   value: unknown
 ): NonNullable<
-  Parameters<typeof buildNaturalWonderLiveProofBoundaryContext>[0]["exactAuthorshipPacket"]
+  Parameters<typeof buildNaturalWonderLiveEvidenceBoundaryContext>[0]["exactAuthorshipEvidence"]
 > {
   return value as NonNullable<
-    Parameters<typeof buildNaturalWonderLiveProofBoundaryContext>[0]["exactAuthorshipPacket"]
+    Parameters<typeof buildNaturalWonderLiveEvidenceBoundaryContext>[0]["exactAuthorshipEvidence"]
   >;
 }

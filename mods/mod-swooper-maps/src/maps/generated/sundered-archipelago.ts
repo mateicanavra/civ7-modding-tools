@@ -6,20 +6,11 @@
 /// <reference types="@civ7/types" />
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
-import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
+import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
-type GeneratedMapConfig = Readonly<{
-  id: string;
-  name: string;
-  description?: string;
-  recipe: "standard";
-  sortIndex: number;
-  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
-  logPrefix?: string;
-  config: unknown;
-}>;
-
+// The file plan only receives an admitted immutable envelope; this assertion
+// projects its serialized data without adding a second runtime admission path.
 const mapConfig = {
   "id": "sundered-archipelago",
   "name": "The Sundered Archipelago",
@@ -693,6 +684,14 @@ const mapConfig = {
             "temperateDry",
             "tropicalSeasonal"
           ]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": [
+            "tropicalRainforest"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -701,15 +700,22 @@ const mapConfig = {
           "coveragePct": 28,
           "lightThreshold": 0.45,
           "mediumThreshold": 0.7,
-          "heavyThreshold": 0.85
+          "heavyThreshold": 0.85,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": false,
-          "coveragePct": 5
+          "coveragePct": 5,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": false,
           "coveragePct": 4
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       },
       "floodplainPlanning": {
@@ -765,7 +771,6 @@ const mapConfig = {
         "affinityRules": []
       },
       "starts": {
-        "overrides": {},
         "minContiguousLandTiles": 24,
         "expansionRadiusTiles": 4,
         "minExpansionLandTiles": 14,
@@ -818,19 +823,13 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const satisfies GeneratedMapConfig;
+} as unknown as StandardMapConfigEnvelope;
 
 export default createMap({
-  id: mapConfig.id,
-  name: mapConfig.name,
-  description: mapConfig.description,
+  ...mapConfig,
   recipe: standardRecipe,
-  latitudeBounds: {
-    "topLatitude": 80,
-    "bottomLatitude": -80
-  },
   sourceConfigId: "sundered-archipelago",
-  configHash: "76ba54cac3036ea51287f0c4b238a4ddb2c511dc49074280c8502a29874665a8",
-  envelopeHash: "de2d8ba1b3a7f0206a69b6b5013ffa1678ebb65208b2936635d545b9db9865a7",
-  config: mapConfig.config as unknown as StandardRecipeConfig,
+  configHash: "cde7adab55f401ec4b3d429c800792f31cd8a6fda5667c975f912447da49d79d",
+  envelopeHash: "a6a3981e47f7169f9454e7599fa32be738b37abb54fb68d08f1bf4cb6f82b6ba",
+  config: mapConfig.config,
 });

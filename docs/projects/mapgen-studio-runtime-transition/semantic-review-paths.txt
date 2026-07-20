@@ -1,0 +1,7 @@
+docs/projects/mapgen-studio-runtime-transition/NEXT-PACKET.md
+docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md
+docs/projects/mapgen-studio-runtime-transition/obligation-corpus-contract.md
+docs/projects/mapgen-studio-runtime-transition/semantic-review-paths.txt
+docs/projects/mapgen-studio-runtime-transition/stack-recut-manifest.md
+docs/projects/mapgen-studio/workstream/run-in-game-runtime-openspec-packets/packet-index.md
+docs/projects/mapgen-studio/workstream/run-in-game-runtime-openspec-packets/real-user-path-remediation-packet-index.md

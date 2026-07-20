@@ -71,6 +71,10 @@ export interface GameConsoleProps {
   runInGameCurrentRelation?: RunInGameRelation;
   /** Callback to launch the current map config in Civ7 */
   onRunInGame: () => void;
+  /** Whether authoring source recovery must happen before Run in Game can start. */
+  runInGameDisabled?: boolean;
+  /** User-facing explanation for a disabled Run in Game action. */
+  runInGameDisabledReason?: string;
   /** Callback to copy current Civ7 Run in Game diagnostics */
   onCopyRunInGameDiagnostics?: () => void;
   /** Current config save/deploy status */
@@ -105,6 +109,8 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   runInGameStatus,
   runInGameCurrentRelation = "unknown",
   onRunInGame,
+  runInGameDisabled = false,
+  runInGameDisabledReason,
   onCopyRunInGameDiagnostics,
   saveDeployStatus,
   defaultStatusOpen = false,
@@ -269,7 +275,11 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     runInGameStateLabel ? `Studio state: ${runInGameStateLabel}` : null,
     runInGameSafeFailureCategory ? `Failure category: ${runInGameSafeFailureCategory}` : null,
     runInGameStatus?.diagnosticsId ? `Diagnostics: ${runInGameStatus.diagnosticsId}` : null,
-    operationControlsDisabled && operationBusyLabel ? operationBusyLabel : null,
+    runInGameDisabled && runInGameDisabledReason
+      ? runInGameDisabledReason
+      : operationControlsDisabled && operationBusyLabel
+        ? operationBusyLabel
+        : null,
   ]
     .filter(Boolean)
     .join("\n");
@@ -399,7 +409,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
           <TooltipTrigger asChild>
             <Button
               onClick={onRunInGame}
-              disabled={operationControlsDisabled}
+              disabled={operationControlsDisabled || runInGameDisabled}
               aria-label={runInGameTitle}
               className={isRunInGameRunning ? "shrink-0 opacity-70 cursor-wait" : "shrink-0"}
             >
@@ -537,8 +547,10 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
                     {saveDeployStatus.requestId}
                   </span>
                 ) : null}
-                {saveDeployStatus.error ? (
-                  <p className="text-label text-destructive">{saveDeployStatus.error}</p>
+                {saveDeployStatus.ok === false ? (
+                  <p className="text-label text-destructive">
+                    Failure category: {saveDeployStatus.safeFailureCategory}
+                  </p>
                 ) : null}
               </div>
             ) : null}

@@ -7,7 +7,7 @@ import type {
 } from "./workflowTypes.js";
 
 export type ScriptingLog = Readonly<{
-  waitForRunInGameLogProof(
+  waitForRunInGameLogEvidence(
     args: Readonly<{
       requestId: string;
       prepared: RunInGamePreparedRequest;

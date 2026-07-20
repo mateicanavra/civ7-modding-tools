@@ -6,20 +6,11 @@
 /// <reference types="@civ7/types" />
 
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
-import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
+import type { StandardMapConfigEnvelope } from "../configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 
-type GeneratedMapConfig = Readonly<{
-  id: string;
-  name: string;
-  description?: string;
-  recipe: "standard";
-  sortIndex: number;
-  latitudeBounds?: Readonly<{ topLatitude: number; bottomLatitude: number }>;
-  logPrefix?: string;
-  config: unknown;
-}>;
-
+// The file plan only receives an admitted immutable envelope; this assertion
+// projects its serialized data without adding a second runtime admission path.
 const mapConfig = {
   "id": "swooper-desert-mountains",
   "name": "Swooper Desert Mountains",
@@ -694,6 +685,14 @@ const mapConfig = {
             "temperateDry",
             "tropicalSeasonal"
           ]
+        },
+        "jungle": {
+          "minTemperature": 22,
+          "minMoisture": 110,
+          "minVegetation": 0.45,
+          "allowedBiomes": [
+            "tropicalRainforest"
+          ]
         }
       },
       "plotEffectCoverage": {
@@ -702,15 +701,22 @@ const mapConfig = {
           "coveragePct": 35,
           "lightThreshold": 0.5,
           "mediumThreshold": 0.7,
-          "heavyThreshold": 0.85
+          "heavyThreshold": 0.85,
+          "hazardEnabled": false,
+          "hazardThreshold": 0.85
         },
         "sand": {
           "enabled": true,
-          "coveragePct": 15
+          "coveragePct": 15,
+          "hazardEnabled": false
         },
         "burned": {
           "enabled": true,
           "coveragePct": 16
+        },
+        "jungle": {
+          "enabled": false,
+          "coveragePct": 12
         }
       },
       "floodplainPlanning": {
@@ -766,7 +772,6 @@ const mapConfig = {
         "affinityRules": []
       },
       "starts": {
-        "overrides": {},
         "minContiguousLandTiles": 24,
         "expansionRadiusTiles": 4,
         "minExpansionLandTiles": 14,
@@ -819,19 +824,13 @@ const mapConfig = {
       "knobs": {}
     }
   }
-} as const satisfies GeneratedMapConfig;
+} as unknown as StandardMapConfigEnvelope;
 
 export default createMap({
-  id: mapConfig.id,
-  name: mapConfig.name,
-  description: mapConfig.description,
+  ...mapConfig,
   recipe: standardRecipe,
-  latitudeBounds: {
-    "topLatitude": 40,
-    "bottomLatitude": -40
-  },
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "91165343c208b4d96a46aaef6b384e6061da1cdabcaaf2f7c2562368e5a45a30",
-  envelopeHash: "01728f9e56c29630ebe43fc6d54b72b92a9f6cfef1acbf4d20acdd0cfe276608",
-  config: mapConfig.config as unknown as StandardRecipeConfig,
+  configHash: "c6d711782303230912ce05922e05479f1f3859b61a376b022c2f02cc025d73ca",
+  envelopeHash: "c6c7257042edc6500f466cd4f3539e68c33d652aa6c9b8eaad0d4f60d085a938",
+  config: mapConfig.config,
 });

@@ -9,10 +9,10 @@ import { normalizeOpSelectionOrThrow, TestCompileError } from "../support/compil
 
 describe("resource group rollup operation contract", () => {
   it("publishes one warning-only group plan artifact across all symbolic resource groups", () => {
-    const selection = normalizeOpSelectionOrThrow(resources.ops.planResourceGroups, {
-      strategy: "default",
-      config: {},
-    });
+    const selection = normalizeOpSelectionOrThrow(
+      resources.ops.planResourceGroups,
+      structuredClone(resources.ops.planResourceGroups.defaultConfig)
+    );
 
     const result = resources.ops.planResourceGroups.run(allGroupPlans(5, 5), selection);
 

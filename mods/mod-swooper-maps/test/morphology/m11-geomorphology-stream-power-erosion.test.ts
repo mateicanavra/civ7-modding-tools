@@ -69,7 +69,10 @@ describe("m11 geomorphology (stream-power erosion + sediment transport)", () => 
     const routing = runOpValidated(
       computeFlowRouting,
       { width, height, elevation, landMask },
-      { strategy: "default", config: {} }
+      {
+        ...computeFlowRouting.defaultConfig,
+        config: { ...computeFlowRouting.defaultConfig.config },
+      }
     );
 
     const erodibilityK = new Float32Array(size);
@@ -80,12 +83,25 @@ describe("m11 geomorphology (stream-power erosion + sediment transport)", () => 
     }
 
     const selection = {
-      strategy: "default",
+      ...computeGeomorphicCycle.defaultConfig,
       config: {
+        ...computeGeomorphicCycle.defaultConfig.config,
         geomorphology: {
-          fluvial: { rate: 0.22, m: 0.6, n: 1.15 },
-          diffusion: { rate: 0.06 },
-          deposition: { rate: 0.28 },
+          ...computeGeomorphicCycle.defaultConfig.config.geomorphology,
+          fluvial: {
+            ...computeGeomorphicCycle.defaultConfig.config.geomorphology.fluvial,
+            rate: 0.22,
+            m: 0.6,
+            n: 1.15,
+          },
+          diffusion: {
+            ...computeGeomorphicCycle.defaultConfig.config.geomorphology.diffusion,
+            rate: 0.06,
+          },
+          deposition: {
+            ...computeGeomorphicCycle.defaultConfig.config.geomorphology.deposition,
+            rate: 0.28,
+          },
           eras: 3,
         },
         worldAge: "mature",
@@ -209,7 +225,10 @@ describe("m11 geomorphology (stream-power erosion + sediment transport)", () => 
     const routing = runOpValidated(
       computeFlowRouting,
       { width, height, elevation, landMask },
-      { strategy: "default", config: {} }
+      {
+        ...computeFlowRouting.defaultConfig,
+        config: { ...computeFlowRouting.defaultConfig.config },
+      }
     );
 
     const erodibilityK = new Float32Array(size);
@@ -233,12 +252,25 @@ describe("m11 geomorphology (stream-power erosion + sediment transport)", () => 
         sedimentDepth,
       },
       {
-        strategy: "default",
+        ...computeGeomorphicCycle.defaultConfig,
         config: {
+          ...computeGeomorphicCycle.defaultConfig.config,
           geomorphology: {
-            fluvial: { rate: 0.2, m: 0.55, n: 1.0 },
-            diffusion: { rate: 0.05 },
-            deposition: { rate: 0.22 },
+            ...computeGeomorphicCycle.defaultConfig.config.geomorphology,
+            fluvial: {
+              ...computeGeomorphicCycle.defaultConfig.config.geomorphology.fluvial,
+              rate: 0.2,
+              m: 0.55,
+              n: 1.0,
+            },
+            diffusion: {
+              ...computeGeomorphicCycle.defaultConfig.config.geomorphology.diffusion,
+              rate: 0.05,
+            },
+            deposition: {
+              ...computeGeomorphicCycle.defaultConfig.config.geomorphology.deposition,
+              rate: 0.22,
+            },
             eras: 2,
           },
           worldAge: "mature",

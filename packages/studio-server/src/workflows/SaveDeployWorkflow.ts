@@ -1,6 +1,5 @@
 import { Context, Effect, Layer } from "effect";
 
-import type { StudioInputs } from "../context.js";
 import {
   deployFailed,
   isStudioRuntimeFailure,
@@ -9,6 +8,7 @@ import {
 } from "../errors/index.js";
 import type {
   SaveDeployPreparedRequest,
+  SaveDeployRequest,
   SaveDeployRollback,
   StudioWorkflowPorts,
 } from "../ports/index.js";
@@ -16,7 +16,7 @@ import type { SaveDeployWorkflowTransitions } from "./workflowTransitions.js";
 
 export type SaveDeployWorkflowStart = Readonly<{
   requestId: string;
-  input: StudioInputs["mapConfigs"]["saveDeploy"];
+  input: SaveDeployRequest;
   transitions: SaveDeployWorkflowTransitions;
 }>;
 

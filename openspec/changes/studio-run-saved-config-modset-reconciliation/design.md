@@ -10,13 +10,16 @@ mod.
 
 The selected strategy is a direct-control-owned reconciled setup session.
 Studio passes the saved setup config name, generated mod id, stable generated
-map row, seed, map size, player count, and resources to a direct-control
-preparation operation. Direct-control loads the saved config, reconciles the
-generated mod with the active setup target, applies the generated row and setup
-values, reads back the targeted reconciliation result, generated row, seed, map
-size, and player count, and returns a prepared setup session. Resources are
-verified through the visible UI selection, admitted request, generation
-manifest, and retained evidence row.
+map row, seed, map size, and player count to a direct-control preparation
+operation. Direct-control loads the saved config, reconciles the generated mod
+with the active setup target, applies the generated row and setup values, reads
+back the targeted reconciliation result, generated row, seed, map size, and
+player count, and returns a prepared setup session.
+
+`worldSettings.resources: balanced` is required browser-originated request and
+generation-manifest metadata. It has no pipeline consumer, so it is neither a
+rendered selector nor a direct-control setup/readback value. Civ7
+setup/readback does not establish a resulting resource distribution.
 Start consumes that prepared session and does not run another saved-config load.
 
 Broad active-mod inventory is diagnostic-only. It is not a success-path launch
@@ -73,6 +76,8 @@ Private diagnostics and workstream evidence record:
 - setup row readback after reconciliation;
 - targeted generated-mod reconciliation after saved-config load;
 - seed, map size, and player count readback before Begin;
-- resources selected in UI, admitted request, generation manifest, and
-  retained evidence row;
+- the rendered Run in Game click, its browser-originated `runInGame.start`
+  request with `worldSettings.resources: balanced`, and the same request's
+  generation manifest retaining that value; this does not verify Civ7 resource
+  distribution;
 - start result.

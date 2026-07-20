@@ -1,181 +1,40 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
-import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { describe, expect, it } from "vitest";
 import { CatalogSourceIndex } from "../../src/maps/catalog/sourceIndex";
 import {
-  type CatalogSourceEntry,
-  catalogConfigFileNameFromPath,
-  parseCatalogSourceIndex,
+  CATALOG_CONFIG_PATH_PREFIX,
   readCatalogSourceIndex,
   validateCatalogSourceIndex,
 } from "../../src/maps/catalog/sources";
-import {
-  type CanonicalMapConfigEnvelope,
-  validateCanonicalMapConfig,
-} from "../../src/maps/configs/canonical";
-import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
-
-const pkgRoot = resolve(import.meta.dirname, "../..");
-const transientStudioCurrentConfig = "studio-current.config.json";
 
 describe("Swooper catalog source index", () => {
-  it("parses the tracked index and keeps every source id/path unique", async () => {
-    const { knownConfigPaths, metadataByPath } = await loadCanonicalConfigMetadata();
-    const parsed = parseCatalogSourceIndex(CatalogSourceIndex, {
-      knownConfigPaths,
-      configMetadataByPath: metadataByPath,
+  it("is an ordered path-only membership list", () => {
+    const knownConfigPaths = new Set(CatalogSourceIndex);
+    const entries = readCatalogSourceIndex({ knownConfigPaths });
+
+    expect(entries).toEqual(CatalogSourceIndex);
+    expect(entries.every((entry) => entry.startsWith(CATALOG_CONFIG_PATH_PREFIX))).toBe(true);
+    expect(new Set(entries)).toHaveLength(entries.length);
+  });
+
+  it("keeps transient Studio current out of durable catalog membership", () => {
+    expect(CatalogSourceIndex).not.toContain(
+      "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json"
+    );
+  });
+
+  it("rejects duplicate, unresolved, and non-path membership entries", () => {
+    const first = CatalogSourceIndex[0];
+    const missing = `${CATALOG_CONFIG_PATH_PREFIX}missing-config.config.json`;
+    const errors = validateCatalogSourceIndex([first, first, missing, { sourcePath: first }], {
+      knownConfigPaths: new Set(CatalogSourceIndex),
     });
 
-    expect(parsed.ok).toBe(true);
-    expect(parsed.entries.map((entry) => entry.catalogSourceId)).toEqual(
-      [...metadataByPath.values()].map((config) => config.id)
-    );
-    expect(new Set(parsed.entries.map((entry) => entry.catalogSourceId))).toHaveLength(
-      parsed.entries.length
-    );
-    expect(new Set(parsed.entries.map((entry) => entry.configPath))).toHaveLength(
-      parsed.entries.length
-    );
-  });
-
-  it("keeps transient Studio current out of durable catalog source authority", async () => {
-    const { knownConfigPaths, metadataByPath } = await loadCanonicalConfigMetadata();
-    const indexPaths = readCatalogSourceIndex({
-      knownConfigPaths,
-      configMetadataByPath: metadataByPath,
-    }).map((entry) => entry.configPath);
-
-    expect(indexPaths).not.toContain(
-      `mods/mod-swooper-maps/src/maps/configs/${transientStudioCurrentConfig}`
-    );
-  });
-
-  it("rejects duplicate ids, duplicate paths, missing paths, and digest drift", async () => {
-    const first = CatalogSourceIndex[0];
-    const duplicateId = { ...CatalogSourceIndex[1], catalogSourceId: first.catalogSourceId };
-    const duplicatePath = { ...CatalogSourceIndex[1], configPath: first.configPath };
-    const missingPath = {
-      ...CatalogSourceIndex[1],
-      catalogSourceId: "missing-config",
-      configPath: "mods/mod-swooper-maps/src/maps/configs/missing-config.config.json",
-      digestInputs: [
-        {
-          kind: "config-file",
-          path: "mods/mod-swooper-maps/src/maps/configs/missing-config.config.json",
-        },
-      ],
-    } satisfies CatalogSourceEntry;
-    const digestDrift = {
-      ...CatalogSourceIndex[1],
-      digestInputs: [{ kind: "config-file", path: first.configPath }],
-    } satisfies CatalogSourceEntry;
-    const digestShapeDrift = {
-      ...CatalogSourceIndex[1],
-      digestInputs: [
-        { kind: "config-file", path: CatalogSourceIndex[1].configPath },
-        { kind: "config-file", path: CatalogSourceIndex[1].configPath },
-      ],
-    };
-    const { knownConfigPaths } = await loadCanonicalConfigMetadata();
-
-    expect(
-      validateCatalogSourceIndex(
-        [first, duplicateId, duplicatePath, missingPath, digestDrift, digestShapeDrift],
-        {
-          knownConfigPaths,
-        }
-      )
-    ).toEqual(
+    expect(errors).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("duplicates CatalogSourceIndex[0]/catalogSourceId"),
-        expect.stringContaining("duplicates CatalogSourceIndex[0]/configPath"),
+        expect.stringContaining("duplicates CatalogSourceIndex[0]"),
         expect.stringContaining("does not resolve in the repository"),
-        expect.stringContaining("digestInputs[0]/path must match configPath"),
-        expect.stringContaining("digestInputs must contain exactly one config-file input"),
-      ])
-    );
-  });
-
-  it("rejects unknown entry, digest input, and latitude bounds keys", () => {
-    const extraEntryKey = {
-      ...CatalogSourceIndex[0],
-      stale: true,
-    };
-    const extraDigestInputKey = {
-      ...CatalogSourceIndex[1],
-      digestInputs: [{ ...CatalogSourceIndex[1].digestInputs[0], stale: true }],
-    };
-    const extraLatitudeBoundsKey = {
-      ...CatalogSourceIndex[0],
-      latitudeBounds: { ...CatalogSourceIndex[0].latitudeBounds, stale: true },
-    };
-
-    expect(
-      validateCatalogSourceIndex([extraEntryKey, extraDigestInputKey, extraLatitudeBoundsKey])
-    ).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining("/stale is not a catalog source key"),
-        expect.stringContaining("/digestInputs[0]/stale is not a catalog source key"),
-        expect.stringContaining("/latitudeBounds/stale is not a catalog source key"),
-      ])
-    );
-  });
-
-  it("rejects display metadata that drifts from the referenced canonical config", async () => {
-    const { metadataByPath } = await loadCanonicalConfigMetadata();
-    const { latitudeBounds: _latitudeBounds, ...firstWithoutLatitudeBounds } =
-      CatalogSourceIndex[0];
-    const drifted = {
-      ...firstWithoutLatitudeBounds,
-      name: "Stale Name",
-      sortIndex: -1,
-    } satisfies CatalogSourceEntry;
-
-    expect(validateCatalogSourceIndex([drifted], { configMetadataByPath: metadataByPath })).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('/name must match config name "Swooper Desert Mountains"'),
-        expect.stringContaining("/sortIndex must match config sortIndex 500"),
-        expect.stringContaining("/latitudeBounds must match config latitudeBounds"),
+        expect.stringContaining("must be a non-empty config path string"),
       ])
     );
   });
 });
-
-async function loadCanonicalConfigMetadata(): Promise<{
-  knownConfigPaths: ReadonlySet<string>;
-  metadataByPath: ReadonlyMap<
-    string,
-    Readonly<{
-      id: string;
-      name: string;
-      description: string;
-      recipe: string;
-      sortIndex: number;
-      latitudeBounds?: unknown;
-    }>
-  >;
-}> {
-  const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
-  const paths = CatalogSourceIndex.map((entry) => entry.configPath);
-  const metadata = new Map<string, CanonicalMapConfigEnvelope>();
-  for (const path of paths) {
-    const fileName = catalogConfigFileNameFromPath(path);
-    const raw = JSON.parse(
-      await readFile(resolve(pkgRoot, `src/maps/configs/${fileName}`), "utf8")
-    );
-    metadata.set(
-      path,
-      validateCanonicalMapConfig({
-        fileName,
-        raw,
-        recipeSchema: schema,
-        stages: STANDARD_STAGES,
-      })
-    );
-  }
-  return {
-    knownConfigPaths: new Set(paths),
-    metadataByPath: metadata,
-  };
-}

@@ -48,10 +48,10 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     stageArtifacts.featureIntentsIce.publish(ctx, []);
 
     const config = {
-      apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, {
-        strategy: "default",
-        config: {},
-      }),
+      apply: normalizeOpSelectionOrThrow(
+        ecology.ops.applyFeatures,
+        ecology.ops.applyFeatures.defaultConfig
+      ),
     };
     const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
 
@@ -101,10 +101,10 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     stageArtifacts.featureIntentsIce.publish(ctx, []);
 
     const config = {
-      apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, {
-        strategy: "default",
-        config: {},
-      }),
+      apply: normalizeOpSelectionOrThrow(
+        ecology.ops.applyFeatures,
+        ecology.ops.applyFeatures.defaultConfig
+      ),
     };
     const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
 

@@ -95,9 +95,6 @@ describe("studio-server TypeBox contract spine", () => {
               phase: "completed",
               status: "completed",
               recoveryActions: ["copy-diagnostics"],
-              createdAt: "2026-06-15T00:00:00.000Z",
-              updatedAt: "2026-06-15T00:00:01.000Z",
-              terminalAt: "2026-06-15T00:00:01.000Z",
             },
           ],
         },
@@ -107,8 +104,9 @@ describe("studio-server TypeBox contract spine", () => {
             requestId: "save-1",
             phase: "complete",
             status: "complete",
-            startedAt: "2026-06-15T00:00:00.000Z",
-            updatedAt: "2026-06-15T00:00:01.000Z",
+            saved: true,
+            deployed: true,
+            recoveryActions: ["copy-diagnostics"],
           },
           recent: [],
         },
@@ -119,6 +117,32 @@ describe("studio-server TypeBox contract spine", () => {
     const saveDeployOperationEvent = unionOption(studioOperationEventSchema, 1);
     expect(schemaProperty(runInGameOperationEvent, "status")).toBe(operationStatusTypeSchema);
     expect(schemaProperty(saveDeployOperationEvent, "status")).toBe(saveDeployStatusTypeSchema);
+
+    expect(
+      Value.Check(saveDeployStatusTypeSchema, {
+        ok: false,
+        requestId: "save-hostile",
+        phase: "failed",
+        status: "failed",
+        saved: true,
+        deployed: false,
+        safeFailureCategory: "deployment",
+        recoveryActions: ["copy-diagnostics"],
+        path: "/Users/private/config.json",
+        stderr: "secret deploy output",
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(operationStatusTypeSchema, {
+        requestId: "run-hostile",
+        phase: "failed",
+        status: "failed",
+        safeFailureCategory: "runtime-control",
+        recoveryActions: ["copy-diagnostics"],
+        error: "private Error.message",
+        cause: { path: "/Users/private" },
+      })
+    ).toBe(false);
   });
 
   test("keeps runInGame.cancel on the closed request-id input and public status output", () => {
@@ -126,9 +150,9 @@ describe("studio-server TypeBox contract spine", () => {
     const output = typeboxOutputSchemaFromContractProcedure(runInGame.cancel);
 
     expect(schemaProperty(input, "requestId")).toBeTruthy();
-    expect(Object.keys((input as { properties?: Record<string, unknown> }).properties ?? {})).toEqual([
-      "requestId",
-    ]);
+    expect(
+      Object.keys((input as { properties?: Record<string, unknown> }).properties ?? {})
+    ).toEqual(["requestId"]);
     expect((input as { additionalProperties?: unknown }).additionalProperties).toBe(false);
     expect(output).toBe(operationStatusTypeSchema);
     expect(Value.Check(input, { requestId: "studio-run-in-game-cancel" })).toBe(true);
@@ -231,8 +255,8 @@ describe("studio-server TypeBox contract spine", () => {
       readFileSync(join(repoRoot, "apps/mapgen-studio/src/server/studio/engines.ts"), "utf8"),
       readFileSync(join(repoRoot, "apps/mapgen-studio/src/server/studio/context.ts"), "utf8"),
     ].join("\n");
-    const proofTypes = readFileSync(
-      join(repoRoot, "apps/mapgen-studio/src/server/runInGame/proofTypes.ts"),
+    const evidenceTypes = readFileSync(
+      join(repoRoot, "apps/mapgen-studio/src/server/runInGame/evidenceTypes.ts"),
       "utf8"
     );
 
@@ -265,13 +289,13 @@ describe("studio-server TypeBox contract spine", () => {
     expect(serverRunInGameSources).not.toMatch(
       /as Awaited<ReturnType<StudioServerContext\["runInGame(?:Start|Status)"\]>>|as RunInGameOperationEvent\["status"\]/
     );
-    expect(proofTypes).not.toMatch(/export type \{[\s\S]*from "@civ7\/studio-server"/);
-    expect(proofTypes).not.toMatch(
+    expect(evidenceTypes).not.toMatch(/export type \{[\s\S]*from "@civ7\/studio-server"/);
+    expect(evidenceTypes).not.toMatch(
       /(?:export\s+)?(?:type|interface)\s+RunInGame(?!Detailed)[A-Za-z]+/
     );
-    expect(proofTypes).toMatch(/RunInGameDetailedExactAuthorshipProof/);
-    expect(proofTypes).toMatch(
-      /RunInGameExactAuthorshipProof as PublicRunInGameExactAuthorshipProof/
+    expect(evidenceTypes).toMatch(/RunInGameDetailedExactAuthorshipEvidence/);
+    expect(evidenceTypes).toMatch(
+      /RunInGameExactAuthorshipEvidence as PublicRunInGameExactAuthorshipEvidence/
     );
   });
 });

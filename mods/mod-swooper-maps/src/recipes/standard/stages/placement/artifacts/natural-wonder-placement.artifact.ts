@@ -13,7 +13,7 @@ const NaturalWonderPlacementCoordinateDigestSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const NaturalWonderPlacementCoordinateProofSchema = Type.Object(
+const NaturalWonderPlacementCoordinateEvidenceSchema = Type.Object(
   {
     version: Type.Literal(1),
     placed: NaturalWonderPlacementCoordinateDigestSchema,
@@ -56,7 +56,8 @@ const NaturalWonderPlacementCoordinateRowSchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Bounded natural-wonder placement row identity for exact/local proof comparison.",
+    description:
+      "Bounded natural-wonder placement row identity for exact/local evidence comparison.",
   }
 );
 
@@ -70,7 +71,7 @@ const NaturalWonderPlacementArtifactSchema = Type.Object(
     rejectedCount: Type.Integer({ minimum: 0 }),
     shortfallCount: Type.Integer({ minimum: 0 }),
     rejectionExamples: Type.Array(Type.String()),
-    coordinateProof: NaturalWonderPlacementCoordinateProofSchema,
+    coordinateEvidence: NaturalWonderPlacementCoordinateEvidenceSchema,
     coordinateRows: Type.Array(NaturalWonderPlacementCoordinateRowSchema),
   },
   {
@@ -105,7 +106,7 @@ function isCount(value: unknown): value is number {
 /**
  * Validate hook for the natural-wonder placement outcome artifact
  * (placement-realignment S6). Cross-field invariants the schema cannot
- * express: outcome counts reconcile against the plan, coordinate-proof digests
+ * express: outcome counts reconcile against the plan, coordinate-evidence digests
  * agree with the row corpus, and every row carries the matching status. The
  * publish-time guarantee replaces the old read-side re-normalization helper
  * that downstream steps imported across step boundaries.
@@ -162,20 +163,20 @@ function validatePayload(value: unknown): ValidationIssue[] {
     );
   }
 
-  const proof = isRecord(value.coordinateProof) ? value.coordinateProof : null;
-  const placedDigest = proof && isRecord(proof.placed) ? proof.placed : null;
-  const rejectedDigest = proof && isRecord(proof.rejected) ? proof.rejected : null;
+  const evidence = isRecord(value.coordinateEvidence) ? value.coordinateEvidence : null;
+  const placedDigest = evidence && isRecord(evidence.placed) ? evidence.placed : null;
+  const rejectedDigest = evidence && isRecord(evidence.rejected) ? evidence.rejected : null;
   if (placedDigest?.count !== placedCount) {
     issues.push(
       issue(
-        `coordinateProof.placed.count ${String(placedDigest?.count)} != placedCount ${placedCount}.`
+        `coordinateEvidence.placed.count ${String(placedDigest?.count)} != placedCount ${placedCount}.`
       )
     );
   }
   if (rejectedDigest?.count !== rejectedRowsExpected) {
     issues.push(
       issue(
-        `coordinateProof.rejected.count ${String(rejectedDigest?.count)} != rejected+skipped ${rejectedRowsExpected}.`
+        `coordinateEvidence.rejected.count ${String(rejectedDigest?.count)} != rejected+skipped ${rejectedRowsExpected}.`
       )
     );
   }

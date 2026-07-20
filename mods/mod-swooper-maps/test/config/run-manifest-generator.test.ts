@@ -14,7 +14,14 @@ import {
 } from "@civ7/studio-run-workspace";
 import { standardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
 import { parseSwooperRunManifestPathArg } from "../../scripts/generate-run-manifest";
-import { generateSwooperRunGeneratedModFromManifestPath } from "../../scripts/run-manifest-generator";
+import {
+  generateSwooperRunGeneratedModFromManifestPath,
+  verifySwooperStandardRunManifest,
+} from "../../scripts/run-manifest-generator";
+import {
+  admitStandardMapConfig,
+  type StandardMapConfigEnvelope,
+} from "../../src/maps/configs/canonical";
 
 describe("Swooper run manifest generator", () => {
   test("requires exactly one manifest path", () => {
@@ -73,13 +80,96 @@ describe("Swooper run manifest generator", () => {
         resolve(generated.generatedModRoot, STUDIO_RUN_MAP_SCRIPT_PATH),
         "utf8"
       );
+      expect(mapScript.length).toBeGreaterThan(0);
       expect(mapScript).toContain(manifest.payload.requestId);
-      expect(mapScript).toContain(runArtifactId);
-      expect(mapScript).toContain(manifest.generationManifestDigest);
-      expect(mapScript).toContain("runCorrelation");
+      expect(mapScript).toContain(manifest.payload.launchSourceDigest.canonicalConfigDigest);
+      expect(mapScript).toContain(manifest.payload.launchEnvelopeDigest);
+      expect(mapScript).not.toContain("configContentDigest");
       await expect(
         readFile(resolve(generated.generatedModRoot, ".source/maps", `${runArtifactId}.ts`), "utf8")
       ).rejects.toThrow();
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("preserves the complete canonical config in a generated run manifest", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-config-"));
+    try {
+      const manifestRef = await writeStudioRunGenerationManifest({
+        manifestInput: manifestInput(),
+        workspaceRoot,
+      });
+      const manifest = await readStudioRunGenerationManifest(manifestRef.path);
+      await generateSwooperRunGeneratedModFromManifestPath(manifestRef.path);
+
+      expect(manifest.payload.launchEnvelope.source).toMatchObject({
+        kind: "catalog",
+        sourcePath: "mods/mod-swooper-maps/src/maps/configs/latest-juicy.config.json",
+        canonicalConfig: { id: "latest-juicy" },
+      });
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("returns a verified Standard render input from the deserialized manifest", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-verification-"));
+    try {
+      const manifestRef = await writeStudioRunGenerationManifest({
+        manifestInput: manifestInput(),
+        workspaceRoot,
+      });
+      const manifest = await readStudioRunGenerationManifest(manifestRef.path);
+
+      const verifiedRun = verifySwooperStandardRunManifest(manifest);
+
+      expect(verifiedRun.manifest).toBe(manifest);
+      expect(verifiedRun.renderInput.config).toEqual(
+        admitStandardMapConfig(manifest.payload.launchEnvelope.source.canonicalConfig)
+      );
+      expect(verifiedRun.renderInput.seed).toBe(1538316418);
+      expect(verifiedRun.renderInput.correlation.requestId).toBe(manifest.payload.requestId);
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects a catalog manifest whose source path disagrees with its config id", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-path-mismatch-"));
+    try {
+      const manifestRef = await writeStudioRunGenerationManifest({
+        manifestInput: manifestInput({
+          sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+        }),
+        workspaceRoot,
+      });
+      const manifest = await readStudioRunGenerationManifest(manifestRef.path);
+
+      expect(() => verifySwooperStandardRunManifest(manifest)).toThrow("must match file stem");
+      await expect(
+        generateSwooperRunGeneratedModFromManifestPath(manifestRef.path)
+      ).rejects.toThrow("must match file stem");
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("admits editor manifests without applying catalog path identity", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-editor-"));
+    try {
+      const manifestRef = await writeStudioRunGenerationManifest({
+        manifestInput: manifestInput({ sourceKind: "editor" }),
+        workspaceRoot,
+      });
+      const manifest = await readStudioRunGenerationManifest(manifestRef.path);
+
+      const verified = verifySwooperStandardRunManifest(manifest);
+      expect(verified.renderInput.config.id).toBe("latest-juicy");
+      expect(verified.renderInput.config).not.toBe(
+        manifest.payload.launchEnvelope.source.canonicalConfig
+      );
+      expect(Object.isFrozen(verified.renderInput.config)).toBe(true);
     } finally {
       await rm(workspaceRoot, { recursive: true, force: true });
     }
@@ -109,15 +199,14 @@ describe("Swooper run manifest generator", () => {
     try {
       const manifestRef = await writeStudioRunGenerationManifest({
         manifestInput: manifestInput({
-          recipeId: "other-mod/other-recipe",
-          envelopeRecipe: "other-mod/other-recipe",
+          recipe: "other-mod/other-recipe",
         }),
         workspaceRoot,
       });
 
       await expect(
         generateSwooperRunGeneratedModFromManifestPath(manifestRef.path)
-      ).rejects.toThrow("only supports mod-swooper-maps/standard");
+      ).rejects.toThrow(/recipe envelope must be mod-swooper-maps\/standard/);
       const manifest = await readStudioRunGenerationManifest(manifestRef.path);
       await expect(
         readFile(
@@ -130,18 +219,86 @@ describe("Swooper run manifest generator", () => {
     }
   });
 
-  test("rejects a manifest whose config digest does not match the launch config", async () => {
+  test("rejects a manifest whose canonical-config digest does not authenticate the launch envelope config", async () => {
     const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-digest-mismatch-"));
     try {
       const manifestRef = await writeStudioRunGenerationManifest({
-        manifestInput: manifestInput({ configContentDigest: "b".repeat(64) }),
+        manifestInput: manifestInput(),
         workspaceRoot,
       });
+      const manifest = await readStudioRunGenerationManifest(manifestRef.path);
+      const malformedManifest = {
+        ...manifest,
+        payload: {
+          ...manifest.payload,
+          launchSourceDigest: {
+            ...manifest.payload.launchSourceDigest,
+            canonicalConfigDigest: "b".repeat(64),
+          },
+        },
+      };
+      await writeFile(manifestRef.path, `${JSON.stringify(malformedManifest, null, 2)}\n`);
 
       await expect(
         generateSwooperRunGeneratedModFromManifestPath(manifestRef.path)
-      ).rejects.toThrow("config digest does not match");
+      ).rejects.toThrow("canonicalConfigDigest does not match canonical config");
+      await expect(readStudioRunGenerationManifest(manifestRef.path)).rejects.toThrow(
+        "canonicalConfigDigest does not match canonical config"
+      );
+      await expect(
+        readFile(
+          resolve(workspaceRoot, manifest.payload.requestId, "generated-mod/config/config.xml"),
+          "utf8"
+        )
+      ).rejects.toThrow();
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects a self-consistently rehashed manifest that fails Standard verification before writing", async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), "swooper-run-manifest-incomplete-recipe-"));
+    try {
+      const manifestRef = await writeStudioRunGenerationManifest({
+        manifestInput: manifestInput(),
+        workspaceRoot,
+      });
       const manifest = await readStudioRunGenerationManifest(manifestRef.path);
+      const [, ...remainingRecipeEntries] = Object.entries(
+        manifest.payload.launchEnvelope.source.canonicalConfig.config
+      );
+      const incompleteRecipeConfig = Object.fromEntries(remainingRecipeEntries);
+      const incompleteCanonicalConfig = {
+        ...manifest.payload.launchEnvelope.source.canonicalConfig,
+        config: incompleteRecipeConfig,
+      };
+      const incompleteLaunchEnvelope = {
+        ...manifest.payload.launchEnvelope,
+        source: {
+          ...manifest.payload.launchEnvelope.source,
+          canonicalConfig: incompleteCanonicalConfig,
+        },
+      };
+      const payload = {
+        ...manifest.payload,
+        launchEnvelope: incompleteLaunchEnvelope,
+        launchSourceDigest: {
+          canonicalConfigDigest: stableHash(incompleteCanonicalConfig),
+        },
+        launchEnvelopeDigest: stableHash(incompleteLaunchEnvelope),
+      };
+      const selfConsistentlyRehashedManifest = {
+        payload,
+        generationManifestDigest: stableHash(payload),
+      };
+      await writeFile(
+        manifestRef.path,
+        `${JSON.stringify(selfConsistentlyRehashedManifest, null, 2)}\n`
+      );
+
+      await expect(
+        generateSwooperRunGeneratedModFromManifestPath(manifestRef.path)
+      ).rejects.toThrow("complete recipe config JSON");
       await expect(
         readFile(
           resolve(workspaceRoot, manifest.payload.requestId, "generated-mod/config/config.xml"),
@@ -180,65 +337,46 @@ describe("Swooper run manifest generator", () => {
 
 function manifestInput(
   options: Readonly<{
-    recipeId?: string;
-    envelopeRecipe?: string;
-    configContentDigest?: string;
+    recipe?: string;
+    sourceKind?: "catalog" | "editor";
+    sourcePath?: string;
   }> = {}
 ): StudioRunGenerationManifestInput {
-  const launchEnvelopeDigest = "a".repeat(64);
-  const config = standardMapConfigs.find((entry) => entry.id === "latest-juicy")?.config;
-  if (!config) throw new Error("latest-juicy config fixture is missing");
-  const recipeId = options.recipeId ?? "mod-swooper-maps/standard";
-  const envelopeRecipe = options.envelopeRecipe ?? recipeId;
+  const sourceCanonicalConfig = standardMapConfigs.find(
+    (entry) => entry.canonicalConfig.id === "latest-juicy"
+  )?.canonicalConfig as StandardMapConfigEnvelope | undefined;
+  if (!sourceCanonicalConfig) throw new Error("latest-juicy config fixture is missing");
+  const canonicalConfig = sourceCanonicalConfig;
+  const launchEnvelope = {
+    recipeSettings: {
+      recipe: options.recipe ?? "mod-swooper-maps/standard",
+      seed: 1538316418,
+    },
+    worldSettings: {
+      mapSize: "MAPSIZE_STANDARD",
+    },
+    setupConfig: {
+      gameOptions: {},
+      playerOptions: [{ playerId: 0, options: {} }],
+    },
+    source:
+      options.sourceKind === "editor"
+        ? {
+            kind: "editor" as const,
+            editorSessionId: "run-manifest-generator-test",
+            canonicalConfig,
+          }
+        : {
+            kind: "catalog" as const,
+            sourcePath:
+              options.sourcePath ??
+              "mods/mod-swooper-maps/src/maps/configs/latest-juicy.config.json",
+            canonicalConfig,
+          },
+  };
   return {
     requestId: "studio-run-in-game-generator-test",
-    request: {
-      recipeId,
-      seed: 1538316418,
-      mapSize: "MAPSIZE_STANDARD",
-      selectedConfigId: "latest-juicy",
-      setupConfig: {
-        gameOptions: {},
-        playerOptions: [{ playerId: 0, options: {} }],
-      },
-      materializationMode: "disposable",
-    },
-    resolvedLaunchSource: {
-      kind: "catalog",
-      catalogSourceId: "latest-juicy",
-      catalogSourcePath: "mods/mod-swooper-maps/src/maps/configs/latest-juicy.config.json",
-      config,
-      label: "Latest Juicy",
-      description: "Packet 8 generated map",
-      sortIndex: 1900,
-    },
-    launchEnvelope: {
-      recipeSettings: {
-        recipe: envelopeRecipe,
-        seed: 1538316418,
-      },
-      worldSettings: {
-        mapSize: "MAPSIZE_STANDARD",
-      },
-      setupConfig: {
-        gameOptions: {},
-        playerOptions: [{ playerId: 0, options: {} }],
-      },
-      source: {
-        kind: "catalog",
-        id: "latest-juicy",
-        label: "Latest Juicy",
-        description: "Packet 8 generated map",
-        mapScript: "{swooper-maps}/maps/latest-juicy.js",
-        sortIndex: 1900,
-      },
-      config,
-    },
-    launchSourceDigest: {
-      configContentDigest: options.configContentDigest ?? stableHash(config),
-      launchEnvelopeDigest,
-    },
-    launchEnvelopeDigest,
+    launchEnvelope,
   };
 }
 

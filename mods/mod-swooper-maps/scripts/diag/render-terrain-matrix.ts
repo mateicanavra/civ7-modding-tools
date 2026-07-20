@@ -21,6 +21,7 @@ import {
   createFinalSurfaceParityMapInfo,
   runLocalFinalSurfaceSnapshot,
 } from "../../src/dev/diagnostics/live-parity.js";
+import { admitStandardMapConfig } from "../../src/maps/configs/canonical.js";
 
 const W = process.env.MATRIX_W ? Number(process.env.MATRIX_W) : 84;
 const H = process.env.MATRIX_H ? Number(process.env.MATRIX_H) : 54;
@@ -85,12 +86,12 @@ function encodePng(rgba: Buffer, iw: number, ih: number): Buffer {
 }
 
 function main(): void {
-  const { mapInfo } = createFinalSurfaceParityMapInfo(W, H);
+  const { mapInfo, mapSizeId } = createFinalSurfaceParityMapInfo(W, H);
   const probe = createMockAdapter({
     width: W,
     height: H,
     mapInfo,
-    mapSizeId: mapInfo.MapSizeType ?? 1,
+    mapSizeId,
     rng: createLabelRng(1),
   });
   const T = (n: string) => probe.getTerrainTypeIndex(n);
@@ -116,8 +117,7 @@ function main(): void {
   const cells: Cell[] = [];
 
   for (let r = 0; r < ROWS.length; r++) {
-    const file = JSON.parse(readFileSync(cfgPath(ROWS[r]!.type), "utf8")) as { config?: unknown };
-    const config = file.config ?? file;
+    const config = admitStandardMapConfig(JSON.parse(readFileSync(cfgPath(ROWS[r]!.type), "utf8")));
     for (let c = 0; c < SEEDS.length; c++) {
       const seed = SEEDS[c]!;
       const snap = runLocalFinalSurfaceSnapshot({ width: W, height: H, seed, config });
@@ -125,7 +125,7 @@ function main(): void {
         width: W,
         height: H,
         mapInfo,
-        mapSizeId: mapInfo.MapSizeType ?? 1,
+        mapSizeId,
         rng: createLabelRng(seed),
       });
       const idx = (n: string) => adapter.getTerrainTypeIndex(n);

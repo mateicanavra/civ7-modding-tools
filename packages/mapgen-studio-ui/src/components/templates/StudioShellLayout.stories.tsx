@@ -143,8 +143,6 @@ const recipePanelProps = {
   onSaveAsNew: noop,
   onImportPreset: noop,
   onExportPreset: noop,
-  onDeletePreset: noop,
-  canDeletePreset: true,
   isSaveDeployRunning: false,
   saveDeployStatus: null,
   isSaveDisabled: false,

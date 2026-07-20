@@ -30,7 +30,7 @@ export const SavePreset: Story = {
         <DialogHeader>
           <DialogTitle>Save preset</DialogTitle>
           <DialogDescription>
-            Capture the current recipe and config overrides as a reusable preset. A preset with the
+            Capture the current recipe and complete config as a reusable preset. A preset with the
             same name will be overwritten.
           </DialogDescription>
         </DialogHeader>

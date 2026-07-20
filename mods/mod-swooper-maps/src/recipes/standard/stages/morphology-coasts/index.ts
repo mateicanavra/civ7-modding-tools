@@ -475,14 +475,13 @@ const HypsometryConfigSchema = Type.Object(
       maximum: 1,
     }),
     /** Desired share of continental crust when balancing land vs. ocean plates (0..1). */
-    continentalFraction: Type.Optional(
-      Type.Number({
-        description:
-          "Desired share of continental crust when balancing land vs. ocean plates (0..1).",
-        minimum: 0,
-        maximum: 1,
-      })
-    ),
+    continentalFraction: Type.Number({
+      default: 0.39,
+      description:
+        "Continental-crust share constraint when balancing land vs. ocean plates (0..1).",
+      minimum: 0,
+      maximum: 1,
+    }),
   },
   {
     additionalProperties: false,
@@ -661,8 +660,8 @@ const CoastConfigSchema = Type.Object(
 
 const knobsSchema = Type.Object(
   {
-    seaLevel: Type.Optional(MorphologySeaLevelKnobSchema),
-    coastRuggedness: Type.Optional(MorphologyCoastRuggednessKnobSchema),
+    seaLevel: MorphologySeaLevelKnobSchema,
+    coastRuggedness: MorphologyCoastRuggednessKnobSchema,
   },
   {
     additionalProperties: false,
@@ -673,12 +672,12 @@ const knobsSchema = Type.Object(
 
 const publicSchema = Type.Object(
   {
-    substrate: Type.Optional(SubstrateConfigSchema),
-    relief: Type.Optional(ReliefConfigSchema),
-    continentalMargin: Type.Optional(SculptContinentalMarginConfigSchema),
-    waterCoverage: Type.Optional(HypsometryConfigSchema),
-    continents: Type.Optional(LandmaskConfigSchema),
-    coastlineShape: Type.Optional(CoastConfigSchema),
+    substrate: SubstrateConfigSchema,
+    relief: ReliefConfigSchema,
+    continentalMargin: SculptContinentalMarginConfigSchema,
+    waterCoverage: HypsometryConfigSchema,
+    continents: LandmaskConfigSchema,
+    coastlineShape: CoastConfigSchema,
   },
   {
     additionalProperties: false,
@@ -688,7 +687,7 @@ const publicSchema = Type.Object(
 );
 
 function defaultEnvelope(config: unknown): { strategy: "default"; config: unknown } {
-  return { strategy: "default", config: config ?? {} };
+  return { strategy: "default", config };
 }
 
 export default createStage({
@@ -709,7 +708,7 @@ export default createStage({
       landmask: defaultEnvelope(config.continents),
     },
     "rugged-coasts": {
-      coastlines: defaultEnvelope({ coast: config.coastlineShape ?? {} }),
+      coastlines: defaultEnvelope({ coast: config.coastlineShape }),
     },
   }),
 } as const);

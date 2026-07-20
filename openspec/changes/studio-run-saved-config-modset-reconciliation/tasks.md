@@ -18,8 +18,10 @@
       reconciliation.
 - [x] 2.3 Ensure pre-Begin readback covers generated row, seed, Huge map, 10
       players, and active generated mod.
-- [x] 2.4 Ensure resources are retained through visible UI selection, admitted
-      request, generation manifest, and evidence row.
+- [x] 2.4 Ensure the rendered Run in Game click produces a browser-originated
+      `runInGame.start` request with `worldSettings.resources: balanced` and
+      the same request's generation manifest retains that value; do not treat
+      Civ7 setup/readback as verification of resource distribution.
 - [x] 2.5 Ensure `RunInGameWorkflow` phase order and workflow evidence types
       represent the prepared setup session.
 - [x] 2.6 Ensure start consumes the checked setup state without a second

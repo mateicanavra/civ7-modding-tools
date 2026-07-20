@@ -1,25 +1,14 @@
 #!/usr/bin/env bun
-import { execFileSync } from "node:child_process";
-import { join } from "node:path";
-import { pathToFileURL } from "node:url";
-
-const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
-  encoding: "utf8",
-}).trim();
-const modRoot = join(repoRoot, "mods/mod-swooper-maps");
-const failures: string[] = [];
-
-const { STANDARD_STAGES } = await import(
-  pathToFileURL(join(modRoot, "src/recipes/standard/recipe.ts")).href
-);
-const { buildCompleteSchemaDefaults, deriveRecipeConfigSchema, deriveStageAuthoringModel } = await import(
-  pathToFileURL(join(repoRoot, "packages/mapgen-core/src/authoring/index.ts")).href
-);
-const {
+import {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
-  studioRecipeUiMeta: STANDARD_RECIPE_UI_META,
-} = await import(pathToFileURL(join(modRoot, "dist/recipes/standard-artifacts.js")).href);
+  studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
+} from "../../../../../../../mods/mod-swooper-maps/dist/recipes/standard-artifacts.js";
+import { deriveStandardRecipeArtifacts } from "../../../../../../../mods/mod-swooper-maps/src/recipes/standard/artifacts.ts";
+import { STANDARD_STAGES } from "../../../../../../../mods/mod-swooper-maps/src/recipes/standard/recipe.ts";
+import { deriveStageAuthoringModel } from "../../../../../../../packages/mapgen-core/src/authoring/index.ts";
+
+const failures: string[] = [];
 
 function stableJson(value: unknown): unknown {
   const text = JSON.stringify(value);
@@ -81,9 +70,10 @@ function assertJsonEqual(actual: unknown, expected: unknown, label: string) {
   }
 }
 
-const sourceSchema = stableJson(deriveRecipeConfigSchema(STANDARD_STAGES));
+const sourceArtifacts = deriveStandardRecipeArtifacts();
+const sourceSchema = stableJson(sourceArtifacts.schema);
 const sourceUiMeta = deriveSourceStudioUiMeta();
-const sourceDefaults = stableJson(buildCompleteSchemaDefaults(sourceSchema));
+const sourceDefaults = stableJson(sourceArtifacts.defaults);
 
 assertJsonEqual(STANDARD_RECIPE_CONFIG_SCHEMA, sourceSchema, "standard recipe schema");
 assertJsonEqual(STANDARD_RECIPE_UI_META, sourceUiMeta, "standard recipe UI metadata");

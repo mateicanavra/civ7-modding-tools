@@ -13,17 +13,11 @@ import {
   RightDock,
   StageViewTabs,
 } from "@swooper/mapgen-studio-ui";
-import type { GenerationStatus, PipelineConfig } from "@swooper/mapgen-studio-ui/types";
+import type { GenerationStatus } from "@swooper/mapgen-studio-ui/types";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
-import { LIVE_GAME_PRESET_ID, LIVE_GAME_PRESET_KEY } from "../features/civ7Setup/livePreset";
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../features/civ7Setup/seedPolicy";
-import {
-  getMaterializedRecipeDefaultConfig,
-  resolveEffectivePipelineConfig,
-} from "../features/configOverrides/effectiveConfig";
-import { type PresetKey, parsePresetKey } from "../features/presets/types";
-import { liveSourceMatchesStudio } from "../features/runInGame/liveSource";
+import { getRecipeDefaultConfig } from "../features/configAuthoring/canonicalConfig";
 import { orpcClient } from "../lib/orpc";
 import { STUDIO_RECIPE_OPTIONS } from "../recipes/catalog";
 import type { VizEvent } from "../shared/vizEvents";
@@ -31,7 +25,6 @@ import { useAuthoringStore } from "../stores/authoringStore";
 import { useRunStore } from "../stores/runStore";
 import { useViewStore } from "../stores/viewStore";
 import { MAP_SIZE_OPTIONS, MAP_SIZE_SHORT, PLAYER_COUNT_OPTIONS } from "../ui/constants";
-import { configsEqual } from "../ui/utils/config";
 import { CanvasStage } from "./CanvasStage";
 import { useBrowserRun } from "./hooks/useBrowserRun";
 import { useDeckAutofit } from "./hooks/useDeckAutofit";
@@ -55,82 +48,24 @@ export type StudioShellProps = {
   cyclePreference(): void;
 };
 
-/**
- * `StudioShell` — the layout + orchestration container (architecture/10 §4).
- *
- * This is the former `AppContent` closure, MOVED here so `App.tsx` reduces to a
- * thin re-export of the provider shell. The authoring/run/live-runtime/viz state
- * web is preserved byte-for-byte: the only structural change from the prior
- * `AppContent` is that the inline presentational JSX (the deck canvas stage, the
- * left/right docks, and the error banner) now delegates to the dedicated
- * `CanvasStage`, `LeftDock`, `RightDock`, and `ErrorBanner` components, and the
- * sonner toast adapter is sourced from the shared `useToast` hook. No hard-core
- * behavior (browserRunner gating, run-in-game fingerprint/relation/materialization,
- * live-runtime request-key staleness + adaptive backoff, localStorage schema) is
- * touched — see architecture/10 §7.
- *
- * ROLE AFTER DECOMPOSITION. Domain orchestration lives in the controller hooks
- * (`usePresetLifecycle`, `useBrowserRun`, `useSaveDeploy`, `useLiveRuntime`,
- * `useRunInGame`, `useSetupControls`, `useVizSelection`, …). The host owns only
- * what cannot move: the store reads, the hook-wiring, the single error-recovery
- * adoption effect, the cross-hook seam callbacks, the cycle-break derivations that
- * must stay at render scope, and the JSX layout (header/footer/docks/canvas/
- * dialogs + the a11y skip-link / live-region chrome). It holds essentially no logic
- * of its own.
- *
- * HOOK INIT ORDER IS LOAD-BEARING. The hooks are called in a fixed sequence because
- * LATER hooks consume EARLIER hooks' setters/outputs by value (never republished):
- *   1. `useStudioOperations` FIRST — owns the op state + error channel and derives
- *      the busy booleans synchronously, so they are stable from render 1 and can be
- *      threaded down without an ordering cycle.
- *   2. `useViewportLayout` before viz — viz + deck-autofit consume the deck handle /
- *      viewport by reference.
- *   3. `usePresetLifecycle` — the preset contracts (`markPresetApplied`,
- *      `applyAuthoringSnapshot`, `resolvePreset`) the save + run-in-game owners drive.
- *   4. `useBrowserRunner` → `browserRunning` → `useVizSelection` — viz reads
- *      `browserRunning`, and its `viz` handle threads onward to deck-autofit and JSX.
- *   5. `useSaveDeploy`, then `useLiveRuntime`, then `useRunInGame` — the operation-
- *      adoption effect (§5) needs BOTH op setters, so save/live init before it, and
- *      run-in-game's sync-back reads the live-runtime outputs.
- *   6. `useSetupControls` LAST — its autoplay toggle reads live `liveRuntime` +
- *      `setLiveRuntime`, and both live-game actions busy-gate on the threaded flags.
- * Reordering any of these would force a hook to read a value before its owner exists.
- *
- * CYCLE-BREAK DERIVATIONS STAY HERE. A handful of memos are computed in host render
- * scope rather than inside a hook because they straddle two hooks that would
- * otherwise form an init cycle, or because deriving them via effect would be unsafe:
- * `provedRunInGameSource`, `livePresets`, `displayedPresetOptions`,
- * `studioMatchesProvedLiveSource`, `liveGameStudioRelation`, `backgroundGridEnabled`,
- * `recipeOptions`, and `runInGameMaterializationMode`. The last is security-adjacent
- * (it gates whether a config is materialized DURABLY vs disposably) and is therefore
- * derived synchronously from current state, NEVER from an effect that could lag a
- * render and let a stale "durable" decision through. Each is documented at its site.
- */
+/** Wires the authoring, browser-run, and server-operation controllers into the Studio UI. */
 export function StudioShell(props: StudioShellProps) {
   const toast = useToast();
   const { themePreference, cyclePreference } = props;
 
-  // Authoring state is owned by `authoringStore` (Zustand persist, architecture/10 §3).
-  // The store seeds itself from the reference persistence (`loadStudioAuthoringState`)
-  // and persists through the same serializer. Session catalog entries stay out of
-  // disk state, and the prior manual `saveStudioAuthoringState` effect is gone. Setters mirror the
-  // `useState` (value-or-updater) signature, so the call sites below are unchanged.
+  // The authoring store is the only persisted owner of the active config source.
   const worldSettings = useAuthoringStore((s) => s.worldSettings);
   const setWorldSettings = useAuthoringStore((s) => s.setWorldSettings);
   const recipeSettings = useAuthoringStore((s) => s.recipeSettings);
   const setRecipeSettings = useAuthoringStore((s) => s.setRecipeSettings);
   const setupConfig = useAuthoringStore((s) => s.setupConfig);
   const setSetupConfig = useAuthoringStore((s) => s.setSetupConfig);
-  const pipelineConfig = useAuthoringStore((s) => s.pipelineConfig);
-  const setPipelineConfig = useAuthoringStore((s) => s.setPipelineConfig);
-  const overridesDisabled = useAuthoringStore((s) => s.overridesDisabled);
-  const setOverridesDisabled = useAuthoringStore((s) => s.setOverridesDisabled);
-  const repoBackedSessionPresetsByRecipe = useAuthoringStore(
-    (s) => s.repoBackedSessionPresetsByRecipe
-  );
-  const setRepoBackedSessionPresetsByRecipe = useAuthoringStore(
-    (s) => s.setRepoBackedSessionPresetsByRecipe
-  );
+  const authoringConfigSource = useAuthoringStore((s) => s.authoringConfigSource);
+  const setAuthoringConfigSource = useAuthoringStore((s) => s.setAuthoringConfigSource);
+  const setAuthoringSelection = useAuthoringStore((s) => s.setAuthoringSelection);
+  const authoringRevision = useAuthoringStore((s) => s.authoringRevision);
+  const configEditingEnabled = useAuthoringStore((s) => s.configEditingEnabled);
+  const setConfigEditingEnabled = useAuthoringStore((s) => s.setConfigEditingEnabled);
 
   // View-only state is owned by `viewStore` (Zustand, architecture/10 §3). These
   // are presentation toggles/selections with no server coupling and no persistence
@@ -203,76 +138,25 @@ export function StudioShell(props: StudioShellProps) {
     handlePipelineStageToggle,
   } = useViewportLayout({ recipe: recipeSettings.recipe, stageView });
 
-  // `lastRunInGameSource` is session-only UI state. S2.1 deleted the
-  // browser-storage recovery bridge; daemon-retained operations are adopted from
-  // `studio.operations.current` instead.
-  const lastRunInGameSource = useRunStore((s) => s.lastRunInGameSource);
-  const setLastRunInGameSource = useRunStore((s) => s.setLastRunInGameSource);
-
-  // Cycle break (§7.6): the run-in-game source that was actually PROVED through to a
-  // completed operation — `lastRunInGameSource` is what the user last requested, but
-  // it only counts as proved once an operation with the SAME requestId reports
-  // `completed`. Computed here (not in `useRunInGame`) because both `usePresetLifecycle`
-  // (via `livePresets`) and `useRunInGame` consume it, and it must exist before either.
-  const provedRunInGameSource = useMemo(
-    () =>
-      lastRunInGameSource &&
-      runInGameOperation?.status === "completed" &&
-      runInGameOperation.requestId === lastRunInGameSource.requestId
-        ? lastRunInGameSource
-        : null,
-    [lastRunInGameSource, runInGameOperation]
-  );
-  // Cycle break (§7.6): the synthetic "Live Game" preset entry, surfaced only when the
-  // last run-in-game source matches the CURRENT recipe. Threaded INTO `usePresetLifecycle`
-  // so `resolvePreset(LIVE_GAME_PRESET_KEY).config` stays referentially the proved
-  // `lastRunInGameSource.pipelineConfig` (live-sync identity invariant, ADD-1b) — keeping
-  // it host-side avoids the preset hook reaching back into run-state.
-  const livePresets = useMemo(
-    () =>
-      lastRunInGameSource && lastRunInGameSource.recipeSettings.recipe === recipeSettings.recipe
-        ? [
-            {
-              id: LIVE_GAME_PRESET_ID,
-              label:
-                lastRunInGameSource.materializationMode === "disposable"
-                  ? "Live Game"
-                  : lastRunInGameSource.selectedConfig?.label
-                    ? `Live Game (${lastRunInGameSource.selectedConfig.label})`
-                    : "Live Game",
-              description: provedRunInGameSource
-                ? "Config and seed last proved through Run in Game."
-                : "Config and seed from the last Studio Run in Game request.",
-              ...(lastRunInGameSource.selectedConfig?.latitudeBounds === undefined
-                ? {}
-                : { latitudeBounds: lastRunInGameSource.selectedConfig.latitudeBounds }),
-              config: lastRunInGameSource.pipelineConfig,
-            },
-          ]
-        : [],
-    [lastRunInGameSource, provedRunInGameSource, recipeSettings.recipe]
-  );
-  // `lastRunSnapshot` is session-only run state owned by `runStore` (not persisted —
-  // parity with the prior in-memory `useState`).
-  const lastRunSnapshot = useRunStore((s) => s.lastRunSnapshot);
   const setLastRunSnapshot = useRunStore((s) => s.setLastRunSnapshot);
+  const runInGameSnapshot = useRunStore((s) => s.runInGameSnapshot);
+  const setRunInGameSnapshot = useRunStore((s) => s.setRunInGameSnapshot);
 
   const {
     recipeArtifacts,
-    builtInPresets,
     presetOptions,
-    resolvePreset,
-    presetActions,
-    isLocalPresetSelected,
+    pipelineConfig,
+    setPipelineConfig,
+    isAuthoringBlocked,
+    authoringBlockReason,
+    recoverWithCatalogConfig,
+    recoverWithNewEditorConfig,
     presetError,
     setPresetError,
     pendingImport,
     importInputRef,
-    markPresetApplied,
-    applyAuthoringSnapshot,
     applyRecipeSettingsChange,
-    rememberRepoBackedConfig,
-    handleDeletePreset,
+    adoptSavedEditorConfig,
     handleExportPreset,
     handleImportPreset,
     handleImportFileChange,
@@ -280,32 +164,14 @@ export function StudioShell(props: StudioShellProps) {
     cancelImportSwitch,
   } = usePresetLifecycle({
     recipeSettings,
-    repoBackedSessionPresetsByRecipe,
-    livePresets,
-    pipelineConfig,
-    setWorldSettings,
-    setSetupConfig,
-    setPipelineConfig,
-    setOverridesDisabled,
+    authoringConfigSource,
+    setAuthoringConfigSource,
+    setAuthoringSelection,
+    setConfigEditingEnabled,
     setRecipeSettings,
-    setRepoBackedSessionPresetsByRecipe,
     setLastRunSnapshot,
     toast,
   });
-
-  const effectivePipelineConfigSource = useMemo(
-    () =>
-      resolveEffectivePipelineConfig({
-        recipeId: recipeSettings.recipe,
-        pipelineConfig,
-        overridesDisabled,
-      }),
-    [overridesDisabled, pipelineConfig, recipeSettings.recipe]
-  );
-  const effectivePipelineConfig = effectivePipelineConfigSource.config;
-
-  // Authoring persistence is now driven by `authoringStore`'s `persist` middleware
-  // (same serializer, same key, same schema) — the prior manual save effect is removed.
 
   // Seam #1: the browser-runner → viz event sink. `useBrowserRunner` needs a STABLE
   // `onVizEvent` at construction, but the real `viz.ingest` is produced by
@@ -325,9 +191,6 @@ export function StudioShell(props: StudioShellProps) {
   const browserRunning = browserRunner.state.running;
   // Run presentation state is session-only; cross-reload operation recovery is
   // daemon-owned through `studio.operations.current`.
-  const runInGameSnapshot = useRunStore((s) => s.runInGameSnapshot);
-  const setRunInGameSnapshot = useRunStore((s) => s.setRunInGameSnapshot);
-  const setLastSaveDeployConfig = useRunStore((s) => s.setLastSaveDeployConfig);
   const lastRunInGameToastRef = useRef<string | null>(null);
 
   // Saved configs + setup catalog are READ through oRPC-native TanStack Query
@@ -414,7 +277,7 @@ export function StudioShell(props: StudioShellProps) {
     viz,
     runInGameRunning,
     saveDeployRunning,
-    resolvePreset,
+    pipelineConfig,
     toast,
     setLocalError,
   });
@@ -423,8 +286,7 @@ export function StudioShell(props: StudioShellProps) {
   // save/deploy terminal-event waiter machinery (mirror + unmount-cleanup effects,
   // SD-5 ordered pair / SD-10 first-line ref assign), and the three save handlers
   // plus their shared `saveRepoBackedConfigWithState` core. The operation state
-  // itself stays in `useStudioOperations`; the busy booleans + preset contracts
-  // (`markPresetApplied`/`rememberRepoBackedConfig`) are threaded IN. Initialized
+  // itself stays in `useStudioOperations`; the busy booleans are threaded IN. Initialized
   // BEFORE the operation-adoption effect (§5) so a daemon-adopted terminal
   // save/deploy commit can resolve a pending waiter.
   const {
@@ -439,17 +301,10 @@ export function StudioShell(props: StudioShellProps) {
     saveDeployRunning,
     browserRunning,
     runInGameRunning,
-    resolvePreset,
-    rememberRepoBackedConfig,
-    markPresetApplied,
-    builtInPresets,
-    presetActions,
-    recipeSettings,
+    recipeId: recipeSettings.recipe,
+    authoringConfigSource,
     pipelineConfig,
-    overridesDisabled,
-    setRecipeSettings,
-    setPipelineConfig,
-    setLastSaveDeployConfig,
+    adoptSavedEditorConfig,
     toast,
   });
 
@@ -468,59 +323,23 @@ export function StudioShell(props: StudioShellProps) {
 
   const status: GenerationStatus = browserRunning ? "running" : error ? "error" : "ready";
 
-  // Cycle break + SECURITY-ADJACENT (§7.6). Decides whether Run in Game writes the
-  // config to a DURABLE catalog source or a DISPOSABLE editor source. "durable"
-  // requires a built-in preset WITH a source path AND the launchable source to be
-  // the selected config itself. Disabled overrides only gate editing/autorun; they
-  // must not swap the selected/current config for recipe defaults.
-  // The last save/deploy snapshot is deliberately not a separate durable source
-  // here; otherwise Run in Game could send the selected catalog id while the
-  // visible bytes only matched a different saved config. Derived synchronously
-  // here, never from an effect: an effect could lag a render and let an edited
-  // config inherit a stale "durable" verdict. Threaded INTO `useRunInGame`.
-  const runInGameMaterializationMode = useMemo<"durable" | "disposable">(() => {
-    const parsed = parsePresetKey(recipeSettings.preset);
-    const resolved = resolvePreset(recipeSettings.preset as PresetKey);
-    const selectedConfigMatches = resolved?.config
-      ? configsEqual(resolved.config as PipelineConfig, effectivePipelineConfig)
-      : false;
-    return parsed.kind === "builtin" && resolved?.catalogSourceId && selectedConfigMatches
-      ? "durable"
-      : "disposable";
-  }, [
-    effectivePipelineConfig,
-    overridesDisabled,
-    recipeSettings.preset,
-    resolvePreset,
-  ]);
-
-  // Run-in-game cluster (slice 2.11): the current fingerprint + relation memos,
-  // the launch + sync-back + diagnostics handlers, and the run-in-game terminal
-  // toast. Initialized AFTER `useLiveRuntime` and `useSaveDeploy` (§5): adoption
-  // needs both op setters, and sync-back reads the live-runtime outputs. The
-  // host-computed `provedRunInGameSource` + `runInGameMaterializationMode`
-  // (cycle break, §7.6) and the preset contracts (`resolvePreset`,
-  // `applyAuthoringSnapshot`) are threaded IN. `displayedPresetOptions`,
-  // `studioMatchesProvedLiveSource`, and `liveGameStudioRelation` stay host.
+  // Run admission follows save/live setup so the shared operation state is available.
   const {
     runInGameCurrentRelation,
     handleRunInGame,
     syncStudioFromLiveGame,
     copyRunInGameDiagnostics,
+    isRunInGameBlocked,
   } = useRunInGame({
     recipeSettings,
     worldSettings,
-    pipelineConfig,
-    overridesDisabled,
+    authoringConfigSource,
+    authoringRevision,
     setupConfig,
     setRecipeSettings,
     setSetupConfig,
-    runInGameMaterializationMode,
-    provedRunInGameSource,
     liveRuntime,
     liveRuntimeSuggestions,
-    resolvePreset,
-    applyAuthoringSnapshot,
     runInGameOperation,
     setRunInGameOperation,
     runInGameRunning,
@@ -528,84 +347,26 @@ export function StudioShell(props: StudioShellProps) {
     browserRunning,
     runInGameSnapshot,
     setRunInGameSnapshot,
-    setLastRunInGameSource,
     lastRunInGameToastRef,
     setLocalError,
     toast,
   });
 
-  // Cycle break (§7.6): how the LIVE Civ7 game relates to the current Studio authoring
-  // state — drives the GameConsole "current / stale / sync" affordance. Spans
-  // `useLiveRuntime` (status/seed) AND `provedRunInGameSource`, so it must sit after
-  // run-in-game inits but stay host-side to bridge both. Seed mismatch short-circuits to
-  // "stale"/"unknown" before the fuller field-by-field `liveSourceMatchesStudio` compare.
   const liveGameStudioRelation = useMemo<"current" | "stale" | "unknown">(() => {
     if (liveRuntime.status !== "ok") return "unknown";
     if (liveRuntime.seed !== undefined && String(liveRuntime.seed) !== recipeSettings.seed)
       return "stale";
-    if (!provedRunInGameSource) return "unknown";
-    if (
-      liveRuntime.seed !== undefined &&
-      String(liveRuntime.seed) !== provedRunInGameSource.recipeSettings.seed
-    ) {
-      return "unknown";
+    if (runInGameCurrentRelation === "current" && runInGameOperation?.status === "completed") {
+      return "current";
     }
-    return liveSourceMatchesStudio({
-      source: provedRunInGameSource,
-      recipeSettings,
-      worldSettings,
-      setupConfig,
-      pipelineConfig: effectivePipelineConfig,
-    })
-      ? "current"
-      : "stale";
+    return runInGameCurrentRelation === "stale" ? "stale" : "unknown";
   }, [
     liveRuntime.seed,
     liveRuntime.status,
-    effectivePipelineConfig,
-    provedRunInGameSource,
-    recipeSettings,
-    setupConfig,
-    worldSettings,
+    recipeSettings.seed,
+    runInGameCurrentRelation,
+    runInGameOperation,
   ]);
-
-  // Cycle break (§7.6): does the current authoring state still match the proved live
-  // source, field for field? Feeds `displayedPresetOptions` (whether "None" is relabeled
-  // "Live / Live Game"). Distinct from `liveGameStudioRelation`: this ignores the live
-  // runtime's seed/status and asks only about the proved-source identity.
-  const studioMatchesProvedLiveSource = useMemo(() => {
-    if (!provedRunInGameSource) return false;
-    return liveSourceMatchesStudio({
-      source: provedRunInGameSource,
-      recipeSettings,
-      worldSettings,
-      setupConfig,
-      pipelineConfig: effectivePipelineConfig,
-    });
-  }, [
-    effectivePipelineConfig,
-    provedRunInGameSource,
-    recipeSettings,
-    setupConfig,
-    worldSettings,
-  ]);
-
-  // Cycle break (§7.6): the preset dropdown options actually rendered. When the current
-  // authoring state IS the proved disposable live source, the standalone "Live Game" row
-  // is dropped and "None" is relabeled "Live / Live Game" — so the user sees one
-  // truthful entry instead of a duplicate. Derived host-side because it composes the
-  // preset hook's `presetOptions` with the host-only `studioMatchesProvedLiveSource`.
-  const displayedPresetOptions = useMemo(() => {
-    const relabelNoneAsLive =
-      studioMatchesProvedLiveSource && provedRunInGameSource?.materializationMode === "disposable";
-    return presetOptions
-      .filter((option) => !(relabelNoneAsLive && option.value === LIVE_GAME_PRESET_KEY))
-      .map((option) =>
-        option.value === "none" && relabelNoneAsLive
-          ? { ...option, label: "Live / Live Game" }
-          : option
-      );
-  }, [presetOptions, provedRunInGameSource?.materializationMode, studioMatchesProvedLiveSource]);
 
   // Setup-controls cluster (slice 2.12): the derived `setupControlOptions`
   // projection, the value-equality saved-config drift detector, the saved-config
@@ -752,8 +513,8 @@ export function StudioShell(props: StudioShellProps) {
     return true;
   }, [showGrid, viz.effectiveLayer, viz.manifest]);
 
-  const lastRunSettings = lastRunSnapshot?.recipeSettings ?? recipeSettings;
-  const lastGlobalSettings = lastRunSnapshot?.worldSettings ?? worldSettings;
+  const lastRunSettings = recipeSettings;
+  const lastGlobalSettings = worldSettings;
 
   const header = (
     <AppHeader
@@ -787,6 +548,10 @@ export function StudioShell(props: StudioShellProps) {
           onRunInGame={() => {
             void handleRunInGame();
           }}
+          runInGameDisabled={isRunInGameBlocked}
+          runInGameDisabledReason={
+            isRunInGameBlocked ? "Recover the authoring source before running in game." : undefined
+          }
           onCopyRunInGameDiagnostics={copyRunInGameDiagnostics}
           saveDeployStatus={saveDeployOperation}
         />
@@ -798,12 +563,12 @@ export function StudioShell(props: StudioShellProps) {
     <RecipePanel
       config={pipelineConfig}
       configSchema={recipeArtifacts.configSchema}
-      onConfigChange={(next) => setPipelineConfig(next)}
+      onConfigChange={setPipelineConfig}
       onConfigReset={() =>
-        setPipelineConfig(getMaterializedRecipeDefaultConfig(recipeSettings.recipe, "config-reset"))
+        setPipelineConfig(getRecipeDefaultConfig(recipeSettings.recipe, "config-reset"))
       }
       recipeOptions={recipeOptions}
-      presetOptions={displayedPresetOptions}
+      presetOptions={presetOptions}
       selectedStep={selectedStageId}
       settings={recipeSettings}
       onSettingsChange={(next) => {
@@ -815,14 +580,21 @@ export function StudioShell(props: StudioShellProps) {
       onSaveAsNew={handleSaveAsNew}
       onImportPreset={handleImportPreset}
       onExportPreset={handleExportPreset}
-      onDeletePreset={handleDeletePreset}
-      canDeletePreset={isLocalPresetSelected}
       isSaveDeployRunning={saveDeployRunning}
       saveDeployStatus={saveDeployOperation}
-      isSaveDisabled={browserRunning || runInGameRunning || saveDeployRunning}
+      isSaveDisabled={browserRunning || runInGameRunning || saveDeployRunning || isAuthoringBlocked}
+      authoringBlocked={
+        authoringBlockReason === null
+          ? undefined
+          : {
+              reason: authoringBlockReason,
+              onSelectExistingCatalogConfig: recoverWithCatalogConfig,
+              onCreateNewEditorConfig: recoverWithNewEditorConfig,
+            }
+      }
       isDirty={isDirty}
-      overridesDisabled={overridesDisabled}
-      onOverridesDisabledChange={setOverridesDisabled}
+      configEditingEnabled={configEditingEnabled}
+      onConfigEditingEnabledChange={setConfigEditingEnabled}
       recipeCollapsed={recipeSectionCollapsed}
       onRecipeCollapsedChange={setRecipeSectionCollapsed}
       configCollapsed={configSectionCollapsed}

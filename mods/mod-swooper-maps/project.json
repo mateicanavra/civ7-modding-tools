@@ -30,15 +30,6 @@
         },
         {
           "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH"
-        },
-        {
-          "env": "SWOOPER_STUDIO_RUN_ID"
-        },
-        {
-          "env": "SWOOPER_STUDIO_LAUNCH_CONFIG_ID"
-        },
-        {
-          "env": "SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST"
         }
       ],
       "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
@@ -62,7 +53,7 @@
       }
     },
     "test:studio-run-in-game": {
-      "command": "bun test test/standard-run.test.ts test/build/map-bundle-runtime-imports.test.ts test/config/maps-schema-valid.test.ts test/config/shipped-map-identity.test.ts",
+      "command": "bun test test/standard-run.test.ts test/build/map-bundle-runtime-imports.test.ts test/config/maps-schema-valid.test.ts test/config/standard-complete-config-boundary.test.ts",
       "dependsOn": ["build:studio-recipes"],
       "cache": true,
       "options": {
@@ -113,15 +104,6 @@
         },
         {
           "env": "SWOOPER_STUDIO_DEPLOY_CONFIG_PATH"
-        },
-        {
-          "env": "SWOOPER_STUDIO_RUN_ID"
-        },
-        {
-          "env": "SWOOPER_STUDIO_LAUNCH_CONFIG_ID"
-        },
-        {
-          "env": "SWOOPER_STUDIO_LAUNCH_ENVELOPE_DIGEST"
         }
       ],
       "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],

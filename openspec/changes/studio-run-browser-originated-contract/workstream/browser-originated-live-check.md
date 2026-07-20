@@ -37,17 +37,19 @@ bunx vite --host 127.0.0.1
 3. Set visible `Generation seed` to `1538316415`.
 4. Set visible `World size` to `Huge`.
 5. Set visible `Players` to `10`.
-6. Leave resources at the default visible state for this packet row:
-   `balanced`.
-7. Click the rendered Run in Game control. If a previous terminal run exists,
+6. Click the rendered Run in Game control. If a previous terminal run exists,
    the accessible action may be `Retry Run`; this is still the same rendered
    Run in Game control and must admit a fresh request id.
 
 ## Public `/rpc` Reads
 
 Record the browser network request count for `/rpc/runInGame/start`. Retain the
-redacted public input shape so the row shows the selected setup config, seed,
-map size, and player count without retaining local private paths.
+redacted public input shape, including
+`worldSettings.resources: balanced`, and the same request's generation manifest
+retaining that value. This is a request/manifest metadata chain: resources are
+not a rendered control, and Civ7 setup/readback does not establish a resulting
+resource distribution. Retain the selected setup config, seed, map size, and
+player count without local private paths.
 
 Record the admitted request id from `studio.operations.current({})`, then read:
 
@@ -73,4 +75,5 @@ Scan only public status/current/event payloads for private markers:
 
 Retain a bounded JSON row in this workstream directory and an optional browser
 screenshot under `output/playwright/`. The JSON row is the operational evidence;
-the screenshot is only a visual companion.
+the screenshot is only a visual companion. The historic admission row records
+the browser request metadata only; it does not claim Civ7 resource distribution.

@@ -34,7 +34,7 @@ function Demo({ children }: { children: ReactNode }) {
 }
 
 // Hoisted constant fixture (module scope) — stable across renders.
-const overrides = `{
+const config = `{
   "landmass": { "waterPercent": 0.62 },
   "climate": { "rainfall": "wet" }
 }`;
@@ -53,8 +53,8 @@ export const WithValue: Story = {
   render: () => (
     <Demo>
       <div style={{ width: 320, display: "flex", flexDirection: "column", gap: 4 }}>
-        <Label htmlFor="overrides">Config overrides</Label>
-        <Textarea id="overrides" className="font-mono" defaultValue={overrides} rows={4} />
+        <Label htmlFor="config">Config JSON</Label>
+        <Textarea id="config" className="font-mono" defaultValue={config} rows={4} />
       </div>
     </Demo>
   ),
@@ -64,7 +64,7 @@ export const Disabled: Story = {
   render: () => (
     <Demo>
       <div style={{ width: 320 }}>
-        <Textarea disabled defaultValue={overrides} className="font-mono" rows={4} />
+        <Textarea disabled defaultValue={config} className="font-mono" rows={4} />
       </div>
     </Demo>
   ),

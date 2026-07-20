@@ -59,7 +59,10 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
     ).crust;
 
     const plateGraphConfig = computePlateGraph.normalize(
-      { strategy: "default", config: { plateCount: 19 } },
+      {
+        ...computePlateGraph.defaultConfig,
+        config: { ...computePlateGraph.defaultConfig.config, plateCount: 19 },
+      },
       ctx as any
     );
     const plateGraph = computePlateGraph.run(

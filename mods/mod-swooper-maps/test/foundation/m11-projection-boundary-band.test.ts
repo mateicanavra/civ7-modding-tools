@@ -126,7 +126,10 @@ describe("m11 plates projection (boundary band)", () => {
     } as const;
 
     const plateGraphConfig = computePlateGraph.normalize(
-      { strategy: "default", config: { plateCount: 10 } },
+      {
+        ...computePlateGraph.defaultConfig,
+        config: { ...computePlateGraph.defaultConfig.config, plateCount: 10 },
+      },
       ctx as any
     );
     const plateGraph = computePlateGraph.run(
