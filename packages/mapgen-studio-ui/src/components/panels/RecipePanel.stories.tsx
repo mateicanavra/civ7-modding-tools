@@ -64,7 +64,6 @@ const base = {
   config,
   configSchema,
   onConfigChange: noop,
-  onConfigReset: noop,
   recipeOptions,
   configOptions,
   selectedStep: "",

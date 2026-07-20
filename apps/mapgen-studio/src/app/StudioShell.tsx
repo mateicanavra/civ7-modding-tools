@@ -16,7 +16,6 @@ import { useCallback, useMemo, useRef } from "react";
 import { useBrowserRunner } from "../features/browserRunner/useBrowserRunner";
 import { getCiv7PlayerCountOptions } from "../features/civ7Setup/mapSizes";
 import { CIV7_STUDIO_SEED_MAX, CIV7_STUDIO_SEED_MIN } from "../features/civ7Setup/seedPolicy";
-import { getRecipeDefaultCanonicalConfig } from "../features/configAuthoring/canonicalConfig";
 import { orpcClient } from "../lib/orpc";
 import { getRecipeDagId } from "../recipes/catalog";
 import type { VizEvent } from "../shared/vizEvents";
@@ -497,9 +496,6 @@ export function StudioShell(props: StudioShellProps) {
       config={pipelineConfig}
       configSchema={recipeArtifacts.configSchema}
       onConfigChange={setPipelineConfig}
-      onConfigReset={() =>
-        setPipelineConfig(getRecipeDefaultCanonicalConfig(canonicalConfig.recipe).config)
-      }
       recipeOptions={recipeOptions}
       configOptions={configOptions}
       selectedStep={selectedStageId}
