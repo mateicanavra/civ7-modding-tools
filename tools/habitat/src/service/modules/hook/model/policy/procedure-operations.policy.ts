@@ -12,11 +12,11 @@ import {
 } from "@habitat/cli/service/model/check/index";
 import { factsForRuleIds } from "@habitat/cli/service/model/rules/policy/catalog.policy";
 import {
-  approvedScanRootsForRules,
+  approvedSourceScanRootsForRules,
   stagedSourceCheckPaths,
 } from "@habitat/cli/service/model/source-check/index";
 import { Effect } from "effect";
-import type { HookCheckCommandResult } from "./check-command.policy.js";
+import { correlateHookCheckReport, type HookCheckCommandResult } from "./check-command.policy.js";
 import { finalizePreCommitEffect } from "./lifecycle.policy.js";
 import type {
   HookBiomeCommandRequest,
@@ -316,7 +316,10 @@ export function prePushHookSourceCheckPaths(
   changedPaths: readonly string[]
 ): readonly string[] {
   if (!hookSourceCheckEnabled(context)) return [];
-  return stagedSourceCheckPaths(changedPaths, hookSourceCheckApprovedRoots(context), {
+  const existingPaths = changedPaths.filter((candidate) =>
+    context.platform.pathExists(path.resolve(context.platform.repoRoot, candidate))
+  );
+  return stagedSourceCheckPaths(existingPaths, hookSourceCheckApprovedRoots(context), {
     repoRoot: context.platform.repoRoot,
   });
 }
@@ -342,7 +345,7 @@ export function prePushHookSourceCheck(
       report,
       summary,
     };
-    const exitCode = checkSummaryAllowsNextStage(result) ? 0 : 1;
+    const exitCode = report.ok ? 0 : 1;
     yield* recordInProcessHookCheck(context, "source-check", argv, startedAtMs, exitCode);
     return { ...result, exitCode };
   });
@@ -409,10 +412,12 @@ export function stagedHookCheck(
 ): HookRouterEffect<StagedHookCheckResult> {
   return Effect.gen(function* () {
     const runner = runnerForStagedHookCheckPhase(phase);
-    const argv = ["--staged", "--runner", runner, "--json"];
+    const hookCheck = phase === "source-check";
+    const argv = ["--staged", ...(hookCheck ? ["--hook-check"] : []), "--runner", runner, "--json"];
     const startedAtMs = yield* hookNow();
     const report = yield* context.createCheckReport({
       runner,
+      ...(hookCheck ? { hookCheck: true } : {}),
       staged: true,
       stagedPaths,
       command: checkCommandContext(argv),
@@ -473,7 +478,7 @@ function hashRepoRelativeFile(
 
 function hookSourceCheckApprovedRoots(context: HookProcedureContext): string[] {
   const hookRuleIds = context.rules.hookCheck.map((rule) => rule.id);
-  return approvedScanRootsForRules(factsForRuleIds(context.rules.grit, hookRuleIds));
+  return approvedSourceScanRootsForRules(factsForRuleIds(context.rules.diagnostic, hookRuleIds));
 }
 
 function hookSourceCheckEnabled(context: HookProcedureContext): boolean {
@@ -489,11 +494,7 @@ function spawnResultFromCheckReport(report: CheckReport): SpawnResult {
 }
 
 function stagedHookCheckCommandResult(result: StagedHookCheckResult): HookCheckCommandResult {
-  return {
-    kind: "parsed",
-    report: result.check.report,
-    summary: result.check.summary,
-  };
+  return correlateHookCheckReport(result.exitCode, result.check.report);
 }
 
 function recordInProcessHookCheck(

@@ -74,14 +74,13 @@ required = ["src"]
             mergeBase: () => failIfCalled("git.mergeBase"),
             show: () => failIfCalled("git.show"),
           },
-          grit: { runRules: () => failIfCalled("grit") },
+          ruleDiagnostics: { runRules: () => failIfCalled("ruleDiagnostics") },
           nx: {
             runMany: () => failIfCalled("nx.runMany"),
             runTarget: () => failIfCalled("nx.runTarget"),
           },
           repoRoot,
           rules,
-          sourceFileSystem: fileSystemPort(fixture),
           structureFileSystem: fileSystemPort(fixture),
         }
       )

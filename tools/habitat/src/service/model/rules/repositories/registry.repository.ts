@@ -207,6 +207,8 @@ function parseRuleManifestJsonSync(
     fileSystem
   );
   const record = { ...parsed, manifestFilePath: toRepoRelativeManifestPath(filePath) };
+  const semanticIssues = gritPatternPathIssues(record, filePath);
+  if (semanticIssues.length > 0) throw new RuleRegistryLoadFailed({ issues: semanticIssues });
   const issues = referencedFileIssues(record, filePath, fileSystem);
   if (issues.length > 0) throw new RuleRegistryLoadFailed({ issues });
   return record;
@@ -255,6 +257,10 @@ function parseRuleManifestJson<R = never>(
       fileSystem
     );
     const record = { ...parsed, manifestFilePath: toRepoRelativeManifestPath(filePath) };
+    const semanticIssues = gritPatternPathIssues(record, filePath);
+    if (semanticIssues.length > 0) {
+      return yield* Effect.fail(new RuleRegistryLoadFailed({ issues: semanticIssues }));
+    }
     const issues = yield* referencedFileIssuesEffect(record, filePath, fileSystem);
     if (issues.length > 0) {
       return yield* Effect.fail(new RuleRegistryLoadFailed({ issues }));
@@ -485,7 +491,7 @@ function referencedFilePaths(rule: RuleRegistryRecord): string[] {
   switch (rule.runner.name) {
     case "grit":
       paths.push(rule.runner.files.pattern);
-      if (rule.runner.files.applyPattern) paths.push(rule.runner.files.applyPattern);
+      if (rule.runner.fix) paths.push(rule.runner.fix.pattern);
       break;
     case "habitat":
       if (rule.runner.mode === "structure") paths.push(rule.runner.files.structure);
@@ -595,6 +601,7 @@ function ruleRunnerSemanticsIssues(
           runnerIssue(path, rule.id, "patternName must match the derived grit runner patternName.")
         );
       }
+      issues.push(...gritPatternPathIssues(rule, path));
     } else {
       if (rule.scanRoots) {
         issues.push(
@@ -604,11 +611,6 @@ function ruleRunnerSemanticsIssues(
       if (rule.patternName) {
         issues.push(
           runnerIssue(path, rule.id, "patternName is only valid for grit runner records.")
-        );
-      }
-      if (rule.manifestPath) {
-        issues.push(
-          runnerIssue(path, rule.id, "manifestPath is only valid for grit runner records.")
         );
       }
       if (rule.hookCheck) {
@@ -654,6 +656,34 @@ function ruleRunnerSemanticsIssues(
     }
   });
   return issues;
+}
+
+function gritPatternPathIssues(rule: RuleRegistryRecord, sourcePath: string): RuleRegistryIssue[] {
+  if (rule.runner.name !== "grit") return [];
+  return [
+    ["pattern", "files/pattern", rule.runner.files.pattern] as const,
+    ...(rule.runner.fix
+      ? ([["fix.pattern", "fix/pattern", rule.runner.fix.pattern]] as const)
+      : []),
+  ].flatMap(([field, fieldPath, patternPath]) => {
+    const segments = patternPath.split("/");
+    const invalid =
+      patternPath.includes("\\") ||
+      path.isAbsolute(patternPath) ||
+      !patternPath.startsWith(".habitat/") ||
+      patternPath.includes("//") ||
+      segments.some((segment) => segment === "" || segment === "." || segment === "..") ||
+      path.posix.normalize(patternPath) !== patternPath;
+    return invalid
+      ? [
+          runnerIssue(
+            `${sourcePath}/runner/${fieldPath}`,
+            rule.id,
+            `${field} must be a normalized relative .habitat/... file path.`
+          ),
+        ]
+      : [];
+  });
 }
 
 function runnerIssue(path: string, ruleId: string, message: string): RuleRegistryIssue {

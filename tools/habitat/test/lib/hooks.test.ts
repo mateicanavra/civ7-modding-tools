@@ -18,7 +18,13 @@ import {
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { HabitatReportEvent } from "@habitat/cli/resources/reporter/index";
-import type { CheckOptions, CheckReport } from "@habitat/cli/service/model/check/index";
+import {
+  type CheckOptions,
+  type CheckReport,
+  CheckReportSchema,
+} from "@habitat/cli/service/model/check/index";
+import { hookCheckCommandResult } from "@habitat/cli/service/modules/hook/model/index";
+import { checkSummaryAllowsNextStage } from "@habitat/cli/service/modules/hook/model/policy/procedure-operations.policy";
 import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
@@ -27,6 +33,7 @@ import type { HookResourcePolicy } from "@habitat/cli/service/modules/hook/model
 import { hookRouter } from "@habitat/cli/service/modules/hook/router";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
+import { Value } from "typebox/value";
 import { describe, expect, test, vi } from "vitest";
 import { makeTestHabitatServiceDeps, makeTestRuleFacts } from "../support/habitat-service-deps";
 
@@ -47,6 +54,262 @@ vi.mock("@habitat/cli/service/model/check/policy/structural/index", async (impor
     ...actual,
     createCheckReportEffect: mockCreateCheckReportEffect,
   };
+});
+
+describe("Habitat hook check report parser", () => {
+  test("parses typed v2 failure and refusal states instead of diagnostic prose", () => {
+    const provider = hookCheckCommandResult({
+      exitCode: 1,
+      stdout: checkReport({
+        ok: false,
+        status: "fail",
+        command: "habitat check --json",
+        ruleId: "ordinary-id",
+        runner: "habitat",
+        message: "ordinary",
+        diagnosticMessage: "ordinary prose",
+        disposition: {
+          kind: "execution-failed",
+          source: "diagnostic-provider",
+          failure: "DiagnosticOutputMalformed",
+          detail: "bad wire",
+        },
+      }),
+      stderr: "",
+    });
+    expect(provider).toMatchObject({
+      kind: "parsed",
+      summary: { kind: "diagnostic-unavailable" },
+      report: {
+        rules: [
+          {
+            disposition: {
+              kind: "execution-failed",
+              failure: "DiagnosticOutputMalformed",
+            },
+          },
+        ],
+      },
+    });
+
+    const refused = hookCheckCommandResult({
+      exitCode: 1,
+      stdout: checkReport({
+        ok: false,
+        status: "fail",
+        command: "habitat check --json",
+        ruleId: "ordinary-id",
+        runner: "habitat",
+        message: "ordinary",
+        disposition: {
+          kind: "dependency-refused",
+          source: "diagnostic-scan-root",
+          decision: { kind: "refused", reason: "missing", root: "missing" },
+          detail: "missing root",
+        },
+      }),
+      stderr: "",
+    });
+    expect(refused).toMatchObject({
+      kind: "parsed",
+      summary: { kind: "dependency-refused" },
+    });
+  });
+
+  test("rejects stale and incomplete reports while leaving marker collisions ordinary", () => {
+    const base = {
+      ok: false,
+      status: "fail" as const,
+      command: "habitat check --json",
+      ruleId: "ordinary-id",
+      runner: "habitat",
+      message: "ordinary",
+      diagnosticMessage:
+        "Dependency refused: prose\n--- diagnostic provider failure (DiagnosticOutputMalformed) ---\nprose",
+    };
+    expect(
+      hookCheckCommandResult({ exitCode: 1, stdout: checkReport(base), stderr: "" })
+    ).toMatchObject({ kind: "parsed", summary: { kind: "fail" } });
+    expect(
+      hookCheckCommandResult({
+        exitCode: 1,
+        stdout: checkReport({ ...base, schemaVersion: 1 }),
+        stderr: "",
+      })
+    ).toMatchObject({ kind: "malformed-json" });
+    expect(
+      hookCheckCommandResult({
+        exitCode: 1,
+        stdout: checkReport({ ...base, omitDisposition: true }),
+        stderr: "",
+      })
+    ).toMatchObject({ kind: "malformed-json" });
+  });
+
+  test("rejects an enforced pass carrying an unbaselined advisory diagnostic", () => {
+    const result = hookCheckCommandResult({
+      exitCode: 0,
+      stdout: checkReport({
+        ok: true,
+        status: "pass",
+        command: "habitat check --json",
+        ruleId: "enforced-advisory-severity",
+        runner: "habitat",
+        message: "enforced finding",
+        diagnosticMessage: "serialized advisory severity cannot pass an enforced rule",
+        diagnosticSeverity: "advisory",
+      }),
+      stderr: "",
+    });
+
+    expect(result).toMatchObject({
+      kind: "malformed-json",
+      errors: [expect.stringContaining("executed disposition requires status fail")],
+    });
+    expect(checkSummaryAllowsNextStage(result)).toBe(false);
+  });
+
+  test("rejects a passed baseline-integrity row carrying an unbaselined diagnostic", () => {
+    const result = hookCheckCommandResult({
+      exitCode: 0,
+      stdout: checkReport({
+        ok: true,
+        status: "pass",
+        command: "habitat check --json",
+        ruleId: "baseline-integrity",
+        runner: "habitat",
+        message: "baseline integrity passed",
+        diagnosticMessage: "an unbaselined finding cannot pass an enforced report",
+        diagnosticSeverity: "advisory",
+        disposition: { kind: "baseline-integrity", state: "passed" },
+      }),
+      stderr: "",
+    });
+
+    expect(result).toMatchObject({
+      kind: "malformed-json",
+      errors: [expect.stringContaining("baseline-integrity disposition requires status fail")],
+    });
+    expect(checkSummaryAllowsNextStage(result)).toBe(false);
+  });
+
+  test("rejects baseline-integrity on an advisory lane", () => {
+    const result = hookCheckCommandResult({
+      exitCode: 0,
+      stdout: checkReport({
+        ok: true,
+        status: "pass",
+        lane: "advisory",
+        command: "habitat check --json",
+        ruleId: "baseline-integrity",
+        runner: "habitat",
+        message: "baseline integrity passed",
+        disposition: { kind: "baseline-integrity", state: "passed" },
+      }),
+      stderr: "",
+    });
+
+    expect(result).toMatchObject({
+      kind: "malformed-json",
+      errors: [expect.stringContaining("baseline-integrity disposition requires lane enforced")],
+    });
+    expect(checkSummaryAllowsNextStage(result)).toBe(false);
+  });
+
+  test.each([
+    { exitCode: 1, ok: true, status: "pass" as const, expectedExitCode: 0 },
+    { exitCode: 0, ok: false, status: "fail" as const, expectedExitCode: 1 },
+    { exitCode: 2, ok: false, status: "fail" as const, expectedExitCode: 1 },
+  ])("refuses exit $exitCode when report truth requires $expectedExitCode", ({
+    exitCode,
+    ok,
+    status,
+    expectedExitCode,
+  }) => {
+    const result = hookCheckCommandResult({
+      exitCode,
+      stdout: checkReport({
+        ok,
+        status,
+        ...diagnosticMessageForStatus(status),
+        command: "habitat check --json",
+        ruleId: "ordinary-id",
+        runner: "habitat",
+        message: "ordinary",
+      }),
+      stderr: "",
+    });
+
+    expect(result).toMatchObject({
+      kind: "status-mismatch",
+      actualExitCode: exitCode,
+      expectedExitCode,
+      report: { ok },
+    });
+    expect("summary" in result).toBe(false);
+    expect(checkSummaryAllowsNextStage(result)).toBe(false);
+  });
+
+  test("admits clean passing typed not-applicability by summary", () => {
+    const result = hookCheckCommandResult({
+      exitCode: 0,
+      stdout: checkReport({
+        ok: true,
+        status: "pass",
+        disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+        command: "habitat check --staged --hook-check --runner grit --json",
+        ruleId: "not-applicable-rule",
+        runner: "grit",
+        message: "not applicable",
+      }),
+      stderr: "",
+    });
+
+    expect(result).toMatchObject({ kind: "parsed", summary: { kind: "not-applicable" } });
+    expect(checkSummaryAllowsNextStage(result)).toBe(true);
+  });
+
+  test("blocks failing typed not-applicability by summary", () => {
+    const result = hookCheckCommandResult({
+      exitCode: 1,
+      stdout: checkReport({
+        ok: false,
+        status: "fail",
+        diagnosticMessage: "ordinary enforced diagnostic",
+        disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+        command: "habitat check --staged --hook-check --runner grit --json",
+        ruleId: "not-applicable-rule",
+        runner: "grit",
+        message: "not applicable",
+      }),
+      stderr: "",
+    });
+
+    expect(result).toMatchObject({ kind: "parsed", summary: { kind: "fail" } });
+    expect(checkSummaryAllowsNextStage(result)).toBe(false);
+  });
+
+  test("keeps advisory typed not-applicability advisory-only", () => {
+    const result = hookCheckCommandResult({
+      exitCode: 0,
+      stdout: checkReport({
+        ok: true,
+        status: "advisory-findings",
+        lane: "advisory",
+        diagnosticMessage: "ordinary advisory diagnostic",
+        diagnosticSeverity: "advisory",
+        disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+        command: "habitat check --staged --hook-check --runner grit --json",
+        ruleId: "not-applicable-rule",
+        runner: "grit",
+        message: "not applicable",
+      }),
+      stderr: "",
+    });
+
+    expect(result).toMatchObject({ kind: "parsed", summary: { kind: "advisory-only" } });
+    expect(checkSummaryAllowsNextStage(result)).toBe(true);
+  });
 });
 
 describe("Habitat hook resource policy", () => {
@@ -278,7 +541,14 @@ describe("Habitat pre-commit staged mutation policy", () => {
         paths: ["packages/example/src/index.ts", "packages/example/src/unchanged.ts"],
       }),
     ]);
-    expect(fake.checkRequests.map((request) => request.runner)).toContain("grit");
+    expect(fake.checkRequests).toContainEqual(
+      expect.objectContaining({
+        hookCheck: true,
+        runner: "grit",
+        staged: true,
+        stagedPaths: ["packages/example/src/index.ts", "packages/example/src/unchanged.ts"],
+      })
+    );
   });
 
   test("fails closed when source checks report diagnostic-unavailable", async () => {
@@ -288,8 +558,14 @@ describe("Habitat pre-commit staged mutation policy", () => {
       sourceCheckStdout: sourceCheckReport({
         ok: false,
         status: "fail",
+        disposition: {
+          kind: "execution-failed",
+          source: "diagnostic-provider",
+          failure: "DiagnosticOutputMalformed",
+          detail: "Grit output contains wrapper text around JSON.",
+        },
         diagnosticMessage:
-          "Grit rule failed.\n--- grit provider failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
+          "Grit rule failed.\n--- diagnostic provider failure (DiagnosticOutputMalformed) ---\nGrit output contains wrapper text around JSON.",
       }),
     });
 
@@ -297,6 +573,32 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain("could not parse source check JSON output");
+  });
+
+  test("reports dependency-refused source checks as findings, not parse failures", async () => {
+    const fake = makeFakeRuntime({
+      sourceCheckHookEnabled: true,
+      stagedPaths: ["packages/example/src/index.ts"],
+      sourceCheckStdout: sourceCheckReport({
+        ok: false,
+        status: "fail",
+        disposition: {
+          kind: "dependency-refused",
+          source: "diagnostic-scan-root",
+          decision: { kind: "refused", reason: "outside-repo", root: "../outside" },
+          detail: "Diagnostic scan root is outside the repo: ../outside.",
+        },
+        diagnosticMessage:
+          "Dependency refused: Diagnostic scan root is outside the repo: ../outside.",
+      }),
+    });
+
+    const result = await runPreCommitInTest(fake);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain("[source check]");
+    expect(result.stderr).not.toContain("could not parse source check JSON output");
+    expect(result.stderr).not.toContain("could not parse Habitat source check JSON");
   });
 
   test("fails closed when source checks report findings", async () => {
@@ -316,24 +618,27 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(result.stdout).toContain("[source check]");
   });
 
-  test("does not run staged source checks for JavaScript files outside approved source-check roots", async () => {
+  test("lets the provider report staged source paths outside a selected rule's roots as not applicable", async () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["tools/habitat/src/service/modules/hook/router.ts"],
+      sourceCheckStdout: sourceCheckReport({
+        ok: true,
+        status: "pass",
+        disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+      }),
     });
 
     const result = await runPreCommitInTest(fake);
 
     expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain(
-      "source checks: no staged TypeScript/JavaScript files in approved source-check roots"
-    );
+    expect(result.stdout).toContain("no-matched-scan-roots");
     expect(fake.biomeRequests).toContainEqual(
       expect.objectContaining({
         kind: "check",
         paths: ["tools/habitat/src/service/modules/hook/router.ts"],
       })
     );
-    expect(fake.checkRequests.map((request) => request.runner)).not.toContain("grit");
+    expect(fake.checkRequests.map((request) => request.runner)).toContain("grit");
   });
 
   test("reports pre-commit output through an injected reporter service", async () => {
@@ -344,8 +649,14 @@ describe("Habitat pre-commit staged mutation policy", () => {
       sourceCheckStdout: sourceCheckReport({
         ok: false,
         status: "fail",
+        disposition: {
+          kind: "execution-failed",
+          source: "diagnostic-provider",
+          failure: "DiagnosticOutputMalformed",
+          detail: "Grit output contains wrapper text around JSON.",
+        },
         diagnosticMessage:
-          "Grit rule failed.\n--- grit provider failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
+          "Grit rule failed.\n--- diagnostic provider failure (DiagnosticOutputMalformed) ---\nGrit output contains wrapper text around JSON.",
       }),
     });
 
@@ -499,6 +810,15 @@ function makeSyntheticSourceCheckHookRules() {
   const rules = makeTestRuleFacts();
   return {
     ...rules,
+    diagnostic: [
+      {
+        id: "hook-source-check-probe",
+        lane: "enforced" as const,
+        message: "source-check hook check probe",
+        pathCoverage: [{ kind: "exact-path" as const, patterns: ["packages/example/src/**"] }],
+        scanRoots: ["packages/example/src"],
+      },
+    ],
     grit: [
       {
         id: "hook-source-check-probe",
@@ -662,14 +982,22 @@ function sourceCheckReport(options: {
   ok: boolean;
   status: "pass" | "fail" | "advisory-findings";
   diagnosticMessage?: string;
+  disposition?: CheckReport["rules"][number]["disposition"];
 }): string {
   return checkReport({
     ...options,
-    command: "habitat check --staged --runner grit --json",
+    command: "habitat check --staged --hook-check --runner grit --json",
     ruleId: "hook-source-check-probe",
     runner: "grit",
     message: "source-check hook check probe",
   });
+}
+
+function diagnosticMessageForStatus(
+  status: "pass" | "fail" | "advisory-findings"
+): {} | { diagnosticMessage: string } {
+  if (status === "fail") return { diagnosticMessage: "failing diagnostic" };
+  return {};
 }
 
 function fileLayerCheckReport(options: {
@@ -689,15 +1017,20 @@ function fileLayerCheckReport(options: {
 function checkReport(options: {
   ok: boolean;
   status: "pass" | "fail" | "advisory-findings";
+  lane?: CheckReport["rules"][number]["lane"];
   command: string;
   ruleId: string;
   runner: string;
   message: string;
   diagnosticMessage?: string;
+  diagnosticSeverity?: CheckReport["rules"][number]["diagnostics"][number]["severity"];
+  disposition?: CheckReport["rules"][number]["disposition"];
+  schemaVersion?: number;
+  omitDisposition?: boolean;
 }): string {
   return `${JSON.stringify(
     {
-      schemaVersion: 1,
+      schemaVersion: options.schemaVersion ?? 2,
       command: options.command,
       startedAt: "2026-06-15T00:00:00.000Z",
       ok: options.ok,
@@ -705,17 +1038,20 @@ function checkReport(options: {
         {
           ruleId: options.ruleId,
           runner: options.runner,
-          lane: "enforced",
+          lane: options.lane ?? "enforced",
           status: options.status,
           locked: true,
           durationMs: 1,
+          ...(!options.omitDisposition
+            ? { disposition: options.disposition ?? { kind: "executed" } }
+            : {}),
           diagnostics: options.diagnosticMessage
             ? [
                 {
                   ruleId: options.ruleId,
                   path: "packages/example/src/index.ts",
                   message: options.diagnosticMessage,
-                  severity: "error",
+                  severity: options.diagnosticSeverity ?? "error",
                   baselined: false,
                 },
               ]
@@ -731,12 +1067,12 @@ function checkReport(options: {
 }
 
 function parseCheckReport(report: string): CheckReport {
-  return JSON.parse(report) as CheckReport;
+  return Value.Parse(CheckReportSchema, JSON.parse(report));
 }
 
 function passingCheckReport(command: string): CheckReport {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     command,
     startedAt: "2026-06-21T00:00:00.000Z",
     ok: true,

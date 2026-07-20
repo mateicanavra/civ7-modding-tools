@@ -1,9 +1,10 @@
-import type { RuleRegistryRecord } from "../dto/registry.schema.js";
+import type { RuleProjectedRunner, RuleRegistryRecord } from "../dto/registry.schema.js";
+import { projectedRuleRunner } from "./facts.policy.ts";
 
 export interface HabitatAuthorityRulePathInput {
   readonly id: string;
-  readonly runner: RuleRegistryRecord["runner"];
-  readonly manifestPath?: string;
+  readonly runner: RuleProjectedRunner;
+  readonly fixPattern?: string;
   readonly manifestFilePath?: string;
   readonly supportFiles?: RuleRegistryRecord["supportFiles"];
 }
@@ -22,8 +23,10 @@ export function ruleAuthorityPathFacts(
 ): HabitatAuthorityRulePathInput[] {
   return rules.map((rule) => ({
     id: rule.id,
-    runner: rule.runner,
-    ...("manifestPath" in rule && rule.manifestPath ? { manifestPath: rule.manifestPath } : {}),
+    runner: projectedRuleRunner(rule.runner),
+    ...(rule.runner.name === "grit" && rule.runner.fix
+      ? { fixPattern: rule.runner.fix.pattern }
+      : {}),
     ...("manifestFilePath" in rule && rule.manifestFilePath
       ? { manifestFilePath: rule.manifestFilePath }
       : {}),
@@ -59,15 +62,9 @@ function classifyHabitatAuthorityPaths(
   let hasUnclassifiedAuthorityFile = false;
   const nonSourceCheckRuleIds = new Set<string>();
   const rulesByAuthorityPath = authorityPathIndex(rules);
-  const sourceManifestPaths = new Set(
-    rules
-      .filter((rule) => rule.runner.name === "grit")
-      .flatMap((rule) => (rule.manifestPath ? [normalizeRepoPath(rule.manifestPath)] : []))
-  );
-
   for (const filePath of paths) {
     if (!isHabitatAuthorityPath(filePath)) continue;
-    if (filePath.startsWith(".habitat/source-check/") || sourceManifestPaths.has(filePath)) {
+    if (filePath.startsWith(".habitat/source-check/")) {
       hasSourceCheckAuthorityFile = true;
       continue;
     }
@@ -105,7 +102,7 @@ function referencedAuthorityPaths(rule: HabitatAuthorityRulePathInput): string[]
   if (rule.manifestFilePath) paths.push(rule.manifestFilePath);
   if (rule.runner.name === "grit") {
     paths.push(rule.runner.files.pattern);
-    if (rule.runner.files.applyPattern) paths.push(rule.runner.files.applyPattern);
+    if (rule.fixPattern) paths.push(rule.fixPattern);
   }
   if (rule.runner.name === "habitat" && rule.runner.mode === "structure") {
     paths.push(rule.runner.files.structure);

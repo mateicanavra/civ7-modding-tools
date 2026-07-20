@@ -29,8 +29,8 @@ bun habitat                # command help
 nx run-many -t habitat:check # Nx owner-level Habitat checks
 bun run check              # graph-owned package checks
 bun run lint               # graph-owned package lint targets
-bun habitat fix --dry-run  # admitted Grit diagnostics only; does not write
-bun habitat fix            # live-write request that currently refuses without writing
+bun habitat fix --dry-run  # plan every explicitly admitted rule; does not write
+bun habitat fix            # immediate unsupported-live-mutation refusal
 bun run verify             # graph-owned heavier verification aggregate
 bun habitat check          # diagnostic Habitat CLI loop (add --json for JSON)
 bun habitat verify         # diagnostic Habitat CLI verify loop
@@ -75,8 +75,9 @@ Notes:
   namespace, and valid selectors whose intersection contains no rules exit
   non-zero. `--rule` may be repeated to run a curated rule group; repeated rules
   are unioned, then intersected with any owner/runner selector. JSON mode renders a
-  schemaVersion 1 `CheckReport` with the single failing `rule-selection-integrity`
-  report; `--expand-baseline` exits before any baseline file is written.
+  schemaVersion 2 `CheckReport` with the single failing `rule-selection-integrity`
+  report and a required typed disposition; schemaVersion 1 reports are rejected.
+  `--expand-baseline` exits before any baseline file is written.
 - H2 wrapped existing mechanisms verbatim (zero new rules, zero semantic
   change). H3 added Nx boundaries; H4 makes Biome the hygiene owner. H4.5
   moved the command shell to oclif. H5 added the GritQL/file-layer catalog.
@@ -128,12 +129,12 @@ nx g @habitat/cli:pattern grit-my-rule
 ```
 
 Candidate output lives under
-`.habitat/pattern-authority/candidates/`. It is not an
+`.habitat/patterns/candidates/`. It is not an
 active registered rule, not a `.habitat/**/rule.json` manifest, not a baseline
-file, and not hook-scoped. Registered advisory or enforced Grit rules require
-an accepted Pattern Authority Manifest, baseline contract, current-tree
-validation, fixture strategy, false-positive model, and hook-scope decision
-before they can enter the rule pack. Current executable validation runs the
+file, and not hook-scoped. Registered advisory or enforced Grit rules are
+authored and reviewed as location-independent `rule.json` authority with an
+explicit runner, baseline contract, current-tree validation, fixture strategy,
+false-positive model, and hook-scope decision. Current executable validation runs the
 registered manifest and its `pattern.md` through Habitat:
 
 ```bash
@@ -178,17 +179,17 @@ Biome-owned rules into ESLint.
 Use:
 
 ```bash
-bun habitat fix --dry-run  # admitted Grit dry-run diagnostics; no worktree writes
-bun habitat fix            # explicit live-write refusal; does not invoke Biome
+bun habitat fix --dry-run  # admitted transformation observations; no writes
+bun habitat fix            # immediate live-mutation refusal; no service realization
 nx run-many -t biome:ci # CI-equivalent hygiene gate
 ```
 
-`habitat fix` is not a Biome orchestration path. It currently resolves
-apply-admission definitions and can run only Grit dry-run diagnostics. A
-non-dry invocation is intentionally refused: protected-zone routing and live
-execution are not implemented, so it cannot format output, run post-fix gates,
-roll back, record a transaction diff, or establish commit readiness. Biome
-formatting remains a separate hygiene and hook capability.
+`habitat fix` is not a Biome orchestration path. `--dry-run` derives plan-only
+admissions from registered `rule.json` records, validates the complete optional
+rule selection, and reports affected paths without writing. A non-dry
+invocation refuses before constructing the service client. Formatting, gates,
+rollback, transaction records, and commit readiness are not implemented; Biome
+remains a separate hygiene and hook capability.
 
 Editor setup:
 

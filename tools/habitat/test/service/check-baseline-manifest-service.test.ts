@@ -214,16 +214,16 @@ function createHarness(options: HarnessOptions): ServiceHarness {
 
   const baseDeps = makeTestHabitatServiceDeps();
   const platform = fakePlatform(baseDeps.platform, files, reads, writes);
-  const grit = {
-    ...baseDeps.grit,
-    runRules: (selectedRules: readonly { readonly id: string }[]) =>
+  const ruleDiagnostics = {
+    runRules: (demand: { readonly ruleIds: readonly string[] }) =>
       Effect.succeed(
         new Map(
-          selectedRules.map((rule) => [
-            rule.id,
+          demand.ruleIds.map((ruleId) => [
+            ruleId,
             {
-              exitCode: 1,
-              diagnostics: diagnostics(),
+              kind: "executed" as const,
+              result: { exitCode: 1, diagnostics: diagnostics() },
+              durationMs: 0,
             },
           ])
         )
@@ -237,8 +237,8 @@ function createHarness(options: HarnessOptions): ServiceHarness {
 
   const deps = makeTestHabitatServiceDeps({
     git: fakeGitProvider(),
-    grit,
     platform,
+    ruleDiagnostics,
     rules,
   });
   const report = checkRouter.report.callable({ context: { deps } });

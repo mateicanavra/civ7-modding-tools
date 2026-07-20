@@ -29,5 +29,5 @@ or {
 }
 ```
 
-The source-check implementation carries the one current exception for discovery
+The adjacent command check carries the one current exception for discovery
 materialization while that generator remains vendor-owned.

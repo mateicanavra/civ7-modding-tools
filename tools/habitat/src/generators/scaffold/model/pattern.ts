@@ -10,9 +10,8 @@ export interface PatternScaffoldOptions {
   readonly ruleId: string;
   readonly ownerProject?: string;
   readonly patternName?: string;
-  readonly lifecycle?: "candidate" | "registered-advisory" | "registered-enforced";
+  readonly lifecycle?: "candidate";
   readonly openspecChangeId?: string;
-  readonly manifestPath?: string;
 }
 
 export type PatternScaffoldDecision =
@@ -61,13 +60,6 @@ export function decidePatternScaffold(
   const activeCollision = firstActiveCollision(options, facts);
   if (activeCollision) return activeCollision;
 
-  if (options.lifecycle !== "candidate") {
-    return {
-      kind: "refuse-scaffold",
-      refusal: registeredPromotionRefusal({ ...options, lifecycle: options.lifecycle }),
-    };
-  }
-
   const paths = facts.candidateAuthorityPaths(options);
   const candidateCollisionDecision = firstCandidateCollision(paths, facts);
   if (candidateCollisionDecision) return candidateCollisionDecision;
@@ -91,8 +83,9 @@ export function normalizePatternScaffoldOptions(
     lifecycle: rawOptions.lifecycle ?? "candidate",
     identifier: identifierFor(patternName),
     ownerProject: rawOptions.ownerProject ?? "habitat",
-    openspecChangeId: rawOptions.openspecChangeId ?? "habitat-pattern-generator-metadata-repair",
-    ...(rawOptions.manifestPath ? { manifestPath: rawOptions.manifestPath } : {}),
+    ...(rawOptions.openspecChangeId === undefined
+      ? {}
+      : { openspecChangeId: rawOptions.openspecChangeId }),
   });
 }
 
@@ -105,7 +98,9 @@ export function candidateManifest(
     ruleId: options.ruleId,
     patternName: options.patternName,
     lifecycle: "candidate",
-    openspecChangeId: options.openspecChangeId,
+    ...(options.openspecChangeId === undefined
+      ? {}
+      : { openspecChangeId: options.openspecChangeId }),
     ownerProject: options.ownerProject,
     patternRole: "diagnostic",
     candidateAuthorityFiles: {
@@ -166,24 +161,6 @@ function refuseCandidateCollision(pathOrRule: string): PatternScaffoldDecision {
       retryCondition: "Retry after choosing a non-colliding candidate identity.",
     }),
   };
-}
-
-function registeredPromotionRefusal(
-  options: NormalizedPatternScaffoldOptions & {
-    lifecycle: "registered-advisory" | "registered-enforced";
-  }
-): ScaffoldRefusal {
-  const hasManifest = Boolean(options.manifestPath);
-  return scaffoldRefusal({
-    blockedAction: `register pattern '${options.ruleId}'`,
-    requestClass: "active-pattern-registration",
-    reason: hasManifest ? "registered-manifest-rejected" : "registered-manifest-missing",
-    recovery: hasManifest
-      ? `Pattern registration for '${options.ruleId}' must run through pattern management, not the candidate generator.`
-      : `Pattern registration for '${options.ruleId}' requires an accepted pattern manifest and a pattern management promotion surface.`,
-    retryCondition:
-      "Retry after pattern management accepts the required manifest and baseline inputs.",
-  });
 }
 
 function kebabLike(value: unknown): string {

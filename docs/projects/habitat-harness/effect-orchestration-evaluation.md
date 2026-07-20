@@ -66,7 +66,11 @@ typed errors, command provenance, resource cleanup, service injection, and proof
 quality with less moving machinery; or if an Effect prototype cannot preserve
 Habitat command behavior while reducing the failure surface.
 
-## Current Manual-System Diagnosis
+## Historical Manual-System Diagnosis - 2026-06-14
+
+This diagnosis preserves the pre-v2 selector and report state that motivated
+the Effect evaluation. Its `--tool` and CheckReport v1 references are not
+current command authority.
 
 | Surface | Current evidence | Failure dynamic | Effect-fit hypothesis |
 | --- | --- | --- | --- |
@@ -87,7 +91,7 @@ Habitat command behavior while reducing the failure surface.
 that Effect should remain a first-class implementation-substrate option, but not
 as a blanket rewrite. The strongest local fits are:
 
-- Typed selector and policy failures, especially unknown `--rule`, `--tool`,
+- Typed selector and policy failures, especially unknown `--rule`, `--runner`,
   and owner filters that must never produce a green report through
   `baseline-integrity` alone.
 - Command runner provenance for every `git`, `grit`, `biome`, `nx`, `bun`,
@@ -120,7 +124,7 @@ The same local fit evidence also protects against over-adoption:
 | Opportunity | Why Effect may help | Required proof before adoption |
 | --- | --- | --- |
 | Typed command runner | Official Effect docs support typed error channels and `@effect/platform/Command` with argv/env/cwd/stdout/stderr/exit-code access. This maps directly to Habitat proof records. | Prototype `CommandRunner` for `nx`, `grit`, and `biome` that preserves current stdout/stderr and distinguishes missing tool, nonzero exit, parse failure, and interruption. |
-| Rule-selection gate | The false-green `--rule`/`--tool` bug is a typed validation failure before check execution. | Tests proving unknown rule/tool exits nonzero, emits normalized diagnostics, and never returns only `baseline-integrity` for a requested missing selector. |
+| Rule-selection gate | The historical false-green selector bug is a typed validation failure before check execution; current selectors are `--rule` and `--runner`. | Tests proving unknown rule/runner exits nonzero with one CheckReport v2 `selector-refused` row and never returns only `baseline-integrity` for a requested missing selector. |
 | Check report pipeline | `check` wants collect-all diagnostics; `fix` wants fail-closed sequencing. Effect makes collection mode explicit. | A design that labels collect-all versus fail-closed behavior per command and proves report JSON compatibility. |
 | Baseline store | Missing file, malformed JSON, merge-base absence, added entries, and new-rule exceptions are distinct policy results. | Typed baseline policy table and tests for each policy outcome, including merge-base failure semantics. |
 | Grit adapter | Grit's docs leave JSON schema and dry-run guarantees under-specified, so Habitat needs a robust adapter with typed parse/proof behavior. | Adapter tests for parse noise, no JSON, empty results, pattern misses, scan-root provenance, and dry-run no-write proof. |
@@ -149,7 +153,10 @@ The same local fit evidence also protects against over-adoption:
 | `habitat-effect-hook-transaction` | Rebuild hook sequencing around typed staged-file state, side-effect policy, formatter writes, restage, and Grit checks. | Hook hardening decision and Biome/Grit proof repairs. | Publish side effect is explicitly retained/delayed/removed; partial staging and write set proof are deterministic. |
 | `habitat-no-effect-p0-command-repair` | Deliberate non-adoption slice for the oclif root/dev/prod command-surface repair if the design can provide typed selector failures, real entrypoint tests, and command provenance without adding Effect. | Accepted Effect evaluation and P0 command trust packet. | Records explain why Effect is deferred for this slice, what typed/provenance properties the manual repair still provides, and which triggers reopen Effect adoption. |
 
-## Current Selection - 2026-06-14
+## Historical Selection - 2026-06-14
+
+This dated section records the v1 decision as historical evidence. It is not
+the current report-contract authority.
 
 `habitat-effect-grit-adapter` is the first provisionally selected Effect
 adoption packet for this recovery program. Design review findings have been
@@ -171,7 +178,7 @@ Decision boundary:
   semantics, baseline policy, hooks, generated-output policy, or product
   runtime proof into Effect.
 
-### P0 Command Repair Outcome - 2026-06-15
+### Historical P0 Command Repair Outcome - 2026-06-15
 
 `habitat-oclif-entrypoint-repair` implements the deliberate
 `habitat-no-effect-p0-command-repair` path for the command-surface slice:
@@ -201,7 +208,7 @@ This provisional selection is controlled by:
 - official Effect/GritQL/Biome/Nx evidence packs under
   `docs/projects/habitat-harness/research/`
 
-### Grit Adapter Implementation Checkpoint - 2026-06-15
+### Historical Grit Adapter Implementation Checkpoint - 2026-06-15
 
 `habitat-effect-grit-adapter` implements the selected Grit substrate and is
 supervisor-accepted for the Grit-scoped adapter boundary:
@@ -224,6 +231,14 @@ This checkpoint proves the selected Effect substrate for Habitat's Grit adapter
 slice. It does not prove Grit row closure, all-row injected violations,
 baseline shrink behavior, live worktree apply, Nx scheduling/cache behavior,
 Biome semantics beyond selected gates, or product/runtime Civ7 behavior.
+
+### Current CheckReport Authority
+
+Habitat's current check boundary is CheckReport v2. Typed rule dispositions,
+diagnostics, lanes, and statuses are validated at the service-model owner; Grit
+selection uses `--runner grit`, and an unknown runner is represented by one v2
+`selector-refused` row. The dated schemaVersion 1 decisions above remain useful
+Effect-adoption history but do not define current command or report behavior.
 
 ## Required Decision Before Implementation
 

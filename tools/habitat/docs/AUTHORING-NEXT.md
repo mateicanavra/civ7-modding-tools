@@ -73,8 +73,9 @@ Every authoring generator should demonstrate:
 ## Future / Not Implemented: Apply Pattern Acceptance Contract
 
 This is a target scenario, not current `habitat fix` behavior. Today the command
-only provides apply-admission discovery and Grit dry-run diagnostics; it refuses
-live writes. Every future apply pattern should demonstrate:
+only observes transformations admitted by registered `runner.fix` authority;
+it refuses live writes before service realization. Every future apply pattern
+should demonstrate:
 
 - exact diagnostic rule or source shape it repairs;
 - exact allowed roots;
@@ -105,7 +106,7 @@ Prefer:
 Avoid:
 
 - adding new documentation layers without generator validation;
-- expanding pattern manifest process for its own sake;
+- expanding rule-admission process for its own sake;
 - treating rule-pack health as authoring capability;
 - accepting "Habitat has generators" unless the generator serves the MapGen
   authoring loop being claimed.

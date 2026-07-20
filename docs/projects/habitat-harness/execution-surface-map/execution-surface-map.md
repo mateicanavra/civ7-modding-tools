@@ -4,62 +4,48 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 ## Sanity Assertions
 
-- Passed: 106 `rule.json`, 5 `structure.toml`, 0 active source-check `.rule.mjs`, 0 transitional runtime imports, root `docs:project`, and `tools/habitat` `generate:schemas` were detected.
+- Passed: 123 `rule.json`, 8 `structure.toml`, root `docs:project`, and `tools/habitat` `generate:schemas` were detected.
 
 ## Surfaces By Kind
 
 | kind | count |
 | --- | --- |
-| check-script | 30 |
-| rule-json | 106 |
-| pattern | 67 |
-| structure-spec | 5 |
+| check-script | 29 |
+| rule-json | 123 |
+| pattern | 82 |
+| structure-spec | 8 |
 | apply-pattern | 1 |
 | generate-script | 2 |
 | operation-note | 3 |
 | fix-script | 1 |
-| package-script | 153 |
-| nx-target | 57 |
+| package-script | 162 |
+| nx-target | 60 |
 | nx-plugin | 1 |
 | nx-target-default | 9 |
-| habitat-cli-source | 125 |
+| habitat-cli-source | 111 |
 
 ## Surfaces By Role
 
 | role | count |
 | --- | --- |
-| command_check_executor | 30 |
-| runner_metadata | 106 |
-| policy_pattern | 68 |
-| structure_authority | 5 |
+| command_check_executor | 29 |
+| runner_metadata | 123 |
+| policy_pattern | 83 |
+| structure_authority | 8 |
 | operation_surface | 6 |
-| workspace_entrypoint | 220 |
-| toolkit_runner | 125 |
+| workspace_entrypoint | 232 |
+| toolkit_runner | 111 |
 
 ## Execution Anatomy Roles
 
 | anatomy role | surface count |
 | --- | --- |
-| fixture-support | 10 |
-| adapter | 106 |
-| policy-predicate | 73 |
-| transient-dependency | 102 |
-| entrypoint | 222 |
-| runner-runtime | 125 |
-
-## `.rule.mjs` Anatomy
-
-- Total modules: 0
-- Expected export shape: 0
-- Transitional runtime imports: 0
-- Separable fixture/support candidates: 0
-- Candidate extensions: none
-
-_None._
-
-## `.rule.mjs` Module Details
-
-_None._
+| fixture-support | 9 |
+| adapter | 123 |
+| policy-predicate | 91 |
+| transient-dependency | 106 |
+| entrypoint | 234 |
+| runner-runtime | 111 |
 
 ## Fixture/Support Files
 
@@ -72,53 +58,53 @@ _None._
 
 | invoker | count |
 | --- | --- |
-| unknown | 213 |
-| package | 155 |
-| nx | 67 |
+| unknown | 247 |
+| package | 164 |
+| nx | 70 |
 | direct-script | 3 |
-| habitat | 125 |
+| habitat | 111 |
 
 ## Buckets
 
 | bucket | count |
 | --- | --- |
-| package_boundary_tie | 84 |
-| unknown_invocation | 213 |
-| nx_ordering_tie | 104 |
-| mutation_surface | 117 |
-| package_invoked | 222 |
+| package_boundary_tie | 96 |
+| unknown_invocation | 247 |
+| mutation_surface | 126 |
+| nx_ordering_tie | 113 |
+| package_invoked | 234 |
 | direct_script_invoked | 3 |
-| habitat_invoked | 125 |
+| habitat_invoked | 111 |
 
 ## Top Cross-Boundary Ties By Fanout
 
 | target class | target | source count | references | sample sources |
 | --- | --- | --- | --- | --- |
 | workspace-tool | grit<br>language js(typescript)<br><br>or { | 28 | 28 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md |
-| habitat-toolkit | @habitat/cli/resources/command/index | 22 | 22 | tools/habitat/src/providers/biome/index.ts<br>tools/habitat/src/providers/git/index.ts<br>tools/habitat/src/providers/graphite/index.ts |
-| habitat-toolkit | @habitat/cli/service/model/check/index | 21 | 21 | tools/habitat/src/cli/commands/check.ts<br>tools/habitat/src/cli/commands/verify.ts<br>tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts |
-| workspace-tool | git | 21 | 21 | .habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts<br>.habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts |
-| workspace-tool | tsc -p tsconfig.json --noEmit | 19 | 19 | apps/docs/package.json#scripts.check<br>apps/docs/package.json#scripts.check:ts<br>apps/playground/package.json#scripts.check |
-| habitat-toolkit | @habitat/cli/service/model/rules/index | 17 | 17 | tools/habitat/src/providers/grit/diagnostics.ts<br>tools/habitat/src/providers/grit/docs-apply.ts<br>tools/habitat/src/providers/grit/failure.ts |
-| workspace-tool | node -e "" | 15 | 15 | apps/docs/project.json#targets.build<br>apps/mapgen-studio/project.json#targets.build<br>mods/mod-civ7-intelligence-bridge/project.json#targets.build |
-| relative | ./types.js | 13 | 24 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md<br>.habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md<br>tools/habitat/src/providers/grit/diagnostics.ts |
-| workspace-tool | grit | 12 | 12 | tools/habitat/src/providers/grit/constants.ts<br>tools/habitat/src/providers/grit/failures.ts<br>tools/habitat/src/service/model/check/policy/structural/execution.policy.ts |
-| habitat-toolkit | @habitat/cli/service/model/diagnostics/index | 10 | 10 | tools/habitat/src/providers/grit/diagnostics.ts<br>tools/habitat/src/providers/grit/docs-apply.ts<br>tools/habitat/src/providers/grit/failure.ts |
+| habitat-toolkit | @habitat/cli/resources/command/index | 21 | 21 | tools/habitat/src/providers/biome/index.ts<br>tools/habitat/src/providers/git/index.ts<br>tools/habitat/src/providers/graphite/index.ts |
+| habitat-toolkit | @habitat/cli/service/model/check/index | 20 | 20 | tools/habitat/src/cli/commands/check.ts<br>tools/habitat/src/cli/commands/verify.ts<br>tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts |
+| workspace-tool | tsc -p tsconfig.json --noEmit | 20 | 20 | apps/docs/package.json#scripts.check<br>apps/docs/package.json#scripts.check:ts<br>apps/playground/package.json#scripts.check |
+| workspace-tool | git | 19 | 19 | .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs<br>.habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts |
+| habitat-toolkit | @habitat/cli/service/model/rules/index | 17 | 17 | tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/diagnostics.ts |
+| relative | ./types.js | 14 | 25 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md<br>.habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md<br>tools/habitat/src/resources/command/fake.ts |
+| workspace-tool | node -e "" | 14 | 14 | apps/docs/project.json#targets.build<br>apps/mapgen-studio/project.json#targets.build<br>mods/mod-civ7-intelligence-bridge/project.json#targets.build |
+| relative | ./ | 10 | 10 | .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs<br>.habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md |
+| habitat-toolkit | @habitat/cli/service/model/diagnostics/index | 10 | 10 | tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/failure.ts |
 | habitat-toolkit | @habitat/cli/service/model/workspace/index | 10 | 10 | tools/habitat/src/providers/nx/graph.ts<br>tools/habitat/src/providers/nx/index.ts<br>tools/habitat/src/providers/nx/inventory.ts |
 | workspace-tool | biome check . | 10 | 10 | mods/mod-swooper-civ-dacia/package.json#scripts.lint<br>mods/mod-swooper-maps/package.json#scripts.lint<br>package.json#scripts.biome:check |
-| relative | ../dto/pattern-management.schema.js | 9 | 18 | tools/habitat/src/service/modules/fix/model/policy/pattern-admission.policy.ts<br>tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts<br>tools/habitat/src/service/modules/fix/model/policy/pattern-apply-transaction.policy.ts |
+| workspace-tool | grit | 10 | 10 | .habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/check.mjs<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-planning.ts |
 | habitat-toolkit | @habitat/cli/resources/config/index | 9 | 9 | tools/habitat/src/providers/biome/index.ts<br>tools/habitat/src/providers/git/index.ts<br>tools/habitat/src/providers/graphite/index.ts |
 | mod | mods/ | 9 | 9 | .habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md<br>.habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md<br>.habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md |
-| relative | ./request.js | 8 | 16 | tools/habitat/src/providers/grit/index.ts<br>tools/habitat/src/providers/grit/runner.ts<br>tools/habitat/src/providers/grit/source-check.ts |
-| mod | mods/mod-swooper-maps/src/ | 8 | 8 | .habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/pattern.md<br>.habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/pattern.md<br>.habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/pattern.md |
-| habitat-toolkit | @habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy | 7 | 7 | tools/habitat/src/providers/grit/diagnostics.ts<br>tools/habitat/src/providers/grit/failure.ts<br>tools/habitat/src/providers/grit/resource.ts |
+| relative | ./request.js | 8 | 16 | tools/habitat/src/resources/command/index.ts<br>tools/habitat/src/resources/command/observation.ts<br>tools/habitat/src/resources/command/result.ts |
+| mod | mods/mod-swooper-maps/src/ | 8 | 8 | .habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md<br>.habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/pattern.md<br>.habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/pattern.md |
+| mod | mods/mod-swooper-maps/src/domain/ | 8 | 8 | .habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_rng_callback_state_in_ops/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md |
+| mod | mods/mod-swooper-maps/src/recipes/standard/stages/ | 8 | 8 | .habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md<br>.habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/pattern.md<br>.habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md |
+| relative | ./output.js | 7 | 14 | tools/habitat/src/resources/command/index.ts<br>tools/habitat/src/resources/command/runner.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts |
 | workspace-tool | grit<br>language js(typescript) | 7 | 7 | .habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/pattern.md<br>.habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md<br>.habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md |
-| mod | mods/mod-swooper-maps | 7 | 7 | .habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts<br>.habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh<br>.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/check.mjs |
 | mod | mods/mod-swooper-maps/src/domain/. | 7 | 7 | .habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md<br>.habitat/blueprints/domain-operation/block_engine_runtime_imports_from_domain_ops/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md |
-| mod | mods/mod-swooper-maps/src/recipes/standard/stages/ | 7 | 7 | .habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md<br>.habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md<br>.habitat/civ7/mapgen/domains/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/pattern.md |
 | workspace-tool | tsc --noEmit | 7 | 7 | apps/mapgen-studio/project.json#targets.check<br>mods/mod-civ7-intelligence-bridge/package.json#scripts.check<br>mods/mod-swooper-maps/project.json#targets.check |
-| relative | ./context.policy.js | 6 | 12 | tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts<br>tools/habitat/src/service/model/check/policy/structural/execution.policy.ts<br>tools/habitat/src/service/model/check/policy/structural/file-layer-execution.policy.ts |
-| relative | ./output.js | 6 | 12 | tools/habitat/src/providers/grit/index.ts<br>tools/habitat/src/providers/grit/request.ts<br>tools/habitat/src/providers/grit/runner.ts |
+| relative | ./command.js | 6 | 12 | tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/index.ts |
+| relative | ./context.policy.js | 6 | 12 | tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts<br>tools/habitat/src/service/model/check/policy/structural/diagnostic-execution.policy.ts<br>tools/habitat/src/service/model/check/policy/structural/execution.policy.ts |
 
 ## Direct Package Or Root Scripts Calling `.habitat` Internals
 
@@ -128,19 +114,13 @@ _None._
 | package.json | docs:project | ./.habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh && bunx docsify-cli serve ./docs --port 7979 |
 | tools/habitat/package.json | generate:schemas | bun run ../../.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/generate.ts |
 
-## `.rule.mjs` Files Importing Transitional Habitat Runtime
-
-_None._
-
 ## Checks Invoking Or Recommending Package Build/Currentness Commands
 
 | path | kind | command or tie |
 | --- | --- | --- |
-| .habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts | check-script | git; node:child_process; node:crypto; node:fs; node:path; node:url |
 | .habitat/civ7/mapgen/domains/ecology/_remainder/validate_ecology_op_contract_quality/check.sh | check-script | bun run --cwd mods/mod-swooper-maps validate:ecology-op-contract-quality |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts | check-script | git; node:child_process; node:fs; node:path; node:url |
 | .habitat/civ7/mapgen/sdk/visualization/rules/verify_visualization_runtime_build_artifacts/check.mjs | check-script | git; node:child_process; node:fs; node:path |
-| .habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts | check-script | bun --conditions bun-source --watch src/server/daemon/daemon.ts; bun --watch; git; node:child_process; node:fs; node:path; node:url |
+| .habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts | check-script | bun --conditions bun-source src/server/daemon/daemon.ts; bun --watch; git; node:child_process; node:fs; node:module; node:path |
 
 ## Unknown Or Unclassified Surfaces Requiring Follow-Up
 
@@ -148,6 +128,10 @@ _None._
 | --- | --- | --- |
 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs | check-script | ../../../_support/execution/command-check/mapgen-static-check-lib.mjs; node:path; ../../../_support/execution/command-check/mapgen-static-check-lib.mjs |
 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json | rule-json |  |
+| .habitat/blueprints/artifact/require_artifact_file_shape/pattern.md | pattern | >; ./artifacts/start-assignment.artifact.js; mods/mod-swooper-maps/src/. |
+| .habitat/blueprints/artifact/require_artifact_file_shape/rule.json | rule-json |  |
+| .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
+| .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/rule.json | rule-json |  |
 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md | pattern | ../../../../tags.js; ../../hydrology-hydrography/artifacts.js; mods/mod-swooper-maps/src/recipes/standard/stages/. |
 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/rule.json | rule-json |  |
 | .habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md | pattern | mods/mod-swooper-maps/src/domain/.; mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts; mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts |
@@ -164,18 +148,24 @@ _None._
 | .habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/rule.json | rule-json |  |
 | .habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/pattern.md | pattern | >; mods/mod-swooper-maps/src/domain/; mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts |
 | .habitat/blueprints/domain-operation/prohibit_runtime_orchestration_helpers_in_domain_ops/rule.json | rule-json |  |
-| .habitat/blueprints/domain-operation/require_domain_ops_root_presence/rule.json | rule-json |  |
-| .habitat/blueprints/domain-operation/require_domain_ops_root_presence/structure.toml | structure-spec |  |
+| .habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/pattern.md | pattern | ../../artifacts/demo.artifact.js; ../../model/config.js; ../../model/policy/demo-policy.js |
+| .habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/rule.json | rule-json |  |
+| .habitat/blueprints/domain-operation/require_domain_ops_registry_surface/pattern.md | pattern | >; rm; ./ |
+| .habitat/blueprints/domain-operation/require_domain_ops_registry_surface/rule.json | rule-json |  |
 | .habitat/blueprints/domain/prohibit_domain_artifacts_modules/rule.json | rule-json |  |
 | .habitat/blueprints/domain/prohibit_domain_artifacts_modules/structure.toml | structure-spec |  |
 | .habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/pattern.md | pattern | >; mods/mod-swooper-maps/src/domain/; grit<br>language js(typescript)<br><br>or { |
 | .habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/rule.json | rule-json |  |
 | .habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md | pattern | ../../../../../recipes-extra/standard.js; ../../../../../recipes-extra/standard/recipe.js; ../../../../../recipes/standard/recipe.js |
 | .habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/rule.json | rule-json |  |
-| .habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/pattern.md | pattern | generate; ./ops/index.js; generatedTags |
-| .habitat/blueprints/domain/prohibit_retired_domain_root_catalogs/rule.json | rule-json |  |
 | .habitat/blueprints/domain/prohibit_unknown_bag_config_usage/pattern.md | pattern | mods/mod-swooper-maps/src/domain/.; grit<br>language js(typescript)<br><br>or {<br>  contains "UnknownRecord",<br>  contains "INTERNAL_METADATA_KEY"<br>} where {<br>  $filename <: r".*mods/mod-swooper-maps/src/domain/.*\.ts$"<br>} |
 | .habitat/blueprints/domain/prohibit_unknown_bag_config_usage/rule.json | rule-json |  |
+| .habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/pattern.md | pattern | >; ../ops/compute-crust/contract.js; ./plate-activity.schema.js |
+| .habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/rule.json | rule-json |  |
+| .habitat/blueprints/domain/require_domain_ops_binding_surface/pattern.md | pattern | ./compute-mesh/index.js; ./index.js; ./model/policy/helper.js |
+| .habitat/blueprints/domain/require_domain_ops_binding_surface/rule.json | rule-json |  |
+| .habitat/blueprints/domain/require_domain_source_topology/rule.json | rule-json |  |
+| .habitat/blueprints/domain/require_domain_source_topology/structure.toml | structure-spec |  |
 | .habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md | pattern | ../../../../../domain/hydrology/index.js; ../../../../domain/hydrology/index.js; ./ |
 | .habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/rule.json | rule-json |  |
 | .habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; source; node:child_process |
@@ -183,10 +173,10 @@ _None._
 | .habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
 | .habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/rule.json | rule-json |  |
 | .habitat/blueprints/mod-map/protect_generated_map_entrypoints_from_hand_edits/rule.json | rule-json |  |
-| .habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:crypto |
-| .habitat/blueprints/mod-map/validate_generated_map_entrypoint_contracts/rule.json | rule-json |  |
 | .habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md | pattern | ../../b/steps/foo/index.js; ../../b/steps/foo/types.js; ../b/steps/foo/contract.js |
 | .habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/rule.json | rule-json |  |
+| .habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/pattern.md | pattern | >; ../placement-public-config.js; ./ |
+| .habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/rule.json | rule-json |  |
 | .habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md | pattern | ../../hydrology/viz.js; ../mesh/viz.js; ../steps/viz.js |
 | .habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/rule.json | rule-json |  |
 | .habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/pattern.md | pattern | build; generate; ../../@mapgen/domain/ecology/ops |
@@ -234,8 +224,6 @@ _None._
 | .habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs | check-script | ../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs; node:path; build |
 | .habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/support.pattern.md | pattern | generate; mods/mod-swooper-maps/src/; grit<br>language js(typescript)<br><br>or {<br>  contains r"\.\s*getRandomNumber\s*\(" where {<br>    $filename <: r".*mods/mod-swooper-maps/src/(?:domain\|recipes/standard)/.*\.ts$"<br>  },<br>  contains r"\bTerrainBuilder\s*\.\s*getRandomNumber\s*\(" where {<br>    $filename <: r".*mods/mod-swooper-maps/src/(?:domain\|recipes/standard)/.*\.ts$"<br>  },<br>  contains r"\bMath\s*\.\s*random\s*\(" where {<br>    $filename <: r".*mods/mod-swooper-maps/src/(?:domain\|recipes/standard)/.*\.ts$"<br>  },<br>  contains r"\.\s*(?:generateLakes\|designateBiomes\|addFeatures\|generateSnow\|generateResources\|generateOfficialResources\|generateDiscoveries\|generateOfficialDiscoveries\|assignStartPositions\|chooseStartSectors)\s*\(" where {<br>    $filename <: r".*mods/mod-swooper-maps/src/(?:domain\|recipes/standard)/.*\.ts$"<br>  },<br>  import_statement(source=$source) where {<br>    $filename <: r".*mods/mod-swooper-maps/src/(?:domain\|recipes/standard)/.*\.ts$",<br>    $source <: r"^[\"']?@swooper/mapgen-core/lib/rng[\"']?$"<br>  }<br>} |
-| .habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/pattern.md | pattern | >; generate; mods/mod-swooper-maps/src/ |
-| .habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md | pattern | >; mods/; mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts |
 | .habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_local_config_default_merging/pattern.md | pattern | mods/mod-swooper-maps/src/; mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts; mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/strategies/default.ts |
@@ -256,10 +244,6 @@ _None._
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_tag_catalog_owner_tokens/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:path |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_artifacts_match_source_stages/rule.json | rule-json |  |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:path |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_standard_recipe_public_authoring_surface/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source/pattern.md | pattern | mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection; grit<br>language js(typescript)<br><br>or { |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_stage_cast_merge_hacks/pattern.md | pattern | mods/mod-swooper-maps/src/recipes/standard/stages/foundation-; grit<br>language js(typescript)<br><br>or {<br>  contains r"const (?:mantleOverrideValues\|budgetsOverrideValues\|meshOverrideValues) = \(advanced\?\.[^)]* \?\? \{\}\) as",<br>  contains r"typeof (?:mantleOverrideValues\|budgetsOverrideValues\|meshOverrideValues)\.", |
@@ -303,6 +287,34 @@ _None._
 | .habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/recipe-dag/rules/require_studio_ui_recipe_artifact_imports/pattern.md | pattern | ../mod-swooper-maps/recipes/standard; apps/mapgen-studio/src/.; apps/mapgen-studio/src/App.js |
 | .habitat/civ7/mapgen/studio/recipe-dag/rules/require_studio_ui_recipe_artifact_imports/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-attribution-report-boundary/pattern.md | pattern | build; ./attributionReport; apps/mapgen-studio/src/server |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-attribution-report-boundary/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/pattern.md | pattern | >; packages/studio-contract/src/index; packages/studio-contract/src/index.ts |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/pattern.md | pattern | >; generate; apps/mapgen-studio/src/server/studio/engines |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-copy-deploy-boundary/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/pattern.md | pattern | >; apps/mapgen-studio/src/server/runInGame/runtimeObservation; apps/mapgen-studio/src/server/runInGame/runtimeObservation.ts |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-generator-port-boundary/pattern.md | pattern | >; generate; apps/mapgen-studio/src/server/. |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-generator-port-boundary/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/pattern.md | pattern | apps/mapgen-studio/src/app/hooks/useRunInGame; apps/mapgen-studio/src/app/hooks/useRunInGame.ts; packages/studio-contract/src/runInGame |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-launch-source-boundary/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/pattern.md | pattern | >; rename; rm |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/pattern.md | pattern | >; packages/studio-contract/src/runInGame; packages/studio-contract/src/runInGame.ts |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-public-contract-closed/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-map-render-file-plan-boundary/pattern.md | pattern | >; build; generate |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-map-render-file-plan-boundary/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-run-manifest-generator-boundary/pattern.md | pattern | build; generate; writeFile |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-run-manifest-generator-boundary/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/check.mjs | check-script | "bun" args {<br>    cwd: repoRoot,<br>    encoding: "utf8",<br>    env: { ...process.env, HABITAT_STUDIO_RUN_AUTHORITY_CLOSURE_CHILD: "1" },<br>    maxBuffer: 20 * 1024 * 1024,<br>  }; node:child_process; node:fs |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/structure-studio-run-workspace-topology/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/structure-studio-run-workspace-topology/structure.toml | structure-spec |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-index-target-topology/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-index-target-topology/structure.toml | structure-spec |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-source-index/rule.json | rule-json |  |
+| .habitat/civ7/mapgen/studio/run-in-game/rules/structure-swooper-catalog-source-index/structure.toml | structure-spec |  |
 | .habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
 | .habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/rule.json | rule-json |  |
 | .habitat/civ7/mapgen/studio/server/rules/prohibit_studio_rpc_eventhub_lifecycle_leaks/pattern.md | pattern | apps/mapgen-studio/src/server/daemon/daemon; apps/mapgen-studio/src/server/daemon/daemon.ts; apps/mapgen-studio/src/server/studio/context |
@@ -354,6 +366,8 @@ _None._
 | .habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/operation.md | operation-note | bash<br>bun run --cwd tools/habitat generate:schemas; generate; .habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/scaffold-pattern.schema.json |
 | .habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md | pattern | .habitat/habitat/toolkit/_blueprints/service-module/example-rule/rule.json; apps/; apps/mapgen-studio |
 | .habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/rule.json | rule-json |  |
+| .habitat/habitat/toolkit/_blueprints/rule-diagnostics/prohibit_rule_diagnostics_provider_imports/pattern.md | pattern | ../resources/rule-diagnostics/providers/grit/index.js; ../resources/rule-diagnostics/providers/grit/provider.js; ../src/resources/rule-diagnostics/providers/grit/index.js |
+| .habitat/habitat/toolkit/_blueprints/rule-diagnostics/prohibit_rule_diagnostics_provider_imports/rule.json | rule-json |  |
 | .habitat/habitat/toolkit/_blueprints/service-module/enforce_habitat_orpc_service_wiring_shape/pattern.md | pattern | >; ../../impl.js; ../module.js |
 | .habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/check.ts | check-script | node:fs; node:path; .habitat |
 | .habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/rule.json | rule-json |  |

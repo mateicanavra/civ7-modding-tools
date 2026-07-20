@@ -38,34 +38,5 @@ export function ruleDiagnosticsFromCommandResult(
   rule: CommandResultRuleFacts,
   res: SpawnResult
 ): HabitatDiagnostic[] {
-  if (rule.id === "ensure_docs_checkout_paths_are_portable")
-    return docsLocalCheckoutPathDiagnostics(rule, res);
   return coarse(rule, res);
-}
-
-function docsLocalCheckoutPathDiagnostics(
-  rule: CommandResultRuleFacts,
-  res: SpawnResult
-): HabitatDiagnostic[] {
-  if (res.exitCode === 0) return [];
-  const lines = (res.stdout + res.stderr)
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const severity: HabitatDiagnostic["severity"] = rule.lane === "advisory" ? "advisory" : "error";
-  const diagnostics = lines.flatMap((line) => {
-    const match = /^(.*\.md):(\d+):\s*(.+)$/.exec(line);
-    if (!match) return [];
-    return [
-      {
-        ruleId: rule.id,
-        path: match[1] ?? ".",
-        line: Number.parseInt(match[2] ?? "1", 10),
-        message: match[3] ?? rule.message,
-        severity,
-        baselined: false,
-      },
-    ];
-  });
-  return diagnostics.length > 0 ? diagnostics : coarse(rule, res);
 }

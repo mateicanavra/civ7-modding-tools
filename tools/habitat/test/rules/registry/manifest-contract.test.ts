@@ -176,6 +176,39 @@ describe("location-independent rule manifests", () => {
     ).rejects.toThrow(/missing-runner: referenced runner or support file does not exist/);
   });
 
+  test("rejects a missing admitted fix pattern before planning", async () => {
+    const registryDir = path.join("/", "repo", ".habitat");
+    const rulePath = path.join(registryDir, "inventory/current/rules/missing-fix/rule.json");
+    const patternPath = path.posix.join(".habitat", "execution/rules/missing-fix/pattern.md");
+    const fixPatternPath = path.posix.join(
+      ".habitat",
+      "execution/rules/missing-fix/fix.pattern.md"
+    );
+    const baselinePath = path.posix.join(".habitat", "execution/rules/missing-fix/baseline.json");
+    const fileSystem = virtualRegistryFileSystem({
+      [path.join(registryDir, "index.json")]: JSON.stringify(rulePackIndex()),
+      [rulePath]: JSON.stringify(
+        ruleManifest({
+          id: "missing-fix",
+          scanRoots: ["tools/habitat"],
+          runner: {
+            name: "grit",
+            files: { pattern: patternPath },
+            patternName: "missing_fix",
+            fix: { kind: "plan-only", pattern: fixPatternPath },
+          },
+          supportFiles: { baseline: baselinePath },
+        })
+      ),
+      [path.join("/repo", patternPath)]: "pattern body\n",
+      [path.join("/repo", baselinePath)]: "[]\n",
+    });
+
+    await expect(
+      Effect.runPromise(loadRuleRegistryDocumentEffect(registryDir, fileSystem))
+    ).rejects.toThrow(/missing-fix: referenced runner or support file does not exist/);
+  });
+
   test("rejects missing explicit support file references before execution", async () => {
     const registryDir = "/repo/.habitat";
     const rulePath = path.join(registryDir, "inventory/current/rules/missing-baseline/rule.json");

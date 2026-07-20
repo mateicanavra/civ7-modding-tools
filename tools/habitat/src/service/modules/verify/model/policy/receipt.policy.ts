@@ -100,7 +100,7 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
         );
   const postState = postStateObservation(input.gitStatus, { repoRoot: input.repoRoot });
   return Value.Parse(VerifyReceiptSchema, {
-    schemaVersion: 1,
+    schemaVersion: 2,
     outcome: receiptOutcome({
       check: habitatCheckSummary,
       targetPlan,

@@ -1,5 +1,6 @@
 import { repoRoot } from "@habitat/cli/resources/paths";
 import { isFileSync, readTextSync, statKindSync } from "@habitat/cli/resources/platform/filesystem";
+import { pathCoveragePatternMatches } from "@habitat/cli/service/model/rules/index";
 import type {
   WorkspaceGraphReadState,
   WorkspaceProject,
@@ -55,6 +56,12 @@ const defaultClassifyOptions = {
 };
 
 describe("Habitat classify D4 result model", () => {
+  test("uses the installed glob grammar for exact path coverage", () => {
+    expect(pathCoveragePatternMatches("docs/{PRODUCT,SYSTEM}.md", "docs/PRODUCT.md")).toBe(true);
+    expect(pathCoveragePatternMatches("docs/{PRODUCT,SYSTEM}.md", "docs/ROADMAP.md")).toBe(false);
+    expect(pathCoveragePatternMatches("tools/habitat", "tools/habitat/src/index.ts")).toBe(true);
+  });
+
   test("classifies project paths with D2 routing and D3 target guidance", async () => {
     const result = await classifyPathResult("tools/habitat/src/nx-plugin.ts", {
       ...defaultClassifyOptions,

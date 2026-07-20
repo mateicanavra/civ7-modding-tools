@@ -7,7 +7,6 @@ type Invoker = "habitat" | "package" | "nx" | "direct-script" | "unknown";
 
 type SurfaceKind =
   | "rule-json"
-  | "rule-module"
   | "check-script"
   | "fix-script"
   | "generate-script"
@@ -23,7 +22,6 @@ type SurfaceKind =
 
 type SurfaceRole =
   | "runner_metadata"
-  | "source_check_adapter"
   | "policy_pattern"
   | "structure_authority"
   | "command_check_executor"
@@ -35,7 +33,6 @@ type Bucket =
   | "habitat_invoked"
   | "package_invoked"
   | "direct_script_invoked"
-  | "transitional_runtime_tie"
   | "package_boundary_tie"
   | "nx_ordering_tie"
   | "mutation_surface"
@@ -107,25 +104,12 @@ interface SurfaceRecord {
   buckets: Bucket[];
 }
 
-interface RuleModuleAnatomy {
-  exports: string[];
-  hasExpectedExportShape: boolean;
-  importsTransitionalRuntime: boolean;
-  runtimeHelpers: string[];
-  candidateExtensions: string[];
-  regexLiteralCount: number;
-  lineCount: number;
-  predicateSignals: string[];
-  separableSupportSignals: string[];
-}
-
 interface ExecutionAnatomy {
   roles: AnatomyRole[];
   summary: string;
   runnerContract?: string;
   supportSignals: string[];
   transientSignals: string[];
-  ruleModule?: RuleModuleAnatomy;
 }
 
 interface SupportFileRecord {
@@ -156,7 +140,6 @@ interface RuleRecord {
 const habitatSurfaceSuffixes = [
   "/rule.json",
   ".rule.json",
-  ".rule.mjs",
   "/check.ts",
   "/check.mjs",
   "/check.js",
@@ -208,6 +191,7 @@ const cliSourcePrefixes = [
   "tools/habitat/src/cli/",
   "tools/habitat/src/providers/",
   "tools/habitat/src/resources/command/",
+  "tools/habitat/src/resources/rule-diagnostics/",
   "tools/habitat/src/service/model/check/",
   "tools/habitat/src/service/model/rules/",
   "tools/habitat/src/service/model/source-check/",
@@ -303,7 +287,9 @@ function walkFiles(root: string): string[] {
   for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
     const absolute = path.join(root, entry.name);
     if (entry.isDirectory()) {
-      if (!ignoredDirectoryNames.has(entry.name)) out.push(...walkFiles(absolute));
+      if (!ignoredDirectoryNames.has(entry.name) && !fs.existsSync(path.join(absolute, ".git"))) {
+        out.push(...walkFiles(absolute));
+      }
       continue;
     }
     if (entry.isFile()) out.push(absolute);
@@ -318,7 +304,6 @@ function isHabitatSurface(relPath: string): boolean {
 
 function surfaceKindFor(relPath: string): SurfaceKind {
   if (relPath.endsWith("/rule.json") || relPath.endsWith(".rule.json")) return "rule-json";
-  if (relPath.endsWith(".rule.mjs")) return "rule-module";
   if (/\/check\.[^.]+$/.test(relPath) || /\.check\.[^.]+$/.test(relPath)) return "check-script";
   if (/\/fix\.[^.]+$/.test(relPath) || /\.fix\.[^.]+$/.test(relPath)) return "fix-script";
   if (/\/generate\.[^.]+$/.test(relPath) || /\.generate\.[^.]+$/.test(relPath))
@@ -335,7 +320,6 @@ function surfaceKindFor(relPath: string): SurfaceKind {
 
 function surfaceRoleFor(kind: SurfaceKind): SurfaceRole {
   if (kind === "rule-json") return "runner_metadata";
-  if (kind === "rule-module") return "source_check_adapter";
   if (kind === "pattern" || kind === "apply-pattern") return "policy_pattern";
   if (kind === "structure-spec") return "structure_authority";
   if (kind === "check-script") return "command_check_executor";
@@ -528,7 +512,7 @@ function makeStaticTies(ties: StaticTie[]) {
       .map((tie) => tie.value),
     relativeHabitatImports: all
       .filter((tie) => tie.value.startsWith("../") || tie.value.startsWith("./"))
-      .filter((tie) => tie.value.includes(".habitat") || tie.value.includes("rule-runtime.policy"))
+      .filter((tie) => tie.value.includes(".habitat"))
       .map((tie) => tie.value),
     packageAppModImports: all
       .filter((tie) => ["package", "app", "mod"].includes(tie.targetClass))
@@ -548,88 +532,8 @@ function uniqueSorted<T extends string>(items: readonly T[]): T[] {
   return [...new Set(items)].sort();
 }
 
-function analyzeRuleModule(text: string): RuleModuleAnatomy {
-  const sourceFile = ts.createSourceFile(
-    "rule.mjs",
-    text,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.JS
-  );
-  const exported = new Set<string>();
-  const candidateExtensions = new Set<string>();
-
-  const visit = (node: ts.Node): void => {
-    const modifiers = ts.canHaveModifiers(node) ? (ts.getModifiers(node) ?? []) : [];
-    const isExported = modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword);
-    if (isExported && ts.isVariableStatement(node)) {
-      for (const declaration of node.declarationList.declarations) {
-        if (ts.isIdentifier(declaration.name)) {
-          exported.add(declaration.name.text);
-          if (
-            declaration.name.text === "candidateExtensions" &&
-            declaration.initializer &&
-            ts.isArrayLiteralExpression(declaration.initializer)
-          ) {
-            for (const element of declaration.initializer.elements) {
-              if (ts.isStringLiteralLike(element)) candidateExtensions.add(element.text);
-            }
-          }
-        }
-      }
-    }
-    if (isExported && ts.isFunctionDeclaration(node) && node.name) exported.add(node.name.text);
-    ts.forEachChild(node, visit);
-  };
-  visit(sourceFile);
-
-  const runtimeHelpers = uniqueSorted(
-    [...text.matchAll(/\bruntime\.([A-Za-z_$][A-Za-z0-9_$]*)/g)].map((match) => match[1] ?? "")
-  );
-  const regexLiteralCount = [...text.matchAll(/\/(?:\\\/|[^/\n])+\/[dgimsuy]*/g)].length;
-  const predicateSignals = uniqueSorted([
-    ...(regexLiteralCount > 0 ? ["regex/path/source predicates"] : []),
-    ...(runtimeHelpers.some((helper) => ["importRefs", "sourceRefsMatching"].includes(helper))
-      ? ["import/export reference predicates"]
-      : []),
-    ...(runtimeHelpers.some((helper) =>
-      ["callExpressions", "propertyCallExpressions"].includes(helper)
-    )
-      ? ["AST call-expression predicates"]
-      : []),
-    ...(runtimeHelpers.includes("policy") ? ["shared runtime policy helper"] : []),
-    ...(text.includes("file.text") ? ["raw text scan predicates"] : []),
-  ]);
-  const separableSupportSignals = uniqueSorted([
-    ...(text.includes("/fixtures/") || text.includes("/support/")
-      ? ["references support files"]
-      : []),
-    ...(/readFile|readText|fs\./.test(text) ? ["reads auxiliary files"] : []),
-  ]);
-
-  return {
-    exports: uniqueSorted([...exported]),
-    hasExpectedExportShape:
-      exported.size === 3 &&
-      exported.has("ruleId") &&
-      exported.has("candidateExtensions") &&
-      exported.has("diagnosticsForRule"),
-    importsTransitionalRuntime:
-      text.includes("rule-runtime.policy.mjs") ||
-      text.includes("sourceCheckRuntime") ||
-      text.includes("preserve_legacy_source_check_runtime_during_cutover"),
-    runtimeHelpers,
-    candidateExtensions: uniqueSorted([...candidateExtensions]),
-    regexLiteralCount,
-    lineCount: text.split("\n").length,
-    predicateSignals,
-    separableSupportSignals,
-  };
-}
-
 function anatomyForSurface(
-  surface: Omit<SurfaceRecord, "buckets" | "anatomy"> & { readonly buckets?: readonly Bucket[] },
-  ruleModule?: RuleModuleAnatomy
+  surface: Omit<SurfaceRecord, "buckets" | "anatomy"> & { readonly buckets?: readonly Bucket[] }
 ): ExecutionAnatomy {
   const roles = new Set<AnatomyRole>();
   const supportSignals = new Set<string>();
@@ -651,23 +555,14 @@ function anatomyForSurface(
       roles.add("entrypoint");
     }
   }
-  if (surface.surfaceKind === "rule-json" || surface.surfaceKind === "rule-module")
-    roles.add("adapter");
+  if (surface.surfaceKind === "rule-json") roles.add("adapter");
   if (surface.surfaceKind === "habitat-cli-source") roles.add("runner-runtime");
   if (
     surface.surfaceKind === "pattern" ||
     surface.surfaceKind === "apply-pattern" ||
-    surface.surfaceKind === "rule-module" ||
     surface.surfaceKind === "structure-spec"
   ) {
     roles.add("policy-predicate");
-  }
-  if (
-    surface.buckets?.includes("transitional_runtime_tie") ||
-    tieText.includes("rule-runtime.policy.mjs")
-  ) {
-    roles.add("transient-dependency");
-    transientSignals.add("imports transitional source-check runtime");
   }
   if (
     surface.buckets?.includes("nx_ordering_tie") ||
@@ -689,20 +584,9 @@ function anatomyForSurface(
     roles.add("fixture-support");
     supportSignals.add("references fixture/support path");
   }
-  if (ruleModule?.separableSupportSignals.length) {
-    roles.add("fixture-support");
-    for (const signal of ruleModule.separableSupportSignals) supportSignals.add(signal);
-  }
-
   let summary = "Classified execution surface.";
   let runnerContract: string | undefined;
-  if (surface.surfaceKind === "rule-module") {
-    runnerContract =
-      "Dynamically imported by source-check; must export ruleId, candidateExtensions, and diagnosticsForRule.";
-    summary = surface.path.startsWith(".habitat/_support/execution/source-check/adapters/")
-      ? "Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload."
-      : "Transitional source-check adapter: the runner imports this module, while diagnosticsForRule carries the predicate payload. Regexes/path checks are policy predicates unless they reference auxiliary support files.";
-  } else if (surface.surfaceKind === "rule-json") {
+  if (surface.surfaceKind === "rule-json") {
     runnerContract = "Read by Habitat registry/catalog loading; not policy authority by itself.";
     summary =
       "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.";
@@ -730,7 +614,6 @@ function anatomyForSurface(
     runnerContract,
     supportSignals: uniqueSorted([...supportSignals]),
     transientSignals: uniqueSorted([...transientSignals]),
-    ruleModule,
   };
 }
 
@@ -743,13 +626,6 @@ function classifyBuckets(surface: Omit<SurfaceRecord, "buckets">): Bucket[] {
     buckets.add("direct_script_invoked");
 
   const tieText = surface.staticTies.all.map((tie) => tie.value).join("\n");
-  if (
-    tieText.includes("preserve_legacy_source_check_runtime_during_cutover") ||
-    tieText.includes("_support/execution/source-check/runtime") ||
-    tieText.includes("rule-runtime.policy.mjs")
-  ) {
-    buckets.add("transitional_runtime_tie");
-  }
   if (
     surface.path.startsWith(".habitat/") &&
     surface.staticTies.all.some((tie) => ["package", "app", "mod"].includes(tie.targetClass))
@@ -812,7 +688,7 @@ function addInvokedBy(existing: SurfaceRecord, invoker: Invoker): SurfaceRecord 
   return {
     ...updated,
     buckets,
-    anatomy: anatomyForSurface({ ...updated, buckets }, existing.anatomy.ruleModule),
+    anatomy: anatomyForSurface({ ...updated, buckets }),
   };
 }
 
@@ -839,7 +715,7 @@ function discoverHabitatSurfaces(repoRoot: string): SurfaceRecord[] {
           addTie(ties, "rule-detect-command", command);
           collectStringLiteralTies(ties, command);
         }
-      } else if (["rule-module", "check-script", "fix-script", "generate-script"].includes(kind)) {
+      } else if (["check-script", "fix-script", "generate-script"].includes(kind)) {
         ties.push(...analyzeScriptLike(filePath, relPath, text));
       } else {
         for (const match of text.matchAll(/`([^`]+)`/g))
@@ -857,13 +733,7 @@ function discoverHabitatSurfaces(repoRoot: string): SurfaceRecord[] {
         isDirectEntrypoint: false,
         staticTies: makeStaticTies(ties),
       };
-      return createSurface({
-        ...input,
-        anatomy:
-          kind === "rule-module"
-            ? anatomyForSurface(input, analyzeRuleModule(text))
-            : anatomyForSurface(input),
-      });
+      return createSurface({ ...input, anatomy: anatomyForSurface(input) });
     });
 }
 
@@ -1097,8 +967,6 @@ function markReferencedHabitatFiles(surfaces: SurfaceRecord[]): SurfaceRecord[] 
 }
 
 function invokedHabitatSurfacePathsForRuleJson(surface: SurfaceRecord, stem: string): string[] {
-  const ruleId = path.basename(stem);
-  if (surface.declaredOwnerTool === "source-check") return [sourceCheckAdapterPath(ruleId)];
   if (surface.declaredOwnerTool === "grit-check") return [`${stem}.pattern.md`];
   if (surface.declaredOwnerTool === "structure-check") return [`${stem}.structure.toml`];
   if (surface.declaredOwnerTool === "command-check" || surface.declaredOwnerTool === "habitat") {
@@ -1107,10 +975,6 @@ function invokedHabitatSurfacePathsForRuleJson(surface: SurfaceRecord, stem: str
     );
   }
   return [];
-}
-
-function sourceCheckAdapterPath(ruleId: string): string {
-  return `.habitat/_support/execution/source-check/adapters/${ruleId}.rule.mjs`;
 }
 
 function countBy<T extends string>(items: readonly T[]): Record<T, number> {
@@ -1123,11 +987,10 @@ function fanout(surfaces: SurfaceRecord[]) {
   const groups = new Map<string, { targetClass: string; count: number; sources: Set<string> }>();
   for (const surface of surfaces) {
     for (const tie of surface.staticTies.all) {
-      const normalizedTie = normalizeFanoutTie(tie);
-      if (["node-builtin", "external", "unknown"].includes(normalizedTie.targetClass)) continue;
-      const key = `${normalizedTie.targetClass}:${normalizedTie.target}`;
+      if (["node-builtin", "external", "unknown"].includes(tie.targetClass)) continue;
+      const key = `${tie.targetClass}:${tie.value}`;
       const existing = groups.get(key) ?? {
-        targetClass: normalizedTie.targetClass,
+        targetClass: tie.targetClass,
         count: 0,
         sources: new Set<string>(),
       };
@@ -1152,43 +1015,8 @@ function fanout(surfaces: SurfaceRecord[]) {
     );
 }
 
-function normalizeFanoutTie(tie: StaticTie): { target: string; targetClass: string } {
-  if (
-    tie.value.includes(
-      "preserve_legacy_source_check_runtime_during_cutover/rule-runtime.policy.mjs"
-    ) ||
-    tie.value.includes("_support/execution/source-check/runtime/rule-runtime.policy.mjs") ||
-    tie.value.endsWith("rule-runtime.policy.mjs")
-  ) {
-    return {
-      target: ".habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs",
-      targetClass: "habitat-support",
-    };
-  }
-
-  return { target: tie.value, targetClass: tie.targetClass };
-}
-
 function assertExpectedFacts(surfaces: SurfaceRecord[]): string[] {
   const errors: string[] = [];
-  const ruleJsonCount = surfaces.filter((surface) => surface.surfaceKind === "rule-json").length;
-  const activeSourceCheckRuleCount = surfaces.filter(
-    (surface) => surface.surfaceKind === "rule-json" && surface.declaredOwnerTool === "source-check"
-  ).length;
-  const ruleModuleCount = surfaces.filter(
-    (surface) => surface.surfaceKind === "rule-module"
-  ).length;
-  const ruleModules = surfaces.filter((surface) => surface.surfaceKind === "rule-module");
-  const transitionalRuleModules = surfaces.filter(
-    (surface) =>
-      surface.surfaceKind === "rule-module" && surface.buckets.includes("transitional_runtime_tie")
-  ).length;
-  const expectedRuleModuleExports = ruleModules.filter(
-    (surface) => surface.anatomy.ruleModule?.hasExpectedExportShape
-  ).length;
-  const anatomyRuntimeImports = ruleModules.filter(
-    (surface) => surface.anatomy.ruleModule?.importsTransitionalRuntime
-  ).length;
   const rootDocsProject = surfaces.some(
     (surface) =>
       surface.surfaceKind === "package-script" &&
@@ -1204,26 +1032,6 @@ function assertExpectedFacts(surfaces: SurfaceRecord[]): string[] {
       surface.packageScript.command.includes(".habitat/")
   );
 
-  if (ruleModuleCount !== activeSourceCheckRuleCount) {
-    errors.push(
-      `Expected ${activeSourceCheckRuleCount} active source-check .rule.mjs files, found ${ruleModuleCount}.`
-    );
-  }
-  if (transitionalRuleModules !== activeSourceCheckRuleCount) {
-    errors.push(
-      `Expected ${activeSourceCheckRuleCount} transitional source-check runtime imports, found ${transitionalRuleModules}.`
-    );
-  }
-  if (expectedRuleModuleExports !== activeSourceCheckRuleCount) {
-    errors.push(
-      `Expected ${activeSourceCheckRuleCount} .rule.mjs files with ruleId/candidateExtensions/diagnosticsForRule exports, found ${expectedRuleModuleExports}.`
-    );
-  }
-  if (anatomyRuntimeImports !== activeSourceCheckRuleCount) {
-    errors.push(
-      `Expected ${activeSourceCheckRuleCount} .rule.mjs anatomy runtime imports, found ${anatomyRuntimeImports}.`
-    );
-  }
   if (!rootDocsProject) errors.push("Did not detect root docs:project direct .habitat call.");
   if (!toolkitGenerateSchemas)
     errors.push("Did not detect tools/habitat generate:schemas direct .habitat call.");
@@ -1274,48 +1082,6 @@ function anatomyRoleCounts(surfaces: readonly SurfaceRecord[]): Record<AnatomyRo
   return countBy(surfaces.flatMap((surface) => surface.anatomy.roles));
 }
 
-function ruleModuleRuntimeHelperFanout(surfaces: readonly SurfaceRecord[]) {
-  const groups = new Map<string, Set<string>>();
-  for (const surface of surfaces) {
-    if (surface.surfaceKind !== "rule-module") continue;
-    for (const helper of surface.anatomy.ruleModule?.runtimeHelpers ?? []) {
-      const existing = groups.get(helper) ?? new Set<string>();
-      existing.add(surface.path);
-      groups.set(helper, existing);
-    }
-  }
-  return [...groups.entries()]
-    .map(([helper, sourcePaths]) => ({
-      helper,
-      sourceCount: sourcePaths.size,
-      sampleSources: [...sourcePaths].sort().slice(0, 5),
-    }))
-    .sort(
-      (left, right) =>
-        right.sourceCount - left.sourceCount || left.helper.localeCompare(right.helper)
-    );
-}
-
-function ruleModuleAnatomySummary(surfaces: readonly SurfaceRecord[]) {
-  const ruleModules = surfaces.filter((surface) => surface.surfaceKind === "rule-module");
-  return {
-    total: ruleModules.length,
-    expectedExportShape: ruleModules.filter(
-      (surface) => surface.anatomy.ruleModule?.hasExpectedExportShape
-    ).length,
-    transitionalRuntimeImports: ruleModules.filter(
-      (surface) => surface.anatomy.ruleModule?.importsTransitionalRuntime
-    ).length,
-    separableSupportCandidates: ruleModules.filter(
-      (surface) => (surface.anatomy.ruleModule?.separableSupportSignals.length ?? 0) > 0
-    ).length,
-    candidateExtensions: uniqueSorted(
-      ruleModules.flatMap((surface) => surface.anatomy.ruleModule?.candidateExtensions ?? [])
-    ),
-    runtimeHelperFanout: ruleModuleRuntimeHelperFanout(ruleModules),
-  };
-}
-
 function markdownTable(headers: string[], rows: string[][]): string {
   if (rows.length === 0) return "_None._\n";
   const escape = (value: string) => value.replaceAll("|", "\\|").replaceAll("\n", "<br>");
@@ -1360,9 +1126,6 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     surface.packageScript?.command ?? surface.nxTarget?.command ?? "",
   ]);
 
-  const transitionRows = report.ruleModulesImportingTransitionalRuntime.map((surface) => [
-    surface.path,
-  ]);
   const currentnessRows = report.checksInvokingOrRecommendingPackageCurrentnessCommands.map(
     (surface) => [
       surface.path,
@@ -1395,23 +1158,6 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
       String(entry.references),
       entry.sampleSources.slice(0, 3).join("<br>"),
     ]);
-  const helperRows = report.executionAnatomy.ruleModule.runtimeHelperFanout
-    .slice(0, 25)
-    .map((entry) => [
-      entry.helper,
-      String(entry.sourceCount),
-      entry.sampleSources.slice(0, 3).join("<br>"),
-    ]);
-  const ruleModuleRows = report.surfaces
-    .filter((surface) => surface.surfaceKind === "rule-module")
-    .map((surface) => [
-      surface.path,
-      surface.anatomy.ruleModule?.candidateExtensions.join(", ") ?? "",
-      surface.anatomy.ruleModule?.runtimeHelpers.join(", ") ?? "",
-      String(surface.anatomy.ruleModule?.regexLiteralCount ?? 0),
-      surface.anatomy.ruleModule?.separableSupportSignals.join("; ") || "none",
-    ]);
-
   return [
     "# Execution Surface Map",
     "",
@@ -1420,7 +1166,7 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     "## Sanity Assertions",
     "",
     report.summary.sanityAssertions.length === 0
-      ? `- Passed: ${report.summary.surfacesByKind["rule-json"] ?? 0} \`rule.json\`, ${report.summary.surfacesByKind["structure-spec"] ?? 0} \`structure.toml\`, ${report.executionAnatomy.ruleModule.total} active source-check \`.rule.mjs\`, ${report.executionAnatomy.ruleModule.transitionalRuntimeImports} transitional runtime imports, root \`docs:project\`, and \`tools/habitat\` \`generate:schemas\` were detected.`
+      ? `- Passed: ${report.summary.surfacesByKind["rule-json"] ?? 0} \`rule.json\`, ${report.summary.surfacesByKind["structure-spec"] ?? 0} \`structure.toml\`, root \`docs:project\`, and \`tools/habitat\` \`generate:schemas\` were detected.`
       : report.summary.sanityAssertions.map((issue) => `- ${issue}`).join("\n"),
     "",
     "## Surfaces By Kind",
@@ -1432,21 +1178,6 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     "## Execution Anatomy Roles",
     "",
     markdownTable(["anatomy role", "surface count"], anatomyRows),
-    "## `.rule.mjs` Anatomy",
-    "",
-    `- Total modules: ${report.executionAnatomy.ruleModule.total}`,
-    `- Expected export shape: ${report.executionAnatomy.ruleModule.expectedExportShape}`,
-    `- Transitional runtime imports: ${report.executionAnatomy.ruleModule.transitionalRuntimeImports}`,
-    `- Separable fixture/support candidates: ${report.executionAnatomy.ruleModule.separableSupportCandidates}`,
-    `- Candidate extensions: ${report.executionAnatomy.ruleModule.candidateExtensions.join(", ") || "none"}`,
-    "",
-    markdownTable(["runtime helper", "module count", "sample modules"], helperRows),
-    "## `.rule.mjs` Module Details",
-    "",
-    markdownTable(
-      ["path", "candidate extensions", "runtime helpers", "regex literals", "support signals"],
-      ruleModuleRows
-    ),
     "## Fixture/Support Files",
     "",
     markdownTable(["path", "support file", "virtual filenames", "lines"], supportRows),
@@ -1465,9 +1196,6 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     "## Direct Package Or Root Scripts Calling `.habitat` Internals",
     "",
     markdownTable(["package", "script", "command"], directRows),
-    "## `.rule.mjs` Files Importing Transitional Habitat Runtime",
-    "",
-    markdownTable(["path"], transitionRows),
     "## Checks Invoking Or Recommending Package Build/Currentness Commands",
     "",
     markdownTable(["path", "kind", "command or tie"], currentnessRows),
@@ -1497,11 +1225,6 @@ function renderAnatomyMarkdown(report: ReturnType<typeof buildReport>): string {
       .join("<br>");
     return [kind, String(count), samples];
   });
-  const helperRows = report.executionAnatomy.ruleModule.runtimeHelperFanout.map((entry) => [
-    entry.helper,
-    String(entry.sourceCount),
-    entry.sampleSources.slice(0, 3).join("<br>"),
-  ]);
   const transientRows = report.surfaces
     .filter((surface) => surface.anatomy.roles.includes("transient-dependency"))
     .slice(0, 50)
@@ -1510,11 +1233,6 @@ function renderAnatomyMarkdown(report: ReturnType<typeof buildReport>): string {
       surface.surfaceKind,
       surface.anatomy.transientSignals.join("; "),
     ]);
-  const ruleModuleRead =
-    report.executionAnatomy.ruleModule.total === 0
-      ? "- No active source-check `.rule.mjs` modules remain."
-      : "- `.rule.mjs` is currently a mixed surface: source-check adapter contract plus predicate payload.";
-
   return [
     "# Execution Surface Anatomy",
     "",
@@ -1522,8 +1240,6 @@ function renderAnatomyMarkdown(report: ReturnType<typeof buildReport>): string {
     "",
     "## Read",
     "",
-    ruleModuleRead,
-    "- No `.rule.mjs` module currently shows separable fixture/support-file signals.",
     "- Grit pattern examples in `.pattern.md` are not treated as fixture/support unless a runtime consumes them as separate support files.",
     "- Build/currentness and package-local command ties are flagged as transient dependency candidates for later pruning.",
     "",
@@ -1533,14 +1249,6 @@ function renderAnatomyMarkdown(report: ReturnType<typeof buildReport>): string {
     "## Surface Families",
     "",
     markdownTable(["family", "count", "sample read"], familyRows),
-    "## Source-Check Rule Modules",
-    "",
-    `- Modules: ${report.executionAnatomy.ruleModule.total}`,
-    `- Expected adapter export shape: ${report.executionAnatomy.ruleModule.expectedExportShape}`,
-    `- Transitional runtime imports: ${report.executionAnatomy.ruleModule.transitionalRuntimeImports}`,
-    `- Separable fixture/support candidates: ${report.executionAnatomy.ruleModule.separableSupportCandidates}`,
-    "",
-    markdownTable(["runtime helper", "module count", "sample modules"], helperRows),
     "## Transient Dependency Candidates",
     "",
     markdownTable(["path", "kind", "signals"], transientRows),
@@ -1568,10 +1276,6 @@ function buildReport(surfaces: SurfaceRecord[], supportFiles: SupportFileRecord[
     .filter((surface) => surface.surfaceKind === "package-script")
     .filter((surface) => surface.packageScript?.command.includes(".habitat/"))
     .sort((left, right) => left.id.localeCompare(right.id));
-  const transitionImports = surfaces
-    .filter((surface) => surface.surfaceKind === "rule-module")
-    .filter((surface) => surface.buckets.includes("transitional_runtime_tie"))
-    .sort((left, right) => left.path.localeCompare(right.path));
   const currentness = packageCurrentnessChecks(surfaces).sort((left, right) =>
     left.id.localeCompare(right.id)
   );
@@ -1598,11 +1302,9 @@ function buildReport(surfaces: SurfaceRecord[], supportFiles: SupportFileRecord[
     },
     executionAnatomy: {
       roleCounts: anatomyRoleCounts(surfaces),
-      ruleModule: ruleModuleAnatomySummary(surfaces),
     },
     topCrossBoundaryTiesByFanout: fanout(surfaces),
     directPackageRootScriptsCallingHabitatInternals: directScriptCalls,
-    ruleModulesImportingTransitionalRuntime: transitionImports,
     checksInvokingOrRecommendingPackageCurrentnessCommands: currentness,
     unknownUnclassifiedSurfaces: unknown,
     staleDetectTargets: staleTargets,
@@ -1639,7 +1341,7 @@ function main(): void {
   console.log(`Wrote ${posixRel(args.repoRoot, args.outMd)}`);
   if (args.outAnatomyMd) console.log(`Wrote ${posixRel(args.repoRoot, args.outAnatomyMd)}`);
   console.log(
-    `Surfaces: ${report.summary.totalSurfaces}; rule-json: ${report.summary.surfacesByKind["rule-json"] ?? 0}; rule-module: ${report.summary.surfacesByKind["rule-module"] ?? 0}`
+    `Surfaces: ${report.summary.totalSurfaces}; rule-json: ${report.summary.surfacesByKind["rule-json"] ?? 0}`
   );
 }
 

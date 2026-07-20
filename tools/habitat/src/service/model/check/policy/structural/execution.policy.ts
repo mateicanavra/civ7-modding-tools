@@ -1,9 +1,5 @@
 import type { CheckOptions } from "@habitat/cli/service/model/check/index";
-import type {
-  RuleHookCheckFacts,
-  RuleSelectorFacts,
-  RuleSourceFacts,
-} from "@habitat/cli/service/model/rules/index";
+import type { RuleHookCheckFacts, RuleSelectorFacts } from "@habitat/cli/service/model/rules/index";
 import { factsForRuleIds } from "@habitat/cli/service/model/rules/policy/catalog.policy";
 import type { RuleSelection } from "@habitat/cli/service/model/rules/policy/selection.policy";
 import { runStructureRulesEffect } from "@habitat/cli/service/model/structure-check/index";
@@ -13,14 +9,11 @@ import {
   executeGraphBackedCommandRulesEffect,
 } from "./command-execution.policy.js";
 import type { RuleExecutionRecord, StructuralExecutionContext } from "./context.policy.js";
+import { executeDiagnosticRulesEffect } from "./diagnostic-execution.policy.js";
 import {
   currentStagedPathsEffect,
   executeFileLayerRulesEffect,
 } from "./file-layer-execution.policy.js";
-import {
-  executeGritSourceRulesEffect,
-  executeNativeSourceRulesEffect,
-} from "./source-execution.policy.js";
 
 export function rulesForExecution(
   selectedRules: readonly RuleSelectorFacts[],
@@ -28,7 +21,6 @@ export function rulesForExecution(
     selection?: RuleSelection;
     hookCheck?: boolean;
     hookCheckFacts?: readonly RuleHookCheckFacts[];
-    sourceRuleFacts?: readonly RuleSourceFacts[];
     staged?: boolean;
     stagedPaths?: readonly string[];
   } = {}
@@ -73,13 +65,8 @@ export function executeSelectedRulesEffect(
   return Effect.gen(function* () {
     const results = new Map<string, RuleExecutionRecord>();
     const selectedRuleIds = selectedRules.map((rule) => rule.id);
-    const sourceRules = factsForRuleIds(context.rules.source, selectedRuleIds);
-    yield* executeNativeSourceRulesEffect(sourceRules, results, options, context, () =>
-      currentStagedPathsEffect(context)
-    );
-
-    const gritRules = factsForRuleIds(context.rules.grit, selectedRuleIds);
-    yield* executeGritSourceRulesEffect(gritRules, results, options, context, () =>
+    const diagnosticRules = factsForRuleIds(context.rules.diagnostic, selectedRuleIds);
+    yield* executeDiagnosticRulesEffect(diagnosticRules, results, options, context, () =>
       currentStagedPathsEffect(context)
     );
 

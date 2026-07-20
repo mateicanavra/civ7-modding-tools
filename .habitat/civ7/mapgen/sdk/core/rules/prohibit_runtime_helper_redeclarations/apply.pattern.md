@@ -7,7 +7,7 @@ Mechanically replaces exact runtime helper redeclarations with canonical helper
 imports when the helper body has a proven equivalent public helper.
 
 ```grit
-language js
+language js(typescript)
 
 or {
   program($statements) where {

@@ -2,7 +2,6 @@ export type { RuleExecutionRecord, StructuralExecutionContext } from "./context.
 export { executeSelectedRulesEffect, rulesForExecution } from "./execution.policy.js";
 export { createCheckReportEffect } from "./report.policy.js";
 export { selectorRefusalReportEffect } from "./selection.policy.js";
-export { stagedSourceCheckNotApplicableRecords } from "./source-execution.policy.js";
 export type {
   BaselineApplicationOutcome,
   DiagnosticConsumptionOutcome,

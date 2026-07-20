@@ -145,47 +145,47 @@ Supported outcome:
 - candidate manifest and candidate pattern draft are written under
   `.habitat/patterns/candidates`;
 - no active enforcement state is created;
-- the candidate remains outside the rule pack until promoted.
+- the candidate remains outside the rule pack unless a rule is authored and
+  reviewed separately.
 
 This is the correct first move for a new rule idea.
 
-### Promote A Habitat Pattern After Review
+### Author An Active Habitat Rule After Review
 
-Use the same generator with registered lifecycle flags only after an accepted
-pattern manifest and baseline contract exist.
+Do not use the candidate generator as a promotion surface. Author and review a
+location-independent `rule.json` with its explicit runner, artifacts, and
+baseline contract.
 
 Supported outcome:
 
-- accepted manifest is validated;
+- the active `rule.json` is validated;
 - baseline contract is validated;
-- live registration writes are refused by the candidate generator;
-- accepted active rules must be authored as location-independent `rule.json`
-  manifests with explicit runner and artifact references through pattern
-  management;
+- registered lifecycle inputs are invalid at the candidate-generator schema;
+- accepted active rules retain explicit runner, artifact, and baseline
+  references;
 
 This supports disciplined rule admission. It does not decide whether the pattern
-is useful; the manifest and review must establish that.
+is useful; the rule authority and review must establish that.
 
-### Inspect Apply Admissions With Dry-Run Diagnostics
+### Inspect Admitted Fix Plans
 
 Use:
 
 ```bash
 bun habitat fix --dry-run
+bun habitat fix --dry-run --rule <id> --rule <id>
 ```
 
 Supported outcome:
 
-- Habitat resolves the default apply-admission definitions against the live Grit
-  registry;
-- admitted definitions run their declared Grit dry-run diagnostics without
-  writing;
-- the command returns diagnostic output only;
-- ordinary Grit checks and unadmitted apply roles do not receive automatic
-  fixes.
+- Habitat derives admission only from registered `runner.fix` authority;
+- omission plans every admitted rule in catalog order, while repeatable
+  `--rule` selects one or many;
+- invalid explicit selection refuses atomically before execution;
+- admitted transformations report affected paths without writing.
 
-This is the only current `habitat fix` capability. It is an
-admission/discovery and no-write diagnostic surface, not a codemod path.
+This is the only current `habitat fix` capability. It is a no-write planning
+surface, not a codemod path.
 
 ### Observe The Live-Write Refusal
 
@@ -197,16 +197,14 @@ bun habitat fix
 
 Supported outcome:
 
-- this is a no-write refusal check, not a repair command;
-- a dirty worktree refuses with `dirty-worktree`;
-- a clean worktree refuses because the router supplies no protected-zone
-  decision;
+- this is an immediate no-write refusal, not a repair command;
+- refusal occurs before service or provider realization;
 - no formatting, post-fix gates, rollback, transaction diff records, or
   commit-readiness result is produced.
 
-**Gap and re-entry condition:** live apply is not implemented. Re-enter this
-scenario only after the router passes an approved protected-zone decision and
-the transaction policy implements execution with the required safety proof.
+**Gap and re-entry condition:** live apply is not implemented. A future design
+must establish mutation authority and its complete safety proof before adding a
+write-capable command state.
 
 ### Run Local Hooks
 
@@ -311,7 +309,7 @@ This is the next major product loop to build.
 ## Scenario Selection Rule
 
 If the scenario is about detecting, classifying, routing, checking, or
-no-write apply-admission diagnostics for existing structure, first look for the
+no-write planning for explicitly admitted structure, first look for the
 supported Habitat surface.
 
 If the scenario is about creating MapGen recipe/domain/op/stage/step topology,

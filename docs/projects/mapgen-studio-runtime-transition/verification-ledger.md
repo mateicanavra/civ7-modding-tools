@@ -1,76 +1,89 @@
 # Verification Ledger
 
-Status: Packets A, A.1, A.1a, and the lifecycle alignment child closed-passed; A.2 validator-ownership and Habitat baseline-manifest prerequisites sealed; domain-operation Authority recreation next; no product closure claim
+Status: G.2 authority-derived fix admission is a sealed local Graphite layer
+above the sealed control, G.1, and RuleDiagnostics local Graphite layers; no
+product closure claim
 
 Normative method:
 `docs/projects/mapgen-studio-runtime-transition/WORKSTREAM.md`
 
+Current scope and DRA frame:
+`docs/projects/mapgen-studio-runtime-transition/TAKEOVER-FRAME.md`
+
 ## Live Control State
 
-- Last updated: 2026-07-12T11:16:15-04:00 EDT
-- Current phase: `a2-domain-operation-authority-recreation`
-- Last completed gate: all affected repairs and re-reviews closed. The authority
-  lane passed; the TypeScript lane found and a fresh implementer repaired
-  A2-HAB-TS-001 environment erasure; the final Effect lane verified the emitted
-  generic-`R` signature. The quality/records lane retained A2-HAB-CQ-003 and
-  found one P3 unused harness field; a fresh cleanup plus final quality-code
-  review passed. A fresh terminal records reviewer then retained CQ-003 after
-  finding that the live candidate scope was undercounted as 12 code/test paths
-  plus five record paths instead of the 13 plus five shown by porcelain. Cached
-  Habitat check and boundaries, 44 focused tests, and the two-part focused
-  Biome gate pass.
-- Current gate: the exact 18-path candidate materialized as one Graphite
-  changeset with sole parent `dd38de22e05b`; receipt-only amendments close the
-  same mutation lease. No domain-operation Authority mutation is active yet.
+- Last updated: 2026-07-13T14:57:20-04:00 EDT
+- Current phase: `generic-fix-admission-sealed`
+- Last completed gate: exact staging matched pre-create digest
+  `ca3d649796fb`; Graphite created local child
+  `codex/mapgen-runtime-closeout-generic-fix-admission` above `ede4871594fa`
+  with initial identity `c28b04ec0068`, and terminal records alone were amended.
+- Current gate: semantic boundary complete. Preserve this ratcheted layer and
+  compact before entering the next product-closeout container.
 - Current readiness sentinel:
   `codex/readiness-final-aggregate-proof-green@f325250d087843e13b8c529c4fd036b84d911162`.
   This separately owned stack was restacked at 2026-07-10T19:30:50-04:00,
   outside this workstream's mutation cohort. It is rebound as the external
   sentinel for the resumed cohort and remains excluded from Studio mutation.
-- Next action: synchronize the clean detached indexed checkout to the amended
-  tooling tip, recreate Authority above that tip,
-  and continue the committed domain train.
-- Blocked by: no unresolved blocker. The parent adjudicated the missing runtime
-  manifest flow as one legitimate upstream dependency and authorized this
-  exact prerequisite insertion; ordinary red gates remain investigation input.
-- Product/Development DRA: standalone Codex A.2 DRA in
-  `wt-agent-sol-a2-domain-operation`; owns the complete Packet A.2 execution
-  train, teams, findings, gates, Graphite changesets, and closure candidate
-- A.2 Supervisor/Enforcer DRA: initiating Codex task; owns semantic-deviation
-  adjudication and closure acceptance, not duplicate implementation or required
-  reviews
-- Prior Planning Supervisor/Enforcer DRA: Kuhn
-  (`019f494a-0ef2-7be2-b0a4-9813c8d040ab`), closed with semantic pass over the
-  prior bound corpus; the later alignment handoff reopens affected semantic
-  closure before static/commit work may resume
-- Stage 0 Supervisor/Enforcer DRA: Kierkegaard the 4th
-  (`019f5237-deac-7102-b271-50a4d61c1297`); source-freeze review closed-passed
-- Last Graphite mutation lease:
-  `operation:a2-baseline-manifest-seal-20260712-01`, opened
-  2026-07-12T11:13:32-04:00. The standalone A.2 DRA is the sole mutator; scope
-  was the exact 18-path reviewed tooling candidate and receipt amendment on the
-  same changeset. Starting current/parent/validator was `dd38de22e05b`; the
-  candidate initially materialized as `26c9c7fa2`; a receipt command created a
-  second local commit, and `gt squash --no-edit --no-interactive` immediately
-  restored the required single changeset with the same sole parent. The amended
-  branch ref is the sealed tip. Main and origin/main remain
-  `46943c5f1165`, readiness remains `f325250d0878`, and the readiness worktree
-  remains excluded.
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`
-- Branch/head: sealed `codex/habitat-rule-introduction-baseline-manifests`; its
-  initial materialization was `26c9c7fa2` and its sole parent remains sealed
-  `codex/mapgen-generated-validator-ownership@dd38de22e05b`. The prior empty
-  `codex/mapgen-domain-operation-authority` branch remains absent until indexed
-  checkout synchronization completes.
-- Worktree state: clean after the receipt-only amendment on the same Graphite
-  changeset. All implementation, review, repair, and records agents are closed.
-  No `.playwright-cli` path or Git operation is present; the separate readiness
-  worktree is excluded from mutation.
-- Current-lane Graphite state: validator remains sealed at
-  `dd38de22e05b1c014cc720099591a3a0726686a3`; the tooling branch is one sealed
-  local changeset above that parent.
-  `main == origin/main == 46943c5f1165`; the branch is local-only, unsubmitted,
-  and has no remote branch or PR.
+- Next action: request semantic-boundary compaction, then revalidate the sealed
+  stack and begin the next explicitly admitted closeout slice.
+- Blocked by: nothing external. The preceding layers remain ratcheted; no A.2
+  work is admitted into G.2.
+- Takeover DRA: Codex task
+  `019f57cc-61ae-7f21-9515-66256fa8da9f`; sole accountable owner for Product/
+  Development and Supervisor/Enforcer obligations, authority synthesis,
+  sequencing, Git/Graphite, evidence claims, finding disposition, merge, drain,
+  and closure. Independent review remains mandatory.
+- Prior source DRA: task `019f3913-4c80-78f1-bdd8-236713d527da`; transfer
+  accepted, idle and non-mutating. Its old standalone-A.2 ownership claims are
+  historical receipts, not current authority.
+- Active Graphite mutation lease: none. Operation
+  `takeover-generic-fix-admission-seal-20260713-01` closed after exact staging,
+  one local Graphite child, terminal record-only amendment, and clean census.
+- Control worktree:
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/431b/civ7-modding-tools`,
+  branch `codex/mapgen-runtime-closeout-generic-fix-admission`, parent
+  `ede4871594fa`; initial create `c28b04ec0068`, with final identity owned by
+  the amended branch ref. The reviewed G.2 candidate is committed; the worktree
+  and index are clean.
+- Preserved evidence worktree:
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-sol-a2-domain-operation`,
+  branch `codex/mapgen-domain-operation-authority`, HEAD/base `9ff0f711e0d7`.
+  It has 62 tracked changes plus 13 untracked porcelain roots containing 31
+  files, 75 porcelain entries total, and zero staged paths. Generic provider,
+  A.2 Authority, and record changes interleave. It remains read-only: no broad
+  stage, commit, stash, reset, checkout cleanup, or transplant is permitted.
+- Ratcheted-base evidence: one stable `RuleDiagnostics` tag, zero `GritProvider`
+  tags, no provider selector, and one immutable `RuleFacts` snapshot. G.2
+  deletes the sole raw-apply collaborator. Terminal execution state is one closed
+  union; demand is snapshotted once; every missing row fails with typed
+  evidence. Binding authority precedes provider output, demanded ids are
+  first-seen unique, and provider-import authority governs dynamic, inline-type,
+  deep-private, and re-export forms without whole-file exemptions. Same-file
+  differential Biome errors fell from 59 to 55; the sole new error-level finding
+  is the explicit closed Effect signature on the stable capability, with zero
+  formatter/import defects.
+- Current-lane Graphite state: G.2 is the local, unsubmitted child of the sealed
+  RuleDiagnostics layer; G.1 and control reconciliation remain downstack above
+  the takeover frame and sealed baseline manifests.
+  `main == origin/main == 46943c5f1165`; the readiness sentinel and its worktree
+  remain excluded.
+- Agent/process state: implementation, four repair owners, design census,
+  three prior exact-review cohorts, pre-freeze audit, and differential-Biome
+  sessions are terminal. Terminal TypeScript and architecture review passed;
+  product review accepted `G2-TERM-RUNTIME-001`, and the bounded one-file repair
+  passed a fresh product/runtime/library successor review. Fresh architecture/
+  authority closeout also passed; all agent sessions and the seal lease are
+  terminal. No new worktree, A.2, remote, or persistent-process ownership
+  exists. The
+  pinned standing compaction attendant
+  `019f580b-76b2-7201-8fe6-8f91b7caf0f4` is idle and non-mutating. No provider
+  command or review-owned persistent process remains. Editor language servers
+  and the unrelated `mapgen-studio-runner` tmux session on ports 5173/5174 remain
+  under their original owner and were not touched.
+- Scratch: takeover transcript mining remains under
+  `/tmp/takeover-session/019f3913-4c80-78f1-bdd8-236713d527da/`; current read-only
+  investigators created no repository scratch.
 - Runtime preservation: the prior Studio process receipt is historical and is
   not used as Packet A acceptance. Runtime checks restart from a committed tree.
 
@@ -81,8 +94,46 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 
 | Wave | Purpose | State | Required follow-up |
 | --- | --- | --- | --- |
+| G.2 generic fix admission | atomic registered plan-only authority, one/many no-write planning, duplicate-state deletion | sealed-local-graphite-layer | ratcheted base; compact before the next explicitly admitted closeout slice |
+| RuleDiagnostics resource/provider topology | stable capability demand/output, one immutable catalog, private Grit implementation, dead source-engine deletion | sealed-local-graphite-layer | ratcheted base; reopen only on concrete invalidation |
+| takeover framing and onboarding review | full initiative arc, philosophy, orchestration, mutation safety, and normative frame | closed-passed | three temporary frame reviewers dissolved after exact-digest pass; they are not initiative reviewers or implementers |
+| takeover control/source investigation | live control truth, provider hunk attribution, and pinned Grit wire/hermeticity contract | closed-passed | results integrated into `waves/takeover-control-reconciliation-01.md`; no agent wrote repository files |
+| takeover control initial review | exact seven-path TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-four-p2 | `CTRL-AUTH-001` and `CTRL-TS-001..003` accepted; all three roles reopen after repair |
+| takeover control affected re-review | complete repaired eight-path TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-passed | all three fresh roles passed digest `78877c67f7b5`; terminal receipts, closing gates, and the one-layer Graphite seal passed |
+| generic Grit acquisition design census | clean call graph/state model, inherited hunk attribution, and pinned native wire/hermeticity oracle | closed-passed | three read-only agents changed no repository state; integrated target and exact write set are frozen in `waves/takeover-grit-diagnostic-acquisition-01.md` |
+| generic Grit acquisition implementation | one primary owner for the tightly coupled provider/model/test set | closed-handoff | implementation reports Habitat typecheck, 55 focused tests, provider and candidate-test Biome, and diff hygiene green; nine inherited changed-file Biome errors retained for DRA adjudication; no staging or Graphite mutation |
+| generic Grit pre-freeze runtime audit | all-Grit latency, preflight lifecycle, acquisition concurrency, and per-rule timing truth | closed-passed-with-one-p2 | bounded concurrency two integrated before freeze; lazy once-per-realized-provider preflight deferred to the immediate resource/provider topology slice; no P0/P1 |
+| generic Grit DRA integration | consumer seam, per-rule timing, integration fixtures, full proof, and differential lint adjudication | initial-review-complete | 342 full and 60 focused tests passed before review; 24 full changed-path Biome errors remain committed-line residue; review findings now control the repair loop |
+| generic Grit initial exact-tree review | fresh TypeScript/state-space, architecture/authority, and product/runtime/library roles on digest `1f6b7c0539eb` | closed-with-ten-distinct-findings | three P1 and seven P2 defects accepted; all three roles reopen with fresh agents after integrated repair |
+| generic Grit repair design | closed public/acquisition state, canonical root/pattern authority, and source-derived MatchReason | closed-passed | three disjoint read-only reports integrated into one exact write set and proof matrix; one primary repair owner follows |
+| generic Grit integrated repair | ten accepted review defects plus four pre-freeze DRA integration corrections across authority, private state/evidence, wire decoding, command truth, and public failure truth | closed-passed | sole code/test owner `/root/provider_primary_repair_01`; 90/90 focused and Habitat check passed at handoff; root-owned full proof and 79-rule runtime matrix passed before freeze |
+| generic Grit affected re-review | complete repaired 49-path TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-four-p2 | digest `138646fa1a90` reproduced by all three; `G1-AUTH-004` and `G1-RR-TS-001..003` accepted; MatchReason capitalization concern source-rejected from pinned serde authority; all roles reopen fresh after repair |
+| generic Grit correlated repair 02 | repository-root authority plus closed native request, command observation, acquisition, and preflight evidence products | closed-passed | sole owner `/root/provider_primary_repair_01`; 93/93 focused, 367/367 full, owner graphs, provider hygiene, validation, and 79-rule runtime proof passed; new exact review required |
+| generic Grit affected re-review 02 | second fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-two-p2 | digest `4036f6a10d0b` reproduced by all; authority and product passed; `G1-RR2-TS-001..002` accepted; all roles reopen fresh after narrow shared-evidence repair |
+| generic Grit target-evidence repair 03 | narrow target requests, correlated request/observation/command evidence, honest interruption exit, and explicit evidence-mismatch state | closed-passed | same sole owner `/root/provider_primary_repair_01`; 94/94 focused, 368/368 full, owner graphs, hygiene, validation, and stable 79-rule proof passed; third exact review required |
+| generic Grit affected re-review 03 | third fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-superseded-by-final-binding | state-space passed and authority returned two P2s on the first exact freeze; the first product session failed at model capacity before review, so a fresh replacement was registered and all role receipts rebound below |
+| generic Grit affected re-review 03 final | effective three-role review on replacement digest `d20f74912b810d` | closed-with-two-p2 | state-space passed; authority and replacement product/runtime/library independently accepted unbound completed cwd and mislabeled scan-root refusal; all three roles reopen fresh after bounded repair |
+| generic Grit cwd/refusal repair 04 | normalized cwd evidence plus truthful scan-root authority-refusal projection | closed-passed | same sole implementation owner `/root/provider_primary_repair_01`; 120/120 focused, 371/371 full, owner graphs, hygiene, validation, and stable 79-rule proof passed; fourth exact review required |
+| generic Grit affected re-review 04 | fourth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-two-p2-one-p3 | digest `e5f5824ecc6c` reproduced by all; typed report state, exhaustive refusal ownership, and complete cwd proof accepted; all roles reopen fresh after fifth repair |
+| generic Grit report-boundary design 05 | CheckReport wire/version census plus compiler-closed typed disposition/authority model | closed-passed | three disjoint read-only agents proved the clean v2 cutover, exact state authority, producer/consumer set, collision laws, direct parser gap, cwd matrix, and closing gates |
+| generic Grit report-boundary repair 05 | required RuleReport state, CheckReport/VerifyReceipt v2, typed refusal/provider payload, prose-protocol deletion, and cwd proof | closed-passed | sole owner `/root/provider_primary_repair_05`; 146/146 focused, 396/396 full, owner graphs, validation, differential hygiene, and stable 79-rule runtime proof passed; fresh exact review required |
+| generic Grit affected re-review 05 | fifth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-seven-p2 | 61-row digest `62d840626a67` bound by all roles; aggregate state, refusal evidence, hook correlation, output-claim, packet-status, and active v1-record repairs accepted; all roles reopen fresh after bounded repair |
+| generic Grit aggregate-state repair 06 | all seven review-05 findings across report aggregation, refusal evidence, hook correlation, selector exclusivity, and current v2 authority | closed-passed | sole owner `/root/provider_primary_repair_06`; 59/59 focused, 405/405 full, owner graphs, validation, differential hygiene, active-doc truth, and stable 79-rule runtime proof passed; fresh exact review required |
+| generic Grit affected re-review 06 | sixth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-one-p1-ten-p2-one-p3 | all roles bound successor digest `32f568cd8fb6`; twelve findings cover Linux proof portability, semantic report validation, preflight bounds, hook correlation, command/root state, acquisition authority, and current record truth; all roles reopen fresh after repair |
+| generic Grit repair design 07 | separate state-space, product/runtime, and authority synthesis of all review-06 findings | closed-passed | one 28-path implementation/current-authority set is frozen; no compiler-API verifier, new Grit rule, global matrix reconstruction, or other proof apparatus is admitted; one implementation owner follows |
+| generic Grit integrated repair 07 | all twelve review-06 findings across cross-platform proof, command/root topology, report semantics, bounded preflight, acquisition authority, and current records | closed-passed | sole owner `/root/provider_primary_repair_07` changed 25 authorized paths; root check/boundaries/build, 407 full tests, 137 focused tests, validation, differential hygiene, current authority, and the stable 79-rule matrix passed; exact review 07 follows |
+| generic Grit affected re-review 07 | seventh fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-three-p2-one-p3 | all roles reproduced digest `712fed3cfc4a` before/after and remained read-only; shared status authority, enforced diagnostic fail-closure, current generated execution authority, and dead executable alias repairs are accepted; all materially affected roles reopen fresh |
+| generic Grit correlated repair 08 | four accepted review-07 findings across status production/validation, current generated authority, and executable alias deletion | closed-passed | sole owner `/root/provider_primary_repair_07` changed exactly eight authorized paths; root proof passed 139 focused and 408 full tests, deterministic regeneration, differential hygiene, owner graphs, validation, lint, and stable live runtime proof |
+| generic Grit affected re-review 08 | eighth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-three-p2-two-distinct-defects | all roles reproduced digest `025d8b54b139` before/after; state and product independently found baseline-integrity diagnostic fail-open, while authority found active retired-selector prose; all materially affected roles reopen fresh after repair |
+| generic Grit admission-authority repair 09 | general enforced-diagnostic guard, direct/hook regressions, stable-law JSDoc, and two current selector-word corrections | closed-passed | sole owner `/root/provider_primary_repair_07` changed exactly five authorized paths; root proof passed 139 focused and 410 full tests, validation, differential hygiene, generated currentness, and the stable live matrix |
+| generic Grit affected re-review 09 | ninth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-five-p2-four-distinct-defects | all roles reproduced digest `7abbdfa463f3` before/after and remained read-only; failing not-applicable aggregation, advisory baseline-integrity, false live-write authority, and nested-Git execution surfaces are accepted |
+| generic Grit categorical repair 10 | fail-closed summary aggregation, enforced baseline integrity, current dry-run authority, and nested-Git generator exclusion | closed-passed | sole owner `/root/provider_primary_repair_07` changed the initial nine paths; root corrected one stale service fixture; 145 focused and 415 full tests, owner graphs, validation, differential hygiene, deterministic generation, and the stable live matrix passed |
+| generic Grit affected re-review 10 | tenth fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-with-four-p2-one-p3 | all roles reproduced digest `70d6e704c6b8`; four distinct defects accepted; tasks terminal and archived |
+| generic Grit state-collapse repair 11 | delete synthetic not-applicability failure state, close separator-only identity decoding, and correct current dry-run/live authority | closed-passed | exact nine paths; root corrected one regex edge; 141 focused and 417 full tests plus live staged/runtime proof passed |
+| generic Grit affected re-review 11 | eleventh fresh TypeScript/state-space, architecture/authority, and product/runtime/library review | closed-passed-after-one-p3-repair | state passed after a record-only count correction; authority found and cleared one dead compatibility API; final product/runtime passed; zero P0-P3 remains |
+| standing compaction attendant | semantic-boundary `/compact` delivery and exact continuation relay | active-idle, non-mutating | thread `019f580b-76b2-7201-8fe6-8f91b7caf0f4`; act only on explicit `COMPACT NOW` request with closed boundary, next container, and continuation snippet |
 | opening research | stack corpus, systematic geometry, authority/docs boundary | closed | packet/resources: `waves/planning-research-01.md`; terminal rows in cleanup register |
-| planning review 1 | information shape, sequencing, closed-loop operability | closed | P1/P2 repairs in progress |
+| planning review 1 | information shape, sequencing, closed-loop operability | closed-with-findings | all P1/P2 findings were repaired and cleared by the named later planning waves |
 | repair re-review | fresh information, sequencing, and closed-loop lanes | closed | packet/output/findings: `waves/planning-rereview-01.md`; all agents closed |
 | final planning review | standalone state, dependency/backflow, and supervisor closure audit | closed | packet/output/findings: `waves/planning-final-review-01.md`; semantic supervisor passed; all agents closed |
 | environment handoff affected review | prerequisite DAG, lifecycle authority, and closed-loop placement | closed | packet/output/findings: `waves/planning-handoff-review-01.md`; findings accepted; agents closed |
@@ -101,7 +152,7 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 | Habitat formatting/Grit repair | retire stale bridge behavior, stabilize Habitat rule execution, narrow native Biome ownership, preserve semantic fixtures | closed | PRs `#2058@fab37f842728` and `#2059@3735af2ada6f` merged; classify-reported gates green |
 | prerequisite reconciliation audit | terminal identity, closed-loop admission, and no-restack Graphite audit | closed-with-one-no-result | Hooke and Copernicus produced accepted findings; long-running closed-loop reviewer was closed without result and is not reused |
 | orphan Foundry-worktree residue audit | classify failed filesystem cleanup residue without adopting or deleting unknown files | closed | two agents returned no result; local temporary-index comparison found no unique nonignored content or live tmux owner, and the exact deregistered directory was removed |
-| fresh planning admission review | information/loop, dependency/Graphite, and semantic supervisor lanes | repair active | Pauli returned one P1 and three P2 findings; Wegener returned no result; affected re-review and fresh replacement lanes required |
+| fresh planning admission review | information/loop, dependency/Graphite, and semantic supervisor lanes | closed-with-findings-and-one-no-result | Pauli's findings were repaired; Wegener returned no result and was replaced; later current-corpus review closed the lane |
 | planning admission affected re-review | repaired live records, dependency/Graphite path, and exact semantic corpus | closed-with-changes | Archimedes returned no result; Boole and Tesla findings repaired in `planning-admission-review-02.md` |
 | planning admission terminal review | information/loop, exact Graphite mutation contract, and zsh-safe semantic digest | closed-with-changes | Plato, Mendel, and Boyle findings repaired in `planning-admission-review-03.md` |
 | planning admission final review | repaired live receipt, fail-closed mutation contract, and fail-closed semantic digest | closed-with-changes-and-invalidation | Hegel returned no result; Huygens findings repaired; Beauvoir invalidated by source-first Habitat contract |
@@ -139,8 +190,8 @@ DRA handoff, Graphite mutation, evidence invalidation, pause, and closure.
 | A.2 Habitat baseline-manifest terminal records review | exact porcelain categories, terminal agent enumeration, and no-seal boundary | closed-with-one-p2 | 13 code/test paths plus five record paths were observed, not 12 plus five; the finding transferred to a fresh records-count repair owner |
 | A.2 Habitat baseline-manifest records-count repair | exact scope correction on the five existing record surfaces | closed-passed | all count claims report 13 plus five for 18 total; a fresh exact-count re-review passed and closed A2-HAB-CQ-003 |
 
-Stage promotion requires every agent row to be `closed` or explicitly
-transferred to the continuous supervisor.
+Stage promotion requires every agent row to be `closed` or explicitly retained
+under the takeover DRA with a bounded non-mutating purpose and terminal trigger.
 
 ## Packet A Closure Receipts
 
@@ -291,9 +342,9 @@ prerequisite without admitting dependent authority mutation.
 
 | Stage | State | Closing condition |
 | --- | --- | --- |
-| 0 Opening census | complete under 2026-07-11 lightweight-tracking correction; historical recovery and current lineage recorded | recovery artifact and sufficient source/owner accounting to execute product repair |
-| 1 Semantic disposition | bounded decisions move with each concrete product repair | zero unresolved authority conflict in the active repair |
-| 2 Integration tree | active | no known accepted product defect at recorded integration tree |
+| 0 Opening census | complete; historical recovery is verified and the current continuation lineage is reconciled through takeover | recovery artifact remains readable and every later source addition stays explicit |
+| 1 Semantic disposition | open only for unresolved legacy rows or a unit whose authority is not final | every disposition required by the unit being admitted is final; complete corpus has zero unresolved rows before Stage 2 exit |
+| 2 Integration tree | active; control reconciliation precedes provider reconstruction | no known accepted product defect or undecided semantic row at the recorded integration tree |
 | 3 Sink stack design | not started | deterministic acyclic sink graph |
 | 4 Mechanical recut | not started | approved sink stacks with source/sink integrity |
 | 5 Change-unit closure | not started | P01-P20/tooling branches closed and P21 `runtime-ready` |
@@ -406,7 +457,7 @@ workstream contract.
 | Scope | Expected gate set | Current state | Row home |
 | --- | --- | --- | --- |
 | Planning document | classify-reported docs checks, OpenSpec validation, review lanes, clean Graphite commit | passed at the historical planning tree; topology receipt superseded by the recorded restack | `gate-register.jsonl` plus planning wave packets |
-| Stages 0-4 | each stage entry, corpus/recovery, authority, integration, simulation, and recut gate | Stage 0 admission reconciliation active | `gate-register.jsonl` |
+| Stages 0-4 | each stage entry, source/recovery, authority, integration, simulation, and recut gate | Stage 0 historical recovery closed; Stage 2 control reconciliation active; Stages 3-4 not started | `gate-register.jsonl` |
 | Stage 5 packets | every packet-declared and classify-reported gate | not-run | packet evidence plus typed `gate-register.jsonl` cross-links |
 | Stage 5 cross-cutting units | Effect, config authority, lifecycle, daemon, transition/records | not-run | `gate-register.jsonl` |
 | Stages 6 and 8 | static, endpoint, browser, setup, in-game, review, and cleanup gates per checkpoint | not-run | `gate-register.jsonl` plus immutable runtime evidence |
@@ -422,40 +473,31 @@ Detailed resource rows live in `cleanup-register.jsonl`.
 
 | Resource class | Opening state | Terminal requirement |
 | --- | --- | --- |
-| review/worker agents | planning agents indexed by wave packet | closed or explicitly transferred before gate promotion |
-| scratch and retained diagnostics | Stage 0 census pending | removed, or retained with owner/reason/trigger |
-| Studio/Civ7 watchers, listeners, processes, tmux | Stage 0 census pending | down unless an explicit handoff row exists |
-| dedicated/temporary worktrees | none admitted yet | clean and removed after their owning loop |
-| recovery bundle/protected refs | not created | verified, retained through recut, then retired at recorded trigger |
-| generated/runtime artifacts | opening census pending | reproduced, attributed, then retained/removed by owner policy |
+| review/worker agents | current takeover audits closed; compaction attendant explicitly retained idle | closed, or retained with a bounded non-mutating role and trigger before gate promotion |
+| scratch and retained diagnostics | takeover transcript corpus retained under `/tmp`; inherited dirty source preserved in its worktree | removed, or retained with owner/reason/trigger |
+| Studio/Civ7 watchers, listeners, processes, tmux | unrelated original-owner tmux and editor processes observed, not adopted | down unless an explicit owner handoff row exists |
+| dedicated/temporary worktrees | clean control worktree plus one preserved dirty evidence worktree | clean and removed after their owning loop; evidence worktree remains read-only until every accepted hunk is re-derived or rejected |
+| recovery bundle/protected refs | verified bundle plus readiness sentinel `f325250d0878` | retained through recut, then retired only at the recorded trigger |
+| generated/runtime artifacts | no current control-layer artifact mutation | reproduced, attributed, then retained/removed by owner policy |
 
 The Agent Fleet State above is a live index. Every concrete agent or resource
 also receives its own cleanup row with identity, owner, purpose, state,
 evidence, and preservation/retirement reason.
 
-## Obligation Corpus Checkpoints
+## Semantic Corpus Accounting
 
-| Kind | Expected opening rows | Captured | Row home | Closure rule |
-| --- | --- | --- | --- | --- |
-| built-in configs | 9 | 0 | `obligation-corpus.jsonl` | zero missing, proxy, or config-specific exception rows |
-| Effect diagnostics | frozen structured-report count | 0 | `obligation-corpus.jsonl` | every in-scope diagnostic dispositioned |
-| touched Habitat rules | frozen diff/manifest count | 0 | `obligation-corpus.jsonl` | every retained/retired rule has complete authority lifecycle fields |
-| packet obligations | 21 packet task/evidence surfaces | 0 | packet records plus corpus crosswalk | every declared gate has current state |
-| control inputs | frozen review/watcher/session/scratch count | 0 | `obligation-corpus.jsonl` | zero unmatched material finding/correction rows |
+The earlier `obligation-corpus.jsonl` plan was never instantiated and is not a
+live prerequisite. `obligation-corpus-contract.md` remains planning history.
+Use existing source/sink, packet, gate, cleanup, and authority records directly;
+do not build a second progress database.
 
-Opening config rows to extract:
-
-| Config id | Source path | Current row state |
-| --- | --- | --- |
-| `latest-juicy` | `mods/mod-swooper-maps/src/maps/configs/latest-juicy.config.json` | pending Stage 0 extraction |
-| `mountain-patch` | `mods/mod-swooper-maps/src/maps/configs/mountain-patch.config.json` | pending Stage 0 extraction |
-| `mountain-rivers-patch` | `mods/mod-swooper-maps/src/maps/configs/mountain-rivers-patch.config.json` | pending Stage 0 extraction |
-| `mountains-of-time-earthlike` | `mods/mod-swooper-maps/src/maps/configs/mountains-of-time-earthlike.config.json` | pending Stage 0 extraction |
-| `mountains-of-time-original` | `mods/mod-swooper-maps/src/maps/configs/mountains-of-time-original.config.json` | pending Stage 0 extraction |
-| `shattered-ring` | `mods/mod-swooper-maps/src/maps/configs/shattered-ring.config.json` | pending Stage 0 extraction |
-| `sundered-archipelago` | `mods/mod-swooper-maps/src/maps/configs/sundered-archipelago.config.json` | pending Stage 0 extraction |
-| `swooper-desert-mountains` | `mods/mod-swooper-maps/src/maps/configs/swooper-desert-mountains.config.json` | pending Stage 0 extraction |
-| `swooper-earthlike` | `mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json` | pending Stage 0 extraction |
+| Corpus | Current owner/home | Current state | Closure rule |
+| --- | --- | --- | --- |
+| nine built-in configs | Packet A receipts, recipe-owned schemas/defaults, and config tests | complete-config admission locally closed-passed; final runtime evidence open | every config passes the shared boundary with no proxy, migration, or config-specific exception |
+| Effect diagnostics | `TOOL-EFFECT` source accounting and native Biome output | independent corpus open | every in-scope diagnostic dispositioned without hiding or elaborating disposable topology |
+| touched Habitat rules | authority manifests, cleanup rows, rule fixtures, and native Habitat output | per-unit; provider and A.2 rows open | every retained/retired rule has one authority owner and complete lifecycle evidence |
+| packet obligations | P01-P21 task/evidence records plus this ledger | P01-P18 historically checked with reopenings; P19-P21 open | every declared gate has current evidence at the required proof class |
+| control inputs | `stack-recut-manifest.md`, `gate-register.jsonl`, `cleanup-register.jsonl`, Wave Packets, and takeover frame | takeover reconciliation active | zero unmatched material source, finding, process, or candidate hunk before the dependent stage closes |
 
 ## Runtime Matrix Register
 
@@ -527,11 +569,11 @@ named Wave Packets.
 | sixth-pass exact collector check | Bernoulli | changes requested | `FINFO-RR3-01..02` | closed; repaired and cleared by later information reviews |
 | seventh-pass normalized-envelope check | Noether | changes requested | `FINFO-RR3-02` | closed; repaired and cleared by Hilbert |
 | eighth-pass three-field check | Hilbert | passed | none | closed; information lane clear |
-| planning supervisor closure | Kuhn | semantic pass; admin changes requested | `ADMIN-01..04` | closed; allowed admin repairs applied; static gates follow |
+| planning supervisor closure | Kuhn | semantic pass; admin changes requested | `ADMIN-01..04` | closed; allowed admin repairs and later static gates completed |
 | environment-handoff dependency review | Tesla | changes requested | `HANDOFF-DEP-01..02` | closed; prerequisite barrier and Foundry admission loop repaired |
 | environment-handoff lifecycle review | Hooke | changes requested | `HANDOFF-LIFE-01..02`, `HANDOFF-DAEMON-01` | closed; lifecycle owners and cleanup gates repaired |
 | environment-handoff control review | Boole | changes requested | `HANDOFF-CI-01`, `HANDOFF-DIGEST-01`, `HANDOFF-ROUTE-01`, `HANDOFF-ID-01` | closed; incoming-red and digest closure repaired |
-| terminal prerequisite reconciliation | Hooke the 2nd | changes requested | stale five-PR checkpoint and terminal records | active repair in planning corpus |
+| terminal prerequisite reconciliation | Hooke the 2nd | changes requested | stale five-PR checkpoint and terminal records | closed; repairs were cleared by the later current-corpus review before the planning commit |
 | no-restack Graphite admission audit | Copernicus the 2nd | passed with stop conditions | planning-child command/lease sequence | closed; command plan retained for mutation cohort |
 
 ## Planning Finding Disposition
@@ -546,19 +588,19 @@ as independent axes.
 | `INFO-01` P21 Stage 5/6 cycle | P1 | accepted | repaired | P01-P20 close in Stage 5; P21 becomes `runtime-ready` and closes in Stage 6 |
 | `INFO-02` split live status ownership | P1 | accepted | repaired | live control state belongs only to this ledger; manifest is snapshot/accounting |
 | `INFO-03` stale packet authority corrected too late | P1 | accepted | repaired | Stage 1 now amends indexes, target vocabulary, and affected packets before implementation |
-| `INFO-04` cross-cutting rows lack homes | P2 | accepted | repaired | obligation, gate, cleanup, and checkpoint-specific runtime record homes added |
+| `INFO-04` cross-cutting rows lack homes | P2 | accepted | repaired | existing source/sink, packet, authority, gate, cleanup, and checkpoint-specific runtime homes are explicit; the uninstantiated second corpus was retired |
 | `INFO-05` Foundry work becomes second objective | P2 | accepted | repaired | exactly one separately reviewed/merged main-based authority prerequisite; no Foundry realization in closeout |
-| `INFO-06` temporal transition doc promoted as canon | P2 | accepted | repaired | durable law stays in Habitat/ADR; project doc is linked subordinate execution mapping |
+| `INFO-06` temporal transition doc promoted as canon | P2 | accepted | repaired | durable law stays in Habitat/ADR; the workstream amendment and takeover frame are subordinate execution mapping, with no mechanical file requirement |
 | `INFO-07` overloaded state terms | P2 | accepted | repaired | semantic proposal/disposition, accounting, finding, repair, verification, and lifecycle axes separated |
 | `INFO-08` aggregate ledger duplicates runtime contract | P2 | accepted | repaired | planned rows are amendment payload until Stage 1; accepted P21 anchors own behavior afterward |
 | `INFO-09` orphan project home | P3 | accepted | repaired | both packet indexes now link this planning workstream |
 | `LOOP-01` no implementation-entry lock | P1 | accepted | repaired | workstream state, opening packet, scratch policy, and design lock added |
-| `LOOP-02` rotating supervisor owner | P1 | accepted | repaired | one continuous supervisor per admitted execution interval with explicit takeover protocol required |
+| `LOOP-02` rotating supervisor owner | P1 | accepted | closed | the original repair was later superseded by direct takeover authority: one accountable DRA now holds both obligations while fresh independent review remains mandatory per changeset |
 | `LOOP-03` P21 cycle | P1 | invalidated | not-required | duplicate of `INFO-01`, closed by the shared repair |
 | `LOOP-04` P1/P2 waiver/defer escape | P1 | accepted | repaired | only P3 may be waived/deferred; material findings need repair/rejection/invalidation/authority decision |
 | `LOOP-05` prior corrections omitted | P1 | accepted | repaired | Stage 0 control-input corpus and zero-unmatched-material-finding gate added |
 | `LOOP-06` no agent/wave packet contract | P2 | accepted | repaired | packet fields, durable wave homes, fleet register, and close/transfer rules added |
-| `LOOP-07` all-config rows aggregate away | P2 | accepted | repaired | per-config obligation schema/checkpoints and nine opening rows added |
+| `LOOP-07` all-config rows aggregate away | P2 | accepted | repaired | Packet A tests and receipts exercise every checked-in config through the same recipe-owned boundary; no config may disappear into an aggregate count |
 | `LOOP-08` retained Habitat rule lifecycle incomplete | P2 | accepted | repaired | per-rule corpus requires positive assertion, promotion/removal, fixtures, baseline, hook, and current-tree fields |
 | `LOOP-09` live rows omit endpoint/correlation fields | P2 | accepted | repaired | Stage 6 requires every applicable RPC surface, full correlation, process identity, and soft-restart receipt |
 | `LOOP-10` same-rank authority conflict unsealed | P2 | accepted | repaired | `needs-authority` stop/escalation rule added |
@@ -582,7 +624,7 @@ Second-pass findings are fully stated in
 | Finding | Severity | Disposition | Repair state | Repair |
 | --- | --- | --- | --- | --- |
 | `RINFO-01` sole live state | P1 | accepted | repaired | temporal control state is ledger-only |
-| `RINFO-02` recoverable planning handoff | P1 | accepted | repaired | durable wave packet and explicit Stage 0 supervisor admission |
+| `RINFO-02` recoverable planning handoff | P1 | accepted | repaired | durable wave packet and the then-required historical Stage 0 supervisor admission; current ownership is the takeover DRA model |
 | `RINFO-03` packet execution lock | P1 | accepted | repaired | both indexes route execution through the locked ledger |
 | `RINFO-04` independent state axes | P2 | accepted | repaired | vocabulary, manifest, and finding tables normalized |
 | `RINFO-05` future P21 authority | P2 | accepted | repaired | matrix is planned amendment payload until Stage 1 |
@@ -594,27 +636,27 @@ Second-pass findings are fully stated in
 | `RSEQ-05` Stage 8 semantic repair escape | P2 | accepted | repaired | material findings backflow to Stage 2 and replay affected stages |
 | `RSEQ-06` post-archive evidence home | P2 | accepted | repaired | immutable final-freeze runtime evidence sink reserved |
 | `RLOOP-01` findings not auditable | P1 | accepted | repaired | full wave finding records plus live index |
-| `RLOOP-02` supervisor/packet control | P1 | accepted | repaired | pre-admission packet explicit; supervisor required before Stage 0 |
+| `RLOOP-02` supervisor/packet control | P1 | accepted | repaired | historical pre-admission packet and Stage 0 supervisor gate were explicit; both transitions are complete and non-replayable |
 | `RLOOP-03` missing gate contract | P1 | accepted | repaired | row-level stage/unit gate register defined |
 | `RLOOP-04` checkpoint overwrite | P1 | accepted | repaired | preliminary and final runtime attempts are separate immutable records |
 | `RLOOP-05` unnamed terminal record | P1 | accepted | repaired | structured post-merge PR comment owns merge and local-cleanup identity |
-| `RLOOP-06` incomplete obligation rows | P2 | accepted | repaired | exact corpus contract defines keys, types, cardinality, uniqueness, and validation |
+| `RLOOP-06` incomplete obligation rows | P2 | accepted | repaired | the planning contract closed the historical information-shape finding; takeover later retired its uninstantiated database and kept row truth in existing owning records |
 | `RLOOP-07` checklist-only cleanup | P2 | accepted | repaired | row-level cleanup register defined and planning agents populated |
 | `RLOOP-08` undecided recovery mechanism | P2 | accepted | repaired | exact bundle/checksum/restore procedure selected |
 | `RLOOP-09` imprecise live observation | P3 | accepted | repaired | precise timestamp and concrete dirty/fleet state required at finalization |
 
 Final-wave findings are fully stated in
 `waves/planning-final-review-01.md`. The supervisor accepted that historical
-bound corpus, but `planning-handoff-affected-review-01` and the five-PR
-prerequisite closure later invalidated it. All accepted findings remain
-repaired; a fresh affected review and semantic-supervisor digest are required
-before the planning layer commits.
+bound corpus; later handoff and prerequisite changes invalidated the digest.
+Fresh affected review and a replacement digest were completed before the
+planning layer committed. The rows below are closed historical receipts, not a
+live planning transition.
 
 | Finding | Severity | Disposition | Repair state | Repair |
 | --- | --- | --- | --- | --- |
 | `FINFO-01` stale live reviewer state | P1 | accepted | repaired | actual wave identities, cleanup rows, and chronological review table recorded |
 | `FINFO-02` expiring packet hold | P1 | accepted | repaired | hold now persists until accepted Stage 1 authority names an executable unit |
-| `FINFO-03` underdetermined corpus | P1 | accepted | repaired | exact obligation-corpus contract and validation procedure added |
+| `FINFO-03` underdetermined corpus | P1 | accepted | repaired | the planning contract closed the historical finding; takeover later retired the uninstantiated database without dropping any owning record |
 | `FINFO-04` overwritable runtime attempt | P1 | accepted | repaired | every runtime path is checkpoint/row/attempt indexed |
 | `FINFO-05` incomplete finding records | P1 | accepted | repaired | canonical confidence, repair demand/state, and resume consequence fields added |
 | `FINFO-06` incomplete external closure | P1 | accepted | repaired | structured post-merge PR comment records repository and local cleanup state |

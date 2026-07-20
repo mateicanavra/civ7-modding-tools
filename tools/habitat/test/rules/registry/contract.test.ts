@@ -105,6 +105,22 @@ describe("rule registry contract", () => {
     );
   });
 
+  test("rejects the retired active-registry manifestPath field", () => {
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([
+          {
+            ...baseRule({ runner: gritRunner("manifest-path") }),
+            scanRoots: ["tools/habitat"],
+            manifestPath: ".habitat/patterns/manifests/manifest-path.json",
+          },
+        ]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+  });
+
   test("rejects unsupported lanes", () => {
     expectInvalid(
       parseRuleRegistryDocument(
@@ -242,5 +258,108 @@ describe("rule registry contract", () => {
     );
 
     expect(result).toMatchObject({ ok: true });
+  });
+
+  test.each([
+    "/absolute/pattern.md",
+    "patterns/pattern.md",
+    ".habitat\\rules\\pattern.md",
+    ".habitat//rules/pattern.md",
+    ".habitat/./rules/pattern.md",
+    ".habitat/rules/../pattern.md",
+    ".habitat/",
+  ])("rejects non-authoritative Grit pattern path %s", (pattern) => {
+    const runner = gritRunner("path-authority");
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([
+          {
+            ...baseRule({ id: "path-authority", runner }),
+            runner: { ...runner, files: { pattern } },
+            scanRoots: ["tools/habitat"],
+          },
+        ]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+  });
+
+  test("requires fix admission and its asset to be one closed Grit runner field", () => {
+    const runner = gritRunner("apply-authority");
+    for (const fix of [
+      { kind: "plan-only" },
+      { pattern: ".habitat/fixtures/fix.pattern.md" },
+      { kind: "write", pattern: ".habitat/fixtures/fix.pattern.md" },
+      { kind: "plan-only", pattern: "../outside.pattern.md" },
+    ]) {
+      expectInvalid(
+        parseRuleRegistryDocument(
+          registryDocument([
+            {
+              ...baseRule({ id: "apply-authority", runner }),
+              runner: { ...runner, fix },
+              scanRoots: ["tools/habitat"],
+            },
+          ]),
+          "inline-registry.json"
+        ),
+        "registry-schema-invalid"
+      );
+    }
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([
+          {
+            ...baseRule({ id: "legacy-apply-asset", runner }),
+            runner: {
+              ...runner,
+              files: { ...runner.files, applyPattern: ".habitat/fixtures/fix.pattern.md" },
+            },
+            scanRoots: ["tools/habitat"],
+          },
+        ]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+  });
+
+  test("rejects invalid Grit asset authority before probing the referenced path", () => {
+    const registryPath = "/repo/.habitat/rules";
+    const indexPath = `${registryPath}/index.json`;
+    const rulePath = `${registryPath}/sample/rule.json`;
+    const runner = gritRunner("asset-order");
+    const rule = {
+      ...baseRule({ id: "asset-order", runner }),
+      runner: { ...runner, files: { pattern: "outside/pattern.md" } },
+      scanRoots: ["tools/habitat"],
+    };
+    const reads: string[] = [];
+    expect(() =>
+      loadRuleRegistryDocumentWithDiscovery(registryPath, {
+        isDirectory: (candidate) => candidate === registryPath,
+        readDirectory: (candidate) =>
+          candidate === registryPath
+            ? [
+                { name: "index.json", kind: "file" },
+                { name: "sample", kind: "directory" },
+              ]
+            : [{ name: "rule.json", kind: "file" }],
+        readText: (candidate) => {
+          reads.push(candidate);
+          if (candidate === indexPath) {
+            return JSON.stringify({
+              schemaVersion: 2,
+              ownerRoots: { habitat: "tools/habitat" },
+            });
+          }
+          if (candidate === rulePath) return JSON.stringify(rule);
+          throw new Error(`unexpected referenced-file read: ${candidate}`);
+        },
+      })
+    ).toThrow(/normalized relative \.habitat/);
+    expect(reads).toEqual([indexPath, indexPath, rulePath]);
   });
 });

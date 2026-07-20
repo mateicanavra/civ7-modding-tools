@@ -11,7 +11,7 @@
     "pattern": {
       "factory": "./src/generators/scaffold/pattern/support/generator.ts#patternGenerator",
       "schema": "../../.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/scaffold-pattern.schema.json",
-      "description": "Scaffold a Habitat Grit pattern candidate draft. Registered pattern promotion is governed by Pattern Governance."
+      "description": "Scaffold a Habitat Grit pattern candidate draft. Active registration is authored separately through reviewed rule.json authority."
     }
   }
 }

@@ -5,6 +5,11 @@ import {
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 
+export const DiagnosticSelectedScanRootsSchema = Type.Array(Type.String({ minLength: 1 }), {
+  minItems: 1,
+});
+export type DiagnosticSelectedScanRoots = [string, ...string[]];
+
 export const DiagnosticScanRootRefusalReasonSchema = Type.Union([
   Type.Literal("empty"),
   Type.Literal("outside-repo"),
@@ -14,16 +19,23 @@ export const DiagnosticScanRootRefusalReasonSchema = Type.Union([
   Type.Literal("not-approved"),
 ]);
 
+const DiagnosticEmptyScanRootRefusalSchema = Type.Object(
+  {
+    kind: Type.Literal("refused"),
+    reason: Type.Literal("empty"),
+  },
+  { additionalProperties: false }
+);
+
 const DiagnosticUnownedScanRootRefusalSchema = Type.Object(
   {
     kind: Type.Literal("refused"),
     reason: Type.Union([
-      Type.Literal("empty"),
       Type.Literal("outside-repo"),
       Type.Literal("missing"),
       Type.Literal("not-approved"),
     ]),
-    root: Type.Optional(Type.String({ minLength: 1 })),
+    root: Type.String({ minLength: 1 }),
   },
   { additionalProperties: false }
 );
@@ -40,6 +52,7 @@ const DiagnosticProtectedScanRootRefusalSchema = Type.Object(
 );
 
 export const DiagnosticScanRootRefusalSchema = Type.Union([
+  DiagnosticEmptyScanRootRefusalSchema,
   DiagnosticUnownedScanRootRefusalSchema,
   DiagnosticProtectedScanRootRefusalSchema,
 ]);
@@ -48,7 +61,7 @@ export const DiagnosticScanRootDecisionSchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("accepted"),
-      roots: Type.Array(Type.String({ minLength: 1 })),
+      roots: DiagnosticSelectedScanRootsSchema,
       source: Type.Literal("rule-registry-facts"),
     },
     { additionalProperties: false }
@@ -57,8 +70,20 @@ export const DiagnosticScanRootDecisionSchema = Type.Union([
 ]);
 
 export type DiagnosticScanRootRefusalReason = Static<typeof DiagnosticScanRootRefusalReasonSchema>;
-export type DiagnosticScanRootDecision = Static<typeof DiagnosticScanRootDecisionSchema>;
 export type DiagnosticScanRootRefusal = Static<typeof DiagnosticScanRootRefusalSchema>;
+export type DiagnosticScanRootDecision =
+  | {
+      readonly kind: "accepted";
+      readonly roots: DiagnosticSelectedScanRoots;
+      readonly source: "rule-registry-facts";
+    }
+  | DiagnosticScanRootRefusal;
+
+export function parseDiagnosticSelectedScanRoots(value: unknown): DiagnosticSelectedScanRoots {
+  const [first, ...rest] = Value.Parse(DiagnosticSelectedScanRootsSchema, value);
+  if (first === undefined) throw new Error("Selected diagnostic scan roots must be nonempty.");
+  return [first, ...rest];
+}
 
 export function isDiagnosticScanRootDecision(value: unknown): value is DiagnosticScanRootDecision {
   return Value.Check(DiagnosticScanRootDecisionSchema, value);
@@ -69,16 +94,16 @@ export function renderDiagnosticScanRootRefusal(
 ): string {
   switch (decision.reason) {
     case "empty":
-      return "Grit scan roots are empty.";
+      return "Diagnostic scan roots are empty.";
     case "outside-repo":
-      return `Grit scan root is outside the repo: ${decision.root}.`;
+      return `Diagnostic scan root is outside the repo: ${decision.root}.`;
     case "missing":
-      return `Grit scan root does not exist: ${decision.root}.`;
+      return `Diagnostic scan root does not exist: ${decision.root}.`;
     case "generated-output":
-      return `Grit scan root is generated output: ${decision.root}.`;
+      return `Diagnostic scan root is generated output: ${decision.root}.`;
     case "protected-root":
-      return `Grit scan root is protected: ${decision.root}.`;
+      return `Diagnostic scan root is protected: ${decision.root}.`;
     case "not-approved":
-      return `Grit scan root is not approved: ${decision.root}.`;
+      return `Diagnostic scan root is not approved: ${decision.root}.`;
   }
 }

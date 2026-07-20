@@ -64,26 +64,6 @@ export function makeTestHabitatServiceDeps(
     graphite: {
       parent: () => Effect.succeed(null),
     },
-    grit: {
-      check: (request) =>
-        Effect.succeed(commandResult(gritRequest("grit-check", request.scanRoots))),
-      checkRequest: (request) => gritRequest("grit-check", request.scanRoots),
-      applyDryRun: (request) =>
-        Effect.succeed(commandResult(gritRequest(request.commandId, request.scanRoots))),
-      applyDryRunRequest: (request) => gritRequest(request.commandId, request.scanRoots),
-      runRules: (selectedRules) =>
-        Effect.succeed(
-          new Map(
-            selectedRules.map((rule) => [
-              rule.id,
-              {
-                exitCode: 0,
-                diagnostics: [],
-              },
-            ])
-          )
-        ),
-    },
     nx: {
       affected: (request) =>
         Effect.succeed(
@@ -150,6 +130,24 @@ export function makeTestHabitatServiceDeps(
       writeText: () => Effect.void,
     },
     reporter: fakeReporter(),
+    ruleDiagnostics: {
+      runRules: (demand) =>
+        Effect.succeed(
+          new Map(
+            demand.ruleIds.map((ruleId) => [
+              ruleId,
+              {
+                kind: "executed" as const,
+                result: { exitCode: 0, diagnostics: [] },
+                durationMs: 0,
+              },
+            ])
+          )
+        ),
+    },
+    ruleFixPlanning: {
+      plan: () => Effect.succeed({ kind: "completed", results: [] }),
+    },
     rules: makeTestRuleFacts(),
     ...overrides,
   };
@@ -180,21 +178,9 @@ function commandResult(
   );
 }
 
-function gritRequest(commandId: string, scanRoots: readonly string[] = []): HabitatProcessRequest {
-  return {
-    commandId,
-    kind: "pattern-check",
-    executable: "grit",
-    argv: [],
-    cwd: repoRoot,
-    scanRoots,
-    captureGitState: false,
-  };
-}
-
 function passingCheckReport(command: string): CheckReport {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     command,
     startedAt: "2026-06-21T00:00:00.000Z",
     ok: true,

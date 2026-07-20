@@ -15,7 +15,6 @@ export const ScaffoldingRequestClassSchema = Type.Union([
   Type.Literal("unsupported-project-kind"),
   Type.Literal("unsupported-product-authoring"),
   Type.Literal("pattern-candidate-draft"),
-  Type.Literal("active-pattern-registration"),
 ]);
 
 export type ScaffoldingRequestClass = Static<typeof ScaffoldingRequestClassSchema>;
@@ -24,8 +23,6 @@ export const ScaffoldingRefusalReasonSchema = Type.Union([
   Type.Literal("unsupported-project-kind"),
   Type.Literal("unsupported-product-authoring"),
   Type.Literal("candidate-collision"),
-  Type.Literal("registered-manifest-missing"),
-  Type.Literal("registered-manifest-rejected"),
   Type.Literal("root-mismatch"),
   Type.Literal("package-name-mismatch"),
   Type.Literal("non-empty-root"),
@@ -104,23 +101,14 @@ export const ProjectScaffoldDecisionSchema = Type.Union([
 
 export type ProjectScaffoldDecision = Static<typeof ProjectScaffoldDecisionSchema>;
 
-export const PatternLifecycleSchema = Type.Union([
-  Type.Literal("candidate"),
-  Type.Literal("registered-advisory"),
-  Type.Literal("registered-enforced"),
-]);
-
-export type PatternLifecycle = Static<typeof PatternLifecycleSchema>;
-
 export const NormalizedPatternScaffoldOptionsSchema = Type.Object(
   {
     ruleId: NonEmptyStringSchema,
     patternName: NonEmptyStringSchema,
-    lifecycle: PatternLifecycleSchema,
+    lifecycle: Type.Literal("candidate"),
     identifier: NonEmptyStringSchema,
     ownerProject: NonEmptyStringSchema,
-    openspecChangeId: NonEmptyStringSchema,
-    manifestPath: Type.Optional(NonEmptyStringSchema),
+    openspecChangeId: Type.Optional(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );

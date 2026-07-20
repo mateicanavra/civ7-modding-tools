@@ -22,6 +22,7 @@ import type { HabitatCommandResult } from "@habitat/cli/resources/command/types"
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { HabitatReportEvent } from "@habitat/cli/resources/reporter/index";
 import type { CheckOptions, CheckReport } from "@habitat/cli/service/model/check/index";
+import type { RuleFactsCatalog } from "@habitat/cli/service/model/rules/index";
 import type {
   HookPreCommitInput,
   HookPrePushInput,
@@ -60,7 +61,7 @@ const prePushMixedRuleAuthorityTargets =
 const prePushBoundaryTaxonomyTargets = "lint";
 const prePushStructuralTargetDeclarationTargets = "lint";
 const prePushNoChangedSourceCheck =
-  "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n";
+  "source checks: no changed TypeScript/JavaScript files in hook source-check roots\n";
 
 describe("Habitat hook service", () => {
   beforeEach(() => {
@@ -250,7 +251,10 @@ describe("Habitat hook service", () => {
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
-      { sourceCheckHookEnabled: true },
+      {
+        sourceCheckHookEnabled: true,
+        pathExists: (targetPath) => targetPath.endsWith(changedPath),
+      },
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
           argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
@@ -276,6 +280,79 @@ describe("Habitat hook service", () => {
         stagedPaths: [changedPath],
       }),
     ]);
+    const affectedRequests: NxAffectedRequest[] = [];
+    const notApplicableResult = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
+      {
+        sourceCheckHookEnabled: true,
+        pathExists: (targetPath) => targetPath.endsWith(changedPath),
+      },
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout =
+          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      nxLayer((request) => {
+        affectedRequests.push(request);
+        return commandResult(
+          affectedArgv(request),
+          repoRootForTestCommand(),
+          "affected ok\n",
+          0,
+          "",
+          "nx"
+        );
+      }),
+      {
+        createReport: (options = {}) =>
+          Effect.succeed(notApplicableCheckReport(options.command?.serialized ?? "habitat check")),
+      }
+    );
+
+    expect(notApplicableResult.exitCode).toBe(0);
+    expect(notApplicableResult.stdout).toContain("[source-check changed-path hook check]");
+    expect(notApplicableResult.stdout).toContain("affected ok");
+    expect(affectedRequests).toHaveLength(1);
+  });
+
+  test("excludes deleted paths from pre-push diagnostics without dropping affected planning", async () => {
+    const checkRequests: CheckOptions[] = [];
+    const affectedRequests: NxAffectedRequest[] = [];
+
+    const result = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
+      { sourceCheckHookEnabled: true, pathExists: () => false },
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout =
+          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD"
+            ? "packages/sdk/src/deleted.ts\0"
+            : "";
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      nxLayer((request) => {
+        affectedRequests.push(request);
+        return commandResult(
+          affectedArgv(request),
+          repoRootForTestCommand(),
+          "affected ok\n",
+          0,
+          "",
+          "nx"
+        );
+      }),
+      {
+        createReport: (options = {}) =>
+          Effect.sync(() => {
+            checkRequests.push(options);
+            return passingCheckReport(options.command?.serialized ?? "habitat check");
+          }),
+      }
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain(prePushNoChangedSourceCheck.trim());
+    expect(checkRequests).toEqual([]);
+    expect(affectedRequests).toHaveLength(1);
   });
 
   test("uses the owning Grit rule target for migrated source rule authority-file pre-push changes", async () => {
@@ -770,12 +847,11 @@ function makeSyntheticSourceCheckHookRules() {
   const rules = makeTestRuleFacts();
   return {
     ...rules,
-    source: [
+    diagnostic: [
       {
         id: "hook-source-check-probe",
         lane: "enforced" as const,
         message: "source-check hook check probe",
-        patternName: "hook-source-check-probe",
         pathCoverage: [
           {
             kind: "exact-path" as const,
@@ -786,7 +862,7 @@ function makeSyntheticSourceCheckHookRules() {
       },
     ],
     hookCheck: [{ id: "hook-source-check-probe", hookCheck: true as const }],
-  };
+  } satisfies RuleFactsCatalog;
 }
 
 function commandResult(
@@ -967,7 +1043,7 @@ function renderReported(events: HabitatReportEvent[], kind: HabitatReportEvent["
 
 function passingCheckReport(command: string): CheckReport {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     command,
     startedAt: "2026-06-21T00:00:00.000Z",
     ok: true,
@@ -977,7 +1053,7 @@ function passingCheckReport(command: string): CheckReport {
 
 function fileLayerPassingCheckReport(command: string): CheckReport {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     command,
     startedAt: "2026-06-21T00:00:00.000Z",
     ok: true,
@@ -989,8 +1065,32 @@ function fileLayerPassingCheckReport(command: string): CheckReport {
         status: "pass",
         locked: true,
         durationMs: 1,
+        disposition: { kind: "executed" },
         diagnostics: [],
         message: "File-layer pnpm files are controlled by package manager commands.",
+        remediate: null,
+      },
+    ],
+  };
+}
+
+function notApplicableCheckReport(command: string): CheckReport {
+  return {
+    schemaVersion: 2,
+    command,
+    startedAt: "2026-06-21T00:00:00.000Z",
+    ok: true,
+    rules: [
+      {
+        ruleId: "not-applicable-rule",
+        runner: "grit",
+        lane: "enforced",
+        status: "pass",
+        locked: true,
+        durationMs: 1,
+        disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+        diagnostics: [],
+        message: "not applicable",
         remediate: null,
       },
     ],

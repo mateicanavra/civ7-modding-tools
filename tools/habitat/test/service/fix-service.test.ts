@@ -1,74 +1,95 @@
-import { GritProvider, makeFakeGritProviderLayer } from "@habitat/cli/providers/grit/index";
-import {
-  type HabitatProcessRequest,
-  makeHabitatCommandResult,
-} from "@habitat/cli/resources/command/index";
+import type { RuleFixPlanningDemand } from "@habitat/cli/resources/rule-fix-planning/index";
 import { fixRouter } from "@habitat/cli/service/modules/fix/router";
 import { habitatServiceRouter } from "@habitat/cli/service/router";
 import { createRouterClient } from "@orpc/server";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 describe("Habitat fix service", () => {
-  test("runs dry-run intent through admitted pattern transactions", async () => {
-    const requests: HabitatProcessRequest[] = [];
-    const layer = makeFakeGritProviderLayer((request) => {
-      requests.push(request);
-      return makeHabitatCommandResult(request, {
-        stdout: {
-          text: "dry run ok\n",
-          truncated: false,
-          sha256: "",
-          bytes: 11,
+  test("renders ordered no-write observations from the stable planning capability", async () => {
+    const plan = vi.fn((_demand: RuleFixPlanningDemand) =>
+      Effect.succeed({
+        kind: "completed" as const,
+        results: [
+          { kind: "observed" as const, ruleId: "second", affectedPaths: ["b.ts"] },
+          { kind: "observed" as const, ruleId: "first", affectedPaths: [] },
+        ],
+      })
+    );
+    const result = await Effect.runPromise(
+      runFixProcedure(
+        {
+          rules: ["second", "first", "second"],
         },
-      });
-    });
+        plan
+      )
+    );
 
-    const result = await Effect.runPromise(runFixProcedure().pipe(Effect.provide(layer)));
-
-    expect(result).toEqual({ exitCode: 0, stdout: "dry run ok\n", stderr: "" });
-    expect(requests).toHaveLength(1);
-    expect(requests[0]).toMatchObject({
-      commandId: "habitat-fix-ensure_docs_checkout_paths_are_portable-dry-run",
-      executable: expect.stringMatching(/(^|\/)grit$/),
-      kind: "pattern-apply",
+    expect(plan).toHaveBeenCalledWith({ ruleIds: ["second", "first", "second"] });
+    expect(result).toEqual({
+      exitCode: 0,
+      stdout: "[second] affected paths\n- b.ts\n[first] no affected paths\n",
+      stderr: "",
     });
   });
 
-  test("routes through the in-process Habitat service router", async () => {
-    const requests: HabitatProcessRequest[] = [];
-    const layer = makeFakeGritProviderLayer((request) => {
-      requests.push(request);
-      return makeHabitatCommandResult(request);
+  test("routes omitted selection through the in-process Habitat service router", async () => {
+    const plan = vi.fn((_demand: RuleFixPlanningDemand) =>
+      Effect.succeed({ kind: "completed" as const, results: [] })
+    );
+    const client = createRouterClient(habitatServiceRouter, {
+      context: {
+        deps: makeTestHabitatServiceDeps({
+          ruleFixPlanning: { plan },
+        }),
+      },
     });
 
-    const result = await Effect.runPromise(
-      Effect.gen(function* () {
-        const grit = yield* GritProvider;
-        return yield* Effect.promise(() =>
-          createRouterClient(habitatServiceRouter, {
-            context: { deps: makeTestHabitatServiceDeps({ grit }) },
-          }).fix.planPatterns({})
-        );
-      }).pipe(Effect.provide(layer))
-    );
+    const result = await client.fix.planPatterns({});
 
-    expect(result).toMatchObject({
+    expect(plan).toHaveBeenCalledWith({});
+    expect(result).toEqual({
       exitCode: 0,
+      stdout: "No registered rules admit fix planning.\n",
       stderr: "",
     });
-    expect(requests).toHaveLength(1);
+  });
+
+  test("renders atomic selection refusal without partial observations", async () => {
+    const result = await Effect.runPromise(
+      runFixProcedure({ rules: ["known", "missing"] }, () =>
+        Effect.succeed({
+          kind: "selection-refused" as const,
+          unknownRuleIds: ["missing"],
+          unadmittedRuleIds: ["known"],
+        })
+      )
+    );
+
+    expect(result).toEqual({
+      exitCode: 1,
+      stdout: "",
+      stderr:
+        "habitat fix refused: invalid-rule-selection\nunknown rule ids: missing\nrules without fix admission: known\n",
+    });
+  });
+
+  test("rejects an explicitly empty rule selection at the service boundary", async () => {
+    const plan = vi.fn(() => Effect.succeed({ kind: "completed" as const, results: [] }));
+
+    await expect(Effect.runPromise(runFixProcedure({ rules: [] }, plan))).rejects.toThrow();
+    expect(plan).not.toHaveBeenCalled();
   });
 });
 
-function runFixProcedure() {
-  return Effect.gen(function* () {
-    const grit = yield* GritProvider;
-    const planPatterns = fixRouter.planPatterns.callable({
-      context: { deps: makeTestHabitatServiceDeps({ grit }) },
-    });
-    return yield* withFiberContext(() => planPatterns({}));
+function runFixProcedure(
+  input: { readonly rules?: string[] },
+  plan: ReturnType<typeof makeTestHabitatServiceDeps>["ruleFixPlanning"]["plan"]
+) {
+  const planPatterns = fixRouter.planPatterns.callable({
+    context: { deps: makeTestHabitatServiceDeps({ ruleFixPlanning: { plan } }) },
   });
+  return withFiberContext(() => planPatterns(input));
 }

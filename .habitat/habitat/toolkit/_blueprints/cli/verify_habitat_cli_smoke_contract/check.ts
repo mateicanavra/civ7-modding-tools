@@ -23,8 +23,8 @@ if (checkResult.status !== 0 && checkResult.status !== 1) {
 }
 
 const parsed = parseJsonObject(checkResult.stdout, "check JSON");
-if (parsed.schemaVersion !== 1) {
-  fail("check JSON", checkResult, "expected schemaVersion 1");
+if (parsed.schemaVersion !== 2) {
+  fail("check JSON", checkResult, "expected schemaVersion 2");
 }
 
 function runExpectSuccess(command: string[], label: string): void {

@@ -52,9 +52,10 @@ The implemented surface provides a structural substrate:
   rule registry;
 - delegate local Git hooks through Habitat while keeping CI and explicit graph
   verification authoritative;
-- resolve apply admissions and run Grit dry-run diagnostics without writing;
-- scaffold supported uniform workspace projects and pattern manifest
-  lifecycle artifacts.
+- derive plan-only fix admission from registered rules and observe selected
+  transformations without writing;
+- scaffold supported uniform workspace projects and non-enforcing pattern
+  candidates.
 
 That is meaningful product progress. It gives future agents a structural
 operating surface: classify first, use supported generation where it exists,
@@ -97,7 +98,7 @@ The latest reference docs settle the current posture:
 
 - Habitat is a strong platform substrate for classification, enforcement,
   routing, verification, hooks, pattern diagnostics, baseline integrity,
-  no-write apply-admission and dry-run diagnostics, and live-write refusal.
+  no-write fix planning and early live-write refusal.
 - Habitat is not yet a product-authoring system for MapGen topology.
 - Docs and ledgers are useful reference, but current code, tests, command
   behavior, and generated diffs are stronger evidence for behavior claims.
@@ -124,22 +125,20 @@ Second, distinct responsibilities are currently adjacent or interleaved:
 - baseline and ratchet contracts in `baseline`;
 - workspace graph/project metadata in graph modules and the graph plugin;
 - pattern diagnostic acquisition in the Grit provider;
-- apply-admission, no-write dry-run diagnostics, and live-write refusal in
-  fix modules;
+- authority-derived selection and no-write fix planning in the fix module;
 - workstation hook checks in `hooks`;
 - generated/protected file zones in `generated-zones`;
 - verification receipt construction and process execution records in
   `verify-receipt` and `habitat-process`;
 - project and pattern scaffolding in workspace generators;
-- pattern manifest admission in `patterns` and pattern generator
-  registration.
+- candidate pattern drafting and separate active `rule.json` authoring.
 
 These responsibilities have different users, failure modes, validation needs, and reasons
 to change. Their current proximity is implementation evidence, not a domain
 decision.
 
 Third, some current names describe mechanism rather than domain language.
-Examples include "command engine", "apply-admission adapter", "wrapped script", and
+Examples include "command engine", "wrapped script", and
 "file-layer". These terms may remain useful in implementation, but the domain
 mapping must ask what user-facing capability or responsibility they serve. A domain
 model that simply preserves mechanism names will reproduce the current muddle.
@@ -157,7 +156,7 @@ each invariant, and what scenarios validate those responsibilities."
   hook behavior, and workspace graph integration.
 - Supported scenarios: classify path/diff, run check, run graph verification, run
   diagnostic verify, scaffold supported project, draft and promote Habitat patterns,
-  run admitted no-write deep-import dry-run diagnostics, observe live-write refusal,
+  run admitted no-write fix plans, observe live-write refusal,
   and run local hooks.
 - Future / not implemented scenarios: apply an approved structural repair, generate
   MapGen recipe/domain/op/stage/step, validate a generated MapGen authoring flow,
@@ -268,7 +267,7 @@ inputs:
 - Code flow traces for each supported Habitat scenario.
 - Test flow traces that show which behavior is currently validated.
 - Rule-pack and baseline inventory.
-- Pattern diagnostic, apply-admission, dry-run, and live-refusal inventory.
+- Pattern diagnostic, fix-admission, no-write planning, and live-refusal inventory.
 - Generator inventory and refusal contracts.
 - Hook behavior and side-effect inventory.
 - Workspace graph integration and classify target truth.
@@ -289,7 +288,7 @@ minimum, trace these flows end to end:
 5. Run diagnostic Habitat verify.
 6. Scaffold a supported uniform workspace project.
 7. Draft a new Habitat pattern candidate.
-8. Promote a Habitat pattern after pattern manifest acceptance.
+8. Author and review an active Habitat rule separately from candidate generation.
 9. Run an admitted no-write deep-import dry-run diagnostic, then issue its live
    request and record the refusal without mutation.
 10. Run pre-commit and pre-push hooks.
@@ -316,7 +315,7 @@ The next investigation should produce these artifacts before implementation:
 - Scenario corpus: supported, unsupported, and desired authoring scenarios with
   evidence links.
 - Flow maps: classify, check, verify, graph verification, hook, pattern diagnostics,
-  current apply admission/dry-run, future live apply (not implemented), project
+  current fix admission/planning, future live apply (not implemented), project
   generation, pattern admission, and future MapGen authoring.
 - Ubiquitous language glossary: terms grouped by scenario and responsibility, with
   ambiguous or overloaded terms called out.
@@ -347,14 +346,15 @@ These are hypotheses to test, not final boundaries:
   consumes project metadata as target truth.
 - Diagnostic pattern catalog: acquires pattern findings and maps them into
   Habitat rules.
-- **Future / not implemented transformation transaction:** would apply only
-  approved mechanical rewrites with dry-run, path approval, formatter handoff,
-  rollback, and transaction records. The current implementation stops at
-  admission discovery and Grit dry-run diagnostics.
+- **Future / not implemented mutation capability:** would apply only approved
+  mechanical rewrites with path approval, formatter handoff, rollback, and
+  change records. The current implementation stops at authority-derived
+  no-write planning.
 - Hook check: runs hooks as bounded pre-commit/pre-push assistance without
   becoming merge control.
 - Scaffolding and admission: generates supported uniform project structure and
-  pattern manifest artifacts while refusing unsupported topology.
+  candidate pattern artifacts while refusing unsupported topology; active rules
+  remain separate reviewed authority.
 - Future MapGen authoring: creates recipe/domain/op/stage/step topology and
   validates it through the product acceptance loop. This is currently a gap, not
   an implemented Habitat context.
