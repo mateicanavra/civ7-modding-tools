@@ -50,11 +50,20 @@ export type BrowserConfigFormContext = {
 // is gone. The theme now follows the single `.dark` class via design-system
 // tokens (`card`/`muted`/`border`/`accent`/…), so there is no `lightMode` read.
 const FORM = {
-  // Config explorer v2 (P7 flatten): the old depth-2 "well" cards are
-  // retired. Nesting is now a FLAT collapsible object explorer — full-bleed
-  // disclosure rows separated by hairline dividers, depth carried by a
-  // compounding left indent (`nestIndent`), never by a third surface. The
-  // stage slab (`surface-sunken`) stays the single recess tier.
+  // Config explorer v2 (P7 flatten) + flat-and-flush delta 1: the old
+  // depth-2 "well" cards are retired AND the stage slab's recess tint is
+  // gone — the whole config body is ONE continuous flat surface. Nesting is
+  // a FLAT collapsible object explorer — full-bleed disclosure rows
+  // separated by hairline dividers, depth carried by dividers plus a
+  // compounding left indent (`nestIndent`), never by a fill.
+  //
+  // Hugged rhythm (delta 1): headers inset 14px (`px-3.5`); field runs inset
+  // 32px left / 14px right (`pl-8 pr-3.5`). The 32 is DERIVED, not chosen:
+  // header inset (14) + chevron w-3 (12) + gap-1.5 (6) — it lands property
+  // labels directly under the header's title TEXT. Change the header inset,
+  // chevron size, or title gap and the field-run left inset must be
+  // re-derived from that fixed +18.
+  fieldRunInset: "pl-8 pr-3.5",
   nestIndent: "pl-3",
   divider: "border-border",
   // Field labels sit a full tier above prose (Pass-2 form hierarchy): labels are
@@ -70,13 +79,14 @@ const FORM = {
   // its caption recedes below field labels (the brightest scan line in a card).
   groupHeading: "text-label font-semibold uppercase tracking-wider text-muted-foreground",
   subGroupHeading: "text-label font-semibold uppercase tracking-wider text-muted-foreground/70",
-  // Rhythm on the 4px base (Pass-3): 4px inside a field block, 8px between
-  // sibling fields. Object/array sections carry NO inter-item rhythm (Y4 +
-  // P7 flatten): hairline dividers separate rows, not margins — only runs of
-  // scalar fields keep the sibling gap inside their padded block.
+  // Rhythm (flat-and-flush delta 1): 4px inside a field block, 10px between
+  // sibling fields, 12px above/below a run. Object/array sections carry NO
+  // inter-item rhythm (Y4 + P7 flatten): hairline dividers separate rows,
+  // not margins — only runs of scalar fields keep the sibling gap inside
+  // their padded block.
   rhythm: {
     field: "gap-1",
-    siblings: "gap-2",
+    siblings: "gap-2.5",
   },
 } as const;
 
@@ -380,13 +390,13 @@ function StageObjectSection(args: {
     </TooltipProvider>
   );
 
-  // Y4 flatten: stage objects lay FLAT on the panel — no card chrome, no
-  // raised surface. The header is a full-bleed disclosure row; expanding it
-  // opens a RECESSED slab (`surface-sunken` — below the panel, toward the
-  // page) so the interaction reads as a door opening into the graphite,
-  // not a card inflating off it. Inside the slab the config explorer v2
-  // layout takes over: full-bleed nested disclosure rows, hairline-divided,
-  // with only scalar-field runs carrying horizontal padding.
+  // Y4 flatten + flat-and-flush delta 1: stage objects lay FLAT on the panel
+  // — no card chrome, no raised surface, and no recessed tint. The header is
+  // a full-bleed disclosure row; expanding it opens a body on the SAME
+  // continuous surface, separated only by the hairline `border-t` — depth is
+  // carried by dividers and indent, never a fill. Inside, the config
+  // explorer v2 layout takes over: full-bleed nested disclosure rows,
+  // hairline-divided, with only scalar-field runs carrying padding.
   return (
     <section data-config-section="" data-config-pointer={pointer}>
       {collapse ? (
@@ -396,11 +406,11 @@ function StageObjectSection(args: {
           titleClass={cn("text-sm font-semibold", textClass)}
           expanded={expanded}
           collapse={collapse}
-          className="px-2.5 py-2 hover:bg-muted/20 transition-colors"
+          className="px-3.5 py-2 hover:bg-muted/20 transition-colors"
           actions={actions}
         />
       ) : (
-        <header className="flex flex-col gap-1 px-2.5 py-2">
+        <header className="flex flex-col gap-1 px-3.5 py-2">
           <div className={cn("text-sm font-semibold", textClass)}>{title}</div>
           {renderGsComments({ schema, className: labelClass })}
           {description ? <div className={cn("text-data", labelClass)}>{description}</div> : null}
@@ -409,17 +419,17 @@ function StageObjectSection(args: {
       {expanded ? (
         <div
           id={collapse ? configContentId(pointer) : undefined}
-          className={cn("border-t bg-surface-sunken/60", FORM.borderSubtle)}
+          className={cn("border-t", FORM.borderSubtle)}
         >
           {collapse &&
           (description || normalizeGsComments((schema as GsSchemaMeta | null)?.gs?.comments)) ? (
-            <div className="flex flex-col gap-1 px-2.5 pt-2 pb-1.5">
+            <div className={cn("flex flex-col gap-1 pt-2 pb-1.5", FORM.fieldRunInset)}>
               {renderGsComments({ schema, className: labelClass })}
               {description ? <div className={cn("text-data", labelClass)}>{description}</div> : null}
             </div>
           ) : null}
           {showJson ? (
-            <div className="px-2.5 py-2">
+            <div className={cn("py-3", FORM.fieldRunInset)}>
               <div className="border border-border-subtle rounded p-2.5 max-h-[240px] overflow-auto bg-surface-sunken">
                 <pre
                   className={cn(
@@ -433,7 +443,11 @@ function StageObjectSection(args: {
               </div>
             </div>
           ) : (
-            <FlatObjectChildren properties={properties} schema={schema} fieldsClass="px-2.5 py-2" />
+            <FlatObjectChildren
+              properties={properties}
+              schema={schema}
+              fieldsClass={cn("py-3", FORM.fieldRunInset)}
+            />
           )}
         </div>
       ) : null}
@@ -526,22 +540,24 @@ export function BrowserConfigObjectFieldTemplate(
           titleClass={headingClass}
           expanded={expanded}
           collapse={collapse}
-          className="px-2.5 py-1.5 hover:bg-muted/20 transition-colors"
+          className="px-3.5 py-1.5 hover:bg-muted/20 transition-colors"
         />
       ) : (
-        <header className="px-2.5 py-1.5">
+        <header className="px-3.5 py-1.5">
           <div className={headingClass}>{prettyTitle}</div>
         </header>
       )}
       {expanded ? (
         <div id={collapse ? configContentId(pointer) : undefined} className={FORM.nestIndent}>
           {description ? (
-            <div className={cn("text-data px-2.5 pb-1.5", labelClass)}>{description}</div>
+            <div className={cn("text-data pb-1.5", FORM.fieldRunInset, labelClass)}>
+              {description}
+            </div>
           ) : null}
           <FlatObjectChildren
             properties={properties}
             schema={schema}
-            fieldsClass="px-2.5 pb-2 pt-1"
+            fieldsClass={cn("py-3", FORM.fieldRunInset)}
           />
         </div>
       ) : null}
@@ -587,11 +603,11 @@ export function BrowserConfigArrayFieldTemplate(
           titleClass={FORM.groupHeading}
           expanded={expanded}
           collapse={collapse}
-          className="px-2.5 py-1.5 hover:bg-muted/20 transition-colors"
+          className="px-3.5 py-1.5 hover:bg-muted/20 transition-colors"
           actions={addButton}
         />
       ) : (
-        <div className="flex items-center gap-2 px-2.5 py-1.5">
+        <div className="flex items-center gap-2 px-3.5 py-1.5">
           <div className={FORM.groupHeading}>{prettyTitle}</div>
           <div style={{ flex: 1 }} />
           {addButton}
@@ -599,14 +615,14 @@ export function BrowserConfigArrayFieldTemplate(
       )}
       {expanded ? (
         <div id={collapse ? configContentId(pointer) : undefined} className={FORM.nestIndent}>
-          {renderGsComments({ schema, className: cn("px-2.5 pb-1.5", labelClass) })}
+          {renderGsComments({ schema, className: cn("pb-1.5", FORM.fieldRunInset, labelClass) })}
           <div className="flex flex-col divide-y divide-border-subtle">
             {items.map((item, index) => {
               // RJSF v6 types this as ReactElement[], but some templates/versions
               // pass an "item" object that wraps the actual element in `.children`.
               const content = (item as any)?.children ?? (item as any)?.props?.children ?? item;
               return (
-                <div key={item.key ?? index} className="px-2.5 py-2">
+                <div key={item.key ?? index} className={cn("py-3", FORM.fieldRunInset)}>
                   {content}
                 </div>
               );
