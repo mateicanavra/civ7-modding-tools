@@ -6,8 +6,8 @@ import { TooltipProvider } from "../src/components/ui/tooltip.js";
 
 afterEach(cleanup);
 
-describe("RecipePanel config editing lock", () => {
-  it("labels and reports the toggle as config editing enablement", () => {
+describe("RecipePanel overrides toggle", () => {
+  it("reports overrides enablement through the single Power icon toggle", () => {
     const onConfigEditingEnabledChange = vi.fn();
 
     render(
@@ -34,11 +34,15 @@ describe("RecipePanel config editing lock", () => {
       </TooltipProvider>
     );
 
-    expect(screen.getByText("Locked")).toBeTruthy();
-    const editingSwitch = screen.getByRole("switch", { name: "Enable config editing" });
-    expect(editingSwitch.getAttribute("aria-checked")).toBe("false");
+    // One control, one signal (flat-and-flush delta 3): no Switch, no
+    // Editing/Locked caption — a fixed Power glyph whose highlight and
+    // aria-pressed carry the state.
+    expect(screen.queryByRole("switch")).toBeNull();
+    expect(screen.queryByText("Locked")).toBeNull();
+    const toggle = screen.getByRole("button", { name: "Enable Overrides" });
+    expect(toggle.getAttribute("aria-pressed")).toBe("false");
 
-    fireEvent.click(editingSwitch);
+    fireEvent.click(toggle);
 
     expect(onConfigEditingEnabledChange).toHaveBeenCalledWith(true);
   });

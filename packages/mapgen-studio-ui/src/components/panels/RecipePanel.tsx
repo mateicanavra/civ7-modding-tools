@@ -7,7 +7,7 @@
 // ============================================================================
 
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
-import { BookOpen, Eraser, Focus, ListCollapse, Save, Settings } from "lucide-react";
+import { BookOpen, Eraser, Link, Power, Save, Settings } from "lucide-react";
 import React, { useMemo, useRef, useState } from "react";
 import type { XSchema } from "typebox/schema";
 import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
@@ -41,7 +41,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu.js";
-import { Switch } from "../ui/switch.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 import { formatMapConfigSaveDeployPhaseLabel } from "./statusLabels.js";
 // ============================================================================
@@ -182,13 +181,9 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   // ==========================================================================
   const focusPath = !showAllSteps && selectedStep ? [selectedStep] : null;
   // Config-object collapse (Pass-4): collapsed by default with manual expand;
-  // the focused stage root defaults expanded; the sticky toggle (default OFF)
-  // hands expansion to the scroll engine.
-  const [stickyAutoExpand, setStickyAutoExpand] = useState(false);
+  // the focused stage root defaults expanded.
   const configScrollRef = useRef<HTMLDivElement | null>(null);
   const collapse = useConfigCollapse({
-    scrollRootRef: configScrollRef,
-    sticky: stickyAutoExpand,
     focusRootPointer: focusPath ? `/${focusPath.join("/")}` : null,
   });
   // Normalized rjsf view of the config schema — the same normalization the
@@ -340,34 +335,33 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             )}
             trailing={
               <>
-                {/* Caller-owned stopPropagation: clicking the On label / Switch
-                    must NOT toggle the section. */}
-                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                  <span
-                    className={cn(
-                      "text-[9px] font-medium uppercase tracking-wider",
-                      configEditingEnabled ? "text-primary" : textMuted
-                    )}
-                  >
-                    {configEditingEnabled ? "Editing" : "Locked"}
-                  </span>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Switch
-                        checked={configEditingEnabled}
-                        onCheckedChange={setConfigEditingEnabled}
-                        aria-label={
-                          configEditingEnabled ? "Lock config editing" : "Enable config editing"
-                        }
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {configEditingEnabled ? "Lock config editing" : "Enable config editing"}
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                {/* Overrides toggle (flat-and-flush delta 3): ONE icon-only
+                    control — a fixed Power glyph whose highlight alone carries
+                    on/off, matching the row's other icon buttons. Self-guards
+                    its click so it never toggles the section. */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setConfigEditingEnabled(!configEditingEnabled);
+                      }}
+                      aria-pressed={configEditingEnabled}
+                      aria-label={configEditingEnabled ? "Disable Overrides" : "Enable Overrides"}
+                      className={configEditingEnabled ? iconButtonActive : iconButton}
+                    >
+                      <Power className="w-3.5 h-3.5" aria-hidden="true" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {configEditingEnabled ? "Disable Overrides" : "Enable Overrides"}
+                  </TooltipContent>
+                </Tooltip>
 
-                {/* Focus button self-guards its own click. */}
+                {/* Step-visibility toggle self-guards its own click. Chain-link
+                    glyph (delta 4): "these steps are shown together", not
+                    camera focus. */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
@@ -380,7 +374,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                       aria-pressed={showAllSteps}
                       className={!showAllSteps ? iconButtonActive : iconButton}
                     >
-                      <Focus className="w-3.5 h-3.5" aria-hidden="true" />
+                      <Link className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -399,66 +393,27 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             ref={configScrollRef}
             className="flex-1 overflow-y-auto overflow-x-hidden"
           >
-            <>
-              {/* Config Actions */}
-              <div
-                className={cn(
-                  "px-3 py-2 flex items-center gap-2",
-                  !configEditingEnabled && "opacity-40 pointer-events-none select-none"
-                )}
-              >
-                <div className="flex-1" />
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={() => setStickyAutoExpand(!stickyAutoExpand)}
-                      aria-label={
-                        stickyAutoExpand
-                          ? "Disable Auto-Expand on Scroll"
-                          : "Enable Auto-Expand on Scroll"
-                      }
-                      aria-pressed={stickyAutoExpand}
-                      className={stickyAutoExpand ? iconButtonActive : iconButton}
-                    >
-                      <ListCollapse className="w-3.5 h-3.5" aria-hidden="true" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {stickyAutoExpand ? "Auto-Expand on Scroll: On" : "Auto-Expand on Scroll: Off"}
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-
-              {/* Config Form / JSON. pb-6 matches the h-6 scroll-edge fade below:
-                at full scroll the fade overlays only this padding, never the
-                last field row. */}
-              <div
-                className={cn(
-                  "px-3 pb-6",
-                  !configEditingEnabled && "opacity-40 pointer-events-none select-none"
-                )}
-              >
-                <SchemaConfigForm
-                  schema={configSchema}
-                  value={config}
-                  focusPath={focusPath}
-                  disabled={!configEditingEnabled}
-                  collapse={collapse}
-                  onStageResetRequest={(pointer, label) => setStageResetTarget({ pointer, label })}
-                  onChange={(next) => onConfigChange(next)}
-                />
-              </div>
-              {/* Scroll-edge fade: sticky inside the scroll container so mid-scroll
-                cuts read as "more below" instead of the end of the form. The
-                negative margin keeps it from adding scroll height; it fades to
-                the panel surface (popover) and never intercepts the pointer. */}
-              <div
-                aria-hidden="true"
-                className="sticky bottom-0 -mt-6 h-6 shrink-0 pointer-events-none bg-gradient-to-t from-popover to-transparent"
+            {/* Config form (flat-and-flush delta 1): flush — no horizontal
+              gutter, so rows, dividers, and hover highlights run
+              edge-to-edge. pb-6 keeps bottom breathing room at full scroll
+              (the scroll-edge fade is gone — delta 7 — so the hairline
+              dividers are the only "continues below" cue). */}
+            <div
+              className={cn(
+                "pb-6",
+                !configEditingEnabled && "opacity-40 pointer-events-none select-none"
+              )}
+            >
+              <SchemaConfigForm
+                schema={configSchema}
+                value={config}
+                focusPath={focusPath}
+                disabled={!configEditingEnabled}
+                collapse={collapse}
+                onStageResetRequest={(pointer, label) => setStageResetTarget({ pointer, label })}
+                onChange={(next) => onConfigChange(next)}
               />
-            </>
+            </div>
           </div>
         )}
 
@@ -479,10 +434,16 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
+                    {/* Flush trigger (flat-and-flush delta 2): full-width,
+                        borderless, transparent — the hover/active life comes
+                        from the outline variant it still rides. */}
                     <Button
                       variant="outline"
                       disabled={saveActionDisabled}
-                      className={cn("flex-1", isSaveDeployRunning && "opacity-70 cursor-wait")}
+                      className={cn(
+                        "flex-1 w-full border-0",
+                        isSaveDeployRunning && "opacity-70 cursor-wait"
+                      )}
                     >
                       <Save className="w-4 h-4" aria-hidden="true" />
                       <span>Save & Deploy</span>
