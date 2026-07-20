@@ -35,8 +35,6 @@ const fixture: Record<string, string> = JSON.parse(
   )
 );
 
-const noop = () => {};
-
 // --- story wrappers, byte-identical to the story files ---
 function Dock({ children }: { children: ReactNode }) {
   return (

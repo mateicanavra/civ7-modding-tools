@@ -12,7 +12,7 @@ import { cn } from "../../lib/utils.js";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip.js";
 import { FieldRow } from "./FieldRow.js";
 import { errorFieldId } from "./fieldIds.js";
-import { pathToPointer, schemaDefaultsFor } from "./schemaPresentation.js";
+import { humanizeSchemaLabel, pathToPointer, schemaDefaultsFor } from "./schemaPresentation.js";
 
 /**
  * Collapse state for the form's config objects (Pass-4 config-collapse
@@ -79,14 +79,6 @@ const FORM = {
     siblings: "gap-2",
   },
 } as const;
-
-function humanizeSchemaLabel(label: string): string {
-  const s = label
-    .replace(/[_-]+/g, " ")
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .trim();
-  return s.replace(/\b\w/g, (m) => m.toUpperCase());
-}
 
 type GsSchemaMeta = Readonly<{ gs?: Readonly<{ comments?: unknown }> }>;
 
