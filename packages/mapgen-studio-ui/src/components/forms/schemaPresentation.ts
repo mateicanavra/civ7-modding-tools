@@ -271,6 +271,14 @@ export function pathToPointer(path: Array<string | number>): string {
   return `/${parts.join("/")}`;
 }
 
+/** Inverse of `pathToPointer` — splits and unescapes (`~1` → `/`, `~0` → `~`). */
+export function pointerToPath(pointer: string): string[] {
+  return pointer
+    .split("/")
+    .filter(Boolean)
+    .map((p) => p.replace(/~1/g, "/").replace(/~0/g, "~"));
+}
+
 function normalizeLabel(label: string): string {
   return label.toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
 }

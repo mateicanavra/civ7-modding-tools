@@ -41,10 +41,11 @@ export type SchemaConfigFormProps<TConfig> = Readonly<{
    */
   collapse?: ConfigCollapseContext;
   /**
-   * Scoped stage-reset request (flat-and-flush delta 5). Omitted ⇒ stage
-   * headers render no Reset action.
+   * Scoped stage-reset request (flat-and-flush delta 5); carries the stage's
+   * schema-resolved defaults so the confirmer never re-resolves them.
+   * Omitted ⇒ stage headers render no Reset action.
    */
-  onStageResetRequest?: (pointer: string, label: string) => void;
+  onStageResetRequest?: (pointer: string, label: string, defaults: unknown) => void;
 }>;
 
 export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>) {
