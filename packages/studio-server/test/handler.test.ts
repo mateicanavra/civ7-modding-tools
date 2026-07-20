@@ -27,9 +27,11 @@ import {
   studioEventSubscriptionIterator,
 } from "../src/index";
 import {
+  makeStudioOperationRuntimeLayer,
   StudioOperationRuntime,
   type StudioOperationRuntimeApi,
 } from "../src/operationRuntime/index";
+import { Civ7WorkflowControl, type Civ7WorkflowControlApi } from "../src/ports";
 
 const openServers: Server[] = [];
 const openHandles: StudioRpcHandle[] = [];
@@ -116,9 +118,12 @@ describe("studio-server RPC handler", () => {
     try {
       const context = makeContext({
         operationRuntime: makeOperationRuntimePorts({
-          deployRunInGame: async () => {
+          deployRunInGame: async ({ requestId, generatedMod }) => {
             await blocker.promise;
-            return {};
+            return runInGameDeployment({
+              requestId,
+              materialization: generatedMod.materialization,
+            });
           },
         }),
       });
@@ -171,6 +176,89 @@ describe("studio-server RPC handler", () => {
     });
   });
 
+  test("serves private Run in Game attribution through diagnostics lookup only", async () => {
+    const runtime = makeTestStudioRuntime(makeContext());
+    const client = directRuntimeClient(runtime);
+    const iterator = await client.studio.events.watch({});
+    try {
+      await expect(iterator.next()).resolves.toMatchObject({
+        done: false,
+        value: { type: "hello" },
+      });
+
+      const accepted = await client.runInGame.start(runInGameStartInput());
+      if (!accepted.diagnosticsId) throw new Error("Expected accepted run diagnostics id");
+
+      const runEvent = await readOperationEvent(
+        iterator,
+        (event) => event.kind === "run-in-game" && event.status.requestId === accepted.requestId
+      );
+      await expect
+        .poll(async () => (await client.runInGame.status({ requestId: accepted.requestId })).phase)
+        .toBe("completed");
+
+      const status = await client.runInGame.status({ requestId: accepted.requestId });
+      const current = await client.studio.operations.current({});
+      for (const publicValue of [accepted, runEvent, status, current]) {
+        expect(JSON.stringify(publicValue)).not.toContain("attribution");
+      }
+
+      await expect
+        .poll(async () => {
+          const lookup = await client.runInGame.diagnostics({
+            diagnosticsId: accepted.diagnosticsId,
+          });
+          if (!lookup.ok) return false;
+          const attribution = lookup.diagnostics.sections.attribution;
+          if (attribution == null || typeof attribution !== "object" || Array.isArray(attribution)) {
+            return false;
+          }
+          const report = (attribution as { report?: unknown }).report;
+          if (report == null || typeof report !== "object" || Array.isArray(report)) return false;
+          const fields = report as { status?: unknown; missingSections?: unknown };
+          return (
+            fields.status === "complete" &&
+            Array.isArray(fields.missingSections) &&
+            fields.missingSections.length === 0
+          );
+        })
+        .toBe(true);
+      const diagnostics = await client.runInGame.diagnostics({
+        diagnosticsId: accepted.diagnosticsId,
+      });
+      expect(diagnostics.ok).toBe(true);
+      if (!diagnostics.ok) throw new Error("Expected diagnostics lookup result");
+      expect(diagnostics.diagnostics.sections.attribution).toMatchObject({
+        report: {
+          requestId: accepted.requestId,
+          status: "complete",
+          missingSections: [],
+          sections: {
+            source: expect.any(Object),
+            manifest: expect.any(Object),
+            generation: expect.any(Object),
+            deployment: expect.any(Object),
+            scriptingLogObservation: expect.any(Object),
+            setupRowReadback: expect.any(Object),
+            boundedLoadedGameReadback: expect.any(Object),
+            terminalResult: expect.any(Object),
+          },
+        },
+      });
+
+      await expect(
+        client.runInGame.diagnostics({ diagnosticsId: "run-diagnostics-handler-missing" })
+      ).resolves.toEqual({
+        ok: false,
+        diagnosticsId: "run-diagnostics-handler-missing",
+        reason: "not-found",
+      });
+    } finally {
+      await iterator.return?.();
+      await runtime.dispose();
+    }
+  }, 10_000);
+
   test("maps raw-control Run in Game start payloads to the declared invalid-request error", async () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
     try {
@@ -211,9 +299,12 @@ describe("studio-server RPC handler", () => {
               cleanupCalls += 1;
             },
           }),
-          deployRunInGame: async () => {
+          deployRunInGame: async ({ requestId, generatedMod }) => {
             await blocker.promise;
-            return {};
+            return runInGameDeployment({
+              requestId,
+              materialization: generatedMod.materialization,
+            });
           },
         }),
       });
@@ -223,7 +314,18 @@ describe("studio-server RPC handler", () => {
       await expect
         .poll(async () => (await client.runInGame.status({ requestId: run.requestId })).phase)
         .toBe("deploying");
-      await expect(client.runInGame.cancel({ requestId: run.requestId })).resolves.toMatchObject({
+      let cancelResolved = false;
+      const cancelPromise = client.runInGame
+        .cancel({ requestId: run.requestId })
+        .then((cancelled) => {
+          cancelResolved = true;
+          return cancelled;
+        });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(cancelResolved).toBe(false);
+
+      blocker.resolve();
+      await expect(cancelPromise).resolves.toMatchObject({
         requestId: run.requestId,
         status: "cancelled",
         phase: "cancelled",
@@ -246,9 +348,12 @@ describe("studio-server RPC handler", () => {
     try {
       const context = makeContext({
         operationRuntime: makeOperationRuntimePorts({
-          deployRunInGame: async () => {
+          deployRunInGame: async ({ requestId, generatedMod }) => {
             await blocker.promise;
-            return {};
+            return runInGameDeployment({
+              requestId,
+              materialization: generatedMod.materialization,
+            });
           },
         }),
       });
@@ -769,6 +874,34 @@ function directClient(handler: StudioRpcHandle): RouterClient<StudioRouter> {
   );
 }
 
+function directRuntimeClient(runtime: StudioRuntime): RouterClient<StudioRouter> {
+  const handler = new RPCHandler(createStudioRouter(runtime));
+  return createORPCClient<RouterClient<StudioRouter>>(
+    new RPCLink({
+      url: "http://studio.test/rpc",
+      fetch: async (request) => {
+        const result = await handler.handle(request, { prefix: "/rpc" });
+        if (!result.matched || !result.response) {
+          return new Response("not found", { status: 404 });
+        }
+        return result.response;
+      },
+    })
+  );
+}
+
+function makeTestStudioRuntime(context: StudioServerContext): StudioRuntime {
+  const eventHubLayer = StudioEventHubLive;
+  const operationRuntimeLayer = makeStudioOperationRuntimeLayer({
+    ports: context.operationRuntime,
+    civ7WorkflowControl: makeCiv7WorkflowControlLayer(),
+  }).pipe(Layer.provide(eventHubLayer));
+  const runtime: StudioRuntime = ManagedRuntime.make(
+    Layer.mergeAll(eventHubLayer, operationRuntimeLayer, Layer.succeed(StudioConfig, context))
+  );
+  return runtime;
+}
+
 async function listenWithClient(context: StudioServerContext): Promise<RouterClient<StudioRouter>> {
   const studioRpc = trackHandle(createStudioRpcHandler(context));
   const origin = await listen(async (req, res) => {
@@ -866,6 +999,27 @@ function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServer
   };
 }
 
+function makeCiv7WorkflowControlLayer(
+  overrides: Partial<Civ7WorkflowControlApi> = {}
+): Layer.Layer<Civ7WorkflowControl> {
+  const service: Civ7WorkflowControlApi = {
+    checkPlayable: () => Effect.void,
+    prepareSetup: () => Effect.succeed({}),
+    startGame: () => Effect.succeed({}),
+    runAutoplay: (input) =>
+      Effect.succeed({
+        ok: true,
+        action: input.action,
+        autoplay: {},
+        game: {},
+        gameContext: {},
+        result: {},
+      }),
+    ...overrides,
+  };
+  return Layer.succeed(Civ7WorkflowControl, service);
+}
+
 function namedError(name: string, message: string): Error {
   const err = new Error(message);
   err.name = name;
@@ -927,8 +1081,10 @@ function makeOperationRuntimePorts(
       sortIndex: 900,
       config: {},
     }),
-    deployRunInGame: async () => ({}),
+    deployRunInGame: async ({ requestId, generatedMod }) =>
+      runInGameDeployment({ requestId, materialization: generatedMod.materialization }),
     waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
+    observeRunInGameRuntime: async (args) => runInGameRuntimeObservation(args),
     buildRunInGameProof: async () => ({ result: { ok: true } }),
     prepareSaveDeployStart: async () => ({}),
     saveMapConfig: async () => ({ saved: true }),
@@ -952,6 +1108,116 @@ function generatedRunInGameMod(): Awaited<
       generatedModFileCount: 1,
       generatedModDigest: "test-generated-mod-digest",
       mapRowId: "MAP_RUN_TEST",
+    },
+  };
+}
+
+function runInGameDeployment(
+  args: Readonly<{
+    requestId: string;
+    materialization: Awaited<
+      ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
+    >["materialization"];
+  }>
+): Awaited<ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>> {
+  const { materialization, requestId } = args;
+  const files: Awaited<
+    ReturnType<StudioOperationRuntimePorts["deployRunInGame"]>
+  >["deployedSnapshot"]["files"] = [
+    {
+      path: "maps/run-test.js",
+      sha256: "sha256-map-script",
+      sizeBytes: 512,
+    },
+  ];
+  return {
+    materialization,
+    deploy: {
+      targetDir: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      filesCopied: 1,
+    },
+    runDeployment: {
+      requestId,
+      deployedModId: "mod-swooper-studio-run",
+      generatedModRoot: materialization.generatedModRoot,
+      generatedModDigest: materialization.generatedModDigest,
+      targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      startedAt: "2026-06-10T00:00:00.000Z",
+      completedAt: "2026-06-10T00:00:01.000Z",
+      filesCopied: 1,
+    },
+    deployedSnapshot: {
+      requestId,
+      deployedModId: "mod-swooper-studio-run",
+      targetRoot: "/tmp/Civ7/Mods/mod-swooper-studio-run",
+      observedAt: "2026-06-10T00:00:01.000Z",
+      fileCount: files.length,
+      digest: materialization.generatedModDigest,
+      files,
+    },
+  };
+}
+
+function runInGameRuntimeObservation(
+  args: Parameters<StudioOperationRuntimePorts["observeRunInGameRuntime"]>[0]
+): Awaited<ReturnType<StudioOperationRuntimePorts["observeRunInGameRuntime"]>> {
+  const materialization = args.deployment.materialization;
+  const correlation = {
+    requestId: args.requestId,
+    runArtifactId: materialization?.runArtifactId ?? "run-test",
+    launchSourceDigest: args.prepared.launchSourceDigest,
+    launchEnvelopeDigest: args.prepared.launchEnvelopeDigest,
+    generationManifestDigest:
+      materialization?.generationManifestDigest ?? "test-generation-manifest-digest",
+  };
+  return {
+    requestId: args.requestId,
+    correlation,
+    deploymentEvidence: {
+      runDeployment: args.deployment.runDeployment,
+      deployedSnapshot: args.deployment.deployedSnapshot,
+    },
+    scriptingLog: {
+      requestId: args.requestId,
+      correlation,
+      matchedMarkers: ["[mapgen-proof]", args.requestId, "[mapgen-complete]"],
+      proof: args.log.logProof,
+    },
+    setupRow: {
+      requestId: args.requestId,
+      correlation,
+      state: "matched",
+      mapScript: materialization?.mapScript ?? "test-map-script",
+      runArtifactId: correlation.runArtifactId,
+      deployedModId: args.deployment.runDeployment.deployedModId,
+      rowProof: { ok: true },
+      rowVisibility: { visible: true },
+    },
+    loadedGame: {
+      requestId: args.requestId,
+      correlation,
+      marker: { requestId: args.requestId, runArtifactId: correlation.runArtifactId },
+      liveStatus: {
+        ok: true,
+        playable: true,
+        observedAt: "2026-06-10T00:00:02.000Z",
+        status: { readiness: "app-ui-game" },
+        appUi: { snapshot: { ui: { inGame: { ok: true, value: true } } } },
+        mapSummary: { mapSize: "MAPSIZE_STANDARD" },
+        autoplay: {},
+      },
+      liveSnapshot: {
+        ok: true,
+        observedAt: "2026-06-10T00:00:02.000Z",
+        grid: {
+          map: { width: { ok: true, value: 84 }, height: { ok: true, value: 54 } },
+          plotCount: 4536,
+          plots: [{}],
+        },
+      },
+      dimensions: { width: 84, height: 54 },
+      deployedModId: args.deployment.runDeployment.deployedModId,
+      deployedSnapshotDigest: args.deployment.deployedSnapshot.digest,
     },
   };
 }

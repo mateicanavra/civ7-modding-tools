@@ -8,18 +8,30 @@ import type {
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifestReference } from "@civ7/studio-run-workspace";
 import type { StudioRuntimeFailure } from "../errors/index.js";
-import type { StudioDaemonIdentity } from "./ports.js";
+import type {
+  RunInGameDeploymentEvidence,
+  RunInGameRuntimeObservation,
+  StudioDaemonIdentity,
+} from "./ports.js";
 
 export const OPERATION_TTL_MS = 30 * 60_000;
 
 export type RuntimeOperationKind = "run-in-game" | "save-deploy" | "autoplay";
 
-export type RuntimeActiveSlot = Readonly<{
-  kind: RuntimeOperationKind;
-  requestId: string;
-  leaseId: string;
-  phase: string;
-}>;
+export type RuntimeActiveSlot =
+  | Readonly<{
+      kind: "run-in-game";
+      requestId: string;
+      leaseId: string;
+      phase: string;
+      deploymentEvidence?: RunInGameDeploymentEvidence;
+    }>
+  | Readonly<{
+      kind: "save-deploy" | "autoplay";
+      requestId: string;
+      leaseId: string;
+      phase: string;
+    }>;
 
 export type RuntimeTombstone = Readonly<{
   requestId: string;
@@ -67,7 +79,9 @@ export type RunInGameInternalOperation = Readonly<{
   generationManifest?: StudioRunGenerationManifestReference;
   completedPhases: readonly RunInGamePhase[];
   materialization?: RunInGameMaterializationStatus;
+  deploymentEvidence?: RunInGameDeploymentEvidence;
   processRestart?: RunInGameProcessRestartStatus;
+  runtimeObservation?: RunInGameRuntimeObservation;
   exactAuthorshipProof?: RunInGameExactAuthorshipProof;
   result?: unknown;
   failure?: StudioRuntimeFailure;

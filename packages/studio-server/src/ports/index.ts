@@ -7,19 +7,28 @@ export {
 export type { DeployRunner } from "./DeployRunner.js";
 export type { MapConfigStore } from "./MapConfigStore.js";
 export type { ProofBuilder } from "./ProofBuilder.js";
+export type { RuntimeObservation } from "./RuntimeObservation.js";
 export type { RunInGameArtifactGenerator } from "./RunInGameArtifactGenerator.js";
 export type { ScriptingLog } from "./ScriptingLog.js";
 export type {
+  LoadedGameReadback,
   CanonicalRunInGameRequest,
+  DeployedModSnapshot,
+  DeployedModSnapshotFile,
   RunInGameCatalogSource,
   RunInGameDeployment,
+  RunInGameDeploymentEvidence,
   RunInGameGeneratedMod,
   RunInGameLogEvidence,
   RunInGamePreparedRequest,
   RunInGameProof,
   RunInGameRestartResult,
+  RunInGameRuntimeObservation,
   RunInGameSetupPrepared,
   RunInGameStarted,
+  RunDeployment,
+  ScriptingLogObservation,
+  SetupRowReadback,
   SaveDeployDeployed,
   SaveDeployPreparedRequest,
   SaveDeployRollback,
@@ -35,6 +44,7 @@ import type { Civ7ProcessControl } from "./Civ7ProcessControl.js";
 import type { DeployRunner } from "./DeployRunner.js";
 import type { MapConfigStore } from "./MapConfigStore.js";
 import type { ProofBuilder } from "./ProofBuilder.js";
+import type { RuntimeObservation } from "./RuntimeObservation.js";
 import type { RunInGameArtifactGenerator } from "./RunInGameArtifactGenerator.js";
 import type { ScriptingLog } from "./ScriptingLog.js";
 import type { RunInGameCatalogSource, StudioClock } from "./workflowTypes.js";
@@ -51,4 +61,5 @@ export type StudioWorkflowPorts = Readonly<{
   DeployRunner &
   Civ7ProcessControl &
   ScriptingLog &
+  RuntimeObservation &
   MapConfigStore;

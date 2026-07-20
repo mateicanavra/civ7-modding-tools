@@ -14,6 +14,7 @@ export type DeployRunner = Readonly<{
       requestId: string;
       prepared: RunInGamePreparedRequest;
       generatedMod: RunInGameGeneratedMod;
+      signal: AbortSignal;
     }>
   ): Promise<RunInGameDeployment>;
   deploySavedMapConfig(

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "grit-studio-run-direct-control-observation-boundary",
+  "title": "Grit Studio Run Direct Control Observation Boundary",
+  "placement": {
+    "niche": "civ7/mapgen/studio/run-in-game",
+    "blueprint": "_self",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "forbids": "Studio Run in Game runtime observation bypassing the observation port, Studio RPC live readback client, or private deployment/correlation evidence boundary",
+  "why": "Packet 12 makes runtime observation one private workflow boundary: after fresh log proof, the workflow asks the host observation port to correlate deployment, setup row, scripting log, and loaded-game readback, while the app observer reads loaded-game state through the Studio RPC live client backed by the direct-control service.",
+  "remediate": "Keep observeRunInGameRuntime as the workflow observation port, delegate app observation to observeRunInGameRuntimeThroughStudioRpc with prepared/deployment/setup/log/correlation inputs, read loaded-game status and snapshot through the Studio RPC live client, and store observation evidence only in private runtime diagnostics.",
+  "message": "Studio Run in Game runtime observation boundary drifted.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/studio-server/src/ports/RuntimeObservation.ts",
+        "packages/studio-server/src/ports/workflowTypes.ts",
+        "packages/studio-server/src/workflows/RunInGameWorkflow.ts",
+        "apps/mapgen-studio/src/server/studio/engines.ts",
+        "apps/mapgen-studio/src/server/runInGame/runtimeObservation.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ],
+  "scanRoots": [
+    "packages/studio-server/src",
+    "apps/mapgen-studio/src/server"
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/pattern.md"
+    },
+    "patternName": "grit_studio_run_direct_control_observation_boundary"
+  }
+}

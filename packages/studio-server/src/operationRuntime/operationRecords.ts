@@ -10,7 +10,7 @@ import {
   SAFE_RUN_REQUEST_ID,
 } from "@civ7/studio-run-workspace";
 import { Effect, type Scope } from "effect";
-import { operationBlocked, type StudioRuntimeFailure } from "../errors/index.js";
+import { dependencyUnavailable, operationBlocked, type StudioRuntimeFailure } from "../errors/index.js";
 import { SAFE_RUN_DIAGNOSTICS_ID } from "../runInGamePublic.js";
 import {
   type RunInGameInternalOperation,
@@ -28,6 +28,8 @@ const RUNTIME_LEASE_LOCK_TIMEOUT_MS = 2_000;
 const RUNTIME_LEASE_LOCK_STALE_MS = 30_000;
 const DAEMON_HEARTBEAT_TTL_MS = 10_000;
 const DAEMON_HEARTBEAT_INTERVAL_MS = 1_000;
+export const RUN_WORKSPACE_RETENTION_MS = 72 * 60 * 60 * 1_000;
+export const RUN_WORKSPACE_RETENTION_MIN_TERMINAL_OPERATIONS = 100;
 const RUN_IN_GAME_RECORD_PHASES = new Set<RunInGameInternalOperation["phase"]>([
   "accepted",
   "materializing",
@@ -54,9 +56,8 @@ const RUN_IN_GAME_RECORD_STATUSES = new Set<RunInGameInternalOperation["status"]
   "cancelled",
 ]);
 
-export type RuntimeOwnershipLease = Readonly<{
+type RuntimeOwnershipLeaseBase = Readonly<{
   leaseId: string;
-  ownerKind: "run-in-game" | "save-deploy";
   requestId: string;
   daemonId: string;
   daemonStartedAt: string;
@@ -64,6 +65,18 @@ export type RuntimeOwnershipLease = Readonly<{
   acquiredAt: string;
   updatedAt: string;
 }>;
+
+export type RuntimeOwnershipLease =
+  | (RuntimeOwnershipLeaseBase &
+      Readonly<{
+        ownerKind: "run-in-game";
+        deployedModId?: string;
+      }>)
+  | (RuntimeOwnershipLeaseBase &
+      Readonly<{
+        ownerKind: "save-deploy";
+        deployedModId?: never;
+      }>);
 
 type RuntimeDaemonHeartbeat = Readonly<{
   daemonId: string;
@@ -196,6 +209,43 @@ export function releaseRuntimeOwnershipLease(
   }).pipe(Effect.catchAll(() => Effect.void));
 }
 
+/**
+ * Attaches the deployed Studio-run mod id to the durable runtime lease.
+ *
+ * The lease remains the single writer token for Civ7-facing runtime resources;
+ * this private field only makes later ownership conflicts diagnosable without
+ * exposing deployment internals on the public status stream.
+ */
+export function attachRuntimeOwnershipLeaseDeployment(
+  args: Readonly<{
+    workspaceRoot?: string;
+    leaseId: string;
+    requestId: string;
+    deployedModId: string;
+    nowIso: string;
+  }>
+): Effect.Effect<void, StudioRuntimeFailure> {
+  return Effect.tryPromise({
+    try: async () => {
+      const root = workspaceRoot(args.workspaceRoot);
+      await withRuntimeLeaseLock(root, async () => {
+        const path = runtimeLeasePath(root);
+        const current = await readRuntimeOwnershipLeaseAt(path).catch(() => undefined);
+        if (!current || current.leaseId !== args.leaseId || current.requestId !== args.requestId) {
+          throw new RuntimeLeaseDeploymentAttachConflict();
+        }
+        if (current.ownerKind !== "run-in-game") throw new RuntimeLeaseDeploymentAttachConflict();
+        await writeJsonFile(path, {
+          ...current,
+          deployedModId: args.deployedModId,
+          updatedAt: args.nowIso,
+        } satisfies RuntimeOwnershipLease);
+      });
+    },
+    catch: (err) => runtimeLeaseDeploymentEvidenceFailure(err, args),
+  });
+}
+
 export function releaseRuntimeOwnershipLeaseForRecord(
   args: Readonly<{
     workspaceRoot?: string;
@@ -299,6 +349,43 @@ export function releaseStaleRuntimeOwnershipLease(
     },
     catch: (err) => err,
   }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+}
+
+/**
+ * Applies the private Run in Game workspace retention policy.
+ *
+ * Cleanup only removes valid terminal request workspaces that are both older
+ * than the age window and outside the latest terminal-operation floor. Running,
+ * corrupt, and pre-record workspaces are left in place because they are either
+ * active runtime state or require explicit recovery/inspection.
+ */
+export function cleanupRunInGameRetention(
+  args: Readonly<{
+    workspaceRoot?: string;
+    nowIso: string;
+  }>
+): Effect.Effect<void, unknown> {
+  return Effect.tryPromise({
+    try: async () => {
+      const root = workspaceRoot(args.workspaceRoot);
+      const cutoffMs = Date.parse(args.nowIso) - RUN_WORKSPACE_RETENTION_MS;
+      if (!Number.isFinite(cutoffMs)) {
+        throw new Error(`Invalid retention timestamp: ${args.nowIso}`);
+      }
+      const terminalRecords = await listTerminalRunOperationRecords(root);
+      const retainedByFloor = latestTerminalRequestIds(
+        terminalRecords,
+        RUN_WORKSPACE_RETENTION_MIN_TERMINAL_OPERATIONS
+      );
+      for (const record of terminalRecords) {
+        if (Date.parse(record.terminalAt) >= cutoffMs || retainedByFloor.has(record.requestId)) {
+          continue;
+        }
+        await rm(jailedRunWorkspacePath(root, record.requestId), { recursive: true, force: true });
+      }
+    },
+    catch: (err) => err,
+  });
 }
 
 /**
@@ -466,6 +553,38 @@ async function readRunOperationRecordState(
   }
 }
 
+async function listTerminalRunOperationRecords(root: string): Promise<TerminalRunOperationRecord[]> {
+  const entries = await readdir(root, { withFileTypes: true }).catch((err: unknown) => {
+    if (isNotFoundError(err)) return [];
+    throw err;
+  });
+  const records: TerminalRunOperationRecord[] = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !SAFE_RUN_REQUEST_ID.test(entry.name)) continue;
+    const recordState = await readRunOperationRecordState(root, entry.name);
+    if (recordState.state === "valid" && recordState.record.status !== "running") {
+      records.push(recordState.record);
+    }
+  }
+  return records;
+}
+
+function latestTerminalRequestIds(
+  records: readonly TerminalRunOperationRecord[],
+  count: number
+): Set<string> {
+  return new Set(
+    [...records]
+      .sort((left, right) => {
+        const terminalDelta = Date.parse(right.terminalAt) - Date.parse(left.terminalAt);
+        if (terminalDelta !== 0) return terminalDelta;
+        return left.requestId.localeCompare(right.requestId);
+      })
+      .slice(0, count)
+      .map((record) => record.requestId)
+  );
+}
+
 function workspaceRoot(root: string | undefined): string {
   return resolveRunWorkspaceRoot(root);
 }
@@ -526,6 +645,25 @@ function ownershipConflict(err: unknown, requestId: string): StudioRuntimeFailur
     diagnostics: {
       code: "studio-runtime-ownership-lease-held",
     },
+  });
+}
+
+function runtimeLeaseDeploymentEvidenceFailure(
+  err: unknown,
+  args: Readonly<{ leaseId: string; requestId: string; deployedModId: string }>
+): StudioRuntimeFailure {
+  return dependencyUnavailable({
+    message: "Unable to attach Run in Game deployment evidence to the runtime lease.",
+    dependency: "filesystem",
+    causeSummary: err instanceof Error ? err.message : String(err),
+    diagnostics: {
+      code: "runtime-lease-deployment-evidence-unavailable",
+      failedAtPhase: "deploying",
+      requestId: args.requestId,
+      leaseId: args.leaseId,
+      deployedModId: args.deployedModId,
+    },
+    recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
   });
 }
 
@@ -598,19 +736,24 @@ async function readRuntimeLeaseLockOwner(lockPath: string): Promise<RuntimeLease
 }
 
 function isRuntimeOwnershipLease(value: unknown): value is RuntimeOwnershipLease {
-  return (
-    value != null &&
-    typeof value === "object" &&
-    typeof (value as RuntimeOwnershipLease).leaseId === "string" &&
-    ((value as RuntimeOwnershipLease).ownerKind === "run-in-game" ||
-      (value as RuntimeOwnershipLease).ownerKind === "save-deploy") &&
-    typeof (value as RuntimeOwnershipLease).requestId === "string" &&
-    typeof (value as RuntimeOwnershipLease).daemonId === "string" &&
-    isTimestampString((value as RuntimeOwnershipLease).daemonStartedAt) &&
-    typeof (value as RuntimeOwnershipLease).processId === "number" &&
-    isTimestampString((value as RuntimeOwnershipLease).acquiredAt) &&
-    isTimestampString((value as RuntimeOwnershipLease).updatedAt)
-  );
+  if (value == null || typeof value !== "object") return false;
+  const lease = value as RuntimeOwnershipLease;
+  const baseValid =
+    typeof lease.leaseId === "string" &&
+    typeof lease.requestId === "string" &&
+    typeof lease.daemonId === "string" &&
+    isTimestampString(lease.daemonStartedAt) &&
+    typeof lease.processId === "number" &&
+    isTimestampString(lease.acquiredAt) &&
+    isTimestampString(lease.updatedAt);
+  if (!baseValid) return false;
+  if (lease.ownerKind === "run-in-game") {
+    return lease.deployedModId === undefined || typeof lease.deployedModId === "string";
+  }
+  if (lease.ownerKind === "save-deploy") {
+    return lease.deployedModId === undefined;
+  }
+  return false;
 }
 
 function isRuntimeLeaseLockOwner(value: unknown): value is RuntimeLeaseLockOwner {
@@ -789,5 +932,11 @@ function isRuntimeDaemonHeartbeat(value: unknown): value is RuntimeDaemonHeartbe
 class RuntimeLeaseConflict extends Error {
   constructor(readonly lease: RuntimeOwnershipLease) {
     super(`Studio runtime lease is held by ${lease.requestId}.`);
+  }
+}
+
+class RuntimeLeaseDeploymentAttachConflict extends Error {
+  constructor() {
+    super("Runtime lease no longer belongs to the deployed Run in Game operation.");
   }
 }

@@ -29,7 +29,8 @@ After:
 
 - Run in Game deployment copies from `StudioRunGeneratedMod` into stable deployed
   mod id `mod-swooper-studio-run`;
-- Studio ensures the setup config used for Run in Game enables that mod id;
+- Studio launches Run in Game through the stable Studio-run map script and
+  reports setup/visibility failures if Civ7 cannot see the deployed row;
 - the `RuntimeOwnershipLease` acquired at operation admission covers deployment,
   Civ7 setup/start, and writes to the Studio-run deployed mod;
 - `RunDeployment` and `DeployedModSnapshot` are recorded after copy.
@@ -44,13 +45,16 @@ observable command-port behavior.
 
 Permanent positive assertions:
 
-- Run in Game deployment is copy-only from generated mod to deployed mod id;
-- deployed snapshot is the runtime deployment authority;
-- the already-held runtime ownership lease gates deployed-mod writes and Civ7
-  setup/start control.
+- Run in Game deploy source uses the generated mod root as the copy input and
+  the stable Studio-run mod id as the deploy identity;
+- Save/Deploy's Swooper-map rebuild/deploy path is not reachable from Run in
+  Game deploy source;
+- private runtime surfaces carry deployment, deployed snapshot, and lease
+  deployed-mod evidence.
 
 Structural authority row: SA-11 `grit-studio-run-copy-deploy-boundary`.
-Behavior tests cover copy, conflict, and release behavior.
+Behavior tests and live endpoint probes cover the runtime facts: copied bytes,
+snapshot digest, conflict timing, public/private visibility, and lease release.
 
 ## Verification Gates
 
@@ -59,8 +63,8 @@ Behavior tests cover copy, conflict, and release behavior.
 - Live Studio endpoint evidence for deployment snapshot creation and
   Save/Deploy ownership conflict projection.
 - SA-11 `grit-studio-run-copy-deploy-boundary`.
-- SA-11/Grit proves the copy-only/no-rebuild topology; endpoint evidence proves
-  public behavior and produced deployment snapshot identity.
+- SA-11/Grit proves the copy-only/no-rebuild source boundary; endpoint evidence
+  proves public behavior and produced deployment snapshot identity.
 - No declared verification gate is skipped; packet closure records evidence in
   `workstream/verification-evidence.md`.
 - `bun run openspec -- validate studio-run-deployment-snapshot-lease --strict`.

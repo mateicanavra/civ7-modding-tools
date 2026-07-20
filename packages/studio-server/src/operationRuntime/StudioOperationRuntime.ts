@@ -7,7 +7,12 @@ import {
 } from "@civ7/studio-contract";
 import { Context, Effect, Fiber, FiberSet, Layer, type Scope } from "effect";
 import type { StudioInputs, StudioOutputs } from "../context.js";
-import { invalidRequest, runtimeDisposed, type StudioRuntimeFailure } from "../errors/index.js";
+import {
+  dependencyUnavailable,
+  invalidRequest,
+  runtimeDisposed,
+  type StudioRuntimeFailure,
+} from "../errors/index.js";
 import type { Civ7TunerSession } from "../services/Civ7TunerSession.js";
 import { StudioEventHub } from "../services/StudioEventHub.js";
 import {
@@ -30,6 +35,8 @@ import type { RunInGameInternalOperation, SaveDeployInternalOperation } from "./
 import {
   acquireRuntimeDaemonHeartbeat,
   acquireRuntimeOwnershipLease,
+  attachRuntimeOwnershipLeaseDeployment,
+  cleanupRunInGameRetention,
   isRuntimeOperationTerminal,
   operationFromAbandonedRecord,
   type RuntimeOwnershipLease,
@@ -183,6 +190,8 @@ function makeStudioOperationRuntime(
       workspaceRoot: runInGameWorkspaceRoot,
       identity,
     });
+    let retentionCleanupActive = false;
+    let retentionCleanupRerunRequested = false;
 
     const releaseTerminalLease = (operation: RuntimeEventOperation): Effect.Effect<void, never> => {
       if (!isRuntimeOperationTerminal(operation)) return Effect.void;
@@ -192,6 +201,55 @@ function makeStudioOperationRuntime(
         requestId: operation.requestId,
       });
     };
+
+    const cleanupRunRetention = (): Effect.Effect<void, never> =>
+      cleanupRunInGameRetention({
+        workspaceRoot: runInGameWorkspaceRoot,
+        nowIso: nowIso(),
+      }).pipe(
+        Effect.catchAll((error) =>
+          Effect.sync(() => {
+            console.error(
+              "[studio-server] failed to clean up retained Run in Game workspaces",
+              error
+            );
+          })
+        )
+      );
+
+    const runRetentionCleanupLoop = (): Effect.Effect<void, never> =>
+      cleanupRunRetention().pipe(
+        Effect.flatMap(() =>
+          Effect.sync(() => {
+            if (!retentionCleanupRerunRequested) {
+              retentionCleanupActive = false;
+              return false;
+            }
+            retentionCleanupRerunRequested = false;
+            return true;
+          })
+        ),
+        Effect.flatMap((shouldRerun) => (shouldRerun ? runRetentionCleanupLoop() : Effect.void))
+      );
+
+    const scheduleRunRetentionCleanup = (): Effect.Effect<void, never> =>
+      Effect.sync(() => {
+        if (retentionCleanupActive) {
+          retentionCleanupRerunRequested = true;
+          return false;
+        }
+        retentionCleanupActive = true;
+        retentionCleanupRerunRequested = false;
+        return true;
+      }).pipe(
+        Effect.flatMap((shouldRun) =>
+          shouldRun
+            ? FiberSet.run(fibers, runRetentionCleanupLoop(), {
+                propagateInterruption: false,
+              }).pipe(Effect.asVoid)
+            : Effect.void
+        )
+      );
 
     const persistedOperation = (
       operation: RuntimeEventOperation
@@ -230,10 +288,36 @@ function makeStudioOperationRuntime(
             })
           )
         );
+        if (
+          availableOperation.kind === "run-in-game" &&
+          isRuntimeOperationTerminal(availableOperation)
+        ) {
+          yield* scheduleRunRetentionCleanup();
+        }
       });
 
     const publishMany = (operations: ReadonlyArray<RuntimeEventOperation>) =>
       Effect.all(operations.map(publish), { discard: true });
+
+    const attachRunDeploymentLeaseEvidence = (
+      operation: RunInGameInternalOperation
+    ): Effect.Effect<RunInGameInternalOperation, StudioRuntimeFailure> => {
+      if (operation.status !== "running") {
+        return Effect.succeed(operation);
+      }
+      if (operation.deploymentEvidence === undefined) {
+        return isPostDeployRunPhase(operation.phase)
+          ? Effect.fail(missingRunDeploymentEvidence(operation))
+          : Effect.succeed(operation);
+      }
+      return attachRuntimeOwnershipLeaseDeployment({
+        workspaceRoot: runInGameWorkspaceRoot,
+        leaseId: operation.leaseId,
+        requestId: operation.requestId,
+        deployedModId: operation.deploymentEvidence.runDeployment.deployedModId,
+        nowIso: operation.updatedAt,
+      }).pipe(Effect.as(operation));
+    };
 
     const dispose = markDisposed(
       registry,
@@ -269,6 +353,7 @@ function makeStudioOperationRuntime(
         Effect.flatMap(publishMany)
       );
     }
+    yield* cleanupRunRetention();
 
     const runWorker = (effect: Effect.Effect<void, never>) =>
       FiberSet.run(fibers, effect, { propagateInterruption: false }).pipe(Effect.asVoid);
@@ -291,16 +376,22 @@ function makeStudioOperationRuntime(
         Effect.asVoid
       );
 
-    const publishRunMutation = (mutation: RunInGameMutation): Effect.Effect<void, never> => {
+    const publishRunMutation = (
+      mutation: RunInGameMutation
+    ): Effect.Effect<void, StudioRuntimeFailure> => {
       if (mutation.kind !== "changed") return Effect.void;
       if (mutation.operation.status === "cancelled") return Effect.void;
-      const cleanupTerminalHandle =
-        mutation.operation.status === "running"
-          ? Effect.void
-          : Effect.sync(() => {
-              runInGameCleanup.delete(mutation.operation.requestId);
-            });
-      return publish(mutation.operation).pipe(Effect.zipRight(cleanupTerminalHandle));
+      return attachRunDeploymentLeaseEvidence(mutation.operation).pipe(
+        Effect.flatMap((operation) => {
+          const cleanupTerminalHandle =
+            operation.status === "running"
+              ? Effect.void
+              : Effect.sync(() => {
+                  runInGameCleanup.delete(operation.requestId);
+                });
+          return publish(operation).pipe(Effect.zipRight(cleanupTerminalHandle));
+        })
+      );
     };
 
     const recordRunInGameCleanupFailure = (
@@ -370,7 +461,19 @@ function makeStudioOperationRuntime(
               nowIso: nowIso(),
               phase,
               err,
-            }).pipe(Effect.flatMap(publishRunMutation), Effect.uninterruptible, Effect.asVoid),
+            }).pipe(
+              Effect.flatMap(publishRunMutation),
+              Effect.catchAll((publishErr) =>
+                Effect.sync(() => {
+                  console.error(
+                    "[studio-server] failed to publish Run in Game failure",
+                    publishErr
+                  );
+                })
+              ),
+              Effect.uninterruptible,
+              Effect.asVoid
+            ),
         },
       });
 
@@ -608,6 +711,31 @@ function makeStudioOperationRuntime(
     };
 
     return yield* Effect.acquireRelease(Effect.succeed(api), () => dispose);
+  });
+}
+
+function isPostDeployRunPhase(phase: RunInGameInternalOperation["phase"]): boolean {
+  return (
+    phase === "restarting-civ" ||
+    phase === "checking-civ7" ||
+    phase === "reload-needed" ||
+    phase === "preparing-setup" ||
+    phase === "starting-game" ||
+    phase === "waiting-for-proof"
+  );
+}
+
+function missingRunDeploymentEvidence(operation: RunInGameInternalOperation): StudioRuntimeFailure {
+  return dependencyUnavailable({
+    message: "Run in Game reached a post-deploy runtime phase without deployment evidence.",
+    dependency: "runtime",
+    diagnostics: {
+      code: "run-in-game-deployment-evidence-missing",
+      failedAtPhase: operation.phase,
+      requestId: operation.requestId,
+      leaseId: operation.leaseId,
+    },
+    recoveryActions: ["copy-diagnostics", "retry-run"],
   });
 }
 

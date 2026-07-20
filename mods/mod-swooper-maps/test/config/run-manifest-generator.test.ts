@@ -42,7 +42,7 @@ describe("Swooper run manifest generator", () => {
         generatedModRoot: resolve(workspaceRoot, manifest.payload.requestId, "generated-mod"),
         mapRowId,
         mapScriptPath: `maps/${runArtifactId}.js`,
-        fileCount: 7,
+        fileCount: 5,
       });
       expect(
         await readFile(
@@ -50,12 +50,27 @@ describe("Swooper run manifest generator", () => {
           "utf8"
         )
       ).toContain(`<Mod id="${SWOOPER_STUDIO_RUN_MOD_ID}"`);
+      const modInfo = await readFile(
+        resolve(generated.generatedModRoot, `${SWOOPER_STUDIO_RUN_MOD_ID}.modinfo`),
+        "utf8"
+      );
+      expect(modInfo).toContain(`<Mod id="swooper-maps" title="LOC_MODULE_SWOOPER_MAPS_NAME"/>`);
+      expect(modInfo).not.toContain("data/biome-hazards.xml");
       expect(
         await readFile(resolve(generated.generatedModRoot, "config/config.xml"), "utf8")
       ).toContain(`File="{${SWOOPER_STUDIO_RUN_MOD_ID}}/maps/${runArtifactId}.js"`);
-      expect(
-        await readFile(resolve(generated.generatedModRoot, "text/en_us/MapText.xml"), "utf8")
-      ).toContain(`LOC_MAP_${mapRowId}_NAME`);
+      const mapText = await readFile(
+        resolve(generated.generatedModRoot, "text/en_us/MapText.xml"),
+        "utf8"
+      );
+      expect(mapText).toContain(`LOC_MAP_${mapRowId}_NAME`);
+      expect(mapText).not.toContain("LOC_PLOTEFFECT_DESERT_HEAT_NAME");
+      await expect(
+        readFile(resolve(generated.generatedModRoot, "data/biome-hazards.xml"), "utf8")
+      ).rejects.toThrow();
+      await expect(
+        readFile(resolve(generated.generatedModRoot, "text/en_us/ModuleText.xml"), "utf8")
+      ).rejects.toThrow();
       const mapScript = await readFile(
         resolve(generated.generatedModRoot, `maps/${runArtifactId}.js`),
         "utf8"

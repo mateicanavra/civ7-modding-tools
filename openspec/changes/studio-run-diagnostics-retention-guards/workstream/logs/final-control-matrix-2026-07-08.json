@@ -1,0 +1,288 @@
+{
+  "generatedAt": "2026-07-08T17:20:54.316Z",
+  "observations": [
+    {
+      "observedAt": "2026-07-08T17:20:53.922Z",
+      "kind": "events-watch-sample",
+      "status": 200,
+      "sample": ": \n\nevent: message\ndata: {\"json\":{\"type\":\"hello\",\"serverInstanceId\":\"studio-server-mrcbtibw-22ib-1-17a4b8b0-d791-492d-9f22-22e9374a9ed1\",\"serverStartedAt\":\"2026-07-08T17:02:59.852Z\",\"observedAt\":\"2026-07-08T17:20:54.248Z\"}}\n\nevent: message\ndata: {\"json\":{\"type\":\"live-game\",\"state\":{\"status\":\"ok\",\"turn\":1,\"gameHash\":0,\"seed\":2026070602,\"readiness\":\"tuner-ready\",\"autoplayActive\":false,\"autoplayPaused\":false,\"updatedAt\":\"2026-07-08T17:13:49.914Z\",\"snapshotStatus\":\"idle\",\"snapshotHash\":\"56bcd9e9\",\"snapshotId\":\"status:1:56bcd9e9\",\"bindingStatus\":\"unbound-runtime\",\"failureCount\":0},\"observedAt\":\"2026-07-08T17:13:49.914Z\"}}\n\n",
+      "eventTypes": [
+        "hello",
+        "live-game"
+      ],
+      "publicContainsPrivatePath": false
+    },
+    {
+      "observedAt": "2026-07-08T17:13:55.336Z",
+      "kind": "operations-current-before",
+      "status": 200,
+      "result": {
+        "ok": true,
+        "serverInstanceId": "studio-server-mrcbtibw-22ib-1-17a4b8b0-d791-492d-9f22-22e9374a9ed1",
+        "serverStartedAt": "2026-07-08T17:02:59.852Z",
+        "observedAt": "2026-07-08T17:13:55.311Z",
+        "runInGame": {
+          "active": null,
+          "recent": [
+            {
+              "requestId": "studio-run-in-game-mrcc514o-22ib-5",
+              "diagnosticsId": "run-diagnostics-f562a00e-c291-46f4-af79-2c60267d6b54",
+              "recoveryActions": [
+                "copy-diagnostics"
+              ],
+              "createdAt": "2026-07-08T17:11:57.451Z",
+              "updatedAt": "2026-07-08T17:13:50.537Z",
+              "status": "completed",
+              "phase": "completed",
+              "terminalAt": "2026-07-08T17:13:50.537Z"
+            },
+            {
+              "requestId": "studio-run-in-game-mrcc2huk-22ib-4",
+              "diagnosticsId": "run-diagnostics-799ea406-7d0d-49d1-86f9-3dfc31c69007",
+              "recoveryActions": [
+                "copy-diagnostics"
+              ],
+              "createdAt": "2026-07-08T17:09:59.163Z",
+              "updatedAt": "2026-07-08T17:11:55.189Z",
+              "status": "completed",
+              "phase": "completed",
+              "terminalAt": "2026-07-08T17:11:55.189Z"
+            },
+            {
+              "requestId": "studio-run-in-game-mrcbzrh9-22ib-3",
+              "diagnosticsId": "run-diagnostics-8af373bc-eda1-4450-b3b9-5c18e17ee24f",
+              "recoveryActions": [
+                "copy-diagnostics"
+              ],
+              "createdAt": "2026-07-08T17:07:51.671Z",
+              "updatedAt": "2026-07-08T17:09:56.059Z",
+              "status": "completed",
+              "phase": "completed",
+              "terminalAt": "2026-07-08T17:09:56.059Z"
+            },
+            {
+              "requestId": "studio-run-in-game-mrcbx2gx-22ib-2",
+              "diagnosticsId": "run-diagnostics-1a0b40b9-8268-4542-bda0-068bf115a3d0",
+              "recoveryActions": [
+                "copy-diagnostics"
+              ],
+              "createdAt": "2026-07-08T17:05:45.941Z",
+              "updatedAt": "2026-07-08T17:07:49.188Z",
+              "status": "completed",
+              "phase": "completed",
+              "terminalAt": "2026-07-08T17:07:49.188Z"
+            }
+          ]
+        },
+        "saveDeploy": {
+          "active": null,
+          "recent": []
+        }
+      },
+      "publicContainsPrivatePath": false
+    },
+    {
+      "observedAt": "2026-07-08T17:13:55.349Z",
+      "kind": "validation-failure",
+      "status": 400,
+      "result": {
+        "defined": true,
+        "code": "RUN_IN_GAME_INVALID",
+        "status": 400,
+        "message": "Run in Game request could not be accepted.",
+        "data": {
+          "namespace": "runInGame",
+          "recoveryActions": [
+            "copy-diagnostics",
+            "edit-config"
+          ],
+          "safeFailureCategory": "request-validation"
+        }
+      },
+      "publicContainsPrivatePath": false
+    },
+    {
+      "observedAt": "2026-07-08T17:13:55.366Z",
+      "kind": "map-configs-status-missing",
+      "status": 404,
+      "result": {
+        "defined": true,
+        "code": "SAVE_DEPLOY_STATUS_NOT_FOUND",
+        "status": 404,
+        "message": "Save/Deploy request not found: save-missing-final-live-rerun",
+        "data": {
+          "tag": "OperationNotFound",
+          "namespace": "saveDeploy",
+          "reason": "status-not-found",
+          "message": "Save/Deploy request not found: save-missing-final-live-rerun",
+          "recoveryActions": [
+            "retry-status",
+            "copy-diagnostics"
+          ],
+          "requestId": "save-missing-final-live-rerun",
+          "diagnostics": {
+            "code": "save-deploy-request-not-found"
+          },
+          "serverInstanceId": "studio-server-mrcbtibw-22ib-1-17a4b8b0-d791-492d-9f22-22e9374a9ed1",
+          "serverStartedAt": "2026-07-08T17:02:59.852Z"
+        }
+      },
+      "publicContainsPrivatePath": false
+    },
+    {
+      "observedAt": "2026-07-08T17:13:55.471Z",
+      "kind": "cancellable-start",
+      "status": 200,
+      "result": {
+        "requestId": "studio-run-in-game-mrcc7k4p-22ib-7",
+        "diagnosticsId": "run-diagnostics-9f63792e-4550-41cc-88d3-257c291f64ba",
+        "status": "running",
+        "phase": "resolving-source",
+        "recoveryActions": [
+          "copy-diagnostics",
+          "retry-status"
+        ]
+      },
+      "publicContainsPrivatePath": false
+    },
+    {
+      "observedAt": "2026-07-08T17:13:55.482Z",
+      "kind": "ownership-second-run-blocked",
+      "status": 409,
+      "result": {
+        "defined": true,
+        "code": "RUN_IN_GAME_BLOCKED",
+        "status": 409,
+        "message": "Run in Game is blocked by another Studio operation.",
+        "data": {
+          "namespace": "runInGame",
+          "recoveryActions": [
+            "copy-diagnostics",
+            "retry-status"
+          ],
+          "safeFailureCategory": "ownership"
+        }
+      },
+      "publicContainsPrivatePath": false
+    },
+    {
+      "observedAt": "2026-07-08T17:13:55.545Z",
+      "kind": "ownership-save-deploy-blocked",
+      "status": 409,
+      "result": {
+        "defined": true,
+        "code": "SAVE_DEPLOY_BLOCKED",
+        "status": 409,
+        "message": "run-in-game is running; wait for it to finish before starting another Studio operation.",
+        "data": {
+          "tag": "OperationBlocked",
+          "namespace": "saveDeploy",
+          "reason": "active-operation-conflict",
+          "message": "run-in-game is running; wait for it to finish before starting another Studio operation.",
+          "recoveryActions": [
+            "retry-status",
+            "copy-diagnostics"
+          ],
+          "activeRequestId": "studio-run-in-game-mrcc7k4p-22ib-7",
+          "activePhase": "materializing",
+          "diagnostics": {
+            "code": "studio-operation-active"
+          }
+        }
+      },
+      "publicContainsPrivatePath": false
+    },
+    {
+      "observedAt": "2026-07-08T17:13:55.635Z",
+      "kind": "cancel-request",
+      "status": 200,
+      "result": {
+        "requestId": "studio-run-in-game-mrcc7k4p-22ib-7",
+        "diagnosticsId": "run-diagnostics-9f63792e-4550-41cc-88d3-257c291f64ba",
+        "status": "cancelled",
+        "phase": "cancelled",
+        "safeFailureCategory": "operation-cancelled",
+        "recoveryActions": [
+          "copy-diagnostics",
+          "retry-run"
+        ],
+        "terminalAt": "2026-07-08T17:13:55.549Z"
+      },
+      "publicContainsPrivatePath": false
+    },
+    {
+      "observedAt": "2026-07-08T17:13:55.647Z",
+      "kind": "cancel-poll",
+      "status": 200,
+      "result": {
+        "requestId": "studio-run-in-game-mrcc7k4p-22ib-7",
+        "diagnosticsId": "run-diagnostics-9f63792e-4550-41cc-88d3-257c291f64ba",
+        "status": "cancelled",
+        "phase": "cancelled",
+        "safeFailureCategory": "operation-cancelled",
+        "recoveryActions": [
+          "copy-diagnostics",
+          "retry-run"
+        ],
+        "terminalAt": "2026-07-08T17:13:55.549Z"
+      },
+      "publicContainsPrivatePath": false
+    },
+    {
+      "observedAt": "2026-07-08T17:13:55.795Z",
+      "kind": "cancel-diagnostics-summary",
+      "status": 200,
+      "diagnosticsId": "run-diagnostics-9f63792e-4550-41cc-88d3-257c291f64ba",
+      "summary": {
+        "ok": true,
+        "summary": "Run in Game cancelled",
+        "sectionKeys": [
+          "attribution",
+          "operation"
+        ],
+        "hasPrivatePaths": true
+      },
+      "publicContainsPrivatePath": false
+    },
+    {
+      "observedAt": "2026-07-08T17:13:55.817Z",
+      "kind": "operations-current-after-cancel",
+      "status": 200,
+      "active": null,
+      "saveDeployActive": null,
+      "publicContainsPrivatePath": false
+    },
+    {
+      "observedAt": "2026-07-08T17:13:55.817Z",
+      "kind": "control-summary",
+      "validationStatus": 400,
+      "validationCategory": "request-validation",
+      "secondRunStatus": 409,
+      "secondRunCategory": "ownership",
+      "saveDeployStatus": 409,
+      "cancellationTerminalStatus": "cancelled",
+      "publicContainsPrivatePath": false
+    }
+  ],
+  "server": {
+    "serverInstanceId": "studio-server-mrcbtibw-22ib-1-17a4b8b0-d791-492d-9f22-22e9374a9ed1",
+    "serverStartedAt": "2026-07-08T17:02:59.852Z"
+  },
+  "publicLeakScan": {
+    "scannedSurfaces": [
+      "events-watch-sample",
+      "operations-current-before",
+      "validation-failure",
+      "map-configs-status-missing",
+      "cancellable-start",
+      "ownership-second-run-blocked",
+      "ownership-save-deploy-blocked",
+      "cancel-request",
+      "cancel-poll",
+      "cancel-diagnostics-summary",
+      "operations-current-after-cancel",
+      "control-summary"
+    ],
+    "containsPrivatePath": false
+  }
+}

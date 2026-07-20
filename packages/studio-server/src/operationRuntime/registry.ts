@@ -37,7 +37,12 @@ import {
   statusForRunInGamePhase,
   statusForSaveDeployPhase,
 } from "./model.js";
-import type { RunInGamePreparedRequest, StudioDaemonIdentity } from "./ports.js";
+import type {
+  RunInGameDeploymentEvidence,
+  RunInGamePreparedRequest,
+  RunInGameRuntimeObservation,
+  StudioDaemonIdentity,
+} from "./ports.js";
 import { projectRunInGame, projectSaveDeploy } from "./projection.js";
 
 export type RuntimeRegistry = SynchronizedRef.SynchronizedRef<RegistryState>;
@@ -79,21 +84,28 @@ export type RunInGameTransition =
       materialization?: RunInGameMaterializationStatus;
       generationManifest?: StudioRunGenerationManifestReference;
     }>
-  | Readonly<{ phase: "deploying"; materialization?: RunInGameMaterializationStatus }>
-  | Readonly<{ phase: "restarting-civ" }>
+  | Readonly<{
+      phase: "deploying";
+      materialization?: RunInGameMaterializationStatus;
+      deploymentEvidence?: RunInGameDeploymentEvidence;
+    }>
+  | Readonly<{ phase: "restarting-civ"; deploymentEvidence: RunInGameDeploymentEvidence }>
   | Readonly<{
       phase: "checking-civ7";
       materialization?: RunInGameMaterializationStatus;
+      deploymentEvidence: RunInGameDeploymentEvidence;
       processRestart?: RunInGameProcessRestartStatus;
     }>
-  | Readonly<{ phase: "preparing-setup" }>
-  | Readonly<{ phase: "reload-needed" }>
-  | Readonly<{ phase: "starting-game" }>
-  | Readonly<{ phase: "waiting-for-proof" }>
+  | Readonly<{ phase: "preparing-setup"; deploymentEvidence: RunInGameDeploymentEvidence }>
+  | Readonly<{ phase: "reload-needed"; deploymentEvidence: RunInGameDeploymentEvidence }>
+  | Readonly<{ phase: "starting-game"; deploymentEvidence: RunInGameDeploymentEvidence }>
+  | Readonly<{ phase: "waiting-for-proof"; deploymentEvidence: RunInGameDeploymentEvidence }>
   | Readonly<{
       phase: "complete";
       result?: unknown;
       materialization?: RunInGameMaterializationStatus;
+      deploymentEvidence: RunInGameDeploymentEvidence;
+      runtimeObservation: RunInGameRuntimeObservation;
       exactAuthorshipProof?: RunInGameExactAuthorshipProof;
     }>;
 
@@ -806,7 +818,9 @@ function activeBlocked(active: RuntimeActiveSlot | null): StudioRuntimeFailure |
     message: `${active.kind} is running; wait for it to finish before starting another Studio operation.`,
     activeRequestId: active.requestId,
     activePhase: active.phase,
-    diagnostics: { code: "studio-operation-active" },
+    diagnostics: {
+      code: "studio-operation-active",
+    },
   });
 }
 
@@ -818,6 +832,9 @@ function activeSlot(
     requestId: operation.requestId,
     leaseId: operation.leaseId,
     phase: operation.phase,
+    ...(operation.kind === "run-in-game" && operation.deploymentEvidence !== undefined
+      ? { deploymentEvidence: operation.deploymentEvidence }
+      : {}),
   };
 }
 

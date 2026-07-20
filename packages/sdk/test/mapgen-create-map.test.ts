@@ -60,8 +60,6 @@ describe("createMap", () => {
         id: "test-map",
         name: "Test Map",
         sourceConfigId: "studio-current",
-        configHash: "config-hash",
-        envelopeHash: "envelope-hash",
         runCorrelation: {
           requestId: "studio-run-in-game-test",
           runArtifactId: "run-0123456789abcdef0123",
@@ -96,6 +94,8 @@ describe("createMap", () => {
       const proofPayload = payloadAfter(logs[proofIndex]!, "[mapgen-proof]");
       const completePayload = payloadAfter(logs[completeIndex]!, "[mapgen-complete]");
       expect(completePayload).toEqual(proofPayload);
+      expect(logs[proofIndex]!.length).toBeLessThan(1_000);
+      expect(logs[completeIndex]!.length).toBeLessThan(1_000);
       expect(proofPayload).toMatchObject({
         mapId: "test-map",
         sourceConfigId: "studio-current",
@@ -104,20 +104,11 @@ describe("createMap", () => {
         configHash: "config-hash",
         envelopeHash: "envelope-hash",
         generationManifestDigest: "manifest-digest",
-        runCorrelation: {
-          requestId: "studio-run-in-game-test",
-          runArtifactId: "run-0123456789abcdef0123",
-          launchSourceDigest: {
-            configContentDigest: "config-hash",
-            launchEnvelopeDigest: "envelope-hash",
-          },
-          launchEnvelopeDigest: "envelope-hash",
-          generationManifestDigest: "manifest-digest",
-        },
         seed: 123,
         mapSize: 4,
         dimensions: { width: 2, height: 2 },
       });
+      expect(proofPayload).not.toHaveProperty("runCorrelation");
     } finally {
       console.log = originalLog;
     }

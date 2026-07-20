@@ -1,0 +1,589 @@
+{
+  "generatedAt": "2026-07-08T17:20:53.901Z",
+  "server": {
+    "serverInstanceId": "studio-server-mrcbtibw-22ib-1-17a4b8b0-d791-492d-9f22-22e9374a9ed1",
+    "serverStartedAt": "2026-07-08T17:02:59.852Z"
+  },
+  "source": {
+    "note": "Bounded closure record generated from actual /rpc endpoint calls against the repaired worktree daemon. Public phase capture is poll-sampled, so fast transitions may be absent; terminal public status, retained private diagnostics lookup, and post-start Civ7 readback are recorded for each variant."
+  },
+  "variants": [
+    {
+      "variant": "catalog-latest-juicy-huge-initial",
+      "requestId": "studio-run-in-game-mrcbx2gx-22ib-2",
+      "diagnosticsId": "run-diagnostics-1a0b40b9-8268-4542-bda0-068bf115a3d0",
+      "expected": {
+        "source": "catalog:latest-juicy",
+        "seed": 1538316415,
+        "mapSize": "MAPSIZE_HUGE",
+        "playerCount": 10,
+        "resources": "balanced"
+      },
+      "terminalStatus": {
+        "requestId": "studio-run-in-game-mrcbx2gx-22ib-2",
+        "diagnosticsId": "run-diagnostics-1a0b40b9-8268-4542-bda0-068bf115a3d0",
+        "status": "completed",
+        "phase": "completed",
+        "recoveryActions": [
+          "copy-diagnostics"
+        ],
+        "terminalAt": "2026-07-08T17:07:49.188Z"
+      },
+      "phases": [
+        "running:generating-artifacts",
+        "running:preparing-civ7",
+        "running:starting-game",
+        "running:observing-runtime",
+        "completed:completed"
+      ],
+      "lateStatusLookup": {
+        "statusCode": 200,
+        "status": {
+          "requestId": "studio-run-in-game-mrcbx2gx-22ib-2",
+          "diagnosticsId": "run-diagnostics-1a0b40b9-8268-4542-bda0-068bf115a3d0",
+          "status": "completed",
+          "phase": "completed",
+          "recoveryActions": [
+            "copy-diagnostics"
+          ],
+          "terminalAt": "2026-07-08T17:07:49.188Z"
+        }
+      },
+      "diagnosticsStatusCode": 200,
+      "diagnostics": {
+        "ok": true,
+        "summary": "Run in Game complete",
+        "requestId": "studio-run-in-game-mrcbx2gx-22ib-2",
+        "operationRevision": 11,
+        "terminalPublicStatus": "complete",
+        "attributionStatus": "complete",
+        "missingSections": [],
+        "availableSections": [
+          "attribution",
+          "operation"
+        ],
+        "attributionSectionKeys": [
+          "boundedLoadedGameReadback",
+          "deployment",
+          "generation",
+          "manifest",
+          "scriptingLogObservation",
+          "setupRowReadback",
+          "source",
+          "terminalResult"
+        ],
+        "runArtifactId": "run-b20d09d7ba34b17f77c3",
+        "generatedModDigest": "c036e15414d452544a6a1da30f6fab1b63c7a944d9e08241829dce8b4ba2a7a9",
+        "deployedSnapshotDigest": "c036e15414d452544a6a1da30f6fab1b63c7a944d9e08241829dce8b4ba2a7a9",
+        "launchEnvelopeDigest": "1f603ed33b1b56536c06edffbfa020e4c3e3c6fbd64df370af2b6a4543e19c80",
+        "generationManifestDigest": "b825d668b112865c1fd4d8888b39f06679745e83a505e077e4415ca67a92fcb7",
+        "loadedGameReadback": {
+          "requestId": "studio-run-in-game-mrcbx2gx-22ib-2",
+          "runArtifactId": "run-b20d09d7ba34b17f77c3",
+          "seed": 1538316415,
+          "mapSize": 4,
+          "width": 106,
+          "height": 66,
+          "snapshotId": "status:1:f6880758",
+          "snapshotHash": "f6880758",
+          "deployedModId": "mod-swooper-studio-run"
+        },
+        "liveStatus": {
+          "ok": true,
+          "playable": true,
+          "readiness": "tuner-ready",
+          "turn": 1,
+          "randomSeed": 1538316415,
+          "width": 106,
+          "height": 66,
+          "plotCount": 6996
+        },
+        "liveSnapshot": {
+          "ok": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 106,
+            "height": 66
+          },
+          "fields": [
+            "terrain",
+            "biome",
+            "feature",
+            "resource",
+            "visibility",
+            "owner"
+          ],
+          "plotCount": 6996,
+          "omitted": 6484,
+          "map": {
+            "width": 106,
+            "height": 66
+          }
+        }
+      },
+      "phaseCapture": {
+        "mode": "poll-sampled public runInGame.status plus terminal response",
+        "observed": [
+          "running:generating-artifacts",
+          "running:preparing-civ7",
+          "running:starting-game",
+          "running:observing-runtime",
+          "completed:completed"
+        ],
+        "note": "Fast public transitions are not required to be individually observable; every captured public status in this record is scanned for private path leakage."
+      },
+      "publicLeakScan": {
+        "terminalStatusContainsPrivatePath": false,
+        "lateStatusContainsPrivatePath": false,
+        "phaseCaptureContainsPrivatePath": false
+      }
+    },
+    {
+      "variant": "repeat-catalog-latest-juicy-huge",
+      "requestId": "studio-run-in-game-mrcbzrh9-22ib-3",
+      "diagnosticsId": "run-diagnostics-8af373bc-eda1-4450-b3b9-5c18e17ee24f",
+      "expected": {
+        "source": "catalog:latest-juicy",
+        "seed": 1538316415,
+        "mapSize": "MAPSIZE_HUGE",
+        "playerCount": 10,
+        "resources": "balanced"
+      },
+      "terminalStatus": {
+        "requestId": "studio-run-in-game-mrcbzrh9-22ib-3",
+        "diagnosticsId": "run-diagnostics-8af373bc-eda1-4450-b3b9-5c18e17ee24f",
+        "status": "completed",
+        "phase": "completed",
+        "recoveryActions": [
+          "copy-diagnostics"
+        ],
+        "terminalAt": "2026-07-08T17:09:56.059Z"
+      },
+      "phases": [
+        "running:generating-artifacts",
+        "running:deploying",
+        "running:preparing-civ7",
+        "running:starting-game",
+        "running:observing-runtime",
+        "completed:completed"
+      ],
+      "lateStatusLookup": {
+        "statusCode": 200,
+        "status": {
+          "requestId": "studio-run-in-game-mrcbzrh9-22ib-3",
+          "diagnosticsId": "run-diagnostics-8af373bc-eda1-4450-b3b9-5c18e17ee24f",
+          "status": "completed",
+          "phase": "completed",
+          "recoveryActions": [
+            "copy-diagnostics"
+          ],
+          "terminalAt": "2026-07-08T17:09:56.059Z"
+        }
+      },
+      "diagnosticsStatusCode": 200,
+      "diagnostics": {
+        "ok": true,
+        "summary": "Run in Game complete",
+        "requestId": "studio-run-in-game-mrcbzrh9-22ib-3",
+        "operationRevision": 11,
+        "terminalPublicStatus": "complete",
+        "attributionStatus": "complete",
+        "missingSections": [],
+        "availableSections": [
+          "attribution",
+          "operation"
+        ],
+        "attributionSectionKeys": [
+          "boundedLoadedGameReadback",
+          "deployment",
+          "generation",
+          "manifest",
+          "scriptingLogObservation",
+          "setupRowReadback",
+          "source",
+          "terminalResult"
+        ],
+        "runArtifactId": "run-0c1c1b550c7de00019d1",
+        "generatedModDigest": "b8ab60478c9b2a19b26dc6f071cfaa5188e2269164ee6d2193e011396d0ac0ec",
+        "deployedSnapshotDigest": "b8ab60478c9b2a19b26dc6f071cfaa5188e2269164ee6d2193e011396d0ac0ec",
+        "launchEnvelopeDigest": "1f603ed33b1b56536c06edffbfa020e4c3e3c6fbd64df370af2b6a4543e19c80",
+        "generationManifestDigest": "85566fa2fa08dc0a4697010c99ba644124418a0645c424bc81e0ee5a65091014",
+        "loadedGameReadback": {
+          "requestId": "studio-run-in-game-mrcbzrh9-22ib-3",
+          "runArtifactId": "run-0c1c1b550c7de00019d1",
+          "seed": 1538316415,
+          "mapSize": 4,
+          "width": 106,
+          "height": 66,
+          "snapshotId": "status:1:f6880758",
+          "snapshotHash": "f6880758",
+          "deployedModId": "mod-swooper-studio-run"
+        },
+        "liveStatus": {
+          "ok": true,
+          "playable": true,
+          "readiness": "tuner-ready",
+          "turn": 1,
+          "randomSeed": 1538316415,
+          "width": 106,
+          "height": 66,
+          "plotCount": 6996
+        },
+        "liveSnapshot": {
+          "ok": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 106,
+            "height": 66
+          },
+          "fields": [
+            "terrain",
+            "biome",
+            "feature",
+            "resource",
+            "visibility",
+            "owner"
+          ],
+          "plotCount": 6996,
+          "omitted": 6484,
+          "map": {
+            "width": 106,
+            "height": 66
+          }
+        }
+      },
+      "phaseCapture": {
+        "mode": "poll-sampled public runInGame.status plus terminal response",
+        "observed": [
+          "running:generating-artifacts",
+          "running:deploying",
+          "running:preparing-civ7",
+          "running:starting-game",
+          "running:observing-runtime",
+          "completed:completed"
+        ],
+        "note": "Fast public transitions are not required to be individually observable; every captured public status in this record is scanned for private path leakage."
+      },
+      "publicLeakScan": {
+        "terminalStatusContainsPrivatePath": false,
+        "lateStatusContainsPrivatePath": false,
+        "phaseCaptureContainsPrivatePath": false
+      }
+    },
+    {
+      "variant": "distinct-catalog-latest-juicy-standard",
+      "requestId": "studio-run-in-game-mrcc2huk-22ib-4",
+      "diagnosticsId": "run-diagnostics-799ea406-7d0d-49d1-86f9-3dfc31c69007",
+      "expected": {
+        "source": "catalog:latest-juicy",
+        "seed": 2026070601,
+        "mapSize": "MAPSIZE_STANDARD",
+        "playerCount": 6,
+        "resources": "balanced"
+      },
+      "terminalStatus": {
+        "requestId": "studio-run-in-game-mrcc2huk-22ib-4",
+        "diagnosticsId": "run-diagnostics-799ea406-7d0d-49d1-86f9-3dfc31c69007",
+        "status": "completed",
+        "phase": "completed",
+        "recoveryActions": [
+          "copy-diagnostics"
+        ],
+        "terminalAt": "2026-07-08T17:11:55.189Z"
+      },
+      "phases": [
+        "running:resolving-source",
+        "running:generating-artifacts",
+        "running:preparing-civ7",
+        "running:starting-game",
+        "running:observing-runtime",
+        "completed:completed"
+      ],
+      "lateStatusLookup": {
+        "statusCode": 200,
+        "status": {
+          "requestId": "studio-run-in-game-mrcc2huk-22ib-4",
+          "diagnosticsId": "run-diagnostics-799ea406-7d0d-49d1-86f9-3dfc31c69007",
+          "status": "completed",
+          "phase": "completed",
+          "recoveryActions": [
+            "copy-diagnostics"
+          ],
+          "terminalAt": "2026-07-08T17:11:55.189Z"
+        }
+      },
+      "diagnosticsStatusCode": 200,
+      "diagnostics": {
+        "ok": true,
+        "summary": "Run in Game complete",
+        "requestId": "studio-run-in-game-mrcc2huk-22ib-4",
+        "operationRevision": 11,
+        "terminalPublicStatus": "complete",
+        "attributionStatus": "complete",
+        "missingSections": [],
+        "availableSections": [
+          "attribution",
+          "operation"
+        ],
+        "attributionSectionKeys": [
+          "boundedLoadedGameReadback",
+          "deployment",
+          "generation",
+          "manifest",
+          "scriptingLogObservation",
+          "setupRowReadback",
+          "source",
+          "terminalResult"
+        ],
+        "runArtifactId": "run-76fb0d9e820ed936105e",
+        "generatedModDigest": "4b3e5742189fd9fb45754c38989b73b5b97c3e343d58c99bf0595a488cb4f28c",
+        "deployedSnapshotDigest": "4b3e5742189fd9fb45754c38989b73b5b97c3e343d58c99bf0595a488cb4f28c",
+        "launchEnvelopeDigest": "f290745adb9aa061cce21b362525eb5082ba81c96588707de1efb7663c6a799f",
+        "generationManifestDigest": "43570507865dc3b056ed4382ff234f41692f988119e0aa5e20b643ef6c5f12e0",
+        "loadedGameReadback": {
+          "requestId": "studio-run-in-game-mrcc2huk-22ib-4",
+          "runArtifactId": "run-76fb0d9e820ed936105e",
+          "seed": 2026070601,
+          "mapSize": 2,
+          "width": 84,
+          "height": 54,
+          "snapshotId": "status:1:79eed43c",
+          "snapshotHash": "79eed43c",
+          "deployedModId": "mod-swooper-studio-run"
+        },
+        "liveStatus": {
+          "ok": true,
+          "playable": true,
+          "readiness": "tuner-ready",
+          "turn": 1,
+          "randomSeed": 2026070601,
+          "width": 84,
+          "height": 54,
+          "plotCount": 4536
+        },
+        "liveSnapshot": {
+          "ok": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 84,
+            "height": 54
+          },
+          "fields": [
+            "terrain",
+            "biome",
+            "feature",
+            "resource",
+            "visibility",
+            "owner"
+          ],
+          "plotCount": 4536,
+          "omitted": 4024,
+          "map": {
+            "width": 84,
+            "height": 54
+          }
+        }
+      },
+      "phaseCapture": {
+        "mode": "poll-sampled public runInGame.status plus terminal response",
+        "observed": [
+          "running:resolving-source",
+          "running:generating-artifacts",
+          "running:preparing-civ7",
+          "running:starting-game",
+          "running:observing-runtime",
+          "completed:completed"
+        ],
+        "note": "Fast public transitions are not required to be individually observable; every captured public status in this record is scanned for private path leakage."
+      },
+      "publicLeakScan": {
+        "terminalStatusContainsPrivatePath": false,
+        "lateStatusContainsPrivatePath": false,
+        "phaseCaptureContainsPrivatePath": false
+      }
+    },
+    {
+      "variant": "editor-fixture-standard",
+      "requestId": "studio-run-in-game-mrcc514o-22ib-5",
+      "diagnosticsId": "run-diagnostics-f562a00e-c291-46f4-af79-2c60267d6b54",
+      "expected": {
+        "source": "editor:openspec-editor-standard",
+        "seed": 2026070602,
+        "mapSize": "MAPSIZE_STANDARD",
+        "playerCount": 6,
+        "resources": "balanced"
+      },
+      "terminalStatus": {
+        "requestId": "studio-run-in-game-mrcc514o-22ib-5",
+        "diagnosticsId": "run-diagnostics-f562a00e-c291-46f4-af79-2c60267d6b54",
+        "status": "completed",
+        "phase": "completed",
+        "recoveryActions": [
+          "copy-diagnostics"
+        ],
+        "terminalAt": "2026-07-08T17:13:50.537Z"
+      },
+      "phases": [
+        "running:generating-artifacts",
+        "running:preparing-civ7",
+        "running:starting-game",
+        "running:observing-runtime",
+        "completed:completed"
+      ],
+      "lateStatusLookup": {
+        "statusCode": 200,
+        "status": {
+          "requestId": "studio-run-in-game-mrcc514o-22ib-5",
+          "diagnosticsId": "run-diagnostics-f562a00e-c291-46f4-af79-2c60267d6b54",
+          "status": "completed",
+          "phase": "completed",
+          "recoveryActions": [
+            "copy-diagnostics"
+          ],
+          "terminalAt": "2026-07-08T17:13:50.537Z"
+        }
+      },
+      "diagnosticsStatusCode": 200,
+      "diagnostics": {
+        "ok": true,
+        "summary": "Run in Game complete",
+        "requestId": "studio-run-in-game-mrcc514o-22ib-5",
+        "operationRevision": 11,
+        "terminalPublicStatus": "complete",
+        "attributionStatus": "complete",
+        "missingSections": [],
+        "availableSections": [
+          "attribution",
+          "operation"
+        ],
+        "attributionSectionKeys": [
+          "boundedLoadedGameReadback",
+          "deployment",
+          "generation",
+          "manifest",
+          "scriptingLogObservation",
+          "setupRowReadback",
+          "source",
+          "terminalResult"
+        ],
+        "runArtifactId": "run-d02d71960e8fedb333a4",
+        "generatedModDigest": "e57b5591cd290acf72ede43e75ed8b6e62fcda7a3423fa52255d08c30956803d",
+        "deployedSnapshotDigest": "e57b5591cd290acf72ede43e75ed8b6e62fcda7a3423fa52255d08c30956803d",
+        "launchEnvelopeDigest": "1812efb9c9cdbad7b9931be24b604cf41ecb221b206508c20d32999928e2b7fc",
+        "generationManifestDigest": "47804cb9bb5c3117c06a1dc6a1d240c7fde15285a05432d2d820066bf7891ea8",
+        "loadedGameReadback": {
+          "requestId": "studio-run-in-game-mrcc514o-22ib-5",
+          "runArtifactId": "run-d02d71960e8fedb333a4",
+          "seed": 2026070602,
+          "mapSize": 2,
+          "width": 84,
+          "height": 54,
+          "snapshotId": "status:1:ab987ede",
+          "snapshotHash": "ab987ede",
+          "deployedModId": "mod-swooper-studio-run"
+        },
+        "liveStatus": {
+          "ok": true,
+          "playable": true,
+          "readiness": "tuner-ready",
+          "turn": 1,
+          "randomSeed": 2026070602,
+          "width": 84,
+          "height": 54,
+          "plotCount": 4536
+        },
+        "liveSnapshot": {
+          "ok": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 84,
+            "height": 54
+          },
+          "fields": [
+            "terrain",
+            "biome",
+            "feature",
+            "resource",
+            "visibility",
+            "owner"
+          ],
+          "plotCount": 4536,
+          "omitted": 4024,
+          "map": {
+            "width": 84,
+            "height": 54
+          }
+        }
+      },
+      "phaseCapture": {
+        "mode": "poll-sampled public runInGame.status plus terminal response",
+        "observed": [
+          "running:generating-artifacts",
+          "running:preparing-civ7",
+          "running:starting-game",
+          "running:observing-runtime",
+          "completed:completed"
+        ],
+        "note": "Fast public transitions are not required to be individually observable; every captured public status in this record is scanned for private path leakage."
+      },
+      "publicLeakScan": {
+        "terminalStatusContainsPrivatePath": false,
+        "lateStatusContainsPrivatePath": false,
+        "phaseCaptureContainsPrivatePath": false
+      }
+    }
+  ],
+  "finalLiveStatus": {
+    "status": 200,
+    "result": {
+      "ok": true,
+      "playable": true,
+      "readiness": "tuner-ready",
+      "turn": 1,
+      "randomSeed": 2026070602,
+      "width": 84,
+      "height": 54,
+      "plotCount": 4536
+    }
+  },
+  "finalLiveSnapshot": {
+    "status": 200,
+    "result": {
+      "ok": true,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 84,
+        "height": 54
+      },
+      "fields": [
+        "terrain",
+        "biome",
+        "feature",
+        "resource",
+        "visibility",
+        "owner"
+      ],
+      "plotCount": 4536,
+      "omitted": 4024,
+      "map": {
+        "width": 84,
+        "height": 54
+      }
+    }
+  },
+  "publicLeakScan": {
+    "scannedSurfaces": [
+      "terminal public status",
+      "late runInGame.status lookup",
+      "phase samples",
+      "final civ7.live.status",
+      "final civ7.live.snapshot summary"
+    ],
+    "containsPrivatePath": false
+  }
+}
