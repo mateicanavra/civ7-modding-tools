@@ -222,6 +222,15 @@ export function tryGetSchemaAtPath(schema: unknown, path: readonly string[]): un
   return current;
 }
 
+/** "seaLevel" / "sea_level" → "Sea Level" — display casing for schema keys. */
+export function humanizeSchemaLabel(label: string): string {
+  const s = label
+    .replace(/[_-]+/g, " ")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .trim();
+  return s.replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
 const schemaDefaultsCache = new WeakMap<object, unknown>();
 
 /**

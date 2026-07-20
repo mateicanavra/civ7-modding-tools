@@ -70,3 +70,26 @@ export const Disabled: Story = {
     </Demo>
   ),
 };
+
+/**
+ * Flat-and-flush delta 9: selection ≠ schema default ⇒ the DS drifted
+ * treatment on the trigger plus the undo icon tucked into the dead space
+ * left of the chevron (no trigger padding change).
+ */
+export const Modified: Story = {
+  args: widgetProps({
+    id: "cfg_rainfall",
+    name: "rainfall",
+    label: "rainfall",
+    value: "wet",
+    options: { emptyValue: "", enumOptions: rainfallOptions },
+    schema: { type: "string", default: "temperate" },
+  }),
+  render: (args) => (
+    <Demo>
+      <div style={{ width: 220 }}>
+        <SelectWidget {...args} />
+      </div>
+    </Demo>
+  ),
+};
