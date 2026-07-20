@@ -19,5 +19,8 @@ correlation identity, request id, or generated output root for Run in Game.
 ## Enforcement
 
 Behavior verifies success/failure. SA-10
-`grit-studio-run-generator-port-boundary` enforces the single-input and
-request-workspace topology.
+`grit-studio-run-generator-port-boundary` enforces the source wiring boundary:
+the generator port accepts a `StudioRunGenerationManifestReference`, legacy
+materialization naming stays retired, and request/prepared/output-root side
+channels stay out of generator calls. Request-workspace filesystem topology
+remains covered by SA-07/SA-08 Habitat structure authority.

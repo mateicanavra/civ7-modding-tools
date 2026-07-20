@@ -270,24 +270,36 @@ describe("useRunInGame — RIG-7 (non-proved path applies seed + setup suggestio
   });
 });
 
-describe("useRunInGame — RIG-2 (materializationMode is a render-time prop, flows through)", () => {
-  it("threads the durable/disposable PROP through to the launch payload (never an effect-ref)", async () => {
+describe("useRunInGame — RIG-2 (materializationMode is a render-time prop, selects source)", () => {
+  it("threads the durable/disposable PROP into the launch source (never an effect-ref)", async () => {
     // Oracle: handleRunInGame reads `runInGameMaterializationMode` straight from props
-    // (render scope) and forwards it to runCurrentConfigInGame + the source snapshot.
-    // Flipping the prop flips the value that reaches the daemon — the same render, no
-    // effect-ref lag. Falsifier: reading the mode from an effect-assigned ref would
-    // forward the previous render's mode (security-adjacent game-file routing bug).
+    // (render scope) and uses it to select the public launch source while recording
+    // the private/client source snapshot. Flipping the prop flips the source kind in
+    // the same render, no effect-ref lag.
     runRpc.mockResolvedValue({
       requestId: "req-1",
       materialization: { mode: "disposable", mapScript: "studio-current.js" },
     } as never);
 
-    const durable = setup({ runInGameMaterializationMode: "durable" });
+    const durable = setup({
+      runInGameMaterializationMode: "durable",
+      resolvePreset: vi.fn(() => ({
+        id: "swooper-earthlike",
+        label: "Swooper Earthlike",
+        sourcePath: "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json",
+        sortIndex: 100,
+      })),
+    });
     await act(async () => {
       await durable.result.current.handleRunInGame();
     });
     expect(runRpc).toHaveBeenLastCalledWith(
-      expect.objectContaining({ materializationMode: "durable" })
+      expect.objectContaining({
+        source: {
+          kind: "catalog",
+          catalogSourceId: "swooper-earthlike",
+        },
+      })
     );
     expect(vi.mocked(durable.props.setLastRunInGameSource)).toHaveBeenCalledWith(
       expect.objectContaining({ materializationMode: "durable" })
@@ -300,7 +312,14 @@ describe("useRunInGame — RIG-2 (materializationMode is a render-time prop, flo
       await disposable.result.current.handleRunInGame();
     });
     expect(runRpc).toHaveBeenLastCalledWith(
-      expect.objectContaining({ materializationMode: "disposable" })
+      expect.objectContaining({
+        source: expect.objectContaining({
+          kind: "editor",
+          payload: expect.objectContaining({
+            pipelineConfig: { foo: 1 },
+          }),
+        }),
+      })
     );
     expect(vi.mocked(disposable.props.setLastRunInGameSource)).toHaveBeenCalledWith(
       expect.objectContaining({ materializationMode: "disposable" })

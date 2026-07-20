@@ -1,5 +1,5 @@
-import { createServer, type Server } from "node:http";
 import { rm } from "node:fs/promises";
+import { createServer, type Server } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createORPCClient, isDefinedError, ORPCError, safe } from "@orpc/client";
@@ -18,6 +18,7 @@ import {
   StudioEventHub,
   type StudioEventHubApi,
   StudioEventHubLive,
+  type StudioInputs,
   type StudioOperationRuntimePorts,
   type StudioRouter,
   type StudioRpcHandle,
@@ -122,12 +123,7 @@ describe("studio-server RPC handler", () => {
         }),
       });
       const client = await listenWithClient(context);
-      const run = await client.runInGame.start({
-        recipeId: "mod-swooper-maps/standard",
-        seed: 43,
-        mapSize: "MAPSIZE_STANDARD",
-        config: {},
-      });
+      const run = await client.runInGame.start(runInGameStartInput());
 
       const { error } = await safe(
         client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} })
@@ -175,13 +171,42 @@ describe("studio-server RPC handler", () => {
     });
   });
 
+  test("maps raw-control Run in Game start payloads to the declared invalid-request error", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      const context = makeContext();
+      const client = await listenWithClient(context);
+
+      const { error } = await safe(
+        client.runInGame.start({
+          ...runInGameStartInput(),
+          rawJs: "UI.notifyUIReady()",
+        } as StudioInputs["runInGame"]["start"])
+      );
+
+      expect(error).toBeInstanceOf(ORPCError);
+      if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
+      expect(isDefinedError(error)).toBe(true);
+      expect(error.code).toBe("RUN_IN_GAME_INVALID");
+      expect(error.status).toBe(400);
+      expect(error.data).toMatchObject({
+        namespace: "runInGame",
+        safeFailureCategory: "request-validation",
+      });
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
   test("serves explicit Run in Game cancellation through the public command", async () => {
     const blocker = deferred<void>();
     let cleanupCalls = 0;
     try {
       const context = makeContext({
         operationRuntime: makeOperationRuntimePorts({
-          materializeRunInGame: async () => ({
+          generateRunInGameMod: async () => ({
+            ...generatedRunInGameMod(),
             cleanup: async () => {
               cleanupCalls += 1;
             },
@@ -193,12 +218,7 @@ describe("studio-server RPC handler", () => {
         }),
       });
       const client = await listenWithClient(context);
-      const run = await client.runInGame.start({
-        recipeId: "mod-swooper-maps/standard",
-        seed: 43,
-        mapSize: "MAPSIZE_STANDARD",
-        config: {},
-      });
+      const run = await client.runInGame.start(runInGameStartInput());
 
       await expect
         .poll(async () => (await client.runInGame.status({ requestId: run.requestId })).phase)
@@ -248,15 +268,9 @@ describe("studio-server RPC handler", () => {
         })
       );
 
-      const run = await client.runInGame.start(
-        {
-          recipeId: "mod-swooper-maps/standard",
-          seed: 43,
-          mapSize: "MAPSIZE_STANDARD",
-          config: {},
-        },
-        { signal: controller.signal }
-      );
+      const run = await client.runInGame.start(runInGameStartInput(), {
+        signal: controller.signal,
+      });
 
       await expect
         .poll(async () => (await client.runInGame.status({ requestId: run.requestId })).phase)
@@ -527,12 +541,7 @@ describe("studio-server RPC handler", () => {
         event.status.phase === "complete"
     );
 
-    const run = await client.runInGame.start({
-      recipeId: "mod-swooper-maps/standard",
-      seed: 43,
-      mapSize: "MAPSIZE_STANDARD",
-      config: {},
-    });
+    const run = await client.runInGame.start(runInGameStartInput());
     const runEvent = await readOperationEvent(
       iterator,
       (event) => event.kind === "run-in-game" && event.status.requestId === run.requestId
@@ -900,10 +909,7 @@ function makeOperationRuntimePorts(
 ): StudioOperationRuntimePorts {
   const runInGameWorkspaceRoot =
     overrides.runInGameWorkspaceRoot ??
-    join(
-      tmpdir(),
-      `studio-server-handler-${process.pid}-${++runtimeWorkspaceSequence}`
-    );
+    join(tmpdir(), `studio-server-handler-${process.pid}-${++runtimeWorkspaceSequence}`);
   if (overrides.runInGameWorkspaceRoot === undefined) {
     runtimeWorkspaceRoots.push(runInGameWorkspaceRoot);
   }
@@ -912,7 +918,15 @@ function makeOperationRuntimePorts(
       now: () => new Date("2026-06-10T00:00:00.000Z"),
     },
     runInGameWorkspaceRoot,
-    materializeRunInGame: async () => ({}),
+    generateRunInGameMod: async () => generatedRunInGameMod(),
+    readRunInGameCatalogSource: async ({ catalogSourceId }) => ({
+      catalogSourceId,
+      configPath: `mods/mod-swooper-maps/src/maps/configs/${catalogSourceId}.config.json`,
+      name: catalogSourceId,
+      description: catalogSourceId,
+      sortIndex: 900,
+      config: {},
+    }),
     deployRunInGame: async () => ({}),
     waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
     buildRunInGameProof: async () => ({ result: { ok: true } }),
@@ -921,6 +935,47 @@ function makeOperationRuntimePorts(
     deploySavedMapConfig: async () => ({ deployed: true }),
     rollbackSaveDeploy: async () => ({ restored: true }),
     ...overrides,
+  };
+}
+
+function generatedRunInGameMod(): Awaited<
+  ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
+> {
+  return {
+    materialization: {
+      mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+      configHash: "test-config-hash",
+      envelopeHash: "test-envelope-hash",
+      generationManifestDigest: "test-generation-manifest-digest",
+      runArtifactId: "run-test",
+      generatedModRoot: join(tmpdir(), "studio-handler-generated-run-test"),
+      generatedModFileCount: 1,
+      generatedModDigest: "test-generated-mod-digest",
+      mapRowId: "MAP_RUN_TEST",
+    },
+  };
+}
+
+function runInGameStartInput(): StudioInputs["runInGame"]["start"] {
+  return {
+    source: {
+      kind: "editor",
+      editorSessionId: "handler-test-editor",
+      payload: {
+        configId: "studio-current",
+        label: "Studio Current",
+        mapScript: "{swooper-maps}/maps/studio-current.js",
+        pipelineConfig: {},
+        recipeId: "mod-swooper-maps/standard",
+      },
+    },
+    recipeSettings: {
+      recipe: "mod-swooper-maps/standard",
+      seed: 43,
+    },
+    worldSettings: {
+      mapSize: "MAPSIZE_STANDARD",
+    },
   };
 }
 

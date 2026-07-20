@@ -6,6 +6,7 @@ import type {
   RunInGamePhase,
   RunInGameProcessRestartStatus,
 } from "@civ7/studio-contract";
+import type { StudioRunGenerationManifestReference } from "@civ7/studio-run-workspace";
 import { Effect, SynchronizedRef } from "effect";
 import {
   dependencyUnavailable,
@@ -73,7 +74,11 @@ export type RunInGameCancellation =
     }>;
 
 export type RunInGameTransition =
-  | Readonly<{ phase: "materializing"; materialization?: RunInGameMaterializationStatus }>
+  | Readonly<{
+      phase: "materializing";
+      materialization?: RunInGameMaterializationStatus;
+      generationManifest?: StudioRunGenerationManifestReference;
+    }>
   | Readonly<{ phase: "deploying"; materialization?: RunInGameMaterializationStatus }>
   | Readonly<{ phase: "restarting-civ" }>
   | Readonly<{

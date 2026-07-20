@@ -33,9 +33,12 @@ After:
 - each entry has `catalogSourceId`, `configPath`, display metadata, and digest
   inputs;
 - validation proves each id and path is unique and resolvable;
-- a temporary Grit pattern asserts the index matches the current catalog
-  generation source set until the catalog cutover packet makes the index the
-  only catalog authority.
+- a behavior test asserts the index matches the current catalog generation
+  source set until the catalog cutover packet makes the index the only catalog
+  authority;
+- a temporary Habitat-owned Grit advisory guards only the transitional anchors
+  around the behavior proof and transient `studio-current` exclusion before
+  cutover.
 
 ## Behavior Verification
 
@@ -60,14 +63,15 @@ Temporary pattern:
 - owner surface: Swooper catalog source reader and current catalog generation
   source discovery;
 - scan roots: `mods/mod-swooper-maps/src/maps`,
+  `mods/mod-swooper-maps/test/config`,
   `mods/mod-swooper-maps/scripts`;
-- hazard assertion: catalog source ids and config paths in
-  `CatalogSourceIndex` match the current catalog generation source set until
-  cutover;
+- hazard assertion: the source index file, reader/validator entry points,
+  behavior equality-test anchor, and transient `studio-current` exclusion
+  remain present until cutover;
 - baseline action: committed empty baseline after validator lands;
 - hook scope: none;
 - removal condition: remove after `swooper-catalog-index-cutover` registers
-  SA-09 `nx-swooper-catalog-index-target-topology`.
+  SA-09 `structure-swooper-catalog-index-target-topology`.
 
 ## Verification Gates
 

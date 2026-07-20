@@ -21,7 +21,8 @@ source index.
 #### Scenario: Catalog cutover has not happened yet
 
 - **WHEN** catalog generation still uses its previous source set
-- **THEN** the temporary consistency Grit pattern asserts that source set
+- **THEN** catalog source index behavior tests assert that source set
   matches `CatalogSourceIndex`
-- **AND** a mismatch blocks launch-source resolution from treating the index as
-  authoritative
+- **AND** the temporary consistency Grit advisory asserts that the transitional
+  index, reader/validator, equality-test anchor, and transient `studio-current`
+  exclusion remain present until cutover

@@ -1,7 +1,9 @@
 export type {
+  CanonicalRunInGameRequest,
+  RunInGameCatalogSource,
   RunInGameDeployment,
+  RunInGameGeneratedMod,
   RunInGameLogEvidence,
-  RunInGameMaterialized,
   RunInGamePreparedRequest,
   RunInGameProof,
   RunInGameRestartResult,

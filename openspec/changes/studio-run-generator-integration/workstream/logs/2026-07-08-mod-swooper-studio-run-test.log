@@ -1,0 +1,555 @@
+
+ NX   Running target test:studio-run-in-game for project mod-swooper-maps and 18 tasks it depends on:
+
+
+
+> nx run mapgen-viz:build
+
+(node:87830) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:87948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+ESM dist/index.js 1.92 KB
+ESM ⚡️ Build success in 19ms
+(node:87948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1697ms
+DTS dist/index.d.ts 6.61 KB
+
+> nx run civ7-config:build
+
+(node:87831) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:87946) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+ESM dist/index.js 4.72 KB
+ESM ⚡️ Build success in 40ms
+CJS dist/index.cjs 7.00 KB
+CJS ⚡️ Build success in 41ms
+(node:87946) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1766ms
+DTS dist/index.d.ts  1.80 KB
+DTS dist/index.d.cts 1.80 KB
+
+> nx run control-direct:build-bundle
+
+> tsup --config tsup.config.ts
+
+CLI Building entry: src/index.ts, src/proof/advisor-warning-proof-policy.ts, src/proof/diplomacy-response-proof-policy.ts, src/proof/first-meet-response-proof-policy.ts, src/proof/government-choice-proof-policy.ts, src/proof/narrative-choice-proof-policy.ts, src/proof/notification-dismissal-proof-policy.ts, src/proof/population-placement-proof-policy.ts, src/proof/progression-player-choice-proof-policy.ts, src/proof/progression-target-proof-policy.ts, src/proof/town-focus-proof-policy.ts, src/proof/turn-completion-proof-policy.ts, src/proof/unit-target-proof-policy.ts, src/play/notifications/postconditions.ts, src/play/operations/production-choice-proof.ts, src/play/progression/choice-postconditions.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-direct-control/tsup.config.ts
+(node:88081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+CJS Build start
+CJS dist/proof/first-meet-response-proof-policy.cjs       2.32 KB
+CJS dist/proof/notification-dismissal-proof-policy.cjs    7.39 KB
+CJS dist/proof/narrative-choice-proof-policy.cjs          3.49 KB
+CJS dist/proof/government-choice-proof-policy.cjs         1.81 KB
+CJS dist/proof/progression-player-choice-proof-policy.cjs 1.91 KB
+CJS dist/proof/progression-target-proof-policy.cjs        1.83 KB
+CJS dist/proof/population-placement-proof-policy.cjs      3.80 KB
+CJS dist/proof/town-focus-proof-policy.cjs                1.72 KB
+CJS dist/proof/advisor-warning-proof-policy.cjs           1.69 KB
+CJS dist/proof/turn-completion-proof-policy.cjs           4.73 KB
+CJS dist/play/notifications/postconditions.cjs            8.56 KB
+CJS dist/play/progression/choice-postconditions.cjs       6.19 KB
+CJS dist/play/operations/production-choice-proof.cjs      2.41 KB
+CJS dist/proof/diplomacy-response-proof-policy.cjs        3.54 KB
+CJS dist/proof/unit-target-proof-policy.cjs               3.04 KB
+CJS dist/index.cjs                                        777.08 KB
+CJS ⚡️ Build success in 249ms
+ESM dist/play/operations/production-choice-proof.js      287.00 B
+ESM dist/proof/progression-target-proof-policy.js        194.00 B
+ESM dist/play/progression/choice-postconditions.js       317.00 B
+ESM dist/proof/turn-completion-proof-policy.js           262.00 B
+ESM dist/proof/unit-target-proof-policy.js               166.00 B
+ESM dist/chunk-35BKMMLH.js                               662.00 B
+ESM dist/chunk-ZGRAA6DD.js                               1.91 KB
+ESM dist/chunk-SBJ4NEBA.js                               614.00 B
+ESM dist/chunk-TIGRIXS6.js                               1.16 KB
+ESM dist/chunk-HVSADZMW.js                               4.91 KB
+ESM dist/chunk-DE5QAK6F.js                               3.49 KB
+ESM dist/chunk-OA3KHPOF.js                               604.00 B
+ESM dist/proof/progression-player-choice-proof-policy.js 218.00 B
+ESM dist/proof/town-focus-proof-policy.js                162.00 B
+ESM dist/play/notifications/postconditions.js            619.00 B
+ESM dist/proof/diplomacy-response-proof-policy.js        280.00 B
+ESM dist/proof/government-choice-proof-policy.js         190.00 B
+ESM dist/chunk-FFKDRHLA.js                               656.00 B
+ESM dist/chunk-B2HNLYNP.js                               2.27 KB
+ESM dist/chunk-U2GTLZMO.js                               2.24 KB
+ESM dist/chunk-H6VSHXDZ.js                               699.00 B
+ESM dist/proof/narrative-choice-proof-policy.js          268.00 B
+ESM dist/proof/first-meet-response-proof-policy.js       194.00 B
+ESM dist/chunk-NRZVGPXC.js                               1.14 KB
+ESM dist/proof/notification-dismissal-proof-policy.js    241.00 B
+ESM dist/chunk-7FIB7KVB.js                               7.45 KB
+ESM dist/proof/population-placement-proof-policy.js      202.00 B
+ESM dist/proof/advisor-warning-proof-policy.js           122.00 B
+ESM dist/chunk-PVUQC3ND.js                               2.73 KB
+ESM dist/chunk-R7TX2HUS.js                               2.26 KB
+ESM dist/index.js                                        688.88 KB
+ESM ⚡️ Build success in 250ms
+
+> nx run civ7-map-policy:build
+
+(node:87829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-map-policy/tsup.config.ts
+(node:87944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 106.28 KB
+ESM ⚡️ Build success in 121ms
+(node:87944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 2605ms
+DTS dist/index.d.ts 62.46 KB
+
+> nx run plugin-files:build
+
+(node:88144) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:88217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+CJS dist/index.cjs 8.93 KB
+CJS ⚡️ Build success in 100ms
+ESM dist/index.js 6.97 KB
+ESM ⚡️ Build success in 100ms
+(node:88217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1841ms
+DTS dist/index.d.ts  1.79 KB
+DTS dist/index.d.cts 1.79 KB
+
+> nx run civ7-adapter:build
+
+(node:88243) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/civ7-adapter.ts, src/index.ts, src/mock-adapter.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/civ7-adapter/tsup.config.ts
+(node:88274) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+ESM dist/mock-adapter.js   463.00 B
+ESM dist/index.js          1.11 KB
+ESM dist/chunk-QWSVGM4D.js 235.00 B
+ESM dist/chunk-OZ5NINDO.js 48.82 KB
+ESM dist/civ7-adapter.js   34.69 KB
+ESM ⚡️ Build success in 32ms
+(node:88274) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 2844ms
+DTS dist/civ7-adapter.d.ts   6.91 KB
+DTS dist/index.d.ts          3.06 KB
+DTS dist/mock-adapter.d.ts   14.21 KB
+DTS dist/types-CuMGbHqX.d.ts 25.58 KB
+
+> nx run control-direct:build-types
+
+> tsc -b tsconfig.json --force --emitDeclarationOnly
+
+
+> nx run plugin-git:build
+
+(node:88523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:88545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+CJS dist/index.cjs 32.69 KB
+CJS ⚡️ Build success in 39ms
+ESM dist/index.js 29.12 KB
+ESM ⚡️ Build success in 39ms
+(node:88545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1878ms
+DTS dist/index.d.ts  12.59 KB
+DTS dist/index.d.cts 12.59 KB
+
+> nx run studio-contract:build
+
+(node:88101) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-contract/tsup.config.ts
+(node:88123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 70.27 KB
+ESM ⚡️ Build success in 36ms
+(node:88123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 9690ms
+DTS dist/index.d.ts 600.14 KB
+
+> nx run plugin-mods:build
+
+(node:88608) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:88645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+CJS dist/index.cjs 14.66 KB
+CJS ⚡️ Build success in 85ms
+ESM dist/index.js 12.16 KB
+ESM ⚡️ Build success in 87ms
+(node:88645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 1517ms
+DTS dist/index.d.ts  5.73 KB
+DTS dist/index.d.cts 5.73 KB
+
+> nx run studio-run-workspace:build
+
+(node:88627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/studio-run-workspace/tsup.config.ts
+(node:88666) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/index.js 7.91 KB
+ESM ⚡️ Build success in 46ms
+(node:88666) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DTS Build start
+DTS ⚡️ Build success in 2028ms
+DTS dist/index.d.ts 13.06 KB
+
+> nx run mapgen-core:build
+
+(node:88378) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup[0m
+CLI Building entry: src/index.ts, src/authoring/contracts.ts, src/authoring/index.ts, src/authoring/recipe-dag.ts, src/compiler/normalize.ts, src/compiler/recipe-compile.ts, src/engine/index.ts, src/polyfills/text-encoder.ts, src/lib/grid/index.ts, src/lib/noise/index.ts, src/lib/plates/index.ts, src/lib/math/index.ts, src/lib/mesh/index.ts, src/lib/rng/index.ts, src/lib/collections/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/packages/mapgen-core/tsup.config.ts
+(node:88420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+CLI Cleaning output folder
+ESM Build start
+(node:88420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ESM dist/lib/grid/index.js          13.83 KB
+ESM dist/lib/plates/index.js        4.74 KB
+ESM dist/lib/noise/index.js         4.31 KB
+ESM dist/chunk-5HLW34JS.js          1.13 KB
+ESM dist/lib/math/index.js          1.07 KB
+ESM dist/chunk-SMOCTAOU.js          545.00 B
+ESM dist/chunk-QTPSALFN.js          2.48 KB
+ESM dist/lib/rng/index.js           1.08 KB
+ESM dist/chunk-NDPW26EB.js          214.00 B
+ESM dist/chunk-YN2VUKFR.js          403.00 B
+ESM dist/index.js                   49.48 KB
+ESM dist/chunk-TNHUJOIC.js          809.00 B
+ESM dist/lib/collections/index.js   671.00 B
+ESM dist/chunk-AYH6ZW6Y.js          112.00 B
+ESM dist/chunk-IDBIXU25.js          8.76 KB
+ESM dist/chunk-H3PFKOMU.js          569.00 B
+ESM dist/authoring/index.js         28.97 KB
+ESM dist/authoring/recipe-dag.js    117.00 B
+ESM dist/authoring/contracts.js     513.00 B
+ESM dist/chunk-253A6B53.js          6.65 KB
+ESM dist/compiler/normalize.js      319.00 B
+ESM dist/lib/mesh/index.js          8.21 KB
+ESM dist/chunk-BJPDK4G3.js          167.00 B
+ESM dist/engine/index.js            1.39 KB
+ESM dist/chunk-QPDI6DWW.js          352.00 B
+ESM dist/compiler/recipe-compile.js 264.00 B
+ESM dist/chunk-S23W5VLY.js          143.70 KB
+ESM dist/chunk-XIDQFAK3.js          8.93 KB
+ESM dist/chunk-MLR2KZPR.js          5.58 KB
+ESM dist/chunk-IRMAJG7Q.js          1.33 KB
+ESM dist/chunk-MLKGABMK.js          191.00 B
+ESM dist/polyfills/text-encoder.js  31.00 B
+ESM dist/chunk-H7B452A2.js          26.46 KB
+ESM dist/chunk-JGQB2ORM.js          225.05 KB
+ESM dist/chunk-ABODEIIM.js          802.00 B
+ESM ⚡️ Build success in 348ms
+DTS Build start
+DTS ⚡️ Build success in 14129ms
+DTS dist/polyfills/text-encoder.d.ts       13.00 B
+DTS dist/authoring/contracts.d.ts          902.00 B
+DTS dist/authoring/recipe-dag.d.ts         2.94 KB
+DTS dist/lib/collections/index.d.ts        282.00 B
+DTS dist/lib/mesh/index.d.ts               1.24 KB
+DTS dist/lib/noise/index.d.ts              732.00 B
+DTS dist/lib/math/index.d.ts               816.00 B
+DTS dist/lib/plates/index.d.ts             2.40 KB
+DTS dist/lib/rng/index.d.ts                587.00 B
+DTS dist/lib/grid/index.d.ts               6.36 KB
+DTS dist/authoring/index.d.ts              12.70 KB
+DTS dist/index.d.ts                        26.01 KB
+DTS dist/engine/index.d.ts                 4.78 KB
+DTS dist/compiler/recipe-compile.d.ts      595.00 B
+DTS dist/compiler/normalize.d.ts           260.00 B
+DTS dist/contract-h4JpOxYJ.d.ts            3.86 KB
+DTS dist/contract-D27M8aDx.d.ts            974.00 B
+DTS dist/types-D36aNocJ.d.ts               10.14 KB
+DTS dist/label-60ObDTHH.d.ts               570.00 B
+DTS dist/typed-array-schemas-BgwB9MXu.d.ts 1.56 KB
+DTS dist/types-Cho0VwBk.d.ts               3.25 KB
+DTS dist/types-BU4k0Lnn.d.ts               16.71 KB
+DTS dist/normalize-Ca15pQ3F.d.ts           3.95 KB
+DTS dist/ops-BD8Zz6gt.d.ts                 6.30 KB
+DTS dist/wrap-J5N5_jXJ.d.ts                378.00 B
+DTS dist/execution-plan-DwE2pmw1.d.ts      6.16 KB
+DTS dist/range-nD1uC0Gi.d.ts               1.17 KB
+
+> nx run mod-swooper-maps:"gen:studio-map-catalog"
+
+> bun ./scripts/generate-studio-map-catalog.ts
+
+Generated 9 Studio catalog map configs from CatalogSourceIndex.
+
+> nx run civ7-sdk:build
+
+(node:88865) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[0m[2m[35m$[0m [2m[1mtsup src/index.ts src/mapgen/index.ts --format esm,cjs --dts[0m
+CLI Building entry: src/index.ts, src/mapgen/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+(node:88887) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: es2022
+ESM Build start
+CJS Build start
+(node:88887) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CJS dist/mapgen/index.cjs 5.81 KB
+CJS dist/index.cjs        200.86 KB
+CJS ⚡️ Build success in 228ms
+ESM dist/index.js        192.39 KB
+ESM dist/mapgen/index.js 4.77 KB
+ESM ⚡️ Build success in 228ms
+DTS Build start
+DTS ⚡️ Build success in 2726ms
+DTS dist/index.d.ts         413.72 KB
+DTS dist/mapgen/index.d.ts  1.72 KB
+DTS dist/index.d.cts        413.72 KB
+DTS dist/mapgen/index.d.cts 1.72 KB
+
+> nx run mod-swooper-maps:"build:studio-recipes:bundle"
+
+> tsup --config tsup.studio-recipes.config.ts
+
+CLI Building entry: {"recipes/standard":"src/recipes/standard/recipe.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Using tsup config: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-codex-mapgen-studio-runtime-openspec-packets/mods/mod-swooper-maps/tsup.studio-recipes.config.ts
+(node:89216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+CLI Target: esnext
+ESM Build start
+ESM dist/recipes/standard.js 2.01 MB
+ESM ⚡️ Build success in 191ms
+
+> nx run mod-swooper-maps:"gen:studio-recipes-types"
+
+> bun ./scripts/generate-studio-recipe-types.ts
+
+[0m[33mWarning[0m[2m:[0m [1mThe 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.[0m
+[0m      [2mat [0m[0m[1m[3mwarnOnDeactivatedColors[0m[2m ([0m[0m[36minternal:tty[0m[2m:[0m[33m33[0m[2m:[33m24[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mgetColorDepth[0m[2m ([0m[0m[36minternal:tty[0m[2m:[0m[33m42[0m[2m:[33m39[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mshouldColorize[0m[2m ([0m[0m[36minternal:util/colors[0m[2m:[0m[33m14[0m[2m:[33m109[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mrefresh[0m[2m ([0m[0m[36minternal:util/colors[0m[2m:[0m[33m18[0m[2m:[33m31[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3minternal:util/colors[0m[2m ([0m[0m[36minternal:util/colors[0m[2m:[0m[33m24[0m[2m:[33m16[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3minternal:assert/assertion_error[0m[2m ([0m[0m[36minternal:assert/assertion_error[0m[2m:[0m[33m2[0m[2m:[33m187[0m[2m)[0m
+[0m      [2mat [0m[0m[1m[3mloadAssertionError[0m[2m ([0m[0m[36mnode:assert[0m[2m:[0m[33m28[0m[2m:[33m96[0m[2m)[0m
+
+
+> nx run mod-swooper-maps:"build:studio-recipes"
+
+> node -e ""
+
+
+> nx run mod-swooper-maps:"test:studio-run-in-game"
+
+> bun test test/standard-run.test.ts test/build/map-bundle-runtime-imports.test.ts test/config/maps-schema-valid.test.ts test/config/shipped-map-identity.test.ts
+
+[0m[1mbun test [0m[2mv1.3.14 (0d9b296a)[0m
+[0m
+test/standard-run.test.ts:
+[SWOOPER_MOD] FEATURE_APPLY_V1 {"attempted":38,"applied":37,"rejected":1,"rejectedCanHaveFeature":1,"attemptedByFeature":{"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_RAINFOREST":22,"FEATURE_SAVANNA_WOODLAND":6,"FEATURE_REEF":2,"FEATURE_MANGROVE":2,"FEATURE_SAGEBRUSH_STEPPE":1,"FEATURE_COLD_REEF":1,"FEATURE_MARSH":1},"appliedByFeature":{"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_RAINFOREST":22,"FEATURE_SAVANNA_WOODLAND":6,"FEATURE_REEF":2,"FEATURE_MANGROVE":2,"FEATURE_SAGEBRUSH_STEPPE":1,"FEATURE_COLD_REEF":1},"rejectedCanHaveFeatureByFeature":{"FEATURE_MARSH":1}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 {"version":1,"wondersCount":0,"targetCount":0,"plannedCount":0,"planRows":[],"coordinateProof":{"version":1,"plannedCount":0,"plannedHash32":"811c9dc5"}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 {"version":1,"plannedCount":0,"surfaceDigests":{"version":1,"plotCount":432,"landMaskHash32":"210945a4","elevationHash32":"f72e862f","aridityPpmHash32":"869922b9","riverClassHash32":"59be4347","lakeMaskHash32":"741d9745","blockedMaskHash32":"6f1869c5","terrainTypeHash32":"a2b518c0","biomeTypeHash32":"681ef5e4","featureTypeHash32":"e3689301"},"inputRows":[]}
+[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 {"version":1,"plannedCount":0,"targetCount":0,"placedCount":0,"terrainAdjustedCount":0,"skippedOutOfBoundsCount":0,"rejectedCount":0,"shortfallCount":0,"rejectionExampleCount":0,"rejectionExamples":[],"rejectedRows":[],"coordinateProof":{"version":1,"placedCount":0,"placedHash32":"811c9dc5"}}
+[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 {"acceptedLakeTileCount":2,"finalLakeWaterDriftCount":0,"finalLakeClassificationDriftCount":0}
+[Placement] Start assignment degraded to open-pool for 2 seat(s) (seat indices: 4, 5); regional viability guarantees were relaxed for those seats.
+[Placement] Resource support pass recorded 1 typed shortfall(s): seat 0: equity-unresolvable x5.
+[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 {"version":1,"plannedCount":92,"placedCount":92,"rejectedCount":0,"mismatchCount":0,"uniquePlannedTypes":24,"uniquePlacedTypes":24,"minPlacedCountByType":1,"maxPlacedCountByType":10,"runtimeCatalogCount":55,"coordinateProof":{"version":1,"placedCount":92,"placedHash32":"b5a71165"},"rejectedResourceTypes":[],"reconciliation":{"plannedCount":92,"placedCount":92,"rejectedCount":0,"byPhase":{"rotation":29,"rangeFloor":63,"regionMinimum":0,"support":0}},"byReason":[]}
+[SWOOPER_MOD] DISCOVERY_PLACEMENT_V1 {"version":1,"startPositions":8,"polarMargin":2,"plannedCount":0,"placedCount":0,"rejectedCount":0}
+[0m[32m✓[0m [0mstandard recipe execution[2m >[0m[1m compiles and executes with a mock adapter[0m [0m[2m[[1m450.74ms[0m[2m][0m
+[SWOOPER_MOD] FEATURE_APPLY_V1 {"attempted":38,"applied":37,"rejected":1,"rejectedCanHaveFeature":1,"attemptedByFeature":{"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_RAINFOREST":22,"FEATURE_SAVANNA_WOODLAND":6,"FEATURE_REEF":2,"FEATURE_MANGROVE":2,"FEATURE_SAGEBRUSH_STEPPE":1,"FEATURE_COLD_REEF":1,"FEATURE_MARSH":1},"appliedByFeature":{"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_RAINFOREST":22,"FEATURE_SAVANNA_WOODLAND":6,"FEATURE_REEF":2,"FEATURE_MANGROVE":2,"FEATURE_SAGEBRUSH_STEPPE":1,"FEATURE_COLD_REEF":1},"rejectedCanHaveFeatureByFeature":{"FEATURE_MARSH":1}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 {"version":1,"wondersCount":0,"targetCount":0,"plannedCount":0,"planRows":[],"coordinateProof":{"version":1,"plannedCount":0,"plannedHash32":"811c9dc5"}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 {"version":1,"plannedCount":0,"surfaceDigests":{"version":1,"plotCount":432,"landMaskHash32":"210945a4","elevationHash32":"f72e862f","aridityPpmHash32":"869922b9","riverClassHash32":"59be4347","lakeMaskHash32":"741d9745","blockedMaskHash32":"6f1869c5","terrainTypeHash32":"a2b518c0","biomeTypeHash32":"681ef5e4","featureTypeHash32":"e3689301"},"inputRows":[]}
+[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 {"version":1,"plannedCount":0,"targetCount":0,"placedCount":0,"terrainAdjustedCount":0,"skippedOutOfBoundsCount":0,"rejectedCount":0,"shortfallCount":0,"rejectionExampleCount":0,"rejectionExamples":[],"rejectedRows":[],"coordinateProof":{"version":1,"placedCount":0,"placedHash32":"811c9dc5"}}
+[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 {"acceptedLakeTileCount":2,"finalLakeWaterDriftCount":0,"finalLakeClassificationDriftCount":0}
+[Placement] Start assignment degraded to open-pool for 2 seat(s) (seat indices: 4, 5); regional viability guarantees were relaxed for those seats.
+[Placement] Resource support pass recorded 1 typed shortfall(s): seat 0: equity-unresolvable x5.
+[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 {"version":1,"plannedCount":92,"placedCount":92,"rejectedCount":0,"mismatchCount":0,"uniquePlannedTypes":24,"uniquePlacedTypes":24,"minPlacedCountByType":1,"maxPlacedCountByType":10,"runtimeCatalogCount":55,"coordinateProof":{"version":1,"placedCount":92,"placedHash32":"b5a71165"},"rejectedResourceTypes":[],"reconciliation":{"plannedCount":92,"placedCount":92,"rejectedCount":0,"byPhase":{"rotation":29,"rangeFloor":63,"regionMinimum":0,"support":0}},"byReason":[]}
+[SWOOPER_MOD] DISCOVERY_PLACEMENT_V1 {"version":1,"startPositions":8,"polarMargin":2,"plannedCount":0,"placedCount":0,"rejectedCount":0}
+[SWOOPER_MOD] FEATURE_APPLY_V1 {"attempted":38,"applied":37,"rejected":1,"rejectedCanHaveFeature":1,"attemptedByFeature":{"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_RAINFOREST":22,"FEATURE_SAVANNA_WOODLAND":6,"FEATURE_REEF":2,"FEATURE_MANGROVE":2,"FEATURE_SAGEBRUSH_STEPPE":1,"FEATURE_COLD_REEF":1,"FEATURE_MARSH":1},"appliedByFeature":{"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_RAINFOREST":22,"FEATURE_SAVANNA_WOODLAND":6,"FEATURE_REEF":2,"FEATURE_MANGROVE":2,"FEATURE_SAGEBRUSH_STEPPE":1,"FEATURE_COLD_REEF":1},"rejectedCanHaveFeatureByFeature":{"FEATURE_MARSH":1}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 {"version":1,"wondersCount":0,"targetCount":0,"plannedCount":0,"planRows":[],"coordinateProof":{"version":1,"plannedCount":0,"plannedHash32":"811c9dc5"}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 {"version":1,"plannedCount":0,"surfaceDigests":{"version":1,"plotCount":432,"landMaskHash32":"210945a4","elevationHash32":"f72e862f","aridityPpmHash32":"869922b9","riverClassHash32":"59be4347","lakeMaskHash32":"741d9745","blockedMaskHash32":"6f1869c5","terrainTypeHash32":"a2b518c0","biomeTypeHash32":"681ef5e4","featureTypeHash32":"e3689301"},"inputRows":[]}
+[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 {"version":1,"plannedCount":0,"targetCount":0,"placedCount":0,"terrainAdjustedCount":0,"skippedOutOfBoundsCount":0,"rejectedCount":0,"shortfallCount":0,"rejectionExampleCount":0,"rejectionExamples":[],"rejectedRows":[],"coordinateProof":{"version":1,"placedCount":0,"placedHash32":"811c9dc5"}}
+[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 {"acceptedLakeTileCount":2,"finalLakeWaterDriftCount":0,"finalLakeClassificationDriftCount":0}
+[Placement] Start assignment degraded to open-pool for 2 seat(s) (seat indices: 4, 5); regional viability guarantees were relaxed for those seats.
+[Placement] Resource support pass recorded 1 typed shortfall(s): seat 0: equity-unresolvable x5.
+[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 {"version":1,"plannedCount":92,"placedCount":92,"rejectedCount":0,"mismatchCount":0,"uniquePlannedTypes":24,"uniquePlacedTypes":24,"minPlacedCountByType":1,"maxPlacedCountByType":10,"runtimeCatalogCount":55,"coordinateProof":{"version":1,"placedCount":92,"placedHash32":"b5a71165"},"rejectedResourceTypes":[],"reconciliation":{"plannedCount":92,"placedCount":92,"rejectedCount":0,"byPhase":{"rotation":29,"rangeFloor":63,"regionMinimum":0,"support":0}},"byReason":[]}
+[SWOOPER_MOD] DISCOVERY_PLACEMENT_V1 {"version":1,"startPositions":8,"polarMargin":2,"plannedCount":0,"placedCount":0,"rejectedCount":0}
+[0m[32m✓[0m [0mstandard recipe execution[2m >[0m[1m produces deterministic climate signatures for same seed + config[0m [0m[2m[[1m557.73ms[0m[2m][0m
+[SWOOPER_MOD] FEATURE_APPLY_V1 {"attempted":62,"applied":61,"rejected":1,"rejectedCanHaveFeature":1,"attemptedByFeature":{"FEATURE_ICE":48,"FEATURE_TAIGA":6,"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_SAGEBRUSH_STEPPE":2,"FEATURE_MARSH":1,"FEATURE_COLD_REEF":2},"appliedByFeature":{"FEATURE_ICE":48,"FEATURE_TAIGA":6,"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_SAGEBRUSH_STEPPE":2,"FEATURE_COLD_REEF":2},"rejectedCanHaveFeatureByFeature":{"FEATURE_MARSH":1}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 {"version":1,"wondersCount":0,"targetCount":0,"plannedCount":0,"planRows":[],"coordinateProof":{"version":1,"plannedCount":0,"plannedHash32":"811c9dc5"}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 {"version":1,"plannedCount":0,"surfaceDigests":{"version":1,"plotCount":432,"landMaskHash32":"210945a4","elevationHash32":"f72e862f","aridityPpmHash32":"890f8251","riverClassHash32":"52dc5357","lakeMaskHash32":"741d9745","blockedMaskHash32":"6f1869c5","terrainTypeHash32":"a2b518c0","biomeTypeHash32":"fd227dc4","featureTypeHash32":"36f0b140"},"inputRows":[]}
+[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 {"version":1,"plannedCount":0,"targetCount":0,"placedCount":0,"terrainAdjustedCount":0,"skippedOutOfBoundsCount":0,"rejectedCount":0,"shortfallCount":0,"rejectionExampleCount":0,"rejectionExamples":[],"rejectedRows":[],"coordinateProof":{"version":1,"placedCount":0,"placedHash32":"811c9dc5"}}
+[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 {"acceptedLakeTileCount":2,"finalLakeWaterDriftCount":0,"finalLakeClassificationDriftCount":0}
+[Placement] Start assignment degraded to open-pool for 2 seat(s) (seat indices: 4, 5); regional viability guarantees were relaxed for those seats.
+[Placement] Start assignment degraded to spacing-relaxed for 1 seat(s) (seat indices: 7); regional viability guarantees were relaxed for those seats.
+[Placement] Seat 1 seated below the hard spacing floor (achievedSpacing=5); the alternative was an unseated player.
+[Placement] Seat 4 seated below the hard spacing floor (achievedSpacing=5); the alternative was an unseated player.
+[Placement] Seat 7 seated below the hard spacing floor (achievedSpacing=5); the alternative was an unseated player.
+[Placement] Resource support pass recorded 1 typed shortfall(s): seat 4: equity-unresolvable x9.
+[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 {"version":1,"plannedCount":98,"placedCount":98,"rejectedCount":0,"mismatchCount":0,"uniquePlannedTypes":29,"uniquePlacedTypes":29,"minPlacedCountByType":1,"maxPlacedCountByType":9,"runtimeCatalogCount":55,"coordinateProof":{"version":1,"placedCount":98,"placedHash32":"29a26193"},"rejectedResourceTypes":[],"reconciliation":{"plannedCount":98,"placedCount":98,"rejectedCount":0,"byPhase":{"rotation":26,"rangeFloor":72,"regionMinimum":0,"support":0}},"byReason":[]}
+[SWOOPER_MOD] DISCOVERY_PLACEMENT_V1 {"version":1,"startPositions":8,"polarMargin":2,"plannedCount":0,"placedCount":0,"rejectedCount":0}
+[SWOOPER_MOD] FEATURE_APPLY_V1 {"attempted":78,"applied":78,"rejected":0,"rejectedCanHaveFeature":0,"attemptedByFeature":{"FEATURE_ICE":48,"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_RAINFOREST":16,"FEATURE_SAVANNA_WOODLAND":6,"FEATURE_REEF":1,"FEATURE_MANGROVE":1,"FEATURE_COLD_REEF":2,"FEATURE_TAIGA":1},"appliedByFeature":{"FEATURE_ICE":48,"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_RAINFOREST":16,"FEATURE_SAVANNA_WOODLAND":6,"FEATURE_REEF":1,"FEATURE_MANGROVE":1,"FEATURE_COLD_REEF":2,"FEATURE_TAIGA":1},"rejectedCanHaveFeatureByFeature":{}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 {"version":1,"wondersCount":0,"targetCount":0,"plannedCount":0,"planRows":[],"coordinateProof":{"version":1,"plannedCount":0,"plannedHash32":"811c9dc5"}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 {"version":1,"plannedCount":0,"surfaceDigests":{"version":1,"plotCount":432,"landMaskHash32":"210945a4","elevationHash32":"f72e862f","aridityPpmHash32":"7b03eef6","riverClassHash32":"45d5f344","lakeMaskHash32":"741d9745","blockedMaskHash32":"6f1869c5","terrainTypeHash32":"a2b518c0","biomeTypeHash32":"86ef8942","featureTypeHash32":"09be6029"},"inputRows":[]}
+[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 {"version":1,"plannedCount":0,"targetCount":0,"placedCount":0,"terrainAdjustedCount":0,"skippedOutOfBoundsCount":0,"rejectedCount":0,"shortfallCount":0,"rejectionExampleCount":0,"rejectionExamples":[],"rejectedRows":[],"coordinateProof":{"version":1,"placedCount":0,"placedHash32":"811c9dc5"}}
+[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 {"acceptedLakeTileCount":2,"finalLakeWaterDriftCount":0,"finalLakeClassificationDriftCount":0}
+[Placement] Start assignment degraded to open-pool for 2 seat(s) (seat indices: 4, 5); regional viability guarantees were relaxed for those seats.
+[Placement] Resource support pass recorded 1 typed shortfall(s): seat 0: equity-unresolvable x6.
+[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 {"version":1,"plannedCount":93,"placedCount":93,"rejectedCount":0,"mismatchCount":0,"uniquePlannedTypes":25,"uniquePlacedTypes":25,"minPlacedCountByType":1,"maxPlacedCountByType":9,"runtimeCatalogCount":55,"coordinateProof":{"version":1,"placedCount":93,"placedHash32":"3cbc8581"},"rejectedResourceTypes":[],"reconciliation":{"plannedCount":93,"placedCount":93,"rejectedCount":0,"byPhase":{"rotation":28,"rangeFloor":65,"regionMinimum":0,"support":0}},"byReason":[]}
+[SWOOPER_MOD] DISCOVERY_PLACEMENT_V1 {"version":1,"startPositions":8,"polarMargin":2,"plannedCount":0,"placedCount":0,"rejectedCount":0}
+[0m[32m✓[0m [0mstandard recipe execution[2m >[0m[1m lowers mean surface temperature when temperature is cold vs hot (same seed)[0m [0m[2m[[1m664.21ms[0m[2m][0m
+[SWOOPER_MOD] FEATURE_APPLY_V1 {"attempted":35,"applied":34,"rejected":1,"rejectedCanHaveFeature":1,"attemptedByFeature":{"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":4,"FEATURE_RAINFOREST":20,"FEATURE_SAVANNA_WOODLAND":5,"FEATURE_REEF":2,"FEATURE_MANGROVE":2,"FEATURE_COLD_REEF":1,"FEATURE_MARSH":1},"appliedByFeature":{"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":4,"FEATURE_RAINFOREST":20,"FEATURE_SAVANNA_WOODLAND":5,"FEATURE_REEF":2,"FEATURE_MANGROVE":2,"FEATURE_COLD_REEF":1},"rejectedCanHaveFeatureByFeature":{"FEATURE_MARSH":1}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 {"version":1,"wondersCount":0,"targetCount":0,"plannedCount":0,"planRows":[],"coordinateProof":{"version":1,"plannedCount":0,"plannedHash32":"811c9dc5"}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 {"version":1,"plannedCount":0,"surfaceDigests":{"version":1,"plotCount":432,"landMaskHash32":"210945a4","elevationHash32":"f72e862f","aridityPpmHash32":"cc8f400b","riverClassHash32":"051be1a5","lakeMaskHash32":"741d9745","blockedMaskHash32":"6f1869c5","terrainTypeHash32":"cdd39427","biomeTypeHash32":"1f7a0082","featureTypeHash32":"347f2106"},"inputRows":[]}
+[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 {"version":1,"plannedCount":0,"targetCount":0,"placedCount":0,"terrainAdjustedCount":0,"skippedOutOfBoundsCount":0,"rejectedCount":0,"shortfallCount":0,"rejectionExampleCount":0,"rejectionExamples":[],"rejectedRows":[],"coordinateProof":{"version":1,"placedCount":0,"placedHash32":"811c9dc5"}}
+[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 {"acceptedLakeTileCount":2,"finalLakeWaterDriftCount":0,"finalLakeClassificationDriftCount":0}
+[Placement] Start assignment degraded to open-pool for 2 seat(s) (seat indices: 4, 5); regional viability guarantees were relaxed for those seats.
+[Placement] Start assignment degraded to spacing-relaxed for 1 seat(s) (seat indices: 7); regional viability guarantees were relaxed for those seats.
+[Placement] Seat 4 seated below the hard spacing floor (achievedSpacing=5); the alternative was an unseated player.
+[Placement] Seat 6 seated below the hard spacing floor (achievedSpacing=5); the alternative was an unseated player.
+[Placement] Seat 7 seated below the hard spacing floor (achievedSpacing=5); the alternative was an unseated player.
+[Placement] Resource support pass recorded 1 typed shortfall(s): seat 4: equity-unresolvable x2.
+[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 {"version":1,"plannedCount":91,"placedCount":91,"rejectedCount":0,"mismatchCount":0,"uniquePlannedTypes":24,"uniquePlacedTypes":24,"minPlacedCountByType":1,"maxPlacedCountByType":10,"runtimeCatalogCount":55,"coordinateProof":{"version":1,"placedCount":91,"placedHash32":"ab870439"},"rejectedResourceTypes":[],"reconciliation":{"plannedCount":91,"placedCount":91,"rejectedCount":0,"byPhase":{"rotation":28,"rangeFloor":63,"regionMinimum":0,"support":0}},"byReason":[]}
+[SWOOPER_MOD] DISCOVERY_PLACEMENT_V1 {"version":1,"startPositions":8,"polarMargin":2,"plannedCount":0,"placedCount":0,"rejectedCount":0}
+[SWOOPER_MOD] FEATURE_APPLY_V1 {"attempted":40,"applied":39,"rejected":1,"rejectedCanHaveFeature":1,"attemptedByFeature":{"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_RAINFOREST":23,"FEATURE_SAVANNA_WOODLAND":6,"FEATURE_MANGROVE":3,"FEATURE_REEF":2,"FEATURE_SAGEBRUSH_STEPPE":1,"FEATURE_COLD_REEF":1,"FEATURE_MARSH":1},"appliedByFeature":{"FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE":3,"FEATURE_RAINFOREST":23,"FEATURE_SAVANNA_WOODLAND":6,"FEATURE_MANGROVE":3,"FEATURE_REEF":2,"FEATURE_SAGEBRUSH_STEPPE":1,"FEATURE_COLD_REEF":1},"rejectedCanHaveFeatureByFeature":{"FEATURE_MARSH":1}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_V1 {"version":1,"wondersCount":0,"targetCount":0,"plannedCount":0,"planRows":[],"coordinateProof":{"version":1,"plannedCount":0,"plannedHash32":"811c9dc5"}}
+[SWOOPER_MOD] NATURAL_WONDER_PLAN_INPUT_V1 {"version":1,"plannedCount":0,"surfaceDigests":{"version":1,"plotCount":432,"landMaskHash32":"210945a4","elevationHash32":"f72e862f","aridityPpmHash32":"aab6acd0","riverClassHash32":"3450cd87","lakeMaskHash32":"741d9745","blockedMaskHash32":"6f1869c5","terrainTypeHash32":"a2b518c0","biomeTypeHash32":"681ef5e4","featureTypeHash32":"0f057fba"},"inputRows":[]}
+[SWOOPER_MOD] NATURAL_WONDER_PLACEMENT_V1 {"version":1,"plannedCount":0,"targetCount":0,"placedCount":0,"terrainAdjustedCount":0,"skippedOutOfBoundsCount":0,"rejectedCount":0,"shortfallCount":0,"rejectionExampleCount":0,"rejectionExamples":[],"rejectedRows":[],"coordinateProof":{"version":1,"placedCount":0,"placedHash32":"811c9dc5"}}
+[SWOOPER_MOD] PLACEMENT_SURFACE_PREPARATION_V1 {"acceptedLakeTileCount":2,"finalLakeWaterDriftCount":0,"finalLakeClassificationDriftCount":0}
+[Placement] Start assignment degraded to open-pool for 2 seat(s) (seat indices: 4, 5); regional viability guarantees were relaxed for those seats.
+[Placement] Resource support pass recorded 1 typed shortfall(s): seat 0: equity-unresolvable x6.
+[SWOOPER_MOD] RESOURCE_PLACEMENT_V1 {"version":1,"plannedCount":93,"placedCount":93,"rejectedCount":0,"mismatchCount":0,"uniquePlannedTypes":25,"uniquePlacedTypes":25,"minPlacedCountByType":1,"maxPlacedCountByType":10,"runtimeCatalogCount":55,"coordinateProof":{"version":1,"placedCount":93,"placedHash32":"9f868b44"},"rejectedResourceTypes":[],"reconciliation":{"plannedCount":93,"placedCount":93,"rejectedCount":0,"byPhase":{"rotation":30,"rangeFloor":63,"regionMinimum":0,"support":0}},"byReason":[]}
+[SWOOPER_MOD] DISCOVERY_PLACEMENT_V1 {"version":1,"startPositions":8,"polarMargin":2,"plannedCount":0,"placedCount":0,"rejectedCount":0}
+[0m[32m✓[0m [0mstandard recipe execution[2m >[0m[1m projects more river tiles when riverDensity is dense vs sparse (same seed)[0m [0m[2m[[1m718.08ms[0m[2m][0m
+[0m
+test/config/maps-schema-valid.test.ts:
+[0m[32m✓[0m [0mShipped map configs[2m >[0m[1m stay canonical, complete, and schema-valid[0m [0m[2m[[1m19.92ms[0m[2m][0m
+[0m[32m✓[0m [0mShipped map configs[2m >[0m[1m keeps mountain-rivers-patch as a visible-river projection comparison config[0m [0m[2m[0.40ms[0m[2m][0m
+[0m[32m✓[0m [0mShipped map configs[2m >[0m[1m does not preserve raw internal step keys in shipped configs[0m [0m[2m[0.14ms[0m[2m][0m
+[0m[32m✓[0m [0mShipped map configs[2m >[0m[1m keeps authored Swooper Earthlike values in the current semantic public destinations[0m [0m[2m[0.04ms[0m[2m][0m
+[0m[32m✓[0m [0mShipped map configs[2m >[0m[1m compiles the current Swooper Earthlike config into executable stage plans[0m [0m[2m[[1m17.61ms[0m[2m][0m
+[0m[32m✓[0m [0mShipped map configs[2m >[0m[1m rejects retired raw step keys and Civ/resource owner leakage[0m [0m[2m[3.31ms[0m[2m][0m
+[0m[32m✓[0m [0mShipped map configs[2m >[0m[1m rejects retired map-rivers and morphology projection aliases[0m [0m[2m[2.85ms[0m[2m][0m
+[0m
+test/config/shipped-map-identity.test.ts:
+[0m[32m✓[0m [0mshipped map config identity[2m >[0m[1m keeps Swooper Earthlike on the tuned current-schema baseline[0m [0m[2m[0.12ms[0m[2m][0m
+[0m[32m✓[0m [0mshipped map config identity[2m >[0m[1m keeps Ecology feature tuning in current step config while compiled planners preserve tuned identity[0m [0m[2m[[1m83.59ms[0m[2m][0m
+[0m
+test/build/map-bundle-runtime-imports.test.ts:
+[0m[32m✓[0m [0mbuilt map runtime imports[2m >[0m[1m builds every map script registered in the Civ7 mod manifest[0m [0m[2m[0.47ms[0m[2m][0m
+[0m[32m✓[0m [0mbuilt map runtime imports[2m >[0m[1m bundles repo-owned workspace packages into each Civ7 map script[0m [0m[2m[[1m39.92ms[0m[2m][0m
+[0m[32m✓[0m [0mbuilt map runtime imports[2m >[0m[1m bootstraps TextEncoder before bundled modules create one[0m [0m[2m[[1m12.06ms[0m[2m][0m
+[0m[32m✓[0m [0mbuilt map runtime imports[2m >[0m[1m bundles authored river materialization proof markers into each map script[0m [0m[2m[[1m16.78ms[0m[2m][0m
+
+[0m[32m 17 pass[0m
+[0m[2m 0 fail[0m
+ 234 expect() calls
+Ran 17 tests across 4 files. [0m[2m[[1m2.80s[0m[2m][0m
+
+
+
+ NX   Successfully ran target test:studio-run-in-game for project mod-swooper-maps and 18 tasks it depends on
+
+
+
+ NX   Nx detected 2 flaky tasks
+
+  control-direct:build-bundle
+  mapgen-core:build
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+

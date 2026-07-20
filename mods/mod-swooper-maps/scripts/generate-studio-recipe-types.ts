@@ -1,17 +1,20 @@
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
-  derivePresetLabel,
   deriveRecipeConfigSchema,
   deriveStageAuthoringModel,
-  type RecipePresetDefinitionV1,
   type StageAuthoringModel,
   stripSchemaMetadataRoot,
 } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { compile } from "json-schema-to-typescript";
 import type { TObject, TSchema } from "typebox";
+import { CatalogSourceIndex } from "../src/maps/catalog/sourceIndex.js";
+import {
+  catalogConfigFileNameFromPath,
+  parseCatalogSourceIndex,
+} from "../src/maps/catalog/sources.js";
 import { validateCanonicalMapConfig } from "../src/maps/configs/canonical.js";
 
 type JsonObject = Record<string, unknown>;
@@ -21,8 +24,6 @@ type BuiltInPreset = Readonly<{
   description?: string;
   config: unknown;
 }>;
-
-const PRESET_WRAPPER_KEYS = new Set(["$schema", "id", "label", "description", "config"]);
 
 function assertPlainObject(value: unknown, label: string): asserts value is JsonObject {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -100,142 +101,6 @@ function deriveStageStepConfigFocusMap(args: {
 }): Readonly<Record<string, readonly string[]>> {
   const { stage } = args;
   return deriveStageAuthoringModel(stage).config.focusPathsByStepId;
-}
-
-function readPresetWrapper(args: {
-  fileName: string;
-  raw: unknown;
-  errors: Array<{ path: string; message: string }>;
-}): RecipePresetDefinitionV1 | null {
-  const { fileName, raw, errors } = args;
-  const startErrorCount = errors.length;
-  if (!isPlainObject(raw)) {
-    errors.push({ path: fileName, message: "Preset wrapper must be a JSON object" });
-    return null;
-  }
-
-  for (const key of Object.keys(raw)) {
-    if (!PRESET_WRAPPER_KEYS.has(key)) {
-      errors.push({ path: fileName, message: `Unknown preset wrapper key "${key}"` });
-    }
-  }
-
-  const schemaValue = raw.$schema;
-  if (schemaValue !== undefined && typeof schemaValue !== "string") {
-    errors.push({ path: fileName, message: "Preset wrapper $schema must be a string" });
-  }
-
-  const idValue = raw.id;
-  if (idValue !== undefined && typeof idValue !== "string") {
-    errors.push({ path: fileName, message: "Preset wrapper id must be a string" });
-  }
-
-  const labelValue = raw.label;
-  if (labelValue !== undefined && typeof labelValue !== "string") {
-    errors.push({ path: fileName, message: "Preset wrapper label must be a string" });
-  }
-
-  const descriptionValue = raw.description;
-  if (descriptionValue !== undefined && typeof descriptionValue !== "string") {
-    errors.push({ path: fileName, message: "Preset wrapper description must be a string" });
-  }
-
-  if (!("config" in raw)) {
-    errors.push({ path: fileName, message: "Preset wrapper must include a config object" });
-  }
-
-  const configValue = raw.config;
-  if (configValue !== undefined && !isPlainObject(configValue)) {
-    errors.push({ path: fileName, message: "Preset wrapper config must be a JSON object" });
-  }
-
-  if (errors.length != startErrorCount) return null;
-  return {
-    ...(schemaValue ? { $schema: schemaValue } : {}),
-    ...(idValue ? { id: idValue } : {}),
-    ...(labelValue ? { label: labelValue } : {}),
-    ...(descriptionValue ? { description: descriptionValue } : {}),
-    config: configValue as Record<string, unknown>,
-  };
-}
-
-async function loadBuiltInPresets(args: {
-  pkgRoot: string;
-  recipeId: string;
-  schema: TSchema;
-}): Promise<ReadonlyArray<BuiltInPreset>> {
-  const { pkgRoot, recipeId, schema } = args;
-  const dir = resolve(pkgRoot, "src", "presets", recipeId);
-  let entries: Awaited<ReturnType<typeof readdir>>;
-  try {
-    entries = await readdir(dir, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-
-  const errors: Array<{ path: string; message: string }> = [];
-  const presets: BuiltInPreset[] = [];
-  const seenIds = new Set<string>();
-
-  for (const ent of entries) {
-    if (!ent.isFile()) continue;
-    if (!ent.name.endsWith(".json")) continue;
-    const abs = resolve(dir, ent.name);
-    let raw: unknown;
-    try {
-      raw = JSON.parse(await readFile(abs, "utf-8")) as unknown;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to parse JSON";
-      errors.push({ path: ent.name, message });
-      continue;
-    }
-
-    const wrapper = readPresetWrapper({ fileName: ent.name, raw, errors });
-    if (!wrapper) continue;
-
-    const baseId = (wrapper.id ?? ent.name.replace(/\.json$/i, "")).trim();
-    if (!baseId) {
-      errors.push({ path: ent.name, message: "Preset id must not be empty" });
-      continue;
-    }
-    if (seenIds.has(baseId)) {
-      errors.push({ path: ent.name, message: `Duplicate preset id "${baseId}"` });
-      continue;
-    }
-    seenIds.add(baseId);
-
-    const sanitized = stripSchemaMetadataRoot(wrapper.config);
-    if (!isPlainObject(sanitized)) {
-      errors.push({ path: ent.name, message: "Preset config must be a JSON object" });
-      continue;
-    }
-
-    const res = normalizeStrict<Record<string, unknown>>(schema, sanitized, `/preset/${ent.name}`);
-    if (res.errors.length > 0) {
-      errors.push(
-        ...res.errors.map((e) => ({
-          path: `${ent.name}${e.path.startsWith("/") ? "" : "/"}${e.path}`,
-          message: e.message,
-        }))
-      );
-      continue;
-    }
-
-    presets.push({
-      id: baseId,
-      label: wrapper.label ?? derivePresetLabel(baseId),
-      description: wrapper.description,
-      config: res.value,
-    });
-  }
-
-  if (errors.length > 0) {
-    throw new Error(
-      `Invalid studio preset definitions:\n${errors.map((e) => `- ${e.path}: ${e.message}`).join("\n")}`
-    );
-  }
-
-  return presets;
 }
 
 function formatKebabIdLabel(id: string): string {
@@ -403,7 +268,6 @@ const standardUiMeta = deriveStudioRecipeUiMeta({
   recipeId: "standard",
   stages: standardMod.STANDARD_STAGES,
 });
-const transientStudioCurrentConfig = "studio-current.config.json";
 const standardDefaultPresetPath = resolve(
   pkgRoot,
   "src",
@@ -490,31 +354,22 @@ await writeArtifactsModule({
 });
 
 async function validateStandardMapConfigPresets(): Promise<void> {
-  const dir = resolve(pkgRoot, "src", "maps", "configs");
-  let entries: Awaited<ReturnType<typeof readdir>>;
-  try {
-    entries = await readdir(dir, { withFileTypes: true });
-  } catch {
-    return;
-  }
-
   const errors: Array<{ path: string; message: string }> = [];
-  for (const ent of entries) {
-    if (!ent.isFile()) continue;
-    if (!ent.name.endsWith(".config.json")) continue;
-    if (ent.name === transientStudioCurrentConfig) continue;
-    const abs = resolve(dir, ent.name);
-    const raw = JSON.parse(await readFile(abs, "utf-8")) as unknown;
+  for (const entry of parseCatalogSourceIndex(CatalogSourceIndex).entries) {
     try {
+      const fileName = catalogConfigFileNameFromPath(entry.configPath);
+      const raw = JSON.parse(
+        await readFile(resolve(pkgRoot, "src", "maps", "configs", fileName), "utf-8")
+      ) as unknown;
       validateCanonicalMapConfig({
-        fileName: ent.name,
+        fileName,
         raw,
         recipeSchema: standardSchema,
         stages: standardMod.STANDARD_STAGES,
       });
     } catch (err) {
       errors.push({
-        path: ent.name,
+        path: entry.configPath,
         message: err instanceof Error ? err.message : "Invalid canonical map config",
       });
     }

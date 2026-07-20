@@ -6,6 +6,7 @@ import type {
   RunInGameProcessRestartStatus,
   RunInGameRequestStatus,
 } from "@civ7/studio-contract";
+import type { StudioRunGenerationManifestReference } from "@civ7/studio-run-workspace";
 import type { StudioRuntimeFailure } from "../errors/index.js";
 import type { StudioDaemonIdentity } from "./ports.js";
 
@@ -63,6 +64,7 @@ export type RunInGameInternalOperation = Readonly<{
   updatedAt: string;
   diagnosticsId?: string;
   diagnosticsPersistedRevision?: number;
+  generationManifest?: StudioRunGenerationManifestReference;
   completedPhases: readonly RunInGamePhase[];
   materialization?: RunInGameMaterializationStatus;
   processRestart?: RunInGameProcessRestartStatus;
@@ -137,6 +139,7 @@ export function statusForSaveDeployPhase(
 export function publicRunInGamePhase(phase: RunInGameInternalOperation["phase"]): RunInGamePhase {
   switch (phase) {
     case "accepted":
+      return "resolving-source";
     case "materializing":
       return "generating-artifacts";
     case "deploying":

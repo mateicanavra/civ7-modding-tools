@@ -247,7 +247,7 @@ function makeOperationRuntimePorts(): StudioOperationRuntimePorts {
     clock: {
       now: () => new Date("2026-06-12T00:00:00.000Z"),
     },
-    materializeRunInGame: async () => ({}),
+    generateRunInGameMod: async () => generatedRunInGameMod(),
     deployRunInGame: async () => ({}),
     waitForRunInGameLogProof: async () => ({ result: { ok: true } }),
     buildRunInGameProof: async () => ({ result: { ok: true } }),
@@ -255,6 +255,24 @@ function makeOperationRuntimePorts(): StudioOperationRuntimePorts {
     saveMapConfig: async () => ({ saved: true }),
     deploySavedMapConfig: async () => ({ deployed: true }),
     rollbackSaveDeploy: async () => ({ restored: true }),
+  };
+}
+
+function generatedRunInGameMod(): Awaited<
+  ReturnType<StudioOperationRuntimePorts["generateRunInGameMod"]>
+> {
+  return {
+    materialization: {
+      mapScript: "{mod-swooper-studio-run}/maps/run-test.js",
+      configHash: "test-config-hash",
+      envelopeHash: "test-envelope-hash",
+      generationManifestDigest: "test-generation-manifest-digest",
+      runArtifactId: "run-test",
+      generatedModRoot: "/tmp/studio-one-mount-generated-run-test",
+      generatedModFileCount: 1,
+      generatedModDigest: "test-generated-mod-digest",
+      mapRowId: "MAP_RUN_TEST",
+    },
   };
 }
 

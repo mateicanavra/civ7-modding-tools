@@ -3,9 +3,9 @@
     "kind": "editor",
     "editorSessionId": "openspec-editor-standard",
     "payload": {
-      "configId": "openspec-editor-standard",
-      "label": "OpenSpec Editor Standard",
-      "mapScript": "{swooper-maps}/maps/openspec-editor-standard.js",
+      "configId": "studio-current",
+      "label": "Studio Current",
+      "mapScript": "{swooper-maps}/maps/studio-current.js",
       "pipelineConfig": {},
       "recipeId": "mod-swooper-maps/standard"
     }

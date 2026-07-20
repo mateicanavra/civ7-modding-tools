@@ -86,7 +86,15 @@ export * from "./recipeDag/contract.js";
 export * from "./recipeDag/errors.js";
 export * from "./recipeDag/schema.js";
 export type {
+  CatalogLaunchSource,
+  EditorLaunchPayload,
+  EditorLaunchSource,
+  LaunchEnvelope,
+  LaunchEnvelopeDigest,
+  LaunchSource,
+  LaunchSourceDigest,
   PublicRunStatus,
+  ResolvedLaunchSource,
   RunDiagnosticsLookupResult,
   RunDiagnosticsRecord,
   RunInGameContentMarkerProof,
@@ -100,15 +108,23 @@ export type {
   RunInGamePhase,
   RunInGamePlayerSetupConfig,
   RunInGameProcessRestartStatus,
+  RunInGameRecipeSettings,
   RunInGameRequestStatus,
   RunInGameSavedSetupConfigRef,
   RunInGameSetupConfig,
   RunInGameSetupOptionValue,
   RunInGameSourceSnapshotProof,
+  RunInGameWorldSettings,
 } from "./runInGame.js";
 export {
+  catalogLaunchSource,
   DEFAULT_RUN_IN_GAME_SETUP_CONFIG,
   diagnosticsLookupResultSchema,
+  editorLaunchPayload,
+  editorLaunchSource,
+  launchEnvelope,
+  launchSource,
+  launchSourceDigest,
   materializationStatus,
   normalizeRunInGameSetupConfig,
   operationStatusTypeSchema,
@@ -117,7 +133,13 @@ export {
   RUN_IN_GAME_MAIN_GAME_OPTION_IDS,
   RUN_IN_GAME_PHASES,
   RUN_IN_GAME_PLAYER_OPTION_IDS,
+  resolvedLaunchSource,
   runDiagnosticsRecordSchema,
+  runInGameRecipeSettings,
+  runInGameWorldSettings,
+  setupConfig,
+  STUDIO_CURRENT_CONFIG_ID,
+  STUDIO_CURRENT_MAP_SCRIPT,
   validateRunInGameSetupConfig,
 } from "./runInGame.js";
 export type { RunInGameSafeFailureCategory } from "./runInGamePublic.js";
