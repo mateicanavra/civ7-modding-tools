@@ -1,6 +1,11 @@
-// `verify` — fast artifact-contract assertions over dist/ (CI's fifth target).
+// `verify` — fast artifact-contract assertions over dist/, wired into the
+// root `ci` script (`nx run-many -t … verify`). Assertion 0 below checks that
+// wiring on every run: a guard that only claims enforcement is worse than no
+// guard (the export floor exists precisely because a missing barrel export —
+// `toast` — once shipped unnoticed).
 //
 // Asserts the built package still honors its published contract:
+//   0. The root package.json `ci` script actually runs the `verify` target.
 //   1. dist/index.js exists and carries at least EXPECTED_MIN_EXPORTS named
 //      exports (the floor RISES as each extraction branch lands components —
 //      currently: 45 components + TooltipProvider + lib exports).
@@ -52,6 +57,16 @@ const failures = [];
 const assert = (cond, msg) => {
   if (!cond) failures.push(msg);
 };
+
+// 0 — enforcement wiring: this guard must stay in the CI run set.
+{
+  const rootPkg = JSON.parse(readFileSync(join(pkgRoot, "..", "..", "package.json"), "utf8"));
+  const ciScript = rootPkg.scripts?.ci ?? "";
+  assert(
+    /\bverify\b/.test(ciScript),
+    `root package.json "ci" script does not run the verify target (got: "${ciScript}") — the artifact-contract guard is unenforced`
+  );
+}
 
 // 1 + 2 — JS artifact and its import discipline
 assert(existsSync(dist("index.js")), "dist/index.js missing — tsup did not run");

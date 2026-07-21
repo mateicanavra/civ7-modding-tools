@@ -101,6 +101,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   className,
 }) => {
   const headerRef = React.useRef<HTMLElement | null>(null);
+  // Instance-scoped id: docs pages and design compositions mount multiple
+  // headers — a hardcoded id would cross-wire aria-controls between them.
+  const setupPanelId = React.useId();
   const [setupOpen, setSetupOpen] = React.useState(false);
   // Token-driven chrome; theme follows the single `.dark` class. The header
   // docks float over the deck.gl map, so they ride the `popover` tier.
@@ -200,7 +203,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                   variant="outline"
                   size="icon"
                   aria-expanded={setupOpen}
-                  aria-controls="app-header-setup-panel"
+                  aria-controls={setupPanelId}
                   aria-label="Game setup"
                   title="Game setup"
                   onClick={() => setSetupOpen((open) => !open)}
@@ -223,7 +226,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
         {setupOpen ? (
           <div
-            id="app-header-setup-panel"
+            id={setupPanelId}
             className={`flex min-h-10 max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 px-3 py-1.5 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}
           >
             <div className="flex items-center gap-2">

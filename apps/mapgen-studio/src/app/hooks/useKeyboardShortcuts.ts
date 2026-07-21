@@ -42,6 +42,7 @@ export type KeyboardShortcutContext = {
 export function useKeyboardShortcuts(context: KeyboardShortcutContext): void {
   const shortcutsRef = useLatestRef(context);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the listener is registered once (deps []) and reads every live value via shortcutsRef.current (useLatestRef) — re-subscribing per render would let a keydown fired between renders dispatch stale handlers (see the doc block above).
   useEffect(() => {
     const isEditableTarget = (target: EventTarget | null) => {
       const el = target as HTMLElement | null;

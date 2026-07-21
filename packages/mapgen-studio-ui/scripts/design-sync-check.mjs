@@ -104,4 +104,60 @@ else
   console.error(
     "(no .design-sync/.cache/remote-sync.json — running unanchored: full first-sync scope)"
   );
-process.exit(run("node", args, { env }));
+const driverCode = run("node", args, { env });
+
+// 5. Repo-owned output assertions. These run even when the driver exits
+// non-zero (a pendingGrade verdict still produces a full ds-bundle), and they
+// exist REPO-SIDE deliberately: the converter under .ds-sync is a re-stageable
+// vendored artifact, so any guard that lives only inside it can be silently
+// lost to a re-stage. Both assert classes have already bitten once:
+//
+// (a) Preview reconciliation — the converter's per-file preview esbuild
+//     isolation treats transient failures (machine load, OOM) like authoring
+//     errors and silently ships floor cards in their place. Every component in
+//     config.json's docsMap must have a real compiled preview.
+// (b) Token-table purity — the emitted README's token tables must never list
+//     `--tw-*` engine variables outside the `other` bucket; the classifier
+//     patch for this lives in the vendored converter, so its silent loss to a
+//     re-stage would re-pollute the design-agent-facing token vocabulary.
+{
+  const { readFileSync } = await import("node:fs");
+  const postFailures = [];
+
+  const cfg = JSON.parse(readFileSync(join(PKG, ".design-sync", "config.json"), "utf8"));
+  const expected = Object.keys(cfg.docsMap ?? {});
+  const missingPreviews = expected.filter(
+    (name) => !existsSync(join(PKG, "ds-bundle", "_preview", `${name}.js`))
+  );
+  if (missingPreviews.length) {
+    postFailures.push(
+      `previews missing for ${missingPreviews.length} docsMap component(s) — a silent esbuild fallback shipped floor cards: ${missingPreviews.join(", ")}`
+    );
+  }
+
+  const readmePath = join(PKG, "ds-bundle", "README.md");
+  if (existsSync(readmePath)) {
+    const readme = readFileSync(readmePath, "utf8");
+    const tokensSection = readme.slice(readme.indexOf("\n## Tokens"));
+    const tokensBody = tokensSection.slice(0, tokensSection.indexOf("\n## ", 1));
+    // Emitted shape: one bullet per kind — `- **color** (14): \`--x\`, …`.
+    const leakedTw = [...tokensBody.matchAll(/^- \*\*(?!other\b)[\w-]+\*\*.*?(--tw-[\w-]+)/gm)].map(
+      ([, name]) => name
+    );
+    if (leakedTw.length) {
+      postFailures.push(
+        `README token buckets list Tailwind engine vars outside 'other' (${[...new Set(leakedTw)].join(", ")}) — the .ds-sync emit.mjs --tw- classifier patch was lost (re-stage?)`
+      );
+    }
+  } else {
+    postFailures.push("ds-bundle/README.md missing after the driver run");
+  }
+
+  if (postFailures.length) {
+    console.error("\n✗ design-sync-check output assertions failed:");
+    for (const f of postFailures) console.error(`  - ${f}`);
+    process.exit(1);
+  }
+  console.error("\n✓ output assertions: previews reconciled, token tables clean");
+}
+process.exit(driverCode);

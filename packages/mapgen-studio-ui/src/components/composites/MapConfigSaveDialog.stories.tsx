@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { MapConfigSaveDialog } from "@swooper/mapgen-studio-ui";
 import { fn } from "storybook/test";
-import { MapConfigSaveDialog } from "./MapConfigSaveDialog.js";
 
 /** Keeps the save dialog open with realistic current-config defaults for interaction tests. */
 const meta = {
-  title: "Composites/MapConfigSaveDialog",
+  title: "composites/MapConfigSaveDialog",
   component: MapConfigSaveDialog,
   args: {
     open: true,

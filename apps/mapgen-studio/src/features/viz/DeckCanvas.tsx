@@ -196,6 +196,7 @@ export function DeckCanvas(props: DeckCanvasProps) {
   }, [apiRef, fitToBounds, onApiReady, resetView]);
 
   // Create + destroy the Deck instance.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deckLayers is intentionally excluded — layer updates ride setProps in the effect below; depending on deckLayers here would destroy/recreate the Deck (and its WebGL context) on every layer change.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;

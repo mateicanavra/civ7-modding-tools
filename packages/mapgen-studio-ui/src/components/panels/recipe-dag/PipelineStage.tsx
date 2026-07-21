@@ -1,6 +1,6 @@
 import type { RecipeDagResult } from "@civ7/studio-contract";
 import { AlertTriangle, ChevronDown, Loader2, Workflow } from "lucide-react";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useId, useMemo, useState } from "react";
 import { useResolvedTheme } from "../../../lib/useResolvedTheme.js";
 import { cn } from "../../../lib/utils.js";
 import { EmptyState } from "../../composites/EmptyState.js";
@@ -67,6 +67,11 @@ export interface PipelineStageProps {
 }
 
 export function PipelineStage(props: PipelineStageProps) {
+  // Instance-scoped SVG marker ids: docs pages render multiple DAGs on one
+  // document, and duplicate marker ids make `url(#…)` resolution ambiguous.
+  const uid = useId();
+  const arrowMarkerId = `${uid}-arrow`;
+  const arrowActiveMarkerId = `${uid}-arrow-active`;
   const {
     recipeId,
     dag,
@@ -245,7 +250,7 @@ export function PipelineStage(props: PipelineStageProps) {
               >
                 <defs>
                   <marker
-                    id="recipe-dag-arrow"
+                    id={arrowMarkerId}
                     markerWidth="10"
                     markerHeight="10"
                     refX="8"
@@ -256,7 +261,7 @@ export function PipelineStage(props: PipelineStageProps) {
                     <path d="M0,0 L0,6 L8,3 z" fill="context-stroke" />
                   </marker>
                   <marker
-                    id="recipe-dag-arrow-active"
+                    id={arrowActiveMarkerId}
                     markerWidth="10"
                     markerHeight="10"
                     refX="8"
@@ -329,6 +334,8 @@ export function PipelineStage(props: PipelineStageProps) {
                       selected={selected}
                       related={related}
                       focusActive={focusActive}
+                      arrowMarkerId={arrowMarkerId}
+                      arrowActiveMarkerId={arrowActiveMarkerId}
                       accent={
                         focusActive && related
                           ? getStageAccent(edge.fromStageId)
@@ -406,9 +413,9 @@ export function PipelineStage(props: PipelineStageProps) {
                     Artifact diagnostics
                   </div>
                   <ul className="grid gap-1 sm:grid-cols-2">
-                    {dag.diagnostics.slice(0, 6).map((diagnostic, index) => (
+                    {dag.diagnostics.slice(0, 6).map((diagnostic) => (
                       <li
-                        key={`${diagnostic.kind}-${diagnostic.artifact.id}-${index}`}
+                        key={`${diagnostic.kind}-${diagnostic.artifact.id}`}
                         className="flex min-w-0 items-center gap-1 truncate"
                       >
                         <span className="truncate">{diagnostic.kind}</span>
@@ -448,8 +455,11 @@ const StageEdge = React.memo(function StageEdge(props: {
   related: boolean;
   focusActive: boolean;
   accent: string;
+  arrowMarkerId: string;
+  arrowActiveMarkerId: string;
 }) {
-  const { edge, selected, related, focusActive, accent } = props;
+  const { edge, selected, related, focusActive, accent, arrowMarkerId, arrowActiveMarkerId } =
+    props;
   return (
     <g>
       <path
@@ -458,7 +468,7 @@ const StageEdge = React.memo(function StageEdge(props: {
         stroke={accent}
         strokeWidth={selected ? "3" : focusActive && related ? "2.4" : "1.35"}
         markerEnd={
-          focusActive && related ? "url(#recipe-dag-arrow-active)" : "url(#recipe-dag-arrow)"
+          focusActive && related ? `url(#${arrowActiveMarkerId})` : `url(#${arrowMarkerId})`
         }
         opacity={
           selected ? "0.96" : focusActive && related ? "0.82" : focusActive ? "0.22" : "0.42"
@@ -500,7 +510,10 @@ const StageNode = React.memo(function StageNode(props: {
   const stageAccent = getRecipeDagDomainLaneColors(stageDomainId, isLightMode).accent;
   const activeNodeAccent = selected || edgeActive ? stageAccent : null;
   const zIndex = selected || edgeActive ? (expanded ? 95 : 85) : expanded ? 70 : dimmed ? 20 : 30;
-  const expandedPanelId = `recipe-dag-stage-${stage.stageId}-steps`;
+  // Instance-scoped: stageId alone is unique within one DAG but collides when
+  // two PipelineStage instances render the same recipe on one docs page.
+  const uid = useId();
+  const expandedPanelId = `${uid}-steps`;
   return (
     <article
       className={cn(

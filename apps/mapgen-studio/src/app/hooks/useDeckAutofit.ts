@@ -50,6 +50,7 @@ export function useDeckAutofit({
   const hasEverSeenVizManifestRef = useRef(false);
   const lastAutoFitSpaceRef = useRef<string | null>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deckApiRef is a stable ref read at fire time; the effect must fire only on space/bounds changes — the per-space guard (lastAutoFitSpaceRef) encodes the once-per-space contract.
   useEffect(() => {
     const spaceId = viz.effectiveLayer?.spaceId ?? null;
     if (!spaceId) return;
@@ -59,6 +60,7 @@ export function useDeckAutofit({
     deckApiRef.current?.fitToBounds(viz.activeBounds);
   }, [viz.activeBounds, viz.effectiveLayer?.spaceId]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deckApiRef is a stable ref; deckApiReadyTick/viewportSize are deliberate extra deps that RE-ARM the first-paint fit on deck remount/resize — the dep list is the re-arm contract, not the read set.
   useEffect(() => {
     if (!viz.manifest) return;
     if (hasEverSeenVizManifestRef.current) return;

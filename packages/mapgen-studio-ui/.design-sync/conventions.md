@@ -18,9 +18,10 @@ luminance focus ring. Every component is React, imported from the bundle as
   no theme prop or wrapper class is needed to get the dark look. (A `.dark` class
   on `<html>` still works for components that read it at runtime, e.g. `Toaster`.)
 - **Mount one `TooltipProvider` at the app root.** Any component that uses a
-  tooltip — `AppHeader`, `GameConsole`, `RecipePanel`, `ExplorePanel`,
-  `ViewControls`, `WaterStatsSection`, and `Tooltip` itself — renders **blank**
-  without a `TooltipProvider` ancestor. `AppFooter` self-provides one.
+  tooltip — `AppFooter`, `AppHeader`, `GameConsole`, `RecipePanel`,
+  `ExplorePanel`, `ViewControls`, `WaterStatsSection`, and `Tooltip` itself —
+  renders **blank** without a `TooltipProvider` ancestor. No component
+  self-provides one (one-provider policy).
 - **Notifications pair `Toaster` with the bundle's own `toast`.** Mount
   `Toaster` once, fire with `window.MapGenStudio.toast(...)` — both ship on
   the barrel so they share one sonner instance. A `toast` imported from

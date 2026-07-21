@@ -17,7 +17,7 @@ import {
   Maximize,
   SquareStack,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
 import { LAYOUT } from "../../lib/layout.js";
 import { cn } from "../../lib/utils.js";
@@ -187,6 +187,13 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
   waterStatsExpanded: waterStatsExpandedProp,
   onWaterStatsExpandedChange,
 }: ExplorePanelProps<TRef>) {
+  // Instance-scoped ids: the panel renders on Storybook docs pages and in
+  // synced design compositions where multiple instances coexist — hardcoded
+  // ids would cross-wire aria-controls between instances.
+  const uid = useId();
+  const stageListId = `${uid}-stage-list`;
+  const stepListId = `${uid}-step-list`;
+  const layersListId = `${uid}-layers-list`;
   const [localStageExpanded, setLocalStageExpanded] = useState(true);
   const [localStepExpanded, setLocalStepExpanded] = useState(true);
   const [localLayersExpanded, setLocalLayersExpanded] = useState(true);
@@ -391,7 +398,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
           className="px-3 py-2.5"
           expanded={isStageExpanded}
           onToggle={setIsStageExpanded}
-          controls="explore-stage-list"
+          controls={stageListId}
           icon={<Compass className={cn("w-4 h-4 shrink-0", textSecondary)} />}
           title={<span className={cn("text-[13px] font-semibold", textPrimary)}>Stage</span>}
           summary={
@@ -404,7 +411,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
       </div>
       {isStageExpanded ? (
         <div
-          id="explore-stage-list"
+          id={stageListId}
           className={cn(
             "flex-shrink-0 py-1 border-b",
             borderSubtle,
@@ -435,7 +442,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
           className="px-3 py-2"
           expanded={isStepExpanded}
           onToggle={setIsStepExpanded}
-          controls="explore-step-list"
+          controls={stepListId}
           icon={<Layers className={cn("w-3.5 h-3.5 shrink-0", textSecondary)} />}
           title={
             <span
@@ -454,7 +461,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
       </div>
       {isStepExpanded ? (
         <div
-          id="explore-step-list"
+          id={stepListId}
           className={cn(
             "flex-shrink-0 pb-2 border-b",
             borderSubtle,
@@ -500,7 +507,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
           className="w-auto flex-1 min-w-0 pl-3 pr-2 py-2"
           expanded={isLayersExpanded}
           onToggle={setIsLayersExpanded}
-          controls="explore-layers-list"
+          controls={layersListId}
           icon={<SquareStack className={cn("w-3.5 h-3.5 shrink-0", textSecondary)} />}
           title={
             <span
@@ -534,7 +541,7 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
       </div>
       {isLayersExpanded ? (
         <div
-          id="explore-layers-list"
+          id={layersListId}
           className={cn(
             "flex-shrink-0 pb-2 border-b",
             borderSubtle,

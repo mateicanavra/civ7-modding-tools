@@ -36,10 +36,18 @@ describe("PipelineStage", () => {
     expect(html).toContain(">hydrography<");
     expect(html).toContain('aria-pressed="true"');
     expect(html).toContain('aria-expanded="true"');
-    expect(html).toContain('aria-controls="recipe-dag-stage-shape-steps"');
+    // Ids are useId-derived (instance-scoped); assert the LINKAGE, not a
+    // literal: the expanded toggle controls a steps panel that exists.
+    const controlsMatch = html.match(/aria-controls="([^"]*-steps)"/);
+    expect(controlsMatch).not.toBeNull();
+    expect(html).toContain(`id="${(controlsMatch as RegExpMatchArray)[1]}"`);
     expect(html).toContain('data-stage-expanded="true"');
     expect(html).toContain("z-index:95");
-    expect(html).toContain('marker-end="url(#recipe-dag-arrow-active)"');
+    // Same for the SVG markers: the active edge's marker-end must reference
+    // the marker id the defs actually declare.
+    const activeMarker = html.match(/<marker id="([^"]*-arrow-active)"/);
+    expect(activeMarker).not.toBeNull();
+    expect(html).toContain(`marker-end="url(#${(activeMarker as RegExpMatchArray)[1]})"`);
     expect(html).toContain('stroke="#f59e0b"');
     expect(html).toContain('aria-label="Select dependency hydrography"');
     expect(html).toContain('data-edge-label-selected="false"');
@@ -68,7 +76,9 @@ describe("PipelineStage", () => {
     expect(html).toContain(`stroke="${PIPELINE_EDGE_INK}"`);
     expect(html).toContain("border-border bg-popover text-muted-foreground");
     expect(html).toContain(" L ");
-    expect(html).toContain('marker-end="url(#recipe-dag-arrow)"');
+    const idleMarker = html.match(/<marker id="([^"]*-arrow)"/);
+    expect(idleMarker).not.toBeNull();
+    expect(html).toContain(`marker-end="url(#${(idleMarker as RegExpMatchArray)[1]})"`);
     expect(html).not.toContain("border-color:#f59e0b");
   });
 
