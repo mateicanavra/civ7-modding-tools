@@ -4,7 +4,6 @@ import {
   CommandExecutor,
   type CommandExecutor as CommandExecutorService,
 } from "@effect/platform/CommandExecutor";
-import type { PlatformError } from "@effect/platform/Error";
 import {
   GitStateProvider,
   type GitStateProviderService,
@@ -13,10 +12,10 @@ import {
 } from "@habitat/cli/providers/git/state";
 import { HabitatConfig, type HabitatConfigService } from "@habitat/cli/resources/config/index";
 import { epochMillisToIsoString } from "@habitat/cli/resources/platform/index";
-import { Chunk, Clock, Context, Duration, Effect, Layer, Stream } from "effect";
+import { Clock, Context, Duration, Effect, Layer } from "effect";
 import { CommandInterrupted, CommandUnavailable } from "./errors.js";
 import { materializeHabitatCommandWithConfig } from "./materialize.js";
-import { makeCommandResultFromObservation } from "./output.js";
+import { collectOutputCapture, makeCommandResultFromObservation } from "./output.js";
 import type { CommandRunnerService } from "./service.js";
 import type { HabitatCommandResult, HabitatProcessRequest } from "./types.js";
 
@@ -101,7 +100,11 @@ function executeLiveCommand(
             )
           );
           const [stdout, stderr, exitCode] = yield* Effect.all(
-            [collectStream(process.stdout), collectStream(process.stderr), process.exitCode],
+            [
+              collectOutputCapture(process.stdout),
+              collectOutputCapture(process.stderr),
+              process.exitCode,
+            ],
             { concurrency: "unbounded" }
           );
           const endedMs = yield* Clock.currentTimeMillis;
@@ -181,14 +184,6 @@ export function interruptCommandOnTimeout<R>(
           cause: `command exceeded timeout policy (${timeoutMs}ms)`,
         }),
     })
-  );
-}
-
-function collectStream(
-  stream: Stream.Stream<Uint8Array, PlatformError>
-): Effect.Effect<string, PlatformError> {
-  return Stream.runCollect(stream).pipe(
-    Effect.map((chunks) => Buffer.concat(Chunk.toReadonlyArray(chunks)).toString("utf8"))
   );
 }
 

@@ -1,6 +1,9 @@
+import { createHash } from "node:crypto";
+import { NodeContext } from "@effect/platform-node";
 import { makeFakeGitStateProviderLayer } from "@habitat/cli/providers/git/index";
 import {
   CommandRunner,
+  CommandRunnerLive,
   captureCommandGitStateAround,
   captureOutput,
   commandUnavailableFromCause,
@@ -13,10 +16,14 @@ import {
   redactEnvDelta,
   renderCommandObservation,
 } from "@habitat/cli/resources/command/index";
-import { makeHabitatConfig } from "@habitat/cli/resources/config/index";
+import {
+  COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES,
+  collectOutputCapture,
+} from "@habitat/cli/resources/command/output";
+import { makeHabitatConfig, makeHabitatConfigLayer } from "@habitat/cli/resources/config/index";
 import { CommandInterrupted, CommandUnavailable } from "@habitat/cli/resources/errors/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
-import { Duration, Effect, Fiber, TestClock, TestContext } from "effect";
+import { Duration, Effect, Fiber, Layer, Stream, TestClock, TestContext } from "effect";
 import { describe, expect, test } from "vitest";
 
 describe("CommandRunner", () => {
@@ -101,19 +108,104 @@ describe("CommandRunner", () => {
     expect(renderCommandObservation(interrupted.observation)).toBe("interrupted by SIGTERM");
   });
 
-  test("redacts sensitive env values and preserves output digests under truncation", () => {
+  test("redacts sensitive env values and captures in-memory output", () => {
     const env = redactEnvDelta({
       HABITAT_TOKEN: "secret-token",
       HABITAT_MODE: "local",
     });
-    const output = captureOutput("x".repeat(4 * 1024 * 1024 + 8));
+    const output = captureOutput("visible 🌊\n");
 
     expect(env.HABITAT_TOKEN).toEqual({ value: "<redacted>", redacted: true });
     expect(env.HABITAT_MODE).toEqual({ value: "local", redacted: false });
-    expect(output.truncated).toBe(true);
-    expect(output.text.length).toBe(4 * 1024 * 1024);
-    expect(output.bytes).toBe(4 * 1024 * 1024 + 8);
+    expect(output).toMatchObject({
+      text: "visible 🌊\n",
+      truncated: false,
+      bytes: Buffer.byteLength("visible 🌊\n", "utf8"),
+    });
     expect(output.sha256).toHaveLength(64);
+  });
+
+  test("decodes Unicode only after all output chunks have been retained", async () => {
+    const encoded = Buffer.from("alpha 🌊 omega\n", "utf8");
+    const splitInsideWave = Buffer.byteLength("alpha ", "utf8") + 2;
+    const chunks = [
+      encoded.subarray(0, splitInsideWave),
+      encoded.subarray(splitInsideWave, splitInsideWave + 1),
+      encoded.subarray(splitInsideWave + 1),
+    ];
+
+    const output = await Effect.runPromise(collectOutputCapture(Stream.fromIterable(chunks)));
+
+    expect(output).toEqual({
+      text: encoded.toString("utf8"),
+      truncated: false,
+      sha256: createHash("sha256").update(encoded).digest("hex"),
+      bytes: encoded.byteLength,
+    });
+  });
+
+  test("bounds retained output while hashing and counting the complete stream", async () => {
+    const block = Buffer.alloc(64 * 1024, "x");
+    const overflow = Buffer.from("overflow-🌊", "utf8");
+    const blockCount = COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES / block.byteLength;
+    const chunks = [...Array.from({ length: blockCount }, () => block), overflow];
+    const expectedHash = createHash("sha256");
+    for (const chunk of chunks) expectedHash.update(chunk);
+
+    const output = await Effect.runPromise(collectOutputCapture(Stream.fromIterable(chunks)));
+
+    expect(output.truncated).toBe(true);
+    expect(output.text).toHaveLength(COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES);
+    expect(output.text[0]).toBe("x");
+    expect(output.text.at(-1)).toBe("x");
+    expect(output.bytes).toBe(COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES + overflow.byteLength);
+    expect(output.sha256).toBe(expectedHash.digest("hex"));
+  });
+
+  test("captures a live command through the bounded stream collector", async () => {
+    const encoded = Buffer.from("live 🌊 output\n", "utf8");
+    const script = [
+      'const bytes = Buffer.from("live \\u{1f30a} output\\n", "utf8");',
+      "process.stdout.write(bytes.subarray(0, 7));",
+      "process.stdout.write(bytes.subarray(7, 9));",
+      "process.stdout.write(bytes.subarray(9));",
+    ].join("");
+    const dependencies = Layer.mergeAll(
+      NodeContext.layer,
+      makeHabitatConfigLayer(makeHabitatConfig({ repoRoot })),
+      makeFakeGitStateProviderLayer(() => ({
+        branch: null,
+        head: null,
+        dirty: false,
+        statusShort: "",
+        statusDigest: "fixture",
+      }))
+    );
+    const liveRunner = CommandRunnerLive.pipe(Layer.provide(dependencies));
+
+    const result = await Effect.runPromise(
+      CommandRunner.pipe(
+        Effect.flatMap((runner) =>
+          runner.run({
+            commandId: "bounded-live-output",
+            kind: "workspace-tool",
+            executable: process.execPath,
+            argv: ["-e", script],
+            cwd: repoRoot,
+            captureGitState: false,
+          })
+        ),
+        Effect.provide(liveRunner)
+      )
+    );
+
+    expect(result.exit.code).toBe(0);
+    expect(result.stdout).toEqual({
+      text: encoded.toString("utf8"),
+      truncated: false,
+      sha256: createHash("sha256").update(encoded).digest("hex"),
+      bytes: encoded.byteLength,
+    });
   });
 
   test("captures command git state through the Git state provider", async () => {
