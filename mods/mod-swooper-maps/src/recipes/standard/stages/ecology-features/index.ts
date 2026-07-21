@@ -3,7 +3,7 @@ import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   compileEcologyFeaturesPublicConfig,
   EcologyFeaturesPublicSchema,
-} from "../ecology-public-config.js";
+} from "../ecology/public.config.js";
 import { PlanFloodplainsStep } from "./steps/plan-floodplains/step.js";
 import { PlanIceStep } from "./steps/plan-ice/step.js";
 import { PlanPlotEffectsStep } from "./steps/plan-plot-effects/step.js";

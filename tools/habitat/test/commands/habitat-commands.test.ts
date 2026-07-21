@@ -247,7 +247,7 @@ describe("Habitat oclif commands", () => {
       "--rule",
       "prohibit_runtime_validation_and_compiler_imports",
       "--rule",
-      "preserve_standard_stage_topology_and_path_invariants",
+      "require_recipe_stage_source_topology",
     ]);
 
     expect(mockCheckReport).toHaveBeenCalledWith(
@@ -257,7 +257,7 @@ describe("Habitat oclif commands", () => {
           rules: [
             "prohibit_cross_op_runtime_calls",
             "prohibit_runtime_validation_and_compiler_imports",
-            "preserve_standard_stage_topology_and_path_invariants",
+            "require_recipe_stage_source_topology",
           ],
           runner: undefined,
         },
@@ -270,10 +270,10 @@ describe("Habitat oclif commands", () => {
             "--rule",
             "prohibit_runtime_validation_and_compiler_imports",
             "--rule",
-            "preserve_standard_stage_topology_and_path_invariants",
+            "require_recipe_stage_source_topology",
           ],
           serialized:
-            "habitat check --rule prohibit_cross_op_runtime_calls --rule prohibit_runtime_validation_and_compiler_imports --rule preserve_standard_stage_topology_and_path_invariants",
+            "habitat check --rule prohibit_cross_op_runtime_calls --rule prohibit_runtime_validation_and_compiler_imports --rule require_recipe_stage_source_topology",
         },
       })
     );

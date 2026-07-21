@@ -3,57 +3,53 @@ level: error
 ---
 # Require Recipe Stage Authoring File Shape
 
-Recipe stage root files own authoring config. The stage `index.ts` must be the
-positive authoring surface: it creates the stage and wires steps. Shared
-standard-recipe public-config modules may own family-level schema and compile
-helpers when several stages consume the same authoring rail. Domain modules
-provide model schemas, model policy, artifacts, and public domain surfaces.
-Stage-local helper bags such as `public-config.ts`, `knobs.ts`, and
-binding/config mirrors are topology residue rather than destination authority.
+Every recipe-stage `index.ts` default-exports the stage value created by
+`createStage`. Stage authoring composes public domain and local step surfaces;
+it does not reach through the domain boundary to operation input, output,
+configuration, or strategy members. The sibling structure rule owns filenames
+and directory topology.
 
 ```grit
 language js(typescript)
 
 or {
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
+    not { $filename <: r".*/(?:artifacts|steps)/.*" },
     ! $body <: contains `export default createStage({ $..., id: $id, $..., steps: $steps, $... } as const)`,
     ! $body <: contains `export default createStage({ $..., id: $id, $..., steps: $steps, $... })`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/[^/]+\.ts$",
-    ! $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/(?:index|viz|log)\.ts$"
-  },
-  import_statement(source=$source) where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/[^/]+/step\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
-  },
-  `export { $exports } from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/[^/]+/step\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
-  },
-  `export * from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/[^/]+/step\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
-  },
-  `import($source)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring|@mapgen/domain/[^/]+/(?:model/(?:schemas|policy)(?:/.*)?|artifacts(?:/.*)?)|\./steps/[^/]+/step\.js|\./artifacts/index\.js|\./viz\.js|\./log\.js|\.\./(?:ecology|foundation|hydrology|placement|map-projection)-public-config\.js|\.\./\.\./contract-manifest\.js)[\"']?$"
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
+    not { $filename <: r".*/(?:artifacts|steps)/.*" },
+    $calls = [],
+    $body <: some bubble($calls) $statement where {
+      $statement <: contains bubble($calls) `createStage($_)` as $call where {
+        $calls += $call
+      }
+    },
+    $call_count = length(target=$calls),
+    ! $call_count <: 1
   },
   `$domain.ops.$operation.input` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$"
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
+    not { $filename <: r".*/(?:artifacts|steps)/.*" }
   },
   `$domain.ops.$operation.output` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$"
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
+    not { $filename <: r".*/(?:artifacts|steps)/.*" }
   },
   `$domain.ops.$operation.config` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$"
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
+    not { $filename <: r".*/(?:artifacts|steps)/.*" }
   },
   `$domain.ops.$operation.strategies.$strategy` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$"
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
+    not { $filename <: r".*/(?:artifacts|steps)/.*" }
   },
   `$domain.ops.$operation.strategies[$strategy]` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/index\.ts$"
+    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
+    not { $filename <: r".*/(?:artifacts|steps)/.*" }
   }
 }
 ```
@@ -61,90 +57,49 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/index.ts
-import { FoundationPlateActivityKnobSchema } from "@mapgen/domain/foundation/config.js";
+// @filename: mods/example-mod/src/recipes/example/stages/ecology/biomes/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
-export default createStage({ id: "foundation-tectonics", steps: {} });
+export const stage = createStage({ id: "ecology-biomes", steps: {} });
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/index.ts
-import { GeomorphicCycleConfigSchema } from "./public-config.js";
+// @filename: mods/example-mod/src/recipes/example/stages/foundation/tectonics/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
-export default createStage({ id: "morphology-erosion", public: GeomorphicCycleConfigSchema });
-
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/index.ts
-import { createStage } from "@swooper/mapgen-core/authoring";
-
-declare const exampleDomain: {
-  ops: { exampleOperation: { strategies: { balanced: unknown } } };
+declare const domain: {
+  ops: { tectonics: { strategies: { balanced: unknown } } };
 };
 
 export default createStage({
-  id: "morphology-erosion",
+  id: "foundation-tectonics",
+  knobsSchema: domain.ops.tectonics.strategies.balanced,
   steps: {},
-  knobsSchema: exampleDomain.ops.exampleOperation.strategies.balanced,
 });
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/index.ts
+// @filename: mods/example-mod/src/recipes/example/stages/hydrology/climate/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
-declare const exampleDomain: {
-  ops: { exampleOperation: { strategies: { "wind-gyre-projection": unknown } } };
-};
-
-export default createStage({
-  id: "hydrology-climate-baseline",
-  steps: {},
-  knobsSchema: exampleDomain.ops.exampleOperation.strategies["wind-gyre-projection"],
-});
-
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/index.ts
-import { createStage } from "@swooper/mapgen-core/authoring";
-
-export const stageId = "foundation-tectonics";
-
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/index.ts
-import { createStage, Type } from "@swooper/mapgen-core/authoring";
-import StageDefinition from "./public-config.js";
-
-const stray = { id: "morphology-erosion", steps: {} };
-const sentinel = createStage({ id: "morphology-erosion", steps: {} });
-
-export default createStage(StageDefinition);
-
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts
-import { PlacementPublicSchema } from "../placement-public-config.js";
-import { createStage } from "@swooper/mapgen-core/authoring";
-
-export default createStage({ id: "placement", public: PlacementPublicSchema, steps: {} });
-
+const shadow = createStage({ id: "shadow", steps: {} });
+export default createStage({ id: "hydrology-climate", steps: { shadow } });
 ```
 
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/index.ts
-import { FoundationPlateActivityKnobSchema } from "@mapgen/domain/foundation/model/schemas/plate-activity.schema.js";
-import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/model/policy/plate-activity.js";
+// @filename: mods/example-mod/src/recipes/example/stages/ecology/biomes/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
-import { TectonicsStep } from "./steps/tectonics/step.js";
+import { BiomesStep } from "./steps/biomes/step.js";
 
 export default createStage({
-  id: "foundation-tectonics",
-  knobsSchema: FoundationPlateActivityKnobSchema,
-  public: Type.Object({ activity: FoundationPlateActivityKnobSchema }),
-  compile: ({ config }) => ({ tectonics: config }),
-  steps: { tectonics: TectonicsStep },
+  id: "ecology-biomes",
+  steps: { biomes: BiomesStep },
 });
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics/step.ts
-import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/model/policy/plate-activity.js";
+// @filename: mods/example-mod/src/recipes/example/stages/ecology/public.config.ts
+export const EcologyPublicConfig = {};
 
-export const TectonicsStep = { multiplier: resolvePlateActivityOrogenyMultiplier };
+// @filename: mods/example-mod/src/recipes/example/stages/ecology/artifacts/index.ts
+export const artifacts = {};
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/recipe.ts
-import foundationTectonics from "./stages/foundation-tectonics/index.js";
-
-export const stages = [foundationTectonics];
+// @filename: mods/example-mod/src/recipes/example/stages/ecology/biomes/steps/biomes/step.ts
+export const BiomesStep = {};
 ```

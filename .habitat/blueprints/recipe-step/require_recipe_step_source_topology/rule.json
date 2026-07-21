@@ -19,7 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/recipes/*/stages/*/steps", "mods/*/src/recipes/*/stages/*/steps/**"]
+      "patterns": [
+        "mods/*/src/recipes/*/stages/**/steps",
+        "mods/*/src/recipes/*/stages/**/steps/**"
+      ]
     }
   ],
   "supportFiles": {

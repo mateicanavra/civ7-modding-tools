@@ -3,7 +3,7 @@ import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   compileEcologyBiomesPublicConfig,
   EcologyBiomesPublicSchema,
-} from "../ecology-public-config.js";
+} from "../ecology/public.config.js";
 import { BiomesStep } from "./steps/biomes/step.js";
 
 /**

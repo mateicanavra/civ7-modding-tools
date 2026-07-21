@@ -1,6 +1,6 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { HydrologyHydrographyPublicSchema } from "../hydrology-public-config.js";
+import { HydrologyHydrographyPublicSchema } from "../hydrology/public.config.js";
 import { LakesStep } from "./steps/lakes/step.js";
 import { RiversStep } from "./steps/rivers/step.js";
 

@@ -3,14 +3,22 @@ level: error
 ---
 # Prohibit Sibling Stage Private Step Imports
 
-Stage code must not import another stage's private `steps/` modules.
+Stage code must not import, re-export, or dynamically load another stage's
+private `steps/` modules. A stage may import its own immediate `./steps/`
+surface; family and sibling modules must consume an admitted stage or domain
+surface instead of reaching downward.
 
 ```grit
 language js(typescript)
 
-import_statement(source=$source) where {
-  $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/.*\.ts$",
-  $source <: r"^[\"']?.*\.\./[^/]+/steps/.*[\"']?$"
+or {
+  import_statement(source=$source),
+  `export { $exports } from $source`,
+  `export * from $source`,
+  `import($source)`
+} where {
+  $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/.*\.ts$",
+  $source <: r"^[\"']?(?:\./|\.\./)+(?:[^/]+/)+steps/.*[\"']?$"
 }
 ```
 
@@ -42,6 +50,24 @@ export type ImportedOutput = StepOutput;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
 import "../b/steps/foo/step.js";
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/public.config.ts
+import { BiomesStep } from "./biomes/steps/biomes/step.js";
+
+export const publicConfig = BiomesStep;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
+export { FooStep } from "../b/steps/foo/step.js";
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
+const dynamicStep = import("../b/steps/foo/step.js");
+
+export const loadStep = () => dynamicStep;
+
+// @filename: mods/mod-swooper-maps/src/recipes/browser-test/stages/a/index.ts
+import { BrowserStep } from "../b/steps/browser/step.js";
+
+export const browserTestStep = BrowserStep;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/step.ts
 export const FooStep = {};
@@ -86,21 +112,10 @@ import helper from "../b/stepsish/foo.js";
 
 export const stepsish = helper;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-export { FooStep } from "../b/steps/foo/step.js";
-
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
-const dynamicStep = import("../b/steps/foo/step.js");
-
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.tsx
 import { FooStep } from "../b/steps/foo/step.js";
 
 export const tsxStep = FooStep;
-
-// @filename: mods/mod-swooper-maps/src/recipes/browser-test/stages/a/index.ts
-import { FooStep } from "../b/steps/foo/step.js";
-
-export const browserTestStep = FooStep;
 
 // @filename: mods/mod-swooper-maps/test/stages/a/index.ts
 import { FooStep } from "../b/steps/foo/step.js";

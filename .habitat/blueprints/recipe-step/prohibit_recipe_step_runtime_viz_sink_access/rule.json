@@ -19,7 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/recipes/*/stages/*/steps/*/**/!(*.test|*.spec|config).ts"]
+      "patterns": ["mods/*/src/recipes/*/stages/**/steps/*/**/!(*.test|*.spec|config).ts"]
     }
   ],
   "scanRoots": ["mods"],

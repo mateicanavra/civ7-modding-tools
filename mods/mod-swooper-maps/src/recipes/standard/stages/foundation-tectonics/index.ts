@@ -3,7 +3,7 @@ import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   compileFoundationTectonicsPublicConfig,
   FoundationTectonicsPublicSchema,
-} from "../foundation-public-config.js";
+} from "../foundation/public.config.js";
 import { PlateMotionStep } from "./steps/plate-motion/step.js";
 import { TectonicsStep } from "./steps/tectonics/step.js";
 

@@ -4,7 +4,7 @@ import {
   compileFoundationOrogenyPublicConfig,
   type FoundationOrogenyPublicConfig,
   FoundationOrogenyPublicSchema,
-} from "../foundation-public-config.js";
+} from "../foundation/public.config.js";
 import { CrustEvolutionStep } from "./steps/crust-evolution/step.js";
 
 /**

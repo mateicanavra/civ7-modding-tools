@@ -2,14 +2,14 @@
   "schemaVersion": 2,
   "kind": "habitat.ruleAuthorityCleanup.operationalLedger",
   "status": "canonical-operational-source",
-  "updatedOn": "2026-07-19",
+  "updatedOn": "2026-07-21",
   "recordPolicy": "This JSON file is the only machine-readable operational source for rule authority cleanup: live rule rows, retired/stale references, queued/completed slices, blockers, findings, counts, and gate state. Markdown receipts may explain completed slices, but they must not duplicate or define active rule rows, queue, blockers, or counts.",
   "controllingFrame": ".habitat/.active/frames/RULE-REMEDIATION-WORKSTREAM-FRAME.md",
   "layerMethod": ".habitat/.active/frames/RULE-ACTION-CLASSIFICATION-FRAME.md",
   "corpus": {
     "liveManifestCount": 125,
     "currentRowCount": 125,
-    "retiredHistoricalRowCount": 39,
+    "retiredHistoricalRowCount": 40,
     "duplicateLiveRows": []
   },
   "counts": {
@@ -18,8 +18,8 @@
       "closed structure inversion": 2,
       "consolidation/dedup": 1,
       "context admission": 27,
-      "no action": 54,
-      "positive authority creation": 14,
+      "no action": 53,
+      "positive authority creation": 15,
       "retirement/garbage collection": 3,
       "runtime/source validation": 3,
       "split by owner": 14
@@ -38,11 +38,11 @@
     }
   },
   "gateState": {
-    "currentLayer": "A.2 split-ready baseline.",
-    "currentGate": "Split base reviewed and ready for ordinary sibling creation.",
-    "mutationAuthorization": "None on the split base; A.2 and the independent continuation use ordinary sibling Graphite children.",
+    "currentLayer": "MapGen final ratchet: recipe-stage topology authority.",
+    "currentGate": "Seal the generic recipe-stage topology layer before changing aggregate policy execution.",
+    "mutationAuthorization": "Only the active root-owned final-ratchet Graphite stack; A.2 remains separately owned and unstarted.",
     "nextSliceId": null,
-    "nextLegalAction": "Create ordinary sibling Graphite children for A.2 and the independent continuation.",
+    "nextLegalAction": "Commit the reviewed recipe-stage topology layer, then remove redundant aggregate structure traversal in a separate performance layer.",
     "operationalSourceOfTruth": ".habitat/.active/workstreams/remediate-rule-authority/ledgers/rule-authority-cleanup-ledger.json"
   },
   "rules": [
@@ -400,13 +400,13 @@
       "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/morphology/rules/preserve_morphology_belt_driver_contracts/rule.json"
     },
     {
-      "ruleId": "preserve_standard_stage_topology_and_path_invariants",
-      "lane": "standard recipe top-level",
-      "actionDecision": "no action",
+      "ruleId": "require_recipe_stage_source_topology",
+      "lane": "recipe-stage blueprint",
+      "actionDecision": "positive authority creation",
       "packetNeeded": false,
-      "expectedRemediation": "Implemented: derive active stage topology from the standard contract manifest/runtime recipe plus admitted support directories.",
-      "evidenceNote": "The Habitat script parses `recipe.ts` and `contract-manifest.ts`, checks stage parity, requires each manifest stage directory and index.ts, and treats ecology/foundation/morphology as support hubs rather than active stages. Corrective local-proxy review left this settled: it is positive manifest/runtime stage topology currentness, not a local negative proxy.",
-      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/rule.json"
+      "expectedRemediation": "Implemented: assert the generic recipe-stage collection, first-level family or stage container, and public.config.ts filesystem shape through Habitat structure authority.",
+      "evidenceNote": "The generic blueprint replaces the bespoke Standard-recipe source parser. The physical hierarchy layer activates closed nested-stage filesystem scopes after those roots exist; runtime stage and step ordering remain owned by verify_runtime_stage_order_matches_contract_manifest. A well-formed unregistered stage is intentionally a reachability concern, checked explicitly by habitat:check:dead-code until that zero corpus earns aggregate admission.",
+      "currentPath": ".habitat/blueprints/recipe-stage/require_recipe_stage_source_topology/rule.json"
     },
     {
       "ruleId": "preserve_studio_event_driven_runtime_boundaries",
@@ -998,12 +998,12 @@
     },
     {
       "ruleId": "require_domain_contract_roots_in_step_contracts",
-      "lane": "mixed blueprints",
+      "lane": "Standard recipe domain-contract admission",
       "actionDecision": "no action",
       "packetNeeded": false,
-      "expectedRemediation": "Stay as recipe-step domain public surface guard.",
-      "evidenceNote": "Representative contracts import domain roots; no bad deep imports found.",
-      "currentPath": ".habitat/blueprints/recipe-step/require_domain_contract_roots_in_step_contracts/rule.json"
+      "expectedRemediation": "Stay as the Standard recipe's domain-root import guard until a vendor-neutral domain-package contract exists.",
+      "evidenceNote": "The rule intentionally protects the Swooper-specific @mapgen/domain surface; it is not generic recipe-step blueprint authority.",
+      "currentPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_domain_contract_roots_in_step_contracts/rule.json"
     },
     {
       "ruleId": "require_domain_model_schema_policy_owner_shape",
@@ -3749,6 +3749,24 @@
       "authorityDestination": {
         "package": "apps/mapgen-studio",
         "contract": "one complete MapConfigEnvelope through Run in Game"
+      }
+    },
+    {
+      "ruleId": "preserve_standard_stage_topology_and_path_invariants",
+      "lane": "standard recipe top-level",
+      "actionDecision": "retirement/garbage collection",
+      "packetNeeded": false,
+      "expectedRemediation": "Retired; generic recipe-stage structure owns legal filesystem shape and the Standard runtime manifest check owns stage and step ordering.",
+      "evidenceNote": "The bespoke parser hard-coded one recipe's stage directories and support files. Positive blueprint structure now admits recipe-stage kinds without freezing current instances; a well-formed but unused stage is an explicit Knip reachability concern rather than a topology violation.",
+      "currentPath": null,
+      "previousPath": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/preserve_standard_stage_topology_and_path_invariants/rule.json",
+      "retiredOn": "2026-07-21",
+      "retiredBy": "refactor(habitat): ratchet recipe stage topology",
+      "retiredReason": "The rule duplicated generic kind structure and Standard runtime-manifest authority through a brittle product-specific source and filesystem parser.",
+      "authorityDestination": {
+        "structureRule": "require_recipe_stage_source_topology",
+        "runtimeRule": "verify_runtime_stage_order_matches_contract_manifest",
+        "reachabilityTarget": "habitat:check:dead-code"
       }
     }
   ],

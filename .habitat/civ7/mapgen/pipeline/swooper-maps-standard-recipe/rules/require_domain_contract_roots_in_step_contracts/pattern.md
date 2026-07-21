@@ -1,25 +1,25 @@
 ---
 level: error
 ---
-# Require Domain Contract Roots In Step Config Modules
+# Require Swooper Domain Contract Roots In Step Config Modules
 
-Recipe `StepContract` definitions in `config.ts` import only domain contract
-roots, not runtime or private domain files.
+Swooper Standard recipe `StepContract` definitions in `config.ts` import only
+the mod-owned domain contract roots, not runtime or private domain files.
 
 ```grit
 language js(typescript)
 
 or {
   `import $imports from $source` where {
-    $filename <: r".*mods/[^/]+/src/recipes/.*/stages/[^/]+/steps/[^/]+/config\.ts$",
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/(?:[^/]+/)*steps/[^/]+/config\.ts$",
     $source <: r"^[\"']?@mapgen/domain/[^/]+/.+[\"']?$"
   },
   `export { $exports } from $source` where {
-    $filename <: r".*mods/[^/]+/src/recipes/.*/stages/[^/]+/steps/[^/]+/config\.ts$",
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/(?:[^/]+/)*steps/[^/]+/config\.ts$",
     $source <: r"^[\"']?@mapgen/domain/[^/]+/.+[\"']?$"
   },
   `export * from $source` where {
-    $filename <: r".*mods/[^/]+/src/recipes/.*/stages/[^/]+/steps/[^/]+/config\.ts$",
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/(?:[^/]+/)*steps/[^/]+/config\.ts$",
     $source <: r"^[\"']?@mapgen/domain/[^/]+/.+[\"']?$"
   }
 }
@@ -100,15 +100,16 @@ import { privateValue } from "@mapgen/domain/ecology/private";
 
 export const contract = privateValue;
 
-// @filename: mods/mod-other/src/recipes/standard/stages/ecology/steps/private-import/config.ts
-import { ecologyOps } from "@mapgen/domain/ecology/ops";
-
-export const contract = ecologyOps;
 ```
 
 ## Ignores fixture
 
 ```typescript
+// @filename: mods/mod-other/src/recipes/standard/stages/ecology/steps/private-import/config.ts
+import { ecologyOps } from "@mapgen/domain/ecology/ops";
+
+export const otherModContract = ecologyOps;
+
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/config.ts
 import ecology from "@mapgen/domain/ecology";
 

@@ -12,7 +12,7 @@ this rule rejects only that ambiguous hub.
 language js(typescript)
 
 program(statements=$body) where {
-  $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/steps/viz\.ts$"
+  $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*steps/viz\.ts$"
 }
 ```
 
@@ -21,6 +21,9 @@ program(statements=$body) where {
 ```typescript
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/viz.ts
 export const viz = {};
+
+// @filename: mods/mod-swooper-maps/src/recipes/browser-test/stages/foundation/steps/viz.ts
+export const browserTestViz = {};
 
 ```
 
@@ -39,9 +42,6 @@ export const crust = privateViz;
 import { stageViz } from "../../../hydrology/viz.js";
 
 export const crust = stageViz;
-
-// @filename: mods/mod-swooper-maps/src/recipes/browser-test/stages/foundation/steps/demo/viz.ts
-export const browserTestViz = {};
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/demo/viz.tsx
 export const componentViz = {};

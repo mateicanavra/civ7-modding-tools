@@ -1,6 +1,6 @@
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { HydrologyClimateRefinePublicSchema } from "../hydrology-public-config.js";
+import { HydrologyClimateRefinePublicSchema } from "../hydrology/public.config.js";
 import { ClimateRefineStep } from "./steps/climate-refine/step.js";
 
 const HydrologyDrynessKnobSchema = Type.Union(

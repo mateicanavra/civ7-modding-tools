@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_recipe_stage_source_topology",
+  "title": "Require Recipe Stage Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "recipe-stage",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "recipe stage collections and first-level stage or family containers outside the positive recipe-stage blueprint topology",
+  "why": "Recipe stages live in named containers. Collections contain only first-level stage or family containers, and those containers may own only child stage containers, stage authoring, steps, artifacts, visualization, logging, or one shared public.config.ts surface. Nested-stage authoring files are checked generically when present; their closed filesystem scope activates with the physical hierarchy migration.",
+  "remediate": "Move loose stage files into the owning container, name shared family authoring surfaces public.config.ts, and delete support files that do not have an admitted recipe-stage owner.",
+  "message": "Recipe stage source must match the positive first-level container and public.config.ts topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/recipes/*/stages", "mods/*/src/recipes/*/stages/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/recipe-stage/require_recipe_stage_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/recipe-stage/require_recipe_stage_source_topology/structure.toml"
+    }
+  }
+}

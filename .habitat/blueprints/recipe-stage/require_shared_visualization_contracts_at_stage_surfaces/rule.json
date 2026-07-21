@@ -19,10 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
+      "patterns": ["mods/*/src/recipes/*/stages/**/*.ts"]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "scanRoots": ["mods"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/baseline.json"

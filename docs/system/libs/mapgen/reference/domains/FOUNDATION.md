@@ -377,7 +377,7 @@ operation config surfaces owned by `foundation-mantle` and
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics/step.ts` (`normalize` applying `plateActivity` to `computeEraTectonicFields.orogenyActivityGain`)
 - `mods/mod-swooper-maps/src/domain/foundation/model/policy/plate-activity.ts` (`resolvePlateActivityOrogenyMultiplier`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/index.ts` (empty knob schema; projection-only ownership)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-public-config.ts` (`meshResolution` and `platePartition` public config ownership)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/public.config.ts` (`meshResolution` and `platePartition` public config ownership)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`normalize` clamping authored `plateCount`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (`normalize` clamping authored `plateCount`)
 

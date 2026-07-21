@@ -3,7 +3,7 @@ import { orderStandardStageSteps } from "../../contract-manifest.js";
 import {
   compileFoundationMantlePublicConfig,
   FoundationMantlePublicSchema,
-} from "../foundation-public-config.js";
+} from "../foundation/public.config.js";
 import { MantleForcingStep } from "./steps/mantle-forcing/step.js";
 import { MantlePotentialStep } from "./steps/mantle-potential/step.js";
 import { MeshStep } from "./steps/mesh/step.js";

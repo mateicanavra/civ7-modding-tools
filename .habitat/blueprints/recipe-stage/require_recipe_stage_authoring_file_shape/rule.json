@@ -12,20 +12,17 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "standard recipe stage root files that are not the authoring owner shape: createStage must be present, imports must be from stage rails, standard public-config rails, or domain model/artifact surfaces, and operation contract internals must not be mirrored into stage authoring",
-  "why": "A recipe stage root index.ts is the authoring surface for createStage and step selection. Shared standard-recipe public-config modules may own family-level schema and compile helpers when several stages consume the same authoring rail; domain modules provide reusable model schemas, model policy, artifact contracts, and public domain surfaces. Stage-local public-config, knobs, and binding helper files remain topology residue, not extra authority.",
-  "remediate": "Keep createStage and step selection in the owning stage index.ts, move genuinely shared standard recipe schema/compile helpers to root public-config rails, move reusable domain primitives to domain model/schemas or model/policy, and stop mirroring operation input/output/config/strategy members in stage authoring.",
-  "message": "Stage root index.ts must be the positive authoring owner shape.",
+  "forbids": "recipe stage index modules that do not default-export one createStage authoring value or that mirror domain-operation input, output, config, or strategy internals",
+  "why": "A recipe stage index.ts owns stage identity, authoring configuration, and step selection. Domain-operation internals remain behind public domain contracts, while filesystem topology and support-module names are owned separately by the recipe-stage structure rule.",
+  "remediate": "Default-export the stage's createStage value, compose public domain and local step surfaces, and remove direct access to operation input, output, config, or strategy internals.",
+  "message": "Recipe stage index.ts must be the positive createStage authoring owner.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts",
-        "mods/mod-swooper-maps/src/recipes/standard/stages/*-public-config.ts"
-      ]
+      "patterns": ["mods/*/src/recipes/*/stages/**/*.ts"]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "scanRoots": ["mods"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/baseline.json"

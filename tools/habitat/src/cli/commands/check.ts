@@ -15,7 +15,7 @@ export default class Check extends HabitatCommand {
     "<%= config.bin %> <%= command.id %>",
     "<%= config.bin %> <%= command.id %> --json",
     "<%= config.bin %> <%= command.id %> --rule enforce_formatting_and_import_hygiene --json",
-    "<%= config.bin %> <%= command.id %> --rule prohibit_cross_op_runtime_calls --rule preserve_standard_stage_topology_and_path_invariants",
+    "<%= config.bin %> <%= command.id %> --rule prohibit_cross_op_runtime_calls --rule require_recipe_stage_source_topology",
   ];
 
   static override flags = {
