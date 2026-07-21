@@ -11,8 +11,8 @@
 
 import { Grid3x3, Monitor, Moon, Sun } from "lucide-react";
 import React from "react";
-import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
 import type { ThemePreference } from "../../types/index.js";
+import { IconButton } from "../ui/icon-button.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 // ============================================================================
 // Props
@@ -51,11 +51,6 @@ const THEME_CONFIG: Record<
   },
 };
 // ============================================================================
-// Styles (token-driven; theme follows the `.dark` class)
-// ============================================================================
-const iconBtn = iconButton;
-const iconBtnActive = iconButtonActive;
-// ============================================================================
 // Component
 // ============================================================================
 export const ViewControls: React.FC<ViewControlsProps> = ({
@@ -78,9 +73,9 @@ export const ViewControls: React.FC<ViewControlsProps> = ({
       {/* Theme toggle */}
       <Tooltip>
         <TooltipTrigger asChild>
-          <button onClick={onThemeCycle} aria-label={themeTooltip} className={iconBtn}>
+          <IconButton onClick={onThemeCycle} aria-label={themeTooltip}>
             <ThemeIcon className="w-4 h-4" />
-          </button>
+          </IconButton>
         </TooltipTrigger>
         <TooltipContent>{themeTooltip}</TooltipContent>
       </Tooltip>
@@ -90,14 +85,14 @@ export const ViewControls: React.FC<ViewControlsProps> = ({
       {/* Grid toggle */}
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
+          <IconButton
             onClick={() => onShowGridChange(!showGrid)}
             aria-label={gridTooltip}
             aria-pressed={showGrid}
-            className={showGrid ? iconBtnActive : iconBtn}
+            active={showGrid}
           >
             <Grid3x3 className="w-4 h-4" />
-          </button>
+          </IconButton>
         </TooltipTrigger>
         <TooltipContent>{gridTooltip}</TooltipContent>
       </Tooltip>

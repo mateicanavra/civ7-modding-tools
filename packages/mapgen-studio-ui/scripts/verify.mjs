@@ -51,7 +51,11 @@ const dist = (p) => join(pkgRoot, "dist", p);
 // (StudioShellGeometry / StudioShellLayoutProps are type-only.)
 // Sync-surface repair: `toast` (adjudication 8 amended — the design bundle
 // needs a same-instance toast for its Toaster) = 99.
-const EXPECTED_MIN_EXPORTS = 99;
+// Setup-correctness C1 (vocabulary): IconButton + iconButtonVariants
+// (the icon-toolbar idiom promoted from lib class strings) and
+// Badge + badgeVariants (the status-chip idiom promoted from a repeated
+// class literal) = 103.
+const EXPECTED_MIN_EXPORTS = 103;
 
 const failures = [];
 const assert = (cond, msg) => {

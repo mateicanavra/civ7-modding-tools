@@ -10,7 +10,6 @@ import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
 import { BookOpen, Eraser, Link, Power, Save, Settings, Undo2 } from "lucide-react";
 import React, { useId, useState } from "react";
 import type { XSchema } from "typebox/schema";
-import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
 import { LAYOUT } from "../../lib/layout.js";
 import { cn } from "../../lib/utils.js";
 import type { PipelineConfig, SelectOption } from "../../types/index.js";
@@ -22,6 +21,7 @@ import { SchemaConfigForm } from "../forms/SchemaConfigForm.js";
 import { pointerToPath } from "../forms/schemaPresentation.js";
 import { useConfigCollapse } from "../forms/useConfigCollapse.js";
 import { Button } from "../ui/button.js";
+import { IconButton } from "../ui/icon-button.js";
 import {
   Dialog,
   DialogClose,
@@ -340,18 +340,17 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     its click so it never toggles the section. */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button
-                      type="button"
+                    <IconButton
                       onClick={(e) => {
                         e.stopPropagation();
                         setConfigEditingEnabled(!configEditingEnabled);
                       }}
                       aria-pressed={configEditingEnabled}
                       aria-label={configEditingEnabled ? "Disable Overrides" : "Enable Overrides"}
-                      className={configEditingEnabled ? iconButtonActive : iconButton}
+                      active={configEditingEnabled}
                     >
                       <Power className="w-3.5 h-3.5" aria-hidden="true" />
-                    </button>
+                    </IconButton>
                   </TooltipTrigger>
                   <TooltipContent>
                     {configEditingEnabled ? "Disable Overrides" : "Enable Overrides"}
@@ -363,18 +362,17 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     camera focus. */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button
-                      type="button"
+                    <IconButton
                       onClick={(e) => {
                         e.stopPropagation();
                         setShowAllSteps(!showAllSteps);
                       }}
                       aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
                       aria-pressed={showAllSteps}
-                      className={!showAllSteps ? iconButtonActive : iconButton}
+                      active={!showAllSteps}
                     >
                       <Link className="w-3.5 h-3.5" aria-hidden="true" />
-                    </button>
+                    </IconButton>
                   </TooltipTrigger>
                   <TooltipContent>
                     {showAllSteps ? "Focus Current Step" : "Show All Steps"}

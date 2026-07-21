@@ -7,8 +7,8 @@ import type {
 import { deepEquals } from "@rjsf/utils";
 import { Braces, ChevronDown, ChevronRight, EllipsisVertical, Eraser, Undo2 } from "lucide-react";
 import { Fragment, type ReactNode, useMemo, useState } from "react";
-import { iconButton } from "../../lib/iconButton.js";
 import { cn } from "../../lib/utils.js";
+import { IconButton } from "../ui/icon-button.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -440,8 +440,7 @@ function StageObjectSection(args: {
       {changed && onStageRestoreRequest ? (
         <Tooltip>
           <TooltipTrigger asChild>
-            <button
-              type="button"
+            <IconButton
               onClick={() =>
                 onStageRestoreRequest({
                   pointer,
@@ -451,29 +450,27 @@ function StageObjectSection(args: {
                 })
               }
               aria-label={`Discard Changes to ${title}`}
-              className={cn(iconButton, "text-warning hover:text-warning hover:bg-warning/10")}
+              className="text-warning hover:text-warning hover:bg-warning/10"
             >
               <Undo2 className="w-3.5 h-3.5" aria-hidden="true" />
-            </button>
+            </IconButton>
           </TooltipTrigger>
           <TooltipContent>Discard Changes</TooltipContent>
         </Tooltip>
       ) : null}
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
-            type="button"
+          <IconButton
             onClick={() => setShowJson(!showJson)}
             aria-pressed={showJson}
             aria-label={showJson ? `Show ${title} Form` : `Show ${title} JSON`}
             className={cn(
-              iconButton,
               showJson &&
                 "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
             )}
           >
             <Braces className="w-3.5 h-3.5" aria-hidden="true" />
-          </button>
+          </IconButton>
         </TooltipTrigger>
         <TooltipContent>{showJson ? `Show ${title} Form` : `Show ${title} JSON`}</TooltipContent>
       </Tooltip>
@@ -482,9 +479,9 @@ function StageObjectSection(args: {
           <Tooltip>
             <TooltipTrigger asChild>
               <DropdownMenuTrigger asChild>
-                <button type="button" aria-label={`${title} Options`} className={iconButton}>
+                <IconButton aria-label={`${title} Options`}>
                   <EllipsisVertical className="w-3.5 h-3.5" aria-hidden="true" />
-                </button>
+                </IconButton>
               </DropdownMenuTrigger>
             </TooltipTrigger>
             <TooltipContent>Options</TooltipContent>

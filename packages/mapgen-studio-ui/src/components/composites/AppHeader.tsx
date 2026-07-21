@@ -2,6 +2,7 @@ import { Gamepad2, Settings } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils.js";
 import type { ThemePreference } from "../../types/index.js";
+import { Badge } from "../ui/badge.js";
 import { Button } from "../ui/button.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 import { AppBrand } from "./AppBrand.js";
@@ -184,15 +185,20 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               className={`w-44 max-w-[34vw] ${savedConfigModified ? "border-warning text-warning ring-1 ring-warning/40" : ""}`}
             />
             {savedConfigModified && setup.savedConfig ? (
-              <button
-                type="button"
-                onClick={() => onSavedConfigChange(setup.savedConfig!.id)}
-                aria-label={`Game setup is Custom (drifted from ${setup.savedConfig.displayName}) — click to re-apply the saved config`}
-                title={`Game setup is Custom (drifted from ${setup.savedConfig.displayName}) — click to re-apply the saved config`}
-                className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning cursor-pointer transition-colors hover:bg-warning/10"
+              <Badge
+                asChild
+                variant="warning"
+                className="shrink-0 cursor-pointer transition-colors hover:bg-warning/10"
               >
-                Re-apply
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onSavedConfigChange(setup.savedConfig!.id)}
+                  aria-label={`Game setup is Custom (drifted from ${setup.savedConfig.displayName}) — click to re-apply the saved config`}
+                  title={`Game setup is Custom (drifted from ${setup.savedConfig.displayName}) — click to re-apply the saved config`}
+                >
+                  Re-apply
+                </button>
+              </Badge>
             ) : null}
             {/* Game-setup disclosure: the gear rides the config cluster (the
                 setup it opens is what drifts a saved config), icon-only per
