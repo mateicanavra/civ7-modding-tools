@@ -1322,6 +1322,7 @@ describe("Grit generic acquisition and public disposition", () => {
       GRIT_DOWNLOADS_DISABLED: "true",
       GRIT_TELEMETRY_DISABLED: "true",
       GRIT_MAX_FILE_SIZE_BYTES: "0",
+      RAYON_NUM_THREADS: "2",
     });
     expect(observedRequest?.cwd).not.toBe(repoRoot);
     expect(existsSync(observedRequest?.cwd ?? repoRoot)).toBe(false);
