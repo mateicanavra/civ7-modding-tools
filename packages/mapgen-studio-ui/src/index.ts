@@ -77,11 +77,16 @@ export {
 export { FieldRow, type FieldRowProps } from "./components/forms/FieldRow.js";
 // forms — the five-module cohesive unit's public surface (structure-rewire §3.5)
 export {
+  type FieldBaseline,
+  FieldBaselineContext,
+} from "./components/forms/fieldBaseline.js";
+export {
   BrowserConfigArrayFieldTemplate,
   BrowserConfigFieldTemplate,
   type BrowserConfigFormContext,
   BrowserConfigObjectFieldTemplate,
   type ConfigCollapseContext,
+  type StageRestoreRequest,
 } from "./components/forms/rjsfTemplates.js";
 export {
   CheckboxWidget,

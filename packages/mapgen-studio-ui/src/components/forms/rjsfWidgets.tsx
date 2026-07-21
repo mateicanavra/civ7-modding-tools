@@ -1,12 +1,14 @@
 import type { RJSFSchema, WidgetProps } from "@rjsf/utils";
 import { deepEquals } from "@rjsf/utils";
 import { Undo2 } from "lucide-react";
+import { use } from "react";
 import { cn } from "../../lib/utils.js";
 import { Checkbox } from "../ui/checkbox.js";
 import { Input } from "../ui/input.js";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.js";
 import { Switch } from "../ui/switch.js";
 import { Textarea } from "../ui/textarea.js";
+import { type FieldBaseline, FieldBaselineContext } from "./fieldBaseline.js";
 import { errorFieldId } from "./fieldIds.js";
 import type { BrowserConfigFormContext } from "./rjsfTemplates.js";
 import { humanizeSchemaLabel } from "./schemaPresentation.js";
@@ -43,23 +45,20 @@ function errorA11yProps(
     : {};
 }
 
-// Per-field drift feedback (flat-and-flush delta 9): a field whose live value
-// differs from its schema `default` wears the design system's established
-// drifted treatment (verbatim from GameConsole's savedConfigModified) and
-// offers a one-field undo. Dirtiness re-derives on every controlled value
-// change — no effects, no blur gating.
+// Per-field working-change feedback (flat-and-flush delta 9, re-keyed): a
+// field whose live value differs from the LOADED config's value (the
+// `FieldBaselineContext` baseline — never the schema default) wears the design
+// system's established drifted treatment (verbatim from GameConsole's
+// savedConfigModified) and offers a one-field undo back to that loaded value.
+// Dirtiness re-derives on every controlled value change — no effects, no blur
+// gating. No baseline in context ⇒ no drift treatment and no undo.
 const DRIFT_CLASSES = "border-warning text-warning ring-1 ring-warning/40";
 
-function fieldDrift(schema: RJSFSchema | undefined, value: unknown) {
-  const hasDefault = schema != null && typeof schema === "object" && "default" in schema;
-  const defaultValue = hasDefault ? schema.default : undefined;
-  // null and undefined both mean "empty" here (rjsf emptyValue vs a null
-  // schema default) — normalize both sides so an empty field with a null
-  // default reads clean, not perpetually dirty.
-  return {
-    dirty: hasDefault && !deepEquals(value ?? undefined, defaultValue ?? undefined),
-    defaultValue,
-  };
+function fieldDrift(baseline: FieldBaseline | null, value: unknown) {
+  // null and undefined both mean "empty" here (rjsf emptyValue vs an absent
+  // baseline key) — normalize both sides so an empty field with an empty
+  // baseline reads clean, not perpetually dirty.
+  return baseline !== null && !deepEquals(value ?? undefined, baseline.value ?? undefined);
 }
 
 /**
@@ -68,7 +67,9 @@ function fieldDrift(schema: RJSFSchema | undefined, value: unknown) {
  * sibling, which would steal width from this field's value column and break
  * the equal-width grid; never a nested button inside the Select trigger,
  * which is invalid HTML). The element stays mounted and flips `invisible`
- * when clean so the slot never reflows.
+ * when clean so the slot never reflows — the host control must permanently
+ * reserve the strip the icon sits in (input `pr-8`; select value-span
+ * `mr-6`) so content NEVER runs underneath it.
  */
 function FieldUndoButton(args: {
   dirty: boolean;
@@ -81,7 +82,7 @@ function FieldUndoButton(args: {
     <button
       type="button"
       disabled={args.disabled}
-      aria-label={`Reset ${humanizeSchemaLabel(args.label)} to default`}
+      aria-label={`Undo changes to ${humanizeSchemaLabel(args.label)}`}
       onClick={args.onUndo}
       className={cn(
         "absolute top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded text-warning transition-colors hover:bg-warning/10",
@@ -179,11 +180,12 @@ export function NumberWidget(props: ConfigWidgetProps) {
     options,
     placeholder,
     rawErrors,
-    schema,
   } = props;
-  const { dirty, defaultValue } = fieldDrift(schema, value);
-  // pr-7 reserves the undo slot permanently (input text just gets padded
-  // away from it); the icon sits in the reserved strip at the far right.
+  const baseline = use(FieldBaselineContext);
+  const dirty = fieldDrift(baseline, value);
+  // The undo strip is reserved permanently: `pr-8` pads the value away from
+  // it and the native webkit/moz spinners are suppressed (they render inside
+  // the input's right edge — exactly the strip the icon owns).
   return (
     <div className="relative">
       <Input
@@ -198,7 +200,10 @@ export function NumberWidget(props: ConfigWidgetProps) {
         disabled={disabled || readonly}
         value={(value as number | string | undefined) ?? ""}
         placeholder={placeholder}
-        className={cn("pr-7", dirty && DRIFT_CLASSES)}
+        className={cn(
+          "pr-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+          dirty && DRIFT_CLASSES
+        )}
         {...errorA11yProps(id, rawErrors)}
         onChange={(event) => {
           const next = event.target.value;
@@ -214,8 +219,8 @@ export function NumberWidget(props: ConfigWidgetProps) {
         dirty={dirty}
         disabled={disabled || readonly}
         label={label || name}
-        positionClass="right-1"
-        onUndo={() => onChange(defaultValue)}
+        positionClass="right-1.5"
+        onUndo={() => onChange(baseline?.value)}
       />
     </div>
   );
@@ -228,11 +233,14 @@ export function SelectWidget(props: ConfigWidgetProps) {
   const map = new Map(enumOptions.map((opt) => [String(opt.value), opt.value]));
   const selectedKey = value === undefined || value === null ? "" : String(value);
   const toRadix = (raw: string) => (raw === "" ? SELECT_EMPTY_SENTINEL : raw);
-  const { dirty, defaultValue } = fieldDrift(props.schema, value);
+  const baseline = use(FieldBaselineContext);
+  const dirty = fieldDrift(baseline, value);
 
-  // The undo icon tucks into the dead space just left of the chevron
-  // (right-7 ≈ trigger px-2.5 + chevron). No trigger padding change — padding
-  // would shrink its inner flex row and drag the chevron off flush-right.
+  // The undo icon tucks into the strip just left of the chevron. That strip
+  // is reserved for real: the value span's `mr-6` caps the clamped text
+  // before it, so a long value ellipsizes instead of running under the icon.
+  // No trigger padding change — padding would shrink the trigger's inner flex
+  // row and drag the chevron off flush-right.
   return (
     <div className="relative">
       <Select
@@ -247,7 +255,7 @@ export function SelectWidget(props: ConfigWidgetProps) {
         <SelectTrigger
           id={id}
           aria-label={placeholder ?? name}
-          className={cn(dirty && DRIFT_CLASSES)}
+          className={cn("[&>span]:mr-6", dirty && DRIFT_CLASSES)}
           {...errorA11yProps(id, rawErrors)}
         >
           <SelectValue placeholder={placeholder} />
@@ -264,8 +272,8 @@ export function SelectWidget(props: ConfigWidgetProps) {
         dirty={dirty}
         disabled={disabled || readonly}
         label={label || name}
-        positionClass="right-7"
-        onUndo={() => onChange(defaultValue)}
+        positionClass="right-8"
+        onUndo={() => onChange(baseline?.value)}
       />
     </div>
   );

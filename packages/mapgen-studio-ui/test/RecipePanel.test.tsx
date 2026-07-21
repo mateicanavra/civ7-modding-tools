@@ -48,7 +48,7 @@ describe("RecipePanel overrides toggle", () => {
   });
 });
 
-describe("RecipePanel scoped stage reset (flat-and-flush deltas 5+8)", () => {
+describe("RecipePanel scoped stage restore (flat-and-flush deltas 5+8, re-cut)", () => {
   const configSchema = {
     type: "object",
     properties: {
@@ -75,9 +75,14 @@ describe("RecipePanel scoped stage reset (flat-and-flush deltas 5+8)", () => {
     },
   };
 
-  it("dirty-gates the per-stage Reset icon and patches only that stage back to schema defaults", () => {
-    const onConfigChange = vi.fn();
+  // The LOADED config: elevation was loaded off-default (0.7), climate at the
+  // schema default. The working config drifts elevation further (0.85).
+  const baselineConfig = {
+    elevation: { seaLevel: 0.7, mountainDensity: 0.3 },
+    climate: { rainfall: "temperate" },
+  };
 
+  const renderPanel = (onConfigChange: (next: unknown) => void) =>
     render(
       <TooltipProvider>
         <RecipePanel
@@ -85,6 +90,7 @@ describe("RecipePanel scoped stage reset (flat-and-flush deltas 5+8)", () => {
             elevation: { seaLevel: 0.85, mountainDensity: 0.3 },
             climate: { rainfall: "temperate" },
           }}
+          baselineConfig={baselineConfig}
           configSchema={configSchema}
           onConfigChange={onConfigChange}
           recipeOptions={[{ value: "standard", label: "Standard" }]}
@@ -105,17 +111,45 @@ describe("RecipePanel scoped stage reset (flat-and-flush deltas 5+8)", () => {
       </TooltipProvider>
     );
 
-    // Delta 8: the Reset icon is present ONLY on the drifted stage — absent,
-    // not disabled, on the clean one.
-    expect(screen.getByRole("button", { name: "Reset Elevation" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Reset Climate" })).toBeNull();
+  it("change-gates the per-stage Discard icon and rolls only that stage back to the loaded config", () => {
+    const onConfigChange = vi.fn();
+    renderPanel(onConfigChange);
+
+    // Delta 8 (re-keyed): the Discard icon is present ONLY on the stage with
+    // working changes vs the LOADED config — absent, not disabled, on the
+    // clean one.
+    expect(screen.getByRole("button", { name: "Discard Changes to Elevation" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Discard Changes to Climate" })).toBeNull();
 
     // Delta 5: the dialog copy names the one stage it acts on; confirming
-    // patches ONLY that stage back to its schema defaults (the same values
-    // the dirty gate compared against — one resolution path).
-    fireEvent.click(screen.getByRole("button", { name: "Reset Elevation" }));
+    // rolls ONLY that stage back to the loaded config's values (0.7 — the
+    // baseline, NOT the 0.6 schema default; one resolution path).
+    fireEvent.click(screen.getByRole("button", { name: "Discard Changes to Elevation" }));
     expect(
-      screen.getByText("This will reset Elevation overrides to their default values.")
+      screen.getByText(
+        "This will discard your working changes to Elevation, restoring the values from the selected config."
+      )
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Discard" }));
+
+    expect(onConfigChange).toHaveBeenCalledWith({
+      elevation: { seaLevel: 0.7, mountainDensity: 0.3 },
+      climate: { rainfall: "temperate" },
+    });
+  });
+
+  it("offers Reset to Defaults behind the stage options menu and patches to schema defaults", () => {
+    const onConfigChange = vi.fn();
+    renderPanel(onConfigChange);
+
+    // The destructive defaults reset lives BEHIND the options menu, not on
+    // the header row (the Eraser semantics moved there in the re-cut).
+    const optionsTrigger = screen.getByRole("button", { name: "Elevation Options" });
+    fireEvent.keyDown(optionsTrigger, { key: "Enter" });
+    fireEvent.click(screen.getByRole("menuitem", { name: /Reset to Defaults/ }));
+
+    expect(
+      screen.getByText("This will reset Elevation to the recipe's default values.")
     ).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Reset" }));
 

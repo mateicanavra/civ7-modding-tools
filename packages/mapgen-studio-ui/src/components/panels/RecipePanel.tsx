@@ -7,7 +7,7 @@
 // ============================================================================
 
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
-import { BookOpen, Eraser, Link, Power, Save, Settings } from "lucide-react";
+import { BookOpen, Eraser, Link, Power, Save, Settings, Undo2 } from "lucide-react";
 import React, { useState } from "react";
 import type { XSchema } from "typebox/schema";
 import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
@@ -17,6 +17,7 @@ import type { PipelineConfig, SelectOption } from "../../types/index.js";
 import { DisclosureHeader } from "../composites/DisclosureHeader.js";
 import { OptionSelect } from "../composites/OptionSelect.js";
 import { setAtPath } from "../forms/pathUtils.js";
+import type { StageRestoreRequest } from "../forms/rjsfTemplates.js";
 import { SchemaConfigForm } from "../forms/SchemaConfigForm.js";
 import { pointerToPath } from "../forms/schemaPresentation.js";
 import { useConfigCollapse } from "../forms/useConfigCollapse.js";
@@ -44,6 +45,13 @@ import { formatMapConfigSaveDeployPhaseLabel } from "./statusLabels.js";
 export interface RecipePanelProps {
   /** Current pipeline configuration */
   config: PipelineConfig;
+  /**
+   * The loaded config's values (as selected/imported, before working edits).
+   * Baseline for every working-change signal in the config form: stage
+   * rollback gating and per-field drift + undo. Omitted ⇒ no working-change
+   * tracking (reset-to-defaults stays available).
+   */
+  baselineConfig?: PipelineConfig;
   /** Config schema (recipe artifacts) */
   configSchema: XSchema;
   /** Path-based patch callback for efficient state updates */
@@ -96,6 +104,7 @@ export interface RecipePanelProps {
 // ============================================================================
 export const RecipePanel: React.FC<RecipePanelProps> = ({
   config,
+  baselineConfig,
   configSchema,
   onConfigChange,
   recipeOptions,
@@ -127,17 +136,14 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const [localConfigCollapsed, setLocalConfigCollapsed] = useState(false);
   const [localConfigEditingEnabled, setLocalConfigEditingEnabled] = useState(true);
   const [showAllSteps, setShowAllSteps] = useState(false);
-  // Scoped reset (flat-and-flush delta 5): the confirmation dialog is owned
-  // here but always targets ONE stage — pointer for the patch, label for the
-  // dialog copy, and the stage's schema-resolved defaults captured at request
-  // time (the template resolves them once for its dirty gate; the panel never
-  // re-resolves — one authority path). Null ⇒ closed. There is no global
-  // reset affordance.
-  const [stageResetTarget, setStageResetTarget] = useState<{
-    pointer: string;
-    label: string;
-    defaults: unknown;
-  } | null>(null);
+  // Scoped restore (flat-and-flush delta 5, re-cut): the confirmation dialog
+  // is owned here but always targets ONE stage. The request carries the
+  // values confirming applies — the loaded-config slice for a rollback, the
+  // stage's schema defaults for a defaults reset — captured at request time
+  // by the template (which resolved them once for its own gating; the panel
+  // never re-resolves — one authority path). `mode` picks the dialog copy.
+  // Null ⇒ closed. There is no global reset affordance.
+  const [stageRestoreTarget, setStageRestoreTarget] = useState<StageRestoreRequest | null>(null);
   const [showSaveMenu, setShowSaveMenu] = useState(false);
 
   const configEditingEnabled = configEditingEnabledProp ?? localConfigEditingEnabled;
@@ -184,11 +190,11 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const collapse = useConfigCollapse({
     focusRootPointer: focusPath ? `/${focusPath.join("/")}` : null,
   });
-  const confirmStageReset = () => {
-    if (!stageResetTarget) return;
-    const path = pointerToPath(stageResetTarget.pointer);
-    onConfigChange(setAtPath(config, path, stageResetTarget.defaults) as PipelineConfig);
-    setStageResetTarget(null);
+  const confirmStageRestore = () => {
+    if (!stageRestoreTarget) return;
+    const path = pointerToPath(stageRestoreTarget.pointer);
+    onConfigChange(setAtPath(config, path, stageRestoreTarget.values) as PipelineConfig);
+    setStageRestoreTarget(null);
   };
   // ==========================================================================
   // Styles
@@ -224,7 +230,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         {/* Header */}
         <div className={cn("flex-shrink-0 border-b", borderSubtle)}>
           <DisclosureHeader
-            className="px-3 py-2.5"
+            className="px-4 py-2.5"
             chevron={false}
             expanded={!recipeCollapsed}
             onToggle={() => setRecipeCollapsed(!recipeCollapsed)}
@@ -245,7 +251,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         {!recipeCollapsed && (
           <div
             id="recipe-panel-recipe-section"
-            className={cn("flex-shrink-0 px-3 py-3 space-y-2 border-b", borderSubtle)}
+            className={cn("flex-shrink-0 px-4 py-3 space-y-2 border-b", borderSubtle)}
           >
             <div className="flex items-center gap-3">
               <span
@@ -294,7 +300,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         {/* Config Section Header */}
         <div className={cn("flex-shrink-0 border-b", borderSubtle)}>
           <DisclosureHeader
-            className="px-3 py-2.5 cursor-pointer"
+            className="px-4 py-2.5 cursor-pointer"
             chevron={false}
             expanded={!configCollapsed}
             onToggle={() => setConfigCollapsed(!configCollapsed)}
@@ -377,25 +383,21 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             className="flex-1 overflow-y-auto overflow-x-hidden"
           >
             {/* Config form (flat-and-flush delta 1): flush — no horizontal
-              gutter, so rows, dividers, and hover highlights run
-              edge-to-edge. pb-6 keeps bottom breathing room at full scroll
-              (the scroll-edge fade is gone — delta 7 — so the hairline
-              dividers are the only "continues below" cue). */}
+              gutter, so stage rows and dividers run edge-to-edge, and no
+              trailing padding — the footer's own hairline closes the last
+              row (a padded strip here read as a broken slab whenever the
+              panel shrank to fit). */}
             <div
-              className={cn(
-                "pb-6",
-                !configEditingEnabled && "opacity-40 pointer-events-none select-none"
-              )}
+              className={cn(!configEditingEnabled && "opacity-40 pointer-events-none select-none")}
             >
               <SchemaConfigForm
                 schema={configSchema}
                 value={config}
+                baseline={baselineConfig}
                 focusPath={focusPath}
                 disabled={!configEditingEnabled}
                 collapse={collapse}
-                onStageResetRequest={(pointer, label, defaults) =>
-                  setStageResetTarget({ pointer, label, defaults })
-                }
+                onStageRestoreRequest={setStageRestoreTarget}
                 onChange={(next) => onConfigChange(next)}
               />
             </div>
@@ -403,7 +405,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         )}
 
         {/* Footer */}
-        <div className={cn("flex-shrink-0 px-3 py-2.5 border-t", borderColor, sectionBg)}>
+        <div className={cn("flex-shrink-0 px-4 py-2.5 border-t", borderColor, sectionBg)}>
           <div className="flex items-center gap-2">
             {/*
               Save & Deploy menu — Radix `DropdownMenu` (role=menu/menuitem,
@@ -453,30 +455,43 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         </div>
       </div>
 
-      {/* Stage Reset Confirmation Dialog — copy names the one stage it acts
-          on; confirming patches only that stage back to its schema defaults. */}
+      {/* Stage Restore Confirmation Dialog — copy names the one stage it
+          acts on and follows the request's mode: a rollback discards working
+          changes back to the loaded config's values; a defaults reset
+          restores the recipe's defaults. Confirming patches only that stage. */}
       <Dialog
-        open={stageResetTarget !== null}
+        open={stageRestoreTarget !== null}
         onOpenChange={(open) => {
-          if (!open) setStageResetTarget(null);
+          if (!open) setStageRestoreTarget(null);
         }}
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Eraser className="w-4 h-4" />
-              Reset {stageResetTarget?.label}
+              {stageRestoreTarget?.mode === "rollback" ? (
+                <>
+                  <Undo2 className="w-4 h-4" />
+                  Discard Changes to {stageRestoreTarget?.label}
+                </>
+              ) : (
+                <>
+                  <Eraser className="w-4 h-4" />
+                  Reset {stageRestoreTarget?.label} to Defaults
+                </>
+              )}
             </DialogTitle>
             <DialogDescription>
-              This will reset {stageResetTarget?.label} overrides to their default values.
+              {stageRestoreTarget?.mode === "rollback"
+                ? `This will discard your working changes to ${stageRestoreTarget?.label}, restoring the values from the selected config.`
+                : `This will reset ${stageRestoreTarget?.label} to the recipe's default values.`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button variant="destructive" onClick={confirmStageReset}>
-              Reset
+            <Button variant="destructive" onClick={confirmStageRestore}>
+              {stageRestoreTarget?.mode === "rollback" ? "Discard" : "Reset"}
             </Button>
           </DialogFooter>
         </DialogContent>

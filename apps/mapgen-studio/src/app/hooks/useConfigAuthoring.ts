@@ -21,7 +21,10 @@ import type { ToastFn } from "./useToast";
 
 export type UseConfigAuthoringArgs = Readonly<{
   canonicalConfig: MapConfigEnvelope;
+  /** Working-config updates: the baseline stays put. */
   setCanonicalConfig: AuthoringState["setCanonicalConfig"];
+  /** Whole-envelope installs: refreshes the working-change baseline too. */
+  installCanonicalConfig: AuthoringState["installCanonicalConfig"];
   toast: ToastFn;
 }>;
 
@@ -40,7 +43,7 @@ export type UseConfigAuthoringResult = Readonly<{
 }>;
 
 export function useConfigAuthoring(args: UseConfigAuthoringArgs): UseConfigAuthoringResult {
-  const { canonicalConfig, setCanonicalConfig, toast } = args;
+  const { canonicalConfig, setCanonicalConfig, installCanonicalConfig, toast } = args;
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const recipeArtifacts = getRecipeArtifacts(canonicalConfig.recipe);
   const pipelineConfig = canonicalConfig.config;
@@ -59,11 +62,14 @@ export function useConfigAuthoring(args: UseConfigAuthoringArgs): UseConfigAutho
       : [{ value: canonicalConfig.id, label: canonicalConfig.name }, ...catalog];
   }, [canonicalConfig.id, canonicalConfig.name, recipeArtifacts.catalogConfigs]);
 
+  // Whole-envelope installs (recipe select, config select, import) refresh
+  // the working-change baseline; pipeline edits below go through
+  // `setCanonicalConfig` and leave it untouched.
   const install = useCallback(
     (next: MapConfigEnvelope) => {
-      setCanonicalConfig(next);
+      installCanonicalConfig(next);
     },
-    [setCanonicalConfig]
+    [installCanonicalConfig]
   );
 
   const setPipelineConfig = useCallback(
@@ -73,9 +79,9 @@ export function useConfigAuthoring(args: UseConfigAuthoringArgs): UseConfigAutho
         toast("Config edit failed: the value is invalid for this recipe.", { variant: "error" });
         return;
       }
-      install(updated);
+      setCanonicalConfig(updated);
     },
-    [canonicalConfig, install, toast]
+    [canonicalConfig, setCanonicalConfig, toast]
   );
 
   const selectRecipe = useCallback(

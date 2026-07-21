@@ -5,13 +5,21 @@ import type {
   RJSFSchema,
 } from "@rjsf/utils";
 import { deepEquals } from "@rjsf/utils";
-import { Braces, ChevronDown, ChevronRight, Eraser } from "lucide-react";
-import { Fragment, type ReactNode, useState } from "react";
+import { Braces, ChevronDown, ChevronRight, EllipsisVertical, Eraser, Undo2 } from "lucide-react";
+import { Fragment, type ReactNode, useMemo, useState } from "react";
 import { iconButton } from "../../lib/iconButton.js";
 import { cn } from "../../lib/utils.js";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu.js";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip.js";
 import { FieldRow } from "./FieldRow.js";
+import { type FieldBaseline, FieldBaselineContext } from "./fieldBaseline.js";
 import { errorFieldId } from "./fieldIds.js";
+import { getAtPath } from "./pathUtils.js";
 import { humanizeSchemaLabel, pathToPointer, schemaDefaultsFor } from "./schemaPresentation.js";
 
 /**
@@ -32,18 +40,42 @@ export type ConfigCollapseContext = Readonly<{
   toggle(pointer: string): void;
 }>;
 
+/**
+ * One stage-scoped restore ask (flat-and-flush delta 5, re-cut): the host
+ * (RecipePanel) owns the confirmation dialog; the stage header only asks.
+ * `mode` picks the dialog's story and `values` carries exactly what confirming
+ * applies at `pointer` — the SAME value the requesting affordance compared
+ * against, so one place resolves it and the confirmer just applies it.
+ *
+ * - `"rollback"` — discard working changes: `values` is the loaded config's
+ *   slice for this stage (the baseline). Requested by the header's Undo icon,
+ *   which renders only while the stage differs from that baseline.
+ * - `"defaults"` — reset to the recipe's defaults: `values` is the stage's
+ *   schema-resolved defaults. Requested from the stage options menu.
+ */
+export type StageRestoreRequest = Readonly<{
+  pointer: string;
+  label: string;
+  values: unknown;
+  mode: "rollback" | "defaults";
+}>;
+
 export type BrowserConfigFormContext = {
   transparentPaths: ReadonlySet<string>;
   collapse?: ConfigCollapseContext;
   /**
-   * Requests the scoped reset confirmation for one stage (flat-and-flush
-   * delta 5): the RecipePanel owns the dialog; the stage header's Reset icon
-   * only asks. The request carries the stage's schema-resolved defaults —
-   * the SAME value the dirty gate compared against — so exactly one place
-   * resolves defaults and the confirmer just applies them. Absent in bare
-   * `SchemaForm` reuse — stages then render no Reset action.
+   * The loaded config's values in FORM coordinates (the config as selected /
+   * imported, before working edits) — the baseline every "changed" signal in
+   * the form keys on: stage rollback gating and per-field drift + undo.
+   * `undefined` ⇒ no working-change tracking anywhere in the form (bare
+   * `SchemaForm` reuse).
    */
-  onStageResetRequest?: (pointer: string, label: string, defaults: unknown) => void;
+  baseline?: unknown;
+  /**
+   * Requests the scoped restore confirmation for one stage. Absent in bare
+   * `SchemaForm` reuse — stages then render neither restore affordance.
+   */
+  onStageRestoreRequest?: (request: StageRestoreRequest) => void;
 };
 
 // Token-driven chrome for the rjsf config form — this is a high-traffic live
@@ -55,21 +87,29 @@ const FORM = {
   // Config explorer v2 (P7 flatten) + flat-and-flush delta 1: the old
   // depth-2 "well" cards are retired AND the stage slab's recess tint is
   // gone — the whole config body is ONE continuous flat surface. Nesting is
-  // a FLAT collapsible object explorer — full-bleed disclosure rows
-  // separated by hairline dividers, depth carried by dividers plus a
-  // compounding left indent (`nestIndent`), never by a fill.
+  // a FLAT collapsible object explorer — disclosure rows separated by
+  // hairline dividers, depth carried by dividers plus indentation, never by
+  // a fill.
   //
-  // Hugged rhythm (delta 1): headers inset 14px (`px-3.5`); field runs inset
-  // 32px left / 14px right (`pl-8 pr-3.5`). The 32 is DERIVED, not chosen:
-  // header inset (14) + chevron w-3 (12) + gap-1.5 (6) — it lands property
-  // labels directly under the header's title TEXT. Change the header inset,
-  // chevron size, or title gap and the field-run left inset must be
-  // re-derived from that fixed +18. Below the stage tier this derivation
-  // deliberately gives way to depth: nested bodies add `nestIndent`, so each
-  // level's field runs sit exactly one indent deeper than their header's
-  // title — indent-for-depth supersedes label-under-title past depth 1.
-  fieldRunInset: "pl-8 pr-3.5",
-  nestIndent: "pl-3",
+  // The indent system is RECURSIVE, not arithmetic (rework of delta 1):
+  // every section applies the same three steps, at every depth —
+  //
+  //   header:    carries the gutter (`headerInset`, 16px) inside whatever
+  //              body contains it; chevron w-3 (12) + gap-2 (8) put the
+  //              TITLE TEXT at its body's edge + 36.
+  //   body:      indents `bodyIndent` (12px) from its container.
+  //   field run: pads `fieldRunInset` left (24px) inside the body ⇒ labels
+  //              land at body edge + 12 + 24 = the previous body's edge
+  //              + 36 — exactly under their OWN section's title text, at
+  //              every depth.
+  //
+  // The 24 is DERIVED: headerInset (16) + chevron (12) + gap (8) −
+  // bodyIndent (12). Change any of those and re-derive it. Because bodies
+  // indent, nested hairlines and hover rows start at their section's depth —
+  // the inset dividers double as tree guides.
+  headerInset: "px-4",
+  fieldRunInset: "pl-6 pr-4",
+  bodyIndent: "pl-3",
   divider: "border-border",
   // Field labels sit a full tier above prose (Pass-2 form hierarchy): labels are
   // foreground anchors the eye scans; descriptions/help/gs-comments recede on the
@@ -84,14 +124,14 @@ const FORM = {
   // its caption recedes below field labels (the brightest scan line in a card).
   groupHeading: "text-label font-semibold uppercase tracking-wider text-muted-foreground",
   subGroupHeading: "text-label font-semibold uppercase tracking-wider text-muted-foreground/70",
-  // Rhythm (flat-and-flush delta 1): 4px inside a field block, 10px between
-  // sibling fields, 12px above/below a run. Object/array sections carry NO
-  // inter-item rhythm (Y4 + P7 flatten): hairline dividers separate rows,
-  // not margins — only runs of scalar fields keep the sibling gap inside
-  // their padded block.
+  // Rhythm (flat-and-flush delta 1, reworked): 4px inside a field block,
+  // 12px between sibling fields, 12px above/below a run. Object/array
+  // sections carry NO inter-item rhythm (Y4 + P7 flatten): hairline dividers
+  // separate rows, not margins — only runs of scalar fields keep the sibling
+  // gap inside their padded block.
   rhythm: {
     field: "gap-1",
-    siblings: "gap-2.5",
+    siblings: "gap-3",
   },
 } as const;
 
@@ -149,7 +189,7 @@ function CollapsibleHeader(args: {
         onClick={() => collapse.toggle(pointer)}
         aria-expanded={expanded}
         aria-controls={configContentId(pointer)}
-        className="flex flex-1 min-w-0 items-center gap-1.5 text-left cursor-pointer"
+        className="flex flex-1 min-w-0 items-center gap-2 text-left cursor-pointer"
       >
         <Chevron className="w-3 h-3 shrink-0 text-muted-foreground/70" aria-hidden="true" />
         <span className={cn("min-w-0 truncate", titleClass)}>{title}</span>
@@ -175,6 +215,26 @@ export function BrowserConfigFieldTemplate(
     displayLabel,
     rawErrors,
   } = props;
+  // Working-change baseline for THIS field (loaded-config value at this
+  // field's path), handed to the value widget via context — the template is
+  // the one layer that knows the field's path (`fieldPathId.path`); widgets
+  // never do path math. `null` ⇒ no baseline plumbing, widgets render no
+  // drift/undo. Memoized so the provider's value is stable per baseline
+  // slice (context bypasses rjsf's SchemaField deepEquals gate).
+  const formBaseline = props.registry.formContext?.baseline;
+  const fieldPath = props.fieldPathId.path;
+  const fieldBaseline = useMemo<FieldBaseline | null>(
+    () =>
+      formBaseline === undefined
+        ? null
+        : {
+            value: getAtPath(
+              formBaseline,
+              fieldPath.map((segment) => String(segment))
+            ),
+          },
+    [formBaseline, fieldPath]
+  );
   if (hidden) return <div style={{ display: "none" }} />;
   const prettyLabel = label ? humanizeSchemaLabel(label) : "";
   const schemaType = props.schema?.type;
@@ -195,10 +255,14 @@ export function BrowserConfigFieldTemplate(
   const errorId = errorFieldId(id);
   const hasErrors = (rawErrors?.length ?? 0) > 0;
 
+  const control = (
+    <FieldBaselineContext.Provider value={fieldBaseline}>{children}</FieldBaselineContext.Provider>
+  );
+
   if (!showLabel) {
     return (
       <div className={cn("flex flex-col", FORM.rhythm.field, classNames)}>
-        <div className={textClass}>{children}</div>
+        <div className={textClass}>{control}</div>
         {description && !suppressDescription ? (
           <div className={cn("text-data", labelClass)}>{description}</div>
         ) : null}
@@ -220,7 +284,7 @@ export function BrowserConfigFieldTemplate(
           <span className="font-medium">{prettyLabel}</span>
           {required ? <span className="text-data text-destructive">*</span> : null}
         </label>
-        <div className={cn("flex-1 min-w-[120px]", textClass)}>{children}</div>
+        <div className={cn("flex-1 min-w-[120px]", textClass)}>{control}</div>
       </FieldRow>
       {description && !suppressDescription ? (
         <div className={cn("text-data", labelClass)}>{description}</div>
@@ -316,14 +380,19 @@ function FlatObjectChildren(args: {
 }
 
 /**
- * One stage's disclosure section (depth-1 root config object). Owns the two
- * per-stage header actions (flat-and-flush delta 5): Reset — rendered only
- * while the stage's live values differ from its schema defaults (delta 8:
- * absent, not disabled; the icon's presence is itself the "this stage
- * changed" signal) — and a JSON reveal that swaps the stage's fields for its
- * raw values (mutually exclusive; collapses with the stage). The stage's
- * schema defaults ARE the recipe defaults at that pointer (the artifact
- * generator stamps them from the same source the reset restores).
+ * One stage's disclosure section (depth-1 root config object). Owns the
+ * per-stage header actions (flat-and-flush delta 5, re-cut):
+ *
+ * - Undo (rollback) — rendered only while the stage's live values differ
+ *   from the LOADED config's values (delta 8: absent, not disabled; the
+ *   icon's presence is itself the "this stage has working changes" signal).
+ *   Confirming restores the baseline slice.
+ * - JSON reveal — swaps the stage's fields for its raw values (mutually
+ *   exclusive; collapses with the stage).
+ * - Options menu — holds the destructive escape hatch: Reset to Defaults
+ *   (Eraser), which restores the stage's schema-resolved defaults. The
+ *   stage's schema defaults ARE the recipe defaults at that pointer (the
+ *   artifact generator stamps them from the same source the reset restores).
  */
 function StageObjectSection(args: {
   pointer: string;
@@ -334,7 +403,8 @@ function StageObjectSection(args: {
   description?: ReactNode;
   collapse: ConfigCollapseContext | undefined;
   expanded: boolean;
-  onStageResetRequest?: (pointer: string, label: string, defaults: unknown) => void;
+  baseline?: FieldBaseline;
+  onStageRestoreRequest?: (request: StageRestoreRequest) => void;
 }): ReactNode {
   const {
     pointer,
@@ -345,33 +415,42 @@ function StageObjectSection(args: {
     description,
     collapse,
     expanded,
-    onStageResetRequest,
+    baseline,
+    onStageRestoreRequest,
   } = args;
   const [showJson, setShowJson] = useState(false);
   const labelClass = FORM.label;
   const textClass = FORM.text;
 
   const defaults = schemaDefaultsFor(schema);
-  const dirty = defaults !== undefined && !deepEquals(formData ?? {}, defaults);
+  const atDefaults = defaults !== undefined && deepEquals(formData ?? {}, defaults);
+  const changed = baseline !== undefined && !deepEquals(formData ?? {}, baseline.value ?? {});
 
   // Local provider so the template stays self-sufficient in bare `SchemaForm`
   // reuse (no host-provider contract); 300ms matches the app/storybook
   // providers, so nesting under them changes nothing.
   const actions = (
     <TooltipProvider delayDuration={300}>
-      {dirty && onStageResetRequest ? (
+      {changed && onStageRestoreRequest ? (
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               type="button"
-              onClick={() => onStageResetRequest(pointer, title, defaults)}
-              aria-label={`Reset ${title}`}
-              className={iconButton}
+              onClick={() =>
+                onStageRestoreRequest({
+                  pointer,
+                  label: title,
+                  values: baseline.value,
+                  mode: "rollback",
+                })
+              }
+              aria-label={`Discard Changes to ${title}`}
+              className={cn(iconButton, "text-warning hover:text-warning hover:bg-warning/10")}
             >
-              <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
+              <Undo2 className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           </TooltipTrigger>
-          <TooltipContent>Reset {title}</TooltipContent>
+          <TooltipContent>Discard Changes</TooltipContent>
         </Tooltip>
       ) : null}
       <Tooltip>
@@ -392,6 +471,31 @@ function StageObjectSection(args: {
         </TooltipTrigger>
         <TooltipContent>{showJson ? `Show ${title} Form` : `Show ${title} JSON`}</TooltipContent>
       </Tooltip>
+      {onStageRestoreRequest ? (
+        <DropdownMenu>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
+                <button type="button" aria-label={`${title} Options`} className={iconButton}>
+                  <EllipsisVertical className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Options</TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              disabled={defaults === undefined || atDefaults}
+              onSelect={() =>
+                onStageRestoreRequest({ pointer, label: title, values: defaults, mode: "defaults" })
+              }
+            >
+              <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
+              Reset to Defaults
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : null}
     </TooltipProvider>
   );
 
@@ -399,9 +503,9 @@ function StageObjectSection(args: {
   // — no card chrome, no raised surface, and no recessed tint. The header is
   // a full-bleed disclosure row; expanding it opens a body on the SAME
   // continuous surface, separated only by the hairline `border-t` — depth is
-  // carried by dividers and indent, never a fill. Inside, the config
-  // explorer v2 layout takes over: full-bleed nested disclosure rows,
-  // hairline-divided, with only scalar-field runs carrying padding.
+  // carried by dividers and indent, never a fill. The body indents one step
+  // (`bodyIndent`) so nested section headers read one tier deeper than the
+  // stage title — the recursive indent rule starts here.
   return (
     <section data-config-section="" data-config-pointer={pointer}>
       {collapse ? (
@@ -411,11 +515,11 @@ function StageObjectSection(args: {
           titleClass={cn("text-sm font-semibold", textClass)}
           expanded={expanded}
           collapse={collapse}
-          className="px-3.5 py-2 hover:bg-muted/20 transition-colors"
+          className={cn("py-2.5 hover:bg-muted/20 transition-colors", FORM.headerInset)}
           actions={actions}
         />
       ) : (
-        <header className="flex flex-col gap-1 px-3.5 py-2">
+        <header className={cn("flex flex-col gap-1 py-2.5", FORM.headerInset)}>
           <div className={cn("text-sm font-semibold", textClass)}>{title}</div>
           {renderGsComments({ schema, className: labelClass })}
           {description ? <div className={cn("text-data", labelClass)}>{description}</div> : null}
@@ -424,11 +528,11 @@ function StageObjectSection(args: {
       {expanded ? (
         <div
           id={collapse ? configContentId(pointer) : undefined}
-          className={cn("border-t", FORM.borderSubtle)}
+          className={cn("border-t", FORM.borderSubtle, FORM.bodyIndent)}
         >
           {collapse &&
           (description || normalizeGsComments((schema as GsSchemaMeta | null)?.gs?.comments)) ? (
-            <div className={cn("flex flex-col gap-1 pt-2 pb-1.5", FORM.fieldRunInset)}>
+            <div className={cn("flex flex-col gap-1 pt-2.5 pb-2", FORM.fieldRunInset)}>
               {renderGsComments({ schema, className: labelClass })}
               {description ? (
                 <div className={cn("text-data", labelClass)}>{description}</div>
@@ -478,11 +582,12 @@ export function BrowserConfigObjectFieldTemplate(
   if (isRoot) {
     // Y4 flatten: the stage list is a TIGHT accordion — flush rows separated
     // by hairlines, no inter-card margins, no card chrome. Expansion is the
-    // only volume change (a recessed slab opens under the row).
+    // only volume change (a recessed slab opens under the row). No outer
+    // borders at all: the CONTAINER owns both boundaries (the panel's config
+    // header carries `border-b` above, its footer `border-t` below) — an own
+    // border here doubled those hairlines.
     return (
-      <div
-        className={cn("flex flex-col divide-y divide-border-subtle border-y", FORM.borderSubtle)}
-      >
+      <div className="flex flex-col divide-y divide-border-subtle">
         {properties
           .filter((p) => !p.hidden)
           .map((p, index) => (
@@ -517,6 +622,19 @@ export function BrowserConfigObjectFieldTemplate(
   const expanded = collapse ? collapse.expandedPointers.has(pointer) : true;
 
   if (isStage) {
+    // The stage's working-change baseline: the loaded config's slice at this
+    // stage's path. Resolved HERE (the layer that knows the path) and handed
+    // down as a value — the section never re-resolves.
+    const formBaseline = props.registry.formContext?.baseline;
+    const baseline =
+      formBaseline === undefined
+        ? undefined
+        : {
+            value: getAtPath(
+              formBaseline,
+              path.map((segment) => String(segment))
+            ),
+          };
     return (
       <StageObjectSection
         pointer={pointer}
@@ -527,16 +645,18 @@ export function BrowserConfigObjectFieldTemplate(
         description={description}
         collapse={collapse}
         expanded={expanded}
-        onStageResetRequest={props.registry.formContext?.onStageResetRequest}
+        baseline={baseline}
+        onStageRestoreRequest={props.registry.formContext?.onStageRestoreRequest}
       />
     );
   }
 
   // Depth ≥2 (config explorer v2): every nested object is the SAME flat
-  // disclosure row — no well cards, no side margins, no inter-section gaps.
-  // The hairlines come from the parent's `divide-y`; depth reads through the
-  // compounding `nestIndent` on each expanded body plus the heading tier
-  // (group eyebrow at depth 2, the dimmer sub-group eyebrow below).
+  // disclosure row — no well cards, no inter-section gaps. The hairlines
+  // come from the parent's `divide-y`; depth reads through the recursive
+  // body indent (each level's rows start one `bodyIndent` deeper) plus the
+  // heading tier (group eyebrow at depth 2, the dimmer sub-group eyebrow
+  // below).
   const headingClass = depth === 2 ? FORM.groupHeading : FORM.subGroupHeading;
   return (
     <section data-config-section="" data-config-pointer={pointer}>
@@ -547,17 +667,17 @@ export function BrowserConfigObjectFieldTemplate(
           titleClass={headingClass}
           expanded={expanded}
           collapse={collapse}
-          className="px-3.5 py-1.5 hover:bg-muted/20 transition-colors"
+          className={cn("py-2 hover:bg-muted/20 transition-colors", FORM.headerInset)}
         />
       ) : (
-        <header className="px-3.5 py-1.5">
+        <header className={cn("py-2", FORM.headerInset)}>
           <div className={headingClass}>{prettyTitle}</div>
         </header>
       )}
       {expanded ? (
-        <div id={collapse ? configContentId(pointer) : undefined} className={FORM.nestIndent}>
+        <div id={collapse ? configContentId(pointer) : undefined} className={FORM.bodyIndent}>
           {description ? (
-            <div className={cn("text-data pb-1.5", FORM.fieldRunInset, labelClass)}>
+            <div className={cn("text-data pb-2", FORM.fieldRunInset, labelClass)}>
               {description}
             </div>
           ) : null}
@@ -610,19 +730,19 @@ export function BrowserConfigArrayFieldTemplate(
           titleClass={FORM.groupHeading}
           expanded={expanded}
           collapse={collapse}
-          className="px-3.5 py-1.5 hover:bg-muted/20 transition-colors"
+          className={cn("py-2 hover:bg-muted/20 transition-colors", FORM.headerInset)}
           actions={addButton}
         />
       ) : (
-        <div className="flex items-center gap-2 px-3.5 py-1.5">
+        <div className={cn("flex items-center gap-2 py-2", FORM.headerInset)}>
           <div className={FORM.groupHeading}>{prettyTitle}</div>
           <div style={{ flex: 1 }} />
           {addButton}
         </div>
       )}
       {expanded ? (
-        <div id={collapse ? configContentId(pointer) : undefined} className={FORM.nestIndent}>
-          {renderGsComments({ schema, className: cn("pb-1.5", FORM.fieldRunInset, labelClass) })}
+        <div id={collapse ? configContentId(pointer) : undefined} className={FORM.bodyIndent}>
+          {renderGsComments({ schema, className: cn("pb-2", FORM.fieldRunInset, labelClass) })}
           <div className="flex flex-col divide-y divide-border-subtle">
             {items.map((item, index) => {
               // RJSF v6 types this as ReactElement[], but some templates/versions

@@ -32,7 +32,12 @@ export type UseSaveDeployArgs = {
   browserRunning: boolean;
   runInGameRunning: StudioOperations["runInGameRunning"];
   canonicalConfig: MapConfigEnvelope;
-  setCanonicalConfig: AuthoringState["setCanonicalConfig"];
+  /**
+   * Whole-envelope install: a successful save ADOPTS the saved envelope, so
+   * the working-change baseline refreshes to the just-saved values (drift
+   * indicators clear — working now equals saved).
+   */
+  installCanonicalConfig: AuthoringState["installCanonicalConfig"];
   toast: ToastFn;
 };
 
@@ -55,7 +60,7 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
     browserRunning,
     runInGameRunning,
     canonicalConfig,
-    setCanonicalConfig,
+    installCanonicalConfig,
     toast,
   } = args;
   const [saveDialogState, setSaveDialogState] = useState({
@@ -236,7 +241,7 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
       }
       const result = await saveCanonicalConfig(next);
       if (!mountedRef.current) return;
-      if (result.ok) setCanonicalConfig(next);
+      if (result.ok) installCanonicalConfig(next);
       presentSaveResult(result);
       closeSaveDialog();
     },
@@ -245,7 +250,7 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
       closeSaveDialog,
       presentSaveResult,
       saveCanonicalConfig,
-      setCanonicalConfig,
+      installCanonicalConfig,
       toast,
     ]
   );
@@ -259,8 +264,12 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
 
   const handleSaveToCurrent = useCallback(async () => {
     const result = await saveCanonicalConfig(canonicalConfig);
-    if (mountedRef.current) presentSaveResult(result);
-  }, [canonicalConfig, presentSaveResult, saveCanonicalConfig]);
+    if (!mountedRef.current) return;
+    // Saving to the current identity makes the saved values the loaded
+    // values: re-install the same envelope so the baseline refreshes.
+    if (result.ok) installCanonicalConfig(canonicalConfig);
+    presentSaveResult(result);
+  }, [canonicalConfig, installCanonicalConfig, presentSaveResult, saveCanonicalConfig]);
 
   return {
     adoptSaveDeployOperation,

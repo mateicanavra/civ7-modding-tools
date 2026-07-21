@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { NumberWidget } from "@swooper/mapgen-studio-ui";
+import { FieldBaselineContext, NumberWidget } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
 import { widgetProps } from "../../storybook/mockWidgetProps.js";
 
@@ -64,9 +64,11 @@ export const Disabled: Story = {
 };
 
 /**
- * Flat-and-flush delta 9: value ≠ schema default ⇒ the DS drifted treatment
- * (warning border/ring) plus the inside-overlaid one-field undo. The clean
- * sibling shows the reserved slot: both fields keep identical box widths.
+ * Flat-and-flush delta 9 (re-cut): value ≠ the LOADED config's value (the
+ * `FieldBaselineContext` baseline) ⇒ the DS drifted treatment (warning
+ * border/ring) plus the inside-overlaid one-field undo back to that loaded
+ * value. The clean sibling (value == baseline) shows the reserved slot: both
+ * fields keep identical box widths.
  */
 export const Modified: Story = {
   args: widgetProps({
@@ -75,22 +77,24 @@ export const Modified: Story = {
     label: "seaLevel",
     value: 0.85,
     options: { emptyValue: undefined },
-    schema: { type: "number", default: 0.6 },
   }),
   render: (args) => (
     <Demo>
       <div style={{ width: 160 }}>
-        <NumberWidget {...args} />
+        <FieldBaselineContext.Provider value={{ value: 0.6 }}>
+          <NumberWidget {...args} />
+        </FieldBaselineContext.Provider>
       </div>
       <div style={{ width: 160 }}>
-        <NumberWidget
-          {...args}
-          id="cfg_mountainDensity"
-          name="mountainDensity"
-          label="mountainDensity"
-          value={0.3}
-          schema={{ type: "number", default: 0.3 }}
-        />
+        <FieldBaselineContext.Provider value={{ value: 0.3 }}>
+          <NumberWidget
+            {...args}
+            id="cfg_mountainDensity"
+            name="mountainDensity"
+            label="mountainDensity"
+            value={0.3}
+          />
+        </FieldBaselineContext.Provider>
       </div>
     </Demo>
   ),

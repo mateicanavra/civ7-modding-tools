@@ -103,10 +103,11 @@ export const WithoutCollapse: Story = {
 };
 
 /**
- * Flat-and-flush deltas 5+8: the stage's formData drifts from its schema
- * defaults, so the header carries BOTH scoped actions — the dirty-gated Reset
- * (present only because seaLevel drifted) and the always-available JSON
- * reveal (click Braces to swap the fields for the stage's raw values).
+ * Flat-and-flush deltas 5+8 (re-cut): the stage's formData drifts from the
+ * LOADED config's values (the formContext baseline), so the header carries
+ * all three scoped actions — the change-gated Discard (warning Undo icon,
+ * present only because seaLevel drifted from the baseline), the JSON reveal,
+ * and the options menu holding Reset to Defaults.
  */
 export const ModifiedStage: Story = {
   render: () => (
@@ -134,7 +135,8 @@ export const ModifiedStage: Story = {
             formContext: {
               transparentPaths: noTransparentPaths,
               collapse: alwaysExpandedCollapse,
-              onStageResetRequest: noop,
+              baseline: { elevation: { seaLevel: 0.6, mountainDensity: 0.3 } },
+              onStageRestoreRequest: noop,
             },
           },
         } as unknown as ObjectFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>)}
