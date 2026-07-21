@@ -6,11 +6,11 @@ import { Toaster, toast } from "@swooper/mapgen-studio-ui";
 import { useEffect } from "react";
 
 /**
- * Adapted from `.design-sync/previews/Toaster.tsx`. Toaster is sonner bound to the
- * studio tokens (popover tier, shadowed). The global decorator already mounts a
- * `<Toaster/>` and owns the `.dark` class, so this story does NOT mount a second
- * Toaster — a top-level render component fires realistic studio notifications in a
- * `useEffect` and the decorator's Toaster displays them.
+ * Toaster is sonner bound to the studio tokens (popover tier, shadowed). The
+ * story is SELF-CONTAINED: it mounts its own `<Toaster/>` sink and fires the
+ * notifications — no reliance on Storybook globals, because the design-sync
+ * card renders exactly this story without the preview decorators (one render
+ * path for the workbench and the synced card).
  */
 const meta = {
   title: "primitives/Toaster",
@@ -20,8 +20,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Top-level render component (hooks must not live in a bare render arrow): fires
-// the toasts on mount; the decorator's Toaster renders the stack.
+// Top-level render component (hooks must not live in a bare render arrow):
+// mounts the sink and fires the toasts on mount.
 function ToastDemo() {
   useEffect(() => {
     toast.success("Seed copied to clipboard");
@@ -33,10 +33,9 @@ function ToastDemo() {
     });
   }, []);
   return (
-    <div
-      className="bg-background"
-      style={{ position: "relative", width: "100%", minHeight: 300 }}
-    />
+    <div className="bg-background" style={{ position: "relative", width: "100%", minHeight: 300 }}>
+      <Toaster />
+    </div>
   );
 }
 

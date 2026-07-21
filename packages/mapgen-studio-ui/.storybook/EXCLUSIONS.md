@@ -24,4 +24,5 @@ components are prop-driven and reach no `/rpc`/daemon data; none had to be
 excluded for live-data coupling. (The app-era per-story stub `QueryClient` and
 store reset were retired with the app Storybook at B7 — no storied component
 ever read a store or mounted a query, so the package preview provides only
-`TooltipProvider` + `Toaster`.)
+`TooltipProvider`, exactly the provider set the design-sync config declares;
+stories needing anything more mount it themselves.)
