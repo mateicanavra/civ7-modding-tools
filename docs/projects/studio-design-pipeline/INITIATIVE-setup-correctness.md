@@ -1,6 +1,21 @@
 # Initiative: Setup Correctness — one vocabulary, honest guards
 
 > **Status:** ACTIVE (opened 2026-07-21). Owner: the pipeline director (FRAME §8).
+>
+> **Execution ledger (live, 2026-07-21):** branches `agent-DS-init-rails`
+> (R1 complete, `3eedaf9e0e`) and `agent-DS-init-primitives` (C1a IconButton+
+> Badge `abd71e002c`; C2a rjsf shells+section naming+id scoping `d4a7dce0f8`;
+> C2b Disclosure anatomy+useControllableState `77d25d4d3b`; C2c SelectWidget→
+> OptionSelect+AppBrand dismissal+array de-any `1418f43a49`; C3a Toaster
+> reunification `c5f41f830e`; A1a Tailwind src scan+StrictMode honesty
+> `63ca371c1a` — StrictMode exception ledgered as root DEF-020).
+> **Open rows:** C1.2 SegmentedControl + Tabs retirement, C1.4 scroll idiom +
+> ScrollArea retirement, C1.5 literal sweep, C2.3 ExplorePanel provider
+> collapse, C3.3 tier-policy note, A1.3 palette identity contract, A1.4
+> errorFormat consolidation, A1.5 WaterStats shortLabel, S1 sync & seal.
+> Codex Sol adversarial pass on this document: in flight (job
+> task-mrv2a6c0-mfesmo); the barrel retirements and the ExplorePanel collapse
+> deliberately wait on its verdict.
 > **Trigger:** Matei's directive after the sync-surface repair — every actor in this
 > pipeline's history was us; the tailwind pollution and the toast impossibility were
 > self-authored and survived because reviews checked artifacts, not mechanisms.
