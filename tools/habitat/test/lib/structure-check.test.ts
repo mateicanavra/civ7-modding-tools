@@ -178,6 +178,153 @@ describe("structure-check evaluator", () => {
     expect(messages(result)).toContain("[wrong-root-kind]");
     expect(result.diagnostics).toHaveLength(1);
   });
+
+  test("reuses one ordered glob traversal across scopes and trusts listed entry kinds", async () => {
+    const fixture = fixtures({
+      directories: new Map([
+        [
+          `${repoRoot}/pkg`,
+          [
+            { name: "alpha", kind: "directory" },
+            { name: "socket", kind: "other" },
+          ],
+        ],
+        [
+          `${repoRoot}/pkg/alpha`,
+          [
+            { name: "zeta.txt", kind: "file" },
+            { name: "alpha.txt", kind: "file" },
+          ],
+        ],
+      ]),
+    });
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "closed-roots",
+            root: "pkg/*",
+            kind: "directory",
+            mode: "closed",
+          },
+          {
+            name: "forbidden-roots",
+            root: "pkg/*",
+            kind: "directory",
+            mode: "open",
+            forbidden: ["alpha.txt"],
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(result.diagnostics.map((diagnostic) => diagnostic.path)).toEqual([
+      "pkg/socket",
+      "pkg/alpha/zeta.txt",
+      "pkg/alpha/alpha.txt",
+      "pkg/socket",
+      "pkg/alpha/alpha.txt",
+    ]);
+    expect(result.diagnostics[0]?.message).toContain("is other");
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toEqual([
+      `readdir:${repoRoot}/pkg`,
+      `readdir:${repoRoot}/pkg/alpha`,
+    ]);
+    expect(fixture.events.filter((event) => event.startsWith("stat:"))).toEqual([
+      `stat:${repoRoot}/pkg`,
+    ]);
+  });
+
+  test("keeps literal other entries missing regardless of scope order", async () => {
+    const globScope = {
+      name: "glob-roots",
+      root: "pkg/*",
+      kind: "directory",
+      mode: "open",
+    } as const;
+    const literalScope = {
+      name: "literal-other",
+      root: "pkg/socket",
+      kind: "directory",
+      mode: "open",
+    } as const;
+
+    for (const scopes of [
+      [globScope, literalScope],
+      [literalScope, globScope],
+    ]) {
+      const result = await runWithFs(
+        { schemaVersion: 1, scopes },
+        fixtures({
+          directories: new Map([[`${repoRoot}/pkg`, [{ name: "socket", kind: "other" }]]]),
+        })
+      );
+      const rendered = messages(result);
+
+      expect(rendered).toContain(
+        'Structure scope "literal-other" matched no directory roots for pkg/socket.'
+      );
+      expect(rendered).toContain(
+        'Structure scope "glob-roots" expected directory root, but pkg/socket is other.'
+      );
+    }
+  });
+
+  test("reuses the completed in-memory walk for identical literal bases", async () => {
+    let entryAccesses = 0;
+    const observeEntryAccess = () => {
+      entryAccesses += 1;
+    };
+    const fixture = fixtures({
+      directories: new Map([
+        [
+          `${repoRoot}/pkg`,
+          [
+            observedDirectoryEntry("alpha.ts", "file", observeEntryAccess),
+            observedDirectoryEntry("beta.ts", "file", observeEntryAccess),
+          ],
+        ],
+      ]),
+    });
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          { name: "first-files", root: "pkg/*", kind: "file", mode: "open" },
+          { name: "second-files", root: "pkg/*", kind: "file", mode: "open" },
+        ],
+      },
+      fixture
+    );
+
+    expect(result).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(entryAccesses).toBe(4);
+  });
+
+  test("starts a fresh traversal cache for each evaluator invocation", async () => {
+    const fixture = fixtures({
+      directories: new Map([
+        [`${repoRoot}/pkg`, [{ name: "alpha", kind: "directory" }]],
+        [`${repoRoot}/pkg/alpha`, []],
+      ]),
+    });
+    const spec = {
+      schemaVersion: 1,
+      scopes: [{ name: "roots", root: "pkg/*", kind: "directory", mode: "open" }],
+    } as const satisfies StructureCheckSpec;
+
+    await runWithFs(spec, fixture);
+    await runWithFs(spec, fixture);
+
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toEqual([
+      `readdir:${repoRoot}/pkg`,
+      `readdir:${repoRoot}/pkg/alpha`,
+      `readdir:${repoRoot}/pkg`,
+      `readdir:${repoRoot}/pkg/alpha`,
+    ]);
+  });
 });
 
 describe("structure-check rule execution", () => {
@@ -215,18 +362,101 @@ required = ["src"]
     expect(results.get(rule.id)).toEqual({ exitCode: 0, diagnostics: [] });
     expect(fixture.events).toContain(`read:${repoRoot}/.habitat/sample/sample.structure.toml`);
   });
+
+  test("shares one rule-run walk without retaining it across executions", async () => {
+    const firstRule = structureRule("first-structure-rule", ".habitat/sample/first.structure.toml");
+    const secondRule = structureRule(
+      "second-structure-rule",
+      ".habitat/sample/second.structure.toml"
+    );
+    const structureToml = `
+schemaVersion = 1
+
+[[scopes]]
+name = "roots"
+root = "pkg/*"
+kind = "directory"
+mode = "open"
+`;
+    const fixture = fixtures({
+      files: new Map([
+        [`${repoRoot}/.habitat/sample/first.structure.toml`, structureToml],
+        [`${repoRoot}/.habitat/sample/second.structure.toml`, structureToml],
+      ]),
+      directories: new Map([
+        [`${repoRoot}/pkg`, [{ name: "alpha", kind: "directory" }]],
+        [`${repoRoot}/pkg/alpha`, []],
+      ]),
+    });
+
+    const execution = runStructureRulesEffect([firstRule, secondRule], {
+      repoRoot,
+      fileSystem: port(fixture),
+    });
+    const results = await Effect.runPromise(execution);
+
+    expect([...results.keys()]).toEqual([firstRule.id, secondRule.id]);
+    expect([...results.values()]).toEqual([
+      { exitCode: 0, diagnostics: [] },
+      { exitCode: 0, diagnostics: [] },
+    ]);
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toEqual([
+      `readdir:${repoRoot}/pkg`,
+      `readdir:${repoRoot}/pkg/alpha`,
+    ]);
+
+    const repeatedResults = await Effect.runPromise(execution);
+    expect([...repeatedResults.keys()]).toEqual([firstRule.id, secondRule.id]);
+    expect(fixture.events.filter((event) => event.startsWith("readdir:"))).toEqual([
+      `readdir:${repoRoot}/pkg`,
+      `readdir:${repoRoot}/pkg/alpha`,
+      `readdir:${repoRoot}/pkg`,
+      `readdir:${repoRoot}/pkg/alpha`,
+    ]);
+  });
 });
 
 async function runWithFs(
   spec: StructureCheckSpec,
   fixture: ReturnType<typeof fixtures>
-): Promise<{ exitCode: number; diagnostics: readonly { message: string }[] }> {
+): Promise<{
+  exitCode: number;
+  diagnostics: readonly { path: string; message: string }[];
+}> {
   return Effect.runPromise(
     evaluateStructureCheckEffect(rule, spec, {
       repoRoot,
       fileSystem: port(fixture),
     })
   );
+}
+
+function structureRule(id: string, structure: string): RuleStructureFacts {
+  return {
+    ...rule,
+    id,
+    runner: {
+      ...rule.runner,
+      files: { structure },
+    },
+  };
+}
+
+function observedDirectoryEntry(
+  name: string,
+  kind: HabitatDirectoryEntry["kind"],
+  onAccess: () => void
+): HabitatDirectoryEntry {
+  return {
+    get name() {
+      onAccess();
+      return name;
+    },
+    get kind() {
+      onAccess();
+      return kind;
+    },
+  };
 }
 
 function fixtures(
