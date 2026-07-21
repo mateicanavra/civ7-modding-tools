@@ -11,16 +11,20 @@
    package components' animate-in/out classes are utilities only this compile
    can generate for the app bundle.
 
-   The @source directive reaches into the package's built JS so utility classes
-   used ONLY inside package components (toast classNames, portal animations,
-   story-less variants) still land in the app bundle. It points at dist on
-   purpose (the app's production build consumes dist via the exports map); the
-   dev-only vite source alias affects module resolution, not this CSS scan, so
-   rebuild the package when its class usage changes.
+   The @source directive reaches into the package's component SOURCES so
+   utility classes used only inside package components (toast classNames,
+   portal animations, story-less variants) land in the app bundle. It scans
+   src, not dist, so the scan follows the same authority as module resolution
+   in every mode: dev serves package src via the vite alias, and a dist scan
+   silently dropped any utility class newly used in src until someone
+   remembered a manual package rebuild. Src is a superset of what dist can
+   ever use, so the prod compile is covered by the same single target; story
+   files are excluded — their demo-only classes have no consumer in the app.
    ============================================================================ */
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@swooper/mapgen-studio-ui/theme.css";
 @import "@swooper/mapgen-studio-ui/fonts.css";
 
-@source "../node_modules/@swooper/mapgen-studio-ui/dist/index.js";
+@source "../../../packages/mapgen-studio-ui/src";
+@source not "../../../packages/mapgen-studio-ui/src/**/*.stories.tsx";
