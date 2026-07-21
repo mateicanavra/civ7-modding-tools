@@ -346,7 +346,7 @@ describe("tag registry", () => {
     const adapter = createMockAdapter({ width: 2, height: 2 });
     const ctx = createMapContext({ setup: baseSetup, adapter });
 
-    expect(() => recipe.run(ctx, { foundation: { knobs: {}, alpha: {} } })).toThrow(
+    expect(() => recipe.run(ctx, { foundation: { knobs: {} } })).toThrow(
       /did not satisfy declared provides/
     );
   });

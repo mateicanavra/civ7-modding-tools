@@ -374,7 +374,7 @@ describe("pipeline tracing", () => {
       compileOpsById: {},
     });
 
-    const config = { foundation: { knobs: {}, alpha: {} } };
+    const config = { foundation: { knobs: {} } };
     const plan = recipe.compile(setup, config);
     const events: TraceEvent[] = [];
 

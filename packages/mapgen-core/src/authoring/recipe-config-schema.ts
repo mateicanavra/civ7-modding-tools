@@ -18,7 +18,6 @@ import {
   IsTuple,
   IsUnion,
   ObjectOptions,
-  RecordValue,
   type TObject,
   type TSchema,
   Type,
@@ -26,15 +25,9 @@ import {
 import { Guard } from "typebox/guard";
 import { IsDefault } from "typebox/schema";
 
-import type { StageContractAny } from "./types.js";
+import type { StageObservation } from "./types.js";
 
-type StageStepLike = Readonly<{ contract: Readonly<{ id: string; schema: TSchema }> }>;
-type StageLike = Pick<StageContractAny, "id" | "surfaceSchema" | "knobsSchema" | "steps"> &
-  Readonly<{
-    public?: unknown;
-    authoring?: StageContractAny["authoring"];
-    steps: readonly StageStepLike[];
-  }>;
+type StageLike = Pick<StageObservation, "id" | "surfaceSchema">;
 
 function isPortableScalar(schema: TSchema): boolean {
   return (
@@ -62,9 +55,21 @@ export function assertCompleteRecipeConfigSchema(schema: TSchema, path: string):
     throw new Error(`Complete recipe config schema at "${path}" is optional`);
   }
 
+  if (IsRecord(schema)) {
+    throw new Error(
+      `Complete recipe config object at "${path}" must use statically named properties`
+    );
+  }
+
   if (IsObject(schema)) {
-    if (ObjectOptions(schema).additionalProperties !== false) {
+    const options = ObjectOptions(schema);
+    if (options.additionalProperties !== false) {
       throw new Error(`Complete recipe config object at "${path}" must be closed`);
+    }
+    if (options.patternProperties && Object.keys(options.patternProperties).length > 0) {
+      throw new Error(
+        `Complete recipe config object at "${path}" must use statically named properties`
+      );
     }
     if (isEmptyObjectDefault(schema)) {
       throw new Error(`Complete recipe config object at "${path}" uses a structural default`);
@@ -96,10 +101,6 @@ export function assertCompleteRecipeConfigSchema(schema: TSchema, path: string):
     );
     return;
   }
-  if (IsRecord(schema)) {
-    assertCompleteRecipeConfigSchema(RecordValue(schema), `${path}/values`);
-    return;
-  }
   if (IsRef(schema)) {
     throw new Error(`Complete recipe config schema at "${path}" contains unresolved Ref`);
   }
@@ -121,26 +122,18 @@ export function assertCompleteRecipeConfigSchema(schema: TSchema, path: string):
 }
 
 function deriveStageSurfaceSchema(stage: StageLike): TObject {
-  if (stage.authoring) return stage.authoring.config.schema;
-  if (stage.public) return stage.surfaceSchema;
-
-  const props: Record<string, TSchema> = {
-    knobs: stage.knobsSchema,
-  };
-  for (const step of stage.steps) {
-    props[step.contract.id] = step.contract.schema;
-  }
-  return Type.Object(props, { additionalProperties: false });
+  return stage.surfaceSchema;
 }
 
 /**
  * Derive the top-level (surface) recipe config schema from stage definitions.
  *
- * Stages without an explicit `public` surface are expanded to include their internal step schemas.
- * Every stage and structural child remains required; native `Value.Create` recursively creates
- * these objects from their schema-defined leaf defaults.
+ * Each stage contract owns its exact closed surface. Every top-level stage remains required;
+ * native `Value.Create` recursively creates configuration from schema-defined leaf defaults.
  */
-export function deriveRecipeConfigSchema(stages: readonly StageLike[]): TObject {
+export function deriveRecipeConfigSchema<const TStage extends StageLike>(
+  stages: readonly TStage[]
+): TObject {
   const properties: Record<string, TSchema> = {};
   for (const stage of stages) {
     properties[stage.id] = deriveStageSurfaceSchema(stage);

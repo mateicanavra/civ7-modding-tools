@@ -134,6 +134,7 @@ export type {
   StageAuthoringRuntimeStep,
   StageContractAny,
   StageModule,
+  StageObservation,
   Step,
   StepDeps,
   StepModule,

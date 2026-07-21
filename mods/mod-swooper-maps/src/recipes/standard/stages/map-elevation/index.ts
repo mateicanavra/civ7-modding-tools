@@ -1,9 +1,5 @@
 import { createStage } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import {
-  MapElevationKnobsSchema,
-  MapElevationPublicSchema,
-} from "../map-projection-public-config.js";
 import { BuildElevationStep } from "./steps/build-elevation/step.js";
 
 /**
@@ -16,11 +12,6 @@ import { BuildElevationStep } from "./steps/build-elevation/step.js";
  */
 export default createStage({
   id: "map-elevation",
-  knobsSchema: MapElevationKnobsSchema,
-  public: MapElevationPublicSchema,
-  compile: () => ({
-    "build-elevation": {},
-  }),
   steps: orderStandardStageSteps("map-elevation", {
     "build-elevation": BuildElevationStep,
   }),

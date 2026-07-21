@@ -12,16 +12,11 @@ import { artifactModules as mapHydrologyArtifactModules } from "../../artifacts/
  * records readback evidence from the adapter.
  */
 const LakesStepConfigSchema = Type.Object(
-  {
-    projectionReadback: Type.Boolean({
-      description: "Whether to emit projection readback diagnostics for the planned lake mask.",
-      default: true,
-    }),
-  },
+  {},
   {
     additionalProperties: false,
     description:
-      "Lakes projection config. Hydrology lake intent is produced upstream; this step only stamps and records readback.",
+      "Lake projection has no authored step configuration; stamping and readback evidence are unconditional at the engine boundary.",
   }
 );
 

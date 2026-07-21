@@ -529,15 +529,9 @@ const mapConfig = {
         }
       }
     },
-    "map-morphology": {
-      "knobs": {}
-    },
-    "map-hydrology": {
-      "knobs": {}
-    },
-    "map-elevation": {
-      "knobs": {}
-    },
+    "map-morphology": {},
+    "map-hydrology": {},
+    "map-elevation": {},
     "map-rivers": {
       "knobs": {
         "navigableRiverDensity": "normal"
@@ -735,20 +729,7 @@ const mapConfig = {
         }
       }
     },
-    "map-ecology": {
-      "knobs": {},
-      "biomeBindings": {
-        "snow": "BIOME_TUNDRA",
-        "tundra": "BIOME_TUNDRA",
-        "boreal": "BIOME_TUNDRA",
-        "temperateDry": "BIOME_PLAINS",
-        "temperateHumid": "BIOME_GRASSLAND",
-        "tropicalSeasonal": "BIOME_PLAINS",
-        "tropicalRainforest": "BIOME_TROPICAL",
-        "desert": "BIOME_DESERT",
-        "marine": "BIOME_MARINE"
-      }
-    },
+    "map-ecology": {},
     "placement": {
       "knobs": {},
       "naturalWonders": {
@@ -828,7 +809,7 @@ export default createMap({
   ...mapConfig,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-earthlike",
-  configHash: "1f01c8d5e6c1d53dc2a48a821f02b19ceb6f655549c6f222b39ad3ea8d3261a5",
-  envelopeHash: "9e2a705949f29897310e673c67a6a4850e258dfe83c6c878cd241c7b44d392b1",
+  configHash: "a6868a567b6edca9fab314de789fa7167120553cf72b1cc99e3b229c762622a5",
+  envelopeHash: "db194b66fb2f1bce337c649b8093d9f8fe0a3aead641aa6af95c83ae48afe5e8",
   config: mapConfig.config,
 });

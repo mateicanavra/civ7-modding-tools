@@ -170,17 +170,20 @@ function seedLakePlan(
 function executeLakesStep(
   context: TestContext,
   lakeMask: Uint8Array,
-  projectionReadback: boolean,
   mountainMask?: Uint8Array
-): void {
-  withMapContextExecutionForTest(context, () => {
+): Exclude<ReturnType<typeof LakesStep.run>, Promise<unknown>> {
+  return withMapContextExecutionForTest(context, () => {
     seedLakePlan(context, lakeMask, mountainMask);
-    LakesStep.run(
+    const result = LakesStep.run(
       context as any,
-      { projectionReadback },
+      {},
       {} as any,
       buildStepTestDependencies(LakesStep)
     );
+    if (result instanceof Promise) {
+      throw new Error("The lakes step must remain synchronous.");
+    }
+    return result;
   });
 }
 
@@ -200,7 +203,7 @@ describe("map-hydrology/lakes", () => {
     lakeMask[1 + width] = 1;
     expect(adapter.isWater(1, 1)).toBe(false);
 
-    executeLakesStep(context, lakeMask, true);
+    executeLakesStep(context, lakeMask);
 
     expect(adapter.callOrder.slice(-3)).toEqual([
       "stampLakes",
@@ -229,7 +232,7 @@ describe("map-hydrology/lakes", () => {
     const context = createContext(adapter, SYNTHETIC_CACHE_DIMENSIONS, seed);
     const lakeMask = new Uint8Array(width * height);
     lakeMask[1 + width] = 1;
-    expect(() => executeLakesStep(context, lakeMask, true)).not.toThrow();
+    const result = executeLakesStep(context, lakeMask);
 
     const projection = context.artifacts.get("artifact:map.hydrology.engineProjectionLakes") as
       | { sinkMismatchCount: number; nonLakeTileCount?: number; terrainMismatchTileCount?: number }
@@ -238,6 +241,16 @@ describe("map-hydrology/lakes", () => {
     expect(projection?.sinkMismatchCount ?? 0).toBe(1);
     expect(projection?.nonLakeTileCount ?? 0).toBe(1);
     expect(projection?.terrainMismatchTileCount ?? 0).toBe(0);
+
+    const projectViz = LakesStep.viz;
+    if (!projectViz) throw new Error("Expected the lakes step to expose its evidence projector");
+    const dataTypeKeys = projectViz({
+      result,
+      config: {},
+      dimensions: SYNTHETIC_CACHE_DIMENSIONS,
+    }).map(({ dataTypeKey }) => dataTypeKey);
+    expect(dataTypeKeys).toContain("map.hydrology.lakes.engineLakeMask");
+    expect(dataTypeKeys).toContain("map.hydrology.lakes.rejectedLakeMask");
   });
 
   it("stamps the projected lake mask instead of calling engine lake generation", () => {
@@ -260,7 +273,7 @@ describe("map-hydrology/lakes", () => {
     const lakeMask = new Uint8Array(width * height);
     lakeMask[2 + width] = 1;
     lakeMask[3 + width] = 1;
-    executeLakesStep(context, lakeMask, false);
+    executeLakesStep(context, lakeMask);
 
     expect(adapter.calls.generateLakes).toEqual([]);
     expect(Array.from(adapter.calls.stampLakes.at(-1)?.lakeMask ?? [])).toEqual(
@@ -286,7 +299,7 @@ describe("map-hydrology/lakes", () => {
     lakeMask[plainLakeTile] = 1;
     const mountainMask = new Uint8Array(width * height);
     mountainMask[mountainTile] = 1;
-    executeLakesStep(context, lakeMask, false, mountainMask);
+    executeLakesStep(context, lakeMask, mountainMask);
 
     const stamped = adapter.calls.stampLakes.at(-1)?.lakeMask;
     expect(stamped).toBeInstanceOf(Uint8Array);
