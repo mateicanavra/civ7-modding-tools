@@ -1,0 +1,89 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "workspaces": {
+    ".": {
+      "entry": [
+        ".habitat/**/{check,fix,generate}.{ts,mts,cts,js,mjs,cjs}",
+        ".habitat/civ7/mapgen/studio/browser-worker/rules/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs",
+        "*.config.{ts,mts,cts,js,mjs,cjs}",
+        "eslint.*.mjs"
+      ],
+      "project": [".habitat/**/*.{ts,mts,cts,js,mjs,cjs}", "*.{ts,mts,cts,js,mjs,cjs}"],
+      // Habitat acquires the pinned Grit binary through provider construction, while the
+      // Storybook test runner is launched by the mapgen-studio-ui Nx target.
+      "ignoreDependencies": ["@getgrit/cli", "@storybook/test-runner"],
+      "biome": {
+        "config": ["biome.json", "biome.effect.json"]
+      },
+      "nx": {
+        "config": ["nx.json", "{apps,mods,packages,tools}/**/project.json", "package.json"]
+      },
+      // The Effect source-only reference lives under .repos and is not part of this workspace.
+      "vitest": {
+        "config": ["vitest.config.ts"],
+        "entry": [
+          "{apps,mods,packages,tools}/**/*.{bench,test,test-d,spec,spec-d}.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"
+        ]
+      }
+    },
+    "apps/docs": {
+      "entry": [
+        "scripts/dev-staged.ts",
+        "scripts/sync-resources.ts",
+        "snippets/**/*.{js,jsx,ts,tsx}"
+      ]
+    },
+    "apps/mapgen-studio": {
+      "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
+    },
+    "mods/mod-civ7-intelligence-bridge": {
+      "ignore": ["mod/**"]
+    },
+    "mods/mod-swooper-maps": {
+      "entry": [
+        "src/mod.ts",
+        "src/maps/generated/*.ts",
+        "test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"
+      ]
+    },
+    "packages/civ7-adapter": {
+      "ignoreUnresolved": ["^/base-standard/"]
+    },
+    "packages/cli": {
+      "entry": ["bin/dev.ts", "src/hooks/prerun/promptMissingArgs.ts"],
+      "ignoreBinaries": ["which"]
+    },
+    "packages/mapgen-core": {
+      "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
+    },
+    "packages/mapgen-metrics": {
+      "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
+    },
+    "packages/mapgen-studio-ui": {
+      "entry": [
+        "scripts/light-canary.mjs",
+        "src/styles/fonts.css",
+        "test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"
+      ],
+      // Nx owns the continuous Storybook process and invokes wait-on before test-storybook.
+      "ignoreDependencies": ["wait-on"]
+    },
+    "packages/mapgen-studio-ui/.ds-sync": {
+      "entry": [
+        "package-*.mjs",
+        "resync.mjs",
+        "storybook/{compare,probe}.mjs",
+        "lib/{preview-rebuild,remote-diff}.mjs",
+        "lib/{bundle,common,css-fallback,css,detect,docs,dts,emit,preview-gen-storybook,previews,source-kit,source-storybook,story-imports}.mjs"
+      ],
+      "project": ["**/*.mjs"]
+    },
+    "packages/mapgen-viz": {
+      "entry": ["test/**/*.type-test.{js,jsx,ts,tsx,mjs,mts,cjs,cts}"]
+    },
+    "tools/habitat": {
+      "entry": ["bin/dev.ts", "scripts/validate-boundary-taxonomy-against-workspace-graph.ts"],
+      "ignoreBinaries": ["fix"]
+    }
+  }
+}

@@ -83,6 +83,7 @@
     "eslint": "^9.39.2",
     "eslint-plugin-react-hooks": "7.1.1",
     "husky": "9.1.7",
+    "knip": "6.27.0",
     "nx": "23.1.0",
     "oclif": "4.23.14",
     "rimraf": "^6.1.2",
