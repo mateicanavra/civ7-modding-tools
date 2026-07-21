@@ -76,6 +76,15 @@ export type BrowserConfigFormContext = {
    * `SchemaForm` reuse — stages then render neither restore affordance.
    */
   onStageRestoreRequest?: (request: StageRestoreRequest) => void;
+  /**
+   * Instance scope for pointer-derived DOM ids (section content/label ids).
+   * Pointers repeat across form instances, so without a per-instance prefix
+   * two forms of the same schema on one page mint duplicate ids and
+   * cross-wire aria-controls/aria-labelledby. `SchemaForm` stamps this from
+   * `useId()`; absent (hand-built contexts) the ids fall back to a shared
+   * `config` prefix — valid markup, single-instance-safe only.
+   */
+  idPrefix?: string;
 };
 
 // Token-driven chrome for the rjsf config form — this is a high-traffic live
@@ -159,8 +168,22 @@ function renderGsComments(args: { schema: unknown; className: string }): ReactNo
   return <div className={cn("text-data whitespace-pre-wrap", args.className)}>{comments}</div>;
 }
 
-function configContentId(pointer: string): string {
-  return `config-object-content${pointer.replace(/[^A-Za-z0-9_-]+/g, "-")}`;
+function pointerSlug(pointer: string): string {
+  return pointer.replace(/[^A-Za-z0-9_-]+/g, "-");
+}
+
+function configContentId(idPrefix: string | undefined, pointer: string): string {
+  return `${idPrefix ?? "config"}-content${pointerSlug(pointer)}`;
+}
+
+/**
+ * Id of a section's visible title text: `aria-labelledby` on the
+ * `<section>` elements points here, which is what upgrades them from role
+ * `generic` to named `region` landmarks (HTML-AAM names sections only when
+ * labelled) — assistive tech can then navigate the config tree by stage.
+ */
+function configSectionLabelId(idPrefix: string | undefined, pointer: string): string {
+  return `${idPrefix ?? "config"}-label${pointerSlug(pointer)}`;
 }
 
 /**
@@ -172,6 +195,7 @@ function configContentId(pointer: string): string {
  */
 function CollapsibleHeader(args: {
   pointer: string;
+  idPrefix: string | undefined;
   title: string;
   titleClass: string;
   expanded: boolean;
@@ -179,7 +203,7 @@ function CollapsibleHeader(args: {
   className?: string;
   actions?: ReactNode;
 }): ReactNode {
-  const { pointer, title, titleClass, expanded, collapse, className, actions } = args;
+  const { pointer, idPrefix, title, titleClass, expanded, collapse, className, actions } = args;
   const Chevron = expanded ? ChevronDown : ChevronRight;
   return (
     <header
@@ -191,11 +215,16 @@ function CollapsibleHeader(args: {
         type="button"
         onClick={() => collapse.toggle(pointer)}
         aria-expanded={expanded}
-        aria-controls={configContentId(pointer)}
+        aria-controls={configContentId(idPrefix, pointer)}
         className="flex flex-1 min-w-0 items-center gap-2 text-left cursor-pointer"
       >
         <Chevron className="w-3 h-3 shrink-0 text-muted-foreground/70" aria-hidden="true" />
-        <span className={cn("min-w-0 truncate", titleClass)}>{title}</span>
+        <span
+          id={configSectionLabelId(idPrefix, pointer)}
+          className={cn("min-w-0 truncate", titleClass)}
+        >
+          {title}
+        </span>
       </button>
       {actions ? <div className="flex items-center gap-1 shrink-0">{actions}</div> : null}
     </header>
@@ -257,6 +286,26 @@ export function BrowserConfigFieldTemplate(
   // rendering on it mounts an empty live region per field (~40 phantom alerts).
   const errorId = errorFieldId(id);
   const hasErrors = (rawErrors?.length ?? 0) > 0;
+
+  // Containers render as their own disclosure sections (the object/array
+  // templates own their header, body, comments, and description) — wrapping
+  // them in the scalar field shell would put a dead div pair plus phantom
+  // field rhythm around every section at every depth, and double-render the
+  // schema's gs comments. The baseline provider is scalar-widget plumbing:
+  // every leaf's own template provides its own, so a container-level provider
+  // is always shadowed. Only the error live region rides along.
+  if (schemaType === "object" || schemaType === "array") {
+    return (
+      <>
+        {children}
+        {hasErrors ? (
+          <div id={errorId} role="alert" className="text-data text-destructive">
+            {errors}
+          </div>
+        ) : null}
+      </>
+    );
+  }
 
   const control = (
     <FieldBaselineContext.Provider value={fieldBaseline}>{children}</FieldBaselineContext.Provider>
@@ -399,6 +448,7 @@ function FlatObjectChildren(args: {
  */
 function StageObjectSection(args: {
   pointer: string;
+  idPrefix: string | undefined;
   title: string;
   schema: RJSFSchema | undefined;
   formData: unknown;
@@ -411,6 +461,7 @@ function StageObjectSection(args: {
 }): ReactNode {
   const {
     pointer,
+    idPrefix,
     title,
     schema,
     formData,
@@ -510,10 +561,15 @@ function StageObjectSection(args: {
   // (`bodyIndent`) so nested section headers read one tier deeper than the
   // stage title — the recursive indent rule starts here.
   return (
-    <section data-config-section="" data-config-pointer={pointer}>
+    <section
+      data-config-section=""
+      data-config-pointer={pointer}
+      aria-labelledby={configSectionLabelId(idPrefix, pointer)}
+    >
       {collapse ? (
         <CollapsibleHeader
           pointer={pointer}
+          idPrefix={idPrefix}
           title={title}
           titleClass={cn("text-sm font-semibold", textClass)}
           expanded={expanded}
@@ -523,14 +579,19 @@ function StageObjectSection(args: {
         />
       ) : (
         <header className={cn("flex flex-col gap-1 py-2.5", FORM.headerInset)}>
-          <div className={cn("text-sm font-semibold", textClass)}>{title}</div>
+          <div
+            id={configSectionLabelId(idPrefix, pointer)}
+            className={cn("text-sm font-semibold", textClass)}
+          >
+            {title}
+          </div>
           {renderGsComments({ schema, className: labelClass })}
           {description ? <div className={cn("text-data", labelClass)}>{description}</div> : null}
         </header>
       )}
       {expanded ? (
         <div
-          id={collapse ? configContentId(pointer) : undefined}
+          id={collapse ? configContentId(idPrefix, pointer) : undefined}
           className={cn("border-t", FORM.borderSubtle, FORM.bodyIndent)}
         >
           {collapse &&
@@ -645,6 +706,7 @@ export function BrowserConfigObjectFieldTemplate(
     return (
       <StageObjectSection
         pointer={pointer}
+        idPrefix={props.registry.formContext?.idPrefix}
         title={prettyTitle}
         schema={schema}
         formData={props.formData}
@@ -665,11 +727,17 @@ export function BrowserConfigObjectFieldTemplate(
   // heading tier (group eyebrow at depth 2, the dimmer sub-group eyebrow
   // below).
   const headingClass = depth === 2 ? FORM.groupHeading : FORM.subGroupHeading;
+  const idPrefix = props.registry.formContext?.idPrefix;
   return (
-    <section data-config-section="" data-config-pointer={pointer}>
+    <section
+      data-config-section=""
+      data-config-pointer={pointer}
+      aria-labelledby={configSectionLabelId(idPrefix, pointer)}
+    >
       {collapse ? (
         <CollapsibleHeader
           pointer={pointer}
+          idPrefix={idPrefix}
           title={prettyTitle}
           titleClass={headingClass}
           expanded={expanded}
@@ -678,11 +746,16 @@ export function BrowserConfigObjectFieldTemplate(
         />
       ) : (
         <header className={cn("py-2", FORM.headerInset)}>
-          <div className={headingClass}>{prettyTitle}</div>
+          <div id={configSectionLabelId(idPrefix, pointer)} className={headingClass}>
+            {prettyTitle}
+          </div>
         </header>
       )}
       {expanded ? (
-        <div id={collapse ? configContentId(pointer) : undefined} className={FORM.bodyIndent}>
+        <div
+          id={collapse ? configContentId(idPrefix, pointer) : undefined}
+          className={FORM.bodyIndent}
+        >
           {description ? (
             <div className={cn("text-data pb-2", FORM.fieldRunInset, labelClass)}>
               {description}
@@ -733,11 +806,17 @@ export function BrowserConfigArrayFieldTemplate(
   // Arrays ride the same flat disclosure-row anatomy as object sections
   // (config explorer v2): no well card, hairline-divided item rows instead
   // of bordered item boxes — a box would be a phantom surface tier.
+  const idPrefix = props.registry.formContext?.idPrefix;
   return (
-    <section data-config-section="" data-config-pointer={pointer}>
+    <section
+      data-config-section=""
+      data-config-pointer={pointer}
+      aria-labelledby={configSectionLabelId(idPrefix, pointer)}
+    >
       {collapse ? (
         <CollapsibleHeader
           pointer={pointer}
+          idPrefix={idPrefix}
           title={prettyTitle}
           titleClass={headingClass}
           expanded={expanded}
@@ -747,13 +826,18 @@ export function BrowserConfigArrayFieldTemplate(
         />
       ) : (
         <div className={cn("flex items-center gap-2 py-2", FORM.headerInset)}>
-          <div className={headingClass}>{prettyTitle}</div>
+          <div id={configSectionLabelId(idPrefix, pointer)} className={headingClass}>
+            {prettyTitle}
+          </div>
           <div style={{ flex: 1 }} />
           {addButton}
         </div>
       )}
       {expanded ? (
-        <div id={collapse ? configContentId(pointer) : undefined} className={FORM.bodyIndent}>
+        <div
+          id={collapse ? configContentId(idPrefix, pointer) : undefined}
+          className={FORM.bodyIndent}
+        >
           {renderGsComments({ schema, className: cn("pb-2", FORM.fieldRunInset, labelClass) })}
           <div className="flex flex-col divide-y divide-border-subtle">
             {items.map((item, index) => {

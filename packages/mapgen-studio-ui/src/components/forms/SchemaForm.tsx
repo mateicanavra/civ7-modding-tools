@@ -6,7 +6,7 @@
 // CSP violation this migration removes. `Form.js` itself is ajv-free.
 import Form from "@rjsf/core/lib/components/Form.js";
 import type { RJSFSchema, UiSchema } from "@rjsf/utils";
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 import {
   BrowserConfigArrayFieldTemplate,
   BrowserConfigFieldTemplate,
@@ -42,6 +42,15 @@ export function SchemaForm<TConfig>(props: SchemaFormProps<TConfig>) {
     () => createTypeboxValidator<TConfig, RJSFSchema, BrowserConfigFormContext>(),
     []
   );
+  // Instance scope for the templates' pointer-derived DOM ids
+  // (section content/label ids): pointers repeat across form instances, so
+  // two forms of the same schema on one docs page would otherwise mint
+  // duplicate ids and cross-wire aria-controls/aria-labelledby.
+  const idPrefix = useId();
+  const scopedFormContext = useMemo<BrowserConfigFormContext>(
+    () => ({ ...formContext, idPrefix }),
+    [formContext, idPrefix]
+  );
 
   return (
     <div
@@ -56,7 +65,8 @@ export function SchemaForm<TConfig>(props: SchemaFormProps<TConfig>) {
         schema={schema}
         uiSchema={uiSchema}
         validator={validator}
-        formContext={formContext}
+        formContext={scopedFormContext}
+        idPrefix={idPrefix}
         formData={value}
         templates={{
           FieldTemplate: BrowserConfigFieldTemplate,
