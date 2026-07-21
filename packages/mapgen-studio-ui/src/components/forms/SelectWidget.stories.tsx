@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { SelectWidget } from "@swooper/mapgen-studio-ui";
+import { FieldBaselineContext, SelectWidget } from "@swooper/mapgen-studio-ui";
 import type { ReactNode } from "react";
 import { widgetProps } from "../../storybook/mockWidgetProps.js";
 
@@ -72,9 +72,10 @@ export const Disabled: Story = {
 };
 
 /**
- * Flat-and-flush delta 9: selection ≠ schema default ⇒ the DS drifted
- * treatment on the trigger plus the undo icon tucked into the dead space
- * left of the chevron (no trigger padding change).
+ * Flat-and-flush delta 9 (re-cut): selection ≠ the LOADED config's value
+ * (the `FieldBaselineContext` baseline) ⇒ the DS drifted treatment on the
+ * trigger plus the undo icon tucked into the reserved strip left of the
+ * chevron (the value span's margin caps long text before it).
  */
 export const Modified: Story = {
   args: widgetProps({
@@ -83,12 +84,13 @@ export const Modified: Story = {
     label: "rainfall",
     value: "wet",
     options: { emptyValue: "", enumOptions: rainfallOptions },
-    schema: { type: "string", default: "temperate" },
   }),
   render: (args) => (
     <Demo>
       <div style={{ width: 220 }}>
-        <SelectWidget {...args} />
+        <FieldBaselineContext.Provider value={{ value: "temperate" }}>
+          <SelectWidget {...args} />
+        </FieldBaselineContext.Provider>
       </div>
     </Demo>
   ),
