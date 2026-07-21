@@ -6,6 +6,14 @@ luminance focus ring. Every component is React, imported from the bundle as
 `window.MapGenStudio.<Name>`.
 
 ## Setup
+- **React 19, vendored.** `_ds_bundle.js` is compiled against the React pair
+  shipped at `_vendor/react.js` + `_vendor/react-dom.js` (React 19; components
+  call APIs an 18.x runtime lacks). Any page or sheet that loads the bundle
+  must put those two on the page as plain `<head>` scripts **before** any
+  runtime that would fetch its own React (for `.dc.html` sheets: before
+  `./support.js`, in `<head>` — helmet scripts race the runtime's async React
+  fetch and lose nondeterministically). "React on the page" always means this
+  vendored pair, never a CDN React 18.
 - **Dark by default.** Tokens resolve to the studio's dark palette on `:root` —
   no theme prop or wrapper class is needed to get the dark look. (A `.dark` class
   on `<html>` still works for components that read it at runtime, e.g. `Toaster`.)
@@ -13,6 +21,10 @@ luminance focus ring. Every component is React, imported from the bundle as
   tooltip — `AppHeader`, `GameConsole`, `RecipePanel`, `ExplorePanel`,
   `ViewControls`, `WaterStatsSection`, and `Tooltip` itself — renders **blank**
   without a `TooltipProvider` ancestor. `AppFooter` self-provides one.
+- **Notifications pair `Toaster` with the bundle's own `toast`.** Mount
+  `Toaster` once, fire with `window.MapGenStudio.toast(...)` — both ship on
+  the barrel so they share one sonner instance. A `toast` imported from
+  anywhere else is a second instance whose calls never render.
 - Fonts ship in the bundle: **Inter** (`font-sans`) for UI, **JetBrains Mono**
   (`font-mono`) for data, seeds, and IDs.
 
@@ -99,6 +111,14 @@ design-system project is a regenerated build artifact of it, except
 - **The component cards are always the current state.** They are regenerated
   from the repo on every sync. A proposal's "before" is the live render by
   reference, never a maintained snapshot.
-- **Nothing here is hand-edited.** Changing a component means changing the
-  package and re-syncing; direct edits outside `explorations/` are overwritten
-  by the next sync.
+- **Nothing converter-owned is hand-edited — ever.** Changing a component
+  means changing the package and re-syncing; direct edits outside
+  `explorations/`, `templates/`, and `uploads/` are overwritten by the next
+  sync. This includes "fixes": if a scan, lint, or design-system check flags
+  something in `_ds_bundle.css`, `styles.css`, `_ds_bundle.js`, or
+  `components/**`, the finding routes to the repo lane — do not patch the
+  artifact in place. In particular, never register `--tw-*` engine variables
+  in a `:root` block to satisfy the token scanner: the hoist-to-`:root`
+  advice is deliberately refused repo-side (registration is exactly what
+  turns Tailwind utility internals into bogus token and theme entries), and
+  the curated token surface is owned by the package build.

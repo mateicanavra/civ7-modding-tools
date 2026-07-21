@@ -32,8 +32,11 @@
  * lib exports — `cn`, `useResolvedTheme`, `LAYOUT`, statusLabels formatters,
  * `useConfigCollapse`).
  *
- * Deliberately ABSENT: `toast` (LEDGER adjudication 8 — consumers import it
- * from "sonner" directly); app-domain values of any kind.
+ * `toast` is exported (LEDGER adjudication 8, amended 2026-07-21): the design
+ * bundle inlines its own sonner copy, so a `toast` imported from "sonner" by a
+ * design would be a second instance that never reaches the bundle's `Toaster`
+ * — the two must ship on one surface. Repo consumers may keep importing
+ * "sonner" directly. Still deliberately ABSENT: app-domain values of any kind.
  */
 
 // composites

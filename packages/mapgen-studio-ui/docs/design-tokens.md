@@ -63,9 +63,15 @@ should hold the authored tokens plus Tailwind's `@theme` defaults, and a
 small `other`-kind residue of utility-internal `--tw-*` vars. A
 "selector-scoped custom properties" finding may still name those utility
 vars (e.g. `--tw-space-y-reverse` inside `.space-y-* :where(…)`): they are
-**required** to be selector-scoped. **Do not follow the finding's advice** —
-hoisting `--tw-*` variables to `:root` breaks the
-`space-*`/`divide-*`/transform/gradient/ring/filter utilities.
+**required** to be selector-scoped. **Do not follow the finding's advice in
+any form** — a live hoist of `--tw-*` variables to `:root` breaks the
+`space-*`/`divide-*`/transform/gradient/ring/filter utilities, and an
+"inert" registration (`:root` defaults shadowed by the `@property` rules)
+is just as wrong for a different reason: the scanner registers every
+`:root`-declared name as a design token, which puts the whole `--tw-*`
+engine namespace into the token registry and turns each utility class that
+assigns a registered name into a bogus "theme" entry. Declaring nothing is
+the mechanism: what is not declared at `:root` is not registered.
 
 Scope note: the repo guard pins `dist/styles.css` (the package's compiled
 stylesheet). If the check's findings ever shift without a matching repo-side

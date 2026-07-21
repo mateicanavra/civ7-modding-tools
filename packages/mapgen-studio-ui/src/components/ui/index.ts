@@ -7,9 +7,12 @@
  * luminance contour ring (`--ring`). No hardcoded palettes, no `lightMode`
  * prop.
  *
- * Value-clean: NO `toast` re-export (LEDGER adjudication 8) — consumers that
- * fire toasts import `toast` from "sonner" directly; this sub-barrel ships
- * only the package's own components.
+ * One third-party value re-export: `toast` (LEDGER adjudication 8, amended
+ * 2026-07-21). Repo consumers may still import `toast` from "sonner" directly
+ * (npm resolves both paths to the same instance), but the compiled design
+ * bundle inlines its own sonner copy — without a same-instance `toast` on the
+ * public surface, the bundle's `Toaster` is unreachable and notifications are
+ * impossible in designs. `toast` and `Toaster` must ride the same barrel.
  */
 
 export { Button, type ButtonProps, buttonVariants } from "./button.js";
@@ -61,6 +64,7 @@ export {
 } from "./select.js";
 export { Separator } from "./separator.js";
 export { Toaster } from "./sonner.js";
+export { toast } from "sonner";
 export { Switch } from "./switch.js";
 export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs.js";
 export { Textarea } from "./textarea.js";
