@@ -81,6 +81,17 @@ describe("config form DOM structure", () => {
     expect(stage.parentElement?.className).toContain("divide-y");
   });
 
+  it("array sections render their item fields (items are ReactElements in rjsf v6)", () => {
+    const { container } = renderForm();
+    const arraySection = container.querySelector(
+      'section[data-config-pointer="/foundation-mantle/sources"]'
+    );
+    expect(arraySection).not.toBeNull();
+    const input = arraySection?.querySelector("input") as HTMLInputElement | null;
+    expect(input).not.toBeNull();
+    expect(input?.value).toBe("2");
+  });
+
   it("every config section is a NAMED landmark whose label element exists", () => {
     const { container } = renderForm();
     for (const section of container.querySelectorAll("section[data-config-section]")) {

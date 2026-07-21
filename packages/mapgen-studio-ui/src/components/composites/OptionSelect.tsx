@@ -1,3 +1,4 @@
+import type * as React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.js";
 
 export interface OptionSelectProps {
@@ -15,6 +16,14 @@ export interface OptionSelectProps {
   className?: string;
   /** Whether the control is disabled. */
   disabled?: boolean;
+  /** Form-submission name, forwarded to the Radix Select root. */
+  name?: string;
+  /**
+   * Extra trigger attributes (id, aria-describedby/aria-invalid wiring) for
+   * hosts that associate the trigger with external labels or error regions —
+   * the schema-form widget path. `ariaLabel`/`className` win on collision.
+   */
+  triggerProps?: React.ComponentPropsWithoutRef<typeof SelectTrigger>;
 }
 
 /**
@@ -37,17 +46,20 @@ export function OptionSelect({
   placeholder,
   className,
   disabled,
+  name,
+  triggerProps,
 }: OptionSelectProps) {
   const toRadix = (raw: string) => (raw === "" ? EMPTY_VALUE_SENTINEL : raw);
   const fromRadix = (raw: string) => (raw === EMPTY_VALUE_SENTINEL ? "" : raw);
 
   return (
     <Select
+      name={name}
       value={toRadix(value)}
       onValueChange={(next) => onValueChange(fromRadix(next))}
       disabled={disabled}
     >
-      <SelectTrigger aria-label={ariaLabel} className={className}>
+      <SelectTrigger {...triggerProps} aria-label={ariaLabel} className={className}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>

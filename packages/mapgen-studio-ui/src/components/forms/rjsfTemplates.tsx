@@ -840,16 +840,11 @@ export function BrowserConfigArrayFieldTemplate(
         >
           {renderGsComments({ schema, className: cn("pb-2", FORM.fieldRunInset, labelClass) })}
           <div className="flex flex-col divide-y divide-border-subtle">
-            {items.map((item, index) => {
-              // RJSF v6 types this as ReactElement[], but some templates/versions
-              // pass an "item" object that wraps the actual element in `.children`.
-              const content = (item as any)?.children ?? (item as any)?.props?.children ?? item;
-              return (
-                <div key={item.key ?? index} className={cn("py-3", FORM.fieldRunInset)}>
-                  {content}
-                </div>
-              );
-            })}
+            {items.map((item, index) => (
+              <div key={item.key ?? index} className={cn("py-3", FORM.fieldRunInset)}>
+                {item}
+              </div>
+            ))}
           </div>
         </div>
       ) : null}
