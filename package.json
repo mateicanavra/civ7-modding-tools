@@ -40,7 +40,7 @@
   "scripts": {
     "build": "nx run-many -t build",
     "check": "nx run-many -t check",
-    "ci": "nx run-many -t build,check,test",
+    "ci": "nx run-many -t build,check,test,verify",
     "clean": "nx run-many -t clean",
     "deploy:mods": "nx run-many -t deploy",
     "docs:project": "nx run habitat:serve:project-docs",

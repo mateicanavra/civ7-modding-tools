@@ -8,7 +8,7 @@
 
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-contract";
 import { BookOpen, Eraser, Link, Power, Save, Settings, Undo2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import type { XSchema } from "typebox/schema";
 import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
 import { LAYOUT } from "../../lib/layout.js";
@@ -132,6 +132,12 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   // ==========================================================================
   // Local State
   // ==========================================================================
+  // Instance-scoped section ids: the panel renders on docs pages and in design
+  // compositions where multiple instances coexist — hardcoded ids would
+  // cross-wire the disclosure headers' aria-controls between instances.
+  const uid = useId();
+  const recipeSectionId = `${uid}-recipe-section`;
+  const configSectionId = `${uid}-config-section`;
   const [localRecipeCollapsed, setLocalRecipeCollapsed] = useState(false);
   const [localConfigCollapsed, setLocalConfigCollapsed] = useState(false);
   const [localConfigEditingEnabled, setLocalConfigEditingEnabled] = useState(true);
@@ -234,7 +240,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             chevron={false}
             expanded={!recipeCollapsed}
             onToggle={() => setRecipeCollapsed(!recipeCollapsed)}
-            controls="recipe-panel-recipe-section"
+            controls={recipeSectionId}
             icon={<BookOpen className={cn("w-4 h-4 shrink-0", textSecondary)} aria-hidden="true" />}
             title={<span className={cn("text-[13px] font-semibold", textPrimary)}>Recipe</span>}
             trailing={
@@ -250,7 +256,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         {/* Recipe and complete-config selection */}
         {!recipeCollapsed && (
           <div
-            id="recipe-panel-recipe-section"
+            id={recipeSectionId}
             className={cn("flex-shrink-0 px-4 py-3 space-y-2 border-b", borderSubtle)}
           >
             <div className="flex items-center gap-3">
@@ -307,7 +313,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             chevron={false}
             expanded={!configCollapsed}
             onToggle={() => setConfigCollapsed(!configCollapsed)}
-            controls="recipe-panel-config-section"
+            controls={configSectionId}
             icon={<Settings className={cn("w-4 h-4 shrink-0", textSecondary)} aria-hidden="true" />}
             title={<span className={cn("text-[13px] font-semibold", textPrimary)}>Config</span>}
             // role="button" div (not a <button>) because the trailing zone nests
@@ -382,7 +388,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
         {/* Config Content */}
         {!configCollapsed && (
           <div
-            id="recipe-panel-config-section"
+            id={configSectionId}
             className="flex-1 overflow-y-auto overflow-x-hidden"
           >
             {/* Config form (flat-and-flush delta 1): flush — no horizontal

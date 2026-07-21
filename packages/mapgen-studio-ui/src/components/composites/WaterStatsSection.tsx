@@ -11,6 +11,7 @@
 // ============================================================================
 
 import { Droplets } from "lucide-react";
+import { useId } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 import { DisclosureHeader } from "./DisclosureHeader.js";
 
@@ -113,6 +114,10 @@ export function WaterStatsSection<TRef extends WaterStatsLayerRef>({
   expanded,
   onExpandedChange,
 }: WaterStatsSectionProps<TRef>) {
+  // Instance-scoped id (before the early return — hooks are unconditional):
+  // the section renders on docs pages and in design compositions where
+  // multiple instances coexist; a hardcoded id would cross-wire aria-controls.
+  const listId = useId();
   const allRows = summary?.rows ?? [];
   const rows = allRows
     .map((row) => ({
@@ -144,7 +149,7 @@ export function WaterStatsSection<TRef extends WaterStatsLayerRef>({
           className="px-3 py-2"
           expanded={expanded}
           onToggle={onExpandedChange}
-          controls="explore-water-stats-list"
+          controls={listId}
           icon={<Droplets className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />}
           title={
             <span className={`text-data font-semibold ${textSecondary} uppercase tracking-wider`}>
@@ -163,7 +168,7 @@ export function WaterStatsSection<TRef extends WaterStatsLayerRef>({
       </div>
       {expanded ? (
         <div
-          id="explore-water-stats-list"
+          id={listId}
           className={`flex-shrink-0 border-b ${borderSubtle} max-h-[220px] overflow-y-auto custom-scrollbar`}
         >
           {rows.map((row) => (

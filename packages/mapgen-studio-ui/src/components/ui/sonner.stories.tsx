@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Toaster } from "@swooper/mapgen-studio-ui";
+// Both from the package barrel: the story exercises the SAME public contract
+// synced designs use — `toast` must ride the barrel (LEDGER adjudication 8) so
+// this story would catch it falling off, which importing "sonner" cannot.
+import { Toaster, toast } from "@swooper/mapgen-studio-ui";
 import { useEffect } from "react";
-import { toast } from "sonner";
 
 /**
  * Adapted from `.design-sync/previews/Toaster.tsx`. Toaster is sonner bound to the
