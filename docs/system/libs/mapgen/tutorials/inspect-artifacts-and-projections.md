@@ -38,11 +38,12 @@ This harness runs a minimal recipe and writes a dump under `dist/visualization/<
 Preferred (package script):
 
 ```bash
-nx run mod-swooper-maps:viz:standard
+nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337
 ```
 
-Optional args:
-- `nx run mod-swooper-maps:viz:standard -- <width> <height> <seed>`
+Optional inputs:
+- `--map-size` selects an official Civ7 map-size id.
+- `--seed` selects the deterministic map seed.
 
 The script prints the final dump directory.
 
@@ -123,5 +124,5 @@ supply their own facet sink; trace verbosity is unrelated to whether the project
 - Standard recipe wiring: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
 - Foundation projection step (source of many viz layer dumps): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts`
 - Trace+viz dump capability (writes `trace.jsonl`, `manifest.json`, and `data/*`): `packages/mapgen-diagnostics/src/dump.ts`
-- Example runner that produces dumps: `mods/mod-swooper-maps/scripts/diagnostics/standard-run.ts`
+- Standard capture runner: `mods/mod-swooper-maps/scripts/diagnostics/run-standard-dump.ts`
 - Trace core contract: `packages/mapgen-core/src/trace/index.ts`

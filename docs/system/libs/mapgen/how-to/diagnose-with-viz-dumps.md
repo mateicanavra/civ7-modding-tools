@@ -35,17 +35,17 @@ In this repo, dumps are written under `mods/mod-swooper-maps/dist/visualization/
 
 ## Quickstart (deterministic probes)
 
-Use a fixed map size and seed so diffs are meaningful:
-- width `106`, height `66`, seed `1337`
+Use one official Civ7 map-size preset and a fixed seed so diffs are meaningful. The runner defaults
+to `MAPSIZE_STANDARD` and seed `1337`.
 
 From repo root:
 
 ```bash
 # baseline
-nx run mod-swooper-maps:diag:dump -- 106 66 1337 --label probe-baseline
+nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337 --label probe-baseline
 
 # variant (example: change plateCount)
-nx run mod-swooper-maps:diag:dump -- 106 66 1337 --label probe-platecount6 --override '{"foundation":{"knobs":{"plateCount":6}}}'
+nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337 --label probe-platecount6 --override '{"foundation":{"knobs":{"plateCount":6}}}'
 ```
 
 Each run prints:
@@ -56,20 +56,12 @@ Each run prints:
 
 ## Canonical metrics
 
-These are the first metrics to compute for landmass realism and responsiveness:
-
-- `landComponents` (lower is more coherent land)
-- `largestLandFrac` (higher is more coherent land)
-- `landmaskHammingPct` (A/B sensitivity signal; detects dead knobs / non-propagation)
-
-Compute them from the dump(s):
+Dump inspection answers where evidence changed. Product thresholds, cohorts, and map-identity
+expectations belong to the Standard recipe metric study bank so tests and reports consume the same
+authority:
 
 ```bash
-# analyze a single run
-nx run mod-swooper-maps:diag:analyze -- <runDirA>
-
-# analyze + diff between two runs
-nx run mod-swooper-maps:diag:analyze -- <runDirA> <runDirB>
+nx run mod-swooper-maps:metrics:report
 ```
 
 ## A/B diff workflow
@@ -101,8 +93,7 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
 
 - Dump writer / pipeline entry:
   - `mods/mod-swooper-maps/scripts/diagnostics/run-standard-dump.ts`
-- Dump analyzers:
-  - `mods/mod-swooper-maps/scripts/diagnostics/analyze-dump.ts`
+- Dump readers:
   - `mods/mod-swooper-maps/scripts/diagnostics/diff-layers.ts`
   - `mods/mod-swooper-maps/scripts/diagnostics/list-layers.ts`
   - `mods/mod-swooper-maps/scripts/diagnostics/extract-trace.ts`
@@ -110,8 +101,8 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
   - `packages/mapgen-diagnostics/src/index.ts`
 - Diagnostic command input:
   - `mods/mod-swooper-maps/scripts/diagnostics/command-input.ts`
-- Swooper product analysis:
-  - `mods/mod-swooper-maps/scripts/diagnostics/map-analysis.ts`
+- Swooper product metric studies:
+  - `mods/mod-swooper-maps/src/recipes/standard/metrics/studies/index.ts`
 - Trace + visualization sink wiring:
   - `packages/mapgen-diagnostics/src/dump.ts`
 - Standard recipe styles:

@@ -2,7 +2,7 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { createMockAdapter } from "@civ7/adapter";
+import { createMockAdapter, findCiv7StandardMapSizePreset } from "@civ7/adapter";
 import {
   createLabelRng,
   createMapContext,
@@ -17,9 +17,29 @@ import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { isJsonDataObject, mergeDiagnosticConfig, parseDiagnosticArgs } from "./command-input.js";
 
-function parseIntOr(value: unknown, fallback: number): number {
-  const n = typeof value === "string" ? Number.parseInt(value, 10) : Number.NaN;
-  return Number.isFinite(n) ? n : fallback;
+const DEFAULT_MAP_SIZE_ID = "MAPSIZE_STANDARD";
+const DEFAULT_MAP_SEED = 1337;
+
+function parseMapSeed(value: string | true | undefined): number {
+  if (value === undefined) return DEFAULT_MAP_SEED;
+  if (value === true || !/^-?\d+$/.test(value)) {
+    throw new Error("--seed requires an integer value.");
+  }
+  const seed = Number(value);
+  if (!Number.isSafeInteger(seed)) throw new Error("--seed must be a safe integer.");
+  return seed;
+}
+
+function parseMapSize(value: string | true | undefined) {
+  if (value === true) throw new Error("--map-size requires a Civ7 standard map-size id.");
+  const mapSizeId = value ?? DEFAULT_MAP_SIZE_ID;
+  const preset = findCiv7StandardMapSizePreset(mapSizeId);
+  if (!preset) {
+    throw new Error(
+      `Unknown Civ7 standard map size "${mapSizeId}". Expected MAPSIZE_TINY, MAPSIZE_SMALL, MAPSIZE_STANDARD, MAPSIZE_LARGE, or MAPSIZE_HUGE.`
+    );
+  }
+  return preset;
 }
 
 function parseLabel(value: unknown): string {
@@ -54,64 +74,33 @@ function loadConfig(flags: Record<string, string | true>): unknown {
  * Data-first dump runner for the full standard pipeline.
  *
  * Usage:
- *   bun ./scripts/diagnostics/run-standard-dump.ts -- 106 66 1337 --label probe --override '{...}'
+ *   bun ./scripts/diagnostics/run-standard-dump.ts -- --map-size MAPSIZE_STANDARD --seed 1337 --label probe --override '{...}'
  *
  * Output:
  *   {"runId":"...","outputDir":"..."}
  */
 async function main(): Promise<void> {
   const { positionals, flags } = parseDiagnosticArgs(process.argv.slice(2));
-  const width = parseIntOr(positionals[0], 106);
-  const height = parseIntOr(positionals[1], 66);
-  const seed = parseIntOr(positionals[2], 1337);
+  if (positionals.length > 0) {
+    throw new Error("Diagnostic dumps accept --map-size and --seed; positional dimensions retire.");
+  }
+  const preset = parseMapSize(flags["map-size"]);
+  const seed = parseMapSeed(flags.seed);
+  const { width, height } = preset.dimensions;
+  const envelope = admitStandardMapConfig(loadConfig(flags));
 
   const label = parseLabel(flags.label);
   const outputRoot = join(process.cwd(), "dist", "visualization", label);
   const vizOutputs = createDiagnosticDumpAdapters({ outputRoot });
 
-  // Player/sector geometry defaults reproduce the historical 8-player frame;
-  // override to match a live engine Maps row (e.g. HUGE live row is
-  // PlayersLandmass1/2 = 6/6, StartSectorRows/Cols = 4/3, with the game's
-  // alive-major count possibly below the slot sum — Milestone A evidence).
-  const players1 = parseIntOr(typeof flags.players1 === "string" ? flags.players1 : undefined, 4);
-  const players2 = parseIntOr(typeof flags.players2 === "string" ? flags.players2 : undefined, 4);
-  const sectorRows = parseIntOr(
-    typeof flags.sectorRows === "string" ? flags.sectorRows : undefined,
-    4
-  );
-  const sectorCols = parseIntOr(
-    typeof flags.sectorCols === "string" ? flags.sectorCols : undefined,
-    4
-  );
-  const aliveMajorCount = parseIntOr(
-    typeof flags.alive === "string" ? flags.alive : undefined,
-    players1 + players2
-  );
-  // Live engine init params carry +/-90 on HUGE (probed via getPlotLatitude,
-  // Milestone A7); the historical default here stays +/-60 for old labels.
-  const minLat = parseIntOr(typeof flags.minLat === "string" ? flags.minLat : undefined, -60);
-  const maxLat = parseIntOr(typeof flags.maxLat === "string" ? flags.maxLat : undefined, 60);
-  const mapInfo = {
-    GridWidth: width,
-    GridHeight: height,
-    MinLatitude: minLat,
-    MaxLatitude: maxLat,
-    PlayersLandmass1: players1,
-    PlayersLandmass2: players2,
-    StartSectorRows: sectorRows,
-    StartSectorCols: sectorCols,
-  } as const;
+  const mapInfo = preset.mapInfo;
 
   const setupBase = {
     mapSeed: seed,
     dimensions: { width, height },
-    latitudeBounds: {
-      topLatitude: mapInfo.MaxLatitude,
-      bottomLatitude: mapInfo.MinLatitude,
-    },
+    latitudeBounds: envelope.latitudeBounds,
   } as const;
 
-  const envelope = admitStandardMapConfig(loadConfig(flags));
   const baseConfig = envelope.config;
   const override = loadOverride(flags);
   const mergedConfig =
@@ -128,8 +117,8 @@ async function main(): Promise<void> {
     width,
     height,
     mapInfo,
-    mapSizeId: 1,
-    aliveMajorCount,
+    mapSizeId: preset.id,
+    aliveMajorCount: preset.defaultPlayers,
     rng: createLabelRng(seed),
   });
 

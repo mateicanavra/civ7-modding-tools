@@ -101,7 +101,7 @@ It POSTs `{ json: { requestId } }` to `${studioUrl}/rpc/runInGame/status` (oRPC 
 
 ---
 
-## 5. The 6 Swooper operational verify modes
+## 5. The 2 Swooper operational verify modes
 
 `nx run mod-swooper-maps:verify:operational -- --mode <mode> [flags]` (or `bun ./scripts/verify.ts --mode <mode>`). From `scripts/verify.ts`:
 
@@ -109,16 +109,14 @@ It POSTs `{ json: { requestId } }` to `${studioUrl}/rpc/runInGame/status` (oRPC 
 |---|---|---|
 | `studio-run-in-game-live` | **yes** | the mutating gate (§2) |
 | `final-surface-parity` | **yes** | local-vs-live grid parity (§4) |
-| `output-parity` | **yes** | loaded-map engine output vs headless recipe parity |
-| `resource-delta-feasibility` | **yes** | live `ResourceBuilder.canHaveResource` on parity delta rows |
-| `feature-delta-feasibility` | **yes** | live `TerrainBuilder.canHaveFeature` on delta rows |
-| `terrain-edge-live-context` | **yes** | live terrain/hydrology/area readback for edge deltas |
 
 Alias: `studio-run-in-game:live`→`studio-run-in-game-live`.
 
-The former placement legality and required-for-age probes were milestone-scoped
-characterization scripts, not durable operational gates. Their recorded evidence
-remains historical. Map Policy tests own static resource facts and the age-valid
+The former output-parity, delta-feasibility, terrain-edge, placement-legality, and
+required-for-age probes were milestone-scoped characterization scripts, not durable
+operational gates. Their recorded evidence remains historical. Canonical
+`FinalSurfaceParityProof` owns current local-vs-live comparison; its unresolved links
+and retained private evidence own run-specific triage. Map Policy tests own static resource facts and the age-valid
 `Staple`/`UnlocksCiv` fallback; exact roster-dependent
 `isResourceRequiredForAge` flows through `EngineAdapter`. When that live policy
 is unavailable, planning records unresolved unless the static basis admits the

@@ -41,14 +41,13 @@ This workflow produces a replayable folder containing:
 From the repo root:
 
 ```bash
-nx run mod-swooper-maps:viz:standard
+nx run mod-swooper-maps:diag:dump -- --map-size MAPSIZE_STANDARD --seed 1337
 ```
 
 Notes:
 - Canonical deploy-equivalent builds use Nx from repo root (see `nx run mapgen-studio:dev` / `nx run mapgen-studio:build`).
-- The `viz:*` scripts run a small preflight to build dist-exported workspace deps (adapter/core/viz) when needed in a fresh checkout.
-
-The script accepts optional CLI args: `width height seed` (see code in the anchors).
+- Nx owns the runner's workspace dependency build through `diag:dump`.
+- `--map-size` accepts an official Civ7 map-size id; `--seed` accepts an integer map seed.
 
 ### 2) Find the output folder
 
@@ -84,7 +83,6 @@ Use the Swooper commands, backed by `@swooper/mapgen-diagnostics`, against the r
 
 ```bash
 nx run mod-swooper-maps:diag:list -- <runDir> --prefix hydrology.
-nx run mod-swooper-maps:diag:analyze -- <runDir>
 nx run mod-swooper-maps:diag:trace -- <runDir> --eventPrefix hydrology.
 ```
 
@@ -119,5 +117,5 @@ Routing:
 - Step facet dispatch: `packages/mapgen-core/src/engine/step-facets.ts`
 - Portable visualization contracts: `packages/mapgen-viz/src/index.ts`
 - Local trace+viz dump capability (writes `trace.jsonl` + `manifest.json`): `packages/mapgen-diagnostics/src/dump.ts`
-- Standard run harness producing dumps: `mods/mod-swooper-maps/scripts/diagnostics/standard-run.ts`
+- Standard capture runner: `mods/mod-swooper-maps/scripts/diagnostics/run-standard-dump.ts`
 - Studio live visualization entrypoint: `apps/mapgen-studio/src/App.tsx`
