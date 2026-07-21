@@ -1,5 +1,6 @@
-import { installHabitatCommandLifecycle } from "@habitat/cli/cli/base/command-lifecycle";
 import { describe, expect, test, vi } from "vitest";
+
+const { installHabitatCommandLifecycle } = await import("@habitat/cli/cli/base/command-lifecycle");
 
 type TestSignal = "SIGINT" | "SIGTERM";
 
