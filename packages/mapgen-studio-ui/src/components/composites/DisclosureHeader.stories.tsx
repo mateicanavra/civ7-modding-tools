@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { DisclosureHeader, type DisclosureHeaderProps } from "@swooper/mapgen-studio-ui";
-import { Compass, Layers, Settings } from "lucide-react";
+import { DisclosureHeader, type DisclosureHeaderProps, IconButton } from "@swooper/mapgen-studio-ui";
+import { Compass, Layers, Link, Power, Settings } from "lucide-react";
 import type { ReactNode } from "react";
 
 /**
@@ -76,6 +76,37 @@ export const ChevronlessWithTag: Story = {
           <span className="text-[9px] font-medium uppercase tracking-wider text-primary">
             Modified
           </span>
+        }
+      />
+    </Dock>
+  ),
+};
+
+/**
+ * Interactive controls ride the `actions` slot — real siblings of the trigger
+ * button (the RecipePanel Config header shape): action clicks never toggle the
+ * section, and each control keeps its own tab stop. `trailing` stays
+ * presentation-only.
+ */
+export const WithActions: Story = {
+  render: () => (
+    <Dock>
+      <DisclosureHeader
+        className="px-3 py-2.5"
+        chevron={false}
+        expanded={true}
+        controls="disclosure-config-actions"
+        icon={<Settings className="w-4 h-4 shrink-0 text-muted-foreground" />}
+        title={<span className="text-[13px] font-semibold text-foreground">Config</span>}
+        actions={
+          <>
+            <IconButton active aria-label="Disable Overrides" aria-pressed="true">
+              <Power className="w-3.5 h-3.5" />
+            </IconButton>
+            <IconButton aria-label="Show All Steps">
+              <Link className="w-3.5 h-3.5" />
+            </IconButton>
+          </>
         }
       />
     </Dock>

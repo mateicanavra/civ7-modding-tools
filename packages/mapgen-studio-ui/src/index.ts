@@ -54,7 +54,6 @@ export {
 export {
   DisclosureHeader,
   type DisclosureHeaderProps,
-  type DisclosureRootRenderProps,
 } from "./components/composites/DisclosureHeader.js";
 export { EmptyState, type EmptyStateProps } from "./components/composites/EmptyState.js";
 export { ErrorBanner, type ErrorBannerProps } from "./components/composites/ErrorBanner.js";

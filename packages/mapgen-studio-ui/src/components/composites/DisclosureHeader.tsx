@@ -4,38 +4,21 @@ import { cn } from "../../lib/utils.js";
 // ============================================================================
 // DISCLOSURE HEADER
 // ============================================================================
-// A fully-controlled, token-driven section-header row: a clickable button that
-// toggles an adjacent collapsible region. Renders a left cluster (optional icon
-// · title · collapsed-only summary) and a right cluster (optional trailing
-// content · rotating chevron). Collapse state is owned by the caller — the
-// primitive only reflects `expanded` and reports toggles via `onToggle`.
+// A fully-controlled, token-driven section-header row: a native `<button>`
+// trigger that toggles an adjacent collapsible region. Renders a left cluster
+// (optional icon · title · collapsed-only summary) and a right cluster
+// (optional trailing content · rotating chevron). Collapse state is owned by
+// the caller — the primitive only reflects `expanded` and reports toggles via
+// `onToggle`.
 //
-// Every per-instance variation (typography, padding, width, badges, nested
-// controls) is expressed through ReactNode slots and `className` escape hatches
-// so each consumer reproduces its prior markup verbatim. The `render` hatch
-// covers non-`<button>` roots (e.g. a `role="button"` div that hosts
-// interactive controls in its trailing zone) while keeping the chevron + ARIA
-// wiring identical.
+// The interactivity boundary is structural, not conventional: `trailing` is
+// PRESENTATION (counts, tags — it renders inside the trigger button, where
+// interactive content would be invalid HTML and unreachable to keyboard/AT);
+// `actions` is INTERACTION (icon buttons, menus — it renders as a SIBLING of
+// the trigger, so action clicks never bubble through the toggle and each
+// control keeps its own tab stop). Per-instance variation (typography,
+// padding, badges) is expressed through ReactNode slots and `className`.
 // ============================================================================
-
-/**
- * Props passed to a custom `render` root so it can reproduce the primitive's
- * exact interaction + ARIA contract on a non-`<button>` element. Spread the
- * whole object onto the root element and place `children` inside it.
- */
-export interface DisclosureRootRenderProps {
-  role?: "button";
-  tabIndex?: number;
-  "aria-expanded": boolean;
-  "aria-controls"?: string;
-  "aria-label"?: string;
-  title?: string;
-  onClick: (event: React.MouseEvent) => void;
-  /** Enter/Space → preventDefault + toggle (native `<button>` does this for free). */
-  onKeyDown: (event: React.KeyboardEvent) => void;
-  className: string;
-  children: React.ReactNode;
-}
 
 export interface DisclosureHeaderProps {
   /** Drives `aria-expanded` and chevron rotation. Invert at the call site for `*Collapsed*` state. */
@@ -48,8 +31,19 @@ export interface DisclosureHeaderProps {
   icon?: React.ReactNode;
   /** Collapsed-only inline summary (rendered when `!expanded`); carries its own color/mono/warning class. */
   summary?: React.ReactNode;
-  /** Trailing slot — count badge, status tag, or nested controls (caller owns any `stopPropagation`). */
+  /**
+   * Trailing PRESENTATION slot (count badge, status tag) — renders inside the
+   * trigger button, so it must never carry interactive content; interactive
+   * controls go in `actions`.
+   */
   trailing?: React.ReactNode;
+  /**
+   * Interactive sibling cluster (icon buttons, menus) — renders OUTSIDE the
+   * trigger button in the same row, so clicks stay on the control (no
+   * `stopPropagation` needed) and every control is independently
+   * keyboard-reachable. When present, the trigger spans the rest of the row.
+   */
+  actions?: React.ReactNode;
   /** Show the rotating chevron (default `true`); `false` for chevron-less headers. */
   chevron?: boolean;
   /** Chevron sizing/color; default `"w-3.5 h-3.5 text-muted-foreground/70"`. */
@@ -76,8 +70,6 @@ export interface DisclosureHeaderProps {
   leftClassName?: string;
   /** Override the trailing cluster classes (default `flex items-center gap-2 shrink-0`). */
   trailingClassName?: string;
-  /** Render a non-`<button>` root; receives {@link DisclosureRootRenderProps}. */
-  render?: (props: DisclosureRootRenderProps) => React.ReactElement;
 }
 
 // Padding intentionally omitted — it varies per consumer (py-2.5 / py-2 /
@@ -95,6 +87,7 @@ export function DisclosureHeader({
   icon,
   summary,
   trailing,
+  actions,
   chevron = true,
   chevronClassName,
   controls,
@@ -104,7 +97,6 @@ export function DisclosureHeader({
   className,
   leftClassName,
   trailingClassName,
-  render,
 }: DisclosureHeaderProps) {
   const toggle = () => onToggle?.(!expanded);
 
@@ -131,29 +123,7 @@ export function DisclosureHeader({
     </>
   );
 
-  const rootClassName = cn(ROOT_CHROME, className);
-
-  if (render) {
-    return render({
-      role: "button",
-      tabIndex: 0,
-      "aria-expanded": expanded,
-      "aria-controls": controls,
-      "aria-label": ariaLabel,
-      title: htmlTitle,
-      onClick: toggle,
-      onKeyDown: (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          toggle();
-        }
-      },
-      className: rootClassName,
-      children: inner,
-    });
-  }
-
-  return (
+  const trigger = (props: { className: string }) => (
     <button
       type="button"
       id={id}
@@ -162,9 +132,26 @@ export function DisclosureHeader({
       aria-controls={controls}
       aria-label={ariaLabel}
       title={htmlTitle}
-      className={rootClassName}
+      className={props.className}
     >
       {inner}
     </button>
   );
+
+  if (actions) {
+    // Row chrome (incl. hover + caller padding) lives on the wrapper so the
+    // whole row still reads as one header; the trigger spans everything up to
+    // the actions cluster, which sits beside it as real siblings.
+    return (
+      <div className={cn(ROOT_CHROME, className)}>
+        {trigger({
+        className:
+          "flex flex-1 min-w-0 items-center justify-between text-left cursor-pointer",
+        })}
+        <div className={TRAILING_CHROME}>{actions}</div>
+      </div>
+    );
+  }
+
+  return trigger({ className: cn(ROOT_CHROME, className) });
 }

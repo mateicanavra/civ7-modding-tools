@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useId, useState } from "react";
 import { LAYOUT } from "../../lib/layout.js";
+import { useControllableState } from "../../lib/useControllableState.js";
 import { cn } from "../../lib/utils.js";
 import type {
   DataTypeOption,
@@ -194,35 +195,28 @@ export function ExplorePanel<TRef extends WaterStatsLayerRef = WaterStatsLayerRe
   const stageListId = `${uid}-stage-list`;
   const stepListId = `${uid}-step-list`;
   const layersListId = `${uid}-layers-list`;
-  const [localStageExpanded, setLocalStageExpanded] = useState(true);
-  const [localStepExpanded, setLocalStepExpanded] = useState(true);
-  const [localLayersExpanded, setLocalLayersExpanded] = useState(true);
-  const [localWaterStatsExpanded, setLocalWaterStatsExpanded] = useState(false);
   const [groupOpen, setGroupOpen] = useState<Record<string, boolean>>({});
 
-  const isStageExpanded = stageExpandedProp ?? localStageExpanded;
-  const setIsStageExpanded = (next: boolean) => {
-    onStageExpandedChange?.(next);
-    if (stageExpandedProp === undefined) setLocalStageExpanded(next);
-  };
-
-  const isStepExpanded = stepExpandedProp ?? localStepExpanded;
-  const setIsStepExpanded = (next: boolean) => {
-    onStepExpandedChange?.(next);
-    if (stepExpandedProp === undefined) setLocalStepExpanded(next);
-  };
-
-  const isLayersExpanded = layersExpandedProp ?? localLayersExpanded;
-  const setIsLayersExpanded = (next: boolean) => {
-    onLayersExpandedChange?.(next);
-    if (layersExpandedProp === undefined) setLocalLayersExpanded(next);
-  };
-
-  const isWaterStatsExpanded = waterStatsExpandedProp ?? localWaterStatsExpanded;
-  const setIsWaterStatsExpanded = (next: boolean) => {
-    onWaterStatsExpandedChange?.(next);
-    if (waterStatsExpandedProp === undefined) setLocalWaterStatsExpanded(next);
-  };
+  const [isStageExpanded, setIsStageExpanded] = useControllableState({
+    value: stageExpandedProp,
+    defaultValue: true,
+    onChange: onStageExpandedChange,
+  });
+  const [isStepExpanded, setIsStepExpanded] = useControllableState({
+    value: stepExpandedProp,
+    defaultValue: true,
+    onChange: onStepExpandedChange,
+  });
+  const [isLayersExpanded, setIsLayersExpanded] = useControllableState({
+    value: layersExpandedProp,
+    defaultValue: true,
+    onChange: onLayersExpandedChange,
+  });
+  const [isWaterStatsExpanded, setIsWaterStatsExpanded] = useControllableState({
+    value: waterStatsExpandedProp,
+    defaultValue: false,
+    onChange: onWaterStatsExpandedChange,
+  });
   const currentStage = stages.find((s) => s.value === selectedStage);
   const currentStep = steps.find((s) => s.value === selectedStep);
   const currentLayer = dataTypeOptions.find((dt) => dt.value === selectedDataType);
