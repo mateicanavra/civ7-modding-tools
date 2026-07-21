@@ -9,6 +9,7 @@ import {
   alwaysExpandedCollapse,
   mockFieldContent,
   mockSectionContent,
+  noop,
   noTransparentPaths,
 } from "../../storybook/mockWidgetProps.js";
 
@@ -95,6 +96,49 @@ export const WithoutCollapse: Story = {
         {...({
           ...stageProps,
           registry: { formContext: { transparentPaths: noTransparentPaths } },
+        } as unknown as ObjectFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>)}
+      />
+    </Demo>
+  ),
+};
+
+/**
+ * Flat-and-flush deltas 5+8 (re-cut): the stage's formData drifts from the
+ * LOADED config's values (the formContext baseline), so the header carries
+ * all three scoped actions — the change-gated Discard (warning Undo icon,
+ * present only because seaLevel drifted from the baseline), the JSON reveal,
+ * and the options menu holding Reset to Defaults.
+ */
+export const ModifiedStage: Story = {
+  render: () => (
+    <Demo>
+      <BrowserConfigObjectFieldTemplate
+        {...({
+          ...stageProps,
+          schema: {
+            type: "object",
+            properties: {
+              seaLevel: { type: "number", default: 0.6 },
+              mountainDensity: { type: "number", default: 0.3 },
+            },
+          },
+          properties: [
+            { name: "seaLevel", hidden: false, content: mockFieldContent("Sea Level", "0.85") },
+            {
+              name: "mountainDensity",
+              hidden: false,
+              content: mockFieldContent("Mountain Density", "0.3"),
+            },
+          ],
+          formData: { seaLevel: 0.85, mountainDensity: 0.3 },
+          registry: {
+            formContext: {
+              transparentPaths: noTransparentPaths,
+              collapse: alwaysExpandedCollapse,
+              baseline: { elevation: { seaLevel: 0.6, mountainDensity: 0.3 } },
+              onStageRestoreRequest: noop,
+            },
+          },
         } as unknown as ObjectFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>)}
       />
     </Demo>

@@ -11,7 +11,7 @@
 
 import { Grid3x3, Monitor, Moon, Sun } from "lucide-react";
 import React from "react";
-import { cn } from "../../lib/utils.js";
+import { iconButton, iconButtonActive } from "../../lib/iconButton.js";
 import type { ThemePreference } from "../../types/index.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.js";
 // ============================================================================
@@ -53,14 +53,8 @@ const THEME_CONFIG: Record<
 // ============================================================================
 // Styles (token-driven; theme follows the `.dark` class)
 // ============================================================================
-const iconBtn = cn(
-  "h-7 w-7 flex items-center justify-center rounded transition-colors",
-  "text-muted-foreground hover:bg-accent hover:text-foreground"
-);
-const iconBtnActive = cn(
-  "h-7 w-7 flex items-center justify-center rounded transition-colors",
-  "bg-muted text-foreground"
-);
+const iconBtn = iconButton;
+const iconBtnActive = iconButtonActive;
 // ============================================================================
 // Component
 // ============================================================================

@@ -53,6 +53,8 @@ export const ScalarField: Story = {
           schema: { type: "number" },
           rawErrors: [],
           classNames: "",
+          fieldPathId: { path: ["elevation", "seaLevel"], $id: "cfg_seaLevel" },
+          registry: { formContext: { transparentPaths: new Set<string>() } },
           children: <Input className="w-28 font-mono" defaultValue="0.6" aria-label="seaLevel" />,
         } as unknown as FieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>)}
       />
@@ -73,6 +75,8 @@ export const Invalid: Story = {
           rawErrors: ["must be ≤ 1"],
           errors: <span>must be ≤ 1</span>,
           classNames: "",
+          fieldPathId: { path: ["elevation", "mountainDensity"], $id: "cfg_mountainDensity" },
+          registry: { formContext: { transparentPaths: new Set<string>() } },
           children: (
             <Input
               className="w-28 font-mono"

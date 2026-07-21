@@ -7,7 +7,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { DisclosureHeader } from "../src/components/composites/DisclosureHeader.js";
 import { EmptyState } from "../src/components/composites/EmptyState.js";
-import { ViewControls } from "../src/components/composites/ViewControls.js";
 import { TooltipProvider } from "../src/components/ui/tooltip.js";
 
 // Plain-cn unification no-op pins (tasks.md 3.3): ViewControls,
@@ -22,6 +21,12 @@ import { TooltipProvider } from "../src/components/ui/tooltip.js";
 // captured BEFORE the move (app-side, plain cn — see the fixture header note
 // in the B3 commit); the assertions render the same scenes from the moved
 // package components (extended cn) and require byte equality.
+//
+// The ViewControls pins are RETIRED (flat-and-flush): its icon-button classes
+// deliberately diverged from the frozen baseline when they unified onto the
+// shared `lib/iconButton.ts` pair (adds `shrink-0`). The no-op proof for
+// ViewControls stands in history; only components still byte-stable against
+// the pre-move fixture remain pinned here.
 
 const fixture: Record<string, string> = JSON.parse(
   readFileSync(
@@ -30,19 +35,7 @@ const fixture: Record<string, string> = JSON.parse(
   )
 );
 
-const noop = () => {};
-
 // --- story wrappers, byte-identical to the story files ---
-function Demo({ children }: { children: ReactNode }) {
-  return (
-    <div
-      className="bg-background text-foreground"
-      style={{ padding: 20, borderRadius: 6, display: "flex", flexDirection: "column", gap: 12 }}
-    >
-      {children}
-    </div>
-  );
-}
 function Dock({ children }: { children: ReactNode }) {
   return (
     <div
@@ -62,26 +55,6 @@ function Stage({ children }: { children: ReactNode }) {
 }
 
 const scenes: Record<string, ReactNode> = {
-  "ViewControls/GridOn": (
-    <Demo>
-      <ViewControls
-        themePreference="dark"
-        onThemeCycle={noop}
-        showGrid={true}
-        onShowGridChange={noop}
-      />
-    </Demo>
-  ),
-  "ViewControls/GridOff": (
-    <Demo>
-      <ViewControls
-        themePreference="system"
-        onThemeCycle={noop}
-        showGrid={false}
-        onShowGridChange={noop}
-      />
-    </Demo>
-  ),
   "DisclosureHeader/PanelHeaders": (
     <Dock>
       <DisclosureHeader

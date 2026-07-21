@@ -2,7 +2,11 @@ import type { RJSFSchema, UiSchema } from "@rjsf/utils";
 import { useMemo } from "react";
 import type { XSchema } from "typebox/schema";
 import { getAtPath, setAtPath } from "./pathUtils.js";
-import type { BrowserConfigFormContext, ConfigCollapseContext } from "./rjsfTemplates.js";
+import type {
+  BrowserConfigFormContext,
+  ConfigCollapseContext,
+  StageRestoreRequest,
+} from "./rjsfTemplates.js";
 import { SchemaForm } from "./SchemaForm.js";
 import {
   collectTransparentPaths,
@@ -26,6 +30,7 @@ type ResolvedSchema = Readonly<{
 type FocusView<TConfig> = Readonly<{
   resolved: ResolvedSchema;
   formValue: unknown;
+  formBaseline: unknown;
   mergeBack(nextFormValue: unknown): TConfig;
 }>;
 
@@ -34,16 +39,48 @@ export type SchemaConfigFormProps<TConfig> = Readonly<{
   value: TConfig;
   onChange(next: TConfig): void;
   disabled: boolean;
+  /**
+   * Scopes the form to one subtree. A single-segment path (the only shape
+   * the studio uses) wraps the stage under its own key, so collapse pointers
+   * and `StageRestoreRequest.pointer` stay in FULL-config coordinates. A
+   * deeper path renders the subtree as the form root: restore pointers are
+   * then SUBTREE-relative — a host applying them against the full config
+   * must translate them first.
+   */
   focusPath?: readonly string[] | null;
+  /**
+   * The loaded config's values (the config as selected/imported, before
+   * working edits) — the baseline all working-change signals key on: stage
+   * rollback gating and per-field drift + undo. Mirrors `value`'s shape and
+   * follows the same focus-view scoping. Omitted ⇒ no working-change
+   * tracking anywhere in the form.
+   */
+  baseline?: TConfig;
   /**
    * Collapse state for config objects (Pass-4 config-collapse spec).
    * Omitted ⇒ the form renders fully expanded with no disclosure chrome.
    */
   collapse?: ConfigCollapseContext;
+  /**
+   * Scoped stage-restore request (rollback to the loaded config, or reset to
+   * recipe defaults); carries the values confirming applies so the confirmer
+   * never re-resolves them. Omitted ⇒ stage headers render no restore
+   * affordances.
+   */
+  onStageRestoreRequest?: (request: StageRestoreRequest) => void;
 }>;
 
 export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>) {
-  const { schema, value, onChange, disabled, focusPath, collapse } = props;
+  const {
+    schema,
+    value,
+    onChange,
+    disabled,
+    focusPath,
+    baseline,
+    collapse,
+    onStageRestoreRequest,
+  } = props;
 
   const buildUiSchema = useMemo(() => {
     const hasEnum = (node: RJSFSchema): boolean => Array.isArray(node.enum) && node.enum.length > 0;
@@ -64,6 +101,12 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
         out["ui:widget"] = "select";
       } else if (hasEnumItems(node)) {
         out["ui:widget"] = "tagSelect";
+      } else if (node.type === "number" || node.type === "integer") {
+        // Explicit routing to the NumberWidget (via the registry's `updown`
+        // slot): without it rjsf falls through to the plain TextWidget for
+        // numeric schemas, silently dropping the numeric input semantics and
+        // the field's drift/undo affordance.
+        out["ui:widget"] = "updown";
       } else if (node.type === "string") {
         const format = typeof node.format === "string" ? node.format : null;
         const maxLength = typeof node.maxLength === "number" ? node.maxLength : null;
@@ -119,6 +162,9 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
     const focusKey = focusPath[0];
     const isSingleStage = focusPath.length === 1 && typeof focusKey === "string";
     const baseFormValue = isPlainObject(focusValue) ? focusValue : {};
+    // The baseline follows the SAME focus scoping as the value, so the
+    // templates always compare like against like in form coordinates.
+    const focusBaseline = baseline === undefined ? undefined : getAtPath(baseline, focusPath);
 
     if (isSingleStage) {
       const wrappedSchema: RJSFSchema = {
@@ -133,6 +179,7 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
           formContext: { transparentPaths: collectTransparentPaths(wrappedSchema) },
         },
         formValue: wrappedValue,
+        formBaseline: baseline === undefined ? undefined : { [focusKey]: focusBaseline },
         mergeBack: (nextFormValue: unknown) => {
           const nextObj = isPlainObject(nextFormValue)
             ? (nextFormValue as Record<string, unknown>)
@@ -149,12 +196,13 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
         formContext: { transparentPaths: collectTransparentPaths(focusSchema as RJSFSchema) },
       },
       formValue: baseFormValue,
+      formBaseline: focusBaseline,
       mergeBack: (nextFormValue: unknown) => {
         const nextValue = isPlainObject(nextFormValue) ? nextFormValue : {};
         return setAtPath(value, focusPath, nextValue) as TConfig;
       },
     };
-  }, [resolved, focusPath, value]);
+  }, [resolved, focusPath, value, baseline]);
 
   // `active` collapses focused/full modes into one view. It is null exactly when
   // the schema failed to resolve (focusView is null whenever `resolved` is null),
@@ -165,6 +213,7 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
       ? {
           resolved,
           formValue: value,
+          formBaseline: baseline,
           mergeBack: (nextFormValue: unknown) => nextFormValue as TConfig,
         }
       : null);
@@ -187,10 +236,21 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
   );
 
   // Pointers are mode-independent (focused mode wraps the stage under its own
-  // key), so one collapse context serves both views unchanged.
+  // key), so one collapse context serves both views unchanged. The baseline
+  // rides the context as DATA (rjsf's SchemaField deepEquals gate sees it),
+  // already scoped to the active view's coordinates.
+  const activeFormBaseline = active?.formBaseline;
   const formContext = useMemo<BrowserConfigFormContext | null>(
-    () => (activeFormContext ? { ...activeFormContext, collapse } : null),
-    [activeFormContext, collapse]
+    () =>
+      activeFormContext
+        ? {
+            ...activeFormContext,
+            collapse,
+            baseline: activeFormBaseline,
+            onStageRestoreRequest,
+          }
+        : null,
+    [activeFormContext, collapse, activeFormBaseline, onStageRestoreRequest]
   );
 
   // Single guard after all hooks. `active`, `uiSchema`, and `formContext` are
