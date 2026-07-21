@@ -570,6 +570,29 @@ describe("rule selector boundary", () => {
     });
   });
 
+  test("rule diagnostics preserve shared provider timing as one execution group", () => {
+    const rule = fakeSourceRuleFact("batched", ["packages"]);
+    const timing = {
+      kind: "shared" as const,
+      groupId: "rule-diagnostics:batched,peer",
+      durationMs: 11,
+      ruleCount: 2,
+    };
+    const record = ruleDiagnosticExecutionRecord(rule, {
+      kind: "executed",
+      result: { exitCode: 0, diagnostics: [] },
+      durationMs: 11,
+      timing,
+    });
+
+    expect(record).toEqual({
+      result: { exitCode: 0, diagnostics: [] },
+      durationMs: 11,
+      timing,
+      disposition: { kind: "executed", durationMs: 11 },
+    });
+  });
+
   test("diagnostic provider failures always carry a reportable diagnostic", () => {
     const rule = fakeSourceRuleFact("provider-contract", ["packages"]);
     const record = ruleDiagnosticExecutionRecord(rule, {

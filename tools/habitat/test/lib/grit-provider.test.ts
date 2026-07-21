@@ -30,8 +30,8 @@ import {
   NativeGritPinnedNativePreflightRequestSchema,
   type NativeGritSelectedRuleApplyDryRunObservationRequest,
   NativeGritSelectedRuleApplyDryRunObservationRequestSchema,
-  type NativeGritSelectedRuleJsonCheckRequest,
-  NativeGritSelectedRuleJsonCheckRequestSchema,
+  type NativeGritSelectedRulesJsonCheckRequest,
+  NativeGritSelectedRulesJsonCheckRequestSchema,
   nativeGritCommandRequestFromProcessRequest,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/command.schema";
 import { defaultGritCommandTimeoutMs } from "@habitat/cli/resources/rule-diagnostics/providers/grit/constants";
@@ -40,6 +40,7 @@ import {
   makeGritRuleFixPreviewService,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/fix-preview";
 import {
+  type GritCommandRequest,
   gritDiagnosticOutcomesFromReport,
   makeFakeGritCommandService,
   makeGritCommandService,
@@ -230,19 +231,24 @@ describe("Grit closed wire decoders", () => {
 
   test("correlates native command families, output contracts, and failed exits", () => {
     const contracts = [
-      ["selected-rule-json-check", "json-report-on-stderr"],
+      ["selected-rules-json-check", "json-report-on-stderr"],
       ["selected-rule-apply-dry-run-observation", "compact-jsonl-on-stdout"],
       ["pinned-native-preflight", "version-on-stdout"],
     ] as const;
     const request = nativeRequestFixture();
+    const { patternNames, ...requestWithoutPatternNames } = request;
     for (const [family, outputContract] of contracts) {
       const scanRoots = Match.value(family).pipe(
         Match.when("pinned-native-preflight", () => []),
         Match.orElse(() => request.scanRoots)
       );
+      const familyRequest = Match.value(family).pipe(
+        Match.when("selected-rules-json-check", () => request),
+        Match.orElse(() => requestWithoutPatternNames)
+      );
       expect(
         Value.Check(NativeGritCommandRequestSchema, {
-          ...request,
+          ...familyRequest,
           commandFamily: family,
           outputContract,
           scanRoots,
@@ -252,7 +258,7 @@ describe("Grit closed wire decoders", () => {
         if (wrongOutputContract === outputContract) continue;
         expect(
           Value.Check(NativeGritCommandRequestSchema, {
-            ...request,
+            ...familyRequest,
             commandFamily: family,
             outputContract: wrongOutputContract,
             scanRoots,
@@ -263,9 +269,21 @@ describe("Grit closed wire decoders", () => {
     expect(Value.Check(DiagnosticCommandObservationSchema, failedCommandFixture(7))).toBe(true);
     expect(Value.Check(DiagnosticCommandObservationSchema, failedCommandFixture(0))).toBe(false);
     expect(
-      Value.Check(NativeGritSelectedRuleJsonCheckRequestSchema, {
+      Value.Check(NativeGritSelectedRulesJsonCheckRequestSchema, {
         ...request,
         scanRoots: [],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(NativeGritSelectedRulesJsonCheckRequestSchema, {
+        ...request,
+        patternNames: [],
+      })
+    ).toBe(false);
+    expect(
+      Value.Check(NativeGritSelectedRulesJsonCheckRequestSchema, {
+        ...request,
+        patternNames: ["alpha_pattern", "alpha_pattern"],
       })
     ).toBe(false);
     expect(
@@ -279,8 +297,9 @@ describe("Grit closed wire decoders", () => {
     const processRequest = baseRequest();
     const checkRequest = nativeGritCommandRequestFromProcessRequest({
       request: processRequest,
-      commandFamily: "selected-rule-json-check",
-    }) satisfies NativeGritSelectedRuleJsonCheckRequest;
+      commandFamily: "selected-rules-json-check",
+      patternNames: ["alpha_pattern"],
+    }) satisfies NativeGritSelectedRulesJsonCheckRequest;
     const applyRequest = nativeGritCommandRequestFromProcessRequest({
       request: processRequest,
       commandFamily: "selected-rule-apply-dry-run-observation",
@@ -289,7 +308,8 @@ describe("Grit closed wire decoders", () => {
       request: processRequest,
       commandFamily: "pinned-native-preflight",
     }) satisfies NativeGritPinnedNativePreflightRequest;
-    expect(Value.Check(NativeGritSelectedRuleJsonCheckRequestSchema, checkRequest)).toBe(true);
+    expect(Value.Check(NativeGritSelectedRulesJsonCheckRequestSchema, checkRequest)).toBe(true);
+    expect(checkRequest.patternNames).toEqual(["alpha_pattern"]);
     expect(
       Value.Check(NativeGritSelectedRuleApplyDryRunObservationRequestSchema, applyRequest)
     ).toBe(true);
@@ -444,7 +464,8 @@ describe("Grit closed wire decoders", () => {
     const command = completedCommandFixture();
     const checkRequest = nativeGritCommandRequestFromProcessRequest({
       request: processRequest,
-      commandFamily: "selected-rule-json-check",
+      commandFamily: "selected-rules-json-check",
+      patternNames: ["alpha_pattern"],
     });
     const applyRequest = nativeGritCommandRequestFromProcessRequest({
       request: processRequest,
@@ -474,7 +495,7 @@ describe("Grit closed wire decoders", () => {
     );
     expect(checkComplete).toMatchObject({
       kind: "observed-complete",
-      request: { commandFamily: "selected-rule-json-check", cwd: repoRoot },
+      request: { commandFamily: "selected-rules-json-check", cwd: repoRoot },
       command: { cwd: repoRoot },
       observation: { kind: "check" },
     });
@@ -500,7 +521,7 @@ describe("Grit closed wire decoders", () => {
           kind: "evidence-mismatch",
           failure: "DiagnosticProviderContractViolation",
           detail: expect.stringContaining(fixture.field),
-          request: { commandFamily: "selected-rule-json-check" },
+          request: { commandFamily: "selected-rules-json-check" },
           command: { kind: "completed" },
         },
       });
@@ -1484,7 +1505,7 @@ describe("Grit generic acquisition and public disposition", () => {
       expect(acquisition).toMatchObject({
         kind: "command-failed",
         failure: fixture.expectedFailure,
-        request: { commandInvocationId: "grit-selected-rule-json-check" },
+        request: { commandInvocationId: "grit-selected-rules-json-check" },
         command: {
           kind: fixture.expectedCommand,
           commandId: "grit-pinned-native-preflight",
@@ -1512,12 +1533,12 @@ describe("Grit generic acquisition and public disposition", () => {
     );
     expect(completed).toMatchObject({
       kind: "observed-complete",
-      request: { commandInvocationId: "grit-selected-rule-json-check" },
-      command: { kind: "completed", commandId: "grit-selected-rule-json-check" },
+      request: { commandInvocationId: "grit-selected-rules-json-check" },
+      command: { kind: "completed", commandId: "grit-selected-rules-json-check" },
     });
     expect(observed.map(({ commandId }) => commandId)).toEqual([
       "grit-pinned-native-preflight",
-      "grit-selected-rule-json-check",
+      "grit-selected-rules-json-check",
     ]);
     expect(observed[0]?.timeoutMs).toEqual(observed[1]?.timeoutMs);
     expect(observed[0]?.timeoutMs).toBeGreaterThan(0);
@@ -1531,6 +1552,7 @@ describe("Grit generic acquisition and public disposition", () => {
         preflightScenarioEffect("exact", recordAndReturn(observed, request, request)),
     };
     const request = {
+      patternNames: ["alpha_pattern"] as const,
       scanRoots: [providerRoot] as const,
       cwd: repoRoot,
       gritDir: path.join(repoRoot, ".grit"),
@@ -1547,8 +1569,8 @@ describe("Grit generic acquisition and public disposition", () => {
     await Effect.runPromise(realization);
     expect(observed.map(({ commandId }) => commandId)).toEqual([
       "grit-pinned-native-preflight",
-      "grit-selected-rule-json-check",
-      "grit-selected-rule-json-check",
+      "grit-selected-rules-json-check",
+      "grit-selected-rules-json-check",
     ]);
     expect(observed[0]?.timeoutMs).toBe(defaultGritCommandTimeoutMs);
     expect(observed.slice(1).map(({ timeoutMs }) => timeoutMs)).toEqual([123, 123]);
@@ -1567,14 +1589,17 @@ describe("Grit generic acquisition and public disposition", () => {
           ({ commandId }) => commandId === "grit-pinned-native-preflight"
         ).length;
         observed.push(request);
-        const kind =
+        const kind = Match.value(
           request.commandId === "grit-pinned-native-preflight" && priorPreflights === 0
-            ? "blank"
-            : "exact";
+        ).pipe(
+          Match.when(true, () => "blank" as const),
+          Match.orElse(() => "exact" as const)
+        );
         return preflightScenarioEffect(kind, request);
       },
     };
     const request = {
+      patternNames: ["alpha_pattern"] as const,
       scanRoots: [providerRoot] as const,
       cwd: repoRoot,
       gritDir: path.join(repoRoot, ".grit"),
@@ -1592,8 +1617,8 @@ describe("Grit generic acquisition and public disposition", () => {
     expect(observed.map(({ commandId }) => commandId)).toEqual([
       "grit-pinned-native-preflight",
       "grit-pinned-native-preflight",
-      "grit-selected-rule-json-check",
-      "grit-selected-rule-json-check",
+      "grit-selected-rules-json-check",
+      "grit-selected-rules-json-check",
     ]);
   });
 
@@ -1606,6 +1631,7 @@ describe("Grit generic acquisition and public disposition", () => {
       },
     };
     const request = {
+      patternNames: ["alpha_pattern"] as const,
       scanRoots: [providerRoot] as const,
       cwd: repoRoot,
       gritDir: path.join(repoRoot, ".grit"),
@@ -1663,7 +1689,7 @@ describe("Grit generic acquisition and public disposition", () => {
       observed.filter(({ commandId }) => commandId === "grit-pinned-native-preflight")
     ).toHaveLength(2);
     expect(
-      observed.filter(({ commandId }) => commandId === "grit-selected-rule-json-check")
+      observed.filter(({ commandId }) => commandId === "grit-selected-rules-json-check")
     ).toHaveLength(2);
   });
 
@@ -1813,13 +1839,16 @@ describe("Grit generic acquisition and public disposition", () => {
     expect(commandCalled).toBe(false);
   });
 
-  test("executes one immutable catalog per rule without cross-catalog leakage", async () => {
+  test("executes one immutable catalog for exact-root rules with distinct identities", async () => {
     const alpha = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
     const beta = rule("beta", "beta_pattern", providerPattern, [providerRoot]);
     const catalogs: string[] = [];
+    const selectedPatternNames: string[][] = [];
     const grit = makeFakeGritCommandService(
-      (request) => {
+      (request, providerRequest) => {
+        const checkRequest = requireCheckProviderRequest(providerRequest);
         catalogs.push(readFileSync(path.join(request.cwd, ".grit/grit.yaml"), "utf8"));
+        selectedPatternNames.push([...checkRequest.patternNames]);
         return makeHabitatCommandResult(request, {
           stderr: captureOutput(
             jsonDocument({ paths: [path.join(repoRoot, providerFile)], results: [] })
@@ -1832,13 +1861,240 @@ describe("Grit generic acquisition and public disposition", () => {
       runGritRulesEffect([alpha, beta], { repoRoot, grit }).pipe(Effect.provide(NodeContext.layer))
     );
     expect([...executions.values()].every((execution) => execution.kind === "executed")).toBe(true);
-    expect(catalogs).toHaveLength(2);
-    const alphaCatalog = catalogs.find((catalog) => catalog.includes("alpha_pattern"));
-    const betaCatalog = catalogs.find((catalog) => catalog.includes("beta_pattern"));
-    expect(alphaCatalog).toBeDefined();
-    expect(alphaCatalog).not.toContain("beta_pattern");
-    expect(betaCatalog).toBeDefined();
-    expect(betaCatalog).not.toContain("alpha_pattern");
+    expect(catalogs).toHaveLength(1);
+    expect(catalogs[0]).toContain("alpha_pattern");
+    expect(catalogs[0]).toContain("beta_pattern");
+    expect(selectedPatternNames).toEqual([["alpha_pattern", "beta_pattern"]]);
+    expect(executions.get("alpha")?.durationMs).toBe(executions.get("beta")?.durationMs);
+    expect(executions.get("alpha")?.timing).toEqual({
+      kind: "shared",
+      groupId: "rule-diagnostics:alpha,beta",
+      durationMs: executions.get("alpha")?.durationMs,
+      ruleCount: 2,
+    });
+    expect(executions.get("beta")?.timing).toEqual(executions.get("alpha")?.timing);
+  });
+
+  test("keeps different roots and duplicate pattern identities in sequential commands", async () => {
+    const cases = [
+      [
+        rule("alpha", "alpha_pattern", providerPattern, [providerRoot]),
+        rule("docs", "docs_pattern", providerPattern, ["docs"]),
+      ],
+      [
+        rule("duplicate-a", "duplicate_pattern", providerPattern, [providerRoot]),
+        rule("duplicate-b", "duplicate_pattern", providerPattern, [providerRoot]),
+      ],
+    ] as const;
+    for (const selectedRules of cases) {
+      const observed: Array<readonly string[]> = [];
+      const catalogs: string[] = [];
+      const grit = makeFakeGritCommandService(
+        (request, providerRequest) => {
+          const checkRequest = requireCheckProviderRequest(providerRequest);
+          observed.push([...checkRequest.scanRoots]);
+          catalogs.push(readFileSync(path.join(request.cwd, ".grit/grit.yaml"), "utf8"));
+          return makeHabitatCommandResult(request, {
+            stderr: captureOutput(
+              jsonDocument({ paths: [...checkRequest.scanRoots], results: [] })
+            ),
+          });
+        },
+        { repoRoot }
+      );
+
+      const executions = await Effect.runPromise(
+        runGritRulesEffect(selectedRules, { repoRoot, grit }).pipe(
+          Effect.provide(NodeContext.layer)
+        )
+      );
+
+      expect([...executions.keys()]).toEqual(selectedRules.map(({ id }) => id));
+      expect(observed).toHaveLength(2);
+      expect(catalogs).toHaveLength(2);
+      expect(catalogs.every((catalog) => catalog.split("  - name:").length === 2)).toBe(true);
+    }
+  });
+
+  test("keeps duplicate pattern identities singleton across different root groups", async () => {
+    const selectedRules = [
+      rule("duplicate-provider", "duplicate_pattern", providerPattern, [providerRoot]),
+      rule("provider-peer", "provider_peer_pattern", providerPattern, [providerRoot]),
+      rule("duplicate-docs", "duplicate_pattern", providerPattern, ["docs"]),
+      rule("docs-peer", "docs_peer_pattern", providerPattern, ["docs"]),
+    ] as const;
+    const observedPatternNames: string[][] = [];
+    const grit = makeFakeGritCommandService(
+      (request, providerRequest) => {
+        const checkRequest = requireCheckProviderRequest(providerRequest);
+        observedPatternNames.push([...checkRequest.patternNames]);
+        return makeHabitatCommandResult(request, {
+          stderr: captureOutput(jsonDocument({ paths: [...checkRequest.scanRoots], results: [] })),
+        });
+      },
+      { repoRoot }
+    );
+
+    const executions = await Effect.runPromise(
+      runGritRulesEffect(selectedRules, { repoRoot, grit }).pipe(Effect.provide(NodeContext.layer))
+    );
+
+    expect([...executions.keys()]).toEqual(selectedRules.map(({ id }) => id));
+    expect(observedPatternNames).toEqual([
+      ["duplicate_pattern"],
+      ["provider_peer_pattern"],
+      ["duplicate_pattern"],
+      ["docs_peer_pattern"],
+    ]);
+  });
+
+  test("isolates invalid rule assets before valid peers acquire a shared catalog", async () => {
+    const invalid = rule("invalid", "invalid_pattern", ".habitat/missing-pattern.md", [
+      providerRoot,
+    ]);
+    const valid = rule("valid", "valid_pattern", providerPattern, [providerRoot]);
+    const catalogs: string[] = [];
+    const grit = makeFakeGritCommandService(
+      (request, providerRequest) => {
+        const checkRequest = requireCheckProviderRequest(providerRequest);
+        catalogs.push(readFileSync(path.join(request.cwd, ".grit/grit.yaml"), "utf8"));
+        return makeHabitatCommandResult(request, {
+          stderr: captureOutput(jsonDocument({ paths: [...checkRequest.scanRoots], results: [] })),
+        });
+      },
+      { repoRoot }
+    );
+
+    const executions = await Effect.runPromise(
+      runGritRulesEffect([invalid, valid], { repoRoot, grit }).pipe(
+        Effect.provide(NodeContext.layer)
+      )
+    );
+
+    expect([...executions.keys()]).toEqual(["invalid", "valid"]);
+    expect(executions.get("invalid")).toMatchObject({
+      kind: "failed",
+      failure: "DiagnosticRuleMaterializationFailed",
+    });
+    expect(executions.get("valid")).toMatchObject({ kind: "executed" });
+    expect(catalogs).toHaveLength(1);
+    expect(catalogs[0]).toContain("valid_pattern");
+    expect(catalogs[0]).not.toContain("invalid_pattern");
+  });
+
+  test("contains command, wire, path, and identity failures to one exact-root group", async () => {
+    const alpha = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
+    const beta = rule("beta", "beta_pattern", providerPattern, [providerRoot]);
+    const docs = rule("docs", "docs_pattern", providerPattern, ["docs"]);
+    const fixtures = [
+      {
+        expected: "DiagnosticCommandFailed",
+        result: (request: HabitatProcessRequest) =>
+          makeHabitatCommandResult(request, {
+            exit: { code: 7, signal: null, interrupted: false },
+          }),
+      },
+      {
+        expected: "DiagnosticOutputMalformed",
+        result: (request: HabitatProcessRequest) =>
+          makeHabitatCommandResult(request, { stderr: captureOutput("{") }),
+      },
+      {
+        expected: "DiagnosticOutputIncomplete",
+        result: (request: HabitatProcessRequest) =>
+          makeHabitatCommandResult(request, {
+            stderr: captureOutput(
+              jsonDocument({ paths: [path.join(repoRoot, "docs/PRODUCT.md")], results: [] })
+            ),
+          }),
+      },
+      {
+        expected: "DiagnosticUnexpectedIdentity",
+        result: (request: HabitatProcessRequest) =>
+          makeHabitatCommandResult(request, {
+            stderr: captureOutput(
+              jsonDocument(checkReport(path.join(repoRoot, providerFile), "foreign_pattern"))
+            ),
+          }),
+      },
+    ] as const;
+
+    for (const fixture of fixtures) {
+      let callCount = 0;
+      const grit = makeFakeGritCommandService(
+        (request, providerRequest) => {
+          const checkRequest = requireCheckProviderRequest(providerRequest);
+          callCount += 1;
+          return Match.value(
+            checkRequest.scanRoots.includes(path.join(repoRoot, providerRoot))
+          ).pipe(
+            Match.when(true, () => fixture.result(request)),
+            Match.orElse(() =>
+              makeHabitatCommandResult(request, {
+                stderr: captureOutput(
+                  jsonDocument({ paths: [...checkRequest.scanRoots], results: [] })
+                ),
+              })
+            )
+          );
+        },
+        { repoRoot }
+      );
+
+      const executions = await Effect.runPromise(
+        runGritRulesEffect([alpha, beta, docs], { repoRoot, grit }).pipe(
+          Effect.provide(NodeContext.layer)
+        )
+      );
+
+      expect(callCount).toBe(2);
+      expect(executions.get("alpha")).toMatchObject({ kind: "failed", failure: fixture.expected });
+      expect(executions.get("beta")).toMatchObject({ kind: "failed", failure: fixture.expected });
+      expect(executions.get("docs")).toMatchObject({ kind: "executed" });
+    }
+  });
+
+  test("preserves selected order across batched check, apply, and not-applicable plans", async () => {
+    const check = rule("check", "check_pattern", providerPattern, [providerRoot]);
+    const apply = rule("apply", "apply_pattern", applyPattern, ["docs"], "apply-dry-run");
+    const unmatched = rule("unmatched", "unmatched_pattern", providerPattern, ["packages"]);
+    const observedKinds: string[] = [];
+    const grit = makeFakeGritCommandService(
+      (request, providerRequest) => {
+        observedKinds.push(providerRequest.kind);
+        return Match.value(providerRequest).pipe(
+          Match.when({ kind: "check" }, ({ scanRoots }) =>
+            makeHabitatCommandResult(request, {
+              stderr: captureOutput(jsonDocument({ paths: [...scanRoots], results: [] })),
+            })
+          ),
+          Match.when({ kind: "apply-dry-run" }, () =>
+            makeHabitatCommandResult(request, {
+              stdout: captureOutput(jsonl(allDone(1, 0))),
+            })
+          ),
+          Match.exhaustive
+        );
+      },
+      { repoRoot }
+    );
+
+    const executions = await Effect.runPromise(
+      runGritRulesEffect([check, apply, unmatched], {
+        repoRoot,
+        grit,
+        scanRoots: [providerFile, "docs/PRODUCT.md"],
+      }).pipe(Effect.provide(NodeContext.layer))
+    );
+
+    expect([...executions.keys()]).toEqual(["check", "apply", "unmatched"]);
+    expect(executions.get("check")).toMatchObject({ kind: "executed" });
+    expect(executions.get("apply")).toMatchObject({ kind: "executed" });
+    expect(executions.get("unmatched")).toMatchObject({
+      kind: "not-applicable",
+      reason: "no-matched-scan-roots",
+    });
+    expect(observedKinds).toEqual(["check", "apply-dry-run"]);
   });
 
   test("dispatches apply dry-run from manifest policy without rule-id branching", async () => {
@@ -2532,14 +2788,28 @@ function compactEventFixtures() {
   ];
 }
 
+function requireCheckProviderRequest(
+  request: GritCommandRequest
+): Extract<GritCommandRequest, { readonly kind: "check" }> {
+  return Match.value(request).pipe(
+    Match.when({ kind: "check" }, (checkRequest) => checkRequest),
+    Match.orElse(unexpectedCheckProviderRequest)
+  );
+}
+
+function unexpectedCheckProviderRequest(request: GritCommandRequest): never {
+  throw new Error(`Expected a check acquisition, observed ${request.kind}.`);
+}
+
 function nativeRequestFixture() {
   return {
-    commandFamily: "selected-rule-json-check",
+    commandFamily: "selected-rules-json-check",
     commandInvocationId: "grit-test",
     executable: pinnedGritNativePath(repoRoot),
     argv: ["--json", "check"],
     cwd: repoRoot,
     scanRoots: [providerRoot],
+    patternNames: ["alpha_pattern"],
     outputContract: "json-report-on-stderr",
   };
 }

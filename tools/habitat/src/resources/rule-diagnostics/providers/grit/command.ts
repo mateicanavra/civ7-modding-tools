@@ -28,7 +28,10 @@ const pinnedGritIdentity = {
   nativeVersion: "grit 0.1.1",
 } as const;
 
+/** Provider-local request for one hermetic native check over an ordered rule catalog. */
 export interface GritCheckProviderRequest {
+  /** Ordered catalog identities selected by this hermetic check invocation. */
+  readonly patternNames: readonly [string, ...string[]];
   readonly scanRoots: Readonly<DiagnosticSelectedScanRoots>;
   readonly cwd: string;
   readonly gritDir: string;
@@ -128,7 +131,7 @@ export function gritCheckRequest(
   request: GritCheckProviderRequest
 ): HabitatProcessRequest {
   return {
-    commandId: "grit-selected-rule-json-check",
+    commandId: "grit-selected-rules-json-check",
     kind: "pattern-check",
     executable: pinnedGritNativePath(repoRoot),
     argv: [
@@ -242,9 +245,10 @@ const preflightPinnedGritEffect = Effect.fn("grit.native.preflight")(function* <
   const packageJson = yield* parsePinnedPackage(packageSource, preflightRequest);
   yield* Effect.succeed(packageJson satisfies GritPackage);
   const firstResult = yield* observePinnedGritIdentity(run, preflightRequest);
-  const result = isCompletedBlankPreflight(firstResult)
-    ? yield* observePinnedGritIdentity(run, preflightRequest)
-    : firstResult;
+  const result = yield* Match.value(isCompletedBlankPreflight(firstResult)).pipe(
+    Match.when(true, () => observePinnedGritIdentity(run, preflightRequest)),
+    Match.orElse(() => Effect.succeed(firstResult))
+  );
   const validIdentity = !(
     result.stdout.truncated ||
     result.stderr.truncated ||
