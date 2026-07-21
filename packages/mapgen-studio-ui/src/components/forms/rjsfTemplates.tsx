@@ -106,7 +106,10 @@ const FORM = {
   // The 24 is DERIVED: headerInset (16) + chevron (12) + gap (8) −
   // bodyIndent (12). Change any of those and re-derive it. Because bodies
   // indent, nested hairlines and hover rows start at their section's depth —
-  // the inset dividers double as tree guides.
+  // the inset dividers double as tree guides. The label-under-title landing
+  // assumes the chevron anatomy: the no-collapse fallback headers (bare
+  // `SchemaForm` reuse, no disclosure chrome) render titles at the gutter
+  // alone, so labels there sit chevron+gap (20px) right of the title.
   headerInset: "px-4",
   fieldRunInset: "pl-6 pr-4",
   bodyIndent: "pl-3",
@@ -424,7 +427,10 @@ function StageObjectSection(args: {
 
   const defaults = schemaDefaultsFor(schema);
   const atDefaults = defaults !== undefined && deepEquals(formData ?? {}, defaults);
-  const changed = baseline !== undefined && !deepEquals(formData ?? {}, baseline.value ?? {});
+  // `baseline.value` arrives already normalized (the object template resolves
+  // the slice with `?? {}`), so the value this gate compares against is
+  // byte-identical to the one the rollback request carries — one resolution.
+  const changed = baseline !== undefined && !deepEquals(formData ?? {}, baseline.value);
 
   // Local provider so the template stays self-sufficient in bare `SchemaForm`
   // reuse (no host-provider contract); 300ms matches the app/storybook
@@ -623,17 +629,21 @@ export function BrowserConfigObjectFieldTemplate(
 
   if (isStage) {
     // The stage's working-change baseline: the loaded config's slice at this
-    // stage's path. Resolved HERE (the layer that knows the path) and handed
-    // down as a value — the section never re-resolves.
+    // stage's path. Resolved HERE (the layer that knows the path), normalized
+    // ONCE (`?? {}` — a stage the loaded config omitted means "empty stage"),
+    // and handed down as a value — the section's gate compares against, and
+    // its rollback request carries, exactly this value; nothing re-resolves
+    // or re-normalizes.
     const formBaseline = props.registry.formContext?.baseline;
     const baseline =
       formBaseline === undefined
         ? undefined
         : {
-            value: getAtPath(
-              formBaseline,
-              path.map((segment) => String(segment))
-            ),
+            value:
+              getAtPath(
+                formBaseline,
+                path.map((segment) => String(segment))
+              ) ?? {},
           };
     return (
       <StageObjectSection
@@ -704,8 +714,13 @@ export function BrowserConfigArrayFieldTemplate(
   // anatomy as object groups; the Add button is the first object-local
   // action living in the header's trailing zone.
   const collapse = props.registry.formContext?.collapse;
-  const pointer = pathToPointer(fieldPathId.path ?? []);
+  const path = fieldPathId.path ?? [];
+  const pointer = pathToPointer(path);
   const expanded = collapse ? collapse.expandedPointers.has(pointer) : true;
+  // Same heading-tier ladder as object sections: group eyebrow at depth 2,
+  // the dimmer sub-group eyebrow below — sibling sections at one depth must
+  // share one brightness tier regardless of object/array kind.
+  const headingClass = path.length === 2 ? FORM.groupHeading : FORM.subGroupHeading;
 
   const addButton =
     canAdd && allowMutations ? (
@@ -727,7 +742,7 @@ export function BrowserConfigArrayFieldTemplate(
         <CollapsibleHeader
           pointer={pointer}
           title={prettyTitle}
-          titleClass={FORM.groupHeading}
+          titleClass={headingClass}
           expanded={expanded}
           collapse={collapse}
           className={cn("py-2 hover:bg-muted/20 transition-colors", FORM.headerInset)}
@@ -735,7 +750,7 @@ export function BrowserConfigArrayFieldTemplate(
         />
       ) : (
         <div className={cn("flex items-center gap-2 py-2", FORM.headerInset)}>
-          <div className={FORM.groupHeading}>{prettyTitle}</div>
+          <div className={headingClass}>{prettyTitle}</div>
           <div style={{ flex: 1 }} />
           {addButton}
         </div>
