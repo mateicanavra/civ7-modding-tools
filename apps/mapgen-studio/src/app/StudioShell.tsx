@@ -61,6 +61,8 @@ export function StudioShell(props: StudioShellProps) {
   const setSetupConfig = useAuthoringStore((s) => s.setSetupConfig);
   const canonicalConfig = useAuthoringStore((s) => s.canonicalConfig);
   const setCanonicalConfig = useAuthoringStore((s) => s.setCanonicalConfig);
+  const installCanonicalConfig = useAuthoringStore((s) => s.installCanonicalConfig);
+  const baselineConfig = useAuthoringStore((s) => s.baselineConfig);
   const authoringRevision = useAuthoringStore((s) => s.authoringRevision);
 
   // View-only state is owned by `viewStore` (Zustand, architecture/10 §3). These
@@ -154,6 +156,7 @@ export function StudioShell(props: StudioShellProps) {
   } = useConfigAuthoring({
     canonicalConfig,
     setCanonicalConfig,
+    installCanonicalConfig,
     toast,
   });
 
@@ -273,7 +276,7 @@ export function StudioShell(props: StudioShellProps) {
     browserRunning,
     runInGameRunning,
     canonicalConfig,
-    setCanonicalConfig,
+    installCanonicalConfig,
     toast,
   });
 
@@ -494,6 +497,7 @@ export function StudioShell(props: StudioShellProps) {
   const leftPanel = (
     <RecipePanel
       config={pipelineConfig}
+      baselineConfig={baselineConfig}
       configSchema={recipeArtifacts.configSchema}
       onConfigChange={setPipelineConfig}
       recipeOptions={recipeOptions}
