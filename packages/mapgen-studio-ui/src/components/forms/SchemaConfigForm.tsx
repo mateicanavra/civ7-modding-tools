@@ -39,6 +39,14 @@ export type SchemaConfigFormProps<TConfig> = Readonly<{
   value: TConfig;
   onChange(next: TConfig): void;
   disabled: boolean;
+  /**
+   * Scopes the form to one subtree. A single-segment path (the only shape
+   * the studio uses) wraps the stage under its own key, so collapse pointers
+   * and `StageRestoreRequest.pointer` stay in FULL-config coordinates. A
+   * deeper path renders the subtree as the form root: restore pointers are
+   * then SUBTREE-relative — a host applying them against the full config
+   * must translate them first.
+   */
   focusPath?: readonly string[] | null;
   /**
    * The loaded config's values (the config as selected/imported, before

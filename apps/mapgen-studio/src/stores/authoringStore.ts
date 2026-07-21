@@ -13,11 +13,7 @@ import {
   type StudioAuthoringStateSnapshot,
   saveStudioAuthoringState,
 } from "../features/studioState/persistence";
-import {
-  DEFAULT_STUDIO_RECIPE_ID,
-  findCatalogConfig,
-  findRecipeArtifacts,
-} from "../recipes/catalog";
+import { DEFAULT_STUDIO_RECIPE_ID } from "../recipes/catalog";
 
 type Updater<T> = T | ((previous: T) => T);
 
@@ -35,11 +31,15 @@ type AuthoringData = {
 export type AuthoringState = AuthoringData & {
   /**
    * The loaded config's values — a snapshot of `canonicalConfig.config` taken
-   * at every whole-envelope INSTALL (recipe select, config select, import,
-   * save adoption) and untouched by working edits. It is the baseline all
+   * at every whole-envelope INSTALL (recipe select, config select, import)
+   * or SAVE ADOPTION, and untouched by working edits. It is the baseline all
    * working-change UI keys on (RecipePanel drift/rollback). Not persisted:
-   * on boot it re-derives from the catalog by the envelope's identity, and an
-   * unresolvable identity falls back to the persisted working values.
+   * on boot it starts at the persisted working values — working-change
+   * tracking restarts each session. (Deliberate: an identity-based catalog
+   * re-derivation was tried and reverted — after a save-to-current it
+   * resolved the id back to PRE-save values, so "Discard Changes" would have
+   * silently destroyed saved work. Carrying drift across reloads needs the
+   * baseline in the versioned authoring snapshot, not a boot-time guess.)
    */
   baselineConfig: MapConfigEnvelope["config"];
   authoringRevision: number;
@@ -54,11 +54,19 @@ export type AuthoringState = AuthoringData & {
    */
   setCanonicalConfig: (next: Updater<MapConfigEnvelope>) => void;
   /**
-   * Whole-envelope install (recipe select, config select, import, save
+   * Whole-envelope install (recipe select, config select, import, save-as-new
    * adoption): replaces the canonical config AND refreshes `baselineConfig`
-   * to the installed values — the one place the baseline moves.
+   * to the installed values.
    */
   installCanonicalConfig: (next: MapConfigEnvelope) => void;
+  /**
+   * Save adoption WITHOUT an install: a successful save-to-current makes the
+   * just-saved values the loaded baseline, but must not touch the canonical
+   * config (edits made while the save was in flight stay) and must not bump
+   * `authoringRevision` (nothing authored changed — a bump would flip the
+   * run-dirty state and trigger a redundant auto-run).
+   */
+  adoptSavedBaseline: (saved: MapConfigEnvelope["config"]) => void;
 };
 
 function buildInitialAuthoringData(): AuthoringData {
@@ -74,21 +82,6 @@ function buildInitialAuthoringData(): AuthoringData {
     canonicalConfig:
       persisted?.canonicalConfig ?? getRecipeDefaultCanonicalConfig(DEFAULT_STUDIO_RECIPE_ID),
   };
-}
-
-/**
- * Boot-time baseline: the loaded config's ORIGINAL values, re-derived from
- * the catalog by the persisted envelope's identity (the baseline itself is
- * deliberately not persisted). Identities the catalog can't resolve —
- * imported files, repo-saved configs — fall back to the persisted working
- * values: working-change tracking then restarts from the reloaded state.
- */
-function deriveBaselineConfig(canonical: MapConfigEnvelope): MapConfigEnvelope["config"] {
-  const catalogMatch = findCatalogConfig(canonical.recipe, canonical.id);
-  if (catalogMatch !== null) return catalogMatch.config;
-  const recipeDefault = findRecipeArtifacts(canonical.recipe)?.defaultCanonicalConfig;
-  if (recipeDefault !== undefined && recipeDefault.id === canonical.id) return recipeDefault.config;
-  return canonical.config;
 }
 
 const authoringPersistStorage: PersistStorage<AuthoringData> = {
@@ -122,7 +115,7 @@ export const useAuthoringStore = create<AuthoringState>()(
       const initial = buildInitialAuthoringData();
       return {
         ...initial,
-        baselineConfig: deriveBaselineConfig(initial.canonicalConfig),
+        baselineConfig: initial.canonicalConfig.config,
         authoringRevision: 0,
         setWorldSettings: (next) =>
           set((state) => ({
@@ -150,6 +143,7 @@ export const useAuthoringStore = create<AuthoringState>()(
             baselineConfig: next.config,
             authoringRevision: state.authoringRevision + 1,
           })),
+        adoptSavedBaseline: (saved) => set(() => ({ baselineConfig: saved })),
       };
     },
     {

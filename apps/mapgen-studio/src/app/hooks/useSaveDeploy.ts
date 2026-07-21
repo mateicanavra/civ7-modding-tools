@@ -33,11 +33,17 @@ export type UseSaveDeployArgs = {
   runInGameRunning: StudioOperations["runInGameRunning"];
   canonicalConfig: MapConfigEnvelope;
   /**
-   * Whole-envelope install: a successful save ADOPTS the saved envelope, so
-   * the working-change baseline refreshes to the just-saved values (drift
-   * indicators clear — working now equals saved).
+   * Whole-envelope install for save-as-new: adopting the renamed envelope is
+   * an identity change, so it replaces the canonical config and refreshes
+   * the working-change baseline together.
    */
   installCanonicalConfig: AuthoringState["installCanonicalConfig"];
+  /**
+   * Baseline-only adoption for save-to-current: the just-saved values become
+   * the loaded baseline WITHOUT touching the canonical config (edits made
+   * while the save was in flight survive) and without a revision bump.
+   */
+  adoptSavedBaseline: AuthoringState["adoptSavedBaseline"];
   toast: ToastFn;
 };
 
@@ -61,6 +67,7 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
     runInGameRunning,
     canonicalConfig,
     installCanonicalConfig,
+    adoptSavedBaseline,
     toast,
   } = args;
   const [saveDialogState, setSaveDialogState] = useState({
@@ -265,11 +272,14 @@ export function useSaveDeploy(args: UseSaveDeployArgs): UseSaveDeployResult {
   const handleSaveToCurrent = useCallback(async () => {
     const result = await saveCanonicalConfig(canonicalConfig);
     if (!mountedRef.current) return;
-    // Saving to the current identity makes the saved values the loaded
-    // values: re-install the same envelope so the baseline refreshes.
-    if (result.ok) installCanonicalConfig(canonicalConfig);
+    // The values this closure captured ARE the values that were saved: adopt
+    // exactly them as the baseline. Never re-install the envelope here — the
+    // save can run for minutes and the form stays editable, so an install
+    // would clobber in-flight edits (and its revision bump would fake a
+    // dirty run state).
+    if (result.ok) adoptSavedBaseline(canonicalConfig.config);
     presentSaveResult(result);
-  }, [canonicalConfig, installCanonicalConfig, presentSaveResult, saveCanonicalConfig]);
+  }, [adoptSavedBaseline, canonicalConfig, presentSaveResult, saveCanonicalConfig]);
 
   return {
     adoptSaveDeployOperation,

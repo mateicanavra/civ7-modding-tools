@@ -297,8 +297,11 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
           </div>
         )}
 
-        {/* Config Section Header */}
-        <div className={cn("flex-shrink-0 border-b", borderSubtle)}>
+        {/* Config Section Header. Its border-b belongs to the EXPANDED
+            content below it — when the section is collapsed the footer's own
+            border-t is the next boundary, and keeping this one would stack a
+            double hairline. */}
+        <div className={cn("flex-shrink-0", !configCollapsed && "border-b", borderSubtle)}>
           <DisclosureHeader
             className="px-4 py-2.5 cursor-pointer"
             chevron={false}

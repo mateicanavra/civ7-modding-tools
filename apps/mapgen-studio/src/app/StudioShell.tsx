@@ -59,6 +59,7 @@ export function StudioShell(props: StudioShellProps) {
   const canonicalConfig = useAuthoringStore((s) => s.canonicalConfig);
   const setCanonicalConfig = useAuthoringStore((s) => s.setCanonicalConfig);
   const installCanonicalConfig = useAuthoringStore((s) => s.installCanonicalConfig);
+  const adoptSavedBaseline = useAuthoringStore((s) => s.adoptSavedBaseline);
   const baselineConfig = useAuthoringStore((s) => s.baselineConfig);
   const authoringRevision = useAuthoringStore((s) => s.authoringRevision);
 
@@ -274,6 +275,7 @@ export function StudioShell(props: StudioShellProps) {
     runInGameRunning,
     canonicalConfig,
     installCanonicalConfig,
+    adoptSavedBaseline,
     toast,
   });
 
