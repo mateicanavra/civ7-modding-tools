@@ -561,3 +561,89 @@ pipeline again (commits `5a58a05892` + `8213a58773` on PR #2081):
   package + app typecheck; Biome clean. Verified live against the real
   22-stage schema from a lane-worktree vite (drift, undo round-trip,
   rollback gating, options menu).
+
+## Sync-surface repair (2026-07-21) — remote CSS drift, toast instance split, vendored-React hardening
+
+Matei's "solve the tailwind and other sync issues" traced to a remote-state
+drift plus a family of design-side loading hazards:
+
+- **Root cause of the token/theme pollution (the "tailwind issue"):** the
+  remote `_ds_bundle.css` was NOT the sealed build — it carried a hand-authored
+  `:root { --tw-*: … }` registration prelude (23 declarations mirroring the
+  `@property` initial values, `@kind other`, "registered here so the token
+  scanner recognizes utility-scope overrides") on a rework-era body that also
+  LACKED the 34 variant-scope `@kind` annotations every repo build emits. No
+  repo build ever produced those bytes: an out-of-band design-side mutation —
+  the hoist-to-`:root` advice this lane explicitly refuses, applied in "inert"
+  form. Measured effects (app-recompiled surfaces): `_ds_manifest.json` at 143
+  token entries incl. 23 unscoped + 35 scoped `--tw-*`, **36 "themes" of which
+  35 are Tailwind utility classes** (`.shadow-2xl`, `.ring-warning/40`, …)
+  beside the real `.light`; `x-omelette.tokens` at 81 names. Scope-harvesting
+  keys off `:root`-registered names, so registration is precisely what turns
+  utility classes into token scopes/themes.
+- **Why the anchor missed it:** `_ds_sync.json` records what WE uploaded;
+  out-of-band remote edits never touch it, so `anchor: ok` is not proof of
+  remote bytes. NEW SEAL DISCIPLINE: after the styling write, `get_file`
+  `_ds_bundle.css` back and byte-compare against the local seal BEFORE writing
+  the sidecar + re-arming the sentinel.
+- **Fix:** canonical prelude-less stylesheet re-asserted — byte-verified by
+  refetch (remote == local `93c7f602f946…`, 64283 bytes). Ownership rule
+  hardened in `conventions.md` ("Nothing converter-owned is hand-edited —
+  ever", incl. the inert-registration loophole) and `docs/design-tokens.md`
+  (why registration itself pollutes: what is not declared at `:root` is not
+  registered). Falsifier re-armed in root DEF-017: next recompile should show
+  ~58 token names, themes = [.light]; if the prelude reappears untouched by
+  any design-side edit, the rewriter is the app → upstream feedback item 5.
+- **`toast` export (LEDGER adjudication 8 AMENDED):** the design bundle
+  inlines its own sonner, so a design importing `toast` from anywhere else
+  gets a second instance whose calls never reach the bundle's `Toaster` —
+  notifications were structurally impossible in designs. `toast` now ships on
+  the barrel (repo consumers may keep importing "sonner"; npm dedupes). Export
+  floor 98 → 99.
+- **Toaster card fixed (RENDER_BLANK retired):** the story relies on
+  Storybook's global decorator to mount `<Toaster/>`, which the composed card
+  lacks — restored the owned `.design-sync/previews/Toaster.tsx` (pre-#2080
+  shape, aligned to the story: `toast.info`, default position) that mounts the
+  Toaster itself and fires the three studio toasts via the barrel's
+  same-instance `toast`.
+- **Vendored-React rule made durable:** synced README (conventions.md § Setup)
+  now states the React-19 vendored-pair requirement ("React on the page"
+  always means `_vendor/react.js` + `_vendor/react-dom.js`, head-not-helmet);
+  `templates/README.md` checklist gained the step (step 3); both
+  Templates-picker entries (`PanelScaffold.dc.html`, `StudioShell.dc.html`)
+  got the pair (they paired the React-19 bundle with the runtime's 18.x
+  fallback — the documented crash mode); `ThemeToggle.dc.html` (home + mirror,
+  byte-identical) dropped its vestigial `_ds_bundle.js` helmet load (never
+  touches `window.MapGenStudio`; loading the bundle React-less is the crash
+  the rule prevents). `references/studio-shell.html` verified compliant.
+- **Stale design-side note cleared:** `templates/README.md` "Note for the next
+  /design-sync run" (graduation-vs-picker wording) — the repo-side amendment
+  landed 2026-07-18; note section removed.
+- **3 "missing" token references are expected residue:** `--tw-border-style`,
+  `--tw-inset-shadow`, `--tw-inset-ring-shadow` — referenced by bare `var()`
+  in utility bodies, defined only via `@property` initial values, which the
+  validate regex doesn't parse (`package-validate.mjs` declaration scan).
+  Render-correct in all supported consumers; do not chase. (Upstream nit:
+  package-validate could count `@property` declarations as defined.)
+- **Grading:** Toaster graded match via a manual path — the sb-reference
+  capture races sonner's 4s auto-dismiss (live-verified: the reference mounts
+  sonner's region and fires the same toasts; the ds card's raw PNG shows the
+  real stack). Note recorded in `Toaster.grade.json`. A first driver run under
+  machine load ~76 flaked three preview esbuild compiles (Tooltip,
+  ViewControls, WaterStatsSection fell back to floor cards → false canary
+  churn); the rebuild produced all 45 previews and the clean rerun showed
+  `changed:[Toaster]`, canary null, ok:true.
+- **Atomic upload:** sentinel → 16 content files (bundle js/css, styles.css,
+  README, guidelines ×2, Toaster card set + `_preview/Toaster.js`, 2 template
+  entries, templates/README.md, ThemeToggle home + mirror) → BYTE-VERIFY
+  refetch → `_ds_sync.json` alone → sentinel re-arm. Hashes:
+  `styleSha ad5bc5868be2…` (unchanged bytes — re-asserted),
+  `bundleSha12 2ffa1ae3afe1`, `auxSha a03b8aa3d2211528`. Local anchor
+  refreshed from the uploaded sidecar.
+- **Tests:** 204/204 package tests, package typecheck, `verify` export floor
+  raised to 99 — all green. (Two earlier degraded vitest runs were fork-pool
+  failures under machine load ~76, not code failures.)
+- **Left on Matei:** prune `explorations/proposals/recipe-panel/flat-and-flush/`
+  (LANDED — lifecycle law says prune; not executed without his word since it
+  deletes design-side work); run `check_design_system` after the recompile and
+  record the DEF-017 outcome.

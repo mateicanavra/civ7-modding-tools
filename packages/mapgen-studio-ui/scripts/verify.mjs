@@ -44,7 +44,9 @@ const dist = (p) => join(pkgRoot, "dist", p);
 // AppHeaderSetupState are type-only — no runtime export.)
 // Operating-model wave (templates group): StudioShellLayout = 98.
 // (StudioShellGeometry / StudioShellLayoutProps are type-only.)
-const EXPECTED_MIN_EXPORTS = 98;
+// Sync-surface repair: `toast` (adjudication 8 amended — the design bundle
+// needs a same-instance toast for its Toaster) = 99.
+const EXPECTED_MIN_EXPORTS = 99;
 
 const failures = [];
 const assert = (cond, msg) => {
