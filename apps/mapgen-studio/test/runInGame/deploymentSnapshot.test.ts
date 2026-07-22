@@ -122,6 +122,7 @@ async function listFiles(root: string): Promise<string[]> {
 function preparedRequest(): DeployRunInGameArgs["prepared"] {
   const setupConfig = {
     gameOptions: {},
+    mapOptions: {},
     playerOptions: [{ playerId: 0, options: {} }],
   };
   const launchEnvelope = {

@@ -1,8 +1,8 @@
+import type { Civ7SetupSnapshot } from "@civ7/studio-contract";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { fetchCiv7SetupConfig } from "../../features/civ7Setup/api";
 import {
-  type Civ7SetupSnapshotLike,
   normalizeStudioSetupConfig,
   studioSetupConfigFromLiveSnapshot,
 } from "../../features/civ7Setup/setupConfig";
@@ -40,7 +40,7 @@ export type UseLiveRuntimeResult = {
   /** Live setup snapshot (idle/ok/error) consumed by the host setup-options derivation. */
   liveSetup: {
     status: "idle" | "ok" | "error";
-    setup?: Civ7SetupSnapshotLike;
+    setup?: Civ7SetupSnapshot;
     updatedAt?: string;
     error?: string;
   };
@@ -101,7 +101,7 @@ export function useLiveRuntime(args: UseLiveRuntimeArgs): UseLiveRuntimeResult {
   >([]);
   const [liveSetup, setLiveSetup] = useState<{
     status: "idle" | "ok" | "error";
-    setup?: Civ7SetupSnapshotLike;
+    setup?: Civ7SetupSnapshot;
     updatedAt?: string;
     error?: string;
   }>({ status: "idle" });

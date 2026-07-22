@@ -25,7 +25,11 @@ function resetStores() {
     worldSettings: { mapSize: "MAPSIZE_STANDARD", playerCount: 6, resources: "balanced" },
     seed: "123",
     gameSeed: "789",
-    setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
+    setupConfig: {
+      gameOptions: {},
+      mapOptions: {},
+      playerOptions: [{ playerId: 0, options: {} }],
+    },
     canonicalConfig,
     authoringRevision: 0,
   });

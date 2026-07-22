@@ -39,7 +39,8 @@ const unavailableDirectLifecycle = {
   reconcileRequiredTargetMod: rejectUnexpectedLifecycleCall,
   getSetupMapRows: rejectUnexpectedLifecycleCall,
   reloadSetupUiInShell: rejectUnexpectedLifecycleCall,
-  applySinglePlayerSetup: rejectUnexpectedLifecycleCall,
+  applySinglePlayerSetupIdentity: rejectUnexpectedLifecycleCall,
+  applySinglePlayerSetupOptions: rejectUnexpectedLifecycleCall,
   hostPreparedSinglePlayerGame: rejectUnexpectedLifecycleCall,
   getAppUiSnapshot: rejectUnexpectedLifecycleCall,
   beginGame: rejectUnexpectedLifecycleCall,
@@ -735,6 +736,7 @@ function preparedRequest(): RunInGamePreparedRequest {
     },
     setupConfig: {
       gameOptions: {},
+      mapOptions: {},
       playerOptions: [{ playerId: 0, options: {} }],
     },
     canonicalConfig,

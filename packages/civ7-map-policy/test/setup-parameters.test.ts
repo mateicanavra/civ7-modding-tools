@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { Value } from "typebox/value";
 import {
+  CIV7_GAME_OPTION_IDS,
+  CIV7_MAP_OPTION_IDS,
+  CIV7_PLAYER_OPTION_IDS,
   CIV7_SETUP_DOMAIN_EVIDENCE,
   CIV7_SETUP_PARAMETER_FACTS,
   CIV7_SETUP_PARAMETER_GROUPS,
@@ -8,6 +11,7 @@ import {
   Civ7GameOptionsSchema,
   Civ7MapOptionsSchema,
   Civ7PlayerOptionsSchema,
+  Civ7PlayerSetupsSchema,
 } from "../src/setup.js";
 
 const parameterId = (row: (typeof CIV7_SETUP_PARAMETER_FACTS)[number]) => row.columns.ParameterID;
@@ -130,5 +134,33 @@ describe("authored Civ7 setup option schemas", () => {
       expect(Reflect.get(schema, "additionalProperties")).toBe(false);
       expect(Reflect.has(schema, "required")).toBe(false);
     }
+  });
+
+  test("publish option identities from the schema authority", () => {
+    const gameIds: readonly string[] = CIV7_GAME_OPTION_IDS;
+    const mapIds: readonly string[] = CIV7_MAP_OPTION_IDS;
+    const playerIds: readonly string[] = CIV7_PLAYER_OPTION_IDS;
+    expect(gameIds).toEqual(Object.keys(Civ7GameOptionsSchema.properties));
+    expect(mapIds).toEqual(Object.keys(Civ7MapOptionsSchema.properties));
+    expect(playerIds).toEqual(Object.keys(Civ7PlayerOptionsSchema.properties));
+    expect(CIV7_GAME_OPTION_IDS).toContain("Crises");
+    expect(CIV7_MAP_OPTION_IDS).toContain("StartPosition");
+    expect(CIV7_PLAYER_OPTION_IDS).toContain("PlayerTeam");
+  });
+
+  test("admit each initial player slot at most once", () => {
+    expect(
+      Value.Check(Civ7PlayerSetupsSchema, [
+        { playerId: 0, options: { PlayerLeader: "LEADER_ONE" } },
+        { playerId: 63, options: { PlayerLeader: "LEADER_TWO" } },
+      ])
+    ).toBe(true);
+    expect(
+      Value.Check(Civ7PlayerSetupsSchema, [
+        { playerId: 2, options: { PlayerLeader: "LEADER_ONE" } },
+        { playerId: 2, options: { PlayerLeader: "LEADER_TWO" } },
+      ])
+    ).toBe(false);
+    expect(Value.Check(Civ7PlayerSetupsSchema, [{ playerId: 64, options: {} }])).toBe(false);
   });
 });

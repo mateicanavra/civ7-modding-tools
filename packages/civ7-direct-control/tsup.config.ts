@@ -8,7 +8,6 @@ export default defineConfig({
     "src/play/notifications/postconditions.ts",
     "src/play/operations/production-choice-proof.ts",
     "src/play/progression/choice-postconditions.ts",
-    "src/policy/setup.ts",
     "src/proof/advisor-warning-proof-policy.ts",
     "src/proof/diplomacy-response-proof-policy.ts",
     "src/proof/first-meet-response-proof-policy.ts",

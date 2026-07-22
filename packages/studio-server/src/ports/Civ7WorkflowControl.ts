@@ -4,11 +4,12 @@ import {
   createCiv7ControlOrpcServerClient,
 } from "@civ7/control-orpc";
 import {
-  assessCiv7SignedIntSeed,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
   startCiv7Autoplay,
   stopCiv7Autoplay,
 } from "@civ7/direct-control";
+import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
+import { setupConfig as runInGameSetupConfigSchema } from "@civ7/studio-contract";
 import { isDefinedError, safe } from "@orpc/client";
 import {
   Context,
@@ -20,6 +21,7 @@ import {
   Option,
   Predicate,
 } from "effect";
+import { Value } from "typebox/value";
 
 import type { StudioInputs, StudioServerContext } from "../context.js";
 import {
@@ -201,7 +203,22 @@ function lifecycleDemand(args: StartSinglePlayerArgs) {
         })
       )
     );
-    const setup = args.prepared.launchEnvelope.setupConfig;
+    const setup = yield* Effect.try({
+      try: () =>
+        Value.Parse(
+          runInGameSetupConfigSchema,
+          Value.Clone(args.prepared.launchEnvelope.setupConfig)
+        ),
+      catch: (cause) =>
+        invalidRequest({
+          message: "Run in Game lifecycle setup is invalid",
+          diagnostics: boundedDiagnostics({
+            code: "run-in-game-lifecycle-setup-invalid",
+            requestId: args.requestId,
+            cause: diagnosticString(cause),
+          }),
+        }),
+    });
     const playerCount = Option.match(
       Option.fromNullable(args.prepared.launchEnvelope.worldSettings.playerCount),
       { onNone: () => ({}), onSome: (value) => ({ playerCount: value }) }
@@ -219,25 +236,11 @@ function lifecycleDemand(args: StartSinglePlayerArgs) {
       targetModId: args.deployment.runDeployment.deployedModId,
       ...savedConfig,
       gameOptions: setup.gameOptions,
-      playerOptions: mergePlayerOptionsById(setup.playerOptions),
+      mapOptions: setup.mapOptions,
+      playerOptions: setup.playerOptions,
       activeGamePolicy: "exit-active-game",
     } satisfies Civ7LifecycleSinglePlayerStartInput;
   });
-}
-
-function mergePlayerOptionsById(
-  playerOptions: RunInGamePreparedRequest["launchEnvelope"]["setupConfig"]["playerOptions"]
-): Civ7LifecycleSinglePlayerStartInput["playerOptions"] {
-  return playerOptions.reduce<Civ7LifecycleSinglePlayerStartInput["playerOptions"]>(
-    (byPlayer, player) => {
-      const playerId = String(player.playerId);
-      return {
-        ...byPlayer,
-        [playerId]: { ...byPlayer[playerId], ...player.options },
-      };
-    },
-    {}
-  );
 }
 
 type LifecycleClient = ReturnType<typeof createCiv7ControlOrpcServerClient>;

@@ -1,4 +1,4 @@
-import { type Static, Type } from "typebox";
+import { Refine, type Static, Type } from "typebox";
 import {
   Civ7GameSetupBaseSchema,
   Civ7MapSetupBaseSchema,
@@ -33,6 +33,11 @@ export const Civ7GameOptionsSchema = Type.Partial(Civ7AuthoredGameOptionsBaseSch
 /** Authored game-setup overrides admitted before live contextual validation. */
 export type Civ7GameOptions = Static<typeof Civ7GameOptionsSchema>;
 
+/** Official game-option identities admitted by {@link Civ7GameOptionsSchema}. */
+export const CIV7_GAME_OPTION_IDS = Object.freeze(
+  Object.keys(Civ7GameOptionsSchema.properties)
+) as readonly (keyof Civ7GameOptions & string)[];
+
 /**
  * Optional map-setup overrides that are independent of lifecycle identity.
  * Map script, size, and map seed have dedicated owners; live setup metadata decides which
@@ -47,6 +52,11 @@ export const Civ7MapOptionsSchema = Type.Partial(Civ7AuthoredMapOptionsBaseSchem
 /** Authored non-lifecycle map-setup overrides admitted before live contextual validation. */
 export type Civ7MapOptions = Static<typeof Civ7MapOptionsSchema>;
 
+/** Official map-option identities admitted by {@link Civ7MapOptionsSchema}. */
+export const CIV7_MAP_OPTION_IDS = Object.freeze(
+  Object.keys(Civ7MapOptionsSchema.properties)
+) as readonly (keyof Civ7MapOptions & string)[];
+
 /**
  * Optional setup overrides for one initial Civ7 player slot.
  * Player identity selects the slot separately; omission preserves the slot's loaded or live value.
@@ -59,3 +69,30 @@ export const Civ7PlayerOptionsSchema = Type.Partial(Civ7PlayerSetupBaseSchema, {
 
 /** Authored setup overrides for one initial Civ7 player slot. */
 export type Civ7PlayerOptions = Static<typeof Civ7PlayerOptionsSchema>;
+
+/** Official player-option identities admitted by {@link Civ7PlayerOptionsSchema}. */
+export const CIV7_PLAYER_OPTION_IDS = Object.freeze(
+  Object.keys(Civ7PlayerOptionsSchema.properties)
+) as readonly (keyof Civ7PlayerOptions & string)[];
+
+/** One initial Civ7 player slot and its authored setup overrides. */
+export const Civ7PlayerSetupSchema = Type.Object(
+  {
+    playerId: Type.Integer({ minimum: 0, maximum: 63 }),
+    options: Civ7PlayerOptionsSchema,
+  },
+  { additionalProperties: false }
+);
+
+/** Initial player setup overrides with one entry at most for each Civ7 player slot. */
+export const Civ7PlayerSetupsSchema = Refine(
+  Type.Array(Civ7PlayerSetupSchema),
+  (players) => new Set(players.map(({ playerId }) => playerId)).size === players.length,
+  () => "Civ7 player setup entries must use unique playerId values."
+);
+
+/** Authored setup overrides for one initial Civ7 player slot. */
+export type Civ7PlayerSetup = Static<typeof Civ7PlayerSetupSchema>;
+
+/** Unique initial Civ7 player setup overrides. */
+export type Civ7PlayerSetups = Static<typeof Civ7PlayerSetupsSchema>;

@@ -43,7 +43,11 @@ const launchEnvelope = {
   seed: 1234,
   gameSeed: -1234,
   worldSettings: { mapSize: "MAPSIZE_TINY" },
-  setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
+  setupConfig: {
+    gameOptions: {},
+    mapOptions: {},
+    playerOptions: [{ playerId: 0, options: {} }],
+  },
   canonicalConfig,
 };
 const canonicalConfigDigest = digest(canonicalConfig);

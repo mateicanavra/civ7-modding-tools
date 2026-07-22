@@ -51,7 +51,8 @@ const unavailableDirectLifecycle = {
   reconcileRequiredTargetMod: rejectUnexpectedLifecycleCall,
   getSetupMapRows: rejectUnexpectedLifecycleCall,
   reloadSetupUiInShell: rejectUnexpectedLifecycleCall,
-  applySinglePlayerSetup: rejectUnexpectedLifecycleCall,
+  applySinglePlayerSetupIdentity: rejectUnexpectedLifecycleCall,
+  applySinglePlayerSetupOptions: rejectUnexpectedLifecycleCall,
   hostPreparedSinglePlayerGame: rejectUnexpectedLifecycleCall,
   getAppUiSnapshot: rejectUnexpectedLifecycleCall,
   beginGame: rejectUnexpectedLifecycleCall,
@@ -150,7 +151,8 @@ describe("one /rpc mount serves the whole unified contract", () => {
         gameSeed: 47,
         targetModId: "mod-swooper-studio-run",
         gameOptions: {},
-        playerOptions: {},
+        mapOptions: {},
+        playerOptions: [],
         activeGamePolicy: "exit-active-game",
       })
     );

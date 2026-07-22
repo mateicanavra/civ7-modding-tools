@@ -1219,7 +1219,11 @@ describe("StudioOperationRuntime", () => {
           seed: "123",
           mapSize: "MAPSIZE_TINY",
           config: { example: true },
-          setupConfig: { players: [] },
+          setupConfig: {
+            gameOptions: {},
+            mapOptions: {},
+            playerOptions: [{ playerId: 0, options: {} }],
+          },
           canonicalConfig: {
             name: "Current Editor Config",
             latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
@@ -2144,6 +2148,7 @@ describe("StudioOperationRuntime", () => {
             setupConfig: {
               mapScript,
               gameOptions: {},
+              mapOptions: {},
               playerOptions: [{ playerId: 0, options: {} }],
             },
           })
@@ -2172,7 +2177,6 @@ describe("StudioOperationRuntime", () => {
         id: "",
         displayName: "Test Config",
         fileName: "Test.Civ7Cfg",
-        path: "/tmp/Test.Civ7Cfg",
       },
     },
     {
@@ -2181,7 +2185,6 @@ describe("StudioOperationRuntime", () => {
         id: "test-config",
         displayName: "   ",
         fileName: "Test.Civ7Cfg",
-        path: "/tmp/Test.Civ7Cfg",
       },
     },
     {
@@ -2190,16 +2193,15 @@ describe("StudioOperationRuntime", () => {
         id: "test-config",
         displayName: "Test Config",
         fileName: "Test.json",
-        path: "/tmp/Test.json",
       },
     },
     {
-      label: "a multiline path",
+      label: "provider-private filesystem metadata",
       savedConfig: {
         id: "test-config",
         displayName: "Test Config",
         fileName: "Test.Civ7Cfg",
-        path: "/tmp/Test.Civ7Cfg\nother",
+        path: "/tmp/Test.Civ7Cfg",
       },
     },
   ])("rejects saved configuration with $label before lifecycle admission", async ({
@@ -2231,6 +2233,7 @@ describe("StudioOperationRuntime", () => {
             setupConfig: {
               savedConfig,
               gameOptions: {},
+              mapOptions: {},
               playerOptions: [{ playerId: 0, options: {} }],
             },
           })
@@ -2268,6 +2271,7 @@ describe("StudioOperationRuntime", () => {
           setupConfig: {
             mapScript,
             gameOptions: {},
+            mapOptions: {},
             playerOptions: [{ playerId: 0, options: {} }],
           },
         })
@@ -4712,7 +4716,11 @@ function runInGameInput(
       ...(overrides.resources === undefined ? {} : { resources: overrides.resources }),
       ...overrides.worldSettings,
     },
-    ...(overrides.setupConfig === undefined ? {} : { setupConfig: overrides.setupConfig }),
+    setupConfig: overrides.setupConfig ?? {
+      gameOptions: {},
+      mapOptions: {},
+      playerOptions: [{ playerId: 0, options: {} }],
+    },
   };
   if (overrides.invalidCanonicalConfig !== undefined) {
     Object.defineProperty(input, "canonicalConfig", {

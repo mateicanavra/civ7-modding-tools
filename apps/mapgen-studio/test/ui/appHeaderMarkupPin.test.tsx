@@ -48,10 +48,10 @@ const STORY_SETUP_CONFIG: Civ7StudioSetupConfig = {
   savedConfig: {
     id: "continents-std",
     displayName: "Continents — Standard",
-    fileName: "continents-std.json",
-    path: "/configs/continents-std.json",
+    fileName: "continents-std.Civ7Cfg",
   },
   gameOptions: {},
+  mapOptions: {},
   playerOptions: [{ playerId: 0, options: {} }],
 };
 
@@ -72,9 +72,9 @@ const PIN_SETUP_CONFIG: Civ7StudioSetupConfig = {
     id: "tot-config",
     displayName: "ToT Config",
     fileName: "ToT Config.Civ7Cfg",
-    path: "/tmp/ToT Config.Civ7Cfg",
   },
   gameOptions: { Difficulty: "DIFFICULTY_CUSTOM" },
+  mapOptions: {},
   playerOptions: [{ playerId: 0, options: {} }],
 };
 
@@ -91,6 +91,7 @@ const PIN_SETUP_OPTIONS = {
 
 const NO_SAVED_SETUP_CONFIG: Civ7StudioSetupConfig = {
   gameOptions: {},
+  mapOptions: {},
   playerOptions: [{ playerId: 0, options: { PlayerLeader: "LEADER_AMINA" } }],
 };
 
@@ -121,6 +122,7 @@ const OPEN_SETUP_OPTIONS = {
 const OPEN_POPULATED_CONFIG: Civ7StudioSetupConfig = {
   savedConfig: PIN_SETUP_CONFIG.savedConfig,
   gameOptions: { Difficulty: "DIFFICULTY_DEITY", GameSpeeds: "GAMESPEED_ONLINE" },
+  mapOptions: {},
   playerOptions: [
     {
       playerId: 0,
@@ -132,6 +134,7 @@ const OPEN_POPULATED_CONFIG: Civ7StudioSetupConfig = {
 const OPEN_FALLBACK_CONFIG: Civ7StudioSetupConfig = {
   savedConfig: PIN_SETUP_CONFIG.savedConfig,
   gameOptions: {},
+  mapOptions: {},
   playerOptions: [{ playerId: 0, options: { PlayerDifficulty: "DIFFICULTY_KING" } }],
 };
 

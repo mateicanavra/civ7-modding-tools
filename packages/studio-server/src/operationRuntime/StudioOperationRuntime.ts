@@ -3,7 +3,7 @@ import {
   assessCiv7SignedIntSeed,
   CIV7_SIGNED_INT_SEED_MAX,
   CIV7_SIGNED_INT_SEED_MIN,
-} from "@civ7/direct-control/policy/setup";
+} from "@civ7/map-policy/setup";
 import type { StudioOperationsCurrent } from "@civ7/studio-contract";
 import {
   freezeSnapshot,

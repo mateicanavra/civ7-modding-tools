@@ -7,14 +7,20 @@ import {
 import type { WorldSettings } from "@swooper/mapgen-studio-ui/types";
 import { Value } from "typebox/value";
 import { parseCiv7StudioSeed } from "../civ7Setup/seedPolicy";
-import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7Setup/setupConfig";
+import {
+  type Civ7StudioSetupConfig,
+  migrateLegacyStudioSetupConfig,
+  normalizeStudioSetupConfig,
+} from "../civ7Setup/setupConfig";
 import { admitCanonicalConfig } from "../configAuthoring/canonicalConfig";
 
-export const STUDIO_AUTHORING_STATE_KEY = "mapgen-studio.authoring-state.v4";
-const LEGACY_STUDIO_AUTHORING_STATE_KEY = "mapgen-studio.authoring-state.v3";
+/** Current browser-storage key for the closed v5 Studio authoring snapshot. */
+export const STUDIO_AUTHORING_STATE_KEY = "mapgen-studio.authoring-state.v5";
+const LEGACY_V4_STUDIO_AUTHORING_STATE_KEY = "mapgen-studio.authoring-state.v4";
+const LEGACY_V3_STUDIO_AUTHORING_STATE_KEY = "mapgen-studio.authoring-state.v3";
 
 export type StudioAuthoringStateSnapshot = Readonly<{
-  schemaVersion: 4;
+  schemaVersion: 5;
   savedAt: string;
   worldSettings: WorldSettings;
   seed: string;
@@ -110,7 +116,7 @@ export function parseStudioAuthoringState(
         "setupConfig",
         "canonicalConfig",
       ]) ||
-      parsed.schemaVersion !== 4 ||
+      parsed.schemaVersion !== 5 ||
       typeof parsed.savedAt !== "string"
     ) {
       return null;
@@ -121,7 +127,7 @@ export function parseStudioAuthoringState(
     const data = parseStudioAuthoringData(parsed, seed, gameSeed);
     if (data === null) return null;
     return {
-      schemaVersion: 4,
+      schemaVersion: 5,
       savedAt: parsed.savedAt,
       ...data,
     };
@@ -130,27 +136,41 @@ export function parseStudioAuthoringState(
   }
 }
 
-function parseLegacyStudioAuthoringState(value: string | null): StudioAuthoringData | null {
+function parseLegacyStudioAuthoringState(
+  value: string | null,
+  version: 3 | 4
+): StudioAuthoringData | null {
   if (value === null) return null;
   try {
     const parsed: unknown = JSON.parse(value);
     if (
       !isRecord(parsed) ||
-      !hasExactlyKeys(parsed, [
-        "schemaVersion",
-        "savedAt",
-        "worldSettings",
-        "seed",
-        "setupConfig",
-        "canonicalConfig",
-      ]) ||
-      parsed.schemaVersion !== 3 ||
+      !hasExactlyKeys(
+        parsed,
+        version === 3
+          ? ["schemaVersion", "savedAt", "worldSettings", "seed", "setupConfig", "canonicalConfig"]
+          : [
+              "schemaVersion",
+              "savedAt",
+              "worldSettings",
+              "seed",
+              "gameSeed",
+              "setupConfig",
+              "canonicalConfig",
+            ]
+      ) ||
+      parsed.schemaVersion !== version ||
       typeof parsed.savedAt !== "string"
     ) {
       return null;
     }
     const seed = admitPersistedSeed(parsed.seed);
-    return seed === undefined ? null : parseStudioAuthoringData(parsed, seed, seed);
+    const gameSeed = version === 3 ? seed : admitPersistedSeed(parsed.gameSeed);
+    if (seed === undefined || gameSeed === undefined) return null;
+    const setupConfig = migrateLegacyStudioSetupConfig(parsed.setupConfig);
+    return setupConfig === undefined
+      ? null
+      : parseStudioAuthoringData({ ...parsed, setupConfig }, seed, gameSeed);
   } catch {
     return null;
   }
@@ -163,13 +183,16 @@ export function loadStudioAuthoringState(
   try {
     const current = storage.getItem(STUDIO_AUTHORING_STATE_KEY);
     if (current !== null) return parseStudioAuthoringState(current);
-    const legacy = parseLegacyStudioAuthoringState(
-      storage.getItem(LEGACY_STUDIO_AUTHORING_STATE_KEY)
-    );
+    const legacy =
+      parseLegacyStudioAuthoringState(storage.getItem(LEGACY_V4_STUDIO_AUTHORING_STATE_KEY), 4) ??
+      parseLegacyStudioAuthoringState(storage.getItem(LEGACY_V3_STUDIO_AUTHORING_STATE_KEY), 3);
     if (legacy === null) return null;
     saveStudioAuthoringState(legacy, storage);
     const migrated = parseStudioAuthoringState(storage.getItem(STUDIO_AUTHORING_STATE_KEY));
-    if (migrated !== null) storage.removeItem(LEGACY_STUDIO_AUTHORING_STATE_KEY);
+    if (migrated !== null) {
+      storage.removeItem(LEGACY_V4_STUDIO_AUTHORING_STATE_KEY);
+      storage.removeItem(LEGACY_V3_STUDIO_AUTHORING_STATE_KEY);
+    }
     return migrated;
   } catch {
     return null;
@@ -183,7 +206,8 @@ export function retireStudioAuthoringState(
   if (storage === null) return;
   try {
     storage.removeItem(STUDIO_AUTHORING_STATE_KEY);
-    storage.removeItem(LEGACY_STUDIO_AUTHORING_STATE_KEY);
+    storage.removeItem(LEGACY_V4_STUDIO_AUTHORING_STATE_KEY);
+    storage.removeItem(LEGACY_V3_STUDIO_AUTHORING_STATE_KEY);
   } catch {
     // Refresh recovery removal is best effort.
   }
@@ -203,7 +227,7 @@ export function saveStudioAuthoringState(
     storage.setItem(
       STUDIO_AUTHORING_STATE_KEY,
       JSON.stringify({
-        schemaVersion: 4,
+        schemaVersion: 5,
         savedAt: new Date().toISOString(),
         worldSettings: args.worldSettings,
         seed,

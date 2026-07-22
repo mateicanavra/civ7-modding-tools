@@ -15,7 +15,11 @@ const worldSettings = {
   playerCount: 8,
   resources: "balanced" as const,
 };
-const setupConfig = { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] };
+const setupConfig = {
+  gameOptions: {},
+  mapOptions: {},
+  playerOptions: [{ playerId: 0, options: {} }],
+};
 const status: RunInGameOperationStatus = {
   requestId: "studio-run-in-game-test",
   phase: "completed",

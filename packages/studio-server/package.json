@@ -34,6 +34,7 @@
   "dependencies": {
     "@civ7/control-orpc": "workspace:*",
     "@civ7/direct-control": "workspace:*",
+    "@civ7/map-policy": "workspace:*",
     "@civ7/studio-contract": "workspace:*",
     "@civ7/studio-run-workspace": "workspace:*",
     "@orpc/client": "1.14.6",

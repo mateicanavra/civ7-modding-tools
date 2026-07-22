@@ -9,6 +9,8 @@
 // packages/studio-contract/src/errors.ts) and its typed `data`
 // (`observedAt`), so the failure envelope carries `{ error, code?, observedAt? }`
 // instead of a raw transport status code.
+
+import type { Civ7SetupSnapshot } from "@civ7/studio-contract";
 import { safe } from "@orpc/client";
 
 import { orpcClient } from "../../lib/orpc";
@@ -16,7 +18,6 @@ import {
   projectStudioBrowserError,
   type StudioBrowserErrorDetails,
 } from "../studioErrors/definedErrorProjection";
-import type { Civ7SetupSnapshotLike } from "./setupConfig";
 
 export type Civ7SetupCatalogOption = Readonly<{
   value: string;
@@ -34,7 +35,7 @@ export type Civ7SetupCatalog = Readonly<{
 }>;
 
 export async function fetchCiv7SetupConfig(options: { signal?: AbortSignal } = {}): Promise<
-  | { ok: true; observedAt: string; setup: Civ7SetupSnapshotLike }
+  | { ok: true; observedAt: string; setup: Civ7SetupSnapshot }
   | {
       ok: false;
       error: string;
@@ -54,7 +55,7 @@ export async function fetchCiv7SetupConfig(options: { signal?: AbortSignal } = {
     ok: true,
     // Contract-required on the success body (civ7.setupConfig output: isoTimestamp).
     observedAt: data.observedAt,
-    setup: data.setup as Civ7SetupSnapshotLike,
+    setup: data.setup,
   };
 }
 

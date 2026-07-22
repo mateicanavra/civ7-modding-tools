@@ -6,34 +6,39 @@ import {
   studioSetupConfigFromSavedConfigFile,
   studioSetupDriftsFromSavedConfig,
   updateStudioSetupGameOption,
+  updateStudioSetupMapScript,
   updateStudioSetupPlayerOption,
 } from "../../src/features/civ7Setup/setupConfig";
 
 describe("Civ7 Studio setup config", () => {
-  it("extracts bounded game and player setup choices from live Civ snapshots", () => {
+  it("partitions official live setup groups and preserves every observed player slot", () => {
     const config = studioSetupConfigFromLiveSnapshot({
-      selectedMapRow: {
+      selectedMap: {
         file: "{swooper-maps}/maps/swooper-earthlike.js",
       },
-      setup: {
-        localPlayerId: { ok: true, value: 0 },
-        parameters: [
-          { id: "Map", exists: true, value: "{swooper-maps}/maps/swooper-earthlike.js" },
-          { id: "Difficulty", exists: true, value: "DIFFICULTY_CUSTOM" },
-          { id: "DifficultyScience", exists: true, value: "DIFFICULTY_SOVEREIGN" },
-          { id: "RawUnexpected", exists: true, value: "ignored" },
-        ],
-        playerParameters: [
-          {
-            playerId: 0,
-            parameters: [
-              { id: "PlayerLeader", exists: true, value: "LEADER_HARRIET_TUBMAN" },
-              { id: "PlayerCivilization", exists: true, value: "CIVILIZATION_AMERICA" },
-              { id: "PlayerDifficulty", exists: true, value: "DIFFICULTY_CUSTOM" },
-            ],
-          },
-        ],
-      },
+      localPlayerId: 0,
+      parameters: [
+        { id: "Map", exists: true, value: "{swooper-maps}/maps/swooper-earthlike.js" },
+        { id: "Difficulty", exists: true, value: "DIFFICULTY_CUSTOM" },
+        { id: "DifficultyScience", exists: true, value: "DIFFICULTY_SOVEREIGN" },
+        { id: "Crises", exists: true, value: ["CRISIS_A", "CRISIS_B"] },
+        { id: "StartPosition", exists: true, value: "START_POSITION_STANDARD" },
+        { id: "RawUnexpected", exists: true, value: "ignored" },
+      ],
+      players: [
+        {
+          playerId: 0,
+          parameters: [
+            { id: "PlayerLeader", exists: true, value: "LEADER_HARRIET_TUBMAN" },
+            { id: "PlayerCivilization", exists: true, value: "CIVILIZATION_AMERICA" },
+            { id: "PlayerDifficulty", exists: true, value: "DIFFICULTY_CUSTOM" },
+          ],
+        },
+        {
+          playerId: 1,
+          parameters: [{ id: "PlayerLeader", exists: true, value: "LEADER_ASHOKA" }],
+        },
+      ],
     });
 
     expect(config).toMatchObject({
@@ -41,7 +46,9 @@ describe("Civ7 Studio setup config", () => {
       gameOptions: {
         Difficulty: "DIFFICULTY_CUSTOM",
         DifficultyScience: "DIFFICULTY_SOVEREIGN",
+        Crises: ["CRISIS_A", "CRISIS_B"],
       },
+      mapOptions: { StartPosition: "START_POSITION_STANDARD" },
       playerOptions: [
         {
           playerId: 0,
@@ -51,15 +58,79 @@ describe("Civ7 Studio setup config", () => {
             PlayerDifficulty: "DIFFICULTY_CUSTOM",
           },
         },
+        { playerId: 1, options: { PlayerLeader: "LEADER_ASHOKA" } },
       ],
     });
     expect(config.gameOptions).not.toHaveProperty("RawUnexpected");
+    expect(Object.isFrozen(config.gameOptions.Crises)).toBe(true);
+  });
+
+  it("does not adopt setup parameters that live GameSetup refuses for authoring", () => {
+    const config = studioSetupConfigFromLiveSnapshot({
+      parameters: [
+        { id: "Difficulty", exists: false, value: "DIFFICULTY_CUSTOM" },
+        { id: "GameSpeeds", exists: true, hidden: true, value: "GAMESPEED_STANDARD" },
+        { id: "AgeLength", exists: true, readOnly: true, value: "AGE_LENGTH_LONG" },
+        { id: "DisasterIntensity", exists: true, destroyed: true, value: "DISASTER_HIGH" },
+        {
+          id: "AgeCountdownTimer",
+          exists: true,
+          invalidReason: "unavailable for this setup",
+          value: "AGE_COUNTDOWN_LENGTH_LONG",
+        },
+        { id: "StartPosition", exists: true, invalidReason: 4, value: "START_POSITION_STANDARD" },
+      ],
+      players: [
+        {
+          playerId: 0,
+          parameters: [
+            { id: "PlayerLeader", exists: true, hidden: true, value: "LEADER_ASHOKA" },
+            {
+              id: "PlayerCivilization",
+              exists: true,
+              invalidReason: "leader unavailable",
+              value: "CIVILIZATION_INDIA_MAURYA",
+            },
+          ],
+        },
+      ],
+      localPlayerId: 0,
+    });
+
+    expect(config).toEqual({
+      gameOptions: {},
+      mapOptions: {},
+      playerOptions: [{ playerId: 0, options: {} }],
+    });
+  });
+
+  it("rejects invalid public edits without replacing valid neighboring setup state", () => {
+    const config = {
+      mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+      gameOptions: { Difficulty: "DIFFICULTY_CUSTOM" },
+      mapOptions: { StartPosition: "START_POSITION_STANDARD" },
+      playerOptions: [{ playerId: 0, options: { PlayerLeader: "LEADER_ASHOKA" } }],
+    } as const;
+
+    expect(() => updateStudioSetupMapScript(config, "invalid\nscript")).toThrow(
+      "Civ7 map script is invalid"
+    );
+    expect(() =>
+      Reflect.apply(updateStudioSetupGameOption, undefined, [config, "RawUnexpected", "value"])
+    ).toThrow("Civ7 game option RawUnexpected is invalid");
+    expect(config).toEqual({
+      mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+      gameOptions: { Difficulty: "DIFFICULTY_CUSTOM" },
+      mapOptions: { StartPosition: "START_POSITION_STANDARD" },
+      playerOptions: [{ playerId: 0, options: { PlayerLeader: "LEADER_ASHOKA" } }],
+    });
   });
 
   it("updates player setup values without dropping neighboring choices", () => {
     const updated = updateStudioSetupPlayerOption(
       {
         gameOptions: {},
+        mapOptions: {},
         playerOptions: [
           {
             playerId: 0,
@@ -85,20 +156,19 @@ describe("Civ7 Studio setup config", () => {
       id: "tot-config",
       displayName: "ToT Config",
       fileName: "ToT Config.Civ7Cfg",
-      path: "/tmp/ToT Config.Civ7Cfg",
-      sizeBytes: 128,
-      modifiedAt: "2026-06-01T00:00:00.000Z",
-      source: "local-disk" as const,
       summary: {
+        mapSize: "MAPSIZE_SMALL",
+        playerCount: 6,
         leader: "LEADER_ALEXANDER",
         civilization: "CIVILIZATION_GREECE",
         difficulty: "DIFFICULTY_CUSTOM",
         gameSpeed: "GAMESPEED_STANDARD",
       },
-      setupOptions: {
+      gameOptions: {
         Difficulty: "DIFFICULTY_CUSTOM",
         GameSpeeds: "GAMESPEED_STANDARD",
       },
+      mapOptions: { StartPosition: "START_POSITION_STANDARD" },
       playerOptions: [
         {
           playerId: 0,
@@ -116,12 +186,12 @@ describe("Civ7 Studio setup config", () => {
         id: "tot-config",
         displayName: "ToT Config",
         fileName: "ToT Config.Civ7Cfg",
-        path: "/tmp/ToT Config.Civ7Cfg",
       },
       gameOptions: {
         Difficulty: "DIFFICULTY_CUSTOM",
         GameSpeeds: "GAMESPEED_STANDARD",
       },
+      mapOptions: { StartPosition: "START_POSITION_STANDARD" },
       playerOptions: [
         {
           playerId: 0,
@@ -135,6 +205,21 @@ describe("Civ7 Studio setup config", () => {
     });
   });
 
+  it("refuses malformed saved configuration setup instead of silently selecting defaults", () => {
+    const malformed = {
+      id: "tot-config",
+      displayName: "ToT Config",
+      fileName: "ToT Config.Civ7Cfg",
+      summary: {},
+      gameOptions: {},
+      playerOptions: [{ playerId: 0, options: {} }],
+    };
+
+    expect(() =>
+      Reflect.apply(studioSetupConfigFromSavedConfigFile, undefined, [malformed])
+    ).toThrow("Saved Civ7 setup configuration is invalid");
+  });
+
   // Config-precedence pin (P7): selection applies the file EXACTLY. At launch
   // the engine loads the saved config file first and re-applies every studio
   // option on top, so any pre-existing studio key the file does not specify
@@ -144,14 +229,11 @@ describe("Civ7 Studio setup config", () => {
       id: "tot-config",
       displayName: "ToT Config",
       fileName: "ToT Config.Civ7Cfg",
-      path: "/tmp/ToT Config.Civ7Cfg",
-      sizeBytes: 128,
-      modifiedAt: "2026-06-01T00:00:00.000Z",
-      source: "local-disk",
       summary: {},
-      setupOptions: {
+      gameOptions: {
         Difficulty: "DIFFICULTY_CUSTOM",
       },
+      mapOptions: {},
       playerOptions: [
         {
           playerId: 0,
@@ -175,9 +257,9 @@ describe("Civ7 Studio setup config", () => {
         id: "tot-config",
         displayName: "ToT Config",
         fileName: "ToT Config.Civ7Cfg",
-        path: "/tmp/ToT Config.Civ7Cfg",
       },
       gameOptions: { Difficulty: "DIFFICULTY_CUSTOM" },
+      mapOptions: {},
       playerOptions: [{ playerId: 0, options: { PlayerLeader: "LEADER_ALEXANDER" } }],
     });
 
@@ -194,15 +276,12 @@ describe("Civ7 Studio setup config", () => {
       id: "tot-config",
       displayName: "ToT Config",
       fileName: "ToT Config.Civ7Cfg",
-      path: "/tmp/ToT Config.Civ7Cfg",
-      sizeBytes: 128,
-      modifiedAt: "2026-06-01T00:00:00.000Z",
-      source: "local-disk" as const,
       summary: {},
-      setupOptions: {
+      gameOptions: {
         Difficulty: "DIFFICULTY_CUSTOM",
         GameSpeeds: "GAMESPEED_STANDARD",
       },
+      mapOptions: {},
       playerOptions: [
         {
           playerId: 0,

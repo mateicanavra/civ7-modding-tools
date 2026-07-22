@@ -9,6 +9,7 @@ function launchInput() {
     worldSettings: { mapSize: "MAPSIZE_STANDARD" },
     setupConfig: {
       gameOptions: {},
+      mapOptions: {},
       playerOptions: [{ playerId: 0, options: {} }],
     },
     canonicalConfig: {
@@ -36,6 +37,36 @@ describe("Run in Game launch envelope seed admission", () => {
     expect(Object.isFrozen(snapshot)).toBe(true);
     expect(Object.isFrozen(snapshot.setupConfig)).toBe(true);
     expect(Object.isFrozen(snapshot.canonicalConfig)).toBe(true);
+  });
+
+  it("preserves and freezes array options without admitting duplicate player slots", () => {
+    const snapshot = snapshotLaunchEnvelope({
+      ...launchInput(),
+      setupConfig: {
+        gameOptions: { Crises: ["CRISIS_A", "CRISIS_B"] },
+        mapOptions: { StartPosition: "START_POSITION_STANDARD" },
+        playerOptions: [
+          { playerId: 0, options: { PlayerLeader: "LEADER_HATSHEPSUT" } },
+          { playerId: 1, options: { PlayerLeader: "LEADER_ASHOKA" } },
+        ],
+      },
+    });
+
+    expect(snapshot.setupConfig.gameOptions.Crises).toEqual(["CRISIS_A", "CRISIS_B"]);
+    expect(Object.isFrozen(snapshot.setupConfig.gameOptions.Crises)).toBe(true);
+    expect(() =>
+      snapshotLaunchEnvelope({
+        ...launchInput(),
+        setupConfig: {
+          gameOptions: {},
+          mapOptions: {},
+          playerOptions: [
+            { playerId: 0, options: {} },
+            { playerId: 0, options: { PlayerLeader: "LEADER_ASHOKA" } },
+          ],
+        },
+      })
+    ).toThrow("unique playerOptions");
   });
 
   it.each([

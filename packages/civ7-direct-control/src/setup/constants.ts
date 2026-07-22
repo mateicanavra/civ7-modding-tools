@@ -1,3 +1,10 @@
+import {
+  CIV7_GAME_OPTION_IDS,
+  CIV7_MAP_OPTION_IDS,
+  CIV7_PLAYER_OPTION_IDS,
+  CIV7_SETUP_LIFECYCLE_PARAMETER_IDS,
+} from "@civ7/map-policy/setup";
+
 export const CIV7_RESTART_COMMAND = "Network.restartGame()";
 export const CIV7_BEGIN_GAME_COMMAND = "UI.notifyUIReady()";
 export const CIV7_EXIT_TO_MAIN_MENU_COMMAND = 'engine.call("exitToMainMenu")';
@@ -7,44 +14,12 @@ export {
   type Civ7UiLoadingStateName,
 } from "../game-ui/loading-states.js";
 
-export const DEFAULT_CIV7_SETUP_PARAMETER_IDS = [
-  "Ruleset",
-  "Age",
-  "Difficulty",
-  "DifficultyIndependentsCombat",
-  "DifficultyCombat",
-  "DifficultyArmyXP",
-  "DifficultyUnitProduction",
-  "DifficultyBuildingProduction",
-  "DifficultyFreeStuff",
-  "DifficultyGold",
-  "DifficultyScience",
-  "DifficultyCulture",
-  "DifficultyHappiness",
-  "DifficultyTechCost",
-  "DifficultyCivicCost",
-  "DifficultyOceanDamage",
-  "AgeLength",
-  "AgeCountdownTimer",
-  "AgeTransitionSetting",
-  "IndependentHostility",
-  "NoCivUnlocks",
-  "Map",
-  "MapSize",
-  "MapRandomSeed",
-  "GameRandomSeed",
-  "GameSpeeds",
-  "StartPosition",
-  "TurnLimit",
-  "MaxTurns",
-  "DisasterIntensity",
-  "Crises",
-  "EnableScoreVictory",
-  "LegacyPaths",
-] as const;
+/** GameSetup parameters observed by the default setup snapshot. */
+export const DEFAULT_CIV7_SETUP_PARAMETER_IDS = Object.freeze([
+  ...CIV7_SETUP_LIFECYCLE_PARAMETER_IDS,
+  ...CIV7_GAME_OPTION_IDS,
+  ...CIV7_MAP_OPTION_IDS,
+]);
 
-export const DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS = [
-  "PlayerCivilization",
-  "PlayerLeader",
-  "PlayerDifficulty",
-] as const;
+/** Player GameSetup parameters observed by the default setup snapshot. */
+export const DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS = CIV7_PLAYER_OPTION_IDS;

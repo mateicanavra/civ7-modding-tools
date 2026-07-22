@@ -2,7 +2,7 @@ import {
   assessCiv7SignedIntSeed,
   CIV7_SIGNED_INT_SEED_MAX,
   CIV7_SIGNED_INT_SEED_MIN,
-} from "@civ7/direct-control/policy/setup";
+} from "@civ7/map-policy/setup";
 
 /** Smallest setup seed admitted by Studio and Civ7's signed seed fields. */
 export const CIV7_STUDIO_SEED_MIN = CIV7_SIGNED_INT_SEED_MIN;

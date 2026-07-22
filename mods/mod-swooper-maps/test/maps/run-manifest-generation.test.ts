@@ -332,6 +332,7 @@ function manifestInput(
     },
     setupConfig: {
       gameOptions: {},
+      mapOptions: {},
       playerOptions: [{ playerId: 0, options: {} }],
     },
     canonicalConfig: { ...canonicalConfig, recipe: options.recipe ?? "standard" },

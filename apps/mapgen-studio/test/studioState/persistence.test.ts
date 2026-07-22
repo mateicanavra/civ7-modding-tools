@@ -23,7 +23,15 @@ const worldSettings: WorldSettings = {
   playerCount: 6,
   resources: "balanced",
 };
-const setupConfig = { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] };
+const setupConfig = {
+  gameOptions: {},
+  mapOptions: {},
+  playerOptions: [{ playerId: 0, options: {} }],
+};
+const legacySetupConfig = {
+  gameOptions: { Difficulty: "DIFFICULTY_PRINCE", StartPosition: "START_POSITION_STANDARD" },
+  playerOptions: [{ playerId: 0, options: {} }],
+};
 const canonicalConfig = getRecipeDefaultCanonicalConfig("standard");
 
 describe("Studio authoring-state persistence", () => {
@@ -52,12 +60,12 @@ describe("Studio authoring-state persistence", () => {
       "setupConfig",
       "worldSettings",
     ]);
-    expect(parsed.schemaVersion).toBe(4);
+    expect(parsed.schemaVersion).toBe(5);
     expect(parsed.canonicalConfig).toEqual(canonicalConfig);
 
     const hydrated = loadStudioAuthoringState(storage);
     expect(hydrated).toMatchObject({
-      schemaVersion: 4,
+      schemaVersion: 5,
       seed: "-987654321",
       gameSeed: "-123456789",
       worldSettings,
@@ -77,17 +85,21 @@ describe("Studio authoring-state persistence", () => {
         savedAt: "2026-06-01T00:00:00.000Z",
         worldSettings,
         seed: "987654321",
-        setupConfig,
+        setupConfig: legacySetupConfig,
         canonicalConfig,
       })
     );
 
     expect(loadStudioAuthoringState(storage)).toMatchObject({
-      schemaVersion: 4,
+      schemaVersion: 5,
       seed: "987654321",
       gameSeed: "987654321",
       worldSettings,
-      setupConfig,
+      setupConfig: {
+        gameOptions: { Difficulty: "DIFFICULTY_PRINCE" },
+        mapOptions: { StartPosition: "START_POSITION_STANDARD" },
+        playerOptions: [{ playerId: 0, options: {} }],
+      },
       canonicalConfig,
     });
     const migrated = storage.getItem(STUDIO_AUTHORING_STATE_KEY);
@@ -95,11 +107,38 @@ describe("Studio authoring-state persistence", () => {
     expect(storage.getItem("mapgen-studio.authoring-state.v3")).toBeNull();
 
     expect(loadStudioAuthoringState(storage)).toMatchObject({
-      schemaVersion: 4,
+      schemaVersion: 5,
       seed: "987654321",
       gameSeed: "987654321",
     });
     expect(storage.getItem(STUDIO_AUTHORING_STATE_KEY)).toBe(migrated);
+  });
+
+  it("migrates one exact valid v4 snapshot without conflating map and game options", () => {
+    const storage = memoryStorage();
+    storage.setItem(
+      "mapgen-studio.authoring-state.v4",
+      JSON.stringify({
+        schemaVersion: 4,
+        savedAt: "2026-06-01T00:00:00.000Z",
+        worldSettings,
+        seed: "123",
+        gameSeed: "456",
+        setupConfig: legacySetupConfig,
+        canonicalConfig,
+      })
+    );
+
+    expect(loadStudioAuthoringState(storage)).toMatchObject({
+      schemaVersion: 5,
+      seed: "123",
+      gameSeed: "456",
+      setupConfig: {
+        gameOptions: { Difficulty: "DIFFICULTY_PRINCE" },
+        mapOptions: { StartPosition: "START_POSITION_STANDARD" },
+      },
+    });
+    expect(storage.getItem("mapgen-studio.authoring-state.v4")).toBeNull();
   });
 
   it("clears current and legacy state without allowing the legacy snapshot to resurrect", () => {
@@ -111,7 +150,7 @@ describe("Studio authoring-state persistence", () => {
         savedAt: "2026-06-01T00:00:00.000Z",
         worldSettings,
         seed: "123",
-        setupConfig,
+        setupConfig: legacySetupConfig,
         canonicalConfig,
       })
     );
@@ -162,7 +201,7 @@ describe("Studio authoring-state persistence", () => {
     expect(
       parseStudioAuthoringState(
         JSON.stringify({
-          schemaVersion: 4,
+          schemaVersion: 5,
           savedAt: "2026-06-01T00:00:00.000Z",
           worldSettings,
           seed: "123",
@@ -178,7 +217,7 @@ describe("Studio authoring-state persistence", () => {
   it("rejects malformed and open setup state instead of normalizing it", () => {
     const persisted = (candidate: unknown) =>
       JSON.stringify({
-        schemaVersion: 4,
+        schemaVersion: 5,
         savedAt: "2026-06-01T00:00:00.000Z",
         worldSettings,
         seed: "123",
@@ -196,7 +235,7 @@ describe("Studio authoring-state persistence", () => {
   it("rejects invalid persisted map and game seed strings", () => {
     const persisted = (seed: string, gameSeed: string) =>
       JSON.stringify({
-        schemaVersion: 4,
+        schemaVersion: 5,
         savedAt: "2026-06-01T00:00:00.000Z",
         worldSettings,
         seed,

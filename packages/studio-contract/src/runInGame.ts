@@ -1,3 +1,10 @@
+import {
+  Civ7GameOptionsSchema,
+  Civ7MapOptionsSchema,
+  Civ7PlayerSetupSchema,
+  Civ7PlayerSetupsSchema,
+  Civ7SignedIntSeedSchema,
+} from "@civ7/map-policy/setup";
 import { oc } from "@orpc/contract";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
@@ -131,7 +138,13 @@ export const materializationStatus = Type.Object(
 );
 export type RunInGameMaterializationStatus = Static<typeof materializationStatus>;
 
-export const setupOptionValue = Type.Union([Type.String(), Type.Number(), Type.Boolean()]);
+/** Portable scalar or exclusion-list value carried by one authored Civ7 setup option. */
+export const setupOptionValue = Type.Union([
+  Type.String(),
+  Type.Number(),
+  Type.Boolean(),
+  Type.Array(Type.String(), { uniqueItems: true }),
+]);
 export type RunInGameSetupOptionValue = Static<typeof setupOptionValue>;
 
 const savedSetupSingleLine = Type.String({
@@ -149,27 +162,23 @@ export const savedSetupConfigRef = Type.Object(
       maxLength: 512,
       pattern: "^[^/\\\\\\r\\n\\0]+\\.[Cc][Ii][Vv]7[Cc][Ff][Gg]$",
     }),
-    path: savedSetupSingleLine,
   },
   { additionalProperties: false }
 );
 export type RunInGameSavedSetupConfigRef = Static<typeof savedSetupConfigRef>;
 
-export const playerSetupConfig = Type.Object(
-  {
-    playerId: Type.Number(),
-    options: Type.Record(Type.String(), setupOptionValue),
-  },
-  { additionalProperties: false }
-);
+/** One unique initial Civ7 player slot and its closed official setup options. */
+export const playerSetupConfig = Civ7PlayerSetupSchema;
 export type RunInGamePlayerSetupConfig = Static<typeof playerSetupConfig>;
 
+/** Complete authored Civ7 launch setup grouped by official game, map, and player ownership. */
 export const setupConfig = Type.Object(
   {
     savedConfig: Type.Optional(savedSetupConfigRef),
-    mapScript: Type.Optional(Type.String()),
-    gameOptions: Type.Record(Type.String(), setupOptionValue),
-    playerOptions: Type.Array(playerSetupConfig),
+    mapScript: Type.Optional(Type.String({ minLength: 1, pattern: "^[^\\r\\n\\0]+$" })),
+    gameOptions: Civ7GameOptionsSchema,
+    mapOptions: Civ7MapOptionsSchema,
+    playerOptions: Civ7PlayerSetupsSchema,
   },
   { additionalProperties: false }
 );
@@ -191,12 +200,10 @@ export type RunInGameWorldSettings = Readonly<{
 
 export const runInGameSeed = Type.Union([Type.Number(), Type.String()]);
 
-const signedInt32Seed = Type.Integer({ minimum: -0x8000_0000, maximum: 0x7fff_ffff });
-
 export const launchEnvelope = Type.Object(
   {
-    seed: signedInt32Seed,
-    gameSeed: signedInt32Seed,
+    seed: Civ7SignedIntSeedSchema,
+    gameSeed: Civ7SignedIntSeedSchema,
     worldSettings: runInGameWorldSettings,
     setupConfig,
     canonicalConfig: mapConfigEnvelopeSchema,
@@ -232,6 +239,8 @@ export function snapshotLaunchEnvelope(
   if (canonicalConfig === undefined) {
     throw new TypeError("Run in Game requires a complete portable config envelope.");
   }
+  const setupConfig = validateRunInGameSetupConfig(args.setupConfig);
+  if (!setupConfig.ok) throw new TypeError(setupConfig.message);
   const snapshot = {
     seed: args.seed,
     gameSeed: args.gameSeed,
@@ -244,7 +253,7 @@ export function snapshotLaunchEnvelope(
         ? {}
         : { resources: args.worldSettings.resources }),
     },
-    setupConfig: snapshotRunInGameSetupConfig(args.setupConfig),
+    setupConfig: setupConfig.value,
     canonicalConfig,
   };
   if (!Value.Check(launchEnvelope, snapshot)) {
@@ -257,17 +266,16 @@ export function snapshotLaunchEnvelope(
 /** Used by the actual TypeBox Standard Schema adapter before it invokes TypeBox. */
 export function runInGameStartPortableInputIssue(value: unknown): string | undefined {
   const canonicalConfig = ownDataProperty(value, "canonicalConfig");
-  return snapshotMapConfigEnvelope(canonicalConfig) === undefined
-    ? "runInGame.start canonicalConfig must be a complete portable config envelope."
-    : undefined;
+  if (snapshotMapConfigEnvelope(canonicalConfig) === undefined) {
+    return "runInGame.start canonicalConfig must be a complete portable config envelope.";
+  }
+  const setupConfig = validateRunInGameSetupConfig(ownDataProperty(value, "setupConfig"));
+  return setupConfig.ok ? undefined : setupConfig.message;
 }
 
 function snapshotRunInGameSetupConfig(
   value: RunInGameSetupConfig
 ): DeepReadonly<RunInGameSetupConfig> {
-  const gameOptions: Record<string, RunInGameSetupOptionValue> = {};
-  for (const key of Object.keys(value.gameOptions)) gameOptions[key] = value.gameOptions[key];
-
   return freezeSnapshot({
     ...(value.savedConfig === undefined
       ? {}
@@ -276,15 +284,13 @@ function snapshotRunInGameSetupConfig(
             id: value.savedConfig.id,
             displayName: value.savedConfig.displayName,
             fileName: value.savedConfig.fileName,
-            path: value.savedConfig.path,
           },
         }),
     ...(value.mapScript === undefined ? {} : { mapScript: value.mapScript }),
-    gameOptions,
+    gameOptions: Value.Clone(value.gameOptions),
+    mapOptions: Value.Clone(value.mapOptions),
     playerOptions: value.playerOptions.map((player) => {
-      const options: Record<string, RunInGameSetupOptionValue> = {};
-      for (const key of Object.keys(player.options)) options[key] = player.options[key];
-      return { playerId: player.playerId, options };
+      return { playerId: player.playerId, options: Value.Clone(player.options) };
     }),
   });
 }
@@ -303,49 +309,10 @@ function ownDataProperty(value: unknown, key: string): unknown {
 export function createDefaultRunInGameSetupConfig(): RunInGameSetupConfig {
   return snapshotRunInGameSetupConfig({
     gameOptions: {},
+    mapOptions: {},
     playerOptions: [{ playerId: 0, options: {} }],
   });
 }
-
-export const RUN_IN_GAME_MAIN_GAME_OPTION_IDS = [
-  "Difficulty",
-  "GameSpeeds",
-  "StartPosition",
-  "AgeTransitionSetting",
-  "DisasterIntensity",
-  "IndependentHostility",
-  "AgeLength",
-  "AgeCountdownTimer",
-] as const;
-
-export const RUN_IN_GAME_CUSTOM_DIFFICULTY_OPTION_IDS = [
-  "DifficultyIndependentsCombat",
-  "DifficultyCombat",
-  "DifficultyArmyXP",
-  "DifficultyUnitProduction",
-  "DifficultyBuildingProduction",
-  "DifficultyFreeStuff",
-  "DifficultyGold",
-  "DifficultyScience",
-  "DifficultyCulture",
-  "DifficultyHappiness",
-  "DifficultyTechCost",
-  "DifficultyCivicCost",
-  "DifficultyOceanDamage",
-] as const;
-
-export const RUN_IN_GAME_PLAYER_OPTION_IDS = [
-  "PlayerLeader",
-  "PlayerCivilization",
-  "PlayerDifficulty",
-] as const;
-
-const RUN_IN_GAME_GAME_OPTION_ID_SET = new Set<string>([
-  ...RUN_IN_GAME_MAIN_GAME_OPTION_IDS,
-  ...RUN_IN_GAME_CUSTOM_DIFFICULTY_OPTION_IDS,
-]);
-
-const RUN_IN_GAME_PLAYER_OPTION_ID_SET = new Set<string>(RUN_IN_GAME_PLAYER_OPTION_IDS);
 
 export type RunInGameSetupConfigValidation =
   | Readonly<{ ok: true; value: RunInGameSetupConfig }>
@@ -353,6 +320,10 @@ export type RunInGameSetupConfigValidation =
       ok: false;
       message: string;
       diagnostics:
+        | Readonly<{
+            code: "run-in-game-setup-config-invalid";
+            field: "setupConfig";
+          }>
         | Readonly<{
             code: "run-in-game-map-script-invalid";
             field: "setupConfig.mapScript";
@@ -363,14 +334,19 @@ export type RunInGameSetupConfigValidation =
           }>;
     }>;
 
+/**
+ * Normalizes trusted Studio-owned state, returning the canonical default when no valid state exists.
+ * Public launch admission must use {@link validateRunInGameSetupConfig} and fail closed instead.
+ */
 export function normalizeRunInGameSetupConfig(value: unknown): RunInGameSetupConfig {
   const validated = validateRunInGameSetupConfig(value);
   if (!validated.ok) return createDefaultRunInGameSetupConfig();
   return validated.value;
 }
 
+/** Admits one complete launch setup without inventing missing groups or dropping invalid options. */
 export function validateRunInGameSetupConfig(value: unknown): RunInGameSetupConfigValidation {
-  if (!isRecord(value)) return { ok: true, value: createDefaultRunInGameSetupConfig() };
+  if (!isRecord(value)) return invalidSetupConfig();
   const mapScript = normalizeSetupMapScript(value.mapScript);
   if (!mapScript.ok) {
     return {
@@ -393,14 +369,24 @@ export function validateRunInGameSetupConfig(value: unknown): RunInGameSetupConf
       },
     };
   }
+  if (!Value.Check(setupConfig, value)) {
+    return invalidSetupConfig();
+  }
   return {
     ok: true,
-    value: snapshotRunInGameSetupConfig({
-      ...(savedConfig.value === undefined ? {} : { savedConfig: savedConfig.value }),
-      ...(mapScript.value === undefined ? {} : { mapScript: mapScript.value }),
-      gameOptions: normalizeSetupOptions(value.gameOptions, RUN_IN_GAME_GAME_OPTION_ID_SET),
-      playerOptions: normalizePlayerOptions(value.playerOptions),
-    }),
+    value: snapshotRunInGameSetupConfig(Value.Parse(setupConfig, Value.Clone(value))),
+  };
+}
+
+function invalidSetupConfig(): RunInGameSetupConfigValidation {
+  return {
+    ok: false,
+    message:
+      "Run in Game setupConfig must contain closed gameOptions, mapOptions, and unique playerOptions groups.",
+    diagnostics: {
+      code: "run-in-game-setup-config-invalid",
+      field: "setupConfig",
+    },
   };
 }
 
@@ -428,46 +414,8 @@ function normalizeSavedConfigRef(value: unknown): SavedConfigNormalization {
       id: value.id,
       displayName: value.displayName,
       fileName: value.fileName,
-      path: value.path,
     },
   };
-}
-
-function normalizePlayerOptions(value: unknown): RunInGameSetupConfig["playerOptions"] {
-  if (!Array.isArray(value)) return defaultRunInGamePlayerOptions();
-  const players: Array<{
-    playerId: number;
-    options: Record<string, RunInGameSetupOptionValue>;
-  }> = [];
-  for (const entry of value) {
-    if (!isRecord(entry)) continue;
-    const playerId = Number(entry.playerId);
-    if (!Number.isInteger(playerId) || playerId < 0 || playerId > 64) continue;
-    players.push({
-      playerId,
-      options: normalizeSetupOptions(entry.options, RUN_IN_GAME_PLAYER_OPTION_ID_SET),
-    });
-  }
-  return players.length > 0 ? players : defaultRunInGamePlayerOptions();
-}
-
-function defaultRunInGamePlayerOptions(): RunInGameSetupConfig["playerOptions"] {
-  return [{ playerId: 0, options: {} }];
-}
-
-function normalizeSetupOptions(
-  value: unknown,
-  allowedIds: ReadonlySet<string>
-): Record<string, RunInGameSetupOptionValue> {
-  if (!isRecord(value)) return {};
-  const out: Record<string, RunInGameSetupOptionValue> = {};
-  for (const [key, entry] of Object.entries(value)) {
-    if (!allowedIds.has(key)) continue;
-    if (typeof entry === "string" || typeof entry === "number" || typeof entry === "boolean") {
-      out[key] = entry;
-    }
-  }
-  return out;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -478,8 +426,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export const requestStatus = Type.Object(
   {
     recipeId: Type.Optional(Type.String()),
-    seed: Type.Optional(signedInt32Seed),
-    gameSeed: Type.Optional(signedInt32Seed),
+    seed: Type.Optional(Civ7SignedIntSeedSchema),
+    gameSeed: Type.Optional(Civ7SignedIntSeedSchema),
     mapSize: Type.Optional(Type.String()),
     playerCount: Type.Optional(Type.Number()),
     resources: Type.Optional(Type.String()),
@@ -520,8 +468,8 @@ export type RunInGameFailureDetails = Static<typeof failureDetails> &
 const exactAuthorshipRequestEvidence = Type.Object(
   {
     recipeId: Type.String(),
-    seed: signedInt32Seed,
-    gameSeed: signedInt32Seed,
+    seed: Civ7SignedIntSeedSchema,
+    gameSeed: Civ7SignedIntSeedSchema,
     mapSize: Type.String(),
     playerCount: Type.Optional(Type.Number()),
     resources: Type.Optional(Type.String()),
@@ -830,7 +778,7 @@ export const start = oc
           seed: runInGameSeed,
           gameSeed: runInGameSeed,
           worldSettings: runInGameWorldSettings,
-          setupConfig: Type.Optional(Type.Unknown()),
+          setupConfig,
         },
         { additionalProperties: false }
       ),

@@ -38,7 +38,7 @@ const canonicalConfigDigest = hashParityValue(canonicalConfig);
 const launchEnvelope = {
   seed: 1234,
   worldSettings: { mapSize: "MAPSIZE_TINY" },
-  setupConfig: { gameOptions: {}, playerOptions: [] },
+  setupConfig: { gameOptions: {}, mapOptions: {}, playerOptions: [] },
   canonicalConfig,
 };
 const launchEnvelopeDigest = hashParityValue(launchEnvelope);

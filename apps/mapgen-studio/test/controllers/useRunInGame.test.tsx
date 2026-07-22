@@ -21,7 +21,11 @@ import { DEFAULT_WORLD_SETTINGS } from "../../src/ui/constants/defaults";
 
 const canonicalConfig = getRecipeDefaultCanonicalConfig("standard");
 const runRpc = vi.mocked(runCurrentConfigInGame);
-const setupConfig = { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] };
+const setupConfig = {
+  gameOptions: {},
+  mapOptions: {},
+  playerOptions: [{ playerId: 0, options: {} }],
+};
 
 function runningStatus(requestId = "run-request"): RunInGameOperationStatus {
   return {

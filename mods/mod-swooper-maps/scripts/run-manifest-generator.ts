@@ -4,7 +4,7 @@ import {
   civ7MapScriptTextEncoderBanner,
   civ7TypeBoxCompatibilityPlugin,
 } from "@civ7/adapter/map-script-build";
-import { assessCiv7SignedIntSeed } from "@civ7/direct-control/policy/setup";
+import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
 import {
   applyGeneratedFilePlan,
   type GeneratedFilePlan,

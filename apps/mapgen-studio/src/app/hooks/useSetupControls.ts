@@ -12,6 +12,7 @@ import {
   getLocalPlayerSetup,
   optionRowsFromParameter,
   studioLaunchMatchesSavedConfig,
+  studioSavedWorldSettingsFromConfigFile,
   studioSetupConfigFromSavedConfigFile,
   updateStudioSetupGameOption,
   updateStudioSetupPlayerOption,
@@ -37,12 +38,16 @@ export type UseSetupControlsArgs = {
   seed: AuthoringState["seed"];
   /** Current authored game seed used by Civ7 setup and saved-config exactness. */
   gameSeed: AuthoringState["gameSeed"];
+  /** Current map size and player count used by generation and saved-config exactness. */
+  worldSettings: AuthoringState["worldSettings"];
   /** Setter for the authoring setup config (from `useAuthoringStore`). */
   setSetupConfig: AuthoringState["setSetupConfig"];
   /** Setter for the generation seed — saved-config seed adoption. */
   setSeed: AuthoringState["setSeed"];
   /** Setter for the Civ7 game seed — saved-config seed adoption. */
   setGameSeed: AuthoringState["setGameSeed"];
+  /** Setter for map size/player count identities proved by a saved configuration. */
+  setWorldSettings: AuthoringState["setWorldSettings"];
   /** Saved-config READ view (from `useSetupDataQueries`). */
   savedSetupConfigs: SavedSetupConfigsView;
   /** Setup-catalog READ view (from `useSetupDataQueries`). */
@@ -83,9 +88,9 @@ export type UseSetupControlsResult = {
   setupControlOptions: SetupControlOptions;
   /** AppHeader's game-setup view-model (E4a) — derived from the authored setup config. */
   headerSetupState: AppHeaderSetupState;
-  /** True when authored setup or either seed diverges from the selected saved file. */
+  /** True when authored setup, seeds, map size, or player count diverges from saved evidence. */
   savedSetupConfigModified: boolean;
-  /** Applies (replaces) the authored setup from the chosen saved config + adopts its seed. */
+  /** Applies the saved setup and adopts every seed/world identity the file proves. */
   handleSavedSetupConfigChange: (configId: string) => void;
   /** AppHeader intent: set/clear ("" = clear) the local player's leader. */
   handleLeaderChange: (value: string) => void;
@@ -158,9 +163,9 @@ export function deriveAppHeaderSetupState(config: Civ7StudioSetupConfig): AppHea
  * `handleExplore`) with their in-flight guard state.
  *
  * Load-bearing invariants preserved verbatim from the prior host body:
- * - SC-4: exactness is VALUE equality over setup plus admitted map/game seeds,
- *   never object identity. Missing or invalid saved seed evidence fails closed
- *   to "Custom" instead of claiming the file governs the next launch.
+ * - SC-4: exactness is VALUE equality over setup, both seeds, map size, and player count,
+ *   never object identity. Missing or invalid saved evidence fails closed to "Custom"
+ *   instead of claiming the file governs the next launch.
  * - SC-1/2/3: the saved-config replace + drift + normalized-equality PURE logic
  *   stays in `features/civ7Setup/*` (`studioSetupConfigFromSavedConfigFile`,
  *   `clearStudioSetupSavedConfig`, `studioLaunchMatchesSavedConfig`) — called,
@@ -184,9 +189,11 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
     setupConfig,
     seed,
     gameSeed,
+    worldSettings,
     setSetupConfig,
     setSeed,
     setGameSeed,
+    setWorldSettings,
     savedSetupConfigs,
     setupCatalog,
     liveSetup,
@@ -203,16 +210,11 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
 
   const setupControlOptions = useMemo(() => {
     const setup = liveSetup.setup;
-    const parameters = setup?.setup?.parameters ?? [];
-    const localPlayerId = Number(
-      setup?.setup?.localPlayerId?.ok === true
-        ? setup.setup.localPlayerId.value
-        : getLocalPlayerSetup(setupConfig).playerId
-    );
+    const parameters = setup?.parameters ?? [];
+    const localPlayerId = setup?.localPlayerId ?? getLocalPlayerSetup(setupConfig).playerId;
     const playerParameters =
-      setup?.setup?.playerParameters?.find((player) => player.playerId === localPlayerId)
-        ?.parameters ??
-      setup?.setup?.playerParameters?.[0]?.parameters ??
+      setup?.players.find((player) => player.playerId === localPlayerId)?.parameters ??
+      setup?.players[0]?.parameters ??
       [];
     const localPlayer = getLocalPlayerSetup(setupConfig);
     const gameOptions = setupConfig.gameOptions;
@@ -276,14 +278,21 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
   ]);
 
   // Config precedence: the selector claims the saved file only while every
-  // launch input governed by that file (setup, map seed, game seed) matches.
+  // launch input governed by that file (setup, seeds, map size, player count) matches.
   const savedSetupConfigModified = useMemo(() => {
     const selectedId = setupConfig.savedConfig?.id;
     if (!selectedId) return false;
     const savedConfig = savedSetupConfigs.configurations.find((config) => config.id === selectedId);
     if (!savedConfig) return true;
-    return !studioLaunchMatchesSavedConfig({ setupConfig, seed, gameSeed, savedConfig });
-  }, [gameSeed, savedSetupConfigs.configurations, seed, setupConfig]);
+    return !studioLaunchMatchesSavedConfig({
+      setupConfig,
+      seed,
+      gameSeed,
+      mapSize: worldSettings.mapSize,
+      playerCount: worldSettings.playerCount,
+      savedConfig,
+    });
+  }, [gameSeed, savedSetupConfigs.configurations, seed, setupConfig, worldSettings]);
 
   const handleSavedSetupConfigChange = useCallback(
     (configId: string) => {
@@ -295,8 +304,22 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
       setSetupConfig(studioSetupConfigFromSavedConfigFile(savedConfig));
       adoptSavedSeed("Map", savedConfig.summary.mapSeed, setSeed, toast);
       adoptSavedSeed("Game", savedConfig.summary.gameSeed, setGameSeed, toast);
+      const savedWorldSettings = studioSavedWorldSettingsFromConfigFile(savedConfig);
+      if (
+        savedWorldSettings.mapSize !== undefined ||
+        savedWorldSettings.playerCount !== undefined
+      ) {
+        setWorldSettings((current) => ({ ...current, ...savedWorldSettings }));
+      }
     },
-    [savedSetupConfigs.configurations, setGameSeed, setSeed, setSetupConfig, toast]
+    [
+      savedSetupConfigs.configurations,
+      setGameSeed,
+      setSeed,
+      setSetupConfig,
+      setWorldSettings,
+      toast,
+    ]
   );
 
   // The E4a header intents (structure-rewire §4.7/§5): the update composition

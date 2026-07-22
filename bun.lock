@@ -161,6 +161,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@civ7/direct-control": "workspace:*",
+        "@civ7/map-policy": "workspace:*",
         "@orpc/client": "1.14.6",
         "@orpc/contract": "1.14.6",
         "@orpc/server": "1.14.6",
@@ -175,10 +176,8 @@
       "name": "@civ7/direct-control",
       "version": "0.1.0",
       "dependencies": {
-        "typebox": "catalog:",
-      },
-      "devDependencies": {
         "@civ7/map-policy": "workspace:*",
+        "typebox": "catalog:",
       },
     },
     "packages/civ7-map-policy": {
@@ -360,6 +359,7 @@
       "name": "@civ7/studio-contract",
       "version": "0.1.0",
       "dependencies": {
+        "@civ7/map-policy": "workspace:*",
         "@orpc/contract": "1.14.6",
         "@standard-schema/spec": "^1.1.0",
         "typebox": "catalog:",
@@ -382,6 +382,7 @@
       "dependencies": {
         "@civ7/control-orpc": "workspace:*",
         "@civ7/direct-control": "workspace:*",
+        "@civ7/map-policy": "workspace:*",
         "@civ7/studio-contract": "workspace:*",
         "@civ7/studio-run-workspace": "workspace:*",
         "@orpc/client": "1.14.6",

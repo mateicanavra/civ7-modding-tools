@@ -1,5 +1,17 @@
-import { type Civ7PlotSnapshotField, Civ7PlotSnapshotFieldSchema } from "@civ7/direct-control";
-import { type StudioEffectContract, studioEffectContract } from "@civ7/studio-contract";
+import {
+  type Civ7PlotSnapshotField,
+  Civ7PlotSnapshotFieldSchema,
+  type Civ7SavedGameConfiguration,
+  type Civ7SetupParameterPossibleValue,
+  type Civ7SetupParameterSnapshot,
+  type Civ7SetupSnapshot,
+} from "@civ7/direct-control";
+import {
+  civ7SetupSnapshotSchema,
+  type StudioEffectContract,
+  savedConfigsOutputSchema,
+  studioEffectContract,
+} from "@civ7/studio-contract";
 import { ORPCError, type Router } from "@orpc/server";
 import { Effect, Match, Option } from "effect";
 import { implementEffect } from "effect-orpc";
@@ -118,40 +130,57 @@ export function createStudioRouter(
 
       // #10 civ7.setupConfig - error 503 (UNIQUE), body carries observedAt
       setupConfig: oe.civ7.setupConfig.effect(function* ({ errors }) {
+        const observedAt = new Date().toISOString();
         const snapshot = yield* Civ7TunerClient.setupSnapshot().pipe(
           Effect.mapError((err) =>
             errors.SETUP_CONFIG_UNAVAILABLE({
               message: errorMessage(err, "Civ7 setup config unavailable"),
-              data: { observedAt: new Date().toISOString() },
+              data: { observedAt },
             })
           )
         );
-        return {
-          ok: true as const,
-          observedAt: new Date().toISOString(),
-          setup: snapshot.snapshot as Record<string, unknown>,
-          state: snapshot.state as Record<string, unknown>,
-          host: snapshot.host,
-          port: snapshot.port,
-        };
+        const setup = yield* Effect.try({
+          try: () =>
+            Value.Parse(
+              civ7SetupSnapshotSchema,
+              Value.Clone(projectCiv7SetupSnapshot(snapshot.snapshot))
+            ),
+          catch: (err) =>
+            errors.SETUP_CONFIG_UNAVAILABLE({
+              message: errorMessage(err, "Civ7 setup config is invalid"),
+              data: { observedAt },
+            }),
+        });
+        return { ok: true as const, observedAt, setup };
       }),
 
       // #11 civ7.savedConfigs - error 500, body carries observedAt
       savedConfigs: oe.civ7.savedConfigs.effect(function* ({ errors }) {
+        const observedAt = new Date().toISOString();
         const result = yield* Civ7TunerClient.savedConfigurations().pipe(
           Effect.mapError((err) =>
             errors.SAVED_CONFIGS_UNAVAILABLE({
               message: errorMessage(err, "Civ7 saved configurations unavailable"),
-              data: { observedAt: new Date().toISOString() },
+              data: { observedAt },
             })
           )
         );
-        return {
-          ok: true as const,
-          observedAt: new Date().toISOString(),
-          directory: result.directory,
-          configurations: result.configurations as unknown as Record<string, unknown>[],
-        };
+        return yield* Effect.try({
+          try: () =>
+            Value.Parse(
+              savedConfigsOutputSchema,
+              Value.Clone({
+                ok: true,
+                observedAt,
+                configurations: result.configurations.map(projectCiv7SavedConfiguration),
+              })
+            ),
+          catch: (err) =>
+            errors.SAVED_CONFIGS_UNAVAILABLE({
+              message: errorMessage(err, "Civ7 saved configurations are invalid"),
+              data: { observedAt },
+            }),
+        });
       }),
 
       // #12 civ7.setupCatalog - host loader; error 500
@@ -473,6 +502,78 @@ export function createStudioRouter(
       }),
     },
   });
+}
+
+function projectCiv7SetupSnapshot(snapshot: Civ7SetupSnapshot) {
+  const localPlayerId = snapshot.setup.localPlayerId;
+  return {
+    ...(snapshot.selectedMapRow === undefined
+      ? {}
+      : {
+          selectedMap: {
+            file: snapshot.selectedMapRow.file,
+            ...(snapshot.selectedMapRow.value === undefined
+              ? {}
+              : { value: snapshot.selectedMapRow.value }),
+          },
+        }),
+    parameters: snapshot.setup.parameters.map(projectCiv7SetupParameter),
+    players: snapshot.setup.playerParameters.map(({ playerId, parameters }) => ({
+      playerId,
+      parameters: parameters.map(projectCiv7SetupParameter),
+    })),
+    ...(localPlayerId.ok === true ? { localPlayerId: localPlayerId.value } : {}),
+  };
+}
+
+function projectCiv7SavedConfiguration(configuration: Civ7SavedGameConfiguration) {
+  const { summary } = configuration;
+  return {
+    id: configuration.id,
+    displayName: configuration.displayName,
+    fileName: configuration.fileName,
+    summary: {
+      ...(summary.gameSpeed === undefined ? {} : { gameSpeed: summary.gameSpeed }),
+      ...(summary.mapSize === undefined ? {} : { mapSize: summary.mapSize }),
+      ...(summary.mapName === undefined ? {} : { mapName: summary.mapName }),
+      ...(summary.leader === undefined ? {} : { leader: summary.leader }),
+      ...(summary.civilization === undefined ? {} : { civilization: summary.civilization }),
+      ...(summary.difficulty === undefined ? {} : { difficulty: summary.difficulty }),
+      ...(summary.mapSeed === undefined ? {} : { mapSeed: summary.mapSeed }),
+      ...(summary.gameSeed === undefined ? {} : { gameSeed: summary.gameSeed }),
+      ...(summary.playerCount === undefined ? {} : { playerCount: summary.playerCount }),
+    },
+    gameOptions: configuration.gameOptions,
+    mapOptions: configuration.mapOptions,
+    playerOptions: configuration.playerOptions,
+  };
+}
+
+function projectCiv7SetupParameter(parameter: Civ7SetupParameterSnapshot) {
+  return {
+    id: parameter.id,
+    exists: parameter.exists,
+    ...(parameter.value === undefined ? {} : { value: parameter.value }),
+    ...(parameter.destroyed === undefined ? {} : { destroyed: parameter.destroyed }),
+    ...(parameter.hidden === undefined ? {} : { hidden: parameter.hidden }),
+    ...(parameter.readOnly === undefined ? {} : { readOnly: parameter.readOnly }),
+    ...(parameter.invalidReason === undefined ? {} : { invalidReason: parameter.invalidReason }),
+    ...(parameter.possibleValues === undefined
+      ? {}
+      : {
+          possibleValues: parameter.possibleValues.map(projectCiv7SetupPossibleValue),
+        }),
+  };
+}
+
+function projectCiv7SetupPossibleValue(value: Civ7SetupParameterPossibleValue) {
+  return {
+    value: value.value,
+    ...(value.destroyed === undefined ? {} : { destroyed: value.destroyed }),
+    ...(value.hidden === undefined ? {} : { hidden: value.hidden }),
+    ...(value.readOnly === undefined ? {} : { readOnly: value.readOnly }),
+    ...(value.invalidReason === undefined ? {} : { invalidReason: value.invalidReason }),
+  };
 }
 
 const isCiv7PlotSnapshotField = (value: string): value is Civ7PlotSnapshotField =>

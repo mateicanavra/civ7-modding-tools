@@ -70,6 +70,22 @@ export const studioEffectContract = oc.router({
 
 export type StudioEffectContract = typeof studioEffectContract;
 
+export type {
+  Civ7SavedConfigsOutput,
+  Civ7SavedSetupConfiguration,
+  Civ7SetupParameter,
+  Civ7SetupSnapshot,
+} from "./civ7.js";
+export {
+  civ7SetupParameterSchema,
+  civ7SetupPlayerGroupSchema,
+  civ7SetupPossibleValueSchema,
+  civ7SetupSelectedMapSchema,
+  civ7SetupSnapshotSchema,
+  savedConfigsOutputSchema,
+  savedSetupConfigurationSchema,
+  savedSetupConfigurationSummarySchema,
+} from "./civ7.js";
 export * from "./errors/errorData.js";
 export * from "./errors/failure.js";
 export * from "./lib/typeboxStandardSchema.js";
@@ -141,10 +157,7 @@ export {
   normalizeRunInGameSetupConfig,
   operationStatusTypeSchema,
   publicRunStatusTypeSchema,
-  RUN_IN_GAME_CUSTOM_DIFFICULTY_OPTION_IDS,
-  RUN_IN_GAME_MAIN_GAME_OPTION_IDS,
   RUN_IN_GAME_PHASES,
-  RUN_IN_GAME_PLAYER_OPTION_IDS,
   runDiagnosticsRecordSchema,
   runInGameSeed,
   runInGameStartPortableInputIssue,

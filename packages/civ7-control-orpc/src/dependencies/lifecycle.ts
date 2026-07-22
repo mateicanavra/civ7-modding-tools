@@ -1,6 +1,7 @@
 import {
   admitCiv7SetupShell,
-  applyCiv7SinglePlayerSetup,
+  applyCiv7SinglePlayerSetupIdentity,
+  applyCiv7SinglePlayerSetupOptions,
   beginCiv7Game,
   type Civ7AppUiSnapshotResult,
   type Civ7BeginGameResult,
@@ -9,9 +10,9 @@ import {
   type Civ7MapSummaryResult,
   type Civ7SavedGameConfigurationLoadRequestResult,
   type Civ7SavedGameConfigurationRef,
-  type Civ7SetupApplicationResult,
   type Civ7SetupMapRowsInput,
   type Civ7SetupMapRowsResult,
+  type Civ7SetupMutationResult,
   type Civ7SetupShellAdmissionPolicy,
   type Civ7SetupShellAdmissionResult,
   type Civ7SetupSnapshotResult,
@@ -31,6 +32,9 @@ import {
   requestCiv7SavedGameConfigurationLoad,
 } from "@civ7/direct-control";
 
+/** Provider-neutral identity needed to ask Civ7 to load one saved setup file. */
+export type Civ7ControlOrpcSavedConfigIdentity = Omit<Civ7SavedGameConfigurationRef, "path">;
+
 /** Direct-control atoms consumed by the Effect-owned control-oRPC lifecycle. */
 export type Civ7ControlOrpcDirectLifecycleFacade = Readonly<{
   getSetupSnapshot(options?: Civ7DirectControlOptions): Promise<Civ7SetupSnapshotResult>;
@@ -39,7 +43,7 @@ export type Civ7ControlOrpcDirectLifecycleFacade = Readonly<{
     options?: Civ7DirectControlOptions
   ): Promise<Civ7SetupShellAdmissionResult>;
   requestSavedConfigLoad(
-    input: Civ7SavedGameConfigurationRef,
+    input: Civ7ControlOrpcSavedConfigIdentity,
     options?: Civ7DirectControlOptions
   ): Promise<Civ7SavedGameConfigurationLoadRequestResult>;
   reconcileRequiredTargetMod(
@@ -51,10 +55,14 @@ export type Civ7ControlOrpcDirectLifecycleFacade = Readonly<{
     options?: Civ7DirectControlOptions
   ): Promise<Civ7SetupMapRowsResult>;
   reloadSetupUiInShell(options?: Civ7DirectControlOptions): Promise<Civ7SetupUiReloadResult>;
-  applySinglePlayerSetup(
+  applySinglePlayerSetupIdentity(
     input: Civ7SinglePlayerSetupValues,
     options?: Civ7DirectControlOptions
-  ): Promise<Civ7SetupApplicationResult>;
+  ): Promise<Civ7SetupMutationResult>;
+  applySinglePlayerSetupOptions(
+    input: Civ7SinglePlayerSetupValues,
+    options?: Civ7DirectControlOptions
+  ): Promise<Civ7SetupMutationResult>;
   hostPreparedSinglePlayerGame(
     expected: Civ7SinglePlayerSetupValues,
     options?: Civ7DirectControlOptions
@@ -69,12 +77,17 @@ export const liveCiv7ControlOrpcDirectLifecycleFacade: Civ7ControlOrpcDirectLife
   getSetupSnapshot: async (options) => getCiv7SetupSnapshot(options),
   admitSetupShell: async (policy, options) => admitCiv7SetupShell(policy, options),
   requestSavedConfigLoad: async (input, options) =>
-    requestCiv7SavedGameConfigurationLoad(input, options),
+    // Direct control's local-file record still carries a provider path, but the Civ7 load command
+    // uses only FileName and DisplayName. Keep that compatibility field inside this adapter.
+    requestCiv7SavedGameConfigurationLoad({ ...input, path: input.fileName }, options),
   reconcileRequiredTargetMod: async (targetModId, options) =>
     reconcileCiv7RequiredTargetMod(targetModId, options),
   getSetupMapRows: async (input, options) => getCiv7SetupMapRows(input, options),
   reloadSetupUiInShell: async (options) => reloadCiv7SetupUiInShell(options),
-  applySinglePlayerSetup: async (input, options) => applyCiv7SinglePlayerSetup(input, options),
+  applySinglePlayerSetupIdentity: async (input, options) =>
+    applyCiv7SinglePlayerSetupIdentity(input, options),
+  applySinglePlayerSetupOptions: async (input, options) =>
+    applyCiv7SinglePlayerSetupOptions(input, options),
   hostPreparedSinglePlayerGame: async (expected, options) =>
     hostPreparedCiv7SinglePlayerGame(expected, options),
   getAppUiSnapshot: async (options) => getCiv7AppUiSnapshot(options),

@@ -11,7 +11,6 @@ import {
   liveCiv7ControlOrpcDirectLifecycleFacade,
 } from "@civ7/control-orpc/runtime";
 import {
-  assessCiv7SignedIntSeed,
   type Civ7DirectControlOptions,
   type Civ7SavedGameConfiguration,
   type Civ7SavedGameConfigurationRef,
@@ -25,6 +24,7 @@ import {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
+import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
 import { serializeVerifierError } from "./verifier-error";
 
 /** Parsed options for read-only evidence collection or an explicitly admitted live launch. */
@@ -564,7 +564,8 @@ async function main(): Promise<number> {
       targetModId: targetModIdFromMapScript(mutationArgs.mapScript),
       ...(savedConfigRef ? { savedConfig: savedConfigRef } : {}),
       gameOptions: args.options,
-      playerOptions: {},
+      mapOptions: {},
+      playerOptions: [],
       activeGamePolicy: "exit-active-game",
     });
     stages.push({
