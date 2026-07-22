@@ -32,7 +32,7 @@ export const DiagnosticOutputMetadataSchema = Type.Object(
 );
 
 export const NativeGritCommandFamilySchema = Type.Union([
-  Type.Literal("selected-rule-json-check"),
+  Type.Literal("selected-rules-json-check"),
   Type.Literal("selected-rule-apply-dry-run-observation"),
   Type.Literal("pinned-native-preflight"),
 ]);
@@ -53,12 +53,17 @@ const NativeGritCommandRequestMetadataSchema = Type.Interface(
   { additionalProperties: false }
 );
 
-export const NativeGritSelectedRuleJsonCheckRequestSchema = Type.Interface(
+/** Closed evidence for one hermetic native check over an ordered selected-rule catalog. */
+export const NativeGritSelectedRulesJsonCheckRequestSchema = Type.Interface(
   [NativeGritCommandRequestMetadataSchema],
   {
-    commandFamily: Type.Literal("selected-rule-json-check"),
+    commandFamily: Type.Literal("selected-rules-json-check"),
     outputContract: Type.Literal("json-report-on-stderr"),
     scanRoots: DiagnosticSelectedScanRootsSchema,
+    patternNames: Type.Array(Type.String({ minLength: 1 }), {
+      minItems: 1,
+      uniqueItems: true,
+    }),
   },
   { additionalProperties: false }
 );
@@ -84,12 +89,12 @@ export const NativeGritPinnedNativePreflightRequestSchema = Type.Interface(
 );
 
 export const NativeGritTargetCommandRequestSchema = Type.Union([
-  NativeGritSelectedRuleJsonCheckRequestSchema,
+  NativeGritSelectedRulesJsonCheckRequestSchema,
   NativeGritSelectedRuleApplyDryRunObservationRequestSchema,
 ]);
 
 export const NativeGritCommandRequestSchema = Type.Union([
-  NativeGritSelectedRuleJsonCheckRequestSchema,
+  NativeGritSelectedRulesJsonCheckRequestSchema,
   NativeGritSelectedRuleApplyDryRunObservationRequestSchema,
   NativeGritPinnedNativePreflightRequestSchema,
 ]);
@@ -191,9 +196,14 @@ export const DiagnosticCommandObservationSchema = Type.Union([
 export type DiagnosticOutputMetadata = Static<typeof DiagnosticOutputMetadataSchema>;
 export type NativeGritCommandFamily = Static<typeof NativeGritCommandFamilySchema>;
 export type NativeGritOutputContract = Static<typeof NativeGritOutputContractSchema>;
-export type NativeGritSelectedRuleJsonCheckRequest = Static<
-  typeof NativeGritSelectedRuleJsonCheckRequestSchema
-> & { readonly scanRoots: DiagnosticSelectedScanRoots };
+/** Parsed native-check evidence with nonempty selected pattern identities and admitted roots. */
+export type NativeGritSelectedRulesJsonCheckRequest = Omit<
+  Static<typeof NativeGritSelectedRulesJsonCheckRequestSchema>,
+  "patternNames" | "scanRoots"
+> & {
+  readonly patternNames: [string, ...string[]];
+  readonly scanRoots: DiagnosticSelectedScanRoots;
+};
 export type NativeGritSelectedRuleApplyDryRunObservationRequest = Static<
   typeof NativeGritSelectedRuleApplyDryRunObservationRequestSchema
 > & { readonly scanRoots: DiagnosticSelectedScanRoots };
@@ -201,7 +211,7 @@ export type NativeGritPinnedNativePreflightRequest = Static<
   typeof NativeGritPinnedNativePreflightRequestSchema
 >;
 export type NativeGritTargetCommandRequest =
-  | NativeGritSelectedRuleJsonCheckRequest
+  | NativeGritSelectedRulesJsonCheckRequest
   | NativeGritSelectedRuleApplyDryRunObservationRequest;
 export type NativeGritCommandRequest =
   | NativeGritTargetCommandRequest
@@ -223,15 +233,16 @@ export type DiagnosticExecutedCommandObservation =
   | DiagnosticFailedCommandObservation
   | DiagnosticInterruptedCommandObservation;
 const nativeGritOutputContractByFamily = {
-  "selected-rule-json-check": "json-report-on-stderr",
+  "selected-rules-json-check": "json-report-on-stderr",
   "selected-rule-apply-dry-run-observation": "compact-jsonl-on-stdout",
   "pinned-native-preflight": "version-on-stdout",
 } as const satisfies Record<NativeGritCommandFamily, NativeGritOutputContract>;
 
 export function nativeGritCommandRequestFromProcessRequest(input: {
   readonly request: HabitatProcessRequest;
-  readonly commandFamily: "selected-rule-json-check";
-}): NativeGritSelectedRuleJsonCheckRequest;
+  readonly commandFamily: "selected-rules-json-check";
+  readonly patternNames: readonly [string, ...string[]];
+}): NativeGritSelectedRulesJsonCheckRequest;
 export function nativeGritCommandRequestFromProcessRequest(input: {
   readonly request: HabitatProcessRequest;
   readonly commandFamily: "selected-rule-apply-dry-run-observation";
@@ -240,10 +251,20 @@ export function nativeGritCommandRequestFromProcessRequest(input: {
   readonly request: HabitatProcessRequest;
   readonly commandFamily: "pinned-native-preflight";
 }): NativeGritPinnedNativePreflightRequest;
-export function nativeGritCommandRequestFromProcessRequest(input: {
-  readonly request: HabitatProcessRequest;
-  readonly commandFamily: NativeGritCommandFamily;
-}): NativeGritCommandRequest {
+export function nativeGritCommandRequestFromProcessRequest(
+  input:
+    | {
+        readonly request: HabitatProcessRequest;
+        readonly commandFamily: "selected-rules-json-check";
+        readonly patternNames: readonly [string, ...string[]];
+      }
+    | {
+        readonly request: HabitatProcessRequest;
+        readonly commandFamily:
+          | "selected-rule-apply-dry-run-observation"
+          | "pinned-native-preflight";
+      }
+): NativeGritCommandRequest {
   const metadata = {
     commandFamily: input.commandFamily,
     commandInvocationId: input.request.commandId,
@@ -259,7 +280,18 @@ export function nativeGritCommandRequestFromProcessRequest(input: {
     });
   }
   const scanRoots = parseDiagnosticSelectedScanRoots(input.request.scanRoots ?? []);
-  const parsed = Value.Parse(NativeGritTargetCommandRequestSchema, { ...metadata, scanRoots });
+  if (input.commandFamily === "selected-rules-json-check") {
+    const parsed = Value.Parse(NativeGritSelectedRulesJsonCheckRequestSchema, {
+      ...metadata,
+      scanRoots,
+      patternNames: input.patternNames,
+    });
+    return { ...parsed, patternNames: [...input.patternNames], scanRoots };
+  }
+  const parsed = Value.Parse(NativeGritSelectedRuleApplyDryRunObservationRequestSchema, {
+    ...metadata,
+    scanRoots,
+  });
   return { ...parsed, scanRoots };
 }
 

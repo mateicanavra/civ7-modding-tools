@@ -1,40 +1,84 @@
-# Change: Deep Habitat Effect Command Runner Test Drain
+# Change: Bound Habitat Check Execution
 
 ## Why
 
-`command-runner.test.ts` used live host commands to prove provider behavior:
-spawning Node to assert git-state wrapping, probing the host `PATH` to assert
-unavailable-command errors, and starting a never-ending process to assert
-timeout policy. That made the unit suite pay for host process management,
-wall-clock timing, and OS behavior to test policy owned by the Effect command
-provider.
+One aggregate Habitat check can select many Grit rules and large structure
+authority trees. Running every selected Grit rule as an independent native
+process multiplied process, memory, and Rayon-thread demand. Rewalking the same
+structure roots for every rule multiplied filesystem work. At the same time,
+CLI cancellation stopped at the JavaScript call boundary: the managed Effect
+runtime and native provider descendants did not share one bounded release path.
 
-Habitat should keep command provider policy testable through Effect services,
-fakes, and test clocks. Live process behavior belongs to provider integration
-and smoke surfaces, not ordinary unit tests.
+The earlier hypothesis for this change was to replace live command-runner tests
+with exported helper seams, fakes, `Effect.never`, and `TestClock`. Source review
+rejected that direction. Those tests would have proved synthetic policy while
+bypassing the process ownership behavior that must hold in production. The
+accepted candidate instead keeps command policy internal and proves bounded
+behavior with real, short-lived child-process fixtures.
 
 ## What Changes
 
-- Expose provider-owned command helper seams for git-state capture,
-  unavailable-error projection, and timeout interruption.
-- Replace live git-state command execution with a fake command result wrapped by
-  the provider git-state capture helper.
-- Replace live missing-binary probing with direct unavailable-error projection
-  coverage.
-- Replace the live never-ending Node command timeout test with a deterministic
-  `Effect.never` + `TestClock` unit test.
-- Preserve the existing `CommandInterrupted` contract: command id, timeout, cwd,
-  signal, and cause remain unchanged.
+- Run live provider commands as Darwin/Linux detached process groups acquired by
+  an Effect scope, with bounded TERM, sampled liveness, conditional KILL, and an
+  explicit incomplete-release defect.
+- Carry SIGINT/SIGTERM through every CLI caller as an `AbortSignal`, dispose the
+  managed runtime within a shorter deadline, then re-deliver the first native
+  signal. A repeated signal forces immediate replay.
+- Fix native Grit's worker pool at `RAYON_NUM_THREADS=2` and execute Grit plans
+  sequentially.
+- Batch eligible check rules only when they have the exact same ordered,
+  canonical scan-root tuple and distinct pattern identities. Materialize rule
+  assets before shared execution so one invalid asset cannot block valid peers.
+- Attribute shared timing only to rules admitted into the shared native command;
+  invalid assets retain zero duration and no shared timing.
+- Reuse structure path-kind, directory-entry, and completed-walk observations
+  within one `runStructureRulesEffect` invocation. Never retain observations
+  across independent runs.
+- Keep git-state capture, unavailable-error projection, and timeout
+  transformation internal to the live command provider. Do not publish a test
+  helper API.
+
+## Ownership And Boundaries
+
+- `tools/habitat` owns the command process, CLI lifecycle, Grit provider,
+  structure traversal, tests, and standalone release behavior.
+- A destination repository owns its `.habitat` rules and provider installation;
+  it does not own or patch Habitat process lifecycle behavior.
+- The standalone executable remains check-only. It does not acquire mutation,
+  daemon, supervisor, or destination-script authority.
+- The POSIX process-group identifier is a sampled numeric identity. An observed
+  `ESRCH` is absorbing for that release attempt, but the current API cannot
+  eliminate disappearance or identifier reuse between separate observations.
 
 ## Non-Goals
 
-- Do not change command materialization.
-- Do not remove live command execution from the command provider.
-- Do not add structural/topology enforcement tests.
-- Do not add compatibility shims, fallback paths, or duplicate timeout models.
+- Do not export command-runner implementation helpers for tests.
+- Do not replace real process ownership proofs with fake commands or virtual
+  clocks.
+- Do not merge different ordered scan-root tuples, duplicate Grit pattern
+  identities, or apply-dry-run acquisitions into one native check command.
+- Do not retain structure traversal state across check invocations.
+- Do not claim Windows process-tree support or absolute POSIX process-group
+  identity continuity.
+- Do not add consumer-local cancellation, batching, or scheduling workarounds.
+
+## Dependencies And Effects
+
+- **Requires:** the standalone check boundary and pinned destination-provided Grit
+  provider already established by the Habitat SDK release line.
+- **Enables:** a new Habitat SDK release that Magic and other consumers can
+  provision without duplicating Grit lifecycle or batching logic.
+- **Stops:** if bounded child fixtures leave descendants, a cancellation path
+  omits runtime disposal or native signal replay, exact-root batching changes
+  per-rule outcomes, or traversal reuse crosses invocation boundaries.
 
 ## Validation
 
-- `bun run --cwd tools/habitat-harness test -- command-runner.test.ts` must pass
-  without spawning command fixtures.
-- Package check/build and OpenSpec validation must stay green before closure.
+- Habitat source, test, and tooling TypeScript lanes pass.
+- Standalone behavior tests cover CLI cancellation, owned process release,
+  exact-root Grit batching, current pinned-native execution, and traversal reuse.
+- The active OpenSpec change validates strictly and the candidate diff has no
+  whitespace errors.
+- Fixed-artifact build, moved-binary acceptance, probe publication, and release
+  publication remain explicit owner gates after this source candidate is
+  accepted.

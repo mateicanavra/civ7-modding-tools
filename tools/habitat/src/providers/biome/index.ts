@@ -1,10 +1,9 @@
 import {
-  type CommandProviderError,
   CommandRunner,
   type CommandRunnerService,
 } from "@habitat/cli/resources/command/index";
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
-import { Context, Effect, Layer } from "effect";
+import { Context, Effect, Layer, Match } from "effect";
 
 export type BiomeCommandKind = "format" | "check" | "ci";
 
@@ -15,12 +14,7 @@ export interface BiomeCommandRequest {
   noErrorsOnUnmatched?: boolean;
 }
 
-export interface BiomeProviderService {
-  readonly run: (
-    request: BiomeCommandRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError>;
-  readonly argv: (request: BiomeCommandRequest) => string[];
-}
+export interface BiomeProviderService extends ReturnType<typeof makeLiveBiomeProvider> {}
 
 export class BiomeProvider extends Context.Tag("@habitat/cli/BiomeProvider")<
   BiomeProvider,
@@ -38,7 +32,7 @@ export function makeFakeBiomeProviderLayer(
   handler: (request: BiomeCommandRequest) => HabitatCommandResult
 ) {
   return Layer.succeed(BiomeProvider, {
-    run: (request) => Effect.sync(() => handler(request)),
+    run: (request) => Effect.succeed(handler(request)),
     argv: biomeArgv,
   });
 }
@@ -46,9 +40,9 @@ export function makeFakeBiomeProviderLayer(
 function makeLiveBiomeProvider(
   repoRoot: string,
   runner: CommandRunnerService
-): BiomeProviderService {
+) {
   return {
-    run: (request) =>
+    run: (request: BiomeCommandRequest) =>
       runner.run({
         commandId: `biome-${request.kind}`,
         kind: "biome-handoff",
@@ -62,11 +56,27 @@ function makeLiveBiomeProvider(
 }
 
 export function biomeArgv(request: BiomeCommandRequest): string[] {
+  const write = Match.value(request).pipe(
+    Match.when({ kind: "format", write: true }, () => ["--write"]),
+    Match.orElse(() => [])
+  );
+  const noErrorsOnUnmatched = Match.value(request.noErrorsOnUnmatched).pipe(
+    Match.when(true, () => ["--no-errors-on-unmatched"]),
+    Match.orElse(() => [])
+  );
+  const paths = Match.value(request.paths).pipe(
+    Match.when(
+      (candidate: readonly string[] | undefined): candidate is readonly string[] =>
+        candidate !== undefined && candidate.length > 0,
+      (candidate) => candidate
+    ),
+    Match.orElse(() => ["."])
+  );
   return [
     "biome",
     request.kind,
-    ...(request.kind === "format" && request.write ? ["--write"] : []),
-    ...(request.noErrorsOnUnmatched ? ["--no-errors-on-unmatched"] : []),
-    ...(request.paths && request.paths.length > 0 ? request.paths : ["."]),
+    ...write,
+    ...noErrorsOnUnmatched,
+    ...paths,
   ];
 }

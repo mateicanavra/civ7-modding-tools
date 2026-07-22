@@ -1,4 +1,5 @@
 import path from "node:path";
+import type { FileSystem } from "@effect/platform";
 import type {
   HabitatDirectoryEntry,
   HabitatFileSystemReadPort,
@@ -6,7 +7,7 @@ import type {
 import type { HabitatDiagnostic } from "@habitat/cli/service/model/check/index";
 import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import type { RuleStructureFacts } from "@habitat/cli/service/model/rules/index";
-import { Effect } from "effect";
+import { Effect, Either, Match } from "effect";
 import picomatch from "picomatch";
 import { parse as parseToml } from "smol-toml";
 import { type Static, Type } from "typebox";
@@ -35,11 +36,11 @@ const StructureCheckSpecSchema = Type.Object(
 
 export type StructureCheckScope = Static<typeof StructureCheckScopeSchema>;
 export type StructureCheckSpec = Static<typeof StructureCheckSpecSchema>;
-export type StructureCheckFileSystem<R = never> = HabitatFileSystemReadPort<R>;
+export type StructureCheckFileSystem = HabitatFileSystemReadPort;
 
-interface StructureCheckOptions<R> {
+interface StructureCheckOptions {
   readonly repoRoot: string;
-  readonly fileSystem: StructureCheckFileSystem<R>;
+  readonly fileSystem: StructureCheckFileSystem;
 }
 
 export type StructureCheckDiagnosticKind =
@@ -55,126 +56,202 @@ interface MatchedRoot {
   readonly kind: "directory" | "file" | "other" | "missing";
 }
 
+interface StructureTraversalCache {
+  readonly kindsByRepoPath: Map<string, MatchedRoot["kind"]>;
+  readonly childrenByRepoPath: Map<string, readonly HabitatDirectoryEntry[]>;
+  readonly walksByLiteralBase: Map<string, readonly MatchedRoot[]>;
+}
+
 export function parseStructureCheckSpec(
   contents: string
 ): { ok: true; spec: StructureCheckSpec } | { ok: false; message: string } {
-  let parsed: unknown;
-  try {
-    parsed = parseToml(contents);
-  } catch (error) {
-    return {
-      ok: false,
-      message: error instanceof Error ? error.message : String(error),
-    };
-  }
-  const issues = [...Value.Errors(StructureCheckSpecSchema, parsed)];
-  if (issues.length > 0) {
-    return {
-      ok: false,
-      message: issues.map((issue) => `${issue.instancePath || "/"} ${issue.message}`).join("; "),
-    };
-  }
-  return { ok: true, spec: Value.Parse(StructureCheckSpecSchema, parsed) };
+  const parsed = Either.try({ try: () => parseToml(contents), catch: renderUnknownError });
+  return Either.match(parsed, {
+    onLeft: (message) => ({ ok: false as const, message }),
+    onRight: parsedStructureCheckSpec,
+  });
 }
 
-export function runStructureRulesEffect<R>(
+function parsedStructureCheckSpec(
+  parsed: unknown
+): { ok: true; spec: StructureCheckSpec } | { ok: false; message: string } {
+  const issues = [...Value.Errors(StructureCheckSpecSchema, parsed)];
+  return Match.value(issues.length).pipe(
+    Match.when(0, () => ({ ok: true as const, spec: Value.Parse(StructureCheckSpecSchema, parsed) })),
+    Match.orElse(() => ({
+      ok: false as const,
+      message: issues.map((issue) => `${issue.instancePath || "/"} ${issue.message}`).join("; "),
+    }))
+  );
+}
+
+function renderUnknownError(error: unknown): string {
+  return Match.value(error).pipe(
+    Match.when(Match.instanceOf(Error), (cause) => cause.message),
+    Match.orElse(String)
+  );
+}
+
+export const runStructureRulesEffect = Effect.fn("habitat.structure.runRules")(function* (
   rules: readonly RuleStructureFacts[],
-  options: StructureCheckOptions<R>
-): Effect.Effect<Map<string, RuleRunResult>, never, R> {
-  return Effect.gen(function* () {
+  options: StructureCheckOptions
+) {
+    const cache = makeStructureTraversalCache();
     const entries = yield* Effect.forEach(rules, (rule) =>
-      Effect.map(runStructureRuleEffect<R>(rule, options), (result) => [rule.id, result] as const)
+      Effect.map(
+        runStructureRuleEffect(rule, options, cache),
+        (result) => [rule.id, result] as const
+      )
     );
     return new Map(entries);
-  });
-}
+});
 
-function runStructureRuleEffect<R>(
+const runStructureRuleEffect = Effect.fn("habitat.structure.runRule")(function* (
   rule: RuleStructureFacts,
-  options: StructureCheckOptions<R>
-): Effect.Effect<RuleRunResult, never, R> {
-  return Effect.gen(function* () {
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
     const structurePath = path.resolve(options.repoRoot, rule.runner.files.structure);
     const text = yield* options.fileSystem.readText(structurePath).pipe(Effect.either);
-    if (text._tag === "Left") {
-      const diagnostics = [
-        diagnostic(rule, {
-          kind: "structure-file-invalid",
-          path: rule.runner.files.structure,
-          message: `Unable to read structure file ${rule.runner.files.structure}.`,
-        }),
-      ];
-      return { exitCode: 1, diagnostics };
-    }
-    const parsed = parseStructureCheckSpec(text.right);
-    if (!parsed.ok) {
-      const diagnostics = [
-        diagnostic(rule, {
-          kind: "structure-file-invalid",
-          path: rule.runner.files.structure,
-          message: `Invalid Habitat structure TOML: ${parsed.message}`,
-        }),
-      ];
-      return { exitCode: 1, diagnostics };
-    }
-    return yield* evaluateStructureCheckEffect<R>(rule, parsed.spec, options);
-  });
+    return yield* Either.match(text, {
+      onLeft: () => Effect.succeed(unreadableStructureRuleResult(rule)),
+      onRight: (contents) => parsedStructureRuleEffect(rule, contents, options, cache),
+    });
+});
+
+const parsedStructureRuleEffect = Effect.fn("habitat.structure.runParsedRule")(function* (
+  rule: RuleStructureFacts,
+  contents: string,
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+  const parsed = parseStructureCheckSpec(contents);
+  return yield* Match.value(parsed).pipe(
+    Match.when({ ok: false }, ({ message }) =>
+      Effect.succeed(invalidStructureRuleResult(rule, message))
+    ),
+    Match.when({ ok: true }, ({ spec }) =>
+      evaluateStructureCheckWithCacheEffect(rule, spec, options, cache)
+    ),
+    Match.exhaustive
+  );
+});
+
+function unreadableStructureRuleResult(rule: RuleStructureFacts): RuleRunResult {
+  return invalidStructureRuleResult(
+    rule,
+    `Unable to read structure file ${rule.runner.files.structure}.`,
+    false
+  );
 }
 
-export function evaluateStructureCheckEffect<R>(
+function invalidStructureRuleResult(
+  rule: RuleStructureFacts,
+  message: string,
+  parsed = true
+): RuleRunResult {
+  const renderedMessage = Match.value(parsed).pipe(
+    Match.when(true, () => `Invalid Habitat structure TOML: ${message}`),
+    Match.orElse(() => message)
+  );
+  return {
+    exitCode: 1,
+    diagnostics: [
+      diagnostic(rule, {
+        kind: "structure-file-invalid",
+        path: rule.runner.files.structure,
+        message: renderedMessage,
+      }),
+    ],
+  };
+}
+
+export const evaluateStructureCheckEffect = Effect.fn("habitat.structure.evaluate")(function* (
   rule: RuleStructureFacts,
   spec: StructureCheckSpec,
-  options: StructureCheckOptions<R>
-): Effect.Effect<RuleRunResult, never, R> {
-  return Effect.gen(function* () {
+  options: StructureCheckOptions
+) {
+  return yield* Effect.suspend(() =>
+    evaluateStructureCheckWithCacheEffect(rule, spec, options, makeStructureTraversalCache())
+  );
+});
+
+const evaluateStructureCheckWithCacheEffect = Effect.fn("habitat.structure.evaluateWithCache")(
+  function* (
+  rule: RuleStructureFacts,
+  spec: StructureCheckSpec,
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
     const diagnostics: HabitatDiagnostic[] = [];
     for (const scope of spec.scopes) {
-      diagnostics.push(...(yield* evaluateScopeEffect<R>(rule, scope, options)));
+      diagnostics.push(...(yield* evaluateScopeEffect(rule, scope, options, cache)));
     }
-    return { exitCode: diagnostics.length > 0 ? 1 : 0, diagnostics };
-  });
-}
+    return { exitCode: exitCodeFromDiagnostics(diagnostics), diagnostics };
+  }
+);
 
-function evaluateScopeEffect<R>(
+const evaluateScopeEffect = Effect.fn("habitat.structure.evaluateScope")(function* (
   rule: RuleStructureFacts,
   scope: StructureCheckScope,
-  options: StructureCheckOptions<R>
-): Effect.Effect<HabitatDiagnostic[], never, R> {
-  return Effect.gen(function* () {
-    const diagnostics: HabitatDiagnostic[] = [];
-    const roots = yield* matchedRootsEffect<R>(scope.root, options);
-    const matchingKindRoots = roots.filter((root) => root.kind === scope.kind);
-    const wrongKindRoots = roots.filter(
-      (root) => root.kind !== "missing" && root.kind !== scope.kind
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+    const roots = yield* matchedRootsEffect(scope.root, options, cache);
+    return yield* Match.value(hasMatchedScopeRoot(roots)).pipe(
+      Match.when(false, () => Effect.succeed(missingScopeRootDiagnostics(rule, scope))),
+      Match.when(true, () => evaluateMatchedScopeEffect(rule, scope, roots, options, cache)),
+      Match.exhaustive
     );
-    if (roots.length === 0 || roots.every((root) => root.kind === "missing")) {
-      return [
-        diagnostic(rule, {
-          kind: "root-missing",
-          path: normalizeRepoPath(scope.root),
-          message: `Structure scope "${scope.name}" matched no ${scope.kind} roots for ${scope.root}.`,
-        }),
-      ];
-    }
-    for (const root of wrongKindRoots) {
-      diagnostics.push(
+});
+
+function hasMatchedScopeRoot(roots: readonly MatchedRoot[]): boolean {
+  return roots.length > 0 && roots.some((root) => root.kind !== "missing");
+}
+
+function missingScopeRootDiagnostics(
+  rule: RuleStructureFacts,
+  scope: StructureCheckScope
+): HabitatDiagnostic[] {
+  return [
+    diagnostic(rule, {
+      kind: "root-missing",
+      path: normalizeRepoPath(scope.root),
+      message: `Structure scope "${scope.name}" matched no ${scope.kind} roots for ${scope.root}.`,
+    }),
+  ];
+}
+
+const evaluateMatchedScopeEffect = Effect.fn("habitat.structure.evaluateMatchedScope")(
+  function* (
+    rule: RuleStructureFacts,
+    scope: StructureCheckScope,
+    roots: readonly MatchedRoot[],
+    options: StructureCheckOptions,
+    cache: StructureTraversalCache
+  ) {
+    const wrongKindDiagnostics = roots
+      .filter((root) => root.kind !== "missing" && root.kind !== scope.kind)
+      .map((root) =>
         diagnostic(rule, {
           kind: "wrong-root-kind",
           path: root.repoPath,
           message: `Structure scope "${scope.name}" expected ${scope.kind} root, but ${root.repoPath} is ${root.kind}.`,
         })
       );
-    }
-    for (const root of matchingKindRoots) {
-      if (scope.kind === "file") continue;
-      const children = yield* options.fileSystem
-        .readDirectory(path.resolve(options.repoRoot, root.repoPath))
-        .pipe(Effect.catchAll(() => Effect.succeed([])));
-      diagnostics.push(...evaluateDirectoryChildren(rule, scope, root.repoPath, children));
-    }
-    return diagnostics;
-  });
-}
+    const matchingDirectoryRoots = Match.value(scope.kind).pipe(
+      Match.when("file", () => []),
+      Match.when("directory", () => roots.filter((root) => root.kind === "directory")),
+      Match.exhaustive
+    );
+    const directoryDiagnostics = yield* Effect.forEach(matchingDirectoryRoots, (root) =>
+      readDirectoryCachedEffect(root.repoPath, options, cache).pipe(
+        Effect.map((children) => evaluateDirectoryChildren(rule, scope, root.repoPath, children))
+      )
+    );
+    return [...wrongKindDiagnostics, ...directoryDiagnostics.flat()];
+  }
+);
 
 function evaluateDirectoryChildren(
   rule: RuleStructureFacts,
@@ -182,108 +259,289 @@ function evaluateDirectoryChildren(
   rootPath: string,
   children: readonly HabitatDirectoryEntry[]
 ): HabitatDiagnostic[] {
-  const diagnostics: HabitatDiagnostic[] = [];
   const required = scope.required ?? [];
   const allowed = scope.allowed ?? [];
   const forbidden = scope.forbidden ?? [];
   const requiredMatchers = matchers(required);
   const allowedMatchers = matchers([...required, ...allowed]);
   const forbiddenMatchers = matchers(forbidden);
+  const missingRequiredDiagnostics = required
+    .filter(
+      (pattern) =>
+        !children.some((child) => matchesName(child.name, requiredMatchers, pattern))
+    )
+    .map((pattern) =>
+      diagnostic(rule, {
+        kind: "missing-required-child",
+        path: rootPath,
+        message: `Structure scope "${scope.name}" requires direct child ${pattern} under ${rootPath}.`,
+      })
+    );
+  const childDiagnostics = children.flatMap((child) =>
+    evaluateDirectoryChild(rule, scope, rootPath, child, forbiddenMatchers, allowedMatchers)
+  );
 
-  for (const pattern of required) {
-    const matches = children.filter((child) => matchesName(child.name, requiredMatchers, pattern));
-    if (matches.length === 0) {
-      diagnostics.push(
-        diagnostic(rule, {
-          kind: "missing-required-child",
-          path: rootPath,
-          message: `Structure scope "${scope.name}" requires direct child ${pattern} under ${rootPath}.`,
-        })
-      );
-    }
-  }
-
-  for (const child of children) {
-    const forbiddenPattern = firstMatchingPattern(child.name, forbiddenMatchers);
-    if (forbiddenPattern) {
-      diagnostics.push(
-        diagnostic(rule, {
-          kind: "forbidden-child",
-          path: `${rootPath}/${child.name}`,
-          message: `Structure scope "${scope.name}" forbids direct child ${child.name} under ${rootPath} via ${forbiddenPattern}.`,
-        })
-      );
-      continue;
-    }
-    if (scope.mode === "closed" && !firstMatchingPattern(child.name, allowedMatchers)) {
-      diagnostics.push(
-        diagnostic(rule, {
-          kind: "unexpected-child",
-          path: `${rootPath}/${child.name}`,
-          message: `Structure scope "${scope.name}" is closed and does not allow direct child ${child.name} under ${rootPath}.`,
-        })
-      );
-    }
-  }
-
-  return diagnostics;
+  return [...missingRequiredDiagnostics, ...childDiagnostics];
 }
 
-function matchedRootsEffect<R>(
+function evaluateDirectoryChild(
+  rule: RuleStructureFacts,
+  scope: StructureCheckScope,
+  rootPath: string,
+  child: HabitatDirectoryEntry,
+  forbiddenMatchers: ReadonlyMap<string, (candidate: string) => boolean>,
+  allowedMatchers: ReadonlyMap<string, (candidate: string) => boolean>
+): HabitatDiagnostic[] {
+  return Match.value(firstMatchingPattern(child.name, forbiddenMatchers)).pipe(
+    Match.when(Match.string, (forbiddenPattern) => [
+      diagnostic(rule, {
+        kind: "forbidden-child",
+        path: `${rootPath}/${child.name}`,
+        message: `Structure scope "${scope.name}" forbids direct child ${child.name} under ${rootPath} via ${forbiddenPattern}.`,
+      }),
+    ]),
+    Match.when(Match.undefined, () =>
+      unexpectedDirectoryChildDiagnostics(rule, scope, rootPath, child, allowedMatchers)
+    ),
+    Match.exhaustive
+  );
+}
+
+function unexpectedDirectoryChildDiagnostics(
+  rule: RuleStructureFacts,
+  scope: StructureCheckScope,
+  rootPath: string,
+  child: HabitatDirectoryEntry,
+  allowedMatchers: ReadonlyMap<string, (candidate: string) => boolean>
+): HabitatDiagnostic[] {
+  const isUnexpected =
+    scope.mode === "closed" && firstMatchingPattern(child.name, allowedMatchers) === undefined;
+  return Match.value(isUnexpected).pipe(
+    Match.when(true, () => [
+      diagnostic(rule, {
+        kind: "unexpected-child",
+        path: `${rootPath}/${child.name}`,
+        message: `Structure scope "${scope.name}" is closed and does not allow direct child ${child.name} under ${rootPath}.`,
+      }),
+    ]),
+    Match.when(false, () => []),
+    Match.exhaustive
+  );
+}
+
+function exitCodeFromDiagnostics(diagnostics: readonly HabitatDiagnostic[]): number {
+  return Match.value(diagnostics.length).pipe(
+    Match.when(0, () => 0),
+    Match.orElse(() => 1)
+  );
+}
+
+const matchedRootsEffect = Effect.fn("habitat.structure.matchRoots")(function* (
   rootGlob: string,
-  options: StructureCheckOptions<R>
-): Effect.Effect<MatchedRoot[], never, R> {
-  return Effect.gen(function* () {
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
     const normalizedRoot = normalizeRepoPath(rootGlob);
-    const isGlob = hasGlobSyntax(normalizedRoot);
-    if (!isGlob) {
-      const kind = yield* pathKindEffect<R>(normalizedRoot, options);
-      return kind === "missing" ? [] : [{ repoPath: normalizedRoot, kind }];
-    }
-    const base = literalWalkBase(normalizedRoot);
-    const baseKind = yield* pathKindEffect<R>(base, options);
-    if (baseKind === "missing") return [];
-    const candidates = yield* walkRepoPathsEffect<R>(base, options);
-    const rootMatches = picomatch(normalizedRoot, { contains: false, dot: true });
-    return candidates.filter((candidate) => rootMatches(candidate.repoPath));
-  });
-}
+    return yield* Match.value(hasGlobSyntax(normalizedRoot)).pipe(
+      Match.when(false, () => literalMatchedRootEffect(normalizedRoot, options, cache)),
+      Match.when(true, () => globMatchedRootsEffect(normalizedRoot, options, cache)),
+      Match.exhaustive
+    );
+});
 
-function walkRepoPathsEffect<R>(
+const literalMatchedRootEffect = Effect.fn("habitat.structure.matchLiteralRoot")(function* (
   repoPath: string,
-  options: StructureCheckOptions<R>
-): Effect.Effect<MatchedRoot[], never, R> {
-  return Effect.gen(function* () {
-    const kind = yield* pathKindEffect<R>(repoPath, options);
-    if (kind === "missing") return [];
-    const out: MatchedRoot[] = [{ repoPath, kind }];
-    if (kind !== "directory") return out;
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+  const kind = yield* pathKindEffect(repoPath, options, cache);
+  return Match.value(kind).pipe(
+    Match.when("missing", () => []),
+    Match.orElse((matchedKind) => [{ repoPath, kind: matchedKind }])
+  );
+});
+
+const globMatchedRootsEffect = Effect.fn("habitat.structure.matchGlobRoots")(function* (
+  rootGlob: string,
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+  const candidates = yield* walkRepoPathsEffect(literalWalkBase(rootGlob), options, cache);
+  const rootMatches = picomatch(rootGlob, { contains: false, dot: true });
+  return candidates.filter((candidate) => rootMatches(candidate.repoPath));
+});
+
+const walkRepoPathsEffect = Effect.fn("habitat.structure.walkRepoPaths")(function* (
+  repoPath: string,
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+  return yield* Match.value(cache.walksByLiteralBase.get(repoPath)).pipe(
+    Match.when(Match.undefined, () => walkUncachedRepoPathsEffect(repoPath, options, cache)),
+    Match.orElse((cached) => Effect.succeed(cached))
+  );
+});
+
+const walkUncachedRepoPathsEffect = Effect.fn("habitat.structure.walkUncachedRepoPaths")(
+  function* (repoPath: string, options: StructureCheckOptions, cache: StructureTraversalCache) {
+    const kind = yield* pathKindEffect(repoPath, options, cache);
+    return yield* Match.value(kind).pipe(
+      Match.when("missing", () => cacheMissingWalkEffect(repoPath, cache)),
+      Match.orElse((matchedKind) =>
+        completeRepoWalkEffect(repoPath, matchedKind, options, cache)
+      )
+    );
+  }
+);
+
+const cacheMissingWalkEffect = Effect.fn("habitat.structure.cacheMissingWalk")(function* (
+  repoPath: string,
+  cache: StructureTraversalCache
+) {
+  const missingWalk: readonly MatchedRoot[] = [];
+  cache.walksByLiteralBase.set(repoPath, missingWalk);
+  return missingWalk;
+});
+
+const completeRepoWalkEffect = Effect.fn("habitat.structure.completeRepoWalk")(function* (
+  repoPath: string,
+  kind: Exclude<MatchedRoot["kind"], "missing">,
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+  const out: MatchedRoot[] = [{ repoPath, kind }];
+  const appendDescendants = appendDescendantPathsEffect(repoPath, options, cache, out);
+  yield* appendDescendants.pipe(Effect.when(() => kind === "directory"));
+  const completedWalk: readonly MatchedRoot[] = out;
+  cache.walksByLiteralBase.set(repoPath, completedWalk);
+  return completedWalk;
+});
+
+const appendDescendantPathsEffect = Effect.fn("habitat.structure.appendDescendantPaths")(
+  function* (
+    repoPath: string,
+    options: StructureCheckOptions,
+    cache: StructureTraversalCache,
+    out: MatchedRoot[]
+  ): Effect.fn.Return<void, never, FileSystem.FileSystem> {
+    const children = yield* readDirectoryCachedEffect(repoPath, options, cache);
+    yield* Effect.forEach(
+      children,
+      (child) => appendDescendantPathEffect(repoPath, child, options, cache, out),
+      { discard: true }
+    );
+  }
+);
+
+const appendDescendantPathEffect = Effect.fn("habitat.structure.appendDescendantPath")(
+  function* (
+    repoPath: string,
+    child: HabitatDirectoryEntry,
+    options: StructureCheckOptions,
+    cache: StructureTraversalCache,
+    out: MatchedRoot[]
+  ): Effect.fn.Return<void, never, FileSystem.FileSystem> {
+    const { name, kind } = child;
+    const childRepoPath = `${repoPath}/${name}`;
+    yield* cacheListedPathKindEffect(childRepoPath, kind, cache);
+    out.push({ repoPath: childRepoPath, kind });
+    const appendDescendants = appendDescendantPathsEffect(childRepoPath, options, cache, out);
+    yield* appendDescendants.pipe(Effect.when(() => kind === "directory"));
+  }
+);
+
+const cacheListedPathKindEffect = Effect.fn("habitat.structure.cacheListedPathKind")(function* (
+  repoPath: string,
+  kind: HabitatDirectoryEntry["kind"],
+  cache: StructureTraversalCache
+) {
+  const shouldCache = kind !== "other" && !cache.kindsByRepoPath.has(repoPath);
+  const cacheKind = cachePathKindEffect(repoPath, kind, cache);
+  yield* cacheKind.pipe(Effect.when(() => shouldCache));
+});
+
+const readDirectoryCachedEffect = Effect.fn("habitat.structure.readDirectoryCached")(function* (
+  repoPath: string,
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+  return yield* Match.value(cache.childrenByRepoPath.get(repoPath)).pipe(
+    Match.when(Match.undefined, () => readUncachedDirectoryEffect(repoPath, options, cache)),
+    Match.orElse((cached) => Effect.succeed(cached))
+  );
+});
+
+const readUncachedDirectoryEffect = Effect.fn("habitat.structure.readUncachedDirectory")(
+  function* (
+    repoPath: string,
+    options: StructureCheckOptions,
+    cache: StructureTraversalCache
+  ) {
     const children = yield* options.fileSystem
       .readDirectory(path.resolve(options.repoRoot, repoPath))
       .pipe(Effect.catchAll(() => Effect.succeed([])));
-    for (const child of children) {
-      out.push(...(yield* walkRepoPathsEffect<R>(`${repoPath}/${child.name}`, options)));
-    }
-    return out;
-  });
-}
+    cache.childrenByRepoPath.set(repoPath, children);
+    return children;
+  }
+);
 
-function pathKindEffect<R>(
+const pathKindEffect = Effect.fn("habitat.structure.pathKind")(function* (
   repoPath: string,
-  options: StructureCheckOptions<R>
-): Effect.Effect<MatchedRoot["kind"], never, R> {
-  return Effect.gen(function* () {
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+  return yield* Match.value(cache.kindsByRepoPath.get(repoPath)).pipe(
+    Match.when(Match.undefined, () => readUncachedPathKindEffect(repoPath, options, cache)),
+    Match.orElse((cached) => Effect.succeed(cached))
+  );
+});
+
+const readUncachedPathKindEffect = Effect.fn("habitat.structure.readUncachedPathKind")(
+  function* (repoPath: string, options: StructureCheckOptions, cache: StructureTraversalCache) {
     const absolute = path.resolve(options.repoRoot, repoPath);
     const isDirectory = yield* options.fileSystem
       .isDirectory(absolute)
       .pipe(Effect.catchAll(() => Effect.succeed(false)));
-    if (isDirectory) return "directory" as const;
-    const isFile = yield* options.fileSystem
-      .isFile(absolute)
-      .pipe(Effect.catchAll(() => Effect.succeed(false)));
-    if (isFile) return "file" as const;
-    return "missing" as const;
-  });
+    return yield* Match.value(isDirectory).pipe(
+      Match.when(true, () => cachePathKindEffect(repoPath, "directory", cache)),
+      Match.when(false, () => readFilePathKindEffect(repoPath, absolute, options, cache)),
+      Match.exhaustive
+    );
+  }
+);
+
+const readFilePathKindEffect = Effect.fn("habitat.structure.readFilePathKind")(function* (
+  repoPath: string,
+  absolute: string,
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+  const isFile = yield* options.fileSystem
+    .isFile(absolute)
+    .pipe(Effect.catchAll(() => Effect.succeed(false)));
+  const kind: "file" | "missing" = Match.value(isFile).pipe(
+    Match.when(true, (): "file" => "file"),
+    Match.when(false, (): "missing" => "missing"),
+    Match.exhaustive
+  );
+  return yield* cachePathKindEffect(repoPath, kind, cache);
+});
+
+const cachePathKindEffect = Effect.fn("habitat.structure.cachePathKind")(function* (
+  repoPath: string,
+  kind: MatchedRoot["kind"],
+  cache: StructureTraversalCache
+) {
+  cache.kindsByRepoPath.set(repoPath, kind);
+  return kind;
+});
+
+function makeStructureTraversalCache(): StructureTraversalCache {
+  return {
+    kindsByRepoPath: new Map(),
+    childrenByRepoPath: new Map(),
+    walksByLiteralBase: new Map(),
+  };
 }
 
 function matchers(patterns: readonly string[]): Map<string, (candidate: string) => boolean> {
@@ -304,10 +562,7 @@ function firstMatchingPattern(
   name: string,
   candidates: ReadonlyMap<string, (candidate: string) => boolean>
 ): string | undefined {
-  for (const [pattern, matches] of candidates) {
-    if (matches(name)) return pattern;
-  }
-  return undefined;
+  return [...candidates].find(([, matches]) => matches(name))?.[0];
 }
 
 function diagnostic(
@@ -318,22 +573,35 @@ function diagnostic(
     readonly message: string;
   }
 ): HabitatDiagnostic {
+  const severity = Match.value(rule.lane).pipe(
+    Match.when("advisory", () => "advisory" as const),
+    Match.orElse(() => "error" as const)
+  );
   return {
     ruleId: rule.id,
     path: input.path,
     message: `[${input.kind}] ${input.message}`,
-    severity: rule.lane === "advisory" ? "advisory" : "error",
+    severity,
     baselined: false,
   };
 }
 
 function literalWalkBase(rootGlob: string): string {
   const firstMagic = rootGlob.search(/[*?[{(!+@]/u);
-  if (firstMagic === -1) return rootGlob;
+  return Match.value(firstMagic).pipe(
+    Match.when(-1, () => rootGlob),
+    Match.orElse((magicIndex) => literalWalkBaseFromMagicIndex(rootGlob, magicIndex))
+  );
+}
+
+function literalWalkBaseFromMagicIndex(rootGlob: string, firstMagic: number): string {
   const literalPrefix = rootGlob.slice(0, firstMagic);
   const lastSlash = literalPrefix.lastIndexOf("/");
-  if (lastSlash <= 0) return ".";
-  return literalPrefix.slice(0, lastSlash);
+  return Match.value(lastSlash <= 0).pipe(
+    Match.when(true, () => "."),
+    Match.when(false, () => literalPrefix.slice(0, lastSlash)),
+    Match.exhaustive
+  );
 }
 
 function hasGlobSyntax(candidate: string): boolean {
@@ -342,5 +610,8 @@ function hasGlobSyntax(candidate: string): boolean {
 
 function normalizeRepoPath(candidate: string): string {
   const normalized = path.normalize(candidate).split(path.sep).join("/");
-  return normalized === "." ? "" : normalized.replace(/^\.\//, "");
+  return Match.value(normalized).pipe(
+    Match.when(".", () => ""),
+    Match.orElse((repoPath) => repoPath.replace(/^\.\//, ""))
+  );
 }

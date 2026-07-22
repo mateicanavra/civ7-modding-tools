@@ -1,5 +1,8 @@
 import path from "node:path";
-import type { RuleDiagnosticExecutionResult } from "@habitat/cli/resources/rule-diagnostics/resource";
+import type {
+  RuleDiagnosticExecutionResult,
+  RuleDiagnosticExecutionTiming,
+} from "@habitat/cli/resources/rule-diagnostics/resource";
 import {
   diagnosticProviderFailureDiagnostic,
   renderDiagnosticScanRootRefusal,
@@ -7,7 +10,7 @@ import {
 import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Clock, Effect, Match, Option } from "effect";
 import { runGritApplyDryRunAcquisitionEffect } from "./apply-dry-run.js";
-import { runGritCheckAcquisitionEffect } from "./check.js";
+import { runGritCheckAcquisitionEffect, runGritCheckAcquisitionsEffect } from "./check.js";
 import type { GritCommandService } from "./command.js";
 import {
   gritDiagnosticOutcomesFromReport,
@@ -42,14 +45,35 @@ export const runGritDiagnosticOutcomesEffect = Effect.fn("grit.diagnosticOutcome
 ) {
   const executions = yield* runGritDiagnosticExecutionsEffect(selectedRules, options);
   return new Map(
-    [...executions].map(([ruleId, execution]) => [ruleId, execution.outcome] as const)
+    selectedRules.map((rule) => [rule.id, executions.get(rule.id)?.outcome ?? missingOutcome(rule)])
   );
 });
 
 interface GritDiagnosticExecution {
   readonly outcome: DiagnosticRunOutcome;
   readonly durationMs: number;
+  readonly timing?: RuleDiagnosticExecutionTiming;
 }
+
+function selectedRuleExecutionEntry(
+  rule: RuleGritFacts,
+  executions: ReadonlyMap<string, GritDiagnosticExecution>
+): readonly [string, GritDiagnosticExecution] {
+  const execution = Option.getOrElse(Option.fromNullable(executions.get(rule.id)), () => ({
+    outcome: missingOutcome(rule),
+    durationMs: 0,
+  }));
+  return [rule.id, execution];
+}
+
+type ExecuteGritPlan = Extract<PlannedGritRule, { kind: "execute" }>;
+type CheckGritPlan = ExecuteGritPlan & {
+  readonly rule: RuleGritFacts & { readonly diagnosticAcquisition: { readonly kind: "check" } };
+};
+
+type GritExecutionUnit =
+  | { readonly kind: "check-group"; readonly plans: readonly [CheckGritPlan, ...CheckGritPlan[]] }
+  | { readonly kind: "single"; readonly plan: PlannedGritRule };
 
 const runGritDiagnosticExecutionsEffect = Effect.fn("grit.diagnosticExecutions.run")(function* (
   selectedRules: readonly RuleGritFacts[],
@@ -59,11 +83,221 @@ const runGritDiagnosticExecutionsEffect = Effect.fn("grit.diagnosticExecutions.r
     repoRoot: options.repoRoot,
     scanRoots: options.scanRoots,
   });
-  const executions = yield* Effect.forEach(plans, (plan) => executeTimedPlanEffect(plan, options), {
-    concurrency: 2,
-  });
-  return new Map(executions.map((execution) => [execution.outcome.ruleId, execution]));
+  const executions = yield* Effect.forEach(
+    executionUnits(plans),
+    (unit) => executeUnitEffect(unit, options),
+    { concurrency: 1 }
+  );
+  const executionByRuleId = new Map(
+    executions.flat().map((execution) => [execution.outcome.ruleId, execution])
+  );
+  return new Map(selectedRules.map((rule) => selectedRuleExecutionEntry(rule, executionByRuleId)));
 });
+
+const executeUnitEffect = Effect.fn("grit.executionUnit.execute")(function* (
+  unit: GritExecutionUnit,
+  options: GritRunOptions
+) {
+  return yield* Match.value(unit).pipe(
+    Match.when({ kind: "check-group" }, ({ plans }) =>
+      executeTimedCheckGroupEffect(plans, options)
+    ),
+    Match.when({ kind: "single" }, ({ plan }) => executeSingleUnitEffect(plan, options)),
+    Match.exhaustive
+  );
+});
+
+const executeSingleUnitEffect = Effect.fn("grit.singleExecutionUnit.execute")(function* (
+  plan: PlannedGritRule,
+  options: GritRunOptions
+) {
+  const execution = yield* executeTimedPlanEffect(plan, options);
+  return [execution];
+});
+
+const executeTimedCheckGroupEffect = Effect.fn("grit.checkGroup.executeTimed")(function* (
+  plans: readonly [CheckGritPlan, ...CheckGritPlan[]],
+  options: GritRunOptions
+) {
+  const started = yield* Clock.currentTimeMillis;
+  const canonicalOptions = { ...options, repoRoot: plans[0].repoRoot };
+  const batch = yield* runGritCheckAcquisitionsEffect(
+    checkGroupRules(plans),
+    plans[0].roots,
+    canonicalOptions
+  ).pipe(Effect.scoped);
+  const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
+  const admittedPlans = plans.filter((plan) => batch.admittedRuleIds.has(plan.rule.id));
+  const timing = sharedCheckTiming(admittedPlans, durationMs);
+  const observedRules = plans.flatMap((plan) =>
+    observedCheckRuleEntry(plan, batch.acquisitions.get(plan.rule.id))
+  );
+  const projected = Option.match(Option.fromNullable(observedRules[0]), {
+    onNone: () => new Map<string, DiagnosticRunOutcome>(),
+    onSome: (firstObservation) =>
+      gritDiagnosticOutcomesFromReport(
+        observedRules.map(({ rule }) => rule),
+        firstObservation.report,
+        { repoRoot: canonicalOptions.repoRoot }
+      ),
+  });
+  return plans.map((plan) =>
+    checkGroupExecution(
+      plan,
+      batch.acquisitions,
+      projected,
+      canonicalOptions.repoRoot,
+      durationMs,
+      timing,
+      batch.admittedRuleIds.has(plan.rule.id)
+    )
+  );
+});
+
+function sharedCheckTiming(
+  plans: readonly CheckGritPlan[],
+  durationMs: number
+): RuleDiagnosticExecutionTiming | undefined {
+  return Match.value(plans.length).pipe(
+    Match.when(1, () => undefined),
+    Match.orElse(() => ({
+      kind: "shared" as const,
+      groupId: `rule-diagnostics:${plans.map(({ rule }) => rule.id).join(",")}`,
+      durationMs,
+      ruleCount: plans.length,
+    }))
+  );
+}
+
+function checkGroupExecution(
+  plan: CheckGritPlan,
+  acquisitions: ReadonlyMap<string, GritDiagnosticAcquisition>,
+  projected: ReadonlyMap<string, DiagnosticRunOutcome>,
+  repoRoot: string,
+  durationMs: number,
+  timing: RuleDiagnosticExecutionTiming | undefined,
+  admitted: boolean
+): GritDiagnosticExecution {
+  const fallback = Option.match(Option.fromNullable(acquisitions.get(plan.rule.id)), {
+    onNone: () => missingOutcome(plan.rule),
+    onSome: (acquisition) => outcomeFromAcquisition(plan.rule, acquisition, repoRoot),
+  });
+  const outcome = Option.getOrElse(
+    Option.fromNullable(projected.get(plan.rule.id)),
+    () => fallback
+  );
+  const measurement = Match.value(admitted).pipe(
+    Match.when(true, () => ({ durationMs, ...optionalTiming(timing) })),
+    Match.orElse(() => ({ durationMs: 0 }))
+  );
+  return { outcome, ...measurement };
+}
+
+function optionalTiming(timing: RuleDiagnosticExecutionTiming | undefined) {
+  return Match.value(timing).pipe(
+    Match.when(undefined, () => ({})),
+    Match.orElse((shared) => ({ timing: shared }))
+  );
+}
+
+function observedCheckRuleEntry(
+  plan: CheckGritPlan,
+  acquisition: GritDiagnosticAcquisition | undefined
+) {
+  return Match.value(acquisition).pipe(
+    Match.when({ kind: "observed-complete", observation: { kind: "check" } }, ({ observation }) => [
+      { rule: plan.rule, report: observation.report },
+    ]),
+    Match.orElse(() => [])
+  );
+}
+
+function checkGroupRules(
+  plans: readonly [CheckGritPlan, ...CheckGritPlan[]]
+): readonly [RuleGritFacts, ...RuleGritFacts[]] {
+  const [first, ...rest] = plans;
+  return [first.rule, ...rest.map(({ rule }) => rule)];
+}
+
+function executionUnits(plans: readonly PlannedGritRule[]): readonly GritExecutionUnit[] {
+  const checkPlans = plans.filter(isCheckPlan);
+  const patternCounts = new Map<string, number>();
+  for (const plan of checkPlans) {
+    const key = plan.rule.patternName;
+    patternCounts.set(key, (patternCounts.get(key) ?? 0) + 1);
+  }
+  const groups = new Map<string, CheckGritPlan[]>();
+  for (const plan of checkPlans) {
+    if ((patternCounts.get(plan.rule.patternName) ?? 0) > 1) continue;
+    const key = rootsKey(plan.roots);
+    groups.set(key, [...(groups.get(key) ?? []), plan]);
+  }
+  const emittedGroups = new Set<string>();
+  return plans.flatMap((plan) => planExecutionUnits(plan, patternCounts, groups, emittedGroups));
+}
+
+function planExecutionUnits(
+  plan: PlannedGritRule,
+  patternCounts: ReadonlyMap<string, number>,
+  groups: ReadonlyMap<string, readonly CheckGritPlan[]>,
+  emittedGroups: Set<string>
+): readonly GritExecutionUnit[] {
+  return Option.match(Option.liftPredicate(plan, isCheckPlan), {
+    onNone: () => singleExecutionUnit(plan),
+    onSome: (checkPlan) => checkPlanExecutionUnits(checkPlan, patternCounts, groups, emittedGroups),
+  });
+}
+
+function checkPlanExecutionUnits(
+  plan: CheckGritPlan,
+  patternCounts: ReadonlyMap<string, number>,
+  groups: ReadonlyMap<string, readonly CheckGritPlan[]>,
+  emittedGroups: Set<string>
+): readonly GritExecutionUnit[] {
+  const duplicatedPattern = (patternCounts.get(plan.rule.patternName) ?? 0) > 1;
+  return Match.value(duplicatedPattern).pipe(
+    Match.when(true, () => singleExecutionUnit(plan)),
+    Match.orElse(() => groupedCheckExecutionUnits(plan, groups, emittedGroups))
+  );
+}
+
+function groupedCheckExecutionUnits(
+  plan: CheckGritPlan,
+  groups: ReadonlyMap<string, readonly CheckGritPlan[]>,
+  emittedGroups: Set<string>
+): readonly GritExecutionUnit[] {
+  const key = rootsKey(plan.roots);
+  return Match.value(emittedGroups.has(key)).pipe(
+    Match.when(true, () => []),
+    Match.orElse(() => emitCheckGroupExecutionUnit(key, plan, groups, emittedGroups))
+  );
+}
+
+function emitCheckGroupExecutionUnit(
+  key: string,
+  plan: CheckGritPlan,
+  groups: ReadonlyMap<string, readonly CheckGritPlan[]>,
+  emittedGroups: Set<string>
+): readonly GritExecutionUnit[] {
+  emittedGroups.add(key);
+  const [first, ...rest] = groups.get(key) ?? [];
+  return Option.match(Option.fromNullable(first), {
+    onNone: () => singleExecutionUnit(plan),
+    onSome: (head) => [{ kind: "check-group", plans: [head, ...rest] }],
+  });
+}
+
+function singleExecutionUnit(plan: PlannedGritRule): readonly GritExecutionUnit[] {
+  return [{ kind: "single", plan }];
+}
+
+function isCheckPlan(plan: PlannedGritRule): plan is CheckGritPlan {
+  return plan.kind === "execute" && plan.rule.diagnosticAcquisition.kind === "check";
+}
+
+function rootsKey(roots: readonly string[]): string {
+  return roots.join("\u0000");
+}
 
 const executeTimedPlanEffect = Effect.fn("grit.plan.executeTimed")(function* (
   plan: PlannedGritRule,
@@ -315,55 +549,63 @@ function ruleDiagnosticExecutionFromOutcome(
   rule: RuleGritFacts,
   execution: GritDiagnosticExecution
 ): RuleDiagnosticExecutionResult {
-  const { outcome, durationMs } = execution;
+  const { outcome } = execution;
+  const measurement = diagnosticExecutionMeasurement(execution);
   return Match.value(outcome).pipe(
     Match.when({ kind: "not-applicable" }, ({ reason }) => ({
       kind: "not-applicable" as const,
       reason,
-      durationMs,
+      ...measurement,
     })),
     Match.when({ kind: "scan-root-refused" }, ({ decision, detail }) => ({
       kind: "refused" as const,
       decision,
       detail,
-      durationMs,
+      ...measurement,
     })),
     Match.when({ kind: "provider-failed" }, ({ failure, detail }) =>
-      failedRuleDiagnosticExecution(rule, failure, detail, durationMs)
+      failedRuleDiagnosticExecution(rule, failure, detail, execution)
     ),
     Match.when({ kind: "unexpected-diagnostic-identity" }, ({ unexpectedIdentity }) =>
       failedRuleDiagnosticExecution(
         rule,
         "DiagnosticUnexpectedIdentity",
         renderUnexpectedObservedGritIdentity(unexpectedIdentity),
-        durationMs
+        execution
       )
     ),
     Match.when({ kind: "clean" }, () => ({
       kind: "executed" as const,
       result: ruleRunResultFromDiagnosticOutcome(rule, outcome),
-      durationMs,
+      ...measurement,
     })),
     Match.when({ kind: "findings" }, () => ({
       kind: "executed" as const,
       result: ruleRunResultFromDiagnosticOutcome(rule, outcome),
-      durationMs,
+      ...measurement,
     })),
     Match.exhaustive
   );
+}
+
+function diagnosticExecutionMeasurement(execution: GritDiagnosticExecution) {
+  return {
+    durationMs: execution.durationMs,
+    ...optionalTiming(execution.timing),
+  };
 }
 
 function failedRuleDiagnosticExecution(
   rule: RuleGritFacts,
   failure: Extract<RuleDiagnosticExecutionResult, { kind: "failed" }>["failure"],
   detail: string,
-  durationMs: number
+  execution: GritDiagnosticExecution
 ): Extract<RuleDiagnosticExecutionResult, { kind: "failed" }> {
   return {
     kind: "failed",
     failure,
     detail,
     diagnostics: [diagnosticProviderFailureDiagnostic(rule, failure, detail)],
-    durationMs,
+    ...diagnosticExecutionMeasurement(execution),
   };
 }

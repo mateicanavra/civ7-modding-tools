@@ -21,7 +21,7 @@ export interface HabitatServiceContext {
 }
 
 export interface HabitatServiceSharedContext extends HabitatServiceContext {
-  readonly structuralCheck: StructuralExecutionContext<FileSystem.FileSystem>;
+  readonly structuralCheck: StructuralExecutionContext;
 }
 
 export interface HabitatServiceDeps {

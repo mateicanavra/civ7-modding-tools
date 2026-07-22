@@ -73,7 +73,7 @@ const standaloneCheckProgram = Effect.fn("habitat.standalone.check.program")(fun
     readText: platform.readText,
     writeText: platform.writeText,
   };
-  const context: StructuralExecutionContext<FileSystem.FileSystem> = {
+  const context: StructuralExecutionContext = {
     baselineFileSystem,
     repoRoot: request.repoRoot,
     biome,

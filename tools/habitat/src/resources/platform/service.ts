@@ -36,6 +36,14 @@ export interface HabitatPlatformService {
   readonly writeText: typeof writeText;
 }
 
+/** Read-only filesystem capability used by structural policies without exposing platform assembly. */
+export type HabitatFileSystemReadPort = Pick<
+  HabitatPlatformService,
+  "isDirectory" | "readDirectory" | "readText"
+> & {
+  readonly isFile: HabitatPlatformService["isFileEffect"];
+};
+
 export class HabitatPlatform extends Context.Tag("@habitat/cli/HabitatPlatform")<
   HabitatPlatform,
   HabitatPlatformService
@@ -70,7 +78,7 @@ export function makeHabitatPlatformLayer(
   input: { readonly repoRoot: string; readonly env?: Record<string, string | undefined> } = {
     repoRoot,
   }
-): Layer.Layer<HabitatPlatform> {
+) {
   return Layer.succeed(HabitatPlatform, makeHabitatPlatformService(input));
 }
 

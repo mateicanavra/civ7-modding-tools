@@ -1,4 +1,4 @@
-import { Data } from "effect";
+import { Data, Match } from "effect";
 import { Value } from "typebox/value";
 import {
   type ScaffoldingRefusalReason,
@@ -32,7 +32,10 @@ export function productAuthoringRefusal(input: {
   surface: "project" | "pattern";
   fields: readonly string[];
 }): ScaffoldRefusal {
-  const fields = input.fields.length > 0 ? input.fields.join(", ") : "unknown";
+  const fields = Match.value(input.fields.length).pipe(
+    Match.when(0, () => "unknown"),
+    Match.orElse(() => input.fields.join(", "))
+  );
   return scaffoldRefusal({
     blockedAction: `${input.surface} scaffold product authoring fields '${fields}'`,
     requestClass: "unsupported-product-authoring",

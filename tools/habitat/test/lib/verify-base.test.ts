@@ -1,7 +1,7 @@
 import { makeGitProviderFromCommandHandler } from "@habitat/cli/providers/git/index";
 import { captureOutput, makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
 import { resolveVerifyBaseEffect } from "@habitat/cli/service/modules/verify/model/index";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import { describe, expect, test } from "vitest";
 
 describe("verify base resolution", () => {
@@ -32,12 +32,11 @@ describe("verify base resolution", () => {
 
 function resolveBase(base?: string, options: { graphiteExitCode?: number } = {}) {
   const git = makeGitProviderFromCommandHandler((argv, runOptions) => {
-    const stdout =
-      argv[0] === "symbolic-ref"
-        ? "origin/main\n"
-        : argv[0] === "merge-base"
-          ? "merge-base-sha\n"
-          : "";
+    const stdout = Match.value(argv[0]).pipe(
+      Match.when("symbolic-ref", () => "origin/main\n"),
+      Match.when("merge-base", () => "merge-base-sha\n"),
+      Match.orElse(() => "")
+    );
     return makeHabitatCommandResult(
       {
         commandId: `git-${argv.join("-")}`,
@@ -54,13 +53,13 @@ function resolveBase(base?: string, options: { graphiteExitCode?: number } = {})
       }
     );
   });
+  const parent = Match.value(options.graphiteExitCode).pipe(
+    Match.when(0, () => "agent-parent"),
+    Match.when(Match.undefined, () => "agent-parent"),
+    Match.orElse(() => null)
+  );
   const graphite = {
-    parent: () =>
-      Effect.succeed(
-        options.graphiteExitCode === 0 || options.graphiteExitCode === undefined
-          ? "agent-parent"
-          : null
-      ),
+    parent: () => Effect.succeed(parent),
   };
   return Effect.runPromise(resolveVerifyBaseEffect({ git, graphite, repoRoot: "/repo" }, base));
 }

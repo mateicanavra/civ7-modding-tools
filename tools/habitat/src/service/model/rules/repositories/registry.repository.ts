@@ -1,16 +1,23 @@
 import path from "node:path";
-import { Data, Effect } from "effect";
-import type { TSchema } from "typebox";
+import type { FileSystem } from "@effect/platform";
+import type { FileReadFailed } from "@habitat/cli/resources/errors/index";
+import type {
+  HabitatDirectoryEntry,
+  HabitatFileSystemReadPort,
+} from "@habitat/cli/resources/platform/index";
+import { Data, Effect, Either, Match, Record as R, Schema } from "effect";
+import { type Static, type TSchema } from "typebox";
 import { Value } from "typebox/value";
 import type {
   RuleRegistryDocument,
-  RuleRegistryIndex,
   RuleRegistryRecord,
+  RuleRegistryRecordInput,
 } from "../dto/registry.schema.ts";
 import {
   RuleRegistryDocumentSchema,
   RuleRegistryIndexSchema,
   RuleRegistryRecordInputSchema,
+  RuleRegistryRecordSchema,
 } from "../dto/registry.schema.ts";
 
 export type RuleRegistryIssueCode =
@@ -29,18 +36,12 @@ export type RuleRegistryParseResult =
   | { ok: true; document: RuleRegistryDocument }
   | { ok: false; issues: RuleRegistryIssue[] };
 
-export interface RuleRegistryDirectoryEntry {
-  readonly name: string;
-  readonly kind: "directory" | "file" | "other";
-}
+export type RuleRegistryDirectoryEntry = HabitatDirectoryEntry;
 
-export interface RuleRegistryFileSystem<R = never> {
-  readonly isDirectory: (registryPath: string) => Effect.Effect<boolean, unknown, R>;
-  readonly readDirectory: (
-    registryPath: string
-  ) => Effect.Effect<readonly RuleRegistryDirectoryEntry[], unknown, R>;
-  readonly readText: (registryPath: string) => Effect.Effect<string, unknown, R>;
-}
+export type RuleRegistryFileSystem = Pick<
+  HabitatFileSystemReadPort,
+  "isDirectory" | "readDirectory" | "readText"
+>;
 
 export interface RuleRegistrySyncFileSystem {
   readonly isDirectory: (registryPath: string) => boolean;
@@ -61,27 +62,34 @@ export class RuleRegistryLoadFailed extends Data.TaggedError("RuleRegistryLoadFa
   }
 }
 
+const decodeJsonText = Schema.decodeUnknownEither(Schema.parseJson());
+
 export function parseRuleRegistryText(
   text: string,
   sourcePath = "rules.json"
 ): RuleRegistryParseResult {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(text) as unknown;
-  } catch (error) {
-    return {
-      ok: false,
-      issues: [
-        {
-          code: "registry-json-invalid",
-          path: sourcePath,
-          message: error instanceof Error ? error.message : "Invalid JSON.",
-        },
-      ],
-    };
-  }
+  return Either.match(parseJsonText(text), {
+    onLeft: (message) => invalidJsonParseResult(sourcePath, message),
+    onRight: (parsed) => parseRuleRegistryDocument(parsed, sourcePath),
+  });
+}
 
-  return parseRuleRegistryDocument(parsed, sourcePath);
+function parseJsonText(text: string) {
+  return decodeJsonText(text).pipe(Either.mapLeft(renderJsonError));
+}
+
+function invalidJsonParseResult(sourcePath: string, message: string): RuleRegistryParseResult {
+  return {
+    ok: false,
+    issues: [{ code: "registry-json-invalid", path: sourcePath, message }],
+  };
+}
+
+function renderJsonError(error: unknown): string {
+  return Match.value(error).pipe(
+    Match.when(Match.instanceOf(Error), (cause) => cause.message),
+    Match.orElse(() => "Invalid JSON.")
+  );
 }
 
 export function parseRuleRegistryDocument(
@@ -90,18 +98,44 @@ export function parseRuleRegistryDocument(
 ): RuleRegistryParseResult {
   const schemaIssues = [...Value.Errors(RuleRegistryDocumentSchema, value)].map((error) => ({
     code: "registry-schema-invalid" as const,
-    path: error.instancePath ? `${sourcePath}${error.instancePath}` : sourcePath,
+    path: schemaIssuePath(sourcePath, error.instancePath),
     message: error.message,
   }));
-  if (schemaIssues.length > 0) return { ok: false, issues: schemaIssues };
+  return Match.value(schemaIssues.length).pipe(
+    Match.when(0, () =>
+      validateRuleRegistryDocument(Value.Parse(RuleRegistryDocumentSchema, value), sourcePath)
+    ),
+    Match.orElse(() => ({ ok: false as const, issues: schemaIssues }))
+  );
+}
 
-  const document = value as RuleRegistryDocument;
+function validateRuleRegistryDocument(
+  document: RuleRegistryDocument,
+  sourcePath: string
+): RuleRegistryParseResult {
   const duplicateIssues = duplicateRuleIdIssues(document.rules, sourcePath);
-  if (duplicateIssues.length > 0) return { ok: false, issues: duplicateIssues };
-  const semanticsIssues = ruleRunnerSemanticsIssues(document.rules, sourcePath);
-  if (semanticsIssues.length > 0) return { ok: false, issues: semanticsIssues };
+  return Match.value(duplicateIssues.length).pipe(
+    Match.when(0, () => validateRuleRegistrySemantics(document, sourcePath)),
+    Match.orElse(() => ({ ok: false as const, issues: duplicateIssues }))
+  );
+}
 
-  return { ok: true, document };
+function validateRuleRegistrySemantics(
+  document: RuleRegistryDocument,
+  sourcePath: string
+): RuleRegistryParseResult {
+  const semanticsIssues = ruleRunnerSemanticsIssues(document.rules, sourcePath);
+  return Match.value(semanticsIssues.length).pipe(
+    Match.when(0, () => ({ ok: true as const, document })),
+    Match.orElse(() => ({ ok: false as const, issues: semanticsIssues }))
+  );
+}
+
+function schemaIssuePath(sourcePath: string, instancePath: string): string {
+  return Match.value(instancePath).pipe(
+    Match.when("", () => sourcePath),
+    Match.orElse((suffix) => `${sourcePath}${suffix}`)
+  );
 }
 
 export function loadRuleRegistryDocument(
@@ -115,55 +149,68 @@ export function loadRuleRegistryDocumentWithDiscovery(
   registryPath: string,
   fileSystem: RuleRegistrySyncFileSystem
 ): LoadedRuleRegistryDocument {
-  return fileSystem.isDirectory(registryPath)
-    ? loadRuleRegistryDirectorySyncWithDiscovery(registryPath, fileSystem)
-    : {
-        document: parseRuleRegistryTextOrThrow(fileSystem.readText(registryPath), registryPath),
-        discoveredManifestPaths: [],
-      };
+  return Match.value(fileSystem.isDirectory(registryPath)).pipe(
+    Match.when(true, () => loadRuleRegistryDirectorySyncWithDiscovery(registryPath, fileSystem)),
+    Match.when(false, () => ({
+      document: parseRuleRegistryTextOrThrow(fileSystem.readText(registryPath), registryPath),
+      discoveredManifestPaths: [],
+    })),
+    Match.exhaustive
+  );
 }
 
-export function loadRuleRegistryDocumentEffect<R>(
+export const loadRuleRegistryDocumentEffect = Effect.fn("habitat.rules.loadRegistry")(function* (
   registryPath: string,
-  fileSystem: RuleRegistryFileSystem<R>
+  fileSystem: RuleRegistryFileSystem
 ) {
-  return Effect.gen(function* () {
-    if (yield* fileSystem.isDirectory(registryPath)) {
-      return yield* loadRuleRegistryDirectory(registryPath, fileSystem);
-    }
+  const isDirectory = yield* fileSystem.isDirectory(registryPath);
+  return yield* Match.value(isDirectory).pipe(
+    Match.when(true, () => loadRuleRegistryDirectoryEffect(registryPath, fileSystem)),
+    Match.when(false, () => loadRuleRegistryFileEffect(registryPath, fileSystem)),
+    Match.exhaustive
+  );
+});
 
-    const result = parseRuleRegistryText(yield* fileSystem.readText(registryPath), registryPath);
-    if (result.ok) return result.document;
-    return yield* Effect.fail(new RuleRegistryLoadFailed({ issues: result.issues }));
-  });
-}
+const loadRuleRegistryFileEffect = Effect.fn("habitat.rules.loadRegistryFile")(function* (
+  registryPath: string,
+  fileSystem: RuleRegistryFileSystem
+) {
+  const result = parseRuleRegistryText(yield* fileSystem.readText(registryPath), registryPath);
+  return yield* ruleRegistryDocumentFromParseResult(result);
+});
 
-function loadRuleRegistryDirectory<R>(
+const loadRuleRegistryDirectoryEffect = Effect.fn("habitat.rules.loadRegistryDirectory")(function* (
   registryDir: string,
-  fileSystem: RuleRegistryFileSystem<R>
-): Effect.Effect<RuleRegistryDocument, RuleRegistryLoadFailed | unknown, R> {
-  return Effect.gen(function* () {
-    const indexPath = yield* ruleRegistryIndexPath(registryDir, fileSystem);
-    const index = yield* parseRegistryJson<RuleRegistryIndex, R>(
-      indexPath,
-      RuleRegistryIndexSchema,
-      fileSystem
-    );
-    const rulePaths = yield* ruleFilePaths(registryDir, fileSystem);
-    const rules = yield* Effect.all(
-      rulePaths.map((rulePath) => parseRuleManifestJson<R>(rulePath, fileSystem))
-    );
-    const result = parseRuleRegistryDocument(
-      {
-        schemaVersion: index.schemaVersion,
-        ownerRoots: index.ownerRoots,
-        rules,
-      },
-      indexPath
-    );
-    if (result.ok) return result.document;
-    return yield* Effect.fail(new RuleRegistryLoadFailed({ issues: result.issues }));
-  });
+  fileSystem: RuleRegistryFileSystem
+) {
+  const indexPath = yield* ruleRegistryIndexPath(registryDir, fileSystem);
+  const parsedIndex = yield* parseRegistryJsonEffect(
+    indexPath,
+    RuleRegistryIndexSchema,
+    fileSystem
+  );
+  const index = Value.Parse(RuleRegistryIndexSchema, parsedIndex);
+  const rulePaths = yield* ruleFilePaths(registryDir, fileSystem);
+  const rules = yield* Effect.all(
+    rulePaths.map((rulePath) => parseRuleManifestJsonEffect(rulePath, fileSystem))
+  );
+  const result = parseRuleRegistryDocument(
+    {
+      schemaVersion: index.schemaVersion,
+      ownerRoots: index.ownerRoots,
+      rules,
+    },
+    indexPath
+  );
+  return yield* ruleRegistryDocumentFromParseResult(result);
+});
+
+function ruleRegistryDocumentFromParseResult(result: RuleRegistryParseResult) {
+  return Match.value(result).pipe(
+    Match.when({ ok: true }, ({ document }) => Effect.succeed(document)),
+    Match.when({ ok: false }, ({ issues }) => Effect.fail(new RuleRegistryLoadFailed({ issues }))),
+    Match.exhaustive
+  );
 }
 
 function loadRuleRegistryDirectorySyncWithDiscovery(
@@ -171,11 +218,7 @@ function loadRuleRegistryDirectorySyncWithDiscovery(
   fileSystem: RuleRegistrySyncFileSystem
 ): LoadedRuleRegistryDocument {
   const indexPath = ruleRegistryIndexPathSync(registryDir, fileSystem);
-  const index = parseRegistryJsonSync<RuleRegistryIndex>(
-    indexPath,
-    RuleRegistryIndexSchema,
-    fileSystem
-  );
+  const index = parseRegistryJsonSync(indexPath, RuleRegistryIndexSchema, fileSystem);
   const rulePaths = ruleFilePathsSync(registryDir, fileSystem);
   const rules = rulePaths
     .map((rulePath) => parseRuleManifestJsonSync(rulePath, fileSystem))
@@ -188,199 +231,193 @@ function loadRuleRegistryDirectorySyncWithDiscovery(
     },
     indexPath
   );
-  if (result.ok) {
-    return {
-      document: result.document,
+  return Match.value(result).pipe(
+    Match.when({ ok: true }, ({ document }) => ({
+      document,
       discoveredManifestPaths: rulePaths.map(toRepoRelativeManifestPath).sort(),
-    };
-  }
-  throw new RuleRegistryLoadFailed({ issues: result.issues });
+    })),
+    Match.when({ ok: false }, ({ issues }) => {
+      throw new RuleRegistryLoadFailed({ issues });
+    }),
+    Match.exhaustive
+  );
 }
 
 function parseRuleManifestJsonSync(
   filePath: string,
   fileSystem: RuleRegistrySyncFileSystem
 ): RuleRegistryRecord {
-  const parsed = parseRegistryJsonSync<RuleRegistryRecord>(
+  const parsed = parseRegistryJsonSync(filePath, RuleRegistryRecordInputSchema, fileSystem);
+  const record = Value.Parse(
+    RuleRegistryRecordSchema,
+    ruleRecordWithManifestPath(parsed, filePath)
+  );
+  const semanticIssues = gritPatternPathIssues(record, filePath);
+  refuseRuleRegistryIssues(semanticIssues);
+  const issues = referencedFileIssues(record, filePath, fileSystem);
+  refuseRuleRegistryIssues(issues);
+  return record;
+}
+
+function parseRegistryJsonSync<TSchemaType extends TSchema>(
+  filePath: string,
+  schema: TSchemaType,
+  fileSystem: RuleRegistrySyncFileSystem
+): Static<TSchemaType> {
+  const parsed = Either.getOrThrowWith(
+    Either.try({ try: () => fileSystem.readText(filePath), catch: renderJsonError }).pipe(
+      Either.flatMap(parseJsonText)
+    ),
+    (message) => new RuleRegistryLoadFailed({ issues: [invalidJsonIssue(filePath, message)] })
+  );
+  const issues = [...Value.Errors(schema, parsed)];
+  refuseRuleRegistryIssues(issues.map((issue) => schemaIssue(filePath, issue)));
+  return Value.Parse(schema, parsed);
+}
+
+const parseRuleManifestJsonEffect = Effect.fn("habitat.rules.parseManifest")(function* (
+  filePath: string,
+  fileSystem: RuleRegistryFileSystem
+) {
+  const parsedRecord = yield* parseRegistryJsonEffect(
     filePath,
     RuleRegistryRecordInputSchema,
     fileSystem
   );
-  const record = { ...parsed, manifestFilePath: toRepoRelativeManifestPath(filePath) };
+  const parsed = Value.Parse(RuleRegistryRecordInputSchema, parsedRecord);
+  const record = Value.Parse(
+    RuleRegistryRecordSchema,
+    ruleRecordWithManifestPath(parsed, filePath)
+  );
   const semanticIssues = gritPatternPathIssues(record, filePath);
-  if (semanticIssues.length > 0) throw new RuleRegistryLoadFailed({ issues: semanticIssues });
-  const issues = referencedFileIssues(record, filePath, fileSystem);
-  if (issues.length > 0) throw new RuleRegistryLoadFailed({ issues });
+  yield* refuseRuleRegistryIssuesEffect(semanticIssues);
+  const issues = yield* referencedFileIssuesEffect(record, filePath, fileSystem);
+  yield* refuseRuleRegistryIssuesEffect(issues);
   return record;
-}
-
-function parseRegistryJsonSync<T>(
-  filePath: string,
-  schema: TSchema,
-  fileSystem: RuleRegistrySyncFileSystem
-): T {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(fileSystem.readText(filePath)) as unknown;
-  } catch (error) {
-    throw new RuleRegistryLoadFailed({
-      issues: [
-        {
-          code: "registry-json-invalid",
-          path: filePath,
-          message: error instanceof Error ? error.message : "Invalid JSON.",
-        },
-      ],
-    });
-  }
-  const issues = [...Value.Errors(schema, parsed)];
-  if (issues.length > 0) {
-    throw new RuleRegistryLoadFailed({
-      issues: issues.map((issue) => ({
-        code: "registry-schema-invalid" as const,
-        path: issue.instancePath ? `${filePath}${issue.instancePath}` : filePath,
-        message: issue.message,
-      })),
-    });
-  }
-  return Value.Parse(schema, parsed) as T;
-}
-
-function parseRuleManifestJson<R = never>(
-  filePath: string,
-  fileSystem: RuleRegistryFileSystem<R>
-): Effect.Effect<RuleRegistryRecord, RuleRegistryLoadFailed | unknown, R> {
-  return Effect.gen(function* () {
-    const parsed = yield* parseRegistryJson<RuleRegistryRecord, R>(
-      filePath,
-      RuleRegistryRecordInputSchema,
-      fileSystem
-    );
-    const record = { ...parsed, manifestFilePath: toRepoRelativeManifestPath(filePath) };
-    const semanticIssues = gritPatternPathIssues(record, filePath);
-    if (semanticIssues.length > 0) {
-      return yield* Effect.fail(new RuleRegistryLoadFailed({ issues: semanticIssues }));
-    }
-    const issues = yield* referencedFileIssuesEffect(record, filePath, fileSystem);
-    if (issues.length > 0) {
-      return yield* Effect.fail(new RuleRegistryLoadFailed({ issues }));
-    }
-    return record;
-  });
-}
+});
 
 function parseRuleRegistryTextOrThrow(text: string, sourcePath: string): RuleRegistryDocument {
   const result = parseRuleRegistryText(text, sourcePath);
-  if (result.ok) return result.document;
-  throw new RuleRegistryLoadFailed({ issues: result.issues });
+  return Match.value(result).pipe(
+    Match.when({ ok: true }, ({ document }) => document),
+    Match.when({ ok: false }, ({ issues }) => {
+      throw new RuleRegistryLoadFailed({ issues });
+    }),
+    Match.exhaustive
+  );
 }
 
-function parseRegistryJson<T, R = never>(
+const parseRegistryJsonEffect = Effect.fn("habitat.rules.parseRegistryJson")(function* (
   filePath: string,
   schema: TSchema,
-  fileSystem: RuleRegistryFileSystem<R>
-): Effect.Effect<T, RuleRegistryLoadFailed | unknown, R> {
-  return Effect.gen(function* () {
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(yield* fileSystem.readText(filePath)) as unknown;
-    } catch (error) {
-      return yield* Effect.fail(
-        new RuleRegistryLoadFailed({
-          issues: [
-            {
-              code: "registry-json-invalid",
-              path: filePath,
-              message: error instanceof Error ? error.message : "Invalid JSON.",
-            },
-          ],
-        })
-      );
-    }
-    const issues = [...Value.Errors(schema, parsed)];
-    if (issues.length > 0) {
-      return yield* Effect.fail(
-        new RuleRegistryLoadFailed({
-          issues: issues.map((issue) => ({
-            code: "registry-schema-invalid" as const,
-            path: issue.instancePath ? `${filePath}${issue.instancePath}` : filePath,
-            message: issue.message,
-          })),
-        })
-      );
-    }
-    return Value.Parse(schema, parsed) as T;
+  fileSystem: RuleRegistryFileSystem
+) {
+  const text = yield* fileSystem.readText(filePath);
+  const parsed = yield* Either.match(parseJsonText(text), {
+    onRight: Effect.succeed,
+    onLeft: (message) =>
+      Effect.fail(new RuleRegistryLoadFailed({ issues: [invalidJsonIssue(filePath, message)] })),
   });
+  const issues = [...Value.Errors(schema, parsed)];
+  yield* refuseRuleRegistryIssuesEffect(issues.map((issue) => schemaIssue(filePath, issue)));
+  return Value.Parse(schema, parsed);
+});
+
+function ruleRecordWithManifestPath(record: RuleRegistryRecordInput, filePath: string): unknown {
+  const setManifestPath = R.set<string, "manifestFilePath", string>(
+    "manifestFilePath",
+    toRepoRelativeManifestPath(filePath)
+  );
+  return setManifestPath(record);
 }
 
-function ruleFilePaths<R>(
+const ruleFilePaths = Effect.fn("habitat.rules.ruleFilePaths")(function* (
   registryDir: string,
-  fileSystem: RuleRegistryFileSystem<R>
-): Effect.Effect<string[], unknown, R> {
-  return Effect.gen(function* () {
-    const candidates = (yield* findFiles(
-      registryDir,
-      fileSystem,
-      isRuleRecordCandidatePath
-    )).sort();
-    const issues = staleRuleRecordIssues(candidates);
-    if (issues.length > 0) {
-      return yield* Effect.fail(new RuleRegistryLoadFailed({ issues }));
-    }
-    return candidates;
-  });
-}
+  fileSystem: RuleRegistryFileSystem
+) {
+  const candidates = (yield* findFiles(registryDir, fileSystem, isRuleRecordCandidatePath)).sort();
+  const issues = staleRuleRecordIssues(candidates);
+  yield* refuseRuleRegistryIssuesEffect(issues);
+  return candidates;
+});
 
-function ruleRegistryIndexPath<R>(
+const ruleRegistryIndexPath = Effect.fn("habitat.rules.registryIndexPath")(function* (
   registryDir: string,
-  fileSystem: RuleRegistryFileSystem<R>
-): Effect.Effect<string, RuleRegistryLoadFailed | unknown, R> {
-  return Effect.gen(function* () {
-    const directIndex = path.join(registryDir, "index.json");
-    const directIndexProbe = yield* Effect.either(fileSystem.readText(directIndex));
-    if (directIndexProbe._tag === "Right") {
-      return directIndex;
-    }
+  fileSystem: RuleRegistryFileSystem
+) {
+  const directIndex = path.join(registryDir, "index.json");
+  const directIndexProbe = yield* Effect.either(fileSystem.readText(directIndex));
+  return yield* Either.match(directIndexProbe, {
+    onRight: () => Effect.succeed(directIndex),
+    onLeft: () => Effect.fail(missingRegistryIndexError(registryDir)),
+  });
+});
 
-    return yield* Effect.fail(
-      new RuleRegistryLoadFailed({
-        issues: [
-          {
-            code: "registry-schema-invalid",
-            path: registryDir,
-            message: "Missing rule-pack index.json.",
-          },
-        ],
-      })
-    );
+function missingRegistryIndexError(registryDir: string): RuleRegistryLoadFailed {
+  return new RuleRegistryLoadFailed({
+    issues: [
+      {
+        code: "registry-schema-invalid",
+        path: registryDir,
+        message: "Missing rule-pack index.json.",
+      },
+    ],
   });
 }
+
+function invalidJsonIssue(filePath: string, message: string): RuleRegistryIssue {
+  return { code: "registry-json-invalid", path: filePath, message };
+}
+
+function schemaIssue(
+  filePath: string,
+  issue: { readonly instancePath: string; readonly message: string }
+): RuleRegistryIssue {
+  return {
+    code: "registry-schema-invalid",
+    path: schemaIssuePath(filePath, issue.instancePath),
+    message: issue.message,
+  };
+}
+
+function refuseRuleRegistryIssues(issues: readonly RuleRegistryIssue[]): void {
+  return Either.getOrThrowWith(
+    Match.value(issues.length).pipe(
+      Match.when(0, () => Either.right(undefined)),
+      Match.orElse(() => Either.left(new RuleRegistryLoadFailed({ issues })))
+    ),
+    (error) => error
+  );
+}
+
+const refuseRuleRegistryIssuesEffect = Effect.fn("habitat.rules.refuseRegistryIssues")(function* (
+  issues: readonly RuleRegistryIssue[]
+) {
+  return yield* Effect.if(issues.length === 0, {
+    onTrue: () => Effect.void,
+    onFalse: () => Effect.fail(new RuleRegistryLoadFailed({ issues })),
+  });
+});
 
 function ruleRegistryIndexPathSync(
   registryDir: string,
   fileSystem: RuleRegistrySyncFileSystem
 ): string {
   const directIndex = path.join(registryDir, "index.json");
-  try {
-    fileSystem.readText(directIndex);
-    return directIndex;
-  } catch {
-    throw new RuleRegistryLoadFailed({
-      issues: [
-        {
-          code: "registry-schema-invalid",
-          path: registryDir,
-          message: "Missing rule-pack index.json.",
-        },
-      ],
-    });
-  }
+  const indexProbe = Either.try({
+    try: () => fileSystem.readText(directIndex),
+    catch: () => missingRegistryIndexError(registryDir),
+  });
+  return Either.getOrThrowWith(
+    Either.map(indexProbe, () => directIndex),
+    (error) => error
+  );
 }
 
 function ruleFilePathsSync(registryDir: string, fileSystem: RuleRegistrySyncFileSystem): string[] {
   const candidates = findFilesSync(registryDir, fileSystem, isRuleRecordCandidatePath).sort();
   const issues = staleRuleRecordIssues(candidates);
-  if (issues.length > 0) throw new RuleRegistryLoadFailed({ issues });
+  refuseRuleRegistryIssues(issues);
   return candidates;
 }
 
@@ -390,31 +427,32 @@ function isRuleRecordCandidatePath(filePath: string): boolean {
 }
 
 function staleRuleRecordIssues(paths: readonly string[]): RuleRegistryIssue[] {
-  return paths.flatMap((rulePath) => {
-    const issues: RuleRegistryIssue[] = [];
-    if (rulePath.endsWith(".rule.json")) {
-      issues.push({
-        code: "registry-schema-invalid",
-        path: rulePath,
-        message: "Rule manifest files must be named rule.json.",
-      });
-    }
-    if (usesStaleCategoryOperationPath(rulePath)) {
-      issues.push({
-        code: "registry-schema-invalid",
-        path: rulePath,
-        message:
-          "Rule packets must not use category/operation-kind path nesting; use .habitat/blueprints/<blueprint>/<packet>, _blueprints/<candidate>/<packet>, or rules/<packet>.",
-      });
-    }
-    return issues;
-  });
+  return paths.flatMap((rulePath) => [
+    ...issueWhen(rulePath.endsWith(".rule.json"), {
+      code: "registry-schema-invalid",
+      path: rulePath,
+      message: "Rule manifest files must be named rule.json.",
+    }),
+    ...issueWhen(usesStaleCategoryOperationPath(rulePath), {
+      code: "registry-schema-invalid",
+      path: rulePath,
+      message:
+        "Rule packets must not use category/operation-kind path nesting; use .habitat/blueprints/<blueprint>/<packet>, _blueprints/<candidate>/<packet>, or rules/<packet>.",
+    }),
+  ]);
 }
 
 function usesStaleCategoryOperationPath(rulePath: string): boolean {
   const segments = rulePath.split("/");
   const blueprintIndex = segments.lastIndexOf("blueprints");
-  if (blueprintIndex < 0) return false;
+  return Match.value(blueprintIndex < 0).pipe(
+    Match.when(true, () => false),
+    Match.when(false, () => usesStaleBlueprintSegments(segments, blueprintIndex)),
+    Match.exhaustive
+  );
+}
+
+function usesStaleBlueprintSegments(segments: readonly string[], blueprintIndex: number): boolean {
   const category = segments[blueprintIndex + 2];
   const operationKind = segments[blueprintIndex + 3];
   const packet = segments[blueprintIndex + 4];
@@ -442,24 +480,39 @@ const staleCategories = new Set([
 
 const staleOperationKinds = new Set(["check", "fix", "generate", "migrate", "triage"]);
 
-function findFiles<R>(
+const findFiles = Effect.fn("habitat.rules.findFiles")(function* (
   root: string,
-  fileSystem: RuleRegistryFileSystem<R>,
+  fileSystem: RuleRegistryFileSystem,
   predicate: (filePath: string) => boolean
-): Effect.Effect<string[], unknown, R> {
-  return Effect.gen(function* () {
-    const entries = yield* fileSystem.readDirectory(root);
-    const groups = yield* Effect.all(
-      entries.map((entry) => {
-        const absolute = path.join(root, entry.name);
-        if (entry.kind === "directory") return findFiles(absolute, fileSystem, predicate);
-        return Effect.succeed(
-          entry.kind === "file" && predicate(toPosixPath(absolute)) ? [absolute] : []
-        );
-      })
-    );
-    return groups.flat();
-  });
+): Effect.fn.Return<string[], FileReadFailed, FileSystem.FileSystem> {
+  const entries = yield* fileSystem.readDirectory(root);
+  const groups = yield* Effect.all(
+    entries.map((entry) => findEntryFilesEffect(root, entry, fileSystem, predicate))
+  );
+  return groups.flat();
+});
+
+const findEntryFilesEffect = Effect.fn("habitat.rules.findEntryFiles")(function* (
+  root: string,
+  entry: RuleRegistryDirectoryEntry,
+  fileSystem: RuleRegistryFileSystem,
+  predicate: (filePath: string) => boolean
+): Effect.fn.Return<string[], FileReadFailed, FileSystem.FileSystem> {
+  const absolute = path.join(root, entry.name);
+  return yield* Match.value(entry.kind).pipe(
+    Match.when("directory", () => findFiles(absolute, fileSystem, predicate)),
+    Match.when("file", () => Effect.succeed(fileMatch(absolute, predicate))),
+    Match.when("other", () => Effect.succeed([])),
+    Match.exhaustive
+  );
+});
+
+function fileMatch(absolute: string, predicate: (filePath: string) => boolean): string[] {
+  return Match.value(predicate(toPosixPath(absolute))).pipe(
+    Match.when(true, () => [absolute]),
+    Match.when(false, () => []),
+    Match.exhaustive
+  );
 }
 
 function findFilesSync(
@@ -467,11 +520,24 @@ function findFilesSync(
   fileSystem: RuleRegistrySyncFileSystem,
   predicate: (filePath: string) => boolean
 ): string[] {
-  return fileSystem.readDirectory(root).flatMap((entry) => {
-    const absolute = path.join(root, entry.name);
-    if (entry.kind === "directory") return findFilesSync(absolute, fileSystem, predicate);
-    return entry.kind === "file" && predicate(toPosixPath(absolute)) ? [absolute] : [];
-  });
+  return fileSystem
+    .readDirectory(root)
+    .flatMap((entry) => findEntryFilesSync(root, entry, fileSystem, predicate));
+}
+
+function findEntryFilesSync(
+  root: string,
+  entry: RuleRegistryDirectoryEntry,
+  fileSystem: RuleRegistrySyncFileSystem,
+  predicate: (filePath: string) => boolean
+): string[] {
+  const absolute = path.join(root, entry.name);
+  return Match.value(entry.kind).pipe(
+    Match.when("directory", () => findFilesSync(absolute, fileSystem, predicate)),
+    Match.when("file", () => fileMatch(absolute, predicate)),
+    Match.when("other", () => []),
+    Match.exhaustive
+  );
 }
 
 function toPosixPath(filePath: string): string {
@@ -481,30 +547,40 @@ function toPosixPath(filePath: string): string {
 function toRepoRelativeManifestPath(filePath: string): string {
   const normalized = toPosixPath(filePath);
   const habitatIndex = normalized.lastIndexOf("/.habitat/");
-  if (habitatIndex >= 0) return normalized.slice(habitatIndex + 1);
-  if (normalized.startsWith(".habitat/")) return normalized;
-  return normalized;
+  return Match.value(habitatIndex >= 0).pipe(
+    Match.when(true, () => normalized.slice(habitatIndex + 1)),
+    Match.when(false, () => normalized),
+    Match.exhaustive
+  );
 }
 
 function referencedFilePaths(rule: RuleRegistryRecord): string[] {
-  const paths: string[] = [];
-  switch (rule.runner.name) {
-    case "grit":
-      paths.push(rule.runner.files.pattern);
-      if (rule.runner.fix) paths.push(rule.runner.fix.pattern);
-      break;
-    case "habitat":
-      if (rule.runner.mode === "structure") paths.push(rule.runner.files.structure);
-      if (rule.runner.mode === "script") paths.push(rule.runner.files.script);
-      break;
-    case "nx":
-      break;
-  }
-  if (rule.supportFiles?.baseline) paths.push(rule.supportFiles.baseline);
-  if (rule.supportFiles?.ruleIntroductionManifest) {
-    paths.push(rule.supportFiles.ruleIntroductionManifest);
-  }
-  return paths;
+  return [...runnerReferencedFilePaths(rule), ...supportReferencedFilePaths(rule)];
+}
+
+function runnerReferencedFilePaths(rule: RuleRegistryRecord): string[] {
+  return Match.value(rule.runner).pipe(
+    Match.when({ name: "grit" }, gritRunnerReferencedFilePaths),
+    Match.when({ name: "habitat", mode: "structure" }, (runner) => [runner.files.structure]),
+    Match.when({ name: "habitat", mode: "script" }, (runner) => [runner.files.script]),
+    Match.orElse(() => [])
+  );
+}
+
+function gritRunnerReferencedFilePaths(
+  runner: Extract<RuleRegistryRecord["runner"], { readonly name: "grit" }>
+): string[] {
+  const fixPaths = Match.value(runner.fix).pipe(
+    Match.when(Match.undefined, () => []),
+    Match.orElse((fix) => [fix.pattern])
+  );
+  return [runner.files.pattern, ...fixPaths];
+}
+
+function supportReferencedFilePaths(rule: RuleRegistryRecord): string[] {
+  return [rule.supportFiles?.baseline, rule.supportFiles?.ruleIntroductionManifest].filter(
+    (candidate): candidate is string => candidate !== undefined
+  );
 }
 
 function referencedFileIssues(
@@ -523,43 +599,57 @@ function referencedFileIssues(
 }
 
 function syncFileExists(filePath: string, fileSystem: RuleRegistrySyncFileSystem): boolean {
-  try {
-    fileSystem.readText(filePath);
-    return true;
-  } catch {
-    return false;
-  }
+  return Either.isRight(Either.try(() => fileSystem.readText(filePath)));
 }
 
-function referencedFileIssuesEffect<R>(
+const referencedFileIssuesEffect = Effect.fn("habitat.rules.referencedFileIssues")(function* (
   rule: RuleRegistryRecord,
   manifestPath: string,
-  fileSystem: RuleRegistryFileSystem<R>
-): Effect.Effect<RuleRegistryIssue[], unknown, R> {
-  return Effect.gen(function* () {
-    const repoRoot = repoRootForManifestPath(manifestPath);
-    const issues: RuleRegistryIssue[] = [];
-    for (const repoPath of referencedFilePaths(rule)) {
-      const absolute = path.join(repoRoot, repoPath);
-      const result = yield* fileSystem.readText(absolute).pipe(Effect.either);
-      if (result._tag === "Left") {
-        issues.push({
-          code: "registry-missing-referenced-file",
-          path: manifestPath,
-          message: `${rule.id}: referenced runner or support file does not exist: ${repoPath}.`,
-        });
-      }
-    }
-    return issues;
+  fileSystem: RuleRegistryFileSystem
+) {
+  const repoRoot = repoRootForManifestPath(manifestPath);
+  const issues = yield* Effect.forEach(referencedFilePaths(rule), (repoPath) =>
+    referencedFileIssueEffect(rule, manifestPath, repoRoot, repoPath, fileSystem)
+  );
+  return issues.flat();
+});
+
+const referencedFileIssueEffect = Effect.fn("habitat.rules.referencedFileIssue")(function* (
+  rule: RuleRegistryRecord,
+  manifestPath: string,
+  repoRoot: string,
+  repoPath: string,
+  fileSystem: RuleRegistryFileSystem
+) {
+  const result = yield* fileSystem.readText(path.join(repoRoot, repoPath)).pipe(Effect.either);
+  return Either.match(result, {
+    onRight: () => [],
+    onLeft: () => [
+      {
+        code: "registry-missing-referenced-file" as const,
+        path: manifestPath,
+        message: `${rule.id}: referenced runner or support file does not exist: ${repoPath}.`,
+      },
+    ],
   });
-}
+});
 
 function repoRootForManifestPath(manifestPath: string): string {
   const normalized = toPosixPath(manifestPath);
   const habitatIndex = normalized.lastIndexOf("/.habitat/");
-  if (habitatIndex >= 0) return normalized.slice(0, habitatIndex);
-  if (normalized.startsWith(".habitat/")) return ".";
-  return path.dirname(manifestPath);
+  return Match.value(habitatIndex >= 0).pipe(
+    Match.when(true, () => normalized.slice(0, habitatIndex)),
+    Match.when(false, () => repoRootWithoutHabitatAncestor(manifestPath, normalized)),
+    Match.exhaustive
+  );
+}
+
+function repoRootWithoutHabitatAncestor(manifestPath: string, normalized: string): string {
+  return Match.value(normalized.startsWith(".habitat/")).pipe(
+    Match.when(true, () => "."),
+    Match.when(false, () => path.dirname(manifestPath)),
+    Match.exhaustive
+  );
 }
 
 function renderRuleRegistryIssues(heading: string, issues: readonly RuleRegistryIssue[]): string {
@@ -581,7 +671,7 @@ function duplicateRuleIdIssues(
     .map(([id, paths]) => ({
       code: "registry-duplicate-rule-id",
       path: sourcePath,
-      message: `Duplicate Habitat rule id: ${JSON.stringify(id)} in ${paths.join(", ")}.`,
+      message: `Duplicate Habitat rule id: "${id}" in ${paths.join(", ")}.`,
     }));
 }
 
@@ -589,106 +679,176 @@ function ruleRunnerSemanticsIssues(
   rules: readonly RuleRegistryRecord[],
   sourcePath: string
 ): RuleRegistryIssue[] {
-  const issues: RuleRegistryIssue[] = [];
-  rules.forEach((rule, index) => {
-    const path = `${sourcePath}/rules/${index}`;
-    if (rule.runner.name === "grit") {
-      if (!Array.isArray(rule.scanRoots)) {
-        issues.push(runnerIssue(path, rule.id, "grit runner records must declare scanRoots."));
-      }
-      if (rule.patternName && rule.patternName !== rule.runner.patternName) {
-        issues.push(
-          runnerIssue(path, rule.id, "patternName must match the derived grit runner patternName.")
-        );
-      }
-      if (rule.runner.fix && rule.pathCoverage.some((coverage) => coverage.kind !== "exact-path")) {
-        issues.push(
-          runnerIssue(path, rule.id, "fix preview admission requires exact-path coverage only.")
-        );
-      }
-      issues.push(...gritPatternPathIssues(rule, path));
-    } else {
-      if (rule.scanRoots) {
-        issues.push(
-          runnerIssue(path, rule.id, "scanRoots are only valid for grit runner records.")
-        );
-      }
-      if (rule.patternName) {
-        issues.push(
-          runnerIssue(path, rule.id, "patternName is only valid for grit runner records.")
-        );
-      }
-      if (rule.hookCheck) {
-        issues.push(runnerIssue(path, rule.id, "hookCheck is only valid for grit runner records."));
-      }
-    }
+  return rules.flatMap((rule, index) => ruleSemanticsIssues(rule, `${sourcePath}/rules/${index}`));
+}
 
-    if (rule.runner.name === "nx") {
-      if (
-        !rule.graphTarget ||
-        rule.graphTarget.project !== rule.runner.target.project ||
-        rule.graphTarget.target !== rule.runner.target.target
-      ) {
-        issues.push(runnerIssue(path, rule.id, "nx runner records must mirror graphTarget."));
-      }
-    } else if (rule.graphTarget) {
-      issues.push(runnerIssue(path, rule.id, "graphTarget is only valid for nx runner records."));
-    }
-
-    const fileLayerFacetCount = [
-      rule.generatedZone,
-      rule.forbiddenFileNames,
-      rule.hostSurfaceGuard,
-    ].filter(Boolean).length;
-    if (rule.runner.name === "habitat" && rule.runner.mode === "file-layer") {
-      if (fileLayerFacetCount !== 1) {
-        issues.push(
-          runnerIssue(
-            path,
-            rule.id,
-            "file-layer runner records must declare exactly one guard facet."
-          )
-        );
-      }
-    } else if (fileLayerFacetCount > 0) {
-      issues.push(
-        runnerIssue(
-          path,
-          rule.id,
-          "file-layer guard facets are only valid for file-layer runner records."
-        )
-      );
-    }
-  });
-  return issues;
+function ruleSemanticsIssues(rule: RuleRegistryRecord, rulePath: string): RuleRegistryIssue[] {
+  return [
+    ...gritRunnerSemanticsIssues(rule, rulePath),
+    ...nxRunnerSemanticsIssues(rule, rulePath),
+    ...fileLayerRunnerSemanticsIssues(rule, rulePath),
+  ];
 }
 
 function gritPatternPathIssues(rule: RuleRegistryRecord, sourcePath: string): RuleRegistryIssue[] {
-  if (rule.runner.name !== "grit") return [];
+  return Match.value(rule.runner).pipe(
+    Match.when({ name: "grit" }, (runner) =>
+      gritPatternPathFacts(runner).flatMap((fact) =>
+        gritPatternPathFactIssues(rule, sourcePath, fact)
+      )
+    ),
+    Match.orElse(() => [])
+  );
+}
+
+function gritPatternPathFactIssues(
+  rule: RuleRegistryRecord,
+  sourcePath: string,
+  fact: GritPatternPathFact
+): RuleRegistryIssue[] {
+  const segments = fact.patternPath.split("/");
+  const invalid =
+    fact.patternPath.includes("\\") ||
+    path.isAbsolute(fact.patternPath) ||
+    !fact.patternPath.startsWith(".habitat/") ||
+    fact.patternPath.includes("//") ||
+    segments.some((segment) => segment === "" || segment === "." || segment === "..") ||
+    path.posix.normalize(fact.patternPath) !== fact.patternPath;
+  return issueWhen(
+    invalid,
+    runnerIssue(
+      `${sourcePath}/runner/${fact.fieldPath}`,
+      rule.id,
+      `${fact.field} must be a normalized relative .habitat/... file path.`
+    )
+  );
+}
+
+function gritRunnerSemanticsIssues(
+  rule: RuleRegistryRecord,
+  rulePath: string
+): RuleRegistryIssue[] {
+  return Match.value(rule.runner).pipe(
+    Match.when({ name: "grit" }, (runner) => [
+      ...issueWhen(
+        !Array.isArray(rule.scanRoots),
+        runnerIssue(rulePath, rule.id, "grit runner records must declare scanRoots.")
+      ),
+      ...issueWhen(
+        rule.patternName !== undefined && rule.patternName !== runner.patternName,
+        runnerIssue(
+          rulePath,
+          rule.id,
+          "patternName must match the derived grit runner patternName."
+        )
+      ),
+      ...issueWhen(
+        runner.fix !== undefined &&
+          rule.pathCoverage.some((coverage) => coverage.kind !== "exact-path"),
+        runnerIssue(rulePath, rule.id, "fix preview admission requires exact-path coverage only.")
+      ),
+      ...gritPatternPathIssues(rule, rulePath),
+    ]),
+    Match.orElse(() => nonGritRunnerSemanticsIssues(rule, rulePath))
+  );
+}
+
+function nonGritRunnerSemanticsIssues(
+  rule: RuleRegistryRecord,
+  rulePath: string
+): RuleRegistryIssue[] {
   return [
-    ["pattern", "files/pattern", rule.runner.files.pattern] as const,
-    ...(rule.runner.fix
-      ? ([["fix.pattern", "fix/pattern", rule.runner.fix.pattern]] as const)
-      : []),
-  ].flatMap(([field, fieldPath, patternPath]) => {
-    const segments = patternPath.split("/");
-    const invalid =
-      patternPath.includes("\\") ||
-      path.isAbsolute(patternPath) ||
-      !patternPath.startsWith(".habitat/") ||
-      patternPath.includes("//") ||
-      segments.some((segment) => segment === "" || segment === "." || segment === "..") ||
-      path.posix.normalize(patternPath) !== patternPath;
-    return invalid
-      ? [
-          runnerIssue(
-            `${sourcePath}/runner/${fieldPath}`,
-            rule.id,
-            `${field} must be a normalized relative .habitat/... file path.`
-          ),
-        ]
-      : [];
-  });
+    ...issueWhen(
+      rule.scanRoots !== undefined,
+      runnerIssue(rulePath, rule.id, "scanRoots are only valid for grit runner records.")
+    ),
+    ...issueWhen(
+      rule.patternName !== undefined,
+      runnerIssue(rulePath, rule.id, "patternName is only valid for grit runner records.")
+    ),
+    ...issueWhen(
+      rule.hookCheck !== undefined,
+      runnerIssue(rulePath, rule.id, "hookCheck is only valid for grit runner records.")
+    ),
+  ];
+}
+
+function nxRunnerSemanticsIssues(rule: RuleRegistryRecord, rulePath: string): RuleRegistryIssue[] {
+  return Match.value(rule.runner).pipe(
+    Match.when({ name: "nx" }, (runner) =>
+      issueWhen(
+        rule.graphTarget === undefined ||
+          rule.graphTarget.project !== runner.target.project ||
+          rule.graphTarget.target !== runner.target.target,
+        runnerIssue(rulePath, rule.id, "nx runner records must mirror graphTarget.")
+      )
+    ),
+    Match.orElse(() =>
+      issueWhen(
+        rule.graphTarget !== undefined,
+        runnerIssue(rulePath, rule.id, "graphTarget is only valid for nx runner records.")
+      )
+    )
+  );
+}
+
+function fileLayerRunnerSemanticsIssues(
+  rule: RuleRegistryRecord,
+  rulePath: string
+): RuleRegistryIssue[] {
+  const facetCount = [rule.generatedZone, rule.forbiddenFileNames, rule.hostSurfaceGuard].filter(
+    Boolean
+  ).length;
+  return Match.value(rule.runner).pipe(
+    Match.when({ name: "habitat", mode: "file-layer" }, () =>
+      issueWhen(
+        facetCount !== 1,
+        runnerIssue(
+          rulePath,
+          rule.id,
+          "file-layer runner records must declare exactly one guard facet."
+        )
+      )
+    ),
+    Match.orElse(() =>
+      issueWhen(
+        facetCount > 0,
+        runnerIssue(
+          rulePath,
+          rule.id,
+          "file-layer guard facets are only valid for file-layer runner records."
+        )
+      )
+    )
+  );
+}
+
+interface GritPatternPathFact {
+  readonly field: string;
+  readonly fieldPath: string;
+  readonly patternPath: string;
+}
+
+function gritPatternPathFacts(
+  runner: Extract<RuleRegistryRecord["runner"], { readonly name: "grit" }>
+): GritPatternPathFact[] {
+  return [
+    { field: "pattern", fieldPath: "files/pattern", patternPath: runner.files.pattern },
+    ...Match.value(runner.fix).pipe(
+      Match.when(Match.undefined, () => []),
+      Match.orElse((fix) => [
+        { field: "fix.pattern", fieldPath: "fix/pattern", patternPath: fix.pattern },
+      ])
+    ),
+  ];
+}
+
+function issueWhen(condition: boolean, issue: RuleRegistryIssue): RuleRegistryIssue[] {
+  return Match.value(condition).pipe(
+    Match.when(true, () => [issue]),
+    Match.when(false, () => []),
+    Match.exhaustive
+  );
 }
 
 function runnerIssue(path: string, ruleId: string, message: string): RuleRegistryIssue {

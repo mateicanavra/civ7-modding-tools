@@ -16,72 +16,24 @@ import {
   writeBaselineEffect,
 } from "@habitat/cli/service/model/baseline/index";
 import { executeSelectedRulesEffect } from "@habitat/cli/service/model/check/policy/structural/execution.policy";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Match, Schema } from "effect";
 import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps.js";
 
+const fixtureRepoRoot = path.join(path.sep, "repo");
+const stringifyJsonDocument = Schema.encodeSync(Schema.parseJson());
+
 describe("check and baseline provider boundaries", () => {
   test("baseline integrity reads state through filesystem and git providers", async () => {
-    const root = "/repo";
-    const baselinesDir = "/repo/.habitat/baselines";
+    const root = fixtureRepoRoot;
+    const baselinesDir = path.join(root, ".habitat", "baselines");
     const events: string[] = [];
     const gitCalls: string[][] = [];
     const registry = [baselineRule("existing-rule")];
-    const git = makeGitProviderFromCommandHandler((argv, options) => {
-      gitCalls.push([...argv]);
-      if (argv[0] === "merge-base") {
-        return commandResult(argv, options.cwd, "merge-base-sha\n");
-      }
-      if (argv[0] === "ls-tree" && argv[4] === ".habitat") {
-        return commandResult(
-          argv,
-          options.cwd,
-          ".habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/rule.json\n"
-        );
-      }
-      if (
-        argv[0] === "show" &&
-        argv[1] ===
-          "merge-base-sha:.habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/rule.json"
-      ) {
-        return commandResult(
-          argv,
-          options.cwd,
-          JSON.stringify(
-            {
-              schemaVersion: 2,
-              id: "existing-rule",
-              title: "Existing Rule",
-              placement: {
-                niche: "global/workspace",
-                blueprint: "project-boundary-model",
-                category: "structure",
-              },
-              operation: { kind: "check" },
-              ownerProject: "habitat",
-              lane: "enforced",
-              runner: {
-                name: "grit",
-                files: {
-                  pattern:
-                    ".habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/pattern.md",
-                },
-              },
-            },
-            null,
-            2
-          )
-        );
-      }
-      if (
-        argv[0] === "show" &&
-        argv[1] === "merge-base-sha:.habitat/baselines/existing-rule.json"
-      ) {
-        return commandResult(argv, options.cwd, "[]\n");
-      }
-      return commandResult(argv, options.cwd, "", 1, "not found\n");
-    });
+    const git = makeGitProviderFromCommandHandler((argv, options) =>
+      recordAndReturn(gitCalls, [...argv], baselineGitCommandResult(argv, options.cwd))
+    );
     const layer = Layer.mergeAll(
       makeFakePlatformFileSystemLayer(
         events,
@@ -125,7 +77,7 @@ describe("check and baseline provider boundaries", () => {
   });
 
   test("baseline expansion writes through the platform filesystem", async () => {
-    const baselinesDir = "/repo/.habitat/baselines";
+    const baselinesDir = path.join(fixtureRepoRoot, ".habitat", "baselines");
     const events: string[] = [];
     const layer = makeFakePlatformFileSystemLayer(events);
 
@@ -139,7 +91,7 @@ describe("check and baseline provider boundaries", () => {
         {
           git: makeTestHabitatServiceDeps().git,
           fileSystem: baselineFileSystemPort(),
-          repoRoot: "/repo",
+          repoRoot: fixtureRepoRoot,
           baselinesDir,
           registry: [],
         }
@@ -148,22 +100,18 @@ describe("check and baseline provider boundaries", () => {
 
     expect(events).toEqual([
       `mkdir:${baselinesDir}`,
-      `write:${baselinesDir}/new-rule.json:${JSON.stringify(
-        {
-          schemaVersion: 1,
-          occurrences: [
-            { key: "a::first", count: 1 },
-            { key: "z::last", count: 1 },
-          ],
-        },
-        null,
-        2
-      )}\n`,
+      `write:${baselinesDir}/new-rule.json:${stringifyJsonDocument({
+        schemaVersion: 1,
+        occurrences: [
+          { key: "a::first", count: 1 },
+          { key: "z::last", count: 1 },
+        ],
+      })}\n`,
     ]);
   });
 
   test("baseline expansion persists repeated diagnostics as exact occurrences", async () => {
-    const baselinesDir = "/repo/.habitat/baselines";
+    const baselinesDir = path.join(fixtureRepoRoot, ".habitat", "baselines");
     const events: string[] = [];
     const layer = makeFakePlatformFileSystemLayer(events);
 
@@ -177,7 +125,7 @@ describe("check and baseline provider boundaries", () => {
         {
           git: makeTestHabitatServiceDeps().git,
           fileSystem: baselineFileSystemPort(),
-          repoRoot: "/repo",
+          repoRoot: fixtureRepoRoot,
           baselinesDir,
           registry: [],
         }
@@ -186,17 +134,13 @@ describe("check and baseline provider boundaries", () => {
 
     expect(events).toEqual([
       `mkdir:${baselinesDir}`,
-      `write:${baselinesDir}/counted-rule.json:${JSON.stringify(
-        {
-          schemaVersion: 1,
-          occurrences: [
-            { key: "a::repeated", count: 2 },
-            { key: "z::single", count: 1 },
-          ],
-        },
-        null,
-        2
-      )}\n`,
+      `write:${baselinesDir}/counted-rule.json:${stringifyJsonDocument({
+        schemaVersion: 1,
+        occurrences: [
+          { key: "a::repeated", count: 2 },
+          { key: "z::single", count: 1 },
+        ],
+      })}\n`,
     ]);
   });
 
@@ -223,7 +167,7 @@ describe("check and baseline provider boundaries", () => {
           git: deps.git,
           ruleDiagnostics: deps.ruleDiagnostics,
           nx: deps.nx,
-          repoRoot: "/repo",
+          repoRoot: fixtureRepoRoot,
           rules: deps.rules,
           structureFileSystem: structureFileSystemPort(),
         }
@@ -236,6 +180,63 @@ describe("check and baseline provider boundaries", () => {
     expect(record?.result.diagnostics[0]?.message).toContain("fake staged diff failure");
   });
 });
+
+function baselineGitCommandResult(argv: readonly string[], cwd: string) {
+  return Match.value({ command: argv[0], argument: argv[1], scope: argv[4] }).pipe(
+    Match.when({ command: "merge-base" }, () => commandResult(argv, cwd, "merge-base-sha\n")),
+    Match.when({ command: "ls-tree", scope: ".habitat" }, () =>
+      commandResult(
+        argv,
+        cwd,
+        ".habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/rule.json\n"
+      )
+    ),
+    Match.when(
+      {
+        command: "show",
+        argument:
+          "merge-base-sha:.habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/rule.json",
+      },
+      () => commandResult(argv, cwd, stringifyJsonDocument(existingRuleDocument()))
+    ),
+    Match.when(
+      {
+        command: "show",
+        argument: "merge-base-sha:.habitat/baselines/existing-rule.json",
+      },
+      () => commandResult(argv, cwd, "[]\n")
+    ),
+    Match.orElse(() => commandResult(argv, cwd, "", 1, "not found\n"))
+  );
+}
+
+function existingRuleDocument() {
+  return {
+    schemaVersion: 2,
+    id: "existing-rule",
+    title: "Existing Rule",
+    placement: {
+      niche: "global/workspace",
+      blueprint: "project-boundary-model",
+      category: "structure",
+    },
+    operation: { kind: "check" },
+    ownerProject: "habitat",
+    lane: "enforced",
+    runner: {
+      name: "grit",
+      files: {
+        pattern:
+          ".habitat/global/workspace/_blueprints/project-boundary-model/existing-rule/pattern.md",
+      },
+    },
+  };
+}
+
+function recordAndReturn<Event, Value>(events: Event[], event: Event, value: Value): Value {
+  events.push(event);
+  return value;
+}
 
 function baselineRule(id: string) {
   return {
@@ -289,3 +290,5 @@ function commandResult(
     }
   );
 }
+
+import path from "node:path";

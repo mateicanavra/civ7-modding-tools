@@ -1,67 +1,62 @@
+import type { HabitatServiceSharedContext } from "@habitat/cli/service/base";
 import { type HabitatModule, service } from "@habitat/cli/service/impl";
-import {
-  type CheckOptions,
-  type CheckReport,
-  checkCommandContext,
-} from "@habitat/cli/service/model/check/index";
+import { type CheckOptions, checkCommandContext } from "@habitat/cli/service/model/check/index";
 import { createCheckReportEffect } from "@habitat/cli/service/model/check/policy/structural/index";
 import {
   describeRuleSelectionFailure,
   type RuleSelection,
 } from "@habitat/cli/service/model/rules/policy/selection.policy";
-import { Effect } from "effect";
-import {
-  type BaselineExpansionResult,
-  expandBaselinesEffect,
-} from "./model/policy/baseline-expansion.policy.js";
+import { expandBaselinesEffect } from "./model/policy/baseline-expansion.policy.js";
 
-type CheckModuleEffect<T> = Effect.Effect<T, never, any>;
-
-export interface CheckModuleContext {
-  readonly checkCommandContext: typeof checkCommandContext;
-  readonly createCheckReport: (options?: CheckOptions) => CheckModuleEffect<CheckReport>;
-  readonly describeRuleSelectionFailure: typeof describeRuleSelectionFailure;
-  readonly expandBaselines: (
-    selection?: RuleSelection,
-    options?: { readonly base?: string }
-  ) => CheckModuleEffect<BaselineExpansionResult>;
-  readonly selectorsFromInput: typeof selectorsFromInput;
-}
+export type CheckModuleContext = ReturnType<typeof makeCheckModuleContext>;
 
 export const module: HabitatModule<"check", CheckModuleContext> = service.check.use(
-  ({ context, next }) =>
-    next({
-      context: {
-        checkCommandContext,
-        createCheckReport: (options) =>
-          createCheckReportEffect(
-            { ...options, repoRoot: context.deps.platform.repoRoot },
-            context.structuralCheck
-          ),
-        describeRuleSelectionFailure,
-        expandBaselines: (selection, options) =>
-          expandBaselinesEffect(
-            selection,
-            { ...options, repoRoot: context.deps.platform.repoRoot },
-            context.structuralCheck
-          ),
-        selectorsFromInput,
-      } satisfies CheckModuleContext,
-    })
+  ({ context, next }) => next({ context: makeCheckModuleContext(context) })
 );
+
+function makeCheckModuleContext(
+  context: Pick<HabitatServiceSharedContext, "deps" | "structuralCheck">
+) {
+  const repoRoot = context.deps.platform.repoRoot;
+  return {
+    checkCommandContext,
+    createCheckReport: (options?: CheckOptions) =>
+      createCheckReportEffect(checkOptionsWithRepoRoot(options, repoRoot), context.structuralCheck),
+    describeRuleSelectionFailure,
+    expandBaselines: (selection: RuleSelection = {}, options?: { readonly base?: string }) =>
+      expandBaselinesEffect(selection, { base: options?.base, repoRoot }, context.structuralCheck),
+    selectorsFromInput,
+  };
+}
+
+function checkOptionsWithRepoRoot(options: CheckOptions = {}, repoRoot: string): CheckOptions {
+  return {
+    base: options.base,
+    baselineIntegrity: options.baselineIntegrity,
+    command: options.command,
+    hookCheck: options.hookCheck,
+    owner: options.owner,
+    repoRoot,
+    rule: options.rule,
+    rules: options.rules,
+    runner: options.runner,
+    staged: options.staged,
+    stagedPaths: options.stagedPaths,
+  };
+}
 
 function selectorsFromInput(input: {
   readonly selectors?: {
     readonly owner?: string;
     readonly rule?: string;
     readonly rules?: readonly string[];
-    readonly runner?: string;
+    readonly runner?: RuleSelection["runner"];
   };
-}) {
+}): RuleSelection {
   return {
-    ...(input.selectors?.owner ? { owner: input.selectors.owner } : {}),
-    ...(input.selectors?.rule ? { rule: input.selectors.rule } : {}),
-    ...(input.selectors?.rules ? { rules: input.selectors.rules } : {}),
-    ...(input.selectors?.runner ? { runner: input.selectors.runner } : {}),
+    owner: input.selectors?.owner,
+    rule: input.selectors?.rule,
+    rules: input.selectors?.rules,
+    runner: input.selectors?.runner,
   };
 }

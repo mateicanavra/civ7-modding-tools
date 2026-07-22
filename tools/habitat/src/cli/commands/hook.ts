@@ -28,11 +28,11 @@ export default class Hook extends HabitatCommand {
   private async runHookAction(name: string | undefined, base: string | undefined) {
     if (name === "pre-commit") {
       const client = await this.habitatServiceClient();
-      return client.hook.preCommit({});
+      return client.hook.preCommit({}, this.habitatServiceCallerOptions());
     }
     if (name === "pre-push") {
       const client = await this.habitatServiceClient();
-      return client.hook.prePush({ base });
+      return client.hook.prePush({ base }, this.habitatServiceCallerOptions());
     }
     return unknownHookResult(name);
   }

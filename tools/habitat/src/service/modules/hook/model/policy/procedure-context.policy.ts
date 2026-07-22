@@ -1,4 +1,3 @@
-import type { FileSystem } from "@effect/platform";
 import type { BiomeProviderService } from "@habitat/cli/providers/biome/index";
 import type { GitProviderService } from "@habitat/cli/providers/git/index";
 import type { GraphiteProviderService } from "@habitat/cli/providers/graphite/index";
@@ -54,7 +53,7 @@ export function makeHookProcedureContext(input: {
   readonly rules: RuleFactsCatalog;
   readonly createCheckReport: (
     options?: CheckOptions
-  ) => ReturnType<typeof createCheckReportEffect<FileSystem.FileSystem>>;
+  ) => ReturnType<typeof createCheckReportEffect>;
   readonly workspaceGraphTargetNames: typeof workspaceGraphTargetNames;
 }) {
   return {

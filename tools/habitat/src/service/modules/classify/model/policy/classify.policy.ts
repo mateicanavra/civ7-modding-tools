@@ -1,6 +1,7 @@
+import type { NxProviderService } from "@habitat/cli/providers/nx/index";
 import type { RuleFactsCatalog } from "@habitat/cli/service/model/rules/policy/catalog.policy";
 import type { WorkspaceGraphReadState } from "@habitat/cli/service/model/workspace/index";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import {
   type ClassifyResult,
   type PathClassification,
@@ -50,71 +51,84 @@ export interface ClassifyOptions {
 
 export function classifyTargetResult(target: string, options: ClassifyOptions): ClassifyResult {
   const diff = diffText(target, options);
-  if (diff) {
-    const paths = extractDiffPaths(diff);
-    if (paths.length === 0) return malformedOrPathlessDiffResult(target);
-
-    const graph = readGraph(options);
-    if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
-
-    return parseClassifyResult({
-      schemaVersion: 1,
-      state: "diff",
-      input: target,
-      paths: paths.map((path) => classifyPathFromProjects(path, graph.snapshot.projects, options)),
-      recoveryInstructions: [],
-    });
-  }
-
-  const graph = readGraph(options);
-  if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
-  return classifyPathFromProjects(target, graph.snapshot.projects, options);
+  return Match.value(diff).pipe(
+    Match.when(Match.string, (contents) => classifyDiffTarget(target, contents, options)),
+    Match.when(Match.undefined, () => classifyPathTarget(target, options)),
+    Match.exhaustive
+  );
 }
 
-export function classifyTargetResultEffect(
+export const classifyTargetResultEffect = Effect.fn("habitat.classify.target")(function* (
   target: string,
-  readGraph: Effect.Effect<WorkspaceGraphReadState>,
+  readGraph: ReturnType<NxProviderService["workspaceGraph"]>,
   context: {
     readonly repoRoot: string;
     readonly rules: RuleFactsCatalog;
     readonly fileSystem: ClassifyFileSystem;
   }
-): Effect.Effect<ClassifyResult> {
-  const diff = diffText(target, context);
-  if (diff) {
-    const paths = extractDiffPaths(diff);
-    if (paths.length === 0) return Effect.succeed(malformedOrPathlessDiffResult(target));
+) {
+  const plan = classifyTargetPlan(target, diffText(target, context));
+  const graphBased = readGraph.pipe(
+    Effect.map((graph) => classifyPlanFromGraph(target, plan, graph, context))
+  );
+  return yield* Effect.if(plan.kind === "immediate", {
+    onTrue: () => Effect.succeed(immediatePlanResult(plan)),
+    onFalse: () => graphBased,
+  });
+});
 
-    return readGraph.pipe(
-      Effect.map((graph) =>
-        graph.kind === "graph-ready"
-          ? parseClassifyResult({
-              schemaVersion: 1,
-              state: "diff",
-              input: target,
-              paths: paths.map((path) =>
-                classifyPathFromProjects(path, graph.snapshot.projects, context)
-              ),
-              recoveryInstructions: [],
-            })
-          : graphRefusalResult(target, graphReadRefusal(graph))
-      )
-    );
-  }
+type ClassifyTargetPlan =
+  | { readonly kind: "immediate"; readonly result: ClassifyResult }
+  | { readonly kind: "path" }
+  | { readonly kind: "diff"; readonly paths: readonly string[] };
 
-  return readGraph.pipe(
-    Effect.map((graph) =>
-      graph.kind === "graph-ready"
-        ? classifyPathFromProjects(target, graph.snapshot.projects, context)
-        : graphRefusalResult(target, graphReadRefusal(graph))
-    )
+function classifyTargetPlan(target: string, diff: string | undefined): ClassifyTargetPlan {
+  return Match.value(diff).pipe(
+    Match.when(Match.undefined, () => ({ kind: "path" as const })),
+    Match.when(Match.string, (contents) => classifyDiffPlan(target, contents)),
+    Match.exhaustive
+  );
+}
+
+function classifyDiffPlan(target: string, diff: string): ClassifyTargetPlan {
+  const paths = extractDiffPaths(diff);
+  return Match.value(paths.length === 0).pipe(
+    Match.when(true, () => ({
+      kind: "immediate" as const,
+      result: malformedOrPathlessDiffResult(target),
+    })),
+    Match.when(false, () => ({ kind: "diff" as const, paths })),
+    Match.exhaustive
+  );
+}
+
+function immediatePlanResult(plan: ClassifyTargetPlan): ClassifyResult {
+  return Match.value(plan).pipe(
+    Match.when({ kind: "immediate" }, ({ result }) => result),
+    Match.orElse(() => {
+      throw new Error("habitat internal error: expected an immediate classification plan");
+    })
+  );
+}
+
+function classifyPlanFromGraph(
+  target: string,
+  plan: ClassifyTargetPlan,
+  graph: WorkspaceGraphReadState,
+  context: Pick<ClassifyOptions, "fileSystem" | "repoRoot" | "rules">
+): ClassifyResult {
+  return Match.value(plan).pipe(
+    Match.when({ kind: "path" }, () => classifyPathFromGraph(target, graph, context)),
+    Match.when({ kind: "diff" }, ({ paths }) =>
+      classifyDiffFromGraph(target, paths, graph, context)
+    ),
+    Match.when({ kind: "immediate" }, ({ result }) => result),
+    Match.exhaustive
   );
 }
 
 export function classifyPathResult(target: string, options: ClassifyOptions): PathClassification {
-  const graph = readGraph(options);
-  if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
-  return classifyPathFromProjects(target, graph.snapshot.projects, options);
+  return classifyPathFromGraph(target, readGraph(options), options);
 }
 
 export function classifyTarget(target: string, options: ClassifyOptions): ClassifyResult {
@@ -142,5 +156,59 @@ function malformedOrPathlessDiffResult(input: string): ClassifyResult {
 }
 
 function readGraph(options: ClassifyOptions): WorkspaceGraphReadState {
-  return typeof options.graph === "function" ? options.graph() : options.graph;
+  return Match.value(typeof options.graph === "function").pipe(
+    Match.when(true, () => (options.graph as () => WorkspaceGraphReadState)()),
+    Match.when(false, () => options.graph as WorkspaceGraphReadState),
+    Match.exhaustive
+  );
+}
+
+function classifyDiffTarget(
+  target: string,
+  diff: string,
+  options: ClassifyOptions
+): ClassifyResult {
+  const paths = extractDiffPaths(diff);
+  return Match.value(paths.length === 0).pipe(
+    Match.when(true, () => malformedOrPathlessDiffResult(target)),
+    Match.when(false, () => classifyDiffFromGraph(target, paths, readGraph(options), options)),
+    Match.exhaustive
+  );
+}
+
+function classifyPathTarget(target: string, options: ClassifyOptions): ClassifyResult {
+  return classifyPathFromGraph(target, readGraph(options), options);
+}
+
+function classifyDiffFromGraph(
+  target: string,
+  paths: readonly string[],
+  graph: WorkspaceGraphReadState,
+  context: Pick<ClassifyOptions, "fileSystem" | "repoRoot" | "rules">
+): ClassifyResult {
+  return Match.value(graph).pipe(
+    Match.when({ kind: "graph-ready" }, ({ snapshot }) =>
+      parseClassifyResult({
+        schemaVersion: 1,
+        state: "diff",
+        input: target,
+        paths: paths.map((path) => classifyPathFromProjects(path, snapshot.projects, context)),
+        recoveryInstructions: [],
+      })
+    ),
+    Match.orElse((refusal) => graphRefusalResult(target, graphReadRefusal(refusal)))
+  );
+}
+
+function classifyPathFromGraph(
+  target: string,
+  graph: WorkspaceGraphReadState,
+  context: Pick<ClassifyOptions, "fileSystem" | "repoRoot" | "rules">
+): PathClassification {
+  return Match.value(graph).pipe(
+    Match.when({ kind: "graph-ready" }, ({ snapshot }) =>
+      classifyPathFromProjects(target, snapshot.projects, context)
+    ),
+    Match.orElse((refusal) => graphRefusalResult(target, graphReadRefusal(refusal)))
+  );
 }

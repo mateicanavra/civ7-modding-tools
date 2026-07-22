@@ -4,7 +4,7 @@ import type {
   HabitatDiagnostic,
 } from "@habitat/cli/service/model/diagnostics/index";
 import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
-import { Context, type Effect } from "effect";
+import { Context, Effect } from "effect";
 
 export type RuleDiagnosticDemand = {
   readonly ruleIds: readonly [string, ...string[]];
@@ -13,37 +13,53 @@ export type RuleDiagnosticDemand = {
     | { readonly kind: "paths"; readonly paths: readonly string[] };
 };
 
-export type RuleDiagnosticExecutionResult =
-  | {
-      readonly kind: "executed";
-      readonly result: RuleRunResult;
-      readonly durationMs: number;
-    }
-  | {
-      readonly kind: "not-applicable";
-      readonly reason: "no-matched-scan-roots";
-      readonly durationMs: number;
-    }
-  | {
-      readonly kind: "failed";
-      readonly failure: DiagnosticProviderFailureKind;
-      readonly detail: string;
-      readonly diagnostics: readonly [HabitatDiagnostic, ...HabitatDiagnostic[]];
-      readonly durationMs: number;
-    }
-  | {
-      readonly kind: "refused";
-      readonly decision: DiagnosticScanRootRefusal;
-      readonly detail: string;
-      readonly durationMs: number;
-    };
+/** Provider-neutral evidence that several demanded rules shared one diagnostic execution. */
+export type RuleDiagnosticExecutionTiming = Readonly<{
+  kind: "shared";
+  groupId: string;
+  durationMs: number;
+  ruleCount: number;
+}>;
+
+interface RuleDiagnosticExecutionMeasurement {
+  readonly durationMs: number;
+  readonly timing?: RuleDiagnosticExecutionTiming;
+}
+
+/** One terminal diagnostic disposition plus truthful dedicated or shared timing evidence. */
+export type RuleDiagnosticExecutionResult = RuleDiagnosticExecutionMeasurement &
+  (
+    | {
+        readonly kind: "executed";
+        readonly result: RuleRunResult;
+      }
+    | {
+        readonly kind: "not-applicable";
+        readonly reason: "no-matched-scan-roots";
+      }
+    | {
+        readonly kind: "failed";
+        readonly failure: DiagnosticProviderFailureKind;
+        readonly detail: string;
+        readonly diagnostics: readonly [HabitatDiagnostic, ...HabitatDiagnostic[]];
+      }
+    | {
+        readonly kind: "refused";
+        readonly decision: DiagnosticScanRootRefusal;
+        readonly detail: string;
+      }
+  );
 
 /** Stable diagnostic capability consumed by rule execution. */
 export interface RuleDiagnosticsService {
   readonly runRules: (
     demand: RuleDiagnosticDemand
-  ) => Effect.Effect<ReadonlyMap<string, RuleDiagnosticExecutionResult>, never>;
+  ) => typeof emptyRuleDiagnosticExecutionResults;
 }
+
+const emptyRuleDiagnosticExecutionResults = Effect.succeed(
+  new Map<string, RuleDiagnosticExecutionResult>()
+);
 
 export class RuleDiagnostics extends Context.Tag("@habitat/cli/RuleDiagnostics")<
   RuleDiagnostics,

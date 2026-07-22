@@ -15,7 +15,7 @@ export default class Check extends HabitatCommand {
     "<%= config.bin %> <%= command.id %>",
     "<%= config.bin %> <%= command.id %> --json",
     "<%= config.bin %> <%= command.id %> --rule enforce_formatting_and_import_hygiene --json",
-    "<%= config.bin %> <%= command.id %> --rule prohibit_cross_op_runtime_calls --rule preserve_standard_stage_topology_and_path_invariants",
+    "<%= config.bin %> <%= command.id %> --rule prohibit_cross_op_runtime_calls --rule require_recipe_stage_source_topology",
   ];
 
   static override flags = {
@@ -54,23 +54,29 @@ export default class Check extends HabitatCommand {
     const context = await this.habitatServiceContext();
     const client = this.habitatServiceClientForContext(context);
     if (flags["expand-baseline"]) {
-      const expansion = await client.check.expandBaseline({
-        selectors: selection,
-        base,
-      });
+      const expansion = await client.check.expandBaseline(
+        {
+          selectors: selection,
+          base,
+        },
+        this.habitatServiceCallerOptions()
+      );
       if (expansion.kind === "refused") this.error(expansion.message, { exit: 1 });
       for (const message of expansion.messages) this.log(message);
       return;
     }
 
     const baselineIntegrity = flags["baseline-integrity"] || Boolean(flags.base);
-    const report = await client.check.report({
-      selectors: selection,
-      ...(baselineIntegrity ? { base } : {}),
-      baselineIntegrity,
-      command: checkCommandContext(this.rawArgv()),
-      staged: flags.staged,
-    });
+    const report = await client.check.report(
+      {
+        selectors: selection,
+        ...(baselineIntegrity ? { base } : {}),
+        baselineIntegrity,
+        command: checkCommandContext(this.rawArgv()),
+        staged: flags.staged,
+      },
+      this.habitatServiceCallerOptions()
+    );
     const rendered = renderCheckReport(report, { json: flags.json });
     if (flags.output) {
       writeFileSync(

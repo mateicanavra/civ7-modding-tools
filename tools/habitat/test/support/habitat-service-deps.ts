@@ -22,6 +22,9 @@ import type { HabitatServiceDeps } from "@habitat/cli/service/base";
 import { loadRuleRegistryDocument, ruleFactsCatalog } from "@habitat/cli/service/model/rules/index";
 import { Effect } from "effect";
 
+const testTempDirectory = path.join(path.sep, "tmp", "habitat-service-test");
+const emptyText = String();
+
 export function makeTestRuleFacts() {
   return ruleFactsCatalog(
     loadRuleRegistryDocument(path.join(repoRoot, ruleRegistryRepoPath), {
@@ -112,7 +115,7 @@ export function makeTestHabitatServiceDeps(
         }),
     },
     platform: {
-      acquireTempDirectory: () => Effect.succeed("/tmp/habitat-service-test"),
+      acquireTempDirectory: () => Effect.succeed(testTempDirectory),
       env: {},
       hashFile: () => null,
       isDirectory: () => Effect.succeed(false),
@@ -123,8 +126,8 @@ export function makeTestHabitatServiceDeps(
       pathExists: () => false,
       readDirectory: () => Effect.succeed([]),
       readDirectorySync: () => [],
-      readText: () => Effect.succeed(""),
-      readTextSync: () => "",
+      readText: () => Effect.succeed(emptyText),
+      readTextSync: () => emptyText,
       repoRoot,
       statKind: () => undefined,
       writeText: () => Effect.void,

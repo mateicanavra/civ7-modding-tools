@@ -103,6 +103,7 @@
     "release:standalone:artifacts": "bun --no-env-file --no-config scripts/standalone/build.ts --require-clean",
     "test": "vitest run --project habitat --testTimeout=30000",
     "test:standalone": "vitest run --project habitat test/standalone/standalone-binary.test.ts --testTimeout=120000",
+    "test:standalone:behavior": "vitest run --project habitat test/commands test/lib/command-*.test.ts test/lib/service-context.test.ts test/lib/grit-provider.test.ts test/lib/grit-provider-current-tree-execution.test.ts test/lib/structure-check.test.ts test/lib/vendor-providers.test.ts --testTimeout=30000",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "oclif": {

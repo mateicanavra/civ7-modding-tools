@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { type HabitatCommandGitState, unknownGitState } from "@habitat/cli/providers/git/state";
+import { Effect, Match, Stream } from "effect";
 import { commandObservationFromExit } from "./observation.js";
 import type {
   HabitatCommandResult,
@@ -9,7 +10,10 @@ import type {
   RedactedEnvValue,
 } from "./types.js";
 
-const CAPTURE_LIMIT_BYTES = 4 * 1024 * 1024;
+/** Maximum stdout or stderr prefix retained by one command observation. */
+const COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES = 4 * 1024 * 1024;
+
+const OUTPUT_CAPTURE_BLOCK_BYTES = 64 * 1024;
 const SENSITIVE_ENV_KEY = /(TOKEN|SECRET|PASSWORD|PASS|KEY|AUTH|CREDENTIAL|SESSION)/i;
 
 export function makeHabitatCommandResult(
@@ -64,8 +68,8 @@ export function makeCommandResultFromObservation(
     readonly exitCode: number;
     readonly signal?: string | null;
     readonly interrupted?: boolean;
-    readonly stdout: string;
-    readonly stderr: string;
+    readonly stdout: OutputCapture;
+    readonly stderr: OutputCapture;
   }
 ): HabitatCommandResult {
   return makeHabitatCommandResult(request, {
@@ -83,24 +87,89 @@ export function makeCommandResultFromObservation(
       signal: observation.signal ?? null,
       interrupted: observation.interrupted ?? false,
     },
-    stdout: captureOutput(observation.stdout),
-    stderr: captureOutput(observation.stderr),
+    stdout: observation.stdout,
+    stderr: observation.stderr,
   });
 }
 
 export function captureOutput(text: string): OutputCapture {
-  const bytes = Buffer.byteLength(text, "utf8");
-  const buffer = Buffer.from(text, "utf8");
-  const captured =
-    buffer.length > CAPTURE_LIMIT_BYTES
-      ? buffer.subarray(0, CAPTURE_LIMIT_BYTES).toString("utf8")
-      : text;
+  const accumulator = makeOutputCaptureAccumulator();
+  accumulator.append(Buffer.from(text, "utf8"));
+  return accumulator.finish();
+}
+
+/**
+ * Drains a byte stream while retaining only its bounded prefix.
+ *
+ * Every byte contributes to the total and SHA-256 digest. UTF-8 decoding is
+ * deferred until the stream completes so code points split across chunks remain
+ * intact. Retained blocks grow on demand and never exceed the capture limit.
+ */
+export function collectOutputCapture<E, R>(stream: Stream.Stream<Uint8Array, E, R>) {
+  return Effect.suspend(() =>
+    Stream.runFold(stream, makeOutputCaptureAccumulator(), appendOutputChunk).pipe(
+      Effect.map(finishOutputCapture)
+    )
+  );
+}
+
+function makeOutputCaptureAccumulator() {
+  const hash = createHash("sha256");
+  const retainedBlocks: Buffer[] = [];
+  let bytes = 0;
+  let retainedBytes = 0;
+
   return {
-    text: captured,
-    truncated: buffer.length > CAPTURE_LIMIT_BYTES,
-    sha256: createHash("sha256").update(text).digest("hex"),
-    bytes,
+    append(chunk: Uint8Array): void {
+      hash.update(chunk);
+      bytes += chunk.byteLength;
+
+      let chunkOffset = 0;
+      const bytesToRetain = Math.min(
+        chunk.byteLength,
+        COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES - retainedBytes
+      );
+      while (chunkOffset < bytesToRetain) {
+        const blockIndex = Math.floor(retainedBytes / OUTPUT_CAPTURE_BLOCK_BYTES);
+        const blockOffset = retainedBytes % OUTPUT_CAPTURE_BLOCK_BYTES;
+        const block =
+          retainedBlocks[blockIndex] ??
+          allocateCaptureBlock(retainedBlocks, blockIndex * OUTPUT_CAPTURE_BLOCK_BYTES);
+        const copyBytes = Math.min(bytesToRetain - chunkOffset, block.byteLength - blockOffset);
+        block.set(chunk.subarray(chunkOffset, chunkOffset + copyBytes), blockOffset);
+        chunkOffset += copyBytes;
+        retainedBytes += copyBytes;
+      }
+    },
+    finish(): OutputCapture {
+      return {
+        text: Buffer.concat(retainedBlocks, retainedBytes).toString("utf8"),
+        truncated: bytes > retainedBytes,
+        sha256: hash.digest("hex"),
+        bytes,
+      };
+    },
   };
+}
+
+function allocateCaptureBlock(retainedBlocks: Buffer[], retainedBytes: number): Buffer {
+  const block = Buffer.allocUnsafe(
+    Math.min(OUTPUT_CAPTURE_BLOCK_BYTES, COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES - retainedBytes)
+  );
+  retainedBlocks.push(block);
+  return block;
+}
+
+function appendOutputChunk(
+  accumulator: ReturnType<typeof makeOutputCaptureAccumulator>,
+  chunk: Uint8Array
+) {
+  accumulator.append(chunk);
+  return accumulator;
+}
+
+function finishOutputCapture(accumulator: ReturnType<typeof makeOutputCaptureAccumulator>) {
+  return accumulator.finish();
 }
 
 export function redactEnvDelta(
@@ -110,7 +179,11 @@ export function redactEnvDelta(
   for (const [key, value] of Object.entries(env ?? {})) {
     if (value === undefined) continue;
     const redacted = SENSITIVE_ENV_KEY.test(key);
-    delta[key] = { value: redacted ? "<redacted>" : value, redacted };
+    const retainedValue = Match.value(redacted).pipe(
+      Match.when(true, () => "<redacted>"),
+      Match.orElse(() => value)
+    );
+    delta[key] = { value: retainedValue, redacted };
   }
   return delta;
 }

@@ -125,7 +125,7 @@ describe("Habitat hook service", () => {
     expect(gitCalls).toEqual([
       "symbolic-ref --quiet --short refs/remotes/origin/HEAD",
       "merge-base HEAD origin/main",
-      "diff --name-only -z abc123mergebase HEAD",
+      "diff --no-renames --name-only -z abc123mergebase HEAD",
     ]);
   });
 
@@ -254,7 +254,7 @@ describe("Habitat hook service", () => {
       makeFakeGitProviderLayer((argv, options) => {
         const stdout = stdoutForCommand(
           argv,
-          "diff --name-only -z HEAD~1 HEAD",
+          "diff --no-renames --name-only -z HEAD~1 HEAD",
           renderPathList([...changedPaths])
         );
         return commandResult(argv, options.cwd, stdout);
@@ -289,7 +289,7 @@ describe("Habitat hook service", () => {
       makeFakeGitProviderLayer((argv, options) => {
         const stdout = stdoutForCommand(
           argv,
-          "diff --name-only -z HEAD~1 HEAD",
+          "diff --no-renames --name-only -z HEAD~1 HEAD",
           renderPathList([...changedPaths])
         );
         return commandResult(argv, options.cwd, stdout);
@@ -329,7 +329,7 @@ describe("Habitat hook service", () => {
       makeFakeGitProviderLayer((argv, options) => {
         const stdout = stdoutForCommand(
           argv,
-          "diff --name-only -z HEAD~1 HEAD",
+          "diff --no-renames --name-only -z HEAD~1 HEAD",
           renderPathList(["packages/sdk/src/deleted.ts"])
         );
         return commandResult(argv, options.cwd, stdout);
@@ -375,7 +375,7 @@ describe("Habitat hook service", () => {
       makeFakeGitProviderLayer((argv, options) => {
         const stdout = stdoutForCommand(
           argv,
-          "diff --name-only -z HEAD~1 HEAD",
+          "diff --no-renames --name-only -z HEAD~1 HEAD",
           renderPathList([...changedPaths])
         );
         return commandResult(argv, options.cwd, stdout);
@@ -402,7 +402,7 @@ describe("Habitat hook service", () => {
       makeFakeGitProviderLayer((argv, options) => {
         const stdout = stdoutForCommand(
           argv,
-          "diff --name-only -z HEAD~1 HEAD",
+          "diff --no-renames --name-only -z HEAD~1 HEAD",
           renderPathList([...changedPaths])
         );
         return commandResult(argv, options.cwd, stdout);
@@ -431,7 +431,7 @@ describe("Habitat hook service", () => {
       makeFakeGitProviderLayer((argv, options) => {
         const stdout = stdoutForCommand(
           argv,
-          "diff --name-only -z HEAD~1 HEAD",
+          "diff --no-renames --name-only -z HEAD~1 HEAD",
           renderPathList(changedPaths)
         );
         return commandResult(argv, options.cwd, stdout);
@@ -464,7 +464,7 @@ describe("Habitat hook service", () => {
       makeFakeGitProviderLayer((argv, options) => {
         const stdout = stdoutForCommand(
           argv,
-          "diff --name-only -z HEAD~1 HEAD",
+          "diff --no-renames --name-only -z HEAD~1 HEAD",
           renderPathList([...changedPaths])
         );
         return commandResult(argv, options.cwd, stdout);
@@ -490,7 +490,7 @@ describe("Habitat hook service", () => {
       makeFakeGitProviderLayer((argv, options) => {
         const stdout = stdoutForCommand(
           argv,
-          "diff --name-only -z HEAD~1 HEAD",
+          "diff --no-renames --name-only -z HEAD~1 HEAD",
           renderPathList([...changedPaths])
         );
         return commandResult(argv, options.cwd, stdout);
@@ -501,6 +501,53 @@ describe("Habitat hook service", () => {
     expect(result.exitCode).toBe(0);
     expect(runManyRequests).toEqual([{ targets: ["check:policy"] }]);
     expect(affectedRequests).toEqual([]);
+  });
+
+  test.each([
+    ["compiler config", [".habitat/tsconfig.json"]],
+    [
+      "authority script",
+      [
+        ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/check.ts",
+      ],
+    ],
+    ["ES module authority script", [".habitat/example/check.mts"]],
+    ["CommonJS authority script", [".habitat/example/check.cts"]],
+    ["TSX authority script", [".habitat/example/check.tsx"]],
+    [
+      "renamed authority script",
+      [
+        ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/check.ts",
+        ".habitat/habitat/toolkit/_blueprints/service-module/validate_habitat_service_module_file_shape/check.sh",
+      ],
+    ],
+  ] as const)("uses the owner-complete affected graph for Habitat %s", async (_label, changedPaths) => {
+    const affectedRequests: NxAffectedRequest[] = [];
+    const runManyRequests: NxRunManyRequest[] = [];
+
+    const result = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
+      {},
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout = stdoutForCommand(
+          argv,
+          "diff --no-renames --name-only -z HEAD~1 HEAD",
+          renderPathList([...changedPaths])
+        );
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      trackingNxLayer(affectedRequests, runManyRequests)
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(affectedRequests).toEqual([
+      {
+        base: "HEAD~1",
+        targets: ["check"],
+        head: "HEAD",
+      },
+    ]);
+    expect(runManyRequests).toEqual([]);
   });
 
   test.each([
@@ -517,7 +564,7 @@ describe("Habitat hook service", () => {
       makeFakeGitProviderLayer((argv, options) => {
         const stdout = stdoutForCommand(
           argv,
-          "diff --name-only -z HEAD~1 HEAD",
+          "diff --no-renames --name-only -z HEAD~1 HEAD",
           renderPathList([changedPath])
         );
         return commandResult(argv, options.cwd, stdout);

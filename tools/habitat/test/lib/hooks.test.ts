@@ -31,15 +31,16 @@ import {
 } from "@habitat/cli/service/modules/hook/model/policy/resource-inspection.policy";
 import type { HookResourcePolicy } from "@habitat/cli/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@habitat/cli/service/modules/hook/router";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Match, Schema } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { Value } from "typebox/value";
 import { describe, expect, test, vi } from "vitest";
 import { makeTestHabitatServiceDeps, makeTestRuleFacts } from "../support/habitat-service-deps";
 
-type StructuralCheckPolicy = {
-  readonly createReport: (options?: CheckOptions) => Effect.Effect<CheckReport>;
-};
+type StructuralCheckPolicy = ReturnType<typeof makeStructuralCheckPolicy>;
+
+const stringifyJsonDocument = Schema.encodeSync(Schema.parseJson({ space: 2 }));
+const parseJsonDocument = Schema.decodeUnknownSync(Schema.parseJson());
 
 const mockCreateCheckReportEffect = vi.hoisted(() =>
   vi.fn<StructuralCheckPolicy["createReport"]>()
@@ -720,86 +721,90 @@ async function runPreCommitInTest(
     makeFakeNxProviderLayer(),
     makeBiomeLayer(fake)
   );
-  return Effect.runPromise(
-    runHookProcedure({
-      hashFile: fake.hashFile,
-      pathExists: fake.pathExists,
-      reporterEvents,
-      resourcePolicy,
-      sourceCheckHookEnabled: fake.options.sourceCheckHookEnabled,
-    }).pipe(Effect.provide(layer))
-  );
-}
-
-function runHookProcedure(options: {
-  readonly hashFile?: (targetPath: string) => string | null;
-  readonly pathExists?: (targetPath: string) => boolean;
-  readonly reporterEvents?: HabitatReportEvent[];
-  readonly resourcePolicy?: HookResourcePolicy;
-  readonly sourceCheckHookEnabled?: boolean;
-}) {
-  return Effect.gen(function* () {
+  const program = Effect.gen(function* () {
     const biome = yield* BiomeProvider;
     const git = yield* GitProvider;
     const graphite = yield* GraphiteProvider;
     const nx = yield* NxProvider;
+    const baseDeps = makeTestHabitatServiceDeps();
     const preCommitHook = hookRouter.preCommit.callable({
       context: {
-        deps: {
-          ...makeTestHabitatServiceDeps({
-            biome,
-            git,
-            graphite,
-            nx,
-            platform: {
-              ...makeTestHabitatServiceDeps().platform,
-              ...(options.hashFile ? { hashFile: options.hashFile } : {}),
-              ...(options.pathExists ? { pathExists: options.pathExists } : {}),
-              repoRoot,
-            },
-            ...(options.reporterEvents
-              ? {
-                  reporter: {
-                    emit: (event: HabitatReportEvent) =>
-                      Effect.sync(() => {
-                        options.reporterEvents?.push(event);
-                      }),
-                  },
-                }
-              : {}),
-            ...(options.sourceCheckHookEnabled
-              ? { rules: makeSyntheticSourceCheckHookRules() }
-              : {}),
-          }),
-        },
+        deps: makeTestHabitatServiceDeps({
+          biome,
+          git,
+          graphite,
+          nx,
+          platform: {
+            ...baseDeps.platform,
+            hashFile: fake.hashFile,
+            pathExists: fake.pathExists,
+            repoRoot,
+          },
+          reporter: hookReporter(reporterEvents, baseDeps.reporter),
+          rules: hookRules(fake.options.sourceCheckHookEnabled, baseDeps.rules),
+        }),
       },
     });
-    return yield* withFiberContext(() =>
-      preCommitHook({
-        ...(options.resourcePolicy ? { resourcePolicy: options.resourcePolicy } : {}),
-      })
-    );
+    return yield* withFiberContext(() => preCommitHook(preCommitInput(resourcePolicy)));
   });
+  return Effect.runPromise(program.pipe(Effect.provide(layer)));
 }
 
-function makeStructuralCheckPolicy(fake: FakeHookHarness): StructuralCheckPolicy {
+function hookReporter(
+  events: HabitatReportEvent[] | undefined,
+  fallback: ReturnType<typeof makeTestHabitatServiceDeps>["reporter"]
+) {
+  return Match.value(events).pipe(
+    Match.when(Match.undefined, () => fallback),
+    Match.orElse((reporterEvents) => ({
+      emit: (event: HabitatReportEvent) =>
+        Effect.sync(() => {
+          reporterEvents.push(event);
+        }),
+    }))
+  );
+}
+
+function hookRules(
+  sourceCheckHookEnabled: boolean | undefined,
+  fallback: ReturnType<typeof makeTestHabitatServiceDeps>["rules"]
+) {
+  return Match.value(sourceCheckHookEnabled).pipe(
+    Match.when(true, makeSyntheticSourceCheckHookRules),
+    Match.orElse(() => fallback)
+  );
+}
+
+function preCommitInput(resourcePolicy: HookResourcePolicy | undefined) {
+  return Match.value(resourcePolicy).pipe(
+    Match.when(Match.undefined, () => ({})),
+    Match.orElse((policy) => ({ resourcePolicy: policy }))
+  );
+}
+
+function makeStructuralCheckPolicy(fake: FakeHookHarness) {
   return {
     createReport: (options = {}) =>
-      Effect.sync(() => {
-        fake.checkRequests.push(options);
-        if (options.runner === "habitat") {
-          return parseCheckReport(
-            fake.options.fileLayerStdout ?? fileLayerCheckReport({ ok: true, status: "pass" })
-          );
-        }
-        if (options.runner === "grit") {
-          return parseCheckReport(
-            fake.options.sourceCheckStdout ?? sourceCheckReport({ ok: true, status: "pass" })
-          );
-        }
-        return passingCheckReport(options.command?.serialized ?? "habitat check");
-      }),
+      Effect.sync(() =>
+        recordAndReturn(fake.checkRequests, options, checkReportForOptions(fake, options))
+      ),
   };
+}
+
+function checkReportForOptions(fake: FakeHookHarness, options: CheckOptions): CheckReport {
+  return Match.value(options.runner).pipe(
+    Match.when("habitat", () =>
+      parseCheckReport(
+        fake.options.fileLayerStdout ?? fileLayerCheckReport({ ok: true, status: "pass" })
+      )
+    ),
+    Match.when("grit", () =>
+      parseCheckReport(
+        fake.options.sourceCheckStdout ?? sourceCheckReport({ ok: true, status: "pass" })
+      )
+    ),
+    Match.orElse(() => passingCheckReport(options.command?.serialized ?? "habitat check"))
+  );
 }
 
 function installStructuralCheckPolicy(policy: StructuralCheckPolicy) {
@@ -844,18 +849,21 @@ function makeSyntheticSourceCheckHookRules() {
 function makeBiomeLayer(fake: FakeHookHarness) {
   return makeFakeBiomeProviderLayer((request) => {
     fake.biomeRequests.push(request);
-    const exitCode =
-      request.kind === "format"
-        ? (fake.options.biomeFormatExitCode ?? 0)
-        : request.kind === "check"
-          ? (fake.options.biomeCheckExitCode ?? 0)
-          : 0;
+    const exitCode = Match.value(request.kind).pipe(
+      Match.when("format", () => fake.options.biomeFormatExitCode ?? 0),
+      Match.when("check", () => fake.options.biomeCheckExitCode ?? 0),
+      Match.orElse(() => 0)
+    );
+    const output = Match.value(exitCode === 0).pipe(
+      Match.when(true, () => ({ stdout: `${request.kind} ok\n`, stderr: "" })),
+      Match.orElse(() => ({ stdout: "", stderr: `${request.kind} failed\n` }))
+    );
     return commandResult(
       biomeArgv(request),
       repoRootForTestCommand(),
-      exitCode === 0 ? `${request.kind} ok\n` : "",
+      output.stdout,
       exitCode,
-      exitCode === 0 ? "" : `${request.kind} failed\n`,
+      output.stderr,
       "biome"
     );
   });
@@ -866,24 +874,47 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookHarness {
   const checkRequests: CheckOptions[] = [];
   const biomeRequests: BiomeCommandRequest[] = [];
   const hashReads = new Map<string, number>();
-  const pathExists = (target: string) => {
-    if (target.endsWith("vendor/resources")) {
-      return options.resourcesRootExists ?? true;
-    }
-    if (target.endsWith("index.lock")) return options.indexLockExists ?? false;
-    if ((options.stagedPaths ?? []).some((candidate) => target.endsWith(candidate))) {
-      return true;
-    }
-    return false;
-  };
+  const pathExists = (target: string) =>
+    Match.value(target).pipe(
+      Match.when(
+        (candidate) => candidate.endsWith("vendor/resources"),
+        () => options.resourcesRootExists ?? true
+      ),
+      Match.when(
+        (candidate) => candidate.endsWith("index.lock"),
+        () => options.indexLockExists ?? false
+      ),
+      Match.when(
+        (candidate) =>
+          (options.stagedPaths ?? []).some((stagedPath) => candidate.endsWith(stagedPath)),
+        () => true
+      ),
+      Match.orElse(() => false)
+    );
   const hashFile = (targetPath: string) => {
     const repoRelativePath = toTestRepoRelative(targetPath);
     const sequence = options.fileHashes?.[repoRelativePath];
-    if (!sequence) return `stable:${repoRelativePath}`;
-    const readCount = hashReads.get(repoRelativePath) ?? 0;
-    hashReads.set(repoRelativePath, readCount + 1);
-    return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
+    return Match.value(sequence).pipe(
+      Match.when(Match.undefined, () => `stable:${repoRelativePath}`),
+      Match.orElse((hashes) => {
+        const readCount = hashReads.get(repoRelativePath) ?? 0;
+        hashReads.set(repoRelativePath, readCount + 1);
+        return hashes[Math.min(readCount, hashes.length - 1)] ?? null;
+      })
+    );
   };
+  const resourcePolicy = Match.value(options.resourcePolicy).pipe(
+    Match.when(true, () => ({
+      path: "vendor/resources",
+      commands: {
+        publish: "resource publish",
+        status: "resource status",
+        init: "resource init",
+        unlock: "resource unlock",
+      },
+    })),
+    Match.orElse(() => undefined)
+  );
 
   return {
     calls,
@@ -892,78 +923,85 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookHarness {
     hashFile,
     options,
     pathExists,
-    resourcePolicy: options.resourcePolicy
-      ? {
-          path: "vendor/resources",
-          commands: {
-            publish: "resource publish",
-            status: "resource status",
-            init: "resource init",
-            unlock: "resource unlock",
-          },
-        }
-      : undefined,
+    resourcePolicy,
   };
 }
 
 function toTestRepoRelative(targetPath: string): string {
   const prefix = `${repoRoot}/`;
-  return targetPath.startsWith(prefix) ? targetPath.slice(prefix.length) : targetPath;
+  return Match.value(targetPath.startsWith(prefix)).pipe(
+    Match.when(true, () => targetPath.slice(prefix.length)),
+    Match.orElse(() => targetPath)
+  );
 }
 
 function makeGitLayer(fake: FakeHookHarness) {
-  return makeFakeGitProviderLayer((argv, options) => {
-    const call = ["git", ...argv].join(" ");
-    fake.calls.push(call);
-    if (call === "git branch --show-current") {
-      return commandResult(argv, options.cwd, `${fake.options.branch ?? "agent-HR-test"}\n`);
-    }
-    if (call === "git rev-parse HEAD") {
-      return commandResult(argv, options.cwd, `${fake.options.head ?? "abc123head"}\n`);
-    }
-    if (call === "git diff --cached --name-only -z") {
-      return commandResult(argv, options.cwd, renderPathList(fake.options.stagedPaths ?? []));
-    }
-    if (call === "git diff --name-only -z") {
-      return commandResult(argv, options.cwd, renderPathList(fake.options.allUnstagedPaths ?? []));
-    }
-    if (call.endsWith("rev-parse --is-inside-work-tree")) {
-      return commandResult(argv, options.cwd, "true\n");
-    }
-    if (call.endsWith("rev-parse --show-toplevel")) {
-      return commandResult(
-        argv,
-        options.cwd,
-        `${fake.options.resourcesTopLevel ?? `${repoRoot}/vendor/resources`}\n`
-      );
-    }
-    if (call.endsWith("rev-parse --git-dir")) {
-      return commandResult(argv, options.cwd, ".git\n");
-    }
-    if (call.endsWith("status --porcelain")) {
-      return commandResult(argv, options.cwd, fake.options.submoduleStatus ?? "");
-    }
-    if (call === "git diff --quiet -- vendor/resources") {
-      return fake.options.unstagedGitlink
-        ? commandResult(argv, options.cwd, "", 1)
-        : commandResult(argv, options.cwd, "");
-    }
-    if (call === "git diff --cached --quiet -- vendor/resources") {
-      return fake.options.stagedGitlink
-        ? commandResult(argv, options.cwd, "", 1)
-        : commandResult(argv, options.cwd, "");
-    }
-    if (call === "git diff --cached --name-status -z") {
-      return commandResult(argv, options.cwd, renderNameStatus(fake.options.stagedPaths ?? []));
-    }
-    if (call.startsWith("git diff --name-only -z --")) {
-      return commandResult(argv, options.cwd, renderPathList(fake.options.unstagedPaths ?? []));
-    }
-    if (call.startsWith("git add --")) {
-      return commandResult(argv, options.cwd, "");
-    }
-    throw new Error(`Unexpected hook test command: ${call}`);
-  });
+  return makeFakeGitProviderLayer((argv, options) =>
+    recordAndReturn(fake.calls, renderGitCall(argv), hookGitCommand(fake, argv, options.cwd))
+  );
+}
+
+function hookGitCommand(fake: FakeHookHarness, argv: readonly string[], cwd: string) {
+  const call = renderGitCall(argv);
+  return Match.value(call).pipe(
+    Match.when("git branch --show-current", () =>
+      commandResult(argv, cwd, `${fake.options.branch ?? "agent-HR-test"}\n`)
+    ),
+    Match.when("git rev-parse HEAD", () =>
+      commandResult(argv, cwd, `${fake.options.head ?? "abc123head"}\n`)
+    ),
+    Match.when("git diff --cached --name-only -z", () =>
+      commandResult(argv, cwd, renderPathList(fake.options.stagedPaths ?? []))
+    ),
+    Match.when("git diff --name-only -z", () =>
+      commandResult(argv, cwd, renderPathList(fake.options.allUnstagedPaths ?? []))
+    ),
+    Match.when(
+      (candidate) => candidate.endsWith("rev-parse --is-inside-work-tree"),
+      () => commandResult(argv, cwd, "true\n")
+    ),
+    Match.when(
+      (candidate) => candidate.endsWith("rev-parse --show-toplevel"),
+      () =>
+        commandResult(
+          argv,
+          cwd,
+          `${fake.options.resourcesTopLevel ?? `${repoRoot}/vendor/resources`}\n`
+        )
+    ),
+    Match.when(
+      (candidate) => candidate.endsWith("rev-parse --git-dir"),
+      () => commandResult(argv, cwd, ".git\n")
+    ),
+    Match.when(
+      (candidate) => candidate.endsWith("status --porcelain"),
+      () => commandResult(argv, cwd, fake.options.submoduleStatus ?? "")
+    ),
+    Match.when("git diff --quiet -- vendor/resources", () =>
+      commandResult(argv, cwd, "", Number(fake.options.unstagedGitlink === true))
+    ),
+    Match.when("git diff --cached --quiet -- vendor/resources", () =>
+      commandResult(argv, cwd, "", Number(fake.options.stagedGitlink === true))
+    ),
+    Match.when("git diff --cached --name-status -z", () =>
+      commandResult(argv, cwd, renderNameStatus(fake.options.stagedPaths ?? []))
+    ),
+    Match.when(
+      (candidate) => candidate.startsWith("git diff --name-only -z --"),
+      () => commandResult(argv, cwd, renderPathList(fake.options.unstagedPaths ?? []))
+    ),
+    Match.when(
+      (candidate) => candidate.startsWith("git add --"),
+      () => commandResult(argv, cwd, "")
+    ),
+    Match.orElse((unexpected) => {
+      throw new Error(`Unexpected hook test command: ${unexpected}`);
+    })
+  );
+}
+
+function renderGitCall(argv: readonly string[]): string {
+  return ["git", ...argv].join(" ");
 }
 
 function renderNameStatus(paths: string[]): string {
@@ -971,7 +1009,10 @@ function renderNameStatus(paths: string[]): string {
 }
 
 function renderPathList(paths: string[]): string {
-  return paths.length === 0 ? "" : `${paths.join("\0")}\0`;
+  return Match.value(paths.length).pipe(
+    Match.when(0, () => ""),
+    Match.orElse(() => `${paths.join("\0")}\0`)
+  );
 }
 
 function renderReported(
@@ -1004,8 +1045,10 @@ function sourceCheckReport(options: {
 function diagnosticMessageForStatus(
   status: "pass" | "fail" | "advisory-findings"
 ): {} | { diagnosticMessage: string } {
-  if (status === "fail") return { diagnosticMessage: "failing diagnostic" };
-  return {};
+  return Match.value(status).pipe(
+    Match.when("fail", () => ({ diagnosticMessage: "failing diagnostic" })),
+    Match.orElse(() => ({}))
+  );
 }
 
 function fileLayerCheckReport(options: {
@@ -1036,46 +1079,59 @@ function checkReport(options: {
   schemaVersion?: number;
   omitDisposition?: boolean;
 }): string {
-  return `${JSON.stringify(
-    {
-      schemaVersion: options.schemaVersion ?? 2,
-      command: options.command,
-      startedAt: "2026-06-15T00:00:00.000Z",
-      ok: options.ok,
-      rules: [
-        {
-          ruleId: options.ruleId,
-          runner: options.runner,
-          lane: options.lane ?? "enforced",
-          status: options.status,
-          locked: true,
-          durationMs: 1,
-          ...(!options.omitDisposition
-            ? { disposition: options.disposition ?? { kind: "executed" } }
-            : {}),
-          diagnostics: options.diagnosticMessage
-            ? [
-                {
-                  ruleId: options.ruleId,
-                  path: "packages/example/src/index.ts",
-                  message: options.diagnosticMessage,
-                  severity: options.diagnosticSeverity ?? "error",
-                  baselined: false,
-                },
-              ]
-            : [],
-          message: options.message,
-          remediate: null,
-        },
-      ],
-    },
-    null,
-    2
-  )}\n`;
+  const diagnostics = Match.value(options.diagnosticMessage).pipe(
+    Match.when(Match.undefined, () => []),
+    Match.orElse((message) => [
+      {
+        ruleId: options.ruleId,
+        path: "packages/example/src/index.ts",
+        message,
+        severity: options.diagnosticSeverity ?? "error",
+        baselined: false,
+      },
+    ])
+  );
+  const rule = Match.value(options.omitDisposition).pipe(
+    Match.when(true, () => ({
+      ruleId: options.ruleId,
+      runner: options.runner,
+      lane: options.lane ?? "enforced",
+      status: options.status,
+      locked: true,
+      durationMs: 1,
+      diagnostics,
+      message: options.message,
+      remediate: null,
+    })),
+    Match.orElse(() => ({
+      ruleId: options.ruleId,
+      runner: options.runner,
+      lane: options.lane ?? "enforced",
+      status: options.status,
+      locked: true,
+      durationMs: 1,
+      disposition: options.disposition ?? { kind: "executed" },
+      diagnostics,
+      message: options.message,
+      remediate: null,
+    }))
+  );
+  return `${stringifyJsonDocument({
+    schemaVersion: options.schemaVersion ?? 2,
+    command: options.command,
+    startedAt: "2026-06-15T00:00:00.000Z",
+    ok: options.ok,
+    rules: [rule],
+  })}\n`;
 }
 
 function parseCheckReport(report: string): CheckReport {
-  return Value.Parse(CheckReportSchema, JSON.parse(report));
+  return Value.Parse(CheckReportSchema, parseJsonDocument(report));
+}
+
+function recordAndReturn<Event, Value>(events: Event[], event: Event, value: Value): Value {
+  events.push(event);
+  return value;
 }
 
 function passingCheckReport(command: string): CheckReport {
@@ -1096,10 +1152,14 @@ function commandResult(
   stderr = "",
   executable = "git"
 ): HabitatCommandResult {
+  const kind = Match.value(executable).pipe(
+    Match.when("git", () => "git-state" as const),
+    Match.orElse(() => "workspace-tool" as const)
+  );
   return makeHabitatCommandResult(
     {
       commandId: `${executable}-${argv.join("-")}`,
-      kind: executable === "git" ? "git-state" : "workspace-tool",
+      kind,
       executable,
       argv,
       cwd,

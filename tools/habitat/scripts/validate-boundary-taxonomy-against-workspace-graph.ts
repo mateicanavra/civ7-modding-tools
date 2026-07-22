@@ -15,9 +15,7 @@ const taxonomyPath = path.join(repoRoot, "docs/projects/habitat-harness/taxonomy
 const taxonomy = parseBoundaryTaxonomy(await readFile(taxonomyPath, "utf8"));
 const manifests = await readWorkspaceManifestProjects(repoRoot);
 const { projects, graphEdges } = await readNxProjectMetadataFromGraph();
-const configConstraints = await readBoundaryConfigConstraints(
-  path.join(repoRoot, "eslint.boundaries.config.mjs")
-);
+const configConstraints = readBoundaryConfigConstraints();
 
 const audit = auditBoundaryTaxonomy({
   taxonomy,

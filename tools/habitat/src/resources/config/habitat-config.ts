@@ -26,9 +26,7 @@ export interface HabitatConfigValue {
   readonly workspaceTools: ReadonlyMap<string, WorkspaceToolPolicy>;
 }
 
-export interface HabitatConfigService {
-  readonly get: Effect.Effect<HabitatConfigValue>;
-}
+export interface HabitatConfigService extends ReturnType<typeof makeHabitatConfigService> {}
 
 export class HabitatConfig extends Context.Tag("@habitat/cli/HabitatConfig")<
   HabitatConfig,
@@ -72,7 +70,11 @@ export function makeHabitatConfig(
   };
 }
 
-export const loadHabitatConfig = Effect.map(habitatConfigDescriptor, (config) => {
+export const loadHabitatConfig = Effect.map(habitatConfigDescriptor, habitatConfigValue);
+
+function habitatConfigValue(
+  config: Effect.Effect.Success<typeof habitatConfigDescriptor>
+): HabitatConfigValue {
   const root = config.repoRoot;
   const cacheRoot = Option.getOrElse(config.cacheRoot, () => path.join(root, ".habitat", "cache"));
   return makeHabitatConfig({
@@ -89,13 +91,17 @@ export const loadHabitatConfig = Effect.map(habitatConfigDescriptor, (config) =>
       commandTimeoutMs: Option.getOrUndefined(config.commandTimeoutMs),
     },
   });
-});
+}
 
 export function makeHabitatConfigLayer(config: HabitatConfigValue = makeHabitatConfig()) {
-  return Layer.succeed(HabitatConfig, { get: Effect.succeed(config) });
+  return Layer.succeed(HabitatConfig, makeHabitatConfigService(config));
+}
+
+function makeHabitatConfigService(config: HabitatConfigValue) {
+  return { get: Effect.succeed(config) };
 }
 
 export const HabitatConfigLive = Layer.effect(
   HabitatConfig,
-  Effect.map(loadHabitatConfig, (config) => ({ get: Effect.succeed(config) }))
+  Effect.map(loadHabitatConfig, makeHabitatConfigService)
 );

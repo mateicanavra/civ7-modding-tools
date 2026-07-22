@@ -30,10 +30,21 @@ export function prePushTargetPlanForChangedPaths(
   authorityRules: readonly HabitatAuthorityRulePathInput[]
 ): ValidationTargetPlan {
   const plan = habitatAuthorityPathPlan(changedPaths, authorityRules);
+  if (plan.allHabitatAuthorityFiles && requiresHabitatAuthorityCompiler(changedPaths)) {
+    return { kind: "affected", targets: ["check"] };
+  }
   if (plan.allHabitatAuthorityFiles) {
     return authorityTargetPlan(plan, targetNames, authorityRules);
   }
   return { kind: "affected", targets: ["check"] };
+}
+
+function requiresHabitatAuthorityCompiler(changedPaths: readonly string[]): boolean {
+  return changedPaths.some(
+    (path) =>
+      path === ".habitat/tsconfig.json" ||
+      (path.startsWith(".habitat/") && /\.(?:[cm]?ts|tsx)$/.test(path))
+  );
 }
 
 function authorityTargetPlan(

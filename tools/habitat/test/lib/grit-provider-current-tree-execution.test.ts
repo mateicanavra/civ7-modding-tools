@@ -120,6 +120,47 @@ describe("generic Grit current-tree execution", () => {
     );
   });
 
+  test("executes a pinned multi-pattern catalog once and projects matching plus clean peers", async () => {
+    const fixture = checkFixture("const value = forbidden_fixture_marker;\n");
+    const cleanPatternPath = path.join(fixture.repoRoot, ".habitat/patterns/clean.md");
+    writeFileSync(
+      cleanPatternPath,
+      `\`\`\`grit
+language js
+
+\`absent_fixture_marker\`
+\`\`\`
+`
+    );
+    const cleanRule = sourceRule(
+      "fixture-clean-check",
+      "clean_fixture_marker",
+      ".habitat/patterns/clean.md",
+      ["scan"],
+      "check"
+    );
+    const before = treeDigest(fixture.repoRoot);
+    const observation: BoundaryObservation = {};
+    const outcomes = await Effect.runPromise(
+      Effect.gen(function* () {
+        const liveGrit = yield* makeGritCommandService(workspaceRepoRoot);
+        return yield* runGritDiagnosticOutcomesEffect([cleanRule, fixture.rule], {
+          repoRoot: fixture.repoRoot,
+          grit: observingGrit(liveGrit, observation),
+        });
+      }).pipe(Effect.provide(LiveGritPrerequisites))
+    );
+
+    expect(outcomes.get(fixture.rule.id)).toMatchObject({ kind: "findings" });
+    expect(outcomes.get(cleanRule.id)).toMatchObject({ kind: "clean", diagnostics: [] });
+    expect(observation.checkCallCount).toBe(1);
+    expect(observation.checkRequest?.patternNames).toEqual([
+      "clean_fixture_marker",
+      "fixture_marker",
+    ]);
+    expect(treeDigest(fixture.repoRoot)).toBe(before);
+  });
+
   test("keeps an empty eligible root parsed-incomplete rather than clean", async () => {
     const fixture = checkFixture("", false, false);
     const execution = await executeFixture(fixture);
@@ -390,6 +431,7 @@ interface Fixture {
 interface BoundaryObservation {
   checkRequest?: GritCheckProviderRequest;
   checkCommand?: HabitatCommandResult;
+  checkCallCount?: number;
   applyRequest?: GritApplyDryRunProviderRequest;
   applyCommand?: HabitatCommandResult;
   applyCallCount?: number;
@@ -466,6 +508,7 @@ function observingGrit(
   return {
     ...live,
     check: (request) => {
+      observation.checkCallCount = (observation.checkCallCount ?? 0) + 1;
       observation.checkRequest = request;
       return live.check(request).pipe(
         Effect.tap((command) =>

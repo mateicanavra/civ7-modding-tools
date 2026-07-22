@@ -36,9 +36,6 @@ export type { HabitatCommandResult, OutputCapture, RedactedEnvValue } from "./re
 export {
   CommandRunner,
   CommandRunnerLive,
-  captureCommandGitStateAround,
-  commandUnavailableFromCause,
-  interruptCommandOnTimeout,
 } from "./runner.js";
 export {
   type SpawnResult,

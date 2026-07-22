@@ -9,17 +9,17 @@ import { Effect, Match } from "effect";
 import type { RuleExecutionRecord, StructuralExecutionContext } from "./context.policy.js";
 import type { currentStagedPathsEffect } from "./file-layer-execution.policy.js";
 
-export function executeDiagnosticRulesEffect<R>(
+export function executeDiagnosticRulesEffect(
   diagnosticRules: readonly RuleDiagnosticFacts[],
   results: Map<string, RuleExecutionRecord>,
   options: Pick<CheckOptions, "staged" | "stagedPaths">,
-  context: Pick<StructuralExecutionContext<R>, "ruleDiagnostics">,
-  currentStagedPaths: () => ReturnType<typeof currentStagedPathsEffect<R>>
+  context: Pick<StructuralExecutionContext, "ruleDiagnostics">,
+  currentStagedPaths: () => ReturnType<typeof currentStagedPathsEffect>
 ) {
   const [firstRule, ...remainingRules] = diagnosticRules;
   if (!firstRule) return Effect.void;
   return Effect.gen(function* () {
-    let scope: Parameters<StructuralExecutionContext<R>["ruleDiagnostics"]["runRules"]>[0]["scope"];
+    let scope: Parameters<StructuralExecutionContext["ruleDiagnostics"]["runRules"]>[0]["scope"];
     if (options.staged) {
       scope = {
         kind: "paths",
@@ -44,20 +44,24 @@ export function ruleDiagnosticExecutionRecord(
   rule: RuleDiagnosticFacts,
   execution: RuleDiagnosticExecutionResult
 ): RuleExecutionRecord {
+  const timing = diagnosticTimingField(execution.timing);
   return Match.value(execution).pipe(
     Match.when({ kind: "executed" }, ({ result, durationMs }) => ({
       result,
       durationMs,
+      ...timing,
       disposition: { kind: "executed" as const, durationMs },
     })),
     Match.when({ kind: "not-applicable" }, ({ reason, durationMs }) => ({
       result: { exitCode: 0, diagnostics: [] },
       durationMs,
+      ...timing,
       disposition: { kind: "not-applicable" as const, reason },
     })),
     Match.when({ kind: "failed" }, ({ failure, detail, diagnostics, durationMs }) => ({
       result: { exitCode: 1, diagnostics: [...diagnostics] },
       durationMs,
+      ...timing,
       disposition: {
         kind: "execution-failed" as const,
         source: "diagnostic-provider" as const,
@@ -68,6 +72,7 @@ export function ruleDiagnosticExecutionRecord(
     Match.when({ kind: "refused" }, ({ decision, detail, durationMs }) => ({
       result: { exitCode: 1, diagnostics: [dependencyRefusalDiagnostic(rule, detail)] },
       durationMs,
+      ...timing,
       disposition: {
         kind: "dependency-refused" as const,
         source: "diagnostic-scan-root" as const,
@@ -76,6 +81,13 @@ export function ruleDiagnosticExecutionRecord(
       },
     })),
     Match.exhaustive
+  );
+}
+
+function diagnosticTimingField(timing: RuleDiagnosticExecutionResult["timing"]) {
+  return Match.value(timing).pipe(
+    Match.when(undefined, () => ({})),
+    Match.orElse((shared) => ({ timing: shared }))
   );
 }
 

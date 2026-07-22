@@ -15,7 +15,8 @@ import { Effect } from "effect";
 export type LiveHabitatServiceContextInput = Omit<Partial<HabitatServiceContext>, "deps">;
 
 export async function createLiveHabitatServiceContext(
-  input: LiveHabitatServiceContextInput = {}
+  input: LiveHabitatServiceContextInput = {},
+  options: { readonly signal?: AbortSignal } = {}
 ): Promise<HabitatServiceContext> {
   const deps = await habitatServiceManagedRuntime.runPromise(
     Effect.gen(function* () {
@@ -33,7 +34,8 @@ export async function createLiveHabitatServiceContext(
         ruleFixPreview: yield* RuleFixPreview,
         rules,
       } satisfies HabitatServiceDeps;
-    })
+    }),
+    { signal: options.signal }
   );
 
   return {

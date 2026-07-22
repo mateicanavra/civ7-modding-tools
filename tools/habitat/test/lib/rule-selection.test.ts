@@ -4,6 +4,7 @@ import {
   makeHabitatCommandResult,
 } from "@habitat/cli/resources/command/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
+import { makeHabitatPlatformService } from "@habitat/cli/resources/platform/index";
 import type { RuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/index";
 import {
   type CheckReport,
@@ -33,27 +34,21 @@ import {
   selectRules,
 } from "@habitat/cli/service/model/rules/policy/selection.policy";
 import { stagedSourceCheckPaths } from "@habitat/cli/service/model/source-check/index";
-import { Effect, Match } from "effect";
+import { Effect, Match, Schema } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
+import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
 
 const fakeRules: RuleRegistryRecord[] = [
   fakeRule("alpha-rule", "grit", "@scope/alpha"),
   fakeRule("beta-rule", "habitat", "@scope/beta"),
   fakeRule("gamma-rule", "grit", "@scope/gamma"),
 ];
+const parseJsonDocument = Schema.decodeUnknownSync(Schema.parseJson());
 
 describe("rule selector boundary", () => {
   test("selects all rules when no selectors are requested", () => {
-    const result = selectRules({}, fakeRules);
-
-    expect(result.ok).toBe(true);
-    if (result.ok)
-      expect(result.rules.map((rule) => rule.id)).toEqual([
-        "alpha-rule",
-        "beta-rule",
-        "gamma-rule",
-      ]);
+    expect(selectedIds({})).toEqual(["alpha-rule", "beta-rule", "gamma-rule"]);
   });
 
   test("selects valid owner, rule, and runner filters", () => {
@@ -252,8 +247,11 @@ describe("rule selector boundary", () => {
   });
 
   test("preserves multiline diagnostic detail in human output without changing JSON", () => {
-    const diagnosticMessage =
-      "Grit rule failed.\n--- diagnostic provider failure (DiagnosticOutputMalformed) ---\nGrit output contains wrapper text around JSON.";
+    const diagnosticMessage = [
+      "Grit rule failed.",
+      "--- diagnostic provider failure (DiagnosticOutputMalformed) ---",
+      "Grit output contains wrapper text around JSON.",
+    ].join("\n");
     const report = Value.Parse(CheckReportSchema, {
       schemaVersion: 2,
       command: "habitat check --rule provider-rendering",
@@ -297,7 +295,7 @@ describe("rule selector boundary", () => {
     );
     const parsed = Value.Parse(
       CheckReportSchema,
-      JSON.parse(renderCheckReport(report, { json: true }))
+      parseJsonDocument(renderCheckReport(report, { json: true }))
     );
     expect(parsed.rules[0]?.diagnostics[0]?.message).toBe(diagnosticMessage);
   });
@@ -570,6 +568,29 @@ describe("rule selector boundary", () => {
     });
   });
 
+  test("rule diagnostics preserve shared provider timing as one execution group", () => {
+    const rule = fakeSourceRuleFact("batched", ["packages"]);
+    const timing = {
+      kind: "shared" as const,
+      groupId: "rule-diagnostics:batched,peer",
+      durationMs: 11,
+      ruleCount: 2,
+    };
+    const record = ruleDiagnosticExecutionRecord(rule, {
+      kind: "executed",
+      result: { exitCode: 0, diagnostics: [] },
+      durationMs: 11,
+      timing,
+    });
+
+    expect(record).toEqual({
+      result: { exitCode: 0, diagnostics: [] },
+      durationMs: 11,
+      timing,
+      disposition: { kind: "executed", durationMs: 11 },
+    });
+  });
+
   test("diagnostic provider failures always carry a reportable diagnostic", () => {
     const rule = fakeSourceRuleFact("provider-contract", ["packages"]);
     const record = ruleDiagnosticExecutionRecord(rule, {
@@ -634,18 +655,19 @@ describe("rule selector boundary", () => {
         },
       ],
     });
+    const platform = makeHabitatPlatformService({ repoRoot });
     const baselineFileSystem = {
-      isDirectory: () => Effect.succeed(false),
-      isFile: (candidate: string) => Effect.succeed(candidate === baselineAuthority.absolute),
-      makeDirectory: () => Effect.void,
-      readDirectory: () => Effect.succeed([]),
-      readText: (candidate: string) =>
-        Match.value(candidate).pipe(
-          Match.when(baselineAuthority.absolute, () => Effect.succeed(baselineAuthority.source)),
-          Match.orElse((unexpected) => Effect.fail(new Error(`Unexpected read: ${unexpected}`)))
-        ),
-      writeText: () => Effect.void,
+      isDirectory: platform.isDirectory,
+      isFile: platform.isFileEffect,
+      makeDirectory: platform.makeDirectory,
+      readDirectory: platform.readDirectory,
+      readText: platform.readText,
+      writeText: platform.writeText,
     };
+    const fileSystemLayer = makeFakePlatformFileSystemLayer(
+      [],
+      new Map([[baselineAuthority.absolute, baselineAuthority.source]])
+    );
     const protectedOwner = {
       ownerId: "generated-output-owner",
       displayName: "Generated output owner",
@@ -777,11 +799,11 @@ describe("rule selector boundary", () => {
             ),
             Match.exhaustive
           )
-        )
+        ).pipe(Effect.provide(fileSystemLayer))
       );
       const parsed = Value.Parse(
         CheckReportSchema,
-        JSON.parse(renderCheckReport(report, { json: true }))
+        parseJsonDocument(renderCheckReport(report, { json: true }))
       );
       const producedDisposition = parsed.rules[0]?.disposition;
 
@@ -839,7 +861,7 @@ describe("rule selector boundary", () => {
     }
 
     const missingReport = await Effect.runPromise(
-      createDiagnosticReport(() => Effect.succeed(new Map()))
+      createDiagnosticReport(() => Effect.succeed(new Map())).pipe(Effect.provide(fileSystemLayer))
     );
     expect(missingReport.ok).toBe(false);
     expect(missingReport.rules[0]).toMatchObject({
@@ -865,15 +887,21 @@ describe("rule selector boundary", () => {
 function selectedIds(selection: RuleSelection): string[] {
   const result = selectRules(selection, fakeRules);
   expect(result.ok).toBe(true);
-  if (!result.ok) return [];
-  return result.rules.map((rule) => rule.id);
+  return Match.value(result).pipe(
+    Match.when({ ok: true }, (accepted) => accepted.rules.map((rule) => rule.id)),
+    Match.orElse(() => [])
+  );
 }
 
 function selectionFailure(selection: RuleSelection) {
   const result = selectRules(selection, fakeRules);
   expect(result.ok).toBe(false);
-  if (result.ok) throw new Error("expected selector failure");
-  return result;
+  return Match.value(result).pipe(
+    Match.when({ ok: false }, (failure) => failure),
+    Match.orElse(() => {
+      throw new Error("expected selector failure");
+    })
+  );
 }
 
 function fakeRule(
@@ -956,18 +984,21 @@ function runnerFor(
   id: string,
   runnerName: "grit" | "habitat" | "nx"
 ): RuleRegistryRecord["runner"] {
-  if (runnerName === "grit") {
-    return {
-      name: "grit",
+  return Match.value(runnerName).pipe(
+    Match.when("grit", () => ({
+      name: "grit" as const,
       files: { pattern: `.habitat/fixtures/rules/${id}/pattern.md` },
       patternName: id,
-    };
-  }
-  if (runnerName === "nx") return { name: "nx", target: { project: "habitat", target: "test" } };
-  return {
-    name: "habitat",
-    mode: "script",
-    files: { script: `.habitat/fixtures/rules/${id}/check.mjs` },
-    runtime: "node",
-  };
+    })),
+    Match.when("nx", () => ({
+      name: "nx" as const,
+      target: { project: "habitat", target: "test" },
+    })),
+    Match.orElse(() => ({
+      name: "habitat" as const,
+      mode: "script" as const,
+      files: { script: `.habitat/fixtures/rules/${id}/check.mjs` },
+      runtime: "node" as const,
+    }))
+  );
 }

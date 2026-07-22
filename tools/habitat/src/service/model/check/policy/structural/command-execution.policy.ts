@@ -1,5 +1,6 @@
 import {
   type HabitatCommandResult,
+  type SpawnResult,
   spawnResultFromCommandResult,
 } from "@habitat/cli/resources/command/index";
 import { type HabitatError, renderHabitatError } from "@habitat/cli/resources/errors/index";
@@ -12,7 +13,7 @@ import type {
   RuleCommandExecutionFacts,
   RuleGraphFacts,
 } from "@habitat/cli/service/model/rules/index";
-import { Clock, Effect } from "effect";
+import { Clock, Effect, Match } from "effect";
 import type {
   RuleExecutionRecord,
   StructuralExecutionContext,
@@ -24,77 +25,99 @@ type ExecutableRuleResultFacts = Pick<
   "id" | "lane" | "message"
 >;
 
-export function executeCommandRulesEffect<R>(
+interface ProviderFailureExecution {
+  readonly kind: "provider-failure";
+  readonly error: unknown;
+}
+
+interface CompletedSpawnExecution {
+  readonly kind: "completed";
+  readonly result: SpawnResult;
+}
+
+type GraphTargetExecution = ProviderFailureExecution | CompletedSpawnExecution;
+
+interface CompletedCommandExecution {
+  readonly kind: "completed";
+  readonly commandResult: HabitatCommandResult;
+}
+
+type CommandExecution = ProviderFailureExecution | CompletedCommandExecution;
+
+export const executeCommandRulesEffect = Effect.fn("habitat.check.executeCommandRules")(function* (
   commandRules: readonly RuleCommandExecutionFacts[],
   results: Map<string, RuleExecutionRecord>,
-  context: Pick<StructuralExecutionContext<R>, "command" | "repoRoot">
-): Effect.Effect<void, never, R> {
-  return Effect.gen(function* () {
-    const groupResults = yield* Effect.all(
-      commandRuleExecutionGroups(commandRules, context).map((group) =>
-        executeCommandRuleGroupEffect<R>(group, context)
-      ),
-      {
-        concurrency: "unbounded",
-      }
-    );
-    for (const groupResult of groupResults) {
-      for (const [ruleId, record] of groupResult) results.set(ruleId, record);
-    }
-  });
-}
+  context: Pick<StructuralExecutionContext, "command" | "repoRoot">
+) {
+  const groupResults = yield* Effect.all(
+    commandRuleExecutionGroups(commandRules, context).map((group) =>
+      executeCommandRuleGroupEffect(group, context)
+    ),
+    { concurrency: "unbounded" }
+  );
+  for (const groupResult of groupResults) {
+    for (const [ruleId, record] of groupResult) results.set(ruleId, record);
+  }
+});
 
-export function executeGraphBackedCommandRulesEffect<R>(
+export const executeGraphBackedCommandRulesEffect = Effect.fn(
+  "habitat.check.executeGraphBackedCommandRules"
+)(function* (
   rules: readonly RuleGraphFacts[],
   results: Map<string, RuleExecutionRecord>,
-  context: Pick<StructuralExecutionContext<R>, "nx">
-): Effect.Effect<void, never, R> {
-  if (rules.length === 0) return Effect.void;
-  return Effect.gen(function* () {
-    const groupResults = yield* Effect.all([runGraphBackedCommandRuleGroup<R>(rules, context)], {
-      concurrency: "unbounded",
-    });
-    for (const groupResult of groupResults) {
-      for (const [ruleId, record] of groupResult) results.set(ruleId, record);
-    }
+  context: Pick<StructuralExecutionContext, "nx">
+) {
+  const groupResults = yield* Effect.if(rules.length === 0, {
+    onTrue: () => Effect.succeed([]),
+    onFalse: () => runGraphBackedCommandRuleGroupEffect(rules, context).pipe(Effect.map(Array.of)),
   });
-}
+  for (const groupResult of groupResults) {
+    for (const [ruleId, record] of groupResult) results.set(ruleId, record);
+  }
+});
 
-function runGraphBackedCommandRuleGroup<R>(
-  rules: readonly RuleGraphFacts[],
-  context: Pick<StructuralExecutionContext<R>, "nx">
-): Effect.Effect<Map<string, RuleExecutionRecord>, never, R> {
-  return Effect.gen(function* () {
-    const targets = graphTargetsForRules(rules);
-    const started = yield* Clock.currentTimeMillis;
-    const execution = yield* runGraphTargetsEffect<R>(context.nx, targets).pipe(
-      Effect.match({
-        onFailure: (error) => ({ kind: "provider-failure" as const, error }),
-        onSuccess: (commandResult) => ({
-          kind: "completed" as const,
-          result: spawnResultFromCommandResult(commandResult),
-        }),
-      })
-    );
-    const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
-    const records = new Map<string, RuleExecutionRecord>();
-    for (const rule of rules) {
-      const ruleResult =
-        execution.kind === "provider-failure"
-          ? commandProviderFailureResult(rule, execution.error)
-          : {
-              exitCode: execution.result.exitCode,
-              diagnostics: ruleDiagnosticsFromCommandResult(rule, execution.result),
-            };
-      records.set(rule.id, {
-        result: ruleResult,
-        durationMs,
-        timing: sharedExecutionTiming("nx:graph-targets", durationMs, rules),
-        disposition: { kind: "executed", durationMs },
-      });
-    }
-    return records;
-  });
+const runGraphBackedCommandRuleGroupEffect = Effect.fn(
+  "habitat.check.runGraphBackedCommandRuleGroup"
+)(function* (rules: readonly RuleGraphFacts[], context: Pick<StructuralExecutionContext, "nx">) {
+  const targets = graphTargetsForRules(rules);
+  const started = yield* Clock.currentTimeMillis;
+  const execution: GraphTargetExecution = yield* runGraphTargetsEffect(context.nx, targets).pipe(
+    Effect.match({
+      onFailure: (error) => ({ kind: "provider-failure" as const, error }),
+      onSuccess: (commandResult) => ({
+        kind: "completed" as const,
+        result: spawnResultFromCommandResult(commandResult),
+      }),
+    })
+  );
+  const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
+  return new Map(
+    rules.map((rule) => [rule.id, graphRuleExecutionRecord(rule, execution, durationMs, rules)])
+  );
+});
+
+function graphRuleExecutionRecord(
+  rule: RuleGraphFacts,
+  execution: GraphTargetExecution,
+  durationMs: number,
+  rules: readonly RuleGraphFacts[]
+): RuleExecutionRecord {
+  const result = Match.value(execution).pipe(
+    Match.when({ kind: "provider-failure" }, ({ error }) =>
+      commandProviderFailureResult(rule, error)
+    ),
+    Match.when({ kind: "completed" }, ({ result: commandResult }) => ({
+      exitCode: commandResult.exitCode,
+      diagnostics: ruleDiagnosticsFromCommandResult(rule, commandResult),
+    })),
+    Match.exhaustive
+  );
+  return {
+    result,
+    durationMs,
+    timing: sharedExecutionTiming("nx:graph-targets", durationMs, rules),
+    disposition: { kind: "executed", durationMs },
+  };
 }
 
 function sharedExecutionTiming(
@@ -102,53 +125,66 @@ function sharedExecutionTiming(
   durationMs: number,
   rules: readonly { id: string }[]
 ): RuleExecutionTiming | undefined {
-  if (rules.length < 2) return undefined;
-  return {
-    kind: "shared",
-    groupId,
-    durationMs,
-    ruleCount: rules.length,
-  };
+  return Match.value(rules.length < 2).pipe(
+    Match.when(true, () => undefined),
+    Match.when(false, () => ({
+      kind: "shared" as const,
+      groupId,
+      durationMs,
+      ruleCount: rules.length,
+    })),
+    Match.exhaustive
+  );
 }
 
-function runGraphTargetsEffect<R>(
-  nx: StructuralNxPort<R>,
+const runGraphTargetsEffect = Effect.fn("habitat.check.runGraphTargets")(function* (
+  nx: StructuralNxPort,
   targets: readonly { project: string; target: string }[]
 ) {
   const uniqueTargets = uniqueGraphTargets(targets);
-  if (uniqueTargets.length === 1) {
-    const [target] = uniqueTargets;
-    return nx.runTarget(target);
-  }
-  return nx.runMany({
-    projects: sortedUnique(uniqueTargets.map((target) => target.project)),
-    targets: sortedUnique(uniqueTargets.map((target) => target.target)),
-  });
+  return yield* Match.value(uniqueTargets.length === 1).pipe(
+    Match.when(true, () => nx.runTarget(requireSingleGraphTarget(uniqueTargets))),
+    Match.when(false, () =>
+      nx.runMany({
+        projects: sortedUnique(uniqueTargets.map((target) => target.project)),
+        targets: sortedUnique(uniqueTargets.map((target) => target.target)),
+      })
+    ),
+    Match.exhaustive
+  );
+});
+
+function requireSingleGraphTarget(targets: readonly { project: string; target: string }[]): {
+  project: string;
+  target: string;
+} {
+  return Match.value(targets[0]).pipe(
+    Match.when(Match.undefined, () => {
+      throw new Error("habitat internal error: expected one graph target");
+    }),
+    Match.orElse((target) => target)
+  );
 }
 
 function uniqueGraphTargets(
   targets: readonly { project: string; target: string }[]
 ): Array<{ project: string; target: string }> {
-  const seen = new Set<string>();
-  const unique: Array<{ project: string; target: string }> = [];
-  for (const target of targets) {
-    const key = `${target.project}:${target.target}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    unique.push(target);
-  }
-  return unique;
+  return [
+    ...new Map(targets.map((target) => [`${target.project}:${target.target}`, target])).values(),
+  ];
 }
 
 function graphTargetsForRules(
   rules: readonly RuleGraphFacts[]
 ): Array<{ project: string; target: string }> {
-  return rules.map((rule) => {
-    if (rule.alias.kind !== "depends-on") {
-      throw new Error(`habitat internal error: missing graph target for ${rule.id}`);
-    }
-    return rule.alias.target;
-  });
+  return rules.map((rule) =>
+    Match.value(rule.alias).pipe(
+      Match.when({ kind: "depends-on" }, ({ target }) => target),
+      Match.orElse(() => {
+        throw new Error(`habitat internal error: missing graph target for ${rule.id}`);
+      })
+    )
+  );
 }
 
 interface CommandRuleExecutionGroup {
@@ -165,68 +201,100 @@ function commandRuleExecutionGroups(
   const groups = new Map<string, CommandRuleExecutionGroup>();
   for (const rule of rules) {
     const { executable, argv } = commandInvocationFromRunner(rule.runner);
-    const key = JSON.stringify({ executable, argv, cwd: context.repoRoot });
+    const key = commandExecutionGroupKey(executable, argv, context.repoRoot);
     const current = groups.get(key);
+    const groupedRules = Match.value(current).pipe(
+      Match.when(Match.undefined, () => [rule]),
+      Match.orElse((group) => [...group.rules, rule])
+    );
     groups.set(key, {
       executable,
       argv,
       cwd: context.repoRoot,
-      rules: current ? [...current.rules, rule] : [rule],
+      rules: groupedRules,
     });
   }
   return [...groups.values()];
+}
+
+function commandExecutionGroupKey(
+  executable: string,
+  argv: readonly string[],
+  cwd: string
+): string {
+  return [executable, cwd, ...argv].map((part) => `${part.length}:${part}`).join("|");
 }
 
 function commandInvocationFromRunner(runner: RuleCommandExecutionFacts["runner"]): {
   readonly executable: string;
   readonly argv: readonly string[];
 } {
-  if (runner.runtime === "bun") return { executable: "bun", argv: [runner.files.script] };
-  if (runner.runtime === "node") return { executable: "node", argv: [runner.files.script] };
-  return { executable: "bash", argv: [runner.files.script] };
+  return Match.value(runner.runtime).pipe(
+    Match.when("bun", () => ({ executable: "bun", argv: [runner.files.script] })),
+    Match.when("node", () => ({ executable: "node", argv: [runner.files.script] })),
+    Match.when("bash", () => ({ executable: "bash", argv: [runner.files.script] })),
+    Match.exhaustive
+  );
 }
 
-function executeCommandRuleGroupEffect<R>(
+const executeCommandRuleGroupEffect = Effect.fn("habitat.check.executeCommandRuleGroup")(function* (
   group: CommandRuleExecutionGroup,
-  context: Pick<StructuralExecutionContext<R>, "command">
-): Effect.Effect<Map<string, RuleExecutionRecord>, never, R> {
-  return Effect.gen(function* () {
-    const started = yield* Clock.currentTimeMillis;
-    const result = yield* context.command
-      .run({
-        commandId: commandRuleGroupId(group),
-        kind: "workspace-tool",
-        executable: group.executable,
-        argv: group.argv,
-        cwd: group.cwd,
-        captureGitState: false,
+  context: Pick<StructuralExecutionContext, "command">
+) {
+  const started = yield* Clock.currentTimeMillis;
+  const execution: CommandExecution = yield* context.command
+    .run({
+      commandId: commandRuleGroupId(group),
+      kind: "workspace-tool",
+      executable: group.executable,
+      argv: group.argv,
+      cwd: group.cwd,
+      captureGitState: false,
+    })
+    .pipe(
+      Effect.match({
+        onFailure: (error) => ({ kind: "provider-failure" as const, error }),
+        onSuccess: (commandResult) => ({ kind: "completed" as const, commandResult }),
       })
-      .pipe(
-        Effect.match({
-          onFailure: (error) => ({ kind: "provider-failure" as const, error }),
-          onSuccess: (commandResult) => ({ kind: "completed" as const, commandResult }),
-        })
-      );
-    const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
-    const records = new Map<string, RuleExecutionRecord>();
-    for (const rule of group.rules) {
-      records.set(rule.id, {
-        result:
-          result.kind === "provider-failure"
-            ? commandProviderFailureResult(rule, result.error)
-            : commandRuleResult(rule, result.commandResult),
-        durationMs,
-        timing: sharedExecutionTiming(commandTimingGroupId(group), durationMs, group.rules),
-        disposition: { kind: "executed", durationMs },
-      });
-    }
-    return records;
-  });
+    );
+  const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
+  return new Map(
+    group.rules.map((rule) => [
+      rule.id,
+      commandRuleExecutionRecord(rule, execution, durationMs, group),
+    ])
+  );
+});
+
+function commandRuleExecutionRecord(
+  rule: RuleCommandExecutionFacts,
+  execution: CommandExecution,
+  durationMs: number,
+  group: CommandRuleExecutionGroup
+): RuleExecutionRecord {
+  const result = Match.value(execution).pipe(
+    Match.when({ kind: "provider-failure" }, ({ error }) =>
+      commandProviderFailureResult(rule, error)
+    ),
+    Match.when({ kind: "completed" }, ({ commandResult }) =>
+      commandRuleResult(rule, commandResult)
+    ),
+    Match.exhaustive
+  );
+  return {
+    result,
+    durationMs,
+    timing: sharedExecutionTiming(commandTimingGroupId(group), durationMs, group.rules),
+    disposition: { kind: "executed", durationMs },
+  };
 }
 
 function commandRuleGroupId(group: CommandRuleExecutionGroup): string {
-  if (group.rules.length === 1) return group.rules[0]?.id ?? "command-rule";
-  return `command-rules:${group.rules.map((rule) => rule.id).join("+")}`;
+  return Match.value(group.rules.length === 1).pipe(
+    Match.when(true, () => group.rules[0]?.id ?? "command-rule"),
+    Match.when(false, () => `command-rules:${group.rules.map((rule) => rule.id).join("+")}`),
+    Match.exhaustive
+  );
 }
 
 function commandTimingGroupId(group: CommandRuleExecutionGroup): string {
@@ -251,6 +319,10 @@ function commandProviderFailureResult(
   rule: ExecutableRuleResultFacts,
   error: unknown
 ): RuleRunResult {
+  const severity = Match.value(rule.lane).pipe(
+    Match.when("advisory", () => "advisory" as const),
+    Match.orElse(() => "error" as const)
+  );
   return {
     exitCode: 1,
     diagnostics: [
@@ -258,7 +330,7 @@ function commandProviderFailureResult(
         ruleId: rule.id,
         path: ".",
         message: `${rule.message}\n--- command provider failure ---\n${renderRuleExecutionError(error)}`,
-        severity: rule.lane === "advisory" ? "advisory" : "error",
+        severity,
         baselined: false,
       },
     ],
@@ -266,11 +338,17 @@ function commandProviderFailureResult(
 }
 
 function renderRuleExecutionError(error: unknown): string {
-  return isHabitatError(error)
-    ? renderHabitatError(error)
-    : error instanceof Error
-      ? error.message
-      : String(error);
+  return Match.value(error).pipe(
+    Match.when(isHabitatError, renderHabitatError),
+    Match.orElse(renderNonHabitatError)
+  );
+}
+
+function renderNonHabitatError(error: unknown): string {
+  return Match.value(error).pipe(
+    Match.when(Match.instanceOf(Error), (cause) => cause.message),
+    Match.orElse(String)
+  );
 }
 
 function sortedUnique(values: readonly string[]): string[] {

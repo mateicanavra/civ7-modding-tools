@@ -3,12 +3,10 @@ import {
   CommandRunner,
   type CommandRunnerService,
 } from "@habitat/cli/resources/command/index";
-import { Context, Effect, Layer } from "effect";
+import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
+import { Context, Effect, Layer, Match } from "effect";
 
-export interface GraphiteProviderService {
-  readonly parentArgv: () => readonly string[];
-  readonly parent: (options?: { cwd?: string }) => Effect.Effect<string | null>;
-}
+export interface GraphiteProviderService extends ReturnType<typeof makeLiveGraphiteProvider> {}
 
 export class GraphiteProvider extends Context.Tag("@habitat/cli/GraphiteProvider")<
   GraphiteProvider,
@@ -25,10 +23,10 @@ export function makeGraphiteProviderLayer(repoRoot: string) {
 function makeLiveGraphiteProvider(
   repoRoot: string,
   runner: CommandRunnerService
-): GraphiteProviderService {
+) {
   return {
     parentArgv,
-    parent: (options = {}) =>
+    parent: (options: { readonly cwd?: string } = {}) =>
       runner
         .run({
           commandId: "graphite-parent",
@@ -39,11 +37,7 @@ function makeLiveGraphiteProvider(
           captureGitState: false,
         })
         .pipe(
-          Effect.map((result) =>
-            result.exit.code === 0
-              ? (result.stdout.text.match(/Parent:\s*([^\s]+)/)?.[1] ?? null)
-              : null
-          ),
+          Effect.map(graphiteParentFromResult),
           Effect.catchAll(() => Effect.succeed(null))
         ),
   };
@@ -55,11 +49,9 @@ export function makeFakeGraphiteProviderLayer(
 ) {
   return Layer.succeed(GraphiteProvider, {
     parentArgv,
-    parent: (options = {}) =>
-      Effect.sync(() => handler({ cwd: options.cwd ?? repoRoot })).pipe(
-        Effect.flatMap((result) =>
-          result instanceof Error ? Effect.fail(result) : Effect.succeed(result)
-        ),
+    parent: (options: { readonly cwd?: string } = {}) =>
+      Effect.succeed(handler({ cwd: options.cwd ?? repoRoot })).pipe(
+        Effect.flatMap(fakeGraphiteParentResult),
         Effect.catchAll(() => Effect.succeed(null))
       ),
   });
@@ -67,4 +59,24 @@ export function makeFakeGraphiteProviderLayer(
 
 export function parentArgv(): readonly string[] {
   return ["gt", "branch", "info", "--no-interactive"];
+}
+
+function graphiteParentFromResult(result: HabitatCommandResult) {
+  return Match.value(result.exit.code).pipe(
+    Match.when(0, () => result.stdout.text.match(/Parent:\s*([^\s]+)/)?.[1] ?? null),
+    Match.orElse(() => null)
+  );
+}
+
+function fakeGraphiteParentResult(result: string | null | CommandProviderError) {
+  return Match.value(result).pipe(
+    Match.when(isCommandProviderError, Effect.fail),
+    Match.orElse((parent: string | null) => Effect.succeed(parent))
+  );
+}
+
+function isCommandProviderError(
+  value: string | null | CommandProviderError
+): value is CommandProviderError {
+  return value instanceof Error;
 }

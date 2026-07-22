@@ -283,6 +283,7 @@ describe("vendor providers", () => {
 
   test("the Grit command service owns the direct-native hermetic check request", async () => {
     const providerRequest = {
+      patternNames: ["fixture_pattern"],
       scanRoots: ["/tmp/habitat-grit-target"],
       cwd: "/tmp/habitat-grit-catalog-parent",
       gritDir: "/tmp/habitat-grit-catalog-parent/.grit",
@@ -334,6 +335,7 @@ describe("vendor providers", () => {
 
   test("Grit preflight rejects nonzero exit even with the exact native version", async () => {
     const providerRequest: GritCheckProviderRequest = {
+      patternNames: ["fixture_pattern"],
       scanRoots: [repoRoot],
       cwd: repoRoot,
       gritDir: path.join(repoRoot, ".grit"),

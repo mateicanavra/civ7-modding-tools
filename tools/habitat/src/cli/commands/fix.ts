@@ -29,7 +29,8 @@ export default class Fix extends HabitatCommand {
     }
     const client = await this.habitatServiceClient();
     const result = await client.fix.previewPatterns(
-      flags.rule && flags.rule.length > 0 ? { rules: flags.rule } : {}
+      flags.rule && flags.rule.length > 0 ? { rules: flags.rule } : {},
+      this.habitatServiceCallerOptions()
     );
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);

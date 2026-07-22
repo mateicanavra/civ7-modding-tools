@@ -6,10 +6,12 @@ import { repoRoot } from "@habitat/cli/resources/paths";
 import type { HabitatServiceDeps } from "@habitat/cli/service/base";
 import type { GraphWorkspaceGraphInput } from "@habitat/cli/service/modules/graph/contract";
 import { graphRouter } from "@habitat/cli/service/modules/graph/router";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
+
+const stringifyJsonDocument = Schema.encodeSync(Schema.parseJson());
 
 describe("Habitat graph service", () => {
   test("runs Nx graph through providers and returns graph payload", async () => {
@@ -18,7 +20,7 @@ describe("Habitat graph service", () => {
     const graphPath = path.join("/tmp/habitat-graph-fake", "graph.json");
     const deps = graphDeps(
       events,
-      new Map([[graphPath, JSON.stringify({ graph: { nodes: { app: {} } } })]]),
+      new Map([[graphPath, stringifyJsonDocument({ graph: { nodes: { app: {} } } })]]),
       {
         graph: (request) =>
           Effect.sync(() => {
@@ -38,7 +40,7 @@ describe("Habitat graph service", () => {
       }
     );
 
-    const result = await Effect.runPromise(runGraphProcedure({}, deps));
+    const result = await callGraphProcedure({}, deps);
 
     expect(result).toEqual({
       kind: "completed",
@@ -56,7 +58,7 @@ describe("Habitat graph service", () => {
     const graphPath = path.join("/tmp/habitat-graph-fake", "graph.json");
     const deps = graphDeps(
       [],
-      new Map([[graphPath, JSON.stringify({ graph: null, nodes: { root: {} } })]]),
+      new Map([[graphPath, stringifyJsonDocument({ graph: null, nodes: { root: {} } })]]),
       {
         graph: (request) =>
           Effect.succeed(
@@ -72,7 +74,7 @@ describe("Habitat graph service", () => {
       }
     );
 
-    await expect(Effect.runPromise(runGraphProcedure({}, deps))).rejects.toThrow(
+    await expect(callGraphProcedure({}, deps)).rejects.toThrow(
       "Habitat graph service read invalid Nx graph JSON at /tmp/habitat-graph-fake/graph.json: graph must be a non-null object."
     );
   });
@@ -99,7 +101,7 @@ describe("Habitat graph service", () => {
         ),
     });
 
-    const result = await Effect.runPromise(runGraphProcedure({}, deps));
+    const result = await callGraphProcedure({}, deps);
 
     expect(result).toEqual({
       kind: "command-failed",
@@ -137,7 +139,7 @@ describe("Habitat graph service", () => {
       graphArgv,
     });
 
-    const result = await Effect.runPromise(runGraphProcedure({}, deps));
+    const result = await callGraphProcedure({}, deps);
 
     expect(result).toEqual({
       kind: "command-failed",
@@ -159,20 +161,18 @@ function graphDeps(
   files: ReadonlyMap<string, string>,
   nx: Partial<GraphTestDeps["nx"]>
 ): GraphTestDeps {
-  const tempDir = "/tmp/habitat-graph-fake";
+  const tempDir = path.join(path.sep, "tmp", "habitat-graph-fake");
+  const acquireTempDirectory = Effect.sync(() => {
+    events.push(`mkdtemp:${tempDir}`);
+    return tempDir;
+  });
+  const releaseTempDirectory = Effect.sync(() => {
+    events.push(`remove:${tempDir}`);
+  });
   return {
     platform: {
       acquireTempDirectory: () =>
-        Effect.acquireRelease(
-          Effect.sync(() => {
-            events.push(`mkdtemp:${tempDir}`);
-            return tempDir;
-          }),
-          () =>
-            Effect.sync(() => {
-              events.push(`remove:${tempDir}`);
-            })
-        ),
+        acquireTempDirectory.pipe(Effect.acquireRelease(() => releaseTempDirectory)),
       readText: (targetPath) =>
         Effect.sync(() => {
           events.push(`read:${targetPath}`);
@@ -198,8 +198,8 @@ function graphDeps(
   };
 }
 
-function runGraphProcedure(input: GraphWorkspaceGraphInput, deps: GraphTestDeps) {
-  return Effect.gen(function* () {
+async function callGraphProcedure(input: GraphWorkspaceGraphInput, deps: GraphTestDeps) {
+  const program = Effect.gen(function* () {
     const baseDeps = makeTestHabitatServiceDeps();
     const readWorkspaceGraph = graphRouter.workspaceGraph.callable({
       context: {
@@ -213,4 +213,5 @@ function runGraphProcedure(input: GraphWorkspaceGraphInput, deps: GraphTestDeps)
     });
     return yield* withFiberContext(() => readWorkspaceGraph(input));
   });
+  return Effect.runPromise(program);
 }

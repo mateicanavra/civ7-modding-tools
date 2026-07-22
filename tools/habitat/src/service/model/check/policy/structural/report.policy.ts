@@ -1,7 +1,9 @@
+import type { FileSystem } from "@effect/platform";
 import {
   applyBaseline,
   type BaselineApplicationResult,
   type BaselineAuthorityContext,
+  type BaselineRuleContractInput,
   baselineContractInputs,
   baselineFailureDiagnostic,
   baselineIntegrityFindingsEffect,
@@ -20,10 +22,10 @@ import {
   deriveRuleReportStatus,
   structuralCheckRequest,
 } from "@habitat/cli/service/model/check/index";
-import type { RuleReportFacts } from "@habitat/cli/service/model/rules/index";
+import type { RuleReportFacts, RuleSelectorFacts } from "@habitat/cli/service/model/rules/index";
 import { factsForRuleIds } from "@habitat/cli/service/model/rules/policy/catalog.policy";
 import { selectRules } from "@habitat/cli/service/model/rules/policy/selection.policy";
-import { Clock, Effect, Match } from "effect";
+import { Clock, Effect, Match, Option } from "effect";
 import { Value } from "typebox/value";
 import type { RuleExecutionRecord, StructuralExecutionContext } from "./context.policy.js";
 import { executeSelectedRulesEffect, rulesForExecution } from "./execution.policy.js";
@@ -36,93 +38,124 @@ import {
   StructuralRuleOutcomeSchema,
 } from "./state.policy.js";
 
-export function createCheckReportEffect<R>(
+export const createCheckReportEffect = Effect.fn("habitat.check.createReport")(function* (
   options: CheckOptions = {},
-  context: StructuralExecutionContext<R>
-): Effect.Effect<CheckReport, never, R> {
-  return Effect.gen(function* () {
-    const request = structuralCheckRequest(options);
-    const selection = selectRules(request.selectors, context.rules.selector);
-    if (!selection.ok) return yield* selectorRefusalReportEffect(selection, request);
-    Value.Parse(RuleSelectionOutcomeSchema, {
-      kind: "selected",
-      selector: request.selectors,
-      selectedRuleIds: selection.rules.map((rule) => rule.id),
-    });
+  context: StructuralExecutionContext
+): Effect.fn.Return<CheckReport, never, FileSystem.FileSystem> {
+  const request = structuralCheckRequest(options);
+  const selection = selectRules(request.selectors, context.rules.selector);
+  return yield* Match.value(selection).pipe(
+    Match.when({ ok: false }, (refusal) => selectorRefusalReportEffect(refusal, request)),
+    Match.when({ ok: true }, ({ rules }) =>
+      createSelectedCheckReportEffect(rules, request, options, context)
+    ),
+    Match.exhaustive
+  );
+});
 
-    const selectedRules = rulesForExecution(selection.rules, {
-      ...options,
-      selection: request.selectors,
-      hookCheckFacts: context.rules.hookCheck,
-    });
-    const selectedRuleIds = selectedRules.map((rule) => rule.id);
-    const reportsByRuleId = factsByRuleId(factsForRuleIds(context.rules.report, selectedRuleIds));
-    const baselineInputsByRuleId = factsByRuleId(
-      baselineContractInputs(context.rules, selectedRuleIds)
-    );
-    const reports: RuleReport[] = [];
-    const ruleResults = yield* executeSelectedRulesEffect<R>(selectedRules, options, context);
-    for (const rule of selectedRules) {
-      const reportFacts = reportsByRuleId.get(rule.id);
-      if (!reportFacts)
-        throw new Error(`habitat internal error: missing report facts for ${rule.id}`);
-      const baselineFacts = baselineInputsByRuleId.get(rule.id);
-      if (!baselineFacts)
-        throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-      const baseline = yield* loadBaselineStateEffect<R>(baselineFacts, baselineContext(context));
-      const execution = ruleResults.get(rule.id);
-      if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
-      Value.Parse(RuleExecutionPlanSchema, {
-        ruleId: rule.id,
-        runner: rule.runner.name,
-        lane: reportFacts.lane,
-        disposition: execution.disposition,
-      });
-      const executionDiagnostics = execution.result.diagnostics;
-      diagnosticConsumptionOutcome(execution.disposition, executionDiagnostics);
-      const baselineResult = yield* Effect.sync(() =>
-        applyBaseline(executionDiagnostics, baseline)
-      );
-      const locked = yield* Effect.sync(() => isBaselineLocked(baseline));
-      baselineApplicationOutcome(rule.id, baselineResult, locked, executionDiagnostics);
-      const diagnostics = [
-        ...executionDiagnostics,
-        ...(yield* Effect.all(
-          baselineResult.refusals.map((failure) =>
-            Effect.sync(() => baselineFailureDiagnostic(rule.id, failure))
-          )
-        )),
-      ];
-      const report = ruleReportFromDiagnostics({
-        ruleId: rule.id,
-        reportFacts,
-        locked,
-        durationMs: execution.durationMs,
-        timing: execution.timing,
-        diagnostics,
-        disposition: execution.disposition,
-      });
-      structuralRuleOutcome(report, execution.disposition);
-      reports.push(report);
-    }
-
-    if (options.baselineIntegrity)
-      reports.push(yield* baselineIntegrityReportEffect<R>(options.base ?? "main", context));
-    return yield* constructCheckReportEffect({ command: request.command.serialized, reports });
+const createSelectedCheckReportEffect = Effect.fn("habitat.check.createSelectedReport")(function* (
+  selectionRules: readonly RuleSelectorFacts[],
+  request: ReturnType<typeof structuralCheckRequest>,
+  options: CheckOptions,
+  context: StructuralExecutionContext
+): Effect.fn.Return<CheckReport, never, FileSystem.FileSystem> {
+  Value.Parse(RuleSelectionOutcomeSchema, {
+    kind: "selected",
+    selector: request.selectors,
+    selectedRuleIds: selectionRules.map((rule) => rule.id),
   });
-}
+  const selectedRules = rulesForExecution(selectionRules, {
+    selection: request.selectors,
+    hookCheck: options.hookCheck,
+    hookCheckFacts: context.rules.hookCheck,
+    staged: options.staged,
+    stagedPaths: options.stagedPaths,
+  });
+  const selectedRuleIds = selectedRules.map((rule) => rule.id);
+  const reportsByRuleId = factsByRuleId(factsForRuleIds(context.rules.report, selectedRuleIds));
+  const baselineInputsByRuleId = factsByRuleId(
+    baselineContractInputs(context.rules, selectedRuleIds)
+  );
+  const ruleResults = yield* executeSelectedRulesEffect(selectedRules, options, context);
+  const reports = yield* Effect.forEach(selectedRules, (rule) =>
+    createRuleReportEffect(
+      rule,
+      requireMapValue(reportsByRuleId, rule.id, "report facts"),
+      requireMapValue(baselineInputsByRuleId, rule.id, "baseline facts"),
+      requireMapValue(ruleResults, rule.id, "rule result"),
+      context
+    )
+  );
+  const integrityReports = yield* Effect.if(options.baselineIntegrity === true, {
+    onTrue: () =>
+      baselineIntegrityReportEffect(options.base ?? "main", context).pipe(Effect.map(Array.of)),
+    onFalse: () => Effect.succeed([]),
+  });
+  return yield* constructCheckReportEffect({
+    command: request.command.serialized,
+    reports: [...reports, ...integrityReports],
+  });
+});
+
+const createRuleReportEffect = Effect.fn("habitat.check.createRuleReport")(function* (
+  rule: RuleSelectorFacts,
+  reportFacts: RuleReportFacts,
+  baselineFacts: BaselineRuleContractInput,
+  execution: RuleExecutionRecord,
+  context: StructuralExecutionContext
+): Effect.fn.Return<RuleReport, never, FileSystem.FileSystem> {
+  const baseline = yield* loadBaselineStateEffect(baselineFacts, baselineContext(context));
+  Value.Parse(RuleExecutionPlanSchema, {
+    ruleId: rule.id,
+    runner: rule.runner.name,
+    lane: reportFacts.lane,
+    disposition: execution.disposition,
+  });
+  const executionDiagnostics = execution.result.diagnostics;
+  diagnosticConsumptionOutcome(execution.disposition, executionDiagnostics);
+  const baselineResult = applyBaseline(executionDiagnostics, baseline);
+  const locked = isBaselineLocked(baseline);
+  baselineApplicationOutcome(rule.id, baselineResult, locked, executionDiagnostics);
+  const diagnostics = [
+    ...executionDiagnostics,
+    ...baselineResult.refusals.map((failure) => baselineFailureDiagnostic(rule.id, failure)),
+  ];
+  const report = ruleReportFromDiagnostics({
+    ruleId: rule.id,
+    reportFacts,
+    locked,
+    durationMs: execution.durationMs,
+    timing: execution.timing,
+    diagnostics,
+    disposition: execution.disposition,
+  });
+  structuralRuleOutcome(report, execution.disposition);
+  return report;
+});
 
 function diagnosticConsumptionOutcome(
   disposition: RuleExecutionDisposition,
   diagnostics: RuleReport["diagnostics"]
 ) {
-  return Value.Parse(
-    DiagnosticConsumptionOutcomeSchema,
-    disposition.kind === "dependency-refused" || disposition.kind === "execution-failed"
-      ? { kind: "diagnostic-refused", diagnostic: diagnostics[0] }
-      : diagnostics.length === 0
-        ? { kind: "clean", diagnostics: [] }
-        : { kind: "findings", diagnostics }
+  const outcome = Match.value(disposition).pipe(
+    Match.when({ kind: "dependency-refused" }, () => ({
+      kind: "diagnostic-refused" as const,
+      diagnostic: diagnostics[0],
+    })),
+    Match.when({ kind: "execution-failed" }, () => ({
+      kind: "diagnostic-refused" as const,
+      diagnostic: diagnostics[0],
+    })),
+    Match.orElse(() => diagnosticFindingsOutcome(diagnostics))
+  );
+  return Value.Parse(DiagnosticConsumptionOutcomeSchema, outcome);
+}
+
+function diagnosticFindingsOutcome(diagnostics: RuleReport["diagnostics"]) {
+  return Match.value(diagnostics.length === 0).pipe(
+    Match.when(true, () => ({ kind: "clean" as const, diagnostics: [] })),
+    Match.when(false, () => ({ kind: "findings" as const, diagnostics })),
+    Match.exhaustive
   );
 }
 
@@ -132,39 +165,58 @@ function baselineApplicationOutcome(
   locked: boolean,
   diagnostics: RuleReport["diagnostics"]
 ) {
-  return Value.Parse(
-    BaselineApplicationOutcomeSchema,
-    baselineResult.refusals.length > 0
-      ? {
-          kind: "baseline-refused",
-          diagnostic: {
-            ruleId,
-            path: ".",
-            message: baselineResult.refusals[0]?.message ?? "Baseline application refused.",
-            severity: "error",
-            baselined: false,
-          },
-        }
-      : {
-          kind: "baseline-applied",
-          locked,
-          diagnostics,
-        }
+  const outcome = Match.value(baselineResult.refusals.length > 0).pipe(
+    Match.when(true, () => ({
+      kind: "baseline-refused" as const,
+      diagnostic: {
+        ruleId,
+        path: ".",
+        message: baselineResult.refusals[0]?.message ?? "Baseline application refused.",
+        severity: "error" as const,
+        baselined: false,
+      },
+    })),
+    Match.when(false, () => ({
+      kind: "baseline-applied" as const,
+      locked,
+      diagnostics,
+    })),
+    Match.exhaustive
   );
+  return Value.Parse(BaselineApplicationOutcomeSchema, outcome);
 }
 
 function structuralRuleOutcome(report: RuleReport, disposition: RuleExecutionDisposition) {
-  return Value.Parse(
-    StructuralRuleOutcomeSchema,
-    disposition.kind === "not-applicable"
-      ? { kind: "rule-not-applicable", lane: report.lane, report }
-      : disposition.kind === "dependency-refused" || disposition.kind === "execution-failed"
-        ? { kind: "rule-refused", lane: report.lane, report }
-        : report.status === "advisory-findings"
-          ? { kind: "rule-advisory-findings", lane: "advisory", report }
-          : report.status === "fail"
-            ? { kind: "rule-failed", lane: report.lane, report }
-            : { kind: "rule-passed", lane: report.lane, report }
+  const outcome = Match.value(disposition).pipe(
+    Match.when({ kind: "not-applicable" }, () => ({
+      kind: "rule-not-applicable" as const,
+      lane: report.lane,
+      report,
+    })),
+    Match.when({ kind: "dependency-refused" }, () => ({
+      kind: "rule-refused" as const,
+      lane: report.lane,
+      report,
+    })),
+    Match.when({ kind: "execution-failed" }, () => ({
+      kind: "rule-refused" as const,
+      lane: report.lane,
+      report,
+    })),
+    Match.orElse(() => structuralExecutedRuleOutcome(report))
+  );
+  return Value.Parse(StructuralRuleOutcomeSchema, outcome);
+}
+
+function structuralExecutedRuleOutcome(report: RuleReport) {
+  return Match.value(report.status).pipe(
+    Match.when("advisory-findings", () => ({
+      kind: "rule-advisory-findings" as const,
+      lane: "advisory" as const,
+      report,
+    })),
+    Match.when("fail", () => ({ kind: "rule-failed" as const, lane: report.lane, report })),
+    Match.orElse(() => ({ kind: "rule-passed" as const, lane: report.lane, report }))
   );
 }
 
@@ -198,43 +250,48 @@ function ruleReportFromDiagnostics(input: {
   };
 }
 
-function baselineIntegrityReportEffect<R>(
+const baselineIntegrityReportEffect = Effect.fn("habitat.check.baselineIntegrityReport")(function* (
   base: string,
-  context: StructuralExecutionContext<R>
-): Effect.Effect<RuleReport, never, R> {
-  return Effect.gen(function* () {
-    const integrityStarted = yield* Clock.currentTimeMillis;
-    const integrity = yield* checkBaselineIntegrityEffect<R>(base, {
-      ...baselineContext(context),
-      registry: baselineContractInputs(context.rules),
-    });
-    const integrityFindings = yield* baselineIntegrityFindingsEffect(integrity);
-    const disposition: RuleReportDisposition = {
-      kind: "baseline-integrity",
-      state: integrity.status === "refused" ? "refused" : "passed",
-    };
-    const diagnostics = integrityFindings.map((finding) => ({
-      ruleId: "baseline-integrity",
-      path: finding.file,
-      message: finding.reason,
-      severity: "error" as const,
-      baselined: false,
-    }));
-    return {
-      ruleId: "baseline-integrity",
-      runner: "habitat",
-      lane: "enforced",
-      status: deriveRuleReportStatus({ lane: "enforced", disposition, diagnostics }),
-      locked: true,
-      durationMs: Math.max(0, (yield* Clock.currentTimeMillis) - integrityStarted),
-      disposition,
-      diagnostics,
-      message:
-        "Baselines are shrink-only; additions are valid only in the change that introduces the rule itself.",
-      remediate: null,
-    };
+  context: StructuralExecutionContext
+): Effect.fn.Return<RuleReport, never, FileSystem.FileSystem> {
+  const integrityStarted = yield* Clock.currentTimeMillis;
+  const authorityContext = baselineContext(context);
+  const integrity = yield* checkBaselineIntegrityEffect(base, {
+    fileSystem: authorityContext.fileSystem,
+    git: authorityContext.git,
+    repoRoot: authorityContext.repoRoot,
+    registry: baselineContractInputs(context.rules),
   });
-}
+  const integrityFindings = yield* baselineIntegrityFindingsEffect(integrity);
+  const integrityState = Match.value(integrity.status).pipe(
+    Match.when("refused", () => "refused" as const),
+    Match.orElse(() => "passed" as const)
+  );
+  const disposition: RuleReportDisposition = {
+    kind: "baseline-integrity",
+    state: integrityState,
+  };
+  const diagnostics = integrityFindings.map((finding) => ({
+    ruleId: "baseline-integrity",
+    path: finding.file,
+    message: finding.reason,
+    severity: "error" as const,
+    baselined: false,
+  }));
+  return {
+    ruleId: "baseline-integrity",
+    runner: "habitat",
+    lane: "enforced" as const,
+    status: deriveRuleReportStatus({ lane: "enforced", disposition, diagnostics }),
+    locked: true,
+    durationMs: Math.max(0, (yield* Clock.currentTimeMillis) - integrityStarted),
+    disposition,
+    diagnostics,
+    message:
+      "Baselines are shrink-only; additions are valid only in the change that introduces the rule itself.",
+    remediate: null,
+  };
+});
 
 function ruleReportDisposition(disposition: RuleExecutionDisposition): RuleReportDisposition {
   return Match.value(disposition).pipe(
@@ -259,7 +316,7 @@ function ruleReportDisposition(disposition: RuleExecutionDisposition): RuleRepor
   );
 }
 
-function baselineContext<R>(context: StructuralExecutionContext<R>): BaselineAuthorityContext<R> {
+function baselineContext(context: StructuralExecutionContext): BaselineAuthorityContext {
   return {
     fileSystem: context.baselineFileSystem,
     git: context.git,
@@ -269,4 +326,16 @@ function baselineContext<R>(context: StructuralExecutionContext<R>): BaselineAut
 
 function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {
   return new Map(facts.map((fact) => [fact.id, fact]));
+}
+
+function requireMapValue<T extends object>(
+  map: ReadonlyMap<string, T>,
+  ruleId: string,
+  factKind: string
+): T {
+  return Option.fromNullable(map.get(ruleId)).pipe(
+    Option.getOrThrowWith(
+      () => new Error(`habitat internal error: missing ${factKind} for ${ruleId}`)
+    )
+  );
 }

@@ -1,10 +1,10 @@
+import type { NxProviderService } from "@habitat/cli/providers/nx/index";
 import {
   type SpawnResult,
   spawnResultFromCommandResult,
 } from "@habitat/cli/resources/command/index";
-import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
 import type { VerifyTargetPlan } from "@habitat/cli/service/model/workspace/index";
-import { Effect } from "effect";
+import { Effect, Match, Option } from "effect";
 import type { VerifyReceipt } from "../dto/verify.schema.js";
 import { boundedPreview } from "./command-output.policy.js";
 
@@ -13,12 +13,7 @@ type SkippedNxAffectedReason = Extract<
   { kind: "skipped" }
 >["skipReason"];
 
-export interface VerifyNxAffectedPort {
-  readonly affected: (request: {
-    readonly base: string;
-    readonly targets: readonly string[];
-  }) => Effect.Effect<HabitatCommandResult, unknown, any>;
-}
+export type VerifyNxAffectedPort = Pick<NxProviderService, "affected">;
 
 /**
  * Builds the Nx affected argv used by verify.
@@ -63,7 +58,7 @@ export function completedNxAffected(
   const stdout = boundedPreview(affected.stdout);
   const stderr = boundedPreview(affected.stderr);
   return {
-    kind: affected.exitCode === 0 ? "executed" : "failed",
+    kind: nxAffectedKind(affected.exitCode),
     argv,
     targets: targetsFromArgv(argv),
     projects: parseNxAffectedProjects(affected.stdout),
@@ -94,11 +89,7 @@ export function skippedNxAffected(
 ): Extract<VerifyReceipt["nxAffected"], { kind: "skipped" }> {
   return {
     kind: "skipped",
-    skipReason:
-      options.reason ??
-      (options.targetPlan?.kind === "verify-target-plan-refused"
-        ? "workspace-graph-refused"
-        : "habitat-check-failed"),
+    skipReason: skippedReason(options),
     argv,
     targets: targetsFromArgv(argv),
     projects: [],
@@ -115,8 +106,12 @@ export function skippedNxAffected(
 
 function targetsFromArgv(argv: readonly string[]): string[] {
   const targetFlagIndex = argv.indexOf("-t");
-  if (targetFlagIndex === -1) return [];
-  return (argv[targetFlagIndex + 1] ?? "").split(",").filter((target) => target.length > 0);
+  return Match.value(targetFlagIndex).pipe(
+    Match.when(-1, () => []),
+    Match.orElse((index) =>
+      (argv[index + 1] ?? "").split(",").filter((target) => target.length > 0)
+    )
+  );
 }
 
 function parseNxAffectedProjects(stdout: string): string[] {
@@ -132,19 +127,43 @@ function parseNxTaskCacheStates(
   stdout: string
 ): Extract<VerifyReceipt["nxAffected"], { kind: "executed" }>["cacheStateByTask"] {
   const tasks = [...stdout.matchAll(/^>\s+nx run ([^:\s]+):([^\s]+)(.*)$/gm)];
-  return tasks.map((match) => {
-    const project = match[1];
-    const target = match[2];
-    const taskLine = match[3] ?? "";
-    return {
-      taskId: `${project}:${target}`,
-      project,
-      target,
-      cacheState: taskLine.includes("existing outputs match the cache")
-        ? "cache-hit"
-        : "not-observed",
-    };
-  });
+  return tasks.map(nxTaskCacheState);
+}
+
+function nxTaskCacheState(
+  match: RegExpMatchArray
+): Extract<VerifyReceipt["nxAffected"], { kind: "executed" }>["cacheStateByTask"][number] {
+  const project = match[1];
+  const target = match[2];
+  const taskLine = match[3] ?? "";
+  const cacheState = Match.value(taskLine.includes("existing outputs match the cache")).pipe(
+    Match.when(true, () => "cache-hit" as const),
+    Match.orElse(() => "not-observed" as const)
+  );
+  return {
+    taskId: `${project}:${target}`,
+    project,
+    target,
+    cacheState,
+  };
+}
+
+function nxAffectedKind(exitCode: number): "executed" | "failed" {
+  return Match.value(exitCode).pipe(
+    Match.when(0, () => "executed" as const),
+    Match.orElse(() => "failed" as const)
+  );
+}
+
+function skippedReason(options: {
+  readonly reason?: SkippedNxAffectedReason;
+  readonly targetPlan?: VerifyTargetPlan;
+}): SkippedNxAffectedReason {
+  const inferred = Match.value(options.targetPlan?.kind).pipe(
+    Match.when("verify-target-plan-refused", () => "workspace-graph-refused" as const),
+    Match.orElse(() => "habitat-check-failed" as const)
+  );
+  return Option.fromNullable(options.reason).pipe(Option.getOrElse(() => inferred));
 }
 
 function sortedUnique(values: readonly string[]): string[] {

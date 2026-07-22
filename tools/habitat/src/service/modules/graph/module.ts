@@ -1,65 +1,32 @@
 import path from "node:path";
+import type { FileSystem } from "@effect/platform";
 import {
-  type CommandProviderError,
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@habitat/cli/resources/command/index";
+import type { HabitatPlatformService } from "@habitat/cli/resources/platform/index";
+import type {
+  HabitatServiceDeps,
+  HabitatServiceRequirements,
+} from "@habitat/cli/service/base";
 import { type HabitatModule, service } from "@habitat/cli/service/impl";
-import { Effect } from "effect";
+import { Effect, Match, Schema, type Scope } from "effect";
+import { Type } from "typebox";
+import { Value } from "typebox/value";
 import {
   GraphServiceBadRequestError,
   GraphServiceInternalError,
 } from "./model/errors/graph.errors.js";
 
-export interface GraphModuleContext {
-  readonly parseWorkspaceGraphJson: (
-    graphPath: string,
-    graphText: string,
-    badRequest: GraphBadRequest
-  ) => Effect.Effect<unknown, GraphServiceBadRequestError>;
-  readonly readWorkspaceGraphText: (
-    graphPath: string
-  ) => Effect.Effect<string, GraphServiceInternalError, any>;
-  readonly runNxWorkspaceGraph: (input: GraphNxGraphRequest) => Effect.Effect<SpawnResult>;
-  readonly selectWorkspaceGraphPayload: (
-    graphPath: string,
-    payload: unknown,
-    badRequest: GraphBadRequest
-  ) => Effect.Effect<unknown, GraphServiceBadRequestError>;
-  readonly withWorkspaceGraphFile: <A>(
-    body: (graphPath: string) => Generator<any, A, any>
-  ) => Effect.Effect<A, GraphServiceBadRequestError | GraphServiceInternalError, any>;
-}
+const GraphEnvelopeSchema = Type.Object({ graph: Type.Unknown() }, { additionalProperties: true });
+
+const decodeGraphJson = Schema.decodeUnknown(Schema.parseJson());
+
+export type GraphModuleContext = ReturnType<typeof makeGraphModuleContext>;
 
 export const module: HabitatModule<"graph", GraphModuleContext> = service.graph.use(
-  ({ context, next }) => {
-    return next({
-      context: {
-        parseWorkspaceGraphJson: (graphPath, graphText, badRequest) =>
-          parseGraphJson(graphPath, graphText).pipe(
-            Effect.mapError((failure) => badRequest({ message: failure.message }))
-          ),
-        readWorkspaceGraphText: (graphPath) =>
-          context.deps.platform
-            .readText(graphPath)
-            .pipe(Effect.mapError(graphServiceInternalError)),
-        runNxWorkspaceGraph: (request) =>
-          context.deps.nx.graph(request).pipe(
-            Effect.match({
-              onFailure: spawnResultFromCommandProviderError,
-              onSuccess: spawnResultFromCommandResult,
-            })
-          ),
-        selectWorkspaceGraphPayload: (graphPath, payload, badRequest) =>
-          selectGraphPayload(graphPath, payload).pipe(
-            Effect.mapError((failure) => badRequest({ message: failure.message }))
-          ),
-        withWorkspaceGraphFile: (body) =>
-          withWorkspaceGraphFile(context.deps.platform.acquireTempDirectory, body),
-      } satisfies GraphModuleContext,
-    });
-  }
+  ({ context, next }) => next({ context: makeGraphModuleContext(context.deps) })
 );
 
 interface GraphJsonFailure {
@@ -67,51 +34,102 @@ interface GraphJsonFailure {
 }
 
 type GraphBadRequest = (input: { readonly message: string }) => GraphServiceBadRequestError;
-type GraphScopedBody<A> = (graphPath: string) => Generator<any, A, any>;
+type GraphScopedBody<A> = (graphPath: string) => Effect.fn.Return<
+  A,
+  GraphServiceBadRequestError | GraphServiceInternalError,
+  HabitatServiceRequirements
+>;
 
 export interface GraphNxGraphRequest {
   readonly outputPath: string;
 }
 
-function withWorkspaceGraphFile<A>(
-  acquireTempDirectory: (prefix: string) => Effect.Effect<string, unknown, any>,
-  body: GraphScopedBody<A>
-): Effect.Effect<A, GraphServiceBadRequestError | GraphServiceInternalError, any> {
-  return Effect.scoped(
-    Effect.gen(function* () {
-      const tempDir = yield* acquireTempDirectory("habitat-graph-").pipe(
-        Effect.mapError(graphServiceInternalError)
-      );
-      return yield* body(path.join(tempDir, "graph.json"));
-    })
-  ) as Effect.Effect<A, GraphServiceBadRequestError | GraphServiceInternalError, any>;
+function makeGraphModuleContext(deps: HabitatServiceDeps) {
+  return {
+    parseWorkspaceGraphJson: (graphPath: string, graphText: string, badRequest: GraphBadRequest) =>
+      parseGraphJsonEffect(graphPath, graphText).pipe(
+        Effect.mapError((failure) => badRequest({ message: failure.message }))
+      ),
+    readWorkspaceGraphText: (graphPath: string) =>
+      deps.platform.readText(graphPath).pipe(Effect.mapError(graphServiceInternalError)),
+    runNxWorkspaceGraph: (request: GraphNxGraphRequest) =>
+      deps.nx.graph(request).pipe(
+        Effect.match({
+          onFailure: spawnResultFromCommandProviderError,
+          onSuccess: spawnResultFromCommandResult,
+        })
+      ),
+    selectWorkspaceGraphPayload: (
+      graphPath: string,
+      payload: unknown,
+      badRequest: GraphBadRequest
+    ) =>
+      selectGraphPayloadEffect(graphPath, payload).pipe(
+        Effect.mapError((failure) => badRequest({ message: failure.message }))
+      ),
+    withWorkspaceGraphFile: <A>(body: GraphScopedBody<A>) =>
+      withWorkspaceGraphFileScopedEffect(deps.platform.acquireTempDirectory, body).pipe(
+        Effect.scoped
+      ),
+  };
 }
 
-function parseGraphJson(graphPath: string, graphText: string) {
-  return Effect.try({
-    try: () => JSON.parse(graphText) as unknown,
-    catch: (cause): GraphJsonFailure => ({
-      message: `Habitat graph service could not parse Nx graph JSON at ${graphPath}: ${
-        cause instanceof Error ? cause.message : String(cause)
-      }`,
-    }),
-  });
-}
+const withWorkspaceGraphFileScopedEffect = Effect.fn("habitat.graph.withWorkspaceGraphFile")(
+  function* <A>(
+    acquireTempDirectory: HabitatPlatformService["acquireTempDirectory"],
+    body: GraphScopedBody<A>
+  ): Effect.fn.Return<
+    A,
+    GraphServiceBadRequestError | GraphServiceInternalError,
+    HabitatServiceRequirements | FileSystem.FileSystem | Scope.Scope
+  > {
+    const tempDir = yield* acquireTempDirectory("habitat-graph-").pipe(
+      Effect.mapError(graphServiceInternalError)
+    );
+    return yield* body(path.join(tempDir, "graph.json"));
+  }
+);
 
-function selectGraphPayload(
+const parseGraphJsonEffect = Effect.fn("habitat.graph.parseJson")(function* (
+  graphPath: string,
+  graphText: string
+) {
+  return yield* decodeGraphJson(graphText).pipe(
+    Effect.mapError(
+      (cause): GraphJsonFailure => ({
+        message: `Habitat graph service could not parse Nx graph JSON at ${graphPath}: ${String(cause)}`,
+      })
+    )
+  );
+});
+
+const selectGraphPayloadEffect = Effect.fn("habitat.graph.selectPayload")(function* (
   graphPath: string,
   payload: unknown
-): Effect.Effect<unknown, GraphJsonFailure> {
-  if (payload && typeof payload === "object" && "graph" in payload) {
-    const graph = (payload as { readonly graph: unknown }).graph;
-    if (!graph || typeof graph !== "object") {
-      return Effect.fail({
+) {
+  return yield* Match.value(Value.Check(GraphEnvelopeSchema, payload)).pipe(
+    Match.when(true, () => selectEnvelopeGraphEffect(graphPath, payload)),
+    Match.when(false, () => Effect.succeed(payload)),
+    Match.exhaustive
+  );
+});
+
+const selectEnvelopeGraphEffect = Effect.fn("habitat.graph.selectEnvelope")(function* (
+  graphPath: string,
+  payload: unknown
+) {
+  const graph = Value.Parse(GraphEnvelopeSchema, payload).graph;
+  return yield* Effect.if(isNonNullObject(graph), {
+    onTrue: () => Effect.succeed(graph),
+    onFalse: () =>
+      Effect.fail({
         message: `Habitat graph service read invalid Nx graph JSON at ${graphPath}: graph must be a non-null object.`,
-      });
-    }
-    return Effect.succeed(graph);
-  }
-  return Effect.succeed(payload);
+      } satisfies GraphJsonFailure),
+  });
+});
+
+function isNonNullObject(value: unknown): value is object {
+  return value !== null && typeof value === "object";
 }
 
 function graphServiceInternalError() {

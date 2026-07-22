@@ -104,17 +104,24 @@
       }
     },
     "lint:standalone": {
-      "command": "biome lint --config-path=biome.effect.json tools/habitat/bin/check.ts tools/habitat/scripts/standalone tools/habitat/src/runtime/standalone-layers.ts tools/habitat/src/standalone tools/habitat/test/standalone",
+      "command": "biome lint --config-path=biome.effect.json tools/habitat/bin tools/habitat/scripts tools/habitat/src tools/habitat/test",
       "cache": true,
       "inputs": [
-        "{projectRoot}/bin/check.ts",
-        "{projectRoot}/scripts/standalone/**",
-        "{projectRoot}/src/runtime/standalone-layers.ts",
-        "{projectRoot}/src/standalone/**",
-        "{projectRoot}/test/standalone/**",
+        "{projectRoot}/bin/**",
+        "{projectRoot}/scripts/**",
+        "{projectRoot}/src/**",
+        "{projectRoot}/test/**",
+        "{workspaceRoot}/.gitignore",
         "{workspaceRoot}/biome.json",
         "{workspaceRoot}/biome.effect.json",
-        "{workspaceRoot}/patches/@catenarycloud%2Flinteffect@0.0.6.patch"
+        "{workspaceRoot}/bun.lock",
+        "{workspaceRoot}/package.json",
+        "{workspaceRoot}/patches/@catenarycloud%2Flinteffect@0.0.6.patch",
+        "{workspaceRoot}/tsconfig*.json",
+        "{workspaceRoot}/vitest.config.ts",
+        "{projectRoot}/package.json",
+        "{projectRoot}/project.json",
+        "{projectRoot}/tsconfig*.json"
       ],
       "outputs": [],
       "options": {
@@ -130,9 +137,39 @@
         "cwd": "tools/habitat"
       }
     },
+    "test:standalone:behavior": {
+      "command": "bun run test:standalone:behavior",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/src/**",
+        "{projectRoot}/test/**",
+        "{workspaceRoot}/.habitat/**",
+        "{workspaceRoot}/.gitignore",
+        "{workspaceRoot}/biome.json",
+        "{workspaceRoot}/biome.effect.json",
+        "{workspaceRoot}/bun.lock",
+        "{workspaceRoot}/package.json",
+        "{workspaceRoot}/patches/@catenarycloud%2Flinteffect@0.0.6.patch",
+        "{workspaceRoot}/tsconfig*.json",
+        "{workspaceRoot}/vitest.config.ts",
+        "{projectRoot}/package.json",
+        "{projectRoot}/project.json",
+        "{projectRoot}/tsconfig*.json"
+      ],
+      "outputs": [],
+      "options": {
+        "cwd": "tools/habitat"
+      }
+    },
     "release:standalone": {
       "command": "bun run release:standalone:artifacts",
-      "dependsOn": ["check:hygiene", "lint:standalone", "typecheck", "test:standalone"],
+      "dependsOn": [
+        "check:hygiene",
+        "lint:standalone",
+        "typecheck",
+        "test:standalone",
+        "test:standalone:behavior"
+      ],
       "cache": false,
       "outputs": ["{projectRoot}/dist/standalone/**"],
       "options": {

@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 import {
   type BoundaryGraphEdge,
   boundaryTags,
@@ -11,6 +10,7 @@ import {
 } from "@habitat/cli/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy";
 import type { WorkspaceProject } from "@habitat/cli/service/model/workspace/index";
 import { createProjectGraphAsync } from "@nx/devkit";
+import { boundaryRuleOptions } from "./boundary-config.js";
 
 export async function readWorkspaceManifestProjects(
   root: string
@@ -47,11 +47,10 @@ export async function readWorkspaceManifestProjects(
   return projects.sort((a, b) => a.root.localeCompare(b.root) || a.name.localeCompare(b.name));
 }
 
-export async function readBoundaryConfigConstraints(
-  configPath: string
-): Promise<TaxonomyConstraint[]> {
-  const imported = (await import(pathToFileURL(configPath).href)) as { default?: unknown };
-  return extractBoundaryConfigConstraints(imported.default);
+export function readBoundaryConfigConstraints(): TaxonomyConstraint[] {
+  return extractBoundaryConfigConstraints([
+    { rules: { "@nx/enforce-module-boundaries": ["error", boundaryRuleOptions] } },
+  ]);
 }
 
 export async function readNxProjectMetadataFromGraph(): Promise<{

@@ -1,10 +1,12 @@
+import path from "node:path";
+import { NodeContext } from "@effect/platform-node";
 import type { HabitatDirectoryEntry } from "@habitat/cli/resources/platform/index";
 import { executeSelectedRulesEffect } from "@habitat/cli/service/model/check/policy/structural/execution.policy";
 import { ruleFactsCatalog } from "@habitat/cli/service/model/rules/index";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import { describe, expect, test } from "vitest";
 
-const repoRoot = "/repo";
+const repoRoot = path.join("/", "repo");
 
 describe("structure-check native execution", () => {
   test("executes selected structure rules without command, Grit, or Nx handoff", async () => {
@@ -58,6 +60,9 @@ required = ["src"]
         },
       ],
     });
+    const forbiddenExecution = Effect.die(
+      new Error("Non-structure providers must not run during native structure execution.")
+    );
 
     const results = await Effect.runPromise(
       executeSelectedRulesEffect(
@@ -65,25 +70,25 @@ required = ["src"]
         {},
         {
           baselineFileSystem: fileSystemPort(fixture),
-          biome: { run: () => failIfCalled("biome") },
-          command: { run: () => failIfCalled("command") },
+          biome: { run: () => forbiddenExecution },
+          command: { run: () => forbiddenExecution },
           git: {
-            diffNameOnly: () => failIfCalled("git.diffNameOnly"),
-            diffNameStatus: () => failIfCalled("git.diffNameStatus"),
-            lsTreeNameOnly: () => failIfCalled("git.lsTreeNameOnly"),
-            mergeBase: () => failIfCalled("git.mergeBase"),
-            show: () => failIfCalled("git.show"),
+            diffNameOnly: () => forbiddenExecution,
+            diffNameStatus: () => forbiddenExecution,
+            lsTreeNameOnly: () => forbiddenExecution,
+            mergeBase: () => forbiddenExecution,
+            show: () => forbiddenExecution,
           },
-          ruleDiagnostics: { runRules: () => failIfCalled("ruleDiagnostics") },
+          ruleDiagnostics: { runRules: () => forbiddenExecution },
           nx: {
-            runMany: () => failIfCalled("nx.runMany"),
-            runTarget: () => failIfCalled("nx.runTarget"),
+            runMany: () => forbiddenExecution,
+            runTarget: () => forbiddenExecution,
           },
           repoRoot,
           rules,
           structureFileSystem: fileSystemPort(fixture),
         }
-      )
+      ).pipe(Effect.provide(NodeContext.layer))
     );
 
     expect(results.get("sample-structure-rule")?.result).toEqual({
@@ -102,17 +107,19 @@ function fileSystemPort(fixture: {
     isFile: (targetPath: string) => Effect.succeed(fixture.files.has(targetPath)),
     makeDirectory: () => Effect.void,
     readDirectory: (targetPath: string) =>
-      fixture.directories.has(targetPath)
-        ? Effect.succeed(fixture.directories.get(targetPath) ?? [])
-        : Effect.fail(new Error(`Missing directory fixture: ${targetPath}`)),
+      Match.value(fixture.directories.get(targetPath)).pipe(
+        Match.when(Match.undefined, () =>
+          Effect.die(new Error(`Missing directory fixture: ${targetPath}`))
+        ),
+        Match.orElse((entries) => Effect.succeed([...entries]))
+      ),
     readText: (targetPath: string) =>
-      fixture.files.has(targetPath)
-        ? Effect.succeed(fixture.files.get(targetPath) ?? "")
-        : Effect.fail(new Error(`Missing file fixture: ${targetPath}`)),
+      Match.value(fixture.files.get(targetPath)).pipe(
+        Match.when(Match.undefined, () =>
+          Effect.die(new Error(`Missing file fixture: ${targetPath}`))
+        ),
+        Match.orElse((contents) => Effect.succeed(contents))
+      ),
     writeText: () => Effect.void,
   };
-}
-
-function failIfCalled(label: string): Effect.Effect<never, never> {
-  return Effect.die(new Error(`${label} should not be called by structure-check execution`));
 }

@@ -12,26 +12,26 @@ import {
 } from "./dto/baseline.schema.js";
 import { countOccurrences, sameOccurrenceList, sameStringList } from "./utils.policy.js";
 
-type RuleIntroductionManifestReadPort<R> = Pick<HabitatFileSystemReadPort<R>, "readText">;
+type RuleIntroductionManifestReadPort = Pick<HabitatFileSystemReadPort, "readText">;
 
-interface RuleIntroductionManifestContext<R> {
-  readonly fileSystem: RuleIntroductionManifestReadPort<R>;
+interface RuleIntroductionManifestContext {
+  readonly fileSystem: RuleIntroductionManifestReadPort;
   readonly repoRoot: string;
   readonly registry: readonly BaselineRuleContractInput[];
   readonly ruleIntroductionManifests: readonly RuleIntroductionBaselineManifest[];
 }
 
-interface FileManifestSource<R> {
+interface FileManifestSource {
   readonly status: "file";
   readonly path: string;
   readonly ruleId: string;
-  readonly context: RuleIntroductionManifestContext<R>;
+  readonly context: RuleIntroductionManifestContext;
 }
 
-type RuleIntroductionManifestSource<R> =
+type RuleIntroductionManifestSource =
   | { readonly status: "injected"; readonly manifest: RuleIntroductionBaselineManifest }
   | { readonly status: "missing" }
-  | FileManifestSource<R>;
+  | FileManifestSource;
 
 type RuleIntroductionManifestLoadResult =
   | { readonly status: "loaded"; readonly manifest: RuleIntroductionBaselineManifest }
@@ -44,9 +44,9 @@ type RuleIntroductionManifestAdmission =
 
 const decodeJsonText = Schema.decodeUnknown(Schema.parseJson());
 
-const loadManifestFileEffect = Effect.fn("baseline.loadRuleIntroductionManifest")(function* <R>(
-  source: FileManifestSource<R>
-): Effect.fn.Return<RuleIntroductionManifestLoadResult, never, R> {
+const loadManifestFileEffect = Effect.fn("baseline.loadRuleIntroductionManifest")(function* (
+  source: FileManifestSource
+) {
   const absolutePath = path.resolve(source.context.repoRoot, source.path);
   const raw = yield* source.context.fileSystem.readText(absolutePath).pipe(Effect.either);
   return yield* Either.match(raw, {
@@ -80,17 +80,17 @@ const loadManifestFileEffect = Effect.fn("baseline.loadRuleIntroductionManifest"
 /** Admits introduced baseline debt only when its manifest matches every occurrence exactly. */
 export const admitRuleIntroductionManifestEffect = Effect.fn(
   "baseline.admitRuleIntroductionManifest"
-)(function* <R>(
+)(function* (
   ruleId: string,
   occurrences: readonly BaselineOccurrence[],
   comparisonBase: string,
   baselinePath: string,
-  context: RuleIntroductionManifestContext<R>
-): Effect.fn.Return<RuleIntroductionManifestAdmission, never, R> {
+  context: RuleIntroductionManifestContext
+) {
   const source = ruleIntroductionManifestSource(ruleId, context);
   const loaded = yield* Match.value(source).pipe(
     Match.when({ status: "injected" }, ({ manifest }) => Effect.succeed(manifestLoaded(manifest))),
-    Match.when({ status: "file" }, (fileSource) => loadManifestFileEffect<R>(fileSource)),
+    Match.when({ status: "file" }, (fileSource) => loadManifestFileEffect(fileSource)),
     Match.when({ status: "missing" }, () => Effect.succeed(manifestMissing())),
     Match.exhaustive
   );
@@ -104,10 +104,10 @@ export const admitRuleIntroductionManifestEffect = Effect.fn(
   );
 });
 
-function ruleIntroductionManifestSource<R>(
+function ruleIntroductionManifestSource(
   ruleId: string,
-  context: RuleIntroductionManifestContext<R>
-): RuleIntroductionManifestSource<R> {
+  context: RuleIntroductionManifestContext
+): RuleIntroductionManifestSource {
   const injected = Option.fromNullable(
     context.ruleIntroductionManifests.find((candidate) => candidate.ruleId === ruleId)
   ).pipe(Option.map(manifestInjected));
@@ -120,13 +120,13 @@ function ruleIntroductionManifestSource<R>(
   );
 }
 
-function admissionFromLoadedManifest<R>(
+function admissionFromLoadedManifest(
   ruleId: string,
   occurrences: readonly BaselineOccurrence[],
   comparisonBase: string,
   baselinePath: string,
   loaded: RuleIntroductionManifestLoadResult,
-  context: RuleIntroductionManifestContext<R>
+  context: RuleIntroductionManifestContext
 ): RuleIntroductionManifestAdmission {
   return Match.value(loaded).pipe(
     Match.when({ status: "missing" }, () => missingAdmission(ruleId, occurrences, baselinePath)),
@@ -140,13 +140,13 @@ function admissionFromLoadedManifest<R>(
   );
 }
 
-function loadedManifestAdmission<R>(
+function loadedManifestAdmission(
   ruleId: string,
   occurrences: readonly BaselineOccurrence[],
   comparisonBase: string,
   baselinePath: string,
   manifest: RuleIntroductionBaselineManifest,
-  context: RuleIntroductionManifestContext<R>
+  context: RuleIntroductionManifestContext
 ): RuleIntroductionManifestAdmission {
   const sortedManifestKeys = [...manifest.initialBaselineKeys].sort();
   const manifestOccurrences = countOccurrences(manifest.initialBaselineKeys);
@@ -229,15 +229,15 @@ function admissionAccepted(): RuleIntroductionManifestAdmission {
 
 function manifestInjected(
   manifest: RuleIntroductionBaselineManifest
-): RuleIntroductionManifestSource<never> {
+): RuleIntroductionManifestSource {
   return { status: "injected", manifest };
 }
 
-function manifestFile<R>(
+function manifestFile(
   manifestPath: string,
   ruleId: string,
-  context: RuleIntroductionManifestContext<R>
-): RuleIntroductionManifestSource<R> {
+  context: RuleIntroductionManifestContext
+): RuleIntroductionManifestSource {
   return { status: "file", path: manifestPath, ruleId, context };
 }
 

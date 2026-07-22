@@ -9,10 +9,12 @@ import type { HabitatPlatformService } from "@habitat/cli/resources/platform/ind
 import type { CheckReport, HabitatDiagnostic } from "@habitat/cli/service/model/check/index";
 import { type RuleRegistryRecord, ruleFactsCatalog } from "@habitat/cli/service/model/rules/index";
 import { checkRouter } from "@habitat/cli/service/modules/check/router";
-import { Effect, Match, Option } from "effect";
+import { Effect, Match, Option, Schema } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps.js";
+
+const stringifyJsonDocument = Schema.encodeSync(Schema.parseJson());
 
 const fixture = {
   repoRoot: "/repo",
@@ -24,8 +26,13 @@ const fixture = {
   absoluteManifestPath:
     "/repo/.habitat/fixtures/rules/introduced-rule/rule-introduction-manifest.json",
   seededBaselineBody: '["src/a.ts::early finding","src/z.ts::late finding"]',
-  sortedBaselineWrite:
-    '{\n  "schemaVersion": 1,\n  "occurrences": [\n    {\n      "key": "src/a.ts::early finding",\n      "count": 1\n    },\n    {\n      "key": "src/z.ts::late finding",\n      "count": 1\n    }\n  ]\n}\n',
+  sortedBaselineWrite: `${stringifyJsonDocument({
+    schemaVersion: 1,
+    occurrences: [
+      { key: "src/a.ts::early finding", count: 1 },
+      { key: "src/z.ts::late finding", count: 1 },
+    ],
+  })}\n`,
   existingRuleManifestBody: '{"id":"existing-rule"}',
   validManifestBody:
     '{"changeId":"fixture-change","ruleId":"introduced-rule","ownerProject":"habitat","runner":"grit","baselinePath":".habitat/fixtures/rules/introduced-rule/baseline.json","initialBaselineKeys":["src/a.ts::early finding","src/z.ts::late finding"],"comparisonBase":"main"}',

@@ -10,11 +10,11 @@ import {
 } from "@habitat/cli/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
 
-export function selectorRefusalReportEffect(
+export const selectorRefusalReportEffect = Effect.fn("habitat.check.selectorRefusalReport")(
+  function* (
   failure: Extract<RuleSelectionResult, { ok: false }>,
   request: StructuralCheckRequest
-): Effect.Effect<CheckReport> {
-  return Effect.gen(function* () {
+) {
     const started = yield* Clock.currentTimeMillis;
     const ended = yield* Clock.currentTimeMillis;
     const refusalMessage = describeRuleSelectionFailure(failure);
@@ -53,14 +53,11 @@ export function selectorRefusalReportEffect(
       command: request.command.serialized,
       reports: [report],
     });
-  });
-}
+  }
+);
 
-export function constructCheckReportEffect(input: {
-  command: string;
-  reports: readonly RuleReport[];
-}): Effect.Effect<CheckReport> {
-  return Effect.gen(function* () {
+export const constructCheckReportEffect = Effect.fn("habitat.check.constructReport")(
+  function* (input: { command: string; reports: readonly RuleReport[] }) {
     const startedMs = yield* Clock.currentTimeMillis;
     return {
       schemaVersion: 2,
@@ -68,6 +65,6 @@ export function constructCheckReportEffect(input: {
       startedAt: new Date(startedMs).toISOString(),
       ok: input.reports.every((report) => report.status !== "fail"),
       rules: [...input.reports],
-    };
-  });
-}
+    } satisfies CheckReport;
+  }
+);

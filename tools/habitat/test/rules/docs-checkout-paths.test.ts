@@ -1,6 +1,11 @@
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
+
+interface DocsCheckoutRuleModule {
+  readonly findCheckoutDocsPaths: (markdown: string) => readonly unknown[];
+  readonly scanPortableDocsMarkdown: (filePath: string, markdown: string) => unknown;
+}
 
 const ruleModuleUrl = pathToFileURL(
   resolve(
@@ -8,7 +13,8 @@ const ruleModuleUrl = pathToFileURL(
     "../../../../.habitat/docs/rules/ensure_docs_checkout_paths_are_portable/check.mjs"
   )
 ).href;
-const { findCheckoutDocsPaths, scanPortableDocsMarkdown } = await import(ruleModuleUrl);
+const { findCheckoutDocsPaths, scanPortableDocsMarkdown } =
+  await vi.importActual<DocsCheckoutRuleModule>(ruleModuleUrl);
 
 describe("portable docs checkout paths", () => {
   test("finds exact host checkout paths and projects repo-relative replacements", () => {

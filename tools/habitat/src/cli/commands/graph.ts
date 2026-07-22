@@ -14,7 +14,7 @@ export default class Graph extends HabitatCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(Graph);
     const client = await this.habitatServiceClient();
-    const result = await client.graph.workspaceGraph({});
+    const result = await client.graph.workspaceGraph({}, this.habitatServiceCallerOptions());
     if (result.kind === "command-failed") {
       process.stdout.write(result.stdout);
       process.stderr.write(result.stderr);

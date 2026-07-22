@@ -1,7 +1,8 @@
+import type { NxProviderService } from "@habitat/cli/providers/nx/index";
+import type { HabitatServiceSharedContext } from "@habitat/cli/service/base";
 import { type HabitatModule, service } from "@habitat/cli/service/impl";
 import {
   type CheckOptions,
-  type CheckReport,
   checkCommandContext,
   verifyCheckSummary,
 } from "@habitat/cli/service/model/check/index";
@@ -22,62 +23,42 @@ import {
   type VerifyReceiptInput,
 } from "./model/index.js";
 
-export interface VerifyModuleContext {
-  readonly checkCommandContext: typeof checkCommandContext;
-  readonly createCheckReport: (options?: CheckOptions) => Effect.Effect<CheckReport, never, any>;
-  readonly createVerifyReceipt: ReturnType<typeof makeCreateVerifyReceipt>;
-  readonly currentTimeMillis: typeof Clock.currentTimeMillis;
-  readonly epochMillisToIsoString: typeof epochMillisToIsoString;
-  readonly observeGitStatus: ReturnType<typeof makeObserveGitStatus>;
-  readonly readVerifyTargetPlan: ReturnType<typeof readVerifyTargetPlanEffect>;
-  readonly resolveVerifyBase: ReturnType<typeof makeResolveVerifyBase>;
-  readonly runAffectedVerification: ReturnType<typeof makeRunAffectedVerification>;
-  readonly verifyCheckSummary: typeof verifyCheckSummary;
-}
+export type VerifyModuleContext = ReturnType<typeof makeVerifyModuleContext>;
 
-interface VerifyWorkspaceGraphPort {
-  readonly workspaceGraph: () => Effect.Effect<Parameters<typeof readVerifyTargetPlan>[1]>;
-}
+type VerifyWorkspaceGraphPort = Pick<NxProviderService, "workspaceGraph">;
 
 export const module: HabitatModule<"verify", VerifyModuleContext> = service.verify.use(
-  ({ context, next }) => {
-    const resolveVerifyBase = makeResolveVerifyBase({
+  ({ context, next }) => next({ context: makeVerifyModuleContext(context) })
+);
+
+function makeVerifyModuleContext(
+  context: Pick<HabitatServiceSharedContext, "deps" | "structuralCheck">
+) {
+  const repoRoot = context.deps.platform.repoRoot;
+  return {
+    checkCommandContext,
+    createCheckReport: (options?: CheckOptions) =>
+      createCheckReportEffect({ ...options, repoRoot }, context.structuralCheck),
+    createVerifyReceipt: makeCreateVerifyReceipt({
+      env: context.deps.platform.env,
+      repoRoot,
+    }),
+    currentTimeMillis: Clock.currentTimeMillis,
+    epochMillisToIsoString,
+    observeGitStatus: makeObserveGitStatus({ git: context.deps.git, repoRoot }),
+    readVerifyTargetPlan: readVerifyTargetPlanEffect({
+      nx: context.deps.nx,
+      rules: context.deps.rules,
+    }),
+    resolveVerifyBase: makeResolveVerifyBase({
       git: context.deps.git,
       graphite: context.deps.graphite,
-      repoRoot: context.deps.platform.repoRoot,
-    });
-    const runAffectedVerification = makeRunAffectedVerification(context.deps.nx);
-    const observeGitStatus = makeObserveGitStatus({
-      git: context.deps.git,
-      repoRoot: context.deps.platform.repoRoot,
-    });
-    const createReceipt = makeCreateVerifyReceipt({
-      env: context.deps.platform.env,
-      repoRoot: context.deps.platform.repoRoot,
-    });
-    return next({
-      context: {
-        checkCommandContext,
-        createCheckReport: (options) =>
-          createCheckReportEffect(
-            { ...options, repoRoot: context.deps.platform.repoRoot },
-            context.structuralCheck
-          ),
-        createVerifyReceipt: createReceipt,
-        currentTimeMillis: Clock.currentTimeMillis,
-        epochMillisToIsoString,
-        observeGitStatus,
-        readVerifyTargetPlan: readVerifyTargetPlanEffect({
-          nx: context.deps.nx,
-          rules: context.deps.rules,
-        }),
-        resolveVerifyBase,
-        runAffectedVerification,
-        verifyCheckSummary,
-      } satisfies VerifyModuleContext,
-    });
-  }
-);
+      repoRoot,
+    }),
+    runAffectedVerification: makeRunAffectedVerification(context.deps.nx),
+    verifyCheckSummary,
+  };
+}
 
 function epochMillisToIsoString(epochMillis: number): string {
   return new Date(epochMillis).toISOString();

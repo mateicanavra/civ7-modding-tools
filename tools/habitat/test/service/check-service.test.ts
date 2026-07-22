@@ -115,10 +115,10 @@ describe("Habitat check service", () => {
         "--rule",
         "prohibit_cross_op_runtime_calls",
         "--rule",
-        "preserve_standard_stage_topology_and_path_invariants",
+        "require_recipe_stage_source_topology",
       ],
       serialized:
-        "habitat check --rule prohibit_cross_op_runtime_calls --rule preserve_standard_stage_topology_and_path_invariants",
+        "habitat check --rule prohibit_cross_op_runtime_calls --rule require_recipe_stage_source_topology",
     };
 
     const program = Effect.gen(function* () {
@@ -129,10 +129,7 @@ describe("Habitat check service", () => {
         reportCheck({
           command,
           selectors: {
-            rules: [
-              "prohibit_cross_op_runtime_calls",
-              "preserve_standard_stage_topology_and_path_invariants",
-            ],
+            rules: ["prohibit_cross_op_runtime_calls", "require_recipe_stage_source_topology"],
           },
         })
       );
@@ -141,10 +138,7 @@ describe("Habitat check service", () => {
 
     expect(observed).toEqual([
       {
-        rules: [
-          "prohibit_cross_op_runtime_calls",
-          "preserve_standard_stage_topology_and_path_invariants",
-        ],
+        rules: ["prohibit_cross_op_runtime_calls", "require_recipe_stage_source_topology"],
         baselineIntegrity: false,
         command,
         repoRoot,

@@ -1,7 +1,7 @@
 import { FileSystem } from "@effect/platform";
 import * as PlatformError from "@effect/platform/Error";
 import type { HabitatDirectoryEntry } from "@habitat/cli/resources/platform/index";
-import { Effect, Option } from "effect";
+import { Effect, Match, Option } from "effect";
 
 export function makeFakePlatformFileSystemLayer(
   events: string[] = [],
@@ -11,30 +11,24 @@ export function makeFakePlatformFileSystemLayer(
   return FileSystem.layerNoop({
     stat: (targetPath) =>
       Effect.try({
-        try: () => {
-          events.push(`stat:${targetPath}`);
-          if (directories.has(targetPath)) return fileInfo("Directory");
-          if (files.has(targetPath)) return fileInfo("File");
-          throw notFound(targetPath);
-        },
+        try: () => fakeFileInfo(events, files, directories, targetPath),
         catch: platformError,
       }),
     makeDirectory: (targetPath) =>
       Effect.sync(() => {
         events.push(`mkdir:${targetPath}`);
       }),
-    makeTempDirectoryScoped: (options) =>
-      Effect.acquireRelease(
-        Effect.sync(() => {
-          const targetPath = `/tmp/${options?.prefix ?? ""}fake`;
-          events.push(`mkdtemp:${targetPath}`);
-          return targetPath;
-        }),
-        (targetPath) =>
-          Effect.sync(() => {
-            events.push(`remove:${targetPath}`);
-          })
-      ),
+    makeTempDirectoryScoped: (options) => {
+      const targetPath = `/tmp/${options?.prefix ?? ""}fake`;
+      const acquire = Effect.sync(() => {
+        events.push(`mkdtemp:${targetPath}`);
+        return targetPath;
+      });
+      const release = Effect.sync(() => {
+        events.push(`remove:${targetPath}`);
+      });
+      return acquire.pipe(Effect.acquireRelease(() => release));
+    },
     readDirectory: (targetPath) =>
       Effect.try({
         try: () => {
@@ -81,6 +75,28 @@ function fileInfo(type: FileSystem.File.Type): FileSystem.File.Info {
   };
 }
 
+function fakeFileInfo(
+  events: string[],
+  files: ReadonlyMap<string, string>,
+  directories: ReadonlyMap<string, readonly HabitatDirectoryEntry[]>,
+  targetPath: string
+) {
+  events.push(`stat:${targetPath}`);
+  return Match.value(targetPath).pipe(
+    Match.when(
+      (candidatePath) => directories.has(candidatePath),
+      () => fileInfo("Directory")
+    ),
+    Match.when(
+      (candidatePath) => files.has(candidatePath),
+      () => fileInfo("File")
+    ),
+    Match.orElse(() => {
+      throw notFound(targetPath);
+    })
+  );
+}
+
 function notFound(path: string): PlatformError.PlatformError {
   return new PlatformError.SystemError({
     reason: "NotFound",
@@ -92,7 +108,10 @@ function notFound(path: string): PlatformError.PlatformError {
 }
 
 function platformError(cause: unknown): PlatformError.PlatformError {
-  return isPlatformError(cause) ? cause : notFound(String(cause));
+  return Match.value(cause).pipe(
+    Match.when(isPlatformError, (platformCause) => platformCause),
+    Match.orElse((unknownCause) => notFound(String(unknownCause)))
+  );
 }
 
 function isPlatformError(cause: unknown): cause is PlatformError.PlatformError {

@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Value } from "typebox/value";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps.js";
 
 const mockReport = vi.hoisted(() => ({
   schemaVersion: 2,
@@ -26,6 +27,7 @@ const mockHookPreCommit = vi.hoisted(() => vi.fn());
 const mockHookPrePush = vi.hoisted(() => vi.fn());
 const mockVerifyChanges = vi.hoisted(() => vi.fn());
 const mockWriteFileSync = vi.hoisted(() => vi.fn());
+const mockHabitatRuntimeDispose = vi.hoisted(() => vi.fn(async () => {}));
 
 vi.mock("node:fs", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:fs")>();
@@ -83,14 +85,13 @@ vi.mock("@orpc/server", () => ({
   })),
 }));
 
-vi.mock("../../src/runtime/service-context.js", async () => {
-  const { makeTestHabitatServiceDeps } = await import("../support/habitat-service-deps.js");
+vi.mock("../../src/runtime/service-context.js", () => ({
+  createLiveHabitatServiceContext: mockCreateLiveHabitatServiceContext,
+}));
 
-  mockCreateLiveHabitatServiceContext.mockImplementation(async () => ({
-    deps: makeTestHabitatServiceDeps(),
-  }));
-  return { createLiveHabitatServiceContext: mockCreateLiveHabitatServiceContext };
-});
+vi.mock("../../src/runtime/service-runtime.js", () => ({
+  habitatServiceManagedRuntime: { dispose: mockHabitatRuntimeDispose },
+}));
 
 import Check from "@habitat/cli/cli/commands/check";
 import Classify from "@habitat/cli/cli/commands/classify";
@@ -113,6 +114,9 @@ describe("Habitat oclif commands", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockCreateLiveHabitatServiceContext.mockImplementation(async () => ({
+      deps: makeTestHabitatServiceDeps(),
+    }));
     stdout = [];
     stderr = [];
     logs = [];
@@ -230,7 +234,8 @@ describe("Habitat oclif commands", () => {
           runner: "habitat",
         },
         staged: true,
-      })
+      }),
+      expectHabitatCallerOptions()
     );
     expect(checkReport.renderCheckReport).toHaveBeenCalledWith(mockReport, {
       json: true,
@@ -247,7 +252,7 @@ describe("Habitat oclif commands", () => {
       "--rule",
       "prohibit_runtime_validation_and_compiler_imports",
       "--rule",
-      "preserve_standard_stage_topology_and_path_invariants",
+      "require_recipe_stage_source_topology",
     ]);
 
     expect(mockCheckReport).toHaveBeenCalledWith(
@@ -257,7 +262,7 @@ describe("Habitat oclif commands", () => {
           rules: [
             "prohibit_cross_op_runtime_calls",
             "prohibit_runtime_validation_and_compiler_imports",
-            "preserve_standard_stage_topology_and_path_invariants",
+            "require_recipe_stage_source_topology",
           ],
           runner: undefined,
         },
@@ -270,12 +275,13 @@ describe("Habitat oclif commands", () => {
             "--rule",
             "prohibit_runtime_validation_and_compiler_imports",
             "--rule",
-            "preserve_standard_stage_topology_and_path_invariants",
+            "require_recipe_stage_source_topology",
           ],
           serialized:
-            "habitat check --rule prohibit_cross_op_runtime_calls --rule prohibit_runtime_validation_and_compiler_imports --rule preserve_standard_stage_topology_and_path_invariants",
+            "habitat check --rule prohibit_cross_op_runtime_calls --rule prohibit_runtime_validation_and_compiler_imports --rule require_recipe_stage_source_topology",
         },
-      })
+      }),
+      expectHabitatCallerOptions()
     );
   });
 
@@ -290,7 +296,8 @@ describe("Habitat oclif commands", () => {
           runner: undefined,
         },
         base: "main",
-      })
+      }),
+      expectHabitatCallerOptions()
     );
     expect(mockCheckReport).not.toHaveBeenCalled();
     expect(capturedOutput()).toContain("baseline written: demo-rule");
@@ -312,7 +319,7 @@ describe("Habitat oclif commands", () => {
     await Fix.run(["--dry-run"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockFixPreviewPatterns).toHaveBeenCalledWith({});
+    expect(mockFixPreviewPatterns).toHaveBeenCalledWith({}, expectHabitatCallerOptions());
     expect(stdout.join("")).toContain("biome ok");
     expect(stderr.join("")).toBe("");
   });
@@ -320,7 +327,10 @@ describe("Habitat oclif commands", () => {
   test("fix forwards repeatable rule selection in first-seen CLI order", async () => {
     await Fix.run(["--dry-run", "--rule", "second", "--rule", "first", "--rule", "second"]);
 
-    expect(mockFixPreviewPatterns).toHaveBeenCalledWith({ rules: ["second", "first", "second"] });
+    expect(mockFixPreviewPatterns).toHaveBeenCalledWith(
+      { rules: ["second", "first", "second"] },
+      expectHabitatCallerOptions()
+    );
   });
 
   test("fix help describes the no-write diagnostic path and live-mutation refusal", async () => {
@@ -356,7 +366,10 @@ describe("Habitat oclif commands", () => {
       oclif: { exit: 1 },
     });
 
-    expect(mockFixPreviewPatterns).toHaveBeenCalledWith({ rules: ["missing"] });
+    expect(mockFixPreviewPatterns).toHaveBeenCalledWith(
+      { rules: ["missing"] },
+      expectHabitatCallerOptions()
+    );
     expect(stdout.join("")).toBe("");
     expect(stderr.join("")).toContain("invalid-rule-selection");
   });
@@ -365,10 +378,13 @@ describe("Habitat oclif commands", () => {
     await Verify.run(["--base", "HEAD~1"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockVerifyChanges).toHaveBeenCalledWith({
-      base: "HEAD~1",
-      affectedExecution: "run",
-    });
+    expect(mockVerifyChanges).toHaveBeenCalledWith(
+      {
+        base: "HEAD~1",
+        affectedExecution: "run",
+      },
+      expectHabitatCallerOptions()
+    );
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
     expect(checkReport.renderCheckReport).toHaveBeenCalledWith(mockReport);
     expect(stdout.join("")).toContain("affected ok");
@@ -377,10 +393,13 @@ describe("Habitat oclif commands", () => {
   test("verify can emit structured receipt JSON", async () => {
     await Verify.run(["--base", "HEAD~1", "--json"]);
 
-    expect(mockVerifyChanges).toHaveBeenCalledWith({
-      base: "HEAD~1",
-      affectedExecution: "plan-only",
-    });
+    expect(mockVerifyChanges).toHaveBeenCalledWith(
+      {
+        base: "HEAD~1",
+        affectedExecution: "plan-only",
+      },
+      expectHabitatCallerOptions()
+    );
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
     expect(verifyReceipt.stringifyVerifyReceipt).toHaveBeenCalledWith(
       expect.objectContaining({ schemaVersion: 2 })
@@ -393,7 +412,7 @@ describe("Habitat oclif commands", () => {
     await Graph.run(["--json"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockGraphWorkspaceGraph).toHaveBeenCalledWith({});
+    expect(mockGraphWorkspaceGraph).toHaveBeenCalledWith({}, expectHabitatCallerOptions());
     expect(stdout.join("")).toContain('{"nodes":{}}');
   });
 
@@ -408,17 +427,26 @@ describe("Habitat oclif commands", () => {
     expect(result.owner.project).toBe("habitat");
     expect(result.owner.tags).toEqual(["kind:tooling"]);
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockClassifyTarget).toHaveBeenCalledWith({
-      target: "tools/habitat/src/cli/commands/check.ts",
-    });
+    expect(mockClassifyTarget).toHaveBeenCalledWith(
+      {
+        target: "tools/habitat/src/cli/commands/check.ts",
+      },
+      expectHabitatCallerOptions()
+    );
   });
 
   test("hook dispatches through the Habitat service router", async () => {
     await Hook.run(["pre-push", "--base", "HEAD~1"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockHookPrePush).toHaveBeenCalledWith({ base: "HEAD~1" });
+    expect(mockHookPrePush).toHaveBeenCalledWith({ base: "HEAD~1" }, expectHabitatCallerOptions());
     expect(stdout.join("")).toContain("hook ok");
+  });
+
+  test("pre-commit forwards command cancellation to its Habitat service call", async () => {
+    await Hook.run(["pre-commit"]);
+
+    expect(mockHookPreCommit).toHaveBeenCalledWith({}, expectHabitatCallerOptions());
   });
 
   test("hook rejects unknown names before calling the service router", async () => {
@@ -435,10 +463,78 @@ describe("Habitat oclif commands", () => {
     await expect(Classify.run([])).rejects.toThrow(/Missing 1 required arg/);
   });
 
+  test("normal command completion disposes the managed runtime and removes signal listeners", async () => {
+    const before = {
+      sigint: process.listenerCount("SIGINT"),
+      sigterm: process.listenerCount("SIGTERM"),
+    };
+
+    await Classify.run(["tools/habitat/src"]);
+    const callerOptions = mockClassifyTarget.mock.calls[0]?.[1];
+
+    expect(mockCreateLiveHabitatServiceContext).toHaveBeenCalledWith({}, callerOptions);
+    expect(mockHabitatRuntimeDispose).toHaveBeenCalledTimes(1);
+    expect(process.listenerCount("SIGINT")).toBe(before.sigint);
+    expect(process.listenerCount("SIGTERM")).toBe(before.sigterm);
+  });
+
+  test("interrupts the exact check caller signal before runtime disposal and signal replay", async () => {
+    const originalSigintListeners = new Set(process.listeners("SIGINT"));
+    const events: string[] = [];
+    let callerSignal: AbortSignal | undefined;
+    mockCheckReport.mockImplementationOnce(
+      async (_input: unknown, options: { readonly signal: AbortSignal }) => {
+        callerSignal = options.signal;
+        await new Promise<void>((resolve) => {
+          options.signal.addEventListener(
+            "abort",
+            () => {
+              events.push("service-finalizer");
+              resolve();
+            },
+            { once: true }
+          );
+        });
+        return mockReport;
+      }
+    );
+    mockHabitatRuntimeDispose.mockImplementationOnce(async () => {
+      events.push("runtime-dispose");
+    });
+    const killSpy = vi.spyOn(process, "kill").mockImplementation(() => {
+      events.push("signal-replay");
+      return true;
+    });
+
+    try {
+      const command = Check.run(["--rule", "block_unapproved_base_standard_boundary_leaks"]);
+      await vi.waitFor(() => expect(mockCheckReport).toHaveBeenCalledTimes(1));
+
+      const commandListeners = process
+        .listeners("SIGINT")
+        .filter((listener) => !originalSigintListeners.has(listener));
+      expect(commandListeners).toHaveLength(1);
+      commandListeners[0]?.("SIGINT");
+
+      await command;
+
+      expect(callerSignal?.aborted).toBe(true);
+      expect(events).toEqual(["service-finalizer", "runtime-dispose", "signal-replay"]);
+    } finally {
+      killSpy.mockRestore();
+    }
+  });
+
   function capturedOutput(): string {
     return `${stdout.join("")}${logs.join("\n")}`;
   }
 });
+
+function expectHabitatCallerOptions() {
+  return expect.objectContaining({
+    signal: expect.objectContaining({ aborted: false }),
+  });
+}
 
 function verifyReceiptPayload(base: string, input: { base?: string; affectedExecution?: string }) {
   const planned = input.affectedExecution === "plan-only";

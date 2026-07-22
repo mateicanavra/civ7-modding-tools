@@ -1,17 +1,13 @@
+import type { GitProviderService } from "@habitat/cli/providers/git/index";
 import {
   type SpawnResult,
   spawnResultFromCommandResult,
 } from "@habitat/cli/resources/command/index";
-import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import type { VerifyReceipt } from "../dto/verify.schema.js";
 import { boundedPreview } from "./command-output.policy.js";
 
-export interface VerifyGitStatusPort {
-  readonly statusShortBranch: (options?: {
-    readonly cwd?: string;
-  }) => Effect.Effect<HabitatCommandResult, unknown, any>;
-}
+export type VerifyGitStatusPort = Pick<GitProviderService, "statusShortBranch">;
 
 export function observeGitStatusEffect(context: {
   readonly git: VerifyGitStatusPort;
@@ -45,9 +41,12 @@ export function postStateObservation(
     stdoutTruncated: stdout.truncated,
     stderrTruncated: stderr.truncated,
   };
-  if (result.exitCode !== 0) return { kind: "unavailable", gitStatus: command };
-  return {
-    kind: result.stdout.trim() ? "observed-dirty" : "observed-clean",
-    gitStatus: command,
-  };
+  const observedKind = Match.value(result.stdout.trim().length > 0).pipe(
+    Match.when(true, () => "observed-dirty" as const),
+    Match.orElse(() => "observed-clean" as const)
+  );
+  return Match.value(result.exitCode).pipe(
+    Match.when(0, () => ({ kind: observedKind, gitStatus: command })),
+    Match.orElse(() => ({ kind: "unavailable" as const, gitStatus: command }))
+  );
 }

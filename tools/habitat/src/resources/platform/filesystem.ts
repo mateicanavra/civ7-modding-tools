@@ -1,48 +1,35 @@
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { type Dirent, lstatSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { FileSystem } from "@effect/platform";
 import type { PlatformError } from "@effect/platform/Error";
 import { FileReadFailed, FileWriteFailed } from "@habitat/cli/resources/errors/index";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 
 export interface HabitatDirectoryEntry {
   readonly name: string;
   readonly kind: "directory" | "file" | "other";
 }
 
-export interface HabitatFileSystemReadPort<R = never> {
-  readonly isDirectory: (targetPath: string) => Effect.Effect<boolean, unknown, R>;
-  readonly isFile: (targetPath: string) => Effect.Effect<boolean, unknown, R>;
-  readonly readDirectory: (
-    targetPath: string
-  ) => Effect.Effect<readonly HabitatDirectoryEntry[], unknown, R>;
-  readonly readText: (targetPath: string) => Effect.Effect<string, unknown, R>;
-}
-
-export function isDirectory(
+export const isDirectory = Effect.fn("habitat.platform.isDirectory")(function* (
   targetPath: string
-): Effect.Effect<boolean, FileReadFailed, FileSystem.FileSystem> {
-  return FileSystem.FileSystem.pipe(
+) {
+  return yield* FileSystem.FileSystem.pipe(
     Effect.flatMap((fs) => fs.stat(targetPath)),
     Effect.map((info) => info.type === "Directory"),
-    Effect.catchAll((cause) =>
-      isMissingPath(cause) ? Effect.succeed(false) : readFailed<boolean>(targetPath, cause)
-    )
+    Effect.catchIf(isMissingPath, () => Effect.succeed(false)),
+    Effect.mapError((cause) => readFailure(targetPath, cause))
   );
-}
+});
 
-export function isFile(
-  targetPath: string
-): Effect.Effect<boolean, FileReadFailed, FileSystem.FileSystem> {
-  return FileSystem.FileSystem.pipe(
+export const isFile = Effect.fn("habitat.platform.isFile")(function* (targetPath: string) {
+  return yield* FileSystem.FileSystem.pipe(
     Effect.flatMap((fs) => fs.stat(targetPath)),
     Effect.map((info) => info.type === "File"),
-    Effect.catchAll((cause) =>
-      isMissingPath(cause) ? Effect.succeed(false) : readFailed<boolean>(targetPath, cause)
-    )
+    Effect.catchIf(isMissingPath, () => Effect.succeed(false)),
+    Effect.mapError((cause) => readFailure(targetPath, cause))
   );
-}
+});
 
 export function makeDirectory(targetPath: string) {
   return FileSystem.FileSystem.pipe(
@@ -51,29 +38,25 @@ export function makeDirectory(targetPath: string) {
   );
 }
 
-export function readDirectory(targetPath: string) {
-  return FileSystem.FileSystem.pipe(
-    Effect.flatMap((fs) =>
-      fs.readDirectory(targetPath).pipe(
-        Effect.flatMap((entries) =>
-          Effect.forEach(entries, (name): Effect.Effect<HabitatDirectoryEntry, FileReadFailed> => {
-            const entryPath = path.join(targetPath, name);
-            return fs.stat(entryPath).pipe(
-              Effect.map((info) => ({
-                name,
-                kind: entryKind(info.type),
-              })),
-              Effect.mapError((cause) => readFailure(entryPath, cause))
-            );
-          })
-        )
-      )
-    ),
-    Effect.mapError((cause) =>
-      cause instanceof FileReadFailed ? cause : readFailure(targetPath, cause)
-    )
-  );
-}
+export const readDirectory = Effect.fn("habitat.platform.readDirectory")(function* (
+  targetPath: string
+) {
+    const fs = yield* FileSystem.FileSystem;
+    const entries = yield* fs
+      .readDirectory(targetPath)
+      .pipe(Effect.mapError((cause) => readFailure(targetPath, cause)));
+    return yield* Effect.forEach(entries, (name) => directoryEntry(fs, targetPath, name));
+  });
+
+const directoryEntry = Effect.fn("habitat.platform.directoryEntry")(function* (
+  fs: FileSystem.FileSystem,
+  targetPath: string,
+  name: string
+): Effect.fn.Return<HabitatDirectoryEntry, FileReadFailed> {
+  const entryPath = path.join(targetPath, name);
+  const info = yield* fs.stat(entryPath).pipe(Effect.mapError((cause) => readFailure(entryPath, cause)));
+  return { name, kind: entryKind(info.type) };
+});
 
 export function readText(targetPath: string) {
   return FileSystem.FileSystem.pipe(
@@ -98,10 +81,25 @@ export function isFileSync(targetPath: string): boolean {
 }
 
 export function readDirectorySync(targetPath: string): readonly HabitatDirectoryEntry[] {
-  return readdirSync(targetPath, { withFileTypes: true }).map((entry) => ({
-    name: entry.name,
-    kind: entry.isDirectory() ? "directory" : entry.isFile() ? "file" : "other",
-  }));
+  return readdirSync(targetPath, { withFileTypes: true }).map(habitatDirectoryEntrySync);
+}
+
+function habitatDirectoryEntrySync(entry: Dirent<string>): HabitatDirectoryEntry {
+  return { name: entry.name, kind: directoryEntryKindSync(entry) };
+}
+
+function directoryEntryKindSync(entry: Dirent<string>): HabitatDirectoryEntry["kind"] {
+  return Match.value(entry).pipe(
+    Match.when(
+      (candidate) => candidate.isDirectory(),
+      () => "directory" as const
+    ),
+    Match.when(
+      (candidate) => candidate.isFile(),
+      () => "file" as const
+    ),
+    Match.orElse(() => "other" as const)
+  );
 }
 
 export function readTextSync(targetPath: string): string {
@@ -113,34 +111,52 @@ export function pathExistsSync(targetPath: string): boolean {
 }
 
 export function hashFileSync(targetPath: string): string | null {
-  if (!isFileSync(targetPath)) return null;
-  return createHash("sha256").update(readFileSync(targetPath)).digest("hex");
+  return Match.value(isFileSync(targetPath)).pipe(
+    Match.when(true, () => createHash("sha256").update(readFileSync(targetPath)).digest("hex")),
+    Match.orElse(() => null)
+  );
 }
 
 export function statKindSync(targetPath: string): FileSystem.File.Type | undefined {
-  try {
-    const stat = statSync(targetPath);
-    if (stat.isDirectory()) return "Directory";
-    if (stat.isFile()) return "File";
-    if (stat.isSymbolicLink()) return "SymbolicLink";
-    if (stat.isBlockDevice()) return "BlockDevice";
-    if (stat.isCharacterDevice()) return "CharacterDevice";
-    if (stat.isFIFO()) return "FIFO";
-    if (stat.isSocket()) return "Socket";
-    return "Unknown";
-  } catch {
-    return undefined;
-  }
+  const stat = lstatSync(targetPath, { throwIfNoEntry: false });
+  return Match.value(stat).pipe(
+    Match.when(Match.undefined, () => undefined),
+    Match.when(
+      (candidate) => candidate.isDirectory(),
+      () => "Directory" as const
+    ),
+    Match.when(
+      (candidate) => candidate.isFile(),
+      () => "File" as const
+    ),
+    Match.when(
+      (candidate) => candidate.isSymbolicLink(),
+      () => "SymbolicLink" as const
+    ),
+    Match.when(
+      (candidate) => candidate.isBlockDevice(),
+      () => "BlockDevice" as const
+    ),
+    Match.when(
+      (candidate) => candidate.isCharacterDevice(),
+      () => "CharacterDevice" as const
+    ),
+    Match.when(
+      (candidate) => candidate.isFIFO(),
+      () => "FIFO" as const
+    ),
+    Match.when(
+      (candidate) => candidate.isSocket(),
+      () => "Socket" as const
+    ),
+    Match.orElse(() => "Unknown" as const)
+  );
 }
 
 function entryKind(type: FileSystem.File.Type): HabitatDirectoryEntry["kind"] {
   if (type === "Directory") return "directory";
   if (type === "File") return "file";
   return "other";
-}
-
-function readFailed<A>(targetPath: string, cause: PlatformError): Effect.Effect<A, FileReadFailed> {
-  return Effect.fail(readFailure(targetPath, cause));
 }
 
 function readFailure(targetPath: string, cause: unknown) {
@@ -158,7 +174,10 @@ function writeFailure(targetPath: string, cause: unknown) {
 }
 
 function renderPlatformCause(cause: unknown): string {
-  return cause instanceof Error ? cause.message : String(cause);
+  return Match.value(cause).pipe(
+    Match.when(Match.instanceOf(Error), (error) => error.message),
+    Match.orElse(String)
+  );
 }
 
 function isMissingPath(cause: PlatformError): boolean {

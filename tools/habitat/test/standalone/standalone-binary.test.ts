@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   chmodSync,
@@ -19,6 +19,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { type CheckReport, CheckReportSchema } from "@habitat/cli/service/model/check/index";
 import { Match, Schema } from "effect";
@@ -169,6 +170,70 @@ describe.sequential("standalone Habitat binary", () => {
     assert.strictEqual(failure.report.ok, false);
     assert.strictEqual(failure.report.rules[0]?.status, "fail");
     assert.strictEqual(fingerprintTree(fixture), beforeFailure);
+  });
+
+  it.each([
+    "SIGINT",
+    "SIGTERM",
+  ] as const)("cancels the provider process group before preserving %s", async (signal) => {
+    const signalKey = signal.toLowerCase();
+    const fixture = path.join(tempRoot, `signal-cancellation-${signalKey}`);
+    const stateRoot = path.join(tempRoot, `signal-cancellation-${signalKey}-state`);
+    createGritFixture(fixture, false);
+    mkdirSync(stateRoot, { recursive: true });
+    installBlockingGritProvider(fixture);
+    writeFileSync(path.join(fixture, "src", "example.ts"), "export const allowed = true;\n");
+
+    const child = spawn(
+      movedBinary,
+      ["check", "--rule", "forbid_fixture_token", "--json", "--repo-root", fixture],
+      {
+        cwd: fixture,
+        env: { ...process.env, HABITAT_STANDALONE_SIGNAL_STATE_ROOT: stateRoot },
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    );
+    const exited = observeChildExit(child);
+    let providerPid: number | undefined;
+    let descendantPid: number | undefined;
+    let scopedCwd: string | undefined;
+
+    try {
+      await waitForPath(path.join(stateRoot, "provider.pid"));
+      await waitForPath(path.join(stateRoot, "descendant.pid"));
+      await waitForPath(path.join(stateRoot, "descendant.ready"));
+      await waitForPath(path.join(stateRoot, "provider.cwd"));
+      await waitForPath(path.join(stateRoot, "rayon.txt"));
+      providerPid = readProcessId(path.join(stateRoot, "provider.pid"));
+      descendantPid = readProcessId(path.join(stateRoot, "descendant.pid"));
+      scopedCwd = readFileSync(path.join(stateRoot, "provider.cwd"), "utf8");
+      assert.match(path.basename(scopedCwd), /^habitat-grit-diagnostic-[A-Za-z0-9_-]+$/u);
+      assert.strictEqual(existsSync(scopedCwd), true);
+      assert.strictEqual(readFileSync(path.join(stateRoot, "rayon.txt"), "utf8"), "2");
+      assert.strictEqual(processIsAlive(providerPid), true);
+      assert.strictEqual(processIsAlive(descendantPid), true);
+
+      assert.strictEqual(child.kill(signal), true);
+      const result = await withTimeout(exited, 10_000, "standalone binary signal exit");
+      assert.strictEqual(result.code, null, `${result.stdout}\n${result.stderr}`);
+      assert.strictEqual(result.signal, signal, `${result.stdout}\n${result.stderr}`);
+      assert.strictEqual(processIsAlive(providerPid), false);
+      assert.strictEqual(processIsAlive(descendantPid), false);
+      assert.strictEqual(existsSync(scopedCwd), false);
+    } finally {
+      terminateFixtureProcess(providerPid);
+      terminateFixtureProcess(descendantPid);
+      removeScopedFixtureCwd(scopedCwd);
+      const terminateChild = Match.value({
+        exitCode: child.exitCode,
+        signalCode: child.signalCode,
+      }).pipe(
+        Match.when({ exitCode: null, signalCode: null }, () => () => child.kill("SIGKILL")),
+        Match.orElse(() => () => undefined)
+      );
+      terminateChild();
+      await withTimeout(exited, 5_000, "standalone fixture cleanup").catch(() => undefined);
+    }
   });
 
   it("reports a missing destination Grit provider as a refused execution", () => {
@@ -436,6 +501,122 @@ function installGritProvider(root: string): void {
     path.join(providerParent, "cli"),
     "dir"
   );
+}
+
+function installBlockingGritProvider(root: string): void {
+  const packageRoot = path.join(root, "node_modules", "@getgrit", "cli");
+  const executable = path.join(packageRoot, "node_modules", ".bin_real", "grit");
+  mkdirSync(path.dirname(executable), { recursive: true });
+  writeJson(path.join(packageRoot, "package.json"), {
+    name: "@getgrit/cli",
+    version: "0.1.0-alpha.1743007075",
+  });
+  writeFileSync(
+    executable,
+    [
+      "#!/usr/bin/env bun",
+      'import { spawn } from "node:child_process";',
+      'import { writeFileSync } from "node:fs";',
+      'import path from "node:path";',
+      "",
+      'if (process.argv.slice(2).includes("--version")) {',
+      '  process.stdout.write("grit 0.1.1\\n");',
+      "  process.exit(0);",
+      "}",
+      "",
+      "const stateRoot = process.env.HABITAT_STANDALONE_SIGNAL_STATE_ROOT;",
+      'if (!stateRoot) throw new Error("Missing signal fixture state root.");',
+      'process.on("SIGTERM", () => {});',
+      'writeFileSync(path.join(stateRoot, "provider.pid"), String(process.pid));',
+      'writeFileSync(path.join(stateRoot, "provider.cwd"), process.cwd());',
+      'writeFileSync(path.join(stateRoot, "rayon.txt"), process.env.RAYON_NUM_THREADS ?? "");',
+      "const descendant = spawn(process.execPath, [",
+      '  "-e",',
+      '  `import { writeFileSync } from "node:fs";',
+      '  import path from "node:path";',
+      "  const stateRoot = process.env.HABITAT_STANDALONE_SIGNAL_STATE_ROOT;",
+      '  process.on("SIGTERM", () => {});',
+      '  writeFileSync(path.join(stateRoot, "descendant.ready"), "");',
+      "  setInterval(() => {}, 1_000);`,",
+      '], { stdio: "ignore" });',
+      'writeFileSync(path.join(stateRoot, "descendant.pid"), String(descendant.pid));',
+      "setInterval(() => {}, 1_000);",
+      "",
+    ].join("\n"),
+    "utf8"
+  );
+  chmodSync(executable, 0o755);
+}
+
+interface ObservedChildExit {
+  readonly code: number | null;
+  readonly signal: NodeJS.Signals | null;
+  readonly stdout: string;
+  readonly stderr: string;
+}
+
+function observeChildExit(child: ReturnType<typeof spawn>): Promise<ObservedChildExit> {
+  let stdout = "";
+  let stderr = "";
+  child.stdout?.setEncoding("utf8");
+  child.stderr?.setEncoding("utf8");
+  child.stdout?.on("data", (chunk: string) => {
+    stdout += chunk;
+  });
+  child.stderr?.on("data", (chunk: string) => {
+    stderr += chunk;
+  });
+  return new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("exit", (code, signal) => resolve({ code, signal, stdout, stderr }));
+  });
+}
+
+async function waitForPath(filePath: string): Promise<void> {
+  const awaitPath = async () => {
+    while (!existsSync(filePath)) await sleep(20);
+  };
+  await withTimeout(awaitPath(), 10_000, `fixture path ${filePath}`);
+}
+
+function readProcessId(filePath: string): number {
+  const pid = Number.parseInt(readFileSync(filePath, "utf8"), 10);
+  assert.ok(Number.isSafeInteger(pid) && pid > 0, `Invalid fixture process ID: ${pid}`);
+  return pid;
+}
+
+function processIsAlive(pid: number): boolean {
+  return spawnSync("kill", ["-0", String(pid)], { stdio: "ignore" }).status === 0;
+}
+
+function removeScopedFixtureCwd(scopedCwd: string | undefined): void {
+  const remove = Match.value(scopedCwd).pipe(
+    Match.when(
+      (candidate): candidate is string =>
+        candidate !== undefined &&
+        /^habitat-grit-diagnostic-[A-Za-z0-9_-]+$/u.test(path.basename(candidate)),
+      (candidate) => () => rmSync(candidate, { recursive: true, force: true })
+    ),
+    Match.orElse(() => () => undefined)
+  );
+  remove();
+}
+
+function terminateFixtureProcess(pid: number | undefined): void {
+  if (pid === undefined || !processIsAlive(pid)) return;
+  process.kill(pid, "SIGKILL");
+}
+
+async function withTimeout<A>(promise: Promise<A>, timeoutMs: number, label: string): Promise<A> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const expired = new Promise<never>((_, reject) => {
+    timeout = setTimeout(() => reject(new Error(`Timed out waiting for ${label}.`)), timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, expired]);
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function semanticReport(report: CheckReport) {

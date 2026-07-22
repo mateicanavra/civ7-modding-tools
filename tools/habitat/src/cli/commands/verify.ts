@@ -24,10 +24,13 @@ export default class Verify extends HabitatCommand {
   async run(): Promise<void> {
     const { flags } = await this.parse(Verify);
     const service = await this.habitatServiceClient();
-    const result = await service.verify.changes({
-      base: flags.base,
-      affectedExecution: flags.json ? "plan-only" : "run",
-    });
+    const result = await service.verify.changes(
+      {
+        base: flags.base,
+        affectedExecution: flags.json ? "plan-only" : "run",
+      },
+      this.habitatServiceCallerOptions()
+    );
     if (result.kind === "base-refused") this.error(result.message, { exit: 1 });
     const checkSummary = verifyCheckSummary(result.checkReport);
     const exitCode = result.receipt.command.exitCode;
