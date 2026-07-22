@@ -4,6 +4,7 @@ import {
   civ7MapScriptTextEncoderBanner,
   civ7TypeBoxCompatibilityPlugin,
 } from "@civ7/adapter/map-script-build";
+import { assessCiv7SignedIntSeed } from "@civ7/direct-control/policy/setup";
 import {
   applyGeneratedFilePlan,
   type GeneratedFilePlan,
@@ -113,7 +114,7 @@ export function verifySwooperStandardRunManifest(
 
 function numericLaunchSeed(value: number | string): number {
   const seed = typeof value === "number" ? value : Number(value);
-  if (!Number.isInteger(seed) || seed < 0 || seed > 0x7fff_ffff) {
+  if (!assessCiv7SignedIntSeed(seed).ok) {
     throw new Error("Swooper run manifest seed must be a supported integer.");
   }
   return seed;

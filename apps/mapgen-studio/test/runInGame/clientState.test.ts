@@ -30,6 +30,7 @@ describe("Run in Game client state", () => {
       requestId: status.requestId,
       authoringRevision: 4,
       seed: "123",
+      gameSeed: "456",
       worldSettings,
       setupConfig,
       canonicalConfig,
@@ -60,6 +61,7 @@ describe("Run in Game client state", () => {
       requestId: status.requestId,
       authoringRevision: 1,
       seed: "123",
+      gameSeed: "456",
       worldSettings,
       setupConfig,
       canonicalConfig,
@@ -71,6 +73,7 @@ describe("Run in Game client state", () => {
     expect(snapshot.launchEnvelope.canonicalConfig).not.toBe(canonicalConfig);
     expect(Object.isFrozen(snapshot.launchEnvelope.canonicalConfig)).toBe(true);
     expect(snapshot.launchEnvelope.seed).toBe("123");
+    expect(snapshot.launchEnvelope.gameSeed).toBe("456");
     expect(snapshot.launchEnvelope.worldSettings).toEqual(worldSettings);
   });
 });

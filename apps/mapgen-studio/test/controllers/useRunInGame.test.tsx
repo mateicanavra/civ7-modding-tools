@@ -44,6 +44,7 @@ function completedStatus(requestId: string): RunInGameOperationStatus {
 function makeArgs(over: Partial<UseRunInGameArgs> = {}): UseRunInGameArgs {
   return {
     seed: "123",
+    gameSeed: "456",
     worldSettings: { ...DEFAULT_WORLD_SETTINGS },
     canonicalConfig,
     authoringRevision: 3,
@@ -88,6 +89,7 @@ describe("useRunInGame config handoff", () => {
       expect.objectContaining({
         canonicalConfig,
         seed: "123",
+        gameSeed: "456",
       })
     );
     expect(runRpc.mock.calls[0]?.[0].canonicalConfig).toBe(canonicalConfig);
@@ -99,7 +101,7 @@ describe("useRunInGame config handoff", () => {
     expect(snapshot).toMatchObject({
       requestId: "config-run",
       authoringRevision: 3,
-      launchEnvelope: { seed: "123", canonicalConfig },
+      launchEnvelope: { seed: "123", gameSeed: "456", canonicalConfig },
     });
     expect(snapshot?.launchEnvelope.canonicalConfig).not.toBe(canonicalConfig);
     expect(Object.isFrozen(snapshot?.launchEnvelope.canonicalConfig)).toBe(true);
@@ -115,6 +117,28 @@ describe("useRunInGame config handoff", () => {
     expect(runRpc).not.toHaveBeenCalled();
     expect(props.setLocalError).toHaveBeenCalledWith(
       "Run in Game failed: config is invalid for this recipe."
+    );
+  });
+
+  it("rejects an invalid game seed before invoking Run in Game RPC", async () => {
+    const { result, props } = setup({ gameSeed: "2147483648" });
+
+    await act(async () => result.current.handleRunInGame());
+
+    expect(runRpc).not.toHaveBeenCalled();
+    expect(props.setLocalError).toHaveBeenCalledWith(
+      expect.stringContaining("Game seed must be between -2147483648 and 2147483647")
+    );
+  });
+
+  it("submits distinct negative signed map and game seeds", async () => {
+    runRpc.mockResolvedValue(runningStatus("negative-seeds"));
+    const { result } = setup({ seed: "-123", gameSeed: "-456" });
+
+    await act(async () => result.current.handleRunInGame());
+
+    expect(runRpc).toHaveBeenCalledWith(
+      expect.objectContaining({ seed: "-123", gameSeed: "-456" })
     );
   });
 

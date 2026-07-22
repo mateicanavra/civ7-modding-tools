@@ -146,7 +146,8 @@ describe("one /rpc mount serves the whole unified contract", () => {
       client.civ7.lifecycle.singlePlayer.start({
         mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
         mapSize: "MAPSIZE_STANDARD",
-        seed: 43,
+        mapSeed: 43,
+        gameSeed: 47,
         targetModId: "mod-swooper-studio-run",
         gameOptions: {},
         playerOptions: {},

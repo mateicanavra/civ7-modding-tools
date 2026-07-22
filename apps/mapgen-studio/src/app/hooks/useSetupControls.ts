@@ -11,8 +11,8 @@ import {
   clearStudioSetupSavedConfig,
   getLocalPlayerSetup,
   optionRowsFromParameter,
+  studioLaunchMatchesSavedConfig,
   studioSetupConfigFromSavedConfigFile,
-  studioSetupDriftsFromSavedConfig,
   updateStudioSetupGameOption,
   updateStudioSetupPlayerOption,
 } from "../../features/civ7Setup/setupConfig";
@@ -33,10 +33,16 @@ import type { ToastFn } from "./useToast";
 export type UseSetupControlsArgs = {
   /** Current authoring setup config (from `useAuthoringStore`). */
   setupConfig: AuthoringState["setupConfig"];
+  /** Current authored map seed used by generation and saved-config exactness. */
+  seed: AuthoringState["seed"];
+  /** Current authored game seed used by Civ7 setup and saved-config exactness. */
+  gameSeed: AuthoringState["gameSeed"];
   /** Setter for the authoring setup config (from `useAuthoringStore`). */
   setSetupConfig: AuthoringState["setSetupConfig"];
   /** Setter for the generation seed — saved-config seed adoption. */
   setSeed: AuthoringState["setSeed"];
+  /** Setter for the Civ7 game seed — saved-config seed adoption. */
+  setGameSeed: AuthoringState["setGameSeed"];
   /** Saved-config READ view (from `useSetupDataQueries`). */
   savedSetupConfigs: SavedSetupConfigsView;
   /** Setup-catalog READ view (from `useSetupDataQueries`). */
@@ -77,7 +83,7 @@ export type UseSetupControlsResult = {
   setupControlOptions: SetupControlOptions;
   /** AppHeader's game-setup view-model (E4a) — derived from the authored setup config. */
   headerSetupState: AppHeaderSetupState;
-  /** Drift flag — true when the authored setup diverges (by value) from the selected saved config. */
+  /** True when authored setup or either seed diverges from the selected saved file. */
   savedSetupConfigModified: boolean;
   /** Applies (replaces) the authored setup from the chosen saved config + adopts its seed. */
   handleSavedSetupConfigChange: (configId: string) => void;
@@ -98,6 +104,23 @@ export type UseSetupControlsResult = {
   /** In-flight flag for the explore action (re-entrant guard, drives disabled state). */
   exploreActionRunning: boolean;
 };
+
+function adoptSavedSeed(
+  label: "Map" | "Game",
+  value: unknown,
+  setValue: AuthoringState["setSeed"],
+  toast: ToastFn
+): void {
+  if (value === undefined) return;
+  const parsed = parseCiv7StudioSeed(value);
+  if (parsed.ok) {
+    setValue(String(parsed.value));
+    return;
+  }
+  toast(`Saved config ${label.toLowerCase()} seed ignored: ${formatCiv7StudioSeedError(parsed)}`, {
+    variant: "info",
+  });
+}
 
 /**
  * `deriveAppHeaderSetupState` — the app container's projection of the authored
@@ -130,18 +153,17 @@ export function deriveAppHeaderSetupState(config: Civ7StudioSetupConfig): AppHea
  * (`headerSetupState`) with its four setup intents (leader/civ/difficulty/
  * speed — the E4a container half; difficulty is the game+player double-write),
  * the saved-config selection handler (`handleSavedSetupConfigChange`), the
- * value-equality drift detector (`savedSetupConfigModified`), and the two
+ * complete saved-launch relation (`savedSetupConfigModified`), and the two
  * live-game *actions* co-located here (`handleToggleAutoplay` /
  * `handleExplore`) with their in-flight guard state.
  *
  * Load-bearing invariants preserved verbatim from the prior host body:
- * - SC-4: drift detection is VALUE equality (`studioSetupDriftsFromSavedConfig`
- *   → `studioSetupConfigsEqual`), never object identity — so it flips to "Custom"
- *   only when the authored setup actually differs from the file (a post-sync
- *   identity change alone never spuriously flips it).
+ * - SC-4: exactness is VALUE equality over setup plus admitted map/game seeds,
+ *   never object identity. Missing or invalid saved seed evidence fails closed
+ *   to "Custom" instead of claiming the file governs the next launch.
  * - SC-1/2/3: the saved-config replace + drift + normalized-equality PURE logic
  *   stays in `features/civ7Setup/*` (`studioSetupConfigFromSavedConfigFile`,
- *   `clearStudioSetupSavedConfig`, `studioSetupDriftsFromSavedConfig`) — called,
+ *   `clearStudioSetupSavedConfig`, `studioLaunchMatchesSavedConfig`) — called,
  *   never inlined/re-derived.
  * - SC-5: `handleToggleAutoplay` short-circuits + toasts when `autoplayAction
  *   Running` (re-entrant guard) OR when a busy flag is set; the in-flight flag is
@@ -160,8 +182,11 @@ export function deriveAppHeaderSetupState(config: Civ7StudioSetupConfig): AppHea
 export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsResult {
   const {
     setupConfig,
+    seed,
+    gameSeed,
     setSetupConfig,
     setSeed,
+    setGameSeed,
     savedSetupConfigs,
     setupCatalog,
     liveSetup,
@@ -250,18 +275,15 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
     setupConfig,
   ]);
 
-  // Config precedence (Y2, hardened in P7): the selector claims the saved
-  // config ONLY while the authored setup state equals the file-derived state
-  // — any difference (dropdown edit, live sync, stray persisted key) means
-  // the launch would not be the file, so the header shows "Custom" instead.
-  // Re-selecting the config re-applies the file exactly and returns to clean.
+  // Config precedence: the selector claims the saved file only while every
+  // launch input governed by that file (setup, map seed, game seed) matches.
   const savedSetupConfigModified = useMemo(() => {
     const selectedId = setupConfig.savedConfig?.id;
     if (!selectedId) return false;
     const savedConfig = savedSetupConfigs.configurations.find((config) => config.id === selectedId);
-    if (!savedConfig) return false;
-    return studioSetupDriftsFromSavedConfig(setupConfig, savedConfig);
-  }, [savedSetupConfigs.configurations, setupConfig]);
+    if (!savedConfig) return true;
+    return !studioLaunchMatchesSavedConfig({ setupConfig, seed, gameSeed, savedConfig });
+  }, [gameSeed, savedSetupConfigs.configurations, seed, setupConfig]);
 
   const handleSavedSetupConfigChange = useCallback(
     (configId: string) => {
@@ -271,19 +293,10 @@ export function useSetupControls(args: UseSetupControlsArgs): UseSetupControlsRe
         return;
       }
       setSetupConfig(studioSetupConfigFromSavedConfigFile(savedConfig));
-      const nextSeed = savedConfig.summary.mapSeed ?? savedConfig.summary.gameSeed;
-      if (nextSeed !== undefined) {
-        const seedPolicy = parseCiv7StudioSeed(nextSeed);
-        if (seedPolicy.ok) {
-          setSeed(String(seedPolicy.value));
-        } else {
-          toast(`Saved config seed ignored: ${formatCiv7StudioSeedError(seedPolicy)}`, {
-            variant: "info",
-          });
-        }
-      }
+      adoptSavedSeed("Map", savedConfig.summary.mapSeed, setSeed, toast);
+      adoptSavedSeed("Game", savedConfig.summary.gameSeed, setGameSeed, toast);
     },
-    [savedSetupConfigs.configurations, setSeed, setSetupConfig, toast]
+    [savedSetupConfigs.configurations, setGameSeed, setSeed, setSetupConfig, toast]
   );
 
   // The E4a header intents (structure-rewire §4.7/§5): the update composition

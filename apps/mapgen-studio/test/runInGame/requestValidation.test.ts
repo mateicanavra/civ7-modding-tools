@@ -85,6 +85,17 @@ describe("Run in Game request validation", () => {
     ).toBe(false);
   });
 
+  it("requires independent map and game seeds at the oRPC boundary", () => {
+    const startInputSchema = typeboxInputSchemaFromContractProcedure(runInGame.start);
+    const complete = validRunInGameRequest();
+    const { seed: _mapSeed, ...withoutMapSeed } = complete;
+    const { gameSeed: _gameSeed, ...withoutGameSeed } = complete;
+
+    expect(Value.Check(startInputSchema, complete)).toBe(true);
+    expect(Value.Check(startInputSchema, withoutMapSeed)).toBe(false);
+    expect(Value.Check(startInputSchema, withoutGameSeed)).toBe(false);
+  });
+
   it("keeps cancellation input to request id only", () => {
     const cancelInputSchema = typeboxInputSchemaFromContractProcedure(runInGame.cancel);
     const cancelStandardSchema = runInGame.cancel["~orpc"].inputSchema as StandardSchemaV1;
@@ -151,6 +162,7 @@ describe("Run in Game request validation", () => {
     const request = buildRunInGameStartRequest({
       canonicalConfig: canonicalConfig({ continents: { targetLandRatio: 0.42 } }),
       seed: "1538316415",
+      gameSeed: "1538316416",
       worldSettings: {
         mapSize: "MAPSIZE_HUGE",
         playerCount: 10,
@@ -163,6 +175,7 @@ describe("Run in Game request validation", () => {
     expect(request).toEqual({
       canonicalConfig: canonicalConfig({ continents: { targetLandRatio: 0.42 } }),
       seed: "1538316415",
+      gameSeed: "1538316416",
       worldSettings: {
         mapSize: "MAPSIZE_HUGE",
         playerCount: 10,
@@ -177,6 +190,7 @@ function validRunInGameRequest(extra?: Record<string, unknown>): Record<string, 
   return {
     canonicalConfig: canonicalConfig({ ok: true }),
     seed: 123,
+    gameSeed: 456,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },

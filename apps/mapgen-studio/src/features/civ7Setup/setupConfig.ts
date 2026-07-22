@@ -9,6 +9,7 @@ import {
   type RunInGameSetupConfig,
   type RunInGameSetupOptionValue,
 } from "@civ7/studio-contract";
+import { parseCiv7StudioSeed } from "./seedPolicy";
 
 export type Civ7StudioSetupOptionValue = RunInGameSetupOptionValue;
 
@@ -280,6 +281,34 @@ export function studioSetupDriftsFromSavedConfig(
   savedConfig: Civ7SavedSetupConfigFile
 ): boolean {
   return !studioSetupConfigsEqual(config, studioSetupConfigFromSavedConfigFile(savedConfig));
+}
+
+/**
+ * Proves that a selected saved file governs the complete next launch.
+ *
+ * Setup equality alone is insufficient because Civ7 persists map and game seeds beside the
+ * option maps. Every seed must be valid and the currently authored pair must exactly match the
+ * saved summary pair; missing or malformed summary evidence therefore fails closed to Custom.
+ */
+export function studioLaunchMatchesSavedConfig(args: {
+  setupConfig: Civ7StudioSetupConfig;
+  seed: unknown;
+  gameSeed: unknown;
+  savedConfig: Civ7SavedSetupConfigFile;
+}): boolean {
+  if (studioSetupDriftsFromSavedConfig(args.setupConfig, args.savedConfig)) return false;
+  const seed = parseCiv7StudioSeed(args.seed);
+  const gameSeed = parseCiv7StudioSeed(args.gameSeed);
+  const savedMapSeed = parseCiv7StudioSeed(args.savedConfig.summary.mapSeed);
+  const savedGameSeed = parseCiv7StudioSeed(args.savedConfig.summary.gameSeed);
+  return (
+    seed.ok &&
+    gameSeed.ok &&
+    savedMapSeed.ok &&
+    savedGameSeed.ok &&
+    seed.value === savedMapSeed.value &&
+    gameSeed.value === savedGameSeed.value
+  );
 }
 
 export function labelForCiv7SetupValue(value: unknown): string {

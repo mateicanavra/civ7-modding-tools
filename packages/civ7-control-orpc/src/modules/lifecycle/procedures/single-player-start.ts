@@ -1,4 +1,5 @@
 import {
+  assessCiv7SignedIntSeed,
   type Civ7AppUiSnapshotResult,
   Civ7DirectControlError,
   type Civ7DirectControlErrorCode,
@@ -384,7 +385,7 @@ export const lifecycleSinglePlayerStartProcedure =
     const mapSummary = yield* requireMatched(
       pollUntil({
         read: () => directLifecycle.getMapSummary(context.endpointDefaults),
-        matches: (result) => hasExactMapIdentity(result, input.seed, input.mapSize),
+        matches: (result) => hasExactMapIdentity(result, input.mapSeed, input.mapSize),
         timeoutMs: DEFAULT_LIFECYCLE_START_WAIT_MS,
         pollMs: DEFAULT_LIFECYCLE_POLL_MS,
       }),
@@ -409,8 +410,8 @@ function singlePlayerSetupValues(
   return {
     mapScript: input.mapScript,
     mapSize: input.mapSize,
-    seed: input.seed,
-    gameSeed: input.seed,
+    seed: input.mapSeed,
+    gameSeed: input.gameSeed,
     ...Option.fromNullable(input.playerCount).pipe(
       Option.match({
         onNone: () => ({}),
@@ -461,8 +462,8 @@ function projectSetupEvidence(
     () =>
       mapScript === input.mapScript &&
       mapSize === input.mapSize &&
-      mapSeed === input.seed &&
-      gameSeed === input.seed &&
+      mapSeed === input.mapSeed &&
+      gameSeed === input.gameSeed &&
       targetMod.targetModId === input.targetModId &&
       mapRowFiles.includes(mapScript) &&
       (playerCount === undefined || isPlayerCount(playerCount)) &&
@@ -503,7 +504,7 @@ function projectRuntimeEvidence(
   return Option.liftPredicate(
     evidence,
     () =>
-      seed === input.seed &&
+      seed === input.mapSeed &&
       mapSize === input.mapSize &&
       (width === undefined || isMapDimension(width)) &&
       (height === undefined || isMapDimension(height)) &&
@@ -541,12 +542,7 @@ function isCanonicalMapScript(value: unknown): value is string {
 }
 
 function isSeed(value: unknown): value is number {
-  return (
-    Predicate.isNumber(value) &&
-    Number.isInteger(value) &&
-    value >= -2_147_483_648 &&
-    value <= 2_147_483_647
-  );
+  return assessCiv7SignedIntSeed(value).ok;
 }
 
 function isPlayerCount(value: unknown): value is number {

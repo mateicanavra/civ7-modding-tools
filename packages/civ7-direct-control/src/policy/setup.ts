@@ -1,6 +1,9 @@
+/** Smallest seed Civ7 accepts for map and game setup. */
 export const CIV7_SIGNED_INT_SEED_MIN = -0x8000_0000;
+/** Largest seed Civ7 accepts for map and game setup. */
 export const CIV7_SIGNED_INT_SEED_MAX = 0x7fff_ffff;
 
+/** Closed admission result for Civ7's signed map/game setup seed domain. */
 export type Civ7SeedPolicyResult = Readonly<
   | {
       ok: true;
@@ -14,6 +17,7 @@ export type Civ7SeedPolicyResult = Readonly<
     }
 >;
 
+/** Admits a numeric Civ7 setup seed without coercing caller-controlled values. */
 export function assessCiv7SignedIntSeed(value: unknown): Civ7SeedPolicyResult {
   if (typeof value !== "number" || !Number.isInteger(value)) {
     return {

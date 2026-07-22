@@ -41,6 +41,12 @@
       "import": "./dist/play/notifications/postconditions.js",
       "require": "./dist/play/notifications/postconditions.cjs"
     },
+    "./policy/setup": {
+      "types": "./dist/policy/setup.d.ts",
+      "bun-source": "./src/policy/setup.ts",
+      "import": "./dist/policy/setup.js",
+      "require": "./dist/policy/setup.cjs"
+    },
     "./proof/diplomacy-response-proof-policy": {
       "types": "./dist/proof/diplomacy-response-proof-policy.d.ts",
       "bun-source": "./src/proof/diplomacy-response-proof-policy.ts",

@@ -25,6 +25,7 @@ export type StudioClock = Readonly<{
 export type CanonicalRunInGameRequest = Readonly<{
   recipeId: string;
   seed: number;
+  gameSeed: number;
   mapSize: string;
   playerCount?: number;
   resources?: string;

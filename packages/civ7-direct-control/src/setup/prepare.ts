@@ -376,6 +376,12 @@ function buildLoadSavedGameConfigurationCommand(
 /** Defines the single setup expectation law injected into apply and host wire commands. */
 export function setupExpectationScriptSource(): string {
   return `const setupProbeValue = (value) => value && value.ok === true ? value.value : undefined;
+    const setupSeedMatches = (actual, expected) =>
+      typeof actual === "number" &&
+      Number.isInteger(actual) &&
+      actual >= -2147483648 &&
+      actual <= 2147483647 &&
+      actual === expected;
     const setupParameterValue = (snapshot, id) =>
       snapshot.setup.parameters.find((parameter) => parameter.id === id)?.value;
     const playerSetupParameterValue = (snapshot, playerId, id) =>
@@ -391,8 +397,8 @@ export function setupExpectationScriptSource(): string {
       if (!snapshot.mapRows.some((row) => row.file === input.mapScript)) return "map-row";
       if (setupParameterValue(snapshot, "Map") !== input.mapScript) return "setup-map";
       if (setupParameterValue(snapshot, "MapSize") !== input.mapSize) return "setup-map-size";
-      if (Number(setupParameterValue(snapshot, "MapRandomSeed")) !== input.seed) return "setup-map-seed";
-      if (input.gameSeed !== undefined && Number(setupParameterValue(snapshot, "GameRandomSeed")) !== input.gameSeed) return "setup-game-seed";
+      if (!setupSeedMatches(setupParameterValue(snapshot, "MapRandomSeed"), input.seed)) return "setup-map-seed";
+      if (input.gameSeed !== undefined && !setupSeedMatches(setupParameterValue(snapshot, "GameRandomSeed"), input.gameSeed)) return "setup-game-seed";
       if (input.playerCount !== undefined && setupProbeValue(snapshot.config.playerCount) !== input.playerCount) return "setup-player-count";
       for (const [key, expected] of Object.entries(input.options ?? {})) {
         if (setupParameterValue(snapshot, key) !== expected) return "setup-option:" + key;
@@ -773,7 +779,10 @@ async function readCiv7SavedGameConfiguration(path: string): Promise<Civ7SavedGa
   const fileName = basename(path);
   const displayName = basename(fileName, extname(fileName));
   const strings = extractAsciiStrings(bytes);
-  const summary = summarizeCiv7CfgStrings(strings);
+  const summary = {
+    ...summarizeCiv7CfgStrings(strings),
+    ...(readCiv7CfgSetupSeeds(bytes) ?? {}),
+  };
   const setupOptions: Record<string, Civ7SetupOptionValue> = {};
   if (summary.difficulty) setupOptions.Difficulty = summary.difficulty;
   if (summary.gameSpeed) setupOptions.GameSpeeds = summary.gameSpeed;
@@ -829,21 +838,47 @@ function firstToken(
   return strings.find(test);
 }
 
-function firstNumericSeed(strings: ReadonlyArray<string>, afterIndex = 0): number | undefined {
-  for (const value of strings.slice(afterIndex)) {
-    if (!/^\d{6,10}$/.test(value)) continue;
-    const parsed = Number(value);
-    if (Number.isSafeInteger(parsed) && parsed >= 0) return parsed;
+const CIV7_CFG_RANDOM_SEED_HASH = Buffer.from([0x33, 0x13, 0xe5, 0x0d]);
+const CIV7_CFG_RANDOM_SEED_RECORD_BYTES = 24;
+const CIV7_CFG_MAX_MAJOR_PLAYERS_HASH = 0x0f9f_225c;
+
+/**
+ * Reads the two typed RandomSeed scalars observed in Civ7Cfg Map/Game section order.
+ * This is intentionally not a general file parser: unexpected shape or cardinality returns no
+ * evidence rather than guessing from unrelated numeric strings or partially understood records.
+ */
+function readCiv7CfgSetupSeeds(
+  bytes: Buffer
+): Pick<Civ7SavedGameConfigurationSummary, "mapSeed" | "gameSeed"> | undefined {
+  const seeds: number[] = [];
+  let offset = bytes.indexOf(CIV7_CFG_RANDOM_SEED_HASH);
+  while (offset >= 0) {
+    const end = offset + CIV7_CFG_RANDOM_SEED_RECORD_BYTES;
+    if (
+      end > bytes.length ||
+      !isCiv7CfgSeedType(bytes.readUInt32LE(offset + 4)) ||
+      bytes.readUInt32LE(offset + 8) !== 0 ||
+      bytes.readUInt32LE(offset + 12) !== 1 ||
+      bytes.readUInt32LE(offset + 16) !== 4 ||
+      (seeds.length === 0 &&
+        (end + 4 > bytes.length || bytes.readUInt32LE(end) !== CIV7_CFG_MAX_MAJOR_PLAYERS_HASH))
+    ) {
+      return undefined;
+    }
+    seeds.push(bytes.readInt32LE(offset + 20));
+    offset = bytes.indexOf(CIV7_CFG_RANDOM_SEED_HASH, end);
   }
-  return undefined;
+
+  return seeds.length === 2 ? { mapSeed: seeds[0]!, gameSeed: seeds[1]! } : undefined;
+}
+
+function isCiv7CfgSeedType(type: number): boolean {
+  return type === 8 || type === 9;
 }
 
 function summarizeCiv7CfgStrings(
   strings: ReadonlyArray<string>
 ): Civ7SavedGameConfigurationSummary {
-  const mapSeedIndex = strings.findIndex((value) => /^\d{6,10}$/.test(value));
-  const mapSeed = mapSeedIndex >= 0 ? firstNumericSeed(strings, mapSeedIndex) : undefined;
-  const gameSeed = mapSeedIndex >= 0 ? firstNumericSeed(strings, mapSeedIndex + 1) : undefined;
   const civilization = firstToken(
     strings,
     (value) =>
@@ -880,8 +915,6 @@ function summarizeCiv7CfgStrings(
   if (leader !== undefined) summary.leader = leader;
   if (civilization !== undefined) summary.civilization = civilization;
   if (difficulty !== undefined) summary.difficulty = difficulty;
-  if (mapSeed !== undefined) summary.mapSeed = mapSeed;
-  if (gameSeed !== undefined) summary.gameSeed = gameSeed;
   return summary;
 }
 
@@ -904,6 +937,12 @@ function validateSetupSeed(value: unknown, label: string): number {
     throw new Civ7DirectControlError("setup-parameter-invalid", `${label} ${suffix}`);
   }
   return seed.value;
+}
+
+function setupSeedMatches(actual: unknown, expected: unknown): boolean {
+  const actualSeed = assessCiv7SignedIntSeed(actual);
+  const expectedSeed = assessCiv7SignedIntSeed(expected);
+  return actualSeed.ok && expectedSeed.ok && actualSeed.value === expectedSeed.value;
 }
 
 export function assertPreparedSetupMatches(
@@ -950,7 +989,7 @@ export function assertPreparedSetupMatches(
       }
     );
   }
-  if (Number(mapSeed) !== input.seed) {
+  if (!setupSeedMatches(mapSeed, input.seed)) {
     throw new Civ7DirectControlError(
       "setup-readback-mismatch",
       `Civ7 setup MapRandomSeed readback mismatch: ${String(mapSeed)}`,
@@ -959,7 +998,7 @@ export function assertPreparedSetupMatches(
       }
     );
   }
-  if (input.gameSeed !== undefined && Number(gameSeed) !== input.gameSeed) {
+  if (input.gameSeed !== undefined && !setupSeedMatches(gameSeed, input.gameSeed)) {
     throw new Civ7DirectControlError(
       "setup-readback-mismatch",
       `Civ7 setup GameRandomSeed readback mismatch: ${String(gameSeed)}`,

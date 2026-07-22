@@ -1,3 +1,7 @@
+import {
+  CIV7_SIGNED_INT_SEED_MAX,
+  CIV7_SIGNED_INT_SEED_MIN,
+} from "@civ7/direct-control/policy/setup";
 import type { ContractProcedure } from "@orpc/contract";
 import { type Static, Type } from "typebox";
 
@@ -23,7 +27,10 @@ const Civ7SingleLineSchema = Type.String({
 });
 const Civ7MapScriptSchema = Civ7SingleLineSchema;
 const Civ7MapSizeTypeSchema = Type.String({ pattern: "^MAPSIZE_[A-Z0-9_]+$" });
-const Civ7SeedSchema = Type.Integer({ minimum: -2_147_483_648, maximum: 2_147_483_647 });
+const Civ7SeedSchema = Type.Integer({
+  minimum: CIV7_SIGNED_INT_SEED_MIN,
+  maximum: CIV7_SIGNED_INT_SEED_MAX,
+});
 const Civ7PlayerCountSchema = Type.Integer({ minimum: 1, maximum: 64 });
 const Civ7MapDimensionSchema = Type.Integer({ minimum: 1, maximum: 10_000 });
 const Civ7PlotCountSchema = Type.Integer({ minimum: 1, maximum: 100_000_000 });
@@ -78,7 +85,8 @@ const Civ7LifecycleSinglePlayerStartInputSchema = Type.Object(
   {
     mapScript: Civ7MapScriptSchema,
     mapSize: Civ7MapSizeTypeSchema,
-    seed: Civ7SeedSchema,
+    mapSeed: Civ7SeedSchema,
+    gameSeed: Civ7SeedSchema,
     playerCount: Type.Optional(Civ7PlayerCountSchema),
     targetModId: Civ7TargetModIdSchema,
     savedConfig: Type.Optional(Civ7SavedConfigIdentitySchema),

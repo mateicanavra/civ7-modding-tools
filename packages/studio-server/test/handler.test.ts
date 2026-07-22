@@ -1358,7 +1358,7 @@ function lifecycleStarted() {
         mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
         mapSize: "MAPSIZE_SMALL",
         mapSeed: 42,
-        gameSeed: 42,
+        gameSeed: 47,
         targetModId: "mod-swooper-studio-run",
         mapRowFiles: ["{mod-swooper-studio-run}/maps/studio-run.js"],
       },
@@ -1658,6 +1658,7 @@ function runInGameStartInput(): StudioInputs["runInGame"]["start"] {
       name: "Studio Current",
     }).canonicalConfig,
     seed: 43,
+    gameSeed: 47,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },

@@ -512,6 +512,8 @@ describe("Run in Game exact authorship evidence identity", () => {
 
     expect(evidence.status).toBe("complete");
     expect(evidence.unresolvedLinks).toEqual([]);
+    expect(evidence.request).toMatchObject({ seed: 42, gameSeed: 84 });
+    expect(evidence.civSetup).toMatchObject({ mapSeed: 42, gameSeed: 84 });
     expect(evidence.runtime).toMatchObject({
       seed: 42,
       width: 84,
@@ -585,6 +587,30 @@ describe("Run in Game exact authorship evidence identity", () => {
     );
   });
 
+  it("keeps exact authorship unresolved when only the map-seed readback differs", () => {
+    const args = completeEvidenceArgs();
+    const evidence = buildRunInGameExactAuthorshipEvidence({
+      ...args,
+      lifecycleSetup: { ...args.lifecycleSetup, mapSeed: 43 },
+    });
+
+    expect(evidence.status).toBe("unresolved");
+    expect(evidence.unresolvedLinks).toContain("civ-setup.map-seed-mismatch");
+    expect(evidence.unresolvedLinks).not.toContain("civ-setup.game-seed-mismatch");
+  });
+
+  it("keeps exact authorship unresolved when only the game-seed readback differs", () => {
+    const args = completeEvidenceArgs();
+    const evidence = buildRunInGameExactAuthorshipEvidence({
+      ...args,
+      lifecycleSetup: { ...args.lifecycleSetup, gameSeed: 85 },
+    });
+
+    expect(evidence.status).toBe("unresolved");
+    expect(evidence.unresolvedLinks).toContain("civ-setup.game-seed-mismatch");
+    expect(evidence.unresolvedLinks).not.toContain("civ-setup.map-seed-mismatch");
+  });
+
   it("keeps exact authorship unresolved when the deployed script lacks current river materialization markers", () => {
     const args = completeEvidenceArgs();
     const evidence = buildRunInGameExactAuthorshipEvidence({
@@ -645,6 +671,7 @@ function completeEvidenceArgs(): Parameters<typeof buildRunInGameExactAuthorship
   const request: RunInGameRequestStatus = {
     recipeId: "standard",
     seed: 42,
+    gameSeed: 84,
     mapSize: "MAPSIZE_STANDARD",
     playerCount: 8,
     resources: "balanced",
@@ -686,7 +713,7 @@ function completeEvidenceArgs(): Parameters<typeof buildRunInGameExactAuthorship
       mapScript,
       mapSize: "MAPSIZE_STANDARD",
       mapSeed: 42,
-      gameSeed: 42,
+      gameSeed: 84,
       playerCount: 8,
       targetModId: "mod-swooper-studio-run",
       mapRowFiles: [mapScript],

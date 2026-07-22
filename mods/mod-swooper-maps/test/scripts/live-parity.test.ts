@@ -134,6 +134,7 @@ function exactEvidencePacket(
     request: {
       recipeId: "mod-swooper-maps/standard",
       seed: 1234,
+      gameSeed: -1234,
       mapSize: "MAPSIZE_TINY",
     },
     materialization: requestGeneratedMaterialization,
@@ -141,7 +142,7 @@ function exactEvidencePacket(
       mapScript: requestGeneratedMaterialization.mapScript,
       mapSize: "MAPSIZE_TINY",
       mapSeed: 1234,
-      gameSeed: 1234,
+      gameSeed: -1234,
       rowCount: 1,
     },
     runtime: {

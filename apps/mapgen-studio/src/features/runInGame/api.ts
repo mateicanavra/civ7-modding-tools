@@ -18,6 +18,7 @@ import { projectStudioBrowserError } from "../studioErrors/definedErrorProjectio
 export type RunCurrentConfigInGameArgs = {
   canonicalConfig: MapConfigEnvelope;
   seed: number | string;
+  gameSeed: number | string;
   worldSettings: RunInGameWorldSettings;
   setupConfig: Civ7StudioSetupConfig;
 };
@@ -30,6 +31,7 @@ export function buildRunInGameStartRequest(
   return {
     canonicalConfig: serializeMapConfigEnvelope(args.canonicalConfig),
     seed: args.seed,
+    gameSeed: args.gameSeed,
     worldSettings: args.worldSettings,
     setupConfig: normalizeStudioSetupConfig(args.setupConfig),
   };

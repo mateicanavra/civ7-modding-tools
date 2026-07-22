@@ -41,6 +41,7 @@ const canonicalConfig = admitStandardMapConfig({
 });
 const launchEnvelope = {
   seed: 1234,
+  gameSeed: -1234,
   worldSettings: { mapSize: "MAPSIZE_TINY" },
   setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
   canonicalConfig,
@@ -89,6 +90,7 @@ function exactAuthorshipEvidencePacket(
     request: {
       recipeId: "mod-swooper-maps/standard",
       seed: 1234,
+      gameSeed: -1234,
       mapSize: "MAPSIZE_TINY",
     },
     materialization: {
@@ -110,7 +112,7 @@ function exactAuthorshipEvidencePacket(
       mapScript: "{mod-swooper-studio-run}/maps/studio-run.js",
       mapSize: "MAPSIZE_TINY",
       mapSeed: 1234,
-      gameSeed: 1234,
+      gameSeed: -1234,
       rowCount: 1,
     },
     runtime: {

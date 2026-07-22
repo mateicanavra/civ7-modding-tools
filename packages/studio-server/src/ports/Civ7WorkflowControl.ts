@@ -4,6 +4,7 @@ import {
   createCiv7ControlOrpcServerClient,
 } from "@civ7/control-orpc";
 import {
+  assessCiv7SignedIntSeed,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
   startCiv7Autoplay,
   stopCiv7Autoplay,
@@ -172,7 +173,7 @@ function lifecycleDemand(args: StartSinglePlayerArgs) {
         })
       )
     );
-    const seed = yield* Effect.fromNullable(
+    const mapSeed = yield* Effect.fromNullable(
       numericLaunchSeed(args.prepared.launchEnvelope.seed)
     ).pipe(
       Effect.mapError(() =>
@@ -181,7 +182,21 @@ function lifecycleDemand(args: StartSinglePlayerArgs) {
           diagnostics: boundedDiagnostics({
             code: "run-in-game-lifecycle-seed-invalid",
             requestId: args.requestId,
-            seed: args.prepared.launchEnvelope.seed,
+            mapSeed: args.prepared.launchEnvelope.seed,
+          }),
+        })
+      )
+    );
+    const gameSeed = yield* Effect.fromNullable(
+      numericLaunchSeed(args.prepared.launchEnvelope.gameSeed)
+    ).pipe(
+      Effect.mapError(() =>
+        invalidRequest({
+          message: "Run in Game lifecycle game seed is invalid",
+          diagnostics: boundedDiagnostics({
+            code: "run-in-game-lifecycle-game-seed-invalid",
+            requestId: args.requestId,
+            gameSeed: args.prepared.launchEnvelope.gameSeed,
           }),
         })
       )
@@ -198,7 +213,8 @@ function lifecycleDemand(args: StartSinglePlayerArgs) {
     return {
       mapScript,
       mapSize: args.prepared.launchEnvelope.worldSettings.mapSize,
-      seed,
+      mapSeed,
+      gameSeed,
       ...playerCount,
       targetModId: args.deployment.runDeployment.deployedModId,
       ...savedConfig,
@@ -464,7 +480,7 @@ function numericLaunchSeed(value: number | string): number | undefined {
     Match.when(Predicate.isNumber, (number) => number),
     Match.orElse(Number)
   );
-  return Match.value(Number.isInteger(seed) && seed >= -0x8000_0000 && seed <= 0x7fff_ffff).pipe(
+  return Match.value(assessCiv7SignedIntSeed(seed).ok).pipe(
     Match.when(true, () => seed),
     Match.orElse(() => undefined)
   );

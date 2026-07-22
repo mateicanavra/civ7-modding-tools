@@ -729,6 +729,7 @@ function preparedRequest(): RunInGamePreparedRequest {
   };
   const launchEnvelope = {
     seed: 43,
+    gameSeed: 47,
     worldSettings: {
       mapSize: "MAPSIZE_STANDARD",
     },
@@ -742,6 +743,7 @@ function preparedRequest(): RunInGamePreparedRequest {
     request: {
       recipeId: "standard",
       seed: 43,
+      gameSeed: 47,
       mapSize: "MAPSIZE_STANDARD",
       setupConfig: launchEnvelope.setupConfig,
     },

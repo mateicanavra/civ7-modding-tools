@@ -1,5 +1,8 @@
 import { once } from "node:events";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { type AddressInfo, createServer, type Socket } from "node:net";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { runInNewContext } from "node:vm";
 import { describe, expect, test } from "vitest";
 import {
@@ -18,6 +21,7 @@ import {
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
   hostPreparedCiv7SinglePlayerGame,
+  listCiv7SavedGameConfigurations,
   reconcileCiv7RequiredTargetMod,
   reloadCiv7SetupUiInShell,
   requestCiv7SavedGameConfigurationLoad,
@@ -26,6 +30,7 @@ import {
   buildPrepareSinglePlayerSetupCommand,
   buildReconcileTargetModCommand,
   normalizeSinglePlayerSetupInput,
+  setupExpectationScriptSource,
 } from "../src/setup/prepare";
 import { buildSetupSnapshotCommand, defaultSetupReadDependencies } from "../src/setup/reads";
 import { buildStartPreparedSinglePlayerCommand } from "../src/setup/start";
@@ -34,7 +39,97 @@ const HOST = "127.0.0.1";
 const MAP_SCRIPT = "{swooper-maps}/maps/swooper-earthlike.js";
 const HIDDEN_MAP_SCRIPT = "{swooper-maps}/maps/studio-current.js";
 
+function civ7CfgRandomSeedRecord(seed: number, type: 8 | 9): Buffer {
+  const record = Buffer.alloc(24);
+  Buffer.from([0x33, 0x13, 0xe5, 0x0d]).copy(record, 0);
+  record.writeUInt32LE(type, 4);
+  record.writeUInt32LE(0, 8);
+  record.writeUInt32LE(1, 12);
+  record.writeUInt32LE(4, 16);
+  record.writeInt32LE(seed, 20);
+  return record;
+}
+
+function civ7CfgFixture(records: readonly Buffer[], mapFollowingKey = 0x0f9f_225c): Buffer {
+  const [mapSeed, ...laterSeeds] = records;
+  return Buffer.concat([
+    Buffer.from(["CIV7", "3507297712", "MAPSIZE_SMALL"].join("\0")),
+    Buffer.from([0]),
+    ...(mapSeed ? [mapSeed, u32Buffer(mapFollowingKey)] : []),
+    ...laterSeeds,
+  ]);
+}
+
+function u32Buffer(value: number): Buffer {
+  const buffer = Buffer.alloc(4);
+  buffer.writeUInt32LE(value);
+  return buffer;
+}
+
 describe("Civ7 setup and lifecycle orchestration", () => {
+  test("reads exactly two typed Civ7Cfg seeds without reinterpreting numeric metadata", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "civ7-saved-config-"));
+    try {
+      await writeFile(
+        join(directory, "exact-seeds.Civ7Cfg"),
+        civ7CfgFixture([
+          civ7CfgRandomSeedRecord(-978_072_323, 8),
+          civ7CfgRandomSeedRecord(-978_072_324, 9),
+        ])
+      );
+
+      const result = await listCiv7SavedGameConfigurations({ directory });
+
+      expect(result.configurations).toHaveLength(1);
+      expect(result.configurations[0]?.summary).toMatchObject({
+        mapSeed: -978_072_323,
+        gameSeed: -978_072_324,
+      });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  test("omits Civ7Cfg seed evidence for malformed or non-exact record cardinality", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "civ7-saved-config-"));
+    try {
+      const malformed = civ7CfgRandomSeedRecord(-123, 8);
+      malformed.writeUInt32LE(8, 16);
+      await Promise.all([
+        writeFile(join(directory, "one.Civ7Cfg"), civ7CfgFixture([civ7CfgRandomSeedRecord(-1, 8)])),
+        writeFile(
+          join(directory, "three.Civ7Cfg"),
+          civ7CfgFixture([
+            civ7CfgRandomSeedRecord(-1, 8),
+            civ7CfgRandomSeedRecord(-2, 9),
+            civ7CfgRandomSeedRecord(-3, 8),
+          ])
+        ),
+        writeFile(
+          join(directory, "malformed.Civ7Cfg"),
+          civ7CfgFixture([malformed, civ7CfgRandomSeedRecord(-2, 9)])
+        ),
+        writeFile(
+          join(directory, "wrong-map-key.Civ7Cfg"),
+          civ7CfgFixture(
+            [civ7CfgRandomSeedRecord(-1, 8), civ7CfgRandomSeedRecord(-2, 9)],
+            0xdead_beef
+          )
+        ),
+      ]);
+
+      const result = await listCiv7SavedGameConfigurations({ directory });
+
+      expect(result.configurations).toHaveLength(4);
+      for (const configuration of result.configurations) {
+        expect(configuration.summary).not.toHaveProperty("mapSeed");
+        expect(configuration.summary).not.toHaveProperty("gameSeed");
+      }
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   test("rejects setup seeds Civ7 would wrap before mutating setup state", async () => {
     const server = await startSetupLifecycleServer();
     try {
@@ -504,6 +599,47 @@ describe("Civ7 setup and lifecycle orchestration", () => {
         })
       )
     ).toThrow("Civ7 setup player count readback mismatch: 8");
+  });
+
+  test.each([
+    ["MapRandomSeed", null, 0, "setup-map-seed"],
+    ["MapRandomSeed", true, 1, "setup-map-seed"],
+    ["MapRandomSeed", "111", 111, "setup-map-seed"],
+    ["GameRandomSeed", null, 0, "setup-game-seed"],
+    ["GameRandomSeed", true, 1, "setup-game-seed"],
+    ["GameRandomSeed", "112", 112, "setup-game-seed"],
+  ] as const)("rejects coerced %s readback %j in host and embedded expectation owners", (parameterId, malformedValue, numericMatch, mismatch) => {
+    const input = {
+      mapScript: MAP_SCRIPT,
+      mapSize: "MAPSIZE_HUGE",
+      seed: parameterId === "MapRandomSeed" ? numericMatch : 111,
+      gameSeed: parameterId === "GameRandomSeed" ? numericMatch : 112,
+    };
+    const base = preparedSetupSnapshot({
+      setupMapScript: MAP_SCRIPT,
+      setupMapSize: "MAPSIZE_HUGE",
+      setupMapSeed: input.seed,
+      setupGameSeed: input.gameSeed,
+      playerCount: 10,
+    });
+    const snapshot: Civ7SetupSnapshot = {
+      ...base,
+      setup: {
+        ...base.setup,
+        parameters: base.setup.parameters.map((parameter) =>
+          parameter.id === parameterId ? { ...parameter, value: malformedValue } : parameter
+        ),
+      },
+    };
+
+    expect(() => assertPreparedSetupMatches(input, snapshot)).toThrow(
+      `Civ7 setup ${parameterId} readback mismatch`
+    );
+    const embeddedMismatch = runInNewContext(`(() => {
+        ${setupExpectationScriptSource()}
+        return setupExpectationMismatch(${JSON.stringify(input)}, ${JSON.stringify(snapshot)});
+      })()`);
+    expect(embeddedMismatch).toBe(mismatch);
   });
 
   test("prepared setup readback requires runtime identity for an explicit empty player", () => {

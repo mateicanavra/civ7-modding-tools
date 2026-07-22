@@ -23,6 +23,7 @@ export function admitRunInGameLaunchEnvelope(
     input: {
       canonicalConfig: unknown;
       seed: number;
+      gameSeed: number;
       worldSettings: RunInGameWorldSettings;
       setupConfig: RunInGameSetupConfig;
     };
@@ -72,6 +73,7 @@ export function admitRunInGameLaunchEnvelope(
     Effect.map((admittedConfig) => {
       const launchEnvelope = snapshotLaunchEnvelope({
         seed: args.input.seed,
+        gameSeed: args.input.gameSeed,
         worldSettings: args.input.worldSettings,
         setupConfig: args.input.setupConfig,
         canonicalConfig: admittedConfig,

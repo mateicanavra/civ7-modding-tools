@@ -2,8 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { ORPCError } from "@orpc/client";
 import { serializeVerifierError } from "../../scripts/live/verifier-error";
 import {
+  admitStudioRunInGameLiveMutationArgs,
   buildSwooperMapScriptDeploymentStage,
   type MapScriptFileIdentity,
+  parseStudioRunInGameLiveArgs,
   resolveSwooperMapScriptPaths,
 } from "../../scripts/live/verify-studio-run-in-game-live";
 
@@ -16,6 +18,44 @@ const identity = (path: string, sha256: string): MapScriptFileIdentity => ({
 });
 
 describe("studio run-in-game live verifier deployment identity", () => {
+  test("admits distinct signed map and game seed flags for a mutating launch", () => {
+    const parsed = parseStudioRunInGameLiveArgs([
+      "--mutate",
+      "--map-script",
+      "{swooper-maps}/maps/swooper-earthlike.js",
+      "--map-size",
+      "MAPSIZE_STANDARD",
+      "--seed",
+      "-123",
+      "--game-seed",
+      "-456",
+    ]);
+
+    expect(admitStudioRunInGameLiveMutationArgs(parsed)).toMatchObject({
+      mapSeed: -123,
+      gameSeed: -456,
+    });
+  });
+
+  test("requires an explicit game seed and rejects seed overflow before live work", () => {
+    expect(() =>
+      admitStudioRunInGameLiveMutationArgs(
+        parseStudioRunInGameLiveArgs([
+          "--mutate",
+          "--map-script",
+          "{swooper-maps}/maps/swooper-earthlike.js",
+          "--map-size",
+          "MAPSIZE_STANDARD",
+          "--seed",
+          "123",
+        ])
+      )
+    ).toThrow("--game-seed");
+    expect(() => parseStudioRunInGameLiveArgs(["--seed", "2147483648"])).toThrow(
+      "--seed must be an integer from -2147483648 to 2147483647"
+    );
+  });
+
   test("preserves bounded defined-error uncertainty evidence", () => {
     const error = new ORPCError("LIFECYCLE_MUTATION_UNCERTAIN", {
       defined: true,

@@ -69,6 +69,7 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
   );
   addMissing(unresolvedLinks, Boolean(args.request?.recipeId), "request.recipe-id");
   addMissing(unresolvedLinks, args.request?.seed !== undefined, "request.seed");
+  addMissing(unresolvedLinks, args.request?.gameSeed !== undefined, "request.game-seed");
   addMissing(unresolvedLinks, Boolean(args.request?.mapSize), "request.map-size");
   addMissing(
     unresolvedLinks,
@@ -196,7 +197,7 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
   addNumberMismatch(
     unresolvedLinks,
     setupReadback.gameSeed,
-    args.request?.seed,
+    args.request?.gameSeed,
     "civ-setup.game-seed-mismatch"
   );
   addNumberMismatch(
@@ -262,6 +263,7 @@ export function buildRunInGameExactAuthorshipEvidence(args: {
     request: {
       ...(args.request?.recipeId === undefined ? {} : { recipeId: args.request.recipeId }),
       ...(args.request?.seed === undefined ? {} : { seed: args.request.seed }),
+      ...(args.request?.gameSeed === undefined ? {} : { gameSeed: args.request.gameSeed }),
       ...(args.request?.mapSize === undefined ? {} : { mapSize: args.request.mapSize }),
       ...(args.request?.playerCount === undefined ? {} : { playerCount: args.request.playerCount }),
       ...(args.request?.resources === undefined ? {} : { resources: args.request.resources }),

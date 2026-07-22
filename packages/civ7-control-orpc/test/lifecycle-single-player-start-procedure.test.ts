@@ -26,7 +26,8 @@ import { directControlFacadeFixture } from "./support/direct-control-facade";
 const input = {
   mapScript: "{swooper-maps}/maps/studio-current.js",
   mapSize: "MAPSIZE_SMALL",
-  seed: 222,
+  mapSeed: 222,
+  gameSeed: 333,
   targetModId: "mod-swooper-studio-run",
   gameOptions: {},
   playerOptions: {},
@@ -77,8 +78,8 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     ).toEqual({
       mapScript: input.mapScript,
       mapSize: input.mapSize,
-      seed: input.seed,
-      gameSeed: input.seed,
+      seed: input.mapSeed,
+      gameSeed: input.gameSeed,
       options: input.gameOptions,
       playerOptions: [],
     });
@@ -415,6 +416,39 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     expect(harness.count("hostPreparedSinglePlayerGame")).toBe(0);
   });
 
+  test.each([
+    ["map", { mapSeed: probe(input.mapSeed + 1) }],
+    ["game", { gameSeed: probe(input.gameSeed + 1) }],
+  ] as const)("fails closed when the %s seed readback does not match", async (_label, config) => {
+    const application = setupApplication();
+    const harness = makeHarness({
+      applySinglePlayerSetup: async () => ({
+        ...application,
+        after: {
+          ...application.after,
+          snapshot: {
+            ...application.after.snapshot,
+            config: {
+              ...application.after.snapshot.config,
+              ...config,
+            },
+          },
+        },
+      }),
+    });
+
+    await expect(
+      call(Civ7ControlOrpcRouter.lifecycle.singlePlayer.start, input, {
+        context: harness.context,
+      })
+    ).rejects.toMatchObject({
+      code: "LIFECYCLE_VERIFICATION_FAILED",
+      data: { step: "verify-setup-evidence", noRepeat: true },
+    });
+    expect(harness.count("applySinglePlayerSetup")).toBe(1);
+    expect(harness.count("hostPreparedSinglePlayerGame")).toBe(0);
+  });
+
   test("omits unavailable optional runtime evidence", async () => {
     const summary = mapSummary();
     const unavailable = { ok: false, error: "unavailable" } as const;
@@ -435,7 +469,7 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
       harness.context
     ).lifecycle.singlePlayer.start(input);
 
-    expect(result.evidence.runtime).toEqual({ seed: input.seed, mapSize: input.mapSize });
+    expect(result.evidence.runtime).toEqual({ seed: input.mapSeed, mapSize: input.mapSize });
   });
 
   test.each([
@@ -1286,8 +1320,8 @@ function setupSnapshot(phase: "shell" | "running-game", revision = 1): Civ7Setup
         mapScript: probe(input.mapScript),
         mapSize: probe(input.mapSize),
         mapSizeType: probe(input.mapSize),
-        mapSeed: probe(input.seed),
-        gameSeed: probe(input.seed),
+        mapSeed: probe(input.mapSeed),
+        gameSeed: probe(input.gameSeed),
         playerCount: probe(8),
       },
     },
@@ -1336,7 +1370,7 @@ function setupApplication() {
       ...setupSnapshot("shell").snapshot,
       config: {
         ...setupSnapshot("shell").snapshot.config,
-        mapSeed: probe(input.seed),
+        mapSeed: probe(input.mapSeed),
       },
     },
   };
@@ -1411,7 +1445,7 @@ function appUiSnapshot(kind: "begin-ready" | "started"): Civ7AppUiSnapshotResult
         height: probe(40),
         plotCount: probe(2_560),
         mapSize: probe(1),
-        randomSeed: probe(input.seed),
+        randomSeed: probe(input.mapSeed),
       },
     },
   };
@@ -1457,7 +1491,7 @@ function mapSummary(
       plotCount: probe(2_560),
       mapSize: probe(1),
       mapSizeType: probe(options.mapSize ?? input.mapSize),
-      randomSeed: probe(options.seed ?? input.seed),
+      randomSeed: probe(options.seed ?? input.mapSeed),
     },
     game: {
       turn: probe(1),
@@ -1474,14 +1508,14 @@ function expectedEvidence() {
     setup: {
       mapScript: input.mapScript,
       mapSize: input.mapSize,
-      mapSeed: input.seed,
-      gameSeed: input.seed,
+      mapSeed: input.mapSeed,
+      gameSeed: input.gameSeed,
       playerCount: 8,
       targetModId: input.targetModId,
       mapRowFiles: [input.mapScript],
     },
     runtime: {
-      seed: input.seed,
+      seed: input.mapSeed,
       mapSize: input.mapSize,
       width: 64,
       height: 40,

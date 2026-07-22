@@ -6,7 +6,7 @@ import "./_setup";
 // The autoplay/explore RPC entry points are pure module imports inside the hook
 // (NOT hook params), so we mock the modules to controllable spies. Everything else
 // (the busy gate, the re-entrant guard, the in-flight flag + finally, the live
-// `liveRuntime.autoplayActive` read, the value-equality drift detector) runs for
+// `liveRuntime.autoplayActive` read, the complete saved-launch relation) runs for
 // real — the SC-* contracts must be exercised against the real machinery.
 vi.mock("../../src/features/civ7Setup/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../src/features/civ7Setup/api")>();
@@ -55,7 +55,7 @@ const SAVED_CONFIG: Civ7SavedSetupConfigFile = {
   sizeBytes: 10,
   modifiedAt: "2026-06-29T00:00:00.000Z",
   source: "local-disk",
-  summary: { difficulty: "DIFFICULTY_SOVEREIGN" },
+  summary: { difficulty: "DIFFICULTY_SOVEREIGN", mapSeed: 123, gameSeed: 456 },
   setupOptions: { Difficulty: "DIFFICULTY_SOVEREIGN", GameSpeeds: "GAMESPEED_STANDARD" },
   playerOptions: [
     {
@@ -85,8 +85,11 @@ const EXPLORE_ALREADY_VISIBLE_RESULT = {
 function makeArgs(over: Partial<UseSetupControlsArgs> = {}): UseSetupControlsArgs {
   return {
     setupConfig: studioSetupConfigFromSavedConfigFile(SAVED_CONFIG),
+    seed: "123",
+    gameSeed: "456",
     setSetupConfig: vi.fn(),
     setSeed: vi.fn(),
+    setGameSeed: vi.fn(),
     savedSetupConfigs: { status: "ok", configurations: [SAVED_CONFIG] },
     setupCatalog: { status: "idle" },
     liveSetup: { status: "idle" },
@@ -117,7 +120,18 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe("useSetupControls — SC-4 (drift via value equality, not identity)", () => {
+describe("useSetupControls — SC-4 (complete saved-launch exactness)", () => {
+  it("adopts exact saved map and game seeds independently", () => {
+    const setSeed = vi.fn();
+    const setGameSeed = vi.fn();
+    const { result } = setup({ setSeed, setGameSeed });
+
+    act(() => result.current.handleSavedSetupConfigChange(SAVED_CONFIG.id));
+
+    expect(setSeed).toHaveBeenCalledWith("123");
+    expect(setGameSeed).toHaveBeenCalledWith("456");
+  });
+
   it("savedSetupConfigModified is false when the authored setup equals the selected saved config (even though it is a fresh-reference object)", () => {
     // The authored config is derived from the file via the SAME pure fn the real
     // selection handler uses — a brand-new object reference each render. Value
@@ -125,6 +139,86 @@ describe("useSetupControls — SC-4 (drift via value equality, not identity)", (
     // references and spuriously report drift here (the falsifier).
     const { result } = setup({ setupConfig: studioSetupConfigFromSavedConfigFile(SAVED_CONFIG) });
     expect(result.current.savedSetupConfigModified).toBe(false);
+  });
+
+  it("treats matching negative saved seeds as exact and adopts both independently", () => {
+    const savedConfig = {
+      ...SAVED_CONFIG,
+      id: "saved-negative-seeds",
+      summary: { ...SAVED_CONFIG.summary, mapSeed: -123, gameSeed: -456 },
+    };
+    const setSeed = vi.fn();
+    const setGameSeed = vi.fn();
+    const { result } = setup({
+      setupConfig: studioSetupConfigFromSavedConfigFile(savedConfig),
+      seed: "-123",
+      gameSeed: "-456",
+      savedSetupConfigs: { status: "ok", configurations: [savedConfig] },
+      setSeed,
+      setGameSeed,
+    });
+
+    expect(result.current.savedSetupConfigModified).toBe(false);
+    act(() => result.current.handleSavedSetupConfigChange(savedConfig.id));
+    expect(setSeed).toHaveBeenCalledWith("-123");
+    expect(setGameSeed).toHaveBeenCalledWith("-456");
+  });
+
+  it("marks only map-seed drift as modified", () => {
+    const { result } = setup({ seed: "124" });
+    expect(result.current.savedSetupConfigModified).toBe(true);
+  });
+
+  it("marks only game-seed drift as modified", () => {
+    const { result } = setup({ gameSeed: "457" });
+    expect(result.current.savedSetupConfigModified).toBe(true);
+  });
+
+  it("fails closed when saved seed evidence is missing or invalid", () => {
+    const withoutSeeds = { ...SAVED_CONFIG, summary: { difficulty: "DIFFICULTY_SOVEREIGN" } };
+    const invalidSeeds = {
+      ...SAVED_CONFIG,
+      id: "saved-invalid-seeds",
+      summary: { ...SAVED_CONFIG.summary, mapSeed: -2_147_483_649 },
+    };
+    const missing = setup({
+      setupConfig: studioSetupConfigFromSavedConfigFile(withoutSeeds),
+      savedSetupConfigs: { status: "ok", configurations: [withoutSeeds] },
+    });
+    const invalid = setup({
+      setupConfig: studioSetupConfigFromSavedConfigFile(invalidSeeds),
+      savedSetupConfigs: { status: "ok", configurations: [invalidSeeds] },
+    });
+
+    expect(missing.result.current.savedSetupConfigModified).toBe(true);
+    expect(invalid.result.current.savedSetupConfigModified).toBe(true);
+  });
+
+  it("leaves an invalid saved seed unadopted and keeps the selected launch modified", () => {
+    const invalid = {
+      ...SAVED_CONFIG,
+      id: "saved-invalid-game-seed",
+      summary: { ...SAVED_CONFIG.summary, gameSeed: -2_147_483_649 },
+    };
+    const setSeed = vi.fn();
+    const setGameSeed = vi.fn();
+    const toast = vi.fn();
+    const { result } = setup({
+      setupConfig: studioSetupConfigFromSavedConfigFile(invalid),
+      savedSetupConfigs: { status: "ok", configurations: [invalid] },
+      setSeed,
+      setGameSeed,
+      toast,
+    });
+
+    act(() => result.current.handleSavedSetupConfigChange(invalid.id));
+
+    expect(setSeed).toHaveBeenCalledWith("123");
+    expect(setGameSeed).not.toHaveBeenCalled();
+    expect(result.current.savedSetupConfigModified).toBe(true);
+    expect(toast).toHaveBeenCalledWith(expect.stringContaining("game seed ignored"), {
+      variant: "info",
+    });
   });
 
   it("savedSetupConfigModified flips to true after a (simulated) sync writes a DIFFERENT setup value", () => {

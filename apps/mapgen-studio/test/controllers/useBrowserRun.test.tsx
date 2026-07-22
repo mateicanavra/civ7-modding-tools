@@ -24,6 +24,7 @@ function resetStores() {
   useAuthoringStore.setState({
     worldSettings: { mapSize: "MAPSIZE_STANDARD", playerCount: 6, resources: "balanced" },
     seed: "123",
+    gameSeed: "789",
     setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
     canonicalConfig,
     authoringRevision: 0,
@@ -147,6 +148,7 @@ describe("useBrowserRun revision state", () => {
 
     const authored = useAuthoringStore.getState();
     expect(authored.seed).toBe("456");
+    expect(authored.gameSeed).toBe("789");
     expect(authored.authoringRevision).toBe(1);
     expect(useRunStore.getState().lastRunSnapshot).toEqual({
       authoringRevision: 1,
@@ -202,11 +204,22 @@ describe("useBrowserRun revision state", () => {
     act(() => result.current.reroll());
 
     expect(useAuthoringStore.getState().seed).toBe("123");
+    expect(useAuthoringStore.getState().gameSeed).toBe("789");
     expect(useAuthoringStore.getState().authoringRevision).toBe(0);
     expect(runnerActions.start).not.toHaveBeenCalled();
     expect(props.toast).toHaveBeenCalledWith(
       "Finish the current Studio operation before rerolling.",
       { variant: "info" }
     );
+  });
+
+  it("refuses invalid game-seed updates without changing value or revision", () => {
+    act(() => useAuthoringStore.getState().setGameSeed("-2147483649"));
+    expect(useAuthoringStore.getState().gameSeed).toBe("789");
+    expect(useAuthoringStore.getState().authoringRevision).toBe(0);
+
+    act(() => useAuthoringStore.getState().setGameSeed(() => "not-a-seed"));
+    expect(useAuthoringStore.getState().gameSeed).toBe("789");
+    expect(useAuthoringStore.getState().authoringRevision).toBe(0);
   });
 });

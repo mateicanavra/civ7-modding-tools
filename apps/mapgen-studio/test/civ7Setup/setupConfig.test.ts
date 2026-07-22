@@ -90,7 +90,6 @@ describe("Civ7 Studio setup config", () => {
       modifiedAt: "2026-06-01T00:00:00.000Z",
       source: "local-disk" as const,
       summary: {
-        mapSeed: 3507297712,
         leader: "LEADER_ALEXANDER",
         civilization: "CIVILIZATION_GREECE",
         difficulty: "DIFFICULTY_CUSTOM",

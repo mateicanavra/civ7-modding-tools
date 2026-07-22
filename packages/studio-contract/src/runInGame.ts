@@ -191,9 +191,12 @@ export type RunInGameWorldSettings = Readonly<{
 
 export const runInGameSeed = Type.Union([Type.Number(), Type.String()]);
 
+const signedInt32Seed = Type.Integer({ minimum: -0x8000_0000, maximum: 0x7fff_ffff });
+
 export const launchEnvelope = Type.Object(
   {
-    seed: Type.Number(),
+    seed: signedInt32Seed,
+    gameSeed: signedInt32Seed,
     worldSettings: runInGameWorldSettings,
     setupConfig,
     canonicalConfig: mapConfigEnvelopeSchema,
@@ -207,6 +210,7 @@ export const launchEnvelope = Type.Object(
  */
 export type LaunchEnvelope = Readonly<{
   seed: number;
+  gameSeed: number;
   worldSettings: RunInGameWorldSettings;
   setupConfig: RunInGameSetupConfig;
   canonicalConfig: MapConfigEnvelope;
@@ -218,6 +222,7 @@ export type LaunchEnvelopeDigest = string;
 export function snapshotLaunchEnvelope(
   args: Readonly<{
     seed: number;
+    gameSeed: number;
     worldSettings: RunInGameWorldSettings;
     setupConfig: RunInGameSetupConfig;
     canonicalConfig: MapConfigEnvelope;
@@ -229,6 +234,7 @@ export function snapshotLaunchEnvelope(
   }
   const snapshot = {
     seed: args.seed,
+    gameSeed: args.gameSeed,
     worldSettings: {
       mapSize: args.worldSettings.mapSize,
       ...(args.worldSettings.playerCount === undefined
@@ -241,6 +247,9 @@ export function snapshotLaunchEnvelope(
     setupConfig: snapshotRunInGameSetupConfig(args.setupConfig),
     canonicalConfig,
   };
+  if (!Value.Check(launchEnvelope, snapshot)) {
+    throw new TypeError("Run in Game requires signed 32-bit map and game seeds.");
+  }
   freezeSnapshot(snapshot);
   return snapshot;
 }
@@ -469,7 +478,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export const requestStatus = Type.Object(
   {
     recipeId: Type.Optional(Type.String()),
-    seed: Type.Optional(Type.Number()),
+    seed: Type.Optional(signedInt32Seed),
+    gameSeed: Type.Optional(signedInt32Seed),
     mapSize: Type.Optional(Type.String()),
     playerCount: Type.Optional(Type.Number()),
     resources: Type.Optional(Type.String()),
@@ -510,7 +520,8 @@ export type RunInGameFailureDetails = Static<typeof failureDetails> &
 const exactAuthorshipRequestEvidence = Type.Object(
   {
     recipeId: Type.String(),
-    seed: Type.Number(),
+    seed: signedInt32Seed,
+    gameSeed: signedInt32Seed,
     mapSize: Type.String(),
     playerCount: Type.Optional(Type.Number()),
     resources: Type.Optional(Type.String()),
@@ -817,6 +828,7 @@ export const start = oc
         {
           canonicalConfig: mapConfigEnvelopeSchema,
           seed: runInGameSeed,
+          gameSeed: runInGameSeed,
           worldSettings: runInGameWorldSettings,
           setupConfig: Type.Optional(Type.Unknown()),
         },

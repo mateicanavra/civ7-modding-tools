@@ -40,8 +40,9 @@ const fixture = {
   targetModId: "mod-swooper-studio-run",
   mapSize: "MAPSIZE_SMALL",
   seed: 42,
+  gameSeed: 47,
 } as const;
-const { mapScript, mapSize, requestId, seed, targetModId } = fixture;
+const { gameSeed, mapScript, mapSize, requestId, seed, targetModId } = fixture;
 
 describe("Civ7WorkflowControlLive", () => {
   test("sends one exact lifecycle demand and merges duplicate player entries in order", async () => {
@@ -127,7 +128,7 @@ describe("Civ7WorkflowControlLive", () => {
       mapScript,
       mapSize,
       seed,
-      gameSeed: seed,
+      gameSeed,
       playerCount: 8,
       options: { GameDifficulty: "DIFFICULTY_PRINCE" },
       playerOptions: [
@@ -162,7 +163,14 @@ describe("Civ7WorkflowControlLive", () => {
       correlationId: requestId,
       status: "started",
       evidence: {
-        setup: { mapScript, mapSize, mapSeed: seed, targetModId, mapRowFiles: [mapScript] },
+        setup: {
+          mapScript,
+          mapSize,
+          mapSeed: seed,
+          gameSeed,
+          targetModId,
+          mapRowFiles: [mapScript],
+        },
         runtime: { seed, mapSize, width: 44, height: 26, plotCount: 1144 },
       },
     });
@@ -400,9 +408,10 @@ function preparedRequest(): RunInGamePreparedRequest {
     ],
   };
   return {
-    request: { recipeId: "standard", seed, mapSize, playerCount: 8, setupConfig },
+    request: { recipeId: "standard", seed, gameSeed, mapSize, playerCount: 8, setupConfig },
     launchEnvelope: {
       seed,
+      gameSeed,
       worldSettings: { mapSize, playerCount: 8 },
       setupConfig,
       canonicalConfig,
@@ -481,7 +490,7 @@ function setupSnapshot(phase: "shell" | "loading"): Civ7SetupSnapshotResult {
         mapSize: probe(mapSize),
         mapSizeType: probe(mapSize),
         mapSeed: probe(seed),
-        gameSeed: probe(seed),
+        gameSeed: probe(gameSeed),
         playerCount: probe(8),
       },
     },

@@ -57,6 +57,7 @@ describe("Run in Game portable JSON admission", () => {
         input: {
           canonicalConfig: runInGameStartInput({ nested: value }).canonicalConfig,
           seed: 43,
+          gameSeed: 47,
           worldSettings: { mapSize: "MAPSIZE_STANDARD" },
           setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
         },
@@ -86,6 +87,7 @@ describe("Run in Game portable JSON admission", () => {
         input: {
           canonicalConfig: canonicalConfigInput,
           seed: 43,
+          gameSeed: 47,
           worldSettings: { mapSize: "MAPSIZE_STANDARD" },
           setupConfig: { gameOptions: {}, playerOptions: [{ playerId: 0, options: {} }] },
         },
@@ -149,6 +151,7 @@ function runInGameStartInput(config: Record<string, unknown>) {
       config,
     },
     seed: 43,
+    gameSeed: 47,
     worldSettings: { mapSize: "MAPSIZE_STANDARD" },
   };
 }
