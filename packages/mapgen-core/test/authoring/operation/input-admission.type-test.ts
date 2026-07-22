@@ -33,7 +33,6 @@ const InputAdmissionContract = defineOp({
       widenedCardinality: TypedArraySchemas.u8(widenedCardinalityOptions),
       explicitDefaultCardinality: TypedArraySchemas.u8({
         cardinality: undefined,
-        shape: null,
       }),
       nested: Type.Optional(
         Type.Object(

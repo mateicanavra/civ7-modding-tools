@@ -1,18 +1,20 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Runtime contract reconciling Hydrology lake intent with Civ7 water, lake, terrain, area, and
  * elevation readback plus explicit rejection and morphology-protection evidence.
  */
-export const MapHydrologyEngineProjectionArtifactSchema = Type.Object(
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -75,9 +77,6 @@ export const MapHydrologyEngineProjectionArtifactSchema = Type.Object(
   }
 );
 
-/** Canonical schema entrypoint for admitting lake-projection readback evidence. */
-export const Schema = MapHydrologyEngineProjectionArtifactSchema;
-
 /**
  * Projection readback is owned by map-hydrology because it records what the
  * Civ7 engine accepted after materialization, not Hydrology's source intent.
@@ -94,12 +93,12 @@ export const artifact = defineArtifact({
  * Validates the closed projection report, including dimensions, typed readback
  * masks, mismatch counts, and morphology-protection evidence.
  */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") return Object.freeze(issues);
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const candidate = value as Record<string, unknown>;
   const cellCount = artifactCellCount(context);
   appendArtifactTypedArrayIssues(issues, "lakeMask", candidate.lakeMask, Uint8Array, cellCount);
@@ -168,3 +167,6 @@ export function validate(
   );
   return Object.freeze(issues);
 }
+
+/** Admits map-sized typed lake projection and Civ7 readback surfaces after structural admission. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

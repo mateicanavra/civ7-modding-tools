@@ -1,9 +1,9 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationCrustSchema } from "../../artifacts/crust.artifact.js";
 import { Schema as FoundationTectonicsSchema } from "../../artifacts/current-tectonics.artifact.js";
 import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
 import { Schema as FoundationTectonicHistorySchema } from "../../artifacts/tectonic-history.artifact.js";
+import { CrustSchema as FoundationCrustSchema } from "../../model/schemas/crust.schema.js";
 
 const CrustEvolutionConfigSchema = Type.Object(
   {

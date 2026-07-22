@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { runInNewContext } from "node:vm";
 import { createMockAdapter } from "@civ7/adapter";
 import {
+  type ArtifactContract,
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
@@ -11,10 +12,10 @@ import {
   createStep,
   defineArtifact,
   defineArtifactCatalog,
+  defineArtifactValidator,
   defineStep,
   implementArtifactModules,
   readValidatedArtifact,
-  validateArtifactSchema,
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -31,10 +32,12 @@ const baseSetup = {
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 type Expect<T extends true> = T;
 
-function schemaModule<C extends ReturnType<typeof defineArtifact>>(artifact: C) {
+function schemaModule<C extends ArtifactContract>(artifact: C) {
+  const Schema: C["schema"] = artifact.schema;
   return {
+    Schema,
     artifact,
-    validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
+    validate: defineArtifactValidator(artifact),
   };
 }
 
@@ -188,7 +191,9 @@ describe("artifact authoring", () => {
     provides.length = 0;
 
     expect(contract.artifacts?.requires).toEqual([required]);
-    expect(contract.artifacts?.provides).toEqual([providedModule]);
+    expect(contract.artifacts?.provides).toEqual([
+      { artifact: providedModule.artifact, validate: providedModule.validate },
+    ]);
     expect(contract.requires).toEqual([required.id]);
     expect(contract.provides).toEqual([provided.id]);
     expect(Object.isFrozen(contract)).toBe(true);
@@ -205,7 +210,10 @@ describe("artifact authoring", () => {
         value: Object.freeze({ provides: Object.freeze([replacementModule]) }),
       })
     ).toThrow();
-    expect(contract.artifacts).toEqual({ requires: [required], provides: [providedModule] });
+    expect(contract.artifacts).toEqual({
+      requires: [required],
+      provides: [{ artifact: providedModule.artifact, validate: providedModule.validate }],
+    });
     expect(contract.requires).toEqual([required.id]);
     expect(contract.provides).toEqual([provided.id]);
   });
@@ -260,6 +268,39 @@ describe("artifact authoring", () => {
       })
     ).toThrow(/artifact name "constructor" is reserved/);
     expect(accessorReads).toBe(0);
+  });
+
+  it("admits required artifacts from dense own entries instead of caller collection methods", () => {
+    const canonical = defineArtifact({
+      name: "canonicalRequiredArtifact",
+      id: "artifact:test.required.canonical",
+      schema: Type.Object({}, { additionalProperties: false }),
+    });
+    const forged = Object.freeze({
+      name: "forgedRequiredArtifact",
+      id: "artifact:test.required.forged",
+      schema: canonical.schema,
+    });
+    const requires = [canonical];
+    let mapCalls = 0;
+    Object.setPrototypeOf(requires, {
+      map: () => {
+        mapCalls += 1;
+        return [forged];
+      },
+    });
+
+    const contract = defineStep({
+      id: "required-artifact-own-entry-admission",
+      requires: [],
+      provides: [],
+      artifacts: { requires },
+      schema: EmptyStepConfigSchema,
+    });
+
+    expect(mapCalls).toBe(0);
+    expect(contract.artifacts?.requires).toEqual([canonical]);
+    expect(contract.requires).toEqual([canonical.id]);
   });
 
   it("materializes canonical artifact contracts from structurally wider definitions", () => {
@@ -351,13 +392,11 @@ describe("artifact authoring", () => {
     });
     const module = {
       artifact,
-      validate: (value: unknown) => {
-        const schemaIssues = validateArtifactSchema(artifact.schema, value);
-        if (schemaIssues.length > 0) return schemaIssues;
+      validate: defineArtifactValidator(artifact, (value: unknown) => {
         return (value as { value: number }).value > 0
           ? []
           : [{ message: "value must be positive" }];
-      },
+      }),
     };
     const runtimes = implementArtifactModules([module]);
     const adapter = createMockAdapter({ width: 1, height: 1 });
@@ -374,6 +413,42 @@ describe("artifact authoring", () => {
         ArtifactDoublePublishError
       );
     });
+  });
+
+  it("snapshots artifact module authority before constructing runtimes", () => {
+    const artifact = defineArtifact({
+      name: "artifactFoo",
+      id: "artifact:test.runtime-snapshot",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const replacement = defineArtifact({
+      name: "artifactBar",
+      id: "artifact:test.runtime-snapshot.replacement",
+      schema: artifact.schema,
+    });
+    const validate = defineArtifactValidator(artifact);
+    const source = { artifact, validate };
+    const runtimes = implementArtifactModules([source]);
+    Reflect.set(source, "artifact", replacement);
+    Reflect.set(
+      source,
+      "validate",
+      defineArtifactValidator(replacement, () => [{ message: "mutated validator must not run" }])
+    );
+
+    const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
+    const context = createMapContext({
+      setup,
+      adapter: createMockAdapter({ width: 1, height: 1 }),
+    });
+
+    expect(runtimes.artifactFoo.contract).toBe(artifact);
+    executeContextStep(context, (activeContext) => {
+      expect(() => runtimes.artifactFoo.publish(activeContext, { value: 1 })).not.toThrow();
+    });
+    expect(context.artifacts.has(artifact.id)).toBe(true);
+    expect(context.artifacts.has(replacement.id)).toBe(false);
+    expect(runtimes.artifactFoo.satisfies?.(context, { satisfied: new Set() })).toBe(true);
   });
 
   it("admits artifact publication only during active execution", () => {
@@ -410,12 +485,9 @@ describe("artifact authoring", () => {
     let observationIsValid = true;
     const source = {
       artifact,
-      validate: (value: unknown) => {
-        const issues = validateArtifactSchema(artifact.schema, value);
-        return issues.length > 0 || observationIsValid
-          ? issues
-          : [{ message: "observation is no longer valid" }];
-      },
+      validate: defineArtifactValidator(artifact, () =>
+        observationIsValid ? [] : [{ message: "observation is no longer valid" }]
+      ),
     };
     const runtimes = implementArtifactModules([source]);
 
@@ -509,7 +581,7 @@ describe("artifact authoring", () => {
       id: "artifact:test.catalog-snapshot",
       schema: Type.Object({}, { additionalProperties: false }),
     });
-    const originalValidate = (value: unknown) => validateArtifactSchema(artifact.schema, value);
+    const originalValidate = defineArtifactValidator(artifact);
     const source = {
       artifact,
       validate: originalValidate,
@@ -517,7 +589,7 @@ describe("artifact authoring", () => {
     };
 
     const catalog = defineArtifactCatalog({ slot: source });
-    source.validate = () => [{ message: "mutated validator" }];
+    source.validate = defineArtifactValidator(artifact, () => [{ message: "mutated validator" }]);
 
     expect(catalog.modules.slot).toEqual({ artifact, validate: originalValidate });
     expect(catalog.modules.slot.validate).toBe(originalValidate);
@@ -557,7 +629,10 @@ describe("artifact authoring", () => {
     const step = createStep(contract, { run: () => {} });
     expect(step.artifacts.artifactFoo.contract).toBe(declared);
     expect(contract.artifacts?.provides?.[0]).not.toBe(declaredModule);
-    expect(contract.artifacts?.provides?.[0]).toEqual(declaredModule);
+    expect(contract.artifacts?.provides?.[0]).toEqual({
+      artifact: declaredModule.artifact,
+      validate: declaredModule.validate,
+    });
 
     expect(() =>
       createStep(contract, { artifacts: [schemaModule(extra)], run: () => {} } as never)
@@ -621,7 +696,7 @@ describe("artifact authoring", () => {
         artifacts: { provides: [inheritedOnlyModule] },
         schema: EmptyStepConfigSchema,
       })
-    ).toThrow(/must own artifact data properties/);
+    ).toThrow(/must own an artifact data property/);
     expect(() =>
       defineStep({
         id: "accessor-array-entry",
@@ -715,15 +790,10 @@ describe("artifact authoring", () => {
     > = [];
     const module = {
       artifact,
-      validate: (
-        value: unknown,
-        context?: Readonly<{
-          dimensions?: Readonly<{ width: number; height: number }>;
-        }>
-      ) => {
+      validate: defineArtifactValidator(artifact, (value, context) => {
         admissions.push({ value, dimensions: context?.dimensions });
-        return validateArtifactSchema(artifact.schema, value);
-      },
+        return [];
+      }),
     };
     const contract = defineStep({
       id: "single-artifact-admission",

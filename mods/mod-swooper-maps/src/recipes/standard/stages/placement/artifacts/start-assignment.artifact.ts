@@ -1,14 +1,17 @@
 import placement from "@mapgen/domain/placement";
 import {
+  type ArtifactValidationIssue,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Verified start assignment (`artifact:placement.startAssignment`). One artifact per file by repo convention. */
 const PlanStartsOutputSchema = placement.ops.planStarts.output;
 
-const StartAssignmentArtifactSchema = Type.Object(
+/** Runtime schema for stamped player starts and their fairness audit. */
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -49,9 +52,6 @@ const StartAssignmentArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema for stamped player starts and their fairness audit. */
-export const Schema = StartAssignmentArtifactSchema;
-
 /**
  * Registers the stamped, fairness-audited player start assignment consumed by
  * discovery exclusion and terminal placement evidence.
@@ -62,14 +62,8 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = { message: string };
-
-function issue(message: string): ValidationIssue {
+function issue(message: string): ArtifactValidationIssue {
   return { message };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
 }
 
 /**
@@ -79,12 +73,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * count totals, and fairness-report coherence.
  */
 
-function validatePayload(value: unknown): ValidationIssue[] {
-  if (!isRecord(value)) return [issue("startAssignment artifact must be an object.")];
-  const issues: ValidationIssue[] = [];
-  const width = Number(value.width);
-  const height = Number(value.height);
-  const size = width * height;
+function validateLocal(input: unknown): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
+  const size = value.width * value.height;
   if (!Number.isSafeInteger(size) || size <= 0) {
     return [
       issue(
@@ -92,10 +84,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
       ),
     ];
   }
-  const seats = Array.isArray(value.seats) ? value.seats : null;
-  const positions = Array.isArray(value.positions) ? value.positions : null;
-  if (!seats) return [issue("startAssignment.seats must be an array.")];
-  if (!positions) return [issue("startAssignment.positions must be an array.")];
+  const { positions, seats } = value;
   if (positions.length !== seats.length) {
     issues.push(
       issue(`startAssignment.positions length ${positions.length} != seats length ${seats.length}.`)
@@ -106,13 +95,8 @@ function validatePayload(value: unknown): ValidationIssue[] {
   let seated = 0;
   const rungTotals = { regional: 0, openPool: 0, qualityRelaxed: 0, spacingRelaxed: 0 };
   for (let i = 0; i < seats.length; i++) {
-    const seat = seats[i];
-    if (!isRecord(seat)) {
-      issues.push(issue(`startAssignment seat ${i} must be an object.`));
-      continue;
-    }
-    const plotIndex = Number(seat.plotIndex);
-    const realizedRegionSlot = Number(seat.realizedRegionSlot);
+    const seat = seats[i]!;
+    const { plotIndex, realizedRegionSlot } = seat;
     if (positions[i] !== seat.plotIndex) {
       issues.push(issue(`startAssignment.positions[${i}] does not match seats[${i}].plotIndex.`));
     }
@@ -157,8 +141,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
       if (seat.status !== "degraded") {
         issues.push(issue(`startAssignment unseated seat ${i} must have status degraded.`));
       }
-      const flags = Array.isArray(seat.imputedFlags) ? seat.imputedFlags : [];
-      if (!flags.includes("unseated")) {
+      if (!seat.imputedFlags.includes("unseated")) {
         issues.push(issue(`startAssignment unseated seat ${i} must carry the 'unseated' flag.`));
       }
     }
@@ -176,47 +159,38 @@ function validatePayload(value: unknown): ValidationIssue[] {
       )
     );
   }
-  const rungCounts = isRecord(value.rungCounts) ? value.rungCounts : null;
-  if (rungCounts) {
-    for (const [key, expected] of Object.entries(rungTotals)) {
-      if (rungCounts[key] !== expected) {
-        issues.push(
-          issue(`startAssignment.rungCounts.${key} ${String(rungCounts[key])} != ${expected}.`)
-        );
-      }
+  for (const key of ["regional", "openPool", "qualityRelaxed", "spacingRelaxed"] as const) {
+    const expected = rungTotals[key];
+    if (value.rungCounts[key] !== expected) {
+      issues.push(
+        issue(`startAssignment.rungCounts.${key} ${String(value.rungCounts[key])} != ${expected}.`)
+      );
     }
-  } else {
-    issues.push(issue("startAssignment.rungCounts must be an object."));
   }
 
-  const report = isRecord(value.fairnessReport) ? value.fairnessReport : null;
-  if (!report) {
-    issues.push(issue("startAssignment.fairnessReport must be an object."));
-  } else {
-    const parity = Array.isArray(report.parity) ? report.parity : [];
-    if (parity.length !== seats.length) {
-      issues.push(
-        issue(
-          `startAssignment.fairnessReport.parity length ${parity.length} != seats ${seats.length}.`
-        )
-      );
-    }
-    const gap = report.worstPairGap;
-    const tolerance = Number(report.tolerance);
-    if (typeof gap === "number" && report.balanced !== gap <= tolerance) {
-      issues.push(
-        issue(
-          `startAssignment.fairnessReport.balanced ${String(report.balanced)} inconsistent with gap ${gap} vs tolerance ${tolerance}.`
-        )
-      );
-    }
+  const report = value.fairnessReport;
+  if (report.parity.length !== seats.length) {
+    issues.push(
+      issue(
+        `startAssignment.fairnessReport.parity length ${report.parity.length} != seats ${seats.length}.`
+      )
+    );
+  }
+  const gap = report.worstPairGap;
+  const { tolerance } = report;
+  if (typeof gap === "number" && report.balanced !== gap <= tolerance) {
+    issues.push(
+      issue(
+        `startAssignment.fairnessReport.balanced ${String(report.balanced)} inconsistent with gap ${gap} vs tolerance ${tolerance}.`
+      )
+    );
   }
 
   if (
     seats.length > 0 &&
     seated === seats.length &&
     value.status === "degraded" &&
-    seats.every((seat) => isRecord(seat) && seat.status === "full")
+    seats.every((seat) => seat.status === "full")
   ) {
     issues.push(issue("startAssignment.status degraded but every seat is full."));
   }
@@ -228,6 +202,4 @@ function validatePayload(value: unknown): ValidationIssue[] {
  * Validates seat/position order, unique in-bounds plots, terminal realized-region state,
  * fallback/degraded coherence, aggregate counts, and fairness report parity.
  */
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -1,12 +1,12 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
-  artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -49,43 +49,27 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = Readonly<{ message: string }>;
-
-function validateSpatialCardinality(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly ValidationIssue[] {
-  if (!value || typeof value !== "object") return [];
-  const candidate = value as Partial<FeatureEngineSnapshot>;
-  const issues: ValidationIssue[] = [];
-  const admittedCellCount =
-    Number.isInteger(candidate.width) && Number.isInteger(candidate.height)
-      ? (candidate.width as number) * (candidate.height as number)
-      : undefined;
-  const featureTypeAdmitted = appendArtifactTypedArrayIssues(
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
+  const admittedCellCount = value.width * value.height;
+  appendArtifactTypedArrayIssues(
     issues,
     "featureEngineSnapshot.featureType",
-    candidate.featureType,
+    value.featureType,
     Int16Array,
     admittedCellCount
   );
 
   const dimensions = context?.dimensions;
   if (dimensions) {
-    if (candidate.width !== dimensions.width || candidate.height !== dimensions.height) {
+    if (value.width !== dimensions.width || value.height !== dimensions.height) {
       issues.push({
-        message: `Feature engine snapshot dimensions ${String(candidate.width)}x${String(candidate.height)} do not match map dimensions ${dimensions.width}x${dimensions.height}.`,
+        message: `Feature engine snapshot dimensions ${value.width}x${value.height} do not match map dimensions ${dimensions.width}x${dimensions.height}.`,
       });
-    }
-    const runCellCount = artifactCellCount(context);
-    if (featureTypeAdmitted && runCellCount !== admittedCellCount) {
-      appendArtifactTypedArrayIssues(
-        issues,
-        "featureEngineSnapshot.featureType",
-        candidate.featureType,
-        Int16Array,
-        runCellCount
-      );
     }
   }
 
@@ -93,15 +77,6 @@ function validateSpatialCardinality(
 }
 
 /**
- * Admits the snapshot through the shared artifact mechanism: TypeBox closes its shape and typed
- * surface, while semantic checks bind dimensions and cardinality to both the payload and run.
+ * Binds the typed feature surface to the payload dimensions and the payload dimensions to the run.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly ValidationIssue[] {
-  return Object.freeze([
-    ...validateArtifactSchema(Schema, value),
-    ...validateSpatialCardinality(value, context),
-  ]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

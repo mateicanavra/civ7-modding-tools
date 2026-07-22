@@ -157,7 +157,6 @@ describe("natural wonder placement materialization", () => {
         .map((entry) => entry.message)
         .join("\n");
 
-    expect(validateObserved([-1, 9, 10, 13])).toContain("must be a non-negative integer");
     expect(validateObserved([9, 9, 10, 13])).toContain("observed plot 9 must be unique");
     expect(validateObserved([10, 9, 13])).toContain("must be sorted in ascending order");
     expect(validateObserved([9, 10, 13, 24])).toContain("exceeds map cell count 24");

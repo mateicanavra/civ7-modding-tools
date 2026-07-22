@@ -1,11 +1,13 @@
 import {
   type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 const HydrologyRiverNetworkBenchmarkSummarySchema = Type.Object(
@@ -60,7 +62,7 @@ const HydrologyRiverNetworkBenchmarkSummarySchema = Type.Object(
  * Runtime contract for per-tile river hierarchy, mouth, slope, and permanence classifications
  * plus aggregate benchmark evidence derived before engine projection.
  */
-export const HydrologyRiverNetworkMetricsArtifactSchema = Type.Object(
+export const Schema = Type.Object(
   {
     upstreamArea: TypedArraySchemas.i32({
       description: "Contributing land-tile count draining through each land tile.",
@@ -90,9 +92,6 @@ export const HydrologyRiverNetworkMetricsArtifactSchema = Type.Object(
   }
 );
 
-/** Canonical schema entrypoint for publishing and validating river-network evidence. */
-export const Schema = HydrologyRiverNetworkMetricsArtifactSchema;
-
 /**
  * Registers Hydrology-owned network hierarchy, mouth, slope, permanence, and aggregate
  * benchmark evidence. It supports diagnostics and product proof without becoming
@@ -107,12 +106,12 @@ export const artifact = defineArtifact({
 /**
  * Validates river-network metric structure, exact field kinds, and map-sized cardinality when known.
  */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") return Object.freeze(issues);
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const candidate = value as Record<string, unknown>;
   const cellCount = artifactCellCount(context);
   appendArtifactTypedArrayIssues(
@@ -140,3 +139,6 @@ export function validate(
   );
   return Object.freeze(issues);
 }
+
+/** Admits map-sized typed river-network metric fields after structural admission. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

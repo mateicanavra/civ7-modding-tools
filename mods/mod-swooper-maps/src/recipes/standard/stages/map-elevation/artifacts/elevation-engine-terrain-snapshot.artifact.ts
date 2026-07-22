@@ -1,14 +1,17 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-const MapElevationEngineTerrainSnapshotArtifactSchema = Type.Object(
+/** Runtime contract for the engine terrain readback after elevation materialization. */
+export const Schema = Type.Object(
   {
     stage: Type.String({
       description: "Step identifier that produced this snapshot.",
@@ -32,9 +35,6 @@ const MapElevationEngineTerrainSnapshotArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime contract for the engine terrain readback after elevation materialization. */
-export const Schema = MapElevationEngineTerrainSnapshotArtifactSchema;
-
 /**
  * Elevation readback belongs to map-elevation because Civ7 builds cliff and
  * shoreline relief from the already-projected terrain surface at this exact
@@ -52,12 +52,12 @@ export const artifact = defineArtifact({
  * all issues without throwing. Successful validation guarantees parity consumers receive stage
  * identity, dimensions, and typed land, terrain, and elevation buffers.
  */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") return Object.freeze(issues);
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const candidate = value as Record<string, unknown>;
   const cellCount = artifactCellCount(context);
   appendArtifactTypedArrayIssues(issues, "landMask", candidate.landMask, Uint8Array, cellCount);
@@ -65,3 +65,6 @@ export function validate(
   appendArtifactTypedArrayIssues(issues, "elevation", candidate.elevation, Int16Array, cellCount);
   return Object.freeze(issues);
 }
+
+/** Admits map-sized typed terrain readback captured after elevation materialization. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

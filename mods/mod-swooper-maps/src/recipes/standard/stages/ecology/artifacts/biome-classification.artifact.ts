@@ -1,20 +1,21 @@
 import { BIOME_SYMBOL_ORDER } from "@mapgen/domain/ecology";
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Runtime contract for per-tile Ecology biome classification and its climate/vegetation classifier
  * signals, keeping downstream feature scoring on one field vintage.
  */
-export const BiomeClassificationArtifactSchema = Type.Object({
+export const Schema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
   biomeIndex: TypedArraySchemas.u8({
@@ -31,10 +32,7 @@ export const BiomeClassificationArtifactSchema = Type.Object({
   treeLine01: TypedArraySchemas.f32({ description: "Tree line suitability per tile (0..1)." }),
 });
 
-export type BiomeClassificationArtifact = Static<typeof BiomeClassificationArtifactSchema>;
-
-/** Canonical schema entrypoint used to register and validate biome-classification evidence. */
-export const Schema = BiomeClassificationArtifactSchema;
+export type BiomeClassificationArtifact = Static<typeof Schema>;
 
 /**
  * Registers Ecology's per-tile biome classification after climate, pedology, and topography
@@ -47,23 +45,12 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-export type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function validatePayload(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
 ): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
   const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    if (context?.dimensions) {
-      errors.push({ message: "Invalid biome classification artifact payload." });
-    }
-    return errors;
-  }
   const dimensions = context?.dimensions;
   const size = artifactCellCount(context);
   if (dimensions && (value.width !== dimensions.width || value.height !== dimensions.height)) {
@@ -224,10 +211,4 @@ function validateFiniteValues(
  * issues so artifact admission can reject a structurally valid but spatially inconsistent
  * payload.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const schemaIssues = validateArtifactSchema(Schema, value);
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

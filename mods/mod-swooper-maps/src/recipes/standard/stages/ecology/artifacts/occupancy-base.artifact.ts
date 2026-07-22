@@ -1,33 +1,21 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
+import { FeatureOccupancySchema } from "@mapgen/domain/ecology/model/schemas/index.js";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   type Static,
-  Type,
-  TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Runtime contract for initial feature occupancy and permanent reservations before any family
  * planner claims tiles.
  */
-export const OccupancyArtifactSchema = Type.Object({
-  width: Type.Integer({ minimum: 1 }),
-  height: Type.Integer({ minimum: 1 }),
-  featureOccupancyMask: TypedArraySchemas.u8({
-    description: "0 = unoccupied, nonzero = already claimed by an ecology feature intent",
-  }),
-  reserved: TypedArraySchemas.u8({
-    description: "0 = tile can be claimed, 1 = permanently blocked",
-  }),
-});
+export const Schema = FeatureOccupancySchema;
 
-export type OccupancyArtifact = Static<typeof OccupancyArtifactSchema>;
-
-/** Canonical schema entrypoint for registering and validating initial occupancy. */
-export const Schema = OccupancyArtifactSchema;
+export type OccupancyArtifact = Static<typeof Schema>;
 
 /**
  * Registers the initial Ecology occupancy snapshot produced with score layers. Zero means
@@ -40,35 +28,26 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-export type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function validatePayload(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): ArtifactValidationIssue[] {
-  const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    if (context?.dimensions) errors.push({ message: "Invalid occupancy artifact payload." });
-    return errors;
-  }
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const dimensions = context?.dimensions;
   const size = artifactCellCount(context);
   if (dimensions && (value.width !== dimensions.width || value.height !== dimensions.height)) {
-    errors.push({ message: "Occupancy dimensions mismatch." });
+    issues.push({ message: "Occupancy dimensions mismatch." });
   }
   appendArtifactTypedArrayIssues(
-    errors,
+    issues,
     "featureOccupancyMask",
     value.featureOccupancyMask,
     Uint8Array,
     size
   );
-  appendArtifactTypedArrayIssues(errors, "reserved", value.reserved, Uint8Array, size);
-  return errors;
+  appendArtifactTypedArrayIssues(issues, "reserved", value.reserved, Uint8Array, size);
+  return issues;
 }
 
 /**
@@ -77,10 +56,4 @@ function validatePayload(
  * issues so artifact admission can reject a structurally valid but spatially inconsistent
  * payload.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const schemaIssues = validateArtifactSchema(Schema, value);
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -1,14 +1,17 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-const MapMorphologyEngineTerrainSnapshotArtifactSchema = Type.Object(
+/** Runtime schema for the engine terrain observed immediately after coast stamping. */
+export const Schema = Type.Object(
   {
     stage: Type.String({
       description: "Step identifier that produced this snapshot.",
@@ -32,9 +35,6 @@ const MapMorphologyEngineTerrainSnapshotArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema for the engine terrain observed immediately after coast stamping. */
-export const Schema = MapMorphologyEngineTerrainSnapshotArtifactSchema;
-
 /** Registers engine terrain observed immediately after coast stamping. */
 export const artifact = defineArtifact({
   name: "coastEngineTerrainSnapshot",
@@ -43,12 +43,12 @@ export const artifact = defineArtifact({
 });
 
 /** Validates the coast-boundary snapshot's dimensions and typed tile surfaces. */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") return Object.freeze(issues);
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const candidate = value as Record<string, unknown>;
   const cellCount = artifactCellCount(context);
   appendArtifactTypedArrayIssues(issues, "landMask", candidate.landMask, Uint8Array, cellCount);
@@ -56,3 +56,6 @@ export function validate(
   appendArtifactTypedArrayIssues(issues, "elevation", candidate.elevation, Int16Array, cellCount);
   return Object.freeze(issues);
 }
+
+/** Admits map-sized typed terrain readback captured after coast stamping. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

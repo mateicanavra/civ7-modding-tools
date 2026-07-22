@@ -209,15 +209,15 @@ describe("operation authoring", () => {
     expect(runs).toBe(1);
   });
 
-  it("gives an explicit cardinality property precedence over the deprecated shape option", () => {
+  it("uses grid cardinality when cardinality is explicitly undefined", () => {
     const contract = defineOp({
       kind: "compute",
-      id: "test/explicit-cardinality-precedence",
+      id: "test/explicit-undefined-cardinality",
       input: Type.Object(
         {
           width: Type.Integer({ minimum: 1 }),
           height: Type.Integer({ minimum: 1 }),
-          grid: TypedArraySchemas.u8({ cardinality: undefined, shape: null }),
+          grid: TypedArraySchemas.u8({ cardinality: undefined }),
         },
         { additionalProperties: false }
       ),

@@ -5,8 +5,8 @@ import {
   ArtifactMissingError,
   createStep,
   defineArtifact,
+  defineArtifactValidator,
   defineStep,
-  validateArtifactSchema,
 } from "@mapgen/authoring/index.js";
 import { createMapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -33,7 +33,7 @@ function createSyntheticContext() {
 function artifactModule<C extends ReturnType<typeof defineArtifact>>(artifact: C) {
   return {
     artifact,
-    validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
+    validate: defineArtifactValidator(artifact),
   };
 }
 

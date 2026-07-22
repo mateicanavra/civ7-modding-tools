@@ -33,10 +33,15 @@ Representative artifact owner (`topography.artifact.ts`; excerpt):
 
 ```ts
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
+  type Static,
+  appendArtifactTypedArrayIssues,
+  artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Closed structural schema for the topography published by morphology. */
@@ -56,11 +61,54 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-/** Admits topography values through the contract's closed structural schema. */
-export function validate(value: unknown): readonly { message: string }[] {
-  return validateArtifactSchema(Schema, value);
+function validateLocal(
+  value: unknown,
+  context: ArtifactValidationContext | undefined
+): readonly ArtifactValidationIssue[] {
+  const topography = value as Static<typeof Schema>;
+  const expectedLength = artifactCellCount(context);
+  const issues: ArtifactValidationIssue[] = [];
+  appendArtifactTypedArrayIssues(
+    issues,
+    "elevation",
+    topography.elevation,
+    Int16Array,
+    expectedLength
+  );
+  appendArtifactTypedArrayIssues(
+    issues,
+    "landMask",
+    topography.landMask,
+    Uint8Array,
+    expectedLength
+  );
+  return issues;
 }
+
+/** Admits topography structure, exact typed arrays, and map-grid cardinality. */
+export const validate = defineArtifactValidator(artifact, validateLocal);
 ```
+
+`defineArtifactValidator` is the only complete-validator constructor. It binds
+structural admission to `artifact.schema`; an optional private callback may add
+cardinality, relational, or domain issues after structure succeeds. Artifact
+owners do not call TypeBox validation directly or redeclare the issue contract.
+The local callback stays `unknown` because typed-array constructors and
+cardinality live in Core's runtime metadata layer rather than TypeBox's
+structural type; owners use Core's typed-array helpers for those checks.
+
+The complete runtime API of an artifact source module is exactly `Schema`,
+`artifact`, and `validate`; supporting schemas and validator helpers remain
+private. Runtime imports are limited to MapGen contract/lib APIs, static Civ7
+types and policy, and public domain contract/schema/policy/data surfaces.
+Adapter, engine, recipe, private operation implementation, Node/browser, and
+artifact-owner dependencies are outside the kind.
+
+Artifact-private schemas stay inline. A schema primitive shared across domain
+concepts or artifact vintages belongs to the owning domain's `model/schemas`
+surface as plain domain vocabulary. It never carries artifact validation,
+issue/context types, artifact construction, or complete payload admission;
+artifact owners bind those concerns locally.
 
 The adjacent catalog is the single selection surface for provider modules and
 consumer handles:

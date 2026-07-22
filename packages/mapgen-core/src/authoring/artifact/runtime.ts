@@ -2,7 +2,11 @@ import { type MapContext, publishMapContextArtifactInternal } from "@mapgen/core
 import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 
 import type { ArtifactContract, ArtifactReadValueOf, ArtifactValueOf } from "./contract.js";
-import type { ArtifactModule } from "./module.js";
+import {
+  type ArtifactModule,
+  type SchemaBoundArtifactModuleList,
+  snapshotArtifactModule,
+} from "./module.js";
 
 export class ArtifactMissingError extends Error {
   public readonly artifactId: string;
@@ -99,6 +103,29 @@ function resolveStepId(context: MapContext): string {
   return trace?.stepId ?? "unknown";
 }
 
+function snapshotArtifactModules(modules: readonly ArtifactModule[]): readonly ArtifactModule[] {
+  if (!Array.isArray(modules)) {
+    throw new Error("artifact modules must be an array");
+  }
+  const ownKeys = Reflect.ownKeys(modules);
+  if (ownKeys.length !== modules.length + 1) {
+    throw new Error("artifact modules must be a dense array without extra keys");
+  }
+
+  const snapshots: ArtifactModule[] = [];
+  for (let index = 0; index < modules.length; index += 1) {
+    const moduleDescriptor = Object.getOwnPropertyDescriptor(modules, String(index));
+    if (!moduleDescriptor || !("value" in moduleDescriptor) || !moduleDescriptor.enumerable) {
+      throw new Error(`artifact module at index ${index} must be a data property`);
+    }
+
+    snapshots.push(
+      snapshotArtifactModule(moduleDescriptor.value, `artifact module at index ${index}`)
+    );
+  }
+  return Object.freeze(snapshots);
+}
+
 function assertUniqueModules(modules: readonly ArtifactModule[]): void {
   const names = new Set<string>();
   const ids = new Set<string>();
@@ -127,13 +154,14 @@ function readStored<C extends ArtifactContract>(
 }
 
 function buildSatisfies<C extends ArtifactContract>(
-  module: ArtifactModule<C>
+  contract: C,
+  validate: ArtifactModule<C>["validate"]
 ): DependencyTagDefinition["satisfies"] {
   return (context: MapContext) => {
-    const { hasValue, value } = readStored(context, module.artifact);
+    const { hasValue, value } = readStored(context, contract);
     if (!hasValue) return false;
     try {
-      const issues = module.validate(value, { dimensions: context.setup.dimensions });
+      const issues = validate(value, { dimensions: context.setup.dimensions });
       return issues.length === 0;
     } catch {
       return false;
@@ -154,14 +182,14 @@ function normalizeIssues(error: unknown): readonly { message: string }[] {
  * omit validation or install a second admission path.
  */
 export function implementArtifactModules<const Modules extends readonly ArtifactModule[]>(
-  modules: Modules
+  modules: Modules & SchemaBoundArtifactModuleList<Modules>
 ): ArtifactModuleRuntimes<Modules> {
-  assertUniqueModules(modules);
+  const snapshots = snapshotArtifactModules(modules);
+  assertUniqueModules(snapshots);
   const entries: Array<readonly [string, ProvidedArtifactRuntime<ArtifactContract>]> = [];
 
-  for (const module of modules) {
-    const contract = module.artifact;
-    const satisfies = buildSatisfies(module);
+  for (const { artifact: contract, validate } of snapshots) {
+    const satisfies = buildSatisfies(contract, validate);
 
     const runtime: ProvidedArtifactRuntime<typeof contract> = {
       contract,
@@ -188,7 +216,7 @@ export function implementArtifactModules<const Modules extends readonly Artifact
         let issues: readonly { message: string }[];
         let cause: unknown;
         try {
-          issues = module.validate(value, { dimensions: context.setup.dimensions });
+          issues = validate(value, { dimensions: context.setup.dimensions });
         } catch (error) {
           cause = error;
           issues = normalizeIssues(error);

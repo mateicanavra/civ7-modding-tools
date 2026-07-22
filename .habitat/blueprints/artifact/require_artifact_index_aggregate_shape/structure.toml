@@ -1,0 +1,11 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "mapgen-artifact-directories"
+root = "mods/*/src/**/artifacts"
+kind = "directory"
+mode = "closed"
+required = [
+  "index.ts",
+  "*.artifact.ts",
+]

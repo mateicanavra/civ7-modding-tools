@@ -14,6 +14,7 @@ export type {
   ArtifactReadValueOf,
   ArtifactValidationContext,
   ArtifactValidationIssue,
+  ArtifactValidator,
   ArtifactValueOf,
   DeepReadonly,
   ProvidedArtifactRuntime,
@@ -27,9 +28,9 @@ export {
   artifactCellCount,
   defineArtifact,
   defineArtifactCatalog,
+  defineArtifactValidator,
   implementArtifactModules,
   readValidatedArtifact,
-  validateArtifactSchema,
 } from "./artifact/index.js";
 export type {
   DomainOpCompileAny,

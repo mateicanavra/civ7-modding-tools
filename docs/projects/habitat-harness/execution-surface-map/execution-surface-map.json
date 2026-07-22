@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 659,
+    "totalSurfaces": 660,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
-      "check-script": 23,
+      "check-script": 22,
       "rule-json": 125,
       "pattern": 86,
-      "structure-spec": 11,
+      "structure-spec": 12,
       "apply-pattern": 1,
       "generate-script": 2,
       "operation-note": 3,
@@ -18,32 +18,32 @@
       "nx-target": 103,
       "nx-plugin": 2,
       "nx-target-default": 11,
-      "habitat-cli-source": 112
+      "habitat-cli-source": 113
     },
     "surfacesByRole": {
-      "command_check_executor": 23,
+      "command_check_executor": 22,
       "runner_metadata": 125,
       "policy_pattern": 87,
-      "structure_authority": 11,
+      "structure_authority": 12,
       "operation_surface": 6,
       "workspace_entrypoint": 295,
-      "toolkit_runner": 112
+      "toolkit_runner": 113
     },
     "entrypointsByInvoker": {
       "unknown": 250,
       "direct-script": 5,
       "package": 180,
       "nx": 116,
-      "habitat": 112
+      "habitat": 113
     },
     "surfacesByBucket": {
-      "package_boundary_tie": 97,
+      "package_boundary_tie": 96,
       "unknown_invocation": 250,
       "mutation_surface": 128,
       "nx_ordering_tie": 128,
       "direct_script_invoked": 5,
       "package_invoked": 296,
-      "habitat_invoked": 112
+      "habitat_invoked": 113
     },
     "sanityAssertions": []
   },
@@ -51,10 +51,10 @@
     "roleCounts": {
       "fixture-support": 7,
       "adapter": 125,
-      "policy-predicate": 98,
+      "policy-predicate": 99,
       "transient-dependency": 120,
       "entrypoint": 297,
-      "runner-runtime": 112
+      "runner-runtime": 113
     }
   },
   "topCrossBoundaryTiesByFanout": [
@@ -169,10 +169,9 @@
     {
       "target": "git",
       "targetClass": "workspace-tool",
-      "references": 17,
-      "sourceCount": 17,
+      "references": 16,
+      "sourceCount": 16,
       "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs",
         ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs",
         ".habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts",
         ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts",
@@ -181,15 +180,17 @@
         ".habitat/civ7/mapgen/studio/recipe-dag/rules/require_recipe_dag_contract_metadata/check.ts",
         ".habitat/civ7/mapgen/studio/server/rules/enforce_studio_rpc_eventhub_topology/check.ts",
         ".habitat/civ7/platform/adapter/rules/prohibit_adapter_local_legacy_generator_logic/check.ts",
-        ".habitat/civ7/platform/game-ui-bridge/rules/require_narrow_game_ui_bridge_bootstrap/check.ts"
+        ".habitat/civ7/platform/game-ui-bridge/rules/require_narrow_game_ui_bridge_bootstrap/check.ts",
+        ".habitat/civ7/resources/map-policy/rules/preserve_evidence_provenance_labels/check.ts"
       ]
     },
     {
       "target": "mods/",
       "targetClass": "mod",
-      "references": 15,
-      "sourceCount": 15,
+      "references": 16,
+      "sourceCount": 16,
       "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md",
         ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md",
         ".habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/pattern.md",
         ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md",
@@ -198,8 +199,7 @@
         ".habitat/blueprints/recipe/require_runtime_domain_op_bundle_imports/pattern.md",
         ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md",
         ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_validation_and_compiler_imports/pattern.md"
+        ".habitat/civ7/mapgen/pipeline/runtime/rules/prohibit_runtime_calls_to_runvalidated/pattern.md"
       ]
     },
     {
@@ -328,23 +328,6 @@
       ]
     },
     {
-      "target": "./",
-      "targetClass": "relative",
-      "references": 9,
-      "sourceCount": 9,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs",
-        ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md",
-        ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md",
-        ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/pattern.md",
-        ".habitat/blueprints/domain-operation/require_domain_ops_registry_surface/pattern.md",
-        ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
-        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
-        ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md",
-        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_direct_standard_recipe_test_execution/pattern.md"
-      ]
-    },
-    {
       "target": "./request.js",
       "targetClass": "relative",
       "references": 16,
@@ -358,6 +341,22 @@
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts",
         "tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts"
+      ]
+    },
+    {
+      "target": "./",
+      "targetClass": "relative",
+      "references": 8,
+      "sourceCount": 8,
+      "sampleSources": [
+        ".habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md",
+        ".habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md",
+        ".habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/pattern.md",
+        ".habitat/blueprints/domain-operation/require_domain_ops_registry_surface/pattern.md",
+        ".habitat/blueprints/domain/prohibit_recipe_imports_in_domain_source/pattern.md",
+        ".habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md",
+        ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md",
+        ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_direct_standard_recipe_test_execution/pattern.md"
       ]
     },
     {
@@ -1797,16 +1796,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/.",
-      "targetClass": "mod",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md",
-        ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/domain",
       "targetClass": "mod",
       "references": 2,
@@ -2373,6 +2362,15 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/src/service/model/check/policy/structural/execution.policy.ts"
+      ]
+    },
+    {
+      "target": "./command-lifecycle.js",
+      "targetClass": "relative",
+      "references": 2,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/cli/base/HabitatCommand.ts"
       ]
     },
     {
@@ -3501,15 +3499,6 @@
       ]
     },
     {
-      "target": "./item.artifact.js",
-      "targetClass": "relative",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs"
-      ]
-    },
-    {
       "target": "./legacy-step.js",
       "targetClass": "relative",
       "references": 1,
@@ -3534,6 +3523,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mod-sdk/rules/require_explicit_mapgen_sdk_opt_in/pattern.md"
+      ]
+    },
+    {
+      "target": "./model/",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
       ]
     },
     {
@@ -4051,6 +4049,15 @@
     },
     {
       "target": "@habitat/cli/runtime/service-context",
+      "targetClass": "habitat-toolkit",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/cli/base/HabitatCommand.ts"
+      ]
+    },
+    {
+      "target": "@habitat/cli/runtime/service-runtime",
       "targetClass": "habitat-toolkit",
       "references": 1,
       "sourceCount": 1,
@@ -5220,15 +5227,6 @@
       ]
     },
     {
-      "target": "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\\.artifact\\.ts$\",\n    ! $body <: contains",
-      "targetClass": "workspace-tool",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
       "target": "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/[^/]+/model/(?:config\\.ts|config/.*\\.ts)$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/[^/]+/model/schemas/.*\\.ts$\",\n    $source <: r\"^[\\\"']?.*(?:@mapgen/domain/[^/]+(?:/index\\.js)?|/ops/|/recipes/|/stages/|@civ7/map-policy|@civ7/types|base-standard|adapter).*[\\\"']?$\"\n  },\n  import_statement(source=$source) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/domain/[^/]+/model/policy/.*\\.ts$\",\n    $source <: r\"^[\\\"']?.*(?:@mapgen/domain/[^/]+(?:/index\\.js)?|/ops/|/recipes/|/stages/|@civ7/types|base-standard|adapter).*[\\\"']?$\"\n  },",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -5316,6 +5314,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
+      ]
+    },
+    {
+      "target": "grit\nlanguage js(typescript)\n\npredicate lacks_required_artifact_surface($body) {\n  or {\n    ! $body <: contains",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
       ]
     },
     {
@@ -5976,6 +5983,132 @@
       ]
     },
     {
+      "target": "mods/example-mod/src/features/artifacts.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/direct-typebox.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/exported-artifact-authority.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/exported-validator-authority.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/local-issue-type.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/message-bearing-payload.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/missing-artifact.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/missing-schema.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/missing-validate.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/plate-motion.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/runtime-behavior.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/runtime-import.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/artifacts/semantic-alias.artifact.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/example-mod/src/features/projection/config.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
+      ]
+    },
+    {
       "target": "mods/example-mod/src/recipes/example/stages/ecology/artifacts/index.ts",
       "targetClass": "mod",
       "references": 1,
@@ -6255,12 +6388,12 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src",
+      "target": "mods/mod-swooper-maps/src/.",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs"
+        ".habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md"
       ]
     },
     {
@@ -6471,96 +6604,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/artifacts/contract/legacy.contract.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/artifacts/exported-semantic-alias.artifact.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-artifact.artifact.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-schema.artifact.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-validate.artifact.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/artifacts/plate-motion.artifact.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-alias.artifact.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-artifact.artifact.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator-const.artifact.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator.artifact.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/domain/foundation/model/config.ts",
       "targetClass": "mod",
       "references": 1,
@@ -6598,6 +6641,15 @@
     },
     {
       "target": "mods/mod-swooper-maps/src/domain/foundation/model/schemas/compute-crust.schema.ts",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/blueprints/domain/require_domain_model_schema_policy_owner_shape/pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/domain/foundation/model/schemas/crust.schema.ts",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
@@ -8181,15 +8233,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/config.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step",
       "targetClass": "mod",
       "references": 1,
@@ -8484,24 +8527,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/start-assignment.artifact.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/blueprints/artifact/require_artifact_file_shape/pattern.md"
       ]
     },
     {
@@ -11217,24 +11242,25 @@
         "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
-          "mods/mod-swooper-maps/src/.",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/contract/legacy.contract.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/exported-semantic-alias.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-artifact.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-schema.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-validate.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/plate-motion.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-alias.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-artifact.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator-const.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator.artifact.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/config.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/start-assignment.artifact.ts"
+          "mods/",
+          "mods/example-mod/src/features/artifacts.ts",
+          "mods/example-mod/src/features/artifacts/direct-typebox.artifact.ts",
+          "mods/example-mod/src/features/artifacts/exported-artifact-authority.artifact.ts",
+          "mods/example-mod/src/features/artifacts/exported-validator-authority.artifact.ts",
+          "mods/example-mod/src/features/artifacts/local-issue-type.artifact.ts",
+          "mods/example-mod/src/features/artifacts/message-bearing-payload.artifact.ts",
+          "mods/example-mod/src/features/artifacts/missing-artifact.artifact.ts",
+          "mods/example-mod/src/features/artifacts/missing-schema.artifact.ts",
+          "mods/example-mod/src/features/artifacts/missing-validate.artifact.ts",
+          "mods/example-mod/src/features/artifacts/plate-motion.artifact.ts",
+          "mods/example-mod/src/features/artifacts/runtime-behavior.artifact.ts",
+          "mods/example-mod/src/features/artifacts/runtime-import.artifact.ts",
+          "mods/example-mod/src/features/artifacts/semantic-alias.artifact.ts",
+          "mods/example-mod/src/features/projection/config.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\\.artifact\\.ts$\",\n    ! $body <: contains"
+          "grit\nlanguage js(typescript)\n\npredicate lacks_required_artifact_surface($body) {\n  or {\n    ! $body <: contains"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -11254,77 +11280,87 @@
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/.",
+            "value": "./model/",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/contract/legacy.contract.ts",
+            "value": "mods/example-mod/src/features/artifacts.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/exported-semantic-alias.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/direct-typebox.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-artifact.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/exported-artifact-authority.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-schema.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/exported-validator-authority.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-validate.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/local-issue-type.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/plate-motion.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/message-bearing-payload.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-alias.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/missing-artifact.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-artifact.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/missing-schema.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator-const.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/missing-validate.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/plate-motion.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/config.ts",
+            "value": "mods/example-mod/src/features/artifacts/runtime-behavior.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts",
+            "value": "mods/example-mod/src/features/artifacts/runtime-import.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/start-assignment.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/semantic-alias.artifact.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/example-mod/src/features/projection/config.ts",
             "targetClass": "mod"
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\\.artifact\\.ts$\",\n    ! $body <: contains",
+            "value": "grit\nlanguage js(typescript)\n\npredicate lacks_required_artifact_surface($body) {\n  or {\n    ! $body <: contains",
             "targetClass": "workspace-tool"
           }
         ]
@@ -11379,117 +11415,6 @@
       ]
     },
     {
-      "id": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs",
-      "path": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "node:child_process",
-          "node:fs",
-          "node:path",
-          "typescript"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src"
-        ],
-        "childProcessCalls": [
-          "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
-        ],
-        "shellCommandCalls": [
-          "git",
-          "node:child_process",
-          "node:fs",
-          "node:path"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "child-process",
-            "value": "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "import",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "typescript",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./item.artifact.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "dist",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "git",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/rule.json",
       "path": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/rule.json",
       "surfaceKind": "rule-json",
@@ -11516,6 +11441,38 @@
         ],
         "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
         "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/structure.toml",
+      "path": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/structure.toml",
+      "surfaceKind": "structure-spec",
+      "surfaceRole": "structure_authority",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
         "supportSignals": [],
         "transientSignals": []
       },
@@ -13314,6 +13271,7 @@
           "mods/mod-swooper-maps/src/domain/foundation/model/policy/plate-activity.ts",
           "mods/mod-swooper-maps/src/domain/foundation/model/policy/stage-public.ts",
           "mods/mod-swooper-maps/src/domain/foundation/model/schemas/compute-crust.schema.ts",
+          "mods/mod-swooper-maps/src/domain/foundation/model/schemas/crust.schema.ts",
           "mods/mod-swooper-maps/src/domain/foundation/model/schemas/index.ts",
           "mods/mod-swooper-maps/src/domain/foundation/model/schemas/plate-activity.schema.ts",
           "mods/mod-swooper-maps/src/domain/foundation/model/schemas/plate.schema.ts",
@@ -13375,6 +13333,11 @@
           {
             "kind": "path-reference",
             "value": "mods/mod-swooper-maps/src/domain/foundation/model/schemas/compute-crust.schema.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/foundation/model/schemas/crust.schema.ts",
             "targetClass": "mod"
           },
           {
@@ -27138,24 +27101,25 @@
         "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
-          "mods/mod-swooper-maps/src/.",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/contract/legacy.contract.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/exported-semantic-alias.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-artifact.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-schema.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-validate.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/plate-motion.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-alias.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-artifact.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator-const.artifact.ts",
-          "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator.artifact.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/config.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/start-assignment.artifact.ts"
+          "mods/",
+          "mods/example-mod/src/features/artifacts.ts",
+          "mods/example-mod/src/features/artifacts/direct-typebox.artifact.ts",
+          "mods/example-mod/src/features/artifacts/exported-artifact-authority.artifact.ts",
+          "mods/example-mod/src/features/artifacts/exported-validator-authority.artifact.ts",
+          "mods/example-mod/src/features/artifacts/local-issue-type.artifact.ts",
+          "mods/example-mod/src/features/artifacts/message-bearing-payload.artifact.ts",
+          "mods/example-mod/src/features/artifacts/missing-artifact.artifact.ts",
+          "mods/example-mod/src/features/artifacts/missing-schema.artifact.ts",
+          "mods/example-mod/src/features/artifacts/missing-validate.artifact.ts",
+          "mods/example-mod/src/features/artifacts/plate-motion.artifact.ts",
+          "mods/example-mod/src/features/artifacts/runtime-behavior.artifact.ts",
+          "mods/example-mod/src/features/artifacts/runtime-import.artifact.ts",
+          "mods/example-mod/src/features/artifacts/semantic-alias.artifact.ts",
+          "mods/example-mod/src/features/projection/config.ts"
         ],
         "childProcessCalls": [],
         "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\\.artifact\\.ts$\",\n    ! $body <: contains"
+          "grit\nlanguage js(typescript)\n\npredicate lacks_required_artifact_surface($body) {\n  or {\n    ! $body <: contains"
         ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
@@ -27175,77 +27139,87 @@
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/.",
+            "value": "./model/",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/contract/legacy.contract.ts",
+            "value": "mods/example-mod/src/features/artifacts.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/exported-semantic-alias.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/direct-typebox.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-artifact.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/exported-artifact-authority.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-schema.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/exported-validator-authority.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/missing-validate.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/local-issue-type.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/plate-motion.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/message-bearing-payload.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-alias.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/missing-artifact.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-artifact.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/missing-schema.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator-const.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/missing-validate.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/foundation/artifacts/semantic-validator.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/plate-motion.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/config.ts",
+            "value": "mods/example-mod/src/features/artifacts/runtime-behavior.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts",
+            "value": "mods/example-mod/src/features/artifacts/runtime-import.artifact.ts",
             "targetClass": "mod"
           },
           {
             "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/start-assignment.artifact.ts",
+            "value": "mods/example-mod/src/features/artifacts/semantic-alias.artifact.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/example-mod/src/features/projection/config.ts",
             "targetClass": "mod"
           },
           {
             "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {\n  program(statements=$body) where {\n    $filename <: r\".*mods/mod-swooper-maps/src/.*/artifacts/[^/]+\\.artifact\\.ts$\",\n    ! $body <: contains",
+            "value": "grit\nlanguage js(typescript)\n\npredicate lacks_required_artifact_surface($body) {\n  or {\n    ! $body <: contains",
             "targetClass": "workspace-tool"
           }
         ]
@@ -27300,117 +27274,6 @@
       ]
     },
     {
-      "id": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs",
-      "path": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "node:child_process",
-          "node:fs",
-          "node:path",
-          "typescript"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src"
-        ],
-        "childProcessCalls": [
-          "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
-        ],
-        "shellCommandCalls": [
-          "git",
-          "node:child_process",
-          "node:fs",
-          "node:path"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "child-process",
-            "value": "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "import",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "typescript",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./item.artifact.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "dist",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "shell-command",
-            "value": "git",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/rule.json",
       "path": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/rule.json",
       "surfaceKind": "rule-json",
@@ -27437,6 +27300,38 @@
         ],
         "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
         "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "unknown_invocation"
+      ]
+    },
+    {
+      "id": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/structure.toml",
+      "path": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/structure.toml",
+      "surfaceKind": "structure-spec",
+      "surfaceRole": "structure_authority",
+      "invokedBy": [
+        "unknown"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
         "supportSignals": [],
         "transientSignals": []
       },
@@ -29235,6 +29130,7 @@
           "mods/mod-swooper-maps/src/domain/foundation/model/policy/plate-activity.ts",
           "mods/mod-swooper-maps/src/domain/foundation/model/policy/stage-public.ts",
           "mods/mod-swooper-maps/src/domain/foundation/model/schemas/compute-crust.schema.ts",
+          "mods/mod-swooper-maps/src/domain/foundation/model/schemas/crust.schema.ts",
           "mods/mod-swooper-maps/src/domain/foundation/model/schemas/index.ts",
           "mods/mod-swooper-maps/src/domain/foundation/model/schemas/plate-activity.schema.ts",
           "mods/mod-swooper-maps/src/domain/foundation/model/schemas/plate.schema.ts",
@@ -29296,6 +29192,11 @@
           {
             "kind": "path-reference",
             "value": "mods/mod-swooper-maps/src/domain/foundation/model/schemas/compute-crust.schema.ts",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps/src/domain/foundation/model/schemas/crust.schema.ts",
             "targetClass": "mod"
           },
           {
@@ -58057,6 +57958,38 @@
       ]
     },
     {
+      "id": "tools/habitat/src/cli/base/command-lifecycle.ts",
+      "path": "tools/habitat/src/cli/base/command-lifecycle.ts",
+      "surfaceKind": "habitat-cli-source",
+      "surfaceRole": "toolkit_runner",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "runner-runtime"
+        ],
+        "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
       "id": "tools/habitat/src/cli/base/HabitatCommand.ts",
       "path": "tools/habitat/src/cli/base/HabitatCommand.ts",
       "surfaceKind": "habitat-cli-source",
@@ -58067,7 +58000,9 @@
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [
+          "./command-lifecycle.js",
           "@habitat/cli/runtime/service-context",
+          "@habitat/cli/runtime/service-runtime",
           "@habitat/cli/service/base",
           "@habitat/cli/service/router",
           "@oclif/core",
@@ -58083,7 +58018,17 @@
         "all": [
           {
             "kind": "import",
+            "value": "./command-lifecycle.js",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "import",
             "value": "@habitat/cli/runtime/service-context",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/runtime/service-runtime",
             "targetClass": "habitat-toolkit"
           },
           {
@@ -58105,6 +58050,11 @@
             "kind": "import",
             "value": "@orpc/server",
             "targetClass": "external"
+          },
+          {
+            "kind": "path-reference",
+            "value": "./command-lifecycle.js",
+            "targetClass": "relative"
           }
         ]
       },

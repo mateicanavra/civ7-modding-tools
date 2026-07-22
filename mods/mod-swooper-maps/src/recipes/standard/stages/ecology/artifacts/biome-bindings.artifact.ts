@@ -1,19 +1,20 @@
 import {
   type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Runtime contract for Ecology-symbol-to-engine-biome readback, including collision and
  * land/water mismatch evidence at the projection boundary.
  */
-export const BiomeBindingsArtifactSchema = Type.Object(
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -37,10 +38,7 @@ export const BiomeBindingsArtifactSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export type BiomeBindingsArtifact = Static<typeof BiomeBindingsArtifactSchema>;
-
-/** Canonical schema entrypoint used to register and validate biome-binding readback. */
-export const Schema = BiomeBindingsArtifactSchema;
+export type BiomeBindingsArtifact = Static<typeof Schema>;
 
 /**
  * Registers map-ecology readback that binds each Ecology biome symbol to the Civ7 biome ID
@@ -56,12 +54,12 @@ export const artifact = defineArtifact({
 /**
  * Validates biome-binding structure, exact typed-array kinds, and map-sized cardinality when known.
  */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") return Object.freeze(issues);
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const candidate = value as Record<string, unknown>;
   const cellCount = artifactCellCount(context);
   appendArtifactTypedArrayIssues(
@@ -80,3 +78,6 @@ export function validate(
   );
   return Object.freeze(issues);
 }
+
+/** Admits map-sized typed biome-binding readback after Core validates aggregate evidence. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

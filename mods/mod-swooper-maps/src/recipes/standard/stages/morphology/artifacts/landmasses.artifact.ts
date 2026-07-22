@@ -1,11 +1,13 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 const MorphologyLandmassArtifactSchema = Type.Object(
@@ -49,7 +51,8 @@ const MorphologyLandmassArtifactSchema = Type.Object(
   }
 );
 
-const MorphologyLandmassesArtifactSchema = Type.Object(
+/** Runtime schema for connected land components and the per-tile component lookup. */
+export const Schema = Type.Object(
   {
     landmasses: Type.Immutable(Type.Array(MorphologyLandmassArtifactSchema)),
     landmassIdByTile: TypedArraySchemas.i32({
@@ -63,9 +66,6 @@ const MorphologyLandmassesArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema for connected land components and the per-tile component lookup. */
-export const Schema = MorphologyLandmassesArtifactSchema;
-
 /**
  * Registers connected land components and the per-tile component lookup used
  * by region projection, placement, and landmass-aware policy.
@@ -76,57 +76,16 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function validatePayload(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
 ): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
   const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    errors.push({ message: "Missing landmasses snapshot." });
-    return errors;
-  }
-
-  const candidate = value as { landmasses?: unknown; landmassIdByTile?: unknown };
-  if (!Array.isArray(candidate.landmasses)) {
-    errors.push({ message: "Expected landmasses.landmasses to be an array." });
-  } else {
-    for (const entry of candidate.landmasses) {
-      if (!isRecord(entry)) {
-        errors.push({ message: "Expected landmasses.landmasses entries to be objects." });
-        continue;
-      }
-      if (typeof entry.id !== "number" || entry.id < 0) {
-        errors.push({
-          message: "Expected landmasses.landmasses entries to include a non-negative id.",
-        });
-      }
-      if (typeof entry.tileCount !== "number" || entry.tileCount < 0) {
-        errors.push({
-          message: "Expected landmasses.landmasses entries to include a non-negative tileCount.",
-        });
-      }
-      if (typeof entry.coastlineLength !== "number" || entry.coastlineLength < 0) {
-        errors.push({
-          message:
-            "Expected landmasses.landmasses entries to include a non-negative coastlineLength.",
-        });
-      }
-      const bbox = (entry as { bbox?: unknown }).bbox;
-      if (!isRecord(bbox)) {
-        errors.push({ message: "Expected landmasses.landmasses entries to include bbox." });
-      }
-    }
-  }
   appendArtifactTypedArrayIssues(
     errors,
     "landmasses.landmassIdByTile",
-    candidate.landmassIdByTile,
+    value.landmassIdByTile,
     Int32Array,
     artifactCellCount(context)
   );
@@ -135,15 +94,7 @@ function validatePayload(
 }
 
 /**
- * Validates component records, nonnegative metrics, bounding boxes, and the
- * Int32 tile lookup; water remains represented by the schema's `-1` sentinel.
+ * Requires the per-tile component lookup to be an Int32 map-sized surface;
+ * water remains represented by the schema's `-1` sentinel.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  return Object.freeze([
-    ...validateArtifactSchema(Schema, value),
-    ...validatePayload(value, context),
-  ]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

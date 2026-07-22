@@ -13,10 +13,11 @@ import {
   default as resources,
 } from "@mapgen/domain/resources";
 import {
+  type ArtifactValidationIssue,
   defineArtifact,
+  defineArtifactValidator,
   type Static,
   Type,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 const ResourceDemandSummaryRowSchema = Type.Object(
@@ -42,7 +43,7 @@ const ResourceDemandSummaryRowSchema = Type.Object(
  * Structured evidence keeps planner state, age policy, and scenario capacity distinct without
  * encoding a second grammar for downstream consumers to parse.
  */
-export const ResourceDemandExclusionReasonSchema = Type.Union([
+const ResourceDemandExclusionReasonSchema = Type.Union([
   Type.Object(
     { kind: Type.Literal("outside-official-resource-corpus") },
     { additionalProperties: false }
@@ -77,7 +78,8 @@ export const ResourceDemandExclusionReasonSchema = Type.Union([
 /** One artifact-owned terminal reason for excluding a resource demand candidate. */
 export type ResourceDemandExclusionReason = Static<typeof ResourceDemandExclusionReasonSchema>;
 
-const ResourceDemandPlanArtifactSchema = Type.Object(
+/** Runtime schema for symbolic per-resource demand and admitted legal capacity. */
+export const Schema = Type.Object(
   {
     age: Type.Literal(INITIAL_MAP_RESOURCE_AUTHORING_AGE),
     minimumAmountModifier: Type.Integer(),
@@ -100,9 +102,6 @@ const ResourceDemandPlanArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema for symbolic per-resource demand and admitted legal capacity. */
-export const Schema = ResourceDemandPlanArtifactSchema;
-
 type ResourceDemandPlanPayload = Static<typeof Schema>;
 type PlannerStatus =
   ResourceDemandPlanPayload["groups"]["groups"][number]["plans"][number]["status"];
@@ -114,9 +113,7 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = { message: string };
-
-function issue(message: string): ValidationIssue {
+function issue(message: string): ArtifactValidationIssue {
   return { message };
 }
 
@@ -126,8 +123,9 @@ function issue(message: string): ValidationIssue {
  * These check cross-field invariants the schemas cannot express.
  */
 
-function validatePayload(value: ResourceDemandPlanPayload): ValidationIssue[] {
-  const issues: ValidationIssue[] = [];
+function validateLocal(input: unknown): ArtifactValidationIssue[] {
+  const value = input as ResourceDemandPlanPayload;
+  const issues: ArtifactValidationIssue[] = [];
 
   const demandByType = new Map<string, ResourceDemandPlanPayload["demands"][number]>();
   for (const row of value.demands) {
@@ -217,7 +215,7 @@ function validateDemandPredicate(
   resourceType: string,
   plannerStatus: PlannerStatus,
   age: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE
-): ValidationIssue[] {
+): ArtifactValidationIssue[] {
   if (plannerStatus !== "planned") return [];
   if (!isOfficialResourceType(resourceType)) {
     return [issue(`Demand ${resourceType} requires membership in the official resource corpus.`)];
@@ -237,7 +235,7 @@ function validateExclusionPredicate(
   plannerStatus: PlannerStatus,
   artifactAge: typeof INITIAL_MAP_RESOURCE_AUTHORING_AGE,
   reason: ResourceDemandExclusionReason
-): ValidationIssue[] {
+): ArtifactValidationIssue[] {
   const official = isOfficialResourceType(resourceType);
   const ageStatus = official ? resourceAgeStatus(resourceType, artifactAge) : "unknown";
 
@@ -266,7 +264,7 @@ function validateExclusionPredicate(
             ),
           ];
     case "age-policy": {
-      const issues: ValidationIssue[] = [];
+      const issues: ArtifactValidationIssue[] = [];
       if (!official || plannerStatus !== "planned") {
         issues.push(
           issue(
@@ -317,8 +315,4 @@ function resourceAgeStatus(
  * predicate from planner status, official-corpus membership, and the artifact age's source policy.
  * Count bounds and positive admitted legal capacity remain mandatory for demand rows.
  */
-export function validate(value: unknown): readonly { message: string }[] {
-  const schemaIssues = validateArtifactSchema(Schema, value);
-  if (schemaIssues.length > 0) return Object.freeze([...schemaIssues]);
-  return Object.freeze(validatePayload(value as ResourceDemandPlanPayload));
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

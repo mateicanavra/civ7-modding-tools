@@ -1,6 +1,11 @@
-import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { Value } from "typebox/value";
+import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  appendArtifactTypedArrayIssues,
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+  TypedArraySchemas,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 const BoundingBoxSchema = Type.Object(
   {
@@ -12,72 +17,52 @@ const BoundingBoxSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Structural contract for the wrapped neighborhood mesh. */
 export const Schema = Type.Object(
   {
     cellCount: Type.Integer({ minimum: 1 }),
     wrapWidth: Type.Number(),
-    siteX: TypedArraySchemas.f32({ shape: null }),
-    siteY: TypedArraySchemas.f32({ shape: null }),
-    neighborsOffsets: TypedArraySchemas.i32({ shape: null }),
-    neighbors: TypedArraySchemas.i32({ shape: null }),
-    areas: TypedArraySchemas.f32({ shape: null }),
+    siteX: TypedArraySchemas.f32({ cardinality: null }),
+    siteY: TypedArraySchemas.f32({ cardinality: null }),
+    neighborsOffsets: TypedArraySchemas.i32({ cardinality: null }),
+    neighbors: TypedArraySchemas.i32({ cardinality: null }),
+    areas: TypedArraySchemas.f32({ cardinality: null }),
     bbox: BoundingBoxSchema,
   },
   { additionalProperties: false }
 );
 
+/** Neighborhood mesh state published by Foundation. */
 export type Artifact = Static<typeof Schema>;
 
+/** Registers Foundation's neighborhood-mesh artifact. */
 export const artifact = defineArtifact({
   name: "foundationMesh",
   id: "artifact:foundation.mesh",
   schema: Schema,
 });
 
-function issue(message: string): { message: string } {
-  return { message };
-}
+function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
+  const mesh = value as Artifact;
+  const cellCount = mesh.cellCount;
+  const issues: ArtifactValidationIssue[] = [];
 
-function typedArrayIssue(
-  value: unknown,
-  ctor: Float32ArrayConstructor | Int32ArrayConstructor,
-  key: string,
-  length?: number
-): { message: string } | null {
-  if (!(value instanceof ctor)) return issue(`${key} must be ${ctor.name}`);
-  if (length !== undefined && value.length !== length) {
-    return issue(`${key} length must be ${length}`);
+  if (mesh.wrapWidth <= 0) {
+    issues.push({ message: "wrapWidth must be finite and positive" });
   }
-  return null;
-}
-
-export function validate(value: unknown): readonly { message: string }[] {
-  const issues = Array.from(Value.Errors(Schema, value), (error) =>
-    issue(
-      `${(error as { path?: string; instancePath?: string }).path ?? (error as { instancePath?: string }).instancePath ?? "/"} ${error.message}`
-    )
+  appendArtifactTypedArrayIssues(issues, "siteX", mesh.siteX, Float32Array, cellCount);
+  appendArtifactTypedArrayIssues(issues, "siteY", mesh.siteY, Float32Array, cellCount);
+  appendArtifactTypedArrayIssues(
+    issues,
+    "neighborsOffsets",
+    mesh.neighborsOffsets,
+    Int32Array,
+    cellCount + 1
   );
-
-  if (value && typeof value === "object") {
-    const mesh = value as Record<string, unknown>;
-    const cellCount = Number.isInteger(mesh.cellCount) ? (mesh.cellCount as number) : 0;
-    if (
-      typeof mesh.wrapWidth !== "number" ||
-      !Number.isFinite(mesh.wrapWidth) ||
-      mesh.wrapWidth <= 0
-    ) {
-      issues.push(issue("wrapWidth must be finite and positive"));
-    }
-    for (const candidate of [
-      typedArrayIssue(mesh.siteX, Float32Array, "siteX", cellCount),
-      typedArrayIssue(mesh.siteY, Float32Array, "siteY", cellCount),
-      typedArrayIssue(mesh.neighborsOffsets, Int32Array, "neighborsOffsets", cellCount + 1),
-      typedArrayIssue(mesh.neighbors, Int32Array, "neighbors"),
-      typedArrayIssue(mesh.areas, Float32Array, "areas", cellCount),
-    ]) {
-      if (candidate) issues.push(candidate);
-    }
-  }
-
-  return Object.freeze(issues);
+  appendArtifactTypedArrayIssues(issues, "neighbors", mesh.neighbors, Int32Array);
+  appendArtifactTypedArrayIssues(issues, "areas", mesh.areas, Float32Array, cellCount);
+  return issues;
 }
+
+/** Validates mesh-array constructors, cardinalities, and a finite positive wrap width. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

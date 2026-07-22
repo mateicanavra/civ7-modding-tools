@@ -60,6 +60,7 @@ FOUNDATION provides the following artifact dependency tags (all `artifact:*`).
 - `artifact:foundation.mesh`
 - `artifact:foundation.mantlePotential`
 - `artifact:foundation.mantleForcing`
+- `artifact:foundation.crustInit`
 - `artifact:foundation.crust`
 - `artifact:foundation.plateMotion`
 - `artifact:foundation.plateGraph`
@@ -146,9 +147,25 @@ Shape highlights:
 - `docs/projects/pipeline-realism/resources/spec/sections/mantle-forcing.md` (schema + derivation rules)
 - `mods/mod-swooper-maps/src/domain/foundation/artifacts/mantle-forcing.artifact.ts` (`Schema`)
 
-### `artifact:foundation.crust` (truth; mesh space)
+### `artifact:foundation.crustInit` (initial truth; mesh space)
 
-Per-mesh-cell lithosphere truth state plus derived drivers.
+The write-once t0 lithosphere snapshot produced from mesh and mantle forcing before plate
+partitioning or tectonic evolution. Plate graph and tectonic-history construction consume this
+initial state so those causes do not depend on the evolved crust they eventually help produce.
+
+It has the same structural fields as the evolved crust because both represent a complete crust
+state at different causal vintages. Their artifact identities and publication points remain
+distinct; consumers must request the vintage they actually require.
+
+**Ground truth anchors**
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/contract.ts` (`ComputeCrustContract`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/steps/crust/step.ts` (t0 publication)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/crust-init.artifact.ts` (`Schema`, artifact identity)
+
+### `artifact:foundation.crust` (evolved truth; mesh space)
+
+Per-mesh-cell lithosphere state after tectonic history and current tectonics have evolved the t0
+snapshot, plus the derived drivers consumed by downstream morphology.
 
 Truth state (all per mesh cell):
 - `maturity` (f32): `0=basaltic lid`, `1=cratonic`
@@ -164,8 +181,9 @@ Derived drivers (all per mesh cell):
 - `strength` (f32): `0..1` lithospheric strength proxy
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/contract.ts` (`FoundationCrustSchema`, `ComputeCrustContract`)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts` (`computeCrust`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/contract.ts` (`ComputeCrustEvolutionContract`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny/steps/crust-evolution/step.ts` (evolved publication)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/crust.artifact.ts` (`Schema`, artifact identity)
 
 ### `artifact:foundation.plateMotion` (truth; mesh space)
 
@@ -327,8 +345,8 @@ FOUNDATION ops are the domain’s compute units. The standard recipe wires them 
 
 ### Mesh and partition ops (truth)
 - `foundation/compute-mesh` → `{ mesh }`
-- `foundation/compute-crust` → `{ crust }`
-- `foundation/compute-crust-evolution` → `{ crust }`
+- `foundation/compute-crust` → `{ crust }`, published as `artifact:foundation.crustInit`
+- `foundation/compute-crust-evolution` → `{ crust }`, published as `artifact:foundation.crust`
 - `foundation/compute-mantle-potential` → `{ mantlePotential, sourceCount, sourceType, sourceCell, sourceAmplitude, sourceRadius }`
 - `foundation/compute-mantle-forcing` → `{ mantleForcing, stress, forcingU, forcingV, forcingMag, upwellingClass }`
 - `foundation/compute-plate-graph` → `{ plateGraph }`

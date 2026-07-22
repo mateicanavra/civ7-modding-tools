@@ -1,5 +1,10 @@
 import placement from "@mapgen/domain/placement";
-import { defineArtifact, validateArtifactSchema } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  type ArtifactValidationIssue,
+  defineArtifact,
+  defineArtifactValidator,
+  type Static,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 /** Natural-wonder plan (`artifact:placement.naturalWonderPlan`). One artifact per file by repo convention. */
 
@@ -12,26 +17,14 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = { message: string };
-
-function issue(message: string): ValidationIssue {
+function issue(message: string): ArtifactValidationIssue {
   return { message };
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function isCount(value: unknown): value is number {
-  return Number.isInteger(value) && (value as number) >= 0;
-}
-
-function validatePayload(value: unknown): ValidationIssue[] {
-  if (!isRecord(value)) return [issue("naturalWonderPlan artifact must be an object.")];
-  const issues: ValidationIssue[] = [];
-  const width = Number(value.width);
-  const height = Number(value.height);
-  const size = width * height;
+function validateLocal(input: unknown): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
+  const size = value.width * value.height;
   if (!Number.isSafeInteger(size) || size <= 0) {
     return [
       issue(
@@ -39,17 +32,13 @@ function validatePayload(value: unknown): ValidationIssue[] {
       ),
     ];
   }
-  const placements = Array.isArray(value.placements) ? value.placements : null;
-  if (!placements) return [issue("naturalWonderPlan.placements must be an array.")];
+  const { placements } = value;
   if (value.plannedCount !== placements.length) {
     issues.push(
       issue(`plannedCount ${String(value.plannedCount)} != placements.length ${placements.length}.`)
     );
   }
-  if (
-    !isCount(value.targetCount) ||
-    (isCount(value.plannedCount) && value.plannedCount > (value.targetCount as number))
-  ) {
+  if (value.plannedCount > value.targetCount) {
     issues.push(
       issue(
         `plannedCount ${String(value.plannedCount)} exceeds targetCount ${String(value.targetCount)}.`
@@ -58,9 +47,8 @@ function validatePayload(value: unknown): ValidationIssue[] {
   }
   const seenPlots = new Set<number>();
   for (const placement of placements) {
-    if (!isRecord(placement)) continue;
-    const plotIndex = Number(placement.plotIndex);
-    if (!Number.isInteger(plotIndex) || plotIndex < 0 || plotIndex >= size) {
+    const { plotIndex } = placement;
+    if (plotIndex >= size) {
       issues.push(issue(`naturalWonderPlan anchor ${String(placement.plotIndex)} out of bounds.`));
       continue;
     }
@@ -68,22 +56,12 @@ function validatePayload(value: unknown): ValidationIssue[] {
       issues.push(issue(`naturalWonderPlan plans two wonders anchored on plot ${plotIndex}.`));
     }
     seenPlots.add(plotIndex);
-    const priority = Number(placement.priority);
-    if (!(priority >= 0 && priority <= 1)) {
-      issues.push(
-        issue(
-          `naturalWonderPlan priority ${String(placement.priority)} outside [0,1] on plot ${plotIndex}.`
-        )
-      );
-    }
   }
   return issues;
 }
 
 /**
  * Validates map dimensions, placement-count agreement, the target ceiling,
- * unique in-bounds anchors, and normalized placement priorities.
+ * and unique in-bounds anchors.
  */
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

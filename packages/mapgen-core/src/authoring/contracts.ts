@@ -13,11 +13,15 @@ export { defineArtifact } from "./artifact/contract.js";
 export type { ArtifactCatalog, ArtifactModule } from "./artifact/module.js";
 export { defineArtifactCatalog } from "./artifact/module.js";
 export { readValidatedArtifact } from "./artifact/validated-read.js";
-export type { ArtifactValidationContext, ArtifactValidationIssue } from "./artifact/validation.js";
+export type {
+  ArtifactValidationContext,
+  ArtifactValidationIssue,
+  ArtifactValidator,
+} from "./artifact/validation.js";
 export {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
-  validateArtifactSchema,
+  defineArtifactValidator,
 } from "./artifact/validation.js";
 export { defineOp } from "./op/contract.js";
 export type { OpTypeBagOf } from "./op/types.js";

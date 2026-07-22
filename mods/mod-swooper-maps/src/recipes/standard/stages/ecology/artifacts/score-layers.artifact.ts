@@ -1,20 +1,21 @@
 import { FEATURE_INTENT_KEYS } from "@mapgen/domain/ecology/model/schemas/index.js";
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Runtime contract for one map-sized normalized suitability raster per admitted Ecology feature
  * intent key, ensuring all family planners score the same tile field vintage.
  */
-export const ScoreLayersArtifactSchema = Type.Object({
+export const Schema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
   layers: Type.Object(
@@ -27,10 +28,7 @@ export const ScoreLayersArtifactSchema = Type.Object({
   ),
 });
 
-export type ScoreLayersArtifact = Static<typeof ScoreLayersArtifactSchema>;
-
-/** Canonical schema entrypoint used to register and validate feature score layers. */
-export const Schema = ScoreLayersArtifactSchema;
+export type ScoreLayersArtifact = Static<typeof Schema>;
 
 /**
  * Registers one normalized per-tile suitability layer for every Ecology feature key plus the
@@ -43,21 +41,12 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-export type ArtifactValidationIssue = Readonly<{ message: string }>;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function validatePayload(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
 ): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
   const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value) || !isRecord(value.layers)) {
-    if (context?.dimensions) errors.push({ message: "Invalid score layers artifact payload." });
-    return errors;
-  }
   const dimensions = context?.dimensions;
   const size = artifactCellCount(context);
   if (dimensions && (value.width !== dimensions.width || value.height !== dimensions.height)) {
@@ -75,10 +64,4 @@ function validatePayload(
  * issues so artifact admission can reject a structurally valid but spatially inconsistent
  * payload.
  */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const schemaIssues = validateArtifactSchema(Schema, value);
-  return Object.freeze([...schemaIssues, ...validatePayload(value, context)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

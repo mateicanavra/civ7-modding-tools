@@ -1,6 +1,5 @@
 import type { Static, TSchema } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationCrustSchema } from "../../artifacts/crust.artifact.js";
 import { Schema as FoundationTectonicsSchema } from "../../artifacts/current-tectonics.artifact.js";
 import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
 import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
@@ -10,6 +9,7 @@ import {
   type Artifact as FoundationTectonicProvenanceArtifact,
   Schema as FoundationTectonicProvenanceSchema,
 } from "../../artifacts/tectonic-provenance.artifact.js";
+import { CrustSchema as FoundationCrustSchema } from "../../model/schemas/crust.schema.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
   const { additionalProperties: _additionalProperties, default: _default, ...rest } = schema as any;

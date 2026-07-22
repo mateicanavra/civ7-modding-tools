@@ -7,7 +7,7 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  validateArtifactSchema,
+  defineArtifactValidator,
 } from "@mapgen/authoring/index.js";
 import { createMapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -24,21 +24,23 @@ const gridArtifact = defineArtifact({
 
 const gridArtifactModule = {
   artifact: gridArtifact,
-  validate: (
-    value: unknown,
-    context?: Readonly<{ dimensions?: Readonly<{ width: number; height: number }> }>
-  ) => {
-    const issues = [...validateArtifactSchema(gridArtifact.schema, value)];
-    if (issues.length > 0) return issues;
-    appendArtifactTypedArrayIssues(
-      issues,
-      "values",
-      (value as { values: unknown }).values,
-      Uint8Array,
-      artifactCellCount(context)
-    );
-    return issues;
-  },
+  validate: defineArtifactValidator(
+    gridArtifact,
+    (
+      value: unknown,
+      context?: Readonly<{ dimensions?: Readonly<{ width: number; height: number }> }>
+    ) => {
+      const issues: Array<{ message: string }> = [];
+      appendArtifactTypedArrayIssues(
+        issues,
+        "values",
+        (value as { values: unknown }).values,
+        Uint8Array,
+        artifactCellCount(context)
+      );
+      return issues;
+    }
+  ),
 };
 
 function createSyntheticContext() {

@@ -1,14 +1,17 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-const LandmassRegionSlotByTileArtifactSchema = Type.Object(
+/** Runtime contract for the gameplay region slot assigned to every map tile. */
+export const Schema = Type.Object(
   {
     slotByTile: TypedArraySchemas.u8({
       description: "Per-tile landmass region slot (0=none, 1=west, 2=east), in tileIndex order.",
@@ -21,9 +24,6 @@ const LandmassRegionSlotByTileArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime contract for the gameplay region slot assigned to every map tile. */
-export const Schema = LandmassRegionSlotByTileArtifactSchema;
-
 /** Registers gameplay region slots derived from Morphology landmasses before placement. */
 export const artifact = defineArtifact({
   name: "landmassRegionSlotByTile",
@@ -31,21 +31,18 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = { message: string };
-
-function issue(message: string): ValidationIssue {
+function issue(message: string): ArtifactValidationIssue {
   return { message };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
 }
 
 /** Validate hook for the projection metadata artifact (topology locks). */
 
-function validatePayload(value: unknown, context?: ArtifactValidationContext): ValidationIssue[] {
-  if (!isRecord(value)) return [issue("landmassRegionSlotByTile artifact must be an object.")];
-  const issues: ValidationIssue[] = [];
+function validateLocal(
+  input: unknown,
+  context?: ArtifactValidationContext
+): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const slotByTile = value.slotByTile;
   if (
     !appendArtifactTypedArrayIssues(
@@ -73,12 +70,4 @@ function validatePayload(value: unknown, context?: ArtifactValidationContext): V
 }
 
 /** Requires a nonempty Uint8 tile map whose values stay in `{0, 1, 2}`. */
-export function validate(
-  value: unknown,
-  context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  return Object.freeze([
-    ...validateArtifactSchema(Schema, value),
-    ...validatePayload(value, context),
-  ]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

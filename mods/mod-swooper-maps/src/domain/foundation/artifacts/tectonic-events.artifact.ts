@@ -1,6 +1,9 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Value } from "typebox/value";
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 const EventSchema = Type.Object(
   {
@@ -21,56 +24,18 @@ const EventSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Closed structural contract for emitted tectonic events. */
 export const Schema = Type.Array(EventSchema);
 
+/** Tectonic events published by Foundation. */
 export type Artifact = Static<typeof Schema>;
 
+/** Registers Foundation's tectonic-events artifact. */
 export const artifact = defineArtifact({
   name: "foundationTectonicEvents",
   id: "artifact:foundation.tectonicEvents",
   schema: Schema,
 });
 
-function issue(message: string): { message: string } {
-  return { message };
-}
-
-export function validate(value: unknown): readonly { message: string }[] {
-  const issues = Array.from(Value.Errors(Schema, value), (error) =>
-    issue(
-      `${(error as { path?: string; instancePath?: string }).path ?? (error as { instancePath?: string }).instancePath ?? "/"} ${error.message}`
-    )
-  );
-  if (Array.isArray(value)) {
-    value.forEach((event, index) => {
-      if (!event || typeof event !== "object") return;
-      const record = event as Record<string, unknown>;
-      for (const [field, min, max] of [
-        ["eventType", 0, 255],
-        ["plateA", -1, 32767],
-        ["plateB", -1, 32767],
-        ["polarity", -127, 127],
-        ["intensityUplift", 0, 255],
-        ["intensityRift", 0, 255],
-        ["intensityShear", 0, 255],
-        ["intensityVolcanism", 0, 255],
-        ["intensityFracture", 0, 255],
-        ["driftU", -127, 127],
-        ["driftV", -127, 127],
-        ["originPlateId", -1, 32767],
-      ] as const) {
-        const value = record[field];
-        if (!Number.isInteger(value) || (value as number) < min || (value as number) > max) {
-          issues.push(issue(`events[${index}].${field} must be an integer in ${min}..${max}`));
-        }
-      }
-      if (
-        !Array.isArray(record.seedCells) ||
-        record.seedCells.some((cell) => !Number.isInteger(cell) || cell < 0)
-      ) {
-        issues.push(issue(`events[${index}].seedCells must be nonnegative integers`));
-      }
-    });
-  }
-  return Object.freeze(issues);
-}
+/** Validates the closed event schema and its declared numeric domains. */
+export const validate = defineArtifactValidator(artifact);

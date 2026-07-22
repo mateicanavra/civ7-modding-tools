@@ -5,9 +5,9 @@ import {
   createStage,
   createStep,
   defineArtifact,
+  defineArtifactValidator,
   defineStep,
   implementArtifactModules,
-  validateArtifactSchema,
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -70,7 +70,11 @@ describe("tag registry", () => {
     const varyingRequires = ["artifact:test.snapshot"];
     varyingRequires[Symbol.iterator] = () => {
       reads += 1;
-      return [reads === 1 ? "artifact:test.snapshot" : "artifact:test.forged"][Symbol.iterator]();
+      const dependencyByRead: Readonly<Record<number, string>> = {
+        1: "artifact:test.snapshot",
+      };
+      const dependency = dependencyByRead[reads] ?? "artifact:test.forged";
+      return [dependency][Symbol.iterator]();
     };
     const registry = new StepRegistry();
     registry.registerTag({ id: "artifact:test.snapshot", kind: "artifact" });
@@ -140,7 +144,7 @@ describe("tag registry", () => {
     const runtimes = implementArtifactModules([
       {
         artifact,
-        validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
+        validate: defineArtifactValidator(artifact),
       },
     ]);
 
@@ -221,7 +225,8 @@ describe("tag registry", () => {
     registry.registerTag({
       get id() {
         reads += 1;
-        return reads === 1 ? "effect:test.alpha" : "effect:test.beta";
+        const idByRead: Readonly<Record<number, string>> = { 1: "effect:test.alpha" };
+        return idByRead[reads] ?? "effect:test.beta";
       },
       kind: "effect",
     });
@@ -326,7 +331,7 @@ describe("tag registry", () => {
           provides: [
             {
               artifact,
-              validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
+              validate: defineArtifactValidator(artifact),
             },
           ],
         },

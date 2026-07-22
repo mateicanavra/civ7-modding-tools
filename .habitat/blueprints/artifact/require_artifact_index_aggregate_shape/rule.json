@@ -1,25 +1,25 @@
 {
   "schemaVersion": 2,
   "id": "require_artifact_index_aggregate_shape",
-  "title": "Require Artifact Index Aggregate Shape",
+  "title": "Require Artifact Directory Aggregate Shape",
   "placement": {
     "niche": "civ7/mapgen",
     "blueprint": "artifact",
-    "category": "contract"
+    "category": "structure"
   },
   "operation": {
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "artifacts/index.ts barrels that omit sibling artifact modules, duplicate module registration, rebuild parallel contract or validator maps, or own non-artifact wiring",
-  "why": "Artifact owner files pair one contract with one complete validator. The directory index registers every sibling module exactly once with defineArtifactCatalog and derives both producer modules and consumer handles from that single authority.",
-  "remediate": "Keep artifacts/index.ts limited to the contract-only defineArtifactCatalog import, sibling namespace imports from ./*.artifact.js, one catalog declaration, and the derived artifactModules = catalog.modules and artifacts = catalog.artifacts exports.",
-  "message": "Artifact directory indexes must stay aggregate-only.",
+  "forbids": "artifact source directories outside the positive artifact blueprint topology",
+  "why": "Every artifact directory owns one index and one or more artifact modules. Closing the physical directory shape makes membership auditable while the typed defineArtifactCatalog API owns registered module compatibility without a second source parser. Shared domain vocabulary belongs to the owning domain model rather than creating a second file kind beside artifacts.",
+  "remediate": "Keep only index.ts and one or more *.artifact.ts modules in each artifacts directory. Inline artifact-private schemas. Move genuinely shared domain schema primitives to the owning domain's model/schemas surface and import them from artifact owners.",
+  "message": "Artifact directories must match the positive artifact blueprint source topology.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/**/artifacts/index.ts"]
+      "patterns": ["mods/*/src/**/artifacts", "mods/*/src/**/artifacts/**"]
     }
   ],
   "supportFiles": {
@@ -27,10 +27,9 @@
   },
   "runner": {
     "name": "habitat",
-    "mode": "script",
-    "runtime": "node",
+    "mode": "structure",
     "files": {
-      "script": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs"
+      "structure": ".habitat/blueprints/artifact/require_artifact_index_aggregate_shape/structure.toml"
     }
   }
 }

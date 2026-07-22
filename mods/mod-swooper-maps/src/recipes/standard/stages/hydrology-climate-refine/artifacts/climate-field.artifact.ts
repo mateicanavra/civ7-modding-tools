@@ -1,11 +1,13 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -37,20 +39,16 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
 /**
  * Validates the final climate vintage against its closed schema, map cardinality,
  * and the narrower Civ7 rainfall range that a Uint8Array alone cannot express.
  */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(artifact.schema, value)];
-  if (!isRecord(value)) return Object.freeze(issues);
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
 
   const expectedSize = artifactCellCount(context);
   const rainfall = value.rainfall;
@@ -71,3 +69,6 @@ export function validate(
 
   return Object.freeze(issues);
 }
+
+/** Admits map-sized climate fields and the Civ7 rainfall range after structural admission. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

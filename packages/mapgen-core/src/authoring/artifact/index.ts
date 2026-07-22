@@ -18,9 +18,13 @@ export {
   implementArtifactModules,
 } from "./runtime.js";
 export { readValidatedArtifact } from "./validated-read.js";
-export type { ArtifactValidationContext, ArtifactValidationIssue } from "./validation.js";
+export type {
+  ArtifactValidationContext,
+  ArtifactValidationIssue,
+  ArtifactValidator,
+} from "./validation.js";
 export {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
-  validateArtifactSchema,
+  defineArtifactValidator,
 } from "./validation.js";

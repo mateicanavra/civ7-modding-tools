@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import {
   defineArtifact,
+  defineArtifactValidator,
   implementArtifactModules,
-  validateArtifactSchema,
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import {
@@ -40,11 +40,11 @@ const outputArtifact = defineArtifact({
 const testArtifactRuntimes = implementArtifactModules([
   {
     artifact: requiredInputArtifact,
-    validate: (value: unknown) => validateArtifactSchema(EvidenceSchema, value),
+    validate: defineArtifactValidator(requiredInputArtifact),
   },
   {
     artifact: outputArtifact,
-    validate: (value: unknown) => validateArtifactSchema(EvidenceSchema, value),
+    validate: defineArtifactValidator(outputArtifact),
   },
 ]);
 

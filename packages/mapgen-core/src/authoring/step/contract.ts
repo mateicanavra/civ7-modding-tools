@@ -1,7 +1,11 @@
 import type { DependencyTag } from "@mapgen/engine/index.js";
 import { type TObject, type TSchema, Type } from "typebox";
 import { type ArtifactContract, assertCanonicalArtifactContract } from "../artifact/contract.js";
-import type { ArtifactModule } from "../artifact/module.js";
+import {
+  type ArtifactModule,
+  type SchemaBoundArtifactModuleList,
+  snapshotArtifactModule as snapshotBoundArtifactModule,
+} from "../artifact/module.js";
 import { buildOpEnvelopeSchema } from "../op/envelope.js";
 import type { OpTypeBagOf } from "../op/types.js";
 import { applySchemaConventions } from "../schema.js";
@@ -140,6 +144,12 @@ type StepArtifactsDeclInput = Readonly<{
   provides?: readonly ArtifactModule[];
 }>;
 
+type ValidatedStepArtifactsDeclInput<Artifacts extends StepArtifactsDeclInput> = Artifacts extends {
+  provides: infer Modules extends readonly ArtifactModule[];
+}
+  ? Readonly<{ provides: Modules & SchemaBoundArtifactModuleList<Modules> }>
+  : unknown;
+
 function admitArtifactContract(stepId: string, value: unknown, location: string): ArtifactContract {
   try {
     assertCanonicalArtifactContract(value);
@@ -151,29 +161,7 @@ function admitArtifactContract(stepId: string, value: unknown, location: string)
 }
 
 function snapshotArtifactModule(stepId: string, value: unknown, index: number): ArtifactModule {
-  if (value === null || typeof value !== "object") {
-    throw new Error(`step "${stepId}" artifact module at index ${index} must be an object`);
-  }
-
-  const artifactDescriptor = Object.getOwnPropertyDescriptor(value, "artifact");
-  const validateDescriptor = Object.getOwnPropertyDescriptor(value, "validate");
-  if (!artifactDescriptor || !("value" in artifactDescriptor)) {
-    throw new Error(`step "${stepId}" artifact modules must own artifact data properties`);
-  }
-  if (!validateDescriptor || !("value" in validateDescriptor)) {
-    throw new Error(`step "${stepId}" artifact modules must own validate data properties`);
-  }
-
-  const artifact = admitArtifactContract(
-    stepId,
-    artifactDescriptor.value,
-    `artifact module at index ${index}`
-  );
-  const validate = validateDescriptor.value;
-  if (typeof validate !== "function") {
-    throw new Error(`step "${stepId}" artifact module at index ${index} is invalid`);
-  }
-  return Object.freeze({ artifact, validate });
+  return snapshotBoundArtifactModule(value, `step "${stepId}" artifact module at index ${index}`);
 }
 
 function snapshotArtifactModuleList(stepId: string, value: unknown): readonly ArtifactModule[] {
@@ -197,6 +185,31 @@ function snapshotArtifactModuleList(stepId: string, value: unknown): readonly Ar
   return Object.freeze(modules);
 }
 
+function snapshotRequiredArtifactList(stepId: string, value: unknown): readonly ArtifactContract[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`step "${stepId}" required artifacts must be an array`);
+  }
+
+  const ownKeys = Reflect.ownKeys(value);
+  if (ownKeys.length !== value.length + 1) {
+    throw new Error(`step "${stepId}" required artifacts must be a dense array without extra keys`);
+  }
+
+  const artifacts: ArtifactContract[] = [];
+  for (let index = 0; index < value.length; index += 1) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+    if (!descriptor || !("value" in descriptor) || !descriptor.enumerable) {
+      throw new Error(
+        `step "${stepId}" required artifact at index ${index} must be a data property`
+      );
+    }
+    artifacts.push(
+      admitArtifactContract(stepId, descriptor.value, `required artifact at index ${index}`)
+    );
+  }
+  return Object.freeze(artifacts);
+}
+
 function snapshotArtifactsDecl(
   stepId: string,
   input: StepArtifactsDeclInput | undefined
@@ -211,11 +224,7 @@ function snapshotArtifactsDecl(
     snapshot.requires =
       input.requires === undefined
         ? undefined
-        : Object.freeze(
-            input.requires.map((artifact, index) =>
-              admitArtifactContract(stepId, artifact, `required artifact at index ${index}`)
-            )
-          );
+        : snapshotRequiredArtifactList(stepId, input.requires);
   }
   if (Object.prototype.hasOwnProperty.call(input, "provides")) {
     snapshot.provides =
@@ -301,7 +310,9 @@ export function defineStep<
   const Id extends string,
   const Artifacts extends StepArtifactsDeclInput,
 >(
-  def: StepContractInput<Schema, Id, undefined, Artifacts> & { artifacts: Artifacts }
+  def: StepContractInput<Schema, Id, undefined, Artifacts> & {
+    artifacts: Artifacts & ValidatedStepArtifactsDeclInput<Artifacts>;
+  }
 ): StepContract<Schema, Id, undefined, StepArtifactsDeclFromInput<Artifacts>>;
 
 export function defineStep<
@@ -327,7 +338,7 @@ export function defineStep<
 >(
   def: StepContractInput<Schema, Id, Ops, Artifacts> & {
     ops: Ops & ValidatedStepOpsDeclInput<Ops>;
-    artifacts: Artifacts;
+    artifacts: Artifacts & ValidatedStepArtifactsDeclInput<Artifacts>;
   }
 ): StepContract<
   SchemaWithOps<Schema, StepOpsDeclNormalizedFromInput<Ops>>,

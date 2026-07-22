@@ -1,15 +1,16 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Nearest mesh cellIndex per tileIndex (canonical mesh to tile projection mapping). */
 export const Schema = TypedArraySchemas.i32({
-  shape: null,
+  cardinality: null,
   description: "Nearest mesh cellIndex per tileIndex (canonical mesh to tile projection mapping).",
 });
 
@@ -24,11 +25,11 @@ export const artifact = defineArtifact({
 });
 
 /** Requires a nonnegative Int32 mesh-cell index for every map tile. */
-export function validate(
+function validateLocal(
   value: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
+): readonly ArtifactValidationIssue[] {
+  const issues: ArtifactValidationIssue[] = [];
   if (
     appendArtifactTypedArrayIssues(
       issues,
@@ -47,3 +48,6 @@ export function validate(
   }
   return Object.freeze(issues);
 }
+
+/** Admits a nonnegative mesh-cell index for every tile after structural admission. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

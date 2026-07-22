@@ -5,6 +5,7 @@ export {
   BiomeSymbolSchema,
   biomeSymbolFromIndex,
 } from "./biome-symbol.schema.js";
+export { FeatureOccupancySchema } from "./feature-occupancy.schema.js";
 export {
   FEATURE_INTENT_KEYS,
   type FeatureIntentKey,

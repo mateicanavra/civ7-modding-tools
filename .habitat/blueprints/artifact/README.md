@@ -27,7 +27,7 @@ Current source-backed anchors:
 - `packages/mapgen-core/src/authoring/artifact/**`
 - `packages/mapgen-core/src/core/map-context.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/**/artifacts.ts`
-- `mods/mod-swooper-maps/src/**/artifacts/*.artifact.ts`
+- `mods/*/src/**/artifacts/*.artifact.ts`
 
 The initial bounded artifact-vocabulary sweep found no existing Habitat rule
 packet whose whole predicate could be admitted as live artifact blueprint
@@ -44,15 +44,28 @@ to every valid artifact value or contract.
 ## Admitted Rules
 
 - `require_artifact_file_shape`: source-shape contract for MapGen artifact
-  owner files. Any `mods/mod-swooper-maps/src/**/artifacts/*.artifact.ts`
+  owner files. Any `mods/*/src/**/artifacts/*.artifact.ts`
   file must expose the stable `Schema`, `artifact = defineArtifact(...)`, and
-  `validate(...)` owner surface, use generic assertion names only when those
-  exports are justified, and avoid semantic artifact alias exports.
-- `require_artifact_index_aggregate_shape`: aggregate-shape contract for
-  artifact directory indexes. Any
-  `mods/mod-swooper-maps/src/**/artifacts/index.ts` file must stay a narrow
-  aggregate over sibling artifact modules, call `defineArtifactCatalog` once,
-  and export its derived `artifactModules` and `artifacts` surfaces without
-  owning schemas, validation logic, or parallel contract/validator maps.
+  `validate = defineArtifactValidator(artifact, ...)` owner surface. Grit
+  requires that positive surface and forbids competing authorities. The typed
+  catalog then proves every registered module's exact Schema, artifact factory
+  provenance, validator binding, and closed runtime export surface. Core owns
+  structural TypeBox projection through the exact schema binding, while
+  artifact owners may add only local cardinality, relational, or domain checks
+  using Core's issue contract. Additional exported artifact or validator
+  authorities, complete-validator aliases, direct TypeBox projection, local
+  `ArtifactValidationIssue` / `ValidationIssue` declarations, semantic artifact
+  aliases are forbidden. Artifact-owner runtime imports are restricted to MapGen
+  contract/lib surfaces, static Civ7 types and policy, public domain contract,
+  schema, policy, and data surfaces. Artifact-private schemas remain inline;
+  genuinely shared domain vocabulary lives under the owning domain's
+  `model/schemas` surface without artifact validation or setup.
+- `require_artifact_index_aggregate_shape`: positive source topology for every
+  `mods/*/src/**/artifacts` directory. Each directory owns `index.ts`, one or
+  more `*.artifact.ts` modules, and no other file kind.
+  TypeScript's `defineArtifactCatalog` contract owns registered module admission.
+  The current-tree sibling/catalog census is part of this migration's proof;
+  durable sibling-to-catalog completeness belongs to the future first-class
+  `blueprint.toml` membership capability rather than another source parser.
 - `prohibit_realized_map_artifact_tags`: artifact ID namespace rule for
   realized-map projection claims.

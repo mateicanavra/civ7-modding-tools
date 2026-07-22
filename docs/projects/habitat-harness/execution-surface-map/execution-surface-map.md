@@ -4,16 +4,16 @@ Deterministic analytics for the Habitat authority execution surface. This report
 
 ## Sanity Assertions
 
-- Passed: 125 `rule.json`, 11 `structure.toml`, and `tools/habitat` `generate:schemas` were detected.
+- Passed: 125 `rule.json`, 12 `structure.toml`, and `tools/habitat` `generate:schemas` were detected.
 
 ## Surfaces By Kind
 
 | kind | count |
 | --- | --- |
-| check-script | 23 |
+| check-script | 22 |
 | rule-json | 125 |
 | pattern | 86 |
-| structure-spec | 11 |
+| structure-spec | 12 |
 | apply-pattern | 1 |
 | generate-script | 2 |
 | operation-note | 3 |
@@ -22,19 +22,19 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | nx-target | 103 |
 | nx-plugin | 2 |
 | nx-target-default | 11 |
-| habitat-cli-source | 112 |
+| habitat-cli-source | 113 |
 
 ## Surfaces By Role
 
 | role | count |
 | --- | --- |
-| command_check_executor | 23 |
+| command_check_executor | 22 |
 | runner_metadata | 125 |
 | policy_pattern | 87 |
-| structure_authority | 11 |
+| structure_authority | 12 |
 | operation_surface | 6 |
 | workspace_entrypoint | 295 |
-| toolkit_runner | 112 |
+| toolkit_runner | 113 |
 
 ## Execution Anatomy Roles
 
@@ -42,10 +42,10 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | --- | --- |
 | fixture-support | 7 |
 | adapter | 125 |
-| policy-predicate | 98 |
+| policy-predicate | 99 |
 | transient-dependency | 120 |
 | entrypoint | 297 |
-| runner-runtime | 112 |
+| runner-runtime | 113 |
 
 ## Fixture/Support Files
 
@@ -62,19 +62,19 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | direct-script | 5 |
 | package | 180 |
 | nx | 116 |
-| habitat | 112 |
+| habitat | 113 |
 
 ## Buckets
 
 | bucket | count |
 | --- | --- |
-| package_boundary_tie | 97 |
+| package_boundary_tie | 96 |
 | unknown_invocation | 250 |
 | mutation_surface | 128 |
 | nx_ordering_tie | 128 |
 | direct_script_invoked | 5 |
 | package_invoked | 296 |
-| habitat_invoked | 112 |
+| habitat_invoked | 113 |
 
 ## Top Cross-Boundary Ties By Fanout
 
@@ -86,8 +86,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | habitat-toolkit | @habitat/cli/service/model/check/index | 20 | 20 | tools/habitat/src/cli/commands/check.ts<br>tools/habitat/src/cli/commands/verify.ts<br>tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts |
 | habitat-toolkit | @habitat/cli/service/model/rules/index | 18 | 18 | tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-findings.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/check.ts |
 | workspace-tool | tsc -p test/tsconfig.json --noEmit | 18 | 18 | apps/docs/package.json#scripts.check:test<br>apps/playground/package.json#scripts.check:test<br>mods/mod-swooper-maps/project.json#targets.check:test |
-| workspace-tool | git | 17 | 17 | .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs<br>.habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts |
-| mod | mods/ | 15 | 15 | .habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md<br>.habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/pattern.md<br>.habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md |
+| workspace-tool | git | 16 | 16 | .habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts<br>.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/verify_runtime_stage_order_matches_contract_manifest/check.ts |
+| mod | mods/ | 16 | 16 | .habitat/blueprints/artifact/require_artifact_file_shape/pattern.md<br>.habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md<br>.habitat/blueprints/recipe-stage/require_recipe_stage_authoring_file_shape/pattern.md |
 | relative | ./types.js | 14 | 25 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md<br>.habitat/civ7/resources/map-policy/rules/ensure_map_policy_dependency_independence/pattern.md<br>tools/habitat/src/resources/command/fake.ts |
 | workspace-tool | node -e "" | 13 | 13 | apps/docs/project.json#targets.build<br>apps/mapgen-studio/project.json#targets.build<br>mods/mod-civ7-intelligence-bridge/project.json#targets.build |
 | workspace-tool | tsc -p tsconfig.json --noEmit | 11 | 11 | mods/mod-swooper-civ-dacia/package.json#scripts.typecheck<br>packages/mapgen-diagnostics/package.json#scripts.typecheck<br>packages/mapgen-metrics/package.json#scripts.typecheck |
@@ -95,8 +95,8 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | workspace-tool | grit | 10 | 10 | .habitat/civ7/mapgen/studio/run-in-game/rules/habitat-studio-run-runtime-authority-closure/check.mjs<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/command.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/fix-preview.ts |
 | workspace-tool | tsc -p tsconfig.json --noEmit --composite false --incremental false | 10 | 10 | apps/docs/package.json#scripts.typecheck<br>apps/playground/package.json#scripts.typecheck<br>packages/civ7-control-orpc/project.json#targets.typecheck |
 | relative | ./output.js | 9 | 18 | tools/habitat/src/resources/command/index.ts<br>tools/habitat/src/resources/command/runner.ts<br>tools/habitat/src/resources/rule-diagnostics/providers/grit/apply-dry-run.ts |
-| relative | ./ | 9 | 9 | .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs<br>.habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md |
 | relative | ./request.js | 8 | 16 | tools/habitat/src/resources/command/index.ts<br>tools/habitat/src/resources/command/observation.ts<br>tools/habitat/src/resources/command/result.ts |
+| relative | ./ | 8 | 8 | .habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md<br>.habitat/blueprints/domain-operation/prohibit_root_config_facade_imports_in_domain_ops/pattern.md<br>.habitat/blueprints/domain-operation/require_domain_operation_contract_file_shape/pattern.md |
 | habitat-toolkit | @habitat/cli/service/model/workspace/index | 8 | 8 | tools/habitat/src/providers/nx/graph.ts<br>tools/habitat/src/providers/nx/index.ts<br>tools/habitat/src/providers/nx/inventory.ts |
 | workspace-tool | grit<br>language js(typescript) | 8 | 8 | .habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/pattern.md<br>.habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md<br>.habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md |
 | mod | mods/mod-swooper-maps/src/ | 8 | 8 | .habitat/blueprints/domain/require_public_domain_surfaces_in_recipes_and_maps/pattern.md<br>.habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonics/pattern.md<br>.habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/pattern.md |
@@ -126,10 +126,10 @@ Deterministic analytics for the Habitat authority execution surface. This report
 | --- | --- | --- |
 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs | check-script | ../../../_support/execution/command-check/mapgen-static-check-lib.mjs; node:path; ../../../_support/execution/command-check/mapgen-static-check-lib.mjs |
 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json | rule-json |  |
-| .habitat/blueprints/artifact/require_artifact_file_shape/pattern.md | pattern | >; ./artifacts/start-assignment.artifact.js; mods/mod-swooper-maps/src/. |
+| .habitat/blueprints/artifact/require_artifact_file_shape/pattern.md | pattern | >; ./artifacts/start-assignment.artifact.js; ./model/ |
 | .habitat/blueprints/artifact/require_artifact_file_shape/rule.json | rule-json |  |
-| .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/check.mjs | check-script | "git" ["rev-parse", "--show-toplevel"] {<br>  encoding: "utf8",<br>}; node:child_process; node:fs |
 | .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/rule.json | rule-json |  |
+| .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/structure.toml | structure-spec |  |
 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md | pattern | ../../../../tags.js; ../../hydrology-hydrography/artifacts.js; mods/mod-swooper-maps/src/recipes/standard/stages/ |
 | .habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/rule.json | rule-json |  |
 | .habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md | pattern | mods/mod-swooper-maps/src/domain/.; mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts; mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts |

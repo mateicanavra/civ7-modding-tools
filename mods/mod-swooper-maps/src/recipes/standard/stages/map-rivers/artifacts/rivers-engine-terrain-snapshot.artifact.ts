@@ -1,11 +1,13 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime schema for the final engine terrain snapshot captured after river modeling. */
@@ -44,12 +46,12 @@ export const artifact = defineArtifact({
 });
 
 /** Validates the post-river engine snapshot's dimensions and typed tile surfaces. */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") return Object.freeze(issues);
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const candidate = value as Record<string, unknown>;
   const cellCount = artifactCellCount(context);
   appendArtifactTypedArrayIssues(issues, "landMask", candidate.landMask, Uint8Array, cellCount);
@@ -57,3 +59,6 @@ export function validate(
   appendArtifactTypedArrayIssues(issues, "elevation", candidate.elevation, Int16Array, cellCount);
   return Object.freeze(issues);
 }
+
+/** Admits map-sized typed terrain readback captured after Civ7 river projection. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

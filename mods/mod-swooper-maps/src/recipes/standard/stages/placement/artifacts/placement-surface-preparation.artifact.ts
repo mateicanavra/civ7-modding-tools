@@ -1,11 +1,13 @@
 import {
+  type ArtifactValidationIssue,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Surface preparation evidence (`artifact:placement.surfacePreparation`). One artifact per file by repo convention. */
-const PlacementSurfacePreparationSchema = Type.Object(
+/** Runtime schema for the prepared engine surface and lake-preservation evidence. */
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -39,9 +41,6 @@ const PlacementSurfacePreparationSchema = Type.Object(
   }
 );
 
-/** Runtime schema for the prepared engine surface and lake-preservation evidence. */
-export const Schema = PlacementSurfacePreparationSchema;
-
 /**
  * Registers evidence for the prepared engine-surface boundary that orders the
  * downstream resource, start, and discovery chain after terrain maintenance
@@ -53,18 +52,8 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = { message: string };
-
-function issue(message: string): ValidationIssue {
+function issue(message: string): ArtifactValidationIssue {
   return { message };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function isCount(value: unknown): value is number {
-  return Number.isInteger(value) && (value as number) >= 0;
 }
 
 /**
@@ -73,12 +62,10 @@ function isCount(value: unknown): value is number {
  * lake drift counters must stay within the accepted lake corpus.
  */
 
-function validatePayload(value: unknown): ValidationIssue[] {
-  if (!isRecord(value)) return [issue("placementSurfacePreparation artifact must be an object.")];
-  const issues: ValidationIssue[] = [];
-  const width = Number(value.width);
-  const height = Number(value.height);
-  const size = width * height;
+function validateLocal(input: unknown): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
+  const size = value.width * value.height;
   if (!Number.isSafeInteger(size) || size <= 0) {
     return [
       issue(
@@ -86,15 +73,8 @@ function validatePayload(value: unknown): ValidationIssue[] {
       ),
     ];
   }
-  const slotCounts = isRecord(value.slotCounts) ? value.slotCounts : null;
-  if (
-    !slotCounts ||
-    !isCount(slotCounts.none) ||
-    !isCount(slotCounts.west) ||
-    !isCount(slotCounts.east)
-  ) {
-    issues.push(issue("placementSurfacePreparation.slotCounts must carry none/west/east counts."));
-  } else if (slotCounts.none + slotCounts.west + slotCounts.east !== size) {
+  const { slotCounts } = value;
+  if (slotCounts.none + slotCounts.west + slotCounts.east !== size) {
     issues.push(
       issue(
         `slotCounts ${slotCounts.none}+${slotCounts.west}+${slotCounts.east} != map size ${size}.`
@@ -104,9 +84,7 @@ function validatePayload(value: unknown): ValidationIssue[] {
   const accepted = value.acceptedLakeTileCount;
   for (const key of ["finalLakeWaterDriftCount", "finalLakeClassificationDriftCount"] as const) {
     const drift = value[key];
-    if (!isCount(drift)) {
-      issues.push(issue(`placementSurfacePreparation.${key} ${String(drift)} must be a count.`));
-    } else if (isCount(accepted) && drift > accepted) {
+    if (drift > accepted) {
       issues.push(issue(`${key} ${drift} exceeds acceptedLakeTileCount ${String(accepted)}.`));
     }
   }
@@ -117,6 +95,4 @@ function validatePayload(value: unknown): ValidationIssue[] {
  * Requires slot counts to total the grid size and lake drift counts not to
  * exceed the accepted lake corpus.
  */
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

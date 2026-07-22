@@ -10,7 +10,7 @@ const ComputeHotspotEventsContract = defineOp({
     {
       mesh: FoundationMeshSchema,
       mantleForcing: FoundationMantleForcingSchema,
-      eraPlateId: TypedArraySchemas.i16({ shape: null }),
+      eraPlateId: TypedArraySchemas.i16({ cardinality: null }),
     },
     { additionalProperties: false }
   ),

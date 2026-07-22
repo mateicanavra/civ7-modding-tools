@@ -1,9 +1,9 @@
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
-import type { Artifact as FoundationCrust } from "../../../artifacts/crust.artifact.js";
 import type { Artifact as FoundationMesh } from "../../../artifacts/mesh.artifact.js";
 import type { Artifact as TectonicEvents } from "../../../artifacts/tectonic-events.artifact.js";
 import type { Artifact as FoundationTectonicSegments } from "../../../artifacts/tectonic-segments.artifact.js";
 import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
+import type { Crust as FoundationCrust } from "../../../model/schemas/crust.schema.js";
 
 type TectonicEventRecord = TectonicEvents[number];
 

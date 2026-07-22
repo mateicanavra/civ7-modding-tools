@@ -1,18 +1,20 @@
 import {
   type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
  * Runtime contract for deterministic lake intent, map dimensions, and the sink evidence that
  * explains how many planned tiles came from hydrography minima.
  */
-export const HydrologyLakePlanArtifactSchema = Type.Object(
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -35,9 +37,6 @@ export const HydrologyLakePlanArtifactSchema = Type.Object(
   }
 );
 
-/** Canonical schema entrypoint for publishing and validating Hydrology lake intent. */
-export const Schema = HydrologyLakePlanArtifactSchema;
-
 /**
  * Registers deterministic lake intent and its drainage evidence before map-hydrology stamps
  * static water. Projection outcomes cannot retroactively redefine this Hydrology plan.
@@ -49,12 +48,12 @@ export const artifact = defineArtifact({
 });
 
 /** Validates lake-plan structure, mask kind, and map-sized cardinality when known. */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") return Object.freeze(issues);
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const candidate = value as Record<string, unknown>;
   appendArtifactTypedArrayIssues(
     issues,
@@ -65,3 +64,6 @@ export function validate(
   );
   return Object.freeze(issues);
 }
+
+/** Admits the map-sized typed lake-intent mask after Core validates the plan shape. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

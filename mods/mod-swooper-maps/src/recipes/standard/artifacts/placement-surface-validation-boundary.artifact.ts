@@ -1,9 +1,11 @@
 import {
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 const EngineTerrainFactsSnapshotSchema = Type.Object(
@@ -30,7 +32,11 @@ const EngineTerrainFactsSnapshotSchema = Type.Object(
   }
 );
 
-const PlacementSurfaceValidationBoundaryArtifactSchema = Type.Object(
+/**
+ * Runtime contract for the three engine-fact snapshots bracketing terrain validation and final
+ * maintenance, allowing placement-surface drift to be localized to one boundary.
+ */
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -46,12 +52,6 @@ const PlacementSurfaceValidationBoundaryArtifactSchema = Type.Object(
 );
 
 /**
- * Runtime contract for the three engine-fact snapshots bracketing terrain validation and final
- * maintenance, allowing placement-surface drift to be localized to one boundary.
- */
-export const Schema = PlacementSurfaceValidationBoundaryArtifactSchema;
-
-/**
  * Registers engine facts before validation, after validation, and after final
  * maintenance so terrain/water/lake/area drift can be localized.
  */
@@ -61,40 +61,18 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = { message: string };
-
-function issue(message: string): ValidationIssue {
-  return { message };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function validatePayload(value: unknown): ValidationIssue[] {
-  if (!isRecord(value)) {
-    return [issue("placementSurfaceValidationBoundary artifact must be an object.")];
-  }
-  const issues: ValidationIssue[] = [];
-  const width = Number(value.width);
-  const height = Number(value.height);
-  const product = width * height;
-  const size = Number.isSafeInteger(product) && product > 0 ? product : undefined;
+function validateLocal(input: unknown): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
+  const product = value.width * value.height;
+  const size = Number.isSafeInteger(product) ? product : undefined;
   if (size === undefined) {
-    issues.push(
-      issue(
-        `placementSurfaceValidationBoundary has invalid dimensions ${String(value.width)}x${String(value.height)}.`
-      )
-    );
+    issues.push({
+      message: `placementSurfaceValidationBoundary dimensions ${value.width}x${value.height} exceed safe artifact cardinality.`,
+    });
   }
   for (const key of ["beforeValidate", "afterValidate", "afterMaintenance"] as const) {
-    const snapshot: Record<string, unknown> | null = isRecord(value[key])
-      ? (value[key] as Record<string, unknown>)
-      : null;
-    if (!snapshot) {
-      issues.push(issue(`placementSurfaceValidationBoundary.${key} must be an object.`));
-      continue;
-    }
+    const snapshot = value[key];
     appendArtifactTypedArrayIssues(issues, `${key}.terrain`, snapshot.terrain, Int32Array, size);
     appendArtifactTypedArrayIssues(
       issues,
@@ -109,7 +87,5 @@ function validatePayload(value: unknown): ValidationIssue[] {
   return issues;
 }
 
-/** Requires all three boundary snapshots and map-sized typed surfaces in each. */
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
-}
+/** Binds every boundary snapshot's typed engine surfaces to the payload dimensions. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

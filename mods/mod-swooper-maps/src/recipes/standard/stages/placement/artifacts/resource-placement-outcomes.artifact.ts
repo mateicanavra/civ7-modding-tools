@@ -1,7 +1,9 @@
 import {
+  type ArtifactValidationIssue,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Resource stamping outcomes (`artifact:placement.resourcePlacementOutcomes`). One artifact per file by repo convention. */
@@ -137,7 +139,8 @@ const ResourceReconciliationSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
-const ResourcePlacementOutcomesArtifactSchema = Type.Object(
+/** Runtime schema reconciling authoritative resource intents with Civ7 stamping outcomes. */
+export const Schema = Type.Object(
   {
     summary: ResourcePlacementSummarySchema,
     reconciliation: ResourceReconciliationSummarySchema,
@@ -150,9 +153,6 @@ const ResourcePlacementOutcomesArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema reconciling authoritative resource intents with Civ7 stamping outcomes. */
-export const Schema = ResourcePlacementOutcomesArtifactSchema;
-
 /**
  * Registers typed reconciliation between authoritative resource intents and
  * Civ7 stamping outcomes without reselecting resource type or fallback plots.
@@ -163,36 +163,24 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-function validatePayload(value: unknown): { message: string }[] {
-  if (typeof value !== "object" || value === null) {
-    return [{ message: "resourcePlacementOutcomes artifact must be an object." }];
-  }
-  const issues: { message: string }[] = [];
-  const artifact = value as {
-    summary?: { plannedCount?: number; placedCount?: number; mismatchCount?: number };
-    reconciliation?: { plannedCount?: number; placedCount?: number; rejectedCount?: number };
-    outcomes?: unknown[];
-  };
-  const outcomes = Array.isArray(artifact.outcomes) ? artifact.outcomes : [];
-  if (artifact.summary?.plannedCount !== outcomes.length) {
+function validateLocal(input: unknown): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
+  if (value.summary.plannedCount !== value.outcomes.length) {
     issues.push({
-      message: `summary.plannedCount ${String(artifact.summary?.plannedCount)} != outcomes.length ${outcomes.length}.`,
+      message: `summary.plannedCount ${value.summary.plannedCount} != outcomes.length ${value.outcomes.length}.`,
     });
   }
-  if ((artifact.summary?.mismatchCount ?? 0) !== 0) {
+  if (value.summary.mismatchCount !== 0) {
     issues.push({
       message: "mismatch outcomes are fail-hard and must never be published in the artifact.",
     });
   }
-  const reconciliation = artifact.reconciliation;
-  if (
-    reconciliation &&
-    (reconciliation.placedCount ?? 0) + (reconciliation.rejectedCount ?? 0) !==
-      (reconciliation.plannedCount ?? 0)
-  ) {
+  const { reconciliation } = value;
+  if (reconciliation.placedCount + reconciliation.rejectedCount !== reconciliation.plannedCount) {
     issues.push({ message: "reconciliation placed+rejected must equal planned." });
   }
-  if (reconciliation && artifact.summary?.placedCount !== reconciliation.placedCount) {
+  if (value.summary.placedCount !== reconciliation.placedCount) {
     issues.push({ message: "summary.placedCount != reconciliation.placedCount." });
   }
   return issues;
@@ -202,6 +190,4 @@ function validatePayload(value: unknown): { message: string }[] {
  * Requires one outcome per intent, zero publishable mismatches, coherent
  * placed/rejected totals, and agreement between summary and reconciliation.
  */
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

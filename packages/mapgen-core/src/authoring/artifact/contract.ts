@@ -6,6 +6,29 @@ const ARTIFACT_NAME_RE = /^[a-z][a-zA-Z0-9]*$/;
 const RESERVED_ARTIFACT_NAMES = new Set(["__proto__", "prototype", "constructor"]);
 const ARTIFACT_ID_PREFIX = "artifact:";
 const ARTIFACT_ID_SUFFIX_RE = /@v\d+/;
+const canonicalArtifacts = new WeakSet<object>();
+
+function freezeSchemaGraph(schema: TSchema): void {
+  const visited = new WeakSet<object>();
+  const freeze = (value: unknown): void => {
+    if (
+      value === null ||
+      (typeof value !== "object" && typeof value !== "function") ||
+      visited.has(value)
+    ) {
+      return;
+    }
+
+    visited.add(value);
+    for (const key of Reflect.ownKeys(value)) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (descriptor && "value" in descriptor) freeze(descriptor.value);
+    }
+    Object.freeze(value);
+  };
+
+  freeze(schema);
+}
 
 export type ArtifactContract<
   Name extends string = string,
@@ -57,12 +80,7 @@ function assertValidArtifactId(id: string): void {
   }
 }
 
-/**
- * Asserts the canonical runtime shape and semantic identity of an artifact contract.
- * Admission inspects only own data descriptors, so hostile accessors cannot execute while a
- * consumer decides whether to retain the identity.
- */
-export function assertCanonicalArtifactContract(value: unknown): asserts value is ArtifactContract {
+function assertArtifactContractShape(value: unknown): asserts value is ArtifactContract {
   if (value === null || typeof value !== "object" || !Object.isFrozen(value)) {
     throw new Error("artifact contract must be a frozen object");
   }
@@ -101,13 +119,29 @@ export function assertCanonicalArtifactContract(value: unknown): asserts value i
   assertValidArtifactId(id.value);
 }
 
+/**
+ * Asserts the canonical runtime shape, factory provenance, and semantic identity of an artifact.
+ * Admission inspects only own data descriptors, so hostile accessors cannot execute while a
+ * consumer decides whether to retain the identity.
+ */
+export function assertCanonicalArtifactContract(value: unknown): asserts value is ArtifactContract {
+  assertArtifactContractShape(value);
+  if (!canonicalArtifacts.has(value)) {
+    throw new Error("artifact contract must be created by defineArtifact");
+  }
+}
+
 export function defineArtifact<
   const Name extends string,
   const Id extends string,
   const Schema extends TSchema,
 >(def: { name: Name; id: Id; schema: Schema }): ArtifactContract<Name, Id, Schema> {
+  assertValidArtifactName(def.name);
+  assertValidArtifactId(def.id);
+  applySchemaConventions(def.schema, `artifact:${def.id}`);
+  freezeSchemaGraph(def.schema);
   const artifact = Object.freeze({ name: def.name, id: def.id, schema: def.schema });
-  assertCanonicalArtifactContract(artifact);
-  applySchemaConventions(artifact.schema, `artifact:${artifact.id}`);
+  assertArtifactContractShape(artifact);
+  canonicalArtifacts.add(artifact);
   return artifact;
 }

@@ -1,68 +1,58 @@
-import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineArtifact, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { Value } from "typebox/value";
+import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  appendArtifactTypedArrayIssues,
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+  TypedArraySchemas,
+} from "@swooper/mapgen-core/authoring/contracts";
 
+/** Structural contract for current per-cell tectonic signals. */
 export const Schema = Type.Object(
   {
-    boundaryType: TypedArraySchemas.u8({ shape: null }),
-    upliftPotential: TypedArraySchemas.u8({ shape: null }),
-    riftPotential: TypedArraySchemas.u8({ shape: null }),
-    shearStress: TypedArraySchemas.u8({ shape: null }),
-    volcanism: TypedArraySchemas.u8({ shape: null }),
-    fracture: TypedArraySchemas.u8({ shape: null }),
-    cumulativeUplift: TypedArraySchemas.u8({ shape: null }),
+    boundaryType: TypedArraySchemas.u8({ cardinality: null }),
+    upliftPotential: TypedArraySchemas.u8({ cardinality: null }),
+    riftPotential: TypedArraySchemas.u8({ cardinality: null }),
+    shearStress: TypedArraySchemas.u8({ cardinality: null }),
+    volcanism: TypedArraySchemas.u8({ cardinality: null }),
+    fracture: TypedArraySchemas.u8({ cardinality: null }),
+    cumulativeUplift: TypedArraySchemas.u8({ cardinality: null }),
   },
   { additionalProperties: false }
 );
 
+/** Current tectonic signal fields published by Foundation. */
 export type Artifact = Static<typeof Schema>;
 
+/** Registers Foundation's current-tectonics artifact. */
 export const artifact = defineArtifact({
   name: "foundationTectonics",
   id: "artifact:foundation.tectonics",
   schema: Schema,
 });
 
-function issue(message: string): { message: string } {
-  return { message };
-}
-
-function typedArrayIssue(value: unknown, key: string, length: number): { message: string } | null {
-  if (!(value instanceof Uint8Array)) return issue(`${key} must be Uint8Array`);
-  if (value.length !== length) return issue(`${key} length must match current tectonics arrays`);
-  return null;
-}
-
-export function validate(value: unknown): readonly { message: string }[] {
-  const issues = Array.from(Value.Errors(Schema, value), (error) =>
-    issue(
-      `${(error as { path?: string; instancePath?: string }).path ?? (error as { instancePath?: string }).instancePath ?? "/"} ${error.message}`
-    )
+function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
+  const tectonics = value as Artifact;
+  const arrays = Object.values(tectonics).filter(
+    (candidate): candidate is Uint8Array => candidate instanceof Uint8Array
   );
-  if (value && typeof value === "object") {
-    const tectonics = value as Record<string, unknown>;
-    const arrays = [
-      tectonics.boundaryType,
-      tectonics.upliftPotential,
-      tectonics.riftPotential,
-      tectonics.shearStress,
-      tectonics.volcanism,
-      tectonics.fracture,
-      tectonics.cumulativeUplift,
-    ].filter((candidate): candidate is Uint8Array => candidate instanceof Uint8Array);
-    const length = arrays[0]?.length ?? 0;
-    if (length <= 0) issues.push(issue("current tectonics arrays must be nonempty"));
-    for (const candidate of [
-      typedArrayIssue(tectonics.boundaryType, "boundaryType", length),
-      typedArrayIssue(tectonics.upliftPotential, "upliftPotential", length),
-      typedArrayIssue(tectonics.riftPotential, "riftPotential", length),
-      typedArrayIssue(tectonics.shearStress, "shearStress", length),
-      typedArrayIssue(tectonics.volcanism, "volcanism", length),
-      typedArrayIssue(tectonics.fracture, "fracture", length),
-      typedArrayIssue(tectonics.cumulativeUplift, "cumulativeUplift", length),
-    ]) {
-      if (candidate) issues.push(candidate);
-    }
+  const length = arrays[0]?.length ?? 0;
+  const issues: ArtifactValidationIssue[] = [];
+
+  if (length <= 0) issues.push({ message: "current tectonics arrays must be nonempty" });
+  for (const key of [
+    "boundaryType",
+    "upliftPotential",
+    "riftPotential",
+    "shearStress",
+    "volcanism",
+    "fracture",
+    "cumulativeUplift",
+  ] as const) {
+    appendArtifactTypedArrayIssues(issues, key, tectonics[key], Uint8Array, length);
   }
-  return Object.freeze(issues);
+  return issues;
 }
+
+/** Validates exact signal constructors, nonempty cardinality, and parallel lengths. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

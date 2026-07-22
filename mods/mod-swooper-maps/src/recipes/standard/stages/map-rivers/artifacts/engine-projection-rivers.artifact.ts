@@ -1,14 +1,17 @@
-import type { ArtifactValidationContext } from "@swooper/mapgen-core/authoring/contracts";
 import {
+  type ArtifactValidationContext,
+  type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
   TypedArraySchemas,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-const MapRiversEngineProjectionArtifactSchema = Type.Object(
+/** Runtime schema for Civ7 river readback, mismatch evidence, and capability disposition. */
+export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -95,9 +98,6 @@ const MapRiversEngineProjectionArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime schema for Civ7 river readback, mismatch evidence, and capability disposition. */
-export const Schema = MapRiversEngineProjectionArtifactSchema;
-
 /**
  * River readback is separate from lake readback because Civ7 models rivers
  * after elevation, while lakes are static water terrain before elevation.
@@ -112,12 +112,12 @@ export const artifact = defineArtifact({
  * Validates the closed river readback report, including typed masks, counts,
  * mismatch evidence, and the explicit minor-river capability disposition.
  */
-export function validate(
-  value: unknown,
+function validateLocal(
+  input: unknown,
   context?: ArtifactValidationContext
-): readonly { message: string }[] {
-  const issues = [...validateArtifactSchema(Schema, value)];
-  if (value === null || typeof value !== "object") return Object.freeze(issues);
+): readonly ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   const candidate = value as Record<string, unknown>;
   const cellCount = artifactCellCount(context);
   const uint8Fields = [
@@ -141,3 +141,6 @@ export function validate(
   );
   return Object.freeze(issues);
 }
+
+/** Admits map-sized typed river readback masks and engine river identities. */
+export const validate = defineArtifactValidator(artifact, validateLocal);

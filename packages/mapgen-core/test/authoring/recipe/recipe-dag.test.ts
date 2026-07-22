@@ -4,8 +4,8 @@ import {
   createStage,
   createStep,
   defineArtifact,
+  defineArtifactValidator,
   defineStep,
-  validateArtifactSchema,
 } from "@mapgen/authoring/index.js";
 
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
@@ -61,7 +61,7 @@ function step(input: {
   ];
   const artifactModules = providedArtifacts.map((artifact) => ({
     artifact,
-    validate: (value: unknown) => validateArtifactSchema(artifact.schema, value),
+    validate: defineArtifactValidator(artifact),
   }));
   const contract = defineStep({
     id: input.id,

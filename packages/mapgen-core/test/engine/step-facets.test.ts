@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import {
   defineArtifact,
+  defineArtifactValidator,
   implementArtifactModules,
-  validateArtifactSchema,
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { PipelineAbortError } from "@mapgen/engine/errors.js";
@@ -30,7 +30,7 @@ const facetedStepArtifact = defineArtifact({
 const facetedStepArtifacts = implementArtifactModules([
   {
     artifact: facetedStepArtifact,
-    validate: (value: unknown) => validateArtifactSchema(facetedStepArtifact.schema, value),
+    validate: defineArtifactValidator(facetedStepArtifact),
   },
 ]);
 const TEST_ENV = {

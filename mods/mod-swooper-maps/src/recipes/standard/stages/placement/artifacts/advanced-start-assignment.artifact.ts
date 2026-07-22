@@ -1,11 +1,13 @@
 import {
+  type ArtifactValidationIssue,
   defineArtifact,
+  defineArtifactValidator,
+  type Static,
   Type,
-  validateArtifactSchema,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Advanced-start evidence (`artifact:placement.advancedStartAssignment`). One artifact per file by repo convention. */
-const AdvancedStartAssignmentArtifactSchema = Type.Object(
+/** Runtime shape for the two Civ7 advanced-start completion flags. */
+export const Schema = Type.Object(
   {
     fertilityRecalculated: Type.Boolean(),
     advancedStartsAssigned: Type.Boolean(),
@@ -17,9 +19,6 @@ const AdvancedStartAssignmentArtifactSchema = Type.Object(
   }
 );
 
-/** Runtime shape for the two Civ7 advanced-start completion flags. */
-export const Schema = AdvancedStartAssignmentArtifactSchema;
-
 /** Registers terminal evidence whose validator requires both advanced-start passes to complete. */
 export const artifact = defineArtifact({
   name: "advancedStartAssignment",
@@ -27,23 +26,15 @@ export const artifact = defineArtifact({
   schema: Schema,
 });
 
-type ValidationIssue = { message: string };
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
 /**
  * Validate hook for the advanced-start assignment evidence artifact
  * (placement-realignment S6): the step publishes only after both engine
  * passes ran, so anything other than two `true` flags is a publish-site bug.
  */
 
-function validatePayload(value: unknown): ValidationIssue[] {
-  if (!isRecord(value)) {
-    return [{ message: "advancedStartAssignment artifact must be an object." }];
-  }
-  const issues: ValidationIssue[] = [];
+function validateLocal(input: unknown): ArtifactValidationIssue[] {
+  const value = input as Static<typeof Schema>;
+  const issues: ArtifactValidationIssue[] = [];
   if (value.fertilityRecalculated !== true) {
     issues.push({ message: "fertilityRecalculated must be true at publish time." });
   }
@@ -54,6 +45,4 @@ function validatePayload(value: unknown): ValidationIssue[] {
 }
 
 /** Rejects publication unless fertility recalculation and advanced-start assignment are true. */
-export function validate(value: unknown): readonly { message: string }[] {
-  return Object.freeze([...validateArtifactSchema(Schema, value), ...validatePayload(value)]);
-}
+export const validate = defineArtifactValidator(artifact, validateLocal);

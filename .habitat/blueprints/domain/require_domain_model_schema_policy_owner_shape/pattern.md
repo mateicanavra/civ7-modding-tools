@@ -20,6 +20,10 @@ or {
     $source <: r"^[\"']?.*(?:@mapgen/domain/[^/]+(?:/index\.js)?|/ops/|/recipes/|/stages/|@civ7/map-policy|@civ7/types|base-standard|adapter).*[\"']?$"
   },
   import_statement(source=$source) where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/schemas/.*\.ts$",
+    $source <: r"^[\"']?typebox/value[\"']?$"
+  },
+  import_statement(source=$source) where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/policy/.*\.ts$",
     $source <: r"^[\"']?.*(?:@mapgen/domain/[^/]+(?:/index\.js)?|/ops/|/recipes/|/stages/|@civ7/types|base-standard|adapter).*[\"']?$"
   },
@@ -31,6 +35,29 @@ or {
   },
   `createOp($args)` where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/(?:schemas|policy)/.*\.ts$"
+  },
+  or {
+    `defineArtifact($args)`,
+    `defineArtifactValidator($args)`,
+    `appendArtifactTypedArrayIssues($args)`,
+    `artifactCellCount($args)`
+  } where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/schemas/.*\.ts$"
+  },
+  `export function $name($params) { $body }` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/schemas/.*\.ts$",
+    $name <: r"^validate.*"
+  },
+  or {
+    `export const $name = $value`,
+    `export let $name = $value`,
+    `export var $name = $value`
+  } where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/schemas/.*\.ts$",
+    $name <: r"^validate.*"
+  },
+  `Value.Errors($args)` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/schemas/.*\.ts$"
   },
   `export const $name = Type.Object($args)` where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/model/schemas/.*\.ts$",
@@ -106,6 +133,25 @@ export const PlateSchema = Type.Object({ contract: ComputeCrustContract });
 import { RESOURCE_CLASSES } from "@civ7/map-policy";
 
 export const ResourceClassSchema = RESOURCE_CLASSES;
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/model/schemas/crust.schema.ts
+import {
+  type ArtifactValidationIssue,
+  appendArtifactTypedArrayIssues,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
+
+export const CrustSchema = Type.Object({});
+export function validateCrust(value: unknown): readonly ArtifactValidationIssue[] {
+  const issues: ArtifactValidationIssue[] = [];
+  appendArtifactTypedArrayIssues(issues, "maturity", value, Float32Array);
+  return issues;
+}
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/model/schemas/direct-typebox.schema.ts
+import { Value } from "typebox/value";
+
+export const validateDirectly = (value: unknown) => Value.Errors({}, value);
 
 // @filename: mods/mod-swooper-maps/src/domain/placement/model/schemas/placement-inputs.ts
 import placement from "@mapgen/domain/placement";

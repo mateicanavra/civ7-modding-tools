@@ -1,6 +1,9 @@
-import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Value } from "typebox/value";
+import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/authoring/contracts";
+import {
+  defineArtifact,
+  defineArtifactValidator,
+  Type,
+} from "@swooper/mapgen-core/authoring/contracts";
 
 const PlateTopologyNodeSchema = Type.Object(
   {
@@ -21,6 +24,7 @@ const PlateTopologyNodeSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Structural contract for index-addressed plate topology. */
 export const Schema = Type.Object(
   {
     plateCount: Type.Integer({ minimum: 1, description: "Number of plates." }),
@@ -31,69 +35,33 @@ export const Schema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Plate topology state published by Foundation. */
 export type Artifact = Static<typeof Schema>;
 
+/** Registers Foundation's plate-topology artifact. */
 export const artifact = defineArtifact({
   name: "foundationPlateTopology",
   id: "artifact:foundation.plateTopology",
   schema: Schema,
 });
 
-function issue(message: string): { message: string } {
-  return { message };
-}
+function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
+  const topology = value as Artifact;
+  const issues: ArtifactValidationIssue[] = [];
 
-export function validate(value: unknown): readonly { message: string }[] {
-  const issues = Array.from(Value.Errors(Schema, value), (error) =>
-    issue(
-      `${(error as { path?: string; instancePath?: string }).path ?? (error as { instancePath?: string }).instancePath ?? "/"} ${error.message}`
-    )
-  );
-
-  if (value && typeof value === "object") {
-    const topology = value as Record<string, unknown>;
-    const plateCount = Number.isInteger(topology.plateCount) ? (topology.plateCount as number) : 0;
-    if (plateCount <= 0) issues.push(issue("plateCount must be positive"));
-    if (!Array.isArray(topology.plates) || topology.plates.length !== plateCount) {
-      issues.push(issue("plates length must match plateCount"));
-    } else {
-      topology.plates.forEach((plate, index) => {
-        if (!plate || typeof plate !== "object") {
-          issues.push(issue(`plates[${index}] must be an object`));
-          return;
-        }
-        const record = plate as Record<string, unknown>;
-        if (!Number.isInteger(record.id) || record.id !== index) {
-          issues.push(issue(`plates[${index}].id must match its index`));
-        }
-        if (!Number.isInteger(record.area) || (record.area as number) < 0) {
-          issues.push(issue(`plates[${index}].area must be a nonnegative integer`));
-        }
-        const centroid = record.centroid as Record<string, unknown> | undefined;
-        if (
-          !centroid ||
-          typeof centroid.x !== "number" ||
-          !Number.isFinite(centroid.x) ||
-          typeof centroid.y !== "number" ||
-          !Number.isFinite(centroid.y)
-        ) {
-          issues.push(issue(`plates[${index}].centroid must contain finite x/y`));
-        }
-        if (!Array.isArray(record.neighbors)) {
-          issues.push(issue(`plates[${index}].neighbors must be an array`));
-        } else if (
-          record.neighbors.some(
-            (neighbor) =>
-              !Number.isInteger(neighbor) ||
-              (neighbor as number) < 0 ||
-              (neighbor as number) >= plateCount
-          )
-        ) {
-          issues.push(issue(`plates[${index}].neighbors contains an invalid plate id`));
-        }
-      });
-    }
+  if (topology.plates.length !== topology.plateCount) {
+    issues.push({ message: "plates length must match plateCount" });
   }
-
-  return Object.freeze(issues);
+  topology.plates.forEach((plate, index) => {
+    if (plate.id !== index) {
+      issues.push({ message: `plates[${index}].id must match its index` });
+    }
+    if (plate.neighbors.some((neighbor) => neighbor >= topology.plateCount)) {
+      issues.push({ message: `plates[${index}].neighbors contains an invalid plate id` });
+    }
+  });
+  return issues;
 }
+
+/** Validates topology cardinality, index-aligned identities, and bounded neighbor references. */
+export const validate = defineArtifactValidator(artifact, validateLocal);
