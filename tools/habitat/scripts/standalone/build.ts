@@ -6,11 +6,7 @@ import { NodeContext, NodeRuntime } from "@effect/platform-node";
 import { Cause, Console, Data, Effect, Schema } from "effect";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import {
-  type StandaloneCompilerAsset,
-  standaloneCompilerAssetForHost,
-  standaloneCompilerManifest,
-} from "./compiler-manifest.js";
+import { type StandaloneCompilerAsset, standaloneCompilerManifest } from "./compiler-manifest.js";
 
 const repoRoot = path.resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
 const outDir = path.join(repoRoot, "tools", "habitat", "dist", "standalone");
@@ -32,24 +28,11 @@ const excludedBundleOwners: readonly ExcludedBundleOwner[] = [
   { id: "effect-orpc", bunStorePrefix: "effect-orpc@", modulePathPrefix: "effect-orpc/" },
 ];
 
-interface StandaloneBuildTarget {
-  readonly id: StandaloneCompilerAsset["id"];
-  readonly bunTarget: string;
-  readonly filename: string;
-}
-
-const targets: readonly StandaloneBuildTarget[] = [
-  {
-    id: "darwin-arm64",
-    bunTarget: "bun-darwin-arm64",
-    filename: "habitat-sdk-darwin-arm64",
-  },
-  {
-    id: "linux-x64-baseline",
-    bunTarget: "bun-linux-x64-baseline",
-    filename: "habitat-sdk-linux-x64-baseline",
-  },
-];
+const target = {
+  id: "darwin-arm64",
+  bunTarget: "bun-darwin-arm64",
+  filename: "habitat-sdk-darwin-arm64",
+} as const;
 
 const MetafileSchema = Type.Object(
   { inputs: Type.Record(Type.String(), Type.Unknown()) },
@@ -62,10 +45,18 @@ const CompilerFeatureDataSchema = Schema.Struct({
   is_canary: Schema.Literal(true),
 });
 const CompilerFeatureDataJsonSchema = Schema.parseJson(CompilerFeatureDataSchema);
+const DistributionEvidenceAssetProvenanceSchema = Type.Object(
+  {
+    githubAssetId: Type.Integer({ minimum: 1 }),
+    filename: Type.String({ minLength: 1 }),
+    sha256: Type.String({ minLength: 64, maxLength: 64 }),
+  },
+  { additionalProperties: false }
+);
 
 const ProvenanceSchema = Type.Object(
   {
-    schemaVersion: Type.Literal(1),
+    schemaVersion: Type.Literal(2),
     source: Type.Object(
       {
         commit: Type.String({ minLength: 40, maxLength: 40 }),
@@ -79,26 +70,41 @@ const ProvenanceSchema = Type.Object(
         name: Type.Literal(standaloneCompilerManifest.name),
         version: Type.Literal(standaloneCompilerManifest.version),
         revision: Type.Literal(standaloneCompilerManifest.revision),
-        source: Type.Object(
+        upstream: Type.Object(
           {
-            repository: Type.Literal(standaloneCompilerManifest.source.repository),
-            releaseId: Type.Literal(standaloneCompilerManifest.source.releaseId),
-            tag: Type.Literal(standaloneCompilerManifest.source.tag),
+            repository: Type.Literal(standaloneCompilerManifest.upstream.repository),
+            releaseId: Type.Literal(standaloneCompilerManifest.upstream.releaseId),
+            tag: Type.Literal(standaloneCompilerManifest.upstream.tag),
+            capturedAt: Type.Literal(standaloneCompilerManifest.upstream.capturedAt),
+            observedReleaseName: Type.Literal(
+              standaloneCompilerManifest.upstream.observedReleaseName
+            ),
+            observedReleaseNameTrustedForIdentity: Type.Literal(false),
           },
           { additionalProperties: false }
         ),
-        assets: Type.Array(
-          Type.Object(
-            {
-              id: Type.Union([Type.Literal("darwin-arm64"), Type.Literal("linux-x64-baseline")]),
-              githubAssetId: Type.Integer({ minimum: 1 }),
-              archiveFilename: Type.String({ minLength: 1 }),
-              archiveSha256: Type.String({ minLength: 64, maxLength: 64 }),
-              executableSha256: Type.String({ minLength: 64, maxLength: 64 }),
-            },
-            { additionalProperties: false }
-          ),
-          { minItems: 2, maxItems: 2 }
+        distribution: Type.Object(
+          {
+            repository: Type.Literal(standaloneCompilerManifest.distribution.repository),
+            releaseId: Type.Literal(standaloneCompilerManifest.distribution.releaseId),
+            tag: Type.Literal(standaloneCompilerManifest.distribution.tag),
+            releaseUrl: Type.Literal(standaloneCompilerManifest.distribution.releaseUrl),
+            immutable: Type.Literal(true),
+            provenanceAsset: DistributionEvidenceAssetProvenanceSchema,
+            checksumsAsset: DistributionEvidenceAssetProvenanceSchema,
+          },
+          { additionalProperties: false }
+        ),
+        asset: Type.Object(
+          {
+            id: Type.Literal("darwin-arm64"),
+            upstreamGithubAssetId: Type.Integer({ minimum: 1 }),
+            distributionGithubAssetId: Type.Integer({ minimum: 1 }),
+            archiveFilename: Type.String({ minLength: 1 }),
+            archiveSha256: Type.String({ minLength: 64, maxLength: 64 }),
+            executableSha256: Type.String({ minLength: 64, maxLength: 64 }),
+          },
+          { additionalProperties: false }
         ),
       },
       { additionalProperties: false }
@@ -124,19 +130,16 @@ const ProvenanceSchema = Type.Object(
       },
       { additionalProperties: false }
     ),
-    artifacts: Type.Array(
-      Type.Object(
-        {
-          target: Type.String({ minLength: 1 }),
-          bunTarget: Type.String({ minLength: 1 }),
-          filename: Type.String({ minLength: 1 }),
-          sha256: Type.String({ minLength: 64, maxLength: 64 }),
-          bytes: Type.Integer({ minimum: 1 }),
-          bundledInputCount: Type.Integer({ minimum: 1 }),
-        },
-        { additionalProperties: false }
-      ),
-      { minItems: 2, maxItems: 2 }
+    artifact: Type.Object(
+      {
+        target: Type.Literal("darwin-arm64"),
+        bunTarget: Type.Literal("bun-darwin-arm64"),
+        filename: Type.Literal("habitat-sdk-darwin-arm64"),
+        sha256: Type.String({ minLength: 64, maxLength: 64 }),
+        bytes: Type.Integer({ minimum: 1 }),
+        bundledInputCount: Type.Integer({ minimum: 1 }),
+      },
+      { additionalProperties: false }
     ),
   },
   { additionalProperties: false }
@@ -164,19 +167,13 @@ const build = Effect.fn("habitat.standalone.build")(function* () {
     )
   );
   yield* fileSystem.makeDirectory(outDir, { recursive: true });
-  const artifacts = yield* Effect.forEach(
-    targets,
-    (target) =>
-      buildTarget(
-        target,
-        fileSystem,
-        compiler.executablePath,
-        toolchainCompilerPath(compiler.toolchainRoot, compilerAssetById(target.id))
-      ),
-    { concurrency: 1 }
+  const artifact = yield* buildTarget(
+    fileSystem,
+    compiler.executablePath,
+    toolchainCompilerPath(compiler.toolchainRoot, standaloneCompilerManifest.asset)
   );
   const provenance = Value.Parse(ProvenanceSchema, {
-    schemaVersion: 1,
+    schemaVersion: 2,
     source,
     bun: compiler.provenance,
     boundary: {
@@ -187,14 +184,14 @@ const build = Effect.fn("habitat.standalone.build")(function* () {
       bundledGritProvider: false,
       excludedInputs: excludedBundleOwners.map(({ id }) => id),
     },
-    artifacts,
+    artifact,
   } satisfies Provenance);
   const provenancePath = path.join(outDir, "provenance.json");
   const renderedProvenance = `${yield* Schema.encode(JsonUnknownSchema)(provenance)}\n`;
   yield* fileSystem.writeFileString(provenancePath, renderedProvenance);
   const provenanceBytes = yield* fileSystem.readFile(provenancePath);
   const checksumLines = [
-    ...artifacts.map((artifact) => `${artifact.sha256}  ${artifact.filename}`),
+    `${artifact.sha256}  ${artifact.filename}`,
     `${sha256(provenanceBytes)}  provenance.json`,
   ];
   yield* fileSystem.writeFileString(
@@ -205,7 +202,6 @@ const build = Effect.fn("habitat.standalone.build")(function* () {
 });
 
 const buildTarget = Effect.fn("habitat.standalone.build.target")(function* (
-  target: StandaloneBuildTarget,
   fileSystem: FileSystem.FileSystem,
   compilerPath: string,
   targetCompilerPath: string
@@ -272,10 +268,7 @@ const buildTarget = Effect.fn("habitat.standalone.build.target")(function* (
 const compilerIdentity = Effect.fn("habitat.standalone.build.compiler")(function* (
   fileSystem: FileSystem.FileSystem
 ) {
-  const asset = yield* Effect.try({
-    try: () => standaloneCompilerAssetForHost(process.platform, process.arch),
-    catch: (cause) => new StandaloneBuildFailure({ message: String(cause) }),
-  });
+  const asset = standaloneCompilerManifest.asset;
   const toolchainRoot = yield* Effect.fromNullable(
     process.env.HABITAT_STANDALONE_BUN_TOOLCHAIN
   ).pipe(
@@ -288,9 +281,7 @@ const compilerIdentity = Effect.fn("habitat.standalone.build.compiler")(function
     ),
     Effect.map((candidate) => path.resolve(candidate))
   );
-  yield* Effect.forEach(standaloneCompilerManifest.assets, (pinnedAsset) =>
-    assertCompilerAsset(fileSystem, toolchainRoot, pinnedAsset)
-  );
+  yield* assertCompilerAsset(fileSystem, toolchainRoot, standaloneCompilerManifest.asset);
   const executablePath = toolchainCompilerPath(toolchainRoot, asset);
   const executableBytes = yield* fileSystem.readFile(executablePath);
   const executableSha256 = sha256(executableBytes);
@@ -321,6 +312,8 @@ const compilerIdentity = Effect.fn("habitat.standalone.build.compiler")(function
         })
     )
   );
+  const name = yield* commandText(executablePath, ["--revision"]);
+  yield* expectCompilerIdentity(name, standaloneCompilerManifest.name, "compiler name");
   return {
     executablePath,
     toolchainRoot,
@@ -328,14 +321,16 @@ const compilerIdentity = Effect.fn("habitat.standalone.build.compiler")(function
       name: standaloneCompilerManifest.name,
       version: featureData.version,
       revision: featureData.revision,
-      source: standaloneCompilerManifest.source,
-      assets: standaloneCompilerManifest.assets.map((pinnedAsset) => ({
-        id: pinnedAsset.id,
-        githubAssetId: pinnedAsset.githubAssetId,
-        archiveFilename: pinnedAsset.archiveFilename,
-        archiveSha256: pinnedAsset.archiveSha256,
-        executableSha256: pinnedAsset.executableSha256,
-      })),
+      upstream: standaloneCompilerManifest.upstream,
+      distribution: standaloneCompilerManifest.distribution,
+      asset: {
+        id: standaloneCompilerManifest.asset.id,
+        upstreamGithubAssetId: standaloneCompilerManifest.asset.upstreamGithubAssetId,
+        distributionGithubAssetId: standaloneCompilerManifest.asset.distributionGithubAssetId,
+        archiveFilename: standaloneCompilerManifest.asset.archiveFilename,
+        archiveSha256: standaloneCompilerManifest.asset.archiveSha256,
+        executableSha256: standaloneCompilerManifest.asset.executableSha256,
+      },
     },
   };
 });
@@ -353,12 +348,6 @@ const assertCompilerAsset = Effect.fn("habitat.standalone.build.compiler.asset")
     `${asset.id} compiler executable SHA-256`
   );
 });
-
-function compilerAssetById(id: StandaloneCompilerAsset["id"]): StandaloneCompilerAsset {
-  const asset = standaloneCompilerManifest.assets.find((candidate) => candidate.id === id);
-  if (!asset) throw new Error(`No pinned compiler asset for ${id}.`);
-  return asset;
-}
 
 function toolchainCompilerPath(toolchainRoot: string, asset: StandaloneCompilerAsset): string {
   return path.join(toolchainRoot, "bin", asset.id, "bun");

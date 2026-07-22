@@ -34,6 +34,16 @@ behavior with real, short-lived child-process fixtures.
 - Reuse structure path-kind, directory-entry, and completed-walk observations
   within one `runStructureRulesEffect` invocation. Never retain observations
   across independent runs.
+- Provision the Bun compiler archive only from an immutable owner distribution,
+  while preserving rolling upstream release and asset observations as
+  non-authoritative provenance. Carry both identities into the standalone
+  artifact record and prove embedded native feature identity on the Darwin
+  arm64 owner and consumer host.
+- Publish an SDK version release only after a draft contains the complete
+  already-proven asset set with matching server-reported digests and sizes and
+  the remote tag remains bound to the candidate source commit. A retry verifies
+  an exact immutable release or refuses the existing state; it never mutates an
+  already-published release.
 - Keep git-state capture, unavailable-error projection, and timeout
   transformation internal to the live command provider. Do not publish a test
   helper API.
@@ -41,11 +51,16 @@ behavior with real, short-lived child-process fixtures.
 ## Ownership And Boundaries
 
 - `tools/habitat` owns the command process, CLI lifecycle, Grit provider,
-  structure traversal, tests, and standalone release behavior.
+  structure traversal, compiler distribution manifest, tests, and standalone
+  release behavior.
 - A destination repository owns its `.habitat` rules and provider installation;
   it does not own or patch Habitat process lifecycle behavior.
 - The standalone executable remains check-only. It does not acquire mutation,
   daemon, supervisor, or destination-script authority.
+- The Darwin arm64 executable release is a temporary bridge for the current
+  Magic consumer and developer host, not a platform-neutral SDK or a claim of
+  multi-platform release support. Its replacement boundary is a
+  platform-neutral Habitat SDK/Node package.
 - The POSIX process-group identifier is a sampled numeric identity. An observed
   `ESRCH` is absorbing for that release attempt, but the current API cannot
   eliminate disappearance or identifier reuse between separate observations.
@@ -79,6 +94,5 @@ behavior with real, short-lived child-process fixtures.
   exact-root Grit batching, current pinned-native execution, and traversal reuse.
 - The active OpenSpec change validates strictly and the candidate diff has no
   whitespace errors.
-- Fixed-artifact build, moved-binary acceptance, probe publication, and release
-  publication remain explicit owner gates after this source candidate is
-  accepted.
+- Fixed-artifact build, Darwin moved-binary acceptance, and release publication
+  remain explicit owner gates after this source candidate is accepted.

@@ -101,9 +101,11 @@
     "generate:schemas": "bun run ../../.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/generate.ts",
     "provision:standalone:compiler": "bun --no-env-file --no-config scripts/standalone/provision-compiler.ts",
     "release:standalone:artifacts": "bun --no-env-file --no-config scripts/standalone/build.ts --require-clean",
+    "release:standalone:candidate": "bun run release:standalone:artifacts && bun run test:standalone:release && bun run test:standalone",
     "test": "vitest run --project habitat --testTimeout=30000",
     "test:standalone": "vitest run --project habitat test/standalone/standalone-binary.test.ts --testTimeout=120000",
     "test:standalone:behavior": "vitest run --project habitat test/commands test/lib/command-*.test.ts test/lib/service-context.test.ts test/lib/grit-provider.test.ts test/lib/grit-provider-current-tree-execution.test.ts test/lib/structure-check.test.ts test/lib/vendor-providers.test.ts --testTimeout=30000",
+    "test:standalone:release": "vitest run --project habitat test/standalone/compiler-distribution.test.ts test/standalone/release-publication.test.ts --no-file-parallelism --testTimeout=30000",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "oclif": {

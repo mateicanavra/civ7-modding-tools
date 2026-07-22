@@ -107,6 +107,57 @@ already observed while walking. A separate evaluator or rule-run invocation
 creates a fresh cache, so no filesystem fact outlives the check that observed
 it.
 
+## Compiler Distribution And Publication State
+
+The compiler manifest separates three facts that the earlier schema collapsed:
+
+1. Bun's embedded name, version, and full source revision own compiler identity.
+2. The rolling `oven-sh/bun` canary release and its original asset IDs are
+   captured upstream observations. Its observed release name is explicitly not
+   trusted for identity because it names a different revision.
+3. The byte source is immutable release
+   `habitat-bun-compiler-5b98630ac045622ce9ddfe0b53a2c4f3a91f26c4` in
+   `mateicanavra/civ7-modding-tools`. Provisioning uses only that release's API
+   asset URL and verifies both archive and executable digests.
+
+Artifact provenance schema version 2 carries the upstream release observation,
+immutable distribution identity, and both asset IDs. The moved-binary proof
+uses `BUN_BE_BUN=1`, Bun's native version and revision outputs, and internal
+feature data on Darwin arm64 to require the exact name, version, full revision,
+and canary flag before behavior acceptance. The release target builds one
+candidate, fingerprints its executable and metadata, runs distribution and
+publication fixtures serially, and makes moved-binary acceptance the final
+candidate-owning command before upload. No proof step rebuilds or overwrites
+the candidate.
+
+This Darwin arm64 distribution is a temporary bridge for the current Magic
+consumer and developer host. It does not advertise platform portability or
+define the long-term SDK shape. Its replacement boundary is a platform-neutral
+Habitat SDK/Node package.
+
+SDK publication has one state transition. For an absent release, the owner
+workflow creates a draft without assets, attaches the three already-proven
+files, and admits the draft only when GitHub reports the exact local SHA-256 and
+byte size for every attachment and `SHA256SUMS` covers every payload exactly
+once. The workflow then publishes, requires GitHub's release record to be
+immutable, and downloads the assets for checksum verification. If the tag
+already has an exact immutable release, the workflow performs only metadata,
+downloaded-byte, and source-binding verification. Any draft, mutable
+publication, duplicate tag record, extra/missing asset, or byte mismatch
+refuses the retry. Published releases are never edited or uploaded with
+clobber semantics.
+
+Publication receives the proven source commit explicitly from the workflow.
+Before draft creation and again immediately before publication, that commit
+must equal the candidate provenance commit, checked-out `HEAD`, checked-out tag
+commit, and a fresh commit resolution for the remote repository tag. The same
+binding brackets verification of an existing immutable release. GitHub and
+compiler downloads have explicit command deadlines rather than inheriting the
+workflow's multi-hour job ceiling. Publication wraps GitHub CLI operations in a
+portable Perl-backed TERM/KILL watchdog available on the Darwin and Linux owner
+runners, avoiding a GNU `timeout` dependency and any expansion of the temporary
+platform lane.
+
 ## Verification Model
 
 - Pure command formatting, result projection, output bounds, and fake-layer
@@ -121,8 +172,32 @@ it.
   and matching peers without mutation.
 - Instrumented filesystem fixtures prove traversal reuse and per-invocation
   freshness.
+- Manifest tests prove upstream observation and immutable distribution
+  separation. Release-script fixtures prove draft-before-attachment ordering,
+  prepublication digest/size admission, source binding, verification-only
+  immutable retries, bounded GitHub commands without GNU `timeout`, and refusal
+  of draft or mutable retries.
+- The moved Darwin artifact reports the selected compiler feature identity
+  before its existing behavior, provenance, and checksum proofs run. Its final
+  fingerprint assertion proves those checks leave the accepted candidate
+  untouched. A structural release-lane test makes moved acceptance last and
+  forbids a post-proof rebuild.
 
 ## Risks And Residuals
+
+- A privileged writer can still move a not-yet-immutable tag in the interval
+  between the final remote resolution and draft publication. The second source
+  check minimizes but cannot eliminate that micro-race; repository writer
+  policy owns the interval, and immutable-release tag locking owns the state
+  after publication.
+- GitHub's immutable-release enablement endpoint requires repository
+  administration-read authority, which the contents-scoped publication token
+  does not have. The workflow therefore cannot perform that settings preflight;
+  it fails closed if the published release record is not immutable. The owner
+  repository's immutable-release policy remains a release prerequisite.
+- The temporary Darwin bridge deliberately does not prove or advertise
+  platform-neutral distribution. That portability belongs to the replacement
+  Habitat SDK/Node package boundary.
 
 - Process-group identity can disappear or be reused between separate POSIX
   observations. Only a stable OS handle or supervisor can close that residual.

@@ -106,3 +106,96 @@ across independent invocations.
 - **WHEN** structure evaluation is invoked again
 - **THEN** it starts with an empty traversal cache
 - **AND** performs the reads needed for that invocation.
+
+### Requirement: Standalone compiler bytes have immutable distribution authority
+
+Habitat SHALL identify its pinned Bun compiler from embedded feature data and a
+verified full source revision, SHALL provision its archives only from an
+immutable owner release, and SHALL retain rolling upstream observations as
+non-authoritative provenance.
+
+#### Scenario: Rolling upstream name disagrees with selected revision
+
+- **WHEN** the captured upstream canary release name identifies a different
+  revision from the selected compiler
+- **THEN** the observed name remains provenance evidence only
+- **AND** embedded name, version, canary state, and full verified source revision
+  own compiler identity.
+
+#### Scenario: The Darwin compiler is provisioned
+
+- **WHEN** the owner build provisions the Darwin arm64 compiler archive
+- **THEN** it downloads only the exact immutable owner-release asset URL
+- **AND** verifies the archive digest, extracted executable digest, and host
+  compiler feature identity before use.
+
+#### Scenario: The Darwin Habitat artifact is admitted
+
+- **WHEN** the moved binary runs on its target host
+- **THEN** `BUN_BE_BUN=1` native version and revision output plus internal
+  feature data report the exact pinned name, version, full revision, and canary
+  state
+- **AND** provenance records the upstream release, immutable distribution, and
+  both upstream and distribution asset IDs.
+
+### Requirement: Standalone distribution is a temporary Darwin bridge
+
+Habitat SHALL publish only the Darwin arm64 executable required by the current
+Magic consumer and developer host through this temporary bridge, SHALL NOT
+advertise the bridge as platform-neutral support, and SHALL assign that future
+boundary to a platform-neutral Habitat SDK/Node package.
+
+#### Scenario: The bridge candidate is built
+
+- **WHEN** the owner build creates the standalone release candidate
+- **THEN** the candidate contains the Darwin executable, `provenance.json`, and
+  `SHA256SUMS` exactly
+- **AND** the release lane builds that candidate exactly once before moved-binary,
+  distribution, and publication acceptance
+- **AND** moved-binary acceptance is the final candidate-owning command before
+  upload
+- **AND** no acceptance step rebuilds or overwrites the candidate before upload
+- **AND** no Linux compiler or executable asset is provisioned, built, proved,
+  or published.
+
+### Requirement: SDK publication is attach-before-immutable and retry safe
+
+Habitat SHALL publish an SDK version only after one draft contains the complete
+already-proven asset set and SHALL never mutate an already-published release.
+
+#### Scenario: A version release does not exist
+
+- **WHEN** the proven tag enters publication
+- **THEN** the expected source commit equals candidate provenance, checked-out
+  source, checked-out tag, and a fresh remote-tag resolution before draft
+  creation
+- **AND** the workflow creates a draft without assets, attaches the exact
+  candidate inventory, and confirms each server-reported digest and byte size
+  against the local candidate before publication
+- **AND** `SHA256SUMS` covers every non-checksum payload exactly once
+- **AND** source binding is checked again immediately before publication
+- **AND** after publication it requires an immutable release record and verifies
+  the downloaded bytes.
+
+#### Scenario: Publication commands exceed their deadline
+
+- **WHEN** a GitHub CLI operation does not complete within the owner-configured
+  publication deadline
+- **THEN** the publication attempt terminates that operation and fails closed
+- **AND** the deadline works on the temporary Darwin lane without requiring GNU
+  `timeout` or a second platform release lane.
+
+#### Scenario: An exact immutable version release already exists
+
+- **WHEN** publication retries for the same tag
+- **THEN** the workflow verifies source binding, server-reported asset metadata,
+  and downloaded bytes for that exact release without an edit, upload, or create
+  operation.
+
+#### Scenario: A nonterminal or mutable release already exists
+
+- **WHEN** the tag resolves to a draft, mutable publication, duplicate record,
+  wrong inventory, mismatched server metadata or bytes, or a different source
+  commit
+- **THEN** publication refuses the state
+- **AND** does not repair, clobber, or otherwise mutate the release.

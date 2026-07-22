@@ -45,11 +45,23 @@
   1 of 1; installed pinned-native current-tree proof passes 13 of 13.
 - [x] 4.6 `bunx openspec validate deep-habitat-effect-command-timeout-test-drain --strict`
 - [x] 4.7 `git diff --check`
+- [x] 4.8 Separate verified Bun feature identity, rolling upstream evidence,
+  immutable distribution identity, and dual asset provenance in schema version
+  2.
+- [x] 4.9 Make SDK publication draft-first and fail closed on every retry state
+  except an exact already-immutable release.
+- [x] 4.10 Pass focused compiler-manifest and release-publication behavior,
+  source/tool/test typecheck and lint, strict OpenSpec validation, and final
+  diff hygiene after the distribution repair.
+- [x] 4.11 Keep publication deadlines portable to stock Darwin without GNU
+  `timeout`, and make one candidate flow from build through serial distribution,
+  publication, and final moved-binary proof to upload without a post-proof
+  rebuild.
 
 ## 5. Owner Release Gates
 
-- [ ] 5.1 Build fixed standalone assets with the pinned compiler and pass the
-  moved-binary acceptance suite outside the checkout.
-- [ ] 5.2 Push and qualify a nonpublishing `habitat-sdk-probe-*` tag.
-- [ ] 5.3 Publish the next `habitat-sdk-v*` tag only after the probe matrix is
-  green.
+- [ ] 5.1 Provision the pinned Darwin compiler from the immutable owner
+  distribution, build the fixed Darwin standalone asset, and pass moved-binary
+  feature and behavior acceptance outside the checkout.
+- [ ] 5.2 Publish the next `habitat-sdk-v*` tag only after the Darwin candidate
+  is natively proven.

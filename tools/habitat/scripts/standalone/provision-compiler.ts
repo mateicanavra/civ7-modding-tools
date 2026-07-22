@@ -3,11 +3,7 @@ import path from "node:path";
 import { Command, FileSystem } from "@effect/platform";
 import { NodeContext, NodeRuntime } from "@effect/platform-node";
 import { Cause, Console, Data, Effect, Match, Schema } from "effect";
-import {
-  type StandaloneCompilerAsset,
-  standaloneCompilerAssetForHost,
-  standaloneCompilerManifest,
-} from "./compiler-manifest.js";
+import { type StandaloneCompilerAsset, standaloneCompilerManifest } from "./compiler-manifest.js";
 
 class CompilerProvisionFailure extends Data.TaggedError("CompilerProvisionFailure")<{
   readonly message: string;
@@ -22,17 +18,11 @@ const CompilerFeatureDataJsonSchema = Schema.parseJson(CompilerFeatureDataSchema
 
 const provisionCompiler = Effect.fn("habitat.standalone.compiler.provision")(function* () {
   const fileSystem = yield* FileSystem.FileSystem;
-  const hostAsset = yield* Effect.try({
-    try: () => standaloneCompilerAssetForHost(process.platform, process.arch),
-    catch: (cause) => new CompilerProvisionFailure({ message: String(cause) }),
-  });
+  yield* assertDarwinArm64Host();
+  const asset = standaloneCompilerManifest.asset;
   const outputRoot = yield* parseOutputRoot();
-  yield* Effect.forEach(
-    standaloneCompilerManifest.assets,
-    (asset) => provisionCompilerAsset(fileSystem, outputRoot, asset),
-    { concurrency: 1 }
-  );
-  const compilerPath = provisionedCompilerPath(outputRoot, hostAsset);
+  yield* provisionCompilerAsset(fileSystem, outputRoot, asset);
+  const compilerPath = provisionedCompilerPath(outputRoot, asset);
   const featureData = yield* compilerFeatureData(compilerPath);
   yield* assertEqual(
     featureData.revision,
@@ -44,6 +34,8 @@ const provisionCompiler = Effect.fn("habitat.standalone.compiler.provision")(fun
     standaloneCompilerManifest.version,
     "compiler feature version"
   );
+  const compilerName = yield* commandText(compilerPath, ["--revision"]);
+  yield* assertEqual(compilerName, standaloneCompilerManifest.name, "compiler name");
   yield* Effect.succeed(featureData.is_canary).pipe(
     Effect.filterOrFail(
       (isCanary) => isCanary,
@@ -51,6 +43,18 @@ const provisionCompiler = Effect.fn("habitat.standalone.compiler.provision")(fun
     )
   );
   return outputRoot;
+});
+
+const assertDarwinArm64Host = Effect.fn("habitat.standalone.compiler.host")(function* () {
+  yield* Effect.succeed(process.platform === "darwin" && process.arch === "arm64").pipe(
+    Effect.filterOrFail(
+      (supported) => supported,
+      () =>
+        new CompilerProvisionFailure({
+          message: `The temporary Habitat compiler bridge requires darwin-arm64; observed ${process.platform}-${process.arch}.`,
+        })
+    )
+  );
 });
 
 const provisionCompilerAsset = Effect.fn("habitat.standalone.compiler.provisionAsset")(function* (
@@ -71,6 +75,10 @@ const provisionCompilerAsset = Effect.fn("habitat.standalone.compiler.provisionA
     [
       "--fail",
       "--location",
+      "--connect-timeout",
+      "15",
+      "--max-time",
+      "120",
       "--silent",
       "--show-error",
       "--header",
@@ -79,7 +87,7 @@ const provisionCompilerAsset = Effect.fn("habitat.standalone.compiler.provisionA
       "X-GitHub-Api-Version: 2022-11-28",
       "--output",
       archivePath,
-      asset.url,
+      asset.distributionUrl,
     ],
     `download ${asset.archiveFilename}`
   );

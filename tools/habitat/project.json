@@ -161,13 +161,32 @@
         "cwd": "tools/habitat"
       }
     },
+    "test:standalone:release": {
+      "command": "bun run test:standalone:release",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/scripts/standalone/**",
+        "{projectRoot}/test/standalone/compiler-distribution.test.ts",
+        "{projectRoot}/test/standalone/release-publication.test.ts",
+        "{workspaceRoot}/.github/workflows/habitat-standalone-release.yml",
+        "{workspaceRoot}/bun.lock",
+        "{workspaceRoot}/package.json",
+        "{workspaceRoot}/vitest.config.ts",
+        "{projectRoot}/package.json",
+        "{projectRoot}/project.json",
+        "{projectRoot}/tsconfig*.json"
+      ],
+      "outputs": [],
+      "options": {
+        "cwd": "tools/habitat"
+      }
+    },
     "release:standalone": {
-      "command": "bun run release:standalone:artifacts",
+      "command": "bun run release:standalone:candidate",
       "dependsOn": [
         "check:hygiene",
         "lint:standalone",
         "typecheck",
-        "test:standalone",
         "test:standalone:behavior"
       ],
       "cache": false,

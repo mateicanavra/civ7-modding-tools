@@ -68,12 +68,16 @@ absolute ABA prevention.
 - Installed pinned-native current-tree behavior, including one multi-pattern
   exact-root invocation, passed 13 of 13.
 - Habitat source, test, and tool TypeScript lanes passed.
+- Release-publication fixtures prove a stock-Darwin-compatible GitHub command
+  deadline, and the release target builds one candidate before serial
+  distribution, publication, and final moved-binary proofs without overwriting
+  it.
 - Strict validation passed for
   `deep-habitat-effect-command-timeout-test-drain`.
 
 ## Pending Owner Evidence
 
-- Build the fixed Darwin arm64 and Linux x64 baseline artifacts with the pinned
-  compiler.
-- Run moved-binary acceptance outside the checkout.
-- Qualify a nonpublishing probe tag before publishing the next release tag.
+- Build the fixed Darwin arm64 artifact with the pinned compiler.
+- Run Darwin moved-binary acceptance outside the checkout.
+- Publish the next release tag only after the Darwin candidate is natively
+  proven.

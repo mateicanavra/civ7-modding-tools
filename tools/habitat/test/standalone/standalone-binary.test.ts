@@ -33,8 +33,23 @@ const distDir = path.join(repoRoot, "tools", "habitat", "dist", "standalone");
 const tempRoot = mkdtempSync(path.join(realpathSync(tmpdir()), "habitat-sdk-blackbox-"));
 const movedBinary = path.join(tempRoot, "bin", "habitat-sdk");
 const JsonUnknownSchema = Schema.parseJson(Schema.Unknown);
-const executableFilenames = ["habitat-sdk-darwin-arm64", "habitat-sdk-linux-x64-baseline"] as const;
-const releaseFilenames = [...executableFilenames, "provenance.json", "SHA256SUMS"] as const;
+const EmbeddedCompilerFeatureDataSchema = Type.Object(
+  {
+    version: Type.Literal(standaloneCompilerManifest.version),
+    revision: Type.Literal(standaloneCompilerManifest.revision),
+    is_canary: Type.Literal(true),
+  },
+  { additionalProperties: true }
+);
+const DistributionEvidenceAssetSchema = Type.Object(
+  {
+    githubAssetId: Type.Integer({ minimum: 1 }),
+    filename: Type.String({ minLength: 1 }),
+    sha256: Type.String({ pattern: "^[0-9a-f]{64}$" }),
+  },
+  { additionalProperties: false }
+);
+const releaseFilenames = ["habitat-sdk-darwin-arm64", "provenance.json", "SHA256SUMS"] as const;
 const ArtifactSchema = Type.Object(
   {
     target: Type.String({ minLength: 1 }),
@@ -48,7 +63,7 @@ const ArtifactSchema = Type.Object(
 );
 const StandaloneProvenanceSchema = Type.Object(
   {
-    schemaVersion: Type.Literal(1),
+    schemaVersion: Type.Literal(2),
     source: Type.Object(
       {
         commit: Type.String({ pattern: "^[0-9a-f]{40}$" }),
@@ -62,26 +77,41 @@ const StandaloneProvenanceSchema = Type.Object(
         name: Type.Literal(standaloneCompilerManifest.name),
         version: Type.Literal(standaloneCompilerManifest.version),
         revision: Type.Literal(standaloneCompilerManifest.revision),
-        source: Type.Object(
+        upstream: Type.Object(
           {
-            repository: Type.Literal(standaloneCompilerManifest.source.repository),
-            releaseId: Type.Literal(standaloneCompilerManifest.source.releaseId),
-            tag: Type.Literal(standaloneCompilerManifest.source.tag),
+            repository: Type.Literal(standaloneCompilerManifest.upstream.repository),
+            releaseId: Type.Literal(standaloneCompilerManifest.upstream.releaseId),
+            tag: Type.Literal(standaloneCompilerManifest.upstream.tag),
+            capturedAt: Type.Literal(standaloneCompilerManifest.upstream.capturedAt),
+            observedReleaseName: Type.Literal(
+              standaloneCompilerManifest.upstream.observedReleaseName
+            ),
+            observedReleaseNameTrustedForIdentity: Type.Literal(false),
           },
           { additionalProperties: false }
         ),
-        assets: Type.Array(
-          Type.Object(
-            {
-              id: Type.Union([Type.Literal("darwin-arm64"), Type.Literal("linux-x64-baseline")]),
-              githubAssetId: Type.Integer({ minimum: 1 }),
-              archiveFilename: Type.String({ minLength: 1 }),
-              archiveSha256: Type.String({ pattern: "^[0-9a-f]{64}$" }),
-              executableSha256: Type.String({ pattern: "^[0-9a-f]{64}$" }),
-            },
-            { additionalProperties: false }
-          ),
-          { minItems: 2, maxItems: 2 }
+        distribution: Type.Object(
+          {
+            repository: Type.Literal(standaloneCompilerManifest.distribution.repository),
+            releaseId: Type.Literal(standaloneCompilerManifest.distribution.releaseId),
+            tag: Type.Literal(standaloneCompilerManifest.distribution.tag),
+            releaseUrl: Type.Literal(standaloneCompilerManifest.distribution.releaseUrl),
+            immutable: Type.Literal(true),
+            provenanceAsset: DistributionEvidenceAssetSchema,
+            checksumsAsset: DistributionEvidenceAssetSchema,
+          },
+          { additionalProperties: false }
+        ),
+        asset: Type.Object(
+          {
+            id: Type.Literal("darwin-arm64"),
+            upstreamGithubAssetId: Type.Integer({ minimum: 1 }),
+            distributionGithubAssetId: Type.Integer({ minimum: 1 }),
+            archiveFilename: Type.String({ minLength: 1 }),
+            archiveSha256: Type.String({ pattern: "^[0-9a-f]{64}$" }),
+            executableSha256: Type.String({ pattern: "^[0-9a-f]{64}$" }),
+          },
+          { additionalProperties: false }
         ),
       },
       { additionalProperties: false }
@@ -104,15 +134,13 @@ const StandaloneProvenanceSchema = Type.Object(
       },
       { additionalProperties: false }
     ),
-    artifacts: Type.Tuple([
-      Type.Intersect([
-        ArtifactSchema,
-        Type.Object({ filename: Type.Literal(executableFilenames[0]) }),
-      ]),
-      Type.Intersect([
-        ArtifactSchema,
-        Type.Object({ filename: Type.Literal(executableFilenames[1]) }),
-      ]),
+    artifact: Type.Intersect([
+      ArtifactSchema,
+      Type.Object({
+        target: Type.Literal("darwin-arm64"),
+        bunTarget: Type.Literal("bun-darwin-arm64"),
+        filename: Type.Literal(releaseFilenames[0]),
+      }),
     ]),
   },
   { additionalProperties: false }
@@ -120,7 +148,10 @@ const StandaloneProvenanceSchema = Type.Object(
 type StandaloneProvenance = Static<typeof StandaloneProvenanceSchema>;
 
 describe.sequential("standalone Habitat binary", () => {
+  let acceptedReleaseHashes: Record<string, string>;
+
   beforeAll(() => {
+    acceptedReleaseHashes = releaseHashes();
     mkdirSync(path.dirname(movedBinary), { recursive: true });
     copyFileSync(hostArtifactPath(), movedBinary);
     chmodSync(movedBinary, 0o755);
@@ -129,6 +160,55 @@ describe.sequential("standalone Habitat binary", () => {
   afterAll(() => {
     assertSafeTempRoot(tempRoot);
     rmSync(tempRoot, { recursive: true, force: true });
+  });
+
+  it("embeds the pinned Bun feature identity in the moved native artifact", () => {
+    const compilerModeEnvironment = {
+      ...process.env,
+      BUN_BE_BUN: "1",
+      BUN_DEBUG_QUIET_LOGS: "1",
+      BUN_FEATURE_FLAG_INTERNAL_FOR_TESTING: "1",
+      BUN_GARBAGE_COLLECTOR_LEVEL: "0",
+    };
+    const nameResult = spawnSync(movedBinary, ["--revision"], {
+      cwd: tempRoot,
+      encoding: "utf8",
+      env: compilerModeEnvironment,
+    });
+    assert.strictEqual(nameResult.signal, null, nameResult.stderr);
+    assert.strictEqual(nameResult.status, 0, nameResult.stderr);
+    assert.strictEqual(nameResult.stdout.trim(), standaloneCompilerManifest.name);
+
+    const versionResult = spawnSync(movedBinary, ["--version"], {
+      cwd: tempRoot,
+      encoding: "utf8",
+      env: compilerModeEnvironment,
+    });
+    assert.strictEqual(versionResult.signal, null, versionResult.stderr);
+    assert.strictEqual(versionResult.status, 0, versionResult.stderr);
+    assert.strictEqual(versionResult.stdout.trim(), standaloneCompilerManifest.version);
+
+    const result = spawnSync(
+      movedBinary,
+      [
+        "--print",
+        'JSON.stringify(require("bun:internal-for-testing").crash_handler.getFeatureData())',
+      ],
+      {
+        cwd: tempRoot,
+        encoding: "utf8",
+        env: compilerModeEnvironment,
+      }
+    );
+    assert.strictEqual(result.signal, null, result.stderr);
+    assert.strictEqual(result.status, 0, result.stderr);
+    const featureData = Value.Parse(
+      EmbeddedCompilerFeatureDataSchema,
+      Schema.decodeUnknownSync(JsonUnknownSchema)(result.stdout)
+    );
+    assert.strictEqual(featureData.version, standaloneCompilerManifest.version);
+    assert.strictEqual(featureData.revision, standaloneCompilerManifest.revision);
+    assert.strictEqual(featureData.is_canary, true);
   });
 
   it("runs moved structure checks without mutating the destination", () => {
@@ -290,22 +370,22 @@ describe.sequential("standalone Habitat binary", () => {
       name: standaloneCompilerManifest.name,
       version: standaloneCompilerManifest.version,
       revision: standaloneCompilerManifest.revision,
-      source: standaloneCompilerManifest.source,
-      assets: standaloneCompilerManifest.assets.map((asset) => ({
-        id: asset.id,
-        githubAssetId: asset.githubAssetId,
-        archiveFilename: asset.archiveFilename,
-        archiveSha256: asset.archiveSha256,
-        executableSha256: asset.executableSha256,
-      })),
+      upstream: standaloneCompilerManifest.upstream,
+      distribution: standaloneCompilerManifest.distribution,
+      asset: {
+        id: standaloneCompilerManifest.asset.id,
+        upstreamGithubAssetId: standaloneCompilerManifest.asset.upstreamGithubAssetId,
+        distributionGithubAssetId: standaloneCompilerManifest.asset.distributionGithubAssetId,
+        archiveFilename: standaloneCompilerManifest.asset.archiveFilename,
+        archiveSha256: standaloneCompilerManifest.asset.archiveSha256,
+        executableSha256: standaloneCompilerManifest.asset.executableSha256,
+      },
     });
-    for (const artifact of provenance.artifacts) {
-      const artifactPath = path.join(distDir, artifact.filename);
-      assert.strictEqual(artifact.sha256, sha256(readFileSync(artifactPath)));
-      assert.strictEqual(artifact.bytes, statSync(artifactPath).size);
-    }
+    const artifactPath = path.join(distDir, provenance.artifact.filename);
+    assert.strictEqual(provenance.artifact.sha256, sha256(readFileSync(artifactPath)));
+    assert.strictEqual(provenance.artifact.bytes, statSync(artifactPath).size);
     const expectedChecksums = [
-      ...provenance.artifacts.map(({ filename, sha256: digest }) => `${digest}  ${filename}`),
+      `${provenance.artifact.sha256}  ${provenance.artifact.filename}`,
       `${sha256(readFileSync(path.join(distDir, "provenance.json")))}  provenance.json`,
     ];
     const checksumLines = readFileSync(path.join(distDir, "SHA256SUMS"), "utf8")
@@ -314,22 +394,14 @@ describe.sequential("standalone Habitat binary", () => {
     assert.deepStrictEqual(checksumLines, expectedChecksums);
   });
 
-  it("rebuilds downloaded release assets byte-identically on the proof host", () => {
-    const before = releaseHashes();
-    const rebuild = spawnSync("bun", ["run", "--cwd", "tools/habitat", "build:standalone"], {
-      cwd: repoRoot,
-      encoding: "utf8",
-      env: process.env,
-    });
-    assert.strictEqual(rebuild.status, 0, `${rebuild.stdout}\n${rebuild.stderr}`);
-    assert.deepStrictEqual(releaseHashes(), before);
+  it("leaves the accepted release candidate untouched after moved-binary proof", () => {
+    assert.deepStrictEqual(releaseHashes(), acceptedReleaseHashes);
   });
 });
 
 function hostArtifactPath(): string {
   const filename = `${process.platform}-${process.arch}`;
-  if (filename === "darwin-arm64") return path.join(distDir, "habitat-sdk-darwin-arm64");
-  if (filename === "linux-x64") return path.join(distDir, "habitat-sdk-linux-x64-baseline");
+  if (filename === "darwin-arm64") return path.join(distDir, releaseFilenames[0]);
   throw new Error(`No Habitat standalone test artifact for ${filename}.`);
 }
 
