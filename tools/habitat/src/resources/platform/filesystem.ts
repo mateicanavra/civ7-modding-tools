@@ -41,12 +41,12 @@ export function makeDirectory(targetPath: string) {
 export const readDirectory = Effect.fn("habitat.platform.readDirectory")(function* (
   targetPath: string
 ) {
-    const fs = yield* FileSystem.FileSystem;
-    const entries = yield* fs
-      .readDirectory(targetPath)
-      .pipe(Effect.mapError((cause) => readFailure(targetPath, cause)));
-    return yield* Effect.forEach(entries, (name) => directoryEntry(fs, targetPath, name));
-  });
+  const fs = yield* FileSystem.FileSystem;
+  const entries = yield* fs
+    .readDirectory(targetPath)
+    .pipe(Effect.mapError((cause) => readFailure(targetPath, cause)));
+  return yield* Effect.forEach(entries, (name) => directoryEntry(fs, targetPath, name));
+});
 
 const directoryEntry = Effect.fn("habitat.platform.directoryEntry")(function* (
   fs: FileSystem.FileSystem,
@@ -54,7 +54,9 @@ const directoryEntry = Effect.fn("habitat.platform.directoryEntry")(function* (
   name: string
 ): Effect.fn.Return<HabitatDirectoryEntry, FileReadFailed> {
   const entryPath = path.join(targetPath, name);
-  const info = yield* fs.stat(entryPath).pipe(Effect.mapError((cause) => readFailure(entryPath, cause)));
+  const info = yield* fs
+    .stat(entryPath)
+    .pipe(Effect.mapError((cause) => readFailure(entryPath, cause)));
   return { name, kind: entryKind(info.type) };
 });
 

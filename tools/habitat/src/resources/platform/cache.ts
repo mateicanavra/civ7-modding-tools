@@ -15,7 +15,7 @@ export const ensurePatternCacheRoot = Effect.fn("habitat.platform.ensurePatternC
 export const cachePath = Effect.fn("habitat.platform.cachePath")(function* (
   ...segments: readonly string[]
 ) {
-    const configService = yield* HabitatConfig;
-    const config = yield* configService.get;
-    return path.join(config.cacheRoot, ...segments);
-  });
+  const configService = yield* HabitatConfig;
+  const config = yield* configService.get;
+  return path.join(config.cacheRoot, ...segments);
+});

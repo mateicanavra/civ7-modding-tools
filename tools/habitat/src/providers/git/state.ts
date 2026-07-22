@@ -29,7 +29,7 @@ export function makeGitStateProviderLayer(repoRoot: string) {
 export function makeFakeGitStateProviderLayer(
   handler: (cwd: string) => HabitatGitState,
   { repoRoot = "." }: { readonly repoRoot?: string } = {}
-){
+) {
   return Layer.succeed(GitStateProvider, {
     read: (cwd?: string) => Effect.suspend(() => Effect.succeed(handler(cwd ?? repoRoot))),
   });

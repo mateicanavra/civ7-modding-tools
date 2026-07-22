@@ -11,9 +11,9 @@ export {
   writeText,
 } from "./filesystem.js";
 export {
+  type HabitatFileSystemReadPort,
   HabitatPlatform,
   HabitatPlatformLive,
-  type HabitatFileSystemReadPort,
   type HabitatPlatformService,
   makeHabitatPlatformLayer,
   makeHabitatPlatformService,

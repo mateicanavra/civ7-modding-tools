@@ -12,9 +12,9 @@ import { Clock, Effect } from "effect";
 
 export const selectorRefusalReportEffect = Effect.fn("habitat.check.selectorRefusalReport")(
   function* (
-  failure: Extract<RuleSelectionResult, { ok: false }>,
-  request: StructuralCheckRequest
-) {
+    failure: Extract<RuleSelectionResult, { ok: false }>,
+    request: StructuralCheckRequest
+  ) {
     const started = yield* Clock.currentTimeMillis;
     const ended = yield* Clock.currentTimeMillis;
     const refusalMessage = describeRuleSelectionFailure(failure);

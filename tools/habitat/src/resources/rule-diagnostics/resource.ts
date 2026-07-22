@@ -52,9 +52,7 @@ export type RuleDiagnosticExecutionResult = RuleDiagnosticExecutionMeasurement &
 
 /** Stable diagnostic capability consumed by rule execution. */
 export interface RuleDiagnosticsService {
-  readonly runRules: (
-    demand: RuleDiagnosticDemand
-  ) => typeof emptyRuleDiagnosticExecutionResults;
+  readonly runRules: (demand: RuleDiagnosticDemand) => typeof emptyRuleDiagnosticExecutionResults;
 }
 
 const emptyRuleDiagnosticExecutionResults = Effect.succeed(

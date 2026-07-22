@@ -1,7 +1,4 @@
-import {
-  CommandRunner,
-  type CommandRunnerService,
-} from "@habitat/cli/resources/command/index";
+import { CommandRunner, type CommandRunnerService } from "@habitat/cli/resources/command/index";
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
 import { Context, Effect, Layer, Match } from "effect";
 
@@ -37,10 +34,7 @@ export function makeFakeBiomeProviderLayer(
   });
 }
 
-function makeLiveBiomeProvider(
-  repoRoot: string,
-  runner: CommandRunnerService
-) {
+function makeLiveBiomeProvider(repoRoot: string, runner: CommandRunnerService) {
   return {
     run: (request: BiomeCommandRequest) =>
       runner.run({
@@ -72,11 +66,5 @@ export function biomeArgv(request: BiomeCommandRequest): string[] {
     ),
     Match.orElse(() => ["."])
   );
-  return [
-    "biome",
-    request.kind,
-    ...write,
-    ...noErrorsOnUnmatched,
-    ...paths,
-  ];
+  return ["biome", request.kind, ...write, ...noErrorsOnUnmatched, ...paths];
 }

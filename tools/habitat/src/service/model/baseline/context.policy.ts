@@ -18,10 +18,7 @@ export type BaselineFileSystemPort = Pick<
   readonly isFile: HabitatPlatformService["isFileEffect"];
 };
 
-export type BaselineGitPort = Pick<
-  GitProviderService,
-  "lsTreeNameOnly" | "mergeBase" | "show"
->;
+export type BaselineGitPort = Pick<GitProviderService, "lsTreeNameOnly" | "mergeBase" | "show">;
 
 export interface BaselineAuthorityContext {
   fileSystem: BaselineFileSystemPort;

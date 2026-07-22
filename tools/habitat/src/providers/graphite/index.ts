@@ -20,10 +20,7 @@ export function makeGraphiteProviderLayer(repoRoot: string) {
   );
 }
 
-function makeLiveGraphiteProvider(
-  repoRoot: string,
-  runner: CommandRunnerService
-) {
+function makeLiveGraphiteProvider(repoRoot: string, runner: CommandRunnerService) {
   return {
     parentArgv,
     parent: (options: { readonly cwd?: string } = {}) =>

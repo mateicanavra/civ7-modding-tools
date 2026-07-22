@@ -183,12 +183,7 @@
     },
     "release:standalone": {
       "command": "bun run release:standalone:candidate",
-      "dependsOn": [
-        "check:hygiene",
-        "lint:standalone",
-        "typecheck",
-        "test:standalone:behavior"
-      ],
+      "dependsOn": ["check:hygiene", "lint:standalone", "typecheck", "test:standalone:behavior"],
       "cache": false,
       "outputs": ["{projectRoot}/dist/standalone/**"],
       "options": {

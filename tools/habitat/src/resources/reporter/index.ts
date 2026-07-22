@@ -36,6 +36,10 @@ export const silentHabitatReporter: HabitatReporterService = {
 
 export function makeFakeHabitatReporterLayer(events: HabitatReportEvent[]) {
   return Layer.succeed(HabitatReporter, {
-    emit: (event) => Effect.succeed(event).pipe(Effect.map((value) => events.push(value)), Effect.asVoid),
+    emit: (event) =>
+      Effect.succeed(event).pipe(
+        Effect.map((value) => events.push(value)),
+        Effect.asVoid
+      ),
   });
 }

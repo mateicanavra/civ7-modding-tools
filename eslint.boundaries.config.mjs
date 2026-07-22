@@ -45,20 +45,14 @@ export default [
     languageOptions: { parser: tsParser },
     plugins: { "@nx": nxPlugin },
     rules: {
-      "@nx/enforce-module-boundaries": [
-        "error",
-        boundaryRuleOptions,
-      ],
+      "@nx/enforce-module-boundaries": ["error", boundaryRuleOptions],
     },
   },
   {
     files: ["**/*.js", "**/*.mjs", "**/*.cjs"],
     plugins: { "@nx": nxPlugin },
     rules: {
-      "@nx/enforce-module-boundaries": [
-        "error",
-        boundaryRuleOptions,
-      ],
+      "@nx/enforce-module-boundaries": ["error", boundaryRuleOptions],
     },
   },
 ];

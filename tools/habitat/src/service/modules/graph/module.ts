@@ -6,10 +6,7 @@ import {
   spawnResultFromCommandResult,
 } from "@habitat/cli/resources/command/index";
 import type { HabitatPlatformService } from "@habitat/cli/resources/platform/index";
-import type {
-  HabitatServiceDeps,
-  HabitatServiceRequirements,
-} from "@habitat/cli/service/base";
+import type { HabitatServiceDeps, HabitatServiceRequirements } from "@habitat/cli/service/base";
 import { type HabitatModule, service } from "@habitat/cli/service/impl";
 import { Effect, Match, Schema, type Scope } from "effect";
 import { Type } from "typebox";
@@ -34,7 +31,9 @@ interface GraphJsonFailure {
 }
 
 type GraphBadRequest = (input: { readonly message: string }) => GraphServiceBadRequestError;
-type GraphScopedBody<A> = (graphPath: string) => Effect.fn.Return<
+type GraphScopedBody<A> = (
+  graphPath: string
+) => Effect.fn.Return<
   A,
   GraphServiceBadRequestError | GraphServiceInternalError,
   HabitatServiceRequirements

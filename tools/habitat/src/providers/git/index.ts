@@ -75,8 +75,7 @@ function providerFromCommand(command: GitCommand) {
     command,
     currentBranch: (options?: GitCommandOptions) =>
       gitTextOrNull(command(["branch", "--show-current"], options)),
-    head: (options?: GitCommandOptions) =>
-      gitTextOrNull(command(["rev-parse", "HEAD"], options)),
+    head: (options?: GitCommandOptions) => gitTextOrNull(command(["rev-parse", "HEAD"], options)),
     statusShort: (options?: GitCommandOptions) => command(["status", "--short"], options),
     statusShortBranch: (options?: GitCommandOptions) =>
       command(["status", "--short", "--branch"], options),
@@ -98,13 +97,7 @@ function providerFromCommand(command: GitCommand) {
       input: { cached?: boolean; paths?: readonly string[] } & GitCommandOptions = {}
     ) =>
       command(
-        [
-          "diff",
-          ...gitCachedArg(input.cached),
-          "--name-only",
-          "-z",
-          ...gitPathsArg(input.paths),
-        ],
+        ["diff", ...gitCachedArg(input.cached), "--name-only", "-z", ...gitPathsArg(input.paths)],
         input
       ),
     diffNameStatus: (input: { cached?: boolean } & GitCommandOptions = {}) =>
