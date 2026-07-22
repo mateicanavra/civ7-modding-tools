@@ -2,7 +2,6 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createMapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup, type MapSetup } from "@mapgen/core/map-setup.js";
-import { createNoopTraceScope } from "@mapgen/trace/index.js";
 
 describe("MapContext setup authority", () => {
   it("retains the admitted setup snapshot as the context's sole physical identity", () => {
@@ -73,30 +72,23 @@ describe("MapContext setup authority", () => {
     const initialTrace = context.trace;
 
     expect(Reflect.set(context, "setup", admitMapSetup({ ...setup, mapSeed: 30 }))).toBe(false);
-    expect(Reflect.set(context, "trace", createNoopTraceScope())).toBe(false);
+    expect(Reflect.set(context, "trace", { event: () => undefined })).toBe(false);
     expect(Reflect.set(context, "sharedState", { value: 1 })).toBe(false);
     expect(context.setup).toBe(setup);
     expect(context.trace).toBe(initialTrace);
     expect(Reflect.get(context, "rng")).toBeUndefined();
-    expect(Object.isFrozen(context.artifacts)).toBe(true);
-    expect(Reflect.get(context.artifacts, "set")).toBeUndefined();
-    expect(Reflect.get(context.artifacts, "delete")).toBeUndefined();
-    expect(Reflect.get(context.artifacts, "clear")).toBeUndefined();
-    expect(() =>
-      Reflect.apply(Map.prototype.set, context.artifacts as unknown as Map<string, unknown>, [
-        "artifact:test.forbidden",
-        true,
-      ])
-    ).toThrow(TypeError);
-    expect(context.artifacts.has("artifact:test.forbidden")).toBe(false);
+    expect(Reflect.get(context, "artifacts")).toBeUndefined();
+    expect(Object.keys(context)).toEqual(["adapter", "setup", "trace"]);
     expect(Object.getOwnPropertyDescriptor(context, "setup")).toMatchObject({
       writable: false,
       configurable: false,
     });
     expect(Object.getOwnPropertyDescriptor(context, "trace")).toMatchObject({
-      set: undefined,
+      writable: false,
       configurable: false,
     });
+    expect(Object.isFrozen(context.trace)).toBe(true);
+    expect(Reflect.set(context.trace, "event", () => undefined)).toBe(false);
     expect(Object.isFrozen(context)).toBe(true);
   });
 

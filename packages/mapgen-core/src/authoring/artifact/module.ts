@@ -46,7 +46,6 @@ type CatalogModules<Modules extends ArtifactModules> = Readonly<{
 type StringKeyedModules<Modules> = Exclude<keyof Modules, string> extends never ? unknown : never;
 
 const RESERVED_CATALOG_KEYS = new Set(["__proto__", "constructor", "prototype"]);
-const ARTIFACT_SOURCE_EXPORTS = new Set(["Schema", "artifact", "validate"]);
 
 /** A frozen artifact-module catalog and the artifact handles derived from that same authority. */
 export type ArtifactCatalog<Modules extends ArtifactModules> = Readonly<{
@@ -90,35 +89,20 @@ function snapshotArtifactSourceModule(value: unknown, location: string): Artifac
     throw new Error(`${location} must contain an artifact source module`);
   }
 
-  for (const key of Reflect.ownKeys(value)) {
-    if (typeof key === "string" && !ARTIFACT_SOURCE_EXPORTS.has(key)) {
-      throw new Error(`${location} exposes unsupported runtime export "${key}"`);
-    }
-  }
-
-  const Schema = readArtifactSourceExport(value, "Schema", location);
-  const artifact = readArtifactSourceExport(value, "artifact", location);
-  const validate = readArtifactSourceExport(value, "validate", location);
-  const module = snapshotArtifactModule({ artifact, validate }, location);
-  if (Schema !== module.artifact.schema) {
-    throw new Error(`${location} Schema must be the exact schema held by its artifact contract`);
-  }
-  return module;
+  const artifact = readArtifactSourceAuthority(value, "artifact", location);
+  const validate = readArtifactSourceAuthority(value, "validate", location);
+  return snapshotArtifactModule({ artifact, validate }, location);
 }
 
-function readArtifactSourceExport(
+function readArtifactSourceAuthority(
   source: object,
-  key: "Schema" | "artifact" | "validate",
+  key: "artifact" | "validate",
   location: string
 ): unknown {
   const descriptor = Object.getOwnPropertyDescriptor(source, key);
-  if (!descriptor?.enumerable) {
-    throw new Error(`${location} must own an enumerable ${key} export`);
-  }
+  if (!descriptor) throw new Error(`${location} must own a ${key} export`);
   if ("value" in descriptor) return descriptor.value;
-  if (descriptor.configurable || descriptor.set || !descriptor.get) {
-    throw new Error(`${location} ${key} export must be readable and immutable`);
-  }
+  if (!descriptor.get) throw new Error(`${location} ${key} export must be readable`);
   return descriptor.get.call(source);
 }
 
@@ -126,8 +110,9 @@ function readArtifactSourceExport(
  * Defines one artifact catalog without duplicating its handles or validators in sibling maps.
  * Catalog keys are consumer-facing lookup names; artifact ids and names remain contract authority.
  * Duplicate ids or names are refused because either would make runtime publication ambiguous.
- * Native and bundled ESM namespace getters are evaluated exactly once at this source boundary;
- * the returned catalog retains only frozen data-property modules.
+ * Native and transformed ESM namespace getters are evaluated exactly once at this source
+ * boundary. Build metadata and source-only exports are projected away; the returned catalog
+ * retains only the frozen runtime artifact-validator pair.
  */
 export function defineArtifactCatalog<const Modules extends ArtifactSourceModules>(
   modules: Modules &

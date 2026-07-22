@@ -103,7 +103,9 @@ Routing:
 
 - **Disabled trace**: omit the trace capability entirely. An enabled session always requires both
   its config and sink, so partial trace wiring is not representable.
-- **Verbose events are gated**: `TraceScope.event()` emits only when the step is configured as `verbose`.
+- **Verbose events are gated**: `context.trace.event(() => data)` evaluates and emits only when the
+  active step is configured as `verbose`. The executor owns step identity, selection, and lifecycle;
+  a captured step trace becomes inert when that invocation ends.
 - **Missing facet half**: a `viz` projector without an environment sink, or a sink without a step
   projector, intentionally produces no layer.
 - **Facet failures are non-fatal**: projection and materialization errors are reported but cannot
@@ -111,7 +113,8 @@ Routing:
 
 ## Ground truth anchors
 
-- Trace session + sinks (console): `packages/mapgen-core/src/trace/index.ts`
+- Public trace event contracts and sinks: `packages/mapgen-core/src/trace/index.ts`
+- Executor-owned trace session lifecycle: `packages/mapgen-core/src/trace/session.ts`
 - Pipeline executor wiring (trace scoping per step): `packages/mapgen-core/src/engine/PipelineExecutor.ts`
 - Execution identity + stable plan fingerprint: `packages/mapgen-core/src/engine/observability.ts`
 - Step facet dispatch: `packages/mapgen-core/src/engine/step-facets.ts`

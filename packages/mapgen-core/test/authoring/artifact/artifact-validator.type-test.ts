@@ -1,10 +1,10 @@
+import { implementArtifactModules } from "@mapgen/authoring/artifact/runtime.js";
 import type { ArtifactModule, ArtifactValidator } from "@mapgen/authoring/index.js";
 import {
   defineArtifact,
   defineArtifactCatalog,
   defineArtifactValidator,
   defineStep,
-  implementArtifactModules,
   Type,
 } from "@mapgen/authoring/index.js";
 
@@ -28,6 +28,12 @@ defineArtifactValidator(firstArtifact, (value) => {
   void value.value;
   return [];
 });
+
+defineArtifactValidator(
+  firstArtifact,
+  // @ts-expect-error Artifact-local validation is synchronous.
+  async () => []
+);
 
 const firstModule: ArtifactModule<typeof firstArtifact> = {
   artifact: firstArtifact,
@@ -73,6 +79,15 @@ const missingSchemaModule = {
 // @ts-expect-error Catalog source modules require their canonical exported Schema.
 defineArtifactCatalog({ missingSchemaModule });
 void missingSchemaModule;
+
+const mismatchedSchemaModule = {
+  Schema: Type.Object({ other: Type.String() }, { additionalProperties: false }),
+  artifact: firstArtifact,
+  validate: firstValidator,
+};
+// @ts-expect-error Catalog source modules bind Schema to the exact artifact schema type.
+defineArtifactCatalog({ mismatchedSchemaModule });
+void mismatchedSchemaModule;
 
 const extraRuntimeExportModule = {
   Schema: firstArtifact.schema,

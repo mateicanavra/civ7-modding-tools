@@ -64,7 +64,6 @@ export const AssignStartsStep = createStep(AssignStartsStepContract, {
       config.starts as Parameters<typeof _ops.starts>[1]
     );
     const emit = (payload: TraceJsonObject): void => {
-      if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);
     };
 

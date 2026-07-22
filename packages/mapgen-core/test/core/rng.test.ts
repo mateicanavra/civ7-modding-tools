@@ -87,9 +87,53 @@ describe("core rng authority", () => {
       registry
     );
 
-    expect(() => ctxRandom(context, "before-run", 10_000)).toThrow("active execution");
+    expect(() => ctxRandom(context, "before-run", 10_000)).toThrow("currently active step context");
     new PipelineExecutor(registry).executePlan(context, plan);
     expect(value).toBeGreaterThanOrEqual(0);
-    expect(() => ctxRandom(context, "after-run", 10_000)).toThrow("active execution");
+    expect(() => ctxRandom(context, "after-run", 10_000)).toThrow("currently active step context");
+  });
+
+  it("cannot reuse one step's random capability during a later step or after execution", () => {
+    const context = createContext(42, 0);
+    const registry = new StepRegistry();
+    let retainedContext: Parameters<typeof ctxRandom>[0] | undefined;
+    registry.register({
+      id: "retain-random-context",
+      stageId: "foundation",
+      requires: [],
+      provides: [],
+      run: (activeContext) => {
+        retainedContext = activeContext;
+        ctxRandom(activeContext, "first-step", 10_000);
+      },
+    });
+    registry.register({
+      id: "reject-retained-random-context",
+      stageId: "foundation",
+      requires: [],
+      provides: [],
+      run: (activeContext) => {
+        expect(() => ctxRandom(retainedContext!, "borrowed-by-second-step", 10_000)).toThrow(
+          "context returned by createMapContext"
+        );
+        ctxRandom(activeContext, "second-step", 10_000);
+      },
+    });
+    const plan = compileExecutionPlan(
+      {
+        recipe: {
+          schemaVersion: 2,
+          steps: [{ id: "retain-random-context" }, { id: "reject-retained-random-context" }],
+        },
+        setup: context.setup,
+      },
+      registry
+    );
+
+    new PipelineExecutor(registry).executePlan(context, plan);
+
+    expect(() => ctxRandom(retainedContext!, "after-execution", 10_000)).toThrow(
+      "context returned by createMapContext"
+    );
   });
 });

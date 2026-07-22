@@ -7,20 +7,17 @@ import {
 } from "@civ7/map-policy";
 import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
 import {
+  type ArtifactReadValueOf,
   assertFloat32Array,
   assertInt32Array,
   assertUint8Array,
   assertUint16Array,
-} from "@swooper/mapgen-core/authoring";
-import {
-  type ArtifactReadValueOf,
   readValidatedArtifact,
-} from "@swooper/mapgen-core/authoring/contracts";
+} from "@swooper/mapgen-core/authoring";
 
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
 import { artifactModules as standardArtifactModules } from "../artifacts/index.js";
 import standardRecipe from "../recipe.js";
-import { initializeStandardRuntime } from "../runtime.js";
 import { artifactModules as ecologyArtifactModules } from "../stages/ecology/artifacts/index.js";
 import { artifactModules as hydrologyHydrographyArtifactModules } from "../stages/hydrology-hydrography/artifacts/index.js";
 import { artifactModules as mapHydrologyArtifactModules } from "../stages/map-hydrology/artifacts/index.js";
@@ -276,10 +273,6 @@ export function captureStandardMapScenario(
   });
 
   const context = createMapContext({ setup, adapter });
-  initializeStandardRuntime(context, {
-    mapInfo: selection.mapInfo,
-    logPrefix: "[map-product-metrics]",
-  });
   standardRecipe.run(context, canonicalRecipeConfig(admittedScenario.config), {
     log: () => {},
   });

@@ -33,7 +33,7 @@ function warnStartDegradations(
       `[Placement] Start assignment degraded to ${path} for ${seatIndices.length} seat(s) ` +
         `(seat indices: ${seatIndices.join(", ")}); regional viability guarantees were relaxed for those seats.`
     );
-    context.trace?.event(() => ({
+    context.trace.event(() => ({
       type: "placement.starts.fallback",
       level: "warn",
       path,
@@ -48,7 +48,7 @@ function warnStartDegradations(
       `[Placement] Seat ${seat.seatIndex} seated below the hard spacing floor ` +
         `(achievedSpacing=${seat.achievedSpacing}); the alternative was an unseated player.`
     );
-    context.trace?.event(() => ({
+    context.trace.event(() => ({
       type: "placement.starts.spacingBelowFloor",
       level: "warn",
       seatIndex: seat.seatIndex,
@@ -62,7 +62,7 @@ function warnStartDegradations(
       `[Placement] ${reassigned.length} seat(s) region-reassigned (seat indices: ` +
         `${seatIndices.join(", ")}); their configured landmass region has zero start candidates on this map.`
     );
-    context.trace?.event(() => ({
+    context.trace.event(() => ({
       type: "placement.starts.regionReassigned",
       level: "warn",
       seats: reassigned.length,

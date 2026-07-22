@@ -19,7 +19,6 @@ export const PlaceDiscoveriesStep = createStep(PlaceDiscoveriesStepContract, {
     const startPositions = startAssignment.positions.filter((plotIndex) => plotIndex >= 0);
     const polarMargin = Math.max(0, CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows | 0);
     const emit = (payload: TraceJsonObject): void => {
-      if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);
     };
 

@@ -17,12 +17,11 @@ export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceSte
     const engineProjectionLakes = deps.artifacts.engineProjectionLakes.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const coastClassification = deps.artifacts.coastClassification.read(context);
-    const { adapter, trace } = context;
+    const { adapter } = context;
     const { width, height } = context.setup.dimensions;
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const emit = (payload: TraceJsonObject): void => {
-      if (!trace?.isVerbose) return;
-      trace.event(() => payload);
+      context.trace.event(() => payload);
     };
 
     logTerrainStats(context, "Initial");

@@ -165,7 +165,6 @@ export function traceNaturalWonderPlanInputRuntimeTelemetry(
   context: MapContext,
   telemetry: NaturalWonderPlanInputRuntimeTelemetry
 ): void {
-  if (!context.trace?.isVerbose) return;
   context.trace.event(() => ({
     type: "naturalWonder.planInput",
     ...telemetry,

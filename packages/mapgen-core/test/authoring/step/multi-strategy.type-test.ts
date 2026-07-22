@@ -46,6 +46,13 @@ export type RuntimeOpConfigHasStrategy = Expect<
   IsEqual<"strategy" extends keyof RuntimeOpConfig ? true : false, true>
 >;
 
+if (false) {
+  const runtimeOps = {} as RuntimeOps;
+  const multi = runtimeOps.multi;
+  // @ts-expect-error Step operation capability bindings are immutable across executions.
+  runtimeOps.multi = multi;
+}
+
 const FastDefaultStepContract = defineStep({
   id: "fast-default-step",
   requires: [],

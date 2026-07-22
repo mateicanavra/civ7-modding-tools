@@ -10,7 +10,6 @@ import { AssignAdvancedStartsStepContract } from "./config.js";
 export const AssignAdvancedStartsStep = createStep(AssignAdvancedStartsStepContract, {
   run: (context, _config, _ops, deps) => {
     const emit = (payload: TraceJsonObject): void => {
-      if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);
     };
 

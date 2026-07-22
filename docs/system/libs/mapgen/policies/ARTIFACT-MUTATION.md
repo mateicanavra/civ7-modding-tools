@@ -9,9 +9,9 @@
 
 ## Purpose
 
-Keep pipeline data flow safe and debuggable by enforcing a simple invariant:
+Keep pipeline data flow safe and debuggable by enforcing a simple ownership invariant:
 
-- **Artifacts are write-once and read-only.**
+- **Artifacts are published once and treated as immutable after publication.**
 
 This enables reproducibility, caching, and reliable inspection.
 
@@ -26,18 +26,24 @@ This enables reproducibility, caching, and reliable inspection.
 
 - Producers publish an artifact once.
 - Consumers read artifacts as immutable (treat the returned value as read-only).
-- Consumers may query `MapContext.artifacts` with `has` and `get`; the mutable backing store is
-  private to MapGen Core.
+- Authored steps use only artifact readers and publishers derived from their declared contract.
+- Post-run observers query through an exact artifact module, which reapplies that module's complete
+  validator before exposing evidence.
 - If a consumer needs to mutate, it must copy first (caller-owned copy).
+
+Publication and reads are zero-copy: Core stores and returns the producer's admitted reference. It
+does not recursively freeze payload memory or defend against a retained hostile JavaScript
+reference. Immutability is therefore a pipeline ownership contract. Consumer signatures express
+readonly intent for ordinary structures, but do not yet make every typed-array mutation
+unrepresentable.
 
 ### Disallowed
 
 - Republishing an artifact (write-once violated).
-- Casting the artifact query facade to recover store mutation; the runtime facade has no mutation
-  methods or retained backing-map reference.
+- Reaching around declared artifact dependencies through context state or internal storage helpers.
 - Mutating shared artifact values in-place.
 
 ## Ground truth anchors
 
-- Write-once enforcement and read-only reads: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
+- Write-once enforcement and zero-copy ownership contract: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
 - Runtime context and artifact store: `packages/mapgen-core/src/core/map-context.ts`

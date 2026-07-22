@@ -5,6 +5,7 @@ export type {
   StepFacetSinks,
   StepFacets,
 } from "@mapgen/engine/step-facets.js";
+export type { DependencyEvidence, DependencyTagDefinition } from "@mapgen/engine/tags.js";
 export type { Static, TSchema } from "typebox";
 export { Type } from "typebox";
 export type {
@@ -19,6 +20,7 @@ export type {
   DeepReadonly,
   ProvidedArtifactRuntime,
   RequiredArtifactRuntime,
+  ValidatedArtifactObservation,
 } from "./artifact/index.js";
 export {
   ArtifactDoublePublishError,
@@ -29,7 +31,7 @@ export {
   defineArtifact,
   defineArtifactCatalog,
   defineArtifactValidator,
-  implementArtifactModules,
+  observeValidatedArtifact,
   readValidatedArtifact,
 } from "./artifact/index.js";
 export type {

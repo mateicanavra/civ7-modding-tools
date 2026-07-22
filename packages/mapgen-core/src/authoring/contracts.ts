@@ -12,7 +12,6 @@ export type {
 export { defineArtifact } from "./artifact/contract.js";
 export type { ArtifactCatalog, ArtifactModule } from "./artifact/module.js";
 export { defineArtifactCatalog } from "./artifact/module.js";
-export { readValidatedArtifact } from "./artifact/validated-read.js";
 export type {
   ArtifactValidationContext,
   ArtifactValidationIssue,

@@ -247,7 +247,7 @@ export const PlanResourcesStep = createStep(PlanResourcesStepContract, {
       })),
     });
 
-    context.trace?.event(() => ({
+    context.trace.event(() => ({
       type: "placement.resources.plan",
       plannedCount: plan.plannedCount,
       rotationCount: plan.rotationCount,

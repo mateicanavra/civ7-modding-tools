@@ -1,8 +1,8 @@
+import { implementArtifactModules } from "@mapgen/authoring/artifact/runtime.js";
 import {
   type ArtifactContract,
   type ArtifactModule,
   type ArtifactValueOf,
-  implementArtifactModules,
 } from "@mapgen/authoring/index.js";
 import type { MapContext } from "@mapgen/core/map-context.js";
 

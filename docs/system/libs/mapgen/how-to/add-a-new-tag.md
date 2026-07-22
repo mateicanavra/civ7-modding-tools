@@ -56,7 +56,10 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
 - Effect tags add a `DependencyTagDefinition` entry:
   - `id`
   - `kind`
-  - optional `satisfies(context, state?)` predicate for runtime validation
+  - optional `satisfies(evidence)` predicate for runtime validation
+- A predicate receives only `DependencyEvidence`: `verifyEffect()` is bound to the effect tag
+  currently being evaluated, while artifact reads require the exact owning module. A predicate
+  cannot inspect another effect, setup, trace, adapter internals, or raw artifact storage.
 - Ensure the registry function registers the full set of definitions.
 - Artifact modules register their own IDs and complete validators when selected by step contracts;
   do not duplicate them in the explicit effect registry.
@@ -66,7 +69,7 @@ Representative registration example (excerpt; see full file in anchors):
 ```ts
 export const STANDARD_TAG_DEFINITIONS = [
   ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map(
-    (id): DependencyTagDefinition<MapContext> => ({ id, kind: "effect" })
+    (id): DependencyTagDefinition => ({ id, kind: "effect" })
   ),
 ] as const;
 

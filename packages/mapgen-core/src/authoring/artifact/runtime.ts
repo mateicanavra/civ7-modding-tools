@@ -1,6 +1,9 @@
-import { type MapContext, publishMapContextArtifactInternal } from "@mapgen/core/map-context.js";
-import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
-
+import {
+  getActiveMapContextStepIdInternal,
+  type MapContext,
+  publishMapContextArtifactInternal,
+  readMapContextArtifactInternal,
+} from "@mapgen/core/map-context.js";
 import type { ArtifactContract, ArtifactReadValueOf, ArtifactValueOf } from "./contract.js";
 import {
   type ArtifactModule,
@@ -67,40 +70,42 @@ export class ArtifactValidationError extends Error {
 }
 
 type ArtifactModuleRuntimes<Modules extends readonly ArtifactModule[]> = Readonly<{
-  [Module in Modules[number] as Module["artifact"]["name"]]: ProvidedArtifactRuntime<
+  [Module in Modules[number] as Module["artifact"]["name"]]: ImplementedArtifactRuntime<
     Module["artifact"]
   >;
 }>;
 
 export type RequiredArtifactRuntime<C extends ArtifactContract> = Readonly<{
-  contract: C;
   /**
-   * Read an artifact as a readonly view.
+   * Read the stored artifact reference under the pipeline's immutable ownership contract.
    *
    * IMPORTANT:
    * - This does not perform runtime snapshotting/copying in production.
-   * - Consumers must treat the returned value as immutable and must not mutate it.
+   * - It does not make hostile mutation impossible; typed arrays still expose mutator methods.
+   * - Consumers must treat the returned reference as immutable and must not mutate it.
    * - If mutation is needed, callers must copy first (caller-owned copy).
    */
   read: (context: MapContext) => ArtifactReadValueOf<C>;
 }>;
 
-export type ProvidedArtifactRuntime<C extends ArtifactContract> = RequiredArtifactRuntime<C> &
-  Readonly<{
-    /**
-     * Publish an artifact (write-once).
-     *
-     * IMPORTANT:
-     * - Publishing stores the provided value reference (no deep freeze, no snapshotting in prod).
-     * - Producers must treat published values as immutable once stored.
-     */
-    publish: (context: MapContext, value: ArtifactValueOf<C>) => ArtifactReadValueOf<C>;
-    satisfies: DependencyTagDefinition["satisfies"];
-  }>;
+export type ProvidedArtifactRuntime<C extends ArtifactContract> = Readonly<{
+  /**
+   * Publish an artifact (write-once).
+   *
+   * IMPORTANT:
+   * - Publishing stores the provided value reference (no deep freeze, no snapshotting in prod).
+   * - Producers must treat published values as immutable once stored.
+   */
+  publish: (context: MapContext, value: ArtifactValueOf<C>) => ArtifactReadValueOf<C>;
+}>;
+
+/** @internal Complete provider binding retained by recipe composition, never authored step code. */
+export type ImplementedArtifactRuntime<C extends ArtifactContract> = RequiredArtifactRuntime<C> &
+  ProvidedArtifactRuntime<C> &
+  Readonly<{ contract: C }>;
 
 function resolveStepId(context: MapContext): string {
-  const trace = context.trace as { stepId?: string } | null | undefined;
-  return trace?.stepId ?? "unknown";
+  return getActiveMapContextStepIdInternal(context) ?? "unknown";
 }
 
 function snapshotArtifactModules(modules: readonly ArtifactModule[]): readonly ArtifactModule[] {
@@ -148,25 +153,10 @@ function readStored<C extends ArtifactContract>(
   hasValue: boolean;
   value: ArtifactValueOf<C> | undefined;
 } {
-  const hasValue = context.artifacts.has(contract.id);
-  const value = hasValue ? (context.artifacts.get(contract.id) as ArtifactValueOf<C>) : undefined;
-  return { hasValue, value };
-}
-
-function buildSatisfies<C extends ArtifactContract>(
-  contract: C,
-  validate: ArtifactModule<C>["validate"]
-): DependencyTagDefinition["satisfies"] {
-  return (context: MapContext) => {
-    const { hasValue, value } = readStored(context, contract);
-    if (!hasValue) return false;
-    try {
-      const issues = validate(value, { dimensions: context.setup.dimensions });
-      return issues.length === 0;
-    } catch {
-      return false;
-    }
-  };
+  const observation = readMapContextArtifactInternal(context, contract);
+  return observation.found
+    ? { hasValue: true, value: observation.value as ArtifactValueOf<C> }
+    : { hasValue: false, value: undefined };
 }
 
 function normalizeIssues(error: unknown): readonly { message: string }[] {
@@ -186,12 +176,12 @@ export function implementArtifactModules<const Modules extends readonly Artifact
 ): ArtifactModuleRuntimes<Modules> {
   const snapshots = snapshotArtifactModules(modules);
   assertUniqueModules(snapshots);
-  const entries: Array<readonly [string, ProvidedArtifactRuntime<ArtifactContract>]> = [];
+  const entries: Array<readonly [string, ImplementedArtifactRuntime<ArtifactContract>]> = [];
 
-  for (const { artifact: contract, validate } of snapshots) {
-    const satisfies = buildSatisfies(contract, validate);
+  for (const module of snapshots) {
+    const { artifact: contract, validate } = module;
 
-    const runtime: ProvidedArtifactRuntime<typeof contract> = {
+    const runtime: ImplementedArtifactRuntime<typeof contract> = {
       contract,
       read: (context) => {
         const { hasValue, value } = readStored(context, contract);
@@ -205,7 +195,7 @@ export function implementArtifactModules<const Modules extends readonly Artifact
         return value as ArtifactReadValueOf<typeof contract>;
       },
       publish: (context, value) => {
-        if (context.artifacts.has(contract.id)) {
+        if (readMapContextArtifactInternal(context, contract).found) {
           throw new ArtifactDoublePublishError({
             artifactId: contract.id,
             artifactName: contract.name,
@@ -232,10 +222,9 @@ export function implementArtifactModules<const Modules extends readonly Artifact
           });
         }
 
-        publishMapContextArtifactInternal(context, contract.id, value);
+        publishMapContextArtifactInternal(context, contract, value);
         return value as ArtifactReadValueOf<typeof contract>;
       },
-      satisfies,
     };
     entries.push([contract.name, runtime]);
   }

@@ -5,9 +5,11 @@ import type { StepFacets } from "@mapgen/engine/step-facets.js";
 import type { Static } from "typebox";
 import { implementArtifactModules } from "../artifact/runtime.js";
 import type { StepDeps, StepModule } from "../types.js";
+import { assertCanonicalStepContractInternal, registerCanonicalStepInternal } from "./authority.js";
 import type { StepContract } from "./contract.js";
 import { assertNoStepStageIdentityAliases } from "./identity.js";
 import type { StepRuntimeOps } from "./ops.js";
+import { registerStepProviderRuntimesInternal } from "./provider-runtimes.js";
 
 type StepConfigOf<C extends StepContract<any, any, any, any>> = Static<C["schema"]>;
 type StepOpsOf<C extends StepContract<any, any, any, any>> = StepRuntimeOps<NonNullable<C["ops"]>>;
@@ -29,6 +31,54 @@ type StepImpl<
   TResult,
 > = StepImplBase<MapContext, TConfig, TOps, TDeps, TResult>;
 
+type CapturedImplementationFunction = (...args: never[]) => unknown;
+
+type CapturedStepImplementation = Readonly<{
+  run: CapturedImplementationFunction;
+  normalize?: CapturedImplementationFunction;
+  metrics?: CapturedImplementationFunction;
+  viz?: CapturedImplementationFunction;
+}>;
+
+function readImplementationFunction(
+  impl: object,
+  stepId: string,
+  key: "run" | "normalize" | "metrics" | "viz",
+  required: boolean
+): CapturedImplementationFunction | undefined {
+  const descriptor = Object.getOwnPropertyDescriptor(impl, key);
+  if (!descriptor) {
+    if (required) throw new TypeError(`step "${stepId}" implementation must own ${key}`);
+    return undefined;
+  }
+  if (!descriptor.enumerable || !("value" in descriptor)) {
+    throw new TypeError(
+      `step "${stepId}" implementation ${key} must be an own enumerable data property`
+    );
+  }
+  if (descriptor.value === undefined && !required) return undefined;
+  if (typeof descriptor.value !== "function") {
+    throw new TypeError(`step "${stepId}" implementation ${key} must be a function`);
+  }
+  return descriptor.value as CapturedImplementationFunction;
+}
+
+function captureStepImplementation(stepId: string, impl: unknown): CapturedStepImplementation {
+  if ((typeof impl !== "object" && typeof impl !== "function") || impl === null) {
+    throw new TypeError(`step "${stepId}" implementation must be an object`);
+  }
+  if (Object.prototype.hasOwnProperty.call(impl, "artifacts")) {
+    throw new Error(`step "${stepId}" implementation cannot declare artifact modules`);
+  }
+  assertNoStepStageIdentityAliases(impl, `step "${stepId}" implementation`);
+
+  const run = readImplementationFunction(impl, stepId, "run", true)!;
+  const normalize = readImplementationFunction(impl, stepId, "normalize", false);
+  const metrics = readImplementationFunction(impl, stepId, "metrics", false);
+  const viz = readImplementationFunction(impl, stepId, "viz", false);
+  return Object.freeze({ run, normalize, metrics, viz });
+}
+
 /**
  * Binds executable step behavior to its admitted contract. Provider runtimes derive from the
  * contract's artifact modules, so an implementation cannot install a second contract or validator.
@@ -38,24 +88,23 @@ export function createStep<const C extends StepContract<any, any, any, any>, TRe
   contract: C,
   impl: StepImpl<C, StepConfigOf<C>, StepOpsOf<C>, StepDeps<ArtifactsOf<C>>, TResult>
 ): StepModule<C, TResult> {
-  if (!contract?.schema) {
-    const label = contract?.id ? `step "${contract.id}"` : "step";
-    throw new Error(`createStep requires an explicit schema for ${label}`);
+  if ((typeof contract !== "object" && typeof contract !== "function") || contract === null) {
+    throw new TypeError("createStep requires a contract created by defineStep");
   }
-  if (Object.prototype.hasOwnProperty.call(impl, "artifacts")) {
-    throw new Error(`step "${contract.id}" implementation cannot declare artifact modules`);
-  }
-  assertNoStepStageIdentityAliases(impl, `step "${contract.id}" implementation`);
+  assertCanonicalStepContractInternal(contract);
+  const captured = captureStepImplementation(contract.id, impl);
   const modules = contract.artifacts?.provides;
   const artifacts =
     modules === undefined || modules.length === 0 ? undefined : implementArtifactModules(modules);
 
-  return Object.freeze({
+  const step = Object.freeze({
     contract,
-    run: impl.run,
-    ...(impl.normalize === undefined ? {} : { normalize: impl.normalize }),
-    ...(impl.metrics === undefined ? {} : { metrics: impl.metrics }),
-    ...(impl.viz === undefined ? {} : { viz: impl.viz }),
-    ...(artifacts === undefined ? {} : { artifacts }),
+    run: captured.run,
+    ...(captured.normalize === undefined ? {} : { normalize: captured.normalize }),
+    ...(captured.metrics === undefined ? {} : { metrics: captured.metrics }),
+    ...(captured.viz === undefined ? {} : { viz: captured.viz }),
   }) as unknown as StepModule<C, TResult>;
+  if (artifacts !== undefined) registerStepProviderRuntimesInternal(step, artifacts);
+  registerCanonicalStepInternal(step);
+  return step;
 }

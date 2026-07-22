@@ -7,6 +7,7 @@ import {
   defineArtifact,
   defineArtifactValidator,
   defineStep,
+  readValidatedArtifact,
 } from "@mapgen/authoring/index.js";
 import { createMapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -70,16 +71,16 @@ describe("step testing surface", () => {
   it("uses declared production dependencies inside one terminal execution", () => {
     const context = createSyntheticContext();
     let result: number | Promise<number> | undefined;
-    withMapContextExecutionForTest(context, () => {
-      publishTestArtifact(context, inputModule, { value: 3 });
-      result = doubleStep.run(context, {}, {}, buildStepTestDependencies(doubleStep));
+    withMapContextExecutionForTest(context, (stepContext) => {
+      publishTestArtifact(stepContext, inputModule, { value: 3 });
+      result = doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep));
     });
 
     expect(result).toBe(6);
-    expect(context.artifacts.get(outputArtifact.id)).toEqual({ value: 6 });
+    expect(readValidatedArtifact(context, outputModule)).toEqual({ value: 6 });
     expect(() =>
-      withMapContextExecutionForTest(context, () => {
-        doubleStep.run(context, {}, {}, buildStepTestDependencies(doubleStep));
+      withMapContextExecutionForTest(context, (stepContext) => {
+        doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep));
       })
     ).toThrow("MapGen context has already completed an execution.");
   });
@@ -87,13 +88,13 @@ describe("step testing surface", () => {
   it("preserves missing-artifact attribution from the shared dependency binder", () => {
     const context = createSyntheticContext();
     expect(() =>
-      withMapContextExecutionForTest(context, () => {
-        doubleStep.run(context, {}, {}, buildStepTestDependencies(doubleStep));
+      withMapContextExecutionForTest(context, (stepContext) => {
+        doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep));
       })
     ).toThrow(ArtifactMissingError);
   });
 
-  it("rejects provider runtimes that do not implement their declared artifact contract", () => {
+  it("rejects structural steps that lack private provider authority", () => {
     const forgedStep = {
       contract: doubleStep.contract,
       artifacts: {
@@ -108,7 +109,7 @@ describe("step testing surface", () => {
     };
 
     expect(() => buildStepTestDependencies(forgedStep as never)).toThrow(
-      'has invalid artifact runtime for "outputValue"'
+      'missing artifact runtime for "outputValue"'
     );
   });
 });

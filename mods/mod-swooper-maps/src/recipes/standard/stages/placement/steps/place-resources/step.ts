@@ -70,7 +70,6 @@ export const PlaceResourcesStep = createStep(PlaceResourcesStepContract, {
     const plan = deps.artifacts.resourcePlanAdjusted.read(context);
     const { width, height } = context.setup.dimensions;
     const emit = (payload: TraceJsonObject): void => {
-      if (!context.trace?.isVerbose) return;
       context.trace.event(() => payload);
     };
 
@@ -84,7 +83,7 @@ export const PlaceResourcesStep = createStep(PlaceResourcesStepContract, {
         `[Placement] Resource reconciliation recorded ${outcomes.reconciliation.rejectedCount}/` +
           `${outcomes.reconciliation.plannedCount} typed rejections (no relocation, no type re-decision).`
       );
-      context.trace?.event(() => ({
+      context.trace.event(() => ({
         type: "placement.resources.reconciliationShortfall",
         level: "warn",
         rejectedCount: outcomes.reconciliation.rejectedCount,

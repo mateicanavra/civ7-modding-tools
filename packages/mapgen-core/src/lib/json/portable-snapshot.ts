@@ -1,3 +1,5 @@
+import { classifyThenable, containThenable } from "@mapgen/lib/async/thenable.js";
+
 type PortableJson = null | boolean | number | string | readonly PortableJson[] | PortableJsonObject;
 type PortableJsonObject = { [key: string]: PortableJson };
 
@@ -182,6 +184,11 @@ function snapshotValue(input: unknown, path: string, active: WeakSet<object>): P
     if (typeof input !== "object") {
       throw new PortableJsonSnapshotError(path, `Values of type "${typeof input}" are not JSON`);
     }
+    const completion = classifyThenable(input);
+    if (completion.kind !== "none") {
+      containThenable(completion);
+      throw new PortableJsonSnapshotError(path, "Thenables are not portable JSON");
+    }
     if (active.has(input)) {
       throw new PortableJsonSnapshotError(path, "Cyclic values are not portable JSON");
     }
@@ -200,7 +207,7 @@ function snapshotValue(input: unknown, path: string, active: WeakSet<object>): P
   }
 }
 
-/** Creates the single owned, immutable value used by exact config admission. */
+/** Creates an owned immutable snapshot of stable portable JSON without invoking accessors. */
 export function createPortableJsonSnapshot(
   input: unknown,
   path: string

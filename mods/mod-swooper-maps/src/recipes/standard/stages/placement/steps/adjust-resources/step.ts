@@ -66,7 +66,7 @@ export const AdjustResourcesStep = createStep(AdjustResourcesStepContract, {
       warnLog(
         `[Placement] Resource support pass recorded ${adjusted.shortfalls.length} typed shortfall(s): ${summary}.`
       );
-      context.trace?.event(() => ({
+      context.trace.event(() => ({
         type: "placement.resources.supportShortfall",
         level: "warn",
         shortfalls: adjusted.shortfalls,
@@ -75,7 +75,7 @@ export const AdjustResourcesStep = createStep(AdjustResourcesStepContract, {
 
     deps.artifacts.resourcePlanAdjusted.publish(context, adjusted);
 
-    context.trace?.event(() => ({
+    context.trace.event(() => ({
       type: "placement.resources.supportAdjust",
       plannedCount: adjusted.plannedCount,
       moveCount: adjusted.moveCount,

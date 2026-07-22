@@ -46,5 +46,5 @@ export type RuntimeOpFromContract<C extends OpContractAny> = BivariantFn<
   }>;
 
 export type StepRuntimeOps<Decl> = [Decl] extends [StepOpsDecl]
-  ? { [K in keyof Decl]: RuntimeOpFromContract<Decl[K]> }
-  : {};
+  ? { readonly [K in keyof Decl]: RuntimeOpFromContract<Decl[K]> }
+  : Readonly<Record<never, never>>;

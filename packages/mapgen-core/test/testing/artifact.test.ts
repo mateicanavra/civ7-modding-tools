@@ -8,6 +8,7 @@ import {
   artifactCellCount,
   defineArtifact,
   defineArtifactValidator,
+  readValidatedArtifact,
 } from "@mapgen/authoring/index.js";
 import { createMapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -57,10 +58,11 @@ function createSyntheticContext() {
 describe("artifact testing surface", () => {
   it("uses production cardinality validation and write-once publication", () => {
     const context = createSyntheticContext();
+    const admitted = { values: new Uint8Array(4) };
 
-    withMapContextExecutionForTest(context, () => {
+    withMapContextExecutionForTest(context, (stepContext) => {
       expect(() =>
-        publishTestArtifact(context, gridArtifactModule, {
+        publishTestArtifact(stepContext, gridArtifactModule, {
           values: new Uint8Array(3),
         })
       ).toThrow(
@@ -69,21 +71,20 @@ describe("artifact testing surface", () => {
         })
       );
 
-      const admitted = { values: new Uint8Array(4) };
-      publishTestArtifact(context, gridArtifactModule, admitted);
-      expect(context.artifacts.get(gridArtifact.id)).toBe(admitted);
+      publishTestArtifact(stepContext, gridArtifactModule, admitted);
 
       expect(() =>
-        publishTestArtifact(context, gridArtifactModule, {
+        publishTestArtifact(stepContext, gridArtifactModule, {
           values: new Uint8Array(4),
         })
       ).toThrow(ArtifactDoublePublishError);
     });
+    expect(readValidatedArtifact(context, gridArtifactModule)).toBe(admitted);
 
     const invalidContext = createSyntheticContext();
     expect(() =>
-      withMapContextExecutionForTest(invalidContext, () =>
-        publishTestArtifact(invalidContext, gridArtifactModule, {
+      withMapContextExecutionForTest(invalidContext, (stepContext) =>
+        publishTestArtifact(stepContext, gridArtifactModule, {
           values: new Int8Array(4) as unknown as Uint8Array,
         })
       )

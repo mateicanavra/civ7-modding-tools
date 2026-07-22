@@ -1,8 +1,6 @@
 import { StageIdSchema } from "@mapgen/authoring/stage-id.js";
 import { encodeUtf8 } from "@mapgen/lib/encoding/utf8.js";
-import type { TraceConfig, TraceLevel } from "@mapgen/trace/config.js";
 import { Type } from "typebox";
-import { Value } from "typebox/value";
 
 export type { TraceConfig, TraceLevel } from "@mapgen/trace/config.js";
 export { TraceConfigSchema, TraceLevelSchema } from "@mapgen/trace/config.js";
@@ -17,6 +15,7 @@ const TraceStepIdentitySchema = {
   ...TraceEventIdentitySchema,
   stepId: Type.String({ minLength: 1 }),
   stageId: StageIdSchema,
+  stepIndex: Type.Integer({ minimum: 0 }),
 } as const;
 
 /** Recursive value contract accepted by JSON serialization without coercion or omission. */
@@ -96,11 +95,12 @@ type TraceEventIdentity = Readonly<{
 type TraceEventPayload =
   | Readonly<{ kind: "run.start" }>
   | Readonly<{ kind: "run.finish"; success: boolean; error?: string }>
-  | Readonly<{ kind: "step.start"; stepId: string; stageId: string }>
+  | Readonly<{ kind: "step.start"; stepId: string; stageId: string; stepIndex: number }>
   | Readonly<{
       kind: "step.finish";
       stepId: string;
       stageId: string;
+      stepIndex: number;
       durationMs?: number;
       success?: boolean;
       error?: string;
@@ -109,98 +109,21 @@ type TraceEventPayload =
       kind: "step.event";
       stepId: string;
       stageId: string;
+      stepIndex: number;
       data?: TraceJsonValue;
     }>;
 
 /** Closed run-versus-step evidence emitted by one pipeline execution. */
 export type TraceEvent = TraceEventIdentity & TraceEventPayload;
 
-/** Receives immutable execution evidence without participating in pipeline control flow. */
+/** Receives immutable execution evidence synchronously without participating in control flow. */
 export interface TraceSink {
-  emit(event: TraceEvent): void;
+  emit(event: TraceEvent): undefined;
 }
 
-/** Exact authored step identity supplied by the executor for step-scoped trace evidence. */
-export interface TraceStepMeta {
-  stepId: string;
-  stageId: string;
-}
-
-/** Step-local trace capability whose identity is fixed by recipe composition. */
-export interface TraceScope {
-  readonly runId: string;
-  readonly planFingerprint: string;
-  readonly stepId: string;
-  readonly stageId: string;
-  readonly level: TraceLevel;
-  readonly isEnabled: boolean;
-  readonly isVerbose: boolean;
-  readonly event: (data?: TraceJsonValue | (() => TraceJsonValue)) => void;
-}
-
-/** Run-scoped trace lifecycle owned by one pipeline execution. */
-export interface TraceSession {
-  readonly enabled: boolean;
-  readonly runId: string;
-  readonly planFingerprint: string;
-  readonly emitRunStart: () => void;
-  readonly emitRunFinish: (result: { success: boolean; error?: string }) => void;
-  readonly emitStepStart: (meta: TraceStepMeta) => void;
-  readonly emitStepFinish: (
-    meta: TraceStepMeta & { durationMs?: number; success?: boolean; error?: string }
-  ) => void;
-  readonly createStepScope: (meta: TraceStepMeta) => TraceScope;
-}
-
-const NOOP_SCOPE: TraceScope = Object.freeze({
-  runId: "",
-  planFingerprint: "",
-  stepId: "",
-  stageId: "",
-  level: "off",
-  isEnabled: false,
-  isVerbose: false,
-  event: () => undefined,
-});
-const NOOP_SESSION: TraceSession = Object.freeze({
-  enabled: false,
-  runId: "",
-  planFingerprint: "",
-  emitRunStart: () => undefined,
-  emitRunFinish: () => undefined,
-  emitStepStart: () => undefined,
-  emitStepFinish: () => undefined,
-  createStepScope: () => NOOP_SCOPE,
-});
-
-function nowMs(): number {
-  try {
-    if (typeof performance !== "undefined" && typeof performance.now === "function") {
-      return performance.now();
-    }
-  } catch {
-    // ignore
-  }
-  return Date.now();
-}
-
-function safeEmit(sink: TraceSink, event: TraceEvent): void {
-  try {
-    if (!Value.Check(TraceEventSchema, event)) return;
-    sink.emit(event);
-  } catch {
-    // tracing should never alter execution flow
-  }
-}
-
-/** Returns the immutable disabled scope installed when no trace capability was supplied. */
-export function createNoopTraceScope(): TraceScope {
-  return NOOP_SCOPE;
-}
-
-/** Creates the executor's explicit disabled session without inventing trace identity or events. */
-export function createNoopTraceSession(): TraceSession {
-  return NOOP_SESSION;
+/** Synchronous author observation port; identity, selection, and lifecycle remain executor-owned. */
+export interface StepTrace {
+  readonly event: (data?: TraceJsonValue | (() => TraceJsonValue)) => undefined;
 }
 
 /** Creates a diagnostic sink that writes complete structured trace events to the host console. */
@@ -208,110 +131,9 @@ export function createConsoleTraceSink(): TraceSink {
   return {
     emit: (event) => {
       console.log("[trace]", event);
+      return undefined;
     },
   };
-}
-
-/** Resolves one step's trace level, defaulting an enabled session to basic lifecycle events. */
-export function resolveTraceLevel(config: TraceConfig, stepId: string): TraceLevel {
-  const level = config.steps?.[stepId];
-  return level ?? "basic";
-}
-
-/** Complete inputs for an enabled trace session; absence is represented outside this contract. */
-export interface TraceSessionOptions {
-  runId: string;
-  planFingerprint: string;
-  config: TraceConfig;
-  sink: TraceSink;
-  nowMs?: () => number;
-}
-
-/** Creates an enabled trace session from explicit identity, selection, and event-sink authority. */
-export function createTraceSession(options: TraceSessionOptions): TraceSession {
-  const { runId, planFingerprint, sink } = options;
-  const config: TraceConfig = Object.freeze({
-    steps: Object.freeze({ ...(options.config.steps ?? {}) }),
-  });
-
-  const now = options.nowMs ?? nowMs;
-  const emit = (event: TraceEventPayload): void => {
-    safeEmit(sink, {
-      tsMs: now(),
-      runId,
-      planFingerprint,
-      ...event,
-    });
-  };
-
-  const emitRunStart = (): void => {
-    emit({ kind: "run.start" });
-  };
-
-  const emitRunFinish = (result: { success: boolean; error?: string }): void => {
-    emit({
-      kind: "run.finish",
-      success: result.success,
-      ...(result.error === undefined ? {} : { error: result.error }),
-    });
-  };
-
-  const emitStepStart = (meta: TraceStepMeta): void => {
-    if (resolveTraceLevel(config, meta.stepId) === "off") return;
-    emit({ kind: "step.start", ...meta });
-  };
-
-  const emitStepFinish = (
-    meta: TraceStepMeta & { durationMs?: number; success?: boolean; error?: string }
-  ): void => {
-    if (resolveTraceLevel(config, meta.stepId) === "off") return;
-    emit({
-      kind: "step.finish",
-      stepId: meta.stepId,
-      stageId: meta.stageId,
-      ...(meta.durationMs === undefined ? {} : { durationMs: meta.durationMs }),
-      ...(meta.success === undefined ? {} : { success: meta.success }),
-      ...(meta.error === undefined ? {} : { error: meta.error }),
-    });
-  };
-
-  const createStepScope = (meta: TraceStepMeta): TraceScope => {
-    const level = resolveTraceLevel(config, meta.stepId);
-    const isEnabled = level !== "off";
-    const isVerbose = level === "verbose";
-
-    const event = (data?: TraceJsonValue | (() => TraceJsonValue)): void => {
-      if (!isVerbose) return;
-      const payload = typeof data === "function" ? data() : data;
-      emit({
-        kind: "step.event",
-        ...meta,
-        ...(payload === undefined ? {} : { data: payload }),
-      });
-    };
-
-    return Object.freeze({
-      runId,
-      planFingerprint,
-      stepId: meta.stepId,
-      stageId: meta.stageId,
-      level,
-      isEnabled,
-      isVerbose,
-      event,
-    });
-  };
-
-  return Object.freeze({
-    enabled: true,
-    runId,
-    planFingerprint,
-    emitRunStart,
-    emitRunFinish,
-    emitStepStart,
-    emitStepFinish,
-    createStepScope,
-  });
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

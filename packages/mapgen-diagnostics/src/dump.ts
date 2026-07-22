@@ -291,7 +291,7 @@ function createTraceDumpSinkWithState(
   admitPaths: (runId: string) => DumpPaths,
   stateByRun: Map<string, DumpRunState>
 ): TraceSink {
-  const emit = (event: TraceEvent): void => {
+  const emit = (event: TraceEvent): undefined => {
     try {
       const paths = admitPaths(event.runId);
       const runPlan = planDumpRunState(stateByRun, event.runId, event.planFingerprint);
@@ -311,6 +311,7 @@ function createTraceDumpSinkWithState(
     } catch {
       // Trace persistence is diagnostic evidence and must never alter generation flow.
     }
+    return undefined;
   };
 
   return { emit };

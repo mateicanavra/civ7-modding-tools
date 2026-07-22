@@ -12,13 +12,29 @@ export type Civ7LatitudeBounds = Readonly<{
   bottomLatitude: number;
 }>;
 
+/** Complete static map metadata generated for every selectable Civ7 standard map size. */
+export type Civ7StandardMapInfo = Readonly<
+  MapInfo & {
+    GridWidth: number;
+    GridHeight: number;
+    MinLatitude: number;
+    MaxLatitude: number;
+    NumNaturalWonders: number;
+    LakeGenerationFrequency: number;
+    PlayersLandmass1: number;
+    PlayersLandmass2: number;
+    StartSectorRows: number;
+    StartSectorCols: number;
+  }
+>;
+
 export type Civ7StandardMapSizePreset = Readonly<{
   id: Civ7StandardMapSizeId;
   label: "Tiny" | "Small" | "Standard" | "Large" | "Huge";
   dimensions: Readonly<{ width: number; height: number }>;
   defaultPlayers: number;
   latitudeBounds: Civ7LatitudeBounds;
-  mapInfo: MapInfo;
+  mapInfo: Civ7StandardMapInfo;
 }>;
 
 export const CIV7_STANDARD_ROW_LATITUDE_BOUNDS: Civ7LatitudeBounds = {

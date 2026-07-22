@@ -81,11 +81,9 @@ export function applyPlacementPlan({
   publishEngineState = (engineState) => engineState,
   publishEngineTerrainSnapshot = (snapshot) => snapshot,
 }: ApplyPlacementArgs): ApplyPlacementResult {
-  const { trace } = context;
   const { width, height } = context.setup.dimensions;
   const emit = (payload: TraceJsonObject): void => {
-    if (!trace?.isVerbose) return;
-    trace.event(() => payload);
+    context.trace.event(() => payload);
   };
 
   emit({ type: "placement.start", message: "[SWOOPER_MOD] === placement summary ===" });

@@ -14,7 +14,6 @@ import { createDiagnosticDumpAdapters } from "@swooper/mapgen-diagnostics";
 import { admitStandardMapConfig } from "../../src/maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
-import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { isJsonDataObject, mergeDiagnosticConfig, parseDiagnosticArgs } from "./command-input.js";
 
 const DEFAULT_MAP_SIZE_ID = "MAPSIZE_STANDARD";
@@ -125,13 +124,13 @@ async function main(): Promise<void> {
   const context = createMapContext({ setup: plan.setup, adapter });
   let runId: string | undefined;
   const traceSink: TraceSink = {
-    emit: (event: TraceEvent): void => {
+    emit: (event: TraceEvent): undefined => {
       if (event.kind === "run.start") runId = event.runId;
       vizOutputs.traceSink.emit(event);
+      return undefined;
     },
   };
 
-  initializeStandardRuntime(context, { mapInfo, logPrefix: "[diag]" });
   standardRecipe.execute(context, plan, {
     trace: {
       config: { steps: verboseSteps },

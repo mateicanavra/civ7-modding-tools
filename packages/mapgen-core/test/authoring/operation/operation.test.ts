@@ -99,9 +99,13 @@ describe("operation authoring", () => {
 
     const compileOps = bindCompileOps(declarations, { [compileOp.id]: compileOp });
     expect(compileOps.trees).toBe(compileOp);
+    expect(Object.isFrozen(compileOps)).toBe(true);
+    expect(() => Object.defineProperty(compileOps, "trees", { value: undefined })).toThrow();
 
     const runtimeOps = bindRuntimeOps(declarations, { [compileOp.id]: runtimeOp(compileOp) });
     expect(runtimeOps.trees.id).toBe(compileOp.id);
+    expect(Object.isFrozen(runtimeOps)).toBe(true);
+    expect(() => Object.defineProperty(runtimeOps, "trees", { value: undefined })).toThrow();
   });
 
   it("bindCompileOps throws when registry is missing an op id", () => {

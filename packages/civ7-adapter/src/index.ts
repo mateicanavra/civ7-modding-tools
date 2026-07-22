@@ -32,6 +32,7 @@ export type { EngineEffectTagId } from "./effects.js";
 export { ENGINE_EFFECT_TAGS } from "./effects.js";
 export type {
   Civ7LatitudeBounds,
+  Civ7StandardMapInfo,
   Civ7StandardMapSizeId,
   Civ7StandardMapSizePreset,
 } from "./map-metadata.js";

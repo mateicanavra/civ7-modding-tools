@@ -15,9 +15,12 @@ export {
   ArtifactDoublePublishError,
   ArtifactMissingError,
   ArtifactValidationError,
-  implementArtifactModules,
 } from "./runtime.js";
-export { readValidatedArtifact } from "./validated-read.js";
+export {
+  observeValidatedArtifact,
+  readValidatedArtifact,
+  type ValidatedArtifactObservation,
+} from "./validated-read.js";
 export type {
   ArtifactValidationContext,
   ArtifactValidationIssue,

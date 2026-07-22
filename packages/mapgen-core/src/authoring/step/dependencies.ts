@@ -1,46 +1,61 @@
 import type { MapContext } from "@mapgen/core/map-context.js";
+import {
+  getActiveMapContextStepIdInternal,
+  readMapContextArtifactInternal,
+} from "@mapgen/core/map-context.js";
 
 import type { ArtifactContract, ArtifactReadValueOf } from "../artifact/contract.js";
 import type { ArtifactModule } from "../artifact/module.js";
 import {
   ArtifactMissingError,
+  type ImplementedArtifactRuntime,
   type ProvidedArtifactRuntime,
   type RequiredArtifactRuntime,
 } from "../artifact/runtime.js";
 import type { StepDeps } from "../types.js";
 import type { StepArtifactsDeclAny } from "./contract.js";
+import { readStepProviderRuntimesInternal } from "./provider-runtimes.js";
 
 type DeclaredArtifactStep<Artifacts extends StepArtifactsDeclAny | undefined> = Readonly<{
   contract: Readonly<{ artifacts?: Artifacts }>;
-  artifacts?: object;
 }>;
+
+function assertArtifactCapabilityOwner(context: MapContext, consumerStepId: string): void {
+  if (getActiveMapContextStepIdInternal(context) !== consumerStepId) {
+    throw new Error(
+      `Artifact capability for step "${consumerStepId}" requires that step's exact active context.`
+    );
+  }
+}
 
 function createRequiredArtifactRuntime<C extends ArtifactContract>(
   contract: C,
   consumerStepId: string
 ): RequiredArtifactRuntime<C> {
-  return {
-    contract,
+  return Object.freeze({
     read: (context: MapContext) => {
-      if (!context.artifacts.has(contract.id)) {
+      assertArtifactCapabilityOwner(context, consumerStepId);
+      const observation = readMapContextArtifactInternal(context, contract);
+      if (!observation.found) {
         throw new ArtifactMissingError({
           artifactId: contract.id,
           artifactName: contract.name,
           consumerStepId,
         });
       }
-      return context.artifacts.get(contract.id) as ArtifactReadValueOf<C>;
+      return observation.value as ArtifactReadValueOf<C>;
     },
-  };
+  });
 }
 
-function resolveProvidedArtifactRuntime(
+/** @internal Resolves the complete provider binding retained by one admitted step module. */
+export function resolveProvidedArtifactRuntimeInternal(
   authored: DeclaredArtifactStep<StepArtifactsDeclAny | undefined>,
   contract: ArtifactContract,
   consumerStepId: string,
   owner: string
-): ProvidedArtifactRuntime<any> {
-  const runtimes = authored.artifacts as Readonly<Record<string, unknown>> | undefined;
+): ImplementedArtifactRuntime<any> {
+  const runtimes = readStepProviderRuntimesInternal(authored);
   if (!runtimes || !Object.hasOwn(runtimes, contract.name)) {
     throw new Error(
       `[${owner}] step "${consumerStepId}" missing artifact runtime for "${contract.name}"`
@@ -52,14 +67,25 @@ function resolveProvidedArtifactRuntime(
     runtime === null ||
     (runtime as { contract?: unknown }).contract !== contract ||
     typeof (runtime as { read?: unknown }).read !== "function" ||
-    typeof (runtime as { publish?: unknown }).publish !== "function" ||
-    typeof (runtime as { satisfies?: unknown }).satisfies !== "function"
+    typeof (runtime as { publish?: unknown }).publish !== "function"
   ) {
     throw new Error(
       `[${owner}] step "${consumerStepId}" has invalid artifact runtime for "${contract.name}"`
     );
   }
-  return runtime as unknown as ProvidedArtifactRuntime<any>;
+  return runtime as unknown as ImplementedArtifactRuntime<any>;
+}
+
+function authorProvidedArtifactRuntime(
+  runtime: ImplementedArtifactRuntime<any>,
+  consumerStepId: string
+): ProvidedArtifactRuntime<any> {
+  return Object.freeze({
+    publish: (context, value) => {
+      assertArtifactCapabilityOwner(context, consumerStepId);
+      return runtime.publish(context, value);
+    },
+  });
 }
 
 function bindArtifactDependency(
@@ -85,7 +111,9 @@ export function buildDeclaredStepDependencies<Artifacts extends StepArtifactsDec
   input: Readonly<{ consumerStepId: string; owner: string }>
 ): StepDeps<Artifacts> {
   const artifacts = authored.contract.artifacts;
-  if (!artifacts) return { artifacts: {} } as StepDeps<Artifacts>;
+  if (!artifacts) {
+    return Object.freeze({ artifacts: Object.freeze({}) }) as StepDeps<Artifacts>;
+  }
 
   const bound: Record<string, RequiredArtifactRuntime<any> | ProvidedArtifactRuntime<any>> = {};
   for (const contract of artifacts.requires ?? []) {
@@ -101,10 +129,18 @@ export function buildDeclaredStepDependencies<Artifacts extends StepArtifactsDec
     bindArtifactDependency(
       bound,
       contract.name,
-      resolveProvidedArtifactRuntime(authored, contract, input.consumerStepId, input.owner),
+      authorProvidedArtifactRuntime(
+        resolveProvidedArtifactRuntimeInternal(
+          authored,
+          contract,
+          input.consumerStepId,
+          input.owner
+        ),
+        input.consumerStepId
+      ),
       input
     );
   }
 
-  return { artifacts: bound } as StepDeps<Artifacts>;
+  return Object.freeze({ artifacts: Object.freeze(bound) }) as StepDeps<Artifacts>;
 }

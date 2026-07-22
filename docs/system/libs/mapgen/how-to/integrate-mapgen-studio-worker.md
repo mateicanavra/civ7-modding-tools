@@ -153,8 +153,8 @@ Concrete forwarding logic (excerpt):
 
 ```ts
 // apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts
-if (event.kind === "step.start") post({ type: "run.progress", runToken, generation, kind: "step.start", stageId: event.stageId, stepId: event.stepId, stepIndex });
-if (event.kind === "step.finish") post({ type: "run.progress", runToken, generation, kind: "step.finish", stageId: event.stageId, stepId: event.stepId, stepIndex, durationMs: event.durationMs });
+if (event.kind === "step.start") post({ type: "run.progress", runToken, generation, kind: "step.start", stageId: event.stageId, stepId: event.stepId, stepIndex: event.stepIndex });
+if (event.kind === "step.finish") post({ type: "run.progress", runToken, generation, kind: "step.finish", stageId: event.stageId, stepId: event.stepId, stepIndex: event.stepIndex, durationMs: event.durationMs });
 
 // apps/mapgen-studio/src/browser-runner/worker-viz-facet-sink.ts
 const emitted = materializeVizProjection(projection, identity, materializeInline);

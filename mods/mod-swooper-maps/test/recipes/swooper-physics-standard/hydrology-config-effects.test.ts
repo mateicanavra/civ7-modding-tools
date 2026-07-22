@@ -1,12 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { sha256Hex } from "@swooper/mapgen-core";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 
 import { buildStandardRecipeDefaultConfig } from "../../../src/recipes/standard/artifacts.js";
 import type { StandardRecipeConfig } from "../../../src/recipes/standard/recipe.js";
-import { artifacts as hydrologyClimateBaselineArtifacts } from "../../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
-import { artifacts as hydrologyClimateRefineArtifacts } from "../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { artifactModules as hydrologyClimateBaselineArtifactModules } from "../../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
+import { artifactModules as hydrologyClimateRefineArtifactModules } from "../../../src/recipes/standard/stages/hydrology-climate-refine/artifacts/index.js";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { runStandardRecipeTestMap } from "./fixtures/standard-recipe.js";
 
 const seed = 123;
@@ -80,29 +81,19 @@ describe("Standard hydrology configuration effects", () => {
 });
 
 function riverTileCount(context: ReturnType<typeof runStandardConfig>): number {
-  const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
-    | { riverClass?: Uint8Array }
-    | undefined;
-  if (!(hydrography?.riverClass instanceof Uint8Array)) {
-    throw new Error("Standard hydrology did not publish classified river evidence.");
-  }
+  const hydrography = readValidatedArtifact(
+    context,
+    hydrologyHydrographyArtifactModules.hydrography
+  );
   return hydrography.riverClass.reduce((count, riverClass) => count + Number(riverClass > 0), 0);
 }
 
 function climateSignals(context: ReturnType<typeof runStandardConfig>) {
-  const field = context.artifacts.get(hydrologyClimateRefineArtifacts.climateField.id) as
-    | { rainfall?: Uint8Array; humidity?: Uint8Array }
-    | undefined;
-  const indices = context.artifacts.get(hydrologyClimateRefineArtifacts.climateIndices.id) as
-    | { aridityIndex?: Float32Array }
-    | undefined;
-  if (
-    !(field?.rainfall instanceof Uint8Array) ||
-    !(field.humidity instanceof Uint8Array) ||
-    !(indices?.aridityIndex instanceof Float32Array)
-  ) {
-    throw new Error("Standard hydrology did not publish its admitted climate evidence.");
-  }
+  const field = readValidatedArtifact(context, hydrologyClimateRefineArtifactModules.climateField);
+  const indices = readValidatedArtifact(
+    context,
+    hydrologyClimateRefineArtifactModules.climateIndices
+  );
   return {
     rainfall: mean(field.rainfall),
     humidity: mean(field.humidity),
@@ -111,29 +102,19 @@ function climateSignals(context: ReturnType<typeof runStandardConfig>) {
 }
 
 function surfaceTemperature(context: ReturnType<typeof runStandardConfig>): number {
-  const indices = context.artifacts.get(hydrologyClimateRefineArtifacts.climateIndices.id) as
-    | { surfaceTemperatureC?: Float32Array }
-    | undefined;
-  if (!(indices?.surfaceTemperatureC instanceof Float32Array)) {
-    throw new Error("Standard hydrology did not publish surface-temperature evidence.");
-  }
+  const indices = readValidatedArtifact(
+    context,
+    hydrologyClimateRefineArtifactModules.climateIndices
+  );
   return mean(indices.surfaceTemperatureC);
 }
 
 function seasonalitySignals(context: ReturnType<typeof runStandardConfig>) {
-  const topography = context.artifacts.get(morphologyArtifacts.topography.id) as
-    | { elevation?: Int16Array }
-    | undefined;
-  const seasonality = context.artifacts.get(
-    hydrologyClimateBaselineArtifacts.climateSeasonality.id
-  ) as { rainfallAmplitude?: Uint8Array; humidityAmplitude?: Uint8Array } | undefined;
-  if (
-    !(topography?.elevation instanceof Int16Array) ||
-    !(seasonality?.rainfallAmplitude instanceof Uint8Array) ||
-    !(seasonality.humidityAmplitude instanceof Uint8Array)
-  ) {
-    throw new Error("Standard hydrology did not publish its admitted seasonality evidence.");
-  }
+  const topography = readValidatedArtifact(context, morphologyArtifactModules.topography);
+  const seasonality = readValidatedArtifact(
+    context,
+    hydrologyClimateBaselineArtifactModules.climateSeasonality
+  );
   const bytes = new Uint8Array(
     topography.elevation.buffer,
     topography.elevation.byteOffset,

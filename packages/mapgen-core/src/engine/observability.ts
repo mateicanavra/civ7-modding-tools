@@ -2,8 +2,8 @@ import {
   type ExecutionPlan,
   getExecutionPlanBindingInternal,
 } from "@mapgen/engine/execution-plan.js";
-import type { TraceConfig, TraceSession, TraceSink } from "@mapgen/trace/index.js";
-import { createTraceSession } from "@mapgen/trace/index.js";
+import type { TraceConfig, TraceSink } from "@mapgen/trace/index.js";
+import { createTraceSessionInternal, type TraceSession } from "@mapgen/trace/session.js";
 
 /** Observation configuration for one execution attempt of a compiled plan. */
 export type PlanTraceOptions = Readonly<{
@@ -25,7 +25,7 @@ export function createTraceSessionForExecutionInternal(
   planFingerprint: string,
   trace: PlanTraceOptions
 ): TraceSession {
-  return createTraceSession({
+  return createTraceSessionInternal({
     runId,
     planFingerprint,
     config: trace.config,

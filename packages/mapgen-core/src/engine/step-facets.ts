@@ -1,3 +1,4 @@
+import { classifyThenable, containThenable } from "@mapgen/lib/async/thenable.js";
 import type { MetricProjection } from "@swooper/mapgen-metrics";
 import type { VizProjection } from "@swooper/mapgen-viz";
 import type { StepFacetInput, StepFacets } from "./step-projectors.js";
@@ -46,26 +47,10 @@ type StepFacetDispatchInput<TConfig, TResult> = Readonly<{
   context: StepFacetSinkContext;
 }>;
 
-function isThenable(value: unknown): value is PromiseLike<unknown> {
-  return (
-    (typeof value === "object" || typeof value === "function") &&
-    value !== null &&
-    typeof (value as { then?: unknown }).then === "function"
-  );
-}
-
-function containThenable(thenable: PromiseLike<unknown>): void {
-  try {
-    thenable.then(undefined, () => undefined);
-  } catch {
-    // The synchronous contract is already violated; rejection containment is best-effort.
-  }
-}
-
 function reportFacetFailure(sinks: StepFacetSinks, failure: StepFacetFailure): void {
   try {
     const observed = sinks.onError?.(Object.freeze(failure)) as unknown;
-    if (isThenable(observed)) containThenable(observed);
+    containThenable(classifyThenable(observed));
   } catch {
     // Optional evidence and its observer can never alter generation success.
   }
@@ -83,8 +68,9 @@ function emitMetrics<TConfig, TResult>(
   let projection: MetricProjection;
   try {
     projection = project(facetInput);
-    if (isThenable(projection)) {
-      containThenable(projection);
+    const completion = classifyThenable(projection);
+    if (completion.kind !== "none") {
+      containThenable(completion);
       throw new TypeError("Step metrics projectors must be synchronous.");
     }
   } catch (error) {
@@ -99,8 +85,9 @@ function emitMetrics<TConfig, TResult>(
 
   try {
     const emitted = emit(projection, input.context) as unknown;
-    if (isThenable(emitted)) {
-      containThenable(emitted);
+    const completion = classifyThenable(emitted);
+    if (completion.kind !== "none") {
+      containThenable(completion);
       throw new TypeError("Step metrics sinks must be synchronous.");
     }
   } catch (error) {
@@ -125,8 +112,9 @@ function emitViz<TConfig, TResult>(
   let projections: readonly VizProjection[];
   try {
     const projected = project(facetInput);
-    if (isThenable(projected)) {
-      containThenable(projected);
+    const completion = classifyThenable(projected);
+    if (completion.kind !== "none") {
+      containThenable(completion);
       throw new TypeError("Step viz projectors must be synchronous.");
     }
     if (!Array.isArray(projected)) {
@@ -145,8 +133,9 @@ function emitViz<TConfig, TResult>(
 
   try {
     const emitted = emit(projections, input.context) as unknown;
-    if (isThenable(emitted)) {
-      containThenable(emitted);
+    const completion = classifyThenable(emitted);
+    if (completion.kind !== "none") {
+      containThenable(completion);
       throw new TypeError("Step viz sinks must be synchronous.");
     }
   } catch (error) {

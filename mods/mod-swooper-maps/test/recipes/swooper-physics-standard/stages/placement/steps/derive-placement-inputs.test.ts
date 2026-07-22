@@ -5,7 +5,6 @@ import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
-import { initializeStandardRuntime } from "../../../../../../src/recipes/standard/runtime.js";
 import { buildPlacementInputs } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/inputs.js";
 import { buildNaturalWonderPlanInputRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-input-telemetry.js";
 import { buildNaturalWonderPlanRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-telemetry.js";
@@ -54,8 +53,6 @@ describe("derive placement inputs", () => {
       }),
       adapter,
     });
-    initializeStandardRuntime(context, { mapInfo });
-
     let capturedNaturalWonderInput:
       | {
           featureCatalog?: ReadonlyArray<{ direction: number; footprintOffsetsByParity?: unknown }>;
@@ -167,8 +164,6 @@ describe("derive placement inputs", () => {
       }),
       adapter,
     });
-    initializeStandardRuntime(context, { mapInfo });
-
     let capturedNaturalWonderInput:
       | {
           featureCatalog?: ReadonlyArray<{

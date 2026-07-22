@@ -38,46 +38,16 @@ type ArtifactContractsOfModules<T extends readonly ArtifactModule[]> = {
   readonly [K in keyof T]: T[K] extends ArtifactModule<infer C> ? C : never;
 };
 
-/** Provider runtimes keyed by the artifact names carried by a step's admitted modules. */
-export type StepProvidedArtifactsRuntime<TArtifacts extends StepArtifactsDeclAny | undefined> =
-  TArtifacts extends StepArtifactsDecl<any, infer Provides>
-    ? Provides extends readonly ArtifactModule[]
-      ? {
-          [K in ArtifactNameOf<ArtifactContractsOfModules<Provides>>]: ProvidedArtifactRuntime<
-            ArtifactByName<ArtifactContractsOfModules<Provides>, K>
-          >;
-        }
-      : {}
-    : {};
-
-/** Runtime publication surface derived by `createStep` from the author's artifact modules. */
-export type StepArtifactRuntimes<TArtifacts extends StepArtifactsDeclAny | undefined> =
-  TArtifacts extends StepArtifactsDecl<any, infer Provides>
-    ? [Provides] extends [undefined]
-      ? Readonly<{ artifacts?: never }>
-      : Provides extends readonly []
-        ? Readonly<{ artifacts?: never }>
-        : Provides extends readonly ArtifactModule[]
-          ? number extends Provides["length"]
-            ? Readonly<{
-                artifacts?: StepProvidedArtifactsRuntime<TArtifacts>;
-              }>
-            : Readonly<{
-                artifacts: StepProvidedArtifactsRuntime<TArtifacts>;
-              }>
-          : Readonly<{ artifacts?: never }>
-    : Readonly<{ artifacts?: never }>;
-
 type ArtifactListOrEmpty<T> = T extends readonly ArtifactContract[] ? T : readonly [];
 
 type StepArtifactsSurface<TArtifacts extends StepArtifactsDeclAny | undefined> =
   TArtifacts extends StepArtifactsDecl<infer Requires, infer Provides>
     ? {
-        [K in ArtifactNameOf<ArtifactListOrEmpty<Requires>>]: RequiredArtifactRuntime<
+        readonly [K in ArtifactNameOf<ArtifactListOrEmpty<Requires>>]: RequiredArtifactRuntime<
           ArtifactByName<ArtifactListOrEmpty<Requires>, K>
         >;
       } & {
-        [K in Provides extends readonly ArtifactModule[]
+        readonly [K in Provides extends readonly ArtifactModule[]
           ? ArtifactNameOf<ArtifactContractsOfModules<Provides>>
           : never]: ProvidedArtifactRuntime<
           ArtifactByName<
@@ -97,7 +67,7 @@ export type StepDeps<TArtifacts extends StepArtifactsDeclAny | undefined> = Read
    * Legacy mutable buffer aliases retire into explicit artifact vintages rather
    * than becoming a second dependency authority.
    */
-  artifacts: StepArtifactsSurface<TArtifacts>;
+  artifacts: Readonly<StepArtifactsSurface<TArtifacts>>;
 }>;
 
 type StepContractAny = StepContract<any, any, any, any>;
@@ -118,8 +88,7 @@ export type StepModule<C extends StepContractAny = StepContractAny, TResult = un
     deps: StepDeps<StepArtifactsDeclOfContract<C>>
   ) => TResult | Promise<TResult>;
 }> &
-  StepFacets<StepConfigOfContract<C>, TResult> &
-  StepArtifactRuntimes<StepArtifactsDeclOfContract<C>>;
+  StepFacets<StepConfigOfContract<C>, TResult>;
 
 /** Canonical authored step module accepted by stage composition. */
 export type Step<C extends StepContractAny = StepContractAny, TResult = unknown> = StepModule<
@@ -334,7 +303,6 @@ type RecipeStepObservation = Readonly<{
     artifacts?: StepArtifactsDeclAny;
     ops?: StepOpsDecl;
   }>;
-  artifacts?: object;
   normalize?: (config: unknown, ctx: NormalizeContext) => unknown;
   run: (...args: never[]) => unknown;
   metrics?: (...args: never[]) => unknown;

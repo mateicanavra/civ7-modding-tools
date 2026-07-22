@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { implementArtifactModules } from "@mapgen/authoring/artifact/runtime.js";
 import {
   createRecipe,
   createStage,
@@ -7,20 +8,20 @@ import {
   defineArtifact,
   defineArtifactValidator,
   defineStep,
-  implementArtifactModules,
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
 import {
   compileExecutionPlan,
+  type DependencyEvidence,
   InvalidDependencyTagDemoError,
   InvalidDependencyTagError,
-  isDependencyTagSatisfied,
   PipelineExecutor,
   StepRegistry,
   TagRegistry,
   UnknownDependencyTagError,
 } from "@mapgen/engine/index.js";
+import { isDependencyTagSatisfied, registerDependencyTagsInternal } from "@mapgen/engine/tags.js";
 import { Type } from "typebox";
 
 const TEST_TAGS = {
@@ -67,17 +68,17 @@ function executeContextStep(context: MapContext, run: (context: MapContext) => v
 describe("tag registry", () => {
   it("validates and retains one owned snapshot of each step dependency list", () => {
     let reads = 0;
-    const varyingRequires = ["artifact:test.snapshot"];
+    const varyingRequires = ["effect:test.snapshot"];
     varyingRequires[Symbol.iterator] = () => {
       reads += 1;
       const dependencyByRead: Readonly<Record<number, string>> = {
-        1: "artifact:test.snapshot",
+        1: "effect:test.snapshot",
       };
-      const dependency = dependencyByRead[reads] ?? "artifact:test.forged";
+      const dependency = dependencyByRead[reads] ?? "effect:test.forged";
       return [dependency][Symbol.iterator]();
     };
     const registry = new StepRegistry();
-    registry.registerTag({ id: "artifact:test.snapshot", kind: "artifact" });
+    registry.registerTag({ id: "effect:test.snapshot", kind: "effect" });
 
     registry.register({
       id: "snapshot-consumer",
@@ -88,15 +89,15 @@ describe("tag registry", () => {
     });
 
     expect(reads).toBe(1);
-    expect(registry.get("snapshot-consumer").requires).toEqual(["artifact:test.snapshot"]);
+    expect(registry.get("snapshot-consumer").requires).toEqual(["effect:test.snapshot"]);
   });
 
-  it("admits only artifact and effect dependency kinds", () => {
+  it("reserves artifact dependency registration for recipe-owned modules", () => {
     const registry = new TagRegistry();
 
     expect(() =>
-      registry.registerTag({ id: "artifact:test.snapshot", kind: "artifact" })
-    ).not.toThrow();
+      registry.registerTag({ id: "artifact:test.snapshot", kind: "artifact" } as never)
+    ).toThrow(InvalidDependencyTagError);
     expect(() => registry.registerTag({ id: "effect:test.applied", kind: "effect" })).not.toThrow();
     expect(() => registry.registerTag({ id: "field:test.legacy", kind: "field" } as never)).toThrow(
       InvalidDependencyTagError
@@ -135,18 +136,19 @@ describe("tag registry", () => {
       setup: baseSetup,
       adapter: createMockAdapter({ width: 2, height: 2, rng: () => 0 }),
     });
+    const artifactModule = {
+      artifact,
+      validate: defineArtifactValidator(artifact),
+    };
     const registry = new TagRegistry();
-    registry.registerTag({
-      id: artifact.id,
-      kind: "artifact",
-      satisfies: (current) => current.artifacts.has(artifact.id),
-    });
-    const runtimes = implementArtifactModules([
+    registerDependencyTagsInternal(registry, [
       {
-        artifact,
-        validate: defineArtifactValidator(artifact),
+        id: artifact.id,
+        kind: "artifact",
+        satisfies: (evidence) => evidence.observeArtifact(artifactModule).found,
       },
     ]);
+    const runtimes = implementArtifactModules([artifactModule]);
 
     expect(
       isDependencyTagSatisfied(
@@ -196,6 +198,84 @@ describe("tag registry", () => {
       )
     ).toBe(false);
     expect(Object.isFrozen(registry.get(definition.id))).toBe(true);
+  });
+
+  it("fails closed and contains rejecting untyped dependency predicates", async () => {
+    const context = createMapContext({
+      setup: baseSetup,
+      adapter: createMockAdapter({ width: 2, height: 2 }),
+    });
+    const id = "effect:test.async-predicate";
+    const registry = new TagRegistry();
+    registry.registerTag({
+      id,
+      kind: "effect",
+      satisfies: (async () => {
+        throw new Error("late satisfaction failure");
+      }) as unknown as (evidence: DependencyEvidence) => boolean,
+    });
+
+    expect(() =>
+      isDependencyTagSatisfied(id, context, { satisfied: new Set([id]) }, registry)
+    ).toThrow(/satisfaction predicate must return a boolean/);
+    await Promise.resolve();
+  });
+
+  it("fails closed and contains a rejecting untyped demo validator", async () => {
+    const registry = new TagRegistry();
+
+    expect(() =>
+      registry.registerTag({
+        id: "effect:test.async-demo-validator",
+        kind: "effect",
+        demo: { ready: true },
+        validateDemo: (async () => {
+          throw new Error("late demo validation failure");
+        }) as unknown as (demo: unknown) => boolean,
+      })
+    ).toThrow(InvalidDependencyTagDemoError);
+    await Promise.resolve();
+  });
+
+  it("revokes each dependency-evidence capability after its predicate returns", () => {
+    const artifact = defineArtifact({
+      name: "revokedEvidence",
+      id: "artifact:test.revoked-evidence",
+      schema: Type.Unknown(),
+    });
+    const artifactModule = { artifact, validate: defineArtifactValidator(artifact) };
+    const context = createMapContext({
+      setup: baseSetup,
+      adapter: createMockAdapter({ width: 2, height: 2 }),
+    });
+    let retained: DependencyEvidence | undefined;
+    function retainEvidence(evidence: DependencyEvidence): true {
+      retained = evidence;
+      return true;
+    }
+    const registry = new TagRegistry();
+    registerDependencyTagsInternal(registry, [
+      {
+        id: artifact.id,
+        kind: "artifact",
+        satisfies: retainEvidence,
+      },
+    ]);
+
+    expect(
+      isDependencyTagSatisfied(
+        artifact.id,
+        context,
+        { satisfied: new Set([artifact.id]) },
+        registry
+      )
+    ).toBe(true);
+    expect(() => retained?.verifyEffect()).toThrow(
+      "available only during its satisfaction predicate"
+    );
+    expect(() => retained?.observeArtifact(artifactModule)).toThrow(
+      "available only during its satisfaction predicate"
+    );
   });
 
   it("snapshots selected authority without rerunning tag admission", () => {
@@ -256,8 +336,8 @@ describe("tag registry", () => {
 
     expect(() =>
       registry.registerTag({
-        id: "artifact:demo",
-        kind: "artifact",
+        id: "effect:test.demo",
+        kind: "effect",
         demo: "bad",
         validateDemo: (demo) => typeof demo === "number",
       })
@@ -271,7 +351,7 @@ describe("tag registry", () => {
     registry.registerTag({
       id: TEST_TAGS.effect.failedPostcondition,
       kind: "effect",
-      satisfies: (_context, _state) => false,
+      satisfies: () => false,
     });
     registry.register({
       id: "failing-provider",
@@ -290,6 +370,30 @@ describe("tag registry", () => {
     expect(stepResults[0]?.error).toContain(TEST_TAGS.effect.failedPostcondition);
   });
 
+  it("binds effect verification to the tag whose predicate is being evaluated", () => {
+    const adapter = createMockAdapter({ width: 2, height: 2 });
+    const verifiedEffectIds: string[] = [];
+    Object.defineProperty(adapter, "verifyEffect", {
+      value: (effectId: string) => {
+        verifiedEffectIds.push(effectId);
+        return true;
+      },
+    });
+    const registry = new TagRegistry();
+    const effectId = "effect:test.bound-verification";
+    registry.registerTag({
+      id: effectId,
+      kind: "effect",
+      satisfies: (evidence) => evidence.verifyEffect(),
+    });
+    const context = createMapContext({ setup: baseSetup, adapter });
+
+    expect(
+      isDependencyTagSatisfied(effectId, context, { satisfied: new Set([effectId]) }, registry)
+    ).toBe(true);
+    expect(verifiedEffectIds).toEqual([effectId]);
+  });
+
   it("accepts provides when effect postconditions pass", () => {
     const adapter = createMockAdapter({ width: 2, height: 2 });
 
@@ -297,7 +401,7 @@ describe("tag registry", () => {
     registry.registerTag({
       id: TEST_TAGS.effect.passedPostcondition,
       kind: "effect",
-      satisfies: (_context, _state) => true,
+      satisfies: () => true,
     });
     registry.register({
       id: "passing-provider",
@@ -313,6 +417,49 @@ describe("tag registry", () => {
     const { stepResults } = executor.executePlanReport(ctx, plan);
 
     expect(stepResults[0]?.success).toBe(true);
+  });
+
+  it("evaluates artifact postconditions through private in-run observation", () => {
+    const artifact = defineArtifact({
+      name: "inRunObservation",
+      id: "artifact:test.in-run-observation",
+      schema: Type.Object({ valid: Type.Boolean() }, { additionalProperties: false }),
+    });
+    const artifactModule = { artifact, validate: defineArtifactValidator(artifact) };
+    const runtimes = implementArtifactModules([artifactModule]);
+    let observed = false;
+    function observePublishedArtifact(evidence: DependencyEvidence): boolean {
+      observed = true;
+      const observation = evidence.observeArtifact(artifactModule);
+      return observation.found && observation.value.valid;
+    }
+    const registry = new StepRegistry();
+    registerDependencyTagsInternal(registry.getTagRegistry(), [
+      {
+        id: artifact.id,
+        kind: "artifact",
+        satisfies: observePublishedArtifact,
+      },
+    ]);
+    registry.register({
+      id: "publish-observed-artifact",
+      stageId: "foundation",
+      requires: [],
+      provides: [artifact.id],
+      run: (context) => runtimes.inRunObservation.publish(context, { valid: true }),
+    });
+    const plan = compilePlan(registry, baseSetup, ["publish-observed-artifact"]);
+    const context = createMapContext({
+      setup: plan.setup,
+      adapter: createMockAdapter({ width: 2, height: 2 }),
+    });
+
+    const { stepResults } = new PipelineExecutor(registry).executePlanReport(context, plan);
+
+    expect(observed).toBe(true);
+    expect(stepResults).toEqual([
+      expect.objectContaining({ stepId: "publish-observed-artifact", success: true }),
+    ]);
   });
 
   it("fails fast when a provider step skips artifact publish", () => {

@@ -1,6 +1,6 @@
 import type { MapContext } from "@mapgen/core/map-context.js";
 
-type PublicMapContextShape = Pick<MapContext, "setup" | "adapter" | "artifacts" | "trace">;
+type PublicMapContextShape = Pick<MapContext, "setup" | "adapter" | "trace">;
 
 declare const structurallySimilarContext: PublicMapContextShape;
 
@@ -11,11 +11,11 @@ void forgedContext;
 
 declare const context: MapContext;
 
-// @ts-expect-error Artifact storage exposes queries, not mutation authority.
-context.artifacts.set("artifact:test.forbidden", true);
-// @ts-expect-error Artifact storage exposes queries, not deletion authority.
-context.artifacts.delete("artifact:test.forbidden");
-// @ts-expect-error Artifact storage exposes queries, not reset authority.
-context.artifacts.clear();
+// @ts-expect-error Artifact storage is not an authored context capability.
+context.artifacts;
+// @ts-expect-error Trace identity is executor-owned rather than author-observable.
+context.trace.stepId;
+// @ts-expect-error Trace selection is executor-owned rather than author-observable.
+context.trace.isVerbose;
 // @ts-expect-error Authored code cannot access the private RNG ledger.
 context.rng;

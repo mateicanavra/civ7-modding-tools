@@ -16,8 +16,8 @@ import type { TraceEvent } from "@mapgen/trace/index.js";
 import { Type } from "typebox";
 
 const TEST_TAGS = {
-  artifact: {
-    foundationPlates: "artifact:test.foundationPlates",
+  effect: {
+    foundationEstablished: "effect:test.foundation-established",
   },
 } as const;
 
@@ -30,12 +30,12 @@ const baseSetup = {
 describe("compileExecutionPlan", () => {
   it("compiles a linear recipe into ordered plan nodes", () => {
     const registry = new StepRegistry();
-    registry.registerTags([{ id: TEST_TAGS.artifact.foundationPlates, kind: "artifact" }]);
+    registry.registerTags([{ id: TEST_TAGS.effect.foundationEstablished, kind: "effect" }]);
     registry.register({
       id: "alpha",
       stageId: "foundation",
       requires: [],
-      provides: [TEST_TAGS.artifact.foundationPlates],
+      provides: [TEST_TAGS.effect.foundationEstablished],
       configSchema: Type.Object(
         {
           value: Type.Number({ default: 3 }),
@@ -66,7 +66,7 @@ describe("compileExecutionPlan", () => {
     expect(plan.nodes[0].stageId).toBe("foundation");
     expect(plan.nodes[0].config).toEqual({ value: 3 });
     expect(plan.nodes[0].requires).toEqual([]);
-    expect(plan.nodes[0].provides).toEqual([TEST_TAGS.artifact.foundationPlates]);
+    expect(plan.nodes[0].provides).toEqual([TEST_TAGS.effect.foundationEstablished]);
   });
 
   it("snapshots mutable setup before retaining it on the plan", () => {
@@ -276,12 +276,12 @@ describe("compileExecutionPlan", () => {
 
   it("includes exact dependency topology in the plan fingerprint", () => {
     const first = new StepRegistry();
-    first.registerTags([{ id: "artifact:test.first", kind: "artifact" }]);
+    first.registerTags([{ id: "effect:test.first", kind: "effect" }]);
     first.register({
       id: "alpha",
       stageId: "foundation",
       requires: [],
-      provides: ["artifact:test.first"],
+      provides: ["effect:test.first"],
       run: () => {},
     });
     const second = new StepRegistry();
@@ -639,6 +639,86 @@ describe("compileExecutionPlan", () => {
     );
   });
 
+  it("contains a rejected Promise returned to the synchronous executor", async () => {
+    const rejection = new Error("unexpected async step failure");
+    const unhandledRejections: unknown[] = [];
+    const onUnhandledRejection = (reason: unknown) => unhandledRejections.push(reason);
+    const registry = new StepRegistry();
+    registry.register({
+      id: "async-only",
+      stageId: "foundation",
+      requires: [],
+      provides: [],
+      run: () => Promise.reject(rejection),
+    });
+    const plan = compileExecutionPlan(
+      { recipe: { schemaVersion: 2, steps: [{ id: "async-only" }] }, setup: baseSetup },
+      registry
+    );
+    const context = createMapContext({
+      setup: plan.setup,
+      adapter: createMockAdapter({ width: 10, height: 10 }),
+    });
+
+    process.on("unhandledRejection", onUnhandledRejection);
+    try {
+      expect(() => new PipelineExecutor(registry).executePlan(context, plan)).toThrow(
+        "returned a thenable or ambiguous completion in a sync executor call"
+      );
+      await Bun.sleep(0);
+      expect(unhandledRejections).toEqual([]);
+    } finally {
+      process.off("unhandledRejection", onUnhandledRejection);
+    }
+  });
+
+  it("rejects accessor-backed and descriptor-opaque then candidates without invoking them", () => {
+    let accessorReads = 0;
+    const accessorCandidate = {};
+    Object.defineProperty(accessorCandidate, "then", {
+      enumerable: true,
+      get: () => {
+        accessorReads += 1;
+        return () => undefined;
+      },
+    });
+    const opaqueCandidate = new Proxy(
+      {},
+      {
+        getOwnPropertyDescriptor: () => {
+          throw new Error("descriptor inspection refused");
+        },
+      }
+    );
+
+    for (const [id, candidate] of [
+      ["accessor-candidate", accessorCandidate],
+      ["opaque-candidate", opaqueCandidate],
+    ] as const) {
+      const registry = new StepRegistry();
+      registry.register({
+        id,
+        stageId: "foundation",
+        requires: [],
+        provides: [],
+        run: () => candidate,
+      });
+      const plan = compileExecutionPlan(
+        { recipe: { schemaVersion: 2, steps: [{ id }] }, setup: baseSetup },
+        registry
+      );
+      const context = createMapContext({
+        setup: plan.setup,
+        adapter: createMockAdapter({ width: 10, height: 10 }),
+      });
+
+      expect(() => new PipelineExecutor(registry).executePlan(context, plan)).toThrow(
+        "returned a thenable or ambiguous completion in a sync executor call"
+      );
+    }
+    expect(accessorReads).toBe(0);
+  });
+
   it("canonicalizes missing and explicit empty config to one frozen behavior and fingerprint", () => {
     const observedConfigs: Readonly<Record<string, unknown>>[] = [];
     const registry = new StepRegistry();
@@ -749,7 +829,12 @@ describe("compileExecutionPlan", () => {
     const events: TraceEvent[] = [];
     const trace = {
       config: {},
-      sink: { emit: (event: TraceEvent) => events.push(event) },
+      sink: {
+        emit: (event: TraceEvent) => {
+          events.push(event);
+          return undefined;
+        },
+      },
     };
     const forgedContext = { setup: plan.setup } as ReturnType<typeof createMapContext>;
     const executor = new PipelineExecutor(registry, { log: () => {} });

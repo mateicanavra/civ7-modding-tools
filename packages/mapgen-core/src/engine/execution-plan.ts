@@ -7,10 +7,10 @@ import {
 import type { StepRegistry } from "@mapgen/engine/StepRegistry.js";
 import { TagRegistry } from "@mapgen/engine/tags.js";
 import type { MapGenStep } from "@mapgen/engine/types.js";
+import { createPortableJsonSnapshot } from "@mapgen/lib/json/portable-snapshot.js";
 import { sha256Hex, stableStringify } from "@mapgen/trace/index.js";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import { createPortableJsonSnapshot } from "../compiler/portable-json-snapshot.js";
 
 const UnknownRecord = Type.Record(Type.String(), Type.Unknown(), { default: {} });
 const EMPTY_STEP_CONFIG: Readonly<Record<string, never>> = Object.freeze({});

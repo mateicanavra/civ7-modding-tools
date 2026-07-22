@@ -131,39 +131,40 @@ export const PlotRiversStep = createStep(PlotRiversStepContract, {
     const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
 
     const logStats = (label: string) => {
-      if (!context.trace.isVerbose) return;
-      let flat = 0,
-        hill = 0,
-        mtn = 0,
-        water = 0;
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          if (context.adapter.isWater(x, y)) {
-            water++;
-            continue;
+      context.trace.event(() => {
+        let flat = 0,
+          hill = 0,
+          mtn = 0,
+          water = 0;
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            if (context.adapter.isWater(x, y)) {
+              water++;
+              continue;
+            }
+            const t = context.adapter.getTerrainType(x, y);
+            if (t === terrain.TERRAIN_MOUNTAIN) mtn++;
+            else if (t === terrain.TERRAIN_HILL) hill++;
+            else flat++;
           }
-          const t = context.adapter.getTerrainType(x, y);
-          if (t === terrain.TERRAIN_MOUNTAIN) mtn++;
-          else if (t === terrain.TERRAIN_HILL) hill++;
-          else flat++;
         }
-      }
-      const total = width * height;
-      const land = Math.max(1, flat + hill + mtn);
-      context.trace.event(() => ({
-        type: "rivers.terrainStats",
-        label,
-        totals: {
-          land,
-          water,
-          landShare: Number(((land / total) * 100).toFixed(1)),
-        },
-        shares: {
-          mountains: Number(((mtn / land) * 100).toFixed(1)),
-          hills: Number(((hill / land) * 100).toFixed(1)),
-          flat: Number(((flat / land) * 100).toFixed(1)),
-        },
-      }));
+        const total = width * height;
+        const land = Math.max(1, flat + hill + mtn);
+        return {
+          type: "rivers.terrainStats",
+          label,
+          totals: {
+            land,
+            water,
+            landShare: Number(((land / total) * 100).toFixed(1)),
+          },
+          shares: {
+            mountains: Number(((mtn / land) * 100).toFixed(1)),
+            hills: Number(((hill / land) * 100).toFixed(1)),
+            flat: Number(((flat / land) * 100).toFixed(1)),
+          },
+        };
+      });
     };
 
     const size = width * height;

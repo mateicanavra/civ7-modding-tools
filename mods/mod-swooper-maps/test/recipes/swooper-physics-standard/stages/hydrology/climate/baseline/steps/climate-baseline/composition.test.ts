@@ -3,13 +3,14 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import hydrologyDomain from "@mapgen/domain/hydrology/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
   validateSchemaValueForTest,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-
+import { artifactModules as hydrologyClimateBaselineArtifactModules } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts/index.js";
 import hydrologyClimateBaselineStage from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/index.js";
 import { ClimateBaselineStepContract } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/steps/climate-baseline/config.js";
 import { ClimateBaselineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-baseline/steps/climate-baseline/step.js";
@@ -92,14 +93,14 @@ describe("hydrology climate-baseline composition", () => {
     let thermalCurrentV: Int8Array | undefined;
     const thermalSstInputs: Array<Float32Array | undefined> = [];
 
-    withMapContextExecutionForTest(context, () => {
-      publishTestArtifact(context, morphologyArtifactModules.topography, {
+    withMapContextExecutionForTest(context, (stepContext) => {
+      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size),
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(context, morphologyArtifactModules.shelf, {
+      publishTestArtifact(stepContext, morphologyArtifactModules.shelf, {
         shelfMask: new Uint8Array(size),
         coastalLand: new Uint8Array(size),
         coastalWater: new Uint8Array(size),
@@ -112,7 +113,7 @@ describe("hydrology climate-baseline composition", () => {
       });
 
       ClimateBaselineStep.run(
-        context,
+        stepContext,
         config,
         {
           computeOceanGeometry: () => ({
@@ -152,30 +153,33 @@ describe("hydrology climate-baseline composition", () => {
         },
         dependencies
       );
-
-      expect(currentInputs).toHaveLength(config.seasonality.modeCount);
-      for (const input of currentInputs) {
-        expect(input.windU).toBe(windU);
-        expect(input.windV).toBe(windV);
-      }
-      expect(Array.from(thermalCurrentU ?? [])).toEqual(
-        Array.from(new Int8Array(size).fill(expectedCurrentU))
-      );
-      expect(Array.from(thermalCurrentV ?? [])).toEqual(
-        Array.from(new Int8Array(size).fill(expectedCurrentV))
-      );
-      expect(thermalSstInputs).toHaveLength(config.seasonality.modeCount);
-      for (const observedSst of thermalSstInputs) expect(observedSst).toBe(sstC);
-
-      const windField = dependencies.artifacts.windField.read(context);
-      expect(Array.from(windField.windU)).toEqual(Array.from(windU));
-      expect(Array.from(windField.windV)).toEqual(Array.from(windV));
-      expect(Array.from(windField.currentU)).toEqual(
-        Array.from(new Int8Array(size).fill(expectedCurrentU))
-      );
-      expect(Array.from(windField.currentV)).toEqual(
-        Array.from(new Int8Array(size).fill(expectedCurrentV))
-      );
     });
+
+    expect(currentInputs).toHaveLength(config.seasonality.modeCount);
+    for (const input of currentInputs) {
+      expect(input.windU).toBe(windU);
+      expect(input.windV).toBe(windV);
+    }
+    expect(Array.from(thermalCurrentU ?? [])).toEqual(
+      Array.from(new Int8Array(size).fill(expectedCurrentU))
+    );
+    expect(Array.from(thermalCurrentV ?? [])).toEqual(
+      Array.from(new Int8Array(size).fill(expectedCurrentV))
+    );
+    expect(thermalSstInputs).toHaveLength(config.seasonality.modeCount);
+    for (const observedSst of thermalSstInputs) expect(observedSst).toBe(sstC);
+
+    const windField = readValidatedArtifact(
+      context,
+      hydrologyClimateBaselineArtifactModules.windField
+    );
+    expect(Array.from(windField.windU)).toEqual(Array.from(windU));
+    expect(Array.from(windField.windV)).toEqual(Array.from(windV));
+    expect(Array.from(windField.currentU)).toEqual(
+      Array.from(new Int8Array(size).fill(expectedCurrentU))
+    );
+    expect(Array.from(windField.currentV)).toEqual(
+      Array.from(new Int8Array(size).fill(expectedCurrentV))
+    );
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-
+import { implementArtifactModules } from "@mapgen/authoring/artifact/runtime.js";
 import {
   type ArtifactModule,
   type ArtifactValidationContext,
@@ -7,10 +7,10 @@ import {
   defineArtifactCatalog,
   defineArtifactValidator,
   defineStep,
-  implementArtifactModules,
   readValidatedArtifact,
   Type,
 } from "@mapgen/authoring/index.js";
+import { bindArtifactValidator } from "../../../src/authoring/artifact/authority.js";
 
 function testArtifact() {
   return defineArtifact({
@@ -27,6 +27,18 @@ function testArtifact() {
 }
 
 describe("artifact validators", () => {
+  it("fails closed and contains rejecting asynchronous local validators", async () => {
+    const artifact = testArtifact();
+    const validate = defineArtifactValidator(artifact, (async () => {
+      throw new Error("late local validation failure");
+    }) as unknown as () => readonly { message: string }[]);
+
+    expect(() => validate({ first: 1, second: "valid" })).toThrow(
+      "Artifact-local validators must return issues synchronously"
+    );
+    await Promise.resolve();
+  });
+
   it("rejects frozen structural lookalikes that bypass defineArtifact", () => {
     const forged = Object.freeze({
       name: "forgedArtifact",
@@ -36,6 +48,31 @@ describe("artifact validators", () => {
 
     expect(() => defineArtifactValidator(forged)).toThrow(
       "artifact contract must be created by defineArtifact"
+    );
+    const canonical = testArtifact();
+    expect(() =>
+      defineArtifactCatalog({
+        forged: {
+          Schema: forged.schema,
+          artifact: forged,
+          validate: defineArtifactValidator(canonical),
+        },
+      } as never)
+    ).toThrow("artifact contract must be created by defineArtifact");
+  });
+
+  it("refuses rebinding one validator identity to another artifact contract", () => {
+    const first = testArtifact();
+    const second = defineArtifact({
+      name: "secondValidatedArtifact",
+      id: "artifact:test.validator.second",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const validate = defineArtifactValidator(first);
+
+    expect(() => bindArtifactValidator(validate, first)).not.toThrow();
+    expect(() => bindArtifactValidator(validate, second)).toThrow(
+      "artifact validator authority cannot be rebound"
     );
   });
 
@@ -192,21 +229,23 @@ describe("artifact validators", () => {
     expect(Object.getOwnPropertySymbols(validate)).toEqual([]);
   });
 
-  it("snapshots exact ESM-style source exports once but keeps runtime modules data-only", () => {
+  it("snapshots transformed ESM authority once and projects source metadata away", () => {
     const artifact = testArtifact();
     const validate = defineArtifactValidator(artifact);
     let reads = 0;
+    let unrelatedReads = 0;
     const accessorModule = Object.defineProperties(
       {},
       {
         Schema: {
           enumerable: true,
           get: () => {
-            reads += 1;
-            return artifact.schema;
+            unrelatedReads += 1;
+            return Type.Object({}, { additionalProperties: false });
           },
         },
         artifact: {
+          configurable: true,
           enumerable: true,
           get: () => {
             reads += 1;
@@ -214,10 +253,19 @@ describe("artifact validators", () => {
           },
         },
         validate: {
+          configurable: true,
           enumerable: true,
           get: () => {
             reads += 1;
             return validate;
+          },
+        },
+        __esModule: {
+          configurable: true,
+          enumerable: false,
+          get: () => {
+            unrelatedReads += 1;
+            return true;
           },
         },
       }
@@ -229,40 +277,28 @@ describe("artifact validators", () => {
     >;
     expect(snapshot.artifact).toBe(artifact);
     expect(snapshot.validate).toBe(validate);
-    expect(reads).toBe(3);
+    expect(Reflect.ownKeys(snapshot)).toEqual(["artifact", "validate"]);
+    expect(reads).toBe(2);
+    expect(unrelatedReads).toBe(0);
     expect(() => implementArtifactModules([accessorModule])).toThrow(
       "must own an artifact data property"
     );
     expect(() => readValidatedArtifact({} as never, accessorModule)).toThrow(
       "must own an artifact data property"
     );
-    expect(reads).toBe(3);
+    expect(reads).toBe(2);
   });
 
-  it("requires the exported Schema to be the artifact contract's exact schema", () => {
-    const artifact = testArtifact();
-    const source = {
-      Schema: Type.Object({}, { additionalProperties: false }),
-      artifact,
-      validate: defineArtifactValidator(artifact),
-    };
-
-    expect(() => defineArtifactCatalog({ source } as never)).toThrow(
-      "Schema must be the exact schema held by its artifact contract"
-    );
-  });
-
-  it("rejects runtime exports outside the artifact source-module surface", () => {
+  it("rejects plain validators at the runtime catalog boundary", () => {
     const artifact = testArtifact();
     const source = {
       Schema: artifact.schema,
       artifact,
-      validate: defineArtifactValidator(artifact),
-      runMutation: () => undefined,
+      validate: (_value: unknown) => [],
     };
 
     expect(() => defineArtifactCatalog({ source } as never)).toThrow(
-      'exposes unsupported runtime export "runMutation"'
+      "must be bound to exact contract"
     );
   });
 

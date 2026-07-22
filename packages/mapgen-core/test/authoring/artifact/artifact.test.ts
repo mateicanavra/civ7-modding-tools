@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { runInNewContext } from "node:vm";
 import { createMockAdapter } from "@civ7/adapter";
+import { implementArtifactModules } from "@mapgen/authoring/artifact/runtime.js";
 import {
   type ArtifactContract,
   ArtifactDoublePublishError,
@@ -14,7 +15,7 @@ import {
   defineArtifactCatalog,
   defineArtifactValidator,
   defineStep,
-  implementArtifactModules,
+  observeValidatedArtifact,
   readValidatedArtifact,
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
@@ -23,6 +24,7 @@ import { compileExecutionPlan, PipelineExecutor, StepRegistry } from "@mapgen/en
 import { EmptyStepConfigSchema } from "@mapgen/engine/step-config.js";
 import type { IsEqual } from "type-fest";
 import { Type } from "typebox";
+import { buildDeclaredStepDependencies } from "../../../src/authoring/step/dependencies.js";
 
 const baseSetup = {
   mapSeed: 42,
@@ -41,10 +43,14 @@ function schemaModule<C extends ArtifactContract>(artifact: C) {
   };
 }
 
-function executeContextStep(context: MapContext, run: (context: MapContext) => void): void {
+function executeContextStep(
+  context: MapContext,
+  run: (context: MapContext) => void,
+  stepId = "artifact-test-step"
+): void {
   const registry = new StepRegistry();
   registry.register({
-    id: "artifact-test-step",
+    id: stepId,
     stageId: "artifact-test",
     requires: [],
     provides: [],
@@ -52,7 +58,7 @@ function executeContextStep(context: MapContext, run: (context: MapContext) => v
   });
   const plan = compileExecutionPlan(
     {
-      recipe: { schemaVersion: 2, steps: [{ id: "artifact-test-step" }] },
+      recipe: { schemaVersion: 2, steps: [{ id: stepId }] },
       setup: context.setup,
     },
     registry
@@ -100,7 +106,7 @@ describe("artifact authoring", () => {
     expect(contract.requires).toContain("artifact:test.foo");
   });
 
-  it("defineStep rejects mixing artifact ids with artifacts block", () => {
+  it("defineStep rejects raw artifact ids in favor of module-owned declarations", () => {
     const artifact = defineArtifact({
       name: "artifactFoo",
       id: "artifact:test.foo",
@@ -115,7 +121,16 @@ describe("artifact authoring", () => {
         artifacts: { requires: [artifact], provides: [] },
         schema: EmptyStepConfigSchema,
       })
-    ).toThrow(/mixes artifact ids/i);
+    ).toThrow(/cannot declare artifact ids.*artifacts\.requires\/provides/i);
+
+    expect(() =>
+      defineStep({
+        id: "beta",
+        requires: [],
+        provides: ["artifact:test.foo"],
+        schema: EmptyStepConfigSchema,
+      })
+    ).toThrow(/cannot declare artifact ids.*artifacts\.requires\/provides/i);
   });
 
   it("defineStep rejects duplicate artifacts across requires/provides", () => {
@@ -330,6 +345,70 @@ describe("artifact authoring", () => {
     expect(contract.artifacts?.provides?.[0]?.artifact).toBe(artifact);
   });
 
+  it("admits artifact identity once from own data descriptors without evaluating accessors", () => {
+    const schema = Type.Object({ value: Type.Number() }, { additionalProperties: false });
+    let accessorReads = 0;
+    const accessorDefinition = {
+      get name() {
+        accessorReads += 1;
+        return "accessorArtifact";
+      },
+      id: "artifact:test.accessor-definition",
+      schema,
+    };
+
+    expect(() => defineArtifact(accessorDefinition)).toThrow(
+      "artifact definition name must be an own enumerable data property"
+    );
+    expect(accessorReads).toBe(0);
+
+    const descriptorReads = new Map<PropertyKey, number>();
+    const values: Readonly<Record<"name" | "id" | "schema", unknown>> = {
+      name: "singleReadArtifact",
+      id: "artifact:test.single-read-definition",
+      schema,
+    };
+    const definition = new Proxy(
+      {},
+      {
+        getOwnPropertyDescriptor: (_target, key) => {
+          descriptorReads.set(key, (descriptorReads.get(key) ?? 0) + 1);
+          if (key !== "name" && key !== "id" && key !== "schema") return undefined;
+          return {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value:
+              descriptorReads.get(key) === 1
+                ? values[key]
+                : key === "schema"
+                  ? Type.String()
+                  : "changed-between-reads",
+          };
+        },
+      }
+    ) as {
+      name: "singleReadArtifact";
+      id: "artifact:test.single-read-definition";
+      schema: typeof schema;
+    };
+
+    const artifact = defineArtifact(definition);
+
+    expect(artifact).toEqual({
+      name: "singleReadArtifact",
+      id: "artifact:test.single-read-definition",
+      schema,
+    });
+    expect(descriptorReads).toEqual(
+      new Map<PropertyKey, number>([
+        ["name", 1],
+        ["id", 1],
+        ["schema", 1],
+      ])
+    );
+  });
+
   it("omits artifact runtimes when the contract declares an empty provider set", () => {
     const contract = defineStep({
       id: "empty-artifact-provider",
@@ -343,45 +422,20 @@ describe("artifact authoring", () => {
     expect(Object.prototype.hasOwnProperty.call(step, "artifacts")).toBe(false);
   });
 
-  it("createRecipe rejects duplicates against legacy artifact providers", () => {
+  it("defineStep refuses raw artifact providers before recipe assembly", () => {
     const contract = defineArtifact({
       name: "alphaArtifact",
       id: "artifact:test/alpha",
       schema: Type.Object({}, { additionalProperties: false }),
     });
-    const stepA = createStep(
-      defineStep({
-        id: "alpha",
-        requires: [],
-        provides: [],
-        artifacts: { provides: [schemaModule(contract)] as const },
-        schema: EmptyStepConfigSchema,
-      }),
-      { run: () => {} }
-    );
-    const stepB = createStep(
+    expect(() =>
       defineStep({
         id: "beta",
         requires: [],
         provides: [contract.id],
         schema: EmptyStepConfigSchema,
-      }),
-      { run: () => {} }
-    );
-    const stage = createStage({
-      id: "foundation",
-      knobsSchema: EmptyKnobsSchema,
-      steps: [stepA, stepB],
-    });
-
-    expect(() =>
-      createRecipe({
-        id: "core.base",
-        tagDefinitions: [],
-        stages: [stage],
-        compileOpsById: {},
       })
-    ).toThrow(/provided by multiple steps/i);
+    ).toThrow(/cannot declare artifact ids/i);
   });
 
   it("artifact runtimes enforce missing/double publish/validation errors", () => {
@@ -427,6 +481,7 @@ describe("artifact authoring", () => {
       schema: artifact.schema,
     });
     const validate = defineArtifactValidator(artifact);
+    const admittedModule = { artifact, validate };
     const source = { artifact, validate };
     const runtimes = implementArtifactModules([source]);
     Reflect.set(source, "artifact", replacement);
@@ -446,9 +501,11 @@ describe("artifact authoring", () => {
     executeContextStep(context, (activeContext) => {
       expect(() => runtimes.artifactFoo.publish(activeContext, { value: 1 })).not.toThrow();
     });
-    expect(context.artifacts.has(artifact.id)).toBe(true);
-    expect(context.artifacts.has(replacement.id)).toBe(false);
-    expect(runtimes.artifactFoo.satisfies?.(context, { satisfied: new Set() })).toBe(true);
+    expect(readValidatedArtifact(context, admittedModule)).toEqual({ value: 1 });
+    expect(() => readValidatedArtifact(context, source)).toThrow("Missing required artifact");
+    expect(() => readValidatedArtifact(context, schemaModule(replacement))).toThrow(
+      "Missing required artifact"
+    );
   });
 
   it("admits artifact publication only during active execution", () => {
@@ -465,12 +522,135 @@ describe("artifact authoring", () => {
     const terminalContext = createContext();
 
     expect(() => runtimes.artifactFoo.publish(freshContext, { value: 1 })).toThrow(
-      "active execution"
+      "active step context"
     );
     executeContextStep(terminalContext, () => undefined);
     expect(() => runtimes.artifactFoo.publish(terminalContext, { value: 1 })).toThrow(
-      "active execution"
+      "active step context"
     );
+  });
+
+  it("admits public validated observation only through the completed root context", () => {
+    const artifact = defineArtifact({
+      name: "artifactFoo",
+      id: "artifact:test.terminal-observation",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const module = schemaModule(artifact);
+    const runtimes = implementArtifactModules([module]);
+    const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
+    const context = createMapContext({
+      setup,
+      adapter: createMockAdapter({ width: 1, height: 1 }),
+    });
+    let retainedStepContext: MapContext | undefined;
+
+    expect(() => readValidatedArtifact(context, module)).toThrow("after execution has completed");
+    expect(() => observeValidatedArtifact(context, module)).toThrow(
+      "after execution has completed"
+    );
+
+    executeContextStep(context, (stepContext) => {
+      retainedStepContext = stepContext;
+      expect(() => readValidatedArtifact(context, module)).toThrow("after execution has completed");
+      expect(() => observeValidatedArtifact(context, module)).toThrow(
+        "after execution has completed"
+      );
+      expect(() => readValidatedArtifact(stepContext, module)).toThrow(
+        "after execution has completed"
+      );
+      expect(() => observeValidatedArtifact(stepContext, module)).toThrow(
+        "after execution has completed"
+      );
+      runtimes.artifactFoo.publish(stepContext, { value: 1 });
+    });
+
+    expect(readValidatedArtifact(context, module)).toEqual({ value: 1 });
+    expect(observeValidatedArtifact(context, module)).toEqual({
+      found: true,
+      value: { value: 1 },
+    });
+    expect(() => readValidatedArtifact(retainedStepContext!, module)).toThrow(
+      "context returned by createMapContext"
+    );
+    expect(() => observeValidatedArtifact(retainedStepContext!, module)).toThrow(
+      "context returned by createMapContext"
+    );
+  });
+
+  it("keys required reads and terminal observation by exact artifact contract identity", () => {
+    const artifact = defineArtifact({
+      name: "artifactFoo",
+      id: "artifact:test.exact-storage-identity",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const sameIdArtifact = defineArtifact({
+      name: "artifactBar",
+      id: "artifact:test.exact-storage-identity",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const module = schemaModule(artifact);
+    let sameIdValidationCalls = 0;
+    const sameIdModule = {
+      artifact: sameIdArtifact,
+      validate: defineArtifactValidator(sameIdArtifact, () => {
+        sameIdValidationCalls += 1;
+        return [];
+      }),
+    };
+    const runtimes = implementArtifactModules([module]);
+    const exactReader = createStep(
+      defineStep({
+        id: "exact-storage-reader",
+        requires: [],
+        provides: [],
+        artifacts: { requires: [artifact] },
+        schema: EmptyStepConfigSchema,
+      }),
+      { run: () => undefined }
+    );
+    const sameIdReader = createStep(
+      defineStep({
+        id: "exact-storage-reader",
+        requires: [],
+        provides: [],
+        artifacts: { requires: [sameIdArtifact] },
+        schema: EmptyStepConfigSchema,
+      }),
+      { run: () => undefined }
+    );
+    const exactDependencies = buildDeclaredStepDependencies(exactReader, {
+      consumerStepId: "exact-storage-reader",
+      owner: "artifact-authoring-test",
+    });
+    const sameIdDependencies = buildDeclaredStepDependencies(sameIdReader, {
+      consumerStepId: "exact-storage-reader",
+      owner: "artifact-authoring-test",
+    });
+    const setup = admitMapSetup({ ...baseSetup, dimensions: { width: 1, height: 1 } });
+    const context = createMapContext({
+      setup,
+      adapter: createMockAdapter({ width: 1, height: 1 }),
+    });
+
+    executeContextStep(
+      context,
+      (stepContext) => {
+        runtimes.artifactFoo.publish(stepContext, { value: 7 });
+        expect(exactDependencies.artifacts.artifactFoo.read(stepContext)).toEqual({ value: 7 });
+        expect(() => sameIdDependencies.artifacts.artifactBar.read(stepContext)).toThrow(
+          ArtifactMissingError
+        );
+      },
+      "exact-storage-reader"
+    );
+
+    expect(readValidatedArtifact(context, module)).toEqual({ value: 7 });
+    expect(observeValidatedArtifact(context, sameIdModule)).toEqual({ found: false });
+    expect(() => readValidatedArtifact(context, sameIdModule)).toThrow(
+      "Missing required artifact artifact:test.exact-storage-identity"
+    );
+    expect(sameIdValidationCalls).toBe(0);
   });
 
   it("revalidates stored artifacts before exposing their typed observation", () => {
@@ -491,7 +671,6 @@ describe("artifact authoring", () => {
     };
     const runtimes = implementArtifactModules([source]);
 
-    expect(() => readValidatedArtifact(context, source)).toThrow("Missing required artifact");
     executeContextStep(context, (activeContext) => {
       runtimes.artifactFoo.publish(activeContext, { value: 7 });
     });
@@ -627,7 +806,19 @@ describe("artifact authoring", () => {
     });
 
     const step = createStep(contract, { run: () => {} });
-    expect(step.artifacts.artifactFoo.contract).toBe(declared);
+    expect(Reflect.has(step, "artifacts")).toBe(false);
+    const deps = buildDeclaredStepDependencies(step, {
+      consumerStepId: contract.id,
+      owner: "artifact-authoring-test",
+    });
+    expect(Object.isFrozen(deps)).toBe(true);
+    expect(Object.isFrozen(deps.artifacts)).toBe(true);
+    expect(Object.keys(deps.artifacts.artifactFoo)).toEqual(["publish"]);
+    expect(() =>
+      Object.defineProperty(deps.artifacts, "artifactFoo", {
+        value: Object.freeze({ publish: () => ({}) }),
+      })
+    ).toThrow();
     expect(contract.artifacts?.provides?.[0]).not.toBe(declaredModule);
     expect(contract.artifacts?.provides?.[0]).toEqual({
       artifact: declaredModule.artifact,
@@ -640,6 +831,105 @@ describe("artifact authoring", () => {
     expect(() =>
       createStep(contract, { artifacts: [schemaModule(replacement)], run: () => {} } as never)
     ).toThrow(/implementation cannot declare artifact modules/);
+  });
+
+  it("binds declared readers and publishers to their exact active step occurrence", () => {
+    const inputArtifact = defineArtifact({
+      name: "inputValue",
+      id: "artifact:test.capability-owner.input",
+      schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
+    });
+    const outputArtifact = defineArtifact({
+      name: "outputValue",
+      id: "artifact:test.capability-owner.output",
+      schema: inputArtifact.schema,
+    });
+    const inputModule = schemaModule(inputArtifact);
+    const outputModule = schemaModule(outputArtifact);
+    const inputRuntimes = implementArtifactModules([inputModule]);
+    const reader = createStep(
+      defineStep({
+        id: "reader",
+        requires: [],
+        provides: [],
+        artifacts: { requires: [inputArtifact] },
+        schema: EmptyStepConfigSchema,
+      }),
+      { run: () => undefined }
+    );
+    const provider = createStep(
+      defineStep({
+        id: "provider",
+        requires: [],
+        provides: [],
+        artifacts: { provides: [outputModule] },
+        schema: EmptyStepConfigSchema,
+      }),
+      { run: () => undefined }
+    );
+    const readerDeps = buildDeclaredStepDependencies(reader, {
+      consumerStepId: "reader",
+      owner: "artifact-authoring-test",
+    });
+    const providerDeps = buildDeclaredStepDependencies(provider, {
+      consumerStepId: "provider",
+      owner: "artifact-authoring-test",
+    });
+    const registry = new StepRegistry();
+    registry.register({
+      id: "seed",
+      stageId: "artifact-test",
+      requires: [],
+      provides: [],
+      run: (context) => inputRuntimes.inputValue.publish(context, { value: 3 }),
+    });
+    registry.register({
+      id: "reader",
+      stageId: "artifact-test",
+      requires: [],
+      provides: [],
+      run: (context) => expect(readerDeps.artifacts.inputValue.read(context)).toEqual({ value: 3 }),
+    });
+    registry.register({
+      id: "provider",
+      stageId: "artifact-test",
+      requires: [],
+      provides: [],
+      run: (context) => providerDeps.artifacts.outputValue.publish(context, { value: 6 }),
+    });
+    registry.register({
+      id: "borrower",
+      stageId: "artifact-test",
+      requires: [],
+      provides: [],
+      run: (context) => {
+        expect(() => readerDeps.artifacts.inputValue.read(context)).toThrow(
+          'Artifact capability for step "reader" requires that step\'s exact active context.'
+        );
+        expect(() => providerDeps.artifacts.outputValue.publish(context, { value: 9 })).toThrow(
+          'Artifact capability for step "provider" requires that step\'s exact active context.'
+        );
+      },
+    });
+    const setup = admitMapSetup(baseSetup);
+    const context = createMapContext({
+      setup,
+      adapter: createMockAdapter({ width: 2, height: 2 }),
+    });
+    const plan = compileExecutionPlan(
+      {
+        recipe: {
+          schemaVersion: 2,
+          steps: ["seed", "reader", "provider", "borrower"].map((id) => ({ id })),
+        },
+        setup: context.setup,
+      },
+      registry
+    );
+
+    new PipelineExecutor(registry).executePlan(context, plan);
+
+    expect(readValidatedArtifact(context, outputModule)).toEqual({ value: 6 });
   });
 
   it("admits only own module-array data without depending on prototypes or realms", () => {
@@ -776,7 +1066,7 @@ describe("artifact authoring", () => {
     ).toThrow(/duplicate artifact id/);
   });
 
-  it("uses the complete module validator for publish, satisfaction, and validated reads", () => {
+  it("uses the complete module validator for publication and validated observation", () => {
     const artifact = defineArtifact({
       name: "artifactFoo",
       id: "artifact:test.single-admission",
@@ -803,7 +1093,10 @@ describe("artifact authoring", () => {
       schema: EmptyStepConfigSchema,
     });
     const step = createStep(contract, { run: () => {} });
-    const runtime = step.artifacts.artifactFoo;
+    const runtime = buildDeclaredStepDependencies(step, {
+      consumerStepId: contract.id,
+      owner: "artifact-authoring-test",
+    }).artifacts.artifactFoo;
     const admittedModule = contract.artifacts?.provides?.[0];
     if (!admittedModule)
       throw new Error("Expected the step contract to retain its provider module.");
@@ -815,14 +1108,16 @@ describe("artifact authoring", () => {
       dimensions: { width: 1, height: 1 },
     };
 
-    executeContextStep(context, (activeContext) => {
-      expect(() => runtime.publish(activeContext, { value: 1 })).not.toThrow();
-    });
+    executeContextStep(
+      context,
+      (activeContext) => {
+        expect(() => runtime.publish(activeContext, { value: 1 })).not.toThrow();
+      },
+      contract.id
+    );
     expect(admissions).toEqual([expectedAdmission]);
-    expect(runtime.satisfies?.(context, { satisfied: new Set([artifact.id]) })).toBe(true);
-    expect(admissions).toEqual([expectedAdmission, expectedAdmission]);
     expect(readValidatedArtifact(context, admittedModule)).toEqual({ value: 1 });
-    expect(admissions).toEqual([expectedAdmission, expectedAdmission, expectedAdmission]);
+    expect(admissions).toEqual([expectedAdmission, expectedAdmission]);
   });
 });
 
@@ -872,11 +1167,28 @@ if (false) {
   });
 
   const tupleProviderStep = createStep(providesArtifact, { run: () => {} });
+  // @ts-expect-error Provider storage is not part of the public step module.
+  tupleProviderStep.artifacts;
+  createStep(providesArtifact, {
+    run: (_context, _config, _ops, deps) => {
+      const artifactFooProvider = deps.artifacts.artifactFoo;
+      // @ts-expect-error Declared capability bindings are immutable across recipe executions.
+      deps.artifacts.artifactFoo = artifactFooProvider;
+      // @ts-expect-error Providers publish their own artifact; only declared consumers may read it.
+      deps.artifacts.artifactFoo.read;
+      // @ts-expect-error Authored dependencies expose publication, not executor postconditions.
+      deps.artifacts.artifactFoo.satisfies;
+      // @ts-expect-error Artifact identity remains in the contract declaration, not the runtime.
+      deps.artifacts.artifactFoo.contract;
+    },
+  });
   // @ts-expect-error Requires-only steps cannot declare publication modules.
   createStep(requiresArtifact, { artifacts: [module], run: () => {} });
   // @ts-expect-error Empty provides cannot declare publication modules.
   createStep(emptyArtifacts, { artifacts: [module], run: () => {} });
   const widenedProviderStep = createStep(widenedArtifacts, { run: () => {} });
+  // @ts-expect-error Widened provider declarations still expose no provider storage on the step.
+  widenedProviderStep.artifacts;
 
   type NormalizedProvider = NonNullable<
     NonNullable<(typeof normalizedProviderContract)["artifacts"]>["provides"]
@@ -884,17 +1196,13 @@ if (false) {
   type ProviderExtraStateIsStripped = Expect<
     IsEqual<"Schema" extends keyof NormalizedProvider ? true : false, false>
   >;
-  type TupleProviderRuntimeIsRequired = Expect<
-    IsEqual<undefined extends typeof tupleProviderStep.artifacts ? true : false, false>
+  type ProviderStepHasNoArtifactStash = Expect<
+    IsEqual<"artifacts" extends keyof typeof tupleProviderStep ? true : false, false>
   >;
-  type WidenedProviderRuntimeIsOptional = Expect<
-    IsEqual<undefined extends typeof widenedProviderStep.artifacts ? true : false, true>
-  >;
-  const typeAssertions: readonly [
-    ProviderExtraStateIsStripped,
-    TupleProviderRuntimeIsRequired,
-    WidenedProviderRuntimeIsOptional,
-  ] = [true, true, true];
+  const typeAssertions: readonly [ProviderExtraStateIsStripped, ProviderStepHasNoArtifactStash] = [
+    true,
+    true,
+  ];
   void typeAssertions;
 
   const createTestStep = createStep;

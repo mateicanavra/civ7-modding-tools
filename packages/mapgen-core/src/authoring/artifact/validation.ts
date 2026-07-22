@@ -1,3 +1,4 @@
+import { classifyThenable, containThenable } from "@mapgen/lib/async/thenable.js";
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
 
@@ -6,6 +7,7 @@ import {
   type SupportedTypedArray,
   type TypedArrayConstructor,
 } from "../typed-arrays.js";
+import { bindArtifactValidator, isArtifactValidatorBoundTo } from "./authority.js";
 import { type ArtifactContract, assertCanonicalArtifactContract } from "./contract.js";
 
 /** One stable, human-readable artifact admission failure. */
@@ -17,8 +19,6 @@ export type ArtifactValidationContext = Readonly<{
 }>;
 
 declare const artifactValidatorBrand: unique symbol;
-
-const artifactValidatorBindings = new WeakMap<object, ArtifactContract>();
 
 /**
  * Complete admission validator bound to one artifact contract.
@@ -41,6 +41,18 @@ function freezeIssues(
   issues: Iterable<ArtifactValidationIssue>
 ): readonly ArtifactValidationIssue[] {
   return Object.freeze(Array.from(issues, (issue) => Object.freeze({ message: issue.message })));
+}
+
+function freezeLocalIssues(value: unknown): readonly ArtifactValidationIssue[] {
+  const completion = classifyThenable(value);
+  if (completion.kind !== "none") {
+    containThenable(completion);
+    throw new TypeError("Artifact-local validators must return issues synchronously.");
+  }
+  if (!Array.isArray(value)) {
+    throw new TypeError("Artifact-local validators must return an array of issues.");
+  }
+  return freezeIssues(value);
 }
 
 function validateArtifactSchema(
@@ -74,10 +86,11 @@ export function defineArtifactValidator<const C extends ArtifactContract>(
   ): readonly ArtifactValidationIssue[] => {
     const structuralIssues = validateArtifactSchema(artifact.schema, value);
     if (structuralIssues.length > 0 || local === undefined) return structuralIssues;
-    return freezeIssues(local(value, context));
+    const localIssues: unknown = local(value, context);
+    return freezeLocalIssues(localIssues);
   };
 
-  artifactValidatorBindings.set(validate, artifact);
+  bindArtifactValidator(validate, artifact);
   return Object.freeze(validate) as ArtifactValidator<C>;
 }
 
@@ -91,7 +104,7 @@ export function assertArtifactValidatorBoundTo<const C extends ArtifactContract>
   validator: unknown
 ): asserts validator is ArtifactValidator<C> {
   assertCanonicalArtifactContract(artifact);
-  if (typeof validator !== "function" || artifactValidatorBindings.get(validator) !== artifact) {
+  if (typeof validator !== "function" || !isArtifactValidatorBoundTo(validator, artifact)) {
     throw new Error(`artifact validator must be bound to exact contract "${artifact.id}"`);
   }
 }

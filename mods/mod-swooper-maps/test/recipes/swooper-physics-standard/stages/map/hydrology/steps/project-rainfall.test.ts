@@ -33,13 +33,13 @@ describe("map-hydrology/project-rainfall", () => {
       }),
       adapter,
     });
-    withMapContextExecutionForTest(context, () => {
-      publishTestArtifact(context, hydrologyClimateRefineArtifactModules.climateField, {
+    withMapContextExecutionForTest(context, (stepContext) => {
+      publishTestArtifact(stepContext, hydrologyClimateRefineArtifactModules.climateField, {
         rainfall,
         humidity: new Uint8Array(width * height),
       });
 
-      ProjectRainfallStep.run(context, {}, {}, buildStepTestDependencies(ProjectRainfallStep));
+      ProjectRainfallStep.run(stepContext, {}, {}, buildStepTestDependencies(ProjectRainfallStep));
     });
 
     expect(adapter.projected).toEqual([

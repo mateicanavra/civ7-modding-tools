@@ -6,7 +6,6 @@ import {
 import placement from "@mapgen/domain/placement";
 import type { MapContext } from "@swooper/mapgen-core";
 import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
-import { getStandardRuntime } from "../../../../runtime.js";
 import type { PlacementInputsV1 } from "../../artifacts/placement-inputs.artifact.js";
 
 import { DerivePlacementInputsStepContract } from "./config.js";
@@ -167,14 +166,17 @@ export function buildPlacementInputs(
     };
   }
 ): PlacementInputsBuildResult {
-  const runtime = getStandardRuntime(context);
+  const mapInfo = context.adapter.lookupMapInfo(context.adapter.getMapSizeId());
+  if (!mapInfo) {
+    throw new Error("[Placement] Civ7 map metadata is unavailable for the active map size.");
+  }
   const { width, height } = context.setup.dimensions;
   const size = width * height;
   const baseStarts = {
-    playersLandmass1: runtime.playersLandmass1,
-    playersLandmass2: runtime.playersLandmass2,
+    playersLandmass1: mapInfo.PlayersLandmass1 ?? 4,
+    playersLandmass2: mapInfo.PlayersLandmass2 ?? 4,
   };
-  const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
+  const wondersPlan = ops.wonders({ mapInfo }, config.wonders);
   const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog().flatMap((entry) => {
     const featureType = entry.featureType | 0;
     const policy = FEATURE_POLICIES[String(featureType)];
@@ -246,7 +248,7 @@ export function buildPlacementInputs(
   );
   return {
     inputs: {
-      mapInfo: runtime.mapInfo,
+      mapInfo,
       starts: baseStarts,
       wonders: wondersPlan,
       placementConfig: config,

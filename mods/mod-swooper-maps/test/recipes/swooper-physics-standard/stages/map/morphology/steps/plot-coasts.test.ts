@@ -3,13 +3,14 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
+import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import {
   buildStepTestDependencies,
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { artifacts as mapMorphologyArtifacts } from "../../../../../../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
+import { artifactModules as mapMorphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
 import { PlotCoastsStep } from "../../../../../../../src/recipes/standard/stages/map-morphology/steps/plot-coasts/step.js";
 import { PlotContinentsStep } from "../../../../../../../src/recipes/standard/stages/map-morphology/steps/plot-continents/step.js";
 import { artifactModules as morphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
@@ -65,20 +66,20 @@ describe("map-morphology/plot-coasts", () => {
     const shelfMask = new Uint8Array(size).fill(0);
     shelfMask[6] = 1; // (2,1)
 
-    withMapContextExecutionForTest(context, () => {
-      publishTestArtifact(context, morphologyArtifactModules.topography, {
+    withMapContextExecutionForTest(context, (stepContext) => {
+      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask,
         bathymetry: new Int16Array(size),
       });
       publishTestArtifact(
-        context,
+        stepContext,
         morphologyArtifactModules.shelf,
         shelfFixture(size, shelfMask, coastalWater)
       );
 
-      PlotCoastsStep.run(context as any, {}, {} as any, buildStepTestDependencies(PlotCoastsStep));
+      PlotCoastsStep.run(stepContext, {}, {}, buildStepTestDependencies(PlotCoastsStep));
     });
 
     // Land stays land; source coast (shoreline ring + shelf) becomes COAST.
@@ -91,30 +92,24 @@ describe("map-morphology/plot-coasts", () => {
     // even though it neighbours coast tiles (1,0) and (2,1). This is the key regression guard.
     expect(adapter.getTerrainType(2, 0)).toBe(oceanTerrain);
 
-    const coastClassification = context.artifacts.get(
-      mapMorphologyArtifacts.coastClassification.id
-    ) as
-      | {
-          baseWaterClass?: Uint8Array;
-          sourceCoastMask?: Uint8Array;
-          waterClass?: Uint8Array;
-          coastRingMask?: Uint8Array;
-        }
-      | undefined;
+    const coastClassification = readValidatedArtifact(
+      context,
+      mapMorphologyArtifactModules.coastClassification
+    );
     // Source coast = shelf ∪ shoreline ring; the ring tile (0,1)=idx4 is NOT a source coast tile.
-    expect(coastClassification?.sourceCoastMask?.[1]).toBe(1);
-    expect(coastClassification?.sourceCoastMask?.[6]).toBe(1);
-    expect(coastClassification?.sourceCoastMask?.[4]).toBe(0);
-    expect(coastClassification?.sourceCoastMask?.[2]).toBe(0);
+    expect(coastClassification.sourceCoastMask[1]).toBe(1);
+    expect(coastClassification.sourceCoastMask[6]).toBe(1);
+    expect(coastClassification.sourceCoastMask[4]).toBe(0);
+    expect(coastClassification.sourceCoastMask[2]).toBe(0);
     // Final water class: ring tile (0,1) is coast; the non-adjacent tile (2,0) stays ocean.
-    expect(coastClassification?.waterClass?.[4]).toBe(1);
-    expect(coastClassification?.waterClass?.[2]).toBe(2);
+    expect(coastClassification.waterClass[4]).toBe(1);
+    expect(coastClassification.waterClass[2]).toBe(2);
     // The ring mask marks the land-adjacent promotion, not the source coast.
-    expect(coastClassification?.coastRingMask?.[4]).toBe(1);
-    expect(coastClassification?.coastRingMask?.[2]).toBe(0);
+    expect(coastClassification.coastRingMask[4]).toBe(1);
+    expect(coastClassification.coastRingMask[2]).toBe(0);
 
     // expandCoasts is intentionally not invoked by this step.
-    expect((adapter as any).calls?.expandCoasts?.length ?? 0).toBe(0);
+    expect(adapter.calls.expandCoasts).toHaveLength(0);
   });
 
   it("restores shelf coast terrain after downstream terrain maintenance rewrites it", () => {
@@ -147,20 +142,20 @@ describe("map-morphology/plot-coasts", () => {
     const shelfIndex = 6;
     shelfMask[shelfIndex] = 1;
 
-    withMapContextExecutionForTest(context, () => {
-      publishTestArtifact(context, morphologyArtifactModules.topography, {
+    withMapContextExecutionForTest(context, (stepContext) => {
+      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask,
         bathymetry: new Int16Array(size),
       });
       publishTestArtifact(
-        context,
+        stepContext,
         morphologyArtifactModules.shelf,
         shelfFixture(size, shelfMask, coastalWater)
       );
 
-      PlotCoastsStep.run(context as any, {}, {} as any, buildStepTestDependencies(PlotCoastsStep));
+      PlotCoastsStep.run(stepContext, {}, {}, buildStepTestDependencies(PlotCoastsStep));
       expect(adapter.getTerrainType(2, 1)).toBe(coastTerrain);
 
       const originalValidate = adapter.validateAndFixTerrain.bind(adapter);
@@ -169,18 +164,14 @@ describe("map-morphology/plot-coasts", () => {
         adapter.setTerrainType(2, 1, oceanTerrain);
       };
 
-      PlotContinentsStep.run(
-        context as any,
-        {},
-        {} as any,
-        buildStepTestDependencies(PlotContinentsStep)
-      );
+      PlotContinentsStep.run(stepContext, {}, {}, buildStepTestDependencies(PlotContinentsStep));
     });
 
     expect(adapter.getTerrainType(2, 1)).toBe(coastTerrain);
-    const snapshot = context.artifacts.get(
-      mapMorphologyArtifacts.continentValidationTerrainSnapshot.id
-    ) as { terrain?: Uint8Array } | undefined;
-    expect(snapshot?.terrain?.[shelfIndex]).toBe(coastTerrain);
+    const snapshot = readValidatedArtifact(
+      context,
+      mapMorphologyArtifactModules.continentValidationTerrainSnapshot
+    );
+    expect(snapshot.terrain[shelfIndex]).toBe(coastTerrain);
   });
 });

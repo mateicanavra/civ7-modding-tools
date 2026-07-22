@@ -1,12 +1,12 @@
 import type { Static, TSchema } from "typebox";
 
 import { applySchemaConventions } from "../schema.js";
+import { isCanonicalArtifact, registerCanonicalArtifact } from "./authority.js";
 
 const ARTIFACT_NAME_RE = /^[a-z][a-zA-Z0-9]*$/;
 const RESERVED_ARTIFACT_NAMES = new Set(["__proto__", "prototype", "constructor"]);
 const ARTIFACT_ID_PREFIX = "artifact:";
 const ARTIFACT_ID_SUFFIX_RE = /@v\d+/;
-const canonicalArtifacts = new WeakSet<object>();
 
 function freezeSchemaGraph(schema: TSchema): void {
   const visited = new WeakSet<object>();
@@ -54,7 +54,10 @@ export type ArtifactReadValueOf<C extends ArtifactContract<any, any, any>> = Dee
   ArtifactValueOf<C>
 >;
 
-function assertValidArtifactName(name: string): void {
+function assertValidArtifactName(name: unknown): asserts name is string {
+  if (typeof name !== "string") {
+    throw new Error("artifact name must be a string");
+  }
   if (!ARTIFACT_NAME_RE.test(name)) {
     throw new Error(
       `artifact name "${name}" must be camelCase (e.g. "featureIntents") and contain only letters/numbers`
@@ -65,7 +68,7 @@ function assertValidArtifactName(name: string): void {
   }
 }
 
-function assertValidArtifactId(id: string): void {
+function assertValidArtifactId(id: unknown): asserts id is string {
   if (typeof id !== "string" || id.length === 0) {
     throw new Error("artifact id must be a non-empty string");
   }
@@ -78,6 +81,30 @@ function assertValidArtifactId(id: string): void {
   if (ARTIFACT_ID_SUFFIX_RE.test(id)) {
     throw new Error(`artifact id "${id}" must not include fake @vN suffixes`);
   }
+}
+
+function readArtifactDefinitionData(def: unknown): {
+  name: unknown;
+  id: unknown;
+  schema: unknown;
+} {
+  if (def === null || typeof def !== "object") {
+    throw new TypeError("artifact definition must be an object");
+  }
+
+  const read = (key: "name" | "id" | "schema"): unknown => {
+    const descriptor = Object.getOwnPropertyDescriptor(def, key);
+    if (!descriptor?.enumerable || !("value" in descriptor)) {
+      throw new TypeError(`artifact definition ${key} must be an own enumerable data property`);
+    }
+    return descriptor.value;
+  };
+
+  return {
+    name: read("name"),
+    id: read("id"),
+    schema: read("schema"),
+  };
 }
 
 function assertArtifactContractShape(value: unknown): asserts value is ArtifactContract {
@@ -126,7 +153,7 @@ function assertArtifactContractShape(value: unknown): asserts value is ArtifactC
  */
 export function assertCanonicalArtifactContract(value: unknown): asserts value is ArtifactContract {
   assertArtifactContractShape(value);
-  if (!canonicalArtifacts.has(value)) {
+  if (!isCanonicalArtifact(value)) {
     throw new Error("artifact contract must be created by defineArtifact");
   }
 }
@@ -136,12 +163,20 @@ export function defineArtifact<
   const Id extends string,
   const Schema extends TSchema,
 >(def: { name: Name; id: Id; schema: Schema }): ArtifactContract<Name, Id, Schema> {
-  assertValidArtifactName(def.name);
-  assertValidArtifactId(def.id);
-  applySchemaConventions(def.schema, `artifact:${def.id}`);
-  freezeSchemaGraph(def.schema);
-  const artifact = Object.freeze({ name: def.name, id: def.id, schema: def.schema });
+  const admitted = readArtifactDefinitionData(def);
+  assertValidArtifactName(admitted.name);
+  assertValidArtifactId(admitted.id);
+  if (admitted.schema === null || typeof admitted.schema !== "object") {
+    throw new TypeError("artifact schema must be an object");
+  }
+
+  const name = admitted.name as Name;
+  const id = admitted.id as Id;
+  const schema = admitted.schema as Schema;
+  applySchemaConventions(schema, `artifact:${id}`);
+  freezeSchemaGraph(schema);
+  const artifact = Object.freeze({ name, id, schema });
   assertArtifactContractShape(artifact);
-  canonicalArtifacts.add(artifact);
+  registerCanonicalArtifact(artifact);
   return artifact;
 }

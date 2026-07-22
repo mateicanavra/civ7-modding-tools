@@ -1,4 +1,4 @@
-import type { MapSetup } from "@swooper/mapgen-core/engine";
+import type { MapSetup } from "@swooper/mapgen-core";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
 
 declare const setup: MapSetup;

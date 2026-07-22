@@ -48,44 +48,45 @@ export function runPlacementProductStep<T>(
  * The measurement reads the projected adapter surface without mutating or reclassifying tiles.
  */
 export function logTerrainStats(context: MapContext, stage: string): void {
-  const { adapter, trace } = context;
-  if (!trace?.isVerbose) return;
-  const { width, height } = context.setup.dimensions;
-  const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
-  let flat = 0;
-  let hill = 0;
-  let mountain = 0;
-  let water = 0;
-  const total = width * height;
+  context.trace.event(() => {
+    const { adapter } = context;
+    const { width, height } = context.setup.dimensions;
+    const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
+    let flat = 0;
+    let hill = 0;
+    let mountain = 0;
+    let water = 0;
+    const total = width * height;
 
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      if (adapter.isWater(x, y)) {
-        water++;
-        continue;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if (adapter.isWater(x, y)) {
+          water++;
+          continue;
+        }
+        const terrainType = adapter.getTerrainType(x, y);
+        if (terrainType === terrain.TERRAIN_MOUNTAIN) mountain++;
+        else if (terrainType === terrain.TERRAIN_HILL) hill++;
+        else flat++;
       }
-      const terrainType = adapter.getTerrainType(x, y);
-      if (terrainType === terrain.TERRAIN_MOUNTAIN) mountain++;
-      else if (terrainType === terrain.TERRAIN_HILL) hill++;
-      else flat++;
     }
-  }
 
-  const land = Math.max(1, flat + hill + mountain);
-  trace.event(() => ({
-    type: "placement.terrainStats",
-    stage,
-    totals: {
-      water: Number(((water / total) * 100).toFixed(1)),
-      land: Number(((land / total) * 100).toFixed(1)),
-      landTiles: land,
-    },
-    shares: {
-      mountains: Number(((mountain / land) * 100).toFixed(1)),
-      hills: Number(((hill / land) * 100).toFixed(1)),
-      flat: Number(((flat / land) * 100).toFixed(1)),
-    },
-  }));
+    const land = Math.max(1, flat + hill + mountain);
+    return {
+      type: "placement.terrainStats",
+      stage,
+      totals: {
+        water: Number(((water / total) * 100).toFixed(1)),
+        land: Number(((land / total) * 100).toFixed(1)),
+        landTiles: land,
+      },
+      shares: {
+        mountains: Number(((mountain / land) * 100).toFixed(1)),
+        hills: Number(((hill / land) * 100).toFixed(1)),
+        flat: Number(((flat / land) * 100).toFixed(1)),
+      },
+    };
+  });
 }
 
 /**
@@ -93,37 +94,38 @@ export function logTerrainStats(context: MapContext, stage: string): void {
  * This is an observation-only projection for live debugging, not a map classification step.
  */
 export function logAsciiMap(context: MapContext): void {
-  const { adapter, trace } = context;
-  if (!trace?.isVerbose) return;
-  const { width, height } = context.setup.dimensions;
-  const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
-  const lines: string[] = ["[Placement] Final Map ASCII:"];
+  context.trace.event(() => {
+    const { adapter } = context;
+    const { width, height } = context.setup.dimensions;
+    const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
+    const lines: string[] = ["[Placement] Final Map ASCII:"];
 
-  for (let y = height - 1; y >= 0; y--) {
-    let row = "";
-    if (y % 2 !== 0) row += " ";
-    for (let x = 0; x < width; x++) {
-      const value = adapter.getTerrainType(x, y);
-      const symbol =
-        value === terrain.TERRAIN_MOUNTAIN
-          ? "M"
-          : value === terrain.TERRAIN_HILL
-            ? "^"
-            : value === terrain.TERRAIN_FLAT
-              ? "."
-              : value === terrain.TERRAIN_COAST
-                ? "~"
-                : value === terrain.TERRAIN_OCEAN
-                  ? "O"
-                  : value === terrain.TERRAIN_NAVIGABLE_RIVER
-                    ? "R"
-                    : "?";
-      row += `${symbol} `;
+    for (let y = height - 1; y >= 0; y--) {
+      let row = "";
+      if (y % 2 !== 0) row += " ";
+      for (let x = 0; x < width; x++) {
+        const value = adapter.getTerrainType(x, y);
+        const symbol =
+          value === terrain.TERRAIN_MOUNTAIN
+            ? "M"
+            : value === terrain.TERRAIN_HILL
+              ? "^"
+              : value === terrain.TERRAIN_FLAT
+                ? "."
+                : value === terrain.TERRAIN_COAST
+                  ? "~"
+                  : value === terrain.TERRAIN_OCEAN
+                    ? "O"
+                    : value === terrain.TERRAIN_NAVIGABLE_RIVER
+                      ? "R"
+                      : "?";
+        row += `${symbol} `;
+      }
+      lines.push(row);
     }
-    lines.push(row);
-  }
 
-  trace.event(() => ({ type: "placement.ascii", lines }));
+    return { type: "placement.ascii", lines };
+  });
 }
 
 function toErrorMessage(error: unknown): string {
