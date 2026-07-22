@@ -282,9 +282,8 @@ const AdjustResourceSupportContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object(
+    "support-equity": Type.Object(
       {
         enabled: Type.Boolean({
           default: true,

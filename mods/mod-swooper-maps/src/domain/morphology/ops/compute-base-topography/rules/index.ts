@@ -33,7 +33,7 @@ export function computeElevationRaw(params: {
   closenessNorm: number;
   noise: number;
   arcNoise: number;
-  config: ComputeBaseTopographyTypes["config"]["default"];
+  config: ComputeBaseTopographyTypes["config"]["tectonic-relief"];
 }): number {
   const { crustBaseElevationUnit, upliftNorm, riftNorm, closenessNorm, noise, arcNoise, config } =
     params;

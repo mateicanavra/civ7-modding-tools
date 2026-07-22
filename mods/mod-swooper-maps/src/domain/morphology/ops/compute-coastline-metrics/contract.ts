@@ -207,9 +207,8 @@ const ComputeCoastlineMetricsContract = defineOp({
     }),
     landMask: TypedArraySchemas.u8({ description: "Updated land mask after coastal carving." }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: CoastlineMetricsConfigSchema,
+    "plate-aware-carving": CoastlineMetricsConfigSchema,
   },
 });
 

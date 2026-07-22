@@ -30,7 +30,7 @@ export const VolcanoesStep = createStep(VolcanoesStepContract, {
       MORPHOLOGY_VOLCANISM_CONVERGENT_MULTIPLIER_MULTIPLIER[volcanism ?? "normal"] ?? 1.0;
 
     const volcanoesSelection =
-      config.volcanoes.strategy === "default"
+      config.volcanoes.strategy === "plate-hotspot-ranking"
         ? {
             ...config.volcanoes,
             config: {

@@ -22,9 +22,8 @@ const ScoreReefContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Reef suitability score per tile (0..1)." }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({
+    "warm-coastal-shelf": Type.Object({
       tempWarmStartC: Type.Number({
         default: 14,
         minimum: -100,

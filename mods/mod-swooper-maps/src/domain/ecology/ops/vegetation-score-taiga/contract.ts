@@ -20,9 +20,8 @@ const ScoreVegetationTaigaContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Taiga suitability score per tile (0..1)." }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({}, { additionalProperties: false }),
+    "cold-forest": Type.Object({}, { additionalProperties: false }),
   },
 });
 

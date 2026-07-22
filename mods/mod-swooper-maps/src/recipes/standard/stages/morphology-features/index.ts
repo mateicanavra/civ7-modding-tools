@@ -1,3 +1,4 @@
+import morphology from "@mapgen/domain/morphology";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { IslandsStep } from "./steps/islands/step.js";
@@ -489,8 +490,11 @@ const publicSchema = Type.Object(
   }
 );
 
-function defaultEnvelope(config: unknown): { strategy: "default"; config: unknown } {
-  return { strategy: "default", config };
+function defaultEnvelope<const Strategy extends string>(
+  operation: Readonly<{ defaultStrategy: Strategy }>,
+  config: unknown
+) {
+  return { strategy: operation.defaultStrategy, config };
 }
 
 /**
@@ -511,18 +515,20 @@ export default createStage({
     const mountainRanges = resolveMountainRangesPublicConfig(config.mountainRanges);
     return {
       islands: {
-        islands: defaultEnvelope({ islands: config.islandChains }),
+        islands: defaultEnvelope(morphology.ops.planIslandChains, {
+          islands: config.islandChains,
+        }),
       },
       mountains: {
-        ridges: defaultEnvelope(mountainRanges),
-        foothills: defaultEnvelope(mountainRanges),
-        roughLands: defaultEnvelope(mountainRanges),
+        ridges: defaultEnvelope(morphology.ops.planRidges, mountainRanges),
+        foothills: defaultEnvelope(morphology.ops.planFoothills, mountainRanges),
+        roughLands: defaultEnvelope(morphology.ops.planRoughLands, mountainRanges),
       },
       volcanoes: {
-        volcanoes: defaultEnvelope(config.volcanoes),
+        volcanoes: defaultEnvelope(morphology.ops.planVolcanoes, config.volcanoes),
       },
       landmasses: {
-        landmasses: defaultEnvelope({}),
+        landmasses: defaultEnvelope(morphology.ops.computeLandmasses, {}),
       },
     };
   },

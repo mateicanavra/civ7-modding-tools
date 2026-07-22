@@ -107,7 +107,7 @@ describe("Habitat classify D4 result model", () => {
 
   test("keeps exact routing metadata visible without prose scope inference", async () => {
     const result = await classifyPathResult(
-      "mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/strategies/default.ts",
+      "mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/strategies/sink-discharge-budget.ts",
       defaultClassifyOptions
     );
 

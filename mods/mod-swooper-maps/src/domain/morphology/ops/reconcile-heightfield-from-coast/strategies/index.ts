@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { carvedCoastDatumStrategy } from "./carved-coast-datum.js";

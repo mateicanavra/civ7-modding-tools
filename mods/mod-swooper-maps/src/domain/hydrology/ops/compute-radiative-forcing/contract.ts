@@ -45,7 +45,7 @@ const ComputeRadiativeForcingOutputSchema = Type.Object(
  * - If you want stronger equator-to-pole contrast: decrease `poleInsolation` or increase `latitudeExponent`.
  * - If you want a generally “warmer planet”: increase `equatorInsolation` and/or `poleInsolation`.
  */
-const ComputeRadiativeForcingDefaultStrategySchema = Type.Object(
+const LatitudeInsolationStrategySchema = Type.Object(
   {
     /** Insolation proxy at the equator (baseline scale). */
     equatorInsolation: Type.Number({
@@ -71,7 +71,7 @@ const ComputeRadiativeForcingDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Radiative forcing parameters (default strategy).",
+    description: "Radiative forcing parameters (latitude-insolation strategy).",
   }
 );
 
@@ -80,9 +80,8 @@ const ComputeRadiativeForcingContract = defineOp({
   id: "hydrology/compute-radiative-forcing",
   input: ComputeRadiativeForcingInputSchema,
   output: ComputeRadiativeForcingOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ComputeRadiativeForcingDefaultStrategySchema,
+    "latitude-insolation": LatitudeInsolationStrategySchema,
   },
 });
 

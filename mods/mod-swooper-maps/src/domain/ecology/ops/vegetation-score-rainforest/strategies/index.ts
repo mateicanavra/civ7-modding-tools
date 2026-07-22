@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { warmHumidStrategy } from "./warm-humid.js";

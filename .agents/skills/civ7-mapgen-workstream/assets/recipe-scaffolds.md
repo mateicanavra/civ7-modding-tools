@@ -34,8 +34,10 @@ An op lives in `src/domain/<domain>/ops/<op-name>/` as a 5-file unit. Op id is
 `<domain>/<op-name>` kebab-case (e.g. `morphology/compute-landmask`) — **never omit
 the domain prefix**.
 
-**`contract.ts`** — `defineOp`; the `strategies` record keys become the allowed strategy
-ids; `default` is mandatory (`defineOp` throws at module load if missing).
+**`contract.ts`** — `defineOp`; the `strategies` record keys become the allowed semantic
+strategy ids. A sole strategy is inferred as the default. A multi-strategy operation must
+declare `defaultStrategy` explicitly; object order never carries authority. The generic id
+`default` is refused because it erases behavioral identity.
 ```ts
 // src/domain/<domain>/ops/<op-name>/contract.ts
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
@@ -54,7 +56,7 @@ const MyOpContract = defineOp({
     myInput: TypedArraySchemas.u8({ description: "..." }),
   }),
   output: Type.Object({ myOutput: TypedArraySchemas.u8({ description: "..." }) }),
-  strategies: { default: MyOpConfigSchema }, // REQUIRED key
+  strategies: { "measured-response": MyOpConfigSchema },
 });
 
 export default MyOpContract;
@@ -68,13 +70,14 @@ type Contract = typeof import("./contract.js").default;
 export type MyOpTypes = OpTypeBagOf<Contract>;
 ```
 
-**`strategies/default.ts`** — `createStrategy` infers `config` type from `(contract, "default")`.
+**`strategies/measured-response.ts`** — the filename, export, and strategy id preserve the
+behavioral identity; `createStrategy` infers `config` from the contract key.
 ```ts
-// src/domain/<domain>/ops/<op-name>/strategies/default.ts
+// src/domain/<domain>/ops/<op-name>/strategies/measured-response.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import MyOpContract from "../contract.js";
 
-export const defaultStrategy = createStrategy(MyOpContract, "default", {
+export const measuredResponseStrategy = createStrategy(MyOpContract, "measured-response", {
   // optional: normalize: (config, ctx) => config,
   run: (input, config) => {
     const { width, height } = input;
@@ -87,7 +90,7 @@ export const defaultStrategy = createStrategy(MyOpContract, "default", {
 
 **`strategies/index.ts`** — re-export.
 ```ts
-export { defaultStrategy } from "./default.js";
+export { measuredResponseStrategy } from "./measured-response.js";
 ```
 
 **`index.ts`** — `createOp` binds every contract strategy key to an implementation;
@@ -96,9 +99,11 @@ it throws at construction if a key is missing OR extra (symmetry enforced).
 // src/domain/<domain>/ops/<op-name>/index.ts
 import { createOp } from "@swooper/mapgen-core/authoring";
 import MyOpContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { measuredResponseStrategy } from "./strategies/index.js";
 
-const myOp = createOp(MyOpContract, { strategies: { default: defaultStrategy } });
+const myOp = createOp(MyOpContract, {
+  strategies: { "measured-response": measuredResponseStrategy },
+});
 
 export type * from "./contract.js";
 export type * from "./types.js";
@@ -126,17 +131,18 @@ The op is now part of the domain. It is not yet *run* by anything — wire it in
 
 ## (2) New strategy on an existing op
 
-The op already has a `strategies` record with `default`. A strategy is a behavioral
+The op already has a `strategies` record with at least one semantic identity. A strategy is a behavioral
 variant selected at config/compile time — see the multi-strategy ops
-`hydrology/compute-precipitation` (default=vector, basic=baseline, refine) and
-`ecology/pedology/classify` (default, coastal-shelf, orogeny-boosted) for live examples.
+`hydrology/compute-precipitation` (`vector` default, `baseline`, `refine`) and
+`ecology/pedology/classify` for live examples.
 
 **Step A — schema** in `contract.ts`: add a key to the `strategies` record.
 ```ts
 strategies: {
-  default: MyOpConfigSchema,
+  "measured-response": MyOpConfigSchema,
   "my-variant": MyVariantConfigSchema,   // new strategy id (string literal)
 },
+defaultStrategy: "measured-response",
 ```
 
 **Step B — implementation** `strategies/my-variant.ts`: id must match the contract key exactly.
@@ -160,7 +166,10 @@ export { myVariantStrategy } from "./my-variant.js";
 **Step D — register** in `index.ts` `createOp`:
 ```ts
 const myOp = createOp(MyOpContract, {
-  strategies: { default: defaultStrategy, "my-variant": myVariantStrategy },
+  strategies: {
+    "measured-response": measuredResponseStrategy,
+    "my-variant": myVariantStrategy,
+  },
 });
 ```
 
@@ -187,8 +196,8 @@ There are exactly three selection paths:
 Runtime dispatch (`createOp.run`) reads `cfg.strategy`, looks up
 `runtimeStrategies[cfg.strategy]`, and throws on an unknown id.
 
-> Gotchas: the `default` key name is what matters at runtime, **not** the file name —
-> e.g. `compute-precipitation/strategies/vector.ts` exports `defaultStrategy`. For a
+> Gotchas: `contract.defaultStrategy` is the resolved runtime authority; no strategy is
+> renamed to `default`. For a
 > stage with `public:`, the public config JSON never carries a `strategy` field; the
 > `compile()` function injects it. Only internal stages accept a `strategy` field
 > directly in authored config.
@@ -311,7 +320,9 @@ export default createStage({
   steps: orderStandardStageSteps("my-stage-id", { "my-step-name": MyStep }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     // one key per step id; synthesize each step's op envelopes here
-    "my-step-name": { myOp: { strategy: "default", config: config.myControl ?? {} } },
+    "my-step-name": {
+      myOp: { strategy: "measured-response", config: config.myControl ?? {} },
+    },
   }),
 } as const);
 ```

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { biophysicalGaussianStrategy } from "./biophysical-gaussian.js";

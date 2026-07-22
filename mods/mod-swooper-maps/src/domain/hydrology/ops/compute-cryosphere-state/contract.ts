@@ -67,7 +67,7 @@ const ComputeCryosphereStateOutputSchema = Type.Object(
  * - If sea ice forms too easily: lower `seaIceStartC` / `seaIceFullC` (more negative = harder to form).
  * - If precipitation should matter more for snow: increase `precipitationInfluence`.
  */
-const ComputeCryosphereStateDefaultStrategySchema = Type.Object(
+const TemperatureThresholdsStrategySchema = Type.Object(
   {
     /** Temperature at which snow starts to accumulate on land (C). */
     landSnowStartC: Type.Number({
@@ -177,7 +177,7 @@ const ComputeCryosphereStateDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Cryosphere state parameters (default strategy).",
+    description: "Cryosphere state parameters (temperature-thresholds strategy).",
   }
 );
 
@@ -186,9 +186,8 @@ const ComputeCryosphereStateContract = defineOp({
   id: "hydrology/compute-cryosphere-state",
   input: ComputeCryosphereStateInputSchema,
   output: ComputeCryosphereStateOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ComputeCryosphereStateDefaultStrategySchema,
+    "temperature-thresholds": TemperatureThresholdsStrategySchema,
   },
 });
 

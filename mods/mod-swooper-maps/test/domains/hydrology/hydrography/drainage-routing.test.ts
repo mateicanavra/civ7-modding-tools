@@ -9,7 +9,7 @@ function runDrainageRouting(
   input: Parameters<typeof computeDrainageRouting.run>[0],
   config: (typeof computeDrainageRouting.defaultConfig)["config"]
 ) {
-  return computeDrainageRouting.run(input, { strategy: "default", config });
+  return computeDrainageRouting.run(input, { strategy: "priority-flood", config });
 }
 
 describe("hydrology/compute-drainage-routing", () => {

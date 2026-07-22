@@ -178,9 +178,8 @@ describe("compileRecipeConfig", () => {
       id: "test/op",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
-      defaultStrategy: "default",
       strategies: {
-        default: Type.Object(
+        compiled: Type.Object(
           { tag: Type.String({ default: "before-op" }) },
           { additionalProperties: false }
         ),
@@ -199,7 +198,7 @@ describe("compileRecipeConfig", () => {
       normalize: (config: unknown) => {
         calls.push("step.normalize");
         const value = Value.Parse(stepSchema, config);
-        expect(value.trees).toEqual({ strategy: "default", config: { tag: "before-op" } });
+        expect(value.trees).toEqual({ strategy: "compiled", config: { tag: "before-op" } });
         return { ...value, value: "step" };
       },
     };
@@ -217,7 +216,7 @@ describe("compileRecipeConfig", () => {
     });
     const compileOp = createOp(op, {
       strategies: {
-        default: createStrategy(op, "default", {
+        compiled: createStrategy(op, "compiled", {
           normalize: (config) => {
             calls.push("op.normalize");
             return { ...config, tag: "op" };
@@ -239,7 +238,7 @@ describe("compileRecipeConfig", () => {
       stage: {
         alpha: {
           value: "step",
-          trees: { strategy: "default", config: { tag: "op" } },
+          trees: { strategy: "compiled", config: { tag: "op" } },
         },
       },
     });
@@ -321,9 +320,8 @@ describe("compileRecipeConfig", () => {
       id: "test/delete-required",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.Object({}, { additionalProperties: false }),
-      defaultStrategy: "default",
       strategies: {
-        default: Type.Object(
+        compiled: Type.Object(
           { amount: Type.Number({ default: 1 }) },
           { additionalProperties: false }
         ),
@@ -346,11 +344,11 @@ describe("compileRecipeConfig", () => {
         },
       ],
     });
-    const invalidEnvelope = { strategy: "default" as const, config: { amount: 1 } };
+    const invalidEnvelope = { strategy: "compiled" as const, config: { amount: 1 } };
     Reflect.deleteProperty(invalidEnvelope, "strategy");
     const compileOp = createOp(op, {
       strategies: {
-        default: createStrategy(op, "default", { run: () => ({}) }),
+        compiled: createStrategy(op, "compiled", { run: () => ({}) }),
       },
     });
     Reflect.set(compileOp, "normalize", () => invalidEnvelope);

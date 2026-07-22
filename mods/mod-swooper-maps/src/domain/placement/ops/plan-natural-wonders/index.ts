@@ -1,7 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import PlanNaturalWondersContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { suitabilityDiversityStrategy } from "./strategies/index.js";
 
 /**
  * Deterministically selects natural-wonder intent and fallback anchors from catalog constraints
@@ -9,7 +9,7 @@ import { defaultStrategy } from "./strategies/index.js";
  */
 const planNaturalWonders = createOp(PlanNaturalWondersContract, {
   strategies: {
-    default: defaultStrategy,
+    "suitability-diversity": suitabilityDiversityStrategy,
   },
 });
 

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { plateAwareCarvingStrategy } from "./plate-aware-carving.js";

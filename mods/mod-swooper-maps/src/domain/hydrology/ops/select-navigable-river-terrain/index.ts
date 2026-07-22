@@ -1,9 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import SelectNavigableRiverTerrainContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { endpointChainRankingStrategy } from "./strategies/index.js";
 
 const selectNavigableRiverTerrain = createOp(SelectNavigableRiverTerrainContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "endpoint-chain-ranking": endpointChainRankingStrategy },
 });
 
 export type * from "./contract.js";

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { sinkDischargeBudgetStrategy } from "./sink-discharge-budget.js";

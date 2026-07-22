@@ -55,7 +55,7 @@ const ComputeDrainageRoutingOutputSchema = Type.Object(
   }
 );
 
-const ComputeDrainageRoutingDefaultStrategySchema = Type.Object(
+const PriorityFloodStrategySchema = Type.Object(
   {
     allowExternalEdgeOutlets: Type.Boolean({
       default: false,
@@ -65,7 +65,7 @@ const ComputeDrainageRoutingDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Drainage routing parameters (default strategy).",
+    description: "Drainage routing parameters (priority-flood strategy).",
   }
 );
 
@@ -74,9 +74,8 @@ const ComputeDrainageRoutingContract = defineOp({
   id: "hydrology/compute-drainage-routing",
   input: ComputeDrainageRoutingInputSchema,
   output: ComputeDrainageRoutingOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ComputeDrainageRoutingDefaultStrategySchema,
+    "priority-flood": PriorityFloodStrategySchema,
   },
 });
 

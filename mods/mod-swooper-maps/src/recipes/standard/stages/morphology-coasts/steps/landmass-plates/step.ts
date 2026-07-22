@@ -57,7 +57,7 @@ export const LandmassPlatesStep = createStep(LandmassPlatesStepContract, {
     const delta = MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA[seaLevel ?? "earthlike"] ?? 0;
 
     const seaLevelSelection =
-      config.seaLevel.strategy === "default"
+      config.seaLevel.strategy === "hypsometric-target"
         ? {
             ...config.seaLevel,
             config: {

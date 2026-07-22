@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { suitabilityDiversityStrategy } from "./suitability-diversity.js";

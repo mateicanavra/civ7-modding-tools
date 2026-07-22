@@ -89,7 +89,7 @@ describe("morphology mountain-family controls", () => {
     }
 
     const result = planRidges.run(input, {
-      strategy: "default",
+      strategy: "orogenic-range-growth",
       config: {
         ...(planRidges.defaultConfig as any).config,
         mountainMaxFraction: 0.8,
@@ -126,7 +126,7 @@ describe("morphology mountain-family controls", () => {
     }
 
     const result = planRidges.run(input, {
-      strategy: "default",
+      strategy: "orogenic-range-growth",
       config: {
         ...(planRidges.defaultConfig as any).config,
         mountainMaxFraction: 0.2,
@@ -194,7 +194,7 @@ describe("morphology mountain-family controls", () => {
     }
 
     const result = planRidges.run(input, {
-      strategy: "default",
+      strategy: "orogenic-range-growth",
       config: {
         ...(planRidges.defaultConfig as any).config,
         mountainMaxFraction: 0.5,
@@ -240,7 +240,7 @@ describe("morphology mountain-family controls", () => {
     }
 
     const result = planRidges.run(input, {
-      strategy: "default",
+      strategy: "orogenic-range-growth",
       config: {
         ...(planRidges.defaultConfig as any).config,
         mountainMaxFraction: 0.18,
@@ -284,7 +284,7 @@ describe("morphology mountain-family controls", () => {
     const input = createRidgeInput(width, height);
 
     const result = planRidges.run(input, {
-      strategy: "default",
+      strategy: "orogenic-range-growth",
       config: {
         ...(planRidges.defaultConfig as any).config,
         mountainMaxFraction: 0.4,
@@ -316,7 +316,7 @@ describe("morphology mountain-family controls", () => {
         fractalHill: new Int16Array(size).fill(200),
       },
       {
-        strategy: "default",
+        strategy: "mountain-proximity",
         config: {
           ...(planFoothills.defaultConfig as any).config,
           foothillMaxDistance: 2,

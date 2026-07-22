@@ -54,19 +54,16 @@ function stableRootConfigString(value: unknown): string {
 }
 
 /**
- * Enforces one strategy and structurally equivalent config across the ridge,
- * foothill, and rough-land members of the mountain family. Object keys are
- * compared in stable order so authoring order cannot create false drift.
+ * Enforces structurally equivalent config across the ridge, foothill, and
+ * rough-land members of the mountain family. Each operation retains its own
+ * semantic strategy identity while the shared terrain posture stays aligned.
+ * Object keys are compared in stable order so authoring order cannot create
+ * false drift.
  */
-export function assertSameMountainFamilySelection(
+export function assertSameMountainFamilyConfig(
   ridges: MountainFamilySelection,
   foothills: MountainFamilySelection
 ): void {
-  if (ridges.strategy !== foothills.strategy) {
-    throw new Error(
-      `[Morphology] Mountain-family config requires identical ridge/foothill strategies (ridges=${String(ridges.strategy)}, foothills=${String(foothills.strategy)}).`
-    );
-  }
   const ridgeConfig = stableRootConfigString(ridges.config);
   const foothillConfig = stableRootConfigString(foothills.config);
   if (ridgeConfig !== foothillConfig) {
@@ -82,8 +79,8 @@ export function assertSameMountainFamilySelection(
  */
 export const MountainsStep = createStep(MountainsStepContract, {
   normalize: (config, ctx) => {
-    assertSameMountainFamilySelection(config.ridges, config.foothills);
-    assertSameMountainFamilySelection(config.ridges, config.roughLands);
+    assertSameMountainFamilyConfig(config.ridges, config.foothills);
+    assertSameMountainFamilyConfig(config.ridges, config.roughLands);
 
     const { orogeny } = ctx.knobs as Readonly<{ orogeny?: MorphologyOrogenyKnob }>;
     const multiplier = MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER[orogeny ?? "normal"] ?? 1.0;
@@ -92,7 +89,7 @@ export const MountainsStep = createStep(MountainsStepContract, {
     const hillThresholdDelta = MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA[orogeny ?? "normal"] ?? 0;
 
     const ridgesSelection =
-      config.ridges.strategy === "default"
+      config.ridges.strategy === "orogenic-range-growth"
         ? {
             ...config.ridges,
             config: {
@@ -114,7 +111,7 @@ export const MountainsStep = createStep(MountainsStepContract, {
         : config.ridges;
 
     const foothillsSelection =
-      config.foothills.strategy === "default"
+      config.foothills.strategy === "mountain-proximity"
         ? {
             ...config.foothills,
             config: {
@@ -136,7 +133,7 @@ export const MountainsStep = createStep(MountainsStepContract, {
         : config.foothills;
 
     const roughLandsSelection =
-      config.roughLands.strategy === "default"
+      config.roughLands.strategy === "relief-substrate-clusters"
         ? {
             ...config.roughLands,
             config: {

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { boundaryDerivedStrategy } from "./boundary-derived.js";

@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import PlanFoothillsContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { mountainProximityStrategy } from "./strategies/index.js";
 
 const planFoothills = createOp(PlanFoothillsContract, {
   strategies: {
-    default: defaultStrategy,
+    "mountain-proximity": mountainProximityStrategy,
   },
 });
 

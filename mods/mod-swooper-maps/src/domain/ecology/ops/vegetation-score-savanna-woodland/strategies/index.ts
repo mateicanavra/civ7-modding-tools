@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { warmSeasonalStrategy } from "./warm-seasonal.js";

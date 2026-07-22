@@ -77,7 +77,7 @@ const ComputeOceanGeometryOutputSchema = Type.Object(
   }
 );
 
-const ComputeOceanGeometryDefaultStrategySchema = Type.Object(
+const ConnectedBasinsStrategySchema = Type.Object(
   {
     /** Max coast distance to compute in BFS steps (cap for cost + stability). */
     maxCoastDistance: Type.Integer({
@@ -96,7 +96,7 @@ const ComputeOceanGeometryDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Ocean geometry parameters (default strategy).",
+    description: "Ocean geometry parameters (connected-basins strategy).",
   }
 );
 
@@ -105,9 +105,8 @@ const ComputeOceanGeometryContract = defineOp({
   id: "hydrology/compute-ocean-geometry",
   input: ComputeOceanGeometryInputSchema,
   output: ComputeOceanGeometryOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ComputeOceanGeometryDefaultStrategySchema,
+    "connected-basins": ConnectedBasinsStrategySchema,
   },
 });
 

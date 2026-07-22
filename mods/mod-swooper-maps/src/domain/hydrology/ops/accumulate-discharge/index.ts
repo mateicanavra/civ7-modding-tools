@@ -1,9 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import AccumulateDischargeContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { topologicalRunoffStrategy } from "./strategies/index.js";
 
 const accumulateDischarge = createOp(AccumulateDischargeContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "topological-runoff": topologicalRunoffStrategy },
 });
 
 export type * from "./contract.js";

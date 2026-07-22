@@ -123,7 +123,7 @@ const ComputeRiverNetworkMetricsOutputSchema = Type.Object(
   }
 );
 
-const ComputeRiverNetworkMetricsDefaultStrategySchema = Type.Object(
+const HydrographicClassificationStrategySchema = Type.Object(
   {
     highOrderConfluenceUpstreamAreaMin: Type.Integer({
       minimum: 0,
@@ -143,9 +143,8 @@ const ComputeRiverNetworkMetricsContract = defineOp({
   id: "hydrology/compute-river-network-metrics",
   input: ComputeRiverNetworkMetricsInputSchema,
   output: ComputeRiverNetworkMetricsOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ComputeRiverNetworkMetricsDefaultStrategySchema,
+    "hydrographic-classification": HydrographicClassificationStrategySchema,
   },
 });
 

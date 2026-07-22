@@ -16,7 +16,7 @@ function clampSigned(value: number): number {
 
 const computeMantleForcing = createOp(ComputeMantleForcingContract, {
   strategies: {
-    default: createStrategy(ComputeMantleForcingContract, "default", {
+    "potential-gradient": createStrategy(ComputeMantleForcingContract, "potential-gradient", {
       run: (input, config) => {
         const mesh = input.mesh;
         const mantlePotential = input.mantlePotential;

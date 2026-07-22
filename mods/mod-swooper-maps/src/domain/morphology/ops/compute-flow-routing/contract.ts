@@ -32,9 +32,8 @@ const ComputeFlowRoutingContract = defineOp({
       description: "Optional basin identifier per tile (or -1 when unassigned).",
     }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: RoutingConfigSchema,
+    "steepest-descent": RoutingConfigSchema,
   },
 });
 

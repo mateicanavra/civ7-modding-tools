@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { warmAridWaterpointStrategy } from "./warm-arid-waterpoint.js";

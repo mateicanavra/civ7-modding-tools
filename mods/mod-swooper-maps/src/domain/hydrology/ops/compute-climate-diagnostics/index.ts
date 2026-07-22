@@ -1,9 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputeClimateDiagnosticsContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { terrainWindIndicesStrategy } from "./strategies/index.js";
 
 const computeClimateDiagnostics = createOp(ComputeClimateDiagnosticsContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "terrain-wind-indices": terrainWindIndicesStrategy },
 });
 
 export type * from "./contract.js";

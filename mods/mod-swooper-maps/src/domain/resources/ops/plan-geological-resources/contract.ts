@@ -191,9 +191,8 @@ const PlanGeologicalResourcesContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({}, { additionalProperties: false }),
+    "canonical-demand": Type.Object({}, { additionalProperties: false }),
   },
 });
 

@@ -22,7 +22,7 @@ describe("foundation plate motion (D03r)", () => {
   it("is deterministic for identical inputs", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
     });
 
@@ -62,7 +62,7 @@ describe("foundation plate motion (D03r)", () => {
   it("does not cap plateFitP90 at residualNorm (P90 can exceed normalization scale)", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
     });
 
@@ -107,7 +107,7 @@ describe("foundation plate motion (D03r)", () => {
 
     const residualNormScale = 0.1;
     const motionConfig = computePlateMotion.normalize({
-      strategy: "default",
+      strategy: "rigid-body-fit",
       config: {
         ...computePlateMotion.defaultConfig.config,
         residualNormScale,
@@ -132,7 +132,7 @@ describe("foundation plate motion (D03r)", () => {
   it("responds to mantle forcing changes", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2 },
     });
 
@@ -187,7 +187,7 @@ describe("foundation plate motion (D03r)", () => {
   it("emits finite motion + diagnostics", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 8, cellsPerPlate: 3, relaxationSteps: 2 },
     });
 

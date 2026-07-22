@@ -1,7 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import SelectResourceSitesContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { blueNoiseRotationStrategy } from "./strategies/index.js";
 
 /**
  * Selects deterministic resource intents from typed demand, habitat, policy, landmass, and seed
@@ -9,7 +9,7 @@ import { defaultStrategy } from "./strategies/index.js";
  * biases selection scores, and both settings flow to bounded support adjustment.
  */
 const selectResourceSites = createOp(SelectResourceSitesContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "blue-noise-rotation": blueNoiseRotationStrategy },
 });
 
 export type * from "./contract.js";

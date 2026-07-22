@@ -20,9 +20,8 @@ const ScoreWetTundraBogContract = defineOp({
       description: "Tundra bog suitability score per tile (0..1).",
     }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({
+    "cold-hydromorphic": Type.Object({
       waterMin01: Type.Number({
         default: 0.55,
         minimum: 0,

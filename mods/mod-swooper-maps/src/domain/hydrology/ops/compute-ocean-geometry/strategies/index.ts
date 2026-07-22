@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { connectedBasinsStrategy } from "./connected-basins.js";

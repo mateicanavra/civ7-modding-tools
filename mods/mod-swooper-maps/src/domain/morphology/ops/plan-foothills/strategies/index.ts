@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { mountainProximityStrategy } from "./mountain-proximity.js";

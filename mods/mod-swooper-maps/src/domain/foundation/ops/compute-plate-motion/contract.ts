@@ -69,9 +69,8 @@ const ComputePlateMotionContract = defineOp({
         "Rigid per-plate translation and rotation fitted to mantle forcing, plus fit-quality evidence; motion drives boundary classification and era membership reconstruction.",
     }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: StrategySchema,
+    "rigid-body-fit": StrategySchema,
   },
 });
 

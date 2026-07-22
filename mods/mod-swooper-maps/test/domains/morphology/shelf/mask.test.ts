@@ -74,7 +74,7 @@ describe("morphology/compute-shelf-mask (physical break: gentle-gradient gate + 
         boundaryType,
       },
       {
-        strategy: "default",
+        strategy: "physical-break-connectivity",
         config: {
           // breakGradient 8 sits between the gentle apron gradient (0) and the steep break
           // gradient (the -4 -> -40 step = 36), so the classifier reads the break at row 2->3.

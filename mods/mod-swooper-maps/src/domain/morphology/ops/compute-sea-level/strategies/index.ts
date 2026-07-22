@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { hypsometricTargetStrategy } from "./hypsometric-target.js";

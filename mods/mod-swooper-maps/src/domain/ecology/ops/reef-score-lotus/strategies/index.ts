@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { warmShallowLakeStrategy } from "./warm-shallow-lake.js";

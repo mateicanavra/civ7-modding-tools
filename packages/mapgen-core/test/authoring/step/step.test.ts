@@ -43,7 +43,7 @@ describe("step authoring", () => {
     const step = createStep(alpha, implementation);
 
     expect(step.contract).toBe(alpha);
-    expect(Object.prototype.hasOwnProperty.call(step, "debugAlias")).toBe(false);
+    expect(Object.hasOwn(step, "debugAlias")).toBe(false);
   });
 
   it("captures implementation functions once from own data properties without invoking accessors", () => {
@@ -198,7 +198,6 @@ describe("step authoring", () => {
       id: "test/detached-step-schema",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      defaultStrategy: "balanced",
       strategies: { balanced: strategySchema },
     });
     const stepSchema = Type.Object(
@@ -247,7 +246,6 @@ describe("step authoring", () => {
       id: "test/root-codec-options",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      defaultStrategy: "balanced",
       strategies: {
         balanced: Type.Object(
           { count: Type.Integer({ default: 2 }) },
@@ -323,7 +321,6 @@ describe("step authoring", () => {
       id: "test/root-codec-op-refusal",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      defaultStrategy: "balanced",
       strategies: {
         balanced: Type.Object({}, { additionalProperties: false }),
       },
@@ -345,7 +342,6 @@ describe("step authoring", () => {
       id: "test/root-option-refusal",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
-      defaultStrategy: "balanced",
       strategies: {
         balanced: Type.Object({}, { additionalProperties: false }),
       },

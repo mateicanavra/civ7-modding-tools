@@ -17,7 +17,7 @@ describe("morphology operations", () => {
     const result = runAdmittedOperationForTest(
       computeLandmasses,
       { width, height, landMask },
-      { strategy: "default", config: {} }
+      { strategy: "wrapped-hex-components", config: {} }
     );
 
     validateSchemaValueForTest(

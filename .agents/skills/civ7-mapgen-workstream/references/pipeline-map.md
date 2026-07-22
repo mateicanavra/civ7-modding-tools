@@ -25,7 +25,7 @@
 
 - **domain** — a named collection of pure-algorithm ops for one concern-family; `defineDomain`/`createDomain`. No recipe awareness. Seven domains: `foundation, morphology, hydrology, ecology, placement, resources, narrative`.
 - **op** — op-per-concern unit. `defineOp({ kind, id, input, output, strategies })` in `contract.ts`. Each op is its own directory `ops/<op-id>/{contract.ts, index.ts, types.ts, strategies/, rules?/}`. No cross-op reach-ins. Op id is `<domain>/<op-name>` kebab-case.
-- **strategy** — a named variant inside an op's `strategies` record. Key `default` is mandatory. The op envelope is `{ strategy: "<id>", config: {...} }` (TypeBox discriminated union built by `defineOp`). Most ops are single-strategy; multi-strategy ops live mostly in hydrology + ecology (see strategy table below).
+- **strategy** — a semantically named variant inside an op's `strategies` record. A sole strategy is inferred as the default; a multi-strategy op declares `defaultStrategy` explicitly. The op envelope is `{ strategy: "<id>", config: {...} }` (TypeBox discriminated union built by `defineOp`). Most ops are single-strategy; multi-strategy ops live in hydrology + ecology (see strategy table below).
 - **rule** — pure function in an op's `rules/`, shared across that op's strategies (e.g. `computeWindsEarthlike`).
 - **step** — executable contract boundary. `defineStep({ id, requires, provides, artifacts:{requires,provides}, ops, schema })` selects consumed artifact contracts and complete provider modules; `createStep(contract, { normalize?, run, viz?, metrics? })` binds behavior plus optional post-run observation facets. Recipe composition assigns the exact `stageId`; steps do not author a duplicate phase. `run(context, config, ops, deps)` publishes and reads through `deps.artifacts.<name>`, whose runtimes derive from the contract's provider modules.
 - **stage** — recipe-level authoring + ownership surface. `createStage({ id, knobsSchema, steps, public?, compile? })`. Owns its authoring surface, knobs, and step composition — NOT global ordering, truth authority, or compute.
@@ -126,7 +126,7 @@ domain/morphology/
       contract.ts           defineOp({ kind, id, input, output, strategies })  — the schema/type surface
       index.ts              createOp(contract, { strategies })                 — binds implementations
       strategies/
-        default.ts          createStrategy(contract, "default", { run, normalize? })
+        tectonic-relief.ts  createStrategy(contract, "tectonic-relief", { run, normalize? })
         index.ts            re-exports the strategy(ies)
       rules/                pure helpers shared across this op's strategies (optional)
       types.ts              OpTypeBagOf<Contract> — typed input/output/envelope bag
@@ -158,7 +158,7 @@ would promote to `stages/morphology-shelf/viz.ts`, not the residual
 
 ---
 
-## Strategy selection (how config picks a non-`default` strategy)
+## Strategy selection
 
 The op envelope `{ strategy, config }` selects the algorithm. There are three control points; runtime dispatch is `runtimeStrategies[cfg.strategy].run(input, cfg.config)` in `packages/mapgen-core/src/authoring/op/create.ts`:
 
@@ -166,18 +166,21 @@ The op envelope `{ strategy, config }` selects the algorithm. There are three co
 2. **`defaultStrategy` on a `StepOpUse`** — a step contract can declare `myOp: { contract, defaultStrategy: "refine" }`; this changes the schema default when the author omits the envelope. It does not forbid an explicit override.
 3. **Direct step config (internal stages)** — for stages without `public`, the op envelope is authored directly as a step-config key: `{ "computeAtmosphericCirculation": { "strategy": "latitude", "config": {...} } }`.
 
-Multi-strategy ops in live source (the rest are `default`-only):
+Multi-strategy ops in live source (every other op has one inferred semantic default):
 
 | Op | Strategy keys (default → impl) |
 |---|---|
-| `hydrology/compute-atmospheric-circulation` | `default` (geostrophic-proxy), `latitude` |
-| `hydrology/compute-precipitation` | `default` (vector), `basic` (baseline), `refine` |
-| `hydrology/transport-moisture` | `default` (vector-advection), `cardinal` |
-| `hydrology/compute-ocean-surface-currents` | `default` (wind-gyre / earthlike), `latitude` |
-| `ecology/pedology/classify` | `default`, `coastal-shelf`, `orogeny-boosted` |
-| `ecology/features-plan-ice` | `default`, `continentality` |
+| `hydrology/compute-atmospheric-circulation` | `geostrophic-proxy` (default), `latitude` |
+| `hydrology/compute-precipitation` | `vector` (default), `baseline`, `refine` |
+| `hydrology/transport-moisture` | `vector-advection` (default), `cardinal` |
+| `hydrology/compute-ocean-surface-currents` | `wind-gyre-projection` (default), `latitude` |
+| `ecology/pedology/classify` | `balanced` (default), `coastal-shelf`, `orogeny-boosted` |
+| `ecology/resources/plan-basins` | `balanced` (default), `hydro-fluvial`, `mixed` |
+| `ecology/features/plan-reefs` | `habitat` (default), `diagonal-stride` |
 
-> The strategy KEY (`default`) is authoritative at runtime, not the filename. `compute-atmospheric-circulation` exports `defaultStrategy` from `geostrophic-proxy.ts`; `compute-precipitation` exports `defaultStrategy` from `vector.ts`. Use the key, not the filename, when authoring.
+> The contract's resolved `defaultStrategy` is authoritative at runtime. Strategy keys,
+> filenames, and exported implementation names retain the same semantic identity; none is
+> renamed merely to `default`.
 
 ---
 

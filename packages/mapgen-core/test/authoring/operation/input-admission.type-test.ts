@@ -59,11 +59,10 @@ const InputAdmissionContract = defineOp({
     { additionalProperties: false }
   ),
   output: Type.Integer(),
-  defaultStrategy: "default",
-  strategies: { default: Type.Object({}, { additionalProperties: false }) },
+  strategies: { admitted: Type.Object({}, { additionalProperties: false }) },
 });
 
-const strategy = createStrategy(InputAdmissionContract, "default", {
+const strategy = createStrategy(InputAdmissionContract, "admitted", {
   run: (input) => {
     const grid: GridBuffer<Uint8Array> = input.grid;
     const row: AdmittedBuffer<Float32Array> = input.latitudeByRow;
@@ -90,22 +89,21 @@ const strategy = createStrategy(InputAdmissionContract, "default", {
 // @ts-expect-error Executable strategy behavior is opaque outside Core's operation factory.
 strategy.run;
 
-const op = createOp(InputAdmissionContract, { strategies: { default: strategy } });
+const op = createOp(InputAdmissionContract, { strategies: { admitted: strategy } });
 
 const OtherInputAdmissionContract = defineOp({
   kind: "compute",
   id: "test/input-admission-types-other",
   input: InputAdmissionContract.input,
   output: InputAdmissionContract.output,
-  defaultStrategy: "default",
   strategies: InputAdmissionContract.strategies,
 });
-const otherStrategy = createStrategy(OtherInputAdmissionContract, "default", {
+const otherStrategy = createStrategy(OtherInputAdmissionContract, "admitted", {
   run: () => 0,
 });
 
 // @ts-expect-error A strategy descriptor is nominally bound to its contract identity.
-createOp(InputAdmissionContract, { strategies: { default: otherStrategy } });
+createOp(InputAdmissionContract, { strategies: { admitted: otherStrategy } });
 
 op.run(
   {

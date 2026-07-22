@@ -138,9 +138,8 @@ const PlanPlotEffectsContract = defineOp({
   output: Type.Object({
     placements: Type.Array(PlotEffectPlacementSchema),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({
+    "ranked-coverage": Type.Object({
       snow: PlotEffectsSnowPlanSchema,
       sand: PlotEffectsSandPlanSchema,
       burned: PlotEffectsBurnedPlanSchema,

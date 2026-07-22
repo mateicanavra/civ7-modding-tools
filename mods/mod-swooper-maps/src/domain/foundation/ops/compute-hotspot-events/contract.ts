@@ -24,9 +24,8 @@ const ComputeHotspotEventsContract = defineOp({
         "Intraplate hotspot events for one reconstructed era, seeded at mantle upwellings and tagged with origin plates before merging with boundary events.",
     }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({}, { additionalProperties: false }),
+    "upwelling-hotspots": Type.Object({}, { additionalProperties: false }),
   },
 });
 

@@ -31,9 +31,8 @@ const ComputeDistanceToCoastContract = defineOp({
         "Hex-distance to the nearest coastal seed per tile (0 = coastal). Unreachable tiles are 65535.",
     }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object(
+    "multi-source-hex-bfs": Type.Object(
       {},
       {
         additionalProperties: false,

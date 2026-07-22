@@ -1,6 +1,6 @@
 # Domain Operation Strategy Blueprint
 
-Status: affirmed constructible kind, initial authority lane
+Status: affirmed constructible kind, enforced source-topology authority
 
 Owner: DRA Habitat authority-tree workstream
 
@@ -32,10 +32,9 @@ Current source-backed anchors:
 - `packages/mapgen-core/src/authoring/op/strategy.ts`
 - `mods/mod-swooper-maps/src/domain/**/ops/*/strategies/*.ts`
 
-The live source has 104 concrete strategy implementation files and 104
-`createStrategy(...)` calls across foundation, morphology, hydrology, ecology,
-resources, and placement domains. The construct is not foundation-only cleanup
-and not generic folder hygiene.
+The live source has concrete `createStrategy(...)` implementations across
+foundation, morphology, hydrology, ecology, resources, and placement domains.
+The construct is not foundation-only cleanup and not generic folder hygiene.
 
 ## Admission Rule
 
@@ -65,6 +64,13 @@ The initial admission slice moves no live rule packets.
   authority owns declaration-site JSDoc; schema-description semantics remain
   outside strategy topology and are not approximated by an Ecology source
   parser.
+
+`require_domain_operation_strategy_source_topology` now closes every admitted
+strategy directory to one `index.ts` barrel plus semantically named kebab-case
+strategy modules and refuses the identity-erasing `default.ts` filename.
+TypeScript and the operation SDK remain the authority for declared strategy
+keys, implementation binding, and sole-strategy default inference; Structure
+does not duplicate those source relationships.
 
 Future strategy-locality or strategy-contract rules should be designed as
 positive `domain-operation-strategy` authority before moving or deleting the

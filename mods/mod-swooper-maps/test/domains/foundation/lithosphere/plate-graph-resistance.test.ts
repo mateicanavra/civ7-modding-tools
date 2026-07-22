@@ -69,7 +69,7 @@ describe("m11 plate graph resistance sensitivity", () => {
   it("is deterministic for identical resistance fields and responds to weak-zone bands", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 26, cellsPerPlate: 10, relaxationSteps: 3 },
     });
 

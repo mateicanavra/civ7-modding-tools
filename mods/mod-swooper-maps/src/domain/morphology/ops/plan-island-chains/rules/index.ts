@@ -2,12 +2,14 @@ import type { PlanIslandChainsTypes } from "../types.js";
 
 type LabelRng = (range: number, label: string) => number;
 
-type IslandConfig = PlanIslandChainsTypes["config"]["default"]["islands"];
+type IslandConfig = PlanIslandChainsTypes["config"]["plate-aware-volcanic"]["islands"];
 
 /**
  * Normalizes island placement tunables from authored config.
  */
-export function normalizeIslandTunables(config: PlanIslandChainsTypes["config"]["default"]): {
+export function normalizeIslandTunables(
+  config: PlanIslandChainsTypes["config"]["plate-aware-volcanic"]
+): {
   threshold: number;
   minDist: number;
   baseDenActive: number;

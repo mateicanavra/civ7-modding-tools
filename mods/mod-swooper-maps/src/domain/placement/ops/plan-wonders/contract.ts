@@ -27,9 +27,8 @@ const PlanWondersContract = defineOp({
         "Nonnegative natural-wonder target from Civ7 map-size metadata; candidate planning consumes this count, while later stamping reports the realized placements.",
     }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({}),
+    "map-metadata": Type.Object({}),
   },
 });
 

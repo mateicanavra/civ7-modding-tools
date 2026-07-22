@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_operation_strategy_source_topology",
+  "title": "Require Domain Operation Strategy Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-operation-strategy",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain operation strategy directories without one canonical barrel and semantically named kebab-case strategy modules",
+  "why": "Strategy filenames preserve selectable behavior identity. Closing the strategy directory removes generic default.ts identities and alternate helper surfaces while TypeScript and the operation SDK own strategy registration, key binding, and default inference.",
+  "remediate": "Keep index.ts plus semantically named kebab-case strategy modules. Rename default.ts from the strategy's behavior, then update its createStrategy id, contract key, operation binding, and consumers together.",
+  "message": "Domain operation strategies must use the positive strategy blueprint source topology.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/ops/*/strategies",
+        "mods/*/src/domain/*/ops/*/strategies/**"
+      ]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_source_topology/structure.toml"
+    }
+  }
+}

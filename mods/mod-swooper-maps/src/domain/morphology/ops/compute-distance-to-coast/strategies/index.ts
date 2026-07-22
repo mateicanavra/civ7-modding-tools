@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { multiSourceHexBfsStrategy } from "./multi-source-hex-bfs.js";

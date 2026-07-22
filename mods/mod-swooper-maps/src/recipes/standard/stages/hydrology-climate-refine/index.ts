@@ -1,3 +1,4 @@
+import hydrology from "@mapgen/domain/hydrology";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { HydrologyClimateRefinePublicSchema } from "../hydrology/public.config.js";
@@ -58,6 +59,13 @@ const knobsSchema = Type.Object(
   }
 );
 
+function defaultEnvelope<const Strategy extends string>(
+  operation: Readonly<{ defaultStrategy: Strategy }>,
+  config: unknown
+) {
+  return { strategy: operation.defaultStrategy, config };
+}
+
 /**
  * Compiles bounded precipitation, thermal, albedo, and cryosphere refinement
  * controls into the post-hydrography climate diagnostic pass.
@@ -75,12 +83,27 @@ export default createStage({
         strategy: "refine",
         config: config.precipitationRefinement,
       },
-      computeRadiativeForcing: { strategy: "default", config: config.solarForcing },
-      computeThermalState: { strategy: "default", config: config.thermalState },
-      applyAlbedoFeedback: { strategy: "default", config: config.albedoFeedback },
-      computeCryosphereState: { strategy: "default", config: config.cryosphereState },
-      computeLandWaterBudget: { strategy: "default", config: config.landWaterBudget },
-      computeClimateDiagnostics: { strategy: "default", config: config.diagnostics },
+      computeRadiativeForcing: defaultEnvelope(
+        hydrology.ops.computeRadiativeForcing,
+        config.solarForcing
+      ),
+      computeThermalState: defaultEnvelope(hydrology.ops.computeThermalState, config.thermalState),
+      applyAlbedoFeedback: defaultEnvelope(
+        hydrology.ops.applyAlbedoFeedback,
+        config.albedoFeedback
+      ),
+      computeCryosphereState: defaultEnvelope(
+        hydrology.ops.computeCryosphereState,
+        config.cryosphereState
+      ),
+      computeLandWaterBudget: defaultEnvelope(
+        hydrology.ops.computeLandWaterBudget,
+        config.landWaterBudget
+      ),
+      computeClimateDiagnostics: defaultEnvelope(
+        hydrology.ops.computeClimateDiagnostics,
+        config.diagnostics
+      ),
     },
   }),
 } as const);

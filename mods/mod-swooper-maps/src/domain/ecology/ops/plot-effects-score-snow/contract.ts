@@ -112,9 +112,8 @@ const PlotEffectsScoreSnowContract = defineOp({
       description: "Eligibility mask per tile (1=eligible for selection, 0=ineligible).",
     }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: PlotEffectsScoreSnowConfigSchema,
+    "cold-elevation": PlotEffectsScoreSnowConfigSchema,
   },
 });
 

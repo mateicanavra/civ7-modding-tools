@@ -99,9 +99,8 @@ const PlanNaturalWondersContract = defineOp({
       })
     ),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({
+    "suitability-diversity": Type.Object({
       minSpacingTiles: Type.Integer({
         minimum: 0,
         maximum: 16,

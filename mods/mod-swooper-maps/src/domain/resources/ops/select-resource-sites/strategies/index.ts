@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { blueNoiseRotationStrategy } from "./blue-noise-rotation.js";

@@ -73,9 +73,8 @@ const ComputeVegetationSubstrateContract = defineOp({
     }),
     fertility01: TypedArraySchemas.f32({ description: "Normalized fertility proxy (0..1)." }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: VegetationSubstrateConfigSchema,
+    "bioclimatic-substrate": VegetationSubstrateConfigSchema,
   },
 });
 

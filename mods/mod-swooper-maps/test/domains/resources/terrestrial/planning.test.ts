@@ -234,7 +234,7 @@ describe("terrestrial resource operation contract", () => {
     for (const selector of ["requiredResourceTypes", "resourceTypes", "includeResources"]) {
       expect(() =>
         normalizeOperationSelectionForTest(resources.ops.planTerrestrialResources, {
-          strategy: "default",
+          strategy: "canonical-demand",
           config: { [selector]: ["RESOURCE_CAMELS"] },
         })
       ).toThrow(TestCompileError);

@@ -51,7 +51,7 @@ const ApplyAlbedoFeedbackOutputSchema = Type.Object(
 /**
  * Default albedo feedback parameters.
  */
-const ApplyAlbedoFeedbackDefaultStrategySchema = Type.Object(
+const BoundedSnowIceStrategySchema = Type.Object(
   {
     /** Fixed iteration count for bounded feedback (no convergence loops). */
     iterations: Type.Integer({
@@ -126,7 +126,7 @@ const ApplyAlbedoFeedbackDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Albedo feedback parameters (default strategy).",
+    description: "Albedo feedback parameters (bounded-snow-ice strategy).",
   }
 );
 
@@ -135,9 +135,8 @@ const ApplyAlbedoFeedbackContract = defineOp({
   id: "hydrology/apply-albedo-feedback",
   input: ApplyAlbedoFeedbackInputSchema,
   output: ApplyAlbedoFeedbackOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ApplyAlbedoFeedbackDefaultStrategySchema,
+    "bounded-snow-ice": BoundedSnowIceStrategySchema,
   },
 });
 

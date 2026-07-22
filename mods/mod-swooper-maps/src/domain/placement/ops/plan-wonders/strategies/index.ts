@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { mapMetadataStrategy } from "./map-metadata.js";

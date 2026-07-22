@@ -57,9 +57,8 @@ const PlanVegetationContract = defineOp({
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({
+    "habitat-confidence": Type.Object({
       forestMinConfidence01: Type.Number({
         minimum: 0,
         maximum: 1,

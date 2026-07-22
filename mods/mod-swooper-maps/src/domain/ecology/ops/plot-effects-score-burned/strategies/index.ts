@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { aridThermalStrategy } from "./arid-thermal.js";

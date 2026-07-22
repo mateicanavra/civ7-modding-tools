@@ -55,7 +55,7 @@ const ComputeThermalStateOutputSchema = Type.Object(
 /**
  * Default thermal-state parameters.
  */
-const ComputeThermalStateDefaultStrategySchema = Type.Object(
+const InsolationLapseRateStrategySchema = Type.Object(
   {
     /** Global baseline temperature at sea level and mid-insolation. */
     baseTemperatureC: Type.Number({
@@ -102,7 +102,7 @@ const ComputeThermalStateDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Thermal-state parameters (default strategy).",
+    description: "Thermal-state parameters (insolation-lapse-rate strategy).",
   }
 );
 
@@ -111,9 +111,8 @@ const ComputeThermalStateContract = defineOp({
   id: "hydrology/compute-thermal-state",
   input: ComputeThermalStateInputSchema,
   output: ComputeThermalStateOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ComputeThermalStateDefaultStrategySchema,
+    "insolation-lapse-rate": InsolationLapseRateStrategySchema,
   },
 });
 

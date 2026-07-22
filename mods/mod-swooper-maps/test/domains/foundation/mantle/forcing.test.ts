@@ -20,7 +20,7 @@ describe("foundation mantle forcing (D02r)", () => {
   it("is deterministic for identical inputs", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 9, cellsPerPlate: 2, relaxationSteps: 2 },
     });
 
@@ -63,7 +63,7 @@ describe("foundation mantle forcing (D02r)", () => {
   it("produces non-uniform mantle potential fields", () => {
     const { width, height } = TEST_MAP_SIZE.dimensions;
     const meshConfig = computeMesh.normalize({
-      strategy: "default",
+      strategy: "jittered-delaunay",
       config: { plateCount: 12, cellsPerPlate: 2, relaxationSteps: 2 },
     });
 

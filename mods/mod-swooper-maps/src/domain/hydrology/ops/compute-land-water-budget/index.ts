@@ -1,9 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputeLandWaterBudgetContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { petAridityStrategy } from "./strategies/index.js";
 
 const computeLandWaterBudget = createOp(ComputeLandWaterBudgetContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "pet-aridity": petAridityStrategy },
 });
 
 export type * from "./contract.js";

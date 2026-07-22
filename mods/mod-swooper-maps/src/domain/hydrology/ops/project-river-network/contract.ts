@@ -61,7 +61,7 @@ const ProjectRiverNetworkOutputSchema = Type.Object(
 /**
  * Default river projection parameters.
  */
-const ProjectRiverNetworkDefaultStrategySchema = Type.Object(
+const DischargePercentilesStrategySchema = Type.Object(
   {
     /** Discharge percentile used as the minor river threshold (0..1). */
     minorPercentile: Type.Number({
@@ -94,7 +94,7 @@ const ProjectRiverNetworkDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "River network projection parameters (default strategy).",
+    description: "River network projection parameters (discharge-percentiles strategy).",
   }
 );
 
@@ -103,9 +103,8 @@ const ProjectRiverNetworkContract = defineOp({
   id: "hydrology/project-river-network",
   input: ProjectRiverNetworkInputSchema,
   output: ProjectRiverNetworkOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ProjectRiverNetworkDefaultStrategySchema,
+    "discharge-percentiles": DischargePercentilesStrategySchema,
   },
 });
 

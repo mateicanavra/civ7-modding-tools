@@ -26,9 +26,8 @@ const ScoreAtollContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Atoll suitability score per tile (0..1)." }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({
+    "warm-ocean-bank": Type.Object({
       tempWarmStartC: Type.Number({
         default: 18,
         minimum: -100,

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { supportEquityStrategy } from "./support-equity.js";

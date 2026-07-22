@@ -6,77 +6,87 @@ function publicStrategySchema<T extends TSchema>(schema: T, description: string)
 }
 
 const MeshResolutionSchema = publicStrategySchema(
-  foundation.ops.computeMesh.strategies.default,
+  foundation.ops.computeMesh.strategies["jittered-delaunay"],
   "Mesh resolution controls. These fields set the generated tectonic mesh density and relaxation behavior; cellCount is derived inside mesh execution and is not authored."
 );
 
 const MantleSourcesSchema = publicStrategySchema(
-  foundation.ops.computeMantlePotential.strategies.default,
+  foundation.ops.computeMantlePotential.strategies["poisson-source-field"],
   "Mantle source controls. These fields shape deterministic upwelling/downwelling sources that drive plate forcing and tectonic activity."
 );
 
 const MantleForcingSchema = publicStrategySchema(
-  foundation.ops.computeMantleForcing.strategies.default,
+  foundation.ops.computeMantleForcing.strategies["potential-gradient"],
   "Mantle forcing controls. These fields translate mantle potential into velocity, stress, and upwelling/downwelling signals consumed by plate motion and crust."
 );
 
 const LithosphereSchema = publicStrategySchema(
-  foundation.ops.computeCrust.strategies.default,
+  foundation.ops.computeCrust.strategies["basaltic-lid"],
   "Lithosphere controls. These fields set basaltic lid strength, mantle coupling, and rift weakening for initial crust truth."
 );
 
 const PlatePartitionSchema = publicStrategySchema(
-  foundation.ops.computePlateGraph.strategies.default,
+  foundation.ops.computePlateGraph.strategies["resistance-weighted-voronoi"],
   "Plate partition controls. These fields determine plate seed count scaling and polar cap/microplate partition behavior."
 );
 
 const PlateMotionSchema = publicStrategySchema(
-  foundation.ops.computePlateMotion.strategies.default,
+  foundation.ops.computePlateMotion.strategies["rigid-body-fit"],
   "Plate motion controls. These fields tune plate velocity fitting and diagnostics used by both current plate motion and tectonic history."
 );
 
 const TectonicSegmentationSchema = publicStrategySchema(
-  foundation.ops.computeTectonicSegments.strategies.default,
+  foundation.ops.computeTectonicSegments.strategies["relative-motion-regimes"],
   "Tectonic segmentation controls. These fields classify plate-boundary intensity into convergent, divergent, transform, and inactive regimes."
 );
 
 const TectonicErasSchema = publicStrategySchema(
-  foundation.ops.computeEraPlateMembership.strategies.default,
+  foundation.ops.computeEraPlateMembership.strategies["backward-drift"],
   "Tectonic era controls. These arrays define old-to-new era weights and drift steps for pseudo-evolution history."
 );
 
 const TectonicFieldsSchema = publicStrategySchema(
-  foundation.ops.computeEraTectonicFields.strategies.default,
+  foundation.ops.computeEraTectonicFields.strategies["event-distance-decay"],
   "Tectonic field controls. These fields set the distance and decay used when spreading boundary influence across mesh cells."
 );
 
 const TectonicRollupsSchema = publicStrategySchema(
-  foundation.ops.computeTectonicHistoryRollups.strategies.default,
+  foundation.ops.computeTectonicHistoryRollups.strategies["cumulative-era-rollup"],
   "Tectonic rollup controls. These fields determine how per-era activity is summarized into current history scalars."
 );
 
 const CrustCharacterSchema = publicStrategySchema(
-  foundation.ops.computeCrustEvolution.strategies.default,
+  foundation.ops.computeCrustEvolution.strategies["tectonic-differentiation"],
   "Crust character controls. These semantic fields shape continental abundance, freeboard, fragmentation, shelf depth, and abyssal relief."
 );
 
-function defaultOp(config: unknown) {
+function operationSelection<const Strategy extends string>(
+  operation: Readonly<{ defaultStrategy: Strategy }>,
+  config: unknown
+) {
   return {
-    strategy: "default" as const,
+    strategy: operation.defaultStrategy,
     config,
   };
 }
 
-function maybeDefaultOp(config: unknown): unknown {
-  return config === undefined ? undefined : defaultOp(config);
+function maybeOperationSelection<const Strategy extends string>(
+  operation: Readonly<{ defaultStrategy: Strategy }>,
+  config: unknown
+): unknown {
+  return config === undefined ? undefined : operationSelection(operation, config);
 }
 
 function assignIfDefined(target: Record<string, unknown>, key: string, value: unknown): void {
   if (value !== undefined) target[key] = value;
 }
 
-function stepOp(opKey: string, config: unknown): Record<string, unknown> | undefined {
-  const op = maybeDefaultOp(config);
+function stepOp(
+  opKey: string,
+  operation: Readonly<{ defaultStrategy: string }>,
+  config: unknown
+): Record<string, unknown> | undefined {
+  const op = maybeOperationSelection(operation, config);
   return op === undefined ? undefined : { [opKey]: op };
 }
 
@@ -147,21 +157,37 @@ export type FoundationOrogenyPublicConfig = Static<typeof FoundationOrogenyPubli
 /** Compiles mantle controls into the fixed mesh, potential, and forcing step envelopes. */
 export function compileFoundationMantlePublicConfig(config: Record<string, unknown>) {
   const rawSteps: Record<string, unknown> = {};
-  assignIfDefined(rawSteps, "mesh", stepOp("computeMesh", config.meshResolution));
+  assignIfDefined(
+    rawSteps,
+    "mesh",
+    stepOp("computeMesh", foundation.ops.computeMesh, config.meshResolution)
+  );
   assignIfDefined(
     rawSteps,
     "mantle-potential",
-    stepOp("computeMantlePotential", config.mantleSources)
+    stepOp("computeMantlePotential", foundation.ops.computeMantlePotential, config.mantleSources)
   );
-  assignIfDefined(rawSteps, "mantle-forcing", stepOp("computeMantleForcing", config.mantleForcing));
+  assignIfDefined(
+    rawSteps,
+    "mantle-forcing",
+    stepOp("computeMantleForcing", foundation.ops.computeMantleForcing, config.mantleForcing)
+  );
   return rawSteps;
 }
 
 /** Compiles lithosphere controls into initial-crust and plate-graph step envelopes. */
 export function compileFoundationLithospherePublicConfig(config: Record<string, unknown>) {
   const rawSteps: Record<string, unknown> = {};
-  assignIfDefined(rawSteps, "crust", stepOp("computeCrust", config.lithosphere));
-  assignIfDefined(rawSteps, "plate-graph", stepOp("computePlateGraph", config.platePartition));
+  assignIfDefined(
+    rawSteps,
+    "crust",
+    stepOp("computeCrust", foundation.ops.computeCrust, config.lithosphere)
+  );
+  assignIfDefined(
+    rawSteps,
+    "plate-graph",
+    stepOp("computePlateGraph", foundation.ops.computePlateGraph, config.platePartition)
+  );
   return rawSteps;
 }
 
@@ -171,29 +197,37 @@ export function compileFoundationLithospherePublicConfig(config: Record<string, 
  */
 export function compileFoundationTectonicsPublicConfig(config: Record<string, unknown>) {
   const rawSteps: Record<string, unknown> = {};
-  assignIfDefined(rawSteps, "plate-motion", stepOp("computePlateMotion", config.plateMotion));
+  assignIfDefined(
+    rawSteps,
+    "plate-motion",
+    stepOp("computePlateMotion", foundation.ops.computePlateMotion, config.plateMotion)
+  );
 
   const tectonicsConfig: Record<string, unknown> = {};
-  assignIfDefined(tectonicsConfig, "computePlateMotion", maybeDefaultOp(config.plateMotion));
+  assignIfDefined(
+    tectonicsConfig,
+    "computePlateMotion",
+    maybeOperationSelection(foundation.ops.computePlateMotion, config.plateMotion)
+  );
   assignIfDefined(
     tectonicsConfig,
     "computeTectonicSegments",
-    maybeDefaultOp(config.tectonicSegmentation)
+    maybeOperationSelection(foundation.ops.computeTectonicSegments, config.tectonicSegmentation)
   );
   assignIfDefined(
     tectonicsConfig,
     "computeEraPlateMembership",
-    maybeDefaultOp(config.tectonicEras)
+    maybeOperationSelection(foundation.ops.computeEraPlateMembership, config.tectonicEras)
   );
   assignIfDefined(
     tectonicsConfig,
     "computeEraTectonicFields",
-    maybeDefaultOp(config.tectonicFields)
+    maybeOperationSelection(foundation.ops.computeEraTectonicFields, config.tectonicFields)
   );
   assignIfDefined(
     tectonicsConfig,
     "computeTectonicHistoryRollups",
-    maybeDefaultOp(config.tectonicRollups)
+    maybeOperationSelection(foundation.ops.computeTectonicHistoryRollups, config.tectonicRollups)
   );
   if (Object.keys(tectonicsConfig).length > 0) rawSteps.tectonics = tectonicsConfig;
 
@@ -209,7 +243,7 @@ export function compileFoundationOrogenyPublicConfig(config: FoundationOrogenyPu
   assignIfDefined(
     rawSteps,
     "crust-evolution",
-    stepOp("computeCrustEvolution", config.crustCharacter)
+    stepOp("computeCrustEvolution", foundation.ops.computeCrustEvolution, config.crustCharacter)
   );
   return rawSteps;
 }

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { coldForestStrategy } from "./cold-forest.js";

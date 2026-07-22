@@ -62,7 +62,7 @@ const ComputeEvaporationSourcesOutputSchema = Type.Object(
  * - If land should contribute more moisture (more humid interiors): increase `landStrength`.
  * - If cold regions evaporate too much: increase `minTempC` (shift cut-off upward).
  */
-const ComputeEvaporationSourcesDefaultStrategySchema = Type.Object(
+const ThermalSurfaceStrategySchema = Type.Object(
   {
     /** Evaporation multiplier applied to water tiles. */
     oceanStrength: Type.Number({
@@ -95,7 +95,7 @@ const ComputeEvaporationSourcesDefaultStrategySchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Evaporation source parameters (default strategy).",
+    description: "Evaporation source parameters (thermal-surface strategy).",
   }
 );
 
@@ -104,9 +104,8 @@ const ComputeEvaporationSourcesContract = defineOp({
   id: "hydrology/compute-evaporation-sources",
   input: ComputeEvaporationSourcesInputSchema,
   output: ComputeEvaporationSourcesOutputSchema,
-  defaultStrategy: "default",
   strategies: {
-    default: ComputeEvaporationSourcesDefaultStrategySchema,
+    "thermal-surface": ThermalSurfaceStrategySchema,
   },
 });
 

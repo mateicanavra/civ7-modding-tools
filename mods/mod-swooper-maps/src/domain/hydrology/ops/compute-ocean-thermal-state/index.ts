@@ -1,9 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputeOceanThermalStateContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { latitudeCurrentAdvectionStrategy } from "./strategies/index.js";
 
 const computeOceanThermalState = createOp(ComputeOceanThermalStateContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { "latitude-current-advection": latitudeCurrentAdvectionStrategy },
 });
 
 export type * from "./contract.js";

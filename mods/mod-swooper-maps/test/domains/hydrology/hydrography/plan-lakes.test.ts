@@ -7,7 +7,7 @@ function runPlanLakes(
   input: Parameters<typeof planLakes.run>[0],
   config: (typeof planLakes.defaultConfig)["config"]
 ) {
-  return planLakes.run(input, { strategy: "default", config });
+  return planLakes.run(input, { strategy: "sink-discharge-budget", config });
 }
 
 /**

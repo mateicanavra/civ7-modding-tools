@@ -4,6 +4,29 @@ import type { IsEqual, IsStringLiteral } from "type-fest";
 
 type Expect<T extends true> = T;
 
+const SoleStrategyOp = defineOp({
+  kind: "compute",
+  id: "test/compute-sole-strategy",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Object({}, { additionalProperties: false }),
+  strategies: {
+    measured: Type.Object(
+      { sampleCount: Type.Integer({ default: 3, minimum: 1 }) },
+      { additionalProperties: false }
+    ),
+  },
+});
+
+export type SoleStrategyIsInferredExactly = Expect<
+  IsEqual<(typeof SoleStrategyOp)["defaultStrategy"], "measured">
+>;
+export type SoleDefaultConfigIsInferredExactly = Expect<
+  IsEqual<
+    (typeof SoleStrategyOp)["defaultConfig"],
+    Readonly<{ strategy: "measured"; config: { sampleCount: number } }>
+  >
+>;
+
 const MultiStrategyOp = defineOp({
   kind: "compute",
   id: "test/compute-multi-strategy",
@@ -66,4 +89,83 @@ defineOp({
     balanced: Type.Object({}, { additionalProperties: false }),
     fast: Type.Object({}, { additionalProperties: false }),
   },
+});
+
+defineOp({
+  kind: "compute",
+  id: "test/redundant-sole-default",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Object({}, { additionalProperties: false }),
+  // @ts-expect-error A sole semantic strategy is necessarily the default.
+  defaultStrategy: "measured",
+  strategies: {
+    measured: Type.Object({}, { additionalProperties: false }),
+  },
+});
+
+const ExplicitUndefinedSoleStrategyOp = defineOp({
+  kind: "compute",
+  id: "test/undefined-sole-default",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Object({}, { additionalProperties: false }),
+  defaultStrategy: undefined,
+  strategies: {
+    measured: Type.Object({}, { additionalProperties: false }),
+  },
+});
+export type ExplicitUndefinedIsEquivalentToOmission = Expect<
+  IsEqual<(typeof ExplicitUndefinedSoleStrategyOp)["defaultStrategy"], "measured">
+>;
+
+// @ts-expect-error A multi-strategy operation must declare its semantic default.
+defineOp({
+  kind: "compute",
+  id: "test/missing-multi-default",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Object({}, { additionalProperties: false }),
+  strategies: {
+    measured: Type.Object({}, { additionalProperties: false }),
+    estimated: Type.Object({}, { additionalProperties: false }),
+  },
+});
+
+defineOp({
+  kind: "compute",
+  id: "test/generic-strategy-identity",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Object({}, { additionalProperties: false }),
+  // @ts-expect-error Strategy ids describe behavior; `default` is not a semantic identity.
+  strategies: { default: Type.Object({}, { additionalProperties: false }) },
+});
+
+const symbolicStrategy = Symbol("symbolic-strategy");
+defineOp({
+  kind: "compute",
+  id: "test/symbol-strategy-identity",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Object({}, { additionalProperties: false }),
+  // @ts-expect-error Runtime strategy ids are enumerable string-literal keys.
+  strategies: { [symbolicStrategy]: Type.Object({}, { additionalProperties: false }) },
+});
+
+const numericStrategySchema = Type.Object({}, { additionalProperties: false });
+const numericStrategies: Readonly<Record<number, typeof numericStrategySchema>> = {
+  1: numericStrategySchema,
+};
+defineOp({
+  kind: "compute",
+  id: "test/numeric-strategy-identity",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Object({}, { additionalProperties: false }),
+  // @ts-expect-error Runtime strategy ids are enumerable string-literal keys.
+  strategies: numericStrategies,
+});
+
+defineOp({
+  kind: "compute",
+  id: "test/empty-strategy-set",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Object({}, { additionalProperties: false }),
+  // @ts-expect-error An operation must declare at least one strategy.
+  strategies: {},
 });

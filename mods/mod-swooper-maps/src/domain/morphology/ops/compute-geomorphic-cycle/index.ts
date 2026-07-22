@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeGeomorphicCycleContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { streamPowerDiffusionStrategy } from "./strategies/index.js";
 
 const computeGeomorphicCycle = createOp(ComputeGeomorphicCycleContract, {
   strategies: {
-    default: defaultStrategy,
+    "stream-power-diffusion": streamPowerDiffusionStrategy,
   },
 });
 

@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { hydrographicClassificationStrategy } from "./hydrographic-classification.js";

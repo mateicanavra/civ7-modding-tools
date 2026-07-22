@@ -1,3 +1,4 @@
+import morphology from "@mapgen/domain/morphology";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { GeomorphologyStep } from "./steps/geomorphology/step.js";
@@ -108,6 +109,13 @@ const GeomorphicCycleConfigSchema = Type.Object(
   }
 );
 
+function defaultEnvelope<const Strategy extends string>(
+  operation: Readonly<{ defaultStrategy: Strategy }>,
+  config: unknown
+) {
+  return { strategy: operation.defaultStrategy, config };
+}
+
 /**
  * Morphology-erosion knobs (erosion). Knobs apply after defaulted step config as deterministic transforms.
  */
@@ -142,7 +150,7 @@ export default createStage({
   steps: orderStandardStageSteps("morphology-erosion", { geomorphology: GeomorphologyStep }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     geomorphology: {
-      geomorphology: { strategy: "default", config: config.geomorphicCycle },
+      geomorphology: defaultEnvelope(morphology.ops.computeGeomorphicCycle, config.geomorphicCycle),
     },
   }),
 } as const);

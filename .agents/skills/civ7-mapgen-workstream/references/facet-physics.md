@@ -20,10 +20,10 @@ Background-only physics reading (philosophy, NOT canonical architecture): `docs/
 
 ## How a behavioral change reaches the model (the strategy mechanism)
 
-Behavioral realism is tuned or swapped at the **op / strategy** layer. An op (`defineOp`) declares a `strategies` record; the key `default` is mandatory; multi-strategy ops add named variants, each with its own config schema. The runtime envelope is `{ strategy: "<id>", config: {...} }` (a TypeBox discriminated union). You change behavior three ways, in increasing depth:
+Behavioral realism is tuned or swapped at the **op / strategy** layer. An op (`defineOp`) declares a `strategies` record whose keys preserve behavioral identity. A sole strategy is inferred as the default; a multi-strategy op names its default explicitly. The runtime envelope is `{ strategy: "<id>", config: {...} }` (a TypeBox discriminated union). You change behavior three ways, in increasing depth:
 
 1. **Re-tune** — keep the strategy, change `config` values in the map config or stage `compile()`. Cheapest; most behavioral asks start here.
-2. **Swap strategy** — select a different existing key (e.g. precipitation `refine` instead of `default`/vector; atmospheric circulation `latitude` instead of `default`/geostrophic-proxy). Selection happens in exactly one of three places — see below.
+2. **Swap strategy** — select a different existing key (e.g. precipitation `refine` instead of `vector`; atmospheric circulation `latitude` instead of `geostrophic-proxy`). Selection happens in exactly one of three places — see below.
 3. **Add a strategy** — author a new physical model as a new strategy key on the op, leaving the old one intact. The full add-a-strategy recipe (contract + `strategies/<id>.ts` + `createOp` binding + activation) is in `assets/recipe-scaffolds.md`. This is the preferred shape for a genuinely new physical model: it is reversible and A/B-testable against the incumbent.
 
 **Where a strategy is selected** (the three control points — verified in `packages/mapgen-core/src/authoring/op/create.ts` runtime dispatch `runtimeStrategies[cfg.strategy].run(...)`):
@@ -45,7 +45,7 @@ The physical chain: a **mesh** (flat/periodic, not a sphere) → **mantle potent
 - **APPROXIMATED:** Plate motion is fit to a static mantle field, not a self-consistent force balance; "events" stand in for discrete tectonic episodes; the mesh is flat/periodic, so polar convergence of meridians and true great-circle distances are absent.
 - **ABSENT:** Viscous mantle–plate coupling; slab-pull / ridge-push as *separate* mechanisms; true spherical geometry; self-consistent plate creation/destruction (plates do not actually nucleate at ridges or vanish at trenches).
 
-**Behavioral levers:** mantle source placement/strength → number, size, and arrangement of continents and the location of orogenic belts. Provenance → where morphology can grow mountains/rifts/volcanoes. A "more Pangaea-like" or "more fragmented" world is a foundation-mantle ask, not a morphology ask. Foundation ops are **single-strategy (`default` only)** today — a new tectonic model is an *add-a-strategy* on the relevant op (e.g. an alternative mantle-potential or plate-motion strategy), or new config on the existing one.
+**Behavioral levers:** mantle source placement/strength → number, size, and arrangement of continents and the location of orogenic belts. Provenance → where morphology can grow mountains/rifts/volcanoes. A "more Pangaea-like" or "more fragmented" world is a foundation-mantle ask, not a morphology ask. Foundation ops are **single-strategy with semantic identities** today — a new tectonic model is an *add-a-strategy* on the relevant op (e.g. an alternative mantle-potential or plate-motion strategy), or new config on the existing one.
 
 ---
 
@@ -73,12 +73,12 @@ The physical chain (op by op):
 
 1. **Radiative forcing** (`compute-radiative-forcing`): insolation as a power-law of `|latitude|` — the energy input.
 2. **Thermal state** (`compute-thermal-state`): `surfaceTemperatureC ≈ base + insolation·scale + elevation·lapse − land-cooling` — outputs the `surfaceTemperatureC` field every downstream temperature consumer reads.
-3. **Ocean geometry** (`compute-ocean-geometry`) → **ocean surface currents** (`compute-ocean-surface-currents`): wind stress + hemisphere-aware **Ekman transport** + basin **gyres** + coastal boundary currents + a divergence-free **Helmholtz projection**. Strategies: **`default` = wind-gyre-projection (earthlike)**, **`latitude` = legacy zonal model** (the `latitude` key binds the older `...DefaultStrategySchema`; the file name does not match the key — the key is what dispatches).
+3. **Ocean geometry** (`compute-ocean-geometry`) → **ocean surface currents** (`compute-ocean-surface-currents`): wind stress + hemisphere-aware **Ekman transport** + basin **gyres** + coastal boundary currents + a divergence-free **Helmholtz projection**. Strategies: **`wind-gyre-projection`** (earthlike default) and **`latitude`** (legacy zonal model).
 4. **Ocean thermal state** (`compute-ocean-thermal-state`): SST advected/diffused along currents; sea-ice.
 5. **Evaporation sources** (`compute-evaporation-sources`): where moisture enters the atmosphere.
-6. **Atmospheric circulation** (`compute-atmospheric-circulation`): `computeWindsEarthlike` builds a **3-cell Hadley / Ferrel / Polar** zonal scaffold + a **geostrophic-proxy** wind from `∇pressure` (verified: `wind = (zonalBase, meridionalBase) + geo·geostrophicStrength`) + optional seasonal modulation. Strategies: **`default` = geostrophic-proxy**, **`latitude` = legacy latitude-band model**.
-7. **Moisture transport** (`transport-moisture`): advects humidity along the wind field. Strategies: **`default` = vector-advection** (follows the full U/V wind vector), **`cardinal` = legacy cardinal-only** walk.
-8. **Precipitation** (`compute-precipitation`): `humidity^exp · scale + coastal gradient − orographic rain shadow` (rain shadow via a **cardinal upwind-barrier walk**). Strategies: **`default` = vector** (consumes full wind U/V for uplift + convergence proxies), **`basic` = baseline**, **`refine` = adds river-corridor + low-basin bonuses** (the production climate-refine pass uses `refine`).
+6. **Atmospheric circulation** (`compute-atmospheric-circulation`): `computeWindsEarthlike` builds a **3-cell Hadley / Ferrel / Polar** zonal scaffold + a **geostrophic-proxy** wind from `∇pressure` (verified: `wind = (zonalBase, meridionalBase) + geo·geostrophicStrength`) + optional seasonal modulation. Strategies: **`geostrophic-proxy`** (default) and **`latitude`** (legacy latitude-band model).
+7. **Moisture transport** (`transport-moisture`): advects humidity along the wind field. Strategies: **`vector-advection`** (default; follows the full U/V wind vector) and **`cardinal`** (legacy cardinal-only walk).
+8. **Precipitation** (`compute-precipitation`): `humidity^exp · scale + coastal gradient − orographic rain shadow` (rain shadow via a **cardinal upwind-barrier walk**). Strategies: **`vector`** (default; consumes full wind U/V for uplift + convergence proxies), **`baseline`**, and **`refine`** (adds river-corridor + low-basin bonuses; the production climate-refine pass uses `refine`).
 9. **Cryosphere** (`compute-cryosphere-state`): outputs `freezeIndex` (ramped between `freezeIndexStartC`/`freezeIndexFullC`) and permafrost thresholds from `surfaceTemperatureC`.
 10. **Albedo feedback** (`apply-albedo-feedback`): iterative ice/temperature feedback (fixed-iteration, not to convergence).
 11. **Land water budget** (`compute-land-water-budget`): simplified **PET** proxy and `aridityIndex` = PET/(PET + precip + 1)-style ratio (advisory).
@@ -100,8 +100,8 @@ The physical chain (op by op):
 `src/domain/ecology/ops/*` — 33 ops (the most granular domain). Reads hydrology climate indices + morphology relief + its own pedology; publishes `artifact:ecology.{biomeClassification,soils,resourceBasins,scoreLayers,plotEffectPlan}` and `featureIntents.{vegetation,wetlands,floodplains,reefs,ice}`.
 
 - **Biome classification** (`classify-biomes`): a **Whittaker / Holdridge** envelope — a temperature zone {polar, cold, temperate, tropical} × moisture zone {arid, semiArid, subhumid, humid, perhumid} lookup, with an **aridity-index downshift** (`aridityShiftForIndex`) and a soft tropical/temperate transition band. It consumes hydrology's `effectiveMoisture` + `aridityIndex` as advisory inputs (does not recompute them).
-- **Pedology** (`ecology/pedology/classify` → `ecology/pedology/aggregate`; dirs: `pedology-classify/`, `pedology-aggregate/`): soil fertility from rainfall/humidity/relief/sediment-depth/bedrock-age. **Strategies: `default`, `coastal-shelf`, `orogeny-boosted`** — the multi-strategy point in ecology. `orogeny-boosted` weights tectonic relief into fertility; `coastal-shelf` weights shelf proximity. Soils feed `resource-plan-basins` (the soils → resource-basins bridge).
-- **Feature planners** score candidates against climate/hydrology fields: vegetation (forest, rainforest, taiga, savanna-woodland, sagebrush-steppe), wetlands (marsh, mangrove, oasis, tundra-bog, watering-hole), reefs (reef, atoll, cold-reef, lotus), ice (`features-plan-ice`, strategies **`default`, `continentality`**), and floodplains. `features-apply` materializes intents.
+- **Pedology** (`ecology/pedology/classify` → `ecology/pedology/aggregate`; dirs: `pedology-classify/`, `pedology-aggregate/`): soil fertility from rainfall/humidity/relief/sediment-depth/bedrock-age. **Strategies: `balanced` (default), `coastal-shelf`, `orogeny-boosted`** — one multi-strategy point in ecology. `orogeny-boosted` weights tectonic relief into fertility; `coastal-shelf` weights shelf proximity. Soils feed `ecology/resources/plan-basins` (the soils → resource-basins bridge).
+- **Feature planners** score candidates against climate/hydrology fields: vegetation (forest, rainforest, taiga, savanna-woodland, sagebrush-steppe), wetlands (marsh, mangrove, oasis, tundra-bog, watering-hole), reefs (reef, atoll, cold-reef, lotus), ice (`ecology/features/plan-ice`, sole **`score-threshold`** strategy), and floodplains. `features-apply` materializes intents.
 
 - **MODELED:** Whittaker/Holdridge temperature × moisture biome envelope; aridity downshift; soft biome transition bands; multi-factor soil fertility; climate-scored vegetation/wetland/reef/ice/floodplain feature placement; soils → resource-basin derivation.
 - **APPROXIMATED:** Biomes are a coarse 4×5 lookup (not a continuous climate space); features are scored heuristics, not ecological succession; pedology proxies bedrock age rather than tracking lithology through tectonic history.
@@ -147,11 +147,12 @@ Always: ground the model in a real process → locate the op (and whether `compi
 
 | Op | Strategy keys (live) | What the non-default model does |
 |---|---|---|
-| `hydrology/compute-atmospheric-circulation` | `default` (geostrophic-proxy), `latitude` | `latitude` = legacy latitude-band winds (no ∇pressure geostrophic term) |
-| `hydrology/compute-ocean-surface-currents` | `default` (wind-gyre-projection / earthlike), `latitude` | `latitude` = legacy zonal current model |
-| `hydrology/transport-moisture` | `default` (vector-advection), `cardinal` | `cardinal` = legacy cardinal-only humidity walk |
-| `hydrology/compute-precipitation` | `default` (vector), `basic` (baseline), `refine` | `refine` = baseline + river-corridor + low-basin bonuses (production climate-refine) |
-| `ecology/pedology/classify` | `default`, `coastal-shelf`, `orogeny-boosted` | weight shelf proximity / tectonic relief into soil fertility |
-| `ecology/features-plan-ice` | `default`, `continentality` | `continentality` = continental-interior-aware ice scoring |
+| `hydrology/compute-atmospheric-circulation` | `geostrophic-proxy` (default), `latitude` | `latitude` = legacy latitude-band winds (no ∇pressure geostrophic term) |
+| `hydrology/compute-ocean-surface-currents` | `wind-gyre-projection` (default), `latitude` | `latitude` = legacy zonal current model |
+| `hydrology/transport-moisture` | `vector-advection` (default), `cardinal` | `cardinal` = legacy cardinal-only humidity walk |
+| `hydrology/compute-precipitation` | `vector` (default), `baseline`, `refine` | `refine` = baseline + river-corridor + low-basin bonuses (production climate-refine) |
+| `ecology/pedology/classify` | `balanced` (default), `coastal-shelf`, `orogeny-boosted` | weight shelf proximity / tectonic relief into soil fertility |
+| `ecology/resources/plan-basins` | `balanced` (default), `hydro-fluvial`, `mixed` | vary the evidence mix used to derive resource basins |
+| `ecology/features/plan-reefs` | `habitat` (default), `diagonal-stride` | `diagonal-stride` = deterministic geometric fallback placement |
 
-All **foundation** ops and **most morphology** ops are single-strategy (`default` only): a new physical model there is an *add-a-strategy* (`assets/recipe-scaffolds.md`) or new config, never a swap. Every key above is the **runtime dispatch key**; strategy file names do not always match keys (e.g. atmospheric `default` is implemented in `geostrophic-proxy.ts`) — the key is authoritative.
+All **foundation** ops and **most morphology** ops have one inferred semantic strategy: a new physical model there is an *add-a-strategy* (`assets/recipe-scaffolds.md`) or new config, never a rename to `default`. Every key above is the runtime dispatch key and matches its strategy module identity.

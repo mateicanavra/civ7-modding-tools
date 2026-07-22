@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { wrappedHexAdjacencyStrategy } from "./wrapped-hex-adjacency.js";

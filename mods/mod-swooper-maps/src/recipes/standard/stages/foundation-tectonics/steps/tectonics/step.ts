@@ -30,7 +30,7 @@ export const TectonicsStep = createStep(TectonicsStepContract, {
   normalize: (config, ctx) => {
     // plateActivity scales post-classification orogeny intensity without moving boundaries.
     const { plateActivity } = ctx.knobs as Readonly<{ plateActivity?: number }>;
-    if (config.computeEraTectonicFields.strategy !== "default") return config;
+    if (config.computeEraTectonicFields.strategy !== "event-distance-decay") return config;
     const orogenyActivityGain = resolvePlateActivityOrogenyMultiplier(plateActivity);
     return {
       ...config,

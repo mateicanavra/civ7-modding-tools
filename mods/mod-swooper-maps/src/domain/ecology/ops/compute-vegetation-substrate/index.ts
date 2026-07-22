@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeVegetationSubstrateContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { bioclimaticSubstrateStrategy } from "./strategies/index.js";
 
 const computeVegetationSubstrate = createOp(ComputeVegetationSubstrateContract, {
   strategies: {
-    default: defaultStrategy,
+    "bioclimatic-substrate": bioclimaticSubstrateStrategy,
   },
 });
 

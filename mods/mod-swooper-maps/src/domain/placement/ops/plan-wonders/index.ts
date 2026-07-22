@@ -1,7 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import PlanWondersContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { mapMetadataStrategy } from "./strategies/index.js";
 
 /**
  * Derives the nonnegative natural-wonder target from Civ7 map-size metadata without selecting
@@ -9,7 +9,7 @@ import { defaultStrategy } from "./strategies/index.js";
  */
 const planWonders = createOp(PlanWondersContract, {
   strategies: {
-    default: defaultStrategy,
+    "map-metadata": mapMetadataStrategy,
   },
 });
 

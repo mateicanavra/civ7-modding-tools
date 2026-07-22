@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { terrainWindIndicesStrategy } from "./terrain-wind-indices.js";

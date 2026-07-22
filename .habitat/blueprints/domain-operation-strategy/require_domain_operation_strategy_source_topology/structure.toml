@@ -1,0 +1,20 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "mapgen-domain-operation-strategy-roots"
+root = "mods/*/src/domain/!(*.*)/ops/!(*.*)/strategies"
+kind = "directory"
+mode = "closed"
+required = [
+  "index.ts",
+  "!(|index|default|*[^a-z0-9-]*|-*|*-|*--*).ts",
+]
+forbidden = [
+  "default.ts",
+]
+
+[[scopes]]
+name = "mapgen-domain-operation-strategy-modules"
+root = "mods/*/src/domain/!(*.*)/ops/!(*.*)/strategies/!(index.ts|default.ts)"
+kind = "file"
+mode = "open"

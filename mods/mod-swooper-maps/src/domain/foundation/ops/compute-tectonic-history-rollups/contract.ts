@@ -36,9 +36,8 @@ const ComputeTectonicHistoryRollupsContract = defineOp({
         "Mesh-wide tectonic history that preserves every reconstructed era and plate assignment while aggregating cumulative, recent, and last-active signals per cell.",
     }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: StrategySchema,
+    "cumulative-era-rollup": StrategySchema,
   },
 });
 

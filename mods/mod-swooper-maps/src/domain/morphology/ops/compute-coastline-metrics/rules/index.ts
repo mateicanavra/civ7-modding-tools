@@ -2,7 +2,7 @@ import { clamp } from "@swooper/mapgen-core/lib/math";
 
 import type { ComputeCoastlineMetricsTypes } from "../types.js";
 
-type CoastConfig = ComputeCoastlineMetricsTypes["config"]["default"]["coast"];
+type CoastConfig = ComputeCoastlineMetricsTypes["config"]["plate-aware-carving"]["coast"];
 type PlateBiasConfig = CoastConfig["plateBias"];
 
 type BayConfig = CoastConfig["bay"];

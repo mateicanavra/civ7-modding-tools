@@ -99,7 +99,7 @@ function pickPoissonSeed(params: {
 
 const computeMantlePotential = createOp(ComputeMantlePotentialContract, {
   strategies: {
-    default: createStrategy(ComputeMantlePotentialContract, "default", {
+    "poisson-source-field": createStrategy(ComputeMantlePotentialContract, "poisson-source-field", {
       run: (input, config) => {
         const mesh = input.mesh;
         const rngSeed = input.rngSeed | 0;

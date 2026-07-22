@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { petAridityStrategy } from "./pet-aridity.js";

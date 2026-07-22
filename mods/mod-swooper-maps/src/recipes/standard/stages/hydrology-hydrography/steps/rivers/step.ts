@@ -18,7 +18,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 export const RiversStep = createStep(RiversStepContract, {
   normalize: (config, ctx) => {
     const { riverDensity } = ctx.knobs as { riverDensity: HydrologyRiverDensityKnob };
-    if (config.projectRiverNetwork.strategy !== "default") return config;
+    if (config.projectRiverNetwork.strategy !== "discharge-percentiles") return config;
 
     const minorDelta =
       HYDROLOGY_RIVER_DENSITY_MINOR_PERCENTILE[riverDensity] -

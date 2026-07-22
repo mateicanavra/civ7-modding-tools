@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { advectedLineageStrategy } from "./advected-lineage.js";

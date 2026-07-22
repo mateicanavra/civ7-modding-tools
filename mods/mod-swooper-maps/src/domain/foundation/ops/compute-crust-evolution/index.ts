@@ -142,265 +142,277 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
 
 const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
   strategies: {
-    default: createStrategy(ComputeCrustEvolutionContract, "default", {
-      run: (input, config) => {
-        // Per-map-class character knobs (defaults = earthlike profile; see ./config.ts).
-        const {
-          continentalSurvivalMaturity,
-          continentalFreeboard,
-          hyperextensionBreakupBase,
-          thinningThicknessLoss,
-          oceanicAbyssalDepth,
-        } = config;
+    "tectonic-differentiation": createStrategy(
+      ComputeCrustEvolutionContract,
+      "tectonic-differentiation",
+      {
+        run: (input, config) => {
+          // Per-map-class character knobs (defaults = earthlike profile; see ./config.ts).
+          const {
+            continentalSurvivalMaturity,
+            continentalFreeboard,
+            hyperextensionBreakupBase,
+            thinningThicknessLoss,
+            oceanicAbyssalDepth,
+          } = config;
 
-        const mesh = input.mesh;
-        const cellCount = mesh.cellCount | 0;
+          const mesh = input.mesh;
+          const cellCount = mesh.cellCount | 0;
 
-        const crustInit = input.crustInit;
-        const tectonics = input.tectonics;
-        const tectonicHistory = input.tectonicHistory;
-        if (crustInit.thickness.length !== cellCount || crustInit.strength.length !== cellCount) {
-          throw new Error("[Foundation] Invalid crustInit.cellCount for compute-crust-evolution.");
-        }
-        if (
-          tectonics.boundaryType.length !== cellCount ||
-          tectonics.cumulativeUplift.length !== cellCount
-        ) {
-          throw new Error("[Foundation] Invalid tectonics.cellCount for compute-crust-evolution.");
-        }
-        if (
-          tectonicHistory.upliftTotal.length !== cellCount ||
-          tectonicHistory.fractureTotal.length !== cellCount
-        ) {
-          throw new Error(
-            "[Foundation] Invalid tectonicHistory.cellCount for compute-crust-evolution."
-          );
-        }
-
-        const maturity = new Float32Array(cellCount);
-        const thickness = new Float32Array(cellCount);
-        const thermalAge = new Uint8Array(cellCount);
-        const damage = new Uint8Array(cellCount);
-
-        const type = new Uint8Array(cellCount);
-        const age = new Uint8Array(cellCount);
-        const buoyancy = new Float32Array(cellCount);
-        const baseElevation = new Float32Array(cellCount);
-        const strength = new Float32Array(cellCount);
-
-        const eraCount = tectonicHistory.eraCount | 0;
-        const eras = tectonicHistory.eras;
-        const thermalAgeStep = eraCount > 0 ? 1 / eraCount : 0;
-
-        for (let i = 0; i < cellCount; i++) {
-          const initThickness = crustInit.thickness[i] ?? 0.25;
-
-          let maturity01 = 0;
-          let thickness01 = clamp01(initThickness);
-          let thermalAge01 = 0;
-          let cratonRoot01 = 0;
-          let extension01 = 0;
-
-          // Baseline damage proxy (existing one-shot formula).
-          const fractureTotal01 = clamp01((tectonicHistory.fractureTotal[i] ?? 0) / 255);
-          const riftNow01 = clamp01((tectonics.riftPotential[i] ?? 0) / 255);
-          const shearNow01 = clamp01((tectonics.shearStress[i] ?? 0) / 255);
-          let damage01 = clamp01(
-            (0.55 * fractureTotal01 + 0.6 * riftNow01 + 0.45 * shearNow01) / DAMAGE_COEFF_SUM
-          );
-
-          for (let e = 0; e < eraCount; e++) {
-            const era = eras[e]!;
-            const u = clamp01((era.upliftPotential[i] ?? 0) / 255);
-            const r = clamp01((era.riftPotential[i] ?? 0) / 255);
-            const s = clamp01((era.shearStress[i] ?? 0) / 255);
-            const v = clamp01((era.volcanism[i] ?? 0) / 255);
-            const f = clamp01((era.fracture[i] ?? 0) / 255);
-
-            // Differentiation increment.
-            const headroom = 1 - maturity01;
-            maturity01 = clamp01(
-              maturity01 +
-                MATURITY_UPLIFT_INTEGRATION_COEFF * u * headroom * headroom +
-                MATURITY_VOLCANISM_INTEGRATION_COEFF * v * headroom
+          const crustInit = input.crustInit;
+          const tectonics = input.tectonics;
+          const tectonicHistory = input.tectonicHistory;
+          if (crustInit.thickness.length !== cellCount || crustInit.strength.length !== cellCount) {
+            throw new Error(
+              "[Foundation] Invalid crustInit.cellCount for compute-crust-evolution."
             );
-
-            // Disruption suppression.
-            const disrupt = clamp01(
-              DISRUPTION_RIFT_COEFF * r + DISRUPTION_SHEAR_COEFF * s + DISRUPTION_FRACTURE_COEFF * f
+          }
+          if (
+            tectonics.boundaryType.length !== cellCount ||
+            tectonics.cumulativeUplift.length !== cellCount
+          ) {
+            throw new Error(
+              "[Foundation] Invalid tectonics.cellCount for compute-crust-evolution."
             );
-            maturity01 = clamp01(maturity01 - MATURITY_DISRUPTION_COEFF * disrupt * maturity01);
-
-            // Damage update.
-            damage01 = clamp01(Math.max(damage01, disrupt));
-
-            // Thermal age accrual.
-            thermalAge01 = clamp01(
-              thermalAge01 + thermalAgeStep * (1 - THERMAL_AGE_RIFT_SLOWDOWN * r)
-            );
-
-            // Cumulative continental extension (β-stretching integral). `continentalness` gates it so
-            // oceanic / not-yet-differentiated crust does not register stretching. Mapped to thinning /
-            // breakup AFTER the loop via the critical thresholds.
-            const continentalness = clamp01(
-              (maturity01 - THINNING_CONTINENTAL_MIN) / THINNING_CONTINENTAL_SPAN
-            );
-            extension01 = clamp01(extension01 + r * continentalness);
-
-            // Running "un-stretched" fraction: a cell already past the critical stretch cannot
-            // consolidate a keel even in a later quiet era — the extension is recorded in the crust.
-            // This is the coupling that makes thinning and cratonization near-exclusive per cell.
-            const unstretched = 1 - smoothstep(THIN_CRIT_LO, THIN_CRIT_HI, extension01);
-
-            // Cratonization: a continental cell that survives quiescent, un-stretched eras thickens its
-            // keel. `cratonizing` ramps in with maturity so only continental-grade crust consolidates;
-            // `quiescence` is the inverse of this era's disruption; `unstretched` denies keels to
-            // stretched margins; the keel-feedback term runs consolidation away to a deep root. Cells
-            // that matured early then drifted off the active belt grow the deepest keels (high mode).
-            const cratonizing = clamp01((maturity01 - CRATON_MATURITY_MIN) / CRATON_MATURITY_SPAN);
-            const quiescence = clamp01(1 - disrupt);
-            cratonRoot01 = clamp01(
-              cratonRoot01 +
-                CRATON_THICKEN_RATE *
-                  cratonizing *
-                  quiescence *
-                  unstretched *
-                  (1 + CRATON_KEEL_FEEDBACK * cratonRoot01)
+          }
+          if (
+            tectonicHistory.upliftTotal.length !== cellCount ||
+            tectonicHistory.fractureTotal.length !== cellCount
+          ) {
+            throw new Error(
+              "[Foundation] Invalid tectonicHistory.cellCount for compute-crust-evolution."
             );
           }
 
-          // Critical-stretching thinning: map the cumulative extension integral through β_crit.
-          const thinning01 = smoothstep(THIN_CRIT_LO, THIN_CRIT_HI, extension01);
+          const maturity = new Float32Array(cellCount);
+          const thickness = new Float32Array(cellCount);
+          const thermalAge = new Uint8Array(cellCount);
+          const damage = new Uint8Array(cellCount);
 
-          // Continental survival vs reversion to oceanic. A cell stays continental only if it BOTH
-          // (a) avoided hyperextension breakup (stretched past its maturity-graded threshold — marginal
-          // crust ruptures at low extension, cratons resist) AND (b) consolidated enough crust
-          // (maturity + keel) to be isostatically stable. Otherwise its lower lithosphere founders and
-          // it reverts to thin oceanic-grade crust — the deep mode, the fragmentation engine, and the
-          // cap on emerged continental area. Surviving thinned-but-continental crust below the breakup
-          // threshold remains as the shelf / lowland down-variety.
-          const breakupThreshold =
-            hyperextensionBreakupBase +
-            HYPEREXTENSION_BREAKUP_RESIST *
-              clamp01((maturity01 - CRATON_MATURITY_MIN) / HYPEREXTENSION_RESIST_SPAN);
-          const hyperextended = extension01 >= breakupThreshold;
-          // Stable, under-differentiated crust founders; a stretched margin (high extension) survives as
-          // a drowned shelf even at the same maturity, so foundering does not erase the shelf.
-          const foundersStable =
-            maturity01 < continentalSurvivalMaturity && extension01 < SHELF_PRESERVE_EXTENSION;
-          if (hyperextended || foundersStable) {
-            maturity01 = Math.min(maturity01, HYPEREXTENSION_MATURITY_CAP);
-            thermalAge01 = thermalAge01 * RIFT_THERMAL_AGE_MUL;
-          }
+          const type = new Uint8Array(cellCount);
+          const age = new Uint8Array(cellCount);
+          const buoyancy = new Float32Array(cellCount);
+          const baseElevation = new Float32Array(cellCount);
+          const strength = new Float32Array(cellCount);
 
-          // Continental freeboard step — the granitic/basaltic dichotomy (see constant). Computed from
-          // the post-breakup maturity so ruptured crust forfeits its freeboard and joins the deep mode,
-          // and GATED by (1 − thinning): a stretched margin loses its freeboard and subsides to a
-          // distinct drowned-shelf level, while stable interiors keep full freeboard as emerged land.
-          // This split — emerged land vs drowned shelf — is what makes the CONTINENTAL crust itself
-          // bimodal, opening the gap at sea level (where the water-fill solver cuts) instead of a flat
-          // platform straddling the waterline.
-          const continentalFreeboardStep =
-            continentalFreeboard *
-            smoothstep(CONTINENTAL_FREEBOARD_LO, CONTINENTAL_FREEBOARD_HI, maturity01) *
-            (1 - thinning01);
+          const eraCount = tectonicHistory.eraCount | 0;
+          const eras = tectonicHistory.eras;
+          const thermalAgeStep = eraCount > 0 ? 1 / eraCount : 0;
 
-          // Thickness = differentiated-crust base (maturity) + continental-freeboard step + cratonic
-          // keel − critical-stretch thinning. Freeboard lifts the whole continental platform clear of
-          // the waterline (emptying the band at sea level); the keel is the HIGH-mode driver
-          // (long-quiescent cratons ride highest); thinning is the LOW-mode driver (stretched margins
-          // lose thickness, lose isostatic support, subside, drown). The thresholds keep these
-          // near-exclusive per cell, so thickness — and hence buoyancy — turns bimodal across the world.
-          thickness01 = clamp01(
-            initThickness +
-              THICKNESS_FROM_MATURITY_GAIN * maturity01 +
-              continentalFreeboardStep +
-              cratonRoot01 -
-              thinningThicknessLoss * thinning01
-          );
-
-          maturity[i] = maturity01;
-          thickness[i] = thickness01;
-          thermalAge[i] = clampU8(thermalAge01 * 255);
-          damage[i] = clampU8(damage01 * 255);
-
-          const isContinent = isContinentalMaturity(maturity01) ? 1 : 0;
-          type[i] = isContinent;
-          age[i] = thermalAge[i];
-
-          const buoy = deriveBuoyancy({
-            maturity: maturity01,
-            thickness: thickness01,
-            thermalAge01,
-          });
-          buoyancy[i] = buoy;
-          baseElevation[i] = buoy;
-
-          const strengthBase = strengthFromThermalAge(thermalAge01);
-          const strengthComp = strengthFromMaturity(maturity01);
-          const strengthThk = strengthFromThickness(thickness01);
-          const strengthDamage = 1 - damage01;
-          strength[i] = clamp01(strengthBase * strengthComp * strengthThk * strengthDamage);
-        }
-
-        // ── Abyssal subsidence pass ─────────────────────────────────────────────────────────────────
-        // Deepen oceanic crust by its geodesic distance (mesh hops) from the nearest continental cell,
-        // so the floor falls from the margin shelf to the abyssal plain offshore (see ABYSS_DISTANCE_
-        // SCALE / config.oceanicAbyssalDepth above). Without this the reverted-oceanic floor is flat,
-        // and the gradient-based shelf classifier (compute-shelf-mask) finds no continental slope to
-        // break on — it floods the whole basin as shelf. The shoreline itself stays coast regardless
-        // (the classifier's land-adjacency rule), so this only carves the deep basin interior.
-        if (oceanicAbyssalDepth > 0 && ABYSS_DISTANCE_SCALE > 0) {
-          const marginDistance = new Int32Array(cellCount).fill(-1);
-          const bfsQueue = new Int32Array(cellCount);
-          let qHead = 0;
-          let qTail = 0;
           for (let i = 0; i < cellCount; i++) {
-            if (type[i] === 1) {
-              marginDistance[i] = 0;
-              bfsQueue[qTail++] = i;
+            const initThickness = crustInit.thickness[i] ?? 0.25;
+
+            let maturity01 = 0;
+            let thickness01 = clamp01(initThickness);
+            let thermalAge01 = 0;
+            let cratonRoot01 = 0;
+            let extension01 = 0;
+
+            // Baseline damage proxy (existing one-shot formula).
+            const fractureTotal01 = clamp01((tectonicHistory.fractureTotal[i] ?? 0) / 255);
+            const riftNow01 = clamp01((tectonics.riftPotential[i] ?? 0) / 255);
+            const shearNow01 = clamp01((tectonics.shearStress[i] ?? 0) / 255);
+            let damage01 = clamp01(
+              (0.55 * fractureTotal01 + 0.6 * riftNow01 + 0.45 * shearNow01) / DAMAGE_COEFF_SUM
+            );
+
+            for (let e = 0; e < eraCount; e++) {
+              const era = eras[e]!;
+              const u = clamp01((era.upliftPotential[i] ?? 0) / 255);
+              const r = clamp01((era.riftPotential[i] ?? 0) / 255);
+              const s = clamp01((era.shearStress[i] ?? 0) / 255);
+              const v = clamp01((era.volcanism[i] ?? 0) / 255);
+              const f = clamp01((era.fracture[i] ?? 0) / 255);
+
+              // Differentiation increment.
+              const headroom = 1 - maturity01;
+              maturity01 = clamp01(
+                maturity01 +
+                  MATURITY_UPLIFT_INTEGRATION_COEFF * u * headroom * headroom +
+                  MATURITY_VOLCANISM_INTEGRATION_COEFF * v * headroom
+              );
+
+              // Disruption suppression.
+              const disrupt = clamp01(
+                DISRUPTION_RIFT_COEFF * r +
+                  DISRUPTION_SHEAR_COEFF * s +
+                  DISRUPTION_FRACTURE_COEFF * f
+              );
+              maturity01 = clamp01(maturity01 - MATURITY_DISRUPTION_COEFF * disrupt * maturity01);
+
+              // Damage update.
+              damage01 = clamp01(Math.max(damage01, disrupt));
+
+              // Thermal age accrual.
+              thermalAge01 = clamp01(
+                thermalAge01 + thermalAgeStep * (1 - THERMAL_AGE_RIFT_SLOWDOWN * r)
+              );
+
+              // Cumulative continental extension (β-stretching integral). `continentalness` gates it so
+              // oceanic / not-yet-differentiated crust does not register stretching. Mapped to thinning /
+              // breakup AFTER the loop via the critical thresholds.
+              const continentalness = clamp01(
+                (maturity01 - THINNING_CONTINENTAL_MIN) / THINNING_CONTINENTAL_SPAN
+              );
+              extension01 = clamp01(extension01 + r * continentalness);
+
+              // Running "un-stretched" fraction: a cell already past the critical stretch cannot
+              // consolidate a keel even in a later quiet era — the extension is recorded in the crust.
+              // This is the coupling that makes thinning and cratonization near-exclusive per cell.
+              const unstretched = 1 - smoothstep(THIN_CRIT_LO, THIN_CRIT_HI, extension01);
+
+              // Cratonization: a continental cell that survives quiescent, un-stretched eras thickens its
+              // keel. `cratonizing` ramps in with maturity so only continental-grade crust consolidates;
+              // `quiescence` is the inverse of this era's disruption; `unstretched` denies keels to
+              // stretched margins; the keel-feedback term runs consolidation away to a deep root. Cells
+              // that matured early then drifted off the active belt grow the deepest keels (high mode).
+              const cratonizing = clamp01(
+                (maturity01 - CRATON_MATURITY_MIN) / CRATON_MATURITY_SPAN
+              );
+              const quiescence = clamp01(1 - disrupt);
+              cratonRoot01 = clamp01(
+                cratonRoot01 +
+                  CRATON_THICKEN_RATE *
+                    cratonizing *
+                    quiescence *
+                    unstretched *
+                    (1 + CRATON_KEEL_FEEDBACK * cratonRoot01)
+              );
+            }
+
+            // Critical-stretching thinning: map the cumulative extension integral through β_crit.
+            const thinning01 = smoothstep(THIN_CRIT_LO, THIN_CRIT_HI, extension01);
+
+            // Continental survival vs reversion to oceanic. A cell stays continental only if it BOTH
+            // (a) avoided hyperextension breakup (stretched past its maturity-graded threshold — marginal
+            // crust ruptures at low extension, cratons resist) AND (b) consolidated enough crust
+            // (maturity + keel) to be isostatically stable. Otherwise its lower lithosphere founders and
+            // it reverts to thin oceanic-grade crust — the deep mode, the fragmentation engine, and the
+            // cap on emerged continental area. Surviving thinned-but-continental crust below the breakup
+            // threshold remains as the shelf / lowland down-variety.
+            const breakupThreshold =
+              hyperextensionBreakupBase +
+              HYPEREXTENSION_BREAKUP_RESIST *
+                clamp01((maturity01 - CRATON_MATURITY_MIN) / HYPEREXTENSION_RESIST_SPAN);
+            const hyperextended = extension01 >= breakupThreshold;
+            // Stable, under-differentiated crust founders; a stretched margin (high extension) survives as
+            // a drowned shelf even at the same maturity, so foundering does not erase the shelf.
+            const foundersStable =
+              maturity01 < continentalSurvivalMaturity && extension01 < SHELF_PRESERVE_EXTENSION;
+            if (hyperextended || foundersStable) {
+              maturity01 = Math.min(maturity01, HYPEREXTENSION_MATURITY_CAP);
+              thermalAge01 = thermalAge01 * RIFT_THERMAL_AGE_MUL;
+            }
+
+            // Continental freeboard step — the granitic/basaltic dichotomy (see constant). Computed from
+            // the post-breakup maturity so ruptured crust forfeits its freeboard and joins the deep mode,
+            // and GATED by (1 − thinning): a stretched margin loses its freeboard and subsides to a
+            // distinct drowned-shelf level, while stable interiors keep full freeboard as emerged land.
+            // This split — emerged land vs drowned shelf — is what makes the CONTINENTAL crust itself
+            // bimodal, opening the gap at sea level (where the water-fill solver cuts) instead of a flat
+            // platform straddling the waterline.
+            const continentalFreeboardStep =
+              continentalFreeboard *
+              smoothstep(CONTINENTAL_FREEBOARD_LO, CONTINENTAL_FREEBOARD_HI, maturity01) *
+              (1 - thinning01);
+
+            // Thickness = differentiated-crust base (maturity) + continental-freeboard step + cratonic
+            // keel − critical-stretch thinning. Freeboard lifts the whole continental platform clear of
+            // the waterline (emptying the band at sea level); the keel is the HIGH-mode driver
+            // (long-quiescent cratons ride highest); thinning is the LOW-mode driver (stretched margins
+            // lose thickness, lose isostatic support, subside, drown). The thresholds keep these
+            // near-exclusive per cell, so thickness — and hence buoyancy — turns bimodal across the world.
+            thickness01 = clamp01(
+              initThickness +
+                THICKNESS_FROM_MATURITY_GAIN * maturity01 +
+                continentalFreeboardStep +
+                cratonRoot01 -
+                thinningThicknessLoss * thinning01
+            );
+
+            maturity[i] = maturity01;
+            thickness[i] = thickness01;
+            thermalAge[i] = clampU8(thermalAge01 * 255);
+            damage[i] = clampU8(damage01 * 255);
+
+            const isContinent = isContinentalMaturity(maturity01) ? 1 : 0;
+            type[i] = isContinent;
+            age[i] = thermalAge[i];
+
+            const buoy = deriveBuoyancy({
+              maturity: maturity01,
+              thickness: thickness01,
+              thermalAge01,
+            });
+            buoyancy[i] = buoy;
+            baseElevation[i] = buoy;
+
+            const strengthBase = strengthFromThermalAge(thermalAge01);
+            const strengthComp = strengthFromMaturity(maturity01);
+            const strengthThk = strengthFromThickness(thickness01);
+            const strengthDamage = 1 - damage01;
+            strength[i] = clamp01(strengthBase * strengthComp * strengthThk * strengthDamage);
+          }
+
+          // ── Abyssal subsidence pass ─────────────────────────────────────────────────────────────────
+          // Deepen oceanic crust by its geodesic distance (mesh hops) from the nearest continental cell,
+          // so the floor falls from the margin shelf to the abyssal plain offshore (see ABYSS_DISTANCE_
+          // SCALE / config.oceanicAbyssalDepth above). Without this the reverted-oceanic floor is flat,
+          // and the gradient-based shelf classifier (compute-shelf-mask) finds no continental slope to
+          // break on — it floods the whole basin as shelf. The shoreline itself stays coast regardless
+          // (the classifier's land-adjacency rule), so this only carves the deep basin interior.
+          if (oceanicAbyssalDepth > 0 && ABYSS_DISTANCE_SCALE > 0) {
+            const marginDistance = new Int32Array(cellCount).fill(-1);
+            const bfsQueue = new Int32Array(cellCount);
+            let qHead = 0;
+            let qTail = 0;
+            for (let i = 0; i < cellCount; i++) {
+              if (type[i] === 1) {
+                marginDistance[i] = 0;
+                bfsQueue[qTail++] = i;
+              }
+            }
+            // All-ocean world (no continental seed) ⇒ no margin to deepen from; the floor is left as-is.
+            while (qHead < qTail) {
+              const c = bfsQueue[qHead++]!;
+              const start = mesh.neighborsOffsets[c] | 0;
+              const end = mesh.neighborsOffsets[c + 1] | 0;
+              const nextDist = (marginDistance[c]! | 0) + 1;
+              for (let cursor = start; cursor < end; cursor++) {
+                const n = mesh.neighbors[cursor] | 0;
+                if (n < 0 || n >= cellCount || marginDistance[n] !== -1) continue;
+                marginDistance[n] = nextDist;
+                bfsQueue[qTail++] = n;
+              }
+            }
+            for (let i = 0; i < cellCount; i++) {
+              if (type[i] === 1) continue; // continents keep their freeboard / keel elevation
+              const d = marginDistance[i]! < 0 ? 0 : marginDistance[i]! | 0;
+              // Saturating margin→abyss profile: the continental slope falls off over the first hops off
+              // the margin, then the abyssal plain plateaus. (Oceanic cells are ≥ 1 hop from a continent.)
+              const abyssFraction = 1 - Math.exp(-d / ABYSS_DISTANCE_SCALE);
+              const deepened = clamp01(baseElevation[i]! - oceanicAbyssalDepth * abyssFraction);
+              baseElevation[i] = deepened;
+              buoyancy[i] = deepened;
             }
           }
-          // All-ocean world (no continental seed) ⇒ no margin to deepen from; the floor is left as-is.
-          while (qHead < qTail) {
-            const c = bfsQueue[qHead++]!;
-            const start = mesh.neighborsOffsets[c] | 0;
-            const end = mesh.neighborsOffsets[c + 1] | 0;
-            const nextDist = (marginDistance[c]! | 0) + 1;
-            for (let cursor = start; cursor < end; cursor++) {
-              const n = mesh.neighbors[cursor] | 0;
-              if (n < 0 || n >= cellCount || marginDistance[n] !== -1) continue;
-              marginDistance[n] = nextDist;
-              bfsQueue[qTail++] = n;
-            }
-          }
-          for (let i = 0; i < cellCount; i++) {
-            if (type[i] === 1) continue; // continents keep their freeboard / keel elevation
-            const d = marginDistance[i]! < 0 ? 0 : marginDistance[i]! | 0;
-            // Saturating margin→abyss profile: the continental slope falls off over the first hops off
-            // the margin, then the abyssal plain plateaus. (Oceanic cells are ≥ 1 hop from a continent.)
-            const abyssFraction = 1 - Math.exp(-d / ABYSS_DISTANCE_SCALE);
-            const deepened = clamp01(baseElevation[i]! - oceanicAbyssalDepth * abyssFraction);
-            baseElevation[i] = deepened;
-            buoyancy[i] = deepened;
-          }
-        }
 
-        return {
-          crust: {
-            maturity,
-            thickness,
-            thermalAge,
-            damage,
-            type,
-            age,
-            buoyancy,
-            baseElevation,
-            strength,
-          },
-        } as const;
-      },
-    }),
+          return {
+            crust: {
+              maturity,
+              thickness,
+              thermalAge,
+              damage,
+              type,
+              age,
+              buoyancy,
+              baseElevation,
+              strength,
+            },
+          } as const;
+        },
+      }
+    ),
   },
 });
 

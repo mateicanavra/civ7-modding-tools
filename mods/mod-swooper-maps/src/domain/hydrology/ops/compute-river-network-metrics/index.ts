@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeRiverNetworkMetricsContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { hydrographicClassificationStrategy } from "./strategies/index.js";
 
 const computeRiverNetworkMetrics = createOp(ComputeRiverNetworkMetricsContract, {
   strategies: {
-    default: defaultStrategy,
+    "hydrographic-classification": hydrographicClassificationStrategy,
   },
 });
 

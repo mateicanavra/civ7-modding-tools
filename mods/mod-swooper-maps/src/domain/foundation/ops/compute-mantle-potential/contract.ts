@@ -84,9 +84,8 @@ const ComputeMantlePotentialContract = defineOp({
     { mantlePotential: FoundationMantlePotentialSchema },
     { additionalProperties: false }
   ),
-  defaultStrategy: "default",
   strategies: {
-    default: StrategySchema,
+    "poisson-source-field": StrategySchema,
   },
 });
 

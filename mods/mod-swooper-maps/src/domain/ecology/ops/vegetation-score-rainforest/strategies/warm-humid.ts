@@ -1,0 +1,20 @@
+import { createStrategy } from "@swooper/mapgen-core/authoring";
+
+import Contract from "../contract.js";
+import { scoreRainforestSuitability } from "../rules/index.js";
+
+export const warmHumidStrategy = createStrategy(Contract, "warm-humid", {
+  run: (input) => {
+    const score01 = scoreRainforestSuitability({
+      size: input.width * input.height,
+      landMask: input.landMask as Uint8Array,
+      energy01: input.energy01 as Float32Array,
+      water01: input.water01 as Float32Array,
+      waterStress01: input.waterStress01 as Float32Array,
+      coldStress01: input.coldStress01 as Float32Array,
+      biomass01: input.biomass01 as Float32Array,
+    });
+
+    return { score01 };
+  },
+});

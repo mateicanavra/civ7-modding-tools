@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { rankedCoverageStrategy } from "./ranked-coverage.js";

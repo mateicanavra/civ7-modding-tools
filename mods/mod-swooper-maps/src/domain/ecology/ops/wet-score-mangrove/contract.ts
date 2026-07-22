@@ -18,9 +18,8 @@ const ScoreWetMangroveContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Mangrove suitability score per tile (0..1)." }),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({
+    "warm-intertidal": Type.Object({
       waterMin01: Type.Number({
         default: 0.45,
         minimum: 0,

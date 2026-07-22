@@ -1,3 +1,4 @@
+import hydrology from "@mapgen/domain/hydrology";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { HydrologyHydrographyPublicSchema } from "../hydrology/public.config.js";
@@ -47,6 +48,13 @@ const knobsSchema = Type.Object(
   }
 );
 
+function defaultEnvelope<const Strategy extends string>(
+  operation: Readonly<{ defaultStrategy: Strategy }>,
+  config: unknown
+) {
+  return { strategy: operation.defaultStrategy, config };
+}
+
 /**
  * Orders canonical river computation before lake planning and compiles their
  * density controls without crossing into downstream Civ7 projection.
@@ -61,12 +69,15 @@ export default createStage({
   }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
     rivers: {
-      drainageRouting: { strategy: "default", config: config.drainageRouting },
-      accumulateDischarge: { strategy: "default", config: config.runoff },
-      projectRiverNetwork: { strategy: "default", config: config.riverNetwork },
+      drainageRouting: defaultEnvelope(
+        hydrology.ops.computeDrainageRouting,
+        config.drainageRouting
+      ),
+      accumulateDischarge: defaultEnvelope(hydrology.ops.accumulateDischarge, config.runoff),
+      projectRiverNetwork: defaultEnvelope(hydrology.ops.projectRiverNetwork, config.riverNetwork),
     },
     lakes: {
-      planLakes: { strategy: "default", config: config.lakes },
+      planLakes: defaultEnvelope(hydrology.ops.planLakes, config.lakes),
     },
   }),
 } as const);

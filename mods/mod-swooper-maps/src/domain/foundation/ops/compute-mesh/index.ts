@@ -8,7 +8,7 @@ const CELL_COUNT_CLAMP_MIN = 1;
 
 const computeMesh = createOp(ComputeMeshContract, {
   strategies: {
-    default: createStrategy(ComputeMeshContract, "default", {
+    "jittered-delaunay": createStrategy(ComputeMeshContract, "jittered-delaunay", {
       normalize: (config) => {
         const scaledPlateCount = Math.max(PLATE_COUNT_CLAMP_MIN, config.plateCount | 0);
         return {

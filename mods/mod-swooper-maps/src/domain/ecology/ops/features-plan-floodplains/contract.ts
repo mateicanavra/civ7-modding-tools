@@ -44,9 +44,8 @@ const PlanFloodplainsContract = defineOp({
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
-  defaultStrategy: "default",
   strategies: {
-    default: Type.Object({
+    "highest-confidence": Type.Object({
       minConfidence01: Type.Number({
         minimum: 0,
         maximum: 1,

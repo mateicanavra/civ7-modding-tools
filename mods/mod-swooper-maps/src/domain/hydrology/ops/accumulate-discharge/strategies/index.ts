@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { topologicalRunoffStrategy } from "./topological-runoff.js";

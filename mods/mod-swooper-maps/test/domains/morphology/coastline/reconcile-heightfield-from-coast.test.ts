@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 
-const selection = { strategy: "default", config: {} } as const;
+const selection = { strategy: "carved-coast-datum", config: {} } as const;
 
 describe("reconcile-heightfield-from-coast", () => {
   it("aligns class, elevation, and bathymetry without mutating inputs", () => {

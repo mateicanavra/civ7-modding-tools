@@ -1,1 +1,1 @@
-export { defaultStrategy } from "./default.js";
+export { tectonicPotentialStrategy } from "./tectonic-potential.js";

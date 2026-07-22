@@ -116,7 +116,7 @@ const recipeShape: RJSFSchema = {
           additionalProperties: false,
           required: ["strategy", "config"],
           properties: {
-            strategy: { type: "string", const: "default" },
+            strategy: { type: "string", const: "uniform-crust" },
             config: {
               type: "object",
               additionalProperties: false,
@@ -145,7 +145,7 @@ const recipeShape: RJSFSchema = {
 };
 const recipeGood = {
   mesh: { plateCount: 8, cellsPerPlate: 6, eraWeights: [0.5, 0.5] },
-  crust: { strategy: "default", config: { intensity: 0.5 } },
+  crust: { strategy: "uniform-crust", config: { intensity: 0.5 } },
 };
 
 type Case = {
@@ -194,7 +194,7 @@ const cases: Case[] = [
   },
 
   // --- real-shape fixture ---
-  { name: "recipe: valid (default strategy)", schema: recipeShape, data: recipeGood },
+  { name: "recipe: valid (uniform-crust strategy)", schema: recipeShape, data: recipeGood },
   {
     name: "recipe: valid (tectonic strategy)",
     schema: recipeShape,
@@ -239,7 +239,7 @@ const cases: Case[] = [
   {
     name: "recipe: crust config violates matched variant",
     schema: recipeShape,
-    data: { ...recipeGood, crust: { strategy: "default", config: { intensity: 5 } } },
+    data: { ...recipeGood, crust: { strategy: "uniform-crust", config: { intensity: 5 } } },
     anyOfFuzzy: true,
   },
 

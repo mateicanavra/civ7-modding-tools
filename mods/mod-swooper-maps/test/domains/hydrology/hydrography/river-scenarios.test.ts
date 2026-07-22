@@ -14,21 +14,21 @@ function runAccumulateDischarge(
   input: Parameters<typeof accumulateDischarge.run>[0],
   config: (typeof accumulateDischarge.defaultConfig)["config"]
 ) {
-  return accumulateDischarge.run(input, { strategy: "default", config });
+  return accumulateDischarge.run(input, { strategy: "topological-runoff", config });
 }
 
 function runProjectRiverNetwork(
   input: Parameters<typeof projectRiverNetwork.run>[0],
   config: (typeof projectRiverNetwork.defaultConfig)["config"]
 ) {
-  return projectRiverNetwork.run(input, { strategy: "default", config });
+  return projectRiverNetwork.run(input, { strategy: "discharge-percentiles", config });
 }
 
 function runPlanLakes(
   input: Parameters<typeof planLakes.run>[0],
   config: (typeof planLakes.defaultConfig)["config"]
 ) {
-  return planLakes.run(input, { strategy: "default", config });
+  return planLakes.run(input, { strategy: "sink-discharge-budget", config });
 }
 
 function count(mask: Uint8Array, value = 1): number {

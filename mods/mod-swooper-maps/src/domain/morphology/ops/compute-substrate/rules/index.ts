@@ -6,7 +6,7 @@ function clampNonNegative(value: number): number {
 }
 
 function boundaryErodibilityBoost(
-  config: ComputeSubstrateTypes["config"]["default"],
+  config: ComputeSubstrateTypes["config"]["crust-boundary-material"],
   boundaryType: number
 ): number {
   switch (boundaryType | 0) {
@@ -22,7 +22,7 @@ function boundaryErodibilityBoost(
 }
 
 function boundarySedimentBoost(
-  config: ComputeSubstrateTypes["config"]["default"],
+  config: ComputeSubstrateTypes["config"]["crust-boundary-material"],
   boundaryType: number
 ): number {
   switch (boundaryType | 0) {
@@ -41,7 +41,7 @@ function boundarySedimentBoost(
  * Computes erodibility from crust/material and tectonic drivers.
  */
 export function erodibilityForTile(
-  config: ComputeSubstrateTypes["config"]["default"],
+  config: ComputeSubstrateTypes["config"]["crust-boundary-material"],
   upliftValue: number,
   boundaryClosenessValue: number,
   boundaryTypeValue: number,
@@ -65,7 +65,7 @@ export function erodibilityForTile(
  * Computes sediment depth from crust/material and tectonic drivers.
  */
 export function sedimentDepthForTile(
-  config: ComputeSubstrateTypes["config"]["default"],
+  config: ComputeSubstrateTypes["config"]["crust-boundary-material"],
   riftValue: number,
   boundaryClosenessValue: number,
   boundaryTypeValue: number,
