@@ -53,7 +53,7 @@ jobs:
     name: Publish exact proven release assets
     needs: build-and-prove-darwin-candidate
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/habitat-sdk-v')
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     steps:
       - name: Checkout publication owner
         uses: actions/checkout@v4
@@ -67,7 +67,7 @@ jobs:
           path: release
 
       - name: Verify proven candidate checksums
-        run: sha256sum --check SHA256SUMS
+        run: shasum -a 256 -c SHA256SUMS
         working-directory: release
 
       - name: Publish or prove immutable tag release

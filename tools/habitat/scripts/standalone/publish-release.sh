@@ -95,7 +95,7 @@ assert_exact_asset_inventory() {
 local_asset_facts() {
   local name digest size
   for name in "${asset_names[@]}"; do
-    digest="$(sha256sum "$asset_dir/$name" | awk '{ print $1 }')"
+    digest="$(shasum -a 256 "$asset_dir/$name" | awk '{ print $1 }')"
     size="$(wc -c < "$asset_dir/$name" | tr -d '[:space:]')"
     jq --null-input --compact-output \
       --arg name "$name" \
@@ -157,7 +157,7 @@ assert_local_candidate() {
     printf 'Candidate SHA256SUMS does not cover each payload asset exactly once.\n' >&2
     exit 1
   fi
-  (cd "$asset_dir" && sha256sum --check --strict SHA256SUMS)
+  (cd "$asset_dir" && shasum -a 256 -c SHA256SUMS)
 }
 
 assert_published_immutable() {
@@ -188,7 +188,7 @@ assert_remote_bytes() {
     exit 1
   fi
   cmp "$asset_dir/SHA256SUMS" "$download_root/SHA256SUMS"
-  (cd "$download_root" && sha256sum --check --strict SHA256SUMS)
+  (cd "$download_root" && shasum -a 256 -c SHA256SUMS)
   rm -rf "$download_root"
   trap - RETURN
 }
