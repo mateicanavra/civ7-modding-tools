@@ -184,8 +184,12 @@
     "packages/civ7-map-policy": {
       "name": "@civ7/map-policy",
       "version": "0.1.0",
+      "dependencies": {
+        "typebox": "catalog:",
+      },
       "devDependencies": {
         "@civ7/types": "workspace:*",
+        "fast-xml-parser": "^5.3.3",
       },
     },
     "packages/civ7-types": {

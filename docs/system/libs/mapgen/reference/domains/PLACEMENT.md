@@ -141,7 +141,7 @@ The `placement` stage public surface has six groups: `knobs`, `naturalWonders`, 
 - `starts`: spacing floor/desired (official 6/12 buffers), scoring weights (fertility, freshwater, climate comfort + extreme penalty, resource support, roughness divisor), tier bias, ranking blend, fairness tolerance, coastal/river preference, StartBias weight, per-hemisphere player-count overrides.
 - `support`: enabled, supportFloor, supportRadiusTiles, equityTolerance, strength.
 
-Policy data comes from `@civ7/map-policy` generated tables and corpus (`CIV7_BROWSER_TABLES_V0` byte-stable + `CIV7_POLICY_TABLES_V1`: resource catalog rows, valid ages, required leaders, minimum-amount modifiers, StartBias tables, start globals), regenerated only via `nx run civ7-map-policy:verify -- --write` from the `.civ7/outputs/resources` submodule. That package owns `Weight`, `MinimumPerHemisphere`, age validity, and the static `Staple`/`UnlocksCiv` fallback basis; it does not approximate the roster-dependent live requirement decision. Natural-wonder membership is derived directly from those tables and proved by owner-local map-policy tests. There are no `globalThis.GameInfo` reads in the recipe layer; the resource catalog and exact live requirement query flow through `EngineAdapter`.
+Policy data comes from `@civ7/map-policy` generated tables and corpus (`CIV7_BROWSER_TABLES_V0` byte-stable + `CIV7_POLICY_TABLES_V1`: resource catalog rows, valid ages, required leaders, minimum-amount modifiers, StartBias tables, start globals), regenerated only via `nx run civ7-map-policy:generate` from the `.civ7/outputs/resources` submodule. That package owns `Weight`, `MinimumPerHemisphere`, age validity, and the static `Staple`/`UnlocksCiv` fallback basis; it does not approximate the roster-dependent live requirement decision. Natural-wonder membership is derived directly from those tables and proved by owner-local map-policy tests. There are no `globalThis.GameInfo` reads in the recipe layer; the resource catalog and exact live requirement query flow through `EngineAdapter`.
 
 ## Studio visualization coverage
 
@@ -160,7 +160,7 @@ Policy data comes from `@civ7/map-policy` generated tables and corpus (`CIV7_BRO
 - The old live legality and required-for-age scripts were milestone-scoped
   characterization, not reusable policy gates, and are retired. Their recorded
   evidence remains historical. Static facts and fallback admission belong to
-  `@civ7/map-policy`; roster-dependent policy flows through `EngineAdapter`, and
+`@civ7/map-policy`; roster-dependent policy flows through `EngineAdapter`, and
   resulting placement behavior is proved through bounded product verification.
 - Live full-grid parity: `nx run mod-swooper-maps:verify:operational -- --mode final-surface-parity` (milestone-boundary proof class; see `docs/projects/placement-realignment/MILESTONE-PROOFS.md`).
 
