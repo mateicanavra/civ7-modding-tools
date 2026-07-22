@@ -1,6 +1,6 @@
-import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import type { VizProjection } from "@swooper/mapgen-viz";
+import { engineLandMaskFromWaterMask } from "../../../../current-engine-surface.js";
 import { defineStandardVizMeta } from "../../../../viz.js";
 import { LakesStepContract } from "./config.js";
 
@@ -33,8 +33,8 @@ export const LakesStep = createStep(LakesStepContract, {
     // The adapter is the only engine boundary. Stamping plus readback stays there
     // so this stage records projection evidence without owning Civ7 terrain APIs.
     const topographyLandMask = topography.landMask;
-    const projection = context.adapter.stampLakes(width, height, projectionLakeMask);
-    const engineAfter = snapshotEngineHeightfield(context.adapter);
+    const projection = deps.engine.stampLakes(context, width, height, projectionLakeMask);
+    const engineLandMask = engineLandMaskFromWaterMask(projection.engineWaterMask);
     deps.artifacts.engineProjectionLakes.publish(context, {
       width,
       height,
@@ -58,9 +58,9 @@ export const LakesStep = createStep(LakesStepContract, {
       stage: "map-hydrology/lakes",
       width,
       height,
-      landMask: engineAfter.landMask,
-      terrain: engineAfter.terrain,
-      elevation: engineAfter.elevation,
+      landMask: engineLandMask,
+      terrain: projection.engineTerrain,
+      elevation: projection.engineElevation,
     });
 
     context.trace.event(() => ({
@@ -80,7 +80,7 @@ export const LakesStep = createStep(LakesStepContract, {
       plannedLakeMask: lakePlan.lakeMask,
       topographyLandMask,
       projection,
-      engineLandMask: engineAfter.landMask,
+      engineLandMask,
     };
   },
   viz: ({ result, dimensions }) => {

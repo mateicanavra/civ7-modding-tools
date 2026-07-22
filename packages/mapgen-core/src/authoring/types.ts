@@ -1,3 +1,4 @@
+import type { AuthoredEngineAdapterKey, EngineAdapter } from "@civ7/adapter";
 import type { MapContext } from "@mapgen/core/map-context.js";
 
 import type {
@@ -17,7 +18,12 @@ import type { ArtifactContract } from "./artifact/contract.js";
 import type { ArtifactModule } from "./artifact/module.js";
 import type { ProvidedArtifactRuntime, RequiredArtifactRuntime } from "./artifact/runtime.js";
 import type { DomainOpRuntimeAny, OpsById } from "./bindings.js";
-import type { StepArtifactsDecl, StepArtifactsDeclAny, StepContract } from "./step/contract.js";
+import type {
+  StepArtifactsDecl,
+  StepArtifactsDeclAny,
+  StepContract,
+  StepEngineDecl,
+} from "./step/contract.js";
 import type { StepOpsDecl } from "./step/ops.js";
 
 type ArtifactsByName<T extends readonly ArtifactContract[]> = {
@@ -60,7 +66,22 @@ type StepArtifactsSurface<TArtifacts extends StepArtifactsDeclAny | undefined> =
       }
     : {};
 
-export type StepDeps<TArtifacts extends StepArtifactsDeclAny | undefined> = Readonly<{
+type ContextFirstEngineMethod<K extends AuthoredEngineAdapterKey> = EngineAdapter[K] extends (
+  ...args: infer Args
+) => infer Result
+  ? (context: MapContext, ...args: Args) => Result
+  : never;
+
+type StepEngineSurface<Engine extends StepEngineDecl | undefined> = Engine extends StepEngineDecl
+  ? Readonly<{
+      [K in Engine[number]]: ContextFirstEngineMethod<K>;
+    }>
+  : Readonly<Record<never, never>>;
+
+export type StepDeps<
+  TArtifacts extends StepArtifactsDeclAny | undefined,
+  TEngine extends StepEngineDecl | undefined = undefined,
+> = Readonly<{
   /**
    * Canonical dependency surface for artifacts.
    *
@@ -68,14 +89,19 @@ export type StepDeps<TArtifacts extends StepArtifactsDeclAny | undefined> = Read
    * than becoming a second dependency authority.
    */
   artifacts: Readonly<StepArtifactsSurface<TArtifacts>>;
+  /** Exact occurrence-scoped engine methods declared by the step contract. */
+  engine: StepEngineSurface<TEngine>;
 }>;
 
-type StepContractAny = StepContract<any, any, any, any>;
+type StepContractAny = StepContract<any, any, any, any, any>;
 
 type StepConfigOfContract<C extends StepContractAny> = Static<C["schema"]>;
 
 type StepArtifactsDeclOfContract<C extends StepContractAny> =
-  C extends StepContract<any, any, any, infer A> ? A : undefined;
+  C extends StepContract<any, any, any, infer A, any> ? A : undefined;
+
+type StepEngineDeclOfContract<C extends StepContractAny> =
+  C extends StepContract<any, any, any, any, infer Engine> ? Engine : undefined;
 
 /** Authored step behavior bound to one contract and the canonical map execution context. */
 export type StepModule<C extends StepContractAny = StepContractAny, TResult = unknown> = Readonly<{
@@ -85,7 +111,7 @@ export type StepModule<C extends StepContractAny = StepContractAny, TResult = un
     context: MapContext,
     config: unknown,
     ops: unknown,
-    deps: StepDeps<StepArtifactsDeclOfContract<C>>
+    deps: StepDeps<StepArtifactsDeclOfContract<C>, StepEngineDeclOfContract<C>>
   ) => TResult | Promise<TResult>;
 }> &
   StepFacets<StepConfigOfContract<C>, TResult>;

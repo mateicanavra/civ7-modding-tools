@@ -62,7 +62,12 @@ function executeBuildElevation(
 ): void {
   withMapContextExecutionForTest(context, (stepContext) => {
     publishBuildElevationInputs(stepContext, width, height, landMask, lakeMask, sinkMismatchCount);
-    BuildElevationStep.run(stepContext, {}, {}, buildStepTestDependencies(BuildElevationStep));
+    BuildElevationStep.run(
+      stepContext,
+      {},
+      {},
+      buildStepTestDependencies(BuildElevationStep, stepContext)
+    );
   });
 }
 

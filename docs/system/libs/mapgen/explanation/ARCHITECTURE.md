@@ -71,9 +71,9 @@ Think of MapGen as these layers:
 - Stages own author surface shape; recipes own pipeline composition and ordering.
 - The executor owns dependency validation, trace identity/selection/lifecycle, and optional facet
   dispatch; steps must not reimplement gating or observe an environment sink.
-- Occurrence-scoped authority covers declared artifact access, deterministic random helpers, step
-  trace events, and effect-satisfaction evidence. `MapContext.adapter` remains the direct engine
-  integration surface and is not a revocable selected capability.
+- Occurrence-scoped authority covers declared artifact access, exact engine methods, deterministic
+  random helpers, step trace events, and effect-satisfaction evidence. The executor retains the raw
+  adapter privately; each step receives only the engine methods named by its frozen contract.
 - Studio owns UX and run boundary; it must not require SDK internals beyond stable surfaces.
 
 ## Anti-goals

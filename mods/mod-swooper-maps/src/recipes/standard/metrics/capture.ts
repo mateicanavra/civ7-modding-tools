@@ -35,9 +35,6 @@ type RiverNetworkMetrics = ArtifactReadValueOf<
 type ProjectedNavigableRivers = ArtifactReadValueOf<
   typeof mapRiversArtifactModules.projectedNavigableRivers.artifact
 >;
-type EngineProjectionRivers = ArtifactReadValueOf<
-  typeof mapRiversArtifactModules.engineProjectionRivers.artifact
->;
 type ResourceDemandPlan = ArtifactReadValueOf<
   typeof placementArtifactModules.resourceDemandPlan.artifact
 >;
@@ -158,13 +155,12 @@ export type StandardMapCapture = Readonly<{
       | "projectionSignalStatus"
       | "plannedMajorRiverTileCount"
     >;
-    riverReadback: Pick<
-      EngineProjectionRivers,
-      | "terrainNavigableRiverTileCount"
-      | "riverMismatchCount"
-      | "selectedRiverRejectedCount"
-      | "extraEngineRiverCount"
-    >;
+    riverReadback: Readonly<{
+      terrainNavigableRiverTileCount: number;
+      riverMismatchCount: number;
+      selectedRiverRejectedCount: number;
+      extraEngineRiverCount: number;
+    }>;
     featureAttempts: Readonly<Record<string, number>>;
     featureRejections: Readonly<Record<string, number>>;
   }>;
@@ -313,9 +309,10 @@ function copyCompletedRun(
     context,
     mapRiversArtifactModules.projectedNavigableRivers
   );
-  const riverReadbackValue = readValidatedArtifact(
-    context,
-    mapRiversArtifactModules.engineProjectionRivers
+  const riverReadbackValue = adapter.readRiverProjection(
+    width,
+    height,
+    navigableRiverValue.riverMask
   );
   const biomeValue = readValidatedArtifact(context, ecologyArtifactModules.biomeClassification);
   const pedologyValue = readValidatedArtifact(context, ecologyArtifactModules.pedology);
@@ -522,9 +519,9 @@ function copyCompletedRun(
       }),
       riverReadback: Object.freeze({
         terrainNavigableRiverTileCount: riverReadbackValue.terrainNavigableRiverTileCount,
-        riverMismatchCount: riverReadbackValue.riverMismatchCount,
-        selectedRiverRejectedCount: riverReadbackValue.selectedRiverRejectedCount,
-        extraEngineRiverCount: riverReadbackValue.extraEngineRiverCount,
+        riverMismatchCount: riverReadbackValue.navigableRiverMismatchTileCount,
+        selectedRiverRejectedCount: riverReadbackValue.rejectedNavigableRiverTileCount,
+        extraEngineRiverCount: riverReadbackValue.extraNavigableRiverTileCount,
       }),
       featureAttempts: Object.freeze({ ...featureDiagnosticsValue.attemptedByFeature }),
       featureRejections: Object.freeze({

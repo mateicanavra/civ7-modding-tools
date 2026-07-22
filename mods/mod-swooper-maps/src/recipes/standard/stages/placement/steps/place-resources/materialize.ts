@@ -7,7 +7,6 @@ import type {
 } from "@civ7/adapter";
 import { type OfficialResourceType, requireResourceRuntimeId } from "@civ7/map-policy";
 import resources from "@mapgen/domain/resources";
-import type { MapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 
 type ResourcePlanOutput = Static<(typeof resources.ops.adjustResourceSupport)["output"]>;
@@ -21,7 +20,11 @@ type ResourcePlacementRuntimeTelemetryOutcome = ResourcePlacementOutcomes["outco
 type ResourcePlacementCoordinateDigest = ResourcePlacementSummary["coordinateEvidence"]["placed"];
 
 type PlaceResourcesWithTypedOutcomesArgs = {
-  adapter: MapContext["adapter"];
+  placeResourceIntent: (
+    width: number,
+    height: number,
+    intent: ResourcePlacementIntent
+  ) => ResourcePlacementOutcome;
   width: number;
   height: number;
   plan: DeepReadonly<ResourcePlanOutput>;
@@ -332,7 +335,7 @@ function assertResourceOutcomeMatchesIntent(
  * into the outcomes (byPhase.support + supportAdjustedPlacedCount).
  */
 export function placeResourcesWithTypedOutcomes({
-  adapter,
+  placeResourceIntent,
   width,
   height,
   plan,
@@ -361,7 +364,7 @@ export function placeResourcesWithTypedOutcomes({
       plotIndex: planned.plotIndex,
       resourceType: resourceTypeId,
     };
-    const outcome = adapter.placeResourceIntent(width, height, intent);
+    const outcome = placeResourceIntent(width, height, intent);
     assertResourceOutcomeMatchesIntent(outcome, intent, width);
     outcomes.push(outcome);
     if (outcome.status === "placed") {

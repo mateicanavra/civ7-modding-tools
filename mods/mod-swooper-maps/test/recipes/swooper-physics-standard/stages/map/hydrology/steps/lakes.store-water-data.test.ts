@@ -176,7 +176,12 @@ function executeLakesStep(
 ): Exclude<ReturnType<typeof LakesStep.run>, Promise<unknown>> {
   return withMapContextExecutionForTest(context, (stepContext) => {
     seedLakePlan(stepContext, lakeMask, mountainMask);
-    const result = LakesStep.run(stepContext, {}, {}, buildStepTestDependencies(LakesStep));
+    const result = LakesStep.run(
+      stepContext,
+      {},
+      {},
+      buildStepTestDependencies(LakesStep, stepContext)
+    );
     if (result instanceof Promise) {
       throw new Error("The lakes step must remain synchronous.");
     }

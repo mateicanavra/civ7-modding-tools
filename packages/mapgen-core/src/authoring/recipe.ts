@@ -356,10 +356,6 @@ function finalizeOccurrences(input: {
         stageId: stage.id,
         stepId,
       });
-      const deps = buildDeclaredStepDependencies(authored, {
-        consumerStepId: fullId,
-        owner: `recipe:${input.recipeId}`,
-      });
       const facets = ((authored.metrics || authored.viz) && {
         metrics: authored.metrics,
         viz: authored.viz,
@@ -379,13 +375,14 @@ function finalizeOccurrences(input: {
           provides: authored.contract.provides,
           configSchema: authored.contract.schema,
           normalize: authored.normalize as MapGenStep<unknown>["normalize"] | undefined,
-          run: ((context: MapContext, config: unknown) =>
-            (authored.run as any)(
+          run: ((context: MapContext, config: unknown) => {
+            const dependencies = buildDeclaredStepDependencies(authored, {
+              consumerStepId: fullId,
+              owner: `recipe:${input.recipeId}`,
               context,
-              config,
-              boundOps ?? {},
-              deps
-            )) as MapGenStep<unknown>["run"],
+            });
+            return (authored.run as any)(context, config, boundOps ?? {}, dependencies);
+          }) as MapGenStep<unknown>["run"],
           facets,
         },
       });

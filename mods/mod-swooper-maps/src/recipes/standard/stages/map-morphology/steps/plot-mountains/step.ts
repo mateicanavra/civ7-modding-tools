@@ -1,5 +1,6 @@
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { captureEngineWaterMask } from "../../../../current-engine-surface.js";
 import { assertNoWaterDrift } from "../../../../water-surface-parity.js";
 import { PlotMountainsStepContract } from "./config.js";
 
@@ -21,7 +22,8 @@ export const PlotMountainsStep = createStep(PlotMountainsStepContract, {
         const idx = y * width + x;
         if (topography.landMask[idx] !== 1) continue;
         if (mountains.mountainMask[idx] === 1) {
-          context.adapter.setTerrainType(
+          deps.engine.setTerrainType(
+            context,
             x,
             y,
             CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN
@@ -29,7 +31,8 @@ export const PlotMountainsStep = createStep(PlotMountainsStepContract, {
           continue;
         }
         if (mountains.hillMask[idx] === 1) {
-          context.adapter.setTerrainType(
+          deps.engine.setTerrainType(
+            context,
             x,
             y,
             CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_HILL
@@ -38,6 +41,14 @@ export const PlotMountainsStep = createStep(PlotMountainsStepContract, {
       }
     }
 
-    assertNoWaterDrift(context, topography.landMask, "map-morphology/plot-mountains");
+    const engineWaterMask = captureEngineWaterMask(context.setup.dimensions, (x, y) =>
+      deps.engine.isWater(context, x, y)
+    );
+    assertNoWaterDrift(
+      context.setup.dimensions,
+      engineWaterMask,
+      topography.landMask,
+      "map-morphology/plot-mountains"
+    );
   },
 });

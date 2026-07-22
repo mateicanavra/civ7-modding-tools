@@ -32,7 +32,7 @@ Current architecture for ecology, lakes, and placement is intentionally physics-
 
 - Pipeline artifacts are canonical truth (`hydrography`, `lakePlan`, biome/feature intents, resource/wonder/discovery plans).
 - Map and placement stages project those artifacts to engine state; they do not delegate generation authority to engine random generators.
-- Hydrology projection evidence is map-owned (`artifact:map.hydrology.engineProjectionLakes`, `artifact:map.rivers.engineProjectionRivers`); Hydrology hydrography remains truth-only (`artifact:hydrology.hydrography`, `artifact:hydrology.lakePlan`).
+- Immutable Hydrology projection products are map-owned (`artifact:map.hydrology.engineProjectionLakes`, `artifact:map.rivers.projectedNavigableRivers`); mutable Civ7 river state is observed fresh through the adapter rather than retained as a later planning artifact. Hydrology hydrography remains truth-only (`artifact:hydrology.hydrography`, `artifact:hydrology.lakePlan`).
 - Runtime parity is now treated as a contract boundary:
   - lake plan vs engine water mask mismatch is emitted as projection evidence,
   - biome/placement land-water drift is always emitted and remains a strict-candidate gate until a post-hydrology authoritative land mask artifact is finalized.

@@ -17,6 +17,18 @@ import { artifactModules as placementArtifactModules } from "../../artifacts/ind
  */
 export const PreparePlacementSurfaceStepContract = defineStep({
   id: "prepare-placement-surface",
+  engine: [
+    "getAreaId",
+    "validateAndFixTerrain",
+    "getTerrainType",
+    "isWater",
+    "isLake",
+    "setTerrainType",
+    "storeWaterData",
+    "recalculateAreas",
+    "getLandmassId",
+    "setLandmassRegionId",
+  ] as const,
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.landmassRegionsPlotted,
     PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced,

@@ -1,4 +1,4 @@
-import type { EngineAdapter } from "@civ7/adapter";
+import type { CurrentEngineTerrainClassification } from "../../../../current-engine-surface.js";
 
 /** Final drift counts for lake tiles previously accepted by map-hydrology projection. */
 export type FinalLakeReadback = Readonly<{
@@ -15,11 +15,10 @@ export type FinalLakeReadback = Readonly<{
  * cache refresh did not dry the already accepted lake tiles.
  */
 export function readFinalLakeProjection(
-  adapter: EngineAdapter,
-  width: number,
-  height: number,
+  currentSurface: CurrentEngineTerrainClassification,
   acceptedLakeMask: Uint8Array
 ): FinalLakeReadback {
+  const { width, height } = currentSurface;
   const size = width * height;
   if (acceptedLakeMask.length !== size) {
     throw new Error(
@@ -36,8 +35,8 @@ export function readFinalLakeProjection(
       const idx = y * width + x;
       if (acceptedLakeMask[idx] !== 1) continue;
       acceptedLakeTileCount += 1;
-      if (!adapter.isWater(x, y)) finalLakeWaterDriftCount += 1;
-      if (!adapter.isLake(x, y)) finalLakeClassificationDriftCount += 1;
+      if (currentSurface.waterMask[idx] !== 1) finalLakeWaterDriftCount += 1;
+      if (currentSurface.lakeMask[idx] !== 1) finalLakeClassificationDriftCount += 1;
     }
   }
 

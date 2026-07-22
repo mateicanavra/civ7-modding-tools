@@ -1,5 +1,5 @@
 import { CIV7_BROWSER_TABLES_V0, WATER_CLASS_COAST, WATER_CLASS_OCEAN } from "@civ7/map-policy";
-import type { MapContext } from "@swooper/mapgen-core";
+import type { StepTrace } from "@swooper/mapgen-core";
 
 const DEFAULT_MAX_WATER_DRIFT_SHARE = 0.05;
 const DEFAULT_SAMPLE_LIMIT = 16;
@@ -7,6 +7,14 @@ const DEFAULT_SAMPLE_LIMIT = 16;
 interface CoastClassificationSurface {
   waterClass: Uint8Array;
 }
+
+type MapDimensions = Readonly<{ width: number; height: number }>;
+
+type CoastTerrainEngine = Readonly<{
+  getTerrainType: (x: number, y: number) => number;
+  setTerrainType: (x: number, y: number, terrainType: number) => void;
+  storeWaterData: () => void;
+}>;
 
 type CoastProjectionRepairSample = {
   index: number;
@@ -76,12 +84,14 @@ function expectedTerrainForWaterClass(waterClass: number): number | null {
  * cardinality admission before this recipe-level parity policy runs.
  */
 export function restoreProjectedCoastTerrain(
-  context: MapContext,
+  dimensions: MapDimensions,
+  trace: StepTrace,
+  engine: CoastTerrainEngine,
   coastClassification: CoastClassificationSurface,
   label: string,
   options: { sampleLimit?: number } = {}
 ): CoastProjectionRepairReport {
-  const { width, height } = context.setup.dimensions;
+  const { width, height } = dimensions;
   const sampleLimit = Math.max(0, options.sampleLimit ?? DEFAULT_SAMPLE_LIMIT);
   let repairedCount = 0;
   let coastRepairCount = 0;
@@ -96,10 +106,10 @@ export function restoreProjectedCoastTerrain(
       );
       if (expectedTerrain == null) continue;
 
-      const actualTerrain = context.adapter.getTerrainType(x, y) | 0;
+      const actualTerrain = engine.getTerrainType(x, y) | 0;
       if (actualTerrain === expectedTerrain) continue;
 
-      context.adapter.setTerrainType(x, y, expectedTerrain);
+      engine.setTerrainType(x, y, expectedTerrain);
       repairedCount += 1;
       if (expectedTerrain === CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST) {
         coastRepairCount += 1;
@@ -114,7 +124,7 @@ export function restoreProjectedCoastTerrain(
   }
 
   if (repairedCount > 0) {
-    context.adapter.storeWaterData();
+    engine.storeWaterData();
     const payload = {
       type: "map.projection.coastTerrainRestored",
       label,
@@ -125,7 +135,7 @@ export function restoreProjectedCoastTerrain(
       oceanRepairCount,
       samples,
     };
-    context.trace.event(() => payload);
+    trace.event(() => payload);
     console.log(`[SWOOPER_MOD] COAST_TERRAIN_RESTORED_V1 ${JSON.stringify(payload)}`);
   }
 
@@ -151,17 +161,18 @@ export function restoreProjectedCoastTerrain(
  * artifact admission or local construction owns mask cardinality before this check.
  */
 export function assertNoWaterDrift(
-  context: MapContext,
+  dimensions: MapDimensions,
+  currentWaterMask: Uint8Array,
   expectedLandMask: Uint8Array,
   label: string
 ): void {
-  const { width, height } = context.setup.dimensions;
+  const { width, height } = dimensions;
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const idx = y * width + x;
       const expectsLand = expectedLandMask[idx] === 1;
-      const isWater = context.adapter.isWater(x, y);
+      const isWater = currentWaterMask[idx] === 1;
       if (expectsLand && isWater) {
         throw new Error(
           `[${label}] drift: expected land but adapter reports water at (${x},${y}).`
@@ -185,12 +196,13 @@ export function assertNoWaterDrift(
  * admission remains upstream; this helper owns only parity evidence.
  */
 function captureWaterDriftReport(
-  context: MapContext,
+  dimensions: MapDimensions,
+  currentWaterMask: Uint8Array,
   expectedLandMask: Uint8Array,
   label: string,
   options: WaterDriftPolicyOptions = {}
 ): WaterDriftReport {
-  const { width, height } = context.setup.dimensions;
+  const { width, height } = dimensions;
   const size = width * height;
   const maxMismatchShare = options.maxMismatchShare ?? DEFAULT_MAX_WATER_DRIFT_SHARE;
   const sampleLimit = Math.max(0, options.sampleLimit ?? DEFAULT_SAMPLE_LIMIT);
@@ -204,7 +216,7 @@ function captureWaterDriftReport(
     for (let x = 0; x < width; x++) {
       const idx = y * width + x;
       const expectsLand = expectedLandMask[idx] === 1;
-      const isWater = context.adapter.isWater(x, y);
+      const isWater = currentWaterMask[idx] === 1;
 
       if (expectsLand && isWater) {
         mismatchCount += 1;
@@ -246,19 +258,27 @@ function captureWaterDriftReport(
  * throws only when the configured mismatch-share ceiling is exceeded.
  */
 export function assertWaterDriftWithinPolicy(
-  context: MapContext,
+  dimensions: MapDimensions,
+  trace: StepTrace,
+  currentWaterMask: Uint8Array,
   expectedLandMask: Uint8Array,
   label: string,
   options: WaterDriftPolicyOptions = {}
 ): WaterDriftReport {
-  const report = captureWaterDriftReport(context, expectedLandMask, label, options);
+  const report = captureWaterDriftReport(
+    dimensions,
+    currentWaterMask,
+    expectedLandMask,
+    label,
+    options
+  );
 
   if (report.mismatchCount > 0) {
     const payload = {
       type: "map.projection.waterDrift",
       ...report,
     };
-    context.trace.event(() => payload);
+    trace.event(() => payload);
     console.log(`[SWOOPER_MOD] WATER_DRIFT_POLICY_V1 ${JSON.stringify(payload)}`);
   }
 

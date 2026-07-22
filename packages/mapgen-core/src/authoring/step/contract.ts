@@ -1,3 +1,4 @@
+import { type AuthoredEngineAdapterKey, isAuthoredEngineAdapterKey } from "@civ7/adapter";
 import type { DependencyTag } from "@mapgen/engine/index.js";
 import { type TObject, type TSchema, Type } from "typebox";
 import { type ArtifactContract, assertCanonicalArtifactContract } from "../artifact/contract.js";
@@ -461,11 +462,13 @@ export type StepContract<
   Id extends string,
   Ops extends StepOpsDecl | undefined = undefined,
   Artifacts extends StepArtifactsDeclAny | undefined = StepArtifactsDeclAny | undefined,
+  Engine extends StepEngineDecl | undefined = StepEngineDecl | undefined,
 > = Readonly<{
   id: Id;
   requires: readonly DependencyTag[];
   provides: readonly DependencyTag[];
   artifacts?: Artifacts;
+  engine?: Engine;
   schema: Schema;
   ops?: Ops;
 }>;
@@ -475,22 +478,60 @@ type StepContractInput<
   Id extends string,
   Ops extends StepOpsDeclInput | undefined,
   Artifacts extends StepArtifactsDeclInput | undefined,
+  Engine extends StepEngineDecl | undefined,
 > = Readonly<{
   id: Id;
   requires: readonly DependencyTag[];
   provides: readonly DependencyTag[];
   artifacts?: Artifacts;
+  engine?: Engine;
   schema: Schema;
   ops?: Ops;
 }>;
 
 const STEP_ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+/** Exact callable engine methods admitted to one authored step contract. */
+export type StepEngineDecl = readonly AuthoredEngineAdapterKey[];
+
+type ValidatedStepEngineDeclInput<Engine extends StepEngineDecl | undefined> =
+  Engine extends StepEngineDecl
+    ? number extends Engine["length"]
+      ? Readonly<{ engine: never }>
+      : unknown
+    : unknown;
+
+function snapshotEngineDecl(stepId: string, value: unknown): StepEngineDecl | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) {
+    throw new TypeError(`step "${stepId}" engine declaration must be an array`);
+  }
+  const location = `step "${stepId}" engine declaration`;
+  const length = readDenseArrayLength(value, location);
+  const out: AuthoredEngineAdapterKey[] = [];
+  const seen = new Set<string>();
+  for (let index = 0; index < length; index++) {
+    const key = readDenseArrayEntry(value, index, location);
+    if (!isAuthoredEngineAdapterKey(key)) {
+      throw new Error(
+        `step "${stepId}" declares unavailable authored engine method "${String(key)}"`
+      );
+    }
+    if (seen.has(key)) {
+      throw new Error(`step "${stepId}" declares engine method "${key}" multiple times`);
+    }
+    seen.add(key);
+    out.push(key);
+  }
+  return Object.freeze(out);
+}
+
 function snapshotStepDefinition(def: unknown): Readonly<{
   id: unknown;
   requires: unknown;
   provides: unknown;
   artifacts: unknown;
+  engine: unknown;
   schema: unknown;
   ops: unknown;
 }> {
@@ -507,6 +548,7 @@ function snapshotStepDefinition(def: unknown): Readonly<{
     return property.value;
   };
   const artifacts = readOptionalOwnDataProperty(def, "artifacts", "step contract artifacts");
+  const engine = readOptionalOwnDataProperty(def, "engine", "step contract engine");
   const ops = readOptionalOwnDataProperty(def, "ops", "step contract ops");
 
   return {
@@ -514,6 +556,7 @@ function snapshotStepDefinition(def: unknown): Readonly<{
     requires: required("requires"),
     provides: required("provides"),
     artifacts: artifacts.value,
+    engine: engine.value,
     schema: required("schema"),
     ops: ops.value,
   };
@@ -524,33 +567,41 @@ function snapshotStepDefinition(def: unknown): Readonly<{
  * Provider modules are validated here so later implementation and recipe assembly consume one
  * immutable contract/validator authority.
  */
-export function defineStep<const Schema extends TObject, const Id extends string>(
-  def: StepContractInput<Schema, Id, undefined, undefined>
-): StepContract<Schema, Id, undefined, undefined>;
+export function defineStep<
+  const Schema extends TObject,
+  const Id extends string,
+  const Engine extends StepEngineDecl | undefined = undefined,
+>(
+  def: StepContractInput<Schema, Id, undefined, undefined, Engine> &
+    ValidatedStepEngineDeclInput<Engine>
+): StepContract<Schema, Id, undefined, undefined, Engine>;
 
 export function defineStep<
   const Schema extends TObject,
   const Id extends string,
   const Artifacts extends StepArtifactsDeclInput,
+  const Engine extends StepEngineDecl | undefined = undefined,
 >(
-  def: StepContractInput<Schema, Id, undefined, Artifacts> & {
+  def: StepContractInput<Schema, Id, undefined, Artifacts, Engine> & {
     artifacts: Artifacts & ValidatedStepArtifactsDeclInput<Artifacts>;
-  }
-): StepContract<Schema, Id, undefined, StepArtifactsDeclFromInput<Artifacts>>;
+  } & ValidatedStepEngineDeclInput<Engine>
+): StepContract<Schema, Id, undefined, StepArtifactsDeclFromInput<Artifacts>, Engine>;
 
 export function defineStep<
   const Schema extends TObject,
   const Id extends string,
   const Ops extends StepOpsDeclInput,
+  const Engine extends StepEngineDecl | undefined = undefined,
 >(
-  def: StepContractInput<Schema, Id, Ops, undefined> & {
+  def: StepContractInput<Schema, Id, Ops, undefined, Engine> & {
     ops: Ops & ValidatedStepOpsDeclInput<Ops>;
-  }
+  } & ValidatedStepEngineDeclInput<Engine>
 ): StepContract<
   SchemaWithOps<Schema, StepOpsDeclNormalizedFromInput<Ops>>,
   Id,
   StepOpsDeclNormalizedFromInput<Ops>,
-  undefined
+  undefined,
+  Engine
 >;
 
 export function defineStep<
@@ -558,16 +609,18 @@ export function defineStep<
   const Id extends string,
   const Ops extends StepOpsDeclInput,
   const Artifacts extends StepArtifactsDeclInput,
+  const Engine extends StepEngineDecl | undefined = undefined,
 >(
-  def: StepContractInput<Schema, Id, Ops, Artifacts> & {
+  def: StepContractInput<Schema, Id, Ops, Artifacts, Engine> & {
     ops: Ops & ValidatedStepOpsDeclInput<Ops>;
     artifacts: Artifacts & ValidatedStepArtifactsDeclInput<Artifacts>;
-  }
+  } & ValidatedStepEngineDeclInput<Engine>
 ): StepContract<
   SchemaWithOps<Schema, StepOpsDeclNormalizedFromInput<Ops>>,
   Id,
   StepOpsDeclNormalizedFromInput<Ops>,
-  StepArtifactsDeclFromInput<Artifacts>
+  StepArtifactsDeclFromInput<Artifacts>,
+  Engine
 >;
 
 export function defineStep(def: any): any {
@@ -580,6 +633,7 @@ export function defineStep(def: any): any {
   const declaredProvides = snapshotDependencyTagList(stepId, "provides", admitted.provides);
 
   const artifacts = snapshotArtifactsDecl(stepId, admitted.artifacts);
+  const engine = snapshotEngineDecl(stepId, admitted.engine);
   const artifactRequires: string[] =
     artifacts?.requires?.map((artifact: ArtifactContract) => artifact.id) ?? [];
   const artifactProvides: string[] =
@@ -651,6 +705,7 @@ export function defineStep(def: any): any {
     requires,
     provides,
     ...(hasArtifacts ? { artifacts } : {}),
+    ...(engine === undefined ? {} : { engine }),
     schema,
     ...(ops === undefined ? {} : { ops }),
   };

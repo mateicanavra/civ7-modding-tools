@@ -5,6 +5,7 @@ import {
   type ValidatedArtifactObservation,
 } from "@mapgen/authoring/artifact/validated-read.js";
 import type { MapContext } from "@mapgen/core/map-context.js";
+import { verifyMapContextEffectInternal } from "@mapgen/core/map-context.js";
 import {
   DuplicateDependencyTagError,
   InvalidDependencyTagDemoError,
@@ -36,7 +37,7 @@ function invokeSatisfactionPredicate(
   let activeContext: MapContext | undefined = context;
   const currentContext = (): MapContext => activeContext ?? rejectRevokedDependencyEvidence();
   const evidence: DependencyEvidence = Object.freeze({
-    verifyEffect: () => currentContext().adapter.verifyEffect(tag),
+    verifyEffect: () => verifyMapContextEffectInternal(currentContext(), tag),
     observeArtifact: <C extends ArtifactContract>(module: ArtifactModule<C>) =>
       observeValidatedArtifactInternal(currentContext(), module),
   });

@@ -1,7 +1,11 @@
-import type { EngineAdapter } from "@civ7/adapter";
-import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import type { FeatureKey } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import {
+  captureEngineFeatureTypes,
+  captureEngineTerrainTypes,
+  captureEngineWaterMask,
+  engineLandMaskFromWaterMask,
+} from "../../../../current-engine-surface.js";
 import { resolveFeatureKeyForIntent } from "./apply.js";
 import { FeaturesApplyStepContract } from "./config.js";
 import { resolveFeatureKeyLookups } from "./feature-keys.js";
@@ -15,25 +19,6 @@ function incrementCount(counts: Record<string, number>, key: string): void {
 
 function isFloodplainFeatureKey(feature: string): boolean {
   return FLOODPLAIN_FEATURE_KEY_PATTERN.test(feature);
-}
-
-/**
- * Copies the complete post-Ecology engine feature surface into producer-owned artifact storage.
- * Reading every tile after validation preserves the engine's exact IDs and no-feature sentinel.
- */
-function readPostEcologyFeatureSurface(
-  adapter: EngineAdapter,
-  width: number,
-  height: number
-): Int16Array {
-  const featureType = new Int16Array(width * height);
-  for (let y = 0; y < height; y++) {
-    const rowOffset = y * width;
-    for (let x = 0; x < width; x++) {
-      featureType[rowOffset + x] = adapter.getFeatureType(x, y) | 0;
-    }
-  }
-  return featureType;
 }
 
 /**
@@ -53,7 +38,9 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
 
     const merged = ops.apply(placements, config.apply);
 
-    const lookups = resolveFeatureKeyLookups(context.adapter);
+    const lookups = resolveFeatureKeyLookups((key) =>
+      deps.engine.getFeatureTypeIndex(context, key)
+    );
     const unknown: string[] = [];
     for (const placement of merged.placements) {
       const feature = resolveFeatureKeyForIntent(placement.feature);
@@ -113,12 +100,16 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
         rejections.push({ x, y, feature: placement.feature, reason: "unknown-feature-index" });
         continue;
       }
-      if (!context.adapter.canHaveFeature(x, y, featureIndex)) {
+      if (!deps.engine.canHaveFeature(context, x, y, featureIndex)) {
         rejections.push({ x, y, feature: placement.feature, reason: "canHaveFeature=false" });
         incrementCount(rejectedCanHaveFeatureByFeature, placement.feature);
         continue;
       }
-      context.adapter.setFeatureType(x, y, { Feature: featureIndex, Direction: -1, Elevation: 0 });
+      deps.engine.setFeatureType(context, x, y, {
+        Feature: featureIndex,
+        Direction: -1,
+        Elevation: 0,
+      });
       if (isFloodplainFeatureKey(placement.feature)) floodplainAppliedMask[y * width + x] = 1;
       incrementCount(appliedByFeature, placement.feature);
       applied += 1;
@@ -207,18 +198,33 @@ export const FeaturesApplyStep = createStep(FeaturesApplyStepContract, {
     }
 
     if (applied > 0) {
-      context.adapter.validateAndFixTerrain();
+      deps.engine.validateAndFixTerrain(context);
     }
 
-    const featureType = readPostEcologyFeatureSurface(context.adapter, width, height);
+    const featureType = captureEngineFeatureTypes(context.setup.dimensions, (x, y) =>
+      deps.engine.getFeatureType(context, x, y)
+    );
     deps.artifacts.featureEngineSnapshot.publish(context, {
       width,
       height,
       featureType,
     });
 
-    const engine = applied > 0 ? snapshotEngineHeightfield(context.adapter) : undefined;
-    if (applied > 0) context.adapter.recalculateAreas();
+    const engine =
+      applied > 0
+        ? (() => {
+            const waterMask = captureEngineWaterMask(context.setup.dimensions, (x, y) =>
+              deps.engine.isWater(context, x, y)
+            );
+            return {
+              landMask: engineLandMaskFromWaterMask(waterMask),
+              terrain: captureEngineTerrainTypes(context.setup.dimensions, (x, y) =>
+                deps.engine.getTerrainType(context, x, y)
+              ),
+            };
+          })()
+        : undefined;
+    if (applied > 0) deps.engine.recalculateAreas(context);
 
     return {
       floodplainIntentMask,

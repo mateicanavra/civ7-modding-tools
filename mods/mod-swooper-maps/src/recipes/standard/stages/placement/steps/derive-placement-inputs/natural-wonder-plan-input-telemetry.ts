@@ -63,9 +63,9 @@ type NaturalWonderPlanInputTelemetryArgs = {
       aridityIndex: Float32Array;
     };
     naturalWonderPlanSurfaces: {
-      terrainType: Uint8Array;
-      biomeType: Uint8Array;
-      featureType: Int16Array;
+      terrainType: Int32Array;
+      biomeType: Int32Array;
+      featureType: Int32Array;
       blockedMask: Uint8Array;
     };
   };

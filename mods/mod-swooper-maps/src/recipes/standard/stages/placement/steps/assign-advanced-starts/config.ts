@@ -10,6 +10,7 @@ import { artifactModules as placementArtifactModules } from "../../artifacts/ind
  */
 export const AssignAdvancedStartsStepContract = defineStep({
   id: "assign-advanced-starts",
+  engine: ["recalculateFertility", "assignAdvancedStartRegions"] as const,
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.discoveriesPlaced],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned],
   artifacts: {

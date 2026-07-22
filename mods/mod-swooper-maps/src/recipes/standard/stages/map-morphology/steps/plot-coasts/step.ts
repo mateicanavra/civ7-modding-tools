@@ -1,4 +1,3 @@
-import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import {
   applyCiv7CoastRingPolicy,
   CIV7_BROWSER_TABLES_V0,
@@ -8,6 +7,10 @@ import {
   WATER_CLASS_OCEAN,
 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import {
+  captureEngineHeightfield,
+  engineLandMaskFromWaterMask,
+} from "../../../../current-engine-surface.js";
 import {
   defineStandardVizCategoryMeta,
   defineStandardVizMeta,
@@ -92,21 +95,31 @@ export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
             : cls === WATER_CLASS_COAST
               ? CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST
               : CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_OCEAN;
-        context.adapter.setTerrainType(x, y, terrain);
+        deps.engine.setTerrainType(context, x, y, terrain);
       }
     }
 
-    const engineAfterCoasts = snapshotEngineHeightfield(context.adapter);
+    const engineAfterCoasts = captureEngineHeightfield(context.setup.dimensions, {
+      getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
+      getElevation: (x, y) => deps.engine.getElevation(context, x, y),
+      isWater: (x, y) => deps.engine.isWater(context, x, y),
+    });
     deps.artifacts.coastEngineTerrainSnapshot.publish(context, {
       stage: "map-morphology/plot-coasts",
       width,
       height,
-      landMask: engineAfterCoasts.landMask,
+      landMask: engineLandMaskFromWaterMask(engineAfterCoasts.waterMask),
       terrain: engineAfterCoasts.terrain,
       elevation: engineAfterCoasts.elevation,
     });
 
-    assertWaterDriftWithinPolicy(context, topography.landMask, "map-morphology/plot-coasts");
+    assertWaterDriftWithinPolicy(
+      context.setup.dimensions,
+      context.trace,
+      engineAfterCoasts.waterMask,
+      topography.landMask,
+      "map-morphology/plot-coasts"
+    );
     return {
       coastClassification,
       coastalLand: shelf.coastalLand,

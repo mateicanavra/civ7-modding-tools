@@ -11,11 +11,16 @@ import { assertNoStepStageIdentityAliases } from "./identity.js";
 import type { StepRuntimeOps } from "./ops.js";
 import { registerStepProviderRuntimesInternal } from "./provider-runtimes.js";
 
-type StepConfigOf<C extends StepContract<any, any, any, any>> = Static<C["schema"]>;
-type StepOpsOf<C extends StepContract<any, any, any, any>> = StepRuntimeOps<NonNullable<C["ops"]>>;
+type StepConfigOf<C extends StepContract<any, any, any, any, any>> = Static<C["schema"]>;
+type StepOpsOf<C extends StepContract<any, any, any, any, any>> = StepRuntimeOps<
+  NonNullable<C["ops"]>
+>;
 
-type ArtifactsOf<C extends StepContract<any, any, any, any>> =
-  C extends StepContract<any, any, any, infer A> ? A : undefined;
+type ArtifactsOf<C extends StepContract<any, any, any, any, any>> =
+  C extends StepContract<any, any, any, infer A, any> ? A : undefined;
+
+type EngineOf<C extends StepContract<any, any, any, any, any>> =
+  C extends StepContract<any, any, any, any, infer Engine> ? Engine : undefined;
 
 type StepImplBase<TContext, TConfig, TOps, TDeps, TResult> = Readonly<{
   normalize?: (config: TConfig, ctx: NormalizeContext) => TConfig;
@@ -24,7 +29,7 @@ type StepImplBase<TContext, TConfig, TOps, TDeps, TResult> = Readonly<{
   StepFacets<TConfig, TResult>;
 
 type StepImpl<
-  C extends StepContract<any, any, any, any>,
+  C extends StepContract<any, any, any, any, any>,
   TConfig,
   TOps,
   TDeps,
@@ -84,9 +89,9 @@ function captureStepImplementation(stepId: string, impl: unknown): CapturedStepI
  * contract's artifact modules, so an implementation cannot install a second contract or validator.
  * The run result is inferred once and becomes the typed input to optional post-provides projectors.
  */
-export function createStep<const C extends StepContract<any, any, any, any>, TResult = void>(
+export function createStep<const C extends StepContract<any, any, any, any, any>, TResult = void>(
   contract: C,
-  impl: StepImpl<C, StepConfigOf<C>, StepOpsOf<C>, StepDeps<ArtifactsOf<C>>, TResult>
+  impl: StepImpl<C, StepConfigOf<C>, StepOpsOf<C>, StepDeps<ArtifactsOf<C>, EngineOf<C>>, TResult>
 ): StepModule<C, TResult> {
   if ((typeof contract !== "object" && typeof contract !== "function") || contract === null) {
     throw new TypeError("createStep requires a contract created by defineStep");

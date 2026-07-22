@@ -10,6 +10,7 @@ import { artifactModules as mapMorphologyArtifactModules } from "../../artifacts
  */
 export const PlotCoastsStepContract = defineStep({
   id: "plot-coasts",
+  engine: ["setTerrainType", "getTerrainType", "getElevation", "isWater"] as const,
   requires: [],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
   artifacts: {

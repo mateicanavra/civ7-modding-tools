@@ -73,7 +73,8 @@ describe("natural wonder placement materialization", () => {
     const flatTerrain = adapter.getTerrainTypeIndex("TERRAIN_FLAT");
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
       requestedCount: 1,
@@ -127,7 +128,8 @@ describe("natural wonder placement materialization", () => {
     };
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
       requestedCount: 1,
@@ -143,7 +145,8 @@ describe("natural wonder placement materialization", () => {
       defaultTerrainName: "TERRAIN_HILL",
     });
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_REDWOOD_FOREST, 9),
       requestedCount: 1,
@@ -173,7 +176,8 @@ describe("natural wonder placement materialization", () => {
     const mountainTerrain = adapter.getTerrainTypeIndex("TERRAIN_MOUNTAIN");
 
     const mountainStats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
       requestedCount: 1,
@@ -200,7 +204,8 @@ describe("natural wonder placement materialization", () => {
     };
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_REDWOOD_DIMENSIONS,
       wonders: plan,
       requestedCount: 2,
@@ -253,7 +258,8 @@ describe("natural wonder placement materialization", () => {
     });
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
       requestedCount: 1,
@@ -312,7 +318,8 @@ describe("natural wonder placement materialization", () => {
     };
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: oneWonderPlan(featureTypes.FEATURE_KILIMANJARO, 17, SYNTHETIC_MOUNTAIN_DIMENSIONS),
       requestedCount: 1,
@@ -386,7 +393,8 @@ describe("natural wonder placement materialization", () => {
     };
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: {
         ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
@@ -432,7 +440,8 @@ describe("natural wonder placement materialization", () => {
     });
 
     const stats = stampNaturalWondersFromPlan({
-      adapter,
+      engine: adapter,
+      noFeatureType: adapter.NO_FEATURE,
       ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
       wonders: {
         ...SYNTHETIC_MOUNTAIN_DIMENSIONS,
@@ -471,7 +480,8 @@ describe("natural wonder placement materialization", () => {
 
     expect(() =>
       stampNaturalWondersFromPlan({
-        adapter,
+        engine: adapter,
+        noFeatureType: adapter.NO_FEATURE,
         ...SYNTHETIC_CORRUPT_PLAN_DIMENSIONS,
         wonders: {
           ...SYNTHETIC_CORRUPT_PLAN_DIMENSIONS,

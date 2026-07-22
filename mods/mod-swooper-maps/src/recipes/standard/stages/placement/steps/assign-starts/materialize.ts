@@ -82,9 +82,9 @@ function warnStartDegradations(
 export function materializeStartAssignment(args: {
   context: MapContext;
   plan: DeepReadonly<PlanStartsOutput>;
+  setStartPosition: (plotIndex: number, playerId: number) => void;
 }): StartAssignmentArtifact {
-  const { context, plan } = args;
-  const { adapter } = context;
+  const { context, plan, setStartPosition } = args;
   const { width, height } = context.setup.dimensions;
   if (plan.width !== width || plan.height !== height) {
     throw new Error(
@@ -105,7 +105,7 @@ export function materializeStartAssignment(args: {
   const tierAssignments = { primary: 0, islandCluster: 0, marginal: 0, none: 0 };
   for (const seat of seats) {
     if (seat.plotIndex < 0) continue;
-    adapter.setStartPosition(seat.plotIndex, seat.playerId);
+    setStartPosition(seat.plotIndex, seat.playerId);
     assigned++;
     if (seat.rung === "regional") rungCounts.regional++;
     else if (seat.rung === "open-pool") rungCounts.openPool++;

@@ -19,7 +19,7 @@ export const Schema = Type.Object(
     landMask: TypedArraySchemas.u8({
       description: "Engine-derived land mask snapshot (1=land, 0=water), tile order.",
     }),
-    terrain: TypedArraySchemas.u8({
+    terrain: TypedArraySchemas.i32({
       description: "Engine-derived terrain type snapshot (tile order).",
     }),
     elevation: TypedArraySchemas.i16({
@@ -69,7 +69,7 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
     issues,
     "placementEngineTerrainSnapshot.terrain",
     value.terrain,
-    Uint8Array,
+    Int32Array,
     size
   );
   appendArtifactTypedArrayIssues(

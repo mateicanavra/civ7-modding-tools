@@ -24,7 +24,7 @@ export const Schema = Type.Object(
       minimum: 1,
       description: "Admitted map height in tiles for the observed engine feature surface.",
     }),
-    featureType: TypedArraySchemas.i16({
+    featureType: TypedArraySchemas.i32({
       description:
         "Post-Ecology Civ7 feature ID per tile in row-major order after feature stamping and terrain validation; the engine no-feature sentinel is retained as evidence.",
     }),
@@ -32,7 +32,7 @@ export const Schema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Immutable, write-once evidence of the complete engine feature surface produced by map-ecology and consumed by placement planning.",
+      "Immutable, write-once diagnostic evidence of the complete engine feature surface produced by map-ecology.",
   }
 );
 
@@ -40,8 +40,8 @@ export const Schema = Type.Object(
 export type FeatureEngineSnapshot = Static<typeof Schema>;
 
 /**
- * Registers the only cross-step Ecology feature projection state. The apply step owns the engine
- * mutation; this copied snapshot records its post-Ecology result without becoming mutation authority.
+ * Registers post-projection diagnostic evidence for Ecology features. The apply step owns the
+ * engine mutation; placement observes current engine state instead of consuming this snapshot.
  */
 export const artifact = defineArtifact({
   name: "featureEngineSnapshot",
@@ -60,7 +60,7 @@ function validateLocal(
     issues,
     "featureEngineSnapshot.featureType",
     value.featureType,
-    Int16Array,
+    Int32Array,
     admittedCellCount
   );
 

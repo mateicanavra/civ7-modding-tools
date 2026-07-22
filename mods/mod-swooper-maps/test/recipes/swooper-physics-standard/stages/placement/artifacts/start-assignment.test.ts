@@ -81,8 +81,13 @@ describe("placement start-assignment artifacts", () => {
     );
     if (!definition?.satisfies) throw new Error("Missing placement completion predicate.");
 
-    const createContext = () =>
-      createMapContext({
+    const createHarness = () => {
+      const adapter = createMockAdapter({
+        ...TEST_MAP_SIZE.dimensions,
+        mapInfo: TEST_MAP_SIZE.mapInfo,
+        mapSizeId: TEST_MAP_SIZE.id,
+      });
+      const context = createMapContext({
         setup: admitMapSetup({
           mapSeed: 1,
           dimensions: TEST_MAP_SIZE.dimensions,
@@ -91,17 +96,15 @@ describe("placement start-assignment artifacts", () => {
             bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
           },
         }),
-        adapter: createMockAdapter({
-          ...TEST_MAP_SIZE.dimensions,
-          mapInfo: TEST_MAP_SIZE.mapInfo,
-          mapSizeId: TEST_MAP_SIZE.id,
-        }),
+        adapter,
       });
+      return { adapter, context };
+    };
     const satisfies = (
       assignment: ReturnType<typeof makeSyntheticStartAssignment>,
       startsAssigned: number
     ) => {
-      const context = createContext();
+      const { adapter, context } = createHarness();
       withMapContextExecutionForTest(context, (stepContext) => {
         publishTestArtifact(stepContext, placementArtifactModules.startAssignment, assignment);
         publishTestArtifact(stepContext, placementArtifactModules.placementOutputs, {
@@ -112,7 +115,7 @@ describe("placement start-assignment artifacts", () => {
         });
       });
       const evidence = Object.freeze({
-        verifyEffect: () => context.adapter.verifyEffect(definition.id),
+        verifyEffect: () => adapter.verifyEffect(definition.id),
         observeArtifact<C extends ArtifactContract>(module: ArtifactModule<C>) {
           return observeValidatedArtifact(context, module);
         },

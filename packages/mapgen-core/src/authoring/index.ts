@@ -104,7 +104,13 @@ export { buildRecipeDag } from "./recipe-dag.js";
 export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
 export { createStage, deriveStageAuthoringModel } from "./stage.js";
 export { assertStageId, StageIdSchema } from "./stage-id.js";
-export type { OpContractAny, StepContract, StepOpsDecl, StepRuntimeOps } from "./step/index.js";
+export type {
+  OpContractAny,
+  StepContract,
+  StepEngineDecl,
+  StepOpsDecl,
+  StepRuntimeOps,
+} from "./step/index.js";
 export { createStep, defineStep } from "./step/index.js";
 export { TypedArraySchemas } from "./typed-array-schemas.js";
 export {

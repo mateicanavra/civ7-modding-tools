@@ -15,6 +15,7 @@ import { artifactModules as placementArtifactModules } from "../../artifacts/ind
  */
 export const PlanResourcesStepContract = defineStep({
   id: "plan-resources",
+  engine: ["readCurrentMapSurface", "isResourceRequiredForAge"] as const,
   requires: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared],
   provides: [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlanned],
   artifacts: {
@@ -27,7 +28,6 @@ export const PlanResourcesStepContract = defineStep({
       hydrologyHydrographyArtifacts.hydrography,
       hydrologyHydrographyArtifacts.lakePlan,
       mapRiversArtifacts.projectedNavigableRivers,
-      mapRiversArtifacts.engineProjectionRivers,
       hydrologyClimateRefineArtifacts.climateIndices,
       hydrologyClimateRefineArtifacts.cryosphere,
       ecologyArtifacts.biomeClassification,

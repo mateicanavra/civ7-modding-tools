@@ -1,4 +1,4 @@
-import type { MapContext } from "@swooper/mapgen-core";
+import type { OfficialDiscoveryGenerationResult } from "@civ7/adapter";
 import type { Static } from "@swooper/mapgen-core/authoring";
 
 type DiscoveryPlacementOutcomes = Static<
@@ -6,7 +6,12 @@ type DiscoveryPlacementOutcomes = Static<
 >;
 
 type PlaceOfficialDiscoveriesArgs = {
-  adapter: MapContext["adapter"];
+  generateOfficialDiscoveries: (
+    width: number,
+    height: number,
+    startPositions: ReadonlyArray<number>,
+    polarMargin: number
+  ) => OfficialDiscoveryGenerationResult;
   width: number;
   height: number;
   startPositions: readonly number[];
@@ -28,13 +33,13 @@ type PlaceOfficialDiscoveriesArgs = {
  * and deep-ocean shipwreck populations the prior land-only plan dropped).
  */
 export function placeOfficialDiscoveries({
-  adapter,
+  generateOfficialDiscoveries,
   width,
   height,
   startPositions,
   polarMargin,
 }: PlaceOfficialDiscoveriesArgs): DiscoveryPlacementOutcomes {
-  const result = adapter.generateOfficialDiscoveries(width, height, startPositions, polarMargin);
+  const result = generateOfficialDiscoveries(width, height, startPositions, polarMargin);
   const plannedCount = Math.max(0, result.attemptedCount | 0);
   const placedCount = Math.max(0, Math.min(plannedCount, result.placedCount | 0));
   return {

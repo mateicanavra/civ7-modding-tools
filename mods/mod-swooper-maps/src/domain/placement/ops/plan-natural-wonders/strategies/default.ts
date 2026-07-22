@@ -577,7 +577,7 @@ function hasTerrainWithinHexDistance(args: {
   centerIndex: number;
   width: number;
   height: number;
-  terrainType: Uint8Array;
+  terrainType: Int32Array;
   targetTerrainType: number;
   maxDistance: number;
 }): boolean {
@@ -635,9 +635,9 @@ function satisfiesFeatureTags(args: {
   width: number;
   height: number;
   landMask: Uint8Array;
-  terrainType: Uint8Array;
-  biomeType: Uint8Array;
-  featureType: Int16Array;
+  terrainType: Int32Array;
+  biomeType: Int32Array;
+  featureType: Int32Array;
   riverClass: Uint8Array;
   coastTerrainType: number;
   mountainTerrainType: number;
@@ -841,9 +841,9 @@ function isCandidateCompatibleWithFeature(args: {
   width: number;
   height: number;
   landMask: Uint8Array;
-  terrainType: Uint8Array;
-  biomeType: Uint8Array;
-  featureType: Int16Array;
+  terrainType: Int32Array;
+  biomeType: Int32Array;
+  featureType: Int32Array;
   riverClass: Uint8Array;
   coastTerrainType: number;
   mountainTerrainType: number;

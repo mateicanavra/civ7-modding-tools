@@ -18,7 +18,7 @@ export const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
-    engineBiomeId: TypedArraySchemas.u16({
+    engineBiomeId: TypedArraySchemas.i32({
       description: "Engine biome id resolved from biome symbols (tile order).",
     }),
     bindingClass: TypedArraySchemas.u8({
@@ -66,7 +66,7 @@ function validateLocal(
     issues,
     "engineBiomeId",
     candidate.engineBiomeId,
-    Uint16Array,
+    Int32Array,
     cellCount
   );
   appendArtifactTypedArrayIssues(

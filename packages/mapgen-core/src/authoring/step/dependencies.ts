@@ -1,6 +1,8 @@
+import type { AuthoredEngineAdapterKey } from "@civ7/adapter";
 import type { MapContext } from "@mapgen/core/map-context.js";
 import {
   getActiveMapContextStepIdInternal,
+  invokeMapContextAdapterMethodInternal,
   readMapContextArtifactInternal,
 } from "@mapgen/core/map-context.js";
 
@@ -13,15 +15,25 @@ import {
   type RequiredArtifactRuntime,
 } from "../artifact/runtime.js";
 import type { StepDeps } from "../types.js";
-import type { StepArtifactsDeclAny } from "./contract.js";
+import type { StepArtifactsDeclAny, StepEngineDecl } from "./contract.js";
 import { readStepProviderRuntimesInternal } from "./provider-runtimes.js";
 
-type DeclaredArtifactStep<Artifacts extends StepArtifactsDeclAny | undefined> = Readonly<{
-  contract: Readonly<{ artifacts?: Artifacts }>;
+type DeclaredStep<
+  Artifacts extends StepArtifactsDeclAny | undefined,
+  Engine extends StepEngineDecl | undefined,
+> = Readonly<{
+  contract: Readonly<{ artifacts?: Artifacts; engine?: Engine }>;
 }>;
 
-function assertArtifactCapabilityOwner(context: MapContext, consumerStepId: string): void {
-  if (getActiveMapContextStepIdInternal(context) !== consumerStepId) {
+function assertArtifactCapabilityOwner(
+  context: MapContext,
+  consumerStepId: string,
+  boundContext?: MapContext
+): void {
+  if (
+    (boundContext !== undefined && context !== boundContext) ||
+    getActiveMapContextStepIdInternal(context) !== consumerStepId
+  ) {
     throw new Error(
       `Artifact capability for step "${consumerStepId}" requires that step's exact active context.`
     );
@@ -30,11 +42,12 @@ function assertArtifactCapabilityOwner(context: MapContext, consumerStepId: stri
 
 function createRequiredArtifactRuntime<C extends ArtifactContract>(
   contract: C,
-  consumerStepId: string
+  consumerStepId: string,
+  boundContext?: MapContext
 ): RequiredArtifactRuntime<C> {
   return Object.freeze({
     read: (context: MapContext) => {
-      assertArtifactCapabilityOwner(context, consumerStepId);
+      assertArtifactCapabilityOwner(context, consumerStepId, boundContext);
       const observation = readMapContextArtifactInternal(context, contract);
       if (!observation.found) {
         throw new ArtifactMissingError({
@@ -50,7 +63,7 @@ function createRequiredArtifactRuntime<C extends ArtifactContract>(
 
 /** @internal Resolves the complete provider binding retained by one admitted step module. */
 export function resolveProvidedArtifactRuntimeInternal(
-  authored: DeclaredArtifactStep<StepArtifactsDeclAny | undefined>,
+  authored: DeclaredStep<StepArtifactsDeclAny | undefined, StepEngineDecl | undefined>,
   contract: ArtifactContract,
   consumerStepId: string,
   owner: string
@@ -78,14 +91,40 @@ export function resolveProvidedArtifactRuntimeInternal(
 
 function authorProvidedArtifactRuntime(
   runtime: ImplementedArtifactRuntime<any>,
-  consumerStepId: string
+  consumerStepId: string,
+  boundContext?: MapContext
 ): ProvidedArtifactRuntime<any> {
   return Object.freeze({
     publish: (context, value) => {
-      assertArtifactCapabilityOwner(context, consumerStepId);
+      assertArtifactCapabilityOwner(context, consumerStepId, boundContext);
       return runtime.publish(context, value);
     },
   });
+}
+
+function bindEngineDependencies(
+  engine: StepEngineDecl | undefined,
+  context: MapContext | undefined,
+  consumerStepId: string
+): Readonly<Record<string, (context: MapContext, ...args: unknown[]) => unknown>> {
+  if (!engine || engine.length === 0) return Object.freeze({});
+  if (!context) {
+    throw new Error(
+      `Engine dependencies for step "${consumerStepId}" require the exact active step context.`
+    );
+  }
+  const bound: Record<string, (context: MapContext, ...args: unknown[]) => unknown> = {};
+  for (const key of engine) {
+    bound[key] = (invocationContext, ...args) =>
+      invokeMapContextAdapterMethodInternal(
+        invocationContext,
+        context,
+        consumerStepId,
+        key as AuthoredEngineAdapterKey,
+        args
+      );
+  }
+  return Object.freeze(bound);
 }
 
 function bindArtifactDependency(
@@ -106,13 +145,21 @@ function bindArtifactDependency(
  * Binds a step's declared required readers and provided publishers to its authored artifact modules.
  * Production recipe execution and focused step tests share this exact dependency authority.
  */
-export function buildDeclaredStepDependencies<Artifacts extends StepArtifactsDeclAny | undefined>(
-  authored: DeclaredArtifactStep<Artifacts>,
-  input: Readonly<{ consumerStepId: string; owner: string }>
-): StepDeps<Artifacts> {
+export function buildDeclaredStepDependencies<
+  Artifacts extends StepArtifactsDeclAny | undefined,
+  Engine extends StepEngineDecl | undefined,
+>(
+  authored: DeclaredStep<Artifacts, Engine>,
+  input: Readonly<{ consumerStepId: string; owner: string; context?: MapContext }>
+): StepDeps<Artifacts, Engine> {
   const artifacts = authored.contract.artifacts;
+  const engine = bindEngineDependencies(
+    authored.contract.engine,
+    input.context,
+    input.consumerStepId
+  );
   if (!artifacts) {
-    return Object.freeze({ artifacts: Object.freeze({}) }) as StepDeps<Artifacts>;
+    return Object.freeze({ artifacts: Object.freeze({}), engine }) as StepDeps<Artifacts, Engine>;
   }
 
   const bound: Record<string, RequiredArtifactRuntime<any> | ProvidedArtifactRuntime<any>> = {};
@@ -120,7 +167,7 @@ export function buildDeclaredStepDependencies<Artifacts extends StepArtifactsDec
     bindArtifactDependency(
       bound,
       contract.name,
-      createRequiredArtifactRuntime(contract, input.consumerStepId),
+      createRequiredArtifactRuntime(contract, input.consumerStepId, input.context),
       input
     );
   }
@@ -136,11 +183,12 @@ export function buildDeclaredStepDependencies<Artifacts extends StepArtifactsDec
           input.consumerStepId,
           input.owner
         ),
-        input.consumerStepId
+        input.consumerStepId,
+        input.context
       ),
       input
     );
   }
 
-  return Object.freeze({ artifacts: Object.freeze(bound) }) as StepDeps<Artifacts>;
+  return Object.freeze({ artifacts: Object.freeze(bound), engine }) as StepDeps<Artifacts, Engine>;
 }

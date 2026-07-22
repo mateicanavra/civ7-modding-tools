@@ -1,11 +1,15 @@
+import type { MapInfo } from "@civ7/adapter";
 import {
   CIV7_BROWSER_TABLES_V0,
   getNaturalWonderFootprintOffsetsByParity,
+  type NaturalWonderCatalogEntry,
+  NO_FEATURE_TYPE,
   resolveNaturalWonderMaterializationDirection,
 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
 import type { MapContext } from "@swooper/mapgen-core";
 import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
+import type { CurrentEnginePlacementTypes } from "../../../../current-engine-surface.js";
 import type { PlacementInputsV1 } from "../../artifacts/placement-inputs.artifact.js";
 
 import { DerivePlacementInputsStepContract } from "./config.js";
@@ -48,54 +52,19 @@ export type PlacementInputsBuildResult = {
   inputs: PlacementInputsV1;
   naturalWonderPlan: PlanNaturalWondersOutput;
   naturalWonderPlanSurfaces: {
-    terrainType: Uint8Array;
-    biomeType: Uint8Array;
-    featureType: Int16Array;
+    terrainType: Int32Array;
+    biomeType: Int32Array;
+    featureType: Int32Array;
     blockedMask: Uint8Array;
   };
 };
 
-/**
- * DECLARED engine-surface read (ADR-009): per-tile terrain for natural-wonder
- * planning. Terrain is the one wonder-planning field that cannot be
- * reconstructed from pipeline artifacts — `validateAndFixTerrain` runs inside
- * the features projection step and applies engine-only terrain maintenance
- * (e.g. coast materialization) after every artifact-published terrain intent.
- * This mirrors the declared resource legality surface read in plan-resources:
- * the planner must see exactly what the stamp-time engine oracle will see.
- * Biome and feature surfaces are artifact-reconstructed (see
- * buildPlacementInputs); terrain stays a declared readback, not a silent one.
- */
-function readDeclaredEngineTerrainSurface(context: MapContext): Uint8Array {
-  const { width, height } = context.setup.dimensions;
-  const size = width * height;
-  const terrainType = new Uint8Array(size);
-  for (let i = 0; i < size; i++) {
-    const y = (i / width) | 0;
-    const x = i - y * width;
-    terrainType[i] = Math.max(0, context.adapter.getTerrainType(x, y) | 0);
-  }
-  return terrainType;
-}
-
-/**
- * Engine biome surface reconstructed from the ecology biomeBindings artifact.
- * `plot-biomes` stamps exactly `engineBiomeId` per tile and nothing rebinds
- * biomes between that projection and placement planning, so the artifact is
- * the engine biome surface without a readback.
- */
-function buildEngineBiomeSurface(engineBiomeId: Uint16Array, size: number): Uint8Array {
-  if (engineBiomeId.length !== size) {
-    throw new Error(
-      `[Placement] biomeBindings.engineBiomeId length ${engineBiomeId.length} != map size ${size}.`
-    );
-  }
-  const biomeType = new Uint8Array(size);
-  for (let i = 0; i < size; i++) {
-    biomeType[i] = engineBiomeId[i] ?? 0;
-  }
-  return biomeType;
-}
+/** Current Civ7 facts admitted once at the placement-input step boundary. */
+export type PlacementInputEngineEvidence = Readonly<{
+  mapInfo: MapInfo;
+  naturalWonderCatalog: readonly NaturalWonderCatalogEntry[];
+  currentPlacementTypes: CurrentEnginePlacementTypes;
+}>;
 
 function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Array {
   const size = width * height;
@@ -111,7 +80,7 @@ function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Arra
 }
 
 /**
- * Builds placement inputs from map info, authored config, adapter-owned catalogs,
+ * Builds placement inputs from map info, authored config, admitted engine catalogs,
  * and pipeline artifacts — and runs the natural-wonder planner.
  *
  * This is the boundary step (`kind:mod`) that lets the pure planner stay
@@ -153,31 +122,20 @@ export function buildPlacementInputs(
       aridityIndex: Float32Array;
       vegetationDensity: Float32Array;
     };
-    biomeBindings: {
-      engineBiomeId: Uint16Array;
-    };
-    featureEngineSnapshot: {
-      width: number;
-      height: number;
-      featureType: Int16Array;
-    };
     pedology: {
       fertility: Float32Array;
     };
-  }
+  },
+  engineEvidence: PlacementInputEngineEvidence
 ): PlacementInputsBuildResult {
-  const mapInfo = context.adapter.lookupMapInfo(context.adapter.getMapSizeId());
-  if (!mapInfo) {
-    throw new Error("[Placement] Civ7 map metadata is unavailable for the active map size.");
-  }
+  const { mapInfo, naturalWonderCatalog, currentPlacementTypes } = engineEvidence;
   const { width, height } = context.setup.dimensions;
-  const size = width * height;
   const baseStarts = {
     playersLandmass1: mapInfo.PlayersLandmass1 ?? 4,
     playersLandmass2: mapInfo.PlayersLandmass2 ?? 4,
   };
   const wondersPlan = ops.wonders({ mapInfo }, config.wonders);
-  const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog().flatMap((entry) => {
+  const plannedNaturalWonderCatalog = naturalWonderCatalog.flatMap((entry) => {
     const featureType = entry.featureType | 0;
     const policy = FEATURE_POLICIES[String(featureType)];
     const materializationDirection = resolveNaturalWonderMaterializationDirection(
@@ -210,12 +168,7 @@ export function buildPlacementInputs(
       },
     ];
   });
-  const terrainType = readDeclaredEngineTerrainSurface(context);
-  const biomeType = buildEngineBiomeSurface(
-    physical.biomeBindings.engineBiomeId as Uint16Array,
-    size
-  );
-  const featureType = physical.featureEngineSnapshot.featureType;
+  const { terrainType, biomeType, featureType } = currentPlacementTypes;
   const naturalWonderBlockedMask = buildNaturalWonderBlockedMask(width, height);
   const naturalWonderPlan = ops.naturalWonders(
     {
@@ -240,9 +193,9 @@ export function buildPlacementInputs(
       terrainType,
       biomeType,
       featureType,
-      noFeatureType: context.adapter.NO_FEATURE | 0,
+      noFeatureType: NO_FEATURE_TYPE,
       naturalWonderBlockedMask,
-      featureCatalog: naturalWonderCatalog,
+      featureCatalog: plannedNaturalWonderCatalog,
     },
     config.naturalWonders
   );

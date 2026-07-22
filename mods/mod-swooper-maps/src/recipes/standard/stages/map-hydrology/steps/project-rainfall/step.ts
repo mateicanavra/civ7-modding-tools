@@ -17,7 +17,7 @@ export const ProjectRainfallStep = createStep(ProjectRainfallStepContract, {
         if (sample === undefined) {
           throw new Error(`Final climate rainfall is missing tile (${x}, ${y}).`);
         }
-        context.adapter.setRainfall(x, y, sample);
+        deps.engine.setRainfall(context, x, y, sample);
       }
     }
   },

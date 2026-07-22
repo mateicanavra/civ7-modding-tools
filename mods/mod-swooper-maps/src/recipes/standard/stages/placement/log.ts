@@ -1,6 +1,11 @@
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import type { MapContext, TraceJsonObject } from "@swooper/mapgen-core";
 
+type EngineTerrainWaterObservation = Readonly<{
+  terrain: Int32Array;
+  waterMask: Uint8Array;
+}>;
+
 /**
  * Engine-safe warn logging for placement steps.
  *
@@ -45,11 +50,14 @@ export function runPlacementProductStep<T>(
 
 /**
  * Emits placement terrain statistics at sanctioned observation points when verbose tracing is on.
- * The measurement reads the projected adapter surface without mutating or reclassifying tiles.
+ * The measurement reads one detached Civ7 surface without mutating or reclassifying tiles.
  */
-export function logTerrainStats(context: MapContext, stage: string): void {
+export function logTerrainStats(
+  context: MapContext,
+  stage: string,
+  currentSurface: EngineTerrainWaterObservation
+): void {
   context.trace.event(() => {
-    const { adapter } = context;
     const { width, height } = context.setup.dimensions;
     const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
     let flat = 0;
@@ -60,11 +68,12 @@ export function logTerrainStats(context: MapContext, stage: string): void {
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        if (adapter.isWater(x, y)) {
+        const index = y * width + x;
+        if (currentSurface.waterMask[index] === 1) {
           water++;
           continue;
         }
-        const terrainType = adapter.getTerrainType(x, y);
+        const terrainType = currentSurface.terrain[index] ?? 0;
         if (terrainType === terrain.TERRAIN_MOUNTAIN) mountain++;
         else if (terrainType === terrain.TERRAIN_HILL) hill++;
         else flat++;
@@ -93,9 +102,11 @@ export function logTerrainStats(context: MapContext, stage: string): void {
  * Emits a top-to-bottom odd-q ASCII rendering of final terrain when verbose tracing is on.
  * This is an observation-only projection for live debugging, not a map classification step.
  */
-export function logAsciiMap(context: MapContext): void {
+export function logAsciiMap(
+  context: MapContext,
+  currentSurface: EngineTerrainWaterObservation
+): void {
   context.trace.event(() => {
-    const { adapter } = context;
     const { width, height } = context.setup.dimensions;
     const terrain = CIV7_BROWSER_TABLES_V0.terrainTypeIndices;
     const lines: string[] = ["[Placement] Final Map ASCII:"];
@@ -104,7 +115,7 @@ export function logAsciiMap(context: MapContext): void {
       let row = "";
       if (y % 2 !== 0) row += " ";
       for (let x = 0; x < width; x++) {
-        const value = adapter.getTerrainType(x, y);
+        const value = currentSurface.terrain[y * width + x] ?? 0;
         const symbol =
           value === terrain.TERRAIN_MOUNTAIN
             ? "M"

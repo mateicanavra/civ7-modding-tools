@@ -59,7 +59,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
           stepContext,
           config,
           ops,
-          buildStepTestDependencies(featuresApplyStep)
+          buildStepTestDependencies(featuresApplyStep, stepContext)
         );
       })
     ).toThrow(/unknown feature intent/i);
@@ -82,7 +82,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
       canHaveFeature: () => false,
     });
     adapter.fillWater(false);
-    const existingFeature = adapter.getFeatureTypeIndex("FEATURE_ICE");
+    const existingFeature = 40_000;
     adapter.setFeatureType(1, 1, { Feature: existingFeature, Direction: -1, Elevation: 0 });
     const ctx = createMapContext({ setup, adapter });
 
@@ -115,7 +115,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
           stepContext,
           config,
           ops,
-          buildStepTestDependencies(featuresApplyStep)
+          buildStepTestDependencies(featuresApplyStep, stepContext)
         )
       ).not.toThrow();
     });
@@ -133,7 +133,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     expect(snapshot.width).toBe(width);
     expect(snapshot.height).toBe(height);
     expect(snapshot.featureType).toEqual(
-      new Int16Array([adapter.NO_FEATURE, adapter.NO_FEATURE, adapter.NO_FEATURE, existingFeature])
+      new Int32Array([adapter.NO_FEATURE, adapter.NO_FEATURE, adapter.NO_FEATURE, existingFeature])
     );
   });
 
@@ -184,7 +184,12 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
       };
       const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
 
-      featuresApplyStep.run(stepContext, config, ops, buildStepTestDependencies(featuresApplyStep));
+      featuresApplyStep.run(
+        stepContext,
+        config,
+        ops,
+        buildStepTestDependencies(featuresApplyStep, stepContext)
+      );
     });
 
     const snapshot = readValidatedArtifact(ctx, ecologyArtifactModules.featureEngineSnapshot);
@@ -192,7 +197,7 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
     expect(snapshot.featureType[0]).toBe(adapter.getFeatureTypeIndex("FEATURE_FOREST"));
     expect(snapshot.featureType[width]).toBe(validatedFeature);
     expect(snapshot.featureType).toEqual(
-      new Int16Array([
+      new Int32Array([
         adapter.getFeatureType(0, 0),
         adapter.getFeatureType(1, 0),
         adapter.getFeatureType(0, 1),

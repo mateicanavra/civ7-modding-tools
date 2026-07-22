@@ -21,6 +21,7 @@ export {
 } from "./coast-classification.js";
 export type { CoastRingPolicyResult } from "./coast-ring.js";
 export { applyCiv7CoastRingPolicy, CIV7_COAST_RING_POLICY_V0 } from "./coast-ring.js";
+export { NO_FEATURE_TYPE } from "./feature-constants.js";
 export {
   ENGINE_FEATURE_LEGALITY_BY_KEY,
   type EngineFeatureLegality,

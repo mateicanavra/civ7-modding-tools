@@ -30,6 +30,11 @@ export {
 } from "@civ7/map-policy";
 export type { EngineEffectTagId } from "./effects.js";
 export { ENGINE_EFFECT_TAGS } from "./effects.js";
+export type { AuthoredEngineAdapterKey } from "./engine-adapter-authority.js";
+export {
+  AUTHORED_ENGINE_ADAPTER_METHODS,
+  isAuthoredEngineAdapterKey,
+} from "./engine-adapter-authority.js";
 export type {
   Civ7LatitudeBounds,
   Civ7StandardMapInfo,
@@ -47,16 +52,17 @@ export {
   interpolateCiv7RowLatitude,
 } from "./map-metadata.js";
 export type { MockAdapterConfig } from "./mock-adapter.js";
-
 // Re-export mock adapter (safe to import anywhere)
 export { createMockAdapter, MockAdapter } from "./mock-adapter.js";
 // Re-export types
 export type {
   ContinentBounds,
+  CurrentMapSurface,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
   DiscoveryPlacementRejectionReason,
   EngineAdapter,
+  EngineAdapterMethodKey,
   FeatureData,
   LakeProjectionResult,
   LandmassIdName,

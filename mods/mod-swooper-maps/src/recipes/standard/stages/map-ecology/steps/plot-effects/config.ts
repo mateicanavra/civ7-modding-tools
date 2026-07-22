@@ -10,6 +10,7 @@ import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.
  */
 export const PlotEffectsStepContract = defineStep({
   id: "plot-effects",
+  engine: ["getPlotEffectTypeIndex", "addPlotEffect"] as const,
   requires: [],
   provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.plotEffectsApplied],
   artifacts: {

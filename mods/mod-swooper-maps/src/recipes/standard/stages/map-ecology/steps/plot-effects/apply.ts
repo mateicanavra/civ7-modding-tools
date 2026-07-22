@@ -1,6 +1,5 @@
 import type { PlotEffectKey } from "@civ7/map-policy";
 import type { PlotEffectIntentKey } from "@mapgen/domain/ecology";
-import type { MapContext } from "@swooper/mapgen-core";
 
 /**
  * Exhaustive projection from Ecology plot-effect intent to Civ7 runtime keys. Keeping this map
@@ -23,8 +22,13 @@ type PlotEffectPlacement = {
   plotEffect: PlotEffectIntentKey;
 };
 
-const resolvePlotEffectIndex = (context: MapContext, key: PlotEffectKey): number => {
-  const index = context.adapter.getPlotEffectTypeIndex(key);
+type PlotEffectEngine = Readonly<{
+  getPlotEffectTypeIndex: (key: PlotEffectKey) => number;
+  addPlotEffect: (x: number, y: number, plotEffectType: number) => void;
+}>;
+
+const resolvePlotEffectIndex = (engine: PlotEffectEngine, key: PlotEffectKey): number => {
+  const index = engine.getPlotEffectTypeIndex(key);
   if (typeof index !== "number" || Number.isNaN(index) || index < 0) {
     throw new Error(`PlotEffectsStep: Unknown plot-effect key "${key}".`);
   }
@@ -39,7 +43,7 @@ const resolvePlotEffectIndex = (context: MapContext, key: PlotEffectKey): number
  * while projecting it into Civ7 runtime state.
  */
 export function applyPlotEffectPlacements(
-  context: MapContext,
+  engine: PlotEffectEngine,
   placements: ReadonlyArray<PlotEffectPlacement>
 ): void {
   const resolved = new Map<PlotEffectKey, number>();
@@ -48,9 +52,9 @@ export function applyPlotEffectPlacements(
     const engineKey = PLOT_EFFECT_KEY_BY_INTENT[placement.plotEffect];
     let plotEffectType = resolved.get(engineKey);
     if (plotEffectType == null) {
-      plotEffectType = resolvePlotEffectIndex(context, engineKey);
+      plotEffectType = resolvePlotEffectIndex(engine, engineKey);
       resolved.set(engineKey, plotEffectType);
     }
-    context.adapter.addPlotEffect(placement.x, placement.y, plotEffectType);
+    engine.addPlotEffect(placement.x, placement.y, plotEffectType);
   }
 }

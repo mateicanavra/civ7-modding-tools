@@ -5,6 +5,7 @@ import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
+import { captureEnginePlacementTypes } from "../../../../../../src/recipes/standard/current-engine-surface.js";
 import { buildPlacementInputs } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/inputs.js";
 import { buildNaturalWonderPlanInputRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-input-telemetry.js";
 import { buildNaturalWonderPlanRuntimeTelemetry } from "../../../../../../src/recipes/standard/stages/placement/steps/derive-placement-inputs/natural-wonder-plan-telemetry.js";
@@ -36,12 +37,11 @@ describe("derive placement inputs", () => {
       height,
       mapInfo,
       mapSizeId: TEST_MAP_SIZE.id,
-      defaultTerrainType: terrainTypeIndices.TERRAIN_MOUNTAIN,
-      defaultBiomeType: biomeGlobals.BIOME_PLAINS,
+      defaultTerrainType: 700,
+      defaultBiomeType: 900,
       naturalWonderCatalog: [{ featureType: featureTypes.FEATURE_KILIMANJARO, direction: -1 }],
     });
-    const featureTypeSnapshot = new Int16Array(size).fill(adapter.NO_FEATURE);
-    featureTypeSnapshot[0] = featureTypes.FEATURE_ICE;
+    adapter.setFeatureType(0, 0, { Feature: 40_000, Direction: -1, Elevation: 0 });
     const context = createMapContext({
       setup: admitMapSetup({
         mapSeed: 1,
@@ -56,7 +56,9 @@ describe("derive placement inputs", () => {
     let capturedNaturalWonderInput:
       | {
           featureCatalog?: ReadonlyArray<{ direction: number; footprintOffsetsByParity?: unknown }>;
-          featureType?: Int16Array;
+          terrainType?: Int32Array;
+          biomeType?: Int32Array;
+          featureType?: Int32Array;
         }
       | undefined;
     const ops = {
@@ -94,29 +96,39 @@ describe("derive placement inputs", () => {
       }),
     } as never;
 
-    buildPlacementInputs(context, placementConfig(), ops, {
-      topography: {
-        landMask: new Uint8Array(size).fill(1),
-        elevation: new Int16Array(size).fill(500),
+    buildPlacementInputs(
+      context,
+      placementConfig(),
+      ops,
+      {
+        topography: {
+          landMask: new Uint8Array(size).fill(1),
+          elevation: new Int16Array(size).fill(500),
+        },
+        hydrography: {
+          riverClass: new Uint8Array(size),
+          discharge: new Float32Array(size),
+          slopeClass: new Uint8Array(size),
+        },
+        lakePlan: { lakeMask: new Uint8Array(size) },
+        biomeClassification: {
+          effectiveMoisture: new Float32Array(size).fill(0.5),
+          surfaceTemperature: new Float32Array(size).fill(0.5),
+          aridityIndex: new Float32Array(size).fill(0.5),
+          vegetationDensity: new Float32Array(size).fill(0.5),
+        },
+        pedology: { fertility: new Float32Array(size).fill(0.5) },
       },
-      hydrography: {
-        riverClass: new Uint8Array(size),
-        discharge: new Float32Array(size),
-        slopeClass: new Uint8Array(size),
-      },
-      lakePlan: { lakeMask: new Uint8Array(size) },
-      biomeClassification: {
-        effectiveMoisture: new Float32Array(size).fill(0.5),
-        surfaceTemperature: new Float32Array(size).fill(0.5),
-        aridityIndex: new Float32Array(size).fill(0.5),
-        vegetationDensity: new Float32Array(size).fill(0.5),
-      },
-      biomeBindings: {
-        engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
-      },
-      featureEngineSnapshot: { width, height, featureType: featureTypeSnapshot },
-      pedology: { fertility: new Float32Array(size).fill(0.5) },
-    });
+      {
+        mapInfo,
+        naturalWonderCatalog: adapter.getNaturalWonderCatalog(),
+        currentPlacementTypes: captureEnginePlacementTypes(TEST_MAP_SIZE.dimensions, {
+          getTerrainType: (x, y) => adapter.getTerrainType(x, y),
+          getBiomeType: (x, y) => adapter.getBiomeType(x, y),
+          getFeatureType: (x, y) => adapter.getFeatureType(x, y),
+        }),
+      }
+    );
 
     expect(capturedNaturalWonderInput?.featureCatalog).toHaveLength(1);
     expect(capturedNaturalWonderInput?.featureCatalog?.[0]).toMatchObject({
@@ -136,8 +148,10 @@ describe("derive placement inputs", () => {
         ],
       },
     });
-    expect(capturedNaturalWonderInput?.featureType).toBe(featureTypeSnapshot);
-    expect(capturedNaturalWonderInput?.featureType?.[0]).toBe(featureTypes.FEATURE_ICE);
+    expect(capturedNaturalWonderInput?.terrainType?.[0]).toBe(700);
+    expect(capturedNaturalWonderInput?.biomeType?.[0]).toBe(900);
+    expect(capturedNaturalWonderInput?.featureType).toBeInstanceOf(Int32Array);
+    expect(capturedNaturalWonderInput?.featureType?.[0]).toBe(40_000);
   });
 
   it("includes the recovered 4-tile natural wonders (Barrier Reef) in the plan catalog", () => {
@@ -207,33 +221,39 @@ describe("derive placement inputs", () => {
       }),
     } as never;
 
-    buildPlacementInputs(context, placementConfig(), ops, {
-      topography: {
-        landMask: new Uint8Array(size).fill(1),
-        elevation: new Int16Array(size).fill(500),
+    buildPlacementInputs(
+      context,
+      placementConfig(),
+      ops,
+      {
+        topography: {
+          landMask: new Uint8Array(size).fill(1),
+          elevation: new Int16Array(size).fill(500),
+        },
+        hydrography: {
+          riverClass: new Uint8Array(size),
+          discharge: new Float32Array(size),
+          slopeClass: new Uint8Array(size),
+        },
+        lakePlan: { lakeMask: new Uint8Array(size) },
+        biomeClassification: {
+          effectiveMoisture: new Float32Array(size).fill(0.5),
+          surfaceTemperature: new Float32Array(size).fill(0.5),
+          aridityIndex: new Float32Array(size).fill(0.5),
+          vegetationDensity: new Float32Array(size).fill(0.5),
+        },
+        pedology: { fertility: new Float32Array(size).fill(0.5) },
       },
-      hydrography: {
-        riverClass: new Uint8Array(size),
-        discharge: new Float32Array(size),
-        slopeClass: new Uint8Array(size),
-      },
-      lakePlan: { lakeMask: new Uint8Array(size) },
-      biomeClassification: {
-        effectiveMoisture: new Float32Array(size).fill(0.5),
-        surfaceTemperature: new Float32Array(size).fill(0.5),
-        aridityIndex: new Float32Array(size).fill(0.5),
-        vegetationDensity: new Float32Array(size).fill(0.5),
-      },
-      biomeBindings: {
-        engineBiomeId: new Uint16Array(size).fill(biomeGlobals.BIOME_PLAINS),
-      },
-      featureEngineSnapshot: {
-        width,
-        height,
-        featureType: new Int16Array(size).fill(adapter.NO_FEATURE),
-      },
-      pedology: { fertility: new Float32Array(size).fill(0.5) },
-    });
+      {
+        mapInfo,
+        naturalWonderCatalog: adapter.getNaturalWonderCatalog(),
+        currentPlacementTypes: {
+          terrainType: new Int32Array(size).fill(terrainTypeIndices.TERRAIN_MOUNTAIN),
+          biomeType: new Int32Array(size).fill(biomeGlobals.BIOME_PLAINS),
+          featureType: new Int32Array(size).fill(adapter.NO_FEATURE),
+        },
+      }
+    );
 
     // Barrier Reef (FOURADJACENT) was previously dropped (null footprint). It is
     // now placement-eligible, but as a self-orienting 4-tile class it keeps the
@@ -309,9 +329,9 @@ describe("derive placement inputs", () => {
     });
     const elevation = new Int16Array(size).fill(100);
     elevation[5] = 240;
-    const terrainType = new Uint8Array(size).fill(terrainTypeIndices.TERRAIN_MOUNTAIN);
-    const biomeType = new Uint8Array(size).fill(biomeGlobals.BIOME_PLAINS);
-    const featureType = new Int16Array(size).fill(adapter.NO_FEATURE);
+    const terrainType = new Int32Array(size).fill(terrainTypeIndices.TERRAIN_MOUNTAIN);
+    const biomeType = new Int32Array(size).fill(biomeGlobals.BIOME_PLAINS);
+    const featureType = new Int32Array(size).fill(adapter.NO_FEATURE);
     featureType[5] = featureTypes.FEATURE_ICE;
     const blockedMask = new Uint8Array(size);
     blockedMask[5] = 1;

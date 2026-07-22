@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
+import { createMockAdapter } from "@civ7/adapter";
 import {
   CIV7_BROWSER_TABLES_V0,
   type OfficialResourceType,
@@ -62,9 +63,9 @@ describe("resource demand planning", () => {
     const legalitySurface: ResourceLegalitySurface = {
       width,
       height,
-      biomeType: new Uint8Array(size).fill(placementRow[0]),
-      terrainType: new Uint8Array(size).fill(placementRow[1]),
-      featureType: new Int16Array(size).fill(placementRow[2]),
+      biomeType: new Int32Array(size).fill(placementRow[0]),
+      terrainType: new Int32Array(size).fill(placementRow[1]),
+      featureType: new Int32Array(size).fill(placementRow[2]),
       engineWaterMask: new Uint8Array(size),
     };
     const habitat: Record<string, Uint8Array | Float32Array> = {
@@ -85,7 +86,7 @@ describe("resource demand planning", () => {
     return { legalitySurface, habitat, plannedRows };
   }
 
-  it("unions planned and engine-projected river masks", () => {
+  it("unions projected river intent and the current engine river surface", () => {
     const plannedMajorRiverMask = new Uint8Array(size);
     plannedMajorRiverMask[1] = 1;
     const engineNavigableRiverMask = new Uint8Array(size);
@@ -95,13 +96,46 @@ describe("resource demand planning", () => {
       width,
       height,
       projectedNavigableRivers: { plannedMajorRiverMask },
-      engineProjectionRivers: { engineNavigableRiverMask },
+      currentEngineSurface: { navigableRiverMask: engineNavigableRiverMask },
     });
 
     expect(mask.length).toBe(size);
     expect(mask[1]).toBe(1);
     expect(mask[5]).toBe(1);
     expect([...mask].reduce((sum, value) => sum + value, 0)).toBe(2);
+  });
+
+  it("observes an engine river mutation made after an earlier detached surface read", () => {
+    const adapter = createMockAdapter({
+      ...TEST_MAP_SIZE.dimensions,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
+    });
+    const plotIndex = width + 1;
+    const x = plotIndex % width;
+    const y = Math.trunc(plotIndex / width);
+    const navigableRiverTerrain = adapter.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
+    const beforeRiverMutation = adapter.readCurrentMapSurface();
+
+    adapter.setTerrainType(x, y, navigableRiverTerrain);
+    adapter.modelRivers(4, 12, navigableRiverTerrain);
+
+    const afterRiverMutation = adapter.readCurrentMapSurface();
+    const staleMask = buildRiverResourceExclusionMask({
+      width,
+      height,
+      currentEngineSurface: beforeRiverMutation,
+    });
+    const freshMask = buildRiverResourceExclusionMask({
+      width,
+      height,
+      currentEngineSurface: afterRiverMutation,
+    });
+
+    expect(beforeRiverMutation.navigableRiverMask[plotIndex]).toBe(0);
+    expect(afterRiverMutation.navigableRiverMask[plotIndex]).toBe(1);
+    expect(staleMask[plotIndex]).toBe(0);
+    expect(freshMask[plotIndex]).toBe(1);
   });
 
   it("rejects river masks whose length does not match the grid", () => {

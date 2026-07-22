@@ -1,6 +1,6 @@
 import type { MapContext } from "@mapgen/core/map-context.js";
 
-type PublicMapContextShape = Pick<MapContext, "setup" | "adapter" | "trace">;
+type PublicMapContextShape = Pick<MapContext, "setup" | "trace">;
 
 declare const structurallySimilarContext: PublicMapContextShape;
 
@@ -11,6 +11,8 @@ void forgedContext;
 
 declare const context: MapContext;
 
+// @ts-expect-error The raw engine adapter is executor-private.
+context.adapter;
 // @ts-expect-error Artifact storage is not an authored context capability.
 context.artifacts;
 // @ts-expect-error Trace identity is executor-owned rather than author-observable.

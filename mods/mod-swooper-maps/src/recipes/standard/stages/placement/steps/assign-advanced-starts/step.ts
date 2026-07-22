@@ -14,11 +14,11 @@ export const AssignAdvancedStartsStep = createStep(AssignAdvancedStartsStepContr
     };
 
     runPlacementProductStep("placement.fertility.recalculate", emit, () => {
-      context.adapter.recalculateFertility();
+      deps.engine.recalculateFertility(context);
       emit({ type: "placement.fertility.recalculated" });
     });
     runPlacementProductStep("placement.advancedStart.assign", emit, () => {
-      context.adapter.assignAdvancedStartRegions();
+      deps.engine.assignAdvancedStartRegions(context);
     });
     deps.artifacts.advancedStartAssignment.publish(context, {
       fertilityRecalculated: true,

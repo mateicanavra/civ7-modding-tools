@@ -39,7 +39,12 @@ describe("map-hydrology/project-rainfall", () => {
         humidity: new Uint8Array(width * height),
       });
 
-      ProjectRainfallStep.run(stepContext, {}, {}, buildStepTestDependencies(ProjectRainfallStep));
+      ProjectRainfallStep.run(
+        stepContext,
+        {},
+        {},
+        buildStepTestDependencies(ProjectRainfallStep, stepContext)
+      );
     });
 
     expect(adapter.projected).toEqual([

@@ -15,7 +15,14 @@ export const PlotEffectsStep = createStep(PlotEffectsStepContract, {
     const placements = deps.artifacts.plotEffectPlan.read(context);
 
     if (placements.length > 0) {
-      applyPlotEffectPlacements(context, placements);
+      applyPlotEffectPlacements(
+        {
+          getPlotEffectTypeIndex: (key) => deps.engine.getPlotEffectTypeIndex(context, key),
+          addPlotEffect: (x, y, plotEffectType) =>
+            deps.engine.addPlotEffect(context, x, y, plotEffectType),
+        },
+        placements
+      );
     }
     return placements;
   },

@@ -15,12 +15,20 @@ function runRiverProjection(input: {
   const recipeConfig = createStandardRecipeTestConfig();
   recipeConfig["hydrology-hydrography"].knobs.riverDensity = input.riverDensity;
   recipeConfig["map-rivers"].knobs.navigableRiverDensity = input.navigableRiverDensity;
-  const { context } = runStandardRecipeTestMap({ seed: 123, recipeConfig });
+  const { context, adapter, preset } = runStandardRecipeTestMap({ seed: 123, recipeConfig });
+  const projected = readValidatedArtifact(
+    context,
+    mapRiversArtifactModules.projectedNavigableRivers
+  );
 
   return {
     hydrography: readValidatedArtifact(context, hydrographyArtifactModules.hydrography),
-    projected: readValidatedArtifact(context, mapRiversArtifactModules.projectedNavigableRivers),
-    readback: readValidatedArtifact(context, mapRiversArtifactModules.engineProjectionRivers),
+    projected,
+    readback: adapter.readRiverProjection(
+      preset.dimensions.width,
+      preset.dimensions.height,
+      projected.riverMask
+    ),
   };
 }
 
@@ -73,7 +81,7 @@ describe("navigable river projection isolation", () => {
     for (const physicalDensity of ["sparse", "dense"] as const) {
       for (const visibleDensity of ["sparse", "dense"] as const) {
         const result = matrix[physicalDensity][visibleDensity];
-        expect(result.readback.riverMask).toEqual(result.projected.riverMask);
+        expect(result.readback.terrainNavigableRiverMask).toEqual(result.projected.riverMask);
       }
     }
   }, 30_000);

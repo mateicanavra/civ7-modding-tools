@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { MockAdapter } from "@civ7/adapter";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
-
+import { captureEngineTerrainClassification } from "../../../../../../src/recipes/standard/current-engine-surface.js";
 import { readFinalLakeProjection } from "../../../../../../src/recipes/standard/stages/placement/steps/prepare-placement-surface/lake-readback.js";
 import { TEST_MAP_SIZE } from "../../../../../map-size.js";
 
@@ -33,7 +33,15 @@ describe("placement final lake readback", () => {
     adapter.setTerrainType(1, 1, coastTerrain);
     adapter.setTerrainType(2, 1, flatTerrain);
 
-    expect(readFinalLakeProjection(adapter, width, height, acceptedLakeMask)).toEqual({
+    const currentSurface = captureEngineTerrainClassification(
+      { width, height },
+      {
+        getTerrainType: (x, y) => adapter.getTerrainType(x, y),
+        isWater: (x, y) => adapter.isWater(x, y),
+        isLake: (x, y) => adapter.isLake(x, y),
+      }
+    );
+    expect(readFinalLakeProjection(currentSurface, acceptedLakeMask)).toEqual({
       acceptedLakeTileCount: 2,
       finalLakeWaterDriftCount: 1,
       finalLakeClassificationDriftCount: 2,

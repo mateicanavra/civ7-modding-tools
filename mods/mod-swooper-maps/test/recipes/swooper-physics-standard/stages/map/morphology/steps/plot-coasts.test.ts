@@ -79,7 +79,12 @@ describe("map-morphology/plot-coasts", () => {
         shelfFixture(size, shelfMask, coastalWater)
       );
 
-      PlotCoastsStep.run(stepContext, {}, {}, buildStepTestDependencies(PlotCoastsStep));
+      PlotCoastsStep.run(
+        stepContext,
+        {},
+        {},
+        buildStepTestDependencies(PlotCoastsStep, stepContext)
+      );
     });
 
     // Land stays land; source coast (shoreline ring + shelf) becomes COAST.
@@ -155,7 +160,12 @@ describe("map-morphology/plot-coasts", () => {
         shelfFixture(size, shelfMask, coastalWater)
       );
 
-      PlotCoastsStep.run(stepContext, {}, {}, buildStepTestDependencies(PlotCoastsStep));
+      PlotCoastsStep.run(
+        stepContext,
+        {},
+        {},
+        buildStepTestDependencies(PlotCoastsStep, stepContext)
+      );
       expect(adapter.getTerrainType(2, 1)).toBe(coastTerrain);
 
       const originalValidate = adapter.validateAndFixTerrain.bind(adapter);
@@ -164,7 +174,12 @@ describe("map-morphology/plot-coasts", () => {
         adapter.setTerrainType(2, 1, oceanTerrain);
       };
 
-      PlotContinentsStep.run(stepContext, {}, {}, buildStepTestDependencies(PlotContinentsStep));
+      PlotContinentsStep.run(
+        stepContext,
+        {},
+        {},
+        buildStepTestDependencies(PlotContinentsStep, stepContext)
+      );
     });
 
     expect(adapter.getTerrainType(2, 1)).toBe(coastTerrain);

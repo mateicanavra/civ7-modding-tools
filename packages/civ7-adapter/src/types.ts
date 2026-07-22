@@ -270,6 +270,35 @@ export interface LakeProjectionResult {
 }
 
 /**
+ * Detached read of the mutable Civ7 map surface at one instant.
+ *
+ * Engine ids use signed 32-bit arrays because Civ7 ids are integers, not byte-sized enums. Boolean
+ * classifications use byte masks. Every adapter call returns fresh arrays, so consumers may retain
+ * evidence without observing later engine mutations through shared storage.
+ */
+export interface CurrentMapSurface {
+  readonly width: number;
+  readonly height: number;
+  readonly terrainType: Int32Array;
+  readonly elevation: Int16Array;
+  readonly biomeType: Int32Array;
+  readonly featureType: Int32Array;
+  readonly waterMask: Uint8Array;
+  readonly lakeMask: Uint8Array;
+  readonly riverType: Int32Array;
+  readonly riverMask: Uint8Array;
+  readonly navigableRiverMask: Uint8Array;
+  readonly minorRiverMask: Uint8Array;
+  readonly sentinels: Readonly<{
+    navigableRiverTerrainType: number;
+  }>;
+  readonly riverMetadata: Readonly<{
+    typeReadbackSupported: boolean;
+    unsupportedReason: string;
+  }>;
+}
+
+/**
  * Adapter readback for deterministic river projection.
  *
  * MapGen can deterministically choose navigable-river terrain today. Civ7's
@@ -387,6 +416,10 @@ export type PlotTagName =
  */
 export type LandmassIdName = "NONE" | "WEST" | "EAST" | "DEFAULT" | "ANY";
 
+type CallableKeys<T> = {
+  [K in keyof T]-?: T[K] extends (...args: infer _Args) => infer _Result ? K : never;
+}[keyof T];
+
 /**
  * EngineAdapter - abstraction for all engine/surface interactions
  *
@@ -400,6 +433,12 @@ export interface EngineAdapter {
   readonly width: number;
   /** Map height */
   readonly height: number;
+
+  /**
+   * Reads the complete mutable map surface through one detached adapter-owned observation.
+   * Callers receive current engine evidence, never a live view into adapter storage.
+   */
+  readCurrentMapSurface(): CurrentMapSurface;
 
   // === MAP INIT / MAP INFO ===
 
@@ -869,6 +908,9 @@ export interface EngineAdapter {
    */
   needHumanNearEquator(): boolean;
 }
+
+/** Every callable adapter member, including executor-private compatibility methods. */
+export type EngineAdapterMethodKey = Extract<CallableKeys<EngineAdapter>, string>;
 
 /**
  * Continent bounds for start placement

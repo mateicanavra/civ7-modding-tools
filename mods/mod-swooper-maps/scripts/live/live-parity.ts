@@ -3,6 +3,7 @@
 import {
   CIV7_STANDARD_ROW_LATITUDE_BOUNDS,
   createMockAdapter,
+  type EngineAdapter,
   getCiv7StandardMapSizePresetForDimensions,
 } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0, RIVER_TYPE_MINOR } from "@civ7/map-policy";
@@ -113,6 +114,12 @@ export type RiverMetadataSnapshot = Readonly<{
   minorRiver?: SurfaceGrid;
   minorRiverStampingSupported?: boolean;
   minorRiverUnsupportedReason?: string;
+}>;
+
+type ProjectedRiverIntent = Readonly<{
+  riverMask: Uint8Array;
+  plannedMinorRiverMask: Uint8Array;
+  plannedMajorRiverMask: Uint8Array;
 }>;
 
 export type NativeRiverObjectSampleSnapshot = Readonly<{
@@ -675,7 +682,7 @@ export function runLocalFinalSurfaceSnapshot(
     evidence.resourcePlacementOutcomes = resourcePlacementOutcomes;
   }
   evidence.terrainProjection = buildTerrainProjectionEvidence(context);
-  const riverMetadata = buildLocalRiverMetadataSnapshot(context, width, height);
+  const riverMetadata = buildLocalRiverMetadataSnapshot(context, adapter, width, height);
 
   return {
     source: "local-mapgen",
@@ -701,37 +708,47 @@ export function runLocalFinalSurfaceSnapshot(
 
 function buildLocalRiverMetadataSnapshot(
   context: ReturnType<typeof createMapContext>,
+  adapter: ReturnType<typeof createMockAdapter>,
   width: number,
   height: number
 ): RiverMetadataSnapshot | undefined {
-  const projectedValue = observeArtifact(
-    context,
-    mapRiversArtifactModules.projectedNavigableRivers
-  );
-  const readbackValue = observeArtifact(context, mapRiversArtifactModules.engineProjectionRivers);
-  const projected = isPlainObject(projectedValue) ? projectedValue : undefined;
-  const readback = isPlainObject(readbackValue) ? readbackValue : undefined;
-  if (projected === undefined && readback === undefined) return undefined;
+  const projected = observeArtifact(context, mapRiversArtifactModules.projectedNavigableRivers);
+  if (projected === undefined) return undefined;
+  return captureCurrentRiverMetadata(adapter, projected, { width, height });
+}
+
+/**
+ * Joins immutable MapGen river intent with a fresh engine observation at the diagnostic boundary.
+ * Callers use this after all recipe steps have completed so late engine mutations cannot be
+ * mistaken for the projection-time state.
+ */
+export function captureCurrentRiverMetadata(
+  adapter: Pick<EngineAdapter, "readRiverProjection">,
+  projected: ProjectedRiverIntent,
+  dimensions: Readonly<{ width: number; height: number }>
+): RiverMetadataSnapshot {
+  const { width, height } = dimensions;
+  const readback = adapter.readRiverProjection(width, height, projected.riverMask);
   const size = width * height;
   return stripUndefined({
     width,
     height,
-    plannedMinorRiver: gridFromNumericArray(width, height, projected?.plannedMinorRiverMask, size),
-    plannedMajorRiver: gridFromNumericArray(width, height, projected?.plannedMajorRiverMask, size),
-    projectedNavigableTerrain: gridFromNumericArray(width, height, projected?.riverMask, size),
+    plannedMinorRiver: gridFromNumericArray(width, height, projected.plannedMinorRiverMask, size),
+    plannedMajorRiver: gridFromNumericArray(width, height, projected.plannedMajorRiverMask, size),
+    projectedNavigableTerrain: gridFromNumericArray(width, height, projected.riverMask, size),
     terrainNavigableRiver: gridFromNumericArray(
       width,
       height,
-      readback?.terrainNavigableRiverMask,
+      readback.terrainNavigableRiverMask,
       size
     ),
-    riverType: gridFromNumericArray(width, height, readback?.engineRiverType, size),
-    river: gridFromNumericArray(width, height, readback?.engineIsRiverMask, size),
-    navigableRiver: gridFromNumericArray(width, height, readback?.engineNavigableRiverMask, size),
-    minorRiver: gridFromNumericArray(width, height, readback?.engineMinorRiverMask, size),
-    minorRiverStampingSupported: booleanValue(readback?.minorRiverStampingSupported),
-    minorRiverUnsupportedReason: nonEmptyStringValue(readback?.minorRiverUnsupportedReason),
-  }) as RiverMetadataSnapshot | undefined;
+    riverType: gridFromNumericArray(width, height, readback.engineRiverType, size),
+    river: gridFromNumericArray(width, height, readback.engineIsRiverMask, size),
+    navigableRiver: gridFromNumericArray(width, height, readback.engineNavigableRiverMask, size),
+    minorRiver: gridFromNumericArray(width, height, readback.engineMinorRiverMask, size),
+    minorRiverStampingSupported: readback.minorRiverStampingSupported,
+    minorRiverUnsupportedReason: readback.minorRiverUnsupportedReason,
+  }) as RiverMetadataSnapshot;
 }
 
 function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapContext>): unknown {
@@ -761,10 +778,6 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
   const mapElevationTerrainSnapshot = observeArtifact(
     context,
     mapElevationArtifactModules.elevationEngineTerrainSnapshot
-  );
-  const mapRiversTerrainSnapshot = observeArtifact(
-    context,
-    mapRiversArtifactModules.riversEngineTerrainSnapshot
   );
   const placementSurfacePreparation = observeArtifact(
     context,
@@ -838,13 +851,6 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
       "terrain",
     ]),
     mapElevationTerrainSnapshot: pickSerializableFields(mapElevationTerrainSnapshot, [
-      "stage",
-      "width",
-      "height",
-      "landMask",
-      "terrain",
-    ]),
-    mapRiversTerrainSnapshot: pickSerializableFields(mapRiversTerrainSnapshot, [
       "stage",
       "width",
       "height",
@@ -3195,10 +3201,6 @@ function countOnes(values: ReadonlyArray<number | null> | undefined): number {
 function normalizedMaskValue(value: number | null | undefined): number | null {
   if (value === null || value === undefined || !Number.isFinite(value)) return null;
   return value === 0 ? 0 : 1;
-}
-
-function booleanValue(value: unknown): boolean | undefined {
-  return typeof value === "boolean" ? value : undefined;
 }
 
 function stringValue(value: unknown): string | undefined {

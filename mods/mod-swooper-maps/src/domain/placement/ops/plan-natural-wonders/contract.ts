@@ -44,9 +44,9 @@ const PlanNaturalWondersContract = defineOp({
     coastTerrainType: Type.Integer({ minimum: 0 }),
     mountainTerrainType: Type.Integer({ minimum: 0 }),
     iceFeatureType: Type.Integer({ minimum: 0 }),
-    terrainType: TypedArraySchemas.u8({ description: "Current engine terrain type per tile." }),
-    biomeType: TypedArraySchemas.u8({ description: "Current engine biome type per tile." }),
-    featureType: TypedArraySchemas.i16({ description: "Current engine feature type per tile." }),
+    terrainType: TypedArraySchemas.i32({ description: "Current engine terrain type per tile." }),
+    biomeType: TypedArraySchemas.i32({ description: "Current engine biome type per tile." }),
+    featureType: TypedArraySchemas.i32({ description: "Current engine feature type per tile." }),
     noFeatureType: Type.Integer({ description: "Engine sentinel for an unoccupied feature slot." }),
     naturalWonderBlockedMask: TypedArraySchemas.u8({
       description:

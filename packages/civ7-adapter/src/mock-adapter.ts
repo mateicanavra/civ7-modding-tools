@@ -17,9 +17,14 @@ import {
   RIVER_TYPE_MINOR,
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
+import {
+  captureCurrentRiverSurface,
+  deriveRiverProjectionFromCurrentSurface,
+} from "./current-map-surface.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import { getCiv7RowLatitude } from "./map-metadata.js";
 import type {
+  CurrentMapSurface,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
   EngineAdapter,
@@ -355,20 +360,20 @@ export class MockAdapter implements EngineAdapter {
   private mapInfo: MapInfo | null;
   private aliveMajorCount: number | null;
 
-  private terrainTypes: Uint8Array;
+  private terrainTypes: Int32Array;
   private elevations: Int16Array;
   private rainfall: Uint8Array;
   private temperature: Uint8Array;
-  private features: Int16Array;
+  private features: Int32Array;
   private resources: Int16Array;
-  private biomes: Uint8Array;
+  private biomes: Int32Array;
   private waterMask: Uint8Array;
   private lakeMask: Uint8Array;
   private validationMaterializedCoastMask: Uint8Array;
   private mountainMask: Uint8Array;
   private landmassRegionIds: Uint8Array;
   private riverMask: Uint8Array;
-  private riverTypes: Int8Array;
+  private riverTypes: Int32Array;
   private rngFn: (max: number, label: string) => number;
   private biomeGlobals: Record<string, number>;
   private featureTypes: Record<string, number>;
@@ -453,19 +458,19 @@ export class MockAdapter implements EngineAdapter {
       : DEFAULT_NO_RESOURCE;
     const size = this.width * this.height;
 
-    this.terrainTypes = new Uint8Array(size).fill(config.defaultTerrainType ?? 0);
+    this.terrainTypes = new Int32Array(size).fill(config.defaultTerrainType ?? 0);
     this.elevations = new Int16Array(size).fill(config.defaultElevation ?? 100);
     this.rainfall = new Uint8Array(size).fill(config.defaultRainfall ?? 50);
     this.temperature = new Uint8Array(size).fill(config.defaultTemperature ?? 15);
-    this.features = new Int16Array(size).fill(-1);
+    this.features = new Int32Array(size).fill(-1);
     this.resources = new Int16Array(size).fill(this.noResourceSentinel);
-    this.biomes = new Uint8Array(size).fill(config.defaultBiomeType ?? 0);
+    this.biomes = new Int32Array(size).fill(config.defaultBiomeType ?? 0);
     this.waterMask = new Uint8Array(size);
     this.lakeMask = new Uint8Array(size);
     this.validationMaterializedCoastMask = new Uint8Array(size);
     this.mountainMask = new Uint8Array(size);
     this.riverMask = new Uint8Array(size);
-    this.riverTypes = new Int8Array(size).fill(MOCK_NO_RIVER);
+    this.riverTypes = new Int32Array(size).fill(MOCK_NO_RIVER);
     this.landmassRegionIds = new Uint8Array(size);
     this.rngFn = config.rng ?? createDeterministicMockRng(config.rngSeed);
     this.biomeGlobals = config.biomeGlobals ?? { ...DEFAULT_BIOME_GLOBALS };
@@ -981,7 +986,7 @@ export class MockAdapter implements EngineAdapter {
     // navigable-river terrain so map-stage tests prove the projection contract
     // without inventing a second fake river network.
     for (let i = 0; i < this.width * this.height; i++) {
-      if ((this.terrainTypes[i] ?? 0) !== (_navigableTerrain & 0xff)) continue;
+      if ((this.terrainTypes[i] ?? 0) !== (_navigableTerrain | 0)) continue;
       this.riverMask[i] = 1;
       this.riverTypes[i] = MOCK_RIVER_NAVIGABLE;
     }
@@ -1003,105 +1008,74 @@ export class MockAdapter implements EngineAdapter {
     }
   }
 
+  /** Returns a detached current-map observation with the same widths as the production adapter. */
+  readCurrentMapSurface(): CurrentMapSurface {
+    const { width, height } = this;
+    const size = width * height;
+    const riverMask = new Uint8Array(size);
+    const navigableRiverMask = new Uint8Array(size);
+    const minorRiverMask = new Uint8Array(size);
+    for (let index = 0; index < size; index++) {
+      const riverType = this.riverTypes[index] ?? MOCK_NO_RIVER;
+      riverMask[index] = riverType === MOCK_NO_RIVER ? 0 : 1;
+      navigableRiverMask[index] = riverType === MOCK_RIVER_NAVIGABLE ? 1 : 0;
+      minorRiverMask[index] = riverType === MOCK_RIVER_MINOR ? 1 : 0;
+    }
+
+    return Object.freeze({
+      width,
+      height,
+      terrainType: this.terrainTypes.slice(),
+      elevation: this.elevations.slice(),
+      biomeType: this.biomes.slice(),
+      featureType: this.features.slice(),
+      waterMask: this.waterMask.slice(),
+      lakeMask: this.lakeMask.slice(),
+      riverType: this.riverTypes.slice(),
+      riverMask,
+      navigableRiverMask,
+      minorRiverMask,
+      sentinels: Object.freeze({
+        navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"),
+      }),
+      riverMetadata: Object.freeze({
+        typeReadbackSupported: true,
+        unsupportedReason:
+          "MockAdapter mirrors Civ river-type metadata readback semantics; exact Hydrology minor-river parity remains diagnostic and must compare planned minor intent to engineMinorRiverMask.",
+      }),
+    });
+  }
+
   readRiverProjection(
     width: number,
     height: number,
     plannedNavigableRiverMask: Uint8Array
   ): RiverProjectionResult {
-    const expectedSize = Math.max(0, (width | 0) * (height | 0));
-    if (plannedNavigableRiverMask.length !== expectedSize) {
+    if (width !== this.width || height !== this.height) {
       throw new Error(
-        `[MockAdapter] Invalid river mask length for readRiverProjection (expected ${expectedSize}, got ${plannedNavigableRiverMask.length}).`
+        `[MockAdapter] River projection dimensions ${width}x${height} do not match the current map ${this.width}x${this.height}.`
       );
     }
-
-    const navigableRiverTerrain = this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER");
-    const stampedNavigableRiverMask = new Uint8Array(expectedSize);
-    const rejectedNavigableRiverMask = new Uint8Array(expectedSize);
-    const engineTerrain = new Int32Array(expectedSize);
-    const engineRiverType = new Int32Array(expectedSize);
-    const engineIsRiverMask = new Uint8Array(expectedSize);
-    const engineNavigableRiverMask = new Uint8Array(expectedSize);
-    const engineMinorRiverMask = new Uint8Array(expectedSize);
-    const terrainNavigableRiverMask = new Uint8Array(expectedSize);
-    const navigableRiverMismatchMask = new Uint8Array(expectedSize);
-    let plannedNavigableRiverTileCount = 0;
-    let stampedNavigableRiverTileCount = 0;
-    let rejectedNavigableRiverTileCount = 0;
-    let extraNavigableRiverTileCount = 0;
-    let navigableRiverMismatchTileCount = 0;
-    let engineRiverTileCount = 0;
-    let engineNavigableRiverTileCount = 0;
-    let engineMinorRiverTileCount = 0;
-    let terrainNavigableRiverTileCount = 0;
-
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const idx = y * width + x;
-        const planned = plannedNavigableRiverMask[idx] === 1;
-        const terrain = this.getTerrainType(x, y) | 0;
-        const riverType = this.getRiverType(x, y) | 0;
-        const isRiver = this.isRiver(x, y);
-        const isNavigable = this.isNavigableRiver(x, y);
-        const hasNavigableTerrain = terrain === navigableRiverTerrain;
-        const isMinor = riverType === MOCK_RIVER_MINOR;
-
-        engineTerrain[idx] = terrain;
-        engineRiverType[idx] = riverType;
-        engineIsRiverMask[idx] = isRiver ? 1 : 0;
-        engineNavigableRiverMask[idx] = isNavigable ? 1 : 0;
-        engineMinorRiverMask[idx] = isMinor ? 1 : 0;
-        terrainNavigableRiverMask[idx] = hasNavigableTerrain ? 1 : 0;
-
-        if (planned) plannedNavigableRiverTileCount += 1;
-        if (isRiver) engineRiverTileCount += 1;
-        if (isNavigable) engineNavigableRiverTileCount += 1;
-        if (isMinor) engineMinorRiverTileCount += 1;
-        if (hasNavigableTerrain) terrainNavigableRiverTileCount += 1;
-
-        if (planned && hasNavigableTerrain) {
-          stampedNavigableRiverMask[idx] = 1;
-          stampedNavigableRiverTileCount += 1;
-        } else if (planned) {
-          rejectedNavigableRiverMask[idx] = 1;
-          rejectedNavigableRiverTileCount += 1;
-        } else if (hasNavigableTerrain) {
-          extraNavigableRiverTileCount += 1;
-        }
-
-        if ((planned ? 1 : 0) !== (hasNavigableTerrain ? 1 : 0)) {
-          navigableRiverMismatchMask[idx] = 1;
-          navigableRiverMismatchTileCount += 1;
-        }
-      }
-    }
-
-    return {
+    const surface = captureCurrentRiverSurface({
       width,
       height,
-      plannedNavigableRiverMask,
-      stampedNavigableRiverMask,
-      rejectedNavigableRiverMask,
-      engineTerrain,
-      engineRiverType,
-      engineIsRiverMask,
-      engineNavigableRiverMask,
-      engineMinorRiverMask,
-      terrainNavigableRiverMask,
-      navigableRiverMismatchMask,
-      plannedNavigableRiverTileCount,
-      stampedNavigableRiverTileCount,
-      rejectedNavigableRiverTileCount,
-      extraNavigableRiverTileCount,
-      navigableRiverMismatchTileCount,
-      engineRiverTileCount,
-      engineNavigableRiverTileCount,
-      engineMinorRiverTileCount,
-      terrainNavigableRiverTileCount,
-      minorRiverStampingSupported: true,
-      minorRiverUnsupportedReason:
+      noRiverType: MOCK_NO_RIVER,
+      minorRiverType: MOCK_RIVER_MINOR,
+      navigableRiverType: MOCK_RIVER_NAVIGABLE,
+      navigableRiverTerrainType: this.getTerrainTypeIndex("TERRAIN_NAVIGABLE_RIVER"),
+      typeReadbackSupported: true,
+      unsupportedReason:
         "MockAdapter mirrors Civ river-type metadata readback semantics; exact Hydrology minor-river parity remains diagnostic and must compare planned minor intent to engineMinorRiverMask.",
-    };
+      getTerrainType: (x, y) => this.getTerrainType(x, y),
+      getRiverType: (x, y) => this.getRiverType(x, y),
+      isRiver: (x, y) => this.isRiver(x, y),
+      isNavigableRiver: (x, y) => this.isNavigableRiver(x, y),
+    });
+    return deriveRiverProjectionFromCurrentSurface(
+      surface,
+      plannedNavigableRiverMask,
+      "MockAdapter"
+    );
   }
 
   generateLakes(width: number, height: number, tilesPerLake: number): void {
@@ -1131,7 +1105,7 @@ export class MockAdapter implements EngineAdapter {
         const idx = y * width + x;
         if (lakeMask[idx] !== 1) continue;
         plannedLakeTileCount += 1;
-        this.terrainTypes[idx] = this.coastTerrainId & 0xff;
+        this.terrainTypes[idx] = this.coastTerrainId;
         this.lakeMask[idx] = 1;
       }
     }
@@ -1233,14 +1207,14 @@ export class MockAdapter implements EngineAdapter {
         );
         if (adjacentCoastRegionId === null) continue;
         if (this.rngFn(4, "Shallow Water Scatter") !== 0) continue;
-        this.terrainTypes[idx] = coastTerrain & 0xff;
+        this.terrainTypes[idx] = coastTerrain;
         this.landmassRegionIds[idx] = adjacentCoastRegionId & 0xff;
       }
     }
   }
 
   private materializeValidationCoasts(width: number, height: number): void {
-    const nextTerrain = new Uint8Array(this.terrainTypes);
+    const nextTerrain = new Int32Array(this.terrainTypes);
     const nextLandmassRegionIds = new Uint8Array(this.landmassRegionIds);
     const nextValidationMaterializedCoastMask = new Uint8Array(
       this.validationMaterializedCoastMask
@@ -1254,7 +1228,7 @@ export class MockAdapter implements EngineAdapter {
           includeValidationMaterializedCoast: false,
         });
         if (adjacentCoastRegionId === null) continue;
-        nextTerrain[idx] = this.coastTerrainId & 0xff;
+        nextTerrain[idx] = this.coastTerrainId;
         nextLandmassRegionIds[idx] = adjacentCoastRegionId & 0xff;
         nextValidationMaterializedCoastMask[idx] = 1;
       }
@@ -1693,6 +1667,7 @@ export class MockAdapter implements EngineAdapter {
     this.validationMaterializedCoastMask.fill(0);
     this.mountainMask.fill(0);
     this.riverMask.fill(0);
+    this.riverTypes.fill(MOCK_NO_RIVER);
     this.landmassRegionIds.fill(0);
     this.mapSizeId = config.mapSizeId ?? 0;
     this.mapInfo = config.mapInfo ?? null;

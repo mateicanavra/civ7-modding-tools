@@ -74,7 +74,12 @@ export const PlaceResourcesStep = createStep(PlaceResourcesStepContract, {
     };
 
     const outcomes = runPlacementProductStep("placement.resources", emit, () =>
-      placeResourcesWithTypedOutcomes({ adapter: context.adapter, width, height, plan })
+      placeResourcesWithTypedOutcomes({
+        placeResourceIntent: (...args) => deps.engine.placeResourceIntent(context, ...args),
+        width,
+        height,
+        plan,
+      })
     );
     if (outcomes.reconciliation.rejectedCount > 0) {
       // Typed reconcile (D4): engine-legality rejections are recorded as
@@ -92,7 +97,7 @@ export const PlaceResourcesStep = createStep(PlaceResourcesStepContract, {
       }));
     }
     logResourcePlacementRuntimeTelemetry(
-      context.adapter.getResourceCatalog(),
+      deps.engine.getResourceCatalog(context),
       outcomes.summary,
       outcomes.reconciliation,
       outcomes.outcomes

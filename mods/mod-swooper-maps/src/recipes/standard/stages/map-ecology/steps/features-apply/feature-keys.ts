@@ -1,4 +1,3 @@
-import type { EngineAdapter } from "@civ7/adapter";
 import { FEATURE_PLACEMENT_KEYS, type FeatureKey } from "@civ7/map-policy";
 
 /**
@@ -13,12 +12,14 @@ export type FeatureKeyLookups = {
 /**
  * Builds lookup tables for feature keys to engine ids and reverse.
  */
-export function resolveFeatureKeyLookups(adapter: EngineAdapter): FeatureKeyLookups {
+export function resolveFeatureKeyLookups(
+  getFeatureTypeIndex: (key: FeatureKey) => number
+): FeatureKeyLookups {
   const byKey = {} as Record<FeatureKey, number>;
   const byEngineId = new Map<number, number>();
 
   FEATURE_PLACEMENT_KEYS.forEach((key, index) => {
-    const engineId = adapter.getFeatureTypeIndex(key);
+    const engineId = getFeatureTypeIndex(key);
     if (typeof engineId !== "number" || Number.isNaN(engineId) || engineId < 0) {
       throw new Error(`FeaturesStep: Missing engine feature for key "${key}".`);
     }

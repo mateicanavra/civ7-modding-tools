@@ -1,4 +1,4 @@
-import type { EngineAdapter } from "@civ7/adapter";
+import type { CurrentEngineTerrainClassification } from "../../../../current-engine-surface.js";
 
 /** Exact engine terrain and classification snapshot at one maintenance boundary. */
 export type TerrainValidationBoundarySnapshot = Readonly<{
@@ -15,32 +15,22 @@ export type TerrainValidationBoundarySnapshot = Readonly<{
  * authorize terrain policy changes by itself.
  */
 export function readTerrainValidationBoundarySnapshot(
-  adapter: EngineAdapter,
-  width: number,
-  height: number,
+  currentSurface: CurrentEngineTerrainClassification,
+  readAreaId: (x: number, y: number) => number,
   stage: string
 ): TerrainValidationBoundarySnapshot {
-  const size = width * height;
-  const terrain = new Int32Array(size);
-  const waterMask = new Uint8Array(size);
-  const lakeMask = new Uint8Array(size);
-  const areaId = new Int32Array(size);
-
+  const { width, height } = currentSurface;
+  const areaId = new Int32Array(width * height);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const index = y * width + x;
-      terrain[index] = adapter.getTerrainType(x, y) | 0;
-      waterMask[index] = adapter.isWater(x, y) ? 1 : 0;
-      lakeMask[index] = adapter.isLake(x, y) ? 1 : 0;
-      areaId[index] = adapter.getAreaId(x, y) | 0;
+      areaId[y * width + x] = readAreaId(x, y) | 0;
     }
   }
-
   return {
     stage,
-    terrain,
-    waterMask,
-    lakeMask,
+    terrain: Int32Array.from(currentSurface.terrain),
+    waterMask: Uint8Array.from(currentSurface.waterMask),
+    lakeMask: Uint8Array.from(currentSurface.lakeMask),
     areaId,
   };
 }

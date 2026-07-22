@@ -1,9 +1,14 @@
-import type { EngineAdapter } from "@civ7/adapter";
+import {
+  type AuthoredEngineAdapterKey,
+  type EngineAdapter,
+  isAuthoredEngineAdapterKey,
+} from "@civ7/adapter";
 import { assertMapSetupInternal, type MapSetup } from "@mapgen/core/map-setup.js";
 import { createLabelRng, type LabelRng } from "@mapgen/lib/rng/label.js";
 import type { StepTrace } from "@mapgen/trace/index.js";
 
 const mapContextAuthorities = new WeakMap<object, MapContextAuthority>();
+const mapContextAdapters = new WeakMap<object, EngineAdapter>();
 const mapContextArtifactStores = new WeakMap<object, Map<object, unknown>>();
 const mapContextRandomStates = new WeakMap<object, RandomState>();
 const mapContextExecutionStates = new WeakMap<object, MapContextExecutionState>();
@@ -79,17 +84,17 @@ function contextRootForRead(context: MapContext): MapContext {
  * Immutable setup and authored capabilities available during one MapGen invocation.
  *
  * `createMapContext` returns the executor-owned root. The executor supplies each authored step a
- * distinct facade with a fixed trace port; artifact and randomness capabilities accept only the
+ * distinct facade with a fixed trace port; artifact, engine, and randomness capabilities accept only the
  * currently active facade. Retaining one step's context therefore cannot borrow a later step's
  * artifact, random, or trace authority; dependency evidence is separately scoped to one effect
- * satisfaction call. The raw adapter is the current direct engine-integration surface and is not
- * occurrence-revoked. Artifacts remain behind module-bound readers and publishers, while the root
- * remains available to the executor and post-run validated observers.
+ * satisfaction call. The adapter remains private executor state; authored code can invoke only the
+ * methods named by its frozen step contract through occurrence-scoped dependency wrappers. Artifacts
+ * remain behind module-bound readers and publishers, while the root remains available to the executor
+ * and post-run validated observers.
  */
 export interface MapContext {
   readonly [mapContextBrand]: true;
   readonly setup: MapSetup;
-  readonly adapter: EngineAdapter;
   readonly trace: StepTrace;
 }
 
@@ -116,8 +121,9 @@ export function createMapContext(input: CreateMapContextInput): MapContext {
   }
 
   const artifactStore = new Map<object, unknown>();
-  const context = { adapter } as MapContext;
+  const context = {} as MapContext;
   mapContextAuthorities.set(context, Object.freeze({ kind: "root", root: context }));
+  mapContextAdapters.set(context, adapter);
   mapContextArtifactStores.set(context, artifactStore);
   mapContextRandomStates.set(
     context,
@@ -157,6 +163,7 @@ export function assertMapContextInternal(context: MapContext): void {
   const root = authority?.root;
   if (
     !root ||
+    !mapContextAdapters.has(root) ||
     !mapContextArtifactStores.has(root) ||
     !mapContextRandomStates.has(root) ||
     !mapContextExecutionStates.has(root)
@@ -222,7 +229,7 @@ export function enterMapContextStepInternal(
       `MapGen context cannot enter step "${stepId}" while step "${state.activeStep.stepId}" is active.`
     );
   }
-  const stepContext = { adapter: context.adapter } as MapContext;
+  const stepContext = {} as MapContext;
   Object.defineProperties(stepContext, {
     [mapContextBrand]: {
       value: true,
@@ -281,6 +288,47 @@ export function getActiveMapContextStepIdInternal(context: MapContext): string |
   return state?.status === "running" && state.activeStep?.context === context
     ? authority.stepId
     : undefined;
+}
+
+/**
+ * @internal Invokes one declared adapter method through the exact active step occurrence that owns
+ * the wrapper. The adapter identity never crosses this boundary.
+ */
+export function invokeMapContextAdapterMethodInternal(
+  context: MapContext,
+  boundContext: MapContext,
+  consumerStepId: string,
+  key: AuthoredEngineAdapterKey,
+  args: readonly unknown[]
+): unknown {
+  if (!isAuthoredEngineAdapterKey(key)) {
+    throw new Error(`Engine adapter method "${String(key)}" is not admitted for authored use.`);
+  }
+  if (context !== boundContext || getActiveMapContextStepIdInternal(context) !== consumerStepId) {
+    throw new Error(
+      `Engine capability for step "${consumerStepId}" requires that step's exact active context.`
+    );
+  }
+  const root = activeStepRoot(context);
+  const adapter = mapContextAdapters.get(root);
+  if (!adapter) {
+    throw new Error("MapGen engine capability requires a context returned by createMapContext.");
+  }
+  const method = Reflect.get(adapter, key);
+  if (typeof method !== "function") {
+    throw new TypeError(`Engine adapter method "${key}" is unavailable or not callable.`);
+  }
+  return Reflect.apply(method, adapter, args);
+}
+
+/** @internal Verifies one executor-owned effect without exposing adapter authority to authored code. */
+export function verifyMapContextEffectInternal(context: MapContext, effectId: string): boolean {
+  assertRootMapContextInternal(context);
+  const adapter = mapContextAdapters.get(context);
+  if (!adapter) {
+    throw new Error("MapGen effect verification requires a context returned by createMapContext.");
+  }
+  return Reflect.apply(adapter.verifyEffect, adapter, [effectId]);
 }
 
 /**

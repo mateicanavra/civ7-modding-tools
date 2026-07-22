@@ -72,7 +72,7 @@ function colorForKey(key: FeatureKey): VizLayerCategory["color"] {
  */
 export function buildFeatureTypeVizCategories(
   featureEngineIdsByKey: Readonly<Record<FeatureKey, number>>,
-  observedFeatureTypes?: Int16Array | ReadonlyArray<number>
+  observedFeatureTypes?: Int32Array | ReadonlyArray<number>
 ): readonly [NumericVizLayerCategory, ...NumericVizLayerCategory[]] {
   const byEngineId = new Map<number, FeatureKey[]>();
 
@@ -128,10 +128,10 @@ export type FeaturesApplyVizEvidence = Readonly<{
   floodplainAppliedMask: Uint8Array;
   floodplainRejectedMask: Uint8Array;
   applied: number;
-  featureType: Int16Array;
+  featureType: Int32Array;
   featureEngineIdsByKey: Readonly<Record<FeatureKey, number>>;
   topographyLandMask?: Uint8Array;
-  engine?: Readonly<{ terrain: Uint8Array; landMask: Uint8Array }>;
+  engine?: Readonly<{ terrain: Int32Array; landMask: Uint8Array }>;
 }>;
 
 /**
@@ -207,7 +207,7 @@ export function buildFeaturesApplyVizProjections(
     dataTypeKey: "map.ecology.featureType",
     spaceId: "tile.hexOddQ",
     dims: dimensions,
-    field: { format: "i16", values: result.featureType },
+    field: { format: "i32", values: result.featureType },
     meta: defineStandardVizCategoryMeta("map.ecology.featureType", featureTypeCategories, {
       label: "Feature Type (Engine)",
       group: "Map / Ecology (Engine)",
@@ -221,7 +221,7 @@ export function buildFeaturesApplyVizProjections(
       dataTypeKey: "map.ecology.engineTerrain",
       spaceId: "tile.hexOddQ",
       dims: dimensions,
-      field: { format: "u8", values: result.engine.terrain },
+      field: { format: "i32", values: result.engine.terrain },
       meta: defineStandardVizMeta("map.ecology.engineTerrain", "category.distinct", {
         label: "Terrain (Engine After Features)",
         group: "Map / Ecology (Engine)",

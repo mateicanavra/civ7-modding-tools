@@ -16,6 +16,14 @@ import { artifactModules as placementArtifactModules } from "../../artifacts/ind
  */
 export const DerivePlacementInputsStepContract = defineStep({
   id: "derive-placement-inputs",
+  engine: [
+    "getMapSizeId",
+    "lookupMapInfo",
+    "getNaturalWonderCatalog",
+    "getTerrainType",
+    "getBiomeType",
+    "getFeatureType",
+  ] as const,
   requires: [
     MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted,
     STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied,
@@ -28,8 +36,6 @@ export const DerivePlacementInputsStepContract = defineStep({
       hydrologyHydrographyArtifacts.riverNetworkMetrics,
       hydrologyHydrographyArtifacts.lakePlan,
       ecologyArtifacts.biomeClassification,
-      ecologyArtifacts.biomeBindings,
-      ecologyArtifacts.featureEngineSnapshot,
       ecologyArtifacts.pedology,
     ],
     provides: [

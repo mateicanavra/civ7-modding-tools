@@ -24,7 +24,8 @@ export const PlaceDiscoveriesStep = createStep(PlaceDiscoveriesStepContract, {
 
     const outcomes = runPlacementProductStep("placement.discoveries", emit, () =>
       placeOfficialDiscoveries({
-        adapter: context.adapter,
+        generateOfficialDiscoveries: (...args) =>
+          deps.engine.generateOfficialDiscoveries(context, ...args),
         width,
         height,
         startPositions,

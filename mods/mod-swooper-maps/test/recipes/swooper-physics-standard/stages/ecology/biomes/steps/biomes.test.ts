@@ -80,7 +80,12 @@ describe("biomes step", () => {
         buildStepTestDependencies(biomesStep)
       );
 
-      plotBiomesStep.run(stepContext, {}, {}, buildStepTestDependencies(plotBiomesStep));
+      plotBiomesStep.run(
+        stepContext,
+        {},
+        {},
+        buildStepTestDependencies(plotBiomesStep, stepContext)
+      );
     });
 
     const bindings = readValidatedArtifact(ctx, ecologyArtifactModules.biomeBindings);

@@ -1,6 +1,9 @@
-import { snapshotEngineHeightfield } from "@civ7/adapter/mapgen";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import type { VizProjection } from "@swooper/mapgen-viz";
+import {
+  captureEngineHeightfield,
+  engineLandMaskFromWaterMask,
+} from "../../../../current-engine-surface.js";
 import { defineStandardVizMeta } from "../../../../viz.js";
 import { assertWaterDriftWithinPolicy } from "../../../../water-surface-parity.js";
 import { BuildElevationStepContract } from "./config.js";
@@ -34,16 +37,27 @@ export const BuildElevationStep = createStep(BuildElevationStepContract, {
      * fails instead of restoring terrain after the fact; terrain restoration cannot
      * repair engine-owned cliff/elevation state.
      */
-    context.adapter.recalculateAreas();
-    context.adapter.buildElevation();
-    context.adapter.recalculateAreas();
-    assertWaterDriftWithinPolicy(context, expectedLandMask, "map-elevation/build-elevation");
+    deps.engine.recalculateAreas(context);
+    deps.engine.buildElevation(context);
+    deps.engine.recalculateAreas(context);
 
-    const engine = snapshotEngineHeightfield(context.adapter);
+    const engine = captureEngineHeightfield(context.setup.dimensions, {
+      getTerrainType: (x, y) => deps.engine.getTerrainType(context, x, y),
+      getElevation: (x, y) => deps.engine.getElevation(context, x, y),
+      isWater: (x, y) => deps.engine.isWater(context, x, y),
+    });
+    const engineLandMask = engineLandMaskFromWaterMask(engine.waterMask);
+    assertWaterDriftWithinPolicy(
+      context.setup.dimensions,
+      context.trace,
+      engine.waterMask,
+      expectedLandMask,
+      "map-elevation/build-elevation"
+    );
     const driftMask = new Uint8Array(width * height);
     let mismatchCount = 0;
     for (let i = 0; i < driftMask.length; i++) {
-      const mismatched = (expectedLandMask[i] ?? 0) !== (engine.landMask[i] ?? 0);
+      const mismatched = (expectedLandMask[i] ?? 0) !== (engineLandMask[i] ?? 0);
       if (mismatched) {
         driftMask[i] = 1;
         mismatchCount += 1;
@@ -54,7 +68,7 @@ export const BuildElevationStep = createStep(BuildElevationStepContract, {
       stage: "map-elevation/build-elevation",
       width,
       height,
-      landMask: engine.landMask,
+      landMask: engineLandMask,
       terrain: engine.terrain,
       elevation: engine.elevation,
     });
@@ -69,7 +83,11 @@ export const BuildElevationStep = createStep(BuildElevationStepContract, {
     return {
       physicsElevation: topography.elevation,
       expectedLandMask,
-      engine,
+      engine: {
+        landMask: engineLandMask,
+        terrain: engine.terrain,
+        elevation: engine.elevation,
+      },
       driftMask,
     };
   },
