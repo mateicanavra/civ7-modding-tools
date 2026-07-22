@@ -42,7 +42,7 @@ describe("standalone compiler distribution", () => {
       upstreamGithubAssetId: 484_324_324,
       distributionGithubAssetId: 485_616_636,
       distributionUrl:
-        "https://api.github.com/repos/mateicanavra/civ7-modding-tools/releases/assets/485616636",
+        "https://github.com/mateicanavra/civ7-modding-tools/releases/download/habitat-bun-compiler-5b98630ac045622ce9ddfe0b53a2c4f3a91f26c4/bun-darwin-aarch64.zip",
       archiveFilename: "bun-darwin-aarch64.zip",
       archiveSha256: "c286d4eef8489733d0b8a1a5a541cfbc4e96a20e5a6b737fc4ae06cc001fd01a",
       executableRelativePath: "bun-darwin-aarch64/bun",
