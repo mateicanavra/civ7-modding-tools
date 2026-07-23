@@ -47,7 +47,7 @@ function defaultEnvelope<const Strategy extends string>(
 
 const BalancedSoilClassificationPublicSchema = profileVariant(
   "balanced",
-  ecologyOps.classifyPedology.strategies.balanced,
+  ecologyOps.classifyPedology.strategies.balanced.config,
   "Balanced soil classification driven by climate, relief, sediment, and bedrock."
 );
 
@@ -56,12 +56,12 @@ const SoilClassificationPublicSchema = Type.Union(
     BalancedSoilClassificationPublicSchema,
     profileVariant(
       "coastalShelf",
-      ecologyOps.classifyPedology.strategies["coastal-shelf"],
+      ecologyOps.classifyPedology.strategies["coastal-shelf"].config,
       "Soil classification that emphasizes coastal-shelf fertility patterns."
     ),
     profileVariant(
       "orogenyBoosted",
-      ecologyOps.classifyPedology.strategies["orogeny-boosted"],
+      ecologyOps.classifyPedology.strategies["orogeny-boosted"].config,
       "Soil classification that emphasizes orogeny-influenced fertility patterns."
     ),
   ],
@@ -86,7 +86,7 @@ export const EcologyPedologyPublicSchema = Type.Object(
   }
 );
 
-const biomeStrategy = ecologyOps.classifyBiomes.strategies["biophysical-gaussian"];
+const biomeStrategy = ecologyOps.classifyBiomes.strategies["biophysical-gaussian"].config;
 const BiomeClassificationPublicSchema = Type.With(biomeStrategy, {
   description:
     "Controls temperature, moisture, aridity, vegetation density, and deterministic biome edge smoothing.",
@@ -105,11 +105,11 @@ export const EcologyBiomesPublicSchema = Type.Object(
 const SubstrateScoringPublicSchema = Type.Object(
   {
     vegetationGrowth: requiredPublicSchema(
-      ecologyOps.computeVegetationSubstrate.strategies["bioclimatic-substrate"],
+      ecologyOps.computeVegetationSubstrate.strategies["bioclimatic-substrate"].config,
       "Controls the normalized substrate fields used for vegetation growth."
     ),
     featureHabitats: requiredPublicSchema(
-      ecologyOps.computeFeatureSubstrate.strategies.hydromorphic,
+      ecologyOps.computeFeatureSubstrate.strategies.hydromorphic.config,
       "Controls reusable feature-family habitat substrate fields."
     ),
   },
@@ -123,23 +123,23 @@ const SubstrateScoringPublicSchema = Type.Object(
 const WetlandScoringPublicSchema = Type.Object(
   {
     marsh: requiredPublicSchema(
-      ecologyOps.scoreWetMarsh.strategies["temperate-hydromorphic"],
+      ecologyOps.scoreWetMarsh.strategies["temperate-hydromorphic"].config,
       "Controls marsh suitability scoring."
     ),
     tundraBog: requiredPublicSchema(
-      ecologyOps.scoreWetTundraBog.strategies["cold-hydromorphic"],
+      ecologyOps.scoreWetTundraBog.strategies["cold-hydromorphic"].config,
       "Controls tundra-bog suitability scoring."
     ),
     mangrove: requiredPublicSchema(
-      ecologyOps.scoreWetMangrove.strategies["warm-intertidal"],
+      ecologyOps.scoreWetMangrove.strategies["warm-intertidal"].config,
       "Controls mangrove suitability scoring."
     ),
     oasis: requiredPublicSchema(
-      ecologyOps.scoreWetOasis.strategies["warm-arid-waterpoint"],
+      ecologyOps.scoreWetOasis.strategies["warm-arid-waterpoint"].config,
       "Controls oasis suitability scoring."
     ),
     wateringHole: requiredPublicSchema(
-      ecologyOps.scoreWetWateringHole.strategies["arid-waterpoint"],
+      ecologyOps.scoreWetWateringHole.strategies["arid-waterpoint"].config,
       "Controls watering-hole suitability scoring."
     ),
   },
@@ -153,19 +153,19 @@ const WetlandScoringPublicSchema = Type.Object(
 const ReefScoringPublicSchema = Type.Object(
   {
     warmReef: requiredPublicSchema(
-      ecologyOps.scoreReef.strategies["warm-coastal-shelf"],
+      ecologyOps.scoreReef.strategies["warm-coastal-shelf"].config,
       "Controls warm-reef suitability scoring."
     ),
     coldReef: requiredPublicSchema(
-      ecologyOps.scoreColdReef.strategies["cold-shelf"],
+      ecologyOps.scoreColdReef.strategies["cold-shelf"].config,
       "Controls cold-reef suitability scoring."
     ),
     atoll: requiredPublicSchema(
-      ecologyOps.scoreReefAtoll.strategies["warm-ocean-bank"],
+      ecologyOps.scoreReefAtoll.strategies["warm-ocean-bank"].config,
       "Controls atoll suitability scoring."
     ),
     lotus: requiredPublicSchema(
-      ecologyOps.scoreReefLotus.strategies["warm-shallow-lake"],
+      ecologyOps.scoreReefLotus.strategies["warm-shallow-lake"].config,
       "Controls lotus suitability scoring."
     ),
   },
@@ -179,7 +179,7 @@ const ReefScoringPublicSchema = Type.Object(
 const IceScoringPublicSchema = Type.Object(
   {
     ice: requiredPublicSchema(
-      ecologyOps.scoreIce.strategies["thermal-elevation"],
+      ecologyOps.scoreIce.strategies["thermal-elevation"].config,
       "Controls ice suitability scoring."
     ),
   },
@@ -190,13 +190,13 @@ const IceScoringPublicSchema = Type.Object(
 );
 
 const IcePlanningPublicSchema = requiredPublicSchema(
-  ecologyOps.planIce.strategies["score-threshold"],
+  ecologyOps.planIce.strategies["score-threshold"].config,
   "Controls the freeze-score threshold that admits ice placement intent."
 );
 
 const HabitatReefPlanningPublicSchema = profileVariant(
   "habitat",
-  ecologyOps.planReefs.strategies.habitat,
+  ecologyOps.planReefs.strategies.habitat.config,
   "Baseline reef habitat planning."
 );
 
@@ -205,7 +205,7 @@ const ReefPlanningPublicSchema = Type.Union(
     HabitatReefPlanningPublicSchema,
     profileVariant(
       "shippingLanes",
-      ecologyOps.planReefs.strategies["diagonal-stride"],
+      ecologyOps.planReefs.strategies["diagonal-stride"].config,
       "Diagonal reef spacing for the Shipping Lanes map profile."
     ),
   ],
@@ -219,19 +219,19 @@ const ReefPlanningPublicSchema = Type.Union(
 const PlotEffectScoringPublicSchema = Type.Object(
   {
     snow: requiredPublicSchema(
-      ecologyOps.scorePlotEffectsSnow.strategies["cold-elevation"],
+      ecologyOps.scorePlotEffectsSnow.strategies["cold-elevation"].config,
       "Controls snow plot-effect suitability scoring."
     ),
     sand: requiredPublicSchema(
-      ecologyOps.scorePlotEffectsSand.strategies["arid-thermal"],
+      ecologyOps.scorePlotEffectsSand.strategies["arid-thermal"].config,
       "Controls sand plot-effect suitability scoring."
     ),
     burned: requiredPublicSchema(
-      ecologyOps.scorePlotEffectsBurned.strategies["arid-thermal"],
+      ecologyOps.scorePlotEffectsBurned.strategies["arid-thermal"].config,
       "Controls burned plot-effect suitability scoring."
     ),
     jungle: requiredPublicSchema(
-      ecologyOps.scorePlotEffectsJungle.strategies["hot-wet-dense"],
+      ecologyOps.scorePlotEffectsJungle.strategies["hot-wet-dense"].config,
       "Controls jungle plot-effect suitability scoring."
     ),
   },
@@ -243,7 +243,7 @@ const PlotEffectScoringPublicSchema = Type.Object(
 );
 
 const PlotEffectCoveragePublicSchema = requiredPublicSchema(
-  ecologyOps.planPlotEffects.strategies["ranked-coverage"],
+  ecologyOps.planPlotEffects.strategies["ranked-coverage"].config,
   "Controls snow, sand, burned, and jungle plot-effect coverage and thresholds."
 );
 
@@ -260,15 +260,15 @@ export const EcologyFeaturesPublicSchema = Type.Object(
     icePlanning: IcePlanningPublicSchema,
     reefPlanning: ReefPlanningPublicSchema,
     wetlandPlanning: requiredPublicSchema(
-      ecologyOps.planWetlands.strategies["habitat-confidence"],
+      ecologyOps.planWetlands.strategies["habitat-confidence"].config,
       "Controls wetland placement planning."
     ),
     floodplainPlanning: requiredPublicSchema(
-      ecologyOps.planFloodplains.strategies["highest-confidence"],
+      ecologyOps.planFloodplains.strategies["highest-confidence"].config,
       "Controls floodplain placement planning."
     ),
     vegetationPlanning: requiredPublicSchema(
-      ecologyOps.planVegetation.strategies["habitat-confidence"],
+      ecologyOps.planVegetation.strategies["habitat-confidence"].config,
       "Controls vegetation placement planning."
     ),
     plotEffectScoring: PlotEffectScoringPublicSchema,

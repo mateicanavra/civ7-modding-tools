@@ -110,7 +110,7 @@ const OtherInputAdmissionContract = defineOp({
   id: "test/input-admission-types-other",
   input: InputAdmissionContract.input,
   output: InputAdmissionContract.output,
-  strategies: InputAdmissionContract.strategies,
+  strategies: [InputAdmissionContract.strategies.admitted],
 });
 const otherStrategy = createStrategy(OtherInputAdmissionContract, "admitted", {
   run: () => 0,

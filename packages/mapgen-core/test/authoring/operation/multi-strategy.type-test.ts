@@ -1,8 +1,120 @@
 import type { OpTypeBagOf, Static } from "@mapgen/authoring/index.js";
-import { defineOp, Type } from "@mapgen/authoring/index.js";
+import {
+  createOp,
+  createStrategy,
+  defineOp,
+  defineStrategy,
+  Type,
+} from "@mapgen/authoring/index.js";
 import type { IsEqual, IsStringLiteral } from "type-fest";
 
 type Expect<T extends true> = T;
+
+const CanonicalMeasured = defineStrategy({
+  id: "measured",
+  config: Type.Object({ sampleCount: Type.Integer() }, { additionalProperties: false }),
+});
+const CanonicalEstimated = defineStrategy({
+  id: "estimated",
+  config: Type.Object({ bias: Type.Number() }, { additionalProperties: false }),
+});
+const widenedStrategyId: string = "widened";
+defineStrategy({
+  // @ts-expect-error Strategy identities must remain semantic string literals.
+  id: widenedStrategyId,
+  config: Type.Object({}, { additionalProperties: false }),
+});
+const ambiguousStrategyId: "measured" | "estimated" =
+  Math.random() > 0.5 ? "measured" : "estimated";
+defineStrategy({
+  // @ts-expect-error One strategy contract owns one exact semantic identity.
+  id: ambiguousStrategyId,
+  config: Type.Object({}, { additionalProperties: false }),
+});
+const patternedStrategyId: `measured-${string}` = "measured-runtime";
+defineStrategy({
+  // @ts-expect-error Open template identities cannot define a finite strategy key.
+  id: patternedStrategyId,
+  config: Type.Object({}, { additionalProperties: false }),
+});
+
+defineOp({
+  kind: "compute",
+  id: "test/duplicate-canonical-strategy-contracts",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Number(),
+  // @ts-expect-error The legacy overload cannot admit canonical strategy contract tuples.
+  defaultStrategy: "measured",
+  // @ts-expect-error Canonical strategy contract tuples cannot repeat an identity.
+  strategies: [CanonicalMeasured, CanonicalMeasured, CanonicalEstimated],
+});
+
+const CanonicalOp = defineOp({
+  kind: "compute",
+  id: "test/canonical-strategy-types",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Number(),
+  defaultStrategy: "measured",
+  strategies: [CanonicalMeasured, CanonicalEstimated],
+});
+type CanonicalStrategyIds = keyof (typeof CanonicalOp)["strategies"] & string;
+export type CanonicalStrategyIdsAreExact = Expect<
+  IsEqual<CanonicalStrategyIds, "measured" | "estimated">
+>;
+export type CanonicalMeasuredConfigIsExact = Expect<
+  IsEqual<Static<(typeof CanonicalOp)["strategies"]["measured"]["config"]>, { sampleCount: number }>
+>;
+const measuredImplementation = createStrategy(CanonicalOp, CanonicalMeasured, {
+  run: (_input, config) => config.sampleCount,
+});
+const estimatedImplementation = createStrategy(CanonicalOp, CanonicalEstimated, {
+  run: (_input, config) => config.bias,
+});
+createOp(CanonicalOp, { strategies: [estimatedImplementation, measuredImplementation] });
+// @ts-expect-error Canonical implementation tuples must cover every declared strategy identity.
+createOp(CanonicalOp, { strategies: [measuredImplementation] });
+createOp(CanonicalOp, {
+  // @ts-expect-error Canonical implementation tuples cannot repeat a strategy identity.
+  strategies: [measuredImplementation, measuredImplementation, estimatedImplementation],
+});
+
+const CanonicalSole = defineOp({
+  kind: "compute",
+  id: "test/canonical-sole-strategy",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Number(),
+  strategies: [CanonicalMeasured],
+});
+export type CanonicalSoleDefaultIsInferred = Expect<
+  IsEqual<(typeof CanonicalSole)["defaultStrategy"], "measured">
+>;
+
+defineOp({
+  kind: "compute",
+  id: "test/canonical-redundant-sole-default",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Number(),
+  // @ts-expect-error A sole canonical strategy is necessarily the default.
+  defaultStrategy: "measured",
+  // @ts-expect-error The legacy overload cannot admit canonical strategy contracts.
+  strategies: [CanonicalMeasured],
+});
+
+defineOp({
+  kind: "compute",
+  id: "test/canonical-missing-multi-default",
+  input: Type.Object({}, { additionalProperties: false }),
+  output: Type.Number(),
+  // @ts-expect-error A canonical multi-strategy operation must declare its semantic default.
+  strategies: [CanonicalMeasured, CanonicalEstimated],
+});
+
+const ForeignStrategy = defineStrategy({
+  id: "foreign",
+  config: Type.Object({}, { additionalProperties: false }),
+});
+// @ts-expect-error Implementations bind only to strategy contracts composed into the operation.
+createStrategy(CanonicalOp, ForeignStrategy, { run: () => 0 });
 
 const SoleStrategyOp = defineOp({
   kind: "compute",

@@ -7,6 +7,7 @@ import {
   createStrategy,
   defineOp,
   defineStep,
+  defineStrategy,
   OperationInputAdmissionError,
   runtimeOp,
   TypedArraySchemas,
@@ -17,6 +18,200 @@ import { bindCompileOps, bindRuntimeOps } from "../../../src/authoring/bindings.
 const EmptyKnobsSchema = Type.Object({}, { additionalProperties: false });
 
 describe("operation authoring", () => {
+  it("composes canonical strategy leaves and derives tuple implementation identities", () => {
+    const measuredSchema = Type.Object(
+      { sampleCount: Type.Integer({ default: 3 }) },
+      { additionalProperties: false }
+    );
+    const measured = defineStrategy({ id: "measured", config: measuredSchema });
+    const estimated = defineStrategy({
+      id: "estimated",
+      config: Type.Object({ bias: Type.Integer({ default: 1 }) }, { additionalProperties: false }),
+    });
+    const contract = defineOp({
+      kind: "compute",
+      id: "test/canonical-strategy-contracts",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.String(),
+      defaultStrategy: "measured",
+      strategies: [measured, estimated],
+    });
+    const measuredImpl = createStrategy(contract, measured, {
+      run: (_input, config) => `measured:${config.sampleCount}`,
+    });
+    const estimatedImpl = createStrategy(contract, estimated, {
+      run: (_input, config) => `estimated:${config.bias}`,
+    });
+    const operation = createOp(contract, { strategies: [estimatedImpl, measuredImpl] });
+
+    expect(contract.strategies.measured).toBe(measured);
+    expect(contract.strategies.measured.config).not.toBe(measuredSchema);
+    expect(Object.isFrozen(measuredSchema)).toBe(false);
+    expect(() =>
+      Type.With(measured.config, { description: "Composable strategy configuration." })
+    ).not.toThrow();
+    expect(operation.run({}, operation.defaultConfig)).toBe("measured:3");
+    expect(() =>
+      createOp(contract, { strategies: [measuredImpl, measuredImpl, estimatedImpl] } as never)
+    ).toThrow('duplicate strategy implementation "measured"');
+    expect(() => defineOp({ ...contract, strategies: [measured, measured] } as never)).toThrow(
+      'duplicate strategy "measured"'
+    );
+  });
+
+  it("captures canonical contract and implementation tuples once without property reads", () => {
+    const measured = defineStrategy({
+      id: "measured",
+      config: Type.Object({ samples: Type.Integer({ default: 2 }) }),
+    });
+    const estimated = defineStrategy({
+      id: "estimated",
+      config: Type.Object({ bias: Type.Integer({ default: 1 }) }),
+    });
+    let contractLengthReads = 0;
+    const contractStrategies = new Proxy([measured, estimated] as const, {
+      get(target, key, receiver) {
+        if (key === "length") {
+          contractLengthReads += 1;
+          return contractLengthReads === 1 ? 2 : 1;
+        }
+        return Reflect.get(target, key, receiver);
+      },
+    });
+    const contract = defineOp({
+      kind: "compute",
+      id: "test/descriptor-captured-strategy-contracts",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.String(),
+      defaultStrategy: "estimated",
+      strategies: contractStrategies,
+    });
+
+    expect(contractLengthReads).toBe(0);
+    expect(Object.keys(contract.strategies)).toEqual(["measured", "estimated"]);
+    expect(contract.defaultStrategy).toBe("estimated");
+
+    const measuredImpl = createStrategy(contract, measured, {
+      run: (_input, config) => `measured:${config.samples}`,
+    });
+    const estimatedImpl = createStrategy(contract, estimated, {
+      run: (_input, config) => `estimated:${config.bias}`,
+    });
+    let implementationLengthReads = 0;
+    const implementations = new Proxy([measuredImpl, estimatedImpl] as const, {
+      get(target, key, receiver) {
+        if (key === "length") {
+          implementationLengthReads += 1;
+          return implementationLengthReads === 1 ? 2 : 1;
+        }
+        return Reflect.get(target, key, receiver);
+      },
+    });
+    const operation = createOp(contract, { strategies: implementations });
+
+    expect(implementationLengthReads).toBe(0);
+    expect(operation.run({}, operation.defaultConfig)).toBe("estimated:1");
+  });
+
+  it("refuses extra tuple keys and indexed accessors without invoking them", () => {
+    const measured = defineStrategy({
+      id: "measured",
+      config: Type.Object({}, { additionalProperties: false }),
+    });
+    const contractTuple = [measured];
+    Object.defineProperty(contractTuple, "shadow", {
+      enumerable: true,
+      value: measured,
+    });
+    expect(() =>
+      defineOp({
+        kind: "compute",
+        id: "test/extra-contract-tuple-key",
+        input: Type.Object({}, { additionalProperties: false }),
+        output: Type.String(),
+        strategies: contractTuple,
+      } as never)
+    ).toThrow("dense array without extra keys");
+
+    const contract = defineOp({
+      kind: "compute",
+      id: "test/exact-implementation-tuple-shape",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.String(),
+      strategies: [measured],
+    });
+    const descriptor = createStrategy(contract, measured, { run: () => "measured" });
+    const implementationTuple = [descriptor];
+    Object.defineProperty(implementationTuple, "shadow", {
+      enumerable: true,
+      value: descriptor,
+    });
+    expect(() => createOp(contract, { strategies: implementationTuple as never })).toThrow(
+      "dense array without extra keys"
+    );
+
+    let accessorReads = 0;
+    const accessorTuple = [measured];
+    Object.defineProperty(accessorTuple, "0", {
+      enumerable: true,
+      get() {
+        accessorReads += 1;
+        return measured;
+      },
+    });
+    expect(() =>
+      defineOp({
+        kind: "compute",
+        id: "test/accessor-contract-tuple-entry",
+        input: Type.Object({}, { additionalProperties: false }),
+        output: Type.String(),
+        strategies: accessorTuple,
+      } as never)
+    ).toThrow("must be an enumerable data property");
+    expect(accessorReads).toBe(0);
+  });
+
+  it("refuses malformed, reserved, and structurally forged strategy contracts", () => {
+    const config = Type.Object({}, { additionalProperties: false });
+    expect(() => defineStrategy({ id: "default", config })).toThrow(
+      'strategy id "default" must be replaced by a semantic identity'
+    );
+    expect(() => defineStrategy({ id: "measured", config, extra: true } as never)).toThrow(
+      "strategy contract definition must own only id and config"
+    );
+    expect(() =>
+      defineOp({
+        kind: "compute",
+        id: "test/forged-strategy-contract",
+        input: Type.Object({}, { additionalProperties: false }),
+        output: Type.Number(),
+        strategies: [{ id: "measured", config }],
+      } as never)
+    ).toThrow("strategy contract must be created by defineStrategy");
+  });
+
+  it("binds implementations to the exact strategy leaf composed into the operation", () => {
+    const selected = defineStrategy({
+      id: "measured",
+      config: Type.Object({}, { additionalProperties: false }),
+    });
+    const lookalike = defineStrategy({
+      id: "measured",
+      config: Type.Object({}, { additionalProperties: false }),
+    });
+    const contract = defineOp({
+      kind: "compute",
+      id: "test/exact-strategy-leaf",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.Number(),
+      strategies: [selected],
+    });
+
+    expect(() => createStrategy(contract, lookalike as never, { run: () => 0 })).toThrow(
+      "is not the exact leaf composed into operation test/exact-strategy-leaf"
+    );
+  });
+
   it("infers a sole semantic strategy and materializes its TypeBox defaults", () => {
     const contract = defineOp({
       kind: "compute",
@@ -182,7 +377,7 @@ describe("operation authoring", () => {
 
     expect(contract.input).not.toBe(input);
     expect(contract.output).not.toBe(output);
-    expect(contract.strategies.measured).not.toBe(strategy);
+    expect(contract.strategies.measured.config).not.toBe(strategy);
     expect(contract.input.properties.first).toBe(contract.input.properties.second);
     expect(Object.isFrozen(contract)).toBe(true);
     expect(Object.isFrozen(contract.input.properties.first)).toBe(false);
@@ -191,11 +386,11 @@ describe("operation authoring", () => {
     expect(Object.isFrozen(output)).toBe(false);
     expect(Object.isFrozen(strategy)).toBe(false);
 
-    const annotated = Type.With(contract.strategies.measured, {
+    const annotated = Type.With(contract.strategies.measured.config, {
       description: "A consumer-owned view over the canonical strategy schema.",
     });
     expect(annotated.description).toBe("A consumer-owned view over the canonical strategy schema.");
-    expect(Reflect.get(contract.strategies.measured, "description")).toBe(
+    expect(Reflect.get(contract.strategies.measured.config, "description")).toBe(
       "Original strategy schema."
     );
 
@@ -388,7 +583,7 @@ describe("operation authoring", () => {
     const op = createOp(contract, { strategies: { single: strategy } });
 
     expect(strategy).not.toHaveProperty("run");
-    expect(op.strategies.single.config).toBe(contract.strategies.single);
+    expect(op.strategies.single.config).toBe(contract.strategies.single.config);
     expect(
       op.run(
         {

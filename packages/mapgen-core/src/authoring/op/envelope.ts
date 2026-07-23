@@ -1,6 +1,9 @@
 import { type TSchema, Type } from "typebox";
 import { Value } from "typebox/value";
+import { isCanonicalStrategyContract, type StrategyContractAny } from "./strategy-contract.js";
 import type { StrategyConfigSchemas } from "./types.js";
+
+type StrategySchemaSource = Readonly<Record<string, TSchema | StrategyContractAny>>;
 
 export type OpEnvelopeBuildResult = Readonly<{
   schema: TSchema;
@@ -45,9 +48,15 @@ function buildEnvelope(
 /** Builds the closed strategy envelope and materializes one explicitly selected default. */
 export function buildOpEnvelopeSchema(
   contractId: string,
-  strategySchemas: StrategyConfigSchemas,
+  strategySource: StrategySchemaSource,
   defaultStrategy: string
 ): OpEnvelopeBuildResult {
+  const strategySchemas = Object.fromEntries(
+    Object.entries(strategySource).map(([id, value]) => [
+      id,
+      isCanonicalStrategyContract(value) ? value.config : value,
+    ])
+  ) as StrategyConfigSchemas;
   if (typeof defaultStrategy !== "string" || defaultStrategy.length === 0) {
     throw new Error(`op(${contractId}) requires an explicit default strategy`);
   }

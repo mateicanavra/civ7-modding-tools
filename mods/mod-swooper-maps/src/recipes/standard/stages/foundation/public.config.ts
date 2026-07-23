@@ -6,57 +6,57 @@ function publicStrategySchema<T extends TSchema>(schema: T, description: string)
 }
 
 const MeshResolutionSchema = publicStrategySchema(
-  foundation.mesh.ops.computeMesh.strategies["jittered-delaunay"],
+  foundation.mesh.ops.computeMesh.strategies["jittered-delaunay"].config,
   "Mesh resolution controls. These fields set the generated tectonic mesh density and relaxation behavior; cellCount is derived inside mesh execution and is not authored."
 );
 
 const MantleSourcesSchema = publicStrategySchema(
-  foundation.mantle.ops.computeMantlePotential.strategies["poisson-source-field"],
+  foundation.mantle.ops.computeMantlePotential.strategies["poisson-source-field"].config,
   "Mantle source controls. These fields shape deterministic upwelling/downwelling sources that drive plate forcing and tectonic activity."
 );
 
 const MantleForcingSchema = publicStrategySchema(
-  foundation.mantle.ops.computeMantleForcing.strategies["potential-gradient"],
+  foundation.mantle.ops.computeMantleForcing.strategies["potential-gradient"].config,
   "Mantle forcing controls. These fields translate mantle potential into velocity, stress, and upwelling/downwelling signals consumed by plate motion and crust."
 );
 
 const LithosphereSchema = publicStrategySchema(
-  foundation.lithosphere.ops.computeCrust.strategies["basaltic-lid"],
+  foundation.lithosphere.ops.computeCrust.strategies["basaltic-lid"].config,
   "Lithosphere controls. These fields set basaltic lid strength, mantle coupling, and rift weakening for initial crust truth."
 );
 
 const PlatePartitionSchema = publicStrategySchema(
-  foundation.lithosphere.ops.computePlateGraph.strategies["resistance-weighted-voronoi"],
+  foundation.lithosphere.ops.computePlateGraph.strategies["resistance-weighted-voronoi"].config,
   "Plate partition controls. These fields determine plate seed count scaling and polar cap/microplate partition behavior."
 );
 
 const PlateMotionSchema = publicStrategySchema(
-  foundation.tectonics.ops.computePlateMotion.strategies["rigid-body-fit"],
+  foundation.tectonics.ops.computePlateMotion.strategies["rigid-body-fit"].config,
   "Plate motion controls. These fields tune plate velocity fitting and diagnostics used by both current plate motion and tectonic history."
 );
 
 const TectonicSegmentationSchema = publicStrategySchema(
-  foundation.tectonics.ops.computeTectonicSegments.strategies["relative-motion-regimes"],
+  foundation.tectonics.ops.computeTectonicSegments.strategies["relative-motion-regimes"].config,
   "Tectonic segmentation controls. These fields classify plate-boundary intensity into convergent, divergent, transform, and inactive regimes."
 );
 
 const TectonicErasSchema = publicStrategySchema(
-  foundation.tectonics.ops.computeEraPlateMembership.strategies["backward-drift"],
+  foundation.tectonics.ops.computeEraPlateMembership.strategies["backward-drift"].config,
   "Tectonic era controls. These arrays define old-to-new era weights and drift steps for pseudo-evolution history."
 );
 
 const TectonicFieldsSchema = publicStrategySchema(
-  foundation.tectonics.ops.computeEraTectonicFields.strategies["event-distance-decay"],
+  foundation.tectonics.ops.computeEraTectonicFields.strategies["event-distance-decay"].config,
   "Tectonic field controls. These fields set the distance and decay used when spreading boundary influence across mesh cells."
 );
 
 const TectonicRollupsSchema = publicStrategySchema(
-  foundation.tectonics.ops.computeTectonicHistoryRollups.strategies["cumulative-era-rollup"],
+  foundation.tectonics.ops.computeTectonicHistoryRollups.strategies["cumulative-era-rollup"].config,
   "Tectonic rollup controls. These fields determine how per-era activity is summarized into current history scalars."
 );
 
 const CrustCharacterSchema = publicStrategySchema(
-  foundation.orogeny.ops.computeCrustEvolution.strategies["tectonic-differentiation"],
+  foundation.orogeny.ops.computeCrustEvolution.strategies["tectonic-differentiation"].config,
   "Crust character controls. These semantic fields shape continental abundance, freeboard, fragmentation, shelf depth, and abyssal relief."
 );
 

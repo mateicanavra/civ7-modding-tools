@@ -79,6 +79,7 @@ export type {
   OpTypeBag,
   OpTypeBagOf,
   StrategyConfigSchemas,
+  StrategyContract,
   StrategyDescriptor,
   StrategyDescriptorFor,
   StrategyImpl,
@@ -90,6 +91,7 @@ export {
   createOp,
   createStrategy,
   defineOp,
+  defineStrategy,
   OperationInputAdmissionError,
   opRef,
 } from "./op/index.js";

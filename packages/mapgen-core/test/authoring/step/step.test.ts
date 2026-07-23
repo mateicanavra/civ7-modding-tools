@@ -216,16 +216,16 @@ describe("step authoring", () => {
     });
 
     expect(contract.schema).not.toBe(stepSchema);
-    expect(contract.ops?.calculation.strategies.balanced).not.toBe(strategySchema);
+    expect(contract.ops?.calculation.strategies.balanced.config).not.toBe(strategySchema);
     expect(Object.isFrozen(contract.schema)).toBe(false);
-    expect(Object.isFrozen(contract.ops?.calculation.strategies.balanced)).toBe(false);
+    expect(Object.isFrozen(contract.ops?.calculation.strategies.balanced.config)).toBe(false);
     expect(() =>
       Type.With(contract.schema, {
         description: "Composable step schema.",
       })
     ).not.toThrow();
     expect(() =>
-      Type.With(contract.ops!.calculation.strategies.balanced, {
+      Type.With(contract.ops!.calculation.strategies.balanced.config, {
         description: "Composable operation strategy schema.",
       })
     ).not.toThrow();
@@ -245,7 +245,10 @@ describe("step authoring", () => {
     decode.marker.mutable = false;
     expect(Reflect.get(contract.schema.properties.enabled, "description")).toBeUndefined();
     expect(
-      Reflect.get(contract.ops?.calculation.strategies.balanced.properties.count ?? {}, "minimum")
+      Reflect.get(
+        contract.ops?.calculation.strategies.balanced.config.properties.count ?? {},
+        "minimum"
+      )
     ).toBeUndefined();
     expect(decode.marker.mutable).toBe(false);
   });
