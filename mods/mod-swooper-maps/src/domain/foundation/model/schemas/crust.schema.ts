@@ -1,4 +1,4 @@
-import { type Static, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { type Static, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/schema";
 
 /** Domain model for the parallel physical fields that describe one Foundation crust state. */
 export const CrustSchema = Type.Object(

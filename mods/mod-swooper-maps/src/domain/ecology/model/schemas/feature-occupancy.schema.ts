@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/schema";
 
 /** Reusable Ecology model for feature claims and permanently reserved map tiles. */
 export const FeatureOccupancySchema = Type.Object(

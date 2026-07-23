@@ -1,4 +1,4 @@
-import { Type } from "@swooper/mapgen-core/authoring/contracts";
+import { Type } from "@swooper/mapgen-core/authoring/schema";
 
 export type BiomeSymbol =
   | "snow"

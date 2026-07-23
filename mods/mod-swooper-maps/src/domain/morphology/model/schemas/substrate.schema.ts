@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/schema";
 
 /** Domain model for per-tile material properties consumed by Morphology erosion. */
 export const MorphologySubstrateSchema = Type.Object(
