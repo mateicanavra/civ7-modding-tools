@@ -1,0 +1,15 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "mapgen-domain-aggregate-roots"
+root = "mods/*/src/domain/!(*.*)"
+kind = "directory"
+mode = "closed"
+required = [
+  "index.ts",
+  "contract.ts",
+  "router.ts",
+]
+allowed = [
+  "!(*.*)",
+]

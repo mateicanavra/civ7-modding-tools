@@ -11,18 +11,18 @@ their destination kind is sealed.
 law -> source conformance -> verification. A niche may refine a kind but may not
 recreate, weaken, or hardcode its membership.
 
-**Current container:** separate the existing domain topology monolith into
-truthful kind owners before defining the nested destination. A parent domain
-rule owns only the direct domain-root spine. Domain-operation, domain-model,
-and artifact rules own their own internals through small closed scopes:
-`required` names the fixed spine, `allowed` names deliberate flexibility, and
-everything else is excluded without a second forbidden inventory. Once those
-current laws are cleanly separated, define the domain aggregate and semantic
-subdomain destination from the same model, turn the current flat tree red, and
-burn down one sealed semantic module at a time. Membership and topology stay in
-`pathCoverage` and `structure.toml`; Grit expresses only cheap relationships
-inside the admitted kind; TypeScript owns composition, key identity, duplicate
-refusal, and artifact-validator binding by construction.
+**Current container:** the existing domain topology monolith is separated into
+truthful kind owners. Install one advisory aggregate-root law that requires
+only `index.ts`, `contract.ts`, and `router.ts`, admits direct semantic child
+directories, and reports the current six-domain migration corpus without
+misclassifying legacy child cabinets. The first complete domain migration then
+earns the separate subdomain, nested operation, and nested artifact laws from
+real members. For every law, `required` names the fixed spine, `allowed` names
+deliberate flexibility, and everything else is excluded without a second
+forbidden inventory. Membership and topology stay in `pathCoverage` and
+`structure.toml`; Grit expresses only cheap relationships inside the admitted
+kind; TypeScript owns composition, key identity, duplicate refusal, and
+artifact-validator binding by construction.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -30,16 +30,20 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** artifact authority is sealed. Remove operation and model
-descendant scopes from the parent domain rule without losing their findings:
-move each scope unchanged to its actual kind owner. Delete speculative target
-rules that acquire no current members. Then install the generic domain-root and
-subdomain kinds plus typed contract/router composition, producing a truthful
-six-domain red corpus.
+**Gradient:** artifact authority and current kind-local spines are sealed.
+Commit the advisory aggregate-root law with its precise 18-row corpus. Choose
+one whole domain whose branches have no unresolved owner ambiguity, migrate it
+atomically through the typed contract/router composition API, and only then add
+child-kind laws over the members that now exist. Repeat whole-domain slices
+without a legacy branch or hybrid SDK. At the first source move, demote the
+contradictory flat laws and new child laws to advisory for the mixed interval;
+promote the aggregate and child laws to enforced only at zero and retire the
+flat laws in the same semantic cut.
 For every structural kind, `required` names only the fixed spine, `allowed`
 names optional or generative members, and `closed` rejects everything else.
-Legacy source laws remain intact under their existing IDs until a green
-successor law and its migrated source can replace them together.
+Legacy source laws remain enforced under their existing IDs until the first
+source move, remain unchanged but advisory through the mixed interval, and
+retire only when green successor laws own the complete migrated source.
 Relocate one semantic module at a time, hoisting vocabulary only when a real
 cross-module edge proves it shared. Then drain the remaining recipe artifacts
 into adapter observation, domain products, or metrics/diagnostics evidence.
