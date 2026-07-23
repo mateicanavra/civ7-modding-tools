@@ -5,12 +5,12 @@ import {
   getEngineFeatureLegality,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
-import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
+import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
 import {
-  artifactModules as hydrologyArtifactModules,
+  artifacts as hydrologyArtifacts,
   RiverNetworkMeasurementsSchema,
 } from "@mapgen/domain/hydrology";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
 import {
   type ArtifactReadValueOf,
@@ -24,35 +24,27 @@ import type { Static } from "typebox";
 import { Value } from "typebox/value";
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
 import standardRecipe from "../recipe.js";
-import { artifactModules as mapEcologyArtifactModules } from "../stages/map/ecology/artifacts/index.js";
-import { artifactModules as mapHydrologyArtifactModules } from "../stages/map/hydrology/artifacts/index.js";
-import { artifactModules as mapRiversArtifactModules } from "../stages/map/rivers/artifacts/index.js";
-import { artifactModules as placementArtifactModules } from "../stages/placement/artifacts/index.js";
+import { artifacts as mapEcologyArtifacts } from "../stages/map/ecology/artifacts/index.js";
+import { artifacts as mapHydrologyArtifacts } from "../stages/map/hydrology/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../stages/map/rivers/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../stages/placement/artifacts/index.js";
 import { defineStandardMapMetricScenario, type StandardMapMetricScenario } from "./scenario.js";
 
-type Volcanoes = ArtifactReadValueOf<typeof morphologyArtifactModules.volcanoes.artifact>;
-type Landmasses = ArtifactReadValueOf<typeof morphologyArtifactModules.landmasses.artifact>;
-type Pedology = ArtifactReadValueOf<typeof ecologyArtifactModules.pedology.artifact>;
+type Volcanoes = ArtifactReadValueOf<typeof morphologyArtifacts.volcanoes>;
+type Landmasses = ArtifactReadValueOf<typeof morphologyArtifacts.landmasses>;
+type Pedology = ArtifactReadValueOf<typeof ecologyArtifacts.pedology>;
 type RiverNetworkMeasurements = Static<typeof RiverNetworkMeasurementsSchema>;
 type ProjectedNavigableRivers = ArtifactReadValueOf<
-  typeof mapRiversArtifactModules.projectedNavigableRivers.artifact
+  typeof mapRiversArtifacts.projectedNavigableRivers
 >;
-type ResourceDemandPlan = ArtifactReadValueOf<
-  typeof placementArtifactModules.resourceDemandPlan.artifact
->;
-type ResourceEligibility = ArtifactReadValueOf<
-  typeof placementArtifactModules.resourceEligibility.artifact
->;
-type ResourcePlan = ArtifactReadValueOf<typeof placementArtifactModules.resourcePlan.artifact>;
-type ResourcePlanAdjusted = ArtifactReadValueOf<
-  typeof placementArtifactModules.resourcePlanAdjusted.artifact
->;
+type ResourceDemandPlan = ArtifactReadValueOf<typeof placementArtifacts.resourceDemandPlan>;
+type ResourceEligibility = ArtifactReadValueOf<typeof placementArtifacts.resourceEligibility>;
+type ResourcePlan = ArtifactReadValueOf<typeof placementArtifacts.resourcePlan>;
+type ResourcePlanAdjusted = ArtifactReadValueOf<typeof placementArtifacts.resourcePlanAdjusted>;
 type ResourcePlacementOutcomes = ArtifactReadValueOf<
-  typeof placementArtifactModules.resourcePlacementOutcomes.artifact
+  typeof placementArtifacts.resourcePlacementOutcomes
 >;
-type StartAssignment = ArtifactReadValueOf<
-  typeof placementArtifactModules.startAssignment.artifact
->;
+type StartAssignment = ArtifactReadValueOf<typeof placementArtifacts.startAssignment>;
 
 type ResourceDemandExclusionReason = ResourceDemandPlan["excluded"][number]["reason"];
 type StandardScenarioIneligibleReason = Extract<
@@ -304,66 +296,63 @@ function copyCompletedRun(
   const selection = resolveMapSelection(scenario);
   const { width, height } = selection.dimensions;
   const gridSize = width * height;
-  const topographyValue = readValidatedArtifact(context, morphologyArtifactModules.topography);
-  const landmassesValue = readValidatedArtifact(context, morphologyArtifactModules.landmasses);
-  const mountainsValue = readValidatedArtifact(context, morphologyArtifactModules.mountains);
-  const shelfValue = readValidatedArtifact(context, morphologyArtifactModules.shelf);
-  const volcanoesValue = readValidatedArtifact(context, morphologyArtifactModules.volcanoes);
-  const lakePlanValue = readValidatedArtifact(context, hydrologyArtifactModules.lakePlan);
-  const hydrographyValue = readValidatedArtifact(context, hydrologyArtifactModules.hydrography);
-  const climateIndicesValue = readValidatedArtifact(
-    context,
-    hydrologyArtifactModules.climateIndices
-  );
+  const topographyValue = readValidatedArtifact(context, morphologyArtifacts.topography);
+  const landmassesValue = readValidatedArtifact(context, morphologyArtifacts.landmasses);
+  const mountainsValue = readValidatedArtifact(context, morphologyArtifacts.mountains);
+  const shelfValue = readValidatedArtifact(context, morphologyArtifacts.shelf);
+  const volcanoesValue = readValidatedArtifact(context, morphologyArtifacts.volcanoes);
+  const lakePlanValue = readValidatedArtifact(context, hydrologyArtifacts.lakePlan);
+  const hydrographyValue = readValidatedArtifact(context, hydrologyArtifacts.hydrography);
+  const climateIndicesValue = readValidatedArtifact(context, hydrologyArtifacts.climateIndices);
   const lakeProjectionValue = readValidatedArtifact(
     context,
-    mapHydrologyArtifactModules.engineProjectionLakes
+    mapHydrologyArtifacts.engineProjectionLakes
   );
   const navigableRiverValue = readValidatedArtifact(
     context,
-    mapRiversArtifactModules.projectedNavigableRivers
+    mapRiversArtifacts.projectedNavigableRivers
   );
   const riverReadbackValue = adapter.readRiverProjection(
     width,
     height,
     navigableRiverValue.riverMask
   );
-  const biomeValue = readValidatedArtifact(context, ecologyArtifactModules.biomeClassification);
-  const pedologyValue = readValidatedArtifact(context, ecologyArtifactModules.pedology);
+  const biomeValue = readValidatedArtifact(context, ecologyArtifacts.biomeClassification);
+  const pedologyValue = readValidatedArtifact(context, ecologyArtifacts.pedology);
   const featureDiagnosticsValue = readValidatedArtifact(
     context,
-    mapEcologyArtifactModules.featureApplyDiagnostics
+    mapEcologyArtifacts.featureApplyDiagnostics
   );
   const placementSurfaceValue = readValidatedArtifact(
     context,
-    placementArtifactModules.placementSurfacePreparation
+    placementArtifacts.placementSurfacePreparation
   );
   const regionSlotsValue = readValidatedArtifact(
     context,
-    placementArtifactModules.landmassRegionSlotByTile
+    placementArtifacts.landmassRegionSlotByTile
   );
   const resourceDemandPlanValue = readValidatedArtifact(
     context,
-    placementArtifactModules.resourceDemandPlan
+    placementArtifacts.resourceDemandPlan
   );
   const resourceEligibilityValue = readValidatedArtifact(
     context,
-    placementArtifactModules.resourceEligibility
+    placementArtifacts.resourceEligibility
   );
-  const resourcePlanValue = readValidatedArtifact(context, placementArtifactModules.resourcePlan);
+  const resourcePlanValue = readValidatedArtifact(context, placementArtifacts.resourcePlan);
   const adjustedResourcePlanValue = readValidatedArtifact(
     context,
-    placementArtifactModules.resourcePlanAdjusted
+    placementArtifacts.resourcePlanAdjusted
   );
   const resourceOutcomesValue = readValidatedArtifact(
     context,
-    placementArtifactModules.resourcePlacementOutcomes
+    placementArtifacts.resourcePlacementOutcomes
   );
   const naturalWonderPlacementValue = readValidatedArtifact(
     context,
-    placementArtifactModules.naturalWonderPlacement
+    placementArtifacts.naturalWonderPlacement
   );
-  const startValue = readValidatedArtifact(context, placementArtifactModules.startAssignment);
+  const startValue = readValidatedArtifact(context, placementArtifacts.startAssignment);
   const landMask = copyUint8Grid(
     "morphology.topography.landMask",
     topographyValue.landMask,

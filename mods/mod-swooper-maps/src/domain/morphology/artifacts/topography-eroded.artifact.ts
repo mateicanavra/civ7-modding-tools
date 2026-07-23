@@ -4,20 +4,21 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
 } from "@swooper/mapgen-core/authoring/contracts";
 import { MorphologyTopographySchema } from "../model/schemas/index.js";
 
 /** Closed schema for eroded topography before island-chain edits. */
-export const Schema = MorphologyTopographySchema;
+const Schema = MorphologyTopographySchema;
 
 /** Registers the eroded topography consumed only by island planning. */
 export const artifact = defineArtifact({
   name: "erodedTopography",
   id: "artifact:morphology.topography.eroded",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Admits map-sized eroded topography fields after Core validates the vintage shape. */
 function validateLocal(
   value: unknown,
   context?: ArtifactValidationContext
@@ -48,6 +49,3 @@ function validateLocal(
   );
   return issues;
 }
-
-/** Admits map-sized eroded topography fields after Core validates the vintage shape. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -105,7 +104,7 @@ const FoundationTectonicHistoryTilesRollupArtifactSchema = Type.Object(
 );
 
 /** Foundation tectonic history tiles artifact payload (tile-space era fields + rollups). */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     /** Schema major version. */
     version: Type.Integer({ minimum: 1, description: "Schema major version." }),
@@ -138,12 +137,14 @@ export const artifact = defineArtifact({
   name: "foundationTectonicHistoryTiles",
   id: "artifact:foundation.tectonicHistoryTiles",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /**
  * Validates the era count/list invariant plus map-sized typed arrays for every
  * era field, rollup, and movement component.
  */
+/** Admits map-sized typed tectonic-history rollups after Core validates the closed shape. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -329,6 +330,3 @@ function validateLocal(
 
   return Object.freeze(issues);
 }
-
-/** Admits map-sized typed tectonic-history rollups after Core validates the closed shape. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

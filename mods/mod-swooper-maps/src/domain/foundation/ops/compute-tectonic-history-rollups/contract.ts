@@ -1,8 +1,8 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as PlateIdByEraSchema } from "../../artifacts/plate-id-by-era.artifact.js";
-import { Schema as FoundationTectonicEraFieldsInternalListSchema } from "../../artifacts/tectonic-era-fields.artifact.js";
-import { Schema as FoundationTectonicHistorySchema } from "../../artifacts/tectonic-history.artifact.js";
+import { artifact as PlateIdByEraArtifact } from "../../artifacts/plate-id-by-era.artifact.js";
+import { artifact as FoundationTectonicEraFieldsInternalListArtifact } from "../../artifacts/tectonic-era-fields.artifact.js";
+import { artifact as FoundationTectonicHistoryArtifact } from "../../artifacts/tectonic-history.artifact.js";
 
 const StrategySchema = Type.Object(
   {
@@ -21,14 +21,14 @@ const ComputeTectonicHistoryRollupsContract = defineOp({
   id: "foundation/compute-tectonic-history-rollups",
   input: Type.Object(
     {
-      eras: FoundationTectonicEraFieldsInternalListSchema,
-      plateIdByEra: PlateIdByEraSchema,
+      eras: FoundationTectonicEraFieldsInternalListArtifact.schema,
+      plateIdByEra: PlateIdByEraArtifact.schema,
     },
     { additionalProperties: false }
   ),
   output: Type.Object(
     {
-      tectonicHistory: FoundationTectonicHistorySchema,
+      tectonicHistory: FoundationTectonicHistoryArtifact.schema,
     },
     {
       additionalProperties: false,

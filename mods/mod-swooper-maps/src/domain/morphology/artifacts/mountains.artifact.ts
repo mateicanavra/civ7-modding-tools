@@ -4,14 +4,13 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime schema for Morphology-owned mountain, foothill, and rough-land intent. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     mountainMask: TypedArraySchemas.u8({
       description: "Mask (1/0): Morphology model intent for mountain terrain.",
@@ -59,12 +58,14 @@ export const artifact = defineArtifact({
   name: "mountains",
   id: "artifact:morphology.mountains",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /**
  * Validates map-sized typed arrays for mountain-family intent and keeps each membership mask
  * binary. Potential fields remain byte-valued measurements rather than membership masks.
  */
+/** Admits map-sized mountain fields and binary terrain masks after structural admission. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -95,9 +96,6 @@ function validateLocal(
   }
   return Object.freeze(issues);
 }
-
-/** Admits map-sized mountain fields and binary terrain masks after structural admission. */
-export const validate = defineArtifactValidator(artifact, validateLocal);
 
 function validateBinaryMask(
   issues: ArtifactValidationIssue[],

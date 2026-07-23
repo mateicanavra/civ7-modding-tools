@@ -1,26 +1,27 @@
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
-import * as crust from "./crust.artifact.js";
-import * as crustTiles from "./crust-tiles.artifact.js";
-import * as currentTectonics from "./current-tectonics.artifact.js";
-import * as initialCrust from "./initial-crust.artifact.js";
-import * as mantleForcing from "./mantle-forcing.artifact.js";
-import * as mantlePotential from "./mantle-potential.artifact.js";
-import * as mesh from "./mesh.artifact.js";
-import * as plateGraph from "./plate-graph.artifact.js";
-import * as plateIdByEra from "./plate-id-by-era.artifact.js";
-import * as plateMotion from "./plate-motion.artifact.js";
-import * as plateTopology from "./plate-topology.artifact.js";
-import * as plates from "./plates.artifact.js";
-import * as tectonicEraFields from "./tectonic-era-fields.artifact.js";
-import * as tectonicEvents from "./tectonic-events.artifact.js";
-import * as tectonicHistory from "./tectonic-history.artifact.js";
-import * as tectonicHistoryTiles from "./tectonic-history-tiles.artifact.js";
-import * as tectonicProvenance from "./tectonic-provenance.artifact.js";
-import * as tectonicProvenanceTiles from "./tectonic-provenance-tiles.artifact.js";
-import * as tectonicSegments from "./tectonic-segments.artifact.js";
-import * as tracerIndexByEra from "./tracer-index-by-era.artifact.js";
+import { artifact as crust } from "./crust.artifact.js";
+import { artifact as crustTiles } from "./crust-tiles.artifact.js";
+import { artifact as currentTectonics } from "./current-tectonics.artifact.js";
+import { artifact as initialCrust } from "./initial-crust.artifact.js";
+import { artifact as mantleForcing } from "./mantle-forcing.artifact.js";
+import { artifact as mantlePotential } from "./mantle-potential.artifact.js";
+import { artifact as mesh } from "./mesh.artifact.js";
+import { artifact as plateGraph } from "./plate-graph.artifact.js";
+import { artifact as plateIdByEra } from "./plate-id-by-era.artifact.js";
+import { artifact as plateMotion } from "./plate-motion.artifact.js";
+import { artifact as plateTopology } from "./plate-topology.artifact.js";
+import { artifact as plates } from "./plates.artifact.js";
+import { artifact as tectonicEraFields } from "./tectonic-era-fields.artifact.js";
+import { artifact as tectonicEvents } from "./tectonic-events.artifact.js";
+import { artifact as tectonicHistory } from "./tectonic-history.artifact.js";
+import { artifact as tectonicHistoryTiles } from "./tectonic-history-tiles.artifact.js";
+import { artifact as tectonicProvenance } from "./tectonic-provenance.artifact.js";
+import { artifact as tectonicProvenanceTiles } from "./tectonic-provenance-tiles.artifact.js";
+import { artifact as tectonicSegments } from "./tectonic-segments.artifact.js";
+import { artifact as tracerIndexByEra } from "./tracer-index-by-era.artifact.js";
 
-const catalog = defineArtifactCatalog({
+/** Foundation artifact authorities keyed for contracts and consumers. */
+export const artifacts = defineArtifactCatalog({
   crust,
   crustTiles,
   currentTectonics,
@@ -42,9 +43,3 @@ const catalog = defineArtifactCatalog({
   tectonicSegments,
   tracerIndexByEra,
 });
-
-/** Foundation artifact modules pairing every contract with its complete admission validator. */
-export const artifactModules = catalog.modules;
-
-/** Foundation artifact handles derived from the module catalog for contracts and consumers. */
-export const artifacts = catalog.artifacts;

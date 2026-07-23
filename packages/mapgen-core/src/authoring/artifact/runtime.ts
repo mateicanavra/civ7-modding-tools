@@ -4,12 +4,12 @@ import {
   publishMapContextArtifactInternal,
   readMapContextArtifactInternal,
 } from "@mapgen/core/map-context.js";
-import type { ArtifactContract, ArtifactReadValueOf, ArtifactValueOf } from "./contract.js";
 import {
-  type ArtifactModule,
-  type SchemaBoundArtifactModuleList,
-  snapshotArtifactModule,
-} from "./module.js";
+  type Artifact,
+  type ArtifactReadValueOf,
+  type ArtifactValueOf,
+  assertArtifact,
+} from "./contract.js";
 
 export class ArtifactMissingError extends Error {
   public readonly artifactId: string;
@@ -69,13 +69,11 @@ export class ArtifactValidationError extends Error {
   }
 }
 
-type ArtifactModuleRuntimes<Modules extends readonly ArtifactModule[]> = Readonly<{
-  [Module in Modules[number] as Module["artifact"]["name"]]: ImplementedArtifactRuntime<
-    Module["artifact"]
-  >;
+type ArtifactRuntimes<Artifacts extends readonly Artifact[]> = Readonly<{
+  [Entry in Artifacts[number] as Entry["name"]]: ImplementedArtifactRuntime<Entry>;
 }>;
 
-export type RequiredArtifactRuntime<C extends ArtifactContract> = Readonly<{
+export type RequiredArtifactRuntime<A extends Artifact> = Readonly<{
   /**
    * Read the stored artifact reference under the pipeline's immutable ownership contract.
    *
@@ -85,10 +83,10 @@ export type RequiredArtifactRuntime<C extends ArtifactContract> = Readonly<{
    * - Consumers must treat the returned reference as immutable and must not mutate it.
    * - If mutation is needed, callers must copy first (caller-owned copy).
    */
-  read: (context: MapContext) => ArtifactReadValueOf<C>;
+  read: (context: MapContext) => ArtifactReadValueOf<A>;
 }>;
 
-export type ProvidedArtifactRuntime<C extends ArtifactContract> = Readonly<{
+export type ProvidedArtifactRuntime<A extends Artifact> = Readonly<{
   /**
    * Publish an artifact (write-once).
    *
@@ -96,66 +94,64 @@ export type ProvidedArtifactRuntime<C extends ArtifactContract> = Readonly<{
    * - Publishing stores the provided value reference (no deep freeze, no snapshotting in prod).
    * - Producers must treat published values as immutable once stored.
    */
-  publish: (context: MapContext, value: ArtifactValueOf<C>) => ArtifactReadValueOf<C>;
+  publish: (context: MapContext, value: ArtifactValueOf<A>) => ArtifactReadValueOf<A>;
 }>;
 
 /** @internal Complete provider binding retained by recipe composition, never authored step code. */
-export type ImplementedArtifactRuntime<C extends ArtifactContract> = RequiredArtifactRuntime<C> &
-  ProvidedArtifactRuntime<C> &
-  Readonly<{ contract: C }>;
+export type ImplementedArtifactRuntime<A extends Artifact> = RequiredArtifactRuntime<A> &
+  ProvidedArtifactRuntime<A> &
+  Readonly<{ artifact: A }>;
 
 function resolveStepId(context: MapContext): string {
   return getActiveMapContextStepIdInternal(context) ?? "unknown";
 }
 
-function snapshotArtifactModules(modules: readonly ArtifactModule[]): readonly ArtifactModule[] {
-  if (!Array.isArray(modules)) {
-    throw new Error("artifact modules must be an array");
+function snapshotArtifacts(artifacts: readonly Artifact[]): readonly Artifact[] {
+  if (!Array.isArray(artifacts)) {
+    throw new Error("artifacts must be an array");
   }
-  const ownKeys = Reflect.ownKeys(modules);
-  if (ownKeys.length !== modules.length + 1) {
-    throw new Error("artifact modules must be a dense array without extra keys");
+  const ownKeys = Reflect.ownKeys(artifacts);
+  if (ownKeys.length !== artifacts.length + 1) {
+    throw new Error("artifacts must be a dense array without extra keys");
   }
 
-  const snapshots: ArtifactModule[] = [];
-  for (let index = 0; index < modules.length; index += 1) {
-    const moduleDescriptor = Object.getOwnPropertyDescriptor(modules, String(index));
-    if (!moduleDescriptor || !("value" in moduleDescriptor) || !moduleDescriptor.enumerable) {
-      throw new Error(`artifact module at index ${index} must be a data property`);
+  const snapshots: Artifact[] = [];
+  for (let index = 0; index < artifacts.length; index += 1) {
+    const descriptor = Object.getOwnPropertyDescriptor(artifacts, String(index));
+    if (!descriptor || !("value" in descriptor) || !descriptor.enumerable) {
+      throw new Error(`artifact at index ${index} must be an enumerable data property`);
     }
-
-    snapshots.push(
-      snapshotArtifactModule(moduleDescriptor.value, `artifact module at index ${index}`)
-    );
+    assertArtifact(descriptor.value);
+    snapshots.push(descriptor.value);
   }
   return Object.freeze(snapshots);
 }
 
-function assertUniqueModules(modules: readonly ArtifactModule[]): void {
+function assertUniqueArtifacts(artifacts: readonly Artifact[]): void {
   const names = new Set<string>();
   const ids = new Set<string>();
-  for (const { artifact: contract } of modules) {
-    if (names.has(contract.name)) {
-      throw new Error(`duplicate artifact name "${contract.name}" in provides list`);
+  for (const artifact of artifacts) {
+    if (names.has(artifact.name)) {
+      throw new Error(`duplicate artifact name "${artifact.name}" in provides list`);
     }
-    if (ids.has(contract.id)) {
-      throw new Error(`duplicate artifact id "${contract.id}" in provides list`);
+    if (ids.has(artifact.id)) {
+      throw new Error(`duplicate artifact id "${artifact.id}" in provides list`);
     }
-    names.add(contract.name);
-    ids.add(contract.id);
+    names.add(artifact.name);
+    ids.add(artifact.id);
   }
 }
 
-function readStored<C extends ArtifactContract>(
+function readStored<A extends Artifact>(
   context: MapContext,
-  contract: C
+  artifact: A
 ): {
   hasValue: boolean;
-  value: ArtifactValueOf<C> | undefined;
+  value: ArtifactValueOf<A> | undefined;
 } {
-  const observation = readMapContextArtifactInternal(context, contract);
+  const observation = readMapContextArtifactInternal(context, artifact);
   return observation.found
-    ? { hasValue: true, value: observation.value as ArtifactValueOf<C> }
+    ? { hasValue: true, value: observation.value as ArtifactValueOf<A> }
     : { hasValue: false, value: undefined };
 }
 
@@ -167,38 +163,35 @@ function normalizeIssues(error: unknown): readonly { message: string }[] {
 }
 
 /**
- * Builds write-once artifact runtimes from the same modules that own contract registration and
- * validation. Each validator runs once per publish or satisfaction observation; callers cannot
- * omit validation or install a second admission path.
+ * Builds write-once runtimes from canonical artifacts. Each artifact's complete validator runs
+ * once per publish or satisfaction observation; callers cannot replace the admission path.
  */
-export function implementArtifactModules<const Modules extends readonly ArtifactModule[]>(
-  modules: Modules & SchemaBoundArtifactModuleList<Modules>
-): ArtifactModuleRuntimes<Modules> {
-  const snapshots = snapshotArtifactModules(modules);
-  assertUniqueModules(snapshots);
-  const entries: Array<readonly [string, ImplementedArtifactRuntime<ArtifactContract>]> = [];
+export function implementArtifacts<const Artifacts extends readonly Artifact[]>(
+  artifacts: Artifacts
+): ArtifactRuntimes<Artifacts> {
+  const snapshots = snapshotArtifacts(artifacts);
+  assertUniqueArtifacts(snapshots);
+  const entries: Array<readonly [string, ImplementedArtifactRuntime<Artifact>]> = [];
 
-  for (const module of snapshots) {
-    const { artifact: contract, validate } = module;
-
-    const runtime: ImplementedArtifactRuntime<typeof contract> = {
-      contract,
+  for (const artifact of snapshots) {
+    const runtime: ImplementedArtifactRuntime<typeof artifact> = {
+      artifact,
       read: (context) => {
-        const { hasValue, value } = readStored(context, contract);
+        const { hasValue, value } = readStored(context, artifact);
         if (!hasValue) {
           throw new ArtifactMissingError({
-            artifactId: contract.id,
-            artifactName: contract.name,
+            artifactId: artifact.id,
+            artifactName: artifact.name,
             consumerStepId: resolveStepId(context),
           });
         }
-        return value as ArtifactReadValueOf<typeof contract>;
+        return value as ArtifactReadValueOf<typeof artifact>;
       },
       publish: (context, value) => {
-        if (readMapContextArtifactInternal(context, contract).found) {
+        if (readMapContextArtifactInternal(context, artifact).found) {
           throw new ArtifactDoublePublishError({
-            artifactId: contract.id,
-            artifactName: contract.name,
+            artifactId: artifact.id,
+            artifactName: artifact.name,
             producerStepId: resolveStepId(context),
           });
         }
@@ -206,7 +199,7 @@ export function implementArtifactModules<const Modules extends readonly Artifact
         let issues: readonly { message: string }[];
         let cause: unknown;
         try {
-          issues = validate(value, { dimensions: context.setup.dimensions });
+          issues = artifact.validate(value, { dimensions: context.setup.dimensions });
         } catch (error) {
           cause = error;
           issues = normalizeIssues(error);
@@ -214,20 +207,20 @@ export function implementArtifactModules<const Modules extends readonly Artifact
 
         if (issues.length > 0) {
           throw new ArtifactValidationError({
-            artifactId: contract.id,
-            artifactName: contract.name,
+            artifactId: artifact.id,
+            artifactName: artifact.name,
             producerStepId: resolveStepId(context),
             issues,
             cause,
           });
         }
 
-        publishMapContextArtifactInternal(context, contract, value);
-        return value as ArtifactReadValueOf<typeof contract>;
+        publishMapContextArtifactInternal(context, artifact, value);
+        return value as ArtifactReadValueOf<typeof artifact>;
       },
     };
-    entries.push([contract.name, runtime]);
+    entries.push([artifact.name, runtime]);
   }
 
-  return Object.freeze(Object.fromEntries(entries)) as ArtifactModuleRuntimes<Modules>;
+  return Object.freeze(Object.fromEntries(entries)) as ArtifactRuntimes<Artifacts>;
 }

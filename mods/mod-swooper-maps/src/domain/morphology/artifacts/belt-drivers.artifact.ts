@@ -4,14 +4,13 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime schema for canonical tectonic belt-driver fields consumed by Morphology. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     boundaryCloseness: TypedArraySchemas.u8({
       description:
@@ -73,8 +72,13 @@ export const artifact = defineArtifact({
   name: "beltDrivers",
   id: "artifact:morphology.beltDrivers",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Requires every typed belt-driver field to use the declared runtime constructor
+ * and, when dimensions are available, contain one value per map tile.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -156,9 +160,3 @@ function validateLocal(
   );
   return errors;
 }
-
-/**
- * Requires every typed belt-driver field to use the declared runtime constructor
- * and, when dimensions are available, contain one value per map tile.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

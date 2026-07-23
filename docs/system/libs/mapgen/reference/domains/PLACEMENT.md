@@ -3,7 +3,7 @@
   <item id="stages" title="Stage shape (standard recipe)"/>
   <item id="ownership" title="Ownership (decision logic lives in domain ops)"/>
   <item id="contract" title="Contract (requires/provides)"/>
-  <item id="artifacts" title="Key artifact modules"/>
+  <item id="artifacts" title="Key artifacts"/>
   <item id="ops" title="Ops surface"/>
   <item id="config" title="Config posture (knob groups)"/>
   <item id="viz" title="Studio visualization coverage"/>
@@ -90,12 +90,12 @@ Runtime semantics (ADR-009 regime):
 - Placement apply is fail-hard; natural wonders use deterministic full-stamp-or-fail semantics; resource readback mismatches are fail-hard.
 - Surface preparation (terrain validation, area recalculation, water cache storage, landmass-region restamping, fertility recalculation) remains transactional because no independent consumer exists.
 
-## Key artifact modules
+## Key artifacts
 
-Artifact modules are one-per-file under
+Artifact owners are one-per-file under
 `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts/*.artifact.ts`.
-The stage artifact index assembles one module catalog and derives its contract handles from
-that authority. Every module owns the complete structural and semantic validator used by
+The stage artifact index assembles one direct catalog of those authorities. Every `Artifact`
+owns the complete structural and semantic validator used by
 publication and validated reads (including count reconciliation, digest-to-row agreement,
 grid partitions, and buffer lengths). Inventory:
 
@@ -115,7 +115,7 @@ grid partitions, and buffer lengths). Inventory:
 | `placementSurfacePreparation` | prepare-placement-surface | maintenance/drift counters |
 | `placementOutputs`, `engineState` | placement (terminal) | verification/debug surface (only measured fields; no hardcoded-zero placeholders) |
 
-Placement owns its gameplay projection artifact modules (`landmassRegionSlotByTile`, `placementSurfaceValidationBoundary`, and `placementEngineTerrainSnapshot`) beside the placement stage. Map dimensions and wrap policy come from admitted setup and static Civ7 policy rather than a second published metadata artifact; each surviving artifact carries complete module-owned validation authority.
+Placement owns its gameplay projection artifacts (`landmassRegionSlotByTile`, `placementSurfaceValidationBoundary`, and `placementEngineTerrainSnapshot`) beside the placement stage. Map dimensions and wrap policy come from admitted setup and static Civ7 policy rather than a second published metadata artifact; each surviving artifact carries complete validation authority.
 
 ## Ops surface
 

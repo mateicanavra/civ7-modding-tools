@@ -2,7 +2,6 @@ import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/autho
 import {
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
@@ -22,7 +21,7 @@ const EraFieldsSchema = Type.Object(
 );
 
 /** Structural contract for tectonic fields, membership, and rollups across eras. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     eraCount: Type.Integer({ minimum: 5, maximum: 8 }),
     eras: Type.Immutable(Type.Array(EraFieldsSchema)),
@@ -50,8 +49,10 @@ export const artifact = defineArtifact({
   name: "foundationTectonicHistory",
   id: "artifact:foundation.tectonicHistory",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates era and cell cardinalities plus every history field's exact constructor. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const history = value as Artifact;
   const issues: ArtifactValidationIssue[] = [];
@@ -121,6 +122,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   });
   return issues;
 }
-
-/** Validates era and cell cardinalities plus every history field's exact constructor. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -5,10 +5,7 @@ import resources from "@mapgen/domain/resources";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
 import { artifacts as mapRiversArtifacts } from "../../../map/rivers/artifacts/index.js";
-import {
-  artifactModules as placementArtifactModules,
-  artifacts as placementArtifacts,
-} from "../../artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Defines resource intent from final physics truth and the declared Civ7
@@ -36,9 +33,9 @@ export const PlanResourcesStepContract = defineStep({
       placementArtifacts.landmassRegionSlotByTile,
     ],
     provides: [
-      placementArtifactModules.resourceDemandPlan,
-      placementArtifactModules.resourcePlan,
-      placementArtifactModules.resourceEligibility,
+      placementArtifacts.resourceDemandPlan,
+      placementArtifacts.resourcePlan,
+      placementArtifacts.resourceEligibility,
     ],
   },
   ops: {

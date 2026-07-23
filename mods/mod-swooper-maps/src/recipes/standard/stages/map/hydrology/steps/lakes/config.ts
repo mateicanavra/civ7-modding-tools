@@ -1,9 +1,8 @@
-import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
-import { artifactModules as mapHydrologyArtifactModules } from "../../artifacts/index.js";
+import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { artifacts as mapHydrologyArtifacts } from "../../artifacts/index.js";
 
 /**
  * Lake projection step (engine-facing).
@@ -35,13 +34,13 @@ export const LakesStepContract = defineStep({
   ],
   artifacts: {
     requires: [
-      hydrologyHydrographyArtifacts.lakePlan,
+      hydrologyArtifacts.lakePlan,
       morphologyArtifacts.mountains,
       morphologyArtifacts.topography,
     ],
     provides: [
-      mapHydrologyArtifactModules.engineProjectionLakes,
-      mapHydrologyArtifactModules.hydrologyLakesEngineTerrainSnapshot,
+      mapHydrologyArtifacts.engineProjectionLakes,
+      mapHydrologyArtifacts.hydrologyLakesEngineTerrainSnapshot,
     ],
   },
   schema: LakesStepConfigSchema,

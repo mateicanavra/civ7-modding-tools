@@ -1,5 +1,4 @@
-import type { ArtifactContract } from "@mapgen/authoring/artifact/contract.js";
-import type { ArtifactModule } from "@mapgen/authoring/artifact/module.js";
+import type { Artifact } from "@mapgen/authoring/artifact/contract.js";
 import {
   observeValidatedArtifactInternal,
   type ValidatedArtifactObservation,
@@ -24,9 +23,7 @@ type SatisfactionState = Readonly<{
 export interface DependencyEvidence {
   /** Verifies only the effect tag whose satisfaction predicate is currently being evaluated. */
   readonly verifyEffect: () => boolean;
-  readonly observeArtifact: <C extends ArtifactContract>(
-    module: ArtifactModule<C>
-  ) => ValidatedArtifactObservation<C>;
+  readonly observeArtifact: <A extends Artifact>(artifact: A) => ValidatedArtifactObservation<A>;
 }
 
 function invokeSatisfactionPredicate(
@@ -38,8 +35,8 @@ function invokeSatisfactionPredicate(
   const currentContext = (): MapContext => activeContext ?? rejectRevokedDependencyEvidence();
   const evidence: DependencyEvidence = Object.freeze({
     verifyEffect: () => verifyMapContextEffectInternal(currentContext(), tag),
-    observeArtifact: <C extends ArtifactContract>(module: ArtifactModule<C>) =>
-      observeValidatedArtifactInternal(currentContext(), module),
+    observeArtifact: <A extends Artifact>(artifact: A) =>
+      observeValidatedArtifactInternal(currentContext(), artifact),
   });
   try {
     const result: unknown = satisfies(evidence);
@@ -181,7 +178,7 @@ export class TagRegistry {
   }
 }
 
-/** @internal Registers recipe-derived artifact definitions through the sole module authority. */
+/** @internal Registers recipe-derived artifact definitions through canonical artifact authority. */
 export function registerDependencyTagsInternal(
   registry: TagRegistry,
   definitions: readonly InternalDependencyTagDefinition[]

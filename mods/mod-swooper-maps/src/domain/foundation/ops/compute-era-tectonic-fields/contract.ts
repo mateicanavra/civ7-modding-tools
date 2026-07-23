@@ -1,11 +1,11 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import { Schema as FoundationTectonicEraFieldsInternalListSchema } from "../../artifacts/tectonic-era-fields.artifact.js";
-import { Schema as TectonicEventsSchema } from "../../artifacts/tectonic-events.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationTectonicEraFieldsInternalListArtifact } from "../../artifacts/tectonic-era-fields.artifact.js";
+import { artifact as TectonicEventsArtifact } from "../../artifacts/tectonic-events.artifact.js";
 
 const FoundationTectonicEraFieldsInternalSchema =
-  FoundationTectonicEraFieldsInternalListSchema.items;
+  FoundationTectonicEraFieldsInternalListArtifact.schema.items;
 
 const StrategySchema = Type.Object(
   {
@@ -38,9 +38,9 @@ const ComputeEraTectonicFieldsContract = defineOp({
   id: "foundation/compute-era-tectonic-fields",
   input: Type.Object(
     {
-      mesh: FoundationMeshSchema,
-      segmentEvents: TectonicEventsSchema,
-      hotspotEvents: TectonicEventsSchema,
+      mesh: FoundationMeshArtifact.schema,
+      segmentEvents: TectonicEventsArtifact.schema,
+      hotspotEvents: TectonicEventsArtifact.schema,
       weight: Type.Number({ minimum: 0, maximum: 10 }),
       eraGain: Type.Number({ minimum: 0, maximum: 10 }),
     },

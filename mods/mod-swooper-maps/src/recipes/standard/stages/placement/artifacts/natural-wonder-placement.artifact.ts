@@ -3,7 +3,6 @@ import {
   type ArtifactValidationIssue,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
 } from "@swooper/mapgen-core/authoring/contracts";
@@ -66,7 +65,7 @@ const NaturalWonderPlacementCoordinateRowSchema = Type.Object(
 );
 
 /** Runtime schema reconciling the natural-wonder plan with measured stamping outcomes. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     plannedCount: Type.Integer({ minimum: 0 }),
     targetCount: Type.Integer({ minimum: 0 }),
@@ -95,6 +94,7 @@ export const artifact = defineArtifact({
   name: "naturalWonderPlacement",
   id: "artifact:placement.naturalWonderPlacement",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
@@ -109,6 +109,10 @@ function issue(message: string): ArtifactValidationIssue {
  * unique, and include every placed anchor.
  */
 
+/**
+ * Reconciles outcome counts, typed rows, coordinate digests, and final observed
+ * wonder occupancy; legality shortfalls remain outcomes, not failures.
+ */
 function validateLocal(
   input: unknown,
   context: ArtifactValidationContext | undefined
@@ -191,9 +195,3 @@ function validateLocal(
   }
   return issues;
 }
-
-/**
- * Reconciles outcome counts, typed rows, coordinate digests, and final observed
- * wonder occupancy; legality shortfalls remain outcomes, not failures.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

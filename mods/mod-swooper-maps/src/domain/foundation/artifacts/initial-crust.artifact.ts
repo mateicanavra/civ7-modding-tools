@@ -2,7 +2,6 @@ import {
   type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
 } from "@swooper/mapgen-core/authoring/contracts";
 import { CrustSchema } from "../model/schemas/crust.schema.js";
@@ -20,7 +19,7 @@ const CRUST_ARRAY_FIELDS = [
 ] as const;
 
 /** Structural contract for the initial crust fields before tectonic evolution. */
-export const Schema = CrustSchema;
+const Schema = CrustSchema;
 /** Initial crust state published by Foundation before evolution. */
 export type Artifact = Static<typeof Schema>;
 
@@ -29,8 +28,10 @@ export const artifact = defineArtifact({
   name: "foundationInitialCrust",
   id: "artifact:foundation.initialCrust",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates exact crust-array constructors, nonempty cardinality, and parallel lengths. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const candidate = value as Record<string, unknown>;
   const maturity = candidate.maturity;
@@ -42,6 +43,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/** Validates exact crust-array constructors, nonempty cardinality, and parallel lengths. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

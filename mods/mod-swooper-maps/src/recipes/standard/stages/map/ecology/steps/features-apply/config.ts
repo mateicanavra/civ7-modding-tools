@@ -1,12 +1,11 @@
-import ecology from "@mapgen/domain/ecology";
+import ecology, { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../../tag-contracts.js";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
-import { artifactModules as mapEcologyArtifactModules } from "../../artifacts/index.js";
+import { artifacts as mapEcologyArtifacts } from "../../artifacts/index.js";
 
 /**
  * Defines the sole map-ecology boundary that applies all planned feature-family intents to
@@ -40,8 +39,8 @@ export const FeaturesApplyStepContract = defineStep({
       morphologyArtifacts.topography,
     ],
     provides: [
-      mapEcologyArtifactModules.featureApplyDiagnostics,
-      mapEcologyArtifactModules.featureEngineSnapshot,
+      mapEcologyArtifacts.featureApplyDiagnostics,
+      mapEcologyArtifacts.featureEngineSnapshot,
     ],
   },
   ops: {

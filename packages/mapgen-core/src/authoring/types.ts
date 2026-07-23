@@ -14,8 +14,7 @@ import type { DependencyTagDefinition } from "@mapgen/engine/tags.js";
 import type { EmptyObject, ReadonlyDeep } from "type-fest";
 import type { Static, TObject, TSchema } from "typebox";
 import type { CompileOpsById } from "../compiler/recipe-compile.js";
-import type { ArtifactContract } from "./artifact/contract.js";
-import type { ArtifactModule } from "./artifact/module.js";
+import type { Artifact } from "./artifact/contract.js";
 import type { ProvidedArtifactRuntime, RequiredArtifactRuntime } from "./artifact/runtime.js";
 import type { DomainOpRuntimeAny, OpsById } from "./bindings.js";
 import type {
@@ -26,25 +25,18 @@ import type {
 } from "./step/contract.js";
 import type { StepOpsDecl } from "./step/ops.js";
 
-type ArtifactsByName<T extends readonly ArtifactContract[]> = {
+type ArtifactsByName<T extends readonly Artifact[]> = {
   [Name in T[number]["name"] & string]: Extract<T[number], { name: Name }>;
 };
 
-type ArtifactNameOf<T extends readonly ArtifactContract[]> = Extract<
-  keyof ArtifactsByName<T>,
-  string
->;
+type ArtifactNameOf<T extends readonly Artifact[]> = Extract<keyof ArtifactsByName<T>, string>;
 
-type ArtifactByName<T extends readonly ArtifactContract[], K extends string> = Extract<
+type ArtifactByName<T extends readonly Artifact[], K extends string> = Extract<
   T[number],
   { name: K }
 >;
 
-type ArtifactContractsOfModules<T extends readonly ArtifactModule[]> = {
-  readonly [K in keyof T]: T[K] extends ArtifactModule<infer C> ? C : never;
-};
-
-type ArtifactListOrEmpty<T> = T extends readonly ArtifactContract[] ? T : readonly [];
+type ArtifactListOrEmpty<T> = T extends readonly Artifact[] ? T : readonly [];
 
 type StepArtifactsSurface<TArtifacts extends StepArtifactsDeclAny | undefined> =
   TArtifacts extends StepArtifactsDecl<infer Requires, infer Provides>
@@ -53,15 +45,10 @@ type StepArtifactsSurface<TArtifacts extends StepArtifactsDeclAny | undefined> =
           ArtifactByName<ArtifactListOrEmpty<Requires>, K>
         >;
       } & {
-        readonly [K in Provides extends readonly ArtifactModule[]
-          ? ArtifactNameOf<ArtifactContractsOfModules<Provides>>
+        readonly [K in Provides extends readonly Artifact[]
+          ? ArtifactNameOf<Provides>
           : never]: ProvidedArtifactRuntime<
-          ArtifactByName<
-            Provides extends readonly ArtifactModule[]
-              ? ArtifactContractsOfModules<Provides>
-              : readonly [],
-            K
-          >
+          ArtifactByName<Provides extends readonly Artifact[] ? Provides : readonly [], K>
         >;
       }
     : {};

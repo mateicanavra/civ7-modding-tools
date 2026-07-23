@@ -1,7 +1,7 @@
 import type { Static, TSchema } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationMantleForcingSchema } from "../../artifacts/mantle-forcing.artifact.js";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationMantleForcingArtifact } from "../../artifacts/mantle-forcing.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
 import { CrustSchema as FoundationCrustSchema } from "../../model/schemas/crust.schema.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
@@ -56,12 +56,12 @@ const InputSchema = Type.Object(
   {
     /** Foundation mesh (cells, adjacency, site coordinates). */
     mesh: withDescription(
-      FoundationMeshSchema,
+      FoundationMeshArtifact.schema,
       "Foundation mesh (cells, adjacency, site coordinates)."
     ),
     /** Mantle forcing fields (derived from mantle potential). */
     mantleForcing: withDescription(
-      FoundationMantleForcingSchema,
+      FoundationMantleForcingArtifact.schema,
       "Mantle forcing fields (derived from mantle potential)."
     ),
     /** Deterministic RNG seed (derived in the step; pure data). */

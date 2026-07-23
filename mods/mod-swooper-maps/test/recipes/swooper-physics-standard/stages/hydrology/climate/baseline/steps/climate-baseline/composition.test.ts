@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { artifactModules as hydrologyClimateBaselineArtifactModules } from "@mapgen/domain/hydrology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import hydrologyDomain from "@mapgen/domain/hydrology/ops";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -94,13 +94,13 @@ describe("hydrology climate-baseline composition", () => {
     const thermalSstInputs: Array<Float32Array | undefined> = [];
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
+      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size),
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifactModules.shelf, {
+      publishTestArtifact(stepContext, morphologyArtifacts.shelf, {
         shelfMask: new Uint8Array(size),
         coastalLand: new Uint8Array(size),
         coastalWater: new Uint8Array(size),
@@ -164,10 +164,7 @@ describe("hydrology climate-baseline composition", () => {
     expect(thermalSstInputs).toHaveLength(config.seasonality.modeCount);
     for (const observedSst of thermalSstInputs) expect(observedSst).toBe(sstC);
 
-    const windField = readValidatedArtifact(
-      context,
-      hydrologyClimateBaselineArtifactModules.windField
-    );
+    const windField = readValidatedArtifact(context, hydrologyArtifacts.windField);
     expect(Array.from(windField.windU)).toEqual(Array.from(windU));
     expect(Array.from(windField.windV)).toEqual(Array.from(windV));
     expect(Array.from(windField.currentU)).toEqual(

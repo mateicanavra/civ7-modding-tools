@@ -1,9 +1,5 @@
 import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  defineArtifact,
-  defineArtifactValidator,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 const PlateTopologyNodeSchema = Type.Object(
   {
@@ -25,7 +21,7 @@ const PlateTopologyNodeSchema = Type.Object(
 );
 
 /** Structural contract for index-addressed plate topology. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     plateCount: Type.Integer({ minimum: 1, description: "Number of plates." }),
     plates: Type.Array(PlateTopologyNodeSchema, {
@@ -43,8 +39,10 @@ export const artifact = defineArtifact({
   name: "foundationPlateTopology",
   id: "artifact:foundation.plateTopology",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates topology cardinality, index-aligned identities, and bounded neighbor references. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const topology = value as Artifact;
   const issues: ArtifactValidationIssue[] = [];
@@ -62,6 +60,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   });
   return issues;
 }
-
-/** Validates topology cardinality, index-aligned identities, and bounded neighbor references. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -5,10 +5,7 @@ import {
   PLACEMENT_PRODUCT_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
 import { artifacts as mapHydrologyArtifacts } from "../../../map/hydrology/artifacts/index.js";
-import {
-  artifactModules as placementArtifactModules,
-  artifacts as placementArtifacts,
-} from "../../artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../artifacts/index.js";
 
 /**
  * Defines the one maintenance transaction after wonder stamping, publishing
@@ -41,8 +38,8 @@ export const PreparePlacementSurfaceStepContract = defineStep({
       morphologyArtifacts.topography,
     ],
     provides: [
-      placementArtifactModules.placementSurfacePreparation,
-      placementArtifactModules.placementSurfaceValidationBoundary,
+      placementArtifacts.placementSurfacePreparation,
+      placementArtifacts.placementSurfaceValidationBoundary,
     ],
   },
   schema: Type.Object({}, { additionalProperties: false }),

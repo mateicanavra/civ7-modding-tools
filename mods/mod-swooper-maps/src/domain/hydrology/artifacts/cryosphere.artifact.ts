@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -15,7 +14,7 @@ import {
  *
  * When `cryosphere` knob is `"off"`, these layers are still published but intentionally neutralized by config.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     /** Snow cover fraction (0..255) per tile. */
     snowCover: TypedArraySchemas.u8({ description: "Snow cover fraction (0..255) per tile." }),
@@ -50,8 +49,14 @@ export const artifact = defineArtifact({
   name: "cryosphere",
   id: "artifact:hydrology.cryosphere",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Validates cryosphere state against its closed schema and, when map dimensions are supplied,
+ * verifies every tile field matches that width × height. It returns accumulated issues so
+ * artifact admission can reject a structurally valid but spatially inconsistent payload.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -111,10 +116,3 @@ function validateLocal(
   );
   return errors;
 }
-
-/**
- * Validates cryosphere state against its closed schema and, when map dimensions are supplied,
- * verifies every tile field matches that width × height. It returns accumulated issues so
- * artifact admission can reject a structurally valid but spatially inconsistent payload.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -2,19 +2,19 @@ import resources from "@mapgen/domain/resources";
 import {
   type ArtifactValidationIssue,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Site-selection resource plan (`artifact:placement.resourcePlan`). One artifact per file by repo convention. */
 
-export const Schema = resources.ops.selectResourceSites.output;
+const Schema = resources.ops.selectResourceSites.output;
 
 /** Registers authoritative per-plot resource intents before start-support adjustment. */
 export const artifact = defineArtifact({
   name: "resourcePlan",
   id: "artifact:placement.resourcePlan",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
@@ -27,6 +27,10 @@ function issue(message: string): ArtifactValidationIssue {
  * These check cross-field invariants the schemas cannot express.
  */
 
+/**
+ * Validates map bounds, unique intent plots, count coherence, declared maxima, and the exact
+ * terminal shortfall implied by each resource type's effective target.
+ */
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as Static<typeof Schema>;
   const issues: ArtifactValidationIssue[] = [];
@@ -106,9 +110,3 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/**
- * Validates map bounds, unique intent plots, count coherence, declared maxima, and the exact
- * terminal shortfall implied by each resource type's effective target.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

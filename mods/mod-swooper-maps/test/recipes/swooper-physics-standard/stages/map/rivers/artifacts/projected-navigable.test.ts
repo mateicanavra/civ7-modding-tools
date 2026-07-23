@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { artifactModules as mapRiversArtifactModules } from "../../../../../../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../../../../../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 2, height: 2 } as const;
 const SYNTHETIC_CARDINALITY = SYNTHETIC_DIMENSIONS.width * SYNTHETIC_DIMENSIONS.height;
@@ -39,14 +39,14 @@ describe("map-rivers projected-navigable-rivers artifact", () => {
   it("couples chain-length cardinality to chain count rather than map size", () => {
     const valid = projectedNavigableRiverPayload(new Uint16Array([2]));
     expect(
-      mapRiversArtifactModules.projectedNavigableRivers.validate(valid, {
+      mapRiversArtifacts.projectedNavigableRivers.validate(valid, {
         dimensions: SYNTHETIC_DIMENSIONS,
       })
     ).toEqual([]);
 
     const invalid = projectedNavigableRiverPayload(new Uint16Array([2, 1]));
     expect(
-      mapRiversArtifactModules.projectedNavigableRivers
+      mapRiversArtifacts.projectedNavigableRivers
         .validate(invalid, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((issue) => issue.message.includes("selectedChainLengths"))
     ).toBe(true);

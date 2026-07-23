@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -14,7 +13,7 @@ import {
  * Runtime contract for Ecology-symbol-to-engine-biome readback, including collision and
  * land/water mismatch evidence at the projection boundary.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -49,11 +48,13 @@ export const artifact = defineArtifact({
   name: "biomeBindings",
   id: "artifact:ecology.biomeBindings",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /**
  * Validates biome-binding structure, exact typed-array kinds, and map-sized cardinality when known.
  */
+/** Admits map-sized typed biome-binding readback after Core validates aggregate evidence. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -78,6 +79,3 @@ function validateLocal(
   );
   return Object.freeze(issues);
 }
-
-/** Admits map-sized typed biome-binding readback after Core validates aggregate evidence. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

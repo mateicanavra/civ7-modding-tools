@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -14,7 +13,7 @@ import {
  * Closed contract for Hydrology's annual-mean rainfall and humidity before refinement.
  * Each typed array contains exactly one immutable sample per map tile.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     rainfall: TypedArraySchemas.u8({
       description:
@@ -37,12 +36,14 @@ export const artifact = defineArtifact({
   name: "baselineClimateField",
   id: "artifact:hydrology.baselineClimateField",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /**
  * Validates the baseline climate vintage against its closed schema, map cardinality,
  * and the narrower Civ7 rainfall range that a Uint8Array alone cannot express.
  */
+/** Admits map-sized baseline climate fields and the Civ7 rainfall range after structural admission. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -69,6 +70,3 @@ function validateLocal(
 
   return Object.freeze(issues);
 }
-
-/** Admits map-sized baseline climate fields and the Civ7 rainfall range after structural admission. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

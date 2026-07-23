@@ -1,10 +1,10 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { Schema as FoundationMantleForcingSchema } from "../../artifacts/mantle-forcing.artifact.js";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
-import { Schema as FoundationPlateMotionSchema } from "../../artifacts/plate-motion.artifact.js";
+import { artifact as FoundationMantleForcingArtifact } from "../../artifacts/mantle-forcing.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationPlateGraphArtifact } from "../../artifacts/plate-graph.artifact.js";
+import { artifact as FoundationPlateMotionArtifact } from "../../artifacts/plate-motion.artifact.js";
 
 const StrategySchema = Type.Object(
   {
@@ -55,14 +55,14 @@ const ComputePlateMotionContract = defineOp({
   id: "foundation/compute-plate-motion",
   input: Type.Object(
     {
-      mesh: FoundationMeshSchema,
-      plateGraph: FoundationPlateGraphSchema,
-      mantleForcing: FoundationMantleForcingSchema,
+      mesh: FoundationMeshArtifact.schema,
+      plateGraph: FoundationPlateGraphArtifact.schema,
+      mantleForcing: FoundationMantleForcingArtifact.schema,
     },
     { additionalProperties: false }
   ),
   output: Type.Object(
-    { plateMotion: FoundationPlateMotionSchema },
+    { plateMotion: FoundationPlateMotionArtifact.schema },
     {
       additionalProperties: false,
       description:

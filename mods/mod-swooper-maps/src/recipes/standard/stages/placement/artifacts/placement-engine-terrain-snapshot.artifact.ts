@@ -2,14 +2,13 @@ import {
   type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime contract for the terminal placement terrain readback used in parity checks. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     stage: Type.String({
       description: "Step identifier that produced this snapshot (e.g. map-hydrology/lakes).",
@@ -38,12 +37,14 @@ export const artifact = defineArtifact({
   name: "placementEngineTerrainSnapshot",
   id: "artifact:map.placementEngineTerrainSnapshot",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
   return { message };
 }
 
+/** Validates positive dimensions and map-sized land, terrain, and elevation surfaces. */
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as Static<typeof Schema>;
   const issues: ArtifactValidationIssue[] = [];
@@ -81,6 +82,3 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
   );
   return issues;
 }
-
-/** Validates positive dimensions and map-sized land, terrain, and elevation surfaces. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

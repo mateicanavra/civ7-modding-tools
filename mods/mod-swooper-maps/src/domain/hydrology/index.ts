@@ -16,6 +16,6 @@ export { RiverNetworkMeasurementsSchema } from "./ops/compute-river-network-metr
 
 const domain = defineDomain({ id: "hydrology", ops } as const);
 
-export { artifactModules, artifacts } from "./artifacts/index.js";
+export { artifacts } from "./artifacts/index.js";
 
 export default domain;

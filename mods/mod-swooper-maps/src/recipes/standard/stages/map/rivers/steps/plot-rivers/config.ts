@@ -1,8 +1,8 @@
-import hydrology, { artifacts as hydrologyHydrographyArtifacts } from "@mapgen/domain/hydrology";
+import hydrology, { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
-import { artifactModules as mapRiversArtifactModules } from "../../artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../artifacts/index.js";
 
 const PlotRiversStepConfigSchema = Type.Object(
   {},
@@ -35,13 +35,13 @@ export const PlotRiversStepContract = defineStep({
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   artifacts: {
     requires: [
-      hydrologyHydrographyArtifacts.hydrography,
-      hydrologyHydrographyArtifacts.lakePlan,
-      hydrologyHydrographyArtifacts.riverNetwork,
+      hydrologyArtifacts.hydrography,
+      hydrologyArtifacts.lakePlan,
+      hydrologyArtifacts.riverNetwork,
       morphologyArtifacts.shelf,
       morphologyArtifacts.topography,
     ],
-    provides: [mapRiversArtifactModules.projectedNavigableRivers],
+    provides: [mapRiversArtifacts.projectedNavigableRivers],
   },
   ops: {
     selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,

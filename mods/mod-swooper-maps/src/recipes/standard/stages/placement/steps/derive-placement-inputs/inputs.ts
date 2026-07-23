@@ -10,13 +10,15 @@ import placement from "@mapgen/domain/placement";
 import type { MapContext } from "@swooper/mapgen-core";
 import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import type { CurrentEnginePlacementTypes } from "../../../../current-engine-surface.js";
-import type { PlacementInputsV1 } from "../../artifacts/placement-inputs.artifact.js";
 
 import { DerivePlacementInputsStepContract } from "./config.js";
 
 type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsStepContract.schema>;
 type DerivePlacementInputsOps = StepRuntimeOps<
   NonNullable<typeof DerivePlacementInputsStepContract.ops>
+>;
+type PlacementInputsV1 = Static<
+  typeof import("../../artifacts/placement-inputs.artifact.js").artifact.schema
 >;
 type PlanNaturalWondersOutput = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
 

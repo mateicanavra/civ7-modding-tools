@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 
 const SYNTHETIC_DIMENSIONS = { width: 1, height: 1 } as const;
 const SYNTHETIC_CARDINALITY = SYNTHETIC_DIMENSIONS.width * SYNTHETIC_DIMENSIONS.height;
@@ -21,7 +21,7 @@ describe("morphology-features mountains artifact", () => {
     payload.mountainRegionMask[0] = 2;
 
     expect(
-      morphologyArtifactModules.mountains
+      morphologyArtifacts.mountains
         .validate(payload, { dimensions: SYNTHETIC_DIMENSIONS })
         .some((issue) => issue.message.includes("mountainRegionMask"))
     ).toBe(true);

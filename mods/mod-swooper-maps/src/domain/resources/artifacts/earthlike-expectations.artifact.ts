@@ -1,10 +1,5 @@
 import type { OfficialResourceType } from "@civ7/map-policy";
-import {
-  defineArtifact,
-  defineArtifactValidator,
-  type Static,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { EARTHLIKE_RESOURCE_EXPECTATIONS } from "../model/data/earthlike-expectations/official-earthlike.js";
 import type { EarthlikeResourceExpectationsArtifact } from "../model/data/earthlike-expectations/types.js";
 
@@ -186,7 +181,7 @@ const EarthlikeExpectationEntrySchema = Type.Union([
  * unions reject contradictory dispositions; corpus completeness and unique membership remain
  * properties of the authored data, not this schema.
  */
-export const Schema = Type.Unsafe<EarthlikeResourceExpectationsArtifact>(
+const Schema = Type.Unsafe<EarthlikeResourceExpectationsArtifact>(
   Type.Object(
     {
       source: Type.Object(
@@ -221,9 +216,3 @@ export const artifact = defineArtifact({
   id: "artifact:resources.earthlikeExpectations",
   schema: Schema,
 });
-
-/**
- * Validates expectation row shapes and active/blocked disposition combinations. It does not
- * prove that official resources appear exactly once or that the corpus is complete.
- */
-export const validate = defineArtifactValidator(artifact);

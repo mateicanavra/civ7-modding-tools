@@ -5,7 +5,6 @@ import {
   ArtifactMissingError,
   createStep,
   defineArtifact,
-  defineArtifactValidator,
   defineStep,
   readValidatedArtifact,
 } from "@mapgen/authoring/index.js";
@@ -31,13 +30,6 @@ function createSyntheticContext() {
   });
 }
 
-function artifactModule<C extends ReturnType<typeof defineArtifact>>(artifact: C) {
-  return {
-    artifact,
-    validate: defineArtifactValidator(artifact),
-  };
-}
-
 const inputArtifact = defineArtifact({
   name: "inputValue",
   id: "artifact:test.step-input",
@@ -48,14 +40,12 @@ const outputArtifact = defineArtifact({
   id: "artifact:test.step-output",
   schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
 });
-const inputModule = artifactModule(inputArtifact);
-const outputModule = artifactModule(outputArtifact);
 const doubleStep = createStep(
   defineStep({
     id: "double-value",
     requires: [],
     provides: [],
-    artifacts: { requires: [inputArtifact], provides: [outputModule] },
+    artifacts: { requires: [inputArtifact], provides: [outputArtifact] },
     schema: EmptyStepConfigSchema,
   }),
   {
@@ -161,12 +151,12 @@ describe("step testing surface", () => {
     const context = createSyntheticContext();
     let result: number | Promise<number> | undefined;
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, inputModule, { value: 3 });
+      publishTestArtifact(stepContext, inputArtifact, { value: 3 });
       result = doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep));
     });
 
     expect(result).toBe(6);
-    expect(readValidatedArtifact(context, outputModule)).toEqual({ value: 6 });
+    expect(readValidatedArtifact(context, outputArtifact)).toEqual({ value: 6 });
     expect(() =>
       withMapContextExecutionForTest(context, (stepContext) => {
         doubleStep.run(stepContext, {}, {}, buildStepTestDependencies(doubleStep));

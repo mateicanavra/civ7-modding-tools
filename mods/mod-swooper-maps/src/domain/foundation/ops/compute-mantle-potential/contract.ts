@@ -1,8 +1,8 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { Schema as FoundationMantlePotentialSchema } from "../../artifacts/mantle-potential.artifact.js";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationMantlePotentialArtifact } from "../../artifacts/mantle-potential.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
 
 const StrategySchema = Type.Object(
   {
@@ -71,7 +71,7 @@ const ComputeMantlePotentialContract = defineOp({
   id: "foundation/compute-mantle-potential",
   input: Type.Object(
     {
-      mesh: FoundationMeshSchema,
+      mesh: FoundationMeshArtifact.schema,
       rngSeed: Type.Integer({
         minimum: 0,
         maximum: 2_147_483_647,
@@ -81,7 +81,7 @@ const ComputeMantlePotentialContract = defineOp({
     { additionalProperties: false }
   ),
   output: Type.Object(
-    { mantlePotential: FoundationMantlePotentialSchema },
+    { mantlePotential: FoundationMantlePotentialArtifact.schema },
     { additionalProperties: false }
   ),
   strategies: {

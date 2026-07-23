@@ -3,7 +3,7 @@ import type { MapContext } from "@mapgen/core/map-context.js";
 import type { NormalizeContext } from "@mapgen/engine/index.js";
 import type { StepFacets } from "@mapgen/engine/step-facets.js";
 import type { Static } from "typebox";
-import { implementArtifactModules } from "../artifact/runtime.js";
+import { implementArtifacts } from "../artifact/runtime.js";
 import type { StepDeps, StepModule } from "../types.js";
 import { assertCanonicalStepContractInternal, registerCanonicalStepInternal } from "./authority.js";
 import type { StepContract } from "./contract.js";
@@ -73,7 +73,7 @@ function captureStepImplementation(stepId: string, impl: unknown): CapturedStepI
     throw new TypeError(`step "${stepId}" implementation must be an object`);
   }
   if (Object.prototype.hasOwnProperty.call(impl, "artifacts")) {
-    throw new Error(`step "${stepId}" implementation cannot declare artifact modules`);
+    throw new Error(`step "${stepId}" implementation cannot redeclare artifacts`);
   }
   assertNoStepStageIdentityAliases(impl, `step "${stepId}" implementation`);
 
@@ -86,7 +86,7 @@ function captureStepImplementation(stepId: string, impl: unknown): CapturedStepI
 
 /**
  * Binds executable step behavior to its admitted contract. Provider runtimes derive from the
- * contract's artifact modules, so an implementation cannot install a second contract or validator.
+ * contract's artifact authorities, so an implementation cannot install a second validator.
  * The run result is inferred once and becomes the typed input to optional post-provides projectors.
  */
 export function createStep<const C extends StepContract<any, any, any, any, any>, TResult = void>(
@@ -98,9 +98,11 @@ export function createStep<const C extends StepContract<any, any, any, any, any>
   }
   assertCanonicalStepContractInternal(contract);
   const captured = captureStepImplementation(contract.id, impl);
-  const modules = contract.artifacts?.provides;
+  const providedArtifacts = contract.artifacts?.provides;
   const artifacts =
-    modules === undefined || modules.length === 0 ? undefined : implementArtifactModules(modules);
+    providedArtifacts === undefined || providedArtifacts.length === 0
+      ? undefined
+      : implementArtifacts(providedArtifacts);
 
   const step = Object.freeze({
     contract,

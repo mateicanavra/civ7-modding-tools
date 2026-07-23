@@ -1,7 +1,4 @@
-import morphology, {
-  artifactModules as morphologyArtifactModules,
-  artifacts as morphologyArtifacts,
-} from "@mapgen/domain/morphology";
+import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -13,10 +10,7 @@ export const RuggedCoastsStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [morphologyArtifacts.beltDrivers, morphologyArtifacts.baseTopography],
-    provides: [
-      morphologyArtifactModules.carvedTopography,
-      morphologyArtifactModules.carvedCoastline,
-    ],
+    provides: [morphologyArtifacts.carvedTopography, morphologyArtifacts.carvedCoastline],
   },
   ops: {
     coastlines: morphology.ops.computeCoastlineMetrics,

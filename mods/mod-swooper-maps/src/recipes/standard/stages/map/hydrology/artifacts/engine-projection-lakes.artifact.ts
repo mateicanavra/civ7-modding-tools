@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -14,7 +13,7 @@ import {
  * Runtime contract reconciling Hydrology lake intent with Civ7 water, lake, terrain, area, and
  * elevation readback plus explicit rejection and morphology-protection evidence.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -87,12 +86,14 @@ export const artifact = defineArtifact({
   name: "engineProjectionLakes",
   id: "artifact:map.hydrology.engineProjectionLakes",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /**
  * Validates the closed projection report, including dimensions, typed readback
  * masks, mismatch counts, and morphology-protection evidence.
  */
+/** Admits map-sized typed lake projection and Civ7 readback surfaces after structural admission. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -167,6 +168,3 @@ function validateLocal(
   );
   return Object.freeze(issues);
 }
-
-/** Admits map-sized typed lake projection and Civ7 readback surfaces after structural admission. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

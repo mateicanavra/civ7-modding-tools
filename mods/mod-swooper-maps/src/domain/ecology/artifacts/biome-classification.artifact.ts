@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -15,7 +14,7 @@ import { BIOME_SYMBOL_ORDER } from "../model/schemas/biome-symbol.schema.js";
  * Runtime contract for per-tile Ecology biome identity, vegetation density, and the derived
  * tree-line signal. Hydrology climate and cryosphere fields remain in their owning artifacts.
  */
-export const Schema = Type.Object({
+const Schema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
   biomeIndex: TypedArraySchemas.u8({
@@ -36,8 +35,15 @@ export const artifact = defineArtifact({
   name: "biomeClassification",
   id: "artifact:ecology.biomeClassification",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Validates biome classification against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -120,11 +126,3 @@ function validateFiniteValues(
     }
   }
 }
-
-/**
- * Validates biome classification against its closed schema and, when map dimensions are
- * supplied, verifies every tile field matches that width × height. It returns accumulated
- * issues so artifact admission can reject a structurally valid but spatially inconsistent
- * payload.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

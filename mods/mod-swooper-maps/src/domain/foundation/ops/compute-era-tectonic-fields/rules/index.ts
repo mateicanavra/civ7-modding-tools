@@ -1,3 +1,4 @@
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { quantizeI8Symmetric, quantizeU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 import {
   type CsrPointMesh2D,
@@ -5,9 +6,14 @@ import {
   selectMeshNeighborByVectorProjection,
 } from "@swooper/mapgen-core/lib/mesh";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
-import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
-import type { Artifact as TectonicEvents } from "../../../artifacts/tectonic-events.artifact.js";
 import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
+
+type FoundationTectonicEraFieldsInternalList = Static<
+  typeof import("../../../artifacts/tectonic-era-fields.artifact.js").artifact.schema
+>;
+type TectonicEvents = Static<
+  typeof import("../../../artifacts/tectonic-events.artifact.js").artifact.schema
+>;
 
 type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];
 type TectonicEventRecord = TectonicEvents[number];

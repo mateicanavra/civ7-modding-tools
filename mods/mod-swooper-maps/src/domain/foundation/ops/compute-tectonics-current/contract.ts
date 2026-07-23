@@ -1,9 +1,9 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationTectonicsSchema } from "../../artifacts/current-tectonics.artifact.js";
-import { Schema as FoundationTectonicEraFieldsInternalListSchema } from "../../artifacts/tectonic-era-fields.artifact.js";
+import { artifact as FoundationTectonicsArtifact } from "../../artifacts/current-tectonics.artifact.js";
+import { artifact as FoundationTectonicEraFieldsInternalListArtifact } from "../../artifacts/tectonic-era-fields.artifact.js";
 
 const FoundationTectonicEraFieldsInternalSchema =
-  FoundationTectonicEraFieldsInternalListSchema.items;
+  FoundationTectonicEraFieldsInternalListArtifact.schema.items;
 
 const ComputeTectonicsCurrentContract = defineOp({
   kind: "compute",
@@ -17,7 +17,7 @@ const ComputeTectonicsCurrentContract = defineOp({
   ),
   output: Type.Object(
     {
-      tectonics: FoundationTectonicsSchema,
+      tectonics: FoundationTectonicsArtifact.schema,
     },
     {
       additionalProperties: false,

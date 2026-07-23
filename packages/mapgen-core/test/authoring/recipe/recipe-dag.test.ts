@@ -4,7 +4,6 @@ import {
   createStage,
   createStep,
   defineArtifact,
-  defineArtifactValidator,
   defineStep,
 } from "@mapgen/authoring/index.js";
 
@@ -59,17 +58,13 @@ function step(input: {
     ReturnType<typeof defineArtifact>,
     ...ReturnType<typeof defineArtifact>[],
   ];
-  const artifactModules = providedArtifacts.map((artifact) => ({
-    artifact,
-    validate: defineArtifactValidator(artifact),
-  }));
   const contract = defineStep({
     id: input.id,
     requires: requires.length ? ["effect:test.externalReady"] : [],
     provides: [],
     artifacts: {
       requires,
-      provides: artifactModules,
+      provides: providedArtifacts,
     },
     schema: EmptyStepConfigSchema,
   });

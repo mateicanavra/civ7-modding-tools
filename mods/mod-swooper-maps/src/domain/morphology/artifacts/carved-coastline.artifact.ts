@@ -4,14 +4,13 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime schema for the pre-island carved coastline snapshot. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     coastalLand: TypedArraySchemas.u8({ description: "Mask (1/0): land tiles adjacent to water." }),
     coastalWater: TypedArraySchemas.u8({
@@ -37,8 +36,10 @@ export const artifact = defineArtifact({
   name: "carvedCoastline",
   id: "artifact:morphology.carvedCoastline",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates mask/distance array kinds and their map-sized cardinality when known. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -74,6 +75,3 @@ function validateLocal(
   );
   return errors;
 }
-
-/** Validates mask/distance array kinds and their map-sized cardinality when known. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

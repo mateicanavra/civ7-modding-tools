@@ -2,13 +2,12 @@ import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/autho
 import {
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Structural contract for plate-boundary segments and their parallel signal fields. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     segmentCount: Type.Integer({ minimum: 0 }),
     aCell: TypedArraySchemas.i32({
@@ -78,8 +77,10 @@ export const artifact = defineArtifact({
   name: "foundationTectonicSegments",
   id: "artifact:foundation.tectonicSegments",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates exact segment-array constructors and segment-count cardinality. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const segments = value as Artifact;
   const issues: ArtifactValidationIssue[] = [];
@@ -105,6 +106,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/** Validates exact segment-array constructors and segment-count cardinality. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

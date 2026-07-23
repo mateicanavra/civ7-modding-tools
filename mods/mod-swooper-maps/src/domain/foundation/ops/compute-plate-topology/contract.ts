@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-import { Schema as FoundationPlateTopologySchema } from "../../artifacts/plate-topology.artifact.js";
+import { artifact as FoundationPlateTopologyArtifact } from "../../artifacts/plate-topology.artifact.js";
 
 /**
  * compute-plate-topology — build the plate adjacency graph from the tile-space
@@ -29,7 +29,7 @@ const ComputePlateTopologyContract = defineOp({
     { additionalProperties: false }
   ),
   output: Type.Object(
-    { plateTopology: FoundationPlateTopologySchema },
+    { plateTopology: FoundationPlateTopologyArtifact.schema },
     { additionalProperties: false }
   ),
   strategies: {

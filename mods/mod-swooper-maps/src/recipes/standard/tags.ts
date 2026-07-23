@@ -1,5 +1,5 @@
 import type { DependencyEvidence, DependencyTagDefinition } from "@swooper/mapgen-core/authoring";
-import { artifactModules as placementArtifactModules } from "./stages/placement/artifacts/index.js";
+import { artifacts as placementArtifacts } from "./stages/placement/artifacts/index.js";
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   PLACEMENT_PRODUCT_EFFECT_TAGS,
@@ -26,7 +26,7 @@ const VERIFIED_EFFECT_SATISFIES: Partial<Record<string, EffectTagSatisfiesProper
 /**
  * Runtime definitions for every Standard effect tag. Effects use adapter/artifact verification
  * where completion cannot be trusted by name; data dependencies are registered by their
- * step-owned artifact modules instead of this catalog.
+ * step-selected Artifact authorities instead of this catalog.
  */
 export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition[] = [
   ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map(effectTagDefinition),
@@ -42,9 +42,9 @@ export function registerStandardTags(registry: {
 }
 
 function isPlacementOutputSatisfied(evidence: DependencyEvidence): boolean {
-  const outputs = evidence.observeArtifact(placementArtifactModules.placementOutputs);
+  const outputs = evidence.observeArtifact(placementArtifacts.placementOutputs);
   if (!outputs.found) return false;
-  const assignment = evidence.observeArtifact(placementArtifactModules.startAssignment);
+  const assignment = evidence.observeArtifact(placementArtifacts.startAssignment);
   if (!assignment.found) return false;
   return (
     assignment.value.assigned === assignment.value.seats.length &&

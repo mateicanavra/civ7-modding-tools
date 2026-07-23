@@ -10,7 +10,7 @@ import type { MapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import { artifactModules as placementArtifactModules } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 import {
   runStandardRecipeTestMap,
   type StandardRecipeTestAdapterInput,
@@ -47,11 +47,11 @@ function runStandardPlacementRecipe({
 }
 
 function readResourceOutcomes(context: ReturnType<typeof runStandardPlacementRecipe>["context"]) {
-  return readValidatedArtifact(context, placementArtifactModules.resourcePlacementOutcomes);
+  return readValidatedArtifact(context, placementArtifacts.resourcePlacementOutcomes);
 }
 
 function readDiscoveryOutcomes(context: ReturnType<typeof runStandardPlacementRecipe>["context"]) {
-  return readValidatedArtifact(context, placementArtifactModules.discoveryPlacementOutcomes);
+  return readValidatedArtifact(context, placementArtifacts.discoveryPlacementOutcomes);
 }
 
 class MismatchingResourceAdapter extends MockAdapter {

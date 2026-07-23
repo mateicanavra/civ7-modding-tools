@@ -4,14 +4,13 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Foundation tectonic provenance tiles artifact payload (tile-space provenance scalars). */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     /** Schema major version. */
     version: Type.Integer({ minimum: 1, description: "Schema major version." }),
@@ -50,9 +49,11 @@ export const artifact = defineArtifact({
   name: "foundationTectonicProvenanceTiles",
   id: "artifact:foundation.tectonicProvenanceTiles",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /** Validates the version and map-sized typed arrays, preserving `-1`/`255` sentinels. */
+/** Admits map-sized typed provenance fields after Core validates the closed artifact shape. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -100,6 +101,3 @@ function validateLocal(
 
   return Object.freeze(issues);
 }
-
-/** Admits map-sized typed provenance fields after Core validates the closed artifact shape. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

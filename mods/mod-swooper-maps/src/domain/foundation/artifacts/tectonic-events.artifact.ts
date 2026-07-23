@@ -1,9 +1,5 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
-import {
-  defineArtifact,
-  defineArtifactValidator,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 const EventSchema = Type.Object(
   {
@@ -25,7 +21,7 @@ const EventSchema = Type.Object(
 );
 
 /** Closed structural contract for emitted tectonic events. */
-export const Schema = Type.Array(EventSchema);
+const Schema = Type.Array(EventSchema);
 
 /** Tectonic events published by Foundation. */
 export type Artifact = Static<typeof Schema>;
@@ -36,6 +32,3 @@ export const artifact = defineArtifact({
   id: "artifact:foundation.tectonicEvents",
   schema: Schema,
 });
-
-/** Validates the closed event schema and its declared numeric domains. */
-export const validate = defineArtifactValidator(artifact);

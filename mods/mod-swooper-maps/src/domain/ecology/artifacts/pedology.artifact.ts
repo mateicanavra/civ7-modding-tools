@@ -4,14 +4,13 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime contract for Ecology's per-tile soil class and normalized fertility truth. */
-export const Schema = Type.Object({
+const Schema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
   soilType: TypedArraySchemas.u8({ description: "Soil type index per tile." }),
@@ -29,8 +28,14 @@ export const artifact = defineArtifact({
   name: "pedology",
   id: "artifact:ecology.soils",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Validates pedology against its closed schema and, when map dimensions are supplied, verifies
+ * every tile field matches that width × height. It returns accumulated issues so artifact
+ * admission can reject a structurally valid but spatially inconsistent payload.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -46,10 +51,3 @@ function validateLocal(
   appendArtifactTypedArrayIssues(errors, "fertility", value.fertility, Float32Array, size);
   return errors;
 }
-
-/**
- * Validates pedology against its closed schema and, when map dimensions are supplied, verifies
- * every tile field matches that width × height. It returns accumulated issues so artifact
- * admission can reject a structurally valid but spatially inconsistent payload.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

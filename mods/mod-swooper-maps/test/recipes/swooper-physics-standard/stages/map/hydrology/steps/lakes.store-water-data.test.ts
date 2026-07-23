@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 
 import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-import { artifactModules as hydrologyArtifactModules } from "@mapgen/domain/hydrology";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
@@ -12,7 +12,7 @@ import {
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { artifactModules as mapHydrologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/map/hydrology/artifacts/index.js";
+import { artifacts as mapHydrologyArtifacts } from "../../../../../../../src/recipes/standard/stages/map/hydrology/artifacts/index.js";
 import { LakesStep } from "../../../../../../../src/recipes/standard/stages/map/hydrology/steps/lakes/step.js";
 
 type TestContext = ReturnType<typeof createMapContext>;
@@ -143,20 +143,20 @@ function seedLakePlan(
 ): void {
   const { width, height } = context.setup.dimensions;
   const size = width * height;
-  publishTestArtifact(context, morphologyArtifactModules.topography, {
+  publishTestArtifact(context, morphologyArtifacts.topography, {
     elevation: new Int16Array(size),
     seaLevel: 0,
     landMask: new Uint8Array(size).fill(1),
     bathymetry: new Int16Array(size),
   });
-  publishTestArtifact(context, hydrologyArtifactModules.lakePlan, {
+  publishTestArtifact(context, hydrologyArtifacts.lakePlan, {
     width,
     height,
     lakeMask,
     plannedLakeTileCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
     sinkLakeCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
   });
-  publishTestArtifact(context, morphologyArtifactModules.mountains, {
+  publishTestArtifact(context, morphologyArtifacts.mountains, {
     mountainMask,
     mountainRegionMask: Uint8Array.from(mountainMask),
     mountainRegionIdByTile: Int32Array.from(mountainMask, (value) => (value === 1 ? 0 : -1)),
@@ -214,10 +214,7 @@ describe("map-hydrology/lakes", () => {
     ]);
     expect(adapter.isWater(1, 1)).toBe(true);
 
-    const projection = readValidatedArtifact(
-      context,
-      mapHydrologyArtifactModules.engineProjectionLakes
-    );
+    const projection = readValidatedArtifact(context, mapHydrologyArtifacts.engineProjectionLakes);
     expect(projection.nonLakeTileCount).toBe(0);
     expect(projection.terrainMismatchTileCount).toBe(0);
   });
@@ -237,10 +234,7 @@ describe("map-hydrology/lakes", () => {
     lakeMask[1 + width] = 1;
     const result = executeLakesStep(context, lakeMask);
 
-    const projection = readValidatedArtifact(
-      context,
-      mapHydrologyArtifactModules.engineProjectionLakes
-    );
+    const projection = readValidatedArtifact(context, mapHydrologyArtifacts.engineProjectionLakes);
     expect(projection.sinkMismatchCount).toBe(1);
     expect(projection.nonLakeTileCount).toBe(1);
     expect(projection.terrainMismatchTileCount).toBe(0);
@@ -309,10 +303,7 @@ describe("map-hydrology/lakes", () => {
     expect(stamped?.[mountainTile]).toBe(0);
     expect(stamped?.[plainLakeTile]).toBe(1);
 
-    const projection = readValidatedArtifact(
-      context,
-      mapHydrologyArtifactModules.engineProjectionLakes
-    );
+    const projection = readValidatedArtifact(context, mapHydrologyArtifacts.engineProjectionLakes);
     expect(projection.plannedLakeMask[mountainTile]).toBe(1);
     expect(projection.morphologyProtectedLakeTileCount).toBe(1);
   });

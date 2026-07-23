@@ -1,7 +1,12 @@
+import type { ReadonlyDeep } from "type-fest";
 import type { Static, TSchema } from "typebox";
 
 import { applySchemaConventions } from "../schema.js";
-import { isCanonicalArtifact, registerCanonicalArtifact } from "./authority.js";
+import {
+  type ArtifactRefinement,
+  type ArtifactValidator,
+  createArtifactValidatorInternal,
+} from "./validation.js";
 
 const ARTIFACT_NAME_RE = /^[a-z][a-zA-Z0-9]*$/;
 const RESERVED_ARTIFACT_NAMES = new Set(["__proto__", "prototype", "constructor"]);
@@ -30,7 +35,8 @@ function freezeSchemaGraph(schema: TSchema): void {
   freeze(schema);
 }
 
-export type ArtifactContract<
+/** One canonical artifact authority: identity, schema, and complete admission behavior. */
+export type Artifact<
   Name extends string = string,
   Id extends string = string,
   Schema extends TSchema = TSchema,
@@ -38,20 +44,16 @@ export type ArtifactContract<
   name: Name;
   id: Id;
   schema: Schema;
+  validate: ArtifactValidator;
 }>;
 
-export type ArtifactValueOf<C extends ArtifactContract<any, any, any>> = Static<C["schema"]>;
+export type ArtifactValueOf<A extends Artifact<any, any, any>> = Static<A["schema"]>;
 
-export type DeepReadonly<T> = T extends (...args: any[]) => any
-  ? T
-  : T extends ReadonlyArray<infer U>
-    ? ReadonlyArray<DeepReadonly<U>>
-    : T extends object
-      ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-      : T;
+/** Deep readonly projection used for values after immutable artifact publication. */
+export type DeepReadonly<T> = ReadonlyDeep<T>;
 
-export type ArtifactReadValueOf<C extends ArtifactContract<any, any, any>> = DeepReadonly<
-  ArtifactValueOf<C>
+export type ArtifactReadValueOf<A extends Artifact<any, any, any>> = DeepReadonly<
+  ArtifactValueOf<A>
 >;
 
 function assertValidArtifactName(name: unknown): asserts name is string {
@@ -87,6 +89,7 @@ function readArtifactDefinitionData(def: unknown): {
   name: unknown;
   id: unknown;
   schema: unknown;
+  refine: unknown;
 } {
   if (def === null || typeof def !== "object") {
     throw new TypeError("artifact definition must be an object");
@@ -104,27 +107,39 @@ function readArtifactDefinitionData(def: unknown): {
     name: read("name"),
     id: read("id"),
     schema: read("schema"),
+    refine: readOptionalArtifactRefinement(def),
   };
 }
 
-function assertArtifactContractShape(value: unknown): asserts value is ArtifactContract {
+function readOptionalArtifactRefinement(def: object): unknown {
+  const descriptor = Object.getOwnPropertyDescriptor(def, "refine");
+  if (!descriptor) return undefined;
+  if (!descriptor.enumerable || !("value" in descriptor)) {
+    throw new TypeError("artifact definition refine must be an own enumerable data property");
+  }
+  return descriptor.value;
+}
+
+function assertArtifactShape(value: unknown): asserts value is Artifact {
   if (value === null || typeof value !== "object" || !Object.isFrozen(value)) {
-    throw new Error("artifact contract must be a frozen object");
+    throw new Error("artifact must be a frozen object");
   }
 
   const ownKeys = Reflect.ownKeys(value);
   if (
-    ownKeys.length !== 3 ||
+    ownKeys.length !== 4 ||
     !ownKeys.includes("name") ||
     !ownKeys.includes("id") ||
-    !ownKeys.includes("schema")
+    !ownKeys.includes("schema") ||
+    !ownKeys.includes("validate")
   ) {
-    throw new Error("artifact contract must own exactly name, id, and schema");
+    throw new Error("artifact must own exactly name, id, schema, and validate");
   }
 
   const name = Object.getOwnPropertyDescriptor(value, "name");
   const id = Object.getOwnPropertyDescriptor(value, "id");
   const schema = Object.getOwnPropertyDescriptor(value, "schema");
+  const validate = Object.getOwnPropertyDescriptor(value, "validate");
   if (
     !name?.enumerable ||
     !("value" in name) ||
@@ -135,10 +150,15 @@ function assertArtifactContractShape(value: unknown): asserts value is ArtifactC
     !schema?.enumerable ||
     !("value" in schema) ||
     schema.value === null ||
-    typeof schema.value !== "object"
+    typeof schema.value !== "object" ||
+    !Object.isFrozen(schema.value) ||
+    !validate?.enumerable ||
+    !("value" in validate) ||
+    typeof validate.value !== "function" ||
+    !Object.isFrozen(validate.value)
   ) {
     throw new Error(
-      "artifact contract name, id, and schema must be own enumerable data properties"
+      "artifact name, id, schema, and validate must be own enumerable data properties"
     );
   }
 
@@ -146,15 +166,18 @@ function assertArtifactContractShape(value: unknown): asserts value is ArtifactC
   assertValidArtifactId(id.value);
 }
 
-/**
- * Asserts the canonical runtime shape, factory provenance, and semantic identity of an artifact.
- * Admission inspects only own data descriptors, so hostile accessors cannot execute while a
- * consumer decides whether to retain the identity.
- */
-export function assertCanonicalArtifactContract(value: unknown): asserts value is ArtifactContract {
-  assertArtifactContractShape(value);
-  if (!isCanonicalArtifact(value)) {
-    throw new Error("artifact contract must be created by defineArtifact");
+/** Asserts the complete frozen runtime shape and semantic identity of an artifact. */
+export function assertArtifact(value: unknown): asserts value is Artifact {
+  assertArtifactShape(value);
+}
+
+/** Reports whether a value has the complete frozen artifact shape. */
+export function isArtifact(value: unknown): value is Artifact {
+  try {
+    assertArtifactShape(value);
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -162,12 +185,20 @@ export function defineArtifact<
   const Name extends string,
   const Id extends string,
   const Schema extends TSchema,
->(def: { name: Name; id: Id; schema: Schema }): ArtifactContract<Name, Id, Schema> {
+>(def: {
+  name: Name;
+  id: Id;
+  schema: Schema;
+  refine?: ArtifactRefinement;
+}): Artifact<Name, Id, Schema> {
   const admitted = readArtifactDefinitionData(def);
   assertValidArtifactName(admitted.name);
   assertValidArtifactId(admitted.id);
   if (admitted.schema === null || typeof admitted.schema !== "object") {
     throw new TypeError("artifact schema must be an object");
+  }
+  if (admitted.refine !== undefined && typeof admitted.refine !== "function") {
+    throw new TypeError("artifact refine must be a function when provided");
   }
 
   const name = admitted.name as Name;
@@ -175,8 +206,11 @@ export function defineArtifact<
   const schema = admitted.schema as Schema;
   applySchemaConventions(schema, `artifact:${id}`);
   freezeSchemaGraph(schema);
-  const artifact = Object.freeze({ name, id, schema });
-  assertArtifactContractShape(artifact);
-  registerCanonicalArtifact(artifact);
+  const validate = createArtifactValidatorInternal(
+    schema,
+    admitted.refine as ArtifactRefinement | undefined
+  );
+  const artifact = Object.freeze({ name, id, schema, validate });
+  assertArtifactShape(artifact);
   return artifact;
 }

@@ -1,7 +1,4 @@
-import morphology, {
-  artifactModules as morphologyArtifactModules,
-  artifacts as morphologyArtifacts,
-} from "@mapgen/domain/morphology";
+import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -17,7 +14,7 @@ export const GeomorphologyStepContract = defineStep({
       morphologyArtifacts.routing,
       morphologyArtifacts.baseSubstrate,
     ],
-    provides: [morphologyArtifactModules.erodedTopography, morphologyArtifactModules.substrate],
+    provides: [morphologyArtifacts.erodedTopography, morphologyArtifacts.substrate],
   },
   ops: {
     geomorphology: morphology.ops.computeGeomorphicCycle,

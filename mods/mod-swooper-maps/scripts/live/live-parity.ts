@@ -17,9 +17,9 @@ import {
   snapshotRunInGameExactAuthorshipEvidence,
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifest } from "@civ7/studio-run-workspace";
-import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
-import { artifactModules as hydrologyHydrographyArtifactModules } from "@mapgen/domain/hydrology";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import {
   createLabelRng,
   createMapContext,
@@ -29,8 +29,7 @@ import {
   type TraceSink,
 } from "@swooper/mapgen-core";
 import {
-  type ArtifactContract,
-  type ArtifactModule,
+  type Artifact,
   type ArtifactReadValueOf,
   observeValidatedArtifact,
 } from "@swooper/mapgen-core/authoring";
@@ -42,10 +41,10 @@ import {
   type StandardMapConfigEnvelope,
 } from "../../src/maps/configs/canonical.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
-import { artifactModules as mapEcologyArtifactModules } from "../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
-import { artifactModules as mapHydrologyArtifactModules } from "../../src/recipes/standard/stages/map/hydrology/artifacts/index.js";
-import { artifactModules as mapRiversArtifactModules } from "../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
-import { artifactModules as placementArtifactModules } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifacts as mapEcologyArtifacts } from "../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
+import { artifacts as mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map/hydrology/artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 
 const FINAL_SURFACE_KEYS = ["terrain", "biome", "feature", "resource"] as const;
 
@@ -55,11 +54,11 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return proto === Object.prototype || proto === null;
 }
 
-function observeArtifact<C extends ArtifactContract>(
+function observeArtifact<A extends Artifact>(
   context: ReturnType<typeof createMapContext>,
-  module: ArtifactModule<C>
-): ArtifactReadValueOf<C> | undefined {
-  const observation = observeValidatedArtifact(context, module);
+  artifact: A
+): ArtifactReadValueOf<A> | undefined {
+  const observation = observeValidatedArtifact(context, artifact);
   return observation.found ? observation.value : undefined;
 }
 
@@ -646,39 +645,36 @@ export function runLocalFinalSurfaceSnapshot(
     if (event.data.type === "naturalWonder.planInput") evidence.naturalWonderPlanInput = event.data;
   }
   evidence.featureIntents = {
-    floodplains: observeArtifact(context, ecologyArtifactModules.featureIntentsFloodplains),
-    vegetation: observeArtifact(context, ecologyArtifactModules.featureIntentsVegetation),
-    wetlands: observeArtifact(context, ecologyArtifactModules.featureIntentsWetlands),
-    reefs: observeArtifact(context, ecologyArtifactModules.featureIntentsReefs),
-    ice: observeArtifact(context, ecologyArtifactModules.featureIntentsIce),
+    floodplains: observeArtifact(context, ecologyArtifacts.featureIntentsFloodplains),
+    vegetation: observeArtifact(context, ecologyArtifacts.featureIntentsVegetation),
+    wetlands: observeArtifact(context, ecologyArtifacts.featureIntentsWetlands),
+    reefs: observeArtifact(context, ecologyArtifacts.featureIntentsReefs),
+    ice: observeArtifact(context, ecologyArtifacts.featureIntentsIce),
   };
   const featureApplyDiagnostics = observeArtifact(
     context,
-    mapEcologyArtifactModules.featureApplyDiagnostics
+    mapEcologyArtifacts.featureApplyDiagnostics
   );
   if (featureApplyDiagnostics !== undefined) {
     evidence.featureApplyDiagnostics = featureApplyDiagnostics;
   }
-  const naturalWonderPlan = observeArtifact(context, placementArtifactModules.naturalWonderPlan);
+  const naturalWonderPlan = observeArtifact(context, placementArtifacts.naturalWonderPlan);
   if (naturalWonderPlan !== undefined) evidence.naturalWonderPlan = naturalWonderPlan;
   const naturalWonderPlacement = observeArtifact(
     context,
-    placementArtifactModules.naturalWonderPlacement
+    placementArtifacts.naturalWonderPlacement
   );
   if (naturalWonderPlacement !== undefined)
     evidence.naturalWonderPlacement = naturalWonderPlacement;
-  const resourcePlan = observeArtifact(context, placementArtifactModules.resourcePlan);
+  const resourcePlan = observeArtifact(context, placementArtifacts.resourcePlan);
   if (resourcePlan !== undefined) evidence.resourcePlan = resourcePlan;
   // S5: the stamped intents are the support-ADJUSTED plan; capture it so the
   // per-plot parity join classifies against what was actually stamped.
-  const resourcePlanAdjusted = observeArtifact(
-    context,
-    placementArtifactModules.resourcePlanAdjusted
-  );
+  const resourcePlanAdjusted = observeArtifact(context, placementArtifacts.resourcePlanAdjusted);
   if (resourcePlanAdjusted !== undefined) evidence.resourcePlanAdjusted = resourcePlanAdjusted;
   const resourcePlacementOutcomes = observeArtifact(
     context,
-    placementArtifactModules.resourcePlacementOutcomes
+    placementArtifacts.resourcePlacementOutcomes
   );
   if (resourcePlacementOutcomes !== undefined) {
     evidence.resourcePlacementOutcomes = resourcePlacementOutcomes;
@@ -714,7 +710,7 @@ function buildLocalRiverMetadataSnapshot(
   width: number,
   height: number
 ): RiverMetadataSnapshot | undefined {
-  const projected = observeArtifact(context, mapRiversArtifactModules.projectedNavigableRivers);
+  const projected = observeArtifact(context, mapRiversArtifacts.projectedNavigableRivers);
   if (projected === undefined) return undefined;
   return captureCurrentRiverMetadata(adapter, projected, { width, height });
 }
@@ -754,9 +750,9 @@ export function captureCurrentRiverMetadata(
 }
 
 function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapContext>): unknown {
-  const carvedCoastline = observeArtifact(context, morphologyArtifactModules.carvedCoastline);
-  const topography = observeArtifact(context, morphologyArtifactModules.topography);
-  const shelf = observeArtifact(context, morphologyArtifactModules.shelf);
+  const carvedCoastline = observeArtifact(context, morphologyArtifacts.carvedCoastline);
+  const topography = observeArtifact(context, morphologyArtifacts.topography);
+  const shelf = observeArtifact(context, morphologyArtifacts.shelf);
   const mapMorphologyCoastPolicy =
     topography && shelf
       ? deriveCiv7CoastProjection({
@@ -766,26 +762,26 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
           coastalWater: shelf.coastalWater,
         })
       : undefined;
-  const hydrologyLakePlan = observeArtifact(context, hydrologyHydrographyArtifactModules.lakePlan);
+  const hydrologyLakePlan = observeArtifact(context, hydrologyArtifacts.lakePlan);
   const mapHydrologyProjection = observeArtifact(
     context,
-    mapHydrologyArtifactModules.engineProjectionLakes
+    mapHydrologyArtifacts.engineProjectionLakes
   );
   const hydrologyTerrainSnapshot = observeArtifact(
     context,
-    mapHydrologyArtifactModules.hydrologyLakesEngineTerrainSnapshot
+    mapHydrologyArtifacts.hydrologyLakesEngineTerrainSnapshot
   );
   const placementSurfacePreparation = observeArtifact(
     context,
-    placementArtifactModules.placementSurfacePreparation
+    placementArtifacts.placementSurfacePreparation
   );
   const placementTerrainSnapshot = observeArtifact(
     context,
-    placementArtifactModules.placementEngineTerrainSnapshot
+    placementArtifacts.placementEngineTerrainSnapshot
   );
   const placementValidationBoundary = observeArtifact(
     context,
-    placementArtifactModules.placementSurfaceValidationBoundary
+    placementArtifacts.placementSurfaceValidationBoundary
   );
   return stripUndefined({
     carvedCoastline: pickSerializableFields(carvedCoastline, [

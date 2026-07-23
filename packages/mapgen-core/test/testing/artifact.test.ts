@@ -7,7 +7,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   readValidatedArtifact,
 } from "@mapgen/authoring/index.js";
 import { createMapContext } from "@mapgen/core/map-context.js";
@@ -21,28 +20,21 @@ const gridArtifact = defineArtifact({
   name: "testGrid",
   id: "artifact:test.testing-grid",
   schema: Type.Object({ values: Type.Any() }, { additionalProperties: false }),
+  refine: (
+    value: unknown,
+    context?: Readonly<{ dimensions?: Readonly<{ width: number; height: number }> }>
+  ) => {
+    const issues: Array<{ message: string }> = [];
+    appendArtifactTypedArrayIssues(
+      issues,
+      "values",
+      (value as { values: unknown }).values,
+      Uint8Array,
+      artifactCellCount(context)
+    );
+    return issues;
+  },
 });
-
-const gridArtifactModule = {
-  artifact: gridArtifact,
-  validate: defineArtifactValidator(
-    gridArtifact,
-    (
-      value: unknown,
-      context?: Readonly<{ dimensions?: Readonly<{ width: number; height: number }> }>
-    ) => {
-      const issues: Array<{ message: string }> = [];
-      appendArtifactTypedArrayIssues(
-        issues,
-        "values",
-        (value as { values: unknown }).values,
-        Uint8Array,
-        artifactCellCount(context)
-      );
-      return issues;
-    }
-  ),
-};
 
 function createSyntheticContext() {
   return createMapContext({
@@ -62,7 +54,7 @@ describe("artifact testing surface", () => {
 
     withMapContextExecutionForTest(context, (stepContext) => {
       expect(() =>
-        publishTestArtifact(stepContext, gridArtifactModule, {
+        publishTestArtifact(stepContext, gridArtifact, {
           values: new Uint8Array(3),
         })
       ).toThrow(
@@ -71,20 +63,20 @@ describe("artifact testing surface", () => {
         })
       );
 
-      publishTestArtifact(stepContext, gridArtifactModule, admitted);
+      publishTestArtifact(stepContext, gridArtifact, admitted);
 
       expect(() =>
-        publishTestArtifact(stepContext, gridArtifactModule, {
+        publishTestArtifact(stepContext, gridArtifact, {
           values: new Uint8Array(4),
         })
       ).toThrow(ArtifactDoublePublishError);
     });
-    expect(readValidatedArtifact(context, gridArtifactModule)).toBe(admitted);
+    expect(readValidatedArtifact(context, gridArtifact)).toBe(admitted);
 
     const invalidContext = createSyntheticContext();
     expect(() =>
       withMapContextExecutionForTest(invalidContext, (stepContext) =>
-        publishTestArtifact(stepContext, gridArtifactModule, {
+        publishTestArtifact(stepContext, gridArtifact, {
           values: new Int8Array(4) as unknown as Uint8Array,
         })
       )

@@ -1,9 +1,9 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
-import { Schema as FoundationPlateMotionSchema } from "../../artifacts/plate-motion.artifact.js";
-import { Schema as FoundationTectonicSegmentsSchema } from "../../artifacts/tectonic-segments.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationPlateGraphArtifact } from "../../artifacts/plate-graph.artifact.js";
+import { artifact as FoundationPlateMotionArtifact } from "../../artifacts/plate-motion.artifact.js";
+import { artifact as FoundationTectonicSegmentsArtifact } from "../../artifacts/tectonic-segments.artifact.js";
 import { CrustSchema as FoundationCrustSchema } from "../../model/schemas/crust.schema.js";
 
 const StrategySchema = Type.Object(
@@ -31,15 +31,15 @@ const ComputeTectonicSegmentsContract = defineOp({
   id: "foundation/compute-tectonic-segments",
   input: Type.Object(
     {
-      mesh: FoundationMeshSchema,
+      mesh: FoundationMeshArtifact.schema,
       crust: FoundationCrustSchema,
-      plateGraph: FoundationPlateGraphSchema,
-      plateMotion: FoundationPlateMotionSchema,
+      plateGraph: FoundationPlateGraphArtifact.schema,
+      plateMotion: FoundationPlateMotionArtifact.schema,
     },
     { additionalProperties: false }
   ),
   output: Type.Object(
-    { segments: FoundationTectonicSegmentsSchema },
+    { segments: FoundationTectonicSegmentsArtifact.schema },
     {
       additionalProperties: false,
       description:

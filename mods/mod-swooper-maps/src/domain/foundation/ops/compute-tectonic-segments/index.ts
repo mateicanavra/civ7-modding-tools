@@ -1,10 +1,14 @@
 import { createOp, createStrategy } from "@swooper/mapgen-core/authoring";
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { quantizeUnitVec2I8 } from "@swooper/mapgen-core/lib/grid";
 import { clamp01, quantizeU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
-import type { Artifact as FoundationPlateMotion } from "../../artifacts/plate-motion.artifact.js";
 import ComputeTectonicSegmentsContract from "./contract.js";
+
+type FoundationPlateMotion = Static<
+  typeof import("../../artifacts/plate-motion.artifact.js").artifact.schema
+>;
 
 function velocityAtPoint(params: {
   plateId: number;

@@ -1,24 +1,24 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationMantleForcingSchema } from "../../artifacts/mantle-forcing.artifact.js";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import { Schema as FoundationTectonicEraFieldsInternalListSchema } from "../../artifacts/tectonic-era-fields.artifact.js";
-import { Schema as TracerIndexByEraSchema } from "../../artifacts/tracer-index-by-era.artifact.js";
+import { artifact as FoundationMantleForcingArtifact } from "../../artifacts/mantle-forcing.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationTectonicEraFieldsInternalListArtifact } from "../../artifacts/tectonic-era-fields.artifact.js";
+import { artifact as TracerIndexByEraArtifact } from "../../artifacts/tracer-index-by-era.artifact.js";
 
 const ComputeTracerAdvectionContract = defineOp({
   kind: "compute",
   id: "foundation/compute-tracer-advection",
   input: Type.Object(
     {
-      mesh: FoundationMeshSchema,
-      mantleForcing: FoundationMantleForcingSchema,
-      eras: FoundationTectonicEraFieldsInternalListSchema,
+      mesh: FoundationMeshArtifact.schema,
+      mantleForcing: FoundationMantleForcingArtifact.schema,
+      eras: FoundationTectonicEraFieldsInternalListArtifact.schema,
       eraCount: Type.Integer({ minimum: 5, maximum: 8 }),
     },
     { additionalProperties: false }
   ),
   output: Type.Object(
     {
-      tracerIndex: TracerIndexByEraSchema,
+      tracerIndex: TracerIndexByEraArtifact.schema,
     },
     {
       additionalProperties: false,

@@ -89,7 +89,7 @@ function contextRootForRead(context: MapContext): MapContext {
  * artifact, random, or trace authority; dependency evidence is separately scoped to one effect
  * satisfaction call. The adapter remains private executor state; authored code can invoke only the
  * methods named by its frozen step contract through occurrence-scoped dependency wrappers. Artifacts
- * remain behind module-bound readers and publishers, while the root remains available to the executor
+ * remain behind artifact-bound readers and publishers, while the root remains available to the executor
  * and post-run validated observers.
  */
 export interface MapContext {
@@ -332,7 +332,7 @@ export function verifyMapContextEffectInternal(context: MapContext, effectId: st
 }
 
 /**
- * @internal Observes raw artifact storage by exact contract identity for module-bound Core
+ * @internal Observes raw artifact storage by exact artifact identity for Core-owned capabilities.
  * capabilities. Artifact ids remain diagnostic and dependency evidence; they never authorize a
  * stored value.
  */

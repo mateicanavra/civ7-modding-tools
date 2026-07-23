@@ -4,14 +4,13 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Foundation crust tiles artifact payload (tile-space crust driver tensors). */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     /** Crust type per tile (0=oceanic, 1=continental), sampled via tileToCellIndex. */
     type: TypedArraySchemas.u8({
@@ -66,9 +65,11 @@ export const artifact = defineArtifact({
   name: "foundationCrustTiles",
   id: "artifact:foundation.crustTiles",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /** Validates every crust tensor's typed-array kind and one-value-per-tile cardinality. */
+/** Admits one typed crust sample per map tile after Core validates the closed artifact shape. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -101,6 +102,3 @@ function validateLocal(
 
   return Object.freeze(issues);
 }
-
-/** Admits one typed crust sample per map tile after Core validates the closed artifact shape. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

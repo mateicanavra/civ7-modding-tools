@@ -2,13 +2,12 @@ import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/autho
 import {
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Structural contract for mantle potential and its source fields. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     version: Type.Integer({ minimum: 1 }),
     cellCount: Type.Integer({ minimum: 1 }),
@@ -30,8 +29,10 @@ export const artifact = defineArtifact({
   name: "foundationMantlePotential",
   id: "artifact:foundation.mantlePotential",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates exact potential/source constructors and their declared cardinalities. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const mantle = value as Artifact;
   const cellCount = mantle.cellCount;
@@ -57,6 +58,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   );
   return issues;
 }
-
-/** Validates exact potential/source constructors and their declared cardinalities. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

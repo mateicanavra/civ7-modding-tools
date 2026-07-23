@@ -1,8 +1,5 @@
-import ecology, {
-  artifactModules as ecologyArtifactModules,
-  artifacts as ecologyArtifacts,
-} from "@mapgen/domain/ecology";
-import { artifacts as hydrologyHydrographyArtifacts } from "@mapgen/domain/hydrology";
+import ecology, { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -19,16 +16,13 @@ export const PlanWetlandsStepContract = defineStep({
       ecologyArtifacts.biomeClassification,
       ecologyArtifacts.scoreLayers,
       ecologyArtifacts.occupancyReefs,
-      hydrologyHydrographyArtifacts.hydrography,
-      hydrologyHydrographyArtifacts.lakePlan,
+      hydrologyArtifacts.hydrography,
+      hydrologyArtifacts.lakePlan,
       morphologyArtifacts.topography,
       morphologyArtifacts.mountains,
       morphologyArtifacts.volcanoes,
     ],
-    provides: [
-      ecologyArtifactModules.featureIntentsWetlands,
-      ecologyArtifactModules.occupancyWetlands,
-    ],
+    provides: [ecologyArtifacts.featureIntentsWetlands, ecologyArtifacts.occupancyWetlands],
   },
   ops: {
     planWetlands: ecology.ops.planWetlands,

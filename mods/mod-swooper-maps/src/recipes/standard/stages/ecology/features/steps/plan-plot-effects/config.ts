@@ -1,8 +1,4 @@
-import {
-  default as ecology,
-  artifactModules as ecologyArtifactModules,
-  artifacts as ecologyArtifacts,
-} from "@mapgen/domain/ecology";
+import { default as ecology, artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
 import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
@@ -24,7 +20,7 @@ export const PlanPlotEffectsStepContract = defineStep({
       hydrologyArtifacts.climateIndices,
       ecologyArtifacts.biomeClassification,
     ],
-    provides: [ecologyArtifactModules.plotEffectPlan],
+    provides: [ecologyArtifacts.plotEffectPlan],
   },
   ops: {
     scoreSnow: ecology.ops.scorePlotEffectsSnow,

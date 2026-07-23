@@ -1,26 +1,26 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
-import { Schema as FoundationTectonicEraFieldsInternalListSchema } from "../../artifacts/tectonic-era-fields.artifact.js";
-import { Schema as FoundationTectonicProvenanceSchema } from "../../artifacts/tectonic-provenance.artifact.js";
-import { Schema as TracerIndexByEraSchema } from "../../artifacts/tracer-index-by-era.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationPlateGraphArtifact } from "../../artifacts/plate-graph.artifact.js";
+import { artifact as FoundationTectonicEraFieldsInternalListArtifact } from "../../artifacts/tectonic-era-fields.artifact.js";
+import { artifact as FoundationTectonicProvenanceArtifact } from "../../artifacts/tectonic-provenance.artifact.js";
+import { artifact as TracerIndexByEraArtifact } from "../../artifacts/tracer-index-by-era.artifact.js";
 
 const ComputeTectonicProvenanceContract = defineOp({
   kind: "compute",
   id: "foundation/compute-tectonic-provenance",
   input: Type.Object(
     {
-      mesh: FoundationMeshSchema,
-      plateGraph: FoundationPlateGraphSchema,
-      eras: FoundationTectonicEraFieldsInternalListSchema,
-      tracerIndex: TracerIndexByEraSchema,
+      mesh: FoundationMeshArtifact.schema,
+      plateGraph: FoundationPlateGraphArtifact.schema,
+      eras: FoundationTectonicEraFieldsInternalListArtifact.schema,
+      tracerIndex: TracerIndexByEraArtifact.schema,
       eraCount: Type.Integer({ minimum: 5, maximum: 8 }),
     },
     { additionalProperties: false }
   ),
   output: Type.Object(
     {
-      tectonicProvenance: FoundationTectonicProvenanceSchema,
+      tectonicProvenance: FoundationTectonicProvenanceArtifact.schema,
     },
     {
       additionalProperties: false,

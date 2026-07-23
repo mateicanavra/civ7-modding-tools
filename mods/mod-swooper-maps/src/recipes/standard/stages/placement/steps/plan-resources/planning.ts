@@ -33,9 +33,12 @@ import {
   type HabitatMaskFieldName,
 } from "@mapgen/domain/resources/model/schemas";
 import type { Static } from "@swooper/mapgen-core/authoring";
-import type { ResourceDemandExclusionReason } from "../../artifacts/resource-demand-plan.artifact.js";
 
 type DerivedHabitatFields = Static<(typeof resources.ops.deriveHabitatFields)["output"]>;
+type ResourceDemandPlan = Static<
+  typeof import("../../artifacts/resource-demand-plan.artifact.js").artifact.schema
+>;
+type ResourceDemandExclusionReason = ResourceDemandPlan["excluded"][number]["reason"];
 /** Habitat output admitted only after every typed-array class and map cardinality is checked. */
 export type HabitatFields = HabitatFieldsOutput;
 /** Continuous habitat channels consumed by resource-plan visualization. */

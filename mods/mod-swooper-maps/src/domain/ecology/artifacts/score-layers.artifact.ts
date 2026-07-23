@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -15,7 +14,7 @@ import { FEATURE_INTENT_KEYS } from "../model/schemas/index.js";
  * Runtime contract for one map-sized normalized suitability raster per admitted Ecology feature
  * intent key, ensuring all family planners score the same tile field vintage.
  */
-export const Schema = Type.Object({
+const Schema = Type.Object({
   width: Type.Integer({ minimum: 1 }),
   height: Type.Integer({ minimum: 1 }),
   layers: Type.Object(
@@ -39,8 +38,15 @@ export const artifact = defineArtifact({
   name: "scoreLayers",
   id: "artifact:ecology.scoreLayers",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Validates feature score layers against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -57,11 +63,3 @@ function validateLocal(
   }
   return errors;
 }
-
-/**
- * Validates feature score layers against its closed schema and, when map dimensions are
- * supplied, verifies every tile field matches that width × height. It returns accumulated
- * issues so artifact admission can reject a structurally valid but spatially inconsistent
- * payload.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

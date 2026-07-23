@@ -1,10 +1,5 @@
 import placement from "@mapgen/domain/placement";
-import {
-  defineArtifact,
-  defineArtifactValidator,
-  type Static,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Authored placement configuration retained with the shared runtime input snapshot. */
 const PlacementInputsConfigSchema = Type.Object(
@@ -15,17 +10,17 @@ const PlacementInputsConfigSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const PlacementRuntimeStartsSchema = placement.ops.planStarts["input"].properties.baseStarts;
+const PlacementRuntimeStartsSchema = placement.ops.planStarts.input.properties.baseStarts;
 
 /**
  * Shared planning-input schema for map facts, regional slot contributions,
  * wonder intent, and authored placement configuration.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
-    mapInfo: placement.ops.planWonders["input"].properties.mapInfo,
+    mapInfo: placement.ops.planWonders.input.properties.mapInfo,
     starts: PlacementRuntimeStartsSchema,
-    wonders: placement.ops.planWonders["output"],
+    wonders: placement.ops.planWonders.output,
     placementConfig: PlacementInputsConfigSchema,
   },
   { additionalProperties: false }
@@ -46,6 +41,3 @@ export const artifact = defineArtifact({
   id: "artifact:placementInputs",
   schema: Schema,
 });
-
-/** Validates the shared placement input snapshot against its exact schema. */
-export const validate = defineArtifactValidator(artifact);

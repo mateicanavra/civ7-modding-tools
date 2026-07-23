@@ -2,13 +2,12 @@ import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/autho
 import {
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Structural contract for plate membership arrays ordered by tectonic era. */
-export const Schema = Type.Array(TypedArraySchemas.i16({ cardinality: null }));
+const Schema = Type.Array(TypedArraySchemas.i16({ cardinality: null }));
 
 /** Per-era plate membership state published by Foundation. */
 export type Artifact = Static<typeof Schema>;
@@ -18,8 +17,10 @@ export const artifact = defineArtifact({
   name: "foundationPlateIdByEra",
   id: "artifact:foundation.plateIdByEra",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates a nonempty era list with exact constructors and consistent cell cardinality. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const eras = value as Artifact;
   const length = eras.find((era): era is Int16Array => era instanceof Int16Array)?.length ?? 0;
@@ -31,6 +32,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   });
   return issues;
 }
-
-/** Validates a nonempty era list with exact constructors and consistent cell cardinality. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

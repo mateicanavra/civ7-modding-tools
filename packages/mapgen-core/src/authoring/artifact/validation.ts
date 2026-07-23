@@ -7,8 +7,6 @@ import {
   type SupportedTypedArray,
   type TypedArrayConstructor,
 } from "../typed-arrays.js";
-import { bindArtifactValidator, isArtifactValidatorBoundTo } from "./authority.js";
-import { type ArtifactContract, assertCanonicalArtifactContract } from "./contract.js";
 
 /** One stable, human-readable artifact admission failure. */
 export type ArtifactValidationIssue = Readonly<{ message: string }>;
@@ -18,21 +16,14 @@ export type ArtifactValidationContext = Readonly<{
   dimensions?: Readonly<{ width: number; height: number }>;
 }>;
 
-declare const artifactValidatorBrand: unique symbol;
-
-/**
- * Complete admission validator bound to one artifact contract.
- *
- * Validators can be created only through `defineArtifactValidator`, preventing a module from
- * accidentally pairing an artifact with a plain or differently bound validation function.
- */
-export type ArtifactValidator<C extends ArtifactContract = ArtifactContract> = ((
+/** Complete structural and semantic admission function owned by one artifact. */
+export type ArtifactValidator = (
   value: unknown,
   context?: ArtifactValidationContext
-) => readonly ArtifactValidationIssue[]) &
-  Readonly<{ [artifactValidatorBrand]: C }>;
+) => readonly ArtifactValidationIssue[];
 
-type LocalArtifactValidator = (
+/** Optional relational or domain admission appended after an artifact's structural schema check. */
+export type ArtifactRefinement = (
   value: unknown,
   context?: ArtifactValidationContext
 ) => readonly ArtifactValidationIssue[];
@@ -47,10 +38,10 @@ function freezeLocalIssues(value: unknown): readonly ArtifactValidationIssue[] {
   const completion = classifyThenable(value);
   if (completion.kind !== "none") {
     containThenable(completion);
-    throw new TypeError("Artifact-local validators must return issues synchronously.");
+    throw new TypeError("Artifact refinements must return issues synchronously.");
   }
   if (!Array.isArray(value)) {
-    throw new TypeError("Artifact-local validators must return an array of issues.");
+    throw new TypeError("Artifact refinements must return an array of issues.");
   }
   return freezeIssues(value);
 }
@@ -67,46 +58,22 @@ function validateArtifactSchema(
   );
 }
 
-/**
- * Creates the complete validator for one artifact contract.
- *
- * The contract's immutable canonical schema always runs first. Artifact-local checks run only
- * after structural admission succeeds, but still receive `unknown` because permissive schema
- * nodes may not prove their runtime invariants. Every result and issue is copied and frozen,
- * preserving issue order without retaining caller-owned objects.
- */
-export function defineArtifactValidator<const C extends ArtifactContract>(
-  artifact: C,
-  local?: LocalArtifactValidator
-): ArtifactValidator<C> {
-  assertCanonicalArtifactContract(artifact);
+/** @internal Creates the complete validator retained by `defineArtifact`. */
+export function createArtifactValidatorInternal(
+  schema: TSchema,
+  refine?: ArtifactRefinement
+): ArtifactValidator {
   const validate = (
     value: unknown,
     context?: ArtifactValidationContext
   ): readonly ArtifactValidationIssue[] => {
-    const structuralIssues = validateArtifactSchema(artifact.schema, value);
-    if (structuralIssues.length > 0 || local === undefined) return structuralIssues;
-    const localIssues: unknown = local(value, context);
-    return freezeLocalIssues(localIssues);
+    const structuralIssues = validateArtifactSchema(schema, value);
+    if (structuralIssues.length > 0 || refine === undefined) return structuralIssues;
+    const refinementIssues: unknown = refine(value, context);
+    return freezeLocalIssues(refinementIssues);
   };
 
-  bindArtifactValidator(validate, artifact);
-  return Object.freeze(validate) as ArtifactValidator<C>;
-}
-
-/**
- * Refuses an artifact module whose validator was constructed for a different contract object.
- * This runtime identity check closes type-erased module boundaries without exposing validator
- * metadata or accepting merely shape-compatible artifact contracts.
- */
-export function assertArtifactValidatorBoundTo<const C extends ArtifactContract>(
-  artifact: C,
-  validator: unknown
-): asserts validator is ArtifactValidator<C> {
-  assertCanonicalArtifactContract(artifact);
-  if (typeof validator !== "function" || !isArtifactValidatorBoundTo(validator, artifact)) {
-    throw new Error(`artifact validator must be bound to exact contract "${artifact.id}"`);
-  }
+  return Object.freeze(validate);
 }
 
 /** Multiplies the already-admitted map dimensions available to an artifact validator. */

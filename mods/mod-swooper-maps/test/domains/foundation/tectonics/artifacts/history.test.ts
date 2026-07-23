@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation/artifacts";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation/artifacts";
 
 const { plateIdByEra, tectonicEraFields, tectonicHistory, tectonicProvenance, tracerIndexByEra } =
-  foundationArtifactModules;
+  foundationArtifacts;
 const SYNTHETIC_CELL_COUNT = 3;
 const MINIMUM_ERA_COUNT = 5;
 

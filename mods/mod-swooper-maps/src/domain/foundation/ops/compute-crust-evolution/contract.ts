@@ -1,8 +1,8 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationTectonicsSchema } from "../../artifacts/current-tectonics.artifact.js";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import { Schema as FoundationTectonicHistorySchema } from "../../artifacts/tectonic-history.artifact.js";
+import { artifact as FoundationTectonicsArtifact } from "../../artifacts/current-tectonics.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationTectonicHistoryArtifact } from "../../artifacts/tectonic-history.artifact.js";
 import { CrustSchema as FoundationCrustSchema } from "../../model/schemas/crust.schema.js";
 
 const CrustEvolutionConfigSchema = Type.Object(
@@ -57,10 +57,10 @@ const ComputeCrustEvolutionContract = defineOp({
   id: "foundation/compute-crust-evolution",
   input: Type.Object(
     {
-      mesh: FoundationMeshSchema,
+      mesh: FoundationMeshArtifact.schema,
       initialCrust: FoundationCrustSchema,
-      tectonics: FoundationTectonicsSchema,
-      tectonicHistory: FoundationTectonicHistorySchema,
+      tectonics: FoundationTectonicsArtifact.schema,
+      tectonicHistory: FoundationTectonicHistoryArtifact.schema,
     },
     {
       additionalProperties: false,

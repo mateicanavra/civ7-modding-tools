@@ -4,22 +4,20 @@ import {
   readMapContextArtifactInternal,
 } from "@mapgen/core/map-context.js";
 
-import type { ArtifactContract, ArtifactReadValueOf } from "./contract.js";
-import { type ArtifactModule, snapshotArtifactModule } from "./module.js";
+import { type Artifact, type ArtifactReadValueOf, assertArtifact } from "./contract.js";
 
-/** Module-bound observation that keeps absence distinct from any admitted artifact value. */
-export type ValidatedArtifactObservation<C extends ArtifactContract> =
+/** Artifact-bound observation that keeps absence distinct from any admitted artifact value. */
+export type ValidatedArtifactObservation<A extends Artifact> =
   | Readonly<{ found: false }>
-  | Readonly<{ found: true; value: ArtifactReadValueOf<C> }>;
+  | Readonly<{ found: true; value: ArtifactReadValueOf<A> }>;
 
-function observeSnapshot<C extends ArtifactContract>(
+function observeArtifact<A extends Artifact>(
   context: MapContext,
-  snapshot: ArtifactModule<C>
-): ValidatedArtifactObservation<C> {
-  const artifact = snapshot.artifact;
+  artifact: A
+): ValidatedArtifactObservation<A> {
   const observation = readMapContextArtifactInternal(context, artifact);
   if (!observation.found) return Object.freeze({ found: false });
-  const issues = snapshot.validate(observation.value, { dimensions: context.setup.dimensions });
+  const issues = artifact.validate(observation.value, { dimensions: context.setup.dimensions });
   if (issues.length > 0) {
     throw new Error(
       `Invalid artifact ${artifact.id}: ${issues.map(({ message }) => message).join("; ")}`
@@ -27,46 +25,47 @@ function observeSnapshot<C extends ArtifactContract>(
   }
   return Object.freeze({
     found: true,
-    value: observation.value as ArtifactReadValueOf<C>,
+    value: observation.value as ArtifactReadValueOf<A>,
   });
 }
 
-/** @internal Observes module-bound evidence while the executor evaluates dependency tags. */
-export function observeValidatedArtifactInternal<C extends ArtifactContract>(
+/** @internal Observes artifact-bound evidence while the executor evaluates dependency tags. */
+export function observeValidatedArtifactInternal<A extends Artifact>(
   context: MapContext,
-  module: ArtifactModule<C>
-): ValidatedArtifactObservation<C> {
-  return observeSnapshot(context, snapshotArtifactModule(module, "artifact module"));
+  artifact: A
+): ValidatedArtifactObservation<A> {
+  assertArtifact(artifact);
+  return observeArtifact(context, artifact);
 }
 
 /**
  * Reads and validates one stored artifact after a MapContext execution attempt has completed.
  * Only the exact executor-owned root is admitted; authored steps must use their declared artifact
- * dependencies. The module's complete validator owns structural and semantic admission. This
+ * dependencies. The artifact's complete validator owns structural and semantic admission. This
  * function neither snapshots the value nor invents missing evidence, so callers that cross a
  * mutable boundary must copy what they consume.
  */
-export function readValidatedArtifact<C extends ArtifactContract>(
+export function readValidatedArtifact<A extends Artifact>(
   context: MapContext,
-  module: ArtifactModule<C>
-): ArtifactReadValueOf<C> {
-  const snapshot = snapshotArtifactModule(module, "artifact module");
+  artifact: A
+): ArtifactReadValueOf<A> {
+  assertArtifact(artifact);
   assertTerminalMapContextObservationInternal(context);
-  const observation = observeSnapshot(context, snapshot);
+  const observation = observeArtifact(context, artifact);
   if (observation.found) return observation.value;
-  throw new Error(`Missing required artifact ${snapshot.artifact.id}.`);
+  throw new Error(`Missing required artifact ${artifact.id}.`);
 }
 
 /**
- * Observes optional evidence after a MapContext execution attempt through its module authority.
+ * Observes optional evidence after a MapContext execution attempt through its artifact authority.
  * Only the exact completed root is admitted; absence remains distinct from every admitted value,
  * while invalid present evidence fails closed.
  */
-export function observeValidatedArtifact<C extends ArtifactContract>(
+export function observeValidatedArtifact<A extends Artifact>(
   context: MapContext,
-  module: ArtifactModule<C>
-): ValidatedArtifactObservation<C> {
-  const snapshot = snapshotArtifactModule(module, "artifact module");
+  artifact: A
+): ValidatedArtifactObservation<A> {
+  assertArtifact(artifact);
   assertTerminalMapContextObservationInternal(context);
-  return observeSnapshot(context, snapshot);
+  return observeArtifact(context, artifact);
 }

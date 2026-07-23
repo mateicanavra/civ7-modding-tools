@@ -1,10 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import {
-  artifactModules as hydrologyClimateBaselineArtifactModules,
-  artifactModules as hydrologyClimateRefineArtifactModules,
-  artifactModules as hydrologyHydrographyArtifactModules,
-} from "@mapgen/domain/hydrology";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { sha256Hex } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { buildStandardRecipeDefaultConfig } from "../../../src/recipes/standard/artifacts.js";
@@ -82,19 +78,13 @@ describe("Standard hydrology configuration effects", () => {
 });
 
 function riverTileCount(context: ReturnType<typeof runStandardConfig>): number {
-  const hydrography = readValidatedArtifact(
-    context,
-    hydrologyHydrographyArtifactModules.hydrography
-  );
+  const hydrography = readValidatedArtifact(context, hydrologyArtifacts.hydrography);
   return hydrography.riverClass.reduce((count, riverClass) => count + Number(riverClass > 0), 0);
 }
 
 function climateSignals(context: ReturnType<typeof runStandardConfig>) {
-  const field = readValidatedArtifact(context, hydrologyClimateRefineArtifactModules.climateField);
-  const indices = readValidatedArtifact(
-    context,
-    hydrologyClimateRefineArtifactModules.climateIndices
-  );
+  const field = readValidatedArtifact(context, hydrologyArtifacts.climateField);
+  const indices = readValidatedArtifact(context, hydrologyArtifacts.climateIndices);
   return {
     rainfall: mean(field.rainfall),
     humidity: mean(field.humidity),
@@ -103,19 +93,13 @@ function climateSignals(context: ReturnType<typeof runStandardConfig>) {
 }
 
 function surfaceTemperature(context: ReturnType<typeof runStandardConfig>): number {
-  const indices = readValidatedArtifact(
-    context,
-    hydrologyClimateRefineArtifactModules.climateIndices
-  );
+  const indices = readValidatedArtifact(context, hydrologyArtifacts.climateIndices);
   return mean(indices.surfaceTemperatureC);
 }
 
 function seasonalitySignals(context: ReturnType<typeof runStandardConfig>) {
-  const topography = readValidatedArtifact(context, morphologyArtifactModules.topography);
-  const seasonality = readValidatedArtifact(
-    context,
-    hydrologyClimateBaselineArtifactModules.climateSeasonality
-  );
+  const topography = readValidatedArtifact(context, morphologyArtifacts.topography);
+  const seasonality = readValidatedArtifact(context, hydrologyArtifacts.climateSeasonality);
   const bytes = new Uint8Array(
     topography.elevation.buffer,
     topography.elevation.byteOffset,

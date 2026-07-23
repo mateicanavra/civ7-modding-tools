@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import resources from "@mapgen/domain/resources/ops";
 import { getHexRadiusIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
-import { artifactModules as placementArtifactModules } from "../../../../src/recipes/standard/stages/placement/artifacts/index.js";
+import { artifacts as placementArtifacts } from "../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 
 const syntheticDimensions = { width: 24, height: 14 } as const;
 const { width, height } = syntheticDimensions;
@@ -134,7 +134,7 @@ function run(
   configure?.(selection.config);
   const result = runAdmittedOperationForTest(resources.ops.adjustResourceSupport, input, selection);
   expect(
-    placementArtifactModules.resourcePlanAdjusted.validate(result, {
+    placementArtifacts.resourcePlanAdjusted.validate(result, {
       dimensions: syntheticDimensions,
     })
   ).toEqual([]);

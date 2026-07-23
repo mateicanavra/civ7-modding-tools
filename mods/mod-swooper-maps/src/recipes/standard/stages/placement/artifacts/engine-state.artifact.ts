@@ -2,14 +2,13 @@ import {
   type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime schema for terminal Civ7 placement readback and product totals. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -51,6 +50,7 @@ export const artifact = defineArtifact({
   name: "engineState",
   id: "artifact:placementEngineState",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
@@ -58,11 +58,10 @@ function issue(message: string): ArtifactValidationIssue {
 }
 
 /**
- * Relational validation for the terminal placement summary. It checks map-sized
- * surfaces and coherent aggregate totals without claiming that slot counts were
- * derived from the corresponding slot buffer.
+ * Validates map-sized slot and land surfaces, a slot-count total equal to map
+ * size, and bounded wonder/discovery outcomes before publication. It does not
+ * reconcile each slot count against the slot buffer.
  */
-
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as Static<typeof Schema>;
   const issues: ArtifactValidationIssue[] = [];
@@ -109,10 +108,3 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/**
- * Validates map-sized slot and land surfaces, a slot-count total equal to map
- * size, and bounded wonder/discovery outcomes before publication. It does not
- * reconcile each slot count against the slot buffer.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

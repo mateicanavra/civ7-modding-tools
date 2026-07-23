@@ -128,7 +128,7 @@ Shape highlights:
 
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/mantle-forcing.md` (schema + derivation rules)
-- `mods/mod-swooper-maps/src/domain/foundation/artifacts/mantle-potential.artifact.ts` (`Schema`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/mantle-potential.artifact.ts` (`artifact.schema`)
 
 ### `artifact:foundation.mantleForcing` (truth; mesh space)
 
@@ -143,7 +143,7 @@ Shape highlights:
 
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/mantle-forcing.md` (schema + derivation rules)
-- `mods/mod-swooper-maps/src/domain/foundation/artifacts/mantle-forcing.artifact.ts` (`Schema`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/mantle-forcing.artifact.ts` (`artifact.schema`)
 
 ### `artifact:foundation.initialCrust` (initial truth; mesh space)
 
@@ -158,7 +158,7 @@ distinct; consumers must request the vintage they actually require.
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/contract.ts` (`ComputeCrustContract`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/steps/crust/step.ts` (t0 publication)
-- `mods/mod-swooper-maps/src/domain/foundation/artifacts/initial-crust.artifact.ts` (`Schema`, artifact identity)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/initial-crust.artifact.ts` (`artifact.schema`, artifact identity)
 
 ### `artifact:foundation.crust` (evolved truth; mesh space)
 
@@ -181,7 +181,7 @@ Derived drivers (all per mesh cell):
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/contract.ts` (`ComputeCrustEvolutionContract`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/orogeny/steps/crust-evolution/step.ts` (evolved publication)
-- `mods/mod-swooper-maps/src/domain/foundation/artifacts/crust.artifact.ts` (`Schema`, artifact identity)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/crust.artifact.ts` (`artifact.schema`, artifact identity)
 
 ### `artifact:foundation.plateMotion` (truth; mesh space)
 
@@ -199,7 +199,7 @@ Mapping notes:
 
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/plate-motion.md` (schema + derivation rules)
-- `mods/mod-swooper-maps/src/domain/foundation/artifacts/plate-motion.artifact.ts` (`Schema`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/plate-motion.artifact.ts` (`artifact.schema`)
 
 ### `artifact:foundation.plateGraph` (truth; mesh space)
 
@@ -253,7 +253,7 @@ Shape highlights:
 
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md` (schema + invariants)
-- `mods/mod-swooper-maps/src/domain/foundation/artifacts/tectonic-provenance.artifact.ts` (`Schema`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/tectonic-provenance.artifact.ts` (`artifact.schema`)
 
 ### `artifact:foundation.tectonics` (truth; mesh space)
 
@@ -289,7 +289,7 @@ Shape highlights:
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/morphology-contract.md` (tile contract)
 - `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md` (mesh truth → projection posture)
-- `mods/mod-swooper-maps/src/domain/foundation/artifacts/tectonic-history-tiles.artifact.ts` (`Schema`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/tectonic-history-tiles.artifact.ts` (`artifact.schema`)
 
 ### `artifact:foundation.tectonicProvenanceTiles` (projection; tile space)
 
@@ -303,7 +303,7 @@ Shape highlights:
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/morphology-contract.md` (tile contract)
 - `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md` (mesh truth → projection posture)
-- `mods/mod-swooper-maps/src/domain/foundation/artifacts/tectonic-provenance-tiles.artifact.ts` (`Schema`)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/tectonic-provenance-tiles.artifact.ts` (`artifact.schema`)
 
 ### `artifact:foundation.plates` (projection; tile space)
 
@@ -318,7 +318,7 @@ Key fields (per tile):
 - `movementU`, `movementV`, `rotation` (i8; `-127..127`) scaled from plate kinematics
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/domain/foundation/artifacts/plates.artifact.ts` (`Schema`, artifact identity, and cardinality validator)
+- `mods/mod-swooper-maps/src/domain/foundation/artifacts/plates.artifact.ts` (`artifact.schema`, identity, and complete validator)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (`PlatesTilesSchema`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/rules/project-plates.ts` (`projectPlatesFromModel`, `boundaryCloseness`, `tectonicStress`, motion scaling)
 
@@ -482,7 +482,7 @@ This page contains many inline “Ground truth anchors” callouts. This section
 
 - Domain entrypoint + op ids: `mods/mod-swooper-maps/src/domain/foundation/index.ts`
 - Standard recipe stage definitions (five sibling stages): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/lithosphere/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/tectonics/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/orogeny/index.ts`, and `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/index.ts`; canonical stage/step ordering: `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts`
-- Foundation artifact module catalog (contracts paired with complete admission validators and artifact evidence): `mods/mod-swooper-maps/src/domain/foundation/artifacts/index.ts` (`artifactModules`, `artifacts`)
+- Foundation artifact authority catalog: `mods/mod-swooper-maps/src/domain/foundation/artifacts/index.ts` (`artifacts`)
 
 - Mesh construction (truth root):
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/contract.ts` (`ComputeMeshContract`, `FoundationMeshSchema`)

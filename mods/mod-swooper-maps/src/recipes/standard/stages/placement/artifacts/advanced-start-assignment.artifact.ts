@@ -1,13 +1,12 @@
 import {
   type ArtifactValidationIssue,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime shape for the two Civ7 advanced-start completion flags. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     fertilityRecalculated: Type.Boolean(),
     advancedStartsAssigned: Type.Boolean(),
@@ -24,6 +23,7 @@ export const artifact = defineArtifact({
   name: "advancedStartAssignment",
   id: "artifact:placement.advancedStartAssignment",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /**
@@ -32,6 +32,7 @@ export const artifact = defineArtifact({
  * passes ran, so anything other than two `true` flags is a publish-site bug.
  */
 
+/** Rejects publication unless fertility recalculation and advanced-start assignment are true. */
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as Static<typeof Schema>;
   const issues: ArtifactValidationIssue[] = [];
@@ -43,6 +44,3 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/** Rejects publication unless fertility recalculation and advanced-start assignment are true. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

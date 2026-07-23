@@ -1,6 +1,12 @@
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { quantizeU8 } from "@swooper/mapgen-core/lib/math";
-import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
-import type { Artifact as FoundationTectonicHistory } from "../../../artifacts/tectonic-history.artifact.js";
+
+type FoundationTectonicEraFieldsInternalList = Static<
+  typeof import("../../../artifacts/tectonic-era-fields.artifact.js").artifact.schema
+>;
+type FoundationTectonicHistory = Static<
+  typeof import("../../../artifacts/tectonic-history.artifact.js").artifact.schema
+>;
 
 type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];
 

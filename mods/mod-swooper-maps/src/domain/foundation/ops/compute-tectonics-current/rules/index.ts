@@ -1,5 +1,11 @@
-import type { Artifact as FoundationTectonics } from "../../../artifacts/current-tectonics.artifact.js";
-import type { Artifact as FoundationTectonicEraFieldsInternalList } from "../../../artifacts/tectonic-era-fields.artifact.js";
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
+
+type FoundationTectonics = Static<
+  typeof import("../../../artifacts/current-tectonics.artifact.js").artifact.schema
+>;
+type FoundationTectonicEraFieldsInternalList = Static<
+  typeof import("../../../artifacts/tectonic-era-fields.artifact.js").artifact.schema
+>;
 
 type FoundationTectonicEraFieldsInternal = FoundationTectonicEraFieldsInternalList[number];
 

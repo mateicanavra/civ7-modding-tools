@@ -56,7 +56,7 @@ export const GeomorphologyStepContract = defineStep({
       morphologyArtifacts.routing,
       morphologyArtifacts.baseSubstrate,
     ],
-    provides: [morphologyArtifactModules.erodedTopography, morphologyArtifactModules.substrate],
+    provides: [morphologyArtifacts.erodedTopography, morphologyArtifacts.substrate],
   },
   ops: {
     geomorphology: morphology.ops.computeGeomorphicCycle,
@@ -67,7 +67,7 @@ export const GeomorphologyStepContract = defineStep({
 
 Notes:
 
-- `morphologyArtifacts.*` is the stage-owned artifact contract module for this stage.
+- `morphologyArtifacts.*` is the domain-owned artifact authority catalog used by this stage.
 - `morphology.ops.*` is the domain op contract surface consumed by the step.
 
 Representative example (dependency tags; excerpt; see full file in anchors):
@@ -78,7 +78,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
 import { artifacts as hydrologyHydrographyArtifacts } from "../../../../hydrology/hydrography/artifacts/index.js";
-import { artifactModules as mapRiversArtifactModules } from "../../artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../artifacts/index.js";
 
 /** Contract and compiled configuration boundary for Civ7 river projection. */
 export const PlotRiversStepContract = defineStep({
@@ -87,7 +87,7 @@ export const PlotRiversStepContract = defineStep({
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted],
   artifacts: {
     requires: [hydrologyHydrographyArtifacts.hydrography],
-    provides: [mapRiversArtifactModules.projectedNavigableRivers],
+    provides: [mapRiversArtifacts.projectedNavigableRivers],
   },
   ops: {
     selectNavigableRiverTerrain: hydrology.ops.selectNavigableRiverTerrain,

@@ -1,9 +1,10 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import type { Artifact as FoundationPlateGraphArtifact } from "../../artifacts/plate-graph.artifact.js";
-import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationPlateGraphArtifact } from "../../artifacts/plate-graph.artifact.js";
 import { CrustSchema as FoundationCrustSchema } from "../../model/schemas/crust.schema.js";
+
+type FoundationPlateGraph = Static<typeof FoundationPlateGraphArtifact.schema>;
 
 const StrategySchema = Type.Object(
   {
@@ -65,7 +66,7 @@ const ComputePlateGraphContract = defineOp({
   id: "foundation/compute-plate-graph",
   input: Type.Object(
     {
-      mesh: FoundationMeshSchema,
+      mesh: FoundationMeshArtifact.schema,
       crust: FoundationCrustSchema,
       rngSeed: Type.Integer({
         minimum: 0,
@@ -75,7 +76,10 @@ const ComputePlateGraphContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  output: Type.Object({ plateGraph: FoundationPlateGraphSchema }, { additionalProperties: false }),
+  output: Type.Object(
+    { plateGraph: FoundationPlateGraphArtifact.schema },
+    { additionalProperties: false }
+  ),
   strategies: {
     "resistance-weighted-voronoi": StrategySchema,
   },
@@ -83,4 +87,4 @@ const ComputePlateGraphContract = defineOp({
 
 export default ComputePlateGraphContract;
 export type ComputePlateGraphConfig = Static<typeof StrategySchema>;
-export type FoundationPlate = FoundationPlateGraphArtifact["plates"][number];
+export type FoundationPlate = FoundationPlateGraph["plates"][number];

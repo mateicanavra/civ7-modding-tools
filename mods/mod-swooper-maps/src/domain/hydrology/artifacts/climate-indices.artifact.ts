@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -16,7 +15,7 @@ import {
  * These are advisory indices: consumers should treat them as derived products and not re-derive ad hoc indices from
  * raw rainfall/temperature unless they own the semantics and have tests locking the contract.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     /** Surface temperature proxy (C); used for biome gating, freeze logic, and “cold/warm” narrative bias. */
     surfaceTemperatureC: TypedArraySchemas.f32({ description: "Surface temperature proxy (C)." }),
@@ -56,8 +55,14 @@ export const artifact = defineArtifact({
   name: "climateIndices",
   id: "artifact:hydrology.climateIndices",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Validates climate indices against its closed schema and, when map dimensions are supplied,
+ * verifies every tile field matches that width × height. It returns accumulated issues so
+ * artifact admission can reject a structurally valid but spatially inconsistent payload.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -109,10 +114,3 @@ function validateLocal(
   );
   return errors;
 }
-
-/**
- * Validates climate indices against its closed schema and, when map dimensions are supplied,
- * verifies every tile field matches that width × height. It returns accumulated issues so
- * artifact admission can reject a structurally valid but spatially inconsistent payload.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -2,7 +2,6 @@ import placement from "@mapgen/domain/placement";
 import {
   type ArtifactValidationIssue,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
 } from "@swooper/mapgen-core/authoring/contracts";
@@ -11,7 +10,7 @@ import {
 const PlanStartsOutputSchema = placement.ops.planStarts.output;
 
 /** Runtime schema for stamped player starts and their fairness audit. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -60,6 +59,7 @@ export const artifact = defineArtifact({
   name: "startAssignment",
   id: "artifact:placement.startAssignment",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
@@ -73,6 +73,10 @@ function issue(message: string): ArtifactValidationIssue {
  * count totals, and fairness-report coherence.
  */
 
+/**
+ * Validates seat/position order, unique in-bounds plots, terminal realized-region state,
+ * fallback/degraded coherence, aggregate counts, and fairness report parity.
+ */
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as Static<typeof Schema>;
   const issues: ArtifactValidationIssue[] = [];
@@ -197,9 +201,3 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
 
   return issues;
 }
-
-/**
- * Validates seat/position order, unique in-bounds plots, terminal realized-region state,
- * fallback/degraded coherence, aggregate counts, and fairness report parity.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

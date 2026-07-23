@@ -4,20 +4,21 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
 } from "@swooper/mapgen-core/authoring/contracts";
 import { MorphologyTopographySchema } from "../model/schemas/index.js";
 
 /** Closed schema for the final topography consumed throughout the remaining recipe. */
-export const Schema = MorphologyTopographySchema;
+const Schema = MorphologyTopographySchema;
 
 /** Registers the canonical final topography consumed by downstream stages. */
 export const artifact = defineArtifact({
   name: "topography",
   id: "artifact:morphology.topography",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Admits map-sized final topography fields after Core validates the vintage shape. */
 function validateLocal(
   value: unknown,
   context?: ArtifactValidationContext
@@ -48,6 +49,3 @@ function validateLocal(
   );
   return issues;
 }
-
-/** Admits map-sized final topography fields after Core validates the vintage shape. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

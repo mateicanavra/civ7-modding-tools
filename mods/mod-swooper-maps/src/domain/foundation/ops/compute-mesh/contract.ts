@@ -1,7 +1,7 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
 
 const ComputeMeshContract = defineOp({
   kind: "compute",
@@ -18,7 +18,7 @@ const ComputeMeshContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  output: Type.Object({ mesh: FoundationMeshSchema }, { additionalProperties: false }),
+  output: Type.Object({ mesh: FoundationMeshArtifact.schema }, { additionalProperties: false }),
   strategies: {
     "jittered-delaunay": Type.Object(
       {

@@ -1,22 +1,22 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationMantleForcingSchema } from "../../artifacts/mantle-forcing.artifact.js";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import { Schema as TectonicEventsSchema } from "../../artifacts/tectonic-events.artifact.js";
+import { artifact as FoundationMantleForcingArtifact } from "../../artifacts/mantle-forcing.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
+import { artifact as TectonicEventsArtifact } from "../../artifacts/tectonic-events.artifact.js";
 
 const ComputeHotspotEventsContract = defineOp({
   kind: "compute",
   id: "foundation/compute-hotspot-events",
   input: Type.Object(
     {
-      mesh: FoundationMeshSchema,
-      mantleForcing: FoundationMantleForcingSchema,
+      mesh: FoundationMeshArtifact.schema,
+      mantleForcing: FoundationMantleForcingArtifact.schema,
       eraPlateId: TypedArraySchemas.i16({ cardinality: null }),
     },
     { additionalProperties: false }
   ),
   output: Type.Object(
     {
-      events: TectonicEventsSchema,
+      events: TectonicEventsArtifact.schema,
     },
     {
       additionalProperties: false,

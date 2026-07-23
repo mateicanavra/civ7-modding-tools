@@ -2,14 +2,13 @@ import {
   type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Runtime schema for the exact habitat, legality, and intensity fields used during planning. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -47,12 +46,14 @@ export const artifact = defineArtifact({
   name: "resourceEligibility",
   id: "artifact:placement.resourceEligibility",
   schema: Schema,
+  refine: validateLocal,
 });
 
 function issue(message: string): ArtifactValidationIssue {
   return { message };
 }
 
+/** Requires unique resource rows and map-sized habitat, legality, and intensity fields. */
 function validateLocal(input: unknown): ArtifactValidationIssue[] {
   const value = input as Static<typeof Schema>;
   const issues: ArtifactValidationIssue[] = [];
@@ -95,6 +96,3 @@ function validateLocal(input: unknown): ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/** Requires unique resource rows and map-sized habitat, legality, and intensity fields. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
 
 const TEST_CARDINALITY = TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height;
@@ -23,11 +23,11 @@ describe("standard recipe artifact contracts", () => {
 
     const validationContext = { dimensions: TEST_MAP_SIZE.dimensions };
 
-    expect(foundationArtifactModules.plates.validate(payload, validationContext)).toEqual([]);
+    expect(foundationArtifacts.plates.validate(payload, validationContext)).toEqual([]);
 
     const { volcanism: _volcanism, ...withoutVolcanism } = payload;
     expect(
-      foundationArtifactModules.plates
+      foundationArtifacts.plates
         .validate(withoutVolcanism, validationContext)
         .some((issue) => issue.message.includes("volcanism"))
     ).toBe(true);

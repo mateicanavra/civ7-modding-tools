@@ -4,7 +4,6 @@ import {
   createStage,
   createStep,
   defineArtifact,
-  defineArtifactValidator,
   defineStep,
   deriveRecipeConfigSchema,
 } from "@mapgen/authoring/index.js";
@@ -113,22 +112,18 @@ describe("recipe authoring", () => {
     ).toThrow(/Invalid dependency tag/);
   });
 
-  it("reserves generated artifact postconditions for their artifact modules", () => {
+  it("reserves generated artifact postconditions for their artifact authorities", () => {
     const artifact = defineArtifact({
       name: "recipeOutput",
       id: "artifact:test.recipe-output",
       schema: Type.Object({ value: Type.Number() }, { additionalProperties: false }),
     });
-    const module = {
-      artifact,
-      validate: defineArtifactValidator(artifact),
-    };
     const step = createStep(
       defineStep({
         id: "alpha",
         requires: [],
         provides: [],
-        artifacts: { provides: [module] },
+        artifacts: { provides: [artifact] },
         schema: EmptyStepConfigSchema,
       }),
       { run: () => {} }
@@ -168,12 +163,7 @@ describe("recipe authoring", () => {
         requires: [],
         provides: [],
         artifacts: {
-          provides: [
-            {
-              artifact: providedArtifact,
-              validate: defineArtifactValidator(providedArtifact),
-            },
-          ],
+          provides: [providedArtifact],
         },
         schema: EmptyStepConfigSchema,
       }),
@@ -203,7 +193,7 @@ describe("recipe authoring", () => {
         compileOpsById: {},
       })
     ).toThrow(
-      'artifact "artifact:test.recipe-exact-identity" must use one exact contract identity'
+      'artifact "artifact:test.recipe-exact-identity" must use one exact authority identity'
     );
   });
 
@@ -287,7 +277,7 @@ describe("recipe authoring", () => {
     ).toThrow(`Dependency tag "${definition.id}" is already registered.`);
   });
 
-  it("reserves all artifact dependency tags for canonical modules", () => {
+  it("reserves all artifact dependency tags for canonical authorities", () => {
     const step = createStep(makeContract("alpha"), { run: () => {} });
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
 

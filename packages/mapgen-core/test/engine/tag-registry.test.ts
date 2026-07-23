@@ -1,12 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { implementArtifactModules } from "@mapgen/authoring/artifact/runtime.js";
+import { implementArtifacts } from "@mapgen/authoring/artifact/runtime.js";
 import {
   createRecipe,
   createStage,
   createStep,
   defineArtifact,
-  defineArtifactValidator,
   defineStep,
 } from "@mapgen/authoring/index.js";
 import { createMapContext, type MapContext } from "@mapgen/core/map-context.js";
@@ -92,7 +91,7 @@ describe("tag registry", () => {
     expect(registry.get("snapshot-consumer").requires).toEqual(["effect:test.snapshot"]);
   });
 
-  it("reserves artifact dependency registration for recipe-owned modules", () => {
+  it("reserves artifact dependency registration for recipe-owned authorities", () => {
     const registry = new TagRegistry();
 
     expect(() =>
@@ -136,19 +135,15 @@ describe("tag registry", () => {
       setup: baseSetup,
       adapter: createMockAdapter({ width: 2, height: 2, rng: () => 0 }),
     });
-    const artifactModule = {
-      artifact,
-      validate: defineArtifactValidator(artifact),
-    };
     const registry = new TagRegistry();
     registerDependencyTagsInternal(registry, [
       {
         id: artifact.id,
         kind: "artifact",
-        satisfies: (evidence) => evidence.observeArtifact(artifactModule).found,
+        satisfies: (evidence) => evidence.observeArtifact(artifact).found,
       },
     ]);
-    const runtimes = implementArtifactModules([artifactModule]);
+    const runtimes = implementArtifacts([artifact]);
 
     expect(
       isDependencyTagSatisfied(
@@ -243,7 +238,6 @@ describe("tag registry", () => {
       id: "artifact:test.revoked-evidence",
       schema: Type.Unknown(),
     });
-    const artifactModule = { artifact, validate: defineArtifactValidator(artifact) };
     const context = createMapContext({
       setup: baseSetup,
       adapter: createMockAdapter({ width: 2, height: 2 }),
@@ -273,7 +267,7 @@ describe("tag registry", () => {
     expect(() => retained?.verifyEffect()).toThrow(
       "available only during its satisfaction predicate"
     );
-    expect(() => retained?.observeArtifact(artifactModule)).toThrow(
+    expect(() => retained?.observeArtifact(artifact)).toThrow(
       "available only during its satisfaction predicate"
     );
   });
@@ -425,12 +419,11 @@ describe("tag registry", () => {
       id: "artifact:test.in-run-observation",
       schema: Type.Object({ valid: Type.Boolean() }, { additionalProperties: false }),
     });
-    const artifactModule = { artifact, validate: defineArtifactValidator(artifact) };
-    const runtimes = implementArtifactModules([artifactModule]);
+    const runtimes = implementArtifacts([artifact]);
     let observed = false;
     function observePublishedArtifact(evidence: DependencyEvidence): boolean {
       observed = true;
-      const observation = evidence.observeArtifact(artifactModule);
+      const observation = evidence.observeArtifact(artifact);
       return observation.found && observation.value.valid;
     }
     const registry = new StepRegistry();
@@ -474,14 +467,7 @@ describe("tag registry", () => {
         id: "alpha",
         requires: [],
         provides: [],
-        artifacts: {
-          provides: [
-            {
-              artifact,
-              validate: defineArtifactValidator(artifact),
-            },
-          ],
-        },
+        artifacts: { provides: [artifact] },
         schema: Type.Object({}, { additionalProperties: false }),
       }),
       { run: () => {} }

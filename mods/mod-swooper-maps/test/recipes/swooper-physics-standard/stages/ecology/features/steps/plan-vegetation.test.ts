@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
+import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
 import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 import ecology from "@mapgen/domain/ecology/ops";
-import { artifactModules as hydrologyArtifactModules } from "@mapgen/domain/hydrology";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -44,32 +44,32 @@ describe("ecology-features plan-vegetation step", () => {
       const layers = createEmptyFeatureScoreLayers(size);
       layers.forest.fill(1);
 
-      publishTestArtifact(stepContext, ecologyArtifactModules.scoreLayers, {
+      publishTestArtifact(stepContext, ecologyArtifacts.scoreLayers, {
         width,
         height,
         layers,
       });
-      publishTestArtifact(stepContext, ecologyArtifactModules.occupancyWetlands, {
+      publishTestArtifact(stepContext, ecologyArtifacts.occupancyWetlands, {
         width,
         height,
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, ecologyArtifactModules.biomeClassification, {
+      publishTestArtifact(stepContext, ecologyArtifacts.biomeClassification, {
         width,
         height,
         biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
         vegetationDensity: new Float32Array(size).fill(0.4),
         treeLine01: new Float32Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifactModules.climateIndices, {
+      publishTestArtifact(stepContext, hydrologyArtifacts.climateIndices, {
         effectiveMoisture: new Float32Array(size).fill(120),
         surfaceTemperatureC: new Float32Array(size).fill(20),
         aridityIndex: new Float32Array(size).fill(0.4),
         freezeIndex: new Float32Array(size),
         pet: new Float32Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifactModules.hydrography, {
+      publishTestArtifact(stepContext, hydrologyArtifacts.hydrography, {
         runoff: new Float32Array(size),
         discharge: new Float32Array(size),
         riverClass: new Uint8Array(size),
@@ -81,20 +81,20 @@ describe("ecology-features plan-vegetation step", () => {
         depressionDepth: new Float32Array(size),
         terminalType: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyArtifactModules.lakePlan, {
+      publishTestArtifact(stepContext, hydrologyArtifacts.lakePlan, {
         width,
         height,
         lakeMask: new Uint8Array(size),
         plannedLakeTileCount: 0,
         sinkLakeCount: 0,
       });
-      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
+      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
         elevation: new Int16Array(size),
         seaLevel: 0,
         landMask: new Uint8Array(size).fill(1),
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifactModules.mountains, {
+      publishTestArtifact(stepContext, morphologyArtifacts.mountains, {
         mountainMask: new Uint8Array(size),
         mountainRegionMask: new Uint8Array(size),
         mountainRegionIdByTile: new Int32Array(size).fill(-1),
@@ -105,7 +105,7 @@ describe("ecology-features plan-vegetation step", () => {
         fracturePotential: new Uint8Array(size),
         roughnessPotential: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, morphologyArtifactModules.volcanoes, {
+      publishTestArtifact(stepContext, morphologyArtifacts.volcanoes, {
         volcanoMask: new Uint8Array(size),
         volcanoes: [],
       });
@@ -125,7 +125,7 @@ describe("ecology-features plan-vegetation step", () => {
       );
     });
 
-    const intents = readValidatedArtifact(ctx, ecologyArtifactModules.featureIntentsVegetation);
+    const intents = readValidatedArtifact(ctx, ecologyArtifacts.featureIntentsVegetation);
     expect(Array.isArray(intents)).toBe(true);
     expect(intents.length).toBeGreaterThan(0);
   });

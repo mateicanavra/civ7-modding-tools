@@ -2,7 +2,6 @@ import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/autho
 import {
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
@@ -18,7 +17,7 @@ const BoundingBoxSchema = Type.Object(
 );
 
 /** Structural contract for the wrapped neighborhood mesh. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     cellCount: Type.Integer({ minimum: 1 }),
     wrapWidth: Type.Number(),
@@ -40,8 +39,10 @@ export const artifact = defineArtifact({
   name: "foundationMesh",
   id: "artifact:foundation.mesh",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates mesh-array constructors, cardinalities, and a finite positive wrap width. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const mesh = value as Artifact;
   const cellCount = mesh.cellCount;
@@ -63,6 +64,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   appendArtifactTypedArrayIssues(issues, "areas", mesh.areas, Float32Array, cellCount);
   return issues;
 }
-
-/** Validates mesh-array constructors, cardinalities, and a finite positive wrap width. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

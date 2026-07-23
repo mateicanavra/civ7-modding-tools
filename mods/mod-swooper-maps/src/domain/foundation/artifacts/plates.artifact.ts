@@ -4,14 +4,13 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Foundation plates artifact payload (tile-space plate tensors). */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     /** Plate id per tile. */
     id: TypedArraySchemas.i16({ description: "Plate id per tile." }),
@@ -55,9 +54,11 @@ export const artifact = defineArtifact({
   name: "foundationPlates",
   id: "artifact:foundation.plates",
   schema: Schema,
+  refine: validateLocal,
 });
 
 /** Validates the plate-field schema and exact map-sized cardinality of every tensor. */
+/** Admits map-sized typed plate fields after Core validates the closed artifact shape. */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -99,6 +100,3 @@ function validateLocal(
 
   return Object.freeze(issues);
 }
-
-/** Admits map-sized typed plate fields after Core validates the closed artifact shape. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

@@ -1,9 +1,15 @@
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { quantizeUnitVec2I8 } from "@swooper/mapgen-core/lib/grid";
 import { clampFinite, quantizeU8 } from "@swooper/mapgen-core/lib/math";
-import type { Artifact as FoundationMantleForcing } from "../../../artifacts/mantle-forcing.artifact.js";
-import type { Artifact as FoundationMesh } from "../../../artifacts/mesh.artifact.js";
-import type { Artifact as TectonicEvents } from "../../../artifacts/tectonic-events.artifact.js";
 import { EVENT_TYPE } from "../../../model/policy/tectonic-event-types.js";
+
+type FoundationMantleForcing = Static<
+  typeof import("../../../artifacts/mantle-forcing.artifact.js").artifact.schema
+>;
+type FoundationMesh = Static<typeof import("../../../artifacts/mesh.artifact.js").artifact.schema>;
+type TectonicEvents = Static<
+  typeof import("../../../artifacts/tectonic-events.artifact.js").artifact.schema
+>;
 
 type TectonicEventRecord = TectonicEvents[number];
 

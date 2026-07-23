@@ -2,7 +2,6 @@ import {
   type ArtifactValidationIssue,
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
 } from "@swooper/mapgen-core/authoring/contracts";
 import { CrustSchema } from "../model/schemas/crust.schema.js";
@@ -20,7 +19,7 @@ const CRUST_ARRAY_FIELDS = [
 ] as const;
 
 /** Structural contract for the parallel per-cell fields of the evolved crust model. */
-export const Schema = CrustSchema;
+const Schema = CrustSchema;
 
 /** Evolved crust state published by Foundation. */
 export type Artifact = Static<typeof Schema>;
@@ -30,8 +29,10 @@ export const artifact = defineArtifact({
   name: "foundationCrust",
   id: "artifact:foundation.crust",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates exact crust-array constructors, nonempty cardinality, and parallel lengths. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const candidate = value as Record<string, unknown>;
   const maturity = candidate.maturity;
@@ -43,6 +44,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/** Validates exact crust-array constructors, nonempty cardinality, and parallel lengths. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

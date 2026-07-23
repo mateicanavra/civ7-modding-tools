@@ -1,14 +1,11 @@
 import type { Static, TSchema } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationTectonicsSchema } from "../../artifacts/current-tectonics.artifact.js";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
-import { Schema as FoundationPlateMotionSchema } from "../../artifacts/plate-motion.artifact.js";
-import { Schema as FoundationTectonicHistorySchema } from "../../artifacts/tectonic-history.artifact.js";
-import {
-  type Artifact as FoundationTectonicProvenanceArtifact,
-  Schema as FoundationTectonicProvenanceSchema,
-} from "../../artifacts/tectonic-provenance.artifact.js";
+import { artifact as FoundationTectonicsArtifact } from "../../artifacts/current-tectonics.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationPlateGraphArtifact } from "../../artifacts/plate-graph.artifact.js";
+import { artifact as FoundationPlateMotionArtifact } from "../../artifacts/plate-motion.artifact.js";
+import { artifact as FoundationTectonicHistoryArtifact } from "../../artifacts/tectonic-history.artifact.js";
+import { artifact as FoundationTectonicProvenanceArtifact } from "../../artifacts/tectonic-provenance.artifact.js";
 import { CrustSchema as FoundationCrustSchema } from "../../model/schemas/crust.schema.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
@@ -63,7 +60,7 @@ const InputSchema = Type.Object(
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
     /** Foundation mesh (cells, adjacency, site coordinates). */
     mesh: withDescription(
-      FoundationMeshSchema,
+      FoundationMeshArtifact.schema,
       "Foundation mesh (cells, adjacency, site coordinates)."
     ),
     /** Crust truth + derived drivers (maturity/thickness/thermalAge/damage + type/age/buoyancy/baseElevation/strength) per mesh cell. */
@@ -73,28 +70,28 @@ const InputSchema = Type.Object(
     ),
     /** Plate graph per mesh cell (cellToPlate + per-plate metadata). */
     plateGraph: withDescription(
-      FoundationPlateGraphSchema,
+      FoundationPlateGraphArtifact.schema,
       "Plate graph per mesh cell (cellToPlate + per-plate metadata)."
     ),
     /** Plate motion per plate (mantle-derived translation + rotation). */
     plateMotion: withDescription(
-      FoundationPlateMotionSchema,
+      FoundationPlateMotionArtifact.schema,
       "Plate motion per plate (mantle-derived translation + rotation)."
     ),
     /** Tectonic drivers per mesh cell (boundary regime + stress/potential tensors). */
     tectonics: withDescription(
-      FoundationTectonicsSchema,
+      FoundationTectonicsArtifact.schema,
       "Tectonic drivers per mesh cell (boundary regime + stress/potential tensors)."
     ),
     /** Tectonic history per mesh cell (per-era fields + rollups). */
     tectonicHistory: withDescription(
-      FoundationTectonicHistorySchema,
+      FoundationTectonicHistoryArtifact.schema,
       "Tectonic history per mesh cell (per-era fields + rollups)."
     ),
     /** Optional tectonic provenance payload (tracer history + scalars). */
     tectonicProvenance: Type.Optional(
       withDescription(
-        FoundationTectonicProvenanceSchema,
+        FoundationTectonicProvenanceArtifact.schema,
         "Optional tectonic provenance payload (tracer history + scalars)."
       )
     ),
@@ -363,6 +360,8 @@ const ComputePlatesTensorsContract = defineOp({
 
 export default ComputePlatesTensorsContract;
 export type ComputePlatesTensorsConfig = Static<typeof StrategySchema>;
-export type FoundationTectonicProvenance = FoundationTectonicProvenanceArtifact;
+export type FoundationTectonicProvenance = Static<
+  typeof FoundationTectonicProvenanceArtifact.schema
+>;
 export type FoundationTectonicHistoryTiles = Static<typeof TectonicHistoryTilesSchema>;
 export type FoundationTectonicProvenanceTiles = Static<typeof TectonicProvenanceTilesSchema>;

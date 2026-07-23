@@ -2,13 +2,12 @@ import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/autho
 import {
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Structural contract for current per-cell tectonic signals. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     boundaryType: TypedArraySchemas.u8({ cardinality: null }),
     upliftPotential: TypedArraySchemas.u8({ cardinality: null }),
@@ -29,8 +28,10 @@ export const artifact = defineArtifact({
   name: "foundationTectonics",
   id: "artifact:foundation.tectonics",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates exact signal constructors, nonempty cardinality, and parallel lengths. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const tectonics = value as Artifact;
   const arrays = Object.values(tectonics).filter(
@@ -53,6 +54,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/** Validates exact signal constructors, nonempty cardinality, and parallel lengths. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

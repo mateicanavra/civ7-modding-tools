@@ -3,27 +3,24 @@ level: error
 ---
 # Require Artifact Catalog Index Shape
 
-A domain artifact `index.ts` owns one typed catalog assembled from sibling
-artifact modules. Its only runtime exports are the module and handle
-projections derived from that catalog.
+An artifact directory exports one direct catalog assembled from named sibling
+artifact authorities. The catalog is the only runtime export.
 
 ```grit
 language js(typescript)
 
-predicate has_linked_artifact_catalog_module($body) {
-  $body <: contains `import * as $module from $source` where {
+predicate has_linked_artifact($body) {
+  $body <: contains `import { artifact as $artifact } from $source` where {
     $source <: r"^[\"']\./[^/\"']+\.artifact\.js[\"']$"
   },
-  $body <: contains `const catalog = defineArtifactCatalog({ $..., $module, $... })`
+  $body <: contains `export const artifacts = defineArtifactCatalog({ $..., $artifact, $... })`
 }
 
 predicate lacks_artifact_catalog_surface($body) {
   or {
     ! $body <: contains `import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts"`,
-    ! has_linked_artifact_catalog_module($body),
-    ! $body <: contains `const catalog = defineArtifactCatalog({ $... })`,
-    ! $body <: contains `export const artifactModules = catalog.modules`,
-    ! $body <: contains `export const artifacts = catalog.artifacts`
+    ! has_linked_artifact($body),
+    ! $body <: contains `export const artifacts = defineArtifactCatalog({ $... })`
   }
 }
 
@@ -32,25 +29,13 @@ or {
     lacks_artifact_catalog_surface($body)
   },
   program(statements=$body) where {
-    $calls = [],
-    $body <: some bubble($calls) $statement where {
-      $statement <: contains bubble($calls) `defineArtifactCatalog($_)` as $call where {
-        $calls += $call
-      }
-    },
-    $call_count = length(target=$calls),
-    ! $call_count <: 1
-  },
-  program(statements=$body) where {
     $body <: some $statement where {
       ! $statement <: or {
         `import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts"`,
-        `import * as $module from $source` where {
+        `import { artifact as $artifact } from $source` where {
           $source <: r"^[\"']\./[^/\"']+\.artifact\.js[\"']$"
         },
-        `const catalog = defineArtifactCatalog({ $... })`,
-        `export const artifactModules = catalog.modules`,
-        `export const artifacts = catalog.artifacts`
+        `export const artifacts = defineArtifactCatalog({ $... })`
       }
     }
   }
@@ -62,28 +47,22 @@ or {
 ```typescript
 // @filename: mods/example-mod/src/domain/weather/artifacts/index.ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
-import * as forecast from "./forecast.artifact.js";
+import { artifact as forecast } from "./forecast.artifact.js";
 
-const catalog = defineArtifactCatalog({ forecast });
-export const artifactModules = catalog.modules;
-export const artifacts = catalog.artifacts;
+export const artifacts = defineArtifactCatalog({ forecast });
 export const forecastArtifact = artifacts.forecast;
 
 // @filename: mods/alternate-mod/src/domain/terrain/artifacts/index.ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
-import { artifact } from "./surface.artifact.js";
+import * as surface from "./surface.artifact.js";
 
-const catalog = defineArtifactCatalog({ artifact });
-export const artifactModules = catalog.modules;
-export const artifacts = catalog.artifacts;
+export const artifacts = defineArtifactCatalog({ surface });
 
 // @filename: mods/example-mod/src/domain/geology/artifacts/index.ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
-import * as strata from "./strata.artifact.js";
+import { artifact as strata } from "./strata.artifact.js";
 
-const catalog = defineArtifactCatalog({});
-export const artifactModules = catalog.modules;
-export const artifacts = catalog.artifacts;
+export const artifacts = defineArtifactCatalog({});
 ```
 
 ## Ignores Fixture
@@ -91,14 +70,9 @@ export const artifacts = catalog.artifacts;
 ```typescript
 // @filename: mods/example-mod/src/domain/weather/artifacts/index.ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
-import * as forecast from "./forecast.artifact.js";
-import * as precipitation from "./precipitation.artifact.js";
+import { artifact as forecast } from "./forecast.artifact.js";
+import { artifact as precipitation } from "./precipitation.artifact.js";
 
-const catalog = defineArtifactCatalog({ forecast, precipitation });
-
-/** Weather artifact modules pair each contract with its complete validator. */
-export const artifactModules = catalog.modules;
-
-/** Weather artifact handles are derived from the admitted module catalog. */
-export const artifacts = catalog.artifacts;
+/** Weather artifact authorities keyed for contracts and consumers. */
+export const artifacts = defineArtifactCatalog({ forecast, precipitation });
 ```

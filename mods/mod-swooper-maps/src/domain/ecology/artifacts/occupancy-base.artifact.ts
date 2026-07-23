@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
 } from "@swooper/mapgen-core/authoring/contracts";
 import { FeatureOccupancySchema } from "../model/schemas/index.js";
@@ -13,7 +12,7 @@ import { FeatureOccupancySchema } from "../model/schemas/index.js";
  * Runtime contract for initial feature occupancy and permanent reservations before any family
  * planner claims tiles.
  */
-export const Schema = FeatureOccupancySchema;
+const Schema = FeatureOccupancySchema;
 
 export type OccupancyArtifact = Static<typeof Schema>;
 
@@ -26,8 +25,15 @@ export const artifact = defineArtifact({
   name: "occupancyBase",
   id: "artifact:ecology.occupancy.base",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Validates base Ecology occupancy against its closed schema and, when map dimensions are
+ * supplied, verifies every tile field matches that width × height. It returns accumulated
+ * issues so artifact admission can reject a structurally valid but spatially inconsistent
+ * payload.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -49,11 +55,3 @@ function validateLocal(
   appendArtifactTypedArrayIssues(issues, "reserved", value.reserved, Uint8Array, size);
   return issues;
 }
-
-/**
- * Validates base Ecology occupancy against its closed schema and, when map dimensions are
- * supplied, verifies every tile field matches that width × height. It returns accumulated
- * issues so artifact admission can reject a structurally valid but spatially inconsistent
- * payload.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);

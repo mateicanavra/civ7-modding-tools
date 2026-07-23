@@ -2,7 +2,6 @@ import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/autho
 import {
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
@@ -23,7 +22,7 @@ const PlateSchema = Type.Object(
 );
 
 /** Structural contract for cell-to-plate membership and plate identity metadata. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     cellToPlate: TypedArraySchemas.i16({ cardinality: null }),
     plates: Type.Immutable(Type.Array(PlateSchema)),
@@ -39,8 +38,10 @@ export const artifact = defineArtifact({
   name: "foundationPlateGraph",
   id: "artifact:foundation.plateGraph",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates exact membership-array construction and nonempty plate cardinality. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const graph = value as Artifact;
   const issues: ArtifactValidationIssue[] = [];
@@ -51,6 +52,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   }
   return issues;
 }
-
-/** Validates exact membership-array construction and nonempty plate cardinality. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

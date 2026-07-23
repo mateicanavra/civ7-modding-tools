@@ -1,25 +1,21 @@
 export type { Static, TObject, TSchema } from "typebox";
 export { Type } from "typebox";
-
+export type { ArtifactCatalog } from "./artifact/catalog.js";
+export { defineArtifactCatalog } from "./artifact/catalog.js";
 export type {
-  ArtifactContract,
+  Artifact,
   ArtifactReadValueOf,
   ArtifactValueOf,
   DeepReadonly,
 } from "./artifact/contract.js";
 export { defineArtifact } from "./artifact/contract.js";
-export type { ArtifactCatalog, ArtifactModule } from "./artifact/module.js";
-export { defineArtifactCatalog } from "./artifact/module.js";
 export type {
+  ArtifactRefinement,
   ArtifactValidationContext,
   ArtifactValidationIssue,
   ArtifactValidator,
 } from "./artifact/validation.js";
-export {
-  appendArtifactTypedArrayIssues,
-  artifactCellCount,
-  defineArtifactValidator,
-} from "./artifact/validation.js";
+export { appendArtifactTypedArrayIssues, artifactCellCount } from "./artifact/validation.js";
 export type {
   DomainAggregateContract,
   DomainAggregateContractAny,

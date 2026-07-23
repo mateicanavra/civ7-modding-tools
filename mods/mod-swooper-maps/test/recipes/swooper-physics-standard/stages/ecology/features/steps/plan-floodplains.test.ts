@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
+import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
 import ecology from "@mapgen/domain/ecology/ops";
 import { RIVER_CLASS_MAJOR } from "@mapgen/domain/hydrology/model/policy/river-class.js";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -83,17 +83,17 @@ describe("ecology-features plan-floodplains step", () => {
     });
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
+      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
         elevation: new Int16Array(size).fill(24),
         seaLevel: 0,
         landMask,
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, ecologyArtifactModules.scoreLayers, {
+      publishTestArtifact(stepContext, ecologyArtifacts.scoreLayers, {
         ...TEST_MAP_SIZE.dimensions,
         layers,
       });
-      publishTestArtifact(stepContext, ecologyArtifactModules.occupancyBase, {
+      publishTestArtifact(stepContext, ecologyArtifacts.occupancyBase, {
         ...TEST_MAP_SIZE.dimensions,
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
@@ -114,10 +114,7 @@ describe("ecology-features plan-floodplains step", () => {
         dependencies
       );
     });
-    const intents = readValidatedArtifact(
-      context,
-      ecologyArtifactModules.featureIntentsFloodplains
-    );
+    const intents = readValidatedArtifact(context, ecologyArtifacts.featureIntentsFloodplains);
 
     expect(intents).toHaveLength(1);
     expect(intents[0]).toMatchObject({

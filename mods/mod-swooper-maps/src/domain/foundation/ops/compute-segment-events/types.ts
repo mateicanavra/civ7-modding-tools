@@ -1,7 +1,13 @@
-import type { Artifact as FoundationMesh } from "../../artifacts/mesh.artifact.js";
-import type { Artifact as TectonicEvents } from "../../artifacts/tectonic-events.artifact.js";
-import type { Artifact as FoundationTectonicSegments } from "../../artifacts/tectonic-segments.artifact.js";
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import type { Crust as FoundationCrust } from "../../model/schemas/crust.schema.js";
+
+type FoundationMesh = Static<typeof import("../../artifacts/mesh.artifact.js").artifact.schema>;
+type TectonicEvents = Static<
+  typeof import("../../artifacts/tectonic-events.artifact.js").artifact.schema
+>;
+type FoundationTectonicSegments = Static<
+  typeof import("../../artifacts/tectonic-segments.artifact.js").artifact.schema
+>;
 
 type TectonicEventRecord = TectonicEvents[number];
 

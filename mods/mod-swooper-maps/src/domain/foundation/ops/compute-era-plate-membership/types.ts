@@ -1,6 +1,12 @@
-import type { Artifact as FoundationMesh } from "../../artifacts/mesh.artifact.js";
-import type { Artifact as FoundationPlateGraph } from "../../artifacts/plate-graph.artifact.js";
-import type { Artifact as FoundationPlateMotion } from "../../artifacts/plate-motion.artifact.js";
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
+
+type FoundationMesh = Static<typeof import("../../artifacts/mesh.artifact.js").artifact.schema>;
+type FoundationPlateGraph = Static<
+  typeof import("../../artifacts/plate-graph.artifact.js").artifact.schema
+>;
+type FoundationPlateMotion = Static<
+  typeof import("../../artifacts/plate-motion.artifact.js").artifact.schema
+>;
 
 export type EraPlateMembershipMesh = Pick<
   FoundationMesh,

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
+import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
 import ecology from "@mapgen/domain/ecology/ops";
-import { artifactModules as hydrologyClimateRefineArtifactModules } from "@mapgen/domain/hydrology";
-import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -14,7 +14,7 @@ import {
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
 import { BiomesStep as biomesStep } from "../../../../../../../../src/recipes/standard/stages/ecology/biomes/steps/biomes/step.js";
-import { artifactModules as mapEcologyArtifactModules } from "../../../../../../../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
+import { artifacts as mapEcologyArtifacts } from "../../../../../../../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
 import { PlotBiomesStep as plotBiomesStep } from "../../../../../../../../src/recipes/standard/stages/map/ecology/steps/plot-biomes/step.js";
 import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 
@@ -42,13 +42,13 @@ describe("plot biomes step", () => {
     elevation[0] = 0;
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, morphologyArtifactModules.topography, {
+      publishTestArtifact(stepContext, morphologyArtifacts.topography, {
         elevation,
         seaLevel: 0,
         landMask,
         bathymetry: new Int16Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyClimateRefineArtifactModules.cryosphere, {
+      publishTestArtifact(stepContext, hydrologyArtifacts.cryosphere, {
         snowCover: new Uint8Array(size),
         seaIceCover: new Uint8Array(size),
         albedo: new Uint8Array(size),
@@ -56,14 +56,14 @@ describe("plot biomes step", () => {
         permafrost01: new Float32Array(size),
         meltPotential01: new Float32Array(size),
       });
-      publishTestArtifact(stepContext, hydrologyClimateRefineArtifactModules.climateIndices, {
+      publishTestArtifact(stepContext, hydrologyArtifacts.climateIndices, {
         surfaceTemperatureC: new Float32Array(size).fill(15),
         effectiveMoisture: new Float32Array(size).fill(160),
         pet: new Float32Array(size),
         aridityIndex: new Float32Array(size).fill(0.2),
         freezeIndex: new Float32Array(size).fill(0.05),
       });
-      publishTestArtifact(stepContext, ecologyArtifactModules.pedology, {
+      publishTestArtifact(stepContext, ecologyArtifacts.pedology, {
         width,
         height,
         soilType: new Uint8Array(size).fill(0),
@@ -89,7 +89,7 @@ describe("plot biomes step", () => {
       );
     });
 
-    const bindings = readValidatedArtifact(context, mapEcologyArtifactModules.biomeBindings);
+    const bindings = readValidatedArtifact(context, mapEcologyArtifacts.biomeBindings);
     const marineId = adapter.getBiomeGlobal("BIOME_MARINE");
     expect(bindings.engineBiomeId[0]).toBe(marineId);
     expect(adapter.getBiomeType(0, 0)).toBe(marineId);

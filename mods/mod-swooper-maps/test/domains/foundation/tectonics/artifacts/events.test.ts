@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation/artifacts";
+import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation/artifacts";
 
-const { tectonicEvents } = foundationArtifactModules;
+const { tectonicEvents } = foundationArtifacts;
 
 function validEvent() {
   return {

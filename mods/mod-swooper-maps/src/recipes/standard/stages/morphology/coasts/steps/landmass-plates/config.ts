@@ -1,7 +1,5 @@
 import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
-import morphology, {
-  artifactModules as morphologyArtifactModules,
-} from "@mapgen/domain/morphology";
+import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -18,9 +16,9 @@ export const LandmassPlatesStepContract = defineStep({
       foundationArtifacts.tectonicProvenanceTiles,
     ],
     provides: [
-      morphologyArtifactModules.baseTopography,
-      morphologyArtifactModules.baseSubstrate,
-      morphologyArtifactModules.beltDrivers,
+      morphologyArtifacts.baseTopography,
+      morphologyArtifacts.baseSubstrate,
+      morphologyArtifacts.beltDrivers,
     ],
   },
   ops: {

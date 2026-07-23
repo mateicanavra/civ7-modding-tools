@@ -1,7 +1,4 @@
-import foundation, {
-  artifactModules as foundationArtifactModules,
-  artifacts as foundationArtifacts,
-} from "@mapgen/domain/foundation";
+import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -22,10 +19,10 @@ export const TectonicsStepContract = defineStep({
       foundationArtifacts.plateMotion,
     ],
     provides: [
-      foundationArtifactModules.tectonicSegments,
-      foundationArtifactModules.tectonicHistory,
-      foundationArtifactModules.tectonicProvenance,
-      foundationArtifactModules.currentTectonics,
+      foundationArtifacts.tectonicSegments,
+      foundationArtifacts.tectonicHistory,
+      foundationArtifacts.tectonicProvenance,
+      foundationArtifacts.currentTectonics,
     ],
   },
   ops: {

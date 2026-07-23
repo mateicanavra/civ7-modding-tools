@@ -2,13 +2,12 @@ import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/autho
 import {
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Structural contract for per-cell mantle forcing fields. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     version: Type.Integer({ minimum: 1 }),
     cellCount: Type.Integer({ minimum: 1 }),
@@ -30,8 +29,10 @@ export const artifact = defineArtifact({
   name: "foundationMantleForcing",
   id: "artifact:foundation.mantleForcing",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates exact forcing-array constructors and cell-count cardinality. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const forcing = value as Artifact;
   const cellCount = forcing.cellCount;
@@ -51,6 +52,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   appendArtifactTypedArrayIssues(issues, "divergence", forcing.divergence, Float32Array, cellCount);
   return issues;
 }
-
-/** Validates exact forcing-array constructors and cell-count cardinality. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

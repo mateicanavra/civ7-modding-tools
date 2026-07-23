@@ -1,7 +1,7 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import { Schema as TectonicEventsSchema } from "../../artifacts/tectonic-events.artifact.js";
-import { Schema as FoundationTectonicSegmentsSchema } from "../../artifacts/tectonic-segments.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
+import { artifact as TectonicEventsArtifact } from "../../artifacts/tectonic-events.artifact.js";
+import { artifact as FoundationTectonicSegmentsArtifact } from "../../artifacts/tectonic-segments.artifact.js";
 import { CrustSchema as FoundationCrustSchema } from "../../model/schemas/crust.schema.js";
 
 const ComputeSegmentEventsContract = defineOp({
@@ -9,15 +9,15 @@ const ComputeSegmentEventsContract = defineOp({
   id: "foundation/compute-segment-events",
   input: Type.Object(
     {
-      mesh: FoundationMeshSchema,
+      mesh: FoundationMeshArtifact.schema,
       crust: FoundationCrustSchema,
-      segments: FoundationTectonicSegmentsSchema,
+      segments: FoundationTectonicSegmentsArtifact.schema,
     },
     { additionalProperties: false }
   ),
   output: Type.Object(
     {
-      events: TectonicEventsSchema,
+      events: TectonicEventsArtifact.schema,
     },
     {
       additionalProperties: false,

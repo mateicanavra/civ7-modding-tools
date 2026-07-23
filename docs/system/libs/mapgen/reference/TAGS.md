@@ -28,8 +28,8 @@ TagRegistry is responsible for:
 - validating tags (kind and id correctness),
 - and validating `requires/provides` lists.
 
-Artifact IDs are owned and registered by step-selected artifact modules. Explicit catalogs own
-effect IDs and their optional runtime postconditions. Representative effect example:
+Artifact IDs are owned by the exact `Artifact` authorities selected by step contracts. Explicit
+catalogs own effect IDs and their optional runtime postconditions. Representative effect example:
 
 ```ts
 export const MAP_PROJECTION_EFFECT_TAGS = {
@@ -51,4 +51,4 @@ export function registerStandardTags(registry: {
 - StepRegistry validation: `packages/mapgen-core/src/engine/StepRegistry.ts`
 - Policy: registered-only tags: `docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`
 - Example effect registry + definitions: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
-- Artifact module runtime: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
+- Artifact runtime: `packages/mapgen-core/src/authoring/artifact/runtime.ts`

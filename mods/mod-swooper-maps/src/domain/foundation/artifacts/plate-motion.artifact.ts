@@ -2,13 +2,12 @@ import type { ArtifactValidationIssue, Static } from "@swooper/mapgen-core/autho
 import {
   appendArtifactTypedArrayIssues,
   defineArtifact,
-  defineArtifactValidator,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
 /** Structural contract for plate-indexed motion and cell-fit fields. */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     version: Type.Integer({ minimum: 1 }),
     cellCount: Type.Integer({ minimum: 1 }),
@@ -34,8 +33,10 @@ export const artifact = defineArtifact({
   name: "foundationPlateMotion",
   id: "artifact:foundation.plateMotion",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/** Validates exact motion-array constructors and plate/cell cardinalities. */
 function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   const motion = value as Artifact;
   const issues: ArtifactValidationIssue[] = [];
@@ -67,6 +68,3 @@ function validateLocal(value: unknown): readonly ArtifactValidationIssue[] {
   );
   return issues;
 }
-
-/** Validates exact motion-array constructors and plate/cell cardinalities. */
-export const validate = defineArtifactValidator(artifact, validateLocal);

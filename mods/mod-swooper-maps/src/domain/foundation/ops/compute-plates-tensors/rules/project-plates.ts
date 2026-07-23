@@ -1,3 +1,4 @@
+import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { forEachHexNeighborOddQ, projectOddqToHexSpace } from "@swooper/mapgen-core/lib/grid";
 import {
   quantizeI8Symmetric,
@@ -5,13 +6,24 @@ import {
   wrapAbsDeltaPeriodic,
 } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
-import type { Artifact as FoundationTectonics } from "../../../artifacts/current-tectonics.artifact.js";
-import type { Artifact as FoundationMesh } from "../../../artifacts/mesh.artifact.js";
-import type { Artifact as FoundationPlateGraph } from "../../../artifacts/plate-graph.artifact.js";
-import type { Artifact as FoundationPlateMotion } from "../../../artifacts/plate-motion.artifact.js";
-import type { Artifact as FoundationTectonicHistory } from "../../../artifacts/tectonic-history.artifact.js";
-import type { Artifact as FoundationTectonicProvenance } from "../../../artifacts/tectonic-provenance.artifact.js";
 import type { Crust as FoundationCrust } from "../../../model/schemas/crust.schema.js";
+
+type FoundationTectonics = Static<
+  typeof import("../../../artifacts/current-tectonics.artifact.js").artifact.schema
+>;
+type FoundationMesh = Static<typeof import("../../../artifacts/mesh.artifact.js").artifact.schema>;
+type FoundationPlateGraph = Static<
+  typeof import("../../../artifacts/plate-graph.artifact.js").artifact.schema
+>;
+type FoundationPlateMotion = Static<
+  typeof import("../../../artifacts/plate-motion.artifact.js").artifact.schema
+>;
+type FoundationTectonicHistory = Static<
+  typeof import("../../../artifacts/tectonic-history.artifact.js").artifact.schema
+>;
+type FoundationTectonicProvenance = Static<
+  typeof import("../../../artifacts/tectonic-provenance.artifact.js").artifact.schema
+>;
 
 function hexDistanceSq(ax: number, ay: number, bx: number, by: number, wrapWidth: number): number {
   const dx = wrapAbsDeltaPeriodic(ax - bx, wrapWidth);

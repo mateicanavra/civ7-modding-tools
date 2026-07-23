@@ -1,13 +1,8 @@
-import {
-  defineArtifact,
-  defineArtifactValidator,
-  type Static,
-  Type,
-} from "@swooper/mapgen-core/authoring/contracts";
+import { defineArtifact, type Static, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../model/schemas/index.js";
 
 /** Canonical schema entrypoint for registering and validating wetland intent. */
-export const Schema = Type.Array(FeaturePlacementSchema);
+const Schema = Type.Array(FeaturePlacementSchema);
 
 /** Ordered wetland intent list consumed later by map-ecology projection. */
 export type FeatureIntentsListArtifact = Static<typeof Schema>;
@@ -22,6 +17,3 @@ export const artifact = defineArtifact({
   id: "artifact:ecology.featureIntents.wetlands",
   schema: Schema,
 });
-
-/** Returns schema issues for wetland intent without throwing. */
-export const validate = defineArtifactValidator(artifact);

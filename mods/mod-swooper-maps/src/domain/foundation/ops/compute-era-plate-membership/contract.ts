@@ -1,9 +1,9 @@
 import type { Static } from "@swooper/mapgen-core/authoring/contracts";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as FoundationMeshSchema } from "../../artifacts/mesh.artifact.js";
-import { Schema as FoundationPlateGraphSchema } from "../../artifacts/plate-graph.artifact.js";
-import { Schema as PlateIdByEraSchema } from "../../artifacts/plate-id-by-era.artifact.js";
-import { Schema as FoundationPlateMotionSchema } from "../../artifacts/plate-motion.artifact.js";
+import { artifact as FoundationMeshArtifact } from "../../artifacts/mesh.artifact.js";
+import { artifact as FoundationPlateGraphArtifact } from "../../artifacts/plate-graph.artifact.js";
+import { artifact as PlateIdByEraArtifact } from "../../artifacts/plate-id-by-era.artifact.js";
+import { artifact as FoundationPlateMotionArtifact } from "../../artifacts/plate-motion.artifact.js";
 
 const StrategySchema = Type.Object(
   {
@@ -46,9 +46,9 @@ const ComputeEraPlateMembershipContract = defineOp({
   id: "foundation/compute-era-plate-membership",
   input: Type.Object(
     {
-      mesh: FoundationMeshSchema,
-      plateGraph: FoundationPlateGraphSchema,
-      plateMotion: FoundationPlateMotionSchema,
+      mesh: FoundationMeshArtifact.schema,
+      plateGraph: FoundationPlateGraphArtifact.schema,
+      plateMotion: FoundationPlateMotionArtifact.schema,
     },
     { additionalProperties: false }
   ),
@@ -56,7 +56,7 @@ const ComputeEraPlateMembershipContract = defineOp({
     {
       eraCount: Type.Integer({ minimum: 5, maximum: 8 }),
       eraWeights: Type.Array(Type.Number()),
-      plateIdByEra: PlateIdByEraSchema,
+      plateIdByEra: PlateIdByEraArtifact.schema,
     },
     {
       additionalProperties: false,

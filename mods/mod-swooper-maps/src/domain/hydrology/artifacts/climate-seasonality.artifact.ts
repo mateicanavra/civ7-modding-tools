@@ -4,7 +4,6 @@ import {
   appendArtifactTypedArrayIssues,
   artifactCellCount,
   defineArtifact,
-  defineArtifactValidator,
   type Static,
   Type,
   TypedArraySchemas,
@@ -16,7 +15,7 @@ import {
  * This is the *public* seasonality output surface: Hydrology may internally simulate 2–4 seasonal modes, but it only
  * publishes the annual mean (via `artifact:hydrology.baselineClimateField`) and the corresponding amplitude fields here.
  */
-export const Schema = Type.Object(
+const Schema = Type.Object(
   {
     /** Number of seasonal modes used internally when computing amplitudes (2 or 4). */
     modeCount: Type.Union([Type.Literal(2), Type.Literal(4)], {
@@ -54,8 +53,12 @@ export const artifact = defineArtifact({
   name: "climateSeasonality",
   id: "artifact:hydrology.climateSeasonality",
   schema: Schema,
+  refine: validateLocal,
 });
 
+/**
+ * Binds both seasonal amplitude fields to the admitted map dimensions.
+ */
 function validateLocal(
   input: unknown,
   context?: ArtifactValidationContext
@@ -80,8 +83,3 @@ function validateLocal(
   );
   return errors;
 }
-
-/**
- * Binds both seasonal amplitude fields to the admitted map dimensions.
- */
-export const validate = defineArtifactValidator(artifact, validateLocal);
