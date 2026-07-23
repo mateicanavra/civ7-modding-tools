@@ -1,4 +1,7 @@
-import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import foundation from "@mapgen/domain/foundation";
+import { artifacts as lithosphereArtifacts } from "@mapgen/domain/foundation/modules/lithosphere/artifacts";
+import { artifacts as mantleArtifacts } from "@mapgen/domain/foundation/modules/mantle/artifacts";
+import { artifacts as meshArtifacts } from "@mapgen/domain/foundation/modules/mesh/artifacts";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -11,11 +14,11 @@ export const CrustStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [foundationArtifacts.mesh, foundationArtifacts.mantleForcing],
-    provides: [foundationArtifacts.initialCrust],
+    requires: [meshArtifacts.mesh, mantleArtifacts.mantleForcing],
+    provides: [lithosphereArtifacts.initialCrust],
   },
   ops: {
-    computeCrust: foundation.ops.computeCrust,
+    computeCrust: foundation.lithosphere.ops.computeCrust,
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

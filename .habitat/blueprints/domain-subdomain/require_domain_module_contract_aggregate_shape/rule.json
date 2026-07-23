@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_module_contract_aggregate_shape",
+  "title": "Require Domain Module Contract Aggregate Shape",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-subdomain",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "semantic-module contract files exposing operation contracts or any authority besides their singular default defineDomainSubdomain result",
+  "why": "A semantic module contract is one aggregate identity over its operation registry. Keeping constituent contracts private preserves one contract authority while leaving execution to the router.",
+  "remediate": "Import the default ./ops/contract.js registry, compose one local defineDomainSubdomain binding, and export only that binding as default.",
+  "message": "Domain module contract.ts must expose one default aggregate contract authority only.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/domain/*/modules/*/contract.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-subdomain/require_domain_module_contract_aggregate_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-subdomain/require_domain_module_contract_aggregate_shape/pattern.md"
+    },
+    "patternName": "require_domain_module_contract_aggregate_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["mods"]
+    }
+  }
+}

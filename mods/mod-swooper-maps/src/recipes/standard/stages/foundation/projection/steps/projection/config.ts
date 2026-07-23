@@ -1,4 +1,9 @@
-import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import foundation from "@mapgen/domain/foundation";
+import { artifacts as lithosphereArtifacts } from "@mapgen/domain/foundation/modules/lithosphere/artifacts";
+import { artifacts as meshArtifacts } from "@mapgen/domain/foundation/modules/mesh/artifacts";
+import { artifacts as orogenyArtifacts } from "@mapgen/domain/foundation/modules/orogeny/artifacts";
+import { artifacts as projectionArtifacts } from "@mapgen/domain/foundation/modules/projection/artifacts";
+import { artifacts as tectonicsArtifacts } from "@mapgen/domain/foundation/modules/tectonics/artifacts";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -11,23 +16,23 @@ export const ProjectionStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      foundationArtifacts.mesh,
-      foundationArtifacts.crust,
-      foundationArtifacts.plateGraph,
-      foundationArtifacts.plateMotion,
-      foundationArtifacts.currentTectonics,
-      foundationArtifacts.tectonicHistory,
-      foundationArtifacts.tectonicProvenance,
+      meshArtifacts.mesh,
+      orogenyArtifacts.crust,
+      lithosphereArtifacts.plateGraph,
+      tectonicsArtifacts.plateMotion,
+      tectonicsArtifacts.currentTectonics,
+      tectonicsArtifacts.tectonicHistory,
+      tectonicsArtifacts.tectonicProvenance,
     ],
     provides: [
-      foundationArtifacts.plates,
-      foundationArtifacts.crustTiles,
-      foundationArtifacts.tectonicHistoryTiles,
-      foundationArtifacts.tectonicProvenanceTiles,
+      projectionArtifacts.plates,
+      projectionArtifacts.crustTiles,
+      projectionArtifacts.tectonicHistoryTiles,
+      projectionArtifacts.tectonicProvenanceTiles,
     ],
   },
   ops: {
-    computePlates: foundation.ops.computePlatesTensors,
+    computePlates: foundation.projection.ops.computePlatesTensors,
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

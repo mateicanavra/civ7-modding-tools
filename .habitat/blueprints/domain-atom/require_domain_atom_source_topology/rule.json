@@ -19,7 +19,12 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/**/atoms", "mods/*/src/domain/**/atoms/**"]
+      "patterns": [
+        "mods/*/src/domain/*/model/atoms",
+        "mods/*/src/domain/*/model/atoms/**",
+        "mods/*/src/domain/*/modules/*/model/atoms",
+        "mods/*/src/domain/*/modules/*/model/atoms/**"
+      ]
     }
   ],
   "supportFiles": {

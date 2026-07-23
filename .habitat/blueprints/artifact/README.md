@@ -26,8 +26,8 @@ Current source-backed anchors:
 - `docs/system/libs/mapgen/how-to/add-a-new-artifact.md`
 - `packages/mapgen-core/src/authoring/artifact/**`
 - `packages/mapgen-core/src/core/map-context.ts`
-- `mods/*/src/domain/*/artifacts/index.ts`
-- `mods/*/src/domain/*/artifacts/*.artifact.ts`
+- `mods/*/src/domain/*/modules/*/artifacts/index.ts`
+- `mods/*/src/domain/*/modules/*/artifacts/*.artifact.ts`
 
 The initial bounded artifact-vocabulary sweep found no existing Habitat rule
 packet whose whole predicate could be admitted as live artifact blueprint
@@ -41,24 +41,23 @@ to every valid artifact value or contract.
 ## Admitted Rules
 
 - `require_artifact_file_shape`: source-shape contract for artifact owner files.
-  Every `mods/*/src/**/artifacts/*.artifact.ts` file keeps a private `Schema`
-  and exports one `artifact = defineArtifact(...)`. Core binds structural
-  TypeBox admission and any optional private relational refinement into that
-  same frozen authority. Grit requires the positive binding surface and rejects
-  alternate runtime exports, direct TypeBox error projection, local issue
-  contracts, dynamic imports, and dependencies outside stable MapGen, Civ7
-  type/policy, and public domain model surfaces. The type system owns exact
-  schema/refinement binding; the artifact's frozen shape is portable across
-  package evaluators without ambient provenance state. Core owns artifact-id
-  admission; the source-shape rule does not rename durable product identities.
-  Artifact-private schemas remain inline; genuinely shared domain vocabulary
-  lives under the owning domain's `model/schemas` surface without artifact
-  validation or setup.
+  Every `mods/*/src/**/artifacts/*.artifact.ts` file exports one
+  `artifact = defineArtifact({ schema, ... })` authority. The artifact owns its
+  complete payload schema as a direct inline `Type.*(...)` expression. Exact imported atoms may supply smaller
+  primitives and cohesive subentities inside that root; an imported whole
+  schema may not become the artifact container. Any optional relational
+  refinement is likewise inline on the definition. Core binds structural TypeBox
+  admission and that refinement into the same
+  frozen authority. Grit also rejects alternate runtime exports, direct TypeBox
+  error projection, local issue contracts, dynamic imports, and dependencies
+  outside stable MapGen, Civ7 type/policy, and public domain model surfaces.
+  Core owns artifact-id admission; the source-shape rule does not rename durable
+  product identities.
 - `require_artifact_index_aggregate_shape`: positive source topology for every
-  `mods/*/src/domain/*/artifacts` directory. Each directory owns `index.ts`, one or
-  more `*.artifact.ts` modules, and no other direct file kind. This law asserts
-  only the selected positive directory shape; it does not search unrelated
-  source trees for artifact-like names.
+  `mods/*/src/domain/*/modules/*/artifacts` directory. Each directory owns
+  `index.ts`, one or more `*.artifact.ts` modules, and no other direct file
+  kind. This law asserts only the selected positive directory shape; it does
+  not search unrelated source trees for artifact-like names.
 - `require_artifact_catalog_index_shape`: positive catalog-owner law. The index
   names each sibling `artifact` import, binds one direct
   `defineArtifactCatalog` authority, and exports only `artifacts`. TypeScript's

@@ -1,10 +1,27 @@
 schemaVersion = 1
 
 [[scopes]]
-name = "mapgen-domain-policy-roots"
-root = "mods/*/src/domain/**/policy"
+name = "mapgen-domain-root-policy"
+root = "mods/*/src/domain/!(*.*)/model/policy"
 kind = "directory"
 mode = "closed"
+allowEmpty = true
 allowed = [
   "*.ts",
+]
+forbidden = [
+  "index.ts",
+]
+
+[[scopes]]
+name = "mapgen-domain-module-policy"
+root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/model/policy"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
+allowed = [
+  "*.ts",
+]
+forbidden = [
+  "index.ts",
 ]

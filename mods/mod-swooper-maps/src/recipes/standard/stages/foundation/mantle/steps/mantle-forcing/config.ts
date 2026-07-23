@@ -1,4 +1,6 @@
-import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import foundation from "@mapgen/domain/foundation";
+import { artifacts as mantleArtifacts } from "@mapgen/domain/foundation/modules/mantle/artifacts";
+import { artifacts as meshArtifacts } from "@mapgen/domain/foundation/modules/mesh/artifacts";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -11,11 +13,11 @@ export const MantleForcingStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [foundationArtifacts.mesh, foundationArtifacts.mantlePotential],
-    provides: [foundationArtifacts.mantleForcing],
+    requires: [meshArtifacts.mesh, mantleArtifacts.mantlePotential],
+    provides: [mantleArtifacts.mantleForcing],
   },
   ops: {
-    computeMantleForcing: foundation.ops.computeMantleForcing,
+    computeMantleForcing: foundation.mantle.ops.computeMantleForcing,
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

@@ -20,8 +20,10 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/**/ops/*/strategies",
-        "mods/*/src/domain/**/ops/*/strategies/**"
+        "mods/*/src/domain/*/ops/*/strategies",
+        "mods/*/src/domain/*/ops/*/strategies/**",
+        "mods/*/src/domain/*/modules/*/ops/*/strategies",
+        "mods/*/src/domain/*/modules/*/ops/*/strategies/**"
       ]
     }
   ],

@@ -1,8 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 import { TEST_MAP_SIZE } from "../../../map-size.js";
 
-const { computeCrust, computeMesh, computePlateGraph } = foundationOpsPublic.ops;
+const { computeMesh } = foundation.mesh.ops;
+const { computeCrust, computePlateGraph } = foundation.lithosphere.ops;
 function makeMantleForcing(
   mesh: {
     cellCount: number;
@@ -78,11 +79,11 @@ describe("m11 plate graph resistance sensitivity", () => {
     const mantleRift = makeMantleForcing(mesh, { mode: "rift-band", bandFraction: 0.35 });
 
     const crustNeutral = computeCrust.run(
-      { mesh, mantleForcing: mantleNeutral, rngSeed: 222 },
+      { mesh, mantleForcing: mantleNeutral },
       computeCrust.defaultConfig
     ).crust;
     const crustRift = computeCrust.run(
-      { mesh, mantleForcing: mantleRift, rngSeed: 222 },
+      { mesh, mantleForcing: mantleRift },
       {
         ...computeCrust.defaultConfig,
         config: { ...computeCrust.defaultConfig.config, riftWeakening01: 1 },

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation/artifacts";
+import { artifacts } from "@mapgen/domain/foundation/modules/mantle/artifacts";
 
-const { mantlePotential } = foundationArtifacts;
+const { mantlePotential } = artifacts;
 const SYNTHETIC_CELL_COUNT = 3;
 const SYNTHETIC_SOURCE_COUNT = 2;
 

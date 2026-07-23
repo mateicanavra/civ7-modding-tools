@@ -4,9 +4,10 @@ level: error
 # Require Domain Ops Registry Surface
 
 Domain `ops/index.ts` files own only the operation implementation registry.
-They import operation entrypoints, assemble the `implementations` object, and
-export it as default. Operation symbols are consumed through the domain ops
-object, not as named registry exports.
+They derive the type of the singular default `ops/contract.ts` authority,
+import operation entrypoints, assemble the `implementations` object, and export
+it as default. Operation symbols are consumed through the module ops object,
+not as named registry exports.
 
 ```grit
 language js(typescript)
@@ -16,10 +17,10 @@ or {
     ! $body <: contains `import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring"`
   },
   program(statements=$body) where {
-    ! $body <: contains `import type { contracts } from "./contracts.js"`
+    ! $body <: contains `type Contracts = typeof import("./contract.js").default`
   },
   program(statements=$body) where {
-    ! $body <: contains `const implementations = { $... } as const satisfies DomainOpImplementationsForContracts<typeof contracts>`
+    ! $body <: contains `const implementations = { $... } as const satisfies DomainOpImplementationsForContracts<Contracts>`
   },
   program(statements=$body) where {
     ! $body <: contains `export default implementations`
@@ -29,17 +30,17 @@ or {
       $statement where {
         ! $statement <: or {
           `import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring"`,
-          `import type { contracts } from "./contracts.js"`,
+          `type Contracts = typeof import("./contract.js").default`,
           `import $name from $source` where {
             $source <: r"^[\"']?\./[^/]+/index\.js[\"']?$"
           },
-          `const implementations = { $... } as const satisfies DomainOpImplementationsForContracts<typeof contracts>`,
+          `const implementations = { $... } as const satisfies DomainOpImplementationsForContracts<Contracts>`,
           `export default implementations`
         }
       }
     }
   },
-  `const implementations = { $entries } as const satisfies DomainOpImplementationsForContracts<typeof contracts>` where {
+  `const implementations = { $entries } as const satisfies DomainOpImplementationsForContracts<Contracts>` where {
     $entries <: some bubble {
       pair(key=$key, value=$value)
     }
@@ -74,109 +75,118 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/morphology/ops/index.ts
+// @filename: mods/example-mod/src/domain/terrain/modules/relief/ops/index.ts
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import computeBaseTopography from "./compute-base-topography/index.js";
 import { helperLogic } from "./compute-base-topography/index.js";
-import type { contracts } from "./contracts.js";
+
+type Contracts = typeof import("./contract.js").default;
 
 const implementations = {
   computeBaseTopography: helperLogic(),
-} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;
 
 export { DEFAULT_ELEVATION_SCALE } from "./compute-base-topography/rules/index.js";
 
-// @filename: mods/mod-swooper-maps/src/domain/resources/ops/index.ts
+// @filename: mods/example-mod/src/domain/resources/modules/sites/ops/index.ts
 export const helper = 1;
 
-// @filename: mods/mod-swooper-maps/src/domain/placement/ops/index.ts
+// @filename: mods/example-mod/src/domain/placement/modules/wonders/ops/index.ts
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import planNaturalWonders from "./plan-natural-wonders/index.js";
-import type { contracts } from "./contracts.js";
+
+type Contracts = typeof import("./contract.js").default;
 
 const implementations = {
   planNaturalWonders,
-} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;
 
 export { planNaturalWonders };
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
+// @filename: mods/example-mod/src/domain/geology/modules/mesh/ops/index.ts
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import computeMesh, { helper } from "./compute-mesh/index.js";
-import type { contracts } from "./contracts.js";
+
+type Contracts = typeof import("./contract.js").default;
 
 const implementations = {
   computeMesh,
-} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
+// @filename: mods/example-mod/src/domain/geology/modules/mesh/ops/index.ts
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import * as computeMesh from "./compute-mesh/index.js";
-import type { contracts } from "./contracts.js";
+
+type Contracts = typeof import("./contract.js").default;
 
 const implementations = {
   computeMesh,
-} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
+// @filename: mods/example-mod/src/domain/geology/modules/mesh/ops/index.ts
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import type { Helper } from "./compute-mesh/index.js";
-import type { contracts } from "./contracts.js";
 
-const implementations = {} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+type Contracts = typeof import("./contract.js").default;
+
+const implementations = {} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;
 
-// @filename: mods/mod-swooper-maps/src/domain/hydrology/ops/index.ts
+// @filename: mods/example-mod/src/domain/climate/modules/thermal/ops/index.ts
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import "./compute-thermal-state/index.js";
-import type { contracts } from "./contracts.js";
 
-const implementations = {} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+type Contracts = typeof import("./contract.js").default;
+
+const implementations = {} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
+// @filename: mods/example-mod/src/domain/geology/modules/mesh/ops/index.ts
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import computeMesh from "./compute-mesh/index.js";
-import type { contracts } from "./contracts.js";
+
+type Contracts = typeof import("./contract.js").default;
 
 const implementations = {
   computeMesh: computeMesh(),
-} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;
 
-// @filename: mods/mod-swooper-maps/src/domain/resources/ops/index.ts
+// @filename: mods/example-mod/src/domain/resources/modules/sites/ops/index.ts
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import planAquaticResources from "./plan-aquatic-resources/index.js";
-import type { contracts } from "./contracts.js";
+
+type Contracts = typeof import("./contract.js").default;
 
 const implementations = {
   planAquaticResources,
   ...helperImplementations,
-} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;
 
-// @filename: mods/mod-swooper-maps/src/domain/resources/ops/index.ts
+// @filename: mods/example-mod/src/domain/resources/modules/sites/ops/index.ts
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import planAquaticResources from "./plan-aquatic-resources/index.js";
-import type { contracts } from "./contracts.js";
+
+type Contracts = typeof import("./contract.js").default;
 
 const implementations = {
   planAquaticResources() {
     return planAquaticResources();
   },
-} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;
 ```
@@ -184,14 +194,15 @@ export default implementations;
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/resources/ops/index.ts
+// @filename: mods/example-mod/src/domain/resources/modules/sites/ops/index.ts
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import adjustResourceSupport from "./adjust-resource-support/index.js";
-import type { contracts } from "./contracts.js";
+
+type Contracts = typeof import("./contract.js").default;
 
 const implementations = {
   adjustResourceSupport,
-} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;
 ```

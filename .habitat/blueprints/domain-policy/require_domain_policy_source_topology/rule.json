@@ -19,7 +19,12 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/**/policy", "mods/*/src/domain/**/policy/**"]
+      "patterns": [
+        "mods/*/src/domain/*/model/policy",
+        "mods/*/src/domain/*/model/policy/**",
+        "mods/*/src/domain/*/modules/*/model/policy",
+        "mods/*/src/domain/*/modules/*/model/policy/**"
+      ]
     }
   ],
   "supportFiles": {

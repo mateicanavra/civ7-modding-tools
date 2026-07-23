@@ -1,4 +1,8 @@
-import foundation, { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import foundation from "@mapgen/domain/foundation";
+import { artifacts as lithosphereArtifacts } from "@mapgen/domain/foundation/modules/lithosphere/artifacts";
+import { artifacts as meshArtifacts } from "@mapgen/domain/foundation/modules/mesh/artifacts";
+import { artifacts as orogenyArtifacts } from "@mapgen/domain/foundation/modules/orogeny/artifacts";
+import { artifacts as tectonicsArtifacts } from "@mapgen/domain/foundation/modules/tectonics/artifacts";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
@@ -12,15 +16,15 @@ export const CrustEvolutionStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      foundationArtifacts.mesh,
-      foundationArtifacts.initialCrust,
-      foundationArtifacts.currentTectonics,
-      foundationArtifacts.tectonicHistory,
+      meshArtifacts.mesh,
+      lithosphereArtifacts.initialCrust,
+      tectonicsArtifacts.currentTectonics,
+      tectonicsArtifacts.tectonicHistory,
     ],
-    provides: [foundationArtifacts.crust],
+    provides: [orogenyArtifacts.crust],
   },
   ops: {
-    computeCrustEvolution: foundation.ops.computeCrustEvolution,
+    computeCrustEvolution: foundation.orogeny.ops.computeCrustEvolution,
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

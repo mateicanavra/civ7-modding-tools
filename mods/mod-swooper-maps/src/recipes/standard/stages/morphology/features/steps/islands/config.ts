@@ -1,4 +1,4 @@
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import { artifacts as foundationProjectionArtifacts } from "@mapgen/domain/foundation/modules/projection/artifacts";
 import morphology, { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
@@ -10,7 +10,7 @@ export const IslandsStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [foundationArtifacts.plates, morphologyArtifacts.erodedTopography],
+    requires: [foundationProjectionArtifacts.plates, morphologyArtifacts.erodedTopography],
     provides: [morphologyArtifacts.topography],
   },
   ops: {

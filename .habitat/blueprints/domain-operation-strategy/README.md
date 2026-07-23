@@ -1,6 +1,6 @@
 # Domain Operation Strategy Blueprint
 
-Status: affirmed constructible kind, enforced source-topology authority
+Status: affirmed constructible kind, enforced source topology, advisory import-boundary red corpus
 
 Owner: DRA Habitat authority-tree workstream
 
@@ -8,12 +8,13 @@ Domino: 52. Admit Domain Operation Strategy Blueprint Authority
 
 ## Purpose
 
-`domain-operation-strategy` is the MapGen blueprint kind for strategy
-implementations bound to domain operation contracts. It governs a declared
-operation strategy id, its strategy-specific config schema, optional
-normalization, deterministic `run` behavior, and the `defineOp`/`createOp`/
-`createStrategy` binding that makes the strategy selectable through the
-operation config envelope.
+`domain-operation-strategy` is the MapGen blueprint kind for swappable semantic
+implementations bound to domain operation contracts. A domain or direct
+semantic module is a router; its operations expose the strategies authors can
+select. The strategy kind governs a declared strategy id, its strategy-specific
+config schema, optional normalization, deterministic `run` behavior, and the
+`defineOp`/`createOp`/`createStrategy` binding that makes it selectable through
+the operation config envelope.
 
 This is not the parent `domain-operation` blueprint. Operation contracts,
 operation roots, domain registry wiring, operation topology, and operation
@@ -30,11 +31,12 @@ Current source-backed anchors:
 - `packages/mapgen-core/src/authoring/op/contract.ts`
 - `packages/mapgen-core/src/authoring/op/create.ts`
 - `packages/mapgen-core/src/authoring/op/strategy.ts`
-- `mods/mod-swooper-maps/src/domain/**/ops/*/strategies/*.ts`
+- `mods/*/src/domain/*/ops/*/strategies/*.ts`
+- `mods/*/src/domain/*/modules/*/ops/*/strategies/*.ts`
 
 The live source has concrete `createStrategy(...)` implementations across
-foundation, morphology, hydrology, ecology, resources, and placement domains.
-The construct is not foundation-only cleanup and not generic folder hygiene.
+multiple domains and semantic modules. The construct is not domain-specific
+cleanup and not generic folder hygiene.
 
 ## Admission Rule
 
@@ -45,26 +47,25 @@ missing or unknown strategy implementations, deterministic strategy execution,
 strategy normalization, or strategy envelope participation.
 
 Do not admit rules merely because their scan roots include `strategies/**/*.ts`.
-Strategy files can be evidence for helper-surface, foundation-local import,
+Strategy files can be evidence for helper-surface, domain-local import,
 operation topology, runtime validation, or recipe policy concerns without being
 strategy-kind authority.
 
 ## Explicit Non-Moves
 
-The initial admission slice moves no live rule packets.
+The initial admission slice moved no live rule packets. The later generic
+boundary closes the gap left by retiring the domain-specific strategy-locality
+guard:
 
-- `prohibit_foundation_strategy_nonlocal_imports` remains foundation context
-  authority. Its predicate is a foundation-specific allowed import list for
-  decomposed foundation strategy files, not a rule for every valid strategy
-  implementation.
-- `prohibit_foundation_duplicate_math_helper_redefinitions` remains foundation
-  `_remainder` debt. It governs helper-surface consolidation across strategy
-  and non-strategy files, not strategy-kind authority.
-- `validate_ecology_op_contract_quality` is retired. Generic MapGen Grit
-  authority owns declaration-site JSDoc; schema-description semantics remain
-  outside strategy topology and are not approximated by an Ecology source
-  parser.
-
+- `require_domain_operation_strategy_import_boundaries` is the positive
+  kind-level dependency law. A strategy composes its local operation contract
+  and rules, atoms and policy from its owning or ancestor semantic models,
+  shared map policy, and sanctioned public MapGen Core computation surfaces.
+  It cannot reach recipes, engine or adapter surfaces, sibling private
+  operations, or unrelated implementations. This preserves author control over
+  swappable behavior and makes every semantic dependency visible at its owner.
+  MapGen Core package exports and TypeScript own exact entrypoint validity
+  inside the admitted package root, `authoring`, and `lib` owner classes.
 `require_domain_operation_strategy_source_topology` now closes every admitted
 strategy directory to one `index.ts` barrel plus semantically named kebab-case
 strategy modules and refuses the identity-erasing `default.ts` filename.
@@ -72,6 +73,8 @@ TypeScript and the operation SDK remain the authority for declared strategy
 keys, implementation binding, and sole-strategy default inference; Structure
 does not duplicate those source relationships.
 
-Future strategy-locality or strategy-contract rules should be designed as
-positive `domain-operation-strategy` authority before moving or deleting the
-foundation-local negative guard.
+The import boundary is expressed against the direct kind topology rather than
+named domains or modules: operation-local files sit under `ops/<operation>/`,
+while shared atoms and policy rise only to the owning module or root-domain
+`model/` owner. Domain and module routers remain composition surfaces, not
+strategy dependencies.

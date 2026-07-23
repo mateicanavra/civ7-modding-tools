@@ -11,10 +11,10 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "enforced",
+  "lane": "advisory",
   "forbids": "artifact owner files outside their canonical one-object authority, closed dependency, export, and admission shape",
-  "why": "Artifact owners define immutable MapGen data products. Exact-file acquisition lets Grit require one private Schema and one exported artifact = defineArtifact(...) authority without searching unrelated mod source. Core constructs the complete structural validator and composes the owner's optional private relational refinement into that same artifact. The type system owns schema and validator binding; the frozen artifact shape remains portable across package evaluators; Knip owns unused private construction.",
-  "remediate": "In *.artifact.ts, keep Schema and any relational refinement private, export only artifact = defineArtifact({ name, id, schema: Schema, refine? }) plus erased TypeScript types, and import only the artifact API or stable public schema, policy, data, and MapGen library surfaces. Never export a second runtime authority or reimplement structural TypeBox admission.",
+  "why": "Artifact owners define immutable MapGen data products. Exact-file acquisition lets Grit require one exported artifact = defineArtifact(...) authority without searching unrelated mod source. The artifact owns its complete payload schema and optional relational refinement inline; imported atoms may contribute smaller primitives and cohesive subentities but never replace that root container. Core constructs structural validation and composes the refinement into the same authority.",
+  "remediate": "In *.artifact.ts, export only artifact = defineArtifact({ name, id, schema: Type.*(...), refine?: (...) => ... }) plus erased TypeScript types. Compose exact imported atom files only for smaller schema parts. Never use a detached or imported whole schema as the artifact root, delegate refinement to another binding, export a second runtime authority, or reimplement structural TypeBox admission.",
   "message": "Artifact owner files must expose one canonical artifact authority with a closed dependency and admission shape.",
   "pathCoverage": [
     {

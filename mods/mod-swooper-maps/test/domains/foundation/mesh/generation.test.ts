@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 import { TEST_MAP_SIZE } from "../../../map-size.js";
 
-const { computeMesh } = foundationOpsPublic.ops;
+const { computeMesh } = foundation.mesh.ops;
 
 function neighborsFor(
   mesh: {

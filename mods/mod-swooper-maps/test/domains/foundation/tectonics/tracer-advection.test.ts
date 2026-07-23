@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 
-const { computeTracerAdvection } = foundationOpsPublic.ops;
+const { computeTracerAdvection } = foundation.tectonics.ops;
 
 function compassMesh() {
   return {

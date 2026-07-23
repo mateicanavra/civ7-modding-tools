@@ -2,7 +2,6 @@ import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/a
 import classifyBiomes from "./classify-biomes/index.js";
 import computeFeatureSubstrate from "./compute-feature-substrate/index.js";
 import computeVegetationSubstrate from "./compute-vegetation-substrate/index.js";
-import type { contracts } from "./contracts.js";
 import applyFeatures from "./features-apply/index.js";
 import planFloodplains from "./features-plan-floodplains/index.js";
 import planIce from "./features-plan-ice/index.js";
@@ -32,6 +31,8 @@ import scoreWetMarsh from "./wet-score-marsh/index.js";
 import scoreWetOasis from "./wet-score-oasis/index.js";
 import scoreWetTundraBog from "./wet-score-tundra-bog/index.js";
 import scoreWetWateringHole from "./wet-score-watering-hole/index.js";
+
+type Contracts = typeof import("./contract.js").default;
 
 const implementations = {
   classifyBiomes,
@@ -70,6 +71,6 @@ const implementations = {
   planVegetation,
 
   applyFeatures,
-} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+} as const satisfies DomainOpImplementationsForContracts<Contracts>;
 
 export default implementations;

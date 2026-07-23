@@ -20,8 +20,18 @@ export const MantleForcingStep = createStep(MantleForcingStepContract, {
 
     const mantleResult = ops.computeMantleForcing(
       {
-        mesh,
-        mantlePotential,
+        mesh: {
+          cellCount: mesh.cellCount,
+          wrapWidth: mesh.wrapWidth,
+          siteX: mesh.siteX,
+          siteY: mesh.siteY,
+          neighborsOffsets: mesh.neighborsOffsets,
+          neighbors: mesh.neighbors,
+        },
+        mantlePotential: {
+          cellCount: mantlePotential.cellCount,
+          potential: mantlePotential.potential,
+        },
       },
       config.computeMantleForcing
     );

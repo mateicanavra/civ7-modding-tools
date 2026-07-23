@@ -1,10 +1,24 @@
 schemaVersion = 1
 
 [[scopes]]
-name = "mapgen-domain-atom-roots"
-root = "mods/*/src/domain/**/atoms"
+name = "mapgen-domain-root-atoms"
+root = "mods/*/src/domain/!(*.*)/model/atoms"
 kind = "directory"
 mode = "closed"
+allowEmpty = true
+required = [
+  "index.ts",
+]
+allowed = [
+  "*.schema.ts",
+]
+
+[[scopes]]
+name = "mapgen-domain-module-atoms"
+root = "mods/*/src/domain/!(*.*)/modules/!(*.*)/model/atoms"
+kind = "directory"
+mode = "closed"
+allowEmpty = true
 required = [
   "index.ts",
 ]

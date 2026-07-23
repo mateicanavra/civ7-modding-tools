@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation/artifacts";
+import { artifacts } from "@mapgen/domain/foundation/modules/tectonics/artifacts";
 
-const { plateMotion } = foundationArtifacts;
+const { plateMotion } = artifacts;
 const SYNTHETIC_CELL_COUNT = 3;
 const SYNTHETIC_PLATE_COUNT = 2;
 

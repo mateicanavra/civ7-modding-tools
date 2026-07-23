@@ -1,18 +1,14 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
 import { TEST_MAP_SIZE } from "../../../map-size.js";
-import { runTectonicHistoryChain } from "../../foundation/fixtures/tectonics-history.js";
+import { runTectonicHistoryChain } from "../../foundation/tectonics/fixtures/tectonics-history.js";
 
-const {
-  computeCrust,
-  computeMantleForcing,
-  computeMantlePotential,
-  computeMesh,
-  computePlateGraph,
-  computePlateMotion,
-  computePlatesTensors,
-} = foundationOpsPublic.ops;
+const { computeMesh } = foundation.mesh.ops;
+const { computeMantleForcing, computeMantlePotential } = foundation.mantle.ops;
+const { computeCrust, computePlateGraph } = foundation.lithosphere.ops;
+const { computePlateMotion } = foundation.tectonics.ops;
+const { computePlatesTensors } = foundation.projection.ops;
 const { computeBaseTopography, computeLandmask, computeSeaLevel } = morphologyOpsPublic.ops;
 function share(numerator: number, denominator: number): number {
   if (denominator <= 0) return 0;
@@ -52,10 +48,7 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
       { mesh, mantlePotential },
       computeMantleForcing.defaultConfig
     ).mantleForcing;
-    const crust = computeCrust.run(
-      { mesh, mantleForcing, rngSeed: 2 },
-      computeCrust.defaultConfig
-    ).crust;
+    const crust = computeCrust.run({ mesh, mantleForcing }, computeCrust.defaultConfig).crust;
 
     const plateGraphConfig = computePlateGraph.normalize({
       ...computePlateGraph.defaultConfig,

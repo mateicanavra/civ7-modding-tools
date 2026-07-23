@@ -20,6 +20,11 @@ authorities with `defineArtifactCatalog(...)`; there is no parallel contract, va
 registry. Catalog keys are local lookup names and need not equal an artifact's runtime `name`,
 while duplicate artifact ids or names are always refused.
 
+Artifacts live with the direct domain module that produces them. Each module's
+`artifacts/index.ts` is its single catalog; aggregate domains do not recreate a
+second domain-wide artifact registry. Consumers select the producing module's
+public catalog, preserving the product's semantic owner.
+
 ## Contract (write-once, read-only)
 
 - Producers publish artifacts once.
@@ -34,62 +39,47 @@ while duplicate artifact ids or names are always refused.
 - Metrics, diagnostics, and other post-run observers use `readValidatedArtifact` or
   `observeValidatedArtifact` with the exact artifact whose validator owns admission.
 
-Representative artifact owner (`topography.artifact.ts`; excerpt):
+The artifact owner owns its complete payload schema. Smaller reusable pieces,
+such as one `PlateSchema` subentity, may come from exact model-atom files, but a
+complete artifact container never moves into atoms or gets borrowed wholesale
+by an operation contract (`plate-graph.artifact.ts`; excerpt):
 
 ```ts
 import {
-  type ArtifactValidationContext,
   type ArtifactValidationIssue,
-  type Static,
   appendArtifactTypedArrayIssues,
-  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
+import { PlateSchema } from "../model/atoms/plate.schema.js";
 
-/** Closed structural schema for the topography published by morphology. */
-const Schema = Type.Object(
-  {
-    elevation: TypedArraySchemas.i16({ description: "Signed elevation per tile (integer meters)." }),
-    seaLevel: Type.Number({ description: "Global sea level threshold in meters (may be fractional)." }),
-    landMask: TypedArraySchemas.u8({ description: "Land/water mask per tile (1=land, 0=water)." }),
-  },
-  { additionalProperties: false }
-);
+type PlateGraph = Readonly<{
+  cellCount: number;
+  plateIdByCell: Int16Array;
+}>;
 
-/** Contract for the immutable topography produced by the morphology pipeline. */
 export const artifact = defineArtifact({
-  name: "topography",
-  id: "artifact:morphology.topography",
-  schema: Schema,
-  refine: validateLocal,
+  name: "foundationPlateGraph",
+  id: "artifact:foundation.plateGraph",
+  schema: Type.Object({
+    cellCount: Type.Integer({ minimum: 1 }),
+    plates: Type.Array(PlateSchema),
+    plateIdByCell: TypedArraySchemas.i16({ cardinality: null }),
+  }),
+  refine: (value): readonly ArtifactValidationIssue[] => {
+    const graph = value as PlateGraph;
+    const issues: ArtifactValidationIssue[] = [];
+    appendArtifactTypedArrayIssues(
+      issues,
+      "plateIdByCell",
+      graph.plateIdByCell,
+      Int16Array,
+      graph.cellCount
+    );
+    return issues;
+  },
 });
-
-/** Admits exact typed arrays and map-grid cardinality after structural validation. */
-function validateLocal(
-  value: unknown,
-  context: ArtifactValidationContext | undefined
-): readonly ArtifactValidationIssue[] {
-  const topography = value as Static<typeof Schema>;
-  const expectedLength = artifactCellCount(context);
-  const issues: ArtifactValidationIssue[] = [];
-  appendArtifactTypedArrayIssues(
-    issues,
-    "elevation",
-    topography.elevation,
-    Int16Array,
-    expectedLength
-  );
-  appendArtifactTypedArrayIssues(
-    issues,
-    "landMask",
-    topography.landMask,
-    Uint8Array,
-    expectedLength
-  );
-  return issues;
-}
 ```
 
 `defineArtifact` is the only artifact-authority constructor. It binds structural admission to the
@@ -98,43 +88,45 @@ TypeBox validation directly or redeclare the issue contract. The local callback 
 because typed-array constructors and cardinality live in Core's runtime metadata layer rather than
 TypeBox's structural type; owners use Core's typed-array helpers for those checks.
 
-The only runtime export of an artifact source module is `artifact`; its schema and refinement
-helpers remain private. Named type aliases may be exported when consumers need semantic value
-vocabulary. Runtime imports are limited to MapGen contract/lib APIs, static Civ7 types and policy,
-and public domain contract/schema/policy/data surfaces. Adapter, engine, recipe, private operation
-implementation, Node/browser, and artifact-owner dependencies are outside the kind.
+The only runtime export of an artifact source module is `artifact`; its complete
+payload schema and refinement are authored directly on that definition. Runtime imports are
+limited to MapGen contract/lib APIs, static Civ7 types and policy, and exact
+nearest-owner model atoms for smaller composed parts. Adapter, engine, recipe,
+operation contracts or implementations, Node/browser, and other artifact-owner
+dependencies are outside the kind.
 
-Artifact-private schemas stay inline. A schema primitive shared across domain
-concepts or artifact vintages belongs to the owning domain's `model/schemas`
-surface as plain domain vocabulary. It never carries artifact validation,
-issue/context types, artifact construction, or complete payload admission;
-artifact owners bind those concerns locally.
+An atom file owns only a smaller composable schema primitive or cohesive
+subentity plus its derived type. It never imports artifact APIs or carries
+artifact identity, a complete payload schema, validation issue/context types,
+refinement, or publication admission. Place it at the lowest common semantic
+owner: the direct module by default, or the aggregate domain for proven
+cross-module use.
 
 The adjacent catalog is the single selection surface for producers and consumers:
 
 ```ts
 import { defineArtifactCatalog } from "@swooper/mapgen-core/authoring/contracts";
-import { artifact as topography } from "./topography.artifact.js";
+import { artifact as plateGraph } from "./plate-graph.artifact.js";
 
-/** Canonical morphology artifact authorities keyed for authored consumers. */
-export const artifacts = defineArtifactCatalog({ topography });
+/** Canonical lithosphere artifact authorities keyed for authored consumers. */
+export const artifacts = defineArtifactCatalog({ plateGraph });
 ```
 
 Step contracts use the same artifact object for requirements and provisions. `createStep` receives
 behavior only:
 
 ```ts
-const TopographyStepContract = defineStep({
+const PlateGraphStepContract = defineStep({
   // ...id, tags, ops, and schema...
   artifacts: {
-    provides: [artifacts.topography],
+    provides: [artifacts.plateGraph],
   },
 });
 
-createStep(TopographyStepContract, {
+createStep(PlateGraphStepContract, {
   run: (context, config, ops, deps) => {
-    const topography = computeTopography(context, config, ops);
-    deps.artifacts.topography.publish(context, topography);
+    const plateGraph = buildPlateGraph(context, config, ops);
+    deps.artifacts.plateGraph.publish(context, plateGraph);
   },
 });
 ```
@@ -152,5 +144,5 @@ authored step capability.
 - Artifact catalog: `packages/mapgen-core/src/authoring/artifact/catalog.ts`
 - Artifact-store ownership: `packages/mapgen-core/src/core/map-context.ts`
 - Policy: artifact mutation: `docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`
-- Example artifact owner: `mods/mod-swooper-maps/src/domain/morphology/artifacts/topography.artifact.ts`
-- Example artifact catalog: `mods/mod-swooper-maps/src/domain/morphology/artifacts/index.ts`
+- Example artifact owner: `mods/mod-swooper-maps/src/domain/foundation/modules/lithosphere/artifacts/plate-graph.artifact.ts`
+- Example module artifact catalog: `mods/mod-swooper-maps/src/domain/foundation/modules/lithosphere/artifacts/index.ts`

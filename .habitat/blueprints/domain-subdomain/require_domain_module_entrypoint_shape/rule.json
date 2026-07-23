@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_module_entrypoint_shape",
+  "title": "Require Domain Module Entrypoint Shape",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-subdomain",
+    "category": "boundary"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "semantic module entrypoints that compose runtime code or expose operations, rules, strategies, routers, or owners outside their artifact and model surfaces",
+  "why": "A semantic module index is one declaration-only public gateway. The contract names the module, the router binds executable implementations, and only immutable products or shared model vocabulary may cross the module boundary as named exports.",
+  "remediate": "Default-re-export ./contract.js and keep additional exports explicit and named from ./artifacts/index.js or ./model/{atoms,policy}. Move operations and runtime composition behind the module router.",
+  "message": "Domain module index.ts must expose only its contract plus named artifact or model surfaces.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/domain/*/modules/*/index.ts"]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-subdomain/require_domain_module_entrypoint_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain-subdomain/require_domain_module_entrypoint_shape/pattern.md"
+    },
+    "patternName": "require_domain_module_entrypoint_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": ["mods"]
+    }
+  }
+}

@@ -13,8 +13,8 @@
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "artifacts.ts modules under domain source",
-  "why": "Domain artifacts live in owned *.artifact.ts modules beneath the domain's artifacts directory. The positive artifact-directory law does not yet prove the absence of nested artifacts.ts modules elsewhere in domain source.",
-  "remediate": "Remove domain artifacts.ts modules and route artifact ownership through the domain artifacts directory and its typed catalog.",
+  "why": "Domain artifacts live in owned *.artifact.ts modules beneath the artifact-producing semantic module. The positive artifact-directory law does not yet prove the absence of nested artifacts.ts files elsewhere in domain source.",
+  "remediate": "Remove domain artifacts.ts modules and route immutable product ownership through the nearest semantic module's artifacts directory and typed catalog.",
   "message": "Domain artifacts.ts modules are retired.",
   "pathCoverage": [
     {

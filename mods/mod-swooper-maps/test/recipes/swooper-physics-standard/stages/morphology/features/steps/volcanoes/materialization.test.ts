@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation";
+import { artifacts as foundationProjectionArtifacts } from "@mapgen/domain/foundation/modules/projection/artifacts";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import morphologyDomain from "@mapgen/domain/morphology/ops";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
@@ -45,7 +45,7 @@ describe("morphology-features volcano materialization", () => {
     const dependencies = buildStepTestDependencies(VolcanoesStep);
 
     withMapContextExecutionForTest(context, (stepContext) => {
-      publishTestArtifact(stepContext, foundationArtifacts.plates, {
+      publishTestArtifact(stepContext, foundationProjectionArtifacts.plates, {
         id: new Int16Array(size),
         boundaryCloseness: new Uint8Array(size),
         boundaryType,

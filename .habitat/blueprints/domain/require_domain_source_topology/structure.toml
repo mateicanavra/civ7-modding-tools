@@ -9,7 +9,17 @@ required = [
   "index.ts",
   "contract.ts",
   "router.ts",
+  "modules",
 ]
+allowed = [
+  "model",
+]
+
+[[scopes]]
+name = "mapgen-domain-module-containers"
+root = "mods/*/src/domain/!(*.*)/modules"
+kind = "directory"
+mode = "closed"
 allowed = [
   "!(*.*)",
 ]

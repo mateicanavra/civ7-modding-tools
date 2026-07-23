@@ -30,67 +30,59 @@ Routes to:
 
 ### 1) Define one artifact
 
-Create `artifacts/<name>.artifact.ts`. Keep the schema and optional relational
-refinement private. Export the single artifact authority.
+Create `artifacts/<name>.artifact.ts`. Author the complete payload schema and
+any relational refinement directly on the single exported artifact authority.
 
 ```ts
 import {
-  type ArtifactValidationContext,
   type ArtifactValidationIssue,
-  type Static,
   appendArtifactTypedArrayIssues,
-  artifactCellCount,
   defineArtifact,
   Type,
   TypedArraySchemas,
 } from "@swooper/mapgen-core/authoring/contracts";
 
-const Schema = Type.Object(
-  {
-    flowDir: TypedArraySchemas.i32({
-      description: "Steepest-descent receiver index per tile, or -1 for a sink or edge.",
-    }),
-    flowAccum: TypedArraySchemas.f32({
-      description: "Drainage area proxy per tile.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Immutable Morphology drainage routing fields.",
-  }
-);
+type Routing = Readonly<{
+  cellCount: number;
+  flowDir: Int32Array;
+  flowAccum: Float32Array;
+}>;
 
 /** Publishes drainage receivers and accumulation for erosion and Hydrology consumers. */
 export const artifact = defineArtifact({
   name: "routing",
   id: "artifact:morphology.routing",
-  schema: Schema,
-  refine: validateLocal,
+  schema: Type.Object(
+    {
+      cellCount: Type.Integer({ minimum: 1 }),
+      flowDir: TypedArraySchemas.i32({ cardinality: null }),
+      flowAccum: TypedArraySchemas.f32({ cardinality: null }),
+    },
+    {
+      additionalProperties: false,
+      description: "Immutable Morphology drainage routing fields.",
+    }
+  ),
+  refine: (input): readonly ArtifactValidationIssue[] => {
+    const routing = input as Routing;
+    const issues: ArtifactValidationIssue[] = [];
+    appendArtifactTypedArrayIssues(
+      issues,
+      "routing.flowDir",
+      routing.flowDir,
+      Int32Array,
+      routing.cellCount
+    );
+    appendArtifactTypedArrayIssues(
+      issues,
+      "routing.flowAccum",
+      routing.flowAccum,
+      Float32Array,
+      routing.cellCount
+    );
+    return issues;
+  },
 });
-
-function validateLocal(
-  input: unknown,
-  context?: ArtifactValidationContext
-): readonly ArtifactValidationIssue[] {
-  const routing = input as Static<typeof Schema>;
-  const expectedLength = artifactCellCount(context);
-  const issues: ArtifactValidationIssue[] = [];
-  appendArtifactTypedArrayIssues(
-    issues,
-    "routing.flowDir",
-    routing.flowDir,
-    Int32Array,
-    expectedLength
-  );
-  appendArtifactTypedArrayIssues(
-    issues,
-    "routing.flowAccum",
-    routing.flowAccum,
-    Float32Array,
-    expectedLength
-  );
-  return issues;
-}
 ```
 
 `defineArtifact` always projects TypeBox structural issues first. Add `refine`
@@ -98,9 +90,10 @@ only for cardinality, relational, or domain laws the schema cannot express. A
 schema-complete artifact omits it.
 
 The runtime module surface is closed to `artifact` plus erased TypeScript
-types. Keep artifact-private schema parts inline. Put a genuinely shared domain
-entity or DTO schema under the owning domain model; that model file remains
-plain schema vocabulary and never owns artifact admission.
+types. Put only a genuinely shared schema primitive or cohesive subentity under
+the owning domain model; a model atom never duplicates the complete artifact
+container or owns artifact admission. Inline authoring keeps schema, identity,
+and refinement visibly bound to one weighted artifact definition.
 
 ### 2) Register the artifact once
 
@@ -170,8 +163,8 @@ never reaches into MapContext storage.
   cross-field relations matter.
 - **Second authority**: do not export a schema, validator, alias, or parallel map
   beside `artifact`.
-- **Shared-schema smuggling**: a model schema is shared domain vocabulary, not a
-  complete artifact payload or validator moved out of sight.
+- **Shared-schema smuggling**: a model atom is a smaller primitive or cohesive
+  subentity, not a complete artifact payload or validator moved out of sight.
 - **Duplicate provider authority**: artifacts belong in the step config's
   `provides` declaration, not a second list passed to `createStep`.
 - **Publishing twice or mutating after publication**: each vintage has one
@@ -183,5 +176,5 @@ never reaches into MapContext storage.
 - Artifact catalog: `packages/mapgen-core/src/authoring/artifact/catalog.ts`
 - Artifact runtime: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
 - Step producer binding: `packages/mapgen-core/src/authoring/step/create.ts`
-- Example artifact owner: `mods/mod-swooper-maps/src/domain/morphology/artifacts/routing.artifact.ts`
-- Example catalog: `mods/mod-swooper-maps/src/domain/morphology/artifacts/index.ts`
+- Example artifact owner: `mods/mod-swooper-maps/src/domain/foundation/modules/lithosphere/artifacts/plate-graph.artifact.ts`
+- Example catalog: `mods/mod-swooper-maps/src/domain/foundation/modules/lithosphere/artifacts/index.ts`

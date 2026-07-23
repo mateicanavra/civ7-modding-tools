@@ -1,18 +1,14 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 import morphologyOpsPublic from "@mapgen/domain/morphology/ops";
 import { TEST_MAP_SIZE } from "../../../map-size.js";
-import { runTectonicHistoryChain } from "../../foundation/fixtures/tectonics-history.js";
+import { runTectonicHistoryChain } from "../../foundation/tectonics/fixtures/tectonics-history.js";
 
-const {
-  computeCrust,
-  computeMantleForcing,
-  computeMantlePotential,
-  computeMesh,
-  computePlateGraph,
-  computePlateMotion,
-  computePlatesTensors,
-} = foundationOpsPublic.ops;
+const { computeMesh } = foundation.mesh.ops;
+const { computeMantleForcing, computeMantlePotential } = foundation.mantle.ops;
+const { computeCrust, computePlateGraph } = foundation.lithosphere.ops;
+const { computePlateMotion } = foundation.tectonics.ops;
+const { computePlatesTensors } = foundation.projection.ops;
 const { computeBaseTopography } = morphologyOpsPublic.ops;
 function quantile(sorted: number[], q: number): number {
   if (sorted.length === 0) return 0;
@@ -54,10 +50,7 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
       { mesh, mantlePotential },
       computeMantleForcing.defaultConfig
     ).mantleForcing;
-    const crust = computeCrust.run(
-      { mesh, mantleForcing, rngSeed: 11 },
-      computeCrust.defaultConfig
-    ).crust;
+    const crust = computeCrust.run({ mesh, mantleForcing }, computeCrust.defaultConfig).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 12 },
       {

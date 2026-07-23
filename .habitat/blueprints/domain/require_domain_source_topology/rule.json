@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "advisory",
-  "forbids": "domain roots outside the positive aggregate and semantic-child spine",
-  "why": "A domain root is one public contract and router boundary over direct semantic subdomains. Child blueprints own branch internals.",
-  "remediate": "Keep index.ts, contract.ts, and router.ts; retain only semantic child directories and relocate legacy root cabinets behind their rightful subdomain.",
-  "message": "Domain roots must match the positive domain blueprint spine.",
+  "forbids": "domain roots outside the positive contract, router, model, and semantic module spine",
+  "why": "A domain root is one public aggregate over semantic modules. Keeping modules under modules/ and shared vocabulary under model/ prevents routers, atoms, and policy from appearing as equivalent direct children while leaving each child kind to its own blueprint.",
+  "remediate": "Keep index.ts, contract.ts, router.ts, and modules; add model only for vocabulary genuinely shared by multiple modules, and move every other child to its owning kind.",
+  "message": "Domain roots should match the positive model-and-modules aggregate spine.",
   "pathCoverage": [
     {
       "kind": "exact-path",

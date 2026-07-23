@@ -11,41 +11,40 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 
 | role | surface count |
 | --- | --- |
-| fixture-support | 7 |
+| fixture-support | 6 |
 | adapter | 125 |
-| policy-predicate | 99 |
-| transient-dependency | 120 |
-| entrypoint | 297 |
-| runner-runtime | 113 |
+| policy-predicate | 100 |
+| transient-dependency | 119 |
+| entrypoint | 298 |
+| runner-runtime | 114 |
 
 ## Surface Families
 
 | family | count | sample read |
 | --- | --- | --- |
-| check-script | 22 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts: Command-check executable surface invoked through Habitat metadata or direct references. |
-| rule-json | 125 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/artifact/require_artifact_file_shape/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/artifact/require_artifact_index_aggregate_shape/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text. |
-| pattern | 86 | .habitat/blueprints/artifact/require_artifact_file_shape/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/domain-operation/block_adapter_context_imports_from_domain_ops/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
-| structure-spec | 12 | .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/blueprints/domain/prohibit_domain_artifacts_modules/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/blueprints/domain/require_domain_source_topology/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner. |
+| check-script | 20 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/check.mjs: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/blueprints/mod-map/block_studio_config_leakage_into_shipped_catalog/check.ts: Command-check executable surface invoked through Habitat metadata or direct references.<br>.habitat/civ7/mapgen/domains/morphology/rules/require_morphology_config_facade_exports/check.mjs: Command-check executable surface invoked through Habitat metadata or direct references. |
+| rule-json | 125 | .habitat/blueprints/artifact/prohibit_realized_map_artifact_tags/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/artifact/require_artifact_catalog_index_shape/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/blueprints/artifact/require_artifact_file_shape/rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text. |
+| pattern | 81 | .habitat/blueprints/artifact/require_artifact_catalog_index_shape/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/artifact/require_artifact_file_shape/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/blueprints/dependency-tag/require_typed_dependency_and_effect_tag_constants/pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
+| structure-spec | 18 | .habitat/blueprints/artifact/require_artifact_index_aggregate_shape/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/blueprints/domain-atom/require_domain_atom_source_topology/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.<br>.habitat/blueprints/domain-operation-strategy/require_domain_operation_strategy_source_topology/structure.toml: Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner. |
 | apply-pattern | 1 | .habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
 | generate-script | 2 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition.<br>.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/generate.ts: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition. |
 | operation-note | 3 | .habitat/docs/_blueprints/docs-site/generate_docs_sidebar_from_docs_tree/operation.md: Classified execution surface.<br>.habitat/docs/rules/repair_docs_issue_links_and_dependency_metadata/operation.md: Classified execution surface.<br>.habitat/habitat/toolkit/_blueprints/generator/generate_generator_schema_contracts/operation.md: Classified execution surface. |
 | fix-script | 1 | .habitat/docs/rules/repair_docs_issue_links_and_dependency_metadata/fix.mjs: Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition. |
 | package-script | 179 | apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/package.json: Workspace entrypoint that may invoke Habitat or package-local work. |
-| nx-target | 103 | apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work. |
+| nx-target | 104 | apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work.<br>apps/docs/project.json: Workspace entrypoint that may invoke Habitat or package-local work. |
 | nx-plugin | 2 | nx.json: Classified execution surface.<br>nx.json: Classified execution surface. |
 | nx-target-default | 11 | nx.json: Classified execution surface.<br>nx.json: Classified execution surface.<br>nx.json: Classified execution surface. |
-| habitat-cli-source | 113 | tools/habitat/src/cli/base/command-lifecycle.ts: Toolkit runner/provider code that executes or routes rule surfaces.<br>tools/habitat/src/cli/base/HabitatCommand.ts: Toolkit runner/provider code that executes or routes rule surfaces.<br>tools/habitat/src/cli/commands/check.ts: Toolkit runner/provider code that executes or routes rule surfaces. |
+| habitat-cli-source | 114 | tools/habitat/src/cli/base/command-lifecycle.ts: Toolkit runner/provider code that executes or routes rule surfaces.<br>tools/habitat/src/cli/base/HabitatCommand.ts: Toolkit runner/provider code that executes or routes rule surfaces.<br>tools/habitat/src/cli/commands/check.ts: Toolkit runner/provider code that executes or routes rule surfaces. |
 
 ## Transient Dependency Candidates
 
 | path | kind | signals |
 | --- | --- | --- |
-| .habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_strategy_nonlocal_imports/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/blueprints/domain-operation/prohibit_cross_op_runtime_calls/pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/blueprints/domain/require_domain_entrypoint_shape/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/domains/morphology/rules/require_morphology_public_surface_imports/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/runtime/_remainder/prohibit_ambient_rng_in_authored_generation/check.mjs | check-script | build/currentness or ordering tie |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prohibit_wrapper_only_advanced_config/pattern.md | pattern | build/currentness or ordering tie |
-| .habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_domain_contract_roots_in_step_contracts/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/sdk/core/rules/preserve_mapgen_core_runtime_neutrality/pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/studio/devops/rules/enforce_studio_dev_runner_topology/check.ts | check-script | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/pattern.md | pattern | build/currentness or ordering tie |
@@ -76,6 +75,7 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | mods/mod-swooper-civ-dacia/package.json | package-script | build/currentness or ordering tie |
 | mods/mod-swooper-civ-dacia/project.json | nx-target | build/currentness or ordering tie |
 | mods/mod-swooper-civ-dacia/project.json | nx-target | build/currentness or ordering tie |
+| mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
 | mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
 | mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |
 | mods/mod-swooper-maps/project.json | nx-target | build/currentness or ordering tie |

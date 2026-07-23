@@ -3,15 +3,37 @@ level: error
 ---
 # Require Domain Operation Contract File Shape
 
-Operation contract files own the operation schema envelope. They may compose
-reusable domain primitives, owned artifact schemas, public sibling artifact
-catalogs, and policy constants, but they must not outsource their contract
-envelope to `config.ts` bags, sibling or
+Operation contract files own the complete operation input/output envelopes.
+Those two root schemas are direct inline `Type.*(...)` expressions that may
+compose smaller atoms and policy from the nearest module or domain model; they
+never borrow a complete artifact schema or export detached `InputSchema` /
+`OutputSchema` authorities. Strategy configuration belongs to the semantic
+strategy leaf contract, not to a detached `StrategySchema` in the operation
+contract. Contract files expose only their singular default `defineOp`
+authority and must not outsource their envelope to `config.ts` bags, sibling or
 cross-domain operation contracts, shared type buckets, recipe/stage authoring
 surfaces, or runtime operation constructors.
 
+This advisory enforces direct input/output ownership plus the singular
+authority, dependency, export, and constructor boundary across the mixed
+operation corpus. Strategy-leaf ownership remains the immediate successor
+ratchet; it is stated here as remediation rather than falsely claimed as
+zero-baseline enforcement before that mechanical migration lands.
+
 ```grit
 language js(typescript)
+
+predicate is_inline_type_schema($value) {
+  $value <: `Type.$constructor($args)`
+}
+
+predicate disallowed_root_operation_contract_dependency($source) {
+  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|\.\./\.\./model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js)[\"']?$"
+}
+
+predicate disallowed_module_operation_contract_dependency($source) {
+  ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|\.\./\.\./model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4}model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/model/atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)\.js)[\"']?$"
+}
 
 or {
   program(statements=$body) where {
@@ -22,17 +44,54 @@ or {
     $body <: contains `const $contract = defineOp({ $..., input: $input, $..., output: $output, $..., strategies: $strategies, $... })`,
     ! $body <: contains `export default $contract`
   },
+  program(statements=$body) where {
+    $body <: contains `export default defineOp({ $..., input: $input, $..., output: $output, $..., strategies: $strategies, $... })`,
+    or {
+      ! is_inline_type_schema($input),
+      ! is_inline_type_schema($output)
+    }
+  },
+  program(statements=$body) where {
+    $body <: contains `const $contract = defineOp({ $..., input: $input, $..., output: $output, $..., strategies: $strategies, $... })`,
+    or {
+      ! is_inline_type_schema($input),
+      ! is_inline_type_schema($output)
+    }
+  },
+  export_statement() as $export where {
+    ! $export <: `export default $value`
+  },
   import_statement(source=$source) where {
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/[a-z0-9]+(?:-[a-z0-9]+)*\.artifact|model/(?:schemas/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.schema)?)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)))\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/artifacts/index\.js|(?:\.\./){2,3}(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*))\.js)[\"']?$"
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
+    disallowed_root_operation_contract_dependency($source)
+  },
+  import_statement(source=$source) where {
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
+    disallowed_module_operation_contract_dependency($source)
   },
   `export { $exports } from $source` where {
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/[a-z0-9]+(?:-[a-z0-9]+)*\.artifact|model/(?:schemas/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.schema)?)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)))\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/artifacts/index\.js|(?:\.\./){2,3}(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*))\.js)[\"']?$"
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
+    disallowed_root_operation_contract_dependency($source)
+  },
+  `export { $exports } from $source` where {
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
+    disallowed_module_operation_contract_dependency($source)
   },
   `export * from $source` where {
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/[a-z0-9]+(?:-[a-z0-9]+)*\.artifact|model/(?:schemas/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.schema)?)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)))\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/artifacts/index\.js|(?:\.\./){2,3}(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*))\.js)[\"']?$"
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
+    disallowed_root_operation_contract_dependency($source)
+  },
+  `export * from $source` where {
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
+    disallowed_module_operation_contract_dependency($source)
   },
   `import($source)` where {
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/[a-z0-9]+(?:-[a-z0-9]+)*\.artifact|model/(?:schemas/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.schema)?)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)))\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/artifacts/index\.js|(?:\.\./){2,3}(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*))\.js)[\"']?$"
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
+    disallowed_root_operation_contract_dependency($source)
+  },
+  `import($source)` where {
+    $filename <: r".*mods/[^/]+/src/domain/[^/]+/modules/[^/]+/ops/[^/]+/contract\.ts$",
+    disallowed_module_operation_contract_dependency($source)
   },
   `createOp($args)`,
   `createStage($args)`
@@ -42,7 +101,21 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/detached-envelope/contract.ts
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+
+const InputSchema = Type.Object({ sampleCount: Type.Integer({ minimum: 1 }) });
+const OutputSchema = Type.Object({ acceptedCount: Type.Integer({ minimum: 0 }) });
+
+export default defineOp({
+  kind: "compute",
+  id: "foundation/detached-envelope",
+  input: InputSchema,
+  output: OutputSchema,
+  strategies: { measured: Type.Object({}) },
+});
+
+// @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { DemoConfigSchema } from "../demo-shared/config.js";
 
@@ -54,7 +127,7 @@ export default defineOp({
   strategies: { measured: DemoConfigSchema },
 });
 
-// @filename: mods/mod-swooper-maps/src/domain/morphology/ops/plan-ridges/contract.ts
+// @filename: mods/example-mod/src/domain/terrain/ops/plan-ridges/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import type { SelectResourceSitesInput } from "../select-resource-sites/contract.js";
 
@@ -66,48 +139,76 @@ export default defineOp({
   strategies: { "orogenic-range-growth": MountainsConfigSchema },
 });
 
-// @filename: mods/mod-swooper-maps/src/domain/hydrology/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { artifacts } from "../../artifacts/index.js";
+
+const Contract = defineOp({
+  kind: "compute",
+  id: "foundation/demo",
+  input: Type.Object({ evidence: artifacts.demo.schema }),
+  output: Type.Object({}),
+  strategies: { measured: Type.Object({}) },
+});
+
+export default Contract;
+
+// @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+
+const Contract = defineOp({
+  kind: "compute",
+  id: "foundation/demo",
+  input: Type.Object({}),
+  output: Type.Object({}),
+  strategies: { measured: Type.Object({}) },
+});
+
+export type DemoInput = Static<typeof Contract.input>;
+export default Contract;
+
+// @filename: mods/example-mod/src/domain/climate/ops/demo/contract.ts
 import { HydrologyConfigSchema } from "../../model/config.js";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export default defineOp({
   kind: "compute",
-  id: "hydrology/demo",
+  id: "climate/demo",
   input: Type.Object({}),
   output: Type.Object({}),
   strategies: { "water-budget": HydrologyConfigSchema },
 });
 
-// @filename: mods/mod-swooper-maps/src/domain/hydrology/ops/demo/contract.ts
-import type { PlotEffectKey } from "@mapgen/domain/ecology/types.js";
+// @filename: mods/example-mod/src/domain/climate/ops/demo/contract.ts
+import type { PlotEffectKey } from "@mapgen/domain/biosphere/types.js";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export default defineOp({
   kind: "compute",
-  id: "hydrology/demo",
+  id: "climate/demo",
   input: Type.Object({}),
   output: Type.Object({}),
   strategies: { "water-budget": HydrologyConfigSchema },
 });
 
-// @filename: mods/mod-swooper-maps/src/domain/resources/ops/adjust-resource-support/contract.ts
-import { FoundationContract } from "@mapgen/domain/foundation/ops/compute-plates-tensors/contract.js";
+// @filename: mods/example-mod/src/domain/economy/ops/adjust-resource-support/contract.ts
+import { TerrainContract } from "@mapgen/domain/terrain/ops/compute-surface/contract.js";
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export default defineOp({
   kind: "compute",
-  id: "resources/adjust-resource-support",
+  id: "economy/adjust-resource-support",
   input: Type.Object({}),
   output: Type.Object({}),
   strategies: { "support-equity": Type.Object({}) },
 });
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/biosphere/ops/demo/contract.ts
 import { Type } from "@swooper/mapgen-core/authoring/contracts";
 
 export const InputSchema = Type.Object({});
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/biosphere/ops/demo/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import DemoDefinition from "./config.js";
 
@@ -120,7 +221,7 @@ const sentinel = defineOp({
 const DemoContract = defineOp(DemoDefinition);
 export default DemoContract;
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/biosphere/ops/demo/contract.ts
 import { createOp } from "@swooper/mapgen-core/authoring";
 import DemoContract from "./contract.js";
 
@@ -130,29 +231,7 @@ export const demo = createOp(DemoContract, {});
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts
-import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { Schema as DemoArtifactSchema } from "../../artifacts/demo.artifact.js";
-import { DemoPrimitiveSchema } from "../../model/schemas/demo.schema.js";
-import { DEMO_POLICY } from "../../model/policy/demo-policy.js";
-
-const StrategySchema = Type.Object(
-  {
-    primitive: DemoPrimitiveSchema,
-    policy: Type.Literal(DEMO_POLICY),
-  },
-  { additionalProperties: false }
-);
-
-export default defineOp({
-  kind: "compute",
-  id: "foundation/demo",
-  input: Type.Object({ demo: DemoArtifactSchema }, { additionalProperties: false }),
-  output: Type.Object({ demo: DemoArtifactSchema }, { additionalProperties: false }),
-  strategies: { measured: StrategySchema },
-});
-
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.ts
+// @filename: mods/example-mod/src/domain/foundation/modules/geology/ops/demo/contract.ts
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 const DemoContract = defineOp({
@@ -165,4 +244,28 @@ const DemoContract = defineOp({
 
 export default DemoContract;
 
+// @filename: mods/example-mod/src/domain/geology/modules/tectonics/ops/measure-drift/contract.ts
+import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+import { PlateEventSchema } from "../../model/atoms/plate-event.schema.js";
+import { GridBoundsSchema } from "../../../mesh/model/atoms/grid-bounds.schema.js";
+
+export default defineOp({
+  kind: "compute",
+  id: "geology/measure-drift",
+  input: Type.Object({
+    events: Type.Array(PlateEventSchema),
+    bounds: GridBoundsSchema,
+  }),
+  output: Type.Object({
+    acceptedEvents: Type.Array(PlateEventSchema),
+    rejectedCount: Type.Integer({ minimum: 0 }),
+  }),
+  strategies: { measured: Type.Object({}, { additionalProperties: false }) },
+});
+
 ```
+
+The final inline strategy object above is tolerated by this current advisory,
+not the destination example. The successor strategy-contract slice moves that
+configuration to `strategies/measured/contract.ts`, settles the typed binding
+API, and only then turns the prohibition into enforced current-tree law.

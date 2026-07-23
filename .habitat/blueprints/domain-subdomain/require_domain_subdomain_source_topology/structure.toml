@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "mapgen-domain-subdomain-roots"
-root = "mods/*/src/domain/!(*.*)/!(*.*|atoms|policy)"
+root = "mods/*/src/domain/!(*.*)/modules/!(*.*)"
 kind = "directory"
 mode = "closed"
 required = [
@@ -12,7 +12,6 @@ required = [
   "ops",
 ]
 allowed = [
-  "atoms",
   "artifacts",
-  "policy",
+  "model",
 ]

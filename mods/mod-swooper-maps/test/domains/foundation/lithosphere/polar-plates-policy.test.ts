@@ -1,14 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import foundationOpsPublic from "@mapgen/domain/foundation/ops";
+import foundation from "@mapgen/domain/foundation/router";
 import { TEST_MAP_SIZE } from "../../../map-size.js";
 
-const {
-  computeCrust,
-  computeMantleForcing,
-  computeMantlePotential,
-  computeMesh,
-  computePlateGraph,
-} = foundationOpsPublic.ops;
+const { computeMesh } = foundation.mesh.ops;
+const { computeMantleForcing, computeMantlePotential } = foundation.mantle.ops;
+const { computeCrust, computePlateGraph } = foundation.lithosphere.ops;
 function collectPlateCells(cellToPlate: Int16Array, plateId: number): number[] {
   const out: number[] = [];
   for (let i = 0; i < cellToPlate.length; i++) {
@@ -68,10 +64,7 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
       { mesh, mantlePotential },
       computeMantleForcing.defaultConfig
     ).mantleForcing;
-    const crust = computeCrust.run(
-      { mesh, mantleForcing, rngSeed: 2346 },
-      computeCrust.defaultConfig
-    ).crust;
+    const crust = computeCrust.run({ mesh, mantleForcing }, computeCrust.defaultConfig).crust;
 
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 3456 },
@@ -117,10 +110,7 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
       { mesh, mantlePotential },
       computeMantleForcing.defaultConfig
     ).mantleForcing;
-    const crust = computeCrust.run(
-      { mesh, mantleForcing, rngSeed: 5556 },
-      computeCrust.defaultConfig
-    ).crust;
+    const crust = computeCrust.run({ mesh, mantleForcing }, computeCrust.defaultConfig).crust;
 
     const microplateMinAreaCells = 6;
     const plateGraph = computePlateGraph.run(

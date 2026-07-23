@@ -13,13 +13,18 @@
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "domain operation collections or operation roots outside the positive operation blueprint spine",
-  "why": "The domain-operation blueprint owns operation collection and executable-leaf topology. The parent domain law only admits the operation slot and does not duplicate its internals.",
-  "remediate": "Keep the required operation catalog and operation entrypoints, and retain only the explicitly admitted operation-local capabilities.",
+  "why": "The domain-operation blueprint owns the singular operation-contract registry and executable-leaf topology. The parent module law only admits the operation slot and does not duplicate its internals.",
+  "remediate": "Keep the collection-level contract.ts registry and index.ts implementation registry, keep contract.ts and index.ts in each operation root, and retain only the explicitly admitted operation-local capabilities.",
   "message": "Domain operations must match the positive operation blueprint spine.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/**/ops", "mods/*/src/domain/**/ops/**"]
+      "patterns": [
+        "mods/*/src/domain/*/ops",
+        "mods/*/src/domain/*/ops/**",
+        "mods/*/src/domain/*/modules/*/ops",
+        "mods/*/src/domain/*/modules/*/ops/**"
+      ]
     }
   ],
   "supportFiles": {

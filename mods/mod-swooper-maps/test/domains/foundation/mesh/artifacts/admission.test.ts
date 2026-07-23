@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { artifacts as foundationArtifacts } from "@mapgen/domain/foundation/artifacts";
+import { artifacts } from "@mapgen/domain/foundation/modules/mesh/artifacts";
 
-const { mesh } = foundationArtifacts;
+const { mesh } = artifacts;
 const SYNTHETIC_CELL_COUNT = 3;
 
 function validMesh() {

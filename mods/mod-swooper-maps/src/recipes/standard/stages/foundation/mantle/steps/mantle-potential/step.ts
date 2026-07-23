@@ -22,7 +22,14 @@ export const MantlePotentialStep = createStep(MantlePotentialStepContract, {
 
     const mantleResult = ops.computeMantlePotential(
       {
-        mesh,
+        mesh: {
+          cellCount: mesh.cellCount,
+          wrapWidth: mesh.wrapWidth,
+          siteX: mesh.siteX,
+          siteY: mesh.siteY,
+          neighborsOffsets: mesh.neighborsOffsets,
+          neighbors: mesh.neighbors,
+        },
         rngSeed,
       },
       config.computeMantlePotential
