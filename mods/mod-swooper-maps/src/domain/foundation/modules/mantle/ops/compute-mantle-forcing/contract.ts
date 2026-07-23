@@ -1,49 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-
-const StrategySchema = Type.Object(
-  {
-    velocityScale: Type.Number({
-      default: 1,
-      minimum: 0,
-      maximum: 5,
-      description:
-        "Controls the velocity strength applied to mantle-gradient forcing before plate motion fitting.",
-    }),
-    rotationScale: Type.Number({
-      default: 0.2,
-      minimum: 0,
-      maximum: 2,
-      description:
-        "Controls the rotational shear component mixed into the mantle forcing velocity field.",
-    }),
-    stressNorm: Type.Number({
-      default: 1,
-      minimum: 1e-3,
-      maximum: 10,
-      description:
-        "Sets the normalization factor for stress proxy values consumed by crust and tectonics.",
-    }),
-    curvatureWeight: Type.Number({
-      default: 0.35,
-      minimum: 0,
-      maximum: 2,
-      description: "Controls how much curvature contributes to the mantle stress proxy.",
-    }),
-    upwellingThreshold: Type.Number({
-      default: 0.35,
-      minimum: 0,
-      maximum: 1,
-      description: "Sets the local-maximum threshold used to classify cells as upwelling sources.",
-    }),
-    downwellingThreshold: Type.Number({
-      default: 0.35,
-      minimum: 0,
-      maximum: 1,
-      description: "Sets the local-minimum threshold used to classify cells as downwelling sinks.",
-    }),
-  },
-  { additionalProperties: false }
-);
+import strategies from "./strategies/contract.js";
 
 /**
  * Contract for deriving mantle velocity, stress, divergence, and upwelling signals from potential.
@@ -99,9 +55,7 @@ const ComputeMantleForcingContract = defineOp({
         "Mesh-wide velocity, stress, divergence, and upwelling signals derived from mantle potential and shared by plate-motion, hotspot, and tracer reconstruction.",
     }
   ),
-  strategies: {
-    "potential-gradient": StrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeMantleForcingContract;

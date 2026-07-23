@@ -1,16 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputePlateTopologyContract from "./contract.js";
-import { wrappedHexAdjacencyStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-/**
- * Projects plate membership into wrapped-hex neighborhood topology for tile-facing consumers.
- * The operation keeps projection mechanics separate from the lithosphere's plate identity model.
- */
-const computePlateTopology = createOp(ComputePlateTopologyContract, {
-  strategies: {
-    "wrapped-hex-adjacency": wrappedHexAdjacencyStrategy,
-  },
-});
-
-export default computePlateTopology;
+/** Executable plate-topology operation composed from one shared contract and its complete strategy tuple. */
+export default createOp(ComputePlateTopologyContract, { strategies });

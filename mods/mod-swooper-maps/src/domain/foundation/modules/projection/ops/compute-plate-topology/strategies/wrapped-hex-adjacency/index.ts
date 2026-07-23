@@ -1,7 +1,8 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { buildPlateTopology } from "@swooper/mapgen-core/lib/plates";
 
-import ComputePlateTopologyContract from "../contract.js";
+import ComputePlateTopologyContract from "../../contract.js";
+import WrappedHexAdjacencyContract from "./contract.js";
 
 /**
  * Undirected-adjacency invariant: if A lists B as a neighbor, B must list A.
@@ -29,9 +30,9 @@ function validateTopologySymmetry(
  * Derives same-plate adjacency and boundary masks on Civ7's horizontally wrapped hex grid.
  * This strategy is attached to the topology operation so projection policy remains replaceable.
  */
-export const wrappedHexAdjacencyStrategy = createStrategy(
+const wrappedHexAdjacency = createStrategy(
   ComputePlateTopologyContract,
-  "wrapped-hex-adjacency",
+  WrappedHexAdjacencyContract,
   {
     run: (input) => {
       const { plateIds, width, height } = input;
@@ -54,3 +55,5 @@ export const wrappedHexAdjacencyStrategy = createStrategy(
     },
   }
 );
+
+export default wrappedHexAdjacency;

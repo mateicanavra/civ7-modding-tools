@@ -1,5 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { MeshBoundingBoxSchema } from "../../model/atoms/bounding-box.schema.js";
+import strategies from "./strategies/contract.js";
 
 /**
  * Contract for producing the shared Foundation point mesh from map dimensions and seed.
@@ -41,34 +42,7 @@ const ComputeMeshContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  strategies: {
-    "jittered-delaunay": Type.Object(
-      {
-        plateCount: Type.Integer({
-          default: 8,
-          minimum: 2,
-          maximum: 256,
-          description:
-            "Controls the target tectonic plate count used to derive mesh cell density for this map.",
-        }),
-        cellsPerPlate: Type.Integer({
-          default: 2,
-          minimum: 1,
-          maximum: 32,
-          description:
-            "Controls mesh resolution by setting how many mesh cells are generated per normalized plate.",
-        }),
-        relaxationSteps: Type.Integer({
-          default: 2,
-          minimum: 0,
-          maximum: 50,
-          description:
-            "Controls how many relaxation passes smooth generated mesh sites before downstream plate logic runs.",
-        }),
-      },
-      { additionalProperties: false }
-    ),
-  },
+  strategies,
 });
 
 export default ComputeMeshContract;

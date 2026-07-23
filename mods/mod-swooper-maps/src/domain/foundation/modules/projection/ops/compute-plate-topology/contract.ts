@@ -1,5 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateTopologyNodeSchema } from "../../model/atoms/plate-topology-node.schema.js";
+import strategies from "./strategies/contract.js";
 
 /**
  * compute-plate-topology — build the plate adjacency graph from the tile-space
@@ -39,9 +40,7 @@ const ComputePlateTopologyContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  strategies: {
-    "wrapped-hex-adjacency": Type.Object({}, { additionalProperties: false }),
-  },
+  strategies,
 });
 
 export default ComputePlateTopologyContract;

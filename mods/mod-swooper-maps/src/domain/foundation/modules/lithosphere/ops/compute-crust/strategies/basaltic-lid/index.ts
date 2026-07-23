@@ -1,0 +1,99 @@
+import { createStrategy } from "@swooper/mapgen-core/authoring";
+import { clamp01, clampU8 } from "@swooper/mapgen-core/lib/math";
+
+import {
+  deriveBuoyancy,
+  isContinentalMaturity,
+  strengthFromMaturity,
+  strengthFromThermalAge,
+  strengthFromThickness,
+} from "../../../../../../model/policy/crust-buoyancy.js";
+import ComputeCrustContract from "../../contract.js";
+import BasalticLidContract from "./contract.js";
+
+/**
+ * Initializes an oceanic basaltic lid whose later differentiation is owned by tectonic evolution.
+ * This operation deliberately produces the common starting state rather than pre-authoring continents.
+ */
+const basalticLid = createStrategy(ComputeCrustContract, BasalticLidContract, {
+  run: (input, config) => {
+    const mesh = input.mesh;
+    const mantleForcing = input.mantleForcing;
+    const cellCount = mesh.cellCount | 0;
+    if ((mantleForcing.cellCount | 0) !== cellCount) {
+      throw new Error("[Foundation] Invalid mantleForcing.cellCount for compute-crust.");
+    }
+
+    const maturity = new Float32Array(cellCount);
+    const thickness = new Float32Array(cellCount);
+    const thermalAge = new Uint8Array(cellCount);
+    const damage = new Uint8Array(cellCount);
+
+    const type = new Uint8Array(cellCount);
+    const age = new Uint8Array(cellCount);
+    const buoyancy = new Float32Array(cellCount);
+    const baseElevation = new Float32Array(cellCount);
+    const strength = new Float32Array(cellCount);
+
+    const basalticThickness = clamp01(config.basalticThickness01);
+    const yieldStrength = clamp01(config.yieldStrength01);
+    const mantleCoupling = clamp01(config.mantleCoupling01);
+    const riftWeakening = clamp01(config.riftWeakening01);
+
+    const strengthYieldScalar = 0.85 + 0.3 * yieldStrength;
+    const strengthCouplingScalar = 0.9 + 0.2 * mantleCoupling;
+
+    for (let i = 0; i < cellCount; i++) {
+      const divergenceRaw = mantleForcing.divergence[i] ?? 0;
+      const divergencePos = clamp01(Math.max(0, divergenceRaw));
+      const stress = clamp01(mantleForcing.stress[i] ?? 0);
+      const forcingMag = clamp01(mantleForcing.forcingMag[i] ?? 0);
+
+      // Basaltic-lid initial condition: oceanic everywhere at t=0.
+      // Event/era mechanics are responsible for continental emergence in later steps.
+      const maturitySeed = 0;
+      const thicknessSeed = basalticThickness;
+      const riftSignal = clamp01(divergencePos * (0.35 + 0.65 * forcingMag) * (0.5 + 0.5 * stress));
+
+      maturity[i] = maturitySeed;
+      thickness[i] = thicknessSeed;
+      thermalAge[i] = 0;
+      damage[i] = clampU8(riftSignal * riftWeakening * 255);
+
+      const m = maturitySeed;
+      const t = thicknessSeed;
+      const age01 = 0;
+      const damage01 = clamp01((damage[i] ?? 0) / 255);
+
+      type[i] = isContinentalMaturity(m) ? 1 : 0;
+      age[i] = 0;
+
+      const buoy = deriveBuoyancy({ maturity: m, thickness: t, thermalAge01: age01 });
+      buoyancy[i] = buoy;
+      baseElevation[i] = buoy;
+
+      const strengthBase = strengthFromThermalAge(age01);
+      const strengthComp = strengthFromMaturity(m);
+      const strengthThk = strengthFromThickness(t);
+      const strengthDamage = 1 - damage01;
+      const rawStrength = strengthBase * strengthComp * strengthThk * strengthDamage;
+      strength[i] = clamp01(rawStrength * strengthYieldScalar * strengthCouplingScalar);
+    }
+
+    return {
+      crust: {
+        maturity,
+        thickness,
+        thermalAge,
+        damage,
+        type,
+        age,
+        buoyancy,
+        baseElevation,
+        strength,
+      },
+    } as const;
+  },
+});
+
+export default basalticLid;
