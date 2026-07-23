@@ -336,6 +336,40 @@ describe("structure-check evaluator", () => {
     expect(fixture.events).toContain(`readdir:${repoRoot}/pkg/deep`);
   });
 
+  test.each([
+    "pkg/+(a/)x",
+    "pkg/*(a/)x",
+  ])("keeps slash-bearing repeated extglob %s unbounded", async (root) => {
+    const fixture = fixtures({
+      files: new Map([[`${repoRoot}/pkg/a/a/a/x/index.ts`, ""]]),
+      directories: new Map([
+        [`${repoRoot}/pkg`, [{ name: "a", kind: "directory" }]],
+        [`${repoRoot}/pkg/a`, [{ name: "a", kind: "directory" }]],
+        [`${repoRoot}/pkg/a/a`, [{ name: "a", kind: "directory" }]],
+        [`${repoRoot}/pkg/a/a/a`, [{ name: "x", kind: "directory" }]],
+        [`${repoRoot}/pkg/a/a/a/x`, [{ name: "index.ts", kind: "file" }]],
+      ]),
+    });
+
+    const result = await runWithFs(
+      {
+        schemaVersion: 1,
+        scopes: [
+          {
+            name: "repeated-extglob",
+            root,
+            kind: "directory",
+            mode: "open",
+          },
+        ],
+      },
+      fixture
+    );
+
+    expect(result).toEqual({ exitCode: 0, diagnostics: [] });
+    expect(fixture.events).toContain(`readdir:${repoRoot}/pkg/a/a/a`);
+  });
+
   test("keeps leading-negated Picomatch roots unbounded", async () => {
     const fixture = fixtures({
       files: new Map([[`${repoRoot}/pkg/deep/nested/target.ts`, ""]]),

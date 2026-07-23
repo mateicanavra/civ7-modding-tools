@@ -8,6 +8,7 @@ export {
   makeDirectory,
   pathExistsSync,
   readDirectory,
+  readDirectoryNoFollow,
   readPathKind,
   readText,
   writeText,

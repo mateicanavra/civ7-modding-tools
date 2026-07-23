@@ -89,7 +89,8 @@ export function isDiagnosticUnavailableSummary(summary: HookCheckSummary): boole
 
 function hookCheckKind(report: CheckReport, outcome: CheckOutcome): HookCheckSummary["kind"] {
   if (outcome.kind === "selector-refused") return "selector-refused";
-  if (report.rules.some(isExecutionFailureReport)) return "diagnostic-unavailable";
+  if (report.rules.some(isNonDiagnosticExecutionFailureReport)) return "execution-failed";
+  if (report.rules.some(isDiagnosticExecutionFailureReport)) return "diagnostic-unavailable";
   if (report.rules.some(isBaselineRefusalReport)) return "baseline-refused";
   if (outcome.kind === "dependency-refused") return "dependency-refused";
   if (outcome.kind === "no-applicable-rules") return "not-applicable";
@@ -99,7 +100,8 @@ function hookCheckKind(report: CheckReport, outcome: CheckOutcome): HookCheckSum
 
 function skippedAffectedReason(report: CheckReport, outcome: CheckOutcome): string {
   if (outcome.kind === "selector-refused") return "selector-refused";
-  if (report.rules.some(isExecutionFailureReport)) return "diagnostic-unavailable";
+  if (report.rules.some(isNonDiagnosticExecutionFailureReport)) return "execution-failed";
+  if (report.rules.some(isDiagnosticExecutionFailureReport)) return "diagnostic-unavailable";
   if (report.rules.some(isBaselineRefusalReport)) return "baseline-refused";
   if (outcome.kind === "dependency-refused") return "dependency-refused";
   if (outcome.kind === "no-applicable-rules") return "not-applicable";
@@ -165,6 +167,17 @@ function isBaselineRefusalReport(rule: RuleReport): boolean {
 
 function isExecutionFailureReport(rule: RuleReport): boolean {
   return rule.disposition.kind === "execution-failed";
+}
+
+function isDiagnosticExecutionFailureReport(rule: RuleReport): boolean {
+  return (
+    rule.disposition.kind === "execution-failed" &&
+    rule.disposition.source === "diagnostic-provider"
+  );
+}
+
+function isNonDiagnosticExecutionFailureReport(rule: RuleReport): boolean {
+  return isExecutionFailureReport(rule) && !isDiagnosticExecutionFailureReport(rule);
 }
 
 function isNotApplicableReport(rule: RuleReport): boolean {

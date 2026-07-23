@@ -110,13 +110,17 @@ describe("vendor providers", () => {
     ]);
   });
 
-  test("GitProvider refuses malformed visible-path inventory", async () => {
+  test.each([
+    ["malformed record", "malformed\0"],
+    ["unterminated record", "H 100644 a 0\ttracked.ts"],
+    ["interior empty record", "H 100644 a 0\ttracked.ts\0\0"],
+  ])("GitProvider refuses %s in visible-path inventory", async (_case, stdout) => {
     const result = await Effect.runPromise(
       GitProvider.pipe(
         Effect.flatMap((git) => git.listVisiblePaths()),
         Effect.provide(
           makeFakeGitProviderLayer((argv, options) =>
-            commandResult("git-state", "git", argv, options.cwd, "malformed\0")
+            commandResult("git-state", "git", argv, options.cwd, stdout)
           )
         )
       )

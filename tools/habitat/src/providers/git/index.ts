@@ -138,11 +138,19 @@ function visiblePathsFromCommandResult(
 }
 
 function parseVisiblePaths(stdout: string): readonly GitVisiblePath[] | null {
-  const parsed = stdout
-    .split("\0")
-    .filter((entry) => entry.length > 0)
-    .map(parseVisiblePath);
-  return Match.value(parsed.some((entry) => !entry.ok)).pipe(
+  if (stdout === "") return [];
+  const terminated = stdout.endsWith("\0");
+  const candidates = Match.value(terminated).pipe(
+    Match.when(true, () => stdout.slice(0, -1).split("\0")),
+    Match.when(false, () => [] as string[]),
+    Match.exhaustive
+  );
+  const parsed = candidates.map(parseVisiblePath);
+  const malformed =
+    !terminated ||
+    candidates.some((entry) => entry.length === 0) ||
+    parsed.some((entry) => !entry.ok);
+  return Match.value(malformed).pipe(
     Match.when(true, () => null),
     Match.when(false, () =>
       parsed

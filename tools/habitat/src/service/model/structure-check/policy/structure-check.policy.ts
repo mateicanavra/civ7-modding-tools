@@ -753,7 +753,7 @@ function maximumGlobDepth(rootGlob: string, literalBase: string): number | undef
   const isUnbounded =
     parsed.negated ||
     parsed.tokens.some((token) => token.type === "globstar") ||
-    negativeExtglobContainsSlash(parsed.tokens);
+    slashSpanningUnboundedExtglob(parsed.tokens);
   return Match.value(isUnbounded).pipe(
     Match.when(true, () => undefined),
     Match.when(false, () =>
@@ -763,36 +763,40 @@ function maximumGlobDepth(rootGlob: string, literalBase: string): number | undef
   );
 }
 
-function negativeExtglobContainsSlash(tokens: readonly { type: string; value: string }[]): boolean {
+function slashSpanningUnboundedExtglob(
+  tokens: readonly { type: string; value: string }[]
+): boolean {
   return tokens.some(
     (token, index) =>
-      token.type === "negate" &&
+      isUnboundedExtglobToken(token.type) &&
       tokens[index + 1]?.type === "paren" &&
       tokens[index + 1]?.value === "(" &&
-      scanNegativeExtglob(tokens.slice(index + 1)).containsSlash
+      scanExtglob(tokens.slice(index + 1)).containsSlash
   );
 }
 
-interface NegativeExtglobScanState {
+function isUnboundedExtglobToken(type: string): boolean {
+  return type === "negate" || type === "plus" || type === "star";
+}
+
+interface ExtglobScanState {
   readonly active: boolean;
   readonly containsSlash: boolean;
   readonly depth: number;
 }
 
-function scanNegativeExtglob(
-  tokens: readonly { type: string; value: string }[]
-): NegativeExtglobScanState {
-  return tokens.reduce<NegativeExtglobScanState>(reduceNegativeExtglobToken, {
+function scanExtglob(tokens: readonly { type: string; value: string }[]): ExtglobScanState {
+  return tokens.reduce<ExtglobScanState>(reduceExtglobToken, {
     active: true,
     containsSlash: false,
     depth: 0,
   });
 }
 
-function reduceNegativeExtglobToken(
-  state: NegativeExtglobScanState,
+function reduceExtglobToken(
+  state: ExtglobScanState,
   token: { readonly type: string; readonly value: string }
-): NegativeExtglobScanState {
+): ExtglobScanState {
   return Match.value({
     active: state.active,
     tokenType: token.type,

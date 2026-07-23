@@ -47,6 +47,40 @@ describe("check summaries", () => {
     expect(Value.Check(HookCheckSummarySchema, hookSummary)).toBe(true);
   });
 
+  test("prioritizes non-diagnostic execution failure over diagnostic unavailability", () => {
+    const mixed = report({
+      ok: false,
+      rules: [
+        rule({
+          ruleId: "diagnostic-rule",
+          status: "fail",
+          disposition: {
+            kind: "execution-failed",
+            source: "diagnostic-provider",
+            failure: "DiagnosticOutputMalformed",
+            detail: "wrapped JSON",
+          },
+        }),
+        rule({
+          ruleId: "structure-rule",
+          status: "fail",
+          disposition: {
+            kind: "execution-failed",
+            source: "git-provider",
+            failure: "visible-path-inventory-unavailable",
+            detail: "Git-visible path inventory unavailable",
+          },
+        }),
+      ],
+    });
+    const hookSummary = hookCheckSummary(mixed);
+    const verifySummary = verifyCheckSummary(mixed);
+
+    expect(hookSummary.kind).toBe("execution-failed");
+    expect(verifySummary.skippedAffectedReason).toBe("execution-failed");
+    expect(Value.Check(HookCheckSummarySchema, hookSummary)).toBe(true);
+  });
+
   test.each(scanRootRefusals)("roundtrips typed scan-root refusal $reason", (decision) => {
     const original = report({
       ok: false,

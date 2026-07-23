@@ -9,6 +9,7 @@ import {
   makeDirectory,
   pathExistsSync,
   readDirectory,
+  readDirectoryNoFollow,
   readDirectorySync,
   readPathKind,
   readText,
@@ -29,6 +30,7 @@ export interface HabitatPlatformService {
   readonly makeDirectory: typeof makeDirectory;
   readonly pathExists: typeof pathExistsSync;
   readonly readDirectory: typeof readDirectory;
+  readonly readDirectoryNoFollow: typeof readDirectoryNoFollow;
   readonly readDirectorySync: typeof readDirectorySync;
   readonly readPathKind: typeof readPathKind;
   readonly readText: typeof readText;
@@ -71,6 +73,7 @@ export function makeHabitatPlatformService(
     makeDirectory,
     pathExists: pathExistsSync,
     readDirectory,
+    readDirectoryNoFollow,
     readDirectorySync,
     readPathKind,
     readText,

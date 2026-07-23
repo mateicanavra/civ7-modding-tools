@@ -297,6 +297,7 @@ export const HookCheckSummarySchema = Type.Object(
       Type.Literal("selector-refused"),
       Type.Literal("dependency-refused"),
       Type.Literal("diagnostic-unavailable"),
+      Type.Literal("execution-failed"),
       Type.Literal("baseline-refused"),
       Type.Literal("not-applicable"),
     ]),

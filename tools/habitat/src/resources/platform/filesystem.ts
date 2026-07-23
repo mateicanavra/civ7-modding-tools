@@ -97,6 +97,30 @@ export const readDirectory = Effect.fn("habitat.platform.readDirectory")(functio
   return yield* Effect.forEach(entries, (name) => directoryEntry(targetPath, name));
 });
 
+export const readDirectoryNoFollow = Effect.fn("habitat.platform.readDirectoryNoFollow")(function* (
+  targetPath: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const link = yield* fs.readLink(targetPath).pipe(Effect.either);
+  const entries = yield* Either.match(link, {
+    onRight: () =>
+      Effect.fail(readFailure(targetPath, "refusing to read a directory through a symbolic link")),
+    onLeft: (cause) => readDirectoryAfterReadLinkFailure(fs, targetPath, cause),
+  });
+  return yield* Effect.forEach(entries, (name) => directoryEntry(targetPath, name));
+});
+
+function readDirectoryAfterReadLinkFailure(
+  fs: FileSystem.FileSystem,
+  targetPath: string,
+  cause: PlatformError
+) {
+  if (!isNonSymbolicLink(cause)) return Effect.fail(readFailure(targetPath, cause));
+  return fs
+    .readDirectory(targetPath)
+    .pipe(Effect.mapError((readCause) => readFailure(targetPath, readCause)));
+}
+
 const directoryEntry = Effect.fn("habitat.platform.directoryEntry")(function* (
   targetPath: string,
   name: string
