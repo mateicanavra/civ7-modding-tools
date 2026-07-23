@@ -29,7 +29,7 @@ const ResourcePlanRowSchema = Type.Object(
   }
 );
 
-const ResourceGroupPlanInputSchema = Type.Object(
+const ResourceGroupPlanSchema = Type.Object(
   {
     groupId: ResourceGroupIdSchema,
     proofStatus: Type.Literal("warning-only"),
@@ -67,10 +67,10 @@ const PlanResourceGroupsContract = defineOp({
   id: "resources/plan-resource-groups",
   input: Type.Object(
     {
-      aquaticPlan: ResourceGroupPlanInputSchema,
-      cultivatedPlan: ResourceGroupPlanInputSchema,
-      terrestrialPlan: ResourceGroupPlanInputSchema,
-      geologicalPlan: ResourceGroupPlanInputSchema,
+      aquaticPlan: ResourceGroupPlanSchema,
+      cultivatedPlan: ResourceGroupPlanSchema,
+      terrestrialPlan: ResourceGroupPlanSchema,
+      geologicalPlan: ResourceGroupPlanSchema,
     },
     { additionalProperties: false }
   ),

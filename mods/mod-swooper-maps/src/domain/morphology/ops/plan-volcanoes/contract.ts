@@ -110,10 +110,6 @@ const VolcanoesConfigSchema = Type.Object(
   }
 );
 
-const VolcanoPlanSchema = Type.Object({
-  index: Type.Integer({ minimum: 0, description: "Tile index in row-major order." }),
-});
-
 /**
  * Plans volcanic placements driven by boundary and hotspot signals.
  */
@@ -135,7 +131,15 @@ const PlanVolcanoesContract = defineOp({
     rngSeed: Type.Integer({ description: "Seed for deterministic volcano placement." }),
   }),
   output: Type.Object({
-    volcanoes: Type.Array(VolcanoPlanSchema, { description: "Planned volcano placements." }),
+    volcanoes: Type.Array(
+      Type.Object({
+        index: Type.Integer({
+          minimum: 0,
+          description: "Row-major tile index selected for a planned volcano.",
+        }),
+      }),
+      { description: "Planned volcano placements." }
+    ),
   }),
   strategies: {
     "plate-hotspot-ranking": VolcanoesConfigSchema,

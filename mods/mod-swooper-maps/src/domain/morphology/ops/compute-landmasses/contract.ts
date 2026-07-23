@@ -1,30 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-const LandmassBoundsSchema = Type.Object(
-  {
-    west: Type.Integer({
-      minimum: 0,
-      description: "West bound (inclusive) in tile x-coordinates.",
-    }),
-    east: Type.Integer({
-      minimum: 0,
-      description: "East bound (inclusive) in tile x-coordinates.",
-    }),
-    south: Type.Integer({
-      minimum: 0,
-      description: "South bound (inclusive) in tile y-coordinates.",
-    }),
-    north: Type.Integer({
-      minimum: 0,
-      description: "North bound (inclusive) in tile y-coordinates.",
-    }),
-  },
-  {
-    description:
-      "Axis-aligned bounds in tile coordinates. West/east may wrap when a landmass crosses the map seam.",
-  }
-);
-
 /**
  * Decomposes the final land mask into connected landmasses.
  */
@@ -54,7 +29,30 @@ const ComputeLandmassesContract = defineOp({
           description:
             "Count of land↔water adjacency edges along the coastline (canonical hex neighbor graph).",
         }),
-        bbox: LandmassBoundsSchema,
+        bbox: Type.Object(
+          {
+            west: Type.Integer({
+              minimum: 0,
+              description: "West bound (inclusive) in tile x-coordinates.",
+            }),
+            east: Type.Integer({
+              minimum: 0,
+              description: "East bound (inclusive) in tile x-coordinates.",
+            }),
+            south: Type.Integer({
+              minimum: 0,
+              description: "South bound (inclusive) in tile y-coordinates.",
+            }),
+            north: Type.Integer({
+              minimum: 0,
+              description: "North bound (inclusive) in tile y-coordinates.",
+            }),
+          },
+          {
+            description:
+              "Axis-aligned tile bounds; west/east may wrap when a landmass crosses the map seam.",
+          }
+        ),
       })
     ),
     landmassIdByTile: TypedArraySchemas.i32({

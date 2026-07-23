@@ -184,7 +184,7 @@ const EligibilityRowSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const StartSeatInputSchema = Type.Object(
+const StartSeatSchema = Type.Object(
   {
     seatIndex: Type.Integer({ minimum: 0 }),
     playerId: Type.Integer({ minimum: 0 }),
@@ -212,7 +212,7 @@ const AdjustResourceSupportContract = defineOp({
         description:
           "Per-type habitat/legality/intensity fields from the planning step, so adjusted destinations obey the same policy tables.",
       }),
-      starts: Type.Array(StartSeatInputSchema, {
+      starts: Type.Array(StartSeatSchema, {
         description: "Seated StartRecord seats from the start assignment (seat order).",
       }),
       landmassIdByTile: TypedArraySchemas.i32({
