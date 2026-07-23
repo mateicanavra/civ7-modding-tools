@@ -11,11 +11,13 @@ their destination kind is sealed.
 law -> source conformance -> verification. A niche may refine a kind but may not
 recreate, weaken, or hardcode its membership.
 
-**Current container:** repair Habitat's Grit acquisition boundary so
-`pathCoverage` owns applicability and exact patterns produce bounded native
-inputs. The runner's broad containment ceiling must never become its traversal
-plan. Once that substrate is sealed, re-establish the domain, artifact, stage,
-step, and exported-capability laws before resuming source normalization.
+**Current container:** bounded Grit acquisition is sealed. Re-establish the
+domain, artifact, stage, step, and exported-capability laws as generic,
+positive blueprint authority before resuming source normalization. Membership
+and topology belong to `pathCoverage` and `structure.toml`; Grit expresses only
+cheap syntax relationships inside the admitted kind; TypeScript owns
+invariants it can prove directly. Existing niche guards remain until a named
+generic or typed authority demonstrably absorbs them.
 
 **Stable ownership:** domains own immutable semantic data-product contracts;
 recipes own orchestration and publication; live Civ7 state is adapter
@@ -27,6 +29,11 @@ domain model.
 storage-shaped escape hatches, and duplicate authorities. The remaining work
 falls out of the red kind corpus and ends only when the generic laws, source
 tree, types, tests, Knip, and boundary graph agree.
+
+**Release cadence:** cut each directionally reviewed law or completed
+burn-down into its own Graphite branch as soon as its proof closes. The dirty
+buffer contains only the currently coupled semantic work; sealed artifacts do
+not remain mixed into the next focus.
 
 **Focus maintenance:** clarifications, tighter scope, stronger authority, and
 better expressions of this same frame update it in place. Add a prior-focus

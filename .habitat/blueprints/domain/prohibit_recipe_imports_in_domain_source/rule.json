@@ -20,7 +20,7 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/*.ts"
+        "mods/*/src/domain/**/*.ts"
       ]
     }
   ],
@@ -37,7 +37,7 @@
     "acquisition": {
       "kind": "check",
       "roots": [
-        "mods/mod-swooper-maps/src/domain"
+        "mods"
       ]
     }
   }

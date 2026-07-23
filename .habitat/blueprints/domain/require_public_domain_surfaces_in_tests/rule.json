@@ -13,17 +13,17 @@
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "test files deep-importing domain internals instead of public domain surfaces",
-  "why": "Tests should exercise domain contracts through the same public surfaces as product code unless an explicit architecture decision owns a deeper reach.",
-  "remediate": "Replace each violating test import with a public domain surface only after the corresponding domain public surface exists. Do not widen domain public surfaces just to satisfy tests; operation-internal white-box tests require their own topology decision.",
-  "message": "Use @mapgen/domain/<domain>, /ops, /artifacts, /model/schemas, /model/policy, or approved /model/data collections from tests instead of domain internals.",
+  "why": "Tests exercise domain contracts through the same named public surfaces as product code. Test location alone does not grant private implementation access.",
+  "remediate": "Replace each violating test import with a public domain surface only after the corresponding domain public surface exists. Do not widen a domain public surface merely to satisfy a test.",
+  "message": "Use the domain root, ops, artifacts, named model schema/policy modules, or a named model data collection instead of domain internals.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/test/**/*.ts",
-        "mods/mod-swooper-maps/test/**/*.tsx",
-        "mods/mod-swooper-maps/test/**/*.js",
-        "mods/mod-swooper-maps/test/**/*.jsx",
+        "mods/*/test/**/*.ts",
+        "mods/*/test/**/*.tsx",
+        "mods/*/test/**/*.js",
+        "mods/*/test/**/*.jsx",
         "packages/*/test/**/*.ts",
         "packages/*/test/**/*.tsx",
         "packages/*/test/**/*.js",
@@ -35,11 +35,17 @@
     "baseline": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/baseline.json"
   },
   "runner": {
-    "name": "habitat",
-    "mode": "script",
-    "runtime": "node",
+    "name": "grit",
     "files": {
-      "script": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/check.mjs"
+      "pattern": ".habitat/blueprints/domain/require_public_domain_surfaces_in_tests/pattern.md"
+    },
+    "patternName": "require_public_domain_surfaces_in_tests",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods",
+        "packages"
+      ]
     }
   }
 }

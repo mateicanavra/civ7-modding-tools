@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 2,
+  "id": "require_artifact_catalog_index_shape",
+  "title": "Require Artifact Catalog Index Shape",
+  "placement": {
+    "niche": "civ7/mapgen",
+    "blueprint": "artifact",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain artifact indexes without one closed defineArtifactCatalog authority, at least one linked sibling namespace import, or the two canonical catalog projections",
+  "why": "An artifact directory has one typed catalog authority. At least one sibling artifact module must enter through a namespace import and the same binding must appear in the catalog. Consumers receive only the module and handle projections derived from that catalog. Exact sibling completeness remains deferred until Habitat has first-class blueprint membership.",
+  "remediate": "Namespace-import at least one sibling *.artifact.js module, include that binding in one local defineArtifactCatalog object, and export only artifactModules = catalog.modules and artifacts = catalog.artifacts.",
+  "message": "Artifact index.ts must expose one non-empty typed sibling-module catalog and its two canonical projections.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/artifacts/index.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/artifact/require_artifact_catalog_index_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/artifact/require_artifact_catalog_index_shape/pattern.md"
+    },
+    "patternName": "require_artifact_catalog_index_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods"
+      ]
+    }
+  }
+}

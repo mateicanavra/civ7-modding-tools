@@ -13,13 +13,13 @@
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "artifacts.ts modules under domain source",
-  "why": "Domain artifact catalogs are retired in favor of owned public domain surfaces.",
-  "remediate": "Remove domain artifacts.ts modules and route artifact ownership through current public surfaces.",
+  "why": "Domain artifacts live in owned *.artifact.ts modules beneath the domain's artifacts directory. The positive artifact-directory law does not yet prove the absence of nested artifacts.ts modules elsewhere in domain source.",
+  "remediate": "Remove domain artifacts.ts modules and route artifact ownership through the domain artifacts directory and its typed catalog.",
   "message": "Domain artifacts.ts modules are retired.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/**/artifacts.ts"]
+      "patterns": ["mods/*/src/domain/**/artifacts.ts"]
     }
   ],
   "supportFiles": {

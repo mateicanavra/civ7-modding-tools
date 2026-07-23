@@ -3,25 +3,28 @@ level: error
 ---
 # Require Recipe Stage Authoring File Shape
 
-Every recipe-stage `index.ts` default-exports the stage value created by
-`createStage`. Stage authoring composes public domain and local step surfaces;
-it does not reach through the domain boundary to operation input, output,
-configuration, or strategy members. The sibling structure rule owns filenames
-and directory topology.
+Every authored recipe-stage `index.ts` contains exactly one `createStage` call
+and default-exports that value with a literal identity and step map. That
+default is the module's only runtime export. Stage authoring consumes public
+domain contracts rather than reaching through operation input, output,
+configuration, or strategy members. When a stage owns public configuration it
+imports only its immediate sibling `public.config.ts`; semantic family
+containers do not provide inherited configuration.
 
 ```grit
 language js(typescript)
 
 or {
   program(statements=$body) where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
-    not { $filename <: r".*/(?:artifacts|steps)/.*" },
-    ! $body <: contains `export default createStage({ $..., id: $id, $..., steps: $steps, $... } as const)`,
-    ! $body <: contains `export default createStage({ $..., id: $id, $..., steps: $steps, $... })`
+    or {
+      ! $body <: contains `import { $..., createStage, $... } from "@swooper/mapgen-core/authoring"`,
+      ! $body <: contains or {
+        `export default createStage({ $..., id: "$id", $..., steps: $steps, $... } as const)`,
+        `export default createStage({ $..., id: "$id", $..., steps: $steps, $... })`
+      }
+    }
   },
   program(statements=$body) where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
-    not { $filename <: r".*/(?:artifacts|steps)/.*" },
     $calls = [],
     $body <: some bubble($calls) $statement where {
       $statement <: contains bubble($calls) `createStage($_)` as $call where {
@@ -31,25 +34,41 @@ or {
     $call_count = length(target=$calls),
     ! $call_count <: 1
   },
-  `$domain.ops.$operation.input` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
-    not { $filename <: r".*/(?:artifacts|steps)/.*" }
+  or {
+    `$domain.ops.$operation.input`,
+    `$domain.ops.$operation["input"]`,
+    `$domain.ops.$operation.output`,
+    `$domain.ops.$operation["output"]`,
+    `$domain.ops.$operation.config`,
+    `$domain.ops.$operation["config"]`,
+    `$domain.ops.$operation.strategies.$strategy`,
+    `$domain.ops.$operation.strategies[$strategy]`,
+    `$domain.ops.$operation["strategies"].$strategy`,
+    `$domain.ops.$operation["strategies"][$strategy]`
   },
-  `$domain.ops.$operation.output` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
-    not { $filename <: r".*/(?:artifacts|steps)/.*" }
+  import_statement(source=$source) where {
+    $source <: r"public\.config",
+    ! $source <: r"^[\"']\./public\.config\.js[\"']$"
   },
-  `$domain.ops.$operation.config` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
-    not { $filename <: r".*/(?:artifacts|steps)/.*" }
+  program(statements=$body) where {
+    $body <: contains `createStage({ $..., public: $public, $... })`,
+    ! $body <: contains `import { $..., $public, $... } from "./public.config.js"`
   },
-  `$domain.ops.$operation.strategies.$strategy` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
-    not { $filename <: r".*/(?:artifacts|steps)/.*" }
+  export_statement(declaration=$declaration) where {
+    $declaration <: or {
+      lexical_declaration(),
+      variable_declaration(),
+      function_declaration(),
+      class_declaration(),
+      enum_declaration()
+    }
   },
-  `$domain.ops.$operation.strategies[$strategy]` where {
-    $filename <: r".*mods/[^/]+/src/recipes/[^/]+/stages/(?:[^/]+/)*index\.ts$",
-    not { $filename <: r".*/(?:artifacts|steps)/.*" }
+  or {
+    `export namespace $name { $body }`,
+    `export { $exports }`,
+    `export { $exports } from $source`,
+    `export type { $exports } from $source`,
+    `export * from $source`
   }
 }
 ```
@@ -57,49 +76,97 @@ or {
 ## Matches Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/example/stages/ecology/biomes/index.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/weather/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
-export const stage = createStage({ id: "ecology-biomes", steps: {} });
+export const WeatherStage = createStage({ id: "atmosphere-weather", steps: {} });
 
-// @filename: mods/example-mod/src/recipes/example/stages/foundation/tectonics/index.ts
-import { createStage } from "@swooper/mapgen-core/authoring";
-
-declare const domain: {
-  ops: { tectonics: { strategies: { balanced: unknown } } };
-};
-
-export default createStage({
-  id: "foundation-tectonics",
-  knobsSchema: domain.ops.tectonics.strategies.balanced,
-  steps: {},
-});
-
-// @filename: mods/example-mod/src/recipes/example/stages/hydrology/climate/index.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/surface/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
 
 const shadow = createStage({ id: "shadow", steps: {} });
-export default createStage({ id: "hydrology-climate", steps: { shadow } });
+export default createStage({ id: "terrain-surface", steps: { shadow } });
+
+// @filename: mods/alternate-mod/src/recipes/alternate-recipe/stages/output/render/index.ts
+import { createStage } from "@swooper/mapgen-core/authoring";
+import { OutputPublicConfig } from "../public.config.js";
+
+export default createStage({
+  id: "output-render",
+  public: OutputPublicConfig,
+  steps: {},
+});
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/nonliteral/index.ts
+import { createStage } from "@swooper/mapgen-core/authoring";
+
+const STAGE_ID = "terrain-nonliteral";
+export default createStage({ id: STAGE_ID, steps: {} });
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/aliased-constructor/index.ts
+import { createStage as declareStage } from "@swooper/mapgen-core/authoring";
+
+export default declareStage({ id: "terrain-aliased-constructor", steps: {} });
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/terrain/local-public/index.ts
+import { createStage } from "@swooper/mapgen-core/authoring";
+
+const TerrainPublicConfig = {};
+export default createStage({
+  id: "terrain-local-public",
+  public: TerrainPublicConfig,
+  steps: {},
+});
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/geology/tectonics/index.ts
+import { createStage } from "@swooper/mapgen-core/authoring";
+
+declare const geology: {
+  ops: { simulateTectonics: { strategies: { balanced: unknown } } };
+};
+
+export default createStage({
+  id: "geology-tectonics",
+  knobsSchema: geology.ops.simulateTectonics.strategies.balanced,
+  steps: {},
+});
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/geology/runtime-authority/index.ts
+import { createStage } from "@swooper/mapgen-core/authoring";
+
+export async function loadStageState() {}
+export function* iterateStageState() {}
+export class StageRuntimeAuthority {}
+export default createStage({ id: "geology-runtime-authority", steps: {} });
+
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/geology/reexported-type/index.ts
+import { createStage } from "@swooper/mapgen-core/authoring";
+
+export type { ExternalStageEvidence } from "./evidence.js";
+export default createStage({ id: "geology-reexported-type", steps: {} });
 ```
 
 ## Ignores Fixture
 
 ```typescript
-// @filename: mods/example-mod/src/recipes/example/stages/ecology/biomes/index.ts
+// @filename: mods/example-mod/src/recipes/sample-recipe/stages/atmosphere/weather/index.ts
 import { createStage } from "@swooper/mapgen-core/authoring";
-import { BiomesStep } from "./steps/biomes/step.js";
+import { WeatherPublicConfig } from "./public.config.js";
+import { SimulateWeatherStep } from "./steps/simulate-weather/step.js";
+
+const stageLabel = "Weather";
+
+export interface WeatherStageMetadata {
+  readonly label: string;
+}
+
+export type WeatherStageId = "atmosphere-weather";
 
 export default createStage({
-  id: "ecology-biomes",
-  steps: { biomes: BiomesStep },
+  id: "atmosphere-weather",
+  public: WeatherPublicConfig,
+  steps: { simulateWeather: SimulateWeatherStep },
+  metadata: { label: stageLabel } satisfies WeatherStageMetadata,
 });
 
-// @filename: mods/example-mod/src/recipes/example/stages/ecology/public.config.ts
-export const EcologyPublicConfig = {};
-
-// @filename: mods/example-mod/src/recipes/example/stages/ecology/artifacts/index.ts
-export const artifacts = {};
-
-// @filename: mods/example-mod/src/recipes/example/stages/ecology/biomes/steps/biomes/step.ts
-export const BiomesStep = {};
 ```

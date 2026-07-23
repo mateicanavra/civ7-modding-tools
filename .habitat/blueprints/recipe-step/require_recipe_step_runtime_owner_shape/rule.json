@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 2,
+  "id": "require_recipe_step_runtime_owner_shape",
+  "title": "Require Recipe Step Runtime Owner Shape",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "recipe-step",
+    "category": "contract"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "recipe step step.ts modules without one semantically named *Step = createStep(config, ...) executable, with additional runtime exports or re-exports, or with a default export",
+  "why": "A recipe step runtime owner imports its literal local config contract and exposes one semantically named *Step executable as its public runtime identity. Local helpers and erased type/interface exports remain available without creating competing exported runtime surfaces. Exact step.ts acquisition selects the kind, Core's createStep contract owns constructor admission, and Knip owns unused private construction.",
+  "remediate": "Import config from ./config.js, retain one documented <Name>Step = createStep(config, ...) export, keep non-authority helpers local, and delete default or additional runtime exports and re-exports.",
+  "message": "Recipe step step.ts must expose only its semantically named *Step executable over the local config contract.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/recipes/*/stages/**/steps/*/step.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/recipe-step/require_recipe_step_runtime_owner_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/recipe-step/require_recipe_step_runtime_owner_shape/pattern.md"
+    },
+    "patternName": "require_recipe_step_runtime_owner_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods"
+      ]
+    }
+  }
+}

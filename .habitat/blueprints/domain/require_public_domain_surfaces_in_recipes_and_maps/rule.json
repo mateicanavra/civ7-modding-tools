@@ -12,18 +12,18 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "recipe source importing domain code outside public domain root, ops, artifacts, model/schemas, model/policy, or explicitly admitted model/data collection surfaces",
-  "why": "The G4 import matrix is positive recipe boundary authority: standard recipe source composes domains through named public surfaces, not relative reaches, retired config facades, shared buckets, broad data buckets, operation-local files, or private implementation modules.",
+  "forbids": "recipe or map source importing domain code outside the domain root, ops, artifacts, named model schema/policy modules, or one named model data collection",
+  "why": "Recipes compose domains through named public surfaces, not relative reaches, shared buckets, broad data buckets, operation-local files, or private implementation modules.",
   "remediate": null,
-  "message": "Recipe and map source may import domain code only through @mapgen/domain/<domain>, /ops, /artifacts, /model/schemas, /model/policy, or approved /model/data collections.",
+  "message": "Recipe and map source may import domain code only through the domain root, ops, artifacts, named model schema/policy modules, or a named model data collection.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/recipes/**/*.ts",
-        "mods/mod-swooper-maps/src/recipes/**/*.tsx",
-        "mods/mod-swooper-maps/src/maps/**/*.ts",
-        "mods/mod-swooper-maps/src/maps/**/*.tsx"
+        "mods/*/src/recipes/**/*.ts",
+        "mods/*/src/recipes/**/*.tsx",
+        "mods/*/src/maps/**/*.ts",
+        "mods/*/src/maps/**/*.tsx"
       ]
     }
   ],
@@ -40,8 +40,7 @@
     "acquisition": {
       "kind": "check",
       "roots": [
-        "mods/mod-swooper-maps/src/recipes",
-        "mods/mod-swooper-maps/src/maps"
+        "mods"
       ]
     }
   }

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_model_policy_owner_shape",
+  "title": "Require Domain Model Policy Owner Shape",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain",
+    "category": "policy"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain model policy files outside their exact pure-policy dependency, import-source, re-export, and non-authority shape",
+  "why": "Domain model policy owns reusable semantic constants and pure resolution, not schema construction, structural validation, artifact admission, operation envelopes, or stage authoring. Source-level authority rejects schema and validation packages regardless of local aliases while preserving type-only model dependencies.",
+  "remediate": "Keep reusable semantic constants, tables, defaults, and pure resolvers in model/policy; keep relative dependencies inside sibling policy and type-only model schema surfaces; move schema construction, structural validation, and every other concern to its actual owner.",
+  "message": "Domain model policy files must remain pure reusable policy without artifact, operation, recipe, or stage authority.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/*/model/policy/*.ts"
+      ]
+    }
+  ],
+  "hookCheck": true,
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain/require_domain_model_policy_owner_shape/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/blueprints/domain/require_domain_model_policy_owner_shape/pattern.md"
+    },
+    "patternName": "require_domain_model_policy_owner_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods"
+      ]
+    }
+  }
+}

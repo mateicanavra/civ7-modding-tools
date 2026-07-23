@@ -12,15 +12,15 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "domain root ops.ts files that do anything other than bind the domain contract to the operation implementation registry",
-  "why": "Root domain ops.ts is the executable domain binding surface. Config schemas, policy constants, helpers, operation bodies, and public convenience exports must live in their owning files instead of leaking through this binding point.",
-  "remediate": "Keep root ops.ts to createDomain(domain, implementations), move policy to model/policy, keep contract schemas in operation contracts, and keep operation implementations behind the domain ops object.",
-  "message": "Domain root ops.ts must be the binding-only createDomain surface.",
+  "forbids": "domain root ops.ts files missing the canonical domain and implementation imports or default createDomain binding, or containing any additional statement",
+  "why": "Root domain ops.ts is the closed executable binding owner. It binds the public domain contract to its implementation registry without also becoming a helper barrel, policy owner, convenience API, or second runtime authority.",
+  "remediate": "Keep only the canonical createDomain, domain, and implementations imports plus the default createDomain(domain, implementations) binding. Move every helper, policy value, schema, operation body, and convenience export to its owning surface.",
+  "message": "Domain root ops.ts must contain only the canonical order-independent createDomain binding surface.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/domain/*/ops.ts"
+        "mods/*/src/domain/*/ops.ts"
       ]
     }
   ],
@@ -37,7 +37,7 @@
     "acquisition": {
       "kind": "check",
       "roots": [
-        "mods/mod-swooper-maps/src/domain"
+        "mods"
       ]
     }
   }

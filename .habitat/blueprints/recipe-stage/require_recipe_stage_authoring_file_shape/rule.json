@@ -12,15 +12,15 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "recipe stage index modules that do not default-export one createStage authoring value or that mirror domain-operation input, output, config, or strategy internals",
-  "why": "A recipe stage index.ts owns stage identity, authoring configuration, and step selection. Domain-operation internals remain behind public domain contracts, while filesystem topology and support-module names are owned separately by the recipe-stage structure rule.",
-  "remediate": "Default-export the stage's createStage value, compose public domain and local step surfaces, and remove direct access to operation input, output, config, or strategy internals.",
-  "message": "Recipe stage index.ts must be the positive createStage authoring owner.",
+  "forbids": "recipe stage index modules without exactly one canonical default createStage authority, with additional runtime exports, with deep operation-member access, or with non-sibling public configuration imports",
+  "why": "A recipe stage index.ts owns one public runtime stage identity, its immediate authoring configuration, and step selection. It consumes operation contracts through public domain roots without reconstructing operation internals. Exact constructor and sibling-config authority prevent shadow stages and inherited family configuration while erased type/interface exports remain available.",
+  "remediate": "Default-export exactly one createStage value with id and steps, import public configuration only from sibling ./public.config.js, consume operation contracts through public domain roots, keep helpers local, and remove every additional runtime export or re-export.",
+  "message": "Recipe stage index.ts must expose only its canonical default createStage runtime authority.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/recipes/*/stages/**/*.ts"
+        "mods/*/src/recipes/*/stages/*(!(*.*|steps|artifacts)/)!(*.*|steps|artifacts)/index.ts"
       ]
     }
   ],
