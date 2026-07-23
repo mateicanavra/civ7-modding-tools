@@ -3,6 +3,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -47,7 +48,7 @@ import {
   ObservedGritDiagnosticIdentitySchema,
   observedGritDiagnosticIdentity,
   pinnedGritNativePath,
-  planGritRuleRoots,
+  planGritRuleAcquisitions,
   runGritDiagnosticOutcomesEffect,
   runGritRulesEffect,
 } from "@habitat/cli/resources/rule-diagnostics/providers/grit/index";
@@ -88,7 +89,7 @@ const gritFixturePaths = {
   providerPattern:
     ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md",
   applyPattern:
-    ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md",
+    ".habitat/habitat/toolkit/_blueprints/grit-provider/prohibit_product_scan_roots_in_grit_provider/pattern.md",
 };
 const { providerRoot, providerFile, providerPattern, applyPattern } = gritFixturePaths;
 const stringifyJsonDocument = Schema.encodeSync(Schema.parseJson());
@@ -986,7 +987,7 @@ async function previewEvents(
     lane: "enforced",
     message: "preview",
     pathCoverage: [{ kind: "exact-path", patterns: ["scan/**"] }],
-    scanRoots: ["scan"],
+    acquisition: { kind: "check", roots: ["scan"] },
     patternName: "preview_pattern",
     fix: { kind: "preview-only", pattern: ".habitat/fix.pattern.md", effects: [...effects] },
   };
@@ -1018,7 +1019,7 @@ describe("Grit immutable root planning", () => {
     const alpha = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
     const docs = rule("docs", "docs_pattern", applyPattern, ["docs"], "apply-dry-run");
     const plans = await Effect.runPromise(
-      planGritRuleRoots([alpha, docs], { repoRoot, scanRoots: [providerFile] }).pipe(
+      planGritRuleAcquisitions([alpha, docs], { repoRoot, acquisitionRoots: [providerFile] }).pipe(
         withNodeContext
       )
     );
@@ -1027,13 +1028,13 @@ describe("Grit immutable root planning", () => {
     expect(plans[1]).toEqual({
       kind: "not-applicable",
       rule: docs,
-      reason: "no-matched-scan-roots",
+      reason: "no-matched-acquisition-roots",
     });
 
     const absolutePlans = await Effect.runPromise(
-      planGritRuleRoots([alpha], {
+      planGritRuleAcquisitions([alpha], {
         repoRoot,
-        scanRoots: [path.join(repoRoot, providerFile)],
+        acquisitionRoots: [path.join(repoRoot, providerFile)],
       }).pipe(withNodeContext)
     );
     expect(absolutePlans[0]).toMatchObject({
@@ -1045,18 +1046,20 @@ describe("Grit immutable root planning", () => {
   test("does not fall back from disjoint or all-unmatched explicit roots", async () => {
     const alpha = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
     const disjoint = await Effect.runPromise(
-      planGritRuleRoots([alpha], { repoRoot, scanRoots: ["docs"] }).pipe(withNodeContext)
+      planGritRuleAcquisitions([alpha], { repoRoot, acquisitionRoots: ["docs"] }).pipe(
+        withNodeContext
+      )
     );
     expect(disjoint[0]).toMatchObject({
       kind: "not-applicable",
-      reason: "no-matched-scan-roots",
+      reason: "no-matched-acquisition-roots",
     });
     const unmatched = await Effect.runPromise(
-      planGritRuleRoots([alpha], { repoRoot, scanRoots: [] }).pipe(withNodeContext)
+      planGritRuleAcquisitions([alpha], { repoRoot, acquisitionRoots: [] }).pipe(withNodeContext)
     );
     expect(unmatched[0]).toMatchObject({
       kind: "not-applicable",
-      reason: "no-matched-scan-roots",
+      reason: "no-matched-acquisition-roots",
     });
   });
 
@@ -1064,12 +1067,14 @@ describe("Grit immutable root planning", () => {
     for (const declaredRoot of [".", "", "nested/.."] as const) {
       const selected = rule("root", "root_pattern", providerPattern, [declaredRoot]);
       const defaultPlan = await Effect.runPromise(
-        planGritRuleRoots([selected], { repoRoot }).pipe(withNodeContext)
+        planGritRuleAcquisitions([selected], { repoRoot }).pipe(withNodeContext)
       );
       expect(defaultPlan[0]).toMatchObject({ kind: "execute", roots: [repoRoot] });
 
       const childPlan = await Effect.runPromise(
-        planGritRuleRoots([selected], { repoRoot, scanRoots: [providerFile] }).pipe(withNodeContext)
+        planGritRuleAcquisitions([selected], { repoRoot, acquisitionRoots: [providerFile] }).pipe(
+          withNodeContext
+        )
       );
       expect(childPlan[0]).toMatchObject({
         kind: "execute",
@@ -1079,16 +1084,18 @@ describe("Grit immutable root planning", () => {
 
     const rootRule = rule("root", "root_pattern", providerPattern, ["."]);
     const outside = await Effect.runPromise(
-      planGritRuleRoots([rootRule], { repoRoot, scanRoots: ["../outside"] }).pipe(withNodeContext)
+      planGritRuleAcquisitions([rootRule], { repoRoot, acquisitionRoots: ["../outside"] }).pipe(
+        withNodeContext
+      )
     );
     expect(outside[0]).toMatchObject({
       kind: "refused",
       decision: { reason: "outside-repo" },
     });
     const absoluteOutside = await Effect.runPromise(
-      planGritRuleRoots([rootRule], {
+      planGritRuleAcquisitions([rootRule], {
         repoRoot,
-        scanRoots: [path.resolve(repoRoot, "../outside")],
+        acquisitionRoots: [path.resolve(repoRoot, "../outside")],
       }).pipe(withNodeContext)
     );
     expect(absoluteOutside[0]).toMatchObject({
@@ -1096,7 +1103,9 @@ describe("Grit immutable root planning", () => {
       decision: { reason: "outside-repo" },
     });
     const protectedRoot = await Effect.runPromise(
-      planGritRuleRoots([rootRule], { repoRoot, scanRoots: ["node_modules"] }).pipe(withNodeContext)
+      planGritRuleAcquisitions([rootRule], { repoRoot, acquisitionRoots: ["node_modules"] }).pipe(
+        withNodeContext
+      )
     );
     expect(protectedRoot[0]).toMatchObject({
       kind: "refused",
@@ -1107,9 +1116,9 @@ describe("Grit immutable root planning", () => {
   test("keeps child and multiple roots immutable and refuses invalid roots", async () => {
     const alpha = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
     const plans = await Effect.runPromise(
-      planGritRuleRoots([alpha], {
+      planGritRuleAcquisitions([alpha], {
         repoRoot,
-        scanRoots: [providerFile, `${providerRoot}/output.ts`, providerFile],
+        acquisitionRoots: [providerFile, `${providerRoot}/output.ts`, providerFile],
       }).pipe(withNodeContext)
     );
     const plan = plans[0];
@@ -1123,7 +1132,7 @@ describe("Grit immutable root planning", () => {
 
     const missing = rule("missing", "missing_pattern", providerPattern, ["missing-root"]);
     const missingPlans = await Effect.runPromise(
-      planGritRuleRoots([missing], { repoRoot }).pipe(withNodeContext)
+      planGritRuleAcquisitions([missing], { repoRoot }).pipe(withNodeContext)
     );
     expect(missingPlans[0]).toMatchObject({
       kind: "refused",
@@ -1131,7 +1140,7 @@ describe("Grit immutable root planning", () => {
     });
     const outside = rule("outside", "outside_pattern", providerPattern, [".."]);
     const outsidePlans = await Effect.runPromise(
-      planGritRuleRoots([outside], { repoRoot }).pipe(withNodeContext)
+      planGritRuleAcquisitions([outside], { repoRoot }).pipe(withNodeContext)
     );
     expect(outsidePlans[0]).toMatchObject({
       kind: "refused",
@@ -1139,7 +1148,7 @@ describe("Grit immutable root planning", () => {
     });
     const protectedRule = rule("protected", "protected_pattern", providerPattern, ["node_modules"]);
     const protectedPlans = await Effect.runPromise(
-      planGritRuleRoots([protectedRule], { repoRoot }).pipe(withNodeContext)
+      planGritRuleAcquisitions([protectedRule], { repoRoot }).pipe(withNodeContext)
     );
     expect(protectedPlans[0]).toMatchObject({
       kind: "refused",
@@ -1168,7 +1177,7 @@ describe("Grit immutable root planning", () => {
     );
 
     expect(outcomes.get("outside")).toMatchObject({
-      kind: "scan-root-refused",
+      kind: "acquisition-root-refused",
       decision: { reason: "outside-repo", root: "../outside" },
     });
     expect(fileSystemEvents).toEqual([`realPath:${repoRoot}`]);
@@ -1205,7 +1214,7 @@ describe("Grit immutable root planning", () => {
       });
 
       const plans = await Effect.runPromise(
-        planGritRuleRoots([selected], { repoRoot }).pipe(Effect.provide(fileSystem))
+        planGritRuleAcquisitions([selected], { repoRoot }).pipe(Effect.provide(fileSystem))
       );
 
       expect(plans[0]).toMatchObject({
@@ -1228,7 +1237,7 @@ describe("Grit immutable root planning", () => {
 
       const notApproved = rule("alias", "alias_pattern", providerPattern, ["alias"]);
       const notApprovedPlans = await Effect.runPromise(
-        planGritRuleRoots([notApproved], { repoRoot: fixture }).pipe(withNodeContext)
+        planGritRuleAcquisitions([notApproved], { repoRoot: fixture }).pipe(withNodeContext)
       );
       expect(notApprovedPlans[0]).toMatchObject({
         kind: "refused",
@@ -1236,7 +1245,7 @@ describe("Grit immutable root planning", () => {
       });
       const outsideRule = rule("outside", "outside_pattern", providerPattern, ["outside-alias"]);
       const outsidePlans = await Effect.runPromise(
-        planGritRuleRoots([outsideRule], { repoRoot: fixture }).pipe(withNodeContext)
+        planGritRuleAcquisitions([outsideRule], { repoRoot: fixture }).pipe(withNodeContext)
       );
       expect(outsidePlans[0]).toMatchObject({
         kind: "refused",
@@ -1246,7 +1255,7 @@ describe("Grit immutable root planning", () => {
         "protected-alias",
       ]);
       const protectedPlans = await Effect.runPromise(
-        planGritRuleRoots([protectedRule], { repoRoot: fixture }).pipe(withNodeContext)
+        planGritRuleAcquisitions([protectedRule], { repoRoot: fixture }).pipe(withNodeContext)
       );
       expect(protectedPlans[0]).toMatchObject({
         kind: "refused",
@@ -1255,6 +1264,408 @@ describe("Grit immutable root planning", () => {
     } finally {
       rmSync(fixture, { recursive: true, force: true });
       rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  test("acquires only existing exact-coverage files with canonical grammar and stable ordering", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-exact-roots-"));
+    try {
+      mkdirSync(path.join(fixture, "scan/nested"), { recursive: true });
+      mkdirSync(path.join(fixture, "scan/literal-dir"), { recursive: true });
+      writeFileSync(path.join(fixture, "scan/b.ts"), "export const b = true;\n");
+      writeFileSync(path.join(fixture, "scan/a.ts"), "export const a = true;\n");
+      writeFileSync(path.join(fixture, "scan/nested/c.ts"), "export const c = true;\n");
+      writeFileSync(path.join(fixture, "scan/literal-dir/value.ts"), "export const d = true;\n");
+      writeFileSync(path.join(fixture, "scan/skip.js"), "export const skip = true;\n");
+      const selected = exactCheckRule(
+        "exact",
+        ["scan", "scan/nested"],
+        ["scan/{a,b}.ts", "scan/@(nested)/**/*.ts", "scan/literal-dir", "scan/{a,b}.ts"]
+      );
+
+      const [plan] = await Effect.runPromise(
+        planGritRuleAcquisitions([selected], { repoRoot: fixture }).pipe(withNodeContext)
+      );
+      expect(plan).toMatchObject({
+        kind: "execute",
+        roots: [
+          realpathSync(path.join(fixture, "scan/a.ts")),
+          realpathSync(path.join(fixture, "scan/b.ts")),
+          realpathSync(path.join(fixture, "scan/literal-dir/value.ts")),
+          realpathSync(path.join(fixture, "scan/nested/c.ts")),
+        ],
+      });
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("bounds coarse repository and mods ceilings to one shared exact-prefix inventory", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-exact-prefix-roots-"));
+    const directoryReads: string[] = [];
+    try {
+      mkdirSync(path.join(fixture, "mods/target/nested"), { recursive: true });
+      mkdirSync(path.join(fixture, "mods/unrelated"), { recursive: true });
+      mkdirSync(path.join(fixture, "mods/mod-swooper-maps/src/maps/generated"), {
+        recursive: true,
+      });
+      mkdirSync(path.join(fixture, "packages/unrelated"), { recursive: true });
+      mkdirSync(path.join(fixture, "node_modules/ignored"), { recursive: true });
+      writeFileSync(path.join(fixture, "mods/target/root.ts"), "export const root = true;\n");
+      writeFileSync(
+        path.join(fixture, "mods/target/nested/child.ts"),
+        "export const child = true;\n"
+      );
+      writeFileSync(
+        path.join(fixture, "mods/unrelated/should-not-be-read.ts"),
+        "export const unrelated = true;\n"
+      );
+      writeFileSync(
+        path.join(fixture, "packages/unrelated/should-not-be-read.ts"),
+        "export const unrelated = true;\n"
+      );
+      const workspaceCeiling = exactCheckRule("workspace-ceiling", ["."], ["mods/target/**/*.ts"]);
+      const modsCeiling = exactCheckRule("mods-ceiling", ["mods"], ["mods/target/**/*.ts"]);
+
+      const plans = await Effect.runPromise(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const observed = {
+            ...fs,
+            readDirectory: (target, options) =>
+              Effect.sync(() => {
+                directoryReads.push(path.resolve(target));
+              }).pipe(Effect.zipRight(fs.readDirectory(target, options))),
+          } satisfies FileSystem.FileSystem;
+          return yield* planGritRuleAcquisitions([workspaceCeiling, modsCeiling], {
+            repoRoot: fixture,
+          }).pipe(Effect.provideService(FileSystem.FileSystem, observed));
+        }).pipe(withNodeContext)
+      );
+
+      const expectedFiles = [
+        realpathSync(path.join(fixture, "mods/target/nested/child.ts")),
+        realpathSync(path.join(fixture, "mods/target/root.ts")),
+      ];
+      expect(plans).toEqual([
+        expect.objectContaining({ kind: "execute", roots: expectedFiles }),
+        expect.objectContaining({ kind: "execute", roots: expectedFiles }),
+      ]);
+      expect(directoryReads).toEqual([
+        realpathSync(path.join(fixture, "mods/target")),
+        realpathSync(path.join(fixture, "mods/target/nested")),
+      ]);
+      expect(directoryReads).not.toContain(realpathSync(fixture));
+      expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "mods")));
+      expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "mods/unrelated")));
+      expect(directoryReads).not.toContain(
+        realpathSync(path.join(fixture, "mods/mod-swooper-maps/src/maps/generated"))
+      );
+      expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "packages")));
+      expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "node_modules")));
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("preserves exact-clause OR semantics while intersecting requested scope before traversal", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-exact-clause-scope-"));
+    const directoryReads: string[] = [];
+    try {
+      mkdirSync(path.join(fixture, "mods/alpha/nested"), { recursive: true });
+      mkdirSync(path.join(fixture, "mods/beta/nested"), { recursive: true });
+      mkdirSync(path.join(fixture, "mods/unrelated"), { recursive: true });
+      writeFileSync(
+        path.join(fixture, "mods/alpha/nested/alpha.ts"),
+        "export const alpha = true;\n"
+      );
+      writeFileSync(path.join(fixture, "mods/beta/nested/beta.ts"), "export const beta = true;\n");
+      const selected = {
+        ...exactCheckRule("mixed-clauses", ["mods"], ["mods/alpha/**/*.ts"]),
+        pathCoverage: [
+          { kind: "exact-path", patterns: ["mods/alpha/**/*.ts"] },
+          { kind: "exact-path", patterns: ["mods/beta/**/*.ts"] },
+        ] satisfies RuleGritFacts["pathCoverage"],
+      } satisfies RuleGritFacts;
+
+      const planWithScope = (acquisitionRoots?: readonly string[]) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const observed = {
+            ...fs,
+            readDirectory: (target, options) =>
+              Effect.sync(() => {
+                directoryReads.push(path.resolve(target));
+              }).pipe(Effect.zipRight(fs.readDirectory(target, options))),
+          } satisfies FileSystem.FileSystem;
+          return yield* planGritRuleAcquisitions([selected], {
+            repoRoot: fixture,
+            acquisitionRoots,
+          }).pipe(Effect.provideService(FileSystem.FileSystem, observed));
+        }).pipe(withNodeContext);
+
+      const [unscopedPlan] = await Effect.runPromise(planWithScope());
+      expect(unscopedPlan).toMatchObject({
+        kind: "execute",
+        roots: [
+          realpathSync(path.join(fixture, "mods/alpha/nested/alpha.ts")),
+          realpathSync(path.join(fixture, "mods/beta/nested/beta.ts")),
+        ],
+      });
+      expect([...directoryReads].sort()).toEqual(
+        [
+          realpathSync(path.join(fixture, "mods/alpha")),
+          realpathSync(path.join(fixture, "mods/beta")),
+          realpathSync(path.join(fixture, "mods/alpha/nested")),
+          realpathSync(path.join(fixture, "mods/beta/nested")),
+        ].sort()
+      );
+      expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "mods")));
+      expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "mods/unrelated")));
+
+      directoryReads.length = 0;
+      const [scopedPlan] = await Effect.runPromise(planWithScope(["mods/alpha"]));
+
+      expect(scopedPlan).toMatchObject({
+        kind: "execute",
+        roots: [realpathSync(path.join(fixture, "mods/alpha/nested/alpha.ts"))],
+      });
+      expect(directoryReads).toEqual([
+        realpathSync(path.join(fixture, "mods/alpha")),
+        realpathSync(path.join(fixture, "mods/alpha/nested")),
+      ]);
+      expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "mods")));
+      expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "mods/beta")));
+      expect(directoryReads).not.toContain(realpathSync(path.join(fixture, "mods/unrelated")));
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("inventories overlapping exact authority roots once for the selected rule batch", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-exact-batch-"));
+    const directoryReads = new Map<string, number>();
+    const canonicalizations = new Map<string, number>();
+    try {
+      mkdirSync(path.join(fixture, "scan/nested"), { recursive: true });
+      writeFileSync(path.join(fixture, "scan/root.ts"), "export const root = true;\n");
+      writeFileSync(path.join(fixture, "scan/nested/child.ts"), "export const child = true;\n");
+      const broad = exactCheckRule("broad", ["scan", "scan/nested"], ["scan/**/*.ts"]);
+      const nested = exactCheckRule("nested", ["scan/nested"], ["scan/nested/**/*.ts"]);
+
+      const plans = await Effect.runPromise(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const observed = {
+            ...fs,
+            realPath: (target) =>
+              Effect.sync(() => {
+                const absolute = path.resolve(target);
+                canonicalizations.set(absolute, (canonicalizations.get(absolute) ?? 0) + 1);
+              }).pipe(Effect.zipRight(fs.realPath(target))),
+            readDirectory: (target, options) =>
+              Effect.sync(() => {
+                const absolute = path.resolve(target);
+                directoryReads.set(absolute, (directoryReads.get(absolute) ?? 0) + 1);
+              }).pipe(Effect.zipRight(fs.readDirectory(target, options))),
+          } satisfies FileSystem.FileSystem;
+          return yield* planGritRuleAcquisitions([broad, nested], { repoRoot: fixture }).pipe(
+            Effect.provideService(FileSystem.FileSystem, observed)
+          );
+        }).pipe(withNodeContext)
+      );
+
+      expect(plans).toEqual([
+        expect.objectContaining({
+          kind: "execute",
+          rule: expect.objectContaining({ id: "broad" }),
+        }),
+        expect.objectContaining({
+          kind: "execute",
+          rule: expect.objectContaining({ id: "nested" }),
+        }),
+      ]);
+      expect(directoryReads.get(realpathSync(path.join(fixture, "scan")))).toBe(1);
+      expect(directoryReads.get(realpathSync(path.join(fixture, "scan/nested")))).toBe(1);
+      expect([...canonicalizations.entries()]).toContainEqual([
+        realpathSync(path.join(fixture, "scan/root.ts")),
+        1,
+      ]);
+      expect([...canonicalizations.entries()]).toContainEqual([
+        realpathSync(path.join(fixture, "scan/nested/child.ts")),
+        1,
+      ]);
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("intersects requested roots with declared exact authority and omits missing files", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-exact-intersection-"));
+    try {
+      mkdirSync(path.join(fixture, "scan/nested"), { recursive: true });
+      writeFileSync(path.join(fixture, "scan/root.ts"), "export const root = true;\n");
+      writeFileSync(path.join(fixture, "scan/nested/child.ts"), "export const child = true;\n");
+      const selected = exactCheckRule("intersection", ["scan"], ["scan/**/*.ts"]);
+
+      const [parentPlan] = await Effect.runPromise(
+        planGritRuleAcquisitions([selected], { repoRoot: fixture, acquisitionRoots: ["."] }).pipe(
+          withNodeContext
+        )
+      );
+      expect(parentPlan).toMatchObject({
+        kind: "execute",
+        roots: [
+          realpathSync(path.join(fixture, "scan/nested/child.ts")),
+          realpathSync(path.join(fixture, "scan/root.ts")),
+        ],
+      });
+
+      const [childPlan] = await Effect.runPromise(
+        planGritRuleAcquisitions([selected], {
+          repoRoot: fixture,
+          acquisitionRoots: ["scan/nested"],
+        }).pipe(withNodeContext)
+      );
+      expect(childPlan).toMatchObject({
+        kind: "execute",
+        roots: [realpathSync(path.join(fixture, "scan/nested/child.ts"))],
+      });
+
+      rmSync(path.join(fixture, "scan/nested/child.ts"), { force: true });
+      const missing = exactCheckRule("missing-exact", ["scan/nested"], ["scan/nested/*.ts"]);
+      const [missingPlan] = await Effect.runPromise(
+        planGritRuleAcquisitions([missing], { repoRoot: fixture }).pipe(withNodeContext)
+      );
+      expect(missingPlan).toMatchObject({
+        kind: "not-applicable",
+        reason: "no-matched-acquisition-roots",
+      });
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("keeps non-exact checks and apply dry-runs on broad roots", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-broad-roots-"));
+    try {
+      mkdirSync(path.join(fixture, "scan"));
+      writeFileSync(path.join(fixture, "scan/subject.ts"), "export const subject = true;\n");
+      const nonExact = rule("non-exact", "non_exact", providerPattern, ["scan"]);
+      const apply = rule("apply", "apply_pattern", applyPattern, ["scan"], "apply-dry-run");
+
+      const plans = await Effect.runPromise(
+        planGritRuleAcquisitions([nonExact, apply], { repoRoot: fixture }).pipe(withNodeContext)
+      );
+      expect(plans).toEqual([
+        expect.objectContaining({
+          kind: "execute",
+          roots: [realpathSync(path.join(fixture, "scan"))],
+        }),
+        expect.objectContaining({
+          kind: "execute",
+          roots: [realpathSync(path.join(fixture, "scan"))],
+        }),
+      ]);
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("fails closed when exact coverage selects a symbolic link outside its authority", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-exact-symlink-"));
+    const outside = mkdtempSync(path.join(tmpdir(), "habitat-grit-exact-symlink-outside-"));
+    try {
+      mkdirSync(path.join(fixture, "scan"));
+      writeFileSync(path.join(outside, "subject.ts"), "export const subject = true;\n");
+      symlinkSync(path.join(outside, "subject.ts"), path.join(fixture, "scan/subject.ts"));
+      const selected = exactCheckRule("escape", ["scan"], ["scan/subject.ts"]);
+
+      const [plan] = await Effect.runPromise(
+        planGritRuleAcquisitions([selected], { repoRoot: fixture }).pipe(withNodeContext)
+      );
+      expect(plan).toMatchObject({
+        kind: "failed",
+        failure: "DiagnosticScopePlanningFailed",
+        detail: expect.stringContaining("selected symbolic link scan/subject.ts"),
+      });
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  test("fails closed when exact coverage selects an in-authority symbolic link", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-exact-symlink-internal-"));
+    try {
+      mkdirSync(path.join(fixture, "scan"));
+      writeFileSync(path.join(fixture, "scan/target.ts"), "export const subject = true;\n");
+      symlinkSync(path.join(fixture, "scan/target.ts"), path.join(fixture, "scan/alias.ts"));
+      const selected = exactCheckRule("internal-symlink", ["scan"], ["scan/alias.ts"]);
+
+      const [plan] = await Effect.runPromise(
+        planGritRuleAcquisitions([selected], { repoRoot: fixture }).pipe(withNodeContext)
+      );
+      expect(plan).toMatchObject({
+        kind: "failed",
+        failure: "DiagnosticScopePlanningFailed",
+        detail: expect.stringContaining("selected symbolic link scan/alias.ts"),
+      });
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("fails closed when requested exact authority is reached through a symbolic link", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-exact-root-symlink-"));
+    try {
+      mkdirSync(path.join(fixture, "scan/actual"), { recursive: true });
+      writeFileSync(path.join(fixture, "scan/actual/subject.ts"), "export const subject = true;\n");
+      symlinkSync(path.join(fixture, "scan/actual"), path.join(fixture, "scan/alias"));
+      const selected = exactCheckRule("root-symlink", ["scan"], ["scan/alias/**/*.ts"]);
+
+      const [plan] = await Effect.runPromise(
+        planGritRuleAcquisitions([selected], {
+          repoRoot: fixture,
+          acquisitionRoots: ["scan/alias"],
+        }).pipe(withNodeContext)
+      );
+      expect(plan).toMatchObject({
+        kind: "failed",
+        failure: "DiagnosticScopePlanningFailed",
+        detail: expect.stringContaining("authority root scan/alias is a symbolic link"),
+      });
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  test("refuses a missing declared root while omitting a missing caller-selected exact path", async () => {
+    const fixture = mkdtempSync(path.join(tmpdir(), "habitat-grit-exact-missing-"));
+    try {
+      const selected = exactCheckRule("missing", ["scan"], ["scan/**/*.ts"]);
+
+      const [declaredPlan] = await Effect.runPromise(
+        planGritRuleAcquisitions([selected], { repoRoot: fixture }).pipe(withNodeContext)
+      );
+      expect(declaredPlan).toMatchObject({
+        kind: "refused",
+        decision: { reason: "missing", root: "scan" },
+      });
+
+      mkdirSync(path.join(fixture, "scan"));
+      const [selectedPlan] = await Effect.runPromise(
+        planGritRuleAcquisitions([selected], {
+          repoRoot: fixture,
+          acquisitionRoots: ["scan/missing.ts"],
+        }).pipe(withNodeContext)
+      );
+      expect(selectedPlan).toMatchObject({
+        kind: "not-applicable",
+        reason: "no-matched-acquisition-roots",
+      });
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
     }
   });
 });
@@ -1776,7 +2187,7 @@ describe("Grit generic acquisition and public disposition", () => {
     }
   });
 
-  test("carries no-matched-scan-roots as a required provider disposition", async () => {
+  test("carries no-matched-acquisition-roots as a required provider disposition", async () => {
     const alpha = rule("alpha", "alpha_pattern", providerPattern, [providerRoot]);
     const docs = rule("docs", "docs_pattern", applyPattern, ["docs"], "apply-dry-run");
     const grit = fakeCheckProvider(checkReport(path.join(repoRoot, providerFile), "alpha_pattern"));
@@ -1784,13 +2195,13 @@ describe("Grit generic acquisition and public disposition", () => {
       runGritRulesEffect([alpha, docs], {
         repoRoot,
         grit,
-        scanRoots: [providerFile],
+        acquisitionRoots: [providerFile],
       }).pipe(Effect.provide(NodeContext.layer))
     );
     expect(executions.get("alpha")).toMatchObject({ kind: "executed" });
     expect(executions.get("docs")).toMatchObject({
       kind: "not-applicable",
-      reason: "no-matched-scan-roots",
+      reason: "no-matched-acquisition-roots",
     });
   });
 
@@ -2084,7 +2495,7 @@ describe("Grit generic acquisition and public disposition", () => {
       runGritRulesEffect([check, apply, unmatched], {
         repoRoot,
         grit,
-        scanRoots: [providerFile, "docs/PRODUCT.md"],
+        acquisitionRoots: [providerFile, "docs/PRODUCT.md"],
       }).pipe(Effect.provide(NodeContext.layer))
     );
 
@@ -2093,7 +2504,7 @@ describe("Grit generic acquisition and public disposition", () => {
     expect(executions.get("apply")).toMatchObject({ kind: "executed" });
     expect(executions.get("unmatched")).toMatchObject({
       kind: "not-applicable",
-      reason: "no-matched-scan-roots",
+      reason: "no-matched-acquisition-roots",
     });
     expect(observedKinds).toEqual(["check", "apply-dry-run"]);
   });
@@ -2570,18 +2981,35 @@ function rule(
   id: string,
   patternName: string,
   pattern: string,
-  scanRoots: readonly string[],
+  acquisitionRoots: readonly string[],
   acquisition: "check" | "apply-dry-run" = "check"
 ): RuleGritFacts {
   return {
     id,
     lane: "enforced",
     message: `${id} finding`,
-    runner: { name: "grit", files: { pattern }, patternName },
+    runner: {
+      name: "grit",
+      files: { pattern },
+      patternName,
+      acquisition: { kind: acquisition, roots: [...acquisitionRoots] },
+    },
     patternName,
-    diagnosticAcquisition: { kind: acquisition },
-    pathCoverage: [{ kind: "exact-path", patterns: scanRoots.map((root) => `${root}/**/*`) }],
-    scanRoots: [...scanRoots],
+    pathCoverage:
+      acquisition === "apply-dry-run"
+        ? [{ kind: "exact-path", patterns: acquisitionRoots.map((root) => `${root}/**/*`) }]
+        : [{ kind: "project-owner" }],
+  };
+}
+
+function exactCheckRule(
+  id: string,
+  acquisitionRoots: readonly string[],
+  patterns: readonly string[]
+): RuleGritFacts {
+  return {
+    ...rule(id, `${id}_pattern`, providerPattern, acquisitionRoots),
+    pathCoverage: [{ kind: "exact-path", patterns: [...patterns] }],
   };
 }
 

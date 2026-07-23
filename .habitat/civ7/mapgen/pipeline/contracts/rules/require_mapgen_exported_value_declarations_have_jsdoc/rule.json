@@ -26,11 +26,6 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain",
-    "mods/mod-swooper-maps/src/recipes",
-    "packages/mapgen-diagnostics/src"
-  ],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/baseline.json",
@@ -41,6 +36,14 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/pipeline/contracts/rules/require_mapgen_exported_value_declarations_have_jsdoc/pattern.md"
     },
-    "patternName": "require_mapgen_exported_value_declarations_have_jsdoc"
+    "patternName": "require_mapgen_exported_value_declarations_have_jsdoc",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/domain",
+        "mods/mod-swooper-maps/src/recipes",
+        "packages/mapgen-diagnostics/src"
+      ]
+    }
   }
 }

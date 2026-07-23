@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/**/*.ts"]
+      "patterns": [
+        "packages/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["packages"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/platform/adapter/rules/enforce_adapter_only_base_standard_imports/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/civ7/platform/adapter/rules/enforce_adapter_only_base_standard_imports/pattern.md"
     },
-    "patternName": "enforce_adapter_only_base_standard_imports"
+    "patternName": "enforce_adapter_only_base_standard_imports",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "packages"
+      ]
+    }
   }
 }

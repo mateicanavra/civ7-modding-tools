@@ -27,12 +27,6 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-pedology",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology"
-  ],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/baseline.json"
@@ -42,6 +36,15 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/domains/ecology/rules/require_public_ecology_surfaces_and_retired_topology_removal/pattern.md"
     },
-    "patternName": "require_public_ecology_surfaces_and_retired_topology_removal"
+    "patternName": "require_public_ecology_surfaces_and_retired_topology_removal",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-pedology",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology"
+      ]
+    }
   }
 }

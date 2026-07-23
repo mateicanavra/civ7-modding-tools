@@ -95,6 +95,7 @@ describe("rule registry contract", () => {
     ["ownerTool", "unknown-tool"],
     ["detect", ["fixture", "command"]],
     ["scope", "tools/habitat/**"],
+    ["scanRoots", ["tools/habitat"]],
   ])("rejects stale execution metadata field %s", (field, value) => {
     expectInvalid(
       parseRuleRegistryDocument(
@@ -111,7 +112,6 @@ describe("rule registry contract", () => {
         registryDocument([
           {
             ...baseRule({ runner: gritRunner("manifest-path") }),
-            scanRoots: ["tools/habitat"],
             manifestPath: ".habitat/patterns/manifests/manifest-path.json",
           },
         ]),
@@ -201,14 +201,6 @@ describe("rule registry contract", () => {
 
     expectInvalid(
       parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule({ runner: gritRunner("sample-rule") }) }]),
-        "inline-registry.json"
-      ),
-      "registry-schema-invalid"
-    );
-
-    expectInvalid(
-      parseRuleRegistryDocument(
         registryDocument([
           {
             ...baseRule({ runner: habitatStructureRunner("sample-rule") }),
@@ -251,7 +243,7 @@ describe("rule registry contract", () => {
   test("accepts each explicit runner shape", () => {
     const result = parseRuleRegistryDocument(
       registryDocument([
-        { ...baseRule({ id: "grit-rule", runner: gritRunner("grit-rule") }), scanRoots: ["src"] },
+        baseRule({ id: "grit-rule", runner: gritRunner("grit-rule", ["src"]) }),
         baseRule({ id: "script-rule", runner: habitatScriptRunner("script-rule") }),
         baseRule({ id: "structure-rule", runner: habitatStructureRunner("structure-rule") }),
         {
@@ -270,6 +262,28 @@ describe("rule registry contract", () => {
     );
 
     expect(result).toMatchObject({ ok: true });
+  });
+
+  test("requires one closed Grit acquisition and rejects its retired aliases", () => {
+    const runner = gritRunner("acquisition");
+    const { acquisition: _acquisition, ...missingAcquisition } = runner;
+    for (const candidate of [
+      missingAcquisition,
+      { ...runner, acquisition: { kind: "check", roots: [] } },
+      {
+        ...runner,
+        acquisition: { kind: "check", roots: ["tools/habitat"], scanRoots: ["tools/habitat"] },
+      },
+      { ...runner, diagnosticAcquisition: { kind: "check" } },
+    ]) {
+      expectInvalid(
+        parseRuleRegistryDocument(
+          registryDocument([baseRule({ id: "acquisition", runner: candidate })]),
+          "inline-registry.json"
+        ),
+        "registry-schema-invalid"
+      );
+    }
   });
 
   test("keeps graph prerequisites closed and unique", () => {
@@ -312,7 +326,6 @@ describe("rule registry contract", () => {
           {
             ...baseRule({ id: "path-authority", runner }),
             runner: { ...runner, files: { pattern } },
-            scanRoots: ["tools/habitat"],
           },
         ]),
         "inline-registry.json"
@@ -346,7 +359,6 @@ describe("rule registry contract", () => {
             {
               ...baseRule({ id: "apply-authority", runner }),
               runner: { ...runner, fix },
-              scanRoots: ["tools/habitat"],
             },
           ]),
           "inline-registry.json"
@@ -364,7 +376,6 @@ describe("rule registry contract", () => {
               ...runner,
               files: { ...runner.files, applyPattern: ".habitat/fixtures/fix.pattern.md" },
             },
-            scanRoots: ["tools/habitat"],
           },
         ]),
         "inline-registry.json"
@@ -381,7 +392,6 @@ describe("rule registry contract", () => {
     const rule = {
       ...baseRule({ id: "asset-order", runner }),
       runner: { ...runner, files: { pattern: "outside/pattern.md" } },
-      scanRoots: ["tools/habitat"],
     };
     const reads: string[] = [];
     expect(() =>

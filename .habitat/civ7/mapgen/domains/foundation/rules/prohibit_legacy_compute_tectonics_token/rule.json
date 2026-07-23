@@ -32,16 +32,6 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/foundation",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics",
-    "mods/mod-swooper-maps/src/maps"
-  ],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/baseline.json"
@@ -51,6 +41,19 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_legacy_compute_tectonics_token/pattern.md"
     },
-    "patternName": "prohibit_legacy_compute_tectonics_token"
+    "patternName": "prohibit_legacy_compute_tectonics_token",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/domain/foundation",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics",
+        "mods/mod-swooper-maps/src/maps"
+      ]
+    }
   }
 }

@@ -26,11 +26,6 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/scripts/generate-run-manifest.ts",
-    "mods/mod-swooper-maps/scripts/run-manifest-generator.ts",
-    "mods/mod-swooper-maps/project.json"
-  ],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-run-manifest-generator-boundary/baseline.json"
   },
@@ -39,6 +34,14 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-swooper-run-manifest-generator-boundary/pattern.md"
     },
-    "patternName": "grit_swooper_run_manifest_generator_boundary"
+    "patternName": "grit_swooper_run_manifest_generator_boundary",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/scripts/generate-run-manifest.ts",
+        "mods/mod-swooper-maps/scripts/run-manifest-generator.ts",
+        "mods/mod-swooper-maps/project.json"
+      ]
+    }
   }
 }

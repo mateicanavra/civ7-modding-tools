@@ -31,7 +31,6 @@
       "kind": "project-owner"
     }
   ],
-  "scanRoots": ["packages/studio-contract/src", "packages/studio-server/src"],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/baseline.json"
   },
@@ -40,6 +39,13 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-cancel-command-owner/pattern.md"
     },
-    "patternName": "grit_studio_run_cancel_command_owner"
+    "patternName": "grit_studio_run_cancel_command_owner",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "packages/studio-contract/src",
+        "packages/studio-server/src"
+      ]
+    }
   }
 }

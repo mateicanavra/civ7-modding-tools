@@ -9,11 +9,11 @@ import {
   verifyCheckSummary,
 } from "@habitat/cli/service/model/check/index";
 import {
-  type DiagnosticScanRootRefusal,
-  DiagnosticScanRootRefusalSchema,
+  type DiagnosticAcquisitionRootRefusal,
+  DiagnosticAcquisitionRootRefusalSchema,
   diagnosticProviderFailureKinds,
+  renderDiagnosticAcquisitionRootRefusal,
   renderDiagnosticProviderFailure,
-  renderDiagnosticScanRootRefusal,
 } from "@habitat/cli/service/model/diagnostics/index";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
@@ -47,7 +47,7 @@ describe("check summaries", () => {
     expect(Value.Check(HookCheckSummarySchema, hookSummary)).toBe(true);
   });
 
-  test.each(scanRootRefusals)("roundtrips typed scan-root refusal $reason", (decision) => {
+  test.each(scanRootRefusals)("roundtrips typed acquisition-root refusal $reason", (decision) => {
     const original = report({
       ok: false,
       rules: [
@@ -55,7 +55,7 @@ describe("check summaries", () => {
           status: "fail",
           disposition: {
             kind: "dependency-refused",
-            source: "diagnostic-scan-root",
+            source: "diagnostic-acquisition-root",
             decision,
             detail: `refused ${decision.reason}`,
           },
@@ -71,7 +71,7 @@ describe("check summaries", () => {
     expect(hookSummary.kind).toBe("dependency-refused");
     expect(verifySummary.refusedCount).toBe(1);
     expect(verifySummary.skippedAffectedReason).toBe("dependency-refused");
-    expect(renderDiagnosticScanRootRefusal(decision)).not.toContain("undefined");
+    expect(renderDiagnosticAcquisitionRootRefusal(decision)).not.toContain("undefined");
   });
 
   test("classifies selector and baseline built-ins only from disposition", () => {
@@ -120,7 +120,7 @@ describe("check summaries", () => {
             status: "pass",
             disposition: {
               kind: "not-applicable",
-              reason: "no-matched-scan-roots",
+              reason: "no-matched-acquisition-roots",
             },
           }),
         ],
@@ -139,7 +139,7 @@ describe("check summaries", () => {
             status: "pass",
             disposition: {
               kind: "not-applicable",
-              reason: "no-matched-scan-roots",
+              reason: "no-matched-acquisition-roots",
             },
           }),
           rule({
@@ -160,7 +160,7 @@ describe("check summaries", () => {
         rules: [
           rule({
             status: "fail",
-            disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+            disposition: { kind: "not-applicable", reason: "no-matched-acquisition-roots" },
             diagnostics: [diagnostic("enforced finding")],
           }),
         ],
@@ -173,7 +173,7 @@ describe("check summaries", () => {
           rule({
             lane: "advisory",
             status: "advisory-findings",
-            disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+            disposition: { kind: "not-applicable", reason: "no-matched-acquisition-roots" },
             diagnostics: [{ ...diagnostic("advisory finding"), severity: "advisory" }],
           }),
         ],
@@ -188,7 +188,7 @@ describe("check summaries", () => {
     const notApplicable = rule({
       ruleId: "not-applicable-rule",
       status: "pass",
-      disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+      disposition: { kind: "not-applicable", reason: "no-matched-acquisition-roots" },
     });
 
     expect(
@@ -304,7 +304,7 @@ describe("check summaries", () => {
             rule({
               lane: "advisory",
               status: "pass",
-              disposition: { kind: "not-applicable", reason: "no-matched-scan-roots" },
+              disposition: { kind: "not-applicable", reason: "no-matched-acquisition-roots" },
               diagnostics: [finding],
             }),
           ],
@@ -355,8 +355,8 @@ describe("check summaries", () => {
     { kind: "refused", reason: "outside-repo" },
     { kind: "refused", reason: "missing" },
     { kind: "refused", reason: "not-approved" },
-  ])("rejects contradictory scan-root refusal $reason", (decision) => {
-    expect(Value.Check(DiagnosticScanRootRefusalSchema, decision)).toBe(false);
+  ])("rejects contradictory acquisition-root refusal $reason", (decision) => {
+    expect(Value.Check(DiagnosticAcquisitionRootRefusalSchema, decision)).toBe(false);
     expect(
       validateCheckReport({
         ...report({ ok: false, rules: [] }),
@@ -365,9 +365,9 @@ describe("check summaries", () => {
             ...rule({ status: "fail" }),
             disposition: {
               kind: "dependency-refused",
-              source: "diagnostic-scan-root",
+              source: "diagnostic-acquisition-root",
               decision,
-              detail: "invalid scan-root refusal",
+              detail: "invalid acquisition-root refusal",
             },
           },
         ],
@@ -430,10 +430,10 @@ const protectedOwner = {
 };
 const protectedRecovery = {
   ownerId: "generated-artifacts",
-  actionKind: "select-approved-scan-root" as const,
+  actionKind: "select-approved-acquisition-root" as const,
   instruction: "Select a source root.",
 };
-const scanRootRefusals: DiagnosticScanRootRefusal[] = [
+const scanRootRefusals: DiagnosticAcquisitionRootRefusal[] = [
   { kind: "refused", reason: "empty" },
   { kind: "refused", reason: "outside-repo", root: "../outside" },
   { kind: "refused", reason: "missing", root: "missing" },

@@ -37,10 +37,13 @@ const RuleOperationSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const GritDiagnosticAcquisitionPolicySchema = Type.Union([
-  Type.Object({ kind: Type.Literal("check") }, { additionalProperties: false }),
-  Type.Object({ kind: Type.Literal("apply-dry-run") }, { additionalProperties: false }),
-]);
+export const GritAcquisitionSchema = Type.Object(
+  {
+    kind: Type.Union([Type.Literal("check"), Type.Literal("apply-dry-run")]),
+    roots: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+  },
+  { additionalProperties: false }
+);
 
 const RuleFixAdmissionSchema = Type.Object(
   {
@@ -69,16 +72,13 @@ const GritRuleRunnerSchema = Type.Object(
       { additionalProperties: false }
     ),
     patternName: Type.String({ minLength: 1 }),
-    diagnosticAcquisition: Type.Optional(GritDiagnosticAcquisitionPolicySchema),
+    acquisition: GritAcquisitionSchema,
     fix: Type.Optional(RuleFixAdmissionSchema),
   },
   { additionalProperties: false }
 );
 
-const GritProjectedRuleRunnerSchema = Type.Omit(GritRuleRunnerSchema, [
-  "diagnosticAcquisition",
-  "fix",
-]);
+const GritProjectedRuleRunnerSchema = Type.Omit(GritRuleRunnerSchema, ["fix"]);
 
 const HabitatStructureRuleRunnerSchema = Type.Object(
   {
@@ -195,7 +195,6 @@ const RuleManifestShape = {
   message: Type.String({ minLength: 1 }),
   exceptionPath: Type.Optional(Type.String({ minLength: 1 })),
   pathCoverage: RulePathCoverageSchema,
-  scanRoots: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
   hookCheck: Type.Optional(Type.Literal(true)),
   patternName: Type.Optional(Type.String({ minLength: 1 })),
   graphTarget: Type.Optional(GraphTargetSchema),
@@ -322,7 +321,7 @@ export const RuleDiagnosticFactsSchema = Type.Object(
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
     message: Type.String({ minLength: 1 }),
     pathCoverage: RulePathCoverageSchema,
-    scanRoots: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+    acquisition: GritAcquisitionSchema,
   },
   { additionalProperties: false }
 );
@@ -333,10 +332,8 @@ export const RuleGritFactsSchema = Type.Object(
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
     message: Type.String({ minLength: 1 }),
     pathCoverage: RulePathCoverageSchema,
-    scanRoots: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
     runner: GritProjectedRuleRunnerSchema,
     patternName: Type.String({ minLength: 1 }),
-    diagnosticAcquisition: GritDiagnosticAcquisitionPolicySchema,
   },
   { additionalProperties: false }
 );
@@ -347,7 +344,7 @@ export const RuleFixFactsSchema = Type.Object(
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
     message: Type.String({ minLength: 1 }),
     pathCoverage: RulePathCoverageSchema,
-    scanRoots: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+    acquisition: GritAcquisitionSchema,
     patternName: Type.String({ minLength: 1 }),
     fix: RuleFixAdmissionSchema,
   },
@@ -388,7 +385,7 @@ export const RuleHookCheckFactsSchema = Type.Object(
 
 export type RuleRunner = Static<typeof RuleRunnerSchema>;
 export type RuleProjectedRunner = Static<typeof RuleProjectedRunnerSchema>;
-export type GritDiagnosticAcquisitionPolicy = Static<typeof GritDiagnosticAcquisitionPolicySchema>;
+export type GritAcquisition = Static<typeof GritAcquisitionSchema>;
 export type RuleRunnerName = RuleRunner["name"];
 export type RulePlacement = Static<typeof RulePlacementSchema>;
 export type RuleSupportFiles = Static<typeof RuleSupportFilesSchema>;

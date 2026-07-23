@@ -32,7 +32,6 @@
       "kind": "project-owner"
     }
   ],
-  "scanRoots": ["packages/studio-server/src", "apps/mapgen-studio/src/server"],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/baseline.json"
   },
@@ -41,6 +40,13 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-direct-control-observation-boundary/pattern.md"
     },
-    "patternName": "grit_studio_run_direct_control_observation_boundary"
+    "patternName": "grit_studio_run_direct_control_observation_boundary",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "packages/studio-server/src",
+        "apps/mapgen-studio/src/server"
+      ]
+    }
   }
 }

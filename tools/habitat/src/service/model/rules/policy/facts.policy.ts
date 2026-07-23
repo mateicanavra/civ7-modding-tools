@@ -1,5 +1,4 @@
 import type {
-  GritDiagnosticAcquisitionPolicy,
   RuleBaselineFacts,
   RuleCommandExecutionFacts,
   RuleDiagnosticFacts,
@@ -35,7 +34,7 @@ type FileLayerRunner = Extract<
   RuleRegistryRecord["runner"],
   { name: "habitat"; mode: "file-layer" }
 >;
-type GritRecordInput = RuleRegistryRecord & { runner: GritRunner; scanRoots: string[] };
+type GritRecordInput = RuleRegistryRecord & { runner: GritRunner };
 type StructureRecordInput = RuleRegistryRecord & { runner: StructureRunner };
 type FileLayerRecordInput = RuleRegistryRecord & { runner: FileLayerRunner };
 type CommandRecordInput = RuleRegistryRecord & { runner: ScriptRunner };
@@ -85,7 +84,7 @@ export function ruleDiagnosticFacts(records: readonly RuleRegistryRecord[]): Rul
     lane: rule.lane,
     message: rule.message,
     pathCoverage: clonePathCoverage(rule.pathCoverage),
-    scanRoots: [...rule.scanRoots],
+    acquisition: cloneGritAcquisition(rule.runner.acquisition),
   }));
 }
 
@@ -96,9 +95,7 @@ export function ruleGritFacts(records: readonly RuleRegistryRecord[]): RuleGritF
     message: rule.message,
     runner: projectedGritRunner(rule.runner),
     patternName: rule.runner.patternName,
-    diagnosticAcquisition: gritDiagnosticAcquisitionForRule(rule),
     pathCoverage: clonePathCoverage(rule.pathCoverage),
-    scanRoots: [...rule.scanRoots],
   }));
 }
 
@@ -108,16 +105,10 @@ export function ruleFixFacts(records: readonly RuleRegistryRecord[]): RuleFixFac
     lane: rule.lane,
     message: rule.message,
     pathCoverage: clonePathCoverage(rule.pathCoverage),
-    scanRoots: [...rule.scanRoots],
+    acquisition: cloneGritAcquisition(rule.runner.acquisition),
     patternName: rule.runner.patternName,
     fix: { ...rule.runner.fix, effects: [...rule.runner.fix.effects] },
   }));
-}
-
-export function gritDiagnosticAcquisitionForRule(rule: {
-  readonly runner: GritRunner;
-}): GritDiagnosticAcquisitionPolicy {
-  return rule.runner.diagnosticAcquisition ?? { kind: "check" };
 }
 
 export function ruleStructureFacts(records: readonly RuleRegistryRecord[]): RuleStructureFacts[] {
@@ -165,7 +156,7 @@ export function ruleHookCheckFacts(records: readonly RuleRegistryRecord[]): Rule
 }
 
 function isGritRecord(rule: RuleRegistryRecord): rule is GritRecordInput {
-  return rule.runner.name === "grit" && Array.isArray(rule.scanRoots);
+  return rule.runner.name === "grit";
 }
 
 function isFixRule(
@@ -199,8 +190,16 @@ export function projectedRuleRunner(runner: RuleRegistryRecord["runner"]): RuleP
 }
 
 function projectedGritRunner(runner: GritRunner): RuleGritFacts["runner"] {
-  const { diagnosticAcquisition: _diagnosticAcquisition, fix: _fix, ...projected } = runner;
-  return { ...projected, files: { ...projected.files } };
+  const { fix: _fix, ...projected } = runner;
+  return {
+    ...projected,
+    files: { ...projected.files },
+    acquisition: cloneGritAcquisition(projected.acquisition),
+  };
+}
+
+function cloneGritAcquisition(acquisition: GritRunner["acquisition"]) {
+  return { kind: acquisition.kind, roots: [...acquisition.roots] };
 }
 
 function clonePathCoverage<T extends RuleRegistryRecord["pathCoverage"]>(pathCoverage: T): T {

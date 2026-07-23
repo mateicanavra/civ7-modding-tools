@@ -25,7 +25,6 @@
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/baseline.json"
@@ -39,7 +38,16 @@
     "fix": {
       "kind": "preview-only",
       "pattern": ".habitat/civ7/mapgen/sdk/core/rules/prohibit_runtime_helper_redeclarations/apply.pattern.md",
-      "effects": ["modify"]
+      "effects": [
+        "modify"
+      ]
+    },
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/recipes",
+        "mods/mod-swooper-maps/src/domain"
+      ]
     }
   }
 }

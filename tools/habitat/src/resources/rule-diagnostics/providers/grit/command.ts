@@ -11,7 +11,7 @@ import type {
   HabitatCommandResult,
   HabitatProcessRequest,
 } from "@habitat/cli/resources/command/types";
-import type { DiagnosticSelectedScanRoots } from "@habitat/cli/service/model/diagnostics/index";
+import type { DiagnosticSelectedAcquisitionRoots } from "@habitat/cli/service/model/diagnostics/index";
 import { Duration, Effect, Match } from "effect";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
@@ -32,7 +32,7 @@ const pinnedGritIdentity = {
 export interface GritCheckProviderRequest {
   /** Ordered catalog identities selected by this hermetic check invocation. */
   readonly patternNames: readonly [string, ...string[]];
-  readonly scanRoots: Readonly<DiagnosticSelectedScanRoots>;
+  readonly scanRoots: Readonly<DiagnosticSelectedAcquisitionRoots>;
   readonly cwd: string;
   readonly gritDir: string;
   readonly cacheDir: string;
@@ -43,7 +43,7 @@ export interface GritCheckProviderRequest {
 export interface GritApplyDryRunProviderRequest {
   readonly commandId: string;
   readonly patternPath: string;
-  readonly scanRoots: Readonly<DiagnosticSelectedScanRoots>;
+  readonly scanRoots: Readonly<DiagnosticSelectedAcquisitionRoots>;
   readonly output: "compact" | "standard";
   readonly serialization?: "standard" | "jsonl";
   readonly cacheMode?: "disabled" | "isolated";

@@ -25,7 +25,6 @@
       ]
     }
   ],
-  "scanRoots": ["packages/civ7-control-orpc/src"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/platform/control-orpc/rules/preserve_transport_pure_orpc_contracts/baseline.json"
@@ -35,6 +34,12 @@
     "files": {
       "pattern": ".habitat/civ7/platform/control-orpc/rules/preserve_transport_pure_orpc_contracts/pattern.md"
     },
-    "patternName": "preserve_transport_pure_orpc_contracts"
+    "patternName": "preserve_transport_pure_orpc_contracts",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "packages/civ7-control-orpc/src"
+      ]
+    }
   }
 }

@@ -1,6 +1,6 @@
 import type {
+  DiagnosticAcquisitionRootRefusal,
   DiagnosticProviderFailureKind,
-  DiagnosticScanRootRefusal,
 } from "@habitat/cli/service/model/diagnostics/index";
 import type { ObservedGritDiagnosticIdentity } from "./identity.js";
 
@@ -32,15 +32,15 @@ export type DiagnosticRunOutcome =
       readonly detail: string;
     }
   | {
-      readonly kind: "scan-root-refused";
+      readonly kind: "acquisition-root-refused";
       readonly ruleId: string;
-      readonly decision: DiagnosticScanRootRefusal;
+      readonly decision: DiagnosticAcquisitionRootRefusal;
       readonly detail: string;
     }
   | {
       readonly kind: "not-applicable";
       readonly ruleId: string;
-      readonly reason: "no-matched-scan-roots";
+      readonly reason: "no-matched-acquisition-roots";
     }
   | {
       readonly kind: "unexpected-diagnostic-identity";

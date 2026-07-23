@@ -29,7 +29,6 @@
       "kind": "project-owner"
     }
   ],
-  "scanRoots": ["apps/mapgen-studio/src", "packages/studio-server/src/liveGame/watcher.ts"],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/baseline.json"
   },
@@ -38,6 +37,13 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/studio/runtime/rules/preserve_studio_event_driven_runtime_boundaries/pattern.md"
     },
-    "patternName": "preserve_studio_event_driven_runtime_boundaries"
+    "patternName": "preserve_studio_event_driven_runtime_boundaries",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "apps/mapgen-studio/src",
+        "packages/studio-server/src/liveGame/watcher.ts"
+      ]
+    }
   }
 }

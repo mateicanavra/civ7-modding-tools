@@ -1,5 +1,5 @@
 import {
-  decideScanRootProtection,
+  decideAcquisitionRootProtection,
   declarationForFileLayerRule,
   defaultHostPolicyDocument,
   evaluateProtectedMutationGuard,
@@ -237,8 +237,8 @@ describe("protected zone file-layer execution", () => {
     ]);
   });
 
-  test("scan-root refusals carry owner and recovery", () => {
-    const generated = decideScanRootProtection("mods/mod-swooper-maps/src/maps/generated");
+  test("acquisition-root refusals carry owner and recovery", () => {
+    const generated = decideAcquisitionRootProtection("mods/mod-swooper-maps/src/maps/generated");
     expect(generated).toMatchObject({
       kind: "refused-generated-output",
       reason: "generated-output",
@@ -246,7 +246,7 @@ describe("protected zone file-layer execution", () => {
       recovery: { actionKind: "command" },
     });
 
-    const unavailable = decideScanRootProtection("packages", {
+    const unavailable = decideAcquisitionRootProtection("packages", {
       hostPolicyState: unavailableHostPolicyState(
         "civ7-repo-host-policy",
         "host policy unavailable"
@@ -260,7 +260,7 @@ describe("protected zone file-layer execution", () => {
     });
   });
 
-  test("scan-root protection preserves protected host-surface state", () => {
+  test("acquisition-root protection preserves protected host-surface state", () => {
     const state = readHostPolicyState({
       ...defaultHostPolicyDocument,
       declarations: [
@@ -282,7 +282,9 @@ describe("protected zone file-layer execution", () => {
       ],
     });
 
-    expect(decideScanRootProtection("protected/root", { hostPolicyState: state })).toMatchObject({
+    expect(
+      decideAcquisitionRootProtection("protected/root", { hostPolicyState: state })
+    ).toMatchObject({
       kind: "refused-protected-root",
       reason: "protected-root",
       owner: { ownerId: "swooper-maps-workflow" },

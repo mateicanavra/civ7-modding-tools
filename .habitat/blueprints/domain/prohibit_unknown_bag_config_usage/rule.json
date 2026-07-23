@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain/prohibit_unknown_bag_config_usage/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/blueprints/domain/prohibit_unknown_bag_config_usage/pattern.md"
     },
-    "patternName": "prohibit_unknown_bag_config_usage"
+    "patternName": "prohibit_unknown_bag_config_usage",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/domain"
+      ]
+    }
   }
 }

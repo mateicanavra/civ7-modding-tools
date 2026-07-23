@@ -1,28 +1,70 @@
 # Initiative Post-It
 
-## Behind
+## Rolling Focus
 
-- Package destination frame, structural-test authority, bundle compatibility, exported-symbol documentation, metrics engine, Standard product metrics, ArtifactModule authority, completed-map placement/resource metrics, placement live-probe retirement, the Nx-owned generated recipe-types dependency, and roster-aware resource-minimum authority are sealed semantic layers.
-- Workspace leaf libraries no longer collide with the Foundation domain, and optional metrics/viz projections are sealed as `createStep` facets with execution-owned sinks.
-- Dead context state, fake dependency bags, and duplicate adapter/Foundation authorities are removed.
-- Mutable `field:*` dependency tags are retired; Ecology publishes its post-projection engine feature surface as validated artifact evidence for Placement.
-- The mutable climate buffer is retired: Hydrology now publishes immutable baseline and final climate artifacts, and `map-hydrology/project-rainfall` is the sole rainfall projection boundary.
-- The shared heightfield buffer is retired: Morphology advances explicit base, carved, eroded, and final topography vintages plus base and final substrate artifacts without mutating published evidence.
-- These layers are foundations, not open refactor surfaces.
+**Frame:** authority before instance. Define each reusable kind as a small,
+positive, generic law; make the current tree red against that law; then perform
+the mechanical burn-down. Physical source moves are violation evidence until
+their destination kind is sealed.
 
-## Now
+**Authority order:** behavioral intent -> ownership -> boundary -> blueprint
+law -> source conformance -> verification. A niche may refine a kind but may not
+recreate, weaken, or hardcode its membership.
 
-- Land one complete author-facing `MapContext` and the responsibility-based Core type-module split.
+**Current container:** repair Habitat's Grit acquisition boundary so
+`pathCoverage` owns applicability and exact patterns produce bounded native
+inputs. The runner's broad containment ceiling must never become its traversal
+plan. Once that substrate is sealed, re-establish the domain, artifact, stage,
+step, and exported-capability laws before resuming source normalization.
 
-## Next
+**Stable ownership:** domains own immutable semantic data-product contracts;
+recipes own orchestration and publication; live Civ7 state is adapter
+observation; metrics, diagnostics, trace, and visualization are separate
+capabilities. Core owns the generic authoring/execution SDK, not Swooper's
+domain model.
 
-- Complete the pre-A.2 package relocation from the sealed destination design.
+**Gradient:** eliminate compensating niche rules, broad negative scans,
+storage-shaped escape hatches, and duplicate authorities. The remaining work
+falls out of the red kind corpus and ends only when the generic laws, source
+tree, types, tests, Knip, and boundary graph agree.
 
-## Around
+**Focus maintenance:** clarifications, tighter scope, stronger authority, and
+better expressions of this same frame update it in place. Add a prior-focus
+entry only when the governing model or admitted direction changes enough to
+produce materially different work.
 
-- A.2 remains a separate sibling concern and must not edit or depend on unsettled package destinations.
-- Protected user edits remain outside every staged semantic layer.
+**Protected context:** A.2 remains separate. User-owned root configuration,
+map-config edits, NOTE files, and unrelated worktrees stay outside this
+program's semantic cuts.
 
-## Stop
+<details>
+<summary>Prior focus pivots</summary>
 
-- Reach a clean, reviewed, split-ready package architecture; then A.2 may begin against that ratcheted base.
+### 2026-07-22 - Instance-First Authority Inversion
+
+The program paused the dirty stage hierarchy and artifact relocation after
+recognizing the wrong execution order:
+
+`physical move -> weakened blueprint -> niche compensation`
+
+The replacement frame is:
+
+`kind decision -> generic blueprint law -> red corpus -> mechanical burn-down -> seal`
+
+This pivot superseded the earlier package-relocation focus without reopening
+its sealed SDK, metrics, visualization, context, or artifact-runtime gains.
+
+### Earlier - Package Destination And Context Consolidation
+
+- Package destination, structural-test authority, bundle compatibility,
+  exported-symbol documentation, metrics, visualization, ArtifactModule,
+  generated recipe types, placement/resource metrics, and Nx foundations were
+  treated as sealed layers.
+- Mutable fields and buffers were retired in favor of explicit immutable
+  artifact vintages.
+- The active focus was an author-facing `MapContext`, Core type-module split,
+  and the pre-A.2 package destination migration.
+- A.2 remained a sibling concern and protected user edits remained outside
+  every staged semantic layer.
+
+</details>

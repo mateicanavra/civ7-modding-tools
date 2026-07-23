@@ -25,7 +25,6 @@
       ]
     }
   ],
-  "scanRoots": ["mods"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-step/require_recipe_step_authoring_shape/baseline.json"
@@ -35,6 +34,12 @@
     "files": {
       "pattern": ".habitat/blueprints/recipe-step/require_recipe_step_authoring_shape/pattern.md"
     },
-    "patternName": "require_recipe_step_authoring_shape"
+    "patternName": "require_recipe_step_authoring_shape",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods"
+      ]
+    }
   }
 }

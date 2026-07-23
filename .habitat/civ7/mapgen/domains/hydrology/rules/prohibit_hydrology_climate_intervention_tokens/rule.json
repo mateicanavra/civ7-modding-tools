@@ -25,12 +25,6 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/hydrology",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine"
-  ],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/baseline.json"
@@ -40,6 +34,15 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/domains/hydrology/rules/prohibit_hydrology_climate_intervention_tokens/pattern.md"
     },
-    "patternName": "prohibit_hydrology_climate_intervention_tokens"
+    "patternName": "prohibit_hydrology_climate_intervention_tokens",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/domain/hydrology",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine"
+      ]
+    }
   }
 }

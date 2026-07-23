@@ -19,10 +19,12 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/test/**/*.ts", "mods/mod-swooper-maps/test/**/*.tsx"]
+      "patterns": [
+        "mods/mod-swooper-maps/test/**/*.ts",
+        "mods/mod-swooper-maps/test/**/*.tsx"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/test"],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prefer_civ7_preset_dimensions_in_mapgen_behavior_tests/baseline.json"
   },
@@ -31,6 +33,12 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/prefer_civ7_preset_dimensions_in_mapgen_behavior_tests/pattern.md"
     },
-    "patternName": "prefer_civ7_preset_dimensions_in_mapgen_behavior_tests"
+    "patternName": "prefer_civ7_preset_dimensions_in_mapgen_behavior_tests",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/test"
+      ]
+    }
   }
 }

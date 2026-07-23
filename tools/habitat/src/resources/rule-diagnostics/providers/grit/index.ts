@@ -1,3 +1,5 @@
+export type { PlannedGritRule } from "./acquisition-roots/index.js";
+export { planGritRuleAcquisitions } from "./acquisition-roots/index.js";
 export * from "./command.js";
 export * from "./command.schema.js";
 export { gritDiagnosticOutcomesFromReport } from "./diagnostics.js";
@@ -12,8 +14,6 @@ export {
 } from "./output.js";
 export * from "./provider.js";
 export { runGritDiagnosticOutcomesEffect, runGritRulesEffect } from "./runner.js";
-export type { PlannedGritRule } from "./scan-roots/index.js";
-export { planGritRuleRoots } from "./scan-roots/index.js";
 export type {
   GritCompactAllDoneEvent,
   GritCompactEvent,

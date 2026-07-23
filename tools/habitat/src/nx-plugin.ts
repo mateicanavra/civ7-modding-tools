@@ -314,7 +314,7 @@ function inputsForOwner(rules: readonly NxRuleRegistryRecord[], ownerRoot: strin
 
 type PatternBackedRegistryRecord =
   Extract<NxRuleRegistryRecord["runner"], { name: "grit" }> extends infer GritRunner
-    ? NxRuleRegistryRecord & { runner: GritRunner; scanRoots?: string[] }
+    ? NxRuleRegistryRecord & { runner: GritRunner }
     : never;
 
 function gritRuleScopeInputs(rule: PatternBackedRegistryRecord): string[] {
@@ -322,7 +322,7 @@ function gritRuleScopeInputs(rule: PatternBackedRegistryRecord): string[] {
     entry.kind === "exact-path" ? entry.patterns.map(workspaceInput) : []
   );
   if (exactPathInputs.length > 0) return exactPathInputs;
-  return (rule.scanRoots ?? []).map(workspaceScanRootInput);
+  return rule.runner.acquisition.roots.map(workspaceAcquisitionRootInput);
 }
 
 function isPatternBackedRule(rule: NxRuleRegistryRecord): rule is PatternBackedRegistryRecord {
@@ -356,7 +356,7 @@ function workspaceInput(repoRelativePath: string): string {
   return `{workspaceRoot}/${repoRelativePath}`;
 }
 
-function workspaceScanRootInput(repoRelativePath: string): string {
+function workspaceAcquisitionRootInput(repoRelativePath: string): string {
   if (repoRelativePath.includes("*") || /\.[^/]+$/.test(repoRelativePath)) {
     return workspaceInput(repoRelativePath);
   }

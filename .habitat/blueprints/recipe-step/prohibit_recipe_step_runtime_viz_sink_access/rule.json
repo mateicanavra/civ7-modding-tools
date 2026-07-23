@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/recipes/*/stages/**/steps/*/**/!(*.test|*.spec|config).ts"]
+      "patterns": [
+        "mods/*/src/recipes/*/stages/**/steps/*/**/!(*.test|*.spec|config).ts"
+      ]
     }
   ],
-  "scanRoots": ["mods"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-step/prohibit_recipe_step_runtime_viz_sink_access/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/blueprints/recipe-step/prohibit_recipe_step_runtime_viz_sink_access/pattern.md"
     },
-    "patternName": "prohibit_recipe_step_runtime_viz_sink_access"
+    "patternName": "prohibit_recipe_step_runtime_viz_sink_access",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods"
+      ]
+    }
   }
 }

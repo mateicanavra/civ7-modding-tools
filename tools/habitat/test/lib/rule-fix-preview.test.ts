@@ -29,7 +29,7 @@ describe("RuleFixPreview resource", () => {
   });
 
   test("refuses invalid explicit selection atomically", async () => {
-    const facts = makeTestRuleFacts();
+    const facts = factsWithFixIds(makeTestRuleFacts(), ["admitted"]);
     const admitted = facts.fix[0];
     const unadmitted = facts.selector.find(({ id }) => !facts.fix.some((fix) => fix.id === id));
     if (!admitted || !unadmitted) throw new Error("expected selection fixtures");
@@ -93,15 +93,34 @@ function previewed(ruleId: string): RuleFixPreviewRuleResult {
 }
 
 function factsWithFixIds(base: RuleFactsCatalog, ids: readonly string[]): RuleFactsCatalog {
-  const fixTemplate = base.fix[0];
-  const selectorTemplate = base.selector.find(({ id }) => id === fixTemplate?.id);
-  if (!fixTemplate || !selectorTemplate) throw new Error("expected admitted fixture facts");
+  const gritTemplate = base.grit[0];
+  const selectorTemplate = base.selector.find(({ id }) => id === gritTemplate?.id);
+  if (!gritTemplate || !selectorTemplate) throw new Error("expected Grit fixture facts");
+  const fixTemplate: RuleFixFacts = {
+    id: gritTemplate.id,
+    lane: gritTemplate.lane,
+    message: gritTemplate.message,
+    pathCoverage: [{ kind: "exact-path", patterns: ["tools/habitat/**"] }],
+    acquisition: {
+      kind: gritTemplate.runner.acquisition.kind,
+      roots: [...gritTemplate.runner.acquisition.roots],
+    },
+    patternName: gritTemplate.patternName,
+    fix: {
+      kind: "preview-only",
+      pattern: gritTemplate.runner.files.pattern,
+      effects: ["modify"],
+    },
+  };
   return {
     ...base,
     fix: ids.map((id) => ({
       ...fixTemplate,
       id,
-      scanRoots: [...fixTemplate.scanRoots],
+      acquisition: {
+        kind: fixTemplate.acquisition.kind,
+        roots: [...fixTemplate.acquisition.roots],
+      },
       pathCoverage: fixTemplate.pathCoverage.map((coverage) => ({ ...coverage })),
       fix: { ...fixTemplate.fix, effects: [...fixTemplate.fix.effects] },
     })),

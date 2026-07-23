@@ -114,7 +114,7 @@ export function candidateManifest(
     },
     requiredForRegistration: [
       "accepted source",
-      "concrete scan roots and exclusions",
+      "concrete acquisition roots and exclusions",
       "fixture strategy",
       "false-positive model",
       "current-tree scan result",

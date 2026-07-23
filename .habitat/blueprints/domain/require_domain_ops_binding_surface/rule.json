@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/*/ops.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/*/ops.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain/require_domain_ops_binding_surface/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/blueprints/domain/require_domain_ops_binding_surface/pattern.md"
     },
-    "patternName": "require_domain_ops_binding_surface"
+    "patternName": "require_domain_ops_binding_surface",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/domain"
+      ]
+    }
   }
 }

@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/recipes/*/stages/**/*.ts"]
+      "patterns": [
+        "mods/*/src/recipes/*/stages/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/blueprints/recipe-stage/prohibit_sibling_stage_private_step_imports/pattern.md"
     },
-    "patternName": "prohibit_sibling_stage_private_step_imports"
+    "patternName": "prohibit_sibling_stage_private_step_imports",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods"
+      ]
+    }
   }
 }

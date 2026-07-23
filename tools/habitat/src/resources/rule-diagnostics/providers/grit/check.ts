@@ -57,7 +57,7 @@ export const runGritCheckAcquisitionEffect = Effect.fn("grit.check.acquire")(fun
 });
 
 /**
- * Acquires one check report for rules with exactly equal ordered scan roots.
+ * Acquires one check report for rules with exactly equal ordered acquisition roots.
  * Asset admission remains per rule; provider execution is shared only by valid peers.
  */
 export const runGritCheckAcquisitionsEffect = Effect.fn("grit.check.acquireBatch")(function* (

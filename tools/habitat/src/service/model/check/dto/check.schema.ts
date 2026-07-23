@@ -1,8 +1,8 @@
 import {
+  type DiagnosticAcquisitionRootRefusal,
+  DiagnosticAcquisitionRootRefusalSchema,
   type DiagnosticProviderFailureKind,
   DiagnosticProviderFailureKindSchema,
-  type DiagnosticScanRootRefusal,
-  DiagnosticScanRootRefusalSchema,
   type HabitatDiagnostic,
   HabitatDiagnosticSchema,
   type HabitatSeverity,
@@ -58,14 +58,14 @@ export type SelectorRefusal = Static<typeof SelectorRefusalSchema>;
 
 const RuleNotApplicableReasonSchema = Type.Union([
   Type.Literal("rule-not-in-requested-scope"),
-  Type.Literal("no-matched-scan-roots"),
+  Type.Literal("no-matched-acquisition-roots"),
 ]);
 
 const DiagnosticDependencyRefusedSchema = Type.Object(
   {
     kind: Type.Literal("dependency-refused"),
-    source: Type.Literal("diagnostic-scan-root"),
-    decision: DiagnosticScanRootRefusalSchema,
+    source: Type.Literal("diagnostic-acquisition-root"),
+    decision: DiagnosticAcquisitionRootRefusalSchema,
     detail: Type.String({ minLength: 1 }),
   },
   { additionalProperties: false }
@@ -377,4 +377,4 @@ export function deriveRuleReportStatus(
   }
 }
 
-export type { DiagnosticProviderFailureKind, DiagnosticScanRootRefusal };
+export type { DiagnosticAcquisitionRootRefusal, DiagnosticProviderFailureKind };

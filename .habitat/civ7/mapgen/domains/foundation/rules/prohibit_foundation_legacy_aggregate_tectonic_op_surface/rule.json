@@ -25,10 +25,6 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts",
-    "mods/mod-swooper-maps/src/domain/foundation/ops/index.ts"
-  ],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonic_op_surface/baseline.json"
@@ -38,6 +34,13 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/domains/foundation/rules/prohibit_foundation_legacy_aggregate_tectonic_op_surface/pattern.md"
     },
-    "patternName": "prohibit_foundation_legacy_aggregate_tectonic_op_surface"
+    "patternName": "prohibit_foundation_legacy_aggregate_tectonic_op_surface",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts",
+        "mods/mod-swooper-maps/src/domain/foundation/ops/index.ts"
+      ]
+    }
   }
 }

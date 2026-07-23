@@ -24,9 +24,6 @@
       ]
     }
   ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts"
-  ],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source/baseline.json"
@@ -36,6 +33,12 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/stages/foundation/rules/prohibit_foundation_projection_legacy_motion_source/pattern.md"
     },
-    "patternName": "prohibit_foundation_projection_legacy_motion_source"
+    "patternName": "prohibit_foundation_projection_legacy_motion_source",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts"
+      ]
+    }
   }
 }

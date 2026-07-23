@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/recipes/*/stages/**/*.ts"]
+      "patterns": [
+        "mods/*/src/recipes/*/stages/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/blueprints/recipe-stage/require_shared_visualization_contracts_at_stage_surfaces/pattern.md"
     },
-    "patternName": "require_shared_visualization_contracts_at_stage_surfaces"
+    "patternName": "require_shared_visualization_contracts_at_stage_surfaces",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods"
+      ]
+    }
   }
 }

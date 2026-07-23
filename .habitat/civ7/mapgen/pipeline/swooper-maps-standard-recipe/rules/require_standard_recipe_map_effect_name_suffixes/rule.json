@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/tag-contracts.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard"],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/baseline.json"
   },
@@ -31,6 +32,12 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/require_standard_recipe_map_effect_name_suffixes/pattern.md"
     },
-    "patternName": "require_standard_recipe_map_effect_name_suffixes"
+    "patternName": "require_standard_recipe_map_effect_name_suffixes",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/recipes/standard"
+      ]
+    }
   }
 }

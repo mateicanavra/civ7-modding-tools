@@ -1,6 +1,6 @@
 export const defaultGritCommandTimeoutMs = 600_000;
 
-export const protectedScanRootPrefixes = [
+export const protectedAcquisitionRootPrefixes = [
   ".git/",
   ".habitat/cache/patterns/",
   "dist/",

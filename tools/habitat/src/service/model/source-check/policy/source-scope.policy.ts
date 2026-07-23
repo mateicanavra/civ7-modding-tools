@@ -1,6 +1,6 @@
 import path from "node:path";
 import { habitatCacheRepoPathPrefix } from "../../../../resources/authority-paths.ts";
-import { decideScanRootProtection } from "../../host/index.ts";
+import { decideAcquisitionRootProtection } from "../../host/index.ts";
 import type { RuleDiagnosticFacts } from "../../rules/index.ts";
 
 export interface SourceScopeContext {
@@ -27,13 +27,15 @@ const protectedSourceRootPrefixes = [
   "tools/habitat/dist/",
 ];
 
-export function approvedSourceScanRootsForRules(rules: readonly RuleDiagnosticFacts[]): string[] {
-  return sortedUnique(rules.flatMap((rule) => rule.scanRoots));
+export function approvedSourceAcquisitionRootsForRules(
+  rules: readonly RuleDiagnosticFacts[]
+): string[] {
+  return sortedUnique(rules.flatMap((rule) => rule.acquisition.roots));
 }
 
-function stagedSourceScanRoots(
+function stagedSourceAcquisitionRoots(
   stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[] = [],
+  approvedAcquisitionRoots: readonly string[] = [],
   context: SourceScopeContext
 ): string[] {
   const candidates = sortedUnique(
@@ -42,16 +44,16 @@ function stagedSourceScanRoots(
       .filter((candidate) => sourceCheckCandidateExtensions.has(path.extname(candidate)))
   );
   return candidates.filter((candidate) =>
-    isApprovedSourceScanRoot(candidate, approvedScanRoots, context)
+    isApprovedSourceAcquisitionRoot(candidate, approvedAcquisitionRoots, context)
   );
 }
 
 export function stagedSourceCheckPaths(
   stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[],
+  approvedAcquisitionRoots: readonly string[],
   context: SourceScopeContext
 ): string[] {
-  return stagedSourceScanRoots(stagedPaths, approvedScanRoots, context);
+  return stagedSourceAcquisitionRoots(stagedPaths, approvedAcquisitionRoots, context);
 }
 
 function pathsOverlap(candidate: string, declaredRoot: string): boolean {
@@ -68,21 +70,19 @@ function sortedUnique(values: readonly string[]): string[] {
   return [...new Set(values.map(normalizeRepoPath))].sort((a, b) => a.localeCompare(b));
 }
 
-function isApprovedSourceScanRoot(
+function isApprovedSourceAcquisitionRoot(
   candidate: string,
-  approvedScanRoots: readonly string[],
+  approvedAcquisitionRoots: readonly string[],
   context: SourceScopeContext
 ): boolean {
   const absolute = path.resolve(context.repoRoot, candidate);
   const relative = toRepoRelative(context, absolute);
   if (relative === ".." || relative.startsWith("../")) return false;
-  const protection = decideScanRootProtection(relative, {
+  const protection = decideAcquisitionRootProtection(relative, {
     protectedPrefixes: protectedSourceRootPrefixes,
   });
   if (protection.kind !== "accepted") return false;
-  return approvedScanRoots.length === 0
-    ? true
-    : approvedScanRoots.some((approvedRoot) => pathsOverlap(relative, approvedRoot));
+  return approvedAcquisitionRoots.some((approvedRoot) => pathsOverlap(relative, approvedRoot));
 }
 
 function toRepoRelative(context: SourceScopeContext, candidate: string): string {

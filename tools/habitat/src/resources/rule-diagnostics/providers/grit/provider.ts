@@ -19,7 +19,7 @@ export function makeGritRuleDiagnosticsLayer(repoRoot: string) {
         selectedRules: readonly RuleGritFacts[],
         options: {
           readonly repoRoot: string;
-          readonly scanRoots?: readonly string[];
+          readonly acquisitionRoots?: readonly string[];
         }
       ) =>
         runGritRulesEffect(selectedRules, { ...options, grit }).pipe(

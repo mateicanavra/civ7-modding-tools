@@ -30,7 +30,6 @@
       "kind": "project-owner"
     }
   ],
-  "scanRoots": ["packages/studio-server/src/operationRuntime"],
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/baseline.json"
   },
@@ -39,6 +38,12 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/studio/run-in-game/rules/grit-studio-run-operation-identity-owner/pattern.md"
     },
-    "patternName": "grit_studio_run_operation_identity_owner"
+    "patternName": "grit_studio_run_operation_identity_owner",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "packages/studio-server/src/operationRuntime"
+      ]
+    }
   }
 }

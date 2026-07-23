@@ -1,5 +1,5 @@
 import { FileSystem } from "@effect/platform";
-import { parseDiagnosticSelectedScanRoots } from "@habitat/cli/service/model/diagnostics/index";
+import { parseDiagnosticSelectedAcquisitionRoots } from "@habitat/cli/service/model/diagnostics/index";
 import type { RuleGritFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect, Match } from "effect";
 import {
@@ -37,7 +37,7 @@ export const runGritApplyDryRunAcquisitionEffect = Effect.fn("grit.applyDryRun.a
     const providerRequest = {
       commandId: `grit-diagnostic-apply-dry-run-${rule.id}`,
       patternPath: workspace.patternPath,
-      scanRoots: parseDiagnosticSelectedScanRoots(roots),
+      scanRoots: parseDiagnosticSelectedAcquisitionRoots(roots),
       output: "compact" as const,
       serialization: "jsonl" as const,
       cacheMode: "isolated" as const,

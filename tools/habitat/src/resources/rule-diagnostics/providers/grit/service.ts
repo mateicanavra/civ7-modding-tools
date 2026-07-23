@@ -16,7 +16,7 @@ export function makeRuleDiagnosticsService(
   facts: RuleFactsCatalog,
   runGritRules: (
     selectedRules: readonly RuleGritFacts[],
-    options: { readonly repoRoot: string; readonly scanRoots?: readonly string[] }
+    options: { readonly repoRoot: string; readonly acquisitionRoots?: readonly string[] }
   ) => ReturnType<RuleDiagnosticsService["runRules"]>
 ): RuleDiagnosticsService {
   const diagnosticFactsById = new Map(facts.diagnostic.map((fact) => [fact.id, fact]));
@@ -42,7 +42,7 @@ export function makeRuleDiagnosticsService(
       );
       const runOptions = Match.value(scope).pipe(
         Match.when({ kind: "authored" }, () => ({ repoRoot })),
-        Match.when({ kind: "paths" }, ({ paths }) => ({ repoRoot, scanRoots: paths })),
+        Match.when({ kind: "paths" }, ({ paths }) => ({ repoRoot, acquisitionRoots: paths })),
         Match.exhaustive
       );
       const providerResults = Match.value(selected.length).pipe(

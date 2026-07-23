@@ -192,11 +192,11 @@ describe("location-independent rule manifests", () => {
         ruleManifest({
           id: "missing-fix",
           pathCoverage: [{ kind: "exact-path", patterns: ["tools/habitat/**"] }],
-          scanRoots: ["tools/habitat"],
           runner: {
             name: "grit",
             files: { pattern: patternPath },
             patternName: "missing_fix",
+            acquisition: { kind: "check", roots: ["tools/habitat"] },
             fix: { kind: "preview-only", pattern: fixPatternPath, effects: ["modify"] },
           },
           supportFiles: { baseline: baselinePath },
@@ -233,11 +233,11 @@ describe("location-independent rule manifests", () => {
       [rulePath]: JSON.stringify(
         ruleManifest({
           id: "broad-fix",
-          scanRoots: ["tools/habitat"],
           runner: {
             name: "grit",
             files: { pattern: patternPath },
             patternName: "broad_fix",
+            acquisition: { kind: "check", roots: ["tools/habitat"] },
             fix: { kind: "preview-only", pattern: fixPatternPath, effects: ["modify"] },
           },
         })

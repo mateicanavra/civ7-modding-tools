@@ -3,9 +3,9 @@ import {
   hostApplyGateDecision,
   hostAuthoringBoundaryState,
   hostProjectSupportDecision,
+  hostSurfaceDecisionForAcquisitionRoot,
   hostSurfaceDecisionForGeneratedZone,
   hostSurfaceDecisionForPath,
-  hostSurfaceDecisionForScanRoot,
   missingHostPolicyState,
   readHostPolicyState,
   unavailableHostPolicyState,
@@ -77,9 +77,9 @@ describe("host policy boundary", () => {
     });
   });
 
-  test("matches generated scan roots through host declarations", () => {
+  test("matches generated acquisition roots through host declarations", () => {
     expect(
-      hostSurfaceDecisionForScanRoot("mods/mod-swooper-maps/src/maps/generated")
+      hostSurfaceDecisionForAcquisitionRoot("mods/mod-swooper-maps/src/maps/generated")
     ).toMatchObject({
       declarationState: "declared",
       surfaceKind: "generated",

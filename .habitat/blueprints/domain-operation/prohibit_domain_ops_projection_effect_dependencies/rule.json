@@ -19,10 +19,11 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
+      ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/baseline.json"
@@ -32,6 +33,12 @@
     "files": {
       "pattern": ".habitat/blueprints/domain-operation/prohibit_domain_ops_projection_effect_dependencies/pattern.md"
     },
-    "patternName": "prohibit_domain_ops_projection_effect_dependencies"
+    "patternName": "prohibit_domain_ops_projection_effect_dependencies",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/domain"
+      ]
+    }
   }
 }

@@ -49,12 +49,12 @@ migration.
       pipeline
         runtime
           rules
-            prohibit_runtime_calls_to_runvalidated
+            prohibit_runtime_validation_and_compiler_imports
           _remainder
             prohibit_ambient_rng_in_authored_generation
         contracts
           rules
-            prohibit_empty_object_defaults_in_contract_schemas
+            prohibit_bare_value_export_all_from_contract_surfaces
         swooper-maps-standard-recipe
           rules
             verify_runtime_stage_order_matches_contract_manifest

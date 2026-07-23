@@ -12,7 +12,7 @@ import {
 } from "@habitat/cli/service/model/check/index";
 import { factsForRuleIds } from "@habitat/cli/service/model/rules/policy/catalog.policy";
 import {
-  approvedSourceScanRootsForRules,
+  approvedSourceAcquisitionRootsForRules,
   stagedSourceCheckPaths,
 } from "@habitat/cli/service/model/source-check/index";
 import { Effect, Match, Option } from "effect";
@@ -555,7 +555,9 @@ function hashRepoRelativeFile(
 
 function hookSourceCheckApprovedRoots(context: HookProcedureContext): string[] {
   const hookRuleIds = context.rules.hookCheck.map((rule) => rule.id);
-  return approvedSourceScanRootsForRules(factsForRuleIds(context.rules.diagnostic, hookRuleIds));
+  return approvedSourceAcquisitionRootsForRules(
+    factsForRuleIds(context.rules.diagnostic, hookRuleIds)
+  );
 }
 
 function hookSourceCheckEnabled(context: HookProcedureContext): boolean {

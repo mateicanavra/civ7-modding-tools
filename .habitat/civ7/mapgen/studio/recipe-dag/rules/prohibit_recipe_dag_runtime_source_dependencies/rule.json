@@ -28,10 +28,6 @@
       "kind": "project-owner"
     }
   ],
-  "scanRoots": [
-    "apps/mapgen-studio/src/server/recipeDag",
-    "mods/mod-swooper-maps/src/recipes/studio-contracts"
-  ],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/baseline.json"
@@ -41,6 +37,13 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/studio/recipe-dag/rules/prohibit_recipe_dag_runtime_source_dependencies/pattern.md"
     },
-    "patternName": "prohibit_recipe_dag_runtime_source_dependencies"
+    "patternName": "prohibit_recipe_dag_runtime_source_dependencies",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "apps/mapgen-studio/src/server/recipeDag",
+        "mods/mod-swooper-maps/src/recipes/studio-contracts"
+      ]
+    }
   }
 }

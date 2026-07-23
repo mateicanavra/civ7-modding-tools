@@ -68,9 +68,9 @@ export function biomeHookPaths(staged: readonly string[]): string[] {
 export function hookSourceCheckPaths(
   stagedPaths: readonly string[],
   repoRoot: string,
-  approvedScanRoots: readonly string[]
+  approvedAcquisitionRoots: readonly string[]
 ): string[] {
-  return stagedSourceCheckPaths(stagedPaths, approvedScanRoots, { repoRoot });
+  return stagedSourceCheckPaths(stagedPaths, approvedAcquisitionRoots, { repoRoot });
 }
 
 export function unstagedAmongEffect(

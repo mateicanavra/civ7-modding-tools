@@ -26,7 +26,6 @@
       ]
     }
   ],
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/baseline.json"
@@ -36,6 +35,13 @@
     "files": {
       "pattern": ".habitat/civ7/mapgen/pipeline/contracts/rules/prohibit_empty_object_defaults_in_contract_schemas/pattern.md"
     },
-    "patternName": "prohibit_empty_object_defaults_in_contract_schemas"
+    "patternName": "prohibit_empty_object_defaults_in_contract_schemas",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/recipes",
+        "mods/mod-swooper-maps/src/domain"
+      ]
+    }
   }
 }

@@ -7,7 +7,9 @@
     "blueprint": "rule-diagnostics",
     "category": "boundary"
   },
-  "operation": { "kind": "check" },
+  "operation": {
+    "kind": "check"
+  },
   "ownerProject": "habitat",
   "lane": "enforced",
   "forbids": "production modules importing a private rule diagnostics or fix preview provider",
@@ -15,10 +17,16 @@
   "remediate": null,
   "message": "Consume RuleDiagnostics or RuleFixPreview instead of importing their concrete provider.",
   "pathCoverage": [
-    { "kind": "exact-path", "patterns": ["tools/habitat/src/**/*.ts"] },
-    { "kind": "project-owner" }
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "tools/habitat/src/**/*.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
   ],
-  "scanRoots": ["tools/habitat/src"],
   "hookCheck": true,
   "supportFiles": {
     "baseline": ".habitat/habitat/toolkit/_blueprints/rule-diagnostics/prohibit_rule_diagnostics_provider_imports/baseline.json"
@@ -28,6 +36,12 @@
     "files": {
       "pattern": ".habitat/habitat/toolkit/_blueprints/rule-diagnostics/prohibit_rule_diagnostics_provider_imports/pattern.md"
     },
-    "patternName": "prohibit_rule_diagnostics_provider_imports"
+    "patternName": "prohibit_rule_diagnostics_provider_imports",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "tools/habitat/src"
+      ]
+    }
   }
 }

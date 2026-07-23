@@ -12,10 +12,10 @@ import type {
   RuleGritFacts,
 } from "@habitat/cli/service/model/rules/index";
 import { Effect, Match, Option } from "effect";
+import { type PlannedGritRule, planGritRuleAcquisitions } from "./acquisition-roots/index.js";
 import { runGritApplyDryRunAcquisitionEffect } from "./apply-dry-run.js";
 import type { GritCommandService } from "./command.js";
 import type { GritApplyFindingEvidence, GritDiagnosticAcquisition } from "./output.js";
-import { type PlannedGritRule, planGritRuleRoots } from "./scan-roots/index.js";
 
 interface PreviewOptions {
   readonly repoRoot: string;
@@ -118,7 +118,7 @@ const previewRule = Effect.fn("grit.fixPreview.previewRule")(function* (
   options: PreviewOptions
 ) {
   const gritRule = gritFactsForFix(rule);
-  const [plan] = yield* planGritRuleRoots([gritRule], { repoRoot: options.repoRoot });
+  const [plan] = yield* planGritRuleAcquisitions([gritRule], { repoRoot: options.repoRoot });
   if (!plan) return missingProviderResult(rule.id);
   return yield* Match.value(plan).pipe(
     Match.when({ kind: "not-applicable" }, ({ reason }) =>
@@ -129,7 +129,7 @@ const previewRule = Effect.fn("grit.fixPreview.previewRule")(function* (
         kind: "scope-refused" as const,
         ruleId: rule.id,
         decision,
-        detail: `Fix preview scan roots were refused for '${rule.id}'.`,
+        detail: `Fix preview acquisition roots were refused for '${rule.id}'.`,
       })
     ),
     Match.when({ kind: "failed" }, ({ failure, detail }) =>
@@ -286,14 +286,16 @@ function gritFactsForFix(rule: RuleFixFacts): RuleGritFacts {
     lane: rule.lane,
     message: rule.message,
     pathCoverage: rule.pathCoverage.map(clonePathCoverage),
-    scanRoots: [...rule.scanRoots],
     runner: {
       name: "grit",
       files: { pattern: rule.fix.pattern },
       patternName: rule.patternName,
+      acquisition: {
+        kind: "apply-dry-run",
+        roots: [...rule.acquisition.roots],
+      },
     },
     patternName: rule.patternName,
-    diagnosticAcquisition: { kind: "apply-dry-run" },
   };
 }
 

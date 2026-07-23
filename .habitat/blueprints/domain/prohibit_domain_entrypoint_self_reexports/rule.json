@@ -19,16 +19,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/*/index.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/*/index.ts"
+      ]
     }
-  ],
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/ecology/index.ts",
-    "mods/mod-swooper-maps/src/domain/foundation/index.ts",
-    "mods/mod-swooper-maps/src/domain/hydrology/index.ts",
-    "mods/mod-swooper-maps/src/domain/morphology/index.ts",
-    "mods/mod-swooper-maps/src/domain/placement/index.ts",
-    "mods/mod-swooper-maps/src/domain/resources/index.ts"
   ],
   "hookCheck": true,
   "supportFiles": {
@@ -39,6 +33,17 @@
     "files": {
       "pattern": ".habitat/blueprints/domain/prohibit_domain_entrypoint_self_reexports/pattern.md"
     },
-    "patternName": "prohibit_domain_entrypoint_self_reexports"
+    "patternName": "prohibit_domain_entrypoint_self_reexports",
+    "acquisition": {
+      "kind": "check",
+      "roots": [
+        "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+        "mods/mod-swooper-maps/src/domain/foundation/index.ts",
+        "mods/mod-swooper-maps/src/domain/hydrology/index.ts",
+        "mods/mod-swooper-maps/src/domain/morphology/index.ts",
+        "mods/mod-swooper-maps/src/domain/placement/index.ts",
+        "mods/mod-swooper-maps/src/domain/resources/index.ts"
+      ]
+    }
   }
 }

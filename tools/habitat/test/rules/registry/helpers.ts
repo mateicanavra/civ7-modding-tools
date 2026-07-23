@@ -63,11 +63,16 @@ export function habitatScriptRunner(
   };
 }
 
-export function gritRunner(id: string): Extract<RuleRunner, { name: "grit" }> {
+export function gritRunner(
+  id: string,
+  roots: readonly string[] = ["tools/habitat"],
+  kind: "check" | "apply-dry-run" = "check"
+): Extract<RuleRunner, { name: "grit" }> {
   return {
     name: "grit",
     files: { pattern: `.habitat/fixtures/rules/${id}/pattern.md` },
     patternName: id,
+    acquisition: { kind, roots: [...roots] },
   };
 }
 

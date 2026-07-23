@@ -1,18 +1,18 @@
 import { Value } from "typebox/value";
 import type { HostPolicyState } from "../dto/host-policy.schema.js";
 import {
+  type AcquisitionRootProtectionDecision,
+  AcquisitionRootProtectionDecisionSchema,
   type ProtectedZoneOwner,
   type ProtectedZoneRecoveryInstruction,
-  type ScanRootProtectionDecision,
-  ScanRootProtectionDecisionSchema,
 } from "../dto/protected-zone.schema.js";
-import { hostSurfaceDecisionForScanRoot } from "./host-policy-decisions.policy.js";
+import { hostSurfaceDecisionForAcquisitionRoot } from "./host-policy-decisions.policy.js";
 
-export function decideScanRootProtection(
+export function decideAcquisitionRootProtection(
   root: string,
   options: { protectedPrefixes?: readonly string[]; hostPolicyState?: HostPolicyState } = {}
-): ScanRootProtectionDecision {
-  const hostSurface = hostSurfaceDecisionForScanRoot(root, options.hostPolicyState);
+): AcquisitionRootProtectionDecision {
+  const hostSurface = hostSurfaceDecisionForAcquisitionRoot(root, options.hostPolicyState);
   if (
     hostSurface.declarationState !== "declared" &&
     hostSurface.declarationState !== "not-applicable"
@@ -51,10 +51,10 @@ export function decideScanRootProtection(
     return protectedRootRefusal({
       root,
       owner: habitatRepoPolicyOwner(),
-      recovery: selectApprovedScanRootRecovery(),
+      recovery: selectApprovedAcquisitionRootRecovery(),
     });
   }
-  return Value.Parse(ScanRootProtectionDecisionSchema, {
+  return Value.Parse(AcquisitionRootProtectionDecisionSchema, {
     kind: "accepted",
     root,
   });
@@ -64,8 +64,8 @@ function protectedRootRefusal(input: {
   root: string;
   owner: ProtectedZoneOwner;
   recovery: ProtectedZoneRecoveryInstruction;
-}): ScanRootProtectionDecision {
-  return Value.Parse(ScanRootProtectionDecisionSchema, {
+}): AcquisitionRootProtectionDecision {
+  return Value.Parse(AcquisitionRootProtectionDecisionSchema, {
     kind: "refused-protected-root",
     reason: "protected-root",
     root: input.root,
@@ -78,8 +78,8 @@ function generatedOutputRefusal(input: {
   root: string;
   owner: ProtectedZoneOwner;
   recovery: ProtectedZoneRecoveryInstruction;
-}): ScanRootProtectionDecision {
-  return Value.Parse(ScanRootProtectionDecisionSchema, {
+}): AcquisitionRootProtectionDecision {
+  return Value.Parse(AcquisitionRootProtectionDecisionSchema, {
     kind: "refused-generated-output",
     reason: "generated-output",
     root: input.root,
@@ -130,10 +130,10 @@ function declarationRecovery(state: string): ProtectedZoneRecoveryInstruction {
   };
 }
 
-function selectApprovedScanRootRecovery(): ProtectedZoneRecoveryInstruction {
+function selectApprovedAcquisitionRootRecovery(): ProtectedZoneRecoveryInstruction {
   return {
     ownerId: "habitat-repo-policy",
-    actionKind: "select-approved-scan-root",
-    instruction: "Select an approved source scan root outside protected tool output roots.",
+    actionKind: "select-approved-acquisition-root",
+    instruction: "Select an approved source acquisition root outside protected tool output roots.",
   };
 }

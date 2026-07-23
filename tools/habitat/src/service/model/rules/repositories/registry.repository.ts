@@ -593,9 +593,6 @@ function ruleRunnerSemanticsIssues(
   rules.forEach((rule, index) => {
     const path = `${sourcePath}/rules/${index}`;
     if (rule.runner.name === "grit") {
-      if (!Array.isArray(rule.scanRoots)) {
-        issues.push(runnerIssue(path, rule.id, "grit runner records must declare scanRoots."));
-      }
       if (rule.patternName && rule.patternName !== rule.runner.patternName) {
         issues.push(
           runnerIssue(path, rule.id, "patternName must match the derived grit runner patternName.")
@@ -608,11 +605,6 @@ function ruleRunnerSemanticsIssues(
       }
       issues.push(...gritPatternPathIssues(rule, path));
     } else {
-      if (rule.scanRoots) {
-        issues.push(
-          runnerIssue(path, rule.id, "scanRoots are only valid for grit runner records.")
-        );
-      }
       if (rule.patternName) {
         issues.push(
           runnerIssue(path, rule.id, "patternName is only valid for grit runner records.")
