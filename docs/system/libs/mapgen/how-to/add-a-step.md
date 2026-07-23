@@ -76,8 +76,8 @@ Representative example (dependency tags; excerpt; see full file in anchors):
 import hydrology from "@mapgen/domain/hydrology";
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
-import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
+import { artifacts as hydrologyHydrographyArtifacts } from "../../../../hydrology/hydrography/artifacts/index.js";
 import { artifactModules as mapRiversArtifactModules } from "../../artifacts/index.js";
 
 /** Contract and compiled configuration boundary for Civ7 river projection. */
@@ -177,7 +177,7 @@ export const GeomorphologyStep = createStep(GeomorphologyStepContract, {
 Representative example (contract-manifest registration):
 
 ```ts
-import { GeomorphologyStepContract } from "./stages/morphology-erosion/steps/geomorphology/config.js";
+import { GeomorphologyStepContract } from "./stages/morphology/erosion/steps/geomorphology/config.js";
 
 export const standardStageContractManifest = [
   // ...
@@ -231,8 +231,8 @@ If your step introduces a new required/provided dependency tag:
 
 - Step contract API: `packages/mapgen-core/src/authoring/step/contract.ts`
 - Step implementation wrapper: `packages/mapgen-core/src/authoring/step/create.ts`
-- Example step config: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology/config.ts`
-- Example step implementation: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology/step.ts`
-- Example step config (dependency tags): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts`
-- Example stage wiring: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/index.ts`
+- Example step config: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/config.ts`
+- Example step implementation: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/steps/geomorphology/step.ts`
+- Example step config (dependency tags): `mods/mod-swooper-maps/src/recipes/standard/stages/map/rivers/steps/plot-rivers/config.ts`
+- Example stage wiring: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/erosion/index.ts`
 - Pipeline executor dependency gating: `packages/mapgen-core/src/engine/PipelineExecutor.ts`
