@@ -1,4 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
 /** Contract for projecting the newest era and cumulative uplift into canonical current tectonic state. */
 const ComputeTectonicsCurrentContract = defineOp({
@@ -55,9 +56,7 @@ const ComputeTectonicsCurrentContract = defineOp({
         "Mesh-wide present-state tectonic surface combining the newest era's active boundary and deformation signals with cumulative uplift from the full history.",
     }
   ),
-  strategies: {
-    "newest-era-composite": Type.Object({}, { additionalProperties: false }),
-  },
+  strategies,
 });
 
 export default ComputeTectonicsCurrentContract;

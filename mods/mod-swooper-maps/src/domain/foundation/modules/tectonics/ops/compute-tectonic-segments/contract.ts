@@ -1,25 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateSchema } from "../../../lithosphere/model/atoms/plate.schema.js";
-
-const StrategySchema = Type.Object(
-  {
-    intensityScale: Type.Number({
-      default: 900,
-      minimum: 1,
-      maximum: 10_000,
-      description:
-        "Controls how strongly relative plate motion maps into 0..255 boundary segment intensities.",
-    }),
-    regimeMinIntensity: Type.Integer({
-      default: 4,
-      minimum: 0,
-      maximum: 255,
-      description:
-        "Sets the minimum boundary intensity required before a segment affects tectonic regime classification.",
-    }),
-  },
-  { additionalProperties: false }
-);
+import strategies from "./strategies/contract.js";
 
 /**
  * Contract for classifying the plate graph's boundary edges from relative plate motion.
@@ -100,9 +81,7 @@ const ComputeTectonicSegmentsContract = defineOp({
         "Canonical plate-boundary table with aligned cell and plate endpoints, classified regime and polarity, event intensities, and drift for each segment.",
     }
   ),
-  strategies: {
-    "relative-motion-regimes": StrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeTectonicSegmentsContract;

@@ -1,5 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { TectonicEventSchema } from "../../model/atoms/tectonic-event.schema.js";
+import strategies from "./strategies/contract.js";
 
 /** Contract for converting classified plate-boundary segments into discrete tectonic events. */
 const ComputeSegmentEventsContract = defineOp({
@@ -47,9 +48,7 @@ const ComputeSegmentEventsContract = defineOp({
         "Boundary events for one reconstructed era, translating classified plate segments and crust pairing into convergence, rift, transform, and fracture emissions.",
     }
   ),
-  strategies: {
-    "boundary-derived": Type.Object({}, { additionalProperties: false }),
-  },
+  strategies,
 });
 
 export default ComputeSegmentEventsContract;

@@ -1,32 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { TectonicEraFieldsSchema } from "../../model/atoms/tectonic-era-fields.schema.js";
 import { TectonicEventSchema } from "../../model/atoms/tectonic-event.schema.js";
-
-const StrategySchema = Type.Object(
-  {
-    beltInfluenceDistance: Type.Integer({
-      default: 8,
-      minimum: 1,
-      maximum: 64,
-      description: "Controls how far tectonic belt influence spreads across mesh-neighbor steps.",
-    }),
-    beltDecay: Type.Number({
-      default: 0.55,
-      minimum: 0.01,
-      maximum: 10,
-      description:
-        "Controls the exponential decay rate for tectonic belt influence per mesh-neighbor step.",
-    }),
-    orogenyActivityGain: Type.Number({
-      default: 1,
-      minimum: 0,
-      maximum: 10,
-      description:
-        "Activity gain on convergent-uplift and subduction-volcanism emission intensity, applied AFTER boundary-regime classification (so regime topology is fixed and the lever stays smooth/monotonic). Set by the foundation-tectonics plateActivity knob; a direct authored value is overwritten by the knob. 1 is an exact no-op.",
-    }),
-  },
-  { additionalProperties: false }
-);
+import strategies from "./strategies/contract.js";
 
 /**
  * Contract for converting one era's tectonic events into aligned mesh-wide activity fields.
@@ -67,9 +42,7 @@ const ComputeEraTectonicFieldsContract = defineOp({
         "Mesh-wide boundary, deformation, volcanism, and drift fields for one weighted tectonic era; history rollups and current-state projection consume this record.",
     }
   ),
-  strategies: {
-    "event-distance-decay": StrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeEraTectonicFieldsContract;

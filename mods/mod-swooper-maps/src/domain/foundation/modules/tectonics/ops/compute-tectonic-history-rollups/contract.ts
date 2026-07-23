@@ -1,18 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateMembershipSchema } from "../../model/atoms/plate-membership.schema.js";
 import { TectonicHistoryEraSchema } from "../../model/atoms/tectonic-history-era.schema.js";
-
-const StrategySchema = Type.Object(
-  {
-    activityThreshold: Type.Integer({
-      default: 1,
-      minimum: 0,
-      maximum: 255,
-      description: "Threshold used to compute lastActiveEra (0..255).",
-    }),
-  },
-  { additionalProperties: false }
-);
+import strategies from "./strategies/contract.js";
 
 /**
  * Contract for reducing era fields into cumulative tectonic-history evidence.
@@ -84,9 +73,7 @@ const ComputeTectonicHistoryRollupsContract = defineOp({
         "Mesh-wide tectonic history that preserves every reconstructed era and plate assignment while aggregating cumulative, recent, and last-active signals per cell.",
     }
   ),
-  strategies: {
-    "cumulative-era-rollup": StrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeTectonicHistoryRollupsContract;
