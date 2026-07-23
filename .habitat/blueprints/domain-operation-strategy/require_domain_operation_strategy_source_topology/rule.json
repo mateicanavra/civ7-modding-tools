@@ -11,19 +11,18 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "enforced",
-  "forbids": "domain operation strategy directories without one canonical barrel and semantically named kebab-case strategy modules",
-  "why": "Strategy filenames preserve selectable behavior identity. Closing current domain-root strategy directories removes generic default.ts identities and alternate helper surfaces while TypeScript and the operation SDK own strategy registration, key binding, and default inference.",
-  "remediate": "Keep index.ts plus semantically named kebab-case strategy modules directly under an operation's strategies directory. Rename default.ts from the strategy's behavior, then update its createStrategy id, contract key, operation binding, and consumers together.",
-  "message": "Domain operation strategies must use the positive strategy blueprint source topology.",
+  "lane": "advisory",
+  "forbids": "domain operation strategy authorities outside a closed aggregate-and-leaf topology",
+  "why": "Each operation's strategies directory is the strategy aggregate, and each semantic strategy is a complete leaf with its own contract and implementation entrypoint. The hierarchy preserves selectable behavior identity, prevents generic default identities and helper cabinets, and leaves strategy key binding, default inference, and implementation completeness to TypeScript and the operation SDK.",
+  "remediate": "Keep strategies/{contract.ts,index.ts}; move every strategy into a semantically named kebab-case strategies/<strategy-id>/{contract.ts,index.ts} leaf; remove flat strategy modules and any default strategy directory.",
+  "message": "Domain operation strategies must use the positive aggregate-and-leaf strategy topology.",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/*/src/domain/*/ops/*/strategies",
-        "mods/*/src/domain/*/ops/*/strategies/**",
-        "mods/*/src/domain/*/modules/*/ops/*/strategies",
-        "mods/*/src/domain/*/modules/*/ops/*/strategies/**"
+        "mods/*/src/domain/**/ops/*",
+        "mods/*/src/domain/**/ops/*/strategies",
+        "mods/*/src/domain/**/ops/*/strategies/**"
       ]
     }
   ],

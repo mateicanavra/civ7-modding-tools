@@ -11,24 +11,21 @@ their destination kind is sealed.
 law -> source conformance -> verification. A niche may refine a kind but may not
 recreate, weaken, or hardcode its membership.
 
-**Current container:** Resources, the minimal root/module laws, and Foundation's
-six-module aggregate are sealed. The active burn-down is the operation boundary
-kind across the remaining domains. Every `contract.ts` directly owns its
-complete inline `defineOp` input/output schemas; detached whole-envelope
-aliases, complete artifact-schema borrowing, and operation-envelope type
-projection are not alternate authorities. Fixed grid, cell, plate, segment,
-era, and sibling arrays name the count paths that admit them. Constructor-only
-typed arrays remain exceptional and are admitted only for genuinely variable
-CSR adjacency, event, or list values. The active Core cut names that exception
-`cardinality: "constructor-only"`, rejects legacy null metadata, and preserves
-omission as the canonical grid default plus tuples as explicit path products.
-Fixed offset tables use an explicit product-plus-addend relation such as
-`{ factors: ["mesh.cellCount"], addend: 1 }`; CSR neighbor offsets are therefore
-admitted exactly while only the variable neighbor lists remain constructor-only.
-Contracts may compose small model atoms or cohesive subentities as properties,
-never another container's complete schema. Strategy configuration is not part
-of this burn-down: it remains the next closed kind, with one semantic leaf per
-strategy and one typed Core `defineStrategy` authority.
+**Current container:** Operation envelopes and named typed-array cardinality are
+sealed. The active burn-down is strategy authorship as one positive kind. Every
+operation owns a required `strategies/` aggregate; every semantic strategy owns
+`strategies/<semantic-id>/{contract.ts,index.ts}`. A nominal Core
+`defineStrategy` owns the semantic id and config schema once. Operation
+contracts compose those leaf contracts without object-key identity, strategy
+implementations bind to the exact leaf contract, and contract/implementation
+aggregates list members without giving list order authority. A sole strategy is
+necessarily the inferred default; a multi-strategy operation names its default
+explicitly. Generic `default` identities, detached operation-owned strategy
+schemas, inline operation-entrypoint algorithms, duplicate identities, and
+alternate strategy registries have no surviving authorship path. TypeScript and
+Core own identity, completeness, defaults, and exact binding; Structure owns
+the closed spine; focused Grit owns only cheap source relationships that neither
+substrate can express.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -36,22 +33,30 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** finish the named cardinality-mode migration across Core, the
-production schema corpus, tests, and canonical examples; prove that no null
-sentinel survives and that every fixed operation-input relation is admitted.
-Do not imply operation-output admission that does not exist: output proof
-remains a later artifact/pipeline decision. Seal that layer.
-Then establish the positive strategy-leaf law and `defineStrategy` API before
-moving the strategy corpus. After the mechanical kinds are homogeneous, collapse artifact authoring
-to one weighted definition. Before settling artifact placement/contract flow,
-recompose `packages/mapgen-core/src/authoring` so its hierarchy truthfully
-expresses the authoring SDK's concepts, ownership, dependency direction, and
-public surfaces; use niche enforcement only after that package-specific model is
-clear, rather than inventing a generic library law. Then reopen the domain,
-artifact, and pipeline graph as one design question. A subdomain remains a semantic router: operations expose
-swappable strategies, and strategies compose the module's rules, policy, and
-atoms through transparent dependencies. These structural corpora must settle
-before reopening operation-to-artifact or other pipeline relationship design.
+**Gradient:** land the canonical strategy-contract substrate and generic nested
+Blueprint law first, leaving the current corpus visibly red rather than hiding
+it in a baseline. Move one domain or semantic module at a time, preserving all
+107 existing semantic identities and the six explicit multi-strategy defaults.
+Delete the temporary legacy input path when the final consumer moves, flip the
+kind law to enforced, and prove Core plus Swooper through the native Nx graph.
+After the mechanical kinds are homogeneous, semantically recompose
+`packages/mapgen-core/src/authoring` so its hierarchy truthfully expresses the
+authoring SDK's concepts, ownership, dependency direction, and public surfaces;
+use niche enforcement only after that package-specific model is clear rather
+than inventing a generic library law. Then normalize repeated module/domain
+schema parts into small model atoms, admitting a cohesive model entity only
+when it has independent domain meaning rather than because two containers share
+a complete shape. This begins only after Core can express composition-safe
+local cardinality relations; a model atom must not bake in one consumer's
+root-relative path, weaken admission, or become a parameterized schema helper.
+The structural atom kind and human semantic review own that judgment; no broad
+duplicate-property scanner guesses identity from repeated field names. Collapse
+artifact authoring to one weighted definition, then
+reopen the domain, artifact, and pipeline graph as one design question. A
+subdomain remains a semantic router: operations expose swappable strategies,
+and strategies compose the module's rules, policy, and atoms through transparent
+dependencies. These structural corpora must settle before reopening
+operation-to-artifact or other pipeline relationship design.
 For every structural kind, `required` names only the fixed spine, `allowed`
 names optional or generative members, and `closed` rejects everything else.
 Relocate one semantic module at a time, hoisting vocabulary only when a real
