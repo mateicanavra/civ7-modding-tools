@@ -7,7 +7,9 @@ import {
   isDirectory,
   isFile,
   makeDirectory,
+  pathKindNoFollow,
   readDirectory,
+  readDirectoryNoFollow,
   readText,
   writeText,
 } from "@habitat/cli/resources/platform/index";
@@ -16,6 +18,7 @@ import {
   writeBaselineEffect,
 } from "@habitat/cli/service/model/baseline/index";
 import { executeSelectedRulesEffect } from "@habitat/cli/service/model/check/policy/structural/execution.policy";
+import { expandBaselinesEffect } from "@habitat/cli/service/modules/check/model/policy/baseline-expansion.policy";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
@@ -200,6 +203,45 @@ describe("check and baseline provider boundaries", () => {
     ]);
   });
 
+  test("baseline expansion refuses unavailable structure inventory before baseline access", async () => {
+    const events: string[] = [];
+    const baseDeps = makeTestHabitatServiceDeps();
+    const structureRule = baseDeps.rules.selector.find(
+      (rule) => rule.runner.name === "habitat" && rule.runner.mode === "structure"
+    );
+    expect(structureRule).toBeDefined();
+    const git = {
+      ...baseDeps.git,
+      visiblePathInventory: () => Effect.succeed(null),
+    };
+    const deps = makeTestHabitatServiceDeps({ git });
+
+    const result = await Effect.runPromise(
+      expandBaselinesEffect(
+        { rule: structureRule!.id },
+        { repoRoot: "/repo" },
+        {
+          baselineFileSystem: baselineFileSystemPort(),
+          biome: deps.biome,
+          command: deps.commandRunner,
+          git: deps.git,
+          ruleDiagnostics: deps.ruleDiagnostics,
+          nx: deps.nx,
+          repoRoot: "/repo",
+          rules: deps.rules,
+          structureFileSystem: structureFileSystemPort(),
+        }
+      ).pipe(Effect.provide(makeFakePlatformFileSystemLayer(events)))
+    );
+
+    expect(result).toMatchObject({
+      ok: false,
+      reason: "baseline-contract",
+      message: expect.stringContaining("execution-failed"),
+    });
+    expect(events).toEqual([]);
+  });
+
   test("staged file-layer checks render GitProvider failures as diagnostics", async () => {
     const fileLayerRule = makeTestHabitatServiceDeps().rules.selector.find(
       (rule) => rule.runner.name === "habitat" && rule.runner.mode === "file-layer"
@@ -259,9 +301,8 @@ function baselineFileSystemPort() {
 
 function structureFileSystemPort() {
   return {
-    isDirectory,
-    isFile,
-    readDirectory,
+    pathKind: pathKindNoFollow,
+    readDirectory: readDirectoryNoFollow,
     readText,
   };
 }

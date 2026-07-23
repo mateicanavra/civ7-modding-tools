@@ -1,24 +1,24 @@
-import { createRequire } from "node:module";
 import path from "node:path";
 import type {
   HabitatDirectoryEntry,
-  HabitatFileSystemReadPort,
+  HabitatStructureFileSystemReadPort,
 } from "@habitat/cli/resources/platform/index";
 import type { HabitatDiagnostic } from "@habitat/cli/service/model/check/index";
 import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import type { RuleStructureFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect, Match } from "effect";
+import picomatch from "picomatch";
 import { parse as parseToml } from "smol-toml";
-import { type Static, Type } from "typebox";
+import { type StaticDecode, Type } from "typebox";
 import { Value } from "typebox/value";
 
-const require = createRequire(import.meta.url);
-const picomatch = require("picomatch") as (
-  glob: string,
-  options?: { readonly contains?: boolean; readonly dot?: boolean }
-) => (candidate: string) => boolean;
+type PicomatchParseState = Extract<
+  ReturnType<typeof picomatch.parse>,
+  { readonly tokens: readonly unknown[] }
+>;
+type PicomatchToken = PicomatchParseState["tokens"][number];
 
-const StructureCheckScopeSchema = Type.Object(
+const StructureCheckScopeInputSchema = Type.Object(
   {
     name: Type.String({ minLength: 1 }),
     root: Type.String({ minLength: 1 }),
@@ -32,6 +32,11 @@ const StructureCheckScopeSchema = Type.Object(
   { additionalProperties: false }
 );
 
+const StructureCheckScopeSchema = Type.Decode(StructureCheckScopeInputSchema, (scope) => ({
+  ...scope,
+  allowEmpty: scope.allowEmpty ?? false,
+}));
+
 const StructureCheckSpecSchema = Type.Object(
   {
     schemaVersion: Type.Literal(1),
@@ -40,19 +45,19 @@ const StructureCheckSpecSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export type StructureCheckScope = Static<typeof StructureCheckScopeSchema>;
-export type StructureCheckSpec = Static<typeof StructureCheckSpecSchema>;
-export type StructureCheckFileSystem<R = never> = HabitatFileSystemReadPort<R>;
+export type StructureCheckScope = StaticDecode<typeof StructureCheckScopeSchema>;
+export type StructureCheckSpec = StaticDecode<typeof StructureCheckSpecSchema>;
+export type StructureCheckFileSystem<R = never> = HabitatStructureFileSystemReadPort<R>;
 
 interface StructureCheckOptions<R> {
   readonly repoRoot: string;
   readonly fileSystem: StructureCheckFileSystem<R>;
-  readonly visibleFiles: readonly string[] | null;
+  readonly visibleFiles: readonly string[];
+  readonly trackedNonFilePaths: readonly string[];
 }
 
 export type StructureCheckDiagnosticKind =
   | "structure-file-invalid"
-  | "visible-path-inventory-unavailable"
   | "root-missing"
   | "wrong-root-kind"
   | "missing-required-child"
@@ -67,6 +72,7 @@ interface MatchedRoot {
 interface StructureTraversalCache {
   readonly kindsByRepoPath: Map<string, MatchedRoot["kind"]>;
   readonly childrenByRepoPath: Map<string, readonly HabitatDirectoryEntry[]>;
+  readonly trackedNonFilePaths: ReadonlySet<string>;
   readonly visibleRepoPaths: ReadonlySet<string>;
   readonly walksByRequest: Map<string, readonly MatchedRoot[]>;
 }
@@ -90,7 +96,7 @@ export function parseStructureCheckSpec(
       message: issues.map((issue) => `${issue.instancePath || "/"} ${issue.message}`).join("; "),
     };
   }
-  return { ok: true, spec: Value.Parse(StructureCheckSpecSchema, parsed) };
+  return { ok: true, spec: Value.Decode(StructureCheckSpecSchema, parsed) };
 }
 
 export function runStructureRulesEffect<R>(
@@ -98,10 +104,7 @@ export function runStructureRulesEffect<R>(
   options: StructureCheckOptions<R>
 ): Effect.Effect<Map<string, RuleRunResult>, never, R> {
   return Effect.gen(function* () {
-    if (options.visibleFiles === null) {
-      return new Map(rules.map((rule) => [rule.id, visiblePathInventoryUnavailableResult(rule)]));
-    }
-    const cache = makeStructureTraversalCache(options.visibleFiles);
+    const cache = makeStructureTraversalCache(options.visibleFiles, options.trackedNonFilePaths);
     const entries = yield* Effect.forEach(rules, (rule) =>
       Effect.map(
         runStructureRuleEffect<R>(rule, options, cache),
@@ -150,16 +153,12 @@ export function evaluateStructureCheckEffect<R>(
   spec: StructureCheckSpec,
   options: StructureCheckOptions<R>
 ): Effect.Effect<RuleRunResult, never, R> {
-  const visibleFiles = options.visibleFiles;
-  if (visibleFiles === null) {
-    return Effect.succeed(visiblePathInventoryUnavailableResult(rule));
-  }
   return Effect.suspend(() =>
     evaluateStructureCheckWithCacheEffect(
       rule,
       spec,
       options,
-      makeStructureTraversalCache(visibleFiles)
+      makeStructureTraversalCache(options.visibleFiles, options.trackedNonFilePaths)
     )
   );
 }
@@ -355,7 +354,7 @@ function cacheListedPathKind(
   kind: HabitatDirectoryEntry["kind"],
   cache: StructureTraversalCache
 ): void {
-  if (kind === "other" || cache.kindsByRepoPath.has(repoPath)) return;
+  if (cache.kindsByRepoPath.has(repoPath)) return;
   cache.kindsByRepoPath.set(repoPath, kind);
 }
 
@@ -371,7 +370,15 @@ function readDirectoryCachedEffect<R>(
       .readDirectory(path.resolve(options.repoRoot, repoPath))
       .pipe(Effect.catchAll(() => Effect.succeed([])));
     const visibleChildren = children
-      .map((child) => ({ name: child.name, kind: child.kind }))
+      .map(
+        ({ name, kind }): HabitatDirectoryEntry => ({
+          name,
+          kind: Match.value(cache.trackedNonFilePaths.has(appendRepoPath(repoPath, name))).pipe(
+            Match.when(true, (): HabitatDirectoryEntry["kind"] => "other"),
+            Match.orElse(() => kind)
+          ),
+        })
+      )
       .filter((child) => cache.visibleRepoPaths.has(appendRepoPath(repoPath, child.name)));
     cache.childrenByRepoPath.set(repoPath, visibleChildren);
     return visibleChildren;
@@ -385,33 +392,45 @@ function pathKindEffect<R>(
 ): Effect.Effect<MatchedRoot["kind"], never, R> {
   return Effect.gen(function* () {
     if (!cache.visibleRepoPaths.has(repoPath)) return "missing" as const;
+
+    const parent = parentRepoPath(repoPath);
+    if (parent !== null) {
+      const parentKind = yield* pathKindEffect(parent, options, cache);
+      if (parentKind === "missing") {
+        cache.kindsByRepoPath.set(repoPath, "missing");
+        return "missing";
+      }
+      if (parentKind !== "directory") {
+        cache.kindsByRepoPath.set(repoPath, "other");
+        return "other";
+      }
+    }
+
     const cached = cache.kindsByRepoPath.get(repoPath);
     if (cached) return cached;
 
-    const absolute = path.resolve(options.repoRoot, repoPath);
-    const isDirectory = yield* options.fileSystem
-      .isDirectory(absolute)
-      .pipe(Effect.catchAll(() => Effect.succeed(false)));
-    if (isDirectory) {
-      cache.kindsByRepoPath.set(repoPath, "directory");
-      return "directory" as const;
+    if (cache.trackedNonFilePaths.has(repoPath)) {
+      cache.kindsByRepoPath.set(repoPath, "other");
+      return "other";
     }
-    const isFile = yield* options.fileSystem
-      .isFile(absolute)
-      .pipe(Effect.catchAll(() => Effect.succeed(false)));
-    const kind: "file" | "missing" = Match.value(isFile).pipe(
-      Match.when(true, (): "file" => "file"),
-      Match.orElse((): "missing" => "missing")
-    );
+
+    const absolute = path.resolve(options.repoRoot, repoPath);
+    const kind = yield* options.fileSystem
+      .pathKind(absolute)
+      .pipe(Effect.catchAll(() => Effect.succeed<MatchedRoot["kind"]>("missing")));
     cache.kindsByRepoPath.set(repoPath, kind);
     return kind;
   });
 }
 
-function makeStructureTraversalCache(visibleFiles: readonly string[]): StructureTraversalCache {
+function makeStructureTraversalCache(
+  visibleFiles: readonly string[],
+  trackedNonFilePaths: readonly string[]
+): StructureTraversalCache {
   return {
     kindsByRepoPath: new Map(),
     childrenByRepoPath: new Map(),
+    trackedNonFilePaths: new Set(trackedNonFilePaths.map(normalizeRepoPath)),
     visibleRepoPaths: visibleRepoPathSet(visibleFiles),
     walksByRequest: new Map(),
   };
@@ -458,20 +477,6 @@ function diagnostic(
   };
 }
 
-function visiblePathInventoryUnavailableResult(rule: RuleStructureFacts): RuleRunResult {
-  return {
-    exitCode: 1,
-    diagnostics: [
-      diagnostic(rule, {
-        kind: "visible-path-inventory-unavailable",
-        path: ".",
-        message:
-          "Unable to enumerate Git-visible paths; structure checks refuse to inspect an unbounded filesystem tree.",
-      }),
-    ],
-  };
-}
-
 function literalWalkBase(rootGlob: string): string {
   const firstMagic = rootGlob.search(/[*?[{(!+@]/u);
   if (firstMagic === -1) return rootGlob;
@@ -486,12 +491,45 @@ function hasGlobSyntax(candidate: string): boolean {
 }
 
 function maximumGlobDepth(rootGlob: string, literalBase: string): number | undefined {
-  if (rootGlob.includes("**")) return undefined;
+  const parsed = picomatch.parse(rootGlob);
+  if (parsed.negated) return undefined;
+  const tokens = parsed.tokens;
+  if (tokens.some((token) => token.type === "globstar")) return undefined;
+  if (hasSlashSpanningUnboundedExtglob(tokens)) return undefined;
   return Math.max(0, repoPathSegments(rootGlob).length - repoPathSegments(literalBase).length);
+}
+
+function hasSlashSpanningUnboundedExtglob(tokens: readonly PicomatchToken[]): boolean {
+  for (let index = 0; index < tokens.length - 1; index += 1) {
+    if (
+      !["negate", "plus", "star"].includes(tokens[index]?.type ?? "") ||
+      tokens[index + 1]?.type !== "paren" ||
+      tokens[index + 1]?.value !== "("
+    ) {
+      continue;
+    }
+    let depth = 0;
+    for (let cursor = index + 1; cursor < tokens.length; cursor += 1) {
+      const token = tokens[cursor];
+      if (!token) continue;
+      if (token.type === "paren" && token.value === "(") depth += 1;
+      if (token.type === "slash" && depth > 0) return true;
+      if (token.type === "paren" && token.value === ")") {
+        depth -= 1;
+        if (depth === 0) break;
+      }
+    }
+  }
+  return false;
 }
 
 function repoPathSegments(repoPath: string): string[] {
   return repoPath.split("/").filter((segment) => segment.length > 0 && segment !== ".");
+}
+
+function parentRepoPath(repoPath: string): string | null {
+  const segments = repoPathSegments(repoPath);
+  return segments.length > 1 ? segments.slice(0, -1).join("/") : null;
 }
 
 function visibleRepoPathSet(visibleFiles: readonly string[]): ReadonlySet<string> {

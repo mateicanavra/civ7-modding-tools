@@ -1,4 +1,4 @@
-import type { HabitatDiagnostic } from "../dto/check.schema.js";
+import type { HabitatDiagnostic, RuleExecutionDisposition } from "../dto/check.schema.js";
 
 export const dependencyRefusalMessagePrefix = "Dependency refused: ";
 
@@ -13,4 +13,10 @@ export function dependencyRefusalDiagnostic(
     severity: "error",
     baselined: false,
   };
+}
+
+export function isNonBaselinableDisposition(
+  disposition: Pick<RuleExecutionDisposition, "kind">
+): boolean {
+  return disposition.kind === "dependency-refused" || disposition.kind === "execution-failed";
 }

@@ -36,6 +36,7 @@ export {
 export {
   dependencyRefusalDiagnostic,
   dependencyRefusalMessagePrefix,
+  isNonBaselinableDisposition,
 } from "./policy/disposition-diagnostics.policy.js";
 export { renderCheckReport, stringifyCheckReport } from "./policy/render.policy.js";
 export {

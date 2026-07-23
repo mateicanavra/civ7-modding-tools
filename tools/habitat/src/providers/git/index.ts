@@ -21,6 +21,11 @@ export {
 type GitCommandEffect = Effect.Effect<HabitatCommandResult, CommandProviderError>;
 type GitTextEffect = Effect.Effect<string | null>;
 
+export interface GitVisiblePathInventory {
+  readonly paths: readonly string[];
+  readonly trackedNonFilePaths: readonly string[];
+}
+
 export interface GitCommandOptions {
   cwd?: string;
 }
@@ -29,9 +34,9 @@ export interface GitProviderService {
   readonly command: (argv: readonly string[], options?: GitCommandOptions) => GitCommandEffect;
   readonly currentBranch: (options?: GitCommandOptions) => GitTextEffect;
   readonly head: (options?: GitCommandOptions) => GitTextEffect;
-  readonly listVisibleFiles: (
+  readonly visiblePathInventory: (
     options?: GitCommandOptions
-  ) => Effect.Effect<readonly string[] | null>;
+  ) => Effect.Effect<GitVisiblePathInventory | null>;
   readonly statusShort: (options?: GitCommandOptions) => GitCommandEffect;
   readonly statusShortBranch: (options?: GitCommandOptions) => GitCommandEffect;
   readonly remoteDefaultBranch: (options?: GitCommandOptions) => GitTextEffect;
@@ -100,11 +105,23 @@ function providerFromCommand(command: GitProviderService["command"]): GitProvide
     command,
     currentBranch: (options) => textOrNull(command(["branch", "--show-current"], options)),
     head: (options) => textOrNull(command(["rev-parse", "HEAD"], options)),
-    listVisibleFiles: (options) =>
-      command(["ls-files", "--cached", "--others", "--exclude-standard", "-z"], options).pipe(
+    visiblePathInventory: (options) =>
+      command(
+        [
+          "ls-files",
+          "--cached",
+          "--others",
+          "--exclude-standard",
+          "--stage",
+          "--abbrev=1",
+          "-t",
+          "-z",
+        ],
+        options
+      ).pipe(
         Effect.map((result) =>
           result.exit.code === 0 && !result.stdout.truncated
-            ? result.stdout.text.split("\0").filter((candidate) => candidate.length > 0)
+            ? parseVisiblePathInventory(result.stdout.text)
             : null
         ),
         Effect.catchAll(() => Effect.succeed(null))
@@ -142,6 +159,38 @@ function providerFromCommand(command: GitProviderService["command"]): GitProvide
       ),
     diffNameStatus: (input = {}) =>
       command(["diff", ...(input.cached ? ["--cached"] : []), "--name-status", "-z"], input),
+  };
+}
+
+function parseVisiblePathInventory(output: string): GitVisiblePathInventory | null {
+  if (output === "") {
+    return {
+      paths: [],
+      trackedNonFilePaths: [],
+    };
+  }
+  if (!output.endsWith("\0")) return null;
+
+  const paths = new Set<string>();
+  const trackedNonFilePaths = new Set<string>();
+  for (const entry of output.slice(0, -1).split("\0")) {
+    if (!entry) return null;
+    if (entry.startsWith("? ")) {
+      const candidate = entry.slice(2);
+      if (!candidate) return null;
+      paths.add(candidate);
+      continue;
+    }
+    const tracked = entry.match(/^[A-Za-z] (\d{6}) [0-9a-f]+ \d+\t(.+)$/su);
+    if (!tracked?.[1] || !tracked[2]) return null;
+    paths.add(tracked[2]);
+    if (tracked[1] === "120000" || tracked[1] === "160000") {
+      trackedNonFilePaths.add(tracked[2]);
+    }
+  }
+  return {
+    paths: [...paths],
+    trackedNonFilePaths: [...trackedNonFilePaths],
   };
 }
 

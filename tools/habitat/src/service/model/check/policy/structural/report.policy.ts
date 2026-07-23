@@ -18,6 +18,7 @@ import type {
 import {
   type CheckOptions,
   deriveRuleReportStatus,
+  isNonBaselinableDisposition,
   structuralCheckRequest,
 } from "@habitat/cli/service/model/check/index";
 import type { RuleReportFacts } from "@habitat/cli/service/model/rules/index";
@@ -80,19 +81,25 @@ export function createCheckReportEffect<R>(
       });
       const executionDiagnostics = execution.result.diagnostics;
       diagnosticConsumptionOutcome(execution.disposition, executionDiagnostics);
-      const baselineResult = yield* Effect.sync(() =>
-        applyBaseline(executionDiagnostics, baseline)
-      );
       const locked = yield* Effect.sync(() => isBaselineLocked(baseline));
-      baselineApplicationOutcome(rule.id, baselineResult, locked, executionDiagnostics);
-      const diagnostics = [
-        ...executionDiagnostics,
-        ...(yield* Effect.all(
-          baselineResult.refusals.map((failure) =>
-            Effect.sync(() => baselineFailureDiagnostic(rule.id, failure))
-          )
-        )),
-      ];
+      let diagnostics: RuleReport["diagnostics"];
+      if (isNonBaselinableDisposition(execution.disposition)) {
+        baselineApplicationSkipped();
+        diagnostics = [...executionDiagnostics];
+      } else {
+        const baselineResult = yield* Effect.sync(() =>
+          applyBaseline(executionDiagnostics, baseline)
+        );
+        baselineApplicationOutcome(rule.id, baselineResult, locked, executionDiagnostics);
+        diagnostics = [
+          ...executionDiagnostics,
+          ...(yield* Effect.all(
+            baselineResult.refusals.map((failure) =>
+              Effect.sync(() => baselineFailureDiagnostic(rule.id, failure))
+            )
+          )),
+        ];
+      }
       const report = ruleReportFromDiagnostics({
         ruleId: rule.id,
         reportFacts,
@@ -118,12 +125,19 @@ function diagnosticConsumptionOutcome(
 ) {
   return Value.Parse(
     DiagnosticConsumptionOutcomeSchema,
-    disposition.kind === "dependency-refused" || disposition.kind === "execution-failed"
+    isNonBaselinableDisposition(disposition)
       ? { kind: "diagnostic-refused", diagnostic: diagnostics[0] }
       : diagnostics.length === 0
         ? { kind: "clean", diagnostics: [] }
         : { kind: "findings", diagnostics }
   );
+}
+
+function baselineApplicationSkipped() {
+  return Value.Parse(BaselineApplicationOutcomeSchema, {
+    kind: "baseline-skipped",
+    reason: "non-baselinable-disposition",
+  });
 }
 
 function baselineApplicationOutcome(
@@ -249,12 +263,24 @@ function ruleReportDisposition(disposition: RuleExecutionDisposition): RuleRepor
       decision,
       detail,
     })),
-    Match.when({ kind: "execution-failed" }, ({ source, failure, detail }) => ({
-      kind: "execution-failed" as const,
-      source,
-      failure,
-      detail,
-    })),
+    Match.when(
+      { kind: "execution-failed", source: "diagnostic-provider" },
+      ({ source, failure, detail }) => ({
+        kind: "execution-failed" as const,
+        source,
+        failure,
+        detail,
+      })
+    ),
+    Match.when(
+      { kind: "execution-failed", source: "git-provider" },
+      ({ source, failure, detail }) => ({
+        kind: "execution-failed" as const,
+        source,
+        failure,
+        detail,
+      })
+    ),
     Match.exhaustive
   );
 }

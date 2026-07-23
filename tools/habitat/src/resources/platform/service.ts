@@ -8,7 +8,9 @@ import {
   isFileSync,
   makeDirectory,
   pathExistsSync,
+  pathKindNoFollow,
   readDirectory,
+  readDirectoryNoFollow,
   readDirectorySync,
   readText,
   readTextSync,
@@ -26,8 +28,10 @@ export interface HabitatPlatformService {
   readonly isFile: typeof isFileSync;
   readonly isFileEffect: typeof isFile;
   readonly makeDirectory: typeof makeDirectory;
+  readonly pathKindNoFollow: typeof pathKindNoFollow;
   readonly pathExists: typeof pathExistsSync;
   readonly readDirectory: typeof readDirectory;
+  readonly readDirectoryNoFollow: typeof readDirectoryNoFollow;
   readonly readDirectorySync: typeof readDirectorySync;
   readonly readText: typeof readText;
   readonly readTextSync: typeof readTextSync;
@@ -55,8 +59,10 @@ export function makeHabitatPlatformService(
     isFile: isFileSync,
     isFileEffect: isFile,
     makeDirectory,
+    pathKindNoFollow,
     pathExists: pathExistsSync,
     readDirectory,
+    readDirectoryNoFollow,
     readDirectorySync,
     readText,
     readTextSync,

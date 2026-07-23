@@ -751,7 +751,7 @@ describe("rule selector boundary", () => {
           git: {
             diffNameOnly: () => unrelatedFailure,
             diffNameStatus: () => unrelatedFailure,
-            listVisibleFiles: () => unrelatedFailure,
+            visiblePathInventory: () => unrelatedFailure,
             lsTreeNameOnly: () => Effect.succeed(null),
             mergeBase: () => Effect.succeed(null),
             show: () => Effect.succeed(null),
@@ -759,7 +759,11 @@ describe("rule selector boundary", () => {
           ruleDiagnostics: { runRules },
           nx: { runMany: () => unrelatedFailure, runTarget: () => unrelatedFailure },
           rules,
-          structureFileSystem: baselineFileSystem,
+          structureFileSystem: {
+            pathKind: () => Effect.succeed("missing" as const),
+            readDirectory: baselineFileSystem.readDirectory,
+            readText: baselineFileSystem.readText,
+          },
         }
       );
     for (const disposition of dispositions) {

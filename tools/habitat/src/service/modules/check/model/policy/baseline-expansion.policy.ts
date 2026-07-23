@@ -8,6 +8,7 @@ import {
   violationKey,
   writeBaselineEffect,
 } from "@habitat/cli/service/model/baseline/index";
+import { isNonBaselinableDisposition } from "@habitat/cli/service/model/check/index";
 import {
   executeSelectedRulesEffect,
   type StructuralExecutionContext,
@@ -41,6 +42,20 @@ export function expandBaselinesEffect<R>(
     const context = baselineContext(executionContext);
     const messages: string[] = [];
     const ruleResults = yield* executeSelectedRulesEffect<R>(selected.rules, {}, executionContext);
+    for (const rule of selected.rules) {
+      const execution = ruleResults.get(rule.id);
+      if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
+      if (isNonBaselinableDisposition(execution.disposition)) {
+        return {
+          ok: false,
+          requested: selection,
+          reason: "baseline-contract",
+          message:
+            `Cannot expand baseline for '${rule.id}' because rule execution ended with ` +
+            `${execution.disposition.kind}.`,
+        };
+      }
+    }
     const baselinesByRuleId = factsByRuleId(
       baselineContractInputs(
         executionContext.rules,
