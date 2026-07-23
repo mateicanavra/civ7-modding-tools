@@ -25,6 +25,7 @@ import {
 import { isCanonicalArtifact } from "./artifact/authority.js";
 import type { ArtifactModule } from "./artifact/module.js";
 import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./bindings.js";
+import { isCanonicalDomainOp } from "./op/create.js";
 import { assertStageIds } from "./stage.js";
 import {
   copyCanonicalStepAuthorityInternal,
@@ -58,6 +59,7 @@ function snapshotAuthorship<T>(value: T, seen = new WeakMap<object, unknown>()):
   if ((typeof value !== "object" || value === null) && typeof value !== "function") return value;
   if (typeof value === "function") return value;
   if (isCanonicalArtifact(value)) return value;
+  if (isCanonicalDomainOp(value)) return value;
   if (isCanonicalStepContractInternal(value)) return value;
 
   const existing = seen.get(value);

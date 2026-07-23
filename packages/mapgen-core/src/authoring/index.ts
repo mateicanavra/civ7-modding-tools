@@ -35,6 +35,7 @@ export {
   readValidatedArtifact,
 } from "./artifact/index.js";
 export type {
+  DomainCompileRoot,
   DomainOpCompileAny,
   DomainOpRuntime,
   DomainOpRuntimeAny,
@@ -43,20 +44,27 @@ export type {
   OpId,
   OpsById,
 } from "./bindings.js";
-export {
-  bindCompileOps,
-  bindRuntimeOps,
-  collectCompileOps,
-  createDomainOpsSurface,
-  runtimeOp,
-} from "./bindings.js";
+export { collectCompileOps, runtimeOp } from "./bindings.js";
 export type {
+  DomainAggregateContract,
+  DomainAggregateContractAny,
   DomainContract,
   DomainContractAny,
+  DomainSubdomainContract,
+  DomainSubdomainContractAny,
+} from "./domain.js";
+export { defineDomain, defineDomainSubdomain } from "./domain.js";
+export type {
   DomainModule,
   DomainOpImplementationsForContracts,
-} from "./domain.js";
-export { createDomain, defineDomain } from "./domain.js";
+  DomainRouter,
+  DomainSubdomainRouter,
+} from "./domain-router.js";
+export {
+  createDomain,
+  createDomainRouter,
+  createDomainSubdomainRouter,
+} from "./domain-router.js";
 export type {
   AdmittedBuffer,
   AdmittedOperationInput,

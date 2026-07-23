@@ -314,7 +314,7 @@ describe("compileRecipeConfig", () => {
     ).toBe(true);
   });
 
-  it("rejects an op normalizer that deletes a required envelope field", () => {
+  it("rejects an op normalizer that deletes a required strategy-config field", () => {
     const op = defineOp({
       kind: "plan",
       id: "test/delete-required",
@@ -344,14 +344,14 @@ describe("compileRecipeConfig", () => {
         },
       ],
     });
-    const invalidEnvelope = { strategy: "compiled" as const, config: { amount: 1 } };
-    Reflect.deleteProperty(invalidEnvelope, "strategy");
     const compileOp = createOp(op, {
       strategies: {
-        compiled: createStrategy(op, "compiled", { run: () => ({}) }),
+        compiled: createStrategy(op, "compiled", {
+          normalize: () => ({}) as never,
+          run: () => ({}),
+        }),
       },
     });
-    Reflect.set(compileOp, "normalize", () => invalidEnvelope);
 
     const error = expectCompileError(() =>
       compileRecipeConfig({
