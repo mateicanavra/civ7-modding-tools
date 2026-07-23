@@ -1,4 +1,4 @@
-/**
+/*
  * Official StartBias scoring hook (placement-realignment S4).
  *
  * Civ7 start biases live in CIV7_POLICY_TABLES_V1.startBias as per-civ/leader
@@ -15,6 +15,7 @@
  * to a seat's ranking score.
  */
 
+/** Official per-seat river, lake, and coast bias strengths admitted into start scoring. */
 export type SeatBias = {
   seatIndex: number;
   river: number;
@@ -22,6 +23,7 @@ export type SeatBias = {
   adjacentToCoast: number;
 };
 
+/** Candidate-local observations used to project a seat's admitted start biases. */
 export type SeatBiasContext = {
   riverAdjacent: boolean;
   lakeAdjacent: boolean;

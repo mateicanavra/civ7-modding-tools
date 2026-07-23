@@ -2,7 +2,7 @@ import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
 import type { RelaxationEntry, SeatSelection, SelectableTile } from "./selection-ladder.js";
 
-/**
+/*
  * Fairness balancing pass (placement-realignment S4, target card step 7,
  * precedent: ecology/resources/score-balance).
  *
@@ -21,7 +21,7 @@ import type { RelaxationEntry, SeatSelection, SelectableTile } from "./selection
  * swaps and an identical report.
  */
 
-export type FairnessSwap = {
+type FairnessSwap = {
   seatIndex: number;
   fromPlotIndex: number;
   toPlotIndex: number;
@@ -29,7 +29,7 @@ export type FairnessSwap = {
   toScore: number;
 };
 
-export type FairnessOutcome = {
+type FairnessOutcome = {
   worstPairGap: number | null;
   balanced: boolean;
   swaps: FairnessSwap[];

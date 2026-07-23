@@ -1,4 +1,4 @@
-/**
+/*
  * Climate comfort policy for start scoring (placement-realignment S4, E1.8).
  *
  * E1.8 measures the share of starts inside the top land ARIDITY decile or the
@@ -13,6 +13,7 @@
  * the extreme-decile boundary E1.8 measures.
  */
 
+/** Land-relative climate thresholds that keep start comfort independent of field units. */
 export type ClimateComfortThresholds = {
   aridityP80: number;
   aridityP90: number;

@@ -15,15 +15,15 @@ import {
   isAnyRiverClass,
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_NONE,
-} from "../../../../hydrology/index.js";
-import Contract from "../contract.js";
+} from "../../../../../hydrology/index.js";
+import PlanStartsContract from "../../contract.js";
 import {
   climateComfortAt,
   computeClimateComfortThresholds,
   isClimateExtreme,
-} from "../policy/climate-comfort.js";
-import { balanceFairness } from "../policy/fairness.js";
-import { buildSeatIdentities, resolveSeatDemand } from "../policy/seat-identity.js";
+} from "../../rules/climate-comfort.js";
+import { balanceFairness } from "../../rules/fairness.js";
+import { buildSeatIdentities, resolveSeatDemand } from "../../rules/seat-identity.js";
 import {
   compareSelectableTiles,
   type RelaxationEntry,
@@ -31,8 +31,9 @@ import {
   type SeatSelection,
   type SelectableTile,
   type StartComponents,
-} from "../policy/selection-ladder.js";
-import { indexSeatBiases, type SeatBiasContext } from "../policy/start-bias.js";
+} from "../../rules/selection-ladder.js";
+import { indexSeatBiases, type SeatBiasContext } from "../../rules/start-bias.js";
+import ViabilityFairnessContract from "./contract.js";
 
 type StartTier = "primary" | "islandCluster" | "marginal";
 type RejectionReason =
@@ -284,7 +285,7 @@ function percentileRanks(values: readonly number[]): number[] {
  * optional evidence is recorded as imputation, while every region, quality, and spacing
  * relaxation remains explicit in the result.
  */
-export const viabilityFairnessStrategy = createStrategy(Contract, "viability-fairness", {
+const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessContract, {
   run: (input, config) => {
     const westSlotCapacity = Math.max(0, input.baseStarts.playersLandmass1 | 0);
     const eastSlotCapacity = Math.max(0, input.baseStarts.playersLandmass2 | 0);
@@ -829,3 +830,5 @@ export const viabilityFairnessStrategy = createStrategy(Contract, "viability-fai
     };
   },
 });
+
+export default viabilityFairness;

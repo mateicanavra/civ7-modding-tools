@@ -44,8 +44,9 @@ import {
   WONDER_GROUPS,
   type WonderGroup,
   wonderGroup,
-} from "../../../model/policy/natural-wonder-groups.js";
-import Contract from "../contract.js";
+} from "../../../../model/policy/natural-wonder-groups.js";
+import PlanNaturalWondersContract from "../../contract.js";
+import SuitabilityDiversityContract from "./contract.js";
 
 type Candidate = {
   plotIndex: number;
@@ -76,387 +77,393 @@ type NaturalWonderFeatureCandidate = {
  * physical suitability, then applies deterministic cross-group diversity and spacing. It uses no
  * RNG or engine access and preserves fallback anchors for materialization refusals.
  */
-export const suitabilityDiversityStrategy = createStrategy(Contract, "suitability-diversity", {
-  run: (input, config) => {
-    const width = input.width;
-    const height = input.height;
-    const size = width * height;
+const suitabilityDiversity = createStrategy(
+  PlanNaturalWondersContract,
+  SuitabilityDiversityContract,
+  {
+    run: (input, config) => {
+      const width = input.width;
+      const height = input.height;
+      const size = width * height;
 
-    const wondersCount = Math.max(0, input.wondersCount | 0);
-    const noFeatureType = Number.isFinite(input.noFeatureType)
-      ? Math.trunc(input.noFeatureType)
-      : -1;
-    const featureCatalog = Array.from(
-      new Map(
-        (input.featureCatalog ?? [])
-          .map((entry) => ({
-            featureType: entry.featureType | 0,
-            direction: entry.direction | 0,
-            placeFirst: entry.placeFirst === true,
-            validTerrainTypes: sanitizeIdArray(entry.validTerrainTypes),
-            validBiomeTypes: sanitizeIdArray(entry.validBiomeTypes),
-            minimumElevation: Number.isFinite(entry.minimumElevation)
-              ? Number(entry.minimumElevation)
-              : null,
-            noLake: entry.noLake === true,
-            featureTags: sanitizeStringArray(entry.featureTags),
-            footprintOffsetsByParity: sanitizeFootprintOffsetsByParity(
-              entry.footprintOffsetsByParity
-            ),
-          }))
-          .filter((entry) => entry.featureType >= 0)
-          .filter(
-            (entry) =>
-              entry.footprintOffsetsByParity.even.length > 0 &&
-              entry.footprintOffsetsByParity.odd.length > 0
-          )
-          .map((entry) => [entry.featureType, entry] as const)
-      ).values()
-    ).sort((a, b) => {
-      // Deterministic, stable catalog order (placeFirst first, then by
-      // featureType). This only fixes iteration/dedup order; WHICH wonders place
-      // and in what order is decided by the diminishing-returns greedy below
-      // (argmax over effectiveScore), not by this sort.
-      if (a.placeFirst !== b.placeFirst) return a.placeFirst ? -1 : 1;
-      return a.featureType - b.featureType;
-    });
+      const wondersCount = Math.max(0, input.wondersCount | 0);
+      const noFeatureType = Number.isFinite(input.noFeatureType)
+        ? Math.trunc(input.noFeatureType)
+        : -1;
+      const featureCatalog = Array.from(
+        new Map(
+          (input.featureCatalog ?? [])
+            .map((entry) => ({
+              featureType: entry.featureType | 0,
+              direction: entry.direction | 0,
+              placeFirst: entry.placeFirst === true,
+              validTerrainTypes: sanitizeIdArray(entry.validTerrainTypes),
+              validBiomeTypes: sanitizeIdArray(entry.validBiomeTypes),
+              minimumElevation: Number.isFinite(entry.minimumElevation)
+                ? Number(entry.minimumElevation)
+                : null,
+              noLake: entry.noLake === true,
+              featureTags: sanitizeStringArray(entry.featureTags),
+              footprintOffsetsByParity: sanitizeFootprintOffsetsByParity(
+                entry.footprintOffsetsByParity
+              ),
+            }))
+            .filter((entry) => entry.featureType >= 0)
+            .filter(
+              (entry) =>
+                entry.footprintOffsetsByParity.even.length > 0 &&
+                entry.footprintOffsetsByParity.odd.length > 0
+            )
+            .map((entry) => [entry.featureType, entry] as const)
+        ).values()
+      ).sort((a, b) => {
+        // Deterministic, stable catalog order (placeFirst first, then by
+        // featureType). This only fixes iteration/dedup order; WHICH wonders place
+        // and in what order is decided by the diminishing-returns greedy below
+        // (argmax over effectiveScore), not by this sort.
+        if (a.placeFirst !== b.placeFirst) return a.placeFirst ? -1 : 1;
+        return a.featureType - b.featureType;
+      });
 
-    if (wondersCount <= 0 || featureCatalog.length === 0) {
+      if (wondersCount <= 0 || featureCatalog.length === 0) {
+        return {
+          width,
+          height,
+          wondersCount,
+          targetCount: 0,
+          plannedCount: 0,
+          placements: [],
+        };
+      }
+
+      const reliefByTile = new Float32Array(size);
+      let maxRelief = 0;
+      for (let i = 0; i < size; i++) {
+        const y = (i / width) | 0;
+        const x = i - y * width;
+        let minElev = input.elevation[i] ?? 0;
+        let maxElev = minElev;
+        for (const ni of getHexNeighborIndicesOddQ(x, y, width, height)) {
+          const elev = input.elevation[ni] ?? minElev;
+          if (elev < minElev) minElev = elev;
+          if (elev > maxElev) maxElev = elev;
+        }
+        const relief = Math.max(0, maxElev - minElev);
+        reliefByTile[i] = relief;
+        if (relief > maxRelief) maxRelief = relief;
+      }
+
+      const reliefScale = Math.max(1, maxRelief);
+
+      // Forwarded physical suitability signals (optional — fall back to neutral when
+      // an input omits them, e.g. minimal unit tests). Never recomputed here.
+      const vegetationDensity = input.vegetationDensity ?? null;
+      const effectiveMoisture = input.effectiveMoisture ?? null;
+      const surfaceTemperature = input.surfaceTemperature ?? null;
+      const fertility = input.fertility ?? null;
+      const discharge = input.discharge ?? null;
+      const slopeClass = input.slopeClass ?? null;
+
+      let maxElevAbs = 1;
+      let maxDischarge = 0;
+      for (let i = 0; i < size; i++) {
+        const e = Math.abs(input.elevation[i] ?? 0);
+        if (e > maxElevAbs) maxElevAbs = e;
+        if (discharge) {
+          const d = discharge[i] ?? 0;
+          if (d > maxDischarge) maxDischarge = d;
+        }
+      }
+      const coastTerrainType = input.coastTerrainType | 0;
+
+      /**
+       * Physical suitability of `candidate` for a wonder's requirement `group`, in
+       * [0,1]. Builds the tile's normalized signal vector (relief, elev, aridity,
+       * discharge/river, moisture, temperature bands, vegetation, fertility, slope,
+       * coastal shelf vs deep water) from the forwarded truth signals, then delegates
+       * to the group's pure formula in {@link WONDER_GROUPS} (whose weights are
+       * load-bearing).
+       *
+       * This only RANKS tiles that already pass the hard constraints
+       * (`isCandidateCompatibleWithFeature`); it never overrides legality. Its
+       * outputs feed two decisions: the per-wonder tile sort and `bestSuitability`,
+       * which ranks WHICH wonders are selected — so the selected set tracks terrain
+       * (a mountainous map surfaces mountain wonders). Deterministic, no RNG: signal
+       * values are seed-derived but the scoring is a pure function of them.
+       */
+      const suitabilityAt = (group: WonderGroup, candidate: Candidate): number => {
+        const i = candidate.plotIndex;
+        const relief = candidate.relief;
+        const riverN = clamp01((input.riverClass[i] ?? RIVER_CLASS_NONE) / RIVER_CLASS_MAJOR);
+        const temp = surfaceTemperature ? (surfaceTemperature[i] ?? 15) : 15;
+        const isWater = (input.landMask[i] ?? 0) === 0;
+        const isCoast = (input.terrainType[i] ?? -1) === coastTerrainType;
+        const signals: GroupSuitabilitySignals = {
+          relief,
+          elevN: clamp01((input.elevation[i] ?? 0) / maxElevAbs),
+          arid: clamp01(input.aridityIndex[i] ?? 0),
+          warm: clamp01(temp / 35),
+          temperate: clamp01(1 - Math.abs(temp - 15) / 20),
+          vegN: vegetationDensity ? clamp01(vegetationDensity[i] ?? 0) : 0,
+          fertN: fertility ? clamp01(fertility[i] ?? 0) : 0,
+          dischN:
+            discharge && maxDischarge > 0 ? clamp01((discharge[i] ?? 0) / maxDischarge) : riverN,
+          slopeN: slopeClass ? clamp01((slopeClass[i] ?? 0) / 4) : relief,
+          shelfN: isWater && isCoast ? 1 : 0,
+          deepN: isWater && !isCoast ? 1 : 0,
+          moist: effectiveMoisture ? clamp01(effectiveMoisture[i] ?? 0) : 0,
+        };
+        return WONDER_GROUPS[group].suitability(signals);
+      };
+
+      const allTiles: Candidate[] = new Array(size);
+      for (let i = 0; i < size; i++) {
+        allTiles[i] = {
+          plotIndex: i,
+          relief: clamp01((reliefByTile[i] ?? 0) / reliefScale),
+          elevation: input.elevation[i] ?? 0,
+        };
+      }
+
+      const compatibilityContext = {
+        width,
+        height,
+        terrainType: input.terrainType,
+        biomeType: input.biomeType,
+        featureType: input.featureType,
+        landMask: input.landMask,
+        riverClass: input.riverClass,
+        coastTerrainType,
+        mountainTerrainType: input.mountainTerrainType | 0,
+        iceFeatureType: input.iceFeatureType | 0,
+        noFeatureType,
+        naturalWonderBlockedMask: input.naturalWonderBlockedMask,
+        lakeMask: input.lakeMask,
+      };
+
+      // Per-wonder candidate ranking: each wonder's constraint-passing tiles sorted
+      // by its own suitability. `bestSuitability` (the top tile's score) ranks WHICH
+      // wonders are placed.
+      type WonderPlan = {
+        feature: NaturalWonderFeatureCandidate;
+        sorted: Candidate[];
+        suitByPlot: Map<number, number>;
+        bestSuitability: number;
+      };
+      const plans: WonderPlan[] = featureCatalog.map((feature) => {
+        const group = wonderGroup(feature.featureType);
+        const scored: Array<{ candidate: Candidate; suit: number }> = [];
+        for (const candidate of allTiles) {
+          if (!isCandidateCompatibleWithFeature({ feature, candidate, ...compatibilityContext })) {
+            continue;
+          }
+          scored.push({ candidate, suit: suitabilityAt(group, candidate) });
+        }
+        scored.sort((a, b) => b.suit - a.suit || a.candidate.plotIndex - b.candidate.plotIndex);
+        return {
+          feature,
+          sorted: scored.map((s) => s.candidate),
+          suitByPlot: new Map(scored.map((s) => [s.candidate.plotIndex, s.suit])),
+          bestSuitability: scored.length > 0 ? scored[0]!.suit : -1,
+        };
+      });
+
+      const minSpacingTiles = Math.max(0, config.minSpacingTiles | 0);
+      const targetCount = Math.min(wondersCount, featureCatalog.length, size);
+      const selected: Array<{
+        plotIndex: number;
+        featureType: number;
+        direction: number;
+        elevation: number;
+        priority: number;
+        fallbackPlotIndices?: number[];
+      }> = [];
+      const usedPlots = new Set<number>();
+
+      /**
+       * Highest-suitability anchor still available for `plan`, or `null` if none
+       * fits. Walks the wonder's suitability-descending tile list and returns the
+       * first whose entire parity-aware footprint is free (no cell in `usedPlots`)
+       * and which sits at least `minSpacing` hexes from every already-placed wonder.
+       * Callers retry with `minSpacing = 0` to relax the spacing floor when the
+       * spaced pass finds nothing (the floor is a preference, not a hard rule).
+       */
+      const pickTile = (plan: WonderPlan, minSpacing: number): Candidate | null => {
+        for (const candidate of plan.sorted) {
+          if (usedPlots.has(candidate.plotIndex)) continue;
+          const footprint = getFootprintIndices({
+            plotIndex: candidate.plotIndex,
+            width,
+            height,
+            footprintOffsetsByParity: plan.feature.footprintOffsetsByParity,
+          });
+          if (!footprint || footprint.some((p) => usedPlots.has(p))) continue;
+          if (minSpacing > 0) {
+            let tooClose = false;
+            for (const placed of selected) {
+              if (
+                hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) < minSpacing
+              ) {
+                tooClose = true;
+                break;
+              }
+            }
+            if (tooClose) continue;
+          }
+          return candidate;
+        }
+        return null;
+      };
+
+      /**
+       * Next-best anchors for a wonder after its primary is chosen — the recovery
+       * list the materialize step retries in order when the engine refuses the
+       * primary anchor (`canHaveFeatureParam`-true does NOT guarantee
+       * `setFeatureType`-success, especially for multi-tile wonders).
+       *
+       * Fallbacks are ALTERNATIVES to the primary (only one is ever stamped), so
+       * they may sit near it; each must have a free parity-aware footprint that
+       * avoids every already-placed wonder AND the primary's own footprint
+       * (`excluded`). Spaced candidates (>= `minSpacingTiles` from placed wonders)
+       * are preferred and returned first, then unspaced ones fill up to
+       * `FALLBACK_CAP`. Suitability-descending (walks `plan.sorted`).
+       *
+       * MUST be called BEFORE the primary footprint is added to `usedPlots`, so
+       * fallbacks are scored as alternatives to the primary rather than as tiles
+       * forbidden by it.
+       */
+      const FALLBACK_CAP = 6;
+      const collectFallbacks = (
+        plan: WonderPlan,
+        primaryPlotIndex: number,
+        primaryFootprint: readonly number[]
+      ): number[] => {
+        const excluded = new Set(primaryFootprint);
+        const spaced: number[] = [];
+        const unspaced: number[] = [];
+        for (const candidate of plan.sorted) {
+          if (candidate.plotIndex === primaryPlotIndex) continue;
+          if (usedPlots.has(candidate.plotIndex) || excluded.has(candidate.plotIndex)) continue;
+          const footprint = getFootprintIndices({
+            plotIndex: candidate.plotIndex,
+            width,
+            height,
+            footprintOffsetsByParity: plan.feature.footprintOffsetsByParity,
+          });
+          if (!footprint) continue;
+          if (footprint.some((p) => usedPlots.has(p) || excluded.has(p))) continue;
+          let tooClose = false;
+          if (minSpacingTiles > 0) {
+            for (const placed of selected) {
+              if (
+                hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) <
+                minSpacingTiles
+              ) {
+                tooClose = true;
+                break;
+              }
+            }
+          }
+          (tooClose ? unspaced : spaced).push(candidate.plotIndex);
+          if (spaced.length >= FALLBACK_CAP) break;
+        }
+        return [...spaced, ...unspaced].slice(0, FALLBACK_CAP);
+      };
+
+      // Cross-wonder selection: diminishing-returns greedy. Each iteration places
+      // the remaining wonder with the highest effective score, where a wonder's
+      // best-achievable suitability decays by GROUP_DISCOUNT for every wonder
+      // already placed from its requirement group:
+      //   effectiveScore = placeFirstBonus + bestSuitability * GROUP_DISCOUNT^groupCount
+      // placeFirst wonders carry a large additive bonus so the engine
+      // base-generator ordering is preserved, but the per-group decay still
+      // applies. The decay makes a 2nd water wonder (1.0 * 0.5 = 0.5) lose to a
+      // fresh land wonder (~0.7), so the selected set is a cross-type MIX whose
+      // composition tracks the map's terrain (more mountains → more mountain
+      // wonders) instead of collapsing to the abundant-water groups. Fully
+      // deterministic — argmax with a stable tie-break, no RNG.
+      const PLACE_FIRST_BONUS = 1000;
+      const GROUP_DISCOUNT = 0.5;
+      const groupSelectedCount = new Map<WonderGroup, number>();
+      const remaining = plans.filter((plan) => plan.bestSuitability >= 0);
+
+      /**
+       * The greedy's per-iteration ranking key for a wonder: its `bestSuitability`
+       * decayed by `GROUP_DISCOUNT` once per wonder already placed from the same
+       * requirement group, plus a large additive `PLACE_FIRST_BONUS` for
+       * base-generator `placeFirst` wonders. The decay is the variety mechanism — it
+       * lets a fresh group's wonder out-rank a second wonder from an already-served
+       * group even at lower raw suitability. Recomputed each iteration because
+       * `groupSelectedCount` changes as wonders are placed.
+       */
+      const effectiveScore = (plan: WonderPlan): number => {
+        const alreadyFromGroup = groupSelectedCount.get(wonderGroup(plan.feature.featureType)) ?? 0;
+        const bonus = plan.feature.placeFirst ? PLACE_FIRST_BONUS : 0;
+        return bonus + plan.bestSuitability * GROUP_DISCOUNT ** alreadyFromGroup;
+      };
+      /**
+       * Total ordering for the greedy's argmax: is `a` a strictly better pick than
+       * `b`? Compares `effectiveScore`, then `bestSuitability`, then LOWER
+       * `featureType` as a stable last resort. featureType is unique per catalog
+       * entry, so every tie resolves deterministically — there is no RNG fallback.
+       */
+      const isBetterPick = (a: WonderPlan, b: WonderPlan): boolean => {
+        const sa = effectiveScore(a);
+        const sb = effectiveScore(b);
+        if (sa !== sb) return sa > sb;
+        if (a.bestSuitability !== b.bestSuitability) return a.bestSuitability > b.bestSuitability;
+        return a.feature.featureType < b.feature.featureType;
+      };
+
+      while (selected.length < targetCount && remaining.length > 0) {
+        let bestIdx = 0;
+        for (let i = 1; i < remaining.length; i++) {
+          if (isBetterPick(remaining[i]!, remaining[bestIdx]!)) bestIdx = i;
+        }
+        const plan = remaining[bestIdx]!;
+        const candidate = pickTile(plan, minSpacingTiles) ?? pickTile(plan, 0);
+        if (!candidate) {
+          // No free, in-bounds footprint remains for this wonder: drop it.
+          remaining.splice(bestIdx, 1);
+          continue;
+        }
+        const primaryFootprint = getFootprintIndices({
+          plotIndex: candidate.plotIndex,
+          width,
+          height,
+          footprintOffsetsByParity: plan.feature.footprintOffsetsByParity,
+        }) ?? [candidate.plotIndex];
+        // Collect fallbacks BEFORE the primary footprint is marked used, so they
+        // are scored as alternatives to the primary (excluding the primary's own
+        // footprint), not as tiles forbidden by it.
+        const fallbackPlotIndices = collectFallbacks(plan, candidate.plotIndex, primaryFootprint);
+        for (const plotIndex of primaryFootprint) usedPlots.add(plotIndex);
+        const group = wonderGroup(plan.feature.featureType);
+        groupSelectedCount.set(group, (groupSelectedCount.get(group) ?? 0) + 1);
+        selected.push({
+          plotIndex: candidate.plotIndex,
+          featureType: plan.feature.featureType,
+          direction: plan.feature.direction,
+          elevation: candidate.elevation,
+          priority: clamp01(plan.suitByPlot.get(candidate.plotIndex) ?? 0),
+          ...(fallbackPlotIndices.length > 0 ? { fallbackPlotIndices } : {}),
+        });
+        remaining.splice(bestIdx, 1);
+      }
+
       return {
         width,
         height,
         wondersCount,
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
+        targetCount,
+        plannedCount: selected.length,
+        placements: selected,
       };
-    }
+    },
+  }
+);
 
-    const reliefByTile = new Float32Array(size);
-    let maxRelief = 0;
-    for (let i = 0; i < size; i++) {
-      const y = (i / width) | 0;
-      const x = i - y * width;
-      let minElev = input.elevation[i] ?? 0;
-      let maxElev = minElev;
-      for (const ni of getHexNeighborIndicesOddQ(x, y, width, height)) {
-        const elev = input.elevation[ni] ?? minElev;
-        if (elev < minElev) minElev = elev;
-        if (elev > maxElev) maxElev = elev;
-      }
-      const relief = Math.max(0, maxElev - minElev);
-      reliefByTile[i] = relief;
-      if (relief > maxRelief) maxRelief = relief;
-    }
-
-    const reliefScale = Math.max(1, maxRelief);
-
-    // Forwarded physical suitability signals (optional — fall back to neutral when
-    // an input omits them, e.g. minimal unit tests). Never recomputed here.
-    const vegetationDensity = input.vegetationDensity ?? null;
-    const effectiveMoisture = input.effectiveMoisture ?? null;
-    const surfaceTemperature = input.surfaceTemperature ?? null;
-    const fertility = input.fertility ?? null;
-    const discharge = input.discharge ?? null;
-    const slopeClass = input.slopeClass ?? null;
-
-    let maxElevAbs = 1;
-    let maxDischarge = 0;
-    for (let i = 0; i < size; i++) {
-      const e = Math.abs(input.elevation[i] ?? 0);
-      if (e > maxElevAbs) maxElevAbs = e;
-      if (discharge) {
-        const d = discharge[i] ?? 0;
-        if (d > maxDischarge) maxDischarge = d;
-      }
-    }
-    const coastTerrainType = input.coastTerrainType | 0;
-
-    /**
-     * Physical suitability of `candidate` for a wonder's requirement `group`, in
-     * [0,1]. Builds the tile's normalized signal vector (relief, elev, aridity,
-     * discharge/river, moisture, temperature bands, vegetation, fertility, slope,
-     * coastal shelf vs deep water) from the forwarded truth signals, then delegates
-     * to the group's pure formula in {@link WONDER_GROUPS} (whose weights are
-     * load-bearing).
-     *
-     * This only RANKS tiles that already pass the hard constraints
-     * (`isCandidateCompatibleWithFeature`); it never overrides legality. Its
-     * outputs feed two decisions: the per-wonder tile sort and `bestSuitability`,
-     * which ranks WHICH wonders are selected — so the selected set tracks terrain
-     * (a mountainous map surfaces mountain wonders). Deterministic, no RNG: signal
-     * values are seed-derived but the scoring is a pure function of them.
-     */
-    const suitabilityAt = (group: WonderGroup, candidate: Candidate): number => {
-      const i = candidate.plotIndex;
-      const relief = candidate.relief;
-      const riverN = clamp01((input.riverClass[i] ?? RIVER_CLASS_NONE) / RIVER_CLASS_MAJOR);
-      const temp = surfaceTemperature ? (surfaceTemperature[i] ?? 15) : 15;
-      const isWater = (input.landMask[i] ?? 0) === 0;
-      const isCoast = (input.terrainType[i] ?? -1) === coastTerrainType;
-      const signals: GroupSuitabilitySignals = {
-        relief,
-        elevN: clamp01((input.elevation[i] ?? 0) / maxElevAbs),
-        arid: clamp01(input.aridityIndex[i] ?? 0),
-        warm: clamp01(temp / 35),
-        temperate: clamp01(1 - Math.abs(temp - 15) / 20),
-        vegN: vegetationDensity ? clamp01(vegetationDensity[i] ?? 0) : 0,
-        fertN: fertility ? clamp01(fertility[i] ?? 0) : 0,
-        dischN:
-          discharge && maxDischarge > 0 ? clamp01((discharge[i] ?? 0) / maxDischarge) : riverN,
-        slopeN: slopeClass ? clamp01((slopeClass[i] ?? 0) / 4) : relief,
-        shelfN: isWater && isCoast ? 1 : 0,
-        deepN: isWater && !isCoast ? 1 : 0,
-        moist: effectiveMoisture ? clamp01(effectiveMoisture[i] ?? 0) : 0,
-      };
-      return WONDER_GROUPS[group].suitability(signals);
-    };
-
-    const allTiles: Candidate[] = new Array(size);
-    for (let i = 0; i < size; i++) {
-      allTiles[i] = {
-        plotIndex: i,
-        relief: clamp01((reliefByTile[i] ?? 0) / reliefScale),
-        elevation: input.elevation[i] ?? 0,
-      };
-    }
-
-    const compatibilityContext = {
-      width,
-      height,
-      terrainType: input.terrainType,
-      biomeType: input.biomeType,
-      featureType: input.featureType,
-      landMask: input.landMask,
-      riverClass: input.riverClass,
-      coastTerrainType,
-      mountainTerrainType: input.mountainTerrainType | 0,
-      iceFeatureType: input.iceFeatureType | 0,
-      noFeatureType,
-      naturalWonderBlockedMask: input.naturalWonderBlockedMask,
-      lakeMask: input.lakeMask,
-    };
-
-    // Per-wonder candidate ranking: each wonder's constraint-passing tiles sorted
-    // by its own suitability. `bestSuitability` (the top tile's score) ranks WHICH
-    // wonders are placed.
-    type WonderPlan = {
-      feature: NaturalWonderFeatureCandidate;
-      sorted: Candidate[];
-      suitByPlot: Map<number, number>;
-      bestSuitability: number;
-    };
-    const plans: WonderPlan[] = featureCatalog.map((feature) => {
-      const group = wonderGroup(feature.featureType);
-      const scored: Array<{ candidate: Candidate; suit: number }> = [];
-      for (const candidate of allTiles) {
-        if (!isCandidateCompatibleWithFeature({ feature, candidate, ...compatibilityContext })) {
-          continue;
-        }
-        scored.push({ candidate, suit: suitabilityAt(group, candidate) });
-      }
-      scored.sort((a, b) => b.suit - a.suit || a.candidate.plotIndex - b.candidate.plotIndex);
-      return {
-        feature,
-        sorted: scored.map((s) => s.candidate),
-        suitByPlot: new Map(scored.map((s) => [s.candidate.plotIndex, s.suit])),
-        bestSuitability: scored.length > 0 ? scored[0]!.suit : -1,
-      };
-    });
-
-    const minSpacingTiles = Math.max(0, config.minSpacingTiles | 0);
-    const targetCount = Math.min(wondersCount, featureCatalog.length, size);
-    const selected: Array<{
-      plotIndex: number;
-      featureType: number;
-      direction: number;
-      elevation: number;
-      priority: number;
-      fallbackPlotIndices?: number[];
-    }> = [];
-    const usedPlots = new Set<number>();
-
-    /**
-     * Highest-suitability anchor still available for `plan`, or `null` if none
-     * fits. Walks the wonder's suitability-descending tile list and returns the
-     * first whose entire parity-aware footprint is free (no cell in `usedPlots`)
-     * and which sits at least `minSpacing` hexes from every already-placed wonder.
-     * Callers retry with `minSpacing = 0` to relax the spacing floor when the
-     * spaced pass finds nothing (the floor is a preference, not a hard rule).
-     */
-    const pickTile = (plan: WonderPlan, minSpacing: number): Candidate | null => {
-      for (const candidate of plan.sorted) {
-        if (usedPlots.has(candidate.plotIndex)) continue;
-        const footprint = getFootprintIndices({
-          plotIndex: candidate.plotIndex,
-          width,
-          height,
-          footprintOffsetsByParity: plan.feature.footprintOffsetsByParity,
-        });
-        if (!footprint || footprint.some((p) => usedPlots.has(p))) continue;
-        if (minSpacing > 0) {
-          let tooClose = false;
-          for (const placed of selected) {
-            if (
-              hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) < minSpacing
-            ) {
-              tooClose = true;
-              break;
-            }
-          }
-          if (tooClose) continue;
-        }
-        return candidate;
-      }
-      return null;
-    };
-
-    /**
-     * Next-best anchors for a wonder after its primary is chosen — the recovery
-     * list the materialize step retries in order when the engine refuses the
-     * primary anchor (`canHaveFeatureParam`-true does NOT guarantee
-     * `setFeatureType`-success, especially for multi-tile wonders).
-     *
-     * Fallbacks are ALTERNATIVES to the primary (only one is ever stamped), so
-     * they may sit near it; each must have a free parity-aware footprint that
-     * avoids every already-placed wonder AND the primary's own footprint
-     * (`excluded`). Spaced candidates (>= `minSpacingTiles` from placed wonders)
-     * are preferred and returned first, then unspaced ones fill up to
-     * `FALLBACK_CAP`. Suitability-descending (walks `plan.sorted`).
-     *
-     * MUST be called BEFORE the primary footprint is added to `usedPlots`, so
-     * fallbacks are scored as alternatives to the primary rather than as tiles
-     * forbidden by it.
-     */
-    const FALLBACK_CAP = 6;
-    const collectFallbacks = (
-      plan: WonderPlan,
-      primaryPlotIndex: number,
-      primaryFootprint: readonly number[]
-    ): number[] => {
-      const excluded = new Set(primaryFootprint);
-      const spaced: number[] = [];
-      const unspaced: number[] = [];
-      for (const candidate of plan.sorted) {
-        if (candidate.plotIndex === primaryPlotIndex) continue;
-        if (usedPlots.has(candidate.plotIndex) || excluded.has(candidate.plotIndex)) continue;
-        const footprint = getFootprintIndices({
-          plotIndex: candidate.plotIndex,
-          width,
-          height,
-          footprintOffsetsByParity: plan.feature.footprintOffsetsByParity,
-        });
-        if (!footprint) continue;
-        if (footprint.some((p) => usedPlots.has(p) || excluded.has(p))) continue;
-        let tooClose = false;
-        if (minSpacingTiles > 0) {
-          for (const placed of selected) {
-            if (
-              hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) <
-              minSpacingTiles
-            ) {
-              tooClose = true;
-              break;
-            }
-          }
-        }
-        (tooClose ? unspaced : spaced).push(candidate.plotIndex);
-        if (spaced.length >= FALLBACK_CAP) break;
-      }
-      return [...spaced, ...unspaced].slice(0, FALLBACK_CAP);
-    };
-
-    // Cross-wonder selection: diminishing-returns greedy. Each iteration places
-    // the remaining wonder with the highest effective score, where a wonder's
-    // best-achievable suitability decays by GROUP_DISCOUNT for every wonder
-    // already placed from its requirement group:
-    //   effectiveScore = placeFirstBonus + bestSuitability * GROUP_DISCOUNT^groupCount
-    // placeFirst wonders carry a large additive bonus so the engine
-    // base-generator ordering is preserved, but the per-group decay still
-    // applies. The decay makes a 2nd water wonder (1.0 * 0.5 = 0.5) lose to a
-    // fresh land wonder (~0.7), so the selected set is a cross-type MIX whose
-    // composition tracks the map's terrain (more mountains → more mountain
-    // wonders) instead of collapsing to the abundant-water groups. Fully
-    // deterministic — argmax with a stable tie-break, no RNG.
-    const PLACE_FIRST_BONUS = 1000;
-    const GROUP_DISCOUNT = 0.5;
-    const groupSelectedCount = new Map<WonderGroup, number>();
-    const remaining = plans.filter((plan) => plan.bestSuitability >= 0);
-
-    /**
-     * The greedy's per-iteration ranking key for a wonder: its `bestSuitability`
-     * decayed by `GROUP_DISCOUNT` once per wonder already placed from the same
-     * requirement group, plus a large additive `PLACE_FIRST_BONUS` for
-     * base-generator `placeFirst` wonders. The decay is the variety mechanism — it
-     * lets a fresh group's wonder out-rank a second wonder from an already-served
-     * group even at lower raw suitability. Recomputed each iteration because
-     * `groupSelectedCount` changes as wonders are placed.
-     */
-    const effectiveScore = (plan: WonderPlan): number => {
-      const alreadyFromGroup = groupSelectedCount.get(wonderGroup(plan.feature.featureType)) ?? 0;
-      const bonus = plan.feature.placeFirst ? PLACE_FIRST_BONUS : 0;
-      return bonus + plan.bestSuitability * GROUP_DISCOUNT ** alreadyFromGroup;
-    };
-    /**
-     * Total ordering for the greedy's argmax: is `a` a strictly better pick than
-     * `b`? Compares `effectiveScore`, then `bestSuitability`, then LOWER
-     * `featureType` as a stable last resort. featureType is unique per catalog
-     * entry, so every tie resolves deterministically — there is no RNG fallback.
-     */
-    const isBetterPick = (a: WonderPlan, b: WonderPlan): boolean => {
-      const sa = effectiveScore(a);
-      const sb = effectiveScore(b);
-      if (sa !== sb) return sa > sb;
-      if (a.bestSuitability !== b.bestSuitability) return a.bestSuitability > b.bestSuitability;
-      return a.feature.featureType < b.feature.featureType;
-    };
-
-    while (selected.length < targetCount && remaining.length > 0) {
-      let bestIdx = 0;
-      for (let i = 1; i < remaining.length; i++) {
-        if (isBetterPick(remaining[i]!, remaining[bestIdx]!)) bestIdx = i;
-      }
-      const plan = remaining[bestIdx]!;
-      const candidate = pickTile(plan, minSpacingTiles) ?? pickTile(plan, 0);
-      if (!candidate) {
-        // No free, in-bounds footprint remains for this wonder: drop it.
-        remaining.splice(bestIdx, 1);
-        continue;
-      }
-      const primaryFootprint = getFootprintIndices({
-        plotIndex: candidate.plotIndex,
-        width,
-        height,
-        footprintOffsetsByParity: plan.feature.footprintOffsetsByParity,
-      }) ?? [candidate.plotIndex];
-      // Collect fallbacks BEFORE the primary footprint is marked used, so they
-      // are scored as alternatives to the primary (excluding the primary's own
-      // footprint), not as tiles forbidden by it.
-      const fallbackPlotIndices = collectFallbacks(plan, candidate.plotIndex, primaryFootprint);
-      for (const plotIndex of primaryFootprint) usedPlots.add(plotIndex);
-      const group = wonderGroup(plan.feature.featureType);
-      groupSelectedCount.set(group, (groupSelectedCount.get(group) ?? 0) + 1);
-      selected.push({
-        plotIndex: candidate.plotIndex,
-        featureType: plan.feature.featureType,
-        direction: plan.feature.direction,
-        elevation: candidate.elevation,
-        priority: clamp01(plan.suitByPlot.get(candidate.plotIndex) ?? 0),
-        ...(fallbackPlotIndices.length > 0 ? { fallbackPlotIndices } : {}),
-      });
-      remaining.splice(bestIdx, 1);
-    }
-
-    return {
-      width,
-      height,
-      wondersCount,
-      targetCount,
-      plannedCount: selected.length,
-      placements: selected,
-    };
-  },
-});
+export default suitabilityDiversity;
 
 function sanitizeIdArray(values: readonly number[] | undefined): number[] {
   if (!Array.isArray(values)) return [];

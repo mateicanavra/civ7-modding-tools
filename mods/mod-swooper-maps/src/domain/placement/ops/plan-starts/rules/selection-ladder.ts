@@ -6,7 +6,7 @@ import type { SeatIdentity } from "./seat-identity.js";
 import type { SeatBias, SeatBiasContext } from "./start-bias.js";
 import { seatBiasTerm } from "./start-bias.js";
 
-/**
+/*
  * Four-rung start selection ladder (placement-realignment S4, target card):
  *
  *   regional → open-pool → quality-relaxed → spacing-relaxed
@@ -23,6 +23,7 @@ import { seatBiasTerm } from "./start-bias.js";
  * alternative is an unseated player — recorded loudly per seat.
  */
 
+/** Normalized scoring components retained with every selectable start tile. */
 export type StartComponents = {
   freshwater: number;
   fertility: number;
@@ -32,6 +33,7 @@ export type StartComponents = {
   roughness: number;
 };
 
+/** Candidate state consumed by deterministic seat selection and fairness balancing. */
 export type SelectableTile = {
   plotIndex: number;
   regionSlot: 1 | 2;
@@ -40,8 +42,9 @@ export type SelectableTile = {
   components: StartComponents;
 };
 
-export type SeatRung = "regional" | "open-pool" | "quality-relaxed" | "spacing-relaxed";
+type SeatRung = "regional" | "open-pool" | "quality-relaxed" | "spacing-relaxed";
 
+/** Explicit evidence that one seat crossed a region, quality, or spacing constraint. */
 export type RelaxationEntry = {
   seatIndex: number;
   kind: "spacing" | "region" | "quality";
@@ -49,13 +52,14 @@ export type RelaxationEntry = {
   to: number;
 };
 
+/** Mutable working seat state shared by the selection ladder and fairness rule. */
 export type SeatSelection = {
   seat: SeatIdentity;
   tile: SelectableTile | null;
   rung: SeatRung;
 };
 
-export type SelectionLadderResult = {
+type SelectionLadderResult = {
   selections: SeatSelection[];
   relaxations: RelaxationEntry[];
 };
