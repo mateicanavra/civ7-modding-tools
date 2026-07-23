@@ -1,6 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import Contract from "../contract.js";
+import Contract from "../../contract.js";
+import StrategyDefinition from "./config.js";
 
 type ResourceGroupId =
   | "aquatic-coastal-navigable-river"
@@ -36,7 +37,7 @@ const EXPECTED_INPUT_GROUPS = [
  * one resource-group report. It does not repair or place resources; duplicate and missing
  * authority stays explicit for downstream proof.
  */
-export const canonicalRollupStrategy = createStrategy(Contract, "canonical-rollup", {
+const canonicalRollupStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input) => {
     const seenResources = new Map<string, ResourceGroupId>();
     const duplicateResourceTypes = new Set<string>();
@@ -140,3 +141,5 @@ function sum(values: readonly number[]): number {
 function uniqueSorted(values: readonly string[]): string[] {
   return [...new Set(values)].sort();
 }
+
+export default canonicalRollupStrategy;

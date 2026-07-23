@@ -1,17 +1,10 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import PlanGeologicalResourcesContract from "./contract.js";
-import { canonicalDemandStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
 /**
  * Plans warning-only geological demand and family-owned substrate lanes. It reports evidence
  * gaps without selecting concrete sites.
  */
-const planGeologicalResources = createOp(PlanGeologicalResourcesContract, {
-  strategies: { "canonical-demand": canonicalDemandStrategy },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default planGeologicalResources;
+export default createOp(PlanGeologicalResourcesContract, { strategies });

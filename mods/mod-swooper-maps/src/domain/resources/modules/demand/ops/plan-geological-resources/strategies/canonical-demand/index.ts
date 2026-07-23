@@ -5,9 +5,12 @@ import {
   type GeologicalMaskField,
   type GeologicalResourceSignals,
   type GeologicalResourceType,
-} from "../../../model/policy/geological-resource-signals.js";
-import Contract from "../contract.js";
-import type { PlanGeologicalResourcesTypes } from "../types.js";
+} from "../../../../model/policy/geological-resource-signals.js";
+import Contract from "../../contract.js";
+import StrategyDefinition from "./config.js";
+
+type GeologicalSignalField = GeologicalResourceSignals["primary" | "suppress"][number];
+type GeologicalSignalInput = Partial<Readonly<Record<GeologicalSignalField, Uint8Array>>>;
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
@@ -22,7 +25,7 @@ const DEFAULT_RANGE = {
  * Primary and suppression masks preserve physical host policy, while blocked derivative or
  * unsupported types remain visible with typed blockers.
  */
-export const canonicalDemandStrategy = createStrategy(Contract, "canonical-demand", {
+const canonicalDemandStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input) => {
     const size = input.width * input.height;
     const expectations = new Map(input.expectations.map((row) => [row.resourceType, row]));
@@ -126,14 +129,14 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
 });
 
 function presentFields(
-  input: PlanGeologicalResourcesTypes["input"],
+  input: GeologicalSignalInput,
   fields: readonly GeologicalMaskField[]
 ): string[] {
   return fields.filter((field) => input[field] !== undefined);
 }
 
 function countEligibleTiles(
-  input: PlanGeologicalResourcesTypes["input"],
+  input: GeologicalSignalInput,
   size: number,
   signals: GeologicalResourceSignals
 ): number {
@@ -158,6 +161,8 @@ function countEligibleTiles(
   }
   return count;
 }
+
+export default canonicalDemandStrategy;
 
 function compareRange(
   count: number,

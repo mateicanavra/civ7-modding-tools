@@ -1,5 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { HABITAT_MASK_FIELD_NAMES } from "../../model/atoms/habitat-fields.schema.js";
+import quantilePhysicalLanesDefinition from "./strategies/quantile-physical-lanes/config.js";
 
 /**
  * Derives the named habitat lane masks the family demand planners consume
@@ -70,16 +71,7 @@ const DeriveHabitatFieldsContract = defineOp({
   id: "resources/derive-habitat-fields",
   input: PlanInput,
   output: PlanOutput,
-  strategies: {
-    "quantile-physical-lanes": Type.Object(
-      {},
-      {
-        additionalProperties: false,
-        description:
-          "Fixed resource-planning policy that converts terrain, water, climate, ecology, and tectonic fields into named habitat masks and family intensity surfaces; it exposes no authored knobs.",
-      }
-    ),
-  },
+  strategies: [quantilePhysicalLanesDefinition],
 });
 
 export default DeriveHabitatFieldsContract;

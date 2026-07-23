@@ -1,7 +1,8 @@
 import type { OfficialResourceType } from "@civ7/map-policy";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexRadiusIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
-import Contract from "../contract.js";
+import Contract from "../../contract.js";
+import StrategyDefinition from "./config.js";
 
 /**
  * Default support pass: bounded move/add adjustment over the resource plan.
@@ -128,7 +129,7 @@ function resourceSalt(resourceType: string): number {
  * targets. It never mutates the engine; adjusted destinations pass the hard gates above while
  * affinity only biases their score. Each correction records provenance or a typed shortfall.
  */
-export const supportEquityStrategy = createStrategy(Contract, "support-equity", {
+const supportEquityStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const plan = input.plan;
     const width = plan.width;
@@ -959,3 +960,5 @@ export const supportEquityStrategy = createStrategy(Contract, "support-equity", 
     };
   },
 });
+
+export default supportEquityStrategy;

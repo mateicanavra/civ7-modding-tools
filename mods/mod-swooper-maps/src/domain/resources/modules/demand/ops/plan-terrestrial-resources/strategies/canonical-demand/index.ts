@@ -1,13 +1,16 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import {
-  AQUATIC_RESOURCE_TYPES,
-  AQUATIC_SIGNALS,
-  type AquaticMaskField,
-  type AquaticResourceSignals,
-  type AquaticResourceType,
-} from "../../../model/policy/aquatic-resource-signals.js";
-import Contract from "../contract.js";
-import type { PlanAquaticResourcesTypes } from "../types.js";
+  TERRESTRIAL_RESOURCE_TYPES,
+  TERRESTRIAL_SIGNALS,
+  type TerrestrialMaskField,
+  type TerrestrialResourceSignals,
+  type TerrestrialResourceType,
+} from "../../../../model/policy/terrestrial-resource-signals.js";
+import Contract from "../../contract.js";
+import StrategyDefinition from "./config.js";
+
+type TerrestrialSignalField = TerrestrialResourceSignals["primary" | "suppress"][number];
+type TerrestrialSignalInput = Partial<Readonly<Record<TerrestrialSignalField, Uint8Array>>>;
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
@@ -18,23 +21,25 @@ const DEFAULT_RANGE = {
 };
 
 /**
- * Builds deterministic aquatic demand rows across every canonical aquatic resource. Missing
- * expectations or required masks fail into typed warning rows, while lake and ice suppressors
- * constrain eligible-water counts.
+ * Builds deterministic terrestrial demand rows across every canonical terrestrial resource.
+ * Primary and suppression masks determine eligible land counts, and missing signals remain
+ * typed warning rows rather than neutral habitat defaults.
  */
-export const canonicalDemandStrategy = createStrategy(Contract, "canonical-demand", {
+const canonicalDemandStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input) => {
     const size = input.width * input.height;
     const expectations = new Map(input.expectations.map((row) => [row.resourceType, row]));
     const plans = [];
-    const missingResourceTypes: AquaticResourceType[] = [];
+    const missingResourceTypes: TerrestrialResourceType[] = [];
 
-    for (const resourceType of AQUATIC_RESOURCE_TYPES) {
+    for (const resourceType of TERRESTRIAL_RESOURCE_TYPES) {
+      const signals = TERRESTRIAL_SIGNALS[resourceType];
       const expectation = expectations.get(resourceType);
       if (!expectation) {
         missingResourceTypes.push(resourceType);
         plans.push({
           resourceType,
+          laneId: signals.laneId,
           status: "missing-expectation" as const,
           eligibilityStatus: "missing-expectation" as const,
           expectedCountRange: DEFAULT_RANGE,
@@ -46,7 +51,7 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
           conditionMultipliers: [],
           signalRequirements: [],
           signalFields: [],
-          blockers: ["Missing aquatic earthlike expectation row."],
+          blockers: ["Missing terrestrial earthlike expectation row."],
           caveats: [],
         });
         continue;
@@ -55,6 +60,7 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
       if (expectation.status === "blocked") {
         plans.push({
           resourceType,
+          laneId: signals.laneId,
           status: "blocked" as const,
           eligibilityStatus: "blocked" as const,
           expectedCountRange: expectation.expectedCountRange,
@@ -72,7 +78,6 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
         continue;
       }
 
-      const signals = AQUATIC_SIGNALS[resourceType];
       const signalFields = presentFields(input, signals.primary);
       const eligibleTileCount = countEligibleTiles(input, size, signals);
       const missingSignal = signalFields.length === 0;
@@ -85,14 +90,17 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
           );
       const blockers = [];
       if (missingSignal) {
-        blockers.push(`Missing aquatic signal masks: ${signals.primary.join(", ")}.`);
+        blockers.push(`Missing terrestrial signal masks: ${signals.primary.join(", ")}.`);
       }
       if (!missingSignal && eligibleTileCount === 0) {
-        blockers.push("No eligible aquatic tiles observed for this resource under supplied masks.");
+        blockers.push(
+          "No eligible terrestrial tiles observed for this resource under supplied masks."
+        );
       }
 
       plans.push({
         resourceType,
+        laneId: signals.laneId,
         status: missingSignal ? ("missing-signal" as const) : ("planned" as const),
         eligibilityStatus: missingSignal ? ("missing-signal" as const) : ("observed" as const),
         expectedCountRange: expectation.expectedCountRange,
@@ -112,7 +120,7 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
     }
 
     return {
-      groupId: "aquatic-coastal-navigable-river" as const,
+      groupId: "terrestrial-animal-forest-wild" as const,
       proofStatus: "warning-only" as const,
       plans,
       missingResourceTypes,
@@ -121,16 +129,16 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
 });
 
 function presentFields(
-  input: PlanAquaticResourcesTypes["input"],
-  fields: readonly AquaticMaskField[]
+  input: TerrestrialSignalInput,
+  fields: readonly TerrestrialMaskField[]
 ): string[] {
   return fields.filter((field) => input[field] !== undefined);
 }
 
 function countEligibleTiles(
-  input: PlanAquaticResourcesTypes["input"],
+  input: TerrestrialSignalInput,
   size: number,
-  signals: AquaticResourceSignals
+  signals: TerrestrialResourceSignals
 ): number {
   const primaryMasks: Uint8Array[] = [];
   for (const field of signals.primary) {
@@ -153,6 +161,8 @@ function countEligibleTiles(
   }
   return count;
 }
+
+export default canonicalDemandStrategy;
 
 function compareRange(
   count: number,

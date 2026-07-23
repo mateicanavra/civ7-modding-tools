@@ -1,8 +1,10 @@
 import type { OfficialResourceType } from "@civ7/map-policy";
-import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
+import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
-import { spacingFloorFor } from "../../../model/policy/spacing-floors.js";
-import Contract from "../contract.js";
+import type { ResourceRegionMinimumRequirement } from "../../../../model/atoms/region-minimum-requirement.schema.js";
+import { spacingFloorFor } from "../../../../model/policy/spacing-floors.js";
+import Contract from "../../contract.js";
+import StrategyDefinition from "./config.js";
 
 /**
  * Default site selection: deterministic blue-noise site stream + official
@@ -26,7 +28,7 @@ type DemandState = {
   readonly effectiveTargetCount: number;
   readonly minCount: number;
   readonly maxCount: number;
-  readonly regionMinimumRequirement: StaticRegionMinimumRequirement;
+  readonly regionMinimumRequirement: ResourceRegionMinimumRequirement;
   readonly habitatMask: Uint8Array;
   readonly legalMask: Uint8Array;
   readonly intensity: Float32Array;
@@ -40,10 +42,6 @@ type DemandState = {
   rangeFloorCount: number;
   regionMinimumCount: number;
 };
-
-type StaticRegionMinimumRequirement = Static<
-  (typeof Contract)["input"]
->["demands"][number]["regionMinimumRequirement"];
 
 type Intent = {
   plotIndex: number;
@@ -95,7 +93,7 @@ function countMask(mask: Uint8Array): number {
  * independent; hard placement failures become shortfall evidence while affinity remains a
  * best-effort score.
  */
-export const blueNoiseRotationStrategy = createStrategy(Contract, "blue-noise-rotation", {
+const blueNoiseRotationStrategy = createStrategy(Contract, StrategyDefinition, {
   // TODO: if you need to normalize, do it in the normalize method, not in run.
   normalize: (config) => {
     return config;
@@ -552,3 +550,5 @@ export const blueNoiseRotationStrategy = createStrategy(Contract, "blue-noise-ro
     };
   },
 });
+
+export default blueNoiseRotationStrategy;

@@ -1,6 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { ResourceSymbolSchema } from "../../../../model/atoms/resource-family.schema.js";
 import { ResourceExpectedCountRangeSchema } from "../../model/atoms/expected-count-range.schema.js";
+import canonicalDemandDefinition from "./strategies/canonical-demand/config.js";
 
 const CultivatedLaneIdSchema = Type.Union([
   Type.Literal("alluvial-irrigated"),
@@ -157,9 +158,7 @@ const PlanCultivatedResourcesContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  strategies: {
-    "canonical-demand": Type.Object({}, { additionalProperties: false }),
-  },
+  strategies: [canonicalDemandDefinition],
 });
 
 export default PlanCultivatedResourcesContract;

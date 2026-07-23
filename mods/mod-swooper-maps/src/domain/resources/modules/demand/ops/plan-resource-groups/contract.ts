@@ -1,4 +1,5 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
+import canonicalRollupDefinition from "./strategies/canonical-rollup/config.js";
 
 const ResourceGroupIdSchema = Type.Union([
   Type.Literal("aquatic-coastal-navigable-river"),
@@ -97,9 +98,7 @@ const PlanResourceGroupsContract = defineOp({
         "Warning-only reconciliation of the four resource-family plans, preserving each symbolic row while reporting aggregate counts, missing evidence, duplicate ownership, and group-id blockers.",
     }
   ),
-  strategies: {
-    "canonical-rollup": Type.Object({}, { additionalProperties: false }),
-  },
+  strategies: [canonicalRollupDefinition],
 });
 
 export default PlanResourceGroupsContract;

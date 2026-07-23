@@ -1,7 +1,8 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 
-import Contract from "../contract.js";
+import Contract from "../../contract.js";
+import StrategyDefinition from "./config.js";
 
 /**
  * Habitat lane derivation (placement-realignment S3 step 2).
@@ -37,7 +38,7 @@ function percentileOf(sortedValues: readonly number[], q: number): number {
  * map-sized pass. Optional physical inputs use explicit neutral handling; output keys remain
  * fixed by the shared habitat-field vocabulary.
  */
-export const quantilePhysicalLanesStrategy = createStrategy(Contract, "quantile-physical-lanes", {
+const quantilePhysicalLanesStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input) => {
     const width = input.width;
     const height = input.height;
@@ -388,3 +389,5 @@ export const quantilePhysicalLanesStrategy = createStrategy(Contract, "quantile-
     };
   },
 });
+
+export default quantilePhysicalLanesStrategy;

@@ -1,6 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { ResourceSymbolSchema } from "../../../../model/atoms/resource-family.schema.js";
 import { ResourceExpectedCountRangeSchema } from "../../model/atoms/expected-count-range.schema.js";
+import canonicalDemandDefinition from "./strategies/canonical-demand/config.js";
 
 const AquaticExpectationSchema = Type.Object(
   {
@@ -109,9 +110,7 @@ const PlanAquaticResourcesContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  strategies: {
-    "canonical-demand": Type.Object({}, { additionalProperties: false }),
-  },
+  strategies: [canonicalDemandDefinition],
 });
 
 export default PlanAquaticResourcesContract;

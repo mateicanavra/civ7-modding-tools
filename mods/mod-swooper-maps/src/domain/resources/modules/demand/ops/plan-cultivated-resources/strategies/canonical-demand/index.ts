@@ -1,13 +1,16 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import {
-  TERRESTRIAL_RESOURCE_TYPES,
-  TERRESTRIAL_SIGNALS,
-  type TerrestrialMaskField,
-  type TerrestrialResourceSignals,
-  type TerrestrialResourceType,
-} from "../../../model/policy/terrestrial-resource-signals.js";
-import Contract from "../contract.js";
-import type { PlanTerrestrialResourcesTypes } from "../types.js";
+  CULTIVATED_RESOURCE_TYPES,
+  CULTIVATED_SIGNALS,
+  type CultivatedMaskField,
+  type CultivatedResourceSignals,
+  type CultivatedResourceType,
+} from "../../../../model/policy/cultivated-resource-signals.js";
+import Contract from "../../contract.js";
+import StrategyDefinition from "./config.js";
+
+type CultivatedSignalField = CultivatedResourceSignals["primary" | "suppress"][number];
+type CultivatedSignalInput = Partial<Readonly<Record<CultivatedSignalField, Uint8Array>>>;
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
@@ -18,21 +21,21 @@ const DEFAULT_RANGE = {
 };
 
 /**
- * Builds deterministic terrestrial demand rows across every canonical terrestrial resource.
- * Primary and suppression masks determine eligible land counts, and missing signals remain
- * typed warning rows rather than neutral habitat defaults.
+ * Builds deterministic cultivated demand rows across every canonical cultivated resource.
+ * Primary/suppression masks determine eligible counts; missing or intentionally empty signals
+ * remain explicit typed blockers rather than generic placement fallbacks.
  */
-export const canonicalDemandStrategy = createStrategy(Contract, "canonical-demand", {
+const canonicalDemandStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input) => {
     const size = input.width * input.height;
     const expectations = new Map(input.expectations.map((row) => [row.resourceType, row]));
     const plans = [];
-    const missingResourceTypes: TerrestrialResourceType[] = [];
+    const missingResourceTypes: CultivatedResourceType[] = [];
 
-    for (const resourceType of TERRESTRIAL_RESOURCE_TYPES) {
-      const signals = TERRESTRIAL_SIGNALS[resourceType];
+    for (const resourceType of CULTIVATED_RESOURCE_TYPES) {
       const expectation = expectations.get(resourceType);
       if (!expectation) {
+        const signals = CULTIVATED_SIGNALS[resourceType];
         missingResourceTypes.push(resourceType);
         plans.push({
           resourceType,
@@ -48,13 +51,14 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
           conditionMultipliers: [],
           signalRequirements: [],
           signalFields: [],
-          blockers: ["Missing terrestrial earthlike expectation row."],
+          blockers: ["Missing cultivated earthlike expectation row."],
           caveats: [],
         });
         continue;
       }
 
       if (expectation.status === "blocked") {
+        const signals = CULTIVATED_SIGNALS[resourceType];
         plans.push({
           resourceType,
           laneId: signals.laneId,
@@ -75,6 +79,7 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
         continue;
       }
 
+      const signals = CULTIVATED_SIGNALS[resourceType];
       const signalFields = presentFields(input, signals.primary);
       const eligibleTileCount = countEligibleTiles(input, size, signals);
       const missingSignal = signalFields.length === 0;
@@ -87,11 +92,11 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
           );
       const blockers = [];
       if (missingSignal) {
-        blockers.push(`Missing terrestrial signal masks: ${signals.primary.join(", ")}.`);
+        blockers.push(`Missing cultivated signal masks: ${signals.primary.join(", ")}.`);
       }
       if (!missingSignal && eligibleTileCount === 0) {
         blockers.push(
-          "No eligible terrestrial tiles observed for this resource under supplied masks."
+          "No eligible cultivated tiles observed for this resource under supplied masks."
         );
       }
 
@@ -117,7 +122,7 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
     }
 
     return {
-      groupId: "terrestrial-animal-forest-wild" as const,
+      groupId: "cultivated-plantation-medicinal" as const,
       proofStatus: "warning-only" as const,
       plans,
       missingResourceTypes,
@@ -126,16 +131,16 @@ export const canonicalDemandStrategy = createStrategy(Contract, "canonical-deman
 });
 
 function presentFields(
-  input: PlanTerrestrialResourcesTypes["input"],
-  fields: readonly TerrestrialMaskField[]
+  input: CultivatedSignalInput,
+  fields: readonly CultivatedMaskField[]
 ): string[] {
   return fields.filter((field) => input[field] !== undefined);
 }
 
 function countEligibleTiles(
-  input: PlanTerrestrialResourcesTypes["input"],
+  input: CultivatedSignalInput,
   size: number,
-  signals: TerrestrialResourceSignals
+  signals: CultivatedResourceSignals
 ): number {
   const primaryMasks: Uint8Array[] = [];
   for (const field of signals.primary) {
@@ -158,6 +163,8 @@ function countEligibleTiles(
   }
   return count;
 }
+
+export default canonicalDemandStrategy;
 
 function compareRange(
   count: number,

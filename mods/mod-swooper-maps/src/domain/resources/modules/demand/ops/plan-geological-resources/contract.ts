@@ -1,6 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { ResourceSymbolSchema } from "../../../../model/atoms/resource-family.schema.js";
 import { ResourceExpectedCountRangeSchema } from "../../model/atoms/expected-count-range.schema.js";
+import canonicalDemandDefinition from "./strategies/canonical-demand/config.js";
 
 const GeologicalLaneIdSchema = Type.Union([
   Type.Literal("orogenic-hydrothermal"),
@@ -187,9 +188,7 @@ const PlanGeologicalResourcesContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  strategies: {
-    "canonical-demand": Type.Object({}, { additionalProperties: false }),
-  },
+  strategies: [canonicalDemandDefinition],
 });
 
 export default PlanGeologicalResourcesContract;
