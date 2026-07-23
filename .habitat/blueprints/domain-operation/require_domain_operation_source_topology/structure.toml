@@ -1,0 +1,30 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "mapgen-domain-operation-collections"
+root = "mods/*/src/domain/!(*.*)/ops"
+kind = "directory"
+mode = "closed"
+required = [
+  "contracts.ts",
+  "index.ts",
+]
+allowed = [
+  "!(*.*)",
+]
+
+[[scopes]]
+name = "mapgen-domain-operation-roots"
+root = "mods/*/src/domain/!(*.*)/ops/!(*.*)"
+kind = "directory"
+mode = "closed"
+required = [
+  "contract.ts",
+  "index.ts",
+]
+allowed = [
+  "types.ts",
+  "rules",
+  "strategies",
+  "policy",
+]

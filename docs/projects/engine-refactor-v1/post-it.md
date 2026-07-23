@@ -11,16 +11,15 @@ their destination kind is sealed.
 law -> source conformance -> verification. A niche may refine a kind but may not
 recreate, weaken, or hardcode its membership.
 
-**Current container:** collapse artifact authority before relocating another
-source file, then replace the flat domain cabinets with one generic
-domain-aggregate law. One frozen `Artifact` owns identity, schema, and complete
-admission from one `defineArtifact` call; catalogs expose one direct map and
-steps require and provide that same authority. A domain root is the sole public
-composition boundary; each semantic subdomain is a sealed module that owns its
-operation contracts/router, immutable products, local policy, and only the
-schema atoms proven reusable inside that module. Root contracts compose child
-contracts, root routers compose child routers, and root atoms or policy exist
-only for proven cross-subdomain reuse. Membership and topology stay in
+**Current container:** separate the existing domain topology monolith into
+truthful kind owners before defining the nested destination. A parent domain
+rule owns only the direct domain-root spine. Domain-operation, domain-model,
+and artifact rules own their own internals through small closed scopes:
+`required` names the fixed spine, `allowed` names deliberate flexibility, and
+everything else is excluded without a second forbidden inventory. Once those
+current laws are cleanly separated, define the domain aggregate and semantic
+subdomain destination from the same model, turn the current flat tree red, and
+burn down one sealed semantic module at a time. Membership and topology stay in
 `pathCoverage` and `structure.toml`; Grit expresses only cheap relationships
 inside the admitted kind; TypeScript owns composition, key identity, duplicate
 refusal, and artifact-validator binding by construction.
@@ -31,11 +30,12 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** delete `ArtifactModule`, the separate validator constructor, and
-the duplicate `modules`/`artifacts` catalog views; migrate every current
-artifact owner and ratchet the artifact blueprint around the resulting single
-authority. Then install the generic domain-root and subdomain kinds plus typed
-contract/router composition, producing a truthful six-domain red corpus.
+**Gradient:** artifact authority is sealed. Remove operation and model
+descendant scopes from the parent domain rule without losing their findings:
+move each scope unchanged to its actual kind owner. Delete speculative target
+rules that acquire no current members. Then install the generic domain-root and
+subdomain kinds plus typed contract/router composition, producing a truthful
+six-domain red corpus.
 For every structural kind, `required` names only the fixed spine, `allowed`
 names optional or generative members, and `closed` rejects everything else.
 Legacy source laws remain intact under their existing IDs until a green
