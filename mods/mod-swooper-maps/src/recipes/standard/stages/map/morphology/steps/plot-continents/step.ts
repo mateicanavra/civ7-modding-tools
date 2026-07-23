@@ -16,7 +16,7 @@ const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
  * Validates continent terrain only after coast projection, preserving that
- * ordering through effect tags and capturing the resulting engine surface.
+ * ordering through effect tags and checking the resulting engine surface.
  */
 export const PlotContinentsStep = createStep(PlotContinentsStepContract, {
   run: (context, _config, _ops, deps) => {
@@ -53,15 +53,6 @@ export const PlotContinentsStep = createStep(PlotContinentsStepContract, {
       isWater: (x, y) => deps.engine.isWater(context, x, y),
     });
     const engineLandMask = engineLandMaskFromWaterMask(engine.waterMask);
-    deps.artifacts.continentValidationTerrainSnapshot.publish(context, {
-      stage: "map-morphology/plot-continents",
-      width,
-      height,
-      landMask: engineLandMask,
-      terrain: engine.terrain,
-      elevation: engine.elevation,
-    });
-
     assertWaterDriftWithinPolicy(
       context.setup.dimensions,
       context.trace,

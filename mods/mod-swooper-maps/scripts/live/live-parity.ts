@@ -44,7 +44,6 @@ import {
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { artifactModules as mapEcologyArtifactModules } from "../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
 import { artifactModules as mapHydrologyArtifactModules } from "../../src/recipes/standard/stages/map/hydrology/artifacts/index.js";
-import { artifactModules as mapMorphologyArtifactModules } from "../../src/recipes/standard/stages/map/morphology/artifacts/index.js";
 import { artifactModules as mapRiversArtifactModules } from "../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
 import { artifactModules as placementArtifactModules } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 
@@ -767,14 +766,6 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
           coastalWater: shelf.coastalWater,
         })
       : undefined;
-  const mapMorphologyCoastTerrainSnapshot = observeArtifact(
-    context,
-    mapMorphologyArtifactModules.coastEngineTerrainSnapshot
-  );
-  const mapMorphologyContinentValidationSnapshot = observeArtifact(
-    context,
-    mapMorphologyArtifactModules.continentValidationTerrainSnapshot
-  );
   const hydrologyLakePlan = observeArtifact(context, hydrologyHydrographyArtifactModules.lakePlan);
   const mapHydrologyProjection = observeArtifact(
     context,
@@ -817,17 +808,6 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
       "coastRingMask",
       "promotedOceanToCoast",
     ]),
-    mapMorphologyCoastTerrainSnapshot: pickSerializableFields(mapMorphologyCoastTerrainSnapshot, [
-      "stage",
-      "width",
-      "height",
-      "landMask",
-      "terrain",
-    ]),
-    mapMorphologyContinentValidationSnapshot: pickSerializableFields(
-      mapMorphologyContinentValidationSnapshot,
-      ["stage", "width", "height", "landMask", "terrain"]
-    ),
     hydrologyLakePlan: pickSerializableFields(hydrologyLakePlan, [
       "lakeMask",
       "plannedLakeTileCount",

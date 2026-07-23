@@ -1,11 +1,10 @@
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../../tag-contracts.js";
-import { artifactModules as mapMorphologyArtifactModules } from "../../artifacts/index.js";
 
 /**
- * Defines the coast projection boundary from Morphology topography and shelf truth, declaring
- * only the engine snapshot consumed by later continent validation.
+ * Defines the coast projection boundary from Morphology topography and shelf truth.
+ * Engine readback remains invocation-local parity and visualization evidence.
  */
 export const PlotCoastsStepContract = defineStep({
   id: "plot-coasts",
@@ -14,7 +13,6 @@ export const PlotCoastsStepContract = defineStep({
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
   artifacts: {
     requires: [morphologyArtifacts.topography, morphologyArtifacts.shelf],
-    provides: [mapMorphologyArtifactModules.coastEngineTerrainSnapshot],
   },
   schema: Type.Object({}),
 });

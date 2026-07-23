@@ -6,10 +6,7 @@ import {
   WATER_CLASS_LAND,
 } from "@civ7/map-policy";
 import { createStep } from "@swooper/mapgen-core/authoring";
-import {
-  captureEngineHeightfield,
-  engineLandMaskFromWaterMask,
-} from "../../../../../current-engine-surface.js";
+import { captureEngineHeightfield } from "../../../../../current-engine-surface.js";
 import {
   defineStandardVizCategoryMeta,
   defineStandardVizMeta,
@@ -22,8 +19,8 @@ const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
- * Classifies and stamps coasts from topography and shelf truth, publishing only
- * the engine snapshot required by later projection diagnostics.
+ * Classifies and stamps coasts from topography and shelf truth, then checks
+ * the resulting engine surface without publishing mutable observation state.
  */
 export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
   run: (context, _config, _ops, deps) => {
@@ -66,15 +63,6 @@ export const PlotCoastsStep = createStep(PlotCoastsStepContract, {
       getElevation: (x, y) => deps.engine.getElevation(context, x, y),
       isWater: (x, y) => deps.engine.isWater(context, x, y),
     });
-    deps.artifacts.coastEngineTerrainSnapshot.publish(context, {
-      stage: "map-morphology/plot-coasts",
-      width,
-      height,
-      landMask: engineLandMaskFromWaterMask(engineAfterCoasts.waterMask),
-      terrain: engineAfterCoasts.terrain,
-      elevation: engineAfterCoasts.elevation,
-    });
-
     assertWaterDriftWithinPolicy(
       context.setup.dimensions,
       context.trace,
