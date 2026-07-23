@@ -4,8 +4,9 @@ level: error
 # Require Domain Operation Contract File Shape
 
 Operation contract files own the operation schema envelope. They may compose
-reusable domain primitives, artifact schemas, and policy constants, but they
-must not outsource their contract envelope to `config.ts` bags, sibling or
+reusable domain primitives, owned artifact schemas, public sibling artifact
+catalogs, and policy constants, but they must not outsource their contract
+envelope to `config.ts` bags, sibling or
 cross-domain operation contracts, shared type buckets, recipe/stage authoring
 surfaces, or runtime operation constructors.
 
@@ -22,16 +23,16 @@ or {
     ! $body <: contains `export default $contract`
   },
   import_statement(source=$source) where {
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/.*\.artifact|model/(?:schemas|policy)(?:/.*)?)\.js|(?:\.\./){2,3}(?:atoms|policy)(?:/.*)?\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/[a-z0-9]+(?:-[a-z0-9]+)*\.artifact|model/(?:schemas/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.schema)?)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)))\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/artifacts/index\.js|(?:\.\./){2,3}(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*))\.js)[\"']?$"
   },
   `export { $exports } from $source` where {
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/.*\.artifact|model/(?:schemas|policy)(?:/.*)?)\.js|(?:\.\./){2,3}(?:atoms|policy)(?:/.*)?\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/[a-z0-9]+(?:-[a-z0-9]+)*\.artifact|model/(?:schemas/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.schema)?)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)))\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/artifacts/index\.js|(?:\.\./){2,3}(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*))\.js)[\"']?$"
   },
   `export * from $source` where {
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/.*\.artifact|model/(?:schemas|policy)(?:/.*)?)\.js|(?:\.\./){2,3}(?:atoms|policy)(?:/.*)?\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/[a-z0-9]+(?:-[a-z0-9]+)*\.artifact|model/(?:schemas/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.schema)?)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)))\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/artifacts/index\.js|(?:\.\./){2,3}(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*))\.js)[\"']?$"
   },
   `import($source)` where {
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/.*\.artifact|model/(?:schemas|policy)(?:/.*)?)\.js|(?:\.\./){2,3}(?:atoms|policy)(?:/.*)?\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/[a-z0-9]+(?:-[a-z0-9]+)*\.artifact|model/(?:schemas/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.schema)?)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)))\.js|(?:\.\./){3}[a-z0-9]+(?:-[a-z0-9]+)*/artifacts/index\.js|(?:\.\./){2,3}(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*))\.js)[\"']?$"
   },
   `createOp($args)`,
   `createStage($args)`

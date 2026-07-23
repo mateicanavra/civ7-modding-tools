@@ -5,10 +5,10 @@ level: error
 
 Recipe and map source must use public domain surfaces, not deep domain internals.
 
-Allowed domain sub-surfaces are the domain root, `ops`, `artifacts`, named
-`model/schemas`, and `model/policy` modules. These are intentional public
-composition surfaces: recipes may consume domain operations, artifact contracts, reusable domain
-schema primitives, and reusable domain policy, but must not reach into
+Allowed domain sub-surfaces are the domain root, runtime router, transitional
+flat `ops`/`artifacts` owners, and one semantic branch's artifact catalog.
+These are intentional public composition surfaces: recipes may consume domain
+contracts, operation routers, and immutable artifact contracts, but must not reach into
 operation-local files, retired config facades, shared buckets, rules, or private
 implementation modules.
 
@@ -23,8 +23,8 @@ or {
     `export * from $source`,
     `import($source)`
   } where {
-    $source <: r"^[\"']?@mapgen/domain/[^/]+/.+[\"']?$",
-    ! $source <: r"^[\"']?@mapgen/domain/[^/]+/(?:router(?:\.js)?|ops|artifacts(?:/index\.js)?|model/schemas(?:/index\.js|/[a-z0-9.-]+\.js)?|model/policy(?:/index\.js|/[a-z0-9.-]+\.js)?)[\"']?$"
+    $source <: r"^[\"']?@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*/.+[\"']?$",
+    ! $source <: r"^[\"']?@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*/(?:router(?:\.js)?|ops|artifacts(?:/index\.js)?|[a-z0-9]+(?:-[a-z0-9]+)*/artifacts(?:/index\.js)?|model/schemas(?:/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.schema)?)\.js)?|model/policy(?:/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js)?)[\"']?$"
   },
   or {
     import_statement(source=$source),

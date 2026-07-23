@@ -23,7 +23,7 @@ or {
     lacks_required_artifact_surface($body)
   },
   import_statement(source=$source) where {
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/(?:authoring/contracts|lib(?:/[^\"']+)?)|@civ7/(?:types|map-policy)|@mapgen/domain/[a-z0-9-]+|(?:\.\./)+model/(?:schemas|policy|data)/[^\"']+\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/(?:authoring/contracts|lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)|@civ7/(?:types|map-policy)|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*|(?:\.\./)+(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*))\.js|(?:\.\./)+model/(?:schemas/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.schema)?)|policy/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*))\.js)[\"']?$"
   },
   program(statements=$body) where {
     $body <: contains or {

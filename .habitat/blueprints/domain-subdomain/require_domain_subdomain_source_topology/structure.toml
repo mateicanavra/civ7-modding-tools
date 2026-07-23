@@ -13,5 +13,6 @@ required = [
 ]
 allowed = [
   "atoms",
+  "artifacts",
   "policy",
 ]

@@ -17,8 +17,8 @@ or {
     `export * from $source`,
     `import($source)`
   } where {
-    $source <: r"^[\"']?@mapgen/domain/[^/]+/.+[\"']?$",
-    ! $source <: r"^[\"']?@mapgen/domain/[^/]+/(?:router(?:\.js)?|ops|artifacts(?:/index\.js)?|model/schemas(?:/index\.js|/[a-z0-9.-]+\.js)?|model/policy(?:/index\.js|/[a-z0-9.-]+\.js)?)[\"']?$"
+    $source <: r"^[\"']?@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*/.+[\"']?$",
+    ! $source <: r"^[\"']?@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*/(?:router(?:\.js)?|ops|artifacts(?:/index\.js)?|[a-z0-9]+(?:-[a-z0-9]+)*/artifacts(?:/index\.js)?|model/schemas(?:/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.schema)?)\.js)?|model/policy(?:/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js)?)[\"']?$"
   },
   or {
     import_statement(source=$source),
