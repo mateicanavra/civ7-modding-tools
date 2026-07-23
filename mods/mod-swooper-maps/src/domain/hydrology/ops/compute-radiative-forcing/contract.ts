@@ -1,42 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-/**
- * Default forcing parameters.
- *
- * Practical guidance:
- * - If you want stronger equator-to-pole contrast: decrease `poleInsolation` or increase `latitudeExponent`.
- * - If you want a generally “warmer planet”: increase `equatorInsolation` and/or `poleInsolation`.
- */
-const LatitudeInsolationStrategySchema = Type.Object(
-  {
-    /** Insolation proxy at the equator (baseline scale). */
-    equatorInsolation: Type.Number({
-      default: 1,
-      minimum: 0,
-      maximum: 2,
-      description: "Insolation proxy at the equator.",
-    }),
-    /** Insolation proxy at the poles (baseline scale). */
-    poleInsolation: Type.Number({
-      default: 0.25,
-      minimum: 0,
-      maximum: 2,
-      description: "Insolation proxy at the poles.",
-    }),
-    /** Controls how sharply forcing falls off with latitude (higher = sharper falloff). */
-    latitudeExponent: Type.Number({
-      default: 1.2,
-      minimum: 0.1,
-      maximum: 6,
-      description: "Controls how sharply forcing falls off with latitude.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Radiative forcing parameters (latitude-insolation strategy).",
-  }
-);
-
+/** Projects admitted latitude and seasonal phase into a bounded per-tile insolation field. */
 const ComputeRadiativeForcingContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-radiative-forcing",
@@ -76,9 +41,7 @@ const ComputeRadiativeForcingContract = defineOp({
       description: "Radiative forcing output (insolation proxy) per tile.",
     }
   ),
-  strategies: {
-    "latitude-insolation": LatitudeInsolationStrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeRadiativeForcingContract;

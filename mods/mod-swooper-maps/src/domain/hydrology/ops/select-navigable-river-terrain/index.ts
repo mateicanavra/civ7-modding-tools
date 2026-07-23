@@ -1,12 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
+
 import SelectNavigableRiverTerrainContract from "./contract.js";
-import { endpointChainRankingStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const selectNavigableRiverTerrain = createOp(SelectNavigableRiverTerrainContract, {
-  strategies: { "endpoint-chain-ranking": endpointChainRankingStrategy },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default selectNavigableRiverTerrain;
+/** Ranks connected river chains and selects coherent terrain endpoints that the Civ7 projection can materialize. */
+export default createOp(SelectNavigableRiverTerrainContract, { strategies });

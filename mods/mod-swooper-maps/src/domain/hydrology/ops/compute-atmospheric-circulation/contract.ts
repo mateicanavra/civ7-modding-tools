@@ -1,126 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-
-/**
- * Latitude-banded wind proxy parameters.
- *
- * This is the legacy model: primarily latitude-driven jets + noise.
- */
-const ComputeAtmosphericCirculationLatitudeStrategySchema = Type.Object(
-  {
-    /** Number of jet stream bands influencing storm tracks (higher = more bands). */
-    windJetStreaks: Type.Integer({
-      default: 3,
-      minimum: 0,
-      maximum: 12,
-      description: "Number of jet stream bands influencing storm tracks.",
-    }),
-    /** Overall jet stream intensity multiplier (higher = stronger prevailing winds). */
-    windJetStrength: Type.Number({
-      default: 1,
-      minimum: 0,
-      maximum: 5,
-      description: "Overall jet stream intensity multiplier.",
-    }),
-    /** Directional variance applied to winds (higher = noisier/more variable). */
-    windVariance: Type.Number({
-      default: 0.6,
-      minimum: 0,
-      maximum: 2,
-      description: "Directional variance applied to winds.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Atmospheric circulation parameters (latitude strategy).",
-  }
-);
-
-/**
- * Geostrophic-proxy wind-field parameters.
- *
- * This strategy aims for tile-varying winds with coherent structure (planetary waves + noise-driven pressure gradients),
- * while remaining deterministic and bounded-cost. It is a gameplay-oriented proxy, not a CFD atmosphere.
- */
-const ComputeAtmosphericCirculationGeostrophicProxyStrategySchema = Type.Object(
-  {
-    /** Max physical-ish speed used for quantization to i8 (higher = weaker output for same internal field). */
-    maxSpeed: Type.Number({
-      default: 110,
-      minimum: 1,
-      maximum: 400,
-      description:
-        "Max speed used for quantization to i8 (higher = weaker output for the same computed wind field).",
-    }),
-    /** Base zonal (east-west) circulation strength. */
-    zonalStrength: Type.Number({
-      default: 90,
-      minimum: 0,
-      maximum: 300,
-      description: "Base zonal (east-west) circulation strength.",
-    }),
-    /** Base meridional (north-south) circulation strength. */
-    meridionalStrength: Type.Number({
-      default: 30,
-      minimum: 0,
-      maximum: 200,
-      description: "Base meridional (north-south) circulation strength.",
-    }),
-    /** Strength of geostrophic-like flow derived from a pressure gradient proxy. */
-    geostrophicStrength: Type.Number({
-      default: 70,
-      minimum: 0,
-      maximum: 400,
-      description: "Strength of geostrophic-like flow derived from a pressure gradient proxy.",
-    }),
-    /** Spatial scale (in tiles) for pressure noise. */
-    pressureNoiseScale: Type.Number({
-      default: 18,
-      minimum: 2,
-      maximum: 128,
-      description: "Spatial scale (in tiles) for pressure noise.",
-    }),
-    /** Amplitude of pressure noise (higher = more meander/eddies). */
-    pressureNoiseAmp: Type.Number({
-      default: 55,
-      minimum: 0,
-      maximum: 400,
-      description: "Amplitude of pressure noise (higher = more meander/eddies).",
-    }),
-    /** Planetary wave strength (longitude-dependent meanders). */
-    waveStrength: Type.Number({
-      default: 45,
-      minimum: 0,
-      maximum: 300,
-      description: "Planetary wave strength (longitude-dependent meanders).",
-    }),
-    /** Land heating influence (requires `landMask`; ignored if absent). */
-    landHeatStrength: Type.Number({
-      default: 20,
-      minimum: 0,
-      maximum: 200,
-      description: "Land heating influence (requires landMask; ignored if absent).",
-    }),
-    /** Orography influence (requires `elevation`; ignored if absent). */
-    mountainDeflectStrength: Type.Number({
-      default: 18,
-      minimum: 0,
-      maximum: 200,
-      description: "Orography influence (requires elevation; ignored if absent).",
-    }),
-    /** Bounded smoothing passes over the vector field (higher = smoother, less noisy). */
-    smoothIters: Type.Integer({
-      default: 4,
-      minimum: 0,
-      maximum: 16,
-      description:
-        "Bounded smoothing passes over the vector field (higher = smoother, less noisy).",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Atmospheric circulation parameters for the geostrophic-proxy strategy.",
-  }
-);
+import strategies from "./strategies/contract.js";
 
 /** Wind-field contract whose geostrophic proxy is the product default and latitude is the simpler fallback. */
 const ComputeAtmosphericCirculationContract = defineOp({
@@ -193,10 +72,7 @@ const ComputeAtmosphericCirculationContract = defineOp({
     }
   ),
   defaultStrategy: "geostrophic-proxy",
-  strategies: {
-    "geostrophic-proxy": ComputeAtmosphericCirculationGeostrophicProxyStrategySchema,
-    latitude: ComputeAtmosphericCirculationLatitudeStrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeAtmosphericCirculationContract;

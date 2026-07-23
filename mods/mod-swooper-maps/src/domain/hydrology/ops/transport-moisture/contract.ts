@@ -1,79 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-
-/**
- * Cardinal transport parameters.
- */
-const TransportMoistureCardinalStrategySchema = Type.Object(
-  {
-    /** Fixed advection iterations (no convergence loops). */
-    iterations: Type.Integer({
-      default: 28,
-      minimum: 0,
-      maximum: 200,
-      description: "Fixed advection iterations (no convergence loops).",
-    }),
-    /** How much upwind humidity influences a tile each step. */
-    advection: Type.Number({
-      default: 0.65,
-      minimum: 0,
-      maximum: 1,
-      description: "How much upwind humidity influences a tile each step.",
-    }),
-    /** How much humidity is retained per iteration. */
-    retention: Type.Number({
-      default: 0.92,
-      minimum: 0,
-      maximum: 1,
-      description: "How much humidity is retained per iteration.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Moisture transport parameters for the cardinal strategy.",
-  }
-);
-
-/**
- * Vector-consistent transport parameters.
- *
- * This strategy uses the full U/V vector (rather than cardinal snapping) to choose 1–2 upwind neighbors.
- */
-const TransportMoistureVectorAdvectionStrategySchema = Type.Object(
-  {
-    /** Fixed advection iterations (no convergence loops). */
-    iterations: Type.Integer({
-      default: 22,
-      minimum: 0,
-      maximum: 200,
-      description: "Fixed advection iterations (no convergence loops).",
-    }),
-    /** How much upwind humidity influences a tile each step. */
-    advection: Type.Number({
-      default: 0.7,
-      minimum: 0,
-      maximum: 1,
-      description: "How much upwind humidity influences a tile each step.",
-    }),
-    /** How much humidity is retained per iteration. */
-    retention: Type.Number({
-      default: 0.93,
-      minimum: 0,
-      maximum: 1,
-      description: "How much humidity is retained per iteration.",
-    }),
-    /** Minimum normalized weight for a secondary upwind neighbor to be considered. */
-    secondaryWeightMin: Type.Number({
-      default: 0.2,
-      minimum: 0,
-      maximum: 1,
-      description: "Minimum normalized weight for a secondary upwind neighbor to be considered.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Moisture transport parameters for the vector-advection strategy.",
-  }
-);
+import strategies from "./strategies/contract.js";
 
 /** Moisture-transport contract with vector advection as the product default and cardinal fallback. */
 const TransportMoistureContract = defineOp({
@@ -130,10 +56,7 @@ const TransportMoistureContract = defineOp({
     }
   ),
   defaultStrategy: "vector-advection",
-  strategies: {
-    "vector-advection": TransportMoistureVectorAdvectionStrategySchema,
-    cardinal: TransportMoistureCardinalStrategySchema,
-  },
+  strategies,
 });
 
 export default TransportMoistureContract;

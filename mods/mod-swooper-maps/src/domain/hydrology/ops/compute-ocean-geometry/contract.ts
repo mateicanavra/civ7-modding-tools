@@ -1,28 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-const ConnectedBasinsStrategySchema = Type.Object(
-  {
-    /** Max coast distance to compute in BFS steps (cap for cost + stability). */
-    maxCoastDistance: Type.Integer({
-      default: 64,
-      minimum: 1,
-      maximum: 1024,
-      description: "Max coast distance to compute in BFS steps (cap for cost + stability).",
-    }),
-    /** Max coast distance at which to emit coast normal/tangent vectors. */
-    maxCoastVectorDistance: Type.Integer({
-      default: 10,
-      minimum: 0,
-      maximum: 256,
-      description: "Max coast distance at which to emit coast normal/tangent vectors.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Ocean geometry parameters (connected-basins strategy).",
-  }
-);
-
+/** Resolves ocean basins, coast distance, and coast orientation from admitted water geometry. */
 const ComputeOceanGeometryContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-ocean-geometry",
@@ -101,9 +80,7 @@ const ComputeOceanGeometryContract = defineOp({
       description: "Ocean geometry helpers (basins + coast fields).",
     }
   ),
-  strategies: {
-    "connected-basins": ConnectedBasinsStrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeOceanGeometryContract;

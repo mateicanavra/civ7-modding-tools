@@ -1,17 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import PlanLakesContract from "./contract.js";
-import { sinkDischargeBudgetStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-/**
- * Op-local registration keeps the lake strategy contract beside the code that
- * owns it. Domain-level config remains a thin facade for recipe-facing knobs.
- */
-const planLakes = createOp(PlanLakesContract, {
-  strategies: { "sink-discharge-budget": sinkDischargeBudgetStrategy },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default planLakes;
+/** Admits terminal drainage basins as lakes while preserving a bounded share of playable land. */
+export default createOp(PlanLakesContract, { strategies });

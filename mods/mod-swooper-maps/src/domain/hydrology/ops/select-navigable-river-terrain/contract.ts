@@ -1,29 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-const EndpointChainRankingStrategySchema = Type.Object(
-  {
-    endpointDischargePercentileMin: Type.Number({
-      default: 0.94,
-      minimum: 0,
-      maximum: 1,
-      description:
-        "Minimum endpoint-discharge percentile admitted into navigable-trunk selection (0..1). Higher values keep only the strongest outlets.",
-    }),
-    targetMajorTileFraction: Type.Number({
-      default: 0.28,
-      minimum: 0,
-      maximum: 1,
-      description:
-        "Target share of eligible major-river tiles to preserve as Civ-visible navigable terrain.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description:
-      "Default navigable-river terrain selection controls. These are internal profile parameters, not the public authoring surface.",
-  }
-);
-
+/** Selects coherent engine-projectable river chains from admitted hydrographic evidence. */
 const SelectNavigableRiverTerrainContract = defineOp({
   kind: "compute",
   id: "hydrology/select-navigable-river-terrain",
@@ -139,9 +117,7 @@ const SelectNavigableRiverTerrainContract = defineOp({
         "Selected navigable-river terrain subset plus the supporting major/minor masks and selection metrics.",
     }
   ),
-  strategies: {
-    "endpoint-chain-ranking": EndpointChainRankingStrategySchema,
-  },
+  strategies,
 });
 
 export default SelectNavigableRiverTerrainContract;

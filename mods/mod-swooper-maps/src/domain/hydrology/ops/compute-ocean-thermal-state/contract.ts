@@ -1,56 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-const LatitudeCurrentAdvectionStrategySchema = Type.Object(
-  {
-    /** Equator baseline SST (C). */
-    equatorTempC: Type.Number({
-      default: 28,
-      minimum: -10,
-      maximum: 60,
-      description: "Equator baseline SST (C).",
-    }),
-    /** Pole baseline SST (C). */
-    poleTempC: Type.Number({
-      default: -2,
-      minimum: -10,
-      maximum: 20,
-      description: "Pole baseline SST (C).",
-    }),
-    /** Fixed advection iterations (no convergence loops). */
-    advectIters: Type.Integer({
-      default: 28,
-      minimum: 0,
-      maximum: 300,
-      description: "Fixed advection iterations (no convergence loops).",
-    }),
-    /** Diffusion strength (0..1) mixed into each iteration. */
-    diffusion: Type.Number({
-      default: 0.18,
-      minimum: 0,
-      maximum: 1,
-      description: "Diffusion strength (0..1) mixed into each iteration.",
-    }),
-    /** Minimum normalized weight for a secondary upcurrent neighbor to be considered. */
-    secondaryWeightMin: Type.Number({
-      default: 0.25,
-      minimum: 0,
-      maximum: 1,
-      description: "Minimum normalized weight for a secondary upcurrent neighbor to be considered.",
-    }),
-    /** SST threshold at which sea ice forms (C). */
-    seaIceThresholdC: Type.Number({
-      default: -1,
-      minimum: -10,
-      maximum: 5,
-      description: "SST threshold at which sea ice forms (C).",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Ocean thermal parameters (latitude-current-advection strategy).",
-  }
-);
-
+/** Derives sea-surface temperature and sea ice from admitted latitude, shelf, and current fields. */
 const ComputeOceanThermalStateContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-ocean-thermal-state",
@@ -100,9 +51,7 @@ const ComputeOceanThermalStateContract = defineOp({
       description: "Ocean thermal outputs (SST + sea ice mask).",
     }
   ),
-  strategies: {
-    "latitude-current-advection": LatitudeCurrentAdvectionStrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeOceanThermalStateContract;

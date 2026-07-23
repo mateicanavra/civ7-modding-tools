@@ -1,50 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-/**
- * Default evaporation parameters.
- *
- * Practical guidance:
- * - If oceans should contribute more moisture globally: increase `oceanStrength`.
- * - If land should contribute more moisture (more humid interiors): increase `landStrength`.
- * - If cold regions evaporate too much: increase `minTempC` (shift cut-off upward).
- */
-const ThermalSurfaceStrategySchema = Type.Object(
-  {
-    /** Evaporation multiplier applied to water tiles. */
-    oceanStrength: Type.Number({
-      default: 1,
-      minimum: 0,
-      maximum: 5,
-      description: "Evaporation multiplier applied to water tiles.",
-    }),
-    /** Evaporation multiplier applied to land tiles. */
-    landStrength: Type.Number({
-      default: 0.2,
-      minimum: 0,
-      maximum: 5,
-      description: "Evaporation multiplier applied to land tiles.",
-    }),
-    /** Temperature threshold below which evaporation is ~0. */
-    minTempC: Type.Number({
-      default: -10,
-      minimum: -60,
-      maximum: 40,
-      description: "Temperature threshold below which evaporation is ~0.",
-    }),
-    /** Temperature threshold above which evaporation is saturated. */
-    maxTempC: Type.Number({
-      default: 30,
-      minimum: -10,
-      maximum: 80,
-      description: "Temperature threshold above which evaporation is saturated.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Evaporation source parameters (thermal-surface strategy).",
-  }
-);
-
+/** Derives bounded evaporation sources from admitted land, temperature, wind, and ocean state. */
 const ComputeEvaporationSourcesContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-evaporation-sources",
@@ -100,9 +57,7 @@ const ComputeEvaporationSourcesContract = defineOp({
       description: "Evaporation source strength output per tile (0..1 proxy).",
     }
   ),
-  strategies: {
-    "thermal-surface": ThermalSurfaceStrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeEvaporationSourcesContract;

@@ -1,19 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-const PriorityFloodStrategySchema = Type.Object(
-  {
-    allowExternalEdgeOutlets: Type.Boolean({
-      default: false,
-      description:
-        "Allows north/south map-edge land to drain externally when no lower water outlet exists.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Drainage routing parameters (priority-flood strategy).",
-  }
-);
-
+/** Routes surface flow across admitted terrain and labels basins, sinks, outlets, and depressions. */
 const ComputeDrainageRoutingContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-drainage-routing",
@@ -70,9 +58,7 @@ const ComputeDrainageRoutingContract = defineOp({
       description: "Hydrology drainage routing truth and diagnostics.",
     }
   ),
-  strategies: {
-    "priority-flood": PriorityFloodStrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeDrainageRoutingContract;

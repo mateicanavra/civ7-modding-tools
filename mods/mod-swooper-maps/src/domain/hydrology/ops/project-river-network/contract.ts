@@ -1,45 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-/**
- * Default river projection parameters.
- */
-const DischargePercentilesStrategySchema = Type.Object(
-  {
-    /** Discharge percentile used as the minor river threshold (0..1). */
-    minorPercentile: Type.Number({
-      default: 0.85,
-      minimum: 0,
-      maximum: 1,
-      description: "Discharge percentile used as the minor river threshold (0..1).",
-    }),
-    /** Discharge percentile used as the major river threshold (0..1). */
-    majorPercentile: Type.Number({
-      default: 0.95,
-      minimum: 0,
-      maximum: 1,
-      description: "Discharge percentile used as the major river threshold (0..1).",
-    }),
-    /** Minimum discharge allowed for minor rivers (same units as discharge). */
-    minMinorDischarge: Type.Number({
-      default: 0,
-      minimum: 0,
-      maximum: 1e9,
-      description: "Minimum discharge allowed for minor rivers (same units as discharge).",
-    }),
-    /** Minimum discharge allowed for major rivers (same units as discharge). */
-    minMajorDischarge: Type.Number({
-      default: 0,
-      minimum: 0,
-      maximum: 1e9,
-      description: "Minimum discharge allowed for major rivers (same units as discharge).",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "River network projection parameters (discharge-percentiles strategy).",
-  }
-);
-
+/** Projects admitted discharge and routing into deterministic minor and major river classes. */
 const ProjectRiverNetworkContract = defineOp({
   kind: "compute",
   id: "hydrology/project-river-network",
@@ -99,9 +61,7 @@ const ProjectRiverNetworkContract = defineOp({
       description: "River projection outputs (class map + computed discharge thresholds).",
     }
   ),
-  strategies: {
-    "discharge-percentiles": DischargePercentilesStrategySchema,
-  },
+  strategies,
 });
 
 export default ProjectRiverNetworkContract;

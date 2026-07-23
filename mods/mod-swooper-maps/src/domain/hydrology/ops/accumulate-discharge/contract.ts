@@ -1,45 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-/**
- * Default discharge accumulation parameters.
- */
-const TopologicalRunoffStrategySchema = Type.Object(
-  {
-    /** Linear scale applied to rainfall when computing a runoff proxy. */
-    runoffScale: Type.Number({
-      default: 1,
-      minimum: 0,
-      maximum: 10,
-      description: "Linear scale applied to rainfall when computing a runoff proxy.",
-    }),
-    /** Fraction of runoff removed as infiltration (dimensionless). */
-    infiltrationFraction: Type.Number({
-      default: 0.15,
-      minimum: 0,
-      maximum: 1,
-      description: "Fraction of runoff removed as infiltration (dimensionless).",
-    }),
-    /** How much humidity reduces runoff source (dimensionless). */
-    humidityDampening: Type.Number({
-      default: 0.25,
-      minimum: 0,
-      maximum: 1,
-      description: "How much humidity reduces runoff source (dimensionless).",
-    }),
-    /** Minimum runoff source value (after scaling). */
-    minRunoff: Type.Number({
-      default: 0,
-      minimum: 0,
-      maximum: 200,
-      description: "Minimum runoff source value (after scaling).",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Discharge accumulation parameters (topological-runoff strategy).",
-  }
-);
-
+/** Accumulates local runoff through admitted drainage routing into discharge, sink, and outlet evidence. */
 const AccumulateDischargeContract = defineOp({
   kind: "compute",
   id: "hydrology/accumulate-discharge",
@@ -96,9 +58,7 @@ const AccumulateDischargeContract = defineOp({
       description: "Discharge accumulation outputs (runoff/discharge + sink/outlet masks).",
     }
   ),
-  strategies: {
-    "topological-runoff": TopologicalRunoffStrategySchema,
-  },
+  strategies,
 });
 
 export default AccumulateDischargeContract;

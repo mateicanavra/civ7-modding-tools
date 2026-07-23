@@ -1,45 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-/**
- * Default diagnostic parameters.
- */
-const TerrainWindIndicesStrategySchema = Type.Object(
-  {
-    /** How far upwind to scan for barriers (tiles). */
-    barrierSteps: Type.Integer({
-      default: 4,
-      minimum: 1,
-      maximum: 16,
-      description: "How far upwind to scan for barriers (tiles).",
-    }),
-    /** Elevation threshold treated as a barrier when estimating rain shadow. */
-    barrierElevationM: Type.Integer({
-      default: 500,
-      minimum: 0,
-      maximum: 9000,
-      description: "Elevation threshold treated as a barrier when estimating rain shadow.",
-    }),
-    /** Distance-to-water value mapped to continentalityIndex=1 (tiles). */
-    continentalityMaxDist: Type.Integer({
-      default: 12,
-      minimum: 1,
-      maximum: 80,
-      description: "Distance-to-water value mapped to continentalityIndex=1 (tiles).",
-    }),
-    /** Normalization factor for convergence proxy from wind divergence. */
-    convergenceNormalization: Type.Number({
-      default: 64,
-      minimum: 1,
-      maximum: 512,
-      description: "Normalization factor for convergence proxy from wind divergence.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Diagnostic climate indices parameters (terrain-wind-indices strategy).",
-  }
-);
-
+/** Derives rain-shadow, continentality, and convergence diagnostics from admitted climate fields. */
 const ComputeClimateDiagnosticsContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-climate-diagnostics",
@@ -101,9 +63,7 @@ const ComputeClimateDiagnosticsContract = defineOp({
       description: "Diagnostic climate indices outputs (advisory).",
     }
   ),
-  strategies: {
-    "terrain-wind-indices": TerrainWindIndicesStrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeClimateDiagnosticsContract;

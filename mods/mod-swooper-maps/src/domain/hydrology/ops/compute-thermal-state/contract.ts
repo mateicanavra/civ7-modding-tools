@@ -1,59 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-/**
- * Default thermal-state parameters.
- */
-const InsolationLapseRateStrategySchema = Type.Object(
-  {
-    /** Global baseline temperature at sea level and mid-insolation. */
-    baseTemperatureC: Type.Number({
-      default: 9,
-      minimum: -40,
-      maximum: 60,
-      description: "Global baseline temperature at sea level and mid-insolation.",
-    }),
-    /** Temperature delta contributed by insolation forcing. */
-    insolationScaleC: Type.Number({
-      default: 47,
-      minimum: 0,
-      maximum: 80,
-      description: "Temperature delta contributed by insolation forcing.",
-    }),
-    /** Temperature change per meter of elevation (negative cools with altitude). */
-    lapseRateCPerM: Type.Number({
-      default: -0.0065,
-      minimum: -0.02,
-      maximum: 0,
-      description: "Temperature change per meter of elevation (negative cools with altitude).",
-    }),
-    /** Extra cooling applied to land tiles (continentality proxy). */
-    landCoolingC: Type.Number({
-      default: 2,
-      minimum: 0,
-      maximum: 15,
-      description: "Extra cooling applied to land tiles (continentality proxy).",
-    }),
-    /** Minimum allowed output temperature (C). */
-    minC: Type.Number({
-      default: -40,
-      minimum: -120,
-      maximum: 60,
-      description: "Minimum allowed output temperature (C).",
-    }),
-    /** Maximum allowed output temperature (C). */
-    maxC: Type.Number({
-      default: 50,
-      minimum: -40,
-      maximum: 120,
-      description: "Maximum allowed output temperature (C).",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Thermal-state parameters (insolation-lapse-rate strategy).",
-  }
-);
-
+/** Computes bounded surface temperature from admitted insolation, elevation, land, and ocean state. */
 const ComputeThermalStateContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-thermal-state",
@@ -107,9 +55,7 @@ const ComputeThermalStateContract = defineOp({
       description: "Surface temperature proxy output per tile (Celsius).",
     }
   ),
-  strategies: {
-    "insolation-lapse-rate": InsolationLapseRateStrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeThermalStateContract;

@@ -1,22 +1,8 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { RiverNetworkMeasurementsSchema } from "../../model/atoms/river-network-measurements.schema.js";
+import strategies from "./strategies/contract.js";
 
-const HydrographicClassificationStrategySchema = Type.Object(
-  {
-    highOrderConfluenceUpstreamAreaMin: Type.Integer({
-      minimum: 0,
-      default: 64,
-      description:
-        "Minimum receiver upstream-area required before a >=2-tributary confluence may escalate stream-order proxy beyond order 2. Headwater (order 1->2) confluences ignore this floor; it suppresses spurious order-3 promotions on small networks where tiny equal-order branches merge.",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description:
-      "Hydrographic classification controls for deriving river hierarchy from confluences and contributing area.",
-  }
-);
-
+/** Classifies an admitted drainage network into hydrographic fields and benchmark measurements. */
 const ComputeRiverNetworkMetricsContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-river-network-metrics",
@@ -93,9 +79,7 @@ const ComputeRiverNetworkMetricsContract = defineOp({
       description: "Hydrology-owned river-network metrics and diagnostic classifications.",
     }
   ),
-  strategies: {
-    "hydrographic-classification": HydrographicClassificationStrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeRiverNetworkMetricsContract;

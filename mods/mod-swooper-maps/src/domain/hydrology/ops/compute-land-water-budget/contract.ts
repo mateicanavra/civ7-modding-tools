@@ -1,56 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-/**
- * Default land water budget parameters.
- *
- * Practical guidance:
- * - If PET feels too strong/weak globally: adjust `petBase` and `petTemperatureWeight`.
- * - If humid climates should suppress PET more: increase `humidityDampening`.
- */
-const PetAridityStrategySchema = Type.Object(
-  {
-    /** Minimum temperature for PET scaling (C). */
-    tMinC: Type.Number({
-      default: 0,
-      minimum: -60,
-      maximum: 40,
-      description: "Minimum temperature for PET scaling (C).",
-    }),
-    /** Maximum temperature for PET scaling (C). */
-    tMaxC: Type.Number({
-      default: 35,
-      minimum: -10,
-      maximum: 80,
-      description: "Maximum temperature for PET scaling (C).",
-    }),
-    /** Baseline PET value (rainfall units). */
-    petBase: Type.Number({
-      default: 18,
-      minimum: 0,
-      maximum: 200,
-      description: "Baseline PET value (rainfall units).",
-    }),
-    /** Temperature contribution to PET scaling. */
-    petTemperatureWeight: Type.Number({
-      default: 75,
-      minimum: 0,
-      maximum: 400,
-      description: "Temperature contribution to PET scaling.",
-    }),
-    /** How much humidity reduces PET (0..1). */
-    humidityDampening: Type.Number({
-      default: 0.55,
-      minimum: 0,
-      maximum: 1,
-      description: "How much humidity reduces PET (0..1).",
-    }),
-  },
-  {
-    additionalProperties: false,
-    description: "Land water budget parameters (pet-aridity strategy).",
-  }
-);
-
+/** Computes potential evapotranspiration and aridity from admitted terrestrial climate fields. */
 const ComputeLandWaterBudgetContract = defineOp({
   kind: "compute",
   id: "hydrology/compute-land-water-budget",
@@ -99,9 +50,7 @@ const ComputeLandWaterBudgetContract = defineOp({
       description: "Land water budget outputs (PET proxy and aridity index).",
     }
   ),
-  strategies: {
-    "pet-aridity": PetAridityStrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeLandWaterBudgetContract;
