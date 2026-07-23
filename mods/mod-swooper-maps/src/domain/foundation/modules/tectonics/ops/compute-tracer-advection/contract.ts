@@ -16,8 +16,10 @@ const ComputeTracerAdvectionContract = defineOp({
           wrapWidth: Type.Number(),
           siteX: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
           siteY: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
-          neighborsOffsets: TypedArraySchemas.i32({ cardinality: null }),
-          neighbors: TypedArraySchemas.i32({ cardinality: null }),
+          neighborsOffsets: TypedArraySchemas.i32({
+            cardinality: { factors: ["mesh.cellCount"], addend: 1 },
+          }),
+          neighbors: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),

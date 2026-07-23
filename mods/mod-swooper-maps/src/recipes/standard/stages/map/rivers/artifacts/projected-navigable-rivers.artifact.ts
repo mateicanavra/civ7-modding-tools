@@ -64,7 +64,7 @@ const Schema = Type.Object(
       description: "Count of selected navigable-river chains.",
     }),
     selectedChainLengths: TypedArraySchemas.u16({
-      cardinality: null,
+      cardinality: "constructor-only",
       description:
         "Length in tiles of each selected navigable-river chain, ordered by endpoint selection priority.",
     }),

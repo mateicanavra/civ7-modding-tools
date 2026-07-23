@@ -55,8 +55,8 @@ export const artifact = defineArtifact({
   schema: Type.Object(
     {
       cellCount: Type.Integer({ minimum: 1 }),
-      flowDir: TypedArraySchemas.i32({ cardinality: null }),
-      flowAccum: TypedArraySchemas.f32({ cardinality: null }),
+      flowDir: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
+      flowAccum: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
     },
     {
       additionalProperties: false,
@@ -88,6 +88,12 @@ export const artifact = defineArtifact({
 `defineArtifact` always projects TypeBox structural issues first. Add `refine`
 only for cardinality, relational, or domain laws the schema cannot express. A
 schema-complete artifact omits it.
+
+Typed-array cardinality modes and their operation-only compilation semantics
+belong to the [operation contract authority](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md#operation-input-admission).
+An artifact's `refine` remains responsible for proving the exact constructor
+and every relational length law. This example proves its artifact-owned
+`cellCount` relation with `appendArtifactTypedArrayIssues`.
 
 The runtime module surface is closed to `artifact` plus erased TypeScript
 types. Put only a genuinely shared schema primitive or cohesive subentity under

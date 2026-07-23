@@ -19,8 +19,12 @@ aliases, complete artifact-schema borrowing, and operation-envelope type
 projection are not alternate authorities. Fixed grid, cell, plate, segment,
 era, and sibling arrays name the count paths that admit them. Constructor-only
 typed arrays remain exceptional and are admitted only for genuinely variable
-CSR adjacency, event, or list values; the Core schema API will replace opaque
-`cardinality: null` with a named mode in its own immediate semantic cut.
+CSR adjacency, event, or list values. The active Core cut names that exception
+`cardinality: "constructor-only"`, rejects legacy null metadata, and preserves
+omission as the canonical grid default plus tuples as explicit path products.
+Fixed offset tables use an explicit product-plus-addend relation such as
+`{ factors: ["mesh.cellCount"], addend: 1 }`; CSR neighbor offsets are therefore
+admitted exactly while only the variable neighbor lists remain constructor-only.
 Contracts may compose small model atoms or cohesive subentities as properties,
 never another container's complete schema. Strategy configuration is not part
 of this burn-down: it remains the next closed kind, with one semantic leaf per
@@ -32,12 +36,13 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** burn the generic operation-contract rule to zero across Ecology,
-Hydrology, Morphology, Placement, and Resources, repairing fixed cardinality at
-the same admission boundary and proving the whole native type/test graph. Seal
-that layer. Next, name constructor-only cardinality in Core; then establish the
-positive strategy-leaf law and `defineStrategy` API before moving the strategy
-corpus. After the mechanical kinds are homogeneous, collapse artifact authoring
+**Gradient:** finish the named cardinality-mode migration across Core, the
+production schema corpus, tests, and canonical examples; prove that no null
+sentinel survives and that every fixed operation-input relation is admitted.
+Do not imply operation-output admission that does not exist: output proof
+remains a later artifact/pipeline decision. Seal that layer.
+Then establish the positive strategy-leaf law and `defineStrategy` API before
+moving the strategy corpus. After the mechanical kinds are homogeneous, collapse artifact authoring
 to one weighted definition. Before settling artifact placement/contract flow,
 recompose `packages/mapgen-core/src/authoring` so its hierarchy truthfully
 expresses the authoring SDK's concepts, ownership, dependency direction, and

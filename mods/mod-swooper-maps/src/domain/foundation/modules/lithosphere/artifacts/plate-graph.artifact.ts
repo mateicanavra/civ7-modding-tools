@@ -15,7 +15,7 @@ export const artifact = defineArtifact({
   id: "artifact:foundation.plateGraph",
   schema: Type.Object(
     {
-      cellToPlate: TypedArraySchemas.i16({ cardinality: null }),
+      cellToPlate: TypedArraySchemas.i16({ cardinality: "constructor-only" }),
       plates: Type.Immutable(Type.Array(PlateSchema)),
     },
     {

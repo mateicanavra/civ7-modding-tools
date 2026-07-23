@@ -65,7 +65,7 @@ export const artifact = defineArtifact({
   schema: Type.Object({
     cellCount: Type.Integer({ minimum: 1 }),
     plates: Type.Array(PlateSchema),
-    plateIdByCell: TypedArraySchemas.i16({ cardinality: null }),
+    plateIdByCell: TypedArraySchemas.i16({ cardinality: "constructor-only" }),
   }),
   refine: (value): readonly ArtifactValidationIssue[] => {
     const graph = value as PlateGraph;
@@ -87,6 +87,11 @@ supplied schema and runs `refine` only after structure succeeds. Artifact owners
 TypeBox validation directly or redeclare the issue contract. The local callback stays `unknown`
 because typed-array constructors and cardinality live in Core's runtime metadata layer rather than
 TypeBox's structural type; owners use Core's typed-array helpers for those checks.
+
+Typed-array cardinality modes and their operation-only compilation semantics
+belong to the [operation contract authority](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md#operation-input-admission).
+An artifact's local `refine` remains responsible for proving the exact
+constructor and every relational length law, as `plateIdByCell` does above.
 
 The only runtime export of an artifact source module is `artifact`; its complete
 payload schema and refinement are authored directly on that definition. Runtime imports are

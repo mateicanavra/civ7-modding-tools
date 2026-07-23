@@ -60,8 +60,10 @@ const ComputeMantleForcingContract = defineOp({
           wrapWidth: Type.Number(),
           siteX: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
           siteY: TypedArraySchemas.f32({ cardinality: ["mesh.cellCount"] }),
-          neighborsOffsets: TypedArraySchemas.i32({ cardinality: null }),
-          neighbors: TypedArraySchemas.i32({ cardinality: null }),
+          neighborsOffsets: TypedArraySchemas.i32({
+            cardinality: { factors: ["mesh.cellCount"], addend: 1 },
+          }),
+          neighbors: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),
@@ -81,12 +83,12 @@ const ComputeMantleForcingContract = defineOp({
         {
           version: Type.Integer({ minimum: 1 }),
           cellCount: Type.Integer({ minimum: 1 }),
-          stress: TypedArraySchemas.f32({ cardinality: null }),
-          forcingU: TypedArraySchemas.f32({ cardinality: null }),
-          forcingV: TypedArraySchemas.f32({ cardinality: null }),
-          forcingMag: TypedArraySchemas.f32({ cardinality: null }),
-          upwellingClass: TypedArraySchemas.i8({ cardinality: null }),
-          divergence: TypedArraySchemas.f32({ cardinality: null }),
+          stress: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+          forcingU: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+          forcingV: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+          forcingMag: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+          upwellingClass: TypedArraySchemas.i8({ cardinality: "constructor-only" }),
+          divergence: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),

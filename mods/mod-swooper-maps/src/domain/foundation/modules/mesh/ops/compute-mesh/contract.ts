@@ -26,11 +26,11 @@ const ComputeMeshContract = defineOp({
         {
           cellCount: Type.Integer({ minimum: 1 }),
           wrapWidth: Type.Number(),
-          siteX: TypedArraySchemas.f32({ cardinality: null }),
-          siteY: TypedArraySchemas.f32({ cardinality: null }),
-          neighborsOffsets: TypedArraySchemas.i32({ cardinality: null }),
-          neighbors: TypedArraySchemas.i32({ cardinality: null }),
-          areas: TypedArraySchemas.f32({ cardinality: null }),
+          siteX: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+          siteY: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+          neighborsOffsets: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
+          neighbors: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
+          areas: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
           bbox: MeshBoundingBoxSchema,
         },
         {

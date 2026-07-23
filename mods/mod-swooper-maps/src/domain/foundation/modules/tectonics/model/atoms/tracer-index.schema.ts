@@ -2,7 +2,7 @@ import { type Static, TypedArraySchemas } from "@swooper/mapgen-core/authoring/s
 
 /** Origin mesh-cell index carried by every advected tracer in one tectonic era. */
 export const TracerIndexSchema = TypedArraySchemas.u32({
-  cardinality: null,
+  cardinality: "constructor-only",
   description: "Origin mesh-cell index carried by every advected tracer in one tectonic era.",
 });
 

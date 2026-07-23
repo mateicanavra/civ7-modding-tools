@@ -194,9 +194,7 @@ describe("operation authoring", () => {
     const annotated = Type.With(contract.strategies.measured, {
       description: "A consumer-owned view over the canonical strategy schema.",
     });
-    expect(annotated.description).toBe(
-      "A consumer-owned view over the canonical strategy schema."
-    );
+    expect(annotated.description).toBe("A consumer-owned view over the canonical strategy schema.");
     expect(Reflect.get(contract.strategies.measured, "description")).toBe(
       "Original strategy schema."
     );
@@ -362,7 +360,10 @@ describe("operation authoring", () => {
           ),
           grid: TypedArraySchemas.u8(),
           latitudeByRow: TypedArraySchemas.f32({ cardinality: ["height"] }),
-          constructorOnly: TypedArraySchemas.i16({ cardinality: null }),
+          offsets: TypedArraySchemas.i32({
+            cardinality: { factors: ["plan.width", "plan.height"], addend: 1 },
+          }),
+          constructorOnly: TypedArraySchemas.i16({ cardinality: "constructor-only" }),
           rows: Type.Array(
             Type.Object(
               {
@@ -396,6 +397,7 @@ describe("operation authoring", () => {
           plan: { width: 2, height: 2 },
           grid: new Uint8Array(6),
           latitudeByRow: new Float32Array(2),
+          offsets: new Int32Array(5),
           constructorOnly: new Int16Array(1),
           rows: [{ mask: new Uint8Array(4) }, { mask: new Uint8Array(4) }],
         },
@@ -451,6 +453,9 @@ describe("operation authoring", () => {
           ),
           grid: TypedArraySchemas.u8(),
           latitudeByRow: TypedArraySchemas.f32({ cardinality: ["height"] }),
+          offsets: TypedArraySchemas.i32({
+            cardinality: { factors: ["plan.width", "plan.height"], addend: 1 },
+          }),
           rows: Type.Array(
             Type.Object(
               {
@@ -486,6 +491,7 @@ describe("operation authoring", () => {
           plan: { width: 2, height: 2 },
           grid: new Int8Array(6) as unknown as Uint8Array,
           latitudeByRow: new Float32Array(3),
+          offsets: new Int32Array(4),
           rows: [{ mask: new Uint8Array(3) }, { mask: new Uint8Array(4) }],
         },
         op.defaultConfig
@@ -508,13 +514,23 @@ describe("operation authoring", () => {
         code: "typed-array-cardinality",
         path: "$.latitudeByRow",
         cardinalityPaths: ["height"],
+        addend: 0,
         expectedLength: 2,
         observedLength: 3,
       },
       {
         code: "typed-array-cardinality",
+        path: "$.offsets",
+        cardinalityPaths: ["plan.width", "plan.height"],
+        addend: 1,
+        expectedLength: 5,
+        observedLength: 4,
+      },
+      {
+        code: "typed-array-cardinality",
         path: "$.rows[0].mask",
         cardinalityPaths: ["plan.width", "plan.height"],
+        addend: 0,
         expectedLength: 4,
         observedLength: 3,
       },
@@ -531,7 +547,7 @@ describe("operation authoring", () => {
       id: "test/exact-operation-input-constructor",
       input: Type.Object(
         {
-          value: TypedArraySchemas.u8({ cardinality: null }),
+          value: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),
@@ -581,7 +597,7 @@ describe("operation authoring", () => {
           optional: Type.Optional(
             Type.Object(
               {
-                requiredValue: TypedArraySchemas.u8({ cardinality: null }),
+                requiredValue: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
               },
               { additionalProperties: false }
             )
@@ -591,7 +607,7 @@ describe("operation authoring", () => {
               rows: Type.Array(
                 Type.Object(
                   {
-                    value: TypedArraySchemas.u8({ cardinality: null }),
+                    value: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
                   },
                   { additionalProperties: false }
                 )
@@ -655,8 +671,8 @@ describe("operation authoring", () => {
         {
           value: Type.Optional(
             Type.Union([
-              TypedArraySchemas.f32({ cardinality: null }),
-              TypedArraySchemas.i16({ cardinality: null }),
+              TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+              TypedArraySchemas.i16({ cardinality: "constructor-only" }),
               Type.Undefined(),
             ])
           ),
@@ -697,7 +713,10 @@ describe("operation authoring", () => {
       id: "test/required-undefined-operation-input",
       input: Type.Object(
         {
-          value: Type.Union([TypedArraySchemas.u8({ cardinality: null }), Type.Undefined()]),
+          value: Type.Union([
+            TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+            Type.Undefined(),
+          ]),
         },
         { additionalProperties: false }
       ),
@@ -722,7 +741,7 @@ describe("operation authoring", () => {
       id: "test/inherited-optional-operation-input",
       input: Type.Object(
         {
-          value: Type.Optional(TypedArraySchemas.u8({ cardinality: null })),
+          value: Type.Optional(TypedArraySchemas.u8({ cardinality: "constructor-only" })),
         },
         { additionalProperties: false }
       ),
@@ -756,14 +775,17 @@ describe("operation authoring", () => {
 
   it("fails closed for typed arrays nested under unsupported schema containers", () => {
     for (const [id, input] of [
-      ["tuple", Type.Tuple([TypedArraySchemas.u8({ cardinality: null })])],
-      ["record", Type.Record(Type.String(), TypedArraySchemas.u8({ cardinality: null }))],
+      ["tuple", Type.Tuple([TypedArraySchemas.u8({ cardinality: "constructor-only" })])],
+      [
+        "record",
+        Type.Record(Type.String(), TypedArraySchemas.u8({ cardinality: "constructor-only" })),
+      ],
       [
         "cyclic",
         Type.Cyclic(
           {
             Node: Type.Object({
-              value: TypedArraySchemas.u8({ cardinality: null }),
+              value: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
               next: Type.Optional(Type.Ref("Node")),
             }),
           },
@@ -791,7 +813,7 @@ describe("operation authoring", () => {
 
   it("fails closed for direct and nested typed-array references", () => {
     const referenced = TypedArraySchemas.u8({
-      cardinality: null,
+      cardinality: "constructor-only",
       $id: "test/referenced-operation-input-buffer",
     });
     const reference = () =>
@@ -821,7 +843,7 @@ describe("operation authoring", () => {
   it("rejects inherited typed-array constructor metadata at contract construction", () => {
     const runtimeMetadata = Object.assign(Object.create({ ctor: "Uint8Array" }), {
       kind: "typed-array",
-      cardinality: null,
+      cardinality: "constructor-only",
     });
     const inheritedConstructorSchema = Type.Unsafe<Uint8Array>(
       Type.Any({ "x-runtime": runtimeMetadata })
@@ -846,7 +868,7 @@ describe("operation authoring", () => {
   it("rejects inherited typed-array kind metadata at contract construction", () => {
     const runtimeMetadata = Object.assign(Object.create({ kind: "typed-array" }), {
       ctor: "Uint8Array",
-      cardinality: null,
+      cardinality: "constructor-only",
     });
     const inheritedKindSchema = Type.Unsafe<Uint8Array>(Type.Any({ "x-runtime": runtimeMetadata }));
     const contract = defineOp({
@@ -870,7 +892,7 @@ describe("operation authoring", () => {
     for (const key of ["anyOf", "allOf"] as const) {
       const valueSchema = Type.Any();
       (valueSchema as unknown as Record<string, unknown>)[key] = [
-        TypedArraySchemas.u8({ cardinality: null }),
+        TypedArraySchemas.u8({ cardinality: "constructor-only" }),
         0,
       ];
       const contract = defineOp({
@@ -888,6 +910,73 @@ describe("operation authoring", () => {
           },
         })
       ).toThrow('Operation typed-array metadata at "$.value" uses an unsupported schema container');
+    }
+  });
+
+  it("rejects legacy null typed-array cardinality metadata", () => {
+    const legacyConstructorOnlySchema = Type.Unsafe<Uint8Array>(
+      Type.Any({
+        "x-runtime": {
+          kind: "typed-array",
+          ctor: "Uint8Array",
+          cardinality: null,
+        },
+      })
+    );
+    const contract = defineOp({
+      kind: "compute",
+      id: "test/legacy-null-operation-input-cardinality",
+      input: Type.Object({ value: legacyConstructorOnlySchema }, { additionalProperties: false }),
+      output: Type.Integer(),
+      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+    });
+
+    expect(() =>
+      createOp(contract, {
+        strategies: {
+          single: createStrategy(contract, "single", { run: () => 0 }),
+        },
+      })
+    ).toThrow("Invalid typed-array cardinality metadata for Uint8Array");
+  });
+
+  it("rejects malformed product-plus-addend typed-array cardinality metadata", () => {
+    for (const [id, cardinality] of [
+      ["missing-addend", { factors: ["width"] }],
+      ["missing-factors", { addend: 1 }],
+      ["empty-factors", { factors: [], addend: 1 }],
+      ["negative-addend", { factors: ["width"], addend: -1 }],
+      ["fractional-addend", { factors: ["width"], addend: 0.5 }],
+      ["unsafe-addend", { factors: ["width"], addend: Number.MAX_SAFE_INTEGER + 1 }],
+      ["extra-key", { factors: ["width"], addend: 1, unit: "cells" }],
+    ] as const) {
+      const malformedSchema = Type.Unsafe<Uint8Array>(
+        Type.Any({
+          "x-runtime": {
+            kind: "typed-array",
+            ctor: "Uint8Array",
+            cardinality,
+          },
+        })
+      );
+      const contract = defineOp({
+        kind: "compute",
+        id: `test/${id}-product-plus-addend-operation-input-cardinality`,
+        input: Type.Object(
+          { width: Type.Integer({ minimum: 1 }), value: malformedSchema },
+          { additionalProperties: false }
+        ),
+        output: Type.Integer(),
+        strategies: { single: Type.Object({}, { additionalProperties: false }) },
+      });
+
+      expect(() =>
+        createOp(contract, {
+          strategies: {
+            single: createStrategy(contract, "single", { run: () => 0 }),
+          },
+        })
+      ).toThrow("Invalid typed-array cardinality metadata for Uint8Array");
     }
   });
 
@@ -1024,6 +1113,7 @@ describe("operation authoring", () => {
             code: "typed-array-cardinality",
             path: "$.grid",
             cardinalityPaths: ["width", "height"],
+            addend: 0,
             expectedLength: 6,
             observedLength: 5,
           },
@@ -1062,7 +1152,7 @@ describe("operation authoring", () => {
       id: "test/intersected-operation-input-requiredness",
       input: Type.Intersect([
         Type.Object({
-          value: Type.Optional(TypedArraySchemas.u8({ cardinality: null })),
+          value: Type.Optional(TypedArraySchemas.u8({ cardinality: "constructor-only" })),
         }),
         Type.Object({ value: Type.Any() }),
       ]),
@@ -1154,7 +1244,7 @@ describe("operation authoring", () => {
     const contract = defineOp({
       kind: "compute",
       id: "test/closed-operation-input-array-traversal",
-      input: Type.Array(TypedArraySchemas.u8({ cardinality: null })),
+      input: Type.Array(TypedArraySchemas.u8({ cardinality: "constructor-only" })),
       output: Type.Integer(),
       strategies: { single: Type.Object({}, { additionalProperties: false }) },
     });
@@ -1216,6 +1306,52 @@ describe("operation authoring", () => {
             path: "$.grid",
             cardinalityPaths: ["width", "height"],
             factors: [Number.MAX_SAFE_INTEGER, 2],
+            addend: 0,
+          },
+        ],
+      })
+    );
+  });
+
+  it("fails closed when a product-plus-addend cardinality exceeds safe integer length", () => {
+    const contract = defineOp({
+      kind: "compute",
+      id: "test/overflowing-product-plus-addend-operation-cardinality",
+      input: Type.Object(
+        {
+          cellCount: Type.Integer({ minimum: 1 }),
+          offsets: TypedArraySchemas.i32({
+            cardinality: { factors: ["cellCount"], addend: 1 },
+          }),
+        },
+        { additionalProperties: false }
+      ),
+      output: Type.Integer(),
+      strategies: { single: Type.Object({}, { additionalProperties: false }) },
+    });
+    const op = createOp(contract, {
+      strategies: {
+        single: createStrategy(contract, "single", { run: () => 0 }),
+      },
+    });
+
+    expect(() =>
+      op.run(
+        {
+          cellCount: Number.MAX_SAFE_INTEGER,
+          offsets: new Int32Array(),
+        },
+        op.defaultConfig
+      )
+    ).toThrow(
+      expect.objectContaining({
+        issues: [
+          {
+            code: "typed-array-cardinality-overflow",
+            path: "$.offsets",
+            cardinalityPaths: ["cellCount"],
+            factors: [Number.MAX_SAFE_INTEGER],
+            addend: 1,
           },
         ],
       })

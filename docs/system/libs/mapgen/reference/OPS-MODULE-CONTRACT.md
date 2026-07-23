@@ -1,6 +1,7 @@
 <toc>
   <item id="purpose" title="Purpose"/>
   <item id="contract" title="Contract"/>
+  <item id="operation-input-admission" title="Operation input admission"/>
   <item id="types" title="Type authority"/>
   <item id="strategies" title="Strategies (how variability is encoded)"/>
   <item id="anchors" title="Ground truth anchors"/>
@@ -56,6 +57,37 @@ output: Type.Object({
   events: Type.Array(TectonicEventSchema),
 }),
 ```
+
+## Operation input admission
+
+Operation inputs are the canonical compilation boundary for typed-array
+cardinality metadata. Select the mode by the exact relation the input owns:
+
+- omitted `cardinality` means the conventional grid product `width * height`;
+- a path tuple means the exact product of the referenced numeric input paths;
+- `{ factors, addend }` means that product plus a fixed nonnegative addend,
+  including the terminal entry in a CSR offsets array; and
+- `"constructor-only"` checks the exact constructor without a length relation
+  and is reserved for inputs that genuinely have no fixed input-relative
+  cardinality.
+
+```ts
+input: Type.Object({
+  width: Type.Integer({ minimum: 1 }),
+  height: Type.Integer({ minimum: 1 }),
+  cellCount: Type.Integer({ minimum: 1 }),
+  grid: TypedArraySchemas.u8(),
+  latitudeByRow: TypedArraySchemas.f32({ cardinality: ["height"] }),
+  offsets: TypedArraySchemas.i32({
+    cardinality: { factors: ["cellCount"], addend: 1 },
+  }),
+  samples: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+}),
+```
+
+Only typed-array schemas reachable through an operation's input compile this
+metadata into runtime admission. Operation outputs and artifact schemas do not;
+their owners retain responsibility for any constructor or relational checks.
 
 ## Type authority
 

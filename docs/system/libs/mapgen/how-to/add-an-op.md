@@ -48,6 +48,34 @@ domain). It routes to:
 - For a multi-strategy operation, add `defaultStrategy` explicitly; object order never selects behavior.
 - Make schemas explicit (TypedArray schemas for binary grids; keep descriptions meaningful).
 
+#### Typed-array input admission
+
+Choose typed-array cardinality from the input relation the operation can prove:
+
+- omit `cardinality` for the conventional `width * height` grid;
+- use a path tuple for the exact product of those numeric input paths;
+- use `{ factors, addend }` for an exact product plus a fixed nonnegative
+  addend, such as a CSR offsets array with one terminal entry; and
+- use `"constructor-only"` only when the input genuinely has no fixed
+  input-relative length relation.
+
+```ts
+input: Type.Object({
+  width: Type.Integer({ minimum: 1 }),
+  height: Type.Integer({ minimum: 1 }),
+  cellCount: Type.Integer({ minimum: 1 }),
+  grid: TypedArraySchemas.u8(),
+  latitudeByRow: TypedArraySchemas.f32({ cardinality: ["height"] }),
+  offsets: TypedArraySchemas.i32({
+    cardinality: { factors: ["cellCount"], addend: 1 },
+  }),
+  samples: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+}),
+```
+
+Only typed-array schemas reachable through an operation's input compile this
+metadata into runtime admission. Operation outputs and artifact schemas do not.
+
 Representative owner-local input/output fragment. The complete `defineOp`
 example returns after the strategy leaf contract API lands; this fragment does
 not invent an invalid empty strategy registry in the meantime:

@@ -59,8 +59,10 @@ const ComputeCrustEvolutionContract = defineOp({
       mesh: Type.Object(
         {
           cellCount: Type.Integer({ minimum: 1 }),
-          neighborsOffsets: TypedArraySchemas.i32({ cardinality: null }),
-          neighbors: TypedArraySchemas.i32({ cardinality: null }),
+          neighborsOffsets: TypedArraySchemas.i32({
+            cardinality: { factors: ["mesh.cellCount"], addend: 1 },
+          }),
+          neighbors: TypedArraySchemas.i32({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),
@@ -110,15 +112,15 @@ const ComputeCrustEvolutionContract = defineOp({
     {
       crust: Type.Object(
         {
-          maturity: TypedArraySchemas.f32({ cardinality: null }),
-          thickness: TypedArraySchemas.f32({ cardinality: null }),
-          thermalAge: TypedArraySchemas.u8({ cardinality: null }),
-          damage: TypedArraySchemas.u8({ cardinality: null }),
-          type: TypedArraySchemas.u8({ cardinality: null }),
-          age: TypedArraySchemas.u8({ cardinality: null }),
-          buoyancy: TypedArraySchemas.f32({ cardinality: null }),
-          baseElevation: TypedArraySchemas.f32({ cardinality: null }),
-          strength: TypedArraySchemas.f32({ cardinality: null }),
+          maturity: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+          thickness: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+          thermalAge: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          damage: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          type: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          age: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          buoyancy: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+          baseElevation: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
+          strength: TypedArraySchemas.f32({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),

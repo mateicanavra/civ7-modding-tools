@@ -3,13 +3,13 @@ import { type Static, Type, TypedArraySchemas } from "@swooper/mapgen-core/autho
 /** Per-cell origin and most-recent-boundary evidence reconstructed from tracers. */
 export const TectonicProvenanceFieldsSchema = Type.Object(
   {
-    originEra: TypedArraySchemas.u8({ cardinality: null }),
-    originPlateId: TypedArraySchemas.i16({ cardinality: null }),
-    lastBoundaryEra: TypedArraySchemas.u8({ cardinality: null }),
-    lastBoundaryType: TypedArraySchemas.u8({ cardinality: null }),
-    lastBoundaryPolarity: TypedArraySchemas.i8({ cardinality: null }),
-    lastBoundaryIntensity: TypedArraySchemas.u8({ cardinality: null }),
-    crustAge: TypedArraySchemas.u8({ cardinality: null }),
+    originEra: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    originPlateId: TypedArraySchemas.i16({ cardinality: "constructor-only" }),
+    lastBoundaryEra: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    lastBoundaryType: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    lastBoundaryPolarity: TypedArraySchemas.i8({ cardinality: "constructor-only" }),
+    lastBoundaryIntensity: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+    crustAge: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
   },
   {
     additionalProperties: false,

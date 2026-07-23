@@ -38,13 +38,13 @@ const ComputeTectonicsCurrentContract = defineOp({
     {
       tectonics: Type.Object(
         {
-          boundaryType: TypedArraySchemas.u8({ cardinality: null }),
-          upliftPotential: TypedArraySchemas.u8({ cardinality: null }),
-          riftPotential: TypedArraySchemas.u8({ cardinality: null }),
-          shearStress: TypedArraySchemas.u8({ cardinality: null }),
-          volcanism: TypedArraySchemas.u8({ cardinality: null }),
-          fracture: TypedArraySchemas.u8({ cardinality: null }),
-          cumulativeUplift: TypedArraySchemas.u8({ cardinality: null }),
+          boundaryType: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          upliftPotential: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          riftPotential: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          shearStress: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          volcanism: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          fracture: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
+          cumulativeUplift: TypedArraySchemas.u8({ cardinality: "constructor-only" }),
         },
         { additionalProperties: false }
       ),
