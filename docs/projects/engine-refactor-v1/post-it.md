@@ -11,13 +11,15 @@ their destination kind is sealed.
 law -> source conformance -> verification. A niche may refine a kind but may not
 recreate, weaken, or hardcode its membership.
 
-**Current container:** bounded Grit acquisition is sealed. Re-establish the
-domain, artifact, stage, step, and exported-capability laws as generic,
-positive blueprint authority before resuming source normalization. Membership
-and topology belong to `pathCoverage` and `structure.toml`; Grit expresses only
-cheap syntax relationships inside the admitted kind; TypeScript owns
-invariants it can prove directly. Existing niche guards remain until a named
-generic or typed authority demonstrably absorbs them.
+**Current container:** bounded Grit acquisition and the generic domain,
+artifact, stage, and step laws are sealed. Burn down immutable data products
+into domain-owned artifact catalogs, remove projection/evidence state that was
+misclassified as domain truth, and make the nested recipe tree consume only
+public domain surfaces. Membership and topology stay in `pathCoverage` and
+`structure.toml`; Grit expresses only cheap syntax relationships inside the
+admitted kind; TypeScript owns invariants it can prove directly. Existing niche
+guards remain until a named generic or typed authority demonstrably absorbs
+them.
 
 **Stable ownership:** domains own immutable semantic data-product contracts;
 recipes own orchestration and publication; live Civ7 state is adapter
@@ -25,10 +27,12 @@ observation; metrics, diagnostics, trace, and visualization are separate
 capabilities. Core owns the generic authoring/execution SDK, not Swooper's
 domain model.
 
-**Gradient:** eliminate compensating niche rules, broad negative scans,
-storage-shaped escape hatches, and duplicate authorities. The remaining work
-falls out of the red kind corpus and ends only when the generic laws, source
-tree, types, tests, Knip, and boundary graph agree.
+**Gradient:** finish the four-domain artifact migration, then drain the
+remaining map/placement artifact directories into adapter observation,
+domain products, or metrics/diagnostics evidence. After source conformance,
+eliminate compensating niche rules, storage-shaped escape hatches, dead
+exports, and duplicate authorities. The program ends only when the generic
+laws, source tree, types, tests, Knip, and boundary graph agree.
 
 **Release cadence:** cut each directionally reviewed law or completed
 burn-down into its own Graphite branch as soon as its proof closes. The dirty

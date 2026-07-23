@@ -20,8 +20,6 @@ import ScoreColdReefContract from "./reef-score-cold-reef/contract.js";
 import ScoreLotusContract from "./reef-score-lotus/contract.js";
 import ScoreReefContract from "./reef-score-reef/contract.js";
 import RefineBiomeEdgesContract from "./refine-biome-edges/contract.js";
-import ResourcePlanBasinsContract from "./resource-plan-basins/contract.js";
-import ResourceScoreBalanceContract from "./resource-score-balance/contract.js";
 import ScoreVegetationForestContract from "./vegetation-score-forest/contract.js";
 import ScoreVegetationRainforestContract from "./vegetation-score-rainforest/contract.js";
 import ScoreVegetationSagebrushSteppeContract from "./vegetation-score-sagebrush-steppe/contract.js";
@@ -37,8 +35,6 @@ export const contracts = {
   classifyBiomes: BiomeClassificationContract,
   classifyPedology: PedologyClassifyContract,
   aggregatePedology: AggregatePedologyContract,
-  planResourceBasins: ResourcePlanBasinsContract,
-  scoreResourceBasins: ResourceScoreBalanceContract,
   refineBiomeEdges: RefineBiomeEdgesContract,
 
   computeFeatureSubstrate: ComputeFeatureSubstrateContract,
@@ -94,8 +90,6 @@ export {
   PlotEffectsScoreSandContract,
   PlotEffectsScoreSnowContract,
   RefineBiomeEdgesContract,
-  ResourcePlanBasinsContract,
-  ResourceScoreBalanceContract,
   ScoreAtollContract,
   ScoreColdReefContract,
   ScoreIceContract,

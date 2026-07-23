@@ -3,8 +3,8 @@ import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
-import { PlotRiversStepContract } from "../../../../../../../../src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.js";
-import { PlotRiversStep } from "../../../../../../../../src/recipes/standard/stages/map-rivers/steps/plot-rivers/step.js";
+import { PlotRiversStepContract } from "../../../../../../../../src/recipes/standard/stages/map/rivers/steps/plot-rivers/config.js";
+import { PlotRiversStep } from "../../../../../../../../src/recipes/standard/stages/map/rivers/steps/plot-rivers/step.js";
 import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 import { standardMapConfig } from "../../../../../fixtures/standard-recipe.js";
 

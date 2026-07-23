@@ -53,22 +53,23 @@ Hydrology requires:
 Hydrology provides:
 
 - `artifact:hydrology.baselineClimateField` (annual-mean rainfall/humidity used by routing and refinement)
-- `artifact:climateField` (final-refined rainfall/humidity used by Ecology and engine projection)
+- `artifact:hydrology.climateField` (final-refined rainfall/humidity used by Ecology and engine projection)
 - `artifact:hydrology.climateSeasonality` (amplitude surface)
 - `artifact:hydrology.hydrography` (canonical drainage routing + discharge + river class snapshot)
-- `artifact:hydrology.riverNetworkMetrics` (upstream area, hierarchy, mouth,
-  slope, and permanence diagnostics derived from Hydrology evidence)
+- `artifact:hydrology.riverNetwork` (upstream area, hierarchy, mouth, slope,
+  and permanence fields consumed by river projection)
 - `artifact:hydrology.climateIndices` (advisory indices for downstream consumption)
 - `artifact:hydrology.cryosphere` (cryosphere products; neutralized when knob disables it)
-- `artifact:hydrology.climateDiagnostics` (diagnostic projections; not a source artifact)
 
 ## Key artifacts
 
-Hydrology artifacts are authored by the standard recipe (content-owned):
+Hydrology's semantic data products are owned by its domain catalog:
 
-- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/artifacts/`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/artifacts/`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/artifacts/`
+- `mods/mod-swooper-maps/src/domain/hydrology/artifacts/index.ts`
+
+Aggregate river benchmark evidence is emitted through the Lakes step's metrics
+facet rather than retained as pipeline state. Climate diagnostics similarly
+remain invocation-local output consumed by visualization.
 
 ## Ops surface
 
@@ -117,7 +118,7 @@ not duplicate recipe benchmark policy.
 The `map-hydrology` stage:
 
 - is projection-only,
-- writes every sample from final `artifact:climateField` to the adapter exactly once,
+- writes every sample from final `artifact:hydrology.climateField` to the adapter exactly once,
 - then projects static lake intent before engine elevation,
 - and does not compute a second rainfall or lake model.
 
@@ -190,18 +191,18 @@ different writer surface is discovered and proven.
 ## Ground truth anchors
 
 - Stage definitions (knobs + step list):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/index.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/baseline/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/hydrography/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/refine/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/hydrology/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/rivers/index.ts`
 - Step contracts (truth stages):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/steps/climate-baseline/config.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/steps/rivers/config.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/steps/climate-refine/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/baseline/steps/climate-baseline/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/hydrography/steps/rivers/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/config.ts`
 - Step contracts (projection stage):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes/config.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plot-rivers/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/hydrology/steps/lakes/config.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map/rivers/steps/plot-rivers/config.ts`
 - Effect tag registry: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 

@@ -19,6 +19,11 @@ export {
   WATER_CLASS_LAND,
   WATER_CLASS_OCEAN,
 } from "./coast-classification.js";
+export type {
+  Civ7CoastProjection,
+  Civ7CoastProjectionInput,
+} from "./coast-projection.js";
+export { deriveCiv7CoastProjection } from "./coast-projection.js";
 export type { CoastRingPolicyResult } from "./coast-ring.js";
 export { applyCiv7CoastRingPolicy, CIV7_COAST_RING_POLICY_V0 } from "./coast-ring.js";
 export { NO_FEATURE_TYPE } from "./feature-constants.js";

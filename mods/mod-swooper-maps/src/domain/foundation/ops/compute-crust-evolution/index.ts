@@ -159,12 +159,15 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           const mesh = input.mesh;
           const cellCount = mesh.cellCount | 0;
 
-          const crustInit = input.crustInit;
+          const initialCrust = input.initialCrust;
           const tectonics = input.tectonics;
           const tectonicHistory = input.tectonicHistory;
-          if (crustInit.thickness.length !== cellCount || crustInit.strength.length !== cellCount) {
+          if (
+            initialCrust.thickness.length !== cellCount ||
+            initialCrust.strength.length !== cellCount
+          ) {
             throw new Error(
-              "[Foundation] Invalid crustInit.cellCount for compute-crust-evolution."
+              "[Foundation] Invalid initialCrust.cellCount for compute-crust-evolution."
             );
           }
           if (
@@ -200,7 +203,7 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           const thermalAgeStep = eraCount > 0 ? 1 / eraCount : 0;
 
           for (let i = 0; i < cellCount; i++) {
-            const initThickness = crustInit.thickness[i] ?? 0.25;
+            const initThickness = initialCrust.thickness[i] ?? 0.25;
 
             let maturity01 = 0;
             let thickness01 = clamp01(initThickness);

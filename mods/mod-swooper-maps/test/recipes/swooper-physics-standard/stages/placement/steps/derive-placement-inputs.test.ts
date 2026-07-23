@@ -112,10 +112,12 @@ describe("derive placement inputs", () => {
         },
         lakePlan: { lakeMask: new Uint8Array(size) },
         biomeClassification: {
+          vegetationDensity: new Float32Array(size).fill(0.5),
+        },
+        climateIndices: {
           effectiveMoisture: new Float32Array(size).fill(0.5),
           surfaceTemperature: new Float32Array(size).fill(0.5),
           aridityIndex: new Float32Array(size).fill(0.5),
-          vegetationDensity: new Float32Array(size).fill(0.5),
         },
         pedology: { fertility: new Float32Array(size).fill(0.5) },
       },
@@ -237,10 +239,12 @@ describe("derive placement inputs", () => {
         },
         lakePlan: { lakeMask: new Uint8Array(size) },
         biomeClassification: {
+          vegetationDensity: new Float32Array(size).fill(0.5),
+        },
+        climateIndices: {
           effectiveMoisture: new Float32Array(size).fill(0.5),
           surfaceTemperature: new Float32Array(size).fill(0.5),
           aridityIndex: new Float32Array(size).fill(0.5),
-          vegetationDensity: new Float32Array(size).fill(0.5),
         },
         pedology: { fertility: new Float32Array(size).fill(0.5) },
       },
@@ -368,7 +372,7 @@ describe("derive placement inputs", () => {
         topography: { landMask: new Uint8Array(size).fill(1), elevation },
         hydrography: { riverClass: new Uint8Array(size).fill(2) },
         lakePlan: { lakeMask: new Uint8Array(size) },
-        biomeClassification: {
+        climateIndices: {
           aridityIndex: new Float32Array(size).fill(0.25),
         },
         naturalWonderPlanSurfaces: {

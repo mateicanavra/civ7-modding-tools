@@ -22,13 +22,13 @@ export const DerivePlacementInputsStep = createStep(DerivePlacementInputsStepCon
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
-    // slopeClass is a Hydrology river-network diagnostic owned by the
-    // riverNetworkMetrics artifact, not hydrography. Read it from its canonical
-    // source (published by the upstream hydrology-hydrography `lakes` step).
-    const riverNetworkMetrics = deps.artifacts.riverNetworkMetrics.read(context);
+    // River hierarchy is independent Hydrology truth, not part of the mutable
+    // hydrography flow field.
+    const riverNetwork = deps.artifacts.riverNetwork.read(context);
     // Lake placement constraints use the deterministic Hydrology plan. Engine
     // projection artifacts remain diagnostics for materialization drift.
     const lakePlan = deps.artifacts.lakePlan.read(context);
+    const climateIndices = deps.artifacts.climateIndices.read(context);
     const biomeClassification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);
     const mapSizeId = deps.engine.getMapSizeId(context);
@@ -49,14 +49,16 @@ export const DerivePlacementInputsStep = createStep(DerivePlacementInputsStepCon
         hydrography: {
           riverClass: hydrography.riverClass as Uint8Array,
           discharge: hydrography.discharge as Float32Array,
-          slopeClass: riverNetworkMetrics.slopeClass as Uint8Array,
+          slopeClass: riverNetwork.slopeClass as Uint8Array,
         },
         lakePlan: { lakeMask: lakePlan.lakeMask as Uint8Array },
         biomeClassification: {
-          effectiveMoisture: biomeClassification.effectiveMoisture as Float32Array,
-          surfaceTemperature: biomeClassification.surfaceTemperature as Float32Array,
-          aridityIndex: biomeClassification.aridityIndex as Float32Array,
           vegetationDensity: biomeClassification.vegetationDensity as Float32Array,
+        },
+        climateIndices: {
+          effectiveMoisture: climateIndices.effectiveMoisture as Float32Array,
+          surfaceTemperature: climateIndices.surfaceTemperatureC as Float32Array,
+          aridityIndex: climateIndices.aridityIndex as Float32Array,
         },
         pedology: { fertility: pedology.fertility as Float32Array },
       },
@@ -80,8 +82,8 @@ export const DerivePlacementInputsStep = createStep(DerivePlacementInputsStepCon
         },
         hydrography: { riverClass: hydrography.riverClass as Uint8Array },
         lakePlan: { lakeMask: lakePlan.lakeMask as Uint8Array },
-        biomeClassification: {
-          aridityIndex: biomeClassification.aridityIndex as Float32Array,
+        climateIndices: {
+          aridityIndex: climateIndices.aridityIndex as Float32Array,
         },
         naturalWonderPlanSurfaces,
       },

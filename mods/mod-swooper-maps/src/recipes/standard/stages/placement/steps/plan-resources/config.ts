@@ -1,13 +1,14 @@
+import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import resources from "@mapgen/domain/resources";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { artifacts as standardArtifacts } from "../../../../artifacts/index.js";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
-import { artifacts as hydrologyClimateRefineArtifacts } from "../../../hydrology-climate-refine/artifacts/index.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
-import { artifacts as mapRiversArtifacts } from "../../../map-rivers/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
-import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
+import { artifacts as mapRiversArtifacts } from "../../../map/rivers/artifacts/index.js";
+import {
+  artifactModules as placementArtifactModules,
+  artifacts as placementArtifacts,
+} from "../../artifacts/index.js";
 
 /**
  * Defines resource intent from final physics truth and the declared Civ7
@@ -25,14 +26,14 @@ export const PlanResourcesStepContract = defineStep({
       morphologyArtifacts.landmasses,
       morphologyArtifacts.mountains,
       morphologyArtifacts.beltDrivers,
-      hydrologyHydrographyArtifacts.hydrography,
-      hydrologyHydrographyArtifacts.lakePlan,
+      hydrologyArtifacts.hydrography,
+      hydrologyArtifacts.lakePlan,
       mapRiversArtifacts.projectedNavigableRivers,
-      hydrologyClimateRefineArtifacts.climateIndices,
-      hydrologyClimateRefineArtifacts.cryosphere,
+      hydrologyArtifacts.climateIndices,
+      hydrologyArtifacts.cryosphere,
       ecologyArtifacts.biomeClassification,
       ecologyArtifacts.pedology,
-      standardArtifacts.landmassRegionSlotByTile,
+      placementArtifacts.landmassRegionSlotByTile,
     ],
     provides: [
       placementArtifactModules.resourceDemandPlan,

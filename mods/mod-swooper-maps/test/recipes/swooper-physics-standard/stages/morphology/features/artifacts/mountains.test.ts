@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { artifactModules as morphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 
 const SYNTHETIC_DIMENSIONS = { width: 1, height: 1 } as const;
 const SYNTHETIC_CARDINALITY = SYNTHETIC_DIMENSIONS.width * SYNTHETIC_DIMENSIONS.height;

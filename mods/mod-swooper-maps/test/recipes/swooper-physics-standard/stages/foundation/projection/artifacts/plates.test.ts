@@ -1,35 +1,33 @@
 import { describe, expect, it } from "bun:test";
 
-import { artifactModules as standardArtifactModules } from "../../../../../../../src/recipes/standard/artifacts/index.js";
+import { artifactModules as foundationArtifactModules } from "@mapgen/domain/foundation";
+import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
 
-const SYNTHETIC_DIMENSIONS = { width: 1, height: 1 } as const;
-const SYNTHETIC_CARDINALITY = SYNTHETIC_DIMENSIONS.width * SYNTHETIC_DIMENSIONS.height;
+const TEST_CARDINALITY = TEST_MAP_SIZE.dimensions.width * TEST_MAP_SIZE.dimensions.height;
 
 describe("standard recipe artifact contracts", () => {
   it("validates volcanism as part of the projected foundation plates payload", () => {
     const payload = {
-      id: new Int16Array(SYNTHETIC_CARDINALITY),
-      boundaryCloseness: new Uint8Array(SYNTHETIC_CARDINALITY),
-      boundaryType: new Uint8Array(SYNTHETIC_CARDINALITY),
-      tectonicStress: new Uint8Array(SYNTHETIC_CARDINALITY),
-      upliftPotential: new Uint8Array(SYNTHETIC_CARDINALITY),
-      riftPotential: new Uint8Array(SYNTHETIC_CARDINALITY),
-      shieldStability: new Uint8Array(SYNTHETIC_CARDINALITY),
-      volcanism: new Uint8Array(SYNTHETIC_CARDINALITY),
-      movementU: new Int8Array(SYNTHETIC_CARDINALITY),
-      movementV: new Int8Array(SYNTHETIC_CARDINALITY),
-      rotation: new Int8Array(SYNTHETIC_CARDINALITY),
+      id: new Int16Array(TEST_CARDINALITY),
+      boundaryCloseness: new Uint8Array(TEST_CARDINALITY),
+      boundaryType: new Uint8Array(TEST_CARDINALITY),
+      tectonicStress: new Uint8Array(TEST_CARDINALITY),
+      upliftPotential: new Uint8Array(TEST_CARDINALITY),
+      riftPotential: new Uint8Array(TEST_CARDINALITY),
+      shieldStability: new Uint8Array(TEST_CARDINALITY),
+      volcanism: new Uint8Array(TEST_CARDINALITY),
+      movementU: new Int8Array(TEST_CARDINALITY),
+      movementV: new Int8Array(TEST_CARDINALITY),
+      rotation: new Int8Array(TEST_CARDINALITY),
     };
 
-    const validationContext = { dimensions: SYNTHETIC_DIMENSIONS };
+    const validationContext = { dimensions: TEST_MAP_SIZE.dimensions };
 
-    expect(standardArtifactModules.foundationPlates.validate(payload, validationContext)).toEqual(
-      []
-    );
+    expect(foundationArtifactModules.plates.validate(payload, validationContext)).toEqual([]);
 
     const { volcanism: _volcanism, ...withoutVolcanism } = payload;
     expect(
-      standardArtifactModules.foundationPlates
+      foundationArtifactModules.plates
         .validate(withoutVolcanism, validationContext)
         .some((issue) => issue.message.includes("volcanism"))
     ).toBe(true);

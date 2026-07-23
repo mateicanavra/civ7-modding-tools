@@ -117,10 +117,12 @@ export function buildPlacementInputs(
       lakeMask: Uint8Array;
     };
     biomeClassification: {
+      vegetationDensity: Float32Array;
+    };
+    climateIndices: {
       effectiveMoisture: Float32Array;
       surfaceTemperature: Float32Array;
       aridityIndex: Float32Array;
-      vegetationDensity: Float32Array;
     };
     pedology: {
       fertility: Float32Array;
@@ -177,13 +179,13 @@ export function buildPlacementInputs(
       wondersCount: wondersPlan.wondersCount,
       landMask: physical.topography.landMask,
       elevation: physical.topography.elevation,
-      aridityIndex: physical.biomeClassification.aridityIndex,
+      aridityIndex: physical.climateIndices.aridityIndex,
       riverClass: physical.hydrography.riverClass,
       lakeMask: physical.lakePlan.lakeMask,
       // Forwarded physical suitability signals (already-computed; not recomputed).
       vegetationDensity: physical.biomeClassification.vegetationDensity,
-      effectiveMoisture: physical.biomeClassification.effectiveMoisture,
-      surfaceTemperature: physical.biomeClassification.surfaceTemperature,
+      effectiveMoisture: physical.climateIndices.effectiveMoisture,
+      surfaceTemperature: physical.climateIndices.surfaceTemperature,
       fertility: physical.pedology.fertility,
       discharge: physical.hydrography.discharge,
       slopeClass: physical.hydrography.slopeClass,

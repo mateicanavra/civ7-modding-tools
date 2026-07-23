@@ -6,13 +6,20 @@ import {
   type EngineAdapter,
   getCiv7StandardMapSizePresetForDimensions,
 } from "@civ7/adapter";
-import { CIV7_BROWSER_TABLES_V0, RIVER_TYPE_MINOR } from "@civ7/map-policy";
+import {
+  CIV7_BROWSER_TABLES_V0,
+  deriveCiv7CoastProjection,
+  RIVER_TYPE_MINOR,
+} from "@civ7/map-policy";
 import {
   type DeepReadonly,
   type RunInGameExactAuthorshipEvidence,
   snapshotRunInGameExactAuthorshipEvidence,
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifest } from "@civ7/studio-run-workspace";
+import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "@mapgen/domain/hydrology";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 import {
   createLabelRng,
   createMapContext,
@@ -34,15 +41,12 @@ import {
   canonicalRecipeConfig,
   type StandardMapConfigEnvelope,
 } from "../../src/maps/configs/canonical.js";
-import { artifactModules as standardArtifactModules } from "../../src/recipes/standard/artifacts/index.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
-import { artifactModules as ecologyArtifactModules } from "../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import { artifactModules as hydrologyHydrographyArtifactModules } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import { artifactModules as mapElevationArtifactModules } from "../../src/recipes/standard/stages/map-elevation/artifacts/index.js";
-import { artifactModules as mapHydrologyArtifactModules } from "../../src/recipes/standard/stages/map-hydrology/artifacts/index.js";
-import { artifactModules as mapMorphologyArtifactModules } from "../../src/recipes/standard/stages/map-morphology/artifacts/index.js";
-import { artifactModules as mapRiversArtifactModules } from "../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
-import { artifactModules as morphologyArtifactModules } from "../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { artifactModules as mapEcologyArtifactModules } from "../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
+import { artifactModules as mapElevationArtifactModules } from "../../src/recipes/standard/stages/map/elevation/artifacts/index.js";
+import { artifactModules as mapHydrologyArtifactModules } from "../../src/recipes/standard/stages/map/hydrology/artifacts/index.js";
+import { artifactModules as mapMorphologyArtifactModules } from "../../src/recipes/standard/stages/map/morphology/artifacts/index.js";
+import { artifactModules as mapRiversArtifactModules } from "../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
 import { artifactModules as placementArtifactModules } from "../../src/recipes/standard/stages/placement/artifacts/index.js";
 
 const FINAL_SURFACE_KEYS = ["terrain", "biome", "feature", "resource"] as const;
@@ -652,7 +656,7 @@ export function runLocalFinalSurfaceSnapshot(
   };
   const featureApplyDiagnostics = observeArtifact(
     context,
-    ecologyArtifactModules.featureApplyDiagnostics
+    mapEcologyArtifactModules.featureApplyDiagnostics
   );
   if (featureApplyDiagnostics !== undefined) {
     evidence.featureApplyDiagnostics = featureApplyDiagnostics;
@@ -752,12 +756,18 @@ export function captureCurrentRiverMetadata(
 }
 
 function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapContext>): unknown {
-  const coastlineMetrics = observeArtifact(context, morphologyArtifactModules.coastlineMetrics);
+  const carvedCoastline = observeArtifact(context, morphologyArtifactModules.carvedCoastline);
+  const topography = observeArtifact(context, morphologyArtifactModules.topography);
   const shelf = observeArtifact(context, morphologyArtifactModules.shelf);
-  const mapMorphologyCoastPolicy = observeArtifact(
-    context,
-    mapMorphologyArtifactModules.coastClassification
-  );
+  const mapMorphologyCoastPolicy =
+    topography && shelf
+      ? deriveCiv7CoastProjection({
+          ...context.setup.dimensions,
+          landMask: topography.landMask,
+          shelfMask: shelf.shelfMask,
+          coastalWater: shelf.coastalWater,
+        })
+      : undefined;
   const mapMorphologyCoastTerrainSnapshot = observeArtifact(
     context,
     mapMorphologyArtifactModules.coastEngineTerrainSnapshot
@@ -785,14 +795,14 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
   );
   const placementTerrainSnapshot = observeArtifact(
     context,
-    standardArtifactModules.placementEngineTerrainSnapshot
+    placementArtifactModules.placementEngineTerrainSnapshot
   );
   const placementValidationBoundary = observeArtifact(
     context,
-    standardArtifactModules.placementSurfaceValidationBoundary
+    placementArtifactModules.placementSurfaceValidationBoundary
   );
   return stripUndefined({
-    coastlineMetrics: pickSerializableFields(coastlineMetrics, [
+    carvedCoastline: pickSerializableFields(carvedCoastline, [
       "coastalLand",
       "coastalWater",
       "distanceToCoast",

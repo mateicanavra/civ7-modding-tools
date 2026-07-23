@@ -3,9 +3,9 @@ import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
-import morphologyCoastsStage from "../../../../../../../../src/recipes/standard/stages/morphology-coasts/index.js";
-import { RuggedCoastsStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology-coasts/steps/rugged-coasts/config.js";
-import { RuggedCoastsStep } from "../../../../../../../../src/recipes/standard/stages/morphology-coasts/steps/rugged-coasts/step.js";
+import morphologyCoastsStage from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/index.js";
+import { RuggedCoastsStepContract } from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/config.js";
+import { RuggedCoastsStep } from "../../../../../../../../src/recipes/standard/stages/morphology/coasts/steps/rugged-coasts/step.js";
 import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,

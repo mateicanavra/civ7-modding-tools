@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { artifactModules as mapRiversArtifactModules } from "../../../../../../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
+import { artifactModules as mapRiversArtifactModules } from "../../../../../../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
 
 const SYNTHETIC_DIMENSIONS = { width: 2, height: 2 } as const;
 const SYNTHETIC_CARDINALITY = SYNTHETIC_DIMENSIONS.width * SYNTHETIC_DIMENSIONS.height;

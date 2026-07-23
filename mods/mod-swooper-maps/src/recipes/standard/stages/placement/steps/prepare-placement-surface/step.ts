@@ -1,3 +1,4 @@
+import { deriveCiv7CoastProjection } from "@civ7/map-policy";
 import type { TraceJsonObject } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { captureEngineTerrainClassification } from "../../../../current-engine-surface.js";
@@ -17,9 +18,17 @@ export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceSte
   run: (context, _config, _ops, deps) => {
     const engineProjectionLakes = deps.artifacts.engineProjectionLakes.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
-    const coastClassification = deps.artifacts.coastClassification.read(context);
+    const shelf = deps.artifacts.shelf.read(context);
+    const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.setup.dimensions;
     const dimensions = context.setup.dimensions;
+    const coastProjection = deriveCiv7CoastProjection({
+      width,
+      height,
+      landMask: topography.landMask,
+      shelfMask: shelf.shelfMask,
+      coastalWater: shelf.coastalWater,
+    });
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
     const emit = (payload: TraceJsonObject): void => {
       context.trace.event(() => payload);
@@ -52,7 +61,7 @@ export const PreparePlacementSurfaceStep = createStep(PreparePlacementSurfaceSte
             deps.engine.setTerrainType(context, x, y, terrainType),
           storeWaterData: () => deps.engine.storeWaterData(context),
         },
-        coastClassification,
+        coastProjection,
         "placement/prepare-surface/after-validate"
       );
       const afterValidateSurface = readCurrentTerrainClassification();

@@ -5,6 +5,12 @@ import {
   getEngineFeatureLegality,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
+import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
+import {
+  artifactModules as hydrologyArtifactModules,
+  RiverNetworkMeasurementsSchema,
+} from "@mapgen/domain/hydrology";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext, type MapContext } from "@swooper/mapgen-core";
 import {
   type ArtifactReadValueOf,
@@ -14,24 +20,20 @@ import {
   assertUint16Array,
   readValidatedArtifact,
 } from "@swooper/mapgen-core/authoring";
-
+import type { Static } from "typebox";
+import { Value } from "typebox/value";
 import { canonicalRecipeConfig } from "../../../maps/configs/canonical.js";
-import { artifactModules as standardArtifactModules } from "../artifacts/index.js";
 import standardRecipe from "../recipe.js";
-import { artifactModules as ecologyArtifactModules } from "../stages/ecology/artifacts/index.js";
-import { artifactModules as hydrologyHydrographyArtifactModules } from "../stages/hydrology-hydrography/artifacts/index.js";
-import { artifactModules as mapHydrologyArtifactModules } from "../stages/map-hydrology/artifacts/index.js";
-import { artifactModules as mapRiversArtifactModules } from "../stages/map-rivers/artifacts/index.js";
-import { artifactModules as morphologyArtifactModules } from "../stages/morphology/artifacts/index.js";
+import { artifactModules as mapEcologyArtifactModules } from "../stages/map/ecology/artifacts/index.js";
+import { artifactModules as mapHydrologyArtifactModules } from "../stages/map/hydrology/artifacts/index.js";
+import { artifactModules as mapRiversArtifactModules } from "../stages/map/rivers/artifacts/index.js";
 import { artifactModules as placementArtifactModules } from "../stages/placement/artifacts/index.js";
 import { defineStandardMapMetricScenario, type StandardMapMetricScenario } from "./scenario.js";
 
 type Volcanoes = ArtifactReadValueOf<typeof morphologyArtifactModules.volcanoes.artifact>;
 type Landmasses = ArtifactReadValueOf<typeof morphologyArtifactModules.landmasses.artifact>;
 type Pedology = ArtifactReadValueOf<typeof ecologyArtifactModules.pedology.artifact>;
-type RiverNetworkMetrics = ArtifactReadValueOf<
-  typeof hydrologyHydrographyArtifactModules.riverNetworkMetrics.artifact
->;
+type RiverNetworkMeasurements = Static<typeof RiverNetworkMeasurementsSchema>;
 type ProjectedNavigableRivers = ArtifactReadValueOf<
   typeof mapRiversArtifactModules.projectedNavigableRivers.artifact
 >;
@@ -128,8 +130,8 @@ export type StandardMapCapture = Readonly<{
     plannedLakeMask: Uint8Array;
     riverClass: Uint8Array;
     outletMask: Uint8Array;
-    terminalType: Uint8Array | null;
-    riverNetworkSummary: RiverNetworkMetrics["benchmarkSummary"];
+    terminalType: Uint8Array;
+    riverNetworkSummary: RiverNetworkMeasurements;
     biomeIndex: Uint8Array;
     vegetationDensity: Float32Array;
     fertility: Pedology["fertility"];
@@ -269,17 +271,35 @@ export function captureStandardMapScenario(
   });
 
   const context = createMapContext({ setup, adapter });
+  let riverNetworkSummary: RiverNetworkMeasurements | undefined;
+  let metricFailure: unknown;
   standardRecipe.run(context, canonicalRecipeConfig(admittedScenario.config), {
     log: () => {},
+    facets: {
+      metrics: (projection) => {
+        const candidate = projection["hydrology.riverNetwork"];
+        if (candidate !== undefined) {
+          riverNetworkSummary = Value.Parse(RiverNetworkMeasurementsSchema, candidate);
+        }
+      },
+      onError: ({ facet, error }) => {
+        if (facet === "metrics") metricFailure = error;
+      },
+    },
   });
+  if (metricFailure !== undefined) throw metricFailure;
+  if (!riverNetworkSummary) {
+    throw new Error("Standard metric capture requires Hydrology river-network benchmark evidence.");
+  }
 
-  return copyCompletedRun(admittedScenario, context, adapter);
+  return copyCompletedRun(admittedScenario, context, adapter, riverNetworkSummary);
 }
 
 function copyCompletedRun(
   scenario: StandardMapMetricScenario,
   context: MapContext,
-  adapter: ReturnType<typeof createMockAdapter>
+  adapter: ReturnType<typeof createMockAdapter>,
+  riverNetworkSummary: RiverNetworkMeasurements
 ): StandardMapCapture {
   const selection = resolveMapSelection(scenario);
   const { width, height } = selection.dimensions;
@@ -289,17 +309,11 @@ function copyCompletedRun(
   const mountainsValue = readValidatedArtifact(context, morphologyArtifactModules.mountains);
   const shelfValue = readValidatedArtifact(context, morphologyArtifactModules.shelf);
   const volcanoesValue = readValidatedArtifact(context, morphologyArtifactModules.volcanoes);
-  const lakePlanValue = readValidatedArtifact(
+  const lakePlanValue = readValidatedArtifact(context, hydrologyArtifactModules.lakePlan);
+  const hydrographyValue = readValidatedArtifact(context, hydrologyArtifactModules.hydrography);
+  const climateIndicesValue = readValidatedArtifact(
     context,
-    hydrologyHydrographyArtifactModules.lakePlan
-  );
-  const hydrographyValue = readValidatedArtifact(
-    context,
-    hydrologyHydrographyArtifactModules.hydrography
-  );
-  const riverNetworkValue = readValidatedArtifact(
-    context,
-    hydrologyHydrographyArtifactModules.riverNetworkMetrics
+    hydrologyArtifactModules.climateIndices
   );
   const lakeProjectionValue = readValidatedArtifact(
     context,
@@ -318,7 +332,7 @@ function copyCompletedRun(
   const pedologyValue = readValidatedArtifact(context, ecologyArtifactModules.pedology);
   const featureDiagnosticsValue = readValidatedArtifact(
     context,
-    ecologyArtifactModules.featureApplyDiagnostics
+    mapEcologyArtifactModules.featureApplyDiagnostics
   );
   const placementSurfaceValue = readValidatedArtifact(
     context,
@@ -326,7 +340,7 @@ function copyCompletedRun(
   );
   const regionSlotsValue = readValidatedArtifact(
     context,
-    standardArtifactModules.landmassRegionSlotByTile
+    placementArtifactModules.landmassRegionSlotByTile
   );
   const resourceDemandPlanValue = readValidatedArtifact(
     context,
@@ -464,15 +478,12 @@ function copyCompletedRun(
         hydrographyValue.outletMask,
         gridSize
       ),
-      terminalType:
-        hydrographyValue.terminalType === undefined
-          ? null
-          : copyUint8Grid(
-              "hydrology.hydrography.terminalType",
-              hydrographyValue.terminalType,
-              gridSize
-            ),
-      riverNetworkSummary: Object.freeze({ ...riverNetworkValue.benchmarkSummary }),
+      terminalType: copyUint8Grid(
+        "hydrology.hydrography.terminalType",
+        hydrographyValue.terminalType,
+        gridSize
+      ),
+      riverNetworkSummary: Object.freeze({ ...riverNetworkSummary }),
       biomeIndex,
       vegetationDensity: copyFloat32Grid(
         "ecology.biomeClassification.vegetationDensity",
@@ -481,18 +492,18 @@ function copyCompletedRun(
       ),
       fertility: copyFloat32Grid("ecology.soils.fertility", pedologyValue.fertility, gridSize),
       effectiveMoisture: copyFloat32Grid(
-        "ecology.biomeClassification.effectiveMoisture",
-        biomeValue.effectiveMoisture,
+        "hydrology.climateIndices.effectiveMoisture",
+        climateIndicesValue.effectiveMoisture,
         gridSize
       ),
       surfaceTemperature: copyFloat32Grid(
-        "ecology.biomeClassification.surfaceTemperature",
-        biomeValue.surfaceTemperature,
+        "hydrology.climateIndices.surfaceTemperatureC",
+        climateIndicesValue.surfaceTemperatureC,
         gridSize
       ),
       aridityIndex: copyFloat32Grid(
-        "ecology.biomeClassification.aridityIndex",
-        biomeValue.aridityIndex,
+        "hydrology.climateIndices.aridityIndex",
+        climateIndicesValue.aridityIndex,
         gridSize
       ),
     }),

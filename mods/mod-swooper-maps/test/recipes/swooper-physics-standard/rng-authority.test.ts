@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
-
-import { artifactModules as morphologyArtifactModules } from "../../../src/recipes/standard/stages/morphology/artifacts/index.js";
 import { runStandardRecipeTestMap } from "./fixtures/standard-recipe.js";
 
 describe("standard recipe RNG authority", () => {

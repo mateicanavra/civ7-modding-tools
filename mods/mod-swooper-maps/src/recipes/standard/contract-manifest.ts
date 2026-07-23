@@ -3,50 +3,49 @@ import type {
   RecipeDagStepContractInput,
 } from "@swooper/mapgen-core/authoring/recipe-dag";
 
-import { BiomesStepContract } from "./stages/ecology-biomes/steps/biomes/config.js";
-import { PlanFloodplainsStepContract } from "./stages/ecology-features/steps/plan-floodplains/config.js";
-import { PlanIceStepContract } from "./stages/ecology-features/steps/plan-ice/config.js";
-import { PlanPlotEffectsStepContract } from "./stages/ecology-features/steps/plan-plot-effects/config.js";
-import { PlanReefsStepContract } from "./stages/ecology-features/steps/plan-reefs/config.js";
-import { PlanVegetationStepContract } from "./stages/ecology-features/steps/plan-vegetation/config.js";
-import { PlanWetlandsStepContract } from "./stages/ecology-features/steps/plan-wetlands/config.js";
-import { ScoreLayersStepContract } from "./stages/ecology-features/steps/score-layers/config.js";
-import { PedologyStepContract } from "./stages/ecology-pedology/steps/pedology/config.js";
-import { ResourceBasinsStepContract } from "./stages/ecology-pedology/steps/resource-basins/config.js";
-import { CrustStepContract } from "./stages/foundation-lithosphere/steps/crust/config.js";
-import { PlateGraphStepContract } from "./stages/foundation-lithosphere/steps/plate-graph/config.js";
-import { MantleForcingStepContract } from "./stages/foundation-mantle/steps/mantle-forcing/config.js";
-import { MantlePotentialStepContract } from "./stages/foundation-mantle/steps/mantle-potential/config.js";
-import { MeshStepContract } from "./stages/foundation-mantle/steps/mesh/config.js";
-import { CrustEvolutionStepContract } from "./stages/foundation-orogeny/steps/crust-evolution/config.js";
-import { PlateTopologyStepContract } from "./stages/foundation-projection/steps/plate-topology/config.js";
-import { ProjectionStepContract } from "./stages/foundation-projection/steps/projection/config.js";
-import { PlateMotionStepContract } from "./stages/foundation-tectonics/steps/plate-motion/config.js";
-import { TectonicsStepContract } from "./stages/foundation-tectonics/steps/tectonics/config.js";
-import { ClimateBaselineStepContract } from "./stages/hydrology-climate-baseline/steps/climate-baseline/config.js";
-import { ClimateRefineStepContract } from "./stages/hydrology-climate-refine/steps/climate-refine/config.js";
-import { LakesStepContract as HydrologyLakesStepContract } from "./stages/hydrology-hydrography/steps/lakes/config.js";
-import { RiversStepContract } from "./stages/hydrology-hydrography/steps/rivers/config.js";
-import { FeaturesApplyStepContract } from "./stages/map-ecology/steps/features-apply/config.js";
-import { PlotBiomesStepContract } from "./stages/map-ecology/steps/plot-biomes/config.js";
-import { PlotEffectsStepContract } from "./stages/map-ecology/steps/plot-effects/config.js";
-import { BuildElevationStepContract } from "./stages/map-elevation/steps/build-elevation/config.js";
-import { LakesStepContract as MapHydrologyLakesStepContract } from "./stages/map-hydrology/steps/lakes/config.js";
-import { ProjectRainfallStepContract } from "./stages/map-hydrology/steps/project-rainfall/config.js";
-import { PlotCoastsStepContract } from "./stages/map-morphology/steps/plot-coasts/config.js";
-import { PlotContinentsStepContract } from "./stages/map-morphology/steps/plot-continents/config.js";
-import { PlotMountainsStepContract } from "./stages/map-morphology/steps/plot-mountains/config.js";
-import { PlotVolcanoesStepContract } from "./stages/map-morphology/steps/plot-volcanoes/config.js";
-import { PlotRiversStepContract } from "./stages/map-rivers/steps/plot-rivers/config.js";
-import { LandmassPlatesStepContract } from "./stages/morphology-coasts/steps/landmass-plates/config.js";
-import { RuggedCoastsStepContract } from "./stages/morphology-coasts/steps/rugged-coasts/config.js";
-import { GeomorphologyStepContract } from "./stages/morphology-erosion/steps/geomorphology/config.js";
-import { IslandsStepContract } from "./stages/morphology-features/steps/islands/config.js";
-import { LandmassesStepContract } from "./stages/morphology-features/steps/landmasses/config.js";
-import { MountainsStepContract } from "./stages/morphology-features/steps/mountains/config.js";
-import { VolcanoesStepContract } from "./stages/morphology-features/steps/volcanoes/config.js";
-import { RoutingStepContract } from "./stages/morphology-routing/steps/routing/config.js";
-import { ComputeShelfStepContract } from "./stages/morphology-shelf/steps/compute-shelf/config.js";
+import { BiomesStepContract } from "./stages/ecology/biomes/steps/biomes/config.js";
+import { PlanFloodplainsStepContract } from "./stages/ecology/features/steps/plan-floodplains/config.js";
+import { PlanIceStepContract } from "./stages/ecology/features/steps/plan-ice/config.js";
+import { PlanPlotEffectsStepContract } from "./stages/ecology/features/steps/plan-plot-effects/config.js";
+import { PlanReefsStepContract } from "./stages/ecology/features/steps/plan-reefs/config.js";
+import { PlanVegetationStepContract } from "./stages/ecology/features/steps/plan-vegetation/config.js";
+import { PlanWetlandsStepContract } from "./stages/ecology/features/steps/plan-wetlands/config.js";
+import { ScoreLayersStepContract } from "./stages/ecology/features/steps/score-layers/config.js";
+import { PedologyStepContract } from "./stages/ecology/pedology/steps/pedology/config.js";
+import { CrustStepContract } from "./stages/foundation/lithosphere/steps/crust/config.js";
+import { PlateGraphStepContract } from "./stages/foundation/lithosphere/steps/plate-graph/config.js";
+import { MantleForcingStepContract } from "./stages/foundation/mantle/steps/mantle-forcing/config.js";
+import { MantlePotentialStepContract } from "./stages/foundation/mantle/steps/mantle-potential/config.js";
+import { MeshStepContract } from "./stages/foundation/mantle/steps/mesh/config.js";
+import { CrustEvolutionStepContract } from "./stages/foundation/orogeny/steps/crust-evolution/config.js";
+import { PlateTopologyStepContract } from "./stages/foundation/projection/steps/plate-topology/config.js";
+import { ProjectionStepContract } from "./stages/foundation/projection/steps/projection/config.js";
+import { PlateMotionStepContract } from "./stages/foundation/tectonics/steps/plate-motion/config.js";
+import { TectonicsStepContract } from "./stages/foundation/tectonics/steps/tectonics/config.js";
+import { ClimateBaselineStepContract } from "./stages/hydrology/climate/baseline/steps/climate-baseline/config.js";
+import { ClimateRefineStepContract } from "./stages/hydrology/climate/refine/steps/climate-refine/config.js";
+import { LakesStepContract as HydrologyLakesStepContract } from "./stages/hydrology/hydrography/steps/lakes/config.js";
+import { RiversStepContract } from "./stages/hydrology/hydrography/steps/rivers/config.js";
+import { FeaturesApplyStepContract } from "./stages/map/ecology/steps/features-apply/config.js";
+import { PlotBiomesStepContract } from "./stages/map/ecology/steps/plot-biomes/config.js";
+import { PlotEffectsStepContract } from "./stages/map/ecology/steps/plot-effects/config.js";
+import { BuildElevationStepContract } from "./stages/map/elevation/steps/build-elevation/config.js";
+import { LakesStepContract as MapHydrologyLakesStepContract } from "./stages/map/hydrology/steps/lakes/config.js";
+import { ProjectRainfallStepContract } from "./stages/map/hydrology/steps/project-rainfall/config.js";
+import { PlotCoastsStepContract } from "./stages/map/morphology/steps/plot-coasts/config.js";
+import { PlotContinentsStepContract } from "./stages/map/morphology/steps/plot-continents/config.js";
+import { PlotMountainsStepContract } from "./stages/map/morphology/steps/plot-mountains/config.js";
+import { PlotVolcanoesStepContract } from "./stages/map/morphology/steps/plot-volcanoes/config.js";
+import { PlotRiversStepContract } from "./stages/map/rivers/steps/plot-rivers/config.js";
+import { LandmassPlatesStepContract } from "./stages/morphology/coasts/steps/landmass-plates/config.js";
+import { RuggedCoastsStepContract } from "./stages/morphology/coasts/steps/rugged-coasts/config.js";
+import { GeomorphologyStepContract } from "./stages/morphology/erosion/steps/geomorphology/config.js";
+import { IslandsStepContract } from "./stages/morphology/features/steps/islands/config.js";
+import { LandmassesStepContract } from "./stages/morphology/features/steps/landmasses/config.js";
+import { MountainsStepContract } from "./stages/morphology/features/steps/mountains/config.js";
+import { VolcanoesStepContract } from "./stages/morphology/features/steps/volcanoes/config.js";
+import { RoutingStepContract } from "./stages/morphology/routing/steps/routing/config.js";
+import { ComputeShelfStepContract } from "./stages/morphology/shelf/steps/compute-shelf/config.js";
 import { AdjustResourcesStepContract } from "./stages/placement/steps/adjust-resources/config.js";
 import { AssignAdvancedStartsStepContract } from "./stages/placement/steps/assign-advanced-starts/config.js";
 import { AssignStartsStepContract } from "./stages/placement/steps/assign-starts/config.js";
@@ -96,7 +95,7 @@ export const standardStageContractManifest = [
   stage("hydrology-climate-baseline", [ClimateBaselineStepContract]),
   stage("hydrology-hydrography", [RiversStepContract, HydrologyLakesStepContract]),
   stage("hydrology-climate-refine", [ClimateRefineStepContract]),
-  stage("ecology-pedology", [PedologyStepContract, ResourceBasinsStepContract]),
+  stage("ecology-pedology", [PedologyStepContract]),
   stage("ecology-biomes", [BiomesStepContract]),
   stage("map-morphology", [
     PlotCoastsStepContract,

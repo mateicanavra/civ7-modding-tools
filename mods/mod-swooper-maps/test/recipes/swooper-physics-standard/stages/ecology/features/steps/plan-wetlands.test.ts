@@ -1,7 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { artifactModules as ecologyArtifactModules } from "@mapgen/domain/ecology";
 import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
 import ecology from "@mapgen/domain/ecology/ops";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "@mapgen/domain/hydrology";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import {
@@ -10,24 +13,29 @@ import {
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { artifactModules as ecologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/ecology/artifacts/index.js";
-import { PlanWetlandsStep as planWetlandsStep } from "../../../../../../../src/recipes/standard/stages/ecology-features/steps/plan-wetlands/step.js";
-import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import { artifactModules as morphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { PlanWetlandsStep as planWetlandsStep } from "../../../../../../../src/recipes/standard/stages/ecology/features/steps/plan-wetlands/step.js";
+import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
 import { createEmptyFeatureScoreLayers } from "../fixtures/feature-score-layers.js";
 
 describe("ecology-features plan-wetlands step", () => {
   it("publishes wetland intents and occupancy snapshot", () => {
-    const syntheticDimensions = { width: 3, height: 2 } as const;
-    const { width, height } = syntheticDimensions;
+    const { width, height } = TEST_MAP_SIZE.dimensions;
     const size = width * height;
     const setup = admitMapSetup({
       mapSeed: 123,
-      dimensions: syntheticDimensions,
-      latitudeBounds: { topLatitude: 1, bottomLatitude: -1 },
+      dimensions: TEST_MAP_SIZE.dimensions,
+      latitudeBounds: {
+        topLatitude: TEST_MAP_SIZE.mapInfo.MaxLatitude!,
+        bottomLatitude: TEST_MAP_SIZE.mapInfo.MinLatitude!,
+      },
     });
 
-    const adapter = createMockAdapter({ width, height });
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo: TEST_MAP_SIZE.mapInfo,
+      mapSizeId: TEST_MAP_SIZE.id,
+    });
     adapter.fillWater(false);
 
     const ctx = createMapContext({ setup, adapter });
@@ -41,13 +49,6 @@ describe("ecology-features plan-wetlands step", () => {
         height,
         biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
         vegetationDensity: new Float32Array(size).fill(0.4),
-        effectiveMoisture: new Float32Array(size).fill(120),
-        surfaceTemperature: new Float32Array(size).fill(20),
-        aridityIndex: new Float32Array(size).fill(0.4),
-        freezeIndex: new Float32Array(size),
-        groundIce01: new Float32Array(size),
-        permafrost01: new Float32Array(size),
-        meltPotential01: new Float32Array(size),
         treeLine01: new Float32Array(size),
       });
       publishTestArtifact(stepContext, ecologyArtifactModules.scoreLayers, {
@@ -68,6 +69,10 @@ describe("ecology-features plan-wetlands step", () => {
         flowDir: new Int32Array(size).fill(-1),
         sinkMask: new Uint8Array(size),
         outletMask: new Uint8Array(size),
+        basinId: new Int32Array(size).fill(-1),
+        routingElevation: new Float32Array(size),
+        depressionDepth: new Float32Array(size),
+        terminalType: new Uint8Array(size),
       });
       publishTestArtifact(stepContext, hydrologyHydrographyArtifactModules.lakePlan, {
         width,

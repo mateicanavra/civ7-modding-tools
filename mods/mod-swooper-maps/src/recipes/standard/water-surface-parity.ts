@@ -4,7 +4,7 @@ import type { StepTrace } from "@swooper/mapgen-core";
 const DEFAULT_MAX_WATER_DRIFT_SHARE = 0.05;
 const DEFAULT_SAMPLE_LIMIT = 16;
 
-interface CoastClassificationSurface {
+interface CoastProjectionSurface {
   waterClass: Uint8Array;
 }
 
@@ -80,14 +80,14 @@ function expectedTerrainForWaterClass(waterClass: number): number | null {
  * Restores the Standard recipe's authored coast and ocean terrain after Civ7 maintenance calls.
  *
  * Land terrain is deliberately skipped so mountains, hills, volcanoes, and natural wonders
- * remain owned by their projection steps. The coast-classification artifact owns shape and
- * cardinality admission before this recipe-level parity policy runs.
+ * remain owned by their projection steps. Callers derive the stable intended surface from
+ * admitted Morphology products before this recipe-level parity policy runs.
  */
 export function restoreProjectedCoastTerrain(
   dimensions: MapDimensions,
   trace: StepTrace,
   engine: CoastTerrainEngine,
-  coastClassification: CoastClassificationSurface,
+  coastProjection: CoastProjectionSurface,
   label: string,
   options: { sampleLimit?: number } = {}
 ): CoastProjectionRepairReport {
@@ -101,9 +101,7 @@ export function restoreProjectedCoastTerrain(
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const index = y * width + x;
-      const expectedTerrain = expectedTerrainForWaterClass(
-        coastClassification.waterClass[index] | 0
-      );
+      const expectedTerrain = expectedTerrainForWaterClass(coastProjection.waterClass[index] | 0);
       if (expectedTerrain == null) continue;
 
       const actualTerrain = engine.getTerrainType(x, y) | 0;

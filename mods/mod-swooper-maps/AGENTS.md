@@ -24,7 +24,7 @@ Scope: `mods/mod-swooper-maps/**`
 
 - Ecology ops live under `src/domain/ecology/ops`; step schemas should import op configs/defaults directly (no re-authored wrappers).
 - The biomes step publishes `artifact:ecology.biomeClassification` as immutable domain evidence. Projection readback artifacts remain diagnostic evidence; placement legality consumes one fresh terrain/biome/feature observation through its declared engine capabilities.
-- Pedology + resource basin planning now run before biomes: `artifact:ecology.soils` feeds `artifact:ecology.resourceBasins` and feature planning publishes split intents (`artifact:ecology.featureIntents.vegetation`, `artifact:ecology.featureIntents.wetlands`, `artifact:ecology.featureIntents.reefs`, `artifact:ecology.featureIntents.ice`) before the apply step writes features to the engine.
+- Pedology runs before biomes and shared feature scoring: `artifact:ecology.soils` feeds biome classification and the split feature-intent planners before the apply step writes features to the engine.
 
 ## Canonical Docs
 

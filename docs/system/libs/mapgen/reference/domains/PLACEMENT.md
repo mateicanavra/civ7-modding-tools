@@ -115,7 +115,7 @@ grid partitions, and buffer lengths). Inventory:
 | `placementSurfacePreparation` | prepare-placement-surface | maintenance/drift counters |
 | `placementOutputs`, `engineState` | placement (terminal) | verification/debug surface (only measured fields; no hardcoded-zero placeholders) |
 
-Placement also depends on gameplay-owned projection artifact modules (`landmassRegionSlotByTile`, `placementSurfaceValidationBoundary`, `projectionMeta`, `placementEngineTerrainSnapshot`) assembled in `mods/mod-swooper-maps/src/recipes/standard/artifacts/index.ts`; each carries the same complete module-owned validation authority.
+Placement owns its gameplay projection artifact modules (`landmassRegionSlotByTile`, `placementSurfaceValidationBoundary`, and `placementEngineTerrainSnapshot`) beside the placement stage. Map dimensions and wrap policy come from admitted setup and static Civ7 policy rather than a second published metadata artifact; each surviving artifact carries complete module-owned validation authority.
 
 ## Ops surface
 

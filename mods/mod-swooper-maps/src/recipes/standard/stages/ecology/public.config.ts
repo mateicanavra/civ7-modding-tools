@@ -72,50 +72,17 @@ const SoilClassificationPublicSchema = Type.Union(
   }
 );
 
-const BalancedResourceBasinPlanningPublicSchema = profileVariant(
-  "balanced",
-  ecologyOps.planResourceBasins.strategies.balanced,
-  "Balanced resource-basin planning."
-);
-
-const ResourceBasinPlanningPublicSchema = Type.Union(
-  [
-    BalancedResourceBasinPlanningPublicSchema,
-    profileVariant(
-      "hydroFluvial",
-      ecologyOps.planResourceBasins.strategies["hydro-fluvial"],
-      "River-shaped resource-basin planning."
-    ),
-    profileVariant(
-      "mixed",
-      ecologyOps.planResourceBasins.strategies.mixed,
-      "Mixed resource-basin planning."
-    ),
-  ],
-  {
-    default: createValidatedDefault(BalancedResourceBasinPlanningPublicSchema),
-    description:
-      "Controls the resource-basin planning profile for balanced, river-shaped, or mixed resource basins.",
-  }
-);
-
 /**
- * Author-facing pedology controls for soil classification and resource-basin planning/scoring.
- * Runtime-derived Ecology truth remains outside this authored boundary.
+ * Author-facing pedology controls for soil classification. Runtime-derived
+ * Ecology truth remains outside this authored boundary.
  */
 export const EcologyPedologyPublicSchema = Type.Object(
   {
     soilClassification: SoilClassificationPublicSchema,
-    resourceBasinPlanning: ResourceBasinPlanningPublicSchema,
-    resourceBasinScoring: requiredPublicSchema(
-      ecologyOps.scoreResourceBasins.strategies["confidence-cap"],
-      "Controls resource-basin scoring and balancing."
-    ),
   },
   {
     additionalProperties: false,
-    description:
-      "Ecology pedology controls for soil classification and resource-basin truth before biome classification.",
+    description: "Ecology pedology controls for soil classification before biome classification.",
   }
 );
 
@@ -320,26 +287,16 @@ const SOIL_PROFILE_TO_STRATEGY = {
   orogenyBoosted: "orogeny-boosted",
 } as const;
 
-const RESOURCE_BASIN_PROFILE_TO_STRATEGY = {
-  balanced: "balanced",
-  hydroFluvial: "hydro-fluvial",
-  mixed: "mixed",
-} as const;
-
 const REEF_PROFILE_TO_STRATEGY = {
   habitat: "habitat",
   shippingLanes: "diagonal-stride",
 } as const;
 
-/** Compiles pedology controls into the fixed soil and resource-basin step envelopes. */
+/** Compiles pedology controls into the soil-classification step envelope. */
 export function compileEcologyPedologyPublicConfig(config: Record<string, unknown>) {
   return {
     pedology: {
       classify: profileEnvelope(config.soilClassification, SOIL_PROFILE_TO_STRATEGY),
-    },
-    "resource-basins": {
-      plan: profileEnvelope(config.resourceBasinPlanning, RESOURCE_BASIN_PROFILE_TO_STRATEGY),
-      score: defaultEnvelope(ecologyOps.scoreResourceBasins, config.resourceBasinScoring),
     },
   };
 }

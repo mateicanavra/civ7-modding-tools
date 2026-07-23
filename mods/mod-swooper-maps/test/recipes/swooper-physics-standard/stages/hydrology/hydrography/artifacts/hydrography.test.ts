@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { artifactModules as hydrologyHydrographyArtifactModules } from "../../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
+import { artifactModules as hydrologyHydrographyArtifactModules } from "@mapgen/domain/hydrology";
 
 const SYNTHETIC_DIMENSIONS = { width: 1, height: 1 } as const;
 const SYNTHETIC_CARDINALITY = SYNTHETIC_DIMENSIONS.width * SYNTHETIC_DIMENSIONS.height;
@@ -14,6 +14,9 @@ describe("hydrography artifact", () => {
       flowDir: new Int32Array(SYNTHETIC_CARDINALITY).fill(-1),
       sinkMask: new Uint8Array(SYNTHETIC_CARDINALITY),
       outletMask: new Uint8Array(SYNTHETIC_CARDINALITY),
+      basinId: new Int32Array(SYNTHETIC_CARDINALITY).fill(-1),
+      routingElevation: new Float32Array(SYNTHETIC_CARDINALITY),
+      depressionDepth: new Float32Array(SYNTHETIC_CARDINALITY),
       terminalType: new Uint8Array(SYNTHETIC_CARDINALITY),
     };
     payload.outletMask[0] = 2;

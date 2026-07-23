@@ -12,7 +12,10 @@ export {
   RIVER_CLASS_MINOR,
   RIVER_CLASS_NONE,
 } from "./model/policy/river-class.js";
+export { RiverNetworkMeasurementsSchema } from "./ops/compute-river-network-metrics/contract.js";
 
 const domain = defineDomain({ id: "hydrology", ops } as const);
+
+export { artifactModules, artifacts } from "./artifacts/index.js";
 
 export default domain;

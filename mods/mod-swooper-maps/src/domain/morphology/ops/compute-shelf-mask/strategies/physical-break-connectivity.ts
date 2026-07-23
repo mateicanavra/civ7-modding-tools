@@ -137,8 +137,6 @@ export const physicalBreakConnectivityStrategy = createStrategy(
         depthGateMask,
         nearshoreCandidateMask,
         shelfBreakDepthByTile,
-        // The quantile estimator was removed; retained <=0 for output-contract stability.
-        shallowCutoff: 0,
       };
     },
   }

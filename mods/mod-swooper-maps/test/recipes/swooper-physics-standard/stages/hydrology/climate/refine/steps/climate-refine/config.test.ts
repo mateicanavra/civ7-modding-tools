@@ -2,9 +2,9 @@ import { describe, expect, it } from "bun:test";
 import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 
-import hydrologyClimateRefineStage from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-refine/index.js";
-import { ClimateRefineStepContract } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-refine/steps/climate-refine/config.js";
-import { ClimateRefineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology-climate-refine/steps/climate-refine/step.js";
+import hydrologyClimateRefineStage from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/refine/index.js";
+import { ClimateRefineStepContract } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/config.js";
+import { ClimateRefineStep } from "../../../../../../../../../src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/step.js";
 import { TEST_MAP_SIZE } from "../../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,

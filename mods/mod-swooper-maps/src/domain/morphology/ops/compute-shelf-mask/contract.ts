@@ -102,10 +102,6 @@ const ComputeShelfMaskContract = defineOp({
       description:
         "Per-tile bathymetry (engine elevation units, <=0) at the read shelf break: the local seabed depth where the gradient first steepens past the threshold. 0 where no break was read.",
     }),
-    shallowCutoff: Type.Number({
-      description:
-        "Deprecated under the physical-break model (the quantile estimator was removed). Always 0; retained <=0 for output-contract stability.",
-    }),
   }),
   strategies: {
     "physical-break-connectivity": ShelfMaskConfigSchema,

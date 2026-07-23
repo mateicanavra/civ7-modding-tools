@@ -22,8 +22,6 @@ import scoreColdReef from "./reef-score-cold-reef/index.js";
 import scoreReefLotus from "./reef-score-lotus/index.js";
 import scoreReef from "./reef-score-reef/index.js";
 import refineBiomeEdges from "./refine-biome-edges/index.js";
-import planResourceBasins from "./resource-plan-basins/index.js";
-import scoreResourceBasins from "./resource-score-balance/index.js";
 import scoreVegetationForest from "./vegetation-score-forest/index.js";
 import scoreVegetationRainforest from "./vegetation-score-rainforest/index.js";
 import scoreVegetationSagebrushSteppe from "./vegetation-score-sagebrush-steppe/index.js";
@@ -39,8 +37,6 @@ const implementations = {
   classifyBiomes,
   classifyPedology,
   aggregatePedology,
-  planResourceBasins,
-  scoreResourceBasins,
   refineBiomeEdges,
 
   computeFeatureSubstrate,

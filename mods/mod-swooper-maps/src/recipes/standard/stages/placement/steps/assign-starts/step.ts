@@ -22,7 +22,7 @@ export const AssignStartsStep = createStep(AssignStartsStepContract, {
     const shelf = deps.artifacts.shelf.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
-    const biomeClassification = deps.artifacts.biomeClassification.read(context);
+    const climateIndices = deps.artifacts.climateIndices.read(context);
     const pedology = deps.artifacts.pedology.read(context);
     const baseStarts = placementInputs.starts;
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
@@ -46,9 +46,9 @@ export const AssignStartsStep = createStep(AssignStartsStepContract, {
         shelfMask: shelf.shelfMask as Uint8Array,
         elevation: topography.elevation as Int16Array,
         fertility: pedology.fertility as Float32Array,
-        effectiveMoisture: biomeClassification.effectiveMoisture as Float32Array,
-        surfaceTemperature: biomeClassification.surfaceTemperature as Float32Array,
-        aridityIndex: biomeClassification.aridityIndex as Float32Array,
+        effectiveMoisture: climateIndices.effectiveMoisture as Float32Array,
+        surfaceTemperature: climateIndices.surfaceTemperatureC as Float32Array,
+        aridityIndex: climateIndices.aridityIndex as Float32Array,
         riverClass: hydrography.riverClass as Uint8Array,
         lakeMask: lakePlan.lakeMask as Uint8Array,
         mountainMask: mountains.mountainMask as Uint8Array,

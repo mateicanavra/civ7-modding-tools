@@ -3,9 +3,9 @@ import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
-import foundationTectonicsStage from "../../../../../../../../src/recipes/standard/stages/foundation-tectonics/index.js";
-import { TectonicsStepContract } from "../../../../../../../../src/recipes/standard/stages/foundation-tectonics/steps/tectonics/config.js";
-import { TectonicsStep } from "../../../../../../../../src/recipes/standard/stages/foundation-tectonics/steps/tectonics/step.js";
+import foundationTectonicsStage from "../../../../../../../../src/recipes/standard/stages/foundation/tectonics/index.js";
+import { TectonicsStepContract } from "../../../../../../../../src/recipes/standard/stages/foundation/tectonics/steps/tectonics/config.js";
+import { TectonicsStep } from "../../../../../../../../src/recipes/standard/stages/foundation/tectonics/steps/tectonics/step.js";
 import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,

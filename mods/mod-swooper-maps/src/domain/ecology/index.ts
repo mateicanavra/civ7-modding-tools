@@ -4,6 +4,8 @@ import ops from "./ops/contracts.js";
 
 const domain = defineDomain({ id: "ecology", ops } as const);
 
+export { artifactModules, artifacts } from "./artifacts/index.js";
+
 export default domain;
 
 export type { PlotEffectIntentKey } from "./model/schemas/index.js";

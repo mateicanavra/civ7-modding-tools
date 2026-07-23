@@ -1,10 +1,9 @@
+import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import placement from "@mapgen/domain/placement";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-import { artifacts as standardArtifacts } from "../../../../artifacts/index.js";
 import { PLACEMENT_PRODUCT_EFFECT_TAGS } from "../../../../tag-contracts.js";
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 import {
   artifactModules as placementArtifactModules,
   artifacts as placementArtifacts,
@@ -25,15 +24,15 @@ export const AssignStartsStepContract = defineStep({
       placementArtifacts.placementInputs,
       placementArtifacts.resourcePlan,
       placementArtifacts.naturalWonderPlacement,
-      standardArtifacts.landmassRegionSlotByTile,
+      placementArtifacts.landmassRegionSlotByTile,
       morphologyArtifacts.topography,
       morphologyArtifacts.landmasses,
       morphologyArtifacts.mountains,
       morphologyArtifacts.volcanoes,
       morphologyArtifacts.shelf,
-      hydrologyHydrographyArtifacts.hydrography,
-      hydrologyHydrographyArtifacts.lakePlan,
-      ecologyArtifacts.biomeClassification,
+      hydrologyArtifacts.climateIndices,
+      hydrologyArtifacts.hydrography,
+      hydrologyArtifacts.lakePlan,
       ecologyArtifacts.pedology,
     ],
     provides: [placementArtifactModules.startAssignment],

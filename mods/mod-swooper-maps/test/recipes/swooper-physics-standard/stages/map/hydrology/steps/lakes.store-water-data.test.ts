@@ -2,6 +2,8 @@ import { describe, expect, it } from "bun:test";
 
 import { type LakeProjectionResult, MockAdapter } from "@civ7/adapter";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
+import { artifactModules as hydrologyArtifactModules } from "@mapgen/domain/hydrology";
+import { artifactModules as morphologyArtifactModules } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
@@ -10,10 +12,8 @@ import {
   publishTestArtifact,
   withMapContextExecutionForTest,
 } from "@swooper/mapgen-core/testing";
-import { artifactModules as hydrologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import { artifactModules as mapHydrologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/map-hydrology/artifacts/index.js";
-import { LakesStep } from "../../../../../../../src/recipes/standard/stages/map-hydrology/steps/lakes/step.js";
-import { artifactModules as morphologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/morphology/artifacts/index.js";
+import { artifactModules as mapHydrologyArtifactModules } from "../../../../../../../src/recipes/standard/stages/map/hydrology/artifacts/index.js";
+import { LakesStep } from "../../../../../../../src/recipes/standard/stages/map/hydrology/steps/lakes/step.js";
 
 type TestContext = ReturnType<typeof createMapContext>;
 

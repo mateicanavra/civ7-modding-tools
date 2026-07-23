@@ -58,7 +58,7 @@ const ComputeCrustEvolutionContract = defineOp({
   input: Type.Object(
     {
       mesh: FoundationMeshSchema,
-      crustInit: FoundationCrustSchema,
+      initialCrust: FoundationCrustSchema,
       tectonics: FoundationTectonicsSchema,
       tectonicHistory: FoundationTectonicHistorySchema,
     },

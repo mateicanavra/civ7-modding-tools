@@ -1,4 +1,4 @@
-import { clamp01, normalizeRange } from "@swooper/mapgen-core";
+import { clamp01, normalizeRange } from "@swooper/mapgen-core/lib/math";
 
 export function rampUp01(value: number, start: number, end: number): number {
   return normalizeRange(value, start, end);

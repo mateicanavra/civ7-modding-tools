@@ -3,9 +3,9 @@ import { admitMapSetup } from "@swooper/mapgen-core";
 import { validateSchemaValueForTest } from "@swooper/mapgen-core/testing";
 import { Value } from "typebox/value";
 
-import hydrologyHydrographyStage from "../../../../../../../../src/recipes/standard/stages/hydrology-hydrography/index.js";
-import { LakesStepContract } from "../../../../../../../../src/recipes/standard/stages/hydrology-hydrography/steps/lakes/config.js";
-import { LakesStep } from "../../../../../../../../src/recipes/standard/stages/hydrology-hydrography/steps/lakes/step.js";
+import hydrologyHydrographyStage from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/index.js";
+import { LakesStepContract } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/lakes/config.js";
+import { LakesStep } from "../../../../../../../../src/recipes/standard/stages/hydrology/hydrography/steps/lakes/step.js";
 import { TEST_MAP_SIZE } from "../../../../../../../map-size.js";
 import {
   createStandardRecipeTestConfig,

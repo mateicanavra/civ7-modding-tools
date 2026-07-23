@@ -1,13 +1,12 @@
+import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
+import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import placement from "@mapgen/domain/placement";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
-
 import {
   MAP_PROJECTION_EFFECT_TAGS,
   STANDARD_ENGINE_EFFECT_TAGS,
 } from "../../../../tag-contracts.js";
-import { artifacts as ecologyArtifacts } from "../../../ecology/artifacts/index.js";
-import { artifacts as hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts/index.js";
-import { artifacts as morphologyArtifacts } from "../../../morphology/artifacts/index.js";
 import { artifactModules as placementArtifactModules } from "../../artifacts/index.js";
 
 /**
@@ -32,9 +31,10 @@ export const DerivePlacementInputsStepContract = defineStep({
   artifacts: {
     requires: [
       morphologyArtifacts.topography,
-      hydrologyHydrographyArtifacts.hydrography,
-      hydrologyHydrographyArtifacts.riverNetworkMetrics,
-      hydrologyHydrographyArtifacts.lakePlan,
+      hydrologyArtifacts.climateIndices,
+      hydrologyArtifacts.hydrography,
+      hydrologyArtifacts.riverNetwork,
+      hydrologyArtifacts.lakePlan,
       ecologyArtifacts.biomeClassification,
       ecologyArtifacts.pedology,
     ],

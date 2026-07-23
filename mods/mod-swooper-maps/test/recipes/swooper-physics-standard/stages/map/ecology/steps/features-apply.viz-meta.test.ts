@@ -3,11 +3,11 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { FEATURE_PLACEMENT_KEYS } from "@civ7/map-policy";
 
-import { resolveFeatureKeyLookups } from "../../../../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/feature-keys.js";
+import { resolveFeatureKeyLookups } from "../../../../../../../src/recipes/standard/stages/map/ecology/steps/features-apply/feature-keys.js";
 import {
   buildFeatureTypeVizCategories,
   FEATURE_TYPE_NONE_VALUE,
-} from "../../../../../../../src/recipes/standard/stages/map-ecology/steps/features-apply/viz.js";
+} from "../../../../../../../src/recipes/standard/stages/map/ecology/steps/features-apply/viz.js";
 import { TEST_MAP_SIZE } from "../../../../../../map-size.js";
 
 describe("features apply viz meta (engine featureType)", () => {

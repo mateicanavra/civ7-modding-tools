@@ -343,12 +343,6 @@ export const STANDARD_INTEGRITY_TARGET = {
       1
     ),
     equalTo<StandardMapProductSample>(
-      "river-terminal-evidence",
-      "Hydrology publishes terminal classification evidence.",
-      (sample) => sample.metrics.hydrology.terminalOceanTiles !== null,
-      true
-    ),
-    equalTo<StandardMapProductSample>(
       "river-network-closure",
       "Every modeled land tile belongs to a closed river basin with valid, nondecreasing downstream routing.",
       (sample) => {
@@ -366,7 +360,7 @@ export const STANDARD_INTEGRITY_TARGET = {
     atLeast<StandardMapProductSample>(
       "ocean-river-terminals",
       "At least one modeled river terminal reaches the ocean.",
-      (sample) => sample.metrics.hydrology.terminalOceanTiles?.count ?? 0,
+      (sample) => sample.metrics.hydrology.terminalOceanTiles.count,
       1
     ),
     atLeast<StandardMapProductSample>(

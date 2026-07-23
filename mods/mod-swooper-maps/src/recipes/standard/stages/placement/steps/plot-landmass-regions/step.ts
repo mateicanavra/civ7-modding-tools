@@ -112,7 +112,7 @@ function resolveSlotByTile(input: {
 
 /**
  * Maps final landmasses into seam-safe west/east region slots, applies those
- * slots to Civ7, and publishes the exact per-tile projection metadata.
+ * slots to Civ7, and publishes the exact per-tile region-slot evidence.
  */
 export const PlotLandmassRegionsStep = createStep(PlotLandmassRegionsStepContract, {
   run: (context, _config, _ops, deps) => {
@@ -140,12 +140,6 @@ export const PlotLandmassRegionsStep = createStep(PlotLandmassRegionsStepContrac
       deps.engine.setLandmassRegionId(context, x, y, regionId);
     }
 
-    deps.artifacts.projectionMeta.publish(context, {
-      width,
-      height,
-      wrapX: true,
-      wrapY: false,
-    });
     deps.artifacts.landmassRegionSlotByTile.publish(context, { slotByTile });
     return slotByTile;
   },

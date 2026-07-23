@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { readValidatedArtifact } from "@swooper/mapgen-core/authoring";
 
-import { artifactModules as hydrographyArtifactModules } from "../../../src/recipes/standard/stages/hydrology-hydrography/artifacts/index.js";
-import { artifactModules as mapRiversArtifactModules } from "../../../src/recipes/standard/stages/map-rivers/artifacts/index.js";
+import { artifactModules as hydrographyArtifactModules } from "@mapgen/domain/hydrology";
+import { artifactModules as mapRiversArtifactModules } from "../../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
 import {
   createStandardRecipeTestConfig,
   runStandardRecipeTestMap,
