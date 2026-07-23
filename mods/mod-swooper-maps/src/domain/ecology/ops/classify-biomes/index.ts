@@ -1,15 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import BiomeClassificationContract from "./contract.js";
-import { biophysicalGaussianStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const classifyBiomes = createOp(BiomeClassificationContract, {
-  strategies: {
-    "biophysical-gaussian": biophysicalGaussianStrategy,
-  },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default classifyBiomes;
+/** Classifies admitted climate and soil fields into biome indices and vegetation density, then smooths only land-biome edges. */
+export default createOp(BiomeClassificationContract, { strategies });

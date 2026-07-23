@@ -1,8 +1,10 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../model/schemas/index.js";
+import strategies from "./strategies/contract.js";
 
 const floodplainScore = (description: string) => TypedArraySchemas.f32({ description });
 
+/** Selects the strongest admitted floodplain family for each unoccupied tile from physical suitability evidence. Every implementation shares this admitted input and output boundary. */
 const PlanFloodplainsContract = defineOp({
   kind: "plan",
   id: "ecology/features/plan-floodplains",
@@ -44,17 +46,7 @@ const PlanFloodplainsContract = defineOp({
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
-  strategies: {
-    "highest-confidence": Type.Object({
-      minConfidence01: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.5,
-        description:
-          "Minimum floodplain suitability required to author a floodplain feature intent.",
-      }),
-    }),
-  },
+  strategies,
 });
 
 export default PlanFloodplainsContract;

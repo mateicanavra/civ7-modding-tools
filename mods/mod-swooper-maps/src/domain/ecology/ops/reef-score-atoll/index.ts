@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ScoreAtollContract from "./contract.js";
-import { warmOceanBankStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const scoreAtoll = createOp(ScoreAtollContract, {
-  strategies: {
-    "warm-ocean-bank": warmOceanBankStrategy,
-  },
-});
-
-export type * from "./contract.js";
-
-export default scoreAtoll;
+/** Scores warm offshore ocean banks within authored depth and coast-distance windows for atoll habitat. */
+export default createOp(ScoreAtollContract, { strategies });

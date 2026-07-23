@@ -1,5 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
+/** Scores warm arid land around isolated water points without treating broad wetlands as oasis habitat. Every implementation shares this admitted input and output boundary. */
 const ScoreWetOasisContract = defineOp({
   kind: "compute",
   id: "ecology/wet/score/oasis",
@@ -17,40 +19,7 @@ const ScoreWetOasisContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Oasis suitability score per tile (0..1)." }),
   }),
-  strategies: {
-    "warm-arid-waterpoint": Type.Object({
-      dryMin01: Type.Number({
-        default: 0.6,
-        minimum: 0,
-        maximum: 1,
-        description: "Minimum aridity for oasis suitability.",
-      }),
-      dryMax01: Type.Number({
-        default: 0.95,
-        minimum: 0,
-        maximum: 1,
-        description: "Upper aridity bound for oasis suitability.",
-      }),
-      waterMin01: Type.Number({
-        default: 0.35,
-        minimum: 0,
-        maximum: 1,
-        description: "Minimum local water availability for oasis suitability.",
-      }),
-      tempWarmStartC: Type.Number({
-        default: 20,
-        minimum: -100,
-        maximum: 100,
-        description: "Temperature where oasis suitability begins increasing.",
-      }),
-      tempWarmEndC: Type.Number({
-        default: 38,
-        minimum: -100,
-        maximum: 100,
-        description: "Temperature where oasis suitability reaches its warm optimum.",
-      }),
-    }),
-  },
+  strategies,
 });
 
 export default ScoreWetOasisContract;

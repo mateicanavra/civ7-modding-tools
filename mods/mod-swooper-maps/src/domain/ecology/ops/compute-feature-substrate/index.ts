@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeFeatureSubstrateContract from "./contract.js";
-import { hydromorphicStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeFeatureSubstrate = createOp(ComputeFeatureSubstrateContract, {
-  strategies: {
-    hydromorphic: hydromorphicStrategy,
-  },
-});
-
-export type * from "./contract.js";
-
-export default computeFeatureSubstrate;
+/** Derives shared river, coastal, lowland, and hydromorphic masks so feature planners consume one physical substrate authority. */
+export default createOp(ComputeFeatureSubstrateContract, { strategies });

@@ -1,12 +1,24 @@
-import type { Static } from "@swooper/mapgen-core/authoring";
-import type { TemperatureSchema } from "../contract.js";
+type TemperatureZonePolicy = Readonly<{
+  polarCutoff: number;
+  tundraCutoff: number;
+  midLatitude: number;
+  tropicalThreshold: number;
+}>;
+
+type SurfaceTemperaturePolicy = Readonly<{
+  equator: number;
+  pole: number;
+  lapseRate: number;
+  seaLevel: number;
+  bias: number;
+}>;
 
 /**
  * Maps a temperature value to a coarse temperature zone.
  */
 export function temperatureZoneOf(
   value: number,
-  cfg: Static<typeof TemperatureSchema>
+  cfg: TemperatureZonePolicy
 ): "polar" | "cold" | "temperate" | "tropical" {
   if (value <= cfg.polarCutoff) return "polar";
   if (value <= cfg.tundraCutoff) return "cold";
@@ -22,7 +34,7 @@ export function computeTemperature(params: {
   latitudeAbs: number;
   maxLatitude: number;
   elevationMeters: number;
-  cfg: Static<typeof TemperatureSchema>;
+  cfg: SurfaceTemperaturePolicy;
 }): number {
   const { latitudeAbs, maxLatitude, elevationMeters, cfg } = params;
   const latFactor = 1 - Math.max(0, Math.min(1, latitudeAbs / maxLatitude));

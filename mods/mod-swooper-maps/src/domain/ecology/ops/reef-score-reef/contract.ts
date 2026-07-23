@@ -1,5 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
+/** Scores warm coastal-shelf water within authored depth and coast-distance limits. Every implementation shares this admitted input and output boundary. */
 const ScoreReefContract = defineOp({
   kind: "compute",
   id: "ecology/reef/score/reef",
@@ -22,40 +24,7 @@ const ScoreReefContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Reef suitability score per tile (0..1)." }),
   }),
-  strategies: {
-    "warm-coastal-shelf": Type.Object({
-      tempWarmStartC: Type.Number({
-        default: 14,
-        minimum: -100,
-        maximum: 100,
-        description: "Temperature where warm-reef suitability begins increasing.",
-      }),
-      tempWarmEndC: Type.Number({
-        default: 28,
-        minimum: -100,
-        maximum: 100,
-        description: "Temperature where warm-reef suitability reaches its warm optimum.",
-      }),
-      shallowDepthM: Type.Integer({
-        default: 0,
-        minimum: 0,
-        maximum: 12_000,
-        description: "Shallow-water depth used for warm-reef scoring.",
-      }),
-      deepDepthM: Type.Integer({
-        default: 120,
-        minimum: 0,
-        maximum: 12_000,
-        description: "Deep-water limit used for warm-reef scoring.",
-      }),
-      maxDistanceToCoast: Type.Integer({
-        default: 3,
-        minimum: 0,
-        maximum: 512,
-        description: "Maximum tile distance from coast for warm-reef suitability.",
-      }),
-    }),
-  },
+  strategies,
 });
 
 export default ScoreReefContract;

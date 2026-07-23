@@ -1,8 +1,17 @@
-import type { Static } from "@swooper/mapgen-core/authoring";
-import type { AriditySchema } from "../contract.js";
 import { clamp01 } from "./util.js";
 
 type MoistureZone = "arid" | "semiArid" | "subhumid" | "humid" | "perhumid";
+
+type AridityPolicy = Readonly<{
+  temperatureMin: number;
+  temperatureMax: number;
+  petBase: number;
+  petTemperatureWeight: number;
+  humidityDampening: number;
+  rainfallWeight: number;
+  bias: number;
+  normalization: number;
+}>;
 
 const MOISTURE_ORDER: ReadonlyArray<MoistureZone> = [
   "arid",
@@ -19,7 +28,7 @@ export function computeAridityIndex(params: {
   temperature: number;
   humidity: number;
   rainfall: number;
-  cfg: Static<typeof AriditySchema>;
+  cfg: AridityPolicy;
 }): number {
   const { temperature, humidity, rainfall, cfg } = params;
   const tempRange = Math.max(1e-6, cfg.temperatureMax - cfg.temperatureMin);

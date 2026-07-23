@@ -1,5 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
+/** Scores semiarid open vegetation from energy, water stress, and biomass evidence. Every implementation shares this admitted input and output boundary. */
 const ScoreVegetationSagebrushSteppeContract = defineOp({
   kind: "compute",
   id: "ecology/vegetation/score/sagebrush-steppe",
@@ -22,9 +24,7 @@ const ScoreVegetationSagebrushSteppeContract = defineOp({
       description: "Sagebrush steppe suitability score per tile (0..1).",
     }),
   }),
-  strategies: {
-    "semiarid-open": Type.Object({}, { additionalProperties: false }),
-  },
+  strategies,
 });
 
 export default ScoreVegetationSagebrushSteppeContract;

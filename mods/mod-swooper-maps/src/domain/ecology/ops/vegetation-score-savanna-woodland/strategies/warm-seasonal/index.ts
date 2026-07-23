@@ -1,0 +1,23 @@
+import { createStrategy } from "@swooper/mapgen-core/authoring";
+
+import Contract from "../../contract.js";
+import { scoreSavannaWoodlandSuitability } from "../../rules/index.js";
+import StrategyContract from "./contract.js";
+
+/** Projects warm seasonal moisture and open biomass into bounded savanna-woodland suitability. */
+const warmSeasonalStrategy = createStrategy(Contract, StrategyContract, {
+  run: (input) => {
+    const score01 = scoreSavannaWoodlandSuitability({
+      size: input.width * input.height,
+      landMask: input.landMask as Uint8Array,
+      energy01: input.energy01 as Float32Array,
+      water01: input.water01 as Float32Array,
+      waterStress01: input.waterStress01 as Float32Array,
+      biomass01: input.biomass01 as Float32Array,
+    });
+
+    return { score01 };
+  },
+});
+
+export default warmSeasonalStrategy;

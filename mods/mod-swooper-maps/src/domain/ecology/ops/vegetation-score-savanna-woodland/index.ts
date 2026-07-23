@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ScoreVegetationSavannaWoodlandContract from "./contract.js";
-import { warmSeasonalStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const scoreVegetationSavannaWoodland = createOp(ScoreVegetationSavannaWoodlandContract, {
-  strategies: {
-    "warm-seasonal": warmSeasonalStrategy,
-  },
-});
-
-export type * from "./contract.js";
-
-export default scoreVegetationSavannaWoodland;
+/** Scores warm seasonal woodland from energy, water stress, and biomass evidence. */
+export default createOp(ScoreVegetationSavannaWoodlandContract, { strategies });

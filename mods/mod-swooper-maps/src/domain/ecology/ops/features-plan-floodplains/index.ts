@@ -1,11 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
+
 import PlanFloodplainsContract from "./contract.js";
-import { highestConfidenceStrategy } from "./strategies/highest-confidence.js";
+import strategies from "./strategies/index.js";
 
-const planFloodplains = createOp(PlanFloodplainsContract, {
-  strategies: {
-    "highest-confidence": highestConfidenceStrategy,
-  },
-});
-
-export default planFloodplains;
+/** Selects the strongest admitted floodplain family for each unoccupied tile from physical suitability evidence. */
+export default createOp(PlanFloodplainsContract, { strategies });

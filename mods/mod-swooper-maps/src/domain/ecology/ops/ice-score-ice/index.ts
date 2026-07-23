@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ScoreIceContract from "./contract.js";
-import { thermalElevationStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const scoreIce = createOp(ScoreIceContract, {
-  strategies: {
-    "thermal-elevation": thermalElevationStrategy,
-  },
-});
-
-export type * from "./contract.js";
-
-export default scoreIce;
+/** Scores sea and alpine ice suitability from temperature, elevation, freeze persistence, and land-water state. */
+export default createOp(ScoreIceContract, { strategies });

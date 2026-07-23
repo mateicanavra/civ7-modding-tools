@@ -1,7 +1,8 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../model/schemas/index.js";
+import strategies from "./strategies/contract.js";
 
-/** Contract for reef-family intent, including lake-gated lotus and authored spacing. */
+/** Chooses reef, cold-reef, atoll, or lake-lotus intent while preserving occupancy and lake habitat laws. Every implementation shares this admitted input and output boundary. */
 const PlanReefsContract = defineOp({
   kind: "plan",
   id: "ecology/features/plan-reefs",
@@ -34,39 +35,7 @@ const PlanReefsContract = defineOp({
     placements: Type.Array(FeaturePlacementSchema),
   }),
   defaultStrategy: "habitat",
-  strategies: {
-    habitat: Type.Object({
-      minConfidence01: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.55,
-        description:
-          "Family-local admission threshold: reef-family scores below this remain ocean habitat signal, not placement intent.",
-      }),
-      stride: Type.Integer({
-        minimum: 1,
-        maximum: 12,
-        default: 1,
-        description:
-          "Deterministic spacing stride for sparse reef-family intent; 1 keeps every admitted habitat tile.",
-      }),
-    }),
-    "diagonal-stride": Type.Object({
-      minConfidence01: Type.Number({
-        minimum: 0,
-        maximum: 1,
-        default: 0.55,
-        description:
-          "Family-local admission threshold before the diagonal spacing policy is applied.",
-      }),
-      stride: Type.Integer({
-        minimum: 1,
-        maximum: 12,
-        default: 5,
-        description: "Deterministic diagonal spacing stride for reef-family intent.",
-      }),
-    }),
-  },
+  strategies,
 });
 
 export default PlanReefsContract;

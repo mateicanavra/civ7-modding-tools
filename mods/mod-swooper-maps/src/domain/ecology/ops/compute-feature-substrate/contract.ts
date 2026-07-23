@@ -1,55 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
-const FeatureSubstrateConfigSchema = Type.Object(
-  {
-    nearRiverRadius: Type.Integer({
-      description: "Square-radius used to compute near-river adjacency mask.",
-      default: 2,
-      minimum: 0,
-      maximum: 64,
-    }),
-    isolatedRiverRadius: Type.Integer({
-      description: "Square-radius used to compute isolated-river adjacency mask.",
-      default: 1,
-      minimum: 0,
-      maximum: 64,
-    }),
-    coastalAdjacencyRadius: Type.Integer({
-      description: "Square-radius used to compute coastal land adjacency mask.",
-      default: 1,
-      minimum: 0,
-      maximum: 64,
-    }),
-    lowlandMaxElevationAboveSeaM: Type.Integer({
-      description: "Maximum land elevation above sea level treated as lowland wetland substrate.",
-      default: 160,
-      minimum: 0,
-      maximum: 12_000,
-    }),
-    intertidalMaxElevationAboveSeaM: Type.Integer({
-      description:
-        "Maximum coastal land elevation above sea level treated as intertidal substrate.",
-      default: 40,
-      minimum: 0,
-      maximum: 12_000,
-    }),
-    floodplainDischargeMin: Type.Number({
-      description: "Minimum nearby discharge treated as meaningful floodplain water exchange.",
-      default: 0,
-      minimum: 0,
-      maximum: 1_000_000,
-    }),
-  },
-  {
-    additionalProperties: false,
-    description:
-      "Shared compute substrate tuning for feature planning masks. This should stay small and reusable.",
-  }
-);
-
-/**
- * Computes reusable feature-planning substrate masks (rivers + coastal adjacency) for multiple planners.
- */
+/** Derives shared river, coastal, lowland, and hydromorphic masks so feature planners consume one physical substrate authority. Every implementation shares this admitted input and output boundary. */
 const ComputeFeatureSubstrateContract = defineOp({
   kind: "compute",
   id: "ecology/compute-feature-substrate",
@@ -117,9 +69,7 @@ const ComputeFeatureSubstrateContract = defineOp({
       description: "Mask (1/0): isolated lowland water-point substrate for arid wet features.",
     }),
   }),
-  strategies: {
-    hydromorphic: FeatureSubstrateConfigSchema,
-  },
+  strategies,
 });
 
 export default ComputeFeatureSubstrateContract;

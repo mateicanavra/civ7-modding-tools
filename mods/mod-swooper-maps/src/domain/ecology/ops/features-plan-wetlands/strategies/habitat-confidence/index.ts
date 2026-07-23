@@ -1,0 +1,87 @@
+import { createStrategy } from "@swooper/mapgen-core/authoring";
+import {
+  choosePhysicalCandidate,
+  confidenceFromScore01,
+  stressFromConfidence01,
+} from "../../../../model/policy/feature-score-selection.js";
+import type { FeatureIntentKey } from "../../../../model/schemas/index.js";
+import Contract from "../../contract.js";
+import { admitWetlandIntent } from "../../policy/index.js";
+import StrategyContract from "./contract.js";
+
+/** Arbitrates marsh, mangrove, oasis, tundra bog, and watering-hole intent under one confidence floor. */
+const habitatConfidenceStrategy = createStrategy(Contract, StrategyContract, {
+  run: (input, config) => {
+    const width = input.width;
+    const height = input.height;
+    const size = width * height;
+    const flatLandMask = input.flatLandMask as Uint8Array;
+
+    const placements: Array<{ x: number; y: number; feature: FeatureIntentKey; weight?: number }> =
+      [];
+    void input.seed;
+
+    for (let i = 0; i < size; i++) {
+      if (flatLandMask[i] !== 1) continue;
+      if (input.reserved[i] !== 0) continue;
+      if (input.featureOccupancyMask[i] !== 0) continue;
+
+      const marsh = input.scoreMarsh01[i] ?? 0;
+      const tundraBog = input.scoreTundraBog01[i] ?? 0;
+      const mangrove = input.scoreMangrove01[i] ?? 0;
+      const oasis = input.scoreOasis01[i] ?? 0;
+      const wateringHole = input.scoreWateringHole01[i] ?? 0;
+
+      const marshConfidence01 = confidenceFromScore01(marsh);
+      const bogConfidence01 = confidenceFromScore01(tundraBog);
+      const mangroveConfidence01 = confidenceFromScore01(mangrove);
+      const oasisConfidence01 = confidenceFromScore01(oasis);
+      const wateringHoleConfidence01 = confidenceFromScore01(wateringHole);
+
+      const candidates = [
+        {
+          feature: "marsh",
+          confidence01: marshConfidence01,
+          stress01: stressFromConfidence01(marshConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "tundra-bog",
+          confidence01: bogConfidence01,
+          stress01: stressFromConfidence01(bogConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "mangrove",
+          confidence01: mangroveConfidence01,
+          stress01: stressFromConfidence01(mangroveConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "oasis",
+          confidence01: oasisConfidence01,
+          stress01: stressFromConfidence01(oasisConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "watering-hole",
+          confidence01: wateringHoleConfidence01,
+          stress01: stressFromConfidence01(wateringHoleConfidence01),
+          tileIndex: i,
+        },
+      ] as const;
+
+      const best = choosePhysicalCandidate(candidates);
+      if (best === null) continue;
+      if (!admitWetlandIntent(best, config)) continue;
+
+      const x = i % width;
+      const y = (i / width) | 0;
+      placements.push({ x, y, feature: best.feature });
+    }
+
+    return { placements };
+  },
+});
+
+export default habitatConfidenceStrategy;

@@ -1,44 +1,8 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-import { BiomeSymbolSchema } from "../../model/schemas/index.js";
+import strategies from "./strategies/contract.js";
 
-const PlotEffectsScoreSandConfigSchema = Type.Object({
-  minAridity: Type.Number({
-    default: 0.55,
-    minimum: 0,
-    maximum: 1,
-    description: "Sand is eligible when aridityIndex >= minAridity (0..1).",
-  }),
-  minTemperature: Type.Number({
-    default: 18,
-    minimum: -100,
-    maximum: 100,
-    description: "Sand is eligible when surfaceTemperature >= minTemperature (C).",
-  }),
-  maxFreeze: Type.Number({
-    default: 0.25,
-    minimum: 0,
-    maximum: 1,
-    description: "Sand is eligible when freezeIndex <= maxFreeze (0..1).",
-  }),
-  maxVegetation: Type.Number({
-    default: 0.2,
-    minimum: 0,
-    maximum: 1,
-    description: "Sand is eligible when vegetationDensity <= maxVegetation (0..1).",
-  }),
-  maxMoisture: Type.Number({
-    default: 90,
-    minimum: 0,
-    maximum: 1_000,
-    description: "Sand is eligible when effectiveMoisture <= maxMoisture.",
-  }),
-  allowedBiomes: Type.Array(BiomeSymbolSchema, {
-    default: ["desert", "temperateDry"],
-    description: "Biome symbols allowed to emit sand plot effects (allowlist).",
-  }),
-});
-
+/** Scores warm, arid, sparse, unfrozen land in admitted biomes for sand plot-effect intent. Every implementation shares this admitted input and output boundary. */
 const PlotEffectsScoreSandContract = defineOp({
   kind: "compute",
   id: "ecology/plot-effects/score/sand",
@@ -63,9 +27,7 @@ const PlotEffectsScoreSandContract = defineOp({
       description: "Eligibility mask per tile (1=eligible for selection, 0=ineligible).",
     }),
   }),
-  strategies: {
-    "arid-thermal": PlotEffectsScoreSandConfigSchema,
-  },
+  strategies,
 });
 
 export default PlotEffectsScoreSandContract;

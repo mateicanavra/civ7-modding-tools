@@ -1,20 +1,36 @@
 import { clamp01 } from "@swooper/mapgen-core";
 
-import type {
-  PedologyClassifyAdmittedInput,
-  PedologyClassifyConfig,
-  PedologyClassifyOutput,
-} from "../types.js";
+type PedologyInput = Readonly<{
+  width: number;
+  height: number;
+  landMask: Uint8Array;
+  elevation: Int16Array;
+  rainfall: Uint8Array;
+  humidity: Uint8Array;
+  sedimentDepth?: Float32Array;
+  bedrockAge?: Int16Array;
+  slope?: Float32Array;
+}>;
+
+type PedologyWeights = Readonly<{
+  climateWeight: number;
+  reliefWeight: number;
+  sedimentWeight: number;
+  bedrockWeight: number;
+  fertilityCeiling: number;
+}>;
+
+type PedologyOutput = Readonly<{
+  soilType: Uint8Array;
+  fertility: Float32Array;
+}>;
 
 /**
  * Classifies soil and fertility for each admitted map tile.
  * Strategies shape only the weights before entering this shared algorithm, so variants cannot
  * bypass operation admission by invoking another strategy descriptor.
  */
-export function classifyPedology(
-  input: PedologyClassifyAdmittedInput,
-  config: PedologyClassifyConfig
-): PedologyClassifyOutput {
+export function classifyPedology(input: PedologyInput, config: PedologyWeights): PedologyOutput {
   const size = input.width * input.height;
   const relief = computeReliefProxy(input.slope, input.elevation, size);
   const sediment = input.sedimentDepth;

@@ -1,5 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategies from "./strategies/contract.js";
 
+/** Scores sparse arid habitat around isolated water points from water, fertility, aridity, and temperature. Every implementation shares this admitted input and output boundary. */
 const ScoreWetWateringHoleContract = defineOp({
   kind: "compute",
   id: "ecology/wet/score/watering-hole",
@@ -20,46 +22,7 @@ const ScoreWetWateringHoleContract = defineOp({
       description: "Watering hole suitability score per tile (0..1).",
     }),
   }),
-  strategies: {
-    "arid-waterpoint": Type.Object({
-      dryMin01: Type.Number({
-        default: 0.45,
-        minimum: 0,
-        maximum: 1,
-        description: "Minimum aridity for watering-hole suitability.",
-      }),
-      dryMax01: Type.Number({
-        default: 0.85,
-        minimum: 0,
-        maximum: 1,
-        description: "Upper aridity bound for watering-hole suitability.",
-      }),
-      waterMin01: Type.Number({
-        default: 0.25,
-        minimum: 0,
-        maximum: 1,
-        description: "Minimum local water availability for watering-hole suitability.",
-      }),
-      fertilityMin01: Type.Number({
-        default: 0.1,
-        minimum: 0,
-        maximum: 1,
-        description: "Minimum surrounding fertility for watering-hole suitability.",
-      }),
-      tempWarmStartC: Type.Number({
-        default: 12,
-        minimum: -100,
-        maximum: 100,
-        description: "Temperature where watering-hole suitability begins increasing.",
-      }),
-      tempWarmEndC: Type.Number({
-        default: 32,
-        minimum: -100,
-        maximum: 100,
-        description: "Temperature where watering-hole suitability reaches its warm optimum.",
-      }),
-    }),
-  },
+  strategies,
 });
 
 export default ScoreWetWateringHoleContract;

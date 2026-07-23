@@ -1,14 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
+
 import AggregatePedologyContract from "./contract.js";
-import { gridCellSummaryStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const aggregatePedology = createOp(AggregatePedologyContract, {
-  strategies: {
-    "grid-cell-summary": gridCellSummaryStrategy,
-  },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
-
-export default aggregatePedology;
+/** Aggregates tile-level soil and fertility evidence into stable grid-cell summaries for downstream inspection. */
+export default createOp(AggregatePedologyContract, { strategies });
