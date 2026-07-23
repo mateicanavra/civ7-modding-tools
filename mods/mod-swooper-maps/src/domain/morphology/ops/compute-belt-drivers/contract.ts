@@ -1,13 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-
-const StrategySchema = Type.Object(
-  {},
-  {
-    additionalProperties: false,
-    description:
-      "Belt-driver derivation configuration. This op is intentionally config-light; derived fields are physics outputs.",
-  }
-);
+import strategies from "./strategies/contract.js";
 
 const ComputeBeltDriversContract = defineOp({
   kind: "compute",
@@ -208,9 +200,7 @@ const ComputeBeltDriversContract = defineOp({
     },
     { description: "Derived belt-driver fields used by morphology landmask + belts + mountains." }
   ),
-  strategies: {
-    "history-derived": StrategySchema,
-  },
+  strategies,
 });
 
 export default ComputeBeltDriversContract;

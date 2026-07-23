@@ -1,14 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ReconcileHeightfieldFromCoastContract from "./contract.js";
-import { carvedCoastDatumStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
+/** Reconciles land class, elevation, and bathymetry after coastline carving. */
 const reconcileHeightfieldFromCoast = createOp(ReconcileHeightfieldFromCoastContract, {
-  strategies: {
-    "carved-coast-datum": carvedCoastDatumStrategy,
-  },
+  strategies,
 });
-
-export type * from "./contract.js";
 
 export default reconcileHeightfieldFromCoast;

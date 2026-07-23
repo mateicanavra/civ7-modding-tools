@@ -1,14 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeDistanceToCoastContract from "./contract.js";
-import { multiSourceHexBfsStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeDistanceToCoast = createOp(ComputeDistanceToCoastContract, {
-  strategies: {
-    "multi-source-hex-bfs": multiSourceHexBfsStrategy,
-  },
-});
-
-export type * from "./contract.js";
+/** Measures wrapped-hex distance from every tile to the nearest admitted coastal seed. */
+const computeDistanceToCoast = createOp(ComputeDistanceToCoastContract, { strategies });
 
 export default computeDistanceToCoast;

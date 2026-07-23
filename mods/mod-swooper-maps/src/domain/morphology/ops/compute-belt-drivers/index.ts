@@ -1,15 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeBeltDriversContract from "./contract.js";
-import { historyDerivedStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const computeBeltDrivers = createOp(ComputeBeltDriversContract, {
-  strategies: {
-    "history-derived": historyDerivedStrategy,
-  },
-});
+/** Derives coherent morphology belt fields from tectonic history and provenance. */
+const computeBeltDrivers = createOp(ComputeBeltDriversContract, { strategies });
 
-export type * from "./contract.js";
 export type * from "./types.js";
 
 export default computeBeltDrivers;

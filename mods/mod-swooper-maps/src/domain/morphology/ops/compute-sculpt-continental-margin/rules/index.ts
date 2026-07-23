@@ -1,8 +1,6 @@
 import { clamp, clamp01 } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
-import type { ComputeSculptContinentalMarginTypes } from "../types.js";
-
 export const BOUNDARY_CONVERGENT = BOUNDARY_TYPE.convergent;
 export const BOUNDARY_DIVERGENT = BOUNDARY_TYPE.divergent;
 export const BOUNDARY_TRANSFORM = BOUNDARY_TYPE.transform;
@@ -21,7 +19,17 @@ export const MARGIN_UNREACHED = 65535;
  */
 export const BREAK_SLOPE_RATIO = 4;
 
-type Config = ComputeSculptContinentalMarginTypes["config"]["crust-break-profile"];
+type Config = Readonly<{
+  activeApronFactor: number;
+  activeClosenessThreshold: number;
+  ageApronGain: number;
+  apronTopCrustFraction: number;
+  baseApronLengthTiles: number;
+  breakCrustFraction: number;
+  buoyancyApronGain: number;
+  passiveApronFactor: number;
+  riftApronFactor: number;
+}>;
 
 /**
  * Relief datums for the margin profile, SINGLE-SOURCED from compute-base-topography (this map's

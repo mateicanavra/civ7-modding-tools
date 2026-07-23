@@ -1,7 +1,17 @@
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { clamp } from "@swooper/mapgen-core/lib/math";
 
-import type { ComputeGeomorphicCycleTypes } from "../types.js";
+type WorldAge = "young" | "mature" | "old";
+
+type GeomorphicCycleConfig = Readonly<{
+  worldAge: WorldAge;
+  geomorphology: Readonly<{
+    fluvial: Readonly<{ rate: number; m: number; n: number }>;
+    diffusion: Readonly<{ rate: number; talus: number }>;
+    deposition: Readonly<{ rate: number }>;
+    eras: number;
+  }>;
+}>;
 
 const WORLD_AGE_SCALE: Record<string, number> = {
   young: 0.7,
@@ -12,9 +22,7 @@ const WORLD_AGE_SCALE: Record<string, number> = {
 /**
  * Resolves the world-age scaling multiplier.
  */
-export function resolveWorldAgeScale(
-  worldAge: ComputeGeomorphicCycleTypes["config"]["stream-power-diffusion"]["worldAge"]
-): number {
+export function resolveWorldAgeScale(worldAge: WorldAge): number {
   return WORLD_AGE_SCALE[worldAge];
 }
 
@@ -30,7 +38,7 @@ export function computeGeomorphicDeltas(params: {
   erodibility: Float32Array;
   sedimentDepth: Float32Array;
   landMask: Uint8Array;
-  config: ComputeGeomorphicCycleTypes["config"]["stream-power-diffusion"];
+  config: GeomorphicCycleConfig;
 }): { elevationDelta: Float32Array; sedimentDelta: Float32Array } {
   const {
     width,

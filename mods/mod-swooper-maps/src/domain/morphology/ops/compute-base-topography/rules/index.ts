@@ -1,7 +1,17 @@
 import { clamp } from "@swooper/mapgen-core/lib/math";
 
 import { DEFAULT_ELEVATION_SCALE } from "../../../model/policy/elevation-scale.js";
-import type { ComputeBaseTopographyTypes } from "../types.js";
+
+type ReliefComputationConfig = Readonly<{
+  boundaryBias: number;
+  clusteringBias: number;
+  continentalHeight: number;
+  oceanicHeight: number;
+  tectonics: Readonly<{
+    interiorNoiseWeight: number;
+    boundaryArcWeight: number;
+  }>;
+}>;
 
 /**
  * Converts uplift + boundary proximity into a blended uplift intensity.
@@ -33,7 +43,7 @@ export function computeElevationRaw(params: {
   closenessNorm: number;
   noise: number;
   arcNoise: number;
-  config: ComputeBaseTopographyTypes["config"]["tectonic-relief"];
+  config: ReliefComputationConfig;
 }): number {
   const { crustBaseElevationUnit, upliftNorm, riftNorm, closenessNorm, noise, arcNoise, config } =
     params;

@@ -1,14 +1,26 @@
-import type { ComputeSubstrateTypes } from "../types.js";
+type SubstrateMaterialConfig = Readonly<{
+  continentalBaseErodibility: number;
+  oceanicBaseErodibility: number;
+  convergentBoundaryErodibilityBoost: number;
+  divergentBoundaryErodibilityBoost: number;
+  transformBoundaryErodibilityBoost: number;
+  upliftErodibilityBoost: number;
+  ageErodibilityReduction: number;
+  continentalBaseSediment: number;
+  oceanicBaseSediment: number;
+  convergentBoundarySedimentBoost: number;
+  divergentBoundarySedimentBoost: number;
+  transformBoundarySedimentBoost: number;
+  riftSedimentBoost: number;
+  ageSedimentBoost: number;
+}>;
 
 function clampNonNegative(value: number): number {
   if (!Number.isFinite(value)) return 0;
   return Math.max(0, value);
 }
 
-function boundaryErodibilityBoost(
-  config: ComputeSubstrateTypes["config"]["crust-boundary-material"],
-  boundaryType: number
-): number {
+function boundaryErodibilityBoost(config: SubstrateMaterialConfig, boundaryType: number): number {
   switch (boundaryType | 0) {
     case 1:
       return config.convergentBoundaryErodibilityBoost;
@@ -21,10 +33,7 @@ function boundaryErodibilityBoost(
   }
 }
 
-function boundarySedimentBoost(
-  config: ComputeSubstrateTypes["config"]["crust-boundary-material"],
-  boundaryType: number
-): number {
+function boundarySedimentBoost(config: SubstrateMaterialConfig, boundaryType: number): number {
   switch (boundaryType | 0) {
     case 1:
       return config.convergentBoundarySedimentBoost;
@@ -41,7 +50,7 @@ function boundarySedimentBoost(
  * Computes erodibility from crust/material and tectonic drivers.
  */
 export function erodibilityForTile(
-  config: ComputeSubstrateTypes["config"]["crust-boundary-material"],
+  config: SubstrateMaterialConfig,
   upliftValue: number,
   boundaryClosenessValue: number,
   boundaryTypeValue: number,
@@ -65,7 +74,7 @@ export function erodibilityForTile(
  * Computes sediment depth from crust/material and tectonic drivers.
  */
 export function sedimentDepthForTile(
-  config: ComputeSubstrateTypes["config"]["crust-boundary-material"],
+  config: SubstrateMaterialConfig,
   riftValue: number,
   boundaryClosenessValue: number,
   boundaryTypeValue: number,

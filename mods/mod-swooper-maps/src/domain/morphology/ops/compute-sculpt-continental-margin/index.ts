@@ -1,15 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import ComputeSculptContinentalMarginContract from "./contract.js";
-import { crustBreakProfileStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
+/** Sculpts continental aprons, breaks, and slopes from crust and boundary evidence. */
 const computeSculptContinentalMargin = createOp(ComputeSculptContinentalMarginContract, {
-  strategies: {
-    "crust-break-profile": crustBreakProfileStrategy,
-  },
+  strategies,
 });
-
-export type * from "./contract.js";
-export type * from "./types.js";
 
 export default computeSculptContinentalMargin;

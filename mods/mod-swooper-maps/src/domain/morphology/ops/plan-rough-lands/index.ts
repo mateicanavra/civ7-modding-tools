@@ -1,15 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import PlanRoughLandsContract from "./contract.js";
-import { reliefSubstrateClustersStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const planRoughLands = createOp(PlanRoughLandsContract, {
-  strategies: {
-    "relief-substrate-clusters": reliefSubstrateClustersStrategy,
-  },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
+/** Plans non-foothill rough uplands from inherited relief, substrate, and drainage signals. */
+const planRoughLands = createOp(PlanRoughLandsContract, { strategies });
 
 export default planRoughLands;

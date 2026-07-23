@@ -1,15 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import PlanRidgesContract from "./contract.js";
-import { orogenicRangeGrowthStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
-const planRidges = createOp(PlanRidgesContract, {
-  strategies: {
-    "orogenic-range-growth": orogenicRangeGrowthStrategy,
-  },
-});
-
-export type * from "./contract.js";
-export type * from "./types.js";
+/** Plans tectonically supported mountain spines, regions, and diagnostic driver surfaces. */
+const planRidges = createOp(PlanRidgesContract, { strategies });
 
 export default planRidges;
