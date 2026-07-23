@@ -1,7 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 import { PlotEffectIntentKeySchema } from "../../model/schemas/plot-effect-intent.schema.js";
-import strategies from "./strategies/contract.js";
+import rankedCoverageDefinition from "./strategies/ranked-coverage/config.js";
 
 const PlotEffectPlacementSchema = Type.Object({
   x: Type.Integer({ minimum: 0 }),
@@ -45,7 +45,7 @@ const PlanPlotEffectsContract = defineOp({
   output: Type.Object({
     placements: Type.Array(PlotEffectPlacementSchema),
   }),
-  strategies,
+  strategies: [rankedCoverageDefinition],
 });
 
 export default PlanPlotEffectsContract;

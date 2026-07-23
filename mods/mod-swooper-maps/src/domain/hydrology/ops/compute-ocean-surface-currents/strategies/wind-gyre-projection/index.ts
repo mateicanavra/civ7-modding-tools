@@ -2,12 +2,12 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeOceanSurfaceCurrentsContract from "../../contract.js";
 import { computeCurrentsEarthlike } from "../../rules/index.js";
-import WindGyreProjectionContract from "./contract.js";
+import WindGyreProjectionDefinition from "./config.js";
 
 /** Wind imprint, Ekman deflection, basin gyres, and coastal flow produce coherent bounded surface currents. */
 const windGyreProjectionStrategy = createStrategy(
   ComputeOceanSurfaceCurrentsContract,
-  WindGyreProjectionContract,
+  WindGyreProjectionDefinition,
   {
     run: (input, config) => {
       const width = input.width;

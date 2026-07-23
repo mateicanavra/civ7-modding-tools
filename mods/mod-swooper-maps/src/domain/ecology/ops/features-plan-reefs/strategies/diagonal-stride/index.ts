@@ -2,13 +2,13 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import type { FeatureIntentKey } from "../../../../model/schemas/index.js";
 import PlanReefsContract from "../../contract.js";
 import { admitReefIntent, selectReefIntentCandidate } from "../../policy/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /**
  * Selects reef-family intent on one diagonal lane pattern controlled by the authored stride.
  * Lotus remains lake-gated before competing with ocean reef candidates.
  */
-const diagonalStrideStrategy = createStrategy(PlanReefsContract, StrategyContract, {
+const diagonalStrideStrategy = createStrategy(PlanReefsContract, StrategyDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

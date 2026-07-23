@@ -1,5 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import geostrophicProxyDefinition from "./strategies/geostrophic-proxy/config.js";
+import latitudeDefinition from "./strategies/latitude/config.js";
 
 /** Wind-field contract whose geostrophic proxy is the product default and latitude is the simpler fallback. */
 const ComputeAtmosphericCirculationContract = defineOp({
@@ -72,7 +73,7 @@ const ComputeAtmosphericCirculationContract = defineOp({
     }
   ),
   defaultStrategy: "geostrophic-proxy",
-  strategies,
+  strategies: [geostrophicProxyDefinition, latitudeDefinition],
 });
 
 export default ComputeAtmosphericCirculationContract;

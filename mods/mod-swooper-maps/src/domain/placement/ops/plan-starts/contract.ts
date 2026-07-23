@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import viabilityFairnessDefinition from "./strategies/viability-fairness/config.js";
 
 const StartsBaseSchema = Type.Object(
   {
@@ -387,7 +387,7 @@ const PlanStartsContract = defineOp({
         "Per-input coverage assertion results; imputed rows are surfaced, never silently neutral-defaulted.",
     }),
   }),
-  strategies,
+  strategies: [viabilityFairnessDefinition],
 });
 
 export default PlanStartsContract;

@@ -3,10 +3,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import { rampUp01 } from "../../../../model/policy/feature-score-selection.js";
 import Contract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Requires an isolated water source, then favors drier and less fertile habitat than oasis scoring. */
-const aridWaterpointStrategy = createStrategy(Contract, StrategyContract, {
+const aridWaterpointStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const size = input.width * input.height;
 

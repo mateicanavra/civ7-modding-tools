@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/plate-aware-volcanic/config.js";
 
 const IslandEditSchema = Type.Object({
   index: Type.Integer({ minimum: 0, description: "Tile index in row-major order." }),
@@ -32,7 +32,7 @@ const PlanIslandChainsContract = defineOp({
       description: "Terrain edits to apply for island chains.",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default PlanIslandChainsContract;

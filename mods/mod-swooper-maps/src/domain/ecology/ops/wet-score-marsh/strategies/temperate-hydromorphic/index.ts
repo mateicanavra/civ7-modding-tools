@@ -7,10 +7,10 @@ import {
   window01,
 } from "../../../../model/policy/feature-score-selection.js";
 import Contract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Requires hydromorphic substrate, then favors fertile, waterlogged temperate land. */
-const temperateHydromorphicStrategy = createStrategy(Contract, StrategyContract, {
+const temperateHydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const size = input.width * input.height;
 

@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import warmAridWaterpointDefinition from "./strategies/warm-arid-waterpoint/config.js";
 
 /** Scores warm arid land around isolated water points without treating broad wetlands as oasis habitat. Every implementation shares this admitted input and output boundary. */
 const ScoreWetOasisContract = defineOp({
@@ -19,7 +19,7 @@ const ScoreWetOasisContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Oasis suitability score per tile (0..1)." }),
   }),
-  strategies,
+  strategies: [warmAridWaterpointDefinition],
 });
 
 export default ScoreWetOasisContract;

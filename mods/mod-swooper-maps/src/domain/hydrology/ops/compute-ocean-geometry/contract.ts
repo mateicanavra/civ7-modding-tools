@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import connectedBasinsDefinition from "./strategies/connected-basins/config.js";
 
 /** Resolves ocean basins, coast distance, and coast orientation from admitted water geometry. */
 const ComputeOceanGeometryContract = defineOp({
@@ -80,7 +80,7 @@ const ComputeOceanGeometryContract = defineOp({
       description: "Ocean geometry helpers (basins + coast fields).",
     }
   ),
-  strategies,
+  strategies: [connectedBasinsDefinition],
 });
 
 export default ComputeOceanGeometryContract;

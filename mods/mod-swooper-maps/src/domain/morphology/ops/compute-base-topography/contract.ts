@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/tectonic-relief/config.js";
 
 /**
  * Converts crust isostasy baseline + tectonic potentials into the initial elevation field.
@@ -38,7 +38,7 @@ const ComputeBaseTopographyContract = defineOp({
       description: "Base elevation per tile (normalized, scaled to int16).",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeBaseTopographyContract;

@@ -3,10 +3,10 @@ import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import ComputeLandmassesContract from "../../contract.js";
 import { computeCircularBounds } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Binds the `wrapped-hex-components` algorithm to the shared `morphology/compute-landmasses` operation contract. */
-export default createStrategy(ComputeLandmassesContract, StrategyContract, {
+export default createStrategy(ComputeLandmassesContract, StrategyDefinition, {
   run: (input) => {
     const { width, height, landMask } = input;
     const size = width * height;

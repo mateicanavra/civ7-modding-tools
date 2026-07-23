@@ -1,9 +1,12 @@
 import { type TSchema, Type } from "typebox";
 import { Value } from "typebox/value";
-import { isCanonicalStrategyContract, type StrategyContractAny } from "./strategy-contract.js";
+import {
+  isCanonicalStrategyDefinition,
+  type StrategyDefinitionAny,
+} from "./strategy-definition.js";
 import type { StrategyConfigSchemas } from "./types.js";
 
-type StrategySchemaSource = Readonly<Record<string, TSchema | StrategyContractAny>>;
+type StrategySchemaSource = Readonly<Record<string, TSchema | StrategyDefinitionAny>>;
 
 export type OpEnvelopeBuildResult = Readonly<{
   schema: TSchema;
@@ -54,7 +57,7 @@ export function buildOpEnvelopeSchema(
   const strategySchemas = Object.fromEntries(
     Object.entries(strategySource).map(([id, value]) => [
       id,
-      isCanonicalStrategyContract(value) ? value.config : value,
+      isCanonicalStrategyDefinition(value) ? value.config : value,
     ])
   ) as StrategyConfigSchemas;
   if (typeof defaultStrategy !== "string" || defaultStrategy.length === 0) {

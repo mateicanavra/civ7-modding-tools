@@ -8,10 +8,10 @@ import {
   computeElevationRaw,
   quantizeElevation,
 } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Binds the `tectonic-relief` algorithm to the shared `morphology/compute-base-topography` operation contract. */
-export default createStrategy(ComputeBaseTopographyContract, StrategyContract, {
+export default createStrategy(ComputeBaseTopographyContract, StrategyDefinition, {
   run: (input, config) => {
     const {
       width,

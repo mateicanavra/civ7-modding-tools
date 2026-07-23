@@ -8,7 +8,7 @@ import type { FeatureIntentKey } from "../../../../model/schemas/index.js";
 import { BIOME_SYMBOL_TO_INDEX } from "../../../../model/schemas/index.js";
 import Contract from "../../contract.js";
 import { admitVegetationIntent } from "../../policy/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 function isBroadVegetationHabitat(
   feature: FeatureIntentKey,
@@ -60,7 +60,7 @@ function isBroadVegetationHabitat(
 }
 
 /** Arbitrates forest, rainforest, taiga, savanna woodland, and sagebrush steppe by confidence and stress. */
-const habitatConfidenceStrategy = createStrategy(Contract, StrategyContract, {
+const habitatConfidenceStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

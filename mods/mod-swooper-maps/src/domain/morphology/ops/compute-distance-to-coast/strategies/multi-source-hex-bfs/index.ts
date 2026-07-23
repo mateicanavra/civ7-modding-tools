@@ -2,12 +2,12 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import ComputeDistanceToCoastContract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 const UNREACHED = 65535;
 
 /** Binds the `multi-source-hex-bfs` algorithm to the shared `morphology/compute-distance-to-coast` operation contract. */
-export default createStrategy(ComputeDistanceToCoastContract, StrategyContract, {
+export default createStrategy(ComputeDistanceToCoastContract, StrategyDefinition, {
   run: (input) => {
     const { width, height } = input;
     const size = width * height;

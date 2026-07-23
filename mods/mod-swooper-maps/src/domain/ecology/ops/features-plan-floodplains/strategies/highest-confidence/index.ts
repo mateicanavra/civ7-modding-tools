@@ -6,7 +6,7 @@ import {
 } from "../../../../model/policy/feature-score-selection.js";
 import type { FeatureIntentKey } from "../../../../model/schemas/index.js";
 import Contract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 type FloodplainCandidate = Readonly<{
   feature: FeatureIntentKey;
@@ -15,7 +15,7 @@ type FloodplainCandidate = Readonly<{
 }>;
 
 /** Chooses the highest-confidence floodplain candidate above the authored confidence floor. */
-const highestConfidenceStrategy = createStrategy(Contract, StrategyContract, {
+const highestConfidenceStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

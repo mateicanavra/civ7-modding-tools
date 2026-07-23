@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import latitudeCurrentAdvectionDefinition from "./strategies/latitude-current-advection/config.js";
 
 /** Derives sea-surface temperature and sea ice from admitted latitude, shelf, and current fields. */
 const ComputeOceanThermalStateContract = defineOp({
@@ -51,7 +51,7 @@ const ComputeOceanThermalStateContract = defineOp({
       description: "Ocean thermal outputs (SST + sea ice mask).",
     }
   ),
-  strategies,
+  strategies: [latitudeCurrentAdvectionDefinition],
 });
 
 export default ComputeOceanThermalStateContract;

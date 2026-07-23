@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/wrapped-hex-components/config.js";
 
 /**
  * Decomposes the final land mask into connected landmasses.
@@ -60,7 +60,7 @@ const ComputeLandmassesContract = defineOp({
       description: "Per-tile landmass id (-1 for water). Values map to landmasses[].",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeLandmassesContract;

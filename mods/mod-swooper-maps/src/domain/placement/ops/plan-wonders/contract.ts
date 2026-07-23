@@ -1,5 +1,5 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import mapMetadataDefinition from "./strategies/map-metadata/config.js";
 
 const MapInfoSchema = Type.Object(
   {
@@ -28,7 +28,7 @@ const PlanWondersContract = defineOp({
         "Nonnegative natural-wonder target from Civ7 map-size metadata; candidate planning consumes this count, while later stamping reports the realized placements.",
     }
   ),
-  strategies,
+  strategies: [mapMetadataDefinition],
 });
 
 export default PlanWondersContract;

@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/plate-aware-carving/config.js";
 
 /**
  * Derives coastline adjacency masks and updated land/coast masks.
@@ -29,7 +29,7 @@ const ComputeCoastlineMetricsContract = defineOp({
     }),
     landMask: TypedArraySchemas.u8({ description: "Updated land mask after coastal carving." }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeCoastlineMetricsContract;

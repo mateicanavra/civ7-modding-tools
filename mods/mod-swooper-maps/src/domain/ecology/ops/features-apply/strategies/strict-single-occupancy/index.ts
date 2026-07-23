@@ -1,7 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import type { FeatureIntentKey } from "../../../../model/schemas/index.js";
 import Contract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 type Placement = { x: number; y: number; feature: FeatureIntentKey; weight?: number };
 
@@ -14,7 +14,7 @@ type TileBucket = {
 const MAX_FEATURES_PER_TILE = 1;
 
 /** Preserves strict single-feature occupancy and tile order rather than silently resolving collisions. */
-const strictSingleOccupancyStrategy = createStrategy(Contract, StrategyContract, {
+const strictSingleOccupancyStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input) => {
     // Stamping is strict in M3: no probabilistic gating and no silent drops.
     // Any collision (multiple placements for a tile) is treated as a bug and fails loudly.

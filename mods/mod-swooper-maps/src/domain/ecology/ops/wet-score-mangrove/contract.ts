@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import warmIntertidalDefinition from "./strategies/warm-intertidal/config.js";
 
 /** Scores warm intertidal coast habitat from water, fertility, aridity, and temperature evidence. Every implementation shares this admitted input and output boundary. */
 const ScoreWetMangroveContract = defineOp({
@@ -20,7 +20,7 @@ const ScoreWetMangroveContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Mangrove suitability score per tile (0..1)." }),
   }),
-  strategies,
+  strategies: [warmIntertidalDefinition],
 });
 
 export default ScoreWetMangroveContract;

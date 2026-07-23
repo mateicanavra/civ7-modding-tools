@@ -2,7 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { buildDelaunayMesh } from "@swooper/mapgen-core/lib/mesh";
 
 import ComputeMeshContract from "../../contract.js";
-import JitteredDelaunayContract from "./contract.js";
+import JitteredDelaunayDefinition from "./config.js";
 
 const PLATE_COUNT_CLAMP_MIN = 2;
 const CELL_COUNT_CLAMP_MIN = 1;
@@ -11,7 +11,7 @@ const CELL_COUNT_CLAMP_MIN = 1;
  * Builds the deterministic jittered Delaunay mesh used as Foundation's common spatial substrate.
  * The mesh density follows authored plate scale rather than the later tile projection.
  */
-const jitteredDelaunay = createStrategy(ComputeMeshContract, JitteredDelaunayContract, {
+const jitteredDelaunay = createStrategy(ComputeMeshContract, JitteredDelaunayDefinition, {
   normalize: (config) => {
     const scaledPlateCount = Math.max(PLATE_COUNT_CLAMP_MIN, config.plateCount | 0);
     return {

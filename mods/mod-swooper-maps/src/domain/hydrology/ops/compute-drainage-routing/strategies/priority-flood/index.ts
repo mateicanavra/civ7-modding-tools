@@ -2,12 +2,12 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeDrainageRoutingContract from "../../contract.js";
 import { computeDrainageRouting } from "../../rules/index.js";
-import PriorityFloodContract from "./contract.js";
+import PriorityFloodDefinition from "./config.js";
 
 /** Depression-aware priority flooding assigns receivers, basins, sinks, outlets, and terminal types together. */
 const priorityFloodStrategy = createStrategy(
   ComputeDrainageRoutingContract,
-  PriorityFloodContract,
+  PriorityFloodDefinition,
   {
     run: (input, config) =>
       computeDrainageRouting({

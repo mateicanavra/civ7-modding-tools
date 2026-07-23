@@ -6,7 +6,7 @@ import { resolveDriverStrength } from "../../../../model/policy/driver-strength.
 import { normalizeMountainFractal } from "../../../../model/policy/mountain-fractal.js";
 import { encodeNormalizedToU8 } from "../../../../model/policy/normalized-byte.js";
 import PlanRoughLandsContract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 function computeLocalRelief(params: {
   index: number;
@@ -151,7 +151,7 @@ class RoughComponentSizer {
 }
 
 /** Binds the `relief-substrate-clusters` algorithm to the shared `morphology/plan-rough-lands` operation contract. */
-export default createStrategy(PlanRoughLandsContract, StrategyContract, {
+export default createStrategy(PlanRoughLandsContract, StrategyDefinition, {
   run: (input, config) => {
     const {
       width,

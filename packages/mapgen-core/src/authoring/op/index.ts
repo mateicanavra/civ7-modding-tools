@@ -20,8 +20,8 @@ export type {
   StrategySelection,
 } from "./strategy.js";
 export { createStrategy } from "./strategy.js";
-export type { StrategyContract } from "./strategy-contract.js";
-export { defineStrategy } from "./strategy-contract.js";
+export type { StrategyDefinition } from "./strategy-definition.js";
+export { defineStrategy } from "./strategy-definition.js";
 export type {
   DomainOp,
   DomainOpKind,

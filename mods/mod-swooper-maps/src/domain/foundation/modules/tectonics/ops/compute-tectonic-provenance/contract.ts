@@ -1,7 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { TectonicProvenanceFieldsSchema } from "../../model/atoms/tectonic-provenance-fields.schema.js";
 import { TracerIndexSchema } from "../../model/atoms/tracer-index.schema.js";
-import strategies from "./strategies/contract.js";
+import advectedLineageDefinition from "./strategies/advected-lineage/config.js";
 
 /**
  * Contract for reconstructing each cell's tectonic lineage from advected tracers and era fields.
@@ -62,7 +62,7 @@ const ComputeTectonicProvenanceContract = defineOp({
         "Per-cell tectonic provenance linking present locations to advected origin eras and plates, crust age, and the most recent boundary encounter.",
     }
   ),
-  strategies,
+  strategies: [advectedLineageDefinition],
 });
 
 export default ComputeTectonicProvenanceContract;

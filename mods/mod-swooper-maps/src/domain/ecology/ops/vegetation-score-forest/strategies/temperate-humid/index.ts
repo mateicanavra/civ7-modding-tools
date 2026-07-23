@@ -2,10 +2,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import Contract from "../../contract.js";
 import { scoreForestSuitability } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Projects temperate humidity and fertility into bounded forest suitability. */
-const temperateHumidStrategy = createStrategy(Contract, StrategyContract, {
+const temperateHumidStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input) => {
     const score01 = scoreForestSuitability({
       size: input.width * input.height,

@@ -7,7 +7,7 @@ import {
   HYDROLOGY_MOUTH_SPILL_PATH,
 } from "../../../../model/policy/river-network-metrics.js";
 import SelectNavigableRiverTerrainContract from "../../contract.js";
-import EndpointChainRankingContract from "./contract.js";
+import EndpointChainRankingDefinition from "./config.js";
 
 function percentileFloor(valuesAscending: readonly number[], percentile: number): number {
   if (valuesAscending.length === 0) return 0;
@@ -47,7 +47,7 @@ function isTerminalAnchoredMouth(mouthType: number): boolean {
 /** Connected discharge and chain quality rank coherent endpoint pairs that the engine can project. */
 const endpointChainRankingStrategy = createStrategy(
   SelectNavigableRiverTerrainContract,
-  EndpointChainRankingContract,
+  EndpointChainRankingDefinition,
   {
     run: (input, config) => {
       const width = input.width;

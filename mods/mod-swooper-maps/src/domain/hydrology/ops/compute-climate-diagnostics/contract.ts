@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import terrainWindIndicesDefinition from "./strategies/terrain-wind-indices/config.js";
 
 /** Derives rain-shadow, continentality, and convergence diagnostics from admitted climate fields. */
 const ComputeClimateDiagnosticsContract = defineOp({
@@ -63,7 +63,7 @@ const ComputeClimateDiagnosticsContract = defineOp({
       description: "Diagnostic climate indices outputs (advisory).",
     }
   ),
-  strategies,
+  strategies: [terrainWindIndicesDefinition],
 });
 
 export default ComputeClimateDiagnosticsContract;

@@ -2,7 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import Contract from "../../contract.js";
 import { classifyBiomesFromFields } from "../../rules/classify.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 const GAUSSIAN_SIGMA_CLAMP_MIN = 1;
 
@@ -89,7 +89,7 @@ function refineBiomeIndexGaussian(args: {
 }
 
 /** Combines biophysical climate thresholds with deterministic Gaussian edge smoothing while preserving the water sentinel. */
-const biophysicalGaussianStrategy = createStrategy(Contract, StrategyContract, {
+const biophysicalGaussianStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const { width, height } = input;
     const size = width * height;

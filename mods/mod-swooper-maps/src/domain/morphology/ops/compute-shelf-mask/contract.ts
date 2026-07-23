@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/physical-break-connectivity/config.js";
 
 /**
  * Computes a continental-shelf water mask for projecting to Civ7 TERRAIN_COAST.
@@ -57,7 +57,7 @@ const ComputeShelfMaskContract = defineOp({
         "Per-tile bathymetry (engine elevation units, <=0) at the read shelf break: the local seabed depth where the gradient first steepens past the threshold. 0 where no break was read.",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeShelfMaskContract;

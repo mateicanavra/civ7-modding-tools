@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import potentialGradientDefinition from "./strategies/potential-gradient/config.js";
 
 /**
  * Contract for deriving mantle velocity, stress, divergence, and upwelling signals from potential.
@@ -55,7 +55,7 @@ const ComputeMantleForcingContract = defineOp({
         "Mesh-wide velocity, stress, divergence, and upwelling signals derived from mantle potential and shared by plate-motion, hotspot, and tracer reconstruction.",
     }
   ),
-  strategies,
+  strategies: [potentialGradientDefinition],
 });
 
 export default ComputeMantleForcingContract;

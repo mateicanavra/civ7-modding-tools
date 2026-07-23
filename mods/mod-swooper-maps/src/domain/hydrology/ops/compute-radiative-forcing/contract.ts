@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import latitudeInsolationDefinition from "./strategies/latitude-insolation/config.js";
 
 /** Projects admitted latitude and seasonal phase into a bounded per-tile insolation field. */
 const ComputeRadiativeForcingContract = defineOp({
@@ -41,7 +41,7 @@ const ComputeRadiativeForcingContract = defineOp({
       description: "Radiative forcing output (insolation proxy) per tile.",
     }
   ),
-  strategies,
+  strategies: [latitudeInsolationDefinition],
 });
 
 export default ComputeRadiativeForcingContract;

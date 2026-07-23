@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateSchema } from "../../../lithosphere/model/atoms/plate.schema.js";
-import strategies from "./strategies/contract.js";
+import relativeMotionRegimesDefinition from "./strategies/relative-motion-regimes/config.js";
 
 /**
  * Contract for classifying the plate graph's boundary edges from relative plate motion.
@@ -81,7 +81,7 @@ const ComputeTectonicSegmentsContract = defineOp({
         "Canonical plate-boundary table with aligned cell and plate endpoints, classified regime and polarity, event intensities, and drift for each segment.",
     }
   ),
-  strategies,
+  strategies: [relativeMotionRegimesDefinition],
 });
 
 export default ComputeTectonicSegmentsContract;

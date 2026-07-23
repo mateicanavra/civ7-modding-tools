@@ -1,10 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import TransportMoistureContract from "../../contract.js";
 import { clamp01, upwindIndex, upwindOffset } from "../../rules/index.js";
-import CardinalContract from "./contract.js";
+import CardinalDefinition from "./config.js";
 
 /** Cardinalized winds provide deterministic iterative moisture transport with bounded retention and decay. */
-const cardinalStrategy = createStrategy(TransportMoistureContract, CardinalContract, {
+const cardinalStrategy = createStrategy(TransportMoistureContract, CardinalDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

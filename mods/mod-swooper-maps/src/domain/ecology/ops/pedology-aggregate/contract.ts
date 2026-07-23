@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import gridCellSummaryDefinition from "./strategies/grid-cell-summary/config.js";
 
 /** Aggregates tile-level soil and fertility evidence into stable grid-cell summaries for downstream inspection. Every implementation shares this admitted input and output boundary. */
 const AggregatePedologyContract = defineOp({
@@ -23,7 +23,7 @@ const AggregatePedologyContract = defineOp({
       })
     ),
   }),
-  strategies,
+  strategies: [gridCellSummaryDefinition],
 });
 
 export default AggregatePedologyContract;

@@ -2,7 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { buildPlateTopology } from "@swooper/mapgen-core/lib/plates";
 
 import ComputePlateTopologyContract from "../../contract.js";
-import WrappedHexAdjacencyContract from "./contract.js";
+import WrappedHexAdjacencyDefinition from "./config.js";
 
 /**
  * Undirected-adjacency invariant: if A lists B as a neighbor, B must list A.
@@ -32,7 +32,7 @@ function validateTopologySymmetry(
  */
 const wrappedHexAdjacency = createStrategy(
   ComputePlateTopologyContract,
-  WrappedHexAdjacencyContract,
+  WrappedHexAdjacencyDefinition,
   {
     run: (input) => {
       const { plateIds, width, height } = input;

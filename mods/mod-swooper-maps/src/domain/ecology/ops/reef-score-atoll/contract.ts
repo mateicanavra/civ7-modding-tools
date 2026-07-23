@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import warmOceanBankDefinition from "./strategies/warm-ocean-bank/config.js";
 
 /** Scores warm offshore ocean banks within authored depth and coast-distance windows for atoll habitat. Every implementation shares this admitted input and output boundary. */
 const ScoreAtollContract = defineOp({
@@ -28,7 +28,7 @@ const ScoreAtollContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Atoll suitability score per tile (0..1)." }),
   }),
-  strategies,
+  strategies: [warmOceanBankDefinition],
 });
 
 export default ScoreAtollContract;

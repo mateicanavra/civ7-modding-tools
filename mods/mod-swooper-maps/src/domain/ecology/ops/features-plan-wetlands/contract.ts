@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../model/schemas/index.js";
-import strategies from "./strategies/contract.js";
+import habitatConfidenceDefinition from "./strategies/habitat-confidence/config.js";
 
 /** Chooses the strongest wetland-family habitat per unoccupied land tile after substrate-specific scoring. Every implementation shares this admitted input and output boundary. */
 const PlanWetlandsContract = defineOp({
@@ -42,7 +42,7 @@ const PlanWetlandsContract = defineOp({
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
-  strategies,
+  strategies: [habitatConfidenceDefinition],
 });
 
 export default PlanWetlandsContract;

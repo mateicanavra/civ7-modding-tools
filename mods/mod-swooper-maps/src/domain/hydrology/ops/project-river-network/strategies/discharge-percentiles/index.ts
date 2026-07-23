@@ -6,7 +6,7 @@ import {
 } from "../../../../model/policy/river-class.js";
 import ProjectRiverNetworkContract from "../../contract.js";
 import { clamp01 } from "../../rules/index.js";
-import DischargePercentilesContract from "./contract.js";
+import DischargePercentilesDefinition from "./config.js";
 
 function percentileThreshold(values: number[], p: number): number {
   if (values.length === 0) return Infinity;
@@ -35,7 +35,7 @@ function strongestUpstreamMinor(
 /** Scale-relative discharge thresholds classify minor and major river intent while preserving routing connectivity. */
 const dischargePercentilesStrategy = createStrategy(
   ProjectRiverNetworkContract,
-  DischargePercentilesContract,
+  DischargePercentilesDefinition,
   {
     run: (input, config) => {
       const width = input.width;

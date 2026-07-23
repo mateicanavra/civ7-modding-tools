@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import bioclimaticSubstrateDefinition from "./strategies/bioclimatic-substrate/config.js";
 
 /** Normalizes climate and soil evidence into shared energy, water, stress, biomass, and fertility fields used by vegetation scorers. Every implementation shares this admitted input and output boundary. */
 const ComputeVegetationSubstrateContract = defineOp({
@@ -41,7 +41,7 @@ const ComputeVegetationSubstrateContract = defineOp({
     }),
     fertility01: TypedArraySchemas.f32({ description: "Normalized fertility proxy (0..1)." }),
   }),
-  strategies,
+  strategies: [bioclimaticSubstrateDefinition],
 });
 
 export default ComputeVegetationSubstrateContract;

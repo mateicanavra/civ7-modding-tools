@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import warmShallowLakeDefinition from "./strategies/warm-shallow-lake/config.js";
 
 /** Scores warm shallow lake water near shore for lake-lotus habitat. Every implementation shares this admitted input and output boundary. */
 const ScoreLotusContract = defineOp({
@@ -25,7 +25,7 @@ const ScoreLotusContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Lotus suitability score per tile (0..1)." }),
   }),
-  strategies,
+  strategies: [warmShallowLakeDefinition],
 });
 
 export default ScoreLotusContract;

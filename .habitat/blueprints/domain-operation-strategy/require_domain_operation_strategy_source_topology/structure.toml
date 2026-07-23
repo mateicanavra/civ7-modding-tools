@@ -16,7 +16,6 @@ kind = "directory"
 mode = "closed"
 allowEmpty = true
 required = [
-  "contract.ts",
   "index.ts",
   "+([a-z0-9])*(-+([a-z0-9]))",
 ]
@@ -31,6 +30,6 @@ kind = "directory"
 mode = "closed"
 allowEmpty = true
 required = [
-  "contract.ts",
+  "config.ts",
   "index.ts",
 ]

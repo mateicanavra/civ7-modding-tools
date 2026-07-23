@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/carved-coast-datum/config.js";
 
 /**
  * Reconciles the heightfield with a freshly-carved coastline.
@@ -47,7 +47,7 @@ const ReconcileHeightfieldFromCoastContract = defineOp({
       description: "Reconciled bathymetry: 0 on land; min(0, elevation - seaLevel) in water.",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ReconcileHeightfieldFromCoastContract;

@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import warmHumidDefinition from "./strategies/warm-humid/config.js";
 
 /** Scores warm humid closed-canopy habitat from energy, water, stress, and biomass evidence. Every implementation shares this admitted input and output boundary. */
 const ScoreVegetationRainforestContract = defineOp({
@@ -24,7 +24,7 @@ const ScoreVegetationRainforestContract = defineOp({
       description: "Rainforest suitability score per tile (0..1).",
     }),
   }),
-  strategies,
+  strategies: [warmHumidDefinition],
 });
 
 export default ScoreVegetationRainforestContract;

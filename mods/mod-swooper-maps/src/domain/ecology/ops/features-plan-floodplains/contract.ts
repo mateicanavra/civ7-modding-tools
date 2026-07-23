@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../model/schemas/index.js";
-import strategies from "./strategies/contract.js";
+import highestConfidenceDefinition from "./strategies/highest-confidence/config.js";
 
 const floodplainScore = (description: string) => TypedArraySchemas.f32({ description });
 
@@ -46,7 +46,7 @@ const PlanFloodplainsContract = defineOp({
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
-  strategies,
+  strategies: [highestConfidenceDefinition],
 });
 
 export default PlanFloodplainsContract;

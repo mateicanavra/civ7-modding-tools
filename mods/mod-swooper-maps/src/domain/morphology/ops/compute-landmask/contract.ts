@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/tectonic-potential/config.js";
 
 /**
  * Derives the land mask and coastline distance field from a low-frequency continent potential grounded in Foundation truth.
@@ -86,7 +86,7 @@ const ComputeLandmaskContract = defineOp({
       description: "Distance to nearest coast in tiles (0=coast).",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeLandmaskContract;

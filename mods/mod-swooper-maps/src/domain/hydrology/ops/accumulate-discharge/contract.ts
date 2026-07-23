@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import topologicalRunoffDefinition from "./strategies/topological-runoff/config.js";
 
 /** Accumulates local runoff through admitted drainage routing into discharge, sink, and outlet evidence. */
 const AccumulateDischargeContract = defineOp({
@@ -58,7 +58,7 @@ const AccumulateDischargeContract = defineOp({
       description: "Discharge accumulation outputs (runoff/discharge + sink/outlet masks).",
     }
   ),
-  strategies,
+  strategies: [topologicalRunoffDefinition],
 });
 
 export default AccumulateDischargeContract;

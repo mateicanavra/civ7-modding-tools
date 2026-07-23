@@ -9,7 +9,7 @@ import {
 import {
   assertCanonicalOpContract,
   type OpContractAny,
-  readCanonicalOpStrategies,
+  readCanonicalOpStrategyDefinitions,
 } from "./contract.js";
 import { admitOperationInput, compileOperationInputAdmissionPlan } from "./input-admission.js";
 import {
@@ -20,7 +20,7 @@ import {
   type StrategyImplMapFor,
   type StrategySelection,
 } from "./strategy.js";
-import type { StrategyContractAny } from "./strategy-contract.js";
+import type { StrategyDefinitionAny } from "./strategy-definition.js";
 import type { DomainOp, OpConfigSchema } from "./types.js";
 
 type RuntimeStrategiesForContract<C extends OpContractAny> = Readonly<{
@@ -132,10 +132,10 @@ export function createOp(contract: any, implementationInput: any): any {
   if (strategyInput === undefined) {
     throw new Error(`createOp(${contract.id}) requires strategies`);
   }
-  const strategyContracts = readCanonicalOpStrategies(contract);
+  const strategyDefinitions = readCanonicalOpStrategyDefinitions(contract);
   const strategyDescriptors = captureStrategyDescriptors(strategyInput, contract);
   const strategies = alignOwnDataRecords(
-    strategyContracts,
+    strategyDefinitions,
     strategyDescriptors,
     `createOp(${contract.id}) strategies`
   );
@@ -147,9 +147,9 @@ export function createOp(contract: any, implementationInput: any): any {
   );
   const strategyImpls = new Map<string, StrategyImpl<TSchema, TSchema, unknown>>();
   for (const { key: id, authority, candidate } of strategies) {
-    if (candidate.strategy !== authority) {
+    if (candidate.definition !== authority) {
       throw new Error(
-        `Strategy descriptor ${contract.id}#${candidate.strategy.id} does not implement the exact canonical leaf ${contract.id}#${id}`
+        `Strategy descriptor ${contract.id}#${candidate.definition.id} does not implement the exact canonical leaf ${contract.id}#${id}`
       );
     }
     strategyImpls.set(id, candidate.implementation);
@@ -200,7 +200,7 @@ export function createOp(contract: any, implementationInput: any): any {
 }
 
 type StrategyBinding = Readonly<{
-  strategy: StrategyContractAny;
+  definition: StrategyDefinitionAny;
   implementation: StrategyImpl<TSchema, TSchema, unknown>;
 }>;
 
@@ -217,13 +217,13 @@ function captureStrategyDescriptors(
     const seen = new Set<string>();
     for (const descriptorInput of descriptorInputs) {
       const binding = readStrategyBinding(descriptorInput, contract);
-      if (seen.has(binding.strategy.id)) {
+      if (seen.has(binding.definition.id)) {
         throw new Error(
-          `createOp(${contract.id}) has duplicate strategy implementation "${binding.strategy.id}"`
+          `createOp(${contract.id}) has duplicate strategy implementation "${binding.definition.id}"`
         );
       }
-      seen.add(binding.strategy.id);
-      entries.push(Object.freeze({ key: binding.strategy.id, value: binding }));
+      seen.add(binding.definition.id);
+      entries.push(Object.freeze({ key: binding.definition.id, value: binding }));
     }
     return Object.freeze(entries);
   }
@@ -231,9 +231,9 @@ function captureStrategyDescriptors(
   return Object.freeze(
     captureOwnDataRecord(input, `createOp(${contract.id}) strategies`).map(({ key, value }) => {
       const binding = readStrategyBinding(value, contract);
-      if (binding.strategy.id !== key) {
+      if (binding.definition.id !== key) {
         throw new Error(
-          `Strategy map key "${key}" must equal descriptor identity "${binding.strategy.id}"`
+          `Strategy map key "${key}" must equal descriptor identity "${binding.definition.id}"`
         );
       }
       return Object.freeze({ key, value: binding });

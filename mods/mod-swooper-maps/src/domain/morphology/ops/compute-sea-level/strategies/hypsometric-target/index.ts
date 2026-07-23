@@ -3,10 +3,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeSeaLevelContract from "../../contract.js";
 import { resolveSeaLevel, resolveTargetPercent } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Binds the `hypsometric-target` algorithm to the shared `morphology/compute-sea-level` operation contract. */
-export default createStrategy(ComputeSeaLevelContract, StrategyContract, {
+export default createStrategy(ComputeSeaLevelContract, StrategyDefinition, {
   run: (input, config) => {
     const { elevation, crustType, boundaryCloseness } = input;
     const rng = createLabelRng(input.rngSeed | 0);

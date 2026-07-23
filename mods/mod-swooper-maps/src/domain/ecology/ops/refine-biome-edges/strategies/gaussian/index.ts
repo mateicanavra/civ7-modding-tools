@@ -1,6 +1,6 @@
 import { createStrategy, type StrategyImplFor } from "@swooper/mapgen-core/authoring";
 import RefineBiomeEdgesContract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /**
  * Smooths an admitted biome grid while preserving water sentinels and Core's input-admission proof.
@@ -76,7 +76,7 @@ const runGaussianBiomeRefinement: StrategyImplFor<
 };
 
 /** Gaussian biome-edge refinement strategy. */
-const gaussianStrategy = createStrategy(RefineBiomeEdgesContract, StrategyContract, {
+const gaussianStrategy = createStrategy(RefineBiomeEdgesContract, StrategyDefinition, {
   run: runGaussianBiomeRefinement,
 });
 

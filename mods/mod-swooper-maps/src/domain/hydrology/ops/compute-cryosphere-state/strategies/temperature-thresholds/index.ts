@@ -2,12 +2,12 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeCryosphereStateContract from "../../contract.js";
 import { clamp01, clampU8, lerp01 } from "../../rules/index.js";
-import TemperatureThresholdsContract from "./contract.js";
+import TemperatureThresholdsDefinition from "./config.js";
 
 /** One temperature scale coherently classifies snow, sea ice, albedo, freeze, permafrost, and melt potential. */
 const temperatureThresholdsStrategy = createStrategy(
   ComputeCryosphereStateContract,
-  TemperatureThresholdsContract,
+  TemperatureThresholdsDefinition,
   {
     run: (input, config) => {
       const width = input.width;

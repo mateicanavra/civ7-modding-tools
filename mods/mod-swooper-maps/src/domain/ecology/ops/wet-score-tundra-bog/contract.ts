@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import coldHydromorphicDefinition from "./strategies/cold-hydromorphic/config.js";
 
 /** Scores cold saturated land from hydromorphic substrate, water, fertility, freeze, and temperature. Every implementation shares this admitted input and output boundary. */
 const ScoreWetTundraBogContract = defineOp({
@@ -22,7 +22,7 @@ const ScoreWetTundraBogContract = defineOp({
       description: "Tundra bog suitability score per tile (0..1).",
     }),
   }),
-  strategies,
+  strategies: [coldHydromorphicDefinition],
 });
 
 export default ScoreWetTundraBogContract;

@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import poissonSourceFieldDefinition from "./strategies/poisson-source-field/config.js";
 
 /**
  * Contract for constructing a deterministic mantle potential field over the Foundation mesh.
@@ -52,7 +52,7 @@ const ComputeMantlePotentialContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  strategies,
+  strategies: [poissonSourceFieldDefinition],
 });
 
 export default ComputeMantlePotentialContract;

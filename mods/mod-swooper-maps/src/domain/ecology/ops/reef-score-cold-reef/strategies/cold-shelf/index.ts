@@ -3,10 +3,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import { rampDown01, window01 } from "../../../../model/policy/feature-score-selection.js";
 import Contract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Favors cold shelf water while excluding unsuitable warmth, depth, and coast distance. */
-const coldShelfStrategy = createStrategy(Contract, StrategyContract, {
+const coldShelfStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const size = input.width * input.height;
 

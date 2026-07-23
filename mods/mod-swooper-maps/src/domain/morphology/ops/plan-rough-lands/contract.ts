@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/relief-substrate-clusters/config.js";
 
 /**
  * Plans non-foothill hill terrain from inherited relief surfaces.
@@ -63,7 +63,7 @@ const PlanRoughLandsContract = defineOp({
       description: "Diagnostic rough-land potential (0..255) before capped selection.",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default PlanRoughLandsContract;

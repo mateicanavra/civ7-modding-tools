@@ -23,7 +23,7 @@ import {
   HYDROLOGY_SLOPE_STEEP,
 } from "../../../../model/policy/river-network-metrics.js";
 import ComputeRiverNetworkMetricsContract from "../../contract.js";
-import HydrographicClassificationContract from "./contract.js";
+import HydrographicClassificationDefinition from "./config.js";
 
 const FLAT_SLOPE_MAX = 0.5;
 const LOW_SLOPE_MAX = 4;
@@ -142,7 +142,7 @@ function isMountainBlockedClosedBasin(
 /** One drainage network yields coherent hierarchy, mouth, slope, permanence, and benchmark measurements. */
 const hydrographicClassificationStrategy = createStrategy(
   ComputeRiverNetworkMetricsContract,
-  HydrographicClassificationContract,
+  HydrographicClassificationDefinition,
   {
     run: (input, config) => {
       const width = input.width;

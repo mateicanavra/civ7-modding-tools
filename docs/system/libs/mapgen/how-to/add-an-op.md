@@ -41,9 +41,10 @@ domain). It routes to:
   schemas at the nearest owner. Import a sibling module's atom directly only
   when the operation truly consumes that subentity; never import an artifact
   catalog or a complete artifact payload here.
-- Put each strategy configuration schema in that semantic strategy leaf's
-  `contract.ts`. The strategy-topology successor owns the exact typed
-  registration API; do not add a new detached `StrategySchema` here meanwhile.
+- Put each strategy definition in that semantic strategy leaf's `config.ts` as
+  the default result of `defineStrategy({ id, config })`.
+- Import leaf configs directly into the operation contract and pass their tuple
+  as `strategies`. Do not add a strategy-root config or contract barrel.
 - Give every strategy a semantic id that names its behavior; never use `"default"`.
 - For a multi-strategy operation, add `defaultStrategy` explicitly; object order never selects behavior.
 - Make schemas explicit (TypedArray schemas for binary grids; keep descriptions meaningful).
@@ -76,22 +77,18 @@ input: Type.Object({
 Only typed-array schemas reachable through an operation's input compile this
 metadata into runtime admission. Operation outputs and artifact schemas do not.
 
-Representative owner-local input/output fragment. The complete `defineOp`
-example returns after the strategy leaf contract API lands; this fragment does
-not invent an invalid empty strategy registry in the meantime:
+Representative owner-local operation contract:
 
 ```ts
-// Direct properties inside defineOp({ ... }):
-input: Type.Object({
-  bounds: GridBoundsSchema,
-  segmentEvents: Type.Array(TectonicEventSchema),
-  hotspotEvents: Type.Array(TectonicEventSchema),
-  weight: Type.Number({ minimum: 0, maximum: 10 }),
-}),
-output: Type.Object({
-  era: Type.Integer({ minimum: 0 }),
-  events: Type.Array(TectonicEventSchema),
-}),
+import eventDistanceDecayDefinition from "./strategies/event-distance-decay/config.js";
+
+export default defineOp({
+  kind: "compute",
+  id: "foundation/compute-era-tectonic-fields",
+  input: Type.Object({ weight: Type.Number({ minimum: 0, maximum: 10 }) }),
+  output: Type.Object({ era: Type.Integer({ minimum: 0 }) }),
+  strategies: [eventDistanceDecayDefinition],
+});
 ```
 
 ### 2) Implement the op (`createOp`)
@@ -102,17 +99,19 @@ output: Type.Object({
   `Params`/`Result` types. Do not derive them from contract input/output or
   `artifact.schema`.
 
-Representative example (createOp + strategy binding; excerpt; see full file in anchors):
+In each `strategies/<semantic-id>/index.ts`, bind the shared operation contract
+and the sibling definition with `createStrategy`. Aggregate the resulting
+implementations as a default tuple from `strategies/index.ts`.
+
+Representative operation root:
 
 ```ts
 import { createOp } from "@swooper/mapgen-core/authoring";
 import contract from "./contract.js";
-import { eventDistanceDecayStrategy } from "./strategies/index.js";
+import strategies from "./strategies/index.js";
 
 export default createOp(contract, {
-  strategies: {
-    "event-distance-decay": eventDistanceDecayStrategy,
-  },
+  strategies,
 });
 ```
 

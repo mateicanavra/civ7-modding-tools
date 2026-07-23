@@ -1,7 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputePlatesTensorsContract from "../../contract.js";
 import { projectPlatesFromModel } from "../../rules/project-plates.js";
-import FoundationModelProjectionContract from "./contract.js";
+import FoundationModelProjectionDefinition from "./config.js";
 
 /**
  * Materializes mesh-space Foundation state as aligned tile tensors and provenance evidence.
@@ -9,7 +9,7 @@ import FoundationModelProjectionContract from "./contract.js";
  */
 const foundationModelProjection = createStrategy(
   ComputePlatesTensorsContract,
-  FoundationModelProjectionContract,
+  FoundationModelProjectionDefinition,
   {
     run: (input, config) => {
       const width = input.width;

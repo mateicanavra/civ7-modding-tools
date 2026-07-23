@@ -7,10 +7,10 @@ import {
   isLowBasinClosed,
   rainfallToHumidityU8,
 } from "../../rules/index.js";
-import RefineContract from "./contract.js";
+import RefineDefinition from "./config.js";
 
 /** River-corridor and low-basin effects refine admitted rainfall without redefining the baseline climate field. */
-const refineStrategy = createStrategy(ComputePrecipitationContract, RefineContract, {
+const refineStrategy = createStrategy(ComputePrecipitationContract, RefineDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

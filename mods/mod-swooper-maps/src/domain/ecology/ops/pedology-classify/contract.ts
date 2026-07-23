@@ -1,5 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import balancedDefinition from "./strategies/balanced/config.js";
+import coastalShelfDefinition from "./strategies/coastal-shelf/config.js";
+import orogenyBoostedDefinition from "./strategies/orogeny-boosted/config.js";
 
 /** Derives soil class and fertility from climate, relief, sediment, and bedrock through one shared classifier boundary. Every implementation shares this admitted input and output boundary. */
 const PedologyClassifyContract = defineOp({
@@ -36,7 +38,7 @@ const PedologyClassifyContract = defineOp({
     fertility: TypedArraySchemas.f32({ description: "Fertility score per tile (0..1)." }),
   }),
   defaultStrategy: "balanced",
-  strategies,
+  strategies: [balancedDefinition, coastalShelfDefinition, orogenyBoostedDefinition],
 });
 
 export default PedologyClassifyContract;

@@ -1,5 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import latitudeDefinition from "./strategies/latitude/config.js";
+import windGyreProjectionDefinition from "./strategies/wind-gyre-projection/config.js";
 
 /** Surface-current contract whose wind/gyre projection is the product default and latitude is the fallback. */
 const ComputeOceanSurfaceCurrentsContract = defineOp({
@@ -75,7 +76,7 @@ const ComputeOceanSurfaceCurrentsContract = defineOp({
     }
   ),
   defaultStrategy: "wind-gyre-projection",
-  strategies,
+  strategies: [windGyreProjectionDefinition, latitudeDefinition],
 });
 
 export default ComputeOceanSurfaceCurrentsContract;

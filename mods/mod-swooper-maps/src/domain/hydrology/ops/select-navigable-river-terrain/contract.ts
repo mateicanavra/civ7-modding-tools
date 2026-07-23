@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import endpointChainRankingDefinition from "./strategies/endpoint-chain-ranking/config.js";
 
 /** Selects coherent engine-projectable river chains from admitted hydrographic evidence. */
 const SelectNavigableRiverTerrainContract = defineOp({
@@ -117,7 +117,7 @@ const SelectNavigableRiverTerrainContract = defineOp({
         "Selected navigable-river terrain subset plus the supporting major/minor masks and selection metrics.",
     }
   ),
-  strategies,
+  strategies: [endpointChainRankingDefinition],
 });
 
 export default SelectNavigableRiverTerrainContract;

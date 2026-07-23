@@ -2,10 +2,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import Contract from "../../contract.js";
 import { scoreSagebrushSteppeSuitability } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Projects warm semiarid conditions and sparse biomass into bounded sagebrush-steppe suitability. */
-const semiaridOpenStrategy = createStrategy(Contract, StrategyContract, {
+const semiaridOpenStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input) => {
     const score01 = scoreSagebrushSteppeSuitability({
       size: input.width * input.height,

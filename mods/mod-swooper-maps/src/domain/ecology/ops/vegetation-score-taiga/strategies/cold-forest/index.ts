@@ -2,10 +2,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import Contract from "../../contract.js";
 import { scoreTaigaSuitability } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Projects cold moist bioclimate and biomass into bounded taiga suitability. */
-const coldForestStrategy = createStrategy(Contract, StrategyContract, {
+const coldForestStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input) => {
     const score01 = scoreTaigaSuitability({
       size: input.width * input.height,

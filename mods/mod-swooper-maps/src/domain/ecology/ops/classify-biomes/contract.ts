@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import biophysicalGaussianDefinition from "./strategies/biophysical-gaussian/config.js";
 
 /** Classifies admitted climate and soil fields into biome indices and vegetation density, then smooths only land-biome edges. Every implementation shares this admitted input and output boundary. */
 const BiomeClassificationContract = defineOp({
@@ -45,7 +45,7 @@ const BiomeClassificationContract = defineOp({
     aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),
     freezeIndex: TypedArraySchemas.f32({ description: "Freeze index per tile (0..1)." }),
   }),
-  strategies,
+  strategies: [biophysicalGaussianDefinition],
 });
 
 export default BiomeClassificationContract;

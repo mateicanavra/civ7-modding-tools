@@ -1,12 +1,12 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeRadiativeForcingContract from "../../contract.js";
 import { computeInsolationByLatitude } from "../../rules/index.js";
-import LatitudeInsolationContract from "./contract.js";
+import LatitudeInsolationDefinition from "./config.js";
 
 /** Latitude, seasonality, and polar attenuation produce deterministic bounded insolation for every tile. */
 const latitudeInsolationStrategy = createStrategy(
   ComputeRadiativeForcingContract,
-  LatitudeInsolationContract,
+  LatitudeInsolationDefinition,
   {
     run: (input, config) => {
       const width = input.width;

@@ -8,10 +8,10 @@ import {
   rainfallToHumidityU8,
   upwindBarrierDistance,
 } from "../../rules/index.js";
-import BaselineContract from "./contract.js";
+import BaselineDefinition from "./config.js";
 
 /** Humidity scaling, texture, coastal moisture, and orography produce the deterministic baseline rainfall field. */
-const baselineStrategy = createStrategy(ComputePrecipitationContract, BaselineContract, {
+const baselineStrategy = createStrategy(ComputePrecipitationContract, BaselineDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

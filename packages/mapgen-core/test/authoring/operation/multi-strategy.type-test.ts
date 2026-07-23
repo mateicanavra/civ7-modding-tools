@@ -27,7 +27,7 @@ defineStrategy({
 const ambiguousStrategyId: "measured" | "estimated" =
   Math.random() > 0.5 ? "measured" : "estimated";
 defineStrategy({
-  // @ts-expect-error One strategy contract owns one exact semantic identity.
+  // @ts-expect-error One strategy definition owns one exact semantic identity.
   id: ambiguousStrategyId,
   config: Type.Object({}, { additionalProperties: false }),
 });
@@ -40,12 +40,12 @@ defineStrategy({
 
 defineOp({
   kind: "compute",
-  id: "test/duplicate-canonical-strategy-contracts",
+  id: "test/duplicate-canonical-strategy-definitions",
   input: Type.Object({}, { additionalProperties: false }),
   output: Type.Number(),
-  // @ts-expect-error The legacy overload cannot admit canonical strategy contract tuples.
+  // @ts-expect-error The legacy overload cannot admit canonical strategy definition tuples.
   defaultStrategy: "measured",
-  // @ts-expect-error Canonical strategy contract tuples cannot repeat an identity.
+  // @ts-expect-error Canonical strategy definition tuples cannot repeat an identity.
   strategies: [CanonicalMeasured, CanonicalMeasured, CanonicalEstimated],
 });
 
@@ -96,7 +96,7 @@ defineOp({
   output: Type.Number(),
   // @ts-expect-error A sole canonical strategy is necessarily the default.
   defaultStrategy: "measured",
-  // @ts-expect-error The legacy overload cannot admit canonical strategy contracts.
+  // @ts-expect-error The legacy overload cannot admit canonical strategy definitions.
   strategies: [CanonicalMeasured],
 });
 
@@ -113,7 +113,7 @@ const ForeignStrategy = defineStrategy({
   id: "foreign",
   config: Type.Object({}, { additionalProperties: false }),
 });
-// @ts-expect-error Implementations bind only to strategy contracts composed into the operation.
+// @ts-expect-error Implementations bind only to strategy definitions composed into the operation.
 createStrategy(CanonicalOp, ForeignStrategy, { run: () => 0 });
 
 const SoleStrategyOp = defineOp({

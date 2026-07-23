@@ -9,13 +9,13 @@ import {
   strengthFromThickness,
 } from "../../../../../../model/policy/crust-buoyancy.js";
 import ComputeCrustContract from "../../contract.js";
-import BasalticLidContract from "./contract.js";
+import BasalticLidDefinition from "./config.js";
 
 /**
  * Initializes an oceanic basaltic lid whose later differentiation is owned by tectonic evolution.
  * This operation deliberately produces the common starting state rather than pre-authoring continents.
  */
-const basalticLid = createStrategy(ComputeCrustContract, BasalticLidContract, {
+const basalticLid = createStrategy(ComputeCrustContract, BasalticLidDefinition, {
   run: (input, config) => {
     const mesh = input.mesh;
     const mantleForcing = input.mantleForcing;
@@ -35,6 +35,7 @@ const basalticLid = createStrategy(ComputeCrustContract, BasalticLidContract, {
     const baseElevation = new Float32Array(cellCount);
     const strength = new Float32Array(cellCount);
 
+    // TODO: this should live in the normalization property method
     const basalticThickness = clamp01(config.basalticThickness01);
     const yieldStrength = clamp01(config.yieldStrength01);
     const mantleCoupling = clamp01(config.mantleCoupling01);

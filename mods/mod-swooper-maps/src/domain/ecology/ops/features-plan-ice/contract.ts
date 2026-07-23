@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../model/schemas/index.js";
-import strategies from "./strategies/contract.js";
+import scoreThresholdDefinition from "./strategies/score-threshold/config.js";
 
 /** Converts freeze suitability into sparse ice intent without claiming reserved or occupied tiles. Every implementation shares this admitted input and output boundary. */
 const PlanIceContract = defineOp({
@@ -21,7 +21,7 @@ const PlanIceContract = defineOp({
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
-  strategies,
+  strategies: [scoreThresholdDefinition],
 });
 
 export default PlanIceContract;

@@ -3,12 +3,12 @@ import { idx } from "@swooper/mapgen-core/lib/grid";
 
 import ComputeClimateDiagnosticsContract from "../../contract.js";
 import { clamp01, computeDistanceToWater, upwindBarrierDistance } from "../../rules/index.js";
-import TerrainWindIndicesContract from "./contract.js";
+import TerrainWindIndicesDefinition from "./config.js";
 
 /** Terrain and wind neighborhoods measure rain shadow, continentality, and convergence from one climate state. */
 const terrainWindIndicesStrategy = createStrategy(
   ComputeClimateDiagnosticsContract,
-  TerrainWindIndicesContract,
+  TerrainWindIndicesDefinition,
   {
     run: (input, config) => {
       const width = input.width;

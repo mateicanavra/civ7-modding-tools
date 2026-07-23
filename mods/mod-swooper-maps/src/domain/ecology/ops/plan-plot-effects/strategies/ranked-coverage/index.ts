@@ -3,7 +3,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import type { PlotEffectIntentKey } from "../../../../model/schemas/plot-effect-intent.schema.js";
 import Contract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 type Candidate = {
   idx: number;
@@ -35,7 +35,7 @@ function selectTopCoverage(candidates: Candidate[], coveragePct: number): Candid
 }
 
 /** Selects the strongest eligible tiles per family while preserving coverage and hazard thresholds. */
-const rankedCoverageStrategy = createStrategy(Contract, StrategyContract, {
+const rankedCoverageStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const { width, height } = input;
     // M3 posture: deterministic selection. Seeded randomness is allowed only as a tie-break for exact-equal scores.

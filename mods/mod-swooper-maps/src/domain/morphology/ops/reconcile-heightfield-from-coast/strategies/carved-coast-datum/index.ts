@@ -2,10 +2,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 
 import ReconcileHeightfieldFromCoastContract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Binds the `carved-coast-datum` algorithm to the shared `morphology/reconcile-heightfield-from-coast` operation contract. */
-export default createStrategy(ReconcileHeightfieldFromCoastContract, StrategyContract, {
+export default createStrategy(ReconcileHeightfieldFromCoastContract, StrategyDefinition, {
   run: (input) => {
     const { width, height } = input;
     const size = width * height;

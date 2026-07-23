@@ -5,7 +5,7 @@ import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 
 import ComputeLandmaskContract from "../../contract.js";
 import { assertRiftPotentialEraPresent } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /**
  * Weights for the low-frequency crust-driven continent potential.
@@ -359,7 +359,7 @@ function computeDistanceToCoast(width: number, height: number, landMask: Uint8Ar
 }
 
 /** Binds the `tectonic-potential` algorithm to the shared `morphology/compute-landmask` operation contract. */
-export default createStrategy(ComputeLandmaskContract, StrategyContract, {
+export default createStrategy(ComputeLandmaskContract, StrategyDefinition, {
   run: (input, config) => {
     assertRiftPotentialEraPresent(input.riftPotentialByEra);
     const {

@@ -1,5 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import cardinalDefinition from "./strategies/cardinal/config.js";
+import vectorAdvectionDefinition from "./strategies/vector-advection/config.js";
 
 /** Moisture-transport contract with vector advection as the product default and cardinal fallback. */
 const TransportMoistureContract = defineOp({
@@ -56,7 +57,7 @@ const TransportMoistureContract = defineOp({
     }
   ),
   defaultStrategy: "vector-advection",
-  strategies,
+  strategies: [vectorAdvectionDefinition, cardinalDefinition],
 });
 
 export default TransportMoistureContract;

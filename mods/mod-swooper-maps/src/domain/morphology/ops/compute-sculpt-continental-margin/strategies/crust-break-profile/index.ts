@@ -13,12 +13,12 @@ import {
   evaluateSlopeTarget,
   MARGIN_UNREACHED,
 } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 const CRUST_CONTINENTAL = 1;
 
 /** Binds the `crust-break-profile` algorithm to the shared `morphology/compute-sculpt-continental-margin` operation contract. */
-export default createStrategy(ComputeSculptContinentalMarginContract, StrategyContract, {
+export default createStrategy(ComputeSculptContinentalMarginContract, StrategyDefinition, {
   run: (input, config) => {
     const {
       width,

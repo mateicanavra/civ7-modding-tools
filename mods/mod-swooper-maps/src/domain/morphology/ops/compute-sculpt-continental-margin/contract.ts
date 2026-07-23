@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/crust-break-profile/config.js";
 
 /**
  * Sculpts continental-margin morphology directly into ABSOLUTE elevation, datum-free,
@@ -116,7 +116,7 @@ const ComputeSculptContinentalMarginContract = defineOp({
         "Per-tile apron length scale (tiles) propagated from the nearest margin seed; a physical margin property.",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeSculptContinentalMarginContract;

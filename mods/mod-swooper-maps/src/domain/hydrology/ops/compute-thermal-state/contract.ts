@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import insolationLapseRateDefinition from "./strategies/insolation-lapse-rate/config.js";
 
 /** Computes bounded surface temperature from admitted insolation, elevation, land, and ocean state. */
 const ComputeThermalStateContract = defineOp({
@@ -55,7 +55,7 @@ const ComputeThermalStateContract = defineOp({
       description: "Surface temperature proxy output per tile (Celsius).",
     }
   ),
-  strategies,
+  strategies: [insolationLapseRateDefinition],
 });
 
 export default ComputeThermalStateContract;

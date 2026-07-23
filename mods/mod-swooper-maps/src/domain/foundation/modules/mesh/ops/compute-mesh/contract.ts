@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { MeshBoundingBoxSchema } from "../../model/atoms/bounding-box.schema.js";
-import strategies from "./strategies/contract.js";
+import jitteredDelaunayDefinition from "./strategies/jittered-delaunay/config.js";
 
 /**
  * Contract for producing the shared Foundation point mesh from map dimensions and seed.
@@ -42,7 +42,7 @@ const ComputeMeshContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  strategies,
+  strategies: [jitteredDelaunayDefinition],
 });
 
 export default ComputeMeshContract;

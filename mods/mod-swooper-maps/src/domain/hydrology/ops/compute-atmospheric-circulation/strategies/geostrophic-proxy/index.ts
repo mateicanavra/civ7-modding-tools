@@ -2,12 +2,12 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeAtmosphericCirculationContract from "../../contract.js";
 import { computeWindsEarthlike } from "../../rules/index.js";
-import GeostrophicProxyContract from "./contract.js";
+import GeostrophicProxyDefinition from "./config.js";
 
 /** Pressure gradients, planetary waves, land heating, and orography produce coherent tile-varying winds without a fluid simulation. */
 const geostrophicProxyStrategy = createStrategy(
   ComputeAtmosphericCirculationContract,
-  GeostrophicProxyContract,
+  GeostrophicProxyDefinition,
   {
     run: (input, config) => {
       const width = input.width;

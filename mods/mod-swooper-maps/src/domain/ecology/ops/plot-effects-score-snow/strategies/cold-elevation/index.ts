@@ -1,11 +1,11 @@
 import { clamp01, normalizeRange } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { resolveSnowElevationRange } from "../../../plan-plot-effects/rules/index.js";
 import Contract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import { resolveSnowElevationRange } from "../../rules/index.js";
+import StrategyDefinition from "./config.js";
 
 /** Combines freeze persistence with absolute or percentile elevation and moisture into snow suitability. */
-const coldElevationStrategy = createStrategy(Contract, StrategyContract, {
+const coldElevationStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const { width, height, landMask } = input;
     const tileCount = width * height;

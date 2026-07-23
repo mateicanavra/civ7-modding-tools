@@ -64,9 +64,7 @@ const collectLandElevations = (input: PlotEffectsInput): number[] => {
   return elevations;
 };
 
-/**
- * Resolves the snow elevation thresholds from the configured strategy and terrain stats.
- */
+/** Resolves the snow elevation thresholds from the configured strategy and terrain stats. */
 export function resolveSnowElevationRange(
   input: PlotEffectsInput,
   config: {

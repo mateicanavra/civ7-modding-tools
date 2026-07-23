@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/history-derived/config.js";
 
 const ComputeBeltDriversContract = defineOp({
   kind: "compute",
@@ -200,7 +200,7 @@ const ComputeBeltDriversContract = defineOp({
     },
     { description: "Derived belt-driver fields used by morphology landmask + belts + mountains." }
   ),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeBeltDriversContract;

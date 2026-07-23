@@ -1,7 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeEvaporationSourcesContract from "../../contract.js";
 import { clamp01 } from "../../rules/index.js";
-import ThermalSurfaceContract from "./contract.js";
+import ThermalSurfaceDefinition from "./config.js";
 
 function clampNumber(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min;
@@ -11,7 +11,7 @@ function clampNumber(value: number, min: number, max: number): number {
 /** Land-water thermal response, wind, SST, and sea ice produce bounded per-tile evaporation sources. */
 const thermalSurfaceStrategy = createStrategy(
   ComputeEvaporationSourcesContract,
-  ThermalSurfaceContract,
+  ThermalSurfaceDefinition,
   {
     run: (input, config) => {
       const width = input.width;

@@ -3,10 +3,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import { rampDown01, rampUp01 } from "../../../../model/policy/feature-score-selection.js";
 import Contract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Favors warm, shallow, near-shore lake tiles and leaves ocean habitat to reef scorers. */
-const warmShallowLakeStrategy = createStrategy(Contract, StrategyContract, {
+const warmShallowLakeStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const size = input.width * input.height;
 

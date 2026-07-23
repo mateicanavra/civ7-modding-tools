@@ -1,13 +1,13 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeEraPlateMembershipContract from "../../contract.js";
 import { computePlateIdByEra, ERA_COUNT_MAX, ERA_COUNT_MIN } from "../../rules/index.js";
-import BackwardDriftContract from "./contract.js";
+import BackwardDriftDefinition from "./config.js";
 
 /**
  * Reconstructs era membership by advecting plate seeds backward along fitted plate motion.
  * The semantic strategy keeps historical reconstruction replaceable within the tectonics router.
  */
-export default createStrategy(ComputeEraPlateMembershipContract, BackwardDriftContract, {
+export default createStrategy(ComputeEraPlateMembershipContract, BackwardDriftDefinition, {
   run: (input, config) => {
     const mesh = input.mesh;
     const plateGraph = input.plateGraph;

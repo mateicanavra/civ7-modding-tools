@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { TracerIndexSchema } from "../../model/atoms/tracer-index.schema.js";
-import strategies from "./strategies/contract.js";
+import boundaryDriftDefinition from "./strategies/boundary-drift/config.js";
 
 /**
  * Contract for tracing mesh-cell lineage backward through reconstructed tectonic motion.
@@ -55,7 +55,7 @@ const ComputeTracerAdvectionContract = defineOp({
         "Oldest-to-newest source-cell maps for provenance advection: era zero is identity, and each later map selects a prior-era cell using boundary drift with mantle fallback.",
     }
   ),
-  strategies,
+  strategies: [boundaryDriftDefinition],
 });
 
 export default ComputeTracerAdvectionContract;

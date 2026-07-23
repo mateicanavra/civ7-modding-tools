@@ -1,13 +1,13 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeTectonicProvenanceContract from "../../contract.js";
 import { computeTectonicProvenance } from "../../rules/index.js";
-import AdvectedLineageContract from "./contract.js";
+import AdvectedLineageDefinition from "./config.js";
 
 /**
  * Reconstructs lineage from advected tracers and thresholded tectonic resets.
  * The strategy composes provenance rules while leaving its contract stable for the tectonics router.
  */
-export default createStrategy(ComputeTectonicProvenanceContract, AdvectedLineageContract, {
+export default createStrategy(ComputeTectonicProvenanceContract, AdvectedLineageDefinition, {
   run: (input) => {
     const mesh = input.mesh;
     const plateGraph = input.plateGraph;

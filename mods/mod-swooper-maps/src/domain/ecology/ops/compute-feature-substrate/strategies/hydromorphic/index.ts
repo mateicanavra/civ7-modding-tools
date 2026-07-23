@@ -3,10 +3,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import Contract from "../../contract.js";
 import { computeWetlandSubstrateMasks } from "../../policy/index.js";
 import { computeCoastalLandMask, computeRiverAdjacencyMask } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Builds hydromorphic and coastal eligibility masks from admitted hydrography and elevation evidence. */
-const hydromorphicStrategy = createStrategy(Contract, StrategyContract, {
+const hydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

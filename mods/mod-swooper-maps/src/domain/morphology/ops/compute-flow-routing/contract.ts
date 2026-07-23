@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/steepest-descent/config.js";
 
 /**
  * Computes Morphology's geomorphic routing proxy from elevation and land mask.
@@ -26,7 +26,7 @@ const ComputeFlowRoutingContract = defineOp({
       description: "Basin identifier per tile (or -1 on water and unassigned terrain).",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeFlowRoutingContract;

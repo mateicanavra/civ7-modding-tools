@@ -1,10 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeGeomorphicCycleContract from "../../contract.js";
 import { computeGeomorphicDeltas } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Binds the `stream-power-diffusion` algorithm to the shared `morphology/compute-geomorphic-cycle` operation contract. */
-export default createStrategy(ComputeGeomorphicCycleContract, StrategyContract, {
+export default createStrategy(ComputeGeomorphicCycleContract, StrategyDefinition, {
   run: (input, config) => {
     const {
       width,

@@ -2,13 +2,13 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import type { FeatureIntentKey } from "../../../../model/schemas/index.js";
 import PlanReefsContract from "../../contract.js";
 import { admitReefIntent, admitReefStride, selectReefIntentCandidate } from "../../policy/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /**
  * Selects the strongest reef-family habitat per tile, with lotus restricted to lakes.
  * The authored stride thins adjacent candidates deterministically without changing habitat law.
  */
-const habitatStrategy = createStrategy(PlanReefsContract, StrategyContract, {
+const habitatStrategy = createStrategy(PlanReefsContract, StrategyDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

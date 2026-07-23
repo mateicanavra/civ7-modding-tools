@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/orogenic-range-growth/config.js";
 
 /**
  * Plans ridge (mountain) masks and diagnostic driver surfaces from tectonic belt drivers.
@@ -51,7 +51,7 @@ const PlanRidgesContract = defineOp({
       description: "Fracture proxy per tile (0..255). Diagnostic driver surface (physics-gated).",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default PlanRidgesContract;

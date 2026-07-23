@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import thermalElevationDefinition from "./strategies/thermal-elevation/config.js";
 
 /** Scores sea and alpine ice suitability from temperature, elevation, freeze persistence, and land-water state. Every implementation shares this admitted input and output boundary. */
 const ScoreIceContract = defineOp({
@@ -16,7 +16,7 @@ const ScoreIceContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Ice suitability score per tile (0..1)." }),
   }),
-  strategies,
+  strategies: [thermalElevationDefinition],
 });
 
 export default ScoreIceContract;

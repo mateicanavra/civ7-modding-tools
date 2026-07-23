@@ -79,7 +79,7 @@ export type {
   OpTypeBag,
   OpTypeBagOf,
   StrategyConfigSchemas,
-  StrategyContract,
+  StrategyDefinition,
   StrategyDescriptor,
   StrategyDescriptorFor,
   StrategyImpl,

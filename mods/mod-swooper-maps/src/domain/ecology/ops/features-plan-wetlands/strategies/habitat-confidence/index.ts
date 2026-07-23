@@ -7,10 +7,10 @@ import {
 import type { FeatureIntentKey } from "../../../../model/schemas/index.js";
 import Contract from "../../contract.js";
 import { admitWetlandIntent } from "../../policy/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Arbitrates marsh, mangrove, oasis, tundra bog, and watering-hole intent under one confidence floor. */
-const habitatConfidenceStrategy = createStrategy(Contract, StrategyContract, {
+const habitatConfidenceStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

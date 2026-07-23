@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import thermalSurfaceDefinition from "./strategies/thermal-surface/config.js";
 
 /** Derives bounded evaporation sources from admitted land, temperature, wind, and ocean state. */
 const ComputeEvaporationSourcesContract = defineOp({
@@ -57,7 +57,7 @@ const ComputeEvaporationSourcesContract = defineOp({
       description: "Evaporation source strength output per tile (0..1 proxy).",
     }
   ),
-  strategies,
+  strategies: [thermalSurfaceDefinition],
 });
 
 export default ComputeEvaporationSourcesContract;

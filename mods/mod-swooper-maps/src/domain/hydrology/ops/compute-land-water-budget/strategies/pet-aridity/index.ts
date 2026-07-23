@@ -1,10 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeLandWaterBudgetContract from "../../contract.js";
 import { clamp01, lerp01 } from "../../rules/index.js";
-import PetAridityContract from "./contract.js";
+import PetAridityDefinition from "./config.js";
 
 /** Thermal and humidity response balance precipitation demand into potential evapotranspiration and aridity. */
-const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAridityContract, {
+const petAridityStrategy = createStrategy(ComputeLandWaterBudgetContract, PetAridityDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

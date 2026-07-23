@@ -1,10 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeOceanSurfaceCurrentsContract from "../../contract.js";
 import { computeCurrents } from "../../rules/index.js";
-import LatitudeContract from "./contract.js";
+import LatitudeDefinition from "./config.js";
 
 /** Latitude bands provide deterministic zonal currents when wind-and-gyre projection is not selected. */
-const latitudeStrategy = createStrategy(ComputeOceanSurfaceCurrentsContract, LatitudeContract, {
+const latitudeStrategy = createStrategy(ComputeOceanSurfaceCurrentsContract, LatitudeDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

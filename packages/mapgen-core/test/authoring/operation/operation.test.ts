@@ -30,7 +30,7 @@ describe("operation authoring", () => {
     });
     const contract = defineOp({
       kind: "compute",
-      id: "test/canonical-strategy-contracts",
+      id: "test/canonical-strategy-definitions",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
       defaultStrategy: "measured",
@@ -80,7 +80,7 @@ describe("operation authoring", () => {
     });
     const contract = defineOp({
       kind: "compute",
-      id: "test/descriptor-captured-strategy-contracts",
+      id: "test/descriptor-captured-strategy-definitions",
       input: Type.Object({}, { additionalProperties: false }),
       output: Type.String(),
       defaultStrategy: "estimated",
@@ -171,23 +171,23 @@ describe("operation authoring", () => {
     expect(accessorReads).toBe(0);
   });
 
-  it("refuses malformed, reserved, and structurally forged strategy contracts", () => {
+  it("refuses malformed, reserved, and structurally forged strategy definitions", () => {
     const config = Type.Object({}, { additionalProperties: false });
     expect(() => defineStrategy({ id: "default", config })).toThrow(
       'strategy id "default" must be replaced by a semantic identity'
     );
     expect(() => defineStrategy({ id: "measured", config, extra: true } as never)).toThrow(
-      "strategy contract definition must own only id and config"
+      "strategy definition must own only id and config"
     );
     expect(() =>
       defineOp({
         kind: "compute",
-        id: "test/forged-strategy-contract",
+        id: "test/forged-strategy-definition",
         input: Type.Object({}, { additionalProperties: false }),
         output: Type.Number(),
         strategies: [{ id: "measured", config }],
       } as never)
-    ).toThrow("strategy contract must be created by defineStrategy");
+    ).toThrow("strategy definition must be created by defineStrategy");
   });
 
   it("binds implementations to the exact strategy leaf composed into the operation", () => {

@@ -46,10 +46,9 @@ Keep MapGen code and docs aligned to a stable module boundary model:
 - Keep each complete artifact payload schema local to `defineArtifact`. Compose
   smaller atom schemas inside that root and keep identity/refinement local;
   aggregate artifacts only in `artifacts/index.ts`.
-- Put strategy configuration in the semantic strategy leaf contract. Do not add
-  a detached `StrategySchema` authority to the operation contract while the
-  dedicated strategy-topology migration is completing the typed registration
-  surface.
+- Put each strategy definition in the semantic leaf's `config.ts`; the operation
+  contract imports leaf configs directly. Keep `strategies/index.ts` as the
+  implementation aggregate and do not add a strategy-root definition barrel.
 - Keep exported surfaces small and intentional.
 
 ### Disallowed

@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import temperateHydromorphicDefinition from "./strategies/temperate-hydromorphic/config.js";
 
 /** Scores temperate saturated land from hydromorphic substrate, water, fertility, aridity, and temperature. Every implementation shares this admitted input and output boundary. */
 const ScoreWetMarshContract = defineOp({
@@ -20,7 +20,7 @@ const ScoreWetMarshContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Marsh suitability score per tile (0..1)." }),
   }),
-  strategies,
+  strategies: [temperateHydromorphicDefinition],
 });
 
 export default ScoreWetMarshContract;

@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/wrapped-hex-adjacency/config.js";
 
 /**
  * Land/water shoreline adjacency for a given land mask.
@@ -27,7 +27,7 @@ const ComputeCoastalAdjacencyContract = defineOp({
       description: "Mask (1/0): water tiles adjacent to land.",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeCoastalAdjacencyContract;

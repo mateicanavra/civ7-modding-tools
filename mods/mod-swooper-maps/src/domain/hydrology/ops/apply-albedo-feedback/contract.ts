@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import boundedSnowIceDefinition from "./strategies/bounded-snow-ice/config.js";
 
 /** Applies bounded snow-and-ice albedo feedback to an admitted surface-temperature field. */
 const ApplyAlbedoFeedbackContract = defineOp({
@@ -51,7 +51,7 @@ const ApplyAlbedoFeedbackContract = defineOp({
       description: "Albedo-feedback-adjusted surface temperature proxy (C).",
     }
   ),
-  strategies,
+  strategies: [boundedSnowIceDefinition],
 });
 
 export default ApplyAlbedoFeedbackContract;

@@ -1,12 +1,12 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeThermalStateContract from "../../contract.js";
 import { clampNumber } from "../../rules/index.js";
-import InsolationLapseRateContract from "./contract.js";
+import InsolationLapseRateDefinition from "./config.js";
 
 /** Insolation response, elevation lapse, land state, and SST combine on one bounded temperature scale. */
 const insolationLapseRateStrategy = createStrategy(
   ComputeThermalStateContract,
-  InsolationLapseRateContract,
+  InsolationLapseRateDefinition,
   {
     run: (input, config) => {
       const width = input.width;

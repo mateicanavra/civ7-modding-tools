@@ -3,10 +3,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import { rampDown01, rampUp01 } from "../../../../model/policy/feature-score-selection.js";
 import Contract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Requires hydromorphic substrate, then favors frozen, waterlogged cold terrain. */
-const coldHydromorphicStrategy = createStrategy(Contract, StrategyContract, {
+const coldHydromorphicStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const size = input.width * input.height;
 

@@ -10,13 +10,13 @@ import {
   selectIslandKind,
   shouldSeedIsland,
 } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 const BOUNDARY_CONVERGENT = 1;
 const BOUNDARY_TRANSFORM = 3;
 
 /** Binds the `plate-aware-volcanic` algorithm to the shared `morphology/plan-island-chains` operation contract. */
-export default createStrategy(PlanIslandChainsContract, StrategyContract, {
+export default createStrategy(PlanIslandChainsContract, StrategyDefinition, {
   run: (input, config) => {
     const { width, height, landMask, boundaryCloseness, boundaryType, volcanism } = input;
 

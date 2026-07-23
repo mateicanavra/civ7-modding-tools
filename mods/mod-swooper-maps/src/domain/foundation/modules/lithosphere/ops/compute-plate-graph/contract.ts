@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateSchema } from "../../model/atoms/plate.schema.js";
-import strategies from "./strategies/contract.js";
+import resistanceWeightedVoronoiDefinition from "./strategies/resistance-weighted-voronoi/config.js";
 
 /**
  * Contract for partitioning the Foundation mesh into stable tectonic plate identities.
@@ -54,7 +54,7 @@ const ComputePlateGraphContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  strategies,
+  strategies: [resistanceWeightedVoronoiDefinition],
 });
 
 export default ComputePlateGraphContract;

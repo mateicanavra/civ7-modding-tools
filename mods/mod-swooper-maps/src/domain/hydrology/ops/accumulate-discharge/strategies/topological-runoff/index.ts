@@ -1,12 +1,12 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import AccumulateDischargeContract from "../../contract.js";
 import { clamp01, clampMin } from "../../rules/index.js";
-import TopologicalRunoffContract from "./contract.js";
+import TopologicalRunoffDefinition from "./config.js";
 
 /** Rainfall scaling, infiltration, humidity dampening, and a source floor feed receiver-ordered runoff accumulation. */
 const topologicalRunoffStrategy = createStrategy(
   AccumulateDischargeContract,
-  TopologicalRunoffContract,
+  TopologicalRunoffDefinition,
   {
     run: (input, config) => {
       const width = input.width;

@@ -2,7 +2,7 @@ import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authorin
 import { PlateSchema } from "../../../lithosphere/model/atoms/plate.schema.js";
 import { ProjectedTectonicHistoryEraSchema } from "../../model/atoms/tectonic-history-era.schema.js";
 import { ProjectedTectonicHistoryRollupsSchema } from "../../model/atoms/tectonic-history-rollups.schema.js";
-import strategies from "./strategies/contract.js";
+import foundationModelProjectionDefinition from "./strategies/foundation-model-projection/config.js";
 
 /**
  * Contract for projecting mesh-space crust and tectonic evidence onto the map tile grid.
@@ -180,7 +180,7 @@ const ComputePlatesTensorsContract = defineOp({
       description: "Tile-space projection outputs published by the Foundation projection step.",
     }
   ),
-  strategies,
+  strategies: [foundationModelProjectionDefinition],
 });
 
 export default ComputePlatesTensorsContract;

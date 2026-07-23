@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import coldElevationDefinition from "./strategies/cold-elevation/config.js";
 
 /** Scores cold land from freeze, elevation, and moisture under authored temperature and aridity limits. Every implementation shares this admitted input and output boundary. */
 const PlotEffectsScoreSnowContract = defineOp({
@@ -21,7 +21,7 @@ const PlotEffectsScoreSnowContract = defineOp({
       description: "Eligibility mask per tile (1=eligible for selection, 0=ineligible).",
     }),
   }),
-  strategies,
+  strategies: [coldElevationDefinition],
 });
 
 export default PlotEffectsScoreSnowContract;

@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { RiverNetworkMeasurementsSchema } from "../../model/atoms/river-network-measurements.schema.js";
-import strategies from "./strategies/contract.js";
+import hydrographicClassificationDefinition from "./strategies/hydrographic-classification/config.js";
 
 /** Classifies an admitted drainage network into hydrographic fields and benchmark measurements. */
 const ComputeRiverNetworkMetricsContract = defineOp({
@@ -79,7 +79,7 @@ const ComputeRiverNetworkMetricsContract = defineOp({
       description: "Hydrology-owned river-network metrics and diagnostic classifications.",
     }
   ),
-  strategies,
+  strategies: [hydrographicClassificationDefinition],
 });
 
 export default ComputeRiverNetworkMetricsContract;

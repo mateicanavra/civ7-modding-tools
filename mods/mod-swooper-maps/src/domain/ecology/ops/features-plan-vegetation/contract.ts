@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../model/schemas/index.js";
-import strategies from "./strategies/contract.js";
+import habitatConfidenceDefinition from "./strategies/habitat-confidence/config.js";
 
 /** Chooses the strongest forest-family habitat per unoccupied land tile under family-specific confidence floors. Every implementation shares this admitted input and output boundary. */
 const PlanVegetationContract = defineOp({
@@ -59,7 +59,7 @@ const PlanVegetationContract = defineOp({
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
-  strategies,
+  strategies: [habitatConfidenceDefinition],
 });
 
 export default PlanVegetationContract;

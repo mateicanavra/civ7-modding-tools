@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import dischargePercentilesDefinition from "./strategies/discharge-percentiles/config.js";
 
 /** Projects admitted discharge and routing into deterministic minor and major river classes. */
 const ProjectRiverNetworkContract = defineOp({
@@ -61,7 +61,7 @@ const ProjectRiverNetworkContract = defineOp({
       description: "River projection outputs (class map + computed discharge thresholds).",
     }
   ),
-  strategies,
+  strategies: [dischargePercentilesDefinition],
 });
 
 export default ProjectRiverNetworkContract;

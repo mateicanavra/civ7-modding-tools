@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/crust-boundary-material/config.js";
 
 /**
  * Computes substrate buffers (erodibility and sediment depth) from tectonic potentials.
@@ -40,7 +40,7 @@ const ComputeSubstrateContract = defineOp({
       description: "Loose sediment thickness proxy per tile (higher = deeper deposits).",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeSubstrateContract;

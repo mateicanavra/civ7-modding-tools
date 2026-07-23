@@ -46,7 +46,7 @@ import {
   wonderGroup,
 } from "../../../../model/policy/natural-wonder-groups.js";
 import PlanNaturalWondersContract from "../../contract.js";
-import SuitabilityDiversityContract from "./contract.js";
+import SuitabilityDiversityDefinition from "./config.js";
 
 type Candidate = {
   plotIndex: number;
@@ -79,7 +79,7 @@ type NaturalWonderFeatureCandidate = {
  */
 const suitabilityDiversity = createStrategy(
   PlanNaturalWondersContract,
-  SuitabilityDiversityContract,
+  SuitabilityDiversityDefinition,
   {
     run: (input, config) => {
       const width = input.width;

@@ -5,14 +5,14 @@ import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
 import ComputeCoastlineMetricsContract from "../../contract.js";
 import { computePlateBias, resolveBayPolicy, resolveFjordDenom } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 const BOUNDARY_CONVERGENT = 1;
 const BOUNDARY_DIVERGENT = 2;
 const BOUNDARY_TRANSFORM = 3;
 
 /** Binds the `plate-aware-carving` algorithm to the shared `morphology/compute-coastline-metrics` operation contract. */
-export default createStrategy(ComputeCoastlineMetricsContract, StrategyContract, {
+export default createStrategy(ComputeCoastlineMetricsContract, StrategyDefinition, {
   run: (input, config) => {
     const { width, height, landMask, boundaryCloseness: closeness, boundaryType } = input;
     const size = width * height;

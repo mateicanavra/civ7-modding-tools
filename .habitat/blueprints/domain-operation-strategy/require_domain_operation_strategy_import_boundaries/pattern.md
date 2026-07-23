@@ -3,40 +3,39 @@ level: error
 ---
 # Require Domain Operation Strategy Import Boundaries
 
-Strategy aggregates compose the default authorities of their semantic leaves.
-Each leaf contract owns one semantic id and config schema, with no executable
-behavior and no dependency on its operation contract. Each leaf implementation
-binds that default strategy contract to the default local operation contract,
-owns optional configuration normalization and deterministic execution, and may
-compose type-only private algorithm vocabulary and local rules. Both leaf roles
-may consume atoms or policy owned by their semantic module or domain model.
-Only ancestor model owners are reachable, regardless of how deeply an operation
-is nested. Both roles may consume shared map policy. Contracts use only MapGen
-Core's authoring-contract surface; implementations may also use the public Core
-root, authoring, and library computation surfaces. The package export map and
+The strategy root aggregates implementations only. Each leaf config owns one
+semantic id and authored config schema, with no executable behavior and no
+dependency on its operation contract. Each leaf implementation binds that
+strategy definition to the local operation contract, owns optional
+configuration normalization and deterministic execution, and may
+compose private algorithm vocabulary, policy, and rules owned by the same
+operation. Both leaf roles may consume dependencies from ancestor model owners,
+regardless of how deeply an operation is nested; the domain-model structure law
+owns the allowed children beneath `model/`. Cross-domain
+dependencies must use an admitted public domain root or public model surface;
+private sibling-operation and cross-domain interiors remain forbidden. Both
+roles may consume shared map policy. Among MapGen Core surfaces, configs use
+only authoring contracts; implementations may also use the public Core root,
+authoring, and library computation surfaces. The package export map and
 TypeScript own exact entrypoint validity inside those classes. Every admitted
-strategy file exposes
-one default authority and no named or re-exported surface. Parent operation
+strategy file exposes one default authority and no named or re-exported
+surface. Parent operation
 type-boundary authority owns the separate prohibition on deriving working types
 from operation input/output envelopes.
 
 ```grit
 language js(typescript)
 
-predicate disallowed_strategy_contract_aggregate_dependency($source) {
-  ! $source <: r"^[\"']?\./[a-z0-9]+(?:-[a-z0-9]+)*/contract\.js[\"']?$"
-}
-
 predicate disallowed_strategy_implementation_aggregate_dependency($source) {
   ! $source <: r"^[\"']?\./[a-z0-9]+(?:-[a-z0-9]+)*/index\.js[\"']?$"
 }
 
-predicate disallowed_strategy_contract_dependency($source) {
-  ! $source <: r"^[\"']?(?:@civ7/map-policy|@swooper/mapgen-core/authoring/contracts|(?:\.\./){4,}model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js)[\"']?$"
+predicate disallowed_strategy_config_dependency($source) {
+  ! $source <: r"^[\"']?(?:@civ7/map-policy|@swooper/mapgen-core/authoring/contracts|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*/model/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js|(?:\.\./){4,}model/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)[\"']?$"
 }
 
 predicate disallowed_strategy_implementation_dependency($source) {
-  ! $source <: r"^[\"']?(?:@civ7/map-policy|@swooper/mapgen-core(?:/authoring(?:/contracts)?|/lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?|\./contract\.js|\.\./\.\./contract\.js|\.\./\.\./types\.js|\.\./\.\./rules/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4,}model/(?:atoms/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*\.schema)|policy/[a-z0-9]+(?:-[a-z0-9]+)*)\.js)[\"']?$"
+  ! $source <: r"^[\"']?(?:@civ7/map-policy|@mapgen/domain/[a-z0-9]+(?:-[a-z0-9]+)*(?:/index\.js|/model/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)?|@swooper/mapgen-core(?:/authoring(?:/contracts)?|/lib(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*)?|\./config\.js|\.\./\.\./contract\.js|\.\./\.\./(?:policy|rules)/(?:index|[a-z0-9]+(?:-[a-z0-9]+)*)\.js|(?:\.\./){4,}model/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)*(?:index|[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*)\.js)[\"']?$"
 }
 
 or {
@@ -47,14 +46,6 @@ or {
     ! $export <: `export default $value`
   },
   import_statement(source=$source) where {
-    $filename <: r".*/strategies/contract\.ts$",
-    disallowed_strategy_contract_aggregate_dependency($source)
-  },
-  import_statement(source=$source) as $import where {
-    $filename <: r".*/strategies/contract\.ts$",
-    ! $import <: `import $binding from $source`
-  },
-  import_statement(source=$source) where {
     $filename <: r".*/strategies/index\.ts$",
     disallowed_strategy_implementation_aggregate_dependency($source)
   },
@@ -63,8 +54,8 @@ or {
     ! $import <: `import $binding from $source`
   },
   import_statement(source=$source) where {
-    $filename <: r".*mods/[^/]+/src/domain/.*/ops/[^/]+/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/contract\.ts$",
-    disallowed_strategy_contract_dependency($source)
+    $filename <: r".*mods/[^/]+/src/domain/.*/ops/[^/]+/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/config\.ts$",
+    disallowed_strategy_config_dependency($source)
   },
   import_statement(source=$source) where {
     $filename <: r".*mods/[^/]+/src/domain/.*/ops/[^/]+/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/index\.ts$",
@@ -72,32 +63,8 @@ or {
   },
   import_statement(source=$source) as $import where {
     $filename <: r".*/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/index\.ts$",
-    $source <: r"^[\"']?(?:\./contract|\.\./\.\./contract)\.js[\"']?$",
+    $source <: r"^[\"']?(?:\./config|\.\./\.\./contract)\.js[\"']?$",
     ! $import <: `import $binding from $source`
-  },
-  import_statement(source=$source) as $import where {
-    $filename <: r".*/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/index\.ts$",
-    $source <: r"^[\"']?\.\./\.\./types\.js[\"']?$",
-    ! $import <: contains import_clause()
-  },
-  import_statement(source=$source) as $import where {
-    $filename <: r".*/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/index\.ts$",
-    $source <: r"^[\"']?\.\./\.\./types\.js[\"']?$",
-    $import <: r"^import\s+[A-Za-z_$][A-Za-z0-9_$]*\s*(?:,|from\b)"
-  },
-  import_statement(source=$source) as $import where {
-    $filename <: r".*/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/index\.ts$",
-    $source <: r"^[\"']?\.\./\.\./types\.js[\"']?$",
-    ! $import <: includes "import type",
-    $import <: contains namespace_import()
-  },
-  import_statement(source=$source) as $import where {
-    $filename <: r".*/strategies/[a-z0-9]+(?:-[a-z0-9]+)*/index\.ts$",
-    $source <: r"^[\"']?\.\./\.\./types\.js[\"']?$",
-    ! $import <: includes "import type",
-    $import <: contains import_specifier() as $specifier where {
-      ! $specifier <: includes "type "
-    }
   },
   `import($source)`
 }
@@ -109,10 +76,10 @@ or {
 // @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { recipe } from "../../../../../../recipes/standard/recipe.js";
-import Contract from "../../contract.js";
-import strategyContract from "./contract.js";
+import OperationContract from "../../contract.js";
+import strategyDefinition from "./config.js";
 
-export default createStrategy(Contract, strategyContract, { run: () => recipe });
+export default createStrategy(OperationContract, strategyDefinition, { run: () => recipe });
 
 // @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
 import { adapter } from "@civ7/adapter";
@@ -144,7 +111,7 @@ import { otherStrategy } from "../other-strategy/index.js";
 
 export default otherStrategy;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/contract.ts
+// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/config.ts
 import OperationContract from "../../contract.js";
 
 export default OperationContract;
@@ -154,11 +121,11 @@ import { plateDriven } from "./plate-driven/index.js";
 
 export default [plateDriven] as const;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/contract.ts
+// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/config.ts
 export const StrategySchema = Type.Object({});
 
 // @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
-const strategy = createStrategy(Contract, strategyContract, { run: (input) => input });
+const strategy = createStrategy(OperationContract, strategyDefinition, { run: (input) => input });
 export const plateDriven = strategy;
 
 // @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/index.ts
@@ -192,28 +159,29 @@ import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { GLOBAL_RELIEF_CAP } from "@civ7/map-policy";
-import Contract from "../../contract.js";
-import strategyContract from "./contract.js";
-import type { ReliefSeed } from "../../types.js";
+import { RIVER_CLASS } from "@mapgen/domain/hydrology/model/policy/river-class.js";
+import OperationContract from "../../contract.js";
+import strategyDefinition from "./config.js";
+import { RELIEF_POLICY } from "../../policy/index.js";
 import { computeRelief } from "../../rules/compute-relief.js";
 import { normalizeRelief } from "../../rules/index.js";
 import { TileClassSchema } from "../../../../model/atoms/tile-class.schema.js";
 import { MOUNTAIN_POLICY } from "../../../../model/policy/mountain-policy.js";
 import { WORLD_POLICY } from "../../../../../../model/policy/world-policy.js";
 
-export default createStrategy(Contract, strategyContract, {
+export default createStrategy(OperationContract, strategyDefinition, {
   normalize: (config) => ({ ...config, strength: normalizeRelief(config.strength) }),
   run: (input, config) =>
     computeRelief(
-      input as ReliefSeed,
-      config.strength + GLOBAL_RELIEF_CAP + MOUNTAIN_POLICY + WORLD_POLICY,
+      input,
+      config.strength + GLOBAL_RELIEF_CAP + MOUNTAIN_POLICY + WORLD_POLICY + RELIEF_POLICY + RIVER_CLASS,
       TileClassSchema,
       clamp01,
       forEachHexNeighborOddQ
     ),
 });
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/contract.ts
+// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/plate-driven/config.ts
 import { defineStrategy, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { TileClassSchema } from "../../../../model/atoms/tile-class.schema.js";
 import { MOUNTAIN_POLICY } from "../../../../model/policy/mountain-policy.js";
@@ -231,8 +199,4 @@ import plateDriven from "./plate-driven/index.js";
 
 export default [plateDriven] as const;
 
-// @filename: mods/example-mod/src/domain/world/modules/terrain/ops/shape-relief/strategies/contract.ts
-import plateDrivenContract from "./plate-driven/contract.js";
-
-export default [plateDrivenContract] as const;
 ```

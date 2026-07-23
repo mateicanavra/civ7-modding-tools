@@ -3,10 +3,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { biomeSymbolFromIndex } from "../../../../model/schemas/index.js";
 
 import Contract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Combines tropical heat, moisture, and vegetation density within the rainforest allowlist. */
-const hotWetDenseStrategy = createStrategy(Contract, StrategyContract, {
+const hotWetDenseStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const { width, height, landMask } = input;
     const tileCount = width * height;

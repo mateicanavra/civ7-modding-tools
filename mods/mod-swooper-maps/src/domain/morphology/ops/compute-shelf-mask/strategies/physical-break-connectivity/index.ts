@@ -3,7 +3,7 @@ import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { clampInt16, clampPct } from "@swooper/mapgen-core/lib/math";
 
 import ComputeShelfMaskContract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 const BOUNDARY_CONVERGENT = 1;
 const BOUNDARY_TRANSFORM = 3;
@@ -14,7 +14,7 @@ function clampNonNegative(value: number, fallback: number): number {
 }
 
 /** Binds the `physical-break-connectivity` algorithm to the shared `morphology/compute-shelf-mask` operation contract. */
-export default createStrategy(ComputeShelfMaskContract, StrategyContract, {
+export default createStrategy(ComputeShelfMaskContract, StrategyDefinition, {
   // Config canonicalization belongs here, not in run(): clamp the physical parameters into
   // their valid ranges once so run() carries only the shelf physics.
   normalize: (config) => ({

@@ -13,13 +13,15 @@ recreate, weaken, or hardcode its membership.
 
 **Current container:** Operation envelopes and named typed-array cardinality are
 sealed. The active burn-down is strategy authorship as one positive kind. Every
-operation owns a required `strategies/` aggregate; every semantic strategy owns
-`strategies/<semantic-id>/{contract.ts,index.ts}`. A nominal Core
-`defineStrategy` owns the semantic id and config schema once. Operation
-contracts compose those leaf contracts without object-key identity, strategy
-implementations bind to the exact leaf contract, and contract/implementation
-aggregates list members without giving list order authority. A sole strategy is
-necessarily the inferred default; a multi-strategy operation names its default
+operation owns a required `strategies/` implementation aggregate; every semantic
+strategy owns `strategies/<semantic-id>/{config.ts,index.ts}`. A nominal Core
+`defineStrategy` owns the semantic id and authored config schema once as a
+`StrategyDefinition`. Operation contracts import those leaf configs directly
+and compose their definition tuples without object-key identity; strategy
+implementations bind each exact leaf definition to the shared operation
+contract, and `strategies/index.ts` lists implementations without giving list
+order authority. There is no strategy-root definition barrel. A sole strategy
+is necessarily the inferred default; a multi-strategy operation names its default
 explicitly. Generic `default` identities, detached operation-owned strategy
 schemas, inline operation-entrypoint algorithms, duplicate identities, and
 alternate strategy registries have no surviving authorship path. TypeScript and
@@ -33,9 +35,9 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** land the canonical strategy-contract substrate and generic nested
-Blueprint law first, leaving the current corpus visibly red rather than hiding
-it in a baseline. Move one domain or semantic module at a time, preserving all
+**Gradient:** land the canonical strategy-definition substrate and generic
+nested Blueprint law first, leaving the current corpus visibly red rather than
+hiding it in a baseline. Move one domain or semantic module at a time, preserving all
 107 existing semantic identities and the six explicit multi-strategy defaults.
 Delete the temporary legacy input path when the final consumer moves, flip the
 kind law to enforced, and prove Core plus Swooper through the native Nx graph.

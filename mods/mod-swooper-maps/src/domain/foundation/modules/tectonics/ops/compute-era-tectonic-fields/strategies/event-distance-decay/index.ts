@@ -2,13 +2,13 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import type { TectonicEvent } from "../../../../model/atoms/tectonic-event.schema.js";
 import ComputeEraTectonicFieldsContract from "../../contract.js";
 import { buildEraFields, deriveEmissionParams } from "../../rules/index.js";
-import EventDistanceDecayContract from "./contract.js";
+import EventDistanceDecayDefinition from "./config.js";
 
 /**
  * Spreads discrete tectonic events across the mesh using bounded distance decay.
  * Rules own the emission math; the strategy adapts admitted operation inputs and authored config.
  */
-export default createStrategy(ComputeEraTectonicFieldsContract, EventDistanceDecayContract, {
+export default createStrategy(ComputeEraTectonicFieldsContract, EventDistanceDecayDefinition, {
   run: (input, config) => {
     const mesh = input.mesh;
     const segmentEvents = (input.segmentEvents ?? []) as TectonicEvent[];

@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import petAridityDefinition from "./strategies/pet-aridity/config.js";
 
 /** Computes potential evapotranspiration and aridity from admitted terrestrial climate fields. */
 const ComputeLandWaterBudgetContract = defineOp({
@@ -50,7 +50,7 @@ const ComputeLandWaterBudgetContract = defineOp({
       description: "Land water budget outputs (PET proxy and aridity index).",
     }
   ),
-  strategies,
+  strategies: [petAridityDefinition],
 });
 
 export default ComputeLandWaterBudgetContract;

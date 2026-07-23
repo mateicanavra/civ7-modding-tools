@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import temperateHumidDefinition from "./strategies/temperate-humid/config.js";
 
 /** Scores temperate humid forest habitat from energy, water, stress, biomass, and fertility evidence. Every implementation shares this admitted input and output boundary. */
 const ScoreVegetationForestContract = defineOp({
@@ -22,7 +22,7 @@ const ScoreVegetationForestContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Forest suitability score per tile (0..1)." }),
   }),
-  strategies,
+  strategies: [temperateHumidDefinition],
 });
 
 export default ScoreVegetationForestContract;

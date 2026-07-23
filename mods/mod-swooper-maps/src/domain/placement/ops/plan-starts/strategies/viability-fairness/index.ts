@@ -3,6 +3,7 @@ import {
   CIV7_START_PLACEMENT_POLICY_V0,
   feasibleStartCeiling,
 } from "@civ7/map-policy";
+import { isAnyRiverClass, RIVER_CLASS_MAJOR, RIVER_CLASS_NONE } from "@mapgen/domain/hydrology";
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import {
@@ -10,12 +11,6 @@ import {
   getHexRadiusIndicesOddQ,
   hexDistanceOddQPeriodicX,
 } from "@swooper/mapgen-core/lib/grid";
-
-import {
-  isAnyRiverClass,
-  RIVER_CLASS_MAJOR,
-  RIVER_CLASS_NONE,
-} from "../../../../../hydrology/index.js";
 import PlanStartsContract from "../../contract.js";
 import {
   climateComfortAt,
@@ -33,7 +28,7 @@ import {
   type StartComponents,
 } from "../../rules/selection-ladder.js";
 import { indexSeatBiases, type SeatBiasContext } from "../../rules/start-bias.js";
-import ViabilityFairnessContract from "./contract.js";
+import ViabilityFairnessDefinition from "./config.js";
 
 type StartTier = "primary" | "islandCluster" | "marginal";
 type RejectionReason =
@@ -285,7 +280,7 @@ function percentileRanks(values: readonly number[]): number[] {
  * optional evidence is recorded as imputation, while every region, quality, and spacing
  * relaxation remains explicit in the result.
  */
-const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessContract, {
+const viabilityFairness = createStrategy(PlanStartsContract, ViabilityFairnessDefinition, {
   run: (input, config) => {
     const westSlotCapacity = Math.max(0, input.baseStarts.playersLandmass1 | 0);
     const eastSlotCapacity = Math.max(0, input.baseStarts.playersLandmass2 | 0);

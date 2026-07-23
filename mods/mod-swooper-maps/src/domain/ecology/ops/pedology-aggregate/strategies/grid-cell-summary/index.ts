@@ -1,9 +1,9 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import Contract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Summarizes soil and fertility fields over authored grid cells without changing tile-level evidence. */
-const gridCellSummaryStrategy = createStrategy(Contract, StrategyContract, {
+const gridCellSummaryStrategy = createStrategy(Contract, StrategyDefinition, {
   run: (input, config) => {
     const { width, height } = input;
     const cellSize = config.cellSize;

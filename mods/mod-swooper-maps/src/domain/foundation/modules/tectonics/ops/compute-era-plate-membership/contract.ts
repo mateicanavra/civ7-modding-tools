@@ -1,7 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateSchema } from "../../../lithosphere/model/atoms/plate.schema.js";
 import { PlateMembershipSchema } from "../../model/atoms/plate-membership.schema.js";
-import strategies from "./strategies/contract.js";
+import backwardDriftDefinition from "./strategies/backward-drift/config.js";
 
 /**
  * Contract for reconstructing each mesh cell's plate membership across tectonic eras.
@@ -55,7 +55,7 @@ const ComputeEraPlateMembershipContract = defineOp({
         "Oldest-to-newest pseudo-history schedule: each weighted era carries one mesh-wide cell-to-plate assignment used to reconstruct tectonic events.",
     }
   ),
-  strategies,
+  strategies: [backwardDriftDefinition],
 });
 
 export default ComputeEraPlateMembershipContract;

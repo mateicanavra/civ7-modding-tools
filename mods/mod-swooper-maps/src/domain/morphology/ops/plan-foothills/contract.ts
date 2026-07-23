@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/mountain-proximity/config.js";
 
 /**
  * Plans foothill (hill) masks adjacent to ridges/mountain corridors.
@@ -49,7 +49,7 @@ const PlanFoothillsContract = defineOp({
       description: "Mask (1/0): hill tiles (excluding mountains).",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default PlanFoothillsContract;

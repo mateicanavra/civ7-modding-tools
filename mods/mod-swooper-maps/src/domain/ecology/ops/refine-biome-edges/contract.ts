@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import gaussianDefinition from "./strategies/gaussian/config.js";
 
 /** Smooths land-biome boundaries over the hex grid while retaining the water sentinel unchanged. Every implementation shares this admitted input and output boundary. */
 const RefineBiomeEdgesContract = defineOp({
@@ -14,7 +14,7 @@ const RefineBiomeEdgesContract = defineOp({
   output: Type.Object({
     biomeIndex: TypedArraySchemas.u8({ description: "Smoothed biome indices per tile." }),
   }),
-  strategies,
+  strategies: [gaussianDefinition],
 });
 
 export default RefineBiomeEdgesContract;

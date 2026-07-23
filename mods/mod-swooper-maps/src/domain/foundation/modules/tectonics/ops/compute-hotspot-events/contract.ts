@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { TectonicEventSchema } from "../../model/atoms/tectonic-event.schema.js";
-import strategies from "./strategies/contract.js";
+import upwellingHotspotsDefinition from "./strategies/upwelling-hotspots/config.js";
 
 /** Contract for deriving intraplate hotspot events from mantle upwelling and era membership. */
 const ComputeHotspotEventsContract = defineOp({
@@ -36,7 +36,7 @@ const ComputeHotspotEventsContract = defineOp({
         "Intraplate hotspot events for one reconstructed era, seeded at mantle upwellings and tagged with origin plates before merging with boundary events.",
     }
   ),
-  strategies,
+  strategies: [upwellingHotspotsDefinition],
 });
 
 export default ComputeHotspotEventsContract;

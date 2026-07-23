@@ -3,7 +3,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampInt, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import ComputeMantlePotentialContract from "../../contract.js";
-import PoissonSourceFieldContract from "./contract.js";
+import PoissonSourceFieldDefinition from "./config.js";
 
 const POISSON_SEED_ATTEMPT_LIMIT = 64;
 const PLUME_COUNT_CLAMP_MAX = 32;
@@ -104,7 +104,7 @@ function pickPoissonSeed(params: {
  */
 const poissonSourceField = createStrategy(
   ComputeMantlePotentialContract,
-  PoissonSourceFieldContract,
+  PoissonSourceFieldDefinition,
   {
     run: (input, config) => {
       const mesh = input.mesh;

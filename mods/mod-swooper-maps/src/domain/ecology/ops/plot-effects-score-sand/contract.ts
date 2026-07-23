@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-import strategies from "./strategies/contract.js";
+import aridThermalDefinition from "./strategies/arid-thermal/config.js";
 
 /** Scores warm, arid, sparse, unfrozen land in admitted biomes for sand plot-effect intent. Every implementation shares this admitted input and output boundary. */
 const PlotEffectsScoreSandContract = defineOp({
@@ -27,7 +27,7 @@ const PlotEffectsScoreSandContract = defineOp({
       description: "Eligibility mask per tile (1=eligible for selection, 0=ineligible).",
     }),
   }),
-  strategies,
+  strategies: [aridThermalDefinition],
 });
 
 export default PlotEffectsScoreSandContract;

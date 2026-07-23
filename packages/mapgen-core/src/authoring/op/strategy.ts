@@ -2,18 +2,21 @@ import type { Static, TSchema } from "typebox";
 import {
   assertCanonicalOpContract,
   type OpContractAny,
-  readCanonicalOpStrategies,
+  readCanonicalOpStrategyDefinitions,
 } from "./contract.js";
 import type { AdmittedOperationInput } from "./input-admission.js";
-import { assertCanonicalStrategyContract, type StrategyContractAny } from "./strategy-contract.js";
+import {
+  assertCanonicalStrategyDefinition,
+  type StrategyDefinitionAny,
+} from "./strategy-definition.js";
 
 type NoInfer<T> = [T][T extends any ? 0 : never];
-type StrategyAuthority = Readonly<{
+type StrategyImplementationAuthority = Readonly<{
   contract: OpContractAny;
-  strategy: StrategyContractAny;
+  definition: StrategyDefinitionAny;
   implementation: StrategyImpl<TSchema, TSchema, unknown>;
 }>;
-const strategyAuthority = new WeakMap<object, StrategyAuthority>();
+const strategyImplementationAuthority = new WeakMap<object, StrategyImplementationAuthority>();
 
 /** Public authoring surface for one strategy; executable behavior remains private to `createOp`. */
 export type OpStrategy<ConfigSchema extends TSchema> = Readonly<{
@@ -65,37 +68,38 @@ export type StrategyDescriptor<
   StrategyId extends string = string,
 > = StrategyDescriptorToken<ConfigSchema, InputSchema, Output, ContractId, StrategyId>;
 
-type StrategyContractFor<C extends OpContractAny> = C["strategies"][keyof C["strategies"] & string];
+type StrategyDefinitionFor<C extends OpContractAny> = C["strategies"][keyof C["strategies"] &
+  string];
 
-/** Strategy implementation shape inferred from one canonical strategy leaf contract. */
-export type StrategyImplForContract<
+/** Strategy implementation shape inferred from one canonical strategy definition. */
+export type StrategyImplForDefinition<
   C extends OpContractAny,
-  Strategy extends StrategyContractFor<C>,
-> = StrategyImpl<Strategy["config"], C["input"], Static<C["output"]>>;
+  Definition extends StrategyDefinitionFor<C>,
+> = StrategyImpl<Definition["config"], C["input"], Static<C["output"]>>;
 
 /** Strategy implementation shape inferred from one contract strategy id. */
 export type StrategyImplFor<
   C extends OpContractAny,
   Id extends keyof C["strategies"] & string,
-> = StrategyImplForContract<C, C["strategies"][Id]>;
+> = StrategyImplForDefinition<C, C["strategies"][Id]>;
 
 /** Opaque descriptor type for one canonical strategy leaf implementation. */
-export type StrategyDescriptorForContract<
+export type StrategyDescriptorForDefinition<
   C extends OpContractAny,
-  Strategy extends StrategyContractFor<C>,
+  Definition extends StrategyDefinitionFor<C>,
 > = StrategyDescriptor<
-  Strategy["config"],
+  Definition["config"],
   C["input"],
   Static<C["output"]>,
   C["id"],
-  Strategy["id"]
+  Definition["id"]
 >;
 
 /** Opaque descriptor type for one declared strategy implementation. */
 export type StrategyDescriptorFor<
   C extends OpContractAny,
   Id extends keyof C["strategies"] & string,
-> = StrategyDescriptorForContract<C, C["strategies"][Id]>;
+> = StrategyDescriptorForDefinition<C, C["strategies"][Id]>;
 
 /** @deprecated Legacy id-keyed implementation map retained during strategy-leaf migration. */
 export type StrategyImplMapFor<C extends OpContractAny> = Readonly<{
@@ -110,16 +114,16 @@ export type StrategyDescriptorForOp<C extends OpContractAny> = {
 /** Seals executable behavior against the exact strategy leaf composed into an operation contract. */
 export function createStrategy<
   const C extends OpContractAny,
-  const Strategy extends StrategyContractFor<C>,
+  const Definition extends StrategyDefinitionFor<C>,
 >(
   contract: C,
-  strategy: Strategy,
-  implementation: StrategyImplForContract<C, Strategy>
-): StrategyDescriptorForContract<C, Strategy>;
+  definition: Definition,
+  implementation: StrategyImplForDefinition<C, Definition>
+): StrategyDescriptorForDefinition<C, Definition>;
 
 /**
  * @deprecated Temporary identity bridge for implementation leaves that have not yet imported their
- * canonical `defineStrategy` contract directly.
+ * canonical `defineStrategy` definition directly.
  */
 export function createStrategy<
   const C extends OpContractAny,
@@ -128,28 +132,30 @@ export function createStrategy<
 
 export function createStrategy(contract: any, strategyInput: any, implementation: any): any {
   assertCanonicalOpContract(contract);
-  const strategies = readCanonicalOpStrategies(contract);
-  const strategy =
+  const strategyDefinitions = readCanonicalOpStrategyDefinitions(contract);
+  const definition =
     typeof strategyInput === "string"
-      ? strategies.find(({ key }) => key === strategyInput)?.value
+      ? strategyDefinitions.find(({ key }) => key === strategyInput)?.value
       : strategyInput;
-  if (!strategy) {
+  if (!definition) {
     throw new Error(`Operation ${contract.id} has no strategy "${String(strategyInput)}"`);
   }
-  assertCanonicalStrategyContract(strategy);
-  if (!strategies.some(({ value }) => value === strategy)) {
+  assertCanonicalStrategyDefinition(definition);
+  if (!strategyDefinitions.some(({ value }) => value === definition)) {
     throw new Error(
-      `Strategy contract ${strategy.id} is not the exact leaf composed into operation ${contract.id}`
+      `Strategy definition ${definition.id} is not the exact leaf composed into operation ${contract.id}`
     );
   }
   if (implementation === null || typeof implementation !== "object") {
-    throw new TypeError(`Strategy ${contract.id}#${strategy.id} implementation must be an object`);
+    throw new TypeError(
+      `Strategy ${contract.id}#${definition.id} implementation must be an object`
+    );
   }
-  const run = readStrategyFunction(implementation, contract.id, strategy.id, "run", true)!;
+  const run = readStrategyFunction(implementation, contract.id, definition.id, "run", true)!;
   const normalize = readStrategyFunction(
     implementation,
     contract.id,
-    strategy.id,
+    definition.id,
     "normalize",
     false
   );
@@ -160,9 +166,9 @@ export function createStrategy(contract: any, strategyInput: any, implementation
   const descriptor = Object.freeze(
     new StrategyDescriptorToken<TSchema, TSchema, unknown, string, string>()
   );
-  strategyAuthority.set(descriptor, {
+  strategyImplementationAuthority.set(descriptor, {
     contract,
-    strategy,
+    definition,
     implementation: sealedImplementation,
   });
   return descriptor;
@@ -173,21 +179,21 @@ export function readStrategyBinding(
   descriptor: unknown,
   expectedContract: OpContractAny
 ): Readonly<{
-  strategy: StrategyContractAny;
+  definition: StrategyDefinitionAny;
   implementation: StrategyImpl<TSchema, TSchema, unknown>;
 }> {
   const authority =
     descriptor !== null && typeof descriptor === "object"
-      ? strategyAuthority.get(descriptor)
+      ? strategyImplementationAuthority.get(descriptor)
       : undefined;
   if (!authority) throw new Error("Invalid MapGen strategy descriptor");
   if (authority.contract !== expectedContract) {
     throw new Error(
-      `Strategy descriptor ${authority.contract.id}#${authority.strategy.id} cannot implement ${expectedContract.id}#${authority.strategy.id}`
+      `Strategy descriptor ${authority.contract.id}#${authority.definition.id} cannot implement ${expectedContract.id}#${authority.definition.id}`
     );
   }
   return Object.freeze({
-    strategy: authority.strategy,
+    definition: authority.definition,
     implementation: authority.implementation,
   });
 }

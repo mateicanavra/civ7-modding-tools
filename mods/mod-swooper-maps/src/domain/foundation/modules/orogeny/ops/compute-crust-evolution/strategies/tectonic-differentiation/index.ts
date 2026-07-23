@@ -9,7 +9,7 @@ import {
   strengthFromThickness,
 } from "../../../../../../model/policy/crust-buoyancy.js";
 import ComputeCrustEvolutionContract from "../../contract.js";
-import TectonicDifferentiationContract from "./contract.js";
+import TectonicDifferentiationDefinition from "./config.js";
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
 // STRUCTURE vs TUNING — kept un-mixed:
@@ -147,7 +147,7 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
  */
 const tectonicDifferentiation = createStrategy(
   ComputeCrustEvolutionContract,
-  TectonicDifferentiationContract,
+  TectonicDifferentiationDefinition,
   {
     run: (input, config) => {
       // Per-map-class character knobs (defaults = earthlike profile; see ./config.ts).

@@ -11,36 +11,36 @@ import {
 import { applySchemaConventions } from "../schema.js";
 import { buildOpEnvelopeSchema } from "./envelope.js";
 import {
-  assertCanonicalStrategyContract,
-  defineLegacyStrategy,
-  type StrategyContract,
-  type StrategyContractAny,
-} from "./strategy-contract.js";
+  assertCanonicalStrategyDefinition,
+  defineLegacyStrategyDefinition,
+  type StrategyDefinition,
+  type StrategyDefinitionAny,
+} from "./strategy-definition.js";
 import type { DomainOpKind, OpTypeBag } from "./types.js";
 
 export type { StrategyConfigSchemas } from "./types.js";
 
-type StrategyContractTuple = readonly [StrategyContractAny, ...StrategyContractAny[]];
-type StrategyContractsLike = Readonly<Record<string, StrategyContractAny>>;
+type StrategyDefinitionTuple = readonly [StrategyDefinitionAny, ...StrategyDefinitionAny[]];
+type StrategyDefinitionsLike = Readonly<Record<string, StrategyDefinitionAny>>;
 
-type StrategyContractMap<Strategies extends readonly StrategyContractAny[]> = Readonly<{
-  [Strategy in Strategies[number] as Strategy["id"]]: Strategy;
+type StrategyDefinitionMap<Definitions extends readonly StrategyDefinitionAny[]> = Readonly<{
+  [Definition in Definitions[number] as Definition["id"]]: Definition;
 }>;
 
-type UniqueStrategyContractIds<
-  Strategies extends readonly StrategyContractAny[],
+type UniqueStrategyDefinitionIds<
+  Strategies extends readonly StrategyDefinitionAny[],
   Seen extends string = never,
 > = Strategies extends readonly [
-  infer Strategy extends StrategyContractAny,
-  ...infer Rest extends readonly StrategyContractAny[],
+  infer Definition extends StrategyDefinitionAny,
+  ...infer Rest extends readonly StrategyDefinitionAny[],
 ]
-  ? Extract<Strategy["id"], Seen> extends never
-    ? UniqueStrategyContractIds<Rest, Seen | Strategy["id"]>
+  ? Extract<Definition["id"], Seen> extends never
+    ? UniqueStrategyDefinitionIds<Rest, Seen | Definition["id"]>
     : false
   : true;
 
-type UniqueStrategyContracts<Strategies extends StrategyContractTuple> =
-  UniqueStrategyContractIds<Strategies> extends true ? Strategies : never;
+type UniqueStrategyDefinitions<Strategies extends StrategyDefinitionTuple> =
+  UniqueStrategyDefinitionIds<Strategies> extends true ? Strategies : never;
 
 type EnsureSchemaValues<T> = {
   readonly [K in keyof T]: T[K] extends TSchema ? T[K] : never;
@@ -58,8 +58,8 @@ type SemanticLegacyStrategySchemas<Strategies extends Readonly<object>> =
             : unknown
         : never);
 
-type LegacyStrategyContractMap<Strategies extends Readonly<object>> = Readonly<{
-  [K in keyof Strategies & string]: StrategyContract<
+type LegacyStrategyDefinitionMap<Strategies extends Readonly<object>> = Readonly<{
+  [K in keyof Strategies & string]: StrategyDefinition<
     K,
     Strategies[K] extends TSchema ? Strategies[K] : never
   >;
@@ -80,18 +80,20 @@ type OpContractDefinitionBase<
 }>;
 
 type DefaultStrategyAuthority<
-  Strategies extends StrategyContractsLike,
+  Strategies extends StrategyDefinitionsLike,
   DefaultStrategy extends keyof Strategies & string,
 > = [SingleKeyObject<Strategies>] extends [never]
   ? Readonly<{ defaultStrategy: DefaultStrategy }>
   : Readonly<{ defaultStrategy?: never }>;
 
 type ResolvedDefaultStrategy<
-  Strategies extends StrategyContractsLike,
+  Strategies extends StrategyDefinitionsLike,
   DefaultStrategy extends keyof Strategies & string,
 > = [SingleKeyObject<Strategies>] extends [never] ? DefaultStrategy : keyof Strategies & string;
 
-type OpContractAuthority = Readonly<{ strategies: OwnDataRecord<StrategyContractAny> }>;
+type OpContractAuthority = Readonly<{
+  strategyDefinitions: OwnDataRecord<StrategyDefinitionAny>;
+}>;
 const opContractAuthority = new WeakMap<object, OpContractAuthority>();
 const RESERVED_OPERATION_IDS = new Set(["__proto__", "constructor", "prototype"]);
 
@@ -100,7 +102,7 @@ export type OpContractCore<
   Id extends string,
   InputSchema extends TSchema,
   OutputSchema extends TSchema,
-  Strategies extends StrategyContractsLike,
+  Strategies extends StrategyDefinitionsLike,
   DefaultStrategy extends keyof Strategies & string,
 > = Readonly<{
   kind: Kind;
@@ -109,7 +111,7 @@ export type OpContractCore<
   output: OutputSchema;
   /** Strategy selected when authored configuration omits this operation envelope. */
   defaultStrategy: DefaultStrategy;
-  /** Semantic strategy contracts indexed by their own immutable identities. */
+  /** Semantic strategy definitions indexed by their own immutable identities. */
   strategies: Strategies;
 }>;
 
@@ -118,7 +120,7 @@ export type OpContract<
   Id extends string,
   InputSchema extends TSchema,
   OutputSchema extends TSchema,
-  Strategies extends StrategyContractsLike,
+  Strategies extends StrategyDefinitionsLike,
   DefaultStrategy extends keyof Strategies & string = keyof Strategies & string,
 > = OpContractCore<Kind, Id, InputSchema, OutputSchema, Strategies, DefaultStrategy> &
   Readonly<{
@@ -144,16 +146,16 @@ export function assertCanonicalOpContract(value: unknown): asserts value is OpCo
   }
 }
 
-/** @internal Returns canonical strategy authority without re-reading the public contract. */
-export function readCanonicalOpStrategies(
+/** @internal Returns canonical strategy definitions without re-reading the public contract. */
+export function readCanonicalOpStrategyDefinitions(
   contract: OpContractAny
-): OwnDataRecord<StrategyContractAny> {
+): OwnDataRecord<StrategyDefinitionAny> {
   assertCanonicalOpContract(contract);
-  return opContractAuthority.get(contract)!.strategies;
+  return opContractAuthority.get(contract)!.strategyDefinitions;
 }
 
 /**
- * Defines one immutable operation contract from canonical semantic strategy contracts.
+ * Defines one immutable operation contract from canonical semantic strategy definitions.
  * A sole strategy is necessarily the default; multi-strategy operations name their default
  * explicitly so tuple order never carries selection authority.
  */
@@ -162,8 +164,8 @@ export function defineOp<
   const Id extends string,
   const InputSchema extends TSchema,
   const OutputSchema extends TSchema,
-  const Strategies extends StrategyContractTuple,
-  const StrategyMap extends StrategyContractMap<Strategies> = StrategyContractMap<Strategies>,
+  const Strategies extends StrategyDefinitionTuple,
+  const StrategyMap extends StrategyDefinitionMap<Strategies> = StrategyDefinitionMap<Strategies>,
   const DefaultStrategy extends keyof StrategyMap & string = keyof StrategyMap & string,
 >(
   definition: OpContractDefinitionBase<
@@ -171,7 +173,7 @@ export function defineOp<
     Id,
     InputSchema,
     OutputSchema,
-    UniqueStrategyContracts<Strategies>
+    UniqueStrategyDefinitions<Strategies>
   > &
     DefaultStrategyAuthority<StrategyMap, DefaultStrategy>
 ): OpContract<
@@ -185,7 +187,7 @@ export function defineOp<
 
 /**
  * @deprecated Temporary schema-map bridge for operation consumers that have not yet moved each
- * strategy config into its canonical `defineStrategy` leaf contract.
+ * strategy config into its canonical `defineStrategy` leaf definition.
  */
 export function defineOp<
   const Kind extends DomainOpKind,
@@ -194,7 +196,7 @@ export function defineOp<
   const OutputSchema extends TSchema,
   const Strategies extends Readonly<object>,
   const StrategyMap extends
-    LegacyStrategyContractMap<Strategies> = LegacyStrategyContractMap<Strategies>,
+    LegacyStrategyDefinitionMap<Strategies> = LegacyStrategyDefinitionMap<Strategies>,
   const DefaultStrategy extends keyof StrategyMap & string = keyof StrategyMap & string,
 >(
   definition: OpContractDefinitionBase<
@@ -233,25 +235,25 @@ export function defineOp(definitionInput: any): any {
     throw new TypeError(`operation definition id "${id}" is reserved`);
   }
 
-  const authoredStrategies = captureStrategyContracts(strategyInput, id);
-  const [firstStrategy] = authoredStrategies;
-  if (firstStrategy === undefined) {
+  const authoredStrategyDefinitions = captureStrategyDefinitions(strategyInput, id);
+  const [firstDefinition] = authoredStrategyDefinitions;
+  if (firstDefinition === undefined) {
     throw new Error(`op(${id}) requires at least one semantic strategy`);
   }
 
   const declaredDefault = definition.find(({ key }) => key === "defaultStrategy")?.value;
   let defaultStrategy: string;
-  if (authoredStrategies.length === 1) {
+  if (authoredStrategyDefinitions.length === 1) {
     if (declaredDefault !== undefined) {
       throw new Error(
-        `op(${id}) infers its sole strategy "${firstStrategy.key}"; remove defaultStrategy`
+        `op(${id}) infers its sole strategy "${firstDefinition.key}"; remove defaultStrategy`
       );
     }
-    defaultStrategy = firstStrategy.key;
+    defaultStrategy = firstDefinition.key;
   } else {
     if (
       typeof declaredDefault !== "string" ||
-      !authoredStrategies.some(({ key }) => key === declaredDefault)
+      !authoredStrategyDefinitions.some(({ key }) => key === declaredDefault)
     ) {
       throw new Error(`op(${id}) requires an explicit declared default strategy`);
     }
@@ -262,12 +264,12 @@ export function defineOp(definitionInput: any): any {
   const output = snapshotContractGraph(authoredOutput, `op:${id}.output`) as TSchema;
   applySchemaConventions(input, `op:${id}.input`);
   applySchemaConventions(output, `op:${id}.output`);
-  const strategyAuthority = Object.freeze(
-    authoredStrategies.map(({ key, value }) => Object.freeze({ key, value }))
+  const strategyDefinitionAuthority = Object.freeze(
+    authoredStrategyDefinitions.map(({ key, value }) => Object.freeze({ key, value }))
   );
-  const strategies = materializeOwnDataRecord(strategyAuthority);
+  const strategies = materializeOwnDataRecord(strategyDefinitionAuthority);
   const strategyConfigs = materializeOwnDataRecord(
-    strategyAuthority.map(({ key, value }) => Object.freeze({ key, value: value.config }))
+    strategyDefinitionAuthority.map(({ key, value }) => Object.freeze({ key, value: value.config }))
   );
 
   const { schema: configSchema, defaultConfig } = buildOpEnvelopeSchema(
@@ -291,26 +293,26 @@ export function defineOp(definitionInput: any): any {
   // materialized default are immutable; factory-owned schema snapshots are already detached.
   freezeContractGraph(contract.defaultConfig);
   Object.freeze(contract);
-  opContractAuthority.set(contract, { strategies: strategyAuthority });
+  opContractAuthority.set(contract, { strategyDefinitions: strategyDefinitionAuthority });
   return contract;
 }
 
-function captureStrategyContracts(
+function captureStrategyDefinitions(
   input: unknown,
   operationId: string
-): OwnDataRecord<StrategyContractAny> {
+): OwnDataRecord<StrategyDefinitionAny> {
   if (Array.isArray(input)) {
-    const strategyInputs = captureOwnDataArray<unknown>(input, `op(${operationId}) strategies`);
-    const entries: Array<Readonly<{ key: string; value: StrategyContractAny }>> = [];
+    const definitionInputs = captureOwnDataArray<unknown>(input, `op(${operationId}) strategies`);
+    const entries: Array<Readonly<{ key: string; value: StrategyDefinitionAny }>> = [];
     const seen = new Set<string>();
-    for (const strategyInput of strategyInputs) {
-      assertCanonicalStrategyContract(strategyInput);
-      const strategy = strategyInput;
-      if (seen.has(strategy.id)) {
-        throw new Error(`op(${operationId}) has duplicate strategy "${strategy.id}"`);
+    for (const definitionInput of definitionInputs) {
+      assertCanonicalStrategyDefinition(definitionInput);
+      const definition = definitionInput;
+      if (seen.has(definition.id)) {
+        throw new Error(`op(${operationId}) has duplicate strategy "${definition.id}"`);
       }
-      seen.add(strategy.id);
-      entries.push(Object.freeze({ key: strategy.id, value: strategy }));
+      seen.add(definition.id);
+      entries.push(Object.freeze({ key: definition.id, value: definition }));
     }
     return Object.freeze(entries);
   }
@@ -318,7 +320,7 @@ function captureStrategyContracts(
   const legacySchemas = captureOwnDataRecord<TSchema>(input, `op(${operationId}) strategies`);
   return Object.freeze(
     legacySchemas.map(({ key, value }) =>
-      Object.freeze({ key, value: defineLegacyStrategy(key, value) })
+      Object.freeze({ key, value: defineLegacyStrategyDefinition(key, value) })
     )
   );
 }

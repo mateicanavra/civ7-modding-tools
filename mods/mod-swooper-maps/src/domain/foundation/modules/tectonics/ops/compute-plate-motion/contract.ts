@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { PlateSchema } from "../../../lithosphere/model/atoms/plate.schema.js";
-import strategies from "./strategies/contract.js";
+import rigidBodyFitDefinition from "./strategies/rigid-body-fit/config.js";
 
 /**
  * Contract for fitting rigid translation and rotation to each plate from mantle forcing.
@@ -69,7 +69,7 @@ const ComputePlateMotionContract = defineOp({
         "Rigid per-plate translation and rotation fitted to mantle forcing, plus fit-quality evidence; motion drives boundary classification and era membership reconstruction.",
     }
   ),
-  strategies,
+  strategies: [rigidBodyFitDefinition],
 });
 
 export default ComputePlateMotionContract;

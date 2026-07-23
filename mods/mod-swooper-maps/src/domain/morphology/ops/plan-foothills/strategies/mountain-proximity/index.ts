@@ -10,14 +10,14 @@ import type {
 import PlanFoothillsContract from "../../contract.js";
 import { computeHexDistanceToMask } from "../../rules/distance-to-mask.js";
 import { computeHillScore } from "../../rules/hill-score.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 function applyRangeEnvelope(closenessNorm: number, rangeEnvelopeScale: number): number {
   return Math.max(0, Math.min(1, closenessNorm * Math.max(0.25, rangeEnvelopeScale)));
 }
 
 /** Binds the `mountain-proximity` algorithm to the shared `morphology/plan-foothills` operation contract. */
-export default createStrategy(PlanFoothillsContract, StrategyContract, {
+export default createStrategy(PlanFoothillsContract, StrategyDefinition, {
   run: (input, config) => {
     const {
       width,

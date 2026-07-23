@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/plate-hotspot-ranking/config.js";
 
 /**
  * Plans volcanic placements driven by boundary and hotspot signals.
@@ -32,7 +32,7 @@ const PlanVolcanoesContract = defineOp({
       { description: "Planned volcano placements." }
     ),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default PlanVolcanoesContract;

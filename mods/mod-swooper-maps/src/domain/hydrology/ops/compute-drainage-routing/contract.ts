@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import priorityFloodDefinition from "./strategies/priority-flood/config.js";
 
 /** Routes surface flow across admitted terrain and labels basins, sinks, outlets, and depressions. */
 const ComputeDrainageRoutingContract = defineOp({
@@ -58,7 +58,7 @@ const ComputeDrainageRoutingContract = defineOp({
       description: "Hydrology drainage routing truth and diagnostics.",
     }
   ),
-  strategies,
+  strategies: [priorityFloodDefinition],
 });
 
 export default ComputeDrainageRoutingContract;

@@ -1,9 +1,5 @@
-import {
-  defineOp,
-  Type,
-  TypedArraySchemas,
-} from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
+import strategyDefinition from "./strategies/stream-power-diffusion/config.js";
 
 /**
  * Computes elevation and sediment deltas for a geomorphic relaxation pass.
@@ -29,7 +25,7 @@ const ComputeGeomorphicCycleContract = defineOp({
       description: "Sediment depth delta per tile to apply for geomorphic relaxation.",
     }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeGeomorphicCycleContract;

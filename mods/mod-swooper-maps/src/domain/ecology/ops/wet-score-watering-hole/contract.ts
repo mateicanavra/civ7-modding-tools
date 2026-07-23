@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import aridWaterpointDefinition from "./strategies/arid-waterpoint/config.js";
 
 /** Scores sparse arid habitat around isolated water points from water, fertility, aridity, and temperature. Every implementation shares this admitted input and output boundary. */
 const ScoreWetWateringHoleContract = defineOp({
@@ -22,7 +22,7 @@ const ScoreWetWateringHoleContract = defineOp({
       description: "Watering hole suitability score per tile (0..1).",
     }),
   }),
-  strategies,
+  strategies: [aridWaterpointDefinition],
 });
 
 export default ScoreWetWateringHoleContract;

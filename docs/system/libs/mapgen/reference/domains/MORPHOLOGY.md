@@ -416,7 +416,7 @@ Plans volcano placements driven by boundary and hotspot signals.
 #### `morphology/plan-ridges` → `{ mountainMask, orogenyPotential, fracturePotential }`
 
 Plans mountain ridge intent from belt-driver and topography truth. This op is
-kept separate from foothills so the recipe can expose each strategy contract
+kept separate from foothills so the recipe can expose each strategy definition
 without preserving the retired combined op as a compatibility lane.
 
 **Ground truth anchors**
@@ -448,7 +448,7 @@ Shared surfaces retained in this domain have explicit invariants:
 - `mods/mod-swooper-maps/src/domain/morphology/ops/plan-ridges/contract.ts`,
   `mods/mod-swooper-maps/src/domain/morphology/ops/plan-foothills/contract.ts`,
   and `mods/mod-swooper-maps/src/domain/morphology/ops/plan-rough-lands/contract.ts`
-  each own their strategy contract. The `morphology-features` stage compiles one
+  each compose their leaf strategy definitions. The `morphology-features` stage compiles one
   `mountainRanges` public config into all three selections, and the mountains
   step's `assertSameMountainFamilySelection` guard rejects divergent configs.
 - Individual artifact authorities own morphology truth schemas; the shared

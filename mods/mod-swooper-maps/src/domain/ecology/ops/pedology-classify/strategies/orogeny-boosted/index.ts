@@ -1,10 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import PedologyClassifyContract from "../../contract.js";
 import { classifyPedology } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Increases relief influence and caps fertility for uplift-dominated terrain. */
-const orogenyBoostedStrategy = createStrategy(PedologyClassifyContract, StrategyContract, {
+const orogenyBoostedStrategy = createStrategy(PedologyClassifyContract, StrategyDefinition, {
   run: (input, config) => {
     // Uplifted terrain: relief has more influence, fertility ceiling lower.
     const boosted = {

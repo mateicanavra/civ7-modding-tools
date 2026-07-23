@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import warmCoastalShelfDefinition from "./strategies/warm-coastal-shelf/config.js";
 
 /** Scores warm coastal-shelf water within authored depth and coast-distance limits. Every implementation shares this admitted input and output boundary. */
 const ScoreReefContract = defineOp({
@@ -24,7 +24,7 @@ const ScoreReefContract = defineOp({
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Reef suitability score per tile (0..1)." }),
   }),
-  strategies,
+  strategies: [warmCoastalShelfDefinition],
 });
 
 export default ScoreReefContract;

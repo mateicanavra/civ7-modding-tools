@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import temperatureThresholdsDefinition from "./strategies/temperature-thresholds/config.js";
 
 /** Derives snow, sea-ice, albedo, freeze, permafrost, and melt state from admitted climate fields. */
 const ComputeCryosphereStateContract = defineOp({
@@ -64,7 +64,7 @@ const ComputeCryosphereStateContract = defineOp({
       description: "Cryosphere outputs (snow/sea-ice/albedo proxies + freeze persistence index).",
     }
   ),
-  strategies,
+  strategies: [temperatureThresholdsDefinition],
 });
 
 export default ComputeCryosphereStateContract;

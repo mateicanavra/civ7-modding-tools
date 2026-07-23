@@ -9,10 +9,10 @@ import {
   resolveTargetVolcanoes,
   scoreVolcanoWeight,
 } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Binds the `plate-hotspot-ranking` algorithm to the shared `morphology/plan-volcanoes` operation contract. */
-export default createStrategy(PlanVolcanoesContract, StrategyContract, {
+export default createStrategy(PlanVolcanoesContract, StrategyDefinition, {
   run: (input, config) => {
     const { width, height, landMask, boundaryCloseness, boundaryType, shieldStability, volcanism } =
       input;

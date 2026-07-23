@@ -4,7 +4,7 @@ import { clamp01, quantizeU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib
 
 import { BOUNDARY_TYPE } from "@swooper/mapgen-core/lib/plates";
 import ComputeTectonicSegmentsContract from "../../contract.js";
-import RelativeMotionRegimesContract from "./contract.js";
+import RelativeMotionRegimesDefinition from "./config.js";
 
 type PlateMotion = Readonly<{
   plateVelocityX: Float32Array;
@@ -54,7 +54,7 @@ function boundaryRegimeFromIntensities(intensities: {
 }
 
 /** Classifies boundary edges into polarity-aware tectonic regimes and aligned event intensities. */
-export default createStrategy(ComputeTectonicSegmentsContract, RelativeMotionRegimesContract, {
+export default createStrategy(ComputeTectonicSegmentsContract, RelativeMotionRegimesDefinition, {
   run: (input, config) => {
     const mesh = input.mesh;
     const crust = input.crust;

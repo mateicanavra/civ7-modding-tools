@@ -9,7 +9,7 @@ import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
 import ComputePrecipitationContract from "../../contract.js";
 import { clampRainfall, computeDistanceToWater, rainfallToHumidityU8 } from "../../rules/index.js";
-import VectorContract from "./contract.js";
+import VectorDefinition from "./config.js";
 
 type Vec2 = Readonly<{ x: number; y: number }>;
 
@@ -47,7 +47,7 @@ function elevationGradientOddQ(
 }
 
 /** Full wind vectors and terrain gradients turn transported humidity into uplift- and convergence-aware precipitation. */
-const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorContract, {
+const vectorStrategy = createStrategy(ComputePrecipitationContract, VectorDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

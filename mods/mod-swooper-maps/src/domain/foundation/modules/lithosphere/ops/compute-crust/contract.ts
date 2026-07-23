@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import basalticLidDefinition from "./strategies/basaltic-lid/config.js";
 
 /**
  * Contract for initializing the lithosphere's basaltic crust state from the mesh and mantle forcing.
@@ -48,7 +48,7 @@ const ComputeCrustContract = defineOp({
     },
     { additionalProperties: false }
   ),
-  strategies,
+  strategies: [basalticLidDefinition],
 });
 
 export default ComputeCrustContract;

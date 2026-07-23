@@ -2,10 +2,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeSubstrateContract from "../../contract.js";
 import { erodibilityForTile, sedimentDepthForTile } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Binds the `crust-boundary-material` algorithm to the shared `morphology/compute-substrate` operation contract. */
-export default createStrategy(ComputeSubstrateContract, StrategyContract, {
+export default createStrategy(ComputeSubstrateContract, StrategyDefinition, {
   run: (input, config) => {
     const {
       width,

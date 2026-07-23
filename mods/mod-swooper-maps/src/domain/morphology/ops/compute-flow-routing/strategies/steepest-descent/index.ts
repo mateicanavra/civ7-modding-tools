@@ -1,10 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeFlowRoutingContract from "../../contract.js";
 import { computeFlowAccumulation, selectFlowReceiver } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Binds the `steepest-descent` algorithm to the shared `morphology/compute-flow-routing` operation contract. */
-export default createStrategy(ComputeFlowRoutingContract, StrategyContract, {
+export default createStrategy(ComputeFlowRoutingContract, StrategyDefinition, {
   run: (input) => {
     const { width, height, elevation, landMask } = input;
     const size = width * height;

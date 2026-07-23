@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import suitabilityDiversityDefinition from "./strategies/suitability-diversity/config.js";
 
 /**
  * Defines the pure planning boundary for selecting natural wonders and primary/fallback anchors
@@ -100,7 +100,7 @@ const PlanNaturalWondersContract = defineOp({
       })
     ),
   }),
-  strategies,
+  strategies: [suitabilityDiversityDefinition],
 });
 
 export default PlanNaturalWondersContract;

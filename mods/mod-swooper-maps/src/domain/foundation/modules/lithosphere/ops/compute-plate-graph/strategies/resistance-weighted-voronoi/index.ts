@@ -4,7 +4,7 @@ import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import type { Plate } from "../../../../model/atoms/plate.schema.js";
 import ComputePlateGraphContract from "../../contract.js";
-import ResistanceWeightedVoronoiContract from "./contract.js";
+import ResistanceWeightedVoronoiDefinition from "./config.js";
 
 type MinHeapItem = Readonly<{ cost: number; plateId: number; cellId: number; seq: number }>;
 
@@ -322,7 +322,7 @@ function filterByMinComponentSize(params: {
  */
 const resistanceWeightedVoronoi = createStrategy(
   ComputePlateGraphContract,
-  ResistanceWeightedVoronoiContract,
+  ResistanceWeightedVoronoiDefinition,
   {
     normalize: (config) => {
       const scaledPlateCount = Math.max(PLATE_COUNT_CLAMP_MIN, config.plateCount | 0);

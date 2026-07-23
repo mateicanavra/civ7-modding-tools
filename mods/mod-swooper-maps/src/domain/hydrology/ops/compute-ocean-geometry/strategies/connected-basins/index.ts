@@ -2,12 +2,12 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeOceanGeometryContract from "../../contract.js";
 import { computeOceanGeometry } from "../../rules/index.js";
-import ConnectedBasinsContract from "./contract.js";
+import ConnectedBasinsDefinition from "./config.js";
 
 /** Connected-component and coast-distance traversal derive basin identity, normals, and tangents from one topology. */
 const connectedBasinsStrategy = createStrategy(
   ComputeOceanGeometryContract,
-  ConnectedBasinsContract,
+  ConnectedBasinsDefinition,
   {
     run: (input, config) => {
       const width = input.width;

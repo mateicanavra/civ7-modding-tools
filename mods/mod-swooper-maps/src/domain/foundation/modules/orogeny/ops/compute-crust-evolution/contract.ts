@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import tectonicDifferentiationDefinition from "./strategies/tectonic-differentiation/config.js";
 
 /**
  * Contract for evolving the initial crust through accumulated tectonic activity and history.
@@ -84,7 +84,7 @@ const ComputeCrustEvolutionContract = defineOp({
       description: "Output payload for foundation/compute-crust-evolution.",
     }
   ),
-  strategies,
+  strategies: [tectonicDifferentiationDefinition],
 });
 
 export default ComputeCrustEvolutionContract;

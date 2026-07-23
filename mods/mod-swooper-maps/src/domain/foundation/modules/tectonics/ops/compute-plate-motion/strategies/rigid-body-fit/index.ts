@@ -2,7 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampInt, clampU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import ComputePlateMotionContract from "../../contract.js";
-import RigidBodyFitContract from "./contract.js";
+import RigidBodyFitDefinition from "./config.js";
 
 const EPS = 1e-9;
 const PLATE_RADIUS_CLAMP_MIN = 1e-6;
@@ -14,7 +14,7 @@ const SMOOTHING_STEPS_CLAMP_MAX = 1;
 const P90_QUANTILE = 0.9;
 
 /** Fits rigid plate motion while retaining residual evidence for downstream quality judgments. */
-export default createStrategy(ComputePlateMotionContract, RigidBodyFitContract, {
+export default createStrategy(ComputePlateMotionContract, RigidBodyFitDefinition, {
   run: (input, config) => {
     const mesh = input.mesh;
     const plateGraph = input.plateGraph;

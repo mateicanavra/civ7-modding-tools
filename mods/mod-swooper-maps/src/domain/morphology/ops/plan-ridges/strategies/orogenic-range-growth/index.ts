@@ -19,7 +19,7 @@ import PlanRidgesContract from "../../contract.js";
 import { computeFracturePotential } from "../../rules/fracture-potential.js";
 import { isStrictLocalMaximumHexWithTies } from "../../rules/local-maximum.js";
 import { computeMountainScore } from "../../rules/mountain-score.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 function markSpineExclusion(params: {
   exclusionMask: Uint8Array;
@@ -133,7 +133,7 @@ function axisDirectionScore(axisDirection: number, nextDirection: number): numbe
 }
 
 /** Binds the `orogenic-range-growth` algorithm to the shared `morphology/plan-ridges` operation contract. */
-export default createStrategy(PlanRidgesContract, StrategyContract, {
+export default createStrategy(PlanRidgesContract, StrategyDefinition, {
   run: (input, config) => {
     const {
       width,

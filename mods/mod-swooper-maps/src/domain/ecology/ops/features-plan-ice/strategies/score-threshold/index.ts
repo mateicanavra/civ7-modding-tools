@@ -3,10 +3,10 @@ import { confidenceFromScore01 } from "../../../../model/policy/feature-score-se
 import type { FeatureIntentKey } from "../../../../model/schemas/index.js";
 import PlanIceContract from "../../contract.js";
 import { admitIceIntent } from "../../policy/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Selects ice intent wherever the admitted freeze score reaches the configured threshold. */
-const scoreThresholdStrategy = createStrategy(PlanIceContract, StrategyContract, {
+const scoreThresholdStrategy = createStrategy(PlanIceContract, StrategyDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

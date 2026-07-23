@@ -1,7 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 import { TectonicEraFieldsSchema } from "../../model/atoms/tectonic-era-fields.schema.js";
 import { TectonicEventSchema } from "../../model/atoms/tectonic-event.schema.js";
-import strategies from "./strategies/contract.js";
+import eventDistanceDecayDefinition from "./strategies/event-distance-decay/config.js";
 
 /**
  * Contract for converting one era's tectonic events into aligned mesh-wide activity fields.
@@ -42,7 +42,7 @@ const ComputeEraTectonicFieldsContract = defineOp({
         "Mesh-wide boundary, deformation, volcanism, and drift fields for one weighted tectonic era; history rollups and current-state projection consume this record.",
     }
   ),
-  strategies,
+  strategies: [eventDistanceDecayDefinition],
 });
 
 export default ComputeEraTectonicFieldsContract;

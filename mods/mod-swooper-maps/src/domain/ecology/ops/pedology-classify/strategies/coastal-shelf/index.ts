@@ -1,10 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import PedologyClassifyContract from "../../contract.js";
 import { classifyPedology } from "../../rules/index.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Emphasizes sediment and moisture to represent productive coastal-shelf soils. */
-const coastalShelfStrategy = createStrategy(PedologyClassifyContract, StrategyContract, {
+const coastalShelfStrategy = createStrategy(PedologyClassifyContract, StrategyDefinition, {
   run: (input, config) => {
     // Coastal shelves emphasize sediment and moisture slightly more.
     const boosted = {

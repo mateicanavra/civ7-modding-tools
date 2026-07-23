@@ -1,6 +1,6 @@
 import { defineOp, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { FeaturePlacementSchema } from "../../model/schemas/index.js";
-import strategies from "./strategies/contract.js";
+import strictSingleOccupancyDefinition from "./strategies/strict-single-occupancy/config.js";
 
 /** Merges feature-family plans into one deterministic placement sequence and rejects multiple features on the same tile. Every implementation shares this admitted input and output boundary. */
 const FeaturesApplyContract = defineOp({
@@ -38,7 +38,7 @@ const FeaturesApplyContract = defineOp({
       description: "Aggregated feature placements after merging all concerns.",
     }
   ),
-  strategies,
+  strategies: [strictSingleOccupancyDefinition],
 });
 
 export default FeaturesApplyContract;

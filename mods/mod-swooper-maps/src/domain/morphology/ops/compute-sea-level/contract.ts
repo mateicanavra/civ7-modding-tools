@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import strategyDefinition from "./strategies/hypsometric-target/config.js";
 
 /**
  * Selects the sea level threshold based on hypsometry targets.
@@ -27,7 +27,7 @@ const ComputeSeaLevelContract = defineOp({
   output: Type.Object({
     seaLevel: Type.Number({ description: "Sea level threshold derived from hypsometry targets." }),
   }),
-  strategies,
+  strategies: [strategyDefinition],
 });
 
 export default ComputeSeaLevelContract;

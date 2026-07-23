@@ -1,5 +1,7 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import baselineDefinition from "./strategies/baseline/config.js";
+import refineDefinition from "./strategies/refine/config.js";
+import vectorDefinition from "./strategies/vector/config.js";
 
 /** Precipitation contract with vector transport as the product default plus baseline and refinement passes. */
 const ComputePrecipitationContract = defineOp({
@@ -66,7 +68,7 @@ const ComputePrecipitationContract = defineOp({
     }
   ),
   defaultStrategy: "vector",
-  strategies,
+  strategies: [vectorDefinition, baselineDefinition, refineDefinition],
 });
 
 export default ComputePrecipitationContract;

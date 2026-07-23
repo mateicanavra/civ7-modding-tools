@@ -1,10 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeAtmosphericCirculationContract from "../../contract.js";
 import { computeWinds } from "../../rules/index.js";
-import LatitudeContract from "./contract.js";
+import LatitudeDefinition from "./config.js";
 
 /** Latitude bands and seeded jet variation provide a deterministic low-cost prevailing-wind fallback. */
-const latitudeStrategy = createStrategy(ComputeAtmosphericCirculationContract, LatitudeContract, {
+const latitudeStrategy = createStrategy(ComputeAtmosphericCirculationContract, LatitudeDefinition, {
   run: (input, config) => {
     const width = input.width;
     const height = input.height;

@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import warmSeasonalDefinition from "./strategies/warm-seasonal/config.js";
 
 /** Scores warm seasonal woodland from energy, water stress, and biomass evidence. Every implementation shares this admitted input and output boundary. */
 const ScoreVegetationSavannaWoodlandContract = defineOp({
@@ -24,7 +24,7 @@ const ScoreVegetationSavannaWoodlandContract = defineOp({
       description: "Savanna woodland suitability score per tile (0..1).",
     }),
   }),
-  strategies,
+  strategies: [warmSeasonalDefinition],
 });
 
 export default ScoreVegetationSavannaWoodlandContract;

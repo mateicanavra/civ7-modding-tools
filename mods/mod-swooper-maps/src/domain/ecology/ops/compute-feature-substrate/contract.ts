@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import hydromorphicDefinition from "./strategies/hydromorphic/config.js";
 
 /** Derives shared river, coastal, lowland, and hydromorphic masks so feature planners consume one physical substrate authority. Every implementation shares this admitted input and output boundary. */
 const ComputeFeatureSubstrateContract = defineOp({
@@ -69,7 +69,7 @@ const ComputeFeatureSubstrateContract = defineOp({
       description: "Mask (1/0): isolated lowland water-point substrate for arid wet features.",
     }),
   }),
-  strategies,
+  strategies: [hydromorphicDefinition],
 });
 
 export default ComputeFeatureSubstrateContract;

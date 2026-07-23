@@ -1,5 +1,5 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
-import strategies from "./strategies/contract.js";
+import sinkDischargeBudgetDefinition from "./strategies/sink-discharge-budget/config.js";
 
 /**
  * Hydrology lake planning is the truth-side counterpart to engine lake stamping.
@@ -40,7 +40,7 @@ const PlanLakesContract = defineOp({
       description: "Count of sink tiles mapped to lake tiles.",
     }),
   }),
-  strategies,
+  strategies: [sinkDischargeBudgetDefinition],
 });
 
 export default PlanLakesContract;

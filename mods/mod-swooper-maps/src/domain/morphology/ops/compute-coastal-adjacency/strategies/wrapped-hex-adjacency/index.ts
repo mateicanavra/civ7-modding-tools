@@ -2,10 +2,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 
 import ComputeCoastalAdjacencyContract from "../../contract.js";
-import StrategyContract from "./contract.js";
+import StrategyDefinition from "./config.js";
 
 /** Binds the `wrapped-hex-adjacency` algorithm to the shared `morphology/compute-coastal-adjacency` operation contract. */
-export default createStrategy(ComputeCoastalAdjacencyContract, StrategyContract, {
+export default createStrategy(ComputeCoastalAdjacencyContract, StrategyDefinition, {
   run: (input) => {
     const { width, height } = input;
     const size = width * height;

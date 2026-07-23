@@ -1,6 +1,6 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
-import strategies from "./strategies/contract.js";
+import hotWetDenseDefinition from "./strategies/hot-wet-dense/config.js";
 
 /** Scores hot, wet, densely vegetated rainforest for jungle plot-effect intent. Every implementation shares this admitted input and output boundary. */
 const PlotEffectsScoreJungleContract = defineOp({
@@ -25,7 +25,7 @@ const PlotEffectsScoreJungleContract = defineOp({
       description: "Eligibility mask per tile (1=eligible for selection, 0=ineligible).",
     }),
   }),
-  strategies,
+  strategies: [hotWetDenseDefinition],
 });
 
 export default PlotEffectsScoreJungleContract;
