@@ -64,15 +64,6 @@ export const BuildElevationStep = createStep(BuildElevationStepContract, {
       }
     }
 
-    deps.artifacts.elevationEngineTerrainSnapshot.publish(context, {
-      stage: "map-elevation/build-elevation",
-      width,
-      height,
-      landMask: engineLandMask,
-      terrain: engine.terrain,
-      elevation: engine.elevation,
-    });
-
     context.trace.event(() => ({
       type: "map.elevation.parity",
       step: "build-elevation",

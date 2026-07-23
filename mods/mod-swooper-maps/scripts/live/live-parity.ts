@@ -43,7 +43,6 @@ import {
 } from "../../src/maps/configs/canonical.js";
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { artifactModules as mapEcologyArtifactModules } from "../../src/recipes/standard/stages/map/ecology/artifacts/index.js";
-import { artifactModules as mapElevationArtifactModules } from "../../src/recipes/standard/stages/map/elevation/artifacts/index.js";
 import { artifactModules as mapHydrologyArtifactModules } from "../../src/recipes/standard/stages/map/hydrology/artifacts/index.js";
 import { artifactModules as mapMorphologyArtifactModules } from "../../src/recipes/standard/stages/map/morphology/artifacts/index.js";
 import { artifactModules as mapRiversArtifactModules } from "../../src/recipes/standard/stages/map/rivers/artifacts/index.js";
@@ -785,10 +784,6 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
     context,
     mapHydrologyArtifactModules.hydrologyLakesEngineTerrainSnapshot
   );
-  const mapElevationTerrainSnapshot = observeArtifact(
-    context,
-    mapElevationArtifactModules.elevationEngineTerrainSnapshot
-  );
   const placementSurfacePreparation = observeArtifact(
     context,
     placementArtifactModules.placementSurfacePreparation
@@ -854,13 +849,6 @@ function buildTerrainProjectionEvidence(context: ReturnType<typeof createMapCont
       "morphologyProtectedLakeTileCount",
     ]),
     hydrologyTerrainSnapshot: pickSerializableFields(hydrologyTerrainSnapshot, [
-      "stage",
-      "width",
-      "height",
-      "landMask",
-      "terrain",
-    ]),
-    mapElevationTerrainSnapshot: pickSerializableFields(mapElevationTerrainSnapshot, [
       "stage",
       "width",
       "height",
