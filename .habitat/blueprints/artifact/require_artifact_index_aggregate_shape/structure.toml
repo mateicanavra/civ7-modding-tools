@@ -7,5 +7,7 @@ kind = "directory"
 mode = "closed"
 required = [
   "index.ts",
+]
+allowed = [
   "*.artifact.ts",
 ]
