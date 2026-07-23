@@ -122,7 +122,7 @@ supply their own facet sink; trace verbosity is unrelated to whether the project
 ## Ground truth anchors
 
 - Standard recipe wiring: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-- Foundation projection step (source of many viz layer dumps): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts`
+- Foundation projection step (source of many viz layer dumps): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/steps/projection/step.ts`
 - Trace+viz dump capability (writes `trace.jsonl`, `manifest.json`, and `data/*`): `packages/mapgen-diagnostics/src/dump.ts`
 - Standard capture runner: `mods/mod-swooper-maps/scripts/diagnostics/run-standard-dump.ts`
 - Trace core contract: `packages/mapgen-core/src/trace/index.ts`

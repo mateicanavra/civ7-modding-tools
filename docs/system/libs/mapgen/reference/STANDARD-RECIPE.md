@@ -53,7 +53,9 @@ The standard recipe is **content-owned** (not SDK-owned):
 
 ## Stage order (current)
 
-The current stage order is:
+The names below are stable runtime stage IDs. Physical source roots use semantic
+family nesting and do not need to mirror those hyphenated identities. The current
+stage order is:
 
 1. `foundation-mantle`
 2. `foundation-lithosphere`
@@ -143,6 +145,6 @@ Domain contract references:
 ## Ground truth anchors
 
 - Standard recipe composition: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-- Example stage schema/knobs posture: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/index.ts`
+- Example stage schema/knobs posture: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/mantle/index.ts`
 - Stage authoring contract: `packages/mapgen-core/src/authoring/stage.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`

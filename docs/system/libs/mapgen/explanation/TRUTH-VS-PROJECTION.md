@@ -55,5 +55,5 @@ The standard recipe often introduces explicit projection steps whose job is to:
 ## Ground truth anchors
 
 - Policy (contracts/invariants): `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
-- Foundation projection step (tile projections + viz emissions): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection/step.ts`
+- Foundation projection step (tile projections + viz emissions): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/projection/steps/projection/step.ts`
 - Standard recipe water-surface parity guard: `mods/mod-swooper-maps/src/recipes/standard/water-surface-parity.ts`
