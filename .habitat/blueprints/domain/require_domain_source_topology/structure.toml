@@ -11,7 +11,5 @@ required = [
   "router.ts",
 ]
 allowed = [
-  "atoms",
-  "policy",
   "!(*.*)",
 ]
