@@ -71,6 +71,30 @@ describe("vendor providers", () => {
     ]);
   });
 
+  test("GitProvider enumerates tracked and non-ignored untracked files in one batch", async () => {
+    const observed: string[][] = [];
+    const result = await Effect.runPromise(
+      GitProvider.pipe(
+        Effect.flatMap((git) => git.listVisibleFiles()),
+        Effect.provide(
+          makeFakeGitProviderLayer((argv, options) =>
+            recordGitCommand(
+              observed,
+              "git-state",
+              "git",
+              argv,
+              options.cwd,
+              "tracked.ts\0untracked file.ts\0"
+            )
+          )
+        )
+      )
+    );
+
+    expect(result).toEqual(["tracked.ts", "untracked file.ts"]);
+    expect(observed).toEqual([["ls-files", "--cached", "--others", "--exclude-standard", "-z"]]);
+  });
+
   test("GraphiteProvider owns stack parent discovery", async () => {
     const observed: string[] = [];
     const result = await Effect.runPromise(
@@ -379,6 +403,18 @@ describe("vendor providers", () => {
     });
   });
 });
+
+function recordGitCommand(
+  observed: string[][],
+  kind: Parameters<typeof commandResult>[0],
+  executable: string,
+  argv: readonly string[],
+  cwd: string,
+  stdout: string
+) {
+  observed.push([...argv]);
+  return commandResult(kind, executable, argv, cwd, stdout);
+}
 
 function commandResult(
   kind: Parameters<typeof makeHabitatCommandResult>[0]["kind"],

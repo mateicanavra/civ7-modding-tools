@@ -29,6 +29,9 @@ export interface GitProviderService {
   readonly command: (argv: readonly string[], options?: GitCommandOptions) => GitCommandEffect;
   readonly currentBranch: (options?: GitCommandOptions) => GitTextEffect;
   readonly head: (options?: GitCommandOptions) => GitTextEffect;
+  readonly listVisibleFiles: (
+    options?: GitCommandOptions
+  ) => Effect.Effect<readonly string[] | null>;
   readonly statusShort: (options?: GitCommandOptions) => GitCommandEffect;
   readonly statusShortBranch: (options?: GitCommandOptions) => GitCommandEffect;
   readonly remoteDefaultBranch: (options?: GitCommandOptions) => GitTextEffect;
@@ -97,6 +100,15 @@ function providerFromCommand(command: GitProviderService["command"]): GitProvide
     command,
     currentBranch: (options) => textOrNull(command(["branch", "--show-current"], options)),
     head: (options) => textOrNull(command(["rev-parse", "HEAD"], options)),
+    listVisibleFiles: (options) =>
+      command(["ls-files", "--cached", "--others", "--exclude-standard", "-z"], options).pipe(
+        Effect.map((result) =>
+          result.exit.code === 0 && !result.stdout.truncated
+            ? result.stdout.text.split("\0").filter((candidate) => candidate.length > 0)
+            : null
+        ),
+        Effect.catchAll(() => Effect.succeed(null))
+      ),
     statusShort: (options) => command(["status", "--short"], options),
     statusShortBranch: (options) => command(["status", "--short", "--branch"], options),
     remoteDefaultBranch: (options) =>

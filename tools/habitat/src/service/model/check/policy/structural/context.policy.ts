@@ -59,6 +59,9 @@ export interface StructuralGitPort<R = never> {
     repoPath: string,
     options?: { readonly cwd?: string }
   ) => Effect.Effect<readonly string[] | null, never, R>;
+  readonly listVisibleFiles: (options?: {
+    readonly cwd?: string;
+  }) => Effect.Effect<readonly string[] | null, never, R>;
   readonly mergeBase: (
     ref: string,
     options?: { readonly cwd?: string }

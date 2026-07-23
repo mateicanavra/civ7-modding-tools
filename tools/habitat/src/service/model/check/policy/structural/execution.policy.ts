@@ -101,14 +101,16 @@ export function executeSelectedRulesEffect<R>(
 function executeStructureRulesEffect<R>(
   structureRules: readonly StructureRuleFact[],
   results: Map<string, RuleExecutionRecord>,
-  context: Pick<StructuralExecutionContext<R>, "repoRoot" | "structureFileSystem">
+  context: Pick<StructuralExecutionContext<R>, "git" | "repoRoot" | "structureFileSystem">
 ): Effect.Effect<void, never, R> {
   if (structureRules.length === 0) return Effect.void;
   return Effect.gen(function* () {
     const started = yield* Clock.currentTimeMillis;
+    const visibleFiles = yield* context.git.listVisibleFiles({ cwd: context.repoRoot });
     const structureResults = yield* runStructureRulesEffect<R>(structureRules, {
       repoRoot: context.repoRoot,
       fileSystem: context.structureFileSystem,
+      visibleFiles,
     });
     const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
     for (const rule of structureRules) {

@@ -751,6 +751,7 @@ describe("rule selector boundary", () => {
           git: {
             diffNameOnly: () => unrelatedFailure,
             diffNameStatus: () => unrelatedFailure,
+            listVisibleFiles: () => unrelatedFailure,
             lsTreeNameOnly: () => Effect.succeed(null),
             mergeBase: () => Effect.succeed(null),
             show: () => Effect.succeed(null),

@@ -8,7 +8,8 @@ import { describe, expect, test } from "vitest";
 const repoRoot = "/repo";
 
 describe("structure-check native execution", () => {
-  test("executes selected structure rules without command, Grit, or Nx handoff", async () => {
+  test("executes selected structure rules with one Git inventory and no command, Grit, or Nx handoff", async () => {
+    let visibleInventoryCalls = 0;
     const fixture = {
       files: new Map([
         [
@@ -71,6 +72,11 @@ required = ["src"]
           git: {
             diffNameOnly: () => failIfCalled("git.diffNameOnly"),
             diffNameStatus: () => failIfCalled("git.diffNameStatus"),
+            listVisibleFiles: () =>
+              Effect.sync(() => {
+                visibleInventoryCalls += 1;
+                return ["pkg/src/index.ts"];
+              }),
             lsTreeNameOnly: () => failIfCalled("git.lsTreeNameOnly"),
             mergeBase: () => failIfCalled("git.mergeBase"),
             show: () => failIfCalled("git.show"),
@@ -91,6 +97,7 @@ required = ["src"]
       exitCode: 0,
       diagnostics: [],
     });
+    expect(visibleInventoryCalls).toBe(1);
   });
 });
 

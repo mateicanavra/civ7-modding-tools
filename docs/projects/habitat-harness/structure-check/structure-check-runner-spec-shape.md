@@ -108,6 +108,7 @@ name = "standard-stage-entrypoints"
 root = "mods/mod-swooper-maps/src/recipes/standard/stages/*"
 kind = "directory"
 mode = "open"
+allowEmpty = false
 
 required = [
   "index.ts",
@@ -145,6 +146,7 @@ Each `[[scopes]]` entry is evaluated independently.
 | `root` | Repo-relative glob. Every matched root is checked independently. |
 | `kind` | Expected root kind: `directory` or `file`. Use another scope when child kind matters. |
 | `mode` | `open` allows undeclared direct children. `closed` requires every direct child to match `required` or `allowed` and not match `forbidden`. |
+| `allowEmpty` | Optional boolean. Defaults to `false`; set to `true` only when zero matching roots is a valid optional geometry. |
 | `required` | Direct-child glob patterns that must each match at least once under every matched root. |
 | `allowed` | Direct-child glob patterns that are admitted in a closed scope but are not required. |
 | `forbidden` | Direct-child glob patterns that must match zero children under every matched root. |
@@ -152,6 +154,11 @@ Each `[[scopes]]` entry is evaluated independently.
 Root globs are patterns too. This lets one scope apply the same child policy to
 many directories, for example every stage directory under
 `mods/mod-swooper-maps/src/recipes/standard/stages/*`.
+
+Structure matching uses one Git-visible file inventory per rule batch. Tracked
+files and non-ignored untracked files participate; ignored paths do not. Root
+globs without `**` walk only the depth expressed by the pattern, while `**`
+retains recursive matching.
 
 ## Closed Scope Rule
 
@@ -210,7 +217,7 @@ Diagnostics should identify:
 The first implementation treats the TOML as a closed contract:
 
 - top-level fields are only `schemaVersion` and `scopes`;
-- scope fields are only `name`, `root`, `kind`, `mode`, `required`,
+- scope fields are only `name`, `root`, `kind`, `mode`, `allowEmpty`, `required`,
   `allowed`, and `forbidden`;
 - unsupported fields fail clearly instead of being carried as comments or
   metadata.
