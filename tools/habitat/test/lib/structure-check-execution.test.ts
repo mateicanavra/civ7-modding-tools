@@ -1,3 +1,4 @@
+import { FileReadFailed } from "@habitat/cli/resources/errors/index";
 import type { HabitatDirectoryEntry } from "@habitat/cli/resources/platform/index";
 import { executeSelectedRulesEffect } from "@habitat/cli/service/model/check/policy/structural/execution.policy";
 import { ruleFactsCatalog } from "@habitat/cli/service/model/rules/index";
@@ -104,11 +105,21 @@ function fileSystemPort(fixture: {
     readDirectory: (targetPath: string) =>
       fixture.directories.has(targetPath)
         ? Effect.succeed(fixture.directories.get(targetPath) ?? [])
-        : Effect.fail(new Error(`Missing directory fixture: ${targetPath}`)),
+        : Effect.fail(
+            new FileReadFailed({
+              path: targetPath,
+              cause: "Missing directory fixture",
+            })
+          ),
     readText: (targetPath: string) =>
       fixture.files.has(targetPath)
         ? Effect.succeed(fixture.files.get(targetPath) ?? "")
-        : Effect.fail(new Error(`Missing file fixture: ${targetPath}`)),
+        : Effect.fail(
+            new FileReadFailed({
+              path: targetPath,
+              cause: "Missing file fixture",
+            })
+          ),
     writeText: () => Effect.void,
   };
 }

@@ -10,7 +10,7 @@ import {
   type Civ7TunerHealthResult,
 } from "@civ7/direct-control";
 import { call } from "@orpc/server";
-import { Effect } from "effect";
+import { Data, Effect } from "effect";
 import { describe, expect, test, vi } from "vitest";
 
 import {
@@ -49,6 +49,16 @@ const authoredOptionsInput = {
 
 type LifecycleOperation = keyof Civ7ControlOrpcDirectLifecycleFacade;
 type RecordedCall = Readonly<{ operation: LifecycleOperation; args: readonly unknown[] }>;
+
+class LifecycleProgressUnavailableError extends Data.TaggedError(
+  "LifecycleProgressUnavailableError"
+)<{
+  readonly reason: string;
+}> {
+  override get message(): string {
+    return this.reason;
+  }
+}
 
 describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
   test("owns the shell lifecycle in one exact atomic sequence", async () => {
@@ -187,7 +197,9 @@ describe("lifecycle.singlePlayer.start control-oRPC procedure", () => {
     const context: Civ7ControlOrpcContext = {
       ...harness.context,
       lifecycleProgress: {
-        singlePlayerStarted: Effect.fail(new Error("operation phase unavailable")),
+        singlePlayerStarted: Effect.fail(
+          new LifecycleProgressUnavailableError({ reason: "operation phase unavailable" })
+        ),
       },
     };
 

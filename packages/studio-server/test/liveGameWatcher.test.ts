@@ -1,4 +1,4 @@
-import { Effect, ManagedRuntime } from "effect";
+import { Data, Effect, ManagedRuntime } from "effect";
 import { describe, expect, test } from "vitest";
 
 import {
@@ -105,7 +105,7 @@ describe("live-game watcher", () => {
           Effect.sync(() => (publishAttempts += 1)).pipe(
             Effect.filterOrFail(
               (attempt) => attempt !== 1,
-              () => new Error("event sink failed")
+              () => new TestPublishFailure()
             ),
             Effect.tap(() =>
               Effect.sync(() => {
@@ -257,6 +257,12 @@ describe("live-game watcher", () => {
     expect(events).toHaveLength(countAfterDispose);
   });
 });
+
+class TestPublishFailure extends Data.TaggedError("TestPublishFailure") {
+  override get message(): string {
+    return "event sink failed";
+  }
+}
 
 function liveStatusBody(args: {
   observedAt: string;

@@ -1,13 +1,12 @@
-import {
-  type Civ7AppUiSnapshotResult,
-  type Civ7DirectControlErrorCode,
-  type Civ7MapSummaryResult,
-  type Civ7RuntimeProbe,
-  type Civ7SavedGameConfigurationLoadRequestResult,
-  type Civ7SetupMapRowsResult,
-  type Civ7SetupSnapshotResult,
-  type Civ7SinglePlayerSetupValues,
-  type Civ7TargetModReconciliationResult,
+import type {
+  Civ7AppUiSnapshotResult,
+  Civ7DirectControlErrorCode,
+  Civ7MapSummaryResult,
+  Civ7SavedGameConfigurationLoadRequestResult,
+  Civ7SetupMapRowsResult,
+  Civ7SetupSnapshotResult,
+  Civ7SinglePlayerSetupValues,
+  Civ7TargetModReconciliationResult,
 } from "@civ7/direct-control";
 import {
   type Civ7DirectControlErrorShape,
@@ -15,7 +14,7 @@ import {
 } from "@civ7/direct-control/error";
 import { CIV7_UI_LOADING_STATES } from "@civ7/direct-control/game-ui/loading-states";
 import { assessCiv7SignedIntSeed } from "@civ7/map-policy/setup";
-import { Clock, Effect, Either, Match, Option, Predicate } from "effect";
+import { Cause, Clock, Effect, Either, Match, Option, Predicate } from "effect";
 
 import {
   civ7ControlOrpcErrorCorrelationData,
@@ -88,28 +87,31 @@ export const lifecycleSinglePlayerStartProcedure =
       errors.LIFECYCLE_VERIFICATION_FAILED({
         data: { ...errorData, step, detail, noRepeat: true },
       });
-    const classifyMutationFailure = (step: string, classifyRejected: boolean, cause: unknown) =>
-      Match.value(cause).pipe(
+    const classifyMutationFailure = (step: string, classifyRejected: boolean, failure: unknown) =>
+      Match.value(unwrapUnknownException(failure)).pipe(
         Match.when(
           (value: unknown) => classifyRejected && isExplicitVerificationFailure(value),
           (value) => verificationFailure(step, civ7ControlOrpcFailureDetail(value))
         ),
         Match.orElse((value) => uncertainFailure(step, civ7ControlOrpcFailureDetail(value)))
       );
-    const classifyAdmissionFailure = (cause: unknown) =>
-      Match.value(Option.fromNullable(refusedSetupPhase(cause))).pipe(
+    const classifyAdmissionFailure = (failure: unknown) =>
+      Match.value(Option.fromNullable(refusedSetupPhase(unwrapUnknownException(failure)))).pipe(
         Match.when(Option.isSome, (phase) =>
           errors.LIFECYCLE_STATE_REFUSED({
             data: {
               ...errorData,
               step: "admit-setup-phase",
-              detail: civ7ControlOrpcFailureDetail(cause),
+              detail: civ7ControlOrpcFailureDetail(unwrapUnknownException(failure)),
               initialPhase: phase.value,
             },
           })
         ),
         Match.orElse(() =>
-          uncertainFailure("admit-setup-phase", civ7ControlOrpcFailureDetail(cause))
+          uncertainFailure(
+            "admit-setup-phase",
+            civ7ControlOrpcFailureDetail(unwrapUnknownException(failure))
+          )
         )
       );
     const mutationResultCall = <A>(
@@ -118,10 +120,7 @@ export const lifecycleSinglePlayerStartProcedure =
       isValid: (value: A) => boolean,
       classifyRejected = false
     ) =>
-      Effect.tryPromise({
-        try: call,
-        catch: (cause) => cause,
-      }).pipe(
+      Effect.tryPromise(call).pipe(
         Effect.flatMap((result) =>
           validateObservation(isValid, result, () => new InvalidMutationResultError())
         ),
@@ -135,10 +134,7 @@ export const lifecycleSinglePlayerStartProcedure =
       )
     );
 
-    yield* Effect.tryPromise({
-      try: () => directLifecycle.getSetupSnapshot(context.endpointDefaults),
-      catch: (cause) => cause,
-    }).pipe(
+    yield* Effect.tryPromise(() => directLifecycle.getSetupSnapshot(context.endpointDefaults)).pipe(
       Effect.uninterruptible,
       Effect.flatMap((result) =>
         validateObservation(
@@ -148,14 +144,16 @@ export const lifecycleSinglePlayerStartProcedure =
         )
       ),
       Effect.mapError((cause) =>
-        dependencyFailure("inspect-setup-phase", civ7ControlOrpcFailureDetail(cause))
+        dependencyFailure(
+          "inspect-setup-phase",
+          civ7ControlOrpcFailureDetail(unwrapUnknownException(cause))
+        )
       )
     );
 
-    const admission = yield* Effect.tryPromise({
-      try: () => directLifecycle.admitSetupShell(input.activeGamePolicy, context.endpointDefaults),
-      catch: (cause) => cause,
-    }).pipe(
+    const admission = yield* Effect.tryPromise(() =>
+      directLifecycle.admitSetupShell(input.activeGamePolicy, context.endpointDefaults)
+    ).pipe(
       Effect.flatMap((result) =>
         validateObservation(isAdmissionResult, result, () => new InvalidMutationResultError())
       ),
@@ -829,10 +827,7 @@ function hasAdvancedSetupRevision(result: unknown, beforeRevision: number): bool
 function attemptSavedConfigLoad(
   request: () => Promise<Civ7SavedGameConfigurationLoadRequestResult>
 ) {
-  return Effect.tryPromise({
-    try: request,
-    catch: (cause) => cause,
-  }).pipe(
+  return Effect.tryPromise(request).pipe(
     Effect.flatMap((result) =>
       validateObservation(
         isSavedConfigLoadRequestResult,
@@ -870,8 +865,8 @@ function resolveSavedConfigLoadBaseline<
   }>
 ) {
   return Either.match(attempt, {
-    onLeft: (cause) =>
-      Match.value(cause).pipe(
+    onLeft: (failure) =>
+      Match.value(unwrapUnknownException(failure)).pipe(
         Match.when(
           (value: unknown): value is Civ7DirectControlErrorShape =>
             hasDirectControlCode(value, "socket-closed"),
@@ -1159,10 +1154,10 @@ function pollObservation<A>(
   current: Readonly<{ kind: "polling"; attempts: number }>
 ) {
   return Effect.gen(function* () {
-    const observed = yield* Effect.tryPromise({
-      try: options.read,
-      catch: (cause) => cause,
-    }).pipe(Effect.uninterruptible, Effect.either);
+    const observed = yield* Effect.tryPromise(options.read).pipe(
+      Effect.uninterruptible,
+      Effect.either
+    );
     const completedAt = yield* Clock.currentTimeMillis;
     const value = Option.filter(Either.getRight(observed), () => completedAt < deadline);
     return yield* Option.match(value, {
@@ -1211,10 +1206,7 @@ function unmatchedPollState<A>(
 }
 
 function matchesObservation<A>(matches: (value: A) => boolean, value: A) {
-  return Effect.try({
-    try: () => matches(value),
-    catch: (cause) => cause,
-  });
+  return Effect.try(() => matches(value));
 }
 
 function validateObservation<A, E>(matches: (value: A) => boolean, value: A, onInvalid: () => E) {
@@ -1222,5 +1214,12 @@ function validateObservation<A, E>(matches: (value: A) => boolean, value: A, onI
     Effect.mapError(onInvalid),
     Effect.filterOrFail((matched) => matched, onInvalid),
     Effect.map(() => value)
+  );
+}
+
+function unwrapUnknownException(failure: unknown): unknown {
+  return Match.value(failure).pipe(
+    Match.when(Cause.isUnknownException, (exception) => exception.error),
+    Match.orElse((cause) => cause)
   );
 }

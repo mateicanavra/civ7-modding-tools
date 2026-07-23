@@ -1,6 +1,6 @@
 import type { StudioEvent } from "@civ7/studio-contract";
 import { AsyncIteratorClass } from "@orpc/server";
-import { Context, Effect, Exit, Layer, PubSub, Queue, Ref, Scope } from "effect";
+import { Context, Data, Effect, Exit, Layer, PubSub, Queue, Ref, Scope } from "effect";
 
 export interface StudioEventSubscription {
   readonly initialEvents: readonly StudioEvent[];
@@ -22,6 +22,12 @@ export class StudioEventHub extends Context.Tag("@civ7/studio-server/StudioEvent
 >() {}
 
 export const StudioEventHubLive = Layer.scoped(StudioEventHub, makeStudioEventHub());
+
+class StudioEventHubClosedError extends Data.TaggedError("StudioEventHubClosedError") {
+  override get message(): string {
+    return "StudioEventHub is closed";
+  }
+}
 
 function makeStudioEventHub(): Effect.Effect<StudioEventHubApi, never, Scope.Scope> {
   return Effect.gen(function* () {
@@ -113,7 +119,7 @@ function makeStudioEventHub(): Effect.Effect<StudioEventHubApi, never, Scope.Sco
 function closedSubscription(): StudioEventSubscription {
   return {
     initialEvents: [],
-    take: Effect.fail(new Error("StudioEventHub is closed")),
+    take: Effect.fail(new StudioEventHubClosedError()),
     close: Effect.void,
   };
 }

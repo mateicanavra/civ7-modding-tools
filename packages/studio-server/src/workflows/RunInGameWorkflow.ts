@@ -51,10 +51,7 @@ function makeRunInGameWorkflow(
   }>
 ): RunInGameWorkflowApi {
   const tryPromise = <A>(try_: (signal: AbortSignal) => Promise<A>) =>
-    Effect.tryPromise({
-      try: (signal) => try_(signal),
-      catch: (err) => err,
-    });
+    Effect.tryPromise((signal) => try_(signal)).pipe(Effect.mapError((failure) => failure.error));
 
   const deploymentEvidence = (deployment: RunInGameDeployment) => ({
     deploymentEvidence: {
@@ -275,7 +272,7 @@ function makeRunInGameWorkflow(
             evidence.exactAuthorshipEvidence !== undefined &&
             exactAuthorshipEvidence === undefined
           ) {
-            yield* Effect.fail(
+            return yield* Effect.fail(
               verificationFailed({
                 message: "Run in Game exact-authorship evidence is invalid",
                 reason: "exact-authorship-mismatch",

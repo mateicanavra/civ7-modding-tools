@@ -1,3 +1,4 @@
+import { FileReadFailed } from "@habitat/cli/resources/errors/index";
 import type { HabitatDirectoryEntry } from "@habitat/cli/resources/platform/index";
 import type { RuleStructureFacts } from "@habitat/cli/service/model/rules/index";
 import {
@@ -508,14 +509,24 @@ function port(fixture: ReturnType<typeof fixtures>) {
             fixture.events.push(`readdir:${targetPath}`);
             return fixture.directories.get(targetPath) ?? [];
           })
-        : Effect.fail(new Error(`Missing directory fixture: ${targetPath}`)),
+        : Effect.fail(
+            new FileReadFailed({
+              path: targetPath,
+              cause: "Missing directory fixture",
+            })
+          ),
     readText: (targetPath: string) =>
       fixture.files.has(targetPath)
         ? Effect.sync(() => {
             fixture.events.push(`read:${targetPath}`);
             return fixture.files.get(targetPath) ?? "";
           })
-        : Effect.fail(new Error(`Missing file fixture: ${targetPath}`)),
+        : Effect.fail(
+            new FileReadFailed({
+              path: targetPath,
+              cause: "Missing file fixture",
+            })
+          ),
   };
 }
 

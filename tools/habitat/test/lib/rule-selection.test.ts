@@ -3,6 +3,7 @@ import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@habitat/cli/resources/command/index";
+import { FileReadFailed } from "@habitat/cli/resources/errors/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { RuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/index";
 import {
@@ -671,7 +672,14 @@ describe("rule selector boundary", () => {
       readText: (candidate: string) =>
         Match.value(candidate).pipe(
           Match.when(baselineAuthority.absolute, () => Effect.succeed(baselineAuthority.source)),
-          Match.orElse((unexpected) => Effect.fail(new Error(`Unexpected read: ${unexpected}`)))
+          Match.orElse((unexpected) =>
+            Effect.fail(
+              new FileReadFailed({
+                path: unexpected,
+                cause: "Unexpected baseline fixture read",
+              })
+            )
+          )
         ),
       writeText: () => Effect.void,
     };

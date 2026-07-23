@@ -56,10 +56,9 @@ export class Civ7TunerClient extends Effect.Service<Civ7TunerClient>()(
 
         // #11 savedConfigs — filesystem read; no tuner socket, no gate.
         savedConfigurations: () =>
-          Effect.tryPromise({
-            try: () => listCiv7SavedGameConfigurations(),
-            catch: (err) => err,
-          }),
+          Effect.tryPromise(() => listCiv7SavedGameConfigurations()).pipe(
+            Effect.mapError((failure) => failure.error)
+          ),
 
         // #5 live.snapshot — getCiv7MapGrid(input, { timeoutMs })
         mapGrid: (input: Parameters<typeof getCiv7MapGrid>[0]) =>
