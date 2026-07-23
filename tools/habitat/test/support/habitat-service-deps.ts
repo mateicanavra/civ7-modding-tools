@@ -126,6 +126,7 @@ export function makeTestHabitatServiceDeps(
       pathExists: () => false,
       readDirectory: () => Effect.succeed([]),
       readDirectorySync: () => [],
+      readPathKind: () => Effect.succeed("missing" as const),
       readText: () => Effect.succeed(emptyText),
       readTextSync: () => emptyText,
       repoRoot,

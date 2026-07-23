@@ -222,6 +222,7 @@ describe.sequential("standalone Habitat binary", () => {
     assert.strictEqual(fingerprintTree(fixture), beforePass);
 
     mkdirSync(path.join(fixture, "service", "unexpected"));
+    writeFileSync(path.join(fixture, "service", "unexpected", "index.ts"), "export {};\n", "utf8");
     const beforeFailure = fingerprintTree(fixture);
     const failure = runBinary(fixture, ["check", "--rule", "fixture_service_topology", "--json"]);
     assert.strictEqual(failure.status, 1);
@@ -429,6 +430,7 @@ function createStructureFixture(root: string): void {
   const packetRoot = path.join(root, ".habitat", "fixtures", "service-topology");
   mkdirSync(packetRoot, { recursive: true });
   mkdirSync(path.join(root, "service", "model"), { recursive: true });
+  writeFileSync(path.join(root, "service", "model", "index.ts"), "export {};\n", "utf8");
   writeJson(path.join(root, ".habitat", "index.json"), {
     schemaVersion: 2,
     ownerRoots: { habitat: "service" },
@@ -470,6 +472,7 @@ function createStructureFixture(root: string): void {
     ].join("\n"),
     "utf8"
   );
+  initializeGitRepository(root);
 }
 
 function createGritFixture(root: string, installProvider: boolean): void {
@@ -730,6 +733,15 @@ function gitText(argv: readonly string[]): string {
   const result = spawnSync("git", [...argv], { cwd: repoRoot, encoding: "utf8", env: process.env });
   assert.strictEqual(result.status, 0, result.stderr);
   return result.stdout.trim();
+}
+
+function initializeGitRepository(root: string): void {
+  const result = spawnSync("git", ["init", "--quiet"], {
+    cwd: root,
+    encoding: "utf8",
+    env: process.env,
+  });
+  assert.strictEqual(result.status, 0, result.stderr);
 }
 
 function fingerprintTree(root: string): string {

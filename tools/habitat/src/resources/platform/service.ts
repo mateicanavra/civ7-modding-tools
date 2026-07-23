@@ -10,6 +10,7 @@ import {
   pathExistsSync,
   readDirectory,
   readDirectorySync,
+  readPathKind,
   readText,
   readTextSync,
   statKindSync,
@@ -29,6 +30,7 @@ export interface HabitatPlatformService {
   readonly pathExists: typeof pathExistsSync;
   readonly readDirectory: typeof readDirectory;
   readonly readDirectorySync: typeof readDirectorySync;
+  readonly readPathKind: typeof readPathKind;
   readonly readText: typeof readText;
   readonly readTextSync: typeof readTextSync;
   readonly repoRoot: string;
@@ -43,6 +45,10 @@ export type HabitatFileSystemReadPort = Pick<
 > & {
   readonly isFile: HabitatPlatformService["isFileEffect"];
 };
+
+/** Structure-only filesystem capability that refuses to follow symbolic links. */
+export type HabitatStructureFileSystemReadPort = HabitatFileSystemReadPort &
+  Pick<HabitatPlatformService, "readPathKind">;
 
 export class HabitatPlatform extends Context.Tag("@habitat/cli/HabitatPlatform")<
   HabitatPlatform,
@@ -66,6 +72,7 @@ export function makeHabitatPlatformService(
     pathExists: pathExistsSync,
     readDirectory,
     readDirectorySync,
+    readPathKind,
     readText,
     readTextSync,
     repoRoot: input.repoRoot,

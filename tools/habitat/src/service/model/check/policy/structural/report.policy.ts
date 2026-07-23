@@ -300,18 +300,33 @@ function ruleReportDisposition(disposition: RuleExecutionDisposition): RuleRepor
       kind: "not-applicable" as const,
       reason,
     })),
-    Match.when({ kind: "dependency-refused" }, ({ source, decision, detail }) => ({
-      kind: "dependency-refused" as const,
-      source,
-      decision,
-      detail,
-    })),
-    Match.when({ kind: "execution-failed" }, ({ source, failure, detail }) => ({
-      kind: "execution-failed" as const,
-      source,
-      failure,
-      detail,
-    })),
+    Match.when(
+      { kind: "dependency-refused", source: "diagnostic-scan-root" },
+      ({ source, decision, detail }) => ({
+        kind: "dependency-refused" as const,
+        source,
+        decision,
+        detail,
+      })
+    ),
+    Match.when(
+      { kind: "execution-failed", source: "diagnostic-provider" },
+      ({ source, failure, detail }) => ({
+        kind: "execution-failed" as const,
+        source,
+        failure,
+        detail,
+      })
+    ),
+    Match.when(
+      { kind: "execution-failed", source: "git-provider" },
+      ({ source, failure, detail }) => ({
+        kind: "execution-failed" as const,
+        source,
+        failure,
+        detail,
+      })
+    ),
     Match.exhaustive
   );
 }

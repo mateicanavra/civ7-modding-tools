@@ -109,6 +109,20 @@ placement inventory facts, explicit runner file references, and explicit
 artifact references. `.habitat/index.json` supplies root registry metadata,
 including owner roots.
 
+### Native Structure Runner
+
+`habitat:structure` evaluates each TOML scope against one Git-visible path
+inventory per structure batch. Tracked files and non-ignored untracked files
+participate; ignored build outputs and dependency trees do not. The same
+inventory carries tracked modes so symlinks and gitlinks are excluded, while
+Effect Platform `readLink` plus `stat` classification refuses untracked links.
+
+Root globs without a real Picomatch globstar traverse only the maximum depth
+expressed by the pattern. Segment-local double stars remain bounded, while
+slash-bearing negative extglobs and real globstars remain recursive. A scope
+requires at least one matching root by default; set `allowEmpty = true` only
+when the declared geometry is intentionally optional.
+
 ### Live Rule Inventory
 
 Rule-pack totals, lane mix, runner mix, and owner distribution are mutable

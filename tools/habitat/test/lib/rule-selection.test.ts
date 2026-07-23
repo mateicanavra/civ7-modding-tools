@@ -661,6 +661,7 @@ describe("rule selector boundary", () => {
       isFile: platform.isFileEffect,
       makeDirectory: platform.makeDirectory,
       readDirectory: platform.readDirectory,
+      readPathKind: platform.readPathKind,
       readText: platform.readText,
       writeText: platform.writeText,
     };
@@ -736,6 +737,7 @@ describe("rule selector boundary", () => {
           git: {
             diffNameOnly: () => unrelatedFailure,
             diffNameStatus: () => unrelatedFailure,
+            listVisiblePaths: () => unrelatedFailure,
             lsTreeNameOnly: () => Effect.succeed(null),
             mergeBase: () => Effect.succeed(null),
             show: () => Effect.succeed(null),

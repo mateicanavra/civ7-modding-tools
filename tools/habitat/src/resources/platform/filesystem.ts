@@ -4,12 +4,14 @@ import path from "node:path";
 import { FileSystem } from "@effect/platform";
 import type { PlatformError } from "@effect/platform/Error";
 import { FileReadFailed, FileWriteFailed } from "@habitat/cli/resources/errors/index";
-import { Effect, Match } from "effect";
+import { Effect, Either, Match } from "effect";
 
 export interface HabitatDirectoryEntry {
   readonly name: string;
   readonly kind: "directory" | "file" | "other";
 }
+
+export type HabitatPathKind = HabitatDirectoryEntry["kind"] | "missing";
 
 export const isDirectory = Effect.fn("habitat.platform.isDirectory")(function* (
   targetPath: string
@@ -38,6 +40,53 @@ export function makeDirectory(targetPath: string) {
   );
 }
 
+export const readPathKind = Effect.fn("habitat.platform.readPathKind")(function* (
+  targetPath: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const link = yield* fs.readLink(targetPath).pipe(Effect.either);
+  return yield* Either.match(link, {
+    onRight: () => Effect.succeed("other" as const),
+    onLeft: (cause) => pathKindAfterReadLinkFailure(fs, targetPath, cause),
+  });
+});
+
+function pathKindAfterReadLinkFailure(
+  fs: FileSystem.FileSystem,
+  targetPath: string,
+  cause: PlatformError
+) {
+  const decision = Match.value(cause).pipe(
+    Match.when(isMissingPath, () => ({ kind: "missing" as const })),
+    Match.when(isNonSymbolicLink, () => ({ kind: "stat" as const })),
+    Match.orElse((readLinkCause) => ({ kind: "failed" as const, cause: readLinkCause }))
+  );
+  return Match.value(decision).pipe(
+    Match.when({ kind: "missing" }, () => Effect.succeed("missing" as const)),
+    Match.when({ kind: "stat" }, () => statPathKind(fs, targetPath)),
+    Match.when({ kind: "failed" }, ({ cause: readLinkCause }) =>
+      Effect.fail(readFailure(targetPath, readLinkCause))
+    ),
+    Match.exhaustive
+  );
+}
+
+function statPathKind(fs: FileSystem.FileSystem, targetPath: string) {
+  return fs.stat(targetPath).pipe(
+    Effect.map((info) => fileTypeToPathKind(info.type)),
+    Effect.catchIf(isMissingPath, () => Effect.succeed("missing" as const)),
+    Effect.mapError((cause) => readFailure(targetPath, cause))
+  );
+}
+
+function fileTypeToPathKind(type: FileSystem.File.Type): HabitatPathKind {
+  return Match.value(type).pipe(
+    Match.when("Directory", () => "directory" as const),
+    Match.when("File", () => "file" as const),
+    Match.orElse(() => "other" as const)
+  );
+}
+
 export const readDirectory = Effect.fn("habitat.platform.readDirectory")(function* (
   targetPath: string
 ) {
@@ -45,19 +94,23 @@ export const readDirectory = Effect.fn("habitat.platform.readDirectory")(functio
   const entries = yield* fs
     .readDirectory(targetPath)
     .pipe(Effect.mapError((cause) => readFailure(targetPath, cause)));
-  return yield* Effect.forEach(entries, (name) => directoryEntry(fs, targetPath, name));
+  return yield* Effect.forEach(entries, (name) => directoryEntry(targetPath, name));
 });
 
 const directoryEntry = Effect.fn("habitat.platform.directoryEntry")(function* (
-  fs: FileSystem.FileSystem,
   targetPath: string,
   name: string
-): Effect.fn.Return<HabitatDirectoryEntry, FileReadFailed> {
+): Effect.fn.Return<HabitatDirectoryEntry, FileReadFailed, FileSystem.FileSystem> {
   const entryPath = path.join(targetPath, name);
-  const info = yield* fs
-    .stat(entryPath)
-    .pipe(Effect.mapError((cause) => readFailure(entryPath, cause)));
-  return { name, kind: entryKind(info.type) };
+  const kind = yield* readPathKind(entryPath);
+  const observedKind = Match.value(kind).pipe(
+    Match.when("missing", () => "other" as const),
+    Match.orElse((observed) => observed)
+  );
+  return {
+    name,
+    kind: observedKind,
+  };
 });
 
 export function readText(targetPath: string) {
@@ -155,12 +208,6 @@ export function statKindSync(targetPath: string): FileSystem.File.Type | undefin
   );
 }
 
-function entryKind(type: FileSystem.File.Type): HabitatDirectoryEntry["kind"] {
-  if (type === "Directory") return "directory";
-  if (type === "File") return "file";
-  return "other";
-}
-
 function readFailure(targetPath: string, cause: unknown) {
   return new FileReadFailed({
     path: targetPath,
@@ -184,4 +231,14 @@ function renderPlatformCause(cause: unknown): string {
 
 function isMissingPath(cause: PlatformError): boolean {
   return cause._tag === "SystemError" && cause.reason === "NotFound";
+}
+
+function isNonSymbolicLink(cause: PlatformError): boolean {
+  return (
+    cause._tag === "SystemError" &&
+    (cause.reason === "InvalidData" ||
+      (cause.reason === "Unknown" &&
+        cause.syscall === "readlink" &&
+        cause.description?.startsWith("EINVAL:") === true))
+  );
 }

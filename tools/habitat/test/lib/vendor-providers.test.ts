@@ -71,6 +71,60 @@ describe("vendor providers", () => {
     ]);
   });
 
+  test("GitProvider reads visible paths and tracked modes once without losing path whitespace", async () => {
+    const observed: string[][] = [];
+    const result = await Effect.runPromise(
+      GitProvider.pipe(
+        Effect.flatMap((git) => git.listVisiblePaths()),
+        Effect.provide(
+          makeFakeGitProviderLayer((argv, options) => {
+            observed.push([...argv]);
+            return commandResult(
+              "git-state",
+              "git",
+              argv,
+              options.cwd,
+              "H 100644 a 0\ttracked file.ts\0H 120000 b 0\ttracked link.ts\0? untracked file.ts\0"
+            );
+          })
+        )
+      )
+    );
+
+    expect(result).toEqual([
+      { mode: "100644", repoPath: "tracked file.ts" },
+      { mode: "120000", repoPath: "tracked link.ts" },
+      { mode: null, repoPath: "untracked file.ts" },
+    ]);
+    expect(observed).toEqual([
+      [
+        "ls-files",
+        "--cached",
+        "--others",
+        "--exclude-standard",
+        "--stage",
+        "--abbrev=1",
+        "-t",
+        "-z",
+      ],
+    ]);
+  });
+
+  test("GitProvider refuses malformed visible-path inventory", async () => {
+    const result = await Effect.runPromise(
+      GitProvider.pipe(
+        Effect.flatMap((git) => git.listVisiblePaths()),
+        Effect.provide(
+          makeFakeGitProviderLayer((argv, options) =>
+            commandResult("git-state", "git", argv, options.cwd, "malformed\0")
+          )
+        )
+      )
+    );
+
+    expect(result).toBeNull();
+  });
+
   test("GraphiteProvider owns stack parent discovery", async () => {
     const observed: string[] = [];
     const result = await Effect.runPromise(

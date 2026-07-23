@@ -2,7 +2,7 @@ import type { BiomeProviderService } from "@habitat/cli/providers/biome/index";
 import type { GitProviderService } from "@habitat/cli/providers/git/index";
 import type { NxProviderService } from "@habitat/cli/providers/nx/index";
 import type { CommandRunnerService } from "@habitat/cli/resources/command/index";
-import type { HabitatFileSystemReadPort } from "@habitat/cli/resources/platform/index";
+import type { HabitatStructureFileSystemReadPort } from "@habitat/cli/resources/platform/index";
 import type { RuleDiagnosticsService } from "@habitat/cli/resources/rule-diagnostics/index";
 import type { BaselineFileSystemPort } from "@habitat/cli/service/model/baseline/index";
 import type {
@@ -28,7 +28,7 @@ export interface StructuralExecutionContext {
   readonly ruleDiagnostics: RuleDiagnosticsService;
   readonly nx: StructuralNxPort;
   readonly rules: RuleFactsCatalog;
-  readonly structureFileSystem: HabitatFileSystemReadPort;
+  readonly structureFileSystem: HabitatStructureFileSystemReadPort;
 }
 
 export type StructuralBiomePort = Pick<BiomeProviderService, "run">;
@@ -37,7 +37,7 @@ export type StructuralCommandPort = Pick<CommandRunnerService, "run">;
 
 export type StructuralGitPort = Pick<
   GitProviderService,
-  "diffNameOnly" | "diffNameStatus" | "lsTreeNameOnly" | "mergeBase" | "show"
+  "diffNameOnly" | "diffNameStatus" | "listVisiblePaths" | "lsTreeNameOnly" | "mergeBase" | "show"
 >;
 
 export type StructuralNxPort = Pick<NxProviderService, "runMany" | "runTarget">;

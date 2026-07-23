@@ -81,6 +81,21 @@ const DiagnosticExecutionFailedSchema = Type.Object(
   { additionalProperties: false }
 );
 
+const GitProviderExecutionFailedSchema = Type.Object(
+  {
+    kind: Type.Literal("execution-failed"),
+    source: Type.Literal("git-provider"),
+    failure: Type.Literal("visible-path-inventory-unavailable"),
+    detail: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+
+const ExecutionFailedSchema = Type.Union([
+  DiagnosticExecutionFailedSchema,
+  GitProviderExecutionFailedSchema,
+]);
+
 export const RuleReportDispositionSchema = Type.Union([
   Type.Object({ kind: Type.Literal("executed") }, { additionalProperties: false }),
   Type.Object(
@@ -91,7 +106,7 @@ export const RuleReportDispositionSchema = Type.Union([
     { additionalProperties: false }
   ),
   DiagnosticDependencyRefusedSchema,
-  DiagnosticExecutionFailedSchema,
+  ExecutionFailedSchema,
   Type.Object(
     {
       kind: Type.Literal("selector-refused"),
@@ -223,7 +238,7 @@ export const RuleExecutionDispositionSchema = Type.Union([
     { additionalProperties: false }
   ),
   DiagnosticDependencyRefusedSchema,
-  DiagnosticExecutionFailedSchema,
+  ExecutionFailedSchema,
 ]);
 export type RuleExecutionDisposition = Static<typeof RuleExecutionDispositionSchema>;
 

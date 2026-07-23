@@ -116,7 +116,7 @@ export const executeSelectedRulesEffect = Effect.fn("habitat.check.executeSelect
 const executeStructureRulesEffect = Effect.fn("habitat.check.executeStructureRules")(function* (
   structureRules: readonly StructureRuleFact[],
   results: Map<string, RuleExecutionRecord>,
-  context: Pick<StructuralExecutionContext, "repoRoot" | "structureFileSystem">
+  context: Pick<StructuralExecutionContext, "git" | "repoRoot" | "structureFileSystem">
 ): Effect.fn.Return<void, never, FileSystem.FileSystem> {
   const execution = executeNonEmptyStructureRulesEffect(structureRules, results, context);
   yield* execution.pipe(Effect.when(() => structureRules.length > 0));
@@ -127,12 +127,14 @@ const executeNonEmptyStructureRulesEffect = Effect.fn(
 )(function* (
   structureRules: readonly StructureRuleFact[],
   results: Map<string, RuleExecutionRecord>,
-  context: Pick<StructuralExecutionContext, "repoRoot" | "structureFileSystem">
+  context: Pick<StructuralExecutionContext, "git" | "repoRoot" | "structureFileSystem">
 ): Effect.fn.Return<void, never, FileSystem.FileSystem> {
   const started = yield* Clock.currentTimeMillis;
+  const visiblePaths = yield* context.git.listVisiblePaths({ cwd: context.repoRoot });
   const structureResults = yield* runStructureRulesEffect(structureRules, {
     repoRoot: context.repoRoot,
     fileSystem: context.structureFileSystem,
+    visiblePaths,
   });
   const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
   const timing = structureExecutionTiming(structureRules, durationMs);
@@ -146,7 +148,7 @@ const executeNonEmptyStructureRulesEffect = Effect.fn(
             result,
             durationMs,
             timing,
-            disposition: { kind: "executed" as const, durationMs },
+            disposition: structureRuleDisposition(visiblePaths !== null, durationMs),
           } satisfies RuleExecutionRecord,
         ] as const,
       ])
@@ -156,6 +158,22 @@ const executeNonEmptyStructureRulesEffect = Effect.fn(
     results.set(ruleId, record);
   }
 });
+
+function structureRuleDisposition(
+  inventoryAvailable: boolean,
+  durationMs: number
+): RuleExecutionRecord["disposition"] {
+  return Match.value(inventoryAvailable).pipe(
+    Match.when(true, () => ({ kind: "executed" as const, durationMs })),
+    Match.when(false, () => ({
+      kind: "execution-failed" as const,
+      source: "git-provider" as const,
+      failure: "visible-path-inventory-unavailable" as const,
+      detail: "Git-visible paths and modes could not be enumerated.",
+    })),
+    Match.exhaustive
+  );
+}
 
 function structureExecutionTiming(
   structureRules: readonly StructureRuleFact[],

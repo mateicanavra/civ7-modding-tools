@@ -46,6 +46,7 @@ export const service: EffectImplementerInternal<
         isDirectory: context.deps.platform.isDirectory,
         isFile: context.deps.platform.isFileEffect,
         readDirectory: context.deps.platform.readDirectory,
+        readPathKind: context.deps.platform.readPathKind,
         readText: context.deps.platform.readText,
       },
     };

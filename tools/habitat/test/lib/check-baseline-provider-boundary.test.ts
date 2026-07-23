@@ -8,6 +8,7 @@ import {
   isFile,
   makeDirectory,
   readDirectory,
+  readPathKind,
   readText,
   writeText,
 } from "@habitat/cli/resources/platform/index";
@@ -56,7 +57,6 @@ describe("check and baseline provider boundaries", () => {
     expect(events).toEqual([
       `stat:${baselinesDir}`,
       `readdir:${baselinesDir}`,
-      `stat:${baselinesDir}/existing-rule.json`,
       `stat:${baselinesDir}/existing-rule.json`,
       `read:${baselinesDir}/existing-rule.json`,
     ]);
@@ -263,6 +263,7 @@ function structureFileSystemPort() {
     isDirectory,
     isFile,
     readDirectory,
+    readPathKind,
     readText,
   };
 }

@@ -22,6 +22,11 @@ export interface GitCommandOptions {
   cwd?: string;
 }
 
+export interface GitVisiblePath {
+  readonly mode: string | null;
+  readonly repoPath: string;
+}
+
 type GitCommand = (
   argv: readonly string[],
   options?: GitCommandOptions
@@ -76,6 +81,23 @@ function providerFromCommand(command: GitCommand) {
     currentBranch: (options?: GitCommandOptions) =>
       gitTextOrNull(command(["branch", "--show-current"], options)),
     head: (options?: GitCommandOptions) => gitTextOrNull(command(["rev-parse", "HEAD"], options)),
+    listVisiblePaths: (options?: GitCommandOptions) =>
+      command(
+        [
+          "ls-files",
+          "--cached",
+          "--others",
+          "--exclude-standard",
+          "--stage",
+          "--abbrev=1",
+          "-t",
+          "-z",
+        ],
+        options
+      ).pipe(
+        Effect.map(visiblePathsFromCommandResult),
+        Effect.catchAll(() => Effect.succeed(null))
+      ),
     statusShort: (options?: GitCommandOptions) => command(["status", "--short"], options),
     statusShortBranch: (options?: GitCommandOptions) =>
       command(["status", "--short", "--branch"], options),
@@ -103,6 +125,62 @@ function providerFromCommand(command: GitCommand) {
     diffNameStatus: (input: { cached?: boolean } & GitCommandOptions = {}) =>
       command(["diff", ...gitCachedArg(input.cached), "--name-status", "-z"], input),
   };
+}
+
+function visiblePathsFromCommandResult(
+  result: HabitatCommandResult
+): readonly GitVisiblePath[] | null {
+  return Match.value(result.exit.code === 0 && !result.stdout.truncated).pipe(
+    Match.when(true, () => parseVisiblePaths(result.stdout.text)),
+    Match.when(false, () => null),
+    Match.exhaustive
+  );
+}
+
+function parseVisiblePaths(stdout: string): readonly GitVisiblePath[] | null {
+  const parsed = stdout
+    .split("\0")
+    .filter((entry) => entry.length > 0)
+    .map(parseVisiblePath);
+  return Match.value(parsed.some((entry) => !entry.ok)).pipe(
+    Match.when(true, () => null),
+    Match.when(false, () =>
+      parsed
+        .filter((entry): entry is { readonly ok: true; readonly value: GitVisiblePath } => entry.ok)
+        .map((entry) => entry.value)
+    ),
+    Match.exhaustive
+  );
+}
+
+function parseVisiblePath(
+  candidate: string
+): { readonly ok: true; readonly value: GitVisiblePath } | { readonly ok: false } {
+  return Match.value(candidate.startsWith("? ") && candidate.length > 2).pipe(
+    Match.when(true, () => ({
+      ok: true,
+      value: { mode: null, repoPath: candidate.slice(2) },
+    })),
+    Match.when(false, () => parseTrackedVisiblePath(candidate)),
+    Match.exhaustive
+  );
+}
+
+function parseTrackedVisiblePath(
+  candidate: string
+): { readonly ok: true; readonly value: GitVisiblePath } | { readonly ok: false } {
+  const separator = candidate.indexOf("\t");
+  const metadata = candidate.slice(0, separator);
+  const match = /^[A-Z] ([0-7]{6}) [0-9a-f]+ [0-3]$/u.exec(metadata);
+  const repoPath = candidate.slice(separator + 1);
+  return Match.value(separator >= 0 && match?.[1] !== undefined && repoPath.length > 0).pipe(
+    Match.when(true, () => ({
+      ok: true as const,
+      value: { mode: match?.[1] ?? null, repoPath },
+    })),
+    Match.when(false, () => ({ ok: false as const })),
+    Match.exhaustive
+  );
 }
 
 function gitTextOrNull(effect: ReturnType<GitCommand>) {

@@ -86,6 +86,7 @@ const standaloneCheckProgram = Effect.fn("habitat.standalone.check.program")(fun
       isDirectory: platform.isDirectory,
       isFile: platform.isFileEffect,
       readDirectory: platform.readDirectory,
+      readPathKind: platform.readPathKind,
       readText: platform.readText,
     },
   };

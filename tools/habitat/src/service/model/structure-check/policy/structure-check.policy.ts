@@ -2,28 +2,37 @@ import path from "node:path";
 import type { FileSystem } from "@effect/platform";
 import type {
   HabitatDirectoryEntry,
-  HabitatFileSystemReadPort,
+  HabitatStructureFileSystemReadPort,
 } from "@habitat/cli/resources/platform/index";
 import type { HabitatDiagnostic } from "@habitat/cli/service/model/check/index";
 import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import type { RuleStructureFacts } from "@habitat/cli/service/model/rules/index";
-import { Effect, Either, Match } from "effect";
+import { Effect, Either, Match, Option } from "effect";
 import picomatch from "picomatch";
 import { parse as parseToml } from "smol-toml";
-import { type Static, Type } from "typebox";
+import { type Static, type StaticDecode, Type } from "typebox";
 import { Value } from "typebox/value";
 
-const StructureCheckScopeSchema = Type.Object(
+const StructureCheckScopeInputSchema = Type.Object(
   {
     name: Type.String({ minLength: 1 }),
     root: Type.String({ minLength: 1 }),
     kind: Type.Union([Type.Literal("directory"), Type.Literal("file")]),
     mode: Type.Union([Type.Literal("open"), Type.Literal("closed")]),
+    allowEmpty: Type.Optional(Type.Boolean({ default: false })),
     required: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
     allowed: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
     forbidden: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
   },
   { additionalProperties: false }
+);
+type StructureCheckScopeInput = Static<typeof StructureCheckScopeInputSchema>;
+const StructureCheckScopeSchema = Type.Decode(
+  StructureCheckScopeInputSchema,
+  (scope): StructureCheckScopeInput => ({
+    ...scope,
+    allowEmpty: scope.allowEmpty ?? false,
+  })
 );
 
 const StructureCheckSpecSchema = Type.Object(
@@ -34,17 +43,24 @@ const StructureCheckSpecSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export type StructureCheckScope = Static<typeof StructureCheckScopeSchema>;
-export type StructureCheckSpec = Static<typeof StructureCheckSpecSchema>;
-export type StructureCheckFileSystem = HabitatFileSystemReadPort;
+export type StructureCheckScope = StaticDecode<typeof StructureCheckScopeSchema>;
+export type StructureCheckSpec = StaticDecode<typeof StructureCheckSpecSchema>;
+export type StructureCheckFileSystem = HabitatStructureFileSystemReadPort;
+
+interface VisiblePath {
+  readonly mode: string | null;
+  readonly repoPath: string;
+}
 
 interface StructureCheckOptions {
   readonly repoRoot: string;
   readonly fileSystem: StructureCheckFileSystem;
+  readonly visiblePaths: readonly VisiblePath[] | null;
 }
 
 export type StructureCheckDiagnosticKind =
   | "structure-file-invalid"
+  | "visible-path-inventory-unavailable"
   | "root-missing"
   | "wrong-root-kind"
   | "missing-required-child"
@@ -59,7 +75,8 @@ interface MatchedRoot {
 interface StructureTraversalCache {
   readonly kindsByRepoPath: Map<string, MatchedRoot["kind"]>;
   readonly childrenByRepoPath: Map<string, readonly HabitatDirectoryEntry[]>;
-  readonly walksByLiteralBase: Map<string, readonly MatchedRoot[]>;
+  readonly visibleRepoPaths: ReadonlySet<string>;
+  readonly walksByRequest: Map<string, readonly MatchedRoot[]>;
 }
 
 export function parseStructureCheckSpec(
@@ -79,7 +96,7 @@ function parsedStructureCheckSpec(
   return Match.value(issues.length).pipe(
     Match.when(0, () => ({
       ok: true as const,
-      spec: Value.Parse(StructureCheckSpecSchema, parsed),
+      spec: Value.Decode(StructureCheckSpecSchema, parsed),
     })),
     Match.orElse(() => ({
       ok: false as const,
@@ -99,12 +116,26 @@ export const runStructureRulesEffect = Effect.fn("habitat.structure.runRules")(f
   rules: readonly RuleStructureFacts[],
   options: StructureCheckOptions
 ) {
-  const cache = makeStructureTraversalCache();
-  const entries = yield* Effect.forEach(rules, (rule) =>
-    Effect.map(runStructureRuleEffect(rule, options, cache), (result) => [rule.id, result] as const)
+  return yield* Match.value(options.visiblePaths).pipe(
+    Match.when(Match.null, () =>
+      Effect.succeed(
+        new Map(rules.map((rule) => [rule.id, visiblePathInventoryUnavailableResult(rule)]))
+      )
+    ),
+    Match.orElse((visiblePaths) => runStructureRulesWithInventory(rules, options, visiblePaths))
   );
-  return new Map(entries);
 });
+
+function runStructureRulesWithInventory(
+  rules: readonly RuleStructureFacts[],
+  options: StructureCheckOptions,
+  visiblePaths: readonly VisiblePath[]
+) {
+  const cache = makeStructureTraversalCache(visiblePaths);
+  return Effect.forEach(rules, (rule) =>
+    Effect.map(runStructureRuleEffect(rule, options, cache), (result) => [rule.id, result] as const)
+  ).pipe(Effect.map((entries) => new Map(entries)));
+}
 
 const runStructureRuleEffect = Effect.fn("habitat.structure.runRule")(function* (
   rule: RuleStructureFacts,
@@ -171,8 +202,18 @@ export const evaluateStructureCheckEffect = Effect.fn("habitat.structure.evaluat
   spec: StructureCheckSpec,
   options: StructureCheckOptions
 ) {
-  return yield* Effect.suspend(() =>
-    evaluateStructureCheckWithCacheEffect(rule, spec, options, makeStructureTraversalCache())
+  return yield* Match.value(options.visiblePaths).pipe(
+    Match.when(Match.null, () => Effect.succeed(visiblePathInventoryUnavailableResult(rule))),
+    Match.orElse((visiblePaths) =>
+      Effect.suspend(() =>
+        evaluateStructureCheckWithCacheEffect(
+          rule,
+          spec,
+          options,
+          makeStructureTraversalCache(visiblePaths)
+        )
+      )
+    )
   );
 });
 
@@ -198,6 +239,7 @@ const evaluateScopeEffect = Effect.fn("habitat.structure.evaluateScope")(functio
   cache: StructureTraversalCache
 ) {
   const roots = yield* matchedRootsEffect(scope.root, options, cache);
+  if (scope.allowEmpty === true && !hasMatchedScopeRoot(roots)) return [];
   return yield* Match.value(hasMatchedScopeRoot(roots)).pipe(
     Match.when(false, () => Effect.succeed(missingScopeRootDiagnostics(rule, scope))),
     Match.when(true, () => evaluateMatchedScopeEffect(rule, scope, roots, options, cache)),
@@ -363,59 +405,80 @@ const globMatchedRootsEffect = Effect.fn("habitat.structure.matchGlobRoots")(fun
   options: StructureCheckOptions,
   cache: StructureTraversalCache
 ) {
-  const candidates = yield* walkRepoPathsEffect(literalWalkBase(rootGlob), options, cache);
+  const literalBase = normalizeRepoPath(literalWalkBase(rootGlob));
+  const maximumDepth = maximumGlobDepth(rootGlob, literalBase);
+  const candidates = yield* walkRepoPathsEffect(literalBase, maximumDepth, options, cache);
   const rootMatches = picomatch(rootGlob, { contains: false, dot: true });
   return candidates.filter((candidate) => rootMatches(candidate.repoPath));
 });
 
 const walkRepoPathsEffect = Effect.fn("habitat.structure.walkRepoPaths")(function* (
   repoPath: string,
+  maximumDepth: number | undefined,
   options: StructureCheckOptions,
   cache: StructureTraversalCache
 ) {
-  return yield* Match.value(cache.walksByLiteralBase.get(repoPath)).pipe(
-    Match.when(Match.undefined, () => walkUncachedRepoPathsEffect(repoPath, options, cache)),
+  const requestKey = `${repoPath}\0${maximumDepth ?? "**"}`;
+  return yield* Match.value(cache.walksByRequest.get(requestKey)).pipe(
+    Match.when(Match.undefined, () =>
+      walkUncachedRepoPathsEffect(repoPath, maximumDepth, requestKey, options, cache)
+    ),
     Match.orElse((cached) => Effect.succeed(cached))
   );
 });
 
 const walkUncachedRepoPathsEffect = Effect.fn("habitat.structure.walkUncachedRepoPaths")(function* (
   repoPath: string,
+  maximumDepth: number | undefined,
+  requestKey: string,
   options: StructureCheckOptions,
   cache: StructureTraversalCache
 ) {
   const kind = yield* pathKindEffect(repoPath, options, cache);
   return yield* Match.value(kind).pipe(
-    Match.when("missing", () => cacheMissingWalkEffect(repoPath, cache)),
-    Match.orElse((matchedKind) => completeRepoWalkEffect(repoPath, matchedKind, options, cache))
+    Match.when("missing", () => cacheMissingWalkEffect(requestKey, cache)),
+    Match.orElse((matchedKind) =>
+      completeRepoWalkEffect(repoPath, matchedKind, maximumDepth, requestKey, options, cache)
+    )
   );
 });
 
 const cacheMissingWalkEffect = Effect.fn("habitat.structure.cacheMissingWalk")(function* (
-  repoPath: string,
+  requestKey: string,
   cache: StructureTraversalCache
 ) {
   const missingWalk: readonly MatchedRoot[] = [];
-  cache.walksByLiteralBase.set(repoPath, missingWalk);
+  cache.walksByRequest.set(requestKey, missingWalk);
   return missingWalk;
 });
 
 const completeRepoWalkEffect = Effect.fn("habitat.structure.completeRepoWalk")(function* (
   repoPath: string,
   kind: Exclude<MatchedRoot["kind"], "missing">,
+  maximumDepth: number | undefined,
+  requestKey: string,
   options: StructureCheckOptions,
   cache: StructureTraversalCache
 ) {
   const out: MatchedRoot[] = [{ repoPath, kind }];
-  const appendDescendants = appendDescendantPathsEffect(repoPath, options, cache, out);
-  yield* appendDescendants.pipe(Effect.when(() => kind === "directory"));
+  const appendDescendants = appendDescendantPathsEffect(
+    repoPath,
+    maximumDepth,
+    options,
+    cache,
+    out
+  );
+  yield* appendDescendants.pipe(
+    Effect.when(() => kind === "directory" && (maximumDepth === undefined || maximumDepth > 0))
+  );
   const completedWalk: readonly MatchedRoot[] = out;
-  cache.walksByLiteralBase.set(repoPath, completedWalk);
+  cache.walksByRequest.set(requestKey, completedWalk);
   return completedWalk;
 });
 
 const appendDescendantPathsEffect = Effect.fn("habitat.structure.appendDescendantPaths")(function* (
   repoPath: string,
+  remainingDepth: number | undefined,
   options: StructureCheckOptions,
   cache: StructureTraversalCache,
   out: MatchedRoot[]
@@ -423,7 +486,7 @@ const appendDescendantPathsEffect = Effect.fn("habitat.structure.appendDescendan
   const children = yield* readDirectoryCachedEffect(repoPath, options, cache);
   yield* Effect.forEach(
     children,
-    (child) => appendDescendantPathEffect(repoPath, child, options, cache, out),
+    (child) => appendDescendantPathEffect(repoPath, child, remainingDepth, options, cache, out),
     { discard: true }
   );
 });
@@ -431,16 +494,29 @@ const appendDescendantPathsEffect = Effect.fn("habitat.structure.appendDescendan
 const appendDescendantPathEffect = Effect.fn("habitat.structure.appendDescendantPath")(function* (
   repoPath: string,
   child: HabitatDirectoryEntry,
+  remainingDepth: number | undefined,
   options: StructureCheckOptions,
   cache: StructureTraversalCache,
   out: MatchedRoot[]
 ): Effect.fn.Return<void, never, FileSystem.FileSystem> {
   const { name, kind } = child;
-  const childRepoPath = `${repoPath}/${name}`;
+  const childRepoPath = appendRepoPath(repoPath, name);
   yield* cacheListedPathKindEffect(childRepoPath, kind, cache);
   out.push({ repoPath: childRepoPath, kind });
-  const appendDescendants = appendDescendantPathsEffect(childRepoPath, options, cache, out);
-  yield* appendDescendants.pipe(Effect.when(() => kind === "directory"));
+  const nextDepth = Match.value(remainingDepth).pipe(
+    Match.when(Match.undefined, () => undefined),
+    Match.orElse((depth) => depth - 1)
+  );
+  const appendDescendants = appendDescendantPathsEffect(
+    childRepoPath,
+    nextDepth,
+    options,
+    cache,
+    out
+  );
+  yield* appendDescendants.pipe(
+    Effect.when(() => kind === "directory" && (remainingDepth === undefined || remainingDepth > 1))
+  );
 });
 
 const cacheListedPathKindEffect = Effect.fn("habitat.structure.cacheListedPathKind")(function* (
@@ -472,8 +548,26 @@ const readUncachedDirectoryEffect = Effect.fn("habitat.structure.readUncachedDir
   const children = yield* options.fileSystem
     .readDirectory(path.resolve(options.repoRoot, repoPath))
     .pipe(Effect.catchAll(() => Effect.succeed([])));
-  cache.childrenByRepoPath.set(repoPath, children);
-  return children;
+  const visibleChildNames = children
+    .map((child) => child.name)
+    .filter((name) => cache.visibleRepoPaths.has(appendRepoPath(repoPath, name)));
+  const classifiedChildren = yield* Effect.forEach(visibleChildNames, (name) =>
+    pathKindEffect(appendRepoPath(repoPath, name), options, cache).pipe(
+      Effect.map((kind) => ({ kind, name }))
+    )
+  );
+  const existingChildren = classifiedChildren
+    .filter(
+      (
+        child
+      ): child is {
+        readonly kind: HabitatDirectoryEntry["kind"];
+        readonly name: string;
+      } => child.kind !== "missing"
+    )
+    .map(({ kind, name }) => ({ kind, name }));
+  cache.childrenByRepoPath.set(repoPath, existingChildren);
+  return existingChildren;
 });
 
 const pathKindEffect = Effect.fn("habitat.structure.pathKind")(function* (
@@ -481,6 +575,7 @@ const pathKindEffect = Effect.fn("habitat.structure.pathKind")(function* (
   options: StructureCheckOptions,
   cache: StructureTraversalCache
 ) {
+  if (!cache.visibleRepoPaths.has(repoPath)) return "missing" as const;
   return yield* Match.value(cache.kindsByRepoPath.get(repoPath)).pipe(
     Match.when(Match.undefined, () => readUncachedPathKindEffect(repoPath, options, cache)),
     Match.orElse((cached) => Effect.succeed(cached))
@@ -492,33 +587,68 @@ const readUncachedPathKindEffect = Effect.fn("habitat.structure.readUncachedPath
   options: StructureCheckOptions,
   cache: StructureTraversalCache
 ) {
-  const absolute = path.resolve(options.repoRoot, repoPath);
-  const isDirectory = yield* options.fileSystem
-    .isDirectory(absolute)
-    .pipe(Effect.catchAll(() => Effect.succeed(false)));
-  return yield* Match.value(isDirectory).pipe(
-    Match.when(true, () => cachePathKindEffect(repoPath, "directory", cache)),
-    Match.when(false, () => readFilePathKindEffect(repoPath, absolute, options, cache)),
-    Match.exhaustive
-  );
+  const kind = yield* readNoFollowPathKindEffect(repoPath, options, cache);
+  return yield* cachePathKindEffect(repoPath, kind, cache);
 });
 
-const readFilePathKindEffect = Effect.fn("habitat.structure.readFilePathKind")(function* (
+const readNoFollowPathKindEffect = Effect.fn("habitat.structure.readNoFollowPathKind")(function* (
   repoPath: string,
-  absolute: string,
   options: StructureCheckOptions,
   cache: StructureTraversalCache
 ) {
-  const isFile = yield* options.fileSystem
-    .isFile(absolute)
-    .pipe(Effect.catchAll(() => Effect.succeed(false)));
-  const kind: "file" | "missing" = Match.value(isFile).pipe(
-    Match.when(true, (): "file" => "file"),
-    Match.when(false, (): "missing" => "missing"),
-    Match.exhaustive
+  const state = yield* Effect.reduce(
+    repoPathPrefixes(repoPath),
+    { kind: "directory" as MatchedRoot["kind"] },
+    (current, prefix) => advanceNoFollowPathKindEffect(current, prefix, options, cache)
   );
-  return yield* cachePathKindEffect(repoPath, kind, cache);
+  return state.kind;
 });
+
+function advanceNoFollowPathKindEffect(
+  current: { readonly kind: MatchedRoot["kind"] },
+  repoPath: string,
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+  const fallbackKind = Match.value(current.kind).pipe(
+    Match.when("missing", () => "missing" as const),
+    Match.orElse(() => "other" as const)
+  );
+  return readCachedPathKindEffect(repoPath, options, cache).pipe(
+    Effect.map((kind) => ({ kind })),
+    Effect.when(() => current.kind === "directory"),
+    Effect.map(Option.getOrElse(() => ({ kind: fallbackKind })))
+  );
+}
+
+const readCachedPathKindEffect = Effect.fn("habitat.structure.readCachedPathKind")(function* (
+  repoPath: string,
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+  return yield* Option.fromNullable(cache.kindsByRepoPath.get(repoPath)).pipe(
+    Option.match({
+      onNone: () => readAndCachePathKindEffect(repoPath, options, cache),
+      onSome: (cached) => Effect.succeed(cached),
+    })
+  );
+});
+
+function readAndCachePathKindEffect(
+  repoPath: string,
+  options: StructureCheckOptions,
+  cache: StructureTraversalCache
+) {
+  return readAbsolutePathKindEffect(repoPath, options).pipe(
+    Effect.flatMap((kind) => cachePathKindEffect(repoPath, kind, cache))
+  );
+}
+
+function readAbsolutePathKindEffect(repoPath: string, options: StructureCheckOptions) {
+  return options.fileSystem
+    .readPathKind(path.resolve(options.repoRoot, repoPath))
+    .pipe(Effect.catchAll(() => Effect.succeed("missing" as const)));
+}
 
 const cachePathKindEffect = Effect.fn("habitat.structure.cachePathKind")(function* (
   repoPath: string,
@@ -529,11 +659,14 @@ const cachePathKindEffect = Effect.fn("habitat.structure.cachePathKind")(functio
   return kind;
 });
 
-function makeStructureTraversalCache(): StructureTraversalCache {
+function makeStructureTraversalCache(
+  visiblePaths: readonly VisiblePath[]
+): StructureTraversalCache {
   return {
     kindsByRepoPath: new Map(),
     childrenByRepoPath: new Map(),
-    walksByLiteralBase: new Map(),
+    visibleRepoPaths: visibleRepoPathSet(visiblePaths),
+    walksByRequest: new Map(),
   };
 }
 
@@ -579,6 +712,20 @@ function diagnostic(
   };
 }
 
+function visiblePathInventoryUnavailableResult(rule: RuleStructureFacts): RuleRunResult {
+  return {
+    exitCode: 1,
+    diagnostics: [
+      diagnostic(rule, {
+        kind: "visible-path-inventory-unavailable",
+        path: ".",
+        message:
+          "Unable to enumerate Git-visible paths and modes; structure checks refuse to inspect an unbounded filesystem tree.",
+      }),
+    ],
+  };
+}
+
 function literalWalkBase(rootGlob: string): string {
   const firstMagic = rootGlob.search(/[*?[{(!+@]/u);
   return Match.value(firstMagic).pipe(
@@ -599,6 +746,130 @@ function literalWalkBaseFromMagicIndex(rootGlob: string, firstMagic: number): st
 
 function hasGlobSyntax(candidate: string): boolean {
   return /[*?[{(!+@]/u.test(candidate);
+}
+
+function maximumGlobDepth(rootGlob: string, literalBase: string): number | undefined {
+  const parsed = picomatch.parse(rootGlob);
+  const isUnbounded =
+    parsed.negated ||
+    parsed.tokens.some((token) => token.type === "globstar") ||
+    negativeExtglobContainsSlash(parsed.tokens);
+  return Match.value(isUnbounded).pipe(
+    Match.when(true, () => undefined),
+    Match.when(false, () =>
+      Math.max(0, repoPathSegments(rootGlob).length - repoPathSegments(literalBase).length)
+    ),
+    Match.exhaustive
+  );
+}
+
+function negativeExtglobContainsSlash(tokens: readonly { type: string; value: string }[]): boolean {
+  return tokens.some(
+    (token, index) =>
+      token.type === "negate" &&
+      tokens[index + 1]?.type === "paren" &&
+      tokens[index + 1]?.value === "(" &&
+      scanNegativeExtglob(tokens.slice(index + 1)).containsSlash
+  );
+}
+
+interface NegativeExtglobScanState {
+  readonly active: boolean;
+  readonly containsSlash: boolean;
+  readonly depth: number;
+}
+
+function scanNegativeExtglob(
+  tokens: readonly { type: string; value: string }[]
+): NegativeExtglobScanState {
+  return tokens.reduce<NegativeExtglobScanState>(reduceNegativeExtglobToken, {
+    active: true,
+    containsSlash: false,
+    depth: 0,
+  });
+}
+
+function reduceNegativeExtglobToken(
+  state: NegativeExtglobScanState,
+  token: { readonly type: string; readonly value: string }
+): NegativeExtglobScanState {
+  return Match.value({
+    active: state.active,
+    tokenType: token.type,
+    tokenValue: token.value,
+  }).pipe(
+    Match.when({ active: false }, () => state),
+    Match.when({ tokenType: "paren", tokenValue: "(" }, () => ({
+      ...state,
+      depth: state.depth + 1,
+    })),
+    Match.when({ tokenType: "paren", tokenValue: ")" }, () => ({
+      ...state,
+      active: state.depth - 1 > 0,
+      depth: state.depth - 1,
+    })),
+    Match.when({ tokenType: "slash" }, () => ({
+      ...state,
+      containsSlash: state.containsSlash || state.depth > 0,
+    })),
+    Match.orElse(() => state)
+  );
+}
+
+function repoPathSegments(repoPath: string): string[] {
+  return repoPath.split("/").filter((segment) => segment.length > 0 && segment !== ".");
+}
+
+function repoPathPrefixes(repoPath: string): readonly string[] {
+  return repoPathSegments(repoPath).reduce<readonly string[]>(
+    (prefixes, segment) => [...prefixes, appendRepoPath(prefixes.at(-1) ?? "", segment)],
+    []
+  );
+}
+
+function visibleRepoPathSet(visiblePaths: readonly VisiblePath[]): ReadonlySet<string> {
+  const excludedTrackedPaths = new Set(
+    visiblePaths
+      .filter(({ mode }) => mode !== null && mode !== "100644" && mode !== "100755")
+      .map(({ repoPath }) => normalizeRepoPath(repoPath))
+  );
+  const admittedFiles = visiblePaths
+    .map(({ repoPath }) => normalizeRepoPath(repoPath))
+    .filter(
+      (repoPath) =>
+        repoPath.length > 0 &&
+        repoPath !== ".." &&
+        !repoPath.startsWith("../") &&
+        !path.posix.isAbsolute(repoPath) &&
+        !isAtOrBelowExcludedPath(repoPath, excludedTrackedPaths)
+    );
+  const paths = new Set<string>([""]);
+  for (const normalized of admittedFiles) {
+    paths.add(normalized);
+    let cursor = normalized;
+    while (cursor.includes("/")) {
+      cursor = cursor.slice(0, cursor.lastIndexOf("/"));
+      paths.add(cursor);
+    }
+  }
+  return paths;
+}
+
+function isAtOrBelowExcludedPath(
+  repoPath: string,
+  excludedTrackedPaths: ReadonlySet<string>
+): boolean {
+  return [...excludedTrackedPaths].some(
+    (excluded) => repoPath === excluded || repoPath.startsWith(`${excluded}/`)
+  );
+}
+
+function appendRepoPath(parent: string, child: string): string {
+  return Match.value(parent.length > 0).pipe(
+    Match.when(true, () => `${parent}/${child}`),
+    Match.when(false, () => child),
+    Match.exhaustive
+  );
 }
 
 function normalizeRepoPath(candidate: string): string {
