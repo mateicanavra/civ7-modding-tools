@@ -12,16 +12,14 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "domain operation contract files outside the positive contract-owner shape: defineOp must be present, imports must come only from contract authoring/core, artifacts, model schema/policy owners, and sanctioned external policy/schema packages",
-  "why": "Operation contracts are the schema boundary for domain operations. Inputs, outputs, and strategy envelopes must live at the contract definition site, with reusable primitives pulled from named domain model owners instead of generic config bags or cross-operation contract envelopes.",
-  "remediate": "Inline operation input/output/strategy envelopes into the owning contract.ts, move reusable primitives to model/schemas, move reusable policy to model/policy, and keep createOp/createStage usage outside contract files.",
+  "forbids": "domain operation contract files outside the positive contract-owner shape: defineOp must be present, imports must come only from contract authoring/core, local or shared atoms and policy, artifacts during the flat transition, and sanctioned external policy/schema packages",
+  "why": "Operation contracts are the schema boundary for domain operations. Inputs, outputs, and strategy envelopes live at the contract definition site, with reusable vocabulary pulled from the nearest named atom owner instead of generic config bags or cross-operation contract envelopes.",
+  "remediate": "Inline operation input/output/strategy envelopes into the owning contract.ts, move reusable schema vocabulary to the nearest atoms owner, move reusable decision logic to policy, and keep createOp/createStage usage outside contract files.",
   "message": "Operation contract files must own the positive operation contract shape.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/ops/*/contract.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/*/contract.ts"]
     }
   ],
   "hookCheck": true,
@@ -36,14 +34,7 @@
     "patternName": "require_domain_operation_contract_file_shape",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/src/domain/ecology/ops",
-        "mods/mod-swooper-maps/src/domain/foundation/ops",
-        "mods/mod-swooper-maps/src/domain/hydrology/ops",
-        "mods/mod-swooper-maps/src/domain/morphology/ops",
-        "mods/mod-swooper-maps/src/domain/placement/ops",
-        "mods/mod-swooper-maps/src/domain/resources/ops"
-      ]
+      "roots": ["mods/mod-swooper-maps/src/domain"]
     }
   }
 }

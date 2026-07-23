@@ -19,10 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/domain/*/ops",
-        "mods/*/src/domain/*/ops/**"
-      ]
+      "patterns": ["mods/*/src/domain/**/ops", "mods/*/src/domain/**/ops/**"]
     }
   ],
   "supportFiles": {

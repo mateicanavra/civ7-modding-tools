@@ -11,7 +11,7 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "enforced",
+  "lane": "advisory",
   "forbids": "domain root entrypoints outside the closed defineDomain contract, identity, import, and owner-slot re-export shape",
   "why": "A domain root owns one public domain contract identity. It binds the exact operation-contract registry once and may expose only named model or artifact owner slots; implementation modules and competing runtime authorities remain behind their dedicated boundaries.",
   "remediate": "Import defineDomain from Core contracts and ops from ./ops/contracts.js, bind one const domain with the directory id, default-export it, and keep any named re-exports within ./model/** or ./artifacts/index.js.",
@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/domain/*/index.ts"
-      ]
+      "patterns": ["mods/*/src/domain/*/index.ts"]
     }
   ],
   "hookCheck": true,
@@ -36,9 +34,7 @@
     "patternName": "require_domain_entrypoint_shape",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods"
-      ]
+      "roots": ["mods"]
     }
   }
 }

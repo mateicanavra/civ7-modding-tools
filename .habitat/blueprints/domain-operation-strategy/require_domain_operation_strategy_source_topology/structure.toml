@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "mapgen-domain-operation-strategy-roots"
-root = "mods/*/src/domain/!(*.*)/ops/!(*.*)/strategies"
+root = "mods/*/src/domain/**/ops/!(*.*)/strategies"
 kind = "directory"
 mode = "closed"
 required = [

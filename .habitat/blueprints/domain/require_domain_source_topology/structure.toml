@@ -7,10 +7,11 @@ kind = "directory"
 mode = "closed"
 required = [
   "index.ts",
-  "ops.ts",
-  "ops",
-  "model",
+  "contract.ts",
+  "router.ts",
 ]
 allowed = [
-  "artifacts",
+  "atoms",
+  "policy",
+  "!(*.*)",
 ]

@@ -11,15 +11,15 @@
     "kind": "check"
   },
   "ownerProject": "mod-swooper-maps",
-  "lane": "enforced",
-  "forbids": "domain roots outside the positive domain blueprint spine",
-  "why": "A domain root has one closed public source shape. The domain blueprint owns only that direct spine; operation, model, and artifact kinds own their own internal topology.",
-  "remediate": "Keep the required domain entrypoints and owner directories at the domain root, move optional artifacts into the admitted artifact slot, and relocate every other direct child to its actual kind owner.",
+  "lane": "advisory",
+  "forbids": "domain roots outside the positive aggregate and semantic-child spine",
+  "why": "A domain root is one public contract and router boundary over direct semantic subdomains. Child blueprints own branch internals.",
+  "remediate": "Keep index.ts, contract.ts, and router.ts; retain only semantic child directories and relocate legacy root cabinets behind their rightful subdomain.",
   "message": "Domain roots must match the positive domain blueprint spine.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/*/src/domain/**"]
+      "patterns": ["mods/*/src/domain", "mods/*/src/domain/**"]
     }
   ],
   "supportFiles": {

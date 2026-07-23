@@ -34,7 +34,7 @@ export const PlacementNaturalWondersSchema = requiredPublicSchema(
 
 /** Author-facing resource site-selection controls; demand remains domain-corpus owned. */
 export const PlacementResourcesSchema = requiredPublicSchema(
-  resources.ops.selectResourceSites.strategies["blue-noise-rotation"],
+  resources.sites.ops.selectResourceSites.strategies["blue-noise-rotation"],
   "Resource site-selection controls: density and sparsity scaling within authored per-type ranges, official-Weight rarity fidelity, blue-noise site spacing, per-type spacing-floor scaling, per-landmass equity ceiling, per-family density overrides, and resource-resource affinity/exclusion rules. Per-type targets come from the resource-domain earthlike expectation corpus, not authored config."
 );
 
@@ -46,7 +46,7 @@ export const PlacementStartsSchema = requiredPublicSchema(
 
 /** Author-facing post-start resource-support and cross-player equity controls. */
 export const PlacementSupportSchema = requiredPublicSchema(
-  resources.ops.adjustResourceSupport.strategies["support-equity"],
+  resources.support.ops.adjustResourceSupport.strategies["support-equity"],
   "Resource-to-start support pass controls (S5; runs after start assignment and before resource stamping): per-start support floor within a radius, cross-player equity tolerance, enable switch, and adjustment strength. Earth-like defaults reproduce the E3.1/E3.2 gates."
 );
 
@@ -82,13 +82,13 @@ export function compilePlacementPublicConfig(config: Record<string, unknown>) {
     "place-natural-wonders": {},
     "prepare-placement-surface": {},
     "plan-resources": {
-      selectSites: defaultEnvelope(resources.ops.selectResourceSites, config.resources),
+      selectSites: defaultEnvelope(resources.sites.ops.selectResourceSites, config.resources),
     },
     "assign-starts": {
       starts: defaultEnvelope(placement.ops.planStarts, config.starts),
     },
     "adjust-resources": {
-      support: defaultEnvelope(resources.ops.adjustResourceSupport, config.support),
+      support: defaultEnvelope(resources.support.ops.adjustResourceSupport, config.support),
     },
     "place-resources": {},
     "place-discoveries": {},

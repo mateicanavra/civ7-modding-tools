@@ -1,0 +1,13 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "mapgen-domain-atom-roots"
+root = "mods/*/src/domain/**/atoms"
+kind = "directory"
+mode = "closed"
+required = [
+  "index.ts",
+]
+allowed = [
+  "*.schema.ts",
+]

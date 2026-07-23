@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import { admitPositiveResourceRegionMinimum } from "@mapgen/domain/resources";
 
-import resources from "@mapgen/domain/resources/ops";
+import resources from "@mapgen/domain/resources/router";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 import { runAdmittedOperationForTest } from "@swooper/mapgen-core/testing";
 import { artifacts as placementArtifacts } from "../../../../src/recipes/standard/stages/placement/artifacts/index.js";
 
-type SelectInput = Parameters<typeof resources.ops.selectResourceSites.run>[0];
+type SelectInput = Parameters<typeof resources.sites.ops.selectResourceSites.run>[0];
 type Demand = Pick<
   SelectInput["demands"][number],
   "resourceType" | "weight" | "targetCount" | "minCount" | "maxCount"
@@ -57,20 +57,22 @@ function buildInput(args: {
   };
 }
 
-type SelectResult = ReturnType<typeof resources.ops.selectResourceSites.run>;
+type SelectResult = ReturnType<typeof resources.sites.ops.selectResourceSites.run>;
 
 function run(
   input: ReturnType<typeof buildInput>,
-  configure?: (config: (typeof resources.ops.selectResourceSites.defaultConfig)["config"]) => void
+  configure?: (
+    config: (typeof resources.sites.ops.selectResourceSites.defaultConfig)["config"]
+  ) => void
 ): SelectResult {
-  const selection = structuredClone(resources.ops.selectResourceSites.defaultConfig);
+  const selection = structuredClone(resources.sites.ops.selectResourceSites.defaultConfig);
   configure?.(selection.config);
-  return runAdmittedOperationForTest(resources.ops.selectResourceSites, input, selection);
+  return runAdmittedOperationForTest(resources.sites.ops.selectResourceSites, input, selection);
 }
 
 describe("select-resource-sites operation contract", () => {
   it("materializes family density from property defaults", () => {
-    expect(resources.ops.selectResourceSites.defaultConfig.config.familyDensity).toEqual({
+    expect(resources.sites.ops.selectResourceSites.defaultConfig.config.familyDensity).toEqual({
       aquatic: 1,
       cultivated: 1,
       terrestrial: 1,

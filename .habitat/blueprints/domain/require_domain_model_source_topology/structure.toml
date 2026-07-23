@@ -8,16 +8,6 @@ mode = "closed"
 allowed = [
   "schemas",
   "policy",
-  "data",
-]
-
-[[scopes]]
-name = "mapgen-domain-model-data-roots"
-root = "mods/*/src/domain/!(*.*)/model/data"
-kind = "directory"
-mode = "closed"
-allowed = [
-  "+([a-z0-9])*(-+([a-z0-9]))",
 ]
 
 [[scopes]]
@@ -37,18 +27,6 @@ name = "mapgen-domain-model-policy-roots"
 root = "mods/*/src/domain/!(*.*)/model/policy"
 kind = "directory"
 mode = "closed"
-allowed = [
-  "*.ts",
-]
-
-[[scopes]]
-name = "mapgen-domain-model-data-collections"
-root = "mods/*/src/domain/!(*.*)/model/data/!(*.*)"
-kind = "directory"
-mode = "closed"
-required = [
-  "index.ts",
-]
 allowed = [
   "*.ts",
 ]

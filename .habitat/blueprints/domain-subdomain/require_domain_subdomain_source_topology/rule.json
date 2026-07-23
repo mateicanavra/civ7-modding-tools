@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_subdomain_source_topology",
+  "title": "Require Domain Subdomain Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-subdomain",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "semantic subdomain roots outside their positive contract, router, operation, atom, and policy spine",
+  "why": "A semantic subdomain is one non-empty operation contract and router boundary. Shared domain atoms remain reserved root capabilities rather than being misclassified as executable branches.",
+  "remediate": "Keep index.ts, contract.ts, router.ts, and ops; retain atoms or policy only when the branch owns those capabilities; move every other child to its actual kind owner.",
+  "message": "Domain subdomains should match the positive subdomain blueprint spine.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/domain/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-subdomain/require_domain_subdomain_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/domain-subdomain/require_domain_subdomain_source_topology/structure.toml"
+    }
+  }
+}

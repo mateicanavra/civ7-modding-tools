@@ -66,7 +66,7 @@ Validator shape:
 
 Import boundary:
 - runtime values may come only from MapGen contract/lib surfaces, static Civ7
-  type and policy owners, or public domain contract/schema/policy/data surfaces;
+  type and policy owners, or public domain contract/schema/policy surfaces;
 - artifact owners do not import adapters, engines, recipes, private operation
   implementations, Node/browser APIs, or other artifact owner modules;
 - dynamic imports and runtime re-export indirection are outside the kind.

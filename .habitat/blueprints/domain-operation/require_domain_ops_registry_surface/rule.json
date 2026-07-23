@@ -19,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/*/ops/index.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/index.ts"]
     }
   ],
   "hookCheck": true,
@@ -36,14 +34,7 @@
     "patternName": "require_domain_ops_registry_surface",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods/mod-swooper-maps/src/domain/ecology/ops/index.ts",
-        "mods/mod-swooper-maps/src/domain/foundation/ops/index.ts",
-        "mods/mod-swooper-maps/src/domain/hydrology/ops/index.ts",
-        "mods/mod-swooper-maps/src/domain/morphology/ops/index.ts",
-        "mods/mod-swooper-maps/src/domain/placement/ops/index.ts",
-        "mods/mod-swooper-maps/src/domain/resources/ops/index.ts"
-      ]
+      "roots": ["mods/mod-swooper-maps/src/domain"]
     }
   }
 }

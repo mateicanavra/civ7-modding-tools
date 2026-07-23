@@ -11,18 +11,17 @@ their destination kind is sealed.
 law -> source conformance -> verification. A niche may refine a kind but may not
 recreate, weaken, or hardcode its membership.
 
-**Current container:** the existing domain topology monolith is separated into
-truthful kind owners. Install one advisory aggregate-root law that requires
-only `index.ts`, `contract.ts`, and `router.ts`, admits direct semantic child
-directories, and reports the current six-domain migration corpus without
-misclassifying legacy child cabinets. The first complete domain migration then
-earns the separate subdomain, nested operation, and nested artifact laws from
-real members. For every law, `required` names the fixed spine, `allowed` names
-deliberate flexibility, and everything else is excluded without a second
-forbidden inventory. Membership and topology stay in `pathCoverage` and
-`structure.toml`; Grit expresses only cheap relationships inside the admitted
-kind; TypeScript owns composition, key identity, duplicate refusal, and
-artifact-validator binding by construction.
+**Current container:** one canonical advisory domain law now requires
+`index.ts`, `contract.ts`, and `router.ts`; its closed scope admits only
+kind-shaped child directories. Resources is the first whole-domain burn-down:
+its demand, habitat, sites, and support branches establish the generic
+subdomain, operation, atom, and policy kinds from real members while the five
+legacy flat domains remain the red migration corpus. For every law, `required`
+names the fixed spine, `allowed` names deliberate flexibility, and everything
+else is excluded without a second forbidden inventory. Membership and topology
+stay in `pathCoverage` and `structure.toml`; Grit expresses only cheap
+relationships inside the admitted kind; TypeScript owns composition, key
+identity, duplicate refusal, and artifact-validator binding by construction.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7
@@ -30,20 +29,14 @@ state is adapter observation; metrics, diagnostics, trace, and visualization
 are separate capabilities. Core owns the generic authoring/execution and
 domain-composition SDK, not Swooper's domain model.
 
-**Gradient:** artifact authority and current kind-local spines are sealed.
-Commit the advisory aggregate-root law with its precise 18-row corpus. Choose
-one whole domain whose branches have no unresolved owner ambiguity, migrate it
-atomically through the typed contract/router composition API, and only then add
-child-kind laws over the members that now exist. Repeat whole-domain slices
-without a legacy branch or hybrid SDK. At the first source move, demote the
-contradictory flat laws and new child laws to advisory for the mixed interval;
-promote the aggregate and child laws to enforced only at zero and retire the
+**Gradient:** finish and verify the atomic Resources aggregate, seal its four
+semantic branches, and use the resulting violations to refine only the generic
+kind owners that real members prove. Repeat whole-domain slices without a
+legacy branch or hybrid SDK. Keep successor laws advisory for the mixed
+interval; promote the domain and child laws to enforced only at zero and retire
 flat laws in the same semantic cut.
 For every structural kind, `required` names only the fixed spine, `allowed`
 names optional or generative members, and `closed` rejects everything else.
-Legacy source laws remain enforced under their existing IDs until the first
-source move, remain unchanged but advisory through the mixed interval, and
-retire only when green successor laws own the complete migrated source.
 Relocate one semantic module at a time, hoisting vocabulary only when a real
 cross-module edge proves it shared. Then drain the remaining recipe artifacts
 into adapter observation, domain products, or metrics/diagnostics evidence.

@@ -9,7 +9,7 @@ import { getHexRadiusIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 
 /** Support-adjusted resource plan (`artifact:placement.resourcePlanAdjusted`). One artifact per file by repo convention. */
 
-const Schema = resources.ops.adjustResourceSupport.output;
+const Schema = resources.support.ops.adjustResourceSupport.output;
 
 type ResourcePlanAdjusted = Static<typeof Schema>;
 type AdjustedIntent = ResourcePlanAdjusted["intents"][number];

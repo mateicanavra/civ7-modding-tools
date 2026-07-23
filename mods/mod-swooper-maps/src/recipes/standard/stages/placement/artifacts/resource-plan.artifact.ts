@@ -7,7 +7,7 @@ import {
 
 /** Site-selection resource plan (`artifact:placement.resourcePlan`). One artifact per file by repo convention. */
 
-const Schema = resources.ops.selectResourceSites.output;
+const Schema = resources.sites.ops.selectResourceSites.output;
 
 /** Registers authoritative per-plot resource intents before start-support adjustment. */
 export const artifact = defineArtifact({

@@ -82,7 +82,7 @@ const Schema = Type.Object(
   {
     age: Type.Literal(INITIAL_MAP_RESOURCE_AUTHORING_AGE),
     minimumAmountModifier: Type.Integer(),
-    groups: resources.ops.planResourceGroups.output,
+    groups: resources.demand.ops.planResourceGroups.output,
     demands: Type.Array(ResourceDemandSummaryRowSchema),
     excluded: Type.Array(
       Type.Object(

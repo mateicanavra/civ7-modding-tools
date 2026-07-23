@@ -12,17 +12,14 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "domain model roots outside the positive schema, policy, and data owner topology",
-  "why": "The domain-model source kind owns reusable schemas, policy, and named data corpora. Keeping this topology separate prevents the parent domain rule from recursively recreating child-kind authority.",
-  "remediate": "Keep reusable schemas in the schema owner, semantic policy in the policy owner, and named corpora in data collections; move every other child to its actual owner or delete it.",
+  "forbids": "domain model roots outside the positive schema and policy owner topology",
+  "why": "The domain-model source kind owns reusable schemas and policy. Keeping this topology separate prevents the parent domain rule from recursively recreating child-kind authority.",
+  "remediate": "Keep reusable schemas in the schema owner and semantic policy in the policy owner; move every other child to its actual owner or delete it.",
   "message": "Domain model roots must match the positive domain-model blueprint spine.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/*/src/domain/*/model",
-        "mods/*/src/domain/*/model/**"
-      ]
+      "patterns": ["mods/*/src/domain/*/model", "mods/*/src/domain/*/model/**"]
     }
   ],
   "supportFiles": {

@@ -18,7 +18,7 @@ or {
     `import($source)`
   } where {
     $source <: r"^[\"']?@mapgen/domain/[^/]+/.+[\"']?$",
-    ! $source <: r"^[\"']?@mapgen/domain/[^/]+/(?:ops|artifacts(?:/index\.js)?|model/schemas(?:/index\.js|/[a-z0-9.-]+\.js)?|model/policy(?:/index\.js|/[a-z0-9.-]+\.js)?|model/data/[a-z0-9-]+(?:/index\.js)?)[\"']?$"
+    ! $source <: r"^[\"']?@mapgen/domain/[^/]+/(?:router(?:\.js)?|ops|artifacts(?:/index\.js)?|model/schemas(?:/index\.js|/[a-z0-9.-]+\.js)?|model/policy(?:/index\.js|/[a-z0-9.-]+\.js)?)[\"']?$"
   },
   or {
     import_statement(source=$source),
@@ -54,8 +54,7 @@ import implementations from "@mapgen/domain/geology/ops/index.js";
 // @filename: mods/example-mod/test/domains/geology/public.test.ts
 import geology from "@mapgen/domain/geology/ops";
 import policy from "@mapgen/domain/geology/model/policy/plate-activity.js";
-import corpus from "@mapgen/domain/materials/model/data/reference-expectations/index.js";
 
-export const values = [geology, policy, corpus];
+export const values = [geology, policy];
 
 ```

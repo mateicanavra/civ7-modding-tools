@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "test files deep-importing domain internals instead of public domain surfaces",
-  "why": "Tests exercise domain contracts through the same named public surfaces as product code. Test location alone does not grant private implementation access.",
+  "forbids": "test files deep-importing domain internals instead of public contract or runtime router surfaces",
+  "why": "Tests exercise domain contracts and implementations through the same named public contract and runtime router surfaces as product code. Test location alone does not grant private implementation access.",
   "remediate": "Replace each violating test import with a public domain surface only after the corresponding domain public surface exists. Do not widen a domain public surface merely to satisfy a test.",
-  "message": "Use the domain root, ops, artifacts, named model schema/policy modules, or a named model data collection instead of domain internals.",
+  "message": "Use the domain root, runtime router, ops, artifacts, or named schema and policy owners instead of domain internals.",
   "pathCoverage": [
     {
       "kind": "exact-path",
@@ -42,10 +42,7 @@
     "patternName": "require_public_domain_surfaces_in_tests",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods",
-        "packages"
-      ]
+      "roots": ["mods", "packages"]
     }
   }
 }

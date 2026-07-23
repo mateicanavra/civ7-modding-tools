@@ -14,37 +14,27 @@ language js(typescript)
 
 or {
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
     ! $body <: contains `export default defineOp({ $..., input: $input, $..., output: $output, $..., strategies: $strategies, $... })`,
     ! $body <: contains `const $contract = defineOp({ $..., input: $input, $..., output: $output, $..., strategies: $strategies, $... })`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
     $body <: contains `const $contract = defineOp({ $..., input: $input, $..., output: $output, $..., strategies: $strategies, $... })`,
     ! $body <: contains `export default $contract`
   },
   import_statement(source=$source) where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./\.\./)?artifacts/.*\.artifact\.js|(?:\.\./\.\./)?model/(?:schemas|policy)(?:/.*)?\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/.*\.artifact|model/(?:schemas|policy)(?:/.*)?)\.js|(?:\.\./){2,3}(?:atoms|policy)(?:/.*)?\.js)[\"']?$"
   },
   `export { $exports } from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./\.\./)?artifacts/.*\.artifact\.js|(?:\.\./\.\./)?model/(?:schemas|policy)(?:/.*)?\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/.*\.artifact|model/(?:schemas|policy)(?:/.*)?)\.js|(?:\.\./){2,3}(?:atoms|policy)(?:/.*)?\.js)[\"']?$"
   },
   `export * from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./\.\./)?artifacts/.*\.artifact\.js|(?:\.\./\.\./)?model/(?:schemas|policy)(?:/.*)?\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/.*\.artifact|model/(?:schemas|policy)(?:/.*)?)\.js|(?:\.\./){2,3}(?:atoms|policy)(?:/.*)?\.js)[\"']?$"
   },
   `import($source)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/contract\.ts$",
-    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./\.\./)?artifacts/.*\.artifact\.js|(?:\.\./\.\./)?model/(?:schemas|policy)(?:/.*)?\.js)[\"']?$"
+    ! $source <: r"^[\"']?(?:@swooper/mapgen-core/authoring/contracts|@civ7/map-policy|(?:\.\./){2}(?:artifacts/.*\.artifact|model/(?:schemas|policy)(?:/.*)?)\.js|(?:\.\./){2,3}(?:atoms|policy)(?:/.*)?\.js)[\"']?$"
   },
-  `createOp($args)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/contract\.ts$"
-  },
-  `createStage($args)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/contract\.ts$"
-  }
+  `createOp($args)`,
+  `createStage($args)`
 }
 ```
 
@@ -174,14 +164,4 @@ const DemoContract = defineOp({
 
 export default DemoContract;
 
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/index.ts
-import { createOp } from "@swooper/mapgen-core/authoring";
-import DemoContract from "./contract.js";
-
-export const demo = createOp(DemoContract, {});
-
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/demo/contract.test.ts
-import { DemoConfigSchema } from "./config.js";
-
-export const fixture = DemoConfigSchema;
 ```

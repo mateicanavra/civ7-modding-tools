@@ -10,12 +10,8 @@ Domain op runtime entrypoints must not orchestrate through `ops.bind` or
 language js(typescript)
 
 or {
-  `ops.bind($...)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/index\.ts$"
-  },
-  `runValidated($...)` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/index\.ts$"
-  }
+  `ops.bind($...)`,
+  `runValidated($...)`
 }
 ```
 
@@ -60,21 +56,6 @@ const validator = runValidated;
 
 // @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
 runValidatedLater(operation);
-
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/strategies/default.ts
-ops.bind(computeMesh, input);
-
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/compute-crust/step.ts
-runValidated(operation);
-
-// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.tsx
-ops.bind(computeMesh, input);
-
-// @filename: mods/other-mod/src/domain/foundation/ops/compute-crust/index.ts
-ops.bind(computeMesh, input);
-
-// @filename: mods/mod-swooper-maps/test/foundation/op-orchestration.test.ts
-runValidated(operation);
 
 // @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
 const source = "ops.bind(runValidated)";

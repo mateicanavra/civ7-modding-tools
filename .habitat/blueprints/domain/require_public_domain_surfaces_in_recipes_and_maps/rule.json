@@ -12,10 +12,10 @@
   },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "forbids": "recipe or map source importing domain code outside the domain root, ops, artifacts, named model schema/policy modules, or one named model data collection",
-  "why": "Recipes compose domains through named public surfaces, not relative reaches, shared buckets, broad data buckets, operation-local files, or private implementation modules.",
+  "forbids": "recipe or map source importing domain code outside the domain root, runtime router, ops, artifacts, or named schema and policy owners",
+  "why": "Recipes compose domains through named public contract and runtime router surfaces, not relative reaches, shared buckets, operation-local files, or private implementation modules.",
   "remediate": null,
-  "message": "Recipe and map source may import domain code only through the domain root, ops, artifacts, named model schema/policy modules, or a named model data collection.",
+  "message": "Recipe and map source may import domain code only through the domain root, runtime router, ops, artifacts, or named schema and policy owners.",
   "pathCoverage": [
     {
       "kind": "exact-path",
@@ -39,9 +39,7 @@
     "patternName": "require_public_domain_surfaces_in_recipes_and_maps",
     "acquisition": {
       "kind": "check",
-      "roots": [
-        "mods"
-      ]
+      "roots": ["mods"]
     }
   }
 }

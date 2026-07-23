@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "require_domain_atom_source_topology",
+  "title": "Require Domain Atom Source Topology",
+  "placement": {
+    "niche": "civ7/mapgen/domains",
+    "blueprint": "domain-atom",
+    "category": "structure"
+  },
+  "operation": {
+    "kind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "advisory",
+  "forbids": "domain atom roots outside their closed schema and index surface",
+  "why": "Domain atoms are small composable schema vocabularies shared across real consumers. Closing the kind prevents atoms from becoming a general helper, policy, data, or validation cabinet.",
+  "remediate": "Keep index.ts and named *.schema.ts modules only; move policy, data, validation, and executable behavior to their owning kinds.",
+  "message": "Domain atoms should match the positive atom blueprint spine.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/*/src/domain/**/atoms", "mods/*/src/domain/**/atoms/**"]
+    }
+  ],
+  "supportFiles": {
+    "baseline": ".habitat/blueprints/domain-atom/require_domain_atom_source_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/blueprints/domain-atom/require_domain_atom_source_topology/structure.toml"
+    }
+  }
+}

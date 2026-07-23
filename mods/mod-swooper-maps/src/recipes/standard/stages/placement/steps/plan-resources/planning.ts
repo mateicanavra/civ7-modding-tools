@@ -10,31 +10,25 @@ import {
 } from "@civ7/map-policy";
 import {
   admitPositiveResourceRegionMinimum,
-  getInitialMapResourcePolicyForType,
-  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
-  type ResourceRegionMinimumRequirement,
-  default as resources,
-} from "@mapgen/domain/resources";
-import {
+  buildHabitatEligibility,
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   type EarthlikeResourceExpectation,
-  type ResourceExpectationGroupId,
-} from "@mapgen/domain/resources/model/data/earthlike-expectations/index.js";
-import {
-  buildHabitatEligibility,
-  RESOURCE_HABITAT_SIGNALS,
-  type ResourceFamilyId,
-} from "@mapgen/domain/resources/model/policy/habitat-eligibility.js";
-import {
+  getInitialMapResourcePolicyForType,
   HABITAT_INTENSITY_FIELD_NAMES,
   HABITAT_MASK_FIELD_NAMES,
   type HabitatFieldsOutput,
   type HabitatIntensityFieldName,
   type HabitatMaskFieldName,
-} from "@mapgen/domain/resources/model/schemas";
+  INITIAL_MAP_RESOURCE_AUTHORING_AGE,
+  RESOURCE_HABITAT_SIGNALS,
+  type ResourceExpectationGroupId,
+  type ResourceFamilyId,
+  type ResourceRegionMinimumRequirement,
+  default as resources,
+} from "@mapgen/domain/resources";
 import type { Static } from "@swooper/mapgen-core/authoring";
 
-type DerivedHabitatFields = Static<(typeof resources.ops.deriveHabitatFields)["output"]>;
+type DerivedHabitatFields = Static<(typeof resources.habitat.ops.deriveHabitatFields)["output"]>;
 type ResourceDemandPlan = Static<
   typeof import("../../artifacts/resource-demand-plan.artifact.js").artifact.schema
 >;
@@ -43,7 +37,7 @@ type ResourceDemandExclusionReason = ResourceDemandPlan["excluded"][number]["rea
 export type HabitatFields = HabitatFieldsOutput;
 /** Continuous habitat channels consumed by resource-plan visualization. */
 export type HabitatIntensityFields = Pick<HabitatFieldsOutput, HabitatIntensityFieldName>;
-type SelectSitesInput = Static<(typeof resources.ops.selectResourceSites)["input"]>;
+type SelectSitesInput = Static<(typeof resources.sites.ops.selectResourceSites)["input"]>;
 type DemandRow = SelectSitesInput["demands"][number];
 /** One immutable row from the canonical Earthlike resource expectation corpus. */
 export type EarthlikeExpectationRow = (typeof EARTHLIKE_RESOURCE_EXPECTATIONS)[number];

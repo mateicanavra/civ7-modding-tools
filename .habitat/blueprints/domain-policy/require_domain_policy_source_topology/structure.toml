@@ -1,0 +1,10 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "mapgen-domain-policy-roots"
+root = "mods/*/src/domain/**/policy"
+kind = "directory"
+mode = "closed"
+allowed = [
+  "*.ts",
+]

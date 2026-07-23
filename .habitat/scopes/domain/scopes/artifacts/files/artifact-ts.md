@@ -48,7 +48,7 @@ Import/export boundary:
 - exports one runtime artifact authority using the stable per-file name
   `artifact`;
 - imports runtime values only from MapGen contract/lib surfaces, static Civ7
-  types and policy, or public domain contract/schema/policy/data surfaces;
+  types and policy, or public domain contract/schema/policy surfaces;
 - does not import adapters, engines, recipes, private operation implementations,
   Node/browser APIs, or another artifact owner module;
 - semantically named artifact types are allowed only when they improve call-site

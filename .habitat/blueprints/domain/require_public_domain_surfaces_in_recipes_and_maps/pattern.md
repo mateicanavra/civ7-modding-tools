@@ -6,10 +6,10 @@ level: error
 Recipe and map source must use public domain surfaces, not deep domain internals.
 
 Allowed domain sub-surfaces are the domain root, `ops`, `artifacts`, named
-`model/schemas` and `model/policy` modules, and one named `model/data/<collection>` surface. These are intentional public
+`model/schemas`, and `model/policy` modules. These are intentional public
 composition surfaces: recipes may consume domain operations, artifact contracts, reusable domain
-schema primitives, reusable domain policy, and named domain data corpora, but must not reach into
-operation-local files, retired config facades, shared buckets, rules, broad data buckets, or private
+schema primitives, and reusable domain policy, but must not reach into
+operation-local files, retired config facades, shared buckets, rules, or private
 implementation modules.
 
 ```grit
@@ -24,7 +24,7 @@ or {
     `import($source)`
   } where {
     $source <: r"^[\"']?@mapgen/domain/[^/]+/.+[\"']?$",
-    ! $source <: r"^[\"']?@mapgen/domain/[^/]+/(?:ops|artifacts(?:/index\.js)?|model/schemas(?:/index\.js|/[a-z0-9.-]+\.js)?|model/policy(?:/index\.js|/[a-z0-9.-]+\.js)?|model/data/[a-z0-9-]+(?:/index\.js)?)[\"']?$"
+    ! $source <: r"^[\"']?@mapgen/domain/[^/]+/(?:router(?:\.js)?|ops|artifacts(?:/index\.js)?|model/schemas(?:/index\.js|/[a-z0-9.-]+\.js)?|model/policy(?:/index\.js|/[a-z0-9.-]+\.js)?)[\"']?$"
   },
   or {
     import_statement(source=$source),
@@ -64,11 +64,6 @@ export const privatePolicyValue = privatePolicy;
 // @filename: mods/another-mod/src/maps/alternate/stages/demo.ts
 export { privateRule } from "@mapgen/domain/biosphere/rules/private";
 
-// @filename: mods/example-mod/src/recipes/example/stages/demo.ts
-import broadData from "@mapgen/domain/materials/model/data";
-
-export const broadDataValue = broadData;
-
 // @filename: mods/example-mod/src/recipes/example/stages/biosphere/demo.ts
 import { isAnyRiverClass } from "../../../../domain/rivers/index.js";
 
@@ -107,11 +102,6 @@ export const policyValue = policy;
 import schemas from "@mapgen/domain/biosphere/model/schemas";
 
 export const schemaValue = schemas;
-
-// @filename: mods/example-mod/src/recipes/example/stages/demo.ts
-import data from "@mapgen/domain/materials/model/data/reference-expectations/index.js";
-
-export const dataValue = data;
 
 // @filename: mods/example-mod/src/recipes/example/stages/biosphere/demo.ts
 const source = "../../../../domain/rivers/index.js";

@@ -2,7 +2,7 @@ schemaVersion = 1
 
 [[scopes]]
 name = "mapgen-domain-operation-collections"
-root = "mods/*/src/domain/!(*.*)/ops"
+root = "mods/*/src/domain/**/ops"
 kind = "directory"
 mode = "closed"
 required = [
@@ -15,7 +15,7 @@ allowed = [
 
 [[scopes]]
 name = "mapgen-domain-operation-roots"
-root = "mods/*/src/domain/!(*.*)/ops/!(*.*)"
+root = "mods/*/src/domain/**/ops/!(*.*)"
 kind = "directory"
 mode = "closed"
 required = [

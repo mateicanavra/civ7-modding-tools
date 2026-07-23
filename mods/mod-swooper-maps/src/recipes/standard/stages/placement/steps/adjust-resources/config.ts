@@ -23,7 +23,7 @@ export const AdjustResourcesStepContract = defineStep({
     provides: [placementArtifacts.resourcePlanAdjusted],
   },
   ops: {
-    support: resources.ops.adjustResourceSupport,
+    support: resources.support.ops.adjustResourceSupport,
   },
   schema: Type.Object({}),
 });

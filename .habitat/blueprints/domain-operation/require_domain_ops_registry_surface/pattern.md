@@ -13,23 +13,18 @@ language js(typescript)
 
 or {
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$",
     ! $body <: contains `import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring"`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$",
     ! $body <: contains `import type { contracts } from "./contracts.js"`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$",
     ! $body <: contains `const implementations = { $... } as const satisfies DomainOpImplementationsForContracts<typeof contracts>`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$",
     ! $body <: contains `export default implementations`
   },
   program(statements=$body) where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$",
     $body <: some bubble {
       $statement where {
         ! $statement <: or {
@@ -45,58 +40,34 @@ or {
     }
   },
   `const implementations = { $entries } as const satisfies DomainOpImplementationsForContracts<typeof contracts>` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$",
     $entries <: some bubble {
       pair(key=$key, value=$value)
     }
   },
   import_statement(source=$source) as $import where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$",
     $source <: r"^[\"']?\./[^/]+/index\.js[\"']?$",
     ! $import <: contains import_clause()
   },
   import_statement(source=$source) as $import where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$",
     $source <: r"^[\"']?\./[^/]+/index\.js[\"']?$",
     $import <: contains named_imports()
   },
   import_statement(source=$source) as $import where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$",
     $source <: r"^[\"']?\./[^/]+/index\.js[\"']?$",
     $import <: contains namespace_import()
   },
   `import type { $imports } from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$",
     $source <: r"^[\"']?\./[^/]+/index\.js[\"']?$"
   },
-  spread_element() where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$"
-  },
-  method_definition() where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$"
-  },
-  `export { $exports }` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$"
-  },
-  `export { $exports } from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$"
-  },
-  `export * from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$",
-    $source <: r".+"
-  },
-  `export const $name = $value` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$"
-  },
-  `export function $name($params) { $body }` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$"
-  },
-  `export type $name = $value` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$"
-  },
-  `export interface $name { $body }` where {
-    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/index\.ts$"
-  }
+  spread_element(),
+  method_definition(),
+  `export { $exports }`,
+  `export { $exports } from $source`,
+  `export * from $source`,
+  `export const $name = $value`,
+  `export function $name($params) { $body }`,
+  `export type $name = $value`,
+  `export interface $name { $body }`
 }
 ```
 
@@ -223,7 +194,4 @@ const implementations = {
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
 
 export default implementations;
-
-// @filename: mods/mod-swooper-maps/src/domain/resources/ops/adjust-resource-support/index.ts
-export const adjustResourceSupport = {};
 ```
