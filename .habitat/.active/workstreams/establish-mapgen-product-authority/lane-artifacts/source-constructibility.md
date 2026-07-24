@@ -47,7 +47,7 @@ Status: currently implemented; strong positive authority candidate.
 
 Evidence:
 - `packages/mapgen-core/src/authoring/step/contract.ts`: `StepContract`, `defineStep`
-- `packages/mapgen-core/src/authoring/types.ts`: `StepDeps`
+- `packages/mapgen-core/src/authoring/step/types.ts`: `StepDeps`
 
 Constructible claim:
 - Steps have named contract identity, phase, schema, requires/provides tags, artifact dependencies, operation dependencies, and validation that prevents direct artifact ids being mixed into ordinary tag deps when artifact deps are declared through `artifacts`.
@@ -57,8 +57,8 @@ Constructible claim:
 Status: currently implemented; positive authority candidate with a contradiction/tension noted below.
 
 Evidence:
-- `packages/mapgen-core/src/authoring/stage.ts`: `createStage`, `buildInternalAsPublicSurfaceSchema`, `compileStagePublicConfig`, `toInternal`
-- `packages/mapgen-core/src/authoring/types.ts`: `StageConfigInput`, `StageAuthoringModel`
+- `packages/mapgen-core/src/authoring/stage/create.ts`: `createStage`, `buildInternalAsPublicSurfaceSchema`, `buildStageAuthoringModel`, `toInternal`
+- `packages/mapgen-core/src/authoring/stage/types.ts`: `StageAuthoringModel`
 - `packages/mapgen-core/src/compiler/recipe-compile.ts`: `compileRecipeConfig`
 
 Constructible claim:
@@ -71,7 +71,7 @@ Constructible claim:
 Status: currently implemented; strong positive authority candidate.
 
 Evidence:
-- `packages/mapgen-core/src/authoring/recipe.ts`: `createRecipe`, `compileConfig`, `compile`, `run`, `runAsync`
+- `packages/mapgen-core/src/authoring/recipe/create.ts`: `createRecipe`, `compileConfig`, `compile`, `run`, `runAsync`
 - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`: `standardMapRecipe`
 - `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts`: `standardStageContractManifest`, `orderStandardStages`, `orderStandardStageSteps`
 - `packages/mapgen-core/src/compiler/recipe-compile.ts`: stale `ecology` stage guard and strict compile checks
@@ -99,14 +99,15 @@ Constructible claim:
 Status: currently implemented; positive authority candidate.
 
 Evidence:
-- `packages/mapgen-core/src/authoring/domain.ts`: `defineDomain`, `createDomain`
-- `packages/mapgen-core/src/authoring/op/contract.ts`: `defineOp`
-- `packages/mapgen-core/src/authoring/op/create.ts`: `createOp`
-- `packages/mapgen-core/src/authoring/op/types.ts`: `DomainOpKind`
-- `packages/mapgen-core/src/authoring/bindings.ts`: `createDomainOpsSurface`, `collectCompileOps`
+- `packages/mapgen-core/src/authoring/domain/contract.ts`: `defineDomain`
+- `packages/mapgen-core/src/authoring/domain/router.ts`: `createDomain`
+- `packages/mapgen-core/src/authoring/operation/contract.ts`: `defineOp`
+- `packages/mapgen-core/src/authoring/operation/create.ts`: `createOp`
+- `packages/mapgen-core/src/authoring/operation/types.ts`: `DomainOpKind`
+- `packages/mapgen-core/src/authoring/operation/bindings.ts`: `createDomainOpsSurfaceFromEntries`, `collectCompileOps`
 - `mods/mod-swooper-maps/src/domain/*/contract.ts`
-- `mods/mod-swooper-maps/src/domain/*/ops/contracts.ts`
-- `mods/mod-swooper-maps/src/domain/*/ops/index.ts`
+- `mods/mod-swooper-maps/src/domain/*/modules/*/contract.ts`
+- `mods/mod-swooper-maps/src/domain/*/{index,router}.ts`
 
 Constructible claim:
 - Domains and operations are constructible as typed contracts with strategy-backed implementations. The op taxonomy is `plan`, `compute`, `score`, and `select`; comments reserve adapter reads, engine writes, buffer mutation, and artifact publication for steps.

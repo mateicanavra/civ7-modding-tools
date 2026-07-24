@@ -1,11 +1,16 @@
-import type { Artifact } from "./artifact/contract.js";
-import { assertStageIds } from "./stage/identity.js";
+import type { Artifact } from "../artifact/contract.js";
+import { assertStageIds } from "../stage/identity.js";
 
+/** JSON-safe identity for one artifact participating in a recipe dependency graph. */
 export type RecipeDagArtifactRef = Readonly<{
   id: string;
   name: string;
 }>;
 
+/**
+ * Contract-only projection of one authored step in deterministic recipe order.
+ * Artifact arrays define graph edges; dependency tags remain descriptive metadata.
+ */
 export type RecipeDagStep = Readonly<{
   stageId: string;
   stepId: string;
@@ -18,6 +23,7 @@ export type RecipeDagStep = Readonly<{
   tagProvides: readonly string[];
 }>;
 
+/** Ordered stage projection with its aggregate artifact edges and unresolved diagnostic count. */
 export type RecipeDagStage = Readonly<{
   stageId: string;
   order: number;
@@ -30,12 +36,14 @@ export type RecipeDagStage = Readonly<{
   diagnosticCount: number;
 }>;
 
+/** Stable stage and step identity used at either end of a projected artifact edge. */
 export type RecipeDagEndpoint = Readonly<{
   stageId: string;
   stepId: string;
   fullStepId: string;
 }>;
 
+/** Directed artifact dependency between two authored step endpoints. */
 export type RecipeDagEdge = Readonly<{
   id: string;
   artifact: RecipeDagArtifactRef;
@@ -44,6 +52,10 @@ export type RecipeDagEdge = Readonly<{
   internal: boolean;
 }>;
 
+/**
+ * Unresolved artifact relationship retained for tooling instead of being repaired or hidden.
+ * Diagnostics identify missing providers, duplicate providers, and unused provisions.
+ */
 export type RecipeDagDiagnostic = Readonly<
   | {
       kind: "artifact-provider-missing";
@@ -63,6 +75,7 @@ export type RecipeDagDiagnostic = Readonly<
     }
 >;
 
+/** JSON-safe, authored-order recipe graph projected solely from contract metadata. */
 export type RecipeDag = Readonly<{
   recipeId: string;
   recipeKey: string;
@@ -73,6 +86,10 @@ export type RecipeDag = Readonly<{
   diagnostics: readonly RecipeDagDiagnostic[];
 }>;
 
+/**
+ * Least contract metadata accepted for one DAG step projection.
+ * Artifact declarations create edges; generic requires/provides tags are copied as metadata only.
+ */
 export type RecipeDagStepContractInput = Readonly<{
   id: string;
   requires: readonly string[];
@@ -83,11 +100,16 @@ export type RecipeDagStepContractInput = Readonly<{
   }>;
 }>;
 
+/** Authored stage identity and ordered contract-only step inputs accepted by DAG projection. */
 export type RecipeDagStageInput = Readonly<{
   id: string;
   steps: readonly Readonly<{ contract: RecipeDagStepContractInput }>[];
 }>;
 
+/**
+ * Complete recipe identity and authored stage order required to build a JSON-safe DAG.
+ * Optional presentation identity never changes graph topology or diagnostic resolution.
+ */
 export type BuildRecipeDagInput = Readonly<{
   recipeId: string;
   namespace?: string;
@@ -111,7 +133,8 @@ type StageAccumulator = {
 
 /**
  * Projects an authored recipe into its exact stage/step dependency graph.
- * Stage identity comes only from recipe composition; artifact diagnostics describe the same graph.
+ * Authored order remains authoritative, artifact contracts alone create edges, and unresolved
+ * relationships remain diagnostics rather than prompting inferred topology.
  */
 export function buildRecipeDag(input: BuildRecipeDagInput): RecipeDag {
   assertStageIds(input.stages.map((stage) => stage.id));

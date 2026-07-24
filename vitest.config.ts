@@ -76,7 +76,7 @@ export default defineConfig({
             },
             {
               find: /^@swooper\/mapgen-core\/authoring\/recipe-dag$/,
-              replacement: r("packages/mapgen-core/src/authoring/recipe-dag.ts"),
+              replacement: r("packages/mapgen-core/src/authoring/recipe/dag.ts"),
             },
             {
               find: /^@swooper\/mapgen-core\/authoring\/contracts$/,

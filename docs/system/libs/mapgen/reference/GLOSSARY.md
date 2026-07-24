@@ -45,6 +45,6 @@ Legacy specs may call `MapSetup` either `RunSettings` or `Env`; current code and
 ## Ground truth anchors
 
 - RecipeV2 and RunRequest schemas: `packages/mapgen-core/src/engine/execution-plan.ts`
-- `createRecipe(...)` authoring surface: `packages/mapgen-core/src/authoring/recipe.ts`
+- `createRecipe(...)` authoring surface: `packages/mapgen-core/src/authoring/recipe/create.ts`
 - TagRegistry and StepRegistry: `packages/mapgen-core/src/engine/tags.ts`, `packages/mapgen-core/src/engine/StepRegistry.ts`
 - Policies: `docs/system/libs/mapgen/policies/POLICIES.md`

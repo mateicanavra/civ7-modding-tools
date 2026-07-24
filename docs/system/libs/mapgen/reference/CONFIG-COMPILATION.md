@@ -67,6 +67,6 @@ Config compilation throws `RecipeCompileError` with a list of structured error i
 
 - Config compilation: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Exact validation and op normalization: `packages/mapgen-core/src/compiler/normalize.ts`
-- Authoring surface that calls compilation: `packages/mapgen-core/src/authoring/recipe.ts`
+- Authoring surface that calls compilation: `packages/mapgen-core/src/authoring/recipe/create.ts`
 - Complete-config policy: `docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`
 - Policy: compilation vs execution split: `docs/system/libs/mapgen/policies/CONFIG-VS-PLAN-COMPILATION.md`

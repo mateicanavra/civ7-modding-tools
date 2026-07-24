@@ -89,17 +89,10 @@ export {
   defineStrategy,
   OperationInputAdmissionError,
 } from "./operation/index.js";
-export { deriveRecipeConfigSchema } from "./recipe/config-schema.js";
-export type {
-  CompiledRecipeConfigOf,
-  RecipeConfig,
-  RecipeDefinition,
-  RecipeModule,
-  RecipePublicConfigOf,
-} from "./recipe/types.js";
-export { createRecipe } from "./recipe.js";
 export type {
   BuildRecipeDagInput,
+  CompiledRecipeConfigOf,
+  RecipeConfig,
   RecipeDag,
   RecipeDagArtifactRef,
   RecipeDagDiagnostic,
@@ -109,9 +102,11 @@ export type {
   RecipeDagStageInput,
   RecipeDagStep,
   RecipeDagStepContractInput,
-} from "./recipe-dag.js";
-export { buildRecipeDag } from "./recipe-dag.js";
-export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
+  RecipeDefinition,
+  RecipeModule,
+  RecipePublicConfigOf,
+} from "./recipe/index.js";
+export { buildRecipeDag, createRecipe, deriveRecipeConfigSchema } from "./recipe/index.js";
 export {
   assertFloat32Array,
   assertInt8Array,

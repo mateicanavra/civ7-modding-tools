@@ -169,7 +169,7 @@ topology by sorting or repairing the authored recipe.
 - Step module creation: `packages/mapgen-core/src/authoring/step/create.ts`
 - Artifact runtime implementation: `packages/mapgen-core/src/authoring/artifact/runtime.ts`
 - Config compilation uses StageContractAny/StepModuleAny: `packages/mapgen-core/src/compiler/recipe-compile.ts`
-- Recipe DAG projection: `packages/mapgen-core/src/authoring/recipe-dag.ts`
+- Recipe DAG projection: `packages/mapgen-core/src/authoring/recipe/dag.ts`
 - Policy: schemas and validation: `docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`
 - Example step config (contract + artifacts): `mods/mod-swooper-maps/src/recipes/standard/stages/map/rivers/steps/plot-rivers/config.ts`
 - Example step module (createStep boundary): `mods/mod-swooper-maps/src/recipes/standard/stages/map/rivers/steps/plot-rivers/step.ts`

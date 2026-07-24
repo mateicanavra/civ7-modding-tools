@@ -31,9 +31,11 @@ complete authored-configuration admission, and exact typed-array identity now
 share the schema owner, while recipe-specific surface projection remains with
 the recipe. Stage creation, identity, and authoring metadata now share the stage
 owner; its public facade exposes the supported stage surface while recipe
-composition alone uses the multi-stage identity assertion. The remaining three
-topology diagnostics are the next migration inventory rather than a reason to
-reopen those sealed boundaries.
+composition alone uses the multi-stage identity assertion. Recipe creation,
+public-config projection, contract-only DAG projection, and recipe types now
+share one explicit owner facade while the published recipe-DAG specifier stays
+stable. Dead root-schema sanitization retired rather than moving forward. The
+closed authoring-root grammar now has no migration inventory left to accommodate.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7

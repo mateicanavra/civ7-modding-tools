@@ -16,15 +16,27 @@ import {
   TagRegistry,
 } from "@mapgen/engine/index.js";
 import type { ReadonlyDeep } from "type-fest";
-import { compileRecipeConfig } from "../compiler/recipe-compile.js";
-import { assertExecutionPlanRegistryInternal } from "../engine/execution-plan.js";
+import { compileRecipeConfig } from "../../compiler/recipe-compile.js";
+import { assertExecutionPlanRegistryInternal } from "../../engine/execution-plan.js";
 import {
   type InternalDependencyTagDefinition,
   registerDependencyTagsInternal,
-} from "../engine/tags.js";
-import { type Artifact, isArtifact } from "./artifact/contract.js";
-import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./operation/bindings.js";
-import { isCanonicalDomainOp } from "./operation/create.js";
+} from "../../engine/tags.js";
+import { type Artifact, isArtifact } from "../artifact/contract.js";
+import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "../operation/bindings.js";
+import { isCanonicalDomainOp } from "../operation/create.js";
+import { assertStageIds } from "../stage/identity.js";
+import type { StageObservation } from "../stage/types.js";
+import {
+  copyCanonicalStepAuthorityInternal,
+  isCanonicalStepContractInternal,
+  isCanonicalStepInternal,
+} from "../step/authority.js";
+import {
+  buildDeclaredStepDependencies,
+  resolveProvidedArtifactRuntimeInternal,
+} from "../step/dependencies.js";
+import { copyStepProviderRuntimesInternal } from "../step/provider-runtimes.js";
 import type {
   CompiledRecipeConfigOf,
   RecipeAsyncExecutionOptions,
@@ -32,19 +44,7 @@ import type {
   RecipeExecutionOptions,
   RecipeModule,
   RecipePublicConfigOf,
-} from "./recipe/types.js";
-import { assertStageIds } from "./stage/identity.js";
-import type { StageObservation } from "./stage/types.js";
-import {
-  copyCanonicalStepAuthorityInternal,
-  isCanonicalStepContractInternal,
-  isCanonicalStepInternal,
-} from "./step/authority.js";
-import {
-  buildDeclaredStepDependencies,
-  resolveProvidedArtifactRuntimeInternal,
-} from "./step/dependencies.js";
-import { copyStepProviderRuntimesInternal } from "./step/provider-runtimes.js";
+} from "./types.js";
 
 type AnyStage = StageObservation;
 

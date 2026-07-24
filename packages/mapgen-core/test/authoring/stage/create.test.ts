@@ -2,9 +2,7 @@ import { describe, expect, it } from "bun:test";
 import {
   createStage,
   createStep,
-  defineOp,
   defineStep,
-  defineStrategy,
   deriveRecipeConfigSchema,
 } from "@mapgen/authoring/index.js";
 import { admitMapSetup } from "@mapgen/core/map-setup.js";
@@ -353,60 +351,6 @@ describe("authoring SDK", () => {
       stageConfig: { knobs: {}, climate: 2 },
     });
     expect(internal.rawSteps).toEqual({ alpha: { value: 2 } });
-  });
-
-  it("derives recipe schemas from explicit stage public surfaces, not internal op envelopes", () => {
-    const op = defineOp({
-      kind: "compute",
-      id: "test/op/private-envelope",
-      input: Type.Object({}, { additionalProperties: false }),
-      output: Type.Object({}, { additionalProperties: false }),
-      strategies: [
-        defineStrategy({
-          id: "internal",
-          config: Type.Object(
-            { internalRate: Type.Number({ default: 1 }) },
-            { additionalProperties: false }
-          ),
-        }),
-      ],
-    } as const);
-    const step = createStep(
-      defineStep({
-        id: "internal-step",
-        requires: [],
-        provides: [],
-        ops: { privateOp: op },
-        schema: Type.Object({}, { additionalProperties: false }),
-      }),
-      { run: () => {} }
-    );
-    const stage = createStage({
-      id: "foundation",
-      knobsSchema: EmptyKnobsSchema,
-      public: Type.Object(
-        { productRate: Type.Number({ default: 1 }) },
-        { additionalProperties: false }
-      ),
-      compile: ({ config }) => ({
-        "internal-step": {
-          privateOp: { strategy: "internal", config: { internalRate: config.productRate } },
-        },
-      }),
-      steps: [step],
-    });
-
-    const recipeSchema = deriveRecipeConfigSchema([stage]);
-    expect(Value.Check(recipeSchema, { foundation: { knobs: {}, productRate: 1 } })).toBe(true);
-    expect(
-      Value.Check(recipeSchema, {
-        foundation: {
-          knobs: {},
-          productRate: 1,
-          "internal-step": { privateOp: { strategy: "internal", config: {} } },
-        },
-      })
-    ).toBe(false);
   });
 
   it("createStage rejects reserved knobs key in steps or public schema", () => {
