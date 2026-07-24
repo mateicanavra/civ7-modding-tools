@@ -4,12 +4,12 @@ import type { NormalizeContext } from "@mapgen/engine/index.js";
 import type { StepFacets } from "@mapgen/engine/step-facets.js";
 import type { Static } from "typebox";
 import { implementArtifacts } from "../artifact/runtime.js";
-import type { StepDeps, StepModule } from "../types.js";
 import { assertCanonicalStepContractInternal, registerCanonicalStepInternal } from "./authority.js";
 import type { StepContract } from "./contract.js";
 import { assertNoStepStageIdentityAliases } from "./identity.js";
 import type { StepRuntimeOps } from "./ops.js";
 import { registerStepProviderRuntimesInternal } from "./provider-runtimes.js";
+import type { StepDeps, StepModule } from "./types.js";
 
 type StepConfigOf<C extends StepContract<any, any, any, any, any>> = Static<C["schema"]>;
 type StepOpsOf<C extends StepContract<any, any, any, any, any>> = StepRuntimeOps<

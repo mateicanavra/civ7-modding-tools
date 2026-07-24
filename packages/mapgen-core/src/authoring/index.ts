@@ -49,20 +49,19 @@ export type {
   DomainAggregateContractAny,
   DomainContract,
   DomainContractAny,
-  DomainSubdomainContract,
-  DomainSubdomainContractAny,
-} from "./domain/index.js";
-export { defineDomain, defineDomainSubdomain } from "./domain/index.js";
-export type {
   DomainModule,
   DomainOpImplementationsForContracts,
   DomainRouter,
+  DomainSubdomainContract,
+  DomainSubdomainContractAny,
   DomainSubdomainRouter,
 } from "./domain/index.js";
 export {
   createDomain,
   createDomainRouter,
   createDomainSubdomainRouter,
+  defineDomain,
+  defineDomainSubdomain,
 } from "./domain/index.js";
 export type {
   AdmittedBuffer,
@@ -93,6 +92,13 @@ export {
   OperationInputAdmissionError,
   opRef,
 } from "./op/index.js";
+export type {
+  CompiledRecipeConfigOf,
+  RecipeConfig,
+  RecipeDefinition,
+  RecipeModule,
+  RecipePublicConfigOf,
+} from "./recipe/types.js";
 export { createRecipe } from "./recipe.js";
 export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
 export type {
@@ -109,6 +115,15 @@ export type {
 } from "./recipe-dag.js";
 export { buildRecipeDag } from "./recipe-dag.js";
 export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
+export type {
+  Stage,
+  StageAuthoringConfigLayer,
+  StageAuthoringModel,
+  StageAuthoringRuntimeStep,
+  StageContractAny,
+  StageModule,
+  StageObservation,
+} from "./stage/types.js";
 export { createStage, deriveStageAuthoringModel } from "./stage.js";
 export { assertStageId, StageIdSchema } from "./stage-id.js";
 export type {
@@ -119,6 +134,11 @@ export type {
   StepRuntimeOps,
 } from "./step/index.js";
 export { createStep, defineStep } from "./step/index.js";
+export type {
+  Step,
+  StepDeps,
+  StepModule,
+} from "./step/types.js";
 export { TypedArraySchemas } from "./typed-array-schemas.js";
 export {
   assertFloat32Array,
@@ -138,20 +158,3 @@ export {
   isUint16Array,
   isUint32Array,
 } from "./typed-arrays.js";
-export type {
-  CompiledRecipeConfigOf,
-  RecipeConfig,
-  RecipeDefinition,
-  RecipeModule,
-  RecipePublicConfigOf,
-  Stage,
-  StageAuthoringConfigLayer,
-  StageAuthoringModel,
-  StageAuthoringRuntimeStep,
-  StageContractAny,
-  StageModule,
-  StageObservation,
-  Step,
-  StepDeps,
-  StepModule,
-} from "./types.js";

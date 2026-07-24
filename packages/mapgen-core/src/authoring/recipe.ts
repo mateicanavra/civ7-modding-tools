@@ -22,9 +22,18 @@ import {
   type InternalDependencyTagDefinition,
   registerDependencyTagsInternal,
 } from "../engine/tags.js";
-import { isArtifact, type Artifact } from "./artifact/contract.js";
+import { type Artifact, isArtifact } from "./artifact/contract.js";
 import { bindRuntimeOps, type DomainOpRuntimeAny, runtimeOp } from "./bindings.js";
 import { isCanonicalDomainOp } from "./op/create.js";
+import type {
+  CompiledRecipeConfigOf,
+  RecipeAsyncExecutionOptions,
+  RecipeDefinition,
+  RecipeExecutionOptions,
+  RecipeModule,
+  RecipePublicConfigOf,
+} from "./recipe/types.js";
+import type { StageObservation } from "./stage/types.js";
 import { assertStageIds } from "./stage.js";
 import {
   copyCanonicalStepAuthorityInternal,
@@ -36,15 +45,6 @@ import {
   resolveProvidedArtifactRuntimeInternal,
 } from "./step/dependencies.js";
 import { copyStepProviderRuntimesInternal } from "./step/provider-runtimes.js";
-import type {
-  CompiledRecipeConfigOf,
-  RecipeAsyncExecutionOptions,
-  RecipeDefinition,
-  RecipeExecutionOptions,
-  RecipeModule,
-  RecipePublicConfigOf,
-  StageObservation,
-} from "./types.js";
 
 type AnyStage = StageObservation;
 

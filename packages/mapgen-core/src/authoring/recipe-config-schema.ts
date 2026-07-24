@@ -25,7 +25,7 @@ import {
 import { Guard } from "typebox/guard";
 import { IsDefault } from "typebox/schema";
 
-import type { StageObservation } from "./types.js";
+import type { StageObservation } from "./stage/types.js";
 
 type StageLike = Pick<StageObservation, "id" | "surfaceSchema">;
 

@@ -21,6 +21,9 @@ export type DomainOpCompileAny = DomainOp<
   string
 >;
 
+/** @internal Flat compile-operation registry shared by recipe authorship and compilation. */
+export type CompileOpsById = OpsById<DomainOpCompileAny>;
+
 type BivariantFn<Args extends unknown[], R> = {
   bivarianceHack(...args: Args): R;
 }["bivarianceHack"];

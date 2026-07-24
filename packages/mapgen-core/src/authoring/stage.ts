@@ -10,16 +10,17 @@ import {
 import { Value } from "typebox/value";
 import { assertCompleteRecipeConfigSchema } from "./recipe-config-schema.js";
 import { applySchemaConventions } from "./schema.js";
-import { assertStageId } from "./stage-id.js";
+import { RESERVED_STAGE_KEY } from "./stage/reserved-key.js";
 import {
   type EmptyStageConfig,
-  RESERVED_STAGE_KEY,
   type StageAuthoringModel,
   type StageContract,
   type StageDef,
   type StageObservation,
+  type StageStepList,
   type StageToInternalResult,
-} from "./types.js";
+} from "./stage/types.js";
+import { assertStageId } from "./stage-id.js";
 
 function assertSchema(value: unknown, stepId?: string, stageId?: string): void {
   if (value == null) {
@@ -183,16 +184,9 @@ function buildStageAuthoringModel(args: {
   };
 }
 
-type StepsArray = readonly Readonly<{
-  contract: Readonly<{
-    id: string;
-    schema: TSchema;
-  }>;
-}>[];
-
 type RuntimeStageDefinition = Readonly<{
   id: string;
-  steps: StepsArray;
+  steps: StageStepList;
   knobsSchema?: TObject;
   public?: TObject;
   compile?: unknown;
@@ -202,7 +196,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function hasClosedEmptyStepConfig(step: StepsArray[number]): boolean {
+function hasClosedEmptyStepConfig(step: StageStepList[number]): boolean {
   const schema = step.contract.schema;
   const patternProperties = IsObject(schema) ? ObjectOptions(schema).patternProperties : undefined;
   return (
@@ -235,7 +229,10 @@ function compileStage(
  * from authored configuration while compilation and normalization receive one frozen empty value.
  * Internal stages with authored step fields pass those fields through without another authority.
  */
-export function createStage<const Id extends string, const TSteps extends StepsArray = StepsArray>(
+export function createStage<
+  const Id extends string,
+  const TSteps extends StageStepList = StageStepList,
+>(
   def: StageDef<Id, undefined, TSteps, undefined, false> & {
     knobsSchema?: undefined;
     public?: undefined;
@@ -246,7 +243,7 @@ export function createStage<const Id extends string, const TSteps extends StepsA
 export function createStage<
   const Id extends string,
   const KnobsSchema extends TObject,
-  const TSteps extends StepsArray = StepsArray,
+  const TSteps extends StageStepList = StageStepList,
 >(
   def: StageDef<Id, KnobsSchema, TSteps, undefined, false> & {
     public?: undefined;
@@ -254,7 +251,10 @@ export function createStage<
   }
 ): StageContract<Id, KnobsSchema, TSteps, undefined, false>;
 
-export function createStage<const Id extends string, const TSteps extends StepsArray = StepsArray>(
+export function createStage<
+  const Id extends string,
+  const TSteps extends StageStepList = StageStepList,
+>(
   def: StageDef<Id, undefined, TSteps, undefined, true> & {
     knobsSchema?: undefined;
     public?: undefined;
@@ -264,7 +264,7 @@ export function createStage<const Id extends string, const TSteps extends StepsA
 export function createStage<
   const Id extends string,
   const KnobsSchema extends TObject,
-  const TSteps extends StepsArray = StepsArray,
+  const TSteps extends StageStepList = StageStepList,
 >(
   def: StageDef<Id, KnobsSchema, TSteps, undefined, true> & {
     public?: undefined;
@@ -275,7 +275,7 @@ export function createStage<
   const Id extends string,
   const KnobsSchema extends TObject,
   const PublicSchema extends TObject,
-  const TSteps extends StepsArray = StepsArray,
+  const TSteps extends StageStepList = StageStepList,
 >(
   def: StageDef<Id, KnobsSchema, TSteps, PublicSchema, true> & {
     public: PublicSchema;
@@ -285,7 +285,7 @@ export function createStage<
 export function createStage<
   const Id extends string,
   const PublicSchema extends TObject,
-  const TSteps extends StepsArray = StepsArray,
+  const TSteps extends StageStepList = StageStepList,
 >(
   def: StageDef<Id, undefined, TSteps, PublicSchema, true> & {
     knobsSchema?: undefined;

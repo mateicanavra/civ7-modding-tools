@@ -23,6 +23,9 @@ directory a red corpus. The burn-down will relocate each implementation to its
 conceptual owner while keeping public package specifiers stable; component
 internals remain open until their own shapes are actually settled. No generic
 blueprint changes or instance-shaped exceptions are admitted in this layer.
+The domain contract/router cluster and the step/stage/recipe type owners now
+conform; the remaining red corpus is the next migration inventory rather than
+a reason to reopen those sealed boundaries.
 
 **Stable ownership:** Swooper domains own their semantic modules and immutable
 data-product contracts; recipes own orchestration and publication; live Civ7

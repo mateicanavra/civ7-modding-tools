@@ -13,9 +13,9 @@ import {
   type ProvidedArtifactRuntime,
   type RequiredArtifactRuntime,
 } from "../artifact/runtime.js";
-import type { StepDeps } from "../types.js";
 import type { StepArtifactsDeclAny, StepEngineDecl } from "./contract.js";
 import { readStepProviderRuntimesInternal } from "./provider-runtimes.js";
+import type { StepDeps } from "./types.js";
 
 type DeclaredStep<
   Artifacts extends StepArtifactsDeclAny | undefined,
