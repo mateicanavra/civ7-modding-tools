@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import ecology from "@mapgen/domain/ecology/ops";
+import ecology from "@mapgen/domain/ecology/router";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 
 // Deep-rainforest hazard: the jungle channel emits only jungle-fever intent.
@@ -11,13 +11,13 @@ const size = width * height;
 describe("plot effects (jungle / jungle fever hazard)", () => {
   it("places jungle-fever intent on eligible jungle tiles by top-coverage", () => {
     const planSelection = normalizeOperationSelectionForTest(
-      ecology.ops.planPlotEffects,
+      ecology.plotEffects.ops.planPlotEffects,
       {
-        ...ecology.ops.planPlotEffects.defaultConfig,
+        ...ecology.plotEffects.ops.planPlotEffects.defaultConfig,
         config: {
-          ...ecology.ops.planPlotEffects.defaultConfig.config,
+          ...ecology.plotEffects.ops.planPlotEffects.defaultConfig.config,
           jungle: {
-            ...ecology.ops.planPlotEffects.defaultConfig.config.jungle,
+            ...ecology.plotEffects.ops.planPlotEffects.defaultConfig.config.jungle,
             enabled: true,
             coveragePct: 100,
           },
@@ -29,7 +29,7 @@ describe("plot effects (jungle / jungle fever hazard)", () => {
     const jungleScore01 = new Float32Array([0.9, 0.8, 0.7, 0.6]);
     const jungleEligibleMask = new Uint8Array(size).fill(1);
 
-    const result = ecology.ops.planPlotEffects.run(
+    const result = ecology.plotEffects.ops.planPlotEffects.run(
       {
         width,
         height,

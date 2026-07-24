@@ -1,4 +1,5 @@
-import ecology, { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import ecology from "@mapgen/domain/ecology";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
@@ -18,10 +19,10 @@ export const PedologyStepContract = defineStep({
       morphologyArtifacts.substrate,
       hydrologyArtifacts.climateField,
     ],
-    provides: [ecologyArtifacts.pedology],
+    provides: [pedologyArtifacts.pedology],
   },
   ops: {
-    classify: ecology.ops.classifyPedology,
+    classify: ecology.pedology.ops.classifyPedology,
   },
   schema: Type.Object(
     {},

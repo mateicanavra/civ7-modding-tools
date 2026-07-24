@@ -1,4 +1,7 @@
-import { default as ecology, artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import ecology from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
@@ -15,8 +18,8 @@ export const ScoreLayersStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      ecologyArtifacts.biomeClassification,
-      ecologyArtifacts.pedology,
+      biomeArtifacts.biomeClassification,
+      pedologyArtifacts.pedology,
       hydrologyArtifacts.climateIndices,
       hydrologyArtifacts.hydrography,
       hydrologyArtifacts.lakePlan,
@@ -26,26 +29,26 @@ export const ScoreLayersStepContract = defineStep({
       morphologyArtifacts.mountains,
       morphologyArtifacts.volcanoes,
     ],
-    provides: [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase],
+    provides: [featureArtifacts.scoreLayers, featureArtifacts.occupancyBase],
   },
   ops: {
-    vegetationSubstrate: ecology.ops.computeVegetationSubstrate,
-    featureSubstrate: ecology.ops.computeFeatureSubstrate,
-    scoreForest: ecology.ops.scoreVegetationForest,
-    scoreRainforest: ecology.ops.scoreVegetationRainforest,
-    scoreTaiga: ecology.ops.scoreVegetationTaiga,
-    scoreSavannaWoodland: ecology.ops.scoreVegetationSavannaWoodland,
-    scoreSagebrushSteppe: ecology.ops.scoreVegetationSagebrushSteppe,
-    scoreWetMarsh: ecology.ops.scoreWetMarsh,
-    scoreWetTundraBog: ecology.ops.scoreWetTundraBog,
-    scoreWetMangrove: ecology.ops.scoreWetMangrove,
-    scoreWetOasis: ecology.ops.scoreWetOasis,
-    scoreWetWateringHole: ecology.ops.scoreWetWateringHole,
-    scoreReef: ecology.ops.scoreReef,
-    scoreColdReef: ecology.ops.scoreColdReef,
-    scoreReefAtoll: ecology.ops.scoreReefAtoll,
-    scoreReefLotus: ecology.ops.scoreReefLotus,
-    scoreIce: ecology.ops.scoreIce,
+    vegetationSubstrate: ecology.features.ops.computeVegetationSubstrate,
+    featureSubstrate: ecology.features.ops.computeFeatureSubstrate,
+    scoreForest: ecology.features.ops.scoreVegetationForest,
+    scoreRainforest: ecology.features.ops.scoreVegetationRainforest,
+    scoreTaiga: ecology.features.ops.scoreVegetationTaiga,
+    scoreSavannaWoodland: ecology.features.ops.scoreVegetationSavannaWoodland,
+    scoreSagebrushSteppe: ecology.features.ops.scoreVegetationSagebrushSteppe,
+    scoreWetMarsh: ecology.features.ops.scoreWetMarsh,
+    scoreWetTundraBog: ecology.features.ops.scoreWetTundraBog,
+    scoreWetMangrove: ecology.features.ops.scoreWetMangrove,
+    scoreWetOasis: ecology.features.ops.scoreWetOasis,
+    scoreWetWateringHole: ecology.features.ops.scoreWetWateringHole,
+    scoreReef: ecology.features.ops.scoreReef,
+    scoreColdReef: ecology.features.ops.scoreColdReef,
+    scoreReefAtoll: ecology.features.ops.scoreReefAtoll,
+    scoreReefLotus: ecology.features.ops.scoreReefLotus,
+    scoreIce: ecology.features.ops.scoreIce,
   },
   schema: Type.Object(
     {},

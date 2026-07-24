@@ -5,7 +5,8 @@ import {
   getEngineFeatureLegality,
   resolveResourceRuntimeIds,
 } from "@civ7/map-policy";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import {
   artifacts as hydrologyArtifacts,
   RiverNetworkMeasurementsSchema,
@@ -32,7 +33,7 @@ import { defineStandardMapMetricScenario, type StandardMapMetricScenario } from 
 
 type Volcanoes = ArtifactReadValueOf<typeof morphologyArtifacts.volcanoes>;
 type Landmasses = ArtifactReadValueOf<typeof morphologyArtifacts.landmasses>;
-type Pedology = ArtifactReadValueOf<typeof ecologyArtifacts.pedology>;
+type Pedology = ArtifactReadValueOf<typeof pedologyArtifacts.pedology>;
 type RiverNetworkMeasurements = Static<typeof RiverNetworkMeasurementsSchema>;
 type ProjectedNavigableRivers = ArtifactReadValueOf<
   typeof mapRiversArtifacts.projectedNavigableRivers
@@ -317,8 +318,8 @@ function copyCompletedRun(
     height,
     navigableRiverValue.riverMask
   );
-  const biomeValue = readValidatedArtifact(context, ecologyArtifacts.biomeClassification);
-  const pedologyValue = readValidatedArtifact(context, ecologyArtifacts.pedology);
+  const biomeValue = readValidatedArtifact(context, biomeArtifacts.biomeClassification);
+  const pedologyValue = readValidatedArtifact(context, pedologyArtifacts.pedology);
   const featureDiagnosticsValue = readValidatedArtifact(
     context,
     mapEcologyArtifacts.featureApplyDiagnostics

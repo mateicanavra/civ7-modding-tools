@@ -26,10 +26,12 @@ A step contract defines:
 
 Representative example (dependency tags + artifact requirements; excerpt; see full file in anchors):
 
-The example reflects the current transitional `@mapgen/domain/*` alias. Use
-only its admitted domain root or `/ops` surface while the active package
-ownership migration removes the alias; do not add new alias mappings or deep
-imports.
+The `@mapgen/domain/*` alias is the current mod-local domain surface. Contract
+authors consume the pure root contract and the exact producing module's
+artifact catalog; recipe runtime composition consumes `/router`. A few flat
+domains still expose transitional `/ops` and root artifact catalogs until their
+module migrations land. Do not reproduce those compatibility surfaces in a
+modular domain.
 
 ```ts
 import hydrology, { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";

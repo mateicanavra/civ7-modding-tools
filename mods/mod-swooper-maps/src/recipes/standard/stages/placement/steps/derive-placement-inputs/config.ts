@@ -1,4 +1,5 @@
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import placement from "@mapgen/domain/placement";
@@ -35,8 +36,8 @@ export const DerivePlacementInputsStepContract = defineStep({
       hydrologyArtifacts.hydrography,
       hydrologyArtifacts.riverNetwork,
       hydrologyArtifacts.lakePlan,
-      ecologyArtifacts.biomeClassification,
-      ecologyArtifacts.pedology,
+      biomeArtifacts.biomeClassification,
+      pedologyArtifacts.pedology,
     ],
     provides: [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],
   },

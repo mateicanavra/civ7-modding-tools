@@ -1,8 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
-import ecology from "@mapgen/domain/ecology/ops";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import ecology from "@mapgen/domain/ecology/router";
 import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
@@ -44,19 +45,19 @@ describe("ecology-features plan-wetlands step", () => {
       const layers = createEmptyFeatureScoreLayers(size);
       layers.marsh.fill(1);
 
-      publishTestArtifact(stepContext, ecologyArtifacts.biomeClassification, {
+      publishTestArtifact(stepContext, biomeArtifacts.biomeClassification, {
         width,
         height,
         biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
         vegetationDensity: new Float32Array(size).fill(0.4),
         treeLine01: new Float32Array(size),
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.scoreLayers, {
+      publishTestArtifact(stepContext, featureArtifacts.scoreLayers, {
         width,
         height,
         layers,
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.occupancyReefs, {
+      publishTestArtifact(stepContext, featureArtifacts.occupancyReefs, {
         width,
         height,
         featureOccupancyMask: new Uint8Array(size),
@@ -105,19 +106,19 @@ describe("ecology-features plan-wetlands step", () => {
 
       const config = {
         planWetlands: normalizeOperationSelectionForTest(
-          ecology.ops.planWetlands,
-          ecology.ops.planWetlands.defaultConfig
+          ecology.features.ops.planWetlands,
+          ecology.features.ops.planWetlands.defaultConfig
         ),
       };
-      const ops = ecology.ops.bind(planWetlandsStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(planWetlandsStep.contract.ops!).runtime;
       planWetlandsStep.run(stepContext, config, ops, buildStepTestDependencies(planWetlandsStep));
     });
 
-    const intents = readValidatedArtifact(ctx, ecologyArtifacts.featureIntentsWetlands);
+    const intents = readValidatedArtifact(ctx, featureArtifacts.featureIntentsWetlands);
     expect(Array.isArray(intents)).toBe(true);
     expect(intents.length).toBeGreaterThan(0);
 
-    const occupancy = readValidatedArtifact(ctx, ecologyArtifacts.occupancyWetlands);
+    const occupancy = readValidatedArtifact(ctx, featureArtifacts.occupancyWetlands);
     expect(occupancy.width).toBe(width);
     expect(occupancy.height).toBe(height);
     expect(occupancy.featureOccupancyMask instanceof Uint8Array).toBe(true);

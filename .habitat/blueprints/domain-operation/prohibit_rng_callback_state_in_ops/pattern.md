@@ -13,6 +13,6 @@ or {
   contains "options.rng",
   contains r"\bctx\.rng\b"
 } where {
-  $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/.*\.ts$"
+  $filename <: r".*mods/[^/]+/src/domain/.+/ops/.+\.ts$"
 }
 ```

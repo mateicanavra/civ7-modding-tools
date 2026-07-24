@@ -1,8 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology/model/schemas/index.js";
-import ecology from "@mapgen/domain/ecology/ops";
+import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import ecology from "@mapgen/domain/ecology/router";
 import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
@@ -44,18 +45,18 @@ describe("ecology-features plan-vegetation step", () => {
       const layers = createEmptyFeatureScoreLayers(size);
       layers.forest.fill(1);
 
-      publishTestArtifact(stepContext, ecologyArtifacts.scoreLayers, {
+      publishTestArtifact(stepContext, featureArtifacts.scoreLayers, {
         width,
         height,
         layers,
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.occupancyWetlands, {
+      publishTestArtifact(stepContext, featureArtifacts.occupancyWetlands, {
         width,
         height,
         featureOccupancyMask: new Uint8Array(size),
         reserved: new Uint8Array(size),
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.biomeClassification, {
+      publishTestArtifact(stepContext, biomeArtifacts.biomeClassification, {
         width,
         height,
         biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
@@ -112,11 +113,11 @@ describe("ecology-features plan-vegetation step", () => {
 
       const config = {
         planVegetation: normalizeOperationSelectionForTest(
-          ecology.ops.planVegetation,
-          ecology.ops.planVegetation.defaultConfig
+          ecology.features.ops.planVegetation,
+          ecology.features.ops.planVegetation.defaultConfig
         ),
       };
-      const ops = ecology.ops.bind(planVegetationStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(planVegetationStep.contract.ops!).runtime;
       planVegetationStep.run(
         stepContext,
         config,
@@ -125,7 +126,7 @@ describe("ecology-features plan-vegetation step", () => {
       );
     });
 
-    const intents = readValidatedArtifact(ctx, ecologyArtifacts.featureIntentsVegetation);
+    const intents = readValidatedArtifact(ctx, featureArtifacts.featureIntentsVegetation);
     expect(Array.isArray(intents)).toBe(true);
     expect(intents.length).toBeGreaterThan(0);
   });

@@ -1,19 +1,7 @@
-import { defineDomain } from "@swooper/mapgen-core/authoring/contracts";
-
-import ops from "./ops/contract.js";
-
-const domain = defineDomain({ id: "ecology", ops } as const);
-
-export { artifacts } from "./artifacts/index.js";
-
-export default domain;
-
-export type { PlotEffectIntentKey } from "./model/schemas/index.js";
+export { default } from "./contract.js";
 export {
   BIOME_SYMBOL_ORDER,
   BIOME_SYMBOL_TO_INDEX,
   type BiomeSymbol,
   biomeSymbolFromIndex,
-  PLOT_EFFECT_INTENT_KEYS,
-  PlotEffectIntentKeySchema,
-} from "./model/schemas/index.js";
+} from "./model/atoms/index.js";

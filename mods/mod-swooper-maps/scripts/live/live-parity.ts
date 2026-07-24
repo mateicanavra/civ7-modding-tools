@@ -17,7 +17,7 @@ import {
   snapshotRunInGameExactAuthorshipEvidence,
 } from "@civ7/studio-contract";
 import type { StudioRunGenerationManifest } from "@civ7/studio-run-workspace";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
 import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import {
@@ -645,11 +645,11 @@ export function runLocalFinalSurfaceSnapshot(
     if (event.data.type === "naturalWonder.planInput") evidence.naturalWonderPlanInput = event.data;
   }
   evidence.featureIntents = {
-    floodplains: observeArtifact(context, ecologyArtifacts.featureIntentsFloodplains),
-    vegetation: observeArtifact(context, ecologyArtifacts.featureIntentsVegetation),
-    wetlands: observeArtifact(context, ecologyArtifacts.featureIntentsWetlands),
-    reefs: observeArtifact(context, ecologyArtifacts.featureIntentsReefs),
-    ice: observeArtifact(context, ecologyArtifacts.featureIntentsIce),
+    floodplains: observeArtifact(context, featureArtifacts.featureIntentsFloodplains),
+    vegetation: observeArtifact(context, featureArtifacts.featureIntentsVegetation),
+    wetlands: observeArtifact(context, featureArtifacts.featureIntentsWetlands),
+    reefs: observeArtifact(context, featureArtifacts.featureIntentsReefs),
+    ice: observeArtifact(context, featureArtifacts.featureIntentsIce),
   };
   const featureApplyDiagnostics = observeArtifact(
     context,

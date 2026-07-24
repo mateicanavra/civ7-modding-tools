@@ -1,7 +1,7 @@
 import {
   FEATURE_INTENT_KEYS,
   type FeatureIntentKey,
-} from "@mapgen/domain/ecology/model/schemas/index.js";
+} from "@mapgen/domain/ecology/modules/features/model/atoms/index.js";
 
 /** Complete feature-intent score surface used by ecology-feature step fixtures. */
 export type TestFeatureScoreLayers = Record<FeatureIntentKey, Float32Array>;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import ecology from "@mapgen/domain/ecology/ops";
+import { artifacts as featureArtifacts } from "@mapgen/domain/ecology/modules/features/artifacts/index.js";
+import ecology from "@mapgen/domain/ecology/router";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
 import { observeValidatedArtifact, readValidatedArtifact } from "@swooper/mapgen-core/authoring";
@@ -39,23 +39,23 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
         });
 
         const vegetationIntent = { x: 0, y: 0, feature: "forest" } as const;
-        publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsVegetation, [
+        publishTestArtifact(stepContext, featureArtifacts.featureIntentsVegetation, [
           vegetationIntent,
         ]);
         // Simulate corrupted external evidence without widening the closed authored feature type.
         Reflect.set(vegetationIntent, "feature", "FEATURE_DOES_NOT_EXIST");
-        publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsWetlands, []);
-        publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsFloodplains, []);
-        publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsReefs, []);
-        publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsIce, []);
+        publishTestArtifact(stepContext, featureArtifacts.featureIntentsWetlands, []);
+        publishTestArtifact(stepContext, featureArtifacts.featureIntentsFloodplains, []);
+        publishTestArtifact(stepContext, featureArtifacts.featureIntentsReefs, []);
+        publishTestArtifact(stepContext, featureArtifacts.featureIntentsIce, []);
 
         const config = {
           apply: normalizeOperationSelectionForTest(
-            ecology.ops.applyFeatures,
-            ecology.ops.applyFeatures.defaultConfig
+            ecology.features.ops.applyFeatures,
+            ecology.features.ops.applyFeatures.defaultConfig
           ),
         };
-        const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
+        const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!).runtime;
         featuresApplyStep.run(
           stepContext,
           config,
@@ -95,21 +95,21 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
         bathymetry: new Int16Array(width * height),
       });
 
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsVegetation, [
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsVegetation, [
         { x: 0, y: 0, feature: "forest" },
       ]);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsWetlands, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsFloodplains, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsReefs, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsIce, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsWetlands, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsFloodplains, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsReefs, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsIce, []);
 
       const config = {
         apply: normalizeOperationSelectionForTest(
-          ecology.ops.applyFeatures,
-          ecology.ops.applyFeatures.defaultConfig
+          ecology.features.ops.applyFeatures,
+          ecology.features.ops.applyFeatures.defaultConfig
         ),
       };
-      const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!).runtime;
 
       expect(() =>
         featuresApplyStep.run(
@@ -169,21 +169,21 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
         landMask: new Uint8Array(width * height).fill(1),
         bathymetry: new Int16Array(width * height),
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsVegetation, [
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsVegetation, [
         { x: 0, y: 0, feature: "forest" },
       ]);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsWetlands, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsFloodplains, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsReefs, []);
-      publishTestArtifact(stepContext, ecologyArtifacts.featureIntentsIce, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsWetlands, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsFloodplains, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsReefs, []);
+      publishTestArtifact(stepContext, featureArtifacts.featureIntentsIce, []);
 
       const config = {
         apply: normalizeOperationSelectionForTest(
-          ecology.ops.applyFeatures,
-          ecology.ops.applyFeatures.defaultConfig
+          ecology.features.ops.applyFeatures,
+          ecology.features.ops.applyFeatures.defaultConfig
         ),
       };
-      const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
+      const ops = ecology.features.ops.bind(featuresApplyStep.contract.ops!).runtime;
 
       featuresApplyStep.run(
         stepContext,

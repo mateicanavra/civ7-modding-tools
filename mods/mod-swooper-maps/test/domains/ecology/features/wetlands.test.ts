@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import ecology from "@mapgen/domain/ecology/ops";
+import ecology from "@mapgen/domain/ecology/router";
 
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 
@@ -15,8 +15,8 @@ describe("planWetlands (joint resolver)", () => {
     const { width, height } = syntheticDimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
-      ecology.ops.planWetlands,
-      ecology.ops.planWetlands.defaultConfig
+      ecology.features.ops.planWetlands,
+      ecology.features.ops.planWetlands.defaultConfig
     );
 
     const scoreMarsh01 = new Float32Array(size);
@@ -39,7 +39,7 @@ describe("planWetlands (joint resolver)", () => {
     reserved[3] = 1;
     const habitat = broadWetlandHabitatFields(size);
 
-    const result = ecology.ops.planWetlands.run(
+    const result = ecology.features.ops.planWetlands.run(
       {
         width,
         height,
@@ -64,8 +64,8 @@ describe("planWetlands (joint resolver)", () => {
     const { width, height } = syntheticDimensions;
     const size = width * height;
     const selection = normalizeOperationSelectionForTest(
-      ecology.ops.planWetlands,
-      ecology.ops.planWetlands.defaultConfig
+      ecology.features.ops.planWetlands,
+      ecology.features.ops.planWetlands.defaultConfig
     );
 
     const input = {
@@ -81,8 +81,8 @@ describe("planWetlands (joint resolver)", () => {
       reserved: new Uint8Array(size),
     } as const;
 
-    const a = ecology.ops.planWetlands.run({ ...input, seed: 123 }, selection);
-    const b = ecology.ops.planWetlands.run({ ...input, seed: 987654 }, selection);
+    const a = ecology.features.ops.planWetlands.run({ ...input, seed: 123 }, selection);
+    const b = ecology.features.ops.planWetlands.run({ ...input, seed: 987654 }, selection);
     expect(b).toEqual(a);
   });
 });

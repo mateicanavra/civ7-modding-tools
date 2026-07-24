@@ -22,9 +22,16 @@ Scope: `mods/mod-swooper-maps/**`
 
 ## Ecology domain
 
-- Ecology ops live under `src/domain/ecology/ops`; step schemas should import op configs/defaults directly (no re-authored wrappers).
-- The biomes step publishes `artifact:ecology.biomeClassification` as immutable domain evidence. Projection readback artifacts remain diagnostic evidence; placement legality consumes one fresh terrain/biome/feature observation through its declared engine capabilities.
-- Pedology runs before biomes and shared feature scoring: `artifact:ecology.soils` feeds biome classification and the split feature-intent planners before the apply step writes features to the engine.
+- Ecology composes the `pedology`, `biomes`, `features`, and `plot-effects`
+  modules in causal order. Contracts consume the root domain, runtime recipe
+  composition consumes `@mapgen/domain/ecology/router`, and steps import
+  artifacts from the exact producing module catalog.
+- The biomes module publishes `artifact:ecology.biomeClassification` as
+  immutable domain evidence. Projection readback remains decision-local engine
+  observation rather than a second domain artifact authority.
+- Pedology runs before biomes and shared feature scoring:
+  `artifact:ecology.soils` feeds biome classification and the split
+  feature-intent planners before the apply step writes features to the engine.
 
 ## Canonical Docs
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import ecology from "@mapgen/domain/ecology/ops";
+import ecology from "@mapgen/domain/ecology/router";
 
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 
@@ -19,7 +19,7 @@ describe("ecology feature habitat eligibility", () => {
     const coastalWater = new Uint8Array([1, 0, 1, 1]);
     const distanceToCoast = new Uint16Array([1, 5, 1, 1]);
 
-    const reef = ecology.ops.scoreReef.run(
+    const reef = ecology.features.ops.scoreReef.run(
       {
         width,
         height,
@@ -30,9 +30,9 @@ describe("ecology feature habitat eligibility", () => {
         coastalWater,
         distanceToCoast,
       },
-      normalizeOperationSelectionForTest(ecology.ops.scoreReef, ecology.ops.scoreReef.defaultConfig)
+      normalizeOperationSelectionForTest(ecology.features.ops.scoreReef, ecology.features.ops.scoreReef.defaultConfig)
     ).score01;
-    const atoll = ecology.ops.scoreReefAtoll.run(
+    const atoll = ecology.features.ops.scoreReefAtoll.run(
       {
         width,
         height,
@@ -45,11 +45,11 @@ describe("ecology feature habitat eligibility", () => {
         distanceToCoast,
       },
       normalizeOperationSelectionForTest(
-        ecology.ops.scoreReefAtoll,
-        ecology.ops.scoreReefAtoll.defaultConfig
+        ecology.features.ops.scoreReefAtoll,
+        ecology.features.ops.scoreReefAtoll.defaultConfig
       )
     ).score01;
-    const lotus = ecology.ops.scoreReefLotus.run(
+    const lotus = ecology.features.ops.scoreReefLotus.run(
       {
         width,
         height,
@@ -62,11 +62,11 @@ describe("ecology feature habitat eligibility", () => {
         distanceToCoast,
       },
       normalizeOperationSelectionForTest(
-        ecology.ops.scoreReefLotus,
-        ecology.ops.scoreReefLotus.defaultConfig
+        ecology.features.ops.scoreReefLotus,
+        ecology.features.ops.scoreReefLotus.defaultConfig
       )
     ).score01;
-    const coldReef = ecology.ops.scoreColdReef.run(
+    const coldReef = ecology.features.ops.scoreColdReef.run(
       {
         width,
         height,
@@ -77,17 +77,17 @@ describe("ecology feature habitat eligibility", () => {
         coastalWater,
         distanceToCoast,
       },
-      normalizeOperationSelectionForTest(ecology.ops.scoreColdReef, {
-        ...ecology.ops.scoreColdReef.defaultConfig,
+      normalizeOperationSelectionForTest(ecology.features.ops.scoreColdReef, {
+        ...ecology.features.ops.scoreColdReef.defaultConfig,
         config: {
-          ...ecology.ops.scoreColdReef.defaultConfig.config,
+          ...ecology.features.ops.scoreColdReef.defaultConfig.config,
           minDepthM: 120,
           peakDepthM: 300,
           maxDepthM: 520,
         },
       })
     ).score01;
-    const abyssalColdReef = ecology.ops.scoreColdReef.run(
+    const abyssalColdReef = ecology.features.ops.scoreColdReef.run(
       {
         width,
         height,
@@ -99,8 +99,8 @@ describe("ecology feature habitat eligibility", () => {
         distanceToCoast,
       },
       normalizeOperationSelectionForTest(
-        ecology.ops.scoreColdReef,
-        ecology.ops.scoreColdReef.defaultConfig
+        ecology.features.ops.scoreColdReef,
+        ecology.features.ops.scoreColdReef.defaultConfig
       )
     ).score01;
 
@@ -132,7 +132,7 @@ describe("ecology feature habitat eligibility", () => {
     const aridWaterPointWater01 = new Float32Array(size).fill(0.7);
     const freezeIndex = new Float32Array(size).fill(0.8);
 
-    const marsh = ecology.ops.scoreWetMarsh.run(
+    const marsh = ecology.features.ops.scoreWetMarsh.run(
       {
         width,
         height,
@@ -144,11 +144,11 @@ describe("ecology feature habitat eligibility", () => {
         aridityIndex,
       },
       normalizeOperationSelectionForTest(
-        ecology.ops.scoreWetMarsh,
-        ecology.ops.scoreWetMarsh.defaultConfig
+        ecology.features.ops.scoreWetMarsh,
+        ecology.features.ops.scoreWetMarsh.defaultConfig
       )
     ).score01;
-    const bog = ecology.ops.scoreWetTundraBog.run(
+    const bog = ecology.features.ops.scoreWetTundraBog.run(
       {
         width,
         height,
@@ -160,11 +160,11 @@ describe("ecology feature habitat eligibility", () => {
         freezeIndex,
       },
       normalizeOperationSelectionForTest(
-        ecology.ops.scoreWetTundraBog,
-        ecology.ops.scoreWetTundraBog.defaultConfig
+        ecology.features.ops.scoreWetTundraBog,
+        ecology.features.ops.scoreWetTundraBog.defaultConfig
       )
     ).score01;
-    const mangrove = ecology.ops.scoreWetMangrove.run(
+    const mangrove = ecology.features.ops.scoreWetMangrove.run(
       {
         width,
         height,
@@ -176,11 +176,11 @@ describe("ecology feature habitat eligibility", () => {
         aridityIndex,
       },
       normalizeOperationSelectionForTest(
-        ecology.ops.scoreWetMangrove,
-        ecology.ops.scoreWetMangrove.defaultConfig
+        ecology.features.ops.scoreWetMangrove,
+        ecology.features.ops.scoreWetMangrove.defaultConfig
       )
     ).score01;
-    const oasis = ecology.ops.scoreWetOasis.run(
+    const oasis = ecology.features.ops.scoreWetOasis.run(
       {
         width,
         height,
@@ -191,8 +191,8 @@ describe("ecology feature habitat eligibility", () => {
         surfaceTemperature: mangroveTemperature,
       },
       normalizeOperationSelectionForTest(
-        ecology.ops.scoreWetOasis,
-        ecology.ops.scoreWetOasis.defaultConfig
+        ecology.features.ops.scoreWetOasis,
+        ecology.features.ops.scoreWetOasis.defaultConfig
       )
     ).score01;
 
@@ -213,7 +213,7 @@ describe("ecology feature habitat eligibility", () => {
     const landMask = new Uint8Array(size).fill(1);
     const fertility01 = new Float32Array(size).fill(0.6);
 
-    const taiga = ecology.ops.scoreVegetationTaiga.run(
+    const taiga = ecology.features.ops.scoreVegetationTaiga.run(
       {
         width,
         height,
@@ -226,12 +226,12 @@ describe("ecology feature habitat eligibility", () => {
         fertility01,
       },
       normalizeOperationSelectionForTest(
-        ecology.ops.scoreVegetationTaiga,
-        ecology.ops.scoreVegetationTaiga.defaultConfig
+        ecology.features.ops.scoreVegetationTaiga,
+        ecology.features.ops.scoreVegetationTaiga.defaultConfig
       )
     ).score01;
 
-    const sagebrush = ecology.ops.scoreVegetationSagebrushSteppe.run(
+    const sagebrush = ecology.features.ops.scoreVegetationSagebrushSteppe.run(
       {
         width,
         height,
@@ -244,8 +244,8 @@ describe("ecology feature habitat eligibility", () => {
         fertility01,
       },
       normalizeOperationSelectionForTest(
-        ecology.ops.scoreVegetationSagebrushSteppe,
-        ecology.ops.scoreVegetationSagebrushSteppe.defaultConfig
+        ecology.features.ops.scoreVegetationSagebrushSteppe,
+        ecology.features.ops.scoreVegetationSagebrushSteppe.defaultConfig
       )
     ).score01;
 

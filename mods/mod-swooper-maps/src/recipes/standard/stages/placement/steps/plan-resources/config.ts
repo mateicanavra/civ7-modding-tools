@@ -1,4 +1,5 @@
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import resources from "@mapgen/domain/resources";
@@ -28,8 +29,8 @@ export const PlanResourcesStepContract = defineStep({
       mapRiversArtifacts.projectedNavigableRivers,
       hydrologyArtifacts.climateIndices,
       hydrologyArtifacts.cryosphere,
-      ecologyArtifacts.biomeClassification,
-      ecologyArtifacts.pedology,
+      biomeArtifacts.biomeClassification,
+      pedologyArtifacts.pedology,
       placementArtifacts.landmassRegionSlotByTile,
     ],
     provides: [

@@ -1,6 +1,6 @@
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../../tag-contracts.js";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as plotEffectArtifacts } from "@mapgen/domain/ecology/modules/plot-effects/artifacts/index.js";
 
 /**
  * Plot-effect projection contract.
@@ -14,7 +14,7 @@ export const PlotEffectsStepContract = defineStep({
   requires: [],
   provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.plotEffectsApplied],
   artifacts: {
-    requires: [ecologyArtifacts.plotEffectPlan],
+    requires: [plotEffectArtifacts.plotEffectPlan],
   },
   schema: Type.Object(
     {},

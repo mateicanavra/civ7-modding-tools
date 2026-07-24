@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import ecology from "@mapgen/domain/ecology/ops";
+import ecology from "@mapgen/domain/ecology/router";
 import { normalizeOperationSelectionForTest } from "@swooper/mapgen-core/testing";
 
 // Deep-desert hazard: the sand channel emits abstract sand intent and co-places
@@ -10,13 +10,13 @@ const size = width * height;
 
 const runSandPlan = (sandConfig: Record<string, unknown>) => {
   const planSelection = normalizeOperationSelectionForTest(
-    ecology.ops.planPlotEffects,
+    ecology.plotEffects.ops.planPlotEffects,
     {
-      ...ecology.ops.planPlotEffects.defaultConfig,
+      ...ecology.plotEffects.ops.planPlotEffects.defaultConfig,
       config: {
-        ...ecology.ops.planPlotEffects.defaultConfig.config,
+        ...ecology.plotEffects.ops.planPlotEffects.defaultConfig.config,
         sand: {
-          ...ecology.ops.planPlotEffects.defaultConfig.config.sand,
+          ...ecology.plotEffects.ops.planPlotEffects.defaultConfig.config.sand,
           ...sandConfig,
         },
       },
@@ -28,7 +28,7 @@ const runSandPlan = (sandConfig: Record<string, unknown>) => {
   const sandScore01 = new Float32Array([0.9, 0.8, 0.7, 0.6]);
   const sandEligibleMask = new Uint8Array(size).fill(1);
 
-  return ecology.ops.planPlotEffects.run(
+  return ecology.plotEffects.ops.planPlotEffects.run(
     {
       width,
       height,

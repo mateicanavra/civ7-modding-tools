@@ -1,4 +1,4 @@
-import type { PlotEffectIntentKey } from "@mapgen/domain/ecology";
+import type { PlotEffectIntentKey } from "@mapgen/domain/ecology/modules/plot-effects/model/atoms/index.js";
 
 type PlotEffectVizSpec = Readonly<{
   value: number;

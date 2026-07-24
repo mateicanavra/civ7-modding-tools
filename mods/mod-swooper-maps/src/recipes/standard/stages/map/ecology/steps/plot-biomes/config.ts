@@ -1,4 +1,4 @@
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as biomeArtifacts } from "@mapgen/domain/ecology/modules/biomes/artifacts/index.js";
 import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
@@ -23,7 +23,7 @@ export const PlotBiomesStepContract = defineStep({
   ],
   artifacts: {
     requires: [
-      ecologyArtifacts.biomeClassification,
+      biomeArtifacts.biomeClassification,
       hydrologyArtifacts.climateIndices,
       morphologyArtifacts.topography,
     ],

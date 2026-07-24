@@ -1,4 +1,4 @@
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
 import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import placement from "@mapgen/domain/placement";
@@ -30,7 +30,7 @@ export const AssignStartsStepContract = defineStep({
       hydrologyArtifacts.climateIndices,
       hydrologyArtifacts.hydrography,
       hydrologyArtifacts.lakePlan,
-      ecologyArtifacts.pedology,
+      pedologyArtifacts.pedology,
     ],
     provides: [placementArtifacts.startAssignment],
   },

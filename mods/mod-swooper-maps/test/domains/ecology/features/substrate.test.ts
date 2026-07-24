@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import ecology from "@mapgen/domain/ecology/ops";
+import ecology from "@mapgen/domain/ecology/router";
 import {
   RIVER_CLASS_MAJOR,
   RIVER_CLASS_MINOR,
@@ -17,10 +17,10 @@ describe("ecology feature substrate", () => {
     navigableRiverMask[4] = 1;
 
     const selection = normalizeOperationSelectionForTest(
-      ecology.ops.computeFeatureSubstrate,
-      ecology.ops.computeFeatureSubstrate.defaultConfig
+      ecology.features.ops.computeFeatureSubstrate,
+      ecology.features.ops.computeFeatureSubstrate.defaultConfig
     );
-    const result = ecology.ops.computeFeatureSubstrate.run(
+    const result = ecology.features.ops.computeFeatureSubstrate.run(
       {
         width,
         height,
@@ -47,15 +47,15 @@ describe("ecology feature substrate", () => {
     const riverClass = new Uint8Array(size);
     riverClass[7] = RIVER_CLASS_MAJOR;
 
-    const selection = normalizeOperationSelectionForTest(ecology.ops.computeFeatureSubstrate, {
-      ...ecology.ops.computeFeatureSubstrate.defaultConfig,
+    const selection = normalizeOperationSelectionForTest(ecology.features.ops.computeFeatureSubstrate, {
+      ...ecology.features.ops.computeFeatureSubstrate.defaultConfig,
       config: {
-        ...ecology.ops.computeFeatureSubstrate.defaultConfig.config,
+        ...ecology.features.ops.computeFeatureSubstrate.defaultConfig.config,
         lowlandMaxElevationAboveSeaM: 80,
         floodplainDischargeMin: 96,
       },
     });
-    const result = ecology.ops.computeFeatureSubstrate.run(
+    const result = ecology.features.ops.computeFeatureSubstrate.run(
       {
         width,
         height,

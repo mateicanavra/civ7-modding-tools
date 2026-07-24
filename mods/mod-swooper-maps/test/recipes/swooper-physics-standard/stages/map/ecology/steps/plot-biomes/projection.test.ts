@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
-import { artifacts as ecologyArtifacts } from "@mapgen/domain/ecology";
-import ecology from "@mapgen/domain/ecology/ops";
+import { artifacts as pedologyArtifacts } from "@mapgen/domain/ecology/modules/pedology/artifacts/index.js";
+import ecology from "@mapgen/domain/ecology/router";
 import { artifacts as hydrologyArtifacts } from "@mapgen/domain/hydrology";
 import { artifacts as morphologyArtifacts } from "@mapgen/domain/morphology";
 import { admitMapSetup, createMapContext } from "@swooper/mapgen-core";
@@ -63,7 +63,7 @@ describe("plot biomes step", () => {
         aridityIndex: new Float32Array(size).fill(0.2),
         freezeIndex: new Float32Array(size).fill(0.05),
       });
-      publishTestArtifact(stepContext, ecologyArtifacts.pedology, {
+      publishTestArtifact(stepContext, pedologyArtifacts.pedology, {
         width,
         height,
         soilType: new Uint8Array(size).fill(0),
@@ -71,10 +71,10 @@ describe("plot biomes step", () => {
       });
 
       const classifyConfig = normalizeOperationSelectionForTest(
-        ecology.ops.classifyBiomes,
-        ecology.ops.classifyBiomes.defaultConfig
+        ecology.biomes.ops.classifyBiomes,
+        ecology.biomes.ops.classifyBiomes.defaultConfig
       );
-      const ecologyOps = ecology.ops.bind(biomesStep.contract.ops!).runtime;
+      const ecologyOps = ecology.biomes.ops.bind(biomesStep.contract.ops!).runtime;
       biomesStep.run(
         stepContext,
         { classify: classifyConfig },

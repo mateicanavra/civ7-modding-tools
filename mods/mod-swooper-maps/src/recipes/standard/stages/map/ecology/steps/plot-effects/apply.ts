@@ -1,5 +1,5 @@
 import type { PlotEffectKey } from "@civ7/map-policy";
-import type { PlotEffectIntentKey } from "@mapgen/domain/ecology";
+import type { PlotEffectIntentKey } from "@mapgen/domain/ecology/modules/plot-effects/model/atoms/index.js";
 
 /**
  * Exhaustive projection from Ecology plot-effect intent to Civ7 runtime keys. Keeping this map
